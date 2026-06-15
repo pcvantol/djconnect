@@ -4,8 +4,8 @@
 
 - Repository: `pcvantol/djconnect`.
 - Integration domain: `djconnect`.
-- Current integration release: `3.1.24`.
-- Release status: DJConnect `3.1.24` is the current released baseline.
+- Current integration release: `3.1.32`.
+- Release status: DJConnect `3.1.32` is the current released baseline; the working tree contains unreleased DJ announcement/STT visibility fixes.
 - Home Assistant integration is HACS-distributed and MIT-licensed.
 - ESP firmware source remains proprietary in `pcvantol/djconnect-app`.
 - Public firmware release assets live in `pcvantol/djconnect-firmware`.
@@ -102,6 +102,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Spotify access tokens are cached in Home Assistant until shortly before expiry. Normal access-token expiry must refresh on demand and retry once after Spotify API `401`; this must stay invisible to ESP/iOS/macOS/Raspberry Pi clients.
 - Spotify refresh-token rotation must be handled silently. If Spotify rejects a refresh token, HA must retry any newer stored runtime/config-entry/config refresh token before creating a Repair issue.
 - Spotify `invalid_grant` / revoked refresh tokens only produce a user-friendly reauthorize/Repair flow after every known stored refresh token has failed.
+- Startup/pairing repair checks must look at both config entry data and options before creating missing Spotify token/client/scope issues, so a newly paired client does not immediately show a false Spotify repair.
 - Repair flow must open Spotify OAuth and may only close as fixed after a new/missing refresh token is stored, not merely because an old token exists.
 - Options flow also has a “Spotify opnieuw autoriseren” action using the same callback storage path.
 - Token sent by HA to ESP in `POST /api/device/pair` must be exactly the token accepted by HA `/status`, `/command` and `/voice`.
@@ -119,6 +120,8 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - HA STT provider selection uses `stt_engine` first, then Assist pipeline/default/fallbacks.
 - DJ response tone is configured with one free-form `dj_response_prompt`; old fixed `dj_style` / `dj_profile` choices are removed and must not be reintroduced.
 - The Assist command-parser prompt must not include `dj_response_prompt`; use it only after Spotify resolution/playback when generating the spoken DJ response.
+- STT fuzzy correction and AI DJ announcement generation use the configured conversation agent when present, otherwise Home Assistant's default conversation agent. Only fall back to local copy when the conversation response is unavailable or blocked by prompt-leak/device-lookup guardrails.
+- Dutch DJ announcement prompts instruct Assist/TTS to pronounce English artist, album and track names in English inside Dutch copy.
 - Options flow clears a stale provider-specific `tts_voice` when the selected TTS engine changes and no longer supports that voice.
 - Text-only `/api/djconnect/voice` is a DJ response test and must not trigger Spotify playback parsing.
 - Raw WAV `/api/djconnect/voice` is the real STT + command + playback path.
@@ -132,7 +135,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 ## Current Release Notes
 
 - Current release line is `3.1.x`; only the latest GitHub release/tag should be kept after release cleanup.
-- Current latest baseline is `3.1.24`.
+- Current latest baseline is `3.1.32`.
 - Release workflow expectation: before every release, review and update all repo documentation affected by the change or release, including `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `info.md` and relevant `examples/*`. Explicitly decide whether test coverage must be expanded for the change; add coverage for new behavior paths, regression risks, translations and edge cases. After publishing a release, clean up old semver releases/tags with `./cleanup_old_releases.sh --keep 1 --execute` unless multiple releases are intentionally retained.
 - Before build/test/release validation, check whether third-party libraries, frameworks and build tools can be safely upgraded. If any version is upgraded, update lockfiles/manifests, `THIRD_PARTY_NOTICES.md` and dependency/design documentation in the same release. If an upgrade is skipped, record the reason here.
 - For the current Spotify intent-parser change, no third-party library/framework/tool versions were upgraded; `THIRD_PARTY_NOTICES.md` remains unchanged.
@@ -174,8 +177,9 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - `select.djconnect_sound_output` refreshes Spotify output devices itself and accepts `available_outputs`, `outputs`, `devices` and nested `items` aliases.
 - Playback proxy exposes album art through `album_image_url`, `media_image_url`, `image_url` and `entity_picture` aliases.
 - Voice debug is opt-in via debug logging: when `custom_components.djconnect` debug logging is enabled, HA stores the last raw ESP WAV in memory and exposes it at authenticated URL `/api/djconnect/debug/last_voice.wav`.
-- PTT/debug metadata is exposed as attributes on `sensor.djconnect_status` and `sensor.djconnect_last_command`, including last STT text, corrected text when changed, Spotify search summary and resolved media metadata.
+- PTT/debug metadata is exposed as attributes on `sensor.djconnect_status`, `sensor.djconnect_last_command` and `sensor.djconnect_last_corrected_stt`, including last STT text, corrected text when changed, Spotify search summary and resolved media metadata.
 - Developer Actions use explicit UI field names `command_text` and `dj_response_text`; legacy `text` remains accepted for existing YAML/scripts.
+- Developer Actions also register explicit runtime service schemas so Home Assistant Developer Tools keeps the text fields visible after service metadata refreshes.
 - If HA Assist treats the DJConnect parsing prompt as a smart-home device command, DJConnect falls back to a simple Spotify search intent instead of raising a websocket script exception.
 - `SYNC_PROMPTS.md` is the only canonical sync prompt bundle and includes the ESP, HA, Apple app and product website contracts.
 - Spotify OAuth callback stores tokens even if an options flow is already closed and `UnknownFlow` occurs.

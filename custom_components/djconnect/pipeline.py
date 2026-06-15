@@ -41,10 +41,6 @@ async def correct_stt_text_with_assist(
         return original
 
     assist_context = _assist_context(hass, conf)
-    if not assist_context.get("agent_id"):
-        _LOGGER.debug("DJConnect STT correction skipped: no conversation agent")
-        return original
-
     language = assist_context.get("language") or DEFAULT_TTS_LANGUAGE
     prompt = _stt_correction_prompt(original, str(language))
     data = {"text": prompt, "language": language}
@@ -232,6 +228,8 @@ async def generate_dj_response_with_assist(
     text = (
         "Je schrijft alleen een korte gesproken DJ response voor het DJConnect device. "
         "Dit is geen Home Assistant apparaatopdracht. Bedien geen apparaten. "
+        "Spreek Engelstalige artiesten, albums en nummers op z'n Engels uit, ook binnen "
+        "een Nederlandse zin. "
         f"{prompt}\n\nMedia:\n{media_lines}\n\n"
         "Antwoord alleen met de tekst die uitgesproken moet worden. Geen JSON, geen uitleg, geen URI."
         if str(language).lower().startswith("nl")
@@ -243,22 +241,6 @@ async def generate_dj_response_with_assist(
     )
     if debug is not None:
         debug["prompt"] = text
-    if not assist_context.get("agent_id"):
-        if debug is not None:
-            debug.update(
-                {
-                    "fallback_used": True,
-                    "block_reason": "no conversation agent",
-                }
-            )
-        _ROOT_LOGGER.debug(
-            "DJConnect Assist DJ response prompt skipped language=%s agent_id=%s pipeline_id=%s prompt=%r",
-            language,
-            assist_context.get("agent_id"),
-            assist_context.get("pipeline_id"),
-            text,
-        )
-        return fallback_text
     try:
         _ROOT_LOGGER.debug(
             "DJConnect Assist DJ response prompt language=%s agent_id=%s pipeline_id=%s prompt=%r",

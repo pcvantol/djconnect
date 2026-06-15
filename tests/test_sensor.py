@@ -134,6 +134,7 @@ class DJConnectSensorTest(unittest.TestCase):
         self.assertNotIn("screen_state", keys)
         self.assertNotIn("led_state", keys)
         self.assertIn("status", keys)
+        self.assertIn("last_corrected_stt", keys)
         self.assertIn("queue", keys)
         self.assertIn("playback_available", keys)
 
@@ -314,6 +315,33 @@ class DJConnectSensorTest(unittest.TestCase):
         entity._handle_runtime_update()
 
         self.assertEqual(entity.write_count, 2)
+
+    def test_last_corrected_stt_sensor_keeps_cached_value_when_runtime_becomes_empty(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            last_text="speel nummer Lithium van Nirvana",
+            last_stt_text="speel nummer litiem van nervana",
+            last_corrected_text="speel nummer Lithium van Nirvana",
+            listeners=[],
+        )
+        entity = self.sensor.DJConnectLastCorrectedSttSensor(runtime)
+
+        self.assertTrue(entity.available)
+        self.assertEqual(entity.native_value, "speel nummer Lithium van Nirvana")
+        self.assertEqual(
+            entity.extra_state_attributes["last_stt_text"],
+            "speel nummer litiem van nervana",
+        )
+
+        runtime.last_corrected_text = None
+        runtime.last_stt_text = None
+        runtime.last_text = None
+
+        self.assertEqual(entity.native_value, "speel nummer Lithium van Nirvana")
+        self.assertEqual(
+            entity.extra_state_attributes["full_value"],
+            "speel nummer Lithium van Nirvana",
+        )
 
     def test_last_command_sensor_restores_persisted_dj_response_text(self) -> None:
         runtime = types.SimpleNamespace(

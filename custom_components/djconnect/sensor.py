@@ -21,6 +21,7 @@ async def async_setup_entry(
     entities = [
         DJConnectStatusSensor(runtime),
         DJConnectLastTextSensor(runtime),
+        DJConnectLastCorrectedSttSensor(runtime),
         DJConnectFirmwareSensor(runtime),
         DJConnectLastTrackSensor(runtime),
         DJConnectSpotifyStatusSensor(runtime),
@@ -155,6 +156,53 @@ class DJConnectLastTextSensor(DJConnectBaseSensor):
             "last_intent": getattr(self.runtime, "last_intent", None),
             "last_spotify_search": getattr(self.runtime, "last_spotify_search", None),
             "last_resolved_media": getattr(self.runtime, "last_resolved_media", None),
+        }
+
+
+class DJConnectLastCorrectedSttSensor(DJConnectBaseSensor):
+    _attr_translation_key = "last_corrected_stt"
+    _attr_unique_id = "djconnect_last_corrected_stt"
+
+    def __init__(self, runtime) -> None:
+        super().__init__(runtime)
+        self._last_value = _safe_text_state(getattr(runtime, "last_corrected_text", None))
+        self._last_runtime_update_state: tuple | None = None
+
+    @callback
+    def _handle_runtime_update(self) -> None:
+        current = self._runtime_update_state()
+        if current == self._last_runtime_update_state:
+            return
+        self._last_runtime_update_state = current
+        self.async_write_ha_state()
+
+    def _runtime_update_state(self) -> tuple:
+        return (
+            self.native_value,
+            getattr(self.runtime, "last_corrected_text", None),
+            getattr(self.runtime, "last_stt_text", None),
+            getattr(self.runtime, "last_text", None),
+        )
+
+    @property
+    def native_value(self):
+        value = _safe_text_state(getattr(self.runtime, "last_corrected_text", None))
+        if value not in (None, ""):
+            self._last_value = value
+        return self._last_value
+
+    @property
+    def available(self) -> bool:
+        return True
+
+    @property
+    def extra_state_attributes(self):
+        full_value = getattr(self.runtime, "last_corrected_text", None) or self._last_value
+        return {
+            "full_value": full_value,
+            "state_truncated": _is_long_text_state(full_value),
+            "last_stt_text": getattr(self.runtime, "last_stt_text", None),
+            "last_text": getattr(self.runtime, "last_text", None),
         }
 
 class DJConnectBatterySensor(DJConnectBaseSensor):

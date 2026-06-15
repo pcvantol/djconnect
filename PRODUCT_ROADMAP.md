@@ -15,7 +15,7 @@ local/Home Assistant product versus optional premium features.
 
 ## Product Proposition
 
-DJConnect. Jouw persoonlijke muziek DJ.
+DJConnect. Muziekbediening met karakter.
 
 Core promise:
 
@@ -229,6 +229,9 @@ Every release must review this roadmap.
 
 - [x] Expanded Dutch/English local fallback parser for explicit artist, track,
   album, playlist and default-playlist commands (3.1, HA).
+- [x] Guarded post-STT fuzzy correction for likely English artist, track,
+  album and playlist recognition mistakes before Spotify intent parsing
+  (3.1, HA).
 - [ ] Parsed intent debug attributes: media type, query, artist, title,
   playlist, market and Spotify result.
 - [ ] Correction/follow-up commands: "niet deze", "de live versie", "meer zoals

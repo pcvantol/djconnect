@@ -95,6 +95,8 @@ Pattern:
   structured data or produces an implausibly long response.
 - `last_stt_text` keeps the raw transcript and `last_corrected_text` records
   the corrected command only when it changed.
+- If no explicit Assist conversation agent is configured, the helper calls
+  Home Assistant's default conversation agent instead of skipping correction.
 
 Primary source files:
 
@@ -109,6 +111,37 @@ Why:
   external AI dependencies.
 - Guardrails prevent prompt leaks or smart-home device lookup errors from
   becoming Spotify queries or user-facing DJ announcement text.
+
+### Generated DJ Announcement With Guarded Fallback
+
+Pattern:
+
+- `generate_dj_response_with_assist(...)` asks Home Assistant conversation for
+  the spoken DJ announcement after Spotify intent/playback has resolved media
+  metadata.
+- The configured `dj_response_prompt` is used only in this response-generation
+  step, never in Spotify intent parsing.
+- The helper uses the configured conversation agent when present, otherwise
+  Home Assistant's default conversation agent.
+- Dutch prompts include an instruction to pronounce English artist, album and
+  track names in English inside Dutch sentences.
+- Prompt leaks, Spotify URIs, structured dictionaries and Home Assistant
+  device-lookup errors are blocked before they can be sent to a device.
+
+Primary source files:
+
+- `custom_components/djconnect/pipeline.py`
+- `custom_components/djconnect/processor.py`
+
+Why:
+
+- Keeps the DJ announcement generative when the user configured a default AI
+  conversation agent but did not explicitly select an Assist pipeline in
+  DJConnect.
+- Prevents the local "Daar is ..." fallback from hiding normal AI response
+  generation.
+- Keeps the fallback deterministic and safe when HA Assist cannot produce a
+  usable spoken response.
 
 ### Merge-Only Device Status Cache
 
@@ -323,6 +356,9 @@ Why:
 - Access-token refresh is automatic, but OAuth reauthorization cannot be done
   silently when Spotify revokes the refresh token.
 - Repairs keep unavoidable user action inside native Home Assistant UX.
+- Repair prerequisites read both config entry data and options so newly paired
+  clients do not create false missing-token/client/scope issues when credentials
+  are stored outside the primary data dict.
 
 ### Localized Safe Fallback Copy
 
@@ -454,10 +490,15 @@ Pattern:
 
 - `services.yaml` documents developer/test services such as Spotify OAuth,
   command tests and TTS tests.
+- `DEVELOPER_SERVICE_SCHEMAS` in `__init__.py` registers matching runtime
+  schemas for the same services, including the explicit `command_text` and
+  `dj_response_text` fields plus the legacy `text` alias.
 
 Why:
 
 - Home Assistant's Developer Actions UI reads this metadata.
+- Runtime schemas keep fields visible when Home Assistant refreshes service
+  metadata after the action selector has already rendered.
 
 ### Firmware Manifest Example
 

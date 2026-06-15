@@ -211,6 +211,9 @@
       "last_command": {
         "name": "Last command"
       },
+      "last_corrected_stt": {
+        "name": "Last corrected STT"
+      },
       "battery": {
         "name": "Battery"
       },

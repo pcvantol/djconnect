@@ -62,7 +62,7 @@ SPOTIFY_REPAIR_EXTERNAL_TEXT = {
 
 
 async def async_create_fixable_issues(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    if not entry.data.get(CONF_DEVICE_TOKEN):
+    if not _entry_value(entry, CONF_DEVICE_TOKEN):
         ir.async_create_issue(
             hass,
             DOMAIN,
@@ -71,7 +71,7 @@ async def async_create_fixable_issues(hass: HomeAssistant, entry: ConfigEntry) -
             severity=ir.IssueSeverity.WARNING,
             translation_key="missing_device_token",
         )
-    if not entry.data.get(CONF_SPOTIFY_CLIENT_ID):
+    if not _entry_value(entry, CONF_SPOTIFY_CLIENT_ID):
         ir.async_create_issue(
             hass,
             DOMAIN,
@@ -80,7 +80,7 @@ async def async_create_fixable_issues(hass: HomeAssistant, entry: ConfigEntry) -
             severity=ir.IssueSeverity.WARNING,
             translation_key="missing_spotify_client_id",
         )
-    if not entry.data.get(CONF_SPOTIFY_REFRESH_TOKEN):
+    if not _entry_value(entry, CONF_SPOTIFY_REFRESH_TOKEN):
         ir.async_create_issue(
             hass,
             DOMAIN,
@@ -90,7 +90,7 @@ async def async_create_fixable_issues(hass: HomeAssistant, entry: ConfigEntry) -
             severity=ir.IssueSeverity.WARNING,
             translation_key="missing_spotify_refresh_token",
         )
-    if missing_spotify_scopes(entry.data.get(CONF_SPOTIFY_SCOPES)):
+    if missing_spotify_scopes(_entry_value(entry, CONF_SPOTIFY_SCOPES)):
         ir.async_create_issue(
             hass,
             DOMAIN,
@@ -100,6 +100,13 @@ async def async_create_fixable_issues(hass: HomeAssistant, entry: ConfigEntry) -
             severity=ir.IssueSeverity.WARNING,
             translation_key="missing_spotify_oauth_scopes",
         )
+
+
+def _entry_value(entry: ConfigEntry, key: str) -> Any:
+    """Return config entry data/options value for repair prerequisites."""
+    data = getattr(entry, "data", {}) or {}
+    options = getattr(entry, "options", {}) or {}
+    return data.get(key) or options.get(key)
 
 
 async def async_create_fix_flow(

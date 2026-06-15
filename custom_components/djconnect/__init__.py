@@ -8,6 +8,7 @@ import secrets
 from dataclasses import dataclass, field
 from typing import Any
 
+import voluptuous as vol
 from aiohttp import ClientTimeout
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
@@ -171,6 +172,9 @@ def _cache_runtime_last_values(runtime: Any) -> None:
     last_dj_text = getattr(runtime, "last_dj_text", None)
     if last_dj_text not in (None, ""):
         status["last_dj_text"] = str(last_dj_text)
+    last_corrected_text = getattr(runtime, "last_corrected_text", None)
+    if last_corrected_text not in (None, ""):
+        status["last_corrected_text"] = str(last_corrected_text)
     last_track = _runtime_last_track_value(runtime)
     if last_track:
         status["last_track"] = last_track
@@ -187,6 +191,10 @@ class DJConnectRuntime:
     last_dj_response_at: float | None = None
     last_error: str | None = None
     last_playback: dict[str, Any] | None = None
+    last_stt_text: str | None = None
+    last_corrected_text: str | None = None
+    last_spotify_search: dict[str, Any] | None = None
+    last_resolved_media: dict[str, Any] | None = None
     device_status: dict[str, Any] = field(default_factory=dict)
     device_token: str | None = None
     pairing_code: str | None = None
@@ -881,6 +889,60 @@ def _service_text(call: ServiceCall, default: str, *aliases: str) -> str:
     return str(default).strip()
 
 
+def _developer_service_schema(fields: dict[Any, Any]):
+    """Build a service schema while keeping lightweight test stubs compatible."""
+    allow_extra = getattr(vol, "ALLOW_EXTRA", None)
+    if allow_extra is None:
+        return vol.Schema(fields)
+    return vol.Schema(fields, extra=allow_extra)
+
+
+DEVELOPER_SERVICE_SCHEMAS = {
+    "test_parse": _developer_service_schema(
+        {
+            vol.Optional("command_text"): str,
+            vol.Optional("text"): str,
+        }
+    ),
+    "test_tts": _developer_service_schema(
+        {
+            vol.Optional("dj_response_text"): str,
+            vol.Optional("text"): str,
+        }
+    ),
+    "test_command": _developer_service_schema(
+        {
+            vol.Optional("command_text"): str,
+            vol.Optional("text"): str,
+            vol.Optional("play", default=True): bool,
+        }
+    ),
+    "test_ptt_text": _developer_service_schema(
+        {
+            vol.Optional("command_text"): str,
+            vol.Optional("text"): str,
+        }
+    ),
+    "start_spotify_oauth": _developer_service_schema(
+        {
+            vol.Optional("client_id"): str,
+            vol.Optional("ha_base_url"): str,
+            vol.Optional("market"): str,
+            vol.Optional("scopes"): str,
+        }
+    ),
+    "device_command": _developer_service_schema(
+        {
+            vol.Required("command"): str,
+            vol.Optional("payload"): dict,
+        }
+    ),
+    "refresh_device_info": _developer_service_schema({}),
+    "reboot_device": _developer_service_schema({}),
+    "forget_device": _developer_service_schema({}),
+}
+
+
 async def async_speak_dj_test(
     hass: HomeAssistant,
     runtime: DJConnectRuntime,
@@ -1197,6 +1259,7 @@ def _register_developer_services(
             DOMAIN,
             service_name,
             handler,
+            schema=DEVELOPER_SERVICE_SCHEMAS.get(service_name),
             supports_response=response_mode,
         )
         _LOGGER.debug(

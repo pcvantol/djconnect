@@ -162,6 +162,31 @@ class AssistPipelineTest(unittest.TestCase):
 
         self.assertEqual(text, "speel nervana")
 
+    def test_correct_stt_text_with_assist_uses_default_conversation_agent(self) -> None:
+        calls = []
+
+        class Services:
+            async def async_call(self, domain, service, data, **kwargs):
+                calls.append(data)
+                return {
+                    "response": {
+                        "speech": {"plain": {"speech": "speel Nirvana"}}
+                    }
+                }
+
+        hass = types.SimpleNamespace(services=Services())
+        text = asyncio.run(
+            self.pipeline.correct_stt_text_with_assist(
+                hass,
+                "speel nervana",
+                {"tts_language": "nl-NL"},
+            )
+        )
+
+        self.assertEqual(text, "speel Nirvana")
+        self.assertEqual(calls[0]["language"], "nl-NL")
+        self.assertNotIn("agent_id", calls[0])
+
     def test_generate_dj_response_with_assist_uses_custom_response_prompt(self) -> None:
         calls = []
 
@@ -381,10 +406,21 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertIn("Noem de artiest", debug["prompt"])
         self.assertIn("Red Hot Chili Peppers", debug["generated_text"])
 
-    def test_generate_dj_response_skips_assist_without_conversation_agent(self) -> None:
+    def test_generate_dj_response_uses_default_conversation_agent(self) -> None:
+        calls = []
+
         class Services:
             async def async_call(self, domain, service, data, **kwargs):
-                raise AssertionError("DJ response should not call default HA Assist")
+                calls.append(data)
+                return {
+                    "response": {
+                        "speech": {
+                            "plain": {
+                                "speech": "Nirvana, rauw en recht uit Seattle, komt eraan."
+                            }
+                        }
+                    }
+                }
 
         hass = types.SimpleNamespace(services=Services())
         debug = {}
@@ -402,10 +438,13 @@ class AssistPipelineTest(unittest.TestCase):
                 )
             )
 
-        self.assertEqual(text, "Daar is Nirvana.")
-        self.assertTrue(debug["fallback_used"])
-        self.assertEqual(debug["block_reason"], "no conversation agent")
-        self.assertTrue(any("DJ response prompt skipped" in line for line in logs.output))
+        self.assertEqual(text, "Nirvana, rauw en recht uit Seattle, komt eraan.")
+        self.assertEqual(calls[0]["language"], "nl-NL")
+        self.assertNotIn("agent_id", calls[0])
+        self.assertFalse(debug["fallback_used"])
+        self.assertIsNone(debug["block_reason"])
+        self.assertTrue(any("DJ response prompt" in line for line in logs.output))
+        self.assertTrue(any("agent_id=None" in line for line in logs.output))
 
     def test_ordinary_artist_dj_response_is_usable(self) -> None:
         self.assertTrue(

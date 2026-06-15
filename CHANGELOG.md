@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.1.33
+
+- Let AI DJ announcement generation use Home Assistant's default conversation agent when no explicit Assist pipeline conversation agent is configured, instead of immediately falling back to the local "Daar is ..." response.
+- Let the guarded post-STT correction step use Home Assistant's default conversation agent when no explicit Assist pipeline conversation agent is configured.
+- Add Dutch DJ announcement prompt guidance so English artist, album and track names are spoken in English inside Dutch DJ announcements.
+- Add a push-only `last_corrected_stt` sensor with cached last-value behavior, while keeping corrected STT metadata on the status and last-command sensor attributes.
+- Register explicit runtime schemas for DJConnect developer actions so Home Assistant Developer Tools keeps the `command_text` / `dj_response_text` fields visible after service metadata refreshes.
+- Prevent false Spotify token repair issues after pairing when Spotify credentials are available from config entry options rather than only from entry data.
+- Add regression coverage for default conversation-agent DJ announcements, default conversation-agent STT correction and the new corrected-STT sensor.
+
 ## 3.1.32
 
 - Add an opt-in HA Assist fuzzy-correction step after STT and before Spotify intent parsing for physical/developer PTT flows, so common STT mistakes in English artist, track, album and playlist names can be corrected before search.
