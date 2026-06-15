@@ -57,7 +57,14 @@ async def handle_spotify_command(
     if normalized == "queue":
         return {"success": True, **await backend.queue()}
     if normalized == "playlists":
-        return {"success": True, "playlists": await backend.playlists(limit=_playlist_limit(value))}
+        playlists = await backend.playlists(limit=_playlist_limit(value))
+        return {
+            "success": True,
+            "backend_available": True,
+            "playlists": playlists,
+            "items": playlists,
+            "count": len(playlists),
+        }
     if normalized == "pause":
         await backend.pause()
         return {"success": True, "playback": await backend.playback_state()}

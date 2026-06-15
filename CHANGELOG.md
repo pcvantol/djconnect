@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.34
+
+- Restore robust playlist responses for DJConnect clients by always returning playlist aliases (`playlists`, `items`, `count`) and preserving request `client_type`/`limit` context even when clients send a `value` object.
+- Add regression coverage for app/ESP playlist command response aliases and merged playlist command options.
+
 ## 3.1.33
 
 - Let AI DJ announcement generation use Home Assistant's default conversation agent when no explicit Assist pipeline conversation agent is configured, instead of immediately falling back to the local "Daar is ..." response.

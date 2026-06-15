@@ -788,6 +788,8 @@ def _backend_unavailable_payload(
             "message": "Playback backend unavailable",
             "backend_available": False,
             "playlists": [],
+            "items": [],
+            "count": 0,
         }
     return {
         "success": False,
@@ -796,6 +798,32 @@ def _backend_unavailable_payload(
         "backend_available": False,
         "playback": getattr(runtime, "last_playback", None) or {},
     }
+
+
+def _playlist_command_value(data: dict[str, Any], client_type: str) -> dict[str, Any]:
+    """Build canonical playlist command options for all client payload shapes."""
+    request_limit = data.get("limit")
+    value = data.get("value")
+    if isinstance(value, dict):
+        merged = dict(value)
+        merged.setdefault("client_type", client_type)
+        if request_limit is not None and merged.get("limit") in (None, ""):
+            merged["limit"] = request_limit
+        return merged
+    if value not in (None, ""):
+        return {"client_type": client_type, "limit": value}
+    return {"client_type": client_type, "limit": request_limit}
+
+
+def _with_playlist_aliases(result: dict[str, Any]) -> dict[str, Any]:
+    """Expose playlist lists under stable aliases used by app and ESP clients."""
+    playlists = result.get("playlists")
+    if not isinstance(playlists, list):
+        playlists = result.get("items") if isinstance(result.get("items"), list) else []
+    result["playlists"] = playlists
+    result.setdefault("items", playlists)
+    result.setdefault("count", len(playlists))
+    return result
 
 
 async def _send_failure_dj_response(
@@ -1094,11 +1122,9 @@ class DJConnectCommandView(HomeAssistantView):
             command,
         )
         command_value = data.get("value")
-        if command.lower() == "playlists" and command_value is None:
-            command_value = {
-                "client_type": client_type,
-                "limit": data.get("limit"),
-            }
+        normalized_command = command.lower()
+        if normalized_command == "playlists":
+            command_value = _playlist_command_value(data, client_type)
         try:
             result = await handle_spotify_command(
                 hass,
@@ -1111,6 +1137,8 @@ class DJConnectCommandView(HomeAssistantView):
             if result.get("success"):
                 result.setdefault("backend_available", True)
                 runtime.device_status["backend_available"] = True
+            if normalized_command == "playlists":
+                _with_playlist_aliases(result)
             return self.json(result)
         except ValueError as exc:
             return _json_error(self, "invalid_command", 400, str(exc))

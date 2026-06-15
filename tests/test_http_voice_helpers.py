@@ -2029,6 +2029,58 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 }
             ],
         )
+        self.assertEqual(response["payload"]["items"], response["payload"]["playlists"])
+        self.assertEqual(response["payload"]["count"], 1)
+
+    def test_command_view_playlists_merges_client_context_from_value(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+        seen_values = []
+
+        class Runtime:
+            device_token = "device-token"
+            device_status = {"device_id": "djconnect-macos-68B74487726D"}
+            config = {}
+
+            def authorize_device_request(self, headers, body_device_id=None):
+                return True
+
+            def update(self, **kwargs):
+                self.last_update = kwargs
+
+        runtime = Runtime()
+
+        async def command_handler(hass, runtime_arg, command, value=None, *, play=None):
+            seen_values.append(value)
+            return {
+                "success": True,
+                "playlists": [],
+            }
+
+        class Request:
+            headers = {"Authorization": "Bearer device-token"}
+            app = {"hass": types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})}
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-macos-68B74487726D",
+                    "client_type": "macos",
+                    "command": "playlists",
+                    "limit": 80,
+                    "value": {},
+                }
+
+        original = self.http.handle_spotify_command
+        self.http.handle_spotify_command = command_handler
+        try:
+            response = asyncio.run(self.http.DJConnectCommandView(None).post(Request()))
+        finally:
+            self.http.handle_spotify_command = original
+
+        self.assertEqual(response["status_code"], 200)
+        self.assertEqual(seen_values, [{"client_type": "macos", "limit": 80}])
+        self.assertEqual(response["payload"]["playlists"], [])
+        self.assertEqual(response["payload"]["items"], [])
+        self.assertEqual(response["payload"]["count"], 0)
 
     def test_command_view_playlists_backend_failure_returns_non_empty_body(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
@@ -2072,6 +2124,8 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertEqual(response["payload"]["error"], "playback_backend_unavailable")
         self.assertEqual(response["payload"]["message"], "Playback backend unavailable")
         self.assertEqual(response["payload"]["playlists"], [])
+        self.assertEqual(response["payload"]["items"], [])
+        self.assertEqual(response["payload"]["count"], 0)
 
     def test_command_view_returns_backend_unavailable_json(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")

@@ -852,6 +852,9 @@ class SpotifyBackendTest(unittest.TestCase):
             self.backend.async_get_clientsession = original_clientsession
 
         playlist = result["playlists"][0]
+        self.assertTrue(result["backend_available"])
+        self.assertEqual(result["items"], result["playlists"])
+        self.assertEqual(result["count"], 1)
         self.assertEqual(playlist["id"], "spotify:playlist:default")
         self.assertEqual(playlist["image_url"], "https://example.test/playlist-large.jpg")
         self.assertEqual(playlist["imageUrl"], "https://example.test/playlist-large.jpg")
@@ -924,6 +927,8 @@ class SpotifyBackendTest(unittest.TestCase):
             self.backend.async_get_clientsession = original_clientsession
 
         self.assertEqual(len(result["playlists"]), 20)
+        self.assertEqual(result["items"], result["playlists"])
+        self.assertEqual(result["count"], 20)
         self.assertTrue(any("/me/playlists?limit=20" in url for url in requested_urls))
 
     def test_play_context_at_artist_context_plays_track_without_offset(self) -> None:
