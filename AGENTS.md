@@ -59,7 +59,7 @@ Licentie/commercieel:
 HA integration:
 - domain: `djconnect`
 - HACS custom integration.
-- Actuele integratieversie: `3.1.37`.
+- Actuele integratieversie: `3.1.38`.
 - Config flow moet blijven laden.
 - Config flow moet vóór pairing controleren dat de officiële Home Assistant Spotify integratie minstens één Spotify `media_player` entity heeft; ontbreekt die, toon een duidelijke vertaalde foutmelding in plaats van stil verder te gaan.
 - Spotify OAuth gebruikt een HA external step en opent de Spotify website.
@@ -162,9 +162,9 @@ Firmware releases:
 
 README/release:
 - README moet actueel blijven voor HACS installatie, Spotify OAuth, endpoints, OTA en release workflow.
-- De product/marketing website staat buiten deze HA integration repo op `https://djconnect.pages.dev`; houd deze repo gefocust op HACS integration, docs, brand assets en release workflow.
+- De product/marketing website staat buiten deze HA integration repo op `https://djconnect.dev`; houd deze repo gefocust op HACS integration, docs, brand assets en release workflow.
 - De website How To Start pagina moet dezelfde basisvereisten noemen als de HACS docs: Home Assistant, HACS, Spotify Premium, HA Assist pipeline met STT/TTS, lokaal netwerk tijdens pairing, ESP 2.4 GHz WiFi en Nabu Casa/externe HTTPS URL voor Spotify OAuth.
-- Cross-repo sync prompts staan uitsluitend in `SYNC_PROMPTS.md`; voeg oude losse promptbestanden niet opnieuw toe.
+- Cross-repo sync prompts staan uitsluitend in `pcvantol/djconnect/SYNC_PROMPTS.md`; voeg oude losse promptbestanden of sibling-repo kopieën niet opnieuw toe.
 - Release checklist moet in README en AGENTS blijven staan en bij elke release worden gevolgd.
 - Pre-release checklist:
   - Controleer dat de working tree alleen bedoelde wijzigingen bevat.
@@ -175,7 +175,7 @@ README/release:
   - Update `CHANGELOG.md` met een nieuw blok per release; behoud eerdere releaseblokken en consolideer niet meer naar één actuele versie.
   - Houd `AGENTS.md` gelijk met actuele versie en release-eisen.
   - Houd `HANDOFF.md`, `TODO.md` en `ISSUES.md` actueel met release-status, bekende checks en resterende veldvalidatie.
-  - Houd `SYNC_PROMPTS.md` actueel als cross-repo contracten, clienttypes, endpoints of pairing/discovery wijzigen.
+  - Houd `pcvantol/djconnect/SYNC_PROMPTS.md` actueel als cross-repo contracten, clienttypes, endpoints of pairing/discovery wijzigen, ook als de wijziging vanuit een andere DJConnect repo komt.
   - Houd `TECHNICAL_DESIGN_DECISIONS.md` actueel als code-level design patterns, coding conventions, frameworks, libraries, third-party dependencies, versions, licenses of source URLs wijzigen.
   - Houd `info.md` en HACS-facing tekst actueel voor de gebruiker.
   - Controleer en actualiseer alle Nederlandse en Engelse vertalingen voor gewijzigde config-flow, options-flow, repair-flow, entity- en service-teksten.

@@ -1,8 +1,9 @@
 # DJConnect Sync Prompts
 
-This is the canonical cross-repo sync prompt bundle for DJConnect. Keep this
-file byte-for-byte identical in every DJConnect repo so any repo can be used as
-the source for synchronizing the others.
+This is the only canonical cross-repo sync prompt bundle for DJConnect. The
+Home Assistant integration repo `pcvantol/djconnect` is the leading source for
+this file. Do not copy this file into sibling repos and do not reintroduce
+repo-local sync prompt files.
 
 Canonical repo locations:
 
@@ -12,22 +13,21 @@ Canonical repo locations:
 - Website/docs: `pcvantol/djconnect-website`
 - Raspberry Pi client: `pcvantol/djconnect-pi`
 
-## How To Sync This File
+## How To Update This File
 
-From any checked-out DJConnect repo, copy its `SYNC_PROMPTS.md` to the sibling
-repos that are present locally:
+From any DJConnect repo, update this file in the Home Assistant integration repo
+only:
 
 ```sh
-cp SYNC_PROMPTS.md ../djconnect/SYNC_PROMPTS.md
-cp SYNC_PROMPTS.md ../djconnect-app/SYNC_PROMPTS.md
-cp SYNC_PROMPTS.md ../djconnect-esp32/SYNC_PROMPTS.md
-cp SYNC_PROMPTS.md ../djconnect-website/SYNC_PROMPTS.md
-cp SYNC_PROMPTS.md ../djconnect-pi/SYNC_PROMPTS.md
+cd ../djconnect
+$EDITOR SYNC_PROMPTS.md
 ```
 
-If a sibling repo is not present, or the destination is the current repo, skip
-that copy. After syncing, run `git diff --check` in each touched repo and
-commit the updated `SYNC_PROMPTS.md` there.
+If the Home Assistant integration repo is not available locally, open a follow-up
+task against `pcvantol/djconnect` and do not create a local replacement. After
+updating, run `git diff --check` in `pcvantol/djconnect` and commit the change
+there. Sibling repos should reference `pcvantol/djconnect/SYNC_PROMPTS.md`
+instead of storing their own copy.
 
 ## Current Protocol Line
 
@@ -66,10 +66,13 @@ Before publishing:
   release flow, dependencies or public contracts changed.
 - Review and update all user-facing translations for changed setup, options,
   repair, entity and service strings in repos that ship localized UI.
-- Update this `SYNC_PROMPTS.md` when the cross-repo contract or release
-  checklist changes.
-- Sync the updated `PRODUCT_ROADMAP.md` and `SYNC_PROMPTS.md` to all sibling
-  DJConnect repos before finishing release hygiene.
+- Update `pcvantol/djconnect/SYNC_PROMPTS.md` when the cross-repo contract or
+  release checklist changes, even when the release is made from another repo.
+- Do not keep repo-local `SYNC_PROMPTS.md` copies in sibling repos. If a sibling
+  repo contains one, remove it and reference the canonical HA repo file instead.
+- Sync the updated `PRODUCT_ROADMAP.md` to all sibling DJConnect repos before
+  finishing release hygiene. `SYNC_PROMPTS.md` remains only in
+  `pcvantol/djconnect`.
 - Bump the repo version according to that repo's release mechanism.
 - Run build cleanup before release/build commands so stale assets do not leak
   into published artifacts.

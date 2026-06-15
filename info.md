@@ -2,7 +2,7 @@
 
 DJConnect. Muziekbediening met karakter.
 
-Website: [https://djconnect.pages.dev](https://djconnect.pages.dev)
+Website: [https://djconnect.dev](https://djconnect.dev)
 
 DJConnect lets you ask for music from a dedicated ESP32, iOS, macOS or Raspberry Pi client and hear a personal DJ announcement back on the device. Home Assistant handles pairing, Spotify OAuth, backend playback, Assist/STT/TTS and device status while playback credentials stay safely inside Home Assistant.
 

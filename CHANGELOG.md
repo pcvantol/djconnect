@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.38
+
+- Update all public product website references from `https://djconnect.pages.dev` to `https://djconnect.dev`.
+- Make `pcvantol/djconnect/SYNC_PROMPTS.md` the only canonical cross-repo sync prompt source and document that sibling repos must not keep local copies.
+
 ## 3.1.37
 
 - Add the missing options-flow `local_url` label translation so the read-only Client API URL field no longer appears as a raw key.
@@ -123,7 +128,7 @@
 - Document the DJConnect website How To Start requirements for HACS installation, Spotify Premium, Home Assistant Assist STT/TTS, local pairing and Spotify OAuth.
 - Add the HACS custom-repository deeplink to the README installation section.
 - Update handoff, TODO, AGENTS and sync prompts so website setup copy stays aligned with the Home Assistant integration flow.
-- Show the public DJConnect website prominently in both the README and HACS `info.md`: `https://djconnect.pages.dev`.
+- Show the public DJConnect website prominently in both the README and HACS `info.md`: `https://djconnect.dev`.
 - Remove the repository-local `website/` product site now that the marketing website is maintained outside the Home Assistant integration repo.
 - Update README, AGENTS, handoff, issue and todo documentation so release hygiene no longer treats the external website as part of this HACS package.
 - Keep HACS/integration brand assets in `custom_components/djconnect/brand/` while dropping the duplicated static website asset tree.

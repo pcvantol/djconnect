@@ -120,13 +120,13 @@
 - Keep `TODO.md` and `ISSUES.md` current after field testing.
 - Before every release, review all documentation files in this repo: `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `info.md` and relevant `examples/*`.
 - Before every release, explicitly check whether tests need to be expanded for the change; add coverage for new behavior paths, regression risks, translations and edge cases.
-- Keep cross-repo sync prompts only in `SYNC_PROMPTS.md`; do not re-add retired loose prompt files.
+- Keep cross-repo sync prompts only in `pcvantol/djconnect/SYNC_PROMPTS.md`; do not re-add retired loose prompt files or sibling-repo copies.
 - Document known HA restart requirement after HACS custom integration updates.
 
 ## Website / Marketing
 
 - Keep product/marketing website work in the external website location, not this HA integration repo.
-- Keep the public website link visible in HACS-facing docs: `https://djconnect.pages.dev`.
+- Keep the public website link visible in HACS-facing docs: `https://djconnect.dev`.
 - Maintain a How To Start page covering HACS install, Spotify Premium, HA Assist pipeline STT/TTS setup, Spotify OAuth, ESP pairing and iOS/macOS/Raspberry Pi Client API URL pairing.
 - Add real product photos/screenshots when final hardware imagery is available.
 - Keep requirements clear: Spotify Premium, Home Assistant, HACS, HA Assist pipeline, 2.4 GHz WiFi and mDNS/Nabu Casa recommendations.
