@@ -790,6 +790,29 @@ class ConfigFlowHelperTest(unittest.TestCase):
             "Save options",
         )
 
+    def test_options_actions_hide_pairing_retry_when_not_pending(self) -> None:
+        hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en-US"))
+
+        actions = self.config_flow._options_actions_for_status(
+            hass,
+            {"ha_pairing_status": "paired"},
+        )
+
+        self.assertNotIn(self.config_flow.OPTIONS_ACTION_RETRY_PAIRING, actions)
+        self.assertIn(self.config_flow.OPTIONS_ACTION_REPAIR, actions)
+        self.assertIn(self.config_flow.OPTIONS_ACTION_SPOTIFY_REAUTH, actions)
+        self.assertIn(self.config_flow.OPTIONS_ACTION_SAVE, actions)
+
+    def test_options_actions_show_pairing_retry_when_pending(self) -> None:
+        hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en-US"))
+
+        actions = self.config_flow._options_actions_for_status(
+            hass,
+            {"ha_pairing_status": "pending"},
+        )
+
+        self.assertIn(self.config_flow.OPTIONS_ACTION_RETRY_PAIRING, actions)
+
     def test_ble_wifi_schema_uses_discovered_devices_when_available(self) -> None:
         schema = self.config_flow._ble_wifi_schema({"AA:BB": "DJConnect 1234"})
 

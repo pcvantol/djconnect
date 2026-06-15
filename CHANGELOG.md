@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.1.36
+
+- Harden `command:"playlists"` responses so every success/failure path returns a non-empty JSON body with `playlists`, `items`, `data.playlists`, `data.items`, `result.playlists`, `result.items` and `count`, caps ESP playlist browsing at 20 items, adds playlist item aliases used by iOS/macOS/Pi/ESP clients, and logs playlist request/response metadata without secrets.
+- Add HA version metadata and redacted debug logging to `command:"status"` and `/api/djconnect/status` responses so app clients can distinguish no active playback from backend/auth unavailability.
+- Hide the “Retry pairing with current code” options-flow action unless the device pairing state is pending/stale, keeping the normal options UI focused on save, Spotify reauthorize and full re-pair.
+- Add regression coverage for playlist response aliases, ESP playlist limit capping, nested playlist result normalization and conditional pairing retry visibility.
+
 ## 3.1.35
 
 - Add Raspberry Pi-specific restart and shutdown button entities that call the Pi local Client API without reintroducing ESP-only reboot/OTA entities for app-like clients.

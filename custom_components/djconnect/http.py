@@ -399,6 +399,14 @@ def _version_mismatch_response(view: HomeAssistantView, firmware_version: Any):
     )
 
 
+def _ha_version_payload() -> dict[str, str | None]:
+    """Return DJConnect HA integration version metadata for clients."""
+    return {
+        "ha_version": VERSION,
+        "ha_major_minor": _major_minor(VERSION),
+    }
+
+
 def _runtime_firmware_version(runtime: Any) -> Any:
     status = getattr(runtime, "device_status", {}) or {}
     return status.get("firmware") or status.get("firmware_version")
@@ -785,10 +793,12 @@ def _backend_unavailable_payload(
         return {
             "success": False,
             "error": "playback_backend_unavailable",
-            "message": "Playback backend unavailable",
+            "message": str(exc) or "Playback backend unavailable",
             "backend_available": False,
             "playlists": [],
             "items": [],
+            "data": {"playlists": [], "items": []},
+            "result": {"playlists": [], "items": []},
             "count": 0,
         }
     return {
@@ -817,13 +827,42 @@ def _playlist_command_value(data: dict[str, Any], client_type: str) -> dict[str,
 
 def _with_playlist_aliases(result: dict[str, Any]) -> dict[str, Any]:
     """Expose playlist lists under stable aliases used by app and ESP clients."""
-    playlists = result.get("playlists")
-    if not isinstance(playlists, list):
-        playlists = result.get("items") if isinstance(result.get("items"), list) else []
+    playlists = _playlist_items_from_result(result)
     result["playlists"] = playlists
     result.setdefault("items", playlists)
+    result["data"] = _playlist_container(result.get("data"), playlists)
+    result["result"] = _playlist_container(result.get("result"), playlists)
     result.setdefault("count", len(playlists))
     return result
+
+
+def _playlist_container(value: Any, playlists: list[Any]) -> dict[str, Any]:
+    """Return a playlist container supporting data.items and data.playlists."""
+    if isinstance(value, dict):
+        container = dict(value)
+    else:
+        container = {}
+    container["playlists"] = playlists
+    container["items"] = playlists
+    return container
+
+
+def _playlist_items_from_result(result: dict[str, Any]) -> list[Any]:
+    """Extract playlist items from all client-supported response shapes."""
+    for key in ("playlists", "items", "data", "result"):
+        value = result.get(key)
+        if isinstance(value, list):
+            return value
+        if isinstance(value, dict):
+            for nested_key in ("items", "playlists"):
+                nested = value.get(nested_key)
+                if isinstance(nested, list):
+                    return nested
+                if isinstance(nested, dict):
+                    nested_items = nested.get("items")
+                    if isinstance(nested_items, list):
+                        return nested_items
+    return []
 
 
 async def _send_failure_dj_response(
@@ -989,6 +1028,10 @@ class DJConnectStatusView(HomeAssistantView):
             data = await request.json()
         except Exception:  # noqa: BLE001
             return _json_error(self, "invalid_json", 400)
+        _LOGGER.debug(
+            "DJConnect status request payload=%s",
+            _redact_debug_payload(data),
+        )
         runtime = _runtime(
             hass,
             data.get("device_id") or request.headers.get("X-DJConnect-Device-ID"),
@@ -1052,6 +1095,7 @@ class DJConnectStatusView(HomeAssistantView):
             "assist_pipeline_id": conf.get(CONF_ASSIST_PIPELINE_ID, ""),
             "playback": getattr(runtime, "last_playback", None) or {},
         }
+        response.update(_ha_version_payload())
         response.update(_esp32_language_payload(runtime))
         response.update(await async_ha_url_payload(hass, conf))
         backend_available = bool(_current_spotify_credentials(runtime))
@@ -1063,6 +1107,10 @@ class DJConnectStatusView(HomeAssistantView):
         )
         response["backend_available"] = backend_available
         runtime.device_status["backend_available"] = backend_available
+        _LOGGER.debug(
+            "DJConnect status response payload=%s",
+            _redact_debug_payload(response),
+        )
         return self.json(response)
 
 
@@ -1117,14 +1165,26 @@ class DJConnectCommandView(HomeAssistantView):
         if not command:
             return _json_error(self, "invalid_command", 400)
         _LOGGER.debug(
-            "DJConnect backend command from %s: %s",
+            "DJConnect backend command from %s client_type=%s command=%s",
             data.get("device_id"),
+            client_type,
             command,
         )
         command_value = data.get("value")
         normalized_command = command.lower()
+        if normalized_command in {"status", "devices", "queue", "playlists"}:
+            _LOGGER.debug(
+                "DJConnect command request payload=%s",
+                _redact_debug_payload(data),
+            )
         if normalized_command == "playlists":
             command_value = _playlist_command_value(data, client_type)
+            _LOGGER.debug(
+                "DJConnect playlists request device_id=%s client_type=%s limit=%s",
+                data.get("device_id"),
+                client_type,
+                command_value.get("limit"),
+            )
         try:
             result = await handle_spotify_command(
                 hass,
@@ -1137,19 +1197,45 @@ class DJConnectCommandView(HomeAssistantView):
             if result.get("success"):
                 result.setdefault("backend_available", True)
                 runtime.device_status["backend_available"] = True
+            result.update(_ha_version_payload())
             if normalized_command == "playlists":
                 _with_playlist_aliases(result)
+                _LOGGER.debug(
+                    "DJConnect playlists response device_id=%s client_type=%s count=%s",
+                    data.get("device_id"),
+                    client_type,
+                    result.get("count"),
+                )
+            if normalized_command in {"status", "devices", "queue", "playlists"}:
+                _LOGGER.debug(
+                    "DJConnect command response payload=%s",
+                    _redact_debug_payload(result),
+                )
             return self.json(result)
         except ValueError as exc:
             return _json_error(self, "invalid_command", 400, str(exc))
         except SpotifyBackendError as exc:
             runtime.update(last_error=str(exc))
             runtime.device_status["backend_available"] = False
+            if normalized_command == "playlists":
+                _LOGGER.debug(
+                    "DJConnect playlists backend unavailable device_id=%s client_type=%s reason=%s",
+                    data.get("device_id"),
+                    client_type,
+                    exc,
+                )
             return self.json(_backend_unavailable_payload(command, runtime, exc))
         except Exception as exc:  # noqa: BLE001
             _LOGGER.warning("DJConnect backend command failed: %s", exc)
             runtime.update(last_error=str(exc))
             runtime.device_status["backend_available"] = False
+            if normalized_command == "playlists":
+                _LOGGER.debug(
+                    "DJConnect playlists backend unavailable device_id=%s client_type=%s reason=%s",
+                    data.get("device_id"),
+                    client_type,
+                    exc,
+                )
             return self.json(_backend_unavailable_payload(command, runtime, exc))
 
 

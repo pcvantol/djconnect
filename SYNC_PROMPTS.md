@@ -799,17 +799,35 @@ Verwachte response shapes:
 }
 Command responses are transport/command success first, playback-state second.
 A command response with `success:true` and `playback.has_playback:false` is not
-an error state.
+an error state. `command:"status"` and `POST /api/djconnect/status` must always
+return a non-empty JSON body with `success`, `backend_available`, `ha_version`,
+`ha_major_minor` and `playback`. If there is no active Spotify playback,
+`backend_available` remains `true` when Spotify credentials/backend browsing are
+valid; use `backend_available:false` only for genuine backend/auth failure.
 
 `command:"playlists"` is browsing, not active playback. If Spotify credentials
 are valid and playlist browsing succeeds, HA must return HTTP 200 with
 `success:true`, `backend_available:true` and `playlists[]` items containing at
 least `name`, `uri`, `owner` and `image_url`, even when Spotify playback is
-idle. ESP32 clients may send `limit`; HA must cap the response to that limit
-and use a safe default of 20 when ESP omits it. App-like clients may request up
-to 100 playlists. Use `backend_available:false` only when the backend is
-genuinely unavailable or auth is invalid, and still return a non-empty JSON body
-with `success:false`, `error:"playback_backend_unavailable"` and `playlists:[]`.
+idle. HA should also include client-compatible aliases: top-level `items`,
+`data.playlists`, `data.items`, `result.playlists`, `result.items`, and `count`.
+Per item, clients may read title from `name`, `title` or `display_title`; start
+value from `uri`, `id`, `value` or `playlist_uri`; subtitle from `owner`,
+`owner_name`, `description`, `artist`, `artists`, `subtitle` or `album`; and
+artwork from `image_url`, `imageUrl`, `album_image_url`, `albumImageUrl`,
+`album_art_url`, `media_image_url`, `entity_picture` or `thumbnail_url`.
+Items without a title or playable URI may be ignored by clients. ESP32 clients
+may send `limit`; HA must cap ESP responses at 20 and use a safe default of 20
+when ESP omits it. App-like clients may request up to 100 playlists. Use
+`backend_available:false` only when the backend is genuinely unavailable or
+auth is invalid, and still return a non-empty JSON body with `success:false`,
+`error:"playback_backend_unavailable"` and empty playlist aliases.
+
+HA debug logging should include redacted request/response metadata for
+`command:"status"`, `command:"devices"`, `command:"queue"`,
+`command:"playlists"` and `POST /api/djconnect/status`: command, client_type,
+device_id, requested limit, playlist count and backend/auth unavailable reason.
+Never log bearer tokens, refresh tokens, passwords or secrets.
 
 When `playback.has_playback == false`, clients must treat the playback snapshot
 as valid but empty. Playback fields may be `null` or empty strings, including
@@ -1445,17 +1463,35 @@ Expected success shape:
 
 Command responses are transport/command success first, playback-state second.
 A command response with `success:true` and `playback.has_playback:false` is not
-an error state.
+an error state. `command:"status"` and `POST /api/djconnect/status` must always
+return a non-empty JSON body with `success`, `backend_available`, `ha_version`,
+`ha_major_minor` and `playback`. If there is no active Spotify playback,
+`backend_available` remains `true` when Spotify credentials/backend browsing are
+valid; use `backend_available:false` only for genuine backend/auth failure.
 
 `command:"playlists"` is browsing, not active playback. If Spotify credentials
 are valid and playlist browsing succeeds, HA must return HTTP 200 with
 `success:true`, `backend_available:true` and `playlists[]` items containing at
 least `name`, `uri`, `owner` and `image_url`, even when Spotify playback is
-idle. ESP32 clients may send `limit`; HA must cap the response to that limit
-and use a safe default of 20 when ESP omits it. App-like clients may request up
-to 100 playlists. Use `backend_available:false` only when the backend is
-genuinely unavailable or auth is invalid, and still return a non-empty JSON body
-with `success:false`, `error:"playback_backend_unavailable"` and `playlists:[]`.
+idle. HA should also include client-compatible aliases: top-level `items`,
+`data.playlists`, `data.items`, `result.playlists`, `result.items`, and `count`.
+Per item, clients may read title from `name`, `title` or `display_title`; start
+value from `uri`, `id`, `value` or `playlist_uri`; subtitle from `owner`,
+`owner_name`, `description`, `artist`, `artists`, `subtitle` or `album`; and
+artwork from `image_url`, `imageUrl`, `album_image_url`, `albumImageUrl`,
+`album_art_url`, `media_image_url`, `entity_picture` or `thumbnail_url`.
+Items without a title or playable URI may be ignored by clients. ESP32 clients
+may send `limit`; HA must cap ESP responses at 20 and use a safe default of 20
+when ESP omits it. App-like clients may request up to 100 playlists. Use
+`backend_available:false` only when the backend is genuinely unavailable or
+auth is invalid, and still return a non-empty JSON body with `success:false`,
+`error:"playback_backend_unavailable"` and empty playlist aliases.
+
+HA debug logging should include redacted request/response metadata for
+`command:"status"`, `command:"devices"`, `command:"queue"`,
+`command:"playlists"` and `POST /api/djconnect/status`: command, client_type,
+device_id, requested limit, playlist count and backend/auth unavailable reason.
+Never log bearer tokens, refresh tokens, passwords or secrets.
 
 When `playback.has_playback == false`, clients must treat the playback snapshot
 as valid but empty. Playback fields may be `null` or empty strings, including

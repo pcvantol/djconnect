@@ -57,12 +57,21 @@ async def handle_spotify_command(
     if normalized == "queue":
         return {"success": True, **await backend.queue()}
     if normalized == "playlists":
-        playlists = await backend.playlists(limit=_playlist_limit(value))
+        limit = _playlist_limit(value)
+        playlists = await backend.playlists(limit=limit)
+        _LOGGER.debug(
+            "DJConnect Spotify playlists resolved client_type=%s limit=%s count=%s",
+            _playlist_client_type(value) or "unknown",
+            limit,
+            len(playlists),
+        )
         return {
             "success": True,
             "backend_available": True,
             "playlists": playlists,
             "items": playlists,
+            "data": {"playlists": playlists, "items": playlists},
+            "result": {"playlists": playlists, "items": playlists},
             "count": len(playlists),
         }
     if normalized == "pause":
@@ -634,10 +643,9 @@ def _spotify_search_type(media_type: str) -> str:
 def _playlist_limit(value: Any) -> int:
     """Return client-aware playlist limit for Spotify browsing commands."""
     raw_limit = None
-    client_type = ""
+    client_type = _playlist_client_type(value)
     if isinstance(value, dict):
         raw_limit = value.get("limit")
-        client_type = str(value.get("client_type") or "").strip().lower()
     else:
         raw_limit = value
     default = ESP_DEFAULT_PLAYLIST_LIMIT if client_type == "esp32" else DEFAULT_PLAYLIST_LIMIT
@@ -645,7 +653,15 @@ def _playlist_limit(value: Any) -> int:
         limit = int(raw_limit)
     except (TypeError, ValueError):
         limit = default
-    return max(0, min(MAX_PLAYLIST_ITEMS, limit))
+    maximum = ESP_DEFAULT_PLAYLIST_LIMIT if client_type == "esp32" else MAX_PLAYLIST_ITEMS
+    return max(0, min(maximum, limit))
+
+
+def _playlist_client_type(value: Any) -> str:
+    """Return normalized client_type from a playlist command payload."""
+    if isinstance(value, dict):
+        return str(value.get("client_type") or "").strip().lower()
+    return ""
 
 
 def _first_search_item(data: dict[str, Any], spotify_type: str) -> dict[str, Any]:
@@ -794,16 +810,26 @@ def _normalize_queue_item(item: dict[str, Any]) -> dict[str, str]:
 def _normalize_playlist(item: dict[str, Any]) -> dict[str, str]:
     owner = item.get("owner") or {}
     image_url = _best_image_url(item.get("images") or [])
+    name = item.get("name") or ""
+    uri = item.get("uri") or ""
+    owner_name = owner.get("display_name") or owner.get("id") or ""
     return {
-        "id": item.get("uri") or item.get("id") or "",
-        "name": item.get("name") or "",
-        "owner": owner.get("display_name") or owner.get("id") or "",
-        "uri": item.get("uri") or "",
+        "id": uri or item.get("id") or "",
+        "name": name,
+        "title": name,
+        "display_title": name,
+        "owner": owner_name,
+        "subtitle": owner_name,
+        "uri": uri,
+        "value": uri,
+        "playlist_uri": uri,
         "image_url": image_url,
         "imageUrl": image_url,
         "album_image_url": image_url,
         "albumImageUrl": image_url,
+        "album_art_url": image_url,
         "media_image_url": image_url,
+        "entity_picture": image_url,
         "thumbnail_url": image_url,
     }
 

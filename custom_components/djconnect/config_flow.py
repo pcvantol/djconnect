@@ -207,6 +207,15 @@ def _options_action_names(hass: Any) -> dict[str, str]:
     return OPTIONS_ACTION_NAMES_NL if language.startswith("nl") else OPTIONS_ACTION_NAMES_EN
 
 
+def _options_actions_for_status(hass: Any, defaults: dict[str, Any]) -> dict[str, str]:
+    """Return visible options actions for the current pairing state."""
+    actions = dict(_options_action_names(hass))
+    pairing_status = str(defaults.get("ha_pairing_status") or "").strip().lower()
+    if pairing_status not in {"pending", "stale", "invalid", "unpaired"}:
+        actions.pop(OPTIONS_ACTION_RETRY_PAIRING, None)
+    return actions
+
+
 def _manual_discovery_label(hass: Any) -> str:
     """Return the manual-entry label in the current Home Assistant language."""
     language = str(getattr(getattr(hass, "config", None), "language", "") or "").lower()
@@ -766,7 +775,7 @@ async def _voice_schema(
         tts_engine=tts_engine,
         tts_voice=tts_voice,
         options_actions=(
-            _options_action_names(hass)
+            _options_actions_for_status(hass, defaults)
             if include_options_action
             else None
         ),
