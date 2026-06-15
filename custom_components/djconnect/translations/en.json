@@ -158,6 +158,7 @@
           "assist_pipeline_id": "Assist pipeline",
           "stt_engine": "STT engine",
           "client_type": "Client type",
+          "local_url": "Client API URL",
           "tts_engine": "TTS engine",
           "tts_language": "TTS language",
           "tts_voice": "TTS voice",

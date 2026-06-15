@@ -59,6 +59,7 @@ VOICE_OPTION_DATA_KEYS = {
     "assist_pipeline_id",
     "stt_engine",
     "client_type",
+    "local_url",
     "dj_response_enabled",
     "firmware_channel",
     "dj_response_ttl_seconds",

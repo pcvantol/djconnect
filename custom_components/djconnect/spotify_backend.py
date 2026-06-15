@@ -25,6 +25,7 @@ CACHE_TTL_SECONDS = 30
 ACCESS_TOKEN_EXPIRY_SAFETY_SECONDS = 60
 MAX_QUEUE_ITEMS = 100
 MAX_PLAYLIST_ITEMS = 100
+SPOTIFY_PLAYLIST_PAGE_LIMIT = 50
 DEFAULT_PLAYLIST_LIMIT = 100
 ESP_DEFAULT_PLAYLIST_LIMIT = 20
 _LOGGER = logging.getLogger(__name__)
@@ -389,8 +390,22 @@ class SpotifyBackend:
             return []
 
         async def load():
-            data = await self._request("GET", f"/me/playlists?limit={limit}")
-            return [_normalize_playlist(item) for item in data.get("items", [])][:limit]
+            playlists: list[dict[str, str]] = []
+            offset = 0
+            while len(playlists) < limit:
+                page_limit = min(SPOTIFY_PLAYLIST_PAGE_LIMIT, limit - len(playlists))
+                data = await self._request(
+                    "GET",
+                    f"/me/playlists?limit={page_limit}&offset={offset}",
+                )
+                items = data.get("items") or []
+                if not isinstance(items, list) or not items:
+                    break
+                playlists.extend(_normalize_playlist(item) for item in items if isinstance(item, dict))
+                if len(items) < page_limit:
+                    break
+                offset += len(items)
+            return playlists[:limit]
 
         playlists = await self._cached(f"playlists:{limit}", load)
         self.runtime.device_status["playlists"] = playlists

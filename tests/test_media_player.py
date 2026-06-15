@@ -251,6 +251,50 @@ class DJConnectMediaPlayerTest(unittest.TestCase):
             self.media_player.handle_spotify_command = original
 
         self.assertEqual(calls, [("status", None, None), ("pause", None, None)])
+        self.assertTrue(runtime.last_playback["is_playing"])
+
+    def test_media_player_update_caches_backend_playback_state(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            device_token="device-token",
+            device_status={},
+            last_error=None,
+            last_playback={},
+            listeners=[],
+            update=lambda **kwargs: [setattr(runtime, key, value) for key, value in kwargs.items()],
+        )
+        entity = self.media_player.DJConnectPlaybackProxyMediaPlayer(runtime, object())
+
+        async def fake_handler(hass, runtime_arg, command, value=None, *, play=None):
+            self.assertEqual(command, "status")
+            return {
+                "success": True,
+                "backend_available": True,
+                "playback": {
+                    "has_playback": True,
+                    "is_playing": True,
+                    "track_name": "Lithium",
+                    "artist_name": "Nirvana",
+                    "album_image_url": "https://example.test/lithium.jpg",
+                    "volume_percent": 42,
+                    "device": {"id": "speaker-1", "name": "Slaapkamer"},
+                },
+            }
+
+        original = self.media_player.handle_spotify_command
+        self.media_player.handle_spotify_command = fake_handler
+        try:
+            asyncio.run(entity.async_update())
+        finally:
+            self.media_player.handle_spotify_command = original
+
+        self.assertEqual(entity.state, "playing")
+        self.assertEqual(entity.media_title, "Lithium")
+        self.assertEqual(entity.media_artist, "Nirvana")
+        self.assertEqual(entity.entity_picture, "https://example.test/lithium.jpg")
+        self.assertEqual(entity.volume_level, 0.7)
+        self.assertEqual(entity.source, "Slaapkamer")
+        self.assertTrue(runtime.device_status["backend_available"])
 
     def test_next_previous_media_player_commands_go_through_device(self) -> None:
         commands = []

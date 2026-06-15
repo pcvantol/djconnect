@@ -14,7 +14,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 
 ## Current Version
 
-- Home Assistant integration: `3.1.36`
+- Home Assistant integration: `3.1.37`
 - Domain: `djconnect`
 - HACS category: `Integration`
 - Device target: DJConnect device
@@ -64,7 +64,7 @@ runtime behavior. These decisions are part of the integration contract:
 
 ## Repository Layout
 
-- Home Assistant integration: `3.1.36`
+- Home Assistant integration: `3.1.37`
 - ESP firmware source: `pcvantol/djconnect-app`
 - Public firmware releases: `pcvantol/djconnect-firmware`
 - Canonical cross-repo sync prompts: [`SYNC_PROMPTS.md`](SYNC_PROMPTS.md)
@@ -538,7 +538,7 @@ Firmware sends backend playback commands to Home Assistant instead of storing Sp
 POST /api/djconnect/command
 ```
 
-Required headers are `Authorization: Bearer <device_token>`, `X-DJConnect-Device-ID` and `Content-Type: application/json`. Supported commands include `status`, `devices`, `queue`, `playlists`, `pause`, `play`, `next`, `previous`, `seek_relative`, `start_liked_proxy`, `start_playlist`, `play_context_at`, `set_shuffle`, `set_repeat`, `set_output` and `set_volume`. `seek_relative` accepts an integer millisecond offset for Apple app skip-forward/skip-back controls; positive values seek forward and negative values seek backward. `set_shuffle` accepts a boolean value; `set_repeat` accepts `off`, `track` or `context`; `play_context_at` accepts a context URI and track offset URI for Up Next playback. Responses are generic JSON shapes with `playback`, `devices`, `queue` or `playlists`, so future backends such as Sonos or Home Assistant media players can be added without firmware changes. `status` responses include `backend_available`, `ha_version`, `ha_major_minor` and a valid `playback` object even when no Spotify playback is active. `queue` responses include at most 100 items, top-level `context_uri` / `contextUri` when known and per-item artwork aliases such as `album_image_url` and `image_url`; `playlists` responses include Spotify playlists with `name`, `title`, `display_title`, `uri`, `value`, `playlist_uri`, `owner`, `subtitle`, `image_url`, `entity_picture` and artwork aliases such as `album_image_url`, `album_art_url` and `media_image_url`. HA returns playlist lists as top-level `playlists` and `items`, plus `data.playlists`, `data.items`, `result.playlists`, `result.items` and `count` for stricter clients. ESP32 `playlists` requests may send `limit`; HA caps ESP32 responses at 20 items and returns up to 100 for app-like clients. A successful `playlists` response returns `backend_available:true` even when Spotify playback is idle; backend failures still return a non-empty JSON body with `success:false`, `backend_available:false` and empty playlist aliases. Logs never include device tokens, Spotify tokens or backend credentials.
+Required headers are `Authorization: Bearer <device_token>`, `X-DJConnect-Device-ID` and `Content-Type: application/json`. Supported commands include `status`, `devices`, `queue`, `playlists`, `pause`, `play`, `next`, `previous`, `seek_relative`, `start_liked_proxy`, `start_playlist`, `play_context_at`, `set_shuffle`, `set_repeat`, `set_output` and `set_volume`. `seek_relative` accepts an integer millisecond offset for Apple app skip-forward/skip-back controls; positive values seek forward and negative values seek backward. `set_shuffle` accepts a boolean value; `set_repeat` accepts `off`, `track` or `context`; `play_context_at` accepts a context URI and track offset URI for Up Next playback. Responses are generic JSON shapes with `playback`, `devices`, `queue` or `playlists`, so future backends such as Sonos or Home Assistant media players can be added without firmware changes. `status` responses include `backend_available`, `ha_version`, `ha_major_minor` and a valid `playback` object even when no Spotify playback is active. `queue` responses include at most 100 items, top-level `context_uri` / `contextUri` when known and per-item artwork aliases such as `album_image_url` and `image_url`; `playlists` responses include Spotify playlists with `name`, `title`, `display_title`, `uri`, `value`, `playlist_uri`, `owner`, `subtitle`, `image_url`, `entity_picture` and artwork aliases such as `album_image_url`, `album_art_url` and `media_image_url`. HA returns playlist lists as top-level `playlists` and `items`, plus `data.playlists`, `data.items`, `result.playlists`, `result.items` and `count` for stricter clients. ESP32 `playlists` requests may send `limit`; HA caps ESP32 responses at 20 items and returns up to 100 for app-like clients while paging Spotify's `/me/playlists` API internally with provider-safe pages of at most 50 items. A successful `playlists` response returns `backend_available:true` even when Spotify playback is idle; backend failures still return a non-empty JSON body with `success:false`, `backend_available:false` and empty playlist aliases. Logs never include device tokens, Spotify tokens or backend credentials.
 
 HA and ESP firmware must share the same `major.minor` protocol version. Patch
 versions may differ, so HA `3.0.x` can talk to ESP `3.0.y`, but HA `3.1.x`
@@ -550,11 +550,21 @@ response.
 
 ## Native Home Assistant Entities
 
-The integration exposes native Home Assistant entities for device status, DJ announcement tests and backend playback control. ESP32 clients additionally get firmware OTA, reboot and ESP hardware state such as battery, Wi-Fi RSSI and screen/LED status. Raspberry Pi clients get Pi-specific restart and shutdown buttons, but no ESP OTA or ESP hardware entities. iOS and macOS clients only get client/runtime and backend/playback entities, so Home Assistant does not show irrelevant ESP hardware sensors for app-like clients. The `media_player.djconnect_playback_proxy` entity represents the current music backend session, not the ESP speaker. Music plays on the selected Spotify/output device; the DJConnect speaker/client is used for local cues and DJ/voice responses.
+The integration exposes native Home Assistant entities for device status, DJ announcement tests and backend playback control. ESP32 clients additionally get firmware OTA, reboot and ESP hardware state such as battery, Wi-Fi RSSI and screen/LED status. Raspberry Pi clients get Pi-specific restart and shutdown buttons, but no ESP OTA or ESP hardware entities. iOS and macOS clients only get client/runtime and backend/playback entities, so Home Assistant does not show irrelevant ESP hardware sensors for app-like clients. The `media_player.djconnect_playback_proxy` entity represents the current music backend session, not the ESP speaker. It refreshes and caches Spotify playback state for play/pause, track metadata, album art, volume and selected output/source. Music plays on the selected Spotify/output device; the DJConnect speaker/client is used for local cues and DJ/voice responses.
 DJConnect persists the last known ESP status in the Home Assistant config entry,
 so ESP battery, firmware, pairing status, screen/LED state and sound output
 remain visible after a Home Assistant restart or integration reload while
 waiting for the next authenticated ESP `/api/djconnect/status` post.
+
+## Voice Intent Examples
+
+The post-STT PTT route uses deterministic local parsing as a guardrail around
+HA Assist. Explicit media words select the Spotify search type: `nummer`,
+`liedje` or `track` selects tracks; `album` or `plaat` selects albums;
+`playlist` or `afspeellijst` selects playlists; generic phrases such as
+`Speel Nirvana` remain artist-first. The current shared example data for the
+website and client teams is in
+[`examples/voice_intents.json`](examples/voice_intents.json).
 
 ## ESP Device Endpoints
 
@@ -602,24 +612,24 @@ Example manifest:
 
 ```json
 {
-  "version": "3.1.36",
-  "version_tag": "v3.1.36",
+  "version": "3.1.37",
+  "version_tag": "v3.1.37",
   "channel": "stable",
-  "min_ha_integration": "3.1.36",
+  "min_ha_integration": "3.1.37",
   "firmwares": [
     {
       "board": "t_embed_cc1101",
       "device": "lilygo-t-embed-s3",
-      "asset": "djconnect-lilygo-t-embed-s3-v3.1.36.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.36/djconnect-lilygo-t-embed-s3-v3.1.36.bin",
+      "asset": "djconnect-lilygo-t-embed-s3-v3.1.37.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.37/djconnect-lilygo-t-embed-s3-v3.1.37.bin",
       "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "size": 2113136
     },
     {
       "board": "esp32_s3_box3",
       "device": "esp32-s3-box-3",
-      "asset": "djconnect-esp32-s3-box-3-v3.1.36.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.36/djconnect-esp32-s3-box-3-v3.1.36.bin",
+      "asset": "djconnect-esp32-s3-box-3-v3.1.37.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.37/djconnect-esp32-s3-box-3-v3.1.37.bin",
       "sha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
       "size": 2113136
     }
@@ -642,7 +652,7 @@ The firmware version is injected through PlatformIO build flags from the Git tag
 Recommended firmware source release helper:
 
 ```bash
-./release.sh 3.1.36
+./release.sh 3.1.37
 ```
 
 In the private `djconnect-app` repository, the firmware release script should
@@ -654,14 +664,14 @@ PlatformIO builds, rename firmware binaries to device-specific assets such as
 Preview the firmware release flow without changing files:
 
 ```bash
-./release.sh 3.1.36 --dry-run
+./release.sh 3.1.37 --dry-run
 ```
 
 When publishing to the public firmware repository, use the firmware script's
 public-repo option if available:
 
 ```bash
-./release.sh 3.1.36 --publish-firmware-repo ../djconnect-firmware
+./release.sh 3.1.37 --publish-firmware-repo ../djconnect-firmware
 ```
 
 The public `djconnect-firmware` repository should contain only the release
@@ -702,7 +712,7 @@ Tag and publish:
 One-liner:
 
 ```bash
-./release.sh 3.1.36
+./release.sh 3.1.37
 ```
 
 The script updates the integration version in `manifest.json`, `const.py`,
@@ -713,18 +723,18 @@ above.
 Preview without executing git/gh commands:
 
 ```bash
-./release.sh 3.1.36 --dry-run
+./release.sh 3.1.37 --dry-run
 ```
 
 Manual equivalent:
 
 ```bash
 git add .
-git commit -m "Release DJConnect v3.1.36"
-git tag v3.1.36
+git commit -m "Release DJConnect v3.1.37"
+git tag v3.1.37
 git push origin main
-git push origin v3.1.36
-gh release create v3.1.36 --title "DJConnect v3.1.36" --notes-file CHANGELOG.md
+git push origin v3.1.37
+gh release create v3.1.37 --title "DJConnect v3.1.37" --notes-file CHANGELOG.md
 ```
 
 Release cleanup helper:

@@ -220,7 +220,15 @@ class DJConnectPlaybackProxyMediaPlayer(MediaPlayerEntity):
             self.runtime.update(last_error=str(exc))
             _LOGGER.warning("DJConnect playback proxy command failed: %s", exc)
             raise
-        self.runtime.update(last_error=None)
+        update: dict[str, Any] = {"last_error": None}
+        playback = result.get("playback") if isinstance(result, dict) else None
+        if isinstance(playback, dict):
+            self.runtime.last_playback = playback
+            update["last_playback"] = playback
+            self.runtime.device_status["backend_available"] = bool(
+                result.get("backend_available", True)
+            )
+        self.runtime.update(**update)
         return result
 
     async def _current_playback_for_toggle(self) -> dict[str, Any]:

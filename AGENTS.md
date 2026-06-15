@@ -59,7 +59,7 @@ Licentie/commercieel:
 HA integration:
 - domain: `djconnect`
 - HACS custom integration.
-- Actuele integratieversie: `3.1.36`.
+- Actuele integratieversie: `3.1.37`.
 - Config flow moet blijven laden.
 - Config flow moet vóór pairing controleren dat de officiële Home Assistant Spotify integratie minstens één Spotify `media_player` entity heeft; ontbreekt die, toon een duidelijke vertaalde foutmelding in plaats van stil verder te gaan.
 - Spotify OAuth gebruikt een HA external step en opent de Spotify website.

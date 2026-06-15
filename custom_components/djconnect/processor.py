@@ -104,14 +104,34 @@ def _dj_response_media(
     playback: dict[str, Any] | None,
 ) -> dict[str, Any]:
     """Return media metadata for the spoken DJ response without reusing stale playback."""
+    intent_media = _intent_media_context(intent)
     if not isinstance(playback, dict):
-        return intent
+        return intent_media or intent
     resolved = _resolved_media(playback, allow_device_response=False)
     if resolved:
         return resolved
     if playback.get("media_content_id"):
-        return intent
-    return _resolved_media(playback, allow_device_response=True) or intent
+        return intent_media or intent
+    return _resolved_media(playback, allow_device_response=True) or intent_media or intent
+
+
+def _intent_media_context(intent: dict[str, Any]) -> dict[str, Any]:
+    """Return concrete parsed media fields from the user intent."""
+    media_type = str(intent.get("type") or "").strip()
+    media: dict[str, Any] = {"type": media_type} if media_type else {}
+    for key in ("artist", "title", "track", "album", "playlist", "name"):
+        value = intent.get(key)
+        if value not in (None, ""):
+            media[key] = value
+    query = str(intent.get("spotify_search_query") or intent.get("query") or "").strip()
+    if query:
+        if media_type == "artist" and not media.get("artist"):
+            media["artist"] = query
+        elif media_type == "playlist" and not media.get("playlist"):
+            media["playlist"] = query
+        elif media_type in {"track", "album"} and not media.get("title") and not media.get("album"):
+            media["title"] = query
+    return media
 
 
 def _resolved_media(

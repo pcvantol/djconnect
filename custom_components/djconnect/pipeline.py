@@ -345,6 +345,7 @@ def _intent_from_assist_response(response: dict[str, Any], user_text: str) -> di
 
     data = _djconnect_data(conversation_response)
     has_djconnect_data = _has_djconnect_data(conversation_response)
+    local_intent = _local_music_intent(user_text)
 
     intent = {
         "intent": data.get("intent") or "play_music",
@@ -359,10 +360,24 @@ def _intent_from_assist_response(response: dict[str, Any], user_text: str) -> di
     }
     if not intent["dj_announcement"]:
         intent["dj_announcement"] = "Daar gaan we. Ik zet hem voor je klaar."
+    if _should_prefer_local_intent(intent, local_intent, has_djconnect_data):
+        _LOGGER.debug(
+            "DJConnect local intent parser overrode Assist intent user_text=%r assist=%s local=%s",
+            user_text,
+            _intent_debug_summary(intent),
+            _intent_debug_summary(local_intent),
+        )
+        local_intent["assist_intent"] = intent
+        if intent.get("dj_announcement"):
+            local_intent["dj_announcement"] = intent["dj_announcement"]
+        return local_intent
     return intent
 
 
 def _fallback_search_intent(user_text: str) -> dict[str, Any]:
+    local_intent = _local_music_intent(user_text)
+    if local_intent.get("spotify_search_query"):
+        return local_intent
     return {
         "intent": "play_music",
         "type": "search",
@@ -372,6 +387,67 @@ def _fallback_search_intent(user_text: str) -> dict[str, Any]:
         "query": user_text,
         "spotify_search_query": user_text,
         "dj_announcement": "Daar gaan we. Ik zet hem voor je klaar.",
+    }
+
+
+def _local_music_intent(user_text: str) -> dict[str, Any]:
+    from .music_intent import parse_spoken_music_request
+
+    parsed = parse_spoken_music_request(user_text)
+    media_type = str(parsed.get("type") or "artist").strip() or "artist"
+    query = str(parsed.get("query") or user_text or "").strip()
+    return {
+        "intent": "play_music",
+        "type": media_type,
+        "artist": parsed.get("artist"),
+        "title": parsed.get("title"),
+        "playlist": parsed.get("playlist"),
+        "query": query,
+        "spotify_search_query": query,
+        "dj_announcement": "Daar gaan we. Ik zet hem voor je klaar.",
+    }
+
+
+def _should_prefer_local_intent(
+    assist_intent: dict[str, Any],
+    local_intent: dict[str, Any],
+    has_djconnect_data: bool,
+) -> bool:
+    """Prefer deterministic parsing when Assist returns stale or unrelated media."""
+    local_query = str(local_intent.get("spotify_search_query") or "").strip()
+    if not local_query:
+        return False
+    if not has_djconnect_data:
+        return True
+    local_type = str(local_intent.get("type") or "").strip().lower()
+    assist_type = str(assist_intent.get("type") or "").strip().lower()
+    if local_type == "artist" and assist_type in {"track", "album", "playlist"}:
+        return False
+    if local_type and assist_type in {"", "search", "music"} and local_type != assist_type:
+        return True
+    if local_type and assist_type not in {"", "search", "music"} and local_type != assist_type:
+        return True
+    for key in ("artist", "title", "playlist"):
+        local_value = _normalized_intent_value(local_intent.get(key))
+        assist_value = _normalized_intent_value(assist_intent.get(key))
+        if local_value and assist_value and local_value != assist_value:
+            return True
+    if any(assist_intent.get(key) for key in ("artist", "title", "playlist")):
+        return False
+    assist_query = _normalized_intent_value(assist_intent.get("spotify_search_query"))
+    local_query_normalized = _normalized_intent_value(local_query)
+    return bool(assist_query and local_query_normalized and local_query_normalized not in assist_query)
+
+
+def _normalized_intent_value(value: Any) -> str:
+    return " ".join(str(value or "").strip().lower().split())
+
+
+def _intent_debug_summary(intent: dict[str, Any]) -> dict[str, Any]:
+    return {
+        key: intent.get(key)
+        for key in ("type", "artist", "title", "playlist", "spotify_search_query")
+        if intent.get(key) not in (None, "")
     }
 
 

@@ -306,11 +306,14 @@ Why:
 Pattern:
 
 - Raw WAV PTT uploads are processed by HA STT/Assist helpers.
-- `pipeline.py` asks HA Assist for DJConnect intent data, but `spotify.py`
-  keeps a deterministic local fallback parser for common Dutch/English PTT
-  phrases. Generic music requests stay artist-first; explicit media words map
-  to Spotify Search types (`track`, `album`, `playlist`) or the configured
-  default playlist.
+- `pipeline.py` asks HA Assist for DJConnect intent data, but
+  `music_intent.py` keeps a deterministic local parser for common
+  Dutch/English PTT phrases. `spotify.py` and the pipeline both use that parser
+  as a guardrail. Generic music requests stay artist-first; explicit media
+  words map to Spotify Search types (`track`, `album`, `playlist`) or the
+  configured default playlist.
+- `examples/voice_intents.json` is the shared data file for website/client
+  examples of supported spoken intent families and handling order.
 - DJ announcement text is generated through Home Assistant Assist where
   possible, then converted to a temporary WAV/MP3 URL through HA TTS.
 - Local fallback text is deliberately neutral and not a hidden prompt-style

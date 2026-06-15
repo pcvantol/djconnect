@@ -788,6 +788,9 @@ class SpotifyBackendTest(unittest.TestCase):
         class Response:
             status = 200
 
+            def __init__(self, url):
+                self.url = url
+
             async def __aenter__(self):
                 return self
 
@@ -795,12 +798,13 @@ class SpotifyBackendTest(unittest.TestCase):
                 return None
 
             async def json(self, content_type=None):
+                offset = 50 if "offset=50" in self.url else 0
                 return {
                     "items": [
                         {
                             "id": "playlist-id",
-                            "name": "Default playlist",
-                            "uri": "spotify:playlist:default",
+                            "name": f"Default playlist {offset + index}",
+                            "uri": f"spotify:playlist:{offset + index}",
                             "owner": {"display_name": "Peter"},
                             "images": [
                                 {
@@ -815,6 +819,7 @@ class SpotifyBackendTest(unittest.TestCase):
                                 },
                             ],
                         }
+                        for index in range(50)
                     ]
                 }
 
@@ -824,7 +829,7 @@ class SpotifyBackendTest(unittest.TestCase):
         class Session:
             def request(self, method, url, **kwargs):
                 requested_urls.append(url)
-                return Response()
+                return Response(url)
 
         entry = types.SimpleNamespace(
             entry_id="entry-1",
@@ -858,14 +863,15 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertEqual(result["data"]["items"], result["playlists"])
         self.assertEqual(result["result"]["playlists"], result["playlists"])
         self.assertEqual(result["result"]["items"], result["playlists"])
-        self.assertEqual(result["count"], 1)
-        self.assertEqual(playlist["id"], "spotify:playlist:default")
-        self.assertEqual(playlist["name"], "Default playlist")
-        self.assertEqual(playlist["title"], "Default playlist")
-        self.assertEqual(playlist["display_title"], "Default playlist")
-        self.assertEqual(playlist["uri"], "spotify:playlist:default")
-        self.assertEqual(playlist["value"], "spotify:playlist:default")
-        self.assertEqual(playlist["playlist_uri"], "spotify:playlist:default")
+        self.assertEqual(result["count"], 100)
+        self.assertEqual(len(result["playlists"]), 100)
+        self.assertEqual(playlist["id"], "spotify:playlist:0")
+        self.assertEqual(playlist["name"], "Default playlist 0")
+        self.assertEqual(playlist["title"], "Default playlist 0")
+        self.assertEqual(playlist["display_title"], "Default playlist 0")
+        self.assertEqual(playlist["uri"], "spotify:playlist:0")
+        self.assertEqual(playlist["value"], "spotify:playlist:0")
+        self.assertEqual(playlist["playlist_uri"], "spotify:playlist:0")
         self.assertEqual(playlist["owner"], "Peter")
         self.assertEqual(playlist["subtitle"], "Peter")
         self.assertEqual(playlist["image_url"], "https://example.test/playlist-large.jpg")
@@ -875,7 +881,8 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertEqual(playlist["media_image_url"], "https://example.test/playlist-large.jpg")
         self.assertEqual(playlist["entity_picture"], "https://example.test/playlist-large.jpg")
         self.assertEqual(runtime.device_status["playlists"], result["playlists"])
-        self.assertTrue(any("/me/playlists?limit=100" in url for url in requested_urls))
+        self.assertTrue(any("/me/playlists?limit=50&offset=0" in url for url in requested_urls))
+        self.assertTrue(any("/me/playlists?limit=50&offset=50" in url for url in requested_urls))
 
     def test_playlists_command_respects_esp_limit(self) -> None:
         requested_urls = []
@@ -947,7 +954,7 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertEqual(result["result"]["playlists"], result["playlists"])
         self.assertEqual(result["result"]["items"], result["playlists"])
         self.assertEqual(result["count"], 20)
-        self.assertTrue(any("/me/playlists?limit=20" in url for url in requested_urls))
+        self.assertTrue(any("/me/playlists?limit=20&offset=0" in url for url in requested_urls))
 
     def test_playlists_command_caps_esp_limit_at_20(self) -> None:
         requested_urls = []
@@ -1013,7 +1020,7 @@ class SpotifyBackendTest(unittest.TestCase):
             self.backend.async_get_clientsession = original_clientsession
 
         self.assertEqual(len(result["playlists"]), 20)
-        self.assertTrue(any("/me/playlists?limit=20" in url for url in requested_urls))
+        self.assertTrue(any("/me/playlists?limit=20&offset=0" in url for url in requested_urls))
 
     def test_play_context_at_artist_context_plays_track_without_offset(self) -> None:
         class Response:

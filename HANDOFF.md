@@ -4,8 +4,8 @@
 
 - Repository: `pcvantol/djconnect`.
 - Integration domain: `djconnect`.
-- Current integration release: `3.1.32`.
-- Release status: DJConnect `3.1.32` is the current released baseline; the working tree contains unreleased DJ announcement/STT visibility fixes.
+- Current integration release: `3.1.36`.
+- Release status: DJConnect `3.1.36` is the current released baseline; the working tree contains unreleased playlist pagination, intent guardrail and playback proxy state fixes.
 - Home Assistant integration is HACS-distributed and MIT-licensed.
 - ESP firmware source remains proprietary in `pcvantol/djconnect-app`.
 - Public firmware release assets live in `pcvantol/djconnect-firmware`.
@@ -137,7 +137,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 ## Current Release Notes
 
 - Current release line is `3.1.x`; only the latest GitHub release/tag should be kept after release cleanup.
-- Current latest baseline is `3.1.32`.
+- Current latest baseline is `3.1.36`.
 - Release workflow expectation: before every release, review and update all repo documentation affected by the change or release, including `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `info.md` and relevant `examples/*`. Explicitly decide whether test coverage must be expanded for the change; add coverage for new behavior paths, regression risks, translations and edge cases. After publishing a release, clean up old semver releases/tags with `./cleanup_old_releases.sh --keep 1 --execute` unless multiple releases are intentionally retained.
 - Before build/test/release validation, check whether third-party libraries, frameworks and build tools can be safely upgraded. If any version is upgraded, update lockfiles/manifests, `THIRD_PARTY_NOTICES.md` and dependency/design documentation in the same release. If an upgrade is skipped, record the reason here.
 - For the current Spotify intent-parser change, no third-party library/framework/tool versions were upgraded; `THIRD_PARTY_NOTICES.md` remains unchanged.
@@ -146,6 +146,10 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - `TECHNICAL_DESIGN_DECISIONS.md` documents reverse-engineered code-level design patterns, language-specific coding conventions and the dependency/license/source inventory. Keep it in the release checklist whenever architecture, dependencies, frameworks or external API usage changes.
 - Voice/Assist search text such as "ik wil Pearl Jam starten" must resolve to a Spotify artist first; generic free-text PTT search stays artist-first unless the request explicitly names another media type.
 - Explicit PTT media words choose the matching Spotify Search type: `nummer`/`liedje`/`track` -> track, `album`/`plaat` -> album, `playlist`/`afspeellijst` -> playlist, and `standaard playlist`/`favorieten`/`liked songs` -> configured default playlist.
+- Canonical spoken intent examples live in `examples/voice_intents.json`; keep website/client docs aligned with that file.
+- Local deterministic intent parsing may override stale/generic HA Assist output, so a new request such as `Speel Nirvana` cannot keep using an older artist context such as Red Hot Chili Peppers.
+- Spotify playlist browsing may return up to 100 playlists to app-like clients, but HA must page Spotify `/me/playlists` internally with provider-safe pages of at most 50 items to avoid Spotify HTTP 400 `Invalid limit`.
+- The native playback proxy media player must cache `playback` snapshots returned by backend commands so current state, album art, volume and selected output update in Home Assistant.
 - Use Developer Tools action `djconnect.test_ptt_text` to debug the real PTT route immediately after STT conversion: enter recognized natural-language text, then DJConnect runs the guarded Assist fuzzy-correction step, intent parsing, Spotify search/playback, DJ aankondiging generation, TTS audio creation and delivery to the connected client/device.
 - Do not send arbitrary text as `context_uri`, and do not perform broad track/album search for generic artist requests.
 - Device DJ responses after successful PTT playback are generated from resolved Spotify/playback metadata and the configured `dj_response_prompt`, not from the generic Assist fallback announcement.

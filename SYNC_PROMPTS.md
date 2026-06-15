@@ -818,7 +818,10 @@ artwork from `image_url`, `imageUrl`, `album_image_url`, `albumImageUrl`,
 `album_art_url`, `media_image_url`, `entity_picture` or `thumbnail_url`.
 Items without a title or playable URI may be ignored by clients. ESP32 clients
 may send `limit`; HA must cap ESP responses at 20 and use a safe default of 20
-when ESP omits it. App-like clients may request up to 100 playlists. Use
+when ESP omits it. App-like clients may request up to 100 playlists. HA must
+page Spotify's `/me/playlists` provider API internally with Spotify-safe page
+limits of at most 50 items, and must never forward client `limit=100` directly
+to Spotify. Use
 `backend_available:false` only when the backend is genuinely unavailable or
 auth is invalid, and still return a non-empty JSON body with `success:false`,
 `error:"playback_backend_unavailable"` and empty playlist aliases.
@@ -906,6 +909,15 @@ in artist, track, album and playlist names, never sends credentials to Assist,
 never controls Home Assistant devices, and must fall back to the original STT
 text when Assist returns a device-lookup error, prompt leak, URI/JSON or empty
 response.
+
+Canonical spoken intent example data for website/client documentation lives in
+`examples/voice_intents.json` in the HA repo. Keep the same intent families and
+example wording aligned in client docs: generic artist requests stay
+artist-first; explicit `nummer`/`liedje`/`track`/`song` requests become track
+searches; explicit `album`/`plaat` requests become album searches; explicit
+`playlist`/`afspeellijst` requests become playlist searches; and default
+playlist/favorites phrases map to the configured default playlist.
+
 Expected HA response:
 
 {
@@ -1482,7 +1494,10 @@ artwork from `image_url`, `imageUrl`, `album_image_url`, `albumImageUrl`,
 `album_art_url`, `media_image_url`, `entity_picture` or `thumbnail_url`.
 Items without a title or playable URI may be ignored by clients. ESP32 clients
 may send `limit`; HA must cap ESP responses at 20 and use a safe default of 20
-when ESP omits it. App-like clients may request up to 100 playlists. Use
+when ESP omits it. App-like clients may request up to 100 playlists. HA must
+page Spotify's `/me/playlists` provider API internally with Spotify-safe page
+limits of at most 50 items, and must never forward client `limit=100` directly
+to Spotify. Use
 `backend_available:false` only when the backend is genuinely unavailable or
 auth is invalid, and still return a non-empty JSON body with `success:false`,
 `error:"playback_backend_unavailable"` and empty playlist aliases.

@@ -465,8 +465,9 @@ class AssistPipelineTest(unittest.TestCase):
             "Speel Pearl Jam",
         )
 
-        self.assertEqual(intent["type"], "search")
-        self.assertEqual(intent["spotify_search_query"], "Speel Pearl Jam")
+        self.assertEqual(intent["type"], "artist")
+        self.assertEqual(intent["artist"], "Pearl Jam")
+        self.assertEqual(intent["spotify_search_query"], "Pearl Jam")
         self.assertEqual(intent["dj_announcement"], "Ik zet Pearl Jam voor je klaar.")
 
     def test_generic_assist_music_refusal_is_not_used_as_dj_response(self) -> None:
@@ -488,8 +489,9 @@ class AssistPipelineTest(unittest.TestCase):
             "Speel Pearl Jam",
         )
 
-        self.assertEqual(intent["type"], "search")
-        self.assertEqual(intent["spotify_search_query"], "Speel Pearl Jam")
+        self.assertEqual(intent["type"], "artist")
+        self.assertEqual(intent["artist"], "Pearl Jam")
+        self.assertEqual(intent["spotify_search_query"], "Pearl Jam")
         self.assertEqual(intent["dj_announcement"], "Daar gaan we. Ik zet hem voor je klaar.")
 
     def test_intent_from_assist_response_raises_clear_error(self) -> None:
@@ -524,8 +526,10 @@ class AssistPipelineTest(unittest.TestCase):
         )
 
         self.assertEqual(intent["intent"], "play_music")
-        self.assertEqual(intent["type"], "search")
-        self.assertEqual(intent["spotify_search_query"], "Speel Black van Pearl Jam")
+        self.assertEqual(intent["type"], "track")
+        self.assertEqual(intent["title"], "Black")
+        self.assertEqual(intent["artist"], "Pearl Jam")
+        self.assertEqual(intent["spotify_search_query"], "Black Pearl Jam")
         self.assertEqual(intent["dj_announcement"], "Daar gaan we. Ik zet hem voor je klaar.")
 
     def test_prompt_leak_device_lookup_error_falls_back_to_original_command(self) -> None:
@@ -546,7 +550,8 @@ class AssistPipelineTest(unittest.TestCase):
             "Metallica",
         )
 
-        self.assertEqual(intent["type"], "search")
+        self.assertEqual(intent["type"], "artist")
+        self.assertEqual(intent["artist"], "Metallica")
         self.assertEqual(intent["spotify_search_query"], "Metallica")
 
 

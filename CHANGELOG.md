@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.1.37
+
+- Add the missing options-flow `local_url` label translation so the read-only Client API URL field no longer appears as a raw key.
+- Add translation coverage for the read-only Client API URL label in options.
+- Page Spotify playlist browsing internally with Spotify-safe `limit=50` requests while still returning up to 100 playlists to app-like clients, preventing Spotify HTTP 400 `Invalid limit` errors.
+- Prefer deterministic local music-intent parsing over generic/stale Assist search results, so requests such as `Speel Nirvana` cannot be overwritten by an old artist context while generated DJ announcements still keep useful Assist text.
+- Cache backend playback state returned through the Home Assistant playback proxy so play/pause state, album art, volume and selected output update from the Spotify backend response.
+- Add regression coverage for playlist pagination, local intent guardrails and playback proxy state caching.
+
 ## 3.1.36
 
 - Harden `command:"playlists"` responses so every success/failure path returns a non-empty JSON body with `playlists`, `items`, `data.playlists`, `data.items`, `result.playlists`, `result.items` and `count`, caps ESP playlist browsing at 20 items, adds playlist item aliases used by iOS/macOS/Pi/ESP clients, and logs playlist request/response metadata without secrets.
