@@ -23,7 +23,7 @@ Architectuur beslissingen:
 - ESP backend playback commands naar `POST /api/djconnect/command` gebruiken losse `set_shuffle` boolean en `set_repeat` met `off`/`track`/`context`; gebruik geen gecombineerde `set_play_mode` flow.
 - HA integration en ESP firmware moeten dezelfde `major.minor` protocolversie hebben: HA `3.0.z` praat alleen met ESP `3.0.z`, HA `3.1.z` alleen met ESP `3.1.z`; patchversies mogen verschillen.
 - Bij major/minor mismatch retourneert HA HTTP `426` met `error: version_mismatch` en HA/firmware metadata; dit is geen pairing-token failure en mag pairing/token niet wissen.
-- ESP uploadt raw WAV audio naar `POST /api/djconnect/voice`; de HA integration doet Assist/STT intern via HA `stt.async_get_speech_to_text_engine(...).async_process_audio_stream` met eerst `stt_engine` uit options, daarna opgeslagen Assist pipeline, HA preferred/default pipeline, eerste pipeline met STT, eerste HA `stt.*` entity of als laatste HA `assist_pipeline.async_pipeline_from_audio_stream`, en geeft tekst plus optionele WAV/MP3 `audio_url` terug.
+- ESP uploadt raw WAV audio naar `POST /api/djconnect/voice`; de HA integration doet Assist/STT intern via HA `stt.async_get_speech_to_text_engine(...).async_process_audio_stream` met eerst `stt_engine` uit options, daarna opgeslagen Assist pipeline, HA preferred/default pipeline, eerste pipeline met STT, eerste HA `stt.*` entity of als laatste HA `assist_pipeline.async_pipeline_from_audio_stream`, kan daarna via HA Assist een defensieve fuzzy-correctie op de STT-tekst uitvoeren, en geeft tekst plus optionele WAV/MP3 `audio_url` terug.
 - Actieve HA routes gebruiken geen directe externe AI/STT/TTS APIs; gebruik HA Assist en HA TTS.
 - DJ responses spelen op het DJConnect device af, niet via Spotify Connect of HA media_player; HA post `text` plus optionele tijdelijke WAV/MP3 `audio_url` naar `/api/device/dj_response`.
 - Fallback DJ responses bij command/playback fouten moeten de gekozen `device_language` volgen (`en`/`nl`).
@@ -59,7 +59,7 @@ Licentie/commercieel:
 HA integration:
 - domain: `djconnect`
 - HACS custom integration.
-- Actuele integratieversie: `3.1.31`.
+- Actuele integratieversie: `3.1.32`.
 - Config flow moet blijven laden.
 - Config flow moet vóór pairing controleren dat de officiële Home Assistant Spotify integratie minstens één Spotify `media_player` entity heeft; ontbreekt die, toon een duidelijke vertaalde foutmelding in plaats van stil verder te gaan.
 - Spotify OAuth gebruikt een HA external step en opent de Spotify website.

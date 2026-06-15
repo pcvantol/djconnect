@@ -23,6 +23,7 @@
 - Confirm HA logs WAV metadata: sample rate, channel count, sample width and byte length.
 - Confirm selected HA STT provider accepts the WAV metadata.
 - Confirm recognized text reaches DJConnect command processing.
+- Confirm the guarded post-STT fuzzy-correction step improves common English artist/track/album names in Dutch sentences without changing correct transcripts.
 - Confirm Spotify playback action runs when Spotify is idle.
 - Confirm PTT artist, track, album, playlist and default-playlist phrases resolve to the intended Spotify search type.
 - Confirm a new PTT request such as Nirvana does not reuse previous Spotify playback metadata such as Red Hot Chili Peppers in the DJ aankondiging.

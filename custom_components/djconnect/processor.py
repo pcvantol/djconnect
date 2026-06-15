@@ -7,16 +7,34 @@ from .const import (
     CONF_TTS_LANGUAGE,
     DEFAULT_TTS_LANGUAGE,
 )
-from .pipeline import generate_dj_response_with_assist, process_text_with_assist
+from .pipeline import (
+    correct_stt_text_with_assist,
+    generate_dj_response_with_assist,
+    process_text_with_assist,
+)
 from .spotify import play_from_intent
 
 
 async def process_text_command(
-    hass: HomeAssistant, runtime, user_text: str, play: bool = True
+    hass: HomeAssistant,
+    runtime,
+    user_text: str,
+    play: bool = True,
+    correct_stt: bool = False,
 ) -> dict[str, Any]:
-    runtime.update(last_text=user_text, last_stt_text=user_text, last_error=None)
     conf = runtime.config
-    intent = await process_text_with_assist(hass, user_text, conf)
+    corrected_text = (
+        await correct_stt_text_with_assist(hass, user_text, conf)
+        if correct_stt
+        else user_text
+    )
+    runtime.update(
+        last_text=corrected_text,
+        last_stt_text=user_text,
+        last_corrected_text=corrected_text if corrected_text != user_text else None,
+        last_error=None,
+    )
+    intent = await process_text_with_assist(hass, corrected_text, conf)
     runtime.update(last_intent=intent)
     playback = None
     if play:
@@ -32,7 +50,9 @@ async def process_text_command(
         debug=dj_response_debug,
     )
     result = {
-        "text": user_text,
+        "text": corrected_text,
+        "stt_text": user_text,
+        "corrected_text": corrected_text if corrected_text != user_text else None,
         "intent": intent,
         "playback": playback,
         "dj_text": dj_text,

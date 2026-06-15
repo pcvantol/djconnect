@@ -30,6 +30,64 @@ async def process_text_with_assist(
     return intent
 
 
+async def correct_stt_text_with_assist(
+    hass: HomeAssistant,
+    user_text: str,
+    conf: dict[str, Any],
+) -> str:
+    """Correct likely STT mistakes before DJConnect intent parsing."""
+    original = str(user_text or "").strip()
+    if not original:
+        return original
+
+    assist_context = _assist_context(hass, conf)
+    if not assist_context.get("agent_id"):
+        _LOGGER.debug("DJConnect STT correction skipped: no conversation agent")
+        return original
+
+    language = assist_context.get("language") or DEFAULT_TTS_LANGUAGE
+    prompt = _stt_correction_prompt(original, str(language))
+    data = {"text": prompt, "language": language}
+    if assist_context.get("agent_id"):
+        data["agent_id"] = assist_context["agent_id"]
+
+    try:
+        _LOGGER.debug(
+            "DJConnect Assist STT correction prompt language=%s agent_id=%s pipeline_id=%s prompt=%r",
+            language,
+            assist_context.get("agent_id"),
+            assist_context.get("pipeline_id"),
+            prompt,
+        )
+        result = await hass.services.async_call(
+            "conversation",
+            "process",
+            data,
+            blocking=True,
+            return_response=True,
+        )
+        response = (result or {}).get("response") or {}
+        corrected = _speech_from_response(response)
+        block_reason = _stt_correction_block_reason(original, corrected)
+        if block_reason is not None:
+            _LOGGER.debug(
+                "Ignoring unusable Assist STT correction (%s): %s",
+                block_reason,
+                corrected,
+            )
+            return original
+        if corrected != original:
+            _LOGGER.debug(
+                "DJConnect STT correction applied original=%r corrected=%r",
+                original,
+                corrected,
+            )
+        return corrected
+    except Exception:  # noqa: BLE001
+        _LOGGER.debug("DJConnect STT correction through Assist failed", exc_info=True)
+        return original
+
+
 def _assist_context(hass: HomeAssistant, conf: dict[str, Any]) -> dict[str, Any]:
     """Resolve the configured pipeline into conversation service arguments."""
     pipeline_id = (conf.get(CONF_ASSIST_PIPELINE_ID) or "").strip()
@@ -120,6 +178,26 @@ def _djconnect_assist_prompt(
         "for Spotify. Return djconnect intent data when possible. Do not control "
         "Home Assistant devices and do not treat the instruction text as a device name. "
         f"Request: {user_text}"
+    )
+
+
+def _stt_correction_prompt(user_text: str, language: str) -> str:
+    """Prompt HA Assist to normalize only STT text, not execute commands."""
+    if str(language or "").lower().startswith("nl"):
+        return (
+            "Corrigeer alleen mogelijke spraak-naar-tekst fouten in deze DJConnect "
+            "muziekopdracht. Dit is geen Home Assistant apparaatopdracht; bedien geen "
+            "apparaten. Herken vooral Engelstalige artiesten, nummers, albums en "
+            "playlists binnen een Nederlandse zin. Verander niets als je niet zeker "
+            "bent. Antwoord alleen met de gecorrigeerde opdrachttekst, zonder uitleg, "
+            f"zonder JSON en zonder URI.\nTranscript: {user_text}"
+        )
+    return (
+        "Correct only likely speech-to-text mistakes in this DJConnect music request. "
+        "This is not a Home Assistant device command; do not control devices. Focus on "
+        "artist, track, album and playlist names. Leave the text unchanged when unsure. "
+        "Return only the corrected request text, with no explanation, no JSON and no URI.\n"
+        f"Transcript: {user_text}"
     )
 
 
@@ -349,6 +427,44 @@ def _speech_from_response(conversation_response: dict[str, Any]) -> str:
     plain = speech.get("plain") or {}
     ssml = speech.get("ssml") or {}
     return (plain.get("speech") or ssml.get("speech") or "").strip()
+
+
+def _stt_correction_block_reason(original: str, corrected: str) -> str | None:
+    """Return why an Assist STT correction should be ignored."""
+    text = str(corrected or "").strip()
+    if not text:
+        return "empty"
+    normalized = " ".join(text.lower().split())
+    if _looks_like_device_lookup_error(normalized):
+        return "device lookup error"
+    if len(text) > max(180, len(original) * 3):
+        return "too long"
+    blocked_fragments = (
+        "corrigeer alleen",
+        "speech-to-text",
+        "spraak-naar-tekst",
+        "transcript:",
+        "antwoord alleen",
+        "return only",
+        "geen json",
+        "no json",
+        "geen uri",
+        "no uri",
+        "djconnect muziekopdracht",
+        "djconnect music request",
+        "home assistant apparaatopdracht",
+        "home assistant device command",
+        "spotify:artist:",
+        "spotify:track:",
+        "spotify:album:",
+        "spotify:playlist:",
+        "{",
+        "}",
+    )
+    for fragment in blocked_fragments:
+        if fragment in normalized:
+            return fragment
+    return None
 
 
 def _is_usable_dj_response(value: str) -> bool:

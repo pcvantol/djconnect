@@ -81,6 +81,35 @@ Why:
   across sparse payloads.
 - Makes tests lightweight because runtime can be represented by simple stubs.
 
+### Guarded STT Correction Before Intent Parsing
+
+Pattern:
+
+- Physical PTT and `djconnect.test_ptt_text` can call
+  `correct_stt_text_with_assist(...)` after STT and before
+  `process_text_with_assist(...)`.
+- The correction prompt asks HA Assist to return only corrected command text,
+  with no JSON, URI or explanation.
+- The helper falls back to the original STT text when Assist is unavailable,
+  returns a Home Assistant device lookup error, leaks prompt text, returns
+  structured data or produces an implausibly long response.
+- `last_stt_text` keeps the raw transcript and `last_corrected_text` records
+  the corrected command only when it changed.
+
+Primary source files:
+
+- `custom_components/djconnect/pipeline.py`
+- `custom_components/djconnect/processor.py`
+- `custom_components/djconnect/http.py`
+
+Why:
+
+- Dutch STT often approximates English artist, track, album and playlist names.
+- A small correction pass improves Spotify search quality without adding direct
+  external AI dependencies.
+- Guardrails prevent prompt leaks or smart-home device lookup errors from
+  becoming Spotify queries or user-facing DJ announcement text.
+
 ### Merge-Only Device Status Cache
 
 Pattern:

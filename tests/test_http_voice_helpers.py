@@ -154,7 +154,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
         runtime = Runtime()
         hass = types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})
 
-        async def fail_command(hass, runtime, user_text, play=True):
+        async def fail_command(hass, runtime, user_text, play=True, correct_stt=False):
             raise AssertionError("text-only voice test must not run command parser")
 
         async def dj_response(hass, runtime, text):
@@ -209,7 +209,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
         runtime = Runtime()
         hass = types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})
 
-        async def fail_command(hass, runtime, user_text, play=True):
+        async def fail_command(hass, runtime, user_text, play=True, correct_stt=False):
             raise AssertionError("JSON text test must not run command parser")
 
         async def dj_response(hass, runtime, text):
@@ -277,7 +277,8 @@ class VoiceHttpHelperTest(unittest.TestCase):
             self.assertEqual(wav, b"RIFFxxxxWAVEdata")
             return "Speel Pearl Jam"
 
-        async def command(hass, runtime, user_text, play=True):
+        async def command(hass, runtime, user_text, play=True, correct_stt=False):
+            self.assertTrue(correct_stt)
             return {
                 "text": user_text,
                 "dj_text": "Daar gaan we",
@@ -401,7 +402,8 @@ class VoiceHttpHelperTest(unittest.TestCase):
         async def transcribe(hass, wav, conf):
             return "Test"
 
-        async def fail_command(hass, runtime, user_text, play=True):
+        async def fail_command(hass, runtime, user_text, play=True, correct_stt=False):
+            self.assertTrue(correct_stt)
             raise RuntimeError("Sorry, ik kan geen apparaat vinden met de naam Test")
 
         async def dj_response(hass, runtime, text):

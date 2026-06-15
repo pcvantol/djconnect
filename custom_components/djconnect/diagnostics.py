@@ -52,6 +52,8 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
         },
         "runtime": _redact({
             "last_text": getattr(runtime, "last_text", None),
+            "last_stt_text": getattr(runtime, "last_stt_text", None),
+            "last_corrected_text": getattr(runtime, "last_corrected_text", None),
             "last_intent": getattr(runtime, "last_intent", None),
             "last_dj_text": getattr(runtime, "last_dj_text", None),
             "last_dj_spoken": getattr(runtime, "last_dj_spoken", None),

@@ -1289,7 +1289,13 @@ class DJConnectVoiceView(HomeAssistantView):
             _set_device_state(runtime, "processing")
             runtime.update(last_text=user_text, last_error=None)
             try:
-                result = await process_text_command(hass, runtime, user_text, play=True)
+                result = await process_text_command(
+                    hass,
+                    runtime,
+                    user_text,
+                    play=True,
+                    correct_stt=True,
+                )
             except Exception as exc:  # noqa: BLE001
                 _LOGGER.warning("DJConnect command parser/playback failed: %s", exc)
                 _set_device_state(runtime, "responding")

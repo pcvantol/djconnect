@@ -86,6 +86,7 @@ class DJConnectStatusSensor(DJConnectBaseSensor):
         return {
             "last_error": self.runtime.last_error,
             "last_stt_text": getattr(self.runtime, "last_stt_text", None),
+            "last_corrected_text": getattr(self.runtime, "last_corrected_text", None),
             "last_spotify_search": getattr(self.runtime, "last_spotify_search", None),
             "last_resolved_media": getattr(self.runtime, "last_resolved_media", None),
             "last_dj_text": self.runtime.last_dj_text,
@@ -122,6 +123,7 @@ class DJConnectLastTextSensor(DJConnectBaseSensor):
             _last_command_first_raw_value(self.runtime),
             getattr(self.runtime, "last_text", None),
             getattr(self.runtime, "last_stt_text", None),
+            getattr(self.runtime, "last_corrected_text", None),
             getattr(self.runtime, "last_dj_text", None),
             _stable_repr(getattr(self.runtime, "last_intent", None)),
             _stable_repr(getattr(self.runtime, "last_spotify_search", None)),
@@ -147,6 +149,7 @@ class DJConnectLastTextSensor(DJConnectBaseSensor):
             "state_truncated": _is_long_text_state(full_value),
             "state_prompt_leak_ignored": _looks_like_assist_prompt_leak(full_value or ""),
             "last_stt_text": getattr(self.runtime, "last_stt_text", None) or self._last_value,
+            "last_corrected_text": getattr(self.runtime, "last_corrected_text", None),
             "last_text": getattr(self.runtime, "last_text", None),
             "last_dj_text": getattr(self.runtime, "last_dj_text", None) or self._last_value,
             "last_intent": getattr(self.runtime, "last_intent", None),

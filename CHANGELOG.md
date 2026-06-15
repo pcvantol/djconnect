@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.1.32
+
+- Add an opt-in HA Assist fuzzy-correction step after STT and before Spotify intent parsing for physical/developer PTT flows, so common STT mistakes in English artist, track, album and playlist names can be corrected before search.
+- Expose the original STT text and corrected text in runtime diagnostics and sensor attributes.
+- Add regression coverage for STT correction ordering and prompt-leak/device-lookup guardrails.
+
 ## 3.1.31
 
 - Require a Spotify `media_player` entity before starting DJConnect setup and show a clear config-flow error when the Home Assistant Spotify integration is not configured yet.

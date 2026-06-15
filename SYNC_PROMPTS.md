@@ -32,7 +32,7 @@ commit the updated `SYNC_PROMPTS.md` there.
 ## Current Protocol Line
 
 The current shared protocol/release line is `3.1.x`; this bundle was last
-aligned after Raspberry Pi client release `v3.1.25`. DJConnect clients on the
+aligned after website release `v3.1.27`. DJConnect clients on the
 `3.1.x` line are compatible with Home Assistant integration versions `>=3.1.0`
 and `<3.2.0`.
 
@@ -59,8 +59,6 @@ Before publishing:
 - Update README, handoff, tests, design decisions, Postman collections,
   third-party notices and repo-specific docs when product behavior, APIs,
   release flow, dependencies or public contracts changed.
-- Review and update all user-facing translations for changed setup, options,
-  repair, entity and service strings in repos that ship localized UI.
 - Update this `SYNC_PROMPTS.md` when the cross-repo contract or release
   checklist changes.
 - Sync the updated `PRODUCT_ROADMAP.md` and `SYNC_PROMPTS.md` to all sibling
@@ -112,6 +110,60 @@ Canonical repo locations:
 - Website/docs: `pcvantol/djconnect-website`
 - Raspberry Pi client: `pcvantol/djconnect-pi`
 
+## Website/Docs
+
+```text
+Sync the DJConnect website/docs with the Home Assistant integration, Apple app,
+ESP firmware and Raspberry Pi client contracts.
+
+Requirements:
+- Keep the canonical production domain `https://djconnect.dev`; keep
+  `https://www.djconnect.dev` as a permanent redirect to the apex domain.
+- Keep `djconnect.pages.dev` only as the Cloudflare Pages fallback URL.
+- Keep homepage navigation focused on `Hoe werkt het`, `Features`, `Spraak`,
+  `Installeren` and `Blog`, plus the primary `Aan de slag` CTA.
+- Keep the voice commands page at `/voice-commands` aligned with Home Assistant
+  intent parsing and local fallback behavior. It must document artist-first
+  generic music requests, explicit track/album/playlist media words, default
+  playlist/favorites and the expandable playback-control family in Dutch and
+  English. Keep the examples in a maintainable data/config object and render
+  only the selected NL or EN examples according to the website language toggle.
+- Use `VOICE_INTENT_DATA_PROMPT.md` when the Home Assistant integration needs
+  to hand over only updated voice/PTT intentdata to the website. That prompt
+  must request structured data only and exclude website rendering, styling,
+  release, changelog and deploy instructions.
+- Keep macOS, iOS, Raspberry Pi/Linux and ESP32 pages minimal: app/device pages
+  should label the platform route as `Home` and avoid cross-link clutter in
+  their top menus.
+- Keep `macos-download` retired. The canonical macOS page is `/macos`.
+- Render macOS downloads from `pcvantol/djconnect-app-releases`, ESP32 firmware
+  downloads from `pcvantol/djconnect-firmware`, and Raspberry Pi/Linux downloads
+  from `pcvantol/djconnect-pi-releases`.
+- Show only the latest GitHub release in ESP32 firmware and Raspberry Pi/Linux
+  download blocks. Keep macOS aligned with the same latest-version download
+  pattern unless an App Store link replaces it.
+- Route website-originated download clicks through `/go/download` so aggregate
+  click counters can be combined with GitHub release asset download_count.
+- Route the public Raspberry Pi/Linux installer through `/go/linux-install`;
+  generate the install command from the latest `djconnect-pi-*` tarball and run
+  `sudo ./scripts/install.sh`.
+- Keep click/download analytics cookieless and aggregate-only: no cookies, IP
+  addresses, user agents, referrers or visitor identifiers.
+- Keep SEO metadata, sitemap, canonical URLs and social preview images current
+  for the production domain.
+- Keep the translated footer privacy notice and the footer website version on
+  every public page.
+- Keep bonus game names aligned with the current app labels: Paddle Rally,
+  Meteor Run, Sky Dash and Maze Chase.
+- Keep tests for translation coverage, current navigation, latest-only embeds,
+  tracked redirects, retired routes, SEO canonicals, link checking, voice
+  command intent-family docs and stale pre-flashed copy.
+- Keep release documentation, handoff, tests, changelog, design decisions,
+  roadmap and third-party notices current before every website release.
+- Keep old website releases, tags and workflow runs cleaned up by default after
+  publishing.
+```
+
 ## Home Assistant Integration
 
 ```text
@@ -120,10 +172,6 @@ client contracts.
 
 Requirements:
 - Treat iOS/macOS/Raspberry Pi as app-like clients, not ESP hardware devices.
-- Before pairing, require that Home Assistant has the official Spotify
-  integration configured with at least one Spotify `media_player` entity; if
-  not, show a clear localized config-flow error telling the user to configure
-  Spotify first.
 - Pair app-like clients through POST /api/djconnect/pair. For Raspberry Pi, this is
   the primary pairing path; do not try to call a Pi-local /api/device/pair
   endpoint during initial pairing.
@@ -798,16 +846,6 @@ Command responses are transport/command success first, playback-state second.
 A command response with `success:true` and `playback.has_playback:false` is not
 an error state.
 
-`command:"playlists"` is browsing, not active playback. If Spotify credentials
-are valid and playlist browsing succeeds, HA must return HTTP 200 with
-`success:true`, `backend_available:true` and `playlists[]` items containing at
-least `name`, `uri`, `owner` and `image_url`, even when Spotify playback is
-idle. ESP32 clients may send `limit`; HA must cap the response to that limit
-and use a safe default of 20 when ESP omits it. App-like clients may request up
-to 100 playlists. Use `backend_available:false` only when the backend is
-genuinely unavailable or auth is invalid, and still return a non-empty JSON body
-with `success:false`, `error:"playback_backend_unavailable"` and `playlists:[]`.
-
 When `playback.has_playback == false`, clients must treat the playback snapshot
 as valid but empty. Playback fields may be `null` or empty strings, including
 `progress_ms`, `duration_ms`, `volume_percent`, `device.volume_percent`,
@@ -1437,16 +1475,6 @@ Command responses are transport/command success first, playback-state second.
 A command response with `success:true` and `playback.has_playback:false` is not
 an error state.
 
-`command:"playlists"` is browsing, not active playback. If Spotify credentials
-are valid and playlist browsing succeeds, HA must return HTTP 200 with
-`success:true`, `backend_available:true` and `playlists[]` items containing at
-least `name`, `uri`, `owner` and `image_url`, even when Spotify playback is
-idle. ESP32 clients may send `limit`; HA must cap the response to that limit
-and use a safe default of 20 when ESP omits it. App-like clients may request up
-to 100 playlists. Use `backend_available:false` only when the backend is
-genuinely unavailable or auth is invalid, and still return a non-empty JSON body
-with `success:false`, `error:"playback_backend_unavailable"` and `playlists:[]`.
-
 When `playback.has_playback == false`, clients must treat the playback snapshot
 as valid but empty. Playback fields may be `null` or empty strings, including
 `progress_ms`, `duration_ms`, `volume_percent`, `device.volume_percent`,
@@ -1685,10 +1713,6 @@ client contracts.
 
 Requirements:
 - Treat iOS/macOS/Raspberry Pi as app-like clients, not ESP hardware devices.
-- Before pairing, require that Home Assistant has the official Spotify
-  integration configured with at least one Spotify `media_player` entity; if
-  not, show a clear localized config-flow error telling the user to configure
-  Spotify first.
 - Pair app-like clients through POST /api/djconnect/pair. For Raspberry Pi, this is
   the primary pairing path; do not try to call a Pi-local /api/device/pair
   endpoint during initial pairing.

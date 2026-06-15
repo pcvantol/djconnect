@@ -100,6 +100,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
             {
                 "last_text": "Speel Black",
                 "last_stt_text": "Speel Black",
+                "last_corrected_text": None,
                 "last_error": None,
             },
         )
@@ -110,6 +111,61 @@ class ProcessorRuntimeTest(unittest.TestCase):
         )
         self.assertEqual(runtime.last_playback["resolved_media"]["title"], "Black")
         self.assertEqual(result["playback"]["resolved_media"]["artist"], "Pearl Jam")
+
+    def test_process_text_command_corrects_stt_before_intent_parsing(self) -> None:
+        seen = {}
+
+        async def correct(hass, user_text, conf):
+            seen["stt"] = user_text
+            return "speel nummer Lithium van Nirvana"
+
+        async def assist(hass, user_text, conf):
+            seen["intent_text"] = user_text
+            return {
+                "type": "track",
+                "title": "Lithium",
+                "artist": "Nirvana",
+                "spotify_search_query": "track:Lithium artist:Nirvana",
+                "dj_announcement": "Daar gaan we.",
+            }
+
+        async def play(hass, runtime, intent, conf):
+            return {
+                "resolved_media": {
+                    "title": intent["title"],
+                    "artist": intent["artist"],
+                }
+            }
+
+        original_correct = self.processor.correct_stt_text_with_assist
+        original_assist = self.processor.process_text_with_assist
+        original_play = self.processor.play_from_intent
+        self.processor.correct_stt_text_with_assist = correct
+        self.processor.process_text_with_assist = assist
+        self.processor.play_from_intent = play
+        runtime = Runtime()
+        try:
+            result = asyncio.run(
+                self.processor.process_text_command(
+                    object(),
+                    runtime,
+                    "speel nummer litiem van nervana",
+                    play=True,
+                    correct_stt=True,
+                )
+            )
+        finally:
+            self.processor.correct_stt_text_with_assist = original_correct
+            self.processor.process_text_with_assist = original_assist
+            self.processor.play_from_intent = original_play
+
+        self.assertEqual(seen["stt"], "speel nummer litiem van nervana")
+        self.assertEqual(seen["intent_text"], "speel nummer Lithium van Nirvana")
+        self.assertEqual(runtime.last_stt_text, "speel nummer litiem van nervana")
+        self.assertEqual(runtime.last_text, "speel nummer Lithium van Nirvana")
+        self.assertEqual(runtime.last_corrected_text, "speel nummer Lithium van Nirvana")
+        self.assertEqual(result["stt_text"], "speel nummer litiem van nervana")
+        self.assertEqual(result["corrected_text"], "speel nummer Lithium van Nirvana")
 
     def test_process_text_command_uses_generated_dj_response_for_resolved_track(self) -> None:
         async def assist(hass, user_text, conf):

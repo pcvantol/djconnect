@@ -102,6 +102,66 @@ class AssistPipelineTest(unittest.TestCase):
         )
         self.assertTrue(any("Speel Pearl Jam" in line for line in logs.output))
 
+    def test_correct_stt_text_with_assist_returns_corrected_text(self) -> None:
+        calls = []
+
+        class Services:
+            async def async_call(self, domain, service, data, **kwargs):
+                calls.append(data)
+                return {
+                    "response": {
+                        "speech": {
+                            "plain": {"speech": "speel nummer Lithium van Nirvana"}
+                        }
+                    }
+                }
+
+        hass = types.SimpleNamespace(services=Services())
+        text = asyncio.run(
+            self.pipeline.correct_stt_text_with_assist(
+                hass,
+                "speel nummer litiem van nervana",
+                {
+                    "assist_pipeline_id": "conversation.openai",
+                    "tts_language": "nl-NL",
+                },
+            )
+        )
+
+        self.assertEqual(text, "speel nummer Lithium van Nirvana")
+        self.assertIn("Transcript: speel nummer litiem van nervana", calls[0]["text"])
+        self.assertIn("agent_id", calls[0])
+
+    def test_correct_stt_text_with_assist_ignores_prompt_leak(self) -> None:
+        class Services:
+            async def async_call(self, domain, service, data, **kwargs):
+                return {
+                    "response": {
+                        "speech": {
+                            "plain": {
+                                "speech": (
+                                    "Sorry, ik kan Corrigeer alleen spraak-naar-tekst "
+                                    "Transcript Nirvana niet vinden"
+                                )
+                            }
+                        }
+                    }
+                }
+
+        hass = types.SimpleNamespace(services=Services())
+        text = asyncio.run(
+            self.pipeline.correct_stt_text_with_assist(
+                hass,
+                "speel nervana",
+                {
+                    "assist_pipeline_id": "conversation.openai",
+                    "tts_language": "nl-NL",
+                },
+            )
+        )
+
+        self.assertEqual(text, "speel nervana")
+
     def test_generate_dj_response_with_assist_uses_custom_response_prompt(self) -> None:
         calls = []
 

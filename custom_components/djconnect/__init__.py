@@ -1084,7 +1084,13 @@ def _register_developer_services(
             "DJConnect developer action test_ptt_text after_stt_text=%s",
             text,
         )
-        result = await process_text_command(hass, runtime, text, play=True)
+        result = await process_text_command(
+            hass,
+            runtime,
+            text,
+            play=True,
+            correct_stt=True,
+        )
         result["dj_response"] = await async_send_dj_response_best_effort(
             hass,
             runtime,
