@@ -90,6 +90,8 @@ ENTITY_TRANSLATION_KEYS = {
     ("button", "refresh_device_info"),
     ("button", "refresh_up_next"),
     ("button", "reboot_device"),
+    ("button", "restart_device"),
+    ("button", "shutdown_device"),
     ("number", "volume"),
     ("number", "brightness"),
     ("number", "screen_timeout"),

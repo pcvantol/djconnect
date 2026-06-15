@@ -94,7 +94,7 @@ class DJConnectButtonEntityTest(unittest.TestCase):
         translation_keys = {entity._attr_translation_key for entity in added}
         self.assertNotIn("reboot_device", translation_keys)
 
-    def test_reboot_button_is_skipped_for_raspberry_pi_clients(self) -> None:
+    def test_pi_power_buttons_are_added_for_raspberry_pi_clients(self) -> None:
         added = []
         runtime = types.SimpleNamespace(
             entry=types.SimpleNamespace(entry_id="entry-1"),
@@ -109,6 +109,26 @@ class DJConnectButtonEntityTest(unittest.TestCase):
 
         translation_keys = {entity._attr_translation_key for entity in added}
         self.assertNotIn("reboot_device", translation_keys)
+        self.assertIn("restart_device", translation_keys)
+        self.assertIn("shutdown_device", translation_keys)
+
+    def test_pi_power_buttons_call_pi_device_endpoints(self) -> None:
+        calls = []
+
+        async def async_device_post(hass, path):
+            calls.append(path)
+            return {"success": True}
+
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            async_device_post=async_device_post,
+        )
+        hass = object()
+
+        asyncio.run(self.button.DJConnectPiRestartButton(runtime, hass).async_press())
+        asyncio.run(self.button.DJConnectPiShutdownButton(runtime, hass).async_press())
+
+        self.assertEqual(calls, ["/api/device/restart", "/api/device/shutdown"])
 
     def test_reboot_button_is_added_for_esp32_clients(self) -> None:
         added = []

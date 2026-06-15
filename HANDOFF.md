@@ -81,6 +81,8 @@ Version contract:
 - `POST /api/device/command`
 - `POST /api/device/ota`
 - `POST /api/device/reboot`
+- `POST /api/device/restart`
+- `POST /api/device/shutdown`
 - `POST /api/device/forget`
 - `POST /api/device/dj_response`
 
@@ -171,7 +173,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - `sensor.djconnect_last_track` and `sensor.djconnect_last_command` cache their last non-empty native values at entity level and must not flip to unknown/unavailable because a sparse runtime snapshot omits them.
 - ESP status must include `client_type=esp32`; missing client type is surfaced as a visible HA status error.
 - Native HA entities include backend playback proxy, queue/up-next, output list, output select, firmware OTA, device settings and test/refresh buttons under one HA device.
-- ESP32 clients get ESP-only hardware/update/settings entities: battery, Wi-Fi RSSI, screen state, LED state, screen brightness/timeout, speaker volume, device language, auto-off, theme/log-level, firmware update and reboot. iOS, macOS and Raspberry Pi clients must not get those ESP-only entities; they keep only client/runtime and backend/playback entities.
+- ESP32 clients get ESP-only hardware/update/settings entities: battery, Wi-Fi RSSI, screen state, LED state, screen brightness/timeout, speaker volume, device language, auto-off, theme/log-level, firmware update and reboot. iOS, macOS and Raspberry Pi clients must not get those ESP-only entities; they keep only client/runtime and backend/playback entities. Raspberry Pi clients additionally get Pi-specific restart and shutdown buttons that call `/api/device/restart` and `/api/device/shutdown`.
 - `button.djconnect_refresh_up_next` refreshes Spotify/Home Assistant backend queue data through the `queue` command.
 - `command=queue` returns at most 100 real queue items plus top-level `context_uri` / `contextUri` and queue item artwork aliases so ESP/web/app Up Next can use `play_context_at` and show thumbnails.
 - `select.djconnect_sound_output` refreshes Spotify output devices itself and accepts `available_outputs`, `outputs`, `devices` and nested `items` aliases.

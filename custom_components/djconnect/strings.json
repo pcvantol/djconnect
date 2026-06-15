@@ -275,6 +275,12 @@
       },
       "reboot_device": {
         "name": "Device herstarten"
+      },
+      "restart_device": {
+        "name": "Raspberry Pi herstarten"
+      },
+      "shutdown_device": {
+        "name": "Raspberry Pi afsluiten"
       }
     },
     "update": {

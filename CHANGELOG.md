@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.35
+
+- Add Raspberry Pi-specific restart and shutdown button entities that call the Pi local Client API without reintroducing ESP-only reboot/OTA entities for app-like clients.
+- Add regression coverage for Raspberry Pi power buttons.
+
 ## 3.1.34
 
 - Restore robust playlist responses for DJConnect clients by always returning playlist aliases (`playlists`, `items`, `count`) and preserving request `client_type`/`limit` context even when clients send a `value` object.

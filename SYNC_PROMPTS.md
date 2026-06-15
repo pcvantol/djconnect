@@ -191,13 +191,15 @@ Requirements:
 - Create native HA entities for paired app-like clients when status is
   received, including outbound-only Raspberry Pi clients that never expose
   /api/device/* endpoints.
-- Create only client/runtime and backend/playback entities for ios, macos, and
-  raspberry_pi clients; do not create ESP-only battery, Wi-Fi RSSI, screen
-  state, LED state, screen brightness/timeout, speaker volume, device language,
-  auto-off, theme/log-level, firmware OTA, or reboot entities for app-like
-  clients. Raspberry Pi local settings such as screen blanking, logging and
-  update channel are client-owned and should not be modeled as ESP hardware
-  entities unless a future Pi-specific HA entity design is explicitly added.
+- Create only client/runtime and backend/playback entities for ios and macos
+  clients; do not create ESP-only battery, Wi-Fi RSSI, screen state, LED state,
+  screen brightness/timeout, speaker volume, device language, auto-off,
+  theme/log-level, firmware OTA, or reboot entities for app-like clients.
+  Raspberry Pi clients must not get ESP-only OTA/reboot/hardware entities, but
+  may get Pi-specific device power buttons. HA exposes Pi restart and shutdown
+  buttons for `client_type=raspberry_pi` when the Pi has a local Client API;
+  those buttons call `POST /api/device/restart` and
+  `POST /api/device/shutdown`.
 - Support App Store review by allowing Apple clients to enter local Demo Mode
   without HA; Demo Mode must not create HA devices/entities, tokens, or backend
   traffic. Local sample DJ announcement audio/text in Demo Mode is app-local and
@@ -1757,13 +1759,15 @@ Requirements:
 - Create native HA entities for paired app-like clients when status is
   received, including outbound-only Raspberry Pi clients that never expose
   /api/device/* endpoints.
-- Create only client/runtime and backend/playback entities for ios, macos, and
-  raspberry_pi clients; do not create ESP-only battery, Wi-Fi RSSI, screen
-  state, LED state, screen brightness/timeout, speaker volume, device language,
-  auto-off, theme/log-level, firmware OTA, or reboot entities for app-like
-  clients. Raspberry Pi local settings such as screen blanking, logging and
-  update channel are client-owned and should not be modeled as ESP hardware
-  entities unless a future Pi-specific HA entity design is explicitly added.
+- Create only client/runtime and backend/playback entities for ios and macos
+  clients; do not create ESP-only battery, Wi-Fi RSSI, screen state, LED state,
+  screen brightness/timeout, speaker volume, device language, auto-off,
+  theme/log-level, firmware OTA, or reboot entities for app-like clients.
+  Raspberry Pi clients must not get ESP-only OTA/reboot/hardware entities, but
+  may get Pi-specific device power buttons. HA exposes Pi restart and shutdown
+  buttons for `client_type=raspberry_pi` when the Pi has a local Client API;
+  those buttons call `POST /api/device/restart` and
+  `POST /api/device/shutdown`.
 - Support App Store review by allowing Apple clients to enter local Demo Mode
   without HA; Demo Mode must not create HA devices/entities, tokens, or backend
   traffic. Local sample DJ announcement audio/text in Demo Mode is app-local and
@@ -1836,8 +1840,9 @@ Requirements:
 - Treat the Pi as an app-like display remote, not ESP firmware.
 - Support both outbound POST /api/djconnect/pair and the app-like local Client
   API URL flow. The Pi exposes GET /api/device/info, GET /api/device/pairing-info,
-  POST /api/device/pair, POST /api/device/command, POST /api/device/dj_response
-  and POST /api/device/forget.
+  POST /api/device/pair, POST /api/device/command, POST /api/device/dj_response,
+  POST /api/device/restart, POST /api/device/shutdown and
+  POST /api/device/forget.
 - Advertise `_djconnect._tcp` mDNS on the local Client API port with TXT records
   including device_id, client_type=raspberry_pi, version, device_name and
   local_url.
@@ -1852,7 +1857,8 @@ Requirements:
   DJ response audio playback. POST /api/device/dj_response displays text on
   screen and may report audio_played:false when no audio device is configured.
 - Do not expose ESP-only reboot, OTA, battery, Wi-Fi RSSI, screen brightness,
-  screen timeout, speaker volume, LED, log-level or firmware entities.
+  screen timeout, speaker volume, LED, log-level or firmware entities. Do
+  implement Pi-specific restart and shutdown actions on the local Client API.
 - Keep the updater and OS maintenance daemon separate from the touch UI and
   keep the touch UI runnable without root privileges.
 - Keep general Raspberry Pi OS bootstrap separate from the app release tarball.

@@ -14,7 +14,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 
 ## Current Version
 
-- Home Assistant integration: `3.1.34`
+- Home Assistant integration: `3.1.35`
 - Domain: `djconnect`
 - HACS category: `Integration`
 - Device target: DJConnect device
@@ -64,7 +64,7 @@ runtime behavior. These decisions are part of the integration contract:
 
 ## Repository Layout
 
-- Home Assistant integration: `3.1.34`
+- Home Assistant integration: `3.1.35`
 - ESP firmware source: `pcvantol/djconnect-app`
 - Public firmware releases: `pcvantol/djconnect-firmware`
 - Canonical cross-repo sync prompts: [`SYNC_PROMPTS.md`](SYNC_PROMPTS.md)
@@ -550,7 +550,7 @@ response.
 
 ## Native Home Assistant Entities
 
-The integration exposes native Home Assistant entities for device status, DJ announcement tests and backend playback control. ESP32 clients additionally get firmware OTA, reboot and ESP hardware state such as battery, Wi-Fi RSSI and screen/LED status. iOS, macOS and Raspberry Pi clients only get client/runtime and backend/playback entities, so Home Assistant does not show irrelevant ESP hardware sensors for app-like clients. The `media_player.djconnect_playback_proxy` entity represents the current music backend session, not the ESP speaker. Music plays on the selected Spotify/output device; the DJConnect speaker/client is used for local cues and DJ/voice responses.
+The integration exposes native Home Assistant entities for device status, DJ announcement tests and backend playback control. ESP32 clients additionally get firmware OTA, reboot and ESP hardware state such as battery, Wi-Fi RSSI and screen/LED status. Raspberry Pi clients get Pi-specific restart and shutdown buttons, but no ESP OTA or ESP hardware entities. iOS and macOS clients only get client/runtime and backend/playback entities, so Home Assistant does not show irrelevant ESP hardware sensors for app-like clients. The `media_player.djconnect_playback_proxy` entity represents the current music backend session, not the ESP speaker. Music plays on the selected Spotify/output device; the DJConnect speaker/client is used for local cues and DJ/voice responses.
 DJConnect persists the last known ESP status in the Home Assistant config entry,
 so ESP battery, firmware, pairing status, screen/LED state and sound output
 remain visible after a Home Assistant restart or integration reload while
@@ -567,9 +567,13 @@ POST /api/device/command
 GET /api/device/info
 GET /api/device/pairing-info
 POST /api/device/reboot
+POST /api/device/restart
+POST /api/device/shutdown
 POST /api/device/forget
 GET  /api/device/info
 ```
+
+`/api/device/reboot` is ESP-specific. `/api/device/restart` and `/api/device/shutdown` are Raspberry Pi-specific local client actions.
 
 The integration uses the device `local_url` from pairing/status when provided. During setup it discovers visible `_djconnect._tcp` clients, probes `/api/device/pairing-info`, and can prefill pairing fields for reachable iOS, macOS, Raspberry Pi and ESP devices. Stale Bonjour records that no longer answer pairing-info are hidden from the selector; use the manual Client API URL field if mDNS is visible but the advertised URL is wrong. If the stored field is empty at runtime, it resolves the `_djconnect._tcp` mDNS service for the paired device. When the setup code is only 6 digits, DJConnect can also use the single visible DJConnect mDNS service on the network. Fallback hostnames are only generated for real 12-character device suffixes as model-specific hostnames, for example `djconnect-lilygo-t-embed-s3-90B70990A994.local`. `djconnect-[6-digit-code].local` and legacy `djconnect-90B70990A994.local` fallbacks are intentionally ignored.
 
@@ -598,24 +602,24 @@ Example manifest:
 
 ```json
 {
-  "version": "3.1.34",
-  "version_tag": "v3.1.34",
+  "version": "3.1.35",
+  "version_tag": "v3.1.35",
   "channel": "stable",
-  "min_ha_integration": "3.1.34",
+  "min_ha_integration": "3.1.35",
   "firmwares": [
     {
       "board": "t_embed_cc1101",
       "device": "lilygo-t-embed-s3",
-      "asset": "djconnect-lilygo-t-embed-s3-v3.1.34.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.34/djconnect-lilygo-t-embed-s3-v3.1.34.bin",
+      "asset": "djconnect-lilygo-t-embed-s3-v3.1.35.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.35/djconnect-lilygo-t-embed-s3-v3.1.35.bin",
       "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "size": 2113136
     },
     {
       "board": "esp32_s3_box3",
       "device": "esp32-s3-box-3",
-      "asset": "djconnect-esp32-s3-box-3-v3.1.34.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.34/djconnect-esp32-s3-box-3-v3.1.34.bin",
+      "asset": "djconnect-esp32-s3-box-3-v3.1.35.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.35/djconnect-esp32-s3-box-3-v3.1.35.bin",
       "sha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
       "size": 2113136
     }
@@ -638,7 +642,7 @@ The firmware version is injected through PlatformIO build flags from the Git tag
 Recommended firmware source release helper:
 
 ```bash
-./release.sh 3.1.34
+./release.sh 3.1.35
 ```
 
 In the private `djconnect-app` repository, the firmware release script should
@@ -650,14 +654,14 @@ PlatformIO builds, rename firmware binaries to device-specific assets such as
 Preview the firmware release flow without changing files:
 
 ```bash
-./release.sh 3.1.34 --dry-run
+./release.sh 3.1.35 --dry-run
 ```
 
 When publishing to the public firmware repository, use the firmware script's
 public-repo option if available:
 
 ```bash
-./release.sh 3.1.34 --publish-firmware-repo ../djconnect-firmware
+./release.sh 3.1.35 --publish-firmware-repo ../djconnect-firmware
 ```
 
 The public `djconnect-firmware` repository should contain only the release
@@ -698,7 +702,7 @@ Tag and publish:
 One-liner:
 
 ```bash
-./release.sh 3.1.34
+./release.sh 3.1.35
 ```
 
 The script updates the integration version in `manifest.json`, `const.py`,
@@ -709,18 +713,18 @@ above.
 Preview without executing git/gh commands:
 
 ```bash
-./release.sh 3.1.34 --dry-run
+./release.sh 3.1.35 --dry-run
 ```
 
 Manual equivalent:
 
 ```bash
 git add .
-git commit -m "Release DJConnect v3.1.34"
-git tag v3.1.34
+git commit -m "Release DJConnect v3.1.35"
+git tag v3.1.35
 git push origin main
-git push origin v3.1.34
-gh release create v3.1.34 --title "DJConnect v3.1.34" --notes-file CHANGELOG.md
+git push origin v3.1.35
+gh release create v3.1.35 --title "DJConnect v3.1.35" --notes-file CHANGELOG.md
 ```
 
 Release cleanup helper:

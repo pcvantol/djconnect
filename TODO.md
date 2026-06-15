@@ -8,7 +8,7 @@
 - Before release/build validation, check for updates to third-party libraries, frameworks and build tools; when versions are upgraded, update `THIRD_PARTY_NOTICES.md` and dependency/design documentation, or document skipped upgrades in `HANDOFF.md`.
 - Confirm `TECHNICAL_DESIGN_DECISIONS.md` remains current when code patterns, dependencies, licenses or external APIs change.
 - Confirm existing paired device remains paired after HA restart when ESP reports `ha_pairing_status=paired`.
-- Confirm iOS/macOS/Raspberry Pi paired clients do not show active/available firmware OTA or reboot entities.
+- Confirm iOS/macOS/Raspberry Pi paired clients do not show active/available firmware OTA or ESP reboot entities; Raspberry Pi should show only Pi restart/shutdown power buttons.
 - Confirm iOS/macOS/Raspberry Pi PTT requests do not create a false Spotify refresh-token repair after the first DJ announcement.
 - Confirm HA shows pairing `pending` and retries `/api/device/pair` when a local token exists but ESP has not confirmed pairing.
 - Confirm ESP `/status` updates persist the real `djconnect-XXXXXXXXXXXX` device id.
@@ -90,7 +90,7 @@
 - Verify ESP no longer rejects OTA with `Wrong device target`.
 - Verify OTA errors are shown clearly in HA.
 - Verify firmware OTA update entity is not added and remains unavailable for `client_type=ios`, `client_type=macos` and `client_type=raspberry_pi`.
-- Verify reboot entity is not added for `client_type=ios`, `client_type=macos` and `client_type=raspberry_pi`.
+- Verify ESP reboot entity is not added for `client_type=ios`, `client_type=macos` and `client_type=raspberry_pi`; verify Raspberry Pi restart/shutdown entities are added only for `client_type=raspberry_pi`.
 
 ## Developer Services
 

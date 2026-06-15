@@ -275,6 +275,12 @@
       },
       "reboot_device": {
         "name": "Reboot device"
+      },
+      "restart_device": {
+        "name": "Restart Raspberry Pi"
+      },
+      "shutdown_device": {
+        "name": "Shut down Raspberry Pi"
       }
     },
     "update": {

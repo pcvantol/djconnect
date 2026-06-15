@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
+
 from homeassistant.components.button import ButtonEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -8,7 +10,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.device_registry import DeviceInfo
 
 from . import DEFAULT_TEST_TTS_TEXT, async_speak_dj_test
-from .const import CLIENT_TYPE_ESP32, DOMAIN
+from .const import CLIENT_TYPE_ESP32, CLIENT_TYPE_RASPBERRY_PI, DOMAIN
 from .entity_ids import entry_unique_id
 from .spotify_backend import SpotifyBackendError, handle_spotify_command
 
@@ -30,6 +32,13 @@ async def async_setup_entry(
     ]
     if runtime.client_type() == CLIENT_TYPE_ESP32:
         entities.append(DJConnectRebootButton(runtime, hass))
+    if runtime.client_type() == CLIENT_TYPE_RASPBERRY_PI:
+        entities.extend(
+            [
+                DJConnectPiRestartButton(runtime, hass),
+                DJConnectPiShutdownButton(runtime, hass),
+            ]
+        )
     async_add_entities(entities)
 
 class DJConnectTestVoiceButton(ButtonEntity):
@@ -139,3 +148,19 @@ class DJConnectRebootButton(DJConnectBaseButton):
 
     async def async_press(self) -> None:
         await self.runtime.async_device_post(self.hass, "/api/device/reboot")
+
+
+class DJConnectPiRestartButton(DJConnectBaseButton):
+    def __init__(self, runtime, hass: HomeAssistant) -> None:
+        super().__init__(runtime, hass, "restart_device")
+
+    async def async_press(self) -> None:
+        await self.runtime.async_device_post(self.hass, "/api/device/restart")
+
+
+class DJConnectPiShutdownButton(DJConnectBaseButton):
+    def __init__(self, runtime, hass: HomeAssistant) -> None:
+        super().__init__(runtime, hass, "shutdown_device")
+
+    async def async_press(self) -> None:
+        await self.runtime.async_device_post(self.hass, "/api/device/shutdown")
