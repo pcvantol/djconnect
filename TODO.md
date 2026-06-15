@@ -121,6 +121,7 @@
 - Before every release, review all documentation files in this repo: `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `info.md` and relevant `examples/*`.
 - Before every release, explicitly check whether tests need to be expanded for the change; add coverage for new behavior paths, regression risks, translations and edge cases.
 - Keep cross-repo sync prompts only in `pcvantol/djconnect/SYNC_PROMPTS.md`; do not re-add retired loose prompt files or sibling-repo copies.
+- Keep product roadmap only in `pcvantol/djconnect/PRODUCT_ROADMAP.md`; do not re-add sibling-repo roadmap copies.
 - Document known HA restart requirement after HACS custom integration updates.
 
 ## Website / Marketing

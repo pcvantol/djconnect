@@ -14,7 +14,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 
 ## Current Version
 
-- Home Assistant integration: `3.1.38`
+- Home Assistant integration: `3.1.39`
 - Domain: `djconnect`
 - HACS category: `Integration`
 - Device target: DJConnect device
@@ -64,17 +64,18 @@ runtime behavior. These decisions are part of the integration contract:
 
 ## Repository Layout
 
-- Home Assistant integration: `3.1.38`
+- Home Assistant integration: `3.1.39`
 - ESP firmware source: `pcvantol/djconnect-app`
 - Public firmware releases: `pcvantol/djconnect-firmware`
 - Canonical cross-repo sync prompts live only in this HA repo: [`SYNC_PROMPTS.md`](SYNC_PROMPTS.md)
+- Canonical product roadmap lives only in this HA repo: [`PRODUCT_ROADMAP.md`](PRODUCT_ROADMAP.md)
 - Technical design decisions and dependency inventory: [`TECHNICAL_DESIGN_DECISIONS.md`](TECHNICAL_DESIGN_DECISIONS.md)
 
 This repository contains the Home Assistant custom integration under `custom_components/djconnect`.
 
 Brand images for the Home Assistant frontend are bundled in `custom_components/djconnect/brand/`.
 The product/marketing website is maintained outside this integration repository.
-Cross-repo sync prompts are consolidated into this repo's `SYNC_PROMPTS.md`; do not re-add old loose prompt files or sibling-repo copies. Keep `TECHNICAL_DESIGN_DECISIONS.md` updated when implementation patterns, coding conventions, dependencies, libraries or external API usage change.
+Cross-repo sync prompts are consolidated into this repo's `SYNC_PROMPTS.md`; do not re-add old loose prompt files or sibling-repo copies. The product roadmap is centralized in this repo's `PRODUCT_ROADMAP.md`; do not keep sibling-repo roadmap copies. Keep `TECHNICAL_DESIGN_DECISIONS.md` updated when implementation patterns, coding conventions, dependencies, libraries or external API usage change.
 
 ## Licensing And Commercial Use
 
@@ -612,24 +613,24 @@ Example manifest:
 
 ```json
 {
-  "version": "3.1.38",
-  "version_tag": "v3.1.38",
+  "version": "3.1.39",
+  "version_tag": "v3.1.39",
   "channel": "stable",
-  "min_ha_integration": "3.1.38",
+  "min_ha_integration": "3.1.39",
   "firmwares": [
     {
       "board": "t_embed_cc1101",
       "device": "lilygo-t-embed-s3",
-      "asset": "djconnect-lilygo-t-embed-s3-v3.1.38.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.38/djconnect-lilygo-t-embed-s3-v3.1.38.bin",
+      "asset": "djconnect-lilygo-t-embed-s3-v3.1.39.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.39/djconnect-lilygo-t-embed-s3-v3.1.39.bin",
       "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "size": 2113136
     },
     {
       "board": "esp32_s3_box3",
       "device": "esp32-s3-box-3",
-      "asset": "djconnect-esp32-s3-box-3-v3.1.38.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.38/djconnect-esp32-s3-box-3-v3.1.38.bin",
+      "asset": "djconnect-esp32-s3-box-3-v3.1.39.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.39/djconnect-esp32-s3-box-3-v3.1.39.bin",
       "sha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
       "size": 2113136
     }
@@ -652,7 +653,7 @@ The firmware version is injected through PlatformIO build flags from the Git tag
 Recommended firmware source release helper:
 
 ```bash
-./release.sh 3.1.38
+./release.sh 3.1.39
 ```
 
 In the private `djconnect-app` repository, the firmware release script should
@@ -664,14 +665,14 @@ PlatformIO builds, rename firmware binaries to device-specific assets such as
 Preview the firmware release flow without changing files:
 
 ```bash
-./release.sh 3.1.38 --dry-run
+./release.sh 3.1.39 --dry-run
 ```
 
 When publishing to the public firmware repository, use the firmware script's
 public-repo option if available:
 
 ```bash
-./release.sh 3.1.38 --publish-firmware-repo ../djconnect-firmware
+./release.sh 3.1.39 --publish-firmware-repo ../djconnect-firmware
 ```
 
 The public `djconnect-firmware` repository should contain only the release
@@ -694,6 +695,7 @@ Pre-release checklist:
 - Keep `AGENTS.md` aligned with the current version and release expectations.
 - Keep `HANDOFF.md`, `TODO.md` and `ISSUES.md` aligned with release status, known checks and remaining field validation.
 - Keep this repo's `SYNC_PROMPTS.md` current when cross-repo contracts, client types, endpoints or pairing/discovery behavior change, including when the change originates in another DJConnect repo.
+- Keep this repo's `PRODUCT_ROADMAP.md` current when product ideas, production must-haves, shipped roadmap items or premium feature candidates change, including when the change originates in another DJConnect repo.
 - Keep `info.md` and HACS-facing copy current for users.
 - Review and update all Dutch and English translations for changed config-flow,
   options-flow, repair-flow, entity and service strings.
@@ -712,7 +714,7 @@ Tag and publish:
 One-liner:
 
 ```bash
-./release.sh 3.1.38
+./release.sh 3.1.39
 ```
 
 The script updates the integration version in `manifest.json`, `const.py`,
@@ -723,18 +725,18 @@ above.
 Preview without executing git/gh commands:
 
 ```bash
-./release.sh 3.1.38 --dry-run
+./release.sh 3.1.39 --dry-run
 ```
 
 Manual equivalent:
 
 ```bash
 git add .
-git commit -m "Release DJConnect v3.1.38"
-git tag v3.1.38
+git commit -m "Release DJConnect v3.1.39"
+git tag v3.1.39
 git push origin main
-git push origin v3.1.38
-gh release create v3.1.38 --title "DJConnect v3.1.38" --notes-file CHANGELOG.md
+git push origin v3.1.39
+gh release create v3.1.39 --title "DJConnect v3.1.39" --notes-file CHANGELOG.md
 ```
 
 Release cleanup helper:

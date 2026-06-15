@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.39
+
+- Make `pcvantol/djconnect/PRODUCT_ROADMAP.md` the only canonical product roadmap source and document that sibling repos must not keep local roadmap copies.
+- Update the shared release hygiene instructions so roadmap changes from any DJConnect repo are recorded centrally in this HA integration repo.
+
 ## 3.1.38
 
 - Update all public product website references from `https://djconnect.pages.dev` to `https://djconnect.dev`.

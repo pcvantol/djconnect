@@ -59,7 +59,7 @@ Licentie/commercieel:
 HA integration:
 - domain: `djconnect`
 - HACS custom integration.
-- Actuele integratieversie: `3.1.38`.
+- Actuele integratieversie: `3.1.39`.
 - Config flow moet blijven laden.
 - Config flow moet vóór pairing controleren dat de officiële Home Assistant Spotify integratie minstens één Spotify `media_player` entity heeft; ontbreekt die, toon een duidelijke vertaalde foutmelding in plaats van stil verder te gaan.
 - Spotify OAuth gebruikt een HA external step en opent de Spotify website.
@@ -165,6 +165,7 @@ README/release:
 - De product/marketing website staat buiten deze HA integration repo op `https://djconnect.dev`; houd deze repo gefocust op HACS integration, docs, brand assets en release workflow.
 - De website How To Start pagina moet dezelfde basisvereisten noemen als de HACS docs: Home Assistant, HACS, Spotify Premium, HA Assist pipeline met STT/TTS, lokaal netwerk tijdens pairing, ESP 2.4 GHz WiFi en Nabu Casa/externe HTTPS URL voor Spotify OAuth.
 - Cross-repo sync prompts staan uitsluitend in `pcvantol/djconnect/SYNC_PROMPTS.md`; voeg oude losse promptbestanden of sibling-repo kopieën niet opnieuw toe.
+- Product roadmap staat uitsluitend in `pcvantol/djconnect/PRODUCT_ROADMAP.md`; voeg sibling-repo roadmap kopieën niet opnieuw toe.
 - Release checklist moet in README en AGENTS blijven staan en bij elke release worden gevolgd.
 - Pre-release checklist:
   - Controleer dat de working tree alleen bedoelde wijzigingen bevat.
@@ -176,6 +177,7 @@ README/release:
   - Houd `AGENTS.md` gelijk met actuele versie en release-eisen.
   - Houd `HANDOFF.md`, `TODO.md` en `ISSUES.md` actueel met release-status, bekende checks en resterende veldvalidatie.
   - Houd `pcvantol/djconnect/SYNC_PROMPTS.md` actueel als cross-repo contracten, clienttypes, endpoints of pairing/discovery wijzigen, ook als de wijziging vanuit een andere DJConnect repo komt.
+  - Houd `pcvantol/djconnect/PRODUCT_ROADMAP.md` actueel als productideeën, productie must-haves, premium feature kandidaten of shipped roadmap items wijzigen, ook als de wijziging vanuit een andere DJConnect repo komt.
   - Houd `TECHNICAL_DESIGN_DECISIONS.md` actueel als code-level design patterns, coding conventions, frameworks, libraries, third-party dependencies, versions, licenses of source URLs wijzigen.
   - Houd `info.md` en HACS-facing tekst actueel voor de gebruiker.
   - Controleer en actualiseer alle Nederlandse en Engelse vertalingen voor gewijzigde config-flow, options-flow, repair-flow, entity- en service-teksten.

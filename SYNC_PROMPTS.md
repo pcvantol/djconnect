@@ -44,8 +44,9 @@ not applicable for that repo.
 
 Before publishing:
 
-- Review `PRODUCT_ROADMAP.md`.
-- Keep `PRODUCT_ROADMAP.md` byte-for-byte identical across all DJConnect repos.
+- Review `pcvantol/djconnect/PRODUCT_ROADMAP.md`.
+- Keep product roadmap changes only in `pcvantol/djconnect/PRODUCT_ROADMAP.md`;
+  do not keep repo-local roadmap copies in sibling repos.
 - Keep shared example contract files such as `examples/voice_intents.json`
   aligned across repos that expose website/docs or voice-intent documentation.
 - Check whether any roadmap item was implemented.
@@ -70,9 +71,9 @@ Before publishing:
   release checklist changes, even when the release is made from another repo.
 - Do not keep repo-local `SYNC_PROMPTS.md` copies in sibling repos. If a sibling
   repo contains one, remove it and reference the canonical HA repo file instead.
-- Sync the updated `PRODUCT_ROADMAP.md` to all sibling DJConnect repos before
-  finishing release hygiene. `SYNC_PROMPTS.md` remains only in
-  `pcvantol/djconnect`.
+- Update `pcvantol/djconnect/PRODUCT_ROADMAP.md` before finishing release
+  hygiene when a roadmap item changed or shipped. `SYNC_PROMPTS.md` and
+  `PRODUCT_ROADMAP.md` remain only in `pcvantol/djconnect`.
 - Bump the repo version according to that repo's release mechanism.
 - Run build cleanup before release/build commands so stale assets do not leak
   into published artifacts.

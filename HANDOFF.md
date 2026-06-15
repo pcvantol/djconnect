@@ -4,13 +4,14 @@
 
 - Repository: `pcvantol/djconnect`.
 - Integration domain: `djconnect`.
-- Current integration release: `3.1.37`.
-- Release status: DJConnect `3.1.37` is the current released baseline; the working tree contains unreleased website URL and sync prompt policy documentation updates.
+- Current integration release: `3.1.38`.
+- Release status: DJConnect `3.1.38` is the current released baseline; the working tree contains unreleased product roadmap centralization documentation updates.
 - Home Assistant integration is HACS-distributed and MIT-licensed.
 - ESP firmware source remains proprietary in `pcvantol/djconnect-app`.
 - Public firmware release assets live in `pcvantol/djconnect-firmware`.
 - Public product website: `https://djconnect.dev`.
 - Cross-repo prompts are consolidated into one canonical `pcvantol/djconnect/SYNC_PROMPTS.md`; old loose prompt files and sibling-repo copies are intentionally removed and must not be reintroduced.
+- Product roadmap is consolidated into one canonical `pcvantol/djconnect/PRODUCT_ROADMAP.md`; sibling-repo roadmap copies are intentionally removed and must not be reintroduced.
 - Current firmware uses the local ESP API with bearer-token auth and generic playback commands.
 - ESP no longer stores Spotify OAuth/client_id/refresh_token or other playback-backend credentials.
 - HA integration is the trusted backend for pairing, Spotify OAuth/backend playback, Assist/STT/TTS, OTA and native entities.
@@ -188,6 +189,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Developer Actions also register explicit runtime service schemas so Home Assistant Developer Tools keeps the text fields visible after service metadata refreshes.
 - If HA Assist treats the DJConnect parsing prompt as a smart-home device command, DJConnect falls back to a simple Spotify search intent instead of raising a websocket script exception.
 - `pcvantol/djconnect/SYNC_PROMPTS.md` is the only canonical sync prompt bundle and includes the ESP, HA, Apple app, Raspberry Pi and product website contracts.
+- `pcvantol/djconnect/PRODUCT_ROADMAP.md` is the only canonical product roadmap for all DJConnect repos.
 - Spotify OAuth callback stores tokens even if an options flow is already closed and `UnknownFlow` occurs.
 - Spotify OAuth Repair flow starts an external Spotify OAuth step and does not mark the issue fixed until a new token is stored.
 - Backend playback auth failures are returned as user-friendly JSON without forcing ESP pairing reset.

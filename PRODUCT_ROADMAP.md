@@ -1,7 +1,8 @@
 # DJConnect Product Roadmap
 
-Canonical product roadmap for all DJConnect repositories. Keep this file
-byte-for-byte identical in:
+Canonical product roadmap for all DJConnect repositories. This file lives only
+in the Home Assistant integration repo `pcvantol/djconnect` and is the leading
+product roadmap for:
 
 - `pcvantol/djconnect`
 - `pcvantol/djconnect-app`
@@ -30,7 +31,11 @@ Core promise:
 
 Every release must review this roadmap.
 
-- Keep this file synchronized across all DJConnect repos.
+- Update `pcvantol/djconnect/PRODUCT_ROADMAP.md` even when the release or
+  product change originates in another DJConnect repo.
+- Do not keep repo-local `PRODUCT_ROADMAP.md` copies in sibling repos. If a
+  sibling repo contains one, remove it and reference the canonical HA repo file
+  instead.
 - Move implemented items from unchecked to checked in the relevant category.
 - Add the implementing major.minor version in parentheses, for example
   `[x] Queue supports up to 100 items (3.1)`.
@@ -38,8 +43,9 @@ Every release must review this roadmap.
   `[x] ESP32 screenshot endpoint (3.1, ESP32)`.
 - Do not remove shipped ideas immediately; keep checked items as product memory
   until a later roadmap cleanup.
-- Update README, changelog, handoff, sync prompts, tests and design decisions
-  when a roadmap item changes product behavior or public contract.
+- Update README, changelog, handoff, tests and design decisions when a roadmap
+  item changes product behavior or public contract. Cross-repo contract changes
+  belong only in `pcvantol/djconnect/SYNC_PROMPTS.md`.
 
 ## Production Release Must-Haves
 
@@ -51,9 +57,10 @@ Every release must review this roadmap.
   WiFi passwords, Home Assistant tokens or temporary media URLs.
 - [ ] Clear error states for unpaired, stale token, backend unavailable, version
   mismatch, Home Assistant unreachable, STT failed and TTS failed.
-- [ ] Release hygiene across all repos: docs, changelog, handoff, sync prompts,
-  technical design decisions, roadmap, tests and cleanup reviewed before every
-  release.
+- [ ] Release hygiene across all repos: docs, changelog, handoff, technical
+  design decisions, canonical roadmap, tests and cleanup reviewed before every
+  release; cross-repo sync prompts are reviewed only in
+  `pcvantol/djconnect/SYNC_PROMPTS.md`.
 - [ ] Public download/update path for every released client.
 - [ ] Manual smoke checklist for website, Home Assistant integration, ESP32,
   Apple clients and Raspberry Pi client.
