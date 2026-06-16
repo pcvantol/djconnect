@@ -9,7 +9,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN
+from .const import CLIENT_TYPE_ESP32, DOMAIN
 from .entity_ids import entry_unique_id
 from .spotify_backend import handle_spotify_command
 
@@ -22,7 +22,10 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     runtime = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities([DJConnectShuffleSwitch(runtime, hass)])
+    entities: list[SwitchEntity] = [DJConnectShuffleSwitch(runtime, hass)]
+    if _runtime_client_type(runtime) == CLIENT_TYPE_ESP32:
+        entities.append(DJConnectWakeWordSwitch(runtime, hass))
+    async_add_entities(entities)
 
 
 class DJConnectShuffleSwitch(SwitchEntity):
@@ -81,3 +84,80 @@ class DJConnectShuffleSwitch(SwitchEntity):
     async def async_will_remove_from_hass(self) -> None:
         if self._handle_runtime_update in self.runtime.listeners:
             self.runtime.listeners.remove(self._handle_runtime_update)
+
+
+class DJConnectWakeWordSwitch(SwitchEntity):
+    """Home Assistant switch for ESP wake word detection."""
+
+    _attr_has_entity_name = True
+    _attr_translation_key = "wake_word"
+
+    def __init__(self, runtime: Any, hass: HomeAssistant) -> None:
+        self.runtime = runtime
+        self.hass = hass
+        self._attr_unique_id = entry_unique_id(runtime, "wake_word")
+        runtime.listeners.append(self._handle_runtime_update)
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        return DeviceInfo(
+            identifiers={(DOMAIN, self.runtime.entry.entry_id)},
+            name="DJConnect",
+            manufacturer="DJConnect",
+            model="DJConnect device",
+        )
+
+    @property
+    def is_on(self) -> bool | None:
+        return _wake_word_enabled(self.runtime.device_status)
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        await self._set_wake_word(True)
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        await self._set_wake_word(False)
+
+    async def _set_wake_word(self, enabled: bool) -> None:
+        await self.runtime.async_device_command(
+            self.hass,
+            "wake_word",
+            value=enabled,
+        )
+        self.runtime.device_status["wake_word_enabled"] = enabled
+        self.runtime.device_status["wake_word"] = enabled
+        self.runtime.update()
+
+    @callback
+    def _handle_runtime_update(self) -> None:
+        self.async_write_ha_state()
+
+    async def async_will_remove_from_hass(self) -> None:
+        if self._handle_runtime_update in self.runtime.listeners:
+            self.runtime.listeners.remove(self._handle_runtime_update)
+
+
+def _wake_word_enabled(status: dict[str, Any]) -> bool | None:
+    settings = status.get("settings")
+    if isinstance(settings, dict):
+        for key in ("wake_word_enabled", "wake_word"):
+            if settings.get(key) is not None:
+                return _as_bool(settings[key])
+    for key in ("wake_word_enabled", "wake_word"):
+        if status.get(key) is not None:
+            return _as_bool(status[key])
+    return False
+
+
+def _as_bool(value: Any) -> bool:
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes", "on", "enabled"}
+    return bool(value)
+
+
+def _runtime_client_type(runtime: Any) -> str:
+    getter = getattr(runtime, "client_type", None)
+    if callable(getter):
+        return str(getter() or CLIENT_TYPE_ESP32)
+    status = getattr(runtime, "device_status", {}) or {}
+    config = getattr(runtime, "config", {}) or {}
+    return str(status.get("client_type") or config.get("client_type") or CLIENT_TYPE_ESP32)

@@ -108,11 +108,12 @@ def _dj_response_media(
     if not isinstance(playback, dict):
         return intent_media or intent
     resolved = _resolved_media(playback, allow_device_response=False)
+    device_response_media = _device_response_media(playback)
     if resolved:
-        return resolved
+        return _merge_media_context(resolved, device_response_media)
     if playback.get("media_content_id"):
-        return intent_media or intent
-    return _resolved_media(playback, allow_device_response=True) or intent_media or intent
+        return _merge_media_context(intent_media or intent, device_response_media)
+    return device_response_media or intent_media or intent
 
 
 def _intent_media_context(intent: dict[str, Any]) -> dict[str, Any]:
@@ -152,6 +153,42 @@ def _resolved_media(
         if isinstance(current, dict):
             return current
     return {}
+
+
+def _device_response_media(playback: dict[str, Any] | None) -> dict[str, Any]:
+    if not isinstance(playback, dict):
+        return {}
+    response = playback.get("device_response") or {}
+    if not isinstance(response, dict):
+        return {}
+    current = response.get("playback") or response
+    return current if isinstance(current, dict) else {}
+
+
+def _merge_media_context(base: dict[str, Any], extra: dict[str, Any]) -> dict[str, Any]:
+    """Add current playback metadata without losing the resolved search target."""
+    merged = dict(base)
+    if _conflicting_artist(base, extra):
+        return merged
+    for key, value in extra.items():
+        if value in (None, "", [], {}):
+            continue
+        if not merged.get(key):
+            merged[key] = value
+    for source, target in (("track_name", "title"), ("title", "track_name")):
+        if merged.get(source) and not merged.get(target):
+            merged[target] = merged[source]
+    return merged
+
+
+def _conflicting_artist(base: dict[str, Any], extra: dict[str, Any]) -> bool:
+    base_artist = _normalized_text(_first_text(base, "artist", "artist_name"))
+    extra_artist = _normalized_text(_first_text(extra, "artist", "artist_name"))
+    return bool(base_artist and extra_artist and base_artist != extra_artist)
+
+
+def _normalized_text(value: str) -> str:
+    return " ".join(value.lower().split())
 
 
 def _track_response(

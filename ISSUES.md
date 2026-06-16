@@ -10,6 +10,14 @@
 - Current mitigation: Integration logs selected provider, WAV metadata, provider result state and Assist event types without logging transcript/audio/secrets.
 - Next action: Test the latest HACS release with the actual HA STT provider selected in options.
 
+### DJ announcement audio URL must be validated on target HA versions
+
+- Status: open / field validation.
+- Area: DJ announcement TTS delivery.
+- Symptom: ESP can receive DJ announcement text with `audio_url=none`, so the display updates but no local speaker audio plays.
+- Current mitigation: HA now builds temporary TTS download URLs through the same robust local Home Assistant URL resolver used for pairing instead of relying on one HA network helper version.
+- Next action: Test a real PTT request and `djconnect.test_tts`; confirm ESP logs `audio_url` with `.wav` or `.mp3` and plays the local DJ announcement.
+
 ### Existing installations may need one successful `/status` to self-repair
 
 - Status: open / expected migration behavior.

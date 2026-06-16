@@ -527,6 +527,15 @@ def _normalized_status_payload(data: dict[str, Any]) -> dict[str, Any]:
     if isinstance(settings, dict):
         for key, value in settings.items():
             normalized.setdefault(key, value)
+    wake_word_value = _status_value(
+        settings if isinstance(settings, dict) else {},
+        "wake_word_enabled",
+        "wake_word",
+    )
+    if wake_word_value is None:
+        wake_word_value = _status_value(data, "wake_word_enabled", "wake_word")
+    if wake_word_value is not None:
+        normalized["wake_word_enabled"] = wake_word_value
     screen = data.get("screen")
     if isinstance(screen, dict):
         if screen.get("state") is not None:
@@ -546,6 +555,14 @@ def _normalized_status_payload(data: dict[str, Any]) -> dict[str, Any]:
         if normalized.get(source) is not None:
             normalized[target] = normalized[source]
     return normalized
+
+
+def _status_value(data: dict[str, Any], *keys: str) -> Any:
+    for key in keys:
+        value = data.get(key)
+        if value is not None:
+            return value
+    return None
 
 
 def _payload_client_type(data: dict[str, Any]) -> str:

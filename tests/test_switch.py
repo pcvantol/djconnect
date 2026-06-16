@@ -105,6 +105,92 @@ class DJConnectShuffleSwitchTest(unittest.TestCase):
 
         self.assertTrue(entity.is_on)
 
+    def test_wake_word_switch_reads_nested_status_first(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            config={"client_type": "esp32"},
+            device_status={
+                "wake_word_enabled": False,
+                "settings": {"wake_word_enabled": True},
+            },
+            listeners=[],
+        )
+        entity = self.switch.DJConnectWakeWordSwitch(runtime, object())
+
+        self.assertTrue(entity.is_on)
+
+    def test_wake_word_switch_falls_back_to_wake_word_alias(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            config={"client_type": "esp32"},
+            device_status={"wake_word": "true"},
+            listeners=[],
+        )
+        entity = self.switch.DJConnectWakeWordSwitch(runtime, object())
+
+        self.assertTrue(entity.is_on)
+
+    def test_wake_word_switch_defaults_off_when_status_missing(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            config={"client_type": "esp32"},
+            device_status={},
+            listeners=[],
+        )
+        entity = self.switch.DJConnectWakeWordSwitch(runtime, object())
+
+        self.assertFalse(entity.is_on)
+
+    def test_wake_word_switch_sends_canonical_device_command(self) -> None:
+        calls = []
+
+        async def device_command(hass, command, **values):
+            calls.append((command, values))
+            return {"success": True}
+
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            config={"client_type": "esp32"},
+            device_status={},
+            listeners=[],
+            async_device_command=device_command,
+            update=lambda **kwargs: calls.append(("update", kwargs)),
+        )
+        entity = self.switch.DJConnectWakeWordSwitch(runtime, object())
+
+        asyncio.run(entity.async_turn_on())
+        asyncio.run(entity.async_turn_off())
+
+        self.assertIn(("wake_word", {"value": True}), calls)
+        self.assertIn(("wake_word", {"value": False}), calls)
+        self.assertFalse(runtime.device_status["wake_word_enabled"])
+        self.assertFalse(runtime.device_status["wake_word"])
+
+    def test_setup_adds_wake_word_switch_only_for_esp32(self) -> None:
+        for client_type, expected_count in (("esp32", 2), ("ios", 1), ("macos", 1), ("raspberry_pi", 1)):
+            with self.subTest(client_type=client_type):
+                runtime = types.SimpleNamespace(
+                    entry=types.SimpleNamespace(entry_id=f"entry-{client_type}"),
+                    config={"client_type": client_type},
+                    device_status={"client_type": client_type},
+                    last_playback={},
+                    listeners=[],
+                    client_type=lambda client_type=client_type: client_type,
+                )
+                hass = types.SimpleNamespace(
+                    data={"djconnect": {runtime.entry.entry_id: runtime}}
+                )
+                entry = types.SimpleNamespace(entry_id=runtime.entry.entry_id)
+                added = []
+
+                asyncio.run(self.switch.async_setup_entry(hass, entry, added.extend))
+
+                self.assertEqual(len(added), expected_count)
+                self.assertEqual(
+                    any(isinstance(entity, self.switch.DJConnectWakeWordSwitch) for entity in added),
+                    client_type == "esp32",
+                )
+
 
 if __name__ == "__main__":
     unittest.main()

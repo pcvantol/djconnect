@@ -145,6 +145,33 @@ class DjResponseTest(unittest.TestCase):
         self.assertTrue(payload["audio_url"].endswith(".mp3"))
         self.assertTrue(result["spoken"])
 
+    def test_audio_url_uses_local_ha_url_without_network_async_get_url(self) -> None:
+        hass = types.SimpleNamespace(
+            data={},
+            config=types.SimpleNamespace(internal_url="http://192.168.1.23:8123"),
+        )
+        runtime = Runtime({})
+        session = FakeSession(FakeResponse(200, {"success": True, "spoken": True}))
+
+        async def create_mp3(hass, text, conf):
+            return self.dj_response.TtsAudio(
+                b"ID3 mp3 data",
+                "mp3",
+                "audio/mpeg",
+            )
+
+        self.dj_response.create_tts_audio = create_mp3
+        self.dj_response.async_get_clientsession = lambda hass: session
+
+        result = asyncio.run(
+            self.dj_response.async_send_dj_response(hass, runtime, "MP3")
+        )
+
+        payload = session.calls[0]["json"]
+        self.assertTrue(payload["audio_url"].startswith("http://192.168.1.23:8123/"))
+        self.assertTrue(payload["audio_url"].endswith(".mp3"))
+        self.assertTrue(result["audio_url"])
+
     def test_tts_failure_sends_text_only_payload(self) -> None:
         hass = types.SimpleNamespace(data={})
         runtime = Runtime({self.const.CONF_HA_EXTERNAL_URL: "http://ha.local:8123"})

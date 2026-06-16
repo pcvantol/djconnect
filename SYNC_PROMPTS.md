@@ -32,7 +32,7 @@ instead of storing their own copy.
 ## Current Protocol Line
 
 The current shared protocol/release line is `3.1.x`; this bundle was last
-aligned after Home Assistant integration release `v3.1.37`. DJConnect clients on the
+aligned after Home Assistant integration release `v3.1.41`. DJConnect clients on the
 `3.1.x` line are compatible with Home Assistant integration versions `>=3.1.0`
 and `<3.2.0`.
 
@@ -425,7 +425,10 @@ Requirements:
 - Always use ha_local_url for ESP -> HA status, command, and voice traffic.
   Never use Nabu Casa/cloud URLs for device runtime traffic.
 - Send device_id, client_type esp32, firmware, ha_pairing_status, local_url,
-  language, log_level, and current device settings in status payloads.
+  language, log_level, wake_word_enabled/wake_word, and current device settings
+  in status payloads.
+- Support HA local device command `{"command":"wake_word","value":true|false}`
+  to persistently enable/disable local wake-word detection. Default is off.
 - Send raw WAV voice audio to POST /api/djconnect/voice with Authorization:
   Bearer <device_token> and X-DJConnect-Device-ID.
 - Keep Up Next queue capacity aligned with the shared contract: accept and
@@ -628,6 +631,10 @@ Regels:
 - STT/TTS fouten moeten als duidelijke JSON body terugkomen met `success:false`, `error` en `message`.
 - Een optionele `audio_url` mag WAV of MP3 zijn.
 - De ESP mag een late voice response negeren als de gebruiker de lokale flow heeft geannuleerd.
+- Wake word staat standaard uit en moet expliciet door de gebruiker kunnen worden aangezet.
+- ESP status mag `wake_word_enabled` of `wake_word` top-level of onder `settings` sturen; HA behandelt `settings.wake_word_enabled` als voorkeurswaarde, met fallback naar top-level `wake_word_enabled` en daarna `wake_word`.
+- HA toont alleen voor `client_type:"esp32"` een native switch `Wake word`.
+- HA stuurt bij toggle de canonical local device command payload `{"command":"wake_word","value":true|false}` naar `POST /api/device/command`. ESP mag command aliases `set_wake_word`, `wake_word_enabled` en `set_wake_word_enabled` blijven accepteren, maar HA gebruikt canonical `wake_word`.
 
 ## Acceptatiecriteria
 
@@ -817,6 +824,7 @@ Stuur minimaal:
   "cue_volume": 50,
   "screen_dim_timeout_ms": 60000,
   "turn_off_after_ms": 300000,
+  "wake_word_enabled": false,
   "language": "nl",
   "theme": "dark",
   "log_level": "info",
@@ -829,6 +837,7 @@ screen_brightness / brightness;
 speaker_volume / cue_volume;
 screen_dim_timeout_ms;
 turn_off_after_ms;
+wake_word_enabled / wake_word;
 language;
 theme;
 log_level.
@@ -965,6 +974,7 @@ Controleer POST /api/device/command voor device-instellingen:
 {"command":"screen_dim_timeout","value":60000}
 {"command":"turn_off_after","value":300000}
 {"command":"speaker_volume","value":50}
+{"command":"wake_word","value":true}
 {"command":"language","value":"nl"}
 {"command":"theme","value":"dark"}
 {"command":"log_level","value":"info"}
@@ -1007,6 +1017,12 @@ Expected HA response:
   "audio_url": "http://homeassistant.local:8123/api/djconnect/tts/token.mp3",
   "audio_type": "mp3"
 }
+
+`audio_url` is optional. HA should include it whenever HA TTS successfully
+creates WAV or MP3 audio and a local Home Assistant URL can be resolved. HA must
+build this URL from its local/LAN URL resolver, not from Nabu Casa/cloud. If
+`audio_url` is absent, clients must display the text-only DJ response and should
+not treat the command as failed.
 Fout:
 
 {
@@ -1019,6 +1035,7 @@ Acties:
 Directe HA Assist WebSocket auth vanaf ESP niet gebruiken.
 ESP uploadt alleen raw WAV.
 ESP speelt WAV of MP3 audio URL af indien ondersteund.
+Als `audio_url` ontbreekt: tekst tonen en text-only status/logging gebruiken.
 Onbekend audioformaat: text-only tonen, niet crashen.
 Geen tijdelijke audio URL tokens loggen.
 

@@ -507,8 +507,6 @@ def _should_prefer_local_intent(
         return True
     local_type = str(local_intent.get("type") or "").strip().lower()
     assist_type = str(assist_intent.get("type") or "").strip().lower()
-    if local_type == "artist" and assist_type in {"track", "album", "playlist"}:
-        return False
     if local_type and assist_type in {"", "search", "music"} and local_type != assist_type:
         return True
     if local_type and assist_type not in {"", "search", "music"} and local_type != assist_type:

@@ -126,6 +126,11 @@ Pattern:
   conversation engine.
 - Dutch prompts include an instruction to pronounce English artist, album and
   track names in English inside Dutch sentences.
+- When an artist request starts playback and Spotify returns the concrete
+  started track in the command response, the response generator merges that
+  just-returned track metadata into the DJ announcement media context. It does
+  not read stale `runtime.last_playback` as a substitute for the current
+  command result.
 - Prompt leaks, Spotify URIs, structured dictionaries and Home Assistant
   device-lookup errors are blocked before they can be sent to a device.
 
@@ -143,6 +148,30 @@ Why:
   generation.
 - Keeps the fallback deterministic and safe when HA Assist cannot produce a
   usable spoken response.
+
+### Temporary Device Audio URLs
+
+Pattern:
+
+- HA TTS audio is stored in memory under a temporary token and exposed through
+  `/api/djconnect/tts/{token}.wav` or `.mp3`.
+- DJ response delivery posts text plus optional `audio_url` to the client local
+  `/api/device/dj_response` endpoint.
+- The base URL for temporary audio uses the shared local Home Assistant URL
+  resolver, not a single HA network helper version.
+
+Primary source files:
+
+- `custom_components/djconnect/dj_response.py`
+- `custom_components/djconnect/ha_urls.py`
+- `custom_components/djconnect/tts.py`
+
+Why:
+
+- ESP/app clients can fetch local DJ announcement audio without requiring Nabu
+  Casa/cloud routing.
+- Older and newer Home Assistant versions expose different network helpers; the
+  shared resolver preserves audio delivery across those versions.
 
 ### Merge-Only Device Status Cache
 

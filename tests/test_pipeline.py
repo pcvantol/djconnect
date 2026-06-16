@@ -502,6 +502,51 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertEqual(intent["spotify_search_query"], "Pearl Jam")
         self.assertEqual(intent["dj_announcement"], "Ik zet Pearl Jam voor je klaar.")
 
+    def test_local_artist_request_overrides_stale_assist_artist(self) -> None:
+        intent = self.pipeline._intent_from_assist_response(
+            {
+                "response": {
+                    "response_type": "query_answer",
+                    "data": {
+                        "djconnect": {
+                            "type": "artist",
+                            "artist": "Red Hot Chili Peppers",
+                            "spotify_search_query": "Red Hot Chili Peppers",
+                        }
+                    },
+                }
+            },
+            "speel Nirvana",
+        )
+
+        self.assertEqual(intent["type"], "artist")
+        self.assertEqual(intent["artist"], "Nirvana")
+        self.assertEqual(intent["spotify_search_query"], "Nirvana")
+        self.assertEqual(intent["assist_intent"]["artist"], "Red Hot Chili Peppers")
+
+    def test_local_artist_request_overrides_stale_assist_track(self) -> None:
+        intent = self.pipeline._intent_from_assist_response(
+            {
+                "response": {
+                    "response_type": "query_answer",
+                    "data": {
+                        "djconnect": {
+                            "type": "track",
+                            "title": "Californication",
+                            "artist": "Red Hot Chili Peppers",
+                            "spotify_search_query": "Californication Red Hot Chili Peppers",
+                        }
+                    },
+                }
+            },
+            "speel Nirvana",
+        )
+
+        self.assertEqual(intent["type"], "artist")
+        self.assertEqual(intent["artist"], "Nirvana")
+        self.assertEqual(intent["spotify_search_query"], "Nirvana")
+        self.assertEqual(intent["assist_intent"]["title"], "Californication")
+
     def test_generic_assist_music_refusal_is_not_used_as_dj_response(self) -> None:
         intent = self.pipeline._intent_from_assist_response(
             {

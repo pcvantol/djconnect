@@ -14,7 +14,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 
 ## Current Version
 
-- Home Assistant integration: `3.1.40`
+- Home Assistant integration: `3.1.41`
 - Domain: `djconnect`
 - HACS category: `Integration`
 - Device target: DJConnect device
@@ -64,7 +64,7 @@ runtime behavior. These decisions are part of the integration contract:
 
 ## Repository Layout
 
-- Home Assistant integration: `3.1.40`
+- Home Assistant integration: `3.1.41`
 - ESP firmware source: `pcvantol/djconnect-app`
 - Public firmware releases: `pcvantol/djconnect-firmware`
 - Canonical cross-repo sync prompts live only in this HA repo: [`SYNC_PROMPTS.md`](SYNC_PROMPTS.md)
@@ -247,13 +247,14 @@ ESP32 clients additionally get ESP-hardware entities:
 - `number.djconnect_brightness`
 - `number.djconnect_screen_timeout`
 - `number.djconnect_speaker_volume`
+- `switch.djconnect_wake_word`
 - ESP device setting selects such as language, auto-off, theme and log level
 - `update.djconnect_firmware`
 - `button.djconnect_reboot_device`
 
 iOS, macOS and Raspberry Pi clients do not get ESP-only battery, Wi-Fi RSSI,
 screen/LED, screen brightness/timeout, speaker volume, device language,
-auto-off, theme/log-level, OTA or reboot entities.
+auto-off, theme/log-level, wake word, OTA or reboot entities.
 
 Entity IDs can differ if Home Assistant has renamed the device or entities.
 
@@ -388,6 +389,7 @@ DJ announcement failure handling:
 | HA Assist pipeline cannot process the command | Localized DJ announcement asks the user to check the selected Assist pipeline. |
 | Spotify playback cannot start | Localized DJ announcement asks the user to check Spotify playback device availability. |
 | HA TTS cannot generate WAV or MP3 | ESP receives text-only DJ announcement without `audio_url`. |
+| HA can generate WAV/MP3 but no local HA URL can be resolved | ESP receives text-only DJ announcement without `audio_url`; check Home Assistant internal/network URL settings. |
 | HA TTS returns unknown audio | ESP receives text-only DJ announcement without `audio_url`; this is logged only as a debug fallback. |
 | ESP `/api/device/dj_response` fails | Voice command returns a controlled `command_failed` JSON response and keeps the original Assist/Spotify error in runtime state. |
 | Temporary audio URL is unknown or expired | `GET /api/djconnect/tts/{token}.wav` or `.mp3` returns `404` or `410`; trigger the DJ announcement again. |
@@ -402,7 +404,9 @@ Home Assistant posts this payload to the paired DJConnect device:
 ```
 
 `audio_url` is optional. If HA TTS cannot produce WAV or MP3 audio, DJConnect
-sends only `text` and the ESP displays the response without speech. The ESP
+sends only `text` and the ESP displays the response without speech. When HA TTS
+does produce WAV or MP3 audio, DJConnect builds the temporary URL from the local
+Home Assistant URL resolver so the device can fetch it over the LAN. The ESP
 decides whether the temporary URL is WAV, MP3 or unknown based on content type
 and/or file header. DJConnect does not send Opus or M4A URLs.
 
@@ -586,6 +590,15 @@ GET  /api/device/info
 
 `/api/device/reboot` is ESP-specific. `/api/device/restart` and `/api/device/shutdown` are Raspberry Pi-specific local client actions.
 
+ESP wake word is off by default. When ESP firmware reports `wake_word_enabled`
+or `wake_word` in status, Home Assistant mirrors it as
+`switch.djconnect_wake_word`. Toggling the switch sends the canonical local
+device command:
+
+```json
+{"command":"wake_word","value":true}
+```
+
 The integration uses the device `local_url` from pairing/status when provided. During setup it discovers visible `_djconnect._tcp` clients, probes `/api/device/pairing-info`, and can prefill pairing fields for reachable iOS, macOS, Raspberry Pi and ESP devices. Stale Bonjour records that no longer answer pairing-info are hidden from the selector; use the manual Client API URL field if mDNS is visible but the advertised URL is wrong. If the stored field is empty at runtime, it resolves the `_djconnect._tcp` mDNS service for the paired device. When the setup code is only 6 digits, DJConnect can also use the single visible DJConnect mDNS service on the network. Fallback hostnames are only generated for real 12-character device suffixes as model-specific hostnames, for example `djconnect-lilygo-t-embed-s3-90B70990A994.local`. `djconnect-[6-digit-code].local` and legacy `djconnect-90B70990A994.local` fallbacks are intentionally ignored.
 
 When the ESP status payload reports `spotify_configured=false`, Home Assistant treats that as a compatibility/status hint. Spotify OAuth credentials stay in Home Assistant and are not returned in status responses.
@@ -613,24 +626,24 @@ Example manifest:
 
 ```json
 {
-  "version": "3.1.40",
-  "version_tag": "v3.1.40",
+  "version": "3.1.41",
+  "version_tag": "v3.1.41",
   "channel": "stable",
-  "min_ha_integration": "3.1.40",
+  "min_ha_integration": "3.1.41",
   "firmwares": [
     {
       "board": "t_embed_cc1101",
       "device": "lilygo-t-embed-s3",
-      "asset": "djconnect-lilygo-t-embed-s3-v3.1.40.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.40/djconnect-lilygo-t-embed-s3-v3.1.40.bin",
+      "asset": "djconnect-lilygo-t-embed-s3-v3.1.41.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.41/djconnect-lilygo-t-embed-s3-v3.1.41.bin",
       "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "size": 2113136
     },
     {
       "board": "esp32_s3_box3",
       "device": "esp32-s3-box-3",
-      "asset": "djconnect-esp32-s3-box-3-v3.1.40.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.40/djconnect-esp32-s3-box-3-v3.1.40.bin",
+      "asset": "djconnect-esp32-s3-box-3-v3.1.41.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.41/djconnect-esp32-s3-box-3-v3.1.41.bin",
       "sha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
       "size": 2113136
     }
@@ -653,7 +666,7 @@ The firmware version is injected through PlatformIO build flags from the Git tag
 Recommended firmware source release helper:
 
 ```bash
-./release.sh 3.1.40
+./release.sh 3.1.41
 ```
 
 In the private `djconnect-app` repository, the firmware release script should
@@ -665,14 +678,14 @@ PlatformIO builds, rename firmware binaries to device-specific assets such as
 Preview the firmware release flow without changing files:
 
 ```bash
-./release.sh 3.1.40 --dry-run
+./release.sh 3.1.41 --dry-run
 ```
 
 When publishing to the public firmware repository, use the firmware script's
 public-repo option if available:
 
 ```bash
-./release.sh 3.1.40 --publish-firmware-repo ../djconnect-firmware
+./release.sh 3.1.41 --publish-firmware-repo ../djconnect-firmware
 ```
 
 The public `djconnect-firmware` repository should contain only the release
@@ -714,7 +727,7 @@ Tag and publish:
 One-liner:
 
 ```bash
-./release.sh 3.1.40
+./release.sh 3.1.41
 ```
 
 The script updates the integration version in `manifest.json`, `const.py`,
@@ -725,18 +738,18 @@ above.
 Preview without executing git/gh commands:
 
 ```bash
-./release.sh 3.1.40 --dry-run
+./release.sh 3.1.41 --dry-run
 ```
 
 Manual equivalent:
 
 ```bash
 git add .
-git commit -m "Release DJConnect v3.1.40"
-git tag v3.1.40
+git commit -m "Release DJConnect v3.1.41"
+git tag v3.1.41
 git push origin main
-git push origin v3.1.40
-gh release create v3.1.40 --title "DJConnect v3.1.40" --notes-file CHANGELOG.md
+git push origin v3.1.41
+gh release create v3.1.41 --title "DJConnect v3.1.41" --notes-file CHANGELOG.md
 ```
 
 Release cleanup helper:
@@ -822,6 +835,7 @@ These tests use local stubs for Home Assistant imports and focus on pure DJConne
 - If `/api/djconnect/voice` returns `missing_text`, send raw WAV audio for PTT or a developer test text through `X-DJConnect-Text`.
 - If `spoken=false`, HA did not provide a compatible WAV/MP3 URL or the ESP could not play it; the text response should still be displayed.
 - If HA TTS returns MP3, DJConnect can send the MP3 `audio_url` to ESP firmware that supports MP3 DJ announcement playback.
+- If the ESP logs `audio_url=none`, Home Assistant sent text-only. Check that `DJ aankondiging op apparaat afspelen` is enabled, a valid HA TTS engine is selected, and the Home Assistant internal URL is reachable from the DJConnect device network.
 - If Home Assistant reports `Invalid value for number.djconnect_volume: -1.0`, update to this release or newer; DJConnect treats unknown device volume as unavailable instead of publishing an out-of-range value.
 - If the ESP reports `401` for `/api/device/dj_response`, pair the device again so the device token is refreshed.
 - If `/api/djconnect/tts/{token}.wav` or `.mp3` returns `404` or `410`, the token is unknown or expired; trigger the DJ announcement again.

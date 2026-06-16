@@ -293,6 +293,77 @@ class ProcessorRuntimeTest(unittest.TestCase):
         )
         self.assertIn("Ten van Pearl Jam", runtime.last_dj_text)
 
+    def test_process_text_command_adds_current_track_to_artist_dj_response_media(self) -> None:
+        async def assist(hass, user_text, conf):
+            return {
+                "type": "artist",
+                "artist": "Pearl Jam",
+                "spotify_search_query": "Pearl Jam",
+                "dj_announcement": "Daar gaan we.",
+            }
+
+        async def play(hass, runtime, intent, conf):
+            return {
+                "resolved_media": {
+                    "type": "artist",
+                    "artist": "Pearl Jam",
+                    "artist_name": "Pearl Jam",
+                    "track_name": "",
+                    "title": "",
+                    "uri": "spotify:artist:abc",
+                },
+                "device_response": {
+                    "playback": {
+                        "track_name": "Soldier of Love",
+                        "title": "Soldier of Love",
+                        "artist": "Pearl Jam",
+                        "album_name": "Last Kiss",
+                    }
+                },
+            }
+
+        original_assist = self.processor.process_text_with_assist
+        original_play = self.processor.play_from_intent
+
+        async def generated_dj_response(hass, *, media, fallback_text, conf, debug=None):
+            self.assertEqual(media["type"], "artist")
+            self.assertEqual(media["artist"], "Pearl Jam")
+            self.assertEqual(media["track_name"], "Soldier of Love")
+            self.assertEqual(media["album_name"], "Last Kiss")
+            self.assertIn("Noem de artiest en het nummer", conf["dj_response_prompt"])
+            if debug is not None:
+                debug["fallback_used"] = False
+            return "Pearl Jam met Soldier of Love staat klaar."
+
+        self.processor.process_text_with_assist = assist
+        self.processor.play_from_intent = play
+        original_dj_response = self.processor.generate_dj_response_with_assist
+        self.processor.generate_dj_response_with_assist = generated_dj_response
+        runtime = Runtime()
+        runtime.config = {
+            "dj_response_prompt": (
+                "Noem de artiest en het nummer.\n"
+                "Geef een leuk feitje over de artiest.\n"
+                "Klink warm en persoonlijk."
+            ),
+            "tts_language": "nl",
+        }
+        try:
+            result = asyncio.run(
+                self.processor.process_text_command(
+                    object(),
+                    runtime,
+                    "speel pearl jam",
+                    play=True,
+                )
+            )
+        finally:
+            self.processor.process_text_with_assist = original_assist
+            self.processor.play_from_intent = original_play
+            self.processor.generate_dj_response_with_assist = original_dj_response
+
+        self.assertEqual(result["dj_text"], "Pearl Jam met Soldier of Love staat klaar.")
+
     def test_process_text_command_uses_plain_fallback_when_assist_generation_fails(self) -> None:
         async def assist(hass, user_text, conf):
             return {
@@ -371,6 +442,9 @@ class ProcessorRuntimeTest(unittest.TestCase):
 
         async def generated_dj_response(hass, *, media, fallback_text, conf, debug=None):
             self.assertEqual(media["artist"], "Nirvana")
+            self.assertNotIn("artist_name", media)
+            self.assertNotIn("track_name", media)
+            self.assertNotIn("title", media)
             self.assertNotIn("Red Hot Chili Peppers", fallback_text)
             if debug is not None:
                 debug["fallback_used"] = False

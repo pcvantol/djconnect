@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.1.41
+
+- Add an ESP-only `switch.djconnect_wake_word` entity that mirrors `wake_word_enabled` / `wake_word` from ESP status payloads and sends the canonical `wake_word` device command to enable or disable local wake-word detection.
+- Include the concrete current Spotify track returned by the just-executed playback command in generated DJ announcement metadata, so artist requests such as `Speel Pearl Jam` can mention the started number when Spotify returns one.
+- Prevent stale Assist music context or stale playback aliases from overriding deterministic local artist parsing, so a fresh request such as `Speel Nirvana` cannot keep starting or announcing a previous artist such as Red Hot Chili Peppers.
+- Build temporary DJ announcement `audio_url` values through the shared local Home Assistant URL resolver, so HA versions without the older `network.async_get_url` helper can still send WAV/MP3 URLs to ESP devices.
+- Update wake-word protocol documentation, translations, sync prompts and regression coverage.
+
 ## 3.1.40
 
 - Resolve the preferred/default Home Assistant Assist pipeline conversation engine for generated DJ announcements when no explicit DJConnect Assist pipeline is selected, so the configured `dj_response_prompt` is sent to the real conversation agent instead of falling through to the local "Daar is ..." fallback.

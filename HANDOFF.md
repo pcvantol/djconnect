@@ -116,7 +116,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Setup-code pairing can start with a temporary six-digit identity, but HA must learn and persist only the real model-specific device ID from the first authenticated ESP call. Current ESP IDs are `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX` and `djconnect-esp32-s3-box-3-XXXXXXXXXXXX`; app/client IDs are `djconnect-ios-XXXXXXXXXXXX`, `djconnect-macos-XXXXXXXXXXXX` and `djconnect-raspberry-pi-XXXXXXXXXXXX`. Legacy `djconnect-XXXXXXXXXXXX` IDs are not accepted.
 - `client_type` must match the device-id prefix: `ios` with `djconnect-ios-*`, `macos` with `djconnect-macos-*`, `raspberry_pi` with `djconnect-raspberry-pi-*`, and `esp32` with ESP model-specific IDs.
 - HA and ESP firmware compatibility is strict on `major.minor`: patch versions may differ, but `3.0.z` must not talk to `3.1.z`. HA returns HTTP `426` `version_mismatch` with HA/firmware metadata and keeps pairing intact.
-- ESP status payloads can report device settings as top-level fields or nested `settings`, `screen` and `led` objects; HA flattens those aliases for native entities.
+- ESP status payloads can report device settings as top-level fields or nested `settings`, `screen` and `led` objects; HA flattens those aliases for native entities, including `wake_word_enabled` / `wake_word`.
 - HA pairing status is `pending` until ESP confirms `ha_pairing_status=paired`; a locally stored token alone is not enough.
 - `POST /api/djconnect/command` should return JSON and avoid 503 loops for Spotify auth failures; report backend unavailable without causing ESP to clear pairing.
 - Physical PTT uses raw WAV upload to HA; ESP must not authenticate directly to HA Assist WebSocket.
@@ -138,10 +138,12 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 ## Current Release Notes
 
 - Current release line is `3.1.x`; only the latest GitHub release/tag should be kept after release cleanup.
-- Current latest baseline is `3.1.36`.
+- Current latest baseline is `3.1.40`.
 - Release workflow expectation: before every release, review and update all repo documentation affected by the change or release, including `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `info.md` and relevant `examples/*`. Explicitly decide whether test coverage must be expanded for the change; add coverage for new behavior paths, regression risks, translations and edge cases. After publishing a release, clean up old semver releases/tags with `./cleanup_old_releases.sh --keep 1 --execute` unless multiple releases are intentionally retained.
 - Before build/test/release validation, check whether third-party libraries, frameworks and build tools can be safely upgraded. If any version is upgraded, update lockfiles/manifests, `THIRD_PARTY_NOTICES.md` and dependency/design documentation in the same release. If an upgrade is skipped, record the reason here.
-- For the current Spotify intent-parser change, no third-party library/framework/tool versions were upgraded; `THIRD_PARTY_NOTICES.md` remains unchanged.
+- For the current wake-word, DJ announcement and Spotify intent-parser changes,
+  no third-party library/framework/tool versions were upgraded;
+  `THIRD_PARTY_NOTICES.md` remains unchanged.
 - Changelog expectation: keep `CHANGELOG.md` as a per-release changelog. Add a new section for each release and do not consolidate old release notes into one current-version block.
 - HACS-visible docs now show the public DJConnect website. The external website should use the same setup requirements: Home Assistant, HACS, Spotify Premium, HA Assist pipeline with STT/TTS, local-network pairing, and Nabu Casa/external HTTPS URL for Spotify OAuth.
 - `TECHNICAL_DESIGN_DECISIONS.md` documents reverse-engineered code-level design patterns, language-specific coding conventions and the dependency/license/source inventory. Keep it in the release checklist whenever architecture, dependencies, frameworks or external API usage changes.
@@ -154,7 +156,15 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Use Developer Tools action `djconnect.test_ptt_text` to debug the real PTT route immediately after STT conversion: enter recognized natural-language text, then DJConnect runs the guarded Assist fuzzy-correction step, intent parsing, Spotify search/playback, DJ aankondiging generation, TTS audio creation and delivery to the connected client/device.
 - Do not send arbitrary text as `context_uri`, and do not perform broad track/album search for generic artist requests.
 - Device DJ responses after successful PTT playback are generated from resolved Spotify/playback metadata and the configured `dj_response_prompt`, not from the generic Assist fallback announcement.
-- If a just-executed Spotify command has a `media_content_id` but no fresh `resolved_media`, do not use `device_response.playback` as DJ announcement media because Spotify may still report the previous playback item. Fall back to the parsed intent instead.
+- If a just-executed Spotify command has fresh `resolved_media`, merge any
+  concrete current track returned in that same command's `device_response.playback`
+  into the DJ announcement media context. Do not use stale
+  `runtime.last_playback` as a substitute for current command metadata.
+- DJ announcement `audio_url` is optional by contract, but when HA TTS produces
+  WAV/MP3 audio HA should build the temporary download URL through the shared
+  local HA URL resolver. A device log with `audio_url=none` means HA fell back
+  to text-only, usually because TTS audio generation failed, returned an
+  unsupported type, or HA could not build a reachable local URL.
 - `dj_response_prompt` is free text in config/options flow. There is no backwards compatibility for old fixed `dj_style` or `dj_profile` values.
 - Parser prompts must be isolated from response prompts so text such as "Noem waar mogelijk..." can never leak into Spotify search queries like `Opdracht Metallica`.
 - If Spotify playback fails because there is no active device, refresh `/me/player/devices`, prefer configured `spotify_source` by id or visible name, transfer playback and retry once.
@@ -178,7 +188,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - `sensor.djconnect_last_track` and `sensor.djconnect_last_command` cache their last non-empty native values at entity level and must not flip to unknown/unavailable because a sparse runtime snapshot omits them.
 - ESP status must include `client_type=esp32`; missing client type is surfaced as a visible HA status error.
 - Native HA entities include backend playback proxy, queue/up-next, output list, output select, firmware OTA, device settings and test/refresh buttons under one HA device.
-- ESP32 clients get ESP-only hardware/update/settings entities: battery, Wi-Fi RSSI, screen state, LED state, screen brightness/timeout, speaker volume, device language, auto-off, theme/log-level, firmware update and reboot. iOS, macOS and Raspberry Pi clients must not get those ESP-only entities; they keep only client/runtime and backend/playback entities. Raspberry Pi clients additionally get Pi-specific restart and shutdown buttons that call `/api/device/restart` and `/api/device/shutdown`.
+- ESP32 clients get ESP-only hardware/update/settings entities: battery, Wi-Fi RSSI, screen state, LED state, screen brightness/timeout, speaker volume, wake word, device language, auto-off, theme/log-level, firmware update and reboot. Wake word reads `settings.wake_word_enabled`, then top-level `wake_word_enabled`, then `wake_word`, and the HA switch sends canonical `{"command":"wake_word","value":true|false}`. iOS, macOS and Raspberry Pi clients must not get those ESP-only entities; they keep only client/runtime and backend/playback entities. Raspberry Pi clients additionally get Pi-specific restart and shutdown buttons that call `/api/device/restart` and `/api/device/shutdown`.
 - `button.djconnect_refresh_up_next` refreshes Spotify/Home Assistant backend queue data through the `queue` command.
 - `command=queue` returns at most 100 real queue items plus top-level `context_uri` / `contextUri` and queue item artwork aliases so ESP/web/app Up Next can use `play_context_at` and show thumbnails.
 - `select.djconnect_sound_output` refreshes Spotify output devices itself and accepts `available_outputs`, `outputs`, `devices` and nested `items` aliases.

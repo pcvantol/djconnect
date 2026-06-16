@@ -104,6 +104,7 @@ ENTITY_TRANSLATION_KEYS = {
     ("select", "theme"),
     ("select", "log_level"),
     ("switch", "shuffle"),
+    ("switch", "wake_word"),
     ("update", "firmware"),
     ("media_player", "playback_proxy"),
 }

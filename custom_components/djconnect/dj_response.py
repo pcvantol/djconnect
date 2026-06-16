@@ -16,11 +16,11 @@ from .const import (
     API_TTS_BASE,
     CONF_DJ_RESPONSE_ENABLED,
     CONF_DJ_RESPONSE_TTL_SECONDS,
-    CONF_HA_EXTERNAL_URL,
     DEFAULT_DJ_RESPONSE_ENABLED,
     DEFAULT_DJ_RESPONSE_TTL_SECONDS,
     DOMAIN,
 )
+from .ha_urls import async_ha_local_url
 from .tts import UnsupportedTtsAudioError, TtsAudio, create_tts_audio
 
 _LOGGER = logging.getLogger(__name__)
@@ -207,9 +207,4 @@ def _format_exception(exc: Exception) -> str:
 
 
 async def _async_ha_base_url(hass: HomeAssistant, conf: dict[str, Any]) -> str:
-    try:
-        from homeassistant.helpers import network
-
-        return await network.async_get_url(hass, prefer_external=False)
-    except Exception:  # noqa: BLE001
-        return str(conf.get(CONF_HA_EXTERNAL_URL) or "").strip()
+    return await async_ha_local_url(hass, conf)

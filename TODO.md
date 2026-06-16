@@ -28,8 +28,10 @@
 - Confirm Spotify playback action runs when Spotify is idle.
 - Confirm PTT artist, track, album, playlist and default-playlist phrases resolve to the intended Spotify search type.
 - Confirm AI DJ announcements use the preferred/default HA Assist pipeline conversation engine when no DJConnect Assist pipeline is explicitly selected.
+- Confirm successful DJ announcement TTS creates an `audio_url` using a local Home Assistant URL even when older HA network helpers are unavailable.
 - Confirm Dutch DJ announcements pronounce English artist, album and track names naturally in TTS.
 - Confirm a new PTT request such as Nirvana does not reuse previous Spotify playback metadata such as Red Hot Chili Peppers in the DJ aankondiging.
+- Confirm artist requests that start a concrete Spotify track include that returned track in the generative DJ aankondiging prompt.
 - Confirm repeated iOS/macOS/Raspberry Pi PTT requests reuse or serialize Spotify token refresh without false `invalid_grant` repairs.
 - Confirm artist queue/up-next selection does not send invalid Spotify artist offset payloads.
 - Confirm friendly DJ fallback response is returned when Spotify playback fails.
@@ -79,6 +81,7 @@
 - Confirm advanced-only options remain hidden behind the integration-local advanced checkbox.
 - Confirm HA deprecated `show_advanced_options` is not used.
 - Confirm no `spotify_player` field is required in config/options flow.
+- Confirm ESP32-only Wake word switch appears only for ESP32 clients and tracks `settings.wake_word_enabled` after ESP reboot/status refresh.
 - Confirm all titles, labels and error messages are available in Dutch and English.
 
 ## OTA / Firmware Updates

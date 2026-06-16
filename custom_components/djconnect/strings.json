@@ -331,6 +331,9 @@
     "switch": {
       "shuffle": {
         "name": "Shuffle"
+      },
+      "wake_word": {
+        "name": "Wake word"
       }
     }
   },

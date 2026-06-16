@@ -1420,11 +1420,13 @@ class VoiceHttpHelperTest(unittest.TestCase):
                     "client_type": "ios",
                     "update_state": "idle",
                     "firmware": "3.1.6",
+                    "wake_word_enabled": False,
                     "settings": {
                         "screen_brightness_percent": 91,
                         "screen_off_timeout_ms": 60000,
                         "turn_off_after_ms": 300000,
                         "speaker_volume_percent": 45,
+                        "wake_word_enabled": True,
                         "language": "nl",
                         "theme": "dark",
                         "log_level": "info",
@@ -1446,6 +1448,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertEqual(runtime.device_status["screen_timeout_ms"], 60000)
         self.assertEqual(runtime.device_status["turn_off_after_ms"], 300000)
         self.assertEqual(runtime.device_status["speaker_volume"], 45)
+        self.assertIs(runtime.device_status["wake_word_enabled"], True)
         self.assertEqual(runtime.device_status["screen_state"], "on")
         self.assertEqual(runtime.device_status["screen_brightness_level"], 88)
         self.assertEqual(runtime.device_status["led_state"], "off")

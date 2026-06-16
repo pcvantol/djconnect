@@ -86,6 +86,11 @@ Every release must review this roadmap.
   visible as entities or redacted debug attributes.
 - [ ] DJ announcement prompt is configurable, multiline and isolated from
   Spotify search/device lookup prompts.
+- [x] ESP32 wake-word toggle is exposed as a native HA switch and filtered out
+  for iOS, macOS and Raspberry Pi clients (3.1, ESP32/HA).
+- [x] DJ announcement generation includes the concrete Spotify track returned
+  by the just-executed artist playback command when Spotify provides one (3.1,
+  HA).
 - [ ] End-to-end tests cover pairing, voice, Spotify search, queue, refresh-token
   rotation, mDNS discovery, non-ESP entity filtering and OTA offers.
 
