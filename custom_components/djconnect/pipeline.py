@@ -90,22 +90,30 @@ def _assist_context(hass: HomeAssistant, conf: dict[str, Any]) -> dict[str, Any]
     context: dict[str, Any] = {
         "language": conf.get(CONF_TTS_LANGUAGE) or DEFAULT_TTS_LANGUAGE,
     }
-    if not pipeline_id:
-        return context
-
-    pipeline = _get_assist_pipeline(hass, pipeline_id)
+    pipeline = (
+        _get_assist_pipeline(hass, pipeline_id)
+        if pipeline_id
+        else _get_default_assist_pipeline(hass)
+    )
     if pipeline is None:
-        context["agent_id"] = pipeline_id
+        if pipeline_id:
+            context["agent_id"] = pipeline_id
+            context["pipeline_id"] = pipeline_id
         return context
 
-    conversation_engine = getattr(pipeline, "conversation_engine", None)
-    conversation_language = getattr(pipeline, "conversation_language", None)
-    language = conversation_language or getattr(pipeline, "language", None)
+    conversation_engine = _first_attr(
+        pipeline,
+        "conversation_engine",
+        "conversation_engine_id",
+        "conversation_agent",
+        "conversation_agent_id",
+    )
+    language = _first_attr(pipeline, "conversation_language", "language")
     if conversation_engine:
         context["agent_id"] = conversation_engine
     if language:
         context["language"] = language
-    context["pipeline_id"] = pipeline_id
+    context["pipeline_id"] = pipeline_id or getattr(pipeline, "id", None)
     return context
 
 
@@ -113,11 +121,89 @@ def _get_assist_pipeline(hass: HomeAssistant, pipeline_id: str) -> Any | None:
     try:
         from homeassistant.components.assist_pipeline.pipeline import async_get_pipelines
 
-        for pipeline in async_get_pipelines(hass):
-            if getattr(pipeline, "id", None) == pipeline_id:
-                return pipeline
+        pipelines = async_get_pipelines(hass)
+        available = _pipeline_list(pipelines)
+        pipeline = _find_pipeline(pipelines, available, pipeline_id)
+        if pipeline is not None:
+            return pipeline
     except Exception:  # noqa: BLE001
         _LOGGER.debug("Could not resolve Assist pipeline %s", pipeline_id, exc_info=True)
+    return None
+
+
+def _get_default_assist_pipeline(hass: HomeAssistant) -> Any | None:
+    try:
+        from homeassistant.components.assist_pipeline.pipeline import async_get_pipelines
+
+        pipelines = async_get_pipelines(hass)
+    except Exception:  # noqa: BLE001
+        _LOGGER.debug("Could not resolve default Assist pipeline", exc_info=True)
+        return None
+
+    available = _pipeline_list(pipelines)
+    preferred_getter = getattr(pipelines, "async_get_preferred_pipeline", None)
+    if callable(preferred_getter):
+        try:
+            preferred = preferred_getter()
+            if preferred is not None:
+                return preferred
+        except Exception:  # noqa: BLE001
+            _LOGGER.debug("Preferred Assist pipeline lookup failed", exc_info=True)
+
+    preferred = _first_attr(pipelines, "preferred_pipeline", "current_pipeline")
+    if preferred is not None:
+        return preferred
+
+    for pipeline in available:
+        if _first_attr(
+            pipeline,
+            "conversation_engine",
+            "conversation_engine_id",
+            "conversation_agent",
+            "conversation_agent_id",
+        ):
+            return pipeline
+    return available[0] if available else None
+
+
+def _find_pipeline(
+    pipelines: Any,
+    available: list[Any],
+    pipeline_id: str,
+) -> Any | None:
+    getter = getattr(pipelines, "async_get_pipeline", None)
+    if callable(getter):
+        try:
+            pipeline = getter(pipeline_id)
+            if pipeline is not None:
+                return pipeline
+        except Exception:  # noqa: BLE001
+            return None
+    for pipeline in available:
+        if str(getattr(pipeline, "id", "") or "") == pipeline_id:
+            return pipeline
+    return None
+
+
+def _pipeline_list(pipelines: Any) -> list[Any]:
+    if isinstance(pipelines, dict):
+        return list(pipelines.values())
+    mapping = getattr(pipelines, "pipelines", None)
+    if isinstance(mapping, dict):
+        return list(mapping.values())
+    if isinstance(mapping, list | tuple):
+        return list(mapping)
+    try:
+        return list(pipelines)
+    except TypeError:
+        return []
+
+
+def _first_attr(obj: Any, *names: str) -> Any | None:
+    for name in names:
+        value = getattr(obj, name, None)
+        if value not in (None, ""):
+            return value
     return None
 
 

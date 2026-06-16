@@ -122,7 +122,8 @@ Pattern:
 - The configured `dj_response_prompt` is used only in this response-generation
   step, never in Spotify intent parsing.
 - The helper uses the configured conversation agent when present, otherwise
-  Home Assistant's default conversation agent.
+  resolves Home Assistant's preferred/default Assist pipeline and uses its
+  conversation engine.
 - Dutch prompts include an instruction to pronounce English artist, album and
   track names in English inside Dutch sentences.
 - Prompt leaks, Spotify URIs, structured dictionaries and Home Assistant
@@ -136,8 +137,8 @@ Primary source files:
 Why:
 
 - Keeps the DJ announcement generative when the user configured a default AI
-  conversation agent but did not explicitly select an Assist pipeline in
-  DJConnect.
+  conversation agent through Home Assistant Assist but did not explicitly
+  select an Assist pipeline in DJConnect.
 - Prevents the local "Daar is ..." fallback from hiding normal AI response
   generation.
 - Keeps the fallback deterministic and safe when HA Assist cannot produce a

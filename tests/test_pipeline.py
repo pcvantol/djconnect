@@ -422,29 +422,61 @@ class AssistPipelineTest(unittest.TestCase):
                     }
                 }
 
+        preferred = types.SimpleNamespace(
+            id="preferred-pipeline",
+            conversation_engine="conversation.openai",
+            conversation_language="nl-NL",
+        )
+
+        class Pipelines:
+            def async_get_preferred_pipeline(self):
+                return preferred
+
+            def __iter__(self):
+                return iter([preferred])
+
+        pipeline_module = types.ModuleType(
+            "homeassistant.components.assist_pipeline.pipeline"
+        )
+        pipeline_module.async_get_pipelines = lambda hass: Pipelines()
+        original_pipeline_module = sys.modules.get(
+            "homeassistant.components.assist_pipeline.pipeline"
+        )
+        sys.modules["homeassistant.components.assist_pipeline.pipeline"] = pipeline_module
+
         hass = types.SimpleNamespace(services=Services())
         debug = {}
-        with self.assertLogs("custom_components.djconnect", level="DEBUG") as logs:
-            text = asyncio.run(
-                self.pipeline.generate_dj_response_with_assist(
-                    hass,
-                    media={"type": "artist", "artist": "Nirvana"},
-                    fallback_text="Daar is Nirvana.",
-                    conf={
-                        "dj_response_prompt": "Noem de artiest en het nummer.",
-                        "tts_language": "nl-NL",
-                    },
-                    debug=debug,
+        try:
+            with self.assertLogs("custom_components.djconnect", level="DEBUG") as logs:
+                text = asyncio.run(
+                    self.pipeline.generate_dj_response_with_assist(
+                        hass,
+                        media={"type": "artist", "artist": "Nirvana"},
+                        fallback_text="Daar is Nirvana.",
+                        conf={
+                            "dj_response_prompt": "Noem de artiest en het nummer.",
+                            "tts_language": "nl-NL",
+                        },
+                        debug=debug,
+                    )
                 )
-            )
+        finally:
+            if original_pipeline_module is None:
+                sys.modules.pop("homeassistant.components.assist_pipeline.pipeline", None)
+            else:
+                sys.modules[
+                    "homeassistant.components.assist_pipeline.pipeline"
+                ] = original_pipeline_module
 
         self.assertEqual(text, "Nirvana, rauw en recht uit Seattle, komt eraan.")
         self.assertEqual(calls[0]["language"], "nl-NL")
-        self.assertNotIn("agent_id", calls[0])
+        self.assertEqual(calls[0]["agent_id"], "conversation.openai")
         self.assertFalse(debug["fallback_used"])
         self.assertIsNone(debug["block_reason"])
         self.assertTrue(any("DJ response prompt" in line for line in logs.output))
-        self.assertTrue(any("agent_id=None" in line for line in logs.output))
+        self.assertTrue(
+            any("agent_id=conversation.openai" in line for line in logs.output)
+        )
 
     def test_ordinary_artist_dj_response_is_usable(self) -> None:
         self.assertTrue(

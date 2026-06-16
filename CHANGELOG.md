@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.1.40
+
+- Resolve the preferred/default Home Assistant Assist pipeline conversation engine for generated DJ announcements when no explicit DJConnect Assist pipeline is selected, so the configured `dj_response_prompt` is sent to the real conversation agent instead of falling through to the local "Daar is ..." fallback.
+- Fix generic album fallback wording for album-only resolved media such as `Ten` by `Pearl Jam`.
+- Add regression coverage for generated album DJ announcements and default Assist pipeline conversation-agent resolution.
+
 ## 3.1.39
 
 - Make `pcvantol/djconnect/PRODUCT_ROADMAP.md` the only canonical product roadmap source and document that sibling repos must not keep local roadmap copies.

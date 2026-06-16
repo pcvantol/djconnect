@@ -27,7 +27,7 @@
 - Confirm `sensor.djconnect_last_corrected_stt` shows the last changed STT correction and remains stable after sparse runtime updates.
 - Confirm Spotify playback action runs when Spotify is idle.
 - Confirm PTT artist, track, album, playlist and default-playlist phrases resolve to the intended Spotify search type.
-- Confirm AI DJ announcements use the default HA conversation agent when no DJConnect Assist pipeline is explicitly selected.
+- Confirm AI DJ announcements use the preferred/default HA Assist pipeline conversation engine when no DJConnect Assist pipeline is explicitly selected.
 - Confirm Dutch DJ announcements pronounce English artist, album and track names naturally in TTS.
 - Confirm a new PTT request such as Nirvana does not reuse previous Spotify playback metadata such as Red Hot Chili Peppers in the DJ aankondiging.
 - Confirm repeated iOS/macOS/Raspberry Pi PTT requests reuse or serialize Spotify token refresh without false `invalid_grant` repairs.

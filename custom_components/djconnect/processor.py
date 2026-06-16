@@ -162,8 +162,18 @@ def _track_response(
     is_nl: bool,
 ) -> str:
     subject = _track_subject(title, artist, is_nl=is_nl)
+    if album and artist and not title:
+        return (
+            f"Daar is {album} van {artist}."
+            if is_nl
+            else f"Here is {album} by {artist}."
+        )
     if album and artist:
-        return f"Daar is {artist}, met {title}. Van {album}." if is_nl else f"Here is {title} by {artist}, from {album}."
+        return (
+            f"Daar is {artist}, met {title}. Van {album}."
+            if is_nl
+            else f"Here is {title} by {artist}, from {album}."
+        )
     return f"Daar is {subject}." if is_nl else f"Here is {subject}."
 
 

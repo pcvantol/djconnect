@@ -4,8 +4,8 @@
 
 - Repository: `pcvantol/djconnect`.
 - Integration domain: `djconnect`.
-- Current integration release: `3.1.38`.
-- Release status: DJConnect `3.1.38` is the current released baseline; the working tree contains unreleased product roadmap centralization documentation updates.
+- Current integration release: `3.1.39`.
+- Release status: DJConnect `3.1.39` is the current released baseline; the working tree contains unreleased Assist conversation-agent and DJ announcement fixes.
 - Home Assistant integration is HACS-distributed and MIT-licensed.
 - ESP firmware source remains proprietary in `pcvantol/djconnect-app`.
 - Public firmware release assets live in `pcvantol/djconnect-firmware`.
@@ -123,7 +123,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - HA STT provider selection uses `stt_engine` first, then Assist pipeline/default/fallbacks.
 - DJ response tone is configured with one free-form `dj_response_prompt`; old fixed `dj_style` / `dj_profile` choices are removed and must not be reintroduced.
 - The Assist command-parser prompt must not include `dj_response_prompt`; use it only after Spotify resolution/playback when generating the spoken DJ response.
-- STT fuzzy correction and AI DJ announcement generation use the configured conversation agent when present, otherwise Home Assistant's default conversation agent. Only fall back to local copy when the conversation response is unavailable or blocked by prompt-leak/device-lookup guardrails.
+- STT fuzzy correction and AI DJ announcement generation use the configured conversation agent when present, otherwise resolve Home Assistant's preferred/default Assist pipeline and use its conversation engine. Only fall back to local copy when the conversation response is unavailable or blocked by prompt-leak/device-lookup guardrails.
 - Dutch DJ announcement prompts instruct Assist/TTS to pronounce English artist, album and track names in English inside Dutch copy.
 - Options flow clears a stale provider-specific `tts_voice` when the selected TTS engine changes and no longer supports that voice.
 - Text-only `/api/djconnect/voice` is a DJ response test and must not trigger Spotify playback parsing.
