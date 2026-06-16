@@ -4,8 +4,8 @@
 
 - Repository: `pcvantol/djconnect`.
 - Integration domain: `djconnect`.
-- Current integration release: `3.1.39`.
-- Release status: DJConnect `3.1.39` is the current released baseline; the working tree contains unreleased Assist conversation-agent and DJ announcement fixes.
+- Current integration release: `3.1.42`.
+- Release status: DJConnect `3.1.42` is the current released baseline.
 - Home Assistant integration is HACS-distributed and MIT-licensed.
 - ESP firmware source remains proprietary in `pcvantol/djconnect-app`.
 - Public firmware release assets live in `pcvantol/djconnect-firmware`.
@@ -138,10 +138,11 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 ## Current Release Notes
 
 - Current release line is `3.1.x`; only the latest GitHub release/tag should be kept after release cleanup.
-- Current latest baseline is `3.1.40`.
+- Current latest baseline is `3.1.42`.
 - Release workflow expectation: before every release, review and update all repo documentation affected by the change or release, including `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `info.md` and relevant `examples/*`. Explicitly decide whether test coverage must be expanded for the change; add coverage for new behavior paths, regression risks, translations and edge cases. After publishing a release, clean up old semver releases/tags with `./cleanup_old_releases.sh --keep 1 --execute` unless multiple releases are intentionally retained.
 - Before build/test/release validation, check whether third-party libraries, frameworks and build tools can be safely upgraded. If any version is upgraded, update lockfiles/manifests, `THIRD_PARTY_NOTICES.md` and dependency/design documentation in the same release. If an upgrade is skipped, record the reason here.
-- For the current wake-word, DJ announcement and Spotify intent-parser changes,
+- For the current Assist pipeline prerequisite, DJ announcement prompt preset
+  and product roadmap search-idea changes,
   no third-party library/framework/tool versions were upgraded;
   `THIRD_PARTY_NOTICES.md` remains unchanged.
 - Changelog expectation: keep `CHANGELOG.md` as a per-release changelog. Add a new section for each release and do not consolidate old release notes into one current-version block.
@@ -165,11 +166,11 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
   local HA URL resolver. A device log with `audio_url=none` means HA fell back
   to text-only, usually because TTS audio generation failed, returned an
   unsupported type, or HA could not build a reachable local URL.
-- `dj_response_prompt` is free text in config/options flow. There is no backwards compatibility for old fixed `dj_style` or `dj_profile` values.
+- `dj_response_prompt` remains free text in config/options flow, with a separate preset selector for neutral/business, warm/personal and humorous/witty prompts. There is no backwards compatibility for old fixed `dj_style` or `dj_profile` values.
 - Parser prompts must be isolated from response prompts so text such as "Noem waar mogelijk..." can never leak into Spotify search queries like `Opdracht Metallica`.
 - If Spotify playback fails because there is no active device, refresh `/me/player/devices`, prefer configured `spotify_source` by id or visible name, transfer playback and retry once.
 - `spotify_source` is a normal options-flow field again because it is needed for reliable voice playback routing; firmware/OTA overrides remain hidden behind the local advanced checkbox.
-- Config flow requires the official Home Assistant Spotify integration to expose at least one Spotify `media_player` entity before DJConnect setup can continue. If missing, the user sees a translated setup error instead of reaching pairing/OAuth with no playback backend.
+- Config flow requires the official Home Assistant Spotify integration to expose at least one Spotify `media_player` entity and Home Assistant to expose at least one Assist pipeline with both STT and TTS before DJConnect setup can continue. If either is missing, the user sees a translated setup error instead of reaching pairing/OAuth with no backend voice/playback setup.
 - Pairing prevents Nabu Casa/cloud URLs from being sent as `ha_local_url` and falls back to HA network/source-IP local URL discovery, then `http://homeassistant.local:8123`.
 - The options-flow “re-pair with new pairing code” field stays empty instead of pre-filling the old stored pairing code; leaving Client API URL empty reuses the stored URL for that client.
 - Firmware update entity is non-polling. It checks GitHub on add/manual refresh/install and then on a one-hour internal schedule, so HA must not refresh the entity every 10 seconds.

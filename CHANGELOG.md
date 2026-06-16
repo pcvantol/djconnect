@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.42
+
+- Block DJConnect client setup until Home Assistant has an Assist pipeline with both STT and TTS configured, with translated config-flow guidance.
+- Add DJ announcement prompt presets for neutral/business, warm/personal and humorous/witty styles while keeping the existing free-form prompt option.
+
 ## 3.1.41
 
 - Add an ESP-only `switch.djconnect_wake_word` entity that mirrors `wake_word_enabled` / `wake_word` from ESP status payloads and sends the canonical `wake_word` device command to enable or disable local wake-word detection.

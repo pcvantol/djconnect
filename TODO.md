@@ -74,6 +74,7 @@
 
 - Confirm normal config flow stays small and user-focused.
 - Confirm Add integration shows a clear Spotify media player prerequisite error when the Home Assistant Spotify integration has no `media_player` entity yet.
+- Confirm Add integration shows a clear Assist pipeline prerequisite error when Home Assistant has no Assist pipeline with both STT and TTS.
 - Confirm `client_type` and Client API URL are visible in normal pairing.
 - Confirm `stt_engine` remains visible in normal flow/options.
 - Confirm `stt_engine` dropdown is populated from HA `stt.*` entities when available.

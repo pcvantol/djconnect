@@ -236,6 +236,9 @@ Every release must review this roadmap.
 - [ ] Accessibility mode with bigger text, reduced animation and high contrast.
 - [ ] Listening history with replay or add-to-playlist actions.
 - [ ] Multi-room scene buttons for cooking, dinner, party, focus and sleep.
+- [ ] Typed music search in clients: search by album, artist or track name from
+  ESP/web, Apple and Raspberry Pi clients, then let Home Assistant resolve and
+  start the selected result through the shared backend playback contract.
 
 ### HACS / Home Assistant
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 DOMAIN = "djconnect"
 NAME = "DJConnect"
-VERSION = "3.1.41"
+VERSION = "3.1.42"
 
 API_BASE = "/api/djconnect"
 API_PAIR = f"{API_BASE}/pair"
@@ -42,6 +42,7 @@ CONF_TTS_LANGUAGE = "tts_language"
 CONF_TTS_VOICE = "tts_voice"
 CONF_DJ_RESPONSE_ENABLED = "dj_response_enabled"
 CONF_DJ_RESPONSE_TTL_SECONDS = "dj_response_ttl_seconds"
+CONF_DJ_RESPONSE_PROMPT_PRESET = "dj_response_prompt_preset"
 CONF_DJ_RESPONSE_PROMPT = "dj_response_prompt"
 
 CONF_MAX_AUDIO_BYTES = "max_audio_bytes"
@@ -92,11 +93,36 @@ DEFAULT_TTS_LANGUAGE = "nl-NL"
 DEFAULT_TTS_VOICE = ""
 DEFAULT_DJ_RESPONSE_ENABLED = True
 DEFAULT_DJ_RESPONSE_TTL_SECONDS = 120
-DEFAULT_DJ_RESPONSE_PROMPT = (
-    "Noem de artiest en het nummer.\n"
-    "Geef een leuk feitje over de artiest.\n"
-    "Klink warm en persoonlijk."
-)
+DJ_RESPONSE_PROMPT_PRESET_NEUTRAL = "neutral_business"
+DJ_RESPONSE_PROMPT_PRESET_WARM = "warm_personal"
+DJ_RESPONSE_PROMPT_PRESET_HUMOR = "humorous_witty"
+DJ_RESPONSE_PROMPT_PRESET_CUSTOM = "custom"
+DJ_RESPONSE_PROMPT_PRESETS = [
+    DJ_RESPONSE_PROMPT_PRESET_NEUTRAL,
+    DJ_RESPONSE_PROMPT_PRESET_WARM,
+    DJ_RESPONSE_PROMPT_PRESET_HUMOR,
+    DJ_RESPONSE_PROMPT_PRESET_CUSTOM,
+]
+DJ_RESPONSE_PROMPT_TEXTS = {
+    DJ_RESPONSE_PROMPT_PRESET_NEUTRAL: (
+        "Noem de artiest en het nummer.\n"
+        "Houd de aankondiging kort, duidelijk en zakelijk.\n"
+        "Gebruik geen grapjes of overdreven enthousiasme."
+    ),
+    DJ_RESPONSE_PROMPT_PRESET_WARM: (
+        "Noem de artiest en het nummer.\n"
+        "Geef een leuk feitje over de artiest.\n"
+        "Klink warm en persoonlijk."
+    ),
+    DJ_RESPONSE_PROMPT_PRESET_HUMOR: (
+        "Noem de artiest en het nummer.\n"
+        "Maak de aankondiging luchtig, humoristisch en gevat.\n"
+        "Gebruik maximaal een korte grap en blijf vriendelijk."
+    ),
+}
+DEFAULT_DJ_RESPONSE_PROMPT = DJ_RESPONSE_PROMPT_TEXTS[
+    DJ_RESPONSE_PROMPT_PRESET_WARM
+]
 SPOTIFY_SCOPES = [
     "user-read-playback-state",
     "user-modify-playback-state",

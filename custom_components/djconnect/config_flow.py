@@ -30,6 +30,7 @@ from .const import (
     CONF_DEVICE_TOKEN,
     CONF_DJ_RESPONSE_ENABLED,
     CONF_DJ_RESPONSE_PROMPT,
+    CONF_DJ_RESPONSE_PROMPT_PRESET,
     CONF_DJ_RESPONSE_TTL_SECONDS,
     CONF_FIRMWARE_CHANNEL,
     CONF_HA_EXTERNAL_URL,
@@ -68,6 +69,9 @@ from .const import (
     DEFAULT_TTS_ENGINE,
     DEFAULT_TTS_LANGUAGE,
     DEFAULT_TTS_VOICE,
+    DJ_RESPONSE_PROMPT_PRESET_CUSTOM,
+    DJ_RESPONSE_PROMPT_PRESETS,
+    DJ_RESPONSE_PROMPT_TEXTS,
     FIRMWARE_CHANNELS,
     CLIENT_TYPE_NAMES,
     CLIENT_TYPES,
@@ -594,7 +598,27 @@ def _get_assist_pipelines(hass: Any) -> list[Any]:
     try:
         from homeassistant.components.assist_pipeline.pipeline import async_get_pipelines
 
-        return list(async_get_pipelines(hass))
+        pipelines = async_get_pipelines(hass)
+        if isinstance(pipelines, dict):
+            return list(pipelines.values())
+        if isinstance(pipelines, (list, tuple, set)):
+            return list(pipelines)
+        listed = getattr(pipelines, "async_get_pipelines", None)
+        if callable(listed):
+            values = listed()
+            if isinstance(values, dict):
+                return list(values.values())
+            return list(values or [])
+        stored = getattr(pipelines, "pipelines", None)
+        if isinstance(stored, dict):
+            return list(stored.values())
+        if isinstance(stored, (list, tuple, set)):
+            return list(stored)
+        preferred = getattr(pipelines, "async_get_preferred_pipeline", None)
+        if callable(preferred):
+            pipeline = preferred()
+            return [pipeline] if pipeline is not None else []
+        return list(pipelines)
     except Exception:  # noqa: BLE001
         _LOGGER.debug("DJConnect could not list Assist pipelines", exc_info=True)
         return []
@@ -621,6 +645,21 @@ async def _assist_pipeline_options(hass: Any, current: Any = "") -> dict[str, st
         if pipeline_id:
             options[pipeline_id] = getattr(pipeline, "name", "") or pipeline_id
     return _options_with_current(options, current)
+
+
+def _assist_pipeline_has_stt_tts(pipeline: Any) -> bool:
+    """Return true when an Assist pipeline can handle both voice directions."""
+    stt_engine = str(getattr(pipeline, "stt_engine", "") or "").strip()
+    tts_engine = str(getattr(pipeline, "tts_engine", "") or "").strip()
+    return bool(stt_engine and tts_engine)
+
+
+def _has_valid_assist_pipeline(hass: Any) -> bool:
+    """Return whether HA has at least one Assist pipeline with STT and TTS."""
+    return any(
+        _assist_pipeline_has_stt_tts(pipeline)
+        for pipeline in _get_assist_pipelines(hass)
+    )
 
 
 def _base_voice_schema(
@@ -673,6 +712,12 @@ def _base_voice_schema(
             ),
         ): bool,
         vol.Optional(
+            CONF_DJ_RESPONSE_PROMPT_PRESET,
+            default=_dj_response_prompt_preset_default(
+                defaults.get(CONF_DJ_RESPONSE_PROMPT),
+            ),
+        ): _dj_response_prompt_preset_selector(),
+        vol.Optional(
             CONF_DJ_RESPONSE_PROMPT,
             default=defaults.get(CONF_DJ_RESPONSE_PROMPT, DEFAULT_DJ_RESPONSE_PROMPT),
         ): selector.TextSelector(
@@ -706,6 +751,34 @@ def _firmware_channel_selector() -> Any:
             )
         )
     return vol.In(FIRMWARE_CHANNELS)
+
+
+def _dj_response_prompt_preset_selector() -> Any:
+    """Return a labeled DJ response preset selector when HA exposes helpers."""
+    select_selector = getattr(selector, "SelectSelector", None)
+    select_config = getattr(selector, "SelectSelectorConfig", None)
+    select_option = getattr(selector, "SelectOptionDict", None)
+    if select_selector and select_config and select_option:
+        return select_selector(
+            select_config(
+                options=[
+                    select_option(
+                        value="neutral_business",
+                        label="Neutraal en zakelijk",
+                    ),
+                    select_option(
+                        value="warm_personal",
+                        label="Warm en persoonlijk",
+                    ),
+                    select_option(
+                        value="humorous_witty",
+                        label="Humoristisch en gevat",
+                    ),
+                    select_option(value="custom", label="Vrij in te vullen"),
+                ]
+            )
+        )
+    return vol.In(DJ_RESPONSE_PROMPT_PRESETS)
 
 
 def _advanced_voice_schema(defaults: dict[str, Any]) -> dict[Any, Any]:
@@ -799,10 +872,18 @@ def _voice_defaults(
 ) -> dict[str, Any]:
     """Return voice/options config with safe defaults."""
     source = data or {}
+    preset = str(
+        source.get(CONF_DJ_RESPONSE_PROMPT_PRESET)
+        or DJ_RESPONSE_PROMPT_PRESET_CUSTOM
+    ).strip()
+    if preset not in DJ_RESPONSE_PROMPT_PRESETS:
+        preset = DJ_RESPONSE_PROMPT_PRESET_CUSTOM
     dj_response_prompt = _clean(
         source.get(CONF_DJ_RESPONSE_PROMPT),
         DEFAULT_DJ_RESPONSE_PROMPT,
     )
+    if preset != DJ_RESPONSE_PROMPT_PRESET_CUSTOM:
+        dj_response_prompt = DJ_RESPONSE_PROMPT_TEXTS[preset]
     return {
         CONF_ASSIST_PIPELINE_ID: _defaultable_value(
             source,
@@ -837,6 +918,7 @@ def _voice_defaults(
             source.get(CONF_DJ_RESPONSE_TTL_SECONDS),
             DEFAULT_DJ_RESPONSE_TTL_SECONDS,
         ),
+        CONF_DJ_RESPONSE_PROMPT_PRESET: preset,
         CONF_DJ_RESPONSE_PROMPT: dj_response_prompt,
         CONF_MAX_AUDIO_BYTES: _int(
             source.get(CONF_MAX_AUDIO_BYTES),
@@ -858,6 +940,14 @@ def _voice_defaults(
 def _firmware_channel_default(value: Any) -> str:
     channel = str(value or DEFAULT_FIRMWARE_CHANNEL).strip().lower()
     return "beta" if channel == "beta" else DEFAULT_FIRMWARE_CHANNEL
+
+
+def _dj_response_prompt_preset_default(prompt: Any) -> str:
+    value = str(prompt or DEFAULT_DJ_RESPONSE_PROMPT).strip()
+    for preset, preset_prompt in DJ_RESPONSE_PROMPT_TEXTS.items():
+        if value == preset_prompt:
+            return preset
+    return DJ_RESPONSE_PROMPT_PRESET_CUSTOM
 
 
 def _voice_errors(user_input: dict[str, Any]) -> dict[str, str]:
@@ -917,6 +1007,9 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
         if not _has_spotify_media_player(getattr(self, "hass", None)):
             errors["base"] = "spotify_media_player_required"
+        elif not _has_valid_assist_pipeline(getattr(self, "hass", None)):
+            errors["base"] = "assist_pipeline_required"
+        if errors:
             if user_input is not None:
                 return self.async_show_form(
                     step_id="user",
@@ -1002,6 +1095,12 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> FlowResult:
         """Pair the DJConnect device using the displayed pair code."""
         errors: dict[str, str] = {}
+        if not _has_valid_assist_pipeline(getattr(self, "hass", None)):
+            return self.async_show_form(
+                step_id="pair",
+                data_schema=vol.Schema(self._user_schema()),
+                errors={"base": "assist_pipeline_required"},
+            )
 
         if user_input is None:
             await self._ensure_mdns_discovery()

@@ -114,6 +114,14 @@ def install_homeassistant_stubs() -> None:
         "homeassistant.components",
         types.ModuleType("homeassistant.components"),
     )
+    assist_pkg = sys.modules.setdefault(
+        "homeassistant.components.assist_pipeline",
+        types.ModuleType("homeassistant.components.assist_pipeline"),
+    )
+    assist_pipeline = sys.modules.setdefault(
+        "homeassistant.components.assist_pipeline.pipeline",
+        types.ModuleType("homeassistant.components.assist_pipeline.pipeline"),
+    )
     cloud = sys.modules.setdefault(
         "homeassistant.components.cloud",
         types.ModuleType("homeassistant.components.cloud"),
@@ -123,6 +131,16 @@ def install_homeassistant_stubs() -> None:
     cloud.async_remote_ui_url = lambda hass: ""
     helpers.network = network
     helpers.selector = selector
+    assist_pipeline.async_get_pipelines = lambda hass: [
+        types.SimpleNamespace(
+            id="default",
+            name="Default",
+            stt_engine="stt.mock",
+            tts_engine="tts.mock",
+        )
+    ]
+    assist_pkg.pipeline = assist_pipeline
+    components.assist_pipeline = assist_pkg
     components.cloud = cloud
 
     class TextSelectorConfig:
@@ -284,6 +302,63 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertTrue(prompt_selector.config.kwargs["multiline"])
 
+    def test_voice_schema_exposes_dj_response_prompt_preset(self) -> None:
+        hass = types.SimpleNamespace(states=None)
+        schema = asyncio.run(
+            self.config_flow._voice_schema(
+                hass,
+                self.config_flow._voice_defaults(),
+            )
+        )
+        marker_defaults = {marker.key: marker.default for marker in schema.schema}
+        validators = {
+            marker.key: validator
+            for marker, validator in schema.schema.items()
+        }
+
+        self.assertEqual(
+            marker_defaults[self.const.CONF_DJ_RESPONSE_PROMPT_PRESET],
+            self.const.DJ_RESPONSE_PROMPT_PRESET_WARM,
+        )
+        preset_selector = validators[self.const.CONF_DJ_RESPONSE_PROMPT_PRESET]
+        preset_values = [
+            option["value"]
+            for option in preset_selector.config.kwargs["options"]
+        ]
+        self.assertEqual(preset_values, self.const.DJ_RESPONSE_PROMPT_PRESETS)
+
+    def test_voice_defaults_apply_dj_response_prompt_preset(self) -> None:
+        defaults = self.config_flow._voice_defaults(
+            {
+                self.const.CONF_DJ_RESPONSE_PROMPT_PRESET: (
+                    self.const.DJ_RESPONSE_PROMPT_PRESET_HUMOR
+                ),
+                self.const.CONF_DJ_RESPONSE_PROMPT: "Custom text",
+            }
+        )
+
+        self.assertEqual(
+            defaults[self.const.CONF_DJ_RESPONSE_PROMPT],
+            self.const.DJ_RESPONSE_PROMPT_TEXTS[
+                self.const.DJ_RESPONSE_PROMPT_PRESET_HUMOR
+            ],
+        )
+
+    def test_voice_defaults_preserve_custom_dj_response_prompt(self) -> None:
+        defaults = self.config_flow._voice_defaults(
+            {
+                self.const.CONF_DJ_RESPONSE_PROMPT_PRESET: (
+                    self.const.DJ_RESPONSE_PROMPT_PRESET_CUSTOM
+                ),
+                self.const.CONF_DJ_RESPONSE_PROMPT: "Maak het kort en eigen.",
+            }
+        )
+
+        self.assertEqual(
+            defaults[self.const.CONF_DJ_RESPONSE_PROMPT],
+            "Maak het kort en eigen.",
+        )
+
     def test_default_dj_response_prompt_is_multiline_guidance(self) -> None:
         prompt = self.const.DEFAULT_DJ_RESPONSE_PROMPT
 
@@ -418,6 +493,29 @@ class ConfigFlowHelperTest(unittest.TestCase):
             ["media_player.spotify"],
         )
 
+    def test_assist_pipeline_detection_requires_stt_and_tts(self) -> None:
+        hass = types.SimpleNamespace()
+
+        self.assertFalse(
+            self.config_flow._assist_pipeline_has_stt_tts(
+                types.SimpleNamespace(stt_engine="stt.mock")
+            )
+        )
+        self.assertFalse(
+            self.config_flow._assist_pipeline_has_stt_tts(
+                types.SimpleNamespace(tts_engine="tts.mock")
+            )
+        )
+        self.assertTrue(
+            self.config_flow._assist_pipeline_has_stt_tts(
+                types.SimpleNamespace(
+                    stt_engine="stt.mock",
+                    tts_engine="tts.mock",
+                )
+            )
+        )
+        self.assertTrue(self.config_flow._has_valid_assist_pipeline(hass))
+
     def test_user_step_requires_spotify_media_player(self) -> None:
         class States:
             def async_all(self, domain=None):
@@ -434,6 +532,41 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(result["type"], "form")
         self.assertEqual(result["step_id"], "user")
         self.assertEqual(result["errors"]["base"], "spotify_media_player_required")
+
+    def test_user_step_requires_assist_pipeline_with_stt_and_tts(self) -> None:
+        from homeassistant.components.assist_pipeline import pipeline as pipeline_module
+
+        class State:
+            entity_id = "media_player.spotify"
+            attributes = {"friendly_name": "Spotify"}
+
+        class States:
+            def async_all(self, domain=None):
+                return [State()] if domain == "media_player" else []
+
+        original_get_pipelines = pipeline_module.async_get_pipelines
+        pipeline_module.async_get_pipelines = lambda hass: [
+            types.SimpleNamespace(
+                id="no-tts",
+                name="No TTS",
+                stt_engine="stt.mock",
+                tts_engine="",
+            )
+        ]
+        try:
+            flow = self.config_flow.DJConnectConfigFlow()
+            flow.hass = types.SimpleNamespace(
+                config=types.SimpleNamespace(language="en-US"),
+                states=States(),
+            )
+
+            result = asyncio.run(flow.async_step_user())
+        finally:
+            pipeline_module.async_get_pipelines = original_get_pipelines
+
+        self.assertEqual(result["type"], "form")
+        self.assertEqual(result["step_id"], "user")
+        self.assertEqual(result["errors"]["base"], "assist_pipeline_required")
 
     def test_user_step_allows_setup_when_spotify_media_player_exists(self) -> None:
         class State:
@@ -455,6 +588,25 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(result["type"], "form")
         self.assertEqual(result["step_id"], "user")
         self.assertEqual(result.get("errors"), {})
+
+    def test_pair_step_blocks_when_assist_pipeline_is_missing(self) -> None:
+        from homeassistant.components.assist_pipeline import pipeline as pipeline_module
+
+        original_get_pipelines = pipeline_module.async_get_pipelines
+        pipeline_module.async_get_pipelines = lambda hass: []
+        try:
+            flow = self.config_flow.DJConnectConfigFlow()
+            flow.hass = types.SimpleNamespace(
+                config=types.SimpleNamespace(language="en-US"),
+            )
+
+            result = asyncio.run(flow.async_step_pair())
+        finally:
+            pipeline_module.async_get_pipelines = original_get_pipelines
+
+        self.assertEqual(result["type"], "form")
+        self.assertEqual(result["step_id"], "pair")
+        self.assertEqual(result["errors"]["base"], "assist_pipeline_required")
 
     def test_user_schema_shows_client_type_and_local_url_without_advanced(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
