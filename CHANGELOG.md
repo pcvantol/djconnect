@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.46
+
+- Send Home Assistant STT metadata as native audio enums, including `channel`, `sample_rate` and `bit_rate`, so OpenAI STT can construct a valid WAV upload for PTT audio.
+
 ## 3.1.45
 
 - Send plural `channels` STT metadata for Home Assistant/OpenAI speech-to-text providers while keeping a legacy `channel` fallback for older providers.

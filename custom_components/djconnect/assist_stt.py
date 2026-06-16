@@ -370,16 +370,16 @@ def _speech_metadata(stt: Any, info: SttInfo) -> Any:
         "language": info.language,
         "format": stt.AudioFormats.WAV,
         "codec": stt.AudioCodecs.PCM,
-        "bit_rate": bits_per_sample,
-        "sample_rate": info.sample_rate,
-        "channels": info.channels,
+        "bit_rate": _stt_enum_value(stt, "AudioBitRates", bits_per_sample),
+        "sample_rate": _stt_enum_value(stt, "AudioSampleRates", info.sample_rate),
+        "channel": _stt_enum_value(stt, "AudioChannels", info.channels),
     }
     try:
         return stt.SpeechMetadata(**kwargs)
     except TypeError:
-        legacy_kwargs = dict(kwargs)
-        legacy_kwargs["channel"] = legacy_kwargs.pop("channels")
-        return stt.SpeechMetadata(**legacy_kwargs)
+        compat_kwargs = dict(kwargs)
+        compat_kwargs["channels"] = compat_kwargs.pop("channel")
+        return stt.SpeechMetadata(**compat_kwargs)
     except Exception:  # noqa: BLE001
         return {
             "language": info.language,
@@ -387,9 +387,19 @@ def _speech_metadata(stt: Any, info: SttInfo) -> Any:
             "codec": "pcm",
             "bit_rate": bits_per_sample,
             "sample_rate": info.sample_rate,
-            "channels": info.channels,
             "channel": info.channels,
+            "channels": info.channels,
         }
+
+
+def _stt_enum_value(stt: Any, enum_name: str, value: int) -> Any:
+    enum_cls = getattr(stt, enum_name, None)
+    if enum_cls is None:
+        return value
+    try:
+        return enum_cls(value)
+    except Exception:  # noqa: BLE001
+        return value
 
 
 async def _process_with_stt_engine(
