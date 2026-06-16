@@ -882,7 +882,40 @@ class VoiceHttpHelperTest(unittest.TestCase):
         metadata = assist_stt._speech_metadata(stt_module, info)
 
         self.assertEqual(metadata.kwargs["bit_rate"], 16)
+        self.assertEqual(metadata.kwargs["channels"], 1)
         self.assertNotEqual(metadata.kwargs["bit_rate"], 256000)
+
+    def test_stt_metadata_falls_back_to_legacy_channel_keyword(self) -> None:
+        assist_stt = importlib.import_module("custom_components.djconnect.assist_stt")
+
+        class SpeechMetadata:
+            def __init__(self, **kwargs):
+                if "channels" in kwargs:
+                    raise TypeError("unexpected keyword argument 'channels'")
+                self.kwargs = kwargs
+
+        stt_module = types.SimpleNamespace(
+            SpeechMetadata=SpeechMetadata,
+            AudioFormats=types.SimpleNamespace(WAV="wav"),
+            AudioCodecs=types.SimpleNamespace(PCM="pcm"),
+        )
+        info = assist_stt.SttInfo(
+            ha_version="test",
+            pipeline_id=None,
+            pipeline_name=None,
+            engine="legacy",
+            language="nl-NL",
+            audio_format="wav",
+            sample_rate=16000,
+            channels=1,
+            sample_width=2,
+            byte_length=6700,
+        )
+
+        metadata = assist_stt._speech_metadata(stt_module, info)
+
+        self.assertEqual(metadata.kwargs["channel"], 1)
+        self.assertNotIn("channels", metadata.kwargs)
 
     def test_transcribe_wav_finds_default_cloud_stt_pipeline(self) -> None:
         assist_stt = importlib.import_module("custom_components.djconnect.assist_stt")

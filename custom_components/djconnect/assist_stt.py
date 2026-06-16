@@ -366,15 +366,20 @@ def _pipeline_has_stt(pipeline: Any) -> bool:
 
 def _speech_metadata(stt: Any, info: SttInfo) -> Any:
     bits_per_sample = info.sample_width * 8
+    kwargs = {
+        "language": info.language,
+        "format": stt.AudioFormats.WAV,
+        "codec": stt.AudioCodecs.PCM,
+        "bit_rate": bits_per_sample,
+        "sample_rate": info.sample_rate,
+        "channels": info.channels,
+    }
     try:
-        return stt.SpeechMetadata(
-            language=info.language,
-            format=stt.AudioFormats.WAV,
-            codec=stt.AudioCodecs.PCM,
-            bit_rate=bits_per_sample,
-            sample_rate=info.sample_rate,
-            channel=info.channels,
-        )
+        return stt.SpeechMetadata(**kwargs)
+    except TypeError:
+        legacy_kwargs = dict(kwargs)
+        legacy_kwargs["channel"] = legacy_kwargs.pop("channels")
+        return stt.SpeechMetadata(**legacy_kwargs)
     except Exception:  # noqa: BLE001
         return {
             "language": info.language,
@@ -382,6 +387,7 @@ def _speech_metadata(stt: Any, info: SttInfo) -> Any:
             "codec": "pcm",
             "bit_rate": bits_per_sample,
             "sample_rate": info.sample_rate,
+            "channels": info.channels,
             "channel": info.channels,
         }
 

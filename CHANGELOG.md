@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.45
+
+- Send plural `channels` STT metadata for Home Assistant/OpenAI speech-to-text providers while keeping a legacy `channel` fallback for older providers.
+
 ## 3.1.44
 
 - Load the DJConnect OAuth callback logo through Home Assistant's executor so rendering the Spotify OAuth result page no longer performs blocking file I/O in the event loop.
