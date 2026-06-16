@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.43
+
+- Remove the config-flow prerequisite for an official Home Assistant Spotify `media_player` entity; DJConnect uses its own Spotify OAuth credentials and Spotify Web API backend playback.
+
 ## 3.1.42
 
 - Block DJConnect client setup until Home Assistant has an Assist pipeline with both STT and TTS configured, with translated config-flow guidance.

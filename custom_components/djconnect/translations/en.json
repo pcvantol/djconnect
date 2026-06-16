@@ -140,7 +140,6 @@
       "oauth_setup_failed": "Spotify authorization could not be started. Check the Client ID and external URL, then try again.",
       "oauth_not_completed": "Spotify authorization has not completed yet. Approve access in Spotify and return to Home Assistant.",
       "oauth_failed": "Spotify authorization failed. Start the Spotify step again and check the redirect URI in your Spotify app.",
-      "spotify_media_player_required": "Configure the Spotify integration in Home Assistant first and make sure a Spotify media player entity is available. DJConnect uses that Spotify connection for playback.",
       "assist_pipeline_required": "Configure a Home Assistant Assist pipeline with both STT and TTS first. DJConnect uses that pipeline for speech recognition and DJ announcements.",
       "ble_device_required": "Select a DJConnect BLE device or enter its Bluetooth address.",
       "wifi_ssid_required": "Enter the WiFi SSID to provision.",

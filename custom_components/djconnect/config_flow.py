@@ -226,59 +226,6 @@ def _manual_discovery_label(hass: Any) -> str:
     return "Handmatig invoeren" if language.startswith("nl") else "Manual entry"
 
 
-def _spotify_media_player_entities(hass: Any) -> list[str]:
-    """Return known Spotify media_player entities from registry or current states."""
-    entities: set[str] = set()
-    try:
-        from homeassistant.helpers import entity_registry as er
-
-        registry = er.async_get(hass)
-        registry_entities = getattr(registry, "entities", {})
-        values = (
-            registry_entities.values()
-            if hasattr(registry_entities, "values")
-            else registry_entities
-        )
-        for entry in values:
-            if (
-                getattr(entry, "domain", "") == "media_player"
-                and getattr(entry, "platform", "") == "spotify"
-            ):
-                entity_id = str(getattr(entry, "entity_id", "") or "").strip()
-                if entity_id:
-                    entities.add(entity_id)
-    except Exception:  # noqa: BLE001
-        pass
-
-    states = getattr(hass, "states", None)
-    async_all = getattr(states, "async_all", None)
-    if callable(async_all):
-        try:
-            media_player_states = async_all("media_player")
-        except TypeError:
-            media_player_states = [
-                state
-                for state in async_all()
-                if str(getattr(state, "entity_id", "")).startswith("media_player.")
-            ]
-        for state in media_player_states or []:
-            entity_id = str(getattr(state, "entity_id", "") or "").strip()
-            attributes = getattr(state, "attributes", {}) or {}
-            friendly_name = str(attributes.get("friendly_name") or "").strip()
-            platform = str(
-                attributes.get("platform") or attributes.get("integration") or ""
-            ).strip()
-            haystack = " ".join((entity_id, friendly_name, platform)).lower()
-            if entity_id.startswith("media_player.") and "spotify" in haystack:
-                entities.add(entity_id)
-    return sorted(entities)
-
-
-def _has_spotify_media_player(hass: Any) -> bool:
-    """Return whether Home Assistant has a Spotify media_player entity available."""
-    return bool(_spotify_media_player_entities(hass))
-
-
 def _device_name_for_client_type(client_type: Any, base_name: Any = DEFAULT_DEVICE_NAME) -> str:
     """Return the suggested HA device name with a client-type suffix."""
     name = str(base_name or DEFAULT_DEVICE_NAME).strip() or DEFAULT_DEVICE_NAME
@@ -1005,9 +952,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> FlowResult:
         """Choose setup path."""
         errors: dict[str, str] = {}
-        if not _has_spotify_media_player(getattr(self, "hass", None)):
-            errors["base"] = "spotify_media_player_required"
-        elif not _has_valid_assist_pipeline(getattr(self, "hass", None)):
+        if not _has_valid_assist_pipeline(getattr(self, "hass", None)):
             errors["base"] = "assist_pipeline_required"
         if errors:
             if user_input is not None:

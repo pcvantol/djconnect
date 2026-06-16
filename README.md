@@ -14,7 +14,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 
 ## Current Version
 
-- Home Assistant integration: `3.1.42`
+- Home Assistant integration: `3.1.43`
 - Domain: `djconnect`
 - HACS category: `Integration`
 - Device target: DJConnect device
@@ -64,7 +64,7 @@ runtime behavior. These decisions are part of the integration contract:
 
 ## Repository Layout
 
-- Home Assistant integration: `3.1.42`
+- Home Assistant integration: `3.1.43`
 - ESP firmware source: `pcvantol/djconnect-app`
 - Public firmware releases: `pcvantol/djconnect-firmware`
 - Canonical cross-repo sync prompts live only in this HA repo: [`SYNC_PROMPTS.md`](SYNC_PROMPTS.md)
@@ -96,8 +96,6 @@ Before installing, make sure you have:
 
 - Home Assistant with HACS installed.
 - A Spotify Premium account.
-- The Home Assistant Spotify integration configured with at least one Spotify
-  `media_player` entity.
 - A configured Home Assistant Assist pipeline with working STT and TTS. The
   DJConnect setup flow blocks pairing until at least one Assist pipeline has
   both providers configured.
@@ -110,8 +108,8 @@ Before installing, make sure you have:
 3. Select category `Integration`.
 4. Install DJConnect.
 5. Restart Home Assistant.
-6. Configure the Home Assistant Spotify integration and confirm that a Spotify
-   `media_player` entity exists.
+6. Make sure Spotify can be authorized from Home Assistant through the DJConnect
+   Spotify OAuth step.
 7. Go to **Settings -> Devices & services -> Add integration -> DJConnect**.
 
 HACS deeplink:
@@ -157,9 +155,10 @@ The redirect URI in Spotify must exactly match the Home Assistant external URL p
 
 ## Add DJConnect In Home Assistant
 
-DJConnect checks for a Spotify `media_player` and an Assist pipeline with both
-STT and TTS when you start setup. If either prerequisite is missing, the setup
-flow shows a clear message before pairing starts.
+DJConnect checks for an Assist pipeline with both STT and TTS when you start
+setup. Spotify playback itself is authorized through DJConnect's Spotify OAuth
+step and handled through Spotify's Web API, not through a Home Assistant
+Spotify media player entity.
 
 1. Choose whether the DJConnect device is already on WiFi or needs BLE WiFi provisioning.
 2. If needed, choose one BLE action: write WiFi over Bluetooth, rescan Bluetooth devices, or continue directly to pairing when WiFi was already configured through the device captive portal.
@@ -628,24 +627,24 @@ Example manifest:
 
 ```json
 {
-  "version": "3.1.42",
-  "version_tag": "v3.1.42",
+  "version": "3.1.43",
+  "version_tag": "v3.1.43",
   "channel": "stable",
-  "min_ha_integration": "3.1.42",
+  "min_ha_integration": "3.1.43",
   "firmwares": [
     {
       "board": "t_embed_cc1101",
       "device": "lilygo-t-embed-s3",
-      "asset": "djconnect-lilygo-t-embed-s3-v3.1.42.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.42/djconnect-lilygo-t-embed-s3-v3.1.42.bin",
+      "asset": "djconnect-lilygo-t-embed-s3-v3.1.43.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.43/djconnect-lilygo-t-embed-s3-v3.1.43.bin",
       "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "size": 2113136
     },
     {
       "board": "esp32_s3_box3",
       "device": "esp32-s3-box-3",
-      "asset": "djconnect-esp32-s3-box-3-v3.1.42.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.42/djconnect-esp32-s3-box-3-v3.1.42.bin",
+      "asset": "djconnect-esp32-s3-box-3-v3.1.43.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.43/djconnect-esp32-s3-box-3-v3.1.43.bin",
       "sha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
       "size": 2113136
     }
@@ -668,7 +667,7 @@ The firmware version is injected through PlatformIO build flags from the Git tag
 Recommended firmware source release helper:
 
 ```bash
-./release.sh 3.1.42
+./release.sh 3.1.43
 ```
 
 In the private `djconnect-app` repository, the firmware release script should
@@ -680,14 +679,14 @@ PlatformIO builds, rename firmware binaries to device-specific assets such as
 Preview the firmware release flow without changing files:
 
 ```bash
-./release.sh 3.1.42 --dry-run
+./release.sh 3.1.43 --dry-run
 ```
 
 When publishing to the public firmware repository, use the firmware script's
 public-repo option if available:
 
 ```bash
-./release.sh 3.1.42 --publish-firmware-repo ../djconnect-firmware
+./release.sh 3.1.43 --publish-firmware-repo ../djconnect-firmware
 ```
 
 The public `djconnect-firmware` repository should contain only the release
@@ -729,7 +728,7 @@ Tag and publish:
 One-liner:
 
 ```bash
-./release.sh 3.1.42
+./release.sh 3.1.43
 ```
 
 The script updates the integration version in `manifest.json`, `const.py`,
@@ -740,18 +739,18 @@ above.
 Preview without executing git/gh commands:
 
 ```bash
-./release.sh 3.1.42 --dry-run
+./release.sh 3.1.43 --dry-run
 ```
 
 Manual equivalent:
 
 ```bash
 git add .
-git commit -m "Release DJConnect v3.1.42"
-git tag v3.1.42
+git commit -m "Release DJConnect v3.1.43"
+git tag v3.1.43
 git push origin main
-git push origin v3.1.42
-gh release create v3.1.42 --title "DJConnect v3.1.42" --notes-file CHANGELOG.md
+git push origin v3.1.43
+gh release create v3.1.43 --title "DJConnect v3.1.43" --notes-file CHANGELOG.md
 ```
 
 Release cleanup helper:
@@ -805,10 +804,6 @@ These tests use local stubs for Home Assistant imports and focus on pure DJConne
 ## Troubleshooting
 
 - If Spotify login does not return to Home Assistant, verify the Spotify redirect URI exactly matches the Nabu Casa or external Home Assistant URL.
-- If Add integration shows that a Spotify media player is required, configure
-  the official Home Assistant Spotify integration first and confirm that a
-  `media_player.spotify...` entity exists. DJConnect uses that HA-owned Spotify
-  connection for playback.
 - If Add integration shows that an Assist pipeline is required, configure a
   Home Assistant Assist pipeline with both STT and TTS before adding DJConnect.
 - If the config flow does not load, restart Home Assistant and check that HACS installed `custom_components/djconnect`.

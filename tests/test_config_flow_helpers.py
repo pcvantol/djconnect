@@ -459,40 +459,6 @@ class ConfigFlowHelperTest(unittest.TestCase):
     def test_voice_errors_allow_device_owned_spotify_playback(self) -> None:
         self.assertEqual(self.config_flow._voice_errors({}), {})
 
-    def test_spotify_media_player_detection_uses_states(self) -> None:
-        class State:
-            entity_id = "media_player.spotify_peter"
-            attributes = {"friendly_name": "Spotify Peter"}
-
-        class States:
-            def async_all(self, domain=None):
-                return [State()] if domain == "media_player" else []
-
-        hass = types.SimpleNamespace(states=States())
-
-        self.assertEqual(
-            self.config_flow._spotify_media_player_entities(hass),
-            ["media_player.spotify_peter"],
-        )
-        self.assertTrue(self.config_flow._has_spotify_media_player(hass))
-
-    def test_spotify_media_player_detection_uses_entity_registry(self) -> None:
-        registry = types.SimpleNamespace(
-            entities={
-                "media_player.spotify": types.SimpleNamespace(
-                    domain="media_player",
-                    platform="spotify",
-                    entity_id="media_player.spotify",
-                )
-            }
-        )
-        hass = types.SimpleNamespace(entity_registry=registry, states=None)
-
-        self.assertEqual(
-            self.config_flow._spotify_media_player_entities(hass),
-            ["media_player.spotify"],
-        )
-
     def test_assist_pipeline_detection_requires_stt_and_tts(self) -> None:
         hass = types.SimpleNamespace()
 
@@ -516,33 +482,8 @@ class ConfigFlowHelperTest(unittest.TestCase):
         )
         self.assertTrue(self.config_flow._has_valid_assist_pipeline(hass))
 
-    def test_user_step_requires_spotify_media_player(self) -> None:
-        class States:
-            def async_all(self, domain=None):
-                return []
-
-        flow = self.config_flow.DJConnectConfigFlow()
-        flow.hass = types.SimpleNamespace(
-            config=types.SimpleNamespace(language="en-US"),
-            states=States(),
-        )
-
-        result = asyncio.run(flow.async_step_user())
-
-        self.assertEqual(result["type"], "form")
-        self.assertEqual(result["step_id"], "user")
-        self.assertEqual(result["errors"]["base"], "spotify_media_player_required")
-
     def test_user_step_requires_assist_pipeline_with_stt_and_tts(self) -> None:
         from homeassistant.components.assist_pipeline import pipeline as pipeline_module
-
-        class State:
-            entity_id = "media_player.spotify"
-            attributes = {"friendly_name": "Spotify"}
-
-        class States:
-            def async_all(self, domain=None):
-                return [State()] if domain == "media_player" else []
 
         original_get_pipelines = pipeline_module.async_get_pipelines
         pipeline_module.async_get_pipelines = lambda hass: [
@@ -557,7 +498,6 @@ class ConfigFlowHelperTest(unittest.TestCase):
             flow = self.config_flow.DJConnectConfigFlow()
             flow.hass = types.SimpleNamespace(
                 config=types.SimpleNamespace(language="en-US"),
-                states=States(),
             )
 
             result = asyncio.run(flow.async_step_user())
@@ -568,19 +508,11 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(result["step_id"], "user")
         self.assertEqual(result["errors"]["base"], "assist_pipeline_required")
 
-    def test_user_step_allows_setup_when_spotify_media_player_exists(self) -> None:
-        class State:
-            entity_id = "media_player.spotify"
-            attributes = {"friendly_name": "Spotify"}
-
-        class States:
-            def async_all(self, domain=None):
-                return [State()] if domain == "media_player" else []
-
+    def test_user_step_allows_setup_without_spotify_media_player(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(
             config=types.SimpleNamespace(language="en-US"),
-            states=States(),
+            states=None,
         )
 
         result = asyncio.run(flow.async_step_user())
