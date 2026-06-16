@@ -537,6 +537,8 @@ def _intent_debug_summary(intent: dict[str, Any]) -> dict[str, Any]:
 
 def _assist_treated_prompt_as_ha_command(speech: str) -> bool:
     normalized = " ".join(str(speech or "").lower().split())
+    if _looks_like_device_lookup_error(normalized):
+        return True
     return (
         "djconnect muziekopdracht" in normalized
         or "djconnect music request" in normalized
@@ -652,6 +654,8 @@ def _looks_like_device_lookup_error(normalized: str) -> bool:
         or normalized.startswith("sorry ik kan ")
         or normalized.startswith("sorry, i can't ")
         or normalized.startswith("sorry i can't ")
+        or normalized.startswith("sorry, i am not aware of ")
+        or normalized.startswith("sorry i am not aware of ")
     ):
         return False
     if not (
@@ -659,6 +663,8 @@ def _looks_like_device_lookup_error(normalized: str) -> bool:
         or "can't find" in normalized
         or "cannot find" in normalized
         or "not find" in normalized
+        or "not aware of any area called" in normalized
+        or "not aware of any device called" in normalized
     ):
         return False
     prompt_or_media_fragments = (
@@ -674,5 +680,7 @@ def _looks_like_device_lookup_error(normalized: str) -> bool:
         "geen uitleg",
         "geen uri",
         "dj response",
+        "djconnect muziekopdracht",
+        "djconnect music request",
     )
     return any(fragment in normalized for fragment in prompt_or_media_fragments)

@@ -609,6 +609,30 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertEqual(intent["spotify_search_query"], "Black Pearl Jam")
         self.assertEqual(intent["dj_announcement"], "Daar gaan we. Ik zet hem voor je klaar.")
 
+    def test_assist_prompt_area_lookup_error_falls_back_to_search_intent(self) -> None:
+        intent = self.pipeline._intent_from_assist_response(
+            {
+                "response": {
+                    "response_type": "error",
+                    "speech": {
+                        "plain": {
+                            "speech": (
+                                "Sorry, I am not aware of any area called Analyze only "
+                                "this DJConnect music request Determine"
+                            )
+                        }
+                    },
+                }
+            },
+            "Speel Black van Pearl Jam",
+        )
+
+        self.assertEqual(intent["intent"], "play_music")
+        self.assertEqual(intent["type"], "track")
+        self.assertEqual(intent["title"], "Black")
+        self.assertEqual(intent["artist"], "Pearl Jam")
+        self.assertEqual(intent["spotify_search_query"], "Black Pearl Jam")
+
     def test_prompt_leak_device_lookup_error_falls_back_to_original_command(self) -> None:
         intent = self.pipeline._intent_from_assist_response(
             {

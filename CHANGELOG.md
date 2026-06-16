@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.44
+
+- Load the DJConnect OAuth callback logo through Home Assistant's executor so rendering the Spotify OAuth result page no longer performs blocking file I/O in the event loop.
+- Treat Home Assistant Assist "area called ..." prompt leakage as a device lookup error so iPhone PTT music requests fall back to DJConnect's local music parser instead of failing the command flow.
+
 ## 3.1.43
 
 - Remove the config-flow prerequisite for an official Home Assistant Spotify `media_player` entity; DJConnect uses its own Spotify OAuth credentials and Spotify Web API backend playback.

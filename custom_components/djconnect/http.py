@@ -57,12 +57,21 @@ VOICE_DEBUG_URL = "/api/djconnect/debug/last_voice.wav"
 CONF_LAST_DEVICE_STATUS = "last_device_status"
 
 
-def _djconnect_logo_data_uri() -> str:
-    """Return the embedded DJConnect app icon for standalone OAuth callback pages."""
+def _read_djconnect_logo_data_uri() -> str:
+    """Read and encode the DJConnect app icon."""
+    logo = Path(__file__).with_name("icon.png").read_bytes()
+    return f"data:image/png;base64,{base64.b64encode(logo).decode()}"
+
+
+async def _async_djconnect_logo_data_uri(hass: Any) -> str:
+    """Return the embedded DJConnect app icon without blocking the event loop."""
     global _LOGO_DATA_URI
     if _LOGO_DATA_URI is None:
-        logo = Path(__file__).with_name("icon.png").read_bytes()
-        _LOGO_DATA_URI = f"data:image/png;base64,{base64.b64encode(logo).decode()}"
+        executor = getattr(hass, "async_add_executor_job", None)
+        if callable(executor):
+            _LOGO_DATA_URI = await executor(_read_djconnect_logo_data_uri)
+        else:
+            _LOGO_DATA_URI = _read_djconnect_logo_data_uri()
     return _LOGO_DATA_URI
 
 
@@ -74,7 +83,8 @@ def _ha_integrations_url(base_url: str | None) -> str:
     return f"{base}/config/integrations/integration/djconnect"
 
 
-def _spotify_oauth_html_response(
+async def _spotify_oauth_html_response(
+    hass: Any,
     *,
     title: str,
     message: str,
@@ -86,6 +96,7 @@ def _spotify_oauth_html_response(
     accent = "#1db954" if success else "#ff8a00"
     icon = "✓" if success else "!"
     link = _ha_integrations_url(base_url)
+    logo_data_uri = await _async_djconnect_logo_data_uri(hass)
     html_body = f"""<!doctype html>
 <html lang="nl">
 <head>
@@ -194,7 +205,7 @@ def _spotify_oauth_html_response(
 <body>
   <main>
     <div class="logo-wrap">
-      <img src="{_djconnect_logo_data_uri()}" alt="DJConnect app icon">
+      <img src="{logo_data_uri}" alt="DJConnect app icon">
       <div class="badge" aria-hidden="true">{icon}</div>
     </div>
     <h1>{html.escape(title)}</h1>
@@ -1565,14 +1576,16 @@ class DJConnectSpotifyCallbackView(HomeAssistantView):
         code = request.query.get("code")
         error = request.query.get("error")
         if error:
-            return _spotify_oauth_html_response(
+            return await _spotify_oauth_html_response(
+                hass,
                 title="Spotify OAuth niet gelukt",
                 message=f"Spotify gaf deze fout terug: {error}. Start de Spotify autorisatie opnieuw vanuit Home Assistant.",
                 status=400,
                 success=False,
             )
         if not state or not code:
-            return _spotify_oauth_html_response(
+            return await _spotify_oauth_html_response(
+                hass,
                 title="Spotify OAuth niet compleet",
                 message="De callback mist een state of code. Start de Spotify autorisatie opnieuw vanuit Home Assistant.",
                 status=400,
@@ -1611,7 +1624,8 @@ class DJConnectSpotifyCallbackView(HomeAssistantView):
                 flow_id = ctx.get("flow_id")
                 if flow_id:
                     await hass.config_entries.flow.async_configure(flow_id, {"state": state})
-                return _spotify_oauth_html_response(
+                return await _spotify_oauth_html_response(
+                    hass,
                     title="DJConnect is gekoppeld",
                     message=(
                         "Spotify is gekoppeld met DJConnect. Je kunt dit venster sluiten en teruggaan naar "
@@ -1621,7 +1635,8 @@ class DJConnectSpotifyCallbackView(HomeAssistantView):
                 )
             except Exception as exc:  # noqa: BLE001
                 _LOGGER.exception("DJConnect config-flow OAuth callback failed")
-                return _spotify_oauth_html_response(
+                return await _spotify_oauth_html_response(
+                    hass,
                     title="Spotify OAuth fout",
                     message=f"Home Assistant kon de Spotify autorisatie niet afronden: {exc}",
                     status=500,
@@ -1631,7 +1646,8 @@ class DJConnectSpotifyCallbackView(HomeAssistantView):
         pending = hass.data.setdefault(DOMAIN, {}).setdefault("spotify_oauth_pending", {})
         ctx = pending.pop(state, None)
         if not ctx:
-            return _spotify_oauth_html_response(
+            return await _spotify_oauth_html_response(
+                hass,
                 title="Spotify OAuth verlopen",
                 message="Deze OAuth sessie is onbekend of verlopen. Start Spotify opnieuw autoriseren vanuit Home Assistant.",
                 status=400,
@@ -1673,7 +1689,8 @@ class DJConnectSpotifyCallbackView(HomeAssistantView):
                         "DJConnect OAuth options flow was already closed before callback completion",
                         exc_info=True,
                     )
-            return _spotify_oauth_html_response(
+            return await _spotify_oauth_html_response(
+                hass,
                 title="DJConnect is opnieuw geautoriseerd",
                 message=(
                     "Spotify is opnieuw gekoppeld met DJConnect. Je kunt dit venster sluiten en teruggaan naar "
@@ -1683,7 +1700,8 @@ class DJConnectSpotifyCallbackView(HomeAssistantView):
             )
         except Exception as exc:  # noqa: BLE001
             _LOGGER.exception("DJConnect Spotify OAuth callback failed")
-            return _spotify_oauth_html_response(
+            return await _spotify_oauth_html_response(
+                hass,
                 title="Spotify OAuth fout",
                 message=f"Home Assistant kon de Spotify autorisatie niet afronden: {exc}",
                 status=500,

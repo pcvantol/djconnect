@@ -2625,6 +2625,29 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertEqual(entry.data[const.CONF_SPOTIFY_REFRESH_TOKEN], "new-refresh-token")
         self.assertEqual(config_entries.reloaded, "entry-1")
 
+    def test_spotify_oauth_logo_is_loaded_in_executor(self) -> None:
+        calls = []
+
+        class Hass:
+            async def async_add_executor_job(self, func, *args):
+                calls.append(func.__name__)
+                return func(*args)
+
+        self.http._LOGO_DATA_URI = None
+        try:
+            response = asyncio.run(
+                self.http._spotify_oauth_html_response(
+                    Hass(),
+                    title="OAuth klaar",
+                    message="Gelukt",
+                )
+            )
+        finally:
+            self.http._LOGO_DATA_URI = None
+
+        self.assertEqual(calls, ["_read_djconnect_logo_data_uri"])
+        self.assertIn("data:image/png;base64,", response.text)
+
     def test_spotify_callback_completes_open_repair_flow(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
 
