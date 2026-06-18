@@ -806,6 +806,18 @@ class ConfigFlowHelperTest(unittest.TestCase):
             ],
             "Assist Conversation Agent",
         )
+        self.assertEqual(
+            self.config_flow._setup_method_names(nl_hass)[
+                self.const.SETUP_METHOD_BLE_WIFI
+            ],
+            "ESP32 device WiFi configureren (via Bluetooth)",
+        )
+        self.assertEqual(
+            self.config_flow._setup_method_names(en_hass)[
+                self.const.SETUP_METHOD_BLE_WIFI
+            ],
+            "Configure ESP32 device WiFi (over Bluetooth)",
+        )
 
     def test_ble_action_labels_follow_ha_language(self) -> None:
         nl_hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))

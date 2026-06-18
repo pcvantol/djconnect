@@ -945,7 +945,7 @@ def _create_spotify_reauth_issue(hass: HomeAssistant, entry: Any) -> None:
         ir.async_create_issue(
             hass,
             DOMAIN,
-            f"{entry.entry_id}_spotify_refresh_token_revoked",
+            "spotify_refresh_token_revoked",
             data={"entry_id": entry.entry_id},
             is_fixable=True,
             severity=ir.IssueSeverity.WARNING,

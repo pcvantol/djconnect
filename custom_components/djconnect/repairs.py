@@ -83,7 +83,7 @@ async def async_create_fixable_issues(hass: HomeAssistant, entry: ConfigEntry) -
         ir.async_create_issue(
             hass,
             DOMAIN,
-            f"{entry.entry_id}_missing_spotify_refresh_token",
+            "missing_spotify_refresh_token",
             data={"entry_id": entry.entry_id},
             is_fixable=True,
             severity=ir.IssueSeverity.WARNING,
@@ -93,7 +93,7 @@ async def async_create_fixable_issues(hass: HomeAssistant, entry: ConfigEntry) -
         ir.async_create_issue(
             hass,
             DOMAIN,
-            f"{entry.entry_id}_missing_spotify_oauth_scopes",
+            "missing_spotify_oauth_scopes",
             data={"entry_id": entry.entry_id},
             is_fixable=True,
             severity=ir.IssueSeverity.WARNING,
@@ -287,7 +287,8 @@ async def _prepare_spotify_repair_oauth(
 
 def _delete_spotify_reauth_issues(hass: HomeAssistant, entry_id: str) -> None:
     for suffix in FIXABLE_SPOTIFY_ISSUES:
-        try:
-            ir.async_delete_issue(hass, DOMAIN, f"{entry_id}_{suffix}")
-        except Exception:  # noqa: BLE001
-            pass
+        for issue_id in (suffix, f"{entry_id}_{suffix}"):
+            try:
+                ir.async_delete_issue(hass, DOMAIN, issue_id)
+            except Exception:  # noqa: BLE001
+                pass

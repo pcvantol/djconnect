@@ -30,7 +30,7 @@
         }
       },
       "ble_wifi": {
-        "title": "Provision WiFi over Bluetooth",
+        "title": "Configure ESP32 device WiFi (over Bluetooth)",
         "description": "Select a DJConnect device in setup mode to write WiFi over BLE, or continue to pairing if WiFi was already configured through the captive portal.",
         "data": {
           "ble_address": "DJConnect BLE device",

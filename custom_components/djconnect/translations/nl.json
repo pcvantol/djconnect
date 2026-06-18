@@ -30,7 +30,7 @@
         }
       },
       "ble_wifi": {
-        "title": "WiFi via Bluetooth provisionen",
+        "title": "ESP32 device WiFi configureren (via Bluetooth)",
         "description": "Selecteer een DJConnect device in setup mode om WiFi via BLE te schrijven, of ga door naar koppelen als WiFi al via captive portal is ingesteld.",
         "data": {
           "ble_address": "DJConnect BLE device",

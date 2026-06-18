@@ -115,6 +115,7 @@ class RepairsTest(unittest.TestCase):
         asyncio.run(self.repairs.async_create_fixable_issues(object(), entry))
 
         self.assertEqual(len(self.issues), 1)
+        self.assertEqual(self.issues[0]["issue_id"], "missing_spotify_oauth_scopes")
         self.assertEqual(
             self.issues[0]["translation_key"],
             "missing_spotify_oauth_scopes",
@@ -138,6 +139,7 @@ class RepairsTest(unittest.TestCase):
         asyncio.run(self.repairs.async_create_fixable_issues(object(), entry))
 
         self.assertEqual(len(self.issues), 1)
+        self.assertEqual(self.issues[0]["issue_id"], "missing_spotify_refresh_token")
         self.assertEqual(
             self.issues[0]["translation_key"],
             "missing_spotify_refresh_token",

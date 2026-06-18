@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.59
+
+- Rename the Bluetooth WiFi setup method to clarify that it configures ESP32 device WiFi.
+- Use static Spotify repair issue IDs so Home Assistant can show translated repair titles and descriptions.
+
 ## 3.1.58
 
 - Remove the repeated setup method selector from the pairing step, show client type choices as iOS, macOS, Linux/Raspberry Pi and ESP32, and keep firmware channel selection ESP32-only.

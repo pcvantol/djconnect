@@ -103,12 +103,12 @@ SPOTIFY_MARKET_NAMES = {
 SETUP_METHOD_NAMES_EN = {
     SETUP_METHOD_CONVERSATION_AGENT: "Assist Conversation Agent",
     SETUP_METHOD_PAIR_EXISTING: "Pair DJConnect app or device",
-    SETUP_METHOD_BLE_WIFI: "Provision WiFi over Bluetooth",
+    SETUP_METHOD_BLE_WIFI: "Configure ESP32 device WiFi (over Bluetooth)",
 }
 SETUP_METHOD_NAMES_NL = {
     SETUP_METHOD_CONVERSATION_AGENT: "Assist Conversation Agent",
     SETUP_METHOD_PAIR_EXISTING: "DJConnect app of device koppelen",
-    SETUP_METHOD_BLE_WIFI: "WiFi via Bluetooth provisionen",
+    SETUP_METHOD_BLE_WIFI: "ESP32 device WiFi configureren (via Bluetooth)",
 }
 BLE_ACTION_NAMES_EN = {
     BLE_ACTION_PROVISION: "Write WiFi over Bluetooth",

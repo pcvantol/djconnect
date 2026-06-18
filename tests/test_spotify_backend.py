@@ -330,6 +330,7 @@ class SpotifyBackendTest(unittest.TestCase):
 
         self.assertIn("Reauthorize DJConnect", str(captured.exception))
         self.assertEqual(runtime.last_update["last_error"], str(captured.exception))
+        self.assertEqual(self.issues[0]["issue_id"], "spotify_refresh_token_revoked")
         self.assertEqual(self.issues[0]["translation_key"], "spotify_refresh_token_revoked")
         self.assertNotIn("secret-refresh", str(captured.exception))
 
