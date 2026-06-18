@@ -3,12 +3,12 @@
     "step": {
       "user": {
         "title": "DJConnect instellen",
-        "description": "Kies of het DJConnect device al op WiFi zit of eerst WiFi via Bluetooth nodig heeft.",
+        "description": "Kies of je een DJConnect client koppelt, eerst WiFi via Bluetooth schrijft, of alleen de Assist Conversation Agent instelt.",
         "data": {
           "setup_method": "Setup methode"
         },
         "data_description": {
-          "setup_method": "Bluetooth wordt alleen gebruikt voor WiFi credentials."
+          "setup_method": "De Assist Conversation Agent gebruikt Home Assistant Assist voor STT/TTS en heeft geen DJConnect client-koppelcode nodig."
         }
       },
       "pair": {
@@ -94,7 +94,7 @@
           "min_battery_for_ota": "Minimaal batterijpercentage voordat OTA is toegestaan.",
           "show_advanced_options": "Toon handmatige en firmware/OTA overridevelden.",
           "dj_response_ttl_seconds": "Hoe lang tijdelijke DJ aankondiging audio beschikbaar blijft voor het DJConnect device.",
-          "options_action": "Kies instellingen opslaan, Spotify opnieuw autoriseren of opnieuw koppelen met een nieuwe koppelcode."
+          "options_action": "Kies instellingen opslaan of Spotify opnieuw autoriseren."
         }
       },
       "spotify_reauth": {
@@ -170,7 +170,7 @@
           "dj_response_ttl_seconds": "Aantal seconden dat de tijdelijke WAV download URL geldig blijft.",
           "allow_ota_on_battery": "Sta firmware updates toe als het apparaat niet via USB gevoed wordt.",
           "show_advanced_options": "Toon handmatige en firmware/OTA overridevelden.",
-          "options_action": "Kies instellingen opslaan, Spotify opnieuw autoriseren of opnieuw koppelen met een nieuwe koppelcode."
+          "options_action": "Kies instellingen opslaan of Spotify opnieuw autoriseren."
         }
       },
       "repair_pairing": {

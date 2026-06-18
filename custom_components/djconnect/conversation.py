@@ -29,8 +29,8 @@ async def async_setup_entry(
 class DJConnectConversationAgent(conversation.ConversationEntity):
     """DJConnect Assist conversation agent."""
 
-    _attr_has_entity_name = True
-    _attr_name = "DJ"
+    _attr_has_entity_name = False
+    _attr_name = "DJConnect DJ"
 
     def __init__(self, runtime: Any) -> None:
         self._runtime = runtime

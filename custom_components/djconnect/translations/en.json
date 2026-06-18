@@ -3,12 +3,12 @@
     "step": {
       "user": {
         "title": "Set up DJConnect",
-        "description": "Choose whether the DJConnect device is already on WiFi, or provision WiFi credentials over Bluetooth first.",
+        "description": "Choose whether to pair a DJConnect client, write WiFi over Bluetooth first, or set up only the Assist Conversation Agent.",
         "data": {
           "setup_method": "Setup method"
         },
         "data_description": {
-          "setup_method": "Use Bluetooth only to write WiFi credentials. Pairing happens over WiFi; Spotify playback is handled by Home Assistant."
+          "setup_method": "The Assist Conversation Agent uses Home Assistant Assist for STT/TTS and does not need a DJConnect client pairing code."
         }
       },
       "pair": {
@@ -94,7 +94,7 @@
           "min_battery_for_ota": "Minimum battery percentage before OTA is allowed.",
           "dj_response_ttl_seconds": "Number of seconds the temporary WAV download URL remains valid.",
           "show_advanced_options": "Show manual and firmware/OTA override fields.",
-          "options_action": "Choose whether to save options, reauthorize Spotify, or fully re-pair with a new pairing code."
+          "options_action": "Choose whether to save options or reauthorize Spotify."
         }
       },
       "spotify_reauth": {
@@ -170,7 +170,7 @@
           "dj_response_ttl_seconds": "Number of seconds the temporary WAV download URL remains valid.",
           "allow_ota_on_battery": "Allow firmware updates while the device is not USB powered.",
           "show_advanced_options": "Show manual and firmware/OTA override fields.",
-          "options_action": "Choose whether to save options, reauthorize Spotify, or fully re-pair with a new pairing code."
+          "options_action": "Choose whether to save options or reauthorize Spotify."
         }
       },
       "repair_pairing": {

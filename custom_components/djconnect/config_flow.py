@@ -46,6 +46,7 @@ from .const import (
     CONF_WIFI_PASSWORD,
     CONF_WIFI_SSID,
     DEFAULT_ASSIST_PIPELINE_ID,
+    CLIENT_TYPE_CONVERSATION_AGENT,
     DEFAULT_CLIENT_TYPE,
     DEFAULT_DEVICE_NAME,
     DEFAULT_DEVICE_LANGUAGE,
@@ -68,6 +69,7 @@ from .const import (
     CLIENT_TYPE_ESP32,
     DOMAIN,
     SETUP_METHOD_BLE_WIFI,
+    SETUP_METHOD_CONVERSATION_AGENT,
     SETUP_METHOD_PAIR_EXISTING,
 )
 from .ble import async_discover_devices, async_provision_wifi
@@ -103,10 +105,12 @@ SPOTIFY_MARKET_NAMES = {
 SETUP_METHOD_NAMES_EN = {
     SETUP_METHOD_PAIR_EXISTING: "Pair existing WiFi device",
     SETUP_METHOD_BLE_WIFI: "Provision WiFi over Bluetooth",
+    SETUP_METHOD_CONVERSATION_AGENT: "Assist Conversation Agent",
 }
 SETUP_METHOD_NAMES_NL = {
     SETUP_METHOD_PAIR_EXISTING: "Bestaand WiFi device koppelen",
     SETUP_METHOD_BLE_WIFI: "WiFi via Bluetooth provisionen",
+    SETUP_METHOD_CONVERSATION_AGENT: "Assist Conversation Agent",
 }
 BLE_ACTION_NAMES_EN = {
     BLE_ACTION_PROVISION: "Write WiFi over Bluetooth",
@@ -135,6 +139,7 @@ CLIENT_TYPE_NAME_SUFFIXES = {
     "ios": "iOS",
     "macos": "macOS",
     "raspberry_pi": "Raspberry Pi",
+    CLIENT_TYPE_CONVERSATION_AGENT: "Assist",
 }
 
 ADVANCED_VOICE_FIELDS = (
@@ -713,13 +718,6 @@ def _conversation_agent_options_schema(
             default=OPTIONS_ACTION_SAVE,
         ): vol.In(_conversation_agent_options_actions(hass)),
         vol.Optional(
-            CONF_DJ_RESPONSE_ENABLED,
-            default=defaults.get(
-                CONF_DJ_RESPONSE_ENABLED,
-                DEFAULT_DJ_RESPONSE_ENABLED,
-            ),
-        ): bool,
-        vol.Optional(
             CONF_DJ_RESPONSE_PROMPT_PRESET,
             default=_dj_response_prompt_preset_default(
                 defaults.get(CONF_DJ_RESPONSE_PROMPT),
@@ -910,6 +908,17 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             method = user_input.get(CONF_SETUP_METHOD, DEFAULT_SETUP_METHOD)
             if method == SETUP_METHOD_BLE_WIFI:
                 return await self.async_step_ble_wifi()
+            if method == SETUP_METHOD_CONVERSATION_AGENT:
+                await self.async_set_unique_id("djconnect-conversation-agent")
+                self._abort_if_unique_id_configured()
+                self._pairing = {
+                    CONF_SETUP_METHOD: SETUP_METHOD_CONVERSATION_AGENT,
+                    CONF_DEVICE_ID: "djconnect-conversation-agent",
+                    CONF_DEVICE_NAME: "DJConnect DJ",
+                    CONF_CLIENT_TYPE: CLIENT_TYPE_CONVERSATION_AGENT,
+                }
+                self._conversation_agent_only = True
+                return await self.async_step_spotify()
             return await self.async_step_pair()
 
         return self.async_show_form(
@@ -1333,6 +1342,11 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 data.update(self._pairing)
                 data.update(self._spotify)
                 data.update(_voice_defaults(user_input))
+                if getattr(self, "_conversation_agent_only", False):
+                    return self.async_create_entry(
+                        title=data.get(CONF_DEVICE_NAME, "DJConnect DJ"),
+                        data=data,
+                    )
                 try:
                     await _async_pair_before_create(self.hass, data)
                 except Exception as exc:  # noqa: BLE001

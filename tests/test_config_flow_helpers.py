@@ -773,6 +773,12 @@ class ConfigFlowHelperTest(unittest.TestCase):
             ],
             "Pair existing WiFi device",
         )
+        self.assertEqual(
+            self.config_flow._setup_method_names(nl_hass)[
+                self.const.SETUP_METHOD_CONVERSATION_AGENT
+            ],
+            "Assist Conversation Agent",
+        )
 
     def test_ble_action_labels_follow_ha_language(self) -> None:
         nl_hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
@@ -892,6 +898,44 @@ class ConfigFlowHelperTest(unittest.TestCase):
         )
 
         self.assertEqual(result["step_id"], "ble_wifi")
+
+    def test_user_step_can_route_to_conversation_agent_setup(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(
+            config=types.SimpleNamespace(language="nl-NL"),
+            data={self.const.DOMAIN: {}},
+        )
+        unique_ids = []
+
+        async def fake_set_unique_id(unique_id):
+            unique_ids.append(unique_id)
+
+        async def fake_spotify(user_input=None):
+            return {"type": "form", "step_id": "spotify"}
+
+        flow.async_set_unique_id = fake_set_unique_id
+        flow._abort_if_unique_id_configured = lambda: None
+        flow.async_step_spotify = fake_spotify
+
+        result = asyncio.run(
+            flow.async_step_user(
+                {
+                    self.const.CONF_SETUP_METHOD: (
+                        self.const.SETUP_METHOD_CONVERSATION_AGENT
+                    )
+                }
+            )
+        )
+
+        self.assertEqual(result["step_id"], "spotify")
+        self.assertEqual(unique_ids, ["djconnect-conversation-agent"])
+        self.assertTrue(flow._conversation_agent_only)
+        self.assertEqual(
+            flow._pairing[self.const.CONF_CLIENT_TYPE],
+            self.const.CLIENT_TYPE_CONVERSATION_AGENT,
+        )
+        self.assertNotIn(self.const.CONF_DEVICE_TOKEN, flow._pairing)
+        self.assertNotIn(self.const.CONF_LOCAL_URL, flow._pairing)
 
     def test_spotify_client_id_is_advanced_override(self) -> None:
         basic_schema = self.config_flow._spotify_schema(include_advanced=False)
@@ -1069,6 +1113,35 @@ class ConfigFlowHelperTest(unittest.TestCase):
             "http://djconnect-lilygo-90B70990A994.local",
         )
 
+    def test_voice_step_conversation_agent_setup_skips_device_pairing(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(states=None)
+        flow._conversation_agent_only = True
+        flow._pairing = {
+            self.const.CONF_SETUP_METHOD: self.const.SETUP_METHOD_CONVERSATION_AGENT,
+            self.const.CONF_DEVICE_ID: "djconnect-conversation-agent",
+            self.const.CONF_DEVICE_NAME: "DJConnect DJ",
+            self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_CONVERSATION_AGENT,
+        }
+        flow._spotify = {
+            self.const.CONF_SPOTIFY_CLIENT_ID: "client-id",
+            self.const.CONF_SPOTIFY_REFRESH_TOKEN: "refresh-token",
+            self.const.CONF_SPOTIFY_MARKET: "NL",
+            self.const.CONF_SPOTIFY_SCOPES: self.const.DEFAULT_SPOTIFY_SCOPES,
+            self.const.CONF_HA_EXTERNAL_URL: "https://example.ui.nabu.casa",
+        }
+
+        result = asyncio.run(flow.async_step_voice({}))
+
+        self.assertEqual(result["type"], "create_entry")
+        self.assertEqual(result["title"], "DJConnect DJ")
+        self.assertEqual(
+            result["data"][self.const.CONF_CLIENT_TYPE],
+            self.const.CLIENT_TYPE_CONVERSATION_AGENT,
+        )
+        self.assertNotIn(self.const.CONF_DEVICE_TOKEN, result["data"])
+        self.assertNotIn(self.const.CONF_LOCAL_URL, result["data"])
+
     def test_default_external_url_prefers_network_helper(self) -> None:
         from homeassistant.helpers import network
 
@@ -1201,7 +1274,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         keys = {marker.key for marker in form["data_schema"].schema}
 
         self.assertIn(self.config_flow.OPTIONS_ACTION_FIELD, keys)
-        self.assertIn(self.const.CONF_DJ_RESPONSE_ENABLED, keys)
+        self.assertNotIn(self.const.CONF_DJ_RESPONSE_ENABLED, keys)
         self.assertIn(self.const.CONF_DJ_RESPONSE_PROMPT_PRESET, keys)
         self.assertIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
         self.assertNotIn(self.const.CONF_SPOTIFY_SOURCE, keys)

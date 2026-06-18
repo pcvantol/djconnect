@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.1.51
+
+- Hide the DJ announcement playback toggle from the compact Assist conversation-agent options flow; Assist satellites speak the returned conversation response through their configured pipeline TTS.
+- Add an initial setup choice for an Assist Conversation Agent-only DJConnect entry, without requiring a DJConnect client pairing code.
+- Name the conversation entity `DJConnect DJ` directly instead of letting Home Assistant prefix it with the configured client/device name.
+
 ## 3.1.50
 
 - Remove the Spotify source override and default playlist override from config/options flows so the conversation-agent options stay focused on DJ response behavior.

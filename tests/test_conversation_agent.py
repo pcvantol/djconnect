@@ -129,7 +129,8 @@ class ConversationAgentTest(unittest.TestCase):
 
         self.assertEqual(len(added), 1)
         self.assertEqual(added[0]._attr_unique_id, "entry-1_conversation")
-        self.assertEqual(added[0]._attr_name, "DJ")
+        self.assertEqual(added[0]._attr_name, "DJConnect DJ")
+        self.assertFalse(added[0]._attr_has_entity_name)
 
     def test_process_returns_dj_text_from_command_flow(self) -> None:
         calls = []

@@ -28,8 +28,9 @@
 - Confirm Spotify playback action runs when Spotify is idle.
 - Confirm PTT artist, track, album, playlist and default-playlist phrases resolve to the intended Spotify search type.
 - Confirm AI DJ announcements use the selected/default HA Assist conversation engine when no DJConnect Assist pipeline is explicitly selected.
-- Confirm Voice Preview Edition can select the DJConnect DJ conversation agent and receives the generated DJ response through its speaker.
-- Confirm the DJConnect conversation-agent options dialog only shows action and DJ response controls.
+- Confirm Voice Preview Edition can select the `DJConnect DJ` conversation agent and receives the generated DJ response through its speaker.
+- Confirm initial setup can create an Assist Conversation Agent-only entry without a DJConnect client pairing code.
+- Confirm the DJConnect conversation-agent options dialog only shows action and DJ response style/prompt controls.
 - Confirm successful DJ announcement TTS creates an `audio_url` using a local Home Assistant URL even when older HA network helpers are unavailable.
 - Confirm Dutch DJ announcements pronounce English artist, album and track names naturally in TTS.
 - Confirm a new PTT request such as Nirvana does not reuse previous Spotify playback metadata such as Red Hot Chili Peppers in the DJ aankondiging.
