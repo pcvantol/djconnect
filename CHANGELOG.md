@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.52
+
+- Align repository documentation with the project-wide MIT licensing model and remove the separate proprietary firmware binary license document.
+- Add contribution guidelines for DJConnect integration changes, tests, documentation and licensing expectations.
+
 ## 3.1.51
 
 - Hide the DJ announcement playback toggle from the compact Assist conversation-agent options flow; Assist satellites speak the returned conversation response through their configured pipeline TTS.

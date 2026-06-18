@@ -47,9 +47,9 @@ support by Spotify AB.
 
 ## DJConnect Firmware And Devices
 
-Copyright (c) 2026 Peter van Tol. All rights reserved.
+Copyright (c) 2026 Peter van Tol.
 
-DJConnect firmware is proprietary closed-source software. Firmware binaries and
-device firmware release assets are covered separately by `FIRMWARE-LICENSE.md`.
+DJConnect repositories are MIT-licensed unless a specific repository or
+third-party dependency states otherwise.
 The Home Assistant integration may be distributed separately for use with
 DJConnect devices under the terms of `LICENSE`.

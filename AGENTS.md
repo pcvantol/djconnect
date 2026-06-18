@@ -36,30 +36,29 @@ Architectuur beslissingen:
 - Runtime discovery prefereert device-reported `local_url`, exacte `_djconnect._tcp` mDNS matches en daarna alleen een enkele zichtbare DJConnect mDNS service; genereer alleen model-specifieke hostnames zoals `http://djconnect-lilygo-t-embed-s3-[device-suffix].local` voor echte device IDs met 12-hex suffix, nooit voor 6-cijferige setupcodes.
 - Normale config-flow blijft klein; firmware channel, max audio bytes en OTA battery settings blijven waar nodig zichtbaar/advanced. Spotify source override en standaard playlist override worden niet meer als config/options velden getoond. Firmware repo/asset/device settings horen niet meer in de flow; OTA selecteert automatisch uit het public firmware manifest op basis van ESP device status/info. Gebruikers mogen wel wisselen tussen firmwarekanaal `stable` en `beta`.
 - Alle entities horen onder één HA device met één stabiele device identifier.
-- Firmware source blijft proprietary; HA integration blijft gratis MIT-licensed.
+- DJConnect repos zijn MIT-licensed tenzij een specifieke third-party dependency anders vermeldt.
 - Geen secrets in diagnostics/logs; redactie voor keys met `token`, `password` of `secret`.
 - Spotify trademark/non-affiliation notice blijft zichtbaar in docs/UI/diagnostics.
 
 Licentie/commercieel:
-- HA integration blijft gratis en MIT-licensed via `LICENSE`.
-- ESP firmware source blijft closed source tenzij expliciet anders afgesproken.
-- Firmware binaries/release assets vallen onder `FIRMWARE-LICENSE.md`.
-- Firmware/device copyright: `Copyright (c) 2026 Peter van Tol. All rights reserved.`
+- HA integration blijft MIT-licensed via `LICENSE`.
+- DJConnect client- en firmware-repos zijn ook MIT-licensed tenzij hun eigen repo expliciet anders vermeldt.
+- Copyright: `Copyright (c) 2026 Peter van Tol.`
 - Hardware mag white-label worden ingekocht en als DJConnect device met firmware en gratis HA integration online worden verkocht.
-- Wijzigingen aan docs/release-info moeten deze scheiding tussen open HA integration en closed firmware behouden.
+- Wijzigingen aan docs/release-info moeten de MIT-licentiepositie voor DJConnect repos behouden.
 - `THIRD_PARTY_NOTICES.md` moet blijven bestaan en Home Assistant APIs, manifest requirements/dependencies en Spotify API/trademark notice noemen.
 - Spotify is een trademark van Spotify AB.
 - DJConnect mag nergens claimen verbonden te zijn aan, goedgekeurd te zijn door of gesponsord te zijn door Spotify AB.
 - README legal sectie moet compact vermelden:
-  - firmware proprietary software is;
-  - HA integration separaat gratis gedistribueerd mag worden voor DJConnect devices;
+  - DJConnect repos MIT-licensed zijn;
+  - HA integration separaat gedistribueerd mag worden voor DJConnect devices;
   - Spotify trademark/non-affiliation disclaimer;
   - third-party/open-source dependencies hun eigen licenties houden.
 
 HA integration:
 - domain: `djconnect`
 - HACS custom integration.
-- Actuele integratieversie: `3.1.51`.
+- Actuele integratieversie: `3.1.52`.
 - Config flow moet blijven laden.
 - Config flow blokkeert niet meer op een officiële Home Assistant Spotify `media_player` entity; DJConnect gebruikt eigen Spotify OAuth en de Spotify Web API voor backend playback.
 - Spotify OAuth gebruikt een HA external step en opent de Spotify website.
@@ -102,7 +101,7 @@ HA integration:
 - Huidige firmware gebruikt de lokale ESP API met bearer token voor device-acties.
 - Diagnostics moeten alle keys met `token`, `password` of `secret` redacteren; log geen volledige ESP event payloads.
 - Diagnostics output moet legal metadata bevatten:
-  - `copyright`: `Copyright (c) 2026 Peter van Tol. All rights reserved.`
+  - `copyright`: `Copyright (c) 2026 Peter van Tol.`
   - `spotify_trademark`: `Spotify is a trademark of Spotify AB.`
   - `affiliation`: `DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB.`
 - Config-flow/options-flow UI moet subtiel en kort de Spotify trademark/non-affiliation notice tonen zonder UX te vervuilen.
@@ -140,7 +139,7 @@ ESP firmware:
 - ESP moet `firmware` bij status meesturen en HTTP `426` `version_mismatch` van HA behandelen als update-required/protocolblokkade zonder NVS pairing/token te wissen.
 
 Firmware releases:
-- Build vanuit private repo `djconnect-app`.
+- Build vanuit separate repo `djconnect-app`.
 - Publish binaries naar public repo `djconnect-firmware`.
 - Private firmware repo moet bij voorkeur een eigen `release.sh` one-liner hebben:
   - `./release.sh X.Y.Z`
@@ -182,7 +181,7 @@ README/release:
   - Controleer en actualiseer alle Nederlandse en Engelse vertalingen voor gewijzigde config-flow, options-flow, repair-flow, entity- en service-teksten.
   - Controleer bij elke code- of contractwijziging expliciet of de testdekking uitgebreid moet worden; voeg tests toe voor nieuwe gedragspaden, regressierisico's, vertalingen en edge cases.
   - Controleer `custom_components/djconnect/brand/icon.png`, `icon@2x.png` en `logo.png`.
-  - Controleer dat `LICENSE` de HA integration dekt en `FIRMWARE-LICENSE.md` firmware binaries dekt.
+  - Controleer dat `LICENSE` deze repo dekt en dat gerelateerde DJConnect repos hun MIT license metadata actueel houden.
   - Controleer vóór build/test/release of third-party libraries, frameworks en build tools updates hebben; voer veilige upgrades uit als reviewbare wijzigingen en werk lockfiles/manifests, `THIRD_PARTY_NOTICES.md` en `TECHNICAL_DESIGN_DECISIONS.md` bij. Als dependency/framework/tool-versies zijn geüpgraded, is actualisatie van `THIRD_PARTY_NOTICES.md` en dependency/design documentatie verplicht. Als een upgrade bewust wordt overgeslagen, noteer waarom in `HANDOFF.md`.
   - Controleer dat `THIRD_PARTY_NOTICES.md` actueel is voor manifest dependencies/requirements.
   - Controleer README/config-flow/options-flow/diagnostics legal notices.
@@ -210,8 +209,8 @@ README/release:
   - `djconnect.test_parse`, `djconnect.test_command` en `djconnect.test_tts` testen.
   - Status, last command, last track en firmware update entities controleren.
 - Firmware release cross-check:
-  - Build firmware vanuit private repo `djconnect-app`.
-  - Gebruik bij voorkeur `./release.sh X.Y.Z` in de private firmware repo.
+  - Build firmware vanuit separate repo `djconnect-app`.
+  - Gebruik bij voorkeur `./release.sh X.Y.Z` in de firmware repo.
   - Gebruik `./release.sh X.Y.Z --dry-run` bij twijfel voordat gepubliceerd wordt.
   - Publish binaries naar public repo `djconnect-firmware`.
   - Release assets zijn device-specifiek, zoals `djconnect-lilygo-t-embed-s3-vX.Y.Z.bin` en `djconnect-esp32-s3-box-3-vX.Y.Z.bin`.

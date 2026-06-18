@@ -7,7 +7,7 @@
 - Current integration release: `3.1.43`.
 - Release status: DJConnect `3.1.43` is the current released baseline.
 - Home Assistant integration is HACS-distributed and MIT-licensed.
-- ESP firmware source remains proprietary in `pcvantol/djconnect-app`.
+- DJConnect client and firmware repositories are MIT-licensed unless their own repository metadata states otherwise.
 - Public firmware release assets live in `pcvantol/djconnect-firmware`.
 - Public product website: `https://djconnect.dev`.
 - Cross-repo prompts are consolidated into one canonical `pcvantol/djconnect/SYNC_PROMPTS.md`; old loose prompt files and sibling-repo copies are intentionally removed and must not be reintroduced.

@@ -19,10 +19,9 @@ contract that this repo declares.
 
 ## Scope
 
-This repository contains the free MIT-licensed Home Assistant custom
-integration for DJConnect. It does not contain proprietary DJConnect firmware
-source. Firmware binaries and firmware release assets are covered separately by
-`FIRMWARE-LICENSE.md`.
+This repository contains the MIT-licensed Home Assistant custom integration
+for DJConnect. Related DJConnect client and firmware repositories are also
+MIT-licensed unless their own repository metadata states otherwise.
 
 The integration domain is `djconnect`. The current implementation targets
 DJConnect protocol line `3.1.x`.
@@ -549,8 +548,8 @@ Pattern:
 
 Why:
 
-- The HA integration consumes public firmware releases without bundling
-  proprietary firmware source.
+- The HA integration consumes public firmware releases while firmware source
+  lives in the separate MIT-licensed firmware repository.
 
 ## Bash Design Decisions
 
@@ -635,9 +634,9 @@ unless imported or declared here.
 
 | Asset / File Type | Location | Ownership / License |
 | --- | --- | --- |
-| DJConnect brand images | `assets/`, `brands/`, `custom_components/djconnect/brand/` | DJConnect project assets; see repository license context and firmware/device copyright notices |
+| DJConnect brand images | `assets/`, `brands/`, `custom_components/djconnect/brand/` | DJConnect project assets; MIT License via `LICENSE` unless a specific asset says otherwise |
 | Home Assistant integration source | `custom_components/djconnect/` | MIT License via `LICENSE` |
-| Firmware binary/license references | `FIRMWARE-LICENSE.md`, examples and docs | Proprietary firmware binary terms; firmware source not included |
+| Firmware release references | examples and docs | MIT-licensed DJConnect firmware repositories; firmware source lives outside this integration repo |
 | Tests | `tests/` | MIT License via `LICENSE` |
 
 ## Dependency Update Rules

@@ -664,7 +664,7 @@ url=http://192.168.1.x:8123/api/djconnect/command
 ## Detailed ESP Firmware Sync Prompt
 
 # Codex Prompt: Synchronize DJConnect ESP Firmware With HA Integration
-Werk in de bestaande proprietary ESP firmware repo pcvantol/djconnect-esp32.
+Werk in de bestaande MIT-licensed ESP firmware repo pcvantol/djconnect-esp32.
 
 Doel
 Synchroniseer de ESP firmware met de actuele Home Assistant djconnect integration architectuur voor de `3.1.x` protocol lijn.

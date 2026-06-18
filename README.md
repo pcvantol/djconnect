@@ -14,7 +14,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 
 ## Current Version
 
-- Home Assistant integration: `3.1.51`
+- Home Assistant integration: `3.1.52`
 - Domain: `djconnect`
 - HACS category: `Integration`
 - Device target: DJConnect device
@@ -60,18 +60,19 @@ runtime behavior. These decisions are part of the integration contract:
 - **mDNS first, Client adres as fallback**: ESP runtime prefers the device-reported `local_url`, exact `_djconnect._tcp` mDNS matches, then a single visible DJConnect mDNS device. During setup, Home Assistant also browses `_djconnect._tcp` for iOS/macOS/Raspberry Pi app-like clients, validates `client_type` against the stable device ID, probes `/api/device/pairing-info`, and can prefill the Client adres, client type, device name and pairing code from authoritative pairing-info. Manual Client adres entry remains available when discovery or pairing-info reachability fails.
 - **Inline advanced options**: max audio bytes and OTA battery settings are revealed through a local “show advanced options” checkbox instead of Home Assistant's deprecated advanced-mode property. Firmware device selection is automatic through the public multi-device manifest; users can choose the OTA firmware channel, `stable` or `beta`, in options.
 - **Single Home Assistant device**: sensors, buttons, settings, update and playback proxy entities share one stable device identifier so Home Assistant shows one DJConnect device instead of duplicate device entries.
-- **Closed firmware, free integration**: firmware source remains proprietary. The Home Assistant integration is distributed separately under MIT for use with DJConnect devices.
+- **MIT across DJConnect repos**: the Home Assistant integration, DJConnect clients and DJConnect firmware repositories are distributed under the MIT License unless a specific third-party dependency states otherwise.
 - **No secrets in diagnostics/logs**: diagnostics redact keys containing `token`, `password` or `secret`; logs avoid full ESP payloads and do not intentionally log Spotify refresh tokens, WiFi passwords or device tokens.
 - **Trademark clarity**: Spotify is a trademark of Spotify AB. DJConnect does not claim affiliation, endorsement or sponsorship by Spotify AB.
 
 ## Repository Layout
 
-- Home Assistant integration: `3.1.51`
+- Home Assistant integration: `3.1.52`
 - ESP firmware source: `pcvantol/djconnect-app`
 - Public firmware releases: `pcvantol/djconnect-firmware`
 - Canonical cross-repo sync prompts live only in this HA repo: [`SYNC_PROMPTS.md`](SYNC_PROMPTS.md)
 - Canonical product roadmap lives only in this HA repo: [`PRODUCT_ROADMAP.md`](PRODUCT_ROADMAP.md)
 - Technical design decisions and dependency inventory: [`TECHNICAL_DESIGN_DECISIONS.md`](TECHNICAL_DESIGN_DECISIONS.md)
+- Contribution guidelines: [`CONTRIBUTING.md`](CONTRIBUTING.md)
 
 This repository contains the Home Assistant custom integration under `custom_components/djconnect`.
 
@@ -81,14 +82,12 @@ Cross-repo sync prompts are consolidated into this repo's `SYNC_PROMPTS.md`; do 
 
 ## Licensing And Commercial Use
 
-Copyright (c) 2026 Peter van Tol. All rights reserved.
+Copyright (c) 2026 Peter van Tol.
 
 - The DJConnect Home Assistant integration is free software under the MIT License. You may use, copy, modify, publish, distribute, sublicense, and sell the integration under the terms in `LICENSE`.
-- DJConnect firmware source code is not part of this repository and is not open source by default.
-- DJConnect firmware is proprietary software. The Home Assistant integration may be distributed separately for use with DJConnect devices.
-- DJConnect firmware binaries and OTA release assets are covered by `FIRMWARE-LICENSE.md` when they are distributed with DJConnect devices or through official firmware release channels.
-- DJConnect hardware can be sourced, white-labeled, sold, and resold separately from this integration, subject to the firmware binary license and any hardware supplier agreements.
-- The free Home Assistant integration may be bundled, linked, or recommended with commercial DJConnect devices without changing the closed-source status of the firmware.
+- DJConnect client and firmware repositories are also MIT-licensed unless their own repository files state otherwise.
+- DJConnect hardware can be sourced, white-labeled, sold, and resold separately from this integration, subject to any hardware supplier agreements.
+- The Home Assistant integration may be bundled, linked, or recommended with DJConnect devices and clients.
 - Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB.
 - This integration may depend on open-source Python/Home Assistant components. Their licenses remain with their respective authors. See `THIRD_PARTY_NOTICES.md`.
 
@@ -596,9 +595,7 @@ When the ESP status payload reports `spotify_configured=false`, Home Assistant t
 
 ## Firmware OTA Releases
 
-Firmware builds come from the private `djconnect-app` repo and are published to the public `djconnect-firmware` repo.
-
-Firmware source remains closed unless a separate written agreement says otherwise. Firmware binaries and OTA assets are distributed under the DJConnect Firmware Binary License in `FIRMWARE-LICENSE.md`.
+Firmware builds come from the MIT-licensed `djconnect-app` repo and are published to the MIT-licensed `djconnect-firmware` repo.
 
 Expected release assets:
 
@@ -617,24 +614,24 @@ Example manifest:
 
 ```json
 {
-  "version": "3.1.51",
-  "version_tag": "v3.1.51",
+  "version": "3.1.52",
+  "version_tag": "v3.1.52",
   "channel": "stable",
-  "min_ha_integration": "3.1.51",
+  "min_ha_integration": "3.1.52",
   "firmwares": [
     {
       "board": "t_embed_cc1101",
       "device": "lilygo-t-embed-s3",
-      "asset": "djconnect-lilygo-t-embed-s3-v3.1.51.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.51/djconnect-lilygo-t-embed-s3-v3.1.51.bin",
+      "asset": "djconnect-lilygo-t-embed-s3-v3.1.52.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.52/djconnect-lilygo-t-embed-s3-v3.1.52.bin",
       "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "size": 2113136
     },
     {
       "board": "esp32_s3_box3",
       "device": "esp32-s3-box-3",
-      "asset": "djconnect-esp32-s3-box-3-v3.1.51.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.51/djconnect-esp32-s3-box-3-v3.1.51.bin",
+      "asset": "djconnect-esp32-s3-box-3-v3.1.52.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.52/djconnect-esp32-s3-box-3-v3.1.52.bin",
       "sha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
       "size": 2113136
     }
@@ -657,10 +654,10 @@ The firmware version is injected through PlatformIO build flags from the Git tag
 Recommended firmware source release helper:
 
 ```bash
-./release.sh 3.1.51
+./release.sh 3.1.52
 ```
 
-In the private `djconnect-app` repository, the firmware release script should
+In the separate `djconnect-app` repository, the firmware release script should
 validate the semantic version, update firmware version metadata, run the
 PlatformIO builds, rename firmware binaries to device-specific assets such as
 `djconnect-lilygo-t-embed-s3-vX.Y.Z.bin`, calculate SHA256, update
@@ -669,14 +666,14 @@ PlatformIO builds, rename firmware binaries to device-specific assets such as
 Preview the firmware release flow without changing files:
 
 ```bash
-./release.sh 3.1.51 --dry-run
+./release.sh 3.1.52 --dry-run
 ```
 
 When publishing to the public firmware repository, use the firmware script's
 public-repo option if available:
 
 ```bash
-./release.sh 3.1.51 --publish-firmware-repo ../djconnect-firmware
+./release.sh 3.1.52 --publish-firmware-repo ../djconnect-firmware
 ```
 
 The public `djconnect-firmware` repository should contain only the release
@@ -705,7 +702,7 @@ Pre-release checklist:
   options-flow, repair-flow, entity and service strings.
 - Explicitly decide whether test coverage needs to be expanded for the change; add tests for new behavior paths, regression risks, translations and edge cases. Documentation-only changes may rely on existing tests.
 - Verify `custom_components/djconnect/brand/` contains `icon.png`, `icon@2x.png` and `logo.png`.
-- Verify `LICENSE` covers the Home Assistant integration and `FIRMWARE-LICENSE.md` covers firmware binaries.
+- Verify `LICENSE` covers this repository and that related DJConnect repositories keep their MIT license metadata aligned.
 - Before build/test/release validation, check for available updates to third-party libraries, frameworks and build tools. Apply safe upgrades as reviewable changes and update lockfiles/manifests, `THIRD_PARTY_NOTICES.md` and `TECHNICAL_DESIGN_DECISIONS.md`. When dependency, framework or tool versions are upgraded, updating third-party notices and dependency/design documentation is mandatory; document skipped upgrades in `HANDOFF.md`.
 - Run the lightweight tests:
 
@@ -718,7 +715,7 @@ Tag and publish:
 One-liner:
 
 ```bash
-./release.sh 3.1.51
+./release.sh 3.1.52
 ```
 
 The script updates the integration version in `manifest.json`, `const.py`,
@@ -729,18 +726,18 @@ above.
 Preview without executing git/gh commands:
 
 ```bash
-./release.sh 3.1.51 --dry-run
+./release.sh 3.1.52 --dry-run
 ```
 
 Manual equivalent:
 
 ```bash
 git add .
-git commit -m "Release DJConnect v3.1.51"
-git tag v3.1.51
+git commit -m "Release DJConnect v3.1.52"
+git tag v3.1.52
 git push origin main
-git push origin v3.1.51
-gh release create v3.1.51 --title "DJConnect v3.1.51" --notes-file CHANGELOG.md
+git push origin v3.1.52
+gh release create v3.1.52 --title "DJConnect v3.1.52" --notes-file CHANGELOG.md
 ```
 
 Release cleanup helper:
@@ -772,8 +769,8 @@ Home Assistant / HACS verification:
 
 Firmware release cross-check, when publishing firmware as well:
 
-- Build firmware from the private `djconnect-app` repository.
-- Prefer the private firmware repo one-liner: `./release.sh X.Y.Z`.
+- Build firmware from the separate `djconnect-app` repository.
+- Prefer the firmware repo one-liner: `./release.sh X.Y.Z`.
 - Use `./release.sh X.Y.Z --dry-run` before publishing when in doubt.
 - Publish binaries to the public `djconnect-firmware` repository.
 - Publish device-specific release assets such as `djconnect-lilygo-t-embed-s3-vX.Y.Z.bin` and `djconnect-esp32-s3-box-3-vX.Y.Z.bin`.
