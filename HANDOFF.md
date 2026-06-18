@@ -120,12 +120,12 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - HA pairing status is `pending` until ESP confirms `ha_pairing_status=paired`; a locally stored token alone is not enough.
 - `POST /api/djconnect/command` should return JSON and avoid 503 loops for Spotify auth failures; report backend unavailable without causing ESP to clear pairing.
 - Physical PTT uses raw WAV upload to HA; ESP must not authenticate directly to HA Assist WebSocket.
-- HA STT provider selection uses `stt_engine` first, then Assist pipeline/default/fallbacks.
+- HA STT/TTS provider selection is driven by the selected Home Assistant Assist pipeline; legacy DJConnect `stt_engine`/`tts_*` options are ignored by runtime paths.
 - DJ response tone is configured with one free-form `dj_response_prompt`; old fixed `dj_style` / `dj_profile` choices are removed and must not be reintroduced.
-- The Assist command-parser prompt must not include `dj_response_prompt`; use it only after Spotify resolution/playback when generating the spoken DJ response.
-- STT fuzzy correction and AI DJ announcement generation use the configured conversation agent when present, otherwise resolve Home Assistant's preferred/default Assist pipeline and use its conversation engine. Only fall back to local copy when the conversation response is unavailable or blocked by prompt-leak/device-lookup guardrails.
+- STT fuzzy correction, Spotify intent detection and AI DJ announcement generation use the configured conversation agent when present, otherwise resolve Home Assistant's preferred/default Assist pipeline and use its conversation engine.
+- The DJ response prompt must start with DJConnect-specific override instructions so global smart-home conversation-agent instructions do not steer the spoken DJ response.
 - Dutch DJ announcement prompts instruct Assist/TTS to pronounce English artist, album and track names in English inside Dutch copy.
-- Options flow clears a stale provider-specific `tts_voice` when the selected TTS engine changes and no longer supports that voice.
+- Options flow no longer shows standalone STT/TTS engine, language or voice fields; manage those in Home Assistant Assist.
 - Text-only `/api/djconnect/voice` is a DJ response test and must not trigger Spotify playback parsing.
 - Raw WAV `/api/djconnect/voice` is the real STT + command + playback path.
 - DJ response TTS is returned to ESP as text and optional temporary WAV/MP3 `audio_url`.

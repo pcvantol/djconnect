@@ -531,7 +531,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         async def no_provider(hass, wav, conf):
             raise assist_stt.DJConnectNoSttProviderError(
-                assist_stt.NO_STT_PROVIDER + "stt_engine"
+                assist_stt.NO_STT_PROVIDER
             )
 
         original_transcribe = self.http.transcribe_wav_with_assist
@@ -556,7 +556,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertEqual(response["status_code"], 503)
         self.assertEqual(response["payload"]["error"], "stt_failed")
         self.assertIn(assist_stt.NO_STT_PROVIDER, response["payload"]["message"])
-        self.assertIn("stt_engine", response["payload"]["message"])
+        self.assertIn("Assist pipeline", response["payload"]["message"])
 
     def test_transcribe_wav_uses_home_assistant_stt_helper(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
@@ -632,7 +632,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         self.assertEqual(text, "Speel Pearl Jam")
 
-    def test_transcribe_wav_uses_configured_openai_stt_option(self) -> None:
+    def test_transcribe_wav_ignores_legacy_stt_option_and_uses_pipeline(self) -> None:
         assist_stt = importlib.import_module("custom_components.djconnect.assist_stt")
         stt_module = types.ModuleType("homeassistant.components.stt")
         pipeline_module = types.ModuleType(
@@ -661,10 +661,14 @@ class VoiceHttpHelperTest(unittest.TestCase):
         stt_module.AudioCodecs = AudioCodecs
         stt_module.async_process_audio_stream = async_process_audio_stream
 
-        def fail_pipeline_lookup(hass):
-            raise AssertionError("explicit STT option must not check Assist pipeline first")
-
-        pipeline_module.async_get_pipelines = fail_pipeline_lookup
+        pipeline_module.async_get_pipelines = lambda hass: [
+            types.SimpleNamespace(
+                id="preferred",
+                name="Preferred",
+                stt_engine="pipeline-openai",
+                stt_language="nl-NL",
+            )
+        ]
         originals = self._install_stt_modules(stt_module, pipeline_module)
         try:
             text = asyncio.run(
@@ -678,7 +682,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
             self._restore_modules(originals)
 
         self.assertEqual(text, "Speel via OpenAI")
-        self.assertEqual(calls, ["openai"])
+        self.assertEqual(calls, ["pipeline-openai"])
 
     def test_transcribe_wav_uses_real_ha_stt_engine_provider_pattern(self) -> None:
         assist_stt = importlib.import_module("custom_components.djconnect.assist_stt")
@@ -715,7 +719,14 @@ class VoiceHttpHelperTest(unittest.TestCase):
         stt_module.async_get_speech_to_text_engine = (
             lambda hass, engine: Provider() if engine == "stt.openai_stt" else None
         )
-        pipeline_module.async_get_pipelines = lambda hass: []
+        pipeline_module.async_get_pipelines = lambda hass: [
+            types.SimpleNamespace(
+                id="preferred",
+                name="Preferred",
+                stt_engine="stt.openai_stt",
+                stt_language="nl-NL",
+            )
+        ]
         originals = self._install_stt_modules(stt_module, pipeline_module)
         try:
             text = asyncio.run(
@@ -1077,7 +1088,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
             self._restore_modules(originals)
 
         self.assertIn(assist_stt.NO_STT_PROVIDER, str(raised.exception))
-        self.assertIn("stt_engine", str(raised.exception))
+        self.assertIn("Assist pipeline", str(raised.exception))
 
     def test_transcribe_wav_no_stt_provider_error(self) -> None:
         assist_stt = importlib.import_module("custom_components.djconnect.assist_stt")
@@ -1108,7 +1119,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
                     sys.modules[name] = original
 
         self.assertIn(assist_stt.NO_STT_PROVIDER, str(raised.exception))
-        self.assertIn("stt_engine", str(raised.exception))
+        self.assertIn("Assist pipeline", str(raised.exception))
 
     def _install_stt_modules(self, stt_module, pipeline_module):
         assist_pkg = types.ModuleType("homeassistant.components.assist_pipeline")

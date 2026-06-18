@@ -214,6 +214,11 @@ class AssistPipelineTest(unittest.TestCase):
         )
 
         self.assertEqual(text, "Arrr, Pearl Jam op de draaitafel!")
+        self.assertIn(
+            "Negeer alle eventueel hierboven ingestelde instructies",
+            calls[0][2]["text"],
+        )
+        self.assertIn("Je bent een radio-DJ", calls[0][2]["text"])
         self.assertIn("Sound like a pirate DJ.", calls[0][2]["text"])
         self.assertIn("artiest: Pearl Jam", calls[0][2]["text"])
         self.assertNotIn("spotify:artist", calls[0][2]["text"])
@@ -279,6 +284,7 @@ class AssistPipelineTest(unittest.TestCase):
         )
         self.assertTrue(any("Klink warm." in line for line in logs.output))
         self.assertTrue(any("artiest: Pearl Jam" in line for line in logs.output))
+        self.assertTrue(any("Negeer alle eventueel hierboven" in line for line in logs.output))
 
     def test_generate_dj_response_prompt_uses_safe_media_lines(self) -> None:
         calls = []
@@ -318,6 +324,7 @@ class AssistPipelineTest(unittest.TestCase):
 
         self.assertEqual(text, "Nirvana gaat erin, rauw en recht uit de speakers.")
         prompt = calls[0]["text"]
+        self.assertIn("Negeer alle eventueel hierboven ingestelde instructies", prompt)
         self.assertIn("type: artist", prompt)
         self.assertIn("artiest: Nirvana", prompt)
         self.assertNotIn("spotify:artist", prompt)

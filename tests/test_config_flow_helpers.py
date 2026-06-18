@@ -200,68 +200,10 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(options["stable"], "Stable")
         self.assertEqual(options["nightly"], "nightly")
 
-    def test_tts_voice_options_use_entity_supported_voices(self) -> None:
-        class State:
-            attributes = {
-                "supported_voices": [
-                    {"voice_id": "anna", "name": "Anna"},
-                    "bram",
-                ]
-            }
-
-        class States:
-            def get(self, entity_id):
-                return State() if entity_id == "tts.home_assistant_cloud" else None
-
-        hass = types.SimpleNamespace(states=States())
-
-        options = self.config_flow._tts_voice_options(
-            hass,
-            "tts.home_assistant_cloud",
-            "custom_voice",
-        )
-
-        self.assertEqual(options[""], "Default")
-        self.assertEqual(options["anna"], "Anna")
-        self.assertEqual(options["bram"], "bram")
-        self.assertEqual(options["custom_voice"], "custom_voice")
-
-    def test_tts_voice_sync_clears_stale_voice_after_engine_change(self) -> None:
-        class State:
-            attributes = {"supported_voices": ["puck", "zephyr"]}
-
-        class States:
-            def get(self, entity_id):
-                return State() if entity_id == "tts.google_ai" else None
-
-        hass = types.SimpleNamespace(states=States())
-        values = {
-            self.const.CONF_TTS_ENGINE: "tts.google_ai",
-            self.const.CONF_TTS_VOICE: "MaartenNeural",
-        }
-
-        synced = self.config_flow._sync_tts_voice_with_engine(hass, values)
-
-        self.assertEqual(synced[self.const.CONF_TTS_VOICE], "")
-
-    def test_tts_voice_sync_keeps_voice_when_engine_voices_are_unknown(self) -> None:
-        hass = types.SimpleNamespace(states=None)
-        values = {
-            self.const.CONF_TTS_ENGINE: "tts.custom",
-            self.const.CONF_TTS_VOICE: "custom_voice",
-        }
-
-        synced = self.config_flow._sync_tts_voice_with_engine(hass, values)
-
-        self.assertEqual(synced[self.const.CONF_TTS_VOICE], "custom_voice")
-
     def test_voice_schema_preserves_explicit_default_values(self) -> None:
         hass = types.SimpleNamespace(states=None)
         defaults = self.config_flow._voice_defaults(
             {
-                self.const.CONF_STT_ENGINE: "",
-                self.const.CONF_TTS_ENGINE: "",
-                self.const.CONF_TTS_VOICE: "",
             },
             preserve_empty=True,
         )
@@ -269,11 +211,11 @@ class ConfigFlowHelperTest(unittest.TestCase):
         schema = asyncio.run(self.config_flow._voice_schema(hass, defaults))
         marker_defaults = {marker.key: marker.default for marker in schema.schema}
 
-        self.assertEqual(marker_defaults[self.const.CONF_STT_ENGINE], "")
-        self.assertEqual(marker_defaults[self.const.CONF_TTS_ENGINE], "")
-        self.assertEqual(marker_defaults[self.const.CONF_TTS_VOICE], "")
+        self.assertNotIn(self.const.CONF_STT_ENGINE, marker_defaults)
+        self.assertNotIn(self.const.CONF_TTS_ENGINE, marker_defaults)
+        self.assertNotIn(self.const.CONF_TTS_VOICE, marker_defaults)
 
-    def test_voice_schema_defaults_tts_engine_to_default_option(self) -> None:
+    def test_voice_schema_hides_tts_settings(self) -> None:
         hass = types.SimpleNamespace(states=None)
         schema = asyncio.run(
             self.config_flow._voice_schema(
@@ -281,10 +223,11 @@ class ConfigFlowHelperTest(unittest.TestCase):
                 self.config_flow._voice_defaults(),
             )
         )
-        marker_defaults = {marker.key: marker.default for marker in schema.schema}
+        keys = {marker.key for marker in schema.schema}
 
-        self.assertEqual(self.const.DEFAULT_TTS_ENGINE, "")
-        self.assertEqual(marker_defaults[self.const.CONF_TTS_ENGINE], "")
+        self.assertNotIn(self.const.CONF_TTS_ENGINE, keys)
+        self.assertNotIn(self.const.CONF_TTS_LANGUAGE, keys)
+        self.assertNotIn(self.const.CONF_TTS_VOICE, keys)
 
     def test_voice_schema_uses_multiline_dj_response_prompt(self) -> None:
         hass = types.SimpleNamespace(states=None)
@@ -364,7 +307,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertNotIn("Gebruik deze DJ response prompt", prompt)
         self.assertNotIn("stijl-/inhoudsinstructie", prompt)
-        self.assertIn("Noem de artiest en het nummer.", prompt)
+        self.assertIn("Noem de artiest, het album en het nummer.", prompt)
         self.assertIn("Geef een leuk feitje over de artiest.", prompt)
         self.assertIn("Klink warm en persoonlijk.", prompt)
         self.assertEqual(prompt.count("\n"), 2)
@@ -399,8 +342,10 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertTrue(advanced_only.isdisjoint(basic_keys))
         self.assertNotIn("firmware_repo", advanced_keys)
         self.assertNotIn("firmware_device", advanced_keys)
-        self.assertIn(self.const.CONF_STT_ENGINE, basic_keys)
-        self.assertIn(self.const.CONF_TTS_ENGINE, basic_keys)
+        self.assertNotIn(self.const.CONF_STT_ENGINE, basic_keys)
+        self.assertNotIn(self.const.CONF_TTS_ENGINE, basic_keys)
+        self.assertNotIn(self.const.CONF_TTS_LANGUAGE, basic_keys)
+        self.assertNotIn(self.const.CONF_TTS_VOICE, basic_keys)
         self.assertIn(self.const.CONF_SPOTIFY_SOURCE, basic_keys)
         self.assertIn(self.const.CONF_FIRMWARE_CHANNEL, basic_keys)
         self.assertIn(self.const.CONF_DJ_RESPONSE_PROMPT, basic_keys)
@@ -441,7 +386,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
             }
         )
 
-        self.assertEqual(data[self.const.CONF_TTS_LANGUAGE], self.const.DEFAULT_TTS_LANGUAGE)
+        self.assertNotIn(self.const.CONF_TTS_LANGUAGE, data)
         self.assertEqual(
             data[self.const.CONF_DJ_RESPONSE_PROMPT],
             self.const.DEFAULT_DJ_RESPONSE_PROMPT,

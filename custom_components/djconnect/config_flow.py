@@ -44,10 +44,6 @@ from .const import (
     CONF_SPOTIFY_REFRESH_TOKEN,
     CONF_SPOTIFY_SCOPES,
     CONF_SPOTIFY_SOURCE,
-    CONF_STT_ENGINE,
-    CONF_TTS_ENGINE,
-    CONF_TTS_LANGUAGE,
-    CONF_TTS_VOICE,
     CONF_SETUP_METHOD,
     CONF_WIFI_PASSWORD,
     CONF_WIFI_SSID,
@@ -65,10 +61,6 @@ from .const import (
     DEFAULT_SPOTIFY_CLIENT_ID,
     DEFAULT_SPOTIFY_MARKET,
     DEFAULT_SPOTIFY_SCOPES,
-    DEFAULT_STT_ENGINE,
-    DEFAULT_TTS_ENGINE,
-    DEFAULT_TTS_LANGUAGE,
-    DEFAULT_TTS_VOICE,
     DJ_RESPONSE_PROMPT_PRESET_CUSTOM,
     DJ_RESPONSE_PROMPT_PRESETS,
     DJ_RESPONSE_PROMPT_TEXTS,
@@ -510,36 +502,6 @@ def _voice_name(voice: Any) -> tuple[str, str] | None:
     return (str(voice_id), str(voice_name)) if voice_id else None
 
 
-def _tts_voice_options(hass: Any, tts_engine: str, current: Any = "") -> dict[str, str]:
-    """Return voice options exposed by a TTS entity, when known."""
-    options: dict[str, str] = {"": "Default"}
-    voices = _state_attributes(hass, tts_engine).get("supported_voices") or []
-    voices = voices or _state_attributes(hass, tts_engine).get("voices") or []
-    for voice in voices:
-        parsed = _voice_name(voice)
-        if parsed:
-            voice_id, voice_name = parsed
-            options[voice_id] = voice_name
-    return _options_with_current(options, current)
-
-
-def _sync_tts_voice_with_engine(hass: Any, values: dict[str, Any]) -> dict[str, Any]:
-    """Clear a stale TTS voice when the selected TTS engine cannot use it."""
-    synced = dict(values)
-    engine = str(synced.get(CONF_TTS_ENGINE) or "").strip()
-    voice = str(synced.get(CONF_TTS_VOICE) or "").strip()
-    if not voice:
-        synced[CONF_TTS_VOICE] = ""
-        return synced
-    if not engine:
-        synced[CONF_TTS_VOICE] = ""
-        return synced
-    supported = _tts_voice_options(hass, engine, "")
-    if len(supported) > 1 and voice not in supported:
-        synced[CONF_TTS_VOICE] = ""
-    return synced
-
-
 def _get_assist_pipelines(hass: Any) -> list[Any]:
     """Return Assist pipelines when HA exposes them."""
     try:
@@ -613,18 +575,10 @@ def _base_voice_schema(
     defaults: dict[str, Any],
     *,
     assist_options: dict[str, str],
-    stt_options: dict[str, str],
-    tts_options: dict[str, str],
-    tts_voice_options: dict[str, str],
-    stt_engine: str,
-    tts_engine: str,
-    tts_voice: str,
     options_actions: dict[str, str] | None = None,
     readonly_local_url: str | None = None,
 ) -> dict[Any, Any]:
     """Build the non-advanced voice settings schema."""
-    stt_validator = vol.In(stt_options) if len(stt_options) > 1 else str
-    voice_validator = vol.In(tts_voice_options) if len(tts_voice_options) > 1 else str
     firmware_channel_selector = _firmware_channel_selector()
     schema: dict[Any, Any] = {}
     if options_actions is not None:
@@ -644,13 +598,6 @@ def _base_voice_schema(
             CONF_ASSIST_PIPELINE_ID,
             default=defaults.get(CONF_ASSIST_PIPELINE_ID, ""),
         ): vol.In(assist_options),
-        vol.Optional(CONF_STT_ENGINE, default=stt_engine): stt_validator,
-        vol.Optional(CONF_TTS_ENGINE, default=tts_engine): vol.In(tts_options),
-        vol.Optional(
-            CONF_TTS_LANGUAGE,
-            default=defaults.get(CONF_TTS_LANGUAGE, DEFAULT_TTS_LANGUAGE),
-        ): str,
-        vol.Optional(CONF_TTS_VOICE, default=tts_voice): voice_validator,
         vol.Optional(
             CONF_DJ_RESPONSE_ENABLED,
             default=defaults.get(
@@ -762,38 +709,12 @@ async def _voice_schema(
     include_readonly_local_url: bool = False,
 ) -> vol.Schema:
     """Build a voice/options schema with dropdowns where HA can provide choices."""
-    pipeline = _get_assist_pipeline(hass, defaults.get(CONF_ASSIST_PIPELINE_ID, ""))
-    pipeline_stt_engine = getattr(pipeline, "stt_engine", None) if pipeline else None
-    pipeline_tts_engine = getattr(pipeline, "tts_engine", None) if pipeline else None
-    pipeline_tts_voice = getattr(pipeline, "tts_voice", None) if pipeline else None
-    stt_engine = (
-        defaults.get(CONF_STT_ENGINE)
-        if CONF_STT_ENGINE in defaults
-        else pipeline_stt_engine or DEFAULT_STT_ENGINE
-    )
-    tts_engine = (
-        defaults.get(CONF_TTS_ENGINE)
-        if CONF_TTS_ENGINE in defaults
-        else pipeline_tts_engine or DEFAULT_TTS_ENGINE
-    )
-    tts_voice = (
-        defaults.get(CONF_TTS_VOICE)
-        if CONF_TTS_VOICE in defaults
-        else pipeline_tts_voice or ""
-    )
-
     schema = _base_voice_schema(
         defaults,
         assist_options=await _assist_pipeline_options(
             hass,
             defaults.get(CONF_ASSIST_PIPELINE_ID, ""),
         ),
-        stt_options=_entity_options(hass, "stt", stt_engine),
-        tts_options=_entity_options(hass, "tts", tts_engine),
-        tts_voice_options=_tts_voice_options(hass, tts_engine, tts_voice),
-        stt_engine=stt_engine,
-        tts_engine=tts_engine,
-        tts_voice=tts_voice,
         options_actions=(
             _options_actions_for_status(hass, defaults)
             if include_options_action
@@ -836,25 +757,6 @@ def _voice_defaults(
             source,
             CONF_ASSIST_PIPELINE_ID,
             DEFAULT_ASSIST_PIPELINE_ID,
-            preserve_empty=preserve_empty,
-        ),
-        CONF_STT_ENGINE: _defaultable_value(
-            source,
-            CONF_STT_ENGINE,
-            DEFAULT_STT_ENGINE,
-            preserve_empty=preserve_empty,
-        ),
-        CONF_TTS_ENGINE: _defaultable_value(
-            source,
-            CONF_TTS_ENGINE,
-            DEFAULT_TTS_ENGINE,
-            preserve_empty=preserve_empty,
-        ),
-        CONF_TTS_LANGUAGE: _clean(source.get(CONF_TTS_LANGUAGE), DEFAULT_TTS_LANGUAGE),
-        CONF_TTS_VOICE: _defaultable_value(
-            source,
-            CONF_TTS_VOICE,
-            DEFAULT_TTS_VOICE,
             preserve_empty=preserve_empty,
         ),
         CONF_DJ_RESPONSE_ENABLED: _bool(
@@ -1397,12 +1299,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 data: dict[str, Any] = {}
                 data.update(self._pairing)
                 data.update(self._spotify)
-                data.update(
-                    _sync_tts_voice_with_engine(
-                        self.hass,
-                        _voice_defaults(user_input),
-                    )
-                )
+                data.update(_voice_defaults(user_input))
                 try:
                     await _async_pair_before_create(self.hass, data)
                 except Exception as exc:  # noqa: BLE001
@@ -1477,7 +1374,6 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
                         if key != OPTIONS_ACTION_FIELD
                     }
                 )
-                merged = _sync_tts_voice_with_engine(self.hass, merged)
                 return self.async_create_entry(
                     title="",
                     data=_voice_defaults(merged, preserve_empty=True),

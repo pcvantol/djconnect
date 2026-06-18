@@ -266,7 +266,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
         runtime = Runtime()
         runtime.config = {
             "dj_response_prompt": (
-                "Noem de artiest en het nummer.\n"
+                "Noem de artiest, het album en het nummer.\n"
                 "Geef een leuk feitje over de artiest.\n"
                 "Klink warm en persoonlijk."
             ),
@@ -330,7 +330,10 @@ class ProcessorRuntimeTest(unittest.TestCase):
             self.assertEqual(media["artist"], "Pearl Jam")
             self.assertEqual(media["track_name"], "Soldier of Love")
             self.assertEqual(media["album_name"], "Last Kiss")
-            self.assertIn("Noem de artiest en het nummer", conf["dj_response_prompt"])
+            self.assertIn(
+                "Noem de artiest, het album en het nummer",
+                conf["dj_response_prompt"],
+            )
             if debug is not None:
                 debug["fallback_used"] = False
             return "Pearl Jam met Soldier of Love staat klaar."
@@ -342,7 +345,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
         runtime = Runtime()
         runtime.config = {
             "dj_response_prompt": (
-                "Noem de artiest en het nummer.\n"
+                "Noem de artiest, het album en het nummer.\n"
                 "Geef een leuk feitje over de artiest.\n"
                 "Klink warm en persoonlijk."
             ),

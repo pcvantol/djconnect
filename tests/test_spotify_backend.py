@@ -1079,6 +1079,56 @@ class SpotifyBackendTest(unittest.TestCase):
             {"uris": ["spotify:track:def"]},
         )
 
+    def test_play_context_at_without_context_plays_direct_uri(self) -> None:
+        class Response:
+            status = 204
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                return {}
+
+            async def text(self):
+                return ""
+
+        class Session:
+            def __init__(self):
+                self.calls = []
+
+            def request(self, method, url, **kwargs):
+                self.calls.append({"method": method, "url": url, **kwargs})
+                return Response()
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={"spotify_client_id": "client-id", "spotify_refresh_token": "refresh"},
+            options={},
+        )
+        runtime = types.SimpleNamespace(
+            entry=entry,
+            latest_spotify_refresh_token=None,
+            spotify_access_token="access",
+            spotify_access_token_expires_at=time.time() + 1800,
+            device_status={},
+            last_playback={},
+            update=lambda **kwargs: None,
+        )
+        runtime.config = dict(entry.data)
+        backend = self.backend.SpotifyBackend(object(), runtime)
+        session = Session()
+        backend.session = session
+
+        asyncio.run(backend.play_context_at({"uri": "spotify:episode:episode-1"}))
+
+        self.assertEqual(
+            session.calls[0]["json"],
+            {"uris": ["spotify:episode:episode-1"]},
+        )
+
     def test_seek_relative_uses_current_progress_and_clamps_to_duration(self) -> None:
         class Response:
             def __init__(self, status, payload=None):

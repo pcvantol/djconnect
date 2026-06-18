@@ -1308,6 +1308,8 @@ class TtsHelperTest(unittest.TestCase):
 
     def test_default_tts_engine_omits_engine_argument(self) -> None:
         calls = []
+        pipeline_module_name = "homeassistant.components.assist_pipeline.pipeline"
+        original_pipeline_module = sys.modules.pop(pipeline_module_name, None)
 
         class TtsModule:
             @staticmethod
@@ -1315,20 +1317,24 @@ class TtsHelperTest(unittest.TestCase):
                 calls.append(kwargs)
                 return "media-source://tts/default"
 
-        result = asyncio.run(
-            self.tts._async_generate_tts_media_source_id(
-                TtsModule,
-                object(),
-                "Daar gaan we.",
-                {
-                    self.const.CONF_TTS_ENGINE: "",
-                    self.const.CONF_TTS_LANGUAGE: "nl-NL",
-                },
+        try:
+            result = asyncio.run(
+                self.tts._async_generate_tts_media_source_id(
+                    TtsModule,
+                    object(),
+                    "Daar gaan we.",
+                    {
+                        self.const.CONF_TTS_ENGINE: "",
+                        self.const.CONF_TTS_LANGUAGE: "nl-NL",
+                    },
+                )
             )
-        )
+        finally:
+            if original_pipeline_module is not None:
+                sys.modules[pipeline_module_name] = original_pipeline_module
 
         self.assertEqual(result, "media-source://tts/default")
-        self.assertEqual(calls[0], {"message": "Daar gaan we.", "language": "nl-NL"})
+        self.assertEqual(calls[0], {"message": "Daar gaan we."})
 
 
 if __name__ == "__main__":

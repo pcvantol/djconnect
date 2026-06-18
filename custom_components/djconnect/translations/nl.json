@@ -69,12 +69,8 @@
         "title": "Spraak, playback en firmware",
         "data": {
           "assist_pipeline_id": "Assist pipeline",
-          "stt_engine": "STT engine",
           "client_type": "Clienttype",
           "local_url": "Client API URL",
-          "tts_engine": "TTS engine",
-          "tts_language": "TTS taal",
-          "tts_voice": "TTS stem",
           "dj_response_enabled": "DJ aankondiging op apparaat afspelen",
           "dj_response_prompt_preset": "DJ aankondiging stijl",
           "dj_response_prompt": "DJ aankondiging prompt",
@@ -89,12 +85,8 @@
           "options_action": "Actie"
         },
         "data_description": {
-          "assist_pipeline_id": "Assist pipeline die DJConnect apparaten gebruiken voor spraakherkenning.",
-          "stt_engine": "Home Assistant STT entity voor fysieke PTT spraakherkenning. Laat leeg om de STT provider uit de Assist pipeline te gebruiken.",
+          "assist_pipeline_id": "Assist pipeline die DJConnect apparaten gebruiken voor spraakherkenning en DJ aankondiging audio.",
           "client_type": "Type DJConnect client dat koppelt met Home Assistant: ESP32 device, iOS app, macOS app of Raspberry Pi client.",
-          "tts_engine": "Home Assistant TTS entity voor DJ aankondigingen.",
-          "tts_language": "Taal die aan de TTS engine wordt meegegeven.",
-          "tts_voice": "Stem die aan de TTS engine wordt meegegeven als die bekend is.",
           "dj_response_enabled": "Maak een tijdelijke WAV of MP3 audio URL en stuur die met de DJ aankondiging naar het DJConnect device.",
           "dj_response_prompt_preset": "Kies een vaste stijl of Vrij in te vullen om de prompt hieronder zelf te beheren.",
           "dj_response_prompt": "Vrije prompt voor de tekst die DJConnect na een verzoek op het device uitspreekt. Bij een vaste stijl vult DJConnect deze tekst automatisch.",
@@ -158,12 +150,8 @@
         "description": "Pas DJConnect spraak-, playback-, OTA- en firmware-instellingen aan. Spotify is een handelsmerk van Spotify AB. DJConnect is niet verbonden aan, goedgekeurd door of gesponsord door Spotify AB.",
         "data": {
           "assist_pipeline_id": "Assist pipeline",
-          "stt_engine": "STT engine",
           "client_type": "Clienttype",
           "local_url": "Client API URL",
-          "tts_engine": "TTS engine",
-          "tts_language": "TTS taal",
-          "tts_voice": "TTS stem",
           "dj_response_enabled": "DJ aankondiging op apparaat afspelen",
           "dj_response_prompt_preset": "DJ aankondiging stijl",
           "dj_response_prompt": "DJ aankondiging prompt",
@@ -178,8 +166,7 @@
           "options_action": "Actie"
         },
         "data_description": {
-          "assist_pipeline_id": "Assist pipeline die DJConnect apparaten gebruiken voor spraakherkenning.",
-          "stt_engine": "Home Assistant STT entity voor fysieke PTT spraakherkenning. Laat leeg om de STT provider uit de Assist pipeline te gebruiken.",
+          "assist_pipeline_id": "Assist pipeline die DJConnect apparaten gebruiken voor spraakherkenning en DJ aankondiging audio.",
           "client_type": "Type DJConnect client dat koppelt met Home Assistant: ESP32 device, iOS app, macOS app of Raspberry Pi client.",
           "local_url": "Geconfigureerde Client API URL. Alleen-lezen; gebruik opnieuw koppelen om deze URL te wijzigen.",
           "dj_response_enabled": "Maak een tijdelijke WAV of MP3 audio URL en stuur die met de DJ aankondiging naar het DJConnect device.",

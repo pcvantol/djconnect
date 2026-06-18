@@ -57,7 +57,6 @@ REPAIR_PAIRING_DATA_KEYS = {
 
 VOICE_OPTION_DATA_KEYS = {
     "assist_pipeline_id",
-    "stt_engine",
     "client_type",
     "local_url",
     "dj_response_enabled",

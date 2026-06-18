@@ -14,7 +14,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 
 ## Current Version
 
-- Home Assistant integration: `3.1.46`
+- Home Assistant integration: `3.1.47`
 - Domain: `djconnect`
 - HACS category: `Integration`
 - Device target: DJConnect device
@@ -34,8 +34,8 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 - Control the paired DJConnect device through its HA-native local API.
 - Accept raw WAV voice uploads from the ESP and run HA Assist STT in the integration backend.
 - Use Home Assistant Assist/TTS settings with safe defaults.
-- Process text commands through HA Assist before sending the resulting DJConnect intent to Spotify.
-- Generate DJ announcements through the configured Assist conversation agent, or through Home Assistant's default conversation agent when no explicit agent is configured.
+- Process text commands through the selected/default Assist conversation agent and DJConnect's music parser before sending the resulting intent to Spotify.
+- Generate DJ announcements through the selected/default Assist conversation agent with DJConnect-specific prompt instructions and fallback guardrails.
 - Use HA-native Assist/TTS routes in active services and entities.
 - Track client status, firmware/client version, last command, last corrected STT, last track and backend playback state.
 - Track ESP-only battery, Wi-Fi RSSI, screen/LED state and firmware updates only for ESP32 clients.
@@ -46,7 +46,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 DJConnect intentionally separates Home Assistant orchestration from firmware
 runtime behavior. These decisions are part of the integration contract:
 
-- **HA-native Assist/STT**: microphone audio is transcribed by this integration through Home Assistant's supported `stt.async_process_audio_stream` helper. DJConnect uses the configured Assist pipeline, falls back to Home Assistant's preferred/default pipeline, then the first pipeline with STT. After STT, physical/developer PTT flows may run a guarded HA Assist fuzzy-correction step to normalize likely speech-to-text mistakes in artist, track, album or playlist names before Spotify intent parsing. If no explicit conversation agent is stored, the correction and DJ announcement steps use Home Assistant's default conversation agent. The ESP uploads raw WAV audio to `POST /api/djconnect/voice` using its DJConnect device token; no Home Assistant websocket token is sent to the ESP.
+- **HA-native Assist/STT/TTS**: microphone audio is transcribed by this integration through Home Assistant's supported `stt.async_process_audio_stream` helper. DJConnect uses the configured Assist pipeline, falls back to Home Assistant's preferred/default pipeline, then the first pipeline with STT. The selected pipeline also supplies TTS for temporary DJ announcement audio. DJConnect uses the selected/default Assist conversation agent for Spotify intent detection, guarded STT correction and DJ announcement generation, with DJConnect-specific prompts that tell the agent to ignore earlier/global smart-home instructions for the DJ response. The ESP uploads raw WAV audio to `POST /api/djconnect/voice` using its DJConnect device token; no Home Assistant websocket token is sent to the ESP.
 - **No direct external AI/STT/TTS APIs**: active Home Assistant routes use HA Assist and HA TTS only. OpenAI or other direct external AI/STT/TTS clients are not part of the active voice path.
 - **Device speaker for DJ announcements**: DJ announcements are not played through Spotify Connect or a Home Assistant media player. Home Assistant creates a temporary WAV or MP3 URL when possible and posts `text` plus optional `audio_url` to the ESP endpoint `/api/device/dj_response`. Dutch announcement prompts explicitly ask TTS/Assist to pronounce English artist, album and track names in English.
 - **HA owns backend playback**: the ESP does not store Spotify OAuth credentials and does not call the Spotify Web API directly. It sends generic playback commands to `POST /api/djconnect/command`; Home Assistant translates them to the current backend, currently Spotify.
@@ -64,7 +64,7 @@ runtime behavior. These decisions are part of the integration contract:
 
 ## Repository Layout
 
-- Home Assistant integration: `3.1.46`
+- Home Assistant integration: `3.1.47`
 - ESP firmware source: `pcvantol/djconnect-app`
 - Public firmware releases: `pcvantol/djconnect-firmware`
 - Canonical cross-repo sync prompts live only in this HA repo: [`SYNC_PROMPTS.md`](SYNC_PROMPTS.md)
@@ -517,17 +517,15 @@ through `X-DJConnect-Text` or `{ "text": "Test" }`. They simulate the DJ
 response path directly and do not parse a Spotify playback command. Raw WAV PTT
 uploads continue through STT, command parsing, Spotify playback and DJ announcement.
 
-Home Assistant must have an STT provider configured. DJConnect first checks its
-own `stt_engine` option, for example `stt.openai_stt` selected or entered in
-the integration options. Home Assistant populates this as a dropdown when it can
-list `stt.*` entities; otherwise DJConnect keeps it as a free-text field so the
-entity id can still be entered manually. If `stt_engine` is empty, DJConnect resolves the selected
-Assist pipeline's STT engine, or if no pipeline is stored, Home Assistant's
-preferred/default Assist pipeline such as Home Assistant Cloud STT. If a stored
-pipeline was removed, DJConnect falls back to the preferred/default pipeline.
-If no pipeline STT provider can be resolved, it falls back to the first
-available Home Assistant `stt.*` entity, for example `stt.openai_stt`. As a
-then resolves direct STT providers through Home Assistant's supported
+Home Assistant must have an Assist pipeline with STT and TTS configured.
+DJConnect only asks you to choose the Assist pipeline; STT provider, TTS engine,
+language and voice are managed in Home Assistant's Assist settings. For example,
+choose an Assist pipeline that uses OpenAI STT and Piper/Nabu Casa TTS in Home
+Assistant, then select that pipeline in DJConnect. If a stored pipeline was
+removed, DJConnect falls back to the preferred/default pipeline. If no pipeline
+STT provider can be resolved, it falls back to the first available Home
+Assistant `stt.*` entity, for example `stt.openai_stt`. It resolves direct STT
+providers through Home Assistant's supported
 `stt.async_get_speech_to_text_engine` API and calls the provider audio stream
 processor. As a final fallback it uses Home Assistant's official
 `assist_pipeline.async_pipeline_from_audio_stream` helper from stage `stt` to
@@ -627,24 +625,24 @@ Example manifest:
 
 ```json
 {
-  "version": "3.1.46",
-  "version_tag": "v3.1.46",
+  "version": "3.1.47",
+  "version_tag": "v3.1.47",
   "channel": "stable",
-  "min_ha_integration": "3.1.46",
+  "min_ha_integration": "3.1.47",
   "firmwares": [
     {
       "board": "t_embed_cc1101",
       "device": "lilygo-t-embed-s3",
-      "asset": "djconnect-lilygo-t-embed-s3-v3.1.46.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.46/djconnect-lilygo-t-embed-s3-v3.1.46.bin",
+      "asset": "djconnect-lilygo-t-embed-s3-v3.1.47.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.47/djconnect-lilygo-t-embed-s3-v3.1.47.bin",
       "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "size": 2113136
     },
     {
       "board": "esp32_s3_box3",
       "device": "esp32-s3-box-3",
-      "asset": "djconnect-esp32-s3-box-3-v3.1.46.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.46/djconnect-esp32-s3-box-3-v3.1.46.bin",
+      "asset": "djconnect-esp32-s3-box-3-v3.1.47.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.47/djconnect-esp32-s3-box-3-v3.1.47.bin",
       "sha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
       "size": 2113136
     }
@@ -667,7 +665,7 @@ The firmware version is injected through PlatformIO build flags from the Git tag
 Recommended firmware source release helper:
 
 ```bash
-./release.sh 3.1.46
+./release.sh 3.1.47
 ```
 
 In the private `djconnect-app` repository, the firmware release script should
@@ -679,14 +677,14 @@ PlatformIO builds, rename firmware binaries to device-specific assets such as
 Preview the firmware release flow without changing files:
 
 ```bash
-./release.sh 3.1.46 --dry-run
+./release.sh 3.1.47 --dry-run
 ```
 
 When publishing to the public firmware repository, use the firmware script's
 public-repo option if available:
 
 ```bash
-./release.sh 3.1.46 --publish-firmware-repo ../djconnect-firmware
+./release.sh 3.1.47 --publish-firmware-repo ../djconnect-firmware
 ```
 
 The public `djconnect-firmware` repository should contain only the release
@@ -728,7 +726,7 @@ Tag and publish:
 One-liner:
 
 ```bash
-./release.sh 3.1.46
+./release.sh 3.1.47
 ```
 
 The script updates the integration version in `manifest.json`, `const.py`,
@@ -739,18 +737,18 @@ above.
 Preview without executing git/gh commands:
 
 ```bash
-./release.sh 3.1.46 --dry-run
+./release.sh 3.1.47 --dry-run
 ```
 
 Manual equivalent:
 
 ```bash
 git add .
-git commit -m "Release DJConnect v3.1.46"
-git tag v3.1.46
+git commit -m "Release DJConnect v3.1.47"
+git tag v3.1.47
 git push origin main
-git push origin v3.1.46
-gh release create v3.1.46 --title "DJConnect v3.1.46" --notes-file CHANGELOG.md
+git push origin v3.1.47
+gh release create v3.1.47 --title "DJConnect v3.1.47" --notes-file CHANGELOG.md
 ```
 
 Release cleanup helper:
@@ -826,7 +824,7 @@ These tests use local stubs for Home Assistant imports and focus on pure DJConne
 - If ESP logs show repeated `Home Assistant direct pairing stored` during normal next/previous/volume/status commands, update to this release or newer; startup and playback paths no longer call `/api/device/pair` when HA already has a stored device token.
 - If the pairing token is stale, open DJConnect options and choose `Retry pairing with current code`. If the device shows a new code, choose `Re-pair with new pairing code`.
 - If brightness, speaker volume or timeout entities stay at defaults, make sure the ESP firmware sends these settings in its periodic Home Assistant status payload; DJConnect accepts common aliases such as `brightness`, `cue_volume`, `screen_dim_timeout` and `turn_off_after_ms`.
-- If `/api/djconnect/voice` returns `No STT provider configured`, select an STT engine in DJConnect options, configure an Assist pipeline with STT such as Home Assistant Cloud STT, or clear the stale DJConnect pipeline option so the integration can use Home Assistant's preferred/default Assist pipeline.
+- If `/api/djconnect/voice` returns `No STT provider configured`, configure an Assist pipeline with STT/TTS such as OpenAI STT plus Piper/Nabu Casa TTS, select that pipeline in DJConnect options, or clear the stale DJConnect pipeline option so the integration can use Home Assistant's preferred/default Assist pipeline.
 - If `/api/djconnect/voice` returns `HA Assist STT did not return recognized text`, enable debug logging for `custom_components.djconnect`, trigger one ESP voice request, then open `/api/djconnect/debug/last_voice.wav` while logged in to Home Assistant. DJConnect only keeps this last raw ESP WAV in memory while debug logging is enabled; use it to check for clear speech, clipped audio, silence, wrong sample rate or noise.
 - If WiFi/pairing works but Spotify does not, reauthorize Spotify in Home Assistant; pair/status payloads must not contain Spotify OAuth secrets.
 - If Home Assistant cannot find a private `DJConnect Liked Proxy` playlist, reauthorize Spotify so the refresh token includes `playlist-read-private`.

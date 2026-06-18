@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.1.47
+
+- Simplify DJConnect voice setup to a single Assist pipeline selection: standalone STT engine and TTS engine/language/voice fields are no longer shown in config/options flows.
+- Ignore legacy DJConnect `stt_engine` and `tts_*` option values at runtime, using the selected/preferred Home Assistant Assist pipeline for STT and DJ announcement TTS so stale language/voice overrides cannot block `audio_url` generation.
+- Keep using the selected/default Assist conversation agent for Spotify intent detection, STT correction and DJ announcement generation, while prefixing DJ response prompts with DJConnect-specific instructions that override global smart-home agent guidance.
+- Update DJ announcement prompt presets and the free-form prompt frame to ask for artist, album and track when known.
+
 ## 3.1.46
 
 - Send Home Assistant STT metadata as native audio enums, including `channel`, `sample_rate` and `bit_rate`, so OpenAI STT can construct a valid WAV upload for PTT audio.

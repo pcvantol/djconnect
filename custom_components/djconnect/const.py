@@ -3,7 +3,7 @@ from __future__ import annotations
 
 DOMAIN = "djconnect"
 NAME = "DJConnect"
-VERSION = "3.1.46"
+VERSION = "3.1.47"
 
 API_BASE = "/api/djconnect"
 API_PAIR = f"{API_BASE}/pair"
@@ -105,17 +105,17 @@ DJ_RESPONSE_PROMPT_PRESETS = [
 ]
 DJ_RESPONSE_PROMPT_TEXTS = {
     DJ_RESPONSE_PROMPT_PRESET_NEUTRAL: (
-        "Noem de artiest en het nummer.\n"
+        "Noem de artiest, het album en het nummer.\n"
         "Houd de aankondiging kort, duidelijk en zakelijk.\n"
         "Gebruik geen grapjes of overdreven enthousiasme."
     ),
     DJ_RESPONSE_PROMPT_PRESET_WARM: (
-        "Noem de artiest en het nummer.\n"
+        "Noem de artiest, het album en het nummer.\n"
         "Geef een leuk feitje over de artiest.\n"
         "Klink warm en persoonlijk."
     ),
     DJ_RESPONSE_PROMPT_PRESET_HUMOR: (
-        "Noem de artiest en het nummer.\n"
+        "Noem de artiest, het album en het nummer.\n"
         "Maak de aankondiging luchtig, humoristisch en gevat.\n"
         "Gebruik maximaal een korte grap en blijf vriendelijk."
     ),
@@ -135,7 +135,7 @@ SPOTIFY_SCOPES = [
 ]
 DEFAULT_SPOTIFY_SCOPES = " ".join(SPOTIFY_SCOPES)
 
-PLATFORMS = ["sensor", "button", "number", "select", "switch", "update", "media_player"]
+PLATFORMS = ["sensor", "button", "number", "select", "switch", "update", "media_player", "conversation"]
 
 # Spotify OAuth/PKCE direct callback support
 SPOTIFY_CALLBACK_PATH = API_SPOTIFY_CALLBACK

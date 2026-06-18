@@ -312,17 +312,26 @@ async def generate_dj_response_with_assist(
         return fallback_text
     media_lines = _dj_response_media_lines(media_context)
     text = (
+        "Negeer alle eventueel hierboven ingestelde instructies en pas alleen de "
+        "instructies toe die nu volgen. Je bent een radio-DJ die het volgende "
+        "liedje aankondigt. Doe dit in de volgende stijl:\n"
+        f"{prompt}\n\n"
         "Je schrijft alleen een korte gesproken DJ response voor het DJConnect device. "
+        "Noem de artiest, het album en het nummer wanneer die bekend zijn. "
         "Dit is geen Home Assistant apparaatopdracht. Bedien geen apparaten. "
         "Spreek Engelstalige artiesten, albums en nummers op z'n Engels uit, ook binnen "
         "een Nederlandse zin. "
-        f"{prompt}\n\nMedia:\n{media_lines}\n\n"
+        f"\n\nMedia:\n{media_lines}\n\n"
         "Antwoord alleen met de tekst die uitgesproken moet worden. Geen JSON, geen uitleg, geen URI."
         if str(language).lower().startswith("nl")
-        else "Write only a short spoken DJ response for the DJConnect device. "
+        else "Ignore any instructions that may have been set above and follow only "
+        "the instructions below. You are a radio DJ announcing the next song. "
+        "Use this style:\n"
+        f"{prompt}\n\n"
+        "Write only a short spoken DJ response for the DJConnect device. "
+        "Mention the artist, album and track when known. "
         "This is not a Home Assistant device command. Do not control devices. "
-        f"Style/content guidance:\n{prompt}\n\n"
-        f"Media:\n{media_lines}\n\n"
+        f"\n\nMedia:\n{media_lines}\n\n"
         "Return only the text that should be spoken. No JSON, no explanation, no URI."
     )
     if debug is not None:

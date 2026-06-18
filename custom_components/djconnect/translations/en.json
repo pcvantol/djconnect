@@ -69,12 +69,8 @@
         "title": "Voice, playback and firmware settings",
         "data": {
           "assist_pipeline_id": "Assist pipeline",
-          "stt_engine": "STT engine",
           "client_type": "Client type",
           "local_url": "Client API URL",
-          "tts_engine": "TTS engine",
-          "tts_language": "TTS language",
-          "tts_voice": "TTS voice",
           "dj_response_enabled": "Play DJ announcement on device",
           "dj_response_prompt_preset": "DJ announcement style",
           "dj_response_prompt": "DJ announcement prompt",
@@ -89,12 +85,8 @@
           "options_action": "Action"
         },
         "data_description": {
-          "assist_pipeline_id": "Assist pipeline used by DJConnect devices for speech recognition.",
-          "stt_engine": "Home Assistant STT entity used for physical PTT speech recognition. Leave empty to use the Assist pipeline STT provider.",
+          "assist_pipeline_id": "Assist pipeline used by DJConnect devices for speech recognition and DJ announcement audio.",
           "client_type": "Type of DJConnect client pairing with Home Assistant: ESP32 device, iOS app, macOS app or Raspberry Pi client.",
-          "tts_engine": "Home Assistant TTS entity used for DJ announcements.",
-          "tts_language": "Language passed to the TTS engine.",
-          "tts_voice": "Voice passed to the TTS engine when supported.",
           "dj_response_enabled": "Create a temporary WAV or MP3 audio URL and send it with the DJ announcement to the DJConnect device.",
           "dj_response_prompt_preset": "Choose a preset style or Free-form to manage the prompt below yourself.",
           "dj_response_prompt": "Free-form prompt for the text DJConnect speaks on the device after a request. With a preset style, DJConnect fills this text automatically.",
@@ -158,12 +150,8 @@
         "description": "Adjust DJConnect voice, playback, OTA and firmware settings. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB.",
         "data": {
           "assist_pipeline_id": "Assist pipeline",
-          "stt_engine": "STT engine",
           "client_type": "Client type",
           "local_url": "Client API URL",
-          "tts_engine": "TTS engine",
-          "tts_language": "TTS language",
-          "tts_voice": "TTS voice",
           "dj_response_enabled": "Play DJ announcement on device",
           "dj_response_prompt_preset": "DJ announcement style",
           "dj_response_prompt": "DJ announcement prompt",
@@ -178,8 +166,7 @@
           "options_action": "Action"
         },
         "data_description": {
-          "assist_pipeline_id": "Assist pipeline used by DJConnect devices for speech recognition.",
-          "stt_engine": "Home Assistant STT entity used for physical PTT speech recognition. Leave empty to use the Assist pipeline STT provider.",
+          "assist_pipeline_id": "Assist pipeline used by DJConnect devices for speech recognition and DJ announcement audio.",
           "client_type": "Type of DJConnect client pairing with Home Assistant: ESP32 device, iOS app, macOS app or Raspberry Pi client.",
           "local_url": "Configured Client API URL. Read-only; use re-pairing to change this URL.",
           "dj_response_enabled": "Create a temporary WAV or MP3 audio URL and send it with the DJ announcement to the DJConnect device.",

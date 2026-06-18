@@ -7,12 +7,7 @@ from typing import Any
 from homeassistant.core import HomeAssistant
 
 from .const import (
-    CONF_TTS_ENGINE,
-    CONF_TTS_LANGUAGE,
-    CONF_TTS_VOICE,
-    DEFAULT_TTS_ENGINE,
-    DEFAULT_TTS_LANGUAGE,
-    DEFAULT_TTS_VOICE,
+    CONF_ASSIST_PIPELINE_ID,
 )
 from .wav_util import simple_tone_wav
 
@@ -93,12 +88,6 @@ async def _async_generate_tts_media_source_id(
     conf: dict,
 ) -> str | None:
     """Call the HA TTS media-source generator across supported HA versions."""
-    configured_engine = str(conf.get(CONF_TTS_ENGINE) or "").strip()
-    engine = configured_engine or DEFAULT_TTS_ENGINE
-    language = conf.get(CONF_TTS_LANGUAGE) or DEFAULT_TTS_LANGUAGE
-    voice = str(conf.get(CONF_TTS_VOICE) or DEFAULT_TTS_VOICE).strip()
-    options = {"voice": voice} if voice else None
-
     generators = (
         getattr(tts_module, "async_generate_media_source_id", None),
         getattr(tts_module, "generate_media_source_id", None),
@@ -106,12 +95,7 @@ async def _async_generate_tts_media_source_id(
     for generator in generators:
         if generator is None:
             continue
-        for kwargs in _tts_media_source_kwargs(
-            text=text,
-            engine=engine,
-            language=language,
-            options=options,
-        ):
+        for kwargs in _tts_media_source_kwargs(hass, text=text, conf=conf):
             try:
                 value = generator(hass, **kwargs)
                 if hasattr(value, "__await__"):
@@ -134,37 +118,120 @@ async def _async_generate_tts_media_source_id(
 
 
 def _tts_media_source_kwargs(
+    hass: HomeAssistant,
     *,
     text: str,
-    engine: str,
-    language: str,
-    options: dict[str, Any] | None,
+    conf: dict,
 ) -> tuple[dict[str, Any], ...]:
     values: list[dict[str, Any]] = []
-    if engine and options is not None:
-        values.append(
-            {
-                "message": text,
-                "engine": engine,
-                "language": language,
-                "options": options,
-            }
-        )
-    if engine:
-        values.append(
-            {
-                "message": text,
-                "engine": engine,
-                "language": language,
-            }
-        )
-    values.append(
-        {
-            "message": text,
-            "language": language,
-        }
-    )
+    for pipeline in _tts_pipeline_candidates(hass, conf):
+        values.extend(_tts_kwargs_for_pipeline(text, pipeline))
+    values.append({"message": text})
     return tuple(values)
+
+
+def _tts_kwargs_for_pipeline(text: str, pipeline: Any) -> list[dict[str, Any]]:
+    engine = str(_first_attr(pipeline, "tts_engine", "tts_engine_id") or "").strip()
+    language = str(_first_attr(pipeline, "tts_language", "language") or "").strip()
+    voice = str(_first_attr(pipeline, "tts_voice", "voice") or "").strip()
+    if not engine:
+        return []
+    base: dict[str, Any] = {"message": text, "engine": engine}
+    if language:
+        base["language"] = language
+    values = []
+    if voice:
+        with_voice = dict(base)
+        with_voice["options"] = {"voice": voice}
+        values.append(with_voice)
+    values.append(base)
+    return values
+
+
+def _tts_pipeline_candidates(hass: HomeAssistant, conf: dict) -> tuple[Any, ...]:
+    try:
+        from homeassistant.components.assist_pipeline.pipeline import async_get_pipelines
+
+        pipelines = async_get_pipelines(hass)
+    except Exception:  # noqa: BLE001
+        _LOGGER.debug("DJConnect could not resolve Assist pipelines for TTS", exc_info=True)
+        return ()
+
+    available = _pipeline_list(pipelines)
+    candidates: list[Any] = []
+    pipeline_id = str(conf.get(CONF_ASSIST_PIPELINE_ID) or "").strip()
+    if pipeline_id:
+        pipeline = _find_pipeline(pipelines, available, pipeline_id)
+        if pipeline is not None:
+            candidates.append(pipeline)
+
+    preferred_getter = getattr(pipelines, "async_get_preferred_pipeline", None)
+    if callable(preferred_getter):
+        try:
+            preferred = preferred_getter()
+            if preferred is not None:
+                candidates.append(preferred)
+        except Exception:  # noqa: BLE001
+            _LOGGER.debug("DJConnect preferred Assist pipeline TTS lookup failed")
+
+    preferred = _first_attr(pipelines, "preferred_pipeline", "current_pipeline")
+    if preferred is not None:
+        candidates.append(preferred)
+    candidates.extend(pipeline for pipeline in available if _pipeline_has_tts(pipeline))
+    return tuple(_dedupe_pipelines(candidates))
+
+
+def _pipeline_list(pipelines: Any) -> list[Any]:
+    if isinstance(pipelines, dict):
+        return list(pipelines.values())
+    mapping = getattr(pipelines, "pipelines", None)
+    if isinstance(mapping, dict):
+        return list(mapping.values())
+    if isinstance(mapping, list | tuple):
+        return list(mapping)
+    try:
+        return list(pipelines)
+    except TypeError:
+        return []
+
+
+def _find_pipeline(pipelines: Any, available: list[Any], pipeline_id: str) -> Any | None:
+    getter = getattr(pipelines, "async_get_pipeline", None)
+    if callable(getter):
+        try:
+            pipeline = getter(pipeline_id)
+            if pipeline is not None:
+                return pipeline
+        except Exception:  # noqa: BLE001
+            _LOGGER.debug("DJConnect Assist pipeline TTS lookup failed")
+    for pipeline in available:
+        if str(getattr(pipeline, "id", "") or "") == pipeline_id:
+            return pipeline
+    return None
+
+
+def _pipeline_has_tts(pipeline: Any) -> bool:
+    return bool(_first_attr(pipeline, "tts_engine", "tts_engine_id"))
+
+
+def _dedupe_pipelines(pipelines: list[Any]) -> list[Any]:
+    seen: set[int | str] = set()
+    result = []
+    for pipeline in pipelines:
+        key: int | str = str(getattr(pipeline, "id", "") or "") or id(pipeline)
+        if key in seen:
+            continue
+        seen.add(key)
+        result.append(pipeline)
+    return result
+
+
+def _first_attr(obj: Any, *names: str) -> Any:
+    for name in names:
+        value = getattr(obj, name, None)
+        if value not in (None, ""):
+            return value
+    return None
 
 
 def _is_invalid_tts_provider_error(exc: Exception) -> bool:

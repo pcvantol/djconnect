@@ -41,7 +41,6 @@ from .const import (
 )
 from .assist_stt import (
     DJConnectNoSttProviderError,
-    STT_OPTION_KEYS,
     transcribe_wav_with_assist,
 )
 from .dj_response import async_send_dj_response_best_effort, get_tts_audio
@@ -640,14 +639,6 @@ def _current_spotify_credentials(runtime: Any) -> dict[str, Any]:
 
 def _safe_config_keys(values: dict[str, Any] | None) -> list[str]:
     return sorted(str(key) for key in (values or {}).keys())
-
-
-def _first_config_value(conf: dict[str, Any], keys: tuple[str, ...]) -> tuple[str | None, str | None]:
-    for key in keys:
-        value = str(conf.get(key) or "").strip()
-        if value:
-            return key, value
-    return None, None
 
 
 def _store_rotated_spotify_refresh_token(
@@ -1355,19 +1346,17 @@ class DJConnectVoiceView(HomeAssistantView):
                     return _json_error(self, "audio_too_large", 413)
                 _store_debug_voice_wav(hass, device_id, content_type, wav)
                 entry = getattr(runtime, "entry", None)
-                stt_key, stt_value = _first_config_value(runtime.config, STT_OPTION_KEYS)
-                tts_key, tts_value = _first_config_value(runtime.config, ("tts_engine",))
+                pipeline_id = str(
+                    runtime.config.get(CONF_ASSIST_PIPELINE_ID) or ""
+                ).strip()
                 _LOGGER.info(
                     "DJConnect WAV voice request: entry_id=%s options_keys=%s "
-                    "data_keys=%s stt_provider=%s:%s tts_provider=%s:%s "
+                    "data_keys=%s assist_pipeline_id=%s "
                     "content_type=%s body_bytes=%s",
                     getattr(entry, "entry_id", None),
                     _safe_config_keys(getattr(entry, "options", None)),
                     _safe_config_keys(getattr(entry, "data", None)),
-                    stt_key,
-                    stt_value,
-                    tts_key,
-                    tts_value,
+                    pipeline_id or None,
                     content_type,
                     len(wav),
                 )

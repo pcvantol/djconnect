@@ -439,7 +439,13 @@ class SpotifyBackend:
             playback = self.runtime.last_playback or {}
             context_uri = str(playback.get("context_uri") or "").strip()
         if not context_uri:
-            raise ValueError("Cannot start queue item without playback context")
+            await self._request(
+                "PUT",
+                "/me/player/play",
+                json={"uris": [offset_uri]},
+                expected_empty=True,
+            )
+            return
         if context_uri.startswith("spotify:artist:") and offset_uri.startswith("spotify:track:"):
             await self._request(
                 "PUT",
