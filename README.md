@@ -14,7 +14,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 
 ## Current Version
 
-- Home Assistant integration: `3.1.53`
+- Home Assistant integration: `3.1.54`
 - Domain: `djconnect`
 - HACS category: `Integration`
 - Device target: DJConnect device
@@ -36,6 +36,8 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 - Expose DJConnect as a Home Assistant Assist conversation agent for Assist satellites such as Voice Preview Edition.
 - Use Home Assistant Assist/TTS settings with safe defaults.
 - Process text commands through the selected/default Assist conversation agent and DJConnect's music parser before sending the resulting intent to Spotify.
+- Answer current-track questions such as `Welk nummer draait er nu?` with a DJ response based on Spotify's current playback state, without starting new playback.
+- Handle direct DJ playback controls such as `Stop muziek`, `Start muziek`, `Zet harder`, `Zet zachter`, `Volgende nummer` and `Vorig nummer` without running a Spotify search.
 - Generate DJ announcements through the selected/default Assist conversation agent with DJConnect-specific prompt instructions and fallback guardrails.
 - Use HA-native Assist/TTS routes in active services and entities.
 - Track client status, firmware/client version, last command, last corrected STT, last track and backend playback state.
@@ -66,7 +68,7 @@ runtime behavior. These decisions are part of the integration contract:
 
 ## Repository Layout
 
-- Home Assistant integration: `3.1.53`
+- Home Assistant integration: `3.1.54`
 - ESP firmware source: `pcvantol/djconnect-app`
 - Public firmware releases: `pcvantol/djconnect-firmware`
 - Canonical cross-repo sync prompts live only in this HA repo: [`SYNC_PROMPTS.md`](SYNC_PROMPTS.md)
@@ -316,8 +318,12 @@ Plain voice/search commands such as "ik wil Pearl Jam starten" are resolved
 through Spotify Search before playback starts. Generic spoken music requests
 remain artist-first, so "speel Nirvana" starts the artist context instead of
 picking an arbitrary track. Explicit media words select a more specific Spotify
-Search type:
+Search type. Current-track questions and direct playback-control phrases are
+handled by Home Assistant before Spotify search and do not require Spotify
+credentials or playback-backend logic in DJConnect clients:
 
+- Current track: "Welk nummer draait er nu?", "Welk nummer speelt er nu?", "Wat draait er?", "Wat speelt er?", "What song is playing?", "What's playing?".
+- Playback control: "Stop muziek", "Start muziek", "Zet harder", "Zet zachter", "Volgende nummer", "Vorig nummer", "Stop music", "Start music", "Turn it up", "Turn it down", "Next song", "Previous song".
 - Artist: "ik heb zin in Pearl Jam", "ik wil Metallica horen", "Nirvana wil ik wel horen", "artiest Nirvana", "band Pearl Jam", "speel maar af Above & Beyond", "I feel like Fleetwood Mac".
 - Track: "speel nummer Black van Pearl Jam", "speel nummer Lithium van artiest Nirvana", "speel artiest Nirvana met nummer Lithium", "nummer Lithium", "start het liedje Everlong", "zet track Nothing Else Matters van Metallica op", "play song Paranoid Android by Radiohead".
 - Album: "speel album Ten van Pearl Jam", "album Nevermind", "start het album Nevermind", "zet de plaat OK Computer van Radiohead op", "play album In Rainbows by Radiohead".
@@ -356,7 +362,7 @@ Example developer action data:
 ```yaml
 action: djconnect.test_command
 data:
-  command_text: "Play Pearl Jam"
+  command_text: "Stop muziek"
   play: false
 ```
 
@@ -365,7 +371,7 @@ Example post-STT PTT flow test:
 ```yaml
 action: djconnect.test_ptt_text
 data:
-  command_text: "Speel nummer Black van Pearl Jam"
+  command_text: "Wat speelt er?"
 ```
 
 Example DJ announcement test:
@@ -567,7 +573,8 @@ HA Assist. Explicit media words select the Spotify search type: `nummer`,
 `playlist` or `afspeellijst` selects playlists; generic phrases such as
 `Speel Nirvana` remain artist-first. The current shared example data for the
 website and client teams is in
-[`examples/voice_intents.json`](examples/voice_intents.json).
+[`examples/voice_intents.json`](examples/voice_intents.json), with the
+maintenance contract in [`VOICE_INTENT_DATA.md`](VOICE_INTENT_DATA.md).
 
 ## ESP Device Endpoints
 
@@ -622,24 +629,24 @@ Example manifest:
 
 ```json
 {
-  "version": "3.1.53",
-  "version_tag": "v3.1.53",
+  "version": "3.1.54",
+  "version_tag": "v3.1.54",
   "channel": "stable",
-  "min_ha_integration": "3.1.53",
+  "min_ha_integration": "3.1.54",
   "firmwares": [
     {
       "board": "t_embed_cc1101",
       "device": "lilygo-t-embed-s3",
-      "asset": "djconnect-lilygo-t-embed-s3-v3.1.53.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.53/djconnect-lilygo-t-embed-s3-v3.1.53.bin",
+      "asset": "djconnect-lilygo-t-embed-s3-v3.1.54.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.54/djconnect-lilygo-t-embed-s3-v3.1.54.bin",
       "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "size": 2113136
     },
     {
       "board": "esp32_s3_box3",
       "device": "esp32-s3-box-3",
-      "asset": "djconnect-esp32-s3-box-3-v3.1.53.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.53/djconnect-esp32-s3-box-3-v3.1.53.bin",
+      "asset": "djconnect-esp32-s3-box-3-v3.1.54.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.54/djconnect-esp32-s3-box-3-v3.1.54.bin",
       "sha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
       "size": 2113136
     }
@@ -662,7 +669,7 @@ The firmware version is injected through PlatformIO build flags from the Git tag
 Recommended firmware source release helper:
 
 ```bash
-./release.sh 3.1.53
+./release.sh 3.1.54
 ```
 
 In the separate `djconnect-app` repository, the firmware release script should
@@ -674,14 +681,14 @@ PlatformIO builds, rename firmware binaries to device-specific assets such as
 Preview the firmware release flow without changing files:
 
 ```bash
-./release.sh 3.1.53 --dry-run
+./release.sh 3.1.54 --dry-run
 ```
 
 When publishing to the public firmware repository, use the firmware script's
 public-repo option if available:
 
 ```bash
-./release.sh 3.1.53 --publish-firmware-repo ../djconnect-firmware
+./release.sh 3.1.54 --publish-firmware-repo ../djconnect-firmware
 ```
 
 The public `djconnect-firmware` repository should contain only the release
@@ -723,7 +730,7 @@ Tag and publish:
 One-liner:
 
 ```bash
-./release.sh 3.1.53
+./release.sh 3.1.54
 ```
 
 The script updates the integration version in `manifest.json`, `const.py`,
@@ -734,18 +741,18 @@ above.
 Preview without executing git/gh commands:
 
 ```bash
-./release.sh 3.1.53 --dry-run
+./release.sh 3.1.54 --dry-run
 ```
 
 Manual equivalent:
 
 ```bash
 git add .
-git commit -m "Release DJConnect v3.1.53"
-git tag v3.1.53
+git commit -m "Release DJConnect v3.1.54"
+git tag v3.1.54
 git push origin main
-git push origin v3.1.53
-gh release create v3.1.53 --title "DJConnect v3.1.53" --notes-file CHANGELOG.md
+git push origin v3.1.54
+gh release create v3.1.54 --title "DJConnect v3.1.54" --notes-file CHANGELOG.md
 ```
 
 Release cleanup helper:

@@ -47,8 +47,9 @@ Before publishing:
 - Review `pcvantol/djconnect/PRODUCT_ROADMAP.md`.
 - Keep product roadmap changes only in `pcvantol/djconnect/PRODUCT_ROADMAP.md`;
   do not keep repo-local roadmap copies in sibling repos.
-- Keep shared example contract files such as `examples/voice_intents.json`
-  aligned across repos that expose website/docs or voice-intent documentation.
+- Keep shared example contract files such as `examples/voice_intents.json` and
+  `VOICE_INTENT_DATA.md` aligned across repos that expose website/docs or
+  voice-intent documentation.
 - Check whether any roadmap item was implemented.
 - Mark implemented roadmap items as checked.
 - Add the implementing major.minor version in parentheses, for example
@@ -140,13 +141,16 @@ Requirements:
 - Keep homepage navigation focused on `Hoe werkt het`, `Features`, `Spraak`,
   `Installeren` and `Blog`, plus the primary `Aan de slag` CTA.
 - Canonical spoken music intent example data lives in
-  `examples/voice_intents.json` in the Home Assistant integration repo. Keep
+  `examples/voice_intents.json` and `VOICE_INTENT_DATA.md` in the Home
+  Assistant integration repo. Keep
   the same intent families and example wording aligned in website and client
   documentation: generic artist requests stay artist-first; explicit
   `nummer`/`liedje`/`track`/`song` requests become track searches; explicit
   `album`/`plaat` requests become album searches; explicit
   `playlist`/`afspeellijst` requests become playlist searches; and default
-  playlist/favorites phrases map to the configured default playlist.
+  playlist/favorites phrases map to the configured default playlist. Current
+  track questions and direct playback controls must not be documented as
+  Spotify search intents.
 - Keep the voice commands page at `/voice-commands` aligned with Home Assistant
   intent parsing and local fallback behavior. It must document the canonical
   music intent families from `examples/voice_intents.json` plus the
@@ -156,10 +160,10 @@ Requirements:
 - Keep homepage voice example chips sourced from the same voice intent data as
   `/voice-commands`, not as a separate hardcoded marketing list. The homepage
   should show a compact varied selection and link to the full Spraak/Voice page.
-- Use `VOICE_INTENT_DATA_PROMPT.md` when the Home Assistant integration needs
-  to hand over only updated voice/PTT intentdata to the website. That prompt
-  must request structured data only and exclude website rendering, styling,
-  release, changelog and deploy instructions.
+- Use `VOICE_INTENT_DATA.md` and `examples/voice_intents.json` when the Home
+  Assistant integration needs to hand over only updated voice/PTT intent data
+  to the website. That handoff must request structured data only and exclude
+  website rendering, styling, release, changelog and deploy instructions.
 - Keep macOS, iOS, Raspberry Pi/Linux and ESP32 pages minimal: app/device pages
   should label the platform route as `Home` and avoid cross-link clutter in
   their top menus.
@@ -1010,12 +1014,14 @@ text when Assist returns a device-lookup error, prompt leak, URI/JSON or empty
 response.
 
 Canonical spoken intent example data for website/client documentation lives in
-`examples/voice_intents.json` in the HA repo. Keep the same intent families and
+`examples/voice_intents.json` and `VOICE_INTENT_DATA.md` in the HA repo. Keep the same intent families and
 example wording aligned in client docs: generic artist requests stay
 artist-first; explicit `nummer`/`liedje`/`track`/`song` requests become track
 searches; explicit `album`/`plaat` requests become album searches; explicit
 `playlist`/`afspeellijst` requests become playlist searches; and default
-playlist/favorites phrases map to the configured default playlist.
+playlist/favorites phrases map to the configured default playlist. Current
+track questions and direct playback controls are supported non-search intent
+families.
 Expected HA response:
 
 {

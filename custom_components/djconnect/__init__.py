@@ -73,7 +73,7 @@ from .spotify_oauth import (
 
 _LOGGER = logging.getLogger(__name__)
 
-DEFAULT_TEST_COMMAND = "Ik wil het nieuwste album van Pearl Jam horen"
+DEFAULT_TEST_COMMAND = "Welk nummer draait er nu?"
 DEFAULT_TEST_TTS_TEXT = (
     "Daar gaan we. DJConnect is gekoppeld, de stem werkt, "
     "en ik sta klaar voor je volgende plaat."

@@ -347,6 +347,7 @@ Pattern:
   configured default playlist.
 - `examples/voice_intents.json` is the shared data file for website/client
   examples of supported spoken intent families and handling order.
+  `VOICE_INTENT_DATA.md` documents the maintenance contract for that data.
 - DJ announcement text is generated through Home Assistant Assist where
   possible, then converted to a temporary WAV/MP3 URL through HA TTS.
 - Local fallback text is deliberately neutral and not a hidden prompt-style

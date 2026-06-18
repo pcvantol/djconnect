@@ -7,8 +7,8 @@ test_parse:
   fields:
     command_text:
       name: Command text
-      description: Text as the DJConnect device would send it after HA Assist STT.
-      example: "Ik wil het nieuwste album van Pearl Jam horen"
+      description: Text as the DJConnect device would send it after HA Assist STT. Current-track questions and playback controls are handled by Home Assistant without client-side Spotify credentials.
+      example: "Welk nummer draait er nu?"
       required: true
       selector:
         text:
@@ -35,13 +35,15 @@ test_command:
   name: Test full text command
   description: >
     Developer test: use the same text-command route as the DJConnect device.
-    Text goes through HA Assist to a DJConnect intent, can optionally start
+    Text goes through Home Assistant to a DJConnect intent, can optionally start
     Spotify playback, and then sends the DJ announcement to the ESP device.
+    Current-track questions and direct playback controls are handled by Home
+    Assistant without client-side Spotify credentials or playback backend logic.
   fields:
     command_text:
       name: Command text
-      description: Music request or command text.
-      example: "Speel mijn favoriete nummers"
+      description: Music request, current-track question or playback-control text.
+      example: "Stop muziek"
       required: true
       selector:
         text:
@@ -65,7 +67,7 @@ test_ptt_text:
     command_text:
       name: Natural language text
       description: Text as recognized by STT from a PTT voice request.
-      example: "Speel nummer Black van Pearl Jam"
+      example: "Wat speelt er?"
       required: true
       selector:
         text:

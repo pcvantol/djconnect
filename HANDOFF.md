@@ -130,6 +130,15 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Options flow no longer shows standalone STT/TTS engine, language or voice fields; manage those in Home Assistant Assist.
 - Text-only `/api/djconnect/voice` is a DJ response test and must not trigger Spotify playback parsing.
 - Raw WAV `/api/djconnect/voice` is the real STT + command + playback path.
+- Current-track questions such as `Welk nummer draait er nu?` and `Wat speelt er?`
+  read Spotify playback state via the backend status command and generate a DJ
+  response without starting new playback. If no track is playing or Spotify is
+  unavailable, DJConnect still returns a friendly DJ response.
+- Direct playback-control phrases such as `Stop muziek`, `Start muziek`,
+  `Zet harder`, `Zet zachter`, `Volgende nummer` and `Vorig nummer` bypass
+  music search/Assist parsing and call Spotify backend commands directly
+  (`pause`, `play`, `set_volume` +/-10 from current volume, `next`,
+  `previous`), then generate a DJ response.
 - DJ response TTS is returned to ESP as text and optional temporary WAV/MP3 `audio_url`.
 - Device setting entities accept firmware aliases such as `brightness`, `screen_brightness`, `cue_volume`, `speaker_volume`, `screen_dim_timeout_ms` and `turn_off_after_ms`.
 - `number.djconnect_volume` and other numbers must publish `None/unavailable`, not invalid values outside HA ranges.
@@ -158,7 +167,9 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - `TECHNICAL_DESIGN_DECISIONS.md` documents reverse-engineered code-level design patterns, language-specific coding conventions and the dependency/license/source inventory. Keep it in the release checklist whenever architecture, dependencies, frameworks or external API usage changes.
 - Voice/Assist search text such as "ik wil Pearl Jam starten" must resolve to a Spotify artist first; generic free-text PTT search stays artist-first unless the request explicitly names another media type.
 - Explicit PTT media words choose the matching Spotify Search type: `nummer`/`liedje`/`track` -> track, `album`/`plaat` -> album, `playlist`/`afspeellijst` -> playlist, and `standaard playlist`/`favorieten`/`liked songs` -> configured default playlist.
-- Canonical spoken intent examples live in `examples/voice_intents.json`; keep website/client docs aligned with that file.
+- Canonical spoken intent examples live in `examples/voice_intents.json`, with
+  the maintenance contract in `VOICE_INTENT_DATA.md`; keep website/client docs
+  aligned with those files.
 - Local deterministic intent parsing may override stale/generic HA Assist output, so a new request such as `Speel Nirvana` cannot keep using an older artist context such as Red Hot Chili Peppers.
 - Spotify playlist browsing may return up to 100 playlists to app-like clients, but HA must page Spotify `/me/playlists` internally with provider-safe pages of at most 50 items to avoid Spotify HTTP 400 `Invalid limit`.
 - The native playback proxy media player must cache `playback` snapshots returned by backend commands so current state, album art, volume and selected output update in Home Assistant.

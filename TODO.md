@@ -26,6 +26,8 @@
 - Confirm the guarded post-STT fuzzy-correction step improves common English artist/track/album names in Dutch sentences without changing correct transcripts.
 - Confirm `sensor.djconnect_last_corrected_stt` shows the last changed STT correction and remains stable after sparse runtime updates.
 - Confirm Spotify playback action runs when Spotify is idle.
+- Confirm current-track questions such as `Welk nummer draait er nu?` return a DJ response without starting new Spotify playback, including no-track and Spotify-unavailable cases.
+- Confirm direct playback controls `Stop muziek`, `Start muziek`, `Zet harder`, `Zet zachter`, `Volgende nummer` and `Vorig nummer` execute backend commands without Spotify search and return DJ responses.
 - Confirm PTT artist, track, album, playlist and default-playlist phrases resolve to the intended Spotify search type.
 - Confirm AI DJ announcements use the selected/default HA Assist conversation engine when no DJConnect Assist pipeline is explicitly selected.
 - Confirm Voice Preview Edition can select the `DJConnect DJ` conversation agent and receives the generated DJ response through its speaker.
@@ -123,6 +125,7 @@
 - Keep `CHANGELOG.md` as a per-release changelog. Add a new section for each release and keep previous release sections.
 - Keep `HANDOFF.md` current after major debugging sessions.
 - Keep `TODO.md` and `ISSUES.md` current after field testing.
+- Keep `VOICE_INTENT_DATA.md` aligned with `examples/voice_intents.json` and processor/music parser behavior.
 - Before every release, review all documentation files in this repo: `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant `examples/*`.
 - Before every release, explicitly check whether tests need to be expanded for the change; add coverage for new behavior paths, regression risks, translations and edge cases.
 - Keep cross-repo sync prompts only in `pcvantol/djconnect/SYNC_PROMPTS.md`; do not re-add retired loose prompt files or sibling-repo copies.

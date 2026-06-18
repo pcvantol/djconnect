@@ -481,6 +481,258 @@ class ProcessorRuntimeTest(unittest.TestCase):
         self.assertEqual(result["dj_text"], "Generated for Nirvana")
         self.assertEqual(runtime.last_dj_text, "Generated for Nirvana")
 
+    def test_current_track_question_reads_status_without_playback_action(self) -> None:
+        calls = []
+
+        async def play(hass, runtime, intent, conf):
+            raise AssertionError("current-track question must not start playback")
+
+        async def status(hass, runtime, command, value=None, *, play=None):
+            calls.append(command)
+            return {
+                "success": True,
+                "playback": {
+                    "has_playback": True,
+                    "is_playing": True,
+                    "track_name": "Black",
+                    "artist": "Pearl Jam",
+                    "album_name": "Ten",
+                },
+            }
+
+        async def generated_dj_response(hass, *, media, fallback_text, conf, debug=None):
+            self.assertEqual(media["type"], "current_track")
+            self.assertEqual(media["track_name"], "Black")
+            self.assertEqual(media["artist"], "Pearl Jam")
+            self.assertIn("Nu draait Black van Pearl Jam", fallback_text)
+            if debug is not None:
+                debug["fallback_used"] = False
+            return "Je hoort nu Black van Pearl Jam, van Ten."
+
+        original_play = self.processor.play_from_intent
+        original_status = self.processor.handle_spotify_command
+        original_dj_response = self.processor.generate_dj_response_with_assist
+        self.processor.play_from_intent = play
+        self.processor.handle_spotify_command = status
+        self.processor.generate_dj_response_with_assist = generated_dj_response
+        runtime = Runtime()
+        runtime.config = {"tts_language": "nl"}
+        try:
+            result = asyncio.run(
+                self.processor.process_text_command(
+                    object(),
+                    runtime,
+                    "Welk nummer draait er nu?",
+                    play=True,
+                )
+            )
+        finally:
+            self.processor.play_from_intent = original_play
+            self.processor.handle_spotify_command = original_status
+            self.processor.generate_dj_response_with_assist = original_dj_response
+
+        self.assertEqual(calls, ["status"])
+        self.assertEqual(result["intent"]["type"], "current_track")
+        self.assertEqual(result["playback"]["track_name"], "Black")
+        self.assertEqual(result["dj_text"], "Je hoort nu Black van Pearl Jam, van Ten.")
+        self.assertEqual(runtime.last_playback["track_name"], "Black")
+
+    def test_current_track_question_answers_when_nothing_is_playing(self) -> None:
+        async def status(hass, runtime, command, value=None, *, play=None):
+            return {
+                "success": True,
+                "playback": {
+                    "has_playback": False,
+                    "is_playing": False,
+                },
+            }
+
+        async def generated_dj_response(hass, *, media, fallback_text, conf, debug=None):
+            self.assertEqual(media["type"], "current_track")
+            self.assertFalse(media["has_playback"])
+            return fallback_text
+
+        original_status = self.processor.handle_spotify_command
+        original_dj_response = self.processor.generate_dj_response_with_assist
+        self.processor.handle_spotify_command = status
+        self.processor.generate_dj_response_with_assist = generated_dj_response
+        runtime = Runtime()
+        runtime.config = {"tts_language": "nl"}
+        try:
+            result = asyncio.run(
+                self.processor.process_text_command(
+                    object(),
+                    runtime,
+                    "Wat speelt er?",
+                    play=True,
+                )
+            )
+        finally:
+            self.processor.handle_spotify_command = original_status
+            self.processor.generate_dj_response_with_assist = original_dj_response
+
+        self.assertEqual(
+            result["dj_text"],
+            "Er draait nu geen nummer, voor zover ik kan zien.",
+        )
+
+    def test_current_track_question_answers_when_spotify_is_unavailable(self) -> None:
+        async def status(hass, runtime, command, value=None, *, play=None):
+            raise self.processor.SpotifyBackendError("Spotify OAuth is not configured")
+
+        async def generated_dj_response(hass, *, media, fallback_text, conf, debug=None):
+            self.assertEqual(media["type"], "current_track")
+            self.assertFalse(media["has_playback"])
+            return fallback_text
+
+        original_status = self.processor.handle_spotify_command
+        original_dj_response = self.processor.generate_dj_response_with_assist
+        self.processor.handle_spotify_command = status
+        self.processor.generate_dj_response_with_assist = generated_dj_response
+        runtime = Runtime()
+        runtime.config = {"tts_language": "nl"}
+        try:
+            result = asyncio.run(
+                self.processor.process_text_command(
+                    object(),
+                    runtime,
+                    "Welk nummer speelt er nu?",
+                    play=True,
+                )
+            )
+        finally:
+            self.processor.handle_spotify_command = original_status
+            self.processor.generate_dj_response_with_assist = original_dj_response
+
+        self.assertEqual(
+            result["dj_text"],
+            "Ik kan nu niet zien welk nummer er draait.",
+        )
+        self.assertFalse(result["playback"]["backend_available"])
+
+    def test_playback_control_requests_call_backend_without_music_search(self) -> None:
+        cases = [
+            ("Stop muziek", "pause", "Ik zet de muziek op pauze."),
+            ("Start muziek", "play", "Ik start de muziek weer."),
+            ("Volgende nummer", "next", "Ik ga naar het volgende nummer."),
+            ("Vorig nummer", "previous", "Ik ga terug naar het vorige nummer."),
+        ]
+        for text, expected_command, expected_fallback in cases:
+            with self.subTest(text=text):
+                calls = []
+
+                async def assist(hass, user_text, conf):
+                    raise AssertionError("playback control must not run Assist parsing")
+
+                async def play(hass, runtime, intent, conf):
+                    raise AssertionError("playback control must not run music search")
+
+                async def command(hass, runtime, command, value=None, *, play=None):
+                    calls.append((command, value))
+                    return {
+                        "success": True,
+                        "playback": {
+                            "has_playback": True,
+                            "is_playing": command != "pause",
+                            "track_name": "Black",
+                            "artist": "Pearl Jam",
+                        },
+                    }
+
+                async def generated_dj_response(hass, *, media, fallback_text, conf, debug=None):
+                    self.assertEqual(media["type"], "playback_control")
+                    self.assertEqual(media["action"], expected_command)
+                    self.assertEqual(fallback_text, expected_fallback)
+                    return fallback_text
+
+                original_assist = self.processor.process_text_with_assist
+                original_play = self.processor.play_from_intent
+                original_command = self.processor.handle_spotify_command
+                original_dj_response = self.processor.generate_dj_response_with_assist
+                self.processor.process_text_with_assist = assist
+                self.processor.play_from_intent = play
+                self.processor.handle_spotify_command = command
+                self.processor.generate_dj_response_with_assist = generated_dj_response
+                runtime = Runtime()
+                runtime.config = {"tts_language": "nl"}
+                try:
+                    result = asyncio.run(
+                        self.processor.process_text_command(
+                            object(),
+                            runtime,
+                            text,
+                            play=True,
+                        )
+                    )
+                finally:
+                    self.processor.process_text_with_assist = original_assist
+                    self.processor.play_from_intent = original_play
+                    self.processor.handle_spotify_command = original_command
+                    self.processor.generate_dj_response_with_assist = original_dj_response
+
+                self.assertEqual(calls, [(expected_command, None)])
+                self.assertEqual(result["intent"]["action"], expected_command)
+                self.assertEqual(result["dj_text"], expected_fallback)
+
+    def test_volume_control_requests_adjust_current_spotify_volume_by_ten(self) -> None:
+        cases = [
+            ("Zet harder", 30, 40),
+            ("Zet zachter", 30, 20),
+            ("Zet zachter", 5, 0),
+            ("Zet harder", 58, 60),
+        ]
+        for text, current, expected in cases:
+            with self.subTest(text=text, current=current):
+                calls = []
+
+                async def command(hass, runtime, command, value=None, *, play=None):
+                    calls.append((command, value))
+                    if command == "status":
+                        return {
+                            "success": True,
+                            "playback": {
+                                "has_playback": True,
+                                "is_playing": True,
+                                "volume_percent": current,
+                            },
+                        }
+                    return {
+                        "success": True,
+                        "playback": {
+                            "has_playback": True,
+                            "is_playing": True,
+                            "volume_percent": value,
+                        },
+                    }
+
+                async def generated_dj_response(hass, *, media, fallback_text, conf, debug=None):
+                    self.assertEqual(media["requested_volume_percent"], expected)
+                    self.assertEqual(fallback_text, f"Ik zet het volume op {expected}.")
+                    return fallback_text
+
+                original_command = self.processor.handle_spotify_command
+                original_dj_response = self.processor.generate_dj_response_with_assist
+                self.processor.handle_spotify_command = command
+                self.processor.generate_dj_response_with_assist = generated_dj_response
+                runtime = Runtime()
+                runtime.config = {"tts_language": "nl"}
+                try:
+                    result = asyncio.run(
+                        self.processor.process_text_command(
+                            object(),
+                            runtime,
+                            text,
+                            play=True,
+                        )
+                    )
+                finally:
+                    self.processor.handle_spotify_command = original_command
+                    self.processor.generate_dj_response_with_assist = original_dj_response
+
+                self.assertEqual(calls, [("status", None), ("set_volume", expected)])
+                self.assertEqual(result["playback"]["requested_volume_percent"], expected)
+                self.assertEqual(result["dj_text"], f"Ik zet het volume op {expected}.")
+
     def test_process_text_command_keeps_intent_when_playback_fails(self) -> None:
         async def assist(hass, user_text, conf):
             return {

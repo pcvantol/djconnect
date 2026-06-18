@@ -1,12 +1,15 @@
 # Changelog
 
-## Unreleased
+## 3.1.54
 
 - Remove the Home Assistant deep-link button from the Spotify OAuth result page because the DJConnect config flow is not complete yet at that point.
 - Remove user-facing advanced compatibility, OTA battery and DJ announcement audio TTL fields from config/options flow while keeping their internal defaults.
 - Require users to enter their own Spotify Developer app Client ID and show the exact Home Assistant redirect URI that must be registered in Spotify.
 - Document DJConnect's AI-assisted/Codex development workflow and related security expectations in contribution and security docs.
 - Add a local development environment guide for tests, Docker Home Assistant sync/restart and manual UI validation.
+- Answer DJ questions such as "Welk nummer draait er nu?" by reading the current Spotify playback state and generating a DJ response without starting new playback.
+- Add direct DJ playback controls for stop/start music, volume up/down by 10, next track and previous track without running Spotify search.
+- Update the canonical voice intent data and add `VOICE_INTENT_DATA.md` for current-track and playback-control intent families.
 
 ## 3.1.53
 

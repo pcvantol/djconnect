@@ -13,6 +13,7 @@ from .pipeline import (
     process_text_with_assist,
 )
 from .spotify import play_from_intent
+from .spotify_backend import SpotifyBackendError, handle_spotify_command
 
 
 async def process_text_command(
@@ -34,6 +35,22 @@ async def process_text_command(
         last_corrected_text=corrected_text if corrected_text != user_text else None,
         last_error=None,
     )
+    if _is_current_track_question(corrected_text):
+        return await _process_current_track_question(
+            hass,
+            runtime,
+            corrected_text,
+            user_text,
+        )
+    control = _playback_control_request(corrected_text)
+    if control:
+        return await _process_playback_control_request(
+            hass,
+            runtime,
+            corrected_text,
+            user_text,
+            control,
+        )
     intent = await process_text_with_assist(hass, corrected_text, conf)
     runtime.update(last_intent=intent)
     playback = None
@@ -65,6 +82,447 @@ async def process_text_command(
         last_error=None,
     )
     return result
+
+
+async def _process_playback_control_request(
+    hass: HomeAssistant,
+    runtime,
+    corrected_text: str,
+    user_text: str,
+    control: dict[str, Any],
+) -> dict[str, Any]:
+    """Execute simple DJ playback controls without running music search."""
+    conf = runtime.config
+    intent = {
+        "intent": "playback_control",
+        "type": "playback_control",
+        "action": control["action"],
+        "query": corrected_text,
+        "spotify_search_query": "",
+        "dj_announcement": "",
+    }
+    runtime.update(last_intent=intent)
+    playback = await _execute_playback_control(hass, runtime, control)
+    media = _playback_control_media(playback, intent)
+    fallback_dj_text = _playback_control_response_text(control, playback, conf)
+    dj_response_debug: dict[str, Any] = {}
+    dj_text = await generate_dj_response_with_assist(
+        hass,
+        media=media,
+        fallback_text=fallback_dj_text,
+        conf=conf,
+        debug=dj_response_debug,
+    )
+    result = {
+        "text": corrected_text,
+        "stt_text": user_text,
+        "corrected_text": corrected_text if corrected_text != user_text else None,
+        "intent": intent,
+        "playback": playback,
+        "dj_text": dj_text,
+    }
+    runtime.update(
+        last_intent=intent,
+        last_dj_text=dj_text,
+        last_dj_response_debug=dj_response_debug,
+        last_playback=playback,
+        last_error=None,
+    )
+    return result
+
+
+async def _execute_playback_control(
+    hass: HomeAssistant,
+    runtime,
+    control: dict[str, Any],
+) -> dict[str, Any]:
+    action = str(control.get("action") or "").strip()
+    try:
+        if action == "pause":
+            response = await handle_spotify_command(hass, runtime, "pause")
+        elif action == "play":
+            response = await handle_spotify_command(hass, runtime, "play")
+        elif action == "next":
+            response = await handle_spotify_command(hass, runtime, "next")
+        elif action == "previous":
+            response = await handle_spotify_command(hass, runtime, "previous")
+        elif action == "volume_delta":
+            status = await handle_spotify_command(hass, runtime, "status")
+            playback = status.get("playback") if isinstance(status, dict) else None
+            current = _playback_volume(playback, runtime)
+            if current is None:
+                return {
+                    "has_playback": False,
+                    "is_playing": False,
+                    "backend_available": True,
+                    "volume_unknown": True,
+                }
+            target = max(0, min(60, current + int(control.get("delta") or 0)))
+            response = await handle_spotify_command(hass, runtime, "set_volume", target)
+            playback = response.get("playback") if isinstance(response, dict) else None
+            if isinstance(playback, dict):
+                playback = dict(playback)
+                playback["requested_volume_percent"] = target
+                return playback
+            return {
+                "has_playback": bool(playback),
+                "backend_available": True,
+                "requested_volume_percent": target,
+            }
+        else:
+            raise ValueError(f"Unsupported playback control: {action}")
+    except SpotifyBackendError as exc:
+        return {
+            "has_playback": False,
+            "is_playing": False,
+            "backend_available": False,
+            "unknown": True,
+            "message": str(exc),
+        }
+    except Exception as exc:  # noqa: BLE001
+        return {
+            "has_playback": False,
+            "is_playing": False,
+            "backend_available": False,
+            "unknown": True,
+            "message": str(exc),
+        }
+    playback = response.get("playback") if isinstance(response, dict) else None
+    if isinstance(playback, dict):
+        return playback
+    return {
+        "has_playback": False,
+        "is_playing": False,
+        "backend_available": True,
+    }
+
+
+async def _process_current_track_question(
+    hass: HomeAssistant,
+    runtime,
+    corrected_text: str,
+    user_text: str,
+) -> dict[str, Any]:
+    """Answer which Spotify track is active without starting playback."""
+    conf = runtime.config
+    intent = {
+        "intent": "current_track",
+        "type": "current_track",
+        "query": corrected_text,
+        "spotify_search_query": "",
+        "dj_announcement": "",
+    }
+    runtime.update(last_intent=intent)
+    playback = await _lookup_current_playback(hass, runtime)
+    media = _current_playback_media(playback)
+    fallback_dj_text = _current_track_response_text(playback, conf)
+    dj_response_debug: dict[str, Any] = {}
+    dj_text = await generate_dj_response_with_assist(
+        hass,
+        media=media or intent,
+        fallback_text=fallback_dj_text,
+        conf=conf,
+        debug=dj_response_debug,
+    )
+    result = {
+        "text": corrected_text,
+        "stt_text": user_text,
+        "corrected_text": corrected_text if corrected_text != user_text else None,
+        "intent": intent,
+        "playback": playback,
+        "dj_text": dj_text,
+    }
+    runtime.update(
+        last_intent=intent,
+        last_dj_text=dj_text,
+        last_dj_response_debug=dj_response_debug,
+        last_playback=playback,
+        last_error=None,
+    )
+    return result
+
+
+async def _lookup_current_playback(
+    hass: HomeAssistant,
+    runtime,
+) -> dict[str, Any]:
+    """Fetch current Spotify playback, returning an answerable empty state on failure."""
+    try:
+        response = await handle_spotify_command(hass, runtime, "status")
+    except SpotifyBackendError as exc:
+        return {
+            "has_playback": False,
+            "is_playing": False,
+            "backend_available": False,
+            "unknown": True,
+            "message": str(exc),
+        }
+    except Exception as exc:  # noqa: BLE001
+        return {
+            "has_playback": False,
+            "is_playing": False,
+            "backend_available": False,
+            "unknown": True,
+            "message": str(exc),
+        }
+    playback = response.get("playback") if isinstance(response, dict) else None
+    if isinstance(playback, dict):
+        return playback
+    return {
+        "has_playback": False,
+        "is_playing": False,
+        "backend_available": True,
+    }
+
+
+def _is_current_track_question(text: str) -> bool:
+    normalized = " ".join(str(text or "").strip().lower().split())
+    normalized = normalized.strip(" ?!.")
+    if not normalized:
+        return False
+    question_starts = (
+        "welk nummer",
+        "welk liedje",
+        "welke track",
+        "wat draait",
+        "wat speelt",
+        "wat is dit",
+        "what song",
+        "what track",
+        "what is playing",
+        "what's playing",
+        "which song",
+        "which track",
+    )
+    if not normalized.startswith(question_starts):
+        return False
+    return any(
+        fragment in normalized
+        for fragment in (
+            "draait",
+            "speelt",
+            "nu",
+            "playing",
+            "song",
+            "track",
+            "dit",
+        )
+    )
+
+
+def _playback_control_request(text: str) -> dict[str, Any] | None:
+    normalized = " ".join(str(text or "").strip().lower().split())
+    normalized = normalized.strip(" ?!.")
+    if not normalized:
+        return None
+    if normalized in {
+        "stop muziek",
+        "stop de muziek",
+        "pauzeer muziek",
+        "pauzeer de muziek",
+        "muziek pauzeren",
+        "pause music",
+        "stop music",
+    }:
+        return {"action": "pause"}
+    if normalized in {
+        "start muziek",
+        "start de muziek",
+        "speel muziek",
+        "hervat muziek",
+        "hervat de muziek",
+        "ga verder",
+        "play music",
+        "resume music",
+        "start music",
+    }:
+        return {"action": "play"}
+    if normalized in {
+        "zet harder",
+        "zet de muziek harder",
+        "muziek harder",
+        "harder",
+        "volume omhoog",
+        "turn it up",
+        "volume up",
+        "louder",
+    }:
+        return {"action": "volume_delta", "delta": 10}
+    if normalized in {
+        "zet zachter",
+        "zet de muziek zachter",
+        "muziek zachter",
+        "zachter",
+        "volume omlaag",
+        "turn it down",
+        "volume down",
+        "quieter",
+    }:
+        return {"action": "volume_delta", "delta": -10}
+    if normalized in {
+        "volgende nummer",
+        "volgend nummer",
+        "volgende track",
+        "volgend liedje",
+        "skip",
+        "nummer overslaan",
+        "next song",
+        "next track",
+    }:
+        return {"action": "next"}
+    if normalized in {
+        "vorig nummer",
+        "vorige nummer",
+        "vorige track",
+        "vorig liedje",
+        "terug",
+        "previous song",
+        "previous track",
+    }:
+        return {"action": "previous"}
+    return None
+
+
+def _playback_control_media(
+    playback: dict[str, Any] | None,
+    intent: dict[str, Any],
+) -> dict[str, Any]:
+    media = {"type": "playback_control", "action": intent.get("action")}
+    if isinstance(playback, dict):
+        media.update(_current_playback_media(playback))
+        media["type"] = "playback_control"
+        media["action"] = intent.get("action")
+        if playback.get("requested_volume_percent") is not None:
+            media["requested_volume_percent"] = playback.get("requested_volume_percent")
+    return media
+
+
+def _playback_control_response_text(
+    control: dict[str, Any],
+    playback: dict[str, Any] | None,
+    conf: dict[str, Any],
+) -> str:
+    language = str(conf.get(CONF_TTS_LANGUAGE) or DEFAULT_TTS_LANGUAGE)
+    is_nl = language.lower().startswith("nl")
+    if isinstance(playback, dict) and (
+        playback.get("unknown") or playback.get("backend_available") is False
+    ):
+        return (
+            "Ik kan Spotify nu niet bedienen."
+            if is_nl
+            else "I cannot control Spotify right now."
+        )
+    action = str(control.get("action") or "")
+    if action == "pause":
+        return "Ik zet de muziek op pauze." if is_nl else "Pausing the music."
+    if action == "play":
+        return "Ik start de muziek weer." if is_nl else "Starting the music again."
+    if action == "volume_delta":
+        if isinstance(playback, dict) and playback.get("volume_unknown"):
+            return (
+                "Ik kan het huidige Spotify volume nu niet bepalen."
+                if is_nl
+                else "I cannot determine the current Spotify volume right now."
+            )
+        target = playback.get("requested_volume_percent") if isinstance(playback, dict) else None
+        if target is not None:
+            return (
+                f"Ik zet het volume op {target}."
+                if is_nl
+                else f"Setting the volume to {target}."
+            )
+        return "Ik pas het volume aan." if is_nl else "Adjusting the volume."
+    if action == "next":
+        return "Ik ga naar het volgende nummer." if is_nl else "Skipping to the next track."
+    if action == "previous":
+        return "Ik ga terug naar het vorige nummer." if is_nl else "Going back to the previous track."
+    return "Ik regel het voor je." if is_nl else "I'll take care of it."
+
+
+def _playback_volume(playback: Any, runtime: Any) -> int | None:
+    for source in (playback, getattr(runtime, "last_playback", None)):
+        if not isinstance(source, dict):
+            continue
+        value = source.get("volume_percent")
+        if value is None:
+            device = source.get("device") or {}
+            value = device.get("volume_percent") if isinstance(device, dict) else None
+        try:
+            return int(float(value))
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
+def _current_playback_media(playback: dict[str, Any] | None) -> dict[str, Any]:
+    if not isinstance(playback, dict) or not playback.get("has_playback"):
+        return {"type": "current_track", "has_playback": False}
+    media: dict[str, Any] = {
+        "type": "current_track",
+        "has_playback": True,
+        "is_playing": playback.get("is_playing"),
+    }
+    for key in (
+        "track_name",
+        "title",
+        "artist",
+        "artist_name",
+        "album_name",
+        "album",
+        "uri",
+        "media_image_url",
+        "album_image_url",
+    ):
+        value = playback.get(key)
+        if value not in (None, "", [], {}):
+            media[key] = value
+    if media.get("track_name") and not media.get("title"):
+        media["title"] = media["track_name"]
+    if media.get("title") and not media.get("track_name"):
+        media["track_name"] = media["title"]
+    return media
+
+
+def _current_track_response_text(
+    playback: dict[str, Any] | None,
+    conf: dict[str, Any],
+) -> str:
+    language = str(conf.get(CONF_TTS_LANGUAGE) or DEFAULT_TTS_LANGUAGE)
+    is_nl = language.lower().startswith("nl")
+    if not isinstance(playback, dict):
+        return _unknown_current_track_response(is_nl=is_nl)
+    if playback.get("unknown") or playback.get("backend_available") is False:
+        return _unknown_current_track_response(is_nl=is_nl)
+    if not playback.get("has_playback"):
+        return (
+            "Er draait nu geen nummer, voor zover ik kan zien."
+            if is_nl
+            else "I do not see a track playing right now."
+        )
+    title = _first_text(playback, "track_name", "title", "name")
+    artist = _first_text(playback, "artist", "artist_name")
+    album = _first_text(playback, "album_name", "album")
+    if title or artist:
+        prefix = "Nu draait" if playback.get("is_playing") else "Nu staat klaar"
+        if not is_nl:
+            prefix = "Now playing" if playback.get("is_playing") else "Currently queued"
+        if album and artist and title:
+            return (
+                f"{prefix} {title} van {artist}. Van {album}."
+                if is_nl
+                else f"{prefix}: {title} by {artist}, from {album}."
+            )
+        subject = _track_subject(title, artist, is_nl=is_nl)
+        return f"{prefix} {subject}." if is_nl else f"{prefix}: {subject}."
+    return _unknown_current_track_response(is_nl=is_nl)
+
+
+def _unknown_current_track_response(*, is_nl: bool) -> str:
+    return (
+        "Ik kan nu niet zien welk nummer er draait."
+        if is_nl
+        else "I cannot tell which track is playing right now."
+    )
 
 
 def _dj_response_text(
