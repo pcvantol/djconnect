@@ -29,7 +29,7 @@
 - Confirm PTT artist, track, album, playlist and default-playlist phrases resolve to the intended Spotify search type.
 - Confirm AI DJ announcements use the selected/default HA Assist conversation engine when no DJConnect Assist pipeline is explicitly selected.
 - Confirm Voice Preview Edition can select the DJConnect DJ conversation agent and receives the generated DJ response through its speaker.
-- Confirm the DJConnect conversation-agent options dialog only shows action, DJ response controls and Spotify playback overrides.
+- Confirm the DJConnect conversation-agent options dialog only shows action and DJ response controls.
 - Confirm successful DJ announcement TTS creates an `audio_url` using a local Home Assistant URL even when older HA network helpers are unavailable.
 - Confirm Dutch DJ announcements pronounce English artist, album and track names naturally in TTS.
 - Confirm a new PTT request such as Nirvana does not reuse previous Spotify playback metadata such as Red Hot Chili Peppers in the DJ aankondiging.
@@ -59,15 +59,15 @@
 - Test captive-portal WiFi setup followed by BLE screen action `Continue to pairing`.
 - Test BLE screen action `Rescan Bluetooth devices`.
 - Test BLE screen action `Write WiFi over Bluetooth`.
-- Test pairing with Client API URL left empty for ESP devices.
-- Test pairing with iOS/macOS/Raspberry Pi Client API URL copied from client Settings.
+- Test pairing with Client adres left empty for ESP devices.
+- Test pairing with iOS/macOS/Raspberry Pi Client adres copied from client Settings.
 - Test mDNS discovery through `_djconnect._tcp` for ESP32, iOS, macOS and Raspberry Pi.
 - Test Raspberry Pi mDNS TXT discovery with `client_type=raspberry_pi`, stable `djconnect-raspberry-pi-XXXXXXXXXXXX` ID and TXT `local_url`.
-- Test Raspberry Pi `/api/device/pairing-info` override for Client API URL, client type, device name, device ID, pair code, version and paired state.
-- Test Raspberry Pi pairing-info failure: Home Assistant should show the translated pairing-info reachability error and allow manual Client API URL correction.
+- Test Raspberry Pi `/api/device/pairing-info` override for Client adres, client type, device name, device ID, pair code, version and paired state.
+- Test Raspberry Pi pairing-info failure: Home Assistant should show the translated pairing-info reachability error and allow manual Client adres correction.
 - Test duplicate Raspberry Pi discovery: a previously configured stable Pi device ID should not create a second setup-code-based HA entry.
 - Test mDNS single-device fallback when only one DJConnect device is visible.
-- Test Client API URL fallback on a network where mDNS fails.
+- Test Client adres fallback on a network where mDNS fails.
 - Confirm invalid pairing code is rejected with a clear user message.
 - Confirm real device id and local URL are persisted after `/pair`.
 - Confirm real device id and local URL are persisted after `/status`.
@@ -76,7 +76,7 @@
 
 - Confirm normal config flow stays small and user-focused.
 - Confirm Add integration shows a clear Assist pipeline prerequisite error when Home Assistant has no Assist pipeline with both STT and TTS.
-- Confirm `client_type` and Client API URL are visible in normal pairing.
+- Confirm `client_type` and Client adres are visible in normal pairing.
 - Confirm `stt_engine` remains visible in normal flow/options.
 - Confirm `stt_engine` dropdown is populated from HA `stt.*` entities when available.
 - Confirm `stt_engine` remains free-text capable when no HA `stt.*` entities are discoverable.
@@ -133,7 +133,7 @@
 
 - Keep product/marketing website work in the external website location, not this HA integration repo.
 - Keep the public website link visible in HACS-facing docs: `https://djconnect.dev`.
-- Maintain a How To Start page covering HACS install, Spotify Premium, HA Assist pipeline STT/TTS setup, Spotify OAuth, ESP pairing and iOS/macOS/Raspberry Pi Client API URL pairing.
+- Maintain a How To Start page covering HACS install, Spotify Premium, HA Assist pipeline STT/TTS setup, Spotify OAuth, ESP pairing and iOS/macOS/Raspberry Pi Client adres pairing.
 - Add real product photos/screenshots when final hardware imagery is available.
 - Keep requirements clear: Spotify Premium, Home Assistant, HACS, HA Assist pipeline, 2.4 GHz WiFi and mDNS/Nabu Casa recommendations.
 - Keep `PRODUCT_ROADMAP_IDEAS.md` current when adding product ideas, killer features, production must-haves or premium feature concepts.

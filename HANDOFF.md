@@ -121,7 +121,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - `POST /api/djconnect/command` should return JSON and avoid 503 loops for Spotify auth failures; report backend unavailable without causing ESP to clear pairing.
 - Physical PTT uses raw WAV upload to HA; ESP must not authenticate directly to HA Assist WebSocket.
 - HA STT/TTS provider selection is driven by the selected Home Assistant Assist pipeline; legacy DJConnect `stt_engine`/`tts_*` options are ignored by runtime paths.
-- DJConnect exposes a Home Assistant conversation agent for Assist satellites such as Voice Preview Edition; its options flow must stay compact and must not show device pairing, Client API URL, Assist pipeline, firmware channel or OTA/audio advanced fields.
+- DJConnect exposes a Home Assistant conversation agent for Assist satellites such as Voice Preview Edition; its options flow must stay compact and must not show device pairing, Client adres, Assist pipeline, firmware channel or OTA/audio advanced fields.
 - DJ response tone is configured with one free-form `dj_response_prompt`; old fixed `dj_style` / `dj_profile` choices are removed and must not be reintroduced.
 - STT fuzzy correction, Spotify intent detection and AI DJ announcement generation use the configured conversation agent when present, otherwise resolve Home Assistant's preferred/default Assist pipeline and use its conversation engine.
 - The DJ response prompt must start with DJConnect-specific override instructions so global smart-home conversation-agent instructions do not steer the spoken DJ response.
@@ -168,11 +168,11 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
   unsupported type, or HA could not build a reachable local URL.
 - `dj_response_prompt` remains free text in config/options flow, with a separate preset selector for neutral/business, warm/personal and humorous/witty prompts. There is no backwards compatibility for old fixed `dj_style` or `dj_profile` values.
 - Parser prompts must be isolated from response prompts so text such as "Noem waar mogelijk..." can never leak into Spotify search queries like `Opdracht Metallica`.
-- If Spotify playback fails because there is no active device, refresh `/me/player/devices`, prefer configured `spotify_source` by id or visible name, transfer playback and retry once.
-- `spotify_source` is a normal options-flow field again because it is needed for reliable voice playback routing; firmware/OTA overrides remain hidden behind the local advanced checkbox.
+- If Spotify playback fails because there is no active device, refresh `/me/player/devices`, transfer playback to a suitable active/default Spotify device when possible and retry once.
+- `spotify_source` and `liked_proxy_playlist_uri` are no longer shown as config/options fields. Runtime support may still tolerate older stored values, but new UI saves do not expose or write those overrides.
 - Config flow no longer requires an official Home Assistant Spotify `media_player` entity. DJConnect authorizes Spotify through its own OAuth flow and uses the Spotify Web API for backend playback. Setup still requires Home Assistant to expose at least one Assist pipeline with both STT and TTS before pairing can continue.
 - Pairing prevents Nabu Casa/cloud URLs from being sent as `ha_local_url` and falls back to HA network/source-IP local URL discovery, then `http://homeassistant.local:8123`.
-- The options-flow “re-pair with new pairing code” field stays empty instead of pre-filling the old stored pairing code; leaving Client API URL empty reuses the stored URL for that client.
+- The options-flow “re-pair with new pairing code” field stays empty instead of pre-filling the old stored pairing code; leaving Client adres empty reuses the stored URL for that client.
 - Firmware update entity is non-polling. It checks GitHub on add/manual refresh/install and then on a one-hour internal schedule, so HA must not refresh the entity every 10 seconds.
 - Firmware channel is a user-facing options-flow dropdown: `stable` uses GitHub `/releases/latest`; `beta` uses the newest prerelease from `pcvantol/djconnect-firmware`. Firmware repo/device remain automatic and hidden.
 - Sensor entities are push-only through runtime listeners. `last_command` and `last_track` additionally write HA state only when their cached value or relevant debug attributes actually change.
@@ -205,9 +205,9 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Spotify OAuth Repair flow starts an external Spotify OAuth step and does not mark the issue fixed until a new token is stored.
 - Backend playback auth failures are returned as user-friendly JSON without forcing ESP pairing reset.
 - Device number/select entities accept common firmware status aliases and unit conversions.
-- Pairing config-flow browses `_djconnect._tcp` for app-like clients including Raspberry Pi. It validates `client_type=raspberry_pi` against `djconnect-raspberry-pi-XXXXXXXXXXXX`, accepts TXT `local_url` when present, probes `GET /api/device/pairing-info`, and treats pairing-info as authoritative for Client API URL, stable device ID, client type, device name, pair code, version and paired state.
+- Pairing config-flow browses `_djconnect._tcp` for app-like clients including Raspberry Pi. It validates `client_type=raspberry_pi` against `djconnect-raspberry-pi-XXXXXXXXXXXX`, accepts TXT `local_url` when present, probes `GET /api/device/pairing-info`, and treats pairing-info as authoritative for Client adres, stable device ID, client type, device name, pair code, version and paired state.
 - A single discovered Raspberry Pi client is selected by default but still requires user confirmation. Multiple discovered clients are offered in the `discovered_client` selector.
-- Stale/unreachable mDNS clients are hidden from the discovery selector when `/api/device/pairing-info` cannot be reached. Manual Client API URL remains the fallback for networks where Bonjour advertises a wrong or blocked URL.
+- Stale/unreachable mDNS clients are hidden from the discovery selector when `/api/device/pairing-info` cannot be reached. Manual Client adres remains the fallback for networks where Bonjour advertises a wrong or blocked URL.
 - Raspberry Pi discovery tests now cover TXT acceptance, TXT `local_url`, pairing-info override, stale probe filtering, one-client prefill, multi-client selector, duplicate stable-ID abort behavior and proof that pairing uses the stable discovered Pi device ID instead of `djconnect-{pair_code}`.
 
 ## Known Issues / Field Checks
@@ -227,7 +227,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 
 1. Install the latest `3.1.x` release via HACS and restart Home Assistant.
 2. Verify the README/HACS banner and `info.md` render the `https://djconnect.dev` link as intended.
-3. Update the external product website How To Start page with HACS installation, Spotify Premium requirement, HA Assist pipeline setup, ESP pairing and iOS/macOS/Raspberry Pi Client API URL steps.
+3. Update the external product website How To Start page with HACS installation, Spotify Premium requirement, HA Assist pipeline setup, ESP pairing and iOS/macOS/Raspberry Pi Client adres steps.
 4. Verify `button.djconnect_refresh_up_next` updates `sensor.djconnect_queue` attributes.
 5. Verify `select.djconnect_sound_output` populates Spotify outputs without manually calling `devices`.
 6. Verify sensors keep last-known values after ESP status, playback command polling, voice tests and local device-info refreshes.
@@ -240,8 +240,8 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 13. Run physical PTT end-to-end.
 14. Verify native playback proxy media player controls Spotify backend playback and shows album art.
 15. Verify no Spotify OAuth secrets are sent to ESP or logged.
-16. Pair a Raspberry Pi client from mDNS discovery and verify the form pre-fills Client API URL, `client_type=raspberry_pi`, device name, stable device ID and pair code from `/api/device/pairing-info`.
-17. Test the Raspberry Pi fallback path by advertising `_djconnect._tcp` while blocking `/api/device/pairing-info`; HA should show the translated pairing-info error and allow manual Client API URL correction.
+16. Pair a Raspberry Pi client from mDNS discovery and verify the form pre-fills Client adres, `client_type=raspberry_pi`, device name, stable device ID and pair code from `/api/device/pairing-info`.
+17. Test the Raspberry Pi fallback path by advertising `_djconnect._tcp` while blocking `/api/device/pairing-info`; HA should show the translated pairing-info error and allow manual Client adres correction.
 18. Request Nirvana while Spotify currently reports another artist such as Red Hot Chili Peppers and confirm the DJ announcement prompt/media context uses Nirvana.
 
 ## Validation Commands

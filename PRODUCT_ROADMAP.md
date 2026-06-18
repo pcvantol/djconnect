@@ -78,7 +78,7 @@ Every release must review this roadmap.
   entities without irrelevant controls.
 - [ ] HA sensors stay stable after status sync and do not fall back to unknown
   after initial valid values.
-- [ ] mDNS pairing plus manual Client API URL fallback for networks where
+- [ ] mDNS pairing plus manual Client adres fallback for networks where
   Bonjour is filtered, stale or unavailable.
 - [ ] Queue/up-next response returns max 100 real backend items, artwork URLs,
   context URI and no artificial duplicate padding.
@@ -105,7 +105,7 @@ Every release must review this roadmap.
 - [ ] Compatibility matrix for ESP32, iOS, macOS, Raspberry Pi/Linux and Home
   Assistant versions.
 - [ ] Troubleshooting pages for Spotify OAuth, STT failed, TTS failed, mDNS
-  discovery, Client API URL, OTA and pairing reset.
+  discovery, Client adres, OTA and pairing reset.
 - [ ] Product screenshots/videos show PTT, queue, DJ announcement, hardware UI
   and Home Assistant entities.
 - [ ] Privacy notice accurately describes website and product behavior.
@@ -145,7 +145,7 @@ Every release must review this roadmap.
   per installation.
 - [ ] Local `/api/device/*` endpoint for HA-to-app traffic where required by the
   pairing/runtime contract.
-- [ ] Clear LAN/Bonjour permission guidance and manual Client API URL fallback.
+- [ ] Clear LAN/Bonjour permission guidance and manual Client adres fallback.
 - [ ] Current playback, queue, DJ announcement and status views match the shared
   Home Assistant contract.
 - [ ] App-side diagnostics copy/export with redaction and issue-template links.
@@ -258,7 +258,7 @@ Every release must review this roadmap.
 - [ ] Artist radio fallback when direct artist start is unavailable.
 - [ ] Playlist name search across user playlists first, then public playlists.
 - [ ] Repair issues for missing STT provider, missing TTS provider, missing
-  Spotify Premium/device and invalid Client API URL.
+  Spotify Premium/device and invalid Client adres.
 - [ ] Optional persistent debug history with last N requests, redacted by
   default.
 - [ ] More granular sensors for backend health, client health and Spotify auth

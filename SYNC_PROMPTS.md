@@ -224,18 +224,18 @@ Requirements:
   clients determine their UI language locally.
 - Keep cloud/remote URLs out of Apple app runtime traffic; cloud URLs are only
   needed by Home Assistant-owned Spotify OAuth config flows.
-- When pairing an app-like client, ask for or use the Client API URL shown in
+- When pairing an app-like client, ask for or use the Client adres shown in
   the client pairing sheet. Do not assume a changing Bonjour hostname remains
   the canonical callback target after pairing.
 - Implement full HA-side mDNS autodiscovery for Raspberry Pi clients in the
   pairing config-flow. Browse Bonjour/mDNS service `_djconnect._tcp`, resolve
   each service, validate `client_type=raspberry_pi` against device IDs shaped
-  `djconnect-raspberry-pi-XXXXXXXXXXXX`, build the local Client API URL from
+  `djconnect-raspberry-pi-XXXXXXXXXXXX`, build the local Client adres from
   service address/port or `local_url`, then always probe
   `GET /api/device/pairing-info` when the URL is reachable. Pairing-info is
   authoritative for `local_url`, `device_id`, `client_type`, `device_name`,
   `pair_code`, `version/app_version/firmware` and `paired`.
-- The HA pairing form must prefill Raspberry Pi `Client API URL`,
+- The HA pairing form must prefill Raspberry Pi `Client adres`,
   `client_type=raspberry_pi`, `device_name`, stable `device_id` and visible
   `pair_code` from pairing-info. If exactly one Pi is discovered, select it by
   default but still require user confirmation; if multiple clients are found,
@@ -243,7 +243,7 @@ Requirements:
   convenience only and must never mark a device paired by itself.
 - If Pi mDNS TXT is visible but `/api/device/pairing-info` fails, treat it as a
   stale/unreachable discovery record and hide it from the discovered-client
-  selector on the next scan. Keep manual Client API URL entry available and
+  selector on the next scan. Keep manual Client adres entry available and
   surface a clear pairing error when the user-provided URL cannot be probed
   instead of silently falling back to `djconnect-{pair_code}`. Do not create a
   second HA entry when the discovered Pi `device_id` is already configured;
@@ -251,7 +251,7 @@ Requirements:
 - Add/keep HA tests for Raspberry Pi discovery: service TXT acceptance,
   pairing-info override, stale/unreachable probe filtering, config-flow prefill
   for one Pi, selector behavior for multiple clients, duplicate `device_id`
-  handling, manual Client API URL fallback, and proof that Pi pairing uses the stable discovered
+  handling, manual Client adres fallback, and proof that Pi pairing uses the stable discovered
   `djconnect-raspberry-pi-XXXXXXXXXXXX` instead of `djconnect-{pair_code}`.
 - Return ha_version or ha_major_minor on status/command responses so Apple
   clients can enforce the matching major.minor contract.
@@ -319,9 +319,9 @@ Requirements:
   link and Spotify Premium requirement. Do not request Spotify credentials in
   the app.
 - While unpaired, block runtime UI with a pairing sheet that shows the
-  DJConnect banner, copyable Client API url, copyable app-generated pairing
+  DJConnect banner, copyable Client adres, copyable app-generated pairing
   code, progress/status, and a green success state with `Let's Start!`.
-- Keep the Client API url shown during pairing pinned locally until explicit
+- Keep the Client adres shown during pairing pinned locally until explicit
   pairing reset.
 - Offer Demo Mode from the unpaired pairing sheet for App Store review and UI
   inspection without a Home Assistant backend. Demo Mode must use local sample
@@ -1860,18 +1860,18 @@ Requirements:
   clients determine their UI language locally.
 - Keep cloud/remote URLs out of Apple app runtime traffic; cloud URLs are only
   needed by Home Assistant-owned Spotify OAuth config flows.
-- When pairing an app-like client, ask for or use the Client API URL shown in
+- When pairing an app-like client, ask for or use the Client adres shown in
   the client pairing sheet. Do not assume a changing Bonjour hostname remains
   the canonical callback target after pairing.
 - Implement full HA-side mDNS autodiscovery for Raspberry Pi clients in the
   pairing config-flow. Browse Bonjour/mDNS service `_djconnect._tcp`, resolve
   each service, validate `client_type=raspberry_pi` against device IDs shaped
-  `djconnect-raspberry-pi-XXXXXXXXXXXX`, build the local Client API URL from
+  `djconnect-raspberry-pi-XXXXXXXXXXXX`, build the local Client adres from
   service address/port or `local_url`, then always probe
   `GET /api/device/pairing-info` when the URL is reachable. Pairing-info is
   authoritative for `local_url`, `device_id`, `client_type`, `device_name`,
   `pair_code`, `version/app_version/firmware` and `paired`.
-- The HA pairing form must prefill Raspberry Pi `Client API URL`,
+- The HA pairing form must prefill Raspberry Pi `Client adres`,
   `client_type=raspberry_pi`, `device_name`, stable `device_id` and visible
   `pair_code` from pairing-info. If exactly one Pi is discovered, select it by
   default but still require user confirmation; if multiple clients are found,
@@ -1879,7 +1879,7 @@ Requirements:
   convenience only and must never mark a device paired by itself.
 - If Pi mDNS TXT is visible but `/api/device/pairing-info` fails, treat it as a
   stale/unreachable discovery record and hide it from the discovered-client
-  selector on the next scan. Keep manual Client API URL entry available and
+  selector on the next scan. Keep manual Client adres entry available and
   surface a clear pairing error when the user-provided URL cannot be probed
   instead of silently falling back to `djconnect-{pair_code}`. Do not create a
   second HA entry when the discovered Pi `device_id` is already configured;
@@ -1887,7 +1887,7 @@ Requirements:
 - Add/keep HA tests for Raspberry Pi discovery: service TXT acceptance,
   pairing-info override, stale/unreachable probe filtering, config-flow prefill
   for one Pi, selector behavior for multiple clients, duplicate `device_id`
-  handling, manual Client API URL fallback, and proof that Pi pairing uses the stable discovered
+  handling, manual Client adres fallback, and proof that Pi pairing uses the stable discovered
   `djconnect-raspberry-pi-XXXXXXXXXXXX` instead of `djconnect-{pair_code}`.
 - Return ha_version or ha_major_minor on status/command responses so Apple
   clients can enforce the matching major.minor contract.
@@ -1952,9 +1952,9 @@ Requirements:
   link and Spotify Premium requirement. Do not request Spotify credentials in
   the app.
 - While unpaired, block runtime UI with a pairing sheet that shows the
-  DJConnect banner, copyable Client API url, copyable app-generated pairing
+  DJConnect banner, copyable Client adres, copyable app-generated pairing
   code, progress/status, and a green success state with `Let's Start!`.
-- Keep the Client API url shown during pairing pinned locally until explicit
+- Keep the Client adres shown during pairing pinned locally until explicit
   pairing reset.
 - Offer Demo Mode from the unpaired pairing sheet for App Store review and UI
   inspection without a Home Assistant backend. Demo Mode must use local sample

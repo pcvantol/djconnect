@@ -34,7 +34,6 @@ from .const import (
     CONF_DJ_RESPONSE_TTL_SECONDS,
     CONF_FIRMWARE_CHANNEL,
     CONF_HA_EXTERNAL_URL,
-    CONF_LIKED_PROXY,
     CONF_LOCAL_URL,
     CONF_MAX_AUDIO_BYTES,
     CONF_MIN_BATTERY_FOR_OTA,
@@ -43,7 +42,6 @@ from .const import (
     CONF_SPOTIFY_MARKET,
     CONF_SPOTIFY_REFRESH_TOKEN,
     CONF_SPOTIFY_SCOPES,
-    CONF_SPOTIFY_SOURCE,
     CONF_SETUP_METHOD,
     CONF_WIFI_PASSWORD,
     CONF_WIFI_SSID,
@@ -626,11 +624,6 @@ def _base_voice_schema(
         ): selector.TextSelector(
             selector.TextSelectorConfig(multiline=True),
         ),
-        vol.Optional(CONF_LIKED_PROXY, default=defaults.get(CONF_LIKED_PROXY, "")): str,
-        vol.Optional(
-            CONF_SPOTIFY_SOURCE,
-            default=defaults.get(CONF_SPOTIFY_SOURCE, ""),
-        ): str,
         vol.Optional(
             CONF_FIRMWARE_CHANNEL,
             default=defaults.get(CONF_FIRMWARE_CHANNEL, DEFAULT_FIRMWARE_CHANNEL),
@@ -738,11 +731,6 @@ def _conversation_agent_options_schema(
         ): selector.TextSelector(
             selector.TextSelectorConfig(multiline=True),
         ),
-        vol.Optional(CONF_LIKED_PROXY, default=defaults.get(CONF_LIKED_PROXY, "")): str,
-        vol.Optional(
-            CONF_SPOTIFY_SOURCE,
-            default=defaults.get(CONF_SPOTIFY_SOURCE, ""),
-        ): str,
     }
     return vol.Schema(schema)
 
@@ -825,8 +813,6 @@ def _voice_defaults(
             source.get(CONF_MIN_BATTERY_FOR_OTA),
             DEFAULT_MIN_BATTERY_FOR_OTA,
         ),
-        CONF_SPOTIFY_SOURCE: _clean(source.get(CONF_SPOTIFY_SOURCE), ""),
-        CONF_LIKED_PROXY: _clean(source.get(CONF_LIKED_PROXY), ""),
         CONF_FIRMWARE_CHANNEL: _firmware_channel_default(
             source.get(CONF_FIRMWARE_CHANNEL),
         ),

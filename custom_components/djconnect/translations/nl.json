@@ -13,19 +13,19 @@
       },
       "pair": {
         "title": "DJConnect apparaat koppelen",
-        "description": "Voer de koppelcode van je DJConnect device in. Als Home Assistant de app of het device via mDNS vindt, worden Client API URL, clienttype en apparaatnaam automatisch ingevuld. Spotify is een handelsmerk van Spotify AB. DJConnect is niet verbonden aan, goedgekeurd door of gesponsord door Spotify AB.",
+        "description": "Voer de koppelcode van je DJConnect device in. Als Home Assistant de app of het device via mDNS vindt, worden Client adres, clienttype en apparaatnaam automatisch ingevuld. Spotify is een handelsmerk van Spotify AB. DJConnect is niet verbonden aan, goedgekeurd door of gesponsord door Spotify AB.",
         "data": {
           "pair_code": "Koppelcode",
           "device_name": "Apparaatnaam",
           "client_type": "Clienttype",
-          "local_url": "Client API URL",
+          "local_url": "Client adres",
           "discovered_client": "Gevonden DJConnect client"
         },
         "data_description": {
           "pair_code": "De 6-cijferige code of 12 tekens lange device-suffix op het apparaatdisplay.",
           "device_name": "Leesbare naam voor deze DJConnect remote.",
           "client_type": "Type DJConnect client dat koppelt met Home Assistant: ESP32 device, iOS app, macOS app of Raspberry Pi client.",
-          "local_url": "Kopieer de Client API URL uit de DJConnect app via Instellingen.",
+          "local_url": "Kopieer de Client adres uit de DJConnect app via Instellingen.",
           "discovered_client": "Kies een automatisch gevonden DJConnect client om de koppelgegevens voor te vullen, of gebruik handmatige invoer."
         }
       },
@@ -70,12 +70,10 @@
         "data": {
           "assist_pipeline_id": "Assist pipeline",
           "client_type": "Clienttype",
-          "local_url": "Client API URL",
+          "local_url": "Client adres",
           "dj_response_enabled": "DJ aankondiging op apparaat afspelen",
           "dj_response_prompt_preset": "DJ aankondiging stijl",
           "dj_response_prompt": "DJ aankondiging prompt",
-          "spotify_source": "Spotify bron override",
-          "liked_proxy_playlist_uri": "Standaard playlist URI",
           "firmware_channel": "Firmwarekanaal",
           "max_audio_bytes": "Maximale audio bytes",
           "allow_ota_on_battery": "OTA op batterij toestaan",
@@ -90,8 +88,6 @@
           "dj_response_enabled": "Maak een tijdelijke WAV of MP3 audio URL en stuur die met de DJ aankondiging naar het DJConnect device.",
           "dj_response_prompt_preset": "Kies een vaste stijl of Vrij in te vullen om de prompt hieronder zelf te beheren.",
           "dj_response_prompt": "Vrije prompt voor de tekst die DJConnect na een verzoek op het device uitspreekt. Bij een vaste stijl vult DJConnect deze tekst automatisch.",
-          "spotify_source": "Geavanceerde optionele override voor een playback uitgang/bron. Laat leeg voor dynamische/standaard playback.",
-          "liked_proxy_playlist_uri": "Optionele Spotify playlist URI die DJConnect als standaard playlist gebruikt.",
           "firmware_channel": "Kies stable voor normale OTA updates of beta om prerelease firmware te testen.",
           "max_audio_bytes": "Compatibiliteitslimiet voor oudere audio uploads.",
           "allow_ota_on_battery": "Sta firmware updates toe als het apparaat niet via USB gevoed wordt.",
@@ -114,11 +110,11 @@
         "description": "Zet het DJConnect device in pairing mode en voer de nieuwe koppelcode in die op het scherm staat. Home Assistant maakt daarna een nieuw device token aan.",
         "data": {
           "pair_code": "Nieuwe koppelcode",
-          "local_url": "Client API URL"
+          "local_url": "Client adres"
         },
         "data_description": {
           "pair_code": "De 6-cijferige code of 12 tekens lange device-suffix op het apparaatdisplay.",
-                    "local_url": "Kopieer de Client API URL uit de DJConnect app via Instellingen."
+                    "local_url": "Kopieer de Client adres uit de DJConnect app via Instellingen."
         }
       }
     },
@@ -136,7 +132,7 @@
       "ble_device_required": "Selecteer een DJConnect BLE device of voer het Bluetooth adres in.",
       "wifi_ssid_required": "Vul de WiFi SSID in om te provisionen.",
       "ble_wifi_failed": "WiFi provisioning via Bluetooth is mislukt. Controleer device, SSID en wachtwoord en probeer opnieuw.",
-      "pairing_info_unavailable": "Home Assistant ziet deze DJConnect client via mDNS, maar kan de pairing-info endpoint niet bereiken. Controleer de Client API URL of vul die handmatig in.",
+      "pairing_info_unavailable": "Home Assistant ziet deze DJConnect client via mDNS, maar kan de pairing-info endpoint niet bereiken. Controleer de Client adres of vul die handmatig in.",
       "repair_pairing_failed": "Opnieuw koppelen is mislukt. Controleer of het DJConnect device bereikbaar is en een koppelcode toont."
     },
     "abort": {
@@ -151,12 +147,10 @@
         "data": {
           "assist_pipeline_id": "Assist pipeline",
           "client_type": "Clienttype",
-          "local_url": "Client API URL",
+          "local_url": "Client adres",
           "dj_response_enabled": "DJ aankondiging op apparaat afspelen",
           "dj_response_prompt_preset": "DJ aankondiging stijl",
           "dj_response_prompt": "DJ aankondiging prompt",
-          "spotify_source": "Spotify bron override",
-          "liked_proxy_playlist_uri": "Standaard playlist URI",
           "firmware_channel": "Firmwarekanaal",
           "max_audio_bytes": "Maximale audio bytes",
           "allow_ota_on_battery": "OTA op batterij toestaan",
@@ -168,7 +162,7 @@
         "data_description": {
           "assist_pipeline_id": "Assist pipeline die DJConnect apparaten gebruiken voor spraakherkenning en DJ aankondiging audio.",
           "client_type": "Type DJConnect client dat koppelt met Home Assistant: ESP32 device, iOS app, macOS app of Raspberry Pi client.",
-          "local_url": "Geconfigureerde Client API URL. Alleen-lezen; gebruik opnieuw koppelen om deze URL te wijzigen.",
+          "local_url": "Geconfigureerde Client adres. Alleen-lezen; gebruik opnieuw koppelen om deze URL te wijzigen.",
           "dj_response_enabled": "Maak een tijdelijke WAV of MP3 audio URL en stuur die met de DJ aankondiging naar het DJConnect device.",
           "dj_response_prompt_preset": "Kies een vaste stijl of Vrij in te vullen om de prompt hieronder zelf te beheren.",
           "dj_response_prompt": "Vrije prompt voor de tekst die DJConnect na een verzoek op het device uitspreekt. Bij een vaste stijl vult DJConnect deze tekst automatisch.",
@@ -184,11 +178,11 @@
         "description": "Zet het DJConnect device in pairing mode en voer de nieuwe koppelcode in die op het scherm staat. Home Assistant maakt daarna een nieuw device token aan.",
         "data": {
           "pair_code": "Nieuwe koppelcode",
-          "local_url": "Client API URL"
+          "local_url": "Client adres"
         },
         "data_description": {
           "pair_code": "De 6-cijferige code of 12 tekens lange device-suffix op het apparaatdisplay.",
-                    "local_url": "Kopieer de Client API URL uit de DJConnect app via Instellingen."
+                    "local_url": "Kopieer de Client adres uit de DJConnect app via Instellingen."
         }
       }
     },

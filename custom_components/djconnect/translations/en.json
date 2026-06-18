@@ -13,19 +13,19 @@
       },
       "pair": {
         "title": "Pair DJConnect device",
-        "description": "Enter the pairing code shown on your DJConnect device. If Home Assistant finds the app or device through mDNS, Client API URL, client type and device name are prefilled automatically. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by or sponsored by Spotify AB.",
+        "description": "Enter the pairing code shown on your DJConnect device. If Home Assistant finds the app or device through mDNS, Client adres, client type and device name are prefilled automatically. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by or sponsored by Spotify AB.",
         "data": {
           "pair_code": "Pairing code",
           "device_name": "Device name",
           "client_type": "Client type",
-          "local_url": "Client API URL",
+          "local_url": "Client adres",
           "discovered_client": "Discovered DJConnect client"
         },
         "data_description": {
           "pair_code": "The 6 digit code or 12 character device suffix shown on the device display.",
           "device_name": "Friendly name for this DJConnect remote.",
           "client_type": "Type of DJConnect client pairing with Home Assistant: ESP32 device, iOS app, macOS app or Raspberry Pi client.",
-          "local_url": "Copy the Client API URL from the DJConnect app under Settings.",
+          "local_url": "Copy the Client adres from the DJConnect app under Settings.",
           "discovered_client": "Choose an automatically discovered DJConnect client to prefill pairing details, or use manual entry."
         }
       },
@@ -70,12 +70,10 @@
         "data": {
           "assist_pipeline_id": "Assist pipeline",
           "client_type": "Client type",
-          "local_url": "Client API URL",
+          "local_url": "Client adres",
           "dj_response_enabled": "Play DJ announcement on device",
           "dj_response_prompt_preset": "DJ announcement style",
           "dj_response_prompt": "DJ announcement prompt",
-          "spotify_source": "Spotify source override",
-          "liked_proxy_playlist_uri": "Default playlist URI",
           "firmware_channel": "Firmware channel",
           "max_audio_bytes": "Maximum audio bytes",
           "allow_ota_on_battery": "Allow OTA on battery",
@@ -90,8 +88,6 @@
           "dj_response_enabled": "Create a temporary WAV or MP3 audio URL and send it with the DJ announcement to the DJConnect device.",
           "dj_response_prompt_preset": "Choose a preset style or Free-form to manage the prompt below yourself.",
           "dj_response_prompt": "Free-form prompt for the text DJConnect speaks on the device after a request. With a preset style, DJConnect fills this text automatically.",
-          "spotify_source": "Advanced optional override for a playback output/source. Leave empty for dynamic/default playback.",
-          "liked_proxy_playlist_uri": "Optional Spotify playlist URI used by DJConnect as the default playlist.",
           "firmware_channel": "Choose stable for normal OTA updates or beta to test prerelease firmware.",
           "max_audio_bytes": "Compatibility limit for older audio uploads.",
           "allow_ota_on_battery": "Allow firmware updates while the device is not USB powered.",
@@ -114,11 +110,11 @@
         "description": "Put the DJConnect device in pairing mode and enter the new pairing code shown on its display. Home Assistant will create a new device token.",
         "data": {
           "pair_code": "New pairing code",
-          "local_url": "Client API URL"
+          "local_url": "Client adres"
         },
         "data_description": {
           "pair_code": "The 6 digit code or 12 character device suffix shown on the device display.",
-                    "local_url": "Copy the Client API URL from the DJConnect app under Settings."
+                    "local_url": "Copy the Client adres from the DJConnect app under Settings."
         }
       }
     },
@@ -136,7 +132,7 @@
       "ble_device_required": "Select a DJConnect BLE device or enter its Bluetooth address.",
       "wifi_ssid_required": "Enter the WiFi SSID to provision.",
       "ble_wifi_failed": "WiFi provisioning over Bluetooth failed. Check the selected device, SSID and password, then try again.",
-      "pairing_info_unavailable": "Home Assistant can see this DJConnect client through mDNS, but cannot reach its pairing-info endpoint. Check the Client API URL or enter it manually.",
+      "pairing_info_unavailable": "Home Assistant can see this DJConnect client through mDNS, but cannot reach its pairing-info endpoint. Check the Client adres or enter it manually.",
       "repair_pairing_failed": "Re-pairing failed. Check that the DJConnect device is reachable and showing a pairing code."
     },
     "abort": {
@@ -151,12 +147,10 @@
         "data": {
           "assist_pipeline_id": "Assist pipeline",
           "client_type": "Client type",
-          "local_url": "Client API URL",
+          "local_url": "Client adres",
           "dj_response_enabled": "Play DJ announcement on device",
           "dj_response_prompt_preset": "DJ announcement style",
           "dj_response_prompt": "DJ announcement prompt",
-          "spotify_source": "Spotify source override",
-          "liked_proxy_playlist_uri": "Default playlist URI",
           "firmware_channel": "Firmware channel",
           "max_audio_bytes": "Maximum audio bytes",
           "allow_ota_on_battery": "Allow OTA on battery",
@@ -168,7 +162,7 @@
         "data_description": {
           "assist_pipeline_id": "Assist pipeline used by DJConnect devices for speech recognition and DJ announcement audio.",
           "client_type": "Type of DJConnect client pairing with Home Assistant: ESP32 device, iOS app, macOS app or Raspberry Pi client.",
-          "local_url": "Configured Client API URL. Read-only; use re-pairing to change this URL.",
+          "local_url": "Configured Client adres. Read-only; use re-pairing to change this URL.",
           "dj_response_enabled": "Create a temporary WAV or MP3 audio URL and send it with the DJ announcement to the DJConnect device.",
           "dj_response_prompt_preset": "Choose a preset style or Free-form to manage the prompt below yourself.",
           "dj_response_prompt": "Free-form prompt for the text DJConnect speaks on the device after a request. With a preset style, DJConnect fills this text automatically.",
@@ -184,11 +178,11 @@
         "description": "Put the DJConnect device in pairing mode and enter the new pairing code shown on its display. Home Assistant will create a new device token.",
         "data": {
           "pair_code": "New pairing code",
-          "local_url": "Client API URL"
+          "local_url": "Client adres"
         },
         "data_description": {
           "pair_code": "The 6 digit code or 12 character device suffix shown on the device display.",
-                    "local_url": "Copy the Client API URL from the DJConnect app under Settings."
+                    "local_url": "Copy the Client adres from the DJConnect app under Settings."
         }
       }
     },

@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.50
+
+- Remove the Spotify source override and default playlist override from config/options flows so the conversation-agent options stay focused on DJ response behavior.
+- Rename the user-facing Client API URL labels to Client adres.
+
 ## 3.1.48
 
 - Add the DJConnect Assist conversation agent platform so Home Assistant Voice Preview Edition and other Assist satellites can route recognized speech directly to DJConnect for Spotify playback and DJ response speech.
@@ -61,8 +66,8 @@
 
 ## 3.1.37
 
-- Add the missing options-flow `local_url` label translation so the read-only Client API URL field no longer appears as a raw key.
-- Add translation coverage for the read-only Client API URL label in options.
+- Add the missing options-flow `local_url` label translation so the read-only Client adres field no longer appears as a raw key.
+- Add translation coverage for the read-only Client adres label in options.
 - Page Spotify playlist browsing internally with Spotify-safe `limit=50` requests while still returning up to 100 playlists to app-like clients, preventing Spotify HTTP 400 `Invalid limit` errors.
 - Prefer deterministic local music-intent parsing over generic/stale Assist search results, so requests such as `Speel Nirvana` cannot be overwritten by an old artist context while generated DJ announcements still keep useful Assist text.
 - Cache backend playback state returned through the Home Assistant playback proxy so play/pause state, album art, volume and selected output update from the Spotify backend response.
@@ -105,8 +110,8 @@
 
 - Require a Spotify `media_player` entity before starting DJConnect setup and show a clear config-flow error when the Home Assistant Spotify integration is not configured yet.
 - Add config-flow and translation coverage for Spotify media player prerequisite detection.
-- Let options-flow re-pairing with a new pairing code reuse the stored Client API URL when the URL field is left empty.
-- Add regression coverage for re-pairing with an empty Client API URL.
+- Let options-flow re-pairing with a new pairing code reuse the stored Client adres when the URL field is left empty.
+- Add regression coverage for re-pairing with an empty Client adres.
 - Replace technical/English command-failure fallback text with localized, user-friendly DJ request messages and guard against prompt/error text leaking to the client display.
 - Add regression coverage for localized command-failure fallback text.
 - Return `backend_available:true` for successful ESP `command:"playlists"` responses even when Spotify playback is idle, and fetch up to 100 playlists from Spotify.
@@ -164,15 +169,15 @@
 
 - Refresh HACS-facing copy and repository description with the DJConnect proposition: “Muziekbediening met karakter”.
 - Add Home Assistant mDNS autodiscovery for `_djconnect._tcp` DJConnect clients during pairing, including iOS, macOS, Raspberry Pi and ESP32 client validation.
-- Prefill Client API URL, client type, device name and pairing code from discovered mDNS clients and authoritative `/api/device/pairing-info` responses when available.
+- Prefill Client adres, client type, device name and pairing code from discovered mDNS clients and authoritative `/api/device/pairing-info` responses when available.
 - Prefer TXT `local_url` for discovered clients when advertised, then fall back to the resolved service address and port.
-- Mark discovered Raspberry Pi clients as unverified when `/api/device/pairing-info` cannot be reached, show a translated pairing error, and keep manual Client API URL correction available.
+- Mark discovered Raspberry Pi clients as unverified when `/api/device/pairing-info` cannot be reached, show a translated pairing error, and keep manual Client adres correction available.
 - Select a single discovered Raspberry Pi client by default while still requiring user confirmation; keep the selector visible when multiple clients are discovered.
 - Use the discovered stable `djconnect-raspberry-pi-XXXXXXXXXXXX` ID for duplicate checks and pairing state instead of creating setup-code entries such as `djconnect-654321`.
-- Keep manual Client API URL pairing as fallback and ensure mDNS discovery never marks a device as paired by itself.
+- Keep manual Client adres pairing as fallback and ensure mDNS discovery never marks a device as paired by itself.
 - Update translations, README and canonical sync prompts for the app-client autodiscovery contract.
 - Add unit coverage for iOS/macOS/ESP/Raspberry Pi discovery validation, pairing-info metadata overrides, config-flow discovery prefill/selection, duplicate handling and unverified pairing-info fallback.
-- Show the configured Client API URL read-only in the options flow, so app-like client pairing can be inspected without accidentally changing the stored URL.
+- Show the configured Client adres read-only in the options flow, so app-like client pairing can be inspected without accidentally changing the stored URL.
 - Update README, handoff, AGENTS and canonical sync prompts to document the client-type split between shared backend/playback entities and ESP32-only hardware/update entities.
 - Hide ESP-only hardware sensors (`battery`, `WiFi RSSI`, `screen_state` and `led_state`) for iOS, macOS and Raspberry Pi clients while keeping backend/playback sensors visible.
 - Include playlist artwork aliases in `playlists` command responses for iOS/macOS/ESP/web clients.
@@ -186,7 +191,7 @@
 - Remove the repository-local `website/` product site now that the marketing website is maintained outside the Home Assistant integration repo.
 - Update README, AGENTS, handoff, issue and todo documentation so release hygiene no longer treats the external website as part of this HACS package.
 - Keep HACS/integration brand assets in `custom_components/djconnect/brand/` while dropping the duplicated static website asset tree.
-- Refresh app-client validation notes for iOS/macOS Client API URL pairing and non-ESP entity behavior.
+- Refresh app-client validation notes for iOS/macOS Client adres pairing and non-ESP entity behavior.
 - Serialize Spotify access-token refreshes so simultaneous iOS/macOS/PTT playback calls cannot race a rotated refresh token into a false `invalid_grant` repair.
 - Retry once with the latest stored refresh token when Spotify returns `invalid_grant` after another concurrent call already rotated the token.
 - Avoid Spotify's invalid artist-context offset payload by playing selected track URIs directly when queue playback originates from an artist context.

@@ -283,7 +283,7 @@ Primary source files:
 Why:
 
 - mDNS TXT data can be stale or incomplete.
-- The local Client API URL can change for app-like clients.
+- The local Client adres can change for app-like clients.
 - Pairing-info gives the best current device ID, client type, name, version,
   pairing code and local URL.
 

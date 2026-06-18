@@ -22,7 +22,7 @@
 
 - Status: open / expected migration behavior.
 - Area: pairing/discovery.
-- Symptom: Older config entries may still contain a setup-code-derived `device_id`, no real Client API URL, or an ESP-only assumption for app clients.
+- Symptom: Older config entries may still contain a setup-code-derived `device_id`, no real Client adres, or an ESP-only assumption for app clients.
 - Current mitigation: `/pair` and `/status` now persist real model/app-specific device ids and reported `local_url`.
 - Next action: Verify existing paired ESP posts `/status`; if not, manually use advanced device URL once or re-pair.
 
@@ -30,8 +30,8 @@
 
 - Status: open / field validation.
 - Area: app clients.
-- Symptom: iOS/macOS clients depend on the app-reported Client API URL and must not expose ESP-only firmware/reboot controls.
-- Current mitigation: Client type and Client API URL are visible in normal pairing; OTA update and reboot entities are skipped/unavailable for `ios` and `macos`.
+- Symptom: iOS/macOS clients depend on the app-reported Client adres and must not expose ESP-only firmware/reboot controls.
+- Current mitigation: Client type and Client adres are visible in normal pairing; OTA update and reboot entities are skipped/unavailable for `ios` and `macos`.
 - Next action: Test fresh iOS/macOS pairing, re-pairing and PTT playback after HACS install/restart.
 
 ### mDNS reliability varies by network
@@ -46,9 +46,9 @@
 
 - Status: open / field validation.
 - Area: pairing/discovery.
-- Symptom: A Raspberry Pi client may be visible through `_djconnect._tcp` while Home Assistant cannot reach the advertised Client API URL or `/api/device/pairing-info`.
+- Symptom: A Raspberry Pi client may be visible through `_djconnect._tcp` while Home Assistant cannot reach the advertised Client adres or `/api/device/pairing-info`.
 - Current mitigation: Discovery validates `client_type=raspberry_pi` against `djconnect-raspberry-pi-XXXXXXXXXXXX`, uses TXT `local_url` or resolved address/port, probes `/api/device/pairing-info`, pre-fills confirmed metadata, and shows a translated pairing-info reachability error when TXT is visible but the endpoint is not reachable.
-- Next action: Test on the real Pi client/network that the advertised Client API URL is reachable from Home Assistant and that pairing-info returns device ID, client type, name, pair code, version and paired state.
+- Next action: Test on the real Pi client/network that the advertised Client adres is reachable from Home Assistant and that pairing-info returns device ID, client type, name, pair code, version and paired state.
 
 ### Home Assistant restart is still required after HACS update
 
@@ -144,14 +144,14 @@
 ## Regression Watchlist
 
 - Config flow must not expose manual `oauth_result`.
-- Config flow must show `client_type` and Client API URL in normal pairing; iOS/macOS users need it, ESP users usually leave it empty.
+- Config flow must show `client_type` and Client adres in normal pairing; iOS/macOS users need it, ESP users usually leave it empty.
 - Config/options flow must not require `spotify_player`.
 - OTA update and reboot entities must not be active/available for `client_type=ios`, `client_type=macos` or `client_type=raspberry_pi`.
 - App-like client discovery must not create setup-code-only duplicates when a stable `djconnect-ios-*`, `djconnect-macos-*` or `djconnect-raspberry-pi-*` ID is known.
 - External product website must not imply official Spotify affiliation, endorsement or sponsorship.
 - External product website must stay aligned with current setup requirements and local API architecture.
 - STT/TTS provider selection is managed through Home Assistant Assist; DJConnect must not show standalone `stt_engine`, `tts_engine`, `tts_language` or `tts_voice` fields.
-- DJConnect conversation-agent options must stay compact and must not show Client API URL, Assist pipeline, firmware channel or OTA/audio advanced fields.
+- DJConnect conversation-agent options must stay compact and must not show Client adres, Assist pipeline, firmware channel or OTA/audio advanced fields.
 - No direct external AI/STT/TTS calls should be used by active routes.
 - No secret values should appear in logs or diagnostics.
 - All entities should remain grouped under one HA device.
