@@ -78,11 +78,9 @@
 - Confirm normal config flow stays small and user-focused.
 - Confirm Add integration shows a clear Assist pipeline prerequisite error when Home Assistant has no Assist pipeline with both STT and TTS.
 - Confirm `client_type` and Client adres are visible in normal pairing.
-- Confirm `stt_engine` remains visible in normal flow/options.
-- Confirm `stt_engine` dropdown is populated from HA `stt.*` entities when available.
-- Confirm `stt_engine` remains free-text capable when no HA `stt.*` entities are discoverable.
-- Confirm advanced-only options remain hidden behind the integration-local advanced checkbox.
-- Confirm HA deprecated `show_advanced_options` is not used.
+- Confirm standalone `stt_engine`, `tts_engine`, `tts_language` and `tts_voice` fields remain hidden; STT/TTS is managed through Home Assistant Assist.
+- Confirm internal compatibility/OTA/audio TTL defaults are no longer exposed in config/options flow.
+- Confirm Spotify setup requires a user-owned Spotify Developer app Client ID and shows the exact redirect URI to register.
 - Confirm no `spotify_player` field is required in config/options flow.
 - Confirm ESP32-only Wake word switch appears only for ESP32 clients and tracks `settings.wake_word_enabled` after ESP reboot/status refresh.
 - Confirm all titles, labels and error messages are available in Dutch and English.
@@ -121,6 +119,7 @@
 
 - Update `README.md` after any architecture/API change.
 - Update `AGENTS.md` after any durable project decision.
+- Keep `DEVELOPMENT_ENVIRONMENT.md` current when local HA Docker paths, sync commands, restart flow or manual validation workflow changes.
 - Keep `CHANGELOG.md` as a per-release changelog. Add a new section for each release and keep previous release sections.
 - Keep `HANDOFF.md` current after major debugging sessions.
 - Keep `TODO.md` and `ISSUES.md` current after field testing.

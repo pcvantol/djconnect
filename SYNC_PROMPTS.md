@@ -227,6 +227,11 @@ Requirements:
   clients determine their UI language locally.
 - Keep cloud/remote URLs out of Apple app runtime traffic; cloud URLs are only
   needed by Home Assistant-owned Spotify OAuth config flows.
+- Spotify OAuth in the Home Assistant integration uses PKCE with a user-owned
+  Spotify Developer app. The setup flow must ask for `spotify_client_id`, show
+  the exact redirect URI to register in Spotify Developer Dashboard, prefer a
+  stable Nabu Casa HTTPS external URL, and not rely on a shared built-in Client
+  ID for arbitrary user Home Assistant callback URLs.
 - When pairing an app-like client, ask for or use the Client adres shown in
   the client pairing sheet. Do not assume a changing Bonjour hostname remains
   the canonical callback target after pairing.

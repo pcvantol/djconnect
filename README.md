@@ -58,7 +58,7 @@ runtime behavior. These decisions are part of the integration contract:
 - **OAuth through Home Assistant external step**: Spotify OAuth uses PKCE and the Home Assistant external step flow. The callback remains `/api/djconnect/spotify/callback`, with Nabu Casa HTTPS URLs preferred.
 - **Pairing over WiFi, BLE only for WiFi credentials**: BLE provisioning writes only WiFi SSID/password to setup-mode devices. Spotify credentials, device tokens and other secrets are never sent over BLE.
 - **mDNS first, Client adres as fallback**: ESP runtime prefers the device-reported `local_url`, exact `_djconnect._tcp` mDNS matches, then a single visible DJConnect mDNS device. During setup, Home Assistant also browses `_djconnect._tcp` for iOS/macOS/Raspberry Pi app-like clients, validates `client_type` against the stable device ID, probes `/api/device/pairing-info`, and can prefill the Client adres, client type, device name and pairing code from authoritative pairing-info. Manual Client adres entry remains available when discovery or pairing-info reachability fails.
-- **Inline advanced options**: max audio bytes and OTA battery settings are revealed through a local “show advanced options” checkbox instead of Home Assistant's deprecated advanced-mode property. Firmware device selection is automatic through the public multi-device manifest; users can choose the OTA firmware channel, `stable` or `beta`, in options.
+- **Small setup surface**: compatibility limits, OTA battery thresholds and DJ announcement audio TTL use internal defaults instead of user-facing options. Firmware device selection is automatic through the public multi-device manifest; users can choose only the OTA firmware channel, `stable` or `beta`, in options.
 - **Single Home Assistant device**: sensors, buttons, settings, update and playback proxy entities share one stable device identifier so Home Assistant shows one DJConnect device instead of duplicate device entries.
 - **MIT across DJConnect repos**: the Home Assistant integration, DJConnect clients and DJConnect firmware repositories are distributed under the MIT License unless a specific third-party dependency states otherwise.
 - **No secrets in diagnostics/logs**: diagnostics redact keys containing `token`, `password` or `secret`; logs avoid full ESP payloads and do not intentionally log Spotify refresh tokens, WiFi passwords or device tokens.
@@ -80,6 +80,9 @@ runtime behavior. These decisions are part of the integration contract:
 This repository contains the Home Assistant custom integration under `custom_components/djconnect`.
 
 Brand images for the Home Assistant frontend are bundled in `custom_components/djconnect/brand/`.
+
+For local development, Docker Home Assistant installation and restart commands,
+see [`DEVELOPMENT_ENVIRONMENT.md`](DEVELOPMENT_ENVIRONMENT.md).
 The product/marketing website is maintained outside this integration repository.
 Cross-repo sync prompts are consolidated into this repo's `SYNC_PROMPTS.md`; do not re-add old loose prompt files or sibling-repo copies. The product roadmap is centralized in this repo's `PRODUCT_ROADMAP.md`; do not keep sibling-repo roadmap copies. Keep `TECHNICAL_DESIGN_DECISIONS.md` updated when implementation patterns, coding conventions, dependencies, libraries or external API usage change.
 
@@ -124,7 +127,9 @@ https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository
 
 ## Spotify Developer App
 
-DJConnect includes a default Spotify Client ID. PKCE is used, so no client secret is required. You only need your own Spotify Developer App Client ID if you want to override the bundled app in advanced setup.
+DJConnect uses PKCE with a Spotify Developer app that you create yourself. A
+Client Secret is not required, but the Spotify Client ID is required in the
+DJConnect config flow.
 
 Spotify Premium is required because DJConnect asks Home Assistant to control Spotify playback devices through Spotify's playback APIs. Spotify OAuth credentials remain in Home Assistant; DJConnect devices and apps never receive the Spotify refresh token or playback credentials.
 
@@ -143,19 +148,19 @@ DJConnect requests these Spotify OAuth scopes:
 user-owned playlists for DJConnect backend playback. Existing users who
 authorized Spotify before this scope was added must authorize Spotify again.
 
-Add this redirect URI to the Spotify app:
+Create an app in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard), copy its Client ID, and add the exact redirect URI shown by the DJConnect setup flow. With Nabu Casa this usually looks like:
 
 ```text
 https://<your-nabu-casa-id>.ui.nabu.casa/api/djconnect/spotify/callback
 ```
 
-For local-only development you can use a reachable Home Assistant URL instead:
+For local-only development you can use a reachable Home Assistant external URL instead:
 
 ```text
 http://homeassistant.local:8123/api/djconnect/spotify/callback
 ```
 
-The redirect URI in Spotify must exactly match the Home Assistant external URL plus `/api/djconnect/spotify/callback`.
+The redirect URI in Spotify must exactly match the Home Assistant external URL plus `/api/djconnect/spotify/callback`. Nabu Casa is strongly recommended because it provides a stable HTTPS callback URL. If your Home Assistant external URL changes, update the redirect URI in the Spotify Developer Dashboard and reauthorize DJConnect.
 
 ## Add DJConnect In Home Assistant
 
@@ -169,7 +174,7 @@ Spotify media player entity.
 3. After BLE success or captive-portal WiFi setup, wait for the device to restart and show a pairing code.
 4. Enter the pairing code shown on the DJConnect device display. This can be the short 6 digit setup code or the 12-character device suffix, for example `90B70990A994`.
 5. Confirm the HTTPS Home Assistant external URL. DJConnect prefills this from Home Assistant's Network external URL when available and falls back to the Nabu Casa/Home Assistant Cloud remote UI URL.
-6. Optionally override the bundled Spotify Client ID under advanced options.
+6. Copy the shown redirect URI into your Spotify Developer app and enter that app's Spotify Client ID.
 7. Home Assistant opens the Spotify authorization website.
 8. Approve access in Spotify.
 9. Return to Home Assistant and complete the voice/DJ settings step.
@@ -190,9 +195,9 @@ The config flow includes safe defaults for optional voice fields. The Assist pip
 - DJ announcement style presets (neutral/business, warm/personal or humorous/witty) plus a free-form prompt for the text spoken on the device
 - ESP device UI language is selected automatically from the Home Assistant language during ESP pairing. iOS, macOS and Raspberry Pi clients determine their own language locally.
 - Firmware updates through the public multi-device manifest
-- OTA battery safety options
+- Firmware updates through the public multi-device manifest and the selected firmware channel
 
-Where Home Assistant exposes choices, DJConnect shows populated dropdowns for Assist pipeline, Spotify market and firmware channel in setup. STT/TTS engine, language and voice are managed in Home Assistant Assist, not in DJConnect. Backend playback is handled by Home Assistant through the DJConnect playback proxy; ESP device settings use the local device command API. The initial setup can pair an existing WiFi client, provision WiFi over Bluetooth, or create an Assist Conversation Agent-only entry without a DJConnect client pairing code. The compact options screen used from Assist conversation-agent settings shows only the action selector and DJ response style/prompt controls. Device-only setup fields such as Client adres, Assist pipeline, firmware channel, playlist overrides, Spotify source overrides and OTA/audio advanced fields are hidden there. Max audio bytes and OTA battery settings are shown only during setup after enabling the inline advanced-options checkbox. Firmware OTA device selection is automatic: DJConnect reads the public multi-device firmware manifest and selects the matching `firmwares[]` entry from ESP status/info, falling back to LilyGO only before the ESP has reported a model. For ESP devices, the Client adres is normally not needed: DJConnect resolves the device through `_djconnect._tcp` mDNS, uses the device-reported `local_url` when available, and only builds a model-specific hostname such as `http://djconnect-lilygo-t-embed-s3-[device-suffix].local` when the configured ID contains a real 12-character device suffix.
+Where Home Assistant exposes choices, DJConnect shows populated dropdowns for Assist pipeline, Spotify market and firmware channel in setup. STT/TTS engine, language and voice are managed in Home Assistant Assist, not in DJConnect. Backend playback is handled by Home Assistant through the DJConnect playback proxy; ESP device settings use the local device command API. The initial setup can pair an existing WiFi client, provision WiFi over Bluetooth, or create an Assist Conversation Agent-only entry without a DJConnect client pairing code. The compact options screen used from Assist conversation-agent settings shows only the action selector and DJ response style/prompt controls. Device-only setup fields such as Client adres, Assist pipeline, firmware channel, playlist overrides, Spotify source overrides and OTA/audio compatibility fields are hidden there. Max audio bytes, OTA battery settings and DJ announcement audio TTL use integration defaults and are not user-adjustable in config/options flow. Firmware OTA device selection is automatic: DJConnect reads the public multi-device firmware manifest and selects the matching `firmwares[]` entry from ESP status/info, falling back to LilyGO only before the ESP has reported a model. For ESP devices, the Client adres is normally not needed: DJConnect resolves the device through `_djconnect._tcp` mDNS, uses the device-reported `local_url` when available, and only builds a model-specific hostname such as `http://djconnect-lilygo-t-embed-s3-[device-suffix].local` when the configured ID contains a real 12-character device suffix.
 
 The options flow also includes an action selector. Use `Reauthorize Spotify` to
 refresh OAuth from the integration page, `Retry pairing with current code` to
@@ -210,7 +215,7 @@ code` when the ESP shows a new code.
 - BLE WiFi provisioning sends only SSID/password to the BLE WiFi characteristic; it does not send Spotify credentials, device tokens or other secrets.
 - Diagnostics redact keys containing `token`, `password` or `secret`.
 - Logs avoid full event payloads and do not intentionally log Spotify refresh tokens, WiFi passwords or device tokens.
-- The bundled Spotify Client ID is not a secret; PKCE is used and no client secret is required.
+- The Spotify Client ID is not a secret; PKCE is used and no client secret is required. Each user should use their own Spotify Developer app so their exact Home Assistant callback URL can be registered in Spotify.
 
 ## Home Assistant Entities
 
@@ -793,7 +798,7 @@ These tests use local stubs for Home Assistant imports and focus on pure DJConne
 
 ## Troubleshooting
 
-- If Spotify login does not return to Home Assistant, verify the Spotify redirect URI exactly matches the Nabu Casa or external Home Assistant URL.
+- If Spotify login does not return to Home Assistant, verify the Spotify redirect URI in the Spotify Developer Dashboard exactly matches the Nabu Casa or external Home Assistant URL shown by DJConnect.
 - If Add integration shows that an Assist pipeline is required, configure a
   Home Assistant Assist pipeline with both STT and TTS before adding DJConnect.
 - If the config flow does not load, restart Home Assistant and check that HACS installed `custom_components/djconnect`.
@@ -801,7 +806,7 @@ These tests use local stubs for Home Assistant imports and focus on pure DJConne
 - If the integration icon stays white or generic, update/re-download the HACS integration, restart Home Assistant, and refresh the browser/app cache. Home Assistant 2026.3+ reads custom integration brand images from `custom_components/djconnect/brand/`.
 - If opening DJConnect options returns an internal server error, update to this release or newer; older builds assigned HA's read-only `config_entry` property.
 - If OTA cannot start, make sure the device has reported `local_url` or can be reached as `http://[device_id].local`.
-- If OTA is blocked, check battery level, USB power, and the OTA battery options.
+- If OTA is blocked, check battery level and USB power.
 - If the firmware update entity reports a GitHub rate limit, wait for GitHub's API limit to reset; DJConnect keeps the entity loaded and records the temporary error in its attributes. The firmware update entity is non-polling and checks GitHub on add/manual refresh/install plus an internal one-hour schedule, not every few seconds.
 - If Spotify playback fails, reauthorize Spotify in Home Assistant and check that the selected backend has an active playback target.
 - If Spotify fails only after about an hour of idle time, update to this release or newer; normal access-token expiry is handled by HA with a cached token and one refresh retry.

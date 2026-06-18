@@ -312,46 +312,37 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertIn("Klink warm en persoonlijk.", prompt)
         self.assertEqual(prompt.count("\n"), 2)
 
-    def test_voice_schema_hides_firmware_and_ota_fields_until_advanced(self) -> None:
+    def test_voice_schema_hides_internal_compatibility_and_ota_fields(self) -> None:
         hass = types.SimpleNamespace(states=None)
 
-        basic_schema = asyncio.run(
+        schema = asyncio.run(
             self.config_flow._voice_schema(
                 hass,
                 self.config_flow._voice_defaults(),
-                include_advanced=False,
-            )
-        )
-        advanced_schema = asyncio.run(
-            self.config_flow._voice_schema(
-                hass,
-                self.config_flow._voice_defaults(),
-                include_advanced=True,
             )
         )
 
-        basic_keys = {marker.key for marker in basic_schema.schema}
-        advanced_keys = {marker.key for marker in advanced_schema.schema}
-        advanced_only = {
+        keys = {marker.key for marker in schema.schema}
+        internal_only = {
             self.const.CONF_MAX_AUDIO_BYTES,
             self.const.CONF_ALLOW_OTA_ON_BATTERY,
             self.const.CONF_MIN_BATTERY_FOR_OTA,
             self.const.CONF_DJ_RESPONSE_TTL_SECONDS,
         }
 
-        self.assertTrue(advanced_only.isdisjoint(basic_keys))
-        self.assertNotIn("firmware_repo", advanced_keys)
-        self.assertNotIn("firmware_device", advanced_keys)
-        self.assertNotIn(self.const.CONF_STT_ENGINE, basic_keys)
-        self.assertNotIn(self.const.CONF_TTS_ENGINE, basic_keys)
-        self.assertNotIn(self.const.CONF_TTS_LANGUAGE, basic_keys)
-        self.assertNotIn(self.const.CONF_TTS_VOICE, basic_keys)
-        self.assertNotIn(self.const.CONF_SPOTIFY_SOURCE, basic_keys)
-        self.assertNotIn(self.const.CONF_LIKED_PROXY, basic_keys)
-        self.assertIn(self.const.CONF_FIRMWARE_CHANNEL, basic_keys)
-        self.assertIn(self.const.CONF_DJ_RESPONSE_PROMPT, basic_keys)
-        self.assertTrue(advanced_only.issubset(advanced_keys))
-        self.assertIn(self.const.CONF_DJ_RESPONSE_ENABLED, basic_keys)
+        self.assertTrue(internal_only.isdisjoint(keys))
+        self.assertNotIn("firmware_repo", keys)
+        self.assertNotIn("firmware_device", keys)
+        self.assertNotIn(self.const.CONF_STT_ENGINE, keys)
+        self.assertNotIn(self.const.CONF_TTS_ENGINE, keys)
+        self.assertNotIn(self.const.CONF_TTS_LANGUAGE, keys)
+        self.assertNotIn(self.const.CONF_TTS_VOICE, keys)
+        self.assertNotIn(self.const.CONF_SPOTIFY_SOURCE, keys)
+        self.assertNotIn(self.const.CONF_LIKED_PROXY, keys)
+        self.assertNotIn("show_advanced_options", keys)
+        self.assertIn(self.const.CONF_FIRMWARE_CHANNEL, keys)
+        self.assertIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
+        self.assertIn(self.const.CONF_DJ_RESPONSE_ENABLED, keys)
 
     def test_firmware_channel_uses_labeled_selector(self) -> None:
         hass = types.SimpleNamespace(states=None)
@@ -360,7 +351,6 @@ class ConfigFlowHelperTest(unittest.TestCase):
             self.config_flow._voice_schema(
                 hass,
                 self.config_flow._voice_defaults(),
-                include_advanced=False,
             )
         )
 
@@ -499,7 +489,6 @@ class ConfigFlowHelperTest(unittest.TestCase):
     def test_user_schema_prefills_manual_device_url_from_pair_code(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en-US"))
-        flow._show_advanced_options = True
         flow._last_pair_code = "90B70990A994"
 
         schema = flow._user_schema()
@@ -884,6 +873,13 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertIn(self.const.CONF_SETUP_METHOD, keys)
         self.assertIn(self.const.CONF_PAIR_CODE, keys)
 
+    def test_setup_method_order_puts_conversation_agent_first(self) -> None:
+        hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
+
+        methods = list(self.config_flow._setup_method_names(hass))
+
+        self.assertEqual(methods[0], self.const.SETUP_METHOD_CONVERSATION_AGENT)
+
     def test_pair_step_can_route_back_to_ble_setup(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
@@ -937,15 +933,13 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertNotIn(self.const.CONF_DEVICE_TOKEN, flow._pairing)
         self.assertNotIn(self.const.CONF_LOCAL_URL, flow._pairing)
 
-    def test_spotify_client_id_is_advanced_override(self) -> None:
-        basic_schema = self.config_flow._spotify_schema(include_advanced=False)
-        advanced_schema = self.config_flow._spotify_schema(include_advanced=True)
+    def test_spotify_client_id_is_required_visible_field(self) -> None:
+        schema = self.config_flow._spotify_schema()
 
-        basic_keys = {marker.key for marker in basic_schema}
-        advanced_keys = {marker.key for marker in advanced_schema}
+        keys = {marker.key for marker in schema}
 
-        self.assertNotIn(self.const.CONF_SPOTIFY_CLIENT_ID, basic_keys)
-        self.assertIn(self.const.CONF_SPOTIFY_CLIENT_ID, advanced_keys)
+        self.assertIn(self.const.CONF_SPOTIFY_CLIENT_ID, keys)
+        self.assertNotIn("show_advanced_options", keys)
 
     def test_voice_schema_can_include_options_action(self) -> None:
         hass = types.SimpleNamespace(states=None, config=types.SimpleNamespace(language="nl-NL"))
@@ -1033,8 +1027,35 @@ class ConfigFlowHelperTest(unittest.TestCase):
         marker = next(
             marker for marker in schema if marker.key == self.const.CONF_HA_EXTERNAL_URL
         )
+        client_id_marker = next(
+            marker for marker in schema if marker.key == self.const.CONF_SPOTIFY_CLIENT_ID
+        )
 
         self.assertEqual(marker.default, "https://api.ui.nabu.casa")
+        self.assertEqual(client_id_marker.default, "")
+        self.assertEqual(
+            result["description_placeholders"]["redirect_uri"],
+            "https://api.ui.nabu.casa/api/djconnect/spotify/callback",
+        )
+
+    def test_spotify_step_requires_user_spotify_client_id(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace())
+
+        result = asyncio.run(
+            flow.async_step_spotify(
+                {
+                    self.const.CONF_HA_EXTERNAL_URL: "https://example.ui.nabu.casa",
+                    self.const.CONF_SPOTIFY_MARKET: "NL",
+                }
+            )
+        )
+
+        self.assertEqual(result["type"], "form")
+        self.assertEqual(
+            result["errors"][self.const.CONF_SPOTIFY_CLIENT_ID],
+            "spotify_client_id_required",
+        )
 
     def test_spotify_oauth_external_step_has_title(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
@@ -1285,7 +1306,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertNotIn(self.const.CONF_MAX_AUDIO_BYTES, keys)
         self.assertNotIn(self.const.CONF_ALLOW_OTA_ON_BATTERY, keys)
         self.assertNotIn(self.const.CONF_MIN_BATTERY_FOR_OTA, keys)
-        self.assertNotIn(self.config_flow.ADVANCED_OPTIONS_FIELD, keys)
+        self.assertNotIn("show_advanced_options", keys)
 
     def test_options_flow_save_preserves_hidden_device_values(self) -> None:
         entry = types.SimpleNamespace(
@@ -1305,6 +1326,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
                     self.config_flow.OPTIONS_ACTION_FIELD: self.config_flow.OPTIONS_ACTION_SAVE,
                     self.const.CONF_DJ_RESPONSE_PROMPT_PRESET: "custom",
                     self.const.CONF_DJ_RESPONSE_PROMPT: "Maak het kort.",
+                    self.const.CONF_MAX_AUDIO_BYTES: 99999,
                 }
             )
         )

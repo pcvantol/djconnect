@@ -74,14 +74,6 @@ async def _async_djconnect_logo_data_uri(hass: Any) -> str:
     return _LOGO_DATA_URI
 
 
-def _ha_integrations_url(base_url: str | None) -> str:
-    """Build the Home Assistant integration deep link from the OAuth base URL."""
-    base = str(base_url or "").rstrip("/")
-    if not base:
-        return "homeassistant://navigate/config/integrations/integration/djconnect"
-    return f"{base}/config/integrations/integration/djconnect"
-
-
 async def _spotify_oauth_html_response(
     hass: Any,
     *,
@@ -94,7 +86,6 @@ async def _spotify_oauth_html_response(
     """Render a friendly standalone Spotify OAuth result page."""
     accent = "#1db954" if success else "#ff8a00"
     icon = "✓" if success else "!"
-    link = _ha_integrations_url(base_url)
     logo_data_uri = await _async_djconnect_logo_data_uri(hass)
     html_body = f"""<!doctype html>
 <html lang="nl">
@@ -210,8 +201,7 @@ async def _spotify_oauth_html_response(
     <h1>{html.escape(title)}</h1>
     <p>{html.escape(message)}</p>
     <div class="actions">
-      <a href="{html.escape(link, quote=True)}">Open DJConnect in Home Assistant</a>
-      <button class="secondary" onclick="window.close()">Sluit venster</button>
+      <button onclick="window.close()">Sluit venster</button>
     </div>
     <small>DJConnect beheert playback via Home Assistant. Spotify is a trademark of Spotify AB.</small>
   </main>

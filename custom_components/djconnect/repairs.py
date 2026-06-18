@@ -16,7 +16,6 @@ from .const import (
     CONF_SPOTIFY_MARKET,
     CONF_SPOTIFY_REFRESH_TOKEN,
     CONF_SPOTIFY_SCOPES,
-    DEFAULT_SPOTIFY_CLIENT_ID,
     DEFAULT_SPOTIFY_MARKET,
     DEFAULT_SPOTIFY_SCOPES,
     DOMAIN,
@@ -262,9 +261,9 @@ async def _prepare_spotify_repair_oauth(
     *,
     flow_id: str = "",
 ) -> str:
-    client_id = str(
-        entry.data.get(CONF_SPOTIFY_CLIENT_ID) or DEFAULT_SPOTIFY_CLIENT_ID
-    ).strip()
+    client_id = str(_entry_value(entry, CONF_SPOTIFY_CLIENT_ID) or "").strip()
+    if not client_id:
+        raise RuntimeError("Spotify Client ID is not configured")
     external_url = str(entry.data.get(CONF_HA_EXTERNAL_URL) or "").strip().rstrip("/")
     if not external_url:
         external_url = str(getattr(getattr(hass, "config", None), "external_url", "") or "").strip().rstrip("/")

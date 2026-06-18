@@ -2678,10 +2678,9 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertIn("DJConnect is opnieuw geautoriseerd", response.text)
         self.assertIn("Spotify is opnieuw gekoppeld met DJConnect", response.text)
         self.assertNotIn("refresh token", response.text)
-        self.assertIn(
-            "https://example.ui.nabu.casa/config/integrations/integration/djconnect",
-            response.text,
-        )
+        self.assertNotIn("Open DJConnect in Home Assistant", response.text)
+        self.assertNotIn("/config/integrations/integration/djconnect", response.text)
+        self.assertIn("Sluit venster", response.text)
         self.assertIn("data:image/png;base64,", response.text)
         self.assertIn("DJConnect app icon", response.text)
         self.assertEqual(entry.data[const.CONF_SPOTIFY_REFRESH_TOKEN], "new-refresh-token")

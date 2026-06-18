@@ -62,9 +62,6 @@ VOICE_OPTION_DATA_KEYS = {
     "dj_response_enabled",
     "dj_response_prompt_preset",
     "firmware_channel",
-    "dj_response_ttl_seconds",
-    "allow_ota_on_battery",
-    "show_advanced_options",
     "options_action",
 }
 

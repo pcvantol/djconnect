@@ -26,6 +26,9 @@ Please do not add firmware source, device secrets, OAuth tokens, WiFi passwords 
 
 Use a normal Python environment. The lightweight test suite stubs Home Assistant where possible, so a full Home Assistant checkout is not required for most changes.
 
+See `DEVELOPMENT_ENVIRONMENT.md` for the local Docker Home Assistant setup,
+install/restart commands and manual UI validation checklist.
+
 Run tests with:
 
 ```bash
@@ -47,6 +50,18 @@ python3 -m unittest tests.test_config_flow_helpers tests.test_translations
 - Update Dutch and English translations when changing config-flow, options-flow, repairs, entity or service text.
 - Update docs when behavior, user-facing setup, API contracts or release workflow changes.
 - Add or update tests for code, contract and UI-string changes.
+
+## AI-Assisted Development
+
+DJConnect is developed and maintained with AI-assisted and agentic engineering
+workflows, including Codex. AI assistance may be used for code changes,
+documentation, tests, release preparation and cross-repo consistency checks.
+
+All accepted changes remain maintainer-reviewed. Contributors are responsible
+for ensuring their changes are correct, testable, license-compatible and free of
+secrets or private data. Do not include tokens, passwords, private URLs,
+personal data or proprietary third-party material in prompts, issues, logs,
+screenshots or test fixtures.
 
 ## Pull Requests
 

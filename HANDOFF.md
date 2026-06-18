@@ -102,6 +102,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - ESP stores no Spotify/Sonos/backend credentials.
 - Pairing/status responses must never include `spotify_client_id`, `client_id`, `spotify_refresh_token`, `refresh_token` or nested Spotify OAuth secrets.
 - Spotify OAuth credentials stay HA-internal.
+- Spotify OAuth uses PKCE with a user-owned Spotify Developer app. Setup asks for `spotify_client_id`, shows the exact redirect URI that must be registered in Spotify, strongly recommends a stable Nabu Casa HTTPS external URL, and no longer uses a shared built-in Client ID.
 - Spotify access tokens are cached in Home Assistant until shortly before expiry. Normal access-token expiry must refresh on demand and retry once after Spotify API `401`; this must stay invisible to ESP/iOS/macOS/Raspberry Pi clients.
 - Spotify refresh-token rotation must be handled silently. If Spotify rejects a refresh token, HA must retry any newer stored runtime/config-entry/config refresh token before creating a Repair issue.
 - Spotify `invalid_grant` / revoked refresh tokens only produce a user-friendly reauthorize/Repair flow after every known stored refresh token has failed.
@@ -145,6 +146,13 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - For the current community/security documentation and prompt naming release,
   no third-party library/framework/tool versions were upgraded;
   `THIRD_PARTY_NOTICES.md` remains unchanged.
+- AI-assisted/Codex development hygiene is now documented in
+  `CONTRIBUTING.md`, `SECURITY.md` and `CHAT_BOOTSTRAP.md`; accepted changes
+  remain maintainer-reviewed and prompts/logs/issues must not contain secrets,
+  private data or proprietary third-party material.
+- Local development environment setup is documented in
+  `DEVELOPMENT_ENVIRONMENT.md`, including the Docker Home Assistant config path,
+  integration sync command, Core restart command and manual UI validation list.
 - Changelog expectation: keep `CHANGELOG.md` as a per-release changelog. Add a new section for each release and do not consolidate old release notes into one current-version block.
 - HACS-visible docs now show the public DJConnect website. The external website should use the same setup requirements: Home Assistant, HACS, Spotify Premium, HA Assist pipeline with STT/TTS, local-network pairing, and Nabu Casa/external HTTPS URL for Spotify OAuth.
 - `TECHNICAL_DESIGN_DECISIONS.md` documents reverse-engineered code-level design patterns, language-specific coding conventions and the dependency/license/source inventory. Keep it in the release checklist whenever architecture, dependencies, frameworks or external API usage changes.
@@ -215,6 +223,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Validate the Repair “Fix” button in a real HA UI: it should show translated explanatory text and open Spotify OAuth instead of a blank popup or instantly closing.
 - Validate options-flow “Spotify opnieuw autoriseren” in a real HA UI.
 - Confirm Nabu Casa/external URL is correctly detected or manually editable before OAuth.
+- Confirm the Spotify setup step shows the exact redirect URI and requires the user's own Spotify Developer app Client ID.
 - Confirm ESP remains paired after first `/api/djconnect/command` following direct pairing.
 - Confirm ESP does not clear pairing when Spotify backend is temporarily unavailable.
 - Confirm ESP shows update-required state and keeps pairing intact after HA returns `426 version_mismatch`.

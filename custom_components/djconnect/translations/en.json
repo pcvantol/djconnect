@@ -47,18 +47,16 @@
       },
       "spotify": {
         "title": "Connect Spotify",
-        "description": "Confirm the external Home Assistant URL Spotify should return to after authorization. Prefer your Nabu Casa HTTPS URL. DJConnect fills in the default Spotify Client ID automatically; use advanced options only if you want to use your own Client ID.",
+        "description": "Create your own Spotify Developer app and register this exact redirect URI: `{redirect_uri}`. Prefer your Nabu Casa HTTPS Home Assistant URL. DJConnect uses PKCE, so no Client Secret is needed.",
         "data": {
           "spotify_client_id": "Spotify Client ID",
           "ha_external_url": "Home Assistant external URL",
-          "spotify_market": "Spotify market",
-          "show_advanced_options": "Show advanced options"
+          "spotify_market": "Spotify market"
         },
         "data_description": {
-          "spotify_client_id": "Advanced override for the bundled Spotify Client ID.",
-          "ha_external_url": "Prefilled when Home Assistant has an external URL configured. Prefer your Nabu Casa URL.",
-          "spotify_market": "Spotify market used for search and playback requests.",
-          "show_advanced_options": "Show manual and firmware/OTA override fields."
+          "spotify_client_id": "Client ID from your own Spotify Developer app.",
+          "ha_external_url": "External Home Assistant URL Spotify returns to after authorization. The full redirect URI is `{redirect_uri}`.",
+          "spotify_market": "Spotify market used for search and playback requests."
         }
       },
       "spotify_oauth": {
@@ -75,11 +73,6 @@
           "dj_response_prompt_preset": "DJ announcement style",
           "dj_response_prompt": "DJ announcement prompt",
           "firmware_channel": "Firmware channel",
-          "max_audio_bytes": "Maximum audio bytes",
-          "allow_ota_on_battery": "Allow OTA on battery",
-          "min_battery_for_ota": "Minimum battery for OTA",
-          "dj_response_ttl_seconds": "DJ announcement audio TTL seconds",
-          "show_advanced_options": "Show advanced options",
           "options_action": "Action"
         },
         "data_description": {
@@ -89,11 +82,6 @@
           "dj_response_prompt_preset": "Choose a preset style or Free-form to manage the prompt below yourself.",
           "dj_response_prompt": "Free-form prompt for the text DJConnect speaks on the device after a request. With a preset style, DJConnect fills this text automatically.",
           "firmware_channel": "Choose stable for normal OTA updates or beta to test prerelease firmware.",
-          "max_audio_bytes": "Compatibility limit for older audio uploads.",
-          "allow_ota_on_battery": "Allow firmware updates while the device is not USB powered.",
-          "min_battery_for_ota": "Minimum battery percentage before OTA is allowed.",
-          "dj_response_ttl_seconds": "Number of seconds the temporary WAV download URL remains valid.",
-          "show_advanced_options": "Show manual and firmware/OTA override fields.",
           "options_action": "Choose whether to save options or reauthorize Spotify."
         }
       },
@@ -114,7 +102,7 @@
         },
         "data_description": {
           "pair_code": "The 6 digit code or 12 character device suffix shown on the device display.",
-                    "local_url": "Copy the Client adres from the DJConnect app under Settings."
+          "local_url": "Copy the Client adres from the DJConnect app under Settings."
         }
       }
     },
@@ -152,11 +140,6 @@
           "dj_response_prompt_preset": "DJ announcement style",
           "dj_response_prompt": "DJ announcement prompt",
           "firmware_channel": "Firmware channel",
-          "max_audio_bytes": "Maximum audio bytes",
-          "allow_ota_on_battery": "Allow OTA on battery",
-          "min_battery_for_ota": "Minimum battery for OTA",
-          "dj_response_ttl_seconds": "DJ announcement audio TTL seconds",
-          "show_advanced_options": "Show advanced options",
           "options_action": "Action"
         },
         "data_description": {
@@ -167,9 +150,6 @@
           "dj_response_prompt_preset": "Choose a preset style or Free-form to manage the prompt below yourself.",
           "dj_response_prompt": "Free-form prompt for the text DJConnect speaks on the device after a request. With a preset style, DJConnect fills this text automatically.",
           "firmware_channel": "Choose stable for normal OTA updates or beta to test prerelease firmware.",
-          "dj_response_ttl_seconds": "Number of seconds the temporary WAV download URL remains valid.",
-          "allow_ota_on_battery": "Allow firmware updates while the device is not USB powered.",
-          "show_advanced_options": "Show manual and firmware/OTA override fields.",
           "options_action": "Choose whether to save options or reauthorize Spotify."
         }
       },
@@ -182,7 +162,7 @@
         },
         "data_description": {
           "pair_code": "The 6 digit code or 12 character device suffix shown on the device display.",
-                    "local_url": "Copy the Client adres from the DJConnect app under Settings."
+          "local_url": "Copy the Client adres from the DJConnect app under Settings."
         }
       }
     },

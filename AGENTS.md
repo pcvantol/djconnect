@@ -23,7 +23,7 @@ Architectuur beslissingen:
 - ESP backend playback commands naar `POST /api/djconnect/command` gebruiken losse `set_shuffle` boolean en `set_repeat` met `off`/`track`/`context`; gebruik geen gecombineerde `set_play_mode` flow.
 - HA integration en ESP firmware moeten dezelfde `major.minor` protocolversie hebben: HA `3.0.z` praat alleen met ESP `3.0.z`, HA `3.1.z` alleen met ESP `3.1.z`; patchversies mogen verschillen.
 - Bij major/minor mismatch retourneert HA HTTP `426` met `error: version_mismatch` en HA/firmware metadata; dit is geen pairing-token failure en mag pairing/token niet wissen.
-- ESP uploadt raw WAV audio naar `POST /api/djconnect/voice`; de HA integration doet Assist/STT intern via HA `stt.async_get_speech_to_text_engine(...).async_process_audio_stream` met eerst `stt_engine` uit options, daarna opgeslagen Assist pipeline, HA preferred/default pipeline, eerste pipeline met STT, eerste HA `stt.*` entity of als laatste HA `assist_pipeline.async_pipeline_from_audio_stream`, kan daarna via HA Assist een defensieve fuzzy-correctie op de STT-tekst uitvoeren, en geeft tekst plus optionele WAV/MP3 `audio_url` terug.
+- ESP uploadt raw WAV audio naar `POST /api/djconnect/voice`; de HA integration doet Assist/STT intern via HA `stt.async_get_speech_to_text_engine(...).async_process_audio_stream` met eerst de opgeslagen Assist pipeline, daarna HA preferred/default pipeline, eerste pipeline met STT, eerste HA `stt.*` entity of als laatste HA `assist_pipeline.async_pipeline_from_audio_stream`, kan daarna via HA Assist een defensieve fuzzy-correctie op de STT-tekst uitvoeren, en geeft tekst plus optionele WAV/MP3 `audio_url` terug.
 - Actieve HA routes gebruiken geen directe externe AI/STT/TTS APIs; gebruik HA Assist en HA TTS.
 - DJ responses spelen op het DJConnect device af, niet via Spotify Connect of HA media_player; HA post `text` plus optionele tijdelijke WAV/MP3 `audio_url` naar `/api/device/dj_response`.
 - Fallback DJ responses bij command/playback fouten moeten de gekozen `device_language` volgen (`en`/`nl`).
@@ -34,7 +34,7 @@ Architectuur beslissingen:
 - Als ESP `/api/djconnect/status` `spotify_configured=false` meldt, behandel dit alleen als compat/statushint voor backend playback; stuur geen Spotify OAuth credentials naar ESP.
 - BLE provisioning doet alleen WiFi SSID/password; geen Spotify credentials, device tokens of andere secrets via BLE.
 - Runtime discovery prefereert device-reported `local_url`, exacte `_djconnect._tcp` mDNS matches en daarna alleen een enkele zichtbare DJConnect mDNS service; genereer alleen model-specifieke hostnames zoals `http://djconnect-lilygo-t-embed-s3-[device-suffix].local` voor echte device IDs met 12-hex suffix, nooit voor 6-cijferige setupcodes.
-- Normale config-flow blijft klein; firmware channel, max audio bytes en OTA battery settings blijven waar nodig zichtbaar/advanced. Spotify source override en standaard playlist override worden niet meer als config/options velden getoond. Firmware repo/asset/device settings horen niet meer in de flow; OTA selecteert automatisch uit het public firmware manifest op basis van ESP device status/info. Gebruikers mogen wel wisselen tussen firmwarekanaal `stable` en `beta`.
+- Normale config-flow blijft klein; firmware channel blijft zichtbaar, maar max audio bytes, OTA battery settings en DJ announcement audio TTL gebruiken interne defaults en worden niet meer als config/options velden getoond. Spotify source override en standaard playlist override worden niet meer als config/options velden getoond. Firmware repo/asset/device settings horen niet meer in de flow; OTA selecteert automatisch uit het public firmware manifest op basis van ESP device status/info. Gebruikers mogen wel wisselen tussen firmwarekanaal `stable` en `beta`.
 - Alle entities horen onder één HA device met één stabiele device identifier.
 - DJConnect repos zijn MIT-licensed tenzij een specifieke third-party dependency anders vermeldt.
 - Geen secrets in diagnostics/logs; redactie voor keys met `token`, `password` of `secret`.
@@ -63,8 +63,8 @@ HA integration:
 - Config flow blokkeert niet meer op een officiële Home Assistant Spotify `media_player` entity; DJConnect gebruikt eigen Spotify OAuth en de Spotify Web API voor backend playback.
 - Spotify OAuth gebruikt een HA external step en opent de Spotify website.
 - Spotify OAuth gebruikt bij voorkeur Nabu Casa HTTPS external URL.
-- Spotify OAuth gebruikt standaard de ingebouwde Spotify Client ID; toon `spotify_client_id` alleen advanced en prefilled voor override.
-- Spotify OAuth stap moet `ha_external_url` automatisch prefilling uit HA external URL/Nabu Casa waar beschikbaar, maar handmatige correctie toestaan.
+- Spotify OAuth gebruikt PKCE met een door de gebruiker aangemaakte Spotify Developer app. De config-flow vraagt om `spotify_client_id`, toont de exacte redirect URI die in Spotify Developer Dashboard geregistreerd moet worden, en gebruikt bij voorkeur de Nabu Casa HTTPS external URL.
+- Spotify OAuth stap moet `ha_external_url` automatisch prefilling uit HA external URL/Nabu Casa waar beschikbaar, maar handmatige correctie toestaan. Als de HA external URL wijzigt, moet de gebruiker de Spotify Developer redirect URI aanpassen en opnieuw autoriseren.
 - Spotify OAuth scopes moeten `playlist-read-private` bevatten zodat ESP private/eigen `DJConnect Liked Proxy` playlists via `/me/playlists` kan vinden.
 - Oude config entries zonder `playlist-read-private` moeten via diagnostics/repairs duidelijke reauthorize instructies krijgen.
 - Nieuwe Spotify refresh tokens uit OAuth callbacks moeten `CONF_SPOTIFY_REFRESH_TOKEN` persistent overschrijven en in runtime als latest token beschikbaar zijn.
@@ -94,7 +94,7 @@ HA integration:
   - Spotify market vaste keuzes.
   - DJ response prompt preset plus vrij tekstveld.
   - Firmware device wordt automatisch uit ESP status/info afgeleid voor OTA manifestselectie.
-- Verberg max audio bytes, min battery for OTA en allow OTA on battery achter een integration-local advanced checkbox; gebruik niet HA's deprecated `show_advanced_options` property.
+- Toon max audio bytes, min battery for OTA, allow OTA on battery en DJ response audio TTL niet meer in config/options flow; gebruik de interne defaults en bewaar oude opgeslagen waarden alleen voor backwards compatibility.
 - Laat velden vrije tekst waar HA geen betrouwbare bron heeft; toon geen standaard playlist override meer in de flow.
 - STT/TTS engine, taal en stem worden in Home Assistant Assist beheerd en niet als losse DJConnect config/options velden getoond.
 - Spotify source/device naam is dynamisch; toon geen Spotify source override meer in config/options.

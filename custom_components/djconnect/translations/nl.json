@@ -47,18 +47,16 @@
       },
       "spotify": {
         "title": "Spotify koppelen",
-        "description": "Bevestig de externe Home Assistant URL die Spotify na autorisatie terug naar DJConnect gebruikt. Gebruik bij voorkeur je Nabu Casa HTTPS URL. DJConnect vult de standaard Spotify Client ID automatisch in; alleen onder geavanceerde opties kun je een eigen Client ID gebruiken.",
+        "description": "Maak een eigen Spotify Developer app en registreer exact deze redirect URI: `{redirect_uri}`. Gebruik bij voorkeur je Nabu Casa HTTPS Home Assistant URL. PKCE wordt gebruikt, dus een Client Secret is niet nodig.",
         "data": {
           "spotify_client_id": "Spotify Client ID",
           "ha_external_url": "Home Assistant externe URL",
-          "spotify_market": "Spotify regio",
-          "show_advanced_options": "Toon geavanceerde opties"
+          "spotify_market": "Spotify regio"
         },
         "data_description": {
-          "spotify_client_id": "Geavanceerde override voor de meegeleverde Spotify Client ID.",
-          "ha_external_url": "Wordt automatisch ingevuld als Home Assistant een externe URL kent. Gebruik bij voorkeur je Nabu Casa URL.",
-          "spotify_market": "Spotify regio voor zoeken en afspelen.",
-          "show_advanced_options": "Toon handmatige en firmware/OTA overridevelden."
+          "spotify_client_id": "Client ID van je eigen Spotify Developer app.",
+          "ha_external_url": "De externe Home Assistant URL waar Spotify na autorisatie naar terugkeert. De volledige redirect URI is `{redirect_uri}`.",
+          "spotify_market": "Spotify regio voor zoeken en afspelen."
         }
       },
       "spotify_oauth": {
@@ -75,11 +73,6 @@
           "dj_response_prompt_preset": "DJ aankondiging stijl",
           "dj_response_prompt": "DJ aankondiging prompt",
           "firmware_channel": "Firmwarekanaal",
-          "max_audio_bytes": "Maximale audio bytes",
-          "allow_ota_on_battery": "OTA op batterij toestaan",
-          "min_battery_for_ota": "Minimale batterij voor OTA",
-          "dj_response_ttl_seconds": "DJ aankondiging audio TTL seconden",
-          "show_advanced_options": "Toon geavanceerde opties",
           "options_action": "Actie"
         },
         "data_description": {
@@ -89,11 +82,6 @@
           "dj_response_prompt_preset": "Kies een vaste stijl of Vrij in te vullen om de prompt hieronder zelf te beheren.",
           "dj_response_prompt": "Vrije prompt voor de tekst die DJConnect na een verzoek op het device uitspreekt. Bij een vaste stijl vult DJConnect deze tekst automatisch.",
           "firmware_channel": "Kies stable voor normale OTA updates of beta om prerelease firmware te testen.",
-          "max_audio_bytes": "Compatibiliteitslimiet voor oudere audio uploads.",
-          "allow_ota_on_battery": "Sta firmware updates toe als het apparaat niet via USB gevoed wordt.",
-          "min_battery_for_ota": "Minimaal batterijpercentage voordat OTA is toegestaan.",
-          "dj_response_ttl_seconds": "Aantal seconden dat de tijdelijke WAV download URL geldig blijft.",
-          "show_advanced_options": "Toon handmatige en firmware/OTA overridevelden.",
           "options_action": "Kies instellingen opslaan of Spotify opnieuw autoriseren."
         }
       },
@@ -114,7 +102,7 @@
         },
         "data_description": {
           "pair_code": "De 6-cijferige code of 12 tekens lange device-suffix op het apparaatdisplay.",
-                    "local_url": "Kopieer de Client adres uit de DJConnect app via Instellingen."
+          "local_url": "Kopieer de Client adres uit de DJConnect app via Instellingen."
         }
       }
     },
@@ -152,11 +140,6 @@
           "dj_response_prompt_preset": "DJ aankondiging stijl",
           "dj_response_prompt": "DJ aankondiging prompt",
           "firmware_channel": "Firmwarekanaal",
-          "max_audio_bytes": "Maximale audio bytes",
-          "allow_ota_on_battery": "OTA op batterij toestaan",
-          "min_battery_for_ota": "Minimale batterij voor OTA",
-          "dj_response_ttl_seconds": "DJ aankondiging audio TTL seconden",
-          "show_advanced_options": "Toon geavanceerde opties",
           "options_action": "Actie"
         },
         "data_description": {
@@ -167,9 +150,6 @@
           "dj_response_prompt_preset": "Kies een vaste stijl of Vrij in te vullen om de prompt hieronder zelf te beheren.",
           "dj_response_prompt": "Vrije prompt voor de tekst die DJConnect na een verzoek op het device uitspreekt. Bij een vaste stijl vult DJConnect deze tekst automatisch.",
           "firmware_channel": "Kies stable voor normale OTA updates of beta om prerelease firmware te testen.",
-          "dj_response_ttl_seconds": "Aantal seconden dat de tijdelijke WAV download URL geldig blijft.",
-          "allow_ota_on_battery": "Sta firmware updates toe als het apparaat niet via USB gevoed wordt.",
-          "show_advanced_options": "Toon handmatige en firmware/OTA overridevelden.",
           "options_action": "Kies instellingen opslaan of Spotify opnieuw autoriseren."
         }
       },
@@ -182,7 +162,7 @@
         },
         "data_description": {
           "pair_code": "De 6-cijferige code of 12 tekens lange device-suffix op het apparaatdisplay.",
-                    "local_url": "Kopieer de Client adres uit de DJConnect app via Instellingen."
+          "local_url": "Kopieer de Client adres uit de DJConnect app via Instellingen."
         }
       }
     },

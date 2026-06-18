@@ -16,6 +16,7 @@ Lees eerst:
 - `PRODUCT_ROADMAP.md`
 - `TECHNICAL_DESIGN_DECISIONS.md`
 - `CONTRIBUTING.md`
+- `DEVELOPMENT_ENVIRONMENT.md`
 
 Belangrijke huidige status:
 - Project: DJConnect Home Assistant custom integration, domain `djconnect`.
@@ -24,11 +25,13 @@ Belangrijke huidige status:
 - Alle DJConnect repos zijn MIT-licensed, tenzij een specifieke third-party dependency anders vermeldt.
 - `FIRMWARE-LICENSE.md` is verwijderd.
 - Community/security docs staan in `CODE_OF_CONDUCT.md` en `SECURITY.md`; security contact is `security@djconnect.dev`.
+- DJConnect wordt ontwikkeld en onderhouden met AI-assisted/agentic engineering workflows, inclusief Codex; accepted changes blijven maintainer-reviewed en prompts/logs/issues mogen geen secrets of private data bevatten.
 - Fresh-chat promptbestanden heten in alle DJConnect repos `CHAT_BOOTSTRAP.md`.
 - HACS/HA integration repo: `pcvantol/djconnect`.
 - Firmware repo/source en client repos zijn aparte MIT repos.
 - Home Assistant integration blijft verantwoordelijk voor pairing, Spotify OAuth/backend playback, Assist/STT/TTS, OTA, status en diagnostics.
 - ESP/app clients bewaren geen Spotify credentials.
+- Spotify OAuth gebruikt PKCE met een door de gebruiker aangemaakte Spotify Developer app; setup vraagt om `spotify_client_id` en toont de exacte redirect URI die in Spotify Developer Dashboard geregistreerd moet worden.
 - Actieve voice routes gebruiken Home Assistant Assist/TTS, geen directe externe AI/STT/TTS APIs.
 - DJConnect exposeert een Home Assistant conversation agent met vaste naam `DJConnect DJ`.
 - Initial setup heeft nu 3 opties:
@@ -52,6 +55,7 @@ Werkstijl:
 - Gebruik `apply_patch` voor handmatige edits.
 - Niet ongevraagd unrelated changes terugdraaien.
 - Run minimaal `python3 -m unittest discover -s tests` voor release/codewijzigingen.
+- Lokale HA dev-omgeving draait in Docker op `localhost:8123`; zie `DEVELOPMENT_ENVIRONMENT.md` voor sync/restart commands.
 - Release met `./release.sh X.Y.Z`; cleanup oude releases met `./cleanup_old_releases.sh --keep 1 --execute`.
 - Houd docs en vertalingen actueel bij UI/config-flow/options-flow wijzigingen.
 - Geen secrets/tokens/wachtwoorden loggen of committen.

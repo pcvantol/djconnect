@@ -57,7 +57,6 @@ from .const import (
     DEFAULT_MAX_AUDIO_BYTES,
     DEFAULT_MIN_BATTERY_FOR_OTA,
     DEFAULT_SETUP_METHOD,
-    DEFAULT_SPOTIFY_CLIENT_ID,
     DEFAULT_SPOTIFY_MARKET,
     DEFAULT_SPOTIFY_SCOPES,
     DJ_RESPONSE_PROMPT_PRESET_CUSTOM,
@@ -80,7 +79,6 @@ _LOGGER = logging.getLogger(__name__)
 
 DEVICE_LANGUAGE_NAMES = {"en": "English", "nl": "Nederlands"}
 PAIR_CODE_PATTERN = re.compile(r"^(?:\d{6}|[0-9A-Fa-f]{12})$")
-ADVANCED_OPTIONS_FIELD = "show_advanced_options"
 OPTIONS_ACTION_FIELD = "options_action"
 OPTIONS_ACTION_SAVE = "save_options"
 OPTIONS_ACTION_RETRY_PAIRING = "retry_device_pairing"
@@ -103,14 +101,14 @@ SPOTIFY_MARKET_NAMES = {
     "US": "United States",
 }
 SETUP_METHOD_NAMES_EN = {
+    SETUP_METHOD_CONVERSATION_AGENT: "Assist Conversation Agent",
     SETUP_METHOD_PAIR_EXISTING: "Pair existing WiFi device",
     SETUP_METHOD_BLE_WIFI: "Provision WiFi over Bluetooth",
-    SETUP_METHOD_CONVERSATION_AGENT: "Assist Conversation Agent",
 }
 SETUP_METHOD_NAMES_NL = {
+    SETUP_METHOD_CONVERSATION_AGENT: "Assist Conversation Agent",
     SETUP_METHOD_PAIR_EXISTING: "Bestaand WiFi device koppelen",
     SETUP_METHOD_BLE_WIFI: "WiFi via Bluetooth provisionen",
-    SETUP_METHOD_CONVERSATION_AGENT: "Assist Conversation Agent",
 }
 BLE_ACTION_NAMES_EN = {
     BLE_ACTION_PROVISION: "Write WiFi over Bluetooth",
@@ -142,11 +140,13 @@ CLIENT_TYPE_NAME_SUFFIXES = {
     CLIENT_TYPE_CONVERSATION_AGENT: "Assist",
 }
 
-ADVANCED_VOICE_FIELDS = (
-    CONF_MAX_AUDIO_BYTES,
-    CONF_ALLOW_OTA_ON_BATTERY,
-    CONF_MIN_BATTERY_FOR_OTA,
-)
+VOICE_FORM_FIELDS = {
+    CONF_ASSIST_PIPELINE_ID,
+    CONF_DJ_RESPONSE_ENABLED,
+    CONF_DJ_RESPONSE_PROMPT_PRESET,
+    CONF_DJ_RESPONSE_PROMPT,
+    CONF_FIRMWARE_CHANNEL,
+}
 
 
 def _clean(value: Any, default: Any = "") -> Any:
@@ -253,19 +253,6 @@ def _spotify_oauth_title(hass: Any, *, reauth: bool = False) -> str:
     if language.startswith("nl"):
         return "Spotify opnieuw autoriseren" if reauth else "DJConnect autoriseren bij Spotify"
     return "Reauthorize Spotify" if reauth else "Authorize DJConnect with Spotify"
-
-
-def _advanced_enabled(flow: Any) -> bool:
-    """Return the flow-local advanced toggle without HA deprecated properties."""
-    return bool(getattr(flow, "_show_advanced_options", False))
-
-
-def _request_advanced(flow: Any, user_input: dict[str, Any]) -> bool:
-    """Enable flow-local advanced fields when the user checks the inline toggle."""
-    if user_input.get(ADVANCED_OPTIONS_FIELD) and not _advanced_enabled(flow):
-        setattr(flow, "_show_advanced_options", True)
-        return True
-    return False
 
 
 def _default_local_url(pair_code: str | None) -> str:
@@ -375,33 +362,25 @@ async def _provision_ble_wifi_safe(
         ) from exc
 
 
-def _spotify_schema(include_advanced: bool = False) -> dict[Any, Any]:
-    """Build Spotify OAuth fields; Client ID is an advanced override."""
-    return _spotify_schema_with_defaults(include_advanced)
+def _spotify_schema() -> dict[Any, Any]:
+    """Build Spotify OAuth fields."""
+    return _spotify_schema_with_defaults()
 
 
 def _spotify_schema_with_defaults(
-    include_advanced: bool = False,
     *,
     external_url: str = "",
+    client_id: str = "",
 ) -> dict[Any, Any]:
-    """Build Spotify OAuth fields; Client ID is an advanced override."""
+    """Build Spotify OAuth fields."""
     schema: dict[Any, Any] = {
+        vol.Required(CONF_SPOTIFY_CLIENT_ID, default=client_id): str,
         vol.Required(CONF_HA_EXTERNAL_URL, default=external_url): str,
         vol.Optional(
             CONF_SPOTIFY_MARKET,
             default=DEFAULT_SPOTIFY_MARKET,
         ): vol.In(SPOTIFY_MARKET_NAMES),
     }
-    if include_advanced:
-        schema[
-            vol.Optional(
-                CONF_SPOTIFY_CLIENT_ID,
-                default=DEFAULT_SPOTIFY_CLIENT_ID,
-            )
-        ] = str
-    else:
-        schema[vol.Optional(ADVANCED_OPTIONS_FIELD, default=False)] = bool
     return schema
 
 
@@ -682,31 +661,6 @@ def _dj_response_prompt_preset_selector() -> Any:
     return vol.In(DJ_RESPONSE_PROMPT_PRESETS)
 
 
-def _advanced_voice_schema(defaults: dict[str, Any]) -> dict[Any, Any]:
-    """Build advanced compatibility/OTA settings hidden behind HA advanced mode."""
-    return {
-        vol.Optional(
-            CONF_MAX_AUDIO_BYTES,
-            default=defaults.get(CONF_MAX_AUDIO_BYTES, DEFAULT_MAX_AUDIO_BYTES),
-        ): int,
-        vol.Optional(
-            CONF_ALLOW_OTA_ON_BATTERY,
-            default=defaults.get(CONF_ALLOW_OTA_ON_BATTERY, True),
-        ): bool,
-        vol.Optional(
-            CONF_MIN_BATTERY_FOR_OTA,
-            default=defaults.get(CONF_MIN_BATTERY_FOR_OTA, DEFAULT_MIN_BATTERY_FOR_OTA),
-        ): int,
-        vol.Optional(
-            CONF_DJ_RESPONSE_TTL_SECONDS,
-            default=defaults.get(
-                CONF_DJ_RESPONSE_TTL_SECONDS,
-                DEFAULT_DJ_RESPONSE_TTL_SECONDS,
-            ),
-        ): int,
-    }
-
-
 def _conversation_agent_options_schema(
     hass: Any,
     defaults: dict[str, Any],
@@ -737,7 +691,6 @@ async def _voice_schema(
     hass: Any,
     defaults: dict[str, Any],
     *,
-    include_advanced: bool = False,
     include_options_action: bool = False,
     include_readonly_local_url: bool = False,
 ) -> vol.Schema:
@@ -759,10 +712,6 @@ async def _voice_schema(
             else None
         ),
     )
-    if include_advanced:
-        schema.update(_advanced_voice_schema(defaults))
-    else:
-        schema[vol.Optional(ADVANCED_OPTIONS_FIELD, default=False)] = bool
     return vol.Schema(schema)
 
 
@@ -815,6 +764,11 @@ def _voice_defaults(
             source.get(CONF_FIRMWARE_CHANNEL),
         ),
     }
+
+
+def _voice_form_values(source: dict[str, Any]) -> dict[str, Any]:
+    """Return only voice fields intentionally exposed in config/options forms."""
+    return {key: source[key] for key in VOICE_FORM_FIELDS if key in source}
 
 
 def _firmware_channel_default(value: Any) -> str:
@@ -873,7 +827,6 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._pairing: dict[str, Any] = {}
         self._spotify: dict[str, Any] = {}
         self._oauth: dict[str, str] = {}
-        self._show_advanced_options = False
         self._discovery_checked = False
         self._discovered_clients: list[DiscoveredClient] = []
         self._discovered_defaults: dict[str, Any] = {}
@@ -994,8 +947,6 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is None:
             await self._ensure_mdns_discovery()
         else:
-            if _request_advanced(self, user_input):
-                return await self.async_step_pair()
             discovered_key = str(user_input.get(DISCOVERY_CLIENT_FIELD) or "").strip()
             if DISCOVERY_CLIENT_FIELD in user_input:
                 if discovered_key and discovered_key != self._selected_discovered_key:
@@ -1183,12 +1134,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            if _request_advanced(self, user_input):
-                return await self.async_step_spotify()
-            client_id = str(
-                user_input.get(CONF_SPOTIFY_CLIENT_ID)
-                or DEFAULT_SPOTIFY_CLIENT_ID
-            ).strip()
+            client_id = str(user_input.get(CONF_SPOTIFY_CLIENT_ID) or "").strip()
             external_url = str(user_input.get(CONF_HA_EXTERNAL_URL, "")).strip().rstrip("/")
             if not client_id:
                 errors[CONF_SPOTIFY_CLIENT_ID] = "spotify_client_id_required"
@@ -1207,17 +1153,24 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     _LOGGER.exception("Could not start Spotify OAuth")
                     errors["base"] = "oauth_setup_failed"
 
+        default_external_url = await _async_default_external_url(self.hass)
+        shown_external_url = str(
+            (user_input or {}).get(CONF_HA_EXTERNAL_URL)
+            or default_external_url
+            or ""
+        ).strip().rstrip("/")
         return self.async_show_form(
             step_id="spotify",
             data_schema=vol.Schema(
                 _spotify_schema_with_defaults(
-                    _advanced_enabled(self),
-                    external_url=await _async_default_external_url(self.hass),
+                    external_url=shown_external_url,
+                    client_id=str((user_input or {}).get(CONF_SPOTIFY_CLIENT_ID) or ""),
                 )
             ),
             errors=errors,
             description_placeholders={
                 "callback_path": "/api/djconnect/spotify/callback",
+                "redirect_uri": build_redirect_uri(shown_external_url) if shown_external_url else "",
             },
         )
 
@@ -1334,14 +1287,12 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Collect optional voice settings. Empty fields are allowed."""
         errors: dict[str, str] = {}
         if user_input is not None:
-            if _request_advanced(self, user_input):
-                return await self.async_step_voice()
             errors = _voice_errors(user_input)
             if not errors:
                 data: dict[str, Any] = {}
                 data.update(self._pairing)
                 data.update(self._spotify)
-                data.update(_voice_defaults(user_input))
+                data.update(_voice_defaults(_voice_form_values(user_input)))
                 if getattr(self, "_conversation_agent_only", False):
                     return self.async_create_entry(
                         title=data.get(CONF_DEVICE_NAME, "DJConnect DJ"),
@@ -1356,8 +1307,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         step_id="voice",
                         data_schema=await _voice_schema(
                             self.hass,
-                            _voice_defaults(user_input),
-                            include_advanced=_advanced_enabled(self),
+                            _voice_defaults(_voice_form_values(user_input)),
                         ),
                         errors=errors,
                     )
@@ -1371,7 +1321,6 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=await _voice_schema(
                 self.hass,
                 _voice_defaults({}),
-                include_advanced=_advanced_enabled(self),
             ),
             errors=errors,
         )
@@ -1390,7 +1339,6 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         self._config_entry = config_entry
-        self._show_advanced_options = False
         self._oauth: dict[str, str] = {}
 
     async def async_step_init(
@@ -1402,8 +1350,6 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
         defaults = _voice_defaults(current, preserve_empty=True)
         errors: dict[str, str] = {}
         if user_input is not None:
-            if _request_advanced(self, user_input):
-                return await self.async_step_init()
             action = user_input.get(OPTIONS_ACTION_FIELD)
             if action == OPTIONS_ACTION_SPOTIFY_REAUTH:
                 return await self.async_step_spotify_reauth()
@@ -1418,7 +1364,7 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
                     {
                         key: value
                         for key, value in user_input.items()
-                        if key != OPTIONS_ACTION_FIELD
+                        if key in VOICE_FORM_FIELDS
                     }
                 )
                 return self.async_create_entry(
@@ -1440,9 +1386,7 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             return self.async_external_step_done(next_step_id="spotify_reauth_done")
         current = {**self._config_entry.data, **self._config_entry.options}
-        client_id = str(
-            current.get(CONF_SPOTIFY_CLIENT_ID) or DEFAULT_SPOTIFY_CLIENT_ID
-        ).strip()
+        client_id = str(current.get(CONF_SPOTIFY_CLIENT_ID) or "").strip()
         external_url = str(
             current.get(CONF_HA_EXTERNAL_URL)
             or await _async_default_external_url(self.hass)
@@ -1454,7 +1398,6 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
                 data_schema=await _voice_schema(
                     self.hass,
                     _voice_defaults(current),
-                    include_advanced=_advanced_enabled(self),
                     include_options_action=True,
                 ),
                 errors={"base": "oauth_setup_failed"},
@@ -1598,7 +1541,6 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
             data_schema=await _voice_schema(
                 self.hass,
                 _voice_defaults(current),
-                include_advanced=_advanced_enabled(self),
                 include_options_action=True,
             ),
             errors=errors,

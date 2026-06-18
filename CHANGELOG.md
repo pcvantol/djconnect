@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Remove the Home Assistant deep-link button from the Spotify OAuth result page because the DJConnect config flow is not complete yet at that point.
+- Remove user-facing advanced compatibility, OTA battery and DJ announcement audio TTL fields from config/options flow while keeping their internal defaults.
+- Require users to enter their own Spotify Developer app Client ID and show the exact Home Assistant redirect URI that must be registered in Spotify.
+- Document DJConnect's AI-assisted/Codex development workflow and related security expectations in contribution and security docs.
+- Add a local development environment guide for tests, Docker Home Assistant sync/restart and manual UI validation.
+
 ## 3.1.53
 
 - Add community and security policy documentation for public repository hygiene.
