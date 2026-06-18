@@ -1175,6 +1175,21 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertNotIn(self.const.CONF_DEVICE_TOKEN, result["data"])
         self.assertNotIn(self.const.CONF_LOCAL_URL, result["data"])
 
+    def test_voice_step_conversation_agent_setup_hides_device_fields(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(states=None)
+        flow._conversation_agent_only = True
+
+        form = asyncio.run(flow.async_step_voice())
+        keys = {marker.key for marker in form["data_schema"].schema}
+
+        self.assertIn(self.const.CONF_DJ_RESPONSE_PROMPT_PRESET, keys)
+        self.assertIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
+        self.assertNotIn(self.const.CONF_DJ_RESPONSE_ENABLED, keys)
+        self.assertNotIn(self.const.CONF_ASSIST_PIPELINE_ID, keys)
+        self.assertNotIn(self.const.CONF_FIRMWARE_CHANNEL, keys)
+        self.assertNotIn(self.const.CONF_LOCAL_URL, keys)
+
     def test_default_external_url_prefers_network_helper(self) -> None:
         from homeassistant.helpers import network
 

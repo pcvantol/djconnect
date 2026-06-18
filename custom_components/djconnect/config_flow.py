@@ -687,6 +687,25 @@ def _conversation_agent_options_schema(
     return vol.Schema(schema)
 
 
+def _conversation_agent_voice_schema(defaults: dict[str, Any]) -> vol.Schema:
+    """Build the compact setup schema used for Assist conversation agent entries."""
+    schema: dict[Any, Any] = {
+        vol.Optional(
+            CONF_DJ_RESPONSE_PROMPT_PRESET,
+            default=_dj_response_prompt_preset_default(
+                defaults.get(CONF_DJ_RESPONSE_PROMPT),
+            ),
+        ): _dj_response_prompt_preset_selector(),
+        vol.Optional(
+            CONF_DJ_RESPONSE_PROMPT,
+            default=defaults.get(CONF_DJ_RESPONSE_PROMPT, DEFAULT_DJ_RESPONSE_PROMPT),
+        ): selector.TextSelector(
+            selector.TextSelectorConfig(multiline=True),
+        ),
+    }
+    return vol.Schema(schema)
+
+
 async def _voice_schema(
     hass: Any,
     defaults: dict[str, Any],
@@ -1318,9 +1337,13 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="voice",
-            data_schema=await _voice_schema(
-                self.hass,
-                _voice_defaults({}),
+            data_schema=(
+                _conversation_agent_voice_schema(_voice_defaults({}))
+                if getattr(self, "_conversation_agent_only", False)
+                else await _voice_schema(
+                    self.hass,
+                    _voice_defaults({}),
+                )
             ),
             errors=errors,
         )

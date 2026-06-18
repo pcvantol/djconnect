@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Hide device-only DJ response playback and firmware channel controls from the Assist Conversation Agent setup flow.
+
 ## 3.1.56
 
 - Select `Assist Conversation Agent` by default in the Add Integration setup method step.
