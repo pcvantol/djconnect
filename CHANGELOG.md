@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.1.56
 
 - Select `Assist Conversation Agent` by default in the Add Integration setup method step.
 - Add a direct Spotify Developer Dashboard URL to the Spotify setup instructions.
