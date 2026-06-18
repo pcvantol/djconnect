@@ -4,6 +4,12 @@ Thanks for helping improve DJConnect.
 
 This repository contains the MIT-licensed Home Assistant custom integration for DJConnect. Related DJConnect client and firmware repositories are also MIT-licensed unless their own repository files state otherwise.
 
+Please follow the community standards in `CODE_OF_CONDUCT.md` when
+participating in DJConnect project spaces.
+
+Please report suspected security vulnerabilities privately through
+`SECURITY.md`, not in public GitHub issues.
+
 ## What Belongs Here
 
 Good contributions for this repository include:
@@ -61,7 +67,7 @@ Maintainer releases use:
 ./release.sh X.Y.Z
 ```
 
-Release changes should keep `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `info.md` and relevant `examples/` files aligned when affected.
+Release changes should keep `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant `examples/` files aligned when affected.
 
 ## Licensing
 

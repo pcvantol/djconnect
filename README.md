@@ -73,6 +73,8 @@ runtime behavior. These decisions are part of the integration contract:
 - Canonical product roadmap lives only in this HA repo: [`PRODUCT_ROADMAP.md`](PRODUCT_ROADMAP.md)
 - Technical design decisions and dependency inventory: [`TECHNICAL_DESIGN_DECISIONS.md`](TECHNICAL_DESIGN_DECISIONS.md)
 - Contribution guidelines: [`CONTRIBUTING.md`](CONTRIBUTING.md)
+- Community code of conduct: [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)
+- Security policy and private contact: [`SECURITY.md`](SECURITY.md)
 - Fresh-chat bootstrap prompt: [`CHAT_BOOTSTRAP.md`](CHAT_BOOTSTRAP.md)
 
 This repository contains the Home Assistant custom integration under `custom_components/djconnect`.
@@ -691,11 +693,11 @@ Pre-release checklist:
 - Confirm the working tree only contains intended changes.
 - Update `custom_components/djconnect/manifest.json` to the target version.
 - Update `custom_components/djconnect/const.py` to the same target version.
-- Update all repo documentation touched by the change or release: at minimum `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `info.md` and relevant files under `examples/`.
+- Update all repo documentation touched by the change or release: at minimum `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant files under `examples/`.
 - Update `README.md` current version, examples, endpoints, HACS instructions and release workflow.
 - Update `CHANGELOG.md` with a new section for each release. Keep previous release sections; do not consolidate the changelog into one current-version block.
 - Keep `AGENTS.md` aligned with the current version and release expectations.
-- Keep `HANDOFF.md`, `TODO.md` and `ISSUES.md` aligned with release status, known checks and remaining field validation.
+- Keep `HANDOFF.md`, `TODO.md`, `ISSUES.md` and `CHAT_BOOTSTRAP.md` aligned with release status, known checks, remaining field validation and fresh-chat initialization guidance.
 - Keep this repo's `SYNC_PROMPTS.md` current when cross-repo contracts, client types, endpoints or pairing/discovery behavior change, including when the change originates in another DJConnect repo.
 - Keep this repo's `PRODUCT_ROADMAP.md` current when product ideas, production must-haves, shipped roadmap items or premium feature candidates change, including when the change originates in another DJConnect repo.
 - Keep `info.md` and HACS-facing copy current for users.

@@ -169,7 +169,7 @@ README/release:
   - Controleer dat de working tree alleen bedoelde wijzigingen bevat.
   - Update `custom_components/djconnect/manifest.json` naar de target versie.
   - Update `custom_components/djconnect/const.py` naar dezelfde target versie.
-  - Update alle documentatiebestanden in deze repo die door de wijziging of release geraakt worden: minimaal `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `info.md` en relevante files onder `examples/`.
+  - Update alle documentatiebestanden in deze repo die door de wijziging of release geraakt worden: minimaal `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` en relevante files onder `examples/`.
   - Update `README.md` current version, examples, endpoints, HACS instructies en release workflow.
   - Update `CHANGELOG.md` met een nieuw blok per release; behoud eerdere releaseblokken en consolideer niet meer naar één actuele versie.
   - Houd `AGENTS.md` gelijk met actuele versie en release-eisen.
@@ -189,7 +189,7 @@ README/release:
 - HACS release workflow bevat minimaal:
   - One-liner mag via `./release.sh X.Y.Z`.
   - `./release.sh X.Y.Z` moet de versie automatisch bijwerken in `manifest.json`, `const.py`, `README.md`, `CHANGELOG.md`, `AGENTS.md` en relevante voorbeeldmetadata voordat commit/tag gebeurt.
-  - Controleer vóór release handmatig of alle documentatiebestanden (`README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `info.md`, `examples/*`) inhoudelijk kloppen; niet alleen versienummers.
+  - Controleer vóór release handmatig of alle documentatiebestanden (`README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md`, `examples/*`) inhoudelijk kloppen; niet alleen versienummers.
   - Controleer vóór release handmatig dat alle Nederlandse en Engelse vertalingen compleet en passend zijn.
   - Controleer vóór release handmatig of de testdekking past bij de wijziging; documentatie-only changes mogen zonder nieuwe tests, maar code-/contract-/UI-string changes moeten expliciet bestaande of nieuwe tests dekken.
   - Dry-run kan via `./release.sh X.Y.Z --dry-run`.

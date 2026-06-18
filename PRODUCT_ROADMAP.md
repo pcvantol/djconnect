@@ -43,9 +43,10 @@ Every release must review this roadmap.
   `[x] ESP32 screenshot endpoint (3.1, ESP32)`.
 - Do not remove shipped ideas immediately; keep checked items as product memory
   until a later roadmap cleanup.
-- Update README, changelog, handoff, tests and design decisions when a roadmap
-  item changes product behavior or public contract. Cross-repo contract changes
-  belong only in `pcvantol/djconnect/SYNC_PROMPTS.md`.
+- Update README, changelog, handoff, fresh-chat bootstrap prompt, tests and
+  design decisions when a roadmap item changes product behavior or public
+  contract. Cross-repo contract changes belong only in
+  `pcvantol/djconnect/SYNC_PROMPTS.md`.
 
 ## Production Release Must-Haves
 
