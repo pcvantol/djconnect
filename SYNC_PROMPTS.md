@@ -209,7 +209,7 @@ Sync the DJConnect Home Assistant integration with the Apple app and ESP
 client contracts.
 
 Requirements:
-- Treat iOS/macOS/Raspberry Pi as app-like clients, not ESP hardware devices.
+- Treat iOS/macOS/watchOS/Raspberry Pi as app-like clients, not ESP hardware devices.
 - Before pairing, require that Home Assistant has the official Spotify
   integration configured with at least one Spotify `media_player` entity; if
   not, show a clear localized config-flow error telling the user to configure
@@ -227,7 +227,7 @@ Requirements:
 - Return a DJConnect bearer token on success. The current compatible field is
   device_token; bearer_token and token may also be returned.
 - Return ha_local_url during successful app pairing. Do not return
-  device_language/language for iOS, macOS or Raspberry Pi clients; those
+  device_language/language for iOS, macOS, watchOS or Raspberry Pi clients; those
   clients determine their UI language locally.
 - Keep cloud/remote URLs out of Apple app runtime traffic; cloud URLs are only
   needed by Home Assistant-owned Spotify OAuth config flows.
@@ -271,7 +271,7 @@ Requirements:
   but must not implement ESP-only reboot or OTA routes. Raspberry Pi display
   clients may be outbound-only and must advertise capabilities so HA does not
   require local voice, audio, or dj_response endpoints.
-- Persist client_type as ios, macos, raspberry_pi, or esp32. Do not
+- Persist client_type as ios, macos, watchos, raspberry_pi, or esp32. Do not
   reintroduce device_type.
 - Authenticated status/command/voice routes must accept Authorization: Bearer
   plus X-DJConnect-Device-ID.
@@ -279,15 +279,15 @@ Requirements:
   `command:"seek_relative"` with integer millisecond offsets. Positive values
   seek forward, negative values seek backward. ESP clients may omit this UI.
 - Validate that client_type matches the device_id prefix/model family:
-  ios -> djconnect-ios-*, macos -> djconnect-macos-*, raspberry_pi -> djconnect-raspberry-pi-*, esp32 -> ESP
+  ios -> djconnect-ios-*, macos -> djconnect-macos-*, watchos -> djconnect-watchos-*, raspberry_pi -> djconnect-raspberry-pi-*, esp32 -> ESP
   model-specific ids such as djconnect-lilygo-t-embed-s3-*.
 - During app pairing, 401/403 code mismatch responses stop polling, keep the
   visible app code, and do not rotate device_id automatically.
 - Create native HA entities for paired app-like clients when status is
   received, including outbound-only Raspberry Pi clients that never expose
   /api/device/* endpoints.
-- Create only client/runtime and backend/playback entities for ios, macos, and
-  raspberry_pi clients; do not create ESP-only battery, Wi-Fi RSSI, screen
+- Create only client/runtime and backend/playback entities for ios, macos,
+  watchos, and raspberry_pi clients; do not create ESP-only battery, Wi-Fi RSSI, screen
   state, LED state, screen brightness/timeout, speaker volume, device language,
   auto-off, theme/log-level, firmware OTA, or reboot entities for app-like
   clients. Raspberry Pi local settings such as screen blanking, logging and
@@ -348,7 +348,7 @@ Requirements:
 - Keep permission rows compact on iPhone.
 - Local Games are app-only. When focused, game surfaces should consume arrow
   keys and space instead of triggering app navigation.
-- Expose current-track seek controls on iOS/macOS by sending
+- Expose current-track seek controls on iOS/macOS/watchOS by sending
   `command:"seek_relative"` with integer millisecond offsets. Positive values
   seek forward, negative values seek backward. This is optional for ESP.
 - Detect likely unclean exits and offer only user-mediated crash reporting:
@@ -1140,11 +1140,11 @@ Logs bevatten geen secrets.
 
 ---
 
-## Detailed iOS/macOS App Handoff
+## Detailed iOS/macOS/watchOS App Handoff
 
-# DJConnect iOS/macOS App Sync Prompt / Handoff
+# DJConnect iOS/macOS/watchOS App Sync Prompt / Handoff
 
-This handoff is for building a new native iOS/macOS DJConnect client that uses
+This handoff is for building native iOS/macOS/watchOS DJConnect clients that use
 the same Home Assistant custom integration backend as the ESP32 firmware.
 
 Use this as the sync prompt for a new Apple-client repo. The current ESP
@@ -1175,7 +1175,7 @@ Home Assistant is the trusted DJConnect backend for:
 - OTA/update offers for device clients where applicable;
 - native Home Assistant entities.
 
-The iOS/macOS app owns:
+The iOS/macOS/watchOS app owns:
 
 - native UI;
 - local app state;
@@ -1196,6 +1196,7 @@ Suggested format:
 
 - iOS: `djconnect-ios-<stable-install-id>`
 - macOS: `djconnect-macos-<stable-install-id>`
+- watchOS: `djconnect-watchos-<stable-install-id>`
 
 The suffix should be stable across app launches, but should reset if the user
 explicitly resets DJConnect pairing in the app. Avoid exposing Apple account,
@@ -1338,6 +1339,7 @@ Use stable app device IDs:
 ```text
 djconnect-ios-<stable-install-id>
 djconnect-macos-<stable-install-id>
+djconnect-watchos-<stable-install-id>
 ```
 
 Open local endpoints:
@@ -1380,6 +1382,8 @@ should not be implemented unless the Apple app has a real equivalent.
 ```
 
 For macOS, use `client_type:"macos"` and a `djconnect-macos-...` device id.
+For watchOS, use `client_type:"watchos"`, `platform:"watchos"` and a
+`djconnect-watchos-...` device id.
 Never use `device_type` for identity.
 
 `POST /api/device/pair` from HA should accept:
@@ -1397,7 +1401,7 @@ Never use `device_type` for identity.
 Rules:
 
 - Accept only this app installation's own `device_id`.
-- Accept only the expected `client_type` for the target app (`ios` or `macos`).
+- Accept only the expected `client_type` for the target app (`ios`, `macos` or `watchos`).
 - Store only the DJConnect bearer token, HA local URL and lightweight
   DJConnect settings.
 - Keep `ha_local_url` as the normal route for app -> HA status, command and
@@ -1480,9 +1484,9 @@ Status responses may include:
 }
 ```
 
-Home Assistant must not send `device_language` or `language` to iOS, macOS or
-Raspberry Pi clients in pairing/status responses. App-like clients own their UI
-language setting locally.
+Home Assistant must not send `device_language` or `language` to iOS, macOS,
+watchOS or Raspberry Pi clients in pairing/status responses. App-like clients
+own their UI language setting locally.
 
 Status is authoritative for Home Assistant entities that represent the app
 client. Command payloads must not be used as partial status snapshots.
@@ -1718,7 +1722,7 @@ firmware binaries.
 ## App Settings
 
 The ESP has device settings such as screen brightness, LED and speaker cue
-volume. The iOS/macOS app should not copy those settings blindly.
+volume. The iOS/macOS/watchOS app should not copy those settings blindly.
 
 Suggested app-owned settings:
 
@@ -1752,7 +1756,7 @@ Functional parity with the ESP device should include:
 - DJ/voice response view if PTT is implemented;
 - backend unavailable and version mismatch states.
 
-iOS/macOS-specific UX may add:
+iOS/macOS/watchOS-specific UX may add:
 
 - menu bar control on macOS;
 - lock screen/live activity on iOS if appropriate;
@@ -1820,8 +1824,8 @@ Do not put SwiftUI view logic into the HTTP client.
 ## Acceptance Criteria
 
 - App pairs with the existing `djconnect` HA integration.
-- App status posts include `client_type` as `ios` or `macos`.
-- App command posts include `client_type` as `ios` or `macos`.
+- App status posts include `client_type` as `ios`, `macos` or `watchos`.
+- App command posts include `client_type` as `ios`, `macos` or `watchos`.
 - App does not send `device_type` for identity.
 - HA backend playback commands work without any Spotify credentials in the app.
 - Backend unavailable does not reset pairing.
@@ -1856,7 +1860,7 @@ Sync the DJConnect Home Assistant integration with the Apple app and ESP
 client contracts.
 
 Requirements:
-- Treat iOS/macOS/Raspberry Pi as app-like clients, not ESP hardware devices.
+- Treat iOS/macOS/watchOS/Raspberry Pi as app-like clients, not ESP hardware devices.
 - Pair app-like clients through POST /api/djconnect/pair. For Raspberry Pi, this is
   the primary pairing path; do not try to call a Pi-local /api/device/pair
   endpoint during initial pairing.
@@ -1870,7 +1874,7 @@ Requirements:
 - Return a DJConnect bearer token on success. The current compatible field is
   device_token; bearer_token and token may also be returned.
 - Return ha_local_url during successful app pairing. Do not return
-  device_language/language for iOS, macOS or Raspberry Pi clients; those
+  device_language/language for iOS, macOS, watchOS or Raspberry Pi clients; those
   clients determine their UI language locally.
 - Keep cloud/remote URLs out of Apple app runtime traffic; cloud URLs are only
   needed by Home Assistant-owned Spotify OAuth config flows.
@@ -1909,20 +1913,20 @@ Requirements:
   but must not implement ESP-only reboot or OTA routes. Raspberry Pi display
   clients may be outbound-only and must advertise capabilities so HA does not
   require local voice, audio, or dj_response endpoints.
-- Persist client_type as ios, macos, raspberry_pi, or esp32. Do not
+- Persist client_type as ios, macos, watchos, raspberry_pi, or esp32. Do not
   reintroduce device_type.
 - Authenticated status/command/voice routes must accept Authorization: Bearer
   plus X-DJConnect-Device-ID.
 - Validate that client_type matches the device_id prefix/model family:
-  ios -> djconnect-ios-*, macos -> djconnect-macos-*, raspberry_pi -> djconnect-raspberry-pi-*, esp32 -> ESP
+  ios -> djconnect-ios-*, macos -> djconnect-macos-*, watchos -> djconnect-watchos-*, raspberry_pi -> djconnect-raspberry-pi-*, esp32 -> ESP
   model-specific ids such as djconnect-lilygo-t-embed-s3-*.
 - During app pairing, 401/403 code mismatch responses stop polling, keep the
   visible app code, and do not rotate device_id automatically.
 - Create native HA entities for paired app-like clients when status is
   received, including outbound-only Raspberry Pi clients that never expose
   /api/device/* endpoints.
-- Create only client/runtime and backend/playback entities for ios, macos, and
-  raspberry_pi clients; do not create ESP-only battery, Wi-Fi RSSI, screen
+- Create only client/runtime and backend/playback entities for ios, macos,
+  watchos, and raspberry_pi clients; do not create ESP-only battery, Wi-Fi RSSI, screen
   state, LED state, screen brightness/timeout, speaker volume, device language,
   auto-off, theme/log-level, firmware OTA, or reboot entities for app-like
   clients. Raspberry Pi local settings such as screen blanking, logging and

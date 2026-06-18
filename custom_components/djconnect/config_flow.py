@@ -136,6 +136,7 @@ CLIENT_TYPE_NAME_SUFFIXES = {
     CLIENT_TYPE_ESP32: "ESP32",
     "ios": "iOS",
     "macos": "macOS",
+    "watchos": "Watch",
     "raspberry_pi": "Raspberry Pi",
     CLIENT_TYPE_CONVERSATION_AGENT: "Assist",
 }

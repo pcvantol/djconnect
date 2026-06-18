@@ -3,7 +3,7 @@ from __future__ import annotations
 
 DOMAIN = "djconnect"
 NAME = "DJConnect"
-VERSION = "3.1.59"
+VERSION = "3.1.60"
 
 API_BASE = "/api/djconnect"
 API_PAIR = f"{API_BASE}/pair"
@@ -58,18 +58,21 @@ DEFAULT_DEVICE_LANGUAGE = "en"
 CLIENT_TYPE_ESP32 = "esp32"
 CLIENT_TYPE_IOS = "ios"
 CLIENT_TYPE_MACOS = "macos"
+CLIENT_TYPE_WATCHOS = "watchos"
 CLIENT_TYPE_RASPBERRY_PI = "raspberry_pi"
 CLIENT_TYPE_CONVERSATION_AGENT = "conversation_agent"
 DEFAULT_CLIENT_TYPE = CLIENT_TYPE_ESP32
 CLIENT_TYPES = [
     CLIENT_TYPE_IOS,
     CLIENT_TYPE_MACOS,
+    CLIENT_TYPE_WATCHOS,
     CLIENT_TYPE_RASPBERRY_PI,
     CLIENT_TYPE_ESP32,
 ]
 CLIENT_TYPE_NAMES = {
     CLIENT_TYPE_IOS: "iOS app",
     CLIENT_TYPE_MACOS: "macOS app",
+    CLIENT_TYPE_WATCHOS: "Apple Watch app",
     CLIENT_TYPE_RASPBERRY_PI: "Linux/Raspberry Pi client",
     CLIENT_TYPE_ESP32: "ESP32 device",
 }

@@ -258,13 +258,17 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         class Runtime:
             config = {const.CONF_MAX_AUDIO_BYTES: 100}
-            device_status = {"device_id": "djconnect-lilygo-90B70990A994"}
+            device_status = {
+                "device_id": "djconnect-watchos-68B74487726D",
+                "client_type": "watchos",
+                "firmware": "3.1.34",
+            }
             device_token = "device-token"
 
             def authorize_device_request(self, headers, body_device_id=None):
                 return (
                     headers.get("Authorization") == "Bearer device-token"
-                    and body_device_id == "djconnect-lilygo-90B70990A994"
+                    and body_device_id == "djconnect-watchos-68B74487726D"
                 )
 
             def update(self, **kwargs):
@@ -303,7 +307,8 @@ class VoiceHttpHelperTest(unittest.TestCase):
         class Request:
             headers = {
                 "Authorization": "Bearer device-token",
-                "X-DJConnect-Device-ID": "djconnect-lilygo-90B70990A994",
+                "X-DJConnect-Device-ID": "djconnect-watchos-68B74487726D",
+                "client_type": "watchos",
                 "Content-Type": "audio/wav",
             }
             app = {"hass": hass}
@@ -1245,6 +1250,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
         for client_type, device_id in (
             ("macos", "djconnect-macos-68B74487726D"),
             ("ios", "djconnect-ios-68B74487726D"),
+            ("watchos", "djconnect-watchos-68B74487726D"),
             ("raspberry_pi", "djconnect-raspberry-pi-68B74487726D"),
         ):
             with self.subTest(client_type=client_type):
@@ -1284,6 +1290,59 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 self.assertEqual(response["payload"]["client_type"], client_type)
                 self.assertNotIn("device_language", response["payload"])
                 self.assertNotIn("language", response["payload"])
+                self.assertEqual(response["payload"]["device_token"], "device-token")
+
+    def test_status_view_accepts_watchos_client_payload(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+
+        class Runtime:
+            device_token = "device-token"
+            device_status = {"device_id": "djconnect-watchos-68B74487726D"}
+            ota_in_progress = False
+            ota_last_error = None
+            config = {}
+
+            def authorize_device_request(self, headers, body_device_id=None):
+                return (
+                    headers.get("Authorization") == "Bearer device-token"
+                    and body_device_id == "djconnect-watchos-68B74487726D"
+                )
+
+            def get_current_spotify_credentials(self):
+                return {}
+
+            def update(self, **kwargs):
+                self.last_update = kwargs
+
+        runtime = Runtime()
+
+        class Request:
+            headers = {
+                "Authorization": "Bearer device-token",
+                "X-DJConnect-Device-ID": "djconnect-watchos-68B74487726D",
+            }
+            app = {"hass": types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})}
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-watchos-68B74487726D",
+                    "client_type": "watchos",
+                    "platform": "watchos",
+                    "device_name": "Peter Apple Watch",
+                    "firmware": "3.1.34",
+                    "app_version": "3.1.34",
+                }
+
+        response = asyncio.run(self.http.DJConnectStatusView(None).post(Request()))
+
+        self.assertEqual(response["status_code"], 200)
+        self.assertEqual(response["payload"]["client_type"], "watchos")
+        self.assertNotIn("device_language", response["payload"])
+        self.assertNotIn("language", response["payload"])
+        self.assertEqual(runtime.device_status["client_type"], "watchos")
+        self.assertEqual(runtime.device_status["platform"], "watchos")
+        self.assertEqual(runtime.device_status["device_name"], "Peter Apple Watch")
+        self.assertEqual(runtime.device_status["app_version"], "3.1.34")
 
     def test_status_view_reprovisions_when_spotify_configured_false(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
@@ -2174,6 +2233,85 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertEqual(response["payload"]["result"]["playlists"], [])
         self.assertEqual(response["payload"]["result"]["items"], [])
         self.assertEqual(response["payload"]["count"], 0)
+
+    def test_command_view_accepts_watchos_client_payload(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+        seen_commands = []
+
+        class Runtime:
+            device_token = "device-token"
+            device_status = {"device_id": "djconnect-watchos-68B74487726D"}
+            config = {}
+
+            def authorize_device_request(self, headers, body_device_id=None):
+                return (
+                    headers.get("Authorization") == "Bearer device-token"
+                    and body_device_id == "djconnect-watchos-68B74487726D"
+                )
+
+            def update(self, **kwargs):
+                self.last_update = kwargs
+
+        runtime = Runtime()
+
+        async def command_handler(hass, runtime_arg, command, value=None, *, play=None):
+            seen_commands.append((command, value, play))
+            return {"success": True, "command": command}
+
+        class Request:
+            headers = {"Authorization": "Bearer device-token"}
+            app = {"hass": types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})}
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-watchos-68B74487726D",
+                    "client_type": "watchos",
+                    "platform": "watchos",
+                    "command": "status",
+                    "firmware": "3.1.34",
+                    "app_version": "3.1.34",
+                }
+
+        original = self.http.handle_spotify_command
+        self.http.handle_spotify_command = command_handler
+        try:
+            response = asyncio.run(self.http.DJConnectCommandView(None).post(Request()))
+        finally:
+            self.http.handle_spotify_command = original
+
+        self.assertEqual(response["status_code"], 200)
+        self.assertEqual(response["payload"]["command"], "status")
+        self.assertEqual(runtime.device_status["client_type"], "watchos")
+        self.assertEqual(seen_commands, [("status", None, False)])
+
+    def test_command_view_rejects_unknown_client_type(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+
+        class Runtime:
+            device_token = "device-token"
+            device_status = {"device_id": "djconnect-android-68B74487726D"}
+            config = {}
+
+            def authorize_device_request(self, headers, body_device_id=None):
+                return True
+
+        runtime = Runtime()
+
+        class Request:
+            headers = {"Authorization": "Bearer device-token"}
+            app = {"hass": types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})}
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-android-68B74487726D",
+                    "client_type": "android",
+                    "command": "status",
+                }
+
+        response = asyncio.run(self.http.DJConnectCommandView(None).post(Request()))
+
+        self.assertEqual(response["status_code"], 400)
+        self.assertEqual(response["payload"]["error"], "invalid_client_type")
 
     def test_command_view_playlists_normalizes_nested_response_shapes(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")

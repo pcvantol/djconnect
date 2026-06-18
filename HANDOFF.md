@@ -103,7 +103,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Pairing/status responses must never include `spotify_client_id`, `client_id`, `spotify_refresh_token`, `refresh_token` or nested Spotify OAuth secrets.
 - Spotify OAuth credentials stay HA-internal.
 - Spotify OAuth uses PKCE with a user-owned Spotify Developer app. Setup asks for `spotify_client_id`, shows the exact redirect URI that must be registered in Spotify, strongly recommends a stable Nabu Casa HTTPS external URL, and no longer uses a shared built-in Client ID.
-- Spotify access tokens are cached in Home Assistant until shortly before expiry. Normal access-token expiry must refresh on demand and retry once after Spotify API `401`; this must stay invisible to ESP/iOS/macOS/Raspberry Pi clients.
+- Spotify access tokens are cached in Home Assistant until shortly before expiry. Normal access-token expiry must refresh on demand and retry once after Spotify API `401`; this must stay invisible to ESP/iOS/macOS/watchOS/Raspberry Pi clients.
 - Spotify refresh-token rotation must be handled silently. If Spotify rejects a refresh token, HA must retry any newer stored runtime/config-entry/config refresh token before creating a Repair issue.
 - Spotify `invalid_grant` / revoked refresh tokens only produce a user-friendly reauthorize/Repair flow after every known stored refresh token has failed.
 - Startup/pairing repair checks must look at both config entry data and options before creating missing Spotify token/client/scope issues, so a newly paired client does not immediately show a false Spotify repair.
@@ -114,8 +114,8 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - `ha_local_url` must be present and must never be a `*.ui.nabu.casa` cloud URL. Resolve HA Network/internal/source-IP local URL first, prefer a LAN source-IP over `homeassistant.local`, then use `http://homeassistant.local:8123` only as final local fallback.
 - Cloud/Nabu Casa URLs are only for the Spotify OAuth config/repair flow, never for device-to-HA status, command or voice traffic.
 - HA may call `POST /api/device/pair` only for initial pairing, explicit re-pair/token rotation or stale-pairing recovery. Startup with a stored token, normal status sync, playback commands and settings sync must not call it.
-- Setup-code pairing can start with a temporary six-digit identity, but HA must learn and persist only the real model-specific device ID from the first authenticated ESP call. Current ESP IDs are `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX` and `djconnect-esp32-s3-box-3-XXXXXXXXXXXX`; app/client IDs are `djconnect-ios-XXXXXXXXXXXX`, `djconnect-macos-XXXXXXXXXXXX` and `djconnect-raspberry-pi-XXXXXXXXXXXX`. Legacy `djconnect-XXXXXXXXXXXX` IDs are not accepted.
-- `client_type` must match the device-id prefix: `ios` with `djconnect-ios-*`, `macos` with `djconnect-macos-*`, `raspberry_pi` with `djconnect-raspberry-pi-*`, and `esp32` with ESP model-specific IDs.
+- Setup-code pairing can start with a temporary six-digit identity, but HA must learn and persist only the real model-specific device ID from the first authenticated ESP call. Current ESP IDs are `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX` and `djconnect-esp32-s3-box-3-XXXXXXXXXXXX`; app/client IDs are `djconnect-ios-XXXXXXXXXXXX`, `djconnect-macos-XXXXXXXXXXXX`, `djconnect-watchos-XXXXXXXXXXXX` and `djconnect-raspberry-pi-XXXXXXXXXXXX`. Legacy `djconnect-XXXXXXXXXXXX` IDs are not accepted.
+- `client_type` must match the device-id prefix: `ios` with `djconnect-ios-*`, `macos` with `djconnect-macos-*`, `watchos` with `djconnect-watchos-*`, `raspberry_pi` with `djconnect-raspberry-pi-*`, and `esp32` with ESP model-specific IDs.
 - HA and ESP firmware compatibility is strict on `major.minor`: patch versions may differ, but `3.0.z` must not talk to `3.1.z`. HA returns HTTP `426` `version_mismatch` with HA/firmware metadata and keeps pairing intact.
 - ESP status payloads can report device settings as top-level fields or nested `settings`, `screen` and `led` objects; HA flattens those aliases for native entities, including `wake_word_enabled` / `wake_word`.
 - HA pairing status is `pending` until ESP confirms `ha_pairing_status=paired`; a locally stored token alone is not enough.
@@ -123,8 +123,8 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Physical PTT uses raw WAV upload to HA; ESP must not authenticate directly to HA Assist WebSocket.
 - HA STT/TTS provider selection is driven by the selected Home Assistant Assist pipeline; legacy DJConnect `stt_engine`/`tts_*` options are ignored by runtime paths.
 - DJConnect exposes a Home Assistant conversation agent named `DJConnect DJ` for Assist satellites such as Voice Preview Edition. Initial setup can create an Assist Conversation Agent-only entry without a DJConnect client pairing code, device token or Client adres. Its options flow must stay compact and must not show device pairing, Client adres, Assist pipeline, firmware channel, DJ announcement playback toggle or OTA/audio advanced fields.
-- The initial config flow chooses setup method only once. The pairing step must not repeat `setup_method`; it only collects discovery/client details. Client type choices are ordered iOS, macOS, Linux/Raspberry Pi and ESP32.
-- Firmware channel is ESP32-only. iOS/macOS update through app distribution/TestFlight, and Linux/Raspberry Pi clients update from their own GitHub source/install flow, so those client types must not show or store `firmware_channel`.
+- The initial config flow chooses setup method only once. The pairing step must not repeat `setup_method`; it only collects discovery/client details. Client type choices are ordered iOS, macOS, Apple Watch, Linux/Raspberry Pi and ESP32.
+- Firmware channel is ESP32-only. iOS/macOS/watchOS update through app distribution/TestFlight, and Linux/Raspberry Pi clients update from their own GitHub source/install flow, so those client types must not show or store `firmware_channel`.
 - DJ response tone is configured with one free-form `dj_response_prompt`; old fixed `dj_style` / `dj_profile` choices are removed and must not be reintroduced.
 - STT fuzzy correction, Spotify intent detection and AI DJ announcement generation use the configured conversation agent when present, otherwise resolve Home Assistant's preferred/default Assist pipeline and use its conversation engine.
 - The DJ response prompt must start with DJConnect-specific override instructions so global smart-home conversation-agent instructions do not steer the spoken DJ response.
@@ -210,7 +210,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - `sensor.djconnect_last_track` and `sensor.djconnect_last_command` cache their last non-empty native values at entity level and must not flip to unknown/unavailable because a sparse runtime snapshot omits them.
 - ESP status must include `client_type=esp32`; missing client type is surfaced as a visible HA status error.
 - Native HA entities include backend playback proxy, queue/up-next, output list, output select, device settings and test/refresh buttons under one HA device. Firmware OTA/update entities are ESP32-only.
-- ESP32 clients get ESP-only hardware/update/settings entities: battery, Wi-Fi RSSI, screen state, LED state, screen brightness/timeout, speaker volume, wake word, device language, auto-off, theme/log-level, firmware update and reboot. Wake word reads `settings.wake_word_enabled`, then top-level `wake_word_enabled`, then `wake_word`, and the HA switch sends canonical `{"command":"wake_word","value":true|false}`. iOS, macOS and Raspberry Pi clients must not get those ESP-only entities; they keep only client/runtime and backend/playback entities. Raspberry Pi clients additionally get Pi-specific restart and shutdown buttons that call `/api/device/restart` and `/api/device/shutdown`.
+- ESP32 clients get ESP-only hardware/update/settings entities: battery, Wi-Fi RSSI, screen state, LED state, screen brightness/timeout, speaker volume, wake word, device language, auto-off, theme/log-level, firmware update and reboot. Wake word reads `settings.wake_word_enabled`, then top-level `wake_word_enabled`, then `wake_word`, and the HA switch sends canonical `{"command":"wake_word","value":true|false}`. iOS, macOS, watchOS and Raspberry Pi clients must not get those ESP-only entities; they keep only client/runtime and backend/playback entities. Raspberry Pi clients additionally get Pi-specific restart and shutdown buttons that call `/api/device/restart` and `/api/device/shutdown`.
 - `button.djconnect_refresh_up_next` refreshes Spotify/Home Assistant backend queue data through the `queue` command.
 - `command=queue` returns at most 100 real queue items plus top-level `context_uri` / `contextUri` and queue item artwork aliases so ESP/web/app Up Next can use `play_context_at` and show thumbnails.
 - `select.djconnect_sound_output` refreshes Spotify output devices itself and accepts `available_outputs`, `outputs`, `devices` and nested `items` aliases.
@@ -226,7 +226,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Spotify OAuth Repair flow starts an external Spotify OAuth step and does not mark the issue fixed until a new token is stored.
 - Backend playback auth failures are returned as user-friendly JSON without forcing ESP pairing reset.
 - Device number/select entities accept common firmware status aliases and unit conversions.
-- Pairing config-flow browses `_djconnect._tcp` for app-like clients including Raspberry Pi. It validates `client_type=raspberry_pi` against `djconnect-raspberry-pi-XXXXXXXXXXXX`, accepts TXT `local_url` when present, probes `GET /api/device/pairing-info`, and treats pairing-info as authoritative for Client adres, stable device ID, client type, device name, pair code, version and paired state.
+- Pairing config-flow browses `_djconnect._tcp` for app-like clients including watchOS and Raspberry Pi. It validates app-like client types against stable IDs such as `djconnect-watchos-XXXXXXXXXXXX` and `djconnect-raspberry-pi-XXXXXXXXXXXX`, accepts TXT `local_url` when present, probes `GET /api/device/pairing-info`, and treats pairing-info as authoritative for Client adres, stable device ID, client type, device name, pair code, version and paired state.
 - A single discovered Raspberry Pi client is selected by default but still requires user confirmation. Multiple discovered clients are offered in the `discovered_client` selector.
 - Stale/unreachable mDNS clients are hidden from the discovery selector when `/api/device/pairing-info` cannot be reached. Manual Client adres remains the fallback for networks where Bonjour advertises a wrong or blocked URL.
 - Raspberry Pi discovery tests now cover TXT acceptance, TXT `local_url`, pairing-info override, stale probe filtering, one-client prefill, multi-client selector, duplicate stable-ID abort behavior and proof that pairing uses the stable discovered Pi device ID instead of `djconnect-{pair_code}`.
@@ -242,7 +242,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Confirm ESP shows update-required state and keeps pairing intact after HA returns `426 version_mismatch`.
 - Confirm ESP status payload includes top-level or nested device settings so HA brightness/theme/log-level/speaker-volume entities do not remain unknown/minimum.
 - Confirm normal pairing no longer repeats setup method after the first config-flow step.
-- Confirm firmware channel is visible/stored only for ESP32 clients and hidden/omitted for iOS, macOS and Linux/Raspberry Pi clients.
+- Confirm firmware channel is visible/stored only for ESP32 clients and hidden/omitted for iOS, macOS, Apple Watch and Linux/Raspberry Pi clients.
 - Confirm physical PTT with selected HA STT provider returns recognized text.
 - Confirm HA TTS returns WAV/MP3 or falls back to text-only without crashing.
 - Confirm OTA clears updating state after post-boot status.
@@ -251,7 +251,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 
 1. Install the latest `3.1.x` release via HACS and restart Home Assistant.
 2. Verify the README/HACS banner and `info.md` render the `https://djconnect.dev` link as intended.
-3. Update the external product website How To Start page with HACS installation, Spotify Premium requirement, HA Assist pipeline setup, ESP pairing and iOS/macOS/Raspberry Pi Client adres steps.
+3. Update the external product website How To Start page with HACS installation, Spotify Premium requirement, HA Assist pipeline setup, ESP pairing and iOS/macOS/watchOS/Raspberry Pi Client adres steps.
 4. Verify `button.djconnect_refresh_up_next` updates `sensor.djconnect_queue` attributes.
 5. Verify `select.djconnect_sound_output` populates Spotify outputs without manually calling `devices`.
 6. Verify sensors keep last-known values after ESP status, playback command polling, voice tests and local device-info refreshes.

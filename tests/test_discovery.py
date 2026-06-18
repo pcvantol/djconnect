@@ -67,6 +67,30 @@ class DiscoveryHelperTest(unittest.TestCase):
         self.assertEqual(client.local_url, "http://djconnect-mac.local:60955")
         self.assertEqual(client.client_type, "macos")
 
+    def test_watchos_txt_with_valid_device_id_is_accepted(self) -> None:
+        client = self.discovery._client_from_service_info(
+            self._info(
+                props={
+                    "device_id": "djconnect-watchos-A1B2C3D4E5F6",
+                    "client_type": "watchos",
+                    "platform": "watchos",
+                    "device_name": "Peter Apple Watch",
+                    "local_url": "http://192.168.1.77:61235",
+                    "version": "3.1.34",
+                    "app_version": "3.1.34",
+                    "paired": "false",
+                },
+                server="ignored.local.",
+            )
+        )
+
+        self.assertIsNotNone(client)
+        self.assertEqual(client.local_url, "http://192.168.1.77:61235")
+        self.assertEqual(client.client_type, "watchos")
+        self.assertEqual(client.device_name, "Peter Apple Watch")
+        self.assertEqual(client.version, "3.1.34")
+        self.assertFalse(client.paired)
+
     def test_raspberry_pi_txt_with_valid_device_id_is_accepted(self) -> None:
         client = self.discovery._client_from_service_info(
             self._info(

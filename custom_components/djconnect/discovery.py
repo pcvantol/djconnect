@@ -13,6 +13,7 @@ from .const import (
     CLIENT_TYPE_ESP32,
     CLIENT_TYPE_IOS,
     CLIENT_TYPE_MACOS,
+    CLIENT_TYPE_WATCHOS,
     CLIENT_TYPE_RASPBERRY_PI,
     CLIENT_TYPES,
     CONF_CLIENT_TYPE,
@@ -317,6 +318,8 @@ def _device_id_matches_client_type(device_id: str, client_type: str) -> bool:
         return bool(re.fullmatch(r"djconnect-ios-[A-Za-z0-9]{12}", normalized_device))
     if normalized_client == CLIENT_TYPE_MACOS:
         return bool(re.fullmatch(r"djconnect-macos-[A-Za-z0-9]{12}", normalized_device))
+    if normalized_client == CLIENT_TYPE_WATCHOS:
+        return bool(re.fullmatch(r"djconnect-watchos-[A-Za-z0-9]{12}", normalized_device))
     if normalized_client == CLIENT_TYPE_RASPBERRY_PI:
         return bool(
             re.fullmatch(r"djconnect-raspberry-pi-[A-Za-z0-9]{12}", normalized_device)

@@ -26,13 +26,13 @@
 - Current mitigation: `/pair` and `/status` now persist real model/app-specific device ids and reported `local_url`.
 - Next action: Verify existing paired ESP posts `/status`; if not, manually use advanced device URL once or re-pair.
 
-### iOS/macOS pairing and playback need field validation
+### iOS/macOS/watchOS pairing and playback need field validation
 
 - Status: open / field validation.
 - Area: app clients.
-- Symptom: iOS/macOS clients depend on the app-reported Client adres and must not expose ESP-only firmware/reboot controls.
+- Symptom: iOS/macOS/watchOS clients depend on the app-reported Client adres and must not expose ESP-only firmware/reboot controls.
 - Current mitigation: Client type and Client adres are visible in normal pairing; OTA update and reboot entities are skipped/unavailable for `ios` and `macos`.
-- Next action: Test fresh iOS/macOS pairing, re-pairing and PTT playback after HACS install/restart.
+- Next action: Test fresh iOS/macOS/watchOS pairing, re-pairing and PTT playback after HACS install/restart.
 
 ### mDNS reliability varies by network
 
@@ -128,10 +128,10 @@
 
 - Status: hardened after 3.1.23, monitor after install.
 - Area: Spotify backend / voice playback.
-- Previous symptom: After one PTT DJ announcement from iOS/macOS, HA could create a false Spotify reauthorization repair because concurrent Spotify calls refreshed with the same old refresh token.
+- Previous symptom: After one PTT DJ announcement from iOS/macOS/watchOS, HA could create a false Spotify reauthorization repair because concurrent Spotify calls refreshed with the same old refresh token.
 - Fix: Spotify access-token refresh is serialized per runtime, cached token is rechecked under the lock, and `invalid_grant` retries newer stored runtime/config-entry/config refresh-token sources before creating a Repair issue.
 - Debugging: With DJConnect debug logging enabled, HA logs access-token expiry timing, refresh attempts, refresh-token source names and rotation persistence metadata without logging token values.
-- Validation: Trigger several PTT requests from iOS/macOS after HA restart and confirm no false “Spotify autorisatie verlopen of ingetrokken” repair appears.
+- Validation: Trigger several PTT requests from iOS/macOS/watchOS after HA restart and confirm no false “Spotify autorisatie verlopen of ingetrokken” repair appears.
 
 ### Spotify artist queue offset error
 
@@ -144,10 +144,10 @@
 ## Regression Watchlist
 
 - Config flow must not expose manual `oauth_result`.
-- Config flow must show setup method only in the first step, then show `client_type` and Client adres in normal pairing; iOS/macOS users need it, ESP users usually leave it empty. Client type choices should be ordered iOS, macOS, Linux/Raspberry Pi and ESP32.
+- Config flow must show setup method only in the first step, then show `client_type` and Client adres in normal pairing; iOS/macOS/watchOS users need it, ESP users usually leave it empty. Client type choices should be ordered iOS, macOS, Apple Watch, Linux/Raspberry Pi and ESP32.
 - Config/options flow must not require `spotify_player`.
-- Firmware channel, OTA update and reboot entities must not be active/available for `client_type=ios`, `client_type=macos` or `client_type=raspberry_pi`.
-- App-like client discovery must not create setup-code-only duplicates when a stable `djconnect-ios-*`, `djconnect-macos-*` or `djconnect-raspberry-pi-*` ID is known.
+- Firmware channel, OTA update and reboot entities must not be active/available for `client_type=ios`, `client_type=macos`, `client_type=watchos` or `client_type=raspberry_pi`.
+- App-like client discovery must not create setup-code-only duplicates when a stable `djconnect-ios-*`, `djconnect-macos-*`, `djconnect-watchos-*` or `djconnect-raspberry-pi-*` ID is known.
 - External product website must not imply official Spotify affiliation, endorsement or sponsorship.
 - External product website must stay aligned with current setup requirements and local API architecture.
 - STT/TTS provider selection is managed through Home Assistant Assist; DJConnect must not show standalone `stt_engine`, `tts_engine`, `tts_language` or `tts_voice` fields.

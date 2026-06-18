@@ -372,6 +372,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         for client_type in (
             self.const.CLIENT_TYPE_IOS,
             self.const.CLIENT_TYPE_MACOS,
+            self.const.CLIENT_TYPE_WATCHOS,
             self.const.CLIENT_TYPE_RASPBERRY_PI,
         ):
             with self.subTest(client_type=client_type):
@@ -515,9 +516,14 @@ class ConfigFlowHelperTest(unittest.TestCase):
             [
                 self.const.CLIENT_TYPE_IOS,
                 self.const.CLIENT_TYPE_MACOS,
+                self.const.CLIENT_TYPE_WATCHOS,
                 self.const.CLIENT_TYPE_RASPBERRY_PI,
                 self.const.CLIENT_TYPE_ESP32,
             ],
+        )
+        self.assertEqual(
+            self.const.CLIENT_TYPE_NAMES[self.const.CLIENT_TYPE_WATCHOS],
+            "Apple Watch app",
         )
         self.assertEqual(
             self.const.CLIENT_TYPE_NAMES[self.const.CLIENT_TYPE_RASPBERRY_PI],

@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.60
+
+- Add `watchos` as a first-class DJConnect app client type, including pairing, status, command, voice upload, mDNS discovery, entity filtering, translations and documentation.
+
 ## 3.1.59
 
 - Rename the Bluetooth WiFi setup method to clarify that it configures ESP32 device WiFi.

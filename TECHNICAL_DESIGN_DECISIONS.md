@@ -203,14 +203,14 @@ Why:
 Pattern:
 
 - `client_type` is the canonical runtime discriminator.
-- Current values are `esp32`, `ios`, `macos` and `raspberry_pi`.
+- Current values are `esp32`, `ios`, `macos`, `watchos` and `raspberry_pi`.
 - ESP32 gets hardware-specific entities such as battery, WiFi RSSI, screen,
   LED, OTA and reboot controls.
-- iOS, macOS and Raspberry Pi clients keep backend/playback/client entities
+- iOS, macOS, watchOS and Raspberry Pi clients keep backend/playback/client entities
   only. Firmware channel and OTA controls are ESP32-only; Apple clients update
   through app distribution/TestFlight and Linux/Raspberry Pi clients update
   through their own source/install flow.
-- Config-flow client type choices are ordered iOS, macOS, Linux/Raspberry Pi
+- Config-flow client type choices are ordered iOS, macOS, Apple Watch, Linux/Raspberry Pi
   and ESP32, and setup method is chosen only in the first config-flow step.
 
 Primary source files:

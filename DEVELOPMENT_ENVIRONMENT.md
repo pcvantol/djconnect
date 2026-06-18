@@ -105,7 +105,7 @@ After restart, validate the flows touched by the change:
 
 - Add Integration: confirm `Assist Conversation Agent` appears first in the setup choice.
 - Add Integration: confirm setup method is not repeated on the pairing step.
-- Add Integration: confirm client type choices are ordered iOS, macOS, Linux/Raspberry Pi and ESP32.
+- Add Integration: confirm client type choices are ordered iOS, macOS, Apple Watch, Linux/Raspberry Pi and ESP32.
 - Add Integration/options: confirm firmware channel appears only for ESP32 clients.
 - Add Integration: confirm Spotify setup asks for a user-owned Spotify Client ID and shows the exact redirect URI.
 - Options flow: confirm it opens without an internal server error.

@@ -152,7 +152,7 @@ class NumberTest(unittest.TestCase):
         self.assertEqual(screen_timeout.native_value, 45)
 
     def test_setup_entry_adds_only_playback_volume_for_app_clients(self) -> None:
-        for client_type in ("ios", "macos", "raspberry_pi"):
+        for client_type in ("ios", "macos", "watchos", "raspberry_pi"):
             with self.subTest(client_type=client_type):
                 runtime = types.SimpleNamespace(
                     entry=types.SimpleNamespace(entry_id="entry-1"),
