@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.1.58
 
 - Remove the repeated setup method selector from the pairing step, show client type choices as iOS, macOS, Linux/Raspberry Pi and ESP32, and keep firmware channel selection ESP32-only.
 
