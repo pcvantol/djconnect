@@ -66,6 +66,8 @@ Before publishing:
   decisions, Postman collections, third-party notices and repo-specific docs
   when product behavior, APIs, release flow, dependencies or public contracts
   changed.
+- Use `CHAT_BOOTSTRAP.md` as the repo-local fresh-chat prompt filename in every
+  DJConnect repository.
 - Review and update all user-facing translations for changed setup, options,
   repair, entity and service strings in repos that ship localized UI.
 - Update `pcvantol/djconnect/SYNC_PROMPTS.md` when the cross-repo contract or
