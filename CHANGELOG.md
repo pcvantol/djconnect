@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.1.55
 
 - Fetch stable firmware manifests directly from GitHub's latest release download URL before falling back to release metadata, improving OTA discovery when latest release JSON is unavailable or incomplete.
 
