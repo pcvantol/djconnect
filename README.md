@@ -73,6 +73,7 @@ runtime behavior. These decisions are part of the integration contract:
 - Canonical product roadmap lives only in this HA repo: [`PRODUCT_ROADMAP.md`](PRODUCT_ROADMAP.md)
 - Technical design decisions and dependency inventory: [`TECHNICAL_DESIGN_DECISIONS.md`](TECHNICAL_DESIGN_DECISIONS.md)
 - Contribution guidelines: [`CONTRIBUTING.md`](CONTRIBUTING.md)
+- Fresh-chat bootstrap prompt: [`CHAT_BOOTSTRAP.md`](CHAT_BOOTSTRAP.md)
 
 This repository contains the Home Assistant custom integration under `custom_components/djconnect`.
 

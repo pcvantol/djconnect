@@ -1,0 +1,56 @@
+# DJConnect Chat Bootstrap Prompt
+
+Use this prompt to initialize a fresh AI/Codex chat for this repository.
+
+```text
+Werk in repo `/Users/pcvantol/Documents/GitHub/djconnect`.
+
+Lees eerst:
+- `AGENTS.md`
+- `HANDOFF.md`
+- `README.md`
+- `CHANGELOG.md`
+- `TODO.md`
+- `ISSUES.md`
+- `SYNC_PROMPTS.md`
+- `PRODUCT_ROADMAP.md`
+- `TECHNICAL_DESIGN_DECISIONS.md`
+- `CONTRIBUTING.md`
+
+Belangrijke huidige status:
+- Project: DJConnect Home Assistant custom integration, domain `djconnect`.
+- Laatste release: `3.1.52`.
+- Repo is public en MIT-licensed.
+- Alle DJConnect repos zijn MIT-licensed, tenzij een specifieke third-party dependency anders vermeldt.
+- `FIRMWARE-LICENSE.md` is verwijderd.
+- HACS/HA integration repo: `pcvantol/djconnect`.
+- Firmware repo/source en client repos zijn aparte MIT repos.
+- Home Assistant integration blijft verantwoordelijk voor pairing, Spotify OAuth/backend playback, Assist/STT/TTS, OTA, status en diagnostics.
+- ESP/app clients bewaren geen Spotify credentials.
+- Actieve voice routes gebruiken Home Assistant Assist/TTS, geen directe externe AI/STT/TTS APIs.
+- DJConnect exposeert een Home Assistant conversation agent met vaste naam `DJConnect DJ`.
+- Initial setup heeft nu 3 opties:
+  - bestaand WiFi device koppelen;
+  - WiFi via Bluetooth provisionen;
+  - `Assist Conversation Agent` zonder client-koppelcode/device token/Client adres.
+- Compacte conversation-agent options-flow toont alleen actie + DJ response stijl/prompt.
+- Verwijderde opties:
+  - Spotify source override;
+  - Standaard playlist override;
+  - DJ aankondiging op apparaat afspelen toggle uit conversation-agent options.
+- User-facing label `Client API URL` is overal hernoemd naar `Client adres`.
+- Spotify OAuth repair popup fix zit in release.
+- Conversation agent gebruikt Assist conversation agent voor Spotify intent bepaling en DJ response generatie, met DJConnect prompt override.
+- DJ response prompts moeten artiest, album en nummer noemen waar bekend.
+- Config flow blokkeert niet meer op officiële Spotify media_player; DJConnect gebruikt eigen Spotify OAuth en Spotify Web API.
+- HACS icon issue: assets zitten in deze repo, en er is lokaal werk gestart voor een PR naar `home-assistant/brands` met `custom_integrations/djconnect/icon.png`, `icon@2x.png`, `logo.png`. Als dat vervolg nodig is: check `/tmp/home-assistant-brands-djconnect`.
+
+Werkstijl:
+- Gebruik `rg` voor zoeken.
+- Gebruik `apply_patch` voor handmatige edits.
+- Niet ongevraagd unrelated changes terugdraaien.
+- Run minimaal `python3 -m unittest discover -s tests` voor release/codewijzigingen.
+- Release met `./release.sh X.Y.Z`; cleanup oude releases met `./cleanup_old_releases.sh --keep 1 --execute`.
+- Houd docs en vertalingen actueel bij UI/config-flow/options-flow wijzigingen.
+- Geen secrets/tokens/wachtwoorden loggen of committen.
+```
