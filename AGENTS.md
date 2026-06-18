@@ -34,7 +34,7 @@ Architectuur beslissingen:
 - Als ESP `/api/djconnect/status` `spotify_configured=false` meldt, behandel dit alleen als compat/statushint voor backend playback; stuur geen Spotify OAuth credentials naar ESP.
 - BLE provisioning doet alleen WiFi SSID/password; geen Spotify credentials, device tokens of andere secrets via BLE.
 - Runtime discovery prefereert device-reported `local_url`, exacte `_djconnect._tcp` mDNS matches en daarna alleen een enkele zichtbare DJConnect mDNS service; genereer alleen model-specifieke hostnames zoals `http://djconnect-lilygo-t-embed-s3-[device-suffix].local` voor echte device IDs met 12-hex suffix, nooit voor 6-cijferige setupcodes.
-- Normale config-flow blijft klein; firmware channel blijft zichtbaar, maar max audio bytes, OTA battery settings en DJ announcement audio TTL gebruiken interne defaults en worden niet meer als config/options velden getoond. Spotify source override en standaard playlist override worden niet meer als config/options velden getoond. Firmware repo/asset/device settings horen niet meer in de flow; OTA selecteert automatisch uit het public firmware manifest op basis van ESP device status/info. Gebruikers mogen wel wisselen tussen firmwarekanaal `stable` en `beta`.
+- Normale config-flow blijft klein; de setupmethode wordt alleen in de eerste stap gekozen en niet herhaald in de pairingstap. Clienttype-keuzes staan in de volgorde iOS, macOS, Linux/Raspberry Pi en ESP32. Firmware channel is alleen zichtbaar voor ESP32 clients; iOS/macOS lopen via app-distributie/TestFlight en Linux/Raspberry Pi via eigen GitHub source/install flow. Max audio bytes, OTA battery settings en DJ announcement audio TTL gebruiken interne defaults en worden niet meer als config/options velden getoond. Spotify source override en standaard playlist override worden niet meer als config/options velden getoond. Firmware repo/asset/device settings horen niet meer in de flow; ESP32 OTA selecteert automatisch uit het public firmware manifest op basis van ESP device status/info. ESP32 gebruikers mogen wisselen tussen firmwarekanaal `stable` en `beta`.
 - Alle entities horen onder één HA device met één stabiele device identifier.
 - DJConnect repos zijn MIT-licensed tenzij een specifieke third-party dependency anders vermeldt.
 - Geen secrets in diagnostics/logs; redactie voor keys met `token`, `password` of `secret`.
@@ -93,8 +93,9 @@ HA integration:
   - Assist pipeline uit HA Assist pipelines.
   - Spotify market vaste keuzes.
   - DJ response prompt preset plus vrij tekstveld.
-  - Firmware device wordt automatisch uit ESP status/info afgeleid voor OTA manifestselectie.
-- Toon max audio bytes, min battery for OTA, allow OTA on battery en DJ response audio TTL niet meer in config/options flow; gebruik de interne defaults en bewaar oude opgeslagen waarden alleen voor backwards compatibility.
+  - Firmware device wordt automatisch uit ESP status/info afgeleid voor ESP32 OTA manifestselectie.
+- Toon firmwarekanaal alleen voor ESP32 clients; toon het niet voor iOS, macOS, Linux/Raspberry Pi of Assist Conversation Agent-only entries.
+- Toon max audio bytes, min battery for OTA, allow OTA on battery en DJ response audio TTL niet meer in config/options flow; gebruik de interne defaults.
 - Laat velden vrije tekst waar HA geen betrouwbare bron heeft; toon geen standaard playlist override meer in de flow.
 - STT/TTS engine, taal en stem worden in Home Assistant Assist beheerd en niet als losse DJConnect config/options velden getoond.
 - Spotify source/device naam is dynamisch; toon geen Spotify source override meer in config/options.

@@ -79,9 +79,11 @@
 
 - Confirm normal config flow stays small and user-focused.
 - Confirm Add integration shows a clear Assist pipeline prerequisite error when Home Assistant has no Assist pipeline with both STT and TTS.
-- Confirm `client_type` and Client adres are visible in normal pairing.
+- Confirm setup method is shown only in the first Add integration step and not repeated in normal pairing.
+- Confirm `client_type` and Client adres are visible in normal pairing, with client type choices ordered iOS, macOS, Linux/Raspberry Pi and ESP32.
 - Confirm standalone `stt_engine`, `tts_engine`, `tts_language` and `tts_voice` fields remain hidden; STT/TTS is managed through Home Assistant Assist.
 - Confirm internal compatibility/OTA/audio TTL defaults are no longer exposed in config/options flow.
+- Confirm firmware channel is visible and stored only for ESP32 clients, not for iOS, macOS or Linux/Raspberry Pi clients.
 - Confirm Spotify setup requires a user-owned Spotify Developer app Client ID and shows the exact redirect URI to register.
 - Confirm no `spotify_player` field is required in config/options flow.
 - Confirm ESP32-only Wake word switch appears only for ESP32 clients and tracks `settings.wake_word_enabled` after ESP reboot/status refresh.
@@ -95,7 +97,7 @@
 - Verify OTA payload sends manifest `device`, currently `lilygo-t-embed-s3`.
 - Verify ESP no longer rejects OTA with `Wrong device target`.
 - Verify OTA errors are shown clearly in HA.
-- Verify firmware OTA update entity is not added and remains unavailable for `client_type=ios`, `client_type=macos` and `client_type=raspberry_pi`.
+- Verify firmware channel and firmware OTA update entity are not added and remain unavailable for `client_type=ios`, `client_type=macos` and `client_type=raspberry_pi`.
 - Verify ESP reboot entity is not added for `client_type=ios`, `client_type=macos` and `client_type=raspberry_pi`; verify Raspberry Pi restart/shutdown entities are added only for `client_type=raspberry_pi`.
 
 ## Developer Services

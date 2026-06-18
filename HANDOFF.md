@@ -123,6 +123,8 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Physical PTT uses raw WAV upload to HA; ESP must not authenticate directly to HA Assist WebSocket.
 - HA STT/TTS provider selection is driven by the selected Home Assistant Assist pipeline; legacy DJConnect `stt_engine`/`tts_*` options are ignored by runtime paths.
 - DJConnect exposes a Home Assistant conversation agent named `DJConnect DJ` for Assist satellites such as Voice Preview Edition. Initial setup can create an Assist Conversation Agent-only entry without a DJConnect client pairing code, device token or Client adres. Its options flow must stay compact and must not show device pairing, Client adres, Assist pipeline, firmware channel, DJ announcement playback toggle or OTA/audio advanced fields.
+- The initial config flow chooses setup method only once. The pairing step must not repeat `setup_method`; it only collects discovery/client details. Client type choices are ordered iOS, macOS, Linux/Raspberry Pi and ESP32.
+- Firmware channel is ESP32-only. iOS/macOS update through app distribution/TestFlight, and Linux/Raspberry Pi clients update from their own GitHub source/install flow, so those client types must not show or store `firmware_channel`.
 - DJ response tone is configured with one free-form `dj_response_prompt`; old fixed `dj_style` / `dj_profile` choices are removed and must not be reintroduced.
 - STT fuzzy correction, Spotify intent detection and AI DJ announcement generation use the configured conversation agent when present, otherwise resolve Home Assistant's preferred/default Assist pipeline and use its conversation engine.
 - The DJ response prompt must start with DJConnect-specific override instructions so global smart-home conversation-agent instructions do not steer the spoken DJ response.
@@ -207,7 +209,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Last-known ESP device status is persisted in config entry data as `last_device_status` and restored on HA reload/startup; never store secrets there.
 - `sensor.djconnect_last_track` and `sensor.djconnect_last_command` cache their last non-empty native values at entity level and must not flip to unknown/unavailable because a sparse runtime snapshot omits them.
 - ESP status must include `client_type=esp32`; missing client type is surfaced as a visible HA status error.
-- Native HA entities include backend playback proxy, queue/up-next, output list, output select, firmware OTA, device settings and test/refresh buttons under one HA device.
+- Native HA entities include backend playback proxy, queue/up-next, output list, output select, device settings and test/refresh buttons under one HA device. Firmware OTA/update entities are ESP32-only.
 - ESP32 clients get ESP-only hardware/update/settings entities: battery, Wi-Fi RSSI, screen state, LED state, screen brightness/timeout, speaker volume, wake word, device language, auto-off, theme/log-level, firmware update and reboot. Wake word reads `settings.wake_word_enabled`, then top-level `wake_word_enabled`, then `wake_word`, and the HA switch sends canonical `{"command":"wake_word","value":true|false}`. iOS, macOS and Raspberry Pi clients must not get those ESP-only entities; they keep only client/runtime and backend/playback entities. Raspberry Pi clients additionally get Pi-specific restart and shutdown buttons that call `/api/device/restart` and `/api/device/shutdown`.
 - `button.djconnect_refresh_up_next` refreshes Spotify/Home Assistant backend queue data through the `queue` command.
 - `command=queue` returns at most 100 real queue items plus top-level `context_uri` / `contextUri` and queue item artwork aliases so ESP/web/app Up Next can use `play_context_at` and show thumbnails.
@@ -239,6 +241,8 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Confirm ESP does not clear pairing when Spotify backend is temporarily unavailable.
 - Confirm ESP shows update-required state and keeps pairing intact after HA returns `426 version_mismatch`.
 - Confirm ESP status payload includes top-level or nested device settings so HA brightness/theme/log-level/speaker-volume entities do not remain unknown/minimum.
+- Confirm normal pairing no longer repeats setup method after the first config-flow step.
+- Confirm firmware channel is visible/stored only for ESP32 clients and hidden/omitted for iOS, macOS and Linux/Raspberry Pi clients.
 - Confirm physical PTT with selected HA STT provider returns recognized text.
 - Confirm HA TTS returns WAV/MP3 or falls back to text-only without crashing.
 - Confirm OTA clears updating state after post-boot status.

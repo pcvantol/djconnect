@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Remove the repeated setup method selector from the pairing step, show client type choices as iOS, macOS, Linux/Raspberry Pi and ESP32, and keep firmware channel selection ESP32-only.
+
 ## 3.1.57
 
 - Hide device-only DJ response playback and firmware channel controls from the Assist Conversation Agent setup flow.

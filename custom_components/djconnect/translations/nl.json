@@ -24,7 +24,7 @@
         "data_description": {
           "pair_code": "De 6-cijferige code of 12 tekens lange device-suffix op het apparaatdisplay.",
           "device_name": "Leesbare naam voor deze DJConnect remote.",
-          "client_type": "Type DJConnect client dat koppelt met Home Assistant: ESP32 device, iOS app, macOS app of Raspberry Pi client.",
+          "client_type": "Type DJConnect client dat koppelt met Home Assistant: iOS app, macOS app, Linux/Raspberry Pi client of ESP32 device.",
           "local_url": "Kopieer de Client adres uit de DJConnect app via Instellingen.",
           "discovered_client": "Kies een automatisch gevonden DJConnect client om de koppelgegevens voor te vullen, of gebruik handmatige invoer."
         }
@@ -77,7 +77,7 @@
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline die DJConnect apparaten gebruiken voor spraakherkenning en DJ aankondiging audio.",
-          "client_type": "Type DJConnect client dat koppelt met Home Assistant: ESP32 device, iOS app, macOS app of Raspberry Pi client.",
+          "client_type": "Type DJConnect client dat koppelt met Home Assistant: iOS app, macOS app, Linux/Raspberry Pi client of ESP32 device.",
           "dj_response_enabled": "Maak een tijdelijke WAV of MP3 audio URL en stuur die met de DJ aankondiging naar het DJConnect device.",
           "dj_response_prompt_preset": "Kies een vaste stijl of Vrij in te vullen om de prompt hieronder zelf te beheren.",
           "dj_response_prompt": "Vrije prompt voor de tekst die DJConnect na een verzoek op het device uitspreekt. Bij een vaste stijl vult DJConnect deze tekst automatisch.",
@@ -144,7 +144,7 @@
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline die DJConnect apparaten gebruiken voor spraakherkenning en DJ aankondiging audio.",
-          "client_type": "Type DJConnect client dat koppelt met Home Assistant: ESP32 device, iOS app, macOS app of Raspberry Pi client.",
+          "client_type": "Type DJConnect client dat koppelt met Home Assistant: iOS app, macOS app, Linux/Raspberry Pi client of ESP32 device.",
           "local_url": "Geconfigureerde Client adres. Alleen-lezen; gebruik opnieuw koppelen om deze URL te wijzigen.",
           "dj_response_enabled": "Maak een tijdelijke WAV of MP3 audio URL en stuur die met de DJ aankondiging naar het DJConnect device.",
           "dj_response_prompt_preset": "Kies een vaste stijl of Vrij in te vullen om de prompt hieronder zelf te beheren.",

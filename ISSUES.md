@@ -144,9 +144,9 @@
 ## Regression Watchlist
 
 - Config flow must not expose manual `oauth_result`.
-- Config flow must show `client_type` and Client adres in normal pairing; iOS/macOS users need it, ESP users usually leave it empty.
+- Config flow must show setup method only in the first step, then show `client_type` and Client adres in normal pairing; iOS/macOS users need it, ESP users usually leave it empty. Client type choices should be ordered iOS, macOS, Linux/Raspberry Pi and ESP32.
 - Config/options flow must not require `spotify_player`.
-- OTA update and reboot entities must not be active/available for `client_type=ios`, `client_type=macos` or `client_type=raspberry_pi`.
+- Firmware channel, OTA update and reboot entities must not be active/available for `client_type=ios`, `client_type=macos` or `client_type=raspberry_pi`.
 - App-like client discovery must not create setup-code-only duplicates when a stable `djconnect-ios-*`, `djconnect-macos-*` or `djconnect-raspberry-pi-*` ID is known.
 - External product website must not imply official Spotify affiliation, endorsement or sponsorship.
 - External product website must stay aligned with current setup requirements and local API architecture.

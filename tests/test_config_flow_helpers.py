@@ -366,6 +366,29 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertEqual(labels, {"stable": "Stable", "beta": "Beta"})
 
+    def test_voice_schema_hides_firmware_channel_for_app_clients(self) -> None:
+        hass = types.SimpleNamespace(states=None)
+
+        for client_type in (
+            self.const.CLIENT_TYPE_IOS,
+            self.const.CLIENT_TYPE_MACOS,
+            self.const.CLIENT_TYPE_RASPBERRY_PI,
+        ):
+            with self.subTest(client_type=client_type):
+                schema = asyncio.run(
+                    self.config_flow._voice_schema(
+                        hass,
+                        {
+                            self.const.CONF_CLIENT_TYPE: client_type,
+                            **self.config_flow._voice_defaults(),
+                        },
+                    )
+                )
+
+                keys = {marker.key for marker in schema.schema}
+
+                self.assertNotIn(self.const.CONF_FIRMWARE_CHANNEL, keys)
+
     def test_voice_defaults_fill_empty_values(self) -> None:
         data = self.config_flow._voice_defaults(
             {
@@ -485,6 +508,21 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertIn(self.const.CONF_CLIENT_TYPE, keys)
         self.assertIn(self.const.CONF_LOCAL_URL, keys)
         self.assertNotIn(self.const.CONF_DEVICE_LANGUAGE, keys)
+
+    def test_client_type_choices_put_app_clients_before_esp32(self) -> None:
+        self.assertEqual(
+            list(self.const.CLIENT_TYPE_NAMES),
+            [
+                self.const.CLIENT_TYPE_IOS,
+                self.const.CLIENT_TYPE_MACOS,
+                self.const.CLIENT_TYPE_RASPBERRY_PI,
+                self.const.CLIENT_TYPE_ESP32,
+            ],
+        )
+        self.assertEqual(
+            self.const.CLIENT_TYPE_NAMES[self.const.CLIENT_TYPE_RASPBERRY_PI],
+            "Linux/Raspberry Pi client",
+        )
 
     def test_user_schema_prefills_manual_device_url_from_pair_code(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
@@ -863,14 +901,14 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertEqual(defaults[self.const.CONF_BLE_ADDRESS], "")
 
-    def test_pair_schema_allows_returning_to_ble_setup(self) -> None:
+    def test_pair_schema_does_not_repeat_setup_method_choice(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
 
         schema = flow._user_schema()
         keys = {marker.key for marker in schema}
 
-        self.assertIn(self.const.CONF_SETUP_METHOD, keys)
+        self.assertNotIn(self.const.CONF_SETUP_METHOD, keys)
         self.assertIn(self.const.CONF_PAIR_CODE, keys)
 
     def test_setup_method_order_puts_conversation_agent_first(self) -> None:
@@ -879,33 +917,6 @@ class ConfigFlowHelperTest(unittest.TestCase):
         methods = list(self.config_flow._setup_method_names(hass))
 
         self.assertEqual(methods[0], self.const.SETUP_METHOD_CONVERSATION_AGENT)
-
-    def test_user_schema_selects_conversation_agent_by_default(self) -> None:
-        flow = self.config_flow.DJConnectConfigFlow()
-        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
-
-        schema = flow._user_schema()
-        defaults = {marker.key: marker.default for marker in schema}
-
-        self.assertEqual(
-            defaults[self.const.CONF_SETUP_METHOD],
-            self.const.SETUP_METHOD_CONVERSATION_AGENT,
-        )
-
-    def test_pair_step_can_route_back_to_ble_setup(self) -> None:
-        flow = self.config_flow.DJConnectConfigFlow()
-        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
-
-        async def fake_ble_wifi(user_input=None):
-            return {"type": "form", "step_id": "ble_wifi"}
-
-        flow.async_step_ble_wifi = fake_ble_wifi
-
-        result = asyncio.run(
-            flow.async_step_pair({self.const.CONF_SETUP_METHOD: self.config_flow.SETUP_METHOD_BLE_WIFI})
-        )
-
-        self.assertEqual(result["step_id"], "ble_wifi")
 
     def test_user_step_can_route_to_conversation_agent_setup(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
@@ -1190,6 +1201,30 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertNotIn(self.const.CONF_FIRMWARE_CHANNEL, keys)
         self.assertNotIn(self.const.CONF_LOCAL_URL, keys)
 
+    def test_voice_step_hides_firmware_channel_for_app_clients(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(states=None)
+        flow._pairing = {
+            self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_MACOS,
+        }
+
+        form = asyncio.run(flow.async_step_voice())
+        keys = {marker.key for marker in form["data_schema"].schema}
+
+        self.assertNotIn(self.const.CONF_FIRMWARE_CHANNEL, keys)
+
+    def test_voice_defaults_for_app_clients_omit_firmware_channel(self) -> None:
+        defaults = self.config_flow._voice_defaults_for_client(
+            {
+                self.const.CONF_DJ_RESPONSE_PROMPT_PRESET: "custom",
+                self.const.CONF_DJ_RESPONSE_PROMPT: "Maak het kort.",
+                self.const.CONF_FIRMWARE_CHANNEL: "beta",
+            },
+            client_type=self.const.CLIENT_TYPE_MACOS,
+        )
+
+        self.assertNotIn(self.const.CONF_FIRMWARE_CHANNEL, defaults)
+
     def test_default_external_url_prefers_network_helper(self) -> None:
         from homeassistant.helpers import network
 
@@ -1369,6 +1404,30 @@ class ConfigFlowHelperTest(unittest.TestCase):
             result["data"][self.const.CONF_DJ_RESPONSE_PROMPT],
             "Maak het kort.",
         )
+
+    def test_options_flow_save_drops_firmware_channel_for_app_clients(self) -> None:
+        entry = types.SimpleNamespace(
+            data={
+                self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_IOS,
+                self.const.CONF_FIRMWARE_CHANNEL: "beta",
+            },
+            options={},
+        )
+        flow = self.config_flow.DJConnectOptionsFlow(entry)
+        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en"))
+
+        result = asyncio.run(
+            flow.async_step_init(
+                {
+                    self.config_flow.OPTIONS_ACTION_FIELD: self.config_flow.OPTIONS_ACTION_SAVE,
+                    self.const.CONF_DJ_RESPONSE_PROMPT_PRESET: "custom",
+                    self.const.CONF_DJ_RESPONSE_PROMPT: "Keep it short.",
+                }
+            )
+        )
+
+        self.assertEqual(result["type"], "create_entry")
+        self.assertNotIn(self.const.CONF_FIRMWARE_CHANNEL, result["data"])
 
     def test_options_spotify_reauth_finishes_with_done_step(self) -> None:
         entry = types.SimpleNamespace(

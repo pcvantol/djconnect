@@ -570,7 +570,6 @@ def _base_voice_schema(
     readonly_local_url: str | None = None,
 ) -> dict[Any, Any]:
     """Build the non-advanced voice settings schema."""
-    firmware_channel_selector = _firmware_channel_selector()
     schema: dict[Any, Any] = {}
     if options_actions is not None:
         schema[
@@ -608,11 +607,14 @@ def _base_voice_schema(
         ): selector.TextSelector(
             selector.TextSelectorConfig(multiline=True),
         ),
-        vol.Optional(
-            CONF_FIRMWARE_CHANNEL,
-            default=defaults.get(CONF_FIRMWARE_CHANNEL, DEFAULT_FIRMWARE_CHANNEL),
-        ): firmware_channel_selector,
     })
+    if defaults.get(CONF_CLIENT_TYPE, DEFAULT_CLIENT_TYPE) == CLIENT_TYPE_ESP32:
+        schema[
+            vol.Optional(
+                CONF_FIRMWARE_CHANNEL,
+                default=defaults.get(CONF_FIRMWARE_CHANNEL, DEFAULT_FIRMWARE_CHANNEL),
+            )
+        ] = _firmware_channel_selector()
     return schema
 
 
@@ -788,6 +790,19 @@ def _voice_defaults(
 def _voice_form_values(source: dict[str, Any]) -> dict[str, Any]:
     """Return only voice fields intentionally exposed in config/options forms."""
     return {key: source[key] for key in VOICE_FORM_FIELDS if key in source}
+
+
+def _voice_defaults_for_client(
+    source: dict[str, Any] | None = None,
+    *,
+    client_type: Any = DEFAULT_CLIENT_TYPE,
+    preserve_empty: bool = False,
+) -> dict[str, Any]:
+    """Return voice defaults, omitting ESP32-only settings for app clients."""
+    defaults = _voice_defaults(source, preserve_empty=preserve_empty)
+    if client_type != CLIENT_TYPE_ESP32:
+        defaults.pop(CONF_FIRMWARE_CHANNEL, None)
+    return defaults
 
 
 def _firmware_channel_default(value: Any) -> str:
@@ -975,9 +990,6 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     self._selected_discovered_key = ""
                     self._discovered_defaults = {}
                     return await self.async_step_pair()
-            method = user_input.get(CONF_SETUP_METHOD, SETUP_METHOD_PAIR_EXISTING)
-            if method == SETUP_METHOD_BLE_WIFI:
-                return await self.async_step_ble_wifi()
             pair_code = str(user_input.get(CONF_PAIR_CODE, "")).strip()
             self._last_pair_code = pair_code
             if not pair_code:
@@ -1112,12 +1124,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             _clean(defaults.get(CONF_DEVICE_NAME), DEFAULT_DEVICE_NAME),
         )
         local_url = _clean(defaults.get(CONF_LOCAL_URL), _default_local_url(pair_code))
-        schema: dict[Any, Any] = {
-            vol.Optional(
-                CONF_SETUP_METHOD,
-                default=DEFAULT_SETUP_METHOD,
-            ): vol.In(_setup_method_names(getattr(self, "hass", None))),
-        }
+        schema: dict[Any, Any] = {}
         discovery_options = self._discovered_client_options()
         if discovery_options:
             schema[
@@ -1311,7 +1318,13 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 data: dict[str, Any] = {}
                 data.update(self._pairing)
                 data.update(self._spotify)
-                data.update(_voice_defaults(_voice_form_values(user_input)))
+                client_type = data.get(CONF_CLIENT_TYPE, DEFAULT_CLIENT_TYPE)
+                data.update(
+                    _voice_defaults_for_client(
+                        _voice_form_values(user_input),
+                        client_type=client_type,
+                    )
+                )
                 if getattr(self, "_conversation_agent_only", False):
                     return self.async_create_entry(
                         title=data.get(CONF_DEVICE_NAME, "DJConnect DJ"),
@@ -1326,7 +1339,16 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         step_id="voice",
                         data_schema=await _voice_schema(
                             self.hass,
-                            _voice_defaults(_voice_form_values(user_input)),
+                            {
+                                **self._pairing,
+                                **_voice_defaults_for_client(
+                                    _voice_form_values(user_input),
+                                    client_type=self._pairing.get(
+                                        CONF_CLIENT_TYPE,
+                                        DEFAULT_CLIENT_TYPE,
+                                    ),
+                                ),
+                            },
                         ),
                         errors=errors,
                     )
@@ -1342,7 +1364,16 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 if getattr(self, "_conversation_agent_only", False)
                 else await _voice_schema(
                     self.hass,
-                    _voice_defaults({}),
+                    {
+                        **self._pairing,
+                        **_voice_defaults_for_client(
+                            {},
+                            client_type=self._pairing.get(
+                                CONF_CLIENT_TYPE,
+                                DEFAULT_CLIENT_TYPE,
+                            ),
+                        ),
+                    },
                 )
             ),
             errors=errors,
@@ -1370,7 +1401,6 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
     ) -> FlowResult:
         """Manage DJConnect options."""
         current = {**self._config_entry.data, **self._config_entry.options}
-        defaults = _voice_defaults(current, preserve_empty=True)
         errors: dict[str, str] = {}
         if user_input is not None:
             action = user_input.get(OPTIONS_ACTION_FIELD)
@@ -1392,7 +1422,11 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
                 )
                 return self.async_create_entry(
                     title="",
-                    data=_voice_defaults(merged, preserve_empty=True),
+                    data=_voice_defaults_for_client(
+                        merged,
+                        client_type=merged.get(CONF_CLIENT_TYPE, DEFAULT_CLIENT_TYPE),
+                        preserve_empty=True,
+                    ),
                 )
 
         return self.async_show_form(
@@ -1420,7 +1454,16 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
                 step_id="init",
                 data_schema=await _voice_schema(
                     self.hass,
-                    _voice_defaults(current),
+                    {
+                        **current,
+                        **_voice_defaults_for_client(
+                            current,
+                            client_type=current.get(
+                                CONF_CLIENT_TYPE,
+                                DEFAULT_CLIENT_TYPE,
+                            ),
+                        ),
+                    },
                     include_options_action=True,
                 ),
                 errors={"base": "oauth_setup_failed"},
@@ -1563,7 +1606,13 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
             step_id="init",
             data_schema=await _voice_schema(
                 self.hass,
-                _voice_defaults(current),
+                {
+                    **current,
+                    **_voice_defaults_for_client(
+                        current,
+                        client_type=current.get(CONF_CLIENT_TYPE, DEFAULT_CLIENT_TYPE),
+                    ),
+                },
                 include_options_action=True,
             ),
             errors=errors,

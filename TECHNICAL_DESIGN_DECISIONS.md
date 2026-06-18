@@ -207,7 +207,11 @@ Pattern:
 - ESP32 gets hardware-specific entities such as battery, WiFi RSSI, screen,
   LED, OTA and reboot controls.
 - iOS, macOS and Raspberry Pi clients keep backend/playback/client entities
-  only.
+  only. Firmware channel and OTA controls are ESP32-only; Apple clients update
+  through app distribution/TestFlight and Linux/Raspberry Pi clients update
+  through their own source/install flow.
+- Config-flow client type choices are ordered iOS, macOS, Linux/Raspberry Pi
+  and ESP32, and setup method is chosen only in the first config-flow step.
 
 Primary source files:
 
