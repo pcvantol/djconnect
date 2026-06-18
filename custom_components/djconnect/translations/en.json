@@ -47,7 +47,7 @@
       },
       "spotify": {
         "title": "Connect Spotify",
-        "description": "Create your own Spotify Developer app and register this exact redirect URI: `{redirect_uri}`. Prefer your Nabu Casa HTTPS Home Assistant URL. DJConnect uses PKCE, so no Client Secret is needed.",
+        "description": "Create your own Spotify Developer app at https://developer.spotify.com/dashboard and register this exact redirect URI: `{redirect_uri}`. Prefer your Nabu Casa HTTPS Home Assistant URL. DJConnect uses PKCE, so no Client Secret is needed.",
         "data": {
           "spotify_client_id": "Spotify Client ID",
           "ha_external_url": "Home Assistant external URL",

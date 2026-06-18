@@ -576,6 +576,20 @@ def _validate_required_client_type(data: dict[str, Any]) -> str | None:
     return client_type
 
 
+def _request_remote_ip(request: Any) -> str | None:
+    value = str(getattr(request, "remote", "") or "").strip()
+    host = value.rsplit(":", 1)[0] if value.count(":") == 1 else value
+    parts = host.split(".")
+    if len(parts) != 4:
+        return None
+    try:
+        if all(0 <= int(part) <= 255 and str(int(part)) == part for part in parts):
+            return host
+    except ValueError:
+        return None
+    return None
+
+
 def _merge_status_update(status: dict[str, Any], update: dict[str, Any]) -> None:
     """Merge ESP status without letting sparse heartbeats erase known values."""
     if not update:
@@ -1066,6 +1080,9 @@ class DJConnectStatusView(HomeAssistantView):
             )
             return _json_error(self, "invalid_client_type", 400)
         status_update[CONF_CLIENT_TYPE] = client_type
+        source_ip = _request_remote_ip(request)
+        if source_ip:
+            status_update["local_ip"] = source_ip
         if _is_command_payload(status_update):
             _LOGGER.debug("Ignoring command payload for device sensor update")
         elif _is_voice_only_payload(status_update):

@@ -1321,6 +1321,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
         class Request:
             headers = {"Authorization": "Bearer device-token"}
             app = {"hass": types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})}
+            remote = "192.168.1.109"
 
             async def json(self):
                 return {
@@ -1342,6 +1343,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertNotIn("refresh_token", response["payload"])
         self.assertNotIn("spotify_refresh_token", response["payload"])
         self.assertNotIn("spotify", response["payload"])
+        self.assertEqual(runtime.device_status["local_ip"], "192.168.1.109")
 
     def test_status_view_persists_reported_device_identity_and_local_url(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")

@@ -1111,6 +1111,64 @@ class TtsHelperTest(unittest.TestCase):
             },
         )
 
+    def test_start_ota_falls_back_to_cached_status_ip(self) -> None:
+        class Response:
+            status = 200
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def text(self):
+                return '{"success": true}'
+
+        class Session:
+            def __init__(self):
+                self.calls = []
+
+            def post(self, url, **kwargs):
+                self.calls.append({"url": url, **kwargs})
+                if ".local" in url:
+                    raise OSError("MDNS lookup failed")
+                return Response()
+
+        entry = types.SimpleNamespace(
+            data={
+                self.const.CONF_DEVICE_ID: "djconnect-lilygo-t-embed-s3-90B70990A994",
+                self.const.CONF_DEVICE_TOKEN: "device-token",
+            },
+            options={},
+        )
+        runtime = self.integration.DJConnectRuntime(entry=entry)
+        runtime.device_token = "device-token"
+        runtime.device_status["local_url"] = "http://djconnect-lilygo-t-embed-s3-90B70990A994.local"
+        runtime.device_status["wifi"] = {"ip": "192.168.1.109"}
+        release = types.SimpleNamespace(
+            version="3.1.32",
+            firmware_url="https://example/djconnect-lilygo-t-embed-s3-v3.1.32.bin",
+            sha256="a" * 64,
+            device="lilygo-t-embed-s3",
+            firmware_asset="djconnect-lilygo-t-embed-s3-v3.1.32.bin",
+        )
+        session = Session()
+        original_session = self.integration.async_get_clientsession
+        self.integration.async_get_clientsession = lambda hass: session
+        try:
+            asyncio.run(runtime.start_ota(object(), release))
+        finally:
+            self.integration.async_get_clientsession = original_session
+
+        self.assertEqual(
+            [call["url"] for call in session.calls],
+            [
+                "http://djconnect-lilygo-t-embed-s3-90B70990A994.local/api/device/ota",
+                "http://192.168.1.109/api/device/ota",
+            ],
+        )
+        self.assertEqual(runtime.device_status["local_url"], "http://192.168.1.109")
+
     def test_start_ota_preserves_wrong_device_target_error(self) -> None:
         class Response:
             status = 400

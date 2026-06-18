@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Select `Assist Conversation Agent` by default in the Add Integration setup method step.
+- Add a direct Spotify Developer Dashboard URL to the Spotify setup instructions.
+- Rename the client/device setup option to `DJConnect app of device koppelen`.
+- Cache the ESP status request source IP and retry OTA against cached IP fallbacks when the `.local` device URL cannot be reached.
+
 ## 3.1.55
 
 - Fetch stable firmware manifests directly from GitHub's latest release download URL before falling back to release metadata, improving OTA discovery when latest release JSON is unavailable or incomplete.

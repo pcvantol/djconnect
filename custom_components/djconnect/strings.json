@@ -47,7 +47,7 @@
       },
       "spotify": {
         "title": "Spotify koppelen",
-        "description": "Maak een eigen Spotify Developer app en registreer exact deze redirect URI: `{redirect_uri}`. Gebruik bij voorkeur je Nabu Casa HTTPS Home Assistant URL. PKCE wordt gebruikt, dus een Client Secret is niet nodig.",
+        "description": "Maak een eigen Spotify Developer app via https://developer.spotify.com/dashboard en registreer exact deze redirect URI: `{redirect_uri}`. Gebruik bij voorkeur je Nabu Casa HTTPS Home Assistant URL. PKCE wordt gebruikt, dus een Client Secret is niet nodig.",
         "data": {
           "spotify_client_id": "Spotify Client ID",
           "ha_external_url": "Home Assistant externe URL",

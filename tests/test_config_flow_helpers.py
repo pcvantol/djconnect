@@ -754,13 +754,13 @@ class ConfigFlowHelperTest(unittest.TestCase):
             self.config_flow._setup_method_names(nl_hass)[
                 self.const.SETUP_METHOD_PAIR_EXISTING
             ],
-            "Bestaand WiFi device koppelen",
+            "DJConnect app of device koppelen",
         )
         self.assertEqual(
             self.config_flow._setup_method_names(en_hass)[
                 self.const.SETUP_METHOD_PAIR_EXISTING
             ],
-            "Pair existing WiFi device",
+            "Pair DJConnect app or device",
         )
         self.assertEqual(
             self.config_flow._setup_method_names(nl_hass)[
@@ -879,6 +879,18 @@ class ConfigFlowHelperTest(unittest.TestCase):
         methods = list(self.config_flow._setup_method_names(hass))
 
         self.assertEqual(methods[0], self.const.SETUP_METHOD_CONVERSATION_AGENT)
+
+    def test_user_schema_selects_conversation_agent_by_default(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
+
+        schema = flow._user_schema()
+        defaults = {marker.key: marker.default for marker in schema}
+
+        self.assertEqual(
+            defaults[self.const.CONF_SETUP_METHOD],
+            self.const.SETUP_METHOD_CONVERSATION_AGENT,
+        )
 
     def test_pair_step_can_route_back_to_ble_setup(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()

@@ -7,6 +7,7 @@ import re
 import secrets
 from dataclasses import dataclass, field
 from typing import Any
+from urllib.parse import urlsplit, urlunsplit
 
 import voluptuous as vol
 from aiohttp import ClientTimeout
@@ -523,7 +524,6 @@ class DJConnectRuntime:
             raise RuntimeError(
                 "DJConnect device local_url is unknown; send a /status update first"
             )
-        url = local_url.rstrip("/") + "/api/device/ota"
         payload = {
             "version": release.version,
             "url": release.firmware_url,
@@ -535,19 +535,36 @@ class DJConnectRuntime:
         self.ota_last_error = None
         self.update()
         session = async_get_clientsession(hass)
+        errors: list[str] = []
         try:
-            async with session.post(
-                url,
-                json=payload,
-                headers=self.device_headers(),
-                timeout=ClientTimeout(total=30),
-            ) as resp:
-                text = await resp.text()
-                if resp.status < 200 or resp.status >= 300:
-                    raise RuntimeError(
-                        f"ESP OTA request failed HTTP {resp.status}: {text}"
+            for candidate_url in _device_url_candidates(local_url, self.device_status):
+                url = candidate_url.rstrip("/") + "/api/device/ota"
+                try:
+                    async with session.post(
+                        url,
+                        json=payload,
+                        headers=self.device_headers(),
+                        timeout=ClientTimeout(total=30),
+                    ) as resp:
+                        text = await resp.text()
+                        if resp.status < 200 or resp.status >= 300:
+                            raise RuntimeError(
+                                f"ESP OTA request failed HTTP {resp.status}: {text}"
+                            )
+                        if candidate_url != local_url:
+                            self.device_status["local_url"] = candidate_url
+                        _LOGGER.info("DJConnect OTA accepted by device: %s", text)
+                        return
+                except RuntimeError:
+                    raise
+                except Exception as exc:  # noqa: BLE001
+                    errors.append(f"{candidate_url}: {exc}")
+                    _LOGGER.warning(
+                        "DJConnect OTA request to %s failed, trying fallback if available: %s",
+                        candidate_url,
+                        exc,
                     )
-                _LOGGER.info("DJConnect OTA accepted by device: %s", text)
+            raise RuntimeError("DJConnect OTA request failed: " + "; ".join(errors))
         except Exception as exc:  # noqa: BLE001
             self.ota_in_progress = False
             self.ota_last_error = str(exc)
@@ -778,6 +795,67 @@ def _device_id_mdns_fallback_url(device_id: Any) -> str | None:
     if _is_real_esp_djconnect_device_id(normalized):
         return f"http://{normalized}.local"
     return None
+
+
+def _device_url_candidates(primary_url: str, status: dict[str, Any]) -> list[str]:
+    """Return primary URL plus IP fallbacks from cached ESP status."""
+    urls = [_normalize_device_base_url(primary_url)]
+    for candidate in _device_ip_fallback_urls(status):
+        normalized = _normalize_device_base_url(candidate)
+        if normalized and normalized not in urls:
+            urls.append(normalized)
+    return [url for url in urls if url]
+
+
+def _device_ip_fallback_urls(status: dict[str, Any]) -> list[str]:
+    urls: list[str] = []
+    for key in ("ip", "local_ip", "wifi_ip", "host"):
+        url = _device_url_from_ip_like(status.get(key))
+        if url:
+            urls.append(url)
+    wifi = status.get("wifi")
+    if isinstance(wifi, dict):
+        for key in ("ip", "local_ip", "wifi_ip", "host"):
+            url = _device_url_from_ip_like(wifi.get(key))
+            if url:
+                urls.append(url)
+    for key in ("local_url", "ota_url"):
+        url = _device_url_from_ip_like(status.get(key))
+        if url:
+            urls.append(url)
+    return urls
+
+
+def _device_url_from_ip_like(value: Any) -> str | None:
+    text = str(value or "").strip()
+    if not text:
+        return None
+    if text.startswith(("http://", "https://")):
+        parts = urlsplit(text)
+        host = parts.hostname or ""
+        return text if _is_ipv4_address(host) else None
+    host = text.split(":", 1)[0]
+    return f"http://{text}" if _is_ipv4_address(host) else None
+
+
+def _normalize_device_base_url(value: Any) -> str:
+    text = str(value or "").strip().rstrip("/")
+    if not text:
+        return ""
+    if not text.startswith(("http://", "https://")):
+        text = "http://" + text
+    parts = urlsplit(text)
+    return urlunsplit((parts.scheme or "http", parts.netloc, "", "", ""))
+
+
+def _is_ipv4_address(value: str) -> bool:
+    parts = value.split(".")
+    if len(parts) != 4:
+        return False
+    try:
+        return all(0 <= int(part) <= 255 and str(int(part)) == part for part in parts)
+    except ValueError:
+        return False
 
 
 def _is_real_djconnect_device_id(device_id: str) -> bool:

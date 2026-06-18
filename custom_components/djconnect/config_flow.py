@@ -102,12 +102,12 @@ SPOTIFY_MARKET_NAMES = {
 }
 SETUP_METHOD_NAMES_EN = {
     SETUP_METHOD_CONVERSATION_AGENT: "Assist Conversation Agent",
-    SETUP_METHOD_PAIR_EXISTING: "Pair existing WiFi device",
+    SETUP_METHOD_PAIR_EXISTING: "Pair DJConnect app or device",
     SETUP_METHOD_BLE_WIFI: "Provision WiFi over Bluetooth",
 }
 SETUP_METHOD_NAMES_NL = {
     SETUP_METHOD_CONVERSATION_AGENT: "Assist Conversation Agent",
-    SETUP_METHOD_PAIR_EXISTING: "Bestaand WiFi device koppelen",
+    SETUP_METHOD_PAIR_EXISTING: "DJConnect app of device koppelen",
     SETUP_METHOD_BLE_WIFI: "WiFi via Bluetooth provisionen",
 }
 BLE_ACTION_NAMES_EN = {
@@ -1096,7 +1096,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         schema: dict[Any, Any] = {
             vol.Optional(
                 CONF_SETUP_METHOD,
-                default=SETUP_METHOD_PAIR_EXISTING,
+                default=DEFAULT_SETUP_METHOD,
             ): vol.In(_setup_method_names(getattr(self, "hass", None))),
         }
         discovery_options = self._discovered_client_options()
