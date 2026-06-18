@@ -19,10 +19,12 @@ Lees eerst:
 
 Belangrijke huidige status:
 - Project: DJConnect Home Assistant custom integration, domain `djconnect`.
-- Laatste release: `3.1.52`.
+- Laatste release: `3.1.53`.
 - Repo is public en MIT-licensed.
 - Alle DJConnect repos zijn MIT-licensed, tenzij een specifieke third-party dependency anders vermeldt.
 - `FIRMWARE-LICENSE.md` is verwijderd.
+- Community/security docs staan in `CODE_OF_CONDUCT.md` en `SECURITY.md`; security contact is `security@djconnect.dev`.
+- Fresh-chat promptbestanden heten in alle DJConnect repos `CHAT_BOOTSTRAP.md`.
 - HACS/HA integration repo: `pcvantol/djconnect`.
 - Firmware repo/source en client repos zijn aparte MIT repos.
 - Home Assistant integration blijft verantwoordelijk voor pairing, Spotify OAuth/backend playback, Assist/STT/TTS, OTA, status en diagnostics.

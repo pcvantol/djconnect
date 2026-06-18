@@ -4,8 +4,8 @@
 
 - Repository: `pcvantol/djconnect`.
 - Integration domain: `djconnect`.
-- Current integration release: `3.1.43`.
-- Release status: DJConnect `3.1.43` is the current released baseline.
+- Current integration release: `3.1.53`.
+- Release status: DJConnect `3.1.53` is the current release target for community/security documentation and prompt naming hygiene.
 - Home Assistant integration is HACS-distributed and MIT-licensed.
 - DJConnect client and firmware repositories are MIT-licensed unless their own repository metadata states otherwise.
 - Public firmware release assets live in `pcvantol/djconnect-firmware`.
@@ -139,10 +139,10 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 ## Current Release Notes
 
 - Current release line is `3.1.x`; only the latest GitHub release/tag should be kept after release cleanup.
-- Current latest baseline is `3.1.43`.
+- Current latest baseline is `3.1.53`.
 - Release workflow expectation: before every release, review and update all repo documentation affected by the change or release, including `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant `examples/*`. Explicitly decide whether test coverage must be expanded for the change; add coverage for new behavior paths, regression risks, translations and edge cases. After publishing a release, clean up old semver releases/tags with `./cleanup_old_releases.sh --keep 1 --execute` unless multiple releases are intentionally retained.
 - Before build/test/release validation, check whether third-party libraries, frameworks and build tools can be safely upgraded. If any version is upgraded, update lockfiles/manifests, `THIRD_PARTY_NOTICES.md` and dependency/design documentation in the same release. If an upgrade is skipped, record the reason here.
-- For the current Spotify media player prerequisite removal,
+- For the current community/security documentation and prompt naming release,
   no third-party library/framework/tool versions were upgraded;
   `THIRD_PARTY_NOTICES.md` remains unchanged.
 - Changelog expectation: keep `CHANGELOG.md` as a per-release changelog. Add a new section for each release and do not consolidate old release notes into one current-version block.

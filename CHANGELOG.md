@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.1.53
+
+- Add community and security policy documentation for public repository hygiene.
+- Standardize the fresh-chat prompt filename across DJConnect repositories as `CHAT_BOOTSTRAP.md`.
+- Align DJConnect security policies across the Home Assistant, Apple app, ESP32 firmware, website and Raspberry Pi repositories with the shared `security@djconnect.dev` contact path.
+
 ## 3.1.52
 
 - Align repository documentation with the project-wide MIT licensing model and remove the separate proprietary firmware binary license document.
