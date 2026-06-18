@@ -80,6 +80,12 @@ async def fetch_latest_firmware_release(
 
     session = async_get_clientsession(hass)
     channel = _firmware_channel(config.get(CONF_FIRMWARE_CHANNEL))
+    device = config.get(CONF_FIRMWARE_DEVICE, DEFAULT_FIRMWARE_DEVICE)
+    if channel != FIRMWARE_CHANNEL_BETA:
+        release = await _fetch_latest_stable_manifest_release(session, repo, device)
+        if release is not None:
+            return release
+
     try:
         release = await _fetch_release_json(session, repo, channel)
     except ClientResponseError as exc:
@@ -102,7 +108,6 @@ async def fetch_latest_firmware_release(
         return None
 
     version = normalize_version(release.get("tag_name")) or "0.0.0"
-    device = config.get(CONF_FIRMWARE_DEVICE, DEFAULT_FIRMWARE_DEVICE)
     assets = _select_release_assets(release.get("assets", []))
 
     if assets.manifest is None:
@@ -147,6 +152,64 @@ async def fetch_latest_firmware_release(
         firmware_asset=asset_name,
         manifest_url=_asset_download_url(assets.manifest),
         sha256=selected_firmware.get("sha256") or await _fetch_sha256(session, assets.sha256),
+        device=target_device,
+        size=_manifest_size(selected_firmware.get("size")),
+        min_ha_integration=manifest.get("min_ha_integration"),
+    )
+
+
+async def _fetch_latest_stable_manifest_release(
+    session: Any,
+    repo: str,
+    device: str,
+) -> FirmwareRelease | None:
+    manifest_url = f"https://github.com/{repo}/releases/latest/download/firmware_manifest.json"
+    manifest = await _fetch_manifest_url(session, manifest_url)
+    if not manifest:
+        return None
+    selected_firmware = _select_manifest_firmware(manifest, device)
+    if selected_firmware is None:
+        version = normalize_version(manifest.get("version")) or "latest"
+        _LOGGER.warning(
+            "DJConnect firmware manifest for %s has no firmware for device %s",
+            version,
+            device,
+        )
+        return None
+    target_device = str(selected_firmware.get("device") or device).strip()
+    if target_device not in SUPPORTED_FIRMWARE_DEVICES:
+        version = normalize_version(manifest.get("version")) or "latest"
+        _LOGGER.warning(
+            "DJConnect firmware manifest for %s targets unsupported device %s",
+            version,
+            target_device,
+        )
+    asset_name = str(selected_firmware.get("asset") or "").strip()
+    firmware_url = str(selected_firmware.get("url") or "").strip()
+    if not firmware_url and asset_name:
+        version_tag = str(manifest.get("version_tag") or "").strip()
+        if version_tag:
+            firmware_url = f"https://github.com/{repo}/releases/download/{version_tag}/{asset_name}"
+        else:
+            firmware_url = f"https://github.com/{repo}/releases/latest/download/{asset_name}"
+    if not firmware_url:
+        version = normalize_version(manifest.get("version")) or "latest"
+        _LOGGER.warning(
+            "DJConnect firmware manifest for %s device %s has no firmware URL",
+            version,
+            target_device,
+        )
+        return None
+
+    version = normalize_version(manifest.get("version")) or "0.0.0"
+    return FirmwareRelease(
+        version=version,
+        title=f"DJConnect Firmware v{version}",
+        body=manifest.get("release_notes"),
+        firmware_url=firmware_url,
+        firmware_asset=asset_name,
+        manifest_url=manifest_url,
+        sha256=selected_firmware.get("sha256"),
         device=target_device,
         size=_manifest_size(selected_firmware.get("size")),
         min_ha_integration=manifest.get("min_ha_integration"),
@@ -243,12 +306,17 @@ def _release_asset_url(assets: list[dict[str, Any]], asset_name: str) -> str | N
 async def _fetch_manifest(session: Any, asset: dict[str, Any] | None) -> dict[str, Any]:
     if asset is None:
         return {}
+    return await _fetch_manifest_url(session, asset["browser_download_url"])
+
+
+async def _fetch_manifest_url(session: Any, url: str) -> dict[str, Any]:
     try:
         async with session.get(
-            asset["browser_download_url"],
+            url,
             timeout=ClientTimeout(total=15),
         ) as resp:
-            if not resp.ok:
+            ok = getattr(resp, "ok", 200 <= getattr(resp, "status", 0) < 300)
+            if not ok:
                 return {}
             return json.loads(await resp.text())
     except json.JSONDecodeError as exc:

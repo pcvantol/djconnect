@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fetch stable firmware manifests directly from GitHub's latest release download URL before falling back to release metadata, improving OTA discovery when latest release JSON is unavailable or incomplete.
+
 ## 3.1.54
 
 - Remove the Home Assistant deep-link button from the Spotify OAuth result page because the DJConnect config flow is not complete yet at that point.

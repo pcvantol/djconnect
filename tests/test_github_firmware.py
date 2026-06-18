@@ -108,34 +108,20 @@ class GithubFirmwareTest(unittest.TestCase):
                 return None
 
         class Session:
+            requested_urls: list[str] = []
+
             def get(self, url, **kwargs):
-                if url.endswith("/releases/latest"):
-                    return Response(
-                        {
-                            "tag_name": "v3.0.6",
-                            "name": "DJConnect v3.0.6",
-                            "assets": [
-                                {
-                                    "name": "djconnect-lilygo-t-embed-s3-v3.0.6.bin",
-                                    "browser_download_url": "https://example/lilygo.bin",
-                                },
-                                {
-                                    "name": "firmware_manifest.json",
-                                    "browser_download_url": "https://example/manifest.json",
-                                },
-                            ],
-                        }
-                    )
+                self.requested_urls.append(url)
                 return Response(
                     {
                         "version": "3.0.6",
+                        "version_tag": "v3.0.6",
                         "min_ha_integration": "1.0.0",
                         "firmwares": [
                             {
                                 "board": "t_embed_cc1101",
                                 "device": "lilygo-t-embed-s3",
                                 "asset": "djconnect-lilygo-t-embed-s3-v3.0.6.bin",
-                                "url": "https://example/lilygo.bin",
                                 "sha256": "a" * 64,
                                 "size": 2113136,
                             },
@@ -151,8 +137,9 @@ class GithubFirmwareTest(unittest.TestCase):
                     }
                 )
 
+        session = Session()
         original_session = self.github.async_get_clientsession
-        self.github.async_get_clientsession = lambda hass: Session()
+        self.github.async_get_clientsession = lambda hass: session
         try:
             release = asyncio.run(
                 self.github.fetch_latest_firmware_release(
@@ -163,9 +150,18 @@ class GithubFirmwareTest(unittest.TestCase):
         finally:
             self.github.async_get_clientsession = original_session
 
+        self.assertEqual(
+            session.requested_urls,
+            [
+                "https://github.com/pcvantol/djconnect-firmware/releases/latest/download/firmware_manifest.json"
+            ],
+        )
         self.assertEqual(release.device, "lilygo-t-embed-s3")
         self.assertEqual(release.firmware_asset, "djconnect-lilygo-t-embed-s3-v3.0.6.bin")
-        self.assertEqual(release.firmware_url, "https://example/lilygo.bin")
+        self.assertEqual(
+            release.firmware_url,
+            "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.0.6/djconnect-lilygo-t-embed-s3-v3.0.6.bin",
+        )
         self.assertEqual(release.sha256, "a" * 64)
         self.assertEqual(release.size, 2113136)
         self.assertEqual(release.min_ha_integration, "1.0.0")
@@ -194,21 +190,10 @@ class GithubFirmwareTest(unittest.TestCase):
 
         class Session:
             def get(self, url, **kwargs):
-                if url.endswith("/releases/latest"):
-                    return Response(
-                        {
-                            "tag_name": "v3.0.6",
-                            "assets": [
-                                {
-                                    "name": "firmware_manifest.json",
-                                    "browser_download_url": "https://example/manifest.json",
-                                },
-                            ],
-                        }
-                    )
                 return Response(
                     {
                         "version": "3.0.6",
+                        "version_tag": "v3.0.6",
                         "firmwares": [
                             {
                                 "device": "lilygo-t-embed-s3",
