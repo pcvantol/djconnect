@@ -147,7 +147,7 @@
     "step": {
       "init": {
         "title": "DJConnect options",
-        "description": "Adjust DJConnect voice, playback, OTA and firmware settings. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB.",
+        "description": "Adjust DJConnect conversation agent, DJ response and playback settings. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB.",
         "data": {
           "assist_pipeline_id": "Assist pipeline",
           "client_type": "Client type",

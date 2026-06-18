@@ -212,6 +212,15 @@ def _options_actions_for_status(hass: Any, defaults: dict[str, Any]) -> dict[str
     return actions
 
 
+def _conversation_agent_options_actions(hass: Any) -> dict[str, str]:
+    """Return actions relevant for DJConnect as an Assist conversation agent."""
+    names = _options_action_names(hass)
+    return {
+        OPTIONS_ACTION_SAVE: names[OPTIONS_ACTION_SAVE],
+        OPTIONS_ACTION_SPOTIFY_REAUTH: names[OPTIONS_ACTION_SPOTIFY_REAUTH],
+    }
+
+
 def _manual_discovery_label(hass: Any) -> str:
     """Return the manual-entry label in the current Home Assistant language."""
     language = str(getattr(getattr(hass, "config", None), "language", "") or "").lower()
@@ -698,6 +707,44 @@ def _advanced_voice_schema(defaults: dict[str, Any]) -> dict[Any, Any]:
             ),
         ): int,
     }
+
+
+def _conversation_agent_options_schema(
+    hass: Any,
+    defaults: dict[str, Any],
+) -> vol.Schema:
+    """Build the compact options schema used from Assist conversation agent settings."""
+    schema: dict[Any, Any] = {
+        vol.Required(
+            OPTIONS_ACTION_FIELD,
+            default=OPTIONS_ACTION_SAVE,
+        ): vol.In(_conversation_agent_options_actions(hass)),
+        vol.Optional(
+            CONF_DJ_RESPONSE_ENABLED,
+            default=defaults.get(
+                CONF_DJ_RESPONSE_ENABLED,
+                DEFAULT_DJ_RESPONSE_ENABLED,
+            ),
+        ): bool,
+        vol.Optional(
+            CONF_DJ_RESPONSE_PROMPT_PRESET,
+            default=_dj_response_prompt_preset_default(
+                defaults.get(CONF_DJ_RESPONSE_PROMPT),
+            ),
+        ): _dj_response_prompt_preset_selector(),
+        vol.Optional(
+            CONF_DJ_RESPONSE_PROMPT,
+            default=defaults.get(CONF_DJ_RESPONSE_PROMPT, DEFAULT_DJ_RESPONSE_PROMPT),
+        ): selector.TextSelector(
+            selector.TextSelectorConfig(multiline=True),
+        ),
+        vol.Optional(CONF_LIKED_PROXY, default=defaults.get(CONF_LIKED_PROXY, "")): str,
+        vol.Optional(
+            CONF_SPOTIFY_SOURCE,
+            default=defaults.get(CONF_SPOTIFY_SOURCE, ""),
+        ): str,
+    }
+    return vol.Schema(schema)
 
 
 async def _voice_schema(
@@ -1381,13 +1428,7 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
 
         return self.async_show_form(
             step_id="init",
-            data_schema=await _voice_schema(
-                self.hass,
-                current,
-                include_advanced=_advanced_enabled(self),
-                include_options_action=True,
-                include_readonly_local_url=True,
-            ),
+            data_schema=_conversation_agent_options_schema(self.hass, current),
             errors=errors,
         )
 

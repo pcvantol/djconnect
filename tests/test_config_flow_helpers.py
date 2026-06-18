@@ -1184,6 +1184,69 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertIs(flow._config_entry, entry)
 
+    def test_options_flow_shows_only_conversation_agent_relevant_fields(self) -> None:
+        entry = types.SimpleNamespace(
+            data={
+                self.const.CONF_LOCAL_URL: "http://device.local",
+                self.const.CONF_ASSIST_PIPELINE_ID: "pipeline-1",
+                self.const.CONF_FIRMWARE_CHANNEL: "beta",
+            },
+            options={},
+        )
+        flow = self.config_flow.DJConnectOptionsFlow(entry)
+        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl"))
+
+        form = asyncio.run(flow.async_step_init())
+        keys = {marker.key for marker in form["data_schema"].schema}
+
+        self.assertIn(self.config_flow.OPTIONS_ACTION_FIELD, keys)
+        self.assertIn(self.const.CONF_DJ_RESPONSE_ENABLED, keys)
+        self.assertIn(self.const.CONF_DJ_RESPONSE_PROMPT_PRESET, keys)
+        self.assertIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
+        self.assertIn(self.const.CONF_SPOTIFY_SOURCE, keys)
+        self.assertIn(self.const.CONF_LIKED_PROXY, keys)
+        self.assertNotIn(self.const.CONF_LOCAL_URL, keys)
+        self.assertNotIn(self.const.CONF_ASSIST_PIPELINE_ID, keys)
+        self.assertNotIn(self.const.CONF_FIRMWARE_CHANNEL, keys)
+        self.assertNotIn(self.const.CONF_MAX_AUDIO_BYTES, keys)
+        self.assertNotIn(self.const.CONF_ALLOW_OTA_ON_BATTERY, keys)
+        self.assertNotIn(self.const.CONF_MIN_BATTERY_FOR_OTA, keys)
+        self.assertNotIn(self.config_flow.ADVANCED_OPTIONS_FIELD, keys)
+
+    def test_options_flow_save_preserves_hidden_device_values(self) -> None:
+        entry = types.SimpleNamespace(
+            data={
+                self.const.CONF_ASSIST_PIPELINE_ID: "pipeline-1",
+                self.const.CONF_FIRMWARE_CHANNEL: "beta",
+                self.const.CONF_MAX_AUDIO_BYTES: 12345,
+            },
+            options={},
+        )
+        flow = self.config_flow.DJConnectOptionsFlow(entry)
+        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en"))
+
+        result = asyncio.run(
+            flow.async_step_init(
+                {
+                    self.config_flow.OPTIONS_ACTION_FIELD: self.config_flow.OPTIONS_ACTION_SAVE,
+                    self.const.CONF_DJ_RESPONSE_PROMPT_PRESET: "custom",
+                    self.const.CONF_DJ_RESPONSE_PROMPT: "Maak het kort.",
+                }
+            )
+        )
+
+        self.assertEqual(result["type"], "create_entry")
+        self.assertEqual(
+            result["data"][self.const.CONF_ASSIST_PIPELINE_ID],
+            "pipeline-1",
+        )
+        self.assertEqual(result["data"][self.const.CONF_FIRMWARE_CHANNEL], "beta")
+        self.assertEqual(result["data"][self.const.CONF_MAX_AUDIO_BYTES], 12345)
+        self.assertEqual(
+            result["data"][self.const.CONF_DJ_RESPONSE_PROMPT],
+            "Maak het kort.",
+        )
+
     def test_options_spotify_reauth_finishes_with_done_step(self) -> None:
         entry = types.SimpleNamespace(
             entry_id="entry-1",

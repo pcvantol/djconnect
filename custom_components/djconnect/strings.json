@@ -147,7 +147,7 @@
     "step": {
       "init": {
         "title": "DJConnect opties",
-        "description": "Pas DJConnect spraak-, playback-, OTA- en firmware-instellingen aan. Spotify is een handelsmerk van Spotify AB. DJConnect is niet verbonden aan, goedgekeurd door of gesponsord door Spotify AB.",
+        "description": "Pas DJConnect gespreksagent-, DJ response- en playback-instellingen aan. Spotify is een handelsmerk van Spotify AB. DJConnect is niet verbonden aan, goedgekeurd door of gesponsord door Spotify AB.",
         "data": {
           "assist_pipeline_id": "Assist pipeline",
           "client_type": "Clienttype",

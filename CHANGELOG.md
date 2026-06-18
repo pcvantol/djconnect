@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.48
+
+- Add the DJConnect Assist conversation agent platform so Home Assistant Voice Preview Edition and other Assist satellites can route recognized speech directly to DJConnect for Spotify playback and DJ response speech.
+- Simplify DJConnect options to the conversation-agent relevant controls: DJ response enable/style/prompt and Spotify playback overrides, while preserving hidden device, firmware and Assist pipeline settings.
+
 ## 3.1.47
 
 - Simplify DJConnect voice setup to a single Assist pipeline selection: standalone STT engine and TTS engine/language/voice fields are no longer shown in config/options flows.
