@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.1.57
 
 - Hide device-only DJ response playback and firmware channel controls from the Assist Conversation Agent setup flow.
 
