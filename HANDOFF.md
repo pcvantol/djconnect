@@ -176,7 +176,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Firmware update entity is non-polling. It checks GitHub on add/manual refresh/install and then on a one-hour internal schedule, so HA must not refresh the entity every 10 seconds.
 - Firmware channel is a user-facing options-flow dropdown: `stable` uses GitHub `/releases/latest`; `beta` uses the newest prerelease from `pcvantol/djconnect-firmware`. Firmware repo/device remain automatic and hidden.
 - Sensor entities are push-only through runtime listeners. `last_command` and `last_track` additionally write HA state only when their cached value or relevant debug attributes actually change.
-- Spotify repair OAuth popups include explicit title/description text directly on the Repairs external-step result so Home Assistant does not show a blank dialog when translation lookup misses a dynamic repair issue id.
+- Spotify repair OAuth popups use the explicit `authorize` repair external step plus title/description placeholders so Home Assistant does not show a blank dialog when opening the website.
 - Strict current ESP device identity is model-specific: `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX` or `djconnect-esp32-s3-box-3-XXXXXXXXXXXX`; legacy `djconnect-XXXXXXXXXXXX` IDs are not accepted.
 - If ESP status/command/voice auth returns `401`, HA must log the received device id, known device id, client type, token-present flag and rejection reason without logging token values.
 - HA blocks ESP calls with HTTP `426` `version_mismatch` when HA and ESP firmware `major.minor` differ, while preserving pairing/token state.
@@ -212,7 +212,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 
 ## Known Issues / Field Checks
 
-- Validate the Repair “Fix” button in a real HA UI: it should open Spotify OAuth instead of instantly closing.
+- Validate the Repair “Fix” button in a real HA UI: it should show translated explanatory text and open Spotify OAuth instead of a blank popup or instantly closing.
 - Validate options-flow “Spotify opnieuw autoriseren” in a real HA UI.
 - Confirm Nabu Casa/external URL is correctly detected or manually editable before OAuth.
 - Confirm ESP remains paired after first `/api/djconnect/command` following direct pairing.

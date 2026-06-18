@@ -124,6 +124,10 @@ Pattern:
 - The helper uses the configured conversation agent when present, otherwise
   resolves Home Assistant's preferred/default Assist pipeline and uses its
   conversation engine.
+- DJConnect also exposes its own Home Assistant conversation agent entity so
+  Assist satellites such as Voice Preview Edition can route recognized speech
+  directly into `process_text_command(...)` and receive the generated DJ
+  response as Assist speech.
 - Dutch prompts include an instruction to pronounce English artist, album and
   track names in English inside Dutch sentences.
 - When an artist request starts playback and Spotify returns the concrete
@@ -377,6 +381,9 @@ Pattern:
   Home Assistant repair issues.
 - The Spotify repair path opens OAuth and only closes after a new token is
   stored.
+- The first OAuth repair step is the translated `authorize` external step. This
+  avoids blank Home Assistant repair popups when the frontend renders the
+  website-opening dialog.
 
 Primary source files:
 

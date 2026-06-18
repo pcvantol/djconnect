@@ -150,7 +150,8 @@
 - App-like client discovery must not create setup-code-only duplicates when a stable `djconnect-ios-*`, `djconnect-macos-*` or `djconnect-raspberry-pi-*` ID is known.
 - External product website must not imply official Spotify affiliation, endorsement or sponsorship.
 - External product website must stay aligned with current setup requirements and local API architecture.
-- `stt_engine` must remain visible and configurable.
+- STT/TTS provider selection is managed through Home Assistant Assist; DJConnect must not show standalone `stt_engine`, `tts_engine`, `tts_language` or `tts_voice` fields.
+- DJConnect conversation-agent options must stay compact and must not show Client API URL, Assist pipeline, firmware channel or OTA/audio advanced fields.
 - No direct external AI/STT/TTS calls should be used by active routes.
 - No secret values should appear in logs or diagnostics.
 - All entities should remain grouped under one HA device.

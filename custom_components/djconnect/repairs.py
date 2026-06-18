@@ -162,7 +162,7 @@ class SpotifyOAuthRepairFlow(RepairsFlow):
                     SPOTIFY_REPAIR_EXTERNAL_TEXT["spotify_refresh_token_revoked"],
                 )
                 result = external_step(
-                    step_id="init",
+                    step_id="authorize",
                     url=self._authorize_url,
                     description_placeholders={
                         "authorize_url": self._authorize_url,

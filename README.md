@@ -14,7 +14,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 
 ## Current Version
 
-- Home Assistant integration: `3.1.48`
+- Home Assistant integration: `3.1.49`
 - Domain: `djconnect`
 - HACS category: `Integration`
 - Device target: DJConnect device
@@ -66,7 +66,7 @@ runtime behavior. These decisions are part of the integration contract:
 
 ## Repository Layout
 
-- Home Assistant integration: `3.1.48`
+- Home Assistant integration: `3.1.49`
 - ESP firmware source: `pcvantol/djconnect-app`
 - Public firmware releases: `pcvantol/djconnect-firmware`
 - Canonical cross-repo sync prompts live only in this HA repo: [`SYNC_PROMPTS.md`](SYNC_PROMPTS.md)
@@ -182,16 +182,13 @@ other secrets over BLE.
 
 ## Voice And DJ Settings
 
-The config flow and options flow include safe defaults for optional voice fields. The Assist pipeline is stored so devices know which HA speech setup to use; DJConnect does not run STT internally.
+The config flow includes safe defaults for optional voice fields. The Assist pipeline is stored so DJConnect knows which Home Assistant STT/TTS setup to use; DJConnect does not run direct external STT/TTS APIs.
 
 - Assist pipeline ID
-- TTS engine
-- TTS language
-- TTS voice, populated from the selected TTS entity when Home Assistant exposes voices. If the TTS engine changes and the stored voice is not supported by the new engine, DJConnect resets the voice to `Default`.
 - DJ announcement style presets (neutral/business, warm/personal or humorous/witty) plus a free-form prompt for the text spoken on the device
 - ESP device UI language is selected automatically from the Home Assistant language during ESP pairing. iOS, macOS and Raspberry Pi clients determine their own language locally.
 - Default playlist URI
-- Spotify source override, optional visible Spotify device name or device ID
+- Spotify source override, an optional Spotify Connect device/source name or ID used when Spotify does not choose the intended playback target automatically
 - Firmware updates through the public multi-device manifest
 - OTA battery safety options
 
@@ -200,7 +197,7 @@ been reauthorized with `playlist-read-private`; diagnostics and Home Assistant
 repairs show a warning when the stored OAuth scope list is missing required
 DJConnect scopes.
 
-Where Home Assistant exposes choices, DJConnect shows populated dropdowns for Assist pipeline, TTS entity, known TTS voices, Spotify market and firmware channel. Stored custom values remain selectable so existing setups keep working. Backend playback is handled by Home Assistant through the DJConnect playback proxy; ESP device settings use the local device command API. The DJ announcement style/prompt, Spotify source override, firmware channel, client type and Client API URL are shown in the normal flow so the spoken device response, preferred Spotify Connect output, OTA track and app pairing URL can be adjusted directly. DJ announcement style offers neutral/business, warm/personal and humorous/witty presets, plus free-form prompt editing. In options, the configured Client API URL is shown read-only; use re-pairing to change it. Max audio bytes and OTA battery settings are shown only after enabling the inline advanced-options checkbox. Firmware OTA device selection is automatic: DJConnect reads the public multi-device firmware manifest and selects the matching `firmwares[]` entry from ESP status/info, falling back to LilyGO only before the ESP has reported a model. For ESP devices, the Client API URL is normally not needed: DJConnect resolves the device through `_djconnect._tcp` mDNS, uses the device-reported `local_url` when available, and only builds a model-specific hostname such as `http://djconnect-lilygo-t-embed-s3-[device-suffix].local` when the configured ID contains a real 12-character device suffix.
+Where Home Assistant exposes choices, DJConnect shows populated dropdowns for Assist pipeline, Spotify market and firmware channel in setup. STT/TTS engine, language and voice are managed in Home Assistant Assist, not in DJConnect. Backend playback is handled by Home Assistant through the DJConnect playback proxy; ESP device settings use the local device command API. The DJ announcement style/prompt and Spotify source override stay available in options because they affect the conversation-agent and playback behavior. Device-only setup fields such as Client API URL, Assist pipeline, firmware channel and OTA/audio advanced fields are hidden from the compact options screen used from Assist conversation-agent settings. Max audio bytes and OTA battery settings are shown only during setup after enabling the inline advanced-options checkbox. Firmware OTA device selection is automatic: DJConnect reads the public multi-device firmware manifest and selects the matching `firmwares[]` entry from ESP status/info, falling back to LilyGO only before the ESP has reported a model. For ESP devices, the Client API URL is normally not needed: DJConnect resolves the device through `_djconnect._tcp` mDNS, uses the device-reported `local_url` when available, and only builds a model-specific hostname such as `http://djconnect-lilygo-t-embed-s3-[device-suffix].local` when the configured ID contains a real 12-character device suffix.
 
 The options flow also includes an action selector. Use `Reauthorize Spotify` to
 refresh OAuth from the integration page, `Retry pairing with current code` to
@@ -341,7 +338,7 @@ Developer action overview:
 
 Developer actions return response data where Home Assistant supports it. Enable
 debug logging for `custom_components.djconnect` when you want to inspect the
-selected TTS engine, OAuth redirect URI, DJ announcement result, or
+selected Assist/STT/TTS route metadata, OAuth redirect URI, DJ announcement result, or
 command-processing result. Spotify refresh tokens and device tokens are not
 logged. DJConnect registers explicit runtime service schemas for these actions
 so Home Assistant Developer Tools keeps the text input fields visible after
@@ -520,7 +517,7 @@ response path directly and do not parse a Spotify playback command. Raw WAV PTT
 uploads continue through STT, command parsing, Spotify playback and DJ announcement.
 
 Home Assistant must have an Assist pipeline with STT and TTS configured.
-DJConnect only asks you to choose the Assist pipeline; STT provider, TTS engine,
+DJConnect setup only asks you to choose the Assist pipeline; STT provider, TTS engine,
 language and voice are managed in Home Assistant's Assist settings. For example,
 choose an Assist pipeline that uses OpenAI STT and Piper/Nabu Casa TTS in Home
 Assistant, then select that pipeline in DJConnect. If a stored pipeline was
@@ -532,7 +529,7 @@ providers through Home Assistant's supported
 processor. As a final fallback it uses Home Assistant's official
 `assist_pipeline.async_pipeline_from_audio_stream` helper from stage `stt` to
 `stt`, which lets Home Assistant resolve the default pipeline internally. At
-startup and for WAV uploads the integration logs the selected STT/TTS provider
+startup and for WAV uploads the integration logs the selected Assist/STT route
 metadata without tokens or API keys. If no STT provider is found,
 `/api/djconnect/voice` returns `503` with the checked option keys.
 
@@ -627,24 +624,24 @@ Example manifest:
 
 ```json
 {
-  "version": "3.1.48",
-  "version_tag": "v3.1.48",
+  "version": "3.1.49",
+  "version_tag": "v3.1.49",
   "channel": "stable",
-  "min_ha_integration": "3.1.48",
+  "min_ha_integration": "3.1.49",
   "firmwares": [
     {
       "board": "t_embed_cc1101",
       "device": "lilygo-t-embed-s3",
-      "asset": "djconnect-lilygo-t-embed-s3-v3.1.48.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.48/djconnect-lilygo-t-embed-s3-v3.1.48.bin",
+      "asset": "djconnect-lilygo-t-embed-s3-v3.1.49.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.49/djconnect-lilygo-t-embed-s3-v3.1.49.bin",
       "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "size": 2113136
     },
     {
       "board": "esp32_s3_box3",
       "device": "esp32-s3-box-3",
-      "asset": "djconnect-esp32-s3-box-3-v3.1.48.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.48/djconnect-esp32-s3-box-3-v3.1.48.bin",
+      "asset": "djconnect-esp32-s3-box-3-v3.1.49.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.49/djconnect-esp32-s3-box-3-v3.1.49.bin",
       "sha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
       "size": 2113136
     }
@@ -667,7 +664,7 @@ The firmware version is injected through PlatformIO build flags from the Git tag
 Recommended firmware source release helper:
 
 ```bash
-./release.sh 3.1.48
+./release.sh 3.1.49
 ```
 
 In the private `djconnect-app` repository, the firmware release script should
@@ -679,14 +676,14 @@ PlatformIO builds, rename firmware binaries to device-specific assets such as
 Preview the firmware release flow without changing files:
 
 ```bash
-./release.sh 3.1.48 --dry-run
+./release.sh 3.1.49 --dry-run
 ```
 
 When publishing to the public firmware repository, use the firmware script's
 public-repo option if available:
 
 ```bash
-./release.sh 3.1.48 --publish-firmware-repo ../djconnect-firmware
+./release.sh 3.1.49 --publish-firmware-repo ../djconnect-firmware
 ```
 
 The public `djconnect-firmware` repository should contain only the release
@@ -728,7 +725,7 @@ Tag and publish:
 One-liner:
 
 ```bash
-./release.sh 3.1.48
+./release.sh 3.1.49
 ```
 
 The script updates the integration version in `manifest.json`, `const.py`,
@@ -739,18 +736,18 @@ above.
 Preview without executing git/gh commands:
 
 ```bash
-./release.sh 3.1.48 --dry-run
+./release.sh 3.1.49 --dry-run
 ```
 
 Manual equivalent:
 
 ```bash
 git add .
-git commit -m "Release DJConnect v3.1.48"
-git tag v3.1.48
+git commit -m "Release DJConnect v3.1.49"
+git tag v3.1.49
 git push origin main
-git push origin v3.1.48
-gh release create v3.1.48 --title "DJConnect v3.1.48" --notes-file CHANGELOG.md
+git push origin v3.1.49
+gh release create v3.1.49 --title "DJConnect v3.1.49" --notes-file CHANGELOG.md
 ```
 
 Release cleanup helper:
@@ -834,7 +831,7 @@ These tests use local stubs for Home Assistant imports and focus on pure DJConne
 - If `/api/djconnect/voice` returns `missing_text`, send raw WAV audio for PTT or a developer test text through `X-DJConnect-Text`.
 - If `spoken=false`, HA did not provide a compatible WAV/MP3 URL or the ESP could not play it; the text response should still be displayed.
 - If HA TTS returns MP3, DJConnect can send the MP3 `audio_url` to ESP firmware that supports MP3 DJ announcement playback.
-- If the ESP logs `audio_url=none`, Home Assistant sent text-only. Check that `DJ aankondiging op apparaat afspelen` is enabled, a valid HA TTS engine is selected, and the Home Assistant internal URL is reachable from the DJConnect device network.
+- If the ESP logs `audio_url=none`, Home Assistant sent text-only. Check that `DJ aankondiging op apparaat afspelen` is enabled, the selected Home Assistant Assist pipeline has working TTS, and the Home Assistant internal URL is reachable from the DJConnect device network.
 - If Home Assistant reports `Invalid value for number.djconnect_volume: -1.0`, update to this release or newer; DJConnect treats unknown device volume as unavailable instead of publishing an out-of-range value.
 - If the ESP reports `401` for `/api/device/dj_response`, pair the device again so the device token is refreshed.
 - If `/api/djconnect/tts/{token}.wav` or `.mp3` returns `404` or `410`, the token is unknown or expired; trigger the DJ announcement again.

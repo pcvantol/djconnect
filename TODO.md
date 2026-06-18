@@ -19,7 +19,7 @@
 
 - Test physical PTT end-to-end on the ESP device.
 - Confirm ESP uploads raw WAV to `POST /api/djconnect/voice`.
-- Confirm HA logs selected `stt_engine` without secrets.
+- Confirm HA logs selected Assist pipeline/STT provider metadata without secrets.
 - Confirm HA logs WAV metadata: sample rate, channel count, sample width and byte length.
 - Confirm selected HA STT provider accepts the WAV metadata.
 - Confirm recognized text reaches DJConnect command processing.
@@ -27,7 +27,9 @@
 - Confirm `sensor.djconnect_last_corrected_stt` shows the last changed STT correction and remains stable after sparse runtime updates.
 - Confirm Spotify playback action runs when Spotify is idle.
 - Confirm PTT artist, track, album, playlist and default-playlist phrases resolve to the intended Spotify search type.
-- Confirm AI DJ announcements use the preferred/default HA Assist pipeline conversation engine when no DJConnect Assist pipeline is explicitly selected.
+- Confirm AI DJ announcements use the selected/default HA Assist conversation engine when no DJConnect Assist pipeline is explicitly selected.
+- Confirm Voice Preview Edition can select the DJConnect DJ conversation agent and receives the generated DJ response through its speaker.
+- Confirm the DJConnect conversation-agent options dialog only shows action, DJ response controls and Spotify playback overrides.
 - Confirm successful DJ announcement TTS creates an `audio_url` using a local Home Assistant URL even when older HA network helpers are unavailable.
 - Confirm Dutch DJ announcements pronounce English artist, album and track names naturally in TTS.
 - Confirm a new PTT request such as Nirvana does not reuse previous Spotify playback metadata such as Red Hot Chili Peppers in the DJ aankondiging.

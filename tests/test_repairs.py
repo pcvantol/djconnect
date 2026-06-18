@@ -215,7 +215,7 @@ class RepairsTest(unittest.TestCase):
         result = asyncio.run(flow.async_step_init())
 
         self.assertEqual(result["type"], "external")
-        self.assertEqual(result["step_id"], "init")
+        self.assertEqual(result["step_id"], "authorize")
         self.assertEqual(result["title"], "DJConnect opnieuw autoriseren bij Spotify")
         self.assertIn("Spotify toestemming", result["description"])
         self.assertIn("https://accounts.spotify.com/authorize", result["url"])
@@ -248,7 +248,7 @@ class RepairsTest(unittest.TestCase):
 
         start = asyncio.run(flow.async_step_init())
         self.assertEqual(start["type"], "external")
-        self.assertEqual(start["step_id"], "init")
+        self.assertEqual(start["step_id"], "authorize")
 
         done = asyncio.run(flow.async_step_authorize())
         self.assertEqual(done["type"], "external_done")

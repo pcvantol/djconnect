@@ -4,6 +4,7 @@
 
 - Add the DJConnect Assist conversation agent platform so Home Assistant Voice Preview Edition and other Assist satellites can route recognized speech directly to DJConnect for Spotify playback and DJ response speech.
 - Simplify DJConnect options to the conversation-agent relevant controls: DJ response enable/style/prompt and Spotify playback overrides, while preserving hidden device, firmware and Assist pipeline settings.
+- Start Spotify repair OAuth from the translated `authorize` external step so the Home Assistant repair popup shows explanatory text instead of an empty website dialog.
 
 ## 3.1.47
 

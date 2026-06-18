@@ -59,7 +59,7 @@ Licentie/commercieel:
 HA integration:
 - domain: `djconnect`
 - HACS custom integration.
-- Actuele integratieversie: `3.1.48`.
+- Actuele integratieversie: `3.1.49`.
 - Config flow moet blijven laden.
 - Config flow blokkeert niet meer op een officiële Home Assistant Spotify `media_player` entity; DJConnect gebruikt eigen Spotify OAuth en de Spotify Web API voor backend playback.
 - Spotify OAuth gebruikt een HA external step en opent de Spotify website.
@@ -92,14 +92,13 @@ HA integration:
 - `spotify_player` is niet meer nodig; backend playback loopt via de HA playback proxy en ESP device-instellingen via de lokale ESP command API.
 - Gebruik waar veilig HA-populated combo boxes/dropdowns i.p.v. vrije tekst:
   - Assist pipeline uit HA Assist pipelines.
-  - TTS engine uit HA `tts` entities.
   - Spotify market vaste keuzes.
-  - DJ response prompt als vrij tekstveld; geen vaste DJ style keuzes.
+  - DJ response prompt preset plus vrij tekstveld.
   - Firmware device wordt automatisch uit ESP status/info afgeleid voor OTA manifestselectie.
 - Verberg max audio bytes, min battery for OTA en allow OTA on battery achter een integration-local advanced checkbox; gebruik niet HA's deprecated `show_advanced_options` property.
-- Laat velden vrije tekst waar HA geen betrouwbare bron heeft, zoals TTS language/voice en playlist URI.
-- Als TTS engine wijzigt en de opgeslagen TTS voice niet door de nieuwe engine wordt ondersteund, wis `tts_voice` naar `Default` zodat HA TTS geen provider-specifieke oude stem blijft gebruiken.
-- Spotify source/device naam is dynamisch; toon dit niet in de normale flow, alleen advanced als optionele override.
+- Laat velden vrije tekst waar HA geen betrouwbare bron heeft, zoals playlist URI.
+- STT/TTS engine, taal en stem worden in Home Assistant Assist beheerd en niet als losse DJConnect config/options velden getoond.
+- Spotify source/device naam is dynamisch; toon als optionele playback override voor gevallen waar Spotify niet automatisch het gewenste Connect doel kiest.
 - Huidige firmware gebruikt de lokale ESP API met bearer token voor device-acties.
 - Diagnostics moeten alle keys met `token`, `password` of `secret` redacteren; log geen volledige ESP event payloads.
 - Diagnostics output moet legal metadata bevatten:
@@ -116,10 +115,10 @@ HA integration:
 - Config-flow foutpaden moeten heldere NL/EN gebruikersmeldingen hebben, bijvoorbeeld bij lege of foutieve koppelcode/device-suffix, ontbrekende Spotify Client ID, foutieve external URL en OAuth fouten.
 - Bestaande modules niet verwijderen, zoals `wav_util.py`, `pipeline.py`.
 - Actieve routes gebruiken HA Assist/TTS en geen directe externe AI/STT/TTS API.
-- Voice STT mag niet afhankelijk zijn van niet-beschikbare/private Assist audio pipeline helpers; gebruik HA's ondersteunde STT helper en geef `No STT provider configured. Checked options keys: ...` terug als er geen STT provider is.
-- `stt_engine` is de officiële DJConnect options-flow key voor fysieke PTT STT provider selectie; gebruik deze vóór Assist pipeline lookup. Log alleen keys/provider-id metadata, nooit API keys/tokens/audio URL tokens.
-- `stt_engine` moet zichtbaar blijven in normale config/options-flow; gebruik HA-populated dropdown als `stt.*` entities beschikbaar zijn en anders vrije tekst zodat `stt.openai_stt` handmatig ingevuld kan worden.
+- Voice STT mag niet afhankelijk zijn van niet-beschikbare/private Assist audio pipeline helpers; gebruik HA's ondersteunde STT helper en geef `No STT provider configured. Checked Assist pipeline/default STT.` terug als er geen STT provider is.
+- Legacy `stt_engine` en `tts_*` options mogen runtime niet meer sturen; gebruik de geselecteerde/opgeslagen Assist pipeline, preferred/default pipeline en STT entity fallback.
 - Als `assist_pipeline_id` leeg is, gebruik HA preferred/default Assist pipeline; als opgeslagen pipeline ontbreekt, fallback naar preferred/default of eerste pipeline met STT. Geef alleen no-provider terug als de geselecteerde pipeline echt geen STT engine/provider heeft.
+- DJConnect exposeert een Home Assistant conversation agent voor Assist satellites zoals Voice Preview Edition. De conversation-agent options-flow blijft compact en toont geen Client API URL, Assist pipeline, firmwarekanaal of OTA/audio advanced velden.
 - DJ responses worden niet via Spotify Connect of HA media_player afgespeeld; HA genereert waar mogelijk een tijdelijke WAV/MP3 `audio_url` en POST `text` + optionele `audio_url` naar ESP endpoint `/api/device/dj_response`.
 - Als HA TTS WAV of MP3 audio teruggeeft, mag HA een tijdelijke `audio_url` meesturen; ESP bepaalt wav/mp3/unknown. Alleen onbekende audio wordt text-only zonder warning.
 - ESP firmware stuurt microfoon-WAV naar `POST /api/djconnect/voice` met `Authorization: Bearer <device_token>` en `X-DJConnect-Device-ID`.
