@@ -20,10 +20,22 @@ Architectuur beslissingen:
 - Pairing/status gebruikt canoniek `client_type` om client runtimes te onderscheiden; huidige waarden zijn `esp32`, `ios`, `macos`, `watchos` en `raspberry_pi`. ESP firmware moet verplicht `client_type: "esp32"` meesturen op JSON payloads.
 - iOS/macOS/watchOS/Raspberry Pi client IDs zijn respectievelijk `djconnect-ios-XXXXXXXXXXXX`, `djconnect-macos-XXXXXXXXXXXX`, `djconnect-watchos-XXXXXXXXXXXX` en `djconnect-raspberry-pi-XXXXXXXXXXXX`, met de eerste 12 alfanumerieke chars van de client install ID; `client_type` moet met het device-id prefix matchen.
 - Backend playback loopt via de HA integration en wordt user-facing aangeboden als optionele/native `media_player` proxy; device-instellingen lopen via `POST /api/device/command`.
+- Ask DJ / DJ Memory is server-side in de HA integration. Apple Watch, iOS en macOS bewaren geen DJ memory; HA bewaart compacte runtime session memory en persistente Home Assistant Store data met key `djconnect_memory`, versie `1`, gescopeerd op HA user id indien beschikbaar en anders op DJConnect device/client id. Memory mag nooit OAuth tokens, bearer tokens, raw audio of volledige prompts opslaan.
+- `POST /api/djconnect/ask_dj` is het tekstuele Ask DJ endpoint voor iOS, macOS en watchOS clients. Requests mogen top-level identity of een `identity` object bevatten met `client_type`, `device_id` en `device_name`, plus `text`, optioneel `memory_key`, `mood` en `dj_style`. Responses gebruiken uniform `success`, `text`/`dj_text`/`message`, optioneel `audio_url`, `images[]`, `links[]`, `intent`, `action` en `memory_key`.
+- `POST /api/djconnect/voice` met `Content-Type: audio/wav` is voor iOS, macOS en watchOS ook Ask DJ Push-To-Talk input. Na STT moet HA het transcript door dezelfde Ask DJ backend sturen als tekstchat, inclusief memory, intent routing, Spotify listening profile context, sources/images/links/audio_url en clear-history semantiek. Response bevat `transcript` en legacy `recognized_text`. STT-fouten voor app Ask DJ voice geven HTTP `422` met `error: stt_failed`; ruwe audio wordt standaard niet opgeslagen.
+- Pairing/status responses adverteren `ask_dj_supported`, `ask_dj_voice_supported`, `voice_supported` en `ask_dj_audio_response_supported`.
+- Ask DJ intent `personal_music_profile_analysis` is altijd informatief en mag geen playback muteren: niet starten, pauzeren, queuen, skippen, liken of output verplaatsen. Gebruik alleen beschikbare DJ Memory/playback history voor recente tracks, artiesten, genres, albums, mood/energy en luistercontext; default periode is de laatste 30 dagen als de gebruiker geen periode noemt. Bij te weinig data eerlijk antwoorden.
+- Voor `personal_music_profile_analysis` mag HA Spotify Web API profieldata ophalen via `GET /me/player/recently-played` en `GET /me/top/{artists,tracks}` met `short_term`, `medium_term` en `long_term`, waarvoor scopes `user-read-recently-played` en `user-top-read` verplicht zijn. Cache alleen compacte snapshots/samenvattingen in DJ Memory (`recent_track_ids`, `recent_artists`, `top_artists_by_range`, `top_tracks_by_range`, `inferred_genres`, `mood/energy`, `last_profile_refresh`) met TTL rond 6-24 uur; sla geen onbeperkte Spotify luistergeschiedenis op.
+- Ask DJ responses voor profielanalyse vullen `sources[]` met onder andere `spotify_recently_played`, `spotify_top_tracks_short_term`, `spotify_top_artists_medium_term` en `djconnect_memory`.
+- Ask DJ intent `personal_music_recommendations` blijft informatief en mag playback niet wijzigen. Concrete aanbevelingen mogen als `playback_actions[]` terugkomen met Spotify URI metadata en geproxiede images. Alleen expliciet `/api/djconnect/command` met `command:"ask_dj_play_recommendation"` mag zo'n aanbeveling starten. Sta uitsluitend Spotify URI types `track`, `album`, `artist` en `playlist` toe en schrijf succesvolle Play Now keuzes compact als positief signaal naar DJ Memory.
+- Ask DJ clear/history synchronisatie loopt via `POST /api/djconnect/ask_dj/clear`, `POST /api/djconnect/ask_dj/history_state` en services `djconnect.clear_ask_dj_history` / `djconnect.ask_dj_history_state`. Clear verhoogt een history generation en history-state geeft `ask_dj_clear_required` terug zodat andere clients hun lokale chatcache wissen.
+- Ask DJ image responses moeten externe URLs via HA/DJConnect proxyen met `GET /api/djconnect/image_proxy/{token}`; clients hoeven geen directe externe content URLs te laden. Links/sources blijven aparte `links[]` entries met `kind: "source"` of `source: "source"`.
+- DJConnect initialiseert niet bij ieder verzoek externe music-knowledge bronnen. De DJ response prompt noemt Spotify metadata, DJ Memory/media-context en daarna MusicBrainz, Wikidata, korte Wikipedia summaries, Last.fm, Discogs en TheAudioDB als bronprioriteit wanneer die kennis beschikbaar is; trivia mag niet verzonnen worden.
 - ESP backend playback commands naar `POST /api/djconnect/command` gebruiken losse `set_shuffle` boolean en `set_repeat` met `off`/`track`/`context`; gebruik geen gecombineerde `set_play_mode` flow.
 - HA integration en ESP firmware moeten dezelfde `major.minor` protocolversie hebben: HA `3.0.z` praat alleen met ESP `3.0.z`, HA `3.1.z` alleen met ESP `3.1.z`; patchversies mogen verschillen.
 - Bij major/minor mismatch retourneert HA HTTP `426` met `error: version_mismatch` en HA/firmware metadata; dit is geen pairing-token failure en mag pairing/token niet wissen.
 - ESP uploadt raw WAV audio naar `POST /api/djconnect/voice`; de HA integration doet Assist/STT intern via HA `stt.async_get_speech_to_text_engine(...).async_process_audio_stream` met eerst de opgeslagen Assist pipeline, daarna HA preferred/default pipeline, eerste pipeline met STT, eerste HA `stt.*` entity of als laatste HA `assist_pipeline.async_pipeline_from_audio_stream`, kan daarna via HA Assist een defensieve fuzzy-correctie op de STT-tekst uitvoeren, en geeft tekst plus optionele WAV/MP3 `audio_url` terug.
+- `/api/djconnect/status`, `/api/djconnect/command` en `/api/djconnect/voice` mogen optioneel `mood` (`0`-`100`), `dj_style` en `memory_key` accepteren voor Ask DJ. HA mag `memory_key` normaliseren/overrulen en kan de resolved `memory_key` teruggeven.
 - Actieve HA routes gebruiken geen directe externe AI/STT/TTS APIs; gebruik HA Assist en HA TTS.
 - DJ responses spelen op het DJConnect device af, niet via Spotify Connect of HA media_player; HA post `text` plus optionele tijdelijke WAV/MP3 `audio_url` naar `/api/device/dj_response`.
 - Fallback DJ responses bij command/playback fouten moeten de gekozen `device_language` volgen (`en`/`nl`).
@@ -58,7 +70,7 @@ Licentie/commercieel:
 HA integration:
 - domain: `djconnect`
 - HACS custom integration.
-- Actuele integratieversie: `3.1.60`.
+- Actuele integratieversie: `3.1.61`.
 - Config flow moet blijven laden.
 - Config flow blokkeert niet meer op een officiële Home Assistant Spotify `media_player` entity; DJConnect gebruikt eigen Spotify OAuth en de Spotify Web API voor backend playback.
 - Spotify OAuth gebruikt een HA external step en opent de Spotify website.
@@ -171,6 +183,7 @@ README/release:
   - Update `custom_components/djconnect/manifest.json` naar de target versie.
   - Update `custom_components/djconnect/const.py` naar dezelfde target versie.
   - Update alle documentatiebestanden in deze repo die door de wijziging of release geraakt worden: minimaal `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` en relevante files onder `examples/`.
+  - Update en JSON-valideer `examples/djconnect.postman_collection.json` als HTTP endpoints, auth headers, request payloads of response shapes wijzigen.
   - Update `README.md` current version, examples, endpoints, HACS instructies en release workflow.
   - Update `CHANGELOG.md` met een nieuw blok per release; behoud eerdere releaseblokken en consolideer niet meer naar één actuele versie.
   - Houd `AGENTS.md` gelijk met actuele versie en release-eisen.
@@ -191,6 +204,7 @@ README/release:
   - One-liner mag via `./release.sh X.Y.Z`.
   - `./release.sh X.Y.Z` moet de versie automatisch bijwerken in `manifest.json`, `const.py`, `README.md`, `CHANGELOG.md`, `AGENTS.md` en relevante voorbeeldmetadata voordat commit/tag gebeurt.
   - Controleer vóór release handmatig of alle documentatiebestanden (`README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md`, `examples/*`) inhoudelijk kloppen; niet alleen versienummers.
+  - Controleer vóór release handmatig dat `examples/djconnect.postman_collection.json` de actuele API contracten en testvoorbeelden bevat en geldige JSON is.
   - Controleer vóór release handmatig dat alle Nederlandse en Engelse vertalingen compleet en passend zijn.
   - Controleer vóór release handmatig of de testdekking past bij de wijziging; documentatie-only changes mogen zonder nieuwe tests, maar code-/contract-/UI-string changes moeten expliciet bestaande of nieuwe tests dekken.
   - Dry-run kan via `./release.sh X.Y.Z --dry-run`.

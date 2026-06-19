@@ -1,0 +1,717 @@
+{
+  "info": {
+    "_postman_id": "7b2f3210-djconnect-api",
+    "name": "DJConnect Home Assistant API",
+    "description": "Postman collection for the DJConnect Home Assistant custom integration. Set collection variables before running requests. Do not commit real bearer tokens, pairing codes, Spotify OAuth values or Home Assistant tokens.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "ha_base_url",
+      "value": "http://homeassistant.local:8123",
+      "type": "string"
+    },
+    {
+      "key": "device_token",
+      "value": "replace-with-djconnect-device-bearer-token",
+      "type": "string"
+    },
+    {
+      "key": "device_id",
+      "value": "djconnect-watchos-68B74487726D",
+      "type": "string"
+    },
+    {
+      "key": "client_type",
+      "value": "watchos",
+      "type": "string"
+    },
+    {
+      "key": "device_name",
+      "value": "Apple Watch van Peter",
+      "type": "string"
+    },
+    {
+      "key": "pair_code",
+      "value": "469781",
+      "type": "string"
+    },
+    {
+      "key": "memory_key",
+      "value": "postman-shared-memory",
+      "type": "string"
+    },
+    {
+      "key": "history_generation",
+      "value": "0",
+      "type": "string"
+    },
+    {
+      "key": "tts_token",
+      "value": "replace-with-token-from-audio-url",
+      "type": "string"
+    },
+    {
+      "key": "tts_extension",
+      "value": "mp3",
+      "type": "string"
+    },
+    {
+      "key": "image_token",
+      "value": "replace-with-token-from-image-proxy-url",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "noauth"
+  },
+  "item": [
+    {
+      "name": "Pairing",
+      "item": [
+        {
+          "name": "Pair app/client",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pair_code\": \"{{pair_code}}\",\n  \"pairing_code\": \"{{pair_code}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"platform\": \"{{client_type}}\",\n  \"device_id\": \"{{device_id}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"firmware\": \"3.1.60\",\n  \"app_version\": \"3.1.60\"\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/pair",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "pair"
+              ]
+            },
+            "description": "Pairs an app-like DJConnect client. The response can issue the bearer device token used by authenticated requests."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Status, Commands and Events",
+      "item": [
+        {
+          "name": "Post status",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"platform\": \"{{client_type}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"firmware\": \"3.1.60\",\n  \"app_version\": \"3.1.60\",\n  \"battery_percent\": 86,\n  \"mood\": 42,\n  \"dj_style\": \"warm_radio_dj\",\n  \"memory_key\": \"{{memory_key}}\"\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/status",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "status"
+              ]
+            },
+            "description": "Authenticated client status update. App clients can include optional Ask DJ memory hints."
+          }
+        },
+        {
+          "name": "Command - current status",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"command\": \"status\",\n  \"memory_key\": \"{{memory_key}}\"\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/command",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "command"
+              ]
+            },
+            "description": "Fetch backend playback/status information without mutating playback."
+          }
+        },
+        {
+          "name": "Command - pause",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"command\": \"pause\"\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/command",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "command"
+              ]
+            },
+            "description": "Playback mutation example: pause the current backend playback."
+          }
+        },
+        {
+          "name": "Command - set volume",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"command\": \"set_volume\",\n  \"value\": 35\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/command",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "command"
+              ]
+            },
+            "description": "Playback mutation example: set backend playback volume."
+          }
+        },
+        {
+          "name": "Post event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"event\": \"app_opened\",\n  \"payload\": {\n    \"screen\": \"ask_dj\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/event",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "event"
+              ]
+            },
+            "description": "Authenticated client event endpoint."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ask DJ",
+      "item": [
+        {
+          "name": "Ask DJ - informational",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identity\": {\n    \"device_id\": \"{{device_id}}\",\n    \"client_type\": \"{{client_type}}\",\n    \"device_name\": \"{{device_name}}\"\n  },\n  \"text\": \"Waarom koos je dit nummer?\",\n  \"memory_key\": \"{{memory_key}}\",\n  \"mood\": 42,\n  \"dj_style\": \"warm_radio_dj\"\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/ask_dj",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "ask_dj"
+              ]
+            },
+            "description": "Informational Ask DJ request. This should not mutate playback."
+          }
+        },
+        {
+          "name": "Ask DJ - personal music profile analysis",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"text\": \"Omschrijf eens waar ik zoal naar luisterde de afgelopen maand\",\n  \"memory_key\": \"{{memory_key}}\"\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/ask_dj",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "ask_dj"
+              ]
+            },
+            "description": "Personal music profile analysis intent. Expected intent: personal_music_profile_analysis. This must not mutate playback. Response should include sources[] such as spotify_recently_played, spotify_top_tracks_short_term and djconnect_memory when data is available."
+          }
+        },
+        {
+          "name": "Ask DJ - personal recommendations",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"text\": \"Welke muziek raad je mij aan?\",\n  \"memory_key\": \"{{memory_key}}\"\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/ask_dj",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "ask_dj"
+              ]
+            },
+            "description": "Requests non-mutating personal recommendations. Expected response can include playback_actions[] for client Play Now buttons."
+          }
+        },
+        {
+          "name": "Ask DJ - Play Now recommendation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"command\": \"ask_dj_play_recommendation\",\n  \"play\": true,\n  \"value\": {\n    \"title\": \"Track Title\",\n    \"subtitle\": \"Artist Name\",\n    \"uri\": \"spotify:track:123\",\n    \"context_uri\": \"spotify:album:456\",\n    \"offset_uri\": \"spotify:track:123\",\n    \"kind\": \"track\",\n    \"memory_key\": \"{{memory_key}}\",\n    \"reason\": \"Past bij je recente voorkeur voor melodische opbouw.\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/command",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "command"
+              ]
+            },
+            "description": "Explicit Play Now command for a recommendation returned by Ask DJ playback_actions[]. This is the point where playback may start."
+          }
+        },
+        {
+          "name": "Ask DJ - playback action",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"text\": \"Volgende nummer\",\n  \"memory_key\": \"{{memory_key}}\"\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/ask_dj",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "ask_dj"
+              ]
+            },
+            "description": "Ask DJ playback action example. This can mutate playback."
+          }
+        },
+        {
+          "name": "Ask DJ - clear history",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"memory_key\": \"{{memory_key}}\"\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/ask_dj/clear",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "ask_dj",
+                "clear"
+              ]
+            },
+            "description": "Clears server-side Ask DJ memory/history for the resolved memory key and increments the history generation."
+          }
+        },
+        {
+          "name": "Ask DJ - history state",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"memory_key\": \"{{memory_key}}\",\n  \"generation\": {{history_generation}}\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/ask_dj/history_state",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "ask_dj",
+                "history_state"
+              ]
+            },
+            "description": "Checks whether the client should clear local Ask DJ chat history before opening the chat UI."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Voice and Media",
+      "item": [
+        {
+          "name": "Voice - text diagnostic",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"text\": \"Wat speelt er nu?\",\n  \"memory_key\": \"{{memory_key}}\"\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/voice",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "voice"
+              ]
+            },
+            "description": "Text-only voice diagnostic. Raw WAV PTT uploads use Content-Type audio/wav and binary body instead."
+          }
+        },
+        {
+          "name": "Ask DJ voice - WAV upload",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "audio/wav"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              },
+              {
+                "key": "client_type",
+                "value": "{{client_type}}"
+              },
+              {
+                "key": "X-DJConnect-Mood",
+                "value": "42"
+              },
+              {
+                "key": "X-DJConnect-DJ-Style",
+                "value": "warm_radio_dj"
+              },
+              {
+                "key": "X-DJConnect-Memory-Key",
+                "value": "{{memory_key}}"
+              }
+            ],
+            "body": {
+              "mode": "file",
+              "file": {
+                "src": ""
+              }
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/voice",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "voice"
+              ]
+            },
+            "description": "Upload an audio/wav file from an iOS, macOS or watchOS Ask DJ PTT client. Backend transcribes via HA STT, routes the transcript through Ask DJ, and returns transcript, text/dj_text, optional images, links, sources and audio_url."
+          }
+        },
+        {
+          "name": "TTS audio",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/tts/{{tts_token}}.{{tts_extension}}",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "tts",
+                "{{tts_token}}.{{tts_extension}}"
+              ]
+            },
+            "description": "Fetches a temporary DJConnect TTS audio URL returned by voice or Ask DJ responses."
+          }
+        },
+        {
+          "name": "Image proxy",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/image_proxy/{{image_token}}",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "image_proxy",
+                "{{image_token}}"
+              ]
+            },
+            "description": "Fetches a proxied image URL returned in Ask DJ images[]."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Spotify OAuth Callback",
+      "item": [
+        {
+          "name": "Spotify callback placeholder",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/spotify/callback?code=replace-with-oauth-code&state=replace-with-state",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "spotify",
+                "callback"
+              ],
+              "query": [
+                {
+                  "key": "code",
+                  "value": "replace-with-oauth-code"
+                },
+                {
+                  "key": "state",
+                  "value": "replace-with-state"
+                }
+              ]
+            },
+            "description": "Spotify redirects the browser here after OAuth. This placeholder is for contract visibility; normal users should start OAuth from the Home Assistant config/options flow."
+          }
+        }
+      ]
+    }
+  ]
+}

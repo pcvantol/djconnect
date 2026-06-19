@@ -72,13 +72,27 @@ class DJConnectConversationAgent(conversation.ConversationEntity):
             )
 
         try:
-            result = await process_text_command(
-                self.hass,
-                self._runtime,
-                text,
-                play=True,
-                correct_stt=False,
-            )
+            context = getattr(user_input, "context", None)
+            user_id = getattr(context, "user_id", None)
+            try:
+                result = await process_text_command(
+                    self.hass,
+                    self._runtime,
+                    text,
+                    play=True,
+                    correct_stt=False,
+                    user_id=str(user_id) if user_id else None,
+                )
+            except TypeError as exc:
+                if "unexpected keyword" not in str(exc):
+                    raise
+                result = await process_text_command(
+                    self.hass,
+                    self._runtime,
+                    text,
+                    play=True,
+                    correct_stt=False,
+                )
 
             speech = str(result.get("dj_text") or "").strip()
 

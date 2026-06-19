@@ -216,6 +216,62 @@ Pattern:
 Primary source files:
 
 - `custom_components/djconnect/const.py`
+
+### Server-Side DJ Memory
+
+Pattern:
+
+- `Ask DJ` context is owned by the Home Assistant integration, not by Apple
+  Watch, iOS or macOS clients.
+- Runtime session memory keeps bounded recent turns for follow-ups and may be
+  lost on Home Assistant restart.
+- Persistent memory uses Home Assistant `Store(hass, 1, "djconnect_memory")`;
+  no recorder database or vector database is used for v1.
+- Memory keys prefer HA user id when available and fall back to stable
+  DJConnect client/device id.
+- Stored memory is compact and excludes bearer tokens, Spotify OAuth tokens,
+  Home Assistant tokens, raw audio and full prompts.
+- Text Ask DJ requests enter through `custom_components/djconnect/ask_dj.py`
+  via `POST /api/djconnect/ask_dj` or service `djconnect.ask_dj`.
+- App Ask DJ Push-To-Talk enters through the existing `/api/djconnect/voice`
+  WAV route. iOS, macOS and watchOS transcripts are routed to the same Ask DJ
+  handler as text chat; ESP32 WAV remains on the command-parser playback flow.
+  This keeps one authenticated voice endpoint while preserving client-specific
+  semantics.
+- Intent routing is deliberately split into informational, playback/device
+  action and hybrid buckets. Informational answers can use playback context and
+  memory but must not mutate Spotify/Home Assistant playback.
+- `personal_music_profile_analysis` is a dedicated informational intent. It
+  parses common period phrases, defaults to the last 30 days, summarizes only
+  available DJ Memory/playback data and returns an insufficient-data answer when
+  there is not enough history. It must not call mutating Spotify/Home Assistant
+  actions.
+- Spotify listening-profile enrichment is non-mutating and uses official Web
+  API reads only: `/me/player/recently-played` and `/me/top/{artists,tracks}`.
+  The integration caches compact profile snapshots in DJ Memory with a
+  multi-hour TTL instead of storing unlimited raw listening history.
+- Ask DJ profile responses expose `sources[]` metadata so clients can show
+  Spotify recently played/top-items and DJConnect Memory provenance separately
+  from normal links.
+- Ask DJ recommendations use a two-step model. The informational
+  `personal_music_recommendations` response may expose Spotify-only
+  `playback_actions[]`, but playback starts only after the explicit
+  `ask_dj_play_recommendation` command. This prevents accidental playback
+  mutations while still giving clients a Play Now affordance.
+- Clear/history state is generation-based: clearing memory records
+  `clear_requested_at` and increments `generation`; clients compare their local
+  generation with `ask_dj_history_state` before rendering the Ask DJ chat.
+- Images are represented as structured `images[]` entries and any external
+  image URL is registered behind the Home Assistant route
+  `/api/djconnect/image_proxy/{token}`. Source links remain explicit `links[]`
+  entries and are not mixed with images.
+
+Primary source files:
+
+- `custom_components/djconnect/memory.py`
+- `custom_components/djconnect/ask_dj.py`
+- `custom_components/djconnect/http.py`
+- `custom_components/djconnect/processor.py`
 - `custom_components/djconnect/config_flow.py`
 - `custom_components/djconnect/sensor.py`
 - `custom_components/djconnect/button.py`

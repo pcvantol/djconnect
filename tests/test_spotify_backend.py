@@ -93,6 +93,104 @@ class SpotifyBackendTest(unittest.TestCase):
             {"type": "", "uri": "spotify:playlist:abc", "href": ""},
         )
 
+    def test_listening_profile_fetches_recently_played_and_top_items(self) -> None:
+        class Response:
+            status = 200
+
+            def __init__(self, payload):
+                self.payload = payload
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                return self.payload
+
+            async def text(self):
+                return str(self.payload)
+
+        class Session:
+            def __init__(self):
+                self.urls = []
+
+            def request(self, method, url, **kwargs):
+                self.urls.append(url)
+                if "recently-played" in url:
+                    return Response(
+                        {
+                            "items": [
+                                {
+                                    "played_at": "2026-06-19T10:00:00Z",
+                                    "track": {
+                                        "id": "track-1",
+                                        "name": "Intro",
+                                        "uri": "spotify:track:1",
+                                        "artists": [{"name": "The xx"}],
+                                        "album": {"name": "xx", "images": []},
+                                    },
+                                }
+                            ]
+                        }
+                    )
+                if "/me/top/artists" in url:
+                    return Response(
+                        {
+                            "items": [
+                                {
+                                    "id": "artist-1",
+                                    "name": "The xx",
+                                    "uri": "spotify:artist:1",
+                                    "genres": ["indie", "ambient pop"],
+                                }
+                            ]
+                        }
+                    )
+                if "/me/top/tracks" in url:
+                    return Response(
+                        {
+                            "items": [
+                                {
+                                    "id": "track-2",
+                                    "name": "Holocene",
+                                    "uri": "spotify:track:2",
+                                    "artists": [{"name": "Bon Iver"}],
+                                    "album": {"name": "Bon Iver", "images": []},
+                                }
+                            ]
+                        }
+                    )
+                return Response({})
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={"spotify_client_id": "client-id", "spotify_refresh_token": "refresh"},
+            options={},
+        )
+        runtime = types.SimpleNamespace(
+            entry=entry,
+            latest_spotify_refresh_token=None,
+            spotify_access_token="access",
+            spotify_access_token_expires_at=time.time() + 1800,
+            device_status={},
+            update=lambda **kwargs: setattr(runtime, "last_update", kwargs),
+        )
+        runtime.config = dict(entry.data)
+        backend = self.backend.SpotifyBackend(object(), runtime)
+        session = Session()
+        backend.session = session
+
+        profile = asyncio.run(backend.listening_profile())
+
+        self.assertTrue(any("/me/player/recently-played?limit=50" in url for url in session.urls))
+        self.assertEqual(sum("/me/top/artists" in url for url in session.urls), 3)
+        self.assertEqual(sum("/me/top/tracks" in url for url in session.urls), 3)
+        self.assertEqual(profile["recent_tracks"][0]["artist"], "The xx")
+        self.assertIn("indie", profile["inferred_genres"])
+        self.assertIn("spotify_recently_played", profile["sources"])
+
     def test_empty_playback_does_not_clear_cached_sensor_fields(self) -> None:
         class Response:
             status = 200

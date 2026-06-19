@@ -12,6 +12,7 @@ from .pipeline import (
     generate_dj_response_with_assist,
     process_text_with_assist,
 )
+from .memory import prompt_context_text
 from .spotify import play_from_intent
 from .spotify_backend import SpotifyBackendError, handle_spotify_command
 
@@ -22,6 +23,8 @@ async def process_text_command(
     user_text: str,
     play: bool = True,
     correct_stt: bool = False,
+    memory_payload: dict[str, Any] | None = None,
+    user_id: str | None = None,
 ) -> dict[str, Any]:
     conf = runtime.config
     corrected_text = (
@@ -36,22 +39,48 @@ async def process_text_command(
         last_error=None,
     )
     if _is_current_track_question(corrected_text):
-        return await _process_current_track_question(
+        result = await _process_current_track_question(
             hass,
             runtime,
             corrected_text,
             user_text,
         )
+        await _record_ask_dj_memory(
+            runtime,
+            corrected_text,
+            result,
+            memory_payload=memory_payload,
+            user_id=user_id,
+        )
+        return result
     control = _playback_control_request(corrected_text)
     if control:
-        return await _process_playback_control_request(
+        result = await _process_playback_control_request(
             hass,
             runtime,
             corrected_text,
             user_text,
             control,
         )
-    intent = await process_text_with_assist(hass, corrected_text, conf)
+        await _record_ask_dj_memory(
+            runtime,
+            corrected_text,
+            result,
+            memory_payload=memory_payload,
+            user_id=user_id,
+        )
+        return result
+    memory_context = await _memory_context_for_assist(
+        runtime,
+        memory_payload=memory_payload,
+        user_id=user_id,
+    )
+    intent = await _process_text_with_optional_memory(
+        hass,
+        corrected_text,
+        conf,
+        memory_context=memory_context,
+    )
     runtime.update(last_intent=intent)
     playback = None
     if play:
@@ -81,7 +110,71 @@ async def process_text_command(
         last_playback=playback,
         last_error=None,
     )
+    await _record_ask_dj_memory(
+        runtime,
+        corrected_text,
+        result,
+        memory_payload=memory_payload,
+        user_id=user_id,
+    )
     return result
+
+
+async def _memory_context_for_assist(
+    runtime: Any,
+    *,
+    memory_payload: dict[str, Any] | None = None,
+    user_id: str | None = None,
+) -> str | None:
+    memory = getattr(runtime, "memory", None)
+    if memory is None:
+        return None
+    context_getter = getattr(memory, "async_context_for_runtime", None)
+    if not callable(context_getter):
+        return None
+    context = await context_getter(runtime, memory_payload, user_id=user_id)
+    return prompt_context_text(context)
+
+
+async def _process_text_with_optional_memory(
+    hass: HomeAssistant,
+    corrected_text: str,
+    conf: dict[str, Any],
+    *,
+    memory_context: str | None,
+) -> dict[str, Any]:
+    try:
+        return await process_text_with_assist(
+            hass,
+            corrected_text,
+            conf,
+            memory_context=memory_context,
+        )
+    except TypeError as exc:
+        if "unexpected keyword" not in str(exc):
+            raise
+        return await process_text_with_assist(hass, corrected_text, conf)
+
+
+async def _record_ask_dj_memory(
+    runtime: Any,
+    corrected_text: str,
+    result: dict[str, Any],
+    *,
+    memory_payload: dict[str, Any] | None = None,
+    user_id: str | None = None,
+) -> None:
+    memory = getattr(runtime, "memory", None)
+    recorder = getattr(memory, "async_update_last_ask_dj", None)
+    if not callable(recorder):
+        return
+    await recorder(
+        runtime,
+        input_text=corrected_text,
+        result=result,
+        payload=memory_payload,
+        user_id=user_id,
+    )
 
 
 async def _process_playback_control_request(

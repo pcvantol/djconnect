@@ -6,12 +6,18 @@ import logging
 from pathlib import Path
 import re
 from typing import Any
+from urllib.parse import urlsplit
 
 from aiohttp import web
 from homeassistant.components.http import HomeAssistantView
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import (
+    API_ASK_DJ,
+    API_ASK_DJ_CLEAR,
+    API_ASK_DJ_HISTORY_STATE,
     API_COMMAND,
+    API_IMAGE_PROXY,
     API_SPOTIFY_CALLBACK,
     API_EVENT,
     API_PAIR,
@@ -28,6 +34,9 @@ from .const import (
     CONF_PAIR_CODE,
     DOMAIN,
     CLIENT_TYPE_ESP32,
+    CLIENT_TYPE_IOS,
+    CLIENT_TYPE_MACOS,
+    CLIENT_TYPE_WATCHOS,
     CLIENT_TYPES,
     DEFAULT_CLIENT_TYPE,
     DEFAULT_MAX_AUDIO_BYTES,
@@ -39,6 +48,7 @@ from .const import (
     DEFAULT_SPOTIFY_SCOPES,
     VERSION,
 )
+from .ask_dj import async_handle_ask_dj, image_proxy_target
 from .assist_stt import (
     DJConnectNoSttProviderError,
     transcribe_wav_with_assist,
@@ -569,11 +579,55 @@ def _payload_client_type(data: dict[str, Any]) -> str:
     return str(data.get(CONF_CLIENT_TYPE) or "").strip().lower()
 
 
+def _identity_payload(data: dict[str, Any]) -> dict[str, Any]:
+    identity = data.get("identity") if isinstance(data.get("identity"), dict) else {}
+    merged = dict(identity)
+    merged.update({key: value for key, value in data.items() if key not in {"identity"}})
+    return merged
+
+
 def _validate_required_client_type(data: dict[str, Any]) -> str | None:
     client_type = _payload_client_type(data)
     if not client_type or client_type not in CLIENT_TYPES:
         return None
     return client_type
+
+
+def _is_ask_dj_voice_client(client_type: str | None) -> bool:
+    return str(client_type or "").strip().lower() in {
+        CLIENT_TYPE_IOS,
+        CLIENT_TYPE_MACOS,
+        CLIENT_TYPE_WATCHOS,
+    }
+
+
+def _voice_header_payload(headers: Any, device_id: str, client_type: str | None) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        CONF_DEVICE_ID: device_id,
+        CONF_CLIENT_TYPE: client_type,
+    }
+    memory_key = str(headers.get("X-DJConnect-Memory-Key") or "").strip()
+    if memory_key:
+        payload["memory_key"] = memory_key
+    dj_style = str(headers.get("X-DJConnect-DJ-Style") or "").strip()
+    if dj_style:
+        payload["dj_style"] = dj_style
+    mood = str(headers.get("X-DJConnect-Mood") or "").strip()
+    if mood:
+        try:
+            payload["mood"] = max(0, min(100, int(float(mood))))
+        except ValueError:
+            payload["mood"] = mood
+    return payload
+
+
+def _ask_dj_capabilities() -> dict[str, bool]:
+    return {
+        "ask_dj_supported": True,
+        "ask_dj_voice_supported": True,
+        "voice_supported": True,
+        "ask_dj_audio_response_supported": True,
+    }
 
 
 def _request_remote_ip(request: Any) -> str | None:
@@ -617,6 +671,61 @@ def _runtime_client_type(runtime: Any) -> str:
         or conf.get(CONF_CLIENT_TYPE)
         or DEFAULT_CLIENT_TYPE
     )
+
+
+def _request_user_id(request: Any) -> str | None:
+    context = getattr(request, "context", None)
+    user_id = getattr(context, "user_id", None)
+    if user_id:
+        return str(user_id)
+    user = getattr(request, "user", None)
+    user_id = getattr(user, "id", None)
+    return str(user_id) if user_id else None
+
+
+async def _update_memory_metadata(
+    runtime: Any,
+    payload: dict[str, Any] | None,
+    *,
+    user_id: str | None = None,
+) -> str | None:
+    memory = getattr(runtime, "memory", None)
+    updater = getattr(memory, "async_update_client_metadata", None)
+    if not callable(updater):
+        return None
+    return await updater(runtime, payload or {}, user_id=user_id)
+
+
+async def _process_text_command_with_memory(
+    hass: Any,
+    runtime: Any,
+    user_text: str,
+    *,
+    play: bool,
+    correct_stt: bool,
+    memory_payload: dict[str, Any] | None,
+    user_id: str | None,
+) -> dict[str, Any]:
+    try:
+        return await process_text_command(
+            hass,
+            runtime,
+            user_text,
+            play=play,
+            correct_stt=correct_stt,
+            memory_payload=memory_payload,
+            user_id=user_id,
+        )
+    except TypeError as exc:
+        if "unexpected keyword" not in str(exc):
+            raise
+        return await process_text_command(
+            hass,
+            runtime,
+            user_text,
+            play=play,
+            correct_stt=correct_stt,
+        )
 
 
 def _authorize_runtime_device_request(
@@ -848,6 +957,154 @@ def _playlist_command_value(data: dict[str, Any], client_type: str) -> dict[str,
     return {"client_type": client_type, "limit": request_limit}
 
 
+async def _handle_ask_dj_play_recommendation(
+    hass: Any,
+    runtime: Any,
+    value: Any,
+    request_payload: dict[str, Any],
+    *,
+    user_id: str | None = None,
+) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        return {
+            "success": False,
+            "error": "missing_recommendation_uri",
+            "message": "Aanbeveling ontbreekt.",
+        }
+    recommendation = _normalize_recommendation_value(value)
+    uri = str(recommendation.get("uri") or "").strip()
+    context_uri = str(recommendation.get("context_uri") or "").strip()
+    offset_uri = str(recommendation.get("offset_uri") or "").strip()
+    kind = str(recommendation.get("kind") or _spotify_recommendation_kind(uri or context_uri)).strip()
+    if not (uri or context_uri):
+        return {
+            "success": False,
+            "error": "missing_recommendation_uri",
+            "message": "Ik weet niet welke aanbeveling ik moet afspelen.",
+        }
+    if kind not in {"track", "album", "artist", "playlist"}:
+        return {
+            "success": False,
+            "error": "unsupported_recommendation_kind",
+            "message": "Ik kan dit type aanbeveling nog niet afspelen.",
+        }
+    if uri and _spotify_recommendation_kind(uri) not in {"track", "album", "artist", "playlist"}:
+        return {
+            "success": False,
+            "error": "unsupported_recommendation_kind",
+            "message": "Ik kan alleen Spotify track, album, artist of playlist URIs afspelen.",
+        }
+    if context_uri and _spotify_recommendation_kind(context_uri) not in {"album", "artist", "playlist"}:
+        return {
+            "success": False,
+            "error": "unsupported_recommendation_kind",
+            "message": "Ik kan deze Spotify context niet afspelen.",
+        }
+    if offset_uri and _spotify_recommendation_kind(offset_uri) != "track":
+        return {
+            "success": False,
+            "error": "unsupported_recommendation_kind",
+            "message": "De offset van een aanbeveling moet een Spotify track zijn.",
+        }
+    try:
+        if kind == "track" and context_uri and offset_uri:
+            result = await handle_spotify_command(
+                hass,
+                runtime,
+                "play_context_at",
+                {"context_uri": context_uri, "offset_uri": offset_uri},
+                play=True,
+            )
+        elif kind == "track":
+            result = await handle_spotify_command(hass, runtime, "play", uri, play=True)
+        else:
+            target = context_uri or uri
+            result = await handle_spotify_command(hass, runtime, "play", target, play=True)
+    except SpotifyBackendError as exc:
+        message = str(exc)
+        if _looks_like_no_active_output(message):
+            return {
+                "success": False,
+                "error": "no_active_output",
+                "message": "Ik weet nog niet op welke speaker ik dit moet afspelen.",
+            }
+        if "reauthorize" in message.lower() or "authorization" in message.lower():
+            return {
+                "success": False,
+                "error": "spotify_auth_required",
+                "message": message,
+            }
+        return {
+            "success": False,
+            "error": "spotify_playback_failed",
+            "message": message,
+        }
+    memory = getattr(runtime, "memory", None)
+    if memory is not None:
+        recorder = getattr(memory, "async_record_recommendation_play", None)
+        if callable(recorder):
+            try:
+                memory_payload = dict(request_payload)
+                if recommendation.get("memory_key") and not memory_payload.get("memory_key"):
+                    memory_payload["memory_key"] = recommendation["memory_key"]
+                await recorder(runtime, recommendation, memory_payload, user_id=user_id)
+            except Exception as exc:  # noqa: BLE001
+                _LOGGER.debug("DJConnect recommendation play memory update failed: %s", exc)
+    title = recommendation.get("title") or recommendation.get("uri") or recommendation.get("context_uri")
+    dj_text = f"Ik speel {title} nu af."
+    playback = result.get("playback") if isinstance(result, dict) else {}
+    runtime.update(last_error=None, last_dj_text=dj_text, last_playback=playback or getattr(runtime, "last_playback", None))
+    return {
+        "success": True,
+        "message": dj_text,
+        "text": dj_text,
+        "dj_text": dj_text,
+        "action": "spotify_start_recommendation",
+        "playback": playback or {},
+        "recommendation": {
+            key: recommendation.get(key)
+            for key in ("uri", "context_uri", "offset_uri", "kind", "title", "subtitle", "reason")
+            if recommendation.get(key)
+        },
+    }
+
+
+def _normalize_recommendation_value(value: dict[str, Any]) -> dict[str, Any]:
+    uri = str(value.get("uri") or "").strip()
+    context_uri = str(value.get("context_uri") or "").strip()
+    offset_uri = str(value.get("offset_uri") or "").strip()
+    kind = str(value.get("kind") or _spotify_recommendation_kind(uri or context_uri)).strip().lower()
+    if kind == "track" and not offset_uri and uri.startswith("spotify:track:"):
+        offset_uri = uri if context_uri else ""
+    return {
+        "title": str(value.get("title") or "").strip(),
+        "subtitle": str(value.get("subtitle") or "").strip(),
+        "uri": uri,
+        "context_uri": context_uri,
+        "offset_uri": offset_uri,
+        "kind": kind,
+        "memory_key": str(value.get("memory_key") or "").strip(),
+        "reason": str(value.get("reason") or "").strip(),
+    }
+
+
+def _spotify_recommendation_kind(uri: str) -> str:
+    if uri.startswith("spotify:track:"):
+        return "track"
+    if uri.startswith("spotify:album:"):
+        return "album"
+    if uri.startswith("spotify:artist:"):
+        return "artist"
+    if uri.startswith("spotify:playlist:"):
+        return "playlist"
+    return ""
+
+
+def _looks_like_no_active_output(message: str) -> bool:
+    normalized = str(message or "").lower()
+    return "no active device" in normalized or "no spotify playback device" in normalized or "device not found" in normalized
+
+
 def _with_playlist_aliases(result: dict[str, Any]) -> dict[str, Any]:
     """Expose playlist lists under stable aliases used by app and ESP clients."""
     playlists = _playlist_items_from_result(result)
@@ -1028,6 +1285,7 @@ class DJConnectPairView(HomeAssistantView):
             "status_path": API_STATUS,
             "event_path": API_EVENT,
         }
+        response.update(_ask_dj_capabilities())
         response.update(_esp32_language_payload(runtime))
         response.update(await async_ha_url_payload(hass, conf))
         _LOGGER.debug(
@@ -1080,6 +1338,11 @@ class DJConnectStatusView(HomeAssistantView):
             )
             return _json_error(self, "invalid_client_type", 400)
         status_update[CONF_CLIENT_TYPE] = client_type
+        memory_key = await _update_memory_metadata(
+            runtime,
+            status_update,
+            user_id=_request_user_id(request),
+        )
         source_ip = _request_remote_ip(request)
         if source_ip:
             status_update["local_ip"] = source_ip
@@ -1121,6 +1384,9 @@ class DJConnectStatusView(HomeAssistantView):
             "assist_pipeline_id": conf.get(CONF_ASSIST_PIPELINE_ID, ""),
             "playback": getattr(runtime, "last_playback", None) or {},
         }
+        response.update(_ask_dj_capabilities())
+        if memory_key:
+            response["memory_key"] = memory_key
         response.update(_ha_version_payload())
         response.update(_esp32_language_payload(runtime))
         response.update(await async_ha_url_payload(hass, conf))
@@ -1174,6 +1440,11 @@ class DJConnectCommandView(HomeAssistantView):
         if _is_command_payload(data):
             _LOGGER.debug("Ignoring command payload for device sensor update")
         runtime.device_status[CONF_CLIENT_TYPE] = client_type
+        memory_key = await _update_memory_metadata(
+            runtime,
+            data,
+            user_id=_request_user_id(request),
+        )
         if not _runtime_versions_compatible(runtime):
             return _runtime_version_mismatch_response(self, runtime)
         header_device = request.headers.get("X-DJConnect-Device-ID")
@@ -1211,6 +1482,20 @@ class DJConnectCommandView(HomeAssistantView):
                 client_type,
                 command_value.get("limit"),
             )
+        if normalized_command == "ask_dj_play_recommendation":
+            result = await _handle_ask_dj_play_recommendation(
+                hass,
+                runtime,
+                command_value,
+                data,
+                user_id=_request_user_id(request),
+            )
+            if isinstance(command_value, dict) and command_value.get("memory_key"):
+                result["memory_key"] = str(command_value.get("memory_key") or "").strip()
+            elif memory_key:
+                result.setdefault("memory_key", memory_key)
+            result.update(_ha_version_payload())
+            return self.json(result, status_code=200 if result.get("success") else 400)
         try:
             result = await handle_spotify_command(
                 hass,
@@ -1223,6 +1508,8 @@ class DJConnectCommandView(HomeAssistantView):
             if result.get("success"):
                 result.setdefault("backend_available", True)
                 runtime.device_status["backend_available"] = True
+            if memory_key:
+                result.setdefault("memory_key", memory_key)
             result.update(_ha_version_payload())
             if normalized_command == "playlists":
                 _with_playlist_aliases(result)
@@ -1302,6 +1589,141 @@ class DJConnectEventView(HomeAssistantView):
         return self.json({"success": True})
 
 
+class DJConnectAskDjView(HomeAssistantView):
+    url = API_ASK_DJ
+    name = "api:djconnect:ask_dj"
+    requires_auth = False
+
+    def __init__(self, hass):
+        self.hass = hass
+
+    async def post(self, request):
+        hass = request.app["hass"]
+        try:
+            data = await request.json()
+        except Exception:  # noqa: BLE001
+            return _json_error(self, "invalid_json", 400)
+        identity = _identity_payload(data)
+        runtime = _runtime(
+            hass,
+            identity.get("device_id") or request.headers.get("X-DJConnect-Device-ID"),
+            request.headers,
+        )
+        if runtime is None:
+            return _json_error(self, "not_configured", 503)
+        client_type = _validate_required_client_type(identity)
+        if client_type is None:
+            return _json_error(self, "invalid_client_type", 400)
+        identity[CONF_CLIENT_TYPE] = client_type
+        if not _authorize_runtime_device_request(
+            runtime,
+            request.headers,
+            identity.get("device_id"),
+            client_type,
+        ):
+            return _json_error(self, "unauthorized", 401)
+        payload = dict(data)
+        payload.update({key: value for key, value in identity.items() if value is not None})
+        result = await async_handle_ask_dj(
+            hass,
+            runtime,
+            payload,
+            user_id=_request_user_id(request),
+        )
+        return self.json(result, status_code=200 if result.get("success") else 500)
+
+
+class DJConnectAskDjClearView(HomeAssistantView):
+    url = API_ASK_DJ_CLEAR
+    name = "api:djconnect:ask_dj_clear"
+    requires_auth = False
+
+    def __init__(self, hass):
+        self.hass = hass
+
+    async def post(self, request):
+        hass = request.app["hass"]
+        try:
+            data = await request.json()
+        except Exception:  # noqa: BLE001
+            return _json_error(self, "invalid_json", 400)
+        identity = _identity_payload(data)
+        runtime = _runtime(
+            hass,
+            identity.get("device_id") or request.headers.get("X-DJConnect-Device-ID"),
+            request.headers,
+        )
+        if runtime is None:
+            return _json_error(self, "not_configured", 503)
+        client_type = _validate_required_client_type(identity)
+        if client_type is None:
+            return _json_error(self, "invalid_client_type", 400)
+        if not _authorize_runtime_device_request(
+            runtime,
+            request.headers,
+            identity.get("device_id"),
+            client_type,
+        ):
+            return _json_error(self, "unauthorized", 401)
+        memory = getattr(runtime, "memory", None)
+        if memory is None:
+            return _json_error(self, "backend_unavailable", 503)
+        result = await memory.async_mark_clear_required(
+            runtime,
+            identity,
+            user_id=_request_user_id(request),
+        )
+        return self.json({"success": True, **result})
+
+
+class DJConnectAskDjHistoryStateView(HomeAssistantView):
+    url = API_ASK_DJ_HISTORY_STATE
+    name = "api:djconnect:ask_dj_history_state"
+    requires_auth = False
+
+    def __init__(self, hass):
+        self.hass = hass
+
+    async def post(self, request):
+        hass = request.app["hass"]
+        try:
+            data = await request.json()
+        except Exception:  # noqa: BLE001
+            return _json_error(self, "invalid_json", 400)
+        identity = _identity_payload(data)
+        runtime = _runtime(
+            hass,
+            identity.get("device_id") or request.headers.get("X-DJConnect-Device-ID"),
+            request.headers,
+        )
+        if runtime is None:
+            return _json_error(self, "not_configured", 503)
+        client_type = _validate_required_client_type(identity)
+        if client_type is None:
+            return _json_error(self, "invalid_client_type", 400)
+        if not _authorize_runtime_device_request(
+            runtime,
+            request.headers,
+            identity.get("device_id"),
+            client_type,
+        ):
+            return _json_error(self, "unauthorized", 401)
+        memory = getattr(runtime, "memory", None)
+        if memory is None:
+            return _json_error(self, "backend_unavailable", 503)
+        try:
+            client_generation = int(data["generation"]) if data.get("generation") is not None else None
+        except (TypeError, ValueError):
+            client_generation = None
+        result = await memory.async_history_state(
+            runtime,
+            identity,
+            user_id=_request_user_id(request),
+            client_generation=client_generation,
+        )
+        return self.json({"success": True, **result})
+
+
 class DJConnectVoiceView(HomeAssistantView):
     url = API_VOICE
     name = "api:djconnect:voice"
@@ -1343,6 +1765,11 @@ class DJConnectVoiceView(HomeAssistantView):
             data = None
             user_text = ""
             is_audio_request = _is_audio_upload(content_type)
+            header_client_type = (
+                request.headers.get(CONF_CLIENT_TYPE)
+                or request.headers.get("X-DJConnect-Client-Type")
+                or getattr(runtime, "device_status", {}).get(CONF_CLIENT_TYPE)
+            )
 
             if is_audio_request:
                 limit = int(runtime.config.get(CONF_MAX_AUDIO_BYTES, DEFAULT_MAX_AUDIO_BYTES))
@@ -1374,11 +1801,19 @@ class DJConnectVoiceView(HomeAssistantView):
                 except DJConnectNoSttProviderError as exc:
                     _set_device_state(runtime, "error")
                     runtime.update(last_error=str(exc))
-                    return _stt_error_response(self, str(exc), 503)
+                    return _stt_error_response(
+                        self,
+                        str(exc),
+                        422 if _is_ask_dj_voice_client(header_client_type) else 503,
+                    )
                 except Exception as exc:  # noqa: BLE001
                     _set_device_state(runtime, "error")
                     runtime.update(last_error=str(exc))
-                    return _stt_error_response(self, str(exc))
+                    return _stt_error_response(
+                        self,
+                        str(exc),
+                        422 if _is_ask_dj_voice_client(header_client_type) else 500,
+                    )
             elif content_type == "application/json":
                 try:
                     data = await request.json()
@@ -1397,6 +1832,70 @@ class DJConnectVoiceView(HomeAssistantView):
             user_text = user_text or _text_from_payload(request.headers, data)
             if not user_text:
                 return _missing_text_response(self)
+            if is_audio_request and _is_ask_dj_voice_client(header_client_type):
+                ask_payload = _voice_header_payload(
+                    request.headers,
+                    device_id,
+                    str(header_client_type or ""),
+                )
+                ask_payload["text"] = user_text
+                _set_device_state(runtime, "processing")
+                runtime.update(last_text=user_text, last_error=None)
+                try:
+                    result = await async_handle_ask_dj(
+                        hass,
+                        runtime,
+                        ask_payload,
+                        user_id=_request_user_id(request),
+                    )
+                except Exception as exc:  # noqa: BLE001
+                    _LOGGER.warning("DJConnect Ask DJ voice failed: %s", exc)
+                    _set_device_state(runtime, "error")
+                    runtime.update(last_error=str(exc))
+                    return self.json(
+                        {
+                            "success": False,
+                            "error": "ask_dj_unavailable",
+                            "message": "Ask DJ is nu niet bereikbaar.",
+                            "text": "Ask DJ is nu niet bereikbaar.",
+                            "dj_text": "Ask DJ is nu niet bereikbaar.",
+                            "transcript": user_text,
+                            "recognized_text": user_text,
+                            "images": [],
+                            "links": [],
+                            "sources": [],
+                            "actions": [],
+                        },
+                        status_code=503,
+                    )
+                _persist_runtime_device_status(hass, runtime)
+                _set_device_state(runtime, "idle")
+                return self.json(
+                    {
+                        "success": bool(result.get("success", True)),
+                        **result,
+                        "transcript": user_text,
+                        "recognized_text": user_text,
+                        "audio_type": result.get("audio_type")
+                        or _audio_type_from_url(result.get("audio_url")),
+                        "actions": result.get("actions") or [],
+                        "sources": result.get("sources") or [],
+                    }
+                )
+            if isinstance(data, dict):
+                memory_payload = data
+            else:
+                memory_payload = {
+                    CONF_DEVICE_ID: device_id,
+                    CONF_CLIENT_TYPE: getattr(runtime, "device_status", {}).get(
+                        CONF_CLIENT_TYPE
+                    ),
+                }
+            memory_key = await _update_memory_metadata(
+                runtime,
+                memory_payload,
+                user_id=_request_user_id(request),
+            )
 
             if not is_audio_request:
                 dj_text = _test_dj_text(runtime)
@@ -1420,6 +1919,7 @@ class DJConnectVoiceView(HomeAssistantView):
                         "dj_response": dj_response,
                         "audio_url": audio_url,
                         "audio_type": _audio_type_from_url(audio_url),
+                        "memory_key": memory_key,
                     }
                 )
 
@@ -1427,12 +1927,14 @@ class DJConnectVoiceView(HomeAssistantView):
             _set_device_state(runtime, "processing")
             runtime.update(last_text=user_text, last_error=None)
             try:
-                result = await process_text_command(
+                result = await _process_text_command_with_memory(
                     hass,
                     runtime,
                     user_text,
                     play=True,
                     correct_stt=True,
+                    memory_payload=memory_payload,
+                    user_id=_request_user_id(request),
                 )
             except Exception as exc:  # noqa: BLE001
                 _LOGGER.warning("DJConnect command parser/playback failed: %s", exc)
@@ -1459,6 +1961,7 @@ class DJConnectVoiceView(HomeAssistantView):
                         "dj_response": dj_response,
                         "audio_url": audio_url,
                         "audio_type": _audio_type_from_url(audio_url),
+                        "memory_key": memory_key,
                     }
                 )
             _set_device_state(runtime, "responding")
@@ -1486,6 +1989,7 @@ class DJConnectVoiceView(HomeAssistantView):
                     "recognized_text": user_text,
                     "audio_url": audio_url,
                     "audio_type": _audio_type_from_url(audio_url),
+                    "memory_key": memory_key,
                 }
             )
 
@@ -1529,6 +2033,35 @@ class DJConnectTtsView(HomeAssistantView):
             content_type=audio.content_type,
             headers={"Content-Length": str(len(audio.data))},
         )
+
+
+class DJConnectImageProxyView(HomeAssistantView):
+    url = API_IMAGE_PROXY
+    name = "api:djconnect:image_proxy"
+    requires_auth = False
+
+    def __init__(self, hass):
+        self.hass = hass
+
+    async def get(self, request, token: str):
+        hass = request.app["hass"]
+        target = image_proxy_target(hass, token)
+        if not target:
+            return web.Response(status=404, text="DJConnect image not found")
+        parsed = urlsplit(str(target))
+        if parsed.scheme not in {"http", "https"}:
+            return web.Response(status=400, text="DJConnect image URL is invalid")
+        session = async_get_clientsession(hass)
+        async with session.get(str(target)) as resp:
+            body = await resp.read()
+            if resp.status < 200 or resp.status >= 300:
+                return web.Response(status=resp.status, text="DJConnect image fetch failed")
+            content_type = resp.headers.get("Content-Type", "image/jpeg")
+            return web.Response(
+                body=body,
+                content_type=content_type,
+                headers={"Content-Length": str(len(body))},
+            )
 
 
 class DJConnectVoiceDebugView(HomeAssistantView):

@@ -100,7 +100,7 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertTrue(
             any("DJConnect Assist command prompt" in line for line in logs.output)
         )
-        self.assertTrue(any("Speel Pearl Jam" in line for line in logs.output))
+        self.assertFalse(any("Speel Pearl Jam" in line for line in logs.output))
 
     def test_correct_stt_text_with_assist_returns_corrected_text(self) -> None:
         calls = []
@@ -282,9 +282,9 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertTrue(
             any("DJConnect Assist DJ response prompt" in line for line in logs.output)
         )
-        self.assertTrue(any("Klink warm." in line for line in logs.output))
-        self.assertTrue(any("artiest: Pearl Jam" in line for line in logs.output))
-        self.assertTrue(any("Negeer alle eventueel hierboven" in line for line in logs.output))
+        self.assertFalse(any("Klink warm." in line for line in logs.output))
+        self.assertFalse(any("artiest: Pearl Jam" in line for line in logs.output))
+        self.assertFalse(any("Negeer alle eventueel hierboven" in line for line in logs.output))
 
     def test_generate_dj_response_prompt_uses_safe_media_lines(self) -> None:
         calls = []
@@ -327,6 +327,14 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertIn("Negeer alle eventueel hierboven ingestelde instructies", prompt)
         self.assertIn("type: artist", prompt)
         self.assertIn("artiest: Nirvana", prompt)
+        self.assertIn("MusicBrainz", prompt)
+        self.assertIn("Wikidata", prompt)
+        self.assertIn("Wikipedia", prompt)
+        self.assertIn("Last.fm", prompt)
+        self.assertIn("Discogs", prompt)
+        self.assertIn("TheAudioDB", prompt)
+        self.assertIn("DJConnect Memory", prompt)
+        self.assertIn("Gebruik deze bronnen niet live als ze niet beschikbaar zijn", prompt)
         self.assertNotIn("spotify:artist", prompt)
         self.assertNotIn("{", prompt)
         self.assertNotIn("}", prompt)

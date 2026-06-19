@@ -22,6 +22,7 @@ from .spotify_oauth import SpotifyTokenRefreshError, refresh_access_token
 
 SPOTIFY_API_BASE = "https://api.spotify.com/v1"
 CACHE_TTL_SECONDS = 30
+LISTENING_PROFILE_CACHE_TTL_SECONDS = 6 * 60 * 60
 ACCESS_TOKEN_EXPIRY_SAFETY_SECONDS = 60
 MAX_QUEUE_ITEMS = 100
 MAX_PLAYLIST_ITEMS = 100
@@ -75,6 +76,8 @@ async def handle_spotify_command(
             "result": {"playlists": playlists, "items": playlists},
             "count": len(playlists),
         }
+    if normalized == "listening_profile":
+        return {"success": True, "profile": await backend.listening_profile()}
     if normalized == "pause":
         await backend.pause()
         return {"success": True, "playback": await backend.playback_state()}
@@ -323,14 +326,14 @@ class SpotifyBackend:
                 )
             return body or {}
 
-    async def _cached(self, key: str, loader) -> Any:
+    async def _cached(self, key: str, loader, *, ttl: int = CACHE_TTL_SECONDS) -> Any:
         cache = getattr(self.runtime, "backend_cache", None)
         if cache is None:
             self.runtime.backend_cache = {}
             cache = self.runtime.backend_cache
         now = time.monotonic()
         cached = cache.get(key)
-        if cached and now - cached[0] < CACHE_TTL_SECONDS:
+        if cached and now - cached[0] < ttl:
             return cached[1]
         value = await loader()
         cache[key] = (now, value)
@@ -411,6 +414,108 @@ class SpotifyBackend:
         self.runtime.device_status["playlists"] = playlists
         self.runtime.update()
         return playlists
+
+    async def listening_profile(self) -> dict[str, Any]:
+        """Fetch compact Spotify listening profile data for Ask DJ."""
+        async def load():
+            recently_played = await self._recently_played(limit=50)
+            top_artists = {
+                time_range: await self._top_items("artists", time_range=time_range, limit=50)
+                for time_range in ("short_term", "medium_term", "long_term")
+            }
+            top_tracks = {
+                time_range: await self._top_items("tracks", time_range=time_range, limit=50)
+                for time_range in ("short_term", "medium_term", "long_term")
+            }
+            profile = {
+                "source": "spotify",
+                "recent_tracks": recently_played,
+                "recent_track_ids": [
+                    track.get("id") for track in recently_played if track.get("id")
+                ][:50],
+                "recent_artists": _unique_values(
+                    track.get("artist") for track in recently_played
+                )[:25],
+                "top_artists_by_range": top_artists,
+                "top_tracks_by_range": top_tracks,
+                "inferred_genres": _infer_genres_from_top_artists(top_artists),
+                "sources": [
+                    "spotify_recently_played",
+                    "spotify_top_tracks_short_term",
+                    "spotify_top_tracks_medium_term",
+                    "spotify_top_tracks_long_term",
+                    "spotify_top_artists_short_term",
+                    "spotify_top_artists_medium_term",
+                    "spotify_top_artists_long_term",
+                ],
+                "fetched_at": int(time.time()),
+                "ttl_seconds": LISTENING_PROFILE_CACHE_TTL_SECONDS,
+            }
+            status = getattr(self.runtime, "device_status", None)
+            if isinstance(status, dict):
+                status["spotify_listening_profile"] = {
+                    "last_profile_refresh": profile["fetched_at"],
+                    "recent_track_count": len(recently_played),
+                    "top_artist_count": sum(len(items) for items in top_artists.values()),
+                    "top_track_count": sum(len(items) for items in top_tracks.values()),
+                }
+            self.runtime.update()
+            return profile
+
+        return await self._cached(
+            "listening_profile:v1",
+            load,
+            ttl=LISTENING_PROFILE_CACHE_TTL_SECONDS,
+        )
+
+    async def _recently_played(self, *, limit: int = 50) -> list[dict[str, Any]]:
+        limit = min(50, max(1, int(limit)))
+        data = await self._request("GET", f"/me/player/recently-played?limit={limit}")
+        items = data.get("items") if isinstance(data, dict) else []
+        if not isinstance(items, list):
+            return []
+        tracks = []
+        for item in items[:limit]:
+            if not isinstance(item, dict):
+                continue
+            track_data = item.get("track") if isinstance(item.get("track"), dict) else item
+            track = _normalize_profile_track(track_data)
+            if not track:
+                continue
+            played_at = str(item.get("played_at") or "").strip()
+            if played_at:
+                track["played_at"] = played_at
+            tracks.append(track)
+        return tracks
+
+    async def _top_items(
+        self,
+        item_type: str,
+        *,
+        time_range: str,
+        limit: int = 50,
+    ) -> list[dict[str, Any]]:
+        if item_type not in {"artists", "tracks"}:
+            raise ValueError("Spotify top item type must be artists or tracks")
+        if time_range not in {"short_term", "medium_term", "long_term"}:
+            raise ValueError("Spotify top time_range is invalid")
+        limit = min(50, max(1, int(limit)))
+        params = urlencode({"time_range": time_range, "limit": limit})
+        data = await self._request("GET", f"/me/top/{item_type}?{params}")
+        items = data.get("items") if isinstance(data, dict) else []
+        if not isinstance(items, list):
+            return []
+        if item_type == "artists":
+            return [
+                artist
+                for artist in (_normalize_profile_artist(item) for item in items[:limit] if isinstance(item, dict))
+                if artist
+            ]
+        return [
+            track
+            for track in (_normalize_profile_track(item) for item in items[:limit] if isinstance(item, dict))
+            if track
+        ]
 
     async def pause(self) -> None:
         await self._request("PUT", "/me/player/pause", expected_empty=True)
@@ -853,6 +958,99 @@ def _normalize_playlist(item: dict[str, Any]) -> dict[str, str]:
         "entity_picture": image_url,
         "thumbnail_url": image_url,
     }
+
+
+def _normalize_profile_track(item: dict[str, Any]) -> dict[str, Any]:
+    artists = item.get("artists") or []
+    album = item.get("album") or {}
+    image_url = _best_image_url(album.get("images") or item.get("images") or [])
+    artist_names = [
+        str(artist.get("name") or "").strip()
+        for artist in artists
+        if isinstance(artist, dict) and artist.get("name")
+    ]
+    name = str(item.get("name") or "").strip()
+    uri = str(item.get("uri") or "").strip()
+    track_id = str(item.get("id") or "").strip()
+    if not (name or uri or track_id):
+        return {}
+    return {
+        key: value
+        for key, value in {
+            "id": track_id,
+            "uri": uri,
+            "title": name,
+            "track_name": name,
+            "artist": ", ".join(artist_names),
+            "artist_name": ", ".join(artist_names),
+            "artists": artist_names[:5],
+            "album": album.get("name") or "",
+            "album_name": album.get("name") or "",
+            "album_image_url": image_url,
+            "image_url": image_url,
+            "duration_ms": item.get("duration_ms"),
+            "popularity": item.get("popularity"),
+        }.items()
+        if value not in (None, "", [], {})
+    }
+
+
+def _normalize_profile_artist(item: dict[str, Any]) -> dict[str, Any]:
+    image_url = _best_image_url(item.get("images") or [])
+    name = str(item.get("name") or "").strip()
+    artist_id = str(item.get("id") or "").strip()
+    uri = str(item.get("uri") or "").strip()
+    genres = [str(genre) for genre in (item.get("genres") or []) if genre]
+    if not (name or artist_id or uri):
+        return {}
+    return {
+        key: value
+        for key, value in {
+            "id": artist_id,
+            "uri": uri,
+            "name": name,
+            "artist": name,
+            "artist_name": name,
+            "genres": genres[:10],
+            "image_url": image_url,
+            "popularity": item.get("popularity"),
+        }.items()
+        if value not in (None, "", [], {})
+    }
+
+
+def _unique_values(values: Any) -> list[str]:
+    seen: set[str] = set()
+    result: list[str] = []
+    for value in values:
+        text = str(value or "").strip()
+        normalized = text.lower()
+        if not text or normalized in seen:
+            continue
+        seen.add(normalized)
+        result.append(text)
+    return result
+
+
+def _infer_genres_from_top_artists(top_artists: dict[str, list[dict[str, Any]]]) -> list[str]:
+    counts: dict[str, int] = {}
+    for artists in top_artists.values():
+        if not isinstance(artists, list):
+            continue
+        for artist in artists:
+            if not isinstance(artist, dict):
+                continue
+            for genre in artist.get("genres") or []:
+                text = str(genre or "").strip()
+                if text:
+                    counts[text] = counts.get(text, 0) + 1
+    return [
+        genre
+        for genre, _count in sorted(
+            counts.items(),
+            key=lambda item: (-item[1], item[0].lower()),
+        )[:20]
+    ]
 
 
 def _bool_value(value: Any) -> bool:

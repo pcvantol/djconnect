@@ -14,6 +14,15 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def install_http_stubs() -> None:
     if "homeassistant.components.http" in sys.modules:
+        core = sys.modules.setdefault(
+            "homeassistant.core",
+            types.ModuleType("homeassistant.core"),
+        )
+        if not hasattr(core, "Context"):
+            class Context:
+                pass
+
+            core.Context = Context
         return
 
     aiohttp = sys.modules.setdefault("aiohttp", types.ModuleType("aiohttp"))
@@ -194,8 +203,22 @@ class VoiceHttpHelperTest(unittest.TestCase):
     def test_voice_view_json_text_request_runs_direct_dj_response_test(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
 
+        class Memory:
+            def __init__(self):
+                self.payloads = []
+
+            async def async_update_client_metadata(self, runtime, payload, *, user_id=None):
+                self.payloads.append((payload, user_id))
+                self.mood = payload.get("mood")
+                return "djconnect-watchos-68B74487726D"
+
         class Runtime:
             config = {}
+            device_status = {
+                "device_id": "djconnect-watchos-68B74487726D",
+                "client_type": "watchos",
+            }
+            memory = Memory()
 
             def authorize_device_request(self, headers, body_device_id=None):
                 return True
@@ -227,13 +250,20 @@ class VoiceHttpHelperTest(unittest.TestCase):
         class Request:
             headers = {
                 "Authorization": "Bearer device-token",
-                "X-DJConnect-Device-ID": "djconnect-lilygo-90B70990A994",
+                "X-DJConnect-Device-ID": "djconnect-watchos-68B74487726D",
                 "Content-Type": "application/json",
             }
             app = {"hass": hass}
 
             async def json(self):
-                return {"text": "Test"}
+                return {
+                    "text": "Test",
+                    "device_id": "djconnect-watchos-68B74487726D",
+                    "client_type": "watchos",
+                    "platform": "watchos",
+                    "mood": 64,
+                    "dj_style": "warm_radio_dj",
+                }
 
         try:
             response = asyncio.run(self.http.DJConnectVoiceView(None).post(Request()))
@@ -252,6 +282,8 @@ class VoiceHttpHelperTest(unittest.TestCase):
             "http://ha/api/djconnect/tts/test.mp3",
         )
         self.assertEqual(response["payload"]["audio_type"], "mp3")
+        self.assertEqual(response["payload"]["memory_key"], "djconnect-watchos-68B74487726D")
+        self.assertEqual(runtime.memory.mood, 64)
 
     def test_voice_view_accepts_wav_upload_and_returns_audio_url(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
@@ -281,28 +313,29 @@ class VoiceHttpHelperTest(unittest.TestCase):
             self.assertEqual(wav, b"RIFFxxxxWAVEdata")
             return "Speel Pearl Jam"
 
-        async def command(hass, runtime, user_text, play=True, correct_stt=False):
-            self.assertTrue(correct_stt)
-            return {
-                "text": user_text,
-                "dj_text": "Daar gaan we",
-                "intent": {},
-                "playback": None,
-            }
-
-        async def dj_response(hass, runtime, text):
+        async def ask_dj(hass, runtime, payload, *, user_id=None):
+            self.assertEqual(payload["text"], "Speel Pearl Jam")
+            self.assertEqual(payload["mood"], 55)
+            self.assertEqual(payload["dj_style"], "warm_radio_dj")
+            self.assertEqual(payload["memory_key"], "shared")
             return {
                 "success": True,
-                "spoken": True,
-                "audio_url_value": "http://ha/api/djconnect/tts/token.mp3",
+                "text": "Daar gaan we",
+                "dj_text": "Daar gaan we",
+                "message": "Daar gaan we",
+                "transcript": "Speel Pearl Jam",
+                "audio_url": "http://ha/api/djconnect/tts/token.mp3",
+                "images": [],
+                "links": [],
+                "sources": [{"source": "djconnect_memory"}],
+                "intent": {"category": "hybrid", "intent": "play_music"},
+                "action": "play_music",
             }
 
         original_transcribe = self.http.transcribe_wav_with_assist
-        original_command = self.http.process_text_command
-        original_dj_response = self.http.async_send_dj_response_best_effort
+        original_ask_dj = self.http.async_handle_ask_dj
         self.http.transcribe_wav_with_assist = transcribe
-        self.http.process_text_command = command
-        self.http.async_send_dj_response_best_effort = dj_response
+        self.http.async_handle_ask_dj = ask_dj
 
         class Request:
             headers = {
@@ -310,6 +343,9 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 "X-DJConnect-Device-ID": "djconnect-watchos-68B74487726D",
                 "client_type": "watchos",
                 "Content-Type": "audio/wav",
+                "X-DJConnect-Mood": "55",
+                "X-DJConnect-DJ-Style": "warm_radio_dj",
+                "X-DJConnect-Memory-Key": "shared",
             }
             app = {"hass": hass}
 
@@ -317,23 +353,15 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 return b"RIFFxxxxWAVEdata"
 
         try:
-            with self.assertLogs(self.http._LOGGER, level="DEBUG") as captured:
-                response = asyncio.run(self.http.DJConnectVoiceView(None).post(Request()))
+            response = asyncio.run(self.http.DJConnectVoiceView(None).post(Request()))
         finally:
             self.http.transcribe_wav_with_assist = original_transcribe
-            self.http.process_text_command = original_command
-            self.http.async_send_dj_response_best_effort = original_dj_response
+            self.http.async_handle_ask_dj = original_ask_dj
 
-        log_output = "\n".join(captured.output)
-        self.assertIn("audio_url=True", log_output)
-        self.assertIn("voice debug WAV captured", log_output)
-        self.assertNotIn("http://ha/api/djconnect/tts/token.mp3", log_output)
-        self.assertEqual(
-            hass.data[const.DOMAIN][self.http.VOICE_DEBUG_KEY]["wav"],
-            b"RIFFxxxxWAVEdata",
-        )
+        self.assertNotIn(self.http.VOICE_DEBUG_KEY, hass.data[const.DOMAIN])
         self.assertEqual(response["status_code"], 200)
         self.assertTrue(response["payload"]["success"])
+        self.assertEqual(response["payload"]["transcript"], "Speel Pearl Jam")
         self.assertEqual(response["payload"]["recognized_text"], "Speel Pearl Jam")
         self.assertEqual(response["payload"]["text"], "Daar gaan we")
         self.assertEqual(
@@ -341,6 +369,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
             "http://ha/api/djconnect/tts/token.mp3",
         )
         self.assertEqual(response["payload"]["audio_type"], "mp3")
+        self.assertEqual(response["payload"]["sources"], [{"source": "djconnect_memory"}])
 
     def test_voice_debug_view_returns_last_debug_wav(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
@@ -384,6 +413,55 @@ class VoiceHttpHelperTest(unittest.TestCase):
             self.http._LOGGER.setLevel(previous)
 
         self.assertNotIn(self.http.VOICE_DEBUG_KEY, hass.data[const.DOMAIN])
+
+    def test_ask_dj_voice_stt_failure_returns_422_for_app_client(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+
+        class Runtime:
+            config = {}
+            device_token = "device-token"
+            pairing_device_id = "djconnect-ios-68B74487726D"
+            device_status = {
+                "device_id": "djconnect-ios-68B74487726D",
+                "client_type": "ios",
+            }
+
+            def authorize_device_request(self, headers, body_device_id=None):
+                return headers.get("Authorization") == "Bearer device-token"
+
+            def update(self, **kwargs):
+                self.last_update = kwargs
+
+        runtime = Runtime()
+        hass = types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})
+
+        async def fail_stt(hass, wav, conf):
+            raise RuntimeError("STT did not recognize speech")
+
+        original_transcribe = self.http.transcribe_wav_with_assist
+        self.http.transcribe_wav_with_assist = fail_stt
+
+        class Request:
+            headers = {
+                "Authorization": "Bearer device-token",
+                "X-DJConnect-Device-ID": "djconnect-ios-68B74487726D",
+                "client_type": "ios",
+                "Content-Type": "audio/wav",
+            }
+            app = {"hass": hass}
+
+            async def read(self):
+                return b"RIFFxxxxWAVEdata"
+
+        try:
+            response = asyncio.run(self.http.DJConnectVoiceView(None).post(Request()))
+        finally:
+            self.http.transcribe_wav_with_assist = original_transcribe
+
+        self.assertEqual(response["status_code"], 422)
+        self.assertFalse(response["payload"]["success"])
+        self.assertEqual(response["payload"]["error"], "stt_failed")
+        self.assertIn("STT did not recognize speech", response["payload"]["message"])
 
     def test_voice_view_wav_command_failure_returns_friendly_200(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
@@ -2087,6 +2165,128 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertTrue(response["payload"]["success"])
         self.assertEqual(response["payload"]["devices"][0]["name"], "iPhone")
         self.assertEqual(calls, [("devices", "", False)])
+
+    def test_command_view_plays_ask_dj_recommendation_and_records_memory(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+        calls = []
+
+        class Memory:
+            def __init__(self):
+                self.recorded = []
+
+            async def async_update_client_metadata(self, runtime, payload=None, *, user_id=None):
+                return payload.get("memory_key") or "shared"
+
+            async def async_record_recommendation_play(self, runtime, recommendation, payload=None, *, user_id=None):
+                self.recorded.append((recommendation, payload, user_id))
+                return payload.get("memory_key") or "shared"
+
+        class Runtime:
+            device_token = "device-token"
+            device_status = {"device_id": "djconnect-ios-68B74487726D"}
+            config = {}
+            memory = Memory()
+
+            def authorize_device_request(self, headers, body_device_id=None):
+                return headers.get("Authorization") == "Bearer device-token"
+
+            def update(self, **kwargs):
+                self.last_update = kwargs
+
+        runtime = Runtime()
+
+        async def command_handler(hass, runtime_arg, command, value=None, *, play=None):
+            calls.append((command, value, play))
+            return {"success": True, "playback": {"track_name": "Track Title"}}
+
+        class Request:
+            headers = {
+                "Authorization": "Bearer device-token",
+                "X-DJConnect-Device-ID": "djconnect-ios-68B74487726D",
+            }
+            app = {"hass": types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})}
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-ios-68B74487726D",
+                    "client_type": "ios",
+                    "command": "ask_dj_play_recommendation",
+                    "play": True,
+                    "value": {
+                        "title": "Track Title",
+                        "subtitle": "Artist Name",
+                        "uri": "spotify:track:123",
+                        "context_uri": "spotify:album:456",
+                        "offset_uri": "spotify:track:123",
+                        "kind": "track",
+                        "memory_key": "shared",
+                        "reason": "Past bij je profiel.",
+                    },
+                }
+
+        original = self.http.handle_spotify_command
+        self.http.handle_spotify_command = command_handler
+        try:
+            response = asyncio.run(self.http.DJConnectCommandView(None).post(Request()))
+        finally:
+            self.http.handle_spotify_command = original
+
+        self.assertEqual(response["status_code"], 200)
+        self.assertTrue(response["payload"]["success"])
+        self.assertEqual(response["payload"]["action"], "spotify_start_recommendation")
+        self.assertIn("Track Title", response["payload"]["dj_text"])
+        self.assertEqual(
+            calls,
+            [
+                (
+                    "play_context_at",
+                    {
+                        "context_uri": "spotify:album:456",
+                        "offset_uri": "spotify:track:123",
+                    },
+                    True,
+                )
+            ],
+        )
+        self.assertEqual(runtime.memory.recorded[0][0]["uri"], "spotify:track:123")
+        self.assertEqual(runtime.memory.recorded[0][1]["memory_key"], "shared")
+
+    def test_command_view_rejects_recommendation_without_spotify_uri(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+
+        class Runtime:
+            device_token = "device-token"
+            device_status = {"device_id": "djconnect-ios-68B74487726D"}
+            config = {}
+
+            def authorize_device_request(self, headers, body_device_id=None):
+                return headers.get("Authorization") == "Bearer device-token"
+
+            def update(self, **kwargs):
+                self.last_update = kwargs
+
+        runtime = Runtime()
+
+        class Request:
+            headers = {
+                "Authorization": "Bearer device-token",
+                "X-DJConnect-Device-ID": "djconnect-ios-68B74487726D",
+            }
+            app = {"hass": types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})}
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-ios-68B74487726D",
+                    "client_type": "ios",
+                    "command": "ask_dj_play_recommendation",
+                    "value": {"uri": "https://example.test/not-spotify"},
+                }
+
+        response = asyncio.run(self.http.DJConnectCommandView(None).post(Request()))
+
+        self.assertEqual(response["status_code"], 400)
+        self.assertFalse(response["payload"]["success"])
+        self.assertEqual(response["payload"]["error"], "unsupported_recommendation_kind")
 
     def test_command_view_playlists_marks_backend_available_when_idle(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")

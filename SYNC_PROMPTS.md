@@ -210,6 +210,29 @@ client contracts.
 
 Requirements:
 - Treat iOS/macOS/watchOS/Raspberry Pi as app-like clients, not ESP hardware devices.
+- Ask DJ / DJ Memory is server-side in the Home Assistant integration. Apple
+  Watch, iOS and macOS clients must not store DJ Memory; they may send optional
+  `mood` (0-100), `dj_style` and `memory_key` hints on status/voice/command
+  payloads, but HA may normalize or override the resolved `memory_key`.
+- Ask DJ text chat uses POST /api/djconnect/ask_dj. Request identity can be
+  top-level or inside `identity`; response shape is success, text/dj_text/message,
+  optional audio_url, images[], links[], intent, action and memory_key.
+- Ask DJ Push-To-Talk for iOS/macOS/watchOS uses POST /api/djconnect/voice with
+  Content-Type audio/wav. The response includes transcript/recognized_text and
+  the same rich Ask DJ fields. Send optional X-DJConnect-Mood,
+  X-DJConnect-DJ-Style and X-DJConnect-Memory-Key headers when available.
+- Pairing/status responses expose ask_dj_supported, ask_dj_voice_supported,
+  voice_supported and ask_dj_audio_response_supported.
+- Ask DJ clear/history sync uses POST /api/djconnect/ask_dj/clear and
+  POST /api/djconnect/ask_dj/history_state. Clients check history_state before
+  showing chat and clear local history when `ask_dj_clear_required` is true.
+- Ask DJ images must be proxied through Home Assistant/DJConnect URLs such as
+  /api/djconnect/image_proxy/{token}; source links are separate links[] entries.
+- Ask DJ personal recommendations may include playback_actions[] for Play Now
+  buttons, but must not start playback until the client sends POST
+  /api/djconnect/command with command ask_dj_play_recommendation and a Spotify
+  track/album/artist/playlist URI payload. Use this successful command as a
+  positive DJ Memory signal.
 - Before pairing, require that Home Assistant has the official Spotify
   integration configured with at least one Spotify `media_player` entity; if
   not, show a clear localized config-flow error telling the user to configure
@@ -1861,6 +1884,10 @@ client contracts.
 
 Requirements:
 - Treat iOS/macOS/watchOS/Raspberry Pi as app-like clients, not ESP hardware devices.
+- Ask DJ / DJ Memory is server-side in the Home Assistant integration. Apple
+  Watch, iOS and macOS clients must not store DJ Memory; they may send optional
+  `mood` (0-100), `dj_style` and `memory_key` hints on status/voice/command
+  payloads, but HA may normalize or override the resolved `memory_key`.
 - Pair app-like clients through POST /api/djconnect/pair. For Raspberry Pi, this is
   the primary pairing path; do not try to call a Pi-local /api/device/pair
   endpoint during initial pairing.

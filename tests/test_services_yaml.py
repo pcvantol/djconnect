@@ -21,6 +21,9 @@ class ServicesYamlTest(unittest.TestCase):
             "start_spotify_oauth",
             "device_command",
             "refresh_device_info",
+            "ask_dj",
+            "clear_ask_dj_history",
+            "ask_dj_history_state",
         ):
             with self.subTest(service=service):
                 self.assertIn(f"{service}:", text)
@@ -30,6 +33,8 @@ class ServicesYamlTest(unittest.TestCase):
         self.assertIn("temporary WAV or MP3 audio_url", text)
         self.assertIn("start exactly after STT conversion", compact_text)
         self.assertIn("Spotify search/playback", compact_text)
+        self.assertIn("Ask DJ text request", text)
+        self.assertIn("clear local Ask DJ chat history", compact_text)
         self.assertIn("/api/djconnect/spotify/callback", text)
         self.assertNotIn("/api/djconnect/spotify_callback", text)
         self.assertNotIn("stuur", text.lower())
@@ -37,10 +42,11 @@ class ServicesYamlTest(unittest.TestCase):
 
     def test_test_command_documents_play_flag(self) -> None:
         text = SERVICES.read_text()
+        test_command_text = text.split("\ntest_ptt_text:", 1)[0]
 
         self.assertIn("command_text:", text)
         self.assertIn("dj_response_text:", text)
-        self.assertNotIn("\n    text:\n      name:", text)
+        self.assertNotIn("\n    text:\n      name:", test_command_text)
         self.assertIn("play:", text)
         self.assertIn("Start playback", text)
         self.assertIn("without starting Spotify playback", text)

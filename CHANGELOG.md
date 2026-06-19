@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.1.61
+
+- Add server-side DJ Memory groundwork for future Ask DJ clients, including HA Store persistence, runtime session context, playback/Ask DJ context tracking and watchOS voice metadata support.
+- Add the Ask DJ backend text API and services, including intent routing for informational questions versus playback actions, shared memory clear/history-state checks, proxied images, source links and optional audio responses.
+- Add Ask DJ intent `personal_music_profile_analysis` for non-mutating personal listening-profile analysis over periods such as last month, last 30 days and this year.
+- Add Spotify listening-profile enrichment for Ask DJ using recently played tracks and top artists/tracks, with compact DJ Memory snapshots and response `sources[]` metadata.
+- Add Ask DJ Push-To-Talk support for iOS/macOS/watchOS WAV uploads on `/api/djconnect/voice`, including transcript responses, shared Ask DJ memory/context handling and capability flags.
+- Add Ask DJ Play Now support for personal recommendations through non-mutating `playback_actions[]` plus explicit `ask_dj_play_recommendation` command handling.
+- Add a Postman collection for the DJConnect Home Assistant HTTP API and include it in the release-cycle checklist.
+
 ## 3.1.60
 
 - Add `watchos` as a first-class DJConnect app client type, including pairing, status, command, voice upload, mDNS discovery, entity filtering, translations and documentation.

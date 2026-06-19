@@ -18,6 +18,7 @@ from homeassistant.helpers.typing import ConfigType
 
 from .const import (
     API_COMMAND,
+    API_ASK_DJ,
     API_EVENT,
     API_PAIR,
     API_SPOTIFY_CALLBACK,
@@ -53,7 +54,11 @@ from .const import (
 )
 from .http import (
     DJConnectCommandView,
+    DJConnectAskDjClearView,
+    DJConnectAskDjHistoryStateView,
+    DJConnectAskDjView,
     DJConnectEventView,
+    DJConnectImageProxyView,
     DJConnectPairView,
     DJConnectSpotifyCallbackView,
     DJConnectStatusView,
@@ -64,6 +69,8 @@ from .http import (
 from .assist_stt import detect_stt_support
 from .dj_response import async_send_dj_response, async_send_dj_response_best_effort
 from .ha_urls import async_ha_url_payload
+from .ask_dj import async_handle_ask_dj
+from .memory import DJMemoryManager
 from .processor import process_text_command
 from .repairs import async_create_fixable_issues
 from .spotify_oauth import (
@@ -204,6 +211,7 @@ class DJConnectRuntime:
     ota_in_progress: bool = False
     ota_last_error: str | None = None
     latest_spotify_refresh_token: str | None = None
+    memory: Any | None = None
     listeners: list = field(default_factory=list)
 
     @property
@@ -1021,6 +1029,34 @@ DEVELOPER_SERVICE_SCHEMAS = {
     "refresh_device_info": _developer_service_schema({}),
     "reboot_device": _developer_service_schema({}),
     "forget_device": _developer_service_schema({}),
+    "ask_dj": _developer_service_schema(
+        {
+            vol.Required("text"): str,
+            vol.Optional("memory_key"): str,
+            vol.Optional("client_type"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("device_name"): str,
+            vol.Optional("dj_style"): str,
+            vol.Optional("mood"): int,
+        }
+    ),
+    "clear_ask_dj_history": _developer_service_schema(
+        {
+            vol.Optional("memory_key"): str,
+            vol.Optional("client_type"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("device_name"): str,
+        }
+    ),
+    "ask_dj_history_state": _developer_service_schema(
+        {
+            vol.Optional("memory_key"): str,
+            vol.Optional("client_type"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("device_name"): str,
+            vol.Optional("generation"): int,
+        }
+    ),
 }
 
 
@@ -1040,11 +1076,15 @@ def register_http_views(hass: HomeAssistant) -> None:
     if not hass.data[DOMAIN].get("http_registered"):
         for view in [
             DJConnectVoiceView(hass),
+            DJConnectAskDjView(hass),
+            DJConnectAskDjClearView(hass),
+            DJConnectAskDjHistoryStateView(hass),
             DJConnectCommandView(hass),
             DJConnectPairView(hass),
             DJConnectStatusView(hass),
             DJConnectEventView(hass),
             DJConnectTtsView(hass),
+            DJConnectImageProxyView(hass),
             DJConnectVoiceDebugView(hass),
             DJConnectSpotifyCallbackView(hass),
         ]:
@@ -1052,8 +1092,9 @@ def register_http_views(hass: HomeAssistant) -> None:
         hass.data[DOMAIN]["http_registered"] = True
 
         _LOGGER.info(
-            "DJConnect HTTP endpoints registered: %s, %s, %s, %s, %s, %s, %s",
+            "DJConnect HTTP endpoints registered: %s, %s, %s, %s, %s, %s, %s, %s",
             API_VOICE,
+            API_ASK_DJ,
             API_COMMAND,
             API_PAIR,
             API_STATUS,
@@ -1070,6 +1111,11 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 def _restore_runtime(hass: HomeAssistant, entry: ConfigEntry) -> DJConnectRuntime:
     runtime = DJConnectRuntime(entry=entry)
+    memory_manager = hass.data[DOMAIN].get("memory_manager")
+    if memory_manager is None:
+        memory_manager = DJMemoryManager(hass)
+        hass.data[DOMAIN]["memory_manager"] = memory_manager
+    runtime.memory = memory_manager
     cached_status = entry.data.get(CONF_LAST_DEVICE_STATUS)
     if isinstance(cached_status, dict):
         _merge_cached_device_status(
@@ -1324,6 +1370,51 @@ def _register_developer_services(
         _LOGGER.debug("DJConnect developer action forget_device started")
         return await runtime.async_device_post(hass, "/api/device/forget")
 
+    async def handle_ask_dj(call: ServiceCall) -> dict[str, Any]:
+        payload = dict(call.data)
+        payload.setdefault(CONF_CLIENT_TYPE, runtime.client_type())
+        payload.setdefault(
+            CONF_DEVICE_ID,
+            runtime.device_status.get(CONF_DEVICE_ID) or runtime.pairing_device_id,
+        )
+        _LOGGER.debug("DJConnect Ask DJ service request received")
+        return await async_handle_ask_dj(hass, runtime, payload)
+
+    async def handle_clear_ask_dj_history(call: ServiceCall) -> dict[str, Any]:
+        memory = getattr(runtime, "memory", None)
+        if memory is None:
+            raise RuntimeError("DJConnect memory manager is unavailable")
+        payload = dict(call.data)
+        payload.setdefault(CONF_CLIENT_TYPE, runtime.client_type())
+        payload.setdefault(
+            CONF_DEVICE_ID,
+            runtime.device_status.get(CONF_DEVICE_ID) or runtime.pairing_device_id,
+        )
+        result = await memory.async_mark_clear_required(runtime, payload)
+        return {"success": True, **result}
+
+    async def handle_ask_dj_history_state(call: ServiceCall) -> dict[str, Any]:
+        memory = getattr(runtime, "memory", None)
+        if memory is None:
+            raise RuntimeError("DJConnect memory manager is unavailable")
+        payload = dict(call.data)
+        payload.setdefault(CONF_CLIENT_TYPE, runtime.client_type())
+        payload.setdefault(
+            CONF_DEVICE_ID,
+            runtime.device_status.get(CONF_DEVICE_ID) or runtime.pairing_device_id,
+        )
+        generation = payload.get("generation")
+        try:
+            client_generation = int(generation) if generation is not None else None
+        except (TypeError, ValueError):
+            client_generation = None
+        result = await memory.async_history_state(
+            runtime,
+            payload,
+            client_generation=client_generation,
+        )
+        return {"success": True, **result}
+
     service_handlers = {
         "test_parse": (handle_test_parse, "optional"),
         "test_tts": (handle_test_tts, "optional"),
@@ -1334,6 +1425,9 @@ def _register_developer_services(
         "refresh_device_info": (handle_refresh_device_info, "optional"),
         "reboot_device": (handle_reboot_device, "optional"),
         "forget_device": (handle_forget_device, "optional"),
+        "ask_dj": (handle_ask_dj, "optional"),
+        "clear_ask_dj_history": (handle_clear_ask_dj_history, "optional"),
+        "ask_dj_history_state": (handle_ask_dj_history_state, "optional"),
     }
     for service_name, (handler, response_mode) in service_handlers.items():
         hass.services.async_register(
@@ -1353,6 +1447,8 @@ def _register_developer_services(
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     runtime = _restore_runtime(hass, entry)
+    if runtime.memory is not None:
+        await runtime.memory.async_load()
     _setup_device_coordinator(hass, runtime)
     stt_info = detect_stt_support(hass, runtime.config)
     _LOGGER.info(

@@ -15,16 +15,40 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 _ROOT_LOGGER = logging.getLogger("custom_components.djconnect")
+_MUSIC_KNOWLEDGE_POLICY_NL = (
+    "Music knowledge beleid: gebruik eerst de meegegeven Spotify playbackmetadata, "
+    "DJ Memory en media-context. Als je via de conversation agent betrouwbare "
+    "kennis beschikbaar hebt, geef dan de voorkeur aan MusicBrainz, Wikidata, "
+    "korte Wikipedia-samenvattingen, Last.fm tags/similar artists, Discogs "
+    "release/label/credits, TheAudioDB en daarna alleen compacte eigen DJConnect "
+    "Memory feiten. Gebruik deze bronnen niet live als ze niet beschikbaar zijn. "
+    "Verzin geen trivia; sla het feitje over wanneer je het niet zeker weet."
+)
+_MUSIC_KNOWLEDGE_POLICY_EN = (
+    "Music knowledge policy: first use the provided Spotify playback metadata, "
+    "DJ Memory and media context. If reliable knowledge is available through the "
+    "conversation agent, prefer MusicBrainz, Wikidata, short Wikipedia summaries, "
+    "Last.fm tags/similar artists, Discogs release/label/credits, TheAudioDB and "
+    "then compact DJConnect Memory facts. Do not fetch these sources live unless "
+    "they are available to the agent. Do not invent trivia; skip the fact when "
+    "you are not sure."
+)
 
 
 async def process_text_with_assist(
     hass: HomeAssistant,
     user_text: str,
     conf: dict[str, Any],
+    memory_context: str | None = None,
 ) -> dict[str, Any]:
     """Run text through HA Assist and return a DJConnect intent."""
     assist_context = _assist_context(hass, conf)
-    response = await _conversation_process(hass, user_text, assist_context)
+    response = await _conversation_process(
+        hass,
+        user_text,
+        assist_context,
+        memory_context=memory_context,
+    )
     intent = _intent_from_assist_response(response, user_text)
     intent["assist"] = response
     return intent
@@ -49,11 +73,10 @@ async def correct_stt_text_with_assist(
 
     try:
         _LOGGER.debug(
-            "DJConnect Assist STT correction prompt language=%s agent_id=%s pipeline_id=%s prompt=%r",
+            "DJConnect Assist STT correction prompt language=%s agent_id=%s pipeline_id=%s",
             language,
             assist_context.get("agent_id"),
             assist_context.get("pipeline_id"),
-            prompt,
         )
         result = await hass.services.async_call(
             "conversation",
@@ -211,9 +234,10 @@ async def _conversation_process(
     hass: HomeAssistant,
     user_text: str,
     assist_context: dict[str, Any],
+    memory_context: str | None = None,
 ) -> dict[str, Any]:
     language = assist_context.get("language") or DEFAULT_TTS_LANGUAGE
-    prompt = _djconnect_assist_prompt(user_text, str(language))
+    prompt = _djconnect_assist_prompt(user_text, str(language), memory_context)
     data = {
         "text": prompt,
         "language": language,
@@ -222,11 +246,10 @@ async def _conversation_process(
         data["agent_id"] = assist_context["agent_id"]
 
     _LOGGER.debug(
-        "DJConnect Assist command prompt language=%s agent_id=%s pipeline_id=%s prompt=%r",
+        "DJConnect Assist command prompt language=%s agent_id=%s pipeline_id=%s",
         language,
         assist_context.get("agent_id"),
         assist_context.get("pipeline_id"),
-        prompt,
     )
     result = await hass.services.async_call(
         "conversation",
@@ -245,21 +268,30 @@ async def _conversation_process(
 def _djconnect_assist_prompt(
     user_text: str,
     language: str,
+    memory_context: str | None = None,
 ) -> str:
     """Add DJConnect-specific DJ response guidance to the Assist text request."""
+    memory_text = str(memory_context or "").strip()
+    memory_block = (
+        "\nAsk DJ context voor vervolgvragen:\n" + memory_text
+        if memory_text and str(language or "").lower().startswith("nl")
+        else "\nAsk DJ context for follow-up requests:\n" + memory_text
+        if memory_text
+        else ""
+    )
     if str(language or "").lower().startswith("nl"):
         return (
             "Analyseer alleen deze DJConnect muziekopdracht. Bepaal de artiest "
             "of playlist voor Spotify. Geef waar mogelijk djconnect intentdata terug. "
             "Gebruik geen apparaatbediening en interpreteer de instructietekst niet "
             "als apparaatnaam. "
-            f"Opdracht: {user_text}"
+            f"Opdracht: {user_text}{memory_block}"
         )
     return (
         "Analyze only this DJConnect music request. Determine the artist or playlist "
         "for Spotify. Return djconnect intent data when possible. Do not control "
         "Home Assistant devices and do not treat the instruction text as a device name. "
-        f"Request: {user_text}"
+        f"Request: {user_text}{memory_block}"
     )
 
 
@@ -321,6 +353,7 @@ async def generate_dj_response_with_assist(
         "Dit is geen Home Assistant apparaatopdracht. Bedien geen apparaten. "
         "Spreek Engelstalige artiesten, albums en nummers op z'n Engels uit, ook binnen "
         "een Nederlandse zin. "
+        f"{_MUSIC_KNOWLEDGE_POLICY_NL} "
         f"\n\nMedia:\n{media_lines}\n\n"
         "Antwoord alleen met de tekst die uitgesproken moet worden. Geen JSON, geen uitleg, geen URI."
         if str(language).lower().startswith("nl")
@@ -331,6 +364,7 @@ async def generate_dj_response_with_assist(
         "Write only a short spoken DJ response for the DJConnect device. "
         "Mention the artist, album and track when known. "
         "This is not a Home Assistant device command. Do not control devices. "
+        f"{_MUSIC_KNOWLEDGE_POLICY_EN} "
         f"\n\nMedia:\n{media_lines}\n\n"
         "Return only the text that should be spoken. No JSON, no explanation, no URI."
     )
@@ -338,11 +372,10 @@ async def generate_dj_response_with_assist(
         debug["prompt"] = text
     try:
         _ROOT_LOGGER.debug(
-            "DJConnect Assist DJ response prompt language=%s agent_id=%s pipeline_id=%s prompt=%r",
+            "DJConnect Assist DJ response prompt language=%s agent_id=%s pipeline_id=%s",
             language,
             assist_context.get("agent_id"),
             assist_context.get("pipeline_id"),
-            text,
         )
         data = {"text": text, "language": language}
         if assist_context.get("agent_id"):

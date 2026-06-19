@@ -73,6 +73,97 @@ test_ptt_text:
         text:
           multiline: false
 
+ask_dj:
+  name: Ask DJ
+  description: >
+    Ask DJ text request for iOS, macOS and Apple Watch clients. Home Assistant
+    handles intent routing, DJ Memory, Spotify/Home Assistant actions and
+    informational answers. Responses can include text, audio_url, images, links,
+    intent, action and memory_key.
+  fields:
+    text:
+      name: Text
+      description: Ask DJ chat text.
+      example: "Waarom koos je dit nummer?"
+      required: true
+      selector:
+        text:
+          multiline: true
+    memory_key:
+      name: Memory key
+      description: Optional client-suggested Ask DJ memory key. Home Assistant may normalize it.
+      required: false
+      selector:
+        text:
+          multiline: false
+    client_type:
+      name: Client type
+      description: DJConnect client type such as ios, macos or watchos.
+      required: false
+      selector:
+        text:
+          multiline: false
+    mood:
+      name: Mood
+      description: Optional mood/energy value from 0 to 100.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 100
+          mode: slider
+    dj_style:
+      name: DJ style
+      description: Optional Ask DJ style hint.
+      required: false
+      selector:
+        text:
+          multiline: false
+
+clear_ask_dj_history:
+  name: Clear Ask DJ history
+  description: >
+    Clear server-side Ask DJ memory/history for a memory key and mark the
+    history generation so other clients know they must clear local chat cache.
+  fields:
+    memory_key:
+      name: Memory key
+      description: Ask DJ memory key to clear.
+      required: false
+      selector:
+        text:
+          multiline: false
+    client_type:
+      name: Client type
+      description: Optional DJConnect client type used when resolving memory.
+      required: false
+      selector:
+        text:
+          multiline: false
+
+ask_dj_history_state:
+  name: Ask DJ history state
+  description: >
+    Return whether a client should clear local Ask DJ chat history before
+    showing the Ask DJ screen.
+  fields:
+    memory_key:
+      name: Memory key
+      description: Ask DJ memory key to check.
+      required: false
+      selector:
+        text:
+          multiline: false
+    generation:
+      name: Generation
+      description: Last Ask DJ history generation known by the client.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 1000000
+          mode: box
+
 start_spotify_oauth:
   name: Start Spotify OAuth
   description: >
@@ -129,7 +220,7 @@ device_command:
   fields:
     command:
       name: Command
-      description: Local DJConnect command, for example status, next, previous, set_volume, set_output, start_playlist, set_language or dj_response.
+      description: Local DJConnect command, for example status, next, previous, set_volume, set_output, start_playlist, ask_dj_play_recommendation, set_language or dj_response.
       required: true
       selector:
         text:
