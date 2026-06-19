@@ -270,6 +270,13 @@ Pattern:
   `playback_actions[]`, but playback starts only after the explicit
   `ask_dj_play_recommendation` command. This prevents accidental playback
   mutations while still giving clients a Play Now affordance.
+- Ask DJ concert agenda lookups are informational and non-mutating. The
+  `artist_concerts` intent resolves an explicit artist, current playback artist
+  or recent conversation artist and reads upcoming event data from Bandsintown
+  through Home Assistant's aiohttp client. Responses include a compact
+  date/location/link list plus `links[]` entries with `source: bandsintown`.
+  If the source is unavailable or empty, DJConnect returns an honest no-data
+  message instead of inventing tour dates.
 - Clear/history state is revision-based: `history_revision` advances when a
   user/assistant exchange is stored or history is cleared; `clear_revision`
   advances only on clear. Clients compare local clear revision with
@@ -702,6 +709,7 @@ unless imported or declared here.
 | bleak-retry-connector | Robust BLE connection helper | Provided through Home Assistant Bluetooth stack; imported dynamically in `ble.py` | MIT License | https://github.com/Bluetooth-Devices/bleak-retry-connector |
 | HACS | Distribution surface for this custom integration | HACS metadata in `hacs.json`; HACS version not pinned | MIT License | https://github.com/hacs/integration |
 | Spotify Web API | User-authorized backend playback, OAuth token endpoint and search/playback endpoints | External API; no library is vendored | Spotify Developer Terms | https://developer.spotify.com/documentation/web-api |
+| Bandsintown API | Ask DJ upcoming artist concert agenda lookups | External API; no library is vendored | Bandsintown API terms | https://www.artists.bandsintown.com/support/api-installation |
 | GitHub REST API | Firmware release and release-asset discovery | External API; no library is vendored | GitHub Terms of Service | https://docs.github.com/rest |
 | Home Assistant Cloud / Nabu Casa URL | Preferred external HTTPS callback URL for Spotify OAuth | Optional user runtime service; no library is vendored | Nabu Casa service terms | https://www.nabucasa.com |
 

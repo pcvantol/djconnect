@@ -189,6 +189,7 @@ class DJMemoryManager:
         preferred_device_id = _clean_text(payload.get("preferred_device_id"))
         if preferred_device_id:
             memory["preferred_device_id"] = preferred_device_id
+        _update_time_context(memory)
         await self.async_save()
         return key
 
@@ -480,6 +481,16 @@ def prompt_context_text(context: dict[str, Any]) -> str:
         lines.append(f"Mood/energy: {memory.get('mood')}/100")
     if memory.get("dj_style"):
         lines.append(f"DJ stijl: {memory.get('dj_style')}")
+    time_context = memory.get("listening_time_context")
+    if isinstance(time_context, dict):
+        day = time_context.get("weekday_name")
+        daypart = time_context.get("daypart")
+        weekend = "weekend" if time_context.get("is_weekend") else "weekdag"
+        hour = time_context.get("hour")
+        lines.append(
+            "Luistertijdcontext: "
+            + ", ".join(str(value) for value in (day, daypart, weekend, f"{hour}:00" if hour is not None else "") if value)
+        )
     recent = memory.get("recent_tracks")
     if isinstance(recent, list) and recent:
         names = []
@@ -562,6 +573,8 @@ def _prompt_safe_memory(memory: dict[str, Any]) -> dict[str, Any]:
         "chat_facts",
         "last_ask_dj",
         "listening_profile",
+        "listening_time_context",
+        "listening_time_patterns",
         "last_profile_refresh",
         "recommendation_plays",
         "last_seen",
@@ -580,6 +593,8 @@ def _prompt_safe_memory(memory: dict[str, Any]) -> dict[str, Any]:
         result["chat_facts"] = result["chat_facts"][:MAX_CHAT_FACTS]
     if isinstance(result.get("listening_profile"), dict):
         result["listening_profile"] = _compact_listening_profile(result["listening_profile"])
+    if isinstance(result.get("listening_time_patterns"), list):
+        result["listening_time_patterns"] = result["listening_time_patterns"][:MAX_CHAT_FACTS]
     return result
 
 
@@ -638,6 +653,78 @@ def _compact_track(track: dict[str, Any]) -> dict[str, Any]:
         for key in keys
         if _clean_text(track.get(key))
     }
+
+
+def _update_time_context(memory: dict[str, Any]) -> None:
+    context = _current_time_context()
+    memory["listening_time_context"] = context
+    patterns = memory.get("listening_time_patterns")
+    if not isinstance(patterns, list):
+        patterns = []
+    key = (
+        context.get("weekday"),
+        context.get("is_weekend"),
+        context.get("daypart"),
+    )
+    deduped = [
+        item
+        for item in patterns
+        if not (
+            isinstance(item, dict)
+            and (
+                item.get("weekday"),
+                item.get("is_weekend"),
+                item.get("daypart"),
+            )
+            == key
+        )
+    ]
+    memory["listening_time_patterns"] = [context, *deduped][:MAX_CHAT_FACTS]
+
+
+def _current_time_context() -> dict[str, Any]:
+    now = _local_now()
+    hour = int(now.hour)
+    weekday = int(now.weekday())
+    weekday_name = (
+        "maandag",
+        "dinsdag",
+        "woensdag",
+        "donderdag",
+        "vrijdag",
+        "zaterdag",
+        "zondag",
+    )[weekday]
+    return {
+        "hour": hour,
+        "weekday": weekday,
+        "weekday_name": weekday_name,
+        "is_weekend": weekday >= 5,
+        "daypart": _daypart(hour),
+        "observed_at": now.isoformat(),
+    }
+
+
+def _local_now() -> datetime:
+    try:
+        from homeassistant.util import dt as dt_util
+
+        value = dt_util.now()
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value
+    except Exception:  # noqa: BLE001
+        return datetime.now(timezone.utc)
+
+
+def _daypart(hour: int) -> str:
+    if hour < 6:
+        return "nacht"
+    if hour < 12:
+        return "ochtend"
+    if hour < 18:
+        return "middag"
+    return "avond"
 
 
 def _compact_profile_artist(artist: dict[str, Any]) -> dict[str, Any]:

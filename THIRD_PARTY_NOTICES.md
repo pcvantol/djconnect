@@ -45,6 +45,14 @@ endorsed by, or sponsored by Spotify AB. References to Spotify APIs are API
 usage only and do not imply endorsement, sponsorship, partnership or official
 support by Spotify AB.
 
+## Music Information APIs
+
+Ask DJ may use external public music information APIs for non-mutating
+informational answers. Concert agenda answers can use Bandsintown event data and
+return Bandsintown source links to DJConnect clients. These references are API
+usage only and do not imply endorsement, sponsorship, partnership or official
+support by Bandsintown.
+
 ## DJConnect Firmware And Devices
 
 Copyright (c) 2026 Peter van Tol.

@@ -327,6 +327,262 @@ class SpotifyBackendTest(unittest.TestCase):
             "spotify:artist:pearl-jam",
         )
 
+    def test_artist_albums_searches_artist_and_returns_chronological_albums(self) -> None:
+        class Response:
+            status = 200
+
+            def __init__(self, payload):
+                self.payload = payload
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                return self.payload
+
+            async def text(self):
+                return str(self.payload)
+
+        class Session:
+            def __init__(self):
+                self.urls = []
+
+            def request(self, method, url, **kwargs):
+                self.urls.append(url)
+                if "/search?" in url:
+                    return Response(
+                        {
+                            "artists": {
+                                "items": [
+                                    {
+                                        "id": "radiohead",
+                                        "name": "Radiohead",
+                                        "uri": "spotify:artist:radiohead",
+                                    }
+                                ]
+                            }
+                        }
+                    )
+                if "/artists/radiohead/albums?" in url:
+                    return Response(
+                        {
+                            "items": [
+                                {
+                                    "id": "okc",
+                                    "name": "OK Computer",
+                                    "uri": "spotify:album:okc",
+                                    "release_date": "1997-05-21",
+                                    "album_type": "album",
+                                    "total_tracks": 12,
+                                    "images": [{"url": "https://img.example/okc.jpg", "width": 640}],
+                                    "artists": [{"name": "Radiohead"}],
+                                },
+                                {
+                                    "id": "bends",
+                                    "name": "The Bends",
+                                    "uri": "spotify:album:bends",
+                                    "release_date": "1995-03-13",
+                                    "album_type": "album",
+                                    "total_tracks": 12,
+                                    "images": [{"url": "https://img.example/bends.jpg", "width": 640}],
+                                    "artists": [{"name": "Radiohead"}],
+                                },
+                            ]
+                        }
+                    )
+                raise AssertionError(f"unexpected URL: {url}")
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={
+                "spotify_client_id": "client-id",
+                "spotify_refresh_token": "refresh",
+                "spotify_market": "NL",
+            },
+            options={},
+        )
+        runtime = types.SimpleNamespace(
+            entry=entry,
+            latest_spotify_refresh_token=None,
+            spotify_access_token="access",
+            spotify_access_token_expires_at=time.time() + 1800,
+            device_status={},
+            update=lambda **kwargs: setattr(runtime, "last_update", kwargs),
+        )
+        runtime.config = dict(entry.data)
+        backend = self.backend.SpotifyBackend(object(), runtime)
+        session = Session()
+        backend.session = session
+
+        result = asyncio.run(backend.artist_albums("Radiohead"))
+
+        self.assertIn("/search?", session.urls[0])
+        self.assertIn("q=Radiohead", session.urls[0])
+        self.assertIn("/artists/radiohead/albums?", session.urls[1])
+        self.assertEqual(result["artist"], "Radiohead")
+        self.assertEqual([album["name"] for album in result["albums"]], ["The Bends", "OK Computer"])
+        self.assertEqual(result["albums"][0]["image_url"], "https://img.example/bends.jpg")
+
+    def test_related_artists_searches_artist_and_normalizes_results(self) -> None:
+        class Response:
+            status = 200
+
+            def __init__(self, payload):
+                self.payload = payload
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                return self.payload
+
+            async def text(self):
+                return str(self.payload)
+
+        class Session:
+            def __init__(self):
+                self.urls = []
+
+            def request(self, method, url, **kwargs):
+                self.urls.append(url)
+                if "/search?" in url:
+                    return Response(
+                        {
+                            "artists": {
+                                "items": [
+                                    {
+                                        "id": "radiohead",
+                                        "name": "Radiohead",
+                                        "uri": "spotify:artist:radiohead",
+                                    }
+                                ]
+                            }
+                        }
+                    )
+                if "/artists/radiohead/related-artists" in url:
+                    return Response(
+                        {
+                            "artists": [
+                                {
+                                    "id": "the-smile",
+                                    "name": "The Smile",
+                                    "uri": "spotify:artist:the-smile",
+                                    "genres": ["art rock"],
+                                    "images": [{"url": "https://img.example/smile.jpg", "width": 640}],
+                                }
+                            ]
+                        }
+                    )
+                raise AssertionError(f"unexpected URL: {url}")
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={
+                "spotify_client_id": "client-id",
+                "spotify_refresh_token": "refresh",
+                "spotify_market": "NL",
+            },
+            options={},
+        )
+        runtime = types.SimpleNamespace(
+            entry=entry,
+            latest_spotify_refresh_token=None,
+            spotify_access_token="access",
+            spotify_access_token_expires_at=time.time() + 1800,
+            device_status={},
+            update=lambda **kwargs: setattr(runtime, "last_update", kwargs),
+        )
+        runtime.config = dict(entry.data)
+        backend = self.backend.SpotifyBackend(object(), runtime)
+        session = Session()
+        backend.session = session
+
+        result = asyncio.run(backend.related_artists("Radiohead"))
+
+        self.assertIn("/search?", session.urls[0])
+        self.assertIn("/artists/radiohead/related-artists", session.urls[1])
+        self.assertEqual(result["artist"], "Radiohead")
+        self.assertEqual(result["artists"][0]["name"], "The Smile")
+        self.assertEqual(result["artists"][0]["image_url"], "https://img.example/smile.jpg")
+
+    def test_artist_profile_searches_artist_and_returns_genres(self) -> None:
+        class Response:
+            status = 200
+
+            def __init__(self, payload):
+                self.payload = payload
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                return self.payload
+
+            async def text(self):
+                return str(self.payload)
+
+        class Session:
+            def __init__(self):
+                self.urls = []
+
+            def request(self, method, url, **kwargs):
+                self.urls.append(url)
+                if "/search?" in url:
+                    return Response(
+                        {
+                            "artists": {
+                                "items": [
+                                    {
+                                        "id": "beastie-boys",
+                                        "name": "Beastie Boys",
+                                        "uri": "spotify:artist:beasties",
+                                        "genres": ["old school hip hop", "rap rock"],
+                                        "images": [{"url": "https://img.example/beasties.jpg", "width": 640}],
+                                    }
+                                ]
+                            }
+                        }
+                    )
+                raise AssertionError(f"unexpected URL: {url}")
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={
+                "spotify_client_id": "client-id",
+                "spotify_refresh_token": "refresh",
+                "spotify_market": "NL",
+            },
+            options={},
+        )
+        runtime = types.SimpleNamespace(
+            entry=entry,
+            latest_spotify_refresh_token=None,
+            spotify_access_token="access",
+            spotify_access_token_expires_at=time.time() + 1800,
+            device_status={},
+            update=lambda **kwargs: setattr(runtime, "last_update", kwargs),
+        )
+        runtime.config = dict(entry.data)
+        backend = self.backend.SpotifyBackend(object(), runtime)
+        session = Session()
+        backend.session = session
+
+        result = asyncio.run(backend.artist_profile("Beastie Boys"))
+
+        self.assertIn("/search?", session.urls[0])
+        self.assertEqual(result["name"], "Beastie Boys")
+        self.assertEqual(result["genres"], ["old school hip hop", "rap rock"])
+        self.assertEqual(result["image_url"], "https://img.example/beasties.jpg")
+
     def test_play_recovers_no_active_device_by_transferring_to_configured_source(self) -> None:
         class Response:
             def __init__(self, status, payload=None):

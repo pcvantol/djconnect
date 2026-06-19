@@ -78,6 +78,21 @@ async def handle_spotify_command(
         }
     if normalized == "listening_profile":
         return {"success": True, "profile": await backend.listening_profile()}
+    if normalized == "artist_albums":
+        return {
+            "success": True,
+            **await backend.artist_albums(_artist_album_query(value)),
+        }
+    if normalized == "related_artists":
+        return {
+            "success": True,
+            **await backend.related_artists(_artist_album_query(value)),
+        }
+    if normalized == "artist_profile":
+        return {
+            "success": True,
+            "artist": await backend.artist_profile(_artist_album_query(value)),
+        }
     if normalized == "pause":
         await backend.pause()
         return {"success": True, "playback": await backend.playback_state()}
@@ -468,6 +483,100 @@ class SpotifyBackend:
             ttl=LISTENING_PROFILE_CACHE_TTL_SECONDS,
         )
 
+    async def artist_albums(self, query: str) -> dict[str, Any]:
+        """Fetch album discography for the best Spotify artist search result."""
+        query = str(query or "").strip()
+        if not query:
+            raise ValueError("Provide an artist name")
+
+        async def load():
+            artist = await self._search_artist(query)
+            artist_id = str(artist.get("id") or _spotify_id_from_uri(artist.get("uri"))).strip()
+            if not artist_id:
+                raise SpotifyBackendError(f"Spotify search found no artist for: {query}")
+            albums: list[dict[str, Any]] = []
+            offset = 0
+            market = str(self.conf.get("spotify_market") or DEFAULT_SPOTIFY_MARKET)
+            while len(albums) < 100:
+                params = urlencode(
+                    {
+                        "include_groups": "album",
+                        "limit": 50,
+                        "market": market,
+                        "offset": offset,
+                    }
+                )
+                data = await self._request("GET", f"/artists/{artist_id}/albums?{params}")
+                items = data.get("items") if isinstance(data, dict) else []
+                if not isinstance(items, list) or not items:
+                    break
+                albums.extend(
+                    album
+                    for album in (_normalize_album_item(item) for item in items)
+                    if album
+                )
+                if len(items) < 50:
+                    break
+                offset += len(items)
+            return {
+                "artist": str(artist.get("name") or query),
+                "artist_uri": str(artist.get("uri") or ""),
+                "artist_id": artist_id,
+                "albums": _dedupe_albums(albums),
+                "source": "spotify_artist_albums",
+            }
+
+        return await self._cached(f"artist_albums:{query.lower()}", load, ttl=LISTENING_PROFILE_CACHE_TTL_SECONDS)
+
+    async def related_artists(self, query: str) -> dict[str, Any]:
+        """Fetch Spotify related artists for the best artist search result."""
+        query = str(query or "").strip()
+        if not query:
+            raise ValueError("Provide an artist name")
+
+        async def load():
+            artist = await self._search_artist(query)
+            artist_id = str(artist.get("id") or _spotify_id_from_uri(artist.get("uri"))).strip()
+            if not artist_id:
+                raise SpotifyBackendError(f"Spotify search found no artist for: {query}")
+            data = await self._request("GET", f"/artists/{artist_id}/related-artists")
+            items = data.get("artists") if isinstance(data, dict) else []
+            if not isinstance(items, list):
+                items = []
+            return {
+                "artist": str(artist.get("name") or query),
+                "artist_uri": str(artist.get("uri") or ""),
+                "artist_id": artist_id,
+                "artists": [
+                    related
+                    for related in (_normalize_related_artist(item) for item in items[:20])
+                    if related
+                ],
+                "source": "spotify_related_artists",
+            }
+
+        return await self._cached(f"related_artists:{query.lower()}", load, ttl=LISTENING_PROFILE_CACHE_TTL_SECONDS)
+
+    async def artist_profile(self, query: str) -> dict[str, Any]:
+        """Fetch compact Spotify artist profile metadata for Ask DJ style questions."""
+        query = str(query or "").strip()
+        if not query:
+            raise ValueError("Provide an artist name")
+
+        async def load():
+            return _normalize_profile_artist(await self._search_artist(query))
+
+        return await self._cached(f"artist_profile:{query.lower()}", load, ttl=LISTENING_PROFILE_CACHE_TTL_SECONDS)
+
+    async def _search_artist(self, query: str) -> dict[str, Any]:
+        market = str(self.conf.get("spotify_market") or DEFAULT_SPOTIFY_MARKET)
+        params = urlencode({"q": query, "type": "artist", "limit": 1, "market": market})
+        data = await self._request("GET", f"/search?{params}")
+        artist = _first_search_item(data, "artist")
+        if not artist:
+            raise SpotifyBackendError(f"Spotify search found no artist for: {query}")
+        return artist
+
     async def _recently_played(self, *, limit: int = 50) -> list[dict[str, Any]]:
         limit = min(50, max(1, int(limit)))
         data = await self._request("GET", f"/me/player/recently-played?limit={limit}")
@@ -766,6 +875,12 @@ def _spotify_search_type(media_type: str) -> str:
     return "artist"
 
 
+def _artist_album_query(value: Any) -> str:
+    if isinstance(value, dict):
+        return str(value.get("artist") or value.get("query") or value.get("value") or "").strip()
+    return str(value or "").strip()
+
+
 def _playlist_limit(value: Any) -> int:
     """Return client-aware playlist limit for Spotify browsing commands."""
     raw_limit = None
@@ -812,6 +927,7 @@ def _normalize_search_item(item: dict[str, Any], spotify_type: str, query: str) 
         else ", ".join(artist.get("name", "") for artist in artists if artist.get("name"))
     )
     return {
+        "id": item.get("id") or "",
         "type": spotify_type,
         "query": query,
         "uri": item.get("uri") or "",
@@ -822,6 +938,80 @@ def _normalize_search_item(item: dict[str, Any], spotify_type: str, query: str) 
         "album_name": album.get("name") or "",
         "owner": owner.get("display_name") or owner.get("id") or "",
     }
+
+
+def _normalize_album_item(item: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(item, dict):
+        return {}
+    name = str(item.get("name") or "").strip()
+    uri = str(item.get("uri") or "").strip()
+    if not (name or uri):
+        return {}
+    images = item.get("images") or []
+    artists = item.get("artists") or []
+    return {
+        "id": str(item.get("id") or "").strip(),
+        "name": name,
+        "title": name,
+        "uri": uri,
+        "release_date": str(item.get("release_date") or "").strip(),
+        "album_type": str(item.get("album_type") or "").strip(),
+        "total_tracks": item.get("total_tracks"),
+        "artist": ", ".join(
+            str(artist.get("name") or "").strip()
+            for artist in artists
+            if isinstance(artist, dict) and artist.get("name")
+        ),
+        "image_url": _best_image_url(images),
+        "album_image_url": _best_image_url(images),
+    }
+
+
+def _normalize_related_artist(item: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(item, dict):
+        return {}
+    name = str(item.get("name") or "").strip()
+    uri = str(item.get("uri") or "").strip()
+    if not (name or uri):
+        return {}
+    images = item.get("images") or []
+    genres = item.get("genres") or []
+    return {
+        "id": str(item.get("id") or "").strip(),
+        "name": name,
+        "title": name,
+        "uri": uri,
+        "genres": [str(genre) for genre in genres if genre],
+        "popularity": item.get("popularity"),
+        "image_url": _best_image_url(images),
+        "artist_image_url": _best_image_url(images),
+    }
+
+
+def _dedupe_albums(albums: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    result: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for album in albums:
+        name = str(album.get("name") or album.get("title") or "").strip()
+        year = str(album.get("release_date") or "")[:4]
+        key = " ".join(name.lower().split())
+        if year:
+            key = f"{key}:{year}"
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        result.append(album)
+    return sorted(
+        result,
+        key=lambda item: str(item.get("release_date") or "9999"),
+    )
+
+
+def _spotify_id_from_uri(uri: Any) -> str:
+    text = str(uri or "").strip()
+    if not text.startswith("spotify:"):
+        return ""
+    return text.rsplit(":", 1)[-1].strip()
 
 
 def _spotify_search_debug(

@@ -129,6 +129,12 @@ class DJMemoryManagerTest(unittest.TestCase):
         memory = saved["memories"]["djconnect-watchos-8F3A2C91B45D"]
         self.assertEqual(memory["mood"], 65)
         self.assertEqual(memory["dj_style"], "warm_radio_dj")
+        self.assertIn("listening_time_context", memory)
+        self.assertIn("hour", memory["listening_time_context"])
+        self.assertIn("weekday", memory["listening_time_context"])
+        self.assertIn("is_weekend", memory["listening_time_context"])
+        self.assertIn("daypart", memory["listening_time_context"])
+        self.assertEqual(memory["listening_time_patterns"][0]["daypart"], memory["listening_time_context"]["daypart"])
         self.assertNotIn("device_token", str(saved))
 
         reloaded = DJMemoryManager(store=FakeStore(saved))
@@ -136,6 +142,7 @@ class DJMemoryManagerTest(unittest.TestCase):
 
         self.assertEqual(context["memory"]["mood"], 65)
         self.assertEqual(context["memory"]["last_ask_dj"]["intent"], "explain_choice")
+        self.assertIn("listening_time_context", context["memory"])
 
     def test_clear_memory_helper_removes_persistent_and_runtime_context(self) -> None:
         store = FakeStore()
@@ -162,6 +169,13 @@ class DJMemoryManagerTest(unittest.TestCase):
             "memory_key": "user:1",
             "memory": {
                 "mood": 42,
+                "listening_time_context": {
+                    "hour": 20,
+                    "weekday": 4,
+                    "weekday_name": "vrijdag",
+                    "is_weekend": False,
+                    "daypart": "avond",
+                },
                 "last_ask_dj": {
                     "input": "Draai iets rustigers",
                     "response_text": "Ik heb iets zachts gekozen.",
@@ -178,6 +192,8 @@ class DJMemoryManagerTest(unittest.TestCase):
         self.assertIn("Laatste Ask DJ vraag", prompt)
         self.assertIn("The xx", prompt)
         self.assertIn("Mood/energy: 42/100", prompt)
+        self.assertIn("Luistertijdcontext", prompt)
+        self.assertIn("avond", prompt)
 
     def test_memory_logs_do_not_include_tokens_or_raw_prompts(self) -> None:
         store = FakeStore()

@@ -14,7 +14,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 
 ## Current Version
 
-- Home Assistant integration: `3.1.63`
+- Home Assistant integration: `3.1.64`
 - Domain: `djconnect`
 - HACS category: `Integration`
 - Device target: DJConnect device
@@ -71,7 +71,7 @@ runtime behavior. These decisions are part of the integration contract:
 
 ## Repository Layout
 
-- Home Assistant integration: `3.1.63`
+- Home Assistant integration: `3.1.64`
 - ESP firmware source: `pcvantol/djconnect-app`
 - Public firmware releases: `pcvantol/djconnect-firmware`
 - Canonical cross-repo sync prompts live only in this HA repo: [`SYNC_PROMPTS.md`](SYNC_PROMPTS.md)
@@ -683,6 +683,35 @@ The response is uniform across iOS, macOS and Apple Watch:
 }
 ```
 
+Before routing a text message, the backend loads recent Ask DJ history for the
+same Home Assistant user context and classifies the latest turn as a
+conversation follow-up, clarification/correction, informational intent,
+playback intent or hybrid intent. Short human replies such as `Geeft niet`,
+`Dank je`, `Laat maar`, `Prima` or `Jammer` are answered naturally with
+`intent: conversational_followup`, `action: none` and no Spotify/Home Assistant
+playback mutation. These replies are text-only in `audio_response: auto`; clients
+can still request audio with `audio_response: "always"`. Short corrections such
+as `alleen tussen 1980 en 1990` are combined with the previous user request
+before the normal Ask DJ routing continues.
+
+Album-discography questions such as `Welke albums hebben Radiohead uitgebracht`
+and contextual follow-ups such as `Welke albums bracht deze artiest uit?` use
+Spotify artist search plus artist album data when Spotify is configured. The
+response keeps playback unchanged, returns `source: spotify_artist_albums`, and
+includes proxied album covers in chronological album order where Spotify exposes
+artwork. Similar-artist questions such as `Welke artiesten maken vergelijkbare
+muziek als wat nu speelt?` resolve the current playback artist or recent
+conversation artist and use Spotify related artists when that endpoint is
+available for the user's Spotify app. Genre/style questions such as `Wat voor
+muziek maakt artiest X?` use Spotify artist profile genre tags and phrase them
+as a natural description, for example a mix of one style with a touch of another.
+Concert-agenda questions such as `Wanneer speelt artiest X in Nederland?` or
+`Heeft deze artiest binnenkort concerten?` are informational and non-mutating.
+DJConnect looks up upcoming public web agenda data through Bandsintown when
+available and returns a neatly formatted list with date, location and URL; the
+same URLs are also returned in `links[]` with `source: bandsintown` so clients
+can show them as clickable sources.
+
 External image URLs are registered behind `GET /api/djconnect/image_proxy/{token}`
 so clients only need to fetch Home Assistant/DJConnect URLs. `audio_url` is
 also a Home Assistant/DJConnect URL when TTS audio is available.
@@ -712,7 +741,14 @@ selected action as `value`. DJConnect accepts only Spotify `track`, `album`,
 `artist` and `playlist` URIs. Track actions can include `context_uri` plus
 `offset_uri`; album, artist and playlist actions start their Spotify context.
 Successful Play Now commands are stored as compact positive personalization
-signals in DJ Memory.
+signals in DJ Memory. Phrases such as `Speel wat anders` are treated as
+personal recommendation requests: DJConnect looks at DJ Memory, Spotify recently
+played items and Spotify top tracks/artists, returns random Play Now candidates,
+and does not immediately change playback. Play Now actions include proxied
+`image_url` artwork whenever Spotify/DJ Memory provides album, artist, playlist
+or media art. DJ Memory also stores compact listening-time context such as hour,
+weekday, weekday/weekend and daypart, so recommendation prompts and Play Now
+reasons can become time-aware without clients storing local memory.
 
 To synchronize local chat cache and clear state:
 
@@ -837,24 +873,24 @@ Example manifest:
 
 ```json
 {
-  "version": "3.1.63",
-  "version_tag": "v3.1.63",
+  "version": "3.1.64",
+  "version_tag": "v3.1.64",
   "channel": "stable",
-  "min_ha_integration": "3.1.63",
+  "min_ha_integration": "3.1.64",
   "firmwares": [
     {
       "board": "t_embed_cc1101",
       "device": "lilygo-t-embed-s3",
-      "asset": "djconnect-lilygo-t-embed-s3-v3.1.63.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.63/djconnect-lilygo-t-embed-s3-v3.1.63.bin",
+      "asset": "djconnect-lilygo-t-embed-s3-v3.1.64.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.64/djconnect-lilygo-t-embed-s3-v3.1.64.bin",
       "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "size": 2113136
     },
     {
       "board": "esp32_s3_box3",
       "device": "esp32-s3-box-3",
-      "asset": "djconnect-esp32-s3-box-3-v3.1.63.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.63/djconnect-esp32-s3-box-3-v3.1.63.bin",
+      "asset": "djconnect-esp32-s3-box-3-v3.1.64.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.64/djconnect-esp32-s3-box-3-v3.1.64.bin",
       "sha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
       "size": 2113136
     }
@@ -877,7 +913,7 @@ The firmware version is injected through PlatformIO build flags from the Git tag
 Recommended firmware source release helper:
 
 ```bash
-./release.sh 3.1.63
+./release.sh 3.1.64
 ```
 
 In the separate `djconnect-app` repository, the firmware release script should
@@ -889,14 +925,14 @@ PlatformIO builds, rename firmware binaries to device-specific assets such as
 Preview the firmware release flow without changing files:
 
 ```bash
-./release.sh 3.1.63 --dry-run
+./release.sh 3.1.64 --dry-run
 ```
 
 When publishing to the public firmware repository, use the firmware script's
 public-repo option if available:
 
 ```bash
-./release.sh 3.1.63 --publish-firmware-repo ../djconnect-firmware
+./release.sh 3.1.64 --publish-firmware-repo ../djconnect-firmware
 ```
 
 The public `djconnect-firmware` repository should contain only the release
@@ -939,7 +975,7 @@ Tag and publish:
 One-liner:
 
 ```bash
-./release.sh 3.1.63
+./release.sh 3.1.64
 ```
 
 The script updates the integration version in `manifest.json`, `const.py`,
@@ -950,18 +986,18 @@ above.
 Preview without executing git/gh commands:
 
 ```bash
-./release.sh 3.1.63 --dry-run
+./release.sh 3.1.64 --dry-run
 ```
 
 Manual equivalent:
 
 ```bash
 git add .
-git commit -m "Release DJConnect v3.1.63"
-git tag v3.1.63
+git commit -m "Release DJConnect v3.1.64"
+git tag v3.1.64
 git push origin main
-git push origin v3.1.63
-gh release create v3.1.63 --title "DJConnect v3.1.63" --notes-file CHANGELOG.md
+git push origin v3.1.64
+gh release create v3.1.64 --title "DJConnect v3.1.64" --notes-file CHANGELOG.md
 ```
 
 Release cleanup helper:

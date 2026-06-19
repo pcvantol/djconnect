@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.1.64
+
+- Make Ask DJ text chat conversation-aware by using recent server-side history before routing intents, so short follow-ups like "Geeft niet", "Dank je" and "Laat maar" get natural text-only replies without rerunning lookups or mutating playback.
+- Treat short clarifications such as "alleen tussen 1980 en 1990" as context for the previous Ask DJ request before continuing through the normal informational/playback routing.
+- Answer Ask DJ album-discography questions from Spotify artist album data, including current-artist follow-ups such as "Welke albums bracht deze artiest uit?" and proxied chronological album-cover lists.
+- Answer Ask DJ similar-artist questions from the current playback artist or recent conversation artist context using Spotify related artists when available.
+- Treat "Speel wat anders" as a personal recommendation request that returns Play Now actions from DJConnect Memory plus Spotify recent/top profile data without immediately changing playback.
+- Answer Ask DJ genre/style questions such as "Wat voor muziek maakt artiest X?" from Spotify artist profile genres with natural phrasing and optional artist artwork.
+- Answer Ask DJ concert-agenda questions such as "Wanneer speelt artiest X in Nederland?" from Bandsintown web data with a formatted date/location list and clickable source links.
+
 ## 3.1.63
 
 - Add cross-device Ask DJ history sync with HA-user scoped persistent history, `/api/djconnect/ask_dj/message`, `/api/djconnect/ask_dj/history` and revision-based clear support.
