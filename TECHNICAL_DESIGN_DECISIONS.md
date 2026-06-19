@@ -231,8 +231,20 @@ Pattern:
   DJConnect client/device id.
 - Stored memory is compact and excludes bearer tokens, Spotify OAuth tokens,
   Home Assistant tokens, raw audio and full prompts.
-- Text Ask DJ requests enter through `custom_components/djconnect/ask_dj.py`
-  via `POST /api/djconnect/ask_dj` or service `djconnect.ask_dj`.
+- Text Ask DJ requests from app clients enter through
+  `POST /api/djconnect/ask_dj/message`; service `djconnect.ask_dj` and
+  `POST /api/djconnect/ask_dj` remain developer/raw entrypoints.
+- Renderable Ask DJ chat history is separate from DJ Memory and uses Home
+  Assistant `Store(hass, 1, "djconnect_ask_dj_history")`. It is keyed by HA
+  user id, keeps at most 200 messages per user and stores user/assistant
+  messages with images, links, sources, audio_url and playback_actions.
+- `client_message_id` provides idempotency for retried message posts. `client_id`
+  and `client_type` stay metadata for origin/device diagnostics and must not be
+  used as the primary history key.
+- Ask DJ audio generation is policy-based. `audio_response:auto` avoids TTS for
+  informational text chat to keep the chat UI fast, but keeps TTS for
+  playback/hybrid intents and voice/PTT interactions. `always` and `never`
+  provide explicit client overrides.
 - App Ask DJ Push-To-Talk enters through the existing `/api/djconnect/voice`
   WAV route. iOS, macOS and watchOS transcripts are routed to the same Ask DJ
   handler as text chat; ESP32 WAV remains on the command-parser playback flow.
@@ -258,9 +270,11 @@ Pattern:
   `playback_actions[]`, but playback starts only after the explicit
   `ask_dj_play_recommendation` command. This prevents accidental playback
   mutations while still giving clients a Play Now affordance.
-- Clear/history state is generation-based: clearing memory records
-  `clear_requested_at` and increments `generation`; clients compare their local
-  generation with `ask_dj_history_state` before rendering the Ask DJ chat.
+- Clear/history state is revision-based: `history_revision` advances when a
+  user/assistant exchange is stored or history is cleared; `clear_revision`
+  advances only on clear. Clients compare local clear revision with
+  `GET /api/djconnect/ask_dj/history` or the developer history-state service
+  before rendering and clear local cache when the server value is newer.
 - Images are represented as structured `images[]` entries and any external
   image URL is registered behind the Home Assistant route
   `/api/djconnect/image_proxy/{token}`. Source links remain explicit `links[]`

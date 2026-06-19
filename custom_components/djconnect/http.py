@@ -15,7 +15,10 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from .const import (
     API_ASK_DJ,
     API_ASK_DJ_CLEAR,
+    API_ASK_DJ_HISTORY,
+    API_ASK_DJ_HISTORY_CLEAR,
     API_ASK_DJ_HISTORY_STATE,
+    API_ASK_DJ_MESSAGE,
     API_COMMAND,
     API_IMAGE_PROXY,
     API_SPOTIFY_CALLBACK,
@@ -49,6 +52,7 @@ from .const import (
     VERSION,
 )
 from .ask_dj import async_handle_ask_dj, image_proxy_target
+from .ask_dj_history import AskDJHistoryManager
 from .assist_stt import (
     DJConnectNoSttProviderError,
     transcribe_wav_with_assist,
@@ -681,6 +685,34 @@ def _request_user_id(request: Any) -> str | None:
     user = getattr(request, "user", None)
     user_id = getattr(user, "id", None)
     return str(user_id) if user_id else None
+
+
+def _history_manager(hass: Any, runtime: Any | None = None) -> AskDJHistoryManager:
+    manager = getattr(runtime, "ask_dj_history", None) if runtime is not None else None
+    if manager is not None:
+        return manager
+    domain_data = hass.data.setdefault(DOMAIN, {})
+    manager = domain_data.get("ask_dj_history_manager")
+    if manager is None:
+        manager = AskDJHistoryManager(hass)
+        domain_data["ask_dj_history_manager"] = manager
+    if runtime is not None:
+        runtime.ask_dj_history = manager
+    return manager
+
+
+def _query_int(request: Any, key: str) -> int | None:
+    query = getattr(request, "query", None) or {}
+    try:
+        value = query.get(key)
+    except AttributeError:
+        return None
+    if value in (None, ""):
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
 
 
 async def _update_memory_metadata(
@@ -1665,15 +1697,91 @@ class DJConnectAskDjClearView(HomeAssistantView):
             client_type,
         ):
             return _json_error(self, "unauthorized", 401)
-        memory = getattr(runtime, "memory", None)
-        if memory is None:
-            return _json_error(self, "backend_unavailable", 503)
-        result = await memory.async_mark_clear_required(
-            runtime,
-            identity,
-            user_id=_request_user_id(request),
+        result = await _history_manager(hass, runtime).async_clear(_request_user_id(request))
+        return self.json(result)
+
+
+class DJConnectAskDjMessageView(HomeAssistantView):
+    url = API_ASK_DJ_MESSAGE
+    name = "api:djconnect:ask_dj_message"
+    requires_auth = False
+
+    def __init__(self, hass):
+        self.hass = hass
+
+    async def post(self, request):
+        hass = request.app["hass"]
+        try:
+            data = await request.json()
+        except Exception:  # noqa: BLE001
+            return _json_error(self, "invalid_json", 400)
+        identity = _identity_payload(data)
+        runtime = _runtime(
+            hass,
+            identity.get("device_id") or request.headers.get("X-DJConnect-Device-ID"),
+            request.headers,
         )
-        return self.json({"success": True, **result})
+        if runtime is None:
+            return _json_error(self, "not_configured", 503)
+        client_type = _validate_required_client_type(identity)
+        if client_type is None:
+            return _json_error(self, "invalid_client_type", 400)
+        identity[CONF_CLIENT_TYPE] = client_type
+        if not _authorize_runtime_device_request(
+            runtime,
+            request.headers,
+            identity.get("device_id"),
+            client_type,
+        ):
+            return _json_error(self, "unauthorized", 401)
+        payload = dict(data)
+        payload.update({key: value for key, value in identity.items() if value is not None})
+        user_id = _request_user_id(request)
+        result = await async_handle_ask_dj(hass, runtime, payload, user_id=user_id)
+        if not result.get("success"):
+            return self.json(result, status_code=500)
+        sync = await _history_manager(hass, runtime).async_append_exchange(
+            user_id,
+            payload,
+            result,
+        )
+        return self.json({**result, **sync})
+
+
+class DJConnectAskDjHistoryView(HomeAssistantView):
+    url = API_ASK_DJ_HISTORY
+    name = "api:djconnect:ask_dj_history"
+    requires_auth = False
+
+    def __init__(self, hass):
+        self.hass = hass
+
+    async def get(self, request):
+        hass = request.app["hass"]
+        runtime = _runtime(
+            hass,
+            request.headers.get("X-DJConnect-Device-ID"),
+            request.headers,
+        )
+        if runtime is None:
+            return _json_error(self, "not_configured", 503)
+        if not _authorize_runtime_device_request(
+            runtime,
+            request.headers,
+            request.headers.get("X-DJConnect-Device-ID"),
+            request.headers.get("X-DJConnect-Client-Type") or _runtime_client_type(runtime),
+        ):
+            return _json_error(self, "unauthorized", 401)
+        result = await _history_manager(hass, runtime).async_history(
+            _request_user_id(request),
+            since_revision=_query_int(request, "since_revision"),
+        )
+        return self.json(result)
+
+
+class DJConnectAskDjHistoryClearView(DJConnectAskDjClearView):
+    url = API_ASK_DJ_HISTORY_CLEAR
+    name = "api:djconnect:ask_dj_history_clear"
 
 
 class DJConnectAskDjHistoryStateView(HomeAssistantView):
@@ -1708,20 +1816,29 @@ class DJConnectAskDjHistoryStateView(HomeAssistantView):
             client_type,
         ):
             return _json_error(self, "unauthorized", 401)
-        memory = getattr(runtime, "memory", None)
-        if memory is None:
-            return _json_error(self, "backend_unavailable", 503)
         try:
-            client_generation = int(data["generation"]) if data.get("generation") is not None else None
+            since_revision = int(data["since_revision"]) if data.get("since_revision") is not None else None
         except (TypeError, ValueError):
-            client_generation = None
-        result = await memory.async_history_state(
-            runtime,
-            identity,
-            user_id=_request_user_id(request),
-            client_generation=client_generation,
+            since_revision = None
+        result = await _history_manager(hass, runtime).async_history(
+            _request_user_id(request),
+            since_revision=since_revision,
         )
-        return self.json({"success": True, **result})
+        clear_revision = int(result.get("clear_revision") or 0)
+        try:
+            client_clear_revision = int(data.get("clear_revision") or 0)
+        except (TypeError, ValueError):
+            client_clear_revision = 0
+        return self.json(
+            {
+                "success": True,
+                "user_id": result.get("user_id"),
+                "history_revision": result.get("history_revision"),
+                "clear_revision": clear_revision,
+                "ask_dj_clear_required": client_clear_revision < clear_revision,
+                "server_time": result.get("server_time"),
+            }
+        )
 
 
 class DJConnectVoiceView(HomeAssistantView):
@@ -1839,6 +1956,7 @@ class DJConnectVoiceView(HomeAssistantView):
                     str(header_client_type or ""),
                 )
                 ask_payload["text"] = user_text
+                ask_payload["input_type"] = "voice"
                 _set_device_state(runtime, "processing")
                 runtime.update(last_text=user_text, last_error=None)
                 try:

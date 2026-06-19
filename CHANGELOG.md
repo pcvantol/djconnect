@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.62
+
+- Add cross-device Ask DJ history sync with HA-user scoped persistent history, `/api/djconnect/ask_dj/message`, `/api/djconnect/ask_dj/history` and revision-based clear support.
+- Add Ask DJ `audio_response` policy so informational text chat is text-only by default while playback/hybrid and voice/PTT responses still generate replayable TTS audio when available.
+
 ## 3.1.61
 
 - Add server-side DJ Memory groundwork for future Ask DJ clients, including HA Store persistence, runtime session context, playback/Ask DJ context tracking and watchOS voice metadata support.

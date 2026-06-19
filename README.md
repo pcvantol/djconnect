@@ -14,7 +14,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 
 ## Current Version
 
-- Home Assistant integration: `3.1.61`
+- Home Assistant integration: `3.1.62`
 - Domain: `djconnect`
 - HACS category: `Integration`
 - Device target: DJConnect device
@@ -71,7 +71,7 @@ runtime behavior. These decisions are part of the integration contract:
 
 ## Repository Layout
 
-- Home Assistant integration: `3.1.61`
+- Home Assistant integration: `3.1.62`
 - ESP firmware source: `pcvantol/djconnect-app`
 - Public firmware releases: `pcvantol/djconnect-firmware`
 - Canonical cross-repo sync prompts live only in this HA repo: [`SYNC_PROMPTS.md`](SYNC_PROMPTS.md)
@@ -304,24 +304,29 @@ Assist fuzzy-correction step used by physical PTT, then Spotify intent parsing,
 Spotify search/playback, DJ announcement generation, TTS audio creation and
 delivery back to the connected DJConnect device/client.
 
-`djconnect.ask_dj` is the backend text entrypoint for the iOS, macOS and Apple
-Watch `Ask DJ` chat. It accepts `text`, optional `memory_key`, `mood`,
-`dj_style`, `client_type`, `device_id` and `device_name`, then routes the request
-as informational, playback/device action or hybrid. Informational questions do
-not change playback; action and hybrid requests can call Spotify/Home Assistant
-backend actions and still return a natural DJ answer. Responses use the same
-shape as the HTTP API: `success`, `text`/`dj_text`/`message`, optional
-`audio_url`, `images[]`, `links[]`, `intent`, `action` and `memory_key`.
+`djconnect.ask_dj` is the backend text entrypoint for developer tools. App
+clients use `POST /api/djconnect/ask_dj/message` so the server can store both
+the user message and assistant answer in the user-scoped Ask DJ history.
+Requests accept `text`, optional `client_message_id`, `client_id`, `mood`,
+`dj_style`, `audio_response`, `client_type`, `device_id` and `device_name`, then route as
+informational, playback/device action or hybrid. Informational questions do not
+change playback; action and hybrid requests can call Spotify/Home Assistant
+backend actions and still return a natural DJ answer. Responses include
+`user_message`, `assistant_message`, `history_revision`, `clear_revision` and
+the same rich fields as the Ask DJ answer: `success`, `text`/`dj_text`/`message`,
+optional `audio_url`, `images[]`, `links[]`, `sources[]`, `playback_actions[]`,
+`intent` and `action`.
 The informational intent `personal_music_profile_analysis` answers questions
 such as "Omschrijf eens waar ik zoal naar luisterde de afgelopen maand" or
 "Make a profile of my music taste this year". It never starts, pauses, queues,
 skips, likes or moves playback. It uses only available DJ Memory/playback
 context, defaults to the last 30 days when no period is named, and says clearly
 when there is too little listening history for a reliable profile.
-`djconnect.clear_ask_dj_history` clears server-side Ask DJ memory for the
-resolved memory key and increments a history generation. `djconnect.ask_dj_history_state`
-returns `ask_dj_clear_required` so another client can clear its local chat cache
-before showing the Ask DJ screen.
+`djconnect.clear_ask_dj_history` clears persistent Ask DJ chat history for the
+Home Assistant user and increments `clear_revision` plus `history_revision`.
+`djconnect.ask_dj_history_state` returns the current revisions and
+`ask_dj_clear_required` so another client can clear its local cache before
+rendering the Ask DJ screen.
 
 If command processing or Spotify playback fails, DJConnect still sends a
 friendly DJ announcement to the ESP device when possible, so the user hears or sees
@@ -497,8 +502,9 @@ The integration exposes these endpoints:
 POST /api/djconnect/pair
 POST /api/djconnect/voice
 POST /api/djconnect/ask_dj
-POST /api/djconnect/ask_dj/clear
-POST /api/djconnect/ask_dj/history_state
+POST /api/djconnect/ask_dj/message
+GET  /api/djconnect/ask_dj/history
+POST /api/djconnect/ask_dj/history/clear
 POST /api/djconnect/command
 POST /api/djconnect/status
 POST /api/djconnect/event
@@ -585,11 +591,16 @@ Status/pairing responses advertise:
 }
 ```
 
-App clients should use `POST /api/djconnect/ask_dj` for text chat. The request
-body can contain top-level identity fields or an `identity` object:
+App clients should use `POST /api/djconnect/ask_dj/message` for text chat. The
+backend is the source of truth for Ask DJ history per Home Assistant user; iOS,
+macOS and Apple Watch may cache locally, but must reconcile from
+`GET /api/djconnect/ask_dj/history?since_revision=<number>`. The request body
+can contain top-level identity fields or an `identity` object:
 
 ```json
 {
+  "client_message_id": "uuid-from-client",
+  "client_id": "watch_peter",
   "identity": {
     "client_type": "watchos",
     "device_id": "djconnect-watchos-8F3A2C91B45D",
@@ -598,7 +609,8 @@ body can contain top-level identity fields or an `identity` object:
   "text": "Waarom koos je dit nummer?",
   "memory_key": "optional-client-key",
   "mood": 42,
-  "dj_style": "warm_radio_dj"
+  "dj_style": "warm_radio_dj",
+  "audio_response": "auto"
 }
 ```
 
@@ -607,6 +619,26 @@ The response is uniform across iOS, macOS and Apple Watch:
 ```json
 {
   "success": true,
+  "history_revision": 43,
+  "clear_revision": 7,
+  "user_message": {
+    "id": "server-user-message-id",
+    "client_message_id": "uuid-from-client",
+    "role": "user",
+    "text": "Waarom koos je dit nummer?",
+    "created_at": "2026-06-19T12:34:56Z"
+  },
+  "assistant_message": {
+    "id": "server-assistant-message-id",
+    "role": "assistant",
+    "text": "Omdat dit mooi aansluit op je rustige stemming.",
+    "created_at": "2026-06-19T12:34:57Z",
+    "images": [],
+    "links": [],
+    "sources": [],
+    "audio_url": "/api/djconnect/tts/token.mp3",
+    "playback_actions": []
+  },
   "text": "Omdat dit mooi aansluit op je rustige stemming.",
   "dj_text": "Omdat dit mooi aansluit op je rustige stemming.",
   "audio_url": "/api/djconnect/tts/token.mp3",
@@ -654,6 +686,12 @@ The response is uniform across iOS, macOS and Apple Watch:
 External image URLs are registered behind `GET /api/djconnect/image_proxy/{token}`
 so clients only need to fetch Home Assistant/DJConnect URLs. `audio_url` is
 also a Home Assistant/DJConnect URL when TTS audio is available.
+Ask DJ audio responses are policy-driven through `audio_response`:
+`auto`, `always` or `never`. In `auto`, ordinary informational text chat is
+text-only for speed, playback/hybrid intents receive TTS when Home Assistant TTS
+is available, and voice/PTT input receives TTS because the interaction is
+already auditory. Clients can request `always` for replayable audio on an
+informational message or `never` for text-only behavior.
 
 For `personal_music_profile_analysis`, Ask DJ combines DJConnect Memory with
 Spotify Web API profile snapshots from `GET /me/player/recently-played` and
@@ -676,17 +714,21 @@ selected action as `value`. DJConnect accepts only Spotify `track`, `album`,
 Successful Play Now commands are stored as compact positive personalization
 signals in DJ Memory.
 
-To synchronize local chat cache after a user clears Ask DJ on one client:
+To synchronize local chat cache and clear state:
 
 ```text
-POST /api/djconnect/ask_dj/clear
-POST /api/djconnect/ask_dj/history_state
+GET  /api/djconnect/ask_dj/history?since_revision=42
+POST /api/djconnect/ask_dj/history/clear
 ```
 
-`clear` returns the resolved `memory_key`, `generation` and
-`clear_requested_at`. `history_state` accepts the client-known `generation` and
-returns `ask_dj_clear_required: true` when the client should wipe its local chat
-history before rendering the Ask DJ screen.
+History responses contain `user_id`, `history_revision`, `clear_revision`,
+bounded `messages[]` and `server_time`. The first implementation returns at
+most the latest 200 messages, sorted by `created_at`. `history/clear` clears
+only the authenticated HA user's messages, increments both revisions and returns
+an empty `messages[]`. Clients compare their local `clear_revision` before
+rendering; if the server revision is higher, wipe local cache and reload server
+history. `client_message_id` makes retried `message` posts idempotent for the
+same HA user.
 
 Home Assistant must have an Assist pipeline with STT and TTS configured.
 DJConnect setup only asks you to choose the Assist pipeline; STT provider, TTS engine,
@@ -795,24 +837,24 @@ Example manifest:
 
 ```json
 {
-  "version": "3.1.61",
-  "version_tag": "v3.1.61",
+  "version": "3.1.62",
+  "version_tag": "v3.1.62",
   "channel": "stable",
-  "min_ha_integration": "3.1.61",
+  "min_ha_integration": "3.1.62",
   "firmwares": [
     {
       "board": "t_embed_cc1101",
       "device": "lilygo-t-embed-s3",
-      "asset": "djconnect-lilygo-t-embed-s3-v3.1.61.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.61/djconnect-lilygo-t-embed-s3-v3.1.61.bin",
+      "asset": "djconnect-lilygo-t-embed-s3-v3.1.62.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.62/djconnect-lilygo-t-embed-s3-v3.1.62.bin",
       "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "size": 2113136
     },
     {
       "board": "esp32_s3_box3",
       "device": "esp32-s3-box-3",
-      "asset": "djconnect-esp32-s3-box-3-v3.1.61.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.61/djconnect-esp32-s3-box-3-v3.1.61.bin",
+      "asset": "djconnect-esp32-s3-box-3-v3.1.62.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.62/djconnect-esp32-s3-box-3-v3.1.62.bin",
       "sha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
       "size": 2113136
     }
@@ -835,7 +877,7 @@ The firmware version is injected through PlatformIO build flags from the Git tag
 Recommended firmware source release helper:
 
 ```bash
-./release.sh 3.1.61
+./release.sh 3.1.62
 ```
 
 In the separate `djconnect-app` repository, the firmware release script should
@@ -847,14 +889,14 @@ PlatformIO builds, rename firmware binaries to device-specific assets such as
 Preview the firmware release flow without changing files:
 
 ```bash
-./release.sh 3.1.61 --dry-run
+./release.sh 3.1.62 --dry-run
 ```
 
 When publishing to the public firmware repository, use the firmware script's
 public-repo option if available:
 
 ```bash
-./release.sh 3.1.61 --publish-firmware-repo ../djconnect-firmware
+./release.sh 3.1.62 --publish-firmware-repo ../djconnect-firmware
 ```
 
 The public `djconnect-firmware` repository should contain only the release
@@ -897,7 +939,7 @@ Tag and publish:
 One-liner:
 
 ```bash
-./release.sh 3.1.61
+./release.sh 3.1.62
 ```
 
 The script updates the integration version in `manifest.json`, `const.py`,
@@ -908,18 +950,18 @@ above.
 Preview without executing git/gh commands:
 
 ```bash
-./release.sh 3.1.61 --dry-run
+./release.sh 3.1.62 --dry-run
 ```
 
 Manual equivalent:
 
 ```bash
 git add .
-git commit -m "Release DJConnect v3.1.61"
-git tag v3.1.61
+git commit -m "Release DJConnect v3.1.62"
+git tag v3.1.62
 git push origin main
-git push origin v3.1.61
-gh release create v3.1.61 --title "DJConnect v3.1.61" --notes-file CHANGELOG.md
+git push origin v3.1.62
+gh release create v3.1.62 --title "DJConnect v3.1.62" --notes-file CHANGELOG.md
 ```
 
 Release cleanup helper:

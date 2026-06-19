@@ -1,0 +1,142 @@
+from __future__ import annotations
+
+import asyncio
+import importlib
+import unittest
+
+from tests.test_http_voice_helpers import install_http_stubs
+
+install_http_stubs()
+AskDJHistoryManager = importlib.import_module(
+    "custom_components.djconnect.ask_dj_history"
+).AskDJHistoryManager
+
+
+class FakeStore:
+    def __init__(self, data=None):
+        self.data = data
+        self.saved = None
+
+    async def async_load(self):
+        return self.data
+
+    async def async_save(self, data):
+        self.saved = data
+        self.data = data
+
+
+class AskDJHistoryManagerTest(unittest.TestCase):
+    def test_history_is_user_scoped_and_shared_by_clients(self) -> None:
+        manager = AskDJHistoryManager(store=FakeStore())
+
+        async def run():
+            first = await manager.async_append_exchange(
+                "ha-user-1",
+                {
+                    "client_message_id": "watch-1",
+                    "client_id": "watch",
+                    "client_type": "watchos",
+                    "text": "Draai iets rustigers",
+                },
+                {"success": True, "dj_text": "Ik kies iets rustigers."},
+            )
+            second_client = await manager.async_history("ha-user-1")
+            other_user = await manager.async_history("ha-user-2")
+            return first, second_client, other_user
+
+        first, second_client, other_user = asyncio.run(run())
+
+        self.assertEqual(first["history_revision"], 1)
+        self.assertEqual(len(second_client["messages"]), 2)
+        self.assertEqual(second_client["messages"][0]["client_id"], "watch")
+        self.assertEqual(other_user["messages"], [])
+        self.assertEqual(other_user["history_revision"], 0)
+
+    def test_clear_increments_revisions_for_only_one_user(self) -> None:
+        manager = AskDJHistoryManager(store=FakeStore())
+
+        async def run():
+            await manager.async_append_exchange(
+                "ha-user-1",
+                {"client_message_id": "1", "client_id": "ios", "client_type": "ios", "text": "Hoi"},
+                {"success": True, "dj_text": "Hoi terug."},
+            )
+            await manager.async_append_exchange(
+                "ha-user-2",
+                {"client_message_id": "2", "client_id": "mac", "client_type": "macos", "text": "Hoi"},
+                {"success": True, "dj_text": "Hoi terug."},
+            )
+            cleared = await manager.async_clear("ha-user-1")
+            user_one = await manager.async_history("ha-user-1")
+            user_two = await manager.async_history("ha-user-2")
+            return cleared, user_one, user_two
+
+        cleared, user_one, user_two = asyncio.run(run())
+
+        self.assertEqual(cleared["history_revision"], 2)
+        self.assertEqual(cleared["clear_revision"], 1)
+        self.assertEqual(user_one["messages"], [])
+        self.assertEqual(len(user_two["messages"]), 2)
+
+    def test_duplicate_client_message_id_returns_existing_exchange(self) -> None:
+        manager = AskDJHistoryManager(store=FakeStore())
+
+        async def run():
+            first = await manager.async_append_exchange(
+                "ha-user-1",
+                {"client_message_id": "retry-1", "client_id": "ios", "client_type": "ios", "text": "Verras me"},
+                {"success": True, "dj_text": "Ik heb iets gevonden."},
+            )
+            second = await manager.async_append_exchange(
+                "ha-user-1",
+                {"client_message_id": "retry-1", "client_id": "ios", "client_type": "ios", "text": "Verras me"},
+                {"success": True, "dj_text": "Deze zou dubbel zijn."},
+            )
+            history = await manager.async_history("ha-user-1")
+            return first, second, history
+
+        first, second, history = asyncio.run(run())
+
+        self.assertEqual(first["history_revision"], 1)
+        self.assertTrue(second["deduplicated"])
+        self.assertEqual(second["history_revision"], 1)
+        self.assertEqual(len(history["messages"]), 2)
+        self.assertEqual(second["assistant_message"]["text"], "Ik heb iets gevonden.")
+
+    def test_assistant_message_keeps_rich_payload(self) -> None:
+        manager = AskDJHistoryManager(store=FakeStore())
+
+        async def run():
+            result = await manager.async_append_exchange(
+                "ha-user-1",
+                {"client_message_id": "rich-1", "client_id": "mac", "client_type": "macos", "text": "Tips?"},
+                {
+                    "success": True,
+                    "dj_text": "Deze drie passen goed.",
+                    "images": [{"url": "/api/djconnect/image_proxy/abc", "title": "Cover"}],
+                    "links": [{"url": "https://example.test", "title": "Bron", "kind": "source"}],
+                    "sources": [{"source": "spotify_top_tracks_short_term", "kind": "source"}],
+                    "audio_url": "/api/djconnect/tts/123.mp3",
+                    "playback_actions": [
+                        {
+                            "id": "spotify:track:123",
+                            "uri": "spotify:track:123",
+                            "kind": "track",
+                            "title": "Track",
+                        }
+                    ],
+                },
+            )
+            return result["assistant_message"]
+
+        message = asyncio.run(run())
+
+        self.assertEqual(message["audio_url"], "/api/djconnect/tts/123.mp3")
+        self.assertEqual(message["images"][0]["url"], "/api/djconnect/image_proxy/abc")
+        self.assertEqual(message["links"][0]["kind"], "source")
+        self.assertEqual(message["sources"][0]["source"], "spotify_top_tracks_short_term")
+        self.assertEqual(message["playback_actions"][0]["uri"], "spotify:track:123")
+
+
+if __name__ == "__main__":
+    unittest.main()

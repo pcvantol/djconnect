@@ -19,6 +19,9 @@ from homeassistant.helpers.typing import ConfigType
 from .const import (
     API_COMMAND,
     API_ASK_DJ,
+    API_ASK_DJ_HISTORY,
+    API_ASK_DJ_HISTORY_CLEAR,
+    API_ASK_DJ_MESSAGE,
     API_EVENT,
     API_PAIR,
     API_SPOTIFY_CALLBACK,
@@ -54,8 +57,9 @@ from .const import (
 )
 from .http import (
     DJConnectCommandView,
-    DJConnectAskDjClearView,
-    DJConnectAskDjHistoryStateView,
+    DJConnectAskDjHistoryClearView,
+    DJConnectAskDjHistoryView,
+    DJConnectAskDjMessageView,
     DJConnectAskDjView,
     DJConnectEventView,
     DJConnectImageProxyView,
@@ -70,6 +74,7 @@ from .assist_stt import detect_stt_support
 from .dj_response import async_send_dj_response, async_send_dj_response_best_effort
 from .ha_urls import async_ha_url_payload
 from .ask_dj import async_handle_ask_dj
+from .ask_dj_history import AskDJHistoryManager
 from .memory import DJMemoryManager
 from .processor import process_text_command
 from .repairs import async_create_fixable_issues
@@ -1077,8 +1082,9 @@ def register_http_views(hass: HomeAssistant) -> None:
         for view in [
             DJConnectVoiceView(hass),
             DJConnectAskDjView(hass),
-            DJConnectAskDjClearView(hass),
-            DJConnectAskDjHistoryStateView(hass),
+            DJConnectAskDjMessageView(hass),
+            DJConnectAskDjHistoryView(hass),
+            DJConnectAskDjHistoryClearView(hass),
             DJConnectCommandView(hass),
             DJConnectPairView(hass),
             DJConnectStatusView(hass),
@@ -1092,15 +1098,22 @@ def register_http_views(hass: HomeAssistant) -> None:
         hass.data[DOMAIN]["http_registered"] = True
 
         _LOGGER.info(
-            "DJConnect HTTP endpoints registered: %s, %s, %s, %s, %s, %s, %s, %s",
-            API_VOICE,
-            API_ASK_DJ,
-            API_COMMAND,
-            API_PAIR,
-            API_STATUS,
-            API_EVENT,
-            API_TTS,
-            API_SPOTIFY_CALLBACK,
+            "DJConnect HTTP endpoints registered: %s",
+            ", ".join(
+                (
+                    API_VOICE,
+                    API_ASK_DJ,
+                    API_ASK_DJ_MESSAGE,
+                    API_ASK_DJ_HISTORY,
+                    API_ASK_DJ_HISTORY_CLEAR,
+                    API_COMMAND,
+                    API_PAIR,
+                    API_STATUS,
+                    API_EVENT,
+                    API_TTS,
+                    API_SPOTIFY_CALLBACK,
+                )
+            ),
         )
 
 
@@ -1116,6 +1129,11 @@ def _restore_runtime(hass: HomeAssistant, entry: ConfigEntry) -> DJConnectRuntim
         memory_manager = DJMemoryManager(hass)
         hass.data[DOMAIN]["memory_manager"] = memory_manager
     runtime.memory = memory_manager
+    history_manager = hass.data[DOMAIN].get("ask_dj_history_manager")
+    if history_manager is None:
+        history_manager = AskDJHistoryManager(hass)
+        hass.data[DOMAIN]["ask_dj_history_manager"] = history_manager
+    runtime.ask_dj_history = history_manager
     cached_status = entry.data.get(CONF_LAST_DEVICE_STATUS)
     if isinstance(cached_status, dict):
         _merge_cached_device_status(
@@ -1381,39 +1399,35 @@ def _register_developer_services(
         return await async_handle_ask_dj(hass, runtime, payload)
 
     async def handle_clear_ask_dj_history(call: ServiceCall) -> dict[str, Any]:
-        memory = getattr(runtime, "memory", None)
-        if memory is None:
-            raise RuntimeError("DJConnect memory manager is unavailable")
-        payload = dict(call.data)
-        payload.setdefault(CONF_CLIENT_TYPE, runtime.client_type())
-        payload.setdefault(
-            CONF_DEVICE_ID,
-            runtime.device_status.get(CONF_DEVICE_ID) or runtime.pairing_device_id,
-        )
-        result = await memory.async_mark_clear_required(runtime, payload)
-        return {"success": True, **result}
+        history = getattr(runtime, "ask_dj_history", None)
+        if history is None:
+            raise RuntimeError("DJConnect Ask DJ history manager is unavailable")
+        user_id = call.data.get("user_id") or getattr(getattr(call, "context", None), "user_id", None)
+        return await history.async_clear(user_id)
 
     async def handle_ask_dj_history_state(call: ServiceCall) -> dict[str, Any]:
-        memory = getattr(runtime, "memory", None)
-        if memory is None:
-            raise RuntimeError("DJConnect memory manager is unavailable")
-        payload = dict(call.data)
-        payload.setdefault(CONF_CLIENT_TYPE, runtime.client_type())
-        payload.setdefault(
-            CONF_DEVICE_ID,
-            runtime.device_status.get(CONF_DEVICE_ID) or runtime.pairing_device_id,
-        )
-        generation = payload.get("generation")
+        history = getattr(runtime, "ask_dj_history", None)
+        if history is None:
+            raise RuntimeError("DJConnect Ask DJ history manager is unavailable")
+        user_id = call.data.get("user_id") or getattr(getattr(call, "context", None), "user_id", None)
+        generation = call.data.get("history_revision")
         try:
-            client_generation = int(generation) if generation is not None else None
+            since_revision = int(generation) if generation is not None else None
         except (TypeError, ValueError):
-            client_generation = None
-        result = await memory.async_history_state(
-            runtime,
-            payload,
-            client_generation=client_generation,
-        )
-        return {"success": True, **result}
+            since_revision = None
+        result = await history.async_history(user_id, since_revision=since_revision)
+        try:
+            client_clear_revision = int(call.data.get("clear_revision") or 0)
+        except (TypeError, ValueError):
+            client_clear_revision = 0
+        return {
+            "success": True,
+            "user_id": result["user_id"],
+            "history_revision": result["history_revision"],
+            "clear_revision": result["clear_revision"],
+            "ask_dj_clear_required": client_clear_revision < int(result["clear_revision"] or 0),
+            "server_time": result["server_time"],
+        }
 
     service_handlers = {
         "test_parse": (handle_test_parse, "optional"),

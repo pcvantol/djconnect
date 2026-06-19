@@ -62,6 +62,14 @@ async def async_handle_ask_dj(
             user_id=user_id,
         )
         memory_key = memory_context.get("memory_key") or memory_key
+    history = getattr(runtime, "ask_dj_history", None)
+    if history is not None:
+        loader = getattr(history, "async_load", None)
+        if callable(loader):
+            await loader()
+        recent = history.recent_messages_for_prompt(user_id)
+        if recent:
+            memory_context["server_history"] = recent
 
     classification = classify_ask_dj(text)
     playback_context = await _playback_context(hass, runtime)
@@ -112,7 +120,7 @@ async def async_handle_ask_dj(
             user_id=user_id,
         )
 
-    if response.get("dj_text"):
+    if response.get("dj_text") and _should_generate_audio_response(payload, classification):
         try:
             dj_response = await async_send_dj_response_best_effort(
                 hass,
@@ -126,6 +134,21 @@ async def async_handle_ask_dj(
             _LOGGER.debug("DJConnect Ask DJ audio response unavailable: %s", exc)
     response.pop("playback", None)
     return response
+
+
+def _should_generate_audio_response(
+    payload: dict[str, Any],
+    classification: AskDjIntent,
+) -> bool:
+    mode = str(payload.get("audio_response") or "auto").strip().lower()
+    if mode in {"always", "true", "1", "yes"}:
+        return True
+    if mode in {"never", "false", "0", "no", "none", "text_only"}:
+        return False
+    input_type = str(payload.get("input_type") or "").strip().lower()
+    if input_type in {"voice", "ptt", "audio"}:
+        return True
+    return classification.category in {"action", "hybrid"}
 
 
 def classify_ask_dj(text: str) -> AskDjIntent:

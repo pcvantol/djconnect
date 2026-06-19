@@ -214,18 +214,28 @@ Requirements:
   Watch, iOS and macOS clients must not store DJ Memory; they may send optional
   `mood` (0-100), `dj_style` and `memory_key` hints on status/voice/command
   payloads, but HA may normalize or override the resolved `memory_key`.
-- Ask DJ text chat uses POST /api/djconnect/ask_dj. Request identity can be
-  top-level or inside `identity`; response shape is success, text/dj_text/message,
-  optional audio_url, images[], links[], intent, action and memory_key.
+- Ask DJ text chat for app clients uses POST /api/djconnect/ask_dj/message.
+  Request identity can be top-level or inside `identity`; include
+  client_message_id for retry dedupe and client_id as origin metadata. Response
+  shape includes success, text/dj_text/message, optional audio_url, images[],
+  links[], sources[], playback_actions[], intent, action, user_message,
+  assistant_message, history_revision and clear_revision.
+- Ask DJ supports audio_response auto|always|never. Default auto is text-only
+  for informational text chat, TTS for playback/hybrid intents and TTS for
+  voice/PTT. Use always when the client wants replayable audio for an
+  informational answer; use never for text-only.
+- Ask DJ history is server-side per Home Assistant user. Sync with GET
+  /api/djconnect/ask_dj/history?since_revision=<number>. Response includes
+  user_id, history_revision, clear_revision, messages[] and server_time.
 - Ask DJ Push-To-Talk for iOS/macOS/watchOS uses POST /api/djconnect/voice with
   Content-Type audio/wav. The response includes transcript/recognized_text and
   the same rich Ask DJ fields. Send optional X-DJConnect-Mood,
   X-DJConnect-DJ-Style and X-DJConnect-Memory-Key headers when available.
 - Pairing/status responses expose ask_dj_supported, ask_dj_voice_supported,
   voice_supported and ask_dj_audio_response_supported.
-- Ask DJ clear/history sync uses POST /api/djconnect/ask_dj/clear and
-  POST /api/djconnect/ask_dj/history_state. Clients check history_state before
-  showing chat and clear local history when `ask_dj_clear_required` is true.
+- Ask DJ clear sync uses POST /api/djconnect/ask_dj/history/clear. Clients
+  clear local chat cache when their local clear_revision is older than the
+  server clear_revision, then reload server history.
 - Ask DJ images must be proxied through Home Assistant/DJConnect URLs such as
   /api/djconnect/image_proxy/{token}; source links are separate links[] entries.
 - Ask DJ personal recommendations may include playback_actions[] for Play Now

@@ -456,6 +456,7 @@ def prompt_context_text(context: dict[str, Any]) -> str:
     """Return compact prompt context without secrets or raw payloads."""
     memory = context.get("memory") if isinstance(context, dict) else {}
     session = context.get("session") if isinstance(context, dict) else []
+    server_history = context.get("server_history") if isinstance(context, dict) else []
     if not isinstance(memory, dict):
         memory = {}
     lines: list[str] = []
@@ -501,6 +502,14 @@ def prompt_context_text(context: dict[str, Any]) -> str:
         ]
         if turns:
             lines.append("Recente Ask DJ beurt(en): " + " | ".join(turns))
+    if isinstance(server_history, list) and server_history:
+        turns = [
+            f"{item.get('role')}: {item.get('text')}"
+            for item in server_history[-8:]
+            if isinstance(item, dict) and item.get("text")
+        ]
+        if turns:
+            lines.append("Server Ask DJ history: " + " | ".join(turns))
     return "\n".join(line for line in lines if line and not line.endswith(": None"))
 
 
