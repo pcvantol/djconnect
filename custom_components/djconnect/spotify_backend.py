@@ -10,6 +10,7 @@ from aiohttp import ClientTimeout
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
+from .ambient_ask_dj import async_maybe_append_ambient_fact
 from .const import (
     CONF_LIKED_PROXY,
     CONF_SPOTIFY_CLIENT_ID,
@@ -369,6 +370,7 @@ class SpotifyBackend:
             },
         )
         self.runtime.update(last_playback=playback, last_error=None)
+        await async_maybe_append_ambient_fact(self.hass, self.runtime, playback)
         return playback
 
     async def devices(self) -> list[dict[str, Any]]:

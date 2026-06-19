@@ -136,6 +136,42 @@ class AskDJHistoryManagerTest(unittest.TestCase):
         self.assertEqual(message["links"][0]["kind"], "source")
         self.assertEqual(message["sources"][0]["source"], "spotify_top_tracks_short_term")
         self.assertEqual(message["playback_actions"][0]["uri"], "spotify:track:123")
+        self.assertEqual(message["message_kind"], "assistant")
+
+    def test_assistant_only_message_appends_without_user_bubble(self) -> None:
+        manager = AskDJHistoryManager(store=FakeStore())
+
+        async def run():
+            await manager.async_append_exchange(
+                "ha-user-1",
+                {"client_message_id": "1", "client_id": "ios", "client_type": "ios", "text": "Hoi"},
+                {"success": True, "dj_text": "Hoi terug."},
+            )
+            result = await manager.async_append_assistant_message(
+                None,
+                {"client_message_id": "ambient:radiohead|ok-computer", "client_id": "server"},
+                {
+                    "success": True,
+                    "dj_text": "Leuk feitje over OK Computer.",
+                    "intent": {"category": "informational", "intent": "ambient_music_fact"},
+                    "action": "none",
+                    "message_kind": "system",
+                    "origin": "spotify_playback_context",
+                    "sources": [{"source": "spotify_playback_context", "kind": "source"}],
+                },
+            )
+            history = await manager.async_history("ha-user-1")
+            return result, history
+
+        result, history = asyncio.run(run())
+
+        self.assertEqual(result["assistant_message"]["role"], "assistant")
+        self.assertEqual(len(history["messages"]), 3)
+        self.assertEqual(history["messages"][-1]["role"], "assistant")
+        self.assertEqual(history["messages"][-1]["message_kind"], "system")
+        self.assertEqual(history["messages"][-1]["origin"], "spotify_playback_context")
+        self.assertEqual(history["messages"][-1]["text"], "Leuk feitje over OK Computer.")
+        self.assertIsNone(history["messages"][-1]["audio_url"])
 
 
 if __name__ == "__main__":

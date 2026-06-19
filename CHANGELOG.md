@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.65
+
+- Add text-only ambient Ask DJ music facts when Spotify playback moves to a new artist/album combination, deduped so multiple tracks from the same album/artist do not create repeated chat messages.
+
 ## 3.1.64
 
 - Make Ask DJ text chat conversation-aware by using recent server-side history before routing intents, so short follow-ups like "Geeft niet", "Dank je" and "Laat maar" get natural text-only replies without rerunning lookups or mutating playback.

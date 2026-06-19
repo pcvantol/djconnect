@@ -1307,6 +1307,8 @@ def _normalize_ask_dj_response(
         "playback": result.get("playback") or playback_context,
         "assistant_message": {
             "role": "assistant",
+            "message_kind": str(result.get("message_kind") or "assistant"),
+            "origin": str(result.get("origin") or ""),
             "text": text,
         },
     }

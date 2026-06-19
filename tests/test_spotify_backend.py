@@ -242,6 +242,172 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertEqual(runtime.device_status["sound_output"], "Living room")
         self.assertEqual(runtime.device_status["ha_pairing_status"], "paired")
 
+    def test_playback_state_appends_ambient_fact_once_per_artist_album(self) -> None:
+        class Response:
+            status = 200
+
+            def __init__(self, track_name):
+                self.track_name = track_name
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                return {
+                    "is_playing": True,
+                    "item": {
+                        "name": self.track_name,
+                        "uri": f"spotify:track:{self.track_name}",
+                        "artists": [{"name": "Radiohead"}],
+                        "album": {"name": "OK Computer"},
+                    },
+                    "device": {"name": "Living room"},
+                }
+
+            async def text(self):
+                return "{}"
+
+        class Session:
+            def __init__(self):
+                self.calls = 0
+
+            def request(self, method, url, **kwargs):
+                self.calls += 1
+                return Response("Paranoid Android" if self.calls == 1 else "No Surprises")
+
+        class History:
+            def __init__(self):
+                self.messages = []
+
+            async def async_append_assistant_message(self, user_id, request_payload, response):
+                self.messages.append((user_id, request_payload, response))
+
+        class Services:
+            def __init__(self):
+                self.calls = 0
+
+            async def async_call(self, domain, service, data, **kwargs):
+                self.calls += 1
+                return {
+                    "response": {
+                        "speech": {
+                            "plain": {
+                                "speech": "OK Computer is een klassieker."
+                            }
+                        }
+                    }
+                }
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={"spotify_client_id": "client-id", "spotify_refresh_token": "refresh"},
+            options={},
+        )
+        runtime = types.SimpleNamespace(
+            entry=entry,
+            latest_spotify_refresh_token=None,
+            spotify_access_token="access",
+            spotify_access_token_expires_at=time.time() + 1800,
+            device_status={},
+            ask_dj_history=History(),
+            update=lambda **kwargs: [setattr(runtime, key, value) for key, value in kwargs.items()],
+        )
+        runtime.config = dict(entry.data)
+        backend = self.backend.SpotifyBackend(object(), runtime)
+        backend.session = Session()
+        hass = types.SimpleNamespace(services=Services())
+        backend.hass = hass
+
+        asyncio.run(backend.playback_state())
+        asyncio.run(backend.playback_state())
+
+        self.assertEqual(len(runtime.ask_dj_history.messages), 1)
+        self.assertEqual(runtime.last_ambient_fact_key, "radiohead|ok computer")
+        self.assertEqual(hass.services.calls, 1)
+        self.assertEqual(runtime.ask_dj_history.messages[0][2]["message_kind"], "system")
+        self.assertEqual(runtime.ask_dj_history.messages[0][2]["origin"], "spotify_playback_context")
+
+    def test_playback_state_appends_ambient_fact_after_album_change(self) -> None:
+        class Response:
+            status = 200
+
+            def __init__(self, album_name):
+                self.album_name = album_name
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                return {
+                    "is_playing": True,
+                    "item": {
+                        "name": "Track",
+                        "uri": f"spotify:track:{self.album_name}",
+                        "artists": [{"name": "Radiohead"}],
+                        "album": {"name": self.album_name},
+                    },
+                    "device": {"name": "Living room"},
+                }
+
+            async def text(self):
+                return "{}"
+
+        class Session:
+            def __init__(self):
+                self.albums = ["OK Computer", "Kid A"]
+
+            def request(self, method, url, **kwargs):
+                return Response(self.albums.pop(0))
+
+        class Services:
+            async def async_call(self, domain, service, data, **kwargs):
+                return {
+                    "response": {
+                        "speech": {
+                            "plain": {
+                                "speech": "Een kort feitje."
+                            }
+                        }
+                    }
+                }
+
+        class History:
+            def __init__(self):
+                self.messages = []
+
+            async def async_append_assistant_message(self, user_id, request_payload, response):
+                self.messages.append((request_payload, response))
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={"spotify_client_id": "client-id", "spotify_refresh_token": "refresh"},
+            options={},
+        )
+        runtime = types.SimpleNamespace(
+            entry=entry,
+            latest_spotify_refresh_token=None,
+            spotify_access_token="access",
+            spotify_access_token_expires_at=time.time() + 1800,
+            device_status={},
+            ask_dj_history=History(),
+            update=lambda **kwargs: [setattr(runtime, key, value) for key, value in kwargs.items()],
+        )
+        runtime.config = dict(entry.data)
+        backend = self.backend.SpotifyBackend(types.SimpleNamespace(services=Services()), runtime)
+        backend.session = Session()
+
+        asyncio.run(backend.playback_state())
+        asyncio.run(backend.playback_state())
+
+        self.assertEqual(len(runtime.ask_dj_history.messages), 2)
+        self.assertEqual(runtime.last_ambient_fact_key, "radiohead|kid a")
+
     def test_play_search_query_resolves_to_spotify_uri_before_playback(self) -> None:
         class Response:
             def __init__(self, status, payload=None):

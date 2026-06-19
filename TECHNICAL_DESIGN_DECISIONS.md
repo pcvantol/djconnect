@@ -277,6 +277,14 @@ Pattern:
   date/location/link list plus `links[]` entries with `source: bandsintown`.
   If the source is unavailable or empty, DJConnect returns an honest no-data
   message instead of inventing tour dates.
+- Ambient Ask DJ facts are generated from Spotify playback status, not from a
+  user message. `spotify_backend.playback_state()` calls a small ambient helper
+  after updating `runtime.last_playback`; the helper dedupes on normalized
+  `artist|album`, asks HA conversation for a short reliable text-only fact and
+  appends an assistant-only `ambient_music_fact` message to Ask DJ history with
+  `message_kind:"system"` and `origin:"spotify_playback_context"` for client
+  styling. If Assist cannot provide a reliable fact or returns `SKIP`, no
+  message is stored.
 - Clear/history state is revision-based: `history_revision` advances when a
   user/assistant exchange is stored or history is cleared; `clear_revision`
   advances only on clear. Clients compare local clear revision with

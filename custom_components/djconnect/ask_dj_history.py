@@ -131,6 +131,33 @@ class AskDJHistoryManager:
             "server_time": _now(),
         }
 
+    async def async_append_assistant_message(
+        self,
+        user_id: str | None,
+        request_payload: dict[str, Any],
+        assistant_response: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Append an assistant-only message, for ambient server-side Ask DJ events."""
+        await self.async_load()
+        user_keys = self._target_user_keys(user_id)
+        assistant_message = _message_from_response(request_payload, assistant_response)
+        for user_key in user_keys:
+            state = self._user_state(user_key)
+            state.setdefault("messages", []).append(deepcopy(assistant_message))
+            state["messages"] = state["messages"][-MAX_MESSAGES_PER_USER:]
+            state["history_revision"] = int(state.get("history_revision") or 0) + 1
+            state["updated_at"] = _now()
+        await self.async_save()
+        first_state = self._user_state(user_keys[0])
+        return {
+            "success": True,
+            "user_id": user_keys[0],
+            "assistant_message": deepcopy(assistant_message),
+            "history_revision": int(first_state.get("history_revision") or 0),
+            "clear_revision": int(first_state.get("clear_revision") or 0),
+            "server_time": _now(),
+        }
+
     def recent_messages_for_prompt(
         self,
         user_id: str | None,
@@ -159,6 +186,13 @@ class AskDJHistoryManager:
         state.setdefault("clear_revision", 0)
         state.setdefault("messages", [])
         return state
+
+    def _target_user_keys(self, user_id: str | None) -> list[str]:
+        if _clean_text(user_id):
+            return [_user_key(user_id)]
+        users = self._data.get("users") or {}
+        keys = [str(key) for key in users.keys() if _clean_text(key)]
+        return keys or [_user_key(None)]
 
     def _find_exchange(
         self,
@@ -228,6 +262,8 @@ def _message_from_response(
         {
             "id": _server_message_id(),
             "role": "assistant",
+            "message_kind": _message_kind(response),
+            "origin": _clean_text(response.get("origin")),
             "text": text,
             "created_at": _now(),
             "client_id": _client_id(request_payload),
@@ -242,6 +278,16 @@ def _message_from_response(
             "action": _clean_text(response.get("action")),
         }
     )
+
+
+def _message_kind(response: dict[str, Any]) -> str:
+    value = _clean_text(response.get("message_kind") or response.get("kind"))
+    if value in {"system", "assistant", "error"}:
+        return value
+    intent = response.get("intent") if isinstance(response.get("intent"), dict) else {}
+    if intent.get("intent") == "ambient_music_fact":
+        return "system"
+    return "assistant"
 
 
 def _compact_message(message: dict[str, Any]) -> dict[str, Any]:
