@@ -21,6 +21,13 @@
     "Local deterministic parsing can override stale or generic HA Assist results.",
     "HA may use Assist STT correction before intent parsing, but Spotify credentials are never sent to Assist."
   ],
+  "ask_dj_rules": [
+    "Ask DJ text and app voice/PTT requests are conversational and can answer without changing playback.",
+    "Informational Ask DJ requests keep action none unless the user clearly asks for playback.",
+    "Playback/hybrid Ask DJ requests may execute Spotify/Home Assistant actions and return a DJ response.",
+    "Short acknowledgements such as Geeft niet, Dank je and Laat maar are conversational follow-ups, not new lookups.",
+    "Ambient Ask DJ facts can appear without a user request when Spotify artist/album context changes; these use message_kind system."
+  ],
   "intents": {
     "current_track": {
       "spotify_type": "status",
@@ -205,6 +212,154 @@
         "Play my default playlist",
         "Start liked songs",
         "Play favorites"
+      ]
+    }
+  },
+  "ask_dj_intents": {
+    "conversation_followup": {
+      "plays_music": false,
+      "action": "none",
+      "description": "Short conversational replies are answered naturally without rerunning the previous lookup or mutating playback.",
+      "nl": [
+        "Geeft niet",
+        "Dank je",
+        "Laat maar",
+        "Prima",
+        "Jammer"
+      ],
+      "en": [
+        "No worries",
+        "Thanks",
+        "Never mind",
+        "That's fine",
+        "Too bad"
+      ]
+    },
+    "album_discography": {
+      "plays_music": false,
+      "action": "none",
+      "description": "Ask for an artist's albums. DJConnect can return a chronological album list with proxied album covers.",
+      "nl": [
+        "Welke albums hebben Radiohead uitgebracht?",
+        "Welke albums bracht deze artiest uit?",
+        "Welke albums zijn er van Prince?",
+        "Albums van Suzan en Freek"
+      ],
+      "en": [
+        "Which albums has Radiohead released?",
+        "Which albums did this artist release?",
+        "Albums by Prince"
+      ]
+    },
+    "similar_artists": {
+      "plays_music": false,
+      "action": "none",
+      "description": "Ask for artists with similar music, using an explicit artist, current playback artist or recent conversation artist.",
+      "nl": [
+        "Welke artiesten maken vergelijkbare muziek als Radiohead?",
+        "Welke artiesten maken vergelijkbare muziek als wat nu speelt?",
+        "Welke artiesten lijken op deze artiest?",
+        "Vergelijkbare artiesten als de artiest waar het in de conversatie over gaat"
+      ],
+      "en": [
+        "Which artists make similar music to Radiohead?",
+        "Which artists are similar to what is playing now?",
+        "Similar artists to this artist"
+      ]
+    },
+    "artist_genre_style": {
+      "plays_music": false,
+      "action": "none",
+      "description": "Ask what kind of music an artist makes. DJConnect phrases Spotify genre/profile data naturally.",
+      "nl": [
+        "Wat voor muziek maakt Beastie Boys?",
+        "Wat voor muziek maakt deze artiest?",
+        "Welk genre maakt Muse?",
+        "Wat is het genre van Radiohead?"
+      ],
+      "en": [
+        "What kind of music does Beastie Boys make?",
+        "What kind of music does this artist make?",
+        "What genre is Muse?"
+      ]
+    },
+    "concert_agenda": {
+      "plays_music": false,
+      "action": "none",
+      "description": "Ask for upcoming concerts. DJConnect can return date, location and clickable source links when web agenda data is available.",
+      "nl": [
+        "Wanneer speelt Radiohead in Nederland?",
+        "Heeft deze artiest binnenkort concerten?",
+        "Concerten van The National",
+        "Tourdata voor Muse"
+      ],
+      "en": [
+        "When does Radiohead play in the Netherlands?",
+        "Does this artist have upcoming concerts?",
+        "Concerts for The National",
+        "Tour dates for Muse"
+      ]
+    },
+    "personal_music_profile_analysis": {
+      "plays_music": false,
+      "action": "profile_analysis",
+      "description": "Ask for a personal listening profile based on DJConnect Memory and Spotify recently played/top profile data.",
+      "nl": [
+        "Omschrijf eens waar ik zoal naar luisterde de afgelopen maand",
+        "Wat zegt mijn muziek van de laatste twee weken over mijn stemming?",
+        "Welke genres luister ik de laatste tijd veel?",
+        "Maak een profiel van mijn muzieksmaak dit jaar"
+      ],
+      "en": [
+        "Describe what I have been listening to over the last month",
+        "What does my music from the last two weeks say about my mood?",
+        "Which genres have I been listening to lately?",
+        "Make a profile of my music taste this year"
+      ]
+    },
+    "personal_music_recommendations": {
+      "plays_music": false,
+      "action": "none",
+      "description": "Ask for recommendations. DJConnect can return Play Now actions but does not start playback until the user taps Play Now.",
+      "nl": [
+        "Speel wat anders",
+        "Doe maar wat leuks van Radiohead",
+        "Zet een leuke playlist op met rustige muziek",
+        "Ik voel me moe en geprikkeld, zet iets ontspannends klaar"
+      ],
+      "en": [
+        "Play something different",
+        "Give me something fun by Radiohead",
+        "Find a nice playlist with calm music",
+        "I feel tired and overstimulated, suggest something relaxing"
+      ]
+    },
+    "dj_announcement": {
+      "plays_music": false,
+      "action": "announce",
+      "description": "Ask for a DJ-style announcement for the current or next track without changing playback.",
+      "nl": [
+        "Geef me een leuke aankondiging voor wat nu speelt",
+        "Maak een DJ intro voor dit nummer",
+        "Vertel iets leuks over het volgende nummer"
+      ],
+      "en": [
+        "Give me a fun announcement for what is playing now",
+        "Make a DJ intro for this song",
+        "Tell me something fun about the next track"
+      ]
+    },
+    "ambient_music_fact": {
+      "plays_music": false,
+      "action": "none",
+      "message_kind": "system",
+      "origin": "spotify_playback_context",
+      "description": "Backend-generated text-only Ask DJ fact when Spotify playback moves to another artist/album combination. This has no user phrase and is included so website/client docs can explain the system bubble.",
+      "nl": [
+        "Automatisch DJ feitje bij nieuw album of nieuwe artiest"
+      ],
+      "en": [
+        "Automatic DJ fact when a new album or artist starts"
       ]
     }
   }

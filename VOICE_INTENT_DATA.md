@@ -5,7 +5,8 @@ This document describes the canonical spoken voice-intent examples in
 
 The JSON file is the data source for website/client examples and cross-repo
 voice documentation. Keep it aligned with `music_intent.py`, `processor.py`,
-README examples and any client UI chips that show supported spoken commands.
+`ask_dj.py`, README examples and any client UI chips that show supported spoken
+commands or Ask DJ examples.
 
 ## Handling Order
 
@@ -26,6 +27,11 @@ The first two families are not Spotify search intents:
   response without starting playback.
 - `playback_control` calls a Spotify backend command directly and then
   generates a DJ response.
+
+Ask DJ examples live in the separate top-level `ask_dj_intents` object. Keep
+that separation intact: the `intents` object describes deterministic spoken
+music/playback commands, while `ask_dj_intents` describes conversational Ask DJ
+requests that may answer with text, links, images, sources or Play Now actions.
 
 ## Current Track Questions
 
@@ -80,6 +86,44 @@ Search families still map to Spotify search/playback:
 Explicit media words win over generic phrasing. For example, `album`,
 `plaat`, `nummer`, `liedje`, `track`, `playlist` and `afspeellijst` should
 select the matching intent family before generic artist parsing.
+
+## Ask DJ Conversational Examples
+
+Ask DJ requests can come from text chat or app voice/PTT. Informational Ask DJ
+requests do not mutate playback; playback/hybrid requests only mutate playback
+when the user clearly asks for it.
+
+The website can use `ask_dj_intents` to render example families for:
+
+- `conversation_followup`: short replies such as `Geeft niet`, `Dank je` and
+  `Laat maar`. These are answered naturally without rerunning a previous lookup
+  or changing playback.
+- `album_discography`: questions such as `Welke albums hebben Radiohead
+  uitgebracht?` and `Welke albums bracht deze artiest uit?`. Responses can
+  include a chronological album list and proxied album covers.
+- `similar_artists`: questions such as `Welke artiesten maken vergelijkbare
+  muziek als wat nu speelt?`, using explicit artist, current playback artist or
+  recent conversation context.
+- `artist_genre_style`: questions such as `Wat voor muziek maakt artiest X?`,
+  answered as a natural style/genre description.
+- `concert_agenda`: questions such as `Wanneer speelt artiest X in Nederland?`,
+  answered with date, location and clickable source links when web agenda data
+  is available.
+- `personal_music_profile_analysis`: non-mutating listening-profile questions
+  based on DJConnect Memory plus Spotify recently played/top profile data.
+- `personal_music_recommendations`: recommendation requests such as `Speel wat
+  anders`. These can return `playback_actions[]` for Play Now buttons but do
+  not start playback until the user explicitly taps Play Now.
+- `dj_announcement`: requests for a DJ-style announcement for what is playing or
+  the next track.
+- `ambient_music_fact`: backend-generated, text-only Ask DJ system messages
+  when Spotify playback moves to another artist/album combination. These have
+  no user phrase, use `message_kind: system` and can be styled differently by
+  clients.
+
+For website examples, show Ask DJ families separately from deterministic voice
+commands so users understand that some examples are chat/trivia questions rather
+than direct Spotify playback commands.
 
 ## Maintenance Checklist
 

@@ -69,6 +69,8 @@ Before publishing:
   changed.
 - Use `CHAT_BOOTSTRAP.md` as the repo-local fresh-chat prompt filename in every
   DJConnect repository.
+- If a repo still carries `CODEX_RESTART_PROMPT.md`, keep it updated during the
+  release cycle until it is retired or replaced by `CHAT_BOOTSTRAP.md`.
 - Review and update all user-facing translations for changed setup, options,
   repair, entity and service strings in repos that ship localized UI.
 - Update `pcvantol/djconnect/SYNC_PROMPTS.md` when the cross-repo contract or
@@ -138,8 +140,31 @@ Requirements:
 - Keep the canonical production domain `https://djconnect.dev`; keep
   `https://www.djconnect.dev` as a permanent redirect to the apex domain.
 - Keep `djconnect.pages.dev` only as the Cloudflare Pages fallback URL.
-- Keep homepage navigation focused on `Hoe werkt het`, `Features`, `Spraak`,
-  `Installeren` and `Blog`, plus the primary `Aan de slag` CTA.
+- Keep homepage navigation focused on cross-page and product routes:
+  `Features`, `Ask DJ`, `Spraak`, `Blog`, `Installeren`, `Support` and
+  `Privacy`, plus the primary `Aan de slag` CTA. Do not add a `Hoe werkt het`
+  self-link to the homepage top navigation.
+- Treat Ask DJ as a major website/docs product feature for iOS, macOS and
+  Apple Watch clients. Explain that it is an AI-DJ chat for natural-language
+  music questions, personal recommendations, playback actions and
+  cross-device chat continuity, powered by the Home Assistant DJConnect
+  integration and server-side DJ Memory/history.
+- Ask DJ website/docs copy must make clear that recommendations do not start
+  playback automatically. Clients show `Play Now` for concrete
+  recommendations, and playback starts only after the user explicitly taps it.
+- Ask DJ website/docs copy must mention compact privacy boundaries: clients do
+  not store DJ Memory; Home Assistant stores compact context/history per user;
+  Spotify OAuth tokens, bearer tokens, raw audio and full prompts are not kept
+  in DJ Memory/history; raw voice audio is not stored by default.
+- Ask DJ voice/PTT documentation should explain that iOS, macOS and Apple Watch
+  can use voice/PTT through Home Assistant STT, with optional TTS audio replies
+  when available. Informational text chat is text-only by default; replay is
+  shown only when an audio response exists.
+- Keep Ask DJ requirements visible and user-facing: Home Assistant, HACS
+  DJConnect integration v3.1.62 or newer, Spotify Premium, the user's own
+  Spotify Developer app with Client ID, an Assist pipeline with STT/TTS for
+  voice/audio, and preferably Nabu Casa or another stable HTTPS external URL
+  for Spotify OAuth.
 - Canonical spoken music intent example data lives in
   `examples/voice_intents.json` and `VOICE_INTENT_DATA.md` in the Home
   Assistant integration repo. Keep
@@ -453,9 +478,12 @@ Sync the DJConnect ESP firmware with the Home Assistant integration contract.
 
 Requirements:
 - ESP clients are physical DJConnect devices and must use client_type esp32.
-- Use model-specific device_id values, for example
-  djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX or
-  djconnect-esp32-s3-box-3-XXXXXXXXXXXX.
+- Use model-specific device_id values for supported ESP firmware builds. The
+  current supported production build is LilyGO T-Embed S3:
+  `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX`.
+- ESP32-S3-BOX-3 is no longer built, released or published in the ESP firmware
+  repo. Do not add BOX-3 PlatformIO targets, CI matrix entries, OTA manifest
+  entries or release assets unless board support is explicitly reintroduced.
 - Do not accept or generate legacy djconnect-XXXXXXXXXXXX ids.
 - Expose local ESP endpoints: GET /api/device/info,
   GET /api/device/pairing-info, POST /api/device/pair,
@@ -520,8 +548,9 @@ Bij `POST /api/device/pair` naar de ESP:
 
 Regels:
 
-- `device_id` is model-specifiek: `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX` voor LilyGO en `djconnect-esp32-s3-box-3-XXXXXXXXXXXX` voor ESP32-S3-BOX-3.
-- De ESP mDNS hostname gebruikt exact dezelfde `device_id`, dus bijvoorbeeld `http://djconnect-esp32-s3-box-3-XXXXXXXXXXXX.local`.
+- `device_id` is model-specifiek. De huidige ondersteunde firmware build gebruikt `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX` voor LilyGO.
+- ESP32-S3-BOX-3 wordt niet meer gebouwd, gereleased of gepubliceerd; voeg geen BOX-3 OTA manifest entry, release asset of CI/PlatformIO target toe tenzij support expliciet opnieuw wordt geïntroduceerd.
+- De ESP mDNS hostname gebruikt exact dezelfde `device_id`, dus bijvoorbeeld `http://djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX.local`.
 - ESP mDNS TXT bevat minimaal `name`, `device_id`, `client_type=esp32`,
   `version`, `paired`, `api` en `model`.
 - Gebruik het mDNS TXT veld `model` of de status/API `model` om het device model te bepalen; parse niet op de oude `djconnect-lilygo-` prefix.
@@ -594,14 +623,6 @@ Manifestvorm:
       "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.x/djconnect-lilygo-t-embed-s3-v3.1.x.bin",
       "sha256": "...",
       "size": 123
-    },
-    {
-      "board": "esp32_s3_box3",
-      "device": "esp32-s3-box-3",
-      "asset": "djconnect-esp32-s3-box-3-v3.1.x.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.x/djconnect-esp32-s3-box-3-v3.1.x.bin",
-      "sha256": "...",
-      "size": 123
     }
   ]
 }
@@ -622,7 +643,7 @@ Bij `POST /api/device/ota` naar de ESP:
 Regels:
 
 - LilyGO gebruikt `device:"lilygo-t-embed-s3"` en asset `djconnect-lilygo-t-embed-s3-vX.Y.Z.bin`.
-- ESP32-S3-BOX-3 gebruikt `device:"esp32-s3-box-3"` en asset `djconnect-esp32-s3-box-3-vX.Y.Z.bin`.
+- ESP32-S3-BOX-3 wordt niet meer gebouwd of gepubliceerd; HA mag voor BOX-3 geen firmware-update aanbieden tenzij een toekomstige release expliciet opnieuw een matching `firmwares[]` entry publiceert.
 - `min_ha_integration` en `max_ha_integration` volgen de firmware major.minor lijn: firmware `X.Y.Z` publiceert standaard `min_ha_integration:"X.Y.0"` en exclusief `max_ha_integration:"X.(Y+1).0"`.
 - HA moet firmware alleen aanbieden/accepteren als de integratieversie `>= min_ha_integration` en `< max_ha_integration` is. Voor firmware `3.1.x` betekent dit dus `>=3.1.0` en `<3.2.0`.
 - Dev firmware `0.0.0` blijft de uitzondering voor upgrade-aanbod vanaf lokale builds.
@@ -743,9 +764,10 @@ Okay Nabu wake-word support draait lokaal via TensorFlow Lite Micro en mag geen 
 De middelste encoderknop moet een actieve PTT processing/DJ-aankondiging flow kunnen annuleren.
 Oude backend-credential provisioning endpoints mogen niet bestaan of gebruikt worden.
 Pairing/status/voice/command auth gebruikt alleen het device bearer token.
-Device ID formats voor actuele firmware zijn model-specifiek:
+Device ID formats voor actuele firmware zijn model-specifiek. De huidige ondersteunde productiebuild is:
 - LilyGO T-Embed S3: `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX`
-- ESP32-S3-BOX-3: `djconnect-esp32-s3-box-3-XXXXXXXXXXXX`
+
+ESP32-S3-BOX-3 wordt niet meer gebouwd, gereleased of gepubliceerd. Voeg geen BOX-3 PlatformIO target, CI matrix entry, OTA manifest entry of release asset toe tenzij support expliciet opnieuw wordt geïntroduceerd.
 Accepteer geen legacy `djconnect-XXXXXXXXXXXX`, `djconnect-lilygo-XXXXXXXXXXXX` of `djconnect-[6-cijferige-code]` device IDs en bouw geen compatibility fallback voor die oude/tijdelijke formaten.
 Alle user-facing tekst, filenames, namespaces, logs en provisioning labels gebruiken uitsluitend DJConnect / djconnect.
 NVS taal key blijft provision.language.
@@ -1090,7 +1112,7 @@ PTT/wake-word runtime gedrag:
 
 Encoder PTT start pas met opnemen na de start cue/settle delay; stop cue speelt pas nadat de WAV is afgesloten.
 Wake-word detection start dezelfde lokale PTT WAV-upload flow als encoder PTT.
-Wake-word tuning: Okay Nabu model, 10 ms feature step, 3-frame sliding window. LilyGO cutoff is 0.90; ESP32-S3-BOX-3 cutoff is 0.86.
+Wake-word tuning: Okay Nabu model, 10 ms feature step, 3-frame sliding window. LilyGO cutoff is 0.90.
 Wake-word-started recording stopt automatisch na stilte en blijft altijd begrensd door de maximale opname-duur.
 Tijdens processing of het DJ-aankondiging scherm annuleert een middelste encoderdruk de rest van de PTT flow zo snel mogelijk; lopende HA HTTP responses mogen lokaal genegeerd worden en response audio moet een stop request krijgen.
 6. OAuth / Spotify secrets verwijderen
@@ -1116,7 +1138,8 @@ Payload accepteert:
 }
 device moet matchen met het boardprofiel van de firmware:
 - LilyGO productie: `lilygo-t-embed-s3`, asset `djconnect-lilygo-t-embed-s3-v3.1.x.bin`
-- ESP32-S3-BOX-3 bring-up: `esp32-s3-box-3`, asset `djconnect-esp32-s3-box-3-v3.1.x.bin`
+
+ESP32-S3-BOX-3 wordt niet meer gebouwd of gepubliceerd; geen BOX-3 OTA payload target, asset of manifest entry toevoegen tenzij support expliciet opnieuw wordt geïntroduceerd.
 Het manifest gebruikt alleen een `firmwares` array met board, device, asset,
 sha256 en size per firmware. Geen top-level single-device `device`, `asset`,
 `sha256` of `size` fallback.
@@ -1154,7 +1177,7 @@ Status payload bevat settings aliases.
 Device command parsing voor brightness/speaker/language/theme/log_level.
 PTT upload bouwt correcte headers en content type.
 No Spotify OAuth secret keys in status/pair/provision payloads.
-OTA payload device target matcht het boardprofiel (`lilygo-t-embed-s3` of `esp32-s3-box-3`).
+OTA payload device target matcht het boardprofiel (`lilygo-t-embed-s3` voor de huidige ondersteunde firmware build).
 DJConnect asset conversie test of snapshot/checksum zodat het firmware asset niet per ongeluk terugvalt naar een oud producticoon.
 Acceptatiecriteria
 ESP pairt met HA en blijft paired na de eerste /api/djconnect/command.
@@ -1167,7 +1190,7 @@ ESP stuurt generic playback commands naar HA.
 ESP PTT uploadt raw WAV naar HA en speelt HA DJ-aankondiging lokaal af.
 ESP annuleert PTT/DJ-aankondiging flow op middelste encoderdruk tijdens processing/response.
 ESP deduplicates Up Next queue display so one real queue item is not shown repeatedly.
-OTA gebruikt `djconnect-lilygo-t-embed-s3-vX.Y.Z.bin` met target `lilygo-t-embed-s3`, en `djconnect-esp32-s3-box-3-vX.Y.Z.bin` met target `esp32-s3-box-3`.
+OTA gebruikt `djconnect-lilygo-t-embed-s3-vX.Y.Z.bin` met target `lilygo-t-embed-s3`; er worden geen BOX-3 firmware assets gepubliceerd.
 Het device gebruikt de echte DJConnect icon assets uit pcvantol/djconnect in plaats van een opnieuw getekende benadering.
 Logs bevatten geen secrets.
 
@@ -1741,11 +1764,14 @@ Rules:
 
 ## OTA And Device Updates
 
-ESP OTA is board-specific and uses the public firmware manifest `firmwares[]`
-entries for:
+ESP OTA is board-specific and currently uses the public firmware manifest
+`firmwares[]` entry for:
 
 - `lilygo-t-embed-s3`
-- `esp32-s3-box-3`
+
+ESP32-S3-BOX-3 firmware is no longer built, released or published. Clients and
+HA update logic must not expect a BOX-3 firmware asset unless a future release
+explicitly reintroduces that board support.
 
 Apple clients must not request or install ESP firmware assets. If the Home
 Assistant integration exposes update information to Apple clients, it should be
@@ -2080,9 +2106,12 @@ Sync the DJConnect ESP firmware with the Home Assistant integration contract.
 
 Requirements:
 - ESP clients are physical DJConnect devices and must use client_type esp32.
-- Use model-specific device_id values, for example
-  djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX or
-  djconnect-esp32-s3-box-3-XXXXXXXXXXXX.
+- Use model-specific device_id values for supported ESP firmware builds. The
+  current supported production build is LilyGO T-Embed S3:
+  `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX`.
+- ESP32-S3-BOX-3 is no longer built, released or published in the ESP firmware
+  repo. Do not add BOX-3 PlatformIO targets, CI matrix entries, OTA manifest
+  entries or release assets unless board support is explicitly reintroduced.
 - Do not accept or generate legacy djconnect-XXXXXXXXXXXX ids.
 - Expose local ESP endpoints: GET /api/device/info,
   GET /api/device/pairing-info, POST /api/device/pair,

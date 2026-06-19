@@ -4,8 +4,8 @@
 
 - Repository: `pcvantol/djconnect`.
 - Integration domain: `djconnect`.
-- Current integration release: `3.1.63`.
-- Release status: DJConnect `3.1.64` is the current release with Ask DJ conversation-aware text chat, richer music trivia, recommendations and concert-agenda answers.
+- Current integration release: `3.1.65`.
+- Release status: DJConnect `3.1.65` is the current release with Ask DJ conversation-aware text chat, richer music trivia, recommendations, concert-agenda answers and ambient/system Ask DJ messages for Spotify artist/album changes.
 - Home Assistant integration is HACS-distributed and MIT-licensed.
 - DJConnect client and firmware repositories are MIT-licensed unless their own repository metadata states otherwise.
 - Public firmware release assets live in `pcvantol/djconnect-firmware`.
@@ -192,7 +192,11 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Explicit PTT media words choose the matching Spotify Search type: `nummer`/`liedje`/`track` -> track, `album`/`plaat` -> album, `playlist`/`afspeellijst` -> playlist, and `standaard playlist`/`favorieten`/`liked songs` -> configured default playlist.
 - Canonical spoken intent examples live in `examples/voice_intents.json`, with
   the maintenance contract in `VOICE_INTENT_DATA.md`; keep website/client docs
-  aligned with those files.
+  aligned with those files. The JSON now separates deterministic voice/playback
+  command examples in `intents` from conversational Ask DJ website/client
+  examples in `ask_dj_intents`, including album discography, similar artists,
+  genre/style, concert agenda, personal profile analysis, recommendations,
+  DJ announcements and ambient system facts.
 - Local deterministic intent parsing may override stale/generic HA Assist output, so a new request such as `Speel Nirvana` cannot keep using an older artist context such as Red Hot Chili Peppers.
 - Spotify playlist browsing may return up to 100 playlists to app-like clients, but HA must page Spotify `/me/playlists` internally with provider-safe pages of at most 50 items to avoid Spotify HTTP 400 `Invalid limit`.
 - The native playback proxy media player must cache `playback` snapshots returned by backend commands so current state, album art, volume and selected output update in Home Assistant.
