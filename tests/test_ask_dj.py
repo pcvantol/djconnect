@@ -282,6 +282,134 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["audio_url"], "/api/djconnect/tts/action.mp3")
         self.assertTrue(tts_calls)
 
+    def test_voice_play_artist_request_uses_playback_parser_with_stt_correction(self) -> None:
+        runtime = make_runtime()
+        calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            return {"success": True}
+
+        async def process(hass, runtime_arg, text, *, play=True, correct_stt=False):
+            calls.append((text, play, correct_stt))
+            return {
+                "text": text,
+                "intent": {"spotify_search_query": "Armin van Buuren"},
+                "dj_text": "Ik zet Armin van Buuren voor je klaar.",
+            }
+
+        original_command = self.ask_dj.handle_spotify_command
+        original_process = self.ask_dj.process_text_command
+        self.ask_dj.handle_spotify_command = command
+        self.ask_dj.process_text_command = process
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "speel Armin van Buuren",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "watchos",
+                        "input_type": "voice",
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.process_text_command = original_process
+
+        self.assertTrue(result["success"])
+        self.assertEqual(result["intent"]["category"], "hybrid")
+        self.assertEqual(result["intent"]["intent"], "play_music")
+        self.assertEqual(calls, [("speel Armin van Buuren", True, True)])
+        self.assertIn("Armin", result["dj_text"])
+
+    def test_bare_voice_artist_request_is_treated_as_playback_request(self) -> None:
+        runtime = make_runtime()
+        calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            return {"success": True}
+
+        async def process(hass, runtime_arg, text, *, play=True, correct_stt=False):
+            calls.append((text, play, correct_stt))
+            return {
+                "text": text,
+                "intent": {"spotify_search_query": "Armin van Buuren"},
+                "dj_text": "Ik zet Armin van Buuren voor je klaar.",
+            }
+
+        original_command = self.ask_dj.handle_spotify_command
+        original_process = self.ask_dj.process_text_command
+        self.ask_dj.handle_spotify_command = command
+        self.ask_dj.process_text_command = process
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "Armin van Buuren",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "watchos",
+                        "input_type": "voice",
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.process_text_command = original_process
+
+        self.assertTrue(result["success"])
+        self.assertEqual(result["intent"]["category"], "hybrid")
+        self.assertEqual(result["intent"]["intent"], "play_music")
+        self.assertEqual(calls, [("Armin van Buuren", True, True)])
+        self.assertNotEqual(
+            result["text"],
+            "Ik heb nu niet genoeg betrouwbare broninformatie om daar zeker antwoord op te geven.",
+        )
+
+    def test_text_playback_request_failure_returns_chat_response_not_unavailable(self) -> None:
+        runtime = make_runtime()
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            return {"success": True}
+
+        async def process(hass, runtime_arg, text, *, play=True, correct_stt=False):
+            raise RuntimeError("Spotify device unavailable")
+
+        original_command = self.ask_dj.handle_spotify_command
+        original_process = self.ask_dj.process_text_command
+        self.ask_dj.handle_spotify_command = command
+        self.ask_dj.process_text_command = process
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "Speel Armin",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "watchos",
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.process_text_command = original_process
+
+        self.assertTrue(result["success"])
+        self.assertEqual(result["error"], "playback_failed")
+        self.assertEqual(result["intent"]["category"], "hybrid")
+        self.assertIn("muziekverzoek begrepen", result["dj_text"])
+        self.assertNotEqual(result.get("error"), "ask_dj_unavailable")
+
     def test_personal_music_profile_analysis_does_not_modify_playback(self) -> None:
         runtime = make_runtime()
         calls = []
@@ -551,6 +679,44 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(len(history["payload"]["messages"]), 2)
         self.assertEqual(history["payload"]["messages"][0]["role"], "user")
         self.assertEqual(history["payload"]["messages"][1]["role"], "assistant")
+
+    def test_message_endpoint_returns_200_for_text_playback_failure(self) -> None:
+        runtime = make_runtime()
+        hass = types.SimpleNamespace(data={self.const.DOMAIN: {"runtime": runtime}})
+
+        async def ask_dj(hass_arg, runtime_arg, payload, *, user_id=None):
+            return {
+                "success": True,
+                "error": "playback_failed",
+                "text": "Ik heb je muziekverzoek begrepen, maar Spotify kon het nu niet starten.",
+                "dj_text": "Ik heb je muziekverzoek begrepen, maar Spotify kon het nu niet starten.",
+            }
+
+        class MessageRequest:
+            headers = {"Authorization": "Bearer device-token"}
+            app = {"hass": hass}
+            context = types.SimpleNamespace(user_id="user-1")
+
+            async def json(self):
+                return {
+                    "client_message_id": "client-play-failed",
+                    "client_id": "watch",
+                    "device_id": runtime.device_status["device_id"],
+                    "client_type": "watchos",
+                    "text": "Speel Armin",
+                }
+
+        original = self.http.async_handle_ask_dj
+        self.http.async_handle_ask_dj = ask_dj
+        try:
+            response = asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest()))
+        finally:
+            self.http.async_handle_ask_dj = original
+
+        self.assertEqual(response["status_code"], 200)
+        self.assertTrue(response["payload"]["success"])
+        self.assertEqual(response["payload"]["error"], "playback_failed")
+        self.assertEqual(response["payload"]["assistant_message"]["status"], "delivered")
 
     def test_multiple_images_are_proxied(self) -> None:
         hass = types.SimpleNamespace(data={self.const.DOMAIN: {}})

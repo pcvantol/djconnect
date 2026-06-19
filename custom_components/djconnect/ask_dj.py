@@ -72,6 +72,13 @@ async def async_handle_ask_dj(
             memory_context["server_history"] = recent
 
     classification = classify_ask_dj(text)
+    if (
+        _is_voice_input(payload)
+        and classification.category == "informational"
+        and classification.intent == "ask_music_info"
+        and _looks_like_bare_voice_music_request(text)
+    ):
+        classification = AskDjIntent("hybrid", "play_music", "play_music", play=True)
     playback_context = await _playback_context(hass, runtime)
     output_devices = await _output_devices(hass, runtime, classification)
 
@@ -79,7 +86,7 @@ async def async_handle_ask_dj(
         if classification.category == "action":
             result = await _handle_action(hass, runtime, text, classification)
         elif classification.category == "hybrid":
-            result = await _handle_hybrid(hass, runtime, text, classification)
+            result = await _handle_hybrid(hass, runtime, text, classification, payload)
         else:
             result = await _handle_informational(
                 hass,
@@ -149,6 +156,36 @@ def _should_generate_audio_response(
     if input_type in {"voice", "ptt", "audio"}:
         return True
     return classification.category in {"action", "hybrid"}
+
+
+def _is_voice_input(payload: dict[str, Any]) -> bool:
+    return str(payload.get("input_type") or "").strip().lower() in {"voice", "ptt", "audio"}
+
+
+def _looks_like_bare_voice_music_request(text: str) -> bool:
+    normalized = _normalize(text)
+    if not normalized:
+        return False
+    if any(
+        normalized.startswith(prefix)
+        for prefix in (
+            "waarom",
+            "wat ",
+            "wie ",
+            "welke ",
+            "wanneer",
+            "hoe ",
+            "vertel",
+            "analyseer",
+            "omschrijf",
+            "maak een profiel",
+        )
+    ):
+        return False
+    if any(token in normalized for token in ("?", "playlist", "volume", "harder", "zachter", "shuffle", "repeat")):
+        return False
+    words = normalized.split()
+    return 1 <= len(words) <= 8
 
 
 def classify_ask_dj(text: str) -> AskDjIntent:
@@ -249,15 +286,36 @@ async def _handle_hybrid(
     runtime: Any,
     text: str,
     classification: AskDjIntent,
+    payload: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    result = await process_text_command(
-        hass,
-        runtime,
-        text,
-        play=classification.play,
-        correct_stt=False,
-    )
-    return {"success": True, **result}
+    try:
+        result = await process_text_command(
+            hass,
+            runtime,
+            text,
+            play=classification.play,
+            correct_stt=_is_voice_input(payload or {}),
+        )
+        return {"success": True, **result}
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.warning("DJConnect Ask DJ playback request failed: %s", exc)
+        dj_text = _playback_failed_text(runtime)
+        updater = getattr(runtime, "update", None)
+        if callable(updater):
+            updater(last_error=str(exc), last_dj_text=dj_text)
+        return {
+            "success": True,
+            "error": "playback_failed",
+            "message": str(exc),
+            "text": dj_text,
+            "dj_text": dj_text,
+            "intent": {
+                "category": classification.category,
+                "intent": classification.intent,
+                "action": classification.action,
+            },
+            "action": classification.action,
+        }
 
 
 async def _handle_informational(
@@ -380,6 +438,7 @@ def _normalize_ask_dj_response(
         "links": links,
         "sources": sources,
         "playback_actions": result.get("playback_actions") or [],
+        "error": result.get("error"),
         "intent": {
             "category": classification.category,
             "intent": classification.intent,
@@ -1074,6 +1133,14 @@ def _action_text(action: str) -> str:
         "next": "Ik ga naar het volgende nummer.",
         "previous": "Ik ga naar het vorige nummer.",
     }.get(action, "Ik heb het aangepast.")
+
+
+def _playback_failed_text(runtime: Any) -> str:
+    language_getter = getattr(runtime, "device_language", None)
+    language = str(language_getter() or "").lower() if callable(language_getter) else ""
+    if language.startswith("en"):
+        return "I understood your music request, but Spotify could not start it right now."
+    return "Ik heb je muziekverzoek begrepen, maar Spotify kon het nu niet starten."
 
 
 def _devices_text(devices: list[dict[str, Any]]) -> str:

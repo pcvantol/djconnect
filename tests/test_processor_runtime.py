@@ -112,6 +112,47 @@ class ProcessorRuntimeTest(unittest.TestCase):
         self.assertEqual(runtime.last_playback["resolved_media"]["title"], "Black")
         self.assertEqual(result["playback"]["resolved_media"]["artist"], "Pearl Jam")
 
+    def test_process_text_command_falls_back_to_local_spotify_search_when_assist_fails(self) -> None:
+        async def assist(hass, user_text, conf):
+            raise RuntimeError("HA Assist unavailable")
+
+        seen_intents = []
+
+        async def play(hass, runtime, intent, conf):
+            seen_intents.append(intent)
+            return {
+                "resolved_media": {
+                    "type": "artist",
+                    "name": "Armin van Buuren",
+                    "uri": "spotify:artist:0SfsnGyD8FpIN4U4WCkBZ5",
+                }
+            }
+
+        original_assist = self.processor.process_text_with_assist
+        original_play = self.processor.play_from_intent
+        self.processor.process_text_with_assist = assist
+        self.processor.play_from_intent = play
+        runtime = Runtime()
+        try:
+            result = asyncio.run(
+                self.processor.process_text_command(
+                    object(),
+                    runtime,
+                    "Speel Armin",
+                    play=True,
+                )
+            )
+        finally:
+            self.processor.process_text_with_assist = original_assist
+            self.processor.play_from_intent = original_play
+
+        self.assertEqual(len(seen_intents), 1)
+        self.assertEqual(seen_intents[0]["type"], "artist")
+        self.assertEqual(seen_intents[0]["artist"], "Armin")
+        self.assertEqual(seen_intents[0]["spotify_search_query"], "Armin")
+        self.assertEqual(runtime.last_intent["spotify_search_query"], "Armin")
+        self.assertEqual(result["playback"]["resolved_media"]["name"], "Armin van Buuren")
+
     def test_process_text_command_corrects_stt_before_intent_parsing(self) -> None:
         seen = {}
 

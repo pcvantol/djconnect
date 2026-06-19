@@ -290,7 +290,7 @@ class DJConnectRuntime:
         )
         if not token_match:
             self._log_device_auth_failure(
-                "missing_device_token" if not token else "invalid_device_token",
+                "missing_bearer_token" if not token else "bearer_token_mismatch_for_entry",
                 header_device,
                 body_device,
                 client_type,
@@ -342,8 +342,8 @@ class DJConnectRuntime:
         known_device = self.device_status.get("device_id") or self.pairing_device_id
         received_device = header_device_id or body_device_id or ""
         _LOGGER.warning(
-            "DJConnect ESP request rejected: reason=%s received_device_id=%s "
-            "known_device_id=%s client_type=%s token_present=%s entry_id=%s",
+            "DJConnect client request rejected: reason=%s received_device_id=%s "
+            "known_device_id=%s client_type=%s bearer_token_present=%s entry_id=%s",
             reason,
             received_device or "missing",
             known_device or "missing",

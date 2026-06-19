@@ -6,9 +6,6 @@
         "description": "Kies of je een DJConnect client koppelt, eerst WiFi via Bluetooth schrijft, of alleen de Assist Conversation Agent instelt.",
         "data": {
           "setup_method": "Setup methode"
-        },
-        "data_description": {
-          "setup_method": "De Assist Conversation Agent gebruikt Home Assistant Assist voor STT/TTS en heeft geen DJConnect client-koppelcode nodig."
         }
       },
       "pair": {

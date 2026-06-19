@@ -6,9 +6,6 @@
         "description": "Choose whether to pair a DJConnect client, write WiFi over Bluetooth first, or set up only the Assist Conversation Agent.",
         "data": {
           "setup_method": "Setup method"
-        },
-        "data_description": {
-          "setup_method": "The Assist Conversation Agent uses Home Assistant Assist for STT/TTS and does not need a DJConnect client pairing code."
         }
       },
       "pair": {

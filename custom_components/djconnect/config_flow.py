@@ -101,12 +101,18 @@ SPOTIFY_MARKET_NAMES = {
     "US": "United States",
 }
 SETUP_METHOD_NAMES_EN = {
-    SETUP_METHOD_CONVERSATION_AGENT: "Assist Conversation Agent",
+    SETUP_METHOD_CONVERSATION_AGENT: (
+        "Assist Conversation Agent\n"
+        "Uses Home Assistant Assist for STT/TTS and does not need a DJConnect client pairing code."
+    ),
     SETUP_METHOD_PAIR_EXISTING: "Pair DJConnect app or device",
     SETUP_METHOD_BLE_WIFI: "Configure ESP32 device WiFi (over Bluetooth)",
 }
 SETUP_METHOD_NAMES_NL = {
-    SETUP_METHOD_CONVERSATION_AGENT: "Assist Conversation Agent",
+    SETUP_METHOD_CONVERSATION_AGENT: (
+        "Assist Conversation Agent\n"
+        "Gebruikt Home Assistant Assist voor STT/TTS en heeft geen DJConnect client-koppelcode nodig."
+    ),
     SETUP_METHOD_PAIR_EXISTING: "DJConnect app of device koppelen",
     SETUP_METHOD_BLE_WIFI: "ESP32 device WiFi configureren (via Bluetooth)",
 }

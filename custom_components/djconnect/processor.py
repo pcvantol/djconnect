@@ -8,6 +8,7 @@ from .const import (
     DEFAULT_TTS_LANGUAGE,
 )
 from .pipeline import (
+    _fallback_search_intent,
     correct_stt_text_with_assist,
     generate_dj_response_with_assist,
     process_text_with_assist,
@@ -153,7 +154,12 @@ async def _process_text_with_optional_memory(
     except TypeError as exc:
         if "unexpected keyword" not in str(exc):
             raise
-        return await process_text_with_assist(hass, corrected_text, conf)
+        try:
+            return await process_text_with_assist(hass, corrected_text, conf)
+        except Exception:
+            return _fallback_search_intent(corrected_text)
+    except Exception:
+        return _fallback_search_intent(corrected_text)
 
 
 async def _record_ask_dj_memory(

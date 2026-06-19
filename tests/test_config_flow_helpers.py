@@ -810,7 +810,8 @@ class ConfigFlowHelperTest(unittest.TestCase):
             self.config_flow._setup_method_names(nl_hass)[
                 self.const.SETUP_METHOD_CONVERSATION_AGENT
             ],
-            "Assist Conversation Agent",
+            "Assist Conversation Agent\n"
+            "Gebruikt Home Assistant Assist voor STT/TTS en heeft geen DJConnect client-koppelcode nodig.",
         )
         self.assertEqual(
             self.config_flow._setup_method_names(nl_hass)[

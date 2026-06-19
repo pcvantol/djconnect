@@ -1,9 +1,13 @@
 # Changelog
 
-## 3.1.62
+## 3.1.63
 
 - Add cross-device Ask DJ history sync with HA-user scoped persistent history, `/api/djconnect/ask_dj/message`, `/api/djconnect/ask_dj/history` and revision-based clear support.
 - Add Ask DJ `audio_response` policy so informational text chat is text-only by default while playback/hybrid and voice/PTT responses still generate replayable TTS audio when available.
+- Clarify DJConnect client authentication warnings so app clients are no longer logged as ESP requests and bearer-token mismatches identify the entry mismatch without exposing token values.
+- Fix Ask DJ voice/PTT playback requests so commands such as "speel Armin van Buuren" and bare artist names route to the playback parser instead of the informational music fallback.
+- Fix Ask DJ text playback requests so playback/parser failures return a normal chat response instead of HTTP 500 `ask_dj_unavailable`.
+- Fall back to the local Spotify music parser when Assist cannot parse a direct Ask DJ playback request, so "Speel Armin" still becomes an artist search for `Armin`.
 
 ## 3.1.61
 

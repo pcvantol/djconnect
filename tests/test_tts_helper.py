@@ -945,10 +945,12 @@ class TtsHelperTest(unittest.TestCase):
 
         self.assertFalse(allowed)
         logs = "\n".join(captured.output)
-        self.assertIn("reason=invalid_device_token", logs)
+        self.assertIn("DJConnect client request rejected", logs)
+        self.assertIn("reason=bearer_token_mismatch_for_entry", logs)
         self.assertIn(f"received_device_id={request_device}", logs)
         self.assertIn("client_type=esp32", logs)
-        self.assertIn("token_present=True", logs)
+        self.assertIn("bearer_token_present=True", logs)
+        self.assertNotIn("ESP request rejected", logs)
         self.assertNotIn("wrong-token", logs)
         self.assertNotIn("token-new", logs)
 
