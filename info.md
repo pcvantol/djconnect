@@ -8,4 +8,6 @@ DJConnect lets you ask for music from a dedicated ESP32, iOS, macOS, watchOS or 
 
 Use it when you want a local voice/PTT music remote that can start Spotify playback, show queue/status data, answer Ask DJ music questions, offer Play Now recommendations and deliver short DJ announcements through the DJConnect client instead of a generic speaker.
 
+Apple push registration for app clients is optional and relay-only through the central DJConnect API; Home Assistant never stores APNs provider keys and only sends strict Ask DJ wake/sync hints.
+
 Requires Home Assistant, HACS, Spotify Premium and a working Home Assistant Assist pipeline with STT/TTS.

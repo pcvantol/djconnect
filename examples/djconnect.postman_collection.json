@@ -642,7 +642,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"device_id\": \"djconnect-ios-ABCDEFGHIJKL\",\n  \"client_type\": \"ios\",\n  \"push_token\": \"apns-token-from-client\",\n  \"push_environment\": \"sandbox\",\n  \"app_bundle_id\": \"dev.djconnect.app\",\n  \"app_version\": \"3.1.66\",\n  \"locale\": \"nl-NL\",\n  \"notification_categories\": [\n    \"ask_dj_response\",\n    \"ask_dj_confirm\",\n    \"playback_change\"\n  ]\n}"
+              "raw": "{\n  \"device_id\": \"djconnect-ios-ABCDEFGHIJKL\",\n  \"client_type\": \"ios\",\n  \"push_token\": \"apns-token-from-client\",\n  \"push_environment\": \"sandbox\",\n  \"app_bundle_id\": \"dev.djconnect.app\",\n  \"app_version\": \"3.1.69\",\n  \"locale\": \"nl-NL\",\n  \"notification_categories\": [\n    \"ask_dj_response\",\n    \"ask_dj_confirm\",\n    \"playback_change\"\n  ]\n}"
             },
             "url": {
               "raw": "{{ha_base_url}}/api/djconnect/push/register",
@@ -656,7 +656,7 @@
                 "register"
               ]
             },
-            "description": "DJConnect Apple push registration is optional and best-effort. Push payloads are wake/sync hints only; clients must sync via authenticated APIs after opening."
+            "description": "DJConnect Apple push registration is optional and best-effort. Home Assistant relays registration to the central djconnect-api when configured and does not store APNs tokens. Push delivery is limited to explicit Ask DJ response/confirm attention events; playback_change is a future/default-disabled category. Clients must sync via authenticated APIs after opening."
           },
           "response": []
         },
@@ -690,7 +690,7 @@
                 "unregister"
               ]
             },
-            "description": "DJConnect Apple push registration is optional and best-effort. Push payloads are wake/sync hints only; clients must sync via authenticated APIs after opening."
+            "description": "DJConnect Apple push unregister is optional and best-effort. Home Assistant relays unregister to the central djconnect-api when configured and never logs full APNs tokens."
           },
           "response": []
         }

@@ -723,6 +723,38 @@ Why:
   agent handoff state.
 - Makes release hygiene explicit.
 
+## Relay-Only Apple Push Policy
+
+Pattern:
+
+- Home Assistant keeps the authenticated client-facing
+  `/api/djconnect/push/register` and `/api/djconnect/push/unregister` routes,
+  but forwards registrations to the central `djconnect-api` relay instead of
+  storing APNs tokens locally.
+- The HACS integration only uses `DJCONNECT_PUSH_RELAY_URL` and
+  `DJCONNECT_PUSH_RELAY_SECRET`. APNs provider `.p8` keys, provider JWT signing,
+  topics, retries and invalid-token handling live in the central API.
+- Push events are generated only for explicit Ask DJ response and confirmation
+  attention events. Track, playback, queue, volume, mood, idle suggestion,
+  status and polling updates are default suppressed.
+- Runtime rate limiting allows at most one Ask DJ push per 30 seconds and five
+  pushes per ten minutes per HA user plus device/client. Foreground or recently
+  active clients are suppressed when status payloads expose usable activity
+  state.
+
+Primary source files:
+
+- `custom_components/djconnect/push.py`
+- `custom_components/djconnect/http.py`
+
+Why:
+
+- Keeps APNs platform credentials centralized and out of end-user Home Assistant
+  instances.
+- Prevents notification overload from ordinary playback state changes.
+- Preserves privacy by sending only generic wake/sync hints while clients fetch
+  real content through `/api/djconnect/ask_dj/history`.
+
 ## Third-Party Dependency Inventory
 
 The table below lists direct runtime dependencies, Home Assistant component
@@ -742,6 +774,7 @@ unless imported or declared here.
 | Home Assistant `conversation` component | Assist text command processing | Declared in `manifest.json` dependencies | Apache License 2.0 as part of Home Assistant Core | https://github.com/home-assistant/core |
 | Home Assistant `assist_pipeline` component | Assist/STT pipeline selection and fallback | Declared in `manifest.json` dependencies | Apache License 2.0 as part of Home Assistant Core | https://github.com/home-assistant/core |
 | Home Assistant `tts` component | DJ announcement audio generation | Declared in `manifest.json` dependencies | Apache License 2.0 as part of Home Assistant Core | https://github.com/home-assistant/core |
+| Home Assistant `cloud` component | Optional Nabu Casa external URL discovery for Spotify OAuth setup | Declared in `manifest.json` `after_dependencies` | Apache License 2.0 as part of Home Assistant Core | https://github.com/home-assistant/core |
 | aiohttp | HTTP client timeouts/session usage and `aiohttp.web` helpers | `aiohttp>=3.9.0` in `manifest.json` | Apache License 2.0 | https://github.com/aio-libs/aiohttp |
 | awesomeversion | Firmware semantic version comparison | `awesomeversion>=23.8.0` in `manifest.json` | MIT License | https://github.com/ludeeus/awesomeversion |
 | voluptuous | Config-flow and repairs schema definitions | Provided by Home Assistant runtime; imported directly in `config_flow.py` and `repairs.py` | BSD-style license | https://github.com/alecthomas/voluptuous |
@@ -749,6 +782,7 @@ unless imported or declared here.
 | bleak | BLE GATT client for WiFi provisioning | Provided through Home Assistant Bluetooth stack; imported dynamically in `ble.py` | MIT License | https://github.com/hbldh/bleak |
 | bleak-retry-connector | Robust BLE connection helper | Provided through Home Assistant Bluetooth stack; imported dynamically in `ble.py` | MIT License | https://github.com/Bluetooth-Devices/bleak-retry-connector |
 | HACS | Distribution surface for this custom integration | HACS metadata in `hacs.json`; HACS version not pinned | MIT License | https://github.com/hacs/integration |
+| DJConnect API relay | Central Apple push notification relay for DJConnect Apple clients | External DJConnect service; no library is vendored | DJConnect MIT-licensed service repo unless its own dependencies state otherwise | https://github.com/pcvantol/djconnect-api |
 | Spotify Web API | User-authorized backend playback, OAuth token endpoint and search/playback endpoints | External API; no library is vendored | Spotify Developer Terms | https://developer.spotify.com/documentation/web-api |
 | Bandsintown API | Ask DJ upcoming artist concert agenda lookups | External API; no library is vendored | Bandsintown API terms | https://www.artists.bandsintown.com/support/api-installation |
 | GitHub REST API | Firmware release and release-asset discovery | External API; no library is vendored | GitHub Terms of Service | https://docs.github.com/rest |

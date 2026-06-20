@@ -30,10 +30,19 @@ The integration manifest may request or use these runtime packages/components:
 - Home Assistant `conversation` and `assist_pipeline` integrations for HA-native
   Assist command processing.
 - Home Assistant `tts` integration for generating temporary DJ response audio.
+- Home Assistant `cloud` integration as an optional/late dependency for
+  discovering the user's Nabu Casa external URL during Spotify OAuth setup.
 
 If `async_timeout` is present in the Home Assistant runtime environment, its
 license remains with its respective authors. DJConnect does not claim ownership
 over third-party Python packages or Home Assistant components.
+
+## DJConnect API Relay
+
+Apple push notifications for iOS, macOS and watchOS clients are relayed through
+the separate central `djconnect-api` service when configured. The Home Assistant
+integration does not contain APNs provider credentials, does not persist APNs
+tokens and treats push as a best-effort wake/sync signal only.
 
 ## Spotify API And Trademark Notice
 

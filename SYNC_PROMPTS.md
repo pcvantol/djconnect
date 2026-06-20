@@ -33,7 +33,7 @@ instead of storing their own copy.
 ## Current Protocol Line
 
 The current shared protocol/release line is `3.1.x`; this bundle was last
-aligned after Home Assistant integration release `v3.1.65`. DJConnect clients on the
+aligned after Home Assistant integration release `v3.1.69`. DJConnect clients on the
 `3.1.x` line are compatible with Home Assistant integration versions `>=3.1.0`
 and `<3.2.0`.
 
@@ -178,7 +178,7 @@ Requirements:
   future Pi capability explicitly changes that scope. Informational text chat
   is text-only by default; replay is shown only when an audio response exists.
 - Keep Ask DJ requirements visible and user-facing: Home Assistant, HACS
-  DJConnect integration v3.1.65 or newer, Spotify Premium, the user's own
+  DJConnect integration v3.1.69 or newer, Spotify Premium, the user's own
   Spotify Developer app with Client ID, an Assist pipeline with STT/TTS for
   voice/audio, and preferably Nabu Casa or another stable HTTPS external URL
   for Spotify OAuth.
@@ -291,6 +291,12 @@ Requirements:
   copy such as "Ask DJ heeft geantwoord." and "Ask DJ wacht op je keuze." plus
   optional sync hints like `event_type`, `history_revision`,
   `client_message_id` and `open_target`.
+- Push policy is strict: send APNs only for `ask_dj_response` after an explicit
+  user Ask DJ request and `ask_dj_confirm` when confirmation actions wait for a
+  user choice. Do not push `track_change`, `playback_change`, `queue_change`,
+  `volume_change`, `mood_change`, idle suggestions, ambient/system messages,
+  status refreshes, polling or Spotify progress updates. Coalesce Ask DJ pushes
+  with `thread-id: djconnect.askdj` and apply per-user/device rate limits.
 - Apple clients must always sync with their own Home Assistant instance after
   opening, especially `GET /api/djconnect/ask_dj/history`.
 - Keep `README.md`, `API_CONTRACT.md`, `SECURITY.md`, `CHANGELOG.md`,
@@ -318,6 +324,13 @@ Requirements:
   the APNs provider private key. HA-to-central-API calls must not contain raw
   prompts, raw assistant responses, full chat history, DJ Memory, Home
   Assistant tokens or Spotify tokens.
+- Home Assistant push events must follow the strict Ask DJ attention policy:
+  only explicit `ask_dj_response` and confirmation-wait `ask_dj_confirm` are
+  pushable. Track/playback/queue/volume/mood changes, idle suggestions,
+  ambient/system messages, status refreshes and polling must not generate
+  push. Suppress foreground/recent-active targets when known and rate-limit to
+  at most one push per 30 seconds and five pushes per ten minutes per HA user
+  plus device/client.
 - Ask DJ / DJ Memory is server-side in the Home Assistant integration. iOS,
   macOS, watchOS and Raspberry Pi clients must not store DJ Memory; they may send optional
   `mood` (0-100), `dj_style` and `memory_key` hints on status/voice/command

@@ -24,7 +24,7 @@ Lees eerst:
 
 Belangrijke huidige status:
 - Project: DJConnect Home Assistant custom integration, domain `djconnect`.
-- Laatste release: `3.1.66`.
+- Laatste release: `3.1.69`.
 - Repo is public en MIT-licensed.
 - Alle DJConnect repos zijn MIT-licensed, tenzij een specifieke third-party dependency anders vermeldt.
 - `FIRMWARE-LICENSE.md` is verwijderd.
@@ -42,7 +42,7 @@ Belangrijke huidige status:
   - `Assist Conversation Agent` zonder client-koppelcode/device token/Client adres.
   - `DJConnect app of device koppelen`;
   - `ESP32 device WiFi configureren (via Bluetooth)`.
-- Compacte conversation-agent options-flow toont alleen actie + DJ response stijl/prompt.
+- Compacte conversation-agent options-flow toont alleen actie en smart-home context allowlist; DJ response stijl/prompt is geen user-facing optie meer en volgt runtime client mood of de hardcoded default.
 - Verwijderde opties:
   - Spotify source override;
   - Standaard playlist override;
@@ -54,6 +54,8 @@ Belangrijke huidige status:
 - Config flow blokkeert niet meer op officiële Spotify media_player; DJConnect gebruikt eigen Spotify OAuth en Spotify Web API.
 - Ask DJ is server-side en cross-device voor iOS, macOS, watchOS en Raspberry Pi: deze clients gebruiken `/api/djconnect/ask_dj/message`, `/history`, `/history/clear`, `/idle_suggestion` en `/api/djconnect/command` voor Play Now/follow-up acties. ESP32 krijgt geen Ask DJ chat UI/history en blijft op de bestaande PTT/playback command flow.
 - Ask DJ history is HA-user scoped, max 1000 berichten, met retention system messages en `history_limit`, `history_trimmed_before`, `history_trimmed_count` metadata voor client cache cleanup.
+- Ask DJ mood-zones worden server-side uit Apple client `mood` afgeleid: `0`-`24` chill, `25`-`59` groove, `60`-`84` energy, `85`-`100` party. Spoken DJ announcements gebruiken die mood-zone.
+- Apple push in de HACS-integratie is relay-only via `DJCONNECT_PUSH_RELAY_URL` en `DJCONNECT_PUSH_RELAY_SECRET`; HA bewaart geen APNs tokens en bevat geen APNs `.p8` provider key of directe Apple push delivery. Push is alleen voor expliciete Ask DJ response/confirm attention events, met foreground suppression en rate limiting; nooit voor track/playback/status/idle updates.
 - Cross-device clear/trim is backend-authoritative: clients vergelijken `clear_revision`, `history_revision` en trim metadata; niet op system-message tekst parsen.
 - Ask DJ gebruikt `playback_actions[]` voor Play Now en confirmation buttons; `confirmation_actions[]` bevat dezelfde Ja/Nee confirmation actions voor clients die die apart willen renderen.
 - `command:"ask_dj_followup_response"` handelt Ja/Nee follow-ups af via server-side pending state in DJ Memory; pending follow-ups verlopen na ongeveer 10 minuten.
@@ -70,6 +72,7 @@ Werkstijl:
 - Run minimaal `python3 -m unittest discover -s tests` voor release/codewijzigingen.
 - Lokale HA dev-omgeving draait in Docker op `localhost:8123`; zie `DEVELOPMENT_ENVIRONMENT.md` voor sync/restart commands.
 - Release met `./release.sh X.Y.Z`; cleanup oude releases met `./cleanup_old_releases.sh --keep 1 --execute`.
+- `main` is beschermd; releasewerk gaat via PR. HACS/hassfest validatie verwacht geldige repo topics, `hacs.json` zonder verouderde `domains` key, gesorteerde `manifest.json` keys en geen letterlijke URLs in translation strings.
 - Houd docs en vertalingen actueel bij UI/config-flow/options-flow wijzigingen.
 - Geen secrets/tokens/wachtwoorden loggen of committen.
 ```
