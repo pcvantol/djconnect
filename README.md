@@ -1143,6 +1143,7 @@ Pre-release checklist:
 - Update `custom_components/djconnect/const.py` to the same target version.
 - Update all repo documentation touched by the change or release: at minimum `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant files under `examples/`.
 - Update and JSON-validate `examples/djconnect.postman_collection.json` whenever HTTP endpoints, auth headers, request payloads or response shapes change.
+- Keep the automated Postman collection validator current; CI runs `python -m unittest tests.test_postman_collection` to check schema, placeholder secrets, auth headers and client identity examples.
 - Update `README.md` current version, examples, endpoints, HACS instructions and release workflow.
 - Update `CHANGELOG.md` with a new section for each release. Keep previous release sections; do not consolidate the changelog into one current-version block.
 - Keep `AGENTS.md` aligned with the current version and release expectations.
@@ -1160,6 +1161,12 @@ Pre-release checklist:
 
 ```bash
 python3 -m unittest discover -s tests
+```
+
+For Postman-only contract changes, the focused local check is:
+
+```bash
+python3 -m unittest tests.test_postman_collection
 ```
 
 Tag and publish:
@@ -1190,6 +1197,15 @@ git tag v3.1.70
 git push origin main
 git push origin v3.1.70
 gh release create v3.1.70 --title "DJConnect v3.1.70" --notes-file CHANGELOG.md
+```
+
+After every release, clean up old completed GitHub Actions workflow runs. Keep
+only the newest release/tag validation and the newest `main` validation unless a
+specific debugging reason requires retaining more:
+
+```bash
+gh run list --limit 100
+for id in $(gh run list --limit 100 --json databaseId --jq '.[2:][].databaseId'); do gh run delete "$id"; done
 ```
 
 Release cleanup helper:

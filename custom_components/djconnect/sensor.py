@@ -2,15 +2,28 @@ from __future__ import annotations
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
+try:
+    from homeassistant.const import EntityCategory
+except ImportError:  # pragma: no cover - older HA/test stubs
+    EntityCategory = None
 from homeassistant.const import PERCENTAGE, SIGNAL_STRENGTH_DECIBELS_MILLIWATT
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import CLIENT_TYPE_ESP32, DOMAIN
+from .const import (
+    CLIENT_TYPE_CONVERSATION_AGENT,
+    CLIENT_TYPE_ESP32,
+    CLIENT_TYPE_IOS,
+    CLIENT_TYPE_MACOS,
+    CLIENT_TYPE_WATCHOS,
+    DOMAIN,
+)
 from .entity_ids import entry_unique_id
+from .push import relay_configured
 
 MAX_SENSOR_STATE_TEXT_LENGTH = 255
+APNS_SUPPORTED_CLIENT_TYPES = {CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_WATCHOS}
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -18,8 +31,12 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     runtime = hass.data[DOMAIN][entry.entry_id]
+    if _runtime_client_type(runtime) == CLIENT_TYPE_CONVERSATION_AGENT:
+        async_add_entities([DJConnectApnsRegistrationSensor(runtime)])
+        return
     entities = [
         DJConnectStatusSensor(runtime),
+        DJConnectApnsRegistrationSensor(runtime),
         DJConnectLastTextSensor(runtime),
         DJConnectLastCorrectedSttSensor(runtime),
         DJConnectFirmwareSensor(runtime),
@@ -71,6 +88,65 @@ class DJConnectBaseSensor(SensorEntity):
     async def async_will_remove_from_hass(self) -> None:
         if self._handle_runtime_update in self.runtime.listeners:
             self.runtime.listeners.remove(self._handle_runtime_update)
+
+
+class DJConnectApnsRegistrationSensor(DJConnectBaseSensor):
+    _attr_translation_key = "apns_registration"
+    _attr_unique_id = "djconnect_apns_registration"
+    if EntityCategory is not None:
+        _attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    @property
+    def native_value(self):
+        client_type = _runtime_client_type(self.runtime)
+        if client_type == CLIENT_TYPE_CONVERSATION_AGENT:
+            return "not_applicable"
+        if client_type not in APNS_SUPPORTED_CLIENT_TYPES:
+            return "unsupported"
+        if not relay_configured(self.runtime):
+            return "disabled"
+        statuses = _push_statuses_for_runtime(self.runtime, client_type)
+        if any(item.get("push_registered") for item in statuses):
+            return "registered"
+        if any(item.get("last_push_error") for item in statuses):
+            return "error"
+        if statuses:
+            return "unregistered"
+        return "unknown"
+
+    @property
+    def available(self) -> bool:
+        return True
+
+    @property
+    def extra_state_attributes(self):
+        client_type = _runtime_client_type(self.runtime)
+        statuses = _push_statuses_for_runtime(self.runtime, client_type)
+        registered = [item for item in statuses if item.get("push_registered")]
+        return {
+            "client_type": client_type,
+            "device_id": _runtime_device_id(self.runtime),
+            "push_supported": client_type in APNS_SUPPORTED_CLIENT_TYPES,
+            "central_api_configured": relay_configured(self.runtime),
+            "registered_count": len(registered),
+            "push_environment": _first_non_empty(
+                item.get("push_environment") for item in statuses
+            ),
+            "last_push_error": _first_non_empty(
+                item.get("last_push_error") for item in statuses
+            ),
+            "registrations": [
+                {
+                    "device_id": item.get("device_id"),
+                    "client_type": item.get("client_type"),
+                    "push_registered": bool(item.get("push_registered")),
+                    "push_environment": item.get("push_environment"),
+                    "last_push_error": item.get("last_push_error"),
+                }
+                for item in statuses
+            ],
+        }
+
 
 class DJConnectStatusSensor(DJConnectBaseSensor):
     _attr_translation_key = "status"
@@ -393,7 +469,61 @@ def _runtime_client_type(runtime) -> str:
     getter = getattr(runtime, "client_type", None)
     if callable(getter):
         return str(getter() or CLIENT_TYPE_ESP32)
-    return str(getattr(runtime, "device_status", {}).get("client_type") or CLIENT_TYPE_ESP32)
+    config = getattr(runtime, "config", {}) or {}
+    return str(
+        getattr(runtime, "device_status", {}).get("client_type")
+        or config.get("client_type")
+        or CLIENT_TYPE_ESP32
+    )
+
+
+def _runtime_device_id(runtime) -> str | None:
+    status = getattr(runtime, "device_status", {}) or {}
+    config = getattr(runtime, "config", {}) or {}
+    value = (
+        status.get("device_id")
+        or getattr(runtime, "pairing_device_id", None)
+        or config.get("device_id")
+    )
+    return str(value).strip() if value else None
+
+
+def _push_statuses_for_runtime(runtime, client_type: str) -> list[dict]:
+    statuses = getattr(runtime, "push_status", None)
+    if not isinstance(statuses, dict):
+        return []
+    result = []
+    expected_device_id = _runtime_device_id(runtime)
+    for key, item in statuses.items():
+        if not isinstance(item, dict):
+            continue
+        device_id, key_client_type = _split_push_status_key(key)
+        if key_client_type != client_type:
+            continue
+        if expected_device_id and device_id and device_id != expected_device_id:
+            continue
+        result.append(
+            {
+                "device_id": device_id,
+                "client_type": key_client_type,
+                "push_registered": bool(item.get("push_registered")),
+                "push_environment": item.get("push_environment"),
+                "last_push_error": item.get("last_push_error"),
+            }
+        )
+    return result
+
+
+def _split_push_status_key(key) -> tuple[str, str]:
+    device_id, _, client_type = str(key or "").partition("|")
+    return device_id, client_type
+
+
+def _first_non_empty(values) -> object | None:
+    for value in values:
+        if value not in (None, "", [], {}):
+            return value
+    return None
 
 
 def _collection_items(value):

@@ -105,6 +105,26 @@ class TtsHelperTest(unittest.TestCase):
         cls.http = importlib.import_module("custom_components.djconnect.http")
         cls.tts = importlib.import_module("custom_components.djconnect.tts")
 
+    def test_conversation_agent_entry_only_loads_conversation_platform(self) -> None:
+        entry = types.SimpleNamespace(
+            data={self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_CONVERSATION_AGENT},
+            options={},
+            entry_id="entry-assist",
+        )
+        runtime = self.integration.DJConnectRuntime(entry=entry)
+
+        self.assertEqual(self.integration._platforms_for_runtime(runtime), ["conversation", "sensor"])
+
+    def test_device_entry_loads_full_platform_set(self) -> None:
+        entry = types.SimpleNamespace(
+            data={self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_IOS},
+            options={},
+            entry_id="entry-ios",
+        )
+        runtime = self.integration.DJConnectRuntime(entry=entry)
+
+        self.assertEqual(self.integration._platforms_for_runtime(runtime), self.const.PLATFORMS)
+
     def test_device_command_posts_to_local_command_api(self) -> None:
         class Response:
             status = 200

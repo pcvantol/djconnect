@@ -192,6 +192,7 @@ README/release:
   - Update `custom_components/djconnect/const.py` naar dezelfde target versie.
   - Update alle documentatiebestanden in deze repo die door de wijziging of release geraakt worden: minimaal `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `API_CONTRACT.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` en relevante files onder `examples/`.
   - Update en JSON-valideer `examples/djconnect.postman_collection.json` als HTTP endpoints, auth headers, request payloads of response shapes wijzigen.
+  - Houd de geautomatiseerde Postman collection validator actueel; CI draait `python -m unittest tests.test_postman_collection` voor schema, placeholder secrets, auth headers en client identity voorbeelden.
   - Update `README.md` current version, examples, endpoints, HACS instructies en release workflow.
   - Update `CHANGELOG.md` met een nieuw blok per release; behoud eerdere releaseblokken en consolideer niet meer naar één actuele versie.
   - Houd `AGENTS.md` gelijk met actuele versie en release-eisen.
@@ -222,6 +223,7 @@ README/release:
   - `git push origin main`
   - `git push origin vX.Y.Z`
   - `gh release create vX.Y.Z --title "DJConnect vX.Y.Z" --notes-file CHANGELOG.md`
+  - Standaard oude completed GitHub Actions workflow runs opruimen; bewaar alleen de nieuwste release/tag-validatie en nieuwste `main`-validatie, tenzij debugging expliciet vereist dat meer runs blijven staan.
   - Standaard oude semver releases/tags opruimen met `./cleanup_old_releases.sh --keep 1 --execute`, tenzij de gebruiker expliciet vraagt om meerdere releases te behouden.
   - HACS update-info refresh/redownload.
   - Nieuwe release installeren vanuit HACS.

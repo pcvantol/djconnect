@@ -24,6 +24,7 @@ def install_sensor_stubs() -> None:
     helpers = sys.modules.setdefault("homeassistant.helpers", types.ModuleType("homeassistant.helpers"))
     device_registry = types.ModuleType("homeassistant.helpers.device_registry")
     entity_platform = types.ModuleType("homeassistant.helpers.entity_platform")
+    aiohttp_client = types.ModuleType("homeassistant.helpers.aiohttp_client")
 
     class SensorEntity:
         def async_write_ha_state(self):
@@ -40,15 +41,18 @@ def install_sensor_stubs() -> None:
     sensor.SensorDeviceClass = types.SimpleNamespace(BATTERY="battery", SIGNAL_STRENGTH="signal_strength")
     sensor.SensorStateClass = types.SimpleNamespace(MEASUREMENT="measurement")
     config_entries.ConfigEntry = object
+    const.EntityCategory = types.SimpleNamespace(DIAGNOSTIC="diagnostic")
     const.PERCENTAGE = "%"
     const.SIGNAL_STRENGTH_DECIBELS_MILLIWATT = "dBm"
     core.HomeAssistant = object
     core.callback = lambda func: func
     device_registry.DeviceInfo = dict
     entity_platform.AddEntitiesCallback = object
+    aiohttp_client.async_get_clientsession = lambda hass: None
     components.sensor = sensor
     helpers.device_registry = device_registry
     helpers.entity_platform = entity_platform
+    helpers.aiohttp_client = aiohttp_client
     homeassistant.components = components
     package = types.ModuleType("custom_components.djconnect")
     package.__path__ = [str(ROOT / "custom_components" / "djconnect")]
@@ -60,6 +64,7 @@ def install_sensor_stubs() -> None:
     sys.modules["homeassistant.core"] = core
     sys.modules["homeassistant.helpers.device_registry"] = device_registry
     sys.modules["homeassistant.helpers.entity_platform"] = entity_platform
+    sys.modules["homeassistant.helpers.aiohttp_client"] = aiohttp_client
 
 
 class DJConnectSensorTest(unittest.TestCase):
@@ -129,6 +134,7 @@ class DJConnectSensorTest(unittest.TestCase):
         )
 
         keys = {entity._attr_translation_key for entity in added}
+        self.assertIn("apns_registration", keys)
         self.assertNotIn("battery", keys)
         self.assertNotIn("wifi_rssi", keys)
         self.assertNotIn("screen_state", keys)
@@ -165,6 +171,7 @@ class DJConnectSensorTest(unittest.TestCase):
         )
 
         keys = {entity._attr_translation_key for entity in added}
+        self.assertIn("apns_registration", keys)
         self.assertIn("battery", keys)
         self.assertIn("wifi_rssi", keys)
         self.assertIn("screen_state", keys)
@@ -182,6 +189,67 @@ class DJConnectSensorTest(unittest.TestCase):
 
         self.assertEqual(screen.native_value, "on")
         self.assertEqual(led.native_value, "off")
+
+    def test_conversation_agent_only_adds_apns_diagnostic_sensor(self) -> None:
+        added = []
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            config={"client_type": "conversation_agent"},
+            device_status={"client_type": "conversation_agent"},
+            push_status={},
+            listeners=[],
+            client_type=lambda: "conversation_agent",
+        )
+        hass = types.SimpleNamespace(data={"djconnect": {"entry-1": runtime}})
+        entry = types.SimpleNamespace(entry_id="entry-1")
+
+        asyncio.run(
+            self.sensor.async_setup_entry(hass, entry, lambda entities: added.extend(entities))
+        )
+
+        self.assertEqual([entity._attr_translation_key for entity in added], ["apns_registration"])
+        self.assertEqual(added[0].native_value, "not_applicable")
+        self.assertEqual(added[0]._attr_entity_category, "diagnostic")
+
+    def test_apns_registration_sensor_reports_registered_app_client(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            config={
+                "client_type": "ios",
+                "device_id": "djconnect-ios-ABCDEFGHIJKL",
+                "djconnect_install_token": "djci_token",
+            },
+            device_status={"client_type": "ios", "device_id": "djconnect-ios-ABCDEFGHIJKL"},
+            push_status={
+                "djconnect-ios-ABCDEFGHIJKL|ios": {
+                    "push_registered": True,
+                    "push_environment": "production",
+                    "last_push_error": None,
+                }
+            },
+            listeners=[],
+            client_type=lambda: "ios",
+        )
+        entity = self.sensor.DJConnectApnsRegistrationSensor(runtime)
+
+        self.assertEqual(entity.native_value, "registered")
+        self.assertEqual(entity.extra_state_attributes["registered_count"], 1)
+        self.assertEqual(entity.extra_state_attributes["push_environment"], "production")
+        self.assertNotIn("push_token", str(entity.extra_state_attributes))
+
+    def test_apns_registration_sensor_reports_unsupported_device_client(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            config={"client_type": "esp32"},
+            device_status={"client_type": "esp32"},
+            push_status={},
+            listeners=[],
+            client_type=lambda: "esp32",
+        )
+        entity = self.sensor.DJConnectApnsRegistrationSensor(runtime)
+
+        self.assertEqual(entity.native_value, "unsupported")
+        self.assertFalse(entity.extra_state_attributes["push_supported"])
 
     def test_last_track_sensor_reads_backend_and_device_aliases(self) -> None:
         runtime = types.SimpleNamespace(

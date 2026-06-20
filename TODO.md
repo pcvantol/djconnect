@@ -167,3 +167,5 @@
 - Install new release from HACS.
 - Restart Home Assistant.
 - Run `./cleanup_old_releases.sh --keep 1 --execute` after successful release unless multiple releases are intentionally retained for support/testing.
+- Clean up old completed GitHub Actions workflow runs after every release, keeping only the newest release/tag validation and newest `main` validation unless debugging requires more history.
+- Keep the CI Postman collection validator aligned with `examples/djconnect.postman_collection.json` whenever API examples change.

@@ -206,6 +206,9 @@
       "status": {
         "name": "Status"
       },
+      "apns_registration": {
+        "name": "APNs registratie"
+      },
       "last_command": {
         "name": "Laatste opdracht"
       },

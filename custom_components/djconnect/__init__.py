@@ -31,6 +31,7 @@ from .const import (
     API_TTS,
     API_VOICE,
     CONF_API_BASE_URL,
+    CLIENT_TYPE_CONVERSATION_AGENT,
     CLIENT_TYPE_ESP32,
     CLIENT_TYPE_IOS,
     CLIENT_TYPE_MACOS,
@@ -1136,6 +1137,13 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     return True
 
 
+def _platforms_for_runtime(runtime: DJConnectRuntime) -> list[str]:
+    """Return HA platforms that make sense for this DJConnect entry."""
+    if runtime.client_type() == CLIENT_TYPE_CONVERSATION_AGENT:
+        return ["conversation", "sensor"]
+    return list(PLATFORMS)
+
+
 def _restore_runtime(hass: HomeAssistant, entry: ConfigEntry) -> DJConnectRuntime:
     runtime = DJConnectRuntime(entry=entry)
     memory_manager = hass.data[DOMAIN].get("memory_manager")
@@ -1507,13 +1515,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
     _register_developer_services(hass, entry, runtime)
 
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    await hass.config_entries.async_forward_entry_setups(entry, _platforms_for_runtime(runtime))
     _LOGGER.info("DJConnect v%s loaded", VERSION)
     return True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    runtime = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+    platforms = _platforms_for_runtime(runtime) if runtime is not None else list(PLATFORMS)
+    unloaded = await hass.config_entries.async_unload_platforms(entry, platforms)
     if unloaded:
         hass.data[DOMAIN].pop(entry.entry_id, None)
         runtime = hass.data[DOMAIN].get("runtime")
