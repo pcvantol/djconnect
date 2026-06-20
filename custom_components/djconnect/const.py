@@ -3,7 +3,7 @@ from __future__ import annotations
 
 DOMAIN = "djconnect"
 NAME = "DJConnect"
-VERSION = "3.1.71"
+VERSION = "3.1.72"
 
 API_BASE = "/api/djconnect"
 API_PAIR = f"{API_BASE}/pair"
@@ -41,6 +41,8 @@ CONF_WIFI_PASSWORD = "wifi_password"
 CONF_API_BASE_URL = "api_base_url"
 CONF_HA_INSTALL_ID = "ha_install_id"
 CONF_DJCONNECT_INSTALL_TOKEN = "djconnect_install_token"
+CONF_CENTRAL_API_BOOTSTRAP_PROOF = "central_api_bootstrap_proof"
+CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT = "central_api_bootstrap_proof_expires_at"
 
 CONF_SPOTIFY_CLIENT_ID = "spotify_client_id"
 CONF_SPOTIFY_REFRESH_TOKEN = "spotify_refresh_token"

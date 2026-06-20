@@ -107,14 +107,20 @@ Assistant installation:
 - `djconnect_install_token`, a secret per-install token with prefix `djci_`
 
 Home Assistant obtains the install token automatically by calling
-`POST /v1/install/token` with the generated `ha_install_id` and non-sensitive
-integration metadata. Users do not need to see, copy or enter the token. Push
-relay calls use `Authorization: Bearer <djci_install_token>` and include the
-matching `ha_install_id`. HACS must never contain a global relay secret, APNs
-provider `.p8` key, APNs private key or Cloudflare secret. When the central API
-is temporarily unavailable, push stays disabled and normal Ask DJ flows
-continue; the next central API use can retry token bootstrap. The central
-`djconnect-api` service owns APNs provider-token auth, topics,
+`POST /v1/install/token` with the generated `ha_install_id`, non-sensitive
+integration metadata and a short-lived pairing/bootstrap proof supplied by an
+Apple push client (`ios`, `macos` or `watchos`). HACS never calls the token endpoint with a
+global secret and no longer attempts blind/public token minting without a proof.
+Users do not need to see, copy or enter the token. Push relay calls use
+`Authorization: Bearer <djci_install_token>` and include the matching
+`ha_install_id`. HACS must never contain a global relay secret, APNs provider
+`.p8` key, APNs private key or Cloudflare secret. When no bootstrap proof is
+available yet or the central API is temporarily unavailable, push stays disabled
+and normal Ask DJ flows continue; the next central API use can retry token
+bootstrap after an Apple client supplies a fresh proof. ESP32, Raspberry Pi and
+Assist-agent-only entries do not require this proof because they do not use APNs
+push. The central
+`djconnect-api` service owns proof validation, APNs provider-token auth, topics,
 sandbox/production selection, delivery retries and invalid-token handling. Token
 rotation uses `POST /v1/install/rotate` with the current install token and Home
 Assistant replaces the locally stored token only after a successful response.

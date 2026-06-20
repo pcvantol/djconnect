@@ -31,6 +31,8 @@ from .const import (
     API_TTS,
     API_VOICE,
     CONF_ASSIST_PIPELINE_ID,
+    CONF_CENTRAL_API_BOOTSTRAP_PROOF,
+    CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT,
     CONF_CLIENT_TYPE,
     CONF_DEVICE_ID,
     CONF_DEVICE_TOKEN,
@@ -375,7 +377,7 @@ def _redact_debug_payload(value: Any) -> Any:
         result: dict[str, Any] = {}
         for key, item in value.items():
             normalized = str(key).lower()
-            if any(secret in normalized for secret in ("token", "password", "secret")):
+            if any(secret in normalized for secret in ("token", "password", "secret", "proof")):
                 result[key] = "<redacted>"
             else:
                 result[key] = _redact_debug_payload(item)
@@ -906,7 +908,7 @@ def _persistable_device_status(status: dict[str, Any]) -> dict[str, Any]:
     result: dict[str, Any] = {}
     for key, value in status.items():
         normalized = str(key).lower()
-        if any(secret in normalized for secret in ("token", "password", "secret")):
+        if any(secret in normalized for secret in ("token", "password", "secret", "proof")):
             continue
         if value is None:
             continue
@@ -923,7 +925,7 @@ def _persistable_nested_status(value: dict[str, Any]) -> dict[str, Any]:
     result: dict[str, Any] = {}
     for key, item in value.items():
         normalized = str(key).lower()
-        if any(secret in normalized for secret in ("token", "password", "secret")):
+        if any(secret in normalized for secret in ("token", "password", "secret", "proof")):
             continue
         if isinstance(item, (str, int, float, bool)) or item is None:
             result[key] = item
@@ -1456,6 +1458,20 @@ class DJConnectPairView(HomeAssistantView):
                 "ha_pairing_status": "pending",
             }
         )
+        bootstrap_proof = str(
+            data.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF)
+            or data.get("bootstrap_proof")
+            or ""
+        ).strip()
+        if bootstrap_proof:
+            runtime.device_status[CONF_CENTRAL_API_BOOTSTRAP_PROOF] = bootstrap_proof
+        bootstrap_expires = str(
+            data.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT)
+            or data.get("bootstrap_proof_expires_at")
+            or ""
+        ).strip()
+        if bootstrap_expires:
+            runtime.device_status[CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT] = bootstrap_expires
         runtime.update(last_error=None)
         _persist_paired_device(
             hass,

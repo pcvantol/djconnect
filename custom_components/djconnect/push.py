@@ -16,6 +16,10 @@ from .const import (
     CLIENT_TYPE_IOS,
     CLIENT_TYPE_MACOS,
     CLIENT_TYPE_WATCHOS,
+    CONF_CENTRAL_API_BOOTSTRAP_PROOF,
+    CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT,
+    CONF_CLIENT_TYPE,
+    CONF_DEVICE_ID,
 )
 
 SUPPORTED_CLIENT_TYPES = {CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_WATCHOS}
@@ -42,6 +46,7 @@ async def async_register(
     cleaned = _registration_payload(runtime, user_id=user_id, payload=payload)
     if not cleaned:
         return {"success": False, "error": "invalid_push_registration"}
+    _remember_bootstrap_proof(runtime, payload)
     result = await _post_relay(hass, runtime, "/v1/push/register", cleaned)
     if result.get("success"):
         _remember_status(
@@ -267,6 +272,33 @@ def _registration_payload(runtime: Any, *, user_id: str | None, payload: dict[st
         "locale": _clean_text(payload.get("locale"), 32),
         "notification_categories": _clean_categories(payload.get("notification_categories")),
     }
+
+
+def _remember_bootstrap_proof(runtime: Any, payload: dict[str, Any]) -> None:
+    proof = _clean_text(
+        payload.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF) or payload.get("bootstrap_proof"),
+        4096,
+    )
+    if not proof:
+        return
+    status = getattr(runtime, "device_status", None)
+    if not isinstance(status, dict):
+        status = {}
+        setattr(runtime, "device_status", status)
+    status[CONF_CENTRAL_API_BOOTSTRAP_PROOF] = proof
+    device_id = _clean_text(payload.get(CONF_DEVICE_ID) or payload.get("device_id"), 160)
+    client_type = _clean_client_type(payload.get(CONF_CLIENT_TYPE) or payload.get("client_type"))
+    if device_id:
+        status[CONF_DEVICE_ID] = device_id
+    if client_type:
+        status[CONF_CLIENT_TYPE] = client_type
+    expires_at = _clean_text(
+        payload.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT)
+        or payload.get("bootstrap_proof_expires_at"),
+        120,
+    )
+    if expires_at:
+        status[CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT] = expires_at
 
 
 def _remember_status(

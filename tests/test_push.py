@@ -93,9 +93,40 @@ class PushTest(unittest.TestCase):
         self.assertTrue(result["success"])
         self.assertFalse(result["push_supported"])
         self.assertTrue(result["disabled"])
-        self.assertEqual(len(hass.session.calls), 1)
-        self.assertEqual(hass.session.calls[0]["url"], "https://api.djconnect.dev/v1/install/token")
-        self.assertNotIn("Authorization", hass.session.calls[0]["headers"])
+        self.assertEqual(hass.session.calls, [])
+
+    def test_register_bootstraps_install_token_with_pairing_proof(self) -> None:
+        hass = types.SimpleNamespace(session=FakeSession(), config_entries=types.SimpleNamespace())
+        hass.config_entries.async_update_entry = lambda entry, **kwargs: setattr(entry, "options", kwargs["options"])
+        hass.session.response = FakeResponse(data={"success": True, "install_token": "djci_created_token"})
+        runtime = self._runtime(token=None)
+
+        result = asyncio.run(
+            self.push.async_register(
+                hass,
+                runtime,
+                user_id="user-1",
+                payload={
+                    "device_id": "djconnect-ios-ABCDEFGHIJKL",
+                    "client_type": "ios",
+                    "push_token": "token-secret-value",
+                    "bootstrap_proof": "djcboot_registration_proof",
+                },
+            )
+        )
+
+        self.assertTrue(result["success"])
+        self.assertEqual(len(hass.session.calls), 2)
+        bootstrap_call = hass.session.calls[0]
+        register_call = hass.session.calls[1]
+        self.assertEqual(bootstrap_call["url"], "https://api.djconnect.dev/v1/install/token")
+        self.assertNotIn("Authorization", bootstrap_call["headers"])
+        self.assertEqual(bootstrap_call["json"]["bootstrap_proof"], "djcboot_registration_proof")
+        self.assertEqual(bootstrap_call["json"]["device_id"], "djconnect-ios-ABCDEFGHIJKL")
+        self.assertEqual(bootstrap_call["json"]["client_type"], "ios")
+        self.assertEqual(register_call["url"], "https://api.djconnect.dev/v1/push/register")
+        self.assertEqual(register_call["headers"]["Authorization"], "Bearer djci_created_token")
+        self.assertNotIn("bootstrap_proof", register_call["json"])
 
     def test_register_forwards_to_relay_without_local_storage(self) -> None:
         hass = types.SimpleNamespace(session=FakeSession())

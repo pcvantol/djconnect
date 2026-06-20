@@ -7,7 +7,7 @@ from homeassistant.config_entries import ConfigEntry
 from .const import CONF_SPOTIFY_SCOPES, DOMAIN, SPOTIFY_SCOPES
 from .spotify_oauth import missing_spotify_scopes, normalize_spotify_scopes
 
-_REDACT_KEY_PARTS = ("token", "password", "secret")
+_REDACT_KEY_PARTS = ("token", "password", "secret", "proof", "authorization")
 LEGAL_DIAGNOSTICS = {
     "copyright": "Copyright (c) 2026 Peter van Tol. All rights reserved.",
     "spotify_trademark": "Spotify is a trademark of Spotify AB.",

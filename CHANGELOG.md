@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.72
+
+- Require a pairing/bootstrap proof before HACS requests a central `djci_` install token, avoiding blind/public token minting without adding a global HACS secret.
+- Accept bootstrap proofs from pairing-info, pairing, status and push-registration payloads, use them only for central token bootstrap and redact them from logs/diagnostics.
+
 ## 3.1.71
 
 - Add a diagnostic APNs registration sensor for DJConnect app/client entries so users can inspect push registration state without exposing tokens.

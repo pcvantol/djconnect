@@ -10,7 +10,11 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import (
     CONF_API_BASE_URL,
+    CONF_CENTRAL_API_BOOTSTRAP_PROOF,
+    CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT,
+    CONF_CLIENT_TYPE,
     CONF_DJCONNECT_INSTALL_TOKEN,
+    CONF_DEVICE_ID,
     CONF_HA_INSTALL_ID,
     DEFAULT_API_BASE_URL,
     VERSION,
@@ -20,7 +24,17 @@ _LOGGER = logging.getLogger(__name__)
 TOKEN_PREFIX = "djci_"
 DEFAULT_TIMEOUT_SECONDS = 10
 MAX_ATTEMPTS = 2
-SECRET_KEY_PARTS = ("token", "password", "secret", "prompt", "response", "history", "memory")
+SECRET_KEY_PARTS = (
+    "token",
+    "password",
+    "secret",
+    "proof",
+    "authorization",
+    "prompt",
+    "response",
+    "history",
+    "memory",
+)
 
 
 class DJConnectCentralApiError(Exception):
@@ -47,11 +61,24 @@ async def async_ensure_install_token(hass: Any, runtime: Any) -> dict[str, Any]:
     if existing:
         return {"success": True, "created": False}
     install_id = ensure_ha_install_id(runtime)
+    proof = _bootstrap_proof(runtime)
+    if not proof:
+        return {"success": False, "error": "missing_bootstrap_proof"}
     payload = {
         "ha_install_id": install_id,
         "integration": "djconnect_hacs",
         "integration_version": VERSION,
+        "bootstrap_proof": proof,
     }
+    device_id = _device_id(runtime)
+    client_type = _client_type(runtime)
+    if device_id:
+        payload[CONF_DEVICE_ID] = device_id
+    if client_type:
+        payload[CONF_CLIENT_TYPE] = client_type
+    expires_at = _bootstrap_proof_expires_at(runtime)
+    if expires_at:
+        payload[CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT] = expires_at
     result = await _post_json(
         hass,
         runtime,
@@ -185,6 +212,55 @@ def _install_token(runtime: Any) -> str:
     config = _runtime_config(runtime)
     token = _clean(config.get(CONF_DJCONNECT_INSTALL_TOKEN), 4096)
     return token if _valid_install_token(token) else ""
+
+
+def _bootstrap_proof(runtime: Any) -> str:
+    return _clean(
+        _runtime_value(runtime, CONF_CENTRAL_API_BOOTSTRAP_PROOF, "bootstrap_proof"),
+        4096,
+    )
+
+
+def _bootstrap_proof_expires_at(runtime: Any) -> str:
+    return _clean(
+        _runtime_value(
+            runtime,
+            CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT,
+            "bootstrap_proof_expires_at",
+        ),
+        120,
+    )
+
+
+def _device_id(runtime: Any) -> str:
+    return _clean(_runtime_value(runtime, CONF_DEVICE_ID, "device_id"), 160)
+
+
+def _client_type(runtime: Any) -> str:
+    getter = getattr(runtime, "client_type", None)
+    if callable(getter):
+        try:
+            value = getter()
+            if value:
+                return _clean(value, 80)
+        except Exception:  # noqa: BLE001
+            pass
+    return _clean(_runtime_value(runtime, CONF_CLIENT_TYPE, "client_type"), 80)
+
+
+def _runtime_value(runtime: Any, *keys: str) -> Any:
+    status = getattr(runtime, "device_status", None)
+    if isinstance(status, dict):
+        for key in keys:
+            value = status.get(key)
+            if value not in (None, ""):
+                return value
+    config = _runtime_config(runtime)
+    for key in keys:
+        value = config.get(key)
+        if value not in (None, ""):
+            return value
+    return ""
 
 
 def _runtime_config(runtime: Any) -> dict[str, Any]:

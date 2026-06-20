@@ -40,6 +40,8 @@ from .const import (
     CLIENT_TYPES,
     CONF_ASSIST_PIPELINE_ID,
     CONF_CLIENT_TYPE,
+    CONF_CENTRAL_API_BOOTSTRAP_PROOF,
+    CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT,
     CONF_DEVICE_ID,
     CONF_DEVICE_LANGUAGE,
     CONF_DEVICE_NAME,
@@ -103,7 +105,13 @@ DEFAULT_TEST_TTS_TEXT = (
     "en ik sta klaar voor je volgende plaat."
 )
 MDNS_SERVICE_TYPE = "_djconnect._tcp.local."
-STATUS_SECRET_KEYS = {"device_token", "spotify_refresh_token", "refresh_token"}
+STATUS_SECRET_KEYS = {
+    "device_token",
+    "spotify_refresh_token",
+    "refresh_token",
+    CONF_CENTRAL_API_BOOTSTRAP_PROOF,
+    "bootstrap_proof",
+}
 REAL_DJCONNECT_DEVICE_ID_PATTERN = re.compile(
     r"djconnect-(?:lilygo-t-embed-s3|esp32-s3-box-3|lilygo)-[0-9A-Fa-f]{12}"
     r"|djconnect-(?:ios|macos|watchos|raspberry-pi)-[A-Za-z0-9]{12}"
@@ -120,7 +128,7 @@ def _redact_debug_payload(value: Any) -> Any:
         result: dict[str, Any] = {}
         for key, item in value.items():
             normalized = str(key).lower()
-            if any(secret in normalized for secret in ("token", "password", "secret")):
+            if any(secret in normalized for secret in ("token", "password", "secret", "proof")):
                 result[key] = "<redacted>"
             else:
                 result[key] = _redact_debug_payload(item)
@@ -646,6 +654,20 @@ class DJConnectRuntime:
         reported_local_url = str(pairing_info.get("local_url") or "").strip()
         if reported_local_url:
             self.device_status["local_url"] = reported_local_url
+        bootstrap_proof = str(
+            pairing_info.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF)
+            or pairing_info.get("bootstrap_proof")
+            or ""
+        ).strip()
+        if bootstrap_proof:
+            self.device_status[CONF_CENTRAL_API_BOOTSTRAP_PROOF] = bootstrap_proof
+        bootstrap_expires = str(
+            pairing_info.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT)
+            or pairing_info.get("bootstrap_proof_expires_at")
+            or ""
+        ).strip()
+        if bootstrap_expires:
+            self.device_status[CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT] = bootstrap_expires
         token = self.ensure_device_token()
         url = local_url.rstrip("/") + "/api/device/pair"
         payload_client_type = (

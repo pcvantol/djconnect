@@ -731,9 +731,18 @@ Pattern:
   `/api/djconnect/push/register` and `/api/djconnect/push/unregister` routes,
   but forwards registrations to the central `djconnect-api` relay instead of
   storing APNs tokens locally.
-- The HACS integration only uses `DJCONNECT_PUSH_RELAY_URL` and
-  `DJCONNECT_PUSH_RELAY_SECRET`. APNs provider `.p8` keys, provider JWT signing,
-  topics, retries and invalid-token handling live in the central API.
+- The HACS integration stores only per-install central API settings:
+  `api_base_url`, stable `ha_install_id` and a secret `djci_` install token in
+  Home Assistant config entry options. It must not contain a global relay
+  secret.
+- Apple clients (`ios`, `macos`, `watchos`) can supply a short-lived
+  `bootstrap_proof` during push registration or pairing/status. HACS uses that
+  proof only to mint the per-install `djci_` token through `/v1/install/token`;
+  without a proof HACS does not attempt blind/public token minting. ESP32,
+  Raspberry Pi and Assist-agent-only entries do not require this proof because
+  they do not use APNs push.
+- APNs provider `.p8` keys, provider JWT signing, proof validation, topics,
+  retries and invalid-token handling live in the central API.
 - Push events are generated only for explicit Ask DJ response and confirmation
   attention events. Track, playback, queue, volume, mood, idle suggestion,
   status and polling updates are default suppressed.
@@ -751,6 +760,8 @@ Why:
 
 - Keeps APNs platform credentials centralized and out of end-user Home Assistant
   instances.
+- Avoids shipping a shared HACS relay secret while still requiring an
+  Apple-client pairing proof before a new central install token can be minted.
 - Prevents notification overload from ordinary playback state changes.
 - Preserves privacy by sending only generic wake/sync hints while clients fetch
   real content through `/api/djconnect/ask_dj/history`.

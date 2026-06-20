@@ -272,13 +272,20 @@ Requirements:
   endpoints and are separate from the Home Assistant client-facing
   `/api/djconnect/push/register` and `/api/djconnect/push/unregister`
   endpoints.
-- Require relay auth on all `/v1/push/*` calls, initially using
-  `DJCONNECT_RELAY_SECRET` bearer auth or HMAC. Do not allow anonymous
-  register/event calls.
+- Require per-install `djci_` bearer auth on all `/v1/push/*` calls. Do not
+  allow anonymous register/event calls and do not require or distribute a
+  global HACS relay secret.
+- Provide `POST /v1/install/token` for HACS token bootstrap with a short-lived
+  Apple-client pairing/bootstrap proof. The proof is only needed for Apple push
+  clients (`ios`, `macos`, `watchos`) and must be bound to `ha_install_id`,
+  `client_type` and `device_id`/client install ID. ESP32, Raspberry Pi and
+  Assist-agent-only entries do not need this proof because they do not use APNs
+  push.
+- Keep `POST /v1/install/rotate` authenticated with the current `djci_` install
+  token and replace tokens atomically.
 - Use APNs provider-token auth with ES256 JWT and these config/secrets:
   `APNS_TEAM_ID`, `APNS_KEY_ID`, `APNS_PRIVATE_KEY`, `APNS_TOPIC_IOS`,
-  `APNS_TOPIC_MACOS`, `APNS_TOPIC_WATCHOS`, `APNS_ENVIRONMENT` and
-  `DJCONNECT_RELAY_SECRET`.
+  `APNS_TOPIC_MACOS`, `APNS_TOPIC_WATCHOS` and `APNS_ENVIRONMENT`.
 - Keep sandbox endpoint `https://api.sandbox.push.apple.com` and production
   endpoint `https://api.push.apple.com`; select the endpoint from each
   registration environment.
@@ -324,6 +331,12 @@ Requirements:
   the APNs provider private key. HA-to-central-API calls must not contain raw
   prompts, raw assistant responses, full chat history, DJ Memory, Home
   Assistant tokens or Spotify tokens.
+- Home Assistant stores only `api_base_url`, stable `ha_install_id` and a
+  per-install `djci_` token for central API calls. It must never contain
+  `DJCONNECT_RELAY_SECRET` or any global relay/operator secret. If an Apple
+  client supplies `bootstrap_proof` during push registration, HACS may use it
+  once to mint the `djci_` token; without a proof HACS keeps Apple push disabled
+  instead of attempting blind/public token minting.
 - Home Assistant push events must follow the strict Ask DJ attention policy:
   only explicit `ask_dj_response` and confirmation-wait `ask_dj_confirm` are
   pushable. Track/playback/queue/volume/mood changes, idle suggestions,
