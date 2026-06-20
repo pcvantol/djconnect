@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.1.66
+
+- Document the current Ask DJ client contract for server-side history, follow-up confirmations, idle suggestions and playback action handling.
+- Keep the repository bootstrap prompt aligned with the released integration version.
+- Refresh DJConnect release metadata and firmware manifest examples for the 3.1.66 release.
+
 ## 3.1.65
 
 - Add text-only ambient Ask DJ music facts when Spotify playback moves to a new artist/album combination, deduped so multiple tracks from the same album/artist do not create repeated chat messages.
