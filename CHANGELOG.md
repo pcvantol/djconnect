@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.1.71
+
+- Add a diagnostic APNs registration sensor for DJConnect app/client entries so users can inspect push registration state without exposing tokens.
+- Keep Assist Conversation Agent-only entries focused on the conversation agent plus diagnostics instead of exposing device/app playback controls.
+- Add automated Postman collection validation to CI, covering collection schema, placeholder secrets, auth headers, client identity examples and JSON content types.
+- Document Postman validation as part of the release checklist and cleanup workflow.
+
 ## 3.1.70
 
 - Add production-safe central DJConnect API support with automatic per-install `djci_` token bootstrap, stable `ha_install_id` storage and configurable API base URL.
