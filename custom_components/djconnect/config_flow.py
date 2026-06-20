@@ -1153,6 +1153,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
             description_placeholders={
                 "callback_path": "/api/djconnect/spotify/callback",
+                "developer_url": "https://developer.spotify.com/dashboard",
                 "redirect_uri": build_redirect_uri(shown_external_url) if shown_external_url else "",
             },
         )

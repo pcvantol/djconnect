@@ -44,7 +44,7 @@
       },
       "spotify": {
         "title": "Spotify koppelen",
-        "description": "Maak een eigen Spotify Developer app via https://developer.spotify.com/dashboard en registreer exact deze redirect URI: `{redirect_uri}`. Gebruik bij voorkeur je Nabu Casa HTTPS Home Assistant URL. PKCE wordt gebruikt, dus een Client Secret is niet nodig.",
+        "description": "Maak een eigen Spotify Developer app via {developer_url} en registreer exact deze redirect URI: `{redirect_uri}`. Gebruik bij voorkeur je Nabu Casa HTTPS Home Assistant URL. PKCE wordt gebruikt, dus een Client Secret is niet nodig.",
         "data": {
           "spotify_client_id": "Spotify Client ID",
           "ha_external_url": "Home Assistant externe URL",
@@ -107,7 +107,7 @@
       "spotify_client_id_required": "Vul de Client ID van je Spotify Developer App in.",
       "external_url_required": "Vul je externe Home Assistant URL in, bijvoorbeeld je Nabu Casa URL.",
       "external_url_https_required": "Gebruik een HTTPS externe URL. De aanbevolen URL is je Nabu Casa URL.",
-      "external_url_invalid": "Vul een volledige HTTPS URL in, bijvoorbeeld https://voorbeeld.ui.nabu.casa.",
+      "external_url_invalid": "Vul een volledige HTTPS URL in, bijvoorbeeld je Nabu Casa URL.",
       "oauth_setup_failed": "Spotify autorisatie kon niet worden gestart. Controleer de Client ID en externe URL en probeer opnieuw.",
       "oauth_not_completed": "Spotify autorisatie is nog niet afgerond. Geef akkoord in Spotify en ga terug naar Home Assistant.",
       "oauth_failed": "Spotify autorisatie is mislukt. Start de Spotify stap opnieuw en controleer de Redirect URI in je Spotify app.",

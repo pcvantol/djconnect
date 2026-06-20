@@ -13,6 +13,9 @@
     "assist_pipeline",
     "tts"
   ],
+  "after_dependencies": [
+    "cloud"
+  ],
   "codeowners": [
     "@pcvantol"
   ],

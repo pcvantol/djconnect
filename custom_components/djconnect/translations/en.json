@@ -44,7 +44,7 @@
       },
       "spotify": {
         "title": "Connect Spotify",
-        "description": "Create your own Spotify Developer app at https://developer.spotify.com/dashboard and register this exact redirect URI: `{redirect_uri}`. Prefer your Nabu Casa HTTPS Home Assistant URL. DJConnect uses PKCE, so no Client Secret is needed.",
+        "description": "Create your own Spotify Developer app at {developer_url} and register this exact redirect URI: `{redirect_uri}`. Prefer your Nabu Casa HTTPS Home Assistant URL. DJConnect uses PKCE, so no Client Secret is needed.",
         "data": {
           "spotify_client_id": "Spotify Client ID",
           "ha_external_url": "Home Assistant external URL",
@@ -107,7 +107,7 @@
       "spotify_client_id_required": "Enter the Client ID from your Spotify Developer App.",
       "external_url_required": "Enter your Home Assistant external URL, for example your Nabu Casa URL.",
       "external_url_https_required": "Use an HTTPS external URL. The recommended URL is your Nabu Casa URL.",
-      "external_url_invalid": "Enter a complete HTTPS URL, for example https://example.ui.nabu.casa.",
+      "external_url_invalid": "Enter a complete HTTPS URL, for example your Nabu Casa URL.",
       "oauth_setup_failed": "Spotify authorization could not be started. Check the Client ID and external URL, then try again.",
       "oauth_not_completed": "Spotify authorization has not completed yet. Approve access in Spotify and return to Home Assistant.",
       "oauth_failed": "Spotify authorization failed. Start the Spotify step again and check the redirect URI in your Spotify app.",

@@ -6,6 +6,7 @@
 - Rate-limit Ask DJ push relay events to one push per 30 seconds and five pushes per ten minutes per HA user and device/client.
 - Suppress Ask DJ pushes to foreground or recently active clients when client status reports usable activity state.
 - Keep Ask DJ push payloads generic and privacy-safe with `thread-id: djconnect.askdj`, no raw prompts, assistant responses, memory, history or tokens.
+- Fix HACS/hassfest release validation metadata and translation URL placeholders for the v3.1.69 release branch.
 
 ## 3.1.68
 
