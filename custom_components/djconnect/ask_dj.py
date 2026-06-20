@@ -23,7 +23,11 @@ from .const import (
 )
 from .dj_response import async_send_dj_response_best_effort
 from .memory import prompt_context_text
-from .mood import enrich_payload_with_mood_zone, mood_context_text, mood_zone_for_value
+from .mood import (
+    enrich_payload_with_mood_zone,
+    mood_context_text,
+    mood_zone_for_value,
+)
 from .music_intent import parse_spoken_music_request
 from .pipeline import _assist_context, _speech_from_response
 from .processor import process_text_command
@@ -270,6 +274,7 @@ async def async_idle_suggestion(
     user_id: str | None = None,
 ) -> dict[str, Any]:
     """Return one personalized Ask DJ system suggestion when playback is idle."""
+    payload = enrich_payload_with_mood_zone(payload)
     identity_payload = _identity_payload(runtime, payload)
     memory = getattr(runtime, "memory", None)
     memory_context: dict[str, Any] = {}
@@ -281,6 +286,10 @@ async def async_idle_suggestion(
             user_id=user_id,
         )
         memory_key = memory_context.get("memory_key") or memory_key
+    if payload.get("mood_zone") is None:
+        last_mood = _profile_mood(memory_context.get("memory") if isinstance(memory_context, dict) else {})
+        if last_mood is not None:
+            payload = enrich_payload_with_mood_zone({**payload, "mood": last_mood})
     playback_context = await _playback_context(hass, runtime)
     if _playback_is_active(playback_context):
         text = "Er speelt al muziek. Ik laat de suggestie even achterwege."
@@ -316,12 +325,13 @@ async def async_idle_suggestion(
         item = f"{title} van {subtitle}" if subtitle else title
         text = (
             "Er speelt nu niets. Zin in iets nieuws? "
-            f"Ik denk dat {item} goed past bij je recente luisterprofiel."
+            f"Ik denk dat {item} goed past bij je recente luisterprofiel"
+            f"{_mood_sentence_suffix(payload)}."
         )
     else:
         text = (
             "Er speelt nu niets. Ik heb nog te weinig luisterprofiel om direct "
-            "een goede Play Now suggestie te doen."
+            f"een goede Play Now suggestie te doen{_mood_sentence_suffix(payload)}."
         )
     return {
         "success": True,
@@ -344,6 +354,15 @@ def _playback_is_active(playback_context: dict[str, Any]) -> bool:
     if playback_context.get("is_playing"):
         return True
     return bool(playback_context.get("has_playback") and playback_context.get("track_name"))
+
+
+def _mood_sentence_suffix(payload: dict[str, Any]) -> str:
+    zone = mood_zone_for_value(
+        payload.get("mood") if payload.get("mood") is not None else payload.get("energy")
+    )
+    if zone is None:
+        return ""
+    return f" en je {zone.name}-vibe"
 
 
 def _should_generate_audio_response(
@@ -2902,9 +2921,9 @@ def _profile_energy(tracks: list[dict[str, Any]], memory: Any) -> str:
     mood = _profile_mood(memory)
     if mood is not None:
         zone = mood_zone_for_value(mood)
-        if zone is not None and zone.name == "Chill":
+        if zone is not None and zone.name == "chill":
             return "chill"
-        if zone is not None and zone.name in {"Energy", "Party"}:
+        if zone is not None and zone.name in {"energy", "party"}:
             return "energiek"
     text = " ".join(str(track).lower() for track in tracks)
     if any(word in text for word in ("ambient", "acoustic", "chill", "sleep", "rustig")):
@@ -2918,13 +2937,13 @@ def _profile_vibe(genres: list[str], energy: str, mood: int | None) -> str:
     genre_text = " ".join(genres).lower()
     if mood is not None:
         zone = mood_zone_for_value(mood)
-        if zone is not None and zone.name == "Chill":
+        if zone is not None and zone.name == "chill":
             return "rustig, warm en naar ontspanning gericht"
-        if zone is not None and zone.name == "Groove":
+        if zone is not None and zone.name == "groove":
             return "vloeiend, ritmisch en sociaal gericht"
-        if zone is not None and zone.name == "Energy":
+        if zone is not None and zone.name == "energy":
             return "uptempo en naar beweging of momentum gericht"
-        if zone is not None and zone.name == "Party":
+        if zone is not None and zone.name == "party":
             return "feestelijk, herkenbaar en op maximale energie gericht"
     if any(word in genre_text for word in ("jazz", "ambient", "classical", "acoustic")):
         return "ontspannen en geconcentreerd"

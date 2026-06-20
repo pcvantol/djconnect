@@ -14,7 +14,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 
 ## Current Version
 
-- Home Assistant integration: `3.1.66`
+- Home Assistant integration: `3.1.67`
 - Domain: `djconnect`
 - HACS category: `Integration`
 - Device target: DJConnect device
@@ -71,7 +71,7 @@ runtime behavior. These decisions are part of the integration contract:
 
 ## Repository Layout
 
-- Home Assistant integration: `3.1.66`
+- Home Assistant integration: `3.1.67`
 - ESP firmware source: `pcvantol/djconnect-app`
 - Public firmware releases: `pcvantol/djconnect-firmware`
 - Canonical cross-repo sync prompts live only in this HA repo: [`SYNC_PROMPTS.md`](SYNC_PROMPTS.md)
@@ -203,11 +203,11 @@ other secrets over BLE.
 The config flow includes safe defaults for optional voice fields. The Assist pipeline is stored so DJConnect knows which Home Assistant STT/TTS setup to use; DJConnect does not run direct external STT/TTS APIs.
 
 - Assist pipeline ID
-- DJ announcement style presets (neutral/business, warm/personal or humorous/witty) plus a free-form prompt for the text spoken on the device
+- Mood-aware DJ announcements: runtime mood from iOS, macOS or Apple Watch automatically adapts the spoken announcement tone; without mood DJConnect uses its hardcoded default style
 - ESP device UI language is selected automatically from the Home Assistant language during ESP pairing. iOS, macOS, watchOS and Raspberry Pi clients determine their own language locally.
 - ESP32 firmware updates through the public multi-device manifest and selected firmware channel
 
-Where Home Assistant exposes choices, DJConnect shows populated dropdowns for Assist pipeline and Spotify market. The first setup step chooses one route: Assist Conversation Agent, DJConnect app/device pairing, or WiFi provisioning over Bluetooth. The pairing step does not repeat that setup method choice; it asks for the client details only. Client type choices are ordered for app clients first: iOS, macOS, Apple Watch, Linux/Raspberry Pi and ESP32. STT/TTS engine, language and voice are managed in Home Assistant Assist, not in DJConnect. Backend playback is handled by Home Assistant through the DJConnect playback proxy; ESP device settings use the local device command API. The compact options screen used from Assist conversation-agent settings shows only the action selector and DJ response style/prompt controls. Device-only setup fields such as Client adres, Assist pipeline, firmware channel, playlist overrides, Spotify source overrides and OTA/audio compatibility fields are hidden there. Max audio bytes, OTA battery settings and DJ announcement audio TTL use integration defaults and are not user-adjustable in config/options flow. Firmware OTA device selection is ESP32-only and automatic: DJConnect reads the public multi-device firmware manifest and selects the matching `firmwares[]` entry from ESP status/info, falling back to LilyGO only before the ESP has reported a model. iOS/macOS/watchOS clients update through TestFlight/app distribution, and Linux/Raspberry Pi clients are managed from their own GitHub source/install flow rather than ESP OTA. For ESP devices, the Client adres is normally not needed: DJConnect resolves the device through `_djconnect._tcp` mDNS, uses the device-reported `local_url` when available, and only builds a model-specific hostname such as `http://djconnect-lilygo-t-embed-s3-[device-suffix].local` when the configured ID contains a real 12-character device suffix.
+Where Home Assistant exposes choices, DJConnect shows populated dropdowns for Assist pipeline and Spotify market. The first setup step chooses one route: Assist Conversation Agent, DJConnect app/device pairing, or WiFi provisioning over Bluetooth. The pairing step does not repeat that setup method choice; it asks for the client details only. Client type choices are ordered for app clients first: iOS, macOS, Apple Watch, Linux/Raspberry Pi and ESP32. STT/TTS engine, language and voice are managed in Home Assistant Assist, not in DJConnect. Backend playback is handled by Home Assistant through the DJConnect playback proxy; ESP device settings use the local device command API. The compact options screen used from Assist conversation-agent settings shows only the action selector and smart-home context allowlist; DJ announcement style is no longer a config/option choice because runtime mood drives the final tone when available. Device-only setup fields such as Client adres, Assist pipeline, firmware channel, playlist overrides, Spotify source overrides and OTA/audio compatibility fields are hidden there. Max audio bytes, OTA battery settings and DJ announcement audio TTL use integration defaults and are not user-adjustable in config/options flow. Firmware OTA device selection is ESP32-only and automatic: DJConnect reads the public multi-device firmware manifest and selects the matching `firmwares[]` entry from ESP status/info, falling back to LilyGO only before the ESP has reported a model. iOS/macOS/watchOS clients update through TestFlight/app distribution, and Linux/Raspberry Pi clients are managed from their own GitHub source/install flow rather than ESP OTA. For ESP devices, the Client adres is normally not needed: DJConnect resolves the device through `_djconnect._tcp` mDNS, uses the device-reported `local_url` when available, and only builds a model-specific hostname such as `http://djconnect-lilygo-t-embed-s3-[device-suffix].local` when the configured ID contains a real 12-character device suffix.
 
 The options flow also includes an action selector. Use `Reauthorize Spotify` to
 refresh OAuth from the integration page, `Retry pairing with current code` to
@@ -343,9 +343,9 @@ playback failures.
 When HA Assist provides a DJ announcement, DJConnect asks it to include one
 short fun fact about the artist and/or the song. After Spotify resolves and
 starts the request, DJConnect prefers the resolved track, artist, album or
-playlist metadata and the configured DJ announcement prompt to generate the spoken
-device response, so the device response is specific to what actually started
-playing.
+playlist metadata plus the current mood-zone/default announcement style to
+generate the spoken device response, so the device response is specific to what
+actually started playing.
 
 If HA Assist returns a generic smart-home answer such as "I cannot play music",
 DJConnect does not use that sentence as the DJ announcement. It keeps the
@@ -481,9 +481,9 @@ Apple Watch, iOS and backend callers all use the same server-side mood-zone
 mapping when a numeric mood is provided: `0`-`24` is `Chill`, `25`-`59` is
 `Groove`, `60`-`84` is `Energy` and `85`-`100` is `Party`. Clients can keep
 sending only the numeric `mood`; DJConnect derives `mood_zone` internally and
-uses the zone name plus persona hint in Ask DJ prompts, recommendations and
-debug/status context. Missing or unknown mood values keep the existing default
-Ask DJ behavior.
+uses the zone name plus persona hint in Ask DJ prompts, recommendations, spoken
+DJ announcements and debug/status context. Missing or unknown mood values keep
+the existing default Ask DJ and announcement behavior.
 
 | Numeric mood | Zone | Ask DJ persona hint |
 | --- | --- | --- |
@@ -525,6 +525,8 @@ POST /api/djconnect/ask_dj
 POST /api/djconnect/ask_dj/message
 GET  /api/djconnect/ask_dj/history
 POST /api/djconnect/ask_dj/history/clear
+POST /api/djconnect/push/register
+POST /api/djconnect/push/unregister
 POST /api/djconnect/command
 POST /api/djconnect/status
 POST /api/djconnect/event
@@ -532,6 +534,10 @@ GET  /api/djconnect/tts/{token}.wav
 GET  /api/djconnect/image_proxy/{token}
 GET  /api/djconnect/spotify/callback
 ```
+
+See `API_CONTRACT.md` for the compact client-facing Ask DJ contract, including
+mood-zone mapping, history retention, Apple push registration and smart-home
+context rules.
 
 A Postman collection for these HTTP endpoints lives at
 [`examples/djconnect.postman_collection.json`](examples/djconnect.postman_collection.json).
@@ -608,9 +614,31 @@ Status/pairing responses advertise:
   "ask_dj_supported": true,
   "ask_dj_voice_supported": true,
   "voice_supported": true,
-  "ask_dj_audio_response_supported": true
+  "ask_dj_audio_response_supported": true,
+  "push_supported": true,
+  "push_registered": false,
+  "push_environment": "sandbox"
 }
 ```
+
+Apple push notifications are optional and best-effort for iOS, macOS and
+watchOS clients. Clients register APNs tokens with
+`POST /api/djconnect/push/register` and unregister with
+`POST /api/djconnect/push/unregister`, both using the existing DJConnect bearer
+token. Home Assistant stores registrations per HA user/account, `device_id`,
+`client_type` and token. Push is only a wake/attention signal: when the user
+opens the app, the client must still sync through authenticated APIs, especially
+`GET /api/djconnect/ask_dj/history`.
+
+APNs uses provider-token auth with a `.p8` key. Configure `APNS_TEAM_ID`,
+`APNS_KEY_ID`, `APNS_PRIVATE_KEY` or `APNS_PRIVATE_KEY_PATH`, plus
+`APNS_TOPIC_IOS`, `APNS_TOPIC_MACOS` and `APNS_TOPIC_WATCHOS` as needed.
+`APNS_ENVIRONMENT` defaults to `sandbox`; set it to `production` for release
+builds. Missing credentials simply disable push delivery without breaking Ask
+DJ, playback or status flows. Push payloads are intentionally generic and never
+include Spotify tokens, Home Assistant tokens, raw prompts, raw LLM context,
+full memory/history or long/raw assistant responses. Invalid APNs responses such
+as `BadDeviceToken` or `Unregistered` disable the stored registration.
 
 App/display clients should use `POST /api/djconnect/ask_dj/message` for text
 chat. This contract applies to iOS, macOS, Apple Watch and Raspberry Pi. ESP32
@@ -632,14 +660,15 @@ can contain top-level identity fields or an `identity` object:
   "text": "Waarom koos je dit nummer?",
   "memory_key": "optional-client-key",
   "mood": 42,
-  "mood_zone": "Groove",
+  "mood_zone": "groove",
   "dj_style": "warm_radio_dj",
   "audio_response": "auto"
 }
 ```
 
 `mood_zone` in examples is informational; clients may omit it. The backend
-derives the canonical zone from `mood` so older clients remain compatible.
+derives the canonical lowercase zone from `mood` so older clients remain
+compatible.
 
 The response is uniform across iOS, macOS, Apple Watch and Raspberry Pi:
 
@@ -1021,24 +1050,24 @@ Example manifest:
 
 ```json
 {
-  "version": "3.1.66",
-  "version_tag": "v3.1.66",
+  "version": "3.1.67",
+  "version_tag": "v3.1.67",
   "channel": "stable",
-  "min_ha_integration": "3.1.66",
+  "min_ha_integration": "3.1.67",
   "firmwares": [
     {
       "board": "t_embed_cc1101",
       "device": "lilygo-t-embed-s3",
-      "asset": "djconnect-lilygo-t-embed-s3-v3.1.66.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.66/djconnect-lilygo-t-embed-s3-v3.1.66.bin",
+      "asset": "djconnect-lilygo-t-embed-s3-v3.1.67.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.67/djconnect-lilygo-t-embed-s3-v3.1.67.bin",
       "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "size": 2113136
     },
     {
       "board": "esp32_s3_box3",
       "device": "esp32-s3-box-3",
-      "asset": "djconnect-esp32-s3-box-3-v3.1.66.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.66/djconnect-esp32-s3-box-3-v3.1.66.bin",
+      "asset": "djconnect-esp32-s3-box-3-v3.1.67.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.67/djconnect-esp32-s3-box-3-v3.1.67.bin",
       "sha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
       "size": 2113136
     }
@@ -1061,7 +1090,7 @@ The firmware version is injected through PlatformIO build flags from the Git tag
 Recommended firmware source release helper:
 
 ```bash
-./release.sh 3.1.66
+./release.sh 3.1.67
 ```
 
 In the separate `djconnect-app` repository, the firmware release script should
@@ -1073,14 +1102,14 @@ PlatformIO builds, rename firmware binaries to device-specific assets such as
 Preview the firmware release flow without changing files:
 
 ```bash
-./release.sh 3.1.66 --dry-run
+./release.sh 3.1.67 --dry-run
 ```
 
 When publishing to the public firmware repository, use the firmware script's
 public-repo option if available:
 
 ```bash
-./release.sh 3.1.66 --publish-firmware-repo ../djconnect-firmware
+./release.sh 3.1.67 --publish-firmware-repo ../djconnect-firmware
 ```
 
 The public `djconnect-firmware` repository should contain only the release
@@ -1123,7 +1152,7 @@ Tag and publish:
 One-liner:
 
 ```bash
-./release.sh 3.1.66
+./release.sh 3.1.67
 ```
 
 The script updates the integration version in `manifest.json`, `const.py`,
@@ -1134,18 +1163,18 @@ above.
 Preview without executing git/gh commands:
 
 ```bash
-./release.sh 3.1.66 --dry-run
+./release.sh 3.1.67 --dry-run
 ```
 
 Manual equivalent:
 
 ```bash
 git add .
-git commit -m "Release DJConnect v3.1.66"
-git tag v3.1.66
+git commit -m "Release DJConnect v3.1.67"
+git tag v3.1.67
 git push origin main
-git push origin v3.1.66
-gh release create v3.1.66 --title "DJConnect v3.1.66" --notes-file CHANGELOG.md
+git push origin v3.1.67
+gh release create v3.1.67 --title "DJConnect v3.1.67" --notes-file CHANGELOG.md
 ```
 
 Release cleanup helper:

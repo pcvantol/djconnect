@@ -25,6 +25,8 @@ from .const import (
     API_SPOTIFY_CALLBACK,
     API_EVENT,
     API_PAIR,
+    API_PUSH_REGISTER,
+    API_PUSH_UNREGISTER,
     API_STATUS,
     API_TTS,
     API_VOICE,
@@ -62,6 +64,12 @@ from .dj_response import async_send_dj_response_best_effort, get_tts_audio
 from .ha_urls import async_ha_url_payload
 from .mood import enrich_payload_with_mood_zone
 from .processor import process_text_command
+from .push import (
+    EVENT_ASK_DJ_CONFIRM,
+    EVENT_ASK_DJ_RESPONSE,
+    async_send_event as async_send_push_event,
+    push_manager,
+)
 from .spotify_backend import SpotifyBackendError, handle_spotify_command
 from .spotify_oauth import exchange_code_for_refresh_token
 
@@ -637,7 +645,22 @@ def _ask_dj_capabilities() -> dict[str, bool]:
         "ask_dj_voice_supported": True,
         "voice_supported": True,
         "ask_dj_audio_response_supported": True,
+        "push_supported": True,
     }
+
+
+async def _push_status(
+    hass: Any,
+    *,
+    user_id: str | None,
+    device_id: str | None,
+    client_type: str | None,
+) -> dict[str, Any]:
+    return await push_manager(hass).async_status(
+        user_id=user_id,
+        device_id=device_id,
+        client_type=client_type,
+    )
 
 
 def _request_remote_ip(request: Any) -> str | None:
@@ -1548,6 +1571,14 @@ class DJConnectStatusView(HomeAssistantView):
             "playback": getattr(runtime, "last_playback", None) or {},
         }
         response.update(_ask_dj_capabilities())
+        response.update(
+            await _push_status(
+                hass,
+                user_id=_request_user_id(request),
+                device_id=status_update.get("device_id"),
+                client_type=client_type,
+            )
+        )
         if memory_key:
             response["memory_key"] = memory_key
         response.update(_ha_version_payload())
@@ -1799,6 +1830,7 @@ class DJConnectAskDjView(HomeAssistantView):
             return _json_error(self, "unauthorized", 401)
         payload = dict(data)
         payload.update({key: value for key, value in identity.items() if value is not None})
+        payload = enrich_payload_with_mood_zone(payload)
         result = await async_handle_ask_dj(
             hass,
             runtime,
@@ -1879,6 +1911,7 @@ class DJConnectAskDjMessageView(HomeAssistantView):
             return _json_error(self, "unauthorized", 401)
         payload = dict(data)
         payload.update({key: value for key, value in identity.items() if value is not None})
+        payload = enrich_payload_with_mood_zone(payload)
         user_id = _request_user_id(request)
         result = await async_handle_ask_dj(hass, runtime, payload, user_id=user_id)
         if not result.get("success"):
@@ -1888,7 +1921,106 @@ class DJConnectAskDjMessageView(HomeAssistantView):
             payload,
             result,
         )
+        event_type = (
+            EVENT_ASK_DJ_CONFIRM
+            if result.get("confirmation_actions") or result.get("playback_actions")
+            else EVENT_ASK_DJ_RESPONSE
+        )
+        await async_send_push_event(
+            hass,
+            user_id=user_id,
+            event_type=event_type,
+            history_revision=sync.get("history_revision"),
+            client_message_id=payload.get("client_message_id"),
+            source_device_id=identity.get("device_id"),
+        )
         return self.json({**result, **sync})
+
+
+class DJConnectPushRegisterView(HomeAssistantView):
+    url = API_PUSH_REGISTER
+    name = "api:djconnect:push_register"
+    requires_auth = False
+
+    def __init__(self, hass):
+        self.hass = hass
+
+    async def post(self, request):
+        hass = request.app["hass"]
+        try:
+            data = await request.json()
+        except Exception:  # noqa: BLE001
+            return _json_error(self, "invalid_json", 400)
+        identity = _identity_payload(data)
+        runtime = _runtime(
+            hass,
+            identity.get("device_id") or request.headers.get("X-DJConnect-Device-ID"),
+            request.headers,
+        )
+        if runtime is None:
+            return _json_error(self, "not_configured", 503)
+        client_type = _validate_required_client_type(identity)
+        if client_type is None or client_type not in {CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_WATCHOS}:
+            return _json_error(self, "invalid_client_type", 400)
+        if not _authorize_runtime_device_request(
+            runtime,
+            request.headers,
+            identity.get("device_id"),
+            client_type,
+        ):
+            return _json_error(self, "unauthorized", 401)
+        payload = dict(data)
+        payload.update({key: value for key, value in identity.items() if value is not None})
+        payload[CONF_CLIENT_TYPE] = client_type
+        result = await push_manager(hass).async_register(
+            user_id=_request_user_id(request),
+            payload=payload,
+        )
+        status = 200 if result.get("success") else 400
+        return self.json(result, status_code=status)
+
+
+class DJConnectPushUnregisterView(HomeAssistantView):
+    url = API_PUSH_UNREGISTER
+    name = "api:djconnect:push_unregister"
+    requires_auth = False
+
+    def __init__(self, hass):
+        self.hass = hass
+
+    async def post(self, request):
+        hass = request.app["hass"]
+        try:
+            data = await request.json()
+        except Exception:  # noqa: BLE001
+            return _json_error(self, "invalid_json", 400)
+        identity = _identity_payload(data)
+        runtime = _runtime(
+            hass,
+            identity.get("device_id") or request.headers.get("X-DJConnect-Device-ID"),
+            request.headers,
+        )
+        if runtime is None:
+            return _json_error(self, "not_configured", 503)
+        client_type = _validate_required_client_type(identity)
+        if client_type is None or client_type not in {CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_WATCHOS}:
+            return _json_error(self, "invalid_client_type", 400)
+        if not _authorize_runtime_device_request(
+            runtime,
+            request.headers,
+            identity.get("device_id"),
+            client_type,
+        ):
+            return _json_error(self, "unauthorized", 401)
+        payload = dict(data)
+        payload.update({key: value for key, value in identity.items() if value is not None})
+        payload[CONF_CLIENT_TYPE] = client_type
+        result = await push_manager(hass).async_unregister(
+            user_id=_request_user_id(request),
+            payload=payload,
+        )
+        status = 200 if result.get("success") else 400
+        return self.json(result, status_code=status)
 
 
 class DJConnectAskDjIdleSuggestionView(HomeAssistantView):
@@ -1926,6 +2058,7 @@ class DJConnectAskDjIdleSuggestionView(HomeAssistantView):
             return _json_error(self, "unauthorized", 401)
         payload = dict(data)
         payload.update({key: value for key, value in identity.items() if value is not None})
+        payload = enrich_payload_with_mood_zone(payload)
         user_id = _request_user_id(request)
         result = await async_idle_suggestion(hass, runtime, payload, user_id=user_id)
         if not result.get("success"):

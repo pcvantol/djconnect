@@ -187,7 +187,7 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertEqual(calls[0]["language"], "nl-NL")
         self.assertNotIn("agent_id", calls[0])
 
-    def test_generate_dj_response_with_assist_uses_custom_response_prompt(self) -> None:
+    def test_generate_dj_response_with_assist_ignores_legacy_custom_response_prompt(self) -> None:
         calls = []
 
         class Services:
@@ -219,7 +219,8 @@ class AssistPipelineTest(unittest.TestCase):
             calls[0][2]["text"],
         )
         self.assertIn("Je bent een radio-DJ", calls[0][2]["text"])
-        self.assertIn("Sound like a pirate DJ.", calls[0][2]["text"])
+        self.assertIn("Klink warm en persoonlijk.", calls[0][2]["text"])
+        self.assertNotIn("Sound like a pirate DJ.", calls[0][2]["text"])
         self.assertIn("artiest: Pearl Jam", calls[0][2]["text"])
         self.assertNotIn("spotify:artist", calls[0][2]["text"])
         self.assertNotIn("{'artist'", calls[0][2]["text"])

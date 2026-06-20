@@ -40,6 +40,7 @@ class DiagnosticsTest(unittest.TestCase):
             "device_token": "device-secret",
             "refresh_token": "refresh-secret",
             "spotify_refresh_token": "spotify-secret",
+            "push_token": "push-secret",
             "wifi_password": "wifi-secret",
             "nested": {
                 "password": "nested-secret",
@@ -52,6 +53,7 @@ class DiagnosticsTest(unittest.TestCase):
         self.assertEqual(redacted["device_token"], "REDACTED")
         self.assertEqual(redacted["refresh_token"], "REDACTED")
         self.assertEqual(redacted["spotify_refresh_token"], "REDACTED")
+        self.assertEqual(redacted["push_token"], "REDACTED")
         self.assertEqual(redacted["wifi_password"], "REDACTED")
         self.assertEqual(redacted["nested"]["password"], "REDACTED")
         self.assertEqual(redacted["nested"]["client_id"], "safe-client-id")

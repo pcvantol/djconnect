@@ -43,6 +43,7 @@ Architectuur beslissingen:
 - Bij major/minor mismatch retourneert HA HTTP `426` met `error: version_mismatch` en HA/firmware metadata; dit is geen pairing-token failure en mag pairing/token niet wissen.
 - ESP uploadt raw WAV audio naar `POST /api/djconnect/voice`; de HA integration doet Assist/STT intern via HA `stt.async_get_speech_to_text_engine(...).async_process_audio_stream` met eerst de opgeslagen Assist pipeline, daarna HA preferred/default pipeline, eerste pipeline met STT, eerste HA `stt.*` entity of als laatste HA `assist_pipeline.async_pipeline_from_audio_stream`, kan daarna via HA Assist een defensieve fuzzy-correctie op de STT-tekst uitvoeren, en geeft tekst plus optionele WAV/MP3 `audio_url` terug.
 - `/api/djconnect/status`, `/api/djconnect/command` en `/api/djconnect/voice` mogen optioneel `mood` (`0`-`100`), `dj_style` en `memory_key` accepteren voor Ask DJ. HA mag `memory_key` normaliseren/overrulen en kan de resolved `memory_key` teruggeven.
+- Ask DJ mood-zones worden server-side uit numerieke Apple client mood afgeleid: `0`-`24` = `chill`, `25`-`59` = `groove`, `60`-`84` = `energy`, `85`-`100` = `party`; waarden worden naar `0`-`100` geclamped en ontbrekende/ongeldige mood behoudt bestaand defaultgedrag.
 - Actieve HA routes gebruiken geen directe externe AI/STT/TTS APIs; gebruik HA Assist en HA TTS.
 - DJ responses spelen op het DJConnect device af, niet via Spotify Connect of HA media_player; HA post `text` plus optionele tijdelijke WAV/MP3 `audio_url` naar `/api/device/dj_response`.
 - Fallback DJ responses bij command/playback fouten moeten de gekozen `device_language` volgen (`en`/`nl`).
@@ -77,7 +78,7 @@ Licentie/commercieel:
 HA integration:
 - domain: `djconnect`
 - HACS custom integration.
-- Actuele integratieversie: `3.1.66`.
+- Actuele integratieversie: `3.1.67`.
 - Config flow moet blijven laden.
 - Config flow blokkeert niet meer op een officiële Home Assistant Spotify `media_player` entity; DJConnect gebruikt eigen Spotify OAuth en de Spotify Web API voor backend playback.
 - Spotify OAuth gebruikt een HA external step en opent de Spotify website.
@@ -189,7 +190,7 @@ README/release:
   - Controleer dat de working tree alleen bedoelde wijzigingen bevat.
   - Update `custom_components/djconnect/manifest.json` naar de target versie.
   - Update `custom_components/djconnect/const.py` naar dezelfde target versie.
-  - Update alle documentatiebestanden in deze repo die door de wijziging of release geraakt worden: minimaal `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` en relevante files onder `examples/`.
+  - Update alle documentatiebestanden in deze repo die door de wijziging of release geraakt worden: minimaal `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `API_CONTRACT.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` en relevante files onder `examples/`.
   - Update en JSON-valideer `examples/djconnect.postman_collection.json` als HTTP endpoints, auth headers, request payloads of response shapes wijzigen.
   - Update `README.md` current version, examples, endpoints, HACS instructies en release workflow.
   - Update `CHANGELOG.md` met een nieuw blok per release; behoud eerdere releaseblokken en consolideer niet meer naar één actuele versie.
@@ -210,7 +211,7 @@ README/release:
 - HACS release workflow bevat minimaal:
   - One-liner mag via `./release.sh X.Y.Z`.
   - `./release.sh X.Y.Z` moet de versie automatisch bijwerken in `manifest.json`, `const.py`, `README.md`, `CHANGELOG.md`, `AGENTS.md` en relevante voorbeeldmetadata voordat commit/tag gebeurt.
-  - Controleer vóór release handmatig of alle documentatiebestanden (`README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md`, `examples/*`) inhoudelijk kloppen; niet alleen versienummers.
+  - Controleer vóór release handmatig of alle documentatiebestanden (`README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `API_CONTRACT.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md`, `examples/*`) inhoudelijk kloppen; niet alleen versienummers.
   - Controleer vóór release handmatig dat `examples/djconnect.postman_collection.json` de actuele API contracten en testvoorbeelden bevat en geldige JSON is.
   - Controleer vóór release handmatig dat alle Nederlandse en Engelse vertalingen compleet en passend zijn.
   - Controleer vóór release handmatig of de testdekking past bij de wijziging; documentatie-only changes mogen zonder nieuwe tests, maar code-/contract-/UI-string changes moeten expliciet bestaande of nieuwe tests dekken.

@@ -61,14 +61,12 @@
         "description": "Home Assistant opent Spotify in je browser. Na akkoord ga je terug naar Home Assistant om de setup af te maken."
       },
       "voice": {
-        "title": "Spraak, playback en DJ stijl",
+        "title": "Spraak en playback",
         "data": {
           "assist_pipeline_id": "Assist pipeline",
           "client_type": "Clienttype",
           "local_url": "Client adres",
           "dj_response_enabled": "DJ aankondiging op apparaat afspelen",
-          "dj_response_prompt_preset": "DJ aankondiging stijl",
-          "dj_response_prompt": "DJ aankondiging prompt",
           "smart_home_context_entities": "Gedeelde smart-home entiteiten",
           "firmware_channel": "Firmwarekanaal",
           "options_action": "Actie"
@@ -77,8 +75,6 @@
           "assist_pipeline_id": "Assist pipeline die DJConnect apparaten gebruiken voor spraakherkenning en DJ aankondiging audio.",
           "client_type": "Type DJConnect client dat koppelt met Home Assistant: iOS app, macOS app, Apple Watch app, Linux/Raspberry Pi client of ESP32 device.",
           "dj_response_enabled": "Maak een tijdelijke WAV of MP3 audio URL en stuur die met de DJ aankondiging naar het DJConnect device.",
-          "dj_response_prompt_preset": "Kies een vaste stijl of Vrij in te vullen om de prompt hieronder zelf te beheren.",
-          "dj_response_prompt": "Vrije prompt voor de tekst die DJConnect na een verzoek op het device uitspreekt. Bij een vaste stijl vult DJConnect deze tekst automatisch.",
           "smart_home_context_entities": "Expliciete alleen-lezen Home Assistant entiteiten die DJConnect in Ask DJ context mag gebruiken, bijvoorbeeld weer, kamertemperatuur, apparaatstatus of scene-status.",
           "firmware_channel": "Kies stable voor normale OTA updates of beta om prerelease firmware te testen.",
           "options_action": "Kies instellingen opslaan of Spotify opnieuw autoriseren."
@@ -136,8 +132,6 @@
           "client_type": "Clienttype",
           "local_url": "Client adres",
           "dj_response_enabled": "DJ aankondiging op apparaat afspelen",
-          "dj_response_prompt_preset": "DJ aankondiging stijl",
-          "dj_response_prompt": "DJ aankondiging prompt",
           "smart_home_context_entities": "Gedeelde smart-home entiteiten",
           "firmware_channel": "Firmwarekanaal",
           "options_action": "Actie"
@@ -147,8 +141,6 @@
           "client_type": "Type DJConnect client dat koppelt met Home Assistant: iOS app, macOS app, Apple Watch app, Linux/Raspberry Pi client of ESP32 device.",
           "local_url": "Geconfigureerde Client adres. Alleen-lezen; gebruik opnieuw koppelen om deze URL te wijzigen.",
           "dj_response_enabled": "Maak een tijdelijke WAV of MP3 audio URL en stuur die met de DJ aankondiging naar het DJConnect device.",
-          "dj_response_prompt_preset": "Kies een vaste stijl of Vrij in te vullen om de prompt hieronder zelf te beheren.",
-          "dj_response_prompt": "Vrije prompt voor de tekst die DJConnect na een verzoek op het device uitspreekt. Bij een vaste stijl vult DJConnect deze tekst automatisch.",
           "smart_home_context_entities": "Expliciete alleen-lezen Home Assistant entiteiten die DJConnect in Ask DJ context mag gebruiken, bijvoorbeeld weer, kamertemperatuur, apparaatstatus of scene-status.",
           "firmware_channel": "Kies stable voor normale OTA updates of beta om prerelease firmware te testen.",
           "options_action": "Kies instellingen opslaan of Spotify opnieuw autoriseren."

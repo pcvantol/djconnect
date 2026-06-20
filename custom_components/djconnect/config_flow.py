@@ -30,7 +30,6 @@ from .const import (
     CONF_DEVICE_TOKEN,
     CONF_DJ_RESPONSE_ENABLED,
     CONF_DJ_RESPONSE_PROMPT,
-    CONF_DJ_RESPONSE_PROMPT_PRESET,
     CONF_DJ_RESPONSE_TTL_SECONDS,
     CONF_FIRMWARE_CHANNEL,
     CONF_HA_EXTERNAL_URL,
@@ -60,9 +59,6 @@ from .const import (
     DEFAULT_SETUP_METHOD,
     DEFAULT_SPOTIFY_MARKET,
     DEFAULT_SPOTIFY_SCOPES,
-    DJ_RESPONSE_PROMPT_PRESET_CUSTOM,
-    DJ_RESPONSE_PROMPT_PRESETS,
-    DJ_RESPONSE_PROMPT_TEXTS,
     FIRMWARE_CHANNELS,
     CLIENT_TYPE_NAMES,
     CLIENT_TYPES,
@@ -151,8 +147,6 @@ CLIENT_TYPE_NAME_SUFFIXES = {
 VOICE_FORM_FIELDS = {
     CONF_ASSIST_PIPELINE_ID,
     CONF_DJ_RESPONSE_ENABLED,
-    CONF_DJ_RESPONSE_PROMPT_PRESET,
-    CONF_DJ_RESPONSE_PROMPT,
     CONF_SMART_HOME_CONTEXT_ENTITIES,
     CONF_FIRMWARE_CHANNEL,
 }
@@ -605,18 +599,6 @@ def _base_voice_schema(
             ),
         ): bool,
         vol.Optional(
-            CONF_DJ_RESPONSE_PROMPT_PRESET,
-            default=_dj_response_prompt_preset_default(
-                defaults.get(CONF_DJ_RESPONSE_PROMPT),
-            ),
-        ): _dj_response_prompt_preset_selector(),
-        vol.Optional(
-            CONF_DJ_RESPONSE_PROMPT,
-            default=defaults.get(CONF_DJ_RESPONSE_PROMPT, DEFAULT_DJ_RESPONSE_PROMPT),
-        ): selector.TextSelector(
-            selector.TextSelectorConfig(multiline=True),
-        ),
-        vol.Optional(
             CONF_SMART_HOME_CONTEXT_ENTITIES,
             default=_entity_allowlist_default(defaults),
         ): _entity_allowlist_selector(),
@@ -646,34 +628,6 @@ def _firmware_channel_selector() -> Any:
             )
         )
     return vol.In(FIRMWARE_CHANNELS)
-
-
-def _dj_response_prompt_preset_selector() -> Any:
-    """Return a labeled DJ response preset selector when HA exposes helpers."""
-    select_selector = getattr(selector, "SelectSelector", None)
-    select_config = getattr(selector, "SelectSelectorConfig", None)
-    select_option = getattr(selector, "SelectOptionDict", None)
-    if select_selector and select_config and select_option:
-        return select_selector(
-            select_config(
-                options=[
-                    select_option(
-                        value="neutral_business",
-                        label="Neutraal en zakelijk",
-                    ),
-                    select_option(
-                        value="warm_personal",
-                        label="Warm en persoonlijk",
-                    ),
-                    select_option(
-                        value="humorous_witty",
-                        label="Humoristisch en gevat",
-                    ),
-                    select_option(value="custom", label="Vrij in te vullen"),
-                ]
-            )
-        )
-    return vol.In(DJ_RESPONSE_PROMPT_PRESETS)
 
 
 def _entity_allowlist_selector() -> Any:
@@ -710,18 +664,6 @@ def _conversation_agent_options_schema(
             default=OPTIONS_ACTION_SAVE,
         ): vol.In(_conversation_agent_options_actions(hass)),
         vol.Optional(
-            CONF_DJ_RESPONSE_PROMPT_PRESET,
-            default=_dj_response_prompt_preset_default(
-                defaults.get(CONF_DJ_RESPONSE_PROMPT),
-            ),
-        ): _dj_response_prompt_preset_selector(),
-        vol.Optional(
-            CONF_DJ_RESPONSE_PROMPT,
-            default=defaults.get(CONF_DJ_RESPONSE_PROMPT, DEFAULT_DJ_RESPONSE_PROMPT),
-        ): selector.TextSelector(
-            selector.TextSelectorConfig(multiline=True),
-        ),
-        vol.Optional(
             CONF_SMART_HOME_CONTEXT_ENTITIES,
             default=_entity_allowlist_default(defaults),
         ): _entity_allowlist_selector(),
@@ -732,18 +674,6 @@ def _conversation_agent_options_schema(
 def _conversation_agent_voice_schema(defaults: dict[str, Any]) -> vol.Schema:
     """Build the compact setup schema used for Assist conversation agent entries."""
     schema: dict[Any, Any] = {
-        vol.Optional(
-            CONF_DJ_RESPONSE_PROMPT_PRESET,
-            default=_dj_response_prompt_preset_default(
-                defaults.get(CONF_DJ_RESPONSE_PROMPT),
-            ),
-        ): _dj_response_prompt_preset_selector(),
-        vol.Optional(
-            CONF_DJ_RESPONSE_PROMPT,
-            default=defaults.get(CONF_DJ_RESPONSE_PROMPT, DEFAULT_DJ_RESPONSE_PROMPT),
-        ): selector.TextSelector(
-            selector.TextSelectorConfig(multiline=True),
-        ),
         vol.Optional(
             CONF_SMART_HOME_CONTEXT_ENTITIES,
             default=_entity_allowlist_default(defaults),
@@ -787,18 +717,6 @@ def _voice_defaults(
 ) -> dict[str, Any]:
     """Return voice/options config with safe defaults."""
     source = data or {}
-    preset = str(
-        source.get(CONF_DJ_RESPONSE_PROMPT_PRESET)
-        or DJ_RESPONSE_PROMPT_PRESET_CUSTOM
-    ).strip()
-    if preset not in DJ_RESPONSE_PROMPT_PRESETS:
-        preset = DJ_RESPONSE_PROMPT_PRESET_CUSTOM
-    dj_response_prompt = _clean(
-        source.get(CONF_DJ_RESPONSE_PROMPT),
-        DEFAULT_DJ_RESPONSE_PROMPT,
-    )
-    if preset != DJ_RESPONSE_PROMPT_PRESET_CUSTOM:
-        dj_response_prompt = DJ_RESPONSE_PROMPT_TEXTS[preset]
     return {
         CONF_ASSIST_PIPELINE_ID: _defaultable_value(
             source,
@@ -814,8 +732,7 @@ def _voice_defaults(
             source.get(CONF_DJ_RESPONSE_TTL_SECONDS),
             DEFAULT_DJ_RESPONSE_TTL_SECONDS,
         ),
-        CONF_DJ_RESPONSE_PROMPT_PRESET: preset,
-        CONF_DJ_RESPONSE_PROMPT: dj_response_prompt,
+        CONF_DJ_RESPONSE_PROMPT: DEFAULT_DJ_RESPONSE_PROMPT,
         CONF_MAX_AUDIO_BYTES: _int(
             source.get(CONF_MAX_AUDIO_BYTES),
             DEFAULT_MAX_AUDIO_BYTES,
@@ -856,14 +773,6 @@ def _voice_defaults_for_client(
 def _firmware_channel_default(value: Any) -> str:
     channel = str(value or DEFAULT_FIRMWARE_CHANNEL).strip().lower()
     return "beta" if channel == "beta" else DEFAULT_FIRMWARE_CHANNEL
-
-
-def _dj_response_prompt_preset_default(prompt: Any) -> str:
-    value = str(prompt or DEFAULT_DJ_RESPONSE_PROMPT).strip()
-    for preset, preset_prompt in DJ_RESPONSE_PROMPT_TEXTS.items():
-        if value == preset_prompt:
-            return preset
-    return DJ_RESPONSE_PROMPT_PRESET_CUSTOM
 
 
 def _voice_errors(user_input: dict[str, Any]) -> dict[str, str]:

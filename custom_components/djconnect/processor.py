@@ -14,6 +14,7 @@ from .pipeline import (
     process_text_with_assist,
 )
 from .memory import prompt_context_text
+from .mood import enrich_payload_with_mood_zone
 from .spotify import play_from_intent
 from .spotify_backend import SpotifyBackendError, handle_spotify_command
 
@@ -45,6 +46,7 @@ async def process_text_command(
             runtime,
             corrected_text,
             user_text,
+            memory_payload=memory_payload,
         )
         await _record_ask_dj_memory(
             runtime,
@@ -62,6 +64,7 @@ async def process_text_command(
             corrected_text,
             user_text,
             control,
+            memory_payload=memory_payload,
         )
         await _record_ask_dj_memory(
             runtime,
@@ -86,7 +89,7 @@ async def process_text_command(
     playback = None
     if play:
         playback = await play_from_intent(hass, runtime, intent, conf)
-    response_media = _dj_response_media(intent, playback)
+    response_media = _with_mood_context(_dj_response_media(intent, playback), memory_payload, runtime)
     fallback_dj_text = _dj_response_text(intent, playback, conf, media=response_media)
     dj_response_debug: dict[str, Any] = {}
     dj_text = await generate_dj_response_with_assist(
@@ -162,6 +165,27 @@ async def _process_text_with_optional_memory(
         return _fallback_search_intent(corrected_text)
 
 
+def _with_mood_context(
+    media: dict[str, Any],
+    memory_payload: dict[str, Any] | None,
+    runtime: Any,
+) -> dict[str, Any]:
+    """Attach request or latest status mood to DJ announcement media."""
+    payload: dict[str, Any] = dict(memory_payload or {})
+    if payload.get("mood") is None:
+        status = getattr(runtime, "device_status", None)
+        if isinstance(status, dict):
+            payload["mood"] = status.get("mood")
+    enriched = enrich_payload_with_mood_zone(payload)
+    if enriched.get("mood_zone") is None:
+        return media
+    merged = dict(media)
+    merged["mood"] = enriched["mood"]
+    merged["mood_zone"] = enriched["mood_zone"]
+    merged["mood_zone_prompt"] = enriched.get("mood_zone_prompt")
+    return merged
+
+
 async def _record_ask_dj_memory(
     runtime: Any,
     corrected_text: str,
@@ -189,6 +213,8 @@ async def _process_playback_control_request(
     corrected_text: str,
     user_text: str,
     control: dict[str, Any],
+    *,
+    memory_payload: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Execute simple DJ playback controls without running music search."""
     conf = runtime.config
@@ -202,7 +228,7 @@ async def _process_playback_control_request(
     }
     runtime.update(last_intent=intent)
     playback = await _execute_playback_control(hass, runtime, control)
-    media = _playback_control_media(playback, intent)
+    media = _with_mood_context(_playback_control_media(playback, intent), memory_payload, runtime)
     fallback_dj_text = _playback_control_response_text(control, playback, conf)
     dj_response_debug: dict[str, Any] = {}
     dj_text = await generate_dj_response_with_assist(
@@ -301,6 +327,8 @@ async def _process_current_track_question(
     runtime,
     corrected_text: str,
     user_text: str,
+    *,
+    memory_payload: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Answer which Spotify track is active without starting playback."""
     conf = runtime.config
@@ -313,7 +341,7 @@ async def _process_current_track_question(
     }
     runtime.update(last_intent=intent)
     playback = await _lookup_current_playback(hass, runtime)
-    media = _current_playback_media(playback)
+    media = _with_mood_context(_current_playback_media(playback), memory_payload, runtime)
     fallback_dj_text = _current_track_response_text(playback, conf)
     dj_response_debug: dict[str, Any] = {}
     dj_text = await generate_dj_response_with_assist(

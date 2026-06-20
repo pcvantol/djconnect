@@ -249,10 +249,10 @@ Requirements:
   payloads, but HA may normalize or override the resolved `memory_key`. ESP32
   is excluded from Ask DJ chat/history and keeps its voice/playback command flow.
 - Numeric `mood` remains the cross-client wire contract. HA maps it to
-  DJConnect mood zones for prompts and recommendations: Chill `0`-`24`,
-  Groove `25`-`59`, Energy `60`-`84`, Party `85`-`100`. Clients may show these
-  zones locally, but do not need to send `mood_zone`; HA derives the canonical
-  value from `mood`.
+  DJConnect mood zones for prompts and recommendations: `chill` for `0`-`24`,
+  `groove` for `25`-`59`, `energy` for `60`-`84`, `party` for `85`-`100`.
+  Clients may show title-case mode labels locally, but do not need to send
+  `mood_zone`; HA derives the canonical lowercase value from `mood`.
 - Ask DJ text chat for app/display clients uses POST /api/djconnect/ask_dj/message.
   Request identity can be top-level or inside `identity`; include
   client_message_id for retry dedupe and client_id as origin metadata. Response

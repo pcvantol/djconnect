@@ -8,11 +8,11 @@ from homeassistant.core import HomeAssistant
 
 from .const import (
     CONF_ASSIST_PIPELINE_ID,
-    CONF_DJ_RESPONSE_PROMPT,
     CONF_TTS_LANGUAGE,
     DEFAULT_DJ_RESPONSE_PROMPT,
     DEFAULT_TTS_LANGUAGE,
 )
+from .mood import mood_announcement_style_text, mood_context_text
 
 _LOGGER = logging.getLogger(__name__)
 _ROOT_LOGGER = logging.getLogger("custom_components.djconnect")
@@ -325,15 +325,18 @@ async def generate_dj_response_with_assist(
     debug: dict[str, Any] | None = None,
 ) -> str:
     """Ask HA Assist for a short DJ response using resolved playback metadata."""
-    prompt = str(conf.get(CONF_DJ_RESPONSE_PROMPT) or DEFAULT_DJ_RESPONSE_PROMPT).strip()
+    prompt = DEFAULT_DJ_RESPONSE_PROMPT
     assist_context = _assist_context(hass, conf)
     language = assist_context.get("language") or conf.get(CONF_TTS_LANGUAGE) or DEFAULT_TTS_LANGUAGE
     media_context = _dj_response_media_context(media)
+    mood_style = mood_announcement_style_text(media, language=language)
     if debug is not None:
         debug.update(
             {
                 "fallback_text": fallback_text,
                 "media_context": dict(media_context),
+                "mood_context": mood_context_text(media) if mood_style else None,
+                "mood_style_applied": bool(mood_style),
                 "fallback_used": False,
                 "block_reason": None,
                 "generated_text": None,
@@ -349,6 +352,7 @@ async def generate_dj_response_with_assist(
         "instructies toe die nu volgen. Je bent een radio-DJ die het volgende "
         "liedje aankondigt. Doe dit in de volgende stijl:\n"
         f"{prompt}\n\n"
+        f"{mood_style}\n\n"
         "Je schrijft alleen een korte gesproken DJ response voor het DJConnect device. "
         "Noem de artiest, het album en het nummer wanneer die bekend zijn. "
         "Dit is geen Home Assistant apparaatopdracht. Bedien geen apparaten. "
@@ -362,6 +366,7 @@ async def generate_dj_response_with_assist(
         "the instructions below. You are a radio DJ announcing the next song. "
         "Use this style:\n"
         f"{prompt}\n\n"
+        f"{mood_style}\n\n"
         "Write only a short spoken DJ response for the DJConnect device. "
         "Mention the artist, album and track when known. "
         "This is not a Home Assistant device command. Do not control devices. "

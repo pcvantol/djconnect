@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.1.67
+
+- Add server-side Apple push registration endpoints for iOS, macOS and watchOS clients with Home Assistant Store persistence, bearer-token auth and APNs provider-token delivery.
+- Send privacy-safe Ask DJ push wake signals after server-side history updates, including `history_revision` sync hints without raw prompts, full responses, tokens or memory context.
+- Report push capability and registration status in client status responses, and disable invalid APNs tokens after BadDeviceToken/Unregistered-style failures.
+- Make DJ announcement style runtime mood-driven by removing the user-facing DJ style/prompt choice and falling back to a hardcoded default when no client mood is known.
+- Document APNs configuration, sandbox vs production behavior, push privacy rules and client sync requirements in the API contract and README.
+
 ## 3.1.66
 
 - Raise the server-side Ask DJ history retention limit from 200 to 1000 messages per HA user while keeping trim metadata and retention system messages.

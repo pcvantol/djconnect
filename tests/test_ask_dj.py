@@ -920,7 +920,7 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.handle_spotify_command = original_command
 
-        self.assertIn("Mood/energy: 70/100 (Energy:", seen["prompt"])
+        self.assertIn("Mood/energy: 70/100 (energy:", seen["prompt"])
         self.assertIn("uptempo", seen["prompt"])
         self.assertEqual(seen["commands"], ["status"])
         self.assertEqual(result["intent"]["category"], "informational")
@@ -2697,6 +2697,8 @@ class AskDjTest(unittest.TestCase):
         hass = types.SimpleNamespace(data={self.const.DOMAIN: {"runtime": runtime}})
 
         async def ask_dj(hass_arg, runtime_arg, payload, *, user_id=None):
+            self.assertEqual(payload["mood"], 70)
+            self.assertEqual(payload["mood_zone"], "energy")
             return {
                 "success": True,
                 "text": "Ik kies iets rustigers.",
@@ -2707,6 +2709,11 @@ class AskDjTest(unittest.TestCase):
                 "audio_url": "/api/djconnect/tts/abc.mp3",
                 "playback_actions": [{"uri": "spotify:track:123", "kind": "track"}],
             }
+        push_events = []
+
+        async def send_push(hass_arg, **kwargs):
+            push_events.append(kwargs)
+            return {"success": True, "sent": 1}
 
         class MessageRequest:
             headers = {"Authorization": "Bearer device-token"}
@@ -2720,15 +2727,19 @@ class AskDjTest(unittest.TestCase):
                     "device_id": runtime.device_status["device_id"],
                     "client_type": "watchos",
                     "text": "Draai iets rustigers",
+                    "mood": 70,
                 }
 
         original = self.http.async_handle_ask_dj
+        original_push = self.http.async_send_push_event
         self.http.async_handle_ask_dj = ask_dj
+        self.http.async_send_push_event = send_push
         try:
             response = asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest()))
             duplicate = asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest()))
         finally:
             self.http.async_handle_ask_dj = original
+            self.http.async_send_push_event = original_push
 
         self.assertEqual(response["status_code"], 200)
         self.assertEqual(response["payload"]["history_revision"], 1)
@@ -2739,6 +2750,10 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(response["payload"]["assistant_message"]["audio_url"], "/api/djconnect/tts/abc.mp3")
         self.assertEqual(response["payload"]["assistant_message"]["playback_actions"][0]["uri"], "spotify:track:123")
         self.assertTrue(duplicate["payload"]["deduplicated"])
+        self.assertEqual(push_events[0]["user_id"], "user-1")
+        self.assertEqual(push_events[0]["event_type"], "ask_dj_confirm")
+        self.assertEqual(push_events[0]["history_revision"], 1)
+        self.assertEqual(push_events[0]["client_message_id"], "client-1")
 
         class HistoryRequest:
             headers = {
@@ -2796,6 +2811,7 @@ class AskDjTest(unittest.TestCase):
                     "client_id": "watch",
                     "device_id": runtime.device_status["device_id"],
                     "client_type": "watchos",
+                    "mood": 35,
                 }
 
         original = self.ask_dj.handle_spotify_command
@@ -2812,6 +2828,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(payload["assistant_message"]["message_kind"], "system")
         self.assertEqual(payload["assistant_message"]["origin"], "idle_suggestion")
         self.assertIn("Er speelt nu niets", payload["assistant_message"]["text"])
+        self.assertIn("groove-vibe", payload["assistant_message"]["text"])
         self.assertEqual(
             payload["assistant_message"]["playback_actions"][0]["uri"],
             "spotify:track:idle",

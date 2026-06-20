@@ -14,10 +14,10 @@ class MoodZone:
     prompt_hint: str
 
 
-MOOD_ZONE_CHILL = "Chill"
-MOOD_ZONE_GROOVE = "Groove"
-MOOD_ZONE_ENERGY = "Energy"
-MOOD_ZONE_PARTY = "Party"
+MOOD_ZONE_CHILL = "chill"
+MOOD_ZONE_GROOVE = "groove"
+MOOD_ZONE_ENERGY = "energy"
+MOOD_ZONE_PARTY = "party"
 
 _MOOD_ZONES = (
     (0, 24, MOOD_ZONE_CHILL, "rustig, warm, laag tempo, niet te druk"),
@@ -76,3 +76,24 @@ def mood_context_text(payload: dict[str, Any]) -> str:
     if zone is None:
         return "onbekend"
     return f"{zone.value}/100 ({zone.name}: {zone.prompt_hint})"
+
+
+def mood_announcement_style_text(payload: dict[str, Any], language: str = "nl") -> str:
+    """Return DJ announcement style guidance for a payload mood."""
+    mood_value = (
+        payload.get("mood")
+        if payload.get("mood") is not None
+        else payload.get("energy")
+    )
+    zone = mood_zone_for_value(mood_value)
+    if zone is None:
+        return ""
+    if not str(language or "").lower().startswith("nl"):
+        return (
+            f"Automatically adapt the DJ announcement to mood={zone.value} "
+            f"zone={zone.name}: {zone.prompt_hint}."
+        )
+    return (
+        f"Pas de DJ-aankondiging automatisch aan op mood={zone.value} "
+        f"zone={zone.name}: {zone.prompt_hint}."
+    )
