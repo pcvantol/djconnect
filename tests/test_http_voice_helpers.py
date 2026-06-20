@@ -1531,7 +1531,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         self.assertEqual(response["status_code"], 401)
 
-    def test_push_register_and_unregister_updates_store(self) -> None:
+    def test_push_register_and_unregister_use_relay(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
 
         class Runtime:
@@ -1567,25 +1567,47 @@ class VoiceHttpHelperTest(unittest.TestCase):
                     "notification_categories": ["ask_dj_response"],
                 }
 
-        register = asyncio.run(self.http.DJConnectPushRegisterView(None).post(RegisterRequest()))
+        calls = []
+
+        async def register_push(hass_arg, runtime_arg, **kwargs):
+            calls.append(("register", hass_arg, runtime_arg, kwargs))
+            return {
+                "success": True,
+                "push_supported": True,
+                "push_registered": True,
+                "push_environment": "sandbox",
+            }
+
+        async def unregister_push(hass_arg, runtime_arg, **kwargs):
+            calls.append(("unregister", hass_arg, runtime_arg, kwargs))
+            return {
+                "success": True,
+                "push_supported": True,
+                "push_registered": False,
+            }
+
+        original_register = self.http.async_register_push
+        original_unregister = self.http.async_unregister_push
+        self.http.async_register_push = register_push
+        self.http.async_unregister_push = unregister_push
+        try:
+            register = asyncio.run(self.http.DJConnectPushRegisterView(None).post(RegisterRequest()))
+            unregister = asyncio.run(self.http.DJConnectPushUnregisterView(None).post(RegisterRequest()))
+        finally:
+            self.http.async_register_push = original_register
+            self.http.async_unregister_push = original_unregister
+
         self.assertEqual(register["status_code"], 200)
         self.assertTrue(register["payload"]["push_registered"])
-
-        manager = hass.data[const.DOMAIN]["push_manager"]
-        stored = next(iter(manager.data["registrations"].values()))
-        self.assertEqual(stored["user_id"], "user-1")
-        self.assertEqual(stored["client_type"], "ios")
-        self.assertEqual(stored["push_token"], "secret-push-token")
-
-        unregister = asyncio.run(self.http.DJConnectPushUnregisterView(None).post(RegisterRequest()))
         self.assertEqual(unregister["status_code"], 200)
-        stored = next(iter(manager.data["registrations"].values()))
-        self.assertTrue(stored["disabled"])
+        self.assertFalse(unregister["payload"]["push_registered"])
+        self.assertEqual(calls[0][0], "register")
+        self.assertEqual(calls[0][3]["user_id"], "user-1")
+        self.assertEqual(calls[0][3]["payload"]["push_token"], "secret-push-token")
+        self.assertEqual(calls[1][0], "unregister")
 
     def test_status_view_reports_push_registration(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
-        push = importlib.import_module("custom_components.djconnect.push")
-
         class Runtime:
             device_token = "device-token"
             device_status = {"device_id": "djconnect-ios-ABCDEFGHIJKL"}
@@ -1599,18 +1621,6 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         runtime = Runtime()
         hass = types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})
-        manager = push.push_manager(hass)
-        asyncio.run(
-            manager.async_register(
-                user_id="user-1",
-                payload={
-                    "device_id": "djconnect-ios-ABCDEFGHIJKL",
-                    "client_type": "ios",
-                    "push_token": "secret-push-token",
-                    "push_environment": "sandbox",
-                },
-            )
-        )
 
         class Context:
             user_id = "user-1"
@@ -1629,7 +1639,20 @@ class VoiceHttpHelperTest(unittest.TestCase):
                     "client_type": "ios",
                 }
 
-        response = asyncio.run(self.http.DJConnectStatusView(None).post(Request()))
+        async def push_status(hass_arg, runtime_arg, **kwargs):
+            return {
+                "push_supported": True,
+                "push_registered": True,
+                "push_environment": "sandbox",
+                "last_push_error": None,
+            }
+
+        original_status = self.http.async_push_status
+        self.http.async_push_status = push_status
+        try:
+            response = asyncio.run(self.http.DJConnectStatusView(None).post(Request()))
+        finally:
+            self.http.async_push_status = original_status
 
         self.assertEqual(response["status_code"], 200)
         self.assertTrue(response["payload"]["push_registered"])

@@ -64,8 +64,10 @@ Endpoints:
 - `POST /api/djconnect/push/unregister`
 
 Both endpoints require the existing DJConnect bearer token and support only
-`ios`, `macos` and `watchos` clients. Registrations are scoped to the Home
-Assistant user/account, `device_id`, `client_type` and APNs token.
+`ios`, `macos` and `watchos` clients. Home Assistant validates the client
+request, hashes the HA user id, and relays registration/unregistration to the
+central `djconnect-api` push relay. Home Assistant does not persist APNs tokens
+and never requires the APNs provider `.p8` key.
 
 Register payload:
 
@@ -97,28 +99,76 @@ registered, `push_environment`. Status/capability responses may include
 `push_supported`, `push_registered`, `push_environment` and a redacted
 `last_push_error` summary.
 
-APNs provider-token auth uses these environment variables/config values:
+The HACS integration only needs the central relay configuration:
 
-- `APNS_TEAM_ID`
-- `APNS_KEY_ID`
-- `APNS_PRIVATE_KEY` or `APNS_PRIVATE_KEY_PATH`
-- `APNS_TOPIC_IOS`
-- `APNS_TOPIC_MACOS`
-- `APNS_TOPIC_WATCHOS`
-- `APNS_ENVIRONMENT` (`sandbox` by default, `production` for release)
+- `DJCONNECT_PUSH_RELAY_URL`
+- `DJCONNECT_PUSH_RELAY_SECRET`
 
-When APNs credentials are missing, push stays disabled and normal Ask DJ flows
-continue. Sandbox uses `https://api.sandbox.push.apple.com`; production uses
-`https://api.push.apple.com`.
+When relay configuration is missing, push stays disabled and normal Ask DJ flows
+continue. The central `djconnect-api` service owns APNs provider-token auth,
+topics, sandbox/production selection, delivery retries and invalid-token
+handling.
 
 Push payloads are deliberately small and generic. They must not contain secrets,
 Spotify tokens, Home Assistant tokens, raw prompts, raw LLM context, full memory,
-full history or long/raw assistant responses. Ask DJ responses trigger
-`ask_dj_response` or `ask_dj_confirm` after server-side history has advanced, and
-payloads include only sync hints such as `event_type`, `open_target`,
-`client_message_id` when available and `history_revision` when available. APNs
-`BadDeviceToken`, `Unregistered` and related invalid-token responses mark a
-registration disabled/invalid.
+full history or long/raw assistant responses. Default pushable events are only:
+
+- `ask_dj_response`: after an explicit user Ask DJ request and after server-side
+  history has advanced.
+- `ask_dj_confirm`: when the Ask DJ response contains `confirmation_actions` and
+  waits for a user choice.
+
+DJConnect does not push for `track_change`, `playback_change`, `queue_change`,
+`volume_change`, `mood_change`, `idle_suggestion`, ambient/system messages,
+status refreshes, Spotify progress updates or ordinary current-track changes.
+`playback_change` may exist as a future relay category but is default disabled
+in the HACS integration.
+
+If a client status payload reports usable foreground/recent-active state, HA
+suppresses Ask DJ pushes back to that active client. HA rate-limits Ask DJ push
+events per HA user and device/client to at most one push per 30 seconds and five
+pushes per ten minutes. Ask DJ push payloads are coalesced under
+`thread-id: djconnect.askdj` and include only sync hints such as `event_type`,
+`open_target:"ask_dj"`, `client_message_id` when available and
+`history_revision` when available.
+
+Generic APNs payload shape for `ask_dj_response`:
+
+```json
+{
+  "aps": {
+    "alert": {
+      "title": "Ask DJ",
+      "body": "Ask DJ heeft geantwoord."
+    },
+    "sound": "default",
+    "thread-id": "djconnect.askdj",
+    "category": "DJCONNECT_ASK_DJ_RESPONSE"
+  },
+  "event_type": "ask_dj_response",
+  "open_target": "ask_dj",
+  "history_revision": 123
+}
+```
+
+Generic APNs payload shape for `ask_dj_confirm`:
+
+```json
+{
+  "aps": {
+    "alert": {
+      "title": "Ask DJ",
+      "body": "Ask DJ wacht op je keuze."
+    },
+    "sound": "default",
+    "thread-id": "djconnect.askdj",
+    "category": "DJCONNECT_ASK_DJ_CONFIRM"
+  },
+  "event_type": "ask_dj_confirm",
+  "open_target": "ask_dj",
+  "history_revision": 124
+}
+```
 
 ## Smart-Home Context
 

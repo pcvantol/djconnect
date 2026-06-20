@@ -174,9 +174,9 @@ Requirements:
   in DJ Memory/history; raw voice audio is not stored by default.
 - Ask DJ voice/PTT documentation should explain that iOS, macOS and Apple Watch
   can use voice/PTT through Home Assistant STT, with optional TTS audio replies
-  when available. Raspberry Pi Ask DJ is text-only unless a future Pi capability
-  explicitly advertises voice support. Informational text chat is text-only by
-  default; replay is shown only when an audio response exists.
+  when available. Raspberry Pi Ask DJ is read-only history display unless a
+  future Pi capability explicitly changes that scope. Informational text chat
+  is text-only by default; replay is shown only when an audio response exists.
 - Keep Ask DJ requirements visible and user-facing: Home Assistant, HACS
   DJConnect integration v3.1.65 or newer, Spotify Premium, the user's own
   Spotify Developer app with Client ID, an Assist pipeline with STT/TTS for
@@ -2061,9 +2061,11 @@ Requirements:
   watchOS and Raspberry Pi clients
   must use `history_revision`, `clear_revision`, `history_trimmed_before` and
   `history_trimmed_count` from HA responses to reconcile local caches.
-- Render `confirmation_actions[]` and confirmation-style `playback_actions[]`
-  as Ja/Nee controls, then answer with `command:"ask_dj_followup_response"`.
-  Do not execute pending actions client-side.
+- iOS/macOS/watchOS render `confirmation_actions[]` and confirmation-style
+  `playback_actions[]` as Ja/Nee controls, then answer with
+  `command:"ask_dj_followup_response"`. Do not execute pending actions
+  client-side. Raspberry Pi renders Ask DJ read-only and must not expose these
+  controls.
 - Pair app-like clients through POST /api/djconnect/pair. For Raspberry Pi, this is
   the primary pairing path; do not try to call a Pi-local /api/device/pair
   endpoint during initial pairing.

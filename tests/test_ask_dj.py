@@ -2711,7 +2711,7 @@ class AskDjTest(unittest.TestCase):
             }
         push_events = []
 
-        async def send_push(hass_arg, **kwargs):
+        async def send_push(hass_arg, runtime_arg, **kwargs):
             push_events.append(kwargs)
             return {"success": True, "sent": 1}
 
@@ -2751,9 +2751,10 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(response["payload"]["assistant_message"]["playback_actions"][0]["uri"], "spotify:track:123")
         self.assertTrue(duplicate["payload"]["deduplicated"])
         self.assertEqual(push_events[0]["user_id"], "user-1")
-        self.assertEqual(push_events[0]["event_type"], "ask_dj_confirm")
+        self.assertEqual(push_events[0]["event_type"], "ask_dj_response")
         self.assertEqual(push_events[0]["history_revision"], 1)
         self.assertEqual(push_events[0]["client_message_id"], "client-1")
+        self.assertTrue(push_events[0]["explicit_user_request"])
 
         class HistoryRequest:
             headers = {
@@ -2773,6 +2774,57 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(len(history["payload"]["messages"]), 2)
         self.assertEqual(history["payload"]["messages"][0]["role"], "user")
         self.assertEqual(history["payload"]["messages"][1]["role"], "assistant")
+
+    def test_message_endpoint_confirmation_actions_trigger_confirm_push(self) -> None:
+        runtime = make_runtime()
+        hass = types.SimpleNamespace(data={self.const.DOMAIN: {"runtime": runtime}})
+
+        async def ask_dj(hass_arg, runtime_arg, payload, *, user_id=None):
+            return {
+                "success": True,
+                "text": "Wil je dit nu starten?",
+                "confirmation_actions": [
+                    {
+                        "label": "Ja",
+                        "response_value": "yes",
+                        "command": "ask_dj_followup_response",
+                    }
+                ],
+            }
+
+        push_events = []
+
+        async def send_push(hass_arg, runtime_arg, **kwargs):
+            push_events.append(kwargs)
+            return {"success": True, "sent": 1}
+
+        class MessageRequest:
+            headers = {"Authorization": "Bearer device-token"}
+            app = {"hass": hass}
+            context = types.SimpleNamespace(user_id="user-1")
+
+            async def json(self):
+                return {
+                    "client_message_id": "client-confirm",
+                    "device_id": runtime.device_status["device_id"],
+                    "client_type": "watchos",
+                    "text": "Start mijn ochtendmix",
+                }
+
+        original = self.http.async_handle_ask_dj
+        original_push = self.http.async_send_push_event
+        self.http.async_handle_ask_dj = ask_dj
+        self.http.async_send_push_event = send_push
+        try:
+            response = asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest()))
+        finally:
+            self.http.async_handle_ask_dj = original
+            self.http.async_send_push_event = original_push
+
+        self.assertEqual(response["status_code"], 200)
+        self.assertEqual(push_events[0]["event_type"], "ask_dj_confirm")
+        self.assertEqual(push_events[0]["history_revision"], 1)
+        self.assertTrue(push_events[0]["explicit_user_request"])
 
     def test_idle_suggestion_endpoint_appends_system_message_with_play_now_action(self) -> None:
         runtime = make_runtime()

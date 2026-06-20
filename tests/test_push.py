@@ -18,42 +18,37 @@ def install_push_stubs() -> None:
         "homeassistant.helpers.aiohttp_client",
         types.ModuleType("homeassistant.helpers.aiohttp_client"),
     )
-    storage = sys.modules.setdefault(
-        "homeassistant.helpers.storage",
-        types.ModuleType("homeassistant.helpers.storage"),
-    )
     homeassistant.helpers = helpers
-
-    class Store:
-        def __init__(self, *args, **kwargs):
-            self.data = None
-
-        async def async_load(self):
-            return self.data
-
-        async def async_save(self, data):
-            self.data = data
-
-    if not hasattr(storage, "Store"):
-        storage.Store = Store
     if not hasattr(aiohttp_client, "async_get_clientsession"):
-        aiohttp_client.async_get_clientsession = lambda hass: None
+        aiohttp_client.async_get_clientsession = lambda hass: hass.session
     package = types.ModuleType("custom_components.djconnect")
     package.__path__ = [str(ROOT / "custom_components" / "djconnect")]
     sys.modules.setdefault("custom_components.djconnect", package)
 
 
-class FakeStore:
-    def __init__(self, data=None):
-        self.data = data
-        self.saved = None
+class FakeResponse:
+    def __init__(self, status=200, data=None):
+        self.status = status
+        self.data = data if data is not None else {"success": True}
 
-    async def async_load(self):
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        return False
+
+    async def json(self):
         return self.data
 
-    async def async_save(self, data):
-        self.saved = data
-        self.data = data
+
+class FakeSession:
+    def __init__(self):
+        self.calls = []
+        self.response = FakeResponse()
+
+    def post(self, url, **kwargs):
+        self.calls.append({"url": url, **kwargs})
+        return self.response
 
 
 class PushTest(unittest.TestCase):
@@ -62,20 +57,65 @@ class PushTest(unittest.TestCase):
         install_push_stubs()
         cls.push = importlib.import_module("custom_components.djconnect.push")
 
-    def test_register_stores_user_device_client_token_metadata(self) -> None:
-        store = FakeStore()
-        manager = self.push.PushRegistrationManager(store=store)
+    def setUp(self) -> None:
+        self.old_env = {
+            key: os.environ.get(key)
+            for key in ("DJCONNECT_PUSH_RELAY_URL", "DJCONNECT_PUSH_RELAY_SECRET")
+        }
+        os.environ.pop("DJCONNECT_PUSH_RELAY_URL", None)
+        os.environ.pop("DJCONNECT_PUSH_RELAY_SECRET", None)
+        self.original_session = self.push.async_get_clientsession
+        self.push.async_get_clientsession = lambda hass: hass.session
+
+    def tearDown(self) -> None:
+        self.push.async_get_clientsession = self.original_session
+        for key, value in self.old_env.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+
+    def _enable_relay(self) -> None:
+        os.environ["DJCONNECT_PUSH_RELAY_URL"] = "https://api.djconnect.dev"
+        os.environ["DJCONNECT_PUSH_RELAY_SECRET"] = "relay-secret"
+
+    def test_disabled_without_relay_config_does_not_raise(self) -> None:
+        hass = types.SimpleNamespace(session=FakeSession())
+        runtime = types.SimpleNamespace(entry=types.SimpleNamespace(entry_id="entry-1"))
 
         result = asyncio.run(
-            manager.async_register(
+            self.push.async_send_event(
+                hass,
+                runtime,
+                user_id="user-1",
+                event_type="ask_dj_response",
+                history_revision=1,
+                explicit_user_request=True,
+            )
+        )
+
+        self.assertTrue(result["success"])
+        self.assertFalse(result["push_supported"])
+        self.assertTrue(result["disabled"])
+        self.assertEqual(hass.session.calls, [])
+
+    def test_register_forwards_to_relay_without_local_storage(self) -> None:
+        self._enable_relay()
+        hass = types.SimpleNamespace(session=FakeSession())
+        runtime = types.SimpleNamespace(entry=types.SimpleNamespace(entry_id="entry-1"))
+
+        result = asyncio.run(
+            self.push.async_register(
+                hass,
+                runtime,
                 user_id="user-1",
                 payload={
                     "device_id": "djconnect-ios-ABCDEFGHIJKL",
                     "client_type": "ios",
                     "push_token": "token-secret-value",
                     "push_environment": "production",
-                    "app_bundle_id": "dev.djconnect.app",
-                    "app_version": "3.1.66",
+                    "app_bundle_id": "dev.djconnect.ios",
+                    "app_version": "3.1.68",
                     "locale": "nl-NL",
                     "notification_categories": ["ask_dj_response", "playback_change"],
                 },
@@ -83,100 +123,247 @@ class PushTest(unittest.TestCase):
         )
 
         self.assertTrue(result["success"])
-        registration = next(iter(store.saved["registrations"].values()))
-        self.assertEqual(registration["user_id"], "user-1")
-        self.assertEqual(registration["device_id"], "djconnect-ios-ABCDEFGHIJKL")
-        self.assertEqual(registration["client_type"], "ios")
-        self.assertEqual(registration["push_environment"], "production")
-        self.assertEqual(registration["categories"], ["ask_dj_response", "playback_change"])
-        self.assertNotEqual(registration["push_token_hash"], "token-secret-value")
+        call = hass.session.calls[0]
+        self.assertEqual(call["url"], "https://api.djconnect.dev/v1/push/register")
+        self.assertEqual(call["headers"]["Authorization"], "Bearer relay-secret")
+        self.assertEqual(call["json"]["device_id"], "djconnect-ios-ABCDEFGHIJKL")
+        self.assertEqual(call["json"]["push_token"], "token-secret-value")
+        self.assertEqual(call["json"]["push_environment"], "production")
+        self.assertEqual(call["json"]["ha_install_id"], "entry-1")
+        self.assertNotEqual(call["json"]["ha_user_hash"], "user-1")
+        self.assertFalse(hasattr(self.push, "APNsClient"))
+        self.assertFalse(hasattr(self.push, "PushRegistrationManager"))
 
-    def test_unregister_disables_token(self) -> None:
-        store = FakeStore()
-        manager = self.push.PushRegistrationManager(store=store)
-        payload = {
-            "device_id": "djconnect-watchos-ABCDEFGHIJKL",
-            "client_type": "watchos",
-            "push_token": "watch-token",
-        }
+    def test_unregister_forwards_to_relay(self) -> None:
+        self._enable_relay()
+        hass = types.SimpleNamespace(session=FakeSession())
+        runtime = types.SimpleNamespace(entry=types.SimpleNamespace(entry_id="entry-1"))
 
-        asyncio.run(manager.async_register(user_id="user-1", payload=payload))
-        result = asyncio.run(manager.async_unregister(user_id="user-1", payload=payload))
+        result = asyncio.run(
+            self.push.async_unregister(
+                hass,
+                runtime,
+                user_id="user-1",
+                payload={
+                    "device_id": "djconnect-watchos-ABCDEFGHIJKL",
+                    "client_type": "watchos",
+                    "push_token": "watch-token",
+                },
+            )
+        )
 
         self.assertTrue(result["success"])
-        registration = next(iter(store.saved["registrations"].values()))
-        self.assertTrue(registration["disabled"])
+        self.assertEqual(hass.session.calls[0]["url"], "https://api.djconnect.dev/v1/push/unregister")
+        self.assertFalse(result["push_registered"])
 
-    def test_payload_contains_no_prompt_or_response_text(self) -> None:
-        payload = self.push.build_apns_payload(
-            event_type="ask_dj_response",
-            history_revision=123,
+    def test_event_payload_contains_no_prompt_response_or_tokens(self) -> None:
+        runtime = types.SimpleNamespace(entry=types.SimpleNamespace(entry_id="entry-1"))
+
+        payload = self.push.build_relay_event_payload(
+            runtime,
+            user_id="user-1",
+            event_type="ask_dj_confirm",
+            history_revision=124,
             client_message_id="client-1",
-            device_id="djconnect-ios-ABCDEFGHIJKL",
         )
         rendered = str(payload)
 
-        self.assertEqual(payload["event_type"], "ask_dj_response")
-        self.assertEqual(payload["history_revision"], 123)
-        self.assertIn("Ask DJ heeft geantwoord.", rendered)
-        self.assertNotIn("spotify_refresh_token", rendered)
+        self.assertEqual(payload["event_type"], "ask_dj_confirm")
+        self.assertEqual(payload["history_revision"], 124)
+        self.assertEqual(payload["open_target"], "ask_dj")
+        self.assertEqual(payload["aps"]["thread-id"], "djconnect.askdj")
+        self.assertEqual(payload["aps"]["category"], "DJCONNECT_ASK_DJ_CONFIRM")
+        self.assertEqual(payload["aps"]["alert"]["body"], "Ask DJ wacht op je keuze.")
         self.assertNotIn("raw prompt", rendered)
         self.assertNotIn("assistant response", rendered)
+        self.assertNotIn("spotify_refresh_token", rendered)
+        self.assertNotIn("push_token", rendered)
 
-    def test_payload_without_optional_sync_fields_is_valid(self) -> None:
-        payload = self.push.build_apns_payload(event_type="ask_dj_response")
+    def test_event_without_optional_sync_fields_is_valid(self) -> None:
+        runtime = types.SimpleNamespace(entry=types.SimpleNamespace(entry_id="entry-1"))
+
+        payload = self.push.build_relay_event_payload(
+            runtime,
+            user_id=None,
+            event_type="ask_dj_response",
+        )
 
         self.assertEqual(payload["event_type"], "ask_dj_response")
         self.assertNotIn("history_revision", payload)
         self.assertNotIn("client_message_id", payload)
 
-    def test_disabled_without_credentials_does_not_raise(self) -> None:
-        old_env = {key: os.environ.get(key) for key in ("APNS_TEAM_ID", "APNS_KEY_ID", "APNS_PRIVATE_KEY")}
-        for key in old_env:
-            os.environ.pop(key, None)
-        try:
-            hass = types.SimpleNamespace(data={})
-            manager = self.push.PushRegistrationManager(store=FakeStore())
-            client = self.push.APNsClient(hass, manager)
-            result = asyncio.run(
-                client.send_event(user_id="user-1", event_type="ask_dj_response", history_revision=1)
+    def test_status_uses_runtime_flag_not_token_store(self) -> None:
+        self._enable_relay()
+        runtime = types.SimpleNamespace(entry=types.SimpleNamespace(entry_id="entry-1"))
+        self.push._remember_status(
+            runtime,
+            "djconnect-ios-ABCDEFGHIJKL",
+            "ios",
+            registered=True,
+            environment="sandbox",
+            error=None,
+        )
+
+        status = asyncio.run(
+            self.push.async_status(
+                types.SimpleNamespace(),
+                runtime,
+                user_id="user-1",
+                device_id="djconnect-ios-ABCDEFGHIJKL",
+                client_type="ios",
             )
-        finally:
-            for key, value in old_env.items():
-                if value is not None:
-                    os.environ[key] = value
-
-        self.assertTrue(result["success"])
-        self.assertFalse(result["push_supported"])
-        self.assertTrue(result["disabled"])
-
-    def test_invalid_apns_token_marks_registration_invalid(self) -> None:
-        store = FakeStore()
-        manager = self.push.PushRegistrationManager(store=store)
-        registration_payload = {
-            "device_id": "djconnect-ios-ABCDEFGHIJKL",
-            "client_type": "ios",
-            "push_token": "bad-token",
-        }
-        asyncio.run(manager.async_register(user_id="user-1", payload=registration_payload))
-        registration = next(iter(store.saved["registrations"].values()))
-
-        asyncio.run(manager.async_mark_error(registration, "BadDeviceToken", invalid=True))
-
-        updated = next(iter(store.saved["registrations"].values()))
-        self.assertTrue(updated["invalid"])
-        self.assertTrue(updated["disabled"])
-        self.assertEqual(updated["last_error_code"], "BadDeviceToken")
-
-    def test_environment_base_urls(self) -> None:
-        self.assertEqual(
-            self.push._apns_base_url("sandbox"),
-            "https://api.sandbox.push.apple.com",
         )
-        self.assertEqual(
-            self.push._apns_base_url("production"),
-            "https://api.push.apple.com",
+
+        self.assertTrue(status["push_supported"])
+        self.assertTrue(status["push_registered"])
+        self.assertEqual(status["push_environment"], "sandbox")
+
+    def test_non_ask_dj_events_are_default_disabled(self) -> None:
+        self._enable_relay()
+        hass = types.SimpleNamespace(session=FakeSession())
+        runtime = types.SimpleNamespace(entry=types.SimpleNamespace(entry_id="entry-1"))
+
+        for event_type in ("track_change", "playback_change", "queue_change", "volume_change", "mood_change", "idle_suggestion"):
+            result = asyncio.run(
+                self.push.async_send_event(
+                    hass,
+                    runtime,
+                    user_id="user-1",
+                    event_type=event_type,
+                    source_device_id="djconnect-ios-ABCDEFGHIJKL",
+                    client_type="ios",
+                    explicit_user_request=True,
+                )
+            )
+            self.assertEqual(result["sent"], 0)
+            self.assertEqual(result["suppressed"], "event_not_pushable")
+        self.assertEqual(hass.session.calls, [])
+
+    def test_ask_dj_response_requires_explicit_user_request(self) -> None:
+        self._enable_relay()
+        hass = types.SimpleNamespace(session=FakeSession())
+        runtime = types.SimpleNamespace(entry=types.SimpleNamespace(entry_id="entry-1"))
+
+        result = asyncio.run(
+            self.push.async_send_event(
+                hass,
+                runtime,
+                user_id="user-1",
+                event_type="ask_dj_response",
+                source_device_id="djconnect-ios-ABCDEFGHIJKL",
+                client_type="ios",
+            )
         )
+
+        self.assertEqual(result["sent"], 0)
+        self.assertEqual(result["suppressed"], "not_explicit_user_request")
+        self.assertEqual(hass.session.calls, [])
+
+    def test_explicit_ask_dj_response_posts_generic_payload(self) -> None:
+        self._enable_relay()
+        hass = types.SimpleNamespace(session=FakeSession())
+        runtime = types.SimpleNamespace(entry=types.SimpleNamespace(entry_id="entry-1"))
+
+        result = asyncio.run(
+            self.push.async_send_event(
+                hass,
+                runtime,
+                user_id="user-1",
+                event_type="ask_dj_response",
+                history_revision=123,
+                client_message_id="client-1",
+                source_device_id="djconnect-ios-ABCDEFGHIJKL",
+                client_type="ios",
+                explicit_user_request=True,
+            )
+        )
+
+        self.assertEqual(result["sent"], 1)
+        payload = hass.session.calls[0]["json"]
+        self.assertEqual(payload["event_type"], "ask_dj_response")
+        self.assertEqual(payload["open_target"], "ask_dj")
+        self.assertEqual(payload["history_revision"], 123)
+        self.assertEqual(payload["aps"]["alert"]["body"], "Ask DJ heeft geantwoord.")
+        self.assertEqual(payload["aps"]["thread-id"], "djconnect.askdj")
+        self.assertNotIn("source_device_id", payload)
+        self.assertNotIn("client_type", payload)
+
+    def test_rate_limit_blocks_frequent_pushes(self) -> None:
+        runtime = types.SimpleNamespace(entry=types.SimpleNamespace(entry_id="entry-1"))
+
+        first = self.push.should_send_push(
+            runtime,
+            user_id="user-1",
+            event_type="ask_dj_response",
+            source_device_id="djconnect-ios-ABCDEFGHIJKL",
+            client_type="ios",
+            explicit_user_request=True,
+            now=1000,
+        )
+        second = self.push.should_send_push(
+            runtime,
+            user_id="user-1",
+            event_type="ask_dj_response",
+            source_device_id="djconnect-ios-ABCDEFGHIJKL",
+            client_type="ios",
+            explicit_user_request=True,
+            now=1020,
+        )
+
+        self.assertTrue(first["send"])
+        self.assertFalse(second["send"])
+        self.assertEqual(second["reason"], "rate_limited")
+
+    def test_rate_limit_blocks_more_than_five_in_ten_minutes(self) -> None:
+        runtime = types.SimpleNamespace(entry=types.SimpleNamespace(entry_id="entry-1"))
+        decisions = [
+            self.push.should_send_push(
+                runtime,
+                user_id="user-1",
+                event_type="ask_dj_confirm",
+                source_device_id="djconnect-ios-ABCDEFGHIJKL",
+                client_type="ios",
+                now=1000 + index * 31,
+            )
+            for index in range(6)
+        ]
+
+        self.assertTrue(all(item["send"] for item in decisions[:5]))
+        self.assertFalse(decisions[5]["send"])
+        self.assertEqual(decisions[5]["reason"], "rate_limited")
+
+    def test_foreground_recent_active_client_suppresses_push(self) -> None:
+        self._enable_relay()
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            device_status={
+                "device_id": "djconnect-ios-ABCDEFGHIJKL",
+                "client_type": "ios",
+                "app_state": "active",
+            },
+        )
+
+        asyncio.run(
+            self.push.async_status(
+                types.SimpleNamespace(),
+                runtime,
+                user_id="user-1",
+                device_id="djconnect-ios-ABCDEFGHIJKL",
+                client_type="ios",
+            )
+        )
+        decision = self.push.should_send_push(
+            runtime,
+            user_id="user-1",
+            event_type="ask_dj_response",
+            source_device_id="djconnect-ios-ABCDEFGHIJKL",
+            client_type="ios",
+            explicit_user_request=True,
+            now=self.push._now_monotonic(),
+        )
+
+        self.assertFalse(decision["send"])
+        self.assertEqual(decision["reason"], "client_recently_active")
 
 
 if __name__ == "__main__":

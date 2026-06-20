@@ -1,8 +1,16 @@
 # Changelog
 
+## 3.1.69
+
+- Add a strict Ask DJ push policy with no playback, track, queue, volume, mood, status or idle-suggestion pushes.
+- Rate-limit Ask DJ push relay events to one push per 30 seconds and five pushes per ten minutes per HA user and device/client.
+- Suppress Ask DJ pushes to foreground or recently active clients when client status reports usable activity state.
+- Keep Ask DJ push payloads generic and privacy-safe with `thread-id: djconnect.askdj`, no raw prompts, assistant responses, memory, history or tokens.
+
 ## 3.1.68
 
 - Add central `djconnect-api` backend setup guidance to the cross-repo sync prompts so the Cloudflare APNs relay remains aligned with the HACS integration.
+- Move HACS push support to a relay-only architecture: Home Assistant forwards authenticated Apple client registrations/events to `djconnect-api` and no longer contains direct APNs provider-key, JWT, topic or token-invalidation logic.
 - Ignore local environment files and APNs `.p8` keys to keep relay credentials and development secrets out of the repository.
 
 ## 3.1.67

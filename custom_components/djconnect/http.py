@@ -67,8 +67,10 @@ from .processor import process_text_command
 from .push import (
     EVENT_ASK_DJ_CONFIRM,
     EVENT_ASK_DJ_RESPONSE,
+    async_register as async_register_push,
     async_send_event as async_send_push_event,
-    push_manager,
+    async_status as async_push_status,
+    async_unregister as async_unregister_push,
 )
 from .spotify_backend import SpotifyBackendError, handle_spotify_command
 from .spotify_oauth import exchange_code_for_refresh_token
@@ -651,12 +653,15 @@ def _ask_dj_capabilities() -> dict[str, bool]:
 
 async def _push_status(
     hass: Any,
+    runtime: Any,
     *,
     user_id: str | None,
     device_id: str | None,
     client_type: str | None,
 ) -> dict[str, Any]:
-    return await push_manager(hass).async_status(
+    return await async_push_status(
+        hass,
+        runtime,
         user_id=user_id,
         device_id=device_id,
         client_type=client_type,
@@ -1574,6 +1579,7 @@ class DJConnectStatusView(HomeAssistantView):
         response.update(
             await _push_status(
                 hass,
+                runtime,
                 user_id=_request_user_id(request),
                 device_id=status_update.get("device_id"),
                 client_type=client_type,
@@ -1923,16 +1929,19 @@ class DJConnectAskDjMessageView(HomeAssistantView):
         )
         event_type = (
             EVENT_ASK_DJ_CONFIRM
-            if result.get("confirmation_actions") or result.get("playback_actions")
+            if result.get("confirmation_actions")
             else EVENT_ASK_DJ_RESPONSE
         )
         await async_send_push_event(
             hass,
+            runtime,
             user_id=user_id,
             event_type=event_type,
             history_revision=sync.get("history_revision"),
             client_message_id=payload.get("client_message_id"),
             source_device_id=identity.get("device_id"),
+            client_type=identity.get("client_type"),
+            explicit_user_request=True,
         )
         return self.json({**result, **sync})
 
@@ -1972,7 +1981,9 @@ class DJConnectPushRegisterView(HomeAssistantView):
         payload = dict(data)
         payload.update({key: value for key, value in identity.items() if value is not None})
         payload[CONF_CLIENT_TYPE] = client_type
-        result = await push_manager(hass).async_register(
+        result = await async_register_push(
+            hass,
+            runtime,
             user_id=_request_user_id(request),
             payload=payload,
         )
@@ -2015,7 +2026,9 @@ class DJConnectPushUnregisterView(HomeAssistantView):
         payload = dict(data)
         payload.update({key: value for key, value in identity.items() if value is not None})
         payload[CONF_CLIENT_TYPE] = client_type
-        result = await push_manager(hass).async_unregister(
+        result = await async_unregister_push(
+            hass,
+            runtime,
             user_id=_request_user_id(request),
             payload=payload,
         )
