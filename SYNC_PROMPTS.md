@@ -328,7 +328,7 @@ Requirements:
   `groove` for `25`-`59`, `energy` for `60`-`84`, `party` for `85`-`100`.
   Clients may show title-case mode labels locally, but do not need to send
   `mood_zone`; HA derives the canonical lowercase value from `mood`.
-- Ask DJ text chat for app/display clients uses POST /api/djconnect/ask_dj/message.
+- Ask DJ text chat for iOS/macOS/watchOS uses POST /api/djconnect/ask_dj/message.
   Request identity can be top-level or inside `identity`; include
   client_message_id for retry dedupe and client_id as origin metadata. Response
   shape includes success, text/dj_text/message, optional audio_url, images[],
@@ -359,18 +359,21 @@ Requirements:
   Content-Type audio/wav. The response includes transcript/recognized_text and
   the same rich Ask DJ fields. Send optional X-DJConnect-Mood,
   X-DJConnect-DJ-Style and X-DJConnect-Memory-Key headers when available.
-  Raspberry Pi Ask DJ is text-only unless a future Pi capability explicitly
-  advertises voice support.
+  Raspberry Pi Ask DJ is read-only history display and must not advertise or
+  implement voice support unless a future Pi capability explicitly changes this.
 - Pairing/status responses expose ask_dj_supported, ask_dj_voice_supported,
   voice_supported and ask_dj_audio_response_supported.
 - Ask DJ clear sync uses POST /api/djconnect/ask_dj/history/clear. Clients
   clear local chat cache when their local clear_revision is older than the
-  server clear_revision, then reload server history.
+  server clear_revision, then reload server history. Raspberry Pi must observe
+  clear_revision through history sync, but must not expose a local clear action.
 - Ask DJ follow-up questions can include `confirmation_actions[]` and
   confirmation-style `playback_actions[]` for Ja/Nee buttons. Send the selected
   answer to POST /api/djconnect/command with command
   `ask_dj_followup_response`. The pending proposal lives server-side and
-  expires, so clients should not reconstruct the action locally.
+  expires, so clients should not reconstruct the action locally. Raspberry Pi
+  renders Ask DJ read-only and must not render or send follow-up/action controls
+  from the Ask DJ screen.
 - Ask DJ greetings such as `Goedemorgen` return a personalized morning
   suggestion with confirmation controls. Sleep phrases such as `Ik ga slapen`
   pause playback directly.
@@ -382,8 +385,9 @@ Requirements:
 - Ask DJ personal recommendations may include playback_actions[] for Play Now
   buttons, but must not start playback until the client sends POST
   /api/djconnect/command with command ask_dj_play_recommendation and a Spotify
-  track/album/artist/playlist URI payload. Use this successful command as a
-  positive DJ Memory signal.
+  track/album/artist/playlist URI payload. Raspberry Pi must not render or send
+  these Ask DJ Play Now actions from its read-only Ask DJ screen. Use successful
+  commands from interactive clients as positive DJ Memory signals.
 - Before Spotify playback can work, require DJConnect's own Spotify OAuth setup
   with a user-owned Spotify Developer Client ID and PKCE redirect URI. Do not
   require an official Home Assistant Spotify `media_player` entity.
@@ -553,17 +557,15 @@ Requirements:
 - Send playback commands to POST /api/djconnect/command. Supported first
   version commands are status, play, pause, next, previous, set_volume,
   set_shuffle and set_repeat.
-- Implement a text-only Ask DJ screen using POST /api/djconnect/ask_dj/message,
-  GET /api/djconnect/ask_dj/history, POST /api/djconnect/ask_dj/history/clear,
-  POST /api/djconnect/ask_dj/idle_suggestion and POST /api/djconnect/command
-  for Play Now/follow-up actions. Use the same server-side history, clear,
-  retention, image/link/source, playback_actions and confirmation_actions
-  contract as iOS/macOS/watchOS.
-- Do not implement PTT, microphone capture or POST /api/djconnect/voice for the
-  first text-only Pi Ask DJ version. The Pi does not need local DJ response
-  audio playback; if it exposes `/api/device/dj_response`, it should display
-  text on screen and may report `audio_played:false` when no audio device is
-  configured.
+- Implement a read-only Ask DJ screen using only
+  GET /api/djconnect/ask_dj/history. Raspberry Pi may render server-side
+  history, clear/trim metadata, retention/system bubbles, images and
+  links/sources, but must not expose local message input, idle suggestions,
+  history clear, Play Now actions or follow-up confirmation controls from the
+  Ask DJ screen.
+- Do not implement PTT, microphone capture, POST /api/djconnect/voice, Ask DJ
+  message sending or local DJ response audio playback for Raspberry Pi.
+  Raspberry Pi must not expose a Pi-local `/api/device/dj_response` endpoint.
 - Do not expose ESP-only reboot, OTA, battery, Wi-Fi RSSI, screen brightness,
   screen timeout, speaker volume, LED, log-level or firmware entities.
 - Keep the updater and OS maintenance daemon separate from the touch UI and
@@ -2217,15 +2219,15 @@ Requirements:
 - Send playback commands to POST /api/djconnect/command. Supported first
   version commands are status, play, pause, next, previous, set_volume,
   set_shuffle and set_repeat.
-- Implement a text-only Ask DJ screen using POST /api/djconnect/ask_dj/message,
-  GET /api/djconnect/ask_dj/history, POST /api/djconnect/ask_dj/history/clear,
-  POST /api/djconnect/ask_dj/idle_suggestion and POST /api/djconnect/command
-  for Play Now/follow-up actions. Use the same server-side history, clear,
-  retention, image/link/source, playback_actions and confirmation_actions
-  contract as iOS/macOS/watchOS.
-- Do not implement PTT, microphone capture, POST /api/djconnect/voice or local
-  DJ response audio playback. POST /api/device/dj_response displays text on
-  screen and may report audio_played:false when no audio device is configured.
+- Implement a read-only Ask DJ screen using only
+  GET /api/djconnect/ask_dj/history. Raspberry Pi may render server-side
+  history, clear/trim metadata, retention/system bubbles, images and
+  links/sources, but must not expose local message input, idle suggestions,
+  history clear, Play Now actions or follow-up confirmation controls from the
+  Ask DJ screen.
+- Do not implement PTT, microphone capture, POST /api/djconnect/voice, Ask DJ
+  message sending or local DJ response audio playback for Raspberry Pi.
+  Raspberry Pi must not expose a Pi-local `/api/device/dj_response` endpoint.
 - Do not expose ESP-only reboot, OTA, battery, Wi-Fi RSSI, screen brightness,
   screen timeout, speaker volume, LED, log-level or firmware entities.
 - Keep the updater and OS maintenance daemon separate from the touch UI and

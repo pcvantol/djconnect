@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.68
+
+- Add central `djconnect-api` backend setup guidance to the cross-repo sync prompts so the Cloudflare APNs relay remains aligned with the HACS integration.
+- Ignore local environment files and APNs `.p8` keys to keep relay credentials and development secrets out of the repository.
+
 ## 3.1.67
 
 - Add server-side Apple push registration endpoints for iOS, macOS and watchOS clients with Home Assistant Store persistence, bearer-token auth and APNs provider-token delivery.
