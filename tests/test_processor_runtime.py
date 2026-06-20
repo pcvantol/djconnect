@@ -228,12 +228,14 @@ class ProcessorRuntimeTest(unittest.TestCase):
 
         original_assist = self.processor.process_text_with_assist
         original_play = self.processor.play_from_intent
-        async def generated_dj_response(hass, *, media, fallback_text, conf, debug=None):
+        async def generated_dj_response(hass, *, media, fallback_text, conf, memory_context=None, debug=None):
             self.assertEqual(media["track_name"], "Alive")
             self.assertEqual(media["artist"], "Pearl Jam")
             self.assertEqual(media["mood"], 70)
             self.assertEqual(media["mood_zone"], "energy")
             self.assertIn("festival", conf["dj_response_prompt"])
+            self.assertIn("Buitentemperatuur", memory_context or "")
+            self.assertIn("27 °C", memory_context or "")
             if debug is not None:
                 debug["fallback_used"] = False
             return "Pearl Jam komt binnen alsof de festivalweide net wakker wordt."
@@ -246,11 +248,21 @@ class ProcessorRuntimeTest(unittest.TestCase):
         runtime.config = {
             "dj_response_prompt": "Maak een energieke festival-DJ-aankondiging.",
             "tts_language": "nl",
+            "smart_home_context_entities": ["sensor.outdoor_temperature"],
         }
+        class State:
+            state = "27"
+            name = "Buitentemperatuur"
+            attributes = {"unit_of_measurement": "°C", "device_class": "temperature"}
+
+        class States:
+            def get(self, entity_id):
+                return State() if entity_id == "sensor.outdoor_temperature" else None
+
         try:
             result = asyncio.run(
                 self.processor.process_text_command(
-                    object(),
+                    types.SimpleNamespace(states=States()),
                     runtime,
                     "ik wil pearl jam starten",
                     play=True,
@@ -290,7 +302,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
         original_assist = self.processor.process_text_with_assist
         original_play = self.processor.play_from_intent
 
-        async def generated_dj_response(hass, *, media, fallback_text, conf, debug=None):
+        async def generated_dj_response(hass, *, media, fallback_text, conf, memory_context=None, debug=None):
             self.assertEqual(media["type"], "album")
             self.assertEqual(media["album"], "Ten")
             self.assertEqual(media["artist"], "Pearl Jam")
@@ -369,7 +381,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
                 },
             }
 
-        async def generated_dj_response(hass, *, media, fallback_text, conf, debug=None):
+        async def generated_dj_response(hass, *, media, fallback_text, conf, memory_context=None, debug=None):
             self.assertEqual(media["type"], "album")
             self.assertEqual(media["album"], "OK Computer")
             self.assertEqual(media["artist"], "Radiohead")
@@ -436,7 +448,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
         original_assist = self.processor.process_text_with_assist
         original_play = self.processor.play_from_intent
 
-        async def generated_dj_response(hass, *, media, fallback_text, conf, debug=None):
+        async def generated_dj_response(hass, *, media, fallback_text, conf, memory_context=None, debug=None):
             self.assertEqual(media["type"], "artist")
             self.assertEqual(media["artist"], "Pearl Jam")
             self.assertEqual(media["track_name"], "Soldier of Love")
@@ -494,7 +506,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
                 }
             }
 
-        async def bad_dj_response(hass, *, media, fallback_text, conf, debug=None):
+        async def bad_dj_response(hass, *, media, fallback_text, conf, memory_context=None, debug=None):
             if debug is not None:
                 debug.update({"fallback_used": True, "block_reason": "test"})
             return fallback_text
@@ -554,7 +566,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
                 },
             }
 
-        async def generated_dj_response(hass, *, media, fallback_text, conf, debug=None):
+        async def generated_dj_response(hass, *, media, fallback_text, conf, memory_context=None, debug=None):
             self.assertEqual(media["artist"], "Nirvana")
             self.assertNotIn("artist_name", media)
             self.assertNotIn("track_name", media)
@@ -657,7 +669,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
                 },
             }
 
-        async def generated_dj_response(hass, *, media, fallback_text, conf, debug=None):
+        async def generated_dj_response(hass, *, media, fallback_text, conf, memory_context=None, debug=None):
             self.assertEqual(media["artist"], "Nirvana")
             self.assertNotIn("Caro Emerald", str(media))
             self.assertNotIn("Caro Emerald", fallback_text)
@@ -711,7 +723,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
                 },
             }
 
-        async def generated_dj_response(hass, *, media, fallback_text, conf, debug=None):
+        async def generated_dj_response(hass, *, media, fallback_text, conf, memory_context=None, debug=None):
             self.assertEqual(media["type"], "current_track")
             self.assertEqual(media["track_name"], "Black")
             self.assertEqual(media["artist"], "Pearl Jam")
@@ -758,7 +770,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
                 },
             }
 
-        async def generated_dj_response(hass, *, media, fallback_text, conf, debug=None):
+        async def generated_dj_response(hass, *, media, fallback_text, conf, memory_context=None, debug=None):
             self.assertEqual(media["type"], "current_track")
             self.assertFalse(media["has_playback"])
             return fallback_text
@@ -791,7 +803,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
         async def status(hass, runtime, command, value=None, *, play=None):
             raise self.processor.SpotifyBackendError("Spotify OAuth is not configured")
 
-        async def generated_dj_response(hass, *, media, fallback_text, conf, debug=None):
+        async def generated_dj_response(hass, *, media, fallback_text, conf, memory_context=None, debug=None):
             self.assertEqual(media["type"], "current_track")
             self.assertFalse(media["has_playback"])
             return fallback_text
@@ -850,7 +862,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
                         },
                     }
 
-                async def generated_dj_response(hass, *, media, fallback_text, conf, debug=None):
+                async def generated_dj_response(hass, *, media, fallback_text, conf, memory_context=None, debug=None):
                     self.assertEqual(media["type"], "playback_control")
                     self.assertEqual(media["action"], expected_command)
                     self.assertEqual(fallback_text, expected_fallback)
@@ -916,7 +928,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
                         },
                     }
 
-                async def generated_dj_response(hass, *, media, fallback_text, conf, debug=None):
+                async def generated_dj_response(hass, *, media, fallback_text, conf, memory_context=None, debug=None):
                     self.assertEqual(media["requested_volume_percent"], expected)
                     self.assertEqual(fallback_text, f"Ik zet het volume op {expected}.")
                     return fallback_text

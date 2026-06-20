@@ -39,6 +39,12 @@ when runtime mood is available, the mood zone drives the final announcement
 tone; otherwise DJConnect uses its hardcoded default announcement style.
 Responses do not need to echo mood fields.
 
+Spoken DJ announcements may include one short personal intro line when compact
+DJ Memory or explicitly shared smart-home context makes that natural. Temperature
+or weather wording is allowed only from entities configured in
+`smart_home_context_entities`, for example a shared outdoor temperature sensor.
+Clients must not send arbitrary Home Assistant state or local memory for this.
+
 ## Ask DJ Message Actions
 
 `POST /api/djconnect/ask_dj/message` responses may include

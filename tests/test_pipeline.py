@@ -376,6 +376,50 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertNotIn("{", prompt)
         self.assertNotIn("}", prompt)
 
+    def test_generate_dj_response_prompt_allows_personal_intro_from_memory_and_weather(self) -> None:
+        calls = []
+
+        class Services:
+            async def async_call(self, domain, service, data, **kwargs):
+                calls.append(data)
+                return {
+                    "response": {
+                        "speech": {
+                            "plain": {
+                                "speech": (
+                                    "Fijn dat je er weer bent. Nirvana slingert de dag aan."
+                                )
+                            }
+                        }
+                    }
+                }
+
+        hass = types.SimpleNamespace(services=Services())
+        text = asyncio.run(
+            self.pipeline.generate_dj_response_with_assist(
+                hass,
+                media={"type": "artist", "artist": "Nirvana"},
+                fallback_text="Daar is Nirvana.",
+                conf={
+                    "assist_pipeline_id": "conversation.openai",
+                    "tts_language": "nl-NL",
+                },
+                memory_context=(
+                    "Luistertijdcontext: zaterdag, ochtend, weekend, 10:00\n"
+                    "Expliciet gedeelde smart-home context voor persoonlijke intro's: "
+                    "Buitentemperatuur (sensor.outdoor_temperature): 27 °C"
+                ),
+            )
+        )
+
+        self.assertEqual(text, "Fijn dat je er weer bent. Nirvana slingert de dag aan.")
+        prompt = calls[0]["text"]
+        self.assertIn("persoonlijke openingszin", prompt)
+        self.assertIn("Het is een warme dag, we gaan lekker swingen", prompt)
+        self.assertIn("Buitentemperatuur", prompt)
+        self.assertIn("27 °C", prompt)
+        self.assertIn("zeg niet dat er memory of Home Assistant context bestaat", prompt)
+
     def test_generate_dj_response_ignores_assist_device_lookup_error(self) -> None:
         class Services:
             async def async_call(self, domain, service, data, **kwargs):

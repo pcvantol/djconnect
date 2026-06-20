@@ -16,6 +16,7 @@ from .pipeline import (
 from .memory import prompt_context_text
 from .mood import enrich_payload_with_mood_zone
 from .music_intent import parse_spoken_music_request
+from .smart_home_context import smart_home_context, smart_home_context_text
 from .spotify import play_from_intent
 from .spotify_backend import SpotifyBackendError, handle_spotify_command
 
@@ -98,6 +99,7 @@ async def process_text_command(
         media=response_media,
         fallback_text=fallback_dj_text,
         conf=conf,
+        memory_context=_announcement_context(hass, runtime, memory_context),
         debug=dj_response_debug,
     )
     result = {
@@ -269,6 +271,7 @@ async def _process_playback_control_request(
         media=media,
         fallback_text=fallback_dj_text,
         conf=conf,
+        memory_context=_announcement_context(hass, runtime),
         debug=dj_response_debug,
     )
     result = {
@@ -382,6 +385,7 @@ async def _process_current_track_question(
         media=media or intent,
         fallback_text=fallback_dj_text,
         conf=conf,
+        memory_context=_announcement_context(hass, runtime),
         debug=dj_response_debug,
     )
     result = {
@@ -400,6 +404,23 @@ async def _process_current_track_question(
         last_error=None,
     )
     return result
+
+
+def _announcement_context(
+    hass: HomeAssistant,
+    runtime,
+    memory_context: str | None = None,
+) -> str:
+    """Return compact context for personal DJ announcement intros."""
+    parts = [str(memory_context or "").strip()]
+    home_context = smart_home_context(hass, runtime)
+    home_text = smart_home_context_text(home_context)
+    if home_text:
+        parts.append(
+            "Expliciet gedeelde smart-home context voor persoonlijke intro's: "
+            f"{home_text}"
+        )
+    return "\n".join(part for part in parts if part)
 
 
 async def _lookup_current_playback(

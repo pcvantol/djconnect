@@ -1,10 +1,12 @@
 # Changelog
 
-## Unreleased
+## 3.1.75
 
 - Refresh the public and cross-repo Ask DJ documentation for help prompts,
   speaker/output actions, album lists, retry behavior, Resume controls,
   deterministic playback parsing and mood-driven DJ announcements.
+- Add DJ announcement prompt guidance for short personal intro lines from compact
+  DJ Memory and explicitly shared weather/temperature smart-home entities.
 
 ## 3.1.74
 

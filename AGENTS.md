@@ -47,6 +47,7 @@ Architectuur beslissingen:
 - `/api/djconnect/status`, `/api/djconnect/command` en `/api/djconnect/voice` mogen optioneel `mood` (`0`-`100`), `dj_style` en `memory_key` accepteren voor Ask DJ. HA mag `memory_key` normaliseren/overrulen en kan de resolved `memory_key` teruggeven.
 - Ask DJ mood-zones worden server-side uit numerieke Apple client mood afgeleid: `0`-`24` = `chill`, `25`-`59` = `groove`, `60`-`84` = `energy`, `85`-`100` = `party`; waarden worden naar `0`-`100` geclamped en ontbrekende/ongeldige mood behoudt bestaand defaultgedrag.
 - Ask DJ aankondigingsstijl gebruikt runtime mood als promptcontext; er is geen losse user-facing DJ style/prompt optie meer. Album-playbackantwoorden houden album- en trackmetadata gescheiden, zodat een albumrequest niet het album als tracktitel uitspreekt.
+- DJ aankondigingen mogen één korte persoonlijke introzin gebruiken op basis van compacte DJ Memory en expliciet gedeelde smart-home context. Temperatuur-/weerzinnen mogen alleen uit `smart_home_context_entities` komen; DJConnect mag hiervoor geen willekeurige HA state of client-local memory gebruiken.
 - Actieve HA routes gebruiken geen directe externe AI/STT/TTS APIs; gebruik HA Assist en HA TTS.
 - DJ responses spelen op het DJConnect device af, niet via Spotify Connect of HA media_player; HA post `text` plus optionele tijdelijke WAV/MP3 `audio_url` naar `/api/device/dj_response`.
 - Fallback DJ responses bij command/playback fouten moeten de gekozen `device_language` volgen (`en`/`nl`).
@@ -81,7 +82,7 @@ Licentie/commercieel:
 HA integration:
 - domain: `djconnect`
 - HACS custom integration.
-- Actuele integratieversie: `3.1.74`.
+- Actuele integratieversie: `3.1.75`.
 - Config flow moet blijven laden.
 - Centrale DJConnect API calls vanuit HACS gebruiken per-install `djci_` tokens, nooit een globale relay/operator secret. Voor Apple push clients (`ios`, `macos`, `watchos`) mag HACS een short-lived `bootstrap_proof` uit push registration/pairing/status gebruiken om via `/v1/install/token` een `djci_` token te minten; zonder proof blijft Apple push disabled/best-effort. ESP32, Raspberry Pi en Assist Conversation Agent-only entries hebben deze proof niet nodig omdat zij geen APNs push gebruiken.
 - Config flow blokkeert niet meer op een officiële Home Assistant Spotify `media_player` entity; DJConnect gebruikt eigen Spotify OAuth en de Spotify Web API voor backend playback.

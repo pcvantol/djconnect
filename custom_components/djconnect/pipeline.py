@@ -322,6 +322,7 @@ async def generate_dj_response_with_assist(
     media: dict[str, Any],
     fallback_text: str,
     conf: dict[str, Any],
+    memory_context: str | None = None,
     debug: dict[str, Any] | None = None,
 ) -> str:
     """Ask HA Assist for a short DJ response using resolved playback metadata."""
@@ -330,11 +331,13 @@ async def generate_dj_response_with_assist(
     language = assist_context.get("language") or conf.get(CONF_TTS_LANGUAGE) or DEFAULT_TTS_LANGUAGE
     media_context = _dj_response_media_context(media)
     mood_style = mood_announcement_style_text(media, language=language)
+    personal_intro_style = _personal_intro_style_text(memory_context, language=language)
     if debug is not None:
         debug.update(
             {
                 "fallback_text": fallback_text,
                 "media_context": dict(media_context),
+                "personal_intro_context": bool(personal_intro_style),
                 "mood_context": mood_context_text(media) if mood_style else None,
                 "mood_style_applied": bool(mood_style),
                 "fallback_used": False,
@@ -353,6 +356,7 @@ async def generate_dj_response_with_assist(
         "liedje aankondigt. Doe dit in de volgende stijl:\n"
         f"{prompt}\n\n"
         f"{mood_style}\n\n"
+        f"{personal_intro_style}\n\n"
         "Je schrijft alleen een korte gesproken DJ response voor het DJConnect device. "
         "Noem de artiest, het album en het nummer wanneer die bekend zijn. "
         "Dit is geen Home Assistant apparaatopdracht. Bedien geen apparaten. "
@@ -367,6 +371,7 @@ async def generate_dj_response_with_assist(
         "Use this style:\n"
         f"{prompt}\n\n"
         f"{mood_style}\n\n"
+        f"{personal_intro_style}\n\n"
         "Write only a short spoken DJ response for the DJConnect device. "
         "Mention the artist, album and track when known. "
         "This is not a Home Assistant device command. Do not control devices. "
@@ -421,6 +426,40 @@ async def generate_dj_response_with_assist(
             )
         _LOGGER.debug("DJConnect DJ response generation through Assist failed", exc_info=True)
         return fallback_text
+
+
+def _personal_intro_style_text(memory_context: str | None, language: str = "nl") -> str:
+    """Return guidance for occasional DJ Memory based personal intro phrases."""
+    context = str(memory_context or "").strip()
+    if not context:
+        return ""
+    if not str(language or "").lower().startswith("nl"):
+        return (
+            "You may add one short personal opening line when it feels natural, based "
+            "only on the compact DJ Memory context below and on explicitly shared "
+            "Home Assistant smart-home context. If a shared weather or temperature "
+            "entity indicates it is warm, cold, rainy or evening, you may weave that "
+            "into the intro, for example 'Warm day out there, let's get into a sunny "
+            "groove' or 'Rain outside, perfect time for something cozy'. Keep it "
+            "warm, playful and non-repetitive, for example 'Good to have you back', "
+            "'Let's make this a beautiful musical day' or 'Let's rock and roll, baby'. "
+            "Do not force this intro on every response and do not mention that memory "
+            "or Home Assistant context exists.\n\n"
+            f"Compact DJ Memory context:\n{context}"
+        )
+    return (
+        "Je mag, als het natuurlijk voelt, één korte persoonlijke openingszin toevoegen "
+        "op basis van de compacte DJ Memory context hieronder en expliciet gedeelde "
+        "Home Assistant smart-home context. Als een gedeelde weer- of temperatuurentity "
+        "laat zien dat het warm, koud, regenachtig of avond is, mag je dat subtiel "
+        "meenemen, bijvoorbeeld 'Het is een warme dag, we gaan lekker swingen' of "
+        "'Buiten regent het, dus we maken het binnen extra gezellig'. Houd het warm, "
+        "speels en afwisselend, bijvoorbeeld 'Fijn dat je er weer bent', 'We gaan er "
+        "weer een mooie muzikale dag van maken' of 'Let's rock and roll, baby'. "
+        "Forceer zo'n intro niet bij ieder antwoord en zeg niet dat er memory of "
+        "Home Assistant context bestaat.\n\n"
+        f"Compacte DJ Memory context:\n{context}"
+    )
 
 
 def _dj_response_media_context(media: dict[str, Any]) -> dict[str, Any]:

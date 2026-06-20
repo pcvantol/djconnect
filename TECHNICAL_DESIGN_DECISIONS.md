@@ -133,6 +133,10 @@ Pattern:
   client mood is mapped to `chill`, `groove`, `energy` or `party` and the
   generated DJ announcement receives the matching style guidance. Missing mood
   keeps the hardcoded default style.
+- The DJ announcement prompt may include compact DJ Memory and explicitly shared
+  smart-home context for one short personal intro line. Weather or temperature
+  references are allowed only when they come from configured read-only
+  `smart_home_context_entities`; arbitrary HA state is never added.
 - Clear direct playback requests are parsed deterministically before relying on
   stale playback context. Multi-word artist requests such as `speel dj paul
   elstak` must resolve from the current user text, not from a previous Spotify
