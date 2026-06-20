@@ -65,10 +65,16 @@ Supported action kinds:
   show a Resume button.
 - `confirmation`: Ja/Nee follow-up action with
   `command:"ask_dj_followup_response"` and a server-side pending proposal.
+  Generic playlist/recommendation offers may use labels such as `Ja graag` and
+  `Nee dank je`; render them as actionable buttons and do not add album art when
+  the response contains `images: []`.
 - Recommendation kinds `track`, `artist`, `playlist`, `album` and `track_mix`
   remain Play Now candidates and must be sent back through
   `command:"ask_dj_play_recommendation"` unless the action explicitly uses a
-  direct control/output command.
+  direct control/output command. A successful Play Now response returns
+  `dj_text`, `dj_response`, optional `audio_url`/`audio_type` and playback
+  metadata so clients can show and play the DJ announcement immediately instead
+  of waiting for ambient playback facts.
 
 Speaker/output questions such as `welke speakers zijn er?` or
 `wissel van uitvoer` return a short text intro plus one `output` action per
@@ -87,6 +93,10 @@ return a text-only categorized command list. `Probeer opnieuw` / `retry` replays
 the previous retryable playback request server-side; clients should send the
 user's retry text normally and let the server resolve the prior request.
 
+Unknown, unsupported or low-confidence informational answers are text-only and
+return `images: []`. Clients must not reuse current-track album art for these
+fallback responses.
+
 ## Ask DJ History
 
 Ask DJ history is server-side and HA-user scoped. App clients synchronize through
@@ -99,6 +109,14 @@ History responses include `history_limit`, `history_trimmed_before` and
 `history_trimmed_count`. When trimming occurs, clients should delete local
 messages older than `history_trimmed_before` and must not parse retention message
 text.
+
+When the last DJConnect Home Assistant config entry is unloaded or removed, HA
+clears server-side DJ Memory and Ask DJ history. A deleted app/device entry must
+not keep using another active DJConnect runtime: requests with a stale
+`device_id` or bearer token are rejected instead of falling back to the current
+active entry. Clients should treat `401`/`403` and `not_configured`/stale-pairing
+responses as a reason to leave paired state and clear local Ask DJ cache for that
+HA installation.
 
 ## Apple Push Notifications
 

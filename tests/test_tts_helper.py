@@ -1093,6 +1093,83 @@ class TtsHelperTest(unittest.TestCase):
 
         self.assertIs(resolved, active)
 
+    def test_runtime_lookup_rejects_stale_device_without_fallback(self) -> None:
+        const = self.const
+        active = types.SimpleNamespace(
+            device_token="active-token",
+            pairing_device_id="djconnect-ios-ACTIVE123456",
+            device_status={"device_id": "djconnect-ios-ACTIVE123456"},
+            config={const.CONF_DEVICE_ID: "djconnect-ios-ACTIVE123456"},
+            authorize_device_request=lambda headers, body_device_id=None: True,
+        )
+        hass = types.SimpleNamespace(
+            data={const.DOMAIN: {"active-entry": active, "runtime": active}}
+        )
+
+        with self.assertLogs(self.http._LOGGER, level="WARNING") as captured:
+            resolved = self.http._runtime(
+                hass,
+                "djconnect-macos-STALE123456",
+                {"Authorization": "Bearer old-token"},
+            )
+
+        self.assertIsNone(resolved)
+        self.assertIn("no runtime matched bearer token", "\n".join(captured.output))
+
+    def test_unload_last_entry_clears_memory_and_history_managers(self) -> None:
+        const = self.const
+        entry = types.SimpleNamespace(entry_id="entry-1", data={}, options={})
+
+        class Runtime:
+            def __init__(self, runtime_entry):
+                self.entry = runtime_entry
+
+            def client_type(self):
+                return const.CLIENT_TYPE_IOS
+
+            def authorize_device_request(self):
+                return True
+
+        class ConfigEntries:
+            async def async_unload_platforms(self, unloaded_entry, platforms):
+                self.platforms = platforms
+                return True
+
+        class Memory:
+            cleared = False
+
+            async def async_clear(self):
+                self.cleared = True
+
+        class History:
+            cleared = False
+
+            async def async_clear_all(self):
+                self.cleared = True
+
+        memory = Memory()
+        history = History()
+        runtime = Runtime(entry)
+        hass = types.SimpleNamespace(
+            config_entries=ConfigEntries(),
+            data={
+                const.DOMAIN: {
+                    entry.entry_id: runtime,
+                    "runtime": runtime,
+                    "memory_manager": memory,
+                    "ask_dj_history_manager": history,
+                }
+            },
+        )
+
+        unloaded = asyncio.run(self.integration.async_unload_entry(hass, entry))
+
+        self.assertTrue(unloaded)
+        self.assertTrue(memory.cleared)
+        self.assertTrue(history.cleared)
+        self.assertNotIn("memory_manager", hass.data[const.DOMAIN])
+        self.assertNotIn("ask_dj_history_manager", hass.data[const.DOMAIN])
+
     def test_start_ota_payload_uses_manifest_device_target(self) -> None:
         class Response:
             status = 200

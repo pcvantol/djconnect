@@ -400,6 +400,12 @@ Requirements:
   history_limit and optional trim metadata. The current server limit is 1000
   messages per HA user. If history_trimmed_before is present, clients should
   remove local Ask DJ messages older than that timestamp.
+- When the user removes the DJConnect client/device integration from Home
+  Assistant, clients must not remain visually paired just because a token and
+  chat cache still exist locally. If HA returns `401`/`403`, `not_configured` or
+  stale-pairing for a previously paired device_id/token, clear local paired state
+  and local Ask DJ cache for that HA installation. HA clears server-side
+  DJ Memory and Ask DJ history when the last DJConnect config entry unloads.
 - Ask DJ may include assistant system messages such as `origin:
   history_retention` or `origin: spotify_playback_context`. Clients should
   style them as system/ambient assistant bubbles and must not auto-play audio
@@ -447,9 +453,15 @@ Requirements:
 - Ask DJ greetings such as `Goedemorgen` return a personalized morning
   suggestion with confirmation controls. Sleep phrases such as `Ik ga slapen`
   pause playback directly.
+- Generic playlist/recommendation offers can return confirmation actions labeled
+  `Ja graag` and `Nee dank je`. Render them as buttons, send their
+  `ask_dj_followup_response` command unchanged, and keep the card text-only when
+  `images: []` is present.
 - Ask DJ unknown/safety fallback should show the returned neutral text, for
   example `Sorry, ik begrijp niet wat je bedoelt.`, without retry loops or
-  client-side reinterpretation.
+  client-side reinterpretation. Unknown/unsupported informational fallbacks are
+  text-only; if the response has `images: []`, do not reuse current playback
+  album art from an earlier bubble.
 - Ask DJ images must be proxied through Home Assistant/DJConnect URLs such as
   /api/djconnect/image_proxy/{token}; source links are separate links[] entries.
 - Ask DJ personal recommendations may include playback_actions[] for Play Now
@@ -457,7 +469,11 @@ Requirements:
   /api/djconnect/command with command ask_dj_play_recommendation and a Spotify
   track/album/artist/playlist URI payload. Raspberry Pi must not render or send
   these Ask DJ Play Now actions from its read-only Ask DJ screen. Use successful
-  commands from interactive clients as positive DJ Memory signals.
+  commands from interactive clients as positive DJ Memory signals. Successful
+  Play Now command responses include `dj_text`, `dj_response` and optional
+  `audio_url`/`audio_type`; clients should render/play that normal DJ
+  announcement immediately. Ambient `DJ feitje` messages are separate system
+  messages and must not be treated as the Play Now announcement.
 - Before Spotify playback can work, require DJConnect's own Spotify OAuth setup
   with a user-owned Spotify Developer Client ID and PKCE redirect URI. Do not
   require an official Home Assistant Spotify `media_player` entity.

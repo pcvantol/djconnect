@@ -772,6 +772,10 @@ def classify_ask_dj(text: str) -> AskDjIntent:
             "personal_music_recommendations",
             "none",
         )
+    if _is_user_playlists_request(normalized):
+        return AskDjIntent("informational", "spotify_user_playlists", "none")
+    if _is_open_playlist_recommendation_request(normalized):
+        return AskDjIntent("informational", "playlist_recommendation_offer", "none")
     if _is_playlist_search_request(normalized):
         return AskDjIntent("informational", "spotify_playlist_search", "none")
     if _is_next_track_info_request(normalized):
@@ -1033,11 +1037,37 @@ async def _handle_informational(
                 }
             ],
         }
+    if ask_intent.intent == "spotify_user_playlists":
+        result = await _spotify_user_playlists(hass, runtime, limit=10)
+        playlists = result.get("playlists") if isinstance(result, dict) else []
+        actions = _playlist_search_playback_actions(hass, playlists, limit=10)
+        if actions:
+            message = (
+                "Dit zijn je Spotify-playlists. "
+                "Ik start nog niets; tik op Play Now bij de playlist die je wilt horen."
+            )
+        else:
+            message = "Ik vond nu geen Spotify-playlists in je bibliotheek."
+        return {
+            "success": True,
+            "text": message,
+            "dj_text": message,
+            "action": "none",
+            "images": [],
+            "playback_actions": actions,
+            "sources": [
+                {
+                    "source": "spotify_user_playlists",
+                    "kind": "source",
+                    "title": "Spotify user playlists",
+                }
+            ],
+        }
     playlist_query = _playlist_query_from_question(text)
     if playlist_query:
         result = await _spotify_playlist_search(hass, runtime, playlist_query)
         playlists = result.get("playlists") if isinstance(result, dict) else []
-        actions = _playlist_search_playback_actions(hass, playlists)
+        actions = _playlist_search_playback_actions(hass, playlists, limit=10)
         if actions:
             message = (
                 f"Zeker. Ik vond deze Spotify-playlists voor {playlist_query}. "
@@ -1050,6 +1080,7 @@ async def _handle_informational(
             "text": message,
             "dj_text": message,
             "action": "none",
+            "images": [],
             "playback_actions": actions,
             "sources": [
                 {
@@ -1151,10 +1182,18 @@ async def _handle_informational(
             "confirmation_actions": _confirmation_actions() if actions else [],
             "sources": _profile_sources(memory_context, spotify_profile),
         }
+    if ask_intent.intent == "playlist_recommendation_offer":
+        return await _playlist_recommendation_offer_response(runtime, payload)
 
     if _looks_like_gibberish(text) or _looks_like_prompt_or_sandbox_attack(text):
         message = _unrecognized_request_text()
-        return {"success": True, "text": message, "dj_text": message, "action": "none"}
+        return {
+            "success": True,
+            "text": message,
+            "dj_text": message,
+            "action": "none",
+            "images": [],
+        }
 
     prompt = _informational_prompt(
         text,
@@ -1182,7 +1221,39 @@ async def _handle_informational(
         message = ""
     if not message:
         message = _fallback_info_text(text, memory_context, playback_context)
+        return {"success": True, "text": message, "dj_text": message, "images": []}
     return {"success": True, "text": message, "dj_text": message}
+
+
+async def _playlist_recommendation_offer_response(
+    runtime: Any,
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    message = (
+        "Ik kan een paar persoonlijke playlist- of muzieksuggesties voor je maken "
+        "op basis van je DJ Memory en luisterprofiel. Wil je dat?"
+    )
+    confirmations = _confirmation_actions(yes_title="Ja graag", no_title="Nee dank je")
+    await _store_pending_followup(
+        runtime,
+        payload,
+        question=message,
+        proposed_intent="personal_music_recommendations",
+        proposed_action="ask_dj_personal_recommendations",
+        proposed_payload={"text": "verras me met persoonlijke muzieksuggesties"},
+    )
+    return {
+        "success": True,
+        "text": message,
+        "dj_text": message,
+        "action": "none",
+        "intent": {"category": "playback_confirmation", "intent": "playlist_recommendation_offer"},
+        "images": [],
+        "links": [],
+        "sources": [],
+        "playback_actions": confirmations,
+        "confirmation_actions": confirmations,
+    }
 
 
 async def _spotify_artist_albums(
@@ -2380,6 +2451,54 @@ def _is_playlist_search_request(normalized: str) -> bool:
     )
 
 
+def _is_user_playlists_request(normalized: str) -> bool:
+    if "playlist" not in normalized and "afspeellijst" not in normalized:
+        return False
+    own_terms = (
+        "heb ik",
+        "mijn",
+        "eigen",
+        "my",
+        "mine",
+        "my playlists",
+        "do i have",
+    )
+    question_terms = (
+        "welke",
+        "wat voor",
+        "toon",
+        "laat zien",
+        "geef",
+        "show",
+        "list",
+        "what",
+        "which",
+    )
+    return any(term in normalized for term in own_terms) and (
+        any(term in normalized for term in question_terms)
+        or normalized in {"mijn playlists", "mijn afspeellijsten", "my playlists"}
+    )
+
+
+def _is_open_playlist_recommendation_request(normalized: str) -> bool:
+    if "playlist" not in normalized and "afspeellijst" not in normalized:
+        return False
+    if _playlist_query_from_question(normalized):
+        return False
+    return any(
+        phrase in normalized
+        for phrase in (
+            "heb je",
+            "hebt je",
+            "geef",
+            "toon",
+            "laat zien",
+            "suggest",
+            "recommend",
+        )
+    ) or any(term in normalized for term in ("leuke", "goede", "toffe", "vette", "mooie"))
+
+
 def _playlist_query_from_question(text: str) -> str:
     original = str(text or "").strip()
     normalized = _normalize(original)
@@ -2710,13 +2829,15 @@ async def _spotify_playlist_search(
     hass: HomeAssistant,
     runtime: Any,
     query: str,
+    *,
+    limit: int = 10,
 ) -> dict[str, Any]:
     try:
         result = await handle_spotify_command(
             hass,
             runtime,
             "search_playlists",
-            {"query": query, "limit": 5},
+            {"query": query, "limit": limit},
         )
     except Exception as exc:  # noqa: BLE001
         _LOGGER.debug("DJConnect Spotify playlist search unavailable: %s", exc)
@@ -2724,9 +2845,30 @@ async def _spotify_playlist_search(
     return result if isinstance(result, dict) else {}
 
 
+async def _spotify_user_playlists(
+    hass: HomeAssistant,
+    runtime: Any,
+    *,
+    limit: int = 10,
+) -> dict[str, Any]:
+    try:
+        result = await handle_spotify_command(
+            hass,
+            runtime,
+            "playlists",
+            {"limit": limit},
+        )
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect Spotify user playlists unavailable: %s", exc)
+        return {}
+    return result if isinstance(result, dict) else {}
+
+
 def _playlist_search_playback_actions(
     hass: HomeAssistant,
     playlists: Any,
+    *,
+    limit: int = 10,
 ) -> list[dict[str, Any]]:
     if not isinstance(playlists, list):
         return []
@@ -2763,13 +2905,17 @@ def _playlist_search_playback_actions(
                     "uri": uri,
                     "context_uri": uri,
                     "kind": "playlist",
+                    "label": "Play Now",
+                    "button_label": "Play Now",
+                    "action_style": "play_now",
                     "image_url": proxy_image,
+                    "thumbnail_url": proxy_image,
                     "reason": "Spotify playlist-resultaat op basis van je Ask DJ vraag.",
                 }.items()
                 if value not in ("", None)
             }
         )
-        if len(actions) >= 5:
+        if len(actions) >= limit:
             break
     return actions
 
@@ -2808,18 +2954,22 @@ def _personal_music_profile_text(
 
     lines = [f"Voor {period} zie ik dit profiel op basis van de DJConnect context die ik nu heb."]
     if spotify_profile:
-        lines.append("Ik combineer hierbij Spotify recent/top-data met DJConnect Memory.")
+        lines.extend(["", "Bronnen:", "- Spotify recent/top-data", "- DJConnect Memory"])
     lines.append("")
     if genres:
-        lines.append("Harde observatie: je genres neigen naar " + _join_examples(genres, limit=4) + ".")
+        lines.append("- Harde observatie: je genres neigen naar " + _join_examples(genres, limit=4) + ".")
     elif artists:
-        lines.append("Harde observatie: ik zie vooral terugkerende artiesten zoals " + _join_examples(artists, limit=4) + ".")
+        lines.append(
+            "- Harde observatie: ik zie vooral terugkerende artiesten zoals "
+            + _join_examples(artists, limit=4)
+            + "."
+        )
     if albums:
-        lines.append("Albums/contexts die eruit springen: " + _join_examples(albums, limit=3) + ".")
+        lines.append("- Albums/contexts die eruit springen: " + _join_examples(albums, limit=3) + ".")
     lines.append("")
     vibe = _profile_vibe(genres, energy, mood)
     lines.append(
-        "Interpretatie: je profiel lijkt "
+        "- Interpretatie: je profiel lijkt "
         + vibe
         + "; dat is een voorzichtige duiding, geen harde diagnose."
     )
@@ -2827,11 +2977,11 @@ def _personal_music_profile_text(
         zone = mood_zone_for_value(mood)
         if zone is not None:
             lines.append(
-                f"Je laatste mood/energy waarde in DJ Memory is {mood}/100 "
+                f"- Laatste mood/energy in DJ Memory: {mood}/100 "
                 f"({zone.name}: {zone.prompt_hint})."
             )
         else:
-            lines.append(f"Je laatste mood/energy waarde in DJ Memory is {mood}/100.")
+            lines.append(f"- Laatste mood/energy in DJ Memory: {mood}/100.")
     if examples:
         lines.extend(["", "Concrete voorbeelden:", *[f"- {item}" for item in examples[:6]]])
     if spotify_profile and _profile_limited(spotify_profile):
@@ -3617,11 +3767,17 @@ def _playback_control_actions(action: str) -> list[dict[str, Any]]:
     ]
 
 
-def _confirmation_actions() -> list[dict[str, Any]]:
+def _confirmation_actions(
+    *,
+    yes_title: str = "Ja",
+    no_title: str = "Nee",
+) -> list[dict[str, Any]]:
     return [
         {
             "id": "ask_dj_followup_yes",
-            "title": "Ja",
+            "title": yes_title,
+            "label": yes_title,
+            "button_label": yes_title,
             "kind": "confirmation",
             "action_style": "confirmation",
             "response_value": "yes",
@@ -3629,7 +3785,9 @@ def _confirmation_actions() -> list[dict[str, Any]]:
         },
         {
             "id": "ask_dj_followup_no",
-            "title": "Nee",
+            "title": no_title,
+            "label": no_title,
+            "button_label": no_title,
             "kind": "confirmation",
             "action_style": "confirmation",
             "response_value": "no",
@@ -3726,63 +3884,86 @@ def _is_help_request(normalized: str) -> bool:
 
 
 def _help_text() -> str:
-    return "\n".join(
-        [
-            "Dit kun je aan Ask DJ vragen:",
-            "",
+    sections = [
+        (
             "Muziek starten",
-            "- Speel Nirvana",
-            "- Speel Metallica, One",
-            "- Draai Nothing Else Matters",
-            "- Zet een rustige playlist op",
-            "- Speel iets voor tijdens het koken",
-            "",
+            [
+                "Speel Nirvana",
+                "Speel Metallica, One",
+                "Draai Nothing Else Matters",
+                "Zet een rustige playlist op",
+                "Speel iets voor tijdens het koken",
+            ],
+        ),
+        (
             "Play Now keuzes",
-            "- Geef me albums van Radiohead",
-            "- Welke albums bracht Nirvana uit?",
-            "- Geef vergelijkbare artiesten als The xx",
-            "- Welke playlists zijn er voor hardlopen?",
-            "- Maak een mix op basis van Radiohead, Massive Attack en Bon Iver",
-            "",
+            [
+                "Geef me albums van Radiohead",
+                "Welke albums bracht Nirvana uit?",
+                "Geef vergelijkbare artiesten als The xx",
+                "Welke playlists zijn er voor hardlopen?",
+                "Welke playlists heb ik?",
+                "Maak een mix op basis van Radiohead, Massive Attack en Bon Iver",
+            ],
+        ),
+        (
             "Speakers en playback",
-            "- Welke speakers zijn er?",
-            "- Wissel van speaker",
-            "- Waarop speelt de muziek?",
-            "- Pauzeer",
-            "- Speel verder",
-            "- Volgende nummer",
-            "- Vorige nummer",
-            "- Harder",
-            "- Zachter",
-            "- Shuffle aan",
-            "- Repeat uit",
-            "",
+            [
+                "Welke speakers zijn er?",
+                "Wissel van speaker",
+                "Waarop speelt de muziek?",
+                "Pauzeer",
+                "Speel verder",
+                "Volgende nummer",
+                "Vorige nummer",
+                "Harder",
+                "Zachter",
+                "Shuffle aan",
+                "Repeat uit",
+            ],
+        ),
+        (
             "DJ uitleg en context",
-            "- Wat speelt er nu?",
-            "- Waarom koos je dit nummer?",
-            "- Vertel iets over deze artiest",
-            "- Welk nummer komt hierna?",
-            "- Geef een DJ intro voor dit nummer",
-            "- Wat voor genre is dit?",
-            "",
+            [
+                "Wat speelt er nu?",
+                "Waarom koos je dit nummer?",
+                "Vertel iets over deze artiest",
+                "Welk nummer komt hierna?",
+                "Geef een DJ intro voor dit nummer",
+                "Wat voor genre is dit?",
+            ],
+        ),
+        (
             "Persoonlijke muzieksmaak",
-            "- Analyseer mijn luisterprofiel",
-            "- Wat luisterde ik de afgelopen maand?",
-            "- Geef persoonlijke muziekaanbevelingen",
-            "- Welke artiesten passen bij mijn smaak?",
-            "",
+            [
+                "Analyseer mijn luisterprofiel",
+                "Wat luisterde ik de afgelopen maand?",
+                "Geef persoonlijke muziekaanbevelingen",
+                "Welke artiesten passen bij mijn smaak?",
+            ],
+        ),
+        (
             "Follow-ups",
-            "- Probeer opnieuw",
-            "- Speel af",
-            "- Nee, ik bedoel de live versie",
-            "- Alleen uit de jaren 90",
-            "- Maak hier een playlist van",
-            "",
+            [
+                "Probeer opnieuw",
+                "Speel af",
+                "Nee, ik bedoel de live versie",
+                "Alleen uit de jaren 90",
+                "Maak hier een playlist van",
+            ],
+        ),
+        (
             "Goed om te weten",
-            "- Ask DJ start muziek alleen direct bij duidelijke speelopdrachten.",
-            "- Bij lijsten, albums, aanbevelingen en speakers krijg je knoppen zoals Play Now of Activeer.",
-        ]
-    )
+            [
+                "Ask DJ start muziek alleen direct bij duidelijke speelopdrachten.",
+                "Bij lijsten, albums, aanbevelingen en speakers krijg je knoppen zoals Play Now of Activeer.",
+            ],
+        ),
+    ]
+    blocks = ["# Dit kun je aan Ask DJ vragen"]
+    for title, examples in sections:
+        blocks.append("\n".join([f"## {title}", *[f"- {example}" for example in examples]]))
+    return "\n\n".join(blocks)
 
 
 def _help_response() -> dict[str, Any]:
