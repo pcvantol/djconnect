@@ -694,6 +694,7 @@ def _dj_response_text(
 ) -> str:
     """Create a concrete device DJ response from the resolved playback result."""
     media = media or _dj_response_media(intent, playback)
+    media_type = str(media.get("type") or intent.get("type") or "").strip().lower()
     title = _first_text(media, "track_name", "title", "name")
     artist = _first_text(media, "artist", "artist_name")
     album = _first_text(media, "album_name", "album")
@@ -701,6 +702,13 @@ def _dj_response_text(
     language = str(conf.get(CONF_TTS_LANGUAGE) or DEFAULT_TTS_LANGUAGE)
     is_nl = language.lower().startswith("nl")
 
+    if media_type == "album" and (album or artist):
+        return _album_response(
+            album=album or title,
+            artist=artist,
+            first_track=title if title != album else "",
+            is_nl=is_nl,
+        )
     if title or artist:
         return _track_response(
             title=title,
@@ -752,7 +760,9 @@ def _intent_media_context(intent: dict[str, Any]) -> dict[str, Any]:
             media["artist"] = query
         elif media_type == "playlist" and not media.get("playlist"):
             media["playlist"] = query
-        elif media_type in {"track", "album"} and not media.get("title") and not media.get("album"):
+        elif media_type == "album" and not media.get("album"):
+            media["album"] = query
+        elif media_type == "track" and not media.get("title"):
             media["title"] = query
     return media
 
@@ -851,6 +861,30 @@ def _track_response(
             else f"Here is {title} by {artist}, from {album}."
         )
     return f"Daar is {subject}." if is_nl else f"Here is {subject}."
+
+
+def _album_response(
+    *,
+    album: str,
+    artist: str,
+    first_track: str,
+    is_nl: bool,
+) -> str:
+    if is_nl:
+        if artist and album and first_track:
+            return f"Je luistert naar {artist} met hun album {album}. Hier is het eerste nummer op het album, {first_track}."
+        if artist and album:
+            return f"Je luistert naar {artist} met hun album {album}."
+        if album:
+            return f"Je luistert naar het album {album}."
+        return f"Je luistert naar {artist}."
+    if artist and album and first_track:
+        return f"You're listening to {album} by {artist}. Here's the first track on the album, {first_track}."
+    if artist and album:
+        return f"You're listening to {album} by {artist}."
+    if album:
+        return f"You're listening to the album {album}."
+    return f"You're listening to {artist}."
 
 
 def _playlist_response(playlist: str, *, is_nl: bool) -> str:

@@ -295,7 +295,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
             self.assertEqual(media["album"], "Ten")
             self.assertEqual(media["artist"], "Pearl Jam")
             self.assertIn("Geef een leuk feitje", conf["dj_response_prompt"])
-            self.assertEqual(fallback_text, "Daar is Ten van Pearl Jam.")
+            self.assertEqual(fallback_text, "Je luistert naar Pearl Jam met hun album Ten.")
             if debug is not None:
                 debug["fallback_used"] = False
             return (
@@ -336,6 +336,73 @@ class ProcessorRuntimeTest(unittest.TestCase):
             "jaren negentig uit Seattle doorbrak?",
         )
         self.assertIn("Ten van Pearl Jam", runtime.last_dj_text)
+
+    def test_album_playback_response_names_album_and_first_track(self) -> None:
+        async def assist(hass, user_text, conf):
+            return {
+                "type": "album",
+                "artist": "Radiohead",
+                "album": "OK Computer",
+                "spotify_search_query": "OK Computer Radiohead",
+                "dj_announcement": "Daar gaan we.",
+            }
+
+        async def play(hass, runtime, intent, conf):
+            return {
+                "played": True,
+                "media_content_id": "OK Computer Radiohead",
+                "media_content_type": "album",
+                "resolved_media": {
+                    "type": "album",
+                    "album": "OK Computer",
+                    "artist": "Radiohead",
+                    "uri": "spotify:album:ok-computer",
+                },
+                "device_response": {
+                    "playback": {
+                        "track_name": "Airbag",
+                        "title": "Airbag",
+                        "artist": "Radiohead",
+                        "album_name": "OK Computer",
+                        "album_image_url": "https://img.example/ok-computer.jpg",
+                    }
+                },
+            }
+
+        async def generated_dj_response(hass, *, media, fallback_text, conf, debug=None):
+            self.assertEqual(media["type"], "album")
+            self.assertEqual(media["album"], "OK Computer")
+            self.assertEqual(media["artist"], "Radiohead")
+            self.assertEqual(media["track_name"], "Airbag")
+            self.assertNotEqual(media["track_name"], media["album"])
+            return fallback_text
+
+        original_assist = self.processor.process_text_with_assist
+        original_play = self.processor.play_from_intent
+        original_dj_response = self.processor.generate_dj_response_with_assist
+        self.processor.process_text_with_assist = assist
+        self.processor.play_from_intent = play
+        self.processor.generate_dj_response_with_assist = generated_dj_response
+        runtime = Runtime()
+        runtime.config = {"tts_language": "nl"}
+        try:
+            result = asyncio.run(
+                self.processor.process_text_command(
+                    object(),
+                    runtime,
+                    "speel het album OK Computer van Radiohead",
+                    play=True,
+                )
+            )
+        finally:
+            self.processor.process_text_with_assist = original_assist
+            self.processor.play_from_intent = original_play
+            self.processor.generate_dj_response_with_assist = original_dj_response
+
+        self.assertEqual(
+            result["dj_text"],
+            "Je luistert naar Radiohead met hun album OK Computer. Hier is het eerste nummer op het album, Airbag.",
+        )
 
     def test_process_text_command_adds_current_track_to_artist_dj_response_media(self) -> None:
         async def assist(hass, user_text, conf):
