@@ -477,6 +477,20 @@ may include optional Ask DJ memory hints: `mood` as an integer `0`-`100`,
 Home Assistant may normalize or override `memory_key`; responses can include the
 resolved `memory_key`. Clients should treat DJ Memory as server-side state and
 must not store Spotify credentials, Home Assistant tokens or DJ Memory locally.
+Apple Watch, iOS and backend callers all use the same server-side mood-zone
+mapping when a numeric mood is provided: `0`-`24` is `Chill`, `25`-`59` is
+`Groove`, `60`-`84` is `Energy` and `85`-`100` is `Party`. Clients can keep
+sending only the numeric `mood`; DJConnect derives `mood_zone` internally and
+uses the zone name plus persona hint in Ask DJ prompts, recommendations and
+debug/status context. Missing or unknown mood values keep the existing default
+Ask DJ behavior.
+
+| Numeric mood | Zone | Ask DJ persona hint |
+| --- | --- | --- |
+| `0`-`24` | Chill | Quiet, warm, low tempo and not too busy. |
+| `25`-`59` | Groove | Flowing, rhythmic, social and medium energy. |
+| `60`-`84` | Energy | More drive, uptempo and active. |
+| `85`-`100` | Party | Maximum energy, festive, recognizable and momentum-focused. |
 
 Spotify refresh tokens can rotate after OAuth. DJConnect stores newly returned refresh tokens immediately and treats that latest stored value as canonical for HA backend playback. If Spotify rejects an older in-memory refresh token, DJConnect checks the latest runtime/config-entry/config sources and retries a newer stored token before showing a reauthorization Repair. If the ESP later reports `spotify_configured=false`, Home Assistant treats this as a compatibility/status hint, not as a request to send OAuth credentials to the ESP.
 
@@ -618,10 +632,14 @@ can contain top-level identity fields or an `identity` object:
   "text": "Waarom koos je dit nummer?",
   "memory_key": "optional-client-key",
   "mood": 42,
+  "mood_zone": "Groove",
   "dj_style": "warm_radio_dj",
   "audio_response": "auto"
 }
 ```
+
+`mood_zone` in examples is informational; clients may omit it. The backend
+derives the canonical zone from `mood` so older clients remain compatible.
 
 The response is uniform across iOS, macOS, Apple Watch and Raspberry Pi:
 
@@ -630,7 +648,7 @@ The response is uniform across iOS, macOS, Apple Watch and Raspberry Pi:
   "success": true,
   "history_revision": 43,
   "clear_revision": 7,
-  "history_limit": 200,
+  "history_limit": 1000,
   "history_trimmed_before": null,
   "history_trimmed_count": 0,
   "user_message": {
@@ -781,6 +799,33 @@ produce at most one message until the artist or album changes. Clients can use
 `message_kind` to render these bubbles differently from normal answers to a user
 question.
 
+DJConnect can include selected Home Assistant entity state in Ask DJ context for
+future smart-home aware prompts such as `het regent buiten`, `het is 20 graden
+in de woonkamer`, `de droger is klaar`, `de auto is opgeladen`, `de koffie is
+klaar` or `de woonkamer staat op scene Y; wil je nu X horen?`. This is explicit
+and read-only: configure `Shared smart-home entities` / `Gedeelde smart-home
+entiteiten` in DJConnect options to choose the weather, sensor, appliance, scene
+or helper entities DJConnect may see. The integration does not expose all Home
+Assistant states to Ask DJ and does not use this context to mutate smart-home
+devices; it only summarizes the selected entity states in the Ask DJ prompt. If
+Ask DJ proposes music because of a smart-home event, it should use the existing
+confirmation-style `playback_actions[]` / `confirmation_actions[]` with Ja/Nee
+buttons before starting playback.
+
+Example shared entity list:
+
+```text
+sensor.outdoor_rain
+sensor.living_room_temperature
+sensor.dryer_status
+sensor.car_battery
+input_select.living_room_scene
+```
+
+Only the current state and a small set of safe display attributes are summarized
+for Ask DJ. Tokens, full prompts, raw audio and arbitrary HA state snapshots are
+not stored in DJ Memory or chat history.
+
 External image URLs are registered behind `GET /api/djconnect/image_proxy/{token}`
 so clients only need to fetch Home Assistant/DJConnect URLs. `audio_url` is
 also a Home Assistant/DJConnect URL when TTS audio is available.
@@ -849,7 +894,7 @@ entry.
 
 History responses contain `user_id`, `history_revision`, `clear_revision`,
 `history_limit`, `history_trimmed_before`, `history_trimmed_count`, bounded
-`messages[]` and `server_time`. The backend keeps at most the latest 200
+`messages[]` and `server_time`. The backend keeps at most the latest 1000
 messages per HA user. When adding a message would exceed that limit, DJConnect
 removes the oldest messages, increments `history_revision`, stores trim
 metadata, and appends one assistant-only system message with

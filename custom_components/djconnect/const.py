@@ -53,6 +53,7 @@ CONF_DJ_RESPONSE_ENABLED = "dj_response_enabled"
 CONF_DJ_RESPONSE_TTL_SECONDS = "dj_response_ttl_seconds"
 CONF_DJ_RESPONSE_PROMPT_PRESET = "dj_response_prompt_preset"
 CONF_DJ_RESPONSE_PROMPT = "dj_response_prompt"
+CONF_SMART_HOME_CONTEXT_ENTITIES = "smart_home_context_entities"
 
 CONF_MAX_AUDIO_BYTES = "max_audio_bytes"
 

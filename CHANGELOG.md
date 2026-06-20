@@ -2,6 +2,9 @@
 
 ## 3.1.66
 
+- Raise the server-side Ask DJ history retention limit from 200 to 1000 messages per HA user while keeping trim metadata and retention system messages.
+- Prepare Ask DJ for read-only smart-home context by adding an explicit Home Assistant entity allowlist for future event-aware prompts and confirmation suggestions.
+- Add shared DJConnect mood-zone support for Apple Watch/iOS/backend Ask DJ requests, mapping numeric mood values to Chill, Groove, Energy and Party prompt context.
 - Document the current Ask DJ client contract for server-side history, follow-up confirmations, idle suggestions and playback action handling.
 - Keep the repository bootstrap prompt aligned with the released integration version.
 - Refresh DJConnect release metadata and firmware manifest examples for the 3.1.66 release.

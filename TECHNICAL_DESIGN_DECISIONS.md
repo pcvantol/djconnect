@@ -238,9 +238,9 @@ Pattern:
   `POST /api/djconnect/ask_dj` remain developer/raw entrypoints.
 - Renderable Ask DJ chat history is separate from DJ Memory and uses Home
   Assistant `Store(hass, 1, "djconnect_ask_dj_history")`. It is keyed by HA
-  user id, keeps at most 200 messages per user and stores user/assistant
+  user id, keeps at most 1000 messages per user and stores user/assistant
   messages with images, links, sources, audio_url and playback_actions.
-- When the 200-message limit is exceeded, trimming happens server-side before
+- When the 1000-message limit is exceeded, trimming happens server-side before
   the history is returned. The backend exposes `history_limit`,
   `history_trimmed_before` and `history_trimmed_count` so clients can trim
   local caches without parsing visible text. A bounded assistant-only system
@@ -273,6 +273,13 @@ Pattern:
 - Intent routing is deliberately split into informational, playback/device
   action and hybrid buckets. Informational answers can use playback context and
   memory but must not mutate Spotify/Home Assistant playback.
+- Smart-home context is opt-in and read-only. DJConnect reads only Home
+  Assistant entities explicitly listed in `smart_home_context_entities`, adds a
+  compact state summary to Ask DJ prompt context and never exposes all HA
+  states by default. This prepares future system-message intents such as weather,
+  room temperature, appliance-ready or scene-changed prompts without giving Ask
+  DJ broad Home Assistant control. If such a prompt proposes music, playback
+  must still go through confirmation-style Ja/Nee actions before starting.
 - Lifecycle utterances are routed explicitly: `ik ga slapen` pauses playback,
   while `goedemorgen` returns a morning recommendation with confirmation
   controls instead of starting playback automatically.

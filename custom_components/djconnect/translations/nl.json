@@ -69,6 +69,7 @@
           "dj_response_enabled": "DJ aankondiging op apparaat afspelen",
           "dj_response_prompt_preset": "DJ aankondiging stijl",
           "dj_response_prompt": "DJ aankondiging prompt",
+          "smart_home_context_entities": "Gedeelde smart-home entiteiten",
           "firmware_channel": "Firmwarekanaal",
           "options_action": "Actie"
         },
@@ -78,6 +79,7 @@
           "dj_response_enabled": "Maak een tijdelijke WAV of MP3 audio URL en stuur die met de DJ aankondiging naar het DJConnect device.",
           "dj_response_prompt_preset": "Kies een vaste stijl of Vrij in te vullen om de prompt hieronder zelf te beheren.",
           "dj_response_prompt": "Vrije prompt voor de tekst die DJConnect na een verzoek op het device uitspreekt. Bij een vaste stijl vult DJConnect deze tekst automatisch.",
+          "smart_home_context_entities": "Expliciete alleen-lezen Home Assistant entiteiten die DJConnect in Ask DJ context mag gebruiken, bijvoorbeeld weer, kamertemperatuur, apparaatstatus of scene-status.",
           "firmware_channel": "Kies stable voor normale OTA updates of beta om prerelease firmware te testen.",
           "options_action": "Kies instellingen opslaan of Spotify opnieuw autoriseren."
         }
@@ -136,6 +138,7 @@
           "dj_response_enabled": "DJ aankondiging op apparaat afspelen",
           "dj_response_prompt_preset": "DJ aankondiging stijl",
           "dj_response_prompt": "DJ aankondiging prompt",
+          "smart_home_context_entities": "Gedeelde smart-home entiteiten",
           "firmware_channel": "Firmwarekanaal",
           "options_action": "Actie"
         },
@@ -146,6 +149,7 @@
           "dj_response_enabled": "Maak een tijdelijke WAV of MP3 audio URL en stuur die met de DJ aankondiging naar het DJConnect device.",
           "dj_response_prompt_preset": "Kies een vaste stijl of Vrij in te vullen om de prompt hieronder zelf te beheren.",
           "dj_response_prompt": "Vrije prompt voor de tekst die DJConnect na een verzoek op het device uitspreekt. Bij een vaste stijl vult DJConnect deze tekst automatisch.",
+          "smart_home_context_entities": "Expliciete alleen-lezen Home Assistant entiteiten die DJConnect in Ask DJ context mag gebruiken, bijvoorbeeld weer, kamertemperatuur, apparaatstatus of scene-status.",
           "firmware_channel": "Kies stable voor normale OTA updates of beta om prerelease firmware te testen.",
           "options_action": "Kies instellingen opslaan of Spotify opnieuw autoriseren."
         }

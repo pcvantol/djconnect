@@ -60,6 +60,7 @@ from .assist_stt import (
 )
 from .dj_response import async_send_dj_response_best_effort, get_tts_audio
 from .ha_urls import async_ha_url_payload
+from .mood import enrich_payload_with_mood_zone
 from .processor import process_text_command
 from .spotify_backend import SpotifyBackendError, handle_spotify_command
 from .spotify_oauth import exchange_code_for_refresh_token
@@ -569,6 +570,13 @@ def _normalized_status_payload(data: dict[str, Any]) -> dict[str, Any]:
     for source, target in aliases.items():
         if normalized.get(source) is not None:
             normalized[target] = normalized[source]
+    normalized = enrich_payload_with_mood_zone(normalized)
+    if normalized.get("mood_zone"):
+        _LOGGER.debug(
+            "DJConnect status mood context: mood=%s zone=%s",
+            normalized.get("mood"),
+            normalized.get("mood_zone"),
+        )
     return normalized
 
 
@@ -619,11 +627,8 @@ def _voice_header_payload(headers: Any, device_id: str, client_type: str | None)
         payload["dj_style"] = dj_style
     mood = str(headers.get("X-DJConnect-Mood") or "").strip()
     if mood:
-        try:
-            payload["mood"] = max(0, min(100, int(float(mood))))
-        except ValueError:
-            payload["mood"] = mood
-    return payload
+        payload["mood"] = mood
+    return enrich_payload_with_mood_zone(payload)
 
 
 def _ask_dj_capabilities() -> dict[str, bool]:

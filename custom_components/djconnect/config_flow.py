@@ -43,6 +43,7 @@ from .const import (
     CONF_SPOTIFY_REFRESH_TOKEN,
     CONF_SPOTIFY_SCOPES,
     CONF_SETUP_METHOD,
+    CONF_SMART_HOME_CONTEXT_ENTITIES,
     CONF_WIFI_PASSWORD,
     CONF_WIFI_SSID,
     DEFAULT_ASSIST_PIPELINE_ID,
@@ -152,6 +153,7 @@ VOICE_FORM_FIELDS = {
     CONF_DJ_RESPONSE_ENABLED,
     CONF_DJ_RESPONSE_PROMPT_PRESET,
     CONF_DJ_RESPONSE_PROMPT,
+    CONF_SMART_HOME_CONTEXT_ENTITIES,
     CONF_FIRMWARE_CHANNEL,
 }
 
@@ -614,6 +616,10 @@ def _base_voice_schema(
         ): selector.TextSelector(
             selector.TextSelectorConfig(multiline=True),
         ),
+        vol.Optional(
+            CONF_SMART_HOME_CONTEXT_ENTITIES,
+            default=_entity_allowlist_default(defaults),
+        ): _entity_allowlist_selector(),
     })
     if defaults.get(CONF_CLIENT_TYPE, DEFAULT_CLIENT_TYPE) == CLIENT_TYPE_ESP32:
         schema[
@@ -670,6 +676,29 @@ def _dj_response_prompt_preset_selector() -> Any:
     return vol.In(DJ_RESPONSE_PROMPT_PRESETS)
 
 
+def _entity_allowlist_selector() -> Any:
+    """Return a HA entity multi-selector, falling back to comma-separated text."""
+    entity_selector = getattr(selector, "EntitySelector", None)
+    entity_config = getattr(selector, "EntitySelectorConfig", None)
+    if entity_selector and entity_config:
+        try:
+            return entity_selector(entity_config(multiple=True))
+        except TypeError:
+            return entity_selector(entity_config())
+    return selector.TextSelector(selector.TextSelectorConfig(multiline=True))
+
+
+def _entity_allowlist_default(defaults: dict[str, Any]) -> Any:
+    value = defaults.get(CONF_SMART_HOME_CONTEXT_ENTITIES, [])
+    if getattr(selector, "EntitySelector", None) and getattr(selector, "EntitySelectorConfig", None):
+        return value if isinstance(value, list) else []
+    if isinstance(value, str):
+        return value
+    if isinstance(value, (list, tuple, set)):
+        return ", ".join(str(item) for item in value if str(item).strip())
+    return ""
+
+
 def _conversation_agent_options_schema(
     hass: Any,
     defaults: dict[str, Any],
@@ -692,6 +721,10 @@ def _conversation_agent_options_schema(
         ): selector.TextSelector(
             selector.TextSelectorConfig(multiline=True),
         ),
+        vol.Optional(
+            CONF_SMART_HOME_CONTEXT_ENTITIES,
+            default=_entity_allowlist_default(defaults),
+        ): _entity_allowlist_selector(),
     }
     return vol.Schema(schema)
 
@@ -711,6 +744,10 @@ def _conversation_agent_voice_schema(defaults: dict[str, Any]) -> vol.Schema:
         ): selector.TextSelector(
             selector.TextSelectorConfig(multiline=True),
         ),
+        vol.Optional(
+            CONF_SMART_HOME_CONTEXT_ENTITIES,
+            default=_entity_allowlist_default(defaults),
+        ): _entity_allowlist_selector(),
     }
     return vol.Schema(schema)
 
@@ -790,6 +827,10 @@ def _voice_defaults(
         ),
         CONF_FIRMWARE_CHANNEL: _firmware_channel_default(
             source.get(CONF_FIRMWARE_CHANNEL),
+        ),
+        CONF_SMART_HOME_CONTEXT_ENTITIES: source.get(
+            CONF_SMART_HOME_CONTEXT_ENTITIES,
+            [],
         ),
     }
 

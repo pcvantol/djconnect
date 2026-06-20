@@ -122,7 +122,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"platform\": \"{{client_type}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"firmware\": \"3.1.60\",\n  \"app_version\": \"3.1.60\",\n  \"battery_percent\": 86,\n  \"mood\": 42,\n  \"dj_style\": \"warm_radio_dj\",\n  \"memory_key\": \"{{memory_key}}\"\n}"
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"platform\": \"{{client_type}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"firmware\": \"3.1.60\",\n  \"app_version\": \"3.1.60\",\n  \"battery_percent\": 86,\n  \"mood\": 42,\n  \"mood_zone\": \"Groove\",\n  \"dj_style\": \"warm_radio_dj\",\n  \"memory_key\": \"{{memory_key}}\"\n}"
             },
             "url": {
               "raw": "{{ha_base_url}}/api/djconnect/status",
@@ -307,7 +307,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"client_message_id\": \"{{$guid}}\",\n  \"client_id\": \"{{device_id}}\",\n  \"identity\": {\n    \"device_id\": \"{{device_id}}\",\n    \"client_type\": \"{{client_type}}\",\n    \"device_name\": \"{{device_name}}\"\n  },\n  \"text\": \"Waarom koos je dit nummer?\",\n  \"memory_key\": \"{{memory_key}}\",\n  \"mood\": 42,\n  \"dj_style\": \"warm_radio_dj\",\n  \"audio_response\": \"auto\"\n}"
+              "raw": "{\n  \"client_message_id\": \"{{$guid}}\",\n  \"client_id\": \"{{device_id}}\",\n  \"identity\": {\n    \"device_id\": \"{{device_id}}\",\n    \"client_type\": \"{{client_type}}\",\n    \"device_name\": \"{{device_name}}\"\n  },\n  \"text\": \"Waarom koos je dit nummer?\",\n  \"memory_key\": \"{{memory_key}}\",\n  \"mood\": 42,\n  \"mood_zone\": \"Groove\",\n  \"dj_style\": \"warm_radio_dj\",\n  \"audio_response\": \"auto\"\n}"
             },
             "url": {
               "raw": "{{ha_base_url}}/api/djconnect/ask_dj/message",

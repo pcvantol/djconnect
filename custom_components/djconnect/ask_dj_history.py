@@ -10,12 +10,12 @@ from .const import CONF_CLIENT_TYPE, CONF_DEVICE_ID, CONF_DEVICE_NAME
 
 STORE_KEY = "djconnect_ask_dj_history"
 STORE_VERSION = 1
-MAX_MESSAGES_PER_USER = 200
+MAX_MESSAGES_PER_USER = 1000
 MAX_TEXT_LENGTH = 4000
 MAX_ITEMS = 20
 RETENTION_MESSAGE_COOLDOWN = timedelta(hours=1)
 RETENTION_MESSAGE_TEXT = (
-    "Ask DJ heeft de limiet van 200 berichten bereikt. Oudste berichten worden verwijderd."
+    "Ask DJ heeft de limiet van 1000 berichten bereikt. Oudste berichten worden verwijderd."
 )
 
 

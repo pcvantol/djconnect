@@ -248,6 +248,11 @@ Requirements:
   `mood` (0-100), `dj_style` and `memory_key` hints on status/voice/command
   payloads, but HA may normalize or override the resolved `memory_key`. ESP32
   is excluded from Ask DJ chat/history and keeps its voice/playback command flow.
+- Numeric `mood` remains the cross-client wire contract. HA maps it to
+  DJConnect mood zones for prompts and recommendations: Chill `0`-`24`,
+  Groove `25`-`59`, Energy `60`-`84`, Party `85`-`100`. Clients may show these
+  zones locally, but do not need to send `mood_zone`; HA derives the canonical
+  value from `mood`.
 - Ask DJ text chat for app/display clients uses POST /api/djconnect/ask_dj/message.
   Request identity can be top-level or inside `identity`; include
   client_message_id for retry dedupe and client_id as origin metadata. Response
@@ -261,13 +266,20 @@ Requirements:
   informational answer; use never for text-only.
 - Ask DJ history is server-side per Home Assistant user. Sync with GET
   /api/djconnect/ask_dj/history?since_revision=<number>. Response includes
-  user_id, history_revision, clear_revision, messages[], server_time and
-  optional trim metadata. If history_trimmed_before is present, clients should
+  user_id, history_revision, clear_revision, messages[], server_time,
+  history_limit and optional trim metadata. The current server limit is 1000
+  messages per HA user. If history_trimmed_before is present, clients should
   remove local Ask DJ messages older than that timestamp.
 - Ask DJ may include assistant system messages such as `origin:
   history_retention` or `origin: spotify_playback_context`. Clients should
   style them as system/ambient assistant bubbles and must not auto-play audio
   for retention messages.
+- Smart-home-aware Ask DJ prompts are read-only and opt-in. The HA integration
+  only exposes entity states selected in `smart_home_context_entities`; clients
+  and sibling repos must not assume DJConnect can see arbitrary HA states.
+  System messages such as "droger klaar, wil je nu X horen?" should use the
+  normal Ask DJ message shape and confirmation-style playback_actions /
+  confirmation_actions before playback starts.
 - Ask DJ Push-To-Talk for iOS/macOS/watchOS uses POST /api/djconnect/voice with
   Content-Type audio/wav. The response includes transcript/recognized_text and
   the same rich Ask DJ fields. Send optional X-DJConnect-Mood,

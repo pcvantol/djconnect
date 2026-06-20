@@ -242,7 +242,7 @@ class AskDJHistoryManagerTest(unittest.TestCase):
         manager = AskDJHistoryManager(store=FakeStore())
 
         async def run():
-            for index in range(101):
+            for index in range(501):
                 await manager.async_append_exchange(
                     "ha-user-1",
                     {
@@ -257,8 +257,8 @@ class AskDJHistoryManagerTest(unittest.TestCase):
 
         history = asyncio.run(run())
 
-        self.assertEqual(history["history_limit"], 200)
-        self.assertEqual(len(history["messages"]), 200)
+        self.assertEqual(history["history_limit"], 1000)
+        self.assertEqual(len(history["messages"]), 1000)
         self.assertEqual(history["history_trimmed_count"], 3)
         self.assertIsNotNone(history["history_trimmed_before"])
         self.assertEqual(history["messages"][-1]["role"], "assistant")
@@ -270,13 +270,13 @@ class AskDJHistoryManagerTest(unittest.TestCase):
         )
         self.assertEqual(history["messages"][-1]["action"], "none")
         self.assertIsNone(history["messages"][-1]["audio_url"])
-        self.assertIn("limiet van 200 berichten", history["messages"][-1]["text"])
+        self.assertIn("limiet van 1000 berichten", history["messages"][-1]["text"])
 
     def test_history_limit_retention_message_is_not_spammed_on_consecutive_trims(self) -> None:
         manager = AskDJHistoryManager(store=FakeStore())
 
         async def run():
-            for index in range(102):
+            for index in range(502):
                 await manager.async_append_exchange(
                     "ha-user-1",
                     {
@@ -298,7 +298,7 @@ class AskDJHistoryManagerTest(unittest.TestCase):
         ]
         self.assertEqual(len(retention_messages), 1)
         self.assertEqual(history["history_trimmed_count"], 5)
-        self.assertEqual(len(history["messages"]), 200)
+        self.assertEqual(len(history["messages"]), 1000)
 
 
 if __name__ == "__main__":

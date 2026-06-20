@@ -69,6 +69,7 @@
           "dj_response_enabled": "Play DJ announcement on device",
           "dj_response_prompt_preset": "DJ announcement style",
           "dj_response_prompt": "DJ announcement prompt",
+          "smart_home_context_entities": "Shared smart-home entities",
           "firmware_channel": "Firmware channel",
           "options_action": "Action"
         },
@@ -78,6 +79,7 @@
           "dj_response_enabled": "Create a temporary WAV or MP3 audio URL and send it with the DJ announcement to the DJConnect device.",
           "dj_response_prompt_preset": "Choose a preset style or Free-form to manage the prompt below yourself.",
           "dj_response_prompt": "Free-form prompt for the text DJConnect speaks on the device after a request. With a preset style, DJConnect fills this text automatically.",
+          "smart_home_context_entities": "Explicit read-only Home Assistant entities DJConnect may include in Ask DJ context, for example weather, room temperature, appliance status or scene state.",
           "firmware_channel": "Choose stable for normal OTA updates or beta to test prerelease firmware.",
           "options_action": "Choose whether to save options or reauthorize Spotify."
         }
@@ -136,6 +138,7 @@
           "dj_response_enabled": "Play DJ announcement on device",
           "dj_response_prompt_preset": "DJ announcement style",
           "dj_response_prompt": "DJ announcement prompt",
+          "smart_home_context_entities": "Shared smart-home entities",
           "firmware_channel": "Firmware channel",
           "options_action": "Action"
         },
@@ -146,6 +149,7 @@
           "dj_response_enabled": "Create a temporary WAV or MP3 audio URL and send it with the DJ announcement to the DJConnect device.",
           "dj_response_prompt_preset": "Choose a preset style or Free-form to manage the prompt below yourself.",
           "dj_response_prompt": "Free-form prompt for the text DJConnect speaks on the device after a request. With a preset style, DJConnect fills this text automatically.",
+          "smart_home_context_entities": "Explicit read-only Home Assistant entities DJConnect may include in Ask DJ context, for example weather, room temperature, appliance status or scene state.",
           "firmware_channel": "Choose stable for normal OTA updates or beta to test prerelease firmware.",
           "options_action": "Choose whether to save options or reauthorize Spotify."
         }

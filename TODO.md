@@ -115,7 +115,7 @@
 
 ## Ask DJ
 
-- Confirm Ask DJ server history trims at 200 messages per HA user, returns `history_limit`, `history_trimmed_before` and `history_trimmed_count`, and appends one `history_retention` system message without audio.
+- Confirm Ask DJ server history trims at 1000 messages per HA user, returns `history_limit`, `history_trimmed_before` and `history_trimmed_count`, and appends one `history_retention` system message without audio.
 - Confirm iOS, macOS and watchOS remove local chat messages older than `history_trimmed_before` after the next history sync.
 - Confirm `POST /api/djconnect/ask_dj/history/clear` still increments `clear_revision` and clears local cache across iOS, macOS and watchOS.
 - Confirm `Goedemorgen` returns a personalized morning suggestion with Ja/Nee controls and does not start playback until the user confirms.
@@ -123,6 +123,8 @@
 - Confirm follow-up confirmation buttons work cross-device, for example Ask DJ asks on iPhone and the user answers on macOS or Apple Watch.
 - Confirm obvious gibberish and sandbox/prompt-injection-like prompts return the neutral unknown-intent fallback and do not trigger Spotify search, HA device lookup, prompt disclosure or playback mutation.
 - Confirm Play Now and recommendation flows still store only compact positive signals in DJ Memory and never raw prompts, bearer tokens, OAuth tokens or raw audio.
+- Confirm Watch/iOS mood values map to the canonical DJConnect zones: Chill `0`-`24`, Groove `25`-`59`, Energy `60`-`84` and Party `85`-`100`.
+- Confirm smart-home-aware Ask DJ prompts only include explicitly shared `smart_home_context_entities`, never arbitrary HA states, and still require Ja/Nee confirmation before playback starts.
 
 ## Security / Privacy
 

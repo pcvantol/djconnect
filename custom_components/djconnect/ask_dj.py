@@ -23,9 +23,11 @@ from .const import (
 )
 from .dj_response import async_send_dj_response_best_effort
 from .memory import prompt_context_text
+from .mood import enrich_payload_with_mood_zone, mood_context_text, mood_zone_for_value
 from .music_intent import parse_spoken_music_request
 from .pipeline import _assist_context, _speech_from_response
 from .processor import process_text_command
+from .smart_home_context import smart_home_context, smart_home_context_text
 from .spotify_backend import handle_spotify_command
 
 _LOGGER = logging.getLogger(__name__)
@@ -71,9 +73,16 @@ async def async_handle_ask_dj(
     user_id: str | None = None,
 ) -> dict[str, Any]:
     """Handle a text Ask DJ request and return the client response shape."""
+    payload = enrich_payload_with_mood_zone(payload)
     text = str(payload.get("text") or payload.get("message") or "").strip()
     if not text:
         return _error_response("missing_text", "Ask DJ needs text to answer.")
+    if payload.get("mood_zone"):
+        _LOGGER.debug(
+            "DJConnect Ask DJ mood context: mood=%s zone=%s",
+            payload.get("mood"),
+            payload.get("mood_zone"),
+        )
 
     identity_payload = _identity_payload(runtime, payload)
     memory = getattr(runtime, "memory", None)
@@ -148,6 +157,9 @@ async def async_handle_ask_dj(
     ):
         classification = AskDjIntent("hybrid", "play_music", "play_music", play=True)
     playback_context = await _playback_context(hass, runtime)
+    home_context = smart_home_context(hass, runtime)
+    if home_context:
+        memory_context["smart_home"] = home_context
     output_devices = await _output_devices(hass, runtime, classification)
     if classification.category == "hybrid" and _is_slang_track_reference(effective_text):
         track_label = _track_label(playback_context)
@@ -2682,7 +2694,14 @@ def _personal_music_profile_text(
         + "; dat is een voorzichtige duiding, geen harde diagnose."
     )
     if mood is not None:
-        lines.append(f"Je laatste mood/energy waarde in DJ Memory is {mood}/100.")
+        zone = mood_zone_for_value(mood)
+        if zone is not None:
+            lines.append(
+                f"Je laatste mood/energy waarde in DJ Memory is {mood}/100 "
+                f"({zone.name}: {zone.prompt_hint})."
+            )
+        else:
+            lines.append(f"Je laatste mood/energy waarde in DJ Memory is {mood}/100.")
     if examples:
         lines.append("Concrete voorbeelden: " + _join_examples(examples, limit=6) + ".")
     if spotify_profile and _profile_limited(spotify_profile):
@@ -2882,9 +2901,10 @@ def _profile_mood(memory: Any) -> int | None:
 def _profile_energy(tracks: list[dict[str, Any]], memory: Any) -> str:
     mood = _profile_mood(memory)
     if mood is not None:
-        if mood < 35:
+        zone = mood_zone_for_value(mood)
+        if zone is not None and zone.name == "Chill":
             return "chill"
-        if mood > 70:
+        if zone is not None and zone.name in {"Energy", "Party"}:
             return "energiek"
     text = " ".join(str(track).lower() for track in tracks)
     if any(word in text for word in ("ambient", "acoustic", "chill", "sleep", "rustig")):
@@ -2896,10 +2916,16 @@ def _profile_energy(tracks: list[dict[str, Any]], memory: Any) -> str:
 
 def _profile_vibe(genres: list[str], energy: str, mood: int | None) -> str:
     genre_text = " ".join(genres).lower()
-    if mood is not None and mood < 35:
-        return "rustig, gevoelig en wat naar ontspanning gericht"
-    if mood is not None and mood > 70:
-        return "energiek en naar beweging of momentum gericht"
+    if mood is not None:
+        zone = mood_zone_for_value(mood)
+        if zone is not None and zone.name == "Chill":
+            return "rustig, warm en naar ontspanning gericht"
+        if zone is not None and zone.name == "Groove":
+            return "vloeiend, ritmisch en sociaal gericht"
+        if zone is not None and zone.name == "Energy":
+            return "uptempo en naar beweging of momentum gericht"
+        if zone is not None and zone.name == "Party":
+            return "feestelijk, herkenbaar en op maximale energie gericht"
     if any(word in genre_text for word in ("jazz", "ambient", "classical", "acoustic")):
         return "ontspannen en geconcentreerd"
     if any(word in genre_text for word in ("rock", "metal", "punk")):
@@ -3143,6 +3169,7 @@ def _now_iso() -> str:
 
 
 def _identity_payload(runtime: Any, payload: dict[str, Any]) -> dict[str, Any]:
+    payload = enrich_payload_with_mood_zone(payload)
     identity = payload.get("identity") if isinstance(payload.get("identity"), dict) else {}
     status = getattr(runtime, "device_status", {}) or {}
     return {
@@ -3151,6 +3178,8 @@ def _identity_payload(runtime: Any, payload: dict[str, Any]) -> dict[str, Any]:
         CONF_DEVICE_NAME: payload.get(CONF_DEVICE_NAME) or identity.get(CONF_DEVICE_NAME) or status.get(CONF_DEVICE_NAME),
         "memory_key": payload.get("memory_key") or identity.get("memory_key"),
         "mood": payload.get("mood") if payload.get("mood") is not None else payload.get("energy"),
+        "mood_zone": payload.get("mood_zone"),
+        "mood_zone_prompt": payload.get("mood_zone_prompt"),
         "dj_style": payload.get("dj_style"),
         "preferred_device_id": payload.get("preferred_device_id"),
     }
@@ -3190,6 +3219,11 @@ def _informational_prompt(
     output_devices: list[dict[str, Any]],
 ) -> str:
     memory_text = prompt_context_text(memory_context)
+    smart_home_text = smart_home_context_text(
+        memory_context.get("smart_home")
+        if isinstance(memory_context.get("smart_home"), list)
+        else []
+    )
     return (
         "Je bent DJConnect Ask DJ. Beantwoord informatieve muziekvragen zonder "
         "playback te wijzigen. Gebruik alleen meegegeven context en betrouwbare "
@@ -3205,8 +3239,9 @@ def _informational_prompt(
         "die vorige vraag voordat je antwoordt. "
         "Geef een kort natuurlijk antwoord voor een chat UI.\n\n"
         f"Vraag: {text}\n"
-        f"Mood/energy: {payload.get('mood') or payload.get('energy') or 'onbekend'}\n"
+        f"Mood/energy: {mood_context_text(payload)}\n"
         f"DJ stijl: {payload.get('dj_style') or 'standaard'}\n"
+        f"Smart-home context: {smart_home_text or 'geen expliciet gedeelde HA entities'}\n"
         f"Playback context: {_safe_inline_context(playback_context)}\n"
         f"Output devices: {_safe_inline_context(output_devices)}\n"
         f"DJ Memory: {memory_text or 'geen eerdere context'}"

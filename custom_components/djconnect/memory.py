@@ -10,6 +10,7 @@ import uuid
 from typing import Any
 
 from .const import CONF_CLIENT_TYPE, CONF_DEVICE_ID, CONF_DEVICE_NAME
+from .mood import mood_zone_for_value
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -185,6 +186,10 @@ class DJMemoryManager:
         mood = _clean_mood(payload.get("mood"))
         if mood is not None:
             memory["mood"] = mood
+            zone = mood_zone_for_value(mood)
+            if zone is not None:
+                memory["mood_zone"] = zone.name
+                memory["mood_zone_prompt"] = zone.prompt_hint
         dj_style = _clean_text(payload.get("dj_style"))
         if dj_style:
             memory["dj_style"] = dj_style
@@ -556,7 +561,11 @@ def prompt_context_text(context: dict[str, Any]) -> str:
                 )
             )
     if memory.get("mood") is not None:
-        lines.append(f"Mood/energy: {memory.get('mood')}/100")
+        zone = mood_zone_for_value(memory.get("mood"))
+        if zone is not None:
+            lines.append(f"Mood/energy: {memory.get('mood')}/100 ({zone.name}: {zone.prompt_hint})")
+        else:
+            lines.append(f"Mood/energy: {memory.get('mood')}/100")
     if memory.get("dj_style"):
         lines.append(f"DJ stijl: {memory.get('dj_style')}")
     time_context = memory.get("listening_time_context")
