@@ -8,6 +8,7 @@ repo-local sync prompt files.
 Canonical repo locations:
 
 - Home Assistant integration: `pcvantol/djconnect`
+- Central API backend: `pcvantol/djconnect-api`
 - Apple app: `pcvantol/djconnect-app`
 - ESP firmware: `pcvantol/djconnect-esp32`
 - Website/docs: `pcvantol/djconnect-website`
@@ -41,6 +42,12 @@ and `<3.2.0`.
 Every DJConnect release in any repo must follow the shared release hygiene
 checklist. Apply the repo-specific commands and skip only steps that are truly
 not applicable for that repo.
+
+The central API backend `pcvantol/djconnect-api` is part of the DJConnect
+platform. Include it in cross-repo contract reviews whenever APNs push relay,
+Apple client wake/sync behavior, Home Assistant relay events, privacy/security
+boundaries, API deployment, Cloudflare Workers/D1 schema, or release hygiene
+changes.
 
 Before publishing:
 
@@ -120,11 +127,13 @@ Publishing and cleanup:
 ## Cross-Repo Quick Prompts
 
 Use these prompts when handing work between the Home Assistant integration,
-Apple app, ESP firmware, Raspberry Pi client, and website/docs repos.
+central API backend, Apple app, ESP firmware, Raspberry Pi client, and
+website/docs repos.
 
 Canonical repo locations:
 
 - Home Assistant integration: `pcvantol/djconnect`
+- Central API backend: `pcvantol/djconnect-api`
 - Apple app: `pcvantol/djconnect-app`
 - ESP firmware: `pcvantol/djconnect-esp32`
 - Website/docs: `pcvantol/djconnect-website`
@@ -134,7 +143,7 @@ Canonical repo locations:
 
 ```text
 Sync the DJConnect website/docs with the Home Assistant integration, Apple app,
-ESP firmware and Raspberry Pi client contracts.
+central API backend, ESP firmware and Raspberry Pi client contracts.
 
 Requirements:
 - Keep the canonical production domain `https://djconnect.dev`; keep
@@ -235,14 +244,80 @@ Requirements:
   publishing.
 ```
 
+## Central API Backend
+
+```text
+Sync the DJConnect central API backend with the Home Assistant integration,
+Apple app, Raspberry Pi client, ESP firmware and website/docs contracts.
+
+Repository:
+- `pcvantol/djconnect-api`
+
+Purpose:
+- The central API backend is a Cloudflare Worker for APNs push relay.
+- It exists so Home Assistant/HACS users and client apps never receive the APNs
+  `.p8` provider private key.
+- It is expected to be reachable at `https://api.djconnect.dev` after deploy.
+
+Requirements:
+- Keep the APNs private key only in Cloudflare secrets/configuration. Never
+  commit `.p8` files, relay secrets, APNs device tokens, Home Assistant tokens,
+  Spotify tokens, Cloudflare API tokens, production install IDs, raw prompts,
+  raw assistant responses or chat history.
+- Treat the repo as public/open-source. Use only example fixtures such as
+  `example-ha-install`, `example-user-hash`, `example-apns-token` and
+  `dev.djconnect.ios`.
+- Keep central relay endpoints under `/v1/push/register`,
+  `/v1/push/unregister` and `/v1/push/event`. These are HA-to-central-API
+  endpoints and are separate from the Home Assistant client-facing
+  `/api/djconnect/push/register` and `/api/djconnect/push/unregister`
+  endpoints.
+- Require relay auth on all `/v1/push/*` calls, initially using
+  `DJCONNECT_RELAY_SECRET` bearer auth or HMAC. Do not allow anonymous
+  register/event calls.
+- Use APNs provider-token auth with ES256 JWT and these config/secrets:
+  `APNS_TEAM_ID`, `APNS_KEY_ID`, `APNS_PRIVATE_KEY`, `APNS_TOPIC_IOS`,
+  `APNS_TOPIC_MACOS`, `APNS_TOPIC_WATCHOS`, `APNS_ENVIRONMENT` and
+  `DJCONNECT_RELAY_SECRET`.
+- Keep sandbox endpoint `https://api.sandbox.push.apple.com` and production
+  endpoint `https://api.push.apple.com`; select the endpoint from each
+  registration environment.
+- Mark APNs `BadDeviceToken`, `Unregistered` and HTTP 410 responses as
+  disabled/invalid registrations.
+- Store only push routing metadata and minimal audit rows in D1. Do not store
+  prompts, assistant responses, full chat history, DJ Memory, Home Assistant
+  tokens or Spotify tokens.
+- APNs payloads must remain generic wake/sync hints. For Ask DJ, use generic
+  copy such as "Ask DJ heeft geantwoord." and "Ask DJ wacht op je keuze." plus
+  optional sync hints like `event_type`, `history_revision`,
+  `client_message_id` and `open_target`.
+- Apple clients must always sync with their own Home Assistant instance after
+  opening, especially `GET /api/djconnect/ask_dj/history`.
+- Keep `README.md`, `API_CONTRACT.md`, `SECURITY.md`, `CHANGELOG.md`,
+  `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `TECHNICAL_DESIGN_DECISIONS.md`,
+  `THIRD_PARTY_NOTICES.md`, `DEVELOPMENT_ENVIRONMENT.md`, `CONTRIBUTING.md`,
+  `CODE_OF_CONDUCT.md`, `CHAT_BOOTSTRAP.md`, `AGENTS.md` and `LICENSE`
+  production-ready.
+- Release validation should run `npx wrangler types`, `npx tsc --noEmit`,
+  `npm test`, `npx wrangler d1 migrations apply djconnect_api --local`, the
+  public repository secret scan and `./cleanup_old_releases.sh --keep 1` as a
+  dry-run. Attempt remote D1 migration and Worker deploy when Cloudflare
+  credentials are valid, and document skipped remote steps with the reason.
+```
+
 ## Home Assistant Integration
 
 ```text
-Sync the DJConnect Home Assistant integration with the Apple app and ESP
-client contracts.
+Sync the DJConnect Home Assistant integration with the central API backend,
+Apple app, ESP client and Raspberry Pi client contracts.
 
 Requirements:
 - Treat iOS/macOS/watchOS/Raspberry Pi as app-like clients, not ESP hardware devices.
+- Home Assistant may relay privacy-safe push registration and event data to the
+  central `pcvantol/djconnect-api` backend, but it must never receive or store
+  the APNs provider private key. HA-to-central-API calls must not contain raw
+  prompts, raw assistant responses, full chat history, DJ Memory, Home
+  Assistant tokens or Spotify tokens.
 - Ask DJ / DJ Memory is server-side in the Home Assistant integration. iOS,
   macOS, watchOS and Raspberry Pi clients must not store DJ Memory; they may send optional
   `mood` (0-100), `dj_style` and `memory_key` hints on status/voice/command
@@ -1949,11 +2024,13 @@ Do not put SwiftUI view logic into the HTTP client.
 # Sync Prompts
 
 Use these prompts when handing work between the Home Assistant integration,
-Apple app, ESP firmware, Raspberry Pi client, and website/docs repos.
+central API backend, Apple app, ESP firmware, Raspberry Pi client, and
+website/docs repos.
 
 Canonical repo locations:
 
 - Home Assistant integration: `pcvantol/djconnect`
+- Central API backend: `pcvantol/djconnect-api`
 - Apple app: `pcvantol/djconnect-app`
 - ESP firmware: `pcvantol/djconnect-esp32`
 - Website/docs: `pcvantol/djconnect-website`
@@ -1962,11 +2039,16 @@ Canonical repo locations:
 ## Home Assistant Integration
 
 ```text
-Sync the DJConnect Home Assistant integration with the Apple app and ESP
-client contracts.
+Sync the DJConnect Home Assistant integration with the central API backend,
+Apple app, ESP client and Raspberry Pi client contracts.
 
 Requirements:
 - Treat iOS/macOS/watchOS/Raspberry Pi as app-like clients, not ESP hardware devices.
+- Home Assistant may relay privacy-safe push registration and event data to the
+  central `pcvantol/djconnect-api` backend, but it must never receive or store
+  the APNs provider private key. HA-to-central-API calls must not contain raw
+  prompts, raw assistant responses, full chat history, DJ Memory, Home
+  Assistant tokens or Spotify tokens.
 - Ask DJ / DJ Memory is server-side in the Home Assistant integration. iOS,
   macOS, watchOS and Raspberry Pi clients must not store DJ Memory; they may
   send optional `mood` (0-100), `dj_style` and `memory_key` hints on
