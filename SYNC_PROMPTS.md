@@ -8,6 +8,7 @@ repo-local sync prompt files.
 Canonical repo locations:
 
 - Home Assistant integration: `pcvantol/djconnect`
+- Central API backend: `pcvantol/djconnect-api`
 - Apple app: `pcvantol/djconnect-app`
 - ESP firmware: `pcvantol/djconnect-esp32`
 - Website/docs: `pcvantol/djconnect-website`
@@ -32,7 +33,7 @@ instead of storing their own copy.
 ## Current Protocol Line
 
 The current shared protocol/release line is `3.1.x`; this bundle was last
-aligned after Home Assistant integration release `v3.1.41`. DJConnect clients on the
+aligned after Home Assistant integration release `v3.1.69`. DJConnect clients on the
 `3.1.x` line are compatible with Home Assistant integration versions `>=3.1.0`
 and `<3.2.0`.
 
@@ -41,6 +42,12 @@ and `<3.2.0`.
 Every DJConnect release in any repo must follow the shared release hygiene
 checklist. Apply the repo-specific commands and skip only steps that are truly
 not applicable for that repo.
+
+The central API backend `pcvantol/djconnect-api` is part of the DJConnect
+platform. Include it in cross-repo contract reviews whenever APNs push relay,
+Apple client wake/sync behavior, Home Assistant relay events, privacy/security
+boundaries, API deployment, Cloudflare Workers/D1 schema, or release hygiene
+changes.
 
 Before publishing:
 
@@ -69,6 +76,8 @@ Before publishing:
   changed.
 - Use `CHAT_BOOTSTRAP.md` as the repo-local fresh-chat prompt filename in every
   DJConnect repository.
+- If a repo still carries `CODEX_RESTART_PROMPT.md`, keep it updated during the
+  release cycle until it is retired or replaced by `CHAT_BOOTSTRAP.md`.
 - Review and update all user-facing translations for changed setup, options,
   repair, entity and service strings in repos that ship localized UI.
 - Update `pcvantol/djconnect/SYNC_PROMPTS.md` when the cross-repo contract or
@@ -118,11 +127,13 @@ Publishing and cleanup:
 ## Cross-Repo Quick Prompts
 
 Use these prompts when handing work between the Home Assistant integration,
-Apple app, ESP firmware, Raspberry Pi client, and website/docs repos.
+central API backend, Apple app, ESP firmware, Raspberry Pi client, and
+website/docs repos.
 
 Canonical repo locations:
 
 - Home Assistant integration: `pcvantol/djconnect`
+- Central API backend: `pcvantol/djconnect-api`
 - Apple app: `pcvantol/djconnect-app`
 - ESP firmware: `pcvantol/djconnect-esp32`
 - Website/docs: `pcvantol/djconnect-website`
@@ -132,14 +143,45 @@ Canonical repo locations:
 
 ```text
 Sync the DJConnect website/docs with the Home Assistant integration, Apple app,
-ESP firmware and Raspberry Pi client contracts.
+central API backend, ESP firmware and Raspberry Pi client contracts.
 
 Requirements:
 - Keep the canonical production domain `https://djconnect.dev`; keep
   `https://www.djconnect.dev` as a permanent redirect to the apex domain.
 - Keep `djconnect.pages.dev` only as the Cloudflare Pages fallback URL.
-- Keep homepage navigation focused on `Hoe werkt het`, `Features`, `Spraak`,
-  `Installeren` and `Blog`, plus the primary `Aan de slag` CTA.
+- Keep homepage navigation focused on cross-page and product routes:
+  `Features`, `Ask DJ`, `Spraak`, `Blog`, `Installeren`, `Support` and
+  `Privacy`, plus the primary `Aan de slag` CTA. Do not add a `Hoe werkt het`
+  self-link to the homepage top navigation.
+- Treat Ask DJ as a major website/docs product feature for iOS, macOS,
+  Apple Watch and Raspberry Pi clients. Explain that it is an AI-DJ chat for natural-language
+  music questions, personal recommendations, playback actions and
+  cross-device chat continuity, powered by the Home Assistant DJConnect
+  integration and server-side DJ Memory/history. ESP32 does not get Ask DJ chat
+  history/UI; ESP32 remains a physical voice/playback remote.
+- Ask DJ website/docs copy must make clear that recommendations do not start
+  playback automatically. Clients show `Play Now` for concrete
+  recommendations, and playback starts only after the user explicitly taps it.
+- Ask DJ website/docs should mention that follow-up questions can show Ja/Nee
+  controls, for example after `Goedemorgen` or `Wil je dit nu afspelen?`.
+- Ask DJ website/docs should explain that server-side chat history is bounded;
+  when the limit is reached, Home Assistant removes oldest messages and sends a
+  normal system bubble plus trim metadata so clients can clean their local
+  cache.
+- Ask DJ website/docs copy must mention compact privacy boundaries: clients do
+  not store DJ Memory; Home Assistant stores compact context/history per user;
+  Spotify OAuth tokens, bearer tokens, raw audio and full prompts are not kept
+  in DJ Memory/history; raw voice audio is not stored by default.
+- Ask DJ voice/PTT documentation should explain that iOS, macOS and Apple Watch
+  can use voice/PTT through Home Assistant STT, with optional TTS audio replies
+  when available. Raspberry Pi Ask DJ is read-only history display unless a
+  future Pi capability explicitly changes that scope. Informational text chat
+  is text-only by default; replay is shown only when an audio response exists.
+- Keep Ask DJ requirements visible and user-facing: Home Assistant, HACS
+  DJConnect integration v3.1.69 or newer, Spotify Premium, the user's own
+  Spotify Developer app with Client ID, an Assist pipeline with STT/TTS for
+  voice/audio, and preferably Nabu Casa or another stable HTTPS external URL
+  for Spotify OAuth.
 - Canonical spoken music intent example data lives in
   `examples/voice_intents.json` and `VOICE_INTENT_DATA.md` in the Home
   Assistant integration repo. Keep
@@ -202,51 +244,166 @@ Requirements:
   publishing.
 ```
 
+## Central API Backend
+
+```text
+Sync the DJConnect central API backend with the Home Assistant integration,
+Apple app, Raspberry Pi client, ESP firmware and website/docs contracts.
+
+Repository:
+- `pcvantol/djconnect-api`
+
+Purpose:
+- The central API backend is a Cloudflare Worker for APNs push relay.
+- It exists so Home Assistant/HACS users and client apps never receive the APNs
+  `.p8` provider private key.
+- It is expected to be reachable at `https://api.djconnect.dev` after deploy.
+
+Requirements:
+- Keep the APNs private key only in Cloudflare secrets/configuration. Never
+  commit `.p8` files, relay secrets, APNs device tokens, Home Assistant tokens,
+  Spotify tokens, Cloudflare API tokens, production install IDs, raw prompts,
+  raw assistant responses or chat history.
+- Treat the repo as public/open-source. Use only example fixtures such as
+  `example-ha-install`, `example-user-hash`, `example-apns-token` and
+  `dev.djconnect.ios`.
+- Keep central relay endpoints under `/v1/push/register`,
+  `/v1/push/unregister` and `/v1/push/event`. These are HA-to-central-API
+  endpoints and are separate from the Home Assistant client-facing
+  `/api/djconnect/push/register` and `/api/djconnect/push/unregister`
+  endpoints.
+- Require relay auth on all `/v1/push/*` calls, initially using
+  `DJCONNECT_RELAY_SECRET` bearer auth or HMAC. Do not allow anonymous
+  register/event calls.
+- Use APNs provider-token auth with ES256 JWT and these config/secrets:
+  `APNS_TEAM_ID`, `APNS_KEY_ID`, `APNS_PRIVATE_KEY`, `APNS_TOPIC_IOS`,
+  `APNS_TOPIC_MACOS`, `APNS_TOPIC_WATCHOS`, `APNS_ENVIRONMENT` and
+  `DJCONNECT_RELAY_SECRET`.
+- Keep sandbox endpoint `https://api.sandbox.push.apple.com` and production
+  endpoint `https://api.push.apple.com`; select the endpoint from each
+  registration environment.
+- Mark APNs `BadDeviceToken`, `Unregistered` and HTTP 410 responses as
+  disabled/invalid registrations.
+- Store only push routing metadata and minimal audit rows in D1. Do not store
+  prompts, assistant responses, full chat history, DJ Memory, Home Assistant
+  tokens or Spotify tokens.
+- APNs payloads must remain generic wake/sync hints. For Ask DJ, use generic
+  copy such as "Ask DJ heeft geantwoord." and "Ask DJ wacht op je keuze." plus
+  optional sync hints like `event_type`, `history_revision`,
+  `client_message_id` and `open_target`.
+- Push policy is strict: send APNs only for `ask_dj_response` after an explicit
+  user Ask DJ request and `ask_dj_confirm` when confirmation actions wait for a
+  user choice. Do not push `track_change`, `playback_change`, `queue_change`,
+  `volume_change`, `mood_change`, idle suggestions, ambient/system messages,
+  status refreshes, polling or Spotify progress updates. Coalesce Ask DJ pushes
+  with `thread-id: djconnect.askdj` and apply per-user/device rate limits.
+- Apple clients must always sync with their own Home Assistant instance after
+  opening, especially `GET /api/djconnect/ask_dj/history`.
+- Keep `README.md`, `API_CONTRACT.md`, `SECURITY.md`, `CHANGELOG.md`,
+  `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `TECHNICAL_DESIGN_DECISIONS.md`,
+  `THIRD_PARTY_NOTICES.md`, `DEVELOPMENT_ENVIRONMENT.md`, `CONTRIBUTING.md`,
+  `CODE_OF_CONDUCT.md`, `CHAT_BOOTSTRAP.md`, `AGENTS.md` and `LICENSE`
+  production-ready.
+- Release validation should run `npx wrangler types`, `npx tsc --noEmit`,
+  `npm test`, `npx wrangler d1 migrations apply djconnect_api --local`, the
+  public repository secret scan and `./cleanup_old_releases.sh --keep 1` as a
+  dry-run. Attempt remote D1 migration and Worker deploy when Cloudflare
+  credentials are valid, and document skipped remote steps with the reason.
+```
+
 ## Home Assistant Integration
 
 ```text
-Sync the DJConnect Home Assistant integration with the Apple app and ESP
-client contracts.
+Sync the DJConnect Home Assistant integration with the central API backend,
+Apple app, ESP client and Raspberry Pi client contracts.
 
 Requirements:
 - Treat iOS/macOS/watchOS/Raspberry Pi as app-like clients, not ESP hardware devices.
-- Ask DJ / DJ Memory is server-side in the Home Assistant integration. Apple
-  Watch, iOS and macOS clients must not store DJ Memory; they may send optional
+- Home Assistant may relay privacy-safe push registration and event data to the
+  central `pcvantol/djconnect-api` backend, but it must never receive or store
+  the APNs provider private key. HA-to-central-API calls must not contain raw
+  prompts, raw assistant responses, full chat history, DJ Memory, Home
+  Assistant tokens or Spotify tokens.
+- Home Assistant push events must follow the strict Ask DJ attention policy:
+  only explicit `ask_dj_response` and confirmation-wait `ask_dj_confirm` are
+  pushable. Track/playback/queue/volume/mood changes, idle suggestions,
+  ambient/system messages, status refreshes and polling must not generate
+  push. Suppress foreground/recent-active targets when known and rate-limit to
+  at most one push per 30 seconds and five pushes per ten minutes per HA user
+  plus device/client.
+- Ask DJ / DJ Memory is server-side in the Home Assistant integration. iOS,
+  macOS, watchOS and Raspberry Pi clients must not store DJ Memory; they may send optional
   `mood` (0-100), `dj_style` and `memory_key` hints on status/voice/command
-  payloads, but HA may normalize or override the resolved `memory_key`.
-- Ask DJ text chat for app clients uses POST /api/djconnect/ask_dj/message.
+  payloads, but HA may normalize or override the resolved `memory_key`. ESP32
+  is excluded from Ask DJ chat/history and keeps its voice/playback command flow.
+- Numeric `mood` remains the cross-client wire contract. HA maps it to
+  DJConnect mood zones for prompts and recommendations: `chill` for `0`-`24`,
+  `groove` for `25`-`59`, `energy` for `60`-`84`, `party` for `85`-`100`.
+  Clients may show title-case mode labels locally, but do not need to send
+  `mood_zone`; HA derives the canonical lowercase value from `mood`.
+- Ask DJ text chat for iOS/macOS/watchOS uses POST /api/djconnect/ask_dj/message.
   Request identity can be top-level or inside `identity`; include
   client_message_id for retry dedupe and client_id as origin metadata. Response
   shape includes success, text/dj_text/message, optional audio_url, images[],
-  links[], sources[], playback_actions[], intent, action, user_message,
-  assistant_message, history_revision and clear_revision.
+  links[], sources[], playback_actions[], confirmation_actions[], intent,
+  action, user_message, assistant_message, history_revision, clear_revision,
+  history_limit, history_trimmed_before and history_trimmed_count.
 - Ask DJ supports audio_response auto|always|never. Default auto is text-only
   for informational text chat, TTS for playback/hybrid intents and TTS for
   voice/PTT. Use always when the client wants replayable audio for an
   informational answer; use never for text-only.
 - Ask DJ history is server-side per Home Assistant user. Sync with GET
   /api/djconnect/ask_dj/history?since_revision=<number>. Response includes
-  user_id, history_revision, clear_revision, messages[] and server_time.
+  user_id, history_revision, clear_revision, messages[], server_time,
+  history_limit and optional trim metadata. The current server limit is 1000
+  messages per HA user. If history_trimmed_before is present, clients should
+  remove local Ask DJ messages older than that timestamp.
+- Ask DJ may include assistant system messages such as `origin:
+  history_retention` or `origin: spotify_playback_context`. Clients should
+  style them as system/ambient assistant bubbles and must not auto-play audio
+  for retention messages.
+- Smart-home-aware Ask DJ prompts are read-only and opt-in. The HA integration
+  only exposes entity states selected in `smart_home_context_entities`; clients
+  and sibling repos must not assume DJConnect can see arbitrary HA states.
+  System messages such as "droger klaar, wil je nu X horen?" should use the
+  normal Ask DJ message shape and confirmation-style playback_actions /
+  confirmation_actions before playback starts.
 - Ask DJ Push-To-Talk for iOS/macOS/watchOS uses POST /api/djconnect/voice with
   Content-Type audio/wav. The response includes transcript/recognized_text and
   the same rich Ask DJ fields. Send optional X-DJConnect-Mood,
   X-DJConnect-DJ-Style and X-DJConnect-Memory-Key headers when available.
+  Raspberry Pi Ask DJ is read-only history display and must not advertise or
+  implement voice support unless a future Pi capability explicitly changes this.
 - Pairing/status responses expose ask_dj_supported, ask_dj_voice_supported,
   voice_supported and ask_dj_audio_response_supported.
 - Ask DJ clear sync uses POST /api/djconnect/ask_dj/history/clear. Clients
   clear local chat cache when their local clear_revision is older than the
-  server clear_revision, then reload server history.
+  server clear_revision, then reload server history. Raspberry Pi must observe
+  clear_revision through history sync, but must not expose a local clear action.
+- Ask DJ follow-up questions can include `confirmation_actions[]` and
+  confirmation-style `playback_actions[]` for Ja/Nee buttons. Send the selected
+  answer to POST /api/djconnect/command with command
+  `ask_dj_followup_response`. The pending proposal lives server-side and
+  expires, so clients should not reconstruct the action locally. Raspberry Pi
+  renders Ask DJ read-only and must not render or send follow-up/action controls
+  from the Ask DJ screen.
+- Ask DJ greetings such as `Goedemorgen` return a personalized morning
+  suggestion with confirmation controls. Sleep phrases such as `Ik ga slapen`
+  pause playback directly.
+- Ask DJ unknown/safety fallback should show the returned neutral text, for
+  example `Sorry, ik begrijp niet wat je bedoelt.`, without retry loops or
+  client-side reinterpretation.
 - Ask DJ images must be proxied through Home Assistant/DJConnect URLs such as
   /api/djconnect/image_proxy/{token}; source links are separate links[] entries.
 - Ask DJ personal recommendations may include playback_actions[] for Play Now
   buttons, but must not start playback until the client sends POST
   /api/djconnect/command with command ask_dj_play_recommendation and a Spotify
-  track/album/artist/playlist URI payload. Use this successful command as a
-  positive DJ Memory signal.
-- Before pairing, require that Home Assistant has the official Spotify
-  integration configured with at least one Spotify `media_player` entity; if
-  not, show a clear localized config-flow error telling the user to configure
-  Spotify first.
+  track/album/artist/playlist URI payload. Raspberry Pi must not render or send
+  these Ask DJ Play Now actions from its read-only Ask DJ screen. Use successful
+  commands from interactive clients as positive DJ Memory signals.
+- Before Spotify playback can work, require DJConnect's own Spotify OAuth setup
+  with a user-owned Spotify Developer Client ID and PKCE redirect URI. Do not
+  require an official Home Assistant Spotify `media_player` entity.
 - Pair app-like clients through POST /api/djconnect/pair. For Raspberry Pi, this is
   the primary pairing path; do not try to call a Pi-local /api/device/pair
   endpoint during initial pairing.
@@ -413,10 +570,15 @@ Requirements:
 - Send playback commands to POST /api/djconnect/command. Supported first
   version commands are status, play, pause, next, previous, set_volume,
   set_shuffle and set_repeat.
-- Do not implement PTT, microphone capture, POST /api/djconnect/voice, local
-  DJ response audio playback or a Pi-local `/api/device/dj_response` endpoint.
-  If HA returns DJ response text in normal command/status responses, the Pi may
-  display that text on screen without treating itself as an audio/voice device.
+- Implement a read-only Ask DJ screen using only
+  GET /api/djconnect/ask_dj/history. Raspberry Pi may render server-side
+  history, clear/trim metadata, retention/system bubbles, images and
+  links/sources, but must not expose local message input, idle suggestions,
+  history clear, Play Now actions or follow-up confirmation controls from the
+  Ask DJ screen.
+- Do not implement PTT, microphone capture, POST /api/djconnect/voice, Ask DJ
+  message sending or local DJ response audio playback for Raspberry Pi.
+  Raspberry Pi must not expose a Pi-local `/api/device/dj_response` endpoint.
 - Do not expose ESP-only reboot, OTA, battery, Wi-Fi RSSI, screen brightness,
   screen timeout, speaker volume, LED, log-level or firmware entities.
 - Keep the updater and OS maintenance daemon separate from the touch UI and
@@ -453,9 +615,12 @@ Sync the DJConnect ESP firmware with the Home Assistant integration contract.
 
 Requirements:
 - ESP clients are physical DJConnect devices and must use client_type esp32.
-- Use model-specific device_id values, for example
-  djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX or
-  djconnect-esp32-s3-box-3-XXXXXXXXXXXX.
+- Use model-specific device_id values for supported ESP firmware builds. The
+  current supported production build is LilyGO T-Embed S3:
+  `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX`.
+- ESP32-S3-BOX-3 is no longer built, released or published in the ESP firmware
+  repo. Do not add BOX-3 PlatformIO targets, CI matrix entries, OTA manifest
+  entries or release assets unless board support is explicitly reintroduced.
 - Do not accept or generate legacy djconnect-XXXXXXXXXXXX ids.
 - Expose local ESP endpoints: GET /api/device/info,
   GET /api/device/pairing-info, POST /api/device/pair,
@@ -520,8 +685,9 @@ Bij `POST /api/device/pair` naar de ESP:
 
 Regels:
 
-- `device_id` is model-specifiek: `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX` voor LilyGO en `djconnect-esp32-s3-box-3-XXXXXXXXXXXX` voor ESP32-S3-BOX-3.
-- De ESP mDNS hostname gebruikt exact dezelfde `device_id`, dus bijvoorbeeld `http://djconnect-esp32-s3-box-3-XXXXXXXXXXXX.local`.
+- `device_id` is model-specifiek. De huidige ondersteunde firmware build gebruikt `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX` voor LilyGO.
+- ESP32-S3-BOX-3 wordt niet meer gebouwd, gereleased of gepubliceerd; voeg geen BOX-3 OTA manifest entry, release asset of CI/PlatformIO target toe tenzij support expliciet opnieuw wordt geïntroduceerd.
+- De ESP mDNS hostname gebruikt exact dezelfde `device_id`, dus bijvoorbeeld `http://djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX.local`.
 - ESP mDNS TXT bevat minimaal `name`, `device_id`, `client_type=esp32`,
   `version`, `paired`, `api` en `model`.
 - Gebruik het mDNS TXT veld `model` of de status/API `model` om het device model te bepalen; parse niet op de oude `djconnect-lilygo-` prefix.
@@ -594,14 +760,6 @@ Manifestvorm:
       "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.x/djconnect-lilygo-t-embed-s3-v3.1.x.bin",
       "sha256": "...",
       "size": 123
-    },
-    {
-      "board": "esp32_s3_box3",
-      "device": "esp32-s3-box-3",
-      "asset": "djconnect-esp32-s3-box-3-v3.1.x.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.x/djconnect-esp32-s3-box-3-v3.1.x.bin",
-      "sha256": "...",
-      "size": 123
     }
   ]
 }
@@ -622,7 +780,7 @@ Bij `POST /api/device/ota` naar de ESP:
 Regels:
 
 - LilyGO gebruikt `device:"lilygo-t-embed-s3"` en asset `djconnect-lilygo-t-embed-s3-vX.Y.Z.bin`.
-- ESP32-S3-BOX-3 gebruikt `device:"esp32-s3-box-3"` en asset `djconnect-esp32-s3-box-3-vX.Y.Z.bin`.
+- ESP32-S3-BOX-3 wordt niet meer gebouwd of gepubliceerd; HA mag voor BOX-3 geen firmware-update aanbieden tenzij een toekomstige release expliciet opnieuw een matching `firmwares[]` entry publiceert.
 - `min_ha_integration` en `max_ha_integration` volgen de firmware major.minor lijn: firmware `X.Y.Z` publiceert standaard `min_ha_integration:"X.Y.0"` en exclusief `max_ha_integration:"X.(Y+1).0"`.
 - HA moet firmware alleen aanbieden/accepteren als de integratieversie `>= min_ha_integration` en `< max_ha_integration` is. Voor firmware `3.1.x` betekent dit dus `>=3.1.0` en `<3.2.0`.
 - Dev firmware `0.0.0` blijft de uitzondering voor upgrade-aanbod vanaf lokale builds.
@@ -743,9 +901,10 @@ Okay Nabu wake-word support draait lokaal via TensorFlow Lite Micro en mag geen 
 De middelste encoderknop moet een actieve PTT processing/DJ-aankondiging flow kunnen annuleren.
 Oude backend-credential provisioning endpoints mogen niet bestaan of gebruikt worden.
 Pairing/status/voice/command auth gebruikt alleen het device bearer token.
-Device ID formats voor actuele firmware zijn model-specifiek:
+Device ID formats voor actuele firmware zijn model-specifiek. De huidige ondersteunde productiebuild is:
 - LilyGO T-Embed S3: `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX`
-- ESP32-S3-BOX-3: `djconnect-esp32-s3-box-3-XXXXXXXXXXXX`
+
+ESP32-S3-BOX-3 wordt niet meer gebouwd, gereleased of gepubliceerd. Voeg geen BOX-3 PlatformIO target, CI matrix entry, OTA manifest entry of release asset toe tenzij support expliciet opnieuw wordt geïntroduceerd.
 Accepteer geen legacy `djconnect-XXXXXXXXXXXX`, `djconnect-lilygo-XXXXXXXXXXXX` of `djconnect-[6-cijferige-code]` device IDs en bouw geen compatibility fallback voor die oude/tijdelijke formaten.
 Alle user-facing tekst, filenames, namespaces, logs en provisioning labels gebruiken uitsluitend DJConnect / djconnect.
 NVS taal key blijft provision.language.
@@ -1090,7 +1249,7 @@ PTT/wake-word runtime gedrag:
 
 Encoder PTT start pas met opnemen na de start cue/settle delay; stop cue speelt pas nadat de WAV is afgesloten.
 Wake-word detection start dezelfde lokale PTT WAV-upload flow als encoder PTT.
-Wake-word tuning: Okay Nabu model, 10 ms feature step, 3-frame sliding window. LilyGO cutoff is 0.90; ESP32-S3-BOX-3 cutoff is 0.86.
+Wake-word tuning: Okay Nabu model, 10 ms feature step, 3-frame sliding window. LilyGO cutoff is 0.90.
 Wake-word-started recording stopt automatisch na stilte en blijft altijd begrensd door de maximale opname-duur.
 Tijdens processing of het DJ-aankondiging scherm annuleert een middelste encoderdruk de rest van de PTT flow zo snel mogelijk; lopende HA HTTP responses mogen lokaal genegeerd worden en response audio moet een stop request krijgen.
 6. OAuth / Spotify secrets verwijderen
@@ -1116,7 +1275,8 @@ Payload accepteert:
 }
 device moet matchen met het boardprofiel van de firmware:
 - LilyGO productie: `lilygo-t-embed-s3`, asset `djconnect-lilygo-t-embed-s3-v3.1.x.bin`
-- ESP32-S3-BOX-3 bring-up: `esp32-s3-box-3`, asset `djconnect-esp32-s3-box-3-v3.1.x.bin`
+
+ESP32-S3-BOX-3 wordt niet meer gebouwd of gepubliceerd; geen BOX-3 OTA payload target, asset of manifest entry toevoegen tenzij support expliciet opnieuw wordt geïntroduceerd.
 Het manifest gebruikt alleen een `firmwares` array met board, device, asset,
 sha256 en size per firmware. Geen top-level single-device `device`, `asset`,
 `sha256` of `size` fallback.
@@ -1154,7 +1314,7 @@ Status payload bevat settings aliases.
 Device command parsing voor brightness/speaker/language/theme/log_level.
 PTT upload bouwt correcte headers en content type.
 No Spotify OAuth secret keys in status/pair/provision payloads.
-OTA payload device target matcht het boardprofiel (`lilygo-t-embed-s3` of `esp32-s3-box-3`).
+OTA payload device target matcht het boardprofiel (`lilygo-t-embed-s3` voor de huidige ondersteunde firmware build).
 DJConnect asset conversie test of snapshot/checksum zodat het firmware asset niet per ongeluk terugvalt naar een oud producticoon.
 Acceptatiecriteria
 ESP pairt met HA en blijft paired na de eerste /api/djconnect/command.
@@ -1167,7 +1327,7 @@ ESP stuurt generic playback commands naar HA.
 ESP PTT uploadt raw WAV naar HA en speelt HA DJ-aankondiging lokaal af.
 ESP annuleert PTT/DJ-aankondiging flow op middelste encoderdruk tijdens processing/response.
 ESP deduplicates Up Next queue display so one real queue item is not shown repeatedly.
-OTA gebruikt `djconnect-lilygo-t-embed-s3-vX.Y.Z.bin` met target `lilygo-t-embed-s3`, en `djconnect-esp32-s3-box-3-vX.Y.Z.bin` met target `esp32-s3-box-3`.
+OTA gebruikt `djconnect-lilygo-t-embed-s3-vX.Y.Z.bin` met target `lilygo-t-embed-s3`; er worden geen BOX-3 firmware assets gepubliceerd.
 Het device gebruikt de echte DJConnect icon assets uit pcvantol/djconnect in plaats van een opnieuw getekende benadering.
 Logs bevatten geen secrets.
 
@@ -1741,11 +1901,14 @@ Rules:
 
 ## OTA And Device Updates
 
-ESP OTA is board-specific and uses the public firmware manifest `firmwares[]`
-entries for:
+ESP OTA is board-specific and currently uses the public firmware manifest
+`firmwares[]` entry for:
 
 - `lilygo-t-embed-s3`
-- `esp32-s3-box-3`
+
+ESP32-S3-BOX-3 firmware is no longer built, released or published. Clients and
+HA update logic must not expect a BOX-3 firmware asset unless a future release
+explicitly reintroduces that board support.
 
 Apple clients must not request or install ESP firmware assets. If the Home
 Assistant integration exposes update information to Apple clients, it should be
@@ -1876,11 +2039,13 @@ Do not put SwiftUI view logic into the HTTP client.
 # Sync Prompts
 
 Use these prompts when handing work between the Home Assistant integration,
-Apple app, ESP firmware, Raspberry Pi client, and website/docs repos.
+central API backend, Apple app, ESP firmware, Raspberry Pi client, and
+website/docs repos.
 
 Canonical repo locations:
 
 - Home Assistant integration: `pcvantol/djconnect`
+- Central API backend: `pcvantol/djconnect-api`
 - Apple app: `pcvantol/djconnect-app`
 - ESP firmware: `pcvantol/djconnect-esp32`
 - Website/docs: `pcvantol/djconnect-website`
@@ -1889,15 +2054,31 @@ Canonical repo locations:
 ## Home Assistant Integration
 
 ```text
-Sync the DJConnect Home Assistant integration with the Apple app and ESP
-client contracts.
+Sync the DJConnect Home Assistant integration with the central API backend,
+Apple app, ESP client and Raspberry Pi client contracts.
 
 Requirements:
 - Treat iOS/macOS/watchOS/Raspberry Pi as app-like clients, not ESP hardware devices.
-- Ask DJ / DJ Memory is server-side in the Home Assistant integration. Apple
-  Watch, iOS and macOS clients must not store DJ Memory; they may send optional
-  `mood` (0-100), `dj_style` and `memory_key` hints on status/voice/command
-  payloads, but HA may normalize or override the resolved `memory_key`.
+- Home Assistant may relay privacy-safe push registration and event data to the
+  central `pcvantol/djconnect-api` backend, but it must never receive or store
+  the APNs provider private key. HA-to-central-API calls must not contain raw
+  prompts, raw assistant responses, full chat history, DJ Memory, Home
+  Assistant tokens or Spotify tokens.
+- Ask DJ / DJ Memory is server-side in the Home Assistant integration. iOS,
+  macOS, watchOS and Raspberry Pi clients must not store DJ Memory; they may
+  send optional `mood` (0-100), `dj_style` and `memory_key` hints on
+  status/voice/command payloads, but HA may normalize or override the resolved
+  `memory_key`. ESP32 is excluded from Ask DJ chat/history and keeps its
+  voice/playback command flow.
+- Ask DJ chat history is server-side per HA user and bounded. iOS, macOS,
+  watchOS and Raspberry Pi clients
+  must use `history_revision`, `clear_revision`, `history_trimmed_before` and
+  `history_trimmed_count` from HA responses to reconcile local caches.
+- iOS/macOS/watchOS render `confirmation_actions[]` and confirmation-style
+  `playback_actions[]` as Ja/Nee controls, then answer with
+  `command:"ask_dj_followup_response"`. Do not execute pending actions
+  client-side. Raspberry Pi renders Ask DJ read-only and must not expose these
+  controls.
 - Pair app-like clients through POST /api/djconnect/pair. For Raspberry Pi, this is
   the primary pairing path; do not try to call a Pi-local /api/device/pair
   endpoint during initial pairing.
@@ -2053,9 +2234,15 @@ Requirements:
 - Send playback commands to POST /api/djconnect/command. Supported first
   version commands are status, play, pause, next, previous, set_volume,
   set_shuffle and set_repeat.
-- Do not implement PTT, microphone capture, POST /api/djconnect/voice or local
-  DJ response audio playback. POST /api/device/dj_response displays text on
-  screen and may report audio_played:false when no audio device is configured.
+- Implement a read-only Ask DJ screen using only
+  GET /api/djconnect/ask_dj/history. Raspberry Pi may render server-side
+  history, clear/trim metadata, retention/system bubbles, images and
+  links/sources, but must not expose local message input, idle suggestions,
+  history clear, Play Now actions or follow-up confirmation controls from the
+  Ask DJ screen.
+- Do not implement PTT, microphone capture, POST /api/djconnect/voice, Ask DJ
+  message sending or local DJ response audio playback for Raspberry Pi.
+  Raspberry Pi must not expose a Pi-local `/api/device/dj_response` endpoint.
 - Do not expose ESP-only reboot, OTA, battery, Wi-Fi RSSI, screen brightness,
   screen timeout, speaker volume, LED, log-level or firmware entities.
 - Keep the updater and OS maintenance daemon separate from the touch UI and
@@ -2080,9 +2267,12 @@ Sync the DJConnect ESP firmware with the Home Assistant integration contract.
 
 Requirements:
 - ESP clients are physical DJConnect devices and must use client_type esp32.
-- Use model-specific device_id values, for example
-  djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX or
-  djconnect-esp32-s3-box-3-XXXXXXXXXXXX.
+- Use model-specific device_id values for supported ESP firmware builds. The
+  current supported production build is LilyGO T-Embed S3:
+  `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX`.
+- ESP32-S3-BOX-3 is no longer built, released or published in the ESP firmware
+  repo. Do not add BOX-3 PlatformIO targets, CI matrix entries, OTA manifest
+  entries or release assets unless board support is explicitly reintroduced.
 - Do not accept or generate legacy djconnect-XXXXXXXXXXXX ids.
 - Expose local ESP endpoints: GET /api/device/info,
   GET /api/device/pairing-info, POST /api/device/pair,

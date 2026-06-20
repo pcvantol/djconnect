@@ -28,11 +28,13 @@
 - Confirm Spotify playback action runs when Spotify is idle.
 - Confirm current-track questions such as `Welk nummer draait er nu?` return a DJ response without starting new Spotify playback, including no-track and Spotify-unavailable cases.
 - Confirm direct playback controls `Stop muziek`, `Start muziek`, `Zet harder`, `Zet zachter`, `Volgende nummer` and `Vorig nummer` execute backend commands without Spotify search and return DJ responses.
+- Confirm English direct controls such as `next` and `skip` execute immediately even when the configured/UI language is Dutch.
+- Confirm lifecycle phrases such as `Ik ga slapen` pause playback directly and return the localized DJ response.
 - Confirm PTT artist, track, album, playlist and default-playlist phrases resolve to the intended Spotify search type.
 - Confirm AI DJ announcements use the selected/default HA Assist conversation engine when no DJConnect Assist pipeline is explicitly selected.
 - Confirm Voice Preview Edition can select the `DJConnect DJ` conversation agent and receives the generated DJ response through its speaker.
 - Confirm initial setup can create an Assist Conversation Agent-only entry without a DJConnect client pairing code.
-- Confirm the DJConnect conversation-agent options dialog only shows action and DJ response style/prompt controls.
+- Confirm the DJConnect conversation-agent options dialog only shows the action selector and smart-home context allowlist; DJ response style/prompt controls must stay removed because announcements follow runtime mood/default style.
 - Confirm successful DJ announcement TTS creates an `audio_url` using a local Home Assistant URL even when older HA network helpers are unavailable.
 - Confirm Dutch DJ announcements pronounce English artist, album and track names naturally in TTS.
 - Confirm a new PTT request such as Nirvana does not reuse previous Spotify playback metadata such as Red Hot Chili Peppers in the DJ aankondiging.
@@ -110,6 +112,19 @@
 - Test Spotify backend playback after OAuth refresh-token rotation.
 - Test Spotify backend playback with simultaneous status/play/queue calls after OAuth refresh-token rotation.
 - Update service documentation if any response payload changes.
+
+## Ask DJ
+
+- Confirm Ask DJ server history trims at 1000 messages per HA user, returns `history_limit`, `history_trimmed_before` and `history_trimmed_count`, and appends one `history_retention` system message without audio.
+- Confirm iOS, macOS and watchOS remove local chat messages older than `history_trimmed_before` after the next history sync.
+- Confirm `POST /api/djconnect/ask_dj/history/clear` still increments `clear_revision` and clears local cache across iOS, macOS and watchOS.
+- Confirm `Goedemorgen` returns a personalized morning suggestion with Ja/Nee controls and does not start playback until the user confirms.
+- Confirm `ask_dj_followup_response` executes a pending Yes action, declines a No action and returns a friendly expired/no-pending message after the pending follow-up TTL.
+- Confirm follow-up confirmation buttons work cross-device, for example Ask DJ asks on iPhone and the user answers on macOS or Apple Watch.
+- Confirm obvious gibberish and sandbox/prompt-injection-like prompts return the neutral unknown-intent fallback and do not trigger Spotify search, HA device lookup, prompt disclosure or playback mutation.
+- Confirm Play Now and recommendation flows still store only compact positive signals in DJ Memory and never raw prompts, bearer tokens, OAuth tokens or raw audio.
+- Confirm Watch/iOS mood values map to the canonical DJConnect zones: Chill `0`-`24`, Groove `25`-`59`, Energy `60`-`84` and Party `85`-`100`.
+- Confirm smart-home-aware Ask DJ prompts only include explicitly shared `smart_home_context_entities`, never arbitrary HA states, and still require Ja/Nee confirmation before playback starts.
 
 ## Security / Privacy
 

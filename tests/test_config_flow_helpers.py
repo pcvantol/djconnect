@@ -229,7 +229,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertNotIn(self.const.CONF_TTS_LANGUAGE, keys)
         self.assertNotIn(self.const.CONF_TTS_VOICE, keys)
 
-    def test_voice_schema_uses_multiline_dj_response_prompt(self) -> None:
+    def test_voice_schema_hides_dj_response_prompt_controls(self) -> None:
         hass = types.SimpleNamespace(states=None)
         schema = asyncio.run(
             self.config_flow._voice_schema(
@@ -237,69 +237,21 @@ class ConfigFlowHelperTest(unittest.TestCase):
                 self.config_flow._voice_defaults(),
             )
         )
-        validators = {
-            marker.key: validator
-            for marker, validator in schema.schema.items()
-        }
-        prompt_selector = validators[self.const.CONF_DJ_RESPONSE_PROMPT]
+        keys = {marker.key for marker in schema.schema}
 
-        self.assertTrue(prompt_selector.config.kwargs["multiline"])
+        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT_PRESET, keys)
+        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
 
-    def test_voice_schema_exposes_dj_response_prompt_preset(self) -> None:
-        hass = types.SimpleNamespace(states=None)
-        schema = asyncio.run(
-            self.config_flow._voice_schema(
-                hass,
-                self.config_flow._voice_defaults(),
-            )
-        )
-        marker_defaults = {marker.key: marker.default for marker in schema.schema}
-        validators = {
-            marker.key: validator
-            for marker, validator in schema.schema.items()
-        }
-
-        self.assertEqual(
-            marker_defaults[self.const.CONF_DJ_RESPONSE_PROMPT_PRESET],
-            self.const.DJ_RESPONSE_PROMPT_PRESET_WARM,
-        )
-        preset_selector = validators[self.const.CONF_DJ_RESPONSE_PROMPT_PRESET]
-        preset_values = [
-            option["value"]
-            for option in preset_selector.config.kwargs["options"]
-        ]
-        self.assertEqual(preset_values, self.const.DJ_RESPONSE_PROMPT_PRESETS)
-
-    def test_voice_defaults_apply_dj_response_prompt_preset(self) -> None:
+    def test_voice_defaults_ignore_legacy_dj_response_prompt_input(self) -> None:
         defaults = self.config_flow._voice_defaults(
             {
-                self.const.CONF_DJ_RESPONSE_PROMPT_PRESET: (
-                    self.const.DJ_RESPONSE_PROMPT_PRESET_HUMOR
-                ),
-                self.const.CONF_DJ_RESPONSE_PROMPT: "Custom text",
-            }
-        )
-
-        self.assertEqual(
-            defaults[self.const.CONF_DJ_RESPONSE_PROMPT],
-            self.const.DJ_RESPONSE_PROMPT_TEXTS[
-                self.const.DJ_RESPONSE_PROMPT_PRESET_HUMOR
-            ],
-        )
-
-    def test_voice_defaults_preserve_custom_dj_response_prompt(self) -> None:
-        defaults = self.config_flow._voice_defaults(
-            {
-                self.const.CONF_DJ_RESPONSE_PROMPT_PRESET: (
-                    self.const.DJ_RESPONSE_PROMPT_PRESET_CUSTOM
-                ),
                 self.const.CONF_DJ_RESPONSE_PROMPT: "Maak het kort en eigen.",
             }
         )
 
         self.assertEqual(
             defaults[self.const.CONF_DJ_RESPONSE_PROMPT],
-            "Maak het kort en eigen.",
+            self.const.DEFAULT_DJ_RESPONSE_PROMPT,
         )
 
     def test_default_dj_response_prompt_is_multiline_guidance(self) -> None:
@@ -341,7 +293,8 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertNotIn(self.const.CONF_LIKED_PROXY, keys)
         self.assertNotIn("show_advanced_options", keys)
         self.assertIn(self.const.CONF_FIRMWARE_CHANNEL, keys)
-        self.assertIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
+        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT_PRESET, keys)
+        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
         self.assertIn(self.const.CONF_DJ_RESPONSE_ENABLED, keys)
 
     def test_firmware_channel_uses_labeled_selector(self) -> None:
@@ -811,7 +764,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
                 self.const.SETUP_METHOD_CONVERSATION_AGENT
             ],
             "Assist Conversation Agent\n"
-            "Gebruikt Home Assistant Assist voor STT/TTS en heeft geen DJConnect client-koppelcode nodig.",
+            "Geen DJConnect koppelcode nodig.",
         )
         self.assertEqual(
             self.config_flow._setup_method_names(nl_hass)[
@@ -1213,8 +1166,8 @@ class ConfigFlowHelperTest(unittest.TestCase):
         form = asyncio.run(flow.async_step_voice())
         keys = {marker.key for marker in form["data_schema"].schema}
 
-        self.assertIn(self.const.CONF_DJ_RESPONSE_PROMPT_PRESET, keys)
-        self.assertIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
+        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT_PRESET, keys)
+        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
         self.assertNotIn(self.const.CONF_DJ_RESPONSE_ENABLED, keys)
         self.assertNotIn(self.const.CONF_ASSIST_PIPELINE_ID, keys)
         self.assertNotIn(self.const.CONF_FIRMWARE_CHANNEL, keys)
@@ -1235,8 +1188,6 @@ class ConfigFlowHelperTest(unittest.TestCase):
     def test_voice_defaults_for_app_clients_omit_firmware_channel(self) -> None:
         defaults = self.config_flow._voice_defaults_for_client(
             {
-                self.const.CONF_DJ_RESPONSE_PROMPT_PRESET: "custom",
-                self.const.CONF_DJ_RESPONSE_PROMPT: "Maak het kort.",
                 self.const.CONF_FIRMWARE_CHANNEL: "beta",
             },
             client_type=self.const.CLIENT_TYPE_MACOS,
@@ -1377,8 +1328,8 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertIn(self.config_flow.OPTIONS_ACTION_FIELD, keys)
         self.assertNotIn(self.const.CONF_DJ_RESPONSE_ENABLED, keys)
-        self.assertIn(self.const.CONF_DJ_RESPONSE_PROMPT_PRESET, keys)
-        self.assertIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
+        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT_PRESET, keys)
+        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
         self.assertNotIn(self.const.CONF_SPOTIFY_SOURCE, keys)
         self.assertNotIn(self.const.CONF_LIKED_PROXY, keys)
         self.assertNotIn(self.const.CONF_LOCAL_URL, keys)
@@ -1405,8 +1356,6 @@ class ConfigFlowHelperTest(unittest.TestCase):
             flow.async_step_init(
                 {
                     self.config_flow.OPTIONS_ACTION_FIELD: self.config_flow.OPTIONS_ACTION_SAVE,
-                    self.const.CONF_DJ_RESPONSE_PROMPT_PRESET: "custom",
-                    self.const.CONF_DJ_RESPONSE_PROMPT: "Maak het kort.",
                     self.const.CONF_MAX_AUDIO_BYTES: 99999,
                 }
             )
@@ -1421,7 +1370,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(result["data"][self.const.CONF_MAX_AUDIO_BYTES], 12345)
         self.assertEqual(
             result["data"][self.const.CONF_DJ_RESPONSE_PROMPT],
-            "Maak het kort.",
+            self.const.DEFAULT_DJ_RESPONSE_PROMPT,
         )
 
     def test_options_flow_save_drops_firmware_channel_for_app_clients(self) -> None:
@@ -1439,8 +1388,6 @@ class ConfigFlowHelperTest(unittest.TestCase):
             flow.async_step_init(
                 {
                     self.config_flow.OPTIONS_ACTION_FIELD: self.config_flow.OPTIONS_ACTION_SAVE,
-                    self.const.CONF_DJ_RESPONSE_PROMPT_PRESET: "custom",
-                    self.const.CONF_DJ_RESPONSE_PROMPT: "Keep it short.",
                 }
             )
         )

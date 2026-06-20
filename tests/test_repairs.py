@@ -131,6 +131,7 @@ class RepairsTest(unittest.TestCase):
                     "user-read-playback-state user-modify-playback-state "
                     "user-read-currently-playing user-library-read "
                     "playlist-read-private playlist-read-collaborative "
+                    "playlist-modify-private playlist-modify-public "
                     "user-read-recently-played user-top-read"
                 ),
             },
@@ -157,6 +158,7 @@ class RepairsTest(unittest.TestCase):
                     "user-read-playback-state user-modify-playback-state "
                     "user-read-currently-playing user-library-read "
                     "playlist-read-private playlist-read-collaborative "
+                    "playlist-modify-private playlist-modify-public "
                     "user-read-recently-played user-top-read"
                 ),
             },
@@ -176,6 +178,7 @@ class RepairsTest(unittest.TestCase):
                     "user-read-playback-state user-modify-playback-state "
                     "user-read-currently-playing user-library-read "
                     "playlist-read-private playlist-read-collaborative "
+                    "playlist-modify-private playlist-modify-public "
                     "user-read-recently-played user-top-read"
                 ),
             },

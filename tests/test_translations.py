@@ -60,7 +60,6 @@ VOICE_OPTION_DATA_KEYS = {
     "client_type",
     "local_url",
     "dj_response_enabled",
-    "dj_response_prompt_preset",
     "firmware_channel",
     "options_action",
 }

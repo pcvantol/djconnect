@@ -15,12 +15,16 @@ Lees eerst:
 - `SYNC_PROMPTS.md`
 - `PRODUCT_ROADMAP.md`
 - `TECHNICAL_DESIGN_DECISIONS.md`
+- `API_CONTRACT.md`
+- `VOICE_INTENT_DATA.md`
 - `CONTRIBUTING.md`
+- `SECURITY.md`
 - `DEVELOPMENT_ENVIRONMENT.md`
+- `info.md`
 
 Belangrijke huidige status:
 - Project: DJConnect Home Assistant custom integration, domain `djconnect`.
-- Laatste release: `3.1.53`.
+- Laatste release: `3.1.69`.
 - Repo is public en MIT-licensed.
 - Alle DJConnect repos zijn MIT-licensed, tenzij een specifieke third-party dependency anders vermeldt.
 - `FIRMWARE-LICENSE.md` is verwijderd.
@@ -35,10 +39,10 @@ Belangrijke huidige status:
 - Actieve voice routes gebruiken Home Assistant Assist/TTS, geen directe externe AI/STT/TTS APIs.
 - DJConnect exposeert een Home Assistant conversation agent met vaste naam `DJConnect DJ`.
 - Initial setup heeft nu 3 opties:
-  - bestaand WiFi device koppelen;
-  - WiFi via Bluetooth provisionen;
   - `Assist Conversation Agent` zonder client-koppelcode/device token/Client adres.
-- Compacte conversation-agent options-flow toont alleen actie + DJ response stijl/prompt.
+  - `DJConnect app of device koppelen`;
+  - `ESP32 device WiFi configureren (via Bluetooth)`.
+- Compacte conversation-agent options-flow toont alleen actie en smart-home context allowlist; DJ response stijl/prompt is geen user-facing optie meer en volgt runtime client mood of de hardcoded default.
 - Verwijderde opties:
   - Spotify source override;
   - Standaard playlist override;
@@ -48,6 +52,17 @@ Belangrijke huidige status:
 - Conversation agent gebruikt Assist conversation agent voor Spotify intent bepaling en DJ response generatie, met DJConnect prompt override.
 - DJ response prompts moeten artiest, album en nummer noemen waar bekend.
 - Config flow blokkeert niet meer op officiële Spotify media_player; DJConnect gebruikt eigen Spotify OAuth en Spotify Web API.
+- Ask DJ is server-side en cross-device voor iOS, macOS, watchOS en Raspberry Pi: deze clients gebruiken `/api/djconnect/ask_dj/message`, `/history`, `/history/clear`, `/idle_suggestion` en `/api/djconnect/command` voor Play Now/follow-up acties. ESP32 krijgt geen Ask DJ chat UI/history en blijft op de bestaande PTT/playback command flow.
+- Ask DJ history is HA-user scoped, max 1000 berichten, met retention system messages en `history_limit`, `history_trimmed_before`, `history_trimmed_count` metadata voor client cache cleanup.
+- Ask DJ mood-zones worden server-side uit Apple client `mood` afgeleid: `0`-`24` chill, `25`-`59` groove, `60`-`84` energy, `85`-`100` party. Spoken DJ announcements gebruiken die mood-zone.
+- Apple push in de HACS-integratie is relay-only via `DJCONNECT_PUSH_RELAY_URL` en `DJCONNECT_PUSH_RELAY_SECRET`; HA bewaart geen APNs tokens en bevat geen APNs `.p8` provider key of directe Apple push delivery. Push is alleen voor expliciete Ask DJ response/confirm attention events, met foreground suppression en rate limiting; nooit voor track/playback/status/idle updates.
+- Cross-device clear/trim is backend-authoritative: clients vergelijken `clear_revision`, `history_revision` en trim metadata; niet op system-message tekst parsen.
+- Ask DJ gebruikt `playback_actions[]` voor Play Now en confirmation buttons; `confirmation_actions[]` bevat dezelfde Ja/Nee confirmation actions voor clients die die apart willen renderen.
+- `command:"ask_dj_followup_response"` handelt Ja/Nee follow-ups af via server-side pending state in DJ Memory; pending follow-ups verlopen na ongeveer 10 minuten.
+- `Goedemorgen`/`Good morning` met `trigger:"morning_startup"` en geen actieve playback geeft een ochtend-suggestie met Ja/Nee knoppen zonder automatisch te starten; `ik ga slapen` pauzeert muziek direct.
+- Ask DJ fallback is gehard tegen gibberish, sandbox escape en prompt-injectionachtige input; die geeft tekstueel `Sorry, ik begrijp niet wat je bedoelt.` zonder conversation-agent of playback route.
+- Directe playbackwoorden zoals `next` en `skip` blijven directe next-commands, ook bij Nederlandse UI-taal.
+- `VOICE_INTENT_DATA.md` en `examples/voice_intents.json` zijn de canonieke bron voor website/client voorbeelden; werk beide bij bij nieuwe intents.
 - HACS icon issue: assets zitten in deze repo, en er is lokaal werk gestart voor een PR naar `home-assistant/brands` met `custom_integrations/djconnect/icon.png`, `icon@2x.png`, `logo.png`. Als dat vervolg nodig is: check `/tmp/home-assistant-brands-djconnect`.
 
 Werkstijl:
@@ -57,6 +72,7 @@ Werkstijl:
 - Run minimaal `python3 -m unittest discover -s tests` voor release/codewijzigingen.
 - Lokale HA dev-omgeving draait in Docker op `localhost:8123`; zie `DEVELOPMENT_ENVIRONMENT.md` voor sync/restart commands.
 - Release met `./release.sh X.Y.Z`; cleanup oude releases met `./cleanup_old_releases.sh --keep 1 --execute`.
+- `main` is beschermd; releasewerk gaat via PR. HACS/hassfest validatie verwacht geldige repo topics, `hacs.json` zonder verouderde `domains` key, gesorteerde `manifest.json` keys en geen letterlijke URLs in translation strings.
 - Houd docs en vertalingen actueel bij UI/config-flow/options-flow wijzigingen.
 - Geen secrets/tokens/wachtwoorden loggen of committen.
 ```

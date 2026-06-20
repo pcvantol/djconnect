@@ -231,6 +231,8 @@ class ProcessorRuntimeTest(unittest.TestCase):
         async def generated_dj_response(hass, *, media, fallback_text, conf, debug=None):
             self.assertEqual(media["track_name"], "Alive")
             self.assertEqual(media["artist"], "Pearl Jam")
+            self.assertEqual(media["mood"], 70)
+            self.assertEqual(media["mood_zone"], "energy")
             self.assertIn("festival", conf["dj_response_prompt"])
             if debug is not None:
                 debug["fallback_used"] = False
@@ -252,6 +254,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
                     runtime,
                     "ik wil pearl jam starten",
                     play=True,
+                    memory_payload={"mood": 70},
                 )
             )
         finally:

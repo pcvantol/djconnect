@@ -14,7 +14,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 
 ## Current Version
 
-- Home Assistant integration: `3.1.65`
+- Home Assistant integration: `3.1.70`
 - Domain: `djconnect`
 - HACS category: `Integration`
 - Device target: DJConnect device
@@ -38,7 +38,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 - Process text commands through the selected/default Assist conversation agent and DJConnect's music parser before sending the resulting intent to Spotify.
 - Answer current-track questions such as `Welk nummer draait er nu?` with a DJ response based on Spotify's current playback state, without starting new playback.
 - Handle direct DJ playback controls such as `Stop muziek`, `Start muziek`, `Zet harder`, `Zet zachter`, `Volgende nummer` and `Vorig nummer` without running a Spotify search.
-- Keep server-side DJ Memory for future `Ask DJ` follow-ups across lightweight Apple Watch, iOS and macOS clients.
+- Keep server-side DJ Memory for future `Ask DJ` follow-ups across lightweight iOS, macOS, watchOS and Raspberry Pi clients.
 - Generate DJ announcements through the selected/default Assist conversation agent with DJConnect-specific prompt instructions and fallback guardrails.
 - Use HA-native Assist/TTS routes in active services and entities.
 - Track client status, firmware/client version, last command, last corrected STT, last track and backend playback state.
@@ -71,7 +71,7 @@ runtime behavior. These decisions are part of the integration contract:
 
 ## Repository Layout
 
-- Home Assistant integration: `3.1.65`
+- Home Assistant integration: `3.1.70`
 - ESP firmware source: `pcvantol/djconnect-app`
 - Public firmware releases: `pcvantol/djconnect-firmware`
 - Canonical cross-repo sync prompts live only in this HA repo: [`SYNC_PROMPTS.md`](SYNC_PROMPTS.md)
@@ -146,14 +146,18 @@ DJConnect requests these Spotify OAuth scopes:
 - `user-library-read`
 - `playlist-read-private`
 - `playlist-read-collaborative`
+- `playlist-modify-private`
+- `playlist-modify-public`
 - `user-read-recently-played`
 - `user-top-read`
 
 `playlist-read-private` is required when Home Assistant lists private or
-user-owned playlists for DJConnect backend playback. `user-read-recently-played`
-and `user-top-read` are required for Ask DJ listening-profile analysis based on
-Spotify recently played tracks and top artists/tracks. Existing users who
-authorized Spotify before these scopes were added must authorize Spotify again.
+user-owned playlists for DJConnect backend playback. `playlist-modify-private`
+and `playlist-modify-public` are required when Ask DJ saves a generated mix as a
+Spotify playlist. `user-read-recently-played` and `user-top-read` are required
+for Ask DJ listening-profile analysis based on Spotify recently played tracks
+and top artists/tracks. Existing users who authorized Spotify before these
+scopes were added must authorize Spotify again.
 
 Create an app in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard), copy its Client ID, and add the exact redirect URI shown by the DJConnect setup flow. With Nabu Casa this usually looks like:
 
@@ -199,11 +203,11 @@ other secrets over BLE.
 The config flow includes safe defaults for optional voice fields. The Assist pipeline is stored so DJConnect knows which Home Assistant STT/TTS setup to use; DJConnect does not run direct external STT/TTS APIs.
 
 - Assist pipeline ID
-- DJ announcement style presets (neutral/business, warm/personal or humorous/witty) plus a free-form prompt for the text spoken on the device
+- Mood-aware DJ announcements: runtime mood from iOS, macOS or Apple Watch automatically adapts the spoken announcement tone; without mood DJConnect uses its hardcoded default style
 - ESP device UI language is selected automatically from the Home Assistant language during ESP pairing. iOS, macOS, watchOS and Raspberry Pi clients determine their own language locally.
 - ESP32 firmware updates through the public multi-device manifest and selected firmware channel
 
-Where Home Assistant exposes choices, DJConnect shows populated dropdowns for Assist pipeline and Spotify market. The first setup step chooses one route: Assist Conversation Agent, DJConnect app/device pairing, or WiFi provisioning over Bluetooth. The pairing step does not repeat that setup method choice; it asks for the client details only. Client type choices are ordered for app clients first: iOS, macOS, Apple Watch, Linux/Raspberry Pi and ESP32. STT/TTS engine, language and voice are managed in Home Assistant Assist, not in DJConnect. Backend playback is handled by Home Assistant through the DJConnect playback proxy; ESP device settings use the local device command API. The compact options screen used from Assist conversation-agent settings shows only the action selector and DJ response style/prompt controls. Device-only setup fields such as Client adres, Assist pipeline, firmware channel, playlist overrides, Spotify source overrides and OTA/audio compatibility fields are hidden there. Max audio bytes, OTA battery settings and DJ announcement audio TTL use integration defaults and are not user-adjustable in config/options flow. Firmware OTA device selection is ESP32-only and automatic: DJConnect reads the public multi-device firmware manifest and selects the matching `firmwares[]` entry from ESP status/info, falling back to LilyGO only before the ESP has reported a model. iOS/macOS/watchOS clients update through TestFlight/app distribution, and Linux/Raspberry Pi clients are managed from their own GitHub source/install flow rather than ESP OTA. For ESP devices, the Client adres is normally not needed: DJConnect resolves the device through `_djconnect._tcp` mDNS, uses the device-reported `local_url` when available, and only builds a model-specific hostname such as `http://djconnect-lilygo-t-embed-s3-[device-suffix].local` when the configured ID contains a real 12-character device suffix.
+Where Home Assistant exposes choices, DJConnect shows populated dropdowns for Assist pipeline and Spotify market. The first setup step chooses one route: Assist Conversation Agent, DJConnect app/device pairing, or WiFi provisioning over Bluetooth. The pairing step does not repeat that setup method choice; it asks for the client details only. Client type choices are ordered for app clients first: iOS, macOS, Apple Watch, Linux/Raspberry Pi and ESP32. STT/TTS engine, language and voice are managed in Home Assistant Assist, not in DJConnect. Backend playback is handled by Home Assistant through the DJConnect playback proxy; ESP device settings use the local device command API. The compact options screen used from Assist conversation-agent settings shows only the action selector and smart-home context allowlist; DJ announcement style is no longer a config/option choice because runtime mood drives the final tone when available. Device-only setup fields such as Client adres, Assist pipeline, firmware channel, playlist overrides, Spotify source overrides and OTA/audio compatibility fields are hidden there. Max audio bytes, OTA battery settings and DJ announcement audio TTL use integration defaults and are not user-adjustable in config/options flow. Firmware OTA device selection is ESP32-only and automatic: DJConnect reads the public multi-device firmware manifest and selects the matching `firmwares[]` entry from ESP status/info, falling back to LilyGO only before the ESP has reported a model. iOS/macOS/watchOS clients update through TestFlight/app distribution, and Linux/Raspberry Pi clients are managed from their own GitHub source/install flow rather than ESP OTA. For ESP devices, the Client adres is normally not needed: DJConnect resolves the device through `_djconnect._tcp` mDNS, uses the device-reported `local_url` when available, and only builds a model-specific hostname such as `http://djconnect-lilygo-t-embed-s3-[device-suffix].local` when the configured ID contains a real 12-character device suffix.
 
 The options flow also includes an action selector. Use `Reauthorize Spotify` to
 refresh OAuth from the integration page, `Retry pairing with current code` to
@@ -323,7 +327,9 @@ skips, likes or moves playback. It uses only available DJ Memory/playback
 context, defaults to the last 30 days when no period is named, and says clearly
 when there is too little listening history for a reliable profile.
 `djconnect.clear_ask_dj_history` clears persistent Ask DJ chat history for the
-Home Assistant user and increments `clear_revision` plus `history_revision`.
+selected Home Assistant user when called as a developer service. The app HTTP
+clear route increments a global Ask DJ `clear_revision` so iOS, macOS and
+watchOS clients clear their local cache together.
 `djconnect.ask_dj_history_state` returns the current revisions and
 `ask_dj_clear_required` so another client can clear its local cache before
 rendering the Ask DJ screen.
@@ -337,9 +343,9 @@ playback failures.
 When HA Assist provides a DJ announcement, DJConnect asks it to include one
 short fun fact about the artist and/or the song. After Spotify resolves and
 starts the request, DJConnect prefers the resolved track, artist, album or
-playlist metadata and the configured DJ announcement prompt to generate the spoken
-device response, so the device response is specific to what actually started
-playing.
+playlist metadata plus the current mood-zone/default announcement style to
+generate the spoken device response, so the device response is specific to what
+actually started playing.
 
 If HA Assist returns a generic smart-home answer such as "I cannot play music",
 DJConnect does not use that sentence as the DJ announcement. It keeps the
@@ -471,6 +477,20 @@ may include optional Ask DJ memory hints: `mood` as an integer `0`-`100`,
 Home Assistant may normalize or override `memory_key`; responses can include the
 resolved `memory_key`. Clients should treat DJ Memory as server-side state and
 must not store Spotify credentials, Home Assistant tokens or DJ Memory locally.
+Apple Watch, iOS and backend callers all use the same server-side mood-zone
+mapping when a numeric mood is provided: `0`-`24` is `Chill`, `25`-`59` is
+`Groove`, `60`-`84` is `Energy` and `85`-`100` is `Party`. Clients can keep
+sending only the numeric `mood`; DJConnect derives `mood_zone` internally and
+uses the zone name plus persona hint in Ask DJ prompts, recommendations, spoken
+DJ announcements and debug/status context. Missing or unknown mood values keep
+the existing default Ask DJ and announcement behavior.
+
+| Numeric mood | Zone | Ask DJ persona hint |
+| --- | --- | --- |
+| `0`-`24` | Chill | Quiet, warm, low tempo and not too busy. |
+| `25`-`59` | Groove | Flowing, rhythmic, social and medium energy. |
+| `60`-`84` | Energy | More drive, uptempo and active. |
+| `85`-`100` | Party | Maximum energy, festive, recognizable and momentum-focused. |
 
 Spotify refresh tokens can rotate after OAuth. DJConnect stores newly returned refresh tokens immediately and treats that latest stored value as canonical for HA backend playback. If Spotify rejects an older in-memory refresh token, DJConnect checks the latest runtime/config-entry/config sources and retries a newer stored token before showing a reauthorization Repair. If the ESP later reports `spotify_configured=false`, Home Assistant treats this as a compatibility/status hint, not as a request to send OAuth credentials to the ESP.
 
@@ -505,6 +525,8 @@ POST /api/djconnect/ask_dj
 POST /api/djconnect/ask_dj/message
 GET  /api/djconnect/ask_dj/history
 POST /api/djconnect/ask_dj/history/clear
+POST /api/djconnect/push/register
+POST /api/djconnect/push/unregister
 POST /api/djconnect/command
 POST /api/djconnect/status
 POST /api/djconnect/event
@@ -512,6 +534,10 @@ GET  /api/djconnect/tts/{token}.wav
 GET  /api/djconnect/image_proxy/{token}
 GET  /api/djconnect/spotify/callback
 ```
+
+See `API_CONTRACT.md` for the compact client-facing Ask DJ contract, including
+mood-zone mapping, history retention, Apple push registration and smart-home
+context rules.
 
 A Postman collection for these HTTP endpoints lives at
 [`examples/djconnect.postman_collection.json`](examples/djconnect.postman_collection.json).
@@ -570,9 +596,10 @@ through `X-DJConnect-Text` or `{ "text": "Test" }`. They simulate the DJ
 response path directly and do not parse a Spotify playback command. Raw WAV PTT
 uploads continue through STT, command parsing, Spotify playback and DJ announcement.
 
-For app-like clients (`ios`, `macos`, `watchos`), raw WAV uploads to
-`/api/djconnect/voice` are treated as Ask DJ voice input after STT. Optional
-headers `X-DJConnect-Mood`, `X-DJConnect-DJ-Style` and
+For app-like clients with voice support (`ios`, `macos`, `watchos`), raw WAV
+uploads to `/api/djconnect/voice` are treated as Ask DJ voice input after STT.
+Raspberry Pi Ask DJ is text-only unless a future Pi capability explicitly
+advertises voice support. Optional headers `X-DJConnect-Mood`, `X-DJConnect-DJ-Style` and
 `X-DJConnect-Memory-Key` are folded into the same Ask DJ memory/context path as
 text chat. The response keeps the Ask DJ rich shape and includes both
 `transcript` and legacy `recognized_text` so clients can show the actual
@@ -587,13 +614,52 @@ Status/pairing responses advertise:
   "ask_dj_supported": true,
   "ask_dj_voice_supported": true,
   "voice_supported": true,
-  "ask_dj_audio_response_supported": true
+  "ask_dj_audio_response_supported": true,
+  "push_supported": true,
+  "push_registered": false,
+  "push_environment": "sandbox"
 }
 ```
 
-App clients should use `POST /api/djconnect/ask_dj/message` for text chat. The
-backend is the source of truth for Ask DJ history per Home Assistant user; iOS,
-macOS and Apple Watch may cache locally, but must reconcile from
+Apple push notifications are optional and best-effort for iOS, macOS and
+watchOS clients. Clients register APNs tokens with
+`POST /api/djconnect/push/register` and unregister with
+`POST /api/djconnect/push/unregister`, both using the existing DJConnect bearer
+token. Home Assistant does not store APNs tokens and never needs the platform
+`.p8` key. It forwards registrations and wake/sync events to the central
+`djconnect-api` push relay through `https://api.djconnect.dev` using a secret
+per-install token that starts with `djci_`. Home Assistant requests this token
+automatically from `/v1/install/token` with its generated `ha_install_id` and
+stores it in the config entry. Users do not need to see, copy or enter this
+token. If the central API is temporarily unavailable, push stays disabled
+without breaking Ask DJ, playback or status flows and the integration retries on
+the next central API use.
+
+The central `djconnect-api` service owns APNs provider-token auth, topics,
+sandbox/production selection and invalid-token handling. Push is only a
+wake/attention signal: when the user opens the app, the client must still sync
+through authenticated APIs, especially `GET /api/djconnect/ask_dj/history`.
+Token rotation uses the central `/v1/install/rotate` endpoint and only replaces
+the local token after a successful response.
+Push is sent only for user-visible Ask DJ attention events: an explicit user Ask
+DJ response, or an Ask DJ response that contains `confirmation_actions` and is
+waiting for a choice. DJConnect does not push for track changes, playback
+changes, queue changes, volume changes, mood changes, idle suggestions, ambient
+system messages, status refreshes or Spotify progress updates. If the source
+client reports foreground/recent-active state, HA suppresses pushes back to that
+active client. HA also rate-limits Ask DJ pushes per user/device to one push per
+30 seconds and five pushes per ten minutes. Central API event payloads contain
+only `ha_install_id`, optional `ha_user_hash`, `event_type`, `history_revision`,
+optional `client_message_id`, optional `open_target` and optional
+`client_types`. They never include Spotify tokens, Home Assistant tokens, raw
+prompts, raw LLM context, full memory/history or assistant responses. The
+`djci_` install token is internal and must never be pasted into issues or logs.
+
+App/display clients should use `POST /api/djconnect/ask_dj/message` for text
+chat. This contract applies to iOS, macOS, Apple Watch and Raspberry Pi. ESP32
+does not get Ask DJ chat/history; ESP32 keeps the existing PTT/playback command
+flow. The backend is the source of truth for Ask DJ history per Home Assistant user; iOS,
+macOS, Apple Watch and Raspberry Pi may cache locally, but must reconcile from
 `GET /api/djconnect/ask_dj/history?since_revision=<number>`. The request body
 can contain top-level identity fields or an `identity` object:
 
@@ -609,18 +675,26 @@ can contain top-level identity fields or an `identity` object:
   "text": "Waarom koos je dit nummer?",
   "memory_key": "optional-client-key",
   "mood": 42,
+  "mood_zone": "groove",
   "dj_style": "warm_radio_dj",
   "audio_response": "auto"
 }
 ```
 
-The response is uniform across iOS, macOS and Apple Watch:
+`mood_zone` in examples is informational; clients may omit it. The backend
+derives the canonical lowercase zone from `mood` so older clients remain
+compatible.
+
+The response is uniform across iOS, macOS, Apple Watch and Raspberry Pi:
 
 ```json
 {
   "success": true,
   "history_revision": 43,
   "clear_revision": 7,
+  "history_limit": 1000,
+  "history_trimmed_before": null,
+  "history_trimmed_count": 0,
   "user_message": {
     "id": "server-user-message-id",
     "client_message_id": "uuid-from-client",
@@ -675,6 +749,32 @@ The response is uniform across iOS, macOS and Apple Watch:
       "kind": "track",
       "image_url": "/api/djconnect/image_proxy/def456",
       "reason": "Past bij je recente voorkeur voor melodische opbouw."
+    },
+    {
+      "id": "ask_dj_followup_yes",
+      "title": "Ja",
+      "kind": "confirmation",
+      "action_style": "confirmation",
+      "response_value": "yes",
+      "command": "ask_dj_followup_response"
+    }
+  ],
+  "confirmation_actions": [
+    {
+      "id": "ask_dj_followup_yes",
+      "title": "Ja",
+      "kind": "confirmation",
+      "action_style": "confirmation",
+      "response_value": "yes",
+      "command": "ask_dj_followup_response"
+    },
+    {
+      "id": "ask_dj_followup_no",
+      "title": "Nee",
+      "kind": "confirmation",
+      "action_style": "confirmation",
+      "response_value": "no",
+      "command": "ask_dj_followup_response"
     }
   ],
   "intent": {"category": "informational", "name": "ask_music_info"},
@@ -693,6 +793,28 @@ playback mutation. These replies are text-only in `audio_response: auto`; client
 can still request audio with `audio_response: "always"`. Short corrections such
 as `alleen tussen 1980 en 1990` are combined with the previous user request
 before the normal Ask DJ routing continues.
+
+Confirmation-style follow-up questions use `playback_actions[]` entries with
+`kind:"confirmation"`, `action_style:"confirmation"` and
+`command:"ask_dj_followup_response"`; the same entries are also exposed as
+`confirmation_actions[]` for clients that want to render them separately from
+Play Now cards. Clients answer by sending `/api/djconnect/command` with
+`command:"ask_dj_followup_response"` and `value.response_value` as `yes` or
+`no`. The backend stores the pending follow-up in DJ Memory for about ten
+minutes, scoped to the HA user/memory context. `yes` executes the stored
+proposed action, `no` does nothing, and both outcomes append a normal assistant
+message to server-side Ask DJ history. Expired follow-ups return a friendly
+message asking the user to ask again.
+
+Morning startup is a special confirmation flow. If a client opens Ask DJ in the
+morning without active playback, it may send `text:"Goedemorgen"` or
+`"Good morning"` plus metadata such as `trigger:"morning_startup"`,
+`reason:"app_started_without_active_playback"`, `has_active_now_playing:false`,
+`local_date` and `local_hour`. DJConnect answers with a friendly morning
+suggestion such as `Goedemorgen! Zal ik ... voor je aanzetten?`, uses DJ Memory
+and Spotify listening profile data where available, and does not start playback
+until the user taps `Ja`. Sleep phrases such as `ik ga slapen` are treated as a
+clear playback-control request and pause music immediately.
 
 Album-discography questions such as `Welke albums hebben Radiohead uitgebracht`
 and contextual follow-ups such as `Welke albums bracht deze artiest uit?` use
@@ -721,6 +843,33 @@ produce at most one message until the artist or album changes. Clients can use
 `message_kind` to render these bubbles differently from normal answers to a user
 question.
 
+DJConnect can include selected Home Assistant entity state in Ask DJ context for
+future smart-home aware prompts such as `het regent buiten`, `het is 20 graden
+in de woonkamer`, `de droger is klaar`, `de auto is opgeladen`, `de koffie is
+klaar` or `de woonkamer staat op scene Y; wil je nu X horen?`. This is explicit
+and read-only: configure `Shared smart-home entities` / `Gedeelde smart-home
+entiteiten` in DJConnect options to choose the weather, sensor, appliance, scene
+or helper entities DJConnect may see. The integration does not expose all Home
+Assistant states to Ask DJ and does not use this context to mutate smart-home
+devices; it only summarizes the selected entity states in the Ask DJ prompt. If
+Ask DJ proposes music because of a smart-home event, it should use the existing
+confirmation-style `playback_actions[]` / `confirmation_actions[]` with Ja/Nee
+buttons before starting playback.
+
+Example shared entity list:
+
+```text
+sensor.outdoor_rain
+sensor.living_room_temperature
+sensor.dryer_status
+sensor.car_battery
+input_select.living_room_scene
+```
+
+Only the current state and a small set of safe display attributes are summarized
+for Ask DJ. Tokens, full prompts, raw audio and arbitrary HA state snapshots are
+not stored in DJ Memory or chat history.
+
 External image URLs are registered behind `GET /api/djconnect/image_proxy/{token}`
 so clients only need to fetch Home Assistant/DJConnect URLs. `audio_url` is
 also a Home Assistant/DJConnect URL when TTS audio is available.
@@ -747,8 +896,10 @@ recommendations in `playback_actions[]` without changing playback. Clients show
 those as Play Now actions. When the user taps Play Now, send
 `command:"ask_dj_play_recommendation"` to `/api/djconnect/command` with the
 selected action as `value`. DJConnect accepts only Spotify `track`, `album`,
-`artist` and `playlist` URIs. Track actions can include `context_uri` plus
-`offset_uri`; album, artist and playlist actions start their Spotify context.
+`artist`, `playlist` and DJConnect `track_mix` actions. Track actions can
+include `context_uri` plus `offset_uri`; album, artist and playlist actions
+start their Spotify context. `track_mix` actions include a bounded `uris[]`
+array of Spotify track URIs, which DJConnect starts as one explicit mix.
 Successful Play Now commands are stored as compact positive personalization
 signals in DJ Memory. Phrases such as `Speel wat anders` are treated as
 personal recommendation requests: DJConnect looks at DJ Memory, Spotify recently
@@ -759,21 +910,53 @@ or media art. DJ Memory also stores compact listening-time context such as hour,
 weekday, weekday/weekend and daypart, so recommendation prompts and Play Now
 reasons can become time-aware without clients storing local memory.
 
+Ask DJ can also compose a seed-based mix from 1..n artists, tracks or genres,
+for example `Stel een playlist samen op basis van Radiohead, Massive Attack en
+Portishead`, `Ik wil een playlist obv tracks Reckoner, Teardrop` or `Ik wil een
+playlist in genre ambient, techno`. DJConnect resolves up to five Spotify seeds
+and uses Spotify recommendations to return a Play Now `track_mix` action. After
+the user taps Play Now, the DJ response asks whether the mix should be saved.
+Follow-up requests such as `Sla deze mix op als Spotify playlist` create a
+private Spotify playlist and add the generated tracks, provided the OAuth token
+has `playlist-modify-private`/`playlist-modify-public`.
+
 To synchronize local chat cache and clear state:
 
 ```text
 GET  /api/djconnect/ask_dj/history?since_revision=42
 POST /api/djconnect/ask_dj/history/clear
+POST /api/djconnect/ask_dj/idle_suggestion
 ```
 
+When a client opens Ask DJ and Spotify is idle, it can call
+`POST /api/djconnect/ask_dj/idle_suggestion` with the same client identity as
+Ask DJ message requests. The backend appends one assistant-only system message
+with `message_kind:"system"` and `origin:"idle_suggestion"` to the user-scoped
+history. If DJConnect Memory or Spotify recently played/top profile data yields
+a concrete candidate, the message includes a Play Now `playback_actions[]`
+entry.
+
 History responses contain `user_id`, `history_revision`, `clear_revision`,
-bounded `messages[]` and `server_time`. The first implementation returns at
-most the latest 200 messages, sorted by `created_at`. `history/clear` clears
-only the authenticated HA user's messages, increments both revisions and returns
-an empty `messages[]`. Clients compare their local `clear_revision` before
-rendering; if the server revision is higher, wipe local cache and reload server
-history. `client_message_id` makes retried `message` posts idempotent for the
-same HA user.
+`history_limit`, `history_trimmed_before`, `history_trimmed_count`, bounded
+`messages[]` and `server_time`. The backend keeps at most the latest 1000
+messages per HA user. When adding a message would exceed that limit, DJConnect
+removes the oldest messages, increments `history_revision`, stores trim
+metadata, and appends one assistant-only system message with
+`message_kind:"system"`, `origin:"history_retention"`,
+`intent:{"category":"system","intent":"history_limit_reached"}`,
+`action:"none"` and `audio_url:null`. Clients should delete local Ask DJ
+messages older than `history_trimmed_before` and may use
+`history_trimmed_count` for diagnostics; they should not parse the system
+message text to detect retention. To avoid chat spam, DJConnect emits at most
+one retention system message per trim operation and suppresses repeated
+retention messages for about an hour.
+
+`history/clear` clears the DJConnect app chat history globally, increments the
+shared `clear_revision`, resets trim metadata and returns an empty `messages[]`.
+Clients compare their local `clear_revision` before rendering; if the server
+revision is higher, wipe local cache and reload server history.
+`client_message_id` makes retried `message` posts idempotent for the same HA
+user.
 
 Home Assistant must have an Assist pipeline with STT and TTS configured.
 DJConnect setup only asks you to choose the Assist pipeline; STT provider, TTS engine,
@@ -800,7 +983,7 @@ Firmware sends backend playback commands to Home Assistant instead of storing Sp
 POST /api/djconnect/command
 ```
 
-Required headers are `Authorization: Bearer <device_token>`, `X-DJConnect-Device-ID` and `Content-Type: application/json`. Supported commands include `status`, `devices`, `queue`, `playlists`, `pause`, `play`, `next`, `previous`, `seek_relative`, `start_liked_proxy`, `start_playlist`, `play_context_at`, `ask_dj_play_recommendation`, `set_shuffle`, `set_repeat`, `set_output` and `set_volume`. `seek_relative` accepts an integer millisecond offset for Apple app skip-forward/skip-back controls; positive values seek forward and negative values seek backward. `set_shuffle` accepts a boolean value; `set_repeat` accepts `off`, `track` or `context`; `play_context_at` accepts a context URI and track offset URI for Up Next playback. `ask_dj_play_recommendation` accepts a Play Now recommendation value with Spotify `uri`, optional `context_uri`/`offset_uri`, `kind`, `title`, `subtitle`, `reason` and `memory_key`. Responses are generic JSON shapes with `playback`, `devices`, `queue` or `playlists`, so future backends such as Sonos or Home Assistant media players can be added without firmware changes. `status` responses include `backend_available`, `ha_version`, `ha_major_minor` and a valid `playback` object even when no Spotify playback is active. `queue` responses include at most 100 items, top-level `context_uri` / `contextUri` when known and per-item artwork aliases such as `album_image_url` and `image_url`; `playlists` responses include Spotify playlists with `name`, `title`, `display_title`, `uri`, `value`, `playlist_uri`, `owner`, `subtitle`, `image_url`, `entity_picture` and artwork aliases such as `album_image_url`, `album_art_url` and `media_image_url`. HA returns playlist lists as top-level `playlists` and `items`, plus `data.playlists`, `data.items`, `result.playlists`, `result.items` and `count` for stricter clients. ESP32 `playlists` requests may send `limit`; HA caps ESP32 responses at 20 items and returns up to 100 for app-like clients while paging Spotify's `/me/playlists` API internally with provider-safe pages of at most 50 items. A successful `playlists` response returns `backend_available:true` even when Spotify playback is idle; backend failures still return a non-empty JSON body with `success:false`, `backend_available:false` and empty playlist aliases. Logs never include device tokens, Spotify tokens or backend credentials.
+Required headers are `Authorization: Bearer <device_token>`, `X-DJConnect-Device-ID` and `Content-Type: application/json`. Supported commands include `status`, `devices`, `queue`, `playlists`, `pause`, `play`, `next`, `previous`, `seek_relative`, `start_liked_proxy`, `start_playlist`, `play_context_at`, `ask_dj_play_recommendation`, `set_shuffle`, `set_repeat`, `set_output` and `set_volume`. `seek_relative` accepts an integer millisecond offset for Apple app skip-forward/skip-back controls; positive values seek forward and negative values seek backward. `set_shuffle` accepts a boolean value; `set_repeat` accepts `off`, `track` or `context`; `play_context_at` accepts a context URI and track offset URI for Up Next playback. `ask_dj_play_recommendation` accepts a Play Now recommendation value with Spotify `uri`, optional `uris[]` for `track_mix`, optional `context_uri`/`offset_uri`, `kind`, `title`, `subtitle`, `reason` and `memory_key`. Responses are generic JSON shapes with `playback`, `devices`, `queue` or `playlists`, so future backends such as Sonos or Home Assistant media players can be added without firmware changes. `status` responses include `backend_available`, `ha_version`, `ha_major_minor` and a valid `playback` object even when no Spotify playback is active. `queue` responses include at most 100 items, top-level `context_uri` / `contextUri` when known and per-item artwork aliases such as `album_image_url` and `image_url`; `playlists` responses include Spotify playlists with `name`, `title`, `display_title`, `uri`, `value`, `playlist_uri`, `owner`, `subtitle`, `image_url`, `entity_picture` and artwork aliases such as `album_image_url`, `album_art_url` and `media_image_url`. HA returns playlist lists as top-level `playlists` and `items`, plus `data.playlists`, `data.items`, `result.playlists`, `result.items` and `count` for stricter clients. ESP32 `playlists` requests may send `limit`; HA caps ESP32 responses at 20 items and returns up to 100 for app-like clients while paging Spotify's `/me/playlists` API internally with provider-safe pages of at most 50 items. A successful `playlists` response returns `backend_available:true` even when Spotify playback is idle; backend failures still return a non-empty JSON body with `success:false`, `backend_available:false` and empty playlist aliases. Logs never include device tokens, Spotify tokens or backend credentials.
 
 HA and ESP firmware must share the same `major.minor` protocol version. Patch
 versions may differ, so HA `3.0.x` can talk to ESP `3.0.y`, but HA `3.1.x`
@@ -882,24 +1065,24 @@ Example manifest:
 
 ```json
 {
-  "version": "3.1.65",
-  "version_tag": "v3.1.65",
+  "version": "3.1.70",
+  "version_tag": "v3.1.70",
   "channel": "stable",
-  "min_ha_integration": "3.1.65",
+  "min_ha_integration": "3.1.70",
   "firmwares": [
     {
       "board": "t_embed_cc1101",
       "device": "lilygo-t-embed-s3",
-      "asset": "djconnect-lilygo-t-embed-s3-v3.1.65.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.65/djconnect-lilygo-t-embed-s3-v3.1.65.bin",
+      "asset": "djconnect-lilygo-t-embed-s3-v3.1.70.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.70/djconnect-lilygo-t-embed-s3-v3.1.70.bin",
       "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "size": 2113136
     },
     {
       "board": "esp32_s3_box3",
       "device": "esp32-s3-box-3",
-      "asset": "djconnect-esp32-s3-box-3-v3.1.65.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.65/djconnect-esp32-s3-box-3-v3.1.65.bin",
+      "asset": "djconnect-esp32-s3-box-3-v3.1.70.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.70/djconnect-esp32-s3-box-3-v3.1.70.bin",
       "sha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
       "size": 2113136
     }
@@ -922,7 +1105,7 @@ The firmware version is injected through PlatformIO build flags from the Git tag
 Recommended firmware source release helper:
 
 ```bash
-./release.sh 3.1.65
+./release.sh 3.1.70
 ```
 
 In the separate `djconnect-app` repository, the firmware release script should
@@ -934,14 +1117,14 @@ PlatformIO builds, rename firmware binaries to device-specific assets such as
 Preview the firmware release flow without changing files:
 
 ```bash
-./release.sh 3.1.65 --dry-run
+./release.sh 3.1.70 --dry-run
 ```
 
 When publishing to the public firmware repository, use the firmware script's
 public-repo option if available:
 
 ```bash
-./release.sh 3.1.65 --publish-firmware-repo ../djconnect-firmware
+./release.sh 3.1.70 --publish-firmware-repo ../djconnect-firmware
 ```
 
 The public `djconnect-firmware` repository should contain only the release
@@ -984,7 +1167,7 @@ Tag and publish:
 One-liner:
 
 ```bash
-./release.sh 3.1.65
+./release.sh 3.1.70
 ```
 
 The script updates the integration version in `manifest.json`, `const.py`,
@@ -995,18 +1178,18 @@ above.
 Preview without executing git/gh commands:
 
 ```bash
-./release.sh 3.1.65 --dry-run
+./release.sh 3.1.70 --dry-run
 ```
 
 Manual equivalent:
 
 ```bash
 git add .
-git commit -m "Release DJConnect v3.1.65"
-git tag v3.1.65
+git commit -m "Release DJConnect v3.1.70"
+git tag v3.1.70
 git push origin main
-git push origin v3.1.65
-gh release create v3.1.65 --title "DJConnect v3.1.65" --notes-file CHANGELOG.md
+git push origin v3.1.70
+gh release create v3.1.70 --title "DJConnect v3.1.70" --notes-file CHANGELOG.md
 ```
 
 Release cleanup helper:

@@ -48,7 +48,11 @@ python3 -m unittest tests.test_config_flow_helpers tests.test_translations
 - Keep active voice routes on Home Assistant Assist/TTS. Do not add direct external AI/STT/TTS APIs to active runtime paths.
 - Redact secrets in diagnostics and avoid logging full token/password payloads.
 - Update Dutch and English translations when changing config-flow, options-flow, repairs, entity or service text.
-- Update docs when behavior, user-facing setup, API contracts or release workflow changes.
+- Update docs and examples when behavior, user-facing setup, API contracts or
+  release workflow changes. For Ask DJ endpoint changes, also update
+  `README.md`, `HANDOFF.md`, `SYNC_PROMPTS.md`, `VOICE_INTENT_DATA.md` and
+  `examples/djconnect.postman_collection.json` when the request/response shape
+  changes.
 - Add or update tests for code, contract and UI-string changes.
 
 ## AI-Assisted Development

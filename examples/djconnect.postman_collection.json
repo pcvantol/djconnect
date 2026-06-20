@@ -122,7 +122,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"platform\": \"{{client_type}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"firmware\": \"3.1.60\",\n  \"app_version\": \"3.1.60\",\n  \"battery_percent\": 86,\n  \"mood\": 42,\n  \"dj_style\": \"warm_radio_dj\",\n  \"memory_key\": \"{{memory_key}}\"\n}"
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"platform\": \"{{client_type}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"firmware\": \"3.1.60\",\n  \"app_version\": \"3.1.60\",\n  \"battery_percent\": 86,\n  \"mood\": 42,\n  \"mood_zone\": \"groove\",\n  \"dj_style\": \"warm_radio_dj\",\n  \"memory_key\": \"{{memory_key}}\"\n}"
             },
             "url": {
               "raw": "{{ha_base_url}}/api/djconnect/status",
@@ -307,7 +307,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"client_message_id\": \"{{$guid}}\",\n  \"client_id\": \"{{device_id}}\",\n  \"identity\": {\n    \"device_id\": \"{{device_id}}\",\n    \"client_type\": \"{{client_type}}\",\n    \"device_name\": \"{{device_name}}\"\n  },\n  \"text\": \"Waarom koos je dit nummer?\",\n  \"memory_key\": \"{{memory_key}}\",\n  \"mood\": 42,\n  \"dj_style\": \"warm_radio_dj\",\n  \"audio_response\": \"auto\"\n}"
+              "raw": "{\n  \"client_message_id\": \"{{$guid}}\",\n  \"client_id\": \"{{device_id}}\",\n  \"identity\": {\n    \"device_id\": \"{{device_id}}\",\n    \"client_type\": \"{{client_type}}\",\n    \"device_name\": \"{{device_name}}\"\n  },\n  \"text\": \"Waarom koos je dit nummer?\",\n  \"memory_key\": \"{{memory_key}}\",\n  \"mood\": 42,\n  \"mood_zone\": \"groove\",\n  \"dj_style\": \"warm_radio_dj\",\n  \"audio_response\": \"auto\"\n}"
             },
             "url": {
               "raw": "{{ha_base_url}}/api/djconnect/ask_dj/message",
@@ -399,6 +399,43 @@
           }
         },
         {
+          "name": "Ask DJ - morning startup",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client_message_id\": \"{{$guid}}\",\n  \"client_id\": \"{{device_id}}\",\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"text\": \"Goedemorgen\",\n  \"trigger\": \"morning_startup\",\n  \"reason\": \"app_started_without_active_playback\",\n  \"has_active_now_playing\": \"false\",\n  \"local_date\": \"2026-06-20\",\n  \"local_hour\": \"8\",\n  \"memory_key\": \"{{memory_key}}\"\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/ask_dj/message",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "ask_dj",
+                "message"
+              ]
+            },
+            "description": "Morning startup Ask DJ message. If there is no active playback, backend should answer with a friendly morning suggestion and confirmation playback_actions[] with Ja/Nee, without starting playback automatically."
+          }
+        },
+        {
           "name": "Ask DJ - Play Now recommendation",
           "request": {
             "method": "POST",
@@ -432,6 +469,42 @@
               ]
             },
             "description": "Explicit Play Now command for a recommendation returned by Ask DJ playback_actions[]. This is the point where playback may start."
+          }
+        },
+        {
+          "name": "Ask DJ - follow-up confirmation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"command\": \"ask_dj_followup_response\",\n  \"value\": {\n    \"title\": \"Ja\",\n    \"kind\": \"confirmation\",\n    \"action_style\": \"confirmation\",\n    \"response_value\": \"yes\",\n    \"memory_key\": \"{{memory_key}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/command",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "command"
+              ]
+            },
+            "description": "Responds to the latest pending Ask DJ confirmation question. response_value yes executes the stored proposed action; no declines without playback. Backend appends an assistant message to server-side Ask DJ history."
           }
         },
         {
@@ -506,7 +579,7 @@
                 "clear"
               ]
             },
-            "description": "Clears persistent server-side Ask DJ chat history for the authenticated HA user and increments clear_revision/history_revision."
+            "description": "Clears persistent server-side DJConnect app Ask DJ chat history globally and increments the shared clear_revision/history_revision so other clients wipe their local cache on next sync."
           }
         },
         {
@@ -547,6 +620,79 @@
             },
             "description": "Synchronizes persistent HA-user Ask DJ history. Response includes user_id, history_revision, clear_revision, bounded messages[] and server_time."
           }
+        }
+      ]
+    },
+    {
+      "name": "Apple Push",
+      "item": [
+        {
+          "name": "Push register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"djconnect-ios-ABCDEFGHIJKL\",\n  \"client_type\": \"ios\",\n  \"push_token\": \"apns-token-from-client\",\n  \"push_environment\": \"sandbox\",\n  \"app_bundle_id\": \"dev.djconnect.app\",\n  \"app_version\": \"3.1.69\",\n  \"locale\": \"nl-NL\",\n  \"notification_categories\": [\n    \"ask_dj_response\",\n    \"ask_dj_confirm\",\n    \"playback_change\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/push/register",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "push",
+                "register"
+              ]
+            },
+            "description": "DJConnect Apple push registration is optional and best-effort. Home Assistant relays registration to the central djconnect-api when configured and does not store APNs tokens. Push delivery is limited to explicit Ask DJ response/confirm attention events; playback_change is a future/default-disabled category. Clients must sync via authenticated APIs after opening."
+          },
+          "response": []
+        },
+        {
+          "name": "Push unregister",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"djconnect-ios-ABCDEFGHIJKL\",\n  \"client_type\": \"ios\",\n  \"push_token\": \"apns-token-from-client\"\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/push/unregister",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "push",
+                "unregister"
+              ]
+            },
+            "description": "DJConnect Apple push unregister is optional and best-effort. Home Assistant relays unregister to the central djconnect-api when configured and never logs full APNs tokens."
+          },
+          "response": []
         }
       ]
     },

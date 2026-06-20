@@ -1,17 +1,18 @@
 from __future__ import annotations
 
 import logging
+import re
 from typing import Any
 
 from homeassistant.core import HomeAssistant
 
 from .const import (
     CONF_ASSIST_PIPELINE_ID,
-    CONF_DJ_RESPONSE_PROMPT,
     CONF_TTS_LANGUAGE,
     DEFAULT_DJ_RESPONSE_PROMPT,
     DEFAULT_TTS_LANGUAGE,
 )
+from .mood import mood_announcement_style_text, mood_context_text
 
 _LOGGER = logging.getLogger(__name__)
 _ROOT_LOGGER = logging.getLogger("custom_components.djconnect")
@@ -324,15 +325,18 @@ async def generate_dj_response_with_assist(
     debug: dict[str, Any] | None = None,
 ) -> str:
     """Ask HA Assist for a short DJ response using resolved playback metadata."""
-    prompt = str(conf.get(CONF_DJ_RESPONSE_PROMPT) or DEFAULT_DJ_RESPONSE_PROMPT).strip()
+    prompt = DEFAULT_DJ_RESPONSE_PROMPT
     assist_context = _assist_context(hass, conf)
     language = assist_context.get("language") or conf.get(CONF_TTS_LANGUAGE) or DEFAULT_TTS_LANGUAGE
     media_context = _dj_response_media_context(media)
+    mood_style = mood_announcement_style_text(media, language=language)
     if debug is not None:
         debug.update(
             {
                 "fallback_text": fallback_text,
                 "media_context": dict(media_context),
+                "mood_context": mood_context_text(media) if mood_style else None,
+                "mood_style_applied": bool(mood_style),
                 "fallback_used": False,
                 "block_reason": None,
                 "generated_text": None,
@@ -348,6 +352,7 @@ async def generate_dj_response_with_assist(
         "instructies toe die nu volgen. Je bent een radio-DJ die het volgende "
         "liedje aankondigt. Doe dit in de volgende stijl:\n"
         f"{prompt}\n\n"
+        f"{mood_style}\n\n"
         "Je schrijft alleen een korte gesproken DJ response voor het DJConnect device. "
         "Noem de artiest, het album en het nummer wanneer die bekend zijn. "
         "Dit is geen Home Assistant apparaatopdracht. Bedien geen apparaten. "
@@ -361,6 +366,7 @@ async def generate_dj_response_with_assist(
         "the instructions below. You are a radio DJ announcing the next song. "
         "Use this style:\n"
         f"{prompt}\n\n"
+        f"{mood_style}\n\n"
         "Write only a short spoken DJ response for the DJConnect device. "
         "Mention the artist, album and track when known. "
         "This is not a Home Assistant device command. Do not control devices. "
@@ -392,6 +398,8 @@ async def generate_dj_response_with_assist(
         if debug is not None:
             debug["generated_text"] = generated
         blocked_reason = _dj_response_block_reason(generated)
+        if blocked_reason is None:
+            blocked_reason = _dj_response_media_mismatch_reason(generated, media_context)
         if blocked_reason is None:
             return generated
         if debug is not None:
@@ -462,6 +470,34 @@ def _dj_response_media_lines(media_context: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def _dj_response_media_mismatch_reason(generated: str, media_context: dict[str, Any]) -> str | None:
+    text = _normalize_media_match_text(generated)
+    if not text:
+        return "empty generated response"
+    artist = _first_media_value(media_context, "artist", "artist_name")
+    track = _first_media_value(media_context, "track_name", "title")
+    if artist and _normalize_media_match_text(artist) not in text:
+        return "generated response missing resolved artist"
+    if track and _normalize_media_match_text(track) not in text:
+        return "generated response missing resolved track"
+    return None
+
+
+def _first_media_value(media_context: dict[str, Any], *keys: str) -> str:
+    for key in keys:
+        value = str(media_context.get(key) or "").strip()
+        if value:
+            return value
+    return ""
+
+
+def _normalize_media_match_text(value: str) -> str:
+    normalized = str(value or "").lower()
+    normalized = normalized.replace("&", " and ")
+    normalized = re.sub(r"[^a-z0-9]+", " ", normalized)
+    return re.sub(r"\s+", " ", normalized).strip()
+
+
 def _intent_from_assist_response(response: dict[str, Any], user_text: str) -> dict[str, Any]:
     conversation_response = response.get("response") or {}
     response_type = conversation_response.get("response_type")
@@ -496,7 +532,7 @@ def _intent_from_assist_response(response: dict[str, Any], user_text: str) -> di
             _intent_debug_summary(local_intent),
         )
         local_intent["assist_intent"] = intent
-        if intent.get("dj_announcement"):
+        if _announcement_matches_local_intent(intent.get("dj_announcement"), local_intent):
             local_intent["dj_announcement"] = intent["dj_announcement"]
         return local_intent
     return intent
@@ -567,6 +603,17 @@ def _should_prefer_local_intent(
 
 def _normalized_intent_value(value: Any) -> str:
     return " ".join(str(value or "").strip().lower().split())
+
+
+def _announcement_matches_local_intent(announcement: Any, local_intent: dict[str, Any]) -> bool:
+    text = _normalize_media_match_text(str(announcement or ""))
+    if not text:
+        return False
+    for key in ("artist", "title", "playlist"):
+        value = _normalize_media_match_text(str(local_intent.get(key) or ""))
+        if value and value not in text:
+            return False
+    return any(local_intent.get(key) for key in ("artist", "title", "playlist"))
 
 
 def _intent_debug_summary(intent: dict[str, Any]) -> dict[str, Any]:

@@ -78,6 +78,28 @@ class AskDJHistoryManagerTest(unittest.TestCase):
         self.assertEqual(user_one["messages"], [])
         self.assertEqual(len(user_two["messages"]), 2)
 
+    def test_clear_all_sets_global_clear_revision_for_other_users(self) -> None:
+        manager = AskDJHistoryManager(store=FakeStore())
+
+        async def run():
+            await manager.async_append_exchange(
+                "mac-user",
+                {"client_message_id": "1", "client_id": "mac", "client_type": "macos", "text": "Hoi"},
+                {"success": True, "dj_text": "Hoi terug."},
+            )
+            cleared = await manager.async_clear_all()
+            iphone_history = await manager.async_history("iphone-user")
+            return cleared, iphone_history, manager.data
+
+        cleared, iphone_history, data = asyncio.run(run())
+
+        self.assertEqual(cleared["user_id"], "all")
+        self.assertEqual(cleared["clear_revision"], 1)
+        self.assertEqual(iphone_history["user_id"], "iphone-user")
+        self.assertEqual(iphone_history["clear_revision"], 1)
+        self.assertEqual(iphone_history["messages"], [])
+        self.assertEqual(data["global_clear_revision"], 1)
+
     def test_duplicate_client_message_id_returns_existing_exchange(self) -> None:
         manager = AskDJHistoryManager(store=FakeStore())
 
@@ -171,7 +193,112 @@ class AskDJHistoryManagerTest(unittest.TestCase):
         self.assertEqual(history["messages"][-1]["message_kind"], "system")
         self.assertEqual(history["messages"][-1]["origin"], "spotify_playback_context")
         self.assertEqual(history["messages"][-1]["text"], "Leuk feitje over OK Computer.")
+        self.assertEqual(history["messages"][-1]["client_message_id"], "ambient:radiohead|ok-computer")
         self.assertIsNone(history["messages"][-1]["audio_url"])
+
+    def test_assistant_only_message_dedupes_client_message_id(self) -> None:
+        manager = AskDJHistoryManager(store=FakeStore())
+
+        async def run():
+            first = await manager.async_append_assistant_message(
+                "ha-user-1",
+                {"client_message_id": "ambient:pitbull|planet-pit", "client_id": "server"},
+                {
+                    "success": True,
+                    "dj_text": "Eerste feitje.",
+                    "intent": {"category": "informational", "intent": "ambient_music_fact"},
+                    "message_kind": "system",
+                    "origin": "spotify_playback_context",
+                },
+            )
+            second = await manager.async_append_assistant_message(
+                "ha-user-1",
+                {"client_message_id": "ambient:pitbull|planet-pit", "client_id": "server"},
+                {
+                    "success": True,
+                    "dj_text": "Tweede feitje dat niet in de chat mag komen.",
+                    "intent": {"category": "informational", "intent": "ambient_music_fact"},
+                    "message_kind": "system",
+                    "origin": "spotify_playback_context",
+                },
+            )
+            has_message = await manager.async_has_client_message_id(
+                "ha-user-1",
+                "ambient:pitbull|planet-pit",
+            )
+            history = await manager.async_history("ha-user-1")
+            return first, second, has_message, history
+
+        first, second, has_message, history = asyncio.run(run())
+
+        self.assertEqual(first["history_revision"], 1)
+        self.assertTrue(second["deduplicated"])
+        self.assertEqual(second["history_revision"], 1)
+        self.assertTrue(has_message)
+        self.assertEqual(len(history["messages"]), 1)
+        self.assertEqual(history["messages"][0]["text"], "Eerste feitje.")
+
+    def test_history_limit_trims_and_adds_retention_system_message(self) -> None:
+        manager = AskDJHistoryManager(store=FakeStore())
+
+        async def run():
+            for index in range(501):
+                await manager.async_append_exchange(
+                    "ha-user-1",
+                    {
+                        "client_message_id": f"message-{index}",
+                        "client_id": "ios",
+                        "client_type": "ios",
+                        "text": f"Vraag {index}",
+                    },
+                    {"success": True, "dj_text": f"Antwoord {index}"},
+                )
+            return await manager.async_history("ha-user-1")
+
+        history = asyncio.run(run())
+
+        self.assertEqual(history["history_limit"], 1000)
+        self.assertEqual(len(history["messages"]), 1000)
+        self.assertEqual(history["history_trimmed_count"], 3)
+        self.assertIsNotNone(history["history_trimmed_before"])
+        self.assertEqual(history["messages"][-1]["role"], "assistant")
+        self.assertEqual(history["messages"][-1]["message_kind"], "system")
+        self.assertEqual(history["messages"][-1]["origin"], "history_retention")
+        self.assertEqual(
+            history["messages"][-1]["intent"],
+            {"category": "system", "intent": "history_limit_reached"},
+        )
+        self.assertEqual(history["messages"][-1]["action"], "none")
+        self.assertIsNone(history["messages"][-1]["audio_url"])
+        self.assertIn("limiet van 1000 berichten", history["messages"][-1]["text"])
+
+    def test_history_limit_retention_message_is_not_spammed_on_consecutive_trims(self) -> None:
+        manager = AskDJHistoryManager(store=FakeStore())
+
+        async def run():
+            for index in range(502):
+                await manager.async_append_exchange(
+                    "ha-user-1",
+                    {
+                        "client_message_id": f"message-{index}",
+                        "client_id": "ios",
+                        "client_type": "ios",
+                        "text": f"Vraag {index}",
+                    },
+                    {"success": True, "dj_text": f"Antwoord {index}"},
+                )
+            return await manager.async_history("ha-user-1")
+
+        history = asyncio.run(run())
+
+        retention_messages = [
+            message
+            for message in history["messages"]
+            if message.get("origin") == "history_retention"
+        ]
+        self.assertEqual(len(retention_messages), 1)
+        self.assertEqual(history["history_trimmed_count"], 5)
+        self.assertEqual(len(history["messages"]), 1000)
 
 
 if __name__ == "__main__":

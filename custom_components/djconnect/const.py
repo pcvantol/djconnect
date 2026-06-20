@@ -3,7 +3,7 @@ from __future__ import annotations
 
 DOMAIN = "djconnect"
 NAME = "DJConnect"
-VERSION = "3.1.65"
+VERSION = "3.1.70"
 
 API_BASE = "/api/djconnect"
 API_PAIR = f"{API_BASE}/pair"
@@ -13,12 +13,15 @@ API_STATUS = f"{API_BASE}/status"
 API_EVENT = f"{API_BASE}/event"
 API_ASK_DJ = f"{API_BASE}/ask_dj"
 API_ASK_DJ_MESSAGE = f"{API_ASK_DJ}/message"
+API_ASK_DJ_IDLE_SUGGESTION = f"{API_ASK_DJ}/idle_suggestion"
 API_ASK_DJ_HISTORY = f"{API_ASK_DJ}/history"
 API_ASK_DJ_HISTORY_CLEAR = f"{API_ASK_DJ_HISTORY}/clear"
 API_ASK_DJ_CLEAR = f"{API_ASK_DJ}/clear"
 API_ASK_DJ_HISTORY_STATE = f"{API_ASK_DJ}/history_state"
 API_IMAGE_PROXY_BASE = f"{API_BASE}/image_proxy"
 API_IMAGE_PROXY = f"{API_IMAGE_PROXY_BASE}/{{token}}"
+API_PUSH_REGISTER = f"{API_BASE}/push/register"
+API_PUSH_UNREGISTER = f"{API_BASE}/push/unregister"
 API_TTS_BASE = f"{API_BASE}/tts"
 API_TTS = f"{API_TTS_BASE}/{{token}}.{{extension}}"
 API_SPOTIFY_CALLBACK = f"{API_BASE}/spotify/callback"
@@ -35,6 +38,9 @@ CONF_SETUP_METHOD = "setup_method"
 CONF_BLE_ADDRESS = "ble_address"
 CONF_WIFI_SSID = "wifi_ssid"
 CONF_WIFI_PASSWORD = "wifi_password"
+CONF_API_BASE_URL = "api_base_url"
+CONF_HA_INSTALL_ID = "ha_install_id"
+CONF_DJCONNECT_INSTALL_TOKEN = "djconnect_install_token"
 
 CONF_SPOTIFY_CLIENT_ID = "spotify_client_id"
 CONF_SPOTIFY_REFRESH_TOKEN = "spotify_refresh_token"
@@ -52,6 +58,7 @@ CONF_DJ_RESPONSE_ENABLED = "dj_response_enabled"
 CONF_DJ_RESPONSE_TTL_SECONDS = "dj_response_ttl_seconds"
 CONF_DJ_RESPONSE_PROMPT_PRESET = "dj_response_prompt_preset"
 CONF_DJ_RESPONSE_PROMPT = "dj_response_prompt"
+CONF_SMART_HOME_CONTEXT_ENTITIES = "smart_home_context_entities"
 
 CONF_MAX_AUDIO_BYTES = "max_audio_bytes"
 
@@ -88,6 +95,7 @@ SETUP_METHOD_PAIR_EXISTING = "pair_existing"
 SETUP_METHOD_BLE_WIFI = "ble_wifi"
 SETUP_METHOD_CONVERSATION_AGENT = "conversation_agent"
 DEFAULT_SETUP_METHOD = SETUP_METHOD_CONVERSATION_AGENT
+DEFAULT_API_BASE_URL = "https://api.djconnect.dev"
 DEFAULT_SPOTIFY_MARKET = "NL"
 DEFAULT_MAX_AUDIO_BYTES = 2_000_000
 DEFAULT_FIRMWARE_REPO = "pcvantol/djconnect-firmware"
@@ -104,7 +112,7 @@ DEFAULT_TTS_ENGINE = ""
 DEFAULT_TTS_LANGUAGE = "nl-NL"
 DEFAULT_TTS_VOICE = ""
 DEFAULT_DJ_RESPONSE_ENABLED = True
-DEFAULT_DJ_RESPONSE_TTL_SECONDS = 120
+DEFAULT_DJ_RESPONSE_TTL_SECONDS = 60 * 60
 DJ_RESPONSE_PROMPT_PRESET_NEUTRAL = "neutral_business"
 DJ_RESPONSE_PROMPT_PRESET_WARM = "warm_personal"
 DJ_RESPONSE_PROMPT_PRESET_HUMOR = "humorous_witty"
@@ -142,6 +150,8 @@ SPOTIFY_SCOPES = [
     "user-library-read",
     "playlist-read-private",
     "playlist-read-collaborative",
+    "playlist-modify-private",
+    "playlist-modify-public",
     "user-read-recently-played",
     "user-top-read",
 ]

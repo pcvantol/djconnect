@@ -10,3 +10,9 @@ htmlcov/
 
 # Local OS/editor metadata
 .DS_Store
+
+# Local secrets and environment overrides
+.env
+.env.*
+!.env.example
+*.p8

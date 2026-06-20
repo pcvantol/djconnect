@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import time
 import logging
+import re
 from urllib.parse import urlencode
 from typing import Any
 
@@ -30,6 +31,10 @@ MAX_PLAYLIST_ITEMS = 100
 SPOTIFY_PLAYLIST_PAGE_LIMIT = 50
 DEFAULT_PLAYLIST_LIMIT = 100
 ESP_DEFAULT_PLAYLIST_LIMIT = 20
+ARTIST_QUERY_ALIASES = {
+    "paul van dijk": "Paul van Dyk",
+    "paul van dyke": "Paul van Dyk",
+}
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -77,8 +82,38 @@ async def handle_spotify_command(
             "result": {"playlists": playlists, "items": playlists},
             "count": len(playlists),
         }
+    if normalized == "search_playlists":
+        playlists = await backend.search_playlists(
+            _search_query(value),
+            limit=_search_limit(value, default=5, maximum=10),
+        )
+        return {
+            "success": True,
+            "backend_available": True,
+            "playlists": playlists,
+            "items": playlists,
+            "data": {"playlists": playlists, "items": playlists},
+            "result": {"playlists": playlists, "items": playlists},
+            "count": len(playlists),
+        }
+    if normalized == "search_media":
+        item = await backend.search_media(
+            _search_query(value),
+            str(value.get("type") or "track") if isinstance(value, dict) else "track",
+        )
+        return {"success": True, "item": item, "media": item}
     if normalized == "listening_profile":
         return {"success": True, "profile": await backend.listening_profile()}
+    if normalized == "artist_recommendations":
+        return {
+            "success": True,
+            **await backend.seed_recommendations(value),
+        }
+    if normalized == "create_playlist":
+        return {
+            "success": True,
+            "playlist": await backend.create_playlist_from_tracks(value),
+        }
     if normalized == "artist_albums":
         return {
             "success": True,
@@ -117,6 +152,12 @@ async def handle_spotify_command(
         return {"success": True, "playback": await backend.playback_state()}
     if normalized == "start_playlist":
         await backend.start_playlist(str(value or ""))
+        return {"success": True, "playback": await backend.playback_state()}
+    if normalized == "play_artist_top_tracks":
+        await backend.play_artist_top_tracks(_search_query(value))
+        return {"success": True, "playback": await backend.playback_state()}
+    if normalized == "play_uris":
+        await backend.play_uris(_track_uris(value))
         return {"success": True, "playback": await backend.playback_state()}
     if normalized == "set_shuffle":
         await backend.set_shuffle(value)
@@ -389,6 +430,10 @@ class SpotifyBackend:
         normalized = [_normalize_queue_item(item) for item in queue[:MAX_QUEUE_ITEMS]]
         playback = self.runtime.last_playback or {}
         context_uri = str(playback.get("context_uri") or playback.get("queue_context") or "").strip()
+        if context_uri:
+            for item in normalized:
+                item["context_uri"] = context_uri
+                item["contextUri"] = context_uri
         self.runtime.device_status["queue"] = {
             "items": normalized,
             "context_uri": context_uri,
@@ -431,6 +476,132 @@ class SpotifyBackend:
         self.runtime.device_status["playlists"] = playlists
         self.runtime.update()
         return playlists
+
+    async def search_playlists(self, query: str, *, limit: int = 5) -> list[dict[str, str]]:
+        """Search Spotify playlists and return normalized playable items."""
+        query = str(query or "").strip()
+        if not query:
+            return []
+        limit = max(0, min(10, int(limit)))
+        if limit <= 0:
+            return []
+        market = str(self.conf.get("spotify_market") or DEFAULT_SPOTIFY_MARKET)
+        params = urlencode({"q": query, "type": "playlist", "limit": limit, "market": market})
+        data = await self._request("GET", f"/search?{params}")
+        section = data.get("playlists") or {}
+        items = section.get("items") or []
+        if not isinstance(items, list):
+            items = []
+        playlists = [
+            _normalize_playlist(item)
+            for item in items
+            if isinstance(item, dict)
+        ][:limit]
+        self.runtime.last_spotify_search = _spotify_search_debug(
+            query=query,
+            spotify_type="playlist",
+            data=data,
+            selected=playlists[0] if playlists else {},
+        )
+        return playlists
+
+    async def search_media(self, query: str, media_type: str = "track") -> dict[str, Any]:
+        """Search a single Spotify media item without changing playback."""
+        query = str(query or "").strip()
+        if not query:
+            raise SpotifyBackendError("Provide a Spotify search query")
+        spotify_type = _spotify_search_type(media_type)
+        market = str(self.conf.get("spotify_market") or DEFAULT_SPOTIFY_MARKET)
+        params = urlencode({"q": query, "type": spotify_type, "limit": 1, "market": market})
+        data = await self._request("GET", f"/search?{params}")
+        item = _first_search_item(data, spotify_type)
+        if not item:
+            raise SpotifyBackendError(f"Spotify search found no {spotify_type} for: {query}")
+        resolved = _normalize_search_item(item, spotify_type, query)
+        self.runtime.last_spotify_search = _spotify_search_debug(
+            query=query,
+            spotify_type=spotify_type,
+            data=data,
+            selected=resolved,
+        )
+        return resolved
+
+    async def seed_recommendations(self, value: Any) -> dict[str, Any]:
+        """Build a Spotify recommendations track list from artist, track or genre seeds."""
+        artist_names = _artist_names(value)
+        track_names = _track_names(value)
+        genre_names = _genre_names(value)
+        limit = _search_limit(value, default=25, maximum=50)
+        artists: list[dict[str, Any]] = []
+        seed_tracks: list[dict[str, Any]] = []
+        seen_ids: set[str] = set()
+        for name in artist_names:
+            try:
+                artist = await self._search_artist(name)
+            except SpotifyBackendError:
+                continue
+            artist_id = str(artist.get("id") or _spotify_id_from_uri(artist.get("uri"))).strip()
+            if not artist_id or artist_id in seen_ids:
+                continue
+            seen_ids.add(artist_id)
+            artists.append(_normalize_related_artist(artist))
+            if len(artists) >= 5:
+                break
+        seen_track_ids: set[str] = set()
+        for name in track_names:
+            try:
+                uri = await self._search_uri(name, "track")
+            except SpotifyBackendError:
+                continue
+            track_id = _spotify_id_from_uri(uri)
+            if not track_id or track_id in seen_track_ids:
+                continue
+            seen_track_ids.add(track_id)
+            selected = getattr(self.runtime, "last_resolved_media", None)
+            seed_tracks.append(selected if isinstance(selected, dict) else {"uri": uri, "title": name})
+            if len(artists) + len(seed_tracks) >= 5:
+                break
+        genres = []
+        seen_genres: set[str] = set()
+        for genre in genre_names:
+            normalized_genre = str(genre or "").strip().lower()
+            if normalized_genre and normalized_genre not in seen_genres:
+                seen_genres.add(normalized_genre)
+                genres.append(normalized_genre)
+            if len(artists) + len(seed_tracks) + len(genres) >= 5:
+                break
+        if not (artists or seed_tracks or genres):
+            raise SpotifyBackendError("Spotify found no usable seeds for this mix request")
+        market = str(self.conf.get("spotify_market") or DEFAULT_SPOTIFY_MARKET)
+        params_payload = {"limit": limit, "market": market}
+        if artists:
+            params_payload["seed_artists"] = ",".join(_spotify_id_from_uri(artist.get("uri")) for artist in artists)
+        if seed_tracks:
+            params_payload["seed_tracks"] = ",".join(_spotify_id_from_uri(track.get("uri")) for track in seed_tracks)
+        if genres:
+            params_payload["seed_genres"] = ",".join(genres)
+        params = urlencode(params_payload)
+        data = await self._request("GET", f"/recommendations?{params}")
+        items = data.get("tracks") if isinstance(data, dict) else []
+        if not isinstance(items, list):
+            items = []
+        tracks = [
+            track
+            for track in (_normalize_profile_track(item) for item in items if isinstance(item, dict))
+            if track.get("uri")
+        ][:limit]
+        return {
+            "artists": artists,
+            "seed_tracks": seed_tracks,
+            "seed_genres": genres,
+            "tracks": tracks,
+            "recommended_tracks": tracks,
+            "seed_count": len(artists) + len(seed_tracks) + len(genres),
+            "requested_artists": artist_names,
+            "requested_tracks": track_names,
+            "requested_genres": genre_names,
+            "source": "spotify_recommendations",
+        }
 
     async def listening_profile(self) -> dict[str, Any]:
         """Fetch compact Spotify listening profile data for Ask DJ."""
@@ -572,12 +743,13 @@ class SpotifyBackend:
 
     async def _search_artist(self, query: str) -> dict[str, Any]:
         market = str(self.conf.get("spotify_market") or DEFAULT_SPOTIFY_MARKET)
-        params = urlencode({"q": query, "type": "artist", "limit": 1, "market": market})
-        data = await self._request("GET", f"/search?{params}")
-        artist = _first_search_item(data, "artist")
-        if not artist:
-            raise SpotifyBackendError(f"Spotify search found no artist for: {query}")
-        return artist
+        for candidate in _artist_search_queries(query):
+            params = urlencode({"q": candidate, "type": "artist", "limit": 1, "market": market})
+            data = await self._request("GET", f"/search?{params}")
+            artist = _first_search_item(data, "artist")
+            if artist:
+                return artist
+        raise SpotifyBackendError(f"Spotify search found no artist for: {query}")
 
     async def _recently_played(self, *, limit: int = 50) -> list[dict[str, Any]]:
         limit = min(50, max(1, int(limit)))
@@ -723,6 +895,97 @@ class SpotifyBackend:
                 raise
             await self._ensure_playback_device(play=False)
             await self._request("PUT", "/me/player/play", json=body, expected_empty=True)
+
+    async def play_artist_top_tracks(self, query: str, *, limit: int = 10) -> None:
+        """Resolve an artist and start playback with that artist's popular tracks."""
+        artist = await self._search_artist(query)
+        artist_id = str(artist.get("id") or _spotify_id_from_uri(artist.get("uri"))).strip()
+        if not artist_id:
+            raise SpotifyBackendError(f"Spotify search found no artist for: {query}")
+        market = str(self.conf.get("spotify_market") or DEFAULT_SPOTIFY_MARKET)
+        params = urlencode({"market": market})
+        data = await self._request("GET", f"/artists/{artist_id}/top-tracks?{params}")
+        tracks = data.get("tracks") if isinstance(data, dict) else []
+        if not isinstance(tracks, list):
+            tracks = []
+        uris = [
+            str(track.get("uri") or "").strip()
+            for track in tracks[: max(1, min(20, int(limit)))]
+            if isinstance(track, dict) and str(track.get("uri") or "").startswith("spotify:track:")
+        ]
+        if not uris:
+            raise SpotifyBackendError(f"Spotify found no top tracks for artist: {query}")
+        selected = _normalize_related_artist(artist)
+        self.runtime.last_resolved_media = selected
+        self.runtime.last_spotify_search = _spotify_search_debug(
+            query=query,
+            spotify_type="artist",
+            data={"artists": {"total": 1, "items": [artist]}},
+            selected=selected,
+        )
+        try:
+            await self._request(
+                "PUT",
+                "/me/player/play",
+                json={"uris": uris},
+                expected_empty=True,
+            )
+        except SpotifyBackendError as exc:
+            if not _looks_like_no_active_device(exc):
+                raise
+            await self._ensure_playback_device(play=False)
+            await self._request(
+                "PUT",
+                "/me/player/play",
+                json={"uris": uris},
+                expected_empty=True,
+            )
+
+    async def play_uris(self, uris: list[str]) -> None:
+        """Start playback with explicit Spotify track URIs."""
+        track_uris = [
+            str(uri).strip()
+            for uri in uris
+            if str(uri).strip().startswith("spotify:track:")
+        ][:100]
+        if not track_uris:
+            raise SpotifyBackendError("No playable Spotify track URIs were provided")
+        body = {"uris": track_uris}
+        try:
+            await self._request("PUT", "/me/player/play", json=body, expected_empty=True)
+        except SpotifyBackendError as exc:
+            if not _looks_like_no_active_device(exc):
+                raise
+            await self._ensure_playback_device(play=False)
+            await self._request("PUT", "/me/player/play", json=body, expected_empty=True)
+
+    async def create_playlist_from_tracks(self, value: Any) -> dict[str, Any]:
+        """Create a private Spotify playlist and add track URIs."""
+        if not isinstance(value, dict):
+            raise ValueError("Provide playlist name and track URIs")
+        name = str(value.get("name") or "DJConnect mix").strip()[:100]
+        description = str(value.get("description") or "Samengesteld door DJConnect Ask DJ.").strip()[:300]
+        uris = _track_uris(value)
+        if not uris:
+            raise SpotifyBackendError("No Spotify track URIs available to save")
+        profile = await self._request("GET", "/me")
+        user_id = str(profile.get("id") or "").strip()
+        if not user_id:
+            raise SpotifyBackendError("Spotify user profile is unavailable")
+        playlist = await self._request(
+            "POST",
+            f"/users/{user_id}/playlists",
+            json={"name": name, "public": False, "description": description},
+        )
+        playlist_id = str(playlist.get("id") or _spotify_id_from_uri(playlist.get("uri"))).strip()
+        if not playlist_id:
+            raise SpotifyBackendError("Spotify did not return a playlist id")
+        await self._request(
+            "POST",
+            f"/playlists/{playlist_id}/tracks",
+            json={"uris": uris[:100]},
+        )
+        return _normalize_playlist(playlist)
 
     async def _playable_value(self, value: Any) -> str:
         if isinstance(value, dict):
@@ -907,6 +1170,133 @@ def _playlist_client_type(value: Any) -> str:
     return ""
 
 
+def _search_query(value: Any) -> str:
+    """Return a normalized Spotify search query from command payload variants."""
+    if isinstance(value, dict):
+        return str(value.get("query") or value.get("search") or value.get("value") or "").strip()
+    return str(value or "").strip()
+
+
+def _artist_search_queries(query: str) -> list[str]:
+    """Return canonical Spotify artist search variants for common spoken/typed variants."""
+    raw = str(query or "").strip()
+    if not raw:
+        return []
+    canonical = ARTIST_QUERY_ALIASES.get(_normalize_artist_alias_key(raw))
+    variants = [candidate for candidate in (canonical, raw) if candidate]
+    return list(dict.fromkeys(variants))
+
+
+def _normalize_artist_alias_key(query: str) -> str:
+    normalized = str(query or "").strip().lower()
+    normalized = re.sub(r"[^\w\s&]+", " ", normalized)
+    return re.sub(r"\s+", " ", normalized).strip()
+
+
+def _search_limit(value: Any, *, default: int, maximum: int) -> int:
+    """Return bounded search result count from command payload variants."""
+    raw = value.get("limit") if isinstance(value, dict) else None
+    try:
+        limit = int(raw)
+    except (TypeError, ValueError):
+        limit = default
+    return max(0, min(maximum, limit))
+
+
+def _artist_names(value: Any) -> list[str]:
+    """Return ordered unique artist names from a command payload."""
+    raw: Any
+    if isinstance(value, dict):
+        raw = value.get("artists") or value.get("artist_names") or value.get("query") or value.get("value")
+    else:
+        raw = value
+    if isinstance(raw, list):
+        candidates = [str(item or "").strip() for item in raw]
+    else:
+        text = str(raw or "").strip()
+        candidates = [
+            item.strip()
+            for item in _split_seed_list(text)
+        ]
+    result: list[str] = []
+    seen: set[str] = set()
+    for candidate in candidates:
+        normalized = " ".join(candidate.strip(" ?.!'\"").split())
+        key = normalized.lower()
+        if normalized and key not in seen:
+            seen.add(key)
+            result.append(normalized)
+    return result
+
+
+def _track_names(value: Any) -> list[str]:
+    """Return ordered unique track search strings from a command payload."""
+    raw: Any
+    if isinstance(value, dict):
+        raw = value.get("tracks") or value.get("track_names")
+    else:
+        raw = None
+    return _clean_seed_values(raw)
+
+
+def _genre_names(value: Any) -> list[str]:
+    """Return ordered unique genre seed strings from a command payload."""
+    raw: Any
+    if isinstance(value, dict):
+        raw = value.get("genres") or value.get("genre_names")
+    else:
+        raw = None
+    return _clean_seed_values(raw)
+
+
+def _clean_seed_values(raw: Any) -> list[str]:
+    if isinstance(raw, list):
+        candidates = [str(item or "").strip() for item in raw]
+    else:
+        candidates = _split_seed_list(str(raw or ""))
+    result: list[str] = []
+    seen: set[str] = set()
+    for candidate in candidates:
+        normalized = " ".join(candidate.strip(" ?.!'\"").split())
+        key = normalized.lower()
+        if normalized and key not in seen:
+            seen.add(key)
+            result.append(normalized)
+    return result
+
+
+def _split_seed_list(text: str) -> list[str]:
+    """Split a user-supplied seed list."""
+    return re.split(r"\s*(?:,|;|\+|/|\ben\b|\band\b)\s*", text)
+
+
+def _track_uris(value: Any) -> list[str]:
+    """Return bounded Spotify track URIs from command payload variants."""
+    raw: Any
+    if isinstance(value, dict):
+        raw = value.get("uris") or value.get("track_uris") or value.get("tracks") or value.get("uri")
+    else:
+        raw = value
+    if isinstance(raw, str):
+        values = [item.strip() for item in raw.split(",")]
+    elif isinstance(raw, list):
+        values = [
+            str(item.get("uri") if isinstance(item, dict) else item).strip()
+            for item in raw
+        ]
+    else:
+        values = []
+    result: list[str] = []
+    seen: set[str] = set()
+    for uri in values:
+        if uri.startswith("spotify:track:") and uri not in seen:
+            seen.add(uri)
+            result.append(uri)
+        if len(result) >= 100:
+            break
+    return result
+
+
 def _first_search_item(data: dict[str, Any], spotify_type: str) -> dict[str, Any]:
     section = data.get(f"{spotify_type}s") or {}
     items = section.get("items") or []
@@ -922,6 +1312,8 @@ def _normalize_search_item(item: dict[str, Any], spotify_type: str, query: str) 
     artists = item.get("artists") or []
     owner = item.get("owner") or {}
     album = item.get("album") or {}
+    images = album.get("images") or item.get("images") or []
+    image_url = _best_image_url(images)
     name = item.get("name") or ""
     artist_name = (
         name
@@ -938,6 +1330,10 @@ def _normalize_search_item(item: dict[str, Any], spotify_type: str, query: str) 
         "artist": artist_name,
         "artist_name": artist_name,
         "album_name": album.get("name") or "",
+        "context_uri": album.get("uri") or "",
+        "image_url": image_url,
+        "album_image_url": image_url,
+        "thumbnail_url": image_url,
         "owner": owner.get("display_name") or owner.get("id") or "",
     }
 

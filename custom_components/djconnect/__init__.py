@@ -24,10 +24,13 @@ from .const import (
     API_ASK_DJ_MESSAGE,
     API_EVENT,
     API_PAIR,
+    API_PUSH_REGISTER,
+    API_PUSH_UNREGISTER,
     API_SPOTIFY_CALLBACK,
     API_STATUS,
     API_TTS,
     API_VOICE,
+    CONF_API_BASE_URL,
     CLIENT_TYPE_ESP32,
     CLIENT_TYPE_IOS,
     CLIENT_TYPE_MACOS,
@@ -41,12 +44,14 @@ from .const import (
     CONF_DEVICE_NAME,
     CONF_DEVICE_TOKEN,
     CONF_HA_EXTERNAL_URL,
+    CONF_HA_INSTALL_ID,
     CONF_LOCAL_URL,
     CONF_PAIR_CODE,
     CONF_SPOTIFY_CLIENT_ID,
     CONF_SPOTIFY_MARKET,
     CONF_SPOTIFY_REFRESH_TOKEN,
     CONF_SPOTIFY_SCOPES,
+    DEFAULT_API_BASE_URL,
     DEFAULT_DEVICE_LANGUAGE,
     DEFAULT_CLIENT_TYPE,
     DEFAULT_SPOTIFY_MARKET,
@@ -55,15 +60,19 @@ from .const import (
     PLATFORMS,
     VERSION,
 )
+from .central_api import async_ensure_install_token, ensure_ha_install_id
 from .http import (
     DJConnectCommandView,
     DJConnectAskDjHistoryClearView,
     DJConnectAskDjHistoryView,
+    DJConnectAskDjIdleSuggestionView,
     DJConnectAskDjMessageView,
     DJConnectAskDjView,
     DJConnectEventView,
     DJConnectImageProxyView,
     DJConnectPairView,
+    DJConnectPushRegisterView,
+    DJConnectPushUnregisterView,
     DJConnectSpotifyCallbackView,
     DJConnectStatusView,
     DJConnectTtsView,
@@ -1083,9 +1092,12 @@ def register_http_views(hass: HomeAssistant) -> None:
             DJConnectVoiceView(hass),
             DJConnectAskDjView(hass),
             DJConnectAskDjMessageView(hass),
+            DJConnectAskDjIdleSuggestionView(hass),
             DJConnectAskDjHistoryView(hass),
             DJConnectAskDjHistoryClearView(hass),
             DJConnectCommandView(hass),
+            DJConnectPushRegisterView(hass),
+            DJConnectPushUnregisterView(hass),
             DJConnectPairView(hass),
             DJConnectStatusView(hass),
             DJConnectEventView(hass),
@@ -1107,6 +1119,8 @@ def register_http_views(hass: HomeAssistant) -> None:
                     API_ASK_DJ_HISTORY,
                     API_ASK_DJ_HISTORY_CLEAR,
                     API_COMMAND,
+                    API_PUSH_REGISTER,
+                    API_PUSH_UNREGISTER,
                     API_PAIR,
                     API_STATUS,
                     API_EVENT,
@@ -1460,9 +1474,20 @@ def _register_developer_services(
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
+    option_updates = dict(entry.options)
+    runtime_for_defaults = DJConnectRuntime(entry=entry)
+    if not option_updates.get(CONF_API_BASE_URL):
+        option_updates[CONF_API_BASE_URL] = DEFAULT_API_BASE_URL
+    if not option_updates.get(CONF_HA_INSTALL_ID) and not entry.data.get(CONF_HA_INSTALL_ID):
+        option_updates[CONF_HA_INSTALL_ID] = ensure_ha_install_id(runtime_for_defaults)
+    if option_updates != dict(entry.options):
+        hass.config_entries.async_update_entry(entry, options=option_updates)
     runtime = _restore_runtime(hass, entry)
     if runtime.memory is not None:
         await runtime.memory.async_load()
+    task_factory = getattr(hass, "async_create_task", None)
+    if callable(task_factory):
+        task_factory(async_ensure_install_token(hass, runtime))
     _setup_device_coordinator(hass, runtime)
     stt_info = detect_stt_support(hass, runtime.config)
     _LOGGER.info(

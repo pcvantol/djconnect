@@ -3,12 +3,14 @@ from __future__ import annotations
 
 from collections import defaultdict, deque
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import logging
 import re
+import uuid
 from typing import Any
 
 from .const import CONF_CLIENT_TYPE, CONF_DEVICE_ID, CONF_DEVICE_NAME
+from .mood import mood_zone_for_value
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -19,6 +21,7 @@ MAX_RECENT_TRACKS = 20
 MAX_CHAT_FACTS = 20
 MAX_TEXT_LENGTH = 500
 LISTENING_PROFILE_TTL_SECONDS = 6 * 60 * 60
+PENDING_FOLLOWUP_TTL_SECONDS = 10 * 60
 SECRET_KEY_FRAGMENTS = ("token", "password", "secret", "authorization")
 
 
@@ -183,6 +186,10 @@ class DJMemoryManager:
         mood = _clean_mood(payload.get("mood"))
         if mood is not None:
             memory["mood"] = mood
+            zone = mood_zone_for_value(mood)
+            if zone is not None:
+                memory["mood_zone"] = zone.name
+                memory["mood_zone_prompt"] = zone.prompt_hint
         dj_style = _clean_text(payload.get("dj_style"))
         if dj_style:
             memory["dj_style"] = dj_style
@@ -241,6 +248,7 @@ class DJMemoryManager:
             "action": action,
             "track": track,
             "speaker": speaker,
+            "playback_actions": _sanitize_value(result.get("playback_actions") if isinstance(result, dict) else []),
             "created_at": now,
         }
         memory["last_ask_dj"] = _compact_dict(last_ask)
@@ -364,6 +372,7 @@ class DJMemoryManager:
         record = _compact_dict(
             {
                 "uri": recommendation.get("uri") or recommendation.get("context_uri"),
+                "uris": _sanitize_value(recommendation.get("uris")),
                 "title": recommendation.get("title"),
                 "subtitle": recommendation.get("subtitle"),
                 "kind": recommendation.get("kind"),
@@ -374,9 +383,83 @@ class DJMemoryManager:
         )
         if record:
             memory["recommendation_plays"] = [record, *plays][:MAX_CHAT_FACTS]
+            memory["last_played_recommendation"] = record
             memory["updated_at"] = _now()
             await self.async_save()
         return key
+
+    async def async_store_pending_followup(
+        self,
+        runtime: Any,
+        followup: dict[str, Any],
+        payload: dict[str, Any] | None = None,
+        *,
+        user_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Store the latest pending Ask DJ follow-up confirmation."""
+        key = await self.async_update_client_metadata(runtime, payload, user_id=user_id)
+        memory = self._memory_for_key(key)
+        now = _now()
+        pending = _compact_dict(
+            {
+                "id": followup.get("id") or f"followup-{uuid.uuid4()}",
+                "type": followup.get("type") or "playback_confirmation",
+                "question": followup.get("question"),
+                "proposed_intent": followup.get("proposed_intent"),
+                "proposed_action": followup.get("proposed_action"),
+                "proposed_payload": _sanitize_value(followup.get("proposed_payload")),
+                "client_id": (payload or {}).get("client_id"),
+                "client_type": (payload or {}).get(CONF_CLIENT_TYPE),
+                "created_at": now,
+                "expires_at": _timestamp_after(PENDING_FOLLOWUP_TTL_SECONDS),
+                "handled": False,
+            }
+        )
+        memory["pending_followup"] = pending
+        memory["updated_at"] = now
+        await self.async_save()
+        return deepcopy(pending)
+
+    async def async_pending_followup(
+        self,
+        runtime: Any,
+        payload: dict[str, Any] | None = None,
+        *,
+        user_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Return the current pending Ask DJ follow-up, if still open."""
+        key = await self.async_update_client_metadata(runtime, payload, user_id=user_id)
+        memory = self._memory_for_key(key)
+        pending = memory.get("pending_followup")
+        if not isinstance(pending, dict) or pending.get("handled"):
+            return {}
+        if _parse_timestamp(pending.get("expires_at")) is not None and _parse_timestamp(pending.get("expires_at")) < datetime.now(timezone.utc):
+            pending["handled"] = True
+            pending["expired_at"] = _now()
+            memory["updated_at"] = _now()
+            await self.async_save()
+            return {"expired": True, **deepcopy(pending)}
+        return deepcopy(pending)
+
+    async def async_consume_pending_followup(
+        self,
+        runtime: Any,
+        payload: dict[str, Any] | None = None,
+        *,
+        user_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Mark the latest pending Ask DJ follow-up as handled and return it."""
+        key = await self.async_update_client_metadata(runtime, payload, user_id=user_id)
+        memory = self._memory_for_key(key)
+        pending = memory.get("pending_followup")
+        if not isinstance(pending, dict) or pending.get("handled"):
+            return {}
+        now = _now()
+        pending["handled"] = True
+        pending["handled_at"] = now
+        memory["updated_at"] = now
+        await self.async_save()
+        return deepcopy(pending)
 
     async def async_context_for_runtime(
         self,
@@ -478,7 +561,11 @@ def prompt_context_text(context: dict[str, Any]) -> str:
                 )
             )
     if memory.get("mood") is not None:
-        lines.append(f"Mood/energy: {memory.get('mood')}/100")
+        zone = mood_zone_for_value(memory.get("mood"))
+        if zone is not None:
+            lines.append(f"Mood/energy: {memory.get('mood')}/100 ({zone.name}: {zone.prompt_hint})")
+        else:
+            lines.append(f"Mood/energy: {memory.get('mood')}/100")
     if memory.get("dj_style"):
         lines.append(f"DJ stijl: {memory.get('dj_style')}")
     time_context = memory.get("listening_time_context")
@@ -577,6 +664,7 @@ def _prompt_safe_memory(memory: dict[str, Any]) -> dict[str, Any]:
         "listening_time_patterns",
         "last_profile_refresh",
         "recommendation_plays",
+        "pending_followup",
         "last_seen",
         "updated_at",
         "generation",
@@ -882,6 +970,10 @@ def _call_or_none(value: Any) -> Any:
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def _timestamp_after(seconds: int) -> str:
+    return (datetime.now(timezone.utc) + timedelta(seconds=max(1, int(seconds)))).isoformat()
 
 
 def _parse_timestamp(value: Any) -> datetime | None:

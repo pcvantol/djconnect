@@ -51,6 +51,7 @@ class SpotifyBackendTest(unittest.TestCase):
         cls.issues = install_backend_stubs()
         cls.backend = importlib.import_module("custom_components.djconnect.spotify_backend")
         cls.oauth = importlib.import_module("custom_components.djconnect.spotify_oauth")
+        cls.const = importlib.import_module("custom_components.djconnect.const")
 
     def setUp(self) -> None:
         self.issues.clear()
@@ -408,6 +409,301 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertEqual(len(runtime.ask_dj_history.messages), 2)
         self.assertEqual(runtime.last_ambient_fact_key, "radiohead|kid a")
 
+    def test_playback_state_dedupes_ambient_fact_from_history_after_runtime_reset(self) -> None:
+        class Response:
+            status = 200
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                return {
+                    "is_playing": True,
+                    "item": {
+                        "name": "Give Me Everything",
+                        "uri": "spotify:track:give-me-everything",
+                        "artists": [{"name": "Pitbull"}],
+                        "album": {"name": "Planet Pit"},
+                    },
+                    "device": {"name": "Living room"},
+                }
+
+            async def text(self):
+                return "{}"
+
+        class Session:
+            def request(self, method, url, **kwargs):
+                return Response()
+
+        class Services:
+            def __init__(self):
+                self.calls = 0
+
+            async def async_call(self, domain, service, data, **kwargs):
+                self.calls += 1
+                return {
+                    "response": {
+                        "speech": {
+                            "plain": {
+                                "speech": "Give Me Everything was een wereldhit."
+                            }
+                        }
+                    }
+                }
+
+        class History:
+            def __init__(self):
+                self.messages = []
+
+            async def async_has_client_message_id(self, user_id, client_message_id):
+                return any(
+                    message[1].get("client_message_id") == client_message_id
+                    for message in self.messages
+                )
+
+            async def async_append_assistant_message(self, user_id, request_payload, response):
+                self.messages.append((user_id, request_payload, response))
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={"spotify_client_id": "client-id", "spotify_refresh_token": "refresh"},
+            options={},
+        )
+        runtime = types.SimpleNamespace(
+            entry=entry,
+            latest_spotify_refresh_token=None,
+            spotify_access_token="access",
+            spotify_access_token_expires_at=time.time() + 1800,
+            device_status={},
+            ask_dj_history=History(),
+            update=lambda **kwargs: [setattr(runtime, key, value) for key, value in kwargs.items()],
+        )
+        runtime.config = dict(entry.data)
+        backend = self.backend.SpotifyBackend(object(), runtime)
+        backend.session = Session()
+        hass = types.SimpleNamespace(services=Services())
+        backend.hass = hass
+
+        asyncio.run(backend.playback_state())
+        runtime.last_ambient_fact_key = ""
+        asyncio.run(backend.playback_state())
+
+        self.assertEqual(len(runtime.ask_dj_history.messages), 1)
+        self.assertEqual(hass.services.calls, 1)
+        self.assertEqual(runtime.last_ambient_fact_key, "pitbull|planet pit")
+
+    def test_ambient_fact_prefers_home_assistant_language_over_assist_language(self) -> None:
+        class Response:
+            status = 200
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                return {
+                    "is_playing": True,
+                    "item": {
+                        "name": "Friendships",
+                        "uri": "spotify:track:friendships",
+                        "artists": [{"name": "Pascal Letoublon"}],
+                        "album": {"name": "Friendships"},
+                    },
+                    "device": {"name": "Living room"},
+                }
+
+            async def text(self):
+                return "{}"
+
+        class Session:
+            def request(self, method, url, **kwargs):
+                return Response()
+
+        class History:
+            def __init__(self):
+                self.messages = []
+
+            async def async_append_assistant_message(self, user_id, request_payload, response):
+                self.messages.append((user_id, request_payload, response))
+
+        class Services:
+            def __init__(self):
+                self.calls = []
+
+            async def async_call(self, domain, service, data, **kwargs):
+                self.calls.append(data)
+                return {
+                    "response": {
+                        "speech": {
+                            "plain": {
+                                "speech": "Friendships werd een grote hit door zijn melodische house-sound."
+                            }
+                        }
+                    }
+                }
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={
+                "spotify_client_id": "client-id",
+                "spotify_refresh_token": "refresh",
+                "tts_language": "en-US",
+            },
+            options={},
+        )
+        runtime = types.SimpleNamespace(
+            entry=entry,
+            latest_spotify_refresh_token=None,
+            spotify_access_token="access",
+            spotify_access_token_expires_at=time.time() + 1800,
+            device_status={},
+            ask_dj_history=History(),
+            update=lambda **kwargs: [setattr(runtime, key, value) for key, value in kwargs.items()],
+        )
+        runtime.config = dict(entry.data)
+        backend = self.backend.SpotifyBackend(object(), runtime)
+        backend.session = Session()
+        hass = types.SimpleNamespace(
+            config=types.SimpleNamespace(language="nl"),
+            services=Services(),
+        )
+        backend.hass = hass
+
+        asyncio.run(backend.playback_state())
+
+        self.assertEqual(hass.services.calls[0]["language"], "nl-NL")
+        self.assertIn("Antwoord uitsluitend in het Nederlands", hass.services.calls[0]["text"])
+        self.assertIn("Pascal Letoublon", hass.services.calls[0]["text"])
+        self.assertEqual(
+            runtime.ask_dj_history.messages[0][2]["text"],
+            "Friendships werd een grote hit door zijn melodische house-sound.",
+        )
+
+    def test_ambient_fact_adds_proxied_artist_image_from_wikipedia(self) -> None:
+        ambient = importlib.import_module("custom_components.djconnect.ambient_ask_dj")
+
+        class SpotifyResponse:
+            status = 200
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                return {
+                    "is_playing": True,
+                    "item": {
+                        "name": "In And Out Of Love",
+                        "uri": "spotify:track:in-out-love",
+                        "artists": [{"name": "Armin van Buuren"}],
+                        "album": {"name": "Imagine"},
+                    },
+                    "device": {"name": "Living room"},
+                }
+
+            async def text(self):
+                return "{}"
+
+        class SpotifySession:
+            def request(self, method, url, **kwargs):
+                return SpotifyResponse()
+
+        class WikiResponse:
+            status = 200
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                return {
+                    "title": "Armin van Buuren",
+                    "description": "Nederlands dj",
+                    "thumbnail": {"source": "https://upload.wikimedia.org/armin.jpg"},
+                    "content_urls": {
+                        "desktop": {"page": "https://nl.wikipedia.org/wiki/Armin_van_Buuren"}
+                    },
+                }
+
+        class WikiSession:
+            def __init__(self):
+                self.urls = []
+
+            def get(self, url, **kwargs):
+                self.urls.append(url)
+                return WikiResponse()
+
+        class History:
+            def __init__(self):
+                self.messages = []
+
+            async def async_append_assistant_message(self, user_id, request_payload, response):
+                self.messages.append((user_id, request_payload, response))
+
+        class Services:
+            async def async_call(self, domain, service, data, **kwargs):
+                return {
+                    "response": {
+                        "speech": {
+                            "plain": {
+                                "speech": "Armin van Buuren is een bekende Nederlandse trance-dj."
+                            }
+                        }
+                    }
+                }
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={"spotify_client_id": "client-id", "spotify_refresh_token": "refresh"},
+            options={},
+        )
+        runtime = types.SimpleNamespace(
+            entry=entry,
+            latest_spotify_refresh_token=None,
+            spotify_access_token="access",
+            spotify_access_token_expires_at=time.time() + 1800,
+            device_status={},
+            ask_dj_history=History(),
+            update=lambda **kwargs: [setattr(runtime, key, value) for key, value in kwargs.items()],
+        )
+        runtime.config = dict(entry.data)
+        backend = self.backend.SpotifyBackend(object(), runtime)
+        backend.session = SpotifySession()
+        wiki_session = WikiSession()
+        hass = types.SimpleNamespace(
+            config=types.SimpleNamespace(language="nl"),
+            data={},
+            services=Services(),
+        )
+        backend.hass = hass
+
+        original_clientsession = ambient.async_get_clientsession
+        ambient.async_get_clientsession = lambda hass_arg: wiki_session
+        try:
+            asyncio.run(backend.playback_state())
+        finally:
+            ambient.async_get_clientsession = original_clientsession
+
+        response = runtime.ask_dj_history.messages[0][2]
+        self.assertEqual(response["images"][0]["source"], "wikipedia")
+        self.assertTrue(response["images"][0]["url"].startswith(self.const.API_IMAGE_PROXY_BASE))
+        self.assertEqual(response["links"][0]["source"], "wikipedia")
+        self.assertIn("Armin_van_Buuren", wiki_session.urls[0])
+        proxy_token = response["images"][0]["url"].rsplit("/", 1)[-1]
+        self.assertEqual(
+            hass.data[self.const.DOMAIN]["image_proxy"][proxy_token],
+            "https://upload.wikimedia.org/armin.jpg",
+        )
+
     def test_play_search_query_resolves_to_spotify_uri_before_playback(self) -> None:
         class Response:
             def __init__(self, status, payload=None):
@@ -492,6 +788,175 @@ class SpotifyBackendTest(unittest.TestCase):
             runtime.last_spotify_search["selected"]["uri"],
             "spotify:artist:pearl-jam",
         )
+
+    def test_play_artist_top_tracks_searches_artist_and_starts_popular_tracks(self) -> None:
+        class Response:
+            def __init__(self, status, payload=None):
+                self.status = status
+                self.payload = payload or {}
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                return self.payload
+
+            async def text(self):
+                return str(self.payload)
+
+        class Session:
+            def __init__(self):
+                self.calls = []
+
+            def request(self, method, url, **kwargs):
+                self.calls.append({"method": method, "url": url, **kwargs})
+                if method == "GET" and "/search?" in url:
+                    return Response(
+                        200,
+                        {
+                            "artists": {
+                                "total": 1,
+                                "items": [
+                                    {
+                                        "id": "artist-id",
+                                        "name": "Above & Beyond",
+                                        "uri": "spotify:artist:artist-id",
+                                        "images": [
+                                            {
+                                                "url": "https://example.test/artist.jpg",
+                                                "width": 640,
+                                                "height": 640,
+                                            }
+                                        ],
+                                    }
+                                ],
+                            }
+                        },
+                    )
+                if method == "GET" and "/artists/artist-id/top-tracks?" in url:
+                    return Response(
+                        200,
+                        {
+                            "tracks": [
+                                {"uri": "spotify:track:sun-and-moon"},
+                                {"uri": "spotify:track:thing-called-love"},
+                            ]
+                        },
+                    )
+                return Response(204)
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={
+                "spotify_client_id": "client-id",
+                "spotify_refresh_token": "refresh",
+                "spotify_market": "NL",
+            },
+            options={},
+        )
+        runtime = types.SimpleNamespace(
+            entry=entry,
+            latest_spotify_refresh_token=None,
+            spotify_access_token="access",
+            spotify_access_token_expires_at=time.time() + 1800,
+            device_status={},
+            update=lambda **kwargs: None,
+        )
+        runtime.config = dict(entry.data)
+        backend = self.backend.SpotifyBackend(object(), runtime)
+        session = Session()
+        backend.session = session
+
+        asyncio.run(backend.play_artist_top_tracks("Above & Beyond"))
+
+        self.assertIn("/search?", session.calls[0]["url"])
+        self.assertIn("type=artist", session.calls[0]["url"])
+        self.assertIn("/artists/artist-id/top-tracks?", session.calls[1]["url"])
+        self.assertEqual(session.calls[2]["method"], "PUT")
+        self.assertEqual(
+            session.calls[2]["json"],
+            {"uris": ["spotify:track:sun-and-moon", "spotify:track:thing-called-love"]},
+        )
+        self.assertEqual(runtime.last_resolved_media["name"], "Above & Beyond")
+        self.assertEqual(
+            runtime.last_spotify_search["selected"]["uri"],
+            "spotify:artist:artist-id",
+        )
+
+    def test_play_artist_top_tracks_corrects_known_artist_typo(self) -> None:
+        class Response:
+            def __init__(self, status, payload=None):
+                self.status = status
+                self.payload = payload or {}
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                return self.payload
+
+            async def text(self):
+                return str(self.payload)
+
+        class Session:
+            def __init__(self):
+                self.calls = []
+
+            def request(self, method, url, **kwargs):
+                self.calls.append({"method": method, "url": url, **kwargs})
+                if method == "GET" and "/search?" in url:
+                    return Response(
+                        200,
+                        {
+                            "artists": {
+                                "items": [
+                                    {
+                                        "id": "paul-van-dyk",
+                                        "name": "Paul van Dyk",
+                                        "uri": "spotify:artist:paul-van-dyk",
+                                    }
+                                ]
+                            }
+                        },
+                    )
+                if method == "GET" and "/artists/paul-van-dyk/top-tracks?" in url:
+                    return Response(200, {"tracks": [{"uri": "spotify:track:for-an-angel"}]})
+                return Response(204)
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={
+                "spotify_client_id": "client-id",
+                "spotify_refresh_token": "refresh",
+                "spotify_market": "NL",
+            },
+            options={},
+        )
+        runtime = types.SimpleNamespace(
+            entry=entry,
+            latest_spotify_refresh_token=None,
+            spotify_access_token="access",
+            spotify_access_token_expires_at=time.time() + 1800,
+            device_status={},
+            update=lambda **kwargs: None,
+        )
+        runtime.config = dict(entry.data)
+        backend = self.backend.SpotifyBackend(object(), runtime)
+        session = Session()
+        backend.session = session
+
+        asyncio.run(backend.play_artist_top_tracks("paul van dijk"))
+
+        self.assertIn("q=Paul+van+Dyk", session.calls[0]["url"])
+        self.assertIn("/artists/paul-van-dyk/top-tracks?", session.calls[1]["url"])
+        self.assertEqual(session.calls[2]["json"], {"uris": ["spotify:track:for-an-angel"]})
+        self.assertEqual(runtime.last_resolved_media["name"], "Paul van Dyk")
 
     def test_artist_albums_searches_artist_and_returns_chronological_albums(self) -> None:
         class Response:
@@ -1242,6 +1707,8 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertEqual(result["contextUri"], "spotify:playlist:abc")
         self.assertEqual(result["queue"][0]["album_image_url"], "https://example.test/queue.jpg")
         self.assertEqual(result["queue"][0]["imageUrl"], "https://example.test/queue.jpg")
+        self.assertEqual(result["queue"][0]["context_uri"], "spotify:playlist:abc")
+        self.assertEqual(result["queue"][0]["contextUri"], "spotify:playlist:abc")
         self.assertEqual(runtime.device_status["queue"]["items"], result["queue"])
 
     def test_queue_command_caps_client_items_at_100(self) -> None:
@@ -1404,6 +1871,278 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertEqual(runtime.device_status["playlists"], result["playlists"])
         self.assertTrue(any("/me/playlists?limit=50&offset=0" in url for url in requested_urls))
         self.assertTrue(any("/me/playlists?limit=50&offset=50" in url for url in requested_urls))
+
+    def test_search_playlists_command_returns_top_playlist_matches(self) -> None:
+        requested_urls = []
+
+        class Response:
+            status = 200
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                return {
+                    "playlists": {
+                        "total": 2,
+                        "items": [
+                            {
+                                "id": "above-1",
+                                "name": "Above & Beyond Essentials",
+                                "uri": "spotify:playlist:above-1",
+                                "owner": {"display_name": "Spotify"},
+                                "images": [{"url": "https://example.test/above.jpg", "width": 300, "height": 300}],
+                            },
+                            {
+                                "id": "above-2",
+                                "name": "Group Therapy",
+                                "uri": "spotify:playlist:above-2",
+                                "owner": {"display_name": "Anjunabeats"},
+                                "images": [{"url": "https://example.test/group.jpg", "width": 300, "height": 300}],
+                            },
+                        ],
+                    }
+                }
+
+            async def text(self):
+                return "{}"
+
+        class Session:
+            def request(self, method, url, **kwargs):
+                requested_urls.append(url)
+                return Response()
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={
+                "spotify_client_id": "client-id",
+                "spotify_refresh_token": "refresh",
+                "spotify_market": "NL",
+            },
+            options={},
+        )
+        runtime = types.SimpleNamespace(
+            entry=entry,
+            latest_spotify_refresh_token=None,
+            spotify_access_token="access",
+            spotify_access_token_expires_at=time.time() + 1800,
+            backend_cache={},
+            device_status={},
+            update=lambda **kwargs: None,
+        )
+        runtime.config = dict(entry.data)
+
+        original_clientsession = self.backend.async_get_clientsession
+        self.backend.async_get_clientsession = lambda hass: Session()
+        try:
+            result = asyncio.run(
+                self.backend.handle_spotify_command(
+                    object(),
+                    runtime,
+                    "search_playlists",
+                    {"query": "above & beyond", "limit": 5},
+                )
+            )
+        finally:
+            self.backend.async_get_clientsession = original_clientsession
+
+        self.assertTrue(result["backend_available"])
+        self.assertEqual(result["count"], 2)
+        self.assertEqual(result["playlists"][0]["uri"], "spotify:playlist:above-1")
+        self.assertEqual(result["playlists"][0]["image_url"], "https://example.test/above.jpg")
+        self.assertEqual(result["items"], result["playlists"])
+        self.assertEqual(runtime.last_spotify_search["type"], "playlist")
+        self.assertTrue(any("/search?" in url and "type=playlist" in url for url in requested_urls))
+        self.assertTrue(any("limit=5" in url and "market=NL" in url for url in requested_urls))
+
+    def test_artist_recommendations_support_artist_track_and_genre_seeds(self) -> None:
+        requested_urls = []
+
+        class Response:
+            status = 200
+
+            def __init__(self, url):
+                self.url = url
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                if "/search?" in self.url and "type=artist" in self.url:
+                    return {
+                        "artists": {
+                            "items": [
+                                {
+                                    "id": "artist-id",
+                                    "name": "Radiohead",
+                                    "uri": "spotify:artist:artist-id",
+                                }
+                            ]
+                        }
+                    }
+                if "/search?" in self.url and "type=track" in self.url:
+                    return {
+                        "tracks": {
+                            "items": [
+                                {
+                                    "id": "track-id",
+                                    "name": "Teardrop",
+                                    "uri": "spotify:track:track-id",
+                                    "artists": [{"name": "Massive Attack"}],
+                                }
+                            ]
+                        }
+                    }
+                if "/recommendations?" in self.url:
+                    return {
+                        "tracks": [
+                            {
+                                "id": "rec-id",
+                                "name": "Recommended",
+                                "uri": "spotify:track:rec-id",
+                                "artists": [{"name": "Artist"}],
+                                "album": {
+                                    "name": "Album",
+                                    "images": [{"url": "https://example.test/rec.jpg", "width": 300, "height": 300}],
+                                },
+                            }
+                        ]
+                    }
+                return {}
+
+            async def text(self):
+                return "{}"
+
+        class Session:
+            def request(self, method, url, **kwargs):
+                requested_urls.append(url)
+                return Response(url)
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={
+                "spotify_client_id": "client-id",
+                "spotify_refresh_token": "refresh",
+                "spotify_market": "NL",
+            },
+            options={},
+        )
+        runtime = types.SimpleNamespace(
+            entry=entry,
+            latest_spotify_refresh_token=None,
+            spotify_access_token="access",
+            spotify_access_token_expires_at=time.time() + 1800,
+            backend_cache={},
+            device_status={},
+            update=lambda **kwargs: None,
+        )
+        runtime.config = dict(entry.data)
+
+        original_clientsession = self.backend.async_get_clientsession
+        self.backend.async_get_clientsession = lambda hass: Session()
+        try:
+            result = asyncio.run(
+                self.backend.handle_spotify_command(
+                    object(),
+                    runtime,
+                    "artist_recommendations",
+                    {
+                        "artists": ["Radiohead"],
+                        "tracks": ["Teardrop"],
+                        "genres": ["ambient"],
+                        "limit": 25,
+                    },
+                )
+            )
+        finally:
+            self.backend.async_get_clientsession = original_clientsession
+
+        self.assertEqual(result["tracks"][0]["uri"], "spotify:track:rec-id")
+        recommendation_url = next(url for url in requested_urls if "/recommendations?" in url)
+        self.assertIn("seed_artists=artist-id", recommendation_url)
+        self.assertIn("seed_tracks=track-id", recommendation_url)
+        self.assertIn("seed_genres=ambient", recommendation_url)
+
+    def test_create_playlist_command_creates_private_playlist_and_adds_tracks(self) -> None:
+        calls = []
+
+        class Response:
+            status = 200
+
+            def __init__(self, payload=None):
+                self.payload = payload or {}
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                return self.payload
+
+            async def text(self):
+                return "{}"
+
+        class Session:
+            def request(self, method, url, **kwargs):
+                calls.append({"method": method, "url": url, **kwargs})
+                if method == "GET" and url.endswith("/me"):
+                    return Response({"id": "user-id"})
+                if method == "POST" and "/users/user-id/playlists" in url:
+                    return Response(
+                        {
+                            "id": "playlist-id",
+                            "name": "DJConnect mix",
+                            "uri": "spotify:playlist:playlist-id",
+                            "external_urls": {"spotify": "https://open.spotify.com/playlist/playlist-id"},
+                            "owner": {"display_name": "Peter"},
+                        }
+                    )
+                return Response({})
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={"spotify_client_id": "client-id", "spotify_refresh_token": "refresh"},
+            options={},
+        )
+        runtime = types.SimpleNamespace(
+            entry=entry,
+            latest_spotify_refresh_token=None,
+            spotify_access_token="access",
+            spotify_access_token_expires_at=time.time() + 1800,
+            backend_cache={},
+            device_status={},
+            update=lambda **kwargs: None,
+        )
+        runtime.config = dict(entry.data)
+
+        original_clientsession = self.backend.async_get_clientsession
+        self.backend.async_get_clientsession = lambda hass: Session()
+        try:
+            result = asyncio.run(
+                self.backend.handle_spotify_command(
+                    object(),
+                    runtime,
+                    "create_playlist",
+                    {
+                        "name": "DJConnect mix",
+                        "uris": ["spotify:track:one", "spotify:track:two"],
+                    },
+                )
+            )
+        finally:
+            self.backend.async_get_clientsession = original_clientsession
+
+        self.assertEqual(result["playlist"]["uri"], "spotify:playlist:playlist-id")
+        self.assertEqual(calls[1]["json"]["public"], False)
+        self.assertEqual(calls[2]["json"]["uris"], ["spotify:track:one", "spotify:track:two"])
 
     def test_playlists_command_respects_esp_limit(self) -> None:
         requested_urls = []

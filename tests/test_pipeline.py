@@ -187,7 +187,7 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertEqual(calls[0]["language"], "nl-NL")
         self.assertNotIn("agent_id", calls[0])
 
-    def test_generate_dj_response_with_assist_uses_custom_response_prompt(self) -> None:
+    def test_generate_dj_response_with_assist_ignores_legacy_custom_response_prompt(self) -> None:
         calls = []
 
         class Services:
@@ -219,7 +219,8 @@ class AssistPipelineTest(unittest.TestCase):
             calls[0][2]["text"],
         )
         self.assertIn("Je bent een radio-DJ", calls[0][2]["text"])
-        self.assertIn("Sound like a pirate DJ.", calls[0][2]["text"])
+        self.assertIn("Klink warm en persoonlijk.", calls[0][2]["text"])
+        self.assertNotIn("Sound like a pirate DJ.", calls[0][2]["text"])
         self.assertIn("artiest: Pearl Jam", calls[0][2]["text"])
         self.assertNotIn("spotify:artist", calls[0][2]["text"])
         self.assertNotIn("{'artist'", calls[0][2]["text"])
@@ -253,6 +254,42 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertEqual(text, "Metallica staat klaar.")
         self.assertEqual(calls[0]["agent_id"], "conversation.openai")
         self.assertEqual(calls[0]["text"].count("artiest: Metallica"), 1)
+
+    def test_generate_dj_response_rejects_wrong_resolved_artist(self) -> None:
+        class Services:
+            async def async_call(self, domain, service, data, **kwargs):
+                return {
+                    "response": {
+                        "speech": {
+                            "plain": {
+                                "speech": (
+                                    "En we zijn terug met AC/DC van Back in Black, "
+                                    "You Shook Me All Night Long."
+                                )
+                            }
+                        }
+                    }
+                }
+
+        debug = {}
+        hass = types.SimpleNamespace(services=Services())
+        text = asyncio.run(
+            self.pipeline.generate_dj_response_with_assist(
+                hass,
+                media={
+                    "type": "artist",
+                    "artist": "Metallica",
+                    "artist_name": "Metallica",
+                },
+                fallback_text="Daar is Metallica.",
+                conf={"tts_language": "nl-NL"},
+                debug=debug,
+            )
+        )
+
+        self.assertEqual(text, "Daar is Metallica.")
+        self.assertTrue(debug["fallback_used"])
+        self.assertEqual(debug["block_reason"], "generated response missing resolved artist")
 
     def test_dj_response_assist_prompt_is_debug_logged(self) -> None:
         class Services:
@@ -522,6 +559,11 @@ class AssistPipelineTest(unittest.TestCase):
             {
                 "response": {
                     "response_type": "query_answer",
+                    "speech": {
+                        "plain": {
+                            "speech": "Ik zet Red Hot Chili Peppers voor je klaar."
+                        }
+                    },
                     "data": {
                         "djconnect": {
                             "type": "artist",
@@ -537,6 +579,7 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertEqual(intent["type"], "artist")
         self.assertEqual(intent["artist"], "Nirvana")
         self.assertEqual(intent["spotify_search_query"], "Nirvana")
+        self.assertEqual(intent["dj_announcement"], "Daar gaan we. Ik zet hem voor je klaar.")
         self.assertEqual(intent["assist_intent"]["artist"], "Red Hot Chili Peppers")
 
     def test_local_artist_request_overrides_stale_assist_track(self) -> None:

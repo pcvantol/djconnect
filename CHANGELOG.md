@@ -1,8 +1,53 @@
 # Changelog
 
+## 3.1.70
+
+- Add production-safe central DJConnect API support with automatic per-install `djci_` token bootstrap, stable `ha_install_id` storage and configurable API base URL.
+- Replace HACS push relay environment secrets with per-install bearer-token calls to the central API, keeping event payloads limited to privacy-safe sync metadata.
+- Keep the install-token handshake invisible to users: Home Assistant calls `/v1/install/token` under the hood and stores the returned token in config entry storage.
+- Add central API tests for automatic token bootstrap, bearer authorization, atomically successful token rotation and privacy-safe push event payloads.
+- Document that install tokens are internal secrets and must never be pasted into issues or logs.
+
+## 3.1.69
+
+- Add a strict Ask DJ push policy with no playback, track, queue, volume, mood, status or idle-suggestion pushes.
+- Rate-limit Ask DJ push relay events to one push per 30 seconds and five pushes per ten minutes per HA user and device/client.
+- Suppress Ask DJ pushes to foreground or recently active clients when client status reports usable activity state.
+- Keep Ask DJ push payloads generic and privacy-safe with `thread-id: djconnect.askdj`, no raw prompts, assistant responses, memory, history or tokens.
+- Fix HACS/hassfest release validation metadata and translation URL placeholders for the v3.1.69 release branch.
+
+## 3.1.68
+
+- Add central `djconnect-api` backend setup guidance to the cross-repo sync prompts so the Cloudflare APNs relay remains aligned with the HACS integration.
+- Move HACS push support to a relay-only architecture: Home Assistant forwards authenticated Apple client registrations/events to `djconnect-api` and no longer contains direct APNs provider-key, JWT, topic or token-invalidation logic.
+- Ignore local environment files and APNs `.p8` keys to keep relay credentials and development secrets out of the repository.
+
+## 3.1.67
+
+- Add server-side Apple push registration endpoints for iOS, macOS and watchOS clients with Home Assistant Store persistence, bearer-token auth and APNs provider-token delivery.
+- Send privacy-safe Ask DJ push wake signals after server-side history updates, including `history_revision` sync hints without raw prompts, full responses, tokens or memory context.
+- Report push capability and registration status in client status responses, and disable invalid APNs tokens after BadDeviceToken/Unregistered-style failures.
+- Make DJ announcement style runtime mood-driven by removing the user-facing DJ style/prompt choice and falling back to a hardcoded default when no client mood is known.
+- Document APNs configuration, sandbox vs production behavior, push privacy rules and client sync requirements in the API contract and README.
+
+## 3.1.66
+
+- Raise the server-side Ask DJ history retention limit from 200 to 1000 messages per HA user while keeping trim metadata and retention system messages.
+- Prepare Ask DJ for read-only smart-home context by adding an explicit Home Assistant entity allowlist for future event-aware prompts and confirmation suggestions.
+- Add shared DJConnect mood-zone support for Apple Watch/iOS/backend Ask DJ requests, mapping numeric mood values to Chill, Groove, Energy and Party prompt context.
+- Document the current Ask DJ client contract for server-side history, follow-up confirmations, idle suggestions and playback action handling.
+- Keep the repository bootstrap prompt aligned with the released integration version.
+- Refresh DJConnect release metadata and firmware manifest examples for the 3.1.66 release.
+
 ## 3.1.65
 
 - Add text-only ambient Ask DJ music facts when Spotify playback moves to a new artist/album combination, deduped so multiple tracks from the same album/artist do not create repeated chat messages.
+- Make Ask DJ history production-safe with a 200-message server-side limit, retention system messages and explicit `history_limit`, `history_trimmed_before` and `history_trimmed_count` sync metadata for clients.
+- Add Ask DJ follow-up confirmation buttons through `playback_actions[]` / `confirmation_actions[]` with `command:"ask_dj_followup_response"`, server-side pending follow-up state and Ja/Nee handling.
+- Add morning startup support for `Goedemorgen` / `Good morning` when playback is idle, returning a personalized morning suggestion with Ja/Nee buttons without starting playback automatically.
+- Treat sleep phrases such as `ik ga slapen` as direct pause/stop playback requests.
+- Harden Ask DJ fallback handling for gibberish, sandbox escape and prompt-injection style input so those requests do not reach the conversation agent or playback paths.
+- Expand Ask DJ playback/search behavior for English `next`, queue listing, playlist search, album/artist disambiguation, recommendation lists, repeat responses and safer generated DJ announcements.
 
 ## 3.1.64
 
