@@ -39,6 +39,48 @@ when runtime mood is available, the mood zone drives the final announcement
 tone; otherwise DJConnect uses its hardcoded default announcement style.
 Responses do not need to echo mood fields.
 
+## Ask DJ Message Actions
+
+`POST /api/djconnect/ask_dj/message` responses may include
+`playback_actions[]`. Clients should render actions by `kind` and must not infer
+missing media from previous chat bubbles. If a response has no `images[]`, show
+it as text-only.
+
+Supported action kinds:
+
+- `album`: direct Play Now action for a Spotify album. The action includes a
+  Spotify `uri`/`context_uri`, `title`, optional `subtitle`/artist and optional
+  proxied `image_url`.
+- `output`: Spotify Connect output selection. Render the action as an output row
+  or button. Use `label`/`button_label` such as `Activeer`; an already active
+  output may use `Actief`.
+- `control`: immediate playback control action. Pause/stop responses can return
+  `command:"play"` with `label:"Resume"` / `button_label:"Resume"` so clients
+  show a Resume button.
+- `confirmation`: Ja/Nee follow-up action with
+  `command:"ask_dj_followup_response"` and a server-side pending proposal.
+- Recommendation kinds `track`, `artist`, `playlist`, `album` and `track_mix`
+  remain Play Now candidates and must be sent back through
+  `command:"ask_dj_play_recommendation"` unless the action explicitly uses a
+  direct control/output command.
+
+Speaker/output questions such as `welke speakers zijn er?` or
+`wissel van uitvoer` return a short text intro plus one `output` action per
+available Spotify Connect device. They must not include stale album art from an
+earlier music response.
+
+Album-discography questions such as `Welke albums bracht Nirvana uit?` return a
+formatted album list and `album` Play Now actions. Album playback announcements
+keep album and track fields separate: album requests set album metadata on
+`album`/`album_name`, and if Spotify starts the first track it appears as
+`track_name`/`title`. Clients should display the returned text instead of
+rewriting album responses locally.
+
+Help requests such as `help`, `hulp`, `wat kun je?` and `welke commando's?`
+return a text-only categorized command list. `Probeer opnieuw` / `retry` replays
+the previous retryable playback request server-side; clients should send the
+user's retry text normally and let the server resolve the prior request.
+
 ## Ask DJ History
 
 Ask DJ history is server-side and HA-user scoped. App clients synchronize through

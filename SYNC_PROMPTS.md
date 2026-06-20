@@ -424,6 +424,21 @@ Requirements:
   expires, so clients should not reconstruct the action locally. Raspberry Pi
   renders Ask DJ read-only and must not render or send follow-up/action controls
   from the Ask DJ screen.
+- Ask DJ clients must render `playback_actions[]` by action `kind` and must not
+  reuse stale image/media metadata from a previous bubble. If a response has no
+  `images[]`, render it as text-only. Output/speaker answers use
+  `kind:"output"` with `Activeer` / `Actief` labels. Pause/stop answers may use
+  `kind:"control"`, `command:"play"` and `label:"Resume"` for a Resume button.
+  Album-discography answers use `kind:"album"` Play Now actions and should be
+  rendered as an album list, optionally with a short intro above it.
+- Ask DJ help phrases such as `help`, `hulp`, `wat kun je?` and
+  `welke commando's?` return a text-only categorized list of supported prompts.
+  Clients should not add media cards or action rows unless the server response
+  includes them.
+- `Probeer opnieuw` / `retry` is resolved server-side against the previous
+  retryable playback request. Clients should send the retry phrase as a normal
+  message and keep the visible user bubble; do not rebuild or replace it with
+  locally stored command text.
 - Ask DJ greetings such as `Goedemorgen` return a personalized morning
   suggestion with confirmation controls. Sleep phrases such as `Ik ga slapen`
   pause playback directly.

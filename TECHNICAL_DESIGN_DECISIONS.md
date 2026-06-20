@@ -129,11 +129,22 @@ Pattern:
   response as Assist speech.
 - Dutch prompts include an instruction to pronounce English artist, album and
   track names in English inside Dutch sentences.
+- Runtime mood is a prompt input, not a user-facing DJ style setting. Numeric
+  client mood is mapped to `chill`, `groove`, `energy` or `party` and the
+  generated DJ announcement receives the matching style guidance. Missing mood
+  keeps the hardcoded default style.
+- Clear direct playback requests are parsed deterministically before relying on
+  stale playback context. Multi-word artist requests such as `speel dj paul
+  elstak` must resolve from the current user text, not from a previous Spotify
+  result.
 - When an artist request starts playback and Spotify returns the concrete
   started track in the command response, the response generator merges that
   just-returned track metadata into the DJ announcement media context. It does
   not read stale `runtime.last_playback` as a substitute for the current
   command result.
+- Album playback responses keep album and track fields separate. Album requests
+  put the requested album in album metadata; when Spotify starts the first track,
+  that track becomes the track/title field used in announcement text.
 - Prompt leaks, Spotify URIs, structured dictionaries and Home Assistant
   device-lookup errors are blocked before they can be sent to a device.
 

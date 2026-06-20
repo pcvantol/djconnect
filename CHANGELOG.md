@@ -1,5 +1,32 @@
 # Changelog
 
+## Unreleased
+
+- Refresh the public and cross-repo Ask DJ documentation for help prompts,
+  speaker/output actions, album lists, retry behavior, Resume controls,
+  deterministic playback parsing and mood-driven DJ announcements.
+
+## 3.1.74
+
+- Fix album playback announcements so album requests keep album and first-track
+  metadata separate, for example Radiohead `OK Computer` with first track
+  `Airbag`.
+- Route `hervat muziek` / `resume music` directly to backend playback and return
+  a `Resume` action after pause/stop responses.
+- Improve Ask DJ playback parsing for clear multi-word artist requests such as
+  `speel dj paul elstak` so stale previous playback context is not reused.
+
+## 3.1.73
+
+- Add text-only Ask DJ help output for `help`, `hulp` and
+  `welke commando's`, including a categorized list of supported prompt options.
+- Return speaker/output questions as a text list plus `Activeer` output actions,
+  without reusing artwork from a previous music response.
+- Return album-discography questions as album lists with direct Play Now album
+  actions.
+- Make `Probeer opnieuw` replay the previous retryable playback request instead
+  of treating the retry phrase as a new music query.
+
 ## 3.1.72
 
 - Require a pairing/bootstrap proof before HACS requests a central `djci_` install token, avoiding blind/public token minting without adding a global HACS secret.

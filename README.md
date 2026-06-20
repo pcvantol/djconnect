@@ -840,6 +840,30 @@ available and returns a neatly formatted list with date, location and URL; the
 same URLs are also returned in `links[]` with `source: bandsintown` so clients
 can show them as clickable sources.
 
+Ask DJ also has a few structured utility responses that clients should render
+directly from the returned fields:
+
+- `help`, `hulp`, `wat kun je?` and `welke commando's?` return a text-only,
+  categorized list of prompt examples.
+- `welke speakers zijn er?`, `wissel van uitvoer` and similar output requests
+  return a text intro plus `playback_actions[]` with `kind:"output"` and
+  `Activeer`/`Actief` labels for the available Spotify Connect devices.
+- Album list questions return bullets plus `kind:"album"` Play Now actions.
+- `stop muziek` / `pauzeer muziek` pauses playback and can return a
+  `kind:"control"`, `command:"play"`, `label:"Resume"` action.
+- `hervat muziek` and `start muziek` execute playback immediately.
+- `Probeer opnieuw` replays the previous retryable playback request server-side.
+
+Clients must not reuse artwork or metadata from the previous bubble when the new
+response is text-only or contains a different action type. For example, a
+speaker/output list should never show old album art, and a help response should
+not show a music card.
+
+Runtime mood from Apple clients can shape DJ announcement style. Clients send a
+numeric `mood` from `0` to `100`; Home Assistant maps it to `chill`, `groove`,
+`energy` or `party` and adds that style context to the generated DJ response.
+If no mood is available, DJConnect uses the default announcement style.
+
 DJConnect can also add ambient Ask DJ messages without a user question when the
 Spotify backend observes that playback moved to another artist/album
 combination. These messages are text-only fun facts in the Ask DJ history with

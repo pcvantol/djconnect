@@ -39,6 +39,10 @@
 - Confirm Dutch DJ announcements pronounce English artist, album and track names naturally in TTS.
 - Confirm a new PTT request such as Nirvana does not reuse previous Spotify playback metadata such as Red Hot Chili Peppers in the DJ aankondiging.
 - Confirm artist requests that start a concrete Spotify track include that returned track in the generative DJ aankondiging prompt.
+- Confirm Ask DJ output/speaker questions render a text list plus `Activeer` actions without old album art.
+- Confirm Ask DJ album-list questions render album bullets plus direct Play Now album actions.
+- Confirm `Probeer opnieuw` replays the previous retryable playback request and keeps the visible retry bubble in client history.
+- Confirm `stop muziek` shows a Resume action and `hervat muziek` starts playback directly.
 - Confirm repeated iOS/macOS/watchOS/Raspberry Pi PTT requests reuse or serialize Spotify token refresh without false `invalid_grant` repairs.
 - Confirm artist queue/up-next selection does not send invalid Spotify artist offset payloads.
 - Confirm friendly DJ fallback response is returned when Spotify playback fails.
