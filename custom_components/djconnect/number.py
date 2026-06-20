@@ -92,7 +92,7 @@ class DJConnectVolumeNumber(NumberEntity):
 
     @property
     def native_value(self) -> float | None:
-        value = _volume_value(self.runtime.device_status)
+        value = _volume_value(self.runtime)
         if value is None or value < MIN_VOLUME:
             return None
         return min(MAX_VOLUME, value)
@@ -117,12 +117,28 @@ class DJConnectVolumeNumber(NumberEntity):
             self.runtime.listeners.remove(self._handle_runtime_update)
 
 
-def _volume_value(status: dict[str, Any]) -> float | None:
-    for key in ("volume", "volume_percent", "volume_percent_local"):
-        if key not in status:
+def _volume_value(runtime_or_status: Any) -> float | None:
+    if isinstance(runtime_or_status, dict):
+        return _volume_from_mapping(runtime_or_status)
+    playback = getattr(runtime_or_status, "last_playback", None) or {}
+    value = _volume_from_mapping(playback)
+    if value is not None:
+        return value
+    device = playback.get("device") if isinstance(playback, dict) else None
+    if isinstance(device, dict):
+        value = _volume_from_mapping(device)
+        if value is not None:
+            return value
+    status = getattr(runtime_or_status, "device_status", {}) or {}
+    return _volume_from_mapping(status)
+
+
+def _volume_from_mapping(source: dict[str, Any]) -> float | None:
+    for key in ("volume_percent", "volume", "volume_percent_local", "device_volume"):
+        if key not in source:
             continue
         try:
-            return float(status[key])
+            return float(source[key])
         except (TypeError, ValueError):
             return None
     return None

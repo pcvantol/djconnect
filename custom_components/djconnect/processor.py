@@ -15,6 +15,7 @@ from .pipeline import (
 )
 from .memory import prompt_context_text
 from .mood import enrich_payload_with_mood_zone
+from .music_intent import parse_spoken_music_request
 from .spotify import play_from_intent
 from .spotify_backend import SpotifyBackendError, handle_spotify_command
 
@@ -79,7 +80,7 @@ async def process_text_command(
         memory_payload=memory_payload,
         user_id=user_id,
     )
-    intent = await _process_text_with_optional_memory(
+    intent = _deterministic_playback_intent(corrected_text) or await _process_text_with_optional_memory(
         hass,
         corrected_text,
         conf,
@@ -138,6 +139,38 @@ async def _memory_context_for_assist(
         return None
     context = await context_getter(runtime, memory_payload, user_id=user_id)
     return prompt_context_text(context)
+
+
+def _deterministic_playback_intent(text: str) -> dict[str, Any]:
+    """Use the local parser for clear artist playback requests to avoid stale Assist context."""
+    parsed = parse_spoken_music_request(text)
+    media_type = str(parsed.get("type") or "").strip().lower()
+    query = str(parsed.get("query") or "").strip()
+    artist = str(parsed.get("artist") or "").strip()
+    if media_type != "artist" or not query:
+        return {}
+    if not _is_clear_artist_play_request(text, artist or query):
+        return {}
+    return {
+        "intent": "play_music",
+        "type": "artist",
+        "artist": artist or query,
+        "title": None,
+        "playlist": None,
+        "query": query,
+        "spotify_search_query": query,
+        "dj_announcement": "Daar gaan we. Ik zet hem voor je klaar.",
+    }
+
+
+def _is_clear_artist_play_request(text: str, artist: str) -> bool:
+    normalized = " ".join(str(text or "").strip().lower().split())
+    if not normalized.startswith(("speel ", "start ", "draai ", "zet ", "play ", "put on ")):
+        return False
+    artist_normalized = " ".join(str(artist or "").strip().lower().split())
+    if not artist_normalized:
+        return False
+    return artist_normalized.startswith("dj ") or len(artist_normalized.split()) >= 2
 
 
 async def _process_text_with_optional_memory(
@@ -694,8 +727,12 @@ def _dj_response_media(
         return intent_media or intent
     resolved = _resolved_media(playback, allow_device_response=False)
     device_response_media = _device_response_media(playback)
+    if intent_media and _media_context_conflicts(intent_media, resolved):
+        return intent_media
     if resolved:
         return _merge_media_context(resolved, device_response_media)
+    if intent_media and _media_context_conflicts(intent_media, device_response_media):
+        return intent_media
     if playback.get("media_content_id"):
         return _merge_media_context(intent_media or intent, device_response_media)
     return device_response_media or intent_media or intent
@@ -770,6 +807,23 @@ def _conflicting_artist(base: dict[str, Any], extra: dict[str, Any]) -> bool:
     base_artist = _normalized_text(_first_text(base, "artist", "artist_name"))
     extra_artist = _normalized_text(_first_text(extra, "artist", "artist_name"))
     return bool(base_artist and extra_artist and base_artist != extra_artist)
+
+
+def _media_context_conflicts(expected: dict[str, Any], actual: dict[str, Any]) -> bool:
+    if not expected or not actual:
+        return False
+    pairs = (
+        (("artist", "artist_name"), ("artist", "artist_name")),
+        (("title", "track", "track_name", "name"), ("title", "track", "track_name", "name")),
+        (("album", "album_name"), ("album", "album_name")),
+        (("playlist", "name"), ("playlist", "name")),
+    )
+    for expected_keys, actual_keys in pairs:
+        expected_value = _normalized_text(_first_text(expected, *expected_keys))
+        actual_value = _normalized_text(_first_text(actual, *actual_keys))
+        if expected_value and actual_value and expected_value != actual_value:
+            return True
+    return False
 
 
 def _normalized_text(value: str) -> str:

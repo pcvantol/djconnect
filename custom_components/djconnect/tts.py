@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
+import html
+import re
 from typing import Any
 
 from homeassistant.core import HomeAssistant
@@ -124,10 +126,70 @@ def _tts_media_source_kwargs(
     conf: dict,
 ) -> tuple[dict[str, Any], ...]:
     values: list[dict[str, Any]] = []
+    texts = _tts_text_candidates(text)
     for pipeline in _tts_pipeline_candidates(hass, conf):
-        values.extend(_tts_kwargs_for_pipeline(text, pipeline))
-    values.append({"message": text})
+        for candidate in texts:
+            values.extend(_tts_kwargs_for_pipeline(candidate, pipeline))
+    for candidate in texts:
+        values.append({"message": candidate})
     return tuple(values)
+
+
+def _tts_text_candidates(text: str) -> tuple[str, ...]:
+    ssml = _ssml_with_english_title_hints(text)
+    if ssml == text:
+        return (text,)
+    return (ssml, text)
+
+
+def _ssml_with_english_title_hints(text: str) -> str:
+    value = str(text or "")
+    if not value.strip():
+        return value
+    parts: list[str] = []
+    replacements = 0
+    last_end = 0
+    for match in re.finditer(r'(["“”])([^"“”]{2,80})(["“”])', value):
+        parts.append(html.escape(value[last_end : match.start()]))
+        open_quote = match.group(1)
+        content = match.group(2).strip()
+        close_quote = match.group(3)
+        if not _looks_like_english_title(content):
+            parts.append(html.escape(match.group(0)))
+            last_end = match.end()
+            continue
+        replacements += 1
+        parts.append(
+            f'{html.escape(open_quote)}<lang xml:lang="en-US">'
+            f"{html.escape(content)}</lang>{html.escape(close_quote)}"
+        )
+        last_end = match.end()
+    if replacements == 0:
+        return value
+    parts.append(html.escape(value[last_end:]))
+    body = "".join(parts)
+    return f"<speak>{body}</speak>"
+
+
+def _looks_like_english_title(value: str) -> bool:
+    text = str(value or "").strip()
+    if not text or not re.search(r"[A-Za-z]", text):
+        return False
+    dutch_markers = {
+        " de ",
+        " het ",
+        " een ",
+        " van ",
+        " voor ",
+        " naar ",
+        " met ",
+        " mijn ",
+        " jouw ",
+    }
+    padded = f" {text.lower()} "
+    if any(marker in padded for marker in dutch_markers):
+        return False
+    return bool(re.search(r"[A-Z]", text) or re.search(r"[-()]", text))
 
 
 def _tts_kwargs_for_pipeline(text: str, pipeline: Any) -> list[dict[str, Any]]:

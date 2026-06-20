@@ -751,20 +751,22 @@ class ConfigFlowHelperTest(unittest.TestCase):
             self.config_flow._setup_method_names(nl_hass)[
                 self.const.SETUP_METHOD_PAIR_EXISTING
             ],
-            "DJConnect app of device koppelen",
+            "DJConnect client koppelen\n"
+            "iOS, macOS, Apple Watch, Raspberry Pi/Linux of ESP32.",
         )
         self.assertEqual(
             self.config_flow._setup_method_names(en_hass)[
                 self.const.SETUP_METHOD_PAIR_EXISTING
             ],
-            "Pair DJConnect app or device",
+            "Pair DJConnect client\n"
+            "iOS, macOS, Apple Watch, Raspberry Pi/Linux or ESP32.",
         )
         self.assertEqual(
             self.config_flow._setup_method_names(nl_hass)[
                 self.const.SETUP_METHOD_CONVERSATION_AGENT
             ],
-            "Assist Conversation Agent\n"
-            "Geen DJConnect koppelcode nodig.",
+            "DJConnect DJ Assist-agent\n"
+            "Voor Home Assistant Assist-satellites.",
         )
         self.assertEqual(
             self.config_flow._setup_method_names(nl_hass)[

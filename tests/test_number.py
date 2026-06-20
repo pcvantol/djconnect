@@ -101,6 +101,28 @@ class NumberTest(unittest.TestCase):
 
         self.assertEqual(entity.native_value, 60.0)
 
+    def test_volume_prefers_spotify_playback_over_app_status_default(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            device_status={"client_type": "ios", "volume": 0},
+            last_playback={"volume_percent": 30},
+            listeners=[],
+        )
+        entity = self.number.DJConnectVolumeNumber(runtime, object())
+
+        self.assertEqual(entity.native_value, 30.0)
+
+    def test_volume_reads_nested_spotify_device_volume(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            device_status={"client_type": "ios", "volume": 0},
+            last_playback={"device": {"volume_percent": 42}},
+            listeners=[],
+        )
+        entity = self.number.DJConnectVolumeNumber(runtime, object())
+
+        self.assertEqual(entity.native_value, 42.0)
+
     def test_device_setting_numbers_read_firmware_aliases(self) -> None:
         runtime = types.SimpleNamespace(
             entry=types.SimpleNamespace(entry_id="entry-1"),

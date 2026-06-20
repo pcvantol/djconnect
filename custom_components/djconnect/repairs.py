@@ -10,8 +10,11 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers import issue_registry as ir
 
 from .const import (
+    CLIENT_TYPE_CONVERSATION_AGENT,
+    CONF_CLIENT_TYPE,
     CONF_DEVICE_TOKEN,
     CONF_HA_EXTERNAL_URL,
+    CONF_SETUP_METHOD,
     CONF_SPOTIFY_CLIENT_ID,
     CONF_SPOTIFY_MARKET,
     CONF_SPOTIFY_REFRESH_TOKEN,
@@ -19,6 +22,7 @@ from .const import (
     DEFAULT_SPOTIFY_MARKET,
     DEFAULT_SPOTIFY_SCOPES,
     DOMAIN,
+    SETUP_METHOD_CONVERSATION_AGENT,
 )
 from .spotify_oauth import (
     build_authorize_url,
@@ -61,11 +65,17 @@ SPOTIFY_REPAIR_EXTERNAL_TEXT = {
 
 
 async def async_create_fixable_issues(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    if not _entry_value(entry, CONF_DEVICE_TOKEN):
+    missing_device_token_issue_id = f"{entry.entry_id}_missing_device_token"
+    if not _entry_requires_device_token(entry):
+        try:
+            ir.async_delete_issue(hass, DOMAIN, missing_device_token_issue_id)
+        except Exception:  # noqa: BLE001
+            pass
+    elif not _entry_value(entry, CONF_DEVICE_TOKEN):
         ir.async_create_issue(
             hass,
             DOMAIN,
-            f"{entry.entry_id}_missing_device_token",
+            missing_device_token_issue_id,
             is_fixable=False,
             severity=ir.IssueSeverity.WARNING,
             translation_key="missing_device_token",
@@ -106,6 +116,16 @@ def _entry_value(entry: ConfigEntry, key: str) -> Any:
     data = getattr(entry, "data", {}) or {}
     options = getattr(entry, "options", {}) or {}
     return data.get(key) or options.get(key)
+
+
+def _entry_requires_device_token(entry: ConfigEntry) -> bool:
+    """Return false for entry types that intentionally have no DJConnect client token."""
+    client_type = str(_entry_value(entry, CONF_CLIENT_TYPE) or "").strip()
+    setup_method = str(_entry_value(entry, CONF_SETUP_METHOD) or "").strip()
+    return not (
+        client_type == CLIENT_TYPE_CONVERSATION_AGENT
+        or setup_method == SETUP_METHOD_CONVERSATION_AGENT
+    )
 
 
 async def async_create_fix_flow(

@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "DJConnect instellen",
-        "description": "Kies of je een DJConnect client koppelt, eerst WiFi via Bluetooth schrijft, of alleen de Assist Conversation Agent instelt.",
+        "description": "Kies de DJConnect DJ Assist-agent voor Home Assistant Assist-satellites, of koppel een DJConnect client: iOS, macOS, Apple Watch, Raspberry Pi/Linux of ESP32.",
         "data": {
           "setup_method": "Setup methode"
         }
@@ -115,6 +115,14 @@
           "djconnect_install_token": "Geheime per-install token. DJConnect vult deze normaal automatisch in; plak deze token nooit in issues of logs.",
           "options_action": "Sla supportinstellingen op, of roteer de token via de centrale DJConnect API."
         }
+      },
+      "spotify_reauth": {
+        "title": "Spotify opnieuw autoriseren",
+        "description": "Home Assistant opent Spotify om DJConnect opnieuw toestemming te geven. Na akkoord keer je terug naar Home Assistant."
+      },
+      "spotify_reauth_done": {
+        "title": "Spotify OAuth gelukt",
+        "description": "DJConnect Spotify OAuth is gelukt. Je kunt dit venster sluiten; Home Assistant beheert Spotify playback nu zelf."
       }
     },
     "error": {
@@ -192,6 +200,14 @@
           "djconnect_install_token": "Geheime per-install token. DJConnect vult deze normaal automatisch in; plak deze token nooit in issues of logs.",
           "options_action": "Sla supportinstellingen op, of roteer de token via de centrale DJConnect API."
         }
+      },
+      "spotify_reauth": {
+        "title": "Spotify opnieuw autoriseren",
+        "description": "Home Assistant opent Spotify om DJConnect opnieuw toestemming te geven. Na akkoord keer je terug naar Home Assistant."
+      },
+      "spotify_reauth_done": {
+        "title": "Spotify OAuth gelukt",
+        "description": "DJConnect Spotify OAuth is gelukt. Je kunt dit venster sluiten; Home Assistant beheert Spotify playback nu zelf."
       }
     },
     "error": {
@@ -338,6 +354,10 @@
     }
   },
   "issues": {
+    "missing_device_token": {
+      "title": "DJConnect client is niet gekoppeld",
+      "description": "Deze DJConnect client mist een lokaal device token. Open de DJConnect opties en kies opnieuw koppelen met een nieuwe koppelcode. Assist-agent-only entries hebben geen device token nodig."
+    },
     "missing_spotify_oauth_scopes": {
       "title": "Spotify autorisatie mist playlist scope",
       "fix_flow": {

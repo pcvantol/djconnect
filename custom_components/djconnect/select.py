@@ -130,9 +130,17 @@ class DJConnectCommandSelect(SelectEntity):
         return options
 
     @property
+    def available(self) -> bool:
+        if self.status_key == "sound_output":
+            return bool(self.options)
+        return True
+
+    @property
     def current_option(self) -> str | None:
         if self.status_key == "sound_output":
             return _current_sound_output(self.runtime)
+        if self.status_key == "repeat_state":
+            return _current_repeat_state(self.runtime)
         if self.status_key == "turn_off_after":
             return _current_turn_off_after(self.runtime.device_status)
         value = self.runtime.device_status.get(self.status_key)
@@ -245,6 +253,40 @@ def _current_sound_output(runtime: Any) -> str | None:
                 label = value.get("name") or value.get("id")
                 if label not in (None, ""):
                     return str(label)
+    return None
+
+
+def _current_repeat_state(runtime: Any) -> str | None:
+    status = runtime.device_status
+    playback = runtime.last_playback or {}
+    for source in (status, playback):
+        if not isinstance(source, dict):
+            continue
+        for key in ("repeat_state", "repeat"):
+            normalized = _normalize_repeat_state(source.get(key))
+            if normalized is not None:
+                return normalized
+    return None
+
+
+def _normalize_repeat_state(value: Any) -> str | None:
+    if value in (None, ""):
+        return None
+    normalized = str(value).strip().lower()
+    aliases = {
+        "none": "off",
+        "no": "off",
+        "false": "off",
+        "0": "off",
+        "one": "track",
+        "song": "track",
+        "true": "context",
+        "1": "context",
+        "all": "context",
+    }
+    normalized = aliases.get(normalized, normalized)
+    if normalized in {"off", "track", "context"}:
+        return normalized
     return None
 
 

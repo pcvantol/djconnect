@@ -155,6 +155,30 @@ class DJConnectSelectTest(unittest.TestCase):
         self.assertIn(("set_repeat", "track", None), calls)
         self.assertEqual(runtime.device_status["repeat_state"], "track")
 
+    def test_repeat_select_uses_status_aliases_and_last_playback(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            config={"client_type": "ios"},
+            device_status={"client_type": "ios", "repeat": "one"},
+            last_playback={},
+            listeners=[],
+        )
+        repeat = self.select.DJConnectCommandSelect(
+            runtime,
+            object(),
+            "repeat_state",
+            "repeat_state",
+            "set_repeat",
+            ["off", "track", "context"],
+        )
+
+        self.assertEqual(repeat.current_option, "track")
+
+        runtime.device_status.pop("repeat")
+        runtime.last_playback = {"repeat_state": "context"}
+
+        self.assertEqual(repeat.current_option, "context")
+
     def test_sound_output_uses_output_alias_and_available_outputs(self) -> None:
         runtime = types.SimpleNamespace(
             entry=types.SimpleNamespace(entry_id="entry-1"),
@@ -242,6 +266,28 @@ class DJConnectSelectTest(unittest.TestCase):
 
         self.assertIn(("devices", None, None), calls)
         self.assertEqual(sound_output.options, ["Living room"])
+        self.assertTrue(sound_output.available)
+
+    def test_sound_output_is_unavailable_until_outputs_are_known(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            config={"client_type": "ios"},
+            device_status={"client_type": "ios"},
+            last_playback={},
+            listeners=[],
+        )
+        sound_output = self.select.DJConnectCommandSelect(
+            runtime,
+            object(),
+            "sound_output",
+            "sound_output",
+            "set_output",
+            [],
+        )
+
+        self.assertEqual(sound_output.options, [])
+        self.assertIsNone(sound_output.current_option)
+        self.assertFalse(sound_output.available)
 
     def test_sound_output_prefers_playback_device_and_active_output(self) -> None:
         runtime = types.SimpleNamespace(

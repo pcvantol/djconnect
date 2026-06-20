@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Set up DJConnect",
-        "description": "Choose whether to pair a DJConnect client, write WiFi over Bluetooth first, or set up only the Assist Conversation Agent.",
+        "description": "Choose the DJConnect DJ Assist-agent for Home Assistant Assist satellites, or pair a DJConnect client: iOS, macOS, Apple Watch, Raspberry Pi/Linux or ESP32.",
         "data": {
           "setup_method": "Setup method"
         }
@@ -115,6 +115,14 @@
           "djconnect_install_token": "Secret per-install token. DJConnect normally fills this automatically; never paste this token in issues or logs.",
           "options_action": "Save support settings, or rotate the token through the central DJConnect API."
         }
+      },
+      "spotify_reauth": {
+        "title": "Reauthorize Spotify",
+        "description": "Home Assistant opens Spotify so DJConnect can be authorized again. After approval you return to Home Assistant."
+      },
+      "spotify_reauth_done": {
+        "title": "Spotify OAuth succeeded",
+        "description": "DJConnect Spotify OAuth succeeded. You can close this window; Home Assistant now manages Spotify playback itself."
       }
     },
     "error": {
@@ -192,6 +200,14 @@
           "djconnect_install_token": "Secret per-install token. DJConnect normally fills this automatically; never paste this token in issues or logs.",
           "options_action": "Save support settings, or rotate the token through the central DJConnect API."
         }
+      },
+      "spotify_reauth": {
+        "title": "Reauthorize Spotify",
+        "description": "Home Assistant opens Spotify so DJConnect can be authorized again. After approval you return to Home Assistant."
+      },
+      "spotify_reauth_done": {
+        "title": "Spotify OAuth succeeded",
+        "description": "DJConnect Spotify OAuth succeeded. You can close this window; Home Assistant now manages Spotify playback itself."
       }
     },
     "error": {
@@ -338,6 +354,10 @@
     }
   },
   "issues": {
+    "missing_device_token": {
+      "title": "DJConnect client is not paired",
+      "description": "This DJConnect client is missing its local device token. Open DJConnect options and choose re-pairing with a new pairing code. Assist-agent-only entries do not need a device token."
+    },
     "missing_spotify_oauth_scopes": {
       "title": "Spotify authorization is missing playlist scope",
       "fix_flow": {

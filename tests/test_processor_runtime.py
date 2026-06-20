@@ -525,6 +525,106 @@ class ProcessorRuntimeTest(unittest.TestCase):
         self.assertEqual(result["dj_text"], "Generated for Nirvana")
         self.assertEqual(runtime.last_dj_text, "Generated for Nirvana")
 
+    def test_clear_multi_word_artist_play_request_uses_local_intent_before_assist(self) -> None:
+        async def assist(*args, **kwargs):
+            raise AssertionError("clear artist playback request must not use stale Assist intent")
+
+        seen_intents = []
+
+        async def play(hass, runtime, intent, conf):
+            seen_intents.append(intent)
+            return {
+                "played": True,
+                "media_content_id": intent["spotify_search_query"],
+                "media_content_type": "artist",
+                "resolved_media": {
+                    "type": "artist",
+                    "artist": "DJ Paul Elstak",
+                    "name": "DJ Paul Elstak",
+                    "image_url": "https://img.example/dj-paul.jpg",
+                },
+            }
+
+        original_assist = self.processor.process_text_with_assist
+        original_play = self.processor.play_from_intent
+        self.processor.process_text_with_assist = assist
+        self.processor.play_from_intent = play
+        runtime = Runtime()
+        try:
+            result = asyncio.run(
+                self.processor.process_text_command(
+                    object(),
+                    runtime,
+                    "speel dj paul elstak",
+                    play=True,
+                )
+            )
+        finally:
+            self.processor.process_text_with_assist = original_assist
+            self.processor.play_from_intent = original_play
+
+        self.assertEqual(seen_intents[0]["type"], "artist")
+        self.assertEqual(seen_intents[0]["artist"], "dj paul elstak")
+        self.assertEqual(seen_intents[0]["spotify_search_query"], "dj paul elstak")
+        self.assertEqual(result["playback"]["resolved_media"]["artist"], "DJ Paul Elstak")
+
+    def test_process_text_command_ignores_conflicting_resolved_media_for_dj_response(self) -> None:
+        async def assist(hass, user_text, conf):
+            return {
+                "type": "artist",
+                "artist": "Nirvana",
+                "spotify_search_query": "Nirvana",
+                "dj_announcement": "Daar gaan we.",
+            }
+
+        async def play(hass, runtime, intent, conf):
+            return {
+                "played": True,
+                "media_content_id": "Nirvana",
+                "media_content_type": "artist",
+                "resolved_media": {
+                    "type": "track",
+                    "title": "Tangled Up - Lokee Remix",
+                    "artist": "Caro Emerald",
+                    "album": "The Shocking Miss Emerald (The Remixes)",
+                },
+            }
+
+        async def generated_dj_response(hass, *, media, fallback_text, conf, debug=None):
+            self.assertEqual(media["artist"], "Nirvana")
+            self.assertNotIn("Caro Emerald", str(media))
+            self.assertNotIn("Caro Emerald", fallback_text)
+            if debug is not None:
+                debug["fallback_used"] = False
+            return "Generated for Nirvana"
+
+        original_assist = self.processor.process_text_with_assist
+        original_play = self.processor.play_from_intent
+        original_dj_response = self.processor.generate_dj_response_with_assist
+        self.processor.process_text_with_assist = assist
+        self.processor.play_from_intent = play
+        self.processor.generate_dj_response_with_assist = generated_dj_response
+        runtime = Runtime()
+        runtime.config = {
+            "dj_response_prompt": "Noem de artiest.",
+            "tts_language": "nl",
+        }
+        try:
+            result = asyncio.run(
+                self.processor.process_text_command(
+                    object(),
+                    runtime,
+                    "speel Nirvana",
+                    play=True,
+                )
+            )
+        finally:
+            self.processor.process_text_with_assist = original_assist
+            self.processor.play_from_intent = original_play
+            self.processor.generate_dj_response_with_assist = original_dj_response
+
+        self.assertEqual(result["dj_text"], "Generated for Nirvana")
+
     def test_current_track_question_reads_status_without_playback_action(self) -> None:
         calls = []
 

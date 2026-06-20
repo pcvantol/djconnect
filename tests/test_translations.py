@@ -105,6 +105,13 @@ ENTITY_TRANSLATION_KEYS = {
     ("media_player", "playback_proxy"),
 }
 
+ISSUE_TRANSLATION_KEYS = {
+    "missing_device_token",
+    "missing_spotify_oauth_scopes",
+    "missing_spotify_refresh_token",
+    "spotify_refresh_token_revoked",
+}
+
 
 class TranslationTest(unittest.TestCase):
     def test_translation_files_cover_base_strings_schema(self) -> None:
@@ -125,6 +132,30 @@ class TranslationTest(unittest.TestCase):
                 errors = data["config"]["error"]
                 missing = CONFIG_FLOW_ERROR_KEYS - set(errors)
                 self.assertFalse(missing, f"Missing {language} translations: {sorted(missing)}")
+
+    def test_spotify_reauth_options_external_step_has_visible_text(self) -> None:
+        for language in ("en", "nl"):
+            with self.subTest(language=language):
+                data = json.loads((TRANSLATIONS / f"{language}.json").read_text())
+                steps = data["options"]["step"]
+                for step_id in ("spotify_reauth", "spotify_reauth_done"):
+                    self.assertIn(step_id, steps)
+                    self.assertTrue(steps[step_id].get("title"))
+                    self.assertTrue(steps[step_id].get("description"))
+
+    def test_repair_issues_have_user_visible_text(self) -> None:
+        for language in ("en", "nl"):
+            with self.subTest(language=language):
+                data = json.loads((TRANSLATIONS / f"{language}.json").read_text())
+                issues = data["issues"]
+                for issue_key in ISSUE_TRANSLATION_KEYS:
+                    self.assertIn(issue_key, issues)
+                    self.assertTrue(issues[issue_key].get("title"))
+                    self.assertTrue(
+                        issues[issue_key].get("description")
+                        or issues[issue_key].get("fix_flow")
+                    )
+                self.assertTrue(issues["missing_device_token"].get("description"))
 
     def test_ble_wifi_fields_are_translated(self) -> None:
         for language in ("en", "nl"):

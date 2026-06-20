@@ -86,6 +86,47 @@ class DJConnectSensorTest(unittest.TestCase):
         runtime.device_status["ha_pairing_status"] = "paired"
         self.assertEqual(entity.native_value, "paired")
 
+    def test_pairing_status_is_paired_for_app_client_with_device_token(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            device_token="device-token",
+            device_status={"client_type": "ios", "device_id": "djconnect-ios-ABCDEFGHIJKL"},
+            listeners=[],
+            client_type=lambda: "ios",
+        )
+        entity = self.sensor.DJConnectPairingStatusSensor(runtime)
+
+        self.assertEqual(entity.native_value, "paired")
+
+    def test_app_client_backend_sensors_prefer_playback_and_keep_unknown_unknown(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            device_token="device-token",
+            device_status={"client_type": "ios"},
+            last_playback={
+                "has_playback": True,
+                "is_playing": True,
+                "device": {"name": "Woonkamer"},
+            },
+            listeners=[],
+            client_type=lambda: "ios",
+        )
+
+        self.assertEqual(self.sensor.DJConnectSoundOutputSensor(runtime).native_value, "Woonkamer")
+        self.assertEqual(self.sensor.DJConnectSpotifyStatusSensor(runtime).native_value, "playing")
+        self.assertTrue(self.sensor.DJConnectPlaybackAvailableSensor(runtime).native_value)
+        self.assertIsNone(self.sensor.DJConnectQueueSensor(runtime).native_value)
+        self.assertIsNone(self.sensor.DJConnectPlaylistsSensor(runtime).native_value)
+        self.assertIsNone(self.sensor.DJConnectOutputsSensor(runtime).native_value)
+
+        runtime.device_status["queue"] = {"items": []}
+        runtime.device_status["playlists"] = []
+        runtime.device_status["available_outputs"] = []
+
+        self.assertEqual(self.sensor.DJConnectQueueSensor(runtime).native_value, 0)
+        self.assertEqual(self.sensor.DJConnectPlaylistsSensor(runtime).native_value, 0)
+        self.assertEqual(self.sensor.DJConnectOutputsSensor(runtime).native_value, 0)
+
     def test_sensor_unique_ids_are_scoped_to_config_entry(self) -> None:
         runtime_a = types.SimpleNamespace(
             entry=types.SimpleNamespace(entry_id="entry-a"),
@@ -534,8 +575,11 @@ class DJConnectSensorTest(unittest.TestCase):
         )
         entity = self.sensor.DJConnectQueueSensor(runtime)
 
-        self.assertEqual(entity.native_value, 0)
+        self.assertIsNone(entity.native_value)
         self.assertEqual(entity.extra_state_attributes["context"], "spotify:playlist:def")
+
+        runtime.device_status["queue"] = []
+        self.assertEqual(entity.native_value, 0)
 
 
 if __name__ == "__main__":

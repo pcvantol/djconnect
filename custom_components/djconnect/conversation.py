@@ -31,6 +31,8 @@ class DJConnectConversationAgent(conversation.ConversationEntity):
 
     _attr_has_entity_name = False
     _attr_name = "DJConnect DJ"
+    _attr_should_poll = False
+    _attr_state = "ready"
 
     def __init__(self, runtime: Any) -> None:
         self._runtime = runtime
@@ -47,6 +49,16 @@ class DJConnectConversationAgent(conversation.ConversationEntity):
             "name": device_name or DEFAULT_DEVICE_NAME,
             "manufacturer": "DJConnect",
         }
+
+    @property
+    def available(self) -> bool:
+        """Return whether the DJConnect conversation agent can process requests."""
+        return True
+
+    @property
+    def state(self) -> str:
+        """Expose a stable state instead of Home Assistant showing unknown."""
+        return "ready"
 
     @property
     def supported_languages(self) -> list[str]:

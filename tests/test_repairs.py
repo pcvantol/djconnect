@@ -100,6 +100,56 @@ class RepairsTest(unittest.TestCase):
 
     def setUp(self) -> None:
         self.issues.clear()
+        install_repairs_stubs.deleted.clear()
+
+    def test_conversation_agent_entry_does_not_create_missing_device_token_issue(self) -> None:
+        entry = types.SimpleNamespace(
+            entry_id="agent-entry",
+            data={
+                "client_type": "conversation_agent",
+                "spotify_client_id": "client-id",
+                "spotify_refresh_token": "refresh-token",
+                "spotify_scopes": (
+                    "user-read-playback-state user-modify-playback-state "
+                    "user-read-currently-playing user-library-read "
+                    "playlist-read-private playlist-read-collaborative "
+                    "playlist-modify-private playlist-modify-public "
+                    "user-read-recently-played user-top-read"
+                ),
+            },
+        )
+
+        asyncio.run(self.repairs.async_create_fixable_issues(object(), entry))
+
+        self.assertEqual(self.issues, [])
+        self.assertIn(
+            {"domain": "djconnect", "issue_id": "agent-entry_missing_device_token"},
+            install_repairs_stubs.deleted,
+        )
+
+    def test_client_entry_missing_device_token_creates_translated_warning(self) -> None:
+        entry = types.SimpleNamespace(
+            entry_id="ios-entry",
+            data={
+                "client_type": "ios",
+                "spotify_client_id": "client-id",
+                "spotify_refresh_token": "refresh-token",
+                "spotify_scopes": (
+                    "user-read-playback-state user-modify-playback-state "
+                    "user-read-currently-playing user-library-read "
+                    "playlist-read-private playlist-read-collaborative "
+                    "playlist-modify-private playlist-modify-public "
+                    "user-read-recently-played user-top-read"
+                ),
+            },
+        )
+
+        asyncio.run(self.repairs.async_create_fixable_issues(object(), entry))
+
+        self.assertEqual(len(self.issues), 1)
+        self.assertEqual(self.issues[0]["issue_id"], "ios-entry_missing_device_token")
+        self.assertEqual(self.issues[0]["translation_key"], "missing_device_token")
+        self.assertFalse(self.issues[0]["is_fixable"])
 
     def test_missing_playlist_scope_creates_reauth_issue(self) -> None:
         entry = types.SimpleNamespace(

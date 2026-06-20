@@ -1451,6 +1451,50 @@ class TtsHelperTest(unittest.TestCase):
         self.assertEqual(result, "media-source://tts/default")
         self.assertEqual(calls[0], {"message": "Daar gaan we."})
 
+    def test_tts_text_candidates_add_english_title_language_hints(self) -> None:
+        text = (
+            'Je luistert naar Nirvana met het nummer "Heart-Shaped Box" '
+            'van het album "In Utero (Deluxe Edition)".'
+        )
+
+        ssml, plain = self.tts._tts_text_candidates(text)
+
+        self.assertEqual(plain, text)
+        self.assertTrue(ssml.startswith("<speak>"))
+        self.assertIn('<lang xml:lang="en-US">Heart-Shaped Box</lang>', ssml)
+        self.assertIn('<lang xml:lang="en-US">In Utero (Deluxe Edition)</lang>', ssml)
+
+    def test_tts_media_source_tries_ssml_then_plain_for_english_titles(self) -> None:
+        calls = []
+        pipeline_module_name = "homeassistant.components.assist_pipeline.pipeline"
+        original_pipeline_module = sys.modules.pop(pipeline_module_name, None)
+
+        class TtsModule:
+            @staticmethod
+            def generate_media_source_id(hass, **kwargs):
+                calls.append(kwargs)
+                if str(kwargs.get("message") or "").startswith("<speak>"):
+                    return None
+                return "media-source://tts/plain"
+
+        text = 'Je luistert naar "Heart-Shaped Box".'
+        try:
+            result = asyncio.run(
+                self.tts._async_generate_tts_media_source_id(
+                    TtsModule,
+                    object(),
+                    text,
+                    {},
+                )
+            )
+        finally:
+            if original_pipeline_module is not None:
+                sys.modules[pipeline_module_name] = original_pipeline_module
+
+        self.assertEqual(result, "media-source://tts/plain")
+        self.assertTrue(calls[0]["message"].startswith("<speak>"))
+        self.assertEqual(calls[1], {"message": text})
+
 
 if __name__ == "__main__":
     unittest.main()

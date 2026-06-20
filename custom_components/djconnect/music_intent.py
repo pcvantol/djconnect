@@ -48,6 +48,8 @@ _TRACK_QUERY_PATTERNS = (
 )
 
 _ARTIST_WITH_TRACK_QUERY_PATTERNS = (
+    r"^\s*(?:speel|start|zet|draai)\s+(.+?)\s*[,;:–-]\s*(.+?)\s*(?:op|af|aan)?\s*$",
+    r"^\s*(?:play|start|put\s+on)\s+(.+?)\s*[,;:–-]\s*(.+?)\s*$",
     rf"^\s*(?:speel|start|zet|draai)\s+(?:artiest|band)\s+(.+?)\s+met\s+(?:het\s+|de\s+|die\s+)?{_TRACK_WORDS}\s+(.+?)\s*(?:op|af|aan)?\s*$",
     rf"^\s*(?:artiest|band)\s+(.+?)\s+met\s+(?:het\s+|de\s+|die\s+)?{_TRACK_WORDS}\s+(.+?)\s*$",
     r"^\s*(?:play|start|put\s+on)\s+(?:artist|band)\s+(.+?)\s+with\s+(?:the\s+)?(?:song|track)\s+(.+?)\s*$",

@@ -106,18 +106,24 @@ SPOTIFY_MARKET_NAMES = {
 }
 SETUP_METHOD_NAMES_EN = {
     SETUP_METHOD_CONVERSATION_AGENT: (
-        "Assist Conversation Agent\n"
-        "No DJConnect pairing code needed."
+        "DJConnect DJ Assist-agent\n"
+        "For Home Assistant Assist satellites."
     ),
-    SETUP_METHOD_PAIR_EXISTING: "Pair DJConnect app or device",
+    SETUP_METHOD_PAIR_EXISTING: (
+        "Pair DJConnect client\n"
+        "iOS, macOS, Apple Watch, Raspberry Pi/Linux or ESP32."
+    ),
     SETUP_METHOD_BLE_WIFI: "Configure ESP32 device WiFi (over Bluetooth)",
 }
 SETUP_METHOD_NAMES_NL = {
     SETUP_METHOD_CONVERSATION_AGENT: (
-        "Assist Conversation Agent\n"
-        "Geen DJConnect koppelcode nodig."
+        "DJConnect DJ Assist-agent\n"
+        "Voor Home Assistant Assist-satellites."
     ),
-    SETUP_METHOD_PAIR_EXISTING: "DJConnect app of device koppelen",
+    SETUP_METHOD_PAIR_EXISTING: (
+        "DJConnect client koppelen\n"
+        "iOS, macOS, Apple Watch, Raspberry Pi/Linux of ESP32."
+    ),
     SETUP_METHOD_BLE_WIFI: "ESP32 device WiFi configureren (via Bluetooth)",
 }
 BLE_ACTION_NAMES_EN = {

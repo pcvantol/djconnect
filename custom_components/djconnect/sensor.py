@@ -358,7 +358,13 @@ class DJConnectSpotifyStatusSensor(DJConnectBaseSensor):
 
     @property
     def native_value(self):
-        return self.runtime.device_status.get("spotify_status")
+        status = self.runtime.device_status.get("spotify_status")
+        if status not in (None, "", "unknown"):
+            return status
+        playback = self.runtime.last_playback or {}
+        if playback.get("has_playback"):
+            return "playing" if playback.get("is_playing") else "idle"
+        return None
 
 
 class DJConnectPairingStatusSensor(DJConnectBaseSensor):
@@ -370,6 +376,8 @@ class DJConnectPairingStatusSensor(DJConnectBaseSensor):
         status = self.runtime.device_status.get("ha_pairing_status")
         if status:
             return status
+        if _runtime_client_type(self.runtime) != CLIENT_TYPE_ESP32 and self.runtime.device_token:
+            return "paired"
         if self.runtime.device_token:
             return "pending"
         return "not_paired"
@@ -381,6 +389,10 @@ class DJConnectSoundOutputSensor(DJConnectBaseSensor):
 
     @property
     def native_value(self):
+        playback = self.runtime.last_playback or {}
+        device = playback.get("device") if isinstance(playback, dict) else None
+        if isinstance(device, dict) and device.get("name"):
+            return device.get("name")
         return self.runtime.device_status.get("sound_output") or self.runtime.device_status.get(
             "output"
         )
@@ -393,9 +405,12 @@ class DJConnectPlaybackAvailableSensor(DJConnectBaseSensor):
     @property
     def native_value(self):
         playback = self.runtime.last_playback or {}
-        return bool(playback.get("has_playback")) or self.runtime.device_status.get(
-            "backend_available"
-        )
+        if playback.get("has_playback") is not None:
+            return bool(playback.get("has_playback"))
+        backend_available = self.runtime.device_status.get("backend_available")
+        if backend_available is not None:
+            return bool(backend_available)
+        return None
 
 
 class DJConnectQueueSensor(DJConnectBaseSensor):
@@ -404,7 +419,10 @@ class DJConnectQueueSensor(DJConnectBaseSensor):
 
     @property
     def native_value(self):
-        return len(_collection_items(self.runtime.device_status.get("queue")))
+        queue = self.runtime.device_status.get("queue")
+        if queue is None:
+            return None
+        return len(_collection_items(queue))
 
     @property
     def extra_state_attributes(self):
@@ -425,12 +443,15 @@ class DJConnectPlaylistsSensor(DJConnectBaseSensor):
 
     @property
     def native_value(self):
-        playlists = self.runtime.device_status.get("playlists") or []
+        playlists = self.runtime.device_status.get("playlists")
+        if playlists is None:
+            return None
         return len(playlists) if isinstance(playlists, list) else None
 
     @property
     def extra_state_attributes(self):
-        return {"items": self.runtime.device_status.get("playlists") or []}
+        playlists = self.runtime.device_status.get("playlists")
+        return {"items": playlists if isinstance(playlists, list) else []}
 
 
 class DJConnectOutputsSensor(DJConnectBaseSensor):
@@ -439,12 +460,15 @@ class DJConnectOutputsSensor(DJConnectBaseSensor):
 
     @property
     def native_value(self):
-        outputs = self.runtime.device_status.get("available_outputs") or []
+        outputs = self.runtime.device_status.get("available_outputs")
+        if outputs is None:
+            return None
         return len(outputs) if isinstance(outputs, list) else None
 
     @property
     def extra_state_attributes(self):
-        return {"items": self.runtime.device_status.get("available_outputs") or []}
+        outputs = self.runtime.device_status.get("available_outputs")
+        return {"items": outputs if isinstance(outputs, list) else []}
 
 
 class DJConnectScreenStateSensor(DJConnectBaseSensor):
