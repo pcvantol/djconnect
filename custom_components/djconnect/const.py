@@ -3,7 +3,7 @@ from __future__ import annotations
 
 DOMAIN = "djconnect"
 NAME = "DJConnect"
-VERSION = "3.1.69"
+VERSION = "3.1.70"
 
 API_BASE = "/api/djconnect"
 API_PAIR = f"{API_BASE}/pair"
@@ -38,6 +38,9 @@ CONF_SETUP_METHOD = "setup_method"
 CONF_BLE_ADDRESS = "ble_address"
 CONF_WIFI_SSID = "wifi_ssid"
 CONF_WIFI_PASSWORD = "wifi_password"
+CONF_API_BASE_URL = "api_base_url"
+CONF_HA_INSTALL_ID = "ha_install_id"
+CONF_DJCONNECT_INSTALL_TOKEN = "djconnect_install_token"
 
 CONF_SPOTIFY_CLIENT_ID = "spotify_client_id"
 CONF_SPOTIFY_REFRESH_TOKEN = "spotify_refresh_token"
@@ -92,6 +95,7 @@ SETUP_METHOD_PAIR_EXISTING = "pair_existing"
 SETUP_METHOD_BLE_WIFI = "ble_wifi"
 SETUP_METHOD_CONVERSATION_AGENT = "conversation_agent"
 DEFAULT_SETUP_METHOD = SETUP_METHOD_CONVERSATION_AGENT
+DEFAULT_API_BASE_URL = "https://api.djconnect.dev"
 DEFAULT_SPOTIFY_MARKET = "NL"
 DEFAULT_MAX_AUDIO_BYTES = 2_000_000
 DEFAULT_FIRMWARE_REPO = "pcvantol/djconnect-firmware"

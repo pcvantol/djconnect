@@ -21,6 +21,7 @@ from custom_components.djconnect import register_http_views
 
 from .const import (
     CONF_ALLOW_OTA_ON_BATTERY,
+    CONF_API_BASE_URL,
     CONF_ASSIST_PIPELINE_ID,
     CONF_BLE_ADDRESS,
     CONF_CLIENT_TYPE,
@@ -28,11 +29,13 @@ from .const import (
     CONF_DEVICE_LANGUAGE,
     CONF_DEVICE_NAME,
     CONF_DEVICE_TOKEN,
+    CONF_DJCONNECT_INSTALL_TOKEN,
     CONF_DJ_RESPONSE_ENABLED,
     CONF_DJ_RESPONSE_PROMPT,
     CONF_DJ_RESPONSE_TTL_SECONDS,
     CONF_FIRMWARE_CHANNEL,
     CONF_HA_EXTERNAL_URL,
+    CONF_HA_INSTALL_ID,
     CONF_LOCAL_URL,
     CONF_MAX_AUDIO_BYTES,
     CONF_MIN_BATTERY_FOR_OTA,
@@ -46,6 +49,7 @@ from .const import (
     CONF_WIFI_PASSWORD,
     CONF_WIFI_SSID,
     DEFAULT_ASSIST_PIPELINE_ID,
+    DEFAULT_API_BASE_URL,
     CLIENT_TYPE_CONVERSATION_AGENT,
     DEFAULT_CLIENT_TYPE,
     DEFAULT_DEVICE_NAME,
@@ -68,6 +72,7 @@ from .const import (
     SETUP_METHOD_CONVERSATION_AGENT,
     SETUP_METHOD_PAIR_EXISTING,
 )
+from .central_api import TOKEN_PREFIX, async_rotate_install_token
 from .ble import async_discover_devices, async_provision_wifi
 from .discovery import DiscoveredClient, async_discover_djconnect_clients
 from .spotify_oauth import build_authorize_url, build_redirect_uri, create_code_verifier
@@ -81,6 +86,8 @@ OPTIONS_ACTION_SAVE = "save_options"
 OPTIONS_ACTION_RETRY_PAIRING = "retry_device_pairing"
 OPTIONS_ACTION_REPAIR = "repair_device_pairing"
 OPTIONS_ACTION_SPOTIFY_REAUTH = "spotify_reauthorize"
+OPTIONS_ACTION_CENTRAL_API = "central_api"
+OPTIONS_ACTION_ROTATE_INSTALL_TOKEN = "rotate_install_token"
 BLE_ACTION_FIELD = "ble_action"
 BLE_ACTION_PROVISION = "provision_wifi"
 BLE_ACTION_RETRY_SCAN = "retry_ble_scan"
@@ -225,6 +232,28 @@ def _conversation_agent_options_actions(hass: Any) -> dict[str, str]:
         OPTIONS_ACTION_SAVE: names[OPTIONS_ACTION_SAVE],
         OPTIONS_ACTION_SPOTIFY_REAUTH: names[OPTIONS_ACTION_SPOTIFY_REAUTH],
     }
+
+
+def _central_api_install_id(current: dict[str, Any]) -> str:
+    value = str(current.get(CONF_HA_INSTALL_ID) or "").strip()
+    return value or f"ha_{secrets.token_urlsafe(24)}"
+
+
+def _valid_install_token(value: Any) -> bool:
+    token = str(value or "").strip()
+    return token.startswith(TOKEN_PREFIX) and len(token) > len(TOKEN_PREFIX)
+
+
+def _password_selector() -> Any:
+    text_selector = getattr(selector, "TextSelector", None)
+    text_config = getattr(selector, "TextSelectorConfig", None)
+    text_type = getattr(selector, "TextSelectorType", None)
+    if text_selector and text_config and text_type:
+        try:
+            return text_selector(text_config(type=text_type.PASSWORD))
+        except Exception:  # noqa: BLE001
+            pass
+    return str
 
 
 def _manual_discovery_label(hass: Any) -> str:
@@ -680,6 +709,39 @@ def _conversation_agent_voice_schema(defaults: dict[str, Any]) -> vol.Schema:
         ): _entity_allowlist_selector(),
     }
     return vol.Schema(schema)
+
+
+def _central_api_schema(current: dict[str, Any]) -> vol.Schema:
+    """Build the central DJConnect API token options schema."""
+    install_id = _central_api_install_id(current)
+    token = str(current.get(CONF_DJCONNECT_INSTALL_TOKEN) or "").strip()
+    schema: dict[Any, Any] = {
+        vol.Optional(
+            CONF_API_BASE_URL,
+            default=str(current.get(CONF_API_BASE_URL) or DEFAULT_API_BASE_URL),
+        ): str,
+        vol.Optional(CONF_HA_INSTALL_ID, default=install_id): vol.In({install_id: install_id}),
+        vol.Optional(CONF_DJCONNECT_INSTALL_TOKEN, default=token): _password_selector(),
+        vol.Optional(OPTIONS_ACTION_FIELD, default=OPTIONS_ACTION_SAVE): vol.In(
+            {
+                OPTIONS_ACTION_SAVE: "Save token",
+                OPTIONS_ACTION_ROTATE_INSTALL_TOKEN: "Rotate token",
+            }
+        ),
+    }
+    return vol.Schema(schema)
+
+
+def _central_api_errors(user_input: dict[str, Any]) -> dict[str, str]:
+    """Validate central DJConnect API settings."""
+    errors: dict[str, str] = {}
+    base_url = str(user_input.get(CONF_API_BASE_URL) or "").strip()
+    if not _is_https_url(base_url):
+        errors[CONF_API_BASE_URL] = "central_api_url_invalid"
+    token = str(user_input.get(CONF_DJCONNECT_INSTALL_TOKEN) or "").strip()
+    if not _valid_install_token(token):
+        errors[CONF_DJCONNECT_INSTALL_TOKEN] = "install_token_invalid"
+    return errors
 
 
 async def _voice_schema(
@@ -1364,6 +1426,8 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
             action = user_input.get(OPTIONS_ACTION_FIELD)
             if action == OPTIONS_ACTION_SPOTIFY_REAUTH:
                 return await self.async_step_spotify_reauth()
+            if action == OPTIONS_ACTION_CENTRAL_API:
+                return await self.async_step_central_api()
             if action == OPTIONS_ACTION_RETRY_PAIRING:
                 return await self._async_retry_pairing()
             if action == OPTIONS_ACTION_REPAIR:
@@ -1390,6 +1454,59 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
         return self.async_show_form(
             step_id="init",
             data_schema=_conversation_agent_options_schema(self.hass, current),
+            errors=errors,
+        )
+
+    async def async_step_central_api(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> FlowResult:
+        """Configure the per-install DJConnect central API token."""
+        current = {**self._config_entry.data, **self._config_entry.options}
+        current.setdefault(CONF_API_BASE_URL, DEFAULT_API_BASE_URL)
+        current.setdefault(CONF_HA_INSTALL_ID, _central_api_install_id(current))
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            action = user_input.get(OPTIONS_ACTION_FIELD, OPTIONS_ACTION_SAVE)
+            merged = dict(self._config_entry.options)
+            merged[CONF_API_BASE_URL] = str(
+                user_input.get(CONF_API_BASE_URL) or DEFAULT_API_BASE_URL
+            ).strip()
+            merged[CONF_HA_INSTALL_ID] = str(
+                user_input.get(CONF_HA_INSTALL_ID) or current[CONF_HA_INSTALL_ID]
+            ).strip()
+            merged[CONF_DJCONNECT_INSTALL_TOKEN] = str(
+                user_input.get(CONF_DJCONNECT_INSTALL_TOKEN) or ""
+            ).strip()
+            errors = _central_api_errors(merged)
+            if not errors and action == OPTIONS_ACTION_ROTATE_INSTALL_TOKEN:
+                runtime = self.hass.data.get(DOMAIN, {}).get(self._config_entry.entry_id)
+                if runtime is None:
+                    errors["base"] = "central_api_rotate_failed"
+                else:
+                    temp_entry = SimpleNamespace(
+                        data={**self._config_entry.data, **merged},
+                        options=merged,
+                        entry_id=self._config_entry.entry_id,
+                    )
+                    original_entry = runtime.entry
+                    runtime.entry = temp_entry
+                    try:
+                        result = await async_rotate_install_token(self.hass, runtime)
+                    finally:
+                        runtime.entry = original_entry
+                    if result.get("success"):
+                        rotated = dict(merged)
+                        rotated[CONF_DJCONNECT_INSTALL_TOKEN] = result[CONF_DJCONNECT_INSTALL_TOKEN]
+                        return self.async_create_entry(title="", data=rotated)
+                    errors["base"] = "central_api_rotate_failed"
+            if not errors:
+                return self.async_create_entry(title="", data=merged)
+            current.update(merged)
+
+        return self.async_show_form(
+            step_id="central_api",
+            data_schema=_central_api_schema(current),
             errors=errors,
         )
 

@@ -99,15 +99,26 @@ registered, `push_environment`. Status/capability responses may include
 `push_supported`, `push_registered`, `push_environment` and a redacted
 `last_push_error` summary.
 
-The HACS integration only needs the central relay configuration:
+The HACS integration only stores central API settings scoped to one Home
+Assistant installation:
 
-- `DJCONNECT_PUSH_RELAY_URL`
-- `DJCONNECT_PUSH_RELAY_SECRET`
+- `api_base_url`, default `https://api.djconnect.dev`
+- `ha_install_id`, generated once and kept stable for the HA installation
+- `djconnect_install_token`, a secret per-install token with prefix `djci_`
 
-When relay configuration is missing, push stays disabled and normal Ask DJ flows
-continue. The central `djconnect-api` service owns APNs provider-token auth,
-topics, sandbox/production selection, delivery retries and invalid-token
-handling.
+Home Assistant obtains the install token automatically by calling
+`POST /v1/install/token` with the generated `ha_install_id` and non-sensitive
+integration metadata. Users do not need to see, copy or enter the token. Push
+relay calls use `Authorization: Bearer <djci_install_token>` and include the
+matching `ha_install_id`. HACS must never contain a global relay secret, APNs
+provider `.p8` key, APNs private key or Cloudflare secret. When the central API
+is temporarily unavailable, push stays disabled and normal Ask DJ flows
+continue; the next central API use can retry token bootstrap. The central
+`djconnect-api` service owns APNs provider-token auth, topics,
+sandbox/production selection, delivery retries and invalid-token handling. Token
+rotation uses `POST /v1/install/rotate` with the current install token and Home
+Assistant replaces the locally stored token only after a successful response.
+Users should never paste install tokens or logs containing secrets into issues.
 
 Push payloads are deliberately small and generic. They must not contain secrets,
 Spotify tokens, Home Assistant tokens, raw prompts, raw LLM context, full memory,
@@ -127,46 +138,34 @@ in the HACS integration.
 If a client status payload reports usable foreground/recent-active state, HA
 suppresses Ask DJ pushes back to that active client. HA rate-limits Ask DJ push
 events per HA user and device/client to at most one push per 30 seconds and five
-pushes per ten minutes. Ask DJ push payloads are coalesced under
-`thread-id: djconnect.askdj` and include only sync hints such as `event_type`,
-`open_target:"ask_dj"`, `client_message_id` when available and
-`history_revision` when available.
+pushes per ten minutes. HA sends only the central API event payload below to
+`POST /v1/push/event`; the central API is responsible for APNs payload
+construction.
 
-Generic APNs payload shape for `ask_dj_response`:
+Central API event payload shape for `ask_dj_response`:
 
 ```json
 {
-  "aps": {
-    "alert": {
-      "title": "Ask DJ",
-      "body": "Ask DJ heeft geantwoord."
-    },
-    "sound": "default",
-    "thread-id": "djconnect.askdj",
-    "category": "DJCONNECT_ASK_DJ_RESPONSE"
-  },
+  "ha_install_id": "ha_...",
+  "ha_user_hash": "...",
   "event_type": "ask_dj_response",
   "open_target": "ask_dj",
-  "history_revision": 123
+  "history_revision": 123,
+  "client_message_id": "client-1",
+  "client_types": ["ios", "macos", "watchos"]
 }
 ```
 
-Generic APNs payload shape for `ask_dj_confirm`:
+Central API event payload shape for `ask_dj_confirm`:
 
 ```json
 {
-  "aps": {
-    "alert": {
-      "title": "Ask DJ",
-      "body": "Ask DJ wacht op je keuze."
-    },
-    "sound": "default",
-    "thread-id": "djconnect.askdj",
-    "category": "DJCONNECT_ASK_DJ_CONFIRM"
-  },
+  "ha_install_id": "ha_...",
+  "ha_user_hash": "...",
   "event_type": "ask_dj_confirm",
   "open_target": "ask_dj",
-  "history_revision": 124
+  "history_revision": 124,
+  "client_types": ["ios", "macos", "watchos"]
 }
 ```
 

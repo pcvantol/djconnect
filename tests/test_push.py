@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import importlib
-import os
 from pathlib import Path
 import sys
 import types
@@ -56,32 +55,29 @@ class PushTest(unittest.TestCase):
     def setUpClass(cls) -> None:
         install_push_stubs()
         cls.push = importlib.import_module("custom_components.djconnect.push")
+        cls.central_api = importlib.import_module("custom_components.djconnect.central_api")
 
     def setUp(self) -> None:
-        self.old_env = {
-            key: os.environ.get(key)
-            for key in ("DJCONNECT_PUSH_RELAY_URL", "DJCONNECT_PUSH_RELAY_SECRET")
-        }
-        os.environ.pop("DJCONNECT_PUSH_RELAY_URL", None)
-        os.environ.pop("DJCONNECT_PUSH_RELAY_SECRET", None)
-        self.original_session = self.push.async_get_clientsession
-        self.push.async_get_clientsession = lambda hass: hass.session
+        self.original_session = self.central_api.async_get_clientsession
+        self.central_api.async_get_clientsession = lambda hass: hass.session
 
     def tearDown(self) -> None:
-        self.push.async_get_clientsession = self.original_session
-        for key, value in self.old_env.items():
-            if value is None:
-                os.environ.pop(key, None)
-            else:
-                os.environ[key] = value
+        self.central_api.async_get_clientsession = self.original_session
 
-    def _enable_relay(self) -> None:
-        os.environ["DJCONNECT_PUSH_RELAY_URL"] = "https://api.djconnect.dev"
-        os.environ["DJCONNECT_PUSH_RELAY_SECRET"] = "relay-secret"
+    def _runtime(self, *, token: str | None = "djci_test_install_token"):
+        options = {
+            "api_base_url": "https://api.djconnect.dev",
+            "ha_install_id": "ha-install-1",
+        }
+        if token:
+            options["djconnect_install_token"] = token
+        return types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1", data={}, options=options)
+        )
 
     def test_disabled_without_relay_config_does_not_raise(self) -> None:
         hass = types.SimpleNamespace(session=FakeSession())
-        runtime = types.SimpleNamespace(entry=types.SimpleNamespace(entry_id="entry-1"))
+        runtime = self._runtime(token=None)
 
         result = asyncio.run(
             self.push.async_send_event(
@@ -97,12 +93,13 @@ class PushTest(unittest.TestCase):
         self.assertTrue(result["success"])
         self.assertFalse(result["push_supported"])
         self.assertTrue(result["disabled"])
-        self.assertEqual(hass.session.calls, [])
+        self.assertEqual(len(hass.session.calls), 1)
+        self.assertEqual(hass.session.calls[0]["url"], "https://api.djconnect.dev/v1/install/token")
+        self.assertNotIn("Authorization", hass.session.calls[0]["headers"])
 
     def test_register_forwards_to_relay_without_local_storage(self) -> None:
-        self._enable_relay()
         hass = types.SimpleNamespace(session=FakeSession())
-        runtime = types.SimpleNamespace(entry=types.SimpleNamespace(entry_id="entry-1"))
+        runtime = self._runtime()
 
         result = asyncio.run(
             self.push.async_register(
@@ -125,19 +122,18 @@ class PushTest(unittest.TestCase):
         self.assertTrue(result["success"])
         call = hass.session.calls[0]
         self.assertEqual(call["url"], "https://api.djconnect.dev/v1/push/register")
-        self.assertEqual(call["headers"]["Authorization"], "Bearer relay-secret")
+        self.assertEqual(call["headers"]["Authorization"], "Bearer djci_test_install_token")
         self.assertEqual(call["json"]["device_id"], "djconnect-ios-ABCDEFGHIJKL")
         self.assertEqual(call["json"]["push_token"], "token-secret-value")
         self.assertEqual(call["json"]["push_environment"], "production")
-        self.assertEqual(call["json"]["ha_install_id"], "entry-1")
+        self.assertEqual(call["json"]["ha_install_id"], "ha-install-1")
         self.assertNotEqual(call["json"]["ha_user_hash"], "user-1")
         self.assertFalse(hasattr(self.push, "APNsClient"))
         self.assertFalse(hasattr(self.push, "PushRegistrationManager"))
 
     def test_unregister_forwards_to_relay(self) -> None:
-        self._enable_relay()
         hass = types.SimpleNamespace(session=FakeSession())
-        runtime = types.SimpleNamespace(entry=types.SimpleNamespace(entry_id="entry-1"))
+        runtime = self._runtime()
 
         result = asyncio.run(
             self.push.async_unregister(
@@ -157,7 +153,7 @@ class PushTest(unittest.TestCase):
         self.assertFalse(result["push_registered"])
 
     def test_event_payload_contains_no_prompt_response_or_tokens(self) -> None:
-        runtime = types.SimpleNamespace(entry=types.SimpleNamespace(entry_id="entry-1"))
+        runtime = self._runtime()
 
         payload = self.push.build_relay_event_payload(
             runtime,
@@ -171,16 +167,16 @@ class PushTest(unittest.TestCase):
         self.assertEqual(payload["event_type"], "ask_dj_confirm")
         self.assertEqual(payload["history_revision"], 124)
         self.assertEqual(payload["open_target"], "ask_dj")
-        self.assertEqual(payload["aps"]["thread-id"], "djconnect.askdj")
-        self.assertEqual(payload["aps"]["category"], "DJCONNECT_ASK_DJ_CONFIRM")
-        self.assertEqual(payload["aps"]["alert"]["body"], "Ask DJ wacht op je keuze.")
+        self.assertEqual(payload["ha_install_id"], "ha-install-1")
+        self.assertEqual(payload["client_types"], ["ios", "macos", "watchos"])
+        self.assertNotIn("aps", payload)
         self.assertNotIn("raw prompt", rendered)
         self.assertNotIn("assistant response", rendered)
         self.assertNotIn("spotify_refresh_token", rendered)
         self.assertNotIn("push_token", rendered)
 
     def test_event_without_optional_sync_fields_is_valid(self) -> None:
-        runtime = types.SimpleNamespace(entry=types.SimpleNamespace(entry_id="entry-1"))
+        runtime = self._runtime()
 
         payload = self.push.build_relay_event_payload(
             runtime,
@@ -193,8 +189,7 @@ class PushTest(unittest.TestCase):
         self.assertNotIn("client_message_id", payload)
 
     def test_status_uses_runtime_flag_not_token_store(self) -> None:
-        self._enable_relay()
-        runtime = types.SimpleNamespace(entry=types.SimpleNamespace(entry_id="entry-1"))
+        runtime = self._runtime()
         self.push._remember_status(
             runtime,
             "djconnect-ios-ABCDEFGHIJKL",
@@ -219,9 +214,8 @@ class PushTest(unittest.TestCase):
         self.assertEqual(status["push_environment"], "sandbox")
 
     def test_non_ask_dj_events_are_default_disabled(self) -> None:
-        self._enable_relay()
         hass = types.SimpleNamespace(session=FakeSession())
-        runtime = types.SimpleNamespace(entry=types.SimpleNamespace(entry_id="entry-1"))
+        runtime = self._runtime()
 
         for event_type in ("track_change", "playback_change", "queue_change", "volume_change", "mood_change", "idle_suggestion"):
             result = asyncio.run(
@@ -240,9 +234,8 @@ class PushTest(unittest.TestCase):
         self.assertEqual(hass.session.calls, [])
 
     def test_ask_dj_response_requires_explicit_user_request(self) -> None:
-        self._enable_relay()
         hass = types.SimpleNamespace(session=FakeSession())
-        runtime = types.SimpleNamespace(entry=types.SimpleNamespace(entry_id="entry-1"))
+        runtime = self._runtime()
 
         result = asyncio.run(
             self.push.async_send_event(
@@ -260,9 +253,8 @@ class PushTest(unittest.TestCase):
         self.assertEqual(hass.session.calls, [])
 
     def test_explicit_ask_dj_response_posts_generic_payload(self) -> None:
-        self._enable_relay()
         hass = types.SimpleNamespace(session=FakeSession())
-        runtime = types.SimpleNamespace(entry=types.SimpleNamespace(entry_id="entry-1"))
+        runtime = self._runtime()
 
         result = asyncio.run(
             self.push.async_send_event(
@@ -283,13 +275,14 @@ class PushTest(unittest.TestCase):
         self.assertEqual(payload["event_type"], "ask_dj_response")
         self.assertEqual(payload["open_target"], "ask_dj")
         self.assertEqual(payload["history_revision"], 123)
-        self.assertEqual(payload["aps"]["alert"]["body"], "Ask DJ heeft geantwoord.")
-        self.assertEqual(payload["aps"]["thread-id"], "djconnect.askdj")
+        self.assertEqual(payload["ha_install_id"], "ha-install-1")
+        self.assertEqual(hass.session.calls[0]["headers"]["Authorization"], "Bearer djci_test_install_token")
+        self.assertNotIn("aps", payload)
         self.assertNotIn("source_device_id", payload)
         self.assertNotIn("client_type", payload)
 
     def test_rate_limit_blocks_frequent_pushes(self) -> None:
-        runtime = types.SimpleNamespace(entry=types.SimpleNamespace(entry_id="entry-1"))
+        runtime = self._runtime()
 
         first = self.push.should_send_push(
             runtime,
@@ -315,7 +308,7 @@ class PushTest(unittest.TestCase):
         self.assertEqual(second["reason"], "rate_limited")
 
     def test_rate_limit_blocks_more_than_five_in_ten_minutes(self) -> None:
-        runtime = types.SimpleNamespace(entry=types.SimpleNamespace(entry_id="entry-1"))
+        runtime = self._runtime()
         decisions = [
             self.push.should_send_push(
                 runtime,
@@ -333,9 +326,16 @@ class PushTest(unittest.TestCase):
         self.assertEqual(decisions[5]["reason"], "rate_limited")
 
     def test_foreground_recent_active_client_suppresses_push(self) -> None:
-        self._enable_relay()
         runtime = types.SimpleNamespace(
-            entry=types.SimpleNamespace(entry_id="entry-1"),
+            entry=types.SimpleNamespace(
+                entry_id="entry-1",
+                data={},
+                options={
+                    "api_base_url": "https://api.djconnect.dev",
+                    "ha_install_id": "ha-install-1",
+                    "djconnect_install_token": "djci_test_install_token",
+                },
+            ),
             device_status={
                 "device_id": "djconnect-ios-ABCDEFGHIJKL",
                 "client_type": "ios",

@@ -99,6 +99,22 @@
           "pair_code": "De 6-cijferige code of 12 tekens lange device-suffix op het apparaatdisplay.",
           "local_url": "Kopieer de Client adres uit de DJConnect app via Instellingen."
         }
+      },
+      "central_api": {
+        "title": "DJConnect API-token",
+        "description": "Alleen voor geavanceerde support. DJConnect maakt de per-install token normaal automatisch onder water aan; de token is geheim en alleen voor deze Home Assistant installatie.",
+        "data": {
+          "api_base_url": "DJConnect API URL",
+          "ha_install_id": "Home Assistant install ID",
+          "djconnect_install_token": "DJConnect install-token",
+          "options_action": "Actie"
+        },
+        "data_description": {
+          "api_base_url": "Centrale DJConnect API basis-URL. Laat de standaard staan tenzij DJConnect support iets anders vraagt.",
+          "ha_install_id": "Stabiel ID voor deze Home Assistant installatie. Dit wordt lokaal gegenereerd en kan hier niet worden aangepast.",
+          "djconnect_install_token": "Geheime per-install token. DJConnect vult deze normaal automatisch in; plak deze token nooit in issues of logs.",
+          "options_action": "Sla supportinstellingen op, of roteer de token via de centrale DJConnect API."
+        }
       }
     },
     "error": {
@@ -116,7 +132,10 @@
       "wifi_ssid_required": "Vul de WiFi SSID in om te provisionen.",
       "ble_wifi_failed": "WiFi provisioning via Bluetooth is mislukt. Controleer device, SSID en wachtwoord en probeer opnieuw.",
       "pairing_info_unavailable": "Home Assistant ziet deze DJConnect client via mDNS, maar kan de pairing-info endpoint niet bereiken. Controleer de Client adres of vul die handmatig in.",
-      "repair_pairing_failed": "Opnieuw koppelen is mislukt. Controleer of het DJConnect device bereikbaar is en een koppelcode toont."
+      "repair_pairing_failed": "Opnieuw koppelen is mislukt. Controleer of het DJConnect device bereikbaar is en een koppelcode toont.",
+      "central_api_url_invalid": "Vul een volledige HTTPS DJConnect API URL in.",
+      "install_token_invalid": "Voer een DJConnect install-token in die begint met djci_.",
+      "central_api_rotate_failed": "DJConnect kon de install-token niet roteren. Controleer de huidige token en probeer opnieuw."
     },
     "abort": {
       "already_configured": "Dit DJConnect apparaat is al geconfigureerd."
@@ -157,10 +176,29 @@
           "pair_code": "De 6-cijferige code of 12 tekens lange device-suffix op het apparaatdisplay.",
           "local_url": "Kopieer de Client adres uit de DJConnect app via Instellingen."
         }
+      },
+      "central_api": {
+        "title": "DJConnect API-token",
+        "description": "Alleen voor geavanceerde support. DJConnect maakt de per-install token normaal automatisch onder water aan; de token is geheim en alleen voor deze Home Assistant installatie.",
+        "data": {
+          "api_base_url": "DJConnect API URL",
+          "ha_install_id": "Home Assistant install ID",
+          "djconnect_install_token": "DJConnect install-token",
+          "options_action": "Actie"
+        },
+        "data_description": {
+          "api_base_url": "Centrale DJConnect API basis-URL. Laat de standaard staan tenzij DJConnect support iets anders vraagt.",
+          "ha_install_id": "Stabiel ID voor deze Home Assistant installatie. Dit wordt lokaal gegenereerd en kan hier niet worden aangepast.",
+          "djconnect_install_token": "Geheime per-install token. DJConnect vult deze normaal automatisch in; plak deze token nooit in issues of logs.",
+          "options_action": "Sla supportinstellingen op, of roteer de token via de centrale DJConnect API."
+        }
       }
     },
     "error": {
-      "repair_pairing_failed": "Opnieuw koppelen is mislukt. Controleer of het DJConnect device bereikbaar is en een koppelcode toont."
+      "repair_pairing_failed": "Opnieuw koppelen is mislukt. Controleer of het DJConnect device bereikbaar is en een koppelcode toont.",
+      "central_api_url_invalid": "Vul een volledige HTTPS DJConnect API URL in.",
+      "install_token_invalid": "Voer een DJConnect install-token in die begint met djci_.",
+      "central_api_rotate_failed": "DJConnect kon de install-token niet roteren. Controleer de huidige token en probeer opnieuw."
     }
   },
   "entity": {

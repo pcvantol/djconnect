@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.1.70
+
+- Add production-safe central DJConnect API support with automatic per-install `djci_` token bootstrap, stable `ha_install_id` storage and configurable API base URL.
+- Replace HACS push relay environment secrets with per-install bearer-token calls to the central API, keeping event payloads limited to privacy-safe sync metadata.
+- Keep the install-token handshake invisible to users: Home Assistant calls `/v1/install/token` under the hood and stores the returned token in config entry storage.
+- Add central API tests for automatic token bootstrap, bearer authorization, atomically successful token rotation and privacy-safe push event payloads.
+- Document that install tokens are internal secrets and must never be pasted into issues or logs.
+
 ## 3.1.69
 
 - Add a strict Ask DJ push policy with no playback, track, queue, volume, mood, status or idle-suggestion pushes.

@@ -14,7 +14,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 
 ## Current Version
 
-- Home Assistant integration: `3.1.69`
+- Home Assistant integration: `3.1.70`
 - Domain: `djconnect`
 - HACS category: `Integration`
 - Device target: DJConnect device
@@ -71,7 +71,7 @@ runtime behavior. These decisions are part of the integration contract:
 
 ## Repository Layout
 
-- Home Assistant integration: `3.1.69`
+- Home Assistant integration: `3.1.70`
 - ESP firmware source: `pcvantol/djconnect-app`
 - Public firmware releases: `pcvantol/djconnect-firmware`
 - Canonical cross-repo sync prompts live only in this HA repo: [`SYNC_PROMPTS.md`](SYNC_PROMPTS.md)
@@ -627,14 +627,20 @@ watchOS clients. Clients register APNs tokens with
 `POST /api/djconnect/push/unregister`, both using the existing DJConnect bearer
 token. Home Assistant does not store APNs tokens and never needs the platform
 `.p8` key. It forwards registrations and wake/sync events to the central
-`djconnect-api` push relay when `DJCONNECT_PUSH_RELAY_URL` and
-`DJCONNECT_PUSH_RELAY_SECRET` are configured. If the relay config is missing,
-push stays disabled without breaking Ask DJ, playback or status flows.
+`djconnect-api` push relay through `https://api.djconnect.dev` using a secret
+per-install token that starts with `djci_`. Home Assistant requests this token
+automatically from `/v1/install/token` with its generated `ha_install_id` and
+stores it in the config entry. Users do not need to see, copy or enter this
+token. If the central API is temporarily unavailable, push stays disabled
+without breaking Ask DJ, playback or status flows and the integration retries on
+the next central API use.
 
 The central `djconnect-api` service owns APNs provider-token auth, topics,
 sandbox/production selection and invalid-token handling. Push is only a
 wake/attention signal: when the user opens the app, the client must still sync
 through authenticated APIs, especially `GET /api/djconnect/ask_dj/history`.
+Token rotation uses the central `/v1/install/rotate` endpoint and only replaces
+the local token after a successful response.
 Push is sent only for user-visible Ask DJ attention events: an explicit user Ask
 DJ response, or an Ask DJ response that contains `confirmation_actions` and is
 waiting for a choice. DJConnect does not push for track changes, playback
@@ -642,10 +648,12 @@ changes, queue changes, volume changes, mood changes, idle suggestions, ambient
 system messages, status refreshes or Spotify progress updates. If the source
 client reports foreground/recent-active state, HA suppresses pushes back to that
 active client. HA also rate-limits Ask DJ pushes per user/device to one push per
-30 seconds and five pushes per ten minutes. Push payloads are intentionally
-generic, coalesced under `thread-id: djconnect.askdj`, and never include Spotify
-tokens, Home Assistant tokens, raw prompts, raw LLM context, full memory/history
-or long/raw assistant responses.
+30 seconds and five pushes per ten minutes. Central API event payloads contain
+only `ha_install_id`, optional `ha_user_hash`, `event_type`, `history_revision`,
+optional `client_message_id`, optional `open_target` and optional
+`client_types`. They never include Spotify tokens, Home Assistant tokens, raw
+prompts, raw LLM context, full memory/history or assistant responses. The
+`djci_` install token is internal and must never be pasted into issues or logs.
 
 App/display clients should use `POST /api/djconnect/ask_dj/message` for text
 chat. This contract applies to iOS, macOS, Apple Watch and Raspberry Pi. ESP32
@@ -1057,24 +1065,24 @@ Example manifest:
 
 ```json
 {
-  "version": "3.1.69",
-  "version_tag": "v3.1.69",
+  "version": "3.1.70",
+  "version_tag": "v3.1.70",
   "channel": "stable",
-  "min_ha_integration": "3.1.69",
+  "min_ha_integration": "3.1.70",
   "firmwares": [
     {
       "board": "t_embed_cc1101",
       "device": "lilygo-t-embed-s3",
-      "asset": "djconnect-lilygo-t-embed-s3-v3.1.69.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.69/djconnect-lilygo-t-embed-s3-v3.1.69.bin",
+      "asset": "djconnect-lilygo-t-embed-s3-v3.1.70.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.70/djconnect-lilygo-t-embed-s3-v3.1.70.bin",
       "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "size": 2113136
     },
     {
       "board": "esp32_s3_box3",
       "device": "esp32-s3-box-3",
-      "asset": "djconnect-esp32-s3-box-3-v3.1.69.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.69/djconnect-esp32-s3-box-3-v3.1.69.bin",
+      "asset": "djconnect-esp32-s3-box-3-v3.1.70.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.70/djconnect-esp32-s3-box-3-v3.1.70.bin",
       "sha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
       "size": 2113136
     }
@@ -1097,7 +1105,7 @@ The firmware version is injected through PlatformIO build flags from the Git tag
 Recommended firmware source release helper:
 
 ```bash
-./release.sh 3.1.69
+./release.sh 3.1.70
 ```
 
 In the separate `djconnect-app` repository, the firmware release script should
@@ -1109,14 +1117,14 @@ PlatformIO builds, rename firmware binaries to device-specific assets such as
 Preview the firmware release flow without changing files:
 
 ```bash
-./release.sh 3.1.69 --dry-run
+./release.sh 3.1.70 --dry-run
 ```
 
 When publishing to the public firmware repository, use the firmware script's
 public-repo option if available:
 
 ```bash
-./release.sh 3.1.69 --publish-firmware-repo ../djconnect-firmware
+./release.sh 3.1.70 --publish-firmware-repo ../djconnect-firmware
 ```
 
 The public `djconnect-firmware` repository should contain only the release
@@ -1159,7 +1167,7 @@ Tag and publish:
 One-liner:
 
 ```bash
-./release.sh 3.1.69
+./release.sh 3.1.70
 ```
 
 The script updates the integration version in `manifest.json`, `const.py`,
@@ -1170,18 +1178,18 @@ above.
 Preview without executing git/gh commands:
 
 ```bash
-./release.sh 3.1.69 --dry-run
+./release.sh 3.1.70 --dry-run
 ```
 
 Manual equivalent:
 
 ```bash
 git add .
-git commit -m "Release DJConnect v3.1.69"
-git tag v3.1.69
+git commit -m "Release DJConnect v3.1.70"
+git tag v3.1.70
 git push origin main
-git push origin v3.1.69
-gh release create v3.1.69 --title "DJConnect v3.1.69" --notes-file CHANGELOG.md
+git push origin v3.1.70
+gh release create v3.1.70 --title "DJConnect v3.1.70" --notes-file CHANGELOG.md
 ```
 
 Release cleanup helper:
