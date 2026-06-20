@@ -221,8 +221,10 @@ Primary source files:
 
 Pattern:
 
-- `Ask DJ` context is owned by the Home Assistant integration, not by Apple
-  Watch, iOS or macOS clients.
+- `Ask DJ` context is owned by the Home Assistant integration, not by iOS,
+  macOS, watchOS, Raspberry Pi or ESP32 clients. iOS, macOS, watchOS and
+  Raspberry Pi can render Ask DJ text chat; ESP32 is excluded from Ask DJ
+  chat/history and keeps the existing command/PTT flow.
 - Runtime session memory keeps bounded recent turns for follow-ups and may be
   lost on Home Assistant restart.
 - Persistent memory uses Home Assistant `Store(hass, 1, "djconnect_memory")`;
@@ -231,7 +233,7 @@ Pattern:
   DJConnect client/device id.
 - Stored memory is compact and excludes bearer tokens, Spotify OAuth tokens,
   Home Assistant tokens, raw audio and full prompts.
-- Text Ask DJ requests from app clients enter through
+- Text Ask DJ requests from app/display clients enter through
   `POST /api/djconnect/ask_dj/message`; service `djconnect.ask_dj` and
   `POST /api/djconnect/ask_dj` remain developer/raw entrypoints.
 - Renderable Ask DJ chat history is separate from DJ Memory and uses Home
@@ -262,10 +264,12 @@ Pattern:
   playback/hybrid intents and voice/PTT interactions. `always` and `never`
   provide explicit client overrides.
 - App Ask DJ Push-To-Talk enters through the existing `/api/djconnect/voice`
-  WAV route. iOS, macOS and watchOS transcripts are routed to the same Ask DJ
-  handler as text chat; ESP32 WAV remains on the command-parser playback flow.
-  This keeps one authenticated voice endpoint while preserving client-specific
-  semantics.
+  WAV route when a client supports voice. iOS, macOS and watchOS transcripts are
+  routed to the same Ask DJ handler as text chat. Raspberry Pi Ask DJ is
+  text-only unless a future Pi capability explicitly advertises voice support.
+  ESP32 WAV remains on the command-parser playback flow and is not attached to
+  Ask DJ chat history. This keeps one authenticated voice endpoint while
+  preserving client-specific semantics.
 - Intent routing is deliberately split into informational, playback/device
   action and hybrid buckets. Informational answers can use playback context and
   memory but must not mutate Spotify/Home Assistant playback.

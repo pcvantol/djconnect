@@ -38,7 +38,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 - Process text commands through the selected/default Assist conversation agent and DJConnect's music parser before sending the resulting intent to Spotify.
 - Answer current-track questions such as `Welk nummer draait er nu?` with a DJ response based on Spotify's current playback state, without starting new playback.
 - Handle direct DJ playback controls such as `Stop muziek`, `Start muziek`, `Zet harder`, `Zet zachter`, `Volgende nummer` and `Vorig nummer` without running a Spotify search.
-- Keep server-side DJ Memory for future `Ask DJ` follow-ups across lightweight Apple Watch, iOS and macOS clients.
+- Keep server-side DJ Memory for future `Ask DJ` follow-ups across lightweight iOS, macOS, watchOS and Raspberry Pi clients.
 - Generate DJ announcements through the selected/default Assist conversation agent with DJConnect-specific prompt instructions and fallback guardrails.
 - Use HA-native Assist/TTS routes in active services and entities.
 - Track client status, firmware/client version, last command, last corrected STT, last track and backend playback state.
@@ -576,9 +576,10 @@ through `X-DJConnect-Text` or `{ "text": "Test" }`. They simulate the DJ
 response path directly and do not parse a Spotify playback command. Raw WAV PTT
 uploads continue through STT, command parsing, Spotify playback and DJ announcement.
 
-For app-like clients (`ios`, `macos`, `watchos`), raw WAV uploads to
-`/api/djconnect/voice` are treated as Ask DJ voice input after STT. Optional
-headers `X-DJConnect-Mood`, `X-DJConnect-DJ-Style` and
+For app-like clients with voice support (`ios`, `macos`, `watchos`), raw WAV
+uploads to `/api/djconnect/voice` are treated as Ask DJ voice input after STT.
+Raspberry Pi Ask DJ is text-only unless a future Pi capability explicitly
+advertises voice support. Optional headers `X-DJConnect-Mood`, `X-DJConnect-DJ-Style` and
 `X-DJConnect-Memory-Key` are folded into the same Ask DJ memory/context path as
 text chat. The response keeps the Ask DJ rich shape and includes both
 `transcript` and legacy `recognized_text` so clients can show the actual
@@ -597,9 +598,11 @@ Status/pairing responses advertise:
 }
 ```
 
-App clients should use `POST /api/djconnect/ask_dj/message` for text chat. The
-backend is the source of truth for Ask DJ history per Home Assistant user; iOS,
-macOS and Apple Watch may cache locally, but must reconcile from
+App/display clients should use `POST /api/djconnect/ask_dj/message` for text
+chat. This contract applies to iOS, macOS, Apple Watch and Raspberry Pi. ESP32
+does not get Ask DJ chat/history; ESP32 keeps the existing PTT/playback command
+flow. The backend is the source of truth for Ask DJ history per Home Assistant user; iOS,
+macOS, Apple Watch and Raspberry Pi may cache locally, but must reconcile from
 `GET /api/djconnect/ask_dj/history?since_revision=<number>`. The request body
 can contain top-level identity fields or an `identity` object:
 
@@ -620,7 +623,7 @@ can contain top-level identity fields or an `identity` object:
 }
 ```
 
-The response is uniform across iOS, macOS and Apple Watch:
+The response is uniform across iOS, macOS, Apple Watch and Raspberry Pi:
 
 ```json
 {

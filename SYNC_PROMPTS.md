@@ -144,11 +144,12 @@ Requirements:
   `Features`, `Ask DJ`, `Spraak`, `Blog`, `Installeren`, `Support` and
   `Privacy`, plus the primary `Aan de slag` CTA. Do not add a `Hoe werkt het`
   self-link to the homepage top navigation.
-- Treat Ask DJ as a major website/docs product feature for iOS, macOS and
-  Apple Watch clients. Explain that it is an AI-DJ chat for natural-language
+- Treat Ask DJ as a major website/docs product feature for iOS, macOS,
+  Apple Watch and Raspberry Pi clients. Explain that it is an AI-DJ chat for natural-language
   music questions, personal recommendations, playback actions and
   cross-device chat continuity, powered by the Home Assistant DJConnect
-  integration and server-side DJ Memory/history.
+  integration and server-side DJ Memory/history. ESP32 does not get Ask DJ chat
+  history/UI; ESP32 remains a physical voice/playback remote.
 - Ask DJ website/docs copy must make clear that recommendations do not start
   playback automatically. Clients show `Play Now` for concrete
   recommendations, and playback starts only after the user explicitly taps it.
@@ -164,8 +165,9 @@ Requirements:
   in DJ Memory/history; raw voice audio is not stored by default.
 - Ask DJ voice/PTT documentation should explain that iOS, macOS and Apple Watch
   can use voice/PTT through Home Assistant STT, with optional TTS audio replies
-  when available. Informational text chat is text-only by default; replay is
-  shown only when an audio response exists.
+  when available. Raspberry Pi Ask DJ is text-only unless a future Pi capability
+  explicitly advertises voice support. Informational text chat is text-only by
+  default; replay is shown only when an audio response exists.
 - Keep Ask DJ requirements visible and user-facing: Home Assistant, HACS
   DJConnect integration v3.1.65 or newer, Spotify Premium, the user's own
   Spotify Developer app with Client ID, an Assist pipeline with STT/TTS for
@@ -241,11 +243,12 @@ client contracts.
 
 Requirements:
 - Treat iOS/macOS/watchOS/Raspberry Pi as app-like clients, not ESP hardware devices.
-- Ask DJ / DJ Memory is server-side in the Home Assistant integration. Apple
-  Watch, iOS and macOS clients must not store DJ Memory; they may send optional
+- Ask DJ / DJ Memory is server-side in the Home Assistant integration. iOS,
+  macOS, watchOS and Raspberry Pi clients must not store DJ Memory; they may send optional
   `mood` (0-100), `dj_style` and `memory_key` hints on status/voice/command
-  payloads, but HA may normalize or override the resolved `memory_key`.
-- Ask DJ text chat for app clients uses POST /api/djconnect/ask_dj/message.
+  payloads, but HA may normalize or override the resolved `memory_key`. ESP32
+  is excluded from Ask DJ chat/history and keeps its voice/playback command flow.
+- Ask DJ text chat for app/display clients uses POST /api/djconnect/ask_dj/message.
   Request identity can be top-level or inside `identity`; include
   client_message_id for retry dedupe and client_id as origin metadata. Response
   shape includes success, text/dj_text/message, optional audio_url, images[],
@@ -269,6 +272,8 @@ Requirements:
   Content-Type audio/wav. The response includes transcript/recognized_text and
   the same rich Ask DJ fields. Send optional X-DJConnect-Mood,
   X-DJConnect-DJ-Style and X-DJConnect-Memory-Key headers when available.
+  Raspberry Pi Ask DJ is text-only unless a future Pi capability explicitly
+  advertises voice support.
 - Pairing/status responses expose ask_dj_supported, ask_dj_voice_supported,
   voice_supported and ask_dj_audio_response_supported.
 - Ask DJ clear sync uses POST /api/djconnect/ask_dj/history/clear. Clients
@@ -461,10 +466,17 @@ Requirements:
 - Send playback commands to POST /api/djconnect/command. Supported first
   version commands are status, play, pause, next, previous, set_volume,
   set_shuffle and set_repeat.
-- Do not implement PTT, microphone capture, POST /api/djconnect/voice, local
-  DJ response audio playback or a Pi-local `/api/device/dj_response` endpoint.
-  If HA returns DJ response text in normal command/status responses, the Pi may
-  display that text on screen without treating itself as an audio/voice device.
+- Implement a text-only Ask DJ screen using POST /api/djconnect/ask_dj/message,
+  GET /api/djconnect/ask_dj/history, POST /api/djconnect/ask_dj/history/clear,
+  POST /api/djconnect/ask_dj/idle_suggestion and POST /api/djconnect/command
+  for Play Now/follow-up actions. Use the same server-side history, clear,
+  retention, image/link/source, playback_actions and confirmation_actions
+  contract as iOS/macOS/watchOS.
+- Do not implement PTT, microphone capture or POST /api/djconnect/voice for the
+  first text-only Pi Ask DJ version. The Pi does not need local DJ response
+  audio playback; if it exposes `/api/device/dj_response`, it should display
+  text on screen and may report `audio_played:false` when no audio device is
+  configured.
 - Do not expose ESP-only reboot, OTA, battery, Wi-Fi RSSI, screen brightness,
   screen timeout, speaker volume, LED, log-level or firmware entities.
 - Keep the updater and OS maintenance daemon separate from the touch UI and
@@ -1943,11 +1955,14 @@ client contracts.
 
 Requirements:
 - Treat iOS/macOS/watchOS/Raspberry Pi as app-like clients, not ESP hardware devices.
-- Ask DJ / DJ Memory is server-side in the Home Assistant integration. Apple
-  Watch, iOS and macOS clients must not store DJ Memory; they may send optional
-  `mood` (0-100), `dj_style` and `memory_key` hints on status/voice/command
-  payloads, but HA may normalize or override the resolved `memory_key`.
-- Ask DJ chat history is server-side per HA user and bounded. Apple clients
+- Ask DJ / DJ Memory is server-side in the Home Assistant integration. iOS,
+  macOS, watchOS and Raspberry Pi clients must not store DJ Memory; they may
+  send optional `mood` (0-100), `dj_style` and `memory_key` hints on
+  status/voice/command payloads, but HA may normalize or override the resolved
+  `memory_key`. ESP32 is excluded from Ask DJ chat/history and keeps its
+  voice/playback command flow.
+- Ask DJ chat history is server-side per HA user and bounded. iOS, macOS,
+  watchOS and Raspberry Pi clients
   must use `history_revision`, `clear_revision`, `history_trimmed_before` and
   `history_trimmed_count` from HA responses to reconcile local caches.
 - Render `confirmation_actions[]` and confirmation-style `playback_actions[]`
@@ -2108,6 +2123,12 @@ Requirements:
 - Send playback commands to POST /api/djconnect/command. Supported first
   version commands are status, play, pause, next, previous, set_volume,
   set_shuffle and set_repeat.
+- Implement a text-only Ask DJ screen using POST /api/djconnect/ask_dj/message,
+  GET /api/djconnect/ask_dj/history, POST /api/djconnect/ask_dj/history/clear,
+  POST /api/djconnect/ask_dj/idle_suggestion and POST /api/djconnect/command
+  for Play Now/follow-up actions. Use the same server-side history, clear,
+  retention, image/link/source, playback_actions and confirmation_actions
+  contract as iOS/macOS/watchOS.
 - Do not implement PTT, microphone capture, POST /api/djconnect/voice or local
   DJ response audio playback. POST /api/device/dj_response displays text on
   screen and may report audio_played:false when no audio device is configured.

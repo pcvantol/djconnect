@@ -37,10 +37,10 @@
 ### Ask DJ cross-device history retention and confirmation actions need field validation
 
 - Status: open / field validation.
-- Area: Ask DJ chat sync / iOS / macOS / watchOS.
+- Area: Ask DJ chat sync / iOS / macOS / watchOS / Raspberry Pi.
 - Symptom: Server-side Ask DJ history is now bounded and can trim older messages; clients must apply server trim metadata and render server follow-up actions consistently.
 - Current mitigation: Backend returns `history_limit`, `history_trimmed_before`, `history_trimmed_count`, `history_revision` and `clear_revision`; retention notices are stored as assistant system messages and follow-up buttons use `confirmation_actions[]` plus `ask_dj_followup_response`.
-- Next action: Test history trim, cross-device clear, Ja/Nee follow-up execution and expired pending follow-ups on iOS, macOS and Apple Watch.
+- Next action: Test history trim, cross-device clear, Ja/Nee follow-up execution and expired pending follow-ups on iOS, macOS, Apple Watch and Raspberry Pi.
 
 ### Ask DJ intent hardening and fuzzy fallback need field validation
 

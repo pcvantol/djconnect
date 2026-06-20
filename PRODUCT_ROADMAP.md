@@ -229,7 +229,8 @@ Every release must review this roadmap.
   safe debug media.
 - [x] Ask DJ chat consumes server-side history, clear revisions, retention
   metadata, Play Now actions and confirmation actions from the HA backend
-  contract (3.1, iOS/macOS/watchOS).
+  contract (3.1, iOS/macOS/watchOS/Raspberry Pi). ESP32 intentionally stays
+  outside Ask DJ chat/history.
 
 ### Raspberry Pi / Linux
 

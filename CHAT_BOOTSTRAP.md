@@ -23,7 +23,7 @@ Lees eerst:
 
 Belangrijke huidige status:
 - Project: DJConnect Home Assistant custom integration, domain `djconnect`.
-- Laatste release: `3.1.65`.
+- Laatste release: `3.1.66`.
 - Repo is public en MIT-licensed.
 - Alle DJConnect repos zijn MIT-licensed, tenzij een specifieke third-party dependency anders vermeldt.
 - `FIRMWARE-LICENSE.md` is verwijderd.
@@ -51,7 +51,7 @@ Belangrijke huidige status:
 - Conversation agent gebruikt Assist conversation agent voor Spotify intent bepaling en DJ response generatie, met DJConnect prompt override.
 - DJ response prompts moeten artiest, album en nummer noemen waar bekend.
 - Config flow blokkeert niet meer op officiële Spotify media_player; DJConnect gebruikt eigen Spotify OAuth en Spotify Web API.
-- Ask DJ is server-side en cross-device: app-clients gebruiken `/api/djconnect/ask_dj/message`, `/history`, `/history/clear`, `/idle_suggestion` en `/api/djconnect/command` voor Play Now/follow-up acties.
+- Ask DJ is server-side en cross-device voor iOS, macOS, watchOS en Raspberry Pi: deze clients gebruiken `/api/djconnect/ask_dj/message`, `/history`, `/history/clear`, `/idle_suggestion` en `/api/djconnect/command` voor Play Now/follow-up acties. ESP32 krijgt geen Ask DJ chat UI/history en blijft op de bestaande PTT/playback command flow.
 - Ask DJ history is HA-user scoped, max 200 berichten, met retention system messages en `history_limit`, `history_trimmed_before`, `history_trimmed_count` metadata voor client cache cleanup.
 - Cross-device clear/trim is backend-authoritative: clients vergelijken `clear_revision`, `history_revision` en trim metadata; niet op system-message tekst parsen.
 - Ask DJ gebruikt `playback_actions[]` voor Play Now en confirmation buttons; `confirmation_actions[]` bevat dezelfde Ja/Nee confirmation actions voor clients die die apart willen renderen.
