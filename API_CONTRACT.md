@@ -126,6 +126,29 @@ rotation uses `POST /v1/install/rotate` with the current install token and Home
 Assistant replaces the locally stored token only after a successful response.
 Users should never paste install tokens or logs containing secrets into issues.
 
+The central API also exposes operator-only endpoints for the website/admin
+surface. These endpoints require server-side operator auth using
+`DJCONNECT_RELAY_SECRET` and explicitly reject per-install `djci_...` tokens:
+
+- `GET /v1/admin/registrations`: privacy-safe Apple device registration
+  overview. It returns hashed/prefixed install and device identifiers plus
+  operational metadata only; it never returns raw APNs tokens, ciphertext,
+  nonces, relay secrets, prompts, responses or chat history.
+- `POST /v1/operator/install-token/revoke`: disables one compromised
+  per-install token by `ha_install_id` plus central API token ID. It never
+  accepts raw `djci_...` token material from the browser and never issues a
+  replacement token.
+
+The DJConnect website operator UI must call central operator endpoints only via
+server-side Pages Functions. `DJCONNECT_RELAY_SECRET` must never be present in
+browser bundles, static HTML, logs, screenshots or public fixtures.
+
+The central API stores APNs tokens encrypted at rest with
+`APNS_TOKEN_ENCRYPTION_KEY`. Planned key rotation requires the operator runbook
+in `pcvantol/djconnect-api/OPERATOR_RUNBOOK.md`; the current API runtime uses
+one active encryption key, so zero-downtime rotation requires temporary
+dual-key/backfill tooling before replacing the secret.
+
 Push payloads are deliberately small and generic. They must not contain secrets,
 Spotify tokens, Home Assistant tokens, raw prompts, raw LLM context, full memory,
 full history or long/raw assistant responses. Default pushable events are only:
