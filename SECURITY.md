@@ -41,6 +41,8 @@ In scope for this repository:
 - Home Assistant custom integration code under `custom_components/djconnect/`.
 - Pairing, bearer-token validation and DJConnect HTTP endpoints.
 - Spotify OAuth handling and refresh-token storage inside Home Assistant.
+- Ask DJ prompt-safety boundaries, history retention, cross-device clear state,
+  image/audio proxying and prevention of prompt or secret leakage.
 - Diagnostics and logging redaction for tokens, passwords and secrets.
 - Release and documentation workflows that could expose credentials or private artifacts.
 

@@ -13,6 +13,7 @@ API_STATUS = f"{API_BASE}/status"
 API_EVENT = f"{API_BASE}/event"
 API_ASK_DJ = f"{API_BASE}/ask_dj"
 API_ASK_DJ_MESSAGE = f"{API_ASK_DJ}/message"
+API_ASK_DJ_IDLE_SUGGESTION = f"{API_ASK_DJ}/idle_suggestion"
 API_ASK_DJ_HISTORY = f"{API_ASK_DJ}/history"
 API_ASK_DJ_HISTORY_CLEAR = f"{API_ASK_DJ_HISTORY}/clear"
 API_ASK_DJ_CLEAR = f"{API_ASK_DJ}/clear"
@@ -104,7 +105,7 @@ DEFAULT_TTS_ENGINE = ""
 DEFAULT_TTS_LANGUAGE = "nl-NL"
 DEFAULT_TTS_VOICE = ""
 DEFAULT_DJ_RESPONSE_ENABLED = True
-DEFAULT_DJ_RESPONSE_TTL_SECONDS = 120
+DEFAULT_DJ_RESPONSE_TTL_SECONDS = 60 * 60
 DJ_RESPONSE_PROMPT_PRESET_NEUTRAL = "neutral_business"
 DJ_RESPONSE_PROMPT_PRESET_WARM = "warm_personal"
 DJ_RESPONSE_PROMPT_PRESET_HUMOR = "humorous_witty"
@@ -142,6 +143,8 @@ SPOTIFY_SCOPES = [
     "user-library-read",
     "playlist-read-private",
     "playlist-read-collaborative",
+    "playlist-modify-private",
+    "playlist-modify-public",
     "user-read-recently-played",
     "user-top-read",
 ]

@@ -34,9 +34,13 @@ async def play_from_intent(
         raise RuntimeError("Could not determine a Spotify search query")
 
     command = "start_playlist" if media_content_type == "playlist" else "play"
+    if media_content_type == "artist":
+        command = "play_artist_top_tracks"
     value: Any = media_content_id
     if command == "play" and not media_content_id.startswith("spotify:"):
         value = {"query": media_content_id, "type": media_content_type}
+    if command == "play_artist_top_tracks":
+        value = {"query": media_content_id}
     response = await handle_spotify_command(
         hass,
         runtime,
@@ -150,4 +154,3 @@ def _album_media(
 
 def _query_with_artist(title: str, artist: str) -> str:
     return f"{title} {artist}".strip() if artist else title
-

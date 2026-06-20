@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import uuid
 from typing import Any
 
@@ -13,6 +13,10 @@ STORE_VERSION = 1
 MAX_MESSAGES_PER_USER = 200
 MAX_TEXT_LENGTH = 4000
 MAX_ITEMS = 20
+RETENTION_MESSAGE_COOLDOWN = timedelta(hours=1)
+RETENTION_MESSAGE_TEXT = (
+    "Ask DJ heeft de limiet van 200 berichten bereikt. Oudste berichten worden verwijderd."
+)
 
 
 class AskDJHistoryManager:
@@ -22,7 +26,7 @@ class AskDJHistoryManager:
         self.hass = hass
         self._store = store if store is not None else self._create_store(hass)
         self._loaded = False
-        self._data: dict[str, Any] = {"version": STORE_VERSION, "users": {}}
+        self._data: dict[str, Any] = {"version": STORE_VERSION, "global_clear_revision": 0, "users": {}}
 
     @property
     def data(self) -> dict[str, Any]:
@@ -67,7 +71,8 @@ class AskDJHistoryManager:
             "success": True,
             "user_id": user_key,
             "history_revision": int(state.get("history_revision") or 0),
-            "clear_revision": int(state.get("clear_revision") or 0),
+            "clear_revision": self._effective_clear_revision(state),
+            **_history_limit_metadata(state),
             "messages": deepcopy(messages),
             "server_time": _now(),
         }
@@ -80,13 +85,46 @@ class AskDJHistoryManager:
         state["history_revision"] = int(state.get("history_revision") or 0) + 1
         state["clear_revision"] = int(state.get("clear_revision") or 0) + 1
         state["messages"] = []
+        _clear_trim_metadata(state)
         state["updated_at"] = _now()
         await self.async_save()
         return {
             "success": True,
             "user_id": user_key,
             "history_revision": state["history_revision"],
-            "clear_revision": state["clear_revision"],
+            "clear_revision": self._effective_clear_revision(state),
+            **_history_limit_metadata(state),
+            "messages": [],
+            "server_time": _now(),
+        }
+
+    async def async_clear_all(self) -> dict[str, Any]:
+        """Clear history for all app clients and advance a global clear revision."""
+        await self.async_load()
+        global_clear_revision = int(self._data.get("global_clear_revision") or 0) + 1
+        self._data["global_clear_revision"] = global_clear_revision
+        users = self._data.setdefault("users", {})
+        if not users:
+            users[_user_key(None)] = {"history_revision": 0, "clear_revision": 0, "messages": []}
+        max_history_revision = global_clear_revision
+        for state in users.values():
+            if not isinstance(state, dict):
+                continue
+            state["history_revision"] = int(state.get("history_revision") or 0) + 1
+            state["clear_revision"] = max(int(state.get("clear_revision") or 0), global_clear_revision)
+            state["messages"] = []
+            _clear_trim_metadata(state)
+            state["updated_at"] = _now()
+            max_history_revision = max(max_history_revision, int(state["history_revision"]))
+        await self.async_save()
+        return {
+            "success": True,
+            "user_id": "all",
+            "history_revision": max_history_revision,
+            "clear_revision": global_clear_revision,
+            "history_limit": MAX_MESSAGES_PER_USER,
+            "history_trimmed_before": None,
+            "history_trimmed_count": 0,
             "messages": [],
             "server_time": _now(),
         }
@@ -109,7 +147,8 @@ class AskDJHistoryManager:
                 "user_id": user_key,
                 **existing,
                 "history_revision": int(state.get("history_revision") or 0),
-                "clear_revision": int(state.get("clear_revision") or 0),
+                "clear_revision": self._effective_clear_revision(state),
+                **_history_limit_metadata(state),
                 "server_time": _now(),
                 "deduplicated": True,
             }
@@ -117,8 +156,10 @@ class AskDJHistoryManager:
         user_message = _message_from_request(request_payload)
         assistant_message = _message_from_response(request_payload, assistant_response)
         state.setdefault("messages", []).extend([user_message, assistant_message])
-        state["messages"] = state["messages"][-MAX_MESSAGES_PER_USER:]
         state["history_revision"] = int(state.get("history_revision") or 0) + 1
+        trimmed = _apply_history_limit(state)
+        if trimmed:
+            state["history_revision"] = int(state.get("history_revision") or 0) + 1
         state["updated_at"] = _now()
         await self.async_save()
         return {
@@ -127,7 +168,8 @@ class AskDJHistoryManager:
             "user_message": deepcopy(user_message),
             "assistant_message": deepcopy(assistant_message),
             "history_revision": state["history_revision"],
-            "clear_revision": int(state.get("clear_revision") or 0),
+            "clear_revision": self._effective_clear_revision(state),
+            **_history_limit_metadata(state),
             "server_time": _now(),
         }
 
@@ -141,11 +183,28 @@ class AskDJHistoryManager:
         await self.async_load()
         user_keys = self._target_user_keys(user_id)
         assistant_message = _message_from_response(request_payload, assistant_response)
+        client_message_id = _clean_text(request_payload.get("client_message_id"))
+        if client_message_id:
+            existing = self._find_assistant_message(user_keys, client_message_id)
+            if existing is not None:
+                first_state = self._user_state(user_keys[0])
+                return {
+                    "success": True,
+                    "user_id": user_keys[0],
+                    "assistant_message": deepcopy(existing),
+                    "history_revision": int(first_state.get("history_revision") or 0),
+                    "clear_revision": self._effective_clear_revision(first_state),
+                    **_history_limit_metadata(first_state),
+                    "server_time": _now(),
+                    "deduplicated": True,
+                }
         for user_key in user_keys:
             state = self._user_state(user_key)
             state.setdefault("messages", []).append(deepcopy(assistant_message))
-            state["messages"] = state["messages"][-MAX_MESSAGES_PER_USER:]
             state["history_revision"] = int(state.get("history_revision") or 0) + 1
+            trimmed = _apply_history_limit(state)
+            if trimmed:
+                state["history_revision"] = int(state.get("history_revision") or 0) + 1
             state["updated_at"] = _now()
         await self.async_save()
         first_state = self._user_state(user_keys[0])
@@ -154,9 +213,22 @@ class AskDJHistoryManager:
             "user_id": user_keys[0],
             "assistant_message": deepcopy(assistant_message),
             "history_revision": int(first_state.get("history_revision") or 0),
-            "clear_revision": int(first_state.get("clear_revision") or 0),
+            "clear_revision": self._effective_clear_revision(first_state),
+            **_history_limit_metadata(first_state),
             "server_time": _now(),
         }
+
+    async def async_has_client_message_id(
+        self,
+        user_id: str | None,
+        client_message_id: str,
+    ) -> bool:
+        """Return whether a message id already exists for the target history."""
+        await self.async_load()
+        message_id = _clean_text(client_message_id)
+        if not message_id:
+            return False
+        return self._find_assistant_message(self._target_user_keys(user_id), message_id) is not None
 
     def recent_messages_for_prompt(
         self,
@@ -180,12 +252,22 @@ class AskDJHistoryManager:
                 "history_revision": 0,
                 "clear_revision": 0,
                 "messages": [],
+                "history_trimmed_before": None,
+                "history_trimmed_count": 0,
             }
         state = users[user_id]
         state.setdefault("history_revision", 0)
         state.setdefault("clear_revision", 0)
         state.setdefault("messages", [])
+        state.setdefault("history_trimmed_before", None)
+        state.setdefault("history_trimmed_count", 0)
         return state
+
+    def _effective_clear_revision(self, state: dict[str, Any]) -> int:
+        return max(
+            int(state.get("clear_revision") or 0),
+            int(self._data.get("global_clear_revision") or 0),
+        )
 
     def _target_user_keys(self, user_id: str | None) -> list[str]:
         if _clean_text(user_id):
@@ -216,6 +298,24 @@ class AskDJHistoryManager:
                     "user_message": deepcopy(message),
                     "assistant_message": deepcopy(assistant or {}),
                 }
+        return None
+
+    def _find_assistant_message(
+        self,
+        user_keys: list[str],
+        client_message_id: str,
+    ) -> dict[str, Any] | None:
+        if not client_message_id:
+            return None
+        for user_key in user_keys:
+            state = self._user_state(user_key)
+            for message in state.get("messages") or []:
+                if (
+                    isinstance(message, dict)
+                    and message.get("role") == "assistant"
+                    and message.get("client_message_id") == client_message_id
+                ):
+                    return deepcopy(message)
         return None
 
     def _create_store(self, hass: Any | None) -> Any | None:
@@ -261,6 +361,7 @@ def _message_from_response(
     return _compact_message(
         {
             "id": _server_message_id(),
+            "client_message_id": _clean_text(request_payload.get("client_message_id")),
             "role": "assistant",
             "message_kind": _message_kind(response),
             "origin": _clean_text(response.get("origin")),
@@ -330,14 +431,24 @@ def _compact_store_data(data: dict[str, Any]) -> dict[str, Any]:
             "clear_revision": int(state.get("clear_revision") or 0),
             "messages": messages,
             "updated_at": _clean_text(state.get("updated_at")),
+            "history_trimmed_before": _clean_text(state.get("history_trimmed_before")) or None,
+            "history_trimmed_count": int(state.get("history_trimmed_count") or 0),
         }
-    return {"version": STORE_VERSION, "users": users}
+    return {
+        "version": STORE_VERSION,
+        "global_clear_revision": int(data.get("global_clear_revision") or 0),
+        "users": users,
+    }
 
 
 def _normalize_store_data(data: Any) -> dict[str, Any]:
     if not isinstance(data, dict):
-        return {"version": STORE_VERSION, "users": {}}
-    normalized = {"version": STORE_VERSION, "users": {}}
+        return {"version": STORE_VERSION, "global_clear_revision": 0, "users": {}}
+    normalized = {
+        "version": STORE_VERSION,
+        "global_clear_revision": int(data.get("global_clear_revision") or 0),
+        "users": {},
+    }
     for user_id, state in (data.get("users") or {}).items():
         if not isinstance(state, dict):
             continue
@@ -350,6 +461,8 @@ def _normalize_store_data(data: Any) -> dict[str, Any]:
                 if isinstance(message, dict)
             ],
             "updated_at": _clean_text(state.get("updated_at")),
+            "history_trimmed_before": _clean_text(state.get("history_trimmed_before")) or None,
+            "history_trimmed_count": int(state.get("history_trimmed_count") or 0),
         }
     return normalized
 
@@ -390,6 +503,105 @@ def _limit(value: int) -> int:
         return max(1, min(MAX_MESSAGES_PER_USER, int(value)))
     except (TypeError, ValueError):
         return MAX_MESSAGES_PER_USER
+
+
+def _history_limit_metadata(state: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "history_limit": MAX_MESSAGES_PER_USER,
+        "history_trimmed_before": _clean_text(state.get("history_trimmed_before")) or None,
+        "history_trimmed_count": int(state.get("history_trimmed_count") or 0),
+    }
+
+
+def _clear_trim_metadata(state: dict[str, Any]) -> None:
+    state["history_trimmed_before"] = None
+    state["history_trimmed_count"] = 0
+
+
+def _apply_history_limit(state: dict[str, Any]) -> bool:
+    messages = [message for message in state.get("messages", []) if isinstance(message, dict)]
+    if len(messages) <= MAX_MESSAGES_PER_USER:
+        state["messages"] = messages
+        state.setdefault("history_trimmed_before", None)
+        state.setdefault("history_trimmed_count", 0)
+        return False
+
+    add_notice = _should_add_retention_message(messages)
+    remove_count = len(messages) - MAX_MESSAGES_PER_USER + (1 if add_notice else 0)
+    removed = messages[:remove_count]
+    kept = messages[remove_count:]
+    cutoff = _trim_cutoff_timestamp(kept, removed)
+    if add_notice:
+        kept.append(_retention_system_message())
+    state["messages"] = kept[-MAX_MESSAGES_PER_USER:]
+    state["history_trimmed_before"] = cutoff
+    previous_count = int(state.get("history_trimmed_count") or 0)
+    state["history_trimmed_count"] = previous_count + len(removed)
+    return True
+
+
+def _should_add_retention_message(messages: list[dict[str, Any]]) -> bool:
+    latest = None
+    for message in reversed(messages):
+        if (
+            message.get("role") == "assistant"
+            and message.get("message_kind") == "system"
+            and message.get("origin") == "history_retention"
+        ):
+            latest = _parse_time(message.get("created_at"))
+            break
+    if latest is None:
+        return True
+    return datetime.now(timezone.utc) - latest >= RETENTION_MESSAGE_COOLDOWN
+
+
+def _retention_system_message() -> dict[str, Any]:
+    return _compact_message(
+        {
+            "id": _server_message_id(),
+            "role": "assistant",
+            "message_kind": "system",
+            "origin": "history_retention",
+            "text": RETENTION_MESSAGE_TEXT,
+            "created_at": _now(),
+            "status": "delivered",
+            "images": [],
+            "links": [],
+            "sources": [],
+            "audio_url": None,
+            "playback_actions": [],
+            "intent": {
+                "category": "system",
+                "intent": "history_limit_reached",
+            },
+            "action": "none",
+        }
+    )
+
+
+def _trim_cutoff_timestamp(kept: list[dict[str, Any]], removed: list[dict[str, Any]]) -> str:
+    for message in kept:
+        timestamp = _clean_text(message.get("created_at"))
+        if timestamp:
+            return timestamp
+    for message in reversed(removed):
+        timestamp = _clean_text(message.get("created_at"))
+        if timestamp:
+            return timestamp
+    return _now()
+
+
+def _parse_time(value: Any) -> datetime | None:
+    text = _clean_text(value)
+    if not text:
+        return None
+    try:
+        parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
 
 
 def _now() -> str:

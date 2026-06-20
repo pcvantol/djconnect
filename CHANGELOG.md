@@ -3,6 +3,12 @@
 ## 3.1.65
 
 - Add text-only ambient Ask DJ music facts when Spotify playback moves to a new artist/album combination, deduped so multiple tracks from the same album/artist do not create repeated chat messages.
+- Make Ask DJ history production-safe with a 200-message server-side limit, retention system messages and explicit `history_limit`, `history_trimmed_before` and `history_trimmed_count` sync metadata for clients.
+- Add Ask DJ follow-up confirmation buttons through `playback_actions[]` / `confirmation_actions[]` with `command:"ask_dj_followup_response"`, server-side pending follow-up state and Ja/Nee handling.
+- Add morning startup support for `Goedemorgen` / `Good morning` when playback is idle, returning a personalized morning suggestion with Ja/Nee buttons without starting playback automatically.
+- Treat sleep phrases such as `ik ga slapen` as direct pause/stop playback requests.
+- Harden Ask DJ fallback handling for gibberish, sandbox escape and prompt-injection style input so those requests do not reach the conversation agent or playback paths.
+- Expand Ask DJ playback/search behavior for English `next`, queue listing, playlist search, album/artist disambiguation, recommendation lists, repeat responses and safer generated DJ announcements.
 
 ## 3.1.64
 

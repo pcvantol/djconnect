@@ -238,9 +238,25 @@ Pattern:
   Assistant `Store(hass, 1, "djconnect_ask_dj_history")`. It is keyed by HA
   user id, keeps at most 200 messages per user and stores user/assistant
   messages with images, links, sources, audio_url and playback_actions.
+- When the 200-message limit is exceeded, trimming happens server-side before
+  the history is returned. The backend exposes `history_limit`,
+  `history_trimmed_before` and `history_trimmed_count` so clients can trim
+  local caches without parsing visible text. A bounded assistant-only system
+  message with `origin:"history_retention"` and intent
+  `history_limit_reached` is added as normal chat history, but no audio is
+  generated for it.
 - `client_message_id` provides idempotency for retried message posts. `client_id`
   and `client_type` stay metadata for origin/device diagnostics and must not be
   used as the primary history key.
+- Pending Ask DJ follow-ups are stored compactly in DJ Memory with a short TTL
+  so a confirmation question can survive a cross-device reply. The first
+  implementation uses a 10 minute expiry and stores only the proposed command
+  metadata needed to execute or decline the follow-up.
+- Follow-up questions expose `confirmation_actions[]` and confirmation-style
+  `playback_actions[]`. Clients render them as Ja/Nee controls and answer via
+  `POST /api/djconnect/command` with
+  `command:"ask_dj_followup_response"`. A positive answer executes the stored
+  proposal; a negative answer consumes it and leaves playback unchanged.
 - Ask DJ audio generation is policy-based. `audio_response:auto` avoids TTS for
   informational text chat to keep the chat UI fast, but keeps TTS for
   playback/hybrid intents and voice/PTT interactions. `always` and `never`
@@ -253,6 +269,12 @@ Pattern:
 - Intent routing is deliberately split into informational, playback/device
   action and hybrid buckets. Informational answers can use playback context and
   memory but must not mutate Spotify/Home Assistant playback.
+- Lifecycle utterances are routed explicitly: `ik ga slapen` pauses playback,
+  while `goedemorgen` returns a morning recommendation with confirmation
+  controls instead of starting playback automatically.
+- Obvious gibberish and sandbox/prompt-injection attempts return the neutral
+  unknown-intent answer and must not trigger Spotify search, HA device lookup,
+  prompt disclosure or playback actions.
 - `personal_music_profile_analysis` is a dedicated informational intent. It
   parses common period phrases, defaults to the last 30 days, summarizes only
   available DJ Memory/playback data and returns an insufficient-data answer when

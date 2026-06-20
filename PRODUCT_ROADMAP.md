@@ -83,6 +83,16 @@ Every release must review this roadmap.
   Bonjour is filtered, stale or unavailable.
 - [ ] Queue/up-next response returns max 100 real backend items, artwork URLs,
   context URI and no artificial duplicate padding.
+- [x] Ask DJ server-side chat history sync supports bounded history,
+  cross-device clear, retention metadata and client cache trimming (3.1, HA).
+- [x] Ask DJ supports confirmation-style follow-up actions with Ja/Nee buttons
+  and server-side pending follow-up execution (3.1, HA).
+- [x] Ask DJ supports morning startup suggestions from listening memory and
+  sleep phrases that pause playback (3.1, HA).
+- [x] Ask DJ recommendations can return Play Now actions with artwork without
+  mutating playback until explicit confirmation (3.1, HA).
+- [x] Ask DJ hardened fallback handles gibberish and prompt-injection-like
+  requests without playback mutation or prompt disclosure (3.1, HA).
 - [ ] Last STT text, resolved Spotify result, DJ announcement and last track are
   visible as entities or redacted debug attributes.
 - [ ] DJ announcement prompt is configurable, multiline and isolated from
@@ -217,6 +227,9 @@ Every release must review this roadmap.
 - [ ] Continuity-friendly handoff between Mac/iPhone and room devices.
 - [ ] Voice/debug replay UI for the last WAV/STT/TTS response where HA exposes
   safe debug media.
+- [x] Ask DJ chat consumes server-side history, clear revisions, retention
+  metadata, Play Now actions and confirmation actions from the HA backend
+  contract (3.1, iOS/macOS/watchOS).
 
 ### Raspberry Pi / Linux
 

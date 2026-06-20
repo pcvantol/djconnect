@@ -4,6 +4,7 @@ import asyncio
 import importlib
 from pathlib import Path
 import sys
+import time
 import types
 import unittest
 
@@ -75,6 +76,8 @@ def install_integration_stubs() -> None:
     aiohttp.ClientTimeout = ClientTimeout
     aiohttp.web = getattr(aiohttp, "web", types.SimpleNamespace())
     voluptuous.Schema = lambda schema: schema
+    voluptuous.Optional = lambda key, *args, **kwargs: key
+    voluptuous.Required = lambda key, *args, **kwargs: key
     config_entries.ConfigEntry = object
     core.HomeAssistant = object
     core.Context = object
@@ -1372,6 +1375,21 @@ class TtsHelperTest(unittest.TestCase):
         status, audio = self.dj_response.get_tts_audio(hass, "missing")
         self.assertEqual(status, 404)
         self.assertIsNone(audio)
+
+    def test_tts_audio_store_uses_unique_tokens_and_default_one_hour_ttl(self) -> None:
+        hass = types.SimpleNamespace(data={})
+
+        first = self.dj_response.store_tts_audio(hass, b"first")
+        second = self.dj_response.store_tts_audio(hass, b"second")
+        store = self.dj_response._store(hass)
+
+        self.assertNotEqual(first, second)
+        self.assertEqual(store[first].data, b"first")
+        self.assertEqual(store[second].data, b"second")
+        self.assertGreaterEqual(
+            store[first].expires_at - time.time(),
+            self.const.DEFAULT_DJ_RESPONSE_TTL_SECONDS - 5,
+        )
 
     def test_tts_audio_store_expired_returns_410(self) -> None:
         hass = types.SimpleNamespace(data={})

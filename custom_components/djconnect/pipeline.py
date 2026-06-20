@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from typing import Any
 
 from homeassistant.core import HomeAssistant
@@ -393,6 +394,8 @@ async def generate_dj_response_with_assist(
             debug["generated_text"] = generated
         blocked_reason = _dj_response_block_reason(generated)
         if blocked_reason is None:
+            blocked_reason = _dj_response_media_mismatch_reason(generated, media_context)
+        if blocked_reason is None:
             return generated
         if debug is not None:
             debug.update({"fallback_used": True, "block_reason": blocked_reason})
@@ -462,6 +465,34 @@ def _dj_response_media_lines(media_context: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def _dj_response_media_mismatch_reason(generated: str, media_context: dict[str, Any]) -> str | None:
+    text = _normalize_media_match_text(generated)
+    if not text:
+        return "empty generated response"
+    artist = _first_media_value(media_context, "artist", "artist_name")
+    track = _first_media_value(media_context, "track_name", "title")
+    if artist and _normalize_media_match_text(artist) not in text:
+        return "generated response missing resolved artist"
+    if track and _normalize_media_match_text(track) not in text:
+        return "generated response missing resolved track"
+    return None
+
+
+def _first_media_value(media_context: dict[str, Any], *keys: str) -> str:
+    for key in keys:
+        value = str(media_context.get(key) or "").strip()
+        if value:
+            return value
+    return ""
+
+
+def _normalize_media_match_text(value: str) -> str:
+    normalized = str(value or "").lower()
+    normalized = normalized.replace("&", " and ")
+    normalized = re.sub(r"[^a-z0-9]+", " ", normalized)
+    return re.sub(r"\s+", " ", normalized).strip()
+
+
 def _intent_from_assist_response(response: dict[str, Any], user_text: str) -> dict[str, Any]:
     conversation_response = response.get("response") or {}
     response_type = conversation_response.get("response_type")
@@ -496,7 +527,7 @@ def _intent_from_assist_response(response: dict[str, Any], user_text: str) -> di
             _intent_debug_summary(local_intent),
         )
         local_intent["assist_intent"] = intent
-        if intent.get("dj_announcement"):
+        if _announcement_matches_local_intent(intent.get("dj_announcement"), local_intent):
             local_intent["dj_announcement"] = intent["dj_announcement"]
         return local_intent
     return intent
@@ -567,6 +598,17 @@ def _should_prefer_local_intent(
 
 def _normalized_intent_value(value: Any) -> str:
     return " ".join(str(value or "").strip().lower().split())
+
+
+def _announcement_matches_local_intent(announcement: Any, local_intent: dict[str, Any]) -> bool:
+    text = _normalize_media_match_text(str(announcement or ""))
+    if not text:
+        return False
+    for key in ("artist", "title", "playlist"):
+        value = _normalize_media_match_text(str(local_intent.get(key) or ""))
+        if value and value not in text:
+            return False
+    return any(local_intent.get(key) for key in ("artist", "title", "playlist"))
 
 
 def _intent_debug_summary(intent: dict[str, Any]) -> dict[str, Any]:

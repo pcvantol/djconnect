@@ -23,6 +23,7 @@ from .const import (
 )
 from .dj_response import async_send_dj_response_best_effort
 from .memory import prompt_context_text
+from .music_intent import parse_spoken_music_request
 from .pipeline import _assist_context, _speech_from_response
 from .processor import process_text_command
 from .spotify_backend import handle_spotify_command
@@ -32,6 +33,14 @@ _LOGGER = logging.getLogger(__name__)
 IMAGE_PROXY_KEY = "image_proxy"
 BANDSINTOWN_EVENTS_URL = "https://rest.bandsintown.com/artists/{artist}/events"
 BANDSINTOWN_APP_ID = "djconnect"
+TRACK_REFERENCE_WORDS = (
+    "kraker",
+    "monsterhit",
+    "vette track",
+    "dikke knaller",
+    "knaller",
+    "beuker",
+)
 
 
 @dataclass(frozen=True)
@@ -87,10 +96,10 @@ async def async_handle_ask_dj(
             memory_context["server_history"] = recent
 
     conversation_turn = classify_conversation_turn(text, memory_context)
-    if conversation_turn.kind == "conversational_followup":
+    if conversation_turn.kind in {"conversational_followup", "clarification_needed"}:
         classification = AskDjIntent(
             "informational",
-            "conversational_followup",
+            conversation_turn.kind,
             "none",
         )
         result = _handle_conversational_followup(conversation_turn)
@@ -140,6 +149,44 @@ async def async_handle_ask_dj(
         classification = AskDjIntent("hybrid", "play_music", "play_music", play=True)
     playback_context = await _playback_context(hass, runtime)
     output_devices = await _output_devices(hass, runtime, classification)
+    if classification.category == "hybrid" and _is_slang_track_reference(effective_text):
+        track_label = _track_label(playback_context)
+        if track_label:
+            effective_text = f"speel {track_label}"
+        else:
+            classification = AskDjIntent("informational", "clarification_needed", "none")
+            result = {
+                "success": True,
+                "text": "Welke track bedoel je?",
+                "dj_text": "Welke track bedoel je?",
+                "action": "none",
+            }
+            response = _normalize_ask_dj_response(
+                hass,
+                runtime,
+                result,
+                classification,
+                memory_key=memory_key,
+                playback_context=playback_context,
+            )
+            response.pop("playback", None)
+            return response
+    if (
+        classification.category == "hybrid"
+        and _is_deferred_playback_request(effective_text)
+        and _playback_is_active(playback_context)
+    ):
+        result = await _deferred_playback_request_response(hass, runtime, effective_text)
+        response = _normalize_ask_dj_response(
+            hass,
+            runtime,
+            result,
+            classification,
+            memory_key=memory_key,
+            playback_context=playback_context,
+        )
+        response.pop("playback", None)
+        return response
 
     try:
         if classification.category == "action":
@@ -181,6 +228,7 @@ async def async_handle_ask_dj(
                 "intent": response.get("intent") or {},
                 "dj_text": response.get("dj_text") or response.get("text"),
                 "playback": response.get("playback") or playback_context,
+                "playback_actions": response.get("playback_actions") or [],
             },
             payload=identity_payload,
             user_id=user_id,
@@ -200,6 +248,90 @@ async def async_handle_ask_dj(
             _LOGGER.debug("DJConnect Ask DJ audio response unavailable: %s", exc)
     response.pop("playback", None)
     return response
+
+
+async def async_idle_suggestion(
+    hass: HomeAssistant,
+    runtime: Any,
+    payload: dict[str, Any],
+    *,
+    user_id: str | None = None,
+) -> dict[str, Any]:
+    """Return one personalized Ask DJ system suggestion when playback is idle."""
+    identity_payload = _identity_payload(runtime, payload)
+    memory = getattr(runtime, "memory", None)
+    memory_context: dict[str, Any] = {}
+    memory_key = str(payload.get("memory_key") or "").strip() or None
+    if memory is not None:
+        memory_context = await memory.async_context_for_runtime(
+            runtime,
+            identity_payload,
+            user_id=user_id,
+        )
+        memory_key = memory_context.get("memory_key") or memory_key
+    playback_context = await _playback_context(hass, runtime)
+    if _playback_is_active(playback_context):
+        text = "Er speelt al muziek. Ik laat de suggestie even achterwege."
+        return {
+            "success": True,
+            "text": text,
+            "dj_text": text,
+            "message": text,
+            "message_kind": "system",
+            "origin": "idle_suggestion",
+            "intent": {"category": "informational", "intent": "idle_suggestion"},
+            "action": "none",
+            "memory_key": memory_key,
+            "playback_actions": [],
+        }
+    spotify_profile = await _listening_profile_context(
+        hass,
+        runtime,
+        payload,
+        memory_context,
+    )
+    actions = _recommendation_playback_actions(
+        hass,
+        memory_context,
+        playback_context,
+        spotify_profile,
+    )
+    selected_actions = actions[:1]
+    if selected_actions:
+        action = selected_actions[0]
+        title = str(action.get("title") or "deze track").strip()
+        subtitle = str(action.get("subtitle") or "").strip()
+        item = f"{title} van {subtitle}" if subtitle else title
+        text = (
+            "Er speelt nu niets. Zin in iets nieuws? "
+            f"Ik denk dat {item} goed past bij je recente luisterprofiel."
+        )
+    else:
+        text = (
+            "Er speelt nu niets. Ik heb nog te weinig luisterprofiel om direct "
+            "een goede Play Now suggestie te doen."
+        )
+    return {
+        "success": True,
+        "text": text,
+        "dj_text": text,
+        "message": text,
+        "message_kind": "system",
+        "origin": "idle_suggestion",
+        "intent": {"category": "informational", "intent": "idle_suggestion"},
+        "action": "none",
+        "memory_key": memory_key,
+        "playback_actions": selected_actions,
+        "sources": _profile_sources(memory_context, spotify_profile),
+    }
+
+
+def _playback_is_active(playback_context: dict[str, Any]) -> bool:
+    if not isinstance(playback_context, dict):
+        return False
+    if playback_context.get("is_playing"):
+        return True
+    return bool(playback_context.get("has_playback") and playback_context.get("track_name"))
 
 
 def _should_generate_audio_response(
@@ -255,6 +387,13 @@ def classify_conversation_turn(
     normalized = _normalize(text)
     if not normalized:
         return AskDjConversationTurn("informational_intent", text)
+    if _is_contextual_play_request(normalized):
+        return _contextual_play_turn(memory_context)
+    direct_track = _direct_track_answer_turn(text, memory_context)
+    if direct_track is not None:
+        return direct_track
+    if _is_personal_recommendation_request(normalized):
+        return AskDjConversationTurn("informational_intent", text)
     if _has_clear_playback_action(normalized):
         return AskDjConversationTurn(_conversation_kind_for_intent(text), text)
     if _is_conversational_acknowledgement(normalized):
@@ -281,12 +420,137 @@ def _conversation_kind_for_intent(text: str) -> str:
 def _has_clear_playback_action(normalized: str) -> bool:
     return bool(
         re.search(
-            r"\b(speel|draai|zet|pauzeer|volgende|vorige|harder|zachter|shuffle|repeat|herhaal)\b",
+            r"\b(speel|draai|zet|pauzeer|volgende|vorige|next|skip|previous|harder|zachter|shuffle|repeat|herhaal)\b",
             normalized,
         )
         or "start muziek" in normalized
         or "speel verder" in normalized
     )
+
+
+def _is_contextual_play_request(normalized: str) -> bool:
+    return normalized in {
+        "speel af",
+        "speel maar",
+        "speel maar af",
+        "draai maar",
+        "draai maar af",
+        "zet maar op",
+        "play it",
+        "play that",
+        "play this",
+        "play",
+    }
+
+
+def _contextual_play_turn(memory_context: dict[str, Any]) -> AskDjConversationTurn:
+    track = _recent_user_track_like_text(memory_context)
+    if not track:
+        return AskDjConversationTurn(
+            "clarification_needed",
+            "",
+            "Welk nummer wil je dat ik afspeel?",
+        )
+    artist = _artist_from_recent_assistant_text(memory_context) or _artist_from_server_history_context(memory_context)
+    if not artist:
+        return AskDjConversationTurn(
+            "clarification_needed",
+            "",
+            "Welke artiest bedoel je?",
+        )
+    query = f"{track} {artist}".strip()
+    return AskDjConversationTurn("hybrid_intent", f"speel {query}")
+
+
+def _direct_track_answer_turn(
+    text: str,
+    memory_context: dict[str, Any],
+) -> AskDjConversationTurn | None:
+    normalized = _normalize(text)
+    if not _looks_like_short_track_answer(normalized):
+        return None
+    if not _recent_assistant_asked_for_specific_music(memory_context):
+        return None
+    artist = _artist_from_recent_assistant_text(memory_context) or _artist_from_server_history_context(memory_context)
+    query = f"{text.strip()} {artist}".strip()
+    return AskDjConversationTurn("hybrid_intent", f"speel {query}")
+
+
+def _looks_like_short_track_answer(normalized: str) -> bool:
+    if not normalized or len(normalized.split()) > 8:
+        return False
+    if _is_conversational_acknowledgement(normalized):
+        return False
+    if _is_personal_recommendation_request(normalized) or _has_clear_playback_action(normalized):
+        return False
+    if classify_ask_dj(normalized).category != "informational":
+        return False
+    return True
+
+
+def _recent_assistant_asked_for_specific_music(memory_context: dict[str, Any]) -> bool:
+    history = memory_context.get("server_history") if isinstance(memory_context, dict) else []
+    if not isinstance(history, list):
+        return False
+    needles = (
+        "specifieke nummers",
+        "specifiek nummer",
+        "specifieke track",
+        "specifieke artiest",
+        "welke artiest",
+        "welk nummer",
+        "welke track",
+        "track in gedachten",
+        "artiest in gedachten",
+    )
+    for item in reversed(history[-6:]):
+        if not isinstance(item, dict) or item.get("role") != "assistant":
+            continue
+        text = _normalize(str(item.get("text") or ""))
+        if any(needle in text for needle in needles):
+            return True
+    return False
+
+
+def _recent_user_track_like_text(memory_context: dict[str, Any]) -> str:
+    history = memory_context.get("server_history") if isinstance(memory_context, dict) else []
+    if isinstance(history, list):
+        for item in reversed(history):
+            if not isinstance(item, dict) or item.get("role") != "user":
+                continue
+            text = str(item.get("text") or "").strip()
+            normalized = _normalize(text)
+            if not text or _is_contextual_play_request(normalized):
+                continue
+            if classify_ask_dj(text).category == "informational" and len(normalized.split()) <= 8:
+                return text
+    previous = _previous_user_message(memory_context)
+    if previous and not _is_contextual_play_request(_normalize(previous)):
+        return previous
+    return ""
+
+
+def _artist_from_recent_assistant_text(memory_context: dict[str, Any]) -> str:
+    history = memory_context.get("server_history") if isinstance(memory_context, dict) else []
+    if not isinstance(history, list):
+        return ""
+    patterns = (
+        r"\b(?:van|door|by)\s+([A-Z][\w'&.\-]*(?:\s+[A-Z&][\w'&.\-]*){0,5})",
+        r"\b(?:in|over|rond)\s+([A-Z][\w'&\-]*(?:\s+[A-Z&][\w'&\-]*){0,5})",
+        r"\blied\s+van\s+([^,.!]+)",
+        r"\bsong\s+by\s+([^,.!]+)",
+    )
+    for item in reversed(history):
+        if not isinstance(item, dict) or item.get("role") != "assistant":
+            continue
+        text = str(item.get("text") or "").strip()
+        for pattern in patterns:
+            match = re.search(pattern, text)
+            if match:
+                artist = _clean_artist_name(match.group(1))
+                if artist:
+                    return artist
+    return ""
 
 
 def _is_conversational_acknowledgement(normalized: str) -> bool:
@@ -307,6 +571,7 @@ def _is_conversational_acknowledgement(normalized: str) -> bool:
         "thank you",
         "probeer later nog eens",
         "nee hoeft niet",
+        "nee",
         "hoeft niet",
         "prima",
         "top",
@@ -372,6 +637,8 @@ def _conversational_response_text(normalized: str) -> str:
         return "Ja, jammer. Ik probeer het de volgende keer beter te checken."
     if "hoeft niet" in normalized:
         return "Prima, dan laat ik het zo."
+    if normalized == "nee":
+        return "Helemaal goed, dan laat ik die vraag liggen."
     if normalized in {"ok", "okay", "oke", "prima", "top"} or normalized.startswith(("ok ", "oke ")):
         return "Helemaal goed."
     return "Helemaal goed."
@@ -397,27 +664,47 @@ def classify_ask_dj(text: str) -> AskDjIntent:
             "personal_music_profile_analysis",
             "profile_analysis",
         )
+    if _is_morning_start_request(normalized):
+        return AskDjIntent(
+            "informational",
+            "morning_music_suggestion",
+            "none",
+        )
+    if _is_save_generated_playlist_request(normalized):
+        return AskDjIntent("informational", "save_generated_playlist", "create_playlist")
+    if _is_seed_mix_playlist_request(normalized):
+        return AskDjIntent("informational", "build_playlist_from_seeds", "none")
+    if _is_song_recommendation_request(normalized):
+        return AskDjIntent("informational", "song_recommendations", "none")
     if _is_personal_recommendation_request(normalized):
         return AskDjIntent(
             "informational",
             "personal_music_recommendations",
             "none",
         )
+    if _is_playlist_search_request(normalized):
+        return AskDjIntent("informational", "spotify_playlist_search", "none")
+    if _is_next_track_info_request(normalized):
+        return AskDjIntent("informational", "next_track_info", "queue")
     if _is_concert_agenda_request(normalized):
         return AskDjIntent("informational", "artist_concerts", "concert_agenda")
     if any(phrase in normalized for phrase in ("waarom koos", "waarom heb je", "vertel iets", "wanneer speelt", "analyseer", "welke albums", "album art", "cover")):
         return AskDjIntent("informational", "ask_music_info")
-    if any(term in normalized for term in ("vergelijkbaar", "vergelijkbare", "similar", "zelfde soort", "lijkt op")):
+    if any(term in normalized for term in ("vergelijkbaar", "vergelijkbare", "similar", "zelfde soort", "lijkt op", "nog meer leuk")):
         return AskDjIntent("informational", "ask_music_info")
     if any(phrase in normalized for phrase in ("aankondiging", "dj intro", "intro voor", "wat nu speelt")):
         return AskDjIntent("hybrid", "dj_announcement", "announce", play=False)
-    if any(word in normalized for word in ("pauzeer", "stop muziek", "stop de muziek")):
+    if any(word in normalized for word in ("pauzeer", "stop muziek", "stop de muziek", "ik ga slapen", "ga slapen")):
         return AskDjIntent("action", "playback_control", "pause")
     if any(phrase in normalized for phrase in ("start muziek", "speel verder", "resume")):
         return AskDjIntent("action", "playback_control", "play")
-    if "volgende" in normalized:
+    if "volgende" in normalized or normalized in {"next", "skip", "next song", "next track"}:
         return AskDjIntent("action", "playback_control", "next")
-    if "vorige" in normalized or "vorig nummer" in normalized:
+    if (
+        "vorige" in normalized
+        or "vorig nummer" in normalized
+        or normalized in {"previous", "previous song", "previous track"}
+    ):
         return AskDjIntent("action", "playback_control", "previous")
     if "harder" in normalized:
         return AskDjIntent("action", "playback_control", "volume_delta", 10)
@@ -436,6 +723,8 @@ def classify_ask_dj(text: str) -> AskDjIntent:
         return AskDjIntent("informational", "list_outputs", "devices")
     if "waarop" in normalized and "muziek" in normalized:
         return AskDjIntent("informational", "current_output", "status")
+    if _is_deferred_playback_request(normalized):
+        return AskDjIntent("hybrid", "play_music", "play_music", play=True)
     if re.search(r"\b(speel|draai|zet)\b", normalized):
         return AskDjIntent("hybrid", "play_music", "play_music", play=True)
     return AskDjIntent("informational", "ask_music_info")
@@ -474,6 +763,7 @@ async def _handle_action(
             "text": text_response,
             "dj_text": text_response,
             "playback": result.get("playback") if isinstance(result, dict) else {},
+            "playback_actions": _playback_control_actions(action),
         }
     if action == "set_shuffle":
         await handle_spotify_command(hass, runtime, "set_shuffle", classification.value)
@@ -481,7 +771,8 @@ async def _handle_action(
         return {"success": True, "text": text_response, "dj_text": text_response}
     if action == "set_repeat":
         await handle_spotify_command(hass, runtime, "set_repeat", classification.value)
-        return {"success": True, "text": "Repeat is aangepast.", "dj_text": "Repeat is aangepast."}
+        text_response = "Repeat is uitgezet." if classification.value == "off" else "Repeat is aangezet."
+        return {"success": True, "text": text_response, "dj_text": text_response}
     raise ValueError(f"Unsupported Ask DJ action: {action}")
 
 
@@ -503,7 +794,7 @@ async def _handle_hybrid(
         return {"success": True, **result}
     except Exception as exc:  # noqa: BLE001
         _LOGGER.warning("DJConnect Ask DJ playback request failed: %s", exc)
-        dj_text = _playback_failed_text(runtime)
+        dj_text = _playback_failed_text(runtime, text)
         updater = getattr(runtime, "update", None)
         if callable(updater):
             updater(last_error=str(exc), last_dj_text=dj_text)
@@ -522,6 +813,47 @@ async def _handle_hybrid(
         }
 
 
+async def _deferred_playback_request_response(
+    hass: HomeAssistant,
+    runtime: Any,
+    text: str,
+) -> dict[str, Any]:
+    parsed = parse_spoken_music_request(text)
+    media_type = str(parsed.get("type") or "track").strip().lower() or "track"
+    query = str(parsed.get("query") or text or "").strip()
+    try:
+        result = await handle_spotify_command(
+            hass,
+            runtime,
+            "search_media",
+            {"query": query, "type": media_type},
+        )
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect deferred playback search failed: %s", exc)
+        message = "Ik kon je verzoek nu niet concreet vinden op Spotify."
+        return {"success": True, "text": message, "dj_text": message, "action": "none"}
+    item = result.get("item") if isinstance(result, dict) else {}
+    if not isinstance(item, dict) or not item.get("uri"):
+        message = "Ik kon je verzoek nu niet concreet vinden op Spotify."
+        return {"success": True, "text": message, "dj_text": message, "action": "none"}
+    action = _play_now_action_from_spotify_item(hass, item)
+    title = str(action.get("title") or "je verzoek").strip()
+    subtitle = str(action.get("subtitle") or "").strip()
+    label = f"{title} van {subtitle}" if subtitle else title
+    message = (
+        f"Ik heb {label} vooraan klaargezet. "
+        "Wil je hem nu direct horen? Tik dan op Play Now."
+    )
+    return {
+        "success": True,
+        "text": message,
+        "dj_text": message,
+        "action": "none",
+        "playback_actions": [action],
+        "sources": [{"source": "spotify_search", "title": "Spotify search", "kind": "source"}],
+    }
+
+
 async def _handle_informational(
     hass: HomeAssistant,
     runtime: Any,
@@ -531,19 +863,91 @@ async def _handle_informational(
     playback_context: dict[str, Any],
     output_devices: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    if classify_ask_dj(text).action == "devices":
+    ask_intent = classify_ask_dj(text)
+    if ask_intent.action == "devices":
         message = _devices_text(output_devices)
         return {"success": True, "text": message, "dj_text": message}
-    if classify_ask_dj(text).action == "status":
+    if ask_intent.action == "status":
         message = _current_output_text(playback_context)
         return {"success": True, "text": message, "dj_text": message}
+    if ask_intent.intent == "morning_music_suggestion":
+        return await _morning_music_suggestion_response(
+            hass,
+            runtime,
+            payload,
+            memory_context,
+            playback_context,
+        )
+    if ask_intent.intent == "next_track_info":
+        return await _next_track_info_response(hass, runtime)
+    if _is_slang_track_info_request(text):
+        return _current_track_reference_response(hass, playback_context)
+    if ask_intent.intent == "save_generated_playlist":
+        return await _save_generated_playlist(hass, runtime, text, memory_context)
+    if ask_intent.intent == "song_recommendations":
+        return await _song_recommendations_response(hass, runtime, text)
+    seed_mix = _seeds_from_mix_playlist_request(text) if ask_intent.intent == "build_playlist_from_seeds" else {}
+    if seed_mix:
+        result = await _spotify_seed_mix(hass, runtime, seed_mix)
+        tracks = result.get("tracks") if isinstance(result, dict) else []
+        action = _seed_mix_playback_action(hass, seed_mix, tracks)
+        if action:
+            message = (
+                "Ik heb een mix samengesteld op basis van "
+                + _seed_mix_label(seed_mix)
+                + ". Ik start nog niets; tik op Play Now om de mix te horen."
+            )
+        else:
+            message = (
+                "Ik kon nu geen speelbare Spotify-mix samenstellen met deze artiesten."
+            )
+        return {
+            "success": True,
+            "text": message,
+            "dj_text": message,
+            "action": "none",
+            "playback_actions": [action] if action else [],
+            "sources": [
+                {
+                    "source": "spotify_recommendations",
+                    "kind": "source",
+                    "title": "Spotify recommendations",
+                }
+            ],
+        }
+    playlist_query = _playlist_query_from_question(text)
+    if playlist_query:
+        result = await _spotify_playlist_search(hass, runtime, playlist_query)
+        playlists = result.get("playlists") if isinstance(result, dict) else []
+        actions = _playlist_search_playback_actions(hass, playlists)
+        if actions:
+            message = (
+                f"Zeker. Ik vond deze Spotify-playlists voor {playlist_query}. "
+                "Ik start nog niets; tik op Play Now bij de playlist die je wilt horen."
+            )
+        else:
+            message = f"Ik vond nu geen Spotify-playlists voor {playlist_query}."
+        return {
+            "success": True,
+            "text": message,
+            "dj_text": message,
+            "action": "none",
+            "playback_actions": actions,
+            "sources": [
+                {
+                    "source": "spotify_playlist_search",
+                    "kind": "source",
+                    "title": "Spotify playlist search",
+                }
+            ],
+        }
     album_artist = _artist_from_album_question(text)
     if not album_artist and _is_current_artist_album_question(text):
         album_artist = _artist_from_playback_context(playback_context)
     if album_artist:
         discography = await _spotify_artist_albums(hass, runtime, album_artist)
         if discography:
-            return _artist_albums_response(discography)
+            return _artist_albums_response(hass, discography)
     similar_artist = _artist_from_similar_artists_question(
         text,
         memory_context,
@@ -552,7 +956,13 @@ async def _handle_informational(
     if similar_artist:
         related = await _spotify_related_artists(hass, runtime, similar_artist)
         if related and related.get("artists"):
-            return _related_artists_response(related)
+            spotify_profile = await _listening_profile_context(
+                hass,
+                runtime,
+                payload,
+                memory_context,
+            )
+            return _related_artists_response(related, memory_context, spotify_profile)
     concert_artist = _artist_from_concert_question(
         text,
         memory_context,
@@ -570,7 +980,7 @@ async def _handle_informational(
         profile = await _spotify_artist_profile(hass, runtime, genre_artist)
         if profile:
             return _artist_genre_response(profile)
-    if classify_ask_dj(text).intent == "personal_music_profile_analysis":
+    if ask_intent.intent == "personal_music_profile_analysis":
         spotify_profile = await _listening_profile_context(
             hass,
             runtime,
@@ -590,7 +1000,7 @@ async def _handle_informational(
             "action": "profile_analysis",
             "sources": _profile_sources(memory_context, spotify_profile),
         }
-    if classify_ask_dj(text).intent == "personal_music_recommendations":
+    if ask_intent.intent == "personal_music_recommendations":
         spotify_profile = await _listening_profile_context(
             hass,
             runtime,
@@ -602,10 +1012,11 @@ async def _handle_informational(
             memory_context,
             playback_context,
             spotify_profile,
+            limit=5,
         )
         if actions:
             message = (
-                "Ik denk dat deze goed passen bij je recente luisterprofiel. "
+                "Verrassing. Ik heb vijf suggesties gekozen op basis van je DJ Memory en Spotify-profiel. "
                 "Ik start nog niets; tik op Play Now als je er eentje wilt horen."
             )
         else:
@@ -619,8 +1030,13 @@ async def _handle_informational(
             "dj_text": message,
             "action": "none",
             "playback_actions": actions,
+            "confirmation_actions": _confirmation_actions() if actions else [],
             "sources": _profile_sources(memory_context, spotify_profile),
         }
+
+    if _looks_like_gibberish(text) or _looks_like_prompt_or_sandbox_attack(text):
+        message = _unrecognized_request_text()
+        return {"success": True, "text": message, "dj_text": message, "action": "none"}
 
     prompt = _informational_prompt(
         text,
@@ -669,6 +1085,216 @@ async def _spotify_artist_albums(
     return result if isinstance(result, dict) else {}
 
 
+async def _morning_music_suggestion_response(
+    hass: HomeAssistant,
+    runtime: Any,
+    payload: dict[str, Any],
+    memory_context: dict[str, Any],
+    playback_context: dict[str, Any],
+) -> dict[str, Any]:
+    if _playback_is_active(playback_context):
+        text = "Goedemorgen! Er speelt al muziek, dus ik laat alles lekker doorlopen."
+        return {"success": True, "text": text, "dj_text": text, "action": "none"}
+    spotify_profile = await _listening_profile_context(
+        hass,
+        runtime,
+        payload,
+        memory_context,
+    )
+    actions = _recommendation_playback_actions(
+        hass,
+        memory_context,
+        playback_context,
+        spotify_profile,
+        limit=1,
+    )
+    selected = actions[:1]
+    if selected:
+        action = selected[0]
+        title = str(action.get("title") or "je ochtendmuziek").strip()
+        subtitle = str(action.get("subtitle") or "").strip()
+        item = f"{title} van {subtitle}" if subtitle else title
+        text = f"Goedemorgen! Zal ik {item} voor je aanzetten?"
+        await _store_pending_followup(
+            runtime,
+            payload,
+            question=text,
+            proposed_intent="morning_music_suggestion",
+            proposed_action="ask_dj_play_recommendation",
+            proposed_payload=action,
+        )
+    else:
+        text = "Goedemorgen! Zal ik iets rustigs opzetten om de dag te starten?"
+    confirmations = _confirmation_actions()
+    return {
+        "success": True,
+        "text": text,
+        "dj_text": text,
+        "action": "none",
+        "intent": {"category": "playback_confirmation", "intent": "morning_music_suggestion"},
+        "playback_actions": [*selected, *confirmations],
+        "confirmation_actions": confirmations,
+        "sources": _profile_sources(memory_context, spotify_profile),
+    }
+
+
+async def _next_track_info_response(
+    hass: HomeAssistant,
+    runtime: Any,
+) -> dict[str, Any]:
+    try:
+        result = await handle_spotify_command(hass, runtime, "queue")
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect Spotify queue unavailable for Ask DJ: %s", exc)
+        result = {}
+    queue = result.get("queue") if isinstance(result, dict) else []
+    current_uri = _current_playback_uri(runtime)
+    queue_items = [
+        item
+        for item in (queue if isinstance(queue, list) else [])
+        if isinstance(item, dict)
+        and item
+        and not (current_uri and str(item.get("uri") or "").strip() == current_uri)
+    ]
+    next_track = queue_items[0] if queue_items else {}
+    current_uri = _current_playback_uri(runtime)
+    next_uri = str(next_track.get("uri") or "").strip() if isinstance(next_track, dict) else ""
+    if not isinstance(next_track, dict) or not next_track or (current_uri and next_uri == current_uri):
+        text = (
+            "Er staat nu geen volgend nummer in de Spotify wachtrij. "
+            "Wil je wat anders horen? Laat het me weten. Zeg simpelweg 'verras me' "
+            "en ik speel muziek op basis van jouw voorkeur."
+        )
+        return {
+            "success": True,
+            "text": text,
+            "dj_text": text,
+            "action": "none",
+            "images": [],
+            "playback_actions": [],
+            "sources": [{"source": "spotify_queue", "title": "Spotify queue", "kind": "source"}],
+        }
+    first_five = queue_items[:5]
+    lines = ["Dit zijn de eerste nummers in je Spotify wachtrij:"]
+    images = []
+    playback_actions = []
+    for index, item in enumerate(first_five, start=1):
+        title = str(item.get("title") or item.get("track_name") or f"nummer {index}").strip()
+        artist = str(item.get("subtitle") or item.get("artist") or "").strip()
+        uri = str(item.get("uri") or "").strip()
+        label = f"{title} - {artist}" if artist else title
+        lines.append(f"{index}. {label}")
+        image_url = str(item.get("image_url") or item.get("album_image_url") or item.get("thumbnail_url") or "").strip()
+        proxy = register_image_proxy_url(hass, image_url) if image_url.startswith(("http://", "https://")) else image_url
+        if proxy:
+            images.append(
+                {
+                    "url": proxy,
+                    "thumbnail_url": proxy,
+                    "title": title,
+                    "subtitle": artist,
+                    "kind": "album_art",
+                    "source": "spotify",
+                }
+            )
+        if uri.startswith("spotify:track:"):
+            action: dict[str, Any] = {
+                "id": uri,
+                "title": title,
+                "subtitle": artist,
+                "uri": uri,
+                "kind": "track",
+                "reason": "Track uit je Spotify wachtrij.",
+            }
+            context_uri = str(item.get("context_uri") or item.get("contextUri") or result.get("context_uri") or "").strip()
+            if context_uri:
+                action["context_uri"] = context_uri
+                action["offset_uri"] = uri
+            if proxy:
+                action["image_url"] = proxy
+            playback_actions.append(action)
+    lines.append("Tik op Play Now om een nummer uit de wachtrij nu naar voren te halen.")
+    text = "\n".join(lines)
+    return {
+        "success": True,
+        "text": text,
+        "dj_text": text,
+        "action": "none",
+        "images": images,
+        "playback_actions": playback_actions,
+        "sources": [{"source": "spotify_queue", "title": "Spotify queue", "kind": "source"}],
+    }
+
+
+def _current_playback_uri(runtime: Any) -> str:
+    playback = getattr(runtime, "last_playback", None)
+    if not isinstance(playback, dict):
+        status = getattr(runtime, "device_status", {}) or {}
+        playback = status.get("playback") if isinstance(status, dict) else {}
+    if not isinstance(playback, dict):
+        return ""
+    for key in ("uri", "track_uri", "trackUri"):
+        value = str(playback.get(key) or "").strip()
+        if value:
+            return value
+    track = playback.get("track")
+    if isinstance(track, dict):
+        for key in ("uri", "track_uri", "trackUri"):
+            value = str(track.get(key) or "").strip()
+            if value:
+                return value
+    return ""
+
+
+def _current_track_reference_response(
+    hass: HomeAssistant,
+    playback_context: dict[str, Any],
+) -> dict[str, Any]:
+    track = _track_label(playback_context)
+    if not track:
+        text = "Ik weet niet welke track je bedoelt."
+        return {
+            "success": True,
+            "text": text,
+            "dj_text": text,
+            "action": "none",
+            "images": [],
+            "playback_actions": [],
+        }
+    text = f"Die track is {track}."
+    images = _images_from_context(hass, {}, playback_context)
+    uri = str(playback_context.get("uri") or playback_context.get("track_uri") or "").strip()
+    playback_actions: list[dict[str, Any]] = []
+    if uri.startswith("spotify:track:"):
+        title = str(
+            playback_context.get("track_name")
+            or playback_context.get("title")
+            or playback_context.get("name")
+            or track
+        ).strip()
+        artist = str(playback_context.get("artist") or playback_context.get("artist_name") or "").strip()
+        action: dict[str, Any] = {
+            "id": uri,
+            "title": title,
+            "subtitle": artist,
+            "uri": uri,
+            "kind": "track",
+            "reason": "Huidige track waar je informeel naar verwijst.",
+        }
+        if images:
+            action["image_url"] = images[0]["url"]
+        playback_actions.append(action)
+    return {
+        "success": True,
+        "text": text,
+        "dj_text": text,
+        "action": "none",
+        "images": images,
+        "playback_actions": playback_actions,
+        "sources": [{"source": "spotify_playback_context", "title": "Spotify playback context", "kind": "source"}],
+    }
+
+
 async def _spotify_related_artists(
     hass: HomeAssistant,
     runtime: Any,
@@ -706,7 +1332,7 @@ async def _spotify_artist_profile(
     return artist_profile if isinstance(artist_profile, dict) else {}
 
 
-def _artist_albums_response(discography: dict[str, Any]) -> dict[str, Any]:
+def _artist_albums_response(hass: HomeAssistant, discography: dict[str, Any]) -> dict[str, Any]:
     albums = discography.get("albums") if isinstance(discography, dict) else []
     if not isinstance(albums, list) or not albums:
         artist = str(discography.get("artist") or "deze artiest").strip()
@@ -744,17 +1370,48 @@ def _artist_albums_response(discography: dict[str, Any]) -> dict[str, Any]:
         for album in visible_albums
         if isinstance(album, dict) and (album.get("image_url") or album.get("album_image_url"))
     ]
+    playback_actions: list[dict[str, Any]] = []
+    for album in visible_albums:
+        if not isinstance(album, dict):
+            continue
+        uri = str(album.get("uri") or album.get("album_uri") or "").strip()
+        if not uri.startswith("spotify:album:"):
+            continue
+        title = str(album.get("name") or album.get("title") or "Album").strip()
+        release_date = str(album.get("release_date") or "").strip()
+        image_url = str(album.get("image_url") or album.get("album_image_url") or "").strip()
+        action: dict[str, Any] = {
+            "id": uri,
+            "title": title,
+            "subtitle": f"{artist} · {release_date[:4]}" if release_date[:4] else artist,
+            "uri": uri,
+            "context_uri": uri,
+            "kind": "album",
+            "reason": f"Album van {artist}.",
+        }
+        if image_url:
+            action["image_url"] = (
+                register_image_proxy_url(hass, image_url)
+                if image_url.startswith(("http://", "https://"))
+                else image_url
+            )
+        playback_actions.append(action)
     return {
         "success": True,
         "text": text,
         "dj_text": text,
         "action": "none",
         "images": images,
+        "playback_actions": playback_actions,
         "sources": [{"source": "spotify_artist_albums", "title": "Spotify artist albums", "kind": "source"}],
     }
 
 
-def _related_artists_response(related: dict[str, Any]) -> dict[str, Any]:
+def _related_artists_response(
+    related: dict[str, Any],
+    memory_context: dict[str, Any] | None = None,
+    spotify_profile: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     artists = related.get("artists") if isinstance(related, dict) else []
     if not isinstance(artists, list) or not artists:
         artist = str(related.get("artist") or "deze artiest").strip()
@@ -770,6 +1427,7 @@ def _related_artists_response(related: dict[str, Any]) -> dict[str, Any]:
     visible = artists[:12]
     labels = [str(item.get("name") or item.get("title") or "").strip() for item in visible if isinstance(item, dict)]
     labels = [label for label in labels if label]
+    profile_hint = _profile_artist_hint(memory_context or {}, spotify_profile or {})
     text = (
         f"Volgens Spotify zitten deze artiesten in dezelfde muzikale buurt als {source_artist}: "
         + ", ".join(labels)
@@ -777,6 +1435,8 @@ def _related_artists_response(related: dict[str, Any]) -> dict[str, Any]:
         if labels
         else f"Ik vind via Spotify geen bruikbare vergelijkbare artiesten voor {source_artist}."
     )
+    if labels and profile_hint:
+        text = f"{profile_hint} {text}"
     images = [
         {
             "url": str(item.get("image_url") or item.get("artist_image_url") or ""),
@@ -794,7 +1454,10 @@ def _related_artists_response(related: dict[str, Any]) -> dict[str, Any]:
         "dj_text": text,
         "action": "none",
         "images": images,
-        "sources": [{"source": "spotify_related_artists", "title": "Spotify related artists", "kind": "source"}],
+        "sources": [
+            {"source": "spotify_related_artists", "title": "Spotify related artists", "kind": "source"},
+            *(_profile_sources(memory_context or {}, spotify_profile or {}) if profile_hint else []),
+        ],
     }
 
 
@@ -842,6 +1505,7 @@ def _artist_from_album_question(text: str) -> str:
     if "album" not in normalized:
         return ""
     patterns = (
+        r"^\s*(?:geef|toon|laat\s+zien|show|give)\s+(?:me|mij)?\s*(?:de\s+)?albums\s+van\s+(.+?)\s*\??\s*$",
         r"^\s*welke\s+albums\s+(?:heeft|hebben)\s+(.+?)\s+(?:allemaal\s+)?(?:uitgebracht|gemaakt|released)\s*\??\s*$",
         r"^\s*welke\s+albums\s+zijn\s+er\s+van\s+(.+?)\s*\??\s*$",
         r"^\s*albums\s+van\s+(.+?)\s*\??\s*$",
@@ -1121,7 +1785,7 @@ def _artist_from_similar_artists_question(
     playback_context: dict[str, Any],
 ) -> str:
     normalized = _normalize(text)
-    if not any(term in normalized for term in ("vergelijkbaar", "vergelijkbare", "similar", "zelfde soort", "lijkt op", "zoals")):
+    if not any(term in normalized for term in ("vergelijkbaar", "vergelijkbare", "similar", "zelfde soort", "lijkt op", "zoals", "nog meer leuk")):
         return ""
     if not any(term in normalized for term in ("artiest", "artiesten", "artist", "artists", "muziek", "music")):
         return ""
@@ -1288,6 +1952,8 @@ def _normalize_ask_dj_response(
     links = _links_from_context(result, playback_context, classification)
     sources = _sources_from_context(result, links)
     action = result.get("action") or classification.action
+    confirmation_actions = result.get("confirmation_actions") or _confirmation_actions_from_playback_actions(result.get("playback_actions"))
+    result_intent = result.get("intent") if isinstance(result.get("intent"), dict) else {}
     return {
         "success": bool(result.get("success", True)),
         "text": text,
@@ -1297,10 +1963,11 @@ def _normalize_ask_dj_response(
         "links": links,
         "sources": sources,
         "playback_actions": result.get("playback_actions") or [],
+        "confirmation_actions": confirmation_actions,
         "error": result.get("error"),
         "intent": {
-            "category": classification.category,
-            "intent": classification.intent,
+            "category": result_intent.get("category") or classification.category,
+            "intent": result_intent.get("intent") or classification.intent,
         },
         "action": action,
         "memory_key": memory_key,
@@ -1310,6 +1977,8 @@ def _normalize_ask_dj_response(
             "message_kind": str(result.get("message_kind") or "assistant"),
             "origin": str(result.get("origin") or ""),
             "text": text,
+            "playback_actions": result.get("playback_actions") or [],
+            "confirmation_actions": confirmation_actions,
         },
     }
 
@@ -1377,6 +2046,13 @@ def _is_personal_music_profile_request(normalized: str) -> bool:
 
 def _is_personal_recommendation_request(normalized: str) -> bool:
     if normalized in {
+        "verras me",
+        "verras mij",
+        "doe maar wat",
+        "nee doe maar wat",
+        "nee verras me",
+        "nee verras mij",
+        "surprise me",
         "speel wat anders",
         "speel iets anders",
         "draai wat anders",
@@ -1388,6 +2064,10 @@ def _is_personal_recommendation_request(normalized: str) -> bool:
     if any(
         phrase in normalized
         for phrase in (
+            "verras me",
+            "verras mij",
+            "doe maar wat",
+            "surprise me",
             "speel wat anders",
             "speel iets anders",
             "draai wat anders",
@@ -1423,6 +2103,535 @@ def _is_personal_recommendation_request(normalized: str) -> bool:
     return any(term in normalized for term in recommendation_terms) and any(
         term in normalized for term in music_terms
     )
+
+
+def _is_song_recommendation_request(normalized: str) -> bool:
+    if not any(term in normalized for term in ("nummer", "nummers", "track", "tracks", "song", "songs")):
+        return False
+    return any(
+        term in normalized
+        for term in (
+            "heb je",
+            "geef",
+            "toon",
+            "laat zien",
+            "aanbevel",
+            "recommend",
+            "suggest",
+            "toffe",
+            "leuke",
+            "vette",
+            "goede",
+        )
+    )
+
+
+def _song_recommendation_seeds(text: str) -> dict[str, list[str]]:
+    normalized = _normalize(text)
+    cleaned = re.sub(
+        r"\b(?:heb|hebt|je|jij|een|paar|wat|toffe|leuke|vette|goede|mooie|nummers|nummer|tracks|track|songs|song|aanbevelingen|recommendations|suggestions|voor|me|mij)\b",
+        " ",
+        normalized,
+        flags=re.IGNORECASE,
+    )
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
+    cleaned = cleaned.strip(" ?.!'\"")
+    if cleaned:
+        return {"genres": [cleaned]}
+    return {}
+
+
+def _is_deferred_playback_request(normalized: str) -> bool:
+    return bool(
+        re.search(
+            r"\b(?:ik\s+wil|wil\s+ik|ik\s+wil\s+wel|ik\s+wil\s+graag)\b.+\b(?:horen|luisteren|opzetten|spelen)\b",
+            normalized,
+        )
+        or re.search(
+            r"\b(?:i\s+want|i\s+would\s+like)\b.+\b(?:hear|listen|play)\b",
+            normalized,
+        )
+    )
+
+
+def _is_morning_start_request(normalized: str) -> bool:
+    return normalized in {
+        "goedemorgen",
+        "goedemorgen!",
+        "goede morgen",
+        "good morning",
+        "morning",
+    }
+
+
+def _is_next_track_info_request(normalized: str) -> bool:
+    if any(
+        phrase in normalized
+        for phrase in (
+            "in de wachtrij",
+            "in mijn wachtrij",
+            "in spotify wachtrij",
+            "in de queue",
+            "in mijn queue",
+            "in queue",
+        )
+    ) and any(term in normalized for term in ("welke", "wat", "nummers", "tracks", "songs")):
+        return True
+    if "volgende" not in normalized and "next" not in normalized:
+        return False
+    question_prefixes = (
+        "wat wordt",
+        "wat is",
+        "welk nummer wordt",
+        "welk nummer is",
+        "welke track wordt",
+        "welke track is",
+        "what is",
+        "what will",
+        "which song",
+        "which track",
+    )
+    if normalized.startswith(question_prefixes):
+        return True
+    return normalized.endswith("?") and any(
+        phrase in normalized
+        for phrase in (
+            "volgende nummer",
+            "volgende track",
+            "next song",
+            "next track",
+        )
+    )
+
+
+def _is_slang_track_reference(text: str) -> bool:
+    normalized = _normalize(text)
+    return any(word in normalized for word in TRACK_REFERENCE_WORDS)
+
+
+def _is_slang_track_info_request(text: str) -> bool:
+    normalized = _normalize(text)
+    if not _is_slang_track_reference(normalized):
+        return False
+    return normalized.startswith(("wat is", "welke", "welk", "wie is", "vertel", "waarom", "hoe heet"))
+
+
+def _is_playlist_search_request(normalized: str) -> bool:
+    if "playlist" not in normalized and "afspeellijst" not in normalized:
+        return False
+    return any(
+        phrase in normalized
+        for phrase in (
+            "heb je",
+            "zoek",
+            "vind",
+            "welke",
+            "suggest",
+            "recommend",
+            "do you have",
+            "find",
+            "search",
+            "doe maar",
+            "maak",
+            "start",
+            "speel",
+            "zet",
+        )
+    )
+
+
+def _playlist_query_from_question(text: str) -> str:
+    original = str(text or "").strip()
+    normalized = _normalize(original)
+    patterns = (
+        r"(?:doe\s+maar|maak|zet|start|speel)\s+(?:eens\s+|even\s+|graag\s+)?(?:een\s+|some\s+)?(?:spotify\s+)?(?:playlist|afspeellijst)\s+(?:met|van|voor|with|about|by|for)\s+(.+)$",
+        r"(?:heb je|zoek|vind|welke|do you have|find|search)\s+(?:een\s+|some\s+)?(?:spotify\s+)?(?:playlist|afspeellijst)(?:\s+(?:van|voor|with|about|by|for))?\s+(.+)$",
+        r"(?:playlist|afspeellijst)\s+(?:van|voor|with|about|by|for)\s+(.+)$",
+        r"(.+?)\s+(?:playlist|afspeellijst)s?\s*$",
+    )
+    for pattern in patterns:
+        match = re.search(pattern, normalized, flags=re.IGNORECASE)
+        if match:
+            return _clean_playlist_query(match.group(1))
+    return ""
+
+
+def _clean_playlist_query(value: str) -> str:
+    text = str(value or "").strip(" ?.!'\"")
+    text = re.sub(r"^(?:van|voor|with|about|by|for)\s+", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"\s+(?:hebben|hebt|zijn|bestaan|please|pls)$", "", text, flags=re.IGNORECASE)
+    return text.strip()
+
+
+def _is_seed_mix_playlist_request(normalized: str) -> bool:
+    if not any(term in normalized for term in ("playlist", "afspeellijst", "mix")):
+        return False
+    return any(
+        phrase in normalized
+        for phrase in (
+            "stel",
+            "samen",
+            "maak",
+            "op basis van",
+            "obv",
+            "in genre",
+            "in genres",
+            "based on",
+            "make",
+            "create",
+        )
+    ) and bool(_seeds_from_mix_playlist_request(normalized))
+
+
+def _is_save_generated_playlist_request(normalized: str) -> bool:
+    return any(
+        phrase in normalized
+        for phrase in (
+            "sla deze op",
+            "sla dit op",
+            "bewaar deze",
+            "bewaar dit",
+            "maak hier een playlist",
+            "save this",
+            "save it",
+            "make this a playlist",
+            "create this playlist",
+        )
+    ) and any(term in normalized for term in ("playlist", "mix", "op", "save", "bewaar"))
+
+
+def _seeds_from_mix_playlist_request(text: str) -> dict[str, list[str]]:
+    cleaned = str(text or "").strip(" ?.!'\"")
+    seed_type = "artists"
+    if re.search(r"\b(?:track|tracks|nummer|nummers|song|songs)\b", cleaned, flags=re.IGNORECASE):
+        seed_type = "tracks"
+    elif re.search(r"\b(?:genre|genres)\b", cleaned, flags=re.IGNORECASE):
+        seed_type = "genres"
+    patterns = (
+        r"(?:op basis van|obv|based on)\s+(.+)$",
+        r"(?:in genre|in genres|genre|genres)\s+(.+)$",
+        r"(?:met|van|voor|with|from)\s+(.+)$",
+    )
+    source = cleaned
+    for pattern in patterns:
+        match = re.search(pattern, cleaned, flags=re.IGNORECASE)
+        if match:
+            source = match.group(1)
+            break
+    source = re.sub(
+        r"^(?:artiesten|artists|tracks|nummers|songs|genres|genre)\s+",
+        "",
+        source,
+        flags=re.IGNORECASE,
+    )
+    source = re.sub(
+        r"\b(?:ik|wil|een|playlist|afspeellijst|mix|samenstellen|samen|maken|maak|stel|create|make|based|basis|obv|in)\b",
+        "",
+        source,
+        flags=re.IGNORECASE,
+    )
+    candidates = re.split(r"\s*(?:,|;|\+|/|\ben\b|\band\b)\s*", source)
+    values: list[str] = []
+    seen: set[str] = set()
+    for candidate in candidates:
+        value = " ".join(candidate.strip(" ?.!'\"").split())
+        key = value.lower()
+        if value and key not in seen:
+            seen.add(key)
+            values.append(value)
+    return {seed_type: values} if values else {}
+
+
+async def _spotify_seed_mix(
+    hass: HomeAssistant,
+    runtime: Any,
+    seeds: dict[str, list[str]],
+) -> dict[str, Any]:
+    try:
+        result = await handle_spotify_command(
+            hass,
+            runtime,
+            "artist_recommendations",
+            {**seeds, "limit": 25},
+        )
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect Spotify artist recommendations unavailable: %s", exc)
+        return {}
+    return result if isinstance(result, dict) else {}
+
+
+async def _song_recommendations_response(
+    hass: HomeAssistant,
+    runtime: Any,
+    text: str,
+) -> dict[str, Any]:
+    seeds = _song_recommendation_seeds(text)
+    if not seeds:
+        message = "Welke stijl of sfeer zoek je voor die nummers?"
+        return {"success": True, "text": message, "dj_text": message, "action": "none"}
+    try:
+        result = await handle_spotify_command(
+            hass,
+            runtime,
+            "artist_recommendations",
+            {**seeds, "limit": 10},
+        )
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect Spotify song recommendations unavailable: %s", exc)
+        result = {}
+    tracks = result.get("tracks") if isinstance(result, dict) else []
+    track_actions = _track_recommendation_actions(hass, tracks, limit=10)
+    mix_action = _seed_mix_playback_action(hass, seeds, tracks)
+    actions = track_actions + ([mix_action] if mix_action else [])
+    if track_actions:
+        message = (
+            f"Zeker. Ik vond deze {len(track_actions)} tracks voor {_seed_mix_label(seeds)}. "
+            "Tik op Play Now bij een track, of kies 'Zet allemaal in wachtrij & speel af' om de huidige wachtrij te vervangen."
+        )
+    else:
+        message = "Ik kon nu geen speelbare Spotify-nummers vinden voor die stijl."
+    return {
+        "success": True,
+        "text": message,
+        "dj_text": message,
+        "action": "none",
+        "playback_actions": actions,
+        "sources": [{"source": "spotify_recommendations", "title": "Spotify recommendations", "kind": "source"}],
+    }
+
+
+def _track_recommendation_actions(
+    hass: HomeAssistant,
+    tracks: Any,
+    *,
+    limit: int,
+) -> list[dict[str, Any]]:
+    if not isinstance(tracks, list):
+        return []
+    actions: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for item in tracks:
+        if not isinstance(item, dict):
+            continue
+        uri = str(item.get("uri") or "").strip()
+        if not uri.startswith("spotify:track:") or uri in seen:
+            continue
+        seen.add(uri)
+        action = _play_now_action_from_spotify_item(hass, {**item, "type": "track"})
+        action["label"] = "Play Now"
+        action["reason"] = "Aanbevolen op basis van je Ask DJ vraag."
+        actions.append(action)
+        if len(actions) >= limit:
+            break
+    return actions
+
+
+def _seed_mix_playback_action(
+    hass: HomeAssistant,
+    seeds: dict[str, list[str]],
+    tracks: Any,
+) -> dict[str, Any]:
+    if not isinstance(tracks, list):
+        return {}
+    track_items = [track for track in tracks if isinstance(track, dict) and track.get("uri")]
+    uris = [
+        str(track.get("uri") or "").strip()
+        for track in track_items
+        if str(track.get("uri") or "").startswith("spotify:track:")
+    ][:50]
+    if not uris:
+        return {}
+    image_url = str(
+        track_items[0].get("album_image_url")
+        or track_items[0].get("image_url")
+        or track_items[0].get("thumbnail_url")
+        or ""
+    ).strip()
+    proxy_image = (
+        register_image_proxy_url(hass, image_url)
+        if image_url.startswith(("http://", "https://"))
+        else image_url
+    )
+    label = _seed_mix_label(seeds)
+    title = "DJConnect mix: " + label
+    return {
+        key: value
+        for key, value in {
+            "id": "djconnect:mix:" + secrets.token_urlsafe(8),
+            "title": title,
+            "subtitle": f"{len(uris)} Spotify tracks",
+            "uri": uris[0],
+            "uris": uris,
+            "kind": "track_mix",
+            "label": "Zet allemaal in wachtrij & speel af",
+            "image_url": proxy_image,
+            "reason": "Samengesteld op basis van de artiesten in je Ask DJ vraag.",
+        }.items()
+        if value not in ("", None, [])
+    }
+
+
+def _seed_mix_label(seeds: dict[str, list[str]]) -> str:
+    for key, prefix in (
+        ("artists", "artiesten "),
+        ("tracks", "tracks "),
+        ("genres", "genres "),
+    ):
+        values = seeds.get(key)
+        if isinstance(values, list) and values:
+            return prefix + _join_examples(values, limit=5)
+    return "je Ask DJ vraag"
+
+
+async def _save_generated_playlist(
+    hass: HomeAssistant,
+    runtime: Any,
+    text: str,
+    memory_context: dict[str, Any],
+) -> dict[str, Any]:
+    recommendation = _last_mix_recommendation(memory_context)
+    uris = recommendation.get("uris") if isinstance(recommendation, dict) else []
+    if not isinstance(uris, list) or not uris:
+        message = "Ik heb nog geen samengestelde mix om als Spotify playlist op te slaan."
+        return {"success": True, "text": message, "dj_text": message, "action": "none"}
+    name = _playlist_name_from_save_request(text) or str(recommendation.get("title") or "DJConnect mix")
+    try:
+        result = await handle_spotify_command(
+            hass,
+            runtime,
+            "create_playlist",
+            {
+                "name": name,
+                "description": "Samengesteld door DJConnect Ask DJ.",
+                "uris": uris,
+            },
+        )
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect Spotify playlist save unavailable: %s", exc)
+        message = (
+            "Ik kon de Spotify playlist nu niet opslaan. Controleer of DJConnect opnieuw "
+            "Spotify toestemming heeft voor playlist-aanpassingen."
+        )
+        return {
+            "success": False,
+            "text": message,
+            "dj_text": message,
+            "error": "spotify_playlist_save_failed",
+            "action": "create_playlist",
+        }
+    playlist = result.get("playlist") if isinstance(result, dict) else {}
+    title = str(playlist.get("title") or playlist.get("name") or name).strip()
+    message = f"Opgeslagen als Spotify playlist: {title}."
+    return {
+        "success": True,
+        "text": message,
+        "dj_text": message,
+        "action": "create_playlist",
+        "links": _playlist_links(playlist),
+    }
+
+
+def _last_mix_recommendation(memory_context: dict[str, Any]) -> dict[str, Any]:
+    memory = memory_context.get("memory") if isinstance(memory_context, dict) else {}
+    if not isinstance(memory, dict):
+        return {}
+    for key in ("last_played_recommendation",):
+        item = memory.get(key)
+        if isinstance(item, dict) and item.get("kind") == "track_mix" and item.get("uris"):
+            return item
+    last = memory.get("last_ask_dj")
+    actions = last.get("playback_actions") if isinstance(last, dict) else []
+    if isinstance(actions, list):
+        for action in actions:
+            if isinstance(action, dict) and action.get("kind") == "track_mix" and action.get("uris"):
+                return action
+    return {}
+
+
+def _playlist_name_from_save_request(text: str) -> str:
+    match = re.search(r"(?:als|as)\s+(.+)$", str(text or "").strip(), flags=re.IGNORECASE)
+    return match.group(1).strip(" ?.!'\"")[:100] if match else ""
+
+
+def _playlist_links(playlist: Any) -> list[dict[str, str]]:
+    if not isinstance(playlist, dict):
+        return []
+    url = ""
+    external = playlist.get("external_urls")
+    if isinstance(external, dict):
+        url = str(external.get("spotify") or "").strip()
+    title = str(playlist.get("title") or playlist.get("name") or "Spotify playlist").strip()
+    if not url:
+        return []
+    return [{"url": url, "title": title, "kind": "link", "source": "spotify"}]
+
+
+async def _spotify_playlist_search(
+    hass: HomeAssistant,
+    runtime: Any,
+    query: str,
+) -> dict[str, Any]:
+    try:
+        result = await handle_spotify_command(
+            hass,
+            runtime,
+            "search_playlists",
+            {"query": query, "limit": 5},
+        )
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect Spotify playlist search unavailable: %s", exc)
+        return {}
+    return result if isinstance(result, dict) else {}
+
+
+def _playlist_search_playback_actions(
+    hass: HomeAssistant,
+    playlists: Any,
+) -> list[dict[str, Any]]:
+    if not isinstance(playlists, list):
+        return []
+    actions: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for playlist in playlists:
+        if not isinstance(playlist, dict):
+            continue
+        uri = str(playlist.get("uri") or playlist.get("playlist_uri") or "").strip()
+        if not uri.startswith("spotify:playlist:") or uri in seen:
+            continue
+        seen.add(uri)
+        image_url = str(
+            playlist.get("image_url")
+            or playlist.get("album_image_url")
+            or playlist.get("entity_picture")
+            or playlist.get("thumbnail_url")
+            or ""
+        ).strip()
+        proxy_image = (
+            register_image_proxy_url(hass, image_url)
+            if image_url.startswith(("http://", "https://"))
+            else image_url
+        )
+        title = str(playlist.get("title") or playlist.get("name") or uri).strip()
+        subtitle = str(playlist.get("subtitle") or playlist.get("owner") or "Spotify playlist").strip()
+        actions.append(
+            {
+                key: value
+                for key, value in {
+                    "id": uri,
+                    "title": title,
+                    "subtitle": subtitle,
+                    "uri": uri,
+                    "context_uri": uri,
+                    "kind": "playlist",
+                    "image_url": proxy_image,
+                    "reason": "Spotify playlist-resultaat op basis van je Ask DJ vraag.",
+                }.items()
+                if value not in ("", None)
+            }
+        )
+        if len(actions) >= 5:
+            break
+    return actions
 
 
 def _personal_music_profile_text(
@@ -1620,6 +2829,35 @@ def _profile_artists(
     return _unique_ordered(artists)
 
 
+def _profile_artist_hint(
+    memory_context: dict[str, Any],
+    spotify_profile: dict[str, Any],
+) -> str:
+    """Return a short user-facing hint that DJ Memory/listening profile was used."""
+    memory = memory_context.get("memory") if isinstance(memory_context, dict) else {}
+    if not isinstance(memory, dict):
+        memory = {}
+    artists = _profile_artists({}, [], spotify_profile)
+    tracks = memory.get("recent_tracks") if isinstance(memory.get("recent_tracks"), list) else []
+    artists.extend(_profile_artists(memory, tracks, {}))
+    artists = _unique_ordered(artists)
+    artists = [artist for artist in artists if artist][:3]
+    if not artists:
+        return ""
+    return f"Ik zie in je DJ Memory en Spotify-profiel dat je ook regelmatig naar {_join_human(artists)} luistert."
+
+
+def _join_human(items: list[str]) -> str:
+    values = [str(item).strip() for item in items if str(item).strip()]
+    if not values:
+        return ""
+    if len(values) == 1:
+        return values[0]
+    if len(values) == 2:
+        return f"{values[0]} en {values[1]}"
+    return f"{', '.join(values[:-1])} en {values[-1]}"
+
+
 def _profile_genres(memory: Any, spotify_profile: dict[str, Any]) -> list[str]:
     if not isinstance(memory, dict):
         memory = {}
@@ -1709,6 +2947,8 @@ def _recommendation_playback_actions(
     memory_context: dict[str, Any],
     playback_context: dict[str, Any],
     spotify_profile: dict[str, Any],
+    *,
+    limit: int = 5,
 ) -> list[dict[str, Any]]:
     candidates: list[dict[str, Any]] = []
     top_tracks = spotify_profile.get("top_tracks_by_range") if isinstance(spotify_profile, dict) else {}
@@ -1788,9 +3028,39 @@ def _recommendation_playback_actions(
                 action["context_uri"] = context_uri
                 action["offset_uri"] = uri
         actions.append({key: value for key, value in action.items() if value not in ("", None)})
-        if len(actions) >= 6:
+        if len(actions) >= limit:
             break
     return actions
+
+
+def _play_now_action_from_spotify_item(
+    hass: HomeAssistant,
+    item: dict[str, Any],
+) -> dict[str, Any]:
+    uri = str(item.get("uri") or "").strip()
+    kind = _spotify_uri_kind(uri) or str(item.get("type") or "track").strip().lower()
+    image_url = str(
+        item.get("album_image_url")
+        or item.get("image_url")
+        or item.get("thumbnail_url")
+        or item.get("media_image_url")
+        or ""
+    ).strip()
+    proxy_image = register_image_proxy_url(hass, image_url) if image_url.startswith(("http://", "https://")) else image_url
+    action = {
+        "id": uri,
+        "title": str(item.get("track_name") or item.get("title") or item.get("name") or uri).strip(),
+        "subtitle": str(item.get("artist") or item.get("artist_name") or item.get("album_name") or "").strip(),
+        "uri": uri,
+        "kind": kind,
+        "image_url": proxy_image,
+        "reason": "Voor je klaargezet terwijl het huidige nummer doorspeelt.",
+    }
+    context_uri = str(item.get("context_uri") or "").strip()
+    if kind == "track" and context_uri:
+        action["context_uri"] = context_uri
+        action["offset_uri"] = uri
+    return {key: value for key, value in action.items() if value not in ("", None)}
 
 
 def _recommendation_reason(memory_context: dict[str, Any]) -> str:
@@ -1949,6 +3219,8 @@ def _fallback_info_text(
     playback_context: dict[str, Any],
 ) -> str:
     normalized = _normalize(text)
+    if _looks_like_gibberish(normalized) or _looks_like_prompt_or_sandbox_attack(normalized):
+        return _unrecognized_request_text()
     memory = memory_context.get("memory") if isinstance(memory_context, dict) else {}
     last = memory.get("last_ask_dj") if isinstance(memory, dict) else {}
     if "waarom" in normalized and isinstance(last, dict) and last.get("response_text"):
@@ -1957,6 +3229,73 @@ def _fallback_info_text(
     if "artiest" in normalized and track:
         return f"Ik kijk naar de huidige context rond {track}. Meer brondata is nog niet beschikbaar."
     return "Ik heb nu niet genoeg betrouwbare broninformatie om daar zeker antwoord op te geven."
+
+
+def _unrecognized_request_text() -> str:
+    return "Sorry, ik begrijp niet wat je bedoelt."
+
+
+def _looks_like_gibberish(text: str) -> bool:
+    normalized = _normalize(text)
+    if not normalized:
+        return False
+    words = normalized.split()
+    if len(words) != 1:
+        return False
+    token = words[0].strip("'")
+    if len(token) < 10 or not re.fullmatch(r"[a-z0-9']+", token):
+        return False
+    letters = re.sub(r"[^a-z]", "", token)
+    if len(letters) < 10:
+        return False
+    vowels = sum(1 for char in letters if char in "aeiouy")
+    vowel_ratio = vowels / len(letters)
+    has_long_consonant_run = bool(re.search(r"[bcdfghjklmnpqrstvwxz]{5,}", letters))
+    has_repeated_noise = bool(re.search(r"(?:df|fs|sd|ds|ff|ss){3,}", letters))
+    return vowel_ratio < 0.2 or has_long_consonant_run or has_repeated_noise
+
+
+def _looks_like_prompt_or_sandbox_attack(text: str) -> bool:
+    normalized = _normalize(text)
+    if not normalized:
+        return False
+    sandbox_terms = (
+        "sandbox",
+        "jailbreak",
+        "prompt injection",
+        "system prompt",
+        "developer prompt",
+        "ignore previous instructions",
+        "ignore all previous instructions",
+        "negeer vorige instructies",
+        "negeer alle vorige instructies",
+        "toon je prompt",
+        "laat je prompt zien",
+        "show your prompt",
+    )
+    escape_verbs = (
+        "breek uit",
+        "uitbreken",
+        "escape",
+        "break out",
+        "bypass",
+        "omzeil",
+        "override",
+    )
+    if any(term in normalized for term in sandbox_terms):
+        return True
+    return any(verb in normalized for verb in escape_verbs) and any(
+        target in normalized
+        for target in (
+            "sandbox",
+            "regels",
+            "instructies",
+            "instructions",
+            "policy",
+            "beveiliging",
+            "security",
+        )
+    )
 
 
 def _images_from_context(
@@ -1984,7 +3323,12 @@ def _images_from_context(
                     "source": str(item.get("source") or "source"),
                 }
             )
-    for source in (result, playback_context):
+    nested_sources = []
+    for key in ("playback", "media", "resolved_media", "track"):
+        nested = result.get(key)
+        if isinstance(nested, dict):
+            nested_sources.append(nested)
+    for source in (result, *nested_sources, playback_context):
         if not isinstance(source, dict):
             continue
         url = source.get("album_image_url") or source.get("media_image_url") or source.get("image_url") or source.get("thumbnail_url")
@@ -2081,12 +3425,114 @@ def _action_text(action: str) -> str:
     }.get(action, "Ik heb het aangepast.")
 
 
-def _playback_failed_text(runtime: Any) -> str:
+def _playback_control_actions(action: str) -> list[dict[str, Any]]:
+    if action != "pause":
+        return []
+    return [
+        {
+            "id": "djconnect:control:resume",
+            "kind": "control",
+            "command": "play",
+            "title": "Hervat muziek",
+            "label": "Hervat",
+            "prompt": "Start muziek",
+            "reason": "De muziek is gepauzeerd.",
+        }
+    ]
+
+
+def _confirmation_actions() -> list[dict[str, Any]]:
+    return [
+        {
+            "id": "ask_dj_followup_yes",
+            "title": "Ja",
+            "kind": "confirmation",
+            "action_style": "confirmation",
+            "response_value": "yes",
+            "command": "ask_dj_followup_response",
+        },
+        {
+            "id": "ask_dj_followup_no",
+            "title": "Nee",
+            "kind": "confirmation",
+            "action_style": "confirmation",
+            "response_value": "no",
+            "command": "ask_dj_followup_response",
+        },
+    ]
+
+
+def _confirmation_actions_from_playback_actions(actions: Any) -> list[dict[str, Any]]:
+    if not isinstance(actions, list):
+        return []
+    return [
+        action
+        for action in actions
+        if isinstance(action, dict)
+        and action.get("kind") == "confirmation"
+        and action.get("action_style") == "confirmation"
+    ]
+
+
+async def _store_pending_followup(
+    runtime: Any,
+    payload: dict[str, Any],
+    *,
+    question: str,
+    proposed_intent: str,
+    proposed_action: str,
+    proposed_payload: dict[str, Any],
+) -> None:
+    memory = getattr(runtime, "memory", None)
+    storer = getattr(memory, "async_store_pending_followup", None)
+    if not callable(storer):
+        return
+    try:
+        await storer(
+            runtime,
+            {
+                "type": "playback_confirmation",
+                "question": question,
+                "proposed_intent": proposed_intent,
+                "proposed_action": proposed_action,
+                "proposed_payload": proposed_payload,
+            },
+            payload,
+        )
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect pending Ask DJ follow-up store failed: %s", exc)
+
+
+def _playback_failed_text(runtime: Any, text: str = "") -> str:
+    normalized = _normalize(text)
+    if _looks_dutch(normalized):
+        return "Ik heb je muziekverzoek begrepen, maar Spotify kon het nu niet starten."
     language_getter = getattr(runtime, "device_language", None)
     language = str(language_getter() or "").lower() if callable(language_getter) else ""
     if language.startswith("en"):
         return "I understood your music request, but Spotify could not start it right now."
     return "Ik heb je muziekverzoek begrepen, maar Spotify kon het nu niet starten."
+
+
+def _looks_dutch(normalized: str) -> bool:
+    return any(
+        token in normalized
+        for token in (
+            "speel",
+            "draai",
+            "zet",
+            "maar",
+            "muziek",
+            "nummer",
+            "artiest",
+            "playlist",
+            "afspeellijst",
+            "harder",
+            "zachter",
+            "volgende",
+            "vorige",
+        )
+    )
 
 
 def _devices_text(devices: list[dict[str, Any]]) -> str:

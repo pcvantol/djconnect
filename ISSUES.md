@@ -34,6 +34,22 @@
 - Current mitigation: Client type and Client adres are visible in normal pairing; OTA update and reboot entities are skipped/unavailable for `ios` and `macos`.
 - Next action: Test fresh iOS/macOS/watchOS pairing, re-pairing and PTT playback after HACS install/restart.
 
+### Ask DJ cross-device history retention and confirmation actions need field validation
+
+- Status: open / field validation.
+- Area: Ask DJ chat sync / iOS / macOS / watchOS.
+- Symptom: Server-side Ask DJ history is now bounded and can trim older messages; clients must apply server trim metadata and render server follow-up actions consistently.
+- Current mitigation: Backend returns `history_limit`, `history_trimmed_before`, `history_trimmed_count`, `history_revision` and `clear_revision`; retention notices are stored as assistant system messages and follow-up buttons use `confirmation_actions[]` plus `ask_dj_followup_response`.
+- Next action: Test history trim, cross-device clear, Ja/Nee follow-up execution and expired pending follow-ups on iOS, macOS and Apple Watch.
+
+### Ask DJ intent hardening and fuzzy fallback need field validation
+
+- Status: open / field validation.
+- Area: Ask DJ intent router.
+- Symptom: Gibberish or prompt-injection-like messages could previously be treated as music questions or stale context.
+- Current mitigation: Obvious gibberish and sandbox/prompt-injection-like text now returns the neutral unknown-intent fallback and performs no Spotify/HA mutation.
+- Next action: Test random text, sandbox/prompt requests, `next`, `skip`, `goedemorgen`, `ik ga slapen`, and normal artist/track/playlist prompts in Dutch and English.
+
 ### mDNS reliability varies by network
 
 - Status: open / environmental.
@@ -154,6 +170,8 @@
 - DJConnect conversation-agent options must stay compact and must not show Client adres, Assist pipeline, firmware channel or OTA/audio advanced fields.
 - No direct external AI/STT/TTS calls should be used by active routes.
 - No secret values should appear in logs or diagnostics.
+- Ask DJ history retention messages must not generate audio and must not leak raw prompts, tokens or raw voice payloads.
+- Ask DJ confirmation actions must execute only the pending server-side proposal and expire cleanly; a bare `ja` must not trigger arbitrary playback without pending context.
 - All entities should remain grouped under one HA device.
 - `number.djconnect_volume` must not publish out-of-range values such as `-1`.
 - Spotify OAuth scopes must keep `playlist-read-private`.

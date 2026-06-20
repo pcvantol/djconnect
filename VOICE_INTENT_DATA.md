@@ -40,6 +40,8 @@ Examples:
 - `Welk nummer draait er nu?`
 - `Welk nummer speelt er nu?`
 - `Wat speelt er?`
+- `Wat is die beuker?`
+- `Speel die dikke knaller`
 - `What song is playing?`
 
 Behavior:
@@ -48,6 +50,8 @@ Behavior:
 - Do not run Spotify search.
 - Do not start or change playback.
 - Generate DJ response text/audio from the current track metadata.
+- Informal Dutch track words such as `kraker`, `monsterhit`, `vette track`,
+  `dikke knaller` and `beuker` can refer to the current/recent track.
 - If no track is active or Spotify is unavailable, still generate a friendly DJ
   response.
 
@@ -60,7 +64,11 @@ Examples and backend commands:
 - `Zet harder` -> `set_volume` with current volume +10
 - `Zet zachter` -> `set_volume` with current volume -10
 - `Volgende nummer` -> `next`
+- `Next` -> `next`
+- `Skip` -> `next`
 - `Vorig nummer` -> `previous`
+- `Ik ga slapen` -> `pause`
+- `I'm going to sleep` -> `pause`
 
 Behavior:
 
@@ -70,6 +78,9 @@ Behavior:
 - Generate DJ response text/audio after the command.
 - If Spotify is unavailable, return a friendly DJ response instead of treating
   the phrase as a music search query.
+- English one-word controls such as `next` and `skip` remain direct playback
+  controls even when the user interface language is Dutch.
+- Sleep phrases pause playback directly and do not ask a follow-up question.
 
 ## Music Search Families
 
@@ -98,9 +109,15 @@ The website can use `ask_dj_intents` to render example families for:
 - `conversation_followup`: short replies such as `Geeft niet`, `Dank je` and
   `Laat maar`. These are answered naturally without rerunning a previous lookup
   or changing playback.
+- `contextual_play_followup`: short playback follow-ups such as `Speel af`,
+  `Speel maar`, `Play it` and `Play that`. Ask DJ resolves these against recent
+  chat context, for example a previously discussed track plus artist. It must
+  not guess from stale DJ Memory; if the artist is missing, Ask DJ asks `Welke
+  artiest bedoel je?` and keeps `action: none`.
 - `album_discography`: questions such as `Welke albums hebben Radiohead
   uitgebracht?` and `Welke albums bracht deze artiest uit?`. Responses can
-  include a chronological album list and proxied album covers.
+  include a chronological album list, proxied album covers and Play Now actions
+  per album.
 - `similar_artists`: questions such as `Welke artiesten maken vergelijkbare
   muziek als wat nu speelt?`, using explicit artist, current playback artist or
   recent conversation context.
@@ -109,17 +126,47 @@ The website can use `ask_dj_intents` to render example families for:
 - `concert_agenda`: questions such as `Wanneer speelt artiest X in Nederland?`,
   answered with date, location and clickable source links when web agenda data
   is available.
+- `next_track_info`: queue questions such as `Wat wordt het volgende nummer?`.
+  These read Spotify queue context and can return track, artist, album art and
+  a Play Now action, but do not skip automatically.
 - `personal_music_profile_analysis`: non-mutating listening-profile questions
   based on DJConnect Memory plus Spotify recently played/top profile data.
 - `personal_music_recommendations`: recommendation requests such as `Speel wat
   anders`. These can return `playback_actions[]` for Play Now buttons but do
   not start playback until the user explicitly taps Play Now.
+- `seed_playlist_mix`: requests such as `Stel een playlist samen op basis van
+  Radiohead, Massive Attack en Portishead`, `Ik wil een playlist obv tracks
+  Reckoner, Teardrop` or `Ik wil een playlist in genre ambient, techno`.
+  Responses return one Play Now `track_mix` action with Spotify track URIs. When
+  the user taps Play Now, Ask DJ can ask whether the mix should be saved as a
+  real Spotify playlist.
 - `dj_announcement`: requests for a DJ-style announcement for what is playing or
   the next track.
 - `ambient_music_fact`: backend-generated, text-only Ask DJ system messages
   when Spotify playback moves to another artist/album combination. These have
   no user phrase, use `message_kind: system` and can be styled differently by
   clients.
+- `idle_suggestion`: backend-generated Ask DJ system message when the client
+  opens Ask DJ while Spotify is idle. It can include one personalized Play Now
+  action based on DJConnect Memory and Spotify recently played/top profile data.
+- `morning_music_suggestion`: greetings such as `Goedemorgen` and
+  `Good morning`. Ask DJ answers with a personalized morning suggestion based
+  on DJ Memory/listening-time patterns and includes Ja/Nee confirmation actions
+  instead of starting playback automatically.
+- `confirmation_followup`: server-generated follow-up questions such as
+  `Wil je dit nu afspelen?` or `Zal ik je favoriete ochtendplaylist opzetten?`.
+  Clients should render the returned `confirmation_actions[]` or
+  confirmation-style `playback_actions[]` as Ja/Nee controls and respond with
+  `command:"ask_dj_followup_response"`.
+- `unknown_or_unsafe`: obvious gibberish, sandbox escape prompts and
+  prompt-injection-like text. Ask DJ responds with a short unknown-intent
+  fallback such as `Sorry, ik begrijp niet wat je bedoelt.` and performs no
+  lookup or playback action.
+- `history_retention`: backend-generated Ask DJ system message when the
+  server-side history limit is reached. It uses `message_kind: system`,
+  `origin: history_retention`, `intent.intent: history_limit_reached` and no
+  audio response. Clients should use `history_trimmed_before` metadata to trim
+  local cache.
 
 For website examples, show Ask DJ families separately from deterministic voice
 commands so users understand that some examples are chat/trivia questions rather

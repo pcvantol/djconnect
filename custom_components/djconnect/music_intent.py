@@ -25,14 +25,22 @@ _PLAYLIST_QUERY_PATTERNS = (
     r"^\s*(?:play|start|put\s+on)\s+(.+?)\s+playlist\s*$",
 )
 
+_TRACK_WORDS = r"(?:nummer|liedje|track|song|kraker|monsterhit|hit|vette\s+track|dikke\s+knaller|knaller|beuker)"
+_SLANG_ARTIST_TRACK_WORDS = r"(?:kraker|monsterhit|hit|vette\s+track|dikke\s+knaller|knaller|beuker)"
+
+_SLANG_ARTIST_QUERY_PATTERNS = (
+    rf"^\s*(?:speel|start|zet|draai)\s+(?:eens\s+|even\s+|maar\s+|graag\s+)?(?:een\s+|de\s+)?{_SLANG_ARTIST_TRACK_WORDS}\s+van\s+(.+?)\s*(?:op|af|aan)?\s*$",
+    rf"^\s*(?:een\s+|de\s+)?{_SLANG_ARTIST_TRACK_WORDS}\s+van\s+(.+?)\s*$",
+)
+
 _TRACK_QUERY_PATTERNS = (
-    r"^\s*(?:speel|start|zet|draai)\s+(?:het\s+)?(?:nummer|liedje|track)\s+(.+?)\s+van\s+(?:artiest|band)\s+(.+?)\s*(?:op|af|aan)?\s*$",
-    r"^\s*(?:speel|start|zet|draai)\s+(?:het\s+)?(?:nummer|liedje|track)\s+(.+?)\s+van\s+(.+?)\s*(?:op|af|aan)?\s*$",
+    rf"^\s*(?:speel|start|zet|draai)\s+(?:het\s+|de\s+|die\s+)?{_TRACK_WORDS}\s+(.+?)\s+van\s+(?:artiest|band)\s+(.+?)\s*(?:op|af|aan)?\s*$",
+    rf"^\s*(?:speel|start|zet|draai)\s+(?:het\s+|de\s+|die\s+)?{_TRACK_WORDS}\s+(.+?)\s+van\s+(.+?)\s*(?:op|af|aan)?\s*$",
     r"^\s*(?:speel|start|zet|draai)\s+(.+?)\s+van\s+(.+?)\s*(?:op|af|aan)?\s*$",
-    r"^\s*(?:het\s+)?(?:nummer|liedje|track)\s+(.+?)\s+van\s+(?:artiest|band)\s+(.+?)\s*$",
-    r"^\s*(?:speel|start|zet|draai)\s+(?:het\s+)?(?:nummer|liedje|track)\s+(.+?)\s*(?:op|af|aan)?\s*$",
-    r"^\s*(?:het\s+)?(?:nummer|liedje|track)\s+(.+?)\s+van\s+(.+?)\s*$",
-    r"^\s*(?:het\s+)?(?:nummer|liedje|track)\s+(.+?)\s*$",
+    rf"^\s*(?:het\s+|de\s+|die\s+)?{_TRACK_WORDS}\s+(.+?)\s+van\s+(?:artiest|band)\s+(.+?)\s*$",
+    rf"^\s*(?:speel|start|zet|draai)\s+(?:het\s+|de\s+|die\s+)?{_TRACK_WORDS}\s+(.+?)\s*(?:op|af|aan)?\s*$",
+    rf"^\s*(?:het\s+|de\s+|die\s+)?{_TRACK_WORDS}\s+(.+?)\s+van\s+(.+?)\s*$",
+    rf"^\s*(?:het\s+|de\s+|die\s+)?{_TRACK_WORDS}\s+(.+?)\s*$",
     r"^\s*(?:play|start|put\s+on)\s+(?:the\s+)?(?:song|track)\s+(.+?)\s+by\s+(.+?)\s*$",
     r"^\s*(?:play|start|put\s+on)\s+(?:the\s+)?(?:song|track)\s+(.+?)\s*$",
     r"^\s*(?:the\s+)?(?:song|track)\s+(.+?)\s+by\s+(.+?)\s*$",
@@ -40,10 +48,16 @@ _TRACK_QUERY_PATTERNS = (
 )
 
 _ARTIST_WITH_TRACK_QUERY_PATTERNS = (
-    r"^\s*(?:speel|start|zet|draai)\s+(?:artiest|band)\s+(.+?)\s+met\s+(?:het\s+)?(?:nummer|liedje|track)\s+(.+?)\s*(?:op|af|aan)?\s*$",
-    r"^\s*(?:artiest|band)\s+(.+?)\s+met\s+(?:het\s+)?(?:nummer|liedje|track)\s+(.+?)\s*$",
+    rf"^\s*(?:speel|start|zet|draai)\s+(?:artiest|band)\s+(.+?)\s+met\s+(?:het\s+|de\s+|die\s+)?{_TRACK_WORDS}\s+(.+?)\s*(?:op|af|aan)?\s*$",
+    rf"^\s*(?:artiest|band)\s+(.+?)\s+met\s+(?:het\s+|de\s+|die\s+)?{_TRACK_WORDS}\s+(.+?)\s*$",
     r"^\s*(?:play|start|put\s+on)\s+(?:artist|band)\s+(.+?)\s+with\s+(?:the\s+)?(?:song|track)\s+(.+?)\s*$",
     r"^\s*(?:artist|band)\s+(.+?)\s+with\s+(?:the\s+)?(?:song|track)\s+(.+?)\s*$",
+)
+
+_ARTIST_WITH_ALBUM_QUERY_PATTERNS = (
+    r"^\s*(?:speel|start|zet|draai)\s+(?!(?:het|de|een|album|plaat)\b)(.+?)\s+(?:album|plaat)\s+(.+?)\s*(?:op|af|aan)?\s*$",
+    r"^\s*(?:artiest|band)\s+(.+?)\s+(?:album|plaat)\s+(.+?)\s*$",
+    r"^\s*(?:play|put\s+on)\s+(?!(?:the|a|an|album|record)\b)(.+?)\s+(?:album|record)\s+(.+?)\s*$",
 )
 
 _ALBUM_QUERY_PATTERNS = (
@@ -73,6 +87,13 @@ def parse_spoken_music_request(text: str) -> dict[str, str | None]:
     if artist_track:
         artist, title = artist_track
         return _parsed_request("track", _query_with_artist(title, artist), title=title, artist=artist)
+    slang_artist = _match_single_value(_SLANG_ARTIST_QUERY_PATTERNS, query)
+    if slang_artist:
+        return _parsed_request("artist", slang_artist, artist=slang_artist)
+    artist_album = _match_artist_title(_ARTIST_WITH_ALBUM_QUERY_PATTERNS, query)
+    if artist_album:
+        artist, title = artist_album
+        return _parsed_request("album", _query_with_artist(title, artist), title=title, artist=artist)
     album = _match_title_artist(_ALBUM_QUERY_PATTERNS, query)
     if album:
         title, artist = album

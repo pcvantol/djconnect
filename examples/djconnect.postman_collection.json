@@ -399,6 +399,43 @@
           }
         },
         {
+          "name": "Ask DJ - morning startup",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client_message_id\": \"{{$guid}}\",\n  \"client_id\": \"{{device_id}}\",\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"text\": \"Goedemorgen\",\n  \"trigger\": \"morning_startup\",\n  \"reason\": \"app_started_without_active_playback\",\n  \"has_active_now_playing\": \"false\",\n  \"local_date\": \"2026-06-20\",\n  \"local_hour\": \"8\",\n  \"memory_key\": \"{{memory_key}}\"\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/ask_dj/message",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "ask_dj",
+                "message"
+              ]
+            },
+            "description": "Morning startup Ask DJ message. If there is no active playback, backend should answer with a friendly morning suggestion and confirmation playback_actions[] with Ja/Nee, without starting playback automatically."
+          }
+        },
+        {
           "name": "Ask DJ - Play Now recommendation",
           "request": {
             "method": "POST",
@@ -432,6 +469,42 @@
               ]
             },
             "description": "Explicit Play Now command for a recommendation returned by Ask DJ playback_actions[]. This is the point where playback may start."
+          }
+        },
+        {
+          "name": "Ask DJ - follow-up confirmation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"command\": \"ask_dj_followup_response\",\n  \"value\": {\n    \"title\": \"Ja\",\n    \"kind\": \"confirmation\",\n    \"action_style\": \"confirmation\",\n    \"response_value\": \"yes\",\n    \"memory_key\": \"{{memory_key}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/command",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "command"
+              ]
+            },
+            "description": "Responds to the latest pending Ask DJ confirmation question. response_value yes executes the stored proposed action; no declines without playback. Backend appends an assistant message to server-side Ask DJ history."
           }
         },
         {
@@ -506,7 +579,7 @@
                 "clear"
               ]
             },
-            "description": "Clears persistent server-side Ask DJ chat history for the authenticated HA user and increments clear_revision/history_revision."
+            "description": "Clears persistent server-side DJConnect app Ask DJ chat history globally and increments the shared clear_revision/history_revision so other clients wipe their local cache on next sync."
           }
         },
         {

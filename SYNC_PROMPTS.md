@@ -32,7 +32,7 @@ instead of storing their own copy.
 ## Current Protocol Line
 
 The current shared protocol/release line is `3.1.x`; this bundle was last
-aligned after Home Assistant integration release `v3.1.41`. DJConnect clients on the
+aligned after Home Assistant integration release `v3.1.65`. DJConnect clients on the
 `3.1.x` line are compatible with Home Assistant integration versions `>=3.1.0`
 and `<3.2.0`.
 
@@ -152,6 +152,12 @@ Requirements:
 - Ask DJ website/docs copy must make clear that recommendations do not start
   playback automatically. Clients show `Play Now` for concrete
   recommendations, and playback starts only after the user explicitly taps it.
+- Ask DJ website/docs should mention that follow-up questions can show Ja/Nee
+  controls, for example after `Goedemorgen` or `Wil je dit nu afspelen?`.
+- Ask DJ website/docs should explain that server-side chat history is bounded;
+  when the limit is reached, Home Assistant removes oldest messages and sends a
+  normal system bubble plus trim metadata so clients can clean their local
+  cache.
 - Ask DJ website/docs copy must mention compact privacy boundaries: clients do
   not store DJ Memory; Home Assistant stores compact context/history per user;
   Spotify OAuth tokens, bearer tokens, raw audio and full prompts are not kept
@@ -161,7 +167,7 @@ Requirements:
   when available. Informational text chat is text-only by default; replay is
   shown only when an audio response exists.
 - Keep Ask DJ requirements visible and user-facing: Home Assistant, HACS
-  DJConnect integration v3.1.62 or newer, Spotify Premium, the user's own
+  DJConnect integration v3.1.65 or newer, Spotify Premium, the user's own
   Spotify Developer app with Client ID, an Assist pipeline with STT/TTS for
   voice/audio, and preferably Nabu Casa or another stable HTTPS external URL
   for Spotify OAuth.
@@ -243,15 +249,22 @@ Requirements:
   Request identity can be top-level or inside `identity`; include
   client_message_id for retry dedupe and client_id as origin metadata. Response
   shape includes success, text/dj_text/message, optional audio_url, images[],
-  links[], sources[], playback_actions[], intent, action, user_message,
-  assistant_message, history_revision and clear_revision.
+  links[], sources[], playback_actions[], confirmation_actions[], intent,
+  action, user_message, assistant_message, history_revision, clear_revision,
+  history_limit, history_trimmed_before and history_trimmed_count.
 - Ask DJ supports audio_response auto|always|never. Default auto is text-only
   for informational text chat, TTS for playback/hybrid intents and TTS for
   voice/PTT. Use always when the client wants replayable audio for an
   informational answer; use never for text-only.
 - Ask DJ history is server-side per Home Assistant user. Sync with GET
   /api/djconnect/ask_dj/history?since_revision=<number>. Response includes
-  user_id, history_revision, clear_revision, messages[] and server_time.
+  user_id, history_revision, clear_revision, messages[], server_time and
+  optional trim metadata. If history_trimmed_before is present, clients should
+  remove local Ask DJ messages older than that timestamp.
+- Ask DJ may include assistant system messages such as `origin:
+  history_retention` or `origin: spotify_playback_context`. Clients should
+  style them as system/ambient assistant bubbles and must not auto-play audio
+  for retention messages.
 - Ask DJ Push-To-Talk for iOS/macOS/watchOS uses POST /api/djconnect/voice with
   Content-Type audio/wav. The response includes transcript/recognized_text and
   the same rich Ask DJ fields. Send optional X-DJConnect-Mood,
@@ -261,6 +274,17 @@ Requirements:
 - Ask DJ clear sync uses POST /api/djconnect/ask_dj/history/clear. Clients
   clear local chat cache when their local clear_revision is older than the
   server clear_revision, then reload server history.
+- Ask DJ follow-up questions can include `confirmation_actions[]` and
+  confirmation-style `playback_actions[]` for Ja/Nee buttons. Send the selected
+  answer to POST /api/djconnect/command with command
+  `ask_dj_followup_response`. The pending proposal lives server-side and
+  expires, so clients should not reconstruct the action locally.
+- Ask DJ greetings such as `Goedemorgen` return a personalized morning
+  suggestion with confirmation controls. Sleep phrases such as `Ik ga slapen`
+  pause playback directly.
+- Ask DJ unknown/safety fallback should show the returned neutral text, for
+  example `Sorry, ik begrijp niet wat je bedoelt.`, without retry loops or
+  client-side reinterpretation.
 - Ask DJ images must be proxied through Home Assistant/DJConnect URLs such as
   /api/djconnect/image_proxy/{token}; source links are separate links[] entries.
 - Ask DJ personal recommendations may include playback_actions[] for Play Now
@@ -268,10 +292,9 @@ Requirements:
   /api/djconnect/command with command ask_dj_play_recommendation and a Spotify
   track/album/artist/playlist URI payload. Use this successful command as a
   positive DJ Memory signal.
-- Before pairing, require that Home Assistant has the official Spotify
-  integration configured with at least one Spotify `media_player` entity; if
-  not, show a clear localized config-flow error telling the user to configure
-  Spotify first.
+- Before Spotify playback can work, require DJConnect's own Spotify OAuth setup
+  with a user-owned Spotify Developer Client ID and PKCE redirect URI. Do not
+  require an official Home Assistant Spotify `media_player` entity.
 - Pair app-like clients through POST /api/djconnect/pair. For Raspberry Pi, this is
   the primary pairing path; do not try to call a Pi-local /api/device/pair
   endpoint during initial pairing.
@@ -1924,6 +1947,12 @@ Requirements:
   Watch, iOS and macOS clients must not store DJ Memory; they may send optional
   `mood` (0-100), `dj_style` and `memory_key` hints on status/voice/command
   payloads, but HA may normalize or override the resolved `memory_key`.
+- Ask DJ chat history is server-side per HA user and bounded. Apple clients
+  must use `history_revision`, `clear_revision`, `history_trimmed_before` and
+  `history_trimmed_count` from HA responses to reconcile local caches.
+- Render `confirmation_actions[]` and confirmation-style `playback_actions[]`
+  as Ja/Nee controls, then answer with `command:"ask_dj_followup_response"`.
+  Do not execute pending actions client-side.
 - Pair app-like clients through POST /api/djconnect/pair. For Raspberry Pi, this is
   the primary pairing path; do not try to call a Pi-local /api/device/pair
   endpoint during initial pairing.

@@ -112,6 +112,15 @@ After restart, validate the flows touched by the change:
 - Options flow: confirm internal compatibility/OTA/audio TTL defaults are not shown.
 - Repairs/options: confirm Spotify reauthorization opens the OAuth flow.
 - Developer Tools: test `djconnect.test_parse`, `djconnect.test_command` and `djconnect.test_tts` when relevant.
+- Ask DJ: confirm `/ask_dj/message` returns `history_revision`,
+  `clear_revision`, `history_limit` and trim metadata when applicable.
+- Ask DJ: confirm `Goedemorgen` returns a personalized suggestion with Ja/Nee
+  actions, and `ask_dj_followup_response` handles yes, no and expired pending
+  state.
+- Ask DJ: confirm cross-device history clear/trim behavior on iOS, macOS and
+  watchOS when those clients are available.
+- Ask DJ: confirm gibberish and sandbox/prompt-injection-like messages return
+  the neutral unknown-intent fallback without playback mutation.
 
 For UI or translation work, check both Dutch and English Home Assistant
 language settings when practical.
@@ -137,8 +146,11 @@ refresh the browser or app cache.
 
 - Do not commit secrets, tokens, passwords, private URLs or raw diagnostics.
 - Keep `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`,
-  `ISSUES.md`, `SYNC_PROMPTS.md`, `CHAT_BOOTSTRAP.md`, `CONTRIBUTING.md` and
-  this document current when development workflow or setup assumptions change.
+  `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`,
+  `TECHNICAL_DESIGN_DECISIONS.md`, `VOICE_INTENT_DATA.md`,
+  `CHAT_BOOTSTRAP.md`, `CONTRIBUTING.md`, `SECURITY.md`, `info.md` and this
+  document current when development workflow, public contracts or setup
+  assumptions change.
 - DJConnect is developed and maintained with AI-assisted and agentic engineering
   workflows, including Codex. Accepted changes remain maintainer-reviewed.
 - Do not include secrets, private data or proprietary third-party material in

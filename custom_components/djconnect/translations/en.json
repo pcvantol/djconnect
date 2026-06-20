@@ -52,7 +52,7 @@
         },
         "data_description": {
           "spotify_client_id": "Client ID from your own Spotify Developer app.",
-          "ha_external_url": "External Home Assistant URL Spotify returns to after authorization. The full redirect URI is `{redirect_uri}`.",
+          "ha_external_url": "External Home Assistant URL Spotify returns to after authorization.",
           "spotify_market": "Spotify market used for search and playback requests."
         }
       },
@@ -61,7 +61,7 @@
         "description": "Home Assistant opens Spotify in your browser. After approving access, return here to continue setup."
       },
       "voice": {
-        "title": "Voice, playback and firmware settings",
+        "title": "Voice, playback and DJ style settings",
         "data": {
           "assist_pipeline_id": "Assist pipeline",
           "client_type": "Client type",
