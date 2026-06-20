@@ -38,6 +38,7 @@ Architectuur beslissingen:
 - Ask DJ responses voor profielanalyse vullen `sources[]` met onder andere `spotify_recently_played`, `spotify_top_tracks_short_term`, `spotify_top_artists_medium_term` en `djconnect_memory`.
 - Ask DJ intent `personal_music_recommendations` blijft informatief en mag playback niet wijzigen. Concrete aanbevelingen mogen als `playback_actions[]` terugkomen met Spotify URI metadata en geproxiede images. Alleen expliciet `/api/djconnect/command` met `command:"ask_dj_play_recommendation"` mag zo'n aanbeveling starten. Sta uitsluitend Spotify URI types `track`, `album`, `artist` en `playlist` toe en schrijf succesvolle Play Now keuzes compact als positief signaal naar DJ Memory.
 - Ask DJ clear/history synchronisatie loopt canonical via `GET /api/djconnect/ask_dj/history` en `POST /api/djconnect/ask_dj/history/clear`. Clear verhoogt `clear_revision`; clients wissen lokale chatcache wanneer hun lokale clear revision lager is dan de serverwaarde. De developer services `djconnect.clear_ask_dj_history` en `djconnect.ask_dj_history_state` gebruiken dezelfde revision-bron.
+- Als de laatste DJConnect config entry uit Home Assistant wordt verwijderd/unloaded, wist HA server-side DJ Memory en Ask DJ history. Oude app-clients mogen niet paired blijven door alleen Keychain/cache; bij `401`/`403`, `not_configured` of stale-pairing moeten clients lokale pairingstatus en lokale Ask DJ cache voor die HA installatie wissen.
 - Ask DJ image responses moeten externe URLs via HA/DJConnect proxyen met `GET /api/djconnect/image_proxy/{token}`; clients hoeven geen directe externe content URLs te laden. Links/sources blijven aparte `links[]` entries met `kind: "source"` of `source: "source"`.
 - DJConnect initialiseert niet bij ieder verzoek externe music-knowledge bronnen. De DJ response prompt noemt Spotify metadata, DJ Memory/media-context en daarna MusicBrainz, Wikidata, korte Wikipedia summaries, Last.fm, Discogs en TheAudioDB als bronprioriteit wanneer die kennis beschikbaar is; trivia mag niet verzonnen worden.
 - ESP backend playback commands naar `POST /api/djconnect/command` gebruiken losse `set_shuffle` boolean en `set_repeat` met `off`/`track`/`context`; gebruik geen gecombineerde `set_play_mode` flow.
@@ -82,7 +83,7 @@ Licentie/commercieel:
 HA integration:
 - domain: `djconnect`
 - HACS custom integration.
-- Actuele integratieversie: `3.1.75`.
+- Actuele integratieversie: `3.1.76`.
 - Config flow moet blijven laden.
 - Centrale DJConnect API calls vanuit HACS gebruiken per-install `djci_` tokens, nooit een globale relay/operator secret. Voor Apple push clients (`ios`, `macos`, `watchos`) mag HACS een short-lived `bootstrap_proof` uit push registration/pairing/status gebruiken om via `/v1/install/token` een `djci_` token te minten; zonder proof blijft Apple push disabled/best-effort. ESP32, Raspberry Pi en Assist Conversation Agent-only entries hebben deze proof niet nodig omdat zij geen APNs push gebruiken.
 - Config flow blokkeert niet meer op een officiële Home Assistant Spotify `media_player` entity; DJConnect gebruikt eigen Spotify OAuth en de Spotify Web API voor backend playback.

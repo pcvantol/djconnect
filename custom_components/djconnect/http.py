@@ -278,6 +278,10 @@ def _runtime(hass, device_id: str | None = None, headers: Any | None = None):
         if key != "runtime" and hasattr(runtime, "authorize_device_request")
     ]
     device_id = str(device_id or "").strip()
+    token = _request_token(headers or {})
+    active_runtime = data.get("runtime")
+    if not runtimes and active_runtime is not None:
+        return active_runtime
     if device_id:
         matches = [runtime for runtime in runtimes if _runtime_matches_device(runtime, device_id)]
         if len(matches) == 1:
@@ -287,7 +291,6 @@ def _runtime(hass, device_id: str | None = None, headers: Any | None = None):
                 "DJConnect found multiple runtimes for device_id=%s; using active runtime",
                 device_id,
             )
-    token = _request_token(headers or {})
     if token:
         token_matches = [
             runtime
@@ -300,6 +303,17 @@ def _runtime(hass, device_id: str | None = None, headers: Any | None = None):
             _LOGGER.warning(
                 "DJConnect found multiple runtimes with matching device token; using active runtime"
             )
+        else:
+            _LOGGER.warning(
+                "DJConnect no runtime matched bearer token; rejecting stale client request"
+            )
+            return None
+    if device_id:
+        _LOGGER.warning(
+            "DJConnect no runtime matched device_id=%s; rejecting stale client request",
+            device_id,
+        )
+        return None
     return data.get("runtime")
 
 
@@ -1129,6 +1143,10 @@ async def _handle_ask_dj_play_recommendation(
     else:
         dj_text = f"Ik speel {title} nu af."
     playback = result.get("playback") if isinstance(result, dict) else {}
+    _set_device_state(runtime, "responding")
+    dj_response = await async_send_dj_response_best_effort(hass, runtime, dj_text)
+    audio_url = dj_response.get("audio_url_value")
+    _set_device_state(runtime, "idle")
     runtime.update(last_error=None, last_dj_text=dj_text, last_playback=playback or getattr(runtime, "last_playback", None))
     return {
         "success": True,
@@ -1137,6 +1155,9 @@ async def _handle_ask_dj_play_recommendation(
         "dj_text": dj_text,
         "action": "spotify_start_recommendation",
         "playback": playback or {},
+        "dj_response": dj_response,
+        "audio_url": audio_url,
+        "audio_type": _audio_type_from_url(audio_url),
         "recommendation": {
             key: recommendation.get(key)
             for key in ("uri", "uris", "context_uri", "offset_uri", "kind", "title", "subtitle", "reason")
@@ -1204,6 +1225,20 @@ async def _handle_ask_dj_followup_response(
         return result
     proposed_action = str(pending.get("proposed_action") or "").strip()
     proposed_payload = pending.get("proposed_payload") if isinstance(pending.get("proposed_payload"), dict) else {}
+    if proposed_action == "ask_dj_personal_recommendations":
+        followup_payload = {**request_payload}
+        followup_payload["text"] = str(
+            proposed_payload.get("text")
+            or "verras me met persoonlijke muzieksuggesties"
+        )
+        result = await async_handle_ask_dj(
+            hass,
+            runtime,
+            followup_payload,
+            user_id=user_id,
+        )
+        await _append_followup_history(hass, runtime, request_payload, result, user_id=user_id)
+        return result
     if proposed_action != "ask_dj_play_recommendation" or not proposed_payload:
         result = {
             "success": False,

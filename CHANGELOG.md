@@ -1,5 +1,20 @@
 # Changelog
 
+## 3.1.76
+
+- Clear server-side DJ Memory and Ask DJ history when the last DJConnect Home
+  Assistant config entry is unloaded, preventing deleted clients from seeing old
+  chat state after re-pairing.
+- Reject stale client requests when their `device_id` or bearer token no longer
+  matches any loaded DJConnect runtime instead of falling back to another active
+  entry.
+- Return and deliver a normal DJ announcement, including optional replayable
+  audio, after successful Ask DJ Play Now actions.
+- Keep unknown or unsupported Ask DJ informational fallback responses text-only
+  instead of attaching current playback album art.
+- Return actionable `Ja graag` / `Nee dank je` confirmation buttons for generic
+  playlist/recommendation offers instead of a plain text prompt with stale art.
+
 ## 3.1.75
 
 - Refresh the public and cross-repo Ask DJ documentation for help prompts,

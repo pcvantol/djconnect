@@ -1551,7 +1551,29 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         runtime = hass.data[DOMAIN].get("runtime")
         if runtime and runtime.entry.entry_id == entry.entry_id:
             hass.data[DOMAIN].pop("runtime", None)
+        if not _has_runtime_entries(hass):
+            await _async_clear_all_server_state(hass)
     return unloaded
+
+
+def _has_runtime_entries(hass: HomeAssistant) -> bool:
+    """Return whether any DJConnect config-entry runtime is still loaded."""
+    return any(
+        key != "runtime" and hasattr(value, "authorize_device_request")
+        for key, value in hass.data.get(DOMAIN, {}).items()
+    )
+
+
+async def _async_clear_all_server_state(hass: HomeAssistant) -> None:
+    """Clear server-side DJ Memory/history after the last DJConnect entry unloads."""
+    domain_data = hass.data.setdefault(DOMAIN, {})
+    memory_manager = domain_data.pop("memory_manager", None)
+    if memory_manager is not None and hasattr(memory_manager, "async_clear"):
+        await memory_manager.async_clear()
+    history_manager = domain_data.pop("ask_dj_history_manager", None)
+    if history_manager is not None and hasattr(history_manager, "async_clear_all"):
+        await history_manager.async_clear_all()
+    _LOGGER.info("DJConnect cleared server-side DJ Memory and Ask DJ history after last entry unload")
 
 
 async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:

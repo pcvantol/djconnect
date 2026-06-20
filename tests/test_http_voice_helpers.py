@@ -2435,6 +2435,15 @@ class VoiceHttpHelperTest(unittest.TestCase):
             calls.append((command, value, play))
             return {"success": True, "playback": {"track_name": "Track Title"}}
 
+        delivered = []
+
+        async def dj_response(hass, runtime_arg, text):
+            delivered.append(text)
+            return {
+                "delivered": True,
+                "audio_url_value": "http://ha/api/djconnect/tts/play-now.mp3",
+            }
+
         class Request:
             headers = {
                 "Authorization": "Bearer device-token",
@@ -2461,16 +2470,26 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 }
 
         original = self.http.handle_spotify_command
+        original_dj_response = self.http.async_send_dj_response_best_effort
         self.http.handle_spotify_command = command_handler
+        self.http.async_send_dj_response_best_effort = dj_response
         try:
             response = asyncio.run(self.http.DJConnectCommandView(None).post(Request()))
         finally:
             self.http.handle_spotify_command = original
+            self.http.async_send_dj_response_best_effort = original_dj_response
 
         self.assertEqual(response["status_code"], 200)
         self.assertTrue(response["payload"]["success"])
         self.assertEqual(response["payload"]["action"], "spotify_start_recommendation")
         self.assertIn("Track Title", response["payload"]["dj_text"])
+        self.assertEqual(delivered, [response["payload"]["dj_text"]])
+        self.assertTrue(response["payload"]["dj_response"]["delivered"])
+        self.assertEqual(
+            response["payload"]["audio_url"],
+            "http://ha/api/djconnect/tts/play-now.mp3",
+        )
+        self.assertEqual(response["payload"]["audio_type"], "mp3")
         self.assertEqual(
             calls,
             [
