@@ -225,10 +225,18 @@ Requirements:
   `sudo ./scripts/install.sh`.
 - Keep click/download analytics cookieless and aggregate-only: no cookies, IP
   addresses, user agents, referrers or visitor identifiers.
-- Keep `/admin` protected and out of public navigation/search. The current
-  website implementation is temporary hardcoded Basic Auth and runtime GitHub
-  release asset `download_count` only; do not treat it as a shared public API
-  or persistent analytics contract yet.
+- Keep operator surfaces protected and out of public navigation/search.
+  `operator.html` reads privacy-friendly website stats through `/api/stats`
+  and calls operator-only central API actions through server-side Pages
+  Functions under `/api/operator/*`.
+- Website operator functions may use `DJCONNECT_RELAY_SECRET` only server-side.
+  The secret must never appear in browser bundles, static HTML, screenshots,
+  logs or fixtures.
+- The operator install-token revoke UI must call the website function
+  `POST /api/operator/install-token/revoke`, which forwards to central API
+  `POST /v1/operator/install-token/revoke`. Browser payloads contain only
+  `ha_install_id`, central API `token_id` and a short reason; never raw
+  `djci_...` token material.
 - Keep SEO metadata, sitemap, canonical URLs and social preview images current
   for the production domain.
 - Keep the translated footer privacy notice and the footer website version on
@@ -283,9 +291,22 @@ Requirements:
   push.
 - Keep `POST /v1/install/rotate` authenticated with the current `djci_` install
   token and replace tokens atomically.
+- Provide operator-only endpoints for the website/admin surface:
+  `GET /v1/admin/registrations` for a privacy-safe Apple registration overview
+  and `POST /v1/operator/install-token/revoke` to disable one compromised
+  install token by `ha_install_id` plus central API token ID. These endpoints
+  require bootstrap/operator auth using `DJCONNECT_RELAY_SECRET`, reject
+  per-install `djci_...` bearer tokens and must never return raw APNs tokens,
+  ciphertext, nonces, relay secrets, prompts, responses or chat history.
 - Use APNs provider-token auth with ES256 JWT and these config/secrets:
   `APNS_TEAM_ID`, `APNS_KEY_ID`, `APNS_PRIVATE_KEY`, `APNS_TOPIC_IOS`,
-  `APNS_TOPIC_MACOS`, `APNS_TOPIC_WATCHOS` and `APNS_ENVIRONMENT`.
+  `APNS_TOPIC_MACOS`, `APNS_TOPIC_WATCHOS`, `APNS_ENVIRONMENT` and
+  `APNS_TOKEN_ENCRYPTION_KEY`.
+- Store APNs tokens encrypted at rest with AES-GCM using
+  `APNS_TOKEN_ENCRYPTION_KEY`. Planned key rotation must follow
+  `pcvantol/djconnect-api/OPERATOR_RUNBOOK.md`; the current runtime uses one
+  active key, so zero-downtime rotation requires temporary dual-key/backfill
+  tooling before replacing the secret.
 - Keep sandbox endpoint `https://api.sandbox.push.apple.com` and production
   endpoint `https://api.push.apple.com`; select the endpoint from each
   registration environment.
@@ -314,8 +335,11 @@ Requirements:
 - Release validation should run `npx wrangler types`, `npx tsc --noEmit`,
   `npm test`, `npx wrangler d1 migrations apply djconnect_api --local`, the
   public repository secret scan and `./cleanup_old_releases.sh --keep 1` as a
-  dry-run. Attempt remote D1 migration and Worker deploy when Cloudflare
-  credentials are valid, and document skipped remote steps with the reason.
+  dry-run. CI should also run the staging-safe E2E smoke test when GitHub
+  Actions secret `DJCONNECT_RELAY_SECRET` is configured: bootstrap proof,
+  install token, example APNs registration and event flow. Attempt remote D1
+  migration and Worker deploy when Cloudflare credentials are valid, and
+  document skipped remote steps with the reason.
 ```
 
 ## Home Assistant Integration
@@ -2077,6 +2101,10 @@ Requirements:
   the APNs provider private key. HA-to-central-API calls must not contain raw
   prompts, raw assistant responses, full chat history, DJ Memory, Home
   Assistant tokens or Spotify tokens.
+- Home Assistant stores only central API settings scoped to one installation:
+  `api_base_url`, stable `ha_install_id` and a per-install `djci_...` token.
+  HACS must never contain `DJCONNECT_RELAY_SECRET` or any global
+  relay/operator secret.
 - Ask DJ / DJ Memory is server-side in the Home Assistant integration. iOS,
   macOS, watchOS and Raspberry Pi clients must not store DJ Memory; they may
   send optional `mood` (0-100), `dj_style` and `memory_key` hints on
