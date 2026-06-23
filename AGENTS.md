@@ -84,7 +84,7 @@ Licentie/commercieel:
 HA integration:
 - domain: `djconnect`
 - HACS custom integration.
-- Actuele integratieversie: `3.1.81`.
+- Actuele integratieversie: `3.1.82`.
 - Config flow moet blijven laden.
 - Centrale DJConnect API calls vanuit HACS gebruiken per-install `djci_` tokens, nooit een globale relay/operator secret. Voor Apple push clients (`ios`, `macos`, `watchos`) mag HACS een short-lived `bootstrap_proof` uit push registration/pairing/status gebruiken om via `/v1/install/token` een `djci_` token te minten; zonder proof blijft Apple push disabled/best-effort. ESP32, Raspberry Pi en Assist Conversation Agent-only entries hebben deze proof niet nodig omdat zij geen APNs push gebruiken.
 - Config flow blokkeert niet meer op een officiële Home Assistant Spotify `media_player` entity; DJConnect gebruikt eigen Spotify OAuth en de Spotify Web API voor backend playback.

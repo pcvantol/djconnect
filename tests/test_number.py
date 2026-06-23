@@ -89,6 +89,7 @@ class NumberTest(unittest.TestCase):
         )
         entity = self.number.DJConnectVolumeNumber(runtime, object())
 
+        self.assertFalse(entity._attr_should_poll)
         self.assertIsNone(entity.native_value)
 
     def test_negative_playback_volume_is_unknown(self) -> None:
@@ -220,6 +221,9 @@ class NumberTest(unittest.TestCase):
             value_multiplier=1000,
         )
 
+        self.assertFalse(brightness._attr_should_poll)
+        self.assertFalse(speaker._attr_should_poll)
+        self.assertFalse(screen_timeout._attr_should_poll)
         self.assertEqual(brightness.native_value, 73)
         self.assertEqual(speaker.native_value, 44)
         self.assertEqual(screen_timeout.native_value, 45)

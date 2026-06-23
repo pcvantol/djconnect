@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.1.82
+
+- Keep mDNS/pairing-info discovered device names authoritative in the pairing
+  form so selecting `DJConnect Mac` or `DJConnect iPhone` does not append an
+  extra client-type suffix.
+- Stop post-pairing entity update storms by making secondary backend sensors,
+  numbers, switches and selects event-driven; the playback proxy remains the
+  single periodic backend playback poller.
+
 ## 3.1.81
 
 - Remove the Spotify market/region selector from the normal pairing and Spotify

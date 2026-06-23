@@ -74,6 +74,9 @@ class DJConnectSelectTest(unittest.TestCase):
         log_level = self.select.DJConnectCommandSelect(runtime, object(), "log_level", "log_level", "log_level", ["debug", "info", "warning", "error"])
         language = self.select.DJConnectCommandSelect(runtime, object(), "language", "language", "language", ["en", "nl"])
 
+        self.assertFalse(theme._attr_should_poll)
+        self.assertFalse(log_level._attr_should_poll)
+        self.assertFalse(language._attr_should_poll)
         self.assertEqual(theme.current_option, "auto")
         self.assertEqual(log_level.current_option, "info")
         self.assertEqual(language.current_option, "nl")

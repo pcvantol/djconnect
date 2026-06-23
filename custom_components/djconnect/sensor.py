@@ -92,7 +92,7 @@ class DJConnectBaseSensor(SensorEntity):
 
 
 class DJConnectBackendSensor(DJConnectBaseSensor):
-    _attr_should_poll = True
+    _attr_should_poll = False
 
     def __init__(self, runtime, hass: HomeAssistant | None = None) -> None:
         self.hass = hass

@@ -32,6 +32,7 @@ class DJConnectShuffleSwitch(SwitchEntity):
     """Home Assistant switch for backend playback shuffle."""
 
     _attr_has_entity_name = True
+    _attr_should_poll = False
     _attr_translation_key = "shuffle"
     _attr_unique_id = "djconnect_shuffle"
 
@@ -96,6 +97,7 @@ class DJConnectWakeWordSwitch(SwitchEntity):
     """Home Assistant switch for ESP wake word detection."""
 
     _attr_has_entity_name = True
+    _attr_should_poll = False
     _attr_translation_key = "wake_word"
 
     def __init__(self, runtime: Any, hass: HomeAssistant) -> None:

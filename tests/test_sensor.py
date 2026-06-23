@@ -173,6 +173,12 @@ class DJConnectSensorTest(unittest.TestCase):
             queue = self.sensor.DJConnectQueueSensor(runtime, object())
             playlists = self.sensor.DJConnectPlaylistsSensor(runtime, object())
 
+            self.assertFalse(playback_available._attr_should_poll)
+            self.assertFalse(sound_output._attr_should_poll)
+            self.assertFalse(outputs._attr_should_poll)
+            self.assertFalse(queue._attr_should_poll)
+            self.assertFalse(playlists._attr_should_poll)
+
             asyncio.run(playback_available.async_update())
             asyncio.run(sound_output.async_update())
             asyncio.run(outputs.async_update())
