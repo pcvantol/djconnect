@@ -110,6 +110,7 @@ class PushTest(unittest.TestCase):
                     "device_id": "djconnect-ios-ABCDEFGHIJKL",
                     "client_type": "ios",
                     "push_token": "token-secret-value",
+                    "push_environment": "sandbox",
                     "bootstrap_proof": "djcboot_registration_proof",
                 },
             )
@@ -162,6 +163,164 @@ class PushTest(unittest.TestCase):
         self.assertFalse(hasattr(self.push, "APNsClient"))
         self.assertFalse(hasattr(self.push, "PushRegistrationManager"))
 
+    def test_register_accepts_ios_macos_and_watchos_payloads(self) -> None:
+        for client_type, device_id, bundle_id in (
+            ("ios", "djconnect-ios-ABCDEFGHIJKL", "dev.djconnect.ios"),
+            ("macos", "djconnect-macos-ABCDEFGHIJKL", "dev.djconnect.macos"),
+            ("watchos", "djconnect-watchos-ABCDEFGHIJKL", "dev.djconnect.watchkitapp"),
+        ):
+            with self.subTest(client_type=client_type):
+                hass = types.SimpleNamespace(session=FakeSession())
+                runtime = self._runtime()
+
+                result = asyncio.run(
+                    self.push.async_register(
+                        hass,
+                        runtime,
+                        user_id="user-1",
+                        payload={
+                            "device_id": device_id,
+                            "client_type": client_type,
+                            "push_token": f"{client_type}-token-secret-value",
+                            "push_environment": "sandbox",
+                            "app_bundle_id": bundle_id,
+                            "app_version": "3.1.79",
+                            "locale": "nl-NL",
+                            "notification_categories": ["ask_dj_response", "ask_dj_confirm"],
+                        },
+                    )
+                )
+
+                self.assertTrue(result["success"])
+                call = hass.session.calls[0]
+                self.assertEqual(call["url"], "https://api.djconnect.dev/v1/push/register")
+                self.assertEqual(call["json"]["device_id"], device_id)
+                self.assertEqual(call["json"]["client_type"], client_type)
+                self.assertEqual(call["json"]["push_environment"], "sandbox")
+                self.assertEqual(call["json"]["app_bundle_id"], bundle_id)
+                self.assertEqual(
+                    call["json"]["notification_categories"],
+                    ["ask_dj_confirm", "ask_dj_response"],
+                )
+
+    def test_register_rejects_client_type_device_id_mismatch(self) -> None:
+        hass = types.SimpleNamespace(session=FakeSession())
+        runtime = self._runtime()
+
+        result = asyncio.run(
+            self.push.async_register(
+                hass,
+                runtime,
+                user_id="user-1",
+                payload={
+                    "device_id": "djconnect-ios-ABCDEFGHIJKL",
+                    "client_type": "macos",
+                    "push_token": "token-secret-value",
+                    "push_environment": "sandbox",
+                },
+            )
+        )
+
+        self.assertFalse(result["success"])
+        self.assertEqual(result["error"], "invalid_push_registration")
+        self.assertEqual(hass.session.calls, [])
+
+    def test_register_rejects_invalid_token_or_environment(self) -> None:
+        for payload in (
+            {
+                "device_id": "djconnect-ios-ABCDEFGHIJKL",
+                "client_type": "ios",
+                "push_token": "<token-secret-value>",
+                "push_environment": "sandbox",
+            },
+            {
+                "device_id": "djconnect-ios-ABCDEFGHIJKL",
+                "client_type": "ios",
+                "push_token": "token secret value",
+                "push_environment": "sandbox",
+            },
+            {
+                "device_id": "djconnect-ios-ABCDEFGHIJKL",
+                "client_type": "ios",
+                "push_token": "token-secret-value",
+                "push_environment": "invalid",
+            },
+            {
+                "device_id": "djconnect-ios-ABCDEFGHIJKL",
+                "client_type": "ios",
+                "push_token": "token-secret-value",
+            },
+        ):
+            with self.subTest(payload=payload):
+                hass = types.SimpleNamespace(session=FakeSession())
+                runtime = self._runtime()
+
+                result = asyncio.run(
+                    self.push.async_register(
+                        hass,
+                        runtime,
+                        user_id="user-1",
+                        payload=payload,
+                    )
+                )
+
+                self.assertFalse(result["success"])
+                self.assertEqual(result["error"], "invalid_push_registration")
+                self.assertEqual(hass.session.calls, [])
+
+    def test_register_without_install_token_reports_missing_bootstrap_proof(self) -> None:
+        hass = types.SimpleNamespace(session=FakeSession())
+        runtime = self._runtime(token=None)
+
+        result = asyncio.run(
+            self.push.async_register(
+                hass,
+                runtime,
+                user_id="user-1",
+                payload={
+                    "device_id": "djconnect-ios-ABCDEFGHIJKL",
+                    "client_type": "ios",
+                    "push_token": "token-secret-value",
+                    "push_environment": "sandbox",
+                },
+            )
+        )
+
+        self.assertFalse(result["success"])
+        self.assertFalse(result["push_registered"])
+        self.assertEqual(result["last_push_error"], "missing_bootstrap_proof")
+        self.assertEqual(hass.session.calls, [])
+
+    def test_register_reports_push_relay_unavailable_on_transport_failure(self) -> None:
+        hass = types.SimpleNamespace(session=FakeSession())
+        runtime = self._runtime()
+
+        async def failing_post(hass_arg, runtime_arg, path, payload):
+            raise RuntimeError("boom")
+
+        original = self.push.async_central_post
+        self.push.async_central_post = failing_post
+        try:
+            result = asyncio.run(
+                self.push.async_register(
+                    hass,
+                    runtime,
+                    user_id="user-1",
+                    payload={
+                        "device_id": "djconnect-ios-ABCDEFGHIJKL",
+                        "client_type": "ios",
+                        "push_token": "token-secret-value",
+                        "push_environment": "sandbox",
+                    },
+                )
+            )
+        finally:
+            self.push.async_central_post = original
+
+        self.assertFalse(result["success"])
+        self.assertFalse(result["push_registered"])
+        self.assertEqual(result["last_push_error"], "push_relay_unavailable")
+
     def test_unregister_forwards_to_relay(self) -> None:
         hass = types.SimpleNamespace(session=FakeSession())
         runtime = self._runtime()
@@ -175,6 +334,7 @@ class PushTest(unittest.TestCase):
                     "device_id": "djconnect-watchos-ABCDEFGHIJKL",
                     "client_type": "watchos",
                     "push_token": "watch-token",
+                    "push_environment": "production",
                 },
             )
         )

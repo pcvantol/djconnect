@@ -54,6 +54,16 @@ def install_button_stubs() -> None:
     spotify_backend.SpotifyBackendError = SpotifyBackendError
     spotify_backend.handle_spotify_command = handle_spotify_command
     sys.modules["custom_components.djconnect.spotify_backend"] = spotify_backend
+    push = types.ModuleType("custom_components.djconnect.push")
+    push.EVENT_ASK_DJ_CONFIRM = "ask_dj_confirm"
+    push.calls = []
+
+    async def async_send_event(*args, **kwargs):
+        push.calls.append((args, kwargs))
+        return {"success": True, "sent": 1}
+
+    push.async_send_event = async_send_event
+    sys.modules["custom_components.djconnect.push"] = push
     sys.modules["homeassistant.components.button"] = button
     sys.modules["homeassistant.config_entries"] = config_entries
     sys.modules["homeassistant.core"] = core
@@ -72,6 +82,7 @@ class DJConnectButtonEntityTest(unittest.TestCase):
         for module in (
             "custom_components.djconnect.button",
             "custom_components.djconnect.spotify_backend",
+            "custom_components.djconnect.push",
             "custom_components.djconnect.entity_ids",
             "custom_components.djconnect.const",
             "custom_components.djconnect",
@@ -93,6 +104,65 @@ class DJConnectButtonEntityTest(unittest.TestCase):
 
         translation_keys = {entity._attr_translation_key for entity in added}
         self.assertNotIn("reboot_device", translation_keys)
+        self.assertIn("test_push_message", translation_keys)
+
+    def test_test_push_button_is_added_for_apple_clients_only(self) -> None:
+        for client_type in ("ios", "macos", "watchos"):
+            with self.subTest(client_type=client_type):
+                added = []
+                runtime = types.SimpleNamespace(
+                    entry=types.SimpleNamespace(entry_id=f"entry-{client_type}"),
+                    client_type=lambda client_type=client_type: client_type,
+                )
+                hass = types.SimpleNamespace(data={"djconnect": {runtime.entry.entry_id: runtime}})
+                entry = types.SimpleNamespace(entry_id=runtime.entry.entry_id)
+
+                asyncio.run(
+                    self.button.async_setup_entry(hass, entry, lambda entities: added.extend(entities))
+                )
+
+                translation_keys = {entity._attr_translation_key for entity in added}
+                self.assertIn("test_push_message", translation_keys)
+
+        for client_type in ("esp32", "raspberry_pi"):
+            with self.subTest(client_type=client_type):
+                added = []
+                runtime = types.SimpleNamespace(
+                    entry=types.SimpleNamespace(entry_id=f"entry-{client_type}"),
+                    client_type=lambda client_type=client_type: client_type,
+                )
+                hass = types.SimpleNamespace(data={"djconnect": {runtime.entry.entry_id: runtime}})
+                entry = types.SimpleNamespace(entry_id=runtime.entry.entry_id)
+
+                asyncio.run(
+                    self.button.async_setup_entry(hass, entry, lambda entities: added.extend(entities))
+                )
+
+                translation_keys = {entity._attr_translation_key for entity in added}
+                self.assertNotIn("test_push_message", translation_keys)
+
+    def test_test_push_button_sends_ask_dj_attention_event(self) -> None:
+        push = importlib.import_module("custom_components.djconnect.push")
+        push.calls.clear()
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            device_status={
+                "device_id": "djconnect-macos-ABCDEFGHIJKL",
+                "client_type": "macos",
+            },
+            config={},
+        )
+        hass = object()
+
+        asyncio.run(self.button.DJConnectTestPushButton(runtime, hass).async_press())
+
+        args, kwargs = push.calls[0]
+        self.assertIs(args[0], hass)
+        self.assertIs(args[1], runtime)
+        self.assertEqual(kwargs["event_type"], "ask_dj_confirm")
+        self.assertEqual(kwargs["source_device_id"], "djconnect-macos-ABCDEFGHIJKL")
+        self.assertEqual(kwargs["client_type"], "macos")
+        self.assertTrue(kwargs["explicit_user_request"])
 
     def test_pi_power_buttons_are_added_for_raspberry_pi_clients(self) -> None:
         added = []

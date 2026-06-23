@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.1.80
+
+- Add a `Test push message` button entity for paired iOS, macOS and watchOS
+  clients so APNs relay delivery can be tested from Home Assistant without
+  sending prompt text or secrets.
+- Harden Apple push registration validation for iOS, macOS and watchOS by
+  requiring matching `client_type`/`device_id` prefixes, safe APNs token strings
+  and explicit `sandbox` or `production` environments.
+- Fix watchOS client runtime matching for push registration by recognizing
+  `djconnect-watchos-XXXXXXXXXXXX` device ids.
+
 ## 3.1.79
 
 - Refresh the Ask DJ recent listening-history contract in README, API docs,
