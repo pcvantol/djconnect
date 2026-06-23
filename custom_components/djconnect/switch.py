@@ -52,11 +52,11 @@ class DJConnectShuffleSwitch(SwitchEntity):
 
     @property
     def is_on(self) -> bool | None:
-        playback = self.runtime.last_playback or {}
+        playback = _playback_mapping(self.runtime)
         if "shuffle" in playback:
-            return bool(playback.get("shuffle"))
+            return _as_bool(playback.get("shuffle"))
         if "shuffle" in self.runtime.device_status:
-            return bool(self.runtime.device_status.get("shuffle"))
+            return _as_bool(self.runtime.device_status.get("shuffle"))
         return None
 
     async def async_turn_on(self, **kwargs: Any) -> None:
@@ -70,6 +70,12 @@ class DJConnectShuffleSwitch(SwitchEntity):
         self.runtime.device_status["shuffle"] = enabled
         self.runtime.update()
         await self._refresh_device_display()
+
+    async def async_update(self) -> None:
+        try:
+            await handle_spotify_command(self.hass, self.runtime, "status")
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.debug("DJConnect shuffle refresh failed: %s", exc)
 
     async def _refresh_device_display(self) -> None:
         try:
@@ -152,6 +158,17 @@ def _as_bool(value: Any) -> bool:
     if isinstance(value, str):
         return value.strip().lower() in {"1", "true", "yes", "on", "enabled"}
     return bool(value)
+
+
+def _playback_mapping(runtime: Any) -> dict[str, Any]:
+    playback = getattr(runtime, "last_playback", None)
+    if isinstance(playback, dict) and playback:
+        return playback
+    status = getattr(runtime, "device_status", {}) or {}
+    playback = status.get("playback")
+    if isinstance(playback, dict):
+        return playback
+    return {}
 
 
 def _runtime_client_type(runtime: Any) -> str:

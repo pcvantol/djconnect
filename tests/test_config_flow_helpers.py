@@ -1054,7 +1054,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
             "spotify_client_id_required",
         )
 
-    def test_spotify_oauth_external_step_has_title(self) -> None:
+    def test_spotify_oauth_external_step_has_visible_text(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
         flow._oauth = {
@@ -1066,6 +1066,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertEqual(result["type"], "external")
         self.assertEqual(result["title"], "DJConnect autoriseren bij Spotify")
+        self.assertIn("Home Assistant opent Spotify", result["description"])
 
     def test_voice_step_pairs_device_before_creating_entry(self) -> None:
         package = sys.modules["custom_components.djconnect"]
@@ -1414,6 +1415,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(external["type"], "external")
         self.assertEqual(external["step_id"], "spotify_reauth")
         self.assertEqual(external["title"], "Reauthorize Spotify")
+        self.assertIn("Home Assistant opens Spotify", external["description"])
         self.assertIn("https://accounts.spotify.com/authorize", external["url"])
         self.assertIn(
             flow._oauth["state"],

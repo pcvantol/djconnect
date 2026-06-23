@@ -44,7 +44,11 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     runtime = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities([DJConnectPlaybackProxyMediaPlayer(runtime, hass)])
+    entity = DJConnectPlaybackProxyMediaPlayer(runtime, hass)
+    try:
+        async_add_entities([entity], True)
+    except TypeError:
+        async_add_entities([entity])
 
 
 class DJConnectPlaybackProxyMediaPlayer(MediaPlayerEntity):
@@ -54,6 +58,7 @@ class DJConnectPlaybackProxyMediaPlayer(MediaPlayerEntity):
     _attr_translation_key = "playback_proxy"
     _attr_unique_id = "djconnect_playback_proxy"
     _attr_supported_features = SUPPORTED_FEATURES
+    _attr_should_poll = True
 
     def __init__(self, runtime: Any, hass: HomeAssistant) -> None:
         self.runtime = runtime
@@ -82,7 +87,7 @@ class DJConnectPlaybackProxyMediaPlayer(MediaPlayerEntity):
     def state(self) -> MediaPlayerState:
         if not self.available:
             return MediaPlayerState.UNAVAILABLE
-        playback = self.runtime.last_playback or {}
+        playback = _playback_mapping(self.runtime)
         if not playback.get("has_playback"):
             return MediaPlayerState.IDLE
         return MediaPlayerState.PLAYING if playback.get("is_playing") else MediaPlayerState.PAUSED
@@ -126,11 +131,11 @@ class DJConnectPlaybackProxyMediaPlayer(MediaPlayerEntity):
             volume = float(value)
         except (TypeError, ValueError):
             return None
-        return max(0.0, min(1.0, volume / 60.0))
+        return max(0.0, min(1.0, volume / 100.0))
 
     @property
     def source(self) -> str | None:
-        device = (self.runtime.last_playback or {}).get("device") or {}
+        device = _playback_mapping(self.runtime).get("device") or {}
         return device.get("name") or self.runtime.device_status.get("sound_output")
 
     @property
@@ -139,7 +144,7 @@ class DJConnectPlaybackProxyMediaPlayer(MediaPlayerEntity):
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        playback = self.runtime.last_playback or {}
+        playback = _playback_mapping(self.runtime)
         return {
             "backend": "spotify",
             "represents": "backend_playback_session",
@@ -179,7 +184,7 @@ class DJConnectPlaybackProxyMediaPlayer(MediaPlayerEntity):
         await self.runtime.async_device_command(self.hass, "previous")
 
     async def async_set_volume_level(self, volume: float) -> None:
-        await self._backend_command("set_volume", int(max(0.0, min(1.0, volume)) * 60))
+        await self._backend_command("set_volume", int(max(0.0, min(1.0, volume)) * 100))
 
     async def async_set_shuffle(self, shuffle: bool) -> None:
         await self._backend_command("set_shuffle", bool(shuffle))
@@ -240,7 +245,7 @@ class DJConnectPlaybackProxyMediaPlayer(MediaPlayerEntity):
                 return playback
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect playback toggle status refresh failed: %s", exc)
-        return self.runtime.last_playback or {}
+        return _playback_mapping(self.runtime)
 
     async def _refresh_device_display(self) -> None:
         try:
@@ -258,7 +263,7 @@ class DJConnectPlaybackProxyMediaPlayer(MediaPlayerEntity):
 
 
 def _playback_value(runtime: Any, *keys: str) -> Any:
-    playback = runtime.last_playback or {}
+    playback = _playback_mapping(runtime)
     for key in keys:
         value = playback.get(key)
         if value not in (None, ""):
@@ -266,16 +271,37 @@ def _playback_value(runtime: Any, *keys: str) -> Any:
     return None
 
 
+def _playback_mapping(runtime: Any) -> dict[str, Any]:
+    playback = getattr(runtime, "last_playback", None)
+    if isinstance(playback, dict) and playback:
+        return playback
+    status = getattr(runtime, "device_status", {}) or {}
+    playback = status.get("playback")
+    if isinstance(playback, dict):
+        return playback
+    return {}
+
+
 def _outputs(runtime: Any) -> list[dict[str, Any]]:
     outputs = runtime.device_status.get("available_outputs") or []
     if not isinstance(outputs, list):
-        return []
+        outputs = []
     normalized: list[dict[str, Any]] = []
     for output in outputs:
         if isinstance(output, dict):
             normalized.append(output)
         elif output:
             normalized.append({"id": str(output), "name": str(output)})
+    playback = _playback_mapping(runtime)
+    device = playback.get("device") if isinstance(playback, dict) else None
+    if isinstance(device, dict) and (device.get("name") or device.get("id")):
+        device_id = str(device.get("id") or "")
+        device_name = str(device.get("name") or device_id)
+        if not any(
+            output.get("id") == device_id or output.get("name") == device_name
+            for output in normalized
+        ):
+            normalized.append({"id": device_id or device_name, "name": device_name})
     return normalized
 
 

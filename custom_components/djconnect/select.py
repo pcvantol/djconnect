@@ -115,10 +115,7 @@ class DJConnectCommandSelect(SelectEntity):
     @property
     def options(self) -> list[str]:
         if self.status_key == "sound_output":
-            options = _options_from_status(
-                self.runtime.device_status,
-                self._fallback_options,
-            )
+            options = _sound_output_options(self.runtime, self._fallback_options)
             current = self.current_option
             if current and current not in options:
                 options.append(current)
@@ -159,7 +156,7 @@ class DJConnectCommandSelect(SelectEntity):
                 self.hass,
                 self.runtime,
                 "set_output",
-                _output_id_from_option(self.runtime.device_status, option),
+                _output_id_from_runtime(self.runtime, option),
                 play=False,
             )
         elif self.command == "set_repeat":
@@ -184,8 +181,18 @@ class DJConnectCommandSelect(SelectEntity):
         self.runtime.update()
 
     async def async_update(self) -> None:
-        if self.status_key != "sound_output":
+        if self.status_key not in {"sound_output", "repeat_state"}:
             return
+        if self.status_key == "repeat_state":
+            try:
+                await handle_spotify_command(self.hass, self.runtime, "status")
+            except Exception as exc:  # noqa: BLE001
+                _LOGGER.debug("DJConnect repeat state refresh failed: %s", exc)
+            return
+        try:
+            await handle_spotify_command(self.hass, self.runtime, "status")
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.debug("DJConnect sound output playback refresh failed: %s", exc)
         try:
             await handle_spotify_command(self.hass, self.runtime, "devices")
         except Exception as exc:  # noqa: BLE001
@@ -224,6 +231,17 @@ def _options_from_status(
     return options
 
 
+def _sound_output_options(runtime: Any, fallback: list[str] | None = None) -> list[str]:
+    options = _options_from_status(runtime.device_status, fallback)
+    playback = _playback_mapping(runtime)
+    device = playback.get("device") if isinstance(playback, dict) else None
+    if isinstance(device, dict):
+        label = device.get("name") or device.get("id")
+        if str(label or "").strip() and str(label) not in options:
+            options.append(str(label))
+    return options
+
+
 def _output_id_from_option(status: dict[str, Any], option: str) -> str:
     values = _output_values(status)
     if not isinstance(values, list):
@@ -236,9 +254,20 @@ def _output_id_from_option(status: dict[str, Any], option: str) -> str:
     return option
 
 
+def _output_id_from_runtime(runtime: Any, option: str) -> str:
+    output_id = _output_id_from_option(runtime.device_status, option)
+    if output_id != option:
+        return output_id
+    playback = _playback_mapping(runtime)
+    device = playback.get("device") if isinstance(playback, dict) else None
+    if isinstance(device, dict) and (device.get("name") == option or device.get("id") == option):
+        return str(device.get("id") or option)
+    return option
+
+
 def _current_sound_output(runtime: Any) -> str | None:
     status = runtime.device_status
-    playback = runtime.last_playback or {}
+    playback = _playback_mapping(runtime)
     device = playback.get("device") if isinstance(playback, dict) else None
     if isinstance(device, dict) and device.get("name"):
         return str(device["name"])
@@ -258,8 +287,8 @@ def _current_sound_output(runtime: Any) -> str | None:
 
 def _current_repeat_state(runtime: Any) -> str | None:
     status = runtime.device_status
-    playback = runtime.last_playback or {}
-    for source in (status, playback):
+    playback = _playback_mapping(runtime)
+    for source in (playback, status):
         if not isinstance(source, dict):
             continue
         for key in ("repeat_state", "repeat"):
@@ -267,6 +296,17 @@ def _current_repeat_state(runtime: Any) -> str | None:
             if normalized is not None:
                 return normalized
     return None
+
+
+def _playback_mapping(runtime: Any) -> dict[str, Any]:
+    playback = getattr(runtime, "last_playback", None)
+    if isinstance(playback, dict) and playback:
+        return playback
+    status = getattr(runtime, "device_status", {}) or {}
+    playback = status.get("playback")
+    if isinstance(playback, dict):
+        return playback
+    return {}
 
 
 def _normalize_repeat_state(value: Any) -> str | None:

@@ -80,15 +80,18 @@ async def async_create_fixable_issues(hass: HomeAssistant, entry: ConfigEntry) -
             severity=ir.IssueSeverity.WARNING,
             translation_key="missing_device_token",
         )
+    missing_client_issue_id = f"{entry.entry_id}_missing_spotify_client_id"
     if not _entry_value(entry, CONF_SPOTIFY_CLIENT_ID):
         ir.async_create_issue(
             hass,
             DOMAIN,
-            f"{entry.entry_id}_missing_spotify_client_id",
+            missing_client_issue_id,
             is_fixable=False,
             severity=ir.IssueSeverity.WARNING,
             translation_key="missing_spotify_client_id",
         )
+    else:
+        _delete_issue_best_effort(hass, missing_client_issue_id)
     if not _entry_value(entry, CONF_SPOTIFY_REFRESH_TOKEN):
         ir.async_create_issue(
             hass,
@@ -99,6 +102,9 @@ async def async_create_fixable_issues(hass: HomeAssistant, entry: ConfigEntry) -
             severity=ir.IssueSeverity.WARNING,
             translation_key="missing_spotify_refresh_token",
         )
+    else:
+        _delete_issue_best_effort(hass, "missing_spotify_refresh_token")
+        _delete_issue_best_effort(hass, f"{entry.entry_id}_missing_spotify_refresh_token")
     if missing_spotify_scopes(_entry_value(entry, CONF_SPOTIFY_SCOPES)):
         ir.async_create_issue(
             hass,
@@ -109,6 +115,16 @@ async def async_create_fixable_issues(hass: HomeAssistant, entry: ConfigEntry) -
             severity=ir.IssueSeverity.WARNING,
             translation_key="missing_spotify_oauth_scopes",
         )
+    else:
+        _delete_issue_best_effort(hass, "missing_spotify_oauth_scopes")
+        _delete_issue_best_effort(hass, f"{entry.entry_id}_missing_spotify_oauth_scopes")
+
+
+def _delete_issue_best_effort(hass: HomeAssistant, issue_id: str) -> None:
+    try:
+        ir.async_delete_issue(hass, DOMAIN, issue_id)
+    except Exception:  # noqa: BLE001
+        pass
 
 
 def _entry_value(entry: ConfigEntry, key: str) -> Any:

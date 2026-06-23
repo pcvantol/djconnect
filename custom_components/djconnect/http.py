@@ -827,9 +827,59 @@ def _authorize_runtime_device_request(
 def _current_spotify_credentials(runtime: Any) -> dict[str, Any]:
     getter = getattr(runtime, "get_current_spotify_credentials", None)
     if callable(getter):
-        return getter()
+        current = getter()
+        if current:
+            return current
     payload = getattr(runtime, "spotify_payload", None)
-    return payload() if callable(payload) else {}
+    current = payload() if callable(payload) else {}
+    return current or {}
+
+
+def _entry_spotify_credentials(entry: Any) -> dict[str, Any]:
+    values: dict[str, Any] = {}
+    values.update(getattr(entry, "data", {}) or {})
+    values.update(getattr(entry, "options", {}) or {})
+    client_id = str(values.get(CONF_SPOTIFY_CLIENT_ID) or "").strip()
+    refresh_token = str(values.get(CONF_SPOTIFY_REFRESH_TOKEN) or "").strip()
+    if not client_id or not refresh_token:
+        return {}
+    scopes = values.get(CONF_SPOTIFY_SCOPES, DEFAULT_SPOTIFY_SCOPES)
+    if isinstance(scopes, str):
+        scopes = scopes.split()
+    return {
+        "client_id": client_id,
+        "refresh_token": refresh_token,
+        "spotify_client_id": client_id,
+        "spotify_refresh_token": refresh_token,
+        "spotify_market": values.get(CONF_SPOTIFY_MARKET, DEFAULT_SPOTIFY_MARKET),
+        "spotify_scopes": scopes,
+    }
+
+
+def _current_spotify_credentials_for_status(hass: Any, runtime: Any) -> dict[str, Any]:
+    current = _current_spotify_credentials(runtime)
+    if current:
+        return current
+    entry = getattr(runtime, "entry", None)
+    current = _entry_spotify_credentials(entry)
+    if current:
+        return current
+    entries_getter = getattr(getattr(hass, "config_entries", None), "async_entries", None)
+    if not callable(entries_getter):
+        return {}
+    try:
+        entries = list(entries_getter(DOMAIN))
+    except TypeError:
+        entries = [
+            candidate
+            for candidate in entries_getter()
+            if getattr(candidate, "domain", DOMAIN) == DOMAIN
+        ]
+    for candidate in entries:
+        current = _entry_spotify_credentials(candidate)
+        if current:
+            return current
+    return {}
 
 
 def _safe_config_keys(values: dict[str, Any] | None) -> list[str]:
@@ -1641,7 +1691,7 @@ class DJConnectStatusView(HomeAssistantView):
         response.update(_ha_version_payload())
         response.update(_esp32_language_payload(runtime))
         response.update(await async_ha_url_payload(hass, conf))
-        backend_available = bool(_current_spotify_credentials(runtime))
+        backend_available = bool(_current_spotify_credentials_for_status(hass, runtime))
         _LOGGER.debug(
             "DJConnect status from device %s: spotify_configured=%s backend_available=%s",
             data.get("device_id"),

@@ -1,5 +1,23 @@
 # Changelog
 
+## 3.1.77
+
+- Fix Spotify OAuth/reauthorization UX so the Home Assistant external step shows
+  a useful DJConnect authorization page and stale Spotify repair issues are
+  cleared when valid credentials are present.
+- Treat fresh app-client pairings as backend-playback capable when any loaded
+  DJConnect entry has valid Spotify credentials, avoiding false "playback not
+  available" warnings immediately after macOS/iOS pairing.
+- Refresh Spotify-backed Home Assistant entities from live backend state for
+  playback proxy, volume, output, repeat, shuffle, playlists, queue, outputs and
+  playback availability, including album art/current track metadata and the
+  native Spotify 0-100 volume scale.
+- Add Ask DJ recent-played history intents for tracks, albums, artists and
+  playlists using Spotify recently-played data, returning structured `items[]`
+  and image metadata for compact client-side list rendering.
+- Keep Ask DJ recommendation Play Now controls labeled as `Play Now` instead of
+  using artist or item names as the button label.
+
 ## 3.1.76
 
 - Clear server-side DJ Memory and Ask DJ history when the last DJConnect Home

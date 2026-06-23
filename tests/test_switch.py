@@ -105,6 +105,48 @@ class DJConnectShuffleSwitchTest(unittest.TestCase):
 
         self.assertTrue(entity.is_on)
 
+    def test_shuffle_switch_reads_nested_status_playback(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            config={"client_type": "macos"},
+            device_status={
+                "client_type": "macos",
+                "shuffle": False,
+                "playback": {"shuffle": "true"},
+            },
+            last_playback=None,
+            listeners=[],
+        )
+        entity = self.switch.DJConnectShuffleSwitch(runtime, object())
+
+        self.assertTrue(entity.is_on)
+
+    def test_shuffle_update_refreshes_spotify_playback_status(self) -> None:
+        calls = []
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            config={"client_type": "ios"},
+            device_status={"client_type": "ios", "shuffle": False},
+            last_playback={},
+            listeners=[],
+        )
+        entity = self.switch.DJConnectShuffleSwitch(runtime, object())
+
+        async def fake_handler(hass, runtime_arg, command, value=None, *, play=None):
+            calls.append((command, value, play))
+            runtime_arg.last_playback = {"shuffle": True}
+            return {"success": True, "playback": runtime_arg.last_playback}
+
+        original = self.switch.handle_spotify_command
+        self.switch.handle_spotify_command = fake_handler
+        try:
+            asyncio.run(entity.async_update())
+        finally:
+            self.switch.handle_spotify_command = original
+
+        self.assertEqual(calls, [("status", None, None)])
+        self.assertTrue(entity.is_on)
+
     def test_wake_word_switch_reads_nested_status_first(self) -> None:
         runtime = types.SimpleNamespace(
             entry=types.SimpleNamespace(entry_id="entry-1"),

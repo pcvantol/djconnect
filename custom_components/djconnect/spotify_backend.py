@@ -104,6 +104,13 @@ async def handle_spotify_command(
         return {"success": True, "item": item, "media": item}
     if normalized == "listening_profile":
         return {"success": True, "profile": await backend.listening_profile()}
+    if normalized == "recently_played":
+        limit = _search_limit(value, default=50, maximum=50)
+        return {
+            "success": True,
+            "tracks": await backend.recently_played(limit=limit),
+            "source": "spotify_recently_played",
+        }
     if normalized == "artist_recommendations":
         return {
             "success": True,
@@ -656,6 +663,10 @@ class SpotifyBackend:
             ttl=LISTENING_PROFILE_CACHE_TTL_SECONDS,
         )
 
+    async def recently_played(self, *, limit: int = 50) -> list[dict[str, Any]]:
+        """Fetch recent Spotify playback history without top-item profile calls."""
+        return await self._recently_played(limit=limit)
+
     async def artist_albums(self, query: str) -> dict[str, Any]:
         """Fetch album discography for the best Spotify artist search result."""
         query = str(query or "").strip()
@@ -768,6 +779,11 @@ class SpotifyBackend:
             played_at = str(item.get("played_at") or "").strip()
             if played_at:
                 track["played_at"] = played_at
+            context = item.get("context") if isinstance(item.get("context"), dict) else {}
+            context_uri = str(context.get("uri") or "").strip()
+            if context_uri:
+                track["context_uri"] = context_uri
+                track["context_type"] = str(context.get("type") or "").strip()
             tracks.append(track)
         return tracks
 
@@ -1087,9 +1103,9 @@ class SpotifyBackend:
 
     async def set_volume(self, value: Any) -> None:
         try:
-            volume = max(0, min(60, int(float(value))))
+            volume = max(0, min(100, int(float(value))))
         except (TypeError, ValueError) as exc:
-            raise ValueError("set_volume value must be 0-60") from exc
+            raise ValueError("set_volume value must be 0-100") from exc
         await self._request(
             "PUT",
             f"/me/player/volume?volume_percent={volume}",
@@ -1103,6 +1119,7 @@ def _normalize_playback(data: dict[str, Any]) -> dict[str, Any]:
     context_uri = context.get("uri") or ""
     artists = item.get("artists") or []
     album = item.get("album") or {}
+    album_uri = str(album.get("uri") or "").strip()
     images = album.get("images") or item.get("images") or []
     album_image_url = _best_image_url(images)
     return {
@@ -1551,6 +1568,7 @@ def _normalize_playlist(item: dict[str, Any]) -> dict[str, str]:
 def _normalize_profile_track(item: dict[str, Any]) -> dict[str, Any]:
     artists = item.get("artists") or []
     album = item.get("album") or {}
+    album_uri = str(album.get("uri") or "").strip()
     image_url = _best_image_url(album.get("images") or item.get("images") or [])
     artist_names = [
         str(artist.get("name") or "").strip()
@@ -1574,6 +1592,8 @@ def _normalize_profile_track(item: dict[str, Any]) -> dict[str, Any]:
             "artists": artist_names[:5],
             "album": album.get("name") or "",
             "album_name": album.get("name") or "",
+            "album_uri": album_uri,
+            "context_uri": album_uri,
             "album_image_url": image_url,
             "image_url": image_url,
             "duration_ms": item.get("duration_ms"),

@@ -252,6 +252,11 @@ class DJConnectSelectTest(unittest.TestCase):
 
         async def fake_handler(hass, runtime_arg, command, value=None, *, play=None):
             calls.append((command, value, play))
+            if command == "status":
+                runtime_arg.last_playback = {
+                    "device": {"id": "dev-1", "name": "Living room"}
+                }
+                return {"success": True, "playback": runtime_arg.last_playback}
             runtime_arg.device_status["available_outputs"] = [
                 {"id": "dev-1", "name": "Living room"}
             ]
@@ -264,8 +269,10 @@ class DJConnectSelectTest(unittest.TestCase):
         finally:
             self.select.handle_spotify_command = original
 
+        self.assertIn(("status", None, None), calls)
         self.assertIn(("devices", None, None), calls)
         self.assertEqual(sound_output.options, ["Living room"])
+        self.assertEqual(sound_output.current_option, "Living room")
         self.assertTrue(sound_output.available)
 
     def test_sound_output_is_unavailable_until_outputs_are_known(self) -> None:
@@ -314,6 +321,86 @@ class DJConnectSelectTest(unittest.TestCase):
         self.assertEqual(sound_output.current_option, "Kitchen")
         runtime.last_playback = {"device": {"id": "dev-1", "name": "Living room"}}
         self.assertEqual(sound_output.current_option, "Living room")
+
+    def test_sound_output_uses_nested_status_playback_device_as_available_option(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            config={"client_type": "macos"},
+            device_status={
+                "client_type": "macos",
+                "playback": {"device": {"id": "dev-1", "name": "MacBook Pro"}},
+            },
+            last_playback=None,
+            listeners=[],
+        )
+        sound_output = self.select.DJConnectCommandSelect(
+            runtime,
+            object(),
+            "sound_output",
+            "sound_output",
+            "set_output",
+            [],
+        )
+
+        self.assertEqual(sound_output.options, ["MacBook Pro"])
+        self.assertEqual(sound_output.current_option, "MacBook Pro")
+        self.assertTrue(sound_output.available)
+        self.assertEqual(
+            self.select._output_id_from_runtime(runtime, "MacBook Pro"),
+            "dev-1",
+        )
+
+    def test_repeat_update_refreshes_spotify_playback_status(self) -> None:
+        calls = []
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            config={"client_type": "ios"},
+            device_status={"client_type": "ios", "repeat_state": "off"},
+            last_playback={},
+            listeners=[],
+        )
+        repeat = self.select.DJConnectCommandSelect(
+            runtime,
+            object(),
+            "repeat_state",
+            "repeat_state",
+            "set_repeat",
+            ["off", "track", "context"],
+        )
+
+        async def fake_handler(hass, runtime_arg, command, value=None, *, play=None):
+            calls.append((command, value, play))
+            runtime_arg.last_playback = {"repeat_state": "context"}
+            return {"success": True, "playback": runtime_arg.last_playback}
+
+        original = self.select.handle_spotify_command
+        self.select.handle_spotify_command = fake_handler
+        try:
+            asyncio.run(repeat.async_update())
+        finally:
+            self.select.handle_spotify_command = original
+
+        self.assertEqual(calls, [("status", None, None)])
+        self.assertEqual(repeat.current_option, "context")
+
+    def test_repeat_prefers_live_playback_over_stale_status(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            config={"client_type": "ios"},
+            device_status={"client_type": "ios", "repeat_state": "off"},
+            last_playback={"repeat_state": "track"},
+            listeners=[],
+        )
+        repeat = self.select.DJConnectCommandSelect(
+            runtime,
+            object(),
+            "repeat_state",
+            "repeat_state",
+            "set_repeat",
+            ["off", "track", "context"],
+        )
+
+        self.assertEqual(repeat.current_option, "track")
 
     def test_turn_off_after_select_uses_fixed_minute_options(self) -> None:
         calls = []

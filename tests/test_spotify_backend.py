@@ -192,6 +192,93 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertIn("indie", profile["inferred_genres"])
         self.assertIn("spotify_recently_played", profile["sources"])
 
+    def test_recently_played_command_fetches_only_recent_tracks(self) -> None:
+        class Response:
+            status = 200
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                return {
+                    "items": [
+                        {
+                            "played_at": "2026-06-23T10:00:00Z",
+                            "track": {
+                                "id": "track-1",
+                                "name": "Bella",
+                                "uri": "spotify:track:1",
+                                "artists": [{"name": "Finnebassen"}],
+                                "album": {
+                                    "name": "Album",
+                                    "uri": "spotify:album:1",
+                                    "images": [],
+                                },
+                            },
+                            "context": {
+                                "type": "playlist",
+                                "uri": "spotify:playlist:recent",
+                            },
+                        }
+                    ]
+                }
+
+            async def text(self):
+                return "{}"
+
+        class Session:
+            def __init__(self):
+                self.urls = []
+
+            def request(self, method, url, **kwargs):
+                self.urls.append(url)
+                return Response()
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={"spotify_client_id": "client-id", "spotify_refresh_token": "refresh"},
+            options={},
+        )
+        runtime = types.SimpleNamespace(
+            entry=entry,
+            latest_spotify_refresh_token=None,
+            spotify_access_token="access",
+            spotify_access_token_expires_at=time.time() + 1800,
+            device_status={},
+            update=lambda **kwargs: None,
+        )
+        runtime.config = dict(entry.data)
+        session = Session()
+
+        original_clientsession = self.backend.async_get_clientsession
+        self.backend.async_get_clientsession = lambda hass: session
+        try:
+            result = asyncio.run(
+                self.backend.handle_spotify_command(
+                    object(),
+                    runtime,
+                    "recently_played",
+                    {"limit": 10},
+                )
+            )
+        finally:
+            self.backend.async_get_clientsession = original_clientsession
+
+        self.assertEqual(
+            session.urls,
+            ["https://api.spotify.com/v1/me/player/recently-played?limit=10"],
+        )
+        self.assertEqual(result["tracks"][0]["track_name"], "Bella")
+        self.assertEqual(result["tracks"][0]["artist"], "Finnebassen")
+        self.assertEqual(result["tracks"][0]["played_at"], "2026-06-23T10:00:00Z")
+        self.assertEqual(result["tracks"][0]["album_uri"], "spotify:album:1")
+        self.assertEqual(result["tracks"][0]["context_uri"], "spotify:playlist:recent")
+        self.assertEqual(result["tracks"][0]["context_type"], "playlist")
+        self.assertEqual(result["source"], "spotify_recently_played")
+
     def test_empty_playback_does_not_clear_cached_sensor_fields(self) -> None:
         class Response:
             status = 200

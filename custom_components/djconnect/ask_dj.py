@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 import logging
 import random
 import re
@@ -748,6 +749,12 @@ def classify_ask_dj(text: str) -> AskDjIntent:
     normalized = _normalize(text)
     if _is_help_request(normalized):
         return AskDjIntent("informational", "help", "none")
+    if _is_recently_played_history_request(normalized):
+        return AskDjIntent(
+            "informational",
+            "recently_played_history",
+            "recently_played",
+        )
     if _is_personal_music_profile_request(normalized):
         return AskDjIntent(
             "informational",
@@ -1002,6 +1009,8 @@ async def _handle_informational(
         )
     if ask_intent.intent == "next_track_info":
         return await _next_track_info_response(hass, runtime)
+    if ask_intent.intent == "recently_played_history":
+        return await _recently_played_history_response(hass, runtime, text)
     if _is_slang_track_info_request(text):
         return _current_track_reference_response(hass, playback_context)
     if ask_intent.intent == "save_generated_playlist":
@@ -1413,6 +1422,321 @@ async def _next_track_info_response(
         "playback_actions": playback_actions,
         "sources": [{"source": "spotify_queue", "title": "Spotify queue", "kind": "source"}],
     }
+
+
+async def _recently_played_history_response(
+    hass: HomeAssistant,
+    runtime: Any,
+    text: str,
+) -> dict[str, Any]:
+    window = _recently_played_window(text)
+    try:
+        result = await handle_spotify_command(
+            hass,
+            runtime,
+            "recently_played",
+            {"limit": 50},
+        )
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect Spotify recently-played unavailable: %s", exc)
+        message = (
+            "Ik kan je recente Spotify-afspeelgeschiedenis nu niet ophalen. "
+            "Controleer of DJConnect Spotify opnieuw gemachtigd is met de scope user-read-recently-played."
+        )
+        return _recently_played_response(message)
+    tracks = result.get("tracks") if isinstance(result, dict) else []
+    tracks = tracks if isinstance(tracks, list) else []
+    filtered = _recently_played_tracks_in_window(tracks, window)
+    history_type = _recently_played_history_type(text)
+    label = _recently_played_window_label(window)
+    if not filtered:
+        return _recently_played_response(
+            f"Ik zie geen Spotify {history_type} die {label} zijn afgespeeld.",
+            history_type=history_type,
+        )
+    items = _recently_played_history_items(hass, filtered, history_type)
+    lines = [f"Dit heb je {label} afgespeeld:"]
+    for item in items[:10]:
+        lines.append(f"- {_recent_history_item_line(item)}")
+    if len(items) > 10:
+        lines.append(f"- ... en nog {len(items) - 10} items.")
+    return _recently_played_response(
+        "\n".join(lines),
+        history_type=history_type,
+        items=items[:10],
+    )
+
+
+def _recent_history_item_line(item: dict[str, Any]) -> str:
+    title = str(item.get("title") or "").strip()
+    subtitle = str(item.get("subtitle") or "").strip()
+    if item.get("kind") == "track" and subtitle:
+        return f"{subtitle} - {title}"
+    return title + (f" - {subtitle}" if subtitle else "")
+
+
+def _recently_played_response(
+    message: str,
+    *,
+    history_type: str = "tracks",
+    items: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    items = items if isinstance(items, list) else []
+    return {
+        "success": True,
+        "text": message,
+        "dj_text": message,
+        "message": message,
+        "action": "none",
+        "intent": {
+            "category": "informational",
+            "intent": "recently_played_history",
+            "action": "recently_played",
+            "item_type": history_type,
+        },
+        "items": items,
+        "images": _recently_played_images(items),
+        "links": [],
+        "sources": [
+            {
+                "source": "spotify_recently_played",
+                "kind": "source",
+                "title": "Spotify recently played",
+            }
+        ],
+    }
+
+
+def _recently_played_history_type(text: str) -> str:
+    normalized = _normalize(text)
+    if any(term in normalized for term in ("album", "albums")):
+        return "albums"
+    if any(term in normalized for term in ("playlist", "playlists", "afspeellijst", "afspeellijsten")):
+        return "playlists"
+    if any(term in normalized for term in ("artiest", "artiesten", "artist", "artists")):
+        return "artists"
+    return "tracks"
+
+
+def _recently_played_history_items(
+    hass: HomeAssistant,
+    tracks: list[dict[str, Any]],
+    history_type: str,
+) -> list[dict[str, Any]]:
+    if history_type == "albums":
+        return _recent_album_items(hass, tracks)
+    if history_type == "artists":
+        return _recent_artist_items(hass, tracks)
+    if history_type == "playlists":
+        return _recent_playlist_items(hass, tracks)
+    return [_recent_track_item(hass, track) for track in tracks if isinstance(track, dict)]
+
+
+def _recent_track_item(hass: HomeAssistant, track: dict[str, Any]) -> dict[str, Any]:
+    title = str(track.get("track_name") or track.get("title") or track.get("name") or "Onbekende track").strip()
+    artist = str(track.get("artist") or track.get("artist_name") or "").strip()
+    image_url = _proxy_recent_image(hass, _track_image_url(track))
+    played_at = _parse_spotify_played_at(track.get("played_at"))
+    return {
+        key: value
+        for key, value in {
+            "title": title,
+            "subtitle": artist,
+            "kind": "track",
+            "uri": str(track.get("uri") or "").strip(),
+            "image_url": image_url,
+            "thumbnail_url": image_url,
+            "played_at": str(track.get("played_at") or "").strip(),
+            "played_at_label": _played_at_time_label(played_at) if played_at else "",
+        }.items()
+        if value not in (None, "", [], {})
+    }
+
+
+def _recent_album_items(hass: HomeAssistant, tracks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return _dedupe_recent_items(
+        (
+            {
+                "title": str(track.get("album_name") or track.get("album") or "Onbekend album").strip(),
+                "subtitle": str(track.get("artist") or track.get("artist_name") or "").strip(),
+                "kind": "album",
+                "uri": str(track.get("album_uri") or track.get("context_uri") or "").strip(),
+                "image_url": _proxy_recent_image(hass, _track_image_url(track)),
+                "thumbnail_url": _proxy_recent_image(hass, _track_image_url(track)),
+                "played_at": str(track.get("played_at") or "").strip(),
+            }
+            for track in tracks
+            if isinstance(track, dict) and (track.get("album_name") or track.get("album"))
+        ),
+        key_fields=("uri", "title", "subtitle"),
+    )
+
+
+def _recent_artist_items(hass: HomeAssistant, tracks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    candidates: list[dict[str, Any]] = []
+    for track in tracks:
+        if not isinstance(track, dict):
+            continue
+        artists = track.get("artists")
+        names = artists if isinstance(artists, list) and artists else [track.get("artist") or track.get("artist_name")]
+        for name in names:
+            artist = str(name or "").strip()
+            if artist:
+                image_url = _proxy_recent_image(hass, _track_image_url(track))
+                candidates.append(
+                    {
+                        "title": artist,
+                        "subtitle": "Artiest",
+                        "kind": "artist",
+                        "image_url": image_url,
+                        "thumbnail_url": image_url,
+                        "played_at": str(track.get("played_at") or "").strip(),
+                    }
+                )
+    return _dedupe_recent_items(candidates, key_fields=("title",))
+
+
+def _recent_playlist_items(hass: HomeAssistant, tracks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    candidates = []
+    for track in tracks:
+        if not isinstance(track, dict):
+            continue
+        uri = str(track.get("context_uri") or "").strip()
+        if not uri.startswith("spotify:playlist:"):
+            continue
+        image_url = _proxy_recent_image(hass, _track_image_url(track))
+        candidates.append(
+            {
+                "title": str(track.get("context_name") or "Spotify playlist").strip(),
+                "subtitle": str(track.get("track_name") or track.get("title") or "").strip(),
+                "kind": "playlist",
+                "uri": uri,
+                "image_url": image_url,
+                "thumbnail_url": image_url,
+                "played_at": str(track.get("played_at") or "").strip(),
+            }
+        )
+    return _dedupe_recent_items(candidates, key_fields=("uri", "title"))
+
+
+def _dedupe_recent_items(
+    items: Any,
+    *,
+    key_fields: tuple[str, ...],
+) -> list[dict[str, Any]]:
+    result = []
+    seen = set()
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        key = tuple(str(item.get(field) or "").strip().lower() for field in key_fields)
+        key = tuple(part for part in key if part)
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        result.append({k: v for k, v in item.items() if v not in (None, "", [], {})})
+    return result
+
+
+def _recently_played_images(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    images = []
+    for item in items:
+        url = str(item.get("image_url") or item.get("thumbnail_url") or "").strip()
+        if not url:
+            continue
+        images.append(
+            {
+                "url": url,
+                "thumbnail_url": url,
+                "title": str(item.get("title") or "").strip(),
+                "subtitle": str(item.get("subtitle") or "").strip(),
+                "kind": str(item.get("kind") or "recent_item"),
+                "source": "spotify_recently_played",
+            }
+        )
+    return images
+
+
+def _track_image_url(track: dict[str, Any]) -> str:
+    return str(
+        track.get("album_image_url")
+        or track.get("image_url")
+        or track.get("thumbnail_url")
+        or ""
+    ).strip()
+
+
+def _proxy_recent_image(hass: HomeAssistant, url: str) -> str:
+    return register_image_proxy_url(hass, url) if url.startswith(("http://", "https://")) else url
+
+
+def _recently_played_window(text: str) -> timedelta:
+    normalized = _normalize(text)
+    if any(term in normalized for term in ("vandaag", "today")):
+        now = datetime.now(timezone.utc)
+        start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        return max(timedelta(minutes=1), now - start)
+    if any(term in normalized for term in ("afgelopen paar uur", "last few hours", "past few hours")):
+        return timedelta(hours=3)
+    match = re.search(r"(?:afgelopen|laatste|last|past)\s+(\d+)\s*(?:uur|uren|hour|hours)", normalized)
+    if match:
+        return timedelta(hours=max(1, min(24, int(match.group(1)))))
+    if any(term in normalized for term in ("afgelopen twee uur", "laatste twee uur", "last two hours", "past two hours")):
+        return timedelta(hours=2)
+    return timedelta(hours=1)
+
+
+def _recently_played_window_label(window: timedelta) -> str:
+    seconds = int(window.total_seconds())
+    if seconds <= 90 * 60:
+        return "het afgelopen uur"
+    hours = max(1, round(seconds / 3600))
+    if hours >= 20:
+        return "vandaag"
+    return f"de afgelopen {hours} uur"
+
+
+def _recently_played_tracks_in_window(
+    tracks: list[Any],
+    window: timedelta,
+) -> list[dict[str, Any]]:
+    cutoff = datetime.now(timezone.utc) - window
+    result: list[dict[str, Any]] = []
+    for item in tracks:
+        if not isinstance(item, dict):
+            continue
+        played_at = _parse_spotify_played_at(item.get("played_at"))
+        if played_at is not None and played_at < cutoff:
+            continue
+        result.append(item)
+    return result
+
+
+def _parse_spotify_played_at(value: Any) -> datetime | None:
+    if value in (None, ""):
+        return None
+    text = str(value).strip()
+    if text.endswith("Z"):
+        text = text[:-1] + "+00:00"
+    try:
+        parsed = datetime.fromisoformat(text)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
+def _recently_played_track_line(track: dict[str, Any]) -> str:
+    title = str(track.get("track_name") or track.get("title") or track.get("name") or "Onbekende track").strip()
+    artist = str(track.get("artist") or track.get("artist_name") or "").strip()
+    played_at = _parse_spotify_played_at(track.get("played_at"))
+    prefix = f"{_played_at_time_label(played_at)} - " if played_at is not None else ""
+    return prefix + (f"{artist} - {title}" if artist else title)
+
+
+def _played_at_time_label(value: datetime) -> str:
+    return value.astimezone().strftime("%H:%M")
 
 
 def _current_playback_uri(runtime: Any) -> str:
@@ -2176,7 +2500,13 @@ def _normalize_ask_dj_response(
         "intent": {
             "category": result_intent.get("category") or classification.category,
             "intent": result_intent.get("intent") or classification.intent,
+            **(
+                {"item_type": result_intent["item_type"]}
+                if result_intent.get("item_type")
+                else {}
+            ),
         },
+        "items": result.get("items") or [],
         "action": action,
         "memory_key": memory_key,
         "playback": result.get("playback") or playback_context,
@@ -2188,6 +2518,7 @@ def _normalize_ask_dj_response(
             "images": images,
             "links": links,
             "sources": sources,
+            "items": result.get("items") or [],
             "playback_actions": result.get("playback_actions") or [],
             "confirmation_actions": confirmation_actions,
         },
@@ -2252,6 +2583,56 @@ def _is_personal_music_profile_request(normalized: str) -> bool:
             any(term in normalized for term in analysis_terms)
             or any(term in normalized for term in period_terms)
         )
+    )
+
+
+def _is_recently_played_history_request(normalized: str) -> bool:
+    history_terms = (
+        "welke nummers",
+        "welke tracks",
+        "welke albums",
+        "welke artiesten",
+        "welke artists",
+        "welke playlists",
+        "welke afspeellijsten",
+        "wat heb ik",
+        "wat luisterde ik",
+        "wat heb ik geluisterd",
+        "what songs",
+        "what tracks",
+        "what albums",
+        "what artists",
+        "what playlists",
+        "what did i play",
+        "what have i played",
+        "what did i listen",
+    )
+    playback_terms = (
+        "afgespeeld",
+        "gespeeld",
+        "gedraaid",
+        "geluisterd",
+        "played",
+        "listened",
+        "listening history",
+    )
+    period_terms = (
+        "afgelopen uur",
+        "laatste uur",
+        "afgelopen 2 uur",
+        "afgelopen twee uur",
+        "afgelopen paar uur",
+        "vandaag",
+        "last hour",
+        "past hour",
+        "last 2 hours",
+        "past 2 hours",
+        "today",
+    )
+    return (
+        any(term in normalized for term in history_terms)
+        and any(term in normalized for term in playback_terms)
+        and any(term in normalized for term in period_terms)
     )
 
 
@@ -3327,6 +3708,9 @@ def _recommendation_playback_actions(
             "subtitle": subtitle,
             "uri": uri,
             "kind": kind,
+            "label": "Play Now",
+            "button_label": "Play Now",
+            "action_style": "play_now",
             "image_url": proxy_image,
             "reason": reason,
         }
@@ -3361,6 +3745,9 @@ def _play_now_action_from_spotify_item(
         "subtitle": str(item.get("artist") or item.get("artist_name") or item.get("album_name") or "").strip(),
         "uri": uri,
         "kind": kind,
+        "label": "Play Now",
+        "button_label": "Play Now",
+        "action_style": "play_now",
         "image_url": proxy_image,
         "reason": "Voor je klaargezet terwijl het huidige nummer doorspeelt.",
     }

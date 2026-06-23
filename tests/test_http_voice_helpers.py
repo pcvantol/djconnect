@@ -2218,6 +2218,67 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertNotIn("refresh_token", response["payload"])
         self.assertNotIn("spotify_refresh_token", response["payload"])
 
+    def test_status_view_uses_entry_spotify_token_after_fresh_app_pairing(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+
+        entry = types.SimpleNamespace(
+            data={
+                const.CONF_SPOTIFY_CLIENT_ID: "client-id",
+                const.CONF_SPOTIFY_REFRESH_TOKEN: "fresh-refresh-token",
+                const.CONF_SPOTIFY_SCOPES: const.DEFAULT_SPOTIFY_SCOPES,
+            },
+            options={},
+        )
+
+        class Runtime:
+            device_token = "device-token"
+            device_status = {"device_id": "djconnect-macos-68B74487726D"}
+            ota_in_progress = False
+            ota_last_error = None
+            config = {}
+
+            def __init__(self):
+                self.entry = entry
+
+            def authorize_device_request(self, headers, body_device_id=None):
+                return body_device_id == "djconnect-macos-68B74487726D"
+
+            def get_current_spotify_credentials(self):
+                return {}
+
+            def device_language(self):
+                return "en"
+
+            def update(self, **kwargs):
+                self.last_update = kwargs
+
+        class ConfigEntries:
+            def async_entries(self, domain=None):
+                return [entry]
+
+        class Request:
+            headers = {"Authorization": "Bearer device-token"}
+            app = {
+                "hass": types.SimpleNamespace(
+                    data={const.DOMAIN: {"runtime": Runtime()}},
+                    config_entries=ConfigEntries(),
+                )
+            }
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-macos-68B74487726D",
+                    "client_type": "macos",
+                    "spotify_configured": False,
+                }
+
+        response = asyncio.run(self.http.DJConnectStatusView(None).post(Request()))
+
+        self.assertEqual(response["status_code"], 200)
+        self.assertTrue(response["payload"]["backend_available"])
+        self.assertNotIn("refresh_token", response["payload"])
+        self.assertNotIn("spotify_refresh_token", response["payload"])
+
     def test_status_view_reprovision_log_does_not_include_token(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
 
