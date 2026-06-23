@@ -10,11 +10,22 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.device_registry import DeviceInfo
 
 from . import DEFAULT_TEST_TTS_TEXT, async_speak_dj_test
-from .const import CLIENT_TYPE_ESP32, CLIENT_TYPE_RASPBERRY_PI, DOMAIN
+from .const import (
+    CLIENT_TYPE_ESP32,
+    CLIENT_TYPE_IOS,
+    CLIENT_TYPE_MACOS,
+    CLIENT_TYPE_RASPBERRY_PI,
+    CLIENT_TYPE_WATCHOS,
+    CONF_CLIENT_TYPE,
+    CONF_DEVICE_ID,
+    DOMAIN,
+)
 from .entity_ids import entry_unique_id
+from .push import EVENT_ASK_DJ_CONFIRM, async_send_event as async_send_push_event
 from .spotify_backend import SpotifyBackendError, handle_spotify_command
 
 _LOGGER = logging.getLogger(__name__)
+APPLE_PUSH_CLIENT_TYPES = {CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_WATCHOS}
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -39,6 +50,8 @@ async def async_setup_entry(
                 DJConnectPiShutdownButton(runtime, hass),
             ]
         )
+    if runtime.client_type() in APPLE_PUSH_CLIENT_TYPES:
+        entities.append(DJConnectTestPushButton(runtime, hass))
     async_add_entities(entities)
 
 class DJConnectTestVoiceButton(ButtonEntity):
@@ -142,6 +155,27 @@ class DJConnectRefreshUpNextButton(DJConnectBaseButton):
             _LOGGER.warning("DJConnect up next refresh unavailable: %s", exc)
 
 
+class DJConnectTestPushButton(DJConnectBaseButton):
+    def __init__(self, runtime, hass: HomeAssistant) -> None:
+        super().__init__(runtime, hass, "test_push_message")
+
+    async def async_press(self) -> None:
+        result = await async_send_push_event(
+            self.hass,
+            self.runtime,
+            user_id=None,
+            event_type=EVENT_ASK_DJ_CONFIRM,
+            source_device_id=_runtime_device_id(self.runtime),
+            client_type=_runtime_client_type(self.runtime),
+            explicit_user_request=True,
+        )
+        if not result.get("sent"):
+            reason = result.get("suppressed") or result.get("errors") or result.get("disabled")
+            _LOGGER.warning("DJConnect test push was not sent: %s", reason)
+            return
+        _LOGGER.debug("DJConnect test push message sent")
+
+
 class DJConnectRebootButton(DJConnectBaseButton):
     def __init__(self, runtime, hass: HomeAssistant) -> None:
         super().__init__(runtime, hass, "reboot_device")
@@ -164,3 +198,19 @@ class DJConnectPiShutdownButton(DJConnectBaseButton):
 
     async def async_press(self) -> None:
         await self.runtime.async_device_post(self.hass, "/api/device/shutdown")
+
+
+def _runtime_client_type(runtime: Any) -> str:
+    getter = getattr(runtime, "client_type", None)
+    if callable(getter):
+        return str(getter() or "").strip().lower()
+    status = getattr(runtime, "device_status", {}) or {}
+    config = getattr(runtime, "config", {}) or {}
+    return str(status.get(CONF_CLIENT_TYPE) or config.get(CONF_CLIENT_TYPE) or "").strip().lower()
+
+
+def _runtime_device_id(runtime: Any) -> str | None:
+    status = getattr(runtime, "device_status", {}) or {}
+    config = getattr(runtime, "config", {}) or {}
+    device_id = status.get(CONF_DEVICE_ID) or config.get(CONF_DEVICE_ID)
+    return str(device_id).strip() if device_id else None

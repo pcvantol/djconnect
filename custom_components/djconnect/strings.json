@@ -286,6 +286,9 @@
       "refresh_up_next": {
         "name": "Up next verversen"
       },
+      "test_push_message": {
+        "name": "Test pushbericht"
+      },
       "reboot_device": {
         "name": "Device herstarten"
       },

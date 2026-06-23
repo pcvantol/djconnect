@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import re
 import time
 from typing import Any
 
@@ -258,7 +259,12 @@ def _registration_payload(runtime: Any, *, user_id: str | None, payload: dict[st
     device_id = _clean_text(payload.get("device_id"), 160)
     client_type = _clean_client_type(payload.get("client_type"))
     push_token = _clean_text(payload.get("push_token"), 4096)
-    if not device_id or client_type not in SUPPORTED_CLIENT_TYPES or not push_token:
+    push_environment = _clean_environment(payload.get("push_environment"))
+    if (
+        not _device_id_matches_client_type(device_id, client_type)
+        or not _valid_push_token(push_token)
+        or not push_environment
+    ):
         return {}
     return {
         "ha_install_id": ensure_ha_install_id(runtime),
@@ -266,7 +272,7 @@ def _registration_payload(runtime: Any, *, user_id: str | None, payload: dict[st
         "device_id": device_id,
         "client_type": client_type,
         "push_token": push_token,
-        "push_environment": _normalize_environment(payload.get("push_environment")),
+        "push_environment": push_environment,
         "app_bundle_id": _clean_text(payload.get("app_bundle_id"), 200),
         "app_version": _clean_text(payload.get("app_version"), 64),
         "locale": _clean_text(payload.get("locale"), 32),
@@ -432,6 +438,25 @@ def _clean_text(value: Any, limit: int) -> str:
     return str(value or "").strip()[:limit]
 
 
+def _device_id_matches_client_type(device_id: Any, client_type: Any) -> bool:
+    normalized = _clean_text(device_id, 160)
+    normalized_client = _clean_client_type(client_type)
+    if normalized_client == CLIENT_TYPE_IOS:
+        return bool(re.fullmatch(r"djconnect-ios-[A-Za-z0-9]{12}", normalized))
+    if normalized_client == CLIENT_TYPE_MACOS:
+        return bool(re.fullmatch(r"djconnect-macos-[A-Za-z0-9]{12}", normalized))
+    if normalized_client == CLIENT_TYPE_WATCHOS:
+        return bool(re.fullmatch(r"djconnect-watchos-[A-Za-z0-9]{12}", normalized))
+    return False
+
+
+def _valid_push_token(value: Any) -> bool:
+    token = _clean_text(value, 4096)
+    if not token:
+        return False
+    return not any(char.isspace() or char in "<>" for char in token)
+
+
 def _clean_categories(value: Any) -> list[str]:
     if not isinstance(value, list):
         return []
@@ -439,6 +464,6 @@ def _clean_categories(value: Any) -> list[str]:
     return sorted({_clean_text(item, 64) for item in value if _clean_text(item, 64) in allowed})
 
 
-def _normalize_environment(value: Any) -> str:
-    environment = str(value or "sandbox").strip().lower()
-    return environment if environment in SUPPORTED_ENVIRONMENTS else "sandbox"
+def _clean_environment(value: Any) -> str:
+    environment = str(value or "").strip().lower()
+    return environment if environment in SUPPORTED_ENVIRONMENTS else ""

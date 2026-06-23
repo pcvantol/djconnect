@@ -1606,6 +1606,61 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertEqual(calls[0][3]["payload"]["push_token"], "secret-push-token")
         self.assertEqual(calls[1][0], "unregister")
 
+    def test_push_register_finds_watchos_runtime_by_device_id(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+
+        class Runtime:
+            device_token = "device-token"
+            device_status = {"device_id": "djconnect-watchos-ABCDEFGHIJKL"}
+            config = {}
+
+            def authorize_device_request(self, headers, body_device_id=None, client_type=None):
+                return (
+                    headers.get("Authorization") == "Bearer device-token"
+                    and body_device_id == "djconnect-watchos-ABCDEFGHIJKL"
+                    and client_type == "watchos"
+                )
+
+        runtime = Runtime()
+        hass = types.SimpleNamespace(data={const.DOMAIN: {"entry-1": runtime}})
+
+        class Request:
+            headers = {
+                "Authorization": "Bearer device-token",
+                "X-DJConnect-Device-ID": "djconnect-watchos-ABCDEFGHIJKL",
+            }
+            app = {"hass": hass}
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-watchos-ABCDEFGHIJKL",
+                    "client_type": "watchos",
+                    "push_token": "watch-token",
+                    "push_environment": "sandbox",
+                }
+
+        calls = []
+
+        async def register_push(hass_arg, runtime_arg, **kwargs):
+            calls.append((hass_arg, runtime_arg, kwargs))
+            return {
+                "success": True,
+                "push_supported": True,
+                "push_registered": True,
+                "push_environment": "sandbox",
+            }
+
+        original_register = self.http.async_register_push
+        self.http.async_register_push = register_push
+        try:
+            response = asyncio.run(self.http.DJConnectPushRegisterView(None).post(Request()))
+        finally:
+            self.http.async_register_push = original_register
+
+        self.assertEqual(response["status_code"], 200)
+        self.assertIs(calls[0][1], runtime)
+        self.assertEqual(calls[0][2]["payload"]["client_type"], "watchos")
+
     def test_status_view_reports_push_registration(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
         class Runtime:

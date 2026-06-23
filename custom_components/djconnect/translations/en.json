@@ -290,6 +290,9 @@
       "refresh_up_next": {
         "name": "Refresh up next"
       },
+      "test_push_message": {
+        "name": "Test push message"
+      },
       "reboot_device": {
         "name": "Reboot device"
       },
