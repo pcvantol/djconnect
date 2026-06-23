@@ -68,6 +68,7 @@ async def async_setup_entry(
 
 class DJConnectVolumeNumber(NumberEntity):
     _attr_has_entity_name = True
+    _attr_should_poll = False
     _attr_translation_key = "volume"
     _attr_unique_id = "djconnect_volume"
     _attr_native_min_value = MIN_VOLUME
@@ -165,6 +166,7 @@ def _volume_from_mapping(source: dict[str, Any]) -> float | None:
 
 class DJConnectCommandNumber(NumberEntity):
     _attr_has_entity_name = True
+    _attr_should_poll = False
     _attr_native_step = 1.0
 
     def __init__(

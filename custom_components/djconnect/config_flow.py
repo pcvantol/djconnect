@@ -901,6 +901,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._discovery_checked = False
         self._discovered_clients: list[DiscoveredClient] = []
         self._discovered_defaults: dict[str, Any] = {}
+        self._discovered_device_name_authoritative = False
         self._selected_discovered_key = ""
 
     async def async_step_user(
@@ -1026,6 +1027,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 if not discovered_key and self._selected_discovered_key:
                     self._selected_discovered_key = ""
                     self._discovered_defaults = {}
+                    self._discovered_device_name_authoritative = False
                     return await self.async_step_pair()
             pair_code = str(user_input.get(CONF_PAIR_CODE, "")).strip()
             self._last_pair_code = pair_code
@@ -1125,14 +1127,13 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
         self._discovered_defaults = {
             CONF_DEVICE_ID: client.device_id,
-            CONF_DEVICE_NAME: _device_name_for_client_type(
-                client_type,
-                client.device_name or DEFAULT_DEVICE_NAME,
-            ),
+            CONF_DEVICE_NAME: str(client.device_name or DEFAULT_DEVICE_NAME).strip()
+            or DEFAULT_DEVICE_NAME,
             CONF_CLIENT_TYPE: client_type,
             CONF_LOCAL_URL: client.local_url,
             CONF_PAIR_CODE: client.pair_code,
         }
+        self._discovered_device_name_authoritative = True
         if client.pair_code:
             self._last_pair_code = client.pair_code
 
@@ -1156,10 +1157,11 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             or ""
         )
         client_type = _clean(defaults.get(CONF_CLIENT_TYPE), DEFAULT_CLIENT_TYPE)
-        device_name = _device_name_for_client_type(
-            client_type,
-            _clean(defaults.get(CONF_DEVICE_NAME), DEFAULT_DEVICE_NAME),
-        )
+        default_device_name = _clean(defaults.get(CONF_DEVICE_NAME), DEFAULT_DEVICE_NAME)
+        if getattr(self, "_discovered_device_name_authoritative", False):
+            device_name = default_device_name
+        else:
+            device_name = _device_name_for_client_type(client_type, default_device_name)
         local_url = _clean(defaults.get(CONF_LOCAL_URL), _default_local_url(pair_code))
         schema: dict[Any, Any] = {}
         discovery_options = self._discovered_client_options()

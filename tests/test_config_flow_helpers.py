@@ -515,7 +515,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         defaults = {marker.key: marker.default for marker in schema}
 
         self.assertEqual(defaults[self.const.CONF_PAIR_CODE], "555293")
-        self.assertEqual(defaults[self.const.CONF_DEVICE_NAME], "DJConnect Mac macOS")
+        self.assertEqual(defaults[self.const.CONF_DEVICE_NAME], "DJConnect Mac")
         self.assertEqual(defaults[self.const.CONF_CLIENT_TYPE], self.const.CLIENT_TYPE_MACOS)
         self.assertEqual(defaults[self.const.CONF_LOCAL_URL], "http://192.168.1.104:60955")
 
@@ -545,7 +545,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
             "djconnect-raspberry-pi-A1B2C3D4E5F6",
         )
         self.assertEqual(defaults[self.const.CONF_PAIR_CODE], "654321")
-        self.assertEqual(defaults[self.const.CONF_DEVICE_NAME], "DJConnect Pi Raspberry Pi")
+        self.assertEqual(defaults[self.const.CONF_DEVICE_NAME], "DJConnect Pi")
         self.assertEqual(
             defaults[self.const.CONF_CLIENT_TYPE],
             self.const.CLIENT_TYPE_RASPBERRY_PI,
@@ -579,6 +579,35 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertIn(self.config_flow.DISCOVERY_CLIENT_FIELD, keys)
         self.assertIn("djconnect-macos-68B74487726D", schema[discovery_marker])
         self.assertIn("DJConnect iPhone", schema[discovery_marker]["djconnect-ios-9F8FA6931AA3"])
+
+    def test_user_schema_keeps_selected_discovered_device_name_without_suffix(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
+        flow._discovered_clients = [
+            self.config_flow.DiscoveredClient(
+                local_url="http://192.168.1.104:54336",
+                device_id="djconnect-ios-6D1E7B81409C",
+                client_type=self.const.CLIENT_TYPE_IOS,
+                device_name="DJConnect iPhone",
+            ),
+            self.config_flow.DiscoveredClient(
+                local_url="http://192.168.1.104:54455",
+                device_id="djconnect-macos-B6F47A1C0891",
+                client_type=self.const.CLIENT_TYPE_MACOS,
+                device_name="DJConnect Mac",
+            ),
+        ]
+        flow._selected_discovered_key = "djconnect-macos-B6F47A1C0891"
+        flow._apply_discovered_client(flow._discovered_clients[1])
+
+        schema = flow._user_schema()
+        defaults = {marker.key: marker.default for marker in schema}
+
+        self.assertEqual(
+            defaults[self.config_flow.DISCOVERY_CLIENT_FIELD],
+            "djconnect-macos-B6F47A1C0891",
+        )
+        self.assertEqual(defaults[self.const.CONF_DEVICE_NAME], "DJConnect Mac")
 
     def test_user_schema_offers_multiple_discovered_clients_including_raspberry_pi(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()

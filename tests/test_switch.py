@@ -103,6 +103,7 @@ class DJConnectShuffleSwitchTest(unittest.TestCase):
         )
         entity = self.switch.DJConnectShuffleSwitch(runtime, object())
 
+        self.assertFalse(entity._attr_should_poll)
         self.assertTrue(entity.is_on)
 
     def test_shuffle_switch_reads_nested_status_playback(self) -> None:
@@ -159,6 +160,7 @@ class DJConnectShuffleSwitchTest(unittest.TestCase):
         )
         entity = self.switch.DJConnectWakeWordSwitch(runtime, object())
 
+        self.assertFalse(entity._attr_should_poll)
         self.assertTrue(entity.is_on)
 
     def test_wake_word_switch_falls_back_to_wake_word_alias(self) -> None:
