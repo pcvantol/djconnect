@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.1.81
+
+- Remove the Spotify market/region selector from the normal pairing and Spotify
+  OAuth setup flow while keeping the internal default for Spotify Web API calls.
+- Reduce stale-client log noise by throttling repeated bearer-token mismatch
+  warnings without logging token values or derived token identifiers.
+- Stabilize post-pairing entity updates by skipping unchanged runtime listener
+  notifications and preventing sparse status heartbeats from replacing a known
+  pairing state with `unknown`.
+
 ## 3.1.80
 
 - Add a `Test push message` button entity for paired iOS, macOS and watchOS

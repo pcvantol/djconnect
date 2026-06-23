@@ -5,6 +5,7 @@ import html
 import logging
 from pathlib import Path
 import re
+import time
 from typing import Any
 from urllib.parse import urlsplit
 
@@ -78,6 +79,8 @@ from .spotify_backend import SpotifyBackendError, handle_spotify_command
 from .spotify_oauth import exchange_code_for_refresh_token
 
 _LOGGER = logging.getLogger(__name__)
+_STALE_AUTH_LOG_THROTTLE_SECONDS = 300
+_last_stale_auth_log: dict[str, float] = {}
 _LOGO_DATA_URI: str | None = None
 VOICE_DEBUG_KEY = "last_voice_debug"
 VOICE_DEBUG_URL = "/api/djconnect/debug/last_voice.wav"
@@ -304,7 +307,8 @@ def _runtime(hass, device_id: str | None = None, headers: Any | None = None):
                 "DJConnect found multiple runtimes with matching device token; using active runtime"
             )
         else:
-            _LOGGER.warning(
+            _log_stale_auth_warning(
+                "bearer_token",
                 "DJConnect no runtime matched bearer token; rejecting stale client request"
             )
             return None
@@ -315,6 +319,16 @@ def _runtime(hass, device_id: str | None = None, headers: Any | None = None):
         )
         return None
     return data.get("runtime")
+
+
+def _log_stale_auth_warning(key: str, message: str, *args: Any) -> None:
+    now = time.monotonic()
+    last = _last_stale_auth_log.get(key, 0)
+    if now - last < _STALE_AUTH_LOG_THROTTLE_SECONDS:
+        _LOGGER.debug(message, *args)
+        return
+    _last_stale_auth_log[key] = now
+    _LOGGER.warning(message, *args)
 
 
 ERROR_MESSAGES = {
@@ -698,16 +712,22 @@ def _request_remote_ip(request: Any) -> str | None:
     return None
 
 
-def _merge_status_update(status: dict[str, Any], update: dict[str, Any]) -> None:
+def _merge_status_update(status: dict[str, Any], update: dict[str, Any]) -> bool:
     """Merge ESP status without letting sparse heartbeats erase known values."""
     if not update:
         _LOGGER.debug("Ignoring empty ESP status payload for device sensor update")
-        return
+        return False
     _LOGGER.debug("Merging ESP status payload without resetting missing fields")
+    changed = False
     for key, value in update.items():
+        if key == "ha_pairing_status" and value in (None, "", "unknown"):
+            continue
         if _is_empty_status_value(value) and key in status:
             continue
+        if status.get(key) != value:
+            changed = True
         status[key] = value
+    return changed
 
 
 def _is_empty_status_value(value: Any) -> bool:
@@ -1638,12 +1658,13 @@ class DJConnectStatusView(HomeAssistantView):
         source_ip = _request_remote_ip(request)
         if source_ip:
             status_update["local_ip"] = source_ip
+        status_changed = False
         if _is_command_payload(status_update):
             _LOGGER.debug("Ignoring command payload for device sensor update")
         elif _is_voice_only_payload(status_update):
             _LOGGER.debug("Ignoring voice-only payload for device sensor update")
         else:
-            _merge_status_update(runtime.device_status, status_update)
+            status_changed = _merge_status_update(runtime.device_status, status_update)
         if not _runtime_versions_compatible(runtime):
             runtime.update(
                 last_error=(
@@ -1668,7 +1689,10 @@ class DJConnectStatusView(HomeAssistantView):
             runtime.ota_in_progress = False
         if data.get("ota_error"):
             runtime.ota_last_error = data.get("ota_error")
-        runtime.update(last_error=None)
+        if status_changed and getattr(runtime, "last_error", None) is None:
+            runtime.update()
+        else:
+            runtime.update(last_error=None)
         conf = runtime.config
         response = {
             "success": True,

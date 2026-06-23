@@ -244,9 +244,14 @@ class DJConnectRuntime:
         return data
 
     def update(self, **kwargs: Any) -> None:
+        should_notify = not kwargs
         for key, value in kwargs.items():
+            if getattr(self, key, None) != value:
+                should_notify = True
             setattr(self, key, value)
         _cache_runtime_last_values(self)
+        if not should_notify:
+            return
         for listener in list(self.listeners):
             listener()
 
