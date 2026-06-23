@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.1.83
+
+- Make the backend playback proxy event-driven as well, so the Home Assistant
+  device page no longer keeps polling the final media player entity after
+  pairing.
+
 ## 3.1.82
 
 - Keep mDNS/pairing-info discovered device names authoritative in the pairing

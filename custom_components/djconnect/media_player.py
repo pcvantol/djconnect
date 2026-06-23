@@ -58,7 +58,7 @@ class DJConnectPlaybackProxyMediaPlayer(MediaPlayerEntity):
     _attr_translation_key = "playback_proxy"
     _attr_unique_id = "djconnect_playback_proxy"
     _attr_supported_features = SUPPORTED_FEATURES
-    _attr_should_poll = True
+    _attr_should_poll = False
 
     def __init__(self, runtime: Any, hass: HomeAssistant) -> None:
         self.runtime = runtime
