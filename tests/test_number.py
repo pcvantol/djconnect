@@ -80,7 +80,7 @@ class NumberTest(unittest.TestCase):
         cls.number = importlib.import_module("custom_components.djconnect.number")
 
     def test_negative_volume_status_is_unknown(self) -> None:
-        self.assertEqual(self.number._volume_value({"volume": -1}), -1.0)
+        self.assertIsNone(self.number._volume_value({"volume": -1}))
 
         runtime = types.SimpleNamespace(
             entry=types.SimpleNamespace(entry_id="entry-1"),
@@ -90,6 +90,17 @@ class NumberTest(unittest.TestCase):
         entity = self.number.DJConnectVolumeNumber(runtime, object())
 
         self.assertIsNone(entity.native_value)
+
+    def test_negative_playback_volume_is_unknown(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            device_status={"client_type": "ios", "volume": 0},
+            last_playback={"volume_percent": -1},
+            listeners=[],
+        )
+        entity = self.number.DJConnectVolumeNumber(runtime, object())
+
+        self.assertEqual(entity.native_value, 0.0)
 
     def test_volume_status_is_clamped_to_range(self) -> None:
         runtime = types.SimpleNamespace(

@@ -351,6 +351,29 @@ class DJConnectMediaPlayerTest(unittest.TestCase):
         self.assertEqual(len(added), 1)
         self.assertTrue(add_entities.update_before_add)
 
+    def test_media_player_runtime_listener_waits_until_added_to_hass(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            device_token="device-token",
+            device_status={},
+            last_error=None,
+            last_playback={},
+            listeners=[],
+        )
+        entity = self.media_player.DJConnectPlaybackProxyMediaPlayer(runtime, object())
+
+        self.assertEqual(runtime.listeners, [])
+        entity._handle_runtime_update()
+        self.assertFalse(getattr(entity, "wrote_state", False))
+
+        asyncio.run(entity.async_added_to_hass())
+        self.assertEqual(runtime.listeners, [entity._handle_runtime_update])
+
+        entity.entity_id = "media_player.djconnect_playback_proxy"
+        entity._handle_runtime_update()
+
+        self.assertTrue(entity.wrote_state)
+
     def test_next_previous_media_player_commands_go_through_device(self) -> None:
         commands = []
 
