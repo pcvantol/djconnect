@@ -64,7 +64,12 @@ class DJConnectPlaybackProxyMediaPlayer(MediaPlayerEntity):
         self.runtime = runtime
         self.hass = hass
         self._attr_unique_id = entry_unique_id(runtime, "playback_proxy")
-        runtime.listeners.append(self._handle_runtime_update)
+        self._runtime_listener_attached = False
+
+    async def async_added_to_hass(self) -> None:
+        if not self._runtime_listener_attached:
+            self.runtime.listeners.append(self._handle_runtime_update)
+            self._runtime_listener_attached = True
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -255,11 +260,14 @@ class DJConnectPlaybackProxyMediaPlayer(MediaPlayerEntity):
 
     @callback
     def _handle_runtime_update(self) -> None:
+        if not getattr(self, "entity_id", None):
+            return
         self.async_write_ha_state()
 
     async def async_will_remove_from_hass(self) -> None:
         if self._handle_runtime_update in self.runtime.listeners:
             self.runtime.listeners.remove(self._handle_runtime_update)
+        self._runtime_listener_attached = False
 
 
 def _playback_value(runtime: Any, *keys: str) -> Any:

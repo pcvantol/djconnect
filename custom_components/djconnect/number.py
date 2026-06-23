@@ -154,9 +154,12 @@ def _volume_from_mapping(source: dict[str, Any]) -> float | None:
         if key not in source:
             continue
         try:
-            return float(source[key])
+            value = float(source[key])
         except (TypeError, ValueError):
             return None
+        if value < MIN_VOLUME:
+            return None
+        return value
     return None
 
 

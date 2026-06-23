@@ -14,7 +14,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 
 ## Current Version
 
-- Home Assistant integration: `3.1.77`
+- Home Assistant integration: `3.1.78`
 - Domain: `djconnect`
 - HACS category: `Integration`
 - Device target: DJConnect device
@@ -39,9 +39,11 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 - Answer current-track questions such as `Welk nummer draait er nu?` with a DJ response based on Spotify's current playback state, without starting new playback.
 - Handle direct DJ playback controls such as `Stop muziek`, `Start muziek`, `Zet harder`, `Zet zachter`, `Volgende nummer` and `Vorig nummer` without running a Spotify search.
 - Keep server-side DJ Memory for future `Ask DJ` follow-ups across lightweight iOS, macOS, watchOS and Raspberry Pi clients.
+- Answer recent listening-history questions such as `Welke nummers heb ik afgelopen uur afgespeeld?`, `Welke albums heb ik vandaag geluisterd?`, `Welke artiesten hoorde ik net?` and `Welke playlists heb ik afgelopen uur gespeeld?` from Spotify recently played data.
 - Generate DJ announcements through the selected/default Assist conversation agent with DJConnect-specific prompt instructions and fallback guardrails.
 - Use HA-native Assist/TTS routes in active services and entities.
 - Track client status, firmware/client version, last command, last corrected STT, last track and backend playback state.
+- Keep the native playback proxy and Spotify-backed entities in sync with current play/pause state, volume, album art, repeat/shuffle, output, queue and playlists when Spotify credentials are available.
 - Track ESP-only battery, Wi-Fi RSSI, screen/LED state and firmware updates only for ESP32 clients.
 - Provide diagnostics with sensitive values redacted.
 
@@ -57,7 +59,7 @@ runtime behavior. These decisions are part of the integration contract:
 - **Server-side DJ Memory for Ask DJ**: lightweight clients do not store DJ Memory. Home Assistant owns compact `Ask DJ` context through runtime session memory plus Home Assistant Store key `djconnect_memory` version `1`. Memory is scoped first by HA user id when available, then by DJConnect client/device id, so a Watch request such as `Draai iets rustigers` can be followed later from another client with `Waarom koos je dit?`. Stored memory excludes OAuth tokens, bearer tokens, raw audio and full prompts.
 - **Music knowledge prompt policy**: DJConnect does not initialize external music sources on every request. The DJ response prompt tells the configured conversation agent to use provided Spotify metadata, DJ Memory and media context first, and only use MusicBrainz, Wikidata, short Wikipedia summaries, Last.fm, Discogs or TheAudioDB when that knowledge is already available to the agent/integration. Trivia must be skipped rather than invented.
 - **HA owns backend playback**: the ESP does not store Spotify OAuth credentials and does not call the Spotify Web API directly. It sends generic playback commands to `POST /api/djconnect/command`; Home Assistant translates them to the current backend, currently Spotify.
-- **Native playback proxy**: Home Assistant exposes a DJConnect `media_player` for the backend playback session. It does not mean music plays through the ESP speaker; the ESP speaker is reserved for local cues and DJ announcements.
+- **Native playback proxy**: Home Assistant exposes a DJConnect `media_player` for the backend playback session. It shows the current Spotify play/pause state, current title/artist/album, album art, selected output and Spotify volume when the backend is authorized. It does not mean music plays through the ESP speaker; the ESP speaker is reserved for local cues and DJ announcements.
 - **Refresh-token rotation aware**: Spotify refresh tokens can rotate. Home Assistant stores the latest token and uses it as the canonical source for HA backend playback. If an older in-memory token is rejected but a newer stored token is available, DJConnect retries silently before creating a Repair issue. Pair/status responses never include Spotify OAuth secrets.
 - **Access-token cache**: Home Assistant caches short-lived Spotify access tokens and refreshes them on demand. A normal one-hour Spotify access-token expiry should not open a Repair flow; only a rejected/revoked refresh token after all known stored tokens have been tried should.
 - **OAuth through Home Assistant external step**: Spotify OAuth uses PKCE and the Home Assistant external step flow. The callback remains `/api/djconnect/spotify/callback`, with Nabu Casa HTTPS URLs preferred.
@@ -71,7 +73,7 @@ runtime behavior. These decisions are part of the integration contract:
 
 ## Repository Layout
 
-- Home Assistant integration: `3.1.77`
+- Home Assistant integration: `3.1.78`
 - ESP firmware source: `pcvantol/djconnect-app`
 - Public firmware releases: `pcvantol/djconnect-firmware`
 - Canonical cross-repo sync prompts live only in this HA repo: [`SYNC_PROMPTS.md`](SYNC_PROMPTS.md)
@@ -154,10 +156,10 @@ DJConnect requests these Spotify OAuth scopes:
 `playlist-read-private` is required when Home Assistant lists private or
 user-owned playlists for DJConnect backend playback. `playlist-modify-private`
 and `playlist-modify-public` are required when Ask DJ saves a generated mix as a
-Spotify playlist. `user-read-recently-played` and `user-top-read` are required
-for Ask DJ listening-profile analysis based on Spotify recently played tracks
-and top artists/tracks. Existing users who authorized Spotify before these
-scopes were added must authorize Spotify again.
+Spotify playlist. `user-read-recently-played` is required for recent
+listening-history questions and listening-profile analysis. `user-top-read` is
+required for profile analysis based on top artists/tracks. Existing users who
+authorized Spotify before these scopes were added must authorize Spotify again.
 
 Create an app in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard), copy its Client ID, and add the exact redirect URI shown by the DJConnect setup flow. With Nabu Casa this usually looks like:
 
@@ -1111,24 +1113,24 @@ Example manifest:
 
 ```json
 {
-  "version": "3.1.77",
-  "version_tag": "v3.1.77",
+  "version": "3.1.78",
+  "version_tag": "v3.1.78",
   "channel": "stable",
-  "min_ha_integration": "3.1.77",
+  "min_ha_integration": "3.1.78",
   "firmwares": [
     {
       "board": "t_embed_cc1101",
       "device": "lilygo-t-embed-s3",
-      "asset": "djconnect-lilygo-t-embed-s3-v3.1.77.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.77/djconnect-lilygo-t-embed-s3-v3.1.77.bin",
+      "asset": "djconnect-lilygo-t-embed-s3-v3.1.78.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.78/djconnect-lilygo-t-embed-s3-v3.1.78.bin",
       "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "size": 2113136
     },
     {
       "board": "esp32_s3_box3",
       "device": "esp32-s3-box-3",
-      "asset": "djconnect-esp32-s3-box-3-v3.1.77.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.77/djconnect-esp32-s3-box-3-v3.1.77.bin",
+      "asset": "djconnect-esp32-s3-box-3-v3.1.78.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.78/djconnect-esp32-s3-box-3-v3.1.78.bin",
       "sha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
       "size": 2113136
     }
@@ -1151,7 +1153,7 @@ The firmware version is injected through PlatformIO build flags from the Git tag
 Recommended firmware source release helper:
 
 ```bash
-./release.sh 3.1.77
+./release.sh 3.1.78
 ```
 
 In the separate `djconnect-app` repository, the firmware release script should
@@ -1163,14 +1165,14 @@ PlatformIO builds, rename firmware binaries to device-specific assets such as
 Preview the firmware release flow without changing files:
 
 ```bash
-./release.sh 3.1.77 --dry-run
+./release.sh 3.1.78 --dry-run
 ```
 
 When publishing to the public firmware repository, use the firmware script's
 public-repo option if available:
 
 ```bash
-./release.sh 3.1.77 --publish-firmware-repo ../djconnect-firmware
+./release.sh 3.1.78 --publish-firmware-repo ../djconnect-firmware
 ```
 
 The public `djconnect-firmware` repository should contain only the release
@@ -1220,7 +1222,7 @@ Tag and publish:
 One-liner:
 
 ```bash
-./release.sh 3.1.77
+./release.sh 3.1.78
 ```
 
 The script updates the integration version in `manifest.json`, `const.py`,
@@ -1231,18 +1233,18 @@ above.
 Preview without executing git/gh commands:
 
 ```bash
-./release.sh 3.1.77 --dry-run
+./release.sh 3.1.78 --dry-run
 ```
 
 Manual equivalent:
 
 ```bash
 git add .
-git commit -m "Release DJConnect v3.1.77"
-git tag v3.1.77
+git commit -m "Release DJConnect v3.1.78"
+git tag v3.1.78
 git push origin main
-git push origin v3.1.77
-gh release create v3.1.77 --title "DJConnect v3.1.77" --notes-file CHANGELOG.md
+git push origin v3.1.78
+gh release create v3.1.78 --title "DJConnect v3.1.78" --notes-file CHANGELOG.md
 ```
 
 After every release, clean up old completed GitHub Actions workflow runs. Keep

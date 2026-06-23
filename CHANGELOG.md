@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.1.78
+
+- Fix the native playback proxy setup lifecycle so backend status refreshes no
+  longer try to write Home Assistant state before the media player has an entity
+  id.
+- Treat negative Spotify/device volume sentinel values such as `-1` as unknown
+  instead of publishing invalid `number.djconnect_volume` states.
+
 ## 3.1.77
 
 - Fix Spotify OAuth/reauthorization UX so the Home Assistant external step shows
