@@ -33,7 +33,7 @@ instead of storing their own copy.
 ## Current Protocol Line
 
 The current shared protocol/release line is `3.1.x`; this bundle was last
-aligned after Home Assistant integration release `v3.1.69`. DJConnect clients on the
+aligned after Home Assistant integration release `v3.1.78`. DJConnect clients on the
 `3.1.x` line are compatible with Home Assistant integration versions `>=3.1.0`
 and `<3.2.0`.
 
@@ -178,7 +178,7 @@ Requirements:
   future Pi capability explicitly changes that scope. Informational text chat
   is text-only by default; replay is shown only when an audio response exists.
 - Keep Ask DJ requirements visible and user-facing: Home Assistant, HACS
-  DJConnect integration v3.1.69 or newer, Spotify Premium, the user's own
+  DJConnect integration v3.1.78 or newer, Spotify Premium, the user's own
   Spotify Developer app with Client ID, an Assist pipeline with STT/TTS for
   voice/audio, and preferably Nabu Casa or another stable HTTPS external URL
   for Spotify OAuth.
@@ -442,6 +442,12 @@ Requirements:
   `kind:"control"`, `command:"play"` and `label:"Resume"` for a Resume button.
   Album-discography answers use `kind:"album"` Play Now actions and should be
   rendered as an album list, optionally with a short intro above it.
+- Ask DJ recent-played history answers use intent `recently_played_history` and
+  return `items[]` / `assistant_message.items[]` for `tracks`, `albums`,
+  `artists` or `playlists`. Render them as a compact vertical list with the
+  returned art or a local fallback icon at the left, not as one oversized media
+  card. Keep the answer read-only: do not auto-start playback and do not invent
+  Play Now buttons unless `playback_actions[]` is explicitly present.
 - Ask DJ help phrases such as `help`, `hulp`, `wat kun je?` and
   `welke commando's?` return a text-only categorized list of supported prompts.
   Clients should not add media cards or action rows unless the server response

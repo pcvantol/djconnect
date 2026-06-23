@@ -97,6 +97,50 @@ Unknown, unsupported or low-confidence informational answers are text-only and
 return `images: []`. Clients must not reuse current-track album art for these
 fallback responses.
 
+## Ask DJ Recent Listening Lists
+
+Ask DJ supports read-only recent listening-history questions through Spotify
+`/me/player/recently-played`. Examples:
+
+- `welke nummers heb ik afgelopen uur afgespeeld?`
+- `welke albums heb ik vandaag geluisterd?`
+- `welke artiesten hoorde ik net?`
+- `welke playlists heb ik afgelopen uur gespeeld?`
+- `which tracks did I play in the last hour?`
+
+These responses use:
+
+- `intent.category: "informational"`
+- `intent.intent: "recently_played_history"`
+- `intent.action: "recently_played"`
+- `intent.item_type: "tracks" | "albums" | "artists" | "playlists"`
+- `action: "none"`
+- `sources[]` including `spotify_recently_played`
+
+The response may include top-level `items[]` and the same list under
+`assistant_message.items[]`. Each item is display-ready:
+
+```json
+{
+  "kind": "track",
+  "title": "Even Flow",
+  "subtitle": "Pearl Jam",
+  "uri": "spotify:track:...",
+  "image_url": "/api/djconnect/image_proxy/...",
+  "thumbnail_url": "/api/djconnect/image_proxy/...",
+  "played_at": "2026-06-23T12:34:56Z",
+  "played_at_label": "12:34"
+}
+```
+
+Clients should render `items[]` as a compact vertical list with the returned art
+or a local fallback icon for the item kind. Do not render these answers as one
+large media card, do not reuse artwork from earlier chat bubbles, and do not add
+Play Now controls unless the backend explicitly returns `playback_actions[]`.
+Spotify's recently-played context may expose only a playlist URI without a
+playlist display name; in that case the backend can return a generic title such
+as `Spotify playlist` until richer playlist metadata is available.
+
 ## Ask DJ History
 
 Ask DJ history is server-side and HA-user scoped. App clients synchronize through
@@ -144,7 +188,7 @@ Register payload:
   "push_token": "...",
   "push_environment": "sandbox",
   "app_bundle_id": "dev.djconnect.app",
-  "app_version": "3.1.69",
+  "app_version": "3.1.78",
   "locale": "nl-NL",
   "notification_categories": ["ask_dj_response", "ask_dj_confirm", "playback_change"]
 }

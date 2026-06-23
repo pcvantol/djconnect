@@ -26,6 +26,7 @@
     "Informational Ask DJ requests keep action none unless the user clearly asks for playback.",
     "Playback/hybrid Ask DJ requests may execute Spotify/Home Assistant actions and return a DJ response.",
     "Short acknowledgements such as Geeft niet, Dank je and Laat maar are conversational follow-ups, not new lookups.",
+    "Help, speaker/output and recent listening-history requests are read-only unless the backend explicitly returns playback_actions.",
     "Ambient Ask DJ facts can appear without a user request when Spotify artist/album context changes; these use message_kind system."
   ],
   "intents": {
@@ -238,6 +239,71 @@
         "Too bad"
       ]
     },
+    "help": {
+      "plays_music": false,
+      "action": "none",
+      "intent": "help",
+      "response_shape": {
+        "text_only": true,
+        "images": [],
+        "playback_actions": []
+      },
+      "description": "Ask what DJConnect can do. The response is a categorized text-only list of prompt options and must not reuse media cards or artwork.",
+      "nl": [
+        "Help",
+        "Hulp",
+        "Wat kun je?",
+        "Welke commando's kan ik gebruiken?"
+      ],
+      "en": [
+        "Help",
+        "What can you do?",
+        "Which commands can I use?"
+      ]
+    },
+    "speaker_outputs": {
+      "plays_music": false,
+      "action": "devices",
+      "intent": "list_outputs",
+      "response_shape": {
+        "playback_actions_kind": "output",
+        "button_labels": [
+          "Activeer",
+          "Actief"
+        ]
+      },
+      "description": "Ask which Spotify output devices are available or request speaker switching. DJConnect returns a text list plus output actions when devices are known.",
+      "nl": [
+        "Welke speakers zijn er?",
+        "Welke apparaten kan ik gebruiken?",
+        "Wissel van speaker",
+        "Zet de muziek op de woonkamer speaker"
+      ],
+      "en": [
+        "Which speakers are available?",
+        "Which devices can I use?",
+        "Switch speaker",
+        "Move music to the living room speaker"
+      ]
+    },
+    "retry_previous_request": {
+      "plays_music": true,
+      "action": "retry",
+      "intent": "retry_previous_request",
+      "description": "Retry the previous retryable playback request from server-side Ask DJ history or memory. Clients must not reconstruct the old request locally.",
+      "nl": [
+        "Probeer opnieuw",
+        "Nog een keer",
+        "Retry",
+        "Doe nog eens"
+      ],
+      "en": [
+        "Try again",
+        "Retry",
+        "One more time",
+        "Do that again"
+      ]
+    },
     "contextual_play_followup": {
       "plays_music": true,
       "action": "play_music",
@@ -355,6 +421,45 @@
         "What does my music from the last two weeks say about my mood?",
         "Which genres have I been listening to lately?",
         "Make a profile of my music taste this year"
+      ]
+    },
+    "recently_played_history": {
+      "plays_music": false,
+      "action": "recently_played",
+      "intent": "recently_played_history",
+      "intent_category": "informational",
+      "sources": [
+        "spotify_recently_played"
+      ],
+      "item_types": [
+        "tracks",
+        "albums",
+        "artists",
+        "playlists"
+      ],
+      "response_shape": {
+        "items": true,
+        "assistant_message_items": true,
+        "images": true,
+        "playback_actions": "none unless explicitly returned by backend",
+        "rendering": "compact_list"
+      },
+      "description": "Ask for recent listening-history lists for tracks, albums, artists or playlist contexts. DJConnect reads Spotify recently played data and returns read-only items with art/icon metadata.",
+      "nl": [
+        "Welke nummers heb ik afgelopen uur afgespeeld?",
+        "Welke tracks heb ik net gehoord?",
+        "Welke albums heb ik vandaag geluisterd?",
+        "Welke artiesten hoorde ik net?",
+        "Welke playlists heb ik afgelopen uur gespeeld?",
+        "Wat heb ik vandaag geluisterd?"
+      ],
+      "en": [
+        "Which tracks did I play in the last hour?",
+        "Which songs did I just hear?",
+        "Which albums did I listen to today?",
+        "Which artists did I just hear?",
+        "Which playlists did I play in the last hour?",
+        "What did I listen to today?"
       ]
     },
     "personal_music_recommendations": {

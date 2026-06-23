@@ -313,6 +313,11 @@ Pattern:
 - Ask DJ profile responses expose `sources[]` metadata so clients can show
   Spotify recently played/top-items and DJConnect Memory provenance separately
   from normal links.
+- `recently_played_history` is a separate read-only Ask DJ intent for questions
+  about recently played tracks, albums, artists and playlist contexts. It uses
+  Spotify `/me/player/recently-played`, returns display-ready `items[]` plus
+  proxied `images[]`, sets `action:"none"` and never creates playback actions
+  unless a future backend path explicitly opts in.
 - Ask DJ recommendations use a two-step model. The informational
   `personal_music_recommendations` response may expose Spotify-only
   `playback_actions[]`, but playback starts only after the explicit
