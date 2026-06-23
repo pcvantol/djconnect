@@ -568,6 +568,12 @@ class ConfigFlowHelperTest(unittest.TestCase):
                 client_type=self.const.CLIENT_TYPE_IOS,
                 device_name="DJConnect iPhone",
             ),
+            self.config_flow.DiscoveredClient(
+                local_url="http://192.168.1.105:55817",
+                device_id="djconnect-watchos-1861DE8383C3",
+                client_type=self.const.CLIENT_TYPE_WATCHOS,
+                device_name="Apple Watch",
+            ),
         ]
 
         schema = flow._user_schema()
@@ -579,6 +585,62 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertIn(self.config_flow.DISCOVERY_CLIENT_FIELD, keys)
         self.assertIn("djconnect-macos-68B74487726D", schema[discovery_marker])
         self.assertIn("DJConnect iPhone", schema[discovery_marker]["djconnect-ios-9F8FA6931AA3"])
+        self.assertIn(
+            "Apple Watch",
+            schema[discovery_marker]["djconnect-watchos-1861DE8383C3"],
+        )
+
+    def test_watchos_pairing_uses_discovered_stable_device_id(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en-US"))
+        client = self.config_flow.DiscoveredClient(
+            local_url="http://192.168.1.105:55817",
+            device_id="djconnect-watchos-1861DE8383C3",
+            client_type=self.const.CLIENT_TYPE_WATCHOS,
+            device_name="Apple Watch",
+            pair_code="186103",
+            source="pairing-info",
+        )
+        flow._discovered_clients = [client]
+        flow._selected_discovered_key = "djconnect-watchos-1861DE8383C3"
+        flow._apply_discovered_client(client)
+
+        async def fake_set_unique_id(unique_id):
+            flow._unique_id = unique_id
+
+        flow.async_set_unique_id = fake_set_unique_id
+        flow._abort_if_unique_id_configured = lambda: None
+
+        async def fake_spotify(user_input=None):
+            return {"type": "next_step", "pairing": flow._pairing}
+
+        flow.async_step_spotify = fake_spotify
+
+        result = asyncio.run(
+            flow.async_step_pair(
+                {
+                    self.config_flow.DISCOVERY_CLIENT_FIELD: "djconnect-watchos-1861DE8383C3",
+                    self.const.CONF_PAIR_CODE: "186103",
+                    self.const.CONF_DEVICE_NAME: "Apple Watch",
+                    self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_WATCHOS,
+                    self.const.CONF_LOCAL_URL: "http://192.168.1.105:55817",
+                }
+            )
+        )
+
+        self.assertEqual(flow._unique_id, "djconnect-watchos-1861DE8383C3")
+        self.assertEqual(
+            result["pairing"][self.const.CONF_DEVICE_ID],
+            "djconnect-watchos-1861DE8383C3",
+        )
+        self.assertEqual(
+            result["pairing"][self.const.CONF_CLIENT_TYPE],
+            self.const.CLIENT_TYPE_WATCHOS,
+        )
+        self.assertEqual(
+            result["pairing"][self.const.CONF_LOCAL_URL],
+            "http://192.168.1.105:55817",
+        )
 
     def test_user_schema_keeps_selected_discovered_device_name_without_suffix(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()

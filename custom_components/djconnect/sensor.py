@@ -180,6 +180,9 @@ class DJConnectStatusSensor(DJConnectBaseSensor):
 
     @property
     def extra_state_attributes(self):
+        status = getattr(self.runtime, "device_status", {}) or {}
+        playback = getattr(self.runtime, "last_playback", None) or {}
+        playback_device = playback.get("device") if isinstance(playback, dict) else None
         return {
             "last_error": self.runtime.last_error,
             "last_stt_text": getattr(self.runtime, "last_stt_text", None),
@@ -191,8 +194,21 @@ class DJConnectStatusSensor(DJConnectBaseSensor):
             "last_dj_spoken": getattr(self.runtime, "last_dj_spoken", None),
             "last_dj_displayed": getattr(self.runtime, "last_dj_displayed", None),
             "last_dj_response_at": getattr(self.runtime, "last_dj_response_at", None),
-            "last_playback": self.runtime.last_playback,
-            "device_status": self.runtime.device_status,
+            "device_id": status.get("device_id"),
+            "client_type": _runtime_client_type(self.runtime),
+            "ha_pairing_status": status.get("ha_pairing_status"),
+            "firmware": status.get("firmware"),
+            "backend_available": status.get("backend_available"),
+            "playback_state": (
+                "playing"
+                if isinstance(playback, dict) and playback.get("is_playing")
+                else "idle"
+                if isinstance(playback, dict) and playback.get("has_playback")
+                else None
+            ),
+            "playback_device": playback_device.get("name")
+            if isinstance(playback_device, dict)
+            else None,
             "ota_in_progress": self.runtime.ota_in_progress,
             "ota_last_error": self.runtime.ota_last_error,
         }

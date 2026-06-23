@@ -91,6 +91,40 @@ class DiscoveryHelperTest(unittest.TestCase):
         self.assertEqual(client.version, "3.1.34")
         self.assertFalse(client.paired)
 
+    def test_watchos_txt_accepts_known_apple_payload_aliases(self) -> None:
+        client = self.discovery._client_from_service_info(
+            self._info(
+                props={
+                    "api": "device",
+                    "client_type": "watchos",
+                    "device_id": "djconnect-watchos-1861DE8383C3",
+                    "device_name": "Apple Watch",
+                    "name": "Apple Watch",
+                    "firmware": "3.1.45",
+                    "app_version": "3.1.45",
+                    "version": "3.1.45",
+                    "model": "apple-app",
+                    "platform": "watchos",
+                    "paired": "false",
+                    "pairing_status": "unpaired",
+                    "pairing_token": "186103",
+                    "local_url": "http://192.168.1.105:55817",
+                    "path": "/api/device/info",
+                    "pairing_path": "/api/device/pairing-info",
+                    "pair_path": "/api/device/pair",
+                },
+                server="ignored.local.",
+            )
+        )
+
+        self.assertIsNotNone(client)
+        self.assertEqual(client.local_url, "http://192.168.1.105:55817")
+        self.assertEqual(client.device_id, "djconnect-watchos-1861DE8383C3")
+        self.assertEqual(client.client_type, "watchos")
+        self.assertEqual(client.device_name, "Apple Watch")
+        self.assertEqual(client.pair_code, "186103")
+        self.assertFalse(client.paired)
+
     def test_raspberry_pi_txt_with_valid_device_id_is_accepted(self) -> None:
         client = self.discovery._client_from_service_info(
             self._info(
@@ -214,6 +248,35 @@ class DiscoveryHelperTest(unittest.TestCase):
         self.assertEqual(client.version, "3.1.21")
         self.assertFalse(client.pairing_info_failed)
 
+    def test_watchos_pairing_info_overrides_txt_metadata(self) -> None:
+        base = self.discovery.DiscoveredClient(
+            local_url="http://192.168.1.105:55817",
+            device_id="djconnect-watchos-1861DE8383C3",
+            client_type="watchos",
+            device_name="TXT Watch",
+        )
+
+        client = self.discovery._client_with_pairing_info(
+            base,
+            {
+                "local_url": "http://192.168.1.105:55817",
+                "device_id": "djconnect-watchos-1861DE8383C3",
+                "client_type": "watchos",
+                "device_name": "Apple Watch",
+                "pairing_code": "186103",
+                "app_version": "3.1.45",
+                "paired": False,
+            },
+        )
+
+        self.assertEqual(client.local_url, "http://192.168.1.105:55817")
+        self.assertEqual(client.device_id, "djconnect-watchos-1861DE8383C3")
+        self.assertEqual(client.client_type, "watchos")
+        self.assertEqual(client.device_name, "Apple Watch")
+        self.assertEqual(client.pair_code, "186103")
+        self.assertEqual(client.version, "3.1.45")
+        self.assertFalse(client.paired)
+
     def test_pairing_info_probe_failure_marks_discovered_client(self) -> None:
         base = self.discovery.DiscoveredClient(
             local_url="http://djconnect-pi.local:61234",
@@ -286,6 +349,88 @@ class DiscoveryHelperTest(unittest.TestCase):
                 components_module.zeroconf = original_zeroconf_attr
 
         self.assertEqual(clients, [])
+
+    def test_async_discovery_accepts_watchos_after_pairing_info_probe(self) -> None:
+        watch_info = self._info(
+            props={
+                "api": "device",
+                "client_type": "watchos",
+                "device_id": "djconnect-watchos-1861DE8383C3",
+                "device_name": "Apple Watch",
+                "platform": "watchos",
+                "paired": "false",
+                "pairing_token": "186103",
+                "local_url": "http://192.168.1.105:55817",
+                "path": "/api/device/info",
+                "pairing_path": "/api/device/pairing-info",
+                "pair_path": "/api/device/pair",
+            }
+        )
+        probe_urls = []
+
+        async def fake_browse(async_zc):
+            return {"djconnect-watchos-1861DE8383C3._djconnect._tcp.local."}
+
+        async def fake_service_info(async_zc, service_name):
+            return watch_info
+
+        async def fake_probe(session, local_url):
+            probe_urls.append(local_url)
+            return {
+                "client_type": "watchos",
+                "device_id": "djconnect-watchos-1861DE8383C3",
+                "device_name": "Apple Watch",
+                "local_url": "http://192.168.1.105:55817",
+                "pairing_code": "186103",
+                "app_version": "3.1.45",
+                "paired": False,
+            }
+
+        async def fake_async_get_async_instance(hass):
+            return object()
+
+        zeroconf_module = types.ModuleType("homeassistant.components.zeroconf")
+        zeroconf_module.async_get_async_instance = fake_async_get_async_instance
+        components_module = sys.modules["homeassistant.components"]
+        original_zeroconf_attr = getattr(components_module, "zeroconf", None)
+        original_zeroconf_module = sys.modules.get("homeassistant.components.zeroconf")
+        sys.modules["homeassistant.components.zeroconf"] = zeroconf_module
+        components_module.zeroconf = zeroconf_module
+
+        original_browse = self.discovery._async_browse_service_names
+        original_service_info = self.discovery._async_get_service_info
+        original_probe = self.discovery.async_probe_pairing_info
+        original_session = self.discovery.async_get_clientsession
+        self.discovery._async_browse_service_names = fake_browse
+        self.discovery._async_get_service_info = fake_service_info
+        self.discovery.async_probe_pairing_info = fake_probe
+        self.discovery.async_get_clientsession = lambda hass: object()
+        try:
+            clients = asyncio.run(
+                self.discovery.async_discover_djconnect_clients(
+                    types.SimpleNamespace()
+                )
+            )
+        finally:
+            self.discovery._async_browse_service_names = original_browse
+            self.discovery._async_get_service_info = original_service_info
+            self.discovery.async_probe_pairing_info = original_probe
+            self.discovery.async_get_clientsession = original_session
+            if original_zeroconf_module is None:
+                sys.modules.pop("homeassistant.components.zeroconf", None)
+            else:
+                sys.modules["homeassistant.components.zeroconf"] = original_zeroconf_module
+            if original_zeroconf_attr is None:
+                delattr(components_module, "zeroconf")
+            else:
+                components_module.zeroconf = original_zeroconf_attr
+
+        self.assertEqual(probe_urls, ["http://192.168.1.105:55817"])
+        self.assertEqual(len(clients), 1)
+        self.assertEqual(clients[0].device_id, "djconnect-watchos-1861DE8383C3")
+        self.assertEqual(clients[0].client_type, "watchos")
+        self.assertEqual(clients[0].device_name, "Apple Watch")
+        self.assertEqual(clients[0].pair_code, "186103")
 
 
 if __name__ == "__main__":

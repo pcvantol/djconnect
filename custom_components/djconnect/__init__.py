@@ -212,6 +212,28 @@ def _cache_runtime_last_values(runtime: Any) -> None:
         status["last_track"] = last_track
 
 
+def _runtime_update_signature(runtime: Any) -> str:
+    """Return a stable signature for state visible through DJConnect entities."""
+    payload = {
+        "last_text": getattr(runtime, "last_text", None),
+        "last_intent": getattr(runtime, "last_intent", None),
+        "last_dj_text": getattr(runtime, "last_dj_text", None),
+        "last_dj_spoken": getattr(runtime, "last_dj_spoken", None),
+        "last_dj_displayed": getattr(runtime, "last_dj_displayed", None),
+        "last_dj_response_at": getattr(runtime, "last_dj_response_at", None),
+        "last_error": getattr(runtime, "last_error", None),
+        "last_playback": getattr(runtime, "last_playback", None),
+        "last_stt_text": getattr(runtime, "last_stt_text", None),
+        "last_corrected_text": getattr(runtime, "last_corrected_text", None),
+        "last_spotify_search": getattr(runtime, "last_spotify_search", None),
+        "last_resolved_media": getattr(runtime, "last_resolved_media", None),
+        "device_status": getattr(runtime, "device_status", None),
+        "ota_in_progress": getattr(runtime, "ota_in_progress", None),
+        "ota_last_error": getattr(runtime, "ota_last_error", None),
+    }
+    return json.dumps(payload, sort_keys=True, default=str, separators=(",", ":"))
+
+
 @dataclass
 class DJConnectRuntime:
     entry: ConfigEntry
@@ -236,6 +258,7 @@ class DJConnectRuntime:
     latest_spotify_refresh_token: str | None = None
     memory: Any | None = None
     listeners: list = field(default_factory=list)
+    _last_update_signature: str | None = None
 
     @property
     def config(self) -> dict[str, Any]:
@@ -250,6 +273,10 @@ class DJConnectRuntime:
                 should_notify = True
             setattr(self, key, value)
         _cache_runtime_last_values(self)
+        signature = _runtime_update_signature(self)
+        if signature == self._last_update_signature:
+            should_notify = False
+        self._last_update_signature = signature
         if not should_notify:
             return
         for listener in list(self.listeners):

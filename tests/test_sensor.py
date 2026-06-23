@@ -626,8 +626,17 @@ class DJConnectSensorTest(unittest.TestCase):
             last_resolved_media={"title": "Alive"},
             last_dj_text="Daar is Pearl Jam",
             last_dj_response_debug={"fallback_used": True, "block_reason": "test"},
-            last_playback={},
-            device_status={},
+            last_playback={
+                "has_playback": True,
+                "is_playing": False,
+                "device": {"name": "Woonkamer"},
+            },
+            device_status={
+                "device_id": "djconnect-ios-ABCDEFGHIJKL",
+                "client_type": "ios",
+                "firmware": "3.1.83",
+                "queue": {"items": [{"title": "Noisy"}]},
+            },
             ota_in_progress=False,
             ota_last_error=None,
             listeners=[],
@@ -639,6 +648,10 @@ class DJConnectSensorTest(unittest.TestCase):
         self.assertEqual(attrs["last_spotify_search"]["query"], "pearl jam")
         self.assertEqual(attrs["last_resolved_media"]["title"], "Alive")
         self.assertTrue(attrs["last_dj_response_debug"]["fallback_used"])
+        self.assertEqual(attrs["playback_state"], "idle")
+        self.assertEqual(attrs["playback_device"], "Woonkamer")
+        self.assertNotIn("device_status", attrs)
+        self.assertNotIn("last_playback", attrs)
 
     def test_queue_sensor_reads_dict_items_and_context(self) -> None:
         runtime = types.SimpleNamespace(
