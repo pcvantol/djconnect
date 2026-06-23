@@ -108,6 +108,12 @@ class DJConnectVolumeNumber(NumberEntity):
         self.runtime.device_status["volume"] = volume
         self.runtime.update()
 
+    async def async_update(self) -> None:
+        try:
+            await handle_spotify_command(self.hass, self.runtime, "status")
+        except Exception:  # noqa: BLE001
+            return
+
     @callback
     def _handle_runtime_update(self) -> None:
         self.async_write_ha_state()
@@ -130,6 +136,16 @@ def _volume_value(runtime_or_status: Any) -> float | None:
         if value is not None:
             return value
     status = getattr(runtime_or_status, "device_status", {}) or {}
+    playback = status.get("playback")
+    if isinstance(playback, dict):
+        value = _volume_from_mapping(playback)
+        if value is not None:
+            return value
+        device = playback.get("device")
+        if isinstance(device, dict):
+            value = _volume_from_mapping(device)
+            if value is not None:
+                return value
     return _volume_from_mapping(status)
 
 

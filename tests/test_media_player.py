@@ -149,10 +149,41 @@ class DJConnectMediaPlayerTest(unittest.TestCase):
         self.assertEqual(entity.media_album_name, "Ten")
         self.assertEqual(entity.entity_picture, "https://example.test/cover.jpg")
         self.assertEqual(entity.media_image_url, "https://example.test/cover.jpg")
-        self.assertEqual(entity.volume_level, 0.5)
+        self.assertEqual(entity.volume_level, 0.3)
         self.assertEqual(entity.source, "Living room")
         self.assertEqual(entity.source_list, ["Living room"])
         self.assertEqual(entity.extra_state_attributes["represents"], "backend_playback_session")
+
+    def test_media_player_uses_nested_status_playback_when_last_playback_missing(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            device_token="device-token",
+            device_status={
+                "playback": {
+                    "has_playback": True,
+                    "is_playing": False,
+                    "track_name": "Black",
+                    "artist_name": "Pearl Jam",
+                    "album_name": "Ten",
+                    "album_image_url": "https://example.test/black.jpg",
+                    "volume_percent": 55,
+                    "device": {"id": "dev-1", "name": "MacBook Pro"},
+                }
+            },
+            last_error=None,
+            last_playback=None,
+            listeners=[],
+        )
+        entity = self.media_player.DJConnectPlaybackProxyMediaPlayer(runtime, object())
+
+        self.assertEqual(entity.state, "paused")
+        self.assertEqual(entity.media_title, "Black")
+        self.assertEqual(entity.media_artist, "Pearl Jam")
+        self.assertEqual(entity.media_album_name, "Ten")
+        self.assertEqual(entity.entity_picture, "https://example.test/black.jpg")
+        self.assertEqual(entity.volume_level, 0.55)
+        self.assertEqual(entity.source, "MacBook Pro")
+        self.assertEqual(entity.source_list, ["MacBook Pro"])
 
     def test_media_player_entity_picture_uses_image_aliases(self) -> None:
         runtime = types.SimpleNamespace(
@@ -219,7 +250,7 @@ class DJConnectMediaPlayerTest(unittest.TestCase):
         self.assertGreaterEqual(calls.count(("play", None, None)), 2)
         self.assertGreaterEqual(calls.count(("pause", None, None)), 2)
         self.assertIn(("set_output", "dev-1", False), calls)
-        self.assertIn(("set_volume", 30, None), calls)
+        self.assertIn(("set_volume", 50, None), calls)
         self.assertIn(("set_shuffle", True, None), calls)
         self.assertIn(("set_repeat", "context", None), calls)
         self.assertIn(("start_playlist", "spotify:playlist:abc", None), calls)
@@ -292,9 +323,33 @@ class DJConnectMediaPlayerTest(unittest.TestCase):
         self.assertEqual(entity.media_title, "Lithium")
         self.assertEqual(entity.media_artist, "Nirvana")
         self.assertEqual(entity.entity_picture, "https://example.test/lithium.jpg")
-        self.assertEqual(entity.volume_level, 0.7)
+        self.assertEqual(entity.volume_level, 0.42)
         self.assertEqual(entity.source, "Slaapkamer")
         self.assertTrue(runtime.device_status["backend_available"])
+
+    def test_media_player_setup_requests_initial_backend_update(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            device_token="device-token",
+            device_status={},
+            last_error=None,
+            last_playback={},
+            listeners=[],
+        )
+        hass = types.SimpleNamespace(data={"djconnect": {"entry-1": runtime}})
+        entry = types.SimpleNamespace(entry_id="entry-1")
+        added = []
+
+        def add_entities(entities, update_before_add=False):
+            added.extend(entities)
+            add_entities.update_before_add = update_before_add
+
+        add_entities.update_before_add = False
+
+        asyncio.run(self.media_player.async_setup_entry(hass, entry, add_entities))
+
+        self.assertEqual(len(added), 1)
+        self.assertTrue(add_entities.update_before_add)
 
     def test_next_previous_media_player_commands_go_through_device(self) -> None:
         commands = []

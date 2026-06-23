@@ -123,6 +123,46 @@ class NumberTest(unittest.TestCase):
 
         self.assertEqual(entity.native_value, 42.0)
 
+    def test_volume_reads_nested_status_playback_when_last_playback_missing(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            device_status={
+                "client_type": "macos",
+                "volume": 0,
+                "playback": {"device": {"volume_percent": 37}},
+            },
+            last_playback=None,
+            listeners=[],
+        )
+        entity = self.number.DJConnectVolumeNumber(runtime, object())
+
+        self.assertEqual(entity.native_value, 37.0)
+
+    def test_volume_update_refreshes_spotify_playback_status(self) -> None:
+        calls = []
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            device_status={"client_type": "ios", "volume": 0},
+            last_playback={},
+            listeners=[],
+        )
+        entity = self.number.DJConnectVolumeNumber(runtime, object())
+
+        async def fake_handler(hass, runtime_arg, command, value=None, *, play=None):
+            calls.append((command, value, play))
+            runtime_arg.last_playback = {"volume_percent": 44}
+            return {"success": True, "playback": runtime_arg.last_playback}
+
+        original = self.number.handle_spotify_command
+        self.number.handle_spotify_command = fake_handler
+        try:
+            asyncio.run(entity.async_update())
+        finally:
+            self.number.handle_spotify_command = original
+
+        self.assertEqual(calls, [("status", None, None)])
+        self.assertEqual(entity.native_value, 44.0)
+
     def test_device_setting_numbers_read_firmware_aliases(self) -> None:
         runtime = types.SimpleNamespace(
             entry=types.SimpleNamespace(entry_id="entry-1"),

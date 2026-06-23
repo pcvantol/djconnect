@@ -117,7 +117,7 @@ class DJConnectSensorTest(unittest.TestCase):
         self.assertTrue(self.sensor.DJConnectPlaybackAvailableSensor(runtime).native_value)
         self.assertIsNone(self.sensor.DJConnectQueueSensor(runtime).native_value)
         self.assertIsNone(self.sensor.DJConnectPlaylistsSensor(runtime).native_value)
-        self.assertIsNone(self.sensor.DJConnectOutputsSensor(runtime).native_value)
+        self.assertEqual(self.sensor.DJConnectOutputsSensor(runtime).native_value, 1)
 
         runtime.device_status["queue"] = {"items": []}
         runtime.device_status["playlists"] = []
@@ -125,7 +125,101 @@ class DJConnectSensorTest(unittest.TestCase):
 
         self.assertEqual(self.sensor.DJConnectQueueSensor(runtime).native_value, 0)
         self.assertEqual(self.sensor.DJConnectPlaylistsSensor(runtime).native_value, 0)
-        self.assertEqual(self.sensor.DJConnectOutputsSensor(runtime).native_value, 0)
+        self.assertEqual(self.sensor.DJConnectOutputsSensor(runtime).native_value, 1)
+
+    def test_backend_sensors_poll_spotify_state_and_collections(self) -> None:
+        calls = []
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            device_token="device-token",
+            device_status={"client_type": "macos"},
+            last_playback={},
+            listeners=[],
+            client_type=lambda: "macos",
+        )
+
+        async def fake_handler(hass, runtime_arg, command, value=None, *, play=None):
+            calls.append(command)
+            if command == "status":
+                runtime_arg.last_playback = {
+                    "has_playback": True,
+                    "is_playing": False,
+                    "device": {"id": "dev-1", "name": "MacBook Pro"},
+                    "queue_context": "spotify:playlist:abc",
+                }
+                return {"success": True, "playback": runtime_arg.last_playback}
+            if command == "devices":
+                runtime_arg.device_status["available_outputs"] = [
+                    {"id": "dev-1", "name": "MacBook Pro"}
+                ]
+                return {"success": True, "devices": runtime_arg.device_status["available_outputs"]}
+            if command == "queue":
+                runtime_arg.device_status["queue"] = {
+                    "items": [{"title": "Next up"}],
+                    "context_uri": "spotify:playlist:abc",
+                }
+                return {"success": True, "queue": runtime_arg.device_status["queue"]["items"]}
+            if command == "playlists":
+                runtime_arg.device_status["playlists"] = [{"name": "Roadtrip"}]
+                return {"success": True, "playlists": runtime_arg.device_status["playlists"]}
+            return {"success": True}
+
+        original = self.sensor.handle_spotify_command
+        self.sensor.handle_spotify_command = fake_handler
+        try:
+            playback_available = self.sensor.DJConnectPlaybackAvailableSensor(runtime, object())
+            sound_output = self.sensor.DJConnectSoundOutputSensor(runtime, object())
+            outputs = self.sensor.DJConnectOutputsSensor(runtime, object())
+            queue = self.sensor.DJConnectQueueSensor(runtime, object())
+            playlists = self.sensor.DJConnectPlaylistsSensor(runtime, object())
+
+            asyncio.run(playback_available.async_update())
+            asyncio.run(sound_output.async_update())
+            asyncio.run(outputs.async_update())
+            asyncio.run(queue.async_update())
+            asyncio.run(playlists.async_update())
+        finally:
+            self.sensor.handle_spotify_command = original
+
+        self.assertIn("status", calls)
+        self.assertIn("devices", calls)
+        self.assertIn("queue", calls)
+        self.assertIn("playlists", calls)
+        self.assertTrue(playback_available.native_value)
+        self.assertEqual(sound_output.native_value, "MacBook Pro")
+        self.assertEqual(outputs.native_value, 1)
+        self.assertEqual(outputs.extra_state_attributes["items"][0]["name"], "MacBook Pro")
+        self.assertEqual(queue.native_value, 1)
+        self.assertEqual(queue.extra_state_attributes["context"], "spotify:playlist:abc")
+        self.assertEqual(playlists.native_value, 1)
+        self.assertEqual(playlists.extra_state_attributes["items"][0]["name"], "Roadtrip")
+
+    def test_backend_sensors_read_nested_status_playback_without_live_poll(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            device_token="device-token",
+            device_status={
+                "client_type": "macos",
+                "playback": {
+                    "has_playback": True,
+                    "is_playing": True,
+                    "device": {"id": "dev-1", "name": "MacBook Pro"},
+                    "queue_context": "spotify:playlist:def",
+                },
+            },
+            last_playback=None,
+            listeners=[],
+            client_type=lambda: "macos",
+        )
+
+        self.assertEqual(self.sensor.DJConnectSpotifyStatusSensor(runtime).native_value, "playing")
+        self.assertTrue(self.sensor.DJConnectPlaybackAvailableSensor(runtime).native_value)
+        self.assertEqual(self.sensor.DJConnectSoundOutputSensor(runtime).native_value, "MacBook Pro")
+        self.assertEqual(self.sensor.DJConnectOutputsSensor(runtime).native_value, 1)
+        self.assertEqual(
+            self.sensor.DJConnectQueueSensor(runtime).extra_state_attributes["context"],
+            "spotify:playlist:def",
+        )
 
     def test_sensor_unique_ids_are_scoped_to_config_entry(self) -> None:
         runtime_a = types.SimpleNamespace(

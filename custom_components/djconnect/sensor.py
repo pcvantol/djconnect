@@ -21,6 +21,7 @@ from .const import (
 )
 from .entity_ids import entry_unique_id
 from .push import relay_configured
+from .spotify_backend import handle_spotify_command
 
 MAX_SENSOR_STATE_TEXT_LENGTH = 255
 APNS_SUPPORTED_CLIENT_TYPES = {CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_WATCHOS}
@@ -41,13 +42,13 @@ async def async_setup_entry(
         DJConnectLastCorrectedSttSensor(runtime),
         DJConnectFirmwareSensor(runtime),
         DJConnectLastTrackSensor(runtime),
-        DJConnectSpotifyStatusSensor(runtime),
+        DJConnectSpotifyStatusSensor(runtime, hass),
         DJConnectPairingStatusSensor(runtime),
-        DJConnectSoundOutputSensor(runtime),
-        DJConnectPlaybackAvailableSensor(runtime),
-        DJConnectQueueSensor(runtime),
-        DJConnectPlaylistsSensor(runtime),
-        DJConnectOutputsSensor(runtime),
+        DJConnectSoundOutputSensor(runtime, hass),
+        DJConnectPlaybackAvailableSensor(runtime, hass),
+        DJConnectQueueSensor(runtime, hass),
+        DJConnectPlaylistsSensor(runtime, hass),
+        DJConnectOutputsSensor(runtime, hass),
     ]
     if _runtime_client_type(runtime) == CLIENT_TYPE_ESP32:
         entities.extend(
@@ -88,6 +89,25 @@ class DJConnectBaseSensor(SensorEntity):
     async def async_will_remove_from_hass(self) -> None:
         if self._handle_runtime_update in self.runtime.listeners:
             self.runtime.listeners.remove(self._handle_runtime_update)
+
+
+class DJConnectBackendSensor(DJConnectBaseSensor):
+    _attr_should_poll = True
+
+    def __init__(self, runtime, hass: HomeAssistant | None = None) -> None:
+        self.hass = hass
+        super().__init__(runtime)
+
+    async def _spotify_command(self, command: str) -> dict | None:
+        if self.hass is None:
+            return None
+        try:
+            result = await handle_spotify_command(self.hass, self.runtime, command)
+        except Exception:  # noqa: BLE001
+            return None
+        if isinstance(result, dict):
+            return result
+        return None
 
 
 class DJConnectApnsRegistrationSensor(DJConnectBaseSensor):
@@ -352,7 +372,7 @@ class DJConnectLastTrackSensor(DJConnectBaseSensor):
         return self.runtime.last_playback or {}
 
 
-class DJConnectSpotifyStatusSensor(DJConnectBaseSensor):
+class DJConnectSpotifyStatusSensor(DJConnectBackendSensor):
     _attr_translation_key = "spotify_status"
     _attr_unique_id = "djconnect_spotify_status"
 
@@ -361,10 +381,13 @@ class DJConnectSpotifyStatusSensor(DJConnectBaseSensor):
         status = self.runtime.device_status.get("spotify_status")
         if status not in (None, "", "unknown"):
             return status
-        playback = self.runtime.last_playback or {}
+        playback = _playback_mapping(self.runtime)
         if playback.get("has_playback"):
             return "playing" if playback.get("is_playing") else "idle"
         return None
+
+    async def async_update(self) -> None:
+        await self._spotify_command("status")
 
 
 class DJConnectPairingStatusSensor(DJConnectBaseSensor):
@@ -383,13 +406,13 @@ class DJConnectPairingStatusSensor(DJConnectBaseSensor):
         return "not_paired"
 
 
-class DJConnectSoundOutputSensor(DJConnectBaseSensor):
+class DJConnectSoundOutputSensor(DJConnectBackendSensor):
     _attr_translation_key = "sound_output"
     _attr_unique_id = "djconnect_sound_output"
 
     @property
     def native_value(self):
-        playback = self.runtime.last_playback or {}
+        playback = _playback_mapping(self.runtime)
         device = playback.get("device") if isinstance(playback, dict) else None
         if isinstance(device, dict) and device.get("name"):
             return device.get("name")
@@ -397,14 +420,18 @@ class DJConnectSoundOutputSensor(DJConnectBaseSensor):
             "output"
         )
 
+    async def async_update(self) -> None:
+        await self._spotify_command("status")
+        await self._spotify_command("devices")
 
-class DJConnectPlaybackAvailableSensor(DJConnectBaseSensor):
+
+class DJConnectPlaybackAvailableSensor(DJConnectBackendSensor):
     _attr_translation_key = "playback_available"
     _attr_unique_id = "djconnect_playback_available"
 
     @property
     def native_value(self):
-        playback = self.runtime.last_playback or {}
+        playback = _playback_mapping(self.runtime)
         if playback.get("has_playback") is not None:
             return bool(playback.get("has_playback"))
         backend_available = self.runtime.device_status.get("backend_available")
@@ -412,8 +439,15 @@ class DJConnectPlaybackAvailableSensor(DJConnectBaseSensor):
             return bool(backend_available)
         return None
 
+    async def async_update(self) -> None:
+        result = await self._spotify_command("status")
+        if result is not None:
+            self.runtime.device_status["backend_available"] = bool(
+                result.get("backend_available", True)
+            )
 
-class DJConnectQueueSensor(DJConnectBaseSensor):
+
+class DJConnectQueueSensor(DJConnectBackendSensor):
     _attr_translation_key = "queue"
     _attr_unique_id = "djconnect_queue"
 
@@ -436,8 +470,11 @@ class DJConnectQueueSensor(DJConnectBaseSensor):
             attrs["currently_playing"] = current
         return attrs
 
+    async def async_update(self) -> None:
+        await self._spotify_command("queue")
 
-class DJConnectPlaylistsSensor(DJConnectBaseSensor):
+
+class DJConnectPlaylistsSensor(DJConnectBackendSensor):
     _attr_translation_key = "playlists"
     _attr_unique_id = "djconnect_playlists"
 
@@ -453,22 +490,28 @@ class DJConnectPlaylistsSensor(DJConnectBaseSensor):
         playlists = self.runtime.device_status.get("playlists")
         return {"items": playlists if isinstance(playlists, list) else []}
 
+    async def async_update(self) -> None:
+        await self._spotify_command("playlists")
 
-class DJConnectOutputsSensor(DJConnectBaseSensor):
+
+class DJConnectOutputsSensor(DJConnectBackendSensor):
     _attr_translation_key = "outputs"
     _attr_unique_id = "djconnect_outputs"
 
     @property
     def native_value(self):
-        outputs = self.runtime.device_status.get("available_outputs")
-        if outputs is None:
+        outputs = _outputs_for_runtime(self.runtime)
+        if not outputs and self.runtime.device_status.get("available_outputs") is None:
             return None
-        return len(outputs) if isinstance(outputs, list) else None
+        return len(outputs)
 
     @property
     def extra_state_attributes(self):
-        outputs = self.runtime.device_status.get("available_outputs")
-        return {"items": outputs if isinstance(outputs, list) else []}
+        return {"items": _outputs_for_runtime(self.runtime)}
+
+    async def async_update(self) -> None:
+        await self._spotify_command("status")
+        await self._spotify_command("devices")
 
 
 class DJConnectScreenStateSensor(DJConnectBaseSensor):
@@ -561,13 +604,48 @@ def _collection_items(value):
     return []
 
 
+def _playback_mapping(runtime) -> dict:
+    playback = getattr(runtime, "last_playback", None)
+    if isinstance(playback, dict) and playback:
+        return playback
+    status = getattr(runtime, "device_status", {}) or {}
+    playback = status.get("playback")
+    if isinstance(playback, dict):
+        return playback
+    return {}
+
+
+def _outputs_for_runtime(runtime) -> list[dict]:
+    status = getattr(runtime, "device_status", {}) or {}
+    outputs = status.get("available_outputs")
+    if not isinstance(outputs, list):
+        outputs = []
+    normalized = []
+    for output in outputs:
+        if isinstance(output, dict):
+            normalized.append(output)
+        elif output not in (None, ""):
+            normalized.append({"id": str(output), "name": str(output)})
+    playback = _playback_mapping(runtime)
+    device = playback.get("device") if isinstance(playback, dict) else None
+    if isinstance(device, dict) and (device.get("name") or device.get("id")):
+        device_id = str(device.get("id") or "")
+        device_name = str(device.get("name") or device_id)
+        if not any(
+            output.get("id") == device_id or output.get("name") == device_name
+            for output in normalized
+        ):
+            normalized.append({"id": device_id or device_name, "name": device_name})
+    return normalized
+
+
 def _queue_context(runtime, queue):
     if isinstance(queue, dict):
         for key in ("context", "queue_context", "context_uri"):
             value = queue.get(key)
             if value not in (None, "", {}, []):
                 return value
-    playback = runtime.last_playback or {}
+    playback = _playback_mapping(runtime)
     for key in ("context", "queue_context", "context_uri"):
         value = playback.get(key)
         if value not in (None, "", {}, []):
@@ -622,7 +700,7 @@ def _last_command_first_raw_value(runtime):
 
 
 def _last_track_value(runtime):
-    playback = getattr(runtime, "last_playback", None) or {}
+    playback = _playback_mapping(runtime)
     for key in ("track_name", "title", "name", "track"):
         value = playback.get(key)
         if value not in (None, ""):

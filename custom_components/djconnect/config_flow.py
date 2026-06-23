@@ -293,6 +293,30 @@ def _spotify_oauth_title(hass: Any, *, reauth: bool = False) -> str:
     return "Reauthorize Spotify" if reauth else "Authorize DJConnect with Spotify"
 
 
+def _spotify_oauth_description(hass: Any, *, reauth: bool = False) -> str:
+    """Return localized body text for Home Assistant external OAuth popups."""
+    language = str(getattr(getattr(hass, "config", None), "language", "") or "").lower()
+    if language.startswith("nl"):
+        if reauth:
+            return (
+                "Home Assistant opent Spotify om DJConnect opnieuw toestemming te geven. "
+                "Na akkoord keer je terug naar Home Assistant."
+            )
+        return (
+            "Home Assistant opent Spotify in je browser. "
+            "Na akkoord ga je terug naar Home Assistant om de setup af te maken."
+        )
+    if reauth:
+        return (
+            "Home Assistant opens Spotify so DJConnect can be authorized again. "
+            "After approval you return to Home Assistant."
+        )
+    return (
+        "Home Assistant opens Spotify in your browser. "
+        "After approving access, return here to continue setup."
+    )
+
+
 def _default_local_url(pair_code: str | None) -> str:
     """Return an mDNS URL only when the input is the device ID suffix."""
     normalized = str(pair_code or "").strip()
@@ -1301,6 +1325,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             },
         )
         result["title"] = _spotify_oauth_title(self.hass)
+        result["description"] = _spotify_oauth_description(self.hass)
         return result
 
     def _handle_spotify_oauth_result(self, user_input: dict[str, Any]) -> dict[str, str]:
@@ -1582,6 +1607,7 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
             description_placeholders={"redirect_uri": redirect_uri},
         )
         result["title"] = _spotify_oauth_title(self.hass, reauth=True)
+        result["description"] = _spotify_oauth_description(self.hass, reauth=True)
         return result
 
     async def async_step_spotify_reauth_done(

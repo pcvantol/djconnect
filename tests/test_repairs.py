@@ -218,6 +218,36 @@ class RepairsTest(unittest.TestCase):
 
         self.assertEqual(self.issues, [])
 
+    def test_spotify_repair_prerequisites_clear_stale_missing_token_issue(self) -> None:
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={
+                "device_token": "device-token",
+                "spotify_client_id": "client-id",
+                "spotify_refresh_token": "fresh-token",
+                "spotify_scopes": (
+                    "user-read-playback-state user-modify-playback-state "
+                    "user-read-currently-playing user-library-read "
+                    "playlist-read-private playlist-read-collaborative "
+                    "playlist-modify-private playlist-modify-public "
+                    "user-read-recently-played user-top-read"
+                ),
+            },
+            options={},
+        )
+
+        asyncio.run(self.repairs.async_create_fixable_issues(object(), entry))
+
+        self.assertEqual(self.issues, [])
+        self.assertIn(
+            {"domain": "djconnect", "issue_id": "missing_spotify_refresh_token"},
+            install_repairs_stubs.deleted,
+        )
+        self.assertIn(
+            {"domain": "djconnect", "issue_id": "entry-1_missing_spotify_refresh_token"},
+            install_repairs_stubs.deleted,
+        )
+
     def test_spotify_reauth_issue_is_fixable(self) -> None:
         entry = types.SimpleNamespace(
             entry_id="entry-1",
