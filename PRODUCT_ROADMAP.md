@@ -93,6 +93,12 @@ Every release must review this roadmap.
   mutating playback until explicit confirmation (3.1, HA).
 - [x] Ask DJ hardened fallback handles gibberish and prompt-injection-like
   requests without playback mutation or prompt disclosure (3.1, HA).
+- [x] Ask DJ recent-played questions return read-only track, album, artist and
+  playlist-context lists with art/icon metadata from Spotify recently played
+  data (3.1.77, HA/client contract).
+- [x] Native HA playback proxy/entities refresh from live Spotify backend state
+  for play/pause, volume, album art, output, repeat, shuffle, queue and
+  playlists (3.1.77, HA).
 - [ ] Last STT text, resolved Spotify result, DJ announcement and last track are
   visible as entities or redacted debug attributes.
 - [ ] DJ announcement prompt is configurable, multiline and isolated from
@@ -252,7 +258,8 @@ Every release must review this roadmap.
 - [ ] Quiet hours to dim screens, lower cue volume and suppress non-critical
   sounds.
 - [ ] Accessibility mode with bigger text, reduced animation and high contrast.
-- [ ] Listening history with replay or add-to-playlist actions.
+- [ ] Listening history with replay or add-to-playlist actions after an
+  explicit user confirmation.
 - [ ] Multi-room scene buttons for cooking, dinner, party, focus and sleep.
 - [ ] Typed music search in clients: search by album, artist or track name from
   ESP/web, Apple and Raspberry Pi clients, then let Home Assistant resolve and

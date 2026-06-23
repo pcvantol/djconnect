@@ -50,6 +50,14 @@
 - Current mitigation: Obvious gibberish and sandbox/prompt-injection-like text now returns the neutral unknown-intent fallback and performs no Spotify/HA mutation.
 - Next action: Test random text, sandbox/prompt requests, `next`, `skip`, `goedemorgen`, `ik ga slapen`, and normal artist/track/playlist prompts in Dutch and English.
 
+### Ask DJ recent-played list rendering needs client field validation
+
+- Status: open / field validation.
+- Area: Ask DJ chat rendering / iOS / macOS / watchOS / Raspberry Pi.
+- Symptom: Recent listening-history questions should show compact lists for tracks, albums, artists and playlists instead of a single oversized media card or stale artwork.
+- Current mitigation: Backend returns `intent:"recently_played_history"`, `intent.item_type`, top-level `items[]`, mirrored `assistant_message.items[]`, proxied `images[]` and `sources:["spotify_recently_played"]`; playback stays unchanged.
+- Next action: Test `welke nummers heb ik afgelopen uur afgespeeld?`, `welke albums heb ik vandaag geluisterd?`, `welke artiesten hoorde ik net?` and `welke playlists heb ik afgelopen uur gespeeld?` on all app clients. Accept that Spotify may expose only a playlist context URI, so unknown playlist names can display as `Spotify playlist`.
+
 ### mDNS reliability varies by network
 
 - Status: open / environmental.

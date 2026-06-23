@@ -14,7 +14,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 
 ## Current Version
 
-- Home Assistant integration: `3.1.78`
+- Home Assistant integration: `3.1.79`
 - Domain: `djconnect`
 - HACS category: `Integration`
 - Device target: DJConnect device
@@ -73,7 +73,7 @@ runtime behavior. These decisions are part of the integration contract:
 
 ## Repository Layout
 
-- Home Assistant integration: `3.1.78`
+- Home Assistant integration: `3.1.79`
 - ESP firmware source: `pcvantol/djconnect-app`
 - Public firmware releases: `pcvantol/djconnect-firmware`
 - Canonical cross-repo sync prompts live only in this HA repo: [`SYNC_PROMPTS.md`](SYNC_PROMPTS.md)
@@ -851,6 +851,7 @@ directly from the returned fields:
   return a text intro plus `playback_actions[]` with `kind:"output"` and
   `Activeer`/`Actief` labels for the available Spotify Connect devices.
 - Album list questions return bullets plus `kind:"album"` Play Now actions.
+- Recent listening-history questions such as `welke nummers heb ik afgelopen uur afgespeeld?`, `welke albums heb ik vandaag geluisterd?`, `welke artiesten hoorde ik net?` and `welke playlists heb ik afgelopen uur gespeeld?` return `intent:"recently_played_history"` plus `items[]` for `tracks`, `albums`, `artists` or `playlists`.
 - `stop muziek` / `pauzeer muziek` pauses playback and can return a
   `kind:"control"`, `command:"play"`, `label:"Resume"` action.
 - `hervat muziek` and `start muziek` execute playback immediately.
@@ -859,7 +860,10 @@ directly from the returned fields:
 Clients must not reuse artwork or metadata from the previous bubble when the new
 response is text-only or contains a different action type. For example, a
 speaker/output list should never show old album art, and a help response should
-not show a music card.
+not show a music card. Recent listening-history responses should be rendered as
+a compact vertical list with the returned art or a local fallback icon, not as
+one oversized media card. They are read-only and should not show Play Now
+buttons unless `playback_actions[]` is explicitly present.
 
 Runtime mood from Apple clients can shape DJ announcement style. Clients send a
 numeric `mood` from `0` to `100`; Home Assistant maps it to `chill`, `groove`,
@@ -928,6 +932,13 @@ Spotify listening history. Responses include `sources[]` entries such as
 `spotify_recently_played`, `spotify_top_tracks_short_term`,
 `spotify_top_artists_medium_term` and `djconnect_memory` so clients can show
 where the profile came from.
+
+For `recently_played_history`, Ask DJ uses Spotify recently-played data directly
+and returns display-ready item rows in both top-level `items[]` and
+`assistant_message.items[]`. Track, album and artist rows include Spotify URI
+and artwork when Spotify exposes them. Playlist rows are based on recent-played
+context; Spotify may expose only a playlist URI, so the display title can fall
+back to `Spotify playlist` until richer playlist metadata is available.
 
 For `personal_music_recommendations`, Ask DJ can return concrete playable
 recommendations in `playback_actions[]` without changing playback. Clients show
@@ -1113,24 +1124,24 @@ Example manifest:
 
 ```json
 {
-  "version": "3.1.78",
-  "version_tag": "v3.1.78",
+  "version": "3.1.79",
+  "version_tag": "v3.1.79",
   "channel": "stable",
-  "min_ha_integration": "3.1.78",
+  "min_ha_integration": "3.1.79",
   "firmwares": [
     {
       "board": "t_embed_cc1101",
       "device": "lilygo-t-embed-s3",
-      "asset": "djconnect-lilygo-t-embed-s3-v3.1.78.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.78/djconnect-lilygo-t-embed-s3-v3.1.78.bin",
+      "asset": "djconnect-lilygo-t-embed-s3-v3.1.79.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.79/djconnect-lilygo-t-embed-s3-v3.1.79.bin",
       "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "size": 2113136
     },
     {
       "board": "esp32_s3_box3",
       "device": "esp32-s3-box-3",
-      "asset": "djconnect-esp32-s3-box-3-v3.1.78.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.78/djconnect-esp32-s3-box-3-v3.1.78.bin",
+      "asset": "djconnect-esp32-s3-box-3-v3.1.79.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.79/djconnect-esp32-s3-box-3-v3.1.79.bin",
       "sha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
       "size": 2113136
     }
@@ -1153,7 +1164,7 @@ The firmware version is injected through PlatformIO build flags from the Git tag
 Recommended firmware source release helper:
 
 ```bash
-./release.sh 3.1.78
+./release.sh 3.1.79
 ```
 
 In the separate `djconnect-app` repository, the firmware release script should
@@ -1165,14 +1176,14 @@ PlatformIO builds, rename firmware binaries to device-specific assets such as
 Preview the firmware release flow without changing files:
 
 ```bash
-./release.sh 3.1.78 --dry-run
+./release.sh 3.1.79 --dry-run
 ```
 
 When publishing to the public firmware repository, use the firmware script's
 public-repo option if available:
 
 ```bash
-./release.sh 3.1.78 --publish-firmware-repo ../djconnect-firmware
+./release.sh 3.1.79 --publish-firmware-repo ../djconnect-firmware
 ```
 
 The public `djconnect-firmware` repository should contain only the release
@@ -1222,7 +1233,7 @@ Tag and publish:
 One-liner:
 
 ```bash
-./release.sh 3.1.78
+./release.sh 3.1.79
 ```
 
 The script updates the integration version in `manifest.json`, `const.py`,
@@ -1233,18 +1244,18 @@ above.
 Preview without executing git/gh commands:
 
 ```bash
-./release.sh 3.1.78 --dry-run
+./release.sh 3.1.79 --dry-run
 ```
 
 Manual equivalent:
 
 ```bash
 git add .
-git commit -m "Release DJConnect v3.1.78"
-git tag v3.1.78
+git commit -m "Release DJConnect v3.1.79"
+git tag v3.1.79
 git push origin main
-git push origin v3.1.78
-gh release create v3.1.78 --title "DJConnect v3.1.78" --notes-file CHANGELOG.md
+git push origin v3.1.79
+gh release create v3.1.79 --title "DJConnect v3.1.79" --notes-file CHANGELOG.md
 ```
 
 After every release, clean up old completed GitHub Actions workflow runs. Keep

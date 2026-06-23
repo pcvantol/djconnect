@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.1.79
+
+- Refresh the Ask DJ recent listening-history contract in README, API docs,
+  Postman examples and cross-repo sync notes, including compact `items[]`
+  rendering guidance for tracks, albums, artists and playlist contexts.
+- Expand the canonical voice intent data with Ask DJ help, speaker/output,
+  retry and richer recently-played examples for website and client chips.
+
 ## 3.1.78
 
 - Fix the native playback proxy setup lifecycle so backend status refreshes no

@@ -24,7 +24,7 @@ Lees eerst:
 
 Belangrijke huidige status:
 - Project: DJConnect Home Assistant custom integration, domain `djconnect`.
-- Laatste release: `3.1.69`.
+- Laatste release: `3.1.78`.
 - Repo is public en MIT-licensed.
 - Alle DJConnect repos zijn MIT-licensed, tenzij een specifieke third-party dependency anders vermeldt.
 - `FIRMWARE-LICENSE.md` is verwijderd.
@@ -58,6 +58,8 @@ Belangrijke huidige status:
 - Apple push in de HACS-integratie is relay-only via de centrale DJConnect API met een per-install `djci_` token. HACS bevat geen globale relay secret, bewaart geen APNs tokens en bevat geen APNs `.p8` provider key of directe Apple push delivery. iOS/macOS/watchOS clients leveren waar nodig een short-lived `bootstrap_proof` bij push registration; ESP32, Raspberry Pi en Assist-agent-only entries hebben die proof niet nodig. Push is alleen voor expliciete Ask DJ response/confirm attention events, met foreground suppression en rate limiting; nooit voor track/playback/status/idle updates.
 - Cross-device clear/trim is backend-authoritative: clients vergelijken `clear_revision`, `history_revision` en trim metadata; niet op system-message tekst parsen.
 - Ask DJ gebruikt `playback_actions[]` voor Play Now en confirmation buttons; `confirmation_actions[]` bevat dezelfde Ja/Nee confirmation actions voor clients die die apart willen renderen.
+- Ask DJ recent-played vragen zoals `welke nummers heb ik afgelopen uur afgespeeld?`, `welke albums heb ik vandaag geluisterd?`, `welke artiesten hoorde ik net?` en `welke playlists heb ik afgelopen uur gespeeld?` gebruiken Spotify `/me/player/recently-played`, blijven informatief en muteren playback niet. Responses gebruiken intent `recently_played_history`, `intent.item_type` (`tracks`, `albums`, `artists`, `playlists`), `items[]`, `assistant_message.items[]`, `images[]` en source `spotify_recently_played`.
+- Clients renderen `recently_played_history` als compacte lijst met art/icon links en titel/subtitel/tijd rechts. Niet als grote losse mediakaart renderen, geen oude artwork hergebruiken, en geen Play Now-knoppen toevoegen tenzij de backend expliciet `playback_actions[]` meestuurt.
 - `command:"ask_dj_followup_response"` handelt Ja/Nee follow-ups af via server-side pending state in DJ Memory; pending follow-ups verlopen na ongeveer 10 minuten.
 - `Goedemorgen`/`Good morning` met `trigger:"morning_startup"` en geen actieve playback geeft een ochtend-suggestie met Ja/Nee knoppen zonder automatisch te starten; `ik ga slapen` pauzeert muziek direct.
 - Ask DJ fallback is gehard tegen gibberish, sandbox escape en prompt-injectionachtige input; die geeft tekstueel `Sorry, ik begrijp niet wat je bedoelt.` zonder conversation-agent of playback route.

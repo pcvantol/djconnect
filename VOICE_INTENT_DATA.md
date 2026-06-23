@@ -109,6 +109,17 @@ The website can use `ask_dj_intents` to render example families for:
 - `conversation_followup`: short replies such as `Geeft niet`, `Dank je` and
   `Laat maar`. These are answered naturally without rerunning a previous lookup
   or changing playback.
+- `help`: phrases such as `Help`, `Hulp`, `Wat kun je?` and `Welke commando's
+  kan ik gebruiken?`. Responses are categorized text-only prompt lists with no
+  media cards, images or playback actions.
+- `speaker_outputs`: questions such as `Welke speakers zijn er?`, `Wissel van
+  speaker` and `Move music to the living room speaker`. Responses contain a
+  text list plus `playback_actions[]` with `kind:"output"` and `Activeer` /
+  `Actief` button labels when devices are known.
+- `retry_previous_request`: phrases such as `Probeer opnieuw`, `Retry` and
+  `Try again`. The backend replays the previous retryable playback request from
+  server-side Ask DJ history or memory. Clients must not reconstruct the old
+  request locally.
 - `contextual_play_followup`: short playback follow-ups such as `Speel af`,
   `Speel maar`, `Play it` and `Play that`. Ask DJ resolves these against recent
   chat context, for example a previously discussed track plus artist. It must
@@ -131,6 +142,21 @@ The website can use `ask_dj_intents` to render example families for:
   a Play Now action, but do not skip automatically.
 - `personal_music_profile_analysis`: non-mutating listening-profile questions
   based on DJConnect Memory plus Spotify recently played/top profile data.
+- `recently_played_history`: non-mutating recent listening-history questions
+  for tracks, albums, artists and playlist contexts, based on Spotify
+  recently-played data. Clients should render returned `items[]` as compact
+  lists with art/icons and should not invent Play Now controls.
+  - Response contract: `intent.category:"informational"`,
+    `intent.intent:"recently_played_history"`, `intent.item_type` as one of
+    `tracks`, `albums`, `artists` or `playlists`, `action:"none"` and
+    `sources[]` containing `spotify_recently_played`.
+  - Response shape: top-level `items[]`, mirrored `assistant_message.items[]`
+    and proxied `images[]` when art is available. Each item should have a
+    display title, subtitle/kind metadata, optional proxied image/thumbnail URL
+    and optional played-at label.
+  - Client rule: render as a compact vertical list, not as one large media card;
+    do not reuse artwork from earlier chat bubbles; do not add Play Now buttons
+    unless the backend explicitly returns `playback_actions[]`.
 - `personal_music_recommendations`: recommendation requests such as `Speel wat
   anders`. These can return `playback_actions[]` for Play Now buttons but do
   not start playback until the user explicitly taps Play Now.

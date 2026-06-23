@@ -4,8 +4,8 @@
 
 - Repository: `pcvantol/djconnect`.
 - Integration domain: `djconnect`.
-- Current integration release: `3.1.74`.
-- Release status: DJConnect `3.1.74` is the current release. It includes proof-gated central install-token bootstrap, Assist-agent-only entity cleanup, APNs registration diagnostics, automated Postman collection validation, Ask DJ help/output/album/retry controls, direct Resume handling and safer album announcement metadata.
+- Current integration release: `3.1.78`.
+- Release status: DJConnect `3.1.78` is the current release. It includes the `3.1.77` Spotify OAuth, app-pairing, live entity refresh, Ask DJ recent-played and Play Now label work, plus playback-proxy setup lifecycle and invalid volume sentinel fixes.
 - Home Assistant integration is HACS-distributed and MIT-licensed.
 - DJConnect client and firmware repositories are MIT-licensed unless their own repository metadata states otherwise.
 - Public firmware release assets live in `pcvantol/djconnect-firmware`.
@@ -139,6 +139,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - `personal_music_profile_analysis` is an informational Ask DJ intent for personal listening-profile questions over periods such as today, this week, last month, last 30/90 days or this year. It must never mutate playback. Use only available DJ Memory/playback context and be explicit when there is too little listening history.
 - Spotify listening-profile support uses `GET /me/player/recently-played` and `GET /me/top/{artists,tracks}` with `short_term`, `medium_term` and `long_term`; required OAuth scopes are `user-read-recently-played` and `user-top-read`. Store only compact profile snapshots in DJ Memory with a multi-hour TTL, never unlimited raw Spotify listening history.
 - Profile-analysis responses should fill `sources[]` with Spotify and DJConnect Memory source names so iOS/macOS/watchOS/Raspberry Pi can show them under the answer.
+- Ask DJ `recently_played_history` supports recent track, album, artist and playlist-context questions such as `welke nummers heb ik afgelopen uur afgespeeld?` and `welke albums heb ik vandaag geluisterd?`. It reads Spotify recently played data, returns `items[]`, `assistant_message.items[]`, `images[]`, `intent.item_type` and source `spotify_recently_played`, keeps `action:"none"` and must not mutate playback or create client-side Play Now buttons.
 - `personal_music_recommendations` can return `playback_actions[]` for client Play Now buttons while keeping `action:"none"`. Play Now uses `/api/djconnect/command` with `command:"ask_dj_play_recommendation"` and a Spotify-only recommendation value. Successful plays are stored in DJ Memory as positive recommendation signals.
 - `Speel wat anders` is a personal recommendation request, not an immediate playback mutation. Build random Play Now candidates from DJConnect Memory plus Spotify recently played/top tracks/top artists. Include `image_url` whenever Spotify/DJ Memory exposes album, artist, playlist or media artwork.
 - DJ Memory stores compact listening-time context (`hour`, `weekday`, `weekday_name`, `is_weekend`, `daypart`) plus bounded recent time patterns so recommendations can become time-aware across clients.
@@ -191,15 +192,15 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 ## Current Release Notes
 
 - Current release line is `3.1.x`; only the latest GitHub release/tag should be kept after release cleanup.
-- Current latest baseline is `3.1.74`.
+- Current latest baseline is `3.1.78`.
 - Release workflow expectation: before every release, review and update all repo documentation affected by the change or release, including `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant `examples/*`. Explicitly decide whether test coverage must be expanded for the change; add coverage for new behavior paths, regression risks, translations and edge cases. Keep `tests.test_postman_collection` aligned with the Postman examples so CI validates collection schema, auth headers, placeholders and client identity. After publishing a release, clean up old completed GitHub Actions workflow runs, keeping only the newest release/tag validation and newest `main` validation unless debugging requires more history. Also clean up old semver releases/tags with `./cleanup_old_releases.sh --keep 1 --execute` unless multiple releases are intentionally retained.
 - Before build/test/release validation, check whether third-party libraries, frameworks and build tools can be safely upgraded. If any version is upgraded, update lockfiles/manifests, `THIRD_PARTY_NOTICES.md` and dependency/design documentation in the same release. If an upgrade is skipped, record the reason here.
-- For the current `3.1.74` release, no pinned Python package versions were
-  upgraded. The release includes central-token proof gating, APNs registration
-  diagnostics, Assist-agent-only entity cleanup, Postman collection validation
-  in CI and Ask DJ client-contract fixes for help, output, album, retry, Resume
-  and mood-driven announcements. `THIRD_PARTY_NOTICES.md` did not require
-  dependency updates for these changes.
+- For the current `3.1.78` release, no pinned Python package versions were
+  upgraded. The current line includes Spotify OAuth external-step copy,
+  app-pairing backend availability fixes, live Spotify-backed HA entity
+  refresh, Ask DJ recent-played history lists, stable Play Now labels, playback
+  proxy setup lifecycle fixes and invalid volume sentinel handling.
+  `THIRD_PARTY_NOTICES.md` did not require dependency updates for these changes.
 - AI-assisted/Codex development hygiene is now documented in
   `CONTRIBUTING.md`, `SECURITY.md` and `CHAT_BOOTSTRAP.md`; accepted changes
   remain maintainer-reviewed and prompts/logs/issues must not contain secrets,
@@ -221,7 +222,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
   DJ announcements and ambient system facts.
 - Local deterministic intent parsing may override stale/generic HA Assist output, so a new request such as `Speel Nirvana` cannot keep using an older artist context such as Red Hot Chili Peppers.
 - Spotify playlist browsing may return up to 100 playlists to app-like clients, but HA must page Spotify `/me/playlists` internally with provider-safe pages of at most 50 items to avoid Spotify HTTP 400 `Invalid limit`.
-- The native playback proxy media player must cache `playback` snapshots returned by backend commands so current state, album art, volume and selected output update in Home Assistant.
+- The native playback proxy media player and Spotify-backed HA entities must poll/cache backend playback snapshots so current play/pause state, album art, Spotify volume, selected output/source, repeat, shuffle, queue and playlists update in Home Assistant. `media_player` volume follows Spotify's 0-100 scale; the legacy `number.djconnect_volume` entity keeps its existing 0-60 range.
 - Use Developer Tools action `djconnect.test_ptt_text` to debug the real PTT route immediately after STT conversion: enter recognized natural-language text, then DJConnect runs the guarded Assist fuzzy-correction step, intent parsing, Spotify search/playback, DJ aankondiging generation, TTS audio creation and delivery to the connected client/device.
 - Do not send arbitrary text as `context_uri`, and do not perform broad track/album search for generic artist requests.
 - Device DJ responses after successful PTT playback are generated from resolved Spotify/playback metadata and the runtime mood-zone/default announcement style, not from the generic Assist fallback announcement.
