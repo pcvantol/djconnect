@@ -143,6 +143,7 @@ class DJConnectMediaPlayerTest(unittest.TestCase):
         )
         entity = self.media_player.DJConnectPlaybackProxyMediaPlayer(runtime, object())
 
+        self.assertFalse(entity._attr_should_poll)
         self.assertEqual(entity.state, "playing")
         self.assertEqual(entity.media_title, "Alive")
         self.assertEqual(entity.media_artist, "Pearl Jam")
