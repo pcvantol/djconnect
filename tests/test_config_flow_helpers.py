@@ -936,6 +936,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         keys = {marker.key for marker in schema}
 
         self.assertIn(self.const.CONF_SPOTIFY_CLIENT_ID, keys)
+        self.assertNotIn(self.const.CONF_SPOTIFY_MARKET, keys)
         self.assertNotIn("show_advanced_options", keys)
 
     def test_voice_schema_can_include_options_action(self) -> None:

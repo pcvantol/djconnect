@@ -398,6 +398,19 @@ class TtsHelperTest(unittest.TestCase):
         self.assertEqual(runtime.device_status["last_dj_text"], "Daar is Pearl Jam")
         self.assertEqual(runtime.device_status["last_track"], "Pearl Jam")
 
+    def test_runtime_update_skips_listeners_when_values_are_unchanged(self) -> None:
+        entry = types.SimpleNamespace(entry_id="entry-1", data={}, options={})
+        runtime = self.integration.DJConnectRuntime(entry=entry)
+        calls: list[str] = []
+        runtime.listeners.append(lambda: calls.append("called"))
+
+        runtime.update(last_error=None)
+        runtime.update(last_error="boom")
+        runtime.update(last_error="boom")
+        runtime.update()
+
+        self.assertEqual(calls, ["called", "called"])
+
     def test_restore_runtime_ignores_obsolete_pair_code_local_url(self) -> None:
         entry = types.SimpleNamespace(
             entry_id="entry-1",
@@ -1095,6 +1108,7 @@ class TtsHelperTest(unittest.TestCase):
 
     def test_runtime_lookup_rejects_stale_device_without_fallback(self) -> None:
         const = self.const
+        self.http._last_stale_auth_log.clear()
         active = types.SimpleNamespace(
             device_token="active-token",
             pairing_device_id="djconnect-ios-ACTIVE123456",
@@ -1115,6 +1129,37 @@ class TtsHelperTest(unittest.TestCase):
 
         self.assertIsNone(resolved)
         self.assertIn("no runtime matched bearer token", "\n".join(captured.output))
+
+    def test_runtime_lookup_throttles_repeated_stale_token_warnings(self) -> None:
+        const = self.const
+        self.http._last_stale_auth_log.clear()
+        active = types.SimpleNamespace(
+            device_token="active-token",
+            pairing_device_id="djconnect-ios-ACTIVE123456",
+            device_status={"device_id": "djconnect-ios-ACTIVE123456"},
+            config={const.CONF_DEVICE_ID: "djconnect-ios-ACTIVE123456"},
+            authorize_device_request=lambda headers, body_device_id=None: True,
+        )
+        hass = types.SimpleNamespace(
+            data={const.DOMAIN: {"active-entry": active, "runtime": active}}
+        )
+
+        with self.assertLogs(self.http._LOGGER, level="WARNING") as captured:
+            first = self.http._runtime(
+                hass,
+                None,
+                {"Authorization": "Bearer old-token"},
+            )
+            second = self.http._runtime(
+                hass,
+                None,
+                {"Authorization": "Bearer old-token"},
+            )
+
+        self.assertIsNone(first)
+        self.assertIsNone(second)
+        logs = "\n".join(captured.output)
+        self.assertEqual(logs.count("no runtime matched bearer token"), 1)
 
     def test_unload_last_entry_clears_memory_and_history_managers(self) -> None:
         const = self.const

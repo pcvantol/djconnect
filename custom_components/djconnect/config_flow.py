@@ -96,14 +96,6 @@ DISCOVERY_CLIENT_FIELD = "discovered_client"
 DISCOVERY_PAIRING_INFO_ERROR = "pairing_info_unavailable"
 BLE_DISCOVERY_TIMEOUT = 5
 BLE_PROVISION_TIMEOUT = 25
-SPOTIFY_MARKET_NAMES = {
-    "NL": "Netherlands",
-    "BE": "Belgium",
-    "DE": "Germany",
-    "FR": "France",
-    "GB": "United Kingdom",
-    "US": "United States",
-}
 SETUP_METHOD_NAMES_EN = {
     SETUP_METHOD_CONVERSATION_AGENT: (
         "DJConnect DJ Assist-agent\n"
@@ -438,10 +430,6 @@ def _spotify_schema_with_defaults(
     schema: dict[Any, Any] = {
         vol.Required(CONF_SPOTIFY_CLIENT_ID, default=client_id): str,
         vol.Required(CONF_HA_EXTERNAL_URL, default=external_url): str,
-        vol.Optional(
-            CONF_SPOTIFY_MARKET,
-            default=DEFAULT_SPOTIFY_MARKET,
-        ): vol.In(SPOTIFY_MARKET_NAMES),
     }
     return schema
 

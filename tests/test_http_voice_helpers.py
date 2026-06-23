@@ -2013,6 +2013,52 @@ class VoiceHttpHelperTest(unittest.TestCase):
         )
         self.assertEqual(runtime.device_status["ha_pairing_status"], "paired")
 
+    def test_status_view_unknown_pairing_status_does_not_replace_paired(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+
+        class Runtime:
+            device_token = "device-token"
+            device_status = {
+                "device_id": "djconnect-lilygo-90B70990A994",
+                "client_type": "esp32",
+                "ha_pairing_status": "paired",
+            }
+            ota_in_progress = False
+            ota_last_error = None
+            last_error = None
+            config = {}
+
+            def authorize_device_request(self, headers, body_device_id=None, client_type=None):
+                return True
+
+            def get_current_spotify_credentials(self):
+                return {}
+
+            def device_language(self):
+                return "nl"
+
+            def update(self, **kwargs):
+                self.last_update = kwargs
+
+        runtime = Runtime()
+
+        class Request:
+            headers = {"Authorization": "Bearer device-token"}
+            app = {"hass": types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})}
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-lilygo-90B70990A994",
+                    "client_type": "esp32",
+                    "ha_pairing_status": "unknown",
+                }
+
+        response = asyncio.run(self.http.DJConnectStatusView(None).post(Request()))
+
+        self.assertEqual(response["status_code"], 200)
+        self.assertEqual(runtime.device_status["ha_pairing_status"], "paired")
+        self.assertEqual(runtime.last_update, {"last_error": None})
+
     def test_persist_paired_device_stores_last_known_status_without_secrets(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
         entry = types.SimpleNamespace(
