@@ -1,5 +1,21 @@
 # Changelog
 
+## 3.1.89
+
+- Make Ask DJ message responses include canonical `messages: [user, assistant]`
+  exchange ordering with shared `exchange_id` and `exchange_order`, so clients
+  can always render the question above the answer even when HTTP, push and
+  history sync timing overlap.
+- Return speaker selection actions instead of an HTTP 400 when a Play Now
+  recommendation is requested while no Spotify output is active.
+- Send plain text to Home Assistant TTS before SSML so spoken DJ answers no
+  longer read XML markup aloud on TTS backends that do not support SSML.
+- Keep proxied Ask DJ image URLs from being proxied a second time, preserving
+  album art in queue/list responses.
+- Use explicit `Play Now` labels for queue playback actions and support both
+  singular and plural playlist search requests such as `heb je een playlist van
+  snowpatrol` and `heb je playlists van snowpatrol`.
+
 ## 3.1.88
 
 - Add deterministic Ask DJ follow-up support for current-track album context:

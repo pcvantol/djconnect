@@ -139,7 +139,7 @@ def _tts_text_candidates(text: str) -> tuple[str, ...]:
     ssml = _ssml_with_english_title_hints(text)
     if ssml == text:
         return (text,)
-    return (ssml, text)
+    return (text, ssml)
 
 
 def _ssml_with_english_title_hints(text: str) -> str:

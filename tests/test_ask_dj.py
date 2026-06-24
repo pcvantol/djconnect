@@ -3123,6 +3123,54 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["assistant_message"]["images"], [])
         self.assertIn("Spotify-playlists", result["text"])
 
+    def test_plural_playlist_question_returns_search_results(self) -> None:
+        runtime = make_runtime()
+        calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append((command_name, value))
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            if command_name == "search_playlists":
+                self.assertEqual(value["query"], "snowpatrol")
+                self.assertEqual(value["limit"], 10)
+                return {
+                    "success": True,
+                    "playlists": [
+                        {
+                            "uri": "spotify:playlist:snowpatrol-1",
+                            "title": "Snow Patrol: Best Of The Best",
+                            "owner": "Best Of The Best",
+                            "image_url": "https://img.example/snowpatrol.jpg",
+                        }
+                    ],
+                }
+            raise AssertionError(f"unexpected playback mutation: {command_name}")
+
+        original_command = self.ask_dj.handle_spotify_command
+        self.ask_dj.handle_spotify_command = command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "heb je playlists van snowpatrol",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "watchos",
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.handle_spotify_command = original_command
+
+        self.assertEqual([call[0] for call in calls], ["status", "search_playlists"])
+        self.assertTrue(result["success"])
+        self.assertEqual(result["intent"]["intent"], "spotify_playlist_search")
+        self.assertEqual(result["playback_actions"][0]["kind"], "playlist")
+        self.assertEqual(result["playback_actions"][0]["label"], "Play Now")
+        self.assertEqual(result["playback_actions"][0]["uri"], "spotify:playlist:snowpatrol-1")
+
     def test_playlist_with_artist_request_returns_playlist_results(self) -> None:
         runtime = make_runtime()
         calls = []
@@ -3326,10 +3374,56 @@ class AskDjTest(unittest.TestCase):
         self.assertNotIn("HAEVN Song 6", result["dj_text"])
         self.assertEqual(len(result["playback_actions"]), 5)
         self.assertEqual(result["playback_actions"][0]["kind"], "track")
+        self.assertEqual(result["playback_actions"][0]["label"], "Play Now")
+        self.assertEqual(result["playback_actions"][0]["button_label"], "Play Now")
+        self.assertEqual(result["playback_actions"][0]["action_style"], "play_now")
         self.assertEqual(result["playback_actions"][0]["uri"], "spotify:track:haevn-1")
         self.assertEqual(result["playback_actions"][0]["context_uri"], "spotify:playlist:haevn")
         self.assertEqual(result["playback_actions"][0]["offset_uri"], "spotify:track:haevn-1")
         self.assertTrue(result["images"][0]["url"].startswith(self.const.API_IMAGE_PROXY_BASE))
+
+    def test_next_track_question_does_not_double_proxy_queue_art(self) -> None:
+        runtime = make_runtime()
+        proxy_url = f"{self.const.API_IMAGE_PROXY_BASE}/existing"
+        hass = types.SimpleNamespace(data={self.const.DOMAIN: {"image_proxy": {"existing": "https://img.example/original.jpg"}}})
+
+        async def command(hass_arg, runtime_arg, command_name, value=None, *, play=None):
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            if command_name == "queue":
+                return {
+                    "success": True,
+                    "queue": [
+                        {
+                            "title": "Queue Track",
+                            "subtitle": "Queue Artist",
+                            "uri": "spotify:track:queue",
+                            "image_url": proxy_url,
+                        }
+                    ],
+                }
+            raise AssertionError(f"unexpected playback mutation: {command_name}")
+
+        original_command = self.ask_dj.handle_spotify_command
+        self.ask_dj.handle_spotify_command = command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    hass,
+                    runtime,
+                    {
+                        "text": "wat staat er in de wachtrij",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "watchos",
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.handle_spotify_command = original_command
+
+        self.assertEqual(result["images"][0]["url"], proxy_url)
+        self.assertEqual(result["playback_actions"][0]["image_url"], proxy_url)
+        self.assertEqual(hass.data[self.const.DOMAIN]["image_proxy"], {"existing": "https://img.example/original.jpg"})
 
     def test_next_track_command_still_skips(self) -> None:
         intent = self.ask_dj.classify_ask_dj("volgende nummer")
@@ -3801,7 +3895,15 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(response["payload"]["user_message"]["status"], "delivered")
         self.assertEqual(response["payload"]["assistant_message"]["audio_url"], "/api/djconnect/tts/abc.mp3")
         self.assertEqual(response["payload"]["assistant_message"]["playback_actions"][0]["uri"], "spotify:track:123")
+        self.assertEqual([message["role"] for message in response["payload"]["messages"]], ["user", "assistant"])
+        self.assertEqual(response["payload"]["messages"][0]["exchange_order"], 0)
+        self.assertEqual(response["payload"]["messages"][1]["exchange_order"], 1)
+        self.assertEqual(
+            response["payload"]["messages"][0]["exchange_id"],
+            response["payload"]["messages"][1]["exchange_id"],
+        )
         self.assertTrue(duplicate["payload"]["deduplicated"])
+        self.assertEqual([message["role"] for message in duplicate["payload"]["messages"]], ["user", "assistant"])
         self.assertEqual(push_events[0]["user_id"], "user-1")
         self.assertEqual(push_events[0]["event_type"], "ask_dj_response")
         self.assertEqual(push_events[0]["history_revision"], 1)
