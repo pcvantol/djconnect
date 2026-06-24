@@ -21,7 +21,7 @@
         "data_description": {
           "pair_code": "De 6-cijferige code of 12 tekens lange device-suffix op het DJConnect device.",
           "device_name": "Leesbare naam voor deze DJConnect remote.",
-          "client_type": "Type DJConnect client dat koppelt met Home Assistant: iOS app, macOS app, Apple Watch app, Linux/Raspberry Pi client of ESP32 device.",
+          "client_type": "Type DJConnect client dat koppelt met Home Assistant: iOS app, macOS app, Apple Watch app, Linux/Raspberry Pi client, Windows app of ESP32 device.",
           "local_url": "Kopieer de Client adres uit de DJConnect app via Instellingen.",
           "discovered_client": "Kies een automatisch gevonden DJConnect client om de koppelgegevens voor te vullen, of gebruik handmatige invoer."
         }
@@ -70,7 +70,7 @@
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline die DJConnect devices gebruiken voor spraakherkenning en DJ aankondiging audio.",
-          "client_type": "Type DJConnect client dat koppelt met Home Assistant: iOS app, macOS app, Apple Watch app, Linux/Raspberry Pi client of ESP32 device.",
+          "client_type": "Type DJConnect client dat koppelt met Home Assistant: iOS app, macOS app, Apple Watch app, Linux/Raspberry Pi client, Windows app of ESP32 device.",
           "dj_response_enabled": "Maak een tijdelijke WAV of MP3 audio URL en stuur die met de DJ aankondiging naar het DJConnect device.",
           "firmware_channel": "Kies stable voor normale OTA updates of beta om prerelease firmware te testen.",
           "options_action": "Kies instellingen opslaan of Spotify opnieuw autoriseren."
@@ -160,7 +160,7 @@
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline die DJConnect devices gebruiken voor spraakherkenning en DJ aankondiging audio.",
-          "client_type": "Type DJConnect client dat koppelt met Home Assistant: iOS app, macOS app, Apple Watch app, Linux/Raspberry Pi client of ESP32 device.",
+          "client_type": "Type DJConnect client dat koppelt met Home Assistant: iOS app, macOS app, Apple Watch app, Linux/Raspberry Pi client, Windows app of ESP32 device.",
           "local_url": "Geconfigureerde Client adres. Alleen-lezen; gebruik opnieuw koppelen om deze URL te wijzigen.",
           "dj_response_enabled": "Maak een tijdelijke WAV of MP3 audio URL en stuur die met de DJ aankondiging naar het DJConnect device.",
           "firmware_channel": "Kies stable voor normale OTA updates of beta om prerelease firmware te testen.",

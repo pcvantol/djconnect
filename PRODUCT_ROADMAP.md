@@ -25,7 +25,7 @@ Core promise:
 - A calm now-playing experience for shared living spaces.
 - Local-first control, with Home Assistant owning backend credentials.
 - One shared backend contract across ESP32 hardware, Apple clients, Raspberry
-  Pi/Linux clients and the website/docs experience.
+  Pi/Linux clients, Windows client and the website/docs experience.
 
 ## Release Cycle Rule
 
@@ -64,7 +64,7 @@ Every release must review this roadmap.
   `pcvantol/djconnect/SYNC_PROMPTS.md`.
 - [ ] Public download/update path for every released client.
 - [ ] Manual smoke checklist for website, Home Assistant integration, ESP32,
-  Apple clients and Raspberry Pi client.
+  Apple clients, Raspberry Pi client and Windows client.
 
 ### HACS / Home Assistant Integration
 
@@ -107,7 +107,7 @@ Every release must review this roadmap.
   Assist satellites such as Voice Preview Edition, with compact relevant
   options (3.1, HA).
 - [x] ESP32 wake-word toggle is exposed as a native HA switch and filtered out
-  for iOS, macOS and Raspberry Pi clients (3.1, ESP32/HA).
+  for iOS, macOS, Raspberry Pi and Windows clients (3.1, ESP32/HA).
 - [x] DJ announcement generation includes the concrete Spotify track returned
   by the just-executed artist playback command when Spotify provides one (3.1,
   HA).
@@ -119,8 +119,8 @@ Every release must review this roadmap.
 - [ ] Canonical domain, SEO metadata, sitemap, redirects and social preview are
   current.
 - [ ] Setup page remains the single source for installation guidance.
-- [ ] Compatibility matrix for ESP32, iOS, macOS, Raspberry Pi/Linux and Home
-  Assistant versions.
+- [ ] Compatibility matrix for ESP32, iOS, macOS, Raspberry Pi/Linux, Windows
+  and Home Assistant versions.
 - [ ] Troubleshooting pages for Spotify OAuth, STT failed, TTS failed, mDNS
   discovery, Client adres, OTA and pairing reset.
 - [ ] Product screenshots/videos show PTT, queue, DJ announcement, hardware UI
@@ -190,8 +190,8 @@ Every release must review this roadmap.
   mood and intent start on the right output.
 - [ ] Personal DJ announcements based on resolved music metadata and the user's
   custom DJ prompt.
-- [ ] One Home Assistant hub, many clients: ESP32, iOS, macOS, Raspberry Pi and
-  website/docs share one pairing and protocol model.
+- [ ] One Home Assistant hub, many clients: ESP32, iOS, macOS, Raspberry Pi,
+  Windows and website/docs share one pairing and protocol model.
 - [ ] Privacy-first local control: no DJConnect account required for core use.
 - [ ] Personal music memory for preferred artists, disliked results, common
   playlists and announcement style.
@@ -235,7 +235,7 @@ Every release must review this roadmap.
   safe debug media.
 - [x] Ask DJ chat consumes server-side history, clear revisions, retention
   metadata, Play Now actions and confirmation actions from the HA backend
-  contract (3.1, iOS/macOS/watchOS/Raspberry Pi). ESP32 intentionally stays
+  contract (3.1, iOS/macOS/watchOS/Raspberry Pi/Windows). ESP32 intentionally stays
   outside Ask DJ chat/history.
 
 ### Raspberry Pi / Linux
@@ -262,7 +262,7 @@ Every release must review this roadmap.
   explicit user confirmation.
 - [ ] Multi-room scene buttons for cooking, dinner, party, focus and sleep.
 - [ ] Typed music search in clients: search by album, artist or track name from
-  ESP/web, Apple and Raspberry Pi clients, then let Home Assistant resolve and
+  ESP/web, Apple, Raspberry Pi and Windows clients, then let Home Assistant resolve and
   start the selected result through the shared backend playback contract.
 
 ### HACS / Home Assistant

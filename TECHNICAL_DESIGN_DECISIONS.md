@@ -217,14 +217,14 @@ Why:
 Pattern:
 
 - `client_type` is the canonical runtime discriminator.
-- Current values are `esp32`, `ios`, `macos`, `watchos` and `raspberry_pi`.
+- Current values are `esp32`, `ios`, `macos`, `watchos`, `raspberry_pi` and `windows`.
 - ESP32 gets hardware-specific entities such as battery, WiFi RSSI, screen,
   LED, OTA and reboot controls.
-- iOS, macOS, watchOS and Raspberry Pi clients keep backend/playback/client entities
+- iOS, macOS, watchOS, Raspberry Pi and Windows clients keep backend/playback/client entities
   only. Firmware channel and OTA controls are ESP32-only; Apple clients update
-  through app distribution/TestFlight and Linux/Raspberry Pi clients update
+  through app distribution/TestFlight and Linux/Raspberry Pi and Windows clients update
   through their own source/install flow.
-- Config-flow client type choices are ordered iOS, macOS, Apple Watch, Linux/Raspberry Pi
+- Config-flow client type choices are ordered iOS, macOS, Apple Watch, Linux/Raspberry Pi, Windows
   and ESP32, and setup method is chosen only in the first config-flow step.
 
 Primary source files:
@@ -758,7 +758,7 @@ Pattern:
   `bootstrap_proof` during push registration or pairing/status. HACS uses that
   proof only to mint the per-install `djci_` token through `/v1/install/token`;
   without a proof HACS does not attempt blind/public token minting. ESP32,
-  Raspberry Pi and Assist-agent-only entries do not require this proof because
+  Raspberry Pi, Windows and Assist-agent-only entries do not require this proof because
   they do not use APNs push.
 - APNs provider `.p8` keys, provider JWT signing, proof validation, topics,
   retries and invalid-token handling live in the central API.

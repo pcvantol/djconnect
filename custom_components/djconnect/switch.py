@@ -39,6 +39,7 @@ class DJConnectShuffleSwitch(SwitchEntity):
     def __init__(self, runtime: Any, hass: HomeAssistant) -> None:
         self.runtime = runtime
         self.hass = hass
+        self._last_is_on: bool | None = None
         self._attr_unique_id = entry_unique_id(runtime, "shuffle")
         runtime.listeners.append(self._handle_runtime_update)
 
@@ -53,12 +54,20 @@ class DJConnectShuffleSwitch(SwitchEntity):
 
     @property
     def is_on(self) -> bool | None:
+        value: bool | None = None
         playback = _playback_mapping(self.runtime)
         if "shuffle" in playback:
-            return _as_bool(playback.get("shuffle"))
-        if "shuffle" in self.runtime.device_status:
-            return _as_bool(self.runtime.device_status.get("shuffle"))
-        return None
+            value = _as_bool(playback.get("shuffle"))
+        else:
+            status_playback = self.runtime.device_status.get("playback")
+            if isinstance(status_playback, dict) and "shuffle" in status_playback:
+                value = _as_bool(status_playback.get("shuffle"))
+            elif "shuffle" in self.runtime.device_status:
+                value = _as_bool(self.runtime.device_status.get("shuffle"))
+        if value is not None:
+            self._last_is_on = value
+            return value
+        return self._last_is_on
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         await self._set_shuffle(True)

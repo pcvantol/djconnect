@@ -400,8 +400,18 @@ class DJConnectSpotifyStatusSensor(DJConnectBackendSensor):
     _attr_translation_key = "spotify_status"
     _attr_unique_id = "djconnect_spotify_status"
 
+    def __init__(self, runtime, hass: HomeAssistant | None = None) -> None:
+        super().__init__(runtime, hass)
+        self._last_value = self._current_value()
+
     @property
     def native_value(self):
+        value = self._current_value()
+        if value not in (None, "", "unknown"):
+            self._last_value = value
+        return self._last_value
+
+    def _current_value(self):
         status = self.runtime.device_status.get("spotify_status")
         if status not in (None, "", "unknown"):
             return status
@@ -434,8 +444,18 @@ class DJConnectSoundOutputSensor(DJConnectBackendSensor):
     _attr_translation_key = "sound_output"
     _attr_unique_id = "djconnect_sound_output"
 
+    def __init__(self, runtime, hass: HomeAssistant | None = None) -> None:
+        super().__init__(runtime, hass)
+        self._last_value = self._current_value()
+
     @property
     def native_value(self):
+        value = self._current_value()
+        if value not in (None, ""):
+            self._last_value = value
+        return self._last_value
+
+    def _current_value(self):
         playback = _playback_mapping(self.runtime)
         device = playback.get("device") if isinstance(playback, dict) else None
         if isinstance(device, dict) and device.get("name"):
@@ -453,8 +473,18 @@ class DJConnectPlaybackAvailableSensor(DJConnectBackendSensor):
     _attr_translation_key = "playback_available"
     _attr_unique_id = "djconnect_playback_available"
 
+    def __init__(self, runtime, hass: HomeAssistant | None = None) -> None:
+        super().__init__(runtime, hass)
+        self._last_value = self._current_value()
+
     @property
     def native_value(self):
+        value = self._current_value()
+        if value is not None:
+            self._last_value = value
+        return self._last_value
+
+    def _current_value(self):
         playback = _playback_mapping(self.runtime)
         if playback.get("has_playback") is not None:
             return bool(playback.get("has_playback"))
@@ -475,8 +505,20 @@ class DJConnectQueueSensor(DJConnectBackendSensor):
     _attr_translation_key = "queue"
     _attr_unique_id = "djconnect_queue"
 
+    def __init__(self, runtime, hass: HomeAssistant | None = None) -> None:
+        super().__init__(runtime, hass)
+        self._last_value = self._current_value()
+        self._last_attrs = self._current_attrs()
+
     @property
     def native_value(self):
+        value = self._current_value()
+        if value is not None:
+            self._last_value = value
+            self._last_attrs = self._current_attrs()
+        return self._last_value
+
+    def _current_value(self):
         queue = self.runtime.device_status.get("queue")
         if queue is None:
             return None
@@ -484,6 +526,13 @@ class DJConnectQueueSensor(DJConnectBackendSensor):
 
     @property
     def extra_state_attributes(self):
+        attrs = self._current_attrs()
+        if attrs["items"] or attrs["context"] is not None or "currently_playing" in attrs:
+            self._last_attrs = attrs
+            return attrs
+        return self._last_attrs
+
+    def _current_attrs(self):
         queue = self.runtime.device_status.get("queue")
         attrs = {
             "items": _collection_items(queue),
@@ -502,8 +551,20 @@ class DJConnectPlaylistsSensor(DJConnectBackendSensor):
     _attr_translation_key = "playlists"
     _attr_unique_id = "djconnect_playlists"
 
+    def __init__(self, runtime, hass: HomeAssistant | None = None) -> None:
+        super().__init__(runtime, hass)
+        self._last_value = self._current_value()
+        self._last_items = self._current_items()
+
     @property
     def native_value(self):
+        value = self._current_value()
+        if value is not None:
+            self._last_value = value
+            self._last_items = self._current_items()
+        return self._last_value
+
+    def _current_value(self):
         playlists = self.runtime.device_status.get("playlists")
         if playlists is None:
             return None
@@ -511,8 +572,14 @@ class DJConnectPlaylistsSensor(DJConnectBackendSensor):
 
     @property
     def extra_state_attributes(self):
+        items = self._current_items()
+        if items:
+            self._last_items = items
+        return {"items": self._last_items if not items else items}
+
+    def _current_items(self):
         playlists = self.runtime.device_status.get("playlists")
-        return {"items": playlists if isinstance(playlists, list) else []}
+        return playlists if isinstance(playlists, list) else []
 
     async def async_update(self) -> None:
         await self._spotify_command("playlists")
@@ -522,8 +589,20 @@ class DJConnectOutputsSensor(DJConnectBackendSensor):
     _attr_translation_key = "outputs"
     _attr_unique_id = "djconnect_outputs"
 
+    def __init__(self, runtime, hass: HomeAssistant | None = None) -> None:
+        super().__init__(runtime, hass)
+        self._last_value = self._current_value()
+        self._last_items = _outputs_for_runtime(self.runtime)
+
     @property
     def native_value(self):
+        value = self._current_value()
+        if value is not None:
+            self._last_value = value
+            self._last_items = _outputs_for_runtime(self.runtime)
+        return self._last_value
+
+    def _current_value(self):
         outputs = _outputs_for_runtime(self.runtime)
         if not outputs and self.runtime.device_status.get("available_outputs") is None:
             return None
@@ -531,7 +610,10 @@ class DJConnectOutputsSensor(DJConnectBackendSensor):
 
     @property
     def extra_state_attributes(self):
-        return {"items": _outputs_for_runtime(self.runtime)}
+        outputs = _outputs_for_runtime(self.runtime)
+        if outputs:
+            self._last_items = outputs
+        return {"items": self._last_items if not outputs else outputs}
 
     async def async_update(self) -> None:
         await self._spotify_command("status")

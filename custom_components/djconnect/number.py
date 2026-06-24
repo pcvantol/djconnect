@@ -79,6 +79,7 @@ class DJConnectVolumeNumber(NumberEntity):
     def __init__(self, runtime: Any, hass: HomeAssistant) -> None:
         self.runtime = runtime
         self.hass = hass
+        self._last_native_value: float | None = None
         self._attr_unique_id = entry_unique_id(runtime, "volume")
         runtime.listeners.append(self._handle_runtime_update)
 
@@ -95,8 +96,9 @@ class DJConnectVolumeNumber(NumberEntity):
     def native_value(self) -> float | None:
         value = _volume_value(self.runtime)
         if value is None or value < MIN_VOLUME:
-            return None
-        return min(MAX_VOLUME, value)
+            return self._last_native_value
+        self._last_native_value = min(MAX_VOLUME, value)
+        return self._last_native_value
 
     async def async_set_native_value(self, value: float) -> None:
         volume = max(MIN_VOLUME, min(MAX_VOLUME, float(value)))

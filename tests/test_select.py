@@ -208,6 +208,58 @@ class DJConnectSelectTest(unittest.TestCase):
         self.assertEqual(sound_output.options, ["Living room", "Kitchen"])
         self.assertEqual(sound_output.current_option, "Living room")
 
+    def test_sound_output_falls_back_when_last_playback_is_incomplete(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            config={"client_type": "macos"},
+            device_status={
+                "client_type": "macos",
+                "sound_output": "Living room",
+                "available_outputs": [{"id": "dev-1", "name": "Living room"}],
+                "playback": {"device": {"id": "dev-1", "name": "Living room"}},
+            },
+            last_playback={"is_playing": False},
+            listeners=[],
+        )
+        sound_output = self.select.DJConnectCommandSelect(
+            runtime,
+            object(),
+            "sound_output",
+            "sound_output",
+            "set_output",
+            [],
+        )
+
+        self.assertTrue(sound_output.available)
+        self.assertEqual(sound_output.current_option, "Living room")
+        self.assertIn("Living room", sound_output.options)
+
+    def test_sound_output_keeps_last_known_value_when_snapshot_is_sparse(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            config={"client_type": "macos"},
+            device_status={"client_type": "macos"},
+            last_playback={"device": {"id": "dev-1", "name": "Living room"}},
+            listeners=[],
+        )
+        sound_output = self.select.DJConnectCommandSelect(
+            runtime,
+            object(),
+            "sound_output",
+            "sound_output",
+            "set_output",
+            [],
+        )
+
+        self.assertEqual(sound_output.current_option, "Living room")
+        self.assertEqual(sound_output.options, ["Living room"])
+
+        runtime.last_playback = {"has_playback": False}
+
+        self.assertTrue(sound_output.available)
+        self.assertEqual(sound_output.current_option, "Living room")
+        self.assertEqual(sound_output.options, ["Living room"])
+
     def test_sound_output_uses_devices_aliases(self) -> None:
         runtime = types.SimpleNamespace(
             entry=types.SimpleNamespace(entry_id="entry-1"),

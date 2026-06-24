@@ -1385,6 +1385,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
             ("ios", "djconnect-ios-68B74487726D"),
             ("watchos", "djconnect-watchos-68B74487726D"),
             ("raspberry_pi", "djconnect-raspberry-pi-68B74487726D"),
+            ("windows", "djconnect-windows-68B74487726D"),
         ):
             with self.subTest(client_type=client_type):
                 class Runtime:

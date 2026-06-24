@@ -100,6 +100,8 @@ class DJConnectCommandSelect(SelectEntity):
         self.status_key = status_key
         self.command = command
         self._fallback_options = list(options)
+        self._last_options: list[str] = []
+        self._last_current_option: str | None = None
         self._attr_translation_key = translation_key
         self._attr_unique_id = entry_unique_id(runtime, translation_key)
         runtime.listeners.append(self._handle_runtime_update)
@@ -120,7 +122,10 @@ class DJConnectCommandSelect(SelectEntity):
             current = self.current_option
             if current and current not in options:
                 options.append(current)
-            return options
+            if options:
+                self._last_options = list(options)
+                return options
+            return list(self._last_options)
         current = self.current_option
         options = list(self._fallback_options)
         if current and current not in options:
@@ -135,21 +140,28 @@ class DJConnectCommandSelect(SelectEntity):
 
     @property
     def current_option(self) -> str | None:
+        value: str | None = None
         if self.status_key == "sound_output":
-            return _current_sound_output(self.runtime)
-        if self.status_key == "repeat_state":
-            return _current_repeat_state(self.runtime)
-        if self.status_key == "turn_off_after":
-            return _current_turn_off_after(self.runtime.device_status)
-        value = self.runtime.device_status.get(self.status_key)
+            value = _current_sound_output(self.runtime)
+        elif self.status_key == "repeat_state":
+            value = _current_repeat_state(self.runtime)
+        elif self.status_key == "turn_off_after":
+            value = _current_turn_off_after(self.runtime.device_status)
+        else:
+            status_value = self.runtime.device_status.get(self.status_key)
+            if status_value not in (None, ""):
+                value = str(status_value)
+            else:
+                defaults = {
+                    "theme": "auto",
+                    "log_level": "info",
+                    "language": self.runtime.config.get("device_language", "en"),
+                }
+                value = defaults.get(self.status_key)
         if value not in (None, ""):
+            self._last_current_option = str(value)
             return str(value)
-        defaults = {
-            "theme": "auto",
-            "log_level": "info",
-            "language": self.runtime.config.get("device_language", "en"),
-        }
-        return defaults.get(self.status_key)
+        return self._last_current_option
 
     async def async_select_option(self, option: str) -> None:
         if self.command == "set_output":
@@ -270,6 +282,10 @@ def _current_sound_output(runtime: Any) -> str | None:
     status = runtime.device_status
     playback = _playback_mapping(runtime)
     device = playback.get("device") if isinstance(playback, dict) else None
+    if isinstance(device, dict) and device.get("name"):
+        return str(device["name"])
+    status_playback = status.get("playback")
+    device = status_playback.get("device") if isinstance(status_playback, dict) else None
     if isinstance(device, dict) and device.get("name"):
         return str(device["name"])
     for key in ("sound_output", "output"):

@@ -3,6 +3,26 @@
 This document summarizes the client-facing DJConnect Home Assistant API contract.
 It is intentionally compact; `README.md` remains the full user/developer guide.
 
+## Client Identity
+
+Pairing, status, command, Ask DJ and voice requests use canonical
+`client_type` values to distinguish runtimes. Current values are `esp32`, `ios`,
+`macos`, `watchos`, `raspberry_pi` and `windows`.
+
+App-like client ids must match their client type prefix and use the first 12
+alphanumeric characters of the stable client install id:
+
+- `ios`: `djconnect-ios-XXXXXXXXXXXX`
+- `macos`: `djconnect-macos-XXXXXXXXXXXX`
+- `watchos`: `djconnect-watchos-XXXXXXXXXXXX`
+- `raspberry_pi`: `djconnect-raspberry-pi-XXXXXXXXXXXX`
+- `windows`: `djconnect-windows-XXXXXXXXXXXX`
+
+App-like clients may advertise `_djconnect._tcp` mDNS with TXT records including
+`device_id`, `client_type`, `device_name`, `local_url`, `version`/`app_version`
+and pairing code aliases. Home Assistant treats
+`GET /api/device/pairing-info` as authoritative when reachable.
+
 ## Ask DJ Mood Zones
 
 iOS, macOS and watchOS clients send `mood` as an optional integer-like value from
@@ -274,7 +294,7 @@ Users do not need to see, copy or enter the token. Push relay calls use
 `.p8` key, APNs private key or Cloudflare secret. When no bootstrap proof is
 available yet or the central API is temporarily unavailable, push stays disabled
 and normal Ask DJ flows continue; the next central API use can retry token
-bootstrap after an Apple client supplies a fresh proof. ESP32, Raspberry Pi and
+bootstrap after an Apple client supplies a fresh proof. ESP32, Raspberry Pi, Windows and
 Assist-agent-only entries do not require this proof because they do not use APNs
 push. The central
 `djconnect-api` service owns proof validation, APNs provider-token auth, topics,

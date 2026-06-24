@@ -8,8 +8,8 @@
 - Before release/build validation, check for updates to third-party libraries, frameworks and build tools; when versions are upgraded, update `THIRD_PARTY_NOTICES.md` and dependency/design documentation, or document skipped upgrades in `HANDOFF.md`.
 - Confirm `TECHNICAL_DESIGN_DECISIONS.md` remains current when code patterns, dependencies, licenses or external APIs change.
 - Confirm existing paired device remains paired after HA restart when ESP reports `ha_pairing_status=paired`.
-- Confirm iOS/macOS/watchOS/Raspberry Pi paired clients do not show active/available firmware OTA or ESP reboot entities; Raspberry Pi should show only Pi restart/shutdown power buttons.
-- Confirm iOS/macOS/watchOS/Raspberry Pi PTT requests do not create a false Spotify refresh-token repair after the first DJ announcement.
+- Confirm iOS/macOS/watchOS/Raspberry Pi/Windows paired clients do not show active/available firmware OTA or ESP reboot entities; Raspberry Pi should show only Pi restart/shutdown power buttons.
+- Confirm iOS/macOS/watchOS/Raspberry Pi/Windows PTT requests do not create a false Spotify refresh-token repair after the first DJ announcement.
 - Confirm HA shows pairing `pending` and retries `/api/device/pair` when a local token exists but ESP has not confirmed pairing.
 - Confirm ESP `/status` updates persist the real `djconnect-XXXXXXXXXXXX` device id.
 - Confirm ESP `/status` updates persist the real `local_url` when provided.
@@ -43,7 +43,7 @@
 - Confirm Ask DJ album-list questions render album bullets plus direct Play Now album actions.
 - Confirm `Probeer opnieuw` replays the previous retryable playback request and keeps the visible retry bubble in client history.
 - Confirm `stop muziek` shows a Resume action and `hervat muziek` starts playback directly.
-- Confirm repeated iOS/macOS/watchOS/Raspberry Pi PTT requests reuse or serialize Spotify token refresh without false `invalid_grant` repairs.
+- Confirm repeated iOS/macOS/watchOS/Raspberry Pi/Windows PTT requests reuse or serialize Spotify token refresh without false `invalid_grant` repairs.
 - Confirm artist queue/up-next selection does not send invalid Spotify artist offset payloads.
 - Confirm friendly DJ fallback response is returned when Spotify playback fails.
 - Confirm DJ fallback response follows `device_language` (`nl` or `en`).
@@ -69,8 +69,8 @@
 - Test BLE screen action `Rescan Bluetooth devices`.
 - Test BLE screen action `Write WiFi over Bluetooth`.
 - Test pairing with Client adres left empty for ESP devices.
-- Test pairing with iOS/macOS/watchOS/Raspberry Pi Client adres copied from client Settings.
-- Test mDNS discovery through `_djconnect._tcp` for ESP32, iOS, macOS, watchOS and Raspberry Pi.
+- Test pairing with iOS/macOS/watchOS/Raspberry Pi/Windows Client adres copied from client Settings.
+- Test mDNS discovery through `_djconnect._tcp` for ESP32, iOS, macOS, watchOS, Raspberry Pi and Windows.
 - Test Raspberry Pi mDNS TXT discovery with `client_type=raspberry_pi`, stable `djconnect-raspberry-pi-XXXXXXXXXXXX` ID and TXT `local_url`.
 - Test Raspberry Pi `/api/device/pairing-info` override for Client adres, client type, device name, device ID, pair code, version and paired state.
 - Test Raspberry Pi pairing-info failure: Home Assistant should show the translated pairing-info reachability error and allow manual Client adres correction.
@@ -86,10 +86,10 @@
 - Confirm normal config flow stays small and user-focused.
 - Confirm Add integration shows a clear Assist pipeline prerequisite error when Home Assistant has no Assist pipeline with both STT and TTS.
 - Confirm setup method is shown only in the first Add integration step and not repeated in normal pairing.
-- Confirm `client_type` and Client adres are visible in normal pairing, with client type choices ordered iOS, macOS, Apple Watch, Linux/Raspberry Pi and ESP32.
+- Confirm `client_type` and Client adres are visible in normal pairing, with client type choices ordered iOS, macOS, Apple Watch, Linux/Raspberry Pi, Windows and ESP32.
 - Confirm standalone `stt_engine`, `tts_engine`, `tts_language` and `tts_voice` fields remain hidden; STT/TTS is managed through Home Assistant Assist.
 - Confirm internal compatibility/OTA/audio TTL defaults are no longer exposed in config/options flow.
-- Confirm firmware channel is visible and stored only for ESP32 clients, not for iOS, macOS, Apple Watch or Linux/Raspberry Pi clients.
+- Confirm firmware channel is visible and stored only for ESP32 clients, not for iOS, macOS, Apple Watch, Linux/Raspberry Pi or Windows clients.
 - Confirm Spotify setup requires a user-owned Spotify Developer app Client ID and shows the exact redirect URI to register.
 - Confirm no `spotify_player` field is required in config/options flow.
 - Confirm ESP32-only Wake word switch appears only for ESP32 clients and tracks `settings.wake_word_enabled` after ESP reboot/status refresh.
@@ -103,8 +103,8 @@
 - Verify OTA payload sends manifest `device`, currently `lilygo-t-embed-s3`.
 - Verify ESP no longer rejects OTA with `Wrong device target`.
 - Verify OTA errors are shown clearly in HA.
-- Verify firmware channel and firmware OTA update entity are not added and remain unavailable for `client_type=ios`, `client_type=macos` and `client_type=raspberry_pi`.
-- Verify ESP reboot entity is not added for `client_type=ios`, `client_type=macos` and `client_type=raspberry_pi`; verify Raspberry Pi restart/shutdown entities are added only for `client_type=raspberry_pi`.
+- Verify firmware channel and firmware OTA update entity are not added and remain unavailable for `client_type=ios`, `client_type=macos`, `client_type=watchos`, `client_type=raspberry_pi` and `client_type=windows`.
+- Verify ESP reboot entity is not added for `client_type=ios`, `client_type=macos`, `client_type=watchos`, `client_type=raspberry_pi` and `client_type=windows`; verify Raspberry Pi restart/shutdown entities are added only for `client_type=raspberry_pi`.
 
 ## Developer Services
 
@@ -163,7 +163,7 @@
 
 - Keep product/marketing website work in the external website location, not this HA integration repo.
 - Keep the public website link visible in HACS-facing docs: `https://djconnect.dev`.
-- Maintain a How To Start page covering HACS install, Spotify Premium, HA Assist pipeline STT/TTS setup, Spotify OAuth, ESP pairing and iOS/macOS/watchOS/Raspberry Pi Client adres pairing.
+- Maintain a How To Start page covering HACS install, Spotify Premium, HA Assist pipeline STT/TTS setup, Spotify OAuth, ESP pairing and iOS/macOS/watchOS/Raspberry Pi/Windows Client adres pairing.
 - Add real product photos/screenshots when final hardware imagery is available.
 - Keep requirements clear: Spotify Premium, Home Assistant, HACS, HA Assist pipeline, 2.4 GHz WiFi and mDNS/Nabu Casa recommendations.
 - Keep `PRODUCT_ROADMAP_IDEAS.md` current when adding product ideas, killer features, production must-haves or premium feature concepts.

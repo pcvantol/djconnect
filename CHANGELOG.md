@@ -1,5 +1,22 @@
 # Changelog
 
+## 3.1.87
+
+- Add Windows as a first-class app-like client type (`client_type=windows`) with
+  `djconnect-windows-XXXXXXXXXXXX` IDs, mDNS/pairing-info discovery, Ask DJ
+  voice handling and config-flow labels.
+- Keep backend playback controls from briefly becoming unavailable when app
+  clients send sparse status updates or Spotify returns an idle playback
+  snapshot without control metadata.
+- Keep music-related backend sensors such as Spotify status, last track, sound
+  output, queue, playlists and outputs from falling back to unknown during
+  sparse app/client status updates.
+- Make APNs test push diagnostics report missing bootstrap/install-token setup
+  before rate limiting, and prevent dry-run diagnostics from consuming the rate
+  limiter.
+- Prevent `send:true` APNs test pushes from rate-limiting themselves by running
+  the diagnostic preflight without consuming the push limiter.
+
 ## 3.1.86
 
 - Remove the native Home Assistant playback proxy `media_player` entity. Backend

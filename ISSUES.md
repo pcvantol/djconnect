@@ -40,7 +40,7 @@
 - Area: Ask DJ chat sync / iOS / macOS / watchOS / Raspberry Pi.
 - Symptom: Server-side Ask DJ history is now bounded and can trim older messages; clients must apply server trim metadata and render server follow-up actions consistently.
 - Current mitigation: Backend returns `history_limit`, `history_trimmed_before`, `history_trimmed_count`, `history_revision` and `clear_revision`; retention notices are stored as assistant system messages and follow-up buttons use `confirmation_actions[]` plus `ask_dj_followup_response`.
-- Next action: Test history trim, cross-device clear, Ja/Nee follow-up execution and expired pending follow-ups on iOS, macOS, Apple Watch and Raspberry Pi.
+- Next action: Test history trim, cross-device clear, Ja/Nee follow-up execution and expired pending follow-ups on iOS, macOS, Apple Watch, Raspberry Pi and Windows.
 
 ### Ask DJ intent hardening and fuzzy fallback need field validation
 
@@ -71,7 +71,7 @@
 - Status: open / field validation.
 - Area: pairing/discovery.
 - Symptom: A Raspberry Pi client may be visible through `_djconnect._tcp` while Home Assistant cannot reach the advertised Client adres or `/api/device/pairing-info`.
-- Current mitigation: Discovery validates `client_type=raspberry_pi` against `djconnect-raspberry-pi-XXXXXXXXXXXX`, uses TXT `local_url` or resolved address/port, probes `/api/device/pairing-info`, pre-fills confirmed metadata, and shows a translated pairing-info reachability error when TXT is visible but the endpoint is not reachable.
+- Current mitigation: Discovery validates app-like client types including `client_type=raspberry_pi` and `client_type=windows` against stable IDs such as `djconnect-raspberry-pi-XXXXXXXXXXXX` and `djconnect-windows-XXXXXXXXXXXX`, uses TXT `local_url` or resolved address/port, probes `/api/device/pairing-info`, pre-fills confirmed metadata, and shows a translated pairing-info reachability error when TXT is visible but the endpoint is not reachable.
 - Next action: Test on the real Pi client/network that the advertised Client adres is reachable from Home Assistant and that pairing-info returns device ID, client type, name, pair code, version and paired state.
 
 ### Home Assistant restart is still required after HACS update
@@ -168,10 +168,10 @@
 ## Regression Watchlist
 
 - Config flow must not expose manual `oauth_result`.
-- Config flow must show setup method only in the first step, then show `client_type` and Client adres in normal pairing; iOS/macOS/watchOS users need it, ESP users usually leave it empty. Client type choices should be ordered iOS, macOS, Apple Watch, Linux/Raspberry Pi and ESP32.
+- Config flow must show setup method only in the first step, then show `client_type` and Client adres in normal pairing; iOS/macOS/watchOS/Windows users need it, ESP users usually leave it empty. Client type choices should be ordered iOS, macOS, Apple Watch, Linux/Raspberry Pi, Windows and ESP32.
 - Config/options flow must not require `spotify_player`.
-- Firmware channel, OTA update and reboot entities must not be active/available for `client_type=ios`, `client_type=macos`, `client_type=watchos` or `client_type=raspberry_pi`.
-- App-like client discovery must not create setup-code-only duplicates when a stable `djconnect-ios-*`, `djconnect-macos-*`, `djconnect-watchos-*` or `djconnect-raspberry-pi-*` ID is known.
+- Firmware channel, OTA update and reboot entities must not be active/available for `client_type=ios`, `client_type=macos`, `client_type=watchos`, `client_type=raspberry_pi` or `client_type=windows`.
+- App-like client discovery must not create setup-code-only duplicates when a stable `djconnect-ios-*`, `djconnect-macos-*`, `djconnect-watchos-*`, `djconnect-raspberry-pi-*` or `djconnect-windows-*` ID is known.
 - External product website must not imply official Spotify affiliation, endorsement or sponsorship.
 - External product website must stay aligned with current setup requirements and local API architecture.
 - STT/TTS provider selection is managed through Home Assistant Assist; DJConnect must not show standalone `stt_engine`, `tts_engine`, `tts_language` or `tts_voice` fields.
