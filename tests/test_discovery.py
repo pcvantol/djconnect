@@ -148,6 +148,29 @@ class DiscoveryHelperTest(unittest.TestCase):
         self.assertEqual(client.device_name, "DJConnect Pi")
         self.assertFalse(client.paired)
 
+    def test_windows_txt_with_valid_device_id_is_accepted(self) -> None:
+        client = self.discovery._client_from_service_info(
+            self._info(
+                props={
+                    "device_id": "djconnect-windows-A1B2C3D4E5F6",
+                    "client_type": "windows",
+                    "device_name": "DJConnect Windows",
+                    "local_url": "http://192.168.1.88:61234",
+                    "version": "3.1.86",
+                    "paired": "false",
+                    "api": "/api/device",
+                },
+                server="ignored.local.",
+                port=9999,
+            )
+        )
+
+        self.assertIsNotNone(client)
+        self.assertEqual(client.local_url, "http://192.168.1.88:61234")
+        self.assertEqual(client.client_type, "windows")
+        self.assertEqual(client.device_name, "DJConnect Windows")
+        self.assertFalse(client.paired)
+
     def test_client_type_device_id_mismatch_is_ignored(self) -> None:
         client = self.discovery._client_from_service_info(
             self._info(
@@ -246,6 +269,35 @@ class DiscoveryHelperTest(unittest.TestCase):
         self.assertEqual(client.device_name, "Pairing Pi")
         self.assertEqual(client.pair_code, "654321")
         self.assertEqual(client.version, "3.1.21")
+        self.assertFalse(client.pairing_info_failed)
+
+    def test_windows_pairing_info_overrides_txt_metadata(self) -> None:
+        base = self.discovery.DiscoveredClient(
+            local_url="http://djconnect-windows.local:61234",
+            device_id="djconnect-windows-A1B2C3D4E5F6",
+            client_type="windows",
+            device_name="TXT Windows",
+        )
+
+        client = self.discovery._client_with_pairing_info(
+            base,
+            {
+                "local_url": "http://192.168.1.88:61234",
+                "device_id": "djconnect-windows-123456789ABC",
+                "client_type": "windows",
+                "device_name": "Pairing Windows",
+                "pair_code": "654321",
+                "app_version": "3.1.86",
+                "paired": False,
+            },
+        )
+
+        self.assertEqual(client.local_url, "http://192.168.1.88:61234")
+        self.assertEqual(client.device_id, "djconnect-windows-123456789ABC")
+        self.assertEqual(client.client_type, "windows")
+        self.assertEqual(client.device_name, "Pairing Windows")
+        self.assertEqual(client.pair_code, "654321")
+        self.assertEqual(client.version, "3.1.86")
         self.assertFalse(client.pairing_info_failed)
 
     def test_watchos_pairing_info_overrides_txt_metadata(self) -> None:

@@ -327,6 +327,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
             self.const.CLIENT_TYPE_MACOS,
             self.const.CLIENT_TYPE_WATCHOS,
             self.const.CLIENT_TYPE_RASPBERRY_PI,
+            self.const.CLIENT_TYPE_WINDOWS,
         ):
             with self.subTest(client_type=client_type):
                 schema = asyncio.run(
@@ -471,6 +472,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
                 self.const.CLIENT_TYPE_MACOS,
                 self.const.CLIENT_TYPE_WATCHOS,
                 self.const.CLIENT_TYPE_RASPBERRY_PI,
+                self.const.CLIENT_TYPE_WINDOWS,
                 self.const.CLIENT_TYPE_ESP32,
             ],
         )
@@ -481,6 +483,10 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(
             self.const.CLIENT_TYPE_NAMES[self.const.CLIENT_TYPE_RASPBERRY_PI],
             "Linux/Raspberry Pi client",
+        )
+        self.assertEqual(
+            self.const.CLIENT_TYPE_NAMES[self.const.CLIENT_TYPE_WINDOWS],
+            "Windows app",
         )
 
     def test_user_schema_prefills_manual_device_url_from_pair_code(self) -> None:

@@ -37,6 +37,7 @@ from .const import (
     CLIENT_TYPE_MACOS,
     CLIENT_TYPE_WATCHOS,
     CLIENT_TYPE_RASPBERRY_PI,
+    CLIENT_TYPE_WINDOWS,
     CLIENT_TYPES,
     CONF_ASSIST_PIPELINE_ID,
     CONF_CLIENT_TYPE,
@@ -121,7 +122,7 @@ STATUS_SECRET_KEYS = {
 }
 REAL_DJCONNECT_DEVICE_ID_PATTERN = re.compile(
     r"djconnect-(?:lilygo-t-embed-s3|esp32-s3-box-3|lilygo)-[0-9A-Fa-f]{12}"
-    r"|djconnect-(?:ios|macos|watchos|raspberry-pi)-[A-Za-z0-9]{12}"
+    r"|djconnect-(?:ios|macos|watchos|raspberry-pi|windows)-[A-Za-z0-9]{12}"
 )
 CONF_LAST_DEVICE_STATUS = "last_device_status"
 
@@ -992,6 +993,8 @@ def _device_id_matches_client_type(device_id: str, client_type: str) -> bool:
         return bool(re.fullmatch(r"djconnect-watchos-[A-Za-z0-9]{12}", normalized))
     if normalized_client == CLIENT_TYPE_RASPBERRY_PI:
         return bool(re.fullmatch(r"djconnect-raspberry-pi-[A-Za-z0-9]{12}", normalized))
+    if normalized_client == CLIENT_TYPE_WINDOWS:
+        return bool(re.fullmatch(r"djconnect-windows-[A-Za-z0-9]{12}", normalized))
     if normalized_client == CLIENT_TYPE_ESP32:
         return bool(
             re.fullmatch(

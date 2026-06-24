@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.1.87
+
+- Add Windows as a first-class app-like client type (`client_type=windows`) with
+  `djconnect-windows-XXXXXXXXXXXX` IDs, mDNS/pairing-info discovery, Ask DJ
+  voice handling and config-flow labels.
+
 ## 3.1.86
 
 - Remove the native Home Assistant playback proxy `media_player` entity. Backend

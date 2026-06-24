@@ -21,7 +21,7 @@
         "data_description": {
           "pair_code": "The 6 digit code or 12 character device suffix shown on the device display.",
           "device_name": "Friendly name for this DJConnect remote.",
-          "client_type": "Type of DJConnect client pairing with Home Assistant: iOS app, macOS app, Apple Watch app, Linux/Raspberry Pi client or ESP32 device.",
+          "client_type": "Type of DJConnect client pairing with Home Assistant: iOS app, macOS app, Apple Watch app, Linux/Raspberry Pi client, Windows app or ESP32 device.",
           "local_url": "Copy the Client adres from the DJConnect app under Settings.",
           "discovered_client": "Choose an automatically discovered DJConnect client to prefill pairing details, or use manual entry."
         }
@@ -71,7 +71,7 @@
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline used by DJConnect devices for speech recognition and DJ announcement audio.",
-          "client_type": "Type of DJConnect client pairing with Home Assistant: iOS app, macOS app, Apple Watch app, Linux/Raspberry Pi client or ESP32 device.",
+          "client_type": "Type of DJConnect client pairing with Home Assistant: iOS app, macOS app, Apple Watch app, Linux/Raspberry Pi client, Windows app or ESP32 device.",
           "dj_response_enabled": "Create a temporary WAV or MP3 audio URL and send it with the DJ announcement to the DJConnect device.",
           "smart_home_context_entities": "Explicit read-only Home Assistant entities DJConnect may include in Ask DJ context, for example weather, room temperature, appliance status or scene state.",
           "firmware_channel": "Choose stable for normal OTA updates or beta to test prerelease firmware.",
@@ -163,7 +163,7 @@
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline used by DJConnect devices for speech recognition and DJ announcement audio.",
-          "client_type": "Type of DJConnect client pairing with Home Assistant: iOS app, macOS app, Apple Watch app, Linux/Raspberry Pi client or ESP32 device.",
+          "client_type": "Type of DJConnect client pairing with Home Assistant: iOS app, macOS app, Apple Watch app, Linux/Raspberry Pi client, Windows app or ESP32 device.",
           "local_url": "Configured Client adres. Read-only; use re-pairing to change this URL.",
           "dj_response_enabled": "Create a temporary WAV or MP3 audio URL and send it with the DJ announcement to the DJConnect device.",
           "smart_home_context_entities": "Explicit read-only Home Assistant entities DJConnect may include in Ask DJ context, for example weather, room temperature, appliance status or scene state.",

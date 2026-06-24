@@ -46,6 +46,7 @@ from .const import (
     CLIENT_TYPE_IOS,
     CLIENT_TYPE_MACOS,
     CLIENT_TYPE_WATCHOS,
+    CLIENT_TYPE_WINDOWS,
     CLIENT_TYPES,
     DEFAULT_CLIENT_TYPE,
     DEFAULT_MAX_AUDIO_BYTES,
@@ -267,7 +268,7 @@ def _is_real_device_id(device_id: str) -> bool:
     return bool(
         re.fullmatch(
             r"djconnect-(?:lilygo-t-embed-s3|esp32-s3-box-3|lilygo)-[0-9A-Fa-f]{12}"
-            r"|djconnect-(?:ios|macos|watchos|raspberry-pi)-[A-Za-z0-9]{12}",
+            r"|djconnect-(?:ios|macos|watchos|raspberry-pi|windows)-[A-Za-z0-9]{12}",
             str(device_id or ""),
         )
     )
@@ -667,6 +668,7 @@ def _is_ask_dj_voice_client(client_type: str | None) -> bool:
         CLIENT_TYPE_IOS,
         CLIENT_TYPE_MACOS,
         CLIENT_TYPE_WATCHOS,
+        CLIENT_TYPE_WINDOWS,
     }
 
 

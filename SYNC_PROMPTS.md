@@ -287,9 +287,9 @@ Requirements:
 - Provide `POST /v1/install/token` for HACS token bootstrap with a short-lived
   Apple-client pairing/bootstrap proof. The proof is only needed for Apple push
   clients (`ios`, `macos`, `watchos`) and must be bound to `ha_install_id`,
-  `client_type` and `device_id`/client install ID. ESP32, Raspberry Pi and
-  Assist-agent-only entries do not need this proof because they do not use APNs
-  push.
+  `client_type` and `device_id`/client install ID. ESP32, Raspberry Pi, Windows
+  and Assist-agent-only entries do not need this proof because they do not use
+  APNs push.
 - Keep `POST /v1/install/rotate` authenticated with the current `djci_` install
   token and replace tokens atomically.
 - Provide operator-only endpoints for the website/admin surface:
@@ -347,10 +347,10 @@ Requirements:
 
 ```text
 Sync the DJConnect Home Assistant integration with the central API backend,
-Apple app, ESP client and Raspberry Pi client contracts.
+Apple app, ESP client, Raspberry Pi client and Windows client contracts.
 
 Requirements:
-- Treat iOS/macOS/watchOS/Raspberry Pi as app-like clients, not ESP hardware devices.
+- Treat iOS/macOS/watchOS/Raspberry Pi/Windows as app-like clients, not ESP hardware devices.
 - Home Assistant may relay privacy-safe push registration and event data to the
   central `pcvantol/djconnect-api` backend, but it must never receive or store
   the APNs provider private key. HA-to-central-API calls must not contain raw
@@ -370,7 +370,7 @@ Requirements:
   at most one push per 30 seconds and five pushes per ten minutes per HA user
   plus device/client.
 - Ask DJ / DJ Memory is server-side in the Home Assistant integration. iOS,
-  macOS, watchOS and Raspberry Pi clients must not store DJ Memory; they may send optional
+  macOS, watchOS, Raspberry Pi and Windows clients must not store DJ Memory; they may send optional
   `mood` (0-100), `dj_style` and `memory_key` hints on status/voice/command
   payloads, but HA may normalize or override the resolved `memory_key`. ESP32
   is excluded from Ask DJ chat/history and keeps its voice/playback command flow.
@@ -384,7 +384,7 @@ Requirements:
   warm-day intro, may only come from HA entities configured in
   `smart_home_context_entities`; clients must not collect or send arbitrary HA
   states or local personal memory for this.
-- Ask DJ text chat for iOS/macOS/watchOS uses POST /api/djconnect/ask_dj/message.
+- Ask DJ text chat for iOS/macOS/watchOS/Raspberry Pi/Windows uses POST /api/djconnect/ask_dj/message.
   Request identity can be top-level or inside `identity`; include
   client_message_id for retry dedupe and client_id as origin metadata. Response
   shape includes success, text/dj_text/message, optional audio_url, images[],
@@ -417,7 +417,7 @@ Requirements:
   System messages such as "droger klaar, wil je nu X horen?" should use the
   normal Ask DJ message shape and confirmation-style playback_actions /
   confirmation_actions before playback starts.
-- Ask DJ Push-To-Talk for iOS/macOS/watchOS uses POST /api/djconnect/voice with
+- Ask DJ Push-To-Talk for iOS/macOS/watchOS/Windows uses POST /api/djconnect/voice with
   Content-Type audio/wav. The response includes transcript/recognized_text and
   the same rich Ask DJ fields. Send optional X-DJConnect-Mood,
   X-DJConnect-DJ-Style and X-DJConnect-Memory-Key headers when available.
@@ -505,7 +505,7 @@ Requirements:
 - Return a DJConnect bearer token on success. The current compatible field is
   device_token; bearer_token and token may also be returned.
 - Return ha_local_url during successful app pairing. Do not return
-  device_language/language for iOS, macOS, watchOS or Raspberry Pi clients; those
+  device_language/language for iOS, macOS, watchOS, Raspberry Pi or Windows clients; those
   clients determine their UI language locally.
 - Keep cloud/remote URLs out of Apple app runtime traffic; cloud URLs are only
   needed by Home Assistant-owned Spotify OAuth config flows.
@@ -549,7 +549,7 @@ Requirements:
   but must not implement ESP-only reboot or OTA routes. Raspberry Pi display
   clients may be outbound-only and must advertise capabilities so HA does not
   require local voice, audio, or dj_response endpoints.
-- Persist client_type as ios, macos, watchos, raspberry_pi, or esp32. Do not
+- Persist client_type as ios, macos, watchos, raspberry_pi, windows, or esp32. Do not
   reintroduce device_type.
 - Authenticated status/command/voice routes must accept Authorization: Bearer
   plus X-DJConnect-Device-ID.
@@ -557,7 +557,7 @@ Requirements:
   `command:"seek_relative"` with integer millisecond offsets. Positive values
   seek forward, negative values seek backward. ESP clients may omit this UI.
 - Validate that client_type matches the device_id prefix/model family:
-  ios -> djconnect-ios-*, macos -> djconnect-macos-*, watchos -> djconnect-watchos-*, raspberry_pi -> djconnect-raspberry-pi-*, esp32 -> ESP
+  ios -> djconnect-ios-*, macos -> djconnect-macos-*, watchos -> djconnect-watchos-*, raspberry_pi -> djconnect-raspberry-pi-*, windows -> djconnect-windows-*, esp32 -> ESP
   model-specific ids such as djconnect-lilygo-t-embed-s3-*.
 - During app pairing, 401/403 code mismatch responses stop polling, keep the
   visible app code, and do not rotate device_id automatically.
@@ -565,7 +565,7 @@ Requirements:
   received, including outbound-only Raspberry Pi clients that never expose
   /api/device/* endpoints.
 - Create only client/runtime and backend/playback entities for ios, macos,
-  watchos, and raspberry_pi clients; do not create ESP-only battery, Wi-Fi RSSI, screen
+  watchos, raspberry_pi and windows clients; do not create ESP-only battery, Wi-Fi RSSI, screen
   state, LED state, screen brightness/timeout, speaker volume, device language,
   auto-off, theme/log-level, firmware OTA, or reboot entities for app-like
   clients. Raspberry Pi local settings such as screen blanking, logging and
@@ -2144,10 +2144,10 @@ Canonical repo locations:
 
 ```text
 Sync the DJConnect Home Assistant integration with the central API backend,
-Apple app, ESP client and Raspberry Pi client contracts.
+Apple app, ESP client, Raspberry Pi client and Windows client contracts.
 
 Requirements:
-- Treat iOS/macOS/watchOS/Raspberry Pi as app-like clients, not ESP hardware devices.
+- Treat iOS/macOS/watchOS/Raspberry Pi/Windows as app-like clients, not ESP hardware devices.
 - Home Assistant may relay privacy-safe push registration and event data to the
   central `pcvantol/djconnect-api` backend, but it must never receive or store
   the APNs provider private key. HA-to-central-API calls must not contain raw
@@ -2158,13 +2158,13 @@ Requirements:
   HACS must never contain `DJCONNECT_RELAY_SECRET` or any global
   relay/operator secret.
 - Ask DJ / DJ Memory is server-side in the Home Assistant integration. iOS,
-  macOS, watchOS and Raspberry Pi clients must not store DJ Memory; they may
+  macOS, watchOS, Raspberry Pi and Windows clients must not store DJ Memory; they may
   send optional `mood` (0-100), `dj_style` and `memory_key` hints on
   status/voice/command payloads, but HA may normalize or override the resolved
   `memory_key`. ESP32 is excluded from Ask DJ chat/history and keeps its
   voice/playback command flow.
 - Ask DJ chat history is server-side per HA user and bounded. iOS, macOS,
-  watchOS and Raspberry Pi clients
+  watchOS, Raspberry Pi and Windows clients
   must use `history_revision`, `clear_revision`, `history_trimmed_before` and
   `history_trimmed_count` from HA responses to reconcile local caches.
 - iOS/macOS/watchOS render `confirmation_actions[]` and confirmation-style
@@ -2189,7 +2189,7 @@ Requirements:
 - Return a DJConnect bearer token on success. The current compatible field is
   device_token; bearer_token and token may also be returned.
 - Return ha_local_url during successful app pairing. Do not return
-  device_language/language for iOS, macOS, watchOS or Raspberry Pi clients; those
+  device_language/language for iOS, macOS, watchOS, Raspberry Pi or Windows clients; those
   clients determine their UI language locally.
 - Keep cloud/remote URLs out of Apple app runtime traffic; cloud URLs are only
   needed by Home Assistant-owned Spotify OAuth config flows.
@@ -2228,12 +2228,12 @@ Requirements:
   but must not implement ESP-only reboot or OTA routes. Raspberry Pi display
   clients may be outbound-only and must advertise capabilities so HA does not
   require local voice, audio, or dj_response endpoints.
-- Persist client_type as ios, macos, watchos, raspberry_pi, or esp32. Do not
+- Persist client_type as ios, macos, watchos, raspberry_pi, windows, or esp32. Do not
   reintroduce device_type.
 - Authenticated status/command/voice routes must accept Authorization: Bearer
   plus X-DJConnect-Device-ID.
 - Validate that client_type matches the device_id prefix/model family:
-  ios -> djconnect-ios-*, macos -> djconnect-macos-*, watchos -> djconnect-watchos-*, raspberry_pi -> djconnect-raspberry-pi-*, esp32 -> ESP
+  ios -> djconnect-ios-*, macos -> djconnect-macos-*, watchos -> djconnect-watchos-*, raspberry_pi -> djconnect-raspberry-pi-*, windows -> djconnect-windows-*, esp32 -> ESP
   model-specific ids such as djconnect-lilygo-t-embed-s3-*.
 - During app pairing, 401/403 code mismatch responses stop polling, keep the
   visible app code, and do not rotate device_id automatically.
@@ -2241,7 +2241,7 @@ Requirements:
   received, including outbound-only Raspberry Pi clients that never expose
   /api/device/* endpoints.
 - Create only client/runtime and backend/playback entities for ios, macos,
-  watchos, and raspberry_pi clients; do not create ESP-only battery, Wi-Fi RSSI, screen
+  watchos, raspberry_pi and windows clients; do not create ESP-only battery, Wi-Fi RSSI, screen
   state, LED state, screen brightness/timeout, speaker volume, device language,
   auto-off, theme/log-level, firmware OTA, or reboot entities for app-like
   clients. Raspberry Pi local settings such as screen blanking, logging and
