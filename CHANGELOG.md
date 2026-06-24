@@ -1,5 +1,20 @@
 # Changelog
 
+## 3.1.88
+
+- Add deterministic Ask DJ follow-up support for current-track album context:
+  `wat speelt er`, `op welk album werd dit nummer uitgebracht` and
+  `speel album` now use Spotify playback metadata to answer with the current
+  track, artist and album, then start the current album when explicitly asked.
+- Add Ask DJ lookup support for `speel het album met nummer X van artiest Y` by
+  resolving track `X` via Spotify, reading its album context and starting that
+  album.
+- Add Ask DJ lookup support for `van wie is ook alweer het nummer X?`, returning
+  the artist and album plus Play Now actions for both the track and its album.
+- Improve the setup flow for app-like clients by including Windows in the first
+  setup screen and avoiding ESP32-specific defaults when an app client is being
+  paired or discovered.
+
 ## 3.1.87
 
 - Add Windows as a first-class app-like client type (`client_type=windows`) with

@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "DJConnect instellen",
-        "description": "Kies de DJConnect DJ Assist-agent voor Home Assistant Assist-satellites, of koppel een DJConnect client: iOS, macOS, Apple Watch, Raspberry Pi/Linux of ESP32.",
+        "description": "Kies de DJConnect DJ Assist-agent voor Home Assistant Assist-satellites, of koppel een DJConnect client: iOS, macOS, Apple Watch, Raspberry Pi/Linux, Windows of ESP32.",
         "data": {
           "setup_method": "Setup methode"
         }

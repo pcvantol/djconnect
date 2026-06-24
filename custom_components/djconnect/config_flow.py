@@ -67,6 +67,7 @@ from .const import (
     CLIENT_TYPE_NAMES,
     CLIENT_TYPES,
     CLIENT_TYPE_ESP32,
+    CLIENT_TYPE_IOS,
     DOMAIN,
     SETUP_METHOD_BLE_WIFI,
     SETUP_METHOD_CONVERSATION_AGENT,
@@ -103,7 +104,7 @@ SETUP_METHOD_NAMES_EN = {
     ),
     SETUP_METHOD_PAIR_EXISTING: (
         "Pair DJConnect client\n"
-        "iOS, macOS, Apple Watch, Raspberry Pi/Linux or ESP32."
+        "iOS, macOS, Apple Watch, Raspberry Pi/Linux, Windows or ESP32."
     ),
     SETUP_METHOD_BLE_WIFI: "Configure ESP32 device WiFi (over Bluetooth)",
 }
@@ -114,7 +115,7 @@ SETUP_METHOD_NAMES_NL = {
     ),
     SETUP_METHOD_PAIR_EXISTING: (
         "DJConnect client koppelen\n"
-        "iOS, macOS, Apple Watch, Raspberry Pi/Linux of ESP32."
+        "iOS, macOS, Apple Watch, Raspberry Pi/Linux, Windows of ESP32."
     ),
     SETUP_METHOD_BLE_WIFI: "ESP32 device WiFi configureren (via Bluetooth)",
 }
@@ -1096,8 +1097,15 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect config-flow mDNS discovery failed: %s", exc)
             self._discovered_clients = []
-        if len(self._discovered_clients) == 1:
-            client = self._discovered_clients[0]
+        if self._discovered_clients:
+            client = next(
+                (
+                    discovered
+                    for discovered in self._discovered_clients
+                    if discovered.client_type != CLIENT_TYPE_ESP32
+                ),
+                self._discovered_clients[0],
+            )
             self._selected_discovered_key = self._discovered_client_key(client)
             self._apply_discovered_client(client)
 
@@ -1157,9 +1165,11 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             or getattr(self, "_last_pair_code", "")
             or ""
         )
-        client_type = _clean(defaults.get(CONF_CLIENT_TYPE), DEFAULT_CLIENT_TYPE)
+        client_type = _clean(defaults.get(CONF_CLIENT_TYPE), CLIENT_TYPE_IOS)
         default_device_name = _clean(defaults.get(CONF_DEVICE_NAME), DEFAULT_DEVICE_NAME)
         if getattr(self, "_discovered_device_name_authoritative", False):
+            device_name = default_device_name
+        elif not defaults.get(CONF_CLIENT_TYPE):
             device_name = default_device_name
         else:
             device_name = _device_name_for_client_type(client_type, default_device_name)

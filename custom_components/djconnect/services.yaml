@@ -137,7 +137,8 @@ test_apns_push:
 ask_dj:
   name: Ask DJ
   description: >
-    Ask DJ text request for iOS, macOS and Apple Watch clients. Home Assistant
+    Ask DJ text request for iOS, macOS, Apple Watch, Raspberry Pi and Windows
+    clients. Home Assistant
     handles intent routing, DJ Memory, Spotify/Home Assistant actions and
     informational answers. Responses can include text, audio_url, images, links,
     intent, action and memory_key.
@@ -159,7 +160,7 @@ ask_dj:
           multiline: false
     client_type:
       name: Client type
-      description: DJConnect client type such as ios, macos or watchos.
+      description: DJConnect client type such as ios, macos, watchos, raspberry_pi or windows.
       required: false
       selector:
         text:

@@ -525,6 +525,16 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(defaults[self.const.CONF_CLIENT_TYPE], self.const.CLIENT_TYPE_MACOS)
         self.assertEqual(defaults[self.const.CONF_LOCAL_URL], "http://192.168.1.104:60955")
 
+    def test_user_schema_manual_defaults_are_not_esp32_specific(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
+
+        schema = flow._user_schema()
+        defaults = {marker.key: marker.default for marker in schema}
+
+        self.assertEqual(defaults[self.const.CONF_DEVICE_NAME], "DJConnect")
+        self.assertEqual(defaults[self.const.CONF_CLIENT_TYPE], self.const.CLIENT_TYPE_IOS)
+
     def test_pair_step_prefills_single_discovered_raspberry_pi_client(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en-US"))
@@ -557,6 +567,48 @@ class ConfigFlowHelperTest(unittest.TestCase):
             self.const.CLIENT_TYPE_RASPBERRY_PI,
         )
         self.assertEqual(defaults[self.const.CONF_LOCAL_URL], "http://192.168.1.66:61234")
+
+    def test_pair_step_prefills_first_app_client_when_multiple_are_discovered(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
+        clients = [
+            self.config_flow.DiscoveredClient(
+                local_url="http://192.168.1.85:59331",
+                device_id="djconnect-ios-2BBCE5B4D640",
+                client_type=self.const.CLIENT_TYPE_IOS,
+                device_name="DJConnect iPhone",
+                pair_code="123456",
+            ),
+            self.config_flow.DiscoveredClient(
+                local_url="http://192.168.1.104:57770",
+                device_id="djconnect-macos-1519E672097A",
+                client_type=self.const.CLIENT_TYPE_MACOS,
+                device_name="DJConnect Mac",
+                pair_code="654321",
+            ),
+        ]
+
+        async def fake_discover(_hass):
+            return clients
+
+        original_discover = self.config_flow.async_discover_djconnect_clients
+        self.config_flow.async_discover_djconnect_clients = fake_discover
+        try:
+            result = asyncio.run(flow.async_step_pair())
+        finally:
+            self.config_flow.async_discover_djconnect_clients = original_discover
+
+        schema = result["data_schema"].schema
+        defaults = {marker.key: marker.default for marker in schema}
+
+        self.assertEqual(
+            defaults[self.config_flow.DISCOVERY_CLIENT_FIELD],
+            "djconnect-ios-2BBCE5B4D640",
+        )
+        self.assertEqual(defaults[self.const.CONF_PAIR_CODE], "123456")
+        self.assertEqual(defaults[self.const.CONF_DEVICE_NAME], "DJConnect iPhone")
+        self.assertEqual(defaults[self.const.CONF_CLIENT_TYPE], self.const.CLIENT_TYPE_IOS)
+        self.assertEqual(defaults[self.const.CONF_LOCAL_URL], "http://192.168.1.85:59331")
 
     def test_user_schema_offers_multiple_discovered_clients(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
@@ -849,14 +901,14 @@ class ConfigFlowHelperTest(unittest.TestCase):
                 self.const.SETUP_METHOD_PAIR_EXISTING
             ],
             "DJConnect client koppelen\n"
-            "iOS, macOS, Apple Watch, Raspberry Pi/Linux of ESP32.",
+            "iOS, macOS, Apple Watch, Raspberry Pi/Linux, Windows of ESP32.",
         )
         self.assertEqual(
             self.config_flow._setup_method_names(en_hass)[
                 self.const.SETUP_METHOD_PAIR_EXISTING
             ],
             "Pair DJConnect client\n"
-            "iOS, macOS, Apple Watch, Raspberry Pi/Linux or ESP32.",
+            "iOS, macOS, Apple Watch, Raspberry Pi/Linux, Windows or ESP32.",
         )
         self.assertEqual(
             self.config_flow._setup_method_names(nl_hass)[

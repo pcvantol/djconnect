@@ -178,6 +178,48 @@ async def async_handle_ask_dj(
     if home_context:
         memory_context["smart_home"] = home_context
     output_devices = await _output_devices(hass, runtime, classification)
+    track_owner_request = _track_owner_question(effective_text)
+    if track_owner_request:
+        result = await _track_owner_response(hass, runtime, track_owner_request)
+        response = _normalize_ask_dj_response(
+            hass,
+            runtime,
+            result,
+            AskDjIntent("informational", "track_artist_album_lookup", "none"),
+            memory_key=memory_key,
+            playback_context=playback_context,
+        )
+        response.pop("playback", None)
+        return response
+    album_track_request = _album_containing_track_request(effective_text)
+    if album_track_request:
+        result = await _play_album_containing_track_response(
+            hass,
+            runtime,
+            album_track_request,
+        )
+        response = _normalize_ask_dj_response(
+            hass,
+            runtime,
+            result,
+            AskDjIntent("hybrid", "play_album_containing_track", "play_music", play=True),
+            memory_key=memory_key,
+            playback_context=playback_context,
+        )
+        response.pop("playback", None)
+        return response
+    if _is_current_album_play_request(effective_text):
+        result = await _play_current_album_response(hass, runtime, playback_context)
+        response = _normalize_ask_dj_response(
+            hass,
+            runtime,
+            result,
+            AskDjIntent("hybrid", "play_current_album", "play_music", play=True),
+            memory_key=memory_key,
+            playback_context=playback_context,
+        )
+        response.pop("playback", None)
+        return response
     if classification.category == "hybrid" and _is_slang_track_reference(effective_text):
         track_label = _track_label(playback_context)
         if track_label:
@@ -423,6 +465,116 @@ def _looks_like_bare_voice_music_request(text: str) -> bool:
     return 1 <= len(words) <= 8
 
 
+def _is_current_playing_question(text: str) -> bool:
+    normalized = _normalize(text)
+    return normalized in {
+        "wat speelt er",
+        "wat speelt nu",
+        "wat draait er",
+        "wat draai je",
+        "welk nummer speelt er",
+        "welk nummer speelt nu",
+        "welke track speelt er",
+        "welke track speelt nu",
+        "what is playing",
+        "what's playing",
+        "whats playing",
+        "what song is playing",
+        "what track is playing",
+        "current song",
+        "current track",
+    }
+
+
+def _is_current_track_album_question(text: str) -> bool:
+    normalized = _normalize(text)
+    if "album" not in normalized:
+        return False
+    if any(
+        phrase in normalized
+        for phrase in (
+            "op welk album",
+            "welk album werd dit",
+            "welk album is dit",
+            "van welk album",
+            "welk album staat dit",
+            "on which album",
+            "what album was this",
+            "what album is this",
+            "which album is this",
+            "which album was this",
+        )
+    ):
+        return True
+    return bool(
+        re.search(
+            r"\b(?:dit|deze|this)\s+(?:nummer|track|song)\b.*\balbum\b",
+            normalized,
+        )
+    )
+
+
+def _is_current_album_play_request(text: str) -> bool:
+    normalized = _normalize(text)
+    return normalized in {
+        "speel album",
+        "speel het album",
+        "speel dit album",
+        "speel dat album",
+        "draai album",
+        "draai het album",
+        "draai dit album",
+        "zet album op",
+        "zet het album op",
+        "play album",
+        "play the album",
+        "play this album",
+        "play that album",
+    }
+
+
+def _album_containing_track_request(text: str) -> dict[str, str]:
+    value = str(text or "").strip()
+    patterns = (
+        r"^\s*(?:speel|start|zet|draai)\s+(?:het\s+)?album\s+(?:met|waar(?:op|in)\s+staat)\s+(?:het\s+)?(?:nummer|liedje|track)\s+(.+?)\s+van\s+(.+?)\s*(?:op|af|aan)?\s*$",
+        r"^\s*(?:speel|start|zet|draai)\s+(?:de\s+)?plaat\s+(?:met|waar(?:op|in)\s+staat)\s+(?:het\s+)?(?:nummer|liedje|track)\s+(.+?)\s+van\s+(.+?)\s*(?:op|af|aan)?\s*$",
+        r"^\s*(?:play|start|put\s+on)\s+(?:the\s+)?album\s+(?:with|containing|that\s+has)\s+(?:the\s+)?(?:song|track)\s+(.+?)\s+by\s+(.+?)\s*$",
+    )
+    for pattern in patterns:
+        match = re.match(pattern, value, flags=re.IGNORECASE)
+        if not match:
+            continue
+        track = _clean_album_track_request_part(match.group(1))
+        artist = _clean_album_track_request_part(match.group(2))
+        if track and artist:
+            return {"track": track, "artist": artist}
+    return {}
+
+
+def _track_owner_question(text: str) -> str:
+    value = str(text or "").strip()
+    patterns = (
+        r"^\s*van\s+wie\s+is\s+(?:ook\s+al\s+weer\s+|ook\s+alweer\s+|eigenlijk\s+)?(?:het\s+)?(?:nummer|liedje|track|song)\s+(.+?)\s*\??\s*$",
+        r"^\s*wie\s+(?:maakte|zong|speelde)\s+(?:ook\s+al\s+weer\s+|ook\s+alweer\s+)?(?:het\s+)?(?:nummer|liedje|track|song)\s+(.+?)\s*\??\s*$",
+        r"^\s*who\s+(?:made|sang|plays|played)\s+(?:the\s+)?(?:song|track)\s+(.+?)\s*\??\s*$",
+        r"^\s*who\s+is\s+(?:the\s+)?(?:song|track)\s+(.+?)\s+by\s*\??\s*$",
+    )
+    for pattern in patterns:
+        match = re.match(pattern, value, flags=re.IGNORECASE)
+        if match:
+            return _clean_album_track_request_part(match.group(1))
+    return ""
+
+
+def _clean_album_track_request_part(value: Any) -> str:
+    return re.sub(
+        r"\s+(?:op|af|aan|please|graag|nu)\s*$",
+        "",
+        str(value or "").strip(" ?.!'\""),
+        flags=re.IGNORECASE,
+    ).strip()
+
+
 def classify_conversation_turn(
     text: str,
     memory_context: dict[str, Any],
@@ -435,6 +587,8 @@ def classify_conversation_turn(
         return _retry_previous_request_turn(memory_context)
     if _is_contextual_play_request(normalized):
         return _contextual_play_turn(memory_context)
+    if _track_owner_question(text):
+        return AskDjConversationTurn("informational_intent", text)
     direct_track = _direct_track_answer_turn(text, memory_context)
     if direct_track is not None:
         return direct_track
@@ -1011,6 +1165,10 @@ async def _handle_informational(
         return await _next_track_info_response(hass, runtime)
     if ask_intent.intent == "recently_played_history":
         return await _recently_played_history_response(hass, runtime, text)
+    if _is_current_track_album_question(text):
+        return _current_track_album_response(hass, playback_context)
+    if _is_current_playing_question(text):
+        return _current_track_reference_response(hass, playback_context)
     if _is_slang_track_info_request(text):
         return _current_track_reference_response(hass, playback_context)
     if ask_intent.intent == "save_generated_playlist":
@@ -1763,8 +1921,10 @@ def _current_track_reference_response(
     hass: HomeAssistant,
     playback_context: dict[str, Any],
 ) -> dict[str, Any]:
-    track = _track_label(playback_context)
-    if not track:
+    title = _playback_text(playback_context, "track_name", "title", "name")
+    artist = _playback_text(playback_context, "artist", "artist_name")
+    album = _playback_text(playback_context, "album_name", "album")
+    if not title and not artist:
         text = "Ik weet niet welke track je bedoelt."
         return {
             "success": True,
@@ -1774,18 +1934,16 @@ def _current_track_reference_response(
             "images": [],
             "playback_actions": [],
         }
-    text = f"Die track is {track}."
+    if title and artist and album:
+        text = f"Er speelt nu {title} van {artist}, op het album {album}."
+    elif title and artist:
+        text = f"Er speelt nu {title} van {artist}."
+    else:
+        text = f"Er speelt nu {_track_label(playback_context) or title or artist}."
     images = _images_from_context(hass, {}, playback_context)
     uri = str(playback_context.get("uri") or playback_context.get("track_uri") or "").strip()
     playback_actions: list[dict[str, Any]] = []
     if uri.startswith("spotify:track:"):
-        title = str(
-            playback_context.get("track_name")
-            or playback_context.get("title")
-            or playback_context.get("name")
-            or track
-        ).strip()
-        artist = str(playback_context.get("artist") or playback_context.get("artist_name") or "").strip()
         action: dict[str, Any] = {
             "id": uri,
             "title": title,
@@ -1806,6 +1964,304 @@ def _current_track_reference_response(
         "playback_actions": playback_actions,
         "sources": [{"source": "spotify_playback_context", "title": "Spotify playback context", "kind": "source"}],
     }
+
+
+def _current_track_album_response(
+    hass: HomeAssistant,
+    playback_context: dict[str, Any],
+) -> dict[str, Any]:
+    title = _playback_text(playback_context, "track_name", "title", "name")
+    artist = _playback_text(playback_context, "artist", "artist_name")
+    album = _playback_text(playback_context, "album_name", "album")
+    if not album:
+        text = "Ik kan nu niet zien op welk album dit nummer staat."
+        return {
+            "success": True,
+            "text": text,
+            "dj_text": text,
+            "action": "none",
+            "images": [],
+            "playback_actions": [],
+        }
+    if title and artist:
+        text = f"{title} van {artist} werd uitgebracht op {album}."
+    elif title:
+        text = f"{title} werd uitgebracht op {album}."
+    else:
+        text = f"Dit nummer staat op {album}."
+    return {
+        "success": True,
+        "text": text,
+        "dj_text": text,
+        "action": "none",
+        "images": _images_from_context(hass, {}, playback_context),
+        "playback_actions": [_current_album_playback_action(hass, playback_context)] if _current_album_uri(playback_context) else [],
+        "sources": [{"source": "spotify_playback_context", "title": "Spotify playback context", "kind": "source"}],
+    }
+
+
+async def _play_current_album_response(
+    hass: HomeAssistant,
+    runtime: Any,
+    playback_context: dict[str, Any],
+) -> dict[str, Any]:
+    album = _playback_text(playback_context, "album_name", "album")
+    artist = _playback_text(playback_context, "artist", "artist_name")
+    uri = _current_album_uri(playback_context)
+    if not uri and album:
+        uri = await _search_current_album_uri(hass, runtime, album, artist)
+    if not album:
+        text = "Ik weet nog niet welk album je bedoelt."
+        return {"success": True, "text": text, "dj_text": text, "action": "none"}
+    if not uri:
+        text = f"Ik weet dat dit {album} is, maar ik kan de Spotify album-URI nu niet vinden."
+        return {"success": True, "text": text, "dj_text": text, "action": "none"}
+    result = await handle_spotify_command(hass, runtime, "play", uri, play=True)
+    text = f"{album} is in je wachtrij gezet."
+    return {
+        "success": True,
+        "text": text,
+        "dj_text": text,
+        "action": "play_music",
+        "playback": result.get("playback") if isinstance(result, dict) else {},
+        "playback_actions": [],
+        "sources": [{"source": "spotify_playback_context", "title": "Spotify playback context", "kind": "source"}],
+    }
+
+
+async def _play_album_containing_track_response(
+    hass: HomeAssistant,
+    runtime: Any,
+    request: dict[str, str],
+) -> dict[str, Any]:
+    track = str(request.get("track") or "").strip()
+    artist = str(request.get("artist") or "").strip()
+    if not track or not artist:
+        text = "Welk nummer en welke artiest bedoel je?"
+        return {"success": True, "text": text, "dj_text": text, "action": "none"}
+    try:
+        result = await handle_spotify_command(
+            hass,
+            runtime,
+            "search_media",
+            {"query": f"{track} {artist}", "type": "track"},
+        )
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect album-by-track search failed: %s", exc)
+        text = f"Ik kan het album met {track} van {artist} nu niet vinden."
+        return {"success": True, "text": text, "dj_text": text, "action": "none"}
+    item = result.get("item") if isinstance(result, dict) else {}
+    if not isinstance(item, dict):
+        item = {}
+    album = _playback_text(item, "album_name", "album")
+    uri = _current_album_uri(item)
+    if not uri:
+        uri = str(item.get("album_uri") or "").strip()
+    if not album:
+        album = "dat album"
+    if not uri.startswith("spotify:album:"):
+        text = f"Ik vond {track} van {artist}, maar niet de Spotify album-URI."
+        return {
+            "success": True,
+            "text": text,
+            "dj_text": text,
+            "action": "none",
+            "sources": [{"source": "spotify_search", "title": "Spotify search", "kind": "source"}],
+        }
+    playback = await handle_spotify_command(hass, runtime, "play", uri, play=True)
+    text = f"{album} is in je wachtrij gezet."
+    return {
+        "success": True,
+        "text": text,
+        "dj_text": text,
+        "action": "play_music",
+        "playback": playback.get("playback") if isinstance(playback, dict) else {},
+        "sources": [{"source": "spotify_search", "title": "Spotify search", "kind": "source"}],
+    }
+
+
+async def _track_owner_response(
+    hass: HomeAssistant,
+    runtime: Any,
+    track_query: str,
+) -> dict[str, Any]:
+    query = str(track_query or "").strip()
+    if not query:
+        text = "Welk nummer bedoel je?"
+        return {"success": True, "text": text, "dj_text": text, "action": "none"}
+    try:
+        result = await handle_spotify_command(
+            hass,
+            runtime,
+            "search_media",
+            {"query": query, "type": "track"},
+        )
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect track owner search failed: %s", exc)
+        text = f"Ik kan nu niet betrouwbaar vinden van wie {query} is."
+        return {"success": True, "text": text, "dj_text": text, "action": "none"}
+    item = result.get("item") if isinstance(result, dict) else {}
+    if not isinstance(item, dict) or not item:
+        text = f"Ik vind nu geen betrouwbare Spotify-match voor {query}."
+        return {"success": True, "text": text, "dj_text": text, "action": "none"}
+    title = _playback_text(item, "track_name", "title", "name") or query
+    artist = _playback_text(item, "artist", "artist_name")
+    album = _playback_text(item, "album_name", "album")
+    if artist and album:
+        text = f"{title} is gemaakt door {artist}, uitgebracht op {album}."
+    elif artist:
+        text = f"{title} is gemaakt door {artist}."
+    else:
+        text = f"Ik vond {title}, maar Spotify gaf geen duidelijke artiest terug."
+    actions = _track_and_album_actions_from_track_item(hass, item)
+    return {
+        "success": True,
+        "text": text,
+        "dj_text": text,
+        "action": "none",
+        "playback_actions": actions,
+        "images": _images_from_context(hass, item, {}),
+        "sources": [{"source": "spotify_search", "title": "Spotify search", "kind": "source"}],
+    }
+
+
+def _track_and_album_actions_from_track_item(
+    hass: HomeAssistant,
+    item: dict[str, Any],
+) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    track_uri = str(item.get("uri") or item.get("track_uri") or "").strip()
+    album_uri = _current_album_uri(item) or str(item.get("album_uri") or "").strip()
+    image_url = _playback_text(
+        item,
+        "album_image_url",
+        "image_url",
+        "thumbnail_url",
+        "media_image_url",
+    )
+    if image_url.startswith(("http://", "https://")):
+        image_url = register_image_proxy_url(hass, image_url)
+    title = _playback_text(item, "track_name", "title", "name")
+    artist = _playback_text(item, "artist", "artist_name")
+    album = _playback_text(item, "album_name", "album")
+    if track_uri.startswith("spotify:track:"):
+        action: dict[str, Any] = {
+            "id": track_uri,
+            "title": title or track_uri,
+            "subtitle": artist,
+            "uri": track_uri,
+            "kind": "track",
+            "label": "Play Now",
+            "button_label": "Play Now",
+            "action_style": "play_now",
+            "image_url": image_url,
+            "reason": "Gevonden track.",
+        }
+        if album_uri.startswith("spotify:album:"):
+            action["context_uri"] = album_uri
+            action["offset_uri"] = track_uri
+        actions.append({key: value for key, value in action.items() if value not in ("", None)})
+    if album_uri.startswith("spotify:album:"):
+        actions.append(
+            {
+                key: value
+                for key, value in {
+                    "id": album_uri,
+                    "title": album or album_uri,
+                    "subtitle": artist,
+                    "uri": album_uri,
+                    "context_uri": album_uri,
+                    "kind": "album",
+                    "label": "Play Now",
+                    "button_label": "Play Now",
+                    "action_style": "play_now",
+                    "image_url": image_url,
+                    "reason": "Album waarop de gevonden track staat.",
+                }.items()
+                if value not in ("", None)
+            }
+        )
+    return actions
+
+
+async def _search_current_album_uri(
+    hass: HomeAssistant,
+    runtime: Any,
+    album: str,
+    artist: str,
+) -> str:
+    query = f"{album} {artist}".strip()
+    if not query:
+        return ""
+    try:
+        result = await handle_spotify_command(
+            hass,
+            runtime,
+            "search_media",
+            {"query": query, "type": "album"},
+        )
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect current album search failed: %s", exc)
+        return ""
+    item = result.get("item") if isinstance(result, dict) else {}
+    uri = str(item.get("uri") or item.get("album_uri") or "").strip() if isinstance(item, dict) else ""
+    return uri if uri.startswith("spotify:album:") else ""
+
+
+def _current_album_playback_action(
+    hass: HomeAssistant,
+    playback_context: dict[str, Any],
+) -> dict[str, Any]:
+    uri = _current_album_uri(playback_context)
+    album = _playback_text(playback_context, "album_name", "album") or uri
+    artist = _playback_text(playback_context, "artist", "artist_name")
+    image_url = _playback_text(
+        playback_context,
+        "album_image_url",
+        "image_url",
+        "thumbnail_url",
+        "media_image_url",
+    )
+    if image_url.startswith(("http://", "https://")):
+        image_url = register_image_proxy_url(hass, image_url)
+    return {
+        key: value
+        for key, value in {
+            "id": uri,
+            "title": album,
+            "subtitle": artist,
+            "uri": uri,
+            "kind": "album",
+            "label": "Play Now",
+            "button_label": "Play Now",
+            "action_style": "play_now",
+            "image_url": image_url,
+            "reason": "Album van de huidige track.",
+        }.items()
+        if value not in ("", None)
+    }
+
+
+def _current_album_uri(playback_context: dict[str, Any]) -> str:
+    for key in ("album_uri", "albumUri", "context_uri", "contextUri", "queue_context"):
+        value = str(playback_context.get(key) or "").strip()
+        if value.startswith("spotify:album:"):
+            return value
+    album = playback_context.get("album")
+    if isinstance(album, dict):
+        for key in ("uri", "album_uri", "albumUri"):
+            value = str(album.get(key) or "").strip()
+            if value.startswith("spotify:album:"):
+                return value
+    return ""
+
+
+def _playback_text(playback_context: dict[str, Any], *keys: str) -> str:
+    for key in keys:
+        value = str(playback_context.get(key) or "").strip()
+        if value:
+            return value
+    return ""
 
 
 async def _spotify_related_artists(
