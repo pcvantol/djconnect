@@ -1024,6 +1024,25 @@ async def _handle_action(
             "sources": [],
         }
     if action in {"pause", "play", "next", "previous"}:
+        if action in {"next", "previous"}:
+            result = await process_text_command(
+                hass,
+                runtime,
+                text,
+                play=True,
+                correct_stt=False,
+            )
+            text_response = str(result.get("dj_text") or result.get("text") or _action_text(action)).strip()
+            return {
+                "success": True,
+                "text": text_response,
+                "dj_text": text_response,
+                "playback": result.get("playback") if isinstance(result, dict) else {},
+                "images": [],
+                "links": [],
+                "sources": [],
+                "playback_actions": [],
+            }
         result = await handle_spotify_command(hass, runtime, action)
         text_response = _action_text(action)
         return {
@@ -3046,6 +3065,22 @@ def _is_personal_music_profile_request(normalized: str) -> bool:
 
 
 def _is_recently_played_history_request(normalized: str) -> bool:
+    if any(
+        phrase in normalized
+        for phrase in (
+            "wat speelde hiervoor",
+            "wat speelde er hiervoor",
+            "wat draaide hiervoor",
+            "wat draaide er hiervoor",
+            "wat hoorde ik hiervoor",
+            "welk nummer speelde hiervoor",
+            "welke track speelde hiervoor",
+            "what played before this",
+            "what was before this",
+            "what played previously",
+        )
+    ):
+        return True
     history_terms = (
         "welke nummers",
         "welke tracks",
@@ -3216,6 +3251,20 @@ def _is_morning_start_request(normalized: str) -> bool:
 
 
 def _is_next_track_info_request(normalized: str) -> bool:
+    if any(
+        phrase in normalized
+        for phrase in (
+            "wat speelt hierna",
+            "wat komt hierna",
+            "welk nummer speelt hierna",
+            "welk nummer komt hierna",
+            "welke track speelt hierna",
+            "welke track komt hierna",
+            "what plays after this",
+            "what comes next",
+        )
+    ):
+        return True
     if any(
         phrase in normalized
         for phrase in (

@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.1.90
+
+- Route `wat speelt hierna` and similar next-track questions to the Spotify
+  queue reader instead of the generic Ask DJ music-info response.
+- Route `wat speelde hiervoor` and similar previous-track questions to Spotify
+  recently played history without triggering the playback `previous` control.
+- Use the richer DJ announcement pipeline for Ask DJ `next` / `previous`
+  playback controls, so skipping tracks can return a contextual DJ response
+  with current playback metadata instead of only the fixed control sentence.
+
 ## 3.1.89
 
 - Make Ask DJ message responses include canonical `messages: [user, assistant]`
