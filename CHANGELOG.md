@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.1.85
+
+- Stop Home Assistant entity churn caused by Spotify progress-only playback
+  refreshes by ignoring volatile progress/timestamp fields in runtime update
+  signatures while still notifying on real playback metadata/state changes.
+
 ## 3.1.84
 
 - Reduce post-pairing Home Assistant state churn by suppressing unchanged
