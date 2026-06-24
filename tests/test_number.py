@@ -135,6 +135,21 @@ class NumberTest(unittest.TestCase):
 
         self.assertEqual(entity.native_value, 42.0)
 
+    def test_volume_keeps_last_known_value_when_playback_snapshot_is_sparse(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            device_status={"client_type": "macos"},
+            last_playback={"volume_percent": 44},
+            listeners=[],
+        )
+        entity = self.number.DJConnectVolumeNumber(runtime, object())
+
+        self.assertEqual(entity.native_value, 44.0)
+
+        runtime.last_playback = {"has_playback": False}
+
+        self.assertEqual(entity.native_value, 44.0)
+
     def test_volume_reads_nested_status_playback_when_last_playback_missing(self) -> None:
         runtime = types.SimpleNamespace(
             entry=types.SimpleNamespace(entry_id="entry-1"),

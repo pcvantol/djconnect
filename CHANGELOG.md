@@ -5,6 +5,9 @@
 - Add Windows as a first-class app-like client type (`client_type=windows`) with
   `djconnect-windows-XXXXXXXXXXXX` IDs, mDNS/pairing-info discovery, Ask DJ
   voice handling and config-flow labels.
+- Keep backend playback controls from briefly becoming unavailable when app
+  clients send sparse status updates or Spotify returns an idle playback
+  snapshot without control metadata.
 
 ## 3.1.86
 

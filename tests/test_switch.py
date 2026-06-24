@@ -122,6 +122,38 @@ class DJConnectShuffleSwitchTest(unittest.TestCase):
 
         self.assertTrue(entity.is_on)
 
+    def test_shuffle_switch_falls_back_when_last_playback_is_incomplete(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            config={"client_type": "macos"},
+            device_status={
+                "client_type": "macos",
+                "shuffle": True,
+                "playback": {"shuffle": True},
+            },
+            last_playback={"is_playing": False},
+            listeners=[],
+        )
+        entity = self.switch.DJConnectShuffleSwitch(runtime, object())
+
+        self.assertTrue(entity.is_on)
+
+    def test_shuffle_switch_keeps_last_known_value_when_snapshot_is_sparse(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            config={"client_type": "macos"},
+            device_status={"client_type": "macos"},
+            last_playback={"shuffle": True},
+            listeners=[],
+        )
+        entity = self.switch.DJConnectShuffleSwitch(runtime, object())
+
+        self.assertTrue(entity.is_on)
+
+        runtime.last_playback = {"has_playback": False}
+
+        self.assertTrue(entity.is_on)
+
     def test_shuffle_update_refreshes_spotify_playback_status(self) -> None:
         calls = []
         runtime = types.SimpleNamespace(
