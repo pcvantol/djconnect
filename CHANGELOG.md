@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.1.86
 
 - Remove the native Home Assistant playback proxy `media_player` entity. Backend
   playback still works through DJConnect commands and the remaining volume,
