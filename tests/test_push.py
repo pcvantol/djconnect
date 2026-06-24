@@ -561,6 +561,32 @@ class PushTest(unittest.TestCase):
         self.assertTrue(dry_run["send"])
         self.assertTrue(send["send"])
 
+    def test_send_true_preflight_does_not_rate_limit_real_send(self) -> None:
+        runtime = self._runtime()
+
+        preflight = self.push.should_send_push(
+            runtime,
+            user_id="user-1",
+            event_type="ask_dj_confirm",
+            source_device_id="djconnect-macos-ABCDEFGHIJKL",
+            client_type="macos",
+            explicit_user_request=True,
+            consume_rate_limit=False,
+            now=1000,
+        )
+        real_send = self.push.should_send_push(
+            runtime,
+            user_id="user-1",
+            event_type="ask_dj_confirm",
+            source_device_id="djconnect-macos-ABCDEFGHIJKL",
+            client_type="macos",
+            explicit_user_request=True,
+            now=1000,
+        )
+
+        self.assertTrue(preflight["send"])
+        self.assertTrue(real_send["send"])
+
     def test_rate_limit_blocks_more_than_five_in_ten_minutes(self) -> None:
         runtime = self._runtime()
         decisions = [

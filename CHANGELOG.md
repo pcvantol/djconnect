@@ -14,6 +14,8 @@
 - Make APNs test push diagnostics report missing bootstrap/install-token setup
   before rate limiting, and prevent dry-run diagnostics from consuming the rate
   limiter.
+- Prevent `send:true` APNs test pushes from rate-limiting themselves by running
+  the diagnostic preflight without consuming the push limiter.
 
 ## 3.1.86
 
