@@ -424,6 +424,50 @@ class TtsHelperTest(unittest.TestCase):
 
         self.assertEqual(calls, ["called"])
 
+    def test_runtime_update_ignores_playback_progress_only_changes(self) -> None:
+        entry = types.SimpleNamespace(entry_id="entry-1", data={}, options={})
+        runtime = self.integration.DJConnectRuntime(entry=entry)
+        calls: list[str] = []
+        runtime.listeners.append(lambda: calls.append("called"))
+
+        runtime.update(
+            last_playback={
+                "has_playback": True,
+                "is_playing": True,
+                "track_name": "Alive",
+                "artist_name": "Pearl Jam",
+                "progress_ms": 1000,
+            }
+        )
+        runtime.update(
+            last_playback={
+                "has_playback": True,
+                "is_playing": True,
+                "track_name": "Alive",
+                "artist_name": "Pearl Jam",
+                "progress_ms": 2500,
+            }
+        )
+
+        self.assertEqual(calls, ["called"])
+
+    def test_runtime_update_ignores_nested_device_playback_progress_only_changes(self) -> None:
+        entry = types.SimpleNamespace(entry_id="entry-1", data={}, options={})
+        runtime = self.integration.DJConnectRuntime(entry=entry)
+        calls: list[str] = []
+        runtime.listeners.append(lambda: calls.append("called"))
+
+        runtime.device_status["playback"] = {
+            "has_playback": True,
+            "track_name": "Alive",
+            "progress_ms": 1000,
+        }
+        runtime.update()
+        runtime.device_status["playback"]["progress_ms"] = 2000
+        runtime.update()
+
+        self.assertEqual(calls, ["called"])
+
     def test_restore_runtime_ignores_obsolete_pair_code_local_url(self) -> None:
         entry = types.SimpleNamespace(
             entry_id="entry-1",
