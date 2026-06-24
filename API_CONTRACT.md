@@ -72,6 +72,16 @@ Clients must not send arbitrary Home Assistant state or local memory for this.
 missing media from previous chat bubbles. If a response has no `images[]`, show
 it as text-only.
 
+Message responses include `user_message`, `assistant_message` and, on current
+servers, a canonical `messages[]` array in render order. For a normal exchange
+that array contains `[user, assistant]`. Both messages share an `exchange_id`;
+`exchange_order` is `0` for the user question and `1` for the assistant answer.
+Clients should prefer `messages[]` when merging the immediate HTTP response into
+local chat UI, and use `exchange_order` as the tie-breaker when optimistic UI,
+push events or history sync arrive close together. Older servers may omit these
+fields; in that case, keep the existing fallback of rendering the user message
+before the assistant message for the same `client_message_id`.
+
 Supported action kinds:
 
 - `album`: direct Play Now action for a Spotify album. The action includes a

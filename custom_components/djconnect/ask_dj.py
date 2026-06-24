@@ -1560,6 +1560,9 @@ async def _next_track_info_response(
                 "subtitle": artist,
                 "uri": uri,
                 "kind": "track",
+                "label": "Play Now",
+                "button_label": "Play Now",
+                "action_style": "play_now",
                 "reason": "Track uit je Spotify wachtrij.",
             }
             context_uri = str(item.get("context_uri") or item.get("contextUri") or result.get("context_uri") or "").strip()
@@ -3340,10 +3343,10 @@ def _playlist_query_from_question(text: str) -> str:
     original = str(text or "").strip()
     normalized = _normalize(original)
     patterns = (
-        r"(?:doe\s+maar|maak|zet|start|speel)\s+(?:eens\s+|even\s+|graag\s+)?(?:een\s+|some\s+)?(?:spotify\s+)?(?:playlist|afspeellijst)\s+(?:met|van|voor|with|about|by|for)\s+(.+)$",
-        r"(?:heb je|zoek|vind|welke|do you have|find|search)\s+(?:een\s+|some\s+)?(?:spotify\s+)?(?:playlist|afspeellijst)(?:\s+(?:van|voor|with|about|by|for))?\s+(.+)$",
-        r"(?:playlist|afspeellijst)\s+(?:van|voor|with|about|by|for)\s+(.+)$",
-        r"(.+?)\s+(?:playlist|afspeellijst)s?\s*$",
+        r"(?:doe\s+maar|maak|zet|start|speel)\s+(?:eens\s+|even\s+|graag\s+)?(?:een\s+|some\s+)?(?:spotify\s+)?(?:playlists?|afspeellijsten?)\s+(?:met|van|voor|with|about|by|for)\s+(.+)$",
+        r"(?:heb je|zoek|vind|welke|do you have|find|search)\s+(?:een\s+|some\s+)?(?:spotify\s+)?(?:playlists?|afspeellijsten?)(?:\s+(?:van|voor|with|about|by|for))?\s+(.+)$",
+        r"(?:playlists?|afspeellijsten?)\s+(?:van|voor|with|about|by|for)\s+(.+)$",
+        r"(.+?)\s+(?:playlists?|afspeellijsten?)\s*$",
     )
     for pattern in patterns:
         match = re.search(pattern, normalized, flags=re.IGNORECASE)
@@ -3356,7 +3359,10 @@ def _clean_playlist_query(value: str) -> str:
     text = str(value or "").strip(" ?.!'\"")
     text = re.sub(r"^(?:van|voor|with|about|by|for)\s+", "", text, flags=re.IGNORECASE)
     text = re.sub(r"\s+(?:hebben|hebt|zijn|bestaan|please|pls)$", "", text, flags=re.IGNORECASE)
-    return text.strip()
+    text = text.strip()
+    if _normalize(text) in {"me", "mij", "mezelf", "my", "myself"}:
+        return ""
+    return text
 
 
 def _is_seed_mix_playlist_request(normalized: str) -> bool:
@@ -4554,8 +4560,11 @@ def _links_from_context(
 
 def register_image_proxy_url(hass: HomeAssistant, external_url: str) -> str:
     """Register an external image URL and return a Home Assistant proxy URL."""
+    url = str(external_url or "").strip()
+    if not url or url.startswith(API_IMAGE_PROXY_BASE) or not url.startswith(("http://", "https://")):
+        return url
     token = secrets.token_urlsafe(18)
-    hass.data.setdefault(DOMAIN, {}).setdefault(IMAGE_PROXY_KEY, {})[token] = external_url
+    hass.data.setdefault(DOMAIN, {}).setdefault(IMAGE_PROXY_KEY, {})[token] = url
     return f"{API_IMAGE_PROXY_BASE}/{token}"
 
 

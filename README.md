@@ -14,7 +14,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 
 ## Current Version
 
-- Home Assistant integration: `3.1.88`
+- Home Assistant integration: `3.1.89`
 - Domain: `djconnect`
 - HACS category: `Integration`
 - Device target: DJConnect device
@@ -74,7 +74,7 @@ runtime behavior. These decisions are part of the integration contract:
 
 ## Repository Layout
 
-- Home Assistant integration: `3.1.88`
+- Home Assistant integration: `3.1.89`
 - ESP firmware source: `pcvantol/djconnect-app`
 - Public firmware releases: `pcvantol/djconnect-firmware`
 - Canonical cross-repo sync prompts live only in this HA repo: [`SYNC_PROMPTS.md`](SYNC_PROMPTS.md)
@@ -318,10 +318,13 @@ Requests accept `text`, optional `client_message_id`, `client_id`, `mood`,
 informational, playback/device action or hybrid. Informational questions do not
 change playback; action and hybrid requests can call Spotify/Home Assistant
 backend actions and still return a natural DJ answer. Responses include
-`user_message`, `assistant_message`, `history_revision`, `clear_revision` and
-the same rich fields as the Ask DJ answer: `success`, `text`/`dj_text`/`message`,
-optional `audio_url`, `images[]`, `links[]`, `sources[]`, `playback_actions[]`,
-`intent` and `action`.
+`user_message`, `assistant_message`, canonical `messages[]` in render order,
+`history_revision`, `clear_revision` and the same rich fields as the Ask DJ
+answer: `success`, `text`/`dj_text`/`message`, optional `audio_url`, `images[]`,
+`links[]`, `sources[]`, `playback_actions[]`, `intent` and `action`. Current
+servers add shared `exchange_id` plus `exchange_order` (`0` for the user
+question, `1` for the assistant answer), so clients can keep the question above
+the answer during HTTP/push/history timing races.
 The informational intent `personal_music_profile_analysis` answers questions
 such as "Omschrijf eens waar ik zoal naar luisterde de afgelopen maand" or
 "Make a profile of my music taste this year". It never starts, pauses, queues,
@@ -756,19 +759,39 @@ The response is uniform across iOS, macOS, Apple Watch, Raspberry Pi and Windows
     "client_message_id": "uuid-from-client",
     "role": "user",
     "text": "Waarom koos je dit nummer?",
-    "created_at": "2026-06-19T12:34:56Z"
+    "created_at": "2026-06-19T12:34:56Z",
+    "exchange_id": "uuid-from-client",
+    "exchange_order": 0
   },
   "assistant_message": {
     "id": "server-assistant-message-id",
     "role": "assistant",
     "text": "Omdat dit mooi aansluit op je rustige stemming.",
     "created_at": "2026-06-19T12:34:57Z",
+    "exchange_id": "uuid-from-client",
+    "exchange_order": 1,
     "images": [],
     "links": [],
     "sources": [],
     "audio_url": "/api/djconnect/tts/token.mp3",
     "playback_actions": []
   },
+  "messages": [
+    {
+      "id": "server-user-message-id",
+      "role": "user",
+      "text": "Waarom koos je dit nummer?",
+      "exchange_id": "uuid-from-client",
+      "exchange_order": 0
+    },
+    {
+      "id": "server-assistant-message-id",
+      "role": "assistant",
+      "text": "Omdat dit mooi aansluit op je rustige stemming.",
+      "exchange_id": "uuid-from-client",
+      "exchange_order": 1
+    }
+  ],
   "text": "Omdat dit mooi aansluit op je rustige stemming.",
   "dj_text": "Omdat dit mooi aansluit op je rustige stemming.",
   "audio_url": "/api/djconnect/tts/token.mp3",
@@ -1172,24 +1195,24 @@ Example manifest:
 
 ```json
 {
-  "version": "3.1.88",
-  "version_tag": "v3.1.88",
+  "version": "3.1.89",
+  "version_tag": "v3.1.89",
   "channel": "stable",
-  "min_ha_integration": "3.1.88",
+  "min_ha_integration": "3.1.89",
   "firmwares": [
     {
       "board": "t_embed_cc1101",
       "device": "lilygo-t-embed-s3",
-      "asset": "djconnect-lilygo-t-embed-s3-v3.1.88.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.88/djconnect-lilygo-t-embed-s3-v3.1.88.bin",
+      "asset": "djconnect-lilygo-t-embed-s3-v3.1.89.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.89/djconnect-lilygo-t-embed-s3-v3.1.89.bin",
       "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "size": 2113136
     },
     {
       "board": "esp32_s3_box3",
       "device": "esp32-s3-box-3",
-      "asset": "djconnect-esp32-s3-box-3-v3.1.88.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.88/djconnect-esp32-s3-box-3-v3.1.88.bin",
+      "asset": "djconnect-esp32-s3-box-3-v3.1.89.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.89/djconnect-esp32-s3-box-3-v3.1.89.bin",
       "sha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
       "size": 2113136
     }
@@ -1212,7 +1235,7 @@ The firmware version is injected through PlatformIO build flags from the Git tag
 Recommended firmware source release helper:
 
 ```bash
-./release.sh 3.1.88
+./release.sh 3.1.89
 ```
 
 In the separate `djconnect-app` repository, the firmware release script should
@@ -1224,14 +1247,14 @@ PlatformIO builds, rename firmware binaries to device-specific assets such as
 Preview the firmware release flow without changing files:
 
 ```bash
-./release.sh 3.1.88 --dry-run
+./release.sh 3.1.89 --dry-run
 ```
 
 When publishing to the public firmware repository, use the firmware script's
 public-repo option if available:
 
 ```bash
-./release.sh 3.1.88 --publish-firmware-repo ../djconnect-firmware
+./release.sh 3.1.89 --publish-firmware-repo ../djconnect-firmware
 ```
 
 The public `djconnect-firmware` repository should contain only the release
@@ -1281,7 +1304,7 @@ Tag and publish:
 One-liner:
 
 ```bash
-./release.sh 3.1.88
+./release.sh 3.1.89
 ```
 
 The script updates the integration version in `manifest.json`, `const.py`,
@@ -1292,18 +1315,18 @@ above.
 Preview without executing git/gh commands:
 
 ```bash
-./release.sh 3.1.88 --dry-run
+./release.sh 3.1.89 --dry-run
 ```
 
 Manual equivalent:
 
 ```bash
 git add .
-git commit -m "Release DJConnect v3.1.88"
-git tag v3.1.88
+git commit -m "Release DJConnect v3.1.89"
+git tag v3.1.89
 git push origin main
-git push origin v3.1.88
-gh release create v3.1.88 --title "DJConnect v3.1.88" --notes-file CHANGELOG.md
+git push origin v3.1.89
+gh release create v3.1.89 --title "DJConnect v3.1.89" --notes-file CHANGELOG.md
 ```
 
 After every release, clean up old completed GitHub Actions workflow runs. Keep

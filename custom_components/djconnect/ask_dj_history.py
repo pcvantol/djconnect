@@ -155,6 +155,11 @@ class AskDJHistoryManager:
 
         user_message = _message_from_request(request_payload)
         assistant_message = _message_from_response(request_payload, assistant_response)
+        exchange_id = _exchange_id(request_payload, user_message)
+        user_message["exchange_id"] = exchange_id
+        user_message["exchange_order"] = 0
+        assistant_message["exchange_id"] = exchange_id
+        assistant_message["exchange_order"] = 1
         state.setdefault("messages", []).extend([user_message, assistant_message])
         state["history_revision"] = int(state.get("history_revision") or 0) + 1
         trimmed = _apply_history_limit(state)
@@ -167,6 +172,7 @@ class AskDJHistoryManager:
             "user_id": user_key,
             "user_message": deepcopy(user_message),
             "assistant_message": deepcopy(assistant_message),
+            "messages": [deepcopy(user_message), deepcopy(assistant_message)],
             "history_revision": state["history_revision"],
             "clear_revision": self._effective_clear_revision(state),
             **_history_limit_metadata(state),
@@ -297,6 +303,7 @@ class AskDJHistoryManager:
                 return {
                     "user_message": deepcopy(message),
                     "assistant_message": deepcopy(assistant or {}),
+                    "messages": [deepcopy(message), deepcopy(assistant or {})],
                 }
         return None
 
@@ -378,6 +385,14 @@ def _message_from_response(
             "intent": deepcopy(response.get("intent")) if response.get("intent") else None,
             "action": _clean_text(response.get("action")),
         }
+    )
+
+
+def _exchange_id(request_payload: dict[str, Any], user_message: dict[str, Any]) -> str:
+    return (
+        _clean_text(request_payload.get("client_message_id"))
+        or _clean_text(user_message.get("id"))
+        or _server_message_id()
     )
 
 

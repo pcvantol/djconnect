@@ -1196,11 +1196,12 @@ async def _handle_ask_dj_play_recommendation(
     except SpotifyBackendError as exc:
         message = str(exc)
         if _looks_like_no_active_output(message):
-            return {
-                "success": False,
-                "error": "no_active_output",
-                "message": "Ik weet nog niet op welke speaker ik dit moet afspelen.",
-            }
+            return await _speaker_selection_for_recommendation(
+                hass,
+                runtime,
+                recommendation,
+                request_payload,
+            )
         if "reauthorize" in message.lower() or "authorization" in message.lower():
             return {
                 "success": False,
@@ -1252,6 +1253,141 @@ async def _handle_ask_dj_play_recommendation(
             if recommendation.get(key)
         },
     }
+
+
+async def _handle_ask_dj_play_recommendation_on_output(
+    hass: Any,
+    runtime: Any,
+    value: Any,
+    request_payload: dict[str, Any],
+    *,
+    user_id: str | None = None,
+) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        return {
+            "success": False,
+            "error": "missing_output_selection",
+            "message": "Ik mis de speakerkeuze.",
+        }
+    output_id = str(value.get("output_id") or value.get("device_id") or value.get("value") or "").strip()
+    recommendation = value.get("recommendation") if isinstance(value.get("recommendation"), dict) else {}
+    if not output_id:
+        return {
+            "success": False,
+            "error": "missing_output_selection",
+            "message": "Ik weet nog niet op welke speaker ik dit moet afspelen.",
+        }
+    if not recommendation:
+        return {
+            "success": False,
+            "error": "missing_recommendation_uri",
+            "message": "Ik weet niet welke aanbeveling ik moet afspelen.",
+        }
+    try:
+        await handle_spotify_command(hass, runtime, "set_output", output_id, play=False)
+    except SpotifyBackendError as exc:
+        return {
+            "success": False,
+            "error": "output_selection_failed",
+            "message": str(exc),
+        }
+    return await _handle_ask_dj_play_recommendation(
+        hass,
+        runtime,
+        recommendation,
+        request_payload,
+        user_id=user_id,
+    )
+
+
+async def _speaker_selection_for_recommendation(
+    hass: Any,
+    runtime: Any,
+    recommendation: dict[str, Any],
+    request_payload: dict[str, Any],
+) -> dict[str, Any]:
+    devices = await _available_output_devices(hass, runtime)
+    actions = _output_actions_for_recommendation(devices, recommendation)
+    if actions:
+        title = str(recommendation.get("title") or "deze muziek").strip()
+        message = (
+            f"Ik weet nog niet op welke speaker ik {title} moet afspelen. "
+            "Kies een speaker, dan start ik hem meteen."
+        )
+        return {
+            "success": True,
+            "message": message,
+            "text": message,
+            "dj_text": message,
+            "action": "select_output",
+            "intent": {"category": "playback", "intent": "select_output_for_recommendation"},
+            "playback_actions": actions,
+            "recommendation": {
+                key: recommendation.get(key)
+                for key in ("uri", "uris", "context_uri", "offset_uri", "kind", "title", "subtitle", "reason")
+                if recommendation.get(key)
+            },
+        }
+    return {
+        "success": False,
+        "error": "no_active_output",
+        "message": "Ik weet nog niet op welke speaker ik dit moet afspelen en ik vind nu geen beschikbare speakers.",
+    }
+
+
+async def _available_output_devices(hass: Any, runtime: Any) -> list[dict[str, Any]]:
+    try:
+        result = await handle_spotify_command(hass, runtime, "devices")
+        devices = result.get("devices") if isinstance(result, dict) else []
+        if isinstance(devices, list) and devices:
+            return [device for device in devices if isinstance(device, dict)]
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect output lookup after no-active-output failed: %s", exc)
+    status = getattr(runtime, "device_status", {}) or {}
+    devices = status.get("available_outputs")
+    return [device for device in devices if isinstance(device, dict)] if isinstance(devices, list) else []
+
+
+def _output_actions_for_recommendation(
+    devices: list[dict[str, Any]],
+    recommendation: dict[str, Any],
+) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for device in devices:
+        device_id = str(device.get("id") or "").strip()
+        name = str(device.get("name") or "").strip()
+        if not device_id or not name or device_id in seen:
+            continue
+        seen.add(device_id)
+        device_type = str(device.get("type") or "Spotify Connect").strip()
+        actions.append(
+            {
+                key: value
+                for key, value in {
+                    "id": f"play_on_output:{device_id}",
+                    "title": name,
+                    "subtitle": device_type,
+                    "label": "Speel hier",
+                    "button_label": "Speel hier",
+                    "kind": "output",
+                    "command": "ask_dj_play_recommendation_on_output",
+                    "value": {
+                        "output_id": device_id,
+                        "device_id": device_id,
+                        "device_name": name,
+                        "recommendation": recommendation,
+                    },
+                    "device_id": device_id,
+                    "device_name": name,
+                    "reason": "Kies deze Spotify Connect speaker en start daarna de aanbeveling.",
+                }.items()
+                if value not in ("", None)
+            }
+        )
+        if len(actions) >= 8:
+            break
+    return actions
 
 
 async def _handle_ask_dj_followup_response(
@@ -1836,6 +1972,18 @@ class DJConnectCommandView(HomeAssistantView):
             if isinstance(command_value, dict) and command_value.get("memory_key"):
                 result["memory_key"] = str(command_value.get("memory_key") or "").strip()
             elif memory_key:
+                result.setdefault("memory_key", memory_key)
+            result.update(_ha_version_payload())
+            return self.json(result, status_code=200 if result.get("success") else 400)
+        if normalized_command == "ask_dj_play_recommendation_on_output":
+            result = await _handle_ask_dj_play_recommendation_on_output(
+                hass,
+                runtime,
+                command_value,
+                data,
+                user_id=_request_user_id(request),
+            )
+            if memory_key:
                 result.setdefault("memory_key", memory_key)
             result.update(_ha_version_payload())
             return self.json(result, status_code=200 if result.get("success") else 400)
