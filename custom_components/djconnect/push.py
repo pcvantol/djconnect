@@ -148,12 +148,30 @@ async def async_send_event(
         explicit_user_request=explicit_user_request,
     )
     if not decision.get("send"):
+        reason = _clean_text(decision.get("reason"), 120) or None
+        if reason in {"missing_bootstrap_proof", "missing_install_token"}:
+            _remember_status(
+                runtime,
+                source_device_id,
+                client_type,
+                registered=False,
+                error=reason,
+            )
+            return {
+                "success": False,
+                "push_supported": relay_configured(runtime),
+                "sent": 0,
+                "errors": 1,
+                "disabled": True,
+                "error": reason,
+                "last_push_error": reason,
+            }
         return {
             "success": True,
             "push_supported": relay_configured(runtime),
             "sent": 0,
             "disabled": bool(decision.get("disabled")),
-            "suppressed": decision.get("reason"),
+            "suppressed": reason,
         }
     payload = build_relay_event_payload(
         runtime,
@@ -225,6 +243,7 @@ def should_send_push(
     client_type: str | None = None,
     explicit_user_request: bool = False,
     now: float | None = None,
+    consume_rate_limit: bool = True,
 ) -> dict[str, Any]:
     """Apply the strict DJConnect Ask DJ push policy before relay delivery."""
     event = _clean_text(event_type, 64)
@@ -232,9 +251,11 @@ def should_send_push(
         return {"send": False, "disabled": True, "reason": "event_not_pushable"}
     if event == EVENT_ASK_DJ_RESPONSE and not explicit_user_request:
         return {"send": False, "disabled": True, "reason": "not_explicit_user_request"}
+    if not _relay_ready_or_bootstrappable(runtime):
+        return {"send": False, "disabled": True, "reason": "missing_bootstrap_proof"}
     if _target_recently_active(runtime, source_device_id, client_type, now=now):
         return {"send": False, "disabled": True, "reason": "client_recently_active"}
-    if _rate_limited(runtime, user_id, source_device_id, client_type, now=now):
+    if consume_rate_limit and _rate_limited(runtime, user_id, source_device_id, client_type, now=now):
         return {"send": False, "disabled": True, "reason": "rate_limited"}
     return {"send": True}
 
@@ -242,6 +263,18 @@ def should_send_push(
 def relay_configured(runtime: Any | None = None) -> bool:
     """Return whether the central DJConnect API is configured."""
     return central_api_configured(runtime) if runtime is not None else False
+
+
+def _relay_ready_or_bootstrappable(runtime: Any) -> bool:
+    """Return true when push can use an install token or mint one from proof."""
+    if relay_configured(runtime):
+        return True
+    config = getattr(runtime, "config", {}) or {}
+    status = getattr(runtime, "device_status", {}) or {}
+    return bool(
+        config.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF)
+        or status.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF)
+    )
 
 
 def redact_push_token(value: Any) -> str:

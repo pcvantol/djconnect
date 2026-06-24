@@ -1553,6 +1553,7 @@ def _register_developer_services(
             source_device_id=device_id,
             client_type=client_type,
             explicit_user_request=explicit_user_request,
+            consume_rate_limit=send,
         )
         if not send:
             return _push_debug_payload(

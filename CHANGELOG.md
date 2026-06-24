@@ -11,6 +11,9 @@
 - Keep music-related backend sensors such as Spotify status, last track, sound
   output, queue, playlists and outputs from falling back to unknown during
   sparse app/client status updates.
+- Make APNs test push diagnostics report missing bootstrap/install-token setup
+  before rate limiting, and prevent dry-run diagnostics from consuming the rate
+  limiter.
 
 ## 3.1.86
 
