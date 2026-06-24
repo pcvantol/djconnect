@@ -227,6 +227,55 @@ class DJConnectSensorTest(unittest.TestCase):
             "spotify:playlist:def",
         )
 
+    def test_music_sensors_keep_last_known_values_when_snapshot_is_sparse(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            device_token="device-token",
+            device_status={
+                "client_type": "macos",
+                "queue": {"items": [{"title": "Next up"}]},
+                "playlists": [{"name": "Roadtrip"}],
+                "available_outputs": [{"id": "dev-1", "name": "MacBook Pro"}],
+            },
+            last_playback={
+                "has_playback": True,
+                "is_playing": True,
+                "track_name": "Alive",
+                "device": {"id": "dev-1", "name": "MacBook Pro"},
+            },
+            listeners=[],
+            client_type=lambda: "macos",
+        )
+
+        track = self.sensor.DJConnectLastTrackSensor(runtime)
+        spotify_status = self.sensor.DJConnectSpotifyStatusSensor(runtime)
+        playback_available = self.sensor.DJConnectPlaybackAvailableSensor(runtime)
+        sound_output = self.sensor.DJConnectSoundOutputSensor(runtime)
+        queue = self.sensor.DJConnectQueueSensor(runtime)
+        playlists = self.sensor.DJConnectPlaylistsSensor(runtime)
+        outputs = self.sensor.DJConnectOutputsSensor(runtime)
+
+        self.assertEqual(track.native_value, "Alive")
+        self.assertEqual(spotify_status.native_value, "playing")
+        self.assertTrue(playback_available.native_value)
+        self.assertEqual(sound_output.native_value, "MacBook Pro")
+        self.assertEqual(queue.native_value, 1)
+        self.assertEqual(playlists.native_value, 1)
+        self.assertEqual(outputs.native_value, 1)
+
+        runtime.last_playback = {}
+        runtime.device_status.pop("queue")
+        runtime.device_status.pop("playlists")
+        runtime.device_status.pop("available_outputs")
+
+        self.assertEqual(track.native_value, "Alive")
+        self.assertEqual(spotify_status.native_value, "playing")
+        self.assertTrue(playback_available.native_value)
+        self.assertEqual(sound_output.native_value, "MacBook Pro")
+        self.assertEqual(queue.native_value, 1)
+        self.assertEqual(playlists.native_value, 1)
+        self.assertEqual(outputs.native_value, 1)
+
     def test_sensor_unique_ids_are_scoped_to_config_entry(self) -> None:
         runtime_a = types.SimpleNamespace(
             entry=types.SimpleNamespace(entry_id="entry-a"),

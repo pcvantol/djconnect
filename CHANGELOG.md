@@ -8,6 +8,9 @@
 - Keep backend playback controls from briefly becoming unavailable when app
   clients send sparse status updates or Spotify returns an idle playback
   snapshot without control metadata.
+- Keep music-related backend sensors such as Spotify status, last track, sound
+  output, queue, playlists and outputs from falling back to unknown during
+  sparse app/client status updates.
 
 ## 3.1.86
 
