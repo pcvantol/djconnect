@@ -222,16 +222,37 @@ def _runtime_update_signature(runtime: Any) -> str:
         "last_dj_displayed": getattr(runtime, "last_dj_displayed", None),
         "last_dj_response_at": getattr(runtime, "last_dj_response_at", None),
         "last_error": getattr(runtime, "last_error", None),
-        "last_playback": getattr(runtime, "last_playback", None),
+        "last_playback": _stable_entity_payload(getattr(runtime, "last_playback", None)),
         "last_stt_text": getattr(runtime, "last_stt_text", None),
         "last_corrected_text": getattr(runtime, "last_corrected_text", None),
         "last_spotify_search": getattr(runtime, "last_spotify_search", None),
         "last_resolved_media": getattr(runtime, "last_resolved_media", None),
-        "device_status": getattr(runtime, "device_status", None),
+        "device_status": _stable_entity_payload(getattr(runtime, "device_status", None)),
         "ota_in_progress": getattr(runtime, "ota_in_progress", None),
         "ota_last_error": getattr(runtime, "ota_last_error", None),
     }
     return json.dumps(payload, sort_keys=True, default=str, separators=(",", ":"))
+
+
+def _stable_entity_payload(value: Any) -> Any:
+    """Return entity-visible runtime data without volatile playback progress."""
+    if isinstance(value, dict):
+        return {
+            key: _stable_entity_payload(item)
+            for key, item in value.items()
+            if key
+            not in {
+                "progress_ms",
+                "position_ms",
+                "timestamp",
+                "server_time",
+                "fetched_at",
+                "refreshed_at",
+            }
+        }
+    if isinstance(value, list):
+        return [_stable_entity_payload(item) for item in value]
+    return value
 
 
 @dataclass
