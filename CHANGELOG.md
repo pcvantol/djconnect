@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+- Remove the native Home Assistant playback proxy `media_player` entity. Backend
+  playback still works through DJConnect commands and the remaining volume,
+  output, repeat, shuffle, queue, playlist and status entities, but the proxy no
+  longer appears on the Home Assistant device page.
+- Rename the user-facing firmware/client version sensor label to `App version`
+  / `App versie`, and read Apple client versions from `app_version` / `version`
+  before falling back to legacy `firmware` while keeping the existing entity id
+  stable.
+- Add the `djconnect.test_apns_push` developer diagnostic service and make the
+  APNs test button report actionable relay/bootstrap errors instead of `1`.
+
 ## 3.1.85
 
 - Stop Home Assistant entity churn caused by Spotify progress-only playback

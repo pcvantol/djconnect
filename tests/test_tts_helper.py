@@ -125,6 +125,46 @@ class TtsHelperTest(unittest.TestCase):
 
         self.assertEqual(self.integration._platforms_for_runtime(runtime), self.const.PLATFORMS)
 
+    def test_push_debug_payload_reports_flags_without_secrets(self) -> None:
+        entry = types.SimpleNamespace(
+            data={},
+            options={
+                self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_MACOS,
+                self.const.CONF_DEVICE_ID: "djconnect-macos-ABCDEFGHIJKL",
+                self.const.CONF_HA_INSTALL_ID: "ha-install-1",
+                self.const.CONF_DJCONNECT_INSTALL_TOKEN: "djci_secret",
+            },
+            entry_id="entry-mac",
+        )
+        runtime = self.integration.DJConnectRuntime(entry=entry)
+        runtime.device_status[self.const.CONF_CENTRAL_API_BOOTSTRAP_PROOF] = "proof-secret"
+        runtime.push_status = {
+            "djconnect-macos-ABCDEFGHIJKL|macos": {
+                "push_registered": False,
+                "last_push_error": "missing_bootstrap_proof",
+            }
+        }
+
+        payload = self.integration._push_debug_payload(
+            runtime,
+            device_id="djconnect-macos-ABCDEFGHIJKL",
+            client_type="macos",
+            event_type="ask_dj_confirm",
+            user_id="user-1",
+            explicit_user_request=True,
+            send=True,
+            decision={"send": True},
+            result={"success": False, "sent": 0, "error": "missing_bootstrap_proof"},
+        )
+
+        rendered = str(payload)
+        self.assertTrue(payload["central_api_configured"])
+        self.assertTrue(payload["install_token_present"])
+        self.assertTrue(payload["bootstrap_proof_present"])
+        self.assertEqual(payload["error"], "missing_bootstrap_proof")
+        self.assertNotIn("djci_secret", rendered)
+        self.assertNotIn("proof-secret", rendered)
+
     def test_device_command_posts_to_local_command_api(self) -> None:
         class Response:
             status = 200

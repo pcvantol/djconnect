@@ -73,6 +73,67 @@ test_ptt_text:
         text:
           multiline: false
 
+test_apns_push:
+  name: Test APNs push
+  description: >
+    Developer diagnostic: inspect DJConnect APNs push readiness for iOS, macOS
+    or Apple Watch clients. By default this returns decision, relay, registration
+    and last error details without sending a push. Set send to true to attempt a
+    privacy-safe test push through the DJConnect central relay.
+  fields:
+    device_id:
+      name: Device ID
+      description: Optional DJConnect Apple client id. Leave empty to use the paired client.
+      example: "djconnect-macos-ABCDEFGHIJKL"
+      required: false
+      selector:
+        text:
+          multiline: false
+    client_type:
+      name: Client type
+      description: ios, macos or watchos. Leave empty to use the paired client type.
+      example: "macos"
+      required: false
+      selector:
+        select:
+          options:
+            - ios
+            - macos
+            - watchos
+          mode: dropdown
+    event_type:
+      name: Event type
+      description: Push event to test.
+      required: false
+      default: ask_dj_confirm
+      selector:
+        select:
+          options:
+            - ask_dj_confirm
+            - ask_dj_response
+          mode: dropdown
+    user_id:
+      name: User ID
+      description: Optional HA user id for the same user-scoped push path as Ask DJ.
+      required: false
+      selector:
+        text:
+          multiline: false
+    send:
+      name: Send push
+      description: Turn on to actually call the central relay; leave off for diagnostic dry-run.
+      required: false
+      default: false
+      selector:
+        boolean:
+    explicit_user_request:
+      name: Explicit user request
+      description: Leave on for manual tests so Ask DJ push policy allows the event when otherwise valid.
+      required: false
+      default: true
+      selector:
+        boolean:
+
 ask_dj:
   name: Ask DJ
   description: >

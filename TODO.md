@@ -112,6 +112,11 @@
 - Test `djconnect.test_command` with `play: false`.
 - Test `djconnect.test_command` with `play: true`.
 - Test `djconnect.test_ptt_text` with a natural-language post-STT sentence and confirm Spotify playback plus DJ aankondiging text/audio delivery.
+- Test `djconnect.test_apns_push` with `send:false` and `send:true` on iOS,
+  macOS and watchOS. Confirm the response shows `central_api_configured`,
+  `install_token_present`, `bootstrap_proof_present`, `decision`,
+  `push_statuses`, `sent` and an actionable `error`, while never exposing APNs
+  tokens, bearer tokens, bootstrap proofs or `djci_` token values.
 - Test `djconnect.test_tts` and confirm response is sent to ESP, not HA media player.
 - Test Spotify backend playback after OAuth refresh-token rotation.
 - Test Spotify backend playback with simultaneous status/play/queue calls after OAuth refresh-token rotation.

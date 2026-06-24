@@ -86,13 +86,23 @@ class PushTest(unittest.TestCase):
                 user_id="user-1",
                 event_type="ask_dj_response",
                 history_revision=1,
+                source_device_id="djconnect-ios-ABCDEFGHIJKL",
+                client_type="ios",
                 explicit_user_request=True,
             )
         )
 
-        self.assertTrue(result["success"])
+        self.assertFalse(result["success"])
         self.assertFalse(result["push_supported"])
+        self.assertEqual(result["sent"], 0)
+        self.assertEqual(result["errors"], 1)
         self.assertTrue(result["disabled"])
+        self.assertEqual(result["error"], "missing_bootstrap_proof")
+        self.assertEqual(result["last_push_error"], "missing_bootstrap_proof")
+        self.assertEqual(
+            runtime.push_status["djconnect-ios-ABCDEFGHIJKL|ios"]["last_push_error"],
+            "missing_bootstrap_proof",
+        )
         self.assertEqual(hass.session.calls, [])
 
     def test_register_bootstraps_install_token_with_pairing_proof(self) -> None:

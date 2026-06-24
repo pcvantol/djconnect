@@ -232,7 +232,7 @@
         "name": "WiFi RSSI"
       },
       "firmware_version": {
-        "name": "Firmwareversie"
+        "name": "App versie"
       },
       "last_track": {
         "name": "Laatste nummer"
@@ -334,11 +334,6 @@
       },
       "log_level": {
         "name": "Logniveau"
-      }
-    },
-    "media_player": {
-      "playback_proxy": {
-        "name": "Playback proxy"
       }
     },
     "switch": {

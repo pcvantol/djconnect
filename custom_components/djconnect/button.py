@@ -170,7 +170,17 @@ class DJConnectTestPushButton(DJConnectBaseButton):
             explicit_user_request=True,
         )
         if not result.get("sent"):
-            reason = result.get("suppressed") or result.get("errors") or result.get("disabled")
+            reason = (
+                result.get("error")
+                or result.get("last_push_error")
+                or result.get("suppressed")
+                or ("disabled" if result.get("disabled") else None)
+                or ("relay_error" if result.get("errors") else None)
+                or "not_sent"
+            )
+            update = getattr(self.runtime, "update", None)
+            if callable(update):
+                update(last_error=f"DJConnect test push was not sent: {reason}")
             _LOGGER.warning("DJConnect test push was not sent: %s", reason)
             return
         _LOGGER.debug("DJConnect test push message sent")

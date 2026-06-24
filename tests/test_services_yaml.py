@@ -18,6 +18,7 @@ class ServicesYamlTest(unittest.TestCase):
             "test_tts",
             "test_command",
             "test_ptt_text",
+            "test_apns_push",
             "start_spotify_oauth",
             "device_command",
             "refresh_device_info",
@@ -32,6 +33,8 @@ class ServicesYamlTest(unittest.TestCase):
         self.assertIn("Developer helper", text)
         self.assertIn("temporary WAV or MP3 audio_url", text)
         self.assertIn("start exactly after STT conversion", compact_text)
+        self.assertIn("APNs push readiness", text)
+        self.assertIn("diagnostic dry-run", text)
         self.assertIn("Spotify search/playback", compact_text)
         self.assertIn("Ask DJ text request", text)
         self.assertIn("clear local Ask DJ chat history", compact_text)

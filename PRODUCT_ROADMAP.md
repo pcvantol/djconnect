@@ -96,7 +96,7 @@ Every release must review this roadmap.
 - [x] Ask DJ recent-played questions return read-only track, album, artist and
   playlist-context lists with art/icon metadata from Spotify recently played
   data (3.1.77, HA/client contract).
-- [x] Native HA playback proxy/entities refresh from live Spotify backend state
+- [x] Spotify-backed HA control/status entities refresh from live Spotify backend state
   for play/pause, volume, album art, output, repeat, shuffle, queue and
   playlists (3.1.77, HA).
 - [ ] Last STT text, resolved Spotify result, DJ announcement and last track are

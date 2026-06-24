@@ -123,13 +123,13 @@ class DJConnectApnsRegistrationSensor(DJConnectBaseSensor):
             return "not_applicable"
         if client_type not in APNS_SUPPORTED_CLIENT_TYPES:
             return "unsupported"
-        if not relay_configured(self.runtime):
-            return "disabled"
         statuses = _push_statuses_for_runtime(self.runtime, client_type)
         if any(item.get("push_registered") for item in statuses):
             return "registered"
         if any(item.get("last_push_error") for item in statuses):
             return "error"
+        if not relay_configured(self.runtime):
+            return "disabled"
         if statuses:
             return "unregistered"
         return "unknown"
@@ -345,7 +345,15 @@ class DJConnectFirmwareSensor(DJConnectBaseSensor):
 
     @property
     def native_value(self):
-        return self.runtime.device_status.get("firmware")
+        status = self.runtime.device_status
+        return _first_non_empty(
+            (
+                status.get("app_version"),
+                status.get("version"),
+                status.get("firmware"),
+                status.get("firmware_version"),
+            )
+        )
 
 class DJConnectLastTrackSensor(DJConnectBaseSensor):
     _attr_translation_key = "last_track"

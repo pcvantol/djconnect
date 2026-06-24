@@ -465,7 +465,12 @@ def _ha_version_payload() -> dict[str, str | None]:
 
 def _runtime_firmware_version(runtime: Any) -> Any:
     status = getattr(runtime, "device_status", {}) or {}
-    return status.get("firmware") or status.get("firmware_version")
+    return (
+        status.get("app_version")
+        or status.get("version")
+        or status.get("firmware")
+        or status.get("firmware_version")
+    )
 
 
 def _runtime_versions_compatible(runtime: Any) -> bool:
@@ -610,6 +615,17 @@ def _normalized_status_payload(data: dict[str, Any]) -> dict[str, Any]:
     for source, target in aliases.items():
         if normalized.get(source) is not None:
             normalized[target] = normalized[source]
+    app_version = _status_value(
+        normalized,
+        "app_version",
+        "version",
+        "firmware",
+        "firmware_version",
+    )
+    if app_version is not None:
+        normalized["app_version"] = app_version
+        normalized.setdefault("version", app_version)
+        normalized.setdefault("firmware", app_version)
     normalized = enrich_payload_with_mood_zone(normalized)
     if normalized.get("mood_zone"):
         _LOGGER.debug(
