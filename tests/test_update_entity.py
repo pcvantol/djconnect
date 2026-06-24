@@ -95,7 +95,11 @@ class DJConnectUpdateEntityTest(unittest.TestCase):
         runtime = types.SimpleNamespace(
             entry=types.SimpleNamespace(entry_id="entry-1"),
             config={},
-            device_status={},
+            device_status={
+                "device_id": "djconnect-lilygo-t-embed-s3-90B70990A994",
+                "firmware": "3.1.83",
+                "queue": {"items": [{"title": "Noisy"}]},
+            },
             ota_in_progress=False,
             ota_last_error=None,
             listeners=[],
@@ -112,11 +116,17 @@ class DJConnectUpdateEntityTest(unittest.TestCase):
         finally:
             self.update.fetch_latest_firmware_release = original
 
-        self.assertEqual(entity.latest_version, "0.0.0")
+        self.assertEqual(entity.latest_version, "3.1.83")
         self.assertEqual(
             entity.extra_state_attributes["firmware_update_error"],
             "rate limit exceeded",
         )
+        self.assertEqual(
+            entity.extra_state_attributes["device_id"],
+            "djconnect-lilygo-t-embed-s3-90B70990A994",
+        )
+        self.assertEqual(entity.extra_state_attributes["firmware"], "3.1.83")
+        self.assertNotIn("device_status", entity.extra_state_attributes)
 
     def test_async_update_throttles_successful_release_checks(self) -> None:
         github = importlib.import_module("custom_components.djconnect.github")

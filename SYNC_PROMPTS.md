@@ -33,7 +33,7 @@ instead of storing their own copy.
 ## Current Protocol Line
 
 The current shared protocol/release line is `3.1.x`; this bundle was last
-aligned after Home Assistant integration release `v3.1.78`. DJConnect clients on the
+aligned after Home Assistant integration release `v3.1.84`. DJConnect clients on the
 `3.1.x` line are compatible with Home Assistant integration versions `>=3.1.0`
 and `<3.2.0`.
 
@@ -179,7 +179,7 @@ Requirements:
   text, TTS or local audio. Informational text chat is text-only by default;
   replay is shown only when an audio response exists.
 - Keep Ask DJ requirements visible and user-facing: Home Assistant, HACS
-  DJConnect integration v3.1.78 or newer, Spotify Premium, the user's own
+  DJConnect integration v3.1.84 or newer, Spotify Premium, the user's own
   Spotify Developer app with Client ID, an Assist pipeline with STT/TTS for
   voice/audio, and preferably Nabu Casa or another stable HTTPS external URL
   for Spotify OAuth.

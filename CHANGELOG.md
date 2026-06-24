@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.1.84
+
+- Reduce post-pairing Home Assistant state churn by suppressing unchanged
+  runtime listener notifications and exposing compact debug/status attributes
+  instead of full playback/device payloads.
+- Harden watchOS Bonjour discovery by accepting Apple pairing-code aliases from
+  TXT and pairing-info payloads, and cover the full watchOS discovery-to-pairing
+  config-flow path with tests.
+
 ## 3.1.83
 
 - Make the backend playback proxy event-driven as well, so the Home Assistant

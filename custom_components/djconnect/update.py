@@ -107,7 +107,8 @@ class DJConnectFirmwareUpdate(UpdateEntity):
                 "repo": DEFAULT_FIRMWARE_REPO,
                 "channel": _firmware_channel_from_config(self.runtime),
                 "target_device": _firmware_device_from_status(self.runtime),
-                "device_status": self.runtime.device_status,
+                "device_id": self.runtime.device_status.get("device_id"),
+                "firmware": self.runtime.device_status.get("firmware"),
                 "firmware_update_error": self._update_error,
             }
         return {
@@ -120,7 +121,8 @@ class DJConnectFirmwareUpdate(UpdateEntity):
             "device": self._latest.device,
             "size": self._latest.size,
             "min_ha_integration": self._latest.min_ha_integration,
-            "device_status": self.runtime.device_status,
+            "device_id": self.runtime.device_status.get("device_id"),
+            "firmware": self.runtime.device_status.get("firmware"),
             "ota_in_progress": self.runtime.ota_in_progress,
             "ota_last_error": self.runtime.ota_last_error,
             "firmware_update_error": self._update_error,

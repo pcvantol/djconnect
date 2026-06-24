@@ -190,7 +190,7 @@ def _client_from_service_info(info: Any) -> DiscoveredClient | None:
             or properties.get("friendly_name")
             or "DJConnect"
         ).strip(),
-        pair_code=str(properties.get(CONF_PAIR_CODE) or "").strip(),
+        pair_code=_pair_code_from_mapping(properties),
         version=str(
             properties.get("version")
             or properties.get("app_version")
@@ -238,7 +238,7 @@ def _client_with_pairing_info(
             or client.device_name
             or "DJConnect"
         ).strip(),
-        pair_code=str(pairing_info.get(CONF_PAIR_CODE) or client.pair_code or "").strip(),
+        pair_code=_pair_code_from_mapping(pairing_info) or client.pair_code,
         version=str(
             pairing_info.get("app_version")
             or pairing_info.get("firmware")
@@ -332,6 +332,15 @@ def _device_id_matches_client_type(device_id: str, client_type: str) -> bool:
             )
         )
     return False
+
+
+def _pair_code_from_mapping(values: dict[str, Any]) -> str:
+    """Return the advertised pairing code from any supported client alias."""
+    for key in (CONF_PAIR_CODE, "pairing_code", "pairing_token"):
+        pair_code = str(values.get(key) or "").strip()
+        if pair_code:
+            return pair_code
+    return ""
 
 
 def _decode_txt_value(value: Any) -> str:

@@ -409,7 +409,20 @@ class TtsHelperTest(unittest.TestCase):
         runtime.update(last_error="boom")
         runtime.update()
 
-        self.assertEqual(calls, ["called", "called"])
+        self.assertEqual(calls, ["called"])
+
+    def test_runtime_update_notifies_once_for_changed_in_place_device_status(self) -> None:
+        entry = types.SimpleNamespace(entry_id="entry-1", data={}, options={})
+        runtime = self.integration.DJConnectRuntime(entry=entry)
+        calls: list[str] = []
+        runtime.listeners.append(lambda: calls.append("called"))
+
+        runtime.update(last_error=None)
+        runtime.device_status["ha_pairing_status"] = "paired"
+        runtime.update()
+        runtime.update()
+
+        self.assertEqual(calls, ["called"])
 
     def test_restore_runtime_ignores_obsolete_pair_code_local_url(self) -> None:
         entry = types.SimpleNamespace(
