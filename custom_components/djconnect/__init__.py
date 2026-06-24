@@ -46,6 +46,7 @@ from .const import (
     CONF_DEVICE_LANGUAGE,
     CONF_DEVICE_NAME,
     CONF_DEVICE_TOKEN,
+    CONF_DJCONNECT_INSTALL_TOKEN,
     CONF_HA_EXTERNAL_URL,
     CONF_HA_INSTALL_ID,
     CONF_LOCAL_URL,
@@ -89,6 +90,12 @@ from .ask_dj import async_handle_ask_dj
 from .ask_dj_history import AskDJHistoryManager
 from .memory import DJMemoryManager
 from .processor import process_text_command
+from .push import (
+    EVENT_ASK_DJ_CONFIRM,
+    async_send_event as async_send_push_event,
+    relay_configured,
+    should_send_push,
+)
 from .repairs import async_create_fixable_issues
 from .spotify_oauth import (
     build_authorize_url,
@@ -1102,6 +1109,16 @@ DEVELOPER_SERVICE_SCHEMAS = {
             vol.Optional("text"): str,
         }
     ),
+    "test_apns_push": _developer_service_schema(
+        {
+            vol.Optional("device_id"): str,
+            vol.Optional("client_type"): str,
+            vol.Optional("event_type", default=EVENT_ASK_DJ_CONFIRM): str,
+            vol.Optional("user_id"): str,
+            vol.Optional("send", default=False): bool,
+            vol.Optional("explicit_user_request", default=True): bool,
+        }
+    ),
     "start_spotify_oauth": _developer_service_schema(
         {
             vol.Optional("client_id"): str,
@@ -1159,6 +1176,110 @@ async def async_speak_dj_test(
     _LOGGER.debug("DJConnect test_tts sending DJ response to device")
     result = await async_send_dj_response(hass, runtime, text)
     return {"text": text, **result}
+
+
+def _push_status_snapshot(runtime: Any) -> list[dict[str, Any]]:
+    statuses = getattr(runtime, "push_status", None)
+    if not isinstance(statuses, dict):
+        return []
+    result: list[dict[str, Any]] = []
+    for key, value in statuses.items():
+        if not isinstance(value, dict):
+            continue
+        device_id, client_type = _split_push_status_key(key)
+        result.append(
+            {
+                "device_id": device_id,
+                "client_type": client_type,
+                "push_registered": bool(value.get("push_registered")),
+                "push_environment": value.get("push_environment"),
+                "last_push_error": value.get("last_push_error"),
+            }
+        )
+    return result
+
+
+def _split_push_status_key(key: Any) -> tuple[str, str]:
+    raw = str(key or "")
+    if "|" in raw:
+        device_id, client_type = raw.rsplit("|", 1)
+        return device_id, client_type
+    return raw, ""
+
+
+def _runtime_push_device_id(runtime: Any, requested: Any = None) -> str | None:
+    if requested:
+        return str(requested).strip()
+    status = getattr(runtime, "device_status", {}) or {}
+    config = getattr(runtime, "config", {}) or {}
+    value = status.get(CONF_DEVICE_ID) or config.get(CONF_DEVICE_ID)
+    return str(value).strip() if value else None
+
+
+def _runtime_push_client_type(runtime: Any, requested: Any = None) -> str:
+    if requested:
+        return str(requested).strip().lower()
+    getter = getattr(runtime, "client_type", None)
+    if callable(getter):
+        value = getter()
+        if value:
+            return str(value).strip().lower()
+    status = getattr(runtime, "device_status", {}) or {}
+    config = getattr(runtime, "config", {}) or {}
+    return (
+        str(status.get(CONF_CLIENT_TYPE) or config.get(CONF_CLIENT_TYPE) or "")
+        .strip()
+        .lower()
+    )
+
+
+def _push_debug_payload(
+    runtime: Any,
+    *,
+    device_id: str | None,
+    client_type: str,
+    event_type: str,
+    user_id: str | None,
+    explicit_user_request: bool,
+    send: bool,
+    decision: dict[str, Any],
+    result: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    config = getattr(runtime, "config", {}) or {}
+    status = getattr(runtime, "device_status", {}) or {}
+    payload: dict[str, Any] = {
+        "success": bool((result or decision).get("success", decision.get("send", False))),
+        "send_requested": send,
+        "event_type": event_type,
+        "device_id": device_id,
+        "client_type": client_type,
+        "user_id_provided": bool(user_id),
+        "explicit_user_request": explicit_user_request,
+        "central_api_configured": relay_configured(runtime),
+        "ha_install_id_present": bool(
+            config.get(CONF_HA_INSTALL_ID) or status.get(CONF_HA_INSTALL_ID)
+        ),
+        "install_token_present": bool(config.get(CONF_DJCONNECT_INSTALL_TOKEN)),
+        "bootstrap_proof_present": bool(
+            config.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF)
+            or status.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF)
+        ),
+        "decision": decision,
+        "push_statuses": _push_status_snapshot(runtime),
+    }
+    if result is not None:
+        payload["result"] = result
+        payload["sent"] = int(result.get("sent") or 0)
+        payload["error"] = (
+            result.get("error")
+            or result.get("last_push_error")
+            or result.get("suppressed")
+            or ("disabled" if result.get("disabled") else None)
+        )
+    else:
+        payload["sent"] = 0
+        payload["error"] = None if decision.get("send") else decision.get("reason")
+    return payload
 
 
 def register_http_views(hass: HomeAssistant) -> None:
@@ -1411,6 +1532,65 @@ def _register_developer_services(
         )
         return result
 
+    async def handle_test_apns_push(call: ServiceCall) -> dict[str, Any]:
+        event_type = str(call.data.get("event_type") or EVENT_ASK_DJ_CONFIRM).strip()
+        user_id = call.data.get("user_id") or getattr(
+            getattr(call, "context", None),
+            "user_id",
+            None,
+        )
+        device_id = _runtime_push_device_id(runtime, call.data.get("device_id"))
+        client_type = _runtime_push_client_type(runtime, call.data.get("client_type"))
+        explicit_user_request = bool(call.data.get("explicit_user_request", True))
+        send = bool(call.data.get("send", False))
+        decision = should_send_push(
+            runtime,
+            user_id=user_id,
+            event_type=event_type,
+            source_device_id=device_id,
+            client_type=client_type,
+            explicit_user_request=explicit_user_request,
+        )
+        if not send:
+            return _push_debug_payload(
+                runtime,
+                device_id=device_id,
+                client_type=client_type,
+                event_type=event_type,
+                user_id=user_id,
+                explicit_user_request=explicit_user_request,
+                send=False,
+                decision=decision,
+            )
+        result = await async_send_push_event(
+            hass,
+            runtime,
+            user_id=user_id,
+            event_type=event_type,
+            source_device_id=device_id,
+            client_type=client_type,
+            explicit_user_request=explicit_user_request,
+        )
+        debug = _push_debug_payload(
+            runtime,
+            device_id=device_id,
+            client_type=client_type,
+            event_type=event_type,
+            user_id=user_id,
+            explicit_user_request=explicit_user_request,
+            send=True,
+            decision=decision,
+            result=result,
+        )
+        _LOGGER.info(
+            "DJConnect APNs test push: sent=%s error=%s supported=%s configured=%s",
+            debug.get("sent"),
+            debug.get("error"),
+            result.get("push_supported"),
+            debug.get("central_api_configured"),
+        )
+        return debug
+
     async def handle_start_spotify_oauth(call: ServiceCall) -> dict[str, Any]:
         client_id = (
             call.data.get("client_id")
@@ -1531,6 +1711,7 @@ def _register_developer_services(
         "test_tts": (handle_test_tts, "optional"),
         "test_command": (handle_test_command, "optional"),
         "test_ptt_text": (handle_test_ptt_text, "optional"),
+        "test_apns_push": (handle_test_apns_push, "optional"),
         "start_spotify_oauth": (handle_start_spotify_oauth, "only"),
         "device_command": (handle_device_command, "optional"),
         "refresh_device_info": (handle_refresh_device_info, "optional"),

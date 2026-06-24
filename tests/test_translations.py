@@ -102,7 +102,6 @@ ENTITY_TRANSLATION_KEYS = {
     ("switch", "shuffle"),
     ("switch", "wake_word"),
     ("update", "firmware"),
-    ("media_player", "playback_proxy"),
 }
 
 ISSUE_TRANSLATION_KEYS = {
@@ -266,7 +265,6 @@ class TranslationTest(unittest.TestCase):
             "select.py",
             "switch.py",
             "update.py",
-            "media_player.py",
         ):
             with self.subTest(filename=filename):
                 text = (INTEGRATION / filename).read_text()

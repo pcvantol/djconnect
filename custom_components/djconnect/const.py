@@ -159,7 +159,7 @@ SPOTIFY_SCOPES = [
 ]
 DEFAULT_SPOTIFY_SCOPES = " ".join(SPOTIFY_SCOPES)
 
-PLATFORMS = ["sensor", "button", "number", "select", "switch", "update", "media_player", "conversation"]
+PLATFORMS = ["sensor", "button", "number", "select", "switch", "update", "conversation"]
 
 # Spotify OAuth/PKCE direct callback support
 SPOTIFY_CALLBACK_PATH = API_SPOTIFY_CALLBACK

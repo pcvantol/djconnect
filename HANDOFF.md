@@ -35,7 +35,7 @@ DJConnect ESP device
 - Device pairing and device-token lifecycle.
 - Spotify OAuth PKCE through HA external step.
 - Spotify refresh-token rotation and revoked-token repair.
-- Backend playback proxy and native HA `media_player`.
+- Backend playback orchestration and Spotify-backed HA control/status entities.
 - Device settings/entities through ESP `/api/device/command`.
 - Raw WAV PTT processing via HA STT/Assist.
 - DJ response TTS and temporary WAV/MP3 audio URLs.
@@ -97,7 +97,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 
 - The previous external message-bus control route is removed and must not be reintroduced.
 - ESP is not a Spotify Connect speaker/player.
-- HA `media_player.djconnect_playback_proxy` represents backend playback, not ESP speaker audio.
+- DJConnect no longer exposes a native HA `media_player` playback proxy; backend playback is controlled through DJConnect commands and Spotify-backed HA control/status entities.
 - ESP speaker is only for local cues and DJ/voice response audio.
 - ESP stores no Spotify/Sonos/backend credentials.
 - Pairing/status responses must never include `spotify_client_id`, `client_id`, `spotify_refresh_token`, `refresh_token` or nested Spotify OAuth secrets.
@@ -224,7 +224,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
   DJ announcements and ambient system facts.
 - Local deterministic intent parsing may override stale/generic HA Assist output, so a new request such as `Speel Nirvana` cannot keep using an older artist context such as Red Hot Chili Peppers.
 - Spotify playlist browsing may return up to 100 playlists to app-like clients, but HA must page Spotify `/me/playlists` internally with provider-safe pages of at most 50 items to avoid Spotify HTTP 400 `Invalid limit`.
-- The native playback proxy media player and Spotify-backed HA entities must poll/cache backend playback snapshots so current play/pause state, album art, Spotify volume, selected output/source, repeat, shuffle, queue and playlists update in Home Assistant. `media_player` volume follows Spotify's 0-100 scale; the legacy `number.djconnect_volume` entity keeps its existing 0-60 range.
+- Spotify-backed HA entities must cache backend playback snapshots so Spotify volume, selected output/source, repeat, shuffle, queue and playlists update in Home Assistant without a native playback proxy media player. The legacy `number.djconnect_volume` entity keeps its existing 0-60 range.
 - Use Developer Tools action `djconnect.test_ptt_text` to debug the real PTT route immediately after STT conversion: enter recognized natural-language text, then DJConnect runs the guarded Assist fuzzy-correction step, intent parsing, Spotify search/playback, DJ aankondiging generation, TTS audio creation and delivery to the connected client/device.
 - Do not send arbitrary text as `context_uri`, and do not perform broad track/album search for generic artist requests.
 - Device DJ responses after successful PTT playback are generated from resolved Spotify/playback metadata and the runtime mood-zone/default announcement style, not from the generic Assist fallback announcement.
@@ -259,16 +259,25 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Last-known ESP device status is persisted in config entry data as `last_device_status` and restored on HA reload/startup; never store secrets there.
 - `sensor.djconnect_last_track` and `sensor.djconnect_last_command` cache their last non-empty native values at entity level and must not flip to unknown/unavailable because a sparse runtime snapshot omits them.
 - ESP status must include `client_type=esp32`; missing client type is surfaced as a visible HA status error.
-- Native HA entities include backend playback proxy, queue/up-next, output list, output select, device settings and test/refresh buttons under one HA device. Firmware OTA/update entities are ESP32-only.
+- Native HA entities include queue/up-next, output list, output select, device settings and test/refresh buttons under one HA device. Firmware OTA/update entities are ESP32-only.
 - ESP32 clients get ESP-only hardware/update/settings entities: battery, Wi-Fi RSSI, screen state, LED state, screen brightness/timeout, speaker volume, wake word, device language, auto-off, theme/log-level, firmware update and reboot. Wake word reads `settings.wake_word_enabled`, then top-level `wake_word_enabled`, then `wake_word`, and the HA switch sends canonical `{"command":"wake_word","value":true|false}`. iOS, macOS, watchOS and Raspberry Pi clients must not get those ESP-only entities; they keep only client/runtime and backend/playback entities. Raspberry Pi clients additionally get Pi-specific restart and shutdown buttons that call `/api/device/restart` and `/api/device/shutdown`.
 - `button.djconnect_refresh_up_next` refreshes Spotify/Home Assistant backend queue data through the `queue` command.
 - `command=queue` returns at most 100 real queue items plus top-level `context_uri` / `contextUri` and queue item artwork aliases so ESP/web/app Up Next can use `play_context_at` and show thumbnails.
 - `select.djconnect_sound_output` refreshes Spotify output devices itself and accepts `available_outputs`, `outputs`, `devices` and nested `items` aliases.
-- Playback proxy exposes album art through `album_image_url`, `media_image_url`, `image_url` and `entity_picture` aliases.
+- Backend playback snapshots keep artwork aliases such as `album_image_url`, `media_image_url`, `image_url` and `entity_picture` for clients and diagnostics.
 - Voice debug is opt-in via debug logging: when `custom_components.djconnect` debug logging is enabled, HA stores the last raw ESP WAV in memory and exposes it at authenticated URL `/api/djconnect/debug/last_voice.wav`.
 - PTT/debug metadata is exposed as attributes on `sensor.djconnect_status`, `sensor.djconnect_last_command` and `sensor.djconnect_last_corrected_stt`, including last STT text, corrected text when changed, Spotify search summary and resolved media metadata.
 - Developer Actions use explicit UI field names `command_text` and `dj_response_text`; legacy `text` remains accepted for existing YAML/scripts.
 - Developer Actions also register explicit runtime service schemas so Home Assistant Developer Tools keeps the text fields visible after service metadata refreshes.
+- `djconnect.test_apns_push` is the APNs developer diagnostic action. Default
+  `send:false` returns push readiness, central relay flags, policy decision,
+  known registration summaries and error reason without sending. `send:true`
+  attempts one privacy-safe central relay test event. Its response must never
+  expose APNs tokens, bearer tokens, `bootstrap_proof` values or `djci_` install
+  tokens. Keep it in sync with `sensor.djconnect_apns_registration` error
+  semantics: `missing_bootstrap_proof`, `missing_install_token` and
+  `push_relay_unavailable` should be visible as actionable reasons rather than
+  generic counters such as `1`.
 - If HA Assist treats the DJConnect parsing prompt as a smart-home device command, DJConnect falls back to a simple Spotify search intent instead of raising a websocket script exception.
 - `pcvantol/djconnect/SYNC_PROMPTS.md` is the only canonical sync prompt bundle and includes the ESP, HA, Apple app, Raspberry Pi and product website contracts.
 - `pcvantol/djconnect/PRODUCT_ROADMAP.md` is the only canonical product roadmap for all DJConnect repos.
@@ -312,7 +321,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 11. Pair a device from scratch and verify token synchronization with required `ha_local_url`.
 12. Verify ESP `/status` includes current settings aliases consumed by HA.
 13. Run physical PTT end-to-end.
-14. Verify native playback proxy media player controls Spotify backend playback and shows album art.
+14. Verify Spotify-backed DJConnect control/status entities update volume, output, repeat, shuffle, queue and playback availability without creating a native media player proxy.
 15. Verify no Spotify OAuth secrets are sent to ESP or logged.
 16. Pair a Raspberry Pi client from mDNS discovery and verify the form pre-fills Client adres, `client_type=raspberry_pi`, device name, stable device ID and pair code from `/api/device/pairing-info`.
 17. Test the Raspberry Pi fallback path by advertising `_djconnect._tcp` while blocking `/api/device/pairing-info`; HA should show the translated pairing-info error and allow manual Client adres correction.

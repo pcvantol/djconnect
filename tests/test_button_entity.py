@@ -164,6 +164,41 @@ class DJConnectButtonEntityTest(unittest.TestCase):
         self.assertEqual(kwargs["client_type"], "macos")
         self.assertTrue(kwargs["explicit_user_request"])
 
+    def test_test_push_button_records_readable_failure_reason(self) -> None:
+        errors = []
+
+        async def send_push(*args, **kwargs):
+            return {
+                "success": False,
+                "sent": 0,
+                "errors": 1,
+                "disabled": True,
+                "error": "missing_bootstrap_proof",
+            }
+
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            device_status={
+                "device_id": "djconnect-macos-ABCDEFGHIJKL",
+                "client_type": "macos",
+            },
+            config={},
+            update=lambda **kwargs: errors.append(kwargs["last_error"]),
+        )
+        original = self.button.async_send_push_event
+        self.button.async_send_push_event = send_push
+        try:
+            with self.assertLogs("custom_components.djconnect.button", level="WARNING") as logs:
+                asyncio.run(self.button.DJConnectTestPushButton(runtime, object()).async_press())
+        finally:
+            self.button.async_send_push_event = original
+
+        self.assertIn("missing_bootstrap_proof", logs.output[0])
+        self.assertEqual(
+            errors,
+            ["DJConnect test push was not sent: missing_bootstrap_proof"],
+        )
+
     def test_pi_power_buttons_are_added_for_raspberry_pi_clients(self) -> None:
         added = []
         runtime = types.SimpleNamespace(

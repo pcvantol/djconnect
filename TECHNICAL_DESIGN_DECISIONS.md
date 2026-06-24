@@ -47,7 +47,6 @@ Primary source files:
 - `custom_components/djconnect/select.py`
 - `custom_components/djconnect/switch.py`
 - `custom_components/djconnect/update.py`
-- `custom_components/djconnect/media_player.py`
 
 Why:
 
@@ -770,11 +769,24 @@ Pattern:
   pushes per ten minutes per HA user plus device/client. Foreground or recently
   active clients are suppressed when status payloads expose usable activity
   state.
+- `sensor.djconnect_apns_registration` is the user-facing registration summary.
+  Known relay/bootstrap failures should surface as `error` plus
+  `last_push_error`; a missing install token without a known registration/error
+  remains `disabled`.
+- `djconnect.test_apns_push` is the developer diagnostic surface for this path.
+  Dry-run mode evaluates the HA push policy and returns relay/config/status
+  flags without sending. `send:true` calls the central relay once and returns
+  `sent`, `error`, `result`, `decision` and redacted `push_statuses`. The
+  response must expose only presence booleans for secrets such as
+  `install_token_present` and `bootstrap_proof_present`, never raw APNs tokens,
+  bearer tokens, proofs or `djci_` values.
 
 Primary source files:
 
 - `custom_components/djconnect/push.py`
 - `custom_components/djconnect/http.py`
+- `custom_components/djconnect/__init__.py`
+- `custom_components/djconnect/sensor.py`
 
 Why:
 

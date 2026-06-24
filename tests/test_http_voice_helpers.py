@@ -118,6 +118,31 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         self.assertEqual(text, "Speel Pearl Jam")
 
+    def test_normalized_status_payload_aliases_app_version(self) -> None:
+        payload = self.http._normalized_status_payload(
+            {
+                "client_type": "macos",
+                "device_id": "djconnect-macos-ABCDEFGHIJKL",
+                "app_version": "3.1.46",
+            }
+        )
+
+        self.assertEqual(payload["app_version"], "3.1.46")
+        self.assertEqual(payload["version"], "3.1.46")
+        self.assertEqual(payload["firmware"], "3.1.46")
+
+    def test_runtime_version_check_prefers_app_version(self) -> None:
+        runtime = types.SimpleNamespace(
+            device_status={
+                "client_type": "macos",
+                "app_version": self.http.VERSION,
+                "firmware": "3.0.1",
+            }
+        )
+
+        self.assertEqual(self.http._runtime_firmware_version(runtime), self.http.VERSION)
+        self.assertTrue(self.http._runtime_versions_compatible(runtime))
+
     def test_text_from_json_payload(self) -> None:
         text = self.http._text_from_payload({}, {"text": " Speel Nirvana "})
 

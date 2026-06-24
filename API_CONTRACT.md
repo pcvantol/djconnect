@@ -209,6 +209,53 @@ registered, `push_environment`. Status/capability responses may include
 `push_supported`, `push_registered`, `push_environment` and a redacted
 `last_push_error` summary.
 
+Home Assistant also exposes `djconnect.test_apns_push` as a developer diagnostic
+service. By default it is a dry-run and does not contact APNs or the central
+relay. With `send:true`, it attempts one privacy-safe test event through
+`POST /v1/push/event`. Input fields are:
+
+- `device_id`, optional; defaults to the paired runtime device id.
+- `client_type`, optional; defaults to the paired runtime client type.
+- `event_type`, optional; default `ask_dj_confirm`.
+- `user_id`, optional; uses the service call context user id when omitted.
+- `send`, optional boolean; default `false`.
+- `explicit_user_request`, optional boolean; default `true`.
+
+Diagnostic responses are intentionally redacted and must not include APNs tokens,
+bearer tokens, bootstrap proofs or `djci_` token values:
+
+```json
+{
+  "success": false,
+  "send_requested": true,
+  "event_type": "ask_dj_confirm",
+  "device_id": "djconnect-macos-ABCDEFGHIJKL",
+  "client_type": "macos",
+  "user_id_provided": true,
+  "explicit_user_request": true,
+  "central_api_configured": false,
+  "ha_install_id_present": true,
+  "install_token_present": false,
+  "bootstrap_proof_present": false,
+  "decision": {"send": true},
+  "push_statuses": [
+    {
+      "device_id": "djconnect-macos-ABCDEFGHIJKL",
+      "client_type": "macos",
+      "push_registered": false,
+      "push_environment": null,
+      "last_push_error": "missing_bootstrap_proof"
+    }
+  ],
+  "sent": 0,
+  "error": "missing_bootstrap_proof"
+}
+```
+
+Expected diagnostic error reasons include `missing_bootstrap_proof`,
+`missing_install_token`, `push_relay_unavailable`, `rate_limited`,
+`client_recently_active`, `event_not_pushable` and `not_explicit_user_request`.
+
 The HACS integration only stores central API settings scoped to one Home
 Assistant installation:
 

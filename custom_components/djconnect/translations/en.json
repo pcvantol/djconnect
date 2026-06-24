@@ -236,7 +236,7 @@
         "name": "Wi-Fi RSSI"
       },
       "firmware_version": {
-        "name": "Firmware version"
+        "name": "App version"
       },
       "last_track": {
         "name": "Last track"
@@ -338,11 +338,6 @@
       },
       "log_level": {
         "name": "Log level"
-      }
-    },
-    "media_player": {
-      "playback_proxy": {
-        "name": "Playback proxy"
       }
     },
     "switch": {

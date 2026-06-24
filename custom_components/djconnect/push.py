@@ -165,12 +165,23 @@ async def async_send_event(
     if not payload:
         return {"success": True, "push_supported": relay_configured(runtime), "sent": 0, "disabled": True}
     result = await _post_relay(hass, runtime, "/v1/push/event", payload)
+    error = _clean_text(result.get("error"), 120) or None
+    if not result.get("success"):
+        _remember_status(
+            runtime,
+            source_device_id,
+            client_type,
+            registered=False,
+            error=error,
+        )
     return {
-        "success": True,
+        "success": bool(result.get("success")),
         "push_supported": relay_configured(runtime),
         "sent": int(bool(result.get("success"))),
         "errors": 0 if result.get("success") else 1,
         "disabled": bool(result.get("disabled")),
+        "error": error,
+        "last_push_error": error,
     }
 
 

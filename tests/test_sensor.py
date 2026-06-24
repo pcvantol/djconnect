@@ -378,6 +378,30 @@ class DJConnectSensorTest(unittest.TestCase):
         self.assertEqual(entity.extra_state_attributes["push_environment"], "production")
         self.assertNotIn("push_token", str(entity.extra_state_attributes))
 
+    def test_apns_registration_sensor_reports_error_before_disabled(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            config={
+                "client_type": "macos",
+                "device_id": "djconnect-macos-ABCDEFGHIJKL",
+            },
+            device_status={"client_type": "macos", "device_id": "djconnect-macos-ABCDEFGHIJKL"},
+            push_status={
+                "djconnect-macos-ABCDEFGHIJKL|macos": {
+                    "push_registered": False,
+                    "push_environment": None,
+                    "last_push_error": "missing_bootstrap_proof",
+                }
+            },
+            listeners=[],
+            client_type=lambda: "macos",
+        )
+        entity = self.sensor.DJConnectApnsRegistrationSensor(runtime)
+
+        self.assertEqual(entity.native_value, "error")
+        self.assertFalse(entity.extra_state_attributes["central_api_configured"])
+        self.assertEqual(entity.extra_state_attributes["last_push_error"], "missing_bootstrap_proof")
+
     def test_apns_registration_sensor_reports_unsupported_device_client(self) -> None:
         runtime = types.SimpleNamespace(
             entry=types.SimpleNamespace(entry_id="entry-1"),
@@ -652,6 +676,31 @@ class DJConnectSensorTest(unittest.TestCase):
         self.assertEqual(attrs["playback_device"], "Woonkamer")
         self.assertNotIn("device_status", attrs)
         self.assertNotIn("last_playback", attrs)
+
+    def test_app_version_sensor_prefers_app_version_for_apple_clients(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            device_status={
+                "client_type": "macos",
+                "app_version": "3.1.46",
+                "version": "3.1.46",
+                "firmware": "3.1.43",
+            },
+            listeners=[],
+        )
+        entity = self.sensor.DJConnectFirmwareSensor(runtime)
+
+        self.assertEqual(entity.native_value, "3.1.46")
+
+    def test_app_version_sensor_falls_back_to_legacy_firmware(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            device_status={"client_type": "esp32", "firmware": "3.1.85"},
+            listeners=[],
+        )
+        entity = self.sensor.DJConnectFirmwareSensor(runtime)
+
+        self.assertEqual(entity.native_value, "3.1.85")
 
     def test_queue_sensor_reads_dict_items_and_context(self) -> None:
         runtime = types.SimpleNamespace(
