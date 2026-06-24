@@ -10,6 +10,7 @@ Canonical repo locations:
 - Home Assistant integration: `pcvantol/djconnect`
 - Central API backend: `pcvantol/djconnect-api`
 - Apple app: `pcvantol/djconnect-app`
+- Windows desktop app: `pcvantol/djconnect-windows`
 - ESP firmware: `pcvantol/djconnect-esp32`
 - Website/docs: `pcvantol/djconnect-website`
 - Raspberry Pi client: `pcvantol/djconnect-pi`
@@ -127,14 +128,15 @@ Publishing and cleanup:
 ## Cross-Repo Quick Prompts
 
 Use these prompts when handing work between the Home Assistant integration,
-central API backend, Apple app, ESP firmware, Raspberry Pi client, and
-website/docs repos.
+central API backend, Apple app, Windows desktop app, ESP firmware, Raspberry Pi
+client, and website/docs repos.
 
 Canonical repo locations:
 
 - Home Assistant integration: `pcvantol/djconnect`
 - Central API backend: `pcvantol/djconnect-api`
 - Apple app: `pcvantol/djconnect-app`
+- Windows desktop app: `pcvantol/djconnect-windows`
 - ESP firmware: `pcvantol/djconnect-esp32`
 - Website/docs: `pcvantol/djconnect-website`
 - Raspberry Pi client: `pcvantol/djconnect-pi`
@@ -632,6 +634,79 @@ Requirements:
 - Detect likely unclean exits and offer only user-mediated crash reporting:
   copy redacted diagnostics or open a prefilled `pcvantol/djconnect` issue.
 - Do not log bearer tokens, HA tokens, Spotify secrets, or audio URLs.
+```
+
+## Windows Desktop Client
+
+```text
+Sync the DJConnect Windows desktop app with the Home Assistant integration
+contract.
+
+Repository:
+- `pcvantol/djconnect-windows`
+
+Requirements:
+- Build as a .NET MAUI desktop app targeting Windows and macOS from one
+  codebase. Current targets are `net10.0-windows10.0.19041.0` and
+  `net10.0-maccatalyst`; macOS builds may require a matching Xcode/.NET
+  MacCatalyst workload pair.
+- Use `client_type:"windows"` and stable device IDs shaped like
+  `djconnect-windows-XXXXXXXXXXXX`, where the suffix is derived from the first
+  12 alphanumeric characters of the stable install ID.
+- Treat Windows as an app-like desktop client, not ESP firmware. Do not create
+  ESP-only HA entities such as battery, Wi-Fi RSSI, screen/LED state, speaker
+  volume, firmware OTA or reboot for Windows clients.
+- Home Assistant remains the trusted backend for pairing, DJConnect bearer-token
+  lifecycle, Spotify OAuth/backend playback, Ask DJ history, DJ Memory,
+  Assist/STT/TTS and command execution.
+- Store only the DJConnect bearer token in platform credential storage:
+  Windows Credential Manager on Windows and macOS Keychain when the same MAUI
+  app runs on macOS. Keep local JSON settings non-secret.
+- Do not store Spotify credentials, Spotify OAuth tokens, Home Assistant
+  long-lived access tokens, DJ Memory, Ask DJ server history, raw audio,
+  prompts or secret-bearing backend responses as source of truth.
+- Pair with Home Assistant using the app-generated pairing code and send it as
+  `pairing_token`, `pair_code` and `pairing_code` for compatibility with
+  current HA builds. Store the returned `device_token` only in the platform
+  credential store.
+- Send status to `POST /api/djconnect/status` with `device_id`, `device_name`,
+  `client_type`, `firmware` and app version metadata. Treat `401`/`403` as
+  stale pairing and HTTP `426` version_mismatch as update-required without
+  clearing the token automatically.
+- Ask DJ text chat uses `POST /api/djconnect/ask_dj/message`; history sync uses
+  `GET /api/djconnect/ask_dj/history?since_revision=<number>`; clear uses
+  `POST /api/djconnect/ask_dj/history/clear`.
+- Persist only local sync cursors such as `history_revision` and
+  `clear_revision`. Clear local display cache when HA clear_revision advances
+  or pairing becomes stale. Honor `history_trimmed_before` and
+  `history_trimmed_count` without parsing visible retention-message text.
+- Render Ask DJ `playback_actions[]` and `confirmation_actions[]` from HA.
+  Confirmation actions use `command:"ask_dj_followup_response"`;
+  recommendation Play Now actions use `command:"ask_dj_play_recommendation"`
+  unless HA provides a more specific command. Do not reconstruct pending
+  follow-up state locally.
+- Render `recently_played_history` responses as compact `items[]` lists. Do
+  not invent Play Now buttons or reuse stale artwork unless HA explicitly
+  returns `playback_actions[]` or current response images.
+- Playback buttons send generic commands to `POST /api/djconnect/command`,
+  including play, pause, next, previous and future backend commands. Spotify
+  OAuth and backend playback remain HA-owned.
+- Keep the Spotify trademark/non-affiliation notice visible in docs/About UI:
+  `Spotify is a trademark of Spotify AB. DJConnect is not affiliated with,
+  endorsed by, or sponsored by Spotify AB.`
+- Keep `README.md`, `CHANGELOG.md`, `CHAT_BOOTSTRAP.md`, `docs/ARCHITECTURE.md`,
+  `docs/API_CONTRACT.md`, `docs/DEVELOPMENT.md`, `docs/RELEASE.md`,
+  `docs/HANDOFF.md`, `docs/TODO.md`, `docs/ISSUES.md`,
+  `docs/TECHNICAL_DESIGN_DECISIONS.md`, `THIRD_PARTY_NOTICES.md`, `PRIVACY.md`
+  and `SECURITY.md` current.
+- Run `./run_tests.sh` after protocol/model changes. CI should run protocol
+  tests plus Windows and Mac Catalyst build jobs. If Mac Catalyst is blocked by
+  Xcode/.NET workload mismatch, document the exact Xcode and pack versions.
+- Release helpers should keep old GitHub releases, tags and workflow runs
+  cleaned up through `clear_old_releases.sh`; workflow-run cleanup requires
+  GitHub Actions `actions: write` permission.
+- Never log or commit bearer tokens, Home Assistant tokens, Spotify secrets,
+  Keychain/Credential Manager values or raw secret-bearing payloads.
 ```
 
 ## Raspberry Pi Client
@@ -2128,14 +2203,15 @@ Do not put SwiftUI view logic into the HTTP client.
 # Sync Prompts
 
 Use these prompts when handing work between the Home Assistant integration,
-central API backend, Apple app, ESP firmware, Raspberry Pi client, and
-website/docs repos.
+central API backend, Apple app, Windows desktop app, ESP firmware, Raspberry Pi
+client, and website/docs repos.
 
 Canonical repo locations:
 
 - Home Assistant integration: `pcvantol/djconnect`
 - Central API backend: `pcvantol/djconnect-api`
 - Apple app: `pcvantol/djconnect-app`
+- Windows desktop app: `pcvantol/djconnect-windows`
 - ESP firmware: `pcvantol/djconnect-esp32`
 - Website/docs: `pcvantol/djconnect-website`
 - Raspberry Pi client: `pcvantol/djconnect-pi`
@@ -2305,6 +2381,79 @@ Requirements:
 - Detect likely unclean exits and offer only user-mediated crash reporting:
   copy redacted diagnostics or open a prefilled `pcvantol/djconnect` issue.
 - Do not log bearer tokens, HA tokens, Spotify secrets, or audio URLs.
+```
+
+## Windows Desktop Client
+
+```text
+Sync the DJConnect Windows desktop app with the Home Assistant integration
+contract.
+
+Repository:
+- `pcvantol/djconnect-windows`
+
+Requirements:
+- Build as a .NET MAUI desktop app targeting Windows and macOS from one
+  codebase. Current targets are `net10.0-windows10.0.19041.0` and
+  `net10.0-maccatalyst`; macOS builds may require a matching Xcode/.NET
+  MacCatalyst workload pair.
+- Use `client_type:"windows"` and stable device IDs shaped like
+  `djconnect-windows-XXXXXXXXXXXX`, where the suffix is derived from the first
+  12 alphanumeric characters of the stable install ID.
+- Treat Windows as an app-like desktop client, not ESP firmware. Do not create
+  ESP-only HA entities such as battery, Wi-Fi RSSI, screen/LED state, speaker
+  volume, firmware OTA or reboot for Windows clients.
+- Home Assistant remains the trusted backend for pairing, DJConnect bearer-token
+  lifecycle, Spotify OAuth/backend playback, Ask DJ history, DJ Memory,
+  Assist/STT/TTS and command execution.
+- Store only the DJConnect bearer token in platform credential storage:
+  Windows Credential Manager on Windows and macOS Keychain when the same MAUI
+  app runs on macOS. Keep local JSON settings non-secret.
+- Do not store Spotify credentials, Spotify OAuth tokens, Home Assistant
+  long-lived access tokens, DJ Memory, Ask DJ server history, raw audio,
+  prompts or secret-bearing backend responses as source of truth.
+- Pair with Home Assistant using the app-generated pairing code and send it as
+  `pairing_token`, `pair_code` and `pairing_code` for compatibility with
+  current HA builds. Store the returned `device_token` only in the platform
+  credential store.
+- Send status to `POST /api/djconnect/status` with `device_id`, `device_name`,
+  `client_type`, `firmware` and app version metadata. Treat `401`/`403` as
+  stale pairing and HTTP `426` version_mismatch as update-required without
+  clearing the token automatically.
+- Ask DJ text chat uses `POST /api/djconnect/ask_dj/message`; history sync uses
+  `GET /api/djconnect/ask_dj/history?since_revision=<number>`; clear uses
+  `POST /api/djconnect/ask_dj/history/clear`.
+- Persist only local sync cursors such as `history_revision` and
+  `clear_revision`. Clear local display cache when HA clear_revision advances
+  or pairing becomes stale. Honor `history_trimmed_before` and
+  `history_trimmed_count` without parsing visible retention-message text.
+- Render Ask DJ `playback_actions[]` and `confirmation_actions[]` from HA.
+  Confirmation actions use `command:"ask_dj_followup_response"`;
+  recommendation Play Now actions use `command:"ask_dj_play_recommendation"`
+  unless HA provides a more specific command. Do not reconstruct pending
+  follow-up state locally.
+- Render `recently_played_history` responses as compact `items[]` lists. Do
+  not invent Play Now buttons or reuse stale artwork unless HA explicitly
+  returns `playback_actions[]` or current response images.
+- Playback buttons send generic commands to `POST /api/djconnect/command`,
+  including play, pause, next, previous and future backend commands. Spotify
+  OAuth and backend playback remain HA-owned.
+- Keep the Spotify trademark/non-affiliation notice visible in docs/About UI:
+  `Spotify is a trademark of Spotify AB. DJConnect is not affiliated with,
+  endorsed by, or sponsored by Spotify AB.`
+- Keep `README.md`, `CHANGELOG.md`, `CHAT_BOOTSTRAP.md`, `docs/ARCHITECTURE.md`,
+  `docs/API_CONTRACT.md`, `docs/DEVELOPMENT.md`, `docs/RELEASE.md`,
+  `docs/HANDOFF.md`, `docs/TODO.md`, `docs/ISSUES.md`,
+  `docs/TECHNICAL_DESIGN_DECISIONS.md`, `THIRD_PARTY_NOTICES.md`, `PRIVACY.md`
+  and `SECURITY.md` current.
+- Run `./run_tests.sh` after protocol/model changes. CI should run protocol
+  tests plus Windows and Mac Catalyst build jobs. If Mac Catalyst is blocked by
+  Xcode/.NET workload mismatch, document the exact Xcode and pack versions.
+- Release helpers should keep old GitHub releases, tags and workflow runs
+  cleaned up through `clear_old_releases.sh`; workflow-run cleanup requires
+  GitHub Actions `actions: write` permission.
+- Never log or commit bearer tokens, Home Assistant tokens, Spotify secrets,
+  Keychain/Credential Manager values or raw secret-bearing payloads.
 ```
 
 ## Raspberry Pi Client
