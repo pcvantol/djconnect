@@ -1347,6 +1347,8 @@ async def _handle_informational(
         }
     playlist_query = _playlist_query_from_question(text)
     if playlist_query:
+        if _playlist_question_wants_track_choices(text):
+            return await _playlist_track_choices_response(hass, runtime, playlist_query)
         result = await _spotify_playlist_search(hass, runtime, playlist_query)
         playlists = result.get("playlists") if isinstance(result, dict) else []
         actions = _playlist_search_playback_actions(hass, playlists, limit=10)
@@ -3512,6 +3514,14 @@ def _is_user_playlists_request(normalized: str) -> bool:
     )
 
 
+def _playlist_question_wants_track_choices(text: str) -> bool:
+    normalized = _normalize(text)
+    return bool(
+        ("playlist" in normalized or "afspeellijst" in normalized)
+        and re.search(r"\b(?:wat\s+voor|welke|what\s+kind\s+of|which)\b", normalized)
+    )
+
+
 def _is_open_playlist_recommendation_request(normalized: str) -> bool:
     if "playlist" not in normalized and "afspeellijst" not in normalized:
         return False
@@ -3535,6 +3545,7 @@ def _playlist_query_from_question(text: str) -> str:
     original = str(text or "").strip()
     normalized = _normalize(original)
     patterns = (
+        r"(?:wat\s+voor|welke|what\s+kind\s+of|which)\s+(.+?)\s+(?:playlists?|afspeellijsten?)(?:\s+(?:heb\s+je|hebt\s+je|do\s+you\s+have|have\s+you))?$",
         r"(?:doe\s+maar|maak|zet|start|speel)\s+(?:eens\s+|even\s+|graag\s+)?(?:een\s+|some\s+)?(?:spotify\s+)?(?:playlists?|afspeellijsten?)\s+(?:met|van|voor|with|about|by|for)\s+(.+)$",
         r"(?:heb je|zoek|vind|welke|do you have|find|search)\s+(?:een\s+|some\s+)?(?:spotify\s+)?(?:playlists?|afspeellijsten?)(?:\s+(?:van|voor|with|about|by|for))?\s+(.+)$",
         r"(?:playlists?|afspeellijsten?)\s+(?:van|voor|with|about|by|for)\s+(.+)$",
@@ -3878,6 +3889,58 @@ async def _spotify_playlist_search(
         _LOGGER.debug("DJConnect Spotify playlist search unavailable: %s", exc)
         return {}
     return result if isinstance(result, dict) else {}
+
+
+async def _spotify_track_search(
+    hass: HomeAssistant,
+    runtime: Any,
+    query: str,
+    *,
+    limit: int = 10,
+) -> dict[str, Any]:
+    try:
+        result = await handle_spotify_command(
+            hass,
+            runtime,
+            "search_tracks",
+            {"query": query, "limit": limit},
+        )
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect Spotify track search unavailable: %s", exc)
+        return {}
+    return result if isinstance(result, dict) else {}
+
+
+async def _playlist_track_choices_response(
+    hass: HomeAssistant,
+    runtime: Any,
+    query: str,
+) -> dict[str, Any]:
+    result = await _spotify_track_search(hass, runtime, query, limit=10)
+    tracks = result.get("tracks") if isinstance(result, dict) else []
+    actions = _track_recommendation_actions(hass, tracks, limit=10)
+    if actions:
+        lines = [
+            f"{index}. {action.get('title') or 'Onbekend nummer'}"
+            + (f" - {action.get('subtitle')}" if action.get("subtitle") else "")
+            for index, action in enumerate(actions, start=1)
+        ]
+        message = (
+            "Ik heb je wachtrij gevuld met de volgende nummers:\n"
+            + "\n".join(lines)
+        )
+    else:
+        message = f"Ik vond nu geen speelbare Spotify-nummers voor {query}."
+    return {
+        "success": True,
+        "text": message,
+        "dj_text": message,
+        "action": "none",
+        "images": [],
+        "playback_actions": actions,
+        "items": actions,
+        "sources": [{"source": "spotify_track_search", "title": "Spotify track search", "kind": "source"}],
+    }
 
 
 async def _spotify_user_playlists(
