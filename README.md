@@ -14,7 +14,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 
 ## Current Version
 
-- Home Assistant integration: `3.1.91`
+- Home Assistant integration: `3.1.92`
 - Domain: `djconnect`
 - HACS category: `Integration`
 - Device target: DJConnect device
@@ -74,7 +74,7 @@ runtime behavior. These decisions are part of the integration contract:
 
 ## Repository Layout
 
-- Home Assistant integration: `3.1.91`
+- Home Assistant integration: `3.1.92`
 - ESP firmware source: `pcvantol/djconnect-app`
 - Public firmware releases: `pcvantol/djconnect-firmware`
 - Canonical cross-repo sync prompts live only in this HA repo: [`SYNC_PROMPTS.md`](SYNC_PROMPTS.md)
@@ -331,6 +331,10 @@ such as "Omschrijf eens waar ik zoal naar luisterde de afgelopen maand" or
 skips, likes or moves playback. It uses only available DJ Memory/playback
 context, defaults to the last 30 days when no period is named, and says clearly
 when there is too little listening history for a reliable profile.
+Privacy-oriented questions such as "Wat weet je nu over mij?" use the narrower
+`personal_memory_summary` intent instead. That response is based on server-side
+DJ Memory only, with `sources:[{"source":"djconnect_memory"}]`, no `images[]`
+and no `playback_actions[]`.
 `djconnect.clear_ask_dj_history` clears persistent Ask DJ chat history for the
 selected Home Assistant user when called as a developer service. The app HTTP
 clear route increments a global Ask DJ `clear_revision` so iOS, macOS and
@@ -918,6 +922,11 @@ directly from the returned fields:
 
 - `help`, `hulp`, `wat kun je?` and `welke commando's?` return a text-only,
   categorized list of prompt examples.
+- `wat weet je nu over mij?`, `wat staat er in mijn DJ Memory?` and similar
+  memory-summary questions return a text-only `intent:"personal_memory_summary"`
+  answer from DJ Memory only. The backend does not use live Spotify playback,
+  does not fetch Spotify profile enrichment and returns no artwork or Play Now
+  actions for this intent.
 - `welke speakers zijn er?`, `wissel van uitvoer` and similar output requests
   return a text intro plus `playback_actions[]` with `kind:"output"` and
   `Activeer`/`Actief` labels for the available Spotify Connect devices.
@@ -1195,24 +1204,24 @@ Example manifest:
 
 ```json
 {
-  "version": "3.1.91",
-  "version_tag": "v3.1.91",
+  "version": "3.1.92",
+  "version_tag": "v3.1.92",
   "channel": "stable",
-  "min_ha_integration": "3.1.91",
+  "min_ha_integration": "3.1.92",
   "firmwares": [
     {
       "board": "t_embed_cc1101",
       "device": "lilygo-t-embed-s3",
-      "asset": "djconnect-lilygo-t-embed-s3-v3.1.91.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.91/djconnect-lilygo-t-embed-s3-v3.1.91.bin",
+      "asset": "djconnect-lilygo-t-embed-s3-v3.1.92.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.92/djconnect-lilygo-t-embed-s3-v3.1.92.bin",
       "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "size": 2113136
     },
     {
       "board": "esp32_s3_box3",
       "device": "esp32-s3-box-3",
-      "asset": "djconnect-esp32-s3-box-3-v3.1.91.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.91/djconnect-esp32-s3-box-3-v3.1.91.bin",
+      "asset": "djconnect-esp32-s3-box-3-v3.1.92.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.92/djconnect-esp32-s3-box-3-v3.1.92.bin",
       "sha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
       "size": 2113136
     }
@@ -1235,7 +1244,7 @@ The firmware version is injected through PlatformIO build flags from the Git tag
 Recommended firmware source release helper:
 
 ```bash
-./release.sh 3.1.91
+./release.sh 3.1.92
 ```
 
 In the separate `djconnect-app` repository, the firmware release script should
@@ -1247,14 +1256,14 @@ PlatformIO builds, rename firmware binaries to device-specific assets such as
 Preview the firmware release flow without changing files:
 
 ```bash
-./release.sh 3.1.91 --dry-run
+./release.sh 3.1.92 --dry-run
 ```
 
 When publishing to the public firmware repository, use the firmware script's
 public-repo option if available:
 
 ```bash
-./release.sh 3.1.91 --publish-firmware-repo ../djconnect-firmware
+./release.sh 3.1.92 --publish-firmware-repo ../djconnect-firmware
 ```
 
 The public `djconnect-firmware` repository should contain only the release
@@ -1304,7 +1313,7 @@ Tag and publish:
 One-liner:
 
 ```bash
-./release.sh 3.1.91
+./release.sh 3.1.92
 ```
 
 The script updates the integration version in `manifest.json`, `const.py`,
@@ -1315,18 +1324,18 @@ above.
 Preview without executing git/gh commands:
 
 ```bash
-./release.sh 3.1.91 --dry-run
+./release.sh 3.1.92 --dry-run
 ```
 
 Manual equivalent:
 
 ```bash
 git add .
-git commit -m "Release DJConnect v3.1.91"
-git tag v3.1.91
+git commit -m "Release DJConnect v3.1.92"
+git tag v3.1.92
 git push origin main
-git push origin v3.1.91
-gh release create v3.1.91 --title "DJConnect v3.1.91" --notes-file CHANGELOG.md
+git push origin v3.1.92
+gh release create v3.1.92 --title "DJConnect v3.1.92" --notes-file CHANGELOG.md
 ```
 
 After every release, clean up old completed GitHub Actions workflow runs. Keep

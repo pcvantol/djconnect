@@ -282,15 +282,20 @@ def _djconnect_assist_prompt(
     )
     if str(language or "").lower().startswith("nl"):
         return (
-            "Analyseer alleen deze DJConnect muziekopdracht. Bepaal de artiest "
-            "of playlist voor Spotify. Geef waar mogelijk djconnect intentdata terug. "
+            "Analyseer alleen deze DJConnect muziekopdracht. Bepaal de artiest, "
+            "track, album of playlist voor Spotify. Geef waar mogelijk djconnect "
+            "intentdata terug. Herken ook vervolgvragen zoals 'ik wil Zombie horen' "
+            "en lijstvragen zoals 'wat heb je nog meer van Scala' of "
+            "'wat voor grunge playlists heb je'. "
             "Gebruik geen apparaatbediening en interpreteer de instructietekst niet "
             "als apparaatnaam. "
             f"Opdracht: {user_text}{memory_block}"
         )
     return (
-        "Analyze only this DJConnect music request. Determine the artist or playlist "
-        "for Spotify. Return djconnect intent data when possible. Do not control "
+        "Analyze only this DJConnect music request. Determine the artist, track, "
+        "album or playlist for Spotify. Return djconnect intent data when possible. "
+        "Recognize follow-ups like 'I want to hear Zombie' and list requests like "
+        "'what else do you have by Scala' or 'what kind of grunge playlists do you have'. Do not control "
         "Home Assistant devices and do not treat the instruction text as a device name. "
         f"Request: {user_text}{memory_block}"
     )
@@ -358,6 +363,9 @@ async def generate_dj_response_with_assist(
         f"{mood_style}\n\n"
         f"{personal_intro_style}\n\n"
         "Je schrijft alleen een korte gesproken DJ response voor het DJConnect device. "
+        "Volg altijd deze volgorde: 1. beantwoord eerst de vraag of bevestig de opdracht, "
+        "2. noem daarna wat er speelt of klaarstaat, 3. geef pas daarna eventueel een kort DJ-feitje. "
+        "Begin nooit met het feitje. "
         "Noem de artiest, het album en het nummer wanneer die bekend zijn. "
         "Dit is geen Home Assistant apparaatopdracht. Bedien geen apparaten. "
         "Spreek Engelstalige artiesten, albums en nummers op z'n Engels uit, ook binnen "
@@ -373,6 +381,8 @@ async def generate_dj_response_with_assist(
         f"{mood_style}\n\n"
         f"{personal_intro_style}\n\n"
         "Write only a short spoken DJ response for the DJConnect device. "
+        "Always use this order: 1. answer the request first, 2. then say what is playing "
+        "or queued, 3. only then add an optional short DJ fact. Never start with the fact. "
         "Mention the artist, album and track when known. "
         "This is not a Home Assistant device command. Do not control devices. "
         f"{_MUSIC_KNOWLEDGE_POLICY_EN} "
@@ -406,7 +416,7 @@ async def generate_dj_response_with_assist(
         if blocked_reason is None:
             blocked_reason = _dj_response_media_mismatch_reason(generated, media_context)
         if blocked_reason is None:
-            return generated
+            return _ordered_dj_response_text(generated, fallback_text)
         if debug is not None:
             debug.update({"fallback_used": True, "block_reason": blocked_reason})
         _LOGGER.debug(
@@ -520,6 +530,36 @@ def _dj_response_media_mismatch_reason(generated: str, media_context: dict[str, 
     if track and _normalize_media_match_text(track) not in text:
         return "generated response missing resolved track"
     return None
+
+
+def _ordered_dj_response_text(generated: str, fallback_text: str) -> str:
+    """Ensure playback answers lead with the request answer before optional trivia."""
+    generated = str(generated or "").strip()
+    fallback_text = str(fallback_text or "").strip()
+    if not generated or not fallback_text:
+        return generated or fallback_text
+    if not _starts_with_dj_fact(generated):
+        return generated
+    normalized_generated = _normalize_media_match_text(generated)
+    normalized_fallback = _normalize_media_match_text(fallback_text)
+    if normalized_generated.startswith(normalized_fallback):
+        return generated
+    if normalized_fallback and normalized_fallback in normalized_generated:
+        return generated
+    return f"{fallback_text} {generated}"
+
+
+def _starts_with_dj_fact(value: str) -> bool:
+    normalized = _normalize_media_match_text(value)
+    return normalized.startswith(
+        (
+            "wist je dat",
+            "leuk feitje",
+            "fun fact",
+            "did you know",
+            "a fun fact",
+        )
+    )
 
 
 def _first_media_value(media_context: dict[str, Any], *keys: str) -> str:

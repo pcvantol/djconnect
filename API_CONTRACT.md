@@ -123,6 +123,13 @@ return a text-only categorized command list. `Probeer opnieuw` / `retry` replays
 the previous retryable playback request server-side; clients should send the
 user's retry text normally and let the server resolve the prior request.
 
+Personal memory questions such as `wat weet je nu over mij?`, `wat staat er in
+mijn DJ Memory?` and `what do you know about me?` return
+`intent.intent:"personal_memory_summary"` and `action:"memory_summary"`. The
+response is DJ Memory-only: `sources[]` contains `djconnect_memory`, `images`
+and `playback_actions` are empty, and the backend must not use live playback
+artwork or Spotify listening-profile enrichment for the answer.
+
 Unknown, unsupported or low-confidence informational answers are text-only and
 return `images: []`. Clients must not reuse current-track album art for these
 fallback responses.

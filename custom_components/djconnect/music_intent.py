@@ -34,6 +34,7 @@ _SLANG_ARTIST_QUERY_PATTERNS = (
 )
 
 _TRACK_QUERY_PATTERNS = (
+    rf"^\s*ik\s+wil\s+(?:wel\s+|graag\s+)?(?:het\s+|de\s+|die\s+)?{_TRACK_WORDS}\s+(.+?)\s+(?:horen|luisteren|starten|opzetten|spelen)\s*$",
     rf"^\s*(?:speel|start|zet|draai)\s+(?:het\s+|de\s+|die\s+)?{_TRACK_WORDS}\s+(.+?)\s+van\s+(?:artiest|band)\s+(.+?)\s*(?:op|af|aan)?\s*$",
     rf"^\s*(?:speel|start|zet|draai)\s+(?:het\s+|de\s+|die\s+)?{_TRACK_WORDS}\s+(.+?)\s+van\s+(.+?)\s*(?:op|af|aan)?\s*$",
     r"^\s*(?:speel|start|zet|draai)\s+(.+?)\s+van\s+(.+?)\s*(?:op|af|aan)?\s*$",

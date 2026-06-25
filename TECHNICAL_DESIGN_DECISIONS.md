@@ -305,6 +305,11 @@ Pattern:
   available DJ Memory/playback data and returns an insufficient-data answer when
   there is not enough history. It must not call mutating Spotify/Home Assistant
   actions.
+- `personal_memory_summary` is narrower than profile analysis. It answers
+  privacy-style questions such as `wat weet je nu over mij?` from server-side
+  DJ Memory only, returns source `djconnect_memory`, no images and no playback
+  actions, and must not fetch Spotify listening-profile enrichment or reuse the
+  current playback media card.
 - Spotify listening-profile enrichment is non-mutating and uses official Web
   API reads only: `/me/player/recently-played` and `/me/top/{artists,tracks}`.
   The integration caches compact profile snapshots in DJ Memory with a

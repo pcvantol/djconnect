@@ -1,5 +1,22 @@
 # Changelog
 
+## 3.1.92
+
+- Add richer Ask DJ Play Now list responses for fuzzy Spotify searches, genre
+  and vibe requests, user playlists, artist discography prompts and contextual
+  `Meer van <artiest>` follow-ups.
+- Add server-side Ask DJ controls for resume, volume up/down, shuffle toggles
+  and repeat options while keeping pure status/control answers text-only when
+  they should not show media chrome.
+- Improve Ask DJ contextual follow-ups, including artist carry-over for
+  `ik wil Zombie horen`, album overview questions and queue/mood mix previews
+  with clickable rows.
+- Add a DJ Memory-only Ask DJ intent for questions such as `wat weet je nu over
+  mij?`, with text-only responses, source `djconnect_memory`, no artwork and no
+  Play Now actions.
+- Refresh Ask DJ help, voice-intent data and client rendering documentation for
+  the new memory, search, action-button and Play Now response shapes.
+
 ## 3.1.91
 
 - Return a live Spotify playback snapshot from `/api/djconnect/status` for

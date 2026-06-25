@@ -280,6 +280,45 @@ class DJMemoryManager:
         )
         return key
 
+    async def async_record_blocked_music_preference(
+        self,
+        runtime: Any,
+        item: dict[str, Any],
+        payload: dict[str, Any] | None = None,
+        *,
+        user_id: str | None = None,
+    ) -> str:
+        """Persist a compact negative music preference for future Ask DJ choices."""
+        key = await self.async_update_client_metadata(runtime, payload, user_id=user_id)
+        memory = self._memory_for_key(key)
+        kind = _clean_text(item.get("kind") or "artist") or "artist"
+        name = _clean_text(item.get("name") or item.get("title") or item.get("artist"))
+        if not name:
+            return key
+        record = {
+            "kind": kind,
+            "name": name,
+            "reason": _clean_text(item.get("reason") or "user_dislike"),
+            "created_at": _now(),
+        }
+        key_name = "blocked_artists" if kind == "artist" else "blocked_items"
+        existing = memory.get(key_name)
+        if not isinstance(existing, list):
+            existing = []
+        deduped = [
+            value
+            for value in existing
+            if not (
+                isinstance(value, dict)
+                and str(value.get("kind") or "").lower() == kind.lower()
+                and str(value.get("name") or "").lower() == name.lower()
+            )
+        ]
+        memory[key_name] = [record, *deduped][:MAX_CHAT_FACTS]
+        memory["updated_at"] = _now()
+        await self.async_save()
+        return key
+
     def update_recent_tracks(self, memory_key: str, track: dict[str, Any]) -> None:
         """Update bounded recent track context."""
         key = _safe_memory_key(memory_key)
@@ -490,6 +529,8 @@ class DJMemoryManager:
                 "generation": 0,
                 "favorite_artists": [],
                 "favorite_genres": [],
+                "blocked_artists": [],
+                "blocked_items": [],
                 "recent_tracks": [],
                 "chat_facts": [],
                 "updated_at": _now(),
@@ -568,6 +609,24 @@ def prompt_context_text(context: dict[str, Any]) -> str:
             lines.append(f"Mood/energy: {memory.get('mood')}/100")
     if memory.get("dj_style"):
         lines.append(f"DJ stijl: {memory.get('dj_style')}")
+    blocked_artists = memory.get("blocked_artists")
+    if isinstance(blocked_artists, list) and blocked_artists:
+        names = [
+            str(item.get("name") or "").strip()
+            for item in blocked_artists[:8]
+            if isinstance(item, dict) and item.get("name")
+        ]
+        if names:
+            lines.append("Niet meer draaien volgens gebruiker: " + "; ".join(names))
+    blocked_items = memory.get("blocked_items")
+    if isinstance(blocked_items, list) and blocked_items:
+        names = [
+            str(item.get("name") or "").strip()
+            for item in blocked_items[:8]
+            if isinstance(item, dict) and item.get("name")
+        ]
+        if names:
+            lines.append("Vermijd deze muziekitems: " + "; ".join(names))
     time_context = memory.get("listening_time_context")
     if isinstance(time_context, dict):
         day = time_context.get("weekday_name")
@@ -656,6 +715,8 @@ def _prompt_safe_memory(memory: dict[str, Any]) -> dict[str, Any]:
         "dj_style",
         "favorite_artists",
         "favorite_genres",
+        "blocked_artists",
+        "blocked_items",
         "recent_tracks",
         "chat_facts",
         "last_ask_dj",
@@ -679,6 +740,10 @@ def _prompt_safe_memory(memory: dict[str, Any]) -> dict[str, Any]:
         result["recent_tracks"] = result["recent_tracks"][:MAX_RECENT_TRACKS]
     if isinstance(result.get("chat_facts"), list):
         result["chat_facts"] = result["chat_facts"][:MAX_CHAT_FACTS]
+    if isinstance(result.get("blocked_artists"), list):
+        result["blocked_artists"] = result["blocked_artists"][:MAX_CHAT_FACTS]
+    if isinstance(result.get("blocked_items"), list):
+        result["blocked_items"] = result["blocked_items"][:MAX_CHAT_FACTS]
     if isinstance(result.get("listening_profile"), dict):
         result["listening_profile"] = _compact_listening_profile(result["listening_profile"])
     if isinstance(result.get("listening_time_patterns"), list):

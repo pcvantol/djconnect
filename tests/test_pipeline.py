@@ -60,6 +60,9 @@ class AssistPipelineTest(unittest.TestCase):
         )
 
         self.assertIn("Bepaal de artiest", prompt)
+        self.assertIn("track, album of playlist", prompt)
+        self.assertIn("ik wil Zombie horen", prompt)
+        self.assertIn("wat heb je nog meer van Scala", prompt)
         self.assertIn("artiest", prompt)
         self.assertIn("Speel Black van Pearl Jam", prompt)
         self.assertNotIn("Noem waar mogelijk", prompt)
@@ -375,6 +378,43 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertNotIn("spotify:artist", prompt)
         self.assertNotIn("{", prompt)
         self.assertNotIn("}", prompt)
+
+    def test_generate_dj_response_orders_answer_before_fact(self) -> None:
+        class Services:
+            async def async_call(self, domain, service, data, **kwargs):
+                return {
+                    "response": {
+                        "speech": {
+                            "plain": {
+                                "speech": (
+                                    "Wist je dat Michael Jackson bekend staat als de King of Pop en Bad uit 1987 komt? "
+                                    "Geniet van de muziek!"
+                                )
+                            }
+                        }
+                    }
+                }
+
+        hass = types.SimpleNamespace(services=Services())
+        fallback = "Je luistert naar Michael Jackson met hun album Bad. Hier is het eerste nummer op het album, Bad."
+
+        result = asyncio.run(
+            self.pipeline.generate_dj_response_with_assist(
+                hass,
+                media={
+                    "type": "album",
+                    "artist": "Michael Jackson",
+                    "album_name": "Bad",
+                    "track_name": "Bad",
+                },
+                fallback_text=fallback,
+                conf={"tts_language": "nl"},
+            )
+        )
+
+        self.assertTrue(result.startswith(fallback))
+        self.assertIn("Wist je dat Michael Jackson", result)
+        self.assertLess(result.index("Je luistert naar"), result.index("Wist je dat"))
 
     def test_generate_dj_response_prompt_allows_personal_intro_from_memory_and_weather(self) -> None:
         calls = []
