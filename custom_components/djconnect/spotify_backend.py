@@ -110,6 +110,20 @@ async def handle_spotify_command(
             "result": {"tracks": tracks, "items": tracks},
             "count": len(tracks),
         }
+    if normalized == "search_albums":
+        albums = await backend.search_albums(
+            _search_query(value),
+            limit=_search_limit(value, default=10, maximum=10),
+        )
+        return {
+            "success": True,
+            "backend_available": True,
+            "albums": albums,
+            "items": albums,
+            "data": {"albums": albums, "items": albums},
+            "result": {"albums": albums, "items": albums},
+            "count": len(albums),
+        }
     if normalized == "search_media":
         item = await backend.search_media(
             _search_query(value),
@@ -553,6 +567,34 @@ class SpotifyBackend:
             selected=tracks[0] if tracks else {},
         )
         return tracks
+
+    async def search_albums(self, query: str, *, limit: int = 10) -> list[dict[str, Any]]:
+        """Search Spotify albums and return normalized playable items."""
+        query = str(query or "").strip()
+        if not query:
+            return []
+        limit = max(0, min(10, int(limit)))
+        if limit <= 0:
+            return []
+        market = str(self.conf.get("spotify_market") or DEFAULT_SPOTIFY_MARKET)
+        params = urlencode({"q": query, "type": "album", "limit": limit, "market": market})
+        data = await self._request("GET", f"/search?{params}")
+        section = data.get("albums") or {}
+        items = section.get("items") or []
+        if not isinstance(items, list):
+            items = []
+        albums = [
+            album
+            for album in (_normalize_album_item(item) for item in items if isinstance(item, dict))
+            if album
+        ][:limit]
+        self.runtime.last_spotify_search = _spotify_search_debug(
+            query=query,
+            spotify_type="album",
+            data=data,
+            selected=albums[0] if albums else {},
+        )
+        return albums
 
     async def search_media(self, query: str, media_type: str = "track") -> dict[str, Any]:
         """Search a single Spotify media item without changing playback."""

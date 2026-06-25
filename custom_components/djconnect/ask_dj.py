@@ -282,6 +282,7 @@ async def async_handle_ask_dj(
         and (
             _playback_is_active(playback_context)
             or _is_fuzzy_music_search_request(_normalize(effective_text))
+            or _genre_options_request(effective_text)
         )
     ):
         result = await _deferred_playback_request_response(hass, runtime, effective_text)
@@ -1279,6 +1280,9 @@ async def _deferred_playback_request_response(
     parsed = parse_spoken_music_request(text)
     media_type = str(parsed.get("type") or "track").strip().lower() or "track"
     query = str(parsed.get("query") or text or "").strip()
+    genre_query = _genre_options_request(text)
+    if genre_query:
+        return await _genre_media_options_response(hass, runtime, genre_query)
     if _is_fuzzy_music_search_request(_normalize(text)):
         return await _fuzzy_music_search_response(hass, runtime, query or text)
     try:
@@ -4181,6 +4185,152 @@ async def _spotify_track_search(
     return result if isinstance(result, dict) else {}
 
 
+async def _spotify_album_search(
+    hass: HomeAssistant,
+    runtime: Any,
+    query: str,
+    *,
+    limit: int = 10,
+) -> dict[str, Any]:
+    try:
+        result = await handle_spotify_command(
+            hass,
+            runtime,
+            "search_albums",
+            {"query": query, "limit": limit},
+        )
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect Spotify album search unavailable: %s", exc)
+        return {}
+    return result if isinstance(result, dict) else {}
+
+
+def _genre_options_request(text: str) -> str:
+    value = str(text or "").strip()
+    patterns = (
+        r"^\s*ik\s+wil\s+(?:graag\s+|wel\s+)?(?:genre\s+)?(.+?)\s+(?:horen|spelen|luisteren|draaien)\s*\??\s*$",
+        r"^\s*(?:speel|draai|zet)\s+(?:eens\s+|even\s+|graag\s+)?(?:genre\s+)?(.+?)\s*(?:muziek)?\s*(?:op|af|aan)?\s*$",
+        r"^\s*i\s+(?:want|would\s+like)\s+(?:to\s+hear|to\s+play|to\s+listen\s+to)?\s*(?:genre\s+)?(.+?)\s*\??\s*$",
+    )
+    for pattern in patterns:
+        match = re.match(pattern, value, flags=re.IGNORECASE)
+        if not match:
+            continue
+        query = _clean_genre_options_query(match.group(1))
+        if query and _looks_like_genre_query(value, query):
+            return query
+    return ""
+
+
+def _clean_genre_options_query(value: Any) -> str:
+    query = str(value or "").strip()
+    query = re.sub(r"\b(?:muziek|music|genre)\b", "", query, flags=re.IGNORECASE)
+    query = re.sub(r"\s+", " ", query).strip(" ?.!'\">")
+    return query
+
+
+def _looks_like_genre_query(original: str, query: str) -> bool:
+    normalized_original = _normalize(original)
+    normalized_query = _normalize(query)
+    if "genre" in normalized_original:
+        return True
+    known_genres = {
+        "ambient",
+        "blues",
+        "classical",
+        "country",
+        "dance",
+        "disco",
+        "drum and bass",
+        "dnb",
+        "edm",
+        "folk",
+        "funk",
+        "grunge",
+        "hardcore",
+        "hip hop",
+        "hiphop",
+        "house",
+        "indie",
+        "jazz",
+        "metal",
+        "pop",
+        "punk",
+        "r&b",
+        "rap",
+        "reggae",
+        "rock",
+        "soul",
+        "techno",
+        "trance",
+    }
+    return normalized_query in known_genres
+
+
+async def _genre_media_options_response(
+    hass: HomeAssistant,
+    runtime: Any,
+    genre: str,
+) -> dict[str, Any]:
+    album_result = await _spotify_album_search(hass, runtime, genre, limit=10)
+    playlist_result = await _spotify_playlist_search(hass, runtime, genre, limit=10)
+    albums = album_result.get("albums") if isinstance(album_result, dict) else []
+    playlists = playlist_result.get("playlists") if isinstance(playlist_result, dict) else []
+    album_actions = _album_search_playback_actions(hass, albums, limit=10)
+    playlist_actions = _playlist_search_playback_actions(hass, playlists, limit=10)
+    actions = _interleave_playback_actions(album_actions, playlist_actions, limit=10)
+    if actions:
+        lines = [
+            f"{index}. {action.get('title') or 'Spotify resultaat'}"
+            + (f" - {action.get('subtitle')}" if action.get("subtitle") else "")
+            for index, action in enumerate(actions, start=1)
+        ]
+        message = (
+            f"Ik vond deze albums en playlists voor {genre}.\n"
+            + "\n".join(lines)
+            + "\n\nTik op Play Now om er eentje direct te starten."
+        )
+    else:
+        message = f"Ik vond nu geen speelbare albums of playlists voor {genre}."
+    return {
+        "success": True,
+        "text": message,
+        "dj_text": message,
+        "action": "none",
+        "images": [],
+        "playback_actions": actions,
+        "items": actions,
+        "sources": [
+            {"source": "spotify_album_search", "title": "Spotify album search", "kind": "source"},
+            {"source": "spotify_playlist_search", "title": "Spotify playlist search", "kind": "source"},
+        ],
+    }
+
+
+def _interleave_playback_actions(
+    first: list[dict[str, Any]],
+    second: list[dict[str, Any]],
+    *,
+    limit: int,
+) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    max_len = max(len(first), len(second))
+    for index in range(max_len):
+        for source in (first, second):
+            if index >= len(source):
+                continue
+            action = source[index]
+            uri = str(action.get("uri") or action.get("context_uri") or "").strip()
+            if not uri or uri in seen:
+                continue
+            seen.add(uri)
+            actions.append(action)
+            if len(actions) >= limit:
+                return actions
+    return actions
+
+
 def _artist_item_list_request(text: str) -> dict[str, Any]:
     patterns = (
         r"^\s*(?:geef|toon|laat\s+zien|zoek|vind)\s+(?:me|mij)?\s*(?:(\d+|een|twee|drie|vier|vijf|zes|zeven|acht|negen|tien)\s+)?(albums?|tracks?|nummers?|songs?|playlists?|afspeellijsten?)\s+van\s+(.+?)\s*\??\s*$",
@@ -4457,6 +4607,62 @@ def _playlist_search_playback_actions(
                     "image_url": proxy_image,
                     "thumbnail_url": proxy_image,
                     "reason": "Spotify playlist-resultaat op basis van je Ask DJ vraag.",
+                }.items()
+                if value not in ("", None)
+            }
+        )
+        if len(actions) >= limit:
+            break
+    return actions
+
+
+def _album_search_playback_actions(
+    hass: HomeAssistant,
+    albums: Any,
+    *,
+    limit: int = 10,
+) -> list[dict[str, Any]]:
+    if not isinstance(albums, list):
+        return []
+    actions: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for album in albums:
+        if not isinstance(album, dict):
+            continue
+        uri = str(album.get("uri") or album.get("album_uri") or "").strip()
+        if not uri.startswith("spotify:album:") or uri in seen:
+            continue
+        seen.add(uri)
+        image_url = str(
+            album.get("image_url")
+            or album.get("album_image_url")
+            or album.get("entity_picture")
+            or album.get("thumbnail_url")
+            or ""
+        ).strip()
+        proxy_image = (
+            register_image_proxy_url(hass, image_url)
+            if image_url.startswith(("http://", "https://"))
+            else image_url
+        )
+        title = str(album.get("title") or album.get("name") or uri).strip()
+        subtitle = str(album.get("subtitle") or album.get("artist") or album.get("artist_name") or "").strip()
+        actions.append(
+            {
+                key: value
+                for key, value in {
+                    "id": uri,
+                    "title": title,
+                    "subtitle": subtitle,
+                    "uri": uri,
+                    "context_uri": uri,
+                    "kind": "album",
+                    "label": "Play Now",
+                    "button_label": "Play Now",
+                    "action_style": "play_now",
+                    "image_url": proxy_image,
+                    "thumbnail_url": proxy_image,
+                    "reason": "Spotify album-resultaat op basis van je Ask DJ vraag.",
                 }.items()
                 if value not in ("", None)
             }
