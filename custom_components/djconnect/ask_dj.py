@@ -5190,6 +5190,7 @@ def _help_text() -> str:
             "Muziek starten",
             [
                 "Speel Nirvana",
+                "Ik wil Zombie horen",
                 "Speel Metallica, One",
                 "Draai Nothing Else Matters",
                 "Zet een rustige playlist op",
@@ -5203,7 +5204,9 @@ def _help_text() -> str:
                 "Welke albums bracht Nirvana uit?",
                 "Geef vergelijkbare artiesten als The xx",
                 "Welke playlists zijn er voor hardlopen?",
+                "Wat voor grunge playlists heb je?",
                 "Welke playlists heb ik?",
+                "Wat heb je nog meer van Scala?",
                 "Maak een mix op basis van Radiohead, Massive Attack en Bon Iver",
             ],
         ),
@@ -5248,6 +5251,7 @@ def _help_text() -> str:
             [
                 "Probeer opnieuw",
                 "Speel af",
+                "Ik wil Zombie horen",
                 "Nee, ik bedoel de live versie",
                 "Alleen uit de jaren 90",
                 "Maak hier een playlist van",

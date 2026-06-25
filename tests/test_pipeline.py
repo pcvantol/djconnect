@@ -60,6 +60,9 @@ class AssistPipelineTest(unittest.TestCase):
         )
 
         self.assertIn("Bepaal de artiest", prompt)
+        self.assertIn("track, album of playlist", prompt)
+        self.assertIn("ik wil Zombie horen", prompt)
+        self.assertIn("wat heb je nog meer van Scala", prompt)
         self.assertIn("artiest", prompt)
         self.assertIn("Speel Black van Pearl Jam", prompt)
         self.assertNotIn("Noem waar mogelijk", prompt)

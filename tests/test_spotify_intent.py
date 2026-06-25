@@ -111,6 +111,8 @@ class SpotifyIntentTest(unittest.TestCase):
             "zet track Nothing Else Matters van Metallica op": "Nothing Else Matters Metallica",
             "draai nummer Teardrop van Massive Attack": "Teardrop Massive Attack",
             "nummer Lithium": "Lithium",
+            "ik wil nummer Zombie horen": "Zombie",
+            "ik wil het liedje Zombie luisteren": "Zombie",
             "liedje Lithium van Nirvana": "Lithium Nirvana",
             "speel Metallica, One": "One Metallica",
             "speel metallica: one": "one metallica",
