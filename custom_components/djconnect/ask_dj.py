@@ -1146,6 +1146,8 @@ def classify_ask_dj(text: str) -> AskDjIntent:
         return AskDjIntent("action", "playback_control", "volume_delta", 10)
     if "zachter" in normalized:
         return AskDjIntent("action", "playback_control", "volume_delta", -10)
+    if _is_playback_mode_status_question(normalized):
+        return AskDjIntent("informational", "playback_mode_status", "status")
     if "shuffle" in normalized:
         return AskDjIntent("action", "playback_control", "set_shuffle", "uit" not in normalized)
     if "repeat" in normalized or "herhaal" in normalized:
@@ -1452,8 +1454,7 @@ async def _handle_informational(
             "playback_actions": actions,
         }
     if ask_intent.action == "status":
-        message = _current_output_text(playback_context)
-        return {"success": True, "text": message, "dj_text": message}
+        return _playback_status_response(text, playback_context)
     if ask_intent.intent == "morning_music_suggestion":
         return await _morning_music_suggestion_response(
             hass,
@@ -3660,6 +3661,16 @@ def _is_deferred_playback_request(normalized: str) -> bool:
             r"\b(?:i\s+want|i\s+would\s+like)\b.+\b(?:hear|listen|play)\b",
             normalized,
         )
+    )
+
+
+def _is_playback_mode_status_question(normalized: str) -> bool:
+    if not any(term in normalized for term in ("shuffle", "repeat", "herhaal")):
+        return False
+    return bool(
+        "?" in normalized
+        or re.search(r"\b(?:staat|is)\b.+\b(?:aan|uit|actief)\b", normalized)
+        or re.search(r"\b(?:hoe\s+staat|wat\s+is)\b.+\b(?:shuffle|repeat|herhaal)\b", normalized)
     )
 
 
@@ -5942,6 +5953,121 @@ def _current_output_text(playback: dict[str, Any]) -> str:
     device = playback.get("device") if isinstance(playback.get("device"), dict) else {}
     name = device.get("name") or playback.get("device_name") or playback.get("output")
     return f"Muziek speelt nu op {name}." if name else "Ik kan nu niet zien waarop muziek speelt."
+
+
+def _playback_status_response(text: str, playback: dict[str, Any]) -> dict[str, Any]:
+    normalized = _normalize(text)
+    if "shuffle" in normalized:
+        enabled = _playback_shuffle_enabled(playback)
+        message = (
+            "Shuffle staat aan."
+            if enabled is True
+            else "Shuffle staat uit."
+            if enabled is False
+            else "Ik kan nu niet zien of shuffle aan staat."
+        )
+        return {
+            "success": True,
+            "text": message,
+            "dj_text": message,
+            "images": [],
+            "playback_actions": [_shuffle_toggle_action(enabled)],
+        }
+    if "repeat" in normalized or "herhaal" in normalized:
+        repeat_state = _playback_repeat_state(playback)
+        message = _repeat_status_text(repeat_state)
+        return {
+            "success": True,
+            "text": message,
+            "dj_text": message,
+            "images": [],
+            "playback_actions": _repeat_option_actions(repeat_state),
+        }
+    message = _current_output_text(playback)
+    return {"success": True, "text": message, "dj_text": message}
+
+
+def _playback_shuffle_enabled(playback: dict[str, Any]) -> bool | None:
+    for key in ("shuffle", "shuffle_state", "shuffleState", "shuffle_enabled", "shuffleEnabled"):
+        if key not in playback:
+            continue
+        value = playback.get(key)
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            if normalized in {"true", "on", "aan", "1", "yes"}:
+                return True
+            if normalized in {"false", "off", "uit", "0", "no"}:
+                return False
+    return None
+
+
+def _playback_repeat_state(playback: dict[str, Any]) -> str:
+    for key in ("repeat", "repeat_state", "repeatState", "repeat_mode", "repeatMode"):
+        value = str(playback.get(key) or "").strip().lower()
+        if value in {"off", "track", "context"}:
+            return value
+        if value in {"uit", "none", "false", "0"}:
+            return "off"
+        if value in {"nummer", "song", "one"}:
+            return "track"
+        if value in {"alles", "all", "aan", "on", "true"}:
+            return "context"
+    return "unknown"
+
+
+def _repeat_status_text(state: str) -> str:
+    return {
+        "off": "Repeat staat uit.",
+        "track": "Repeat staat op dit nummer.",
+        "context": "Repeat staat aan voor de huidige context.",
+    }.get(state, "Ik kan nu niet zien hoe repeat staat.")
+
+
+def _shuffle_toggle_action(enabled: bool | None) -> dict[str, Any]:
+    next_value = False if enabled is True else True
+    title = "Shuffle uitzetten" if enabled is True else "Shuffle aanzetten"
+    return {
+        "id": f"djconnect:control:set_shuffle:{str(next_value).lower()}",
+        "kind": "control",
+        "action_style": "control",
+        "command": "set_shuffle",
+        "value": next_value,
+        "title": title,
+        "label": title,
+        "button_label": title,
+        "prompt": title,
+        "reason": "Shuffle wijzigen vanuit Ask DJ.",
+    }
+
+
+def _repeat_option_actions(current: str) -> list[dict[str, Any]]:
+    options = (
+        ("off", "Repeat uitzetten"),
+        ("track", "Repeat nummer"),
+        ("context", "Repeat alles"),
+    )
+    actions = []
+    for value, title in options:
+        active = value == current
+        label = "Actief" if active else title
+        actions.append(
+            {
+                "id": f"djconnect:control:set_repeat:{value}",
+                "kind": "control",
+                "action_style": "control",
+                "command": "set_repeat",
+                "value": value,
+                "title": title,
+                "label": label,
+                "button_label": label,
+                "prompt": title,
+                "active": active,
+                "reason": "Repeat wijzigen vanuit Ask DJ.",
+            }
+        )
+    return actions
 
 
 def _track_label(playback: dict[str, Any]) -> str:

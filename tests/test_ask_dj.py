@@ -190,6 +190,102 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["memory_key"], "user:user-1")
         self.assertTrue(result["images"][0]["url"].startswith(self.const.API_IMAGE_PROXY_BASE))
 
+    def test_shuffle_status_returns_toggle_action(self) -> None:
+        runtime = make_runtime()
+        runtime.last_playback = {"has_playback": True, "shuffle": True}
+        calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append(command_name)
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            raise AssertionError(f"unexpected playback mutation: {command_name}")
+
+        original_command = self.ask_dj.handle_spotify_command
+        self.ask_dj.handle_spotify_command = command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "staat shuffle aan?",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "ios",
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.handle_spotify_command = original_command
+
+        self.assertEqual(calls, ["status"])
+        self.assertEqual(result["dj_text"], "Shuffle staat aan.")
+        self.assertEqual(result["playback_actions"][0]["command"], "set_shuffle")
+        self.assertEqual(result["playback_actions"][0]["value"], False)
+        self.assertEqual(result["playback_actions"][0]["label"], "Shuffle uitzetten")
+
+    def test_shuffle_status_returns_enable_action_when_off(self) -> None:
+        runtime = make_runtime()
+        runtime.last_playback = {"has_playback": True, "shuffle_state": "off"}
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            raise AssertionError(f"unexpected playback mutation: {command_name}")
+
+        original_command = self.ask_dj.handle_spotify_command
+        self.ask_dj.handle_spotify_command = command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "staat shuffle aan?",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "ios",
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.handle_spotify_command = original_command
+
+        self.assertEqual(result["dj_text"], "Shuffle staat uit.")
+        self.assertEqual(result["playback_actions"][0]["command"], "set_shuffle")
+        self.assertEqual(result["playback_actions"][0]["value"], True)
+        self.assertEqual(result["playback_actions"][0]["label"], "Shuffle aanzetten")
+
+    def test_repeat_status_returns_all_repeat_option_actions(self) -> None:
+        runtime = make_runtime()
+        runtime.last_playback = {"has_playback": True, "repeat_state": "track"}
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            raise AssertionError(f"unexpected playback mutation: {command_name}")
+
+        original_command = self.ask_dj.handle_spotify_command
+        self.ask_dj.handle_spotify_command = command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "staat repeat aan?",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "ios",
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.handle_spotify_command = original_command
+
+        self.assertEqual(result["dj_text"], "Repeat staat op dit nummer.")
+        self.assertEqual([action["command"] for action in result["playback_actions"]], ["set_repeat"] * 3)
+        self.assertEqual([action["value"] for action in result["playback_actions"]], ["off", "track", "context"])
+        self.assertEqual([action["label"] for action in result["playback_actions"]], ["Repeat uitzetten", "Actief", "Repeat alles"])
+
     def test_output_change_request_returns_clickable_spotify_devices(self) -> None:
         runtime = make_runtime()
         runtime.last_playback = {
