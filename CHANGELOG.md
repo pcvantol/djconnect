@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.1.91
+
+- Return a live Spotify playback snapshot from `/api/djconnect/status` for
+  watchOS, iOS and macOS clients, matching the `command: "status"` response
+  shape and always including explicit `playback.has_playback` metadata.
+- Keep app status refreshes successful when no playback is active while marking
+  `backend_available` false only when the playback backend cannot be reached.
+- Avoid false Spotify authorization repairs for Apple Watch/app entries that do
+  not own Home Assistant Spotify OAuth configuration.
+
 ## 3.1.90
 
 - Route `wat speelt hierna` and similar next-track questions to the Spotify

@@ -1478,6 +1478,133 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertEqual(runtime.device_status["device_name"], "Peter Apple Watch")
         self.assertEqual(runtime.device_status["app_version"], "3.1.34")
 
+    def test_status_view_watchos_returns_live_playback_snapshot(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+        seen_commands = []
+
+        class Runtime:
+            device_token = "device-token"
+            device_status = {"device_id": "djconnect-watchos-68B74487726D"}
+            ota_in_progress = False
+            ota_last_error = None
+            config = {}
+
+            def authorize_device_request(self, headers, body_device_id=None):
+                return True
+
+            def get_current_spotify_credentials(self):
+                return {}
+
+            def update(self, **kwargs):
+                self.last_update = kwargs
+
+        runtime = Runtime()
+
+        async def command_handler(hass, runtime_arg, command, value=None, *, play=None):
+            seen_commands.append((command, value, play))
+            return {
+                "success": True,
+                "playback": {
+                    "has_playback": True,
+                    "is_playing": True,
+                    "track_name": "Alive",
+                    "artist_name": "Pearl Jam",
+                    "album_name": "Ten",
+                    "album_image_url": "https://example.test/ten.jpg",
+                    "progress_ms": 12345,
+                    "duration_ms": 234567,
+                    "volume_percent": 35,
+                    "device": {
+                        "id": "speaker-1",
+                        "name": "Living room",
+                        "type": "speaker",
+                        "active": True,
+                        "volume_percent": 35,
+                    },
+                },
+            }
+
+        class Request:
+            headers = {
+                "Authorization": "Bearer device-token",
+                "X-DJConnect-Device-ID": "djconnect-watchos-68B74487726D",
+            }
+            app = {"hass": types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})}
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-watchos-68B74487726D",
+                    "client_type": "watchos",
+                    "platform": "watchos",
+                }
+
+        original = self.http.handle_spotify_command
+        self.http.handle_spotify_command = command_handler
+        try:
+            response = asyncio.run(self.http.DJConnectStatusView(None).post(Request()))
+        finally:
+            self.http.handle_spotify_command = original
+
+        self.assertEqual(response["status_code"], 200)
+        self.assertTrue(response["payload"]["success"])
+        self.assertEqual(response["payload"]["client_type"], "watchos")
+        self.assertTrue(response["payload"]["backend_available"])
+        self.assertTrue(response["payload"]["playback"]["has_playback"])
+        self.assertEqual(response["payload"]["playback"]["track_name"], "Alive")
+        self.assertEqual(response["payload"]["playback"]["device"]["name"], "Living room")
+        self.assertEqual(seen_commands, [("status", None, None)])
+
+    def test_status_view_watchos_backend_unavailable_returns_explicit_no_playback(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+
+        class Runtime:
+            device_token = "device-token"
+            device_status = {"device_id": "djconnect-watchos-68B74487726D"}
+            ota_in_progress = False
+            ota_last_error = None
+            config = {}
+
+            def authorize_device_request(self, headers, body_device_id=None):
+                return True
+
+            def get_current_spotify_credentials(self):
+                return {}
+
+            def update(self, **kwargs):
+                self.last_update = kwargs
+
+        runtime = Runtime()
+
+        async def command_handler(hass, runtime_arg, command, value=None, *, play=None):
+            raise self.http.SpotifyBackendError("secret Spotify OAuth details")
+
+        class Request:
+            headers = {
+                "Authorization": "Bearer device-token",
+                "X-DJConnect-Device-ID": "djconnect-watchos-68B74487726D",
+            }
+            app = {"hass": types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})}
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-watchos-68B74487726D",
+                    "client_type": "watchos",
+                }
+
+        original = self.http.handle_spotify_command
+        self.http.handle_spotify_command = command_handler
+        try:
+            response = asyncio.run(self.http.DJConnectStatusView(None).post(Request()))
+        finally:
+            self.http.handle_spotify_command = original
+
+        self.assertEqual(response["status_code"], 200)
+        self.assertTrue(response["payload"]["success"])
+        self.assertFalse(response["payload"]["backend_available"])
+        self.assertEqual(response["payload"]["playback"], {"has_playback": False})
+        self.assertEqual(response["payload"]["playback_error"], "playback_backend_unavailable")
+        self.assertNotIn("secret", str(response["payload"]))
+
     def test_status_view_clamps_mood_and_stores_latest_zone(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
 
@@ -2399,10 +2526,19 @@ class VoiceHttpHelperTest(unittest.TestCase):
                     "spotify_configured": False,
                 }
 
-        response = asyncio.run(self.http.DJConnectStatusView(None).post(Request()))
+        async def command_handler(hass, runtime_arg, command, value=None, *, play=None):
+            return {"success": True, "playback": {"has_playback": False}}
+
+        original = self.http.handle_spotify_command
+        self.http.handle_spotify_command = command_handler
+        try:
+            response = asyncio.run(self.http.DJConnectStatusView(None).post(Request()))
+        finally:
+            self.http.handle_spotify_command = original
 
         self.assertEqual(response["status_code"], 200)
         self.assertTrue(response["payload"]["backend_available"])
+        self.assertEqual(response["payload"]["playback"], {"has_playback": False})
         self.assertNotIn("refresh_token", response["payload"])
         self.assertNotIn("spotify_refresh_token", response["payload"])
 

@@ -1112,6 +1112,54 @@ def _backend_unavailable_payload(
     }
 
 
+def _status_playback_unavailable_payload() -> dict[str, Any]:
+    """Return a privacy-safe app status fallback when backend playback is unavailable."""
+    return {
+        "backend_available": False,
+        "playback": {"has_playback": False},
+        "playback_error": "playback_backend_unavailable",
+    }
+
+
+def _client_status_uses_backend_playback(client_type: str | None) -> bool:
+    """Return true for app clients that expect a live playback snapshot in status."""
+    return str(client_type or "").strip().lower() in {
+        CLIENT_TYPE_IOS,
+        CLIENT_TYPE_MACOS,
+        CLIENT_TYPE_WATCHOS,
+    }
+
+
+async def _status_playback_payload(hass: Any, runtime: Any) -> dict[str, Any]:
+    """Fetch the canonical command=status playback shape for app status responses."""
+    try:
+        result = await handle_spotify_command(hass, runtime, "status")
+    except SpotifyBackendError as exc:
+        _LOGGER.debug(
+            "DJConnect status playback backend unavailable: %s",
+            exc.__class__.__name__,
+        )
+        runtime.update(last_error=str(exc))
+        runtime.device_status["backend_available"] = False
+        return _status_playback_unavailable_payload()
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.warning("DJConnect status playback refresh failed: %s", exc.__class__.__name__)
+        runtime.update(last_error=str(exc))
+        runtime.device_status["backend_available"] = False
+        return _status_playback_unavailable_payload()
+
+    playback = result.get("playback")
+    if not isinstance(playback, dict) or "has_playback" not in playback:
+        playback = {"has_playback": False}
+    runtime.last_playback = playback
+    runtime.device_status["backend_available"] = True
+    runtime.update(last_error=None)
+    return {
+        "backend_available": True,
+        "playback": playback,
+    }
+
+
 def _playlist_command_value(data: dict[str, Any], client_type: str) -> dict[str, Any]:
     """Build canonical playlist command options for all client payload shapes."""
     request_limit = data.get("limit")
@@ -1869,14 +1917,21 @@ class DJConnectStatusView(HomeAssistantView):
         response.update(_ha_version_payload())
         response.update(_esp32_language_payload(runtime))
         response.update(await async_ha_url_payload(hass, conf))
-        backend_available = bool(_current_spotify_credentials_for_status(hass, runtime))
+        if _client_status_uses_backend_playback(client_type):
+            response.update(await _status_playback_payload(hass, runtime))
+            backend_available = bool(response.get("backend_available"))
+        else:
+            backend_available = bool(_current_spotify_credentials_for_status(hass, runtime))
+            response["backend_available"] = backend_available
+            playback = response.get("playback")
+            if not isinstance(playback, dict) or "has_playback" not in playback:
+                response["playback"] = {"has_playback": False}
         _LOGGER.debug(
             "DJConnect status from device %s: spotify_configured=%s backend_available=%s",
             data.get("device_id"),
             spotify_configured,
             backend_available,
         )
-        response["backend_available"] = backend_available
         runtime.device_status["backend_available"] = backend_available
         _LOGGER.debug(
             "DJConnect status response payload=%s",
