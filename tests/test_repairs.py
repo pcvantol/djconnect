@@ -151,6 +151,32 @@ class RepairsTest(unittest.TestCase):
         self.assertEqual(self.issues[0]["translation_key"], "missing_device_token")
         self.assertFalse(self.issues[0]["is_fixable"])
 
+    def test_watchos_entry_without_spotify_oauth_does_not_create_spotify_repair(self) -> None:
+        entry = types.SimpleNamespace(
+            entry_id="watch-entry",
+            data={
+                "client_type": "watchos",
+                "device_token": "device-token",
+            },
+            options={},
+        )
+
+        asyncio.run(self.repairs.async_create_fixable_issues(object(), entry))
+
+        self.assertEqual(self.issues, [])
+        self.assertIn(
+            {"domain": "djconnect", "issue_id": "watch-entry_missing_spotify_client_id"},
+            install_repairs_stubs.deleted,
+        )
+        self.assertIn(
+            {"domain": "djconnect", "issue_id": "missing_spotify_refresh_token"},
+            install_repairs_stubs.deleted,
+        )
+        self.assertIn(
+            {"domain": "djconnect", "issue_id": "missing_spotify_oauth_scopes"},
+            install_repairs_stubs.deleted,
+        )
+
     def test_missing_playlist_scope_creates_reauth_issue(self) -> None:
         entry = types.SimpleNamespace(
             entry_id="entry-1",

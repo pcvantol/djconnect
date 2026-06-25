@@ -10,6 +10,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers import issue_registry as ir
 
 from .const import (
+    CLIENT_TYPE_ESP32,
     CLIENT_TYPE_CONVERSATION_AGENT,
     CONF_CLIENT_TYPE,
     CONF_DEVICE_TOKEN,
@@ -80,6 +81,9 @@ async def async_create_fixable_issues(hass: HomeAssistant, entry: ConfigEntry) -
             severity=ir.IssueSeverity.WARNING,
             translation_key="missing_device_token",
         )
+    if not _entry_requires_spotify_oauth(entry):
+        _delete_spotify_prerequisite_issues(hass, entry.entry_id)
+        return
     missing_client_issue_id = f"{entry.entry_id}_missing_spotify_client_id"
     if not _entry_value(entry, CONF_SPOTIFY_CLIENT_ID):
         ir.async_create_issue(
@@ -120,6 +124,18 @@ async def async_create_fixable_issues(hass: HomeAssistant, entry: ConfigEntry) -
         _delete_issue_best_effort(hass, f"{entry.entry_id}_missing_spotify_oauth_scopes")
 
 
+def _delete_spotify_prerequisite_issues(hass: HomeAssistant, entry_id: str) -> None:
+    """Clear stale Spotify setup issues for entries without their own OAuth state."""
+    for issue_id in (
+        f"{entry_id}_missing_spotify_client_id",
+        "missing_spotify_refresh_token",
+        f"{entry_id}_missing_spotify_refresh_token",
+        "missing_spotify_oauth_scopes",
+        f"{entry_id}_missing_spotify_oauth_scopes",
+    ):
+        _delete_issue_best_effort(hass, issue_id)
+
+
 def _delete_issue_best_effort(hass: HomeAssistant, issue_id: str) -> None:
     try:
         ir.async_delete_issue(hass, DOMAIN, issue_id)
@@ -142,6 +158,21 @@ def _entry_requires_device_token(entry: ConfigEntry) -> bool:
         client_type == CLIENT_TYPE_CONVERSATION_AGENT
         or setup_method == SETUP_METHOD_CONVERSATION_AGENT
     )
+
+
+def _entry_requires_spotify_oauth(entry: ConfigEntry) -> bool:
+    """Return true only for entries that own Spotify OAuth configuration."""
+    client_type = str(_entry_value(entry, CONF_CLIENT_TYPE) or "").strip()
+    if client_type == CLIENT_TYPE_CONVERSATION_AGENT:
+        return False
+    configured_values = (
+        _entry_value(entry, CONF_SPOTIFY_CLIENT_ID),
+        _entry_value(entry, CONF_SPOTIFY_REFRESH_TOKEN),
+        _entry_value(entry, CONF_SPOTIFY_SCOPES),
+    )
+    if any(str(value or "").strip() for value in configured_values):
+        return True
+    return client_type in ("", CLIENT_TYPE_ESP32)
 
 
 async def async_create_fix_flow(
