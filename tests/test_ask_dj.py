@@ -4116,6 +4116,55 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["assistant_message"]["images"], [])
         self.assertIn("Dit zijn je Spotify-playlists", result["text"])
 
+    def test_my_playlists_question_tolerates_typos(self) -> None:
+        runtime = make_runtime()
+        calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append((command_name, value))
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            if command_name == "playlists":
+                self.assertEqual(value["limit"], 10)
+                return {
+                    "success": True,
+                    "playlists": [
+                        {
+                            "uri": f"spotify:playlist:mine-typo-{index}",
+                            "title": f"Mijn playlist {index}",
+                            "owner": "Peter",
+                            "image_url": f"https://img.example/mine-typo-{index}.jpg",
+                        }
+                        for index in range(1, 12)
+                    ],
+                }
+            raise AssertionError(f"unexpected command: {command_name}")
+
+        original_command = self.ask_dj.handle_spotify_command
+        self.ask_dj.handle_spotify_command = command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "welke playlists hebn ik",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "ios",
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.handle_spotify_command = original_command
+
+        self.assertEqual([call[0] for call in calls], ["status", "playlists"])
+        self.assertEqual(result["intent"]["intent"], "spotify_user_playlists")
+        self.assertEqual(len(result["playback_actions"]), 10)
+        self.assertTrue(all(action["kind"] == "playlist" for action in result["playback_actions"]))
+        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertEqual(result["playback_actions"][0]["uri"], "spotify:playlist:mine-typo-1")
+        self.assertEqual(result["playback_actions"][9]["uri"], "spotify:playlist:mine-typo-10")
+
     def test_open_playlist_request_returns_confirmation_buttons_without_art(self) -> None:
         runtime = make_runtime()
         stored = []

@@ -3790,6 +3790,7 @@ def _is_playlist_search_request(normalized: str) -> bool:
 
 
 def _is_user_playlists_request(normalized: str) -> bool:
+    normalized = _normalize_playlist_typos(normalized)
     if "playlist" not in normalized and "afspeellijst" not in normalized:
         return False
     own_terms = (
@@ -3816,6 +3817,21 @@ def _is_user_playlists_request(normalized: str) -> bool:
         any(term in normalized for term in question_terms)
         or normalized in {"mijn playlists", "mijn afspeellijsten", "my playlists"}
     )
+
+
+def _normalize_playlist_typos(normalized: str) -> str:
+    text = str(normalized or "")
+    replacements = (
+        (r"\bplayl?ists?\b", "playlists"),
+        (r"\bafspeel\s*lijst(?:en)?\b", "afspeellijsten"),
+        (r"\bhebn\b", "hebben"),
+        (r"\bhebbn\b", "hebben"),
+        (r"\bhebn\s+ik\b", "heb ik"),
+        (r"\bhebben\s+ik\b", "heb ik"),
+    )
+    for pattern, replacement in replacements:
+        text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
+    return re.sub(r"\s+", " ", text).strip()
 
 
 def _playlist_question_wants_track_choices(text: str) -> bool:
