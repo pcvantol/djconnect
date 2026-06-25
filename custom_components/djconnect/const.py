@@ -3,7 +3,7 @@ from __future__ import annotations
 
 DOMAIN = "djconnect"
 NAME = "DJConnect"
-VERSION = "3.1.93"
+VERSION = "3.1.94"
 
 API_BASE = "/api/djconnect"
 API_PAIR = f"{API_BASE}/pair"
@@ -153,6 +153,7 @@ SPOTIFY_SCOPES = [
     "user-modify-playback-state",
     "user-read-currently-playing",
     "user-library-read",
+    "user-library-modify",
     "playlist-read-private",
     "playlist-read-collaborative",
     "playlist-modify-private",

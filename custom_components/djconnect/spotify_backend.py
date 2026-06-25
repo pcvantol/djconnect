@@ -206,6 +206,9 @@ async def handle_spotify_command(
     if normalized == "set_volume":
         await backend.set_volume(value)
         return {"success": True, "playback": await backend.playback_state()}
+    if normalized == "save_current_track":
+        playback = await backend.save_current_track()
+        return {"success": True, "playback": playback}
     raise ValueError(f"Unsupported DJConnect command: {command}")
 
 
@@ -640,10 +643,12 @@ class SpotifyBackend:
                 break
         seen_track_ids: set[str] = set()
         for name in track_names:
-            try:
-                uri = await self._search_uri(name, "track")
-            except SpotifyBackendError:
-                continue
+            uri = str(name or "").strip() if str(name or "").strip().startswith("spotify:track:") else ""
+            if not uri:
+                try:
+                    uri = await self._search_uri(name, "track")
+                except SpotifyBackendError:
+                    continue
             track_id = _spotify_id_from_uri(uri)
             if not track_id or track_id in seen_track_ids:
                 continue
@@ -1195,6 +1200,19 @@ class SpotifyBackend:
             f"/me/player/volume?volume_percent={volume}",
             expected_empty=True,
         )
+
+    async def save_current_track(self) -> dict[str, Any]:
+        playback = await self.playback_state()
+        uri = str(playback.get("uri") or playback.get("current_uri") or "").strip()
+        track_id = _spotify_id_from_uri(uri)
+        if not track_id:
+            raise SpotifyBackendError("No current Spotify track is available to save")
+        await self._request(
+            "PUT",
+            f"/me/tracks?ids={track_id}",
+            expected_empty=True,
+        )
+        return playback
 
 
 def _normalize_playback(data: dict[str, Any]) -> dict[str, Any]:

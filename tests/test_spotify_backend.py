@@ -1742,7 +1742,7 @@ class SpotifyBackendTest(unittest.TestCase):
                             "is_playing": True,
                             "shuffle_state": True,
                             "repeat_state": "context",
-                            "item": {"name": "Song", "artists": [], "album": {}},
+                            "item": {"name": "Song", "uri": "spotify:track:saved-track", "artists": [], "album": {}},
                             "device": {"name": "iPhone", "volume_percent": 30},
                         },
                     )
@@ -1784,6 +1784,13 @@ class SpotifyBackendTest(unittest.TestCase):
                     "context",
                 )
             )
+            saved = asyncio.run(
+                self.backend.handle_spotify_command(
+                    object(),
+                    runtime,
+                    "save_current_track",
+                )
+            )
         finally:
             self.backend.async_get_clientsession = original_clientsession
 
@@ -1796,8 +1803,13 @@ class SpotifyBackendTest(unittest.TestCase):
             "https://api.spotify.com/v1/me/player/repeat?state=context",
             urls,
         )
+        self.assertIn(
+            "https://api.spotify.com/v1/me/tracks?ids=saved-track",
+            urls,
+        )
         self.assertTrue(shuffle["playback"]["shuffle"])
         self.assertEqual(repeat["playback"]["repeat_state"], "context")
+        self.assertEqual(saved["playback"]["uri"], "spotify:track:saved-track")
         self.assertEqual(runtime.device_status["shuffle"], True)
         self.assertEqual(runtime.device_status["repeat_state"], "context")
 
@@ -2323,6 +2335,84 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertIn("seed_artists=artist-id", recommendation_url)
         self.assertIn("seed_tracks=track-id", recommendation_url)
         self.assertIn("seed_genres=ambient", recommendation_url)
+
+    def test_artist_recommendations_use_track_uri_seed_without_search(self) -> None:
+        requested_urls = []
+
+        class Response:
+            status = 200
+
+            def __init__(self, url):
+                self.url = url
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                if "/search?" in self.url:
+                    raise AssertionError("track URI seed should not trigger Spotify search")
+                if "/recommendations?" in self.url:
+                    return {
+                        "tracks": [
+                            {
+                                "id": "rec-id",
+                                "name": "Recommended",
+                                "uri": "spotify:track:rec-id",
+                                "artists": [{"name": "Artist"}],
+                                "album": {"name": "Album", "images": []},
+                            }
+                        ]
+                    }
+                return {}
+
+            async def text(self):
+                return "{}"
+
+        class Session:
+            def request(self, method, url, **kwargs):
+                requested_urls.append(url)
+                return Response(url)
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={
+                "spotify_client_id": "client-id",
+                "spotify_refresh_token": "refresh",
+                "spotify_market": "NL",
+            },
+            options={},
+        )
+        runtime = types.SimpleNamespace(
+            entry=entry,
+            latest_spotify_refresh_token=None,
+            spotify_access_token="access",
+            spotify_access_token_expires_at=time.time() + 1800,
+            backend_cache={},
+            device_status={},
+            update=lambda **kwargs: None,
+        )
+        runtime.config = dict(entry.data)
+
+        original_clientsession = self.backend.async_get_clientsession
+        self.backend.async_get_clientsession = lambda hass: Session()
+        try:
+            result = asyncio.run(
+                self.backend.handle_spotify_command(
+                    object(),
+                    runtime,
+                    "artist_recommendations",
+                    {"tracks": ["spotify:track:freed"], "limit": 25},
+                )
+            )
+        finally:
+            self.backend.async_get_clientsession = original_clientsession
+
+        self.assertEqual(result["seed_tracks"][0]["uri"], "spotify:track:freed")
+        recommendation_url = next(url for url in requested_urls if "/recommendations?" in url)
+        self.assertIn("seed_tracks=freed", recommendation_url)
 
     def test_create_playlist_command_creates_private_playlist_and_adds_tracks(self) -> None:
         calls = []

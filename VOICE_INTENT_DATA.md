@@ -63,6 +63,7 @@ Examples and backend commands:
 - `Start muziek` -> `play`
 - `Zet harder` -> `set_volume` with current volume +10
 - `Zet zachter` -> `set_volume` with current volume -10
+- `Zet huidig nummer in favorieten` -> `save_current_track`
 - `Volgende nummer` -> `next`
 - `Next` -> `next`
 - `Skip` -> `next`
@@ -135,6 +136,12 @@ The website can use `ask_dj_intents` to render example families for:
   uitgebracht?` and `Welke albums bracht deze artiest uit?`. Responses can
   include a chronological album list, proxied album covers and Play Now actions
   per album.
+- `artist_item_list`: questions such as `Welke muziek heeft Scooter gemaakt?`,
+  `Welke nummers heeft Radiohead gemaakt?`, `Geef me 5 nummers van Pearl Jam`,
+  `Geef me albums van Radiohead` and `Toon playlists van Metallica`. Ask DJ
+  parses only the artist name from natural phrasing, then returns track, album
+  or playlist rows with `Play Now` buttons. It does not start playback
+  automatically.
 - `similar_artists`: questions such as `Welke artiesten maken vergelijkbare
   muziek als wat nu speelt?`, using explicit artist, current playback artist or
   recent conversation context.
@@ -144,8 +151,14 @@ The website can use `ask_dj_intents` to render example families for:
   answered with date, location and clickable source links when web agenda data
   is available.
 - `next_track_info`: queue questions such as `Wat wordt het volgende nummer?`.
-  These read Spotify queue context and can return track, artist, album art and
-  a Play Now action, but do not skip automatically.
+  These read Spotify queue context and can return the next three queue rows with
+  the text heading `Hierna in de wachtrij:`, track metadata, proxied album art
+  and `Play Now` buttons, but do not skip automatically.
+- `current_track_versions`: current-track variant questions such as `Heb je een
+  live versie?`, `Heb je een akoestische versie?`, `Is er een unplugged versie?`
+  and `Heb je remixes?`. Ask DJ searches Spotify from the active track/artist
+  context and returns matching track rows with `Play Now` buttons. It does not
+  start playback automatically.
 - `personal_music_profile_analysis`: non-mutating listening-profile questions
   based on DJConnect Memory plus Spotify recently played/top profile data.
 - `recently_played_history`: non-mutating recent listening-history questions
@@ -166,12 +179,25 @@ The website can use `ask_dj_intents` to render example families for:
 - `personal_music_recommendations`: recommendation requests such as `Speel wat
   anders`. These can return `playback_actions[]` for Play Now buttons but do
   not start playback until the user explicitly taps Play Now.
+- `save_current_track`: favorite/liked-song requests such as `Zet huidig nummer
+  in favorieten`, `Voeg dit nummer toe aan favorieten`, `Like dit nummer` and
+  `Save this track to liked songs`. Ask DJ calls `save_current_track`, returns
+  text-only confirmation, and current-track/Now Playing responses may expose the
+  same command as a `Zet in favorieten` control action.
 - `seed_playlist_mix`: requests such as `Stel een playlist samen op basis van
   Radiohead, Massive Attack en Portishead`, `Ik wil een playlist obv tracks
-  Reckoner, Teardrop` or `Ik wil een playlist in genre ambient, techno`.
-  Responses return one Play Now `track_mix` action with Spotify track URIs. When
-  the user taps Play Now, Ask DJ can ask whether the mix should be saved as a
-  real Spotify playlist.
+  Reckoner, Teardrop`, `Ik wil een playlist in genre ambient, techno`, `Maak
+  een 90s dance mix`, `Maak playlist obv huidig nummer` or `Ik wil meer van
+  deze muziek horen`. Prompts such as `Heb je meer nummers die hierop lijken`
+  are also current-track variants. Broad genre/vibe prompts are treated as genre
+  seeds; current-track variants use the active Spotify track URI as seed.
+  Responses return Play Now track rows and one Play Now `track_mix` action with
+  Spotify track URIs. Render the rows as list items with individual Play Now
+  buttons. Explicit requests such as `Ik wil vergelijkbare tracks` immediately
+  queue the recommendations and return the first 10 new queue rows; question
+  prompts such as `Heb je meer nummers die hierop lijken` stay preview-only.
+  When the user taps Play Now, Ask DJ can ask whether the mix should be saved as
+  a real Spotify playlist.
 - `dj_announcement`: requests for a DJ-style announcement for what is playing or
   the next track.
 - `ambient_music_fact`: backend-generated, text-only Ask DJ system messages

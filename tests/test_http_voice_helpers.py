@@ -2416,6 +2416,207 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertFalse(self.http._versions_compatible("3.1.0", "3.2.0"))
         self.assertFalse(self.http._versions_compatible("3.0.7", "4.0.0"))
 
+    def test_command_view_accepts_nested_repeat_action_value(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+        calls = []
+
+        class Runtime:
+            device_token = "device-token"
+            device_status = {"device_id": "djconnect-ios-68B74487726D"}
+            config = {}
+
+            def authorize_device_request(self, headers, body_device_id=None, client_type=None):
+                return True
+
+            def update(self, **kwargs):
+                self.last_update = kwargs
+
+        runtime = Runtime()
+
+        async def command_handler(hass, runtime_arg, command, value=None, *, play=False):
+            calls.append((command, value))
+            if command == "set_repeat":
+                return {"success": True, "playback": {"repeat_state": value}}
+            raise AssertionError(f"unexpected command: {command}")
+
+        class Request:
+            headers = {
+                "Authorization": "Bearer device-token",
+                "X-DJConnect-Device-ID": "djconnect-ios-68B74487726D",
+            }
+            app = {"hass": types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})}
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-ios-68B74487726D",
+                    "client_type": "ios",
+                    "command": "set_repeat",
+                    "value": {"command": "set_repeat", "value": "track", "label": "Repeat nummer"},
+                }
+
+        original = self.http.handle_spotify_command
+        self.http.handle_spotify_command = command_handler
+        try:
+            response = asyncio.run(self.http.DJConnectCommandView(None).post(Request()))
+        finally:
+            self.http.handle_spotify_command = original
+
+        self.assertEqual(response["status_code"], 200)
+        self.assertEqual(calls, [("set_repeat", "track")])
+
+    def test_command_view_handles_save_current_track_from_now_playing(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+        calls = []
+
+        class Runtime:
+            device_token = "device-token"
+            device_status = {"device_id": "djconnect-ios-68B74487726D"}
+            config = {}
+
+            def authorize_device_request(self, headers, body_device_id=None, client_type=None):
+                return True
+
+            def update(self, **kwargs):
+                self.last_update = kwargs
+
+        runtime = Runtime()
+
+        async def command_handler(hass, runtime_arg, command, value=None, *, play=False):
+            calls.append((command, value, play))
+            if command == "save_current_track":
+                return {
+                    "success": True,
+                    "playback": {
+                        "track_name": "Karma Police",
+                        "artist": "Radiohead",
+                        "uri": "spotify:track:karma-police",
+                    },
+                }
+            raise AssertionError(f"unexpected command: {command}")
+
+        class Request:
+            headers = {
+                "Authorization": "Bearer device-token",
+                "X-DJConnect-Device-ID": "djconnect-ios-68B74487726D",
+            }
+            app = {"hass": types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})}
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-ios-68B74487726D",
+                    "client_type": "ios",
+                    "command": "save_current_track",
+                }
+
+        original = self.http.handle_spotify_command
+        self.http.handle_spotify_command = command_handler
+        try:
+            response = asyncio.run(self.http.DJConnectCommandView(None).post(Request()))
+        finally:
+            self.http.handle_spotify_command = original
+
+        self.assertEqual(response["status_code"], 200)
+        self.assertEqual(calls, [("save_current_track", None, False)])
+        self.assertEqual(response["payload"]["playback"]["uri"], "spotify:track:karma-police")
+
+    def test_command_view_accepts_ask_dj_message_prompt_fallback(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+        calls = []
+
+        class Runtime:
+            device_token = "device-token"
+            device_status = {"device_id": "djconnect-ios-68B74487726D"}
+            config = {}
+
+            def authorize_device_request(self, headers, body_device_id=None, client_type=None):
+                return True
+
+            def update(self, **kwargs):
+                self.last_update = kwargs
+
+        runtime = Runtime()
+
+        async def ask_handler(hass, runtime_arg, payload, **kwargs):
+            calls.append(payload["text"])
+            return {"success": True, "text": "ok", "dj_text": "ok"}
+
+        class Request:
+            headers = {
+                "Authorization": "Bearer device-token",
+                "X-DJConnect-Device-ID": "djconnect-ios-68B74487726D",
+            }
+            app = {"hass": types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})}
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-ios-68B74487726D",
+                    "client_type": "ios",
+                    "command": "ask_dj_message",
+                    "prompt": "Meer van Scooter",
+                }
+
+        original = self.http.async_handle_ask_dj
+        self.http.async_handle_ask_dj = ask_handler
+        try:
+            response = asyncio.run(self.http.DJConnectCommandView(None).post(Request()))
+        finally:
+            self.http.async_handle_ask_dj = original
+
+        self.assertEqual(response["status_code"], 200)
+        self.assertEqual(calls, ["Meer van Scooter"])
+
+    def test_command_view_handles_volume_delta_action(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+        calls = []
+
+        class Runtime:
+            device_token = "device-token"
+            device_status = {"device_id": "djconnect-ios-68B74487726D"}
+            config = {}
+
+            def authorize_device_request(self, headers, body_device_id=None, client_type=None):
+                return True
+
+            def update(self, **kwargs):
+                self.last_update = kwargs
+
+        runtime = Runtime()
+
+        async def command_handler(hass, runtime_arg, command, value=None, *, play=False):
+            calls.append((command, value))
+            if command == "status":
+                return {"success": True, "playback": {"volume_percent": 30}}
+            if command == "set_volume":
+                return {"success": True, "playback": {"volume_percent": value}}
+            raise AssertionError(f"unexpected command: {command}")
+
+        class Request:
+            headers = {
+                "Authorization": "Bearer device-token",
+                "X-DJConnect-Device-ID": "djconnect-ios-68B74487726D",
+            }
+            app = {"hass": types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})}
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-ios-68B74487726D",
+                    "client_type": "ios",
+                    "command": "volume_delta",
+                    "value": {"command": "volume_delta", "value": -10, "label": "Zachter"},
+                }
+
+        original = self.http.handle_spotify_command
+        self.http.handle_spotify_command = command_handler
+        try:
+            response = asyncio.run(self.http.DJConnectCommandView(None).post(Request()))
+        finally:
+            self.http.handle_spotify_command = original
+
+        self.assertEqual(response["status_code"], 200)
+        self.assertEqual(calls, [("status", None), ("set_volume", 20)])
+        self.assertEqual(response["payload"]["images"], [])
+        self.assertEqual(response["payload"]["items"], [])
+
     def test_status_view_prefers_current_spotify_credentials(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
 

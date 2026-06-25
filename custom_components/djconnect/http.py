@@ -1175,6 +1175,127 @@ def _playlist_command_value(data: dict[str, Any], client_type: str) -> dict[str,
     return {"client_type": client_type, "limit": request_limit}
 
 
+def _repeat_command_value(data: dict[str, Any]) -> str:
+    """Accept repeat button payloads from older and newer app clients."""
+    value = data.get("value")
+    if isinstance(value, dict):
+        for key in ("value", "repeat", "repeat_state", "repeatState", "mode", "option"):
+            candidate = str(value.get(key) or "").strip().lower()
+            if candidate in {"off", "track", "context"}:
+                return candidate
+    for key in ("value", "repeat", "repeat_state", "repeatState", "mode", "option"):
+        candidate = str(data.get(key) or "").strip().lower()
+        if candidate in {"off", "track", "context"}:
+            return candidate
+    label = str(data.get("label") or data.get("button_label") or data.get("title") or "").strip().lower()
+    if "uit" in label or label == "off":
+        return "off"
+    if "nummer" in label or "track" in label:
+        return "track"
+    if "alles" in label or "context" in label or "aan" in label:
+        return "context"
+    return str(value or "").strip().lower()
+
+
+def _shuffle_command_value(data: dict[str, Any]) -> Any:
+    """Accept shuffle button payloads with nested action values."""
+    value = data.get("value")
+    if isinstance(value, dict):
+        for key in ("value", "enabled", "shuffle", "shuffle_state", "shuffleState"):
+            if key in value:
+                return value.get(key)
+    for key in ("value", "enabled", "shuffle", "shuffle_state", "shuffleState"):
+        if key in data:
+            return data.get(key)
+    return value
+
+
+def _volume_delta_command_value(data: dict[str, Any]) -> Any:
+    """Accept volume control payloads with either value or delta keys."""
+    value = data.get("value")
+    if isinstance(value, dict):
+        for key in ("value", "delta", "volume_delta", "volumeDelta"):
+            if key in value:
+                return value.get(key)
+    for key in ("value", "delta", "volume_delta", "volumeDelta"):
+        if key in data:
+            return data.get(key)
+    return value
+
+
+async def _handle_volume_delta_command(hass: Any, runtime: Any, value: Any) -> dict[str, Any]:
+    try:
+        delta = int(value)
+    except (TypeError, ValueError):
+        return {
+            "success": False,
+            "error": "invalid_volume_delta",
+            "message": "volume_delta value must be a number",
+            "images": [],
+            "links": [],
+            "sources": [],
+        }
+    status = await handle_spotify_command(hass, runtime, "status")
+    playback = status.get("playback") if isinstance(status, dict) else {}
+    current = _playback_volume_percent(playback, runtime)
+    if current is None:
+        return {
+            "success": False,
+            "error": "playback_unavailable",
+            "message": "current volume is unavailable",
+            "images": [],
+            "links": [],
+            "sources": [],
+        }
+    target = max(0, min(60, current + delta))
+    result = await handle_spotify_command(hass, runtime, "set_volume", target)
+    return {
+        "success": True,
+        "text": "Ik heb het volume aangepast.",
+        "dj_text": "Ik heb het volume aangepast.",
+        "playback": result.get("playback") if isinstance(result, dict) else {},
+        "images": [],
+        "links": [],
+        "sources": [],
+        "items": [],
+    }
+
+
+def _playback_volume_percent(playback: Any, runtime: Any) -> int | None:
+    candidates: list[Any] = []
+    if isinstance(playback, dict):
+        candidates.extend(
+            playback.get(key)
+            for key in (
+                "volume",
+                "volume_percent",
+                "volumePercent",
+                "device_volume",
+                "deviceVolume",
+            )
+        )
+        device = playback.get("device")
+        if isinstance(device, dict):
+            candidates.extend(
+                device.get(key)
+                for key in ("volume", "volume_percent", "volumePercent")
+            )
+    device_status = getattr(runtime, "device_status", {}) or {}
+    if isinstance(device_status, dict):
+        candidates.extend(
+            device_status.get(key)
+            for key in ("volume", "volume_percent", "spotify_volume", "speaker_volume_percent")
+        )
+    for value in candidates:
+        try:
+            number = int(value)
+        except (TypeError, ValueError):
+            continue
+        if 0 <= number <= 100:
+            return min(60, number)
+    return None
+
+
 async def _handle_ask_dj_play_recommendation(
     hass: Any,
     runtime: Any,
@@ -2003,6 +2124,12 @@ class DJConnectCommandView(HomeAssistantView):
         )
         command_value = data.get("value")
         normalized_command = command.lower()
+        if normalized_command == "set_repeat":
+            command_value = _repeat_command_value(data)
+        elif normalized_command == "set_shuffle":
+            command_value = _shuffle_command_value(data)
+        elif normalized_command == "volume_delta":
+            command_value = _volume_delta_command_value(data)
         if normalized_command in {"status", "devices", "queue", "playlists"}:
             _LOGGER.debug(
                 "DJConnect command request payload=%s",
@@ -2022,6 +2149,10 @@ class DJConnectCommandView(HomeAssistantView):
                 message_value.get("text")
                 or message_value.get("prompt")
                 or data.get("text")
+                or data.get("prompt")
+                or data.get("label")
+                or data.get("button_label")
+                or data.get("title")
                 or ""
             ).strip()
             if not text_value:
@@ -2076,6 +2207,12 @@ class DJConnectCommandView(HomeAssistantView):
                 data,
                 user_id=_request_user_id(request),
             )
+            if memory_key:
+                result.setdefault("memory_key", memory_key)
+            result.update(_ha_version_payload())
+            return self.json(result, status_code=200 if result.get("success") else 400)
+        if normalized_command == "volume_delta":
+            result = await _handle_volume_delta_command(hass, runtime, command_value)
             if memory_key:
                 result.setdefault("memory_key", memory_key)
             result.update(_ha_version_payload())

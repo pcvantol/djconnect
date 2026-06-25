@@ -92,7 +92,12 @@ Supported action kinds:
   output may use `Actief`.
 - `control`: immediate playback control action. Pause/stop responses can return
   `command:"play"` with `label:"Resume"` / `button_label:"Resume"` so clients
-  show a Resume button.
+  show a Resume button. Clients may also send direct control commands such as
+  `volume_delta`, `set_shuffle`, `set_repeat` and `save_current_track` through
+  `POST /api/djconnect/command`. Current-track Ask DJ responses such as
+  `wat speelt er` may include a `save_current_track` control action with
+  `label:"Zet in favorieten"`; render it as an immediate Now Playing / Ask DJ
+  button and do not route it through `ask_dj_play_recommendation`.
 - `confirmation`: Ja/Nee follow-up action with
   `command:"ask_dj_followup_response"` and a server-side pending proposal.
   Generic playlist/recommendation offers may use labels such as `Ja graag` and
@@ -230,7 +235,7 @@ Register payload:
   "push_token": "...",
   "push_environment": "sandbox",
   "app_bundle_id": "dev.djconnect.app",
-  "app_version": "3.1.84",
+  "app_version": "3.1.93",
   "locale": "nl-NL",
   "notification_categories": ["ask_dj_response", "ask_dj_confirm", "playback_change"]
 }
