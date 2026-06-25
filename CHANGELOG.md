@@ -1,5 +1,26 @@
 # Changelog
 
+## 3.1.94
+
+- Add Ask DJ intent `zet huidig nummer in favorieten` / `save this track to
+  liked songs`, backed by Spotify `save_current_track` and text-only client
+  responses.
+- Add a `save_current_track` control action to current-track Ask DJ responses so
+  clients can show a direct `Zet in favorieten` button from Ask DJ and Now
+  Playing surfaces.
+- Support current-track seed mix requests such as `maak playlist obv huidig
+  nummer`, `ik wil meer van deze muziek horen` and `heb je meer nummers die
+  hierop lijken`, using the active Spotify track URI as the Spotify
+  recommendations seed.
+- Queue current-track recommendation requests such as `ik wil vergelijkbare
+  tracks` immediately and return the first 10 queued recommendations as Play Now
+  rows.
+- Treat broad genre/vibe mix requests such as `maak een 90s dance mix` as genre
+  recommendation seeds and return individual Play Now track rows plus a whole
+  `track_mix` action.
+- Add `user-library-modify` to required Spotify OAuth scopes for saving the
+  current track to Liked Songs/favorites.
+
 ## 3.1.93
 
 - Scope `/api/djconnect/ask_dj/history/clear` to the authenticated Home

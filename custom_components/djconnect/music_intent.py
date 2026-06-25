@@ -6,6 +6,8 @@ import re
 _ARTIST_QUERY_PATTERNS = (
     r"^\s*(?:artiest|band|artist)\s+(.+?)\s*$",
     r"^\s*ik\s+heb\s+(?:wel\s+)?(?:zin|trek)\s+in\s+(.+?)\s*$",
+    r"^\s*ik\s+wil\s+(?:wel\s+|graag\s+)?(?:iets|something)\s+van\s+(.+?)\s+(?:horen|luisteren|starten|opzetten|spelen)\s*$",
+    r"^\s*i\s+(?:want|would\s+like)\s+(?:something|some)\s+by\s+(.+?)\s*$",
     r"^\s*ik\s+wil\s+(?:wel\s+|graag\s+)?(.+?)\s+(?:horen|luisteren|starten|opzetten|spelen)\s*$",
     r"^\s*(.+?)\s+wil\s+ik\s+(?:wel\s+|graag\s+)?(?:horen|luisteren|starten|opzetten|spelen)\s*$",
     r"^\s*(?:zet|speel|start|draai)\s+(?:eens\s+|even\s+|maar\s+|graag\s+)?(?:af\s+|op\s+|aan\s+)?(.+?)\s*(?:op|af|aan)?\s*$",

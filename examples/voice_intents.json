@@ -130,6 +130,21 @@
             "Previous song",
             "Previous track"
           ]
+        },
+        "save_current_track": {
+          "spotify_command": "save_current_track",
+          "nl": [
+            "Zet huidig nummer in favorieten",
+        "Voeg dit nummer toe aan favorieten",
+        "Bewaar deze track in favorieten",
+        "Like dit nummer",
+        "Zet deze song in mijn liked songs"
+          ],
+          "en": [
+            "Save this track to liked songs",
+            "Add this song to favorites",
+            "Like this track"
+          ]
         }
       }
     },
@@ -369,6 +384,37 @@
         "Albums by Prince"
       ]
     },
+    "artist_item_list": {
+      "plays_music": false,
+      "action": "none",
+      "intent": "artist_item_list",
+      "response_shape": {
+        "playback_actions_kind": [
+          "track",
+          "album",
+          "playlist"
+        ],
+        "button_labels": [
+          "Play Now"
+        ],
+        "images": "proxied when Spotify art is available"
+      },
+      "description": "Ask which tracks, albums or playlists exist for an artist. DJConnect parses the artist name from natural phrasing and returns Play Now rows without starting playback.",
+      "nl": [
+        "Welke muziek heeft Scooter gemaakt?",
+        "Welke nummers heeft Radiohead gemaakt?",
+        "Geef me 5 nummers van Pearl Jam",
+        "Geef me albums van Radiohead",
+        "Toon playlists van Metallica"
+      ],
+      "en": [
+        "What music has Scooter made?",
+        "Which songs has Radiohead released?",
+        "Give me 5 songs by Pearl Jam",
+        "Show albums by Radiohead",
+        "Find playlists from Metallica"
+      ]
+    },
     "similar_artists": {
       "plays_music": false,
       "action": "none",
@@ -431,6 +477,35 @@
         "What is the next song?",
         "Which track is up next?",
         "What will play next?"
+      ]
+    },
+    "current_track_versions": {
+      "plays_music": false,
+      "action": "none",
+      "intent": "current_track_versions",
+      "response_shape": {
+        "playback_actions_kind": "track",
+        "button_labels": [
+          "Play Now"
+        ],
+        "images": "proxied per result when Spotify art is available"
+      },
+      "description": "Ask for live, acoustic or remix versions of the current track. DJConnect searches Spotify using the current track and artist, returns matching Play Now rows and does not start playback automatically.",
+      "nl": [
+        "Heb je een live versie?",
+        "Zoek een live versie van dit nummer",
+        "Heb je een akoestische versie?",
+        "Is er een unplugged versie?",
+        "Heb je remixes?",
+        "Zoek een remix van dit nummer"
+      ],
+      "en": [
+        "Do you have a live version?",
+        "Find a live version of this song",
+        "Do you have an acoustic version?",
+        "Is there an unplugged version?",
+        "Do you have remixes?",
+        "Find a remix of this track"
       ]
     },
     "personal_music_profile_analysis": {
@@ -515,6 +590,13 @@
         "Maak een mix met Above & Beyond, Armin van Buuren en Ferry Corsten",
         "Ik wil een playlist obv tracks Reckoner, Teardrop en Angel",
         "Ik wil een playlist in genre ambient, techno en downtempo",
+        "Maak een 90s dance mix",
+        "Maak playlist obv huidig nummer",
+        "Ik wil meer van deze muziek horen",
+        "Heb je meer nummers die hierop lijken",
+        "Heb je meer nummers die hierop lijken?",
+        "Ik wil vergelijkbare tracks",
+        "Speel vergelijkbare nummers",
         "Sla deze mix op als Spotify playlist"
       ],
       "en": [
@@ -522,7 +604,36 @@
         "Make a mix with Above & Beyond, Armin van Buuren and Ferry Corsten",
         "I want a playlist based on tracks Reckoner, Teardrop and Angel",
         "I want a playlist in genres ambient, techno and downtempo",
+        "Make a 90s dance mix",
+        "Create a playlist based on the current track",
+        "I want more of this music",
+        "Do you have more songs like this",
+        "I want similar tracks",
+        "Queue similar tracks",
         "Save this mix as a Spotify playlist"
+      ]
+    },
+    "save_current_track": {
+      "plays_music": false,
+      "action": "save_current_track",
+      "intent": "playback_control",
+      "response_shape": {
+        "text_only": true,
+        "images": [],
+        "playback_actions": []
+      },
+      "description": "Save the currently playing Spotify track to the user's Liked Songs/favorites. Now Playing cards can expose this as a control action labelled Zet in favorieten.",
+      "nl": [
+        "Zet huidig nummer in favorieten",
+        "Voeg dit nummer toe aan favorieten",
+        "Bewaar deze track in favorieten",
+        "Like dit nummer"
+      ],
+      "en": [
+        "Save this track to liked songs",
+        "Add this song to favorites",
+        "Like this track",
+        "Save the current song"
       ]
     },
     "dj_announcement": {

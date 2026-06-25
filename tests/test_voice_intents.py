@@ -22,6 +22,38 @@ class VoiceIntentDataTest(unittest.TestCase):
         self.assertIn("Wat weet je nu over mij?", intent["nl"])
         self.assertIn("What do you know about me?", intent["en"])
 
+    def test_recent_ask_dj_intents_are_documented_for_clients(self) -> None:
+        data = json.loads((ROOT / "examples" / "voice_intents.json").read_text())
+        ask = data["ask_dj_intents"]
+
+        artist_items = ask["artist_item_list"]
+        self.assertFalse(artist_items["plays_music"])
+        self.assertEqual(artist_items["intent"], "artist_item_list")
+        self.assertIn("Welke muziek heeft Scooter gemaakt?", artist_items["nl"])
+        self.assertIn("What music has Scooter made?", artist_items["en"])
+        self.assertIn("Play Now", artist_items["response_shape"]["button_labels"])
+
+        versions = ask["current_track_versions"]
+        self.assertFalse(versions["plays_music"])
+        self.assertEqual(versions["intent"], "current_track_versions")
+        self.assertIn("Heb je een live versie?", versions["nl"])
+        self.assertIn("Heb je een akoestische versie?", versions["nl"])
+        self.assertIn("Heb je remixes?", versions["nl"])
+        self.assertIn("Play Now", versions["response_shape"]["button_labels"])
+
+        save = ask["save_current_track"]
+        self.assertFalse(save["plays_music"])
+        self.assertEqual(save["action"], "save_current_track")
+        self.assertEqual(save["response_shape"]["images"], [])
+        self.assertEqual(save["response_shape"]["playback_actions"], [])
+        self.assertIn("Zet huidig nummer in favorieten", save["nl"])
+        self.assertIn("Save this track to liked songs", save["en"])
+
+        seed = ask["seed_playlist_mix"]
+        self.assertIn("Heb je meer nummers die hierop lijken?", seed["nl"])
+        self.assertIn("Speel vergelijkbare nummers", seed["nl"])
+        self.assertIn("Queue similar tracks", seed["en"])
+
 
 if __name__ == "__main__":
     unittest.main()

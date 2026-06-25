@@ -9,6 +9,13 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
+FULL_SPOTIFY_SCOPES = (
+    "user-read-playback-state user-modify-playback-state "
+    "user-read-currently-playing user-library-read user-library-modify "
+    "playlist-read-private playlist-read-collaborative "
+    "playlist-modify-private playlist-modify-public "
+    "user-read-recently-played user-top-read"
+)
 
 
 def install_repairs_stubs() -> list[dict]:
@@ -109,13 +116,7 @@ class RepairsTest(unittest.TestCase):
                 "client_type": "conversation_agent",
                 "spotify_client_id": "client-id",
                 "spotify_refresh_token": "refresh-token",
-                "spotify_scopes": (
-                    "user-read-playback-state user-modify-playback-state "
-                    "user-read-currently-playing user-library-read "
-                    "playlist-read-private playlist-read-collaborative "
-                    "playlist-modify-private playlist-modify-public "
-                    "user-read-recently-played user-top-read"
-                ),
+                "spotify_scopes": FULL_SPOTIFY_SCOPES,
             },
         )
 
@@ -134,13 +135,7 @@ class RepairsTest(unittest.TestCase):
                 "client_type": "ios",
                 "spotify_client_id": "client-id",
                 "spotify_refresh_token": "refresh-token",
-                "spotify_scopes": (
-                    "user-read-playback-state user-modify-playback-state "
-                    "user-read-currently-playing user-library-read "
-                    "playlist-read-private playlist-read-collaborative "
-                    "playlist-modify-private playlist-modify-public "
-                    "user-read-recently-played user-top-read"
-                ),
+                "spotify_scopes": FULL_SPOTIFY_SCOPES,
             },
         )
 
@@ -203,13 +198,7 @@ class RepairsTest(unittest.TestCase):
             data={
                 "device_token": "device-token",
                 "spotify_client_id": "client-id",
-                "spotify_scopes": (
-                    "user-read-playback-state user-modify-playback-state "
-                    "user-read-currently-playing user-library-read "
-                    "playlist-read-private playlist-read-collaborative "
-                    "playlist-modify-private playlist-modify-public "
-                    "user-read-recently-played user-top-read"
-                ),
+                "spotify_scopes": FULL_SPOTIFY_SCOPES,
             },
         )
 
@@ -230,13 +219,7 @@ class RepairsTest(unittest.TestCase):
                 "device_token": "device-token",
                 "spotify_client_id": "client-id",
                 "spotify_refresh_token": "refresh-token",
-                "spotify_scopes": (
-                    "user-read-playback-state user-modify-playback-state "
-                    "user-read-currently-playing user-library-read "
-                    "playlist-read-private playlist-read-collaborative "
-                    "playlist-modify-private playlist-modify-public "
-                    "user-read-recently-played user-top-read"
-                ),
+                "spotify_scopes": FULL_SPOTIFY_SCOPES,
             },
         )
 
@@ -251,13 +234,7 @@ class RepairsTest(unittest.TestCase):
                 "device_token": "device-token",
                 "spotify_client_id": "client-id",
                 "spotify_refresh_token": "fresh-token",
-                "spotify_scopes": (
-                    "user-read-playback-state user-modify-playback-state "
-                    "user-read-currently-playing user-library-read "
-                    "playlist-read-private playlist-read-collaborative "
-                    "playlist-modify-private playlist-modify-public "
-                    "user-read-recently-played user-top-read"
-                ),
+                "spotify_scopes": FULL_SPOTIFY_SCOPES,
             },
             options={},
         )
@@ -280,13 +257,7 @@ class RepairsTest(unittest.TestCase):
             data={
                 "device_token": "device-token",
                 "spotify_client_id": "client-id",
-                "spotify_scopes": (
-                    "user-read-playback-state user-modify-playback-state "
-                    "user-read-currently-playing user-library-read "
-                    "playlist-read-private playlist-read-collaborative "
-                    "playlist-modify-private playlist-modify-public "
-                    "user-read-recently-played user-top-read"
-                ),
+                "spotify_scopes": FULL_SPOTIFY_SCOPES,
             },
         )
 
