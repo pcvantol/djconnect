@@ -2487,9 +2487,40 @@ class DJConnectAskDjHistoryView(HomeAssistantView):
         return self.json(result)
 
 
-class DJConnectAskDjHistoryClearView(DJConnectAskDjClearView):
+class DJConnectAskDjHistoryClearView(HomeAssistantView):
     url = API_ASK_DJ_HISTORY_CLEAR
     name = "api:djconnect:ask_dj_history_clear"
+    requires_auth = False
+
+    def __init__(self, hass):
+        self.hass = hass
+
+    async def post(self, request):
+        hass = request.app["hass"]
+        try:
+            data = await request.json()
+        except Exception:  # noqa: BLE001
+            return _json_error(self, "invalid_json", 400)
+        identity = _identity_payload(data)
+        runtime = _runtime(
+            hass,
+            identity.get("device_id") or request.headers.get("X-DJConnect-Device-ID"),
+            request.headers,
+        )
+        if runtime is None:
+            return _json_error(self, "not_configured", 503)
+        client_type = _validate_required_client_type(identity)
+        if client_type is None:
+            return _json_error(self, "invalid_client_type", 400)
+        if not _authorize_runtime_device_request(
+            runtime,
+            request.headers,
+            identity.get("device_id"),
+            client_type,
+        ):
+            return _json_error(self, "unauthorized", 401)
+        result = await _history_manager(hass, runtime).async_clear(_request_user_id(request))
+        return self.json(result)
 
 
 class DJConnectAskDjHistoryStateView(HomeAssistantView):

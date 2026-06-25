@@ -184,6 +184,11 @@ Ask DJ history is server-side and HA-user scoped. App clients synchronize throug
 `GET /api/djconnect/ask_dj/history?since_revision=<number>` and clear through
 `POST /api/djconnect/ask_dj/history/clear`.
 
+`clear_revision` is the authoritative full-clear marker. When a history or clear
+response contains a higher `clear_revision` than the client has locally, the
+client must wipe its local Ask DJ cache for that HA user/context before merging
+new server messages.
+
 Current retention limit: `1000` messages per HA user.
 
 History responses include `history_limit`, `history_trimmed_before` and

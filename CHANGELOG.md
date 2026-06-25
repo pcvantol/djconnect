@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.1.93
+
+- Scope `/api/djconnect/ask_dj/history/clear` to the authenticated Home
+  Assistant user/context and keep `clear_revision` as the authoritative client
+  cache clear marker.
+- Add a best-effort next-queue Play Now row after Ask DJ next/previous playback
+  commands so clients can show the following queued track without reusing stale
+  media chrome.
+
 ## 3.1.92
 
 - Add richer Ask DJ Play Now list responses for fuzzy Spotify searches, genre

@@ -1408,6 +1408,7 @@ class AskDjTest(unittest.TestCase):
                         "device_id": runtime.device_status["device_id"],
                         "client_type": "watchos",
                     },
+                    user_id="skip-user",
                 )
             )
         finally:
@@ -2444,6 +2445,7 @@ class AskDjTest(unittest.TestCase):
                         "device_id": runtime.device_status["device_id"],
                         "client_type": "watchos",
                     },
+                    user_id="previous-user",
                 )
             )
         finally:
@@ -4829,6 +4831,25 @@ class AskDjTest(unittest.TestCase):
                         "uri": "spotify:track:old",
                     },
                 }
+            if command_name == "queue":
+                return {
+                    "success": True,
+                    "context_uri": "spotify:playlist:queue",
+                    "queue": [
+                        {
+                            "title": "New Song",
+                            "subtitle": "New Artist",
+                            "uri": "spotify:track:new",
+                            "album_image_url": "https://img.example/new.jpg",
+                        },
+                        {
+                            "title": "Queue Song",
+                            "subtitle": "Queue Artist",
+                            "uri": "spotify:track:queue",
+                            "album_image_url": "https://img.example/queue.jpg",
+                        },
+                    ],
+                }
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
         async def dj_response(hass, *, media, fallback_text, conf, memory_context=None, debug=None):
@@ -4860,10 +4881,86 @@ class AskDjTest(unittest.TestCase):
             self.ask_dj.process_text_command.__globals__["handle_spotify_command"] = original_processor_command
             self.ask_dj.process_text_command.__globals__["generate_dj_response_with_assist"] = original_dj_response
 
-        self.assertEqual(calls, ["status", "next", "status"])
+        self.assertEqual(calls, ["status", "next", "status", "queue"])
         self.assertIn("New Song van New Artist", result["dj_text"])
         self.assertEqual(result["assistant_message"]["images"][0]["title"], "New Song")
+        self.assertEqual(result["playback_actions"][0]["title"], "Queue Song")
+        self.assertEqual(result["playback_actions"][0]["label"], "Volgende nummer in de wachtrij")
+        self.assertEqual(result["playback_actions"][0]["uri"], "spotify:track:queue")
+        self.assertEqual(result["items"], result["playback_actions"])
         self.assertNotIn("Old Song", result["dj_text"])
+
+    def test_previous_command_also_returns_next_queue_row_best_effort(self) -> None:
+        runtime = make_runtime()
+        runtime.update = lambda **kwargs: None
+        calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append(command_name)
+            if command_name == "status":
+                return {
+                    "success": True,
+                    "playback": {
+                        "has_playback": True,
+                        "is_playing": True,
+                        "track_name": "Previous Song",
+                        "artist": "Previous Artist",
+                        "album_image_url": "https://img.example/previous.jpg",
+                        "uri": "spotify:track:previous",
+                    },
+                }
+            if command_name == "previous":
+                return {"success": True, "playback": {"track_name": "Old Song", "uri": "spotify:track:old"}}
+            if command_name == "queue":
+                return {
+                    "success": True,
+                    "queue": [
+                        {
+                            "title": "Previous Song",
+                            "subtitle": "Previous Artist",
+                            "uri": "spotify:track:previous",
+                        },
+                        {
+                            "title": "After Previous",
+                            "subtitle": "Queue Artist",
+                            "uri": "spotify:track:after-previous",
+                            "album_image_url": "https://img.example/after.jpg",
+                        },
+                    ],
+                }
+            raise AssertionError(f"unexpected Spotify command: {command_name}")
+
+        async def dj_response(hass, *, media, fallback_text, conf, memory_context=None, debug=None):
+            return f"Nu speelt {media['track_name']} van {media['artist']}."
+
+        original_command = self.ask_dj.handle_spotify_command
+        original_processor_command = self.ask_dj.process_text_command.__globals__["handle_spotify_command"]
+        original_dj_response = self.ask_dj.process_text_command.__globals__["generate_dj_response_with_assist"]
+        self.ask_dj.handle_spotify_command = command
+        self.ask_dj.process_text_command.__globals__["handle_spotify_command"] = command
+        self.ask_dj.process_text_command.__globals__["generate_dj_response_with_assist"] = dj_response
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "vorige nummer",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "watchos",
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.process_text_command.__globals__["handle_spotify_command"] = original_processor_command
+            self.ask_dj.process_text_command.__globals__["generate_dj_response_with_assist"] = original_dj_response
+
+        self.assertEqual(calls, ["status", "previous", "status", "queue"])
+        self.assertIn("Previous Song van Previous Artist", result["dj_text"])
+        self.assertEqual(result["playback_actions"][0]["title"], "After Previous")
+        self.assertEqual(result["playback_actions"][0]["label"], "Volgende nummer in de wachtrij")
+        self.assertEqual(result["playback_actions"][0]["uri"], "spotify:track:after-previous")
 
     def test_english_next_question_still_reports_queue_info(self) -> None:
         intent = self.ask_dj.classify_ask_dj("what is next?")
@@ -5201,7 +5298,7 @@ class AskDjTest(unittest.TestCase):
 
         clear = asyncio.run(self.http.DJConnectAskDjHistoryClearView(None).post(ClearRequest()))
 
-        self.assertEqual(clear["payload"]["user_id"], "all")
+        self.assertEqual(clear["payload"]["user_id"], "user-1")
         self.assertEqual(clear["payload"]["history_revision"], 1)
         self.assertEqual(clear["payload"]["clear_revision"], 1)
         self.assertEqual(clear["payload"]["messages"], [])
@@ -5222,10 +5319,10 @@ class AskDjTest(unittest.TestCase):
         state = asyncio.run(self.http.DJConnectAskDjHistoryStateView(None).post(StateRequest()))
 
         self.assertTrue(state["payload"]["ask_dj_clear_required"])
-        self.assertEqual(state["payload"]["history_revision"], 0)
+        self.assertEqual(state["payload"]["history_revision"], 1)
         self.assertEqual(state["payload"]["clear_revision"], 1)
 
-    def test_app_history_clear_signals_other_ha_user_contexts(self) -> None:
+    def test_app_history_clear_is_scoped_to_authenticated_ha_user(self) -> None:
         runtime = make_runtime()
         hass = types.SimpleNamespace(data={self.const.DOMAIN: {"runtime": runtime}})
 
@@ -5257,9 +5354,97 @@ class AskDjTest(unittest.TestCase):
                 }
 
         state = asyncio.run(self.http.DJConnectAskDjHistoryStateView(None).post(IPhoneStateRequest()))
-        self.assertTrue(state["payload"]["ask_dj_clear_required"])
+        self.assertFalse(state["payload"]["ask_dj_clear_required"])
         self.assertEqual(state["payload"]["user_id"], "iphone-user")
-        self.assertEqual(state["payload"]["clear_revision"], 1)
+        self.assertEqual(state["payload"]["clear_revision"], 0)
+
+    def test_history_clear_removes_old_messages_but_keeps_new_messages_after_clear(self) -> None:
+        runtime = make_runtime()
+        hass = types.SimpleNamespace(data={self.const.DOMAIN: {"runtime": runtime}})
+
+        async def ask_dj(hass_arg, runtime_arg, payload, *, user_id=None):
+            return {
+                "success": True,
+                "text": f"Antwoord op {payload['text']}",
+                "dj_text": f"Antwoord op {payload['text']}",
+            }
+
+        class MessageRequest:
+            headers = {"Authorization": "Bearer device-token"}
+            app = {"hass": hass}
+            context = types.SimpleNamespace(user_id="user-1")
+
+            def __init__(self, text: str, client_message_id: str) -> None:
+                self.text = text
+                self.client_message_id = client_message_id
+
+            async def json(self):
+                return {
+                    "client_message_id": self.client_message_id,
+                    "client_id": "watch",
+                    "device_id": runtime.device_status["device_id"],
+                    "client_type": "watchos",
+                    "text": self.text,
+                }
+
+        class ClearRequest:
+            headers = {"Authorization": "Bearer device-token"}
+            app = {"hass": hass}
+            context = types.SimpleNamespace(user_id="user-1")
+
+            async def json(self):
+                return {
+                    "device_id": runtime.device_status["device_id"],
+                    "client_type": "watchos",
+                }
+
+        class HistoryRequest:
+            headers = {
+                "Authorization": "Bearer device-token",
+                "X-DJConnect-Device-ID": runtime.device_status["device_id"],
+                "X-DJConnect-Client-Type": "watchos",
+            }
+            app = {"hass": hass}
+            context = types.SimpleNamespace(user_id="user-1")
+            query = {}
+
+        original = self.http.async_handle_ask_dj
+        self.http.async_handle_ask_dj = ask_dj
+        try:
+            first = asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest("oud", "old-1")))
+            clear = asyncio.run(self.http.DJConnectAskDjHistoryClearView(None).post(ClearRequest()))
+            after_clear = asyncio.run(self.http.DJConnectAskDjHistoryView(None).get(HistoryRequest()))
+            second = asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest("nieuw", "new-1")))
+            history = asyncio.run(self.http.DJConnectAskDjHistoryView(None).get(HistoryRequest()))
+        finally:
+            self.http.async_handle_ask_dj = original
+
+        self.assertEqual(first["payload"]["history_revision"], 1)
+        self.assertEqual(clear["payload"]["clear_revision"], 1)
+        self.assertEqual(clear["payload"]["history_revision"], 2)
+        self.assertEqual(after_clear["payload"]["messages"], [])
+        self.assertEqual(second["payload"]["history_revision"], 3)
+        self.assertEqual([message["text"] for message in history["payload"]["messages"]], ["nieuw", "Antwoord op nieuw"])
+
+    def test_history_clear_requires_device_authorization(self) -> None:
+        runtime = make_runtime()
+        hass = types.SimpleNamespace(data={self.const.DOMAIN: {"runtime": runtime}})
+
+        class ClearRequest:
+            headers = {"Authorization": "Bearer wrong-token"}
+            app = {"hass": hass}
+            context = types.SimpleNamespace(user_id="user-1")
+
+            async def json(self):
+                return {
+                    "device_id": runtime.device_status["device_id"],
+                    "client_type": "watchos",
+                }
+
+        response = asyncio.run(self.http.DJConnectAskDjHistoryClearView(None).post(ClearRequest()))
+
+        self.assertEqual(response["status_code"], 401)
+        self.assertEqual(response["payload"]["error"], "unauthorized")
 
     def test_message_endpoint_stores_history_for_sync(self) -> None:
         runtime = make_runtime()

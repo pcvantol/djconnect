@@ -1222,6 +1222,12 @@ async def _handle_action(
                 correct_stt=False,
             )
             text_response = str(result.get("dj_text") or result.get("text") or _action_text(action)).strip()
+            queue_action = await _next_queue_playback_action(
+                hass,
+                runtime,
+                current_playback=result.get("playback") if isinstance(result, dict) else {},
+            )
+            actions = [queue_action] if queue_action else []
             return {
                 "success": True,
                 "text": text_response,
@@ -1230,7 +1236,8 @@ async def _handle_action(
                 "images": [],
                 "links": [],
                 "sources": [],
-                "playback_actions": [],
+                "playback_actions": actions,
+                "items": actions,
             }
         result = await handle_spotify_command(hass, runtime, action)
         text_response = _action_text(action)
@@ -1959,6 +1966,67 @@ async def _next_track_info_response(
         "playback_actions": playback_actions,
         "sources": [{"source": "spotify_queue", "title": "Spotify queue", "kind": "source"}],
     }
+
+
+async def _next_queue_playback_action(
+    hass: HomeAssistant,
+    runtime: Any,
+    *,
+    current_playback: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    try:
+        result = await handle_spotify_command(hass, runtime, "queue")
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect Spotify queue unavailable after skip: %s", exc)
+        return {}
+    queue = result.get("queue") if isinstance(result, dict) else []
+    current_uri = _playback_uri(current_playback or {}) or _current_playback_uri(runtime)
+    for item in queue if isinstance(queue, list) else []:
+        if not isinstance(item, dict):
+            continue
+        uri = str(item.get("uri") or "").strip()
+        if not uri.startswith("spotify:track:") or (current_uri and uri == current_uri):
+            continue
+        title = str(item.get("title") or item.get("track_name") or "Volgende nummer").strip()
+        artist = str(item.get("subtitle") or item.get("artist") or "").strip()
+        image_url = str(item.get("image_url") or item.get("album_image_url") or item.get("thumbnail_url") or "").strip()
+        proxy = register_image_proxy_url(hass, image_url) if image_url.startswith(("http://", "https://")) else image_url
+        action: dict[str, Any] = {
+            "id": uri,
+            "title": title,
+            "subtitle": artist,
+            "uri": uri,
+            "kind": "track",
+            "label": "Volgende nummer in de wachtrij",
+            "button_label": "Volgende nummer in de wachtrij",
+            "action_style": "play_now",
+            "reason": "Daaropvolgende track uit je Spotify wachtrij.",
+        }
+        context_uri = str(item.get("context_uri") or item.get("contextUri") or result.get("context_uri") or "").strip()
+        if context_uri:
+            action["context_uri"] = context_uri
+            action["offset_uri"] = uri
+        if proxy:
+            action["image_url"] = proxy
+            action["thumbnail_url"] = proxy
+        return action
+    return {}
+
+
+def _playback_uri(playback: dict[str, Any]) -> str:
+    if not isinstance(playback, dict):
+        return ""
+    for key in ("uri", "track_uri", "trackUri"):
+        value = str(playback.get(key) or "").strip()
+        if value:
+            return value
+    track = playback.get("track")
+    if isinstance(track, dict):
+        for key in ("uri", "track_uri", "trackUri"):
+            value = str(track.get(key) or "").strip()
+            if value:
+                return value
+    return ""
 
 
 async def _recently_played_history_response(

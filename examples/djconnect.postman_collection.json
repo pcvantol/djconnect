@@ -616,7 +616,7 @@
                 "clear"
               ]
             },
-            "description": "Clears persistent server-side DJConnect app Ask DJ chat history globally and increments the shared clear_revision/history_revision so other clients wipe their local cache on next sync."
+            "description": "Clears persistent server-side DJConnect app Ask DJ chat history for the authenticated HA user/context and increments clear_revision/history_revision so clients wipe their local cache on next sync."
           }
         },
         {
