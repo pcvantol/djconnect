@@ -1579,6 +1579,78 @@ class AskDjTest(unittest.TestCase):
         self.assertTrue(result["playback_actions"][0]["image_url"].startswith(self.const.API_IMAGE_PROXY_BASE))
         self.assertEqual([call[0] for call in calls], ["status", "search_media"])
 
+    def test_broad_music_request_returns_track_playlist_and_album_actions(self) -> None:
+        runtime = make_runtime()
+        calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append((command_name, value, play))
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            if command_name == "search_media":
+                self.assertEqual(value["query"], "dino")
+                if value["type"] == "track":
+                    return {
+                        "success": True,
+                        "item": {
+                            "uri": "spotify:track:dino",
+                            "track_name": "Dino Song",
+                            "artist": "Dino Kids",
+                            "album_image_url": "https://img.example/dino-track.jpg",
+                            "context_uri": "spotify:album:dino-songs",
+                        },
+                    }
+                if value["type"] == "playlist":
+                    return {
+                        "success": True,
+                        "item": {
+                            "uri": "spotify:playlist:dino",
+                            "title": "Dino muziek",
+                            "owner": "Spotify",
+                            "image_url": "https://img.example/dino-playlist.jpg",
+                        },
+                    }
+                if value["type"] == "album":
+                    return {
+                        "success": True,
+                        "item": {
+                            "uri": "spotify:album:dino",
+                            "title": "Dino Album",
+                            "artist": "Dino Band",
+                            "album_image_url": "https://img.example/dino-album.jpg",
+                        },
+                    }
+                raise AssertionError(f"unexpected search type: {value}")
+            raise AssertionError(f"unexpected Spotify command: {command_name}")
+
+        original_command = self.ask_dj.handle_spotify_command
+        self.ask_dj.handle_spotify_command = command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "ik wil dino muziek",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "watchos",
+                    },
+                    user_id="user-1",
+                )
+            )
+        finally:
+            self.ask_dj.handle_spotify_command = original_command
+
+        self.assertEqual(result["intent"]["intent"], "play_music")
+        self.assertEqual([call[0] for call in calls], ["status", "search_media", "search_media", "search_media"])
+        self.assertEqual([call[1]["type"] for call in calls[1:]], ["track", "playlist", "album"])
+        self.assertEqual([action["kind"] for action in result["playback_actions"]], ["track", "playlist", "album"])
+        self.assertEqual(result["playback_actions"][0]["uri"], "spotify:track:dino")
+        self.assertEqual(result["playback_actions"][1]["subtitle"], "Spotify")
+        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertIn("dino", result["dj_text"])
+        self.assertIn("spotify_search", {source["source"] for source in result["sources"]})
+
     def test_contextual_speel_af_without_artist_asks_for_clarification(self) -> None:
         runtime = make_runtime()
         runtime.ask_dj_history = FakeAskDJHistory(

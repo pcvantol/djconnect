@@ -245,7 +245,10 @@ async def async_handle_ask_dj(
     if (
         classification.category == "hybrid"
         and _is_deferred_playback_request(effective_text)
-        and _playback_is_active(playback_context)
+        and (
+            _playback_is_active(playback_context)
+            or _is_fuzzy_music_search_request(_normalize(effective_text))
+        )
     ):
         result = await _deferred_playback_request_response(hass, runtime, effective_text)
         response = _normalize_ask_dj_response(
@@ -1111,6 +1114,8 @@ async def _deferred_playback_request_response(
     parsed = parse_spoken_music_request(text)
     media_type = str(parsed.get("type") or "track").strip().lower() or "track"
     query = str(parsed.get("query") or text or "").strip()
+    if _is_fuzzy_music_search_request(_normalize(text)):
+        return await _fuzzy_music_search_response(hass, runtime, query or text)
     try:
         result = await handle_spotify_command(
             hass,
@@ -1142,6 +1147,90 @@ async def _deferred_playback_request_response(
         "playback_actions": [action],
         "sources": [{"source": "spotify_search", "title": "Spotify search", "kind": "source"}],
     }
+
+
+async def _fuzzy_music_search_response(
+    hass: HomeAssistant,
+    runtime: Any,
+    query: str,
+) -> dict[str, Any]:
+    """Return Spotify track, playlist and album candidates for broad music requests."""
+    cleaned_query = _clean_fuzzy_music_query(query)
+    actions: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for media_type in ("track", "playlist", "album"):
+        try:
+            result = await handle_spotify_command(
+                hass,
+                runtime,
+                "search_media",
+                {"query": cleaned_query, "type": media_type},
+            )
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.debug(
+                "DJConnect fuzzy Spotify %s search failed: %s",
+                media_type,
+                exc.__class__.__name__,
+            )
+            continue
+        item = result.get("item") if isinstance(result, dict) else {}
+        if not isinstance(item, dict) or not item.get("uri"):
+            continue
+        action = _play_now_action_from_spotify_item(hass, item)
+        uri = str(action.get("uri") or "").strip()
+        if not uri or uri in seen:
+            continue
+        seen.add(uri)
+        actions.append(action)
+    if not actions:
+        message = "Ik kon geen passende tracks, playlists of albums vinden op Spotify."
+        return {
+            "success": True,
+            "text": message,
+            "dj_text": message,
+            "action": "none",
+            "playback_actions": [],
+            "sources": [{"source": "spotify_search", "title": "Spotify search", "kind": "source"}],
+        }
+    kinds = _join_examples(
+        [_spotify_kind_label(str(action.get("kind") or "")) for action in actions],
+        limit=3,
+    )
+    message = (
+        f"Ik vond {kinds} voor {cleaned_query} op Spotify. "
+        "Kies wat je wilt horen met Play Now."
+    )
+    return {
+        "success": True,
+        "text": message,
+        "dj_text": message,
+        "action": "none",
+        "playback_actions": actions,
+        "sources": [{"source": "spotify_search", "title": "Spotify search", "kind": "source"}],
+    }
+
+
+def _clean_fuzzy_music_query(query: str) -> str:
+    """Keep the user's broad music phrase useful for Spotify fuzzy search."""
+    text = str(query or "").strip()
+    match = re.search(
+        r"\b(?:ik\s+wil|ik\s+wil\s+wel|ik\s+wil\s+graag|wil\s+ik|i\s+want|i\s+would\s+like)\b\s+(.+?)\s+\b(?:muziek|music)\b",
+        text,
+        flags=re.IGNORECASE,
+    )
+    cleaned = match.group(1) if match else text
+    cleaned = re.sub(r"\b(?:muziek|music)\b", "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip(" ?.!'\"")
+    return cleaned or text or "muziek"
+
+
+def _spotify_kind_label(kind: str) -> str:
+    return {
+        "track": "tracks",
+        "playlist": "playlists",
+        "album": "albums",
+        "artist": "artiesten",
+    }.get(str(kind or "").strip().lower(), "resultaten")
 
 
 async def _handle_informational(
@@ -3229,13 +3318,51 @@ def _song_recommendation_seeds(text: str) -> dict[str, list[str]]:
 
 def _is_deferred_playback_request(normalized: str) -> bool:
     return bool(
-        re.search(
+        _is_fuzzy_music_search_request(normalized)
+        or re.search(
+            r"\b(?:ik\s+wil|wil\s+ik|ik\s+wil\s+wel|ik\s+wil\s+graag)\b.+\bmuziek\b",
+            normalized,
+        )
+        or re.search(
+            r"\b(?:i\s+want|i\s+would\s+like)\b.+\bmusic\b",
+            normalized,
+        )
+        or re.search(
+            r"\b(?:ik\s+heb\s+zin\s+in|ik\s+heb\s+trek\s+in)\b.+\bmuziek\b",
+            normalized,
+        )
+        or re.search(
+            r"\b(?:i\s+feel\s+like)\b.+\bmusic\b",
+            normalized,
+        )
+        or re.search(
+            r"\b(?:speel|draai|zet)\b.+\bmuziek\b",
+            normalized,
+        )
+        or re.search(
             r"\b(?:ik\s+wil|wil\s+ik|ik\s+wil\s+wel|ik\s+wil\s+graag)\b.+\b(?:horen|luisteren|opzetten|spelen)\b",
             normalized,
         )
         or re.search(
             r"\b(?:i\s+want|i\s+would\s+like)\b.+\b(?:hear|listen|play)\b",
             normalized,
+        )
+    )
+
+
+def _is_fuzzy_music_search_request(normalized: str) -> bool:
+    """Return true for broad music requests that should show Spotify choices."""
+    return bool(
+        re.search(r"\b(?:muziek|music)\b", normalized)
+        and not any(
+            phrase in normalized
+            for phrase in (
+                "wat voor muziek",
+                "welke muziek",
+                "waarom",
+                "analyseer",
+                "profiel",
+            )
         )
     )
 
@@ -4253,7 +4380,14 @@ def _play_now_action_from_spotify_item(
     action = {
         "id": uri,
         "title": str(item.get("track_name") or item.get("title") or item.get("name") or uri).strip(),
-        "subtitle": str(item.get("artist") or item.get("artist_name") or item.get("album_name") or "").strip(),
+        "subtitle": str(
+            item.get("artist")
+            or item.get("artist_name")
+            or item.get("album_name")
+            or item.get("subtitle")
+            or item.get("owner")
+            or ""
+        ).strip(),
         "uri": uri,
         "kind": kind,
         "label": "Play Now",
