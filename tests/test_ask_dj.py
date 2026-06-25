@@ -1697,6 +1697,60 @@ class AskDjTest(unittest.TestCase):
         self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
         self.assertIn("hardcore", result["dj_text"])
 
+    def test_more_tracks_by_artist_question_returns_clickable_track_list(self) -> None:
+        runtime = make_runtime()
+        calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append((command_name, value))
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            if command_name == "search_tracks":
+                self.assertEqual(value["query"], "scala")
+                self.assertEqual(value["limit"], 10)
+                return {
+                    "success": True,
+                    "tracks": [
+                        {
+                            "uri": f"spotify:track:scala-{index}",
+                            "track_name": f"Scala Track {index}",
+                            "artist": "Scala & Kolacny Brothers",
+                            "album_image_url": f"https://img.example/scala-{index}.jpg",
+                            "context_uri": f"spotify:album:scala-{index}",
+                        }
+                        for index in range(1, 6)
+                    ],
+                }
+            raise AssertionError(f"unexpected playback mutation: {command_name}")
+
+        original_command = self.ask_dj.handle_spotify_command
+        self.ask_dj.handle_spotify_command = command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "Wat heb je nog meer van scala?",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "ios",
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.handle_spotify_command = original_command
+
+        self.assertEqual([call[0] for call in calls], ["status", "search_tracks"])
+        self.assertIn("Ik vond nog meer nummers van scala", result["text"])
+        self.assertIn("1. Scala Track 1 - Scala & Kolacny Brothers", result["text"])
+        self.assertEqual(result["images"], [])
+        self.assertEqual(result["assistant_message"]["images"], [])
+        self.assertEqual(len(result["playback_actions"]), 5)
+        self.assertTrue(all(action["kind"] == "track" for action in result["playback_actions"]))
+        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertTrue(all(action["image_url"].startswith(self.const.API_IMAGE_PROXY_BASE) for action in result["playback_actions"]))
+        self.assertEqual(result["items"], result["playback_actions"])
+
     def test_contextual_speel_af_without_artist_asks_for_clarification(self) -> None:
         runtime = make_runtime()
         runtime.ask_dj_history = FakeAskDJHistory(

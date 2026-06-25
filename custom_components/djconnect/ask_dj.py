@@ -1374,6 +1374,13 @@ async def _handle_informational(
                 }
             ],
         }
+    more_tracks_artist = _artist_from_more_tracks_question(
+        text,
+        memory_context,
+        playback_context,
+    )
+    if more_tracks_artist:
+        return await _artist_more_tracks_response(hass, runtime, more_tracks_artist)
     album_artist = _artist_from_album_question(text)
     if not album_artist and _is_current_artist_album_question(text):
         album_artist = _artist_from_playback_context(playback_context)
@@ -2919,6 +2926,74 @@ def _artist_from_similar_artists_question(
     return _artist_from_recent_context(memory_context) or _artist_from_playback_context(playback_context)
 
 
+def _artist_from_more_tracks_question(
+    text: str,
+    memory_context: dict[str, Any],
+    playback_context: dict[str, Any],
+) -> str:
+    normalized = _normalize(text)
+    if not any(
+        phrase in normalized
+        for phrase in (
+            "wat heb je nog meer van",
+            "wat heb je meer van",
+            "nog meer van",
+            "meer nummers van",
+            "meer muziek van",
+            "more tracks by",
+            "more songs by",
+            "more music by",
+        )
+    ):
+        return ""
+    explicit = _explicit_artist_from_more_tracks_question(text)
+    if explicit:
+        return explicit
+    if any(
+        phrase in normalized
+        for phrase in (
+            "deze artiest",
+            "die artiest",
+            "huidige artiest",
+            "deze band",
+            "die band",
+            "current artist",
+            "this artist",
+            "that artist",
+            "this band",
+        )
+    ):
+        return _artist_from_playback_context(playback_context)
+    return _artist_from_server_history_context(memory_context) or _artist_from_recent_context(memory_context) or _artist_from_playback_context(playback_context)
+
+
+def _explicit_artist_from_more_tracks_question(text: str) -> str:
+    patterns = (
+        r"^\s*wat\s+heb\s+je\s+(?:nog\s+)?meer\s+van\s+(.+?)\s*\??\s*$",
+        r"^\s*(?:heb\s+je\s+)?(?:nog\s+)?meer\s+(?:nummers|songs|tracks|muziek|music)\s+van\s+(.+?)\s*\??\s*$",
+        r"^\s*(?:show\s+me\s+|give\s+me\s+)?more\s+(?:tracks|songs|music)\s+(?:by|from)\s+(.+?)\s*\??\s*$",
+    )
+    value = str(text or "").strip()
+    for pattern in patterns:
+        match = re.match(pattern, value, flags=re.IGNORECASE)
+        if match:
+            artist = _clean_artist_name(match.group(1))
+            if _normalize(artist) in {
+                "deze artiest",
+                "die artiest",
+                "huidige artiest",
+                "deze band",
+                "die band",
+                "current artist",
+                "this artist",
+                "that artist",
+                "this band",
+            }:
+                return ""
+            return artist
+    return ""
+
+
 def _explicit_artist_from_similar_question(text: str) -> str:
     patterns = (
         r"^\s*welke\s+artiesten\s+maken\s+vergelijkbare\s+muziek\s+(?:als|zoals)\s+(.+?)\s*\??\s*$",
@@ -3932,6 +4007,38 @@ async def _playlist_track_choices_response(
         )
     else:
         message = f"Ik vond nu geen speelbare Spotify-nummers voor {query}."
+    return {
+        "success": True,
+        "text": message,
+        "dj_text": message,
+        "action": "none",
+        "images": [],
+        "playback_actions": actions,
+        "items": actions,
+        "sources": [{"source": "spotify_track_search", "title": "Spotify track search", "kind": "source"}],
+    }
+
+
+async def _artist_more_tracks_response(
+    hass: HomeAssistant,
+    runtime: Any,
+    artist: str,
+) -> dict[str, Any]:
+    result = await _spotify_track_search(hass, runtime, artist, limit=10)
+    tracks = result.get("tracks") if isinstance(result, dict) else []
+    actions = _track_recommendation_actions(hass, tracks, limit=10)
+    if actions:
+        lines = [
+            f"{index}. {action.get('title') or 'Onbekend nummer'}"
+            + (f" - {action.get('subtitle')}" if action.get("subtitle") else "")
+            for index, action in enumerate(actions, start=1)
+        ]
+        message = (
+            f"Ik vond nog meer nummers van {artist}. Tik op Play Now om er eentje te starten:\n"
+            + "\n".join(lines)
+        )
+    else:
+        message = f"Ik vond nu geen speelbare Spotify-nummers van {artist}."
     return {
         "success": True,
         "text": message,
