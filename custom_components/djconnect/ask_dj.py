@@ -470,6 +470,8 @@ def _should_generate_audio_response(
         return True
     if mode in {"never", "false", "0", "no", "none", "text_only"}:
         return False
+    if classification.action in {"set_shuffle", "set_repeat"} or classification.intent == "playback_mode_status":
+        return False
     input_type = str(payload.get("input_type") or "").strip().lower()
     if input_type in {"voice", "ptt", "audio"}:
         return True
@@ -1236,11 +1238,11 @@ async def _handle_action(
     if action == "set_shuffle":
         await handle_spotify_command(hass, runtime, "set_shuffle", classification.value)
         text_response = "Shuffle staat aan." if classification.value else "Shuffle staat uit."
-        return {"success": True, "text": text_response, "dj_text": text_response}
+        return {"success": True, "text": text_response, "dj_text": text_response, "images": []}
     if action == "set_repeat":
         await handle_spotify_command(hass, runtime, "set_repeat", classification.value)
         text_response = "Repeat is uitgezet." if classification.value == "off" else "Repeat is aangezet."
-        return {"success": True, "text": text_response, "dj_text": text_response}
+        return {"success": True, "text": text_response, "dj_text": text_response, "images": []}
     raise ValueError(f"Unsupported Ask DJ action: {action}")
 
 

@@ -257,15 +257,28 @@ class AskDjTest(unittest.TestCase):
 
     def test_repeat_status_returns_all_repeat_option_actions(self) -> None:
         runtime = make_runtime()
-        runtime.last_playback = {"has_playback": True, "repeat_state": "track"}
+        runtime.last_playback = {
+            "has_playback": True,
+            "repeat_state": "track",
+            "track_name": "Perfect Darkness",
+            "artist": "Fink",
+            "album_image_url": "https://img.example/fink.jpg",
+        }
+        tts_calls = []
 
         async def command(hass, runtime_arg, command_name, value=None, *, play=None):
             if command_name == "status":
                 return {"success": True, "playback": runtime.last_playback}
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
+        async def tts(hass, runtime_arg, text):
+            tts_calls.append(text)
+            return {"audio_url_value": "/api/djconnect/tts/repeat-status.mp3"}
+
         original_command = self.ask_dj.handle_spotify_command
+        original_tts = self.ask_dj.async_send_dj_response_best_effort
         self.ask_dj.handle_spotify_command = command
+        self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -280,11 +293,16 @@ class AskDjTest(unittest.TestCase):
             )
         finally:
             self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.async_send_dj_response_best_effort = original_tts
 
         self.assertEqual(result["dj_text"], "Repeat staat op dit nummer.")
         self.assertEqual([action["command"] for action in result["playback_actions"]], ["set_repeat"] * 3)
         self.assertEqual([action["value"] for action in result["playback_actions"]], ["off", "track", "context"])
         self.assertEqual([action["label"] for action in result["playback_actions"]], ["Repeat uitzetten", "Actief", "Repeat alles"])
+        self.assertEqual(result["images"], [])
+        self.assertEqual(result["assistant_message"]["images"], [])
+        self.assertNotIn("audio_url", result)
+        self.assertEqual(tts_calls, [])
 
     def test_output_change_request_returns_clickable_spotify_devices(self) -> None:
         runtime = make_runtime()
@@ -2712,7 +2730,14 @@ class AskDjTest(unittest.TestCase):
 
     def test_repeat_action_names_enabled_or_disabled_state(self) -> None:
         runtime = make_runtime()
+        runtime.last_playback = {
+            "has_playback": True,
+            "track_name": "Perfect Darkness",
+            "artist": "Fink",
+            "album_image_url": "https://img.example/fink.jpg",
+        }
         calls = []
+        tts_calls = []
 
         async def command(hass, runtime_arg, command_name, value=None, *, play=None):
             calls.append((command_name, value))
@@ -2720,8 +2745,14 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": runtime.last_playback}
             return {"success": True}
 
+        async def tts(hass, runtime_arg, text):
+            tts_calls.append(text)
+            return {"audio_url_value": "/api/djconnect/tts/repeat.mp3"}
+
         original_command = self.ask_dj.handle_spotify_command
+        original_tts = self.ask_dj.async_send_dj_response_best_effort
         self.ask_dj.handle_spotify_command = command
+        self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             off_result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -2747,11 +2778,19 @@ class AskDjTest(unittest.TestCase):
             )
         finally:
             self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.async_send_dj_response_best_effort = original_tts
 
         self.assertIn(("set_repeat", "off"), calls)
         self.assertIn(("set_repeat", "context"), calls)
         self.assertEqual(off_result["dj_text"], "Repeat is uitgezet.")
         self.assertEqual(on_result["dj_text"], "Repeat is aangezet.")
+        self.assertEqual(off_result["images"], [])
+        self.assertEqual(on_result["images"], [])
+        self.assertEqual(off_result["assistant_message"]["images"], [])
+        self.assertEqual(on_result["assistant_message"]["images"], [])
+        self.assertNotIn("audio_url", off_result)
+        self.assertNotIn("audio_url", on_result)
+        self.assertEqual(tts_calls, [])
 
     def test_voice_play_artist_request_uses_playback_parser_with_stt_correction(self) -> None:
         runtime = make_runtime()
