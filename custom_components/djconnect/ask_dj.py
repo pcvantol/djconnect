@@ -6160,6 +6160,7 @@ def _help_text() -> str:
         (
             "Persoonlijke muzieksmaak",
             [
+                "Wat weet je nu over mij?",
                 "Analyseer mijn luisterprofiel",
                 "Wat luisterde ik de afgelopen maand?",
                 "Geef persoonlijke muziekaanbevelingen",

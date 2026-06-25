@@ -5,6 +5,9 @@
 - Return a live Spotify playback snapshot from `/api/djconnect/status` for
   watchOS, iOS and macOS clients, matching the `command: "status"` response
   shape and always including explicit `playback.has_playback` metadata.
+- Add a DJ Memory-only Ask DJ intent for questions such as `wat weet je nu over
+  mij?`, with text-only responses, source `djconnect_memory`, no artwork and no
+  Play Now actions.
 - Keep app status refreshes successful when no playback is active while marking
   `backend_available` false only when the playback backend cannot be reached.
 - Avoid false Spotify authorization repairs for Apple Watch/app entries that do

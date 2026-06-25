@@ -331,6 +331,10 @@ such as "Omschrijf eens waar ik zoal naar luisterde de afgelopen maand" or
 skips, likes or moves playback. It uses only available DJ Memory/playback
 context, defaults to the last 30 days when no period is named, and says clearly
 when there is too little listening history for a reliable profile.
+Privacy-oriented questions such as "Wat weet je nu over mij?" use the narrower
+`personal_memory_summary` intent instead. That response is based on server-side
+DJ Memory only, with `sources:[{"source":"djconnect_memory"}]`, no `images[]`
+and no `playback_actions[]`.
 `djconnect.clear_ask_dj_history` clears persistent Ask DJ chat history for the
 selected Home Assistant user when called as a developer service. The app HTTP
 clear route increments a global Ask DJ `clear_revision` so iOS, macOS and
@@ -918,6 +922,11 @@ directly from the returned fields:
 
 - `help`, `hulp`, `wat kun je?` and `welke commando's?` return a text-only,
   categorized list of prompt examples.
+- `wat weet je nu over mij?`, `wat staat er in mijn DJ Memory?` and similar
+  memory-summary questions return a text-only `intent:"personal_memory_summary"`
+  answer from DJ Memory only. The backend does not use live Spotify playback,
+  does not fetch Spotify profile enrichment and returns no artwork or Play Now
+  actions for this intent.
 - `welke speakers zijn er?`, `wissel van uitvoer` and similar output requests
   return a text intro plus `playback_actions[]` with `kind:"output"` and
   `Activeer`/`Actief` labels for the available Spotify Connect devices.

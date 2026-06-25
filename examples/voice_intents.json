@@ -261,6 +261,33 @@
         "Which commands can I use?"
       ]
     },
+    "personal_memory_summary": {
+      "plays_music": false,
+      "action": "memory_summary",
+      "intent": "personal_memory_summary",
+      "response_shape": {
+        "text_only": true,
+        "images": [],
+        "playback_actions": [],
+        "sources": [
+          "djconnect_memory"
+        ]
+      },
+      "description": "Ask what DJConnect currently remembers about the user. The response must be based on DJ Memory only, without live playback artwork, Spotify profile enrichment or Play Now actions.",
+      "nl": [
+        "Wat weet je nu over mij?",
+        "Wat weet je over mij?",
+        "Wat weet DJConnect over mij?",
+        "Wat staat er in mijn DJ Memory?",
+        "Wat herinner je je over mij?"
+      ],
+      "en": [
+        "What do you know about me?",
+        "What does DJConnect know about me?",
+        "What is in my DJ Memory?",
+        "What do you remember about me?"
+      ]
+    },
     "speaker_outputs": {
       "plays_music": false,
       "action": "devices",

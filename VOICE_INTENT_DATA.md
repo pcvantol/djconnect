@@ -112,6 +112,12 @@ The website can use `ask_dj_intents` to render example families for:
 - `help`: phrases such as `Help`, `Hulp`, `Wat kun je?` and `Welke commando's
   kan ik gebruiken?`. Responses are categorized text-only prompt lists with no
   media cards, images or playback actions.
+- `personal_memory_summary`: phrases such as `Wat weet je nu over mij?`,
+  `Wat staat er in mijn DJ Memory?` and `What do you know about me?`. Responses
+  are text-only summaries from server-side DJ Memory only. They must not fetch
+  Spotify profile enrichment, must not use the current playback card, and return
+  no images or playback actions. Clients should render only the returned text
+  and `djconnect_memory` source metadata.
 - `speaker_outputs`: questions such as `Welke speakers zijn er?`, `Wissel van
   speaker` and `Move music to the living room speaker`. Responses contain a
   text list plus `playback_actions[]` with `kind:"output"` and `Activeer` /
