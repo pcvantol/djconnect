@@ -1099,6 +1099,8 @@ def classify_ask_dj(text: str) -> AskDjIntent:
         return AskDjIntent("informational", "save_generated_playlist", "create_playlist")
     if _is_seed_mix_playlist_request(normalized):
         return AskDjIntent("informational", "build_playlist_from_seeds", "none")
+    if _is_mood_mix_request(normalized):
+        return AskDjIntent("informational", "mood_mix", "none")
     if _artist_item_list_request(normalized):
         return AskDjIntent("informational", "artist_item_list", "none")
     if _is_song_recommendation_request(normalized):
@@ -1513,6 +1515,8 @@ async def _handle_informational(
                 }
             ],
         }
+    if ask_intent.intent == "mood_mix":
+        return await _mood_mix_response(hass, runtime, payload, memory_context)
     if ask_intent.intent == "spotify_user_playlists":
         result = await _spotify_user_playlists(hass, runtime, limit=10)
         playlists = result.get("playlists") if isinstance(result, dict) else []
@@ -3637,6 +3641,15 @@ def _song_recommendation_seeds(text: str) -> dict[str, list[str]]:
     return {}
 
 
+def _is_mood_mix_request(normalized: str) -> bool:
+    if "mood" not in normalized and "stemming" not in normalized:
+        return False
+    return bool(
+        re.search(r"\b(?:speel|draai|zet)\b.+\b(?:mood|stemming)\b", normalized)
+        or re.search(r"\b(?:iets|muziek|mix)\b.+\b(?:bij|voor|op)\s+(?:mijn|me|my)\s+(?:mood|stemming)\b", normalized)
+    )
+
+
 def _is_deferred_playback_request(normalized: str) -> bool:
     return bool(
         _is_fuzzy_music_search_request(normalized)
@@ -4034,6 +4047,83 @@ async def _spotify_seed_mix(
         _LOGGER.debug("DJConnect Spotify artist recommendations unavailable: %s", exc)
         return {}
     return result if isinstance(result, dict) else {}
+
+
+async def _mood_mix_response(
+    hass: HomeAssistant,
+    runtime: Any,
+    payload: dict[str, Any],
+    memory_context: dict[str, Any],
+) -> dict[str, Any]:
+    mood_value = _payload_or_memory_mood(payload, memory_context)
+    zone = mood_zone_for_value(mood_value) if mood_value is not None else None
+    zone_name = zone.name if zone is not None else "groove"
+    seeds = {"genres": _mood_mix_genres(zone_name)}
+    result = await _spotify_seed_mix(hass, runtime, seeds)
+    tracks = result.get("tracks") if isinstance(result, dict) else []
+    track_actions = _track_recommendation_actions(hass, tracks, limit=10)
+    mix_action = _seed_mix_playback_action(hass, seeds, tracks)
+    actions = track_actions + ([mix_action] if mix_action else [])
+    mood_label = _mood_mix_label(mood_value, zone_name)
+    if track_actions:
+        lines = [
+            f"{index}. {action.get('title') or 'Onbekend nummer'}"
+            + (f" - {action.get('subtitle')}" if action.get("subtitle") else "")
+            for index, action in enumerate(track_actions, start=1)
+        ]
+        message = (
+            f"Ik bouw een mix voor je huidige mood: {mood_label}. "
+            f"Daarom kies ik richting {_join_examples(seeds['genres'], limit=4)}.\n"
+            "Ik heb je wachtrij voorbereid met deze nummers:\n"
+            + "\n".join(lines)
+            + "\n\nTik op Play Now bij een track, of kies 'Zet allemaal in wachtrij & speel af' voor de hele mix."
+        )
+    else:
+        message = (
+            f"Ik wilde een mix maken voor je huidige mood: {mood_label}, "
+            "maar ik vond nu geen speelbare Spotify-tracks."
+        )
+    return {
+        "success": True,
+        "text": message,
+        "dj_text": message,
+        "action": "none",
+        "images": [],
+        "playback_actions": actions,
+        "items": track_actions,
+        "sources": [{"source": "spotify_recommendations", "title": "Spotify recommendations", "kind": "source"}],
+    }
+
+
+def _payload_or_memory_mood(payload: dict[str, Any], memory_context: dict[str, Any]) -> int | None:
+    for value in (payload.get("mood"), payload.get("energy")):
+        try:
+            return int(value) if value is not None else None
+        except (TypeError, ValueError):
+            continue
+    memory = memory_context.get("memory") if isinstance(memory_context, dict) else {}
+    return _profile_mood(memory)
+
+
+def _mood_mix_genres(zone_name: str) -> list[str]:
+    return {
+        "chill": ["ambient", "acoustic", "chill", "downtempo"],
+        "groove": ["indie", "soul", "funk", "groove"],
+        "energy": ["dance", "house", "pop", "electronic"],
+        "party": ["party", "edm", "dance", "pop"],
+    }.get(zone_name, ["indie", "soul", "funk", "groove"])
+
+
+def _mood_mix_label(mood_value: int | None, zone_name: str) -> str:
+    label = {
+        "chill": "chill",
+        "groove": "groove",
+        "energy": "energy",
+        "party": "party",
+    }.get(zone_name, zone_name)
+    if mood_value is None:
+        return f"{label}-vibe"
+    return f"{mood_value}/100 ({label})"
 
 
 async def _song_recommendations_response(
