@@ -1928,8 +1928,8 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["playback_actions"][0]["kind"], "control")
         self.assertEqual(result["playback_actions"][0]["action_style"], "control")
         self.assertEqual(result["playback_actions"][0]["command"], "play")
-        self.assertEqual(result["playback_actions"][0]["label"], "Resume")
-        self.assertEqual(result["playback_actions"][0]["button_label"], "Resume")
+        self.assertEqual(result["playback_actions"][0]["label"], "Muziek hervatten")
+        self.assertEqual(result["playback_actions"][0]["button_label"], "Muziek hervatten")
         self.assertEqual(result["assistant_message"]["playback_actions"], result["playback_actions"])
         self.assertTrue(tts_calls)
 
@@ -2007,7 +2007,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["assistant_message"]["images"], [])
         self.assertEqual(result["playback_actions"][0]["kind"], "control")
         self.assertEqual(result["playback_actions"][0]["command"], "play")
-        self.assertEqual(result["playback_actions"][0]["label"], "Resume")
+        self.assertEqual(result["playback_actions"][0]["label"], "Muziek hervatten")
         self.assertEqual(result["assistant_message"]["playback_actions"], result["playback_actions"])
 
     def test_hervat_muziek_dispatches_direct_play_command(self) -> None:

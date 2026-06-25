@@ -4659,9 +4659,9 @@ def _playback_control_actions(action: str) -> list[dict[str, Any]]:
             "kind": "control",
             "action_style": "control",
             "command": "play",
-            "title": "Resume",
-            "label": "Resume",
-            "button_label": "Resume",
+            "title": "Muziek hervatten",
+            "label": "Muziek hervatten",
+            "button_label": "Muziek hervatten",
             "prompt": "Start muziek",
             "reason": "De muziek is gepauzeerd.",
         }
