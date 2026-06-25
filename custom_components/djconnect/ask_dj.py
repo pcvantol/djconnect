@@ -1218,9 +1218,16 @@ def _clean_fuzzy_music_query(query: str) -> str:
         text,
         flags=re.IGNORECASE,
     )
+    if not match:
+        match = re.search(
+            r"\b(?:wat\s+voor|welke|what\s+kind\s+of|which)\b\s+(.+?)\s+\b(?:muziek|music)\b(?:\s+(?:heb\s+je|have\s+you|do\s+you\s+have))?",
+            text,
+            flags=re.IGNORECASE,
+        )
     cleaned = match.group(1) if match else text
     cleaned = re.sub(r"\b(?:muziek|music)\b", "", cleaned, flags=re.IGNORECASE)
-    cleaned = re.sub(r"\s+", " ", cleaned).strip(" ?.!'\"")
+    cleaned = re.sub(r"\b(?:heb\s+je|have\s+you|do\s+you\s+have)\b", "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip(" ?.!'\">")
     return cleaned or text or "muziek"
 
 
@@ -3353,12 +3360,21 @@ def _is_deferred_playback_request(normalized: str) -> bool:
 def _is_fuzzy_music_search_request(normalized: str) -> bool:
     """Return true for broad music requests that should show Spotify choices."""
     return bool(
-        re.search(r"\b(?:muziek|music)\b", normalized)
+        (
+            re.search(r"\b(?:ik\s+wil|wil\s+ik|ik\s+wil\s+wel|ik\s+wil\s+graag)\b.+\bmuziek\b", normalized)
+            or re.search(r"\b(?:i\s+want|i\s+would\s+like)\b.+\bmusic\b", normalized)
+            or re.search(r"\b(?:ik\s+heb\s+zin\s+in|ik\s+heb\s+trek\s+in)\b.+\bmuziek\b", normalized)
+            or re.search(r"\b(?:i\s+feel\s+like)\b.+\bmusic\b", normalized)
+            or re.search(r"\b(?:speel|draai|zet)\b.+\bmuziek\b", normalized)
+            or re.search(r"\b(?:wat\s+voor|welke)\b.+\bmuziek\b.+\bheb\s+je\b", normalized)
+            or re.search(r"\b(?:what\s+kind\s+of|which)\b.+\bmusic\b.+\b(?:have\s+you|do\s+you\s+have)\b", normalized)
+        )
         and not any(
             phrase in normalized
             for phrase in (
-                "wat voor muziek",
-                "welke muziek",
+                "wat voor muziek maakt",
+                "welke muziek maakt",
+                "what kind of music does",
                 "waarom",
                 "analyseer",
                 "profiel",

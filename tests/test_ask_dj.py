@@ -1651,6 +1651,52 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("dino", result["dj_text"])
         self.assertIn("spotify_search", {source["source"] for source in result["sources"]})
 
+    def test_what_kind_of_music_request_returns_fuzzy_play_now_actions(self) -> None:
+        runtime = make_runtime()
+        calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append((command_name, value, play))
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            if command_name == "search_media":
+                self.assertEqual(value["query"], "hardcore")
+                return {
+                    "success": True,
+                    "item": {
+                        "uri": f"spotify:{value['type']}:hardcore",
+                        "title": f"Hardcore {value['type']}",
+                        "artist": "Hardcore Artist",
+                        "owner": "Spotify",
+                        "image_url": "https://img.example/hardcore.jpg",
+                    },
+                }
+            raise AssertionError(f"unexpected Spotify command: {command_name}")
+
+        original_command = self.ask_dj.handle_spotify_command
+        self.ask_dj.handle_spotify_command = command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "wat voor hardcore muziek heb je>",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "watchos",
+                    },
+                    user_id="user-1",
+                )
+            )
+        finally:
+            self.ask_dj.handle_spotify_command = original_command
+
+        self.assertEqual(result["intent"]["intent"], "play_music")
+        self.assertEqual([call[1]["type"] for call in calls[1:]], ["track", "playlist", "album"])
+        self.assertEqual([action["kind"] for action in result["playback_actions"]], ["track", "playlist", "album"])
+        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertIn("hardcore", result["dj_text"])
+
     def test_contextual_speel_af_without_artist_asks_for_clarification(self) -> None:
         runtime = make_runtime()
         runtime.ask_dj_history = FakeAskDJHistory(
