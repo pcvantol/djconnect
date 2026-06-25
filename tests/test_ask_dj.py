@@ -1711,6 +1711,10 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("Black van Pearl Jam", first["dj_text"])
         self.assertIn("op het album Ten", first["dj_text"])
         self.assertEqual(first["playback_actions"][0]["kind"], "track")
+        self.assertEqual(first["playback_actions"][1]["kind"], "control")
+        self.assertEqual(first["playback_actions"][1]["command"], "ask_dj_message")
+        self.assertEqual(first["playback_actions"][1]["label"], "Meer van Pearl Jam")
+        self.assertEqual(first["playback_actions"][1]["prompt"], "Meer van Pearl Jam")
         self.assertIn("Black van Pearl Jam werd uitgebracht op Ten", second["dj_text"])
         self.assertEqual(second["playback_actions"][0]["kind"], "album")
         self.assertEqual(second["playback_actions"][0]["uri"], "spotify:album:ten")
@@ -2181,6 +2185,91 @@ class AskDjTest(unittest.TestCase):
         self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
         self.assertTrue(all(action["image_url"].startswith(self.const.API_IMAGE_PROXY_BASE) for action in result["playback_actions"]))
         self.assertEqual(result["items"], result["playback_actions"])
+
+    def test_more_artist_button_prompt_returns_ordered_media_rows(self) -> None:
+        runtime = make_runtime()
+        calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append((command_name, value))
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            if command_name == "search_albums":
+                self.assertEqual(value["query"], "Kebu")
+                self.assertEqual(value["limit"], 10)
+                return {
+                    "success": True,
+                    "albums": [
+                        {
+                            "uri": f"spotify:album:kebu-{index}",
+                            "name": f"Kebu Album {index}",
+                            "artist": "Kebu",
+                            "image_url": f"https://img.example/kebu-album-{index}.jpg",
+                        }
+                        for index in range(1, 5)
+                    ],
+                }
+            if command_name == "search_playlists":
+                self.assertEqual(value["query"], "Kebu")
+                self.assertEqual(value["limit"], 10)
+                return {
+                    "success": True,
+                    "playlists": [
+                        {
+                            "uri": f"spotify:playlist:kebu-{index}",
+                            "name": f"Kebu Playlist {index}",
+                            "owner": "Spotify",
+                            "image_url": f"https://img.example/kebu-playlist-{index}.jpg",
+                        }
+                        for index in range(1, 4)
+                    ],
+                }
+            if command_name == "search_tracks":
+                self.assertEqual(value["query"], "Kebu")
+                self.assertEqual(value["limit"], 10)
+                return {
+                    "success": True,
+                    "tracks": [
+                        {
+                            "uri": f"spotify:track:kebu-{index}",
+                            "track_name": f"Kebu Track {index}",
+                            "artist": "Kebu",
+                            "album_image_url": f"https://img.example/kebu-track-{index}.jpg",
+                            "context_uri": f"spotify:album:kebu-track-{index}",
+                        }
+                        for index in range(1, 6)
+                    ],
+                }
+            raise AssertionError(f"unexpected playback mutation: {command_name}")
+
+        original_command = self.ask_dj.handle_spotify_command
+        self.ask_dj.handle_spotify_command = command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "Meer van Kebu",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "ios",
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.handle_spotify_command = original_command
+
+        self.assertEqual([call[0] for call in calls], ["status", "search_albums", "search_playlists", "search_tracks"])
+        self.assertIn("eerst albums, daarna playlists en tracks", result["text"])
+        self.assertEqual(len(result["playback_actions"]), 10)
+        self.assertEqual(
+            [action["kind"] for action in result["playback_actions"]],
+            ["album", "album", "album", "album", "playlist", "playlist", "playlist", "track", "track", "track"],
+        )
+        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertTrue(all(action["button_label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertEqual(result["items"], result["playback_actions"])
+        self.assertEqual(result["images"], [])
 
     def test_contextual_speel_af_without_artist_asks_for_clarification(self) -> None:
         runtime = make_runtime()

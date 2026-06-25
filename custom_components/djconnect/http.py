@@ -2016,6 +2016,32 @@ class DJConnectCommandView(HomeAssistantView):
                 client_type,
                 command_value.get("limit"),
             )
+        if normalized_command == "ask_dj_message":
+            message_value = command_value if isinstance(command_value, dict) else {"text": command_value}
+            text_value = str(
+                message_value.get("text")
+                or message_value.get("prompt")
+                or data.get("text")
+                or ""
+            ).strip()
+            if not text_value:
+                return _json_error(self, "missing_ask_dj_text", 400)
+            ask_payload = {
+                **data,
+                **message_value,
+                "text": text_value,
+                "client_type": client_type,
+            }
+            result = await async_handle_ask_dj(
+                hass,
+                runtime,
+                ask_payload,
+                user_id=_request_user_id(request),
+            )
+            if memory_key:
+                result.setdefault("memory_key", memory_key)
+            result.update(_ha_version_payload())
+            return self.json(result, status_code=200 if result.get("success") else 400)
         if normalized_command == "ask_dj_play_recommendation":
             result = await _handle_ask_dj_play_recommendation(
                 hass,

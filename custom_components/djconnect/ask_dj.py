@@ -1547,6 +1547,9 @@ async def _handle_informational(
     item_list_request = _artist_item_list_request(text)
     if item_list_request:
         return await _artist_item_list_response(hass, runtime, item_list_request)
+    more_media_artist = _artist_more_media_request(text, playback_context)
+    if more_media_artist:
+        return await _artist_more_media_response(hass, runtime, more_media_artist)
     vibe_playlist_query = _vibe_playlist_query(text)
     if vibe_playlist_query:
         result = await _spotify_playlist_search(hass, runtime, vibe_playlist_query, limit=5)
@@ -2313,6 +2316,9 @@ def _current_track_reference_response(
         if images:
             action["image_url"] = images[0]["url"]
         playback_actions.append(action)
+    more_artist_action = _artist_more_media_action(artist)
+    if more_artist_action:
+        playback_actions.append(more_artist_action)
     return {
         "success": True,
         "text": text,
@@ -4537,6 +4543,33 @@ def _artist_item_list_request(text: str) -> dict[str, Any]:
     return {}
 
 
+def _artist_more_media_request(text: str, playback_context: dict[str, Any]) -> str:
+    patterns = (
+        r"^\s*meer\s+van\s+(.+?)\s*\??\s*$",
+        r"^\s*more\s+(?:by|from)\s+(.+?)\s*\??\s*$",
+    )
+    value = str(text or "").strip()
+    for pattern in patterns:
+        match = re.match(pattern, value, flags=re.IGNORECASE)
+        if not match:
+            continue
+        artist = _clean_artist_name(match.group(1))
+        if _normalize(artist) in {
+            "deze artiest",
+            "die artiest",
+            "huidige artiest",
+            "deze band",
+            "die band",
+            "current artist",
+            "this artist",
+            "that artist",
+            "this band",
+        }:
+            return _artist_from_playback_context(playback_context)
+        return artist
+    return ""
+
+
 def _bounded_item_count(value: Any, *, default: int) -> int:
     words = {
         "een": 1,
@@ -4649,6 +4682,72 @@ def _artist_clickable_rows_response(
         "items": actions,
         "sources": [{"source": source, "title": source.replace("_", " "), "kind": "source"}],
     }
+
+
+async def _artist_more_media_response(
+    hass: HomeAssistant,
+    runtime: Any,
+    artist: str,
+) -> dict[str, Any]:
+    album_result = await _spotify_album_search(hass, runtime, artist, limit=10)
+    playlist_result = await _spotify_playlist_search(hass, runtime, artist, limit=10)
+    track_result = await _spotify_track_search(hass, runtime, artist, limit=10)
+    albums = album_result.get("albums") if isinstance(album_result, dict) else []
+    playlists = playlist_result.get("playlists") if isinstance(playlist_result, dict) else []
+    tracks = track_result.get("tracks") if isinstance(track_result, dict) else []
+    actions = _ordered_playback_actions(
+        [
+            *_album_search_playback_actions(hass, albums, limit=10),
+            *_playlist_search_playback_actions(hass, playlists, limit=10),
+            *_track_recommendation_actions(hass, tracks, limit=10),
+        ],
+        limit=10,
+    )
+    if actions:
+        lines = [
+            f"{index}. {action.get('title') or 'Spotify resultaat'}"
+            + (f" - {action.get('subtitle')}" if action.get("subtitle") else "")
+            for index, action in enumerate(actions, start=1)
+        ]
+        message = (
+            f"Ik vond meer van {artist}: eerst albums, daarna playlists en tracks.\n"
+            + "\n".join(lines)
+            + "\n\nTik op Play Now om er eentje direct te starten."
+        )
+    else:
+        message = f"Ik vond nu geen speelbare albums, playlists of tracks voor {artist}."
+    return {
+        "success": True,
+        "text": message,
+        "dj_text": message,
+        "action": "none",
+        "images": [],
+        "playback_actions": actions,
+        "items": actions,
+        "sources": [
+            {"source": "spotify_album_search", "title": "Spotify album search", "kind": "source"},
+            {"source": "spotify_playlist_search", "title": "Spotify playlist search", "kind": "source"},
+            {"source": "spotify_track_search", "title": "Spotify track search", "kind": "source"},
+        ],
+    }
+
+
+def _ordered_playback_actions(
+    candidates: list[dict[str, Any]],
+    *,
+    limit: int,
+) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for action in candidates:
+        uri = str(action.get("uri") or action.get("context_uri") or "").strip()
+        if not uri or uri in seen:
+            continue
+        seen.add(uri)
+        actions.append(action)
+        if len(actions) >= limit:
+            break
+    return actions
 
 
 def _empty_artist_item_list_response(artist: str, label: str, source: str) -> dict[str, Any]:
@@ -5757,6 +5856,25 @@ def _volume_control_actions() -> list[dict[str, Any]]:
             "reason": "Volume harder zetten vanuit Ask DJ.",
         },
     ]
+
+
+def _artist_more_media_action(artist: str) -> dict[str, Any]:
+    artist = str(artist or "").strip()
+    if not artist:
+        return {}
+    title = f"Meer van {artist}"
+    return {
+        "id": f"djconnect:artist_more:{_normalize(artist).replace(' ', '-')}",
+        "kind": "control",
+        "action_style": "control",
+        "command": "ask_dj_message",
+        "value": {"text": title},
+        "title": title,
+        "label": title,
+        "button_label": title,
+        "prompt": title,
+        "reason": "Vraag Ask DJ om meer albums, playlists en tracks van deze artiest.",
+    }
 
 
 def _confirmation_actions(
