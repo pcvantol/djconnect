@@ -1091,6 +1091,8 @@ def classify_ask_dj(text: str) -> AskDjIntent:
         return AskDjIntent("informational", "save_generated_playlist", "create_playlist")
     if _is_seed_mix_playlist_request(normalized):
         return AskDjIntent("informational", "build_playlist_from_seeds", "none")
+    if _artist_item_list_request(normalized):
+        return AskDjIntent("informational", "artist_item_list", "none")
     if _is_song_recommendation_request(normalized):
         return AskDjIntent("informational", "song_recommendations", "none")
     if _is_personal_recommendation_request(normalized):
@@ -1523,6 +1525,9 @@ async def _handle_informational(
                 }
             ],
         }
+    item_list_request = _artist_item_list_request(text)
+    if item_list_request:
+        return await _artist_item_list_response(hass, runtime, item_list_request)
     playlist_query = _playlist_query_from_question(text)
     if playlist_query:
         if _playlist_question_wants_track_choices(text):
@@ -2607,7 +2612,12 @@ async def _spotify_artist_profile(
     return artist_profile if isinstance(artist_profile, dict) else {}
 
 
-def _artist_albums_response(hass: HomeAssistant, discography: dict[str, Any]) -> dict[str, Any]:
+def _artist_albums_response(
+    hass: HomeAssistant,
+    discography: dict[str, Any],
+    *,
+    limit: int | None = None,
+) -> dict[str, Any]:
     albums = discography.get("albums") if isinstance(discography, dict) else []
     if not isinstance(albums, list) or not albums:
         artist = str(discography.get("artist") or "deze artiest").strip()
@@ -2621,7 +2631,8 @@ def _artist_albums_response(hass: HomeAssistant, discography: dict[str, Any]) ->
         }
     artist = str(discography.get("artist") or albums[0].get("artist") or "deze artiest").strip()
     album_labels = []
-    visible_albums = albums[:20]
+    visible_limit = max(1, min(20, int(limit))) if limit is not None else 20
+    visible_albums = albums[:visible_limit]
     for album in visible_albums:
         if not isinstance(album, dict):
             continue
@@ -4168,6 +4179,152 @@ async def _spotify_track_search(
         _LOGGER.debug("DJConnect Spotify track search unavailable: %s", exc)
         return {}
     return result if isinstance(result, dict) else {}
+
+
+def _artist_item_list_request(text: str) -> dict[str, Any]:
+    patterns = (
+        r"^\s*(?:geef|toon|laat\s+zien|zoek|vind)\s+(?:me|mij)?\s*(?:(\d+|een|twee|drie|vier|vijf|zes|zeven|acht|negen|tien)\s+)?(albums?|tracks?|nummers?|songs?|playlists?|afspeellijsten?)\s+van\s+(.+?)\s*\??\s*$",
+        r"^\s*(?:give|show|find)\s+(?:me\s+)?(?:(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\s+)?(albums?|tracks?|songs?|playlists?)\s+(?:by|from)\s+(.+?)\s*\??\s*$",
+    )
+    value = str(text or "").strip()
+    for pattern in patterns:
+        match = re.match(pattern, value, flags=re.IGNORECASE)
+        if not match:
+            continue
+        count = _bounded_item_count(match.group(1), default=5)
+        item_type = _artist_item_type(match.group(2))
+        artist = _clean_artist_name(match.group(3))
+        if item_type and artist:
+            return {"item_type": item_type, "artist": artist, "count": count}
+    return {}
+
+
+def _bounded_item_count(value: Any, *, default: int) -> int:
+    words = {
+        "een": 1,
+        "one": 1,
+        "twee": 2,
+        "two": 2,
+        "drie": 3,
+        "three": 3,
+        "vier": 4,
+        "four": 4,
+        "vijf": 5,
+        "five": 5,
+        "zes": 6,
+        "six": 6,
+        "zeven": 7,
+        "seven": 7,
+        "acht": 8,
+        "eight": 8,
+        "negen": 9,
+        "nine": 9,
+        "tien": 10,
+        "ten": 10,
+    }
+    raw = str(value or "").strip().lower()
+    if not raw:
+        return default
+    try:
+        count = int(raw)
+    except ValueError:
+        count = words.get(raw, default)
+    return max(1, min(10, count))
+
+
+def _artist_item_type(value: Any) -> str:
+    normalized = _normalize(str(value or ""))
+    if normalized.startswith("album"):
+        return "album"
+    if normalized in {"track", "tracks", "nummer", "nummers", "song", "songs"}:
+        return "track"
+    if normalized in {"playlist", "playlists", "afspeellijst", "afspeellijsten"}:
+        return "playlist"
+    return ""
+
+
+async def _artist_item_list_response(
+    hass: HomeAssistant,
+    runtime: Any,
+    request: dict[str, Any],
+) -> dict[str, Any]:
+    artist = str(request.get("artist") or "").strip()
+    item_type = str(request.get("item_type") or "").strip()
+    count = _bounded_item_count(request.get("count"), default=5)
+    if item_type == "album":
+        discography = await _spotify_artist_albums(hass, runtime, artist)
+        if discography:
+            return _artist_albums_response(hass, discography, limit=count)
+        return _empty_artist_item_list_response(artist, "albums", "spotify_artist_albums")
+    if item_type == "track":
+        result = await _spotify_track_search(hass, runtime, artist, limit=count)
+        tracks = result.get("tracks") if isinstance(result, dict) else []
+        actions = _track_recommendation_actions(hass, tracks, limit=count)
+        return _artist_clickable_rows_response(
+            artist,
+            "nummers",
+            actions,
+            "spotify_track_search",
+            f"Ik vond deze nummers van {artist}.",
+        )
+    if item_type == "playlist":
+        result = await _spotify_playlist_search(hass, runtime, artist, limit=count)
+        playlists = result.get("playlists") if isinstance(result, dict) else []
+        actions = _playlist_search_playback_actions(hass, playlists, limit=count)
+        return _artist_clickable_rows_response(
+            artist,
+            "playlists",
+            actions,
+            "spotify_playlist_search",
+            f"Ik vond deze Spotify-playlists rond {artist}.",
+        )
+    return _empty_artist_item_list_response(artist, "resultaten", "spotify_search")
+
+
+def _artist_clickable_rows_response(
+    artist: str,
+    label: str,
+    actions: list[dict[str, Any]],
+    source: str,
+    intro: str,
+) -> dict[str, Any]:
+    if actions:
+        lines = [
+            f"{index}. {action.get('title') or 'Onbekend'}"
+            + (f" - {action.get('subtitle')}" if action.get("subtitle") else "")
+            for index, action in enumerate(actions, start=1)
+        ]
+        message = (
+            f"{intro}\n"
+            + "\n".join(lines)
+            + "\n\nTik op Play Now om er eentje direct te starten."
+        )
+    else:
+        message = f"Ik vond nu geen speelbare {label} voor {artist}."
+    return {
+        "success": True,
+        "text": message,
+        "dj_text": message,
+        "action": "none",
+        "images": [],
+        "playback_actions": actions,
+        "items": actions,
+        "sources": [{"source": source, "title": source.replace("_", " "), "kind": "source"}],
+    }
+
+
+def _empty_artist_item_list_response(artist: str, label: str, source: str) -> dict[str, Any]:
+    message = f"Ik vond nu geen speelbare {label} voor {artist}."
+    return {
+        "success": True,
+        "text": message,
+        "dj_text": message,
+        "action": "none",
+        "images": [],
+        "playback_actions": [],
+        "items": [],
+        "sources": [{"source": source, "title": source.replace("_", " "), "kind": "source"}],
+    }
 
 
 async def _playlist_track_choices_response(
