@@ -3163,6 +3163,8 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(artist_action["title"], "Artist Four")
         self.assertEqual(artist_action["label"], "Play Now")
         self.assertEqual(artist_action["button_label"], "Play Now")
+        self.assertEqual(result["images"], [])
+        self.assertEqual(result["assistant_message"]["images"], [])
         self.assertTrue(all(action["image_url"].startswith(self.const.API_IMAGE_PROXY_BASE) for action in result["playback_actions"]))
 
     def test_no_do_something_routes_to_recommendations_after_clarification(self) -> None:

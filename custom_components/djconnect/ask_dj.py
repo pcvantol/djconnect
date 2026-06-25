@@ -1462,6 +1462,7 @@ async def _handle_informational(
             "text": message,
             "dj_text": message,
             "action": "none",
+            "images": [],
             "playback_actions": actions,
             "confirmation_actions": _confirmation_actions() if actions else [],
             "sources": _profile_sources(memory_context, spotify_profile),
