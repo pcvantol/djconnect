@@ -5,6 +5,15 @@ on:
   pull_request:
 
 jobs:
+  ask_dj_e2e_contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Validate Ask DJ offline E2E contract cases
+        run: python -m unittest tests.test_ask_dj_e2e_contract
   postman_collection:
     runs-on: ubuntu-latest
     steps:

@@ -1735,6 +1735,8 @@ class SpotifyBackendTest(unittest.TestCase):
 
             def request(self, method, url, **kwargs):
                 self.calls.append({"method": method, "url": url, **kwargs})
+                if method == "GET" and "/me/tracks/contains" in url:
+                    return Response(200, [True])
                 if method == "GET":
                     return Response(
                         200,
@@ -1807,9 +1809,14 @@ class SpotifyBackendTest(unittest.TestCase):
             "https://api.spotify.com/v1/me/tracks?ids=saved-track",
             urls,
         )
+        self.assertIn(
+            "https://api.spotify.com/v1/me/tracks/contains?ids=saved-track",
+            urls,
+        )
         self.assertTrue(shuffle["playback"]["shuffle"])
         self.assertEqual(repeat["playback"]["repeat_state"], "context")
         self.assertEqual(saved["playback"]["uri"], "spotify:track:saved-track")
+        self.assertTrue(saved["playback"]["is_liked"])
         self.assertEqual(runtime.device_status["shuffle"], True)
         self.assertEqual(runtime.device_status["repeat_state"], "context")
 

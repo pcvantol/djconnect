@@ -2483,13 +2483,14 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         async def command_handler(hass, runtime_arg, command, value=None, *, play=False):
             calls.append((command, value, play))
-            if command == "save_current_track":
+            if command == "set_current_track_favorite":
                 return {
                     "success": True,
                     "playback": {
                         "track_name": "Karma Police",
                         "artist": "Radiohead",
                         "uri": "spotify:track:karma-police",
+                        "is_liked": False,
                     },
                 }
             raise AssertionError(f"unexpected command: {command}")
@@ -2505,7 +2506,8 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 return {
                     "device_id": "djconnect-ios-68B74487726D",
                     "client_type": "ios",
-                    "command": "save_current_track",
+                    "command": "set_current_track_favorite",
+                    "value": False,
                 }
 
         original = self.http.handle_spotify_command
@@ -2516,8 +2518,9 @@ class VoiceHttpHelperTest(unittest.TestCase):
             self.http.handle_spotify_command = original
 
         self.assertEqual(response["status_code"], 200)
-        self.assertEqual(calls, [("save_current_track", None, False)])
+        self.assertEqual(calls, [("set_current_track_favorite", False, False)])
         self.assertEqual(response["payload"]["playback"]["uri"], "spotify:track:karma-police")
+        self.assertFalse(response["payload"]["playback"]["is_liked"])
 
     def test_command_view_accepts_ask_dj_message_prompt_fallback(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
@@ -2964,10 +2967,11 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         async def dj_response(hass, runtime_arg, text):
             delivered.append(text)
-            return {
-                "delivered": True,
-                "audio_url_value": "http://ha/api/djconnect/tts/play-now.mp3",
-            }
+            raise AssertionError("Play Now should not directly deliver a device DJ response")
+
+        async def create_audio(hass, runtime_arg, text):
+            self.assertIn("Track Title", text)
+            return "http://ha/api/djconnect/tts/play-now.mp3"
 
         class Request:
             headers = {
@@ -2996,24 +3000,36 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         original = self.http.handle_spotify_command
         original_dj_response = self.http.async_send_dj_response_best_effort
+        original_create_audio = self.http.async_create_dj_audio_url
         self.http.handle_spotify_command = command_handler
         self.http.async_send_dj_response_best_effort = dj_response
+        self.http.async_create_dj_audio_url = create_audio
         try:
             response = asyncio.run(self.http.DJConnectCommandView(None).post(Request()))
         finally:
             self.http.handle_spotify_command = original
             self.http.async_send_dj_response_best_effort = original_dj_response
+            self.http.async_create_dj_audio_url = original_create_audio
 
         self.assertEqual(response["status_code"], 200)
         self.assertTrue(response["payload"]["success"])
         self.assertEqual(response["payload"]["action"], "spotify_start_recommendation")
         self.assertIn("Track Title", response["payload"]["dj_text"])
-        self.assertEqual(delivered, [response["payload"]["dj_text"]])
-        self.assertTrue(response["payload"]["dj_response"]["delivered"])
+        self.assertEqual(delivered, [])
+        self.assertFalse(response["payload"]["dj_response"]["delivered"])
+        self.assertFalse(response["payload"]["dj_response"]["spoken"])
+        self.assertFalse(response["payload"]["dj_response"]["displayed"])
         self.assertEqual(
             response["payload"]["audio_url"],
             "http://ha/api/djconnect/tts/play-now.mp3",
         )
+        self.assertEqual(response["payload"]["assistant_message"]["origin"], "play_now")
+        self.assertEqual(response["payload"]["assistant_message"]["text"], response["payload"]["dj_text"])
+        self.assertEqual(
+            response["payload"]["assistant_message"]["audio_url"],
+            "http://ha/api/djconnect/tts/play-now.mp3",
+        )
+        self.assertEqual(response["payload"]["assistant_message"]["playback_actions"], [])
         self.assertEqual(response["payload"]["audio_type"], "mp3")
         self.assertEqual(
             calls,
@@ -3166,6 +3182,93 @@ class VoiceHttpHelperTest(unittest.TestCase):
             [
                 ("set_output", "speaker-1", False),
                 ("play", "spotify:album:home", True),
+            ],
+        )
+
+    def test_command_view_replays_ask_dj_playback_request_after_output_choice(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+        ask_dj = importlib.import_module("custom_components.djconnect.ask_dj")
+        calls = []
+
+        class Runtime:
+            device_token = "device-token"
+            device_status = {
+                "device_id": "djconnect-ios-68B74487726D",
+                "client_type": "ios",
+            }
+            config = {}
+            memory = None
+            last_playback = {}
+
+            def authorize_device_request(self, headers, body_device_id=None, client_type=None):
+                return headers.get("Authorization") == "Bearer device-token"
+
+            def device_language(self):
+                return "nl"
+
+        runtime = Runtime()
+
+        async def command_handler(hass, runtime_arg, command, value=None, *, play=None):
+            calls.append((command, value, play))
+            if command == "set_output":
+                return {"success": True}
+            if command == "status":
+                return {"success": True, "playback": {}}
+            return {"success": True}
+
+        async def process_handler(hass, runtime_arg, text, *, play=True, correct_stt=False):
+            calls.append(("process", text, play))
+            return {
+                "success": True,
+                "text": "Daar is London Grammar.",
+                "dj_text": "Daar is London Grammar.",
+                "playback": {"artist": "London Grammar"},
+            }
+
+        class Request:
+            headers = {
+                "Authorization": "Bearer device-token",
+                "X-DJConnect-Device-ID": "djconnect-ios-68B74487726D",
+            }
+            app = {"hass": types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})}
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-ios-68B74487726D",
+                    "client_type": "ios",
+                    "command": "ask_dj_play_request_on_output",
+                    "value": {
+                        "output_id": "speaker-1",
+                        "request": {
+                            "text": "speel london grammar",
+                            "client_type": "ios",
+                            "audio_response": "never",
+                        },
+                    },
+                }
+
+        original_command = self.http.handle_spotify_command
+        original_process = self.http.process_text_command
+        original_ask_dj_process = ask_dj.process_text_command
+        self.http.handle_spotify_command = command_handler
+        self.http.process_text_command = process_handler
+        ask_dj.process_text_command = process_handler
+        try:
+            response = asyncio.run(self.http.DJConnectCommandView(None).post(Request()))
+        finally:
+            self.http.handle_spotify_command = original_command
+            self.http.process_text_command = original_process
+            ask_dj.process_text_command = original_ask_dj_process
+
+        self.assertEqual(response["status_code"], 200)
+        self.assertTrue(response["payload"]["success"])
+        self.assertEqual(response["payload"]["intent"]["intent"], "play_music")
+        self.assertIn("London Grammar", response["payload"]["dj_text"])
+        self.assertEqual(
+            calls,
+            [
+                ("set_output", "speaker-1", False),
+                ("process", "speel london grammar", True),
             ],
         )
 

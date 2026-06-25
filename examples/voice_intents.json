@@ -132,13 +132,14 @@
           ]
         },
         "save_current_track": {
-          "spotify_command": "save_current_track",
+          "spotify_command": "set_current_track_favorite",
           "nl": [
             "Zet huidig nummer in favorieten",
-        "Voeg dit nummer toe aan favorieten",
-        "Bewaar deze track in favorieten",
-        "Like dit nummer",
-        "Zet deze song in mijn liked songs"
+            "Haal huidig nummer uit favorieten",
+            "Voeg dit nummer toe aan favorieten",
+            "Bewaar deze track in favorieten",
+            "Like dit nummer",
+            "Zet deze song in mijn liked songs"
           ],
           "en": [
             "Save this track to liked songs",
@@ -525,6 +526,35 @@
         "Make a profile of my music taste this year"
       ]
     },
+    "technical_track_analysis": {
+      "plays_music": false,
+      "action": "track_analysis",
+      "intent": "technical_track_analysis",
+      "intent_category": "informational",
+      "sources": [
+        "spotify_playback_context",
+        "spotify_audio_features",
+        "spotify_audio_analysis"
+      ],
+      "response_shape": {
+        "analysis": true,
+        "items": true,
+        "playback_actions": "none"
+      },
+      "description": "Ask for a live technical analysis of the current track, including BPM, key, energy, arrangement sections and non-hallucinated notes about structure/instrumentation when data is available.",
+      "nl": [
+        "Geef een technische track analyse van dit nummer",
+        "Wat is de bpm en opbouw van deze track?",
+        "Analyseer intro, coupletten en refrein van wat nu speelt",
+        "Welke instrumenten en melodische opbouw hoor je in deze plaat?"
+      ],
+      "en": [
+        "Give me a technical analysis of this song",
+        "What is the BPM and structure of this track?",
+        "Analyze the intro, verses and chorus of the current track",
+        "What instruments and melodic build-up are in this song?"
+      ]
+    },
     "recently_played_history": {
       "plays_music": false,
       "action": "recently_played",
@@ -615,16 +645,17 @@
     },
     "save_current_track": {
       "plays_music": false,
-      "action": "save_current_track",
+      "action": "set_current_track_favorite",
       "intent": "playback_control",
       "response_shape": {
         "text_only": true,
         "images": [],
         "playback_actions": []
       },
-      "description": "Save the currently playing Spotify track to the user's Liked Songs/favorites. Now Playing cards can expose this as a control action labelled Zet in favorieten.",
+      "description": "Toggle the currently playing Spotify track in the user's Liked Songs/favorites. Now Playing cards can expose this as a control action with toggle:true, current favorite status and client_prompt.",
       "nl": [
         "Zet huidig nummer in favorieten",
+        "Haal huidig nummer uit favorieten",
         "Voeg dit nummer toe aan favorieten",
         "Bewaar deze track in favorieten",
         "Like dit nummer"

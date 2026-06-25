@@ -43,10 +43,11 @@ class VoiceIntentDataTest(unittest.TestCase):
 
         save = ask["save_current_track"]
         self.assertFalse(save["plays_music"])
-        self.assertEqual(save["action"], "save_current_track")
+        self.assertEqual(save["action"], "set_current_track_favorite")
         self.assertEqual(save["response_shape"]["images"], [])
         self.assertEqual(save["response_shape"]["playback_actions"], [])
         self.assertIn("Zet huidig nummer in favorieten", save["nl"])
+        self.assertIn("Haal huidig nummer uit favorieten", save["nl"])
         self.assertIn("Save this track to liked songs", save["en"])
 
         seed = ask["seed_playlist_mix"]

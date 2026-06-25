@@ -93,11 +93,15 @@ Supported action kinds:
 - `control`: immediate playback control action. Pause/stop responses can return
   `command:"play"` with `label:"Resume"` / `button_label:"Resume"` so clients
   show a Resume button. Clients may also send direct control commands such as
-  `volume_delta`, `set_shuffle`, `set_repeat` and `save_current_track` through
+  `volume_delta`, `set_shuffle`, `set_repeat`, `save_current_track` and
+  `set_current_track_favorite` through
   `POST /api/djconnect/command`. Current-track Ask DJ responses such as
-  `wat speelt er` may include a `save_current_track` control action with
-  `label:"Zet in favorieten"`; render it as an immediate Now Playing / Ask DJ
-  button and do not route it through `ask_dj_play_recommendation`.
+  `wat speelt er` may include a `set_current_track_favorite` control action
+  with `toggle:true`, `favorite_status`, `toggle_state:"on"|"off"|"unknown"`,
+  a boolean `value` target and `client_prompt` (`Zet huidig nummer in favorieten`
+  or `Haal huidig nummer uit favorieten`). Render it as an immediate Now
+  Playing / Ask DJ toggle button and do not route it through
+  `ask_dj_play_recommendation`.
 - `confirmation`: Ja/Nee follow-up action with
   `command:"ask_dj_followup_response"` and a server-side pending proposal.
   Generic playlist/recommendation offers may use labels such as `Ja graag` and
@@ -127,6 +131,9 @@ Help requests such as `help`, `hulp`, `wat kun je?` and `welke commando's?`
 return a text-only categorized command list. `Probeer opnieuw` / `retry` replays
 the previous retryable playback request server-side; clients should send the
 user's retry text normally and let the server resolve the prior request.
+The help list includes exact prompt examples that are covered by
+`examples/ask_dj_e2e_cases.json`; for example `Analyseer dit nummer` maps to
+the read-only `technical_track_analysis` intent.
 
 Personal memory questions such as `wat weet je nu over mij?`, `wat staat er in
 mijn DJ Memory?` and `what do you know about me?` return
@@ -138,6 +145,42 @@ artwork or Spotify listening-profile enrichment for the answer.
 Unknown, unsupported or low-confidence informational answers are text-only and
 return `images: []`. Clients must not reuse current-track album art for these
 fallback responses.
+
+## Ask DJ E2E Contract Validation
+
+Ask DJ client behavior can be validated with the shared case file
+`examples/ask_dj_e2e_cases.json`. Each case contains a request payload fragment
+and expected response contract fields such as intent, action, confirmation
+buttons, playback actions, source metadata, text snippets and allowed Spotify
+backend calls.
+
+Run the deterministic offline contract tests with mocked Spotify/Assist
+backends:
+
+```bash
+python3 -m unittest tests.test_ask_dj_e2e_contract
+```
+
+Run the same cases against a live Home Assistant instance with the HACS
+integration loaded:
+
+```bash
+python3 tools/run_ask_dj_e2e.py \
+  --base-url http://localhost:8123 \
+  --token "$HA_TOKEN" \
+  --cases examples/ask_dj_e2e_cases.json \
+  --out reports/ask_dj_e2e_results.json
+```
+
+The live runner posts each case to `/api/djconnect/ask_dj/message` with a
+stable watchOS-style test identity. Offline tests additionally record backend
+commands so cases can assert that informational intents do not mutate playback.
+When adding a new client-visible Ask DJ intent, add or update a case in
+`examples/ask_dj_e2e_cases.json` together with the normal unit tests.
+
+The offline contract test also checks that every prompt returned by the Ask DJ
+help function appears exactly once or more in the shared case file. This keeps
+client-visible help text aligned with implemented intent behavior.
 
 ## Ask DJ Recent Listening Lists
 
@@ -182,6 +225,51 @@ Play Now controls unless the backend explicitly returns `playback_actions[]`.
 Spotify's recently-played context may expose only a playlist URI without a
 playlist display name; in that case the backend can return a generic title such
 as `Spotify playlist` until richer playlist metadata is available.
+
+## Ask DJ Technical Track Analysis
+
+Ask DJ supports read-only live technical analysis questions for the currently
+playing Spotify track. Examples:
+
+- `geef een technische track analyse van dit nummer`
+- `analyseer dit nummer`
+- `wat is de bpm en opbouw van deze track?`
+- `analyseer intro, coupletten en refrein`
+- `give me a technical analysis of this song`
+
+These responses use:
+
+- `intent.category: "informational"`
+- `intent.intent: "technical_track_analysis"`
+- `intent.action: "track_analysis"`
+- `action: "track_analysis"`
+- `playback_actions: []`
+- `sources[]` including `spotify_playback_context` and, when available,
+  `spotify_audio_features` / `spotify_audio_analysis`
+
+The response may include top-level `analysis{}` and display-ready `items[]`
+with `kind:"technical_metric"` or `kind:"arrangement"` for values such as BPM,
+key, energy, danceability and detected section count. If Spotify audio features
+or deep audio analysis are unavailable, the backend must say so explicitly and
+must not invent intro/couplet/refrein labels.
+
+## Ask DJ Playback Without Active Speaker
+
+When a playback or hybrid Ask DJ intent cannot start because Spotify reports no
+active output device, the backend should not return a dead-end generic playback
+failure if available Spotify devices can be listed. Instead it returns:
+
+- `success: true`
+- `error: "no_active_output"`
+- `action: "select_output"`
+- the original playback intent in `intent{}`
+- `playback_actions[]` / `items[]` containing speaker rows with `kind:"output"`
+  and `command:"ask_dj_play_request_on_output"`
+
+Each output action carries `value.output_id` and `value.request.text`, so clients
+can post it unchanged to `/api/djconnect/command`. The command handler first
+sets the selected Spotify output and then replays the original Ask DJ playback
+request server-side. Clients must not reconstruct the original prompt locally.
 
 ## Ask DJ History
 

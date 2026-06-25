@@ -61,6 +61,15 @@ run() {
   fi
 }
 
+run_always() {
+  echo "+ $*"
+  "$@"
+}
+
+validate_release() {
+  run_always python3 -m unittest tests.test_ask_dj_e2e_contract
+}
+
 bump_versions() {
   echo "+ update repo version to ${VERSION}"
   VERSION="$VERSION" DRY_RUN="$DRY_RUN" python3 - <<'PY'
@@ -187,6 +196,7 @@ replace_text(
 PY
 }
 
+validate_release
 bump_versions
 run git add .
 run git commit -m "Release DJConnect ${TAG}"

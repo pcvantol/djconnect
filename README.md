@@ -14,7 +14,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 
 ## Current Version
 
-- Home Assistant integration: `3.1.94`
+- Home Assistant integration: `3.1.95`
 - Domain: `djconnect`
 - HACS category: `Integration`
 - Device target: DJConnect device
@@ -74,7 +74,7 @@ runtime behavior. These decisions are part of the integration contract:
 
 ## Repository Layout
 
-- Home Assistant integration: `3.1.94`
+- Home Assistant integration: `3.1.95`
 - ESP firmware source: `pcvantol/djconnect-app`
 - Public firmware releases: `pcvantol/djconnect-firmware`
 - Canonical cross-repo sync prompts live only in this HA repo: [`SYNC_PROMPTS.md`](SYNC_PROMPTS.md)
@@ -338,6 +338,10 @@ Privacy-oriented questions such as "Wat weet je nu over mij?" use the narrower
 `personal_memory_summary` intent instead. That response is based on server-side
 DJ Memory only, with `sources:[{"source":"djconnect_memory"}]`, no `images[]`
 and no `playback_actions[]`.
+Ask DJ also supports read-only technical track analysis prompts such as
+"Analyseer dit nummer". Those return `intent.intent:"technical_track_analysis"`,
+`action:"track_analysis"`, Spotify playback/audio-analysis sources when
+available, and no playback mutation.
 `djconnect.clear_ask_dj_history` clears persistent Ask DJ chat history for the
 selected Home Assistant user when called as a developer service. The app HTTP
 clear route uses the same HA-user scoped history store and increments
@@ -373,16 +377,20 @@ credentials or playback-backend logic in DJConnect clients:
 
 - Current track: "Welk nummer draait er nu?", "Welk nummer speelt er nu?", "Wat draait er?", "Wat speelt er?", "What song is playing?", "What's playing?".
 - Playback control: "Stop muziek", "Start muziek", "Zet harder", "Zet zachter", "Volgende nummer", "Vorig nummer", "Stop music", "Start music", "Turn it up", "Turn it down", "Next song", "Previous song".
-- Current track favorite: "zet huidig nummer in favorieten", "voeg dit nummer toe aan favorieten", "save this track to liked songs". Current-track Ask DJ responses can also include a `command:"save_current_track"` control action labelled `Zet in favorieten`; Now Playing clients may send the same command directly to `/api/djconnect/command`.
+- Current track favorite toggle: "zet huidig nummer in favorieten", "haal huidig nummer uit favorieten", "voeg dit nummer toe aan favorieten", "save this track to liked songs", "remove this track from liked songs". Current-track Ask DJ responses can also include a `command:"set_current_track_favorite"` control action with `toggle:true`, `toggle_state`, `favorite_status`, boolean `value` and `client_prompt` (`Zet huidig nummer in favorieten` or `Haal huidig nummer uit favorieten`); Now Playing clients may send the same command directly to `/api/djconnect/command`.
 - Artist: "ik heb zin in Pearl Jam", "ik wil Metallica horen", "Nirvana wil ik wel horen", "artiest Nirvana", "band Pearl Jam", "speel maar af Above & Beyond", "I feel like Fleetwood Mac".
 - Track: "speel nummer Black van Pearl Jam", "speel nummer Lithium van artiest Nirvana", "speel artiest Nirvana met nummer Lithium", "nummer Lithium", "start het liedje Everlong", "zet track Nothing Else Matters van Metallica op", "play song Paranoid Android by Radiohead".
 - Album: "speel album Ten van Pearl Jam", "album Nevermind", "start het album Nevermind", "zet de plaat OK Computer van Radiohead op", "play album In Rainbows by Radiohead".
 - Playlist: "speel playlist Roadtrip", "start mijn playlist Rustig wakker worden", "zet afspeellijst Dinner Jazz op", "play playlist Workout".
 - Default playlist: "speel standaard playlist", "start mijn favorieten", "zet liked songs op", "play default playlist".
 
-If Spotify reports that no active playback device exists, DJConnect refreshes
-available Spotify devices, transfers playback to a suitable active/default
-Spotify device when possible and retries the command once.
+If Spotify reports that no active playback device exists for an Ask DJ playback
+intent, DJConnect refreshes available Spotify speakers and returns a follow-up
+choice list instead of a dead-end playback failure. The response uses
+`error:"no_active_output"`, `action:"select_output"` and `playback_actions[]`
+with `kind:"output"` plus `command:"ask_dj_play_request_on_output"`. Clients
+post the chosen action value back unchanged; Home Assistant sets that output and
+replays the original Ask DJ playback request server-side.
 
 Developer action overview:
 
@@ -1138,7 +1146,7 @@ Firmware sends backend playback commands to Home Assistant instead of storing Sp
 POST /api/djconnect/command
 ```
 
-Required headers are `Authorization: Bearer <device_token>`, `X-DJConnect-Device-ID` and `Content-Type: application/json`. Supported commands include `status`, `devices`, `queue`, `playlists`, `pause`, `play`, `next`, `previous`, `seek_relative`, `start_liked_proxy`, `start_playlist`, `play_context_at`, `ask_dj_play_recommendation`, `set_shuffle`, `set_repeat`, `set_output`, `set_volume`, `volume_delta` and `save_current_track`. `seek_relative` accepts an integer millisecond offset for Apple app skip-forward/skip-back controls; positive values seek forward and negative values seek backward. `set_shuffle` accepts a boolean value; `set_repeat` accepts `off`, `track` or `context`; `volume_delta` accepts an integer relative volume step; `save_current_track` saves the current Spotify track to the user's Liked Songs/favorites through Spotify's library API. `play_context_at` accepts a context URI and track offset URI for Up Next playback. `ask_dj_play_recommendation` accepts a Play Now recommendation value with Spotify `uri`, optional `uris[]` for `track_mix`, optional `context_uri`/`offset_uri`, `kind`, `title`, `subtitle`, `reason` and `memory_key`. Responses are generic JSON shapes with `playback`, `devices`, `queue` or `playlists`, so future backends such as Sonos or Home Assistant media players can be added without firmware changes. `status` responses include `backend_available`, `ha_version`, `ha_major_minor` and a valid `playback` object even when no Spotify playback is active. `queue` responses include at most 100 items, top-level `context_uri` / `contextUri` when known and per-item artwork aliases such as `album_image_url` and `image_url`; `playlists` responses include Spotify playlists with `name`, `title`, `display_title`, `uri`, `value`, `playlist_uri`, `owner`, `subtitle`, `image_url`, `entity_picture` and artwork aliases such as `album_image_url`, `album_art_url` and `media_image_url`. HA returns playlist lists as top-level `playlists` and `items`, plus `data.playlists`, `data.items`, `result.playlists`, `result.items` and `count` for stricter clients. ESP32 `playlists` requests may send `limit`; HA caps ESP32 responses at 20 items and returns up to 100 for app-like clients while paging Spotify's `/me/playlists` API internally with provider-safe pages of at most 50 items. A successful `playlists` response returns `backend_available:true` even when Spotify playback is idle; backend failures still return a non-empty JSON body with `success:false`, `backend_available:false` and empty playlist aliases. Logs never include device tokens, Spotify tokens or backend credentials.
+Required headers are `Authorization: Bearer <device_token>`, `X-DJConnect-Device-ID` and `Content-Type: application/json`. Supported commands include `status`, `devices`, `queue`, `playlists`, `pause`, `play`, `next`, `previous`, `seek_relative`, `start_liked_proxy`, `start_playlist`, `play_context_at`, `ask_dj_play_recommendation`, `set_shuffle`, `set_repeat`, `set_output`, `set_volume`, `volume_delta`, `save_current_track` and `set_current_track_favorite`. `seek_relative` accepts an integer millisecond offset for Apple app skip-forward/skip-back controls; positive values seek forward and negative values seek backward. `set_shuffle` accepts a boolean value; `set_repeat` accepts `off`, `track` or `context`; `volume_delta` accepts an integer relative volume step; `save_current_track` saves the current Spotify track to the user's Liked Songs/favorites through Spotify's library API and remains a legacy alias. `set_current_track_favorite` accepts a boolean `value`: `true` saves the current Spotify track to Liked Songs/favorites and `false` removes it. `play_context_at` accepts a context URI and track offset URI for Up Next playback. `ask_dj_play_recommendation` accepts a Play Now recommendation value with Spotify `uri`, optional `uris[]` for `track_mix`, optional `context_uri`/`offset_uri`, `kind`, `title`, `subtitle`, `reason` and `memory_key`. Responses are generic JSON shapes with `playback`, `devices`, `queue` or `playlists`, so future backends such as Sonos or Home Assistant media players can be added without firmware changes. `status` responses include `backend_available`, `ha_version`, `ha_major_minor` and a valid `playback` object even when no Spotify playback is active. Current playback can include `is_liked`/`favorite_status` when Spotify library status is available, so clients can render the favorite toggle state. `queue` responses include at most 100 items, top-level `context_uri` / `contextUri` when known and per-item artwork aliases such as `album_image_url` and `image_url`; `playlists` responses include Spotify playlists with `name`, `title`, `display_title`, `uri`, `value`, `playlist_uri`, `owner`, `subtitle`, `image_url`, `entity_picture` and artwork aliases such as `album_image_url`, `album_art_url` and `media_image_url`. HA returns playlist lists as top-level `playlists` and `items`, plus `data.playlists`, `data.items`, `result.playlists`, `result.items` and `count` for stricter clients. ESP32 `playlists` requests may send `limit`; HA caps ESP32 responses at 20 items and returns up to 100 for app-like clients while paging Spotify's `/me/playlists` API internally with provider-safe pages of at most 50 items. A successful `playlists` response returns `backend_available:true` even when Spotify playback is idle; backend failures still return a non-empty JSON body with `success:false`, `backend_available:false` and empty playlist aliases. Logs never include device tokens, Spotify tokens or backend credentials.
 
 HA and ESP firmware must share the same `major.minor` protocol version. Patch
 versions may differ, so HA `3.0.x` can talk to ESP `3.0.y`, but HA `3.1.x`
@@ -1220,24 +1228,24 @@ Example manifest:
 
 ```json
 {
-  "version": "3.1.94",
-  "version_tag": "v3.1.94",
+  "version": "3.1.95",
+  "version_tag": "v3.1.95",
   "channel": "stable",
-  "min_ha_integration": "3.1.94",
+  "min_ha_integration": "3.1.95",
   "firmwares": [
     {
       "board": "t_embed_cc1101",
       "device": "lilygo-t-embed-s3",
-      "asset": "djconnect-lilygo-t-embed-s3-v3.1.94.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.94/djconnect-lilygo-t-embed-s3-v3.1.94.bin",
+      "asset": "djconnect-lilygo-t-embed-s3-v3.1.95.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.95/djconnect-lilygo-t-embed-s3-v3.1.95.bin",
       "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "size": 2113136
     },
     {
       "board": "esp32_s3_box3",
       "device": "esp32-s3-box-3",
-      "asset": "djconnect-esp32-s3-box-3-v3.1.94.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.94/djconnect-esp32-s3-box-3-v3.1.94.bin",
+      "asset": "djconnect-esp32-s3-box-3-v3.1.95.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.1.95/djconnect-esp32-s3-box-3-v3.1.95.bin",
       "sha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
       "size": 2113136
     }
@@ -1260,7 +1268,7 @@ The firmware version is injected through PlatformIO build flags from the Git tag
 Recommended firmware source release helper:
 
 ```bash
-./release.sh 3.1.94
+./release.sh 3.1.95
 ```
 
 In the separate `djconnect-app` repository, the firmware release script should
@@ -1272,14 +1280,14 @@ PlatformIO builds, rename firmware binaries to device-specific assets such as
 Preview the firmware release flow without changing files:
 
 ```bash
-./release.sh 3.1.94 --dry-run
+./release.sh 3.1.95 --dry-run
 ```
 
 When publishing to the public firmware repository, use the firmware script's
 public-repo option if available:
 
 ```bash
-./release.sh 3.1.94 --publish-firmware-repo ../djconnect-firmware
+./release.sh 3.1.95 --publish-firmware-repo ../djconnect-firmware
 ```
 
 The public `djconnect-firmware` repository should contain only the release
@@ -1299,6 +1307,7 @@ Pre-release checklist:
 - Update all repo documentation touched by the change or release: at minimum `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant files under `examples/`.
 - Update and JSON-validate `examples/djconnect.postman_collection.json` whenever HTTP endpoints, auth headers, request payloads or response shapes change.
 - Keep the automated Postman collection validator current; CI runs `python -m unittest tests.test_postman_collection` to check schema, placeholder secrets, auth headers and client identity examples.
+- Keep `examples/ask_dj_e2e_cases.json` current for Ask DJ client-visible intents; CI and `release.sh` run `python -m unittest tests.test_ask_dj_e2e_contract` to validate offline Ask DJ E2E response contracts.
 - Update `README.md` current version, examples, endpoints, HACS instructions and release workflow.
 - Update `CHANGELOG.md` with a new section for each release. Keep previous release sections; do not consolidate the changelog into one current-version block.
 - Keep `AGENTS.md` aligned with the current version and release expectations.
@@ -1318,6 +1327,12 @@ Pre-release checklist:
 python3 -m unittest discover -s tests
 ```
 
+For Ask DJ client contract changes, the focused offline E2E check is:
+
+```bash
+python3 -m unittest tests.test_ask_dj_e2e_contract
+```
+
 For Postman-only contract changes, the focused local check is:
 
 ```bash
@@ -1329,7 +1344,7 @@ Tag and publish:
 One-liner:
 
 ```bash
-./release.sh 3.1.94
+./release.sh 3.1.95
 ```
 
 The script updates the integration version in `manifest.json`, `const.py`,
@@ -1340,18 +1355,18 @@ above.
 Preview without executing git/gh commands:
 
 ```bash
-./release.sh 3.1.94 --dry-run
+./release.sh 3.1.95 --dry-run
 ```
 
 Manual equivalent:
 
 ```bash
 git add .
-git commit -m "Release DJConnect v3.1.94"
-git tag v3.1.94
+git commit -m "Release DJConnect v3.1.95"
+git tag v3.1.95
 git push origin main
-git push origin v3.1.94
-gh release create v3.1.94 --title "DJConnect v3.1.94" --notes-file CHANGELOG.md
+git push origin v3.1.95
+gh release create v3.1.95 --title "DJConnect v3.1.95" --notes-file CHANGELOG.md
 ```
 
 After every release, clean up old completed GitHub Actions workflow runs. Keep

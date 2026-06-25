@@ -130,6 +130,7 @@
 - Confirm `Goedemorgen` returns a personalized morning suggestion with Ja/Nee controls and does not start playback until the user confirms.
 - Confirm `ask_dj_followup_response` executes a pending Yes action, declines a No action and returns a friendly expired/no-pending message after the pending follow-up TTL.
 - Confirm follow-up confirmation buttons work cross-device, for example Ask DJ asks on iPhone and the user answers on macOS or Apple Watch.
+- Confirm Ask DJ playback requests with no active Spotify output return speaker `playback_actions[]` and that `ask_dj_play_request_on_output` sets the selected output before replaying the original request.
 - Confirm obvious gibberish and sandbox/prompt-injection-like prompts return the neutral unknown-intent fallback and do not trigger Spotify search, HA device lookup, prompt disclosure or playback mutation.
 - Confirm Play Now and recommendation flows still store only compact positive signals in DJ Memory and never raw prompts, bearer tokens, OAuth tokens or raw audio.
 - Confirm recent-played Ask DJ questions for tracks, albums, artists and playlists render as compact item lists with art/icons and do not mutate playback or invent Play Now buttons.
@@ -170,7 +171,7 @@
 
 ## Release Workflow
 
-- Run `python3 -m unittest discover -s tests` before release.
+- Run `python3 -m unittest tests.test_ask_dj_e2e_contract`, the Ask DJ no-active-output regressions and `python3 -m unittest discover -s tests` before release.
 - Run `./release.sh X.Y.Z --dry-run` before publishing when changes are non-trivial.
 - Run `./release.sh X.Y.Z` for release.
 - Refresh HACS update info in Home Assistant.

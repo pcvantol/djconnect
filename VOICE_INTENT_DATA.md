@@ -123,6 +123,12 @@ The website can use `ask_dj_intents` to render example families for:
   speaker` and `Move music to the living room speaker`. Responses contain a
   text list plus `playback_actions[]` with `kind:"output"` and `Activeer` /
   `Actief` button labels when devices are known.
+- `playback_output_selection`: playback/hybrid requests such as `Speel
+  Nirvana` can also return speaker rows when Spotify reports no active output.
+  The response uses `error:"no_active_output"`, `action:"select_output"` and
+  `playback_actions[]` with `command:"ask_dj_play_request_on_output"`. Clients
+  post the selected action value back unchanged; the backend sets the output and
+  replays the original Ask DJ playback request server-side.
 - `retry_previous_request`: phrases such as `Probeer opnieuw`, `Retry` and
   `Try again`. The backend replays the previous retryable playback request from
   server-side Ask DJ history or memory. Clients must not reconstruct the old
@@ -161,6 +167,17 @@ The website can use `ask_dj_intents` to render example families for:
   start playback automatically.
 - `personal_music_profile_analysis`: non-mutating listening-profile questions
   based on DJConnect Memory plus Spotify recently played/top profile data.
+- `technical_track_analysis`: non-mutating live analysis questions about the
+  current track, such as `Geef een technische track analyse van dit nummer`,
+  `Analyseer dit nummer`, `Wat is de bpm en opbouw van deze track?` and
+  `Give me a technical analysis of this song`. Ask DJ can return BPM, key,
+  energy/danceability and detected
+  arrangement sections when Spotify audio data is available. If deep analysis is
+  unavailable, it must say so and must not invent intro/couplet/refrein labels.
+  - Response contract: `intent.category:"informational"`,
+    `intent.intent:"technical_track_analysis"`, `action:"track_analysis"`,
+    `playback_actions:[]` and sources containing `spotify_playback_context`
+    plus optional `spotify_audio_features` / `spotify_audio_analysis`.
 - `recently_played_history`: non-mutating recent listening-history questions
   for tracks, albums, artists and playlist contexts, based on Spotify
   recently-played data. Clients should render returned `items[]` as compact

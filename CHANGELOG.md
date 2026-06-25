@@ -1,5 +1,21 @@
 # Changelog
 
+## 3.1.95
+
+- Add deterministic offline Ask DJ E2E contract cases, including exact coverage
+  for every prompt returned by the Ask DJ help function.
+- Expand Ask DJ playback/list intents for artist tracks, albums, mixes, current
+  track variants, genre questions, DJ announcements and Play Now response
+  validation.
+- Add read-only technical track analysis support for prompts such as
+  `Analyseer dit nummer`, returning Spotify playback/audio-analysis metadata
+  without mutating playback.
+- Return speaker selection actions when an Ask DJ playback request cannot start
+  because Spotify has no active output, then replay the original request after
+  the user chooses a speaker.
+- Document the updated Ask DJ help, E2E contract flow, technical analysis
+  response shape and no-active-output speaker follow-up behavior.
+
 ## 3.1.94
 
 - Add Ask DJ intent `zet huidig nummer in favorieten` / `save this track to

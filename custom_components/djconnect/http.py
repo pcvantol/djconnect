@@ -64,7 +64,7 @@ from .assist_stt import (
     DJConnectNoSttProviderError,
     transcribe_wav_with_assist,
 )
-from .dj_response import async_send_dj_response_best_effort, get_tts_audio
+from .dj_response import async_create_dj_audio_url, async_send_dj_response_best_effort, get_tts_audio
 from .ha_urls import async_ha_url_payload
 from .mood import enrich_payload_with_mood_zone
 from .processor import process_text_command
@@ -1401,10 +1401,16 @@ async def _handle_ask_dj_play_recommendation(
     else:
         dj_text = f"Ik speel {title} nu af."
     playback = result.get("playback") if isinstance(result, dict) else {}
-    _set_device_state(runtime, "responding")
-    dj_response = await async_send_dj_response_best_effort(hass, runtime, dj_text)
-    audio_url = dj_response.get("audio_url_value")
-    _set_device_state(runtime, "idle")
+    audio_url = await async_create_dj_audio_url(hass, runtime, dj_text)
+    dj_response = {
+        "success": True,
+        "delivered": False,
+        "displayed": False,
+        "spoken": False,
+        "audio_url": bool(audio_url),
+        "audio_url_value": audio_url,
+        "audio_type": _audio_type_from_url(audio_url),
+    }
     runtime.update(last_error=None, last_dj_text=dj_text, last_playback=playback or getattr(runtime, "last_playback", None))
     return {
         "success": True,
@@ -1416,6 +1422,18 @@ async def _handle_ask_dj_play_recommendation(
         "dj_response": dj_response,
         "audio_url": audio_url,
         "audio_type": _audio_type_from_url(audio_url),
+        "assistant_message": {
+            "role": "assistant",
+            "message_kind": "assistant",
+            "origin": "play_now",
+            "text": dj_text,
+            "audio_url": audio_url,
+            "playback_actions": [],
+            "items": [],
+            "images": [],
+            "links": [],
+            "sources": [],
+        },
         "recommendation": {
             key: recommendation.get(key)
             for key in ("uri", "uris", "context_uri", "offset_uri", "kind", "title", "subtitle", "reason")
@@ -1467,6 +1485,56 @@ async def _handle_ask_dj_play_recommendation_on_output(
         request_payload,
         user_id=user_id,
     )
+
+
+async def _handle_ask_dj_play_request_on_output(
+    hass: Any,
+    runtime: Any,
+    value: Any,
+    request_payload: dict[str, Any],
+    *,
+    user_id: str | None = None,
+) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        return {
+            "success": False,
+            "error": "missing_output_selection",
+            "message": "Ik mis de speakerkeuze.",
+        }
+    output_id = str(value.get("output_id") or value.get("device_id") or value.get("value") or "").strip()
+    ask_request = value.get("request") if isinstance(value.get("request"), dict) else {}
+    text = str(ask_request.get("text") or request_payload.get("text") or "").strip()
+    if not output_id:
+        return {
+            "success": False,
+            "error": "missing_output_selection",
+            "message": "Ik weet nog niet op welke speaker ik dit moet afspelen.",
+        }
+    if not text:
+        return {
+            "success": False,
+            "error": "missing_playback_request",
+            "message": "Ik weet niet welk muziekverzoek ik moet starten.",
+        }
+    try:
+        await handle_spotify_command(hass, runtime, "set_output", output_id, play=False)
+    except SpotifyBackendError as exc:
+        return {
+            "success": False,
+            "error": "output_selection_failed",
+            "message": str(exc),
+        }
+    ask_payload = {
+        key: value
+        for key, value in {
+            **request_payload,
+            **ask_request,
+            "text": text,
+            "audio_response": ask_request.get("audio_response") or request_payload.get("audio_response") or "auto",
+        }.items()
+        if value not in ("", None)
+    }
+    return await async_handle_ask_dj(hass, runtime, ask_payload, user_id=user_id)
 
 
 async def _speaker_selection_for_recommendation(
@@ -2189,6 +2257,18 @@ class DJConnectCommandView(HomeAssistantView):
             return self.json(result, status_code=200 if result.get("success") else 400)
         if normalized_command == "ask_dj_play_recommendation_on_output":
             result = await _handle_ask_dj_play_recommendation_on_output(
+                hass,
+                runtime,
+                command_value,
+                data,
+                user_id=_request_user_id(request),
+            )
+            if memory_key:
+                result.setdefault("memory_key", memory_key)
+            result.update(_ha_version_payload())
+            return self.json(result, status_code=200 if result.get("success") else 400)
+        if normalized_command == "ask_dj_play_request_on_output":
+            result = await _handle_ask_dj_play_request_on_output(
                 hass,
                 runtime,
                 command_value,

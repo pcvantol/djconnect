@@ -139,6 +139,11 @@ async def handle_spotify_command(
             "tracks": await backend.recently_played(limit=limit),
             "source": "spotify_recently_played",
         }
+    if normalized == "technical_track_analysis":
+        return {
+            "success": True,
+            "analysis": await backend.technical_track_analysis(value),
+        }
     if normalized == "artist_recommendations":
         return {
             "success": True,
@@ -207,7 +212,10 @@ async def handle_spotify_command(
         await backend.set_volume(value)
         return {"success": True, "playback": await backend.playback_state()}
     if normalized == "save_current_track":
-        playback = await backend.save_current_track()
+        playback = await backend.set_current_track_favorite(True)
+        return {"success": True, "playback": playback}
+    if normalized in {"set_current_track_favorite", "toggle_current_track_favorite"}:
+        playback = await backend.set_current_track_favorite(value)
         return {"success": True, "playback": playback}
     raise ValueError(f"Unsupported DJConnect command: {command}")
 
@@ -437,12 +445,14 @@ class SpotifyBackend:
     async def playback_state(self) -> dict[str, Any]:
         data = await self._request("GET", "/me/player")
         playback = _normalize_playback(data)
+        await self._enrich_current_track_favorite_status(playback)
         _merge_playback_status(
             self.runtime.device_status,
             {
                 "spotify_status": "playing" if playback.get("is_playing") else "idle",
                 "volume": playback.get("volume_percent"),
                 "last_track": playback.get("track_name"),
+                "current_track_is_liked": playback.get("is_liked"),
                 "sound_output": (playback.get("device") or {}).get("name"),
                 "shuffle": playback.get("shuffle"),
                 "repeat_state": playback.get("repeat_state"),
@@ -451,6 +461,20 @@ class SpotifyBackend:
         self.runtime.update(last_playback=playback, last_error=None)
         await async_maybe_append_ambient_fact(self.hass, self.runtime, playback)
         return playback
+
+    async def _enrich_current_track_favorite_status(self, playback: dict[str, Any]) -> None:
+        uri = str(playback.get("uri") or playback.get("current_uri") or "").strip()
+        track_id = _spotify_id_from_uri(uri)
+        if not _looks_like_spotify_id(track_id):
+            return
+        try:
+            data = await self._request("GET", f"/me/tracks/contains?ids={track_id}")
+        except SpotifyBackendError as exc:
+            _LOGGER.debug("DJConnect could not read current track favorite status: %s", exc)
+            return
+        if isinstance(data, list) and data:
+            playback["is_liked"] = bool(data[0])
+            playback["favorite_status"] = bool(data[0])
 
     async def devices(self) -> list[dict[str, Any]]:
         async def load():
@@ -756,6 +780,39 @@ class SpotifyBackend:
         """Fetch recent Spotify playback history without top-item profile calls."""
         return await self._recently_played(limit=limit)
 
+    async def technical_track_analysis(self, value: Any = None) -> dict[str, Any]:
+        """Fetch live Spotify audio analysis data for the current or supplied track."""
+        playback = value.get("playback") if isinstance(value, dict) else {}
+        if not isinstance(playback, dict) or not playback.get("uri"):
+            try:
+                playback = await self.playback_state()
+            except SpotifyBackendError:
+                playback = {}
+        track = _track_from_playback_for_analysis(playback)
+        track_id = _spotify_id_from_uri(track.get("uri")) or str(track.get("id") or "").strip()
+        analysis: dict[str, Any] = {
+            "track": track,
+            "source": "spotify",
+        }
+        if not track_id:
+            analysis["unavailable_reason"] = "missing_spotify_track_id"
+            return analysis
+        features = await self._optional_spotify_track_data(f"/audio-features/{track_id}")
+        audio_analysis = await self._optional_spotify_track_data(f"/audio-analysis/{track_id}")
+        if features:
+            analysis["audio_features"] = features
+        if audio_analysis:
+            analysis["audio_analysis"] = {
+                "sections": audio_analysis.get("sections") or [],
+                "segments_count": len(audio_analysis.get("segments") or []),
+                "bars_count": len(audio_analysis.get("bars") or []),
+                "beats_count": len(audio_analysis.get("beats") or []),
+                "tatums_count": len(audio_analysis.get("tatums") or []),
+            }
+        if not features and not audio_analysis:
+            analysis["unavailable_reason"] = "spotify_audio_analysis_unavailable"
+        return analysis
+
     async def artist_albums(self, query: str) -> dict[str, Any]:
         """Fetch album discography for the best Spotify artist search result."""
         query = str(query or "").strip()
@@ -875,6 +932,14 @@ class SpotifyBackend:
                 track["context_type"] = str(context.get("type") or "").strip()
             tracks.append(track)
         return tracks
+
+    async def _optional_spotify_track_data(self, path: str) -> dict[str, Any]:
+        try:
+            data = await self._request("GET", path)
+        except SpotifyBackendError as exc:
+            _LOGGER.debug("DJConnect optional Spotify track analysis unavailable for %s: %s", path, exc)
+            return {}
+        return data if isinstance(data, dict) else {}
 
     async def _top_items(
         self,
@@ -1202,16 +1267,22 @@ class SpotifyBackend:
         )
 
     async def save_current_track(self) -> dict[str, Any]:
+        return await self.set_current_track_favorite(True)
+
+    async def set_current_track_favorite(self, value: Any = True) -> dict[str, Any]:
+        target = _favorite_target(value)
         playback = await self.playback_state()
         uri = str(playback.get("uri") or playback.get("current_uri") or "").strip()
         track_id = _spotify_id_from_uri(uri)
-        if not track_id:
-            raise SpotifyBackendError("No current Spotify track is available to save")
+        if not _looks_like_spotify_id(track_id):
+            raise SpotifyBackendError("No current Spotify track is available to update favorites")
         await self._request(
-            "PUT",
+            "PUT" if target else "DELETE",
             f"/me/tracks?ids={track_id}",
             expected_empty=True,
         )
+        playback["is_liked"] = target
+        playback["favorite_status"] = target
         return playback
 
 
@@ -1257,6 +1328,29 @@ def _spotify_search_type(media_type: str) -> str:
     if normalized == "album":
         return "album"
     return "artist"
+
+
+def _favorite_target(value: Any) -> bool:
+    if isinstance(value, dict):
+        for key in ("favorite", "is_liked", "liked", "target", "value"):
+            if key in value:
+                return _favorite_target(value.get(key))
+        return True
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return True
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in {"false", "0", "no", "nee", "off", "remove", "unlike", "unsave"}:
+            return False
+        if normalized in {"true", "1", "yes", "ja", "on", "add", "like", "save"}:
+            return True
+    return bool(value)
+
+
+def _looks_like_spotify_id(value: str) -> bool:
+    return bool(re.fullmatch(r"[A-Za-z0-9_-]{8,64}", str(value or "").strip()))
 
 
 def _artist_album_query(value: Any) -> str:
@@ -1703,6 +1797,28 @@ def _normalize_profile_track(item: dict[str, Any]) -> dict[str, Any]:
         }.items()
         if value not in (None, "", [], {})
     }
+
+
+def _track_from_playback_for_analysis(playback: Any) -> dict[str, Any]:
+    if not isinstance(playback, dict):
+        return {}
+    track = playback.get("track") if isinstance(playback.get("track"), dict) else playback
+    result = {
+        key: value
+        for key, value in {
+            "id": track.get("id"),
+            "uri": track.get("uri"),
+            "title": track.get("title") or track.get("track_name") or track.get("name"),
+            "track_name": track.get("track_name") or track.get("title") or track.get("name"),
+            "artist": track.get("artist") or track.get("artist_name"),
+            "artist_name": track.get("artist_name") or track.get("artist"),
+            "album": track.get("album") or track.get("album_name"),
+            "album_name": track.get("album_name") or track.get("album"),
+            "duration_ms": track.get("duration_ms"),
+        }.items()
+        if value not in (None, "", [], {})
+    }
+    return result
 
 
 def _normalize_profile_artist(item: dict[str, Any]) -> dict[str, Any]:

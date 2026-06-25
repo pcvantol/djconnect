@@ -84,7 +84,7 @@ Licentie/commercieel:
 HA integration:
 - domain: `djconnect`
 - HACS custom integration.
-- Actuele integratieversie: `3.1.94`.
+- Actuele integratieversie: `3.1.95`.
 - Config flow moet blijven laden.
 - Centrale DJConnect API calls vanuit HACS gebruiken per-install `djci_` tokens, nooit een globale relay/operator secret. Voor Apple push clients (`ios`, `macos`, `watchos`) mag HACS een short-lived `bootstrap_proof` uit push registration/pairing/status gebruiken om via `/v1/install/token` een `djci_` token te minten; zonder proof blijft Apple push disabled/best-effort. ESP32, Raspberry Pi en Assist Conversation Agent-only entries hebben deze proof niet nodig omdat zij geen APNs push gebruiken.
 - Config flow blokkeert niet meer op een officiële Home Assistant Spotify `media_player` entity; DJConnect gebruikt eigen Spotify OAuth en de Spotify Web API voor backend playback.
@@ -200,6 +200,7 @@ README/release:
   - Update alle documentatiebestanden in deze repo die door de wijziging of release geraakt worden: minimaal `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `API_CONTRACT.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` en relevante files onder `examples/`.
   - Update en JSON-valideer `examples/djconnect.postman_collection.json` als HTTP endpoints, auth headers, request payloads of response shapes wijzigen.
   - Houd de geautomatiseerde Postman collection validator actueel; CI draait `python -m unittest tests.test_postman_collection` voor schema, placeholder secrets, auth headers en client identity voorbeelden.
+  - Houd `examples/ask_dj_e2e_cases.json` actueel voor client-zichtbare Ask DJ intents; CI en `release.sh` draaien `python -m unittest tests.test_ask_dj_e2e_contract` voor offline Ask DJ E2E contractvalidatie.
   - Update `README.md` current version, examples, endpoints, HACS instructies en release workflow.
   - Update `CHANGELOG.md` met een nieuw blok per release; behoud eerdere releaseblokken en consolideer niet meer naar één actuele versie.
   - Houd `AGENTS.md` gelijk met actuele versie en release-eisen.
@@ -215,6 +216,7 @@ README/release:
   - Controleer vóór build/test/release of third-party libraries, frameworks en build tools updates hebben; voer veilige upgrades uit als reviewbare wijzigingen en werk lockfiles/manifests, `THIRD_PARTY_NOTICES.md` en `TECHNICAL_DESIGN_DECISIONS.md` bij. Als dependency/framework/tool-versies zijn geüpgraded, is actualisatie van `THIRD_PARTY_NOTICES.md` en dependency/design documentatie verplicht. Als een upgrade bewust wordt overgeslagen, noteer waarom in `HANDOFF.md`.
   - Controleer dat `THIRD_PARTY_NOTICES.md` actueel is voor manifest dependencies/requirements.
   - Controleer README/config-flow/options-flow/diagnostics legal notices.
+  - Draai `python3 -m unittest tests.test_ask_dj_e2e_contract`.
   - Draai `python3 -m unittest discover -s tests`.
 - HACS release workflow bevat minimaal:
   - One-liner mag via `./release.sh X.Y.Z`.
