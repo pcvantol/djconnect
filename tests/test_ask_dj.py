@@ -2536,6 +2536,60 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["assistant_message"]["playback_actions"], result["playback_actions"])
         self.assertTrue(tts_calls)
 
+    def test_volume_action_returns_controls_without_media_chrome(self) -> None:
+        runtime = make_runtime()
+        runtime.last_playback = {
+            "has_playback": True,
+            "volume_percent": 30,
+            "track_name": "Infinity 2008 - Klaas Vocal Edit",
+            "artist": "Guru Josh Project, Klaas",
+            "album_image_url": "https://img.example/guru-josh.jpg",
+        }
+        calls = []
+        tts_calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append((command_name, value))
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            if command_name == "set_volume":
+                return {"success": True, "playback": {"volume_percent": value}}
+            raise AssertionError(f"unexpected command: {command_name}")
+
+        async def tts(hass, runtime_arg, text):
+            tts_calls.append(text)
+            return {"audio_url_value": "/api/djconnect/tts/volume.mp3"}
+
+        original_command = self.ask_dj.handle_spotify_command
+        original_tts = self.ask_dj.async_send_dj_response_best_effort
+        self.ask_dj.handle_spotify_command = command
+        self.ask_dj.async_send_dj_response_best_effort = tts
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "zachter",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "ios",
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.async_send_dj_response_best_effort = original_tts
+
+        self.assertEqual(calls, [("status", None), ("status", None), ("set_volume", 20)])
+        self.assertEqual(result["dj_text"], "Ik heb het volume aangepast.")
+        self.assertEqual(result["images"], [])
+        self.assertEqual(result["assistant_message"]["images"], [])
+        self.assertNotIn("audio_url", result)
+        self.assertEqual(tts_calls, [])
+        self.assertEqual([action["label"] for action in result["playback_actions"]], ["Zachter", "Harder"])
+        self.assertEqual([action["command"] for action in result["playback_actions"]], ["volume_delta", "volume_delta"])
+        self.assertEqual([action["value"] for action in result["playback_actions"]], [-10, 10])
+
     def test_sleep_phrase_pauses_music(self) -> None:
         runtime = make_runtime()
         calls = []

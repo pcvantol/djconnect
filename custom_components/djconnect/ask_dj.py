@@ -470,7 +470,7 @@ def _should_generate_audio_response(
         return True
     if mode in {"never", "false", "0", "no", "none", "text_only"}:
         return False
-    if classification.action in {"set_shuffle", "set_repeat"} or classification.intent == "playback_mode_status":
+    if classification.action in {"volume_delta", "set_shuffle", "set_repeat"} or classification.intent == "playback_mode_status":
         return False
     input_type = str(payload.get("input_type") or "").strip().lower()
     if input_type in {"voice", "ptt", "audio"}:
@@ -1204,6 +1204,7 @@ async def _handle_action(
             "images": [],
             "links": [],
             "sources": [],
+            "playback_actions": _volume_control_actions(),
         }
     if action in {"pause", "play", "next", "previous"}:
         if action in {"next", "previous"}:
@@ -5726,6 +5727,35 @@ def _playback_control_actions(action: str) -> list[dict[str, Any]]:
             "prompt": "Start muziek",
             "reason": "De muziek is gepauzeerd.",
         }
+    ]
+
+
+def _volume_control_actions() -> list[dict[str, Any]]:
+    return [
+        {
+            "id": "djconnect:control:volume:-10",
+            "kind": "control",
+            "action_style": "control",
+            "command": "volume_delta",
+            "value": -10,
+            "title": "Zachter",
+            "label": "Zachter",
+            "button_label": "Zachter",
+            "prompt": "Zachter",
+            "reason": "Volume zachter zetten vanuit Ask DJ.",
+        },
+        {
+            "id": "djconnect:control:volume:+10",
+            "kind": "control",
+            "action_style": "control",
+            "command": "volume_delta",
+            "value": 10,
+            "title": "Harder",
+            "label": "Harder",
+            "button_label": "Harder",
+            "prompt": "Harder",
+            "reason": "Volume harder zetten vanuit Ask DJ.",
+        },
     ]
 
 
