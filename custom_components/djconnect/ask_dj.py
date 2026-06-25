@@ -1083,6 +1083,12 @@ def classify_ask_dj(text: str) -> AskDjIntent:
             "recently_played_history",
             "recently_played",
         )
+    if _is_personal_memory_request(normalized):
+        return AskDjIntent(
+            "informational",
+            "personal_memory_summary",
+            "memory_summary",
+        )
     if _is_personal_music_profile_request(normalized):
         return AskDjIntent(
             "informational",
@@ -1672,6 +1678,18 @@ async def _handle_informational(
             "dj_text": message,
             "action": "profile_analysis",
             "sources": _profile_sources(memory_context, spotify_profile),
+        }
+    if ask_intent.intent == "personal_memory_summary":
+        message = _personal_memory_summary_text(memory_context)
+        return {
+            "success": True,
+            "text": message,
+            "dj_text": message,
+            "action": "memory_summary",
+            "images": [],
+            "links": [],
+            "sources": [{"source": "djconnect_memory", "title": "DJConnect Memory", "kind": "source"}],
+            "playback_actions": [],
         }
     if ask_intent.intent == "personal_music_recommendations":
         spotify_profile = await _listening_profile_context(
@@ -3485,6 +3503,25 @@ def _is_personal_music_profile_request(normalized: str) -> bool:
     )
 
 
+def _is_personal_memory_request(normalized: str) -> bool:
+    """Return true for questions asking what DJConnect currently remembers."""
+    return normalized in {
+        "wat weet je nu over mij",
+        "wat weet je over mij",
+        "wat weet djconnect over mij",
+        "wat staat er in mijn dj memory",
+        "wat staat er in dj memory",
+        "wat herinner je je over mij",
+        "what do you know about me",
+        "what does djconnect know about me",
+        "what is in my dj memory",
+        "what do you remember about me",
+    } or (
+        ("wat weet" in normalized or "what do you know" in normalized)
+        and ("over mij" in normalized or "about me" in normalized)
+    )
+
+
 def _is_recently_played_history_request(normalized: str) -> bool:
     if any(
         phrase in normalized
@@ -5030,6 +5067,80 @@ def _personal_music_profile_text(
         lines.append("")
         lines.append(f"Recente Ask DJ context: je vroeg eerder '{last_ask['input']}'.")
     return "\n".join(line for line in lines if line is not None).strip()
+
+
+def _personal_memory_summary_text(memory_context: dict[str, Any]) -> str:
+    memory = memory_context.get("memory") if isinstance(memory_context, dict) else {}
+    session = memory_context.get("session") if isinstance(memory_context, dict) else []
+    if not isinstance(memory, dict):
+        memory = {}
+    lines = ["Dit weet ik nu over jou uit DJ Memory:"]
+    has_detail = False
+
+    mood = _profile_mood(memory)
+    if mood is not None:
+        zone = mood_zone_for_value(mood)
+        if zone is not None:
+            lines.append(f"- Mood/energy: {mood}/100 ({zone.name}: {zone.prompt_hint}).")
+        else:
+            lines.append(f"- Mood/energy: {mood}/100.")
+        has_detail = True
+
+    genres = _memory_text_values(memory.get("favorite_genres"), keys=("name", "genre"))
+    if genres:
+        lines.append("- Genres die ik onthoud: " + _join_examples(genres, limit=5) + ".")
+        has_detail = True
+
+    artists = _memory_text_values(memory.get("favorite_artists"), keys=("name", "artist", "artist_name"))
+    if artists:
+        lines.append("- Artiesten die terugkomen: " + _join_examples(artists, limit=5) + ".")
+        has_detail = True
+
+    tracks = _profile_tracks(memory, {}, {})
+    examples = _profile_examples(tracks)
+    if examples:
+        lines.append("- Recente voorbeelden: " + _join_examples(examples, limit=5) + ".")
+        has_detail = True
+
+    last_ask = memory.get("last_ask_dj")
+    if isinstance(last_ask, dict) and last_ask.get("input"):
+        lines.append(f"- Laatste Ask DJ vraag die ik onthoud: {last_ask['input']}.")
+        has_detail = True
+
+    if session:
+        lines.append(f"- In deze sessie zie ik {len(session)} recente Ask DJ berichten.")
+        has_detail = True
+
+    if not has_detail:
+        lines.append("- Nog weinig concreets. Zodra je meer vraagt of afspeelt, bouw ik dit compact op.")
+
+    lines.append("")
+    lines.append("Ik gebruik hiervoor alleen DJ Memory, niet je live Spotify-status of extra Spotify-profieldata.")
+    return "\n".join(lines).strip()
+
+
+def _memory_text_values(values: Any, *, keys: tuple[str, ...]) -> list[str]:
+    if not isinstance(values, list):
+        return []
+    counts: dict[str, int] = {}
+    for item in values:
+        if isinstance(item, dict):
+            text = ""
+            for key in keys:
+                text = str(item.get(key) or "").strip()
+                if text:
+                    break
+        else:
+            text = str(item or "").strip()
+        if text:
+            counts[text] = counts.get(text, 0) + 1
+    return [
+        value
+        for value, _count in sorted(
+            counts.items(),
+            key=lambda item: (-item[1], item[0].lower()),
+        )
+    ]
 
 
 def _profile_period_label(text: str) -> str:

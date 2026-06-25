@@ -3333,6 +3333,50 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("sources", result)
         self.assertTrue(any(source["source"] == "spotify_recently_played" for source in result["sources"]))
 
+    def test_personal_memory_question_uses_dj_memory_only(self) -> None:
+        runtime = make_runtime()
+        calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append(command_name)
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            if command_name == "listening_profile":
+                raise AssertionError("Memory-only question must not fetch Spotify profile data")
+            raise AssertionError(f"unexpected playback mutation: {command_name}")
+
+        original_command = self.ask_dj.handle_spotify_command
+        self.ask_dj.handle_spotify_command = command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "wat weet je nu over mij?",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "watchos",
+                    },
+                    user_id="user-1",
+                )
+            )
+        finally:
+            self.ask_dj.handle_spotify_command = original_command
+
+        self.assertTrue(result["success"])
+        self.assertEqual(calls, ["status"])
+        self.assertEqual(result["intent"]["intent"], "personal_memory_summary")
+        self.assertEqual(result["action"], "memory_summary")
+        self.assertIn("Dit weet ik nu over jou uit DJ Memory", result["text"])
+        self.assertIn("Mood/energy: 38/100", result["text"])
+        self.assertIn("Genres die ik onthoud: ambient en indie", result["text"])
+        self.assertIn("Recente voorbeelden: The xx - Intro", result["text"])
+        self.assertIn("alleen DJ Memory", result["text"])
+        self.assertNotIn("Sensation", result["text"])
+        self.assertEqual(result["images"], [])
+        self.assertEqual(result["playback_actions"], [])
+        self.assertEqual([source["source"] for source in result["sources"]], ["djconnect_memory"])
+
     def test_recently_played_history_lists_tracks_from_last_hour(self) -> None:
         runtime = make_runtime()
         calls = []
