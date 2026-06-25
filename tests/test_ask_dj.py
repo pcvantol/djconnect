@@ -17,6 +17,7 @@ class FakeMemory:
     def __init__(self):
         self.cleared = False
         self.updated = []
+        self.blocked = []
         self.generation = 0
 
     async def async_context_for_runtime(self, runtime, payload=None, *, user_id=None):
@@ -50,6 +51,10 @@ class FakeMemory:
 
     async def async_update_last_ask_dj(self, runtime, *, input_text, result, payload=None, user_id=None):
         self.updated.append((input_text, result, payload, user_id))
+        return payload.get("memory_key") if payload else runtime.device_status["device_id"]
+
+    async def async_record_blocked_music_preference(self, runtime, item, payload=None, *, user_id=None):
+        self.blocked.append((item, payload, user_id))
         return payload.get("memory_key") if payload else runtime.device_status["device_id"]
 
     async def async_mark_clear_required(self, runtime, payload=None, *, user_id=None):
@@ -1773,6 +1778,82 @@ class AskDjTest(unittest.TestCase):
         self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
         self.assertIn("dino", result["dj_text"])
         self.assertIn("spotify_search", {source["source"] for source in result["sources"]})
+
+    def test_never_hear_artist_records_blocked_music_preference(self) -> None:
+        runtime = make_runtime()
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            raise AssertionError(f"negative preference must not trigger Spotify command: {command_name}")
+
+        original_command = self.ask_dj.handle_spotify_command
+        self.ask_dj.handle_spotify_command = command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "ik wil nooit meer bløf horen",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "ios",
+                    },
+                    user_id="user-1",
+                )
+            )
+        finally:
+            self.ask_dj.handle_spotify_command = original_command
+
+        self.assertEqual(result["intent"]["intent"], "blocked_music_preference")
+        self.assertEqual(result["dj_text"], "Ik zal er rekening mee houden vanaf nu: ik zet bløf niet meer voor je op.")
+        self.assertEqual(result["images"], [])
+        self.assertEqual(result["playback_actions"], [])
+        self.assertEqual(runtime.memory.blocked[0][0]["name"], "bløf")
+        self.assertEqual(runtime.memory.blocked[0][0]["kind"], "artist")
+        self.assertEqual(runtime.memory.blocked[0][2], "user-1")
+
+    def test_deferred_playback_response_never_exposes_spotify_uri_as_label(self) -> None:
+        runtime = make_runtime()
+        runtime.last_playback = {"has_playback": True, "is_playing": True, "track_name": "Current"}
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            if command_name == "search_media":
+                return {
+                    "success": True,
+                    "item": {
+                        "uri": "spotify:artist:0KQX2wRHV2VLjuscfJFNxB",
+                        "artist": "BLØF",
+                        "image_url": "https://img.example/blof.jpg",
+                    },
+                }
+            raise AssertionError(f"unexpected Spotify command: {command_name}")
+
+        original_command = self.ask_dj.handle_spotify_command
+        self.ask_dj.handle_spotify_command = command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "ik wil bløf horen",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "ios",
+                    },
+                    user_id="user-1",
+                )
+            )
+        finally:
+            self.ask_dj.handle_spotify_command = original_command
+
+        self.assertNotIn("spotify:", result["dj_text"])
+        self.assertIn("BLØF", result["dj_text"])
+        self.assertEqual(result["playback_actions"][0]["title"], "BLØF")
+        self.assertNotIn("spotify:", result["playback_actions"][0]["title"])
+        self.assertTrue(result["playback_actions"][0]["uri"].startswith("spotify:artist:"))
 
     def test_what_kind_of_music_request_returns_fuzzy_play_now_actions(self) -> None:
         runtime = make_runtime()

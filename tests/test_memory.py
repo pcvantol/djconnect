@@ -144,6 +144,32 @@ class DJMemoryManagerTest(unittest.TestCase):
         self.assertEqual(context["memory"]["last_ask_dj"]["intent"], "explain_choice")
         self.assertIn("listening_time_context", context["memory"])
 
+    def test_blocked_music_preference_is_persisted_and_prompt_safe(self) -> None:
+        store = FakeStore()
+        manager = DJMemoryManager(store=store)
+        runtime = runtime_for()
+
+        asyncio.run(
+            manager.async_record_blocked_music_preference(
+                runtime,
+                {"kind": "artist", "name": "BLØF", "reason": "user_never_wants_to_hear"},
+                {"client_type": "watchos"},
+                user_id="ha-user-1",
+            )
+        )
+
+        memory = store.saved["memories"]["user:ha-user-1"]
+        self.assertEqual(memory["blocked_artists"][0]["name"], "BLØF")
+        self.assertNotIn("spotify:", str(memory))
+        context = asyncio.run(
+            manager.async_context_for_runtime(
+                runtime,
+                {"client_type": "watchos"},
+                user_id="ha-user-1",
+            )
+        )
+        self.assertIn("Niet meer draaien volgens gebruiker: BLØF", prompt_context_text(context))
+
     def test_clear_memory_helper_removes_persistent_and_runtime_context(self) -> None:
         store = FakeStore()
         manager = DJMemoryManager(store=store)

@@ -156,6 +156,37 @@ async def async_handle_ask_dj(
         conversation_turn.text,
         memory_context,
     )
+    blocked_preference = _blocked_music_preference_from_text(effective_text)
+    if blocked_preference:
+        result = await _record_blocked_music_preference_response(
+            runtime,
+            blocked_preference,
+            identity_payload,
+            user_id=user_id,
+        )
+        classification = AskDjIntent("informational", "blocked_music_preference", "none")
+        response = _normalize_ask_dj_response(
+            hass,
+            runtime,
+            result,
+            classification,
+            memory_key=memory_key,
+            playback_context={},
+        )
+        if memory is not None:
+            await memory.async_update_last_ask_dj(
+                runtime,
+                input_text=text,
+                result={
+                    "intent": response.get("intent") or {},
+                    "dj_text": response.get("dj_text") or response.get("text"),
+                    "playback": {},
+                },
+                payload=identity_payload,
+                user_id=user_id,
+            )
+        response.pop("playback", None)
+        return response
     classification = classify_ask_dj(effective_text)
     if (
         _is_voice_input(payload)
@@ -621,6 +652,59 @@ def _conversation_kind_for_intent(text: str) -> str:
     if intent.category == "action":
         return "playback_intent"
     return "informational_intent"
+
+
+def _blocked_music_preference_from_text(text: str) -> dict[str, str]:
+    value = str(text or "").strip()
+    patterns = (
+        r"^\s*ik\s+wil\s+(?:nooit\s+meer|niet\s+meer)\s+(.+?)\s+(?:horen|luisteren|afspelen|gespeeld\s+krijgen)\s*$",
+        r"^\s*(?:draai|speel|zet)\s+(?:nooit\s+meer|niet\s+meer)\s+(.+?)\s*$",
+        r"^\s*(?:nooit\s+meer|niet\s+meer)\s+(.+?)\s+(?:horen|luisteren|afspelen)\s*$",
+        r"^\s*i\s+(?:never|do\s+not|don't)\s+want\s+to\s+hear\s+(.+?)\s*$",
+        r"^\s*(?:never|do\s+not|don't)\s+play\s+(.+?)\s*$",
+    )
+    for pattern in patterns:
+        match = re.match(pattern, value, flags=re.IGNORECASE)
+        if not match:
+            continue
+        name = _clean_blocked_music_name(match.group(1))
+        if name:
+            return {"kind": "artist", "name": name, "reason": "user_never_wants_to_hear"}
+    return {}
+
+
+def _clean_blocked_music_name(value: Any) -> str:
+    return re.sub(
+        r"\s+(?:meer|again|anymore|please|graag|nu)\s*$",
+        "",
+        str(value or "").strip(" ?.!'\""),
+        flags=re.IGNORECASE,
+    ).strip()
+
+
+async def _record_blocked_music_preference_response(
+    runtime: Any,
+    preference: dict[str, str],
+    payload: dict[str, Any],
+    *,
+    user_id: str | None,
+) -> dict[str, Any]:
+    name = str(preference.get("name") or "").strip()
+    memory = getattr(runtime, "memory", None)
+    recorder = getattr(memory, "async_record_blocked_music_preference", None)
+    if callable(recorder):
+        await recorder(runtime, preference, payload, user_id=user_id)
+    message = f"Ik zal er rekening mee houden vanaf nu: ik zet {name} niet meer voor je op."
+    return {
+        "success": True,
+        "text": message,
+        "dj_text": message,
+        "action": "none",
+        "images": [],
+        "playback_actions": [],
+        "sources": [{"source": "djconnect_memory", "title": "DJConnect Memory", "kind": "source"}],
+        "intent": {"category": "informational", "intent": "blocked_music_preference"},
+    }
 
 
 def _contextualize_play_request_from_recent_actions(
@@ -1211,9 +1295,7 @@ async def _deferred_playback_request_response(
         message = "Ik kon je verzoek nu niet concreet vinden op Spotify."
         return {"success": True, "text": message, "dj_text": message, "action": "none"}
     action = _play_now_action_from_spotify_item(hass, item)
-    title = str(action.get("title") or "je verzoek").strip()
-    subtitle = str(action.get("subtitle") or "").strip()
-    label = f"{title} van {subtitle}" if subtitle else title
+    label = _public_play_now_label(action, fallback="je verzoek")
     message = (
         f"Ik heb {label} vooraan klaargezet. "
         "Wil je hem nu direct horen? Tik dan op Play Now."
@@ -1226,6 +1308,23 @@ async def _deferred_playback_request_response(
         "playback_actions": [action],
         "sources": [{"source": "spotify_search", "title": "Spotify search", "kind": "source"}],
     }
+
+
+def _public_play_now_label(action: dict[str, Any], *, fallback: str) -> str:
+    title = str(action.get("title") or "").strip()
+    subtitle = str(action.get("subtitle") or "").strip()
+    if _looks_like_spotify_uri(title):
+        title = subtitle or ""
+        subtitle = ""
+    if _looks_like_spotify_uri(subtitle):
+        subtitle = ""
+    if not title:
+        title = fallback
+    return f"{title} van {subtitle}" if subtitle else title
+
+
+def _looks_like_spotify_uri(value: Any) -> bool:
+    return str(value or "").strip().lower().startswith("spotify:")
 
 
 async def _fuzzy_music_search_response(
@@ -4648,17 +4747,24 @@ def _play_now_action_from_spotify_item(
         or ""
     ).strip()
     proxy_image = register_image_proxy_url(hass, image_url) if image_url.startswith(("http://", "https://")) else image_url
+    title = str(item.get("track_name") or item.get("title") or item.get("name") or uri).strip()
+    subtitle = str(
+        item.get("artist")
+        or item.get("artist_name")
+        or item.get("album_name")
+        or item.get("subtitle")
+        or item.get("owner")
+        or ""
+    ).strip()
+    if _looks_like_spotify_uri(title):
+        title = subtitle or "Spotify resultaat"
+        subtitle = ""
+    if _looks_like_spotify_uri(subtitle):
+        subtitle = ""
     action = {
         "id": uri,
-        "title": str(item.get("track_name") or item.get("title") or item.get("name") or uri).strip(),
-        "subtitle": str(
-            item.get("artist")
-            or item.get("artist_name")
-            or item.get("album_name")
-            or item.get("subtitle")
-            or item.get("owner")
-            or ""
-        ).strip(),
+        "title": title,
+        "subtitle": subtitle,
         "uri": uri,
         "kind": kind,
         "label": "Play Now",
