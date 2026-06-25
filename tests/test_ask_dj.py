@@ -1398,6 +1398,66 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("Sun & Moon", result["dj_text"])
         self.assertNotIn("AFROJACK", result["dj_text"])
 
+    def test_play_request_uses_recent_artist_track_action_context(self) -> None:
+        runtime = make_runtime()
+        runtime.ask_dj_history = FakeAskDJHistory(
+            [
+                {"role": "user", "text": "Wat heb je nog meer van scala?"},
+                {
+                    "role": "assistant",
+                    "text": "Ik vond nog meer nummers van scala.",
+                    "playback_actions": [
+                        {
+                            "kind": "track",
+                            "title": "With or Without You",
+                            "subtitle": "Scala & Kolacny Brothers",
+                            "uri": "spotify:track:with-or-without-you",
+                        },
+                        {
+                            "kind": "track",
+                            "title": "Zombie",
+                            "subtitle": "Scala & Kolacny Brothers",
+                            "uri": "spotify:track:zombie-scala",
+                        },
+                    ],
+                },
+            ]
+        )
+        seen = {}
+
+        async def process(hass, runtime_arg, text, *, play, correct_stt):
+            seen["text"] = text
+            seen["play"] = play
+            return {
+                "text": text,
+                "intent": {"type": "track", "title": "Zombie", "artist": "Scala & Kolacny Brothers"},
+                "playback": {"track_name": "Zombie", "artist": "Scala & Kolacny Brothers"},
+                "dj_text": "Ik speel Zombie van Scala & Kolacny Brothers nu af.",
+            }
+
+        original_process = self.ask_dj.process_text_command
+        self.ask_dj.process_text_command = process
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "Ik wil zombie horen",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "ios",
+                    },
+                    user_id="user-1",
+                )
+            )
+        finally:
+            self.ask_dj.process_text_command = original_process
+
+        self.assertEqual(seen["text"], "speel Zombie Scala & Kolacny Brothers")
+        self.assertTrue(seen["play"])
+        self.assertEqual(result["intent"]["intent"], "play_music")
+        self.assertIn("Scala & Kolacny Brothers", result["dj_text"])
+
     def test_current_track_album_conversation_can_play_album(self) -> None:
         runtime = make_runtime()
         runtime.last_playback = {

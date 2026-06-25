@@ -152,7 +152,10 @@ async def async_handle_ask_dj(
         response.pop("playback", None)
         return response
 
-    effective_text = conversation_turn.text
+    effective_text = _contextualize_play_request_from_recent_actions(
+        conversation_turn.text,
+        memory_context,
+    )
     classification = classify_ask_dj(effective_text)
     if (
         _is_voice_input(payload)
@@ -618,6 +621,82 @@ def _conversation_kind_for_intent(text: str) -> str:
     if intent.category == "action":
         return "playback_intent"
     return "informational_intent"
+
+
+def _contextualize_play_request_from_recent_actions(
+    text: str,
+    memory_context: dict[str, Any],
+) -> str:
+    normalized = _normalize(text)
+    if not (
+        _is_deferred_playback_request(normalized)
+        or re.search(r"\b(speel|draai|zet)\b", normalized)
+    ):
+        return text
+    parsed = parse_spoken_music_request(text)
+    query = str(parsed.get("query") or "").strip()
+    if not query:
+        query = _play_request_title_candidate(text)
+    if not query or len(_normalize(query).split()) > 8:
+        return text
+    action = _recent_playback_action_for_title(memory_context, query)
+    if not action:
+        return text
+    title = str(action.get("title") or query).strip()
+    artist = str(action.get("subtitle") or action.get("artist") or action.get("artist_name") or "").strip()
+    if not title or not artist:
+        return text
+    return f"speel {title} {artist}"
+
+
+def _play_request_title_candidate(text: str) -> str:
+    value = str(text or "").strip()
+    patterns = (
+        r"^\s*ik\s+wil\s+(.+?)\s+(?:horen|luisteren|afspelen)\s*$",
+        r"^\s*(?:speel|draai|zet)\s+(.+?)(?:\s+(?:op|af|aan|please|graag|nu))?\s*$",
+        r"^\s*play\s+(.+?)\s*$",
+    )
+    for pattern in patterns:
+        match = re.match(pattern, value, flags=re.IGNORECASE)
+        if match:
+            return _clean_album_track_request_part(match.group(1))
+    return ""
+
+
+def _recent_playback_action_for_title(
+    memory_context: dict[str, Any],
+    title: str,
+) -> dict[str, Any]:
+    wanted = _normalize(title)
+    if not wanted:
+        return {}
+    for action in _recent_playback_actions(memory_context):
+        if not isinstance(action, dict) or str(action.get("kind") or "") != "track":
+            continue
+        action_title = _normalize(str(action.get("title") or ""))
+        if not action_title:
+            continue
+        if action_title == wanted or action_title in wanted or wanted in action_title:
+            return action
+    return {}
+
+
+def _recent_playback_actions(memory_context: dict[str, Any]) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    history = memory_context.get("server_history") if isinstance(memory_context, dict) else []
+    if isinstance(history, list):
+        for item in reversed(history[-8:]):
+            if not isinstance(item, dict):
+                continue
+            item_actions = item.get("playback_actions")
+            if isinstance(item_actions, list):
+                actions.extend(action for action in item_actions if isinstance(action, dict))
+    memory = memory_context.get("memory") if isinstance(memory_context, dict) else {}
+    last = memory.get("last_ask_dj") if isinstance(memory, dict) else {}
+    item_actions = last.get("playback_actions") if isinstance(last, dict) else None
+    if isinstance(item_actions, list):
+        actions.extend(action for action in item_actions if isinstance(action, dict))
+    return actions
 
 
 def _has_clear_playback_action(normalized: str) -> bool:
