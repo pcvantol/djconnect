@@ -2573,6 +2573,9 @@ def _artist_albums_response(hass: HomeAssistant, discography: dict[str, Any]) ->
             "uri": uri,
             "context_uri": uri,
             "kind": "album",
+            "label": "Play Now",
+            "button_label": "Play Now",
+            "action_style": "play_now",
             "reason": f"Album van {artist}.",
         }
         if image_url:
@@ -2688,15 +2691,17 @@ def _genre_phrase(genres: list[str]) -> str:
 
 def _artist_from_album_question(text: str) -> str:
     normalized = _normalize(text)
-    if "album" not in normalized:
+    if "album" not in normalized and not any(term in normalized for term in ("uitgebracht", "released", "release")):
         return ""
     patterns = (
         r"^\s*(?:geef|toon|laat\s+zien|show|give)\s+(?:me|mij)?\s*(?:de\s+)?albums\s+van\s+(.+?)\s*\??\s*$",
         r"^\s*welke\s+albums\s+(?:heeft|hebben)\s+(.+?)\s+(?:allemaal\s+)?(?:uitgebracht|gemaakt|released)\s*\??\s*$",
+        r"^\s*wat\s+(?:heeft|hebben)\s+(.+?)\s+(?:allemaal\s+)?(?:uitgebracht|gereleased|released)\s*\??\s*$",
         r"^\s*welke\s+albums\s+bracht\s+(.+?)\s+uit\s*\??\s*$",
         r"^\s*welke\s+albums\s+zijn\s+er\s+van\s+(.+?)\s*\??\s*$",
         r"^\s*albums\s+van\s+(.+?)\s*\??\s*$",
         r"^\s*which\s+albums\s+(?:has|have)\s+(.+?)\s+released\s*\??\s*$",
+        r"^\s*what\s+(?:has|have)\s+(.+?)\s+released\s*\??\s*$",
         r"^\s*what\s+albums\s+did\s+(.+?)\s+release\s*\??\s*$",
         r"^\s*albums\s+by\s+(.+?)\s*\??\s*$",
     )

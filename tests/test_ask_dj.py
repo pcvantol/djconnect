@@ -429,6 +429,66 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["playback_actions"][0]["kind"], "album")
         self.assertEqual(result["playback_actions"][0]["uri"], "spotify:album:pablo")
         self.assertEqual(result["playback_actions"][0]["context_uri"], "spotify:album:pablo")
+        self.assertEqual(result["playback_actions"][0]["label"], "Play Now")
+        self.assertEqual(result["playback_actions"][0]["button_label"], "Play Now")
+        self.assertTrue(result["playback_actions"][0]["image_url"].startswith(self.const.API_IMAGE_PROXY_BASE))
+
+    def test_released_question_without_album_word_returns_album_overview(self) -> None:
+        runtime = make_runtime()
+        calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append((command_name, value))
+            if command_name == "status":
+                return {"success": True, "playback": {}}
+            if command_name == "artist_albums":
+                self.assertEqual(value, {"artist": "the cranberries"})
+                return {
+                    "success": True,
+                    "artist": "The Cranberries",
+                    "albums": [
+                        {
+                            "name": "Everybody Else Is Doing It, So Why Can't We?",
+                            "release_date": "1993-03-01",
+                            "image_url": "https://img.example/everybody.jpg",
+                            "uri": "spotify:album:everybody",
+                        },
+                        {
+                            "name": "No Need To Argue",
+                            "release_date": "1994-10-03",
+                            "image_url": "https://img.example/no-need.jpg",
+                            "uri": "spotify:album:no-need",
+                        },
+                    ],
+                    "source": "spotify_artist_albums",
+                }
+            raise AssertionError(f"unexpected Spotify command: {command_name}")
+
+        original_command = self.ask_dj.handle_spotify_command
+        self.ask_dj.handle_spotify_command = command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "wat hebben the cranberries uitgebracht",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "ios",
+                    },
+                    user_id="user-1",
+                )
+            )
+        finally:
+            self.ask_dj.handle_spotify_command = original_command
+
+        self.assertEqual([call[0] for call in calls], ["status", "artist_albums"])
+        self.assertEqual(result["intent"]["intent"], "ask_music_info")
+        self.assertIn("Volgens Spotify heeft The Cranberries", result["dj_text"])
+        self.assertIn("- No Need To Argue (1994)", result["dj_text"])
+        self.assertEqual([action["kind"] for action in result["playback_actions"]], ["album", "album"])
+        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertTrue(all(action["button_label"] == "Play Now" for action in result["playback_actions"]))
         self.assertTrue(result["playback_actions"][0]["image_url"].startswith(self.const.API_IMAGE_PROXY_BASE))
 
     def test_album_discography_geef_me_variant_returns_album_play_actions(self) -> None:
