@@ -1104,6 +1104,8 @@ def classify_ask_dj(text: str) -> AskDjIntent:
         )
     if _is_user_playlists_request(normalized):
         return AskDjIntent("informational", "spotify_user_playlists", "none")
+    if _vibe_playlist_query(normalized):
+        return AskDjIntent("informational", "spotify_vibe_playlists", "none")
     if _is_open_playlist_recommendation_request(normalized):
         return AskDjIntent("informational", "playlist_recommendation_offer", "none")
     if _is_playlist_search_request(normalized):
@@ -1532,6 +1534,34 @@ async def _handle_informational(
     item_list_request = _artist_item_list_request(text)
     if item_list_request:
         return await _artist_item_list_response(hass, runtime, item_list_request)
+    vibe_playlist_query = _vibe_playlist_query(text)
+    if vibe_playlist_query:
+        result = await _spotify_playlist_search(hass, runtime, vibe_playlist_query, limit=5)
+        playlists = result.get("playlists") if isinstance(result, dict) else []
+        actions = _playlist_search_playback_actions(hass, playlists, limit=5)
+        if actions:
+            message = (
+                f"Ik vond vijf Spotify-playlists voor {vibe_playlist_query}. "
+                "Tik op Play Now bij de playlist die je wilt horen."
+            )
+        else:
+            message = f"Ik vond nu geen Spotify-playlists voor {vibe_playlist_query}."
+        return {
+            "success": True,
+            "text": message,
+            "dj_text": message,
+            "action": "none",
+            "images": [],
+            "playback_actions": actions,
+            "items": actions,
+            "sources": [
+                {
+                    "source": "spotify_playlist_search",
+                    "title": "Spotify playlist search",
+                    "kind": "source",
+                }
+            ],
+        }
     playlist_query = _playlist_query_from_question(text)
     if playlist_query:
         if _playlist_question_wants_track_choices(text):
@@ -3829,6 +3859,27 @@ def _playlist_query_from_question(text: str) -> str:
         match = re.search(pattern, normalized, flags=re.IGNORECASE)
         if match:
             return _clean_playlist_query(match.group(1))
+    return ""
+
+
+def _vibe_playlist_query(text: str) -> str:
+    normalized = _normalize(str(text or "").strip(" ?.!'\""))
+    if not normalized:
+        return ""
+    patterns = (
+        r"^\s*(.+?)\s+(?:vibes?|mood|sfeer)\s*(?:graag|please|pls)?\s*$",
+        r"^\s*(?:graag|please|pls)\s+(.+?)\s+(?:vibes?|mood|sfeer)\s*$",
+    )
+    for pattern in patterns:
+        match = re.match(pattern, normalized, flags=re.IGNORECASE)
+        if not match:
+            continue
+        query = _clean_playlist_query(match.group(1))
+        if not query:
+            continue
+        if query in {"vibe", "vibes", "mood", "sfeer"}:
+            continue
+        return f"{query} muziek" if query in {"summer", "zomer", "zomerse"} else query
     return ""
 
 
