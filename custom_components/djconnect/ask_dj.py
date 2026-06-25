@@ -3866,6 +3866,9 @@ def _vibe_playlist_query(text: str) -> str:
     normalized = _normalize(str(text or "").strip(" ?.!'\""))
     if not normalized:
         return ""
+    energetic = _energetic_playlist_query(normalized)
+    if energetic:
+        return energetic
     patterns = (
         r"^\s*(.+?)\s+(?:vibes?|mood|sfeer)\s*(?:graag|please|pls)?\s*$",
         r"^\s*(?:graag|please|pls)\s+(.+?)\s+(?:vibes?|mood|sfeer)\s*$",
@@ -3880,6 +3883,15 @@ def _vibe_playlist_query(text: str) -> str:
         if query in {"vibe", "vibes", "mood", "sfeer"}:
             continue
         return f"{query} muziek" if query in {"summer", "zomer", "zomerse"} else query
+    return ""
+
+
+def _energetic_playlist_query(normalized: str) -> str:
+    if re.search(
+        r"\b(?:ik\s+wil|zin\s+in|doe\s+maar|graag)\b.*\b(?:knallen|beuken|rammen|losgaan)\b",
+        normalized,
+    ) or re.search(r"\b(?:knallen|beuken|rammen|losgaan)\s+(?:graag|please|pls)?\b", normalized):
+        return "hardstyle gabber techno hardcore edm"
     return ""
 
 
