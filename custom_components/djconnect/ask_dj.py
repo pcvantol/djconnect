@@ -297,6 +297,9 @@ async def async_handle_ask_dj(
         response.pop("playback", None)
         return response
 
+    if _is_playback_mode_status_question(_normalize(effective_text)):
+        classification = AskDjIntent("informational", "playback_mode_status", "status")
+
     try:
         if classification.category == "action":
             result = await _handle_action(hass, runtime, effective_text, classification)
@@ -785,6 +788,8 @@ def _recent_playback_actions(memory_context: dict[str, Any]) -> list[dict[str, A
 
 
 def _has_clear_playback_action(normalized: str) -> bool:
+    if _is_playback_mode_status_question(normalized):
+        return False
     return bool(
         re.search(
             r"\b(speel|draai|zet|pauzeer|volgende|vorige|next|skip|previous|harder|zachter|shuffle|repeat|herhaal)\b",
