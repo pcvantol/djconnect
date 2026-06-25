@@ -4796,6 +4796,75 @@ class AskDjTest(unittest.TestCase):
         self.assertNotEqual(result["dj_text"], "Ik ga naar het volgende nummer.")
         self.assertEqual(result["assistant_message"]["images"][0]["title"], "All")
 
+    def test_next_command_uses_post_skip_playback_snapshot(self) -> None:
+        runtime = make_runtime()
+        runtime.update = lambda **kwargs: None
+        calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append(command_name)
+            if command_name == "status":
+                return {
+                    "success": True,
+                    "playback": {
+                        "has_playback": True,
+                        "is_playing": True,
+                        "track_name": "New Song",
+                        "artist": "New Artist",
+                        "album_name": "New Album",
+                        "album_image_url": "https://img.example/new.jpg",
+                        "uri": "spotify:track:new",
+                    },
+                }
+            if command_name == "next":
+                return {
+                    "success": True,
+                    "playback": {
+                        "has_playback": True,
+                        "is_playing": True,
+                        "track_name": "Old Song",
+                        "artist": "Old Artist",
+                        "album_name": "Old Album",
+                        "album_image_url": "https://img.example/old.jpg",
+                        "uri": "spotify:track:old",
+                    },
+                }
+            raise AssertionError(f"unexpected Spotify command: {command_name}")
+
+        async def dj_response(hass, *, media, fallback_text, conf, memory_context=None, debug=None):
+            self.assertEqual(media["track_name"], "New Song")
+            self.assertEqual(media["artist"], "New Artist")
+            self.assertEqual(media["album_image_url"], "https://img.example/new.jpg")
+            return f"Nu speelt {media['track_name']} van {media['artist']}."
+
+        original_command = self.ask_dj.handle_spotify_command
+        original_processor_command = self.ask_dj.process_text_command.__globals__["handle_spotify_command"]
+        original_dj_response = self.ask_dj.process_text_command.__globals__["generate_dj_response_with_assist"]
+        self.ask_dj.handle_spotify_command = command
+        self.ask_dj.process_text_command.__globals__["handle_spotify_command"] = command
+        self.ask_dj.process_text_command.__globals__["generate_dj_response_with_assist"] = dj_response
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "volgende nummer",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "watchos",
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.process_text_command.__globals__["handle_spotify_command"] = original_processor_command
+            self.ask_dj.process_text_command.__globals__["generate_dj_response_with_assist"] = original_dj_response
+
+        self.assertEqual(calls, ["status", "next", "status"])
+        self.assertIn("New Song van New Artist", result["dj_text"])
+        self.assertEqual(result["assistant_message"]["images"][0]["title"], "New Song")
+        self.assertNotIn("Old Song", result["dj_text"])
+
     def test_english_next_question_still_reports_queue_info(self) -> None:
         intent = self.ask_dj.classify_ask_dj("what is next?")
         self.assertEqual(intent.category, "informational")

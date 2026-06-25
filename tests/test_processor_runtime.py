@@ -893,7 +893,10 @@ class ProcessorRuntimeTest(unittest.TestCase):
                     self.processor.handle_spotify_command = original_command
                     self.processor.generate_dj_response_with_assist = original_dj_response
 
-                self.assertEqual(calls, [(expected_command, None)])
+                expected_calls = [(expected_command, None)]
+                if expected_command in {"next", "previous"}:
+                    expected_calls.append(("status", None))
+                self.assertEqual(calls, expected_calls)
                 self.assertEqual(result["intent"]["action"], expected_command)
                 self.assertEqual(result["dj_text"], expected_fallback)
 

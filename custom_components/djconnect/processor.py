@@ -305,8 +305,14 @@ async def _execute_playback_control(
             response = await handle_spotify_command(hass, runtime, "play")
         elif action == "next":
             response = await handle_spotify_command(hass, runtime, "next")
+            refreshed = await _post_control_playback_status(hass, runtime)
+            if refreshed:
+                return refreshed
         elif action == "previous":
             response = await handle_spotify_command(hass, runtime, "previous")
+            refreshed = await _post_control_playback_status(hass, runtime)
+            if refreshed:
+                return refreshed
         elif action == "volume_delta":
             status = await handle_spotify_command(hass, runtime, "status")
             playback = status.get("playback") if isinstance(status, dict) else None
@@ -356,6 +362,19 @@ async def _execute_playback_control(
         "is_playing": False,
         "backend_available": True,
     }
+
+
+async def _post_control_playback_status(
+    hass: HomeAssistant,
+    runtime,
+) -> dict[str, Any]:
+    """Return a fresh playback snapshot after controls that change tracks."""
+    try:
+        status = await handle_spotify_command(hass, runtime, "status")
+    except Exception:  # noqa: BLE001
+        return {}
+    playback = status.get("playback") if isinstance(status, dict) else None
+    return playback if isinstance(playback, dict) else {}
 
 
 async def _process_current_track_question(
