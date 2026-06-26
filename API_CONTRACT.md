@@ -455,7 +455,7 @@ Register payload:
   "push_token": "...",
   "push_environment": "sandbox",
   "app_bundle_id": "dev.djconnect.app",
-  "app_version": "3.1.93",
+  "app_version": "3.1.99",
   "locale": "nl-NL",
   "notification_categories": ["ask_dj_response", "ask_dj_confirm", "playback_change"]
 }

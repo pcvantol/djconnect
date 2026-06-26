@@ -53,6 +53,124 @@ git diff --check
 
 ## Local Home Assistant Docker Environment
 
+For a fresh macOS developer machine, use the onboarding helper from the
+repository root:
+
+```bash
+./tools/dev_onboarding_macos.sh
+```
+
+It offers numbered steps for preflight checks, Homebrew/tooling, Docker
+Desktop, Home Assistant, HACS, Codex CLI, repo validation and syncing this
+integration into the local Home Assistant config. Step `0` validates machine,
+VM, hardware, filesystem and network requirements. Step `1` can install/open
+Parallels Desktop and bootstrap a macOS development VM with minimal input. Step
+`2` can bootstrap a Parallels Windows 11 ARM development VM on Apple Silicon,
+using the Parallels assistant or an optional local Windows ARM ISO. The script
+also includes optional cross-repo setup steps derived from the other
+DJConnect development docs: XcodeGen for the Apple app, PlatformIO for ESP32
+firmware, npm/Playwright/Wrangler for the website/API, Python/PySide dev
+dependencies for the Raspberry Pi client and .NET MAUI workloads for the
+Windows/Mac Catalyst client.
+
+To bootstrap only the Parallels macOS VM:
+
+```bash
+./tools/dev_onboarding_macos.sh --steps 1 --vm-name "DJConnect macOS Dev"
+```
+
+Optionally ask macOS to fetch a specific full installer before Parallels opens:
+
+```bash
+./tools/dev_onboarding_macos.sh --steps 1 --macos-version 15.5
+```
+
+To bootstrap only the Parallels Windows 11 ARM VM:
+
+```bash
+./tools/dev_onboarding_macos.sh --steps 2 --windows-vm-name "DJConnect Windows 11 ARM Dev"
+```
+
+For a supervised full bootstrap run, use this sequence:
+
+```bash
+./tools/dev_onboarding_macos.sh --steps 0,1,2,3,4,5,6,7,8,9,10,11,12,21 --plan
+./tools/dev_onboarding_macos.sh --steps 0
+./tools/dev_onboarding_macos.sh --steps 1 --macos-version 15.5 --warm-sudo
+./tools/dev_onboarding_macos.sh --steps 2 --windows-vm-name "DJConnect Windows 11 ARM Dev" --warm-sudo
+./tools/dev_onboarding_macos.sh --steps 3,4,5,6,7,8,9,10,11,12,21 --warm-sudo --prompt-secrets
+./tools/dev_onboarding_macos.sh --steps 13,14,15,16,17,18,19,22 --warm-sudo --prompt-secrets
+```
+
+Preflight checks include macOS version, architecture, RAM, CPU cores, free disk
+space, writable workspace/config/log paths, local port availability for Home
+Assistant and dev servers, outbound HTTPS connectivity to GitHub, Homebrew,
+npm, PyPI, GHCR/Docker, Cloudflare and Apple software update, Rosetta status on
+Apple Silicon, git identity, Xcode license state and local secret/log ignore
+rules.
+
+Step `20` can be run separately to prompt for optional local tokens/API keys and
+store them in `.djconnect-onboarding.env` with `0600` permissions. The file is
+for local validation only and must not be committed.
+
+The onboarding helper writes a timestamped persistent log by default under
+`logs/` with `0600` permissions, while still streaming output to the terminal.
+Use `--log-file /path/to/file.log` to choose a path or `--no-log-file` to
+disable persistent logging. Secret prompt values are not printed.
+Interactive terminal output uses ANSI colors, bold section headers, step
+progress counters and a spinner for wait loops. Set `NO_COLOR=1` or pass
+`--no-color` for plain output.
+
+Use `--dry-run` to print mutating install/bootstrap commands without executing
+them. The helper's CLI contract is covered by:
+
+```bash
+python3 -m unittest tests.test_dev_onboarding_script
+```
+
+Package manager upgrade checks are explicit. Step `23` reports available
+Homebrew, npm, pip, PlatformIO and .NET workload updates without applying them.
+Step `24` applies upgrades only when `--apply-upgrades` is present:
+
+```bash
+./tools/dev_onboarding_macos.sh --steps 23
+./tools/dev_onboarding_macos.sh --steps 24 --apply-upgrades
+```
+
+Review lockfiles, manifests and dependency documentation after running step
+`24`.
+
+Step `25` runs local E2E release/build smoke checks across the DJConnect repos,
+including local tests and `release.sh <version> --dry-run` where available.
+Step `26` can create a dedicated CI smoke-test branch with an empty commit,
+push it and watch the GitHub Actions result, but only when `--run-ci-push` is
+explicitly present:
+
+```bash
+./tools/dev_onboarding_macos.sh --steps 25 --e2e-version 3.1.999
+./tools/dev_onboarding_macos.sh --steps 26 --run-ci-push --ci-branch codex/onboarding-ci-smoke
+```
+
+Use `--dry-run` first to inspect the local release or GitHub CI commands.
+
+For unattended setup of only this Home Assistant integration:
+
+```bash
+./tools/dev_onboarding_macos.sh --core --yes
+```
+
+For unattended setup with cross-repo tooling:
+
+```bash
+./tools/dev_onboarding_macos.sh --all --yes
+```
+
+For selected cross-repo setup:
+
+```bash
+./tools/dev_onboarding_macos.sh --steps 13,14,15,16,17,18
+```
+
 The local Home Assistant development instance runs in Docker and is available at:
 
 ```text

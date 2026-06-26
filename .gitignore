@@ -15,4 +15,8 @@ htmlcov/
 .env
 .env.*
 !.env.example
+.djconnect-onboarding.env
 *.p8
+
+# Local onboarding logs
+logs/

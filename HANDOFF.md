@@ -4,8 +4,8 @@
 
 - Repository: `pcvantol/djconnect`.
 - Integration domain: `djconnect`.
-- Current integration release: `3.1.93`.
-- Release status: DJConnect `3.1.93` is the current release. It includes the Ask DJ v3.1.92 response-shape updates plus scoped Ask DJ history clear handling and best-effort next-queue actions after next/previous playback controls.
+- Current integration release: `3.1.99`.
+- Release status: DJConnect `3.1.99` is the current release. It adds the free online MetaBrainz metadata/context provider for Ask DJ technical track analysis on top of the 3.1.98 provider-neutral v2 analysis contract.
 - Home Assistant integration is HACS-distributed and MIT-licensed.
 - DJConnect client and firmware repositories are MIT-licensed unless their own repository metadata states otherwise.
 - Public firmware release assets live in `pcvantol/djconnect-firmware`.
@@ -196,16 +196,14 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 ## Current Release Notes
 
 - Current release line is `3.1.x`; only the latest GitHub release/tag should be kept after release cleanup.
-- Current latest baseline is `3.1.93`.
+- Current latest baseline is `3.1.99`.
 - Release workflow expectation: before every release, review and update all repo documentation affected by the change or release, including `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant `examples/*`. Explicitly decide whether test coverage must be expanded for the change; add coverage for new behavior paths, regression risks, translations and edge cases. Keep `tests.test_postman_collection` aligned with the Postman examples so CI validates collection schema, auth headers, placeholders and client identity. After publishing a release, clean up old completed GitHub Actions workflow runs, keeping only the newest release/tag validation and newest `main` validation unless debugging requires more history. Also clean up old semver releases/tags with `./cleanup_old_releases.sh --keep 1 --execute` unless multiple releases are intentionally retained.
 - Before build/test/release validation, check whether third-party libraries, frameworks and build tools can be safely upgraded. If any version is upgraded, update lockfiles/manifests, `THIRD_PARTY_NOTICES.md` and dependency/design documentation in the same release. If an upgrade is skipped, record the reason here.
-- For the current `3.1.93` release, no pinned Python package versions were
-  upgraded. The current line includes Spotify OAuth external-step copy,
-  app-pairing backend availability fixes, live Spotify-backed HA entity
-  refresh, Ask DJ recent-played history lists, stable Play Now labels, playback
-  proxy setup lifecycle fixes, invalid volume sentinel handling, event-driven
-  backend entities, unchanged-runtime listener suppression, compact runtime
-  status attributes and watchOS Bonjour discovery hardening.
+- For the current `3.1.99` release, no pinned Python package versions were
+  upgraded. The current line includes provider-neutral Ask DJ technical track
+  analysis v2 plus the free online MetaBrainz metadata/context provider, while
+  preserving the earlier 3.1.x Spotify OAuth, backend entity, recent-played,
+  playback proxy, diagnostics and client discovery hardening.
   `THIRD_PARTY_NOTICES.md` did not require dependency updates for these changes.
 - AI-assisted/Codex development hygiene is now documented in
   `CONTRIBUTING.md`, `SECURITY.md` and `CHAT_BOOTSTRAP.md`; accepted changes
