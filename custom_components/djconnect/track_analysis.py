@@ -2,10 +2,14 @@
 from __future__ import annotations
 
 import logging
+import time
 from dataclasses import dataclass
 from typing import Any, Protocol
+from urllib.parse import urlencode
 
+from aiohttp import ClientTimeout
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import (
     CONF_DEVICE_LANGUAGE,
@@ -15,11 +19,18 @@ from .const import (
     DEFAULT_TRACK_ANALYSIS_ENABLED,
     DEFAULT_TRACK_ANALYSIS_USE_HA_CONVERSATION,
     DEFAULT_TTS_LANGUAGE,
+    VERSION,
 )
 from .pipeline import _assist_context, _speech_from_response
 from .spotify_backend import handle_spotify_command
 
 _LOGGER = logging.getLogger(__name__)
+
+METABRAINZ_CACHE_TTL_SECONDS = 24 * 60 * 60
+METABRAINZ_MIN_REQUEST_INTERVAL_SECONDS = 1.0
+METABRAINZ_USER_AGENT = f"DJConnect/{VERSION} (https://github.com/pcvantol/djconnect)"
+MUSICBRAINZ_RECORDING_SEARCH_URL = "https://musicbrainz.org/ws/2/recording"
+LISTENBRAINZ_METADATA_LOOKUP_URL = "https://api.listenbrainz.org/1/metadata/lookup/"
 
 
 @dataclass(frozen=True)
@@ -162,6 +173,65 @@ class HAConversationAnalysisProvider:
         )
 
 
+class MetaBrainzMetadataProvider:
+    """Free online metadata/context provider using MusicBrainz and ListenBrainz."""
+
+    provider_id = "metabrainz_metadata"
+    display_name = "MusicBrainz + ListenBrainz metadata"
+    requires_config = False
+
+    async def async_available(self, runtime: Any) -> bool:
+        return True
+
+    async def async_analyze(
+        self,
+        hass: HomeAssistant,
+        runtime: Any,
+        playback_context: dict[str, Any],
+        context: dict[str, Any],
+    ) -> TrackAnalysisProviderResult:
+        title = str(context.get("title") or "").strip()
+        artist = str(context.get("artist") or "").strip()
+        if not title or not artist:
+            return TrackAnalysisProviderResult(self.provider_id, self.display_name, "skipped", reason="missing_track_metadata")
+        cache_key = f"track_analysis:metabrainz:{artist.lower()}:{title.lower()}"
+        cached = _runtime_cache_get(runtime, cache_key, METABRAINZ_CACHE_TTL_SECONDS)
+        if isinstance(cached, dict):
+            return TrackAnalysisProviderResult(
+                self.provider_id,
+                self.display_name,
+                "used" if cached.get("metadata") else "unavailable",
+                data=cached,
+                reason=str(cached.get("reason") or "") or None,
+            )
+        if not _runtime_rate_limit_ok(runtime, "metabrainz_metadata"):
+            return TrackAnalysisProviderResult(self.provider_id, self.display_name, "skipped", reason="rate_limited")
+        try:
+            session = async_get_clientsession(hass)
+            if session is None:
+                raise RuntimeError("missing_http_session")
+            musicbrainz = await _musicbrainz_recording_lookup(session, artist, title)
+            listenbrainz = await _listenbrainz_metadata_lookup(session, artist, title)
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.debug("DJConnect MetaBrainz track metadata unavailable: %s", exc)
+            return TrackAnalysisProviderResult(self.provider_id, self.display_name, "error", reason=exc.__class__.__name__)
+        metadata = _metabrainz_metadata(artist, title, musicbrainz, listenbrainz)
+        data = {
+            "provider": self.provider_id,
+            "structure": _metabrainz_structure(metadata),
+            "metadata": metadata,
+            "limitations": _metabrainz_limitations(metadata),
+        }
+        _runtime_cache_set(runtime, cache_key, data)
+        return TrackAnalysisProviderResult(
+            self.provider_id,
+            self.display_name,
+            "used" if metadata else "unavailable",
+            data=data,
+            reason=None if metadata else "no_metadata_match",
+        )
+
+
 class LocalFallbackAnalysisProvider:
     """Always-available local fallback provider with no external service calls."""
 
@@ -193,6 +263,7 @@ class LocalFallbackAnalysisProvider:
 
 TRACK_ANALYSIS_PROVIDERS: tuple[TrackAnalysisProvider, ...] = (
     SpotifyMeasuredAnalysisProvider(),
+    MetaBrainzMetadataProvider(),
     HAConversationAnalysisProvider(),
     LocalFallbackAnalysisProvider(),
 )
@@ -227,6 +298,13 @@ async def async_analyze_current_track(
                         "Spotify measured analysis",
                         "skipped",
                         True,
+                        "track_analysis_disabled",
+                    ),
+                    _provider_status(
+                        "metabrainz_metadata",
+                        "MusicBrainz + ListenBrainz metadata",
+                        "skipped",
+                        False,
                         "track_analysis_disabled",
                     ),
                     _provider_status(
@@ -290,8 +368,10 @@ async def async_analyze_current_track(
     )
     provider_results.extend(inference_results)
     inferred = _inferred_from_results(inference_results, title, artist, features, sections)
+    metadata = _metadata_from_results(inference_results)
     measured = _measured_context(features, sections)
     limitations = _limitations(features, sections, inferred)
+    limitations.extend(_metadata_limitations(inference_results))
     analysis.update(
         {
             "contract_version": 2,
@@ -299,7 +379,8 @@ async def async_analyze_current_track(
             "confidence": _confidence(measured, inferred),
             "measured": measured,
             "inferred": inferred,
-            "sections": _client_sections(features, sections, inferred, limitations),
+            "metadata": metadata,
+            "sections": _client_sections(features, sections, inferred, limitations, metadata),
             "timeline": _client_timeline(sections),
             "dj_tips": _dj_tips(features, sections),
             "providers": _providers_contract(provider_results),
@@ -311,6 +392,8 @@ async def async_analyze_current_track(
         sources.append({"source": "spotify_audio_features", "title": "Spotify audio features", "kind": "source"})
     if sections:
         sources.append({"source": "spotify_audio_analysis", "title": "Spotify audio analysis", "kind": "source"})
+    if metadata:
+        sources.append({"source": "metabrainz_metadata", "title": "MusicBrainz + ListenBrainz metadata", "kind": "source"})
     if inferred.get("provider") == "ha_conversation":
         sources.append({"source": "ha_conversation", "title": "Home Assistant conversation", "kind": "source"})
     message = _analysis_text(title, artist, features, sections, analysis)
@@ -365,7 +448,7 @@ async def _run_inference_providers(
             continue
         result = await provider.async_analyze(hass, runtime, playback_context, context)
         results.append(result)
-        if result.status == "used" and provider.provider_id != "local_fallback":
+        if result.status == "used" and provider.provider_id == "ha_conversation":
             break
     return results
 
@@ -377,11 +460,35 @@ def _inferred_from_results(
     features: dict[str, Any],
     sections: list[Any],
 ) -> dict[str, Any]:
+    for preferred_provider in ("ha_conversation", "metabrainz_metadata", "local_fallback"):
+        for result in results:
+            data = result.data if isinstance(result.data, dict) else {}
+            if result.provider_id == preferred_provider and result.status == "used" and data.get("structure"):
+                return {"provider": result.provider_id, "structure": str(data["structure"])}
     for result in results:
         data = result.data if isinstance(result.data, dict) else {}
         if result.status == "used" and data.get("structure"):
             return {"provider": result.provider_id, "structure": str(data["structure"])}
     return {"provider": "local_fallback", "structure": _local_inference(title, artist, features, sections)}
+
+
+def _metadata_from_results(results: list[TrackAnalysisProviderResult]) -> dict[str, Any]:
+    for result in results:
+        if result.provider_id != "metabrainz_metadata" or not isinstance(result.data, dict):
+            continue
+        metadata = result.data.get("metadata")
+        return metadata if isinstance(metadata, dict) else {}
+    return {}
+
+
+def _metadata_limitations(results: list[TrackAnalysisProviderResult]) -> list[str]:
+    for result in results:
+        if result.provider_id != "metabrainz_metadata" or not isinstance(result.data, dict):
+            continue
+        limitations = result.data.get("limitations")
+        if isinstance(limitations, list):
+            return [str(item) for item in limitations if str(item or "").strip()]
+    return []
 
 
 def _provider_data(results: list[TrackAnalysisProviderResult], provider_id: str) -> dict[str, Any]:
@@ -427,6 +534,215 @@ def _provider_requires_config(provider_id: str) -> bool:
         if provider.provider_id == provider_id:
             return provider.requires_config
     return False
+
+
+async def _musicbrainz_recording_lookup(session: Any, artist: str, title: str) -> dict[str, Any]:
+    query = f'recording:"{title}" AND artist:"{artist}"'
+    params = {
+        "query": query,
+        "limit": "1",
+        "fmt": "json",
+        "inc": "artist-credits+releases+tags+genres",
+    }
+    url = f"{MUSICBRAINZ_RECORDING_SEARCH_URL}?{urlencode(params)}"
+    body = await _json_get(session, url, service="musicbrainz")
+    recordings = body.get("recordings") if isinstance(body, dict) else []
+    if not isinstance(recordings, list) or not recordings:
+        return {}
+    recording = recordings[0]
+    return recording if isinstance(recording, dict) else {}
+
+
+async def _listenbrainz_metadata_lookup(session: Any, artist: str, title: str) -> dict[str, Any]:
+    params = {"artist_name": artist, "recording_name": title}
+    url = f"{LISTENBRAINZ_METADATA_LOOKUP_URL}?{urlencode(params)}"
+    body = await _json_get(session, url, service="listenbrainz")
+    return body if isinstance(body, dict) else {}
+
+
+async def _json_get(session: Any, url: str, *, service: str) -> dict[str, Any]:
+    headers = {"Accept": "application/json", "User-Agent": METABRAINZ_USER_AGENT}
+    async with session.get(url, headers=headers, timeout=ClientTimeout(total=6)) as response:
+        status = int(getattr(response, "status", 0) or 0)
+        if status == 404:
+            return {}
+        if status == 429:
+            raise RuntimeError(f"{service}_rate_limited")
+        if status < 200 or status >= 300:
+            raise RuntimeError(f"{service}_http_{status}")
+        data = await response.json(content_type=None)
+    return data if isinstance(data, dict) else {}
+
+
+def _metabrainz_metadata(
+    artist: str,
+    title: str,
+    musicbrainz: dict[str, Any],
+    listenbrainz: dict[str, Any],
+) -> dict[str, Any]:
+    metadata: dict[str, Any] = {}
+    if musicbrainz:
+        metadata["musicbrainz_recording_id"] = str(musicbrainz.get("id") or "").strip()
+        metadata["match_score"] = _int_value(musicbrainz.get("score"))
+        metadata["recording_title"] = str(musicbrainz.get("title") or title).strip()
+        metadata["artist"] = _musicbrainz_artist_credit(musicbrainz) or artist
+        first_release_date = str(musicbrainz.get("first-release-date") or "").strip()
+        if first_release_date:
+            metadata["first_release_date"] = first_release_date
+        releases = musicbrainz.get("releases") if isinstance(musicbrainz.get("releases"), list) else []
+        release = next((item for item in releases if isinstance(item, dict)), {})
+        if release:
+            metadata["release"] = {
+                key: value
+                for key, value in {
+                    "title": str(release.get("title") or "").strip(),
+                    "date": str(release.get("date") or "").strip(),
+                    "country": str(release.get("country") or "").strip(),
+                    "status": str(release.get("status") or "").strip(),
+                }.items()
+                if value
+            }
+        genres = _tag_names(musicbrainz.get("genres"))
+        tags = _tag_names(musicbrainz.get("tags"))
+        if genres:
+            metadata["genres"] = genres[:6]
+        if tags:
+            metadata["tags"] = tags[:8]
+    listen_metadata = listenbrainz.get("metadata") if isinstance(listenbrainz.get("metadata"), dict) else listenbrainz
+    if isinstance(listen_metadata, dict):
+        total_listen_count = _int_value(
+            listen_metadata.get("total_listen_count")
+            or listen_metadata.get("recording_listen_count")
+            or listen_metadata.get("listen_count")
+        )
+        if total_listen_count is not None:
+            metadata["listenbrainz_listen_count"] = total_listen_count
+        artist_mbids = listen_metadata.get("artist_mbids")
+        if isinstance(artist_mbids, list):
+            metadata["listenbrainz_artist_mbids"] = [str(item) for item in artist_mbids[:4] if str(item or "").strip()]
+        recording_mbid = str(listen_metadata.get("recording_mbid") or "").strip()
+        if recording_mbid and not metadata.get("musicbrainz_recording_id"):
+            metadata["musicbrainz_recording_id"] = recording_mbid
+    return {key: value for key, value in metadata.items() if value not in ("", None, [], {})}
+
+
+def _metabrainz_structure(metadata: dict[str, Any]) -> str:
+    if not metadata:
+        return ""
+    parts = []
+    genres = metadata.get("genres") or metadata.get("tags") or []
+    if genres:
+        parts.append("open metadata wijst op " + ", ".join(str(item) for item in genres[:3]))
+    release = metadata.get("release") if isinstance(metadata.get("release"), dict) else {}
+    release_title = release.get("title") if release else ""
+    release_date = metadata.get("first_release_date") or (release.get("date") if release else "")
+    if release_title:
+        detail = str(release_title)
+        if release_date:
+            detail += f" ({release_date})"
+        parts.append(f"gekoppeld aan release {detail}")
+    elif release_date:
+        parts.append(f"eerste release rond {release_date}")
+    listen_count = metadata.get("listenbrainz_listen_count")
+    if listen_count is not None:
+        parts.append(f"ListenBrainz-context telt {listen_count} publieke listens")
+    if not parts:
+        return "MusicBrainz/ListenBrainz leveren wel een match, maar weinig bruikbare technische context."
+    return "MetaBrainz-context: " + "; ".join(parts) + "."
+
+
+def _metabrainz_limitations(metadata: dict[str, Any]) -> list[str]:
+    if not metadata:
+        return ["MusicBrainz/ListenBrainz did not return a reliable metadata match for this track."]
+    return [
+        "MusicBrainz/ListenBrainz metadata is contextual and does not measure BPM, key, waveform, stems or exact arrangement sections."
+    ]
+
+
+def _metadata_items(metadata: dict[str, Any]) -> list[dict[str, str]]:
+    items: list[dict[str, str]] = []
+    if metadata.get("musicbrainz_recording_id"):
+        items.append({"label": "MusicBrainz recording", "value": str(metadata["musicbrainz_recording_id"]), "source": "metabrainz_metadata"})
+    if metadata.get("first_release_date"):
+        items.append({"label": "First release", "value": str(metadata["first_release_date"]), "source": "metabrainz_metadata"})
+    release = metadata.get("release") if isinstance(metadata.get("release"), dict) else {}
+    if release.get("title"):
+        items.append({"label": "Release", "value": str(release["title"]), "source": "metabrainz_metadata"})
+    genres = metadata.get("genres") or metadata.get("tags") or []
+    if genres:
+        items.append({"label": "Genres/tags", "value": ", ".join(str(item) for item in genres[:5]), "source": "metabrainz_metadata"})
+    if metadata.get("listenbrainz_listen_count") is not None:
+        items.append({"label": "ListenBrainz listens", "value": str(metadata["listenbrainz_listen_count"]), "source": "metabrainz_metadata"})
+    return items
+
+
+def _metadata_summary(metadata: dict[str, Any]) -> str:
+    return _metabrainz_structure(metadata).removeprefix("MetaBrainz-context: ").rstrip(".")
+
+
+def _musicbrainz_artist_credit(recording: dict[str, Any]) -> str:
+    credits = recording.get("artist-credit") if isinstance(recording.get("artist-credit"), list) else []
+    names = []
+    for credit in credits:
+        if not isinstance(credit, dict):
+            continue
+        artist = credit.get("artist") if isinstance(credit.get("artist"), dict) else {}
+        name = str(artist.get("name") or credit.get("name") or "").strip()
+        if name:
+            names.append(name)
+    return ", ".join(names[:3])
+
+
+def _tag_names(value: Any) -> list[str]:
+    tags = value if isinstance(value, list) else []
+    names = []
+    for item in tags:
+        if not isinstance(item, dict):
+            continue
+        name = str(item.get("name") or "").strip()
+        if name and name.lower() not in {existing.lower() for existing in names}:
+            names.append(name)
+    return names
+
+
+def _runtime_cache_get(runtime: Any, key: str, ttl: int) -> Any:
+    cache = getattr(runtime, "backend_cache", None)
+    if not isinstance(cache, dict):
+        return None
+    cached = cache.get(key)
+    if not cached or not isinstance(cached, tuple) or len(cached) != 2:
+        return None
+    timestamp, value = cached
+    try:
+        age = time.monotonic() - float(timestamp)
+    except (TypeError, ValueError):
+        return None
+    return value if age < ttl else None
+
+
+def _runtime_cache_set(runtime: Any, key: str, value: Any) -> None:
+    cache = getattr(runtime, "backend_cache", None)
+    if not isinstance(cache, dict):
+        runtime.backend_cache = {}
+        cache = runtime.backend_cache
+    cache[key] = (time.monotonic(), value)
+
+
+def _runtime_rate_limit_ok(runtime: Any, provider_id: str) -> bool:
+    cache = getattr(runtime, "backend_cache", None)
+    if not isinstance(cache, dict):
+        runtime.backend_cache = {}
+        cache = runtime.backend_cache
+    key = f"track_analysis:last_request:{provider_id}"
+    now = time.monotonic()
+    last = cache.get(key)
+    try:
+        if last is not None and now - float(last) < METABRAINZ_MIN_REQUEST_INTERVAL_SECONDS:
+            return False
+    except (TypeError, ValueError):
+        pass
+    cache[key] = now
+    return True
 
 
 def _analysis_prompt_instruction(language: str) -> str:
@@ -537,8 +853,10 @@ def _client_sections(
     sections: list[Any],
     inferred: dict[str, Any],
     limitations: list[str],
+    metadata: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     result: list[dict[str, Any]] = []
+    metadata = metadata or {}
     tempo = _rounded_number(features.get("tempo"))
     key = _musical_key_label(features.get("key"), features.get("mode"))
     basis_items = []
@@ -620,6 +938,20 @@ def _client_sections(
                 "source": "inferred",
                 "summary": instrument_hint.rstrip("."),
                 "items": [],
+            }
+        )
+
+    metadata_items = _metadata_items(metadata)
+    if metadata_items:
+        result.append(
+            {
+                "id": "metadata_context",
+                "title": "Metadata Context",
+                "kind": "metadata_context",
+                "confidence": "medium",
+                "source": "metabrainz_metadata",
+                "summary": _metadata_summary(metadata),
+                "items": metadata_items,
             }
         )
 
@@ -927,6 +1259,13 @@ def _percentage(value: Any) -> str:
 def _float_value(value: Any) -> float | None:
     try:
         return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _int_value(value: Any) -> int | None:
+    try:
+        return int(value)
     except (TypeError, ValueError):
         return None
 

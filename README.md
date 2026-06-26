@@ -349,9 +349,14 @@ interpretation, caveats and DJ usage advice without parsing prose. v2 remains
 local-first: it works without a DJConnect central backend by combining current
 playback metadata, Home Assistant conversation context where available, and
 measured provider data only when the user's own installation can access it.
-`analysis.providers[]` reports the provider plug-in status for Spotify measured
-analysis, HA Conversation inference and local fallback without exposing secrets,
-raw audio or provider-private payloads. Use
+DJConnect can also enrich the analysis with free online MusicBrainz and
+ListenBrainz metadata/context, using compact per-runtime caching and rate-limit
+protection. That metadata can add release, genre/tag and public ListenBrainz
+context, but it is not waveform/stem/BPM analysis and is always labelled with
+limitations. `analysis.providers[]` reports the provider plug-in status for
+Spotify measured analysis, MetaBrainz metadata, HA Conversation inference and
+local fallback without exposing secrets, raw audio or provider-private payloads.
+Use
 [`examples/ask_dj_track_analysis_v2_response.json`](examples/ask_dj_track_analysis_v2_response.json)
 and
 [`examples/ask_dj_track_analysis_v2_unavailable.json`](examples/ask_dj_track_analysis_v2_unavailable.json)

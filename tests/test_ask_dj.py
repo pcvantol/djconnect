@@ -4507,7 +4507,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["analysis"]["dj_tips"], [])
         self.assertEqual(
             [provider["status"] for provider in result["analysis"]["providers"]],
-            ["skipped", "skipped", "skipped"],
+            ["skipped", "skipped", "skipped", "skipped"],
         )
         self.assertIn("Track analysis is disabled", result["analysis"]["limitations"][0])
         self.assertEqual(result["playback_actions"], [])
@@ -4604,6 +4604,98 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(providers["spotify_measured"]["status"], "used")
         self.assertEqual(providers["ha_conversation"]["status"], "used")
         self.assertNotIn("local_fallback", providers)
+
+    def test_technical_track_analysis_uses_metabrainz_metadata_provider(self) -> None:
+        runtime = make_runtime()
+        runtime.config = {"track_analysis_use_ha_conversation": False}
+        runtime.backend_cache = {}
+        runtime.last_playback = {
+            **runtime.last_playback,
+            "track_name": "Intro",
+            "artist": "The xx",
+            "uri": "spotify:track:abc123",
+        }
+        calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append(command_name)
+            if command_name == "technical_track_analysis":
+                return {
+                    "success": True,
+                    "analysis": {
+                        "track": runtime.last_playback,
+                        "audio_features": {"tempo": 123.6, "key": 9, "mode": 0},
+                    },
+                }
+            raise AssertionError(f"unexpected command: {command_name}")
+
+        class Response:
+            status = 200
+
+            def __init__(self, data):
+                self._data = data
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                return self._data
+
+        class Session:
+            def __init__(self):
+                self.urls = []
+
+            def get(self, url, **kwargs):
+                self.urls.append(url)
+                if "musicbrainz.org" in url:
+                    return Response(
+                        {
+                            "recordings": [
+                                {
+                                    "id": "mbid-intro",
+                                    "score": "100",
+                                    "title": "Intro",
+                                    "first-release-date": "2009-08-14",
+                                    "artist-credit": [{"artist": {"name": "The xx"}}],
+                                    "genres": [{"name": "indie pop"}],
+                                    "tags": [{"name": "minimal"}],
+                                    "releases": [{"title": "xx", "date": "2009-08-14", "country": "GB"}],
+                                }
+                            ]
+                        }
+                    )
+                return Response({"metadata": {"total_listen_count": 4242, "recording_mbid": "mbid-intro"}})
+
+        session = Session()
+        original_analysis_command = self.track_analysis.handle_spotify_command
+        original_clientsession = self.track_analysis.async_get_clientsession
+        self.track_analysis.handle_spotify_command = command
+        self.track_analysis.async_get_clientsession = lambda hass: session
+        try:
+            result = asyncio.run(
+                self.track_analysis.async_analyze_current_track(
+                    types.SimpleNamespace(),
+                    runtime,
+                    runtime.last_playback,
+                )
+            )
+        finally:
+            self.track_analysis.handle_spotify_command = original_analysis_command
+            self.track_analysis.async_get_clientsession = original_clientsession
+
+        self.assertEqual(calls, ["technical_track_analysis"])
+        self.assertEqual(len(session.urls), 2)
+        self.assertEqual(result["analysis"]["metadata"]["musicbrainz_recording_id"], "mbid-intro")
+        self.assertEqual(result["analysis"]["metadata"]["listenbrainz_listen_count"], 4242)
+        self.assertTrue(any(section["id"] == "metadata_context" for section in result["analysis"]["sections"]))
+        self.assertTrue(any(source["source"] == "metabrainz_metadata" for source in result["sources"]))
+        providers = {provider["provider_id"]: provider for provider in result["analysis"]["providers"]}
+        self.assertEqual(providers["metabrainz_metadata"]["status"], "used")
+        self.assertEqual(providers["local_fallback"]["status"], "used")
+        self.assertIn("MusicBrainz/ListenBrainz metadata is contextual", result["analysis"]["limitations"][-1])
 
     def test_personal_memory_question_uses_dj_memory_only(self) -> None:
         runtime = make_runtime()

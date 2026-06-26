@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Add a free online MetaBrainz metadata/context provider for Ask DJ technical
+  track analysis, using MusicBrainz and ListenBrainz with compact caching,
+  rate-limit protection and explicit limitations that it does not measure BPM,
+  waveform, stems or exact arrangement sections.
+
 ## 3.1.98
 
 - Extend Ask DJ technical track analysis to provider-neutral contract v2 with

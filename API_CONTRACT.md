@@ -273,12 +273,18 @@ rendering sections:
     }
   },
   "inferred": {
-    "provider": "ha_conversation | local_fallback",
+    "provider": "ha_conversation | metabrainz_metadata | local_fallback",
     "structure": "..."
+  },
+  "metadata": {
+    "musicbrainz_recording_id": "...",
+    "first_release_date": "2009-08-14",
+    "genres": ["indie pop"],
+    "listenbrainz_listen_count": 4242
   },
   "sections": [
     {
-      "id": "rhythm_bpm | energy_curve | buildup | instrumentation | melody_harmony | limitations",
+      "id": "rhythm_bpm | energy_curve | buildup | metadata_context | instrumentation | melody_harmony | limitations",
       "title": "Rhythm & BPM",
       "kind": "technical_metrics",
       "confidence": "low | medium | high",
@@ -311,7 +317,7 @@ rendering sections:
   ],
   "providers": [
     {
-      "provider_id": "spotify_measured | ha_conversation | local_fallback",
+      "provider_id": "spotify_measured | metabrainz_metadata | ha_conversation | local_fallback",
       "display_name": "Spotify measured analysis",
       "status": "used | skipped | unavailable | error",
       "requires_config": true,
@@ -338,6 +344,11 @@ only as optional diagnostic/context metadata and must tolerate unknown
 
 - `spotify_measured`: measured metadata/audio feature provider using the user's
   own Spotify-backed DJConnect backend.
+- `metabrainz_metadata`: free online MusicBrainz + ListenBrainz metadata/context
+  provider. It uses compact per-runtime caching and rate-limit protection, and
+  returns only contextual metadata such as MBIDs, release dates, genres/tags or
+  public ListenBrainz counts. It does not measure BPM, key, waveform, stems or
+  exact arrangement sections.
 - `ha_conversation`: optional Home Assistant Conversation inference provider.
 - `local_fallback`: always-available local inference provider.
 

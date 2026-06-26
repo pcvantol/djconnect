@@ -82,11 +82,14 @@ class TrackAnalysisFixtureContractTest(unittest.TestCase):
         self.assertIn("rhythm_bpm", section_ids)
         self.assertIn("energy_curve", section_ids)
         self.assertIn("buildup", section_ids)
+        self.assertIn("metadata_context", section_ids)
         self.assertIn("limitations", section_ids)
         self.assertGreaterEqual(len(analysis["timeline"]), 1)
         self.assertTrue(any(tip["kind"] == "mixing" for tip in analysis["dj_tips"]))
         self.assertTrue(any(provider["provider_id"] == "spotify_measured" for provider in analysis["providers"]))
+        self.assertTrue(any(provider["provider_id"] == "metabrainz_metadata" for provider in analysis["providers"]))
         self.assertTrue(any(source["source"] == "spotify_audio_analysis" for source in response["sources"]))
+        self.assertTrue(any(source["source"] == "metabrainz_metadata" for source in response["sources"]))
 
     def test_unavailable_fixture_stays_empty_and_explicit(self) -> None:
         response = _load_json(FIXTURES[1])

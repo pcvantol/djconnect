@@ -32,6 +32,17 @@
       "provider": "local_fallback",
       "structure": "Op basis van de beschikbare brondata klinkt dit hoog energetisch, duidelijk groovegericht, met 3 gedetecteerde sectiewissels."
     },
+    "metadata": {
+      "musicbrainz_recording_id": "mbid-intro",
+      "match_score": 100,
+      "recording_title": "Intro",
+      "artist": "The xx",
+      "first_release_date": "2009-08-14",
+      "release": {"title": "xx", "date": "2009-08-14", "country": "GB"},
+      "genres": ["indie pop"],
+      "tags": ["minimal"],
+      "listenbrainz_listen_count": 4242
+    },
     "sections": [
       {
         "id": "rhythm_bpm",
@@ -70,6 +81,21 @@
         ]
       },
       {
+        "id": "metadata_context",
+        "title": "Metadata Context",
+        "kind": "metadata_context",
+        "confidence": "medium",
+        "source": "metabrainz_metadata",
+        "summary": "open metadata wijst op indie pop; gekoppeld aan release xx (2009-08-14); ListenBrainz-context telt 4242 publieke listens",
+        "items": [
+          {"label": "MusicBrainz recording", "value": "mbid-intro", "source": "metabrainz_metadata"},
+          {"label": "First release", "value": "2009-08-14", "source": "metabrainz_metadata"},
+          {"label": "Release", "value": "xx", "source": "metabrainz_metadata"},
+          {"label": "Genres/tags", "value": "indie pop", "source": "metabrainz_metadata"},
+          {"label": "ListenBrainz listens", "value": "4242", "source": "metabrainz_metadata"}
+        ]
+      },
+      {
         "id": "melody_harmony",
         "title": "Melody & Harmony",
         "kind": "musical_interpretation",
@@ -101,11 +127,13 @@
     ],
     "providers": [
       {"provider_id": "spotify_measured", "display_name": "Spotify measured analysis", "status": "used", "requires_config": true},
+      {"provider_id": "metabrainz_metadata", "display_name": "MusicBrainz + ListenBrainz metadata", "status": "used", "requires_config": false},
       {"provider_id": "ha_conversation", "display_name": "Home Assistant conversation", "status": "skipped", "requires_config": false, "reason": "disabled_by_options"},
       {"provider_id": "local_fallback", "display_name": "Local fallback", "status": "used", "requires_config": false}
     ],
     "limitations": [
-      "Exact intro, verse, chorus, drop or outro labels were not measured."
+      "Exact intro, verse, chorus, drop or outro labels were not measured.",
+      "MusicBrainz/ListenBrainz metadata is contextual and does not measure BPM, key, waveform, stems or exact arrangement sections."
     ]
   },
   "items": [
@@ -118,7 +146,8 @@
   "sources": [
     {"source": "spotify_playback_context", "title": "Spotify playback context", "kind": "source"},
     {"source": "spotify_audio_features", "title": "Spotify audio features", "kind": "source"},
-    {"source": "spotify_audio_analysis", "title": "Spotify audio analysis", "kind": "source"}
+    {"source": "spotify_audio_analysis", "title": "Spotify audio analysis", "kind": "source"},
+    {"source": "metabrainz_metadata", "title": "MusicBrainz + ListenBrainz metadata", "kind": "source"}
   ],
   "playback_actions": []
 }
