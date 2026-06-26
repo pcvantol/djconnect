@@ -4340,6 +4340,13 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("A minor", result["text"])
         self.assertIn("3 muzikale secties", result["text"])
         self.assertEqual(result["playback_actions"], [])
+        self.assertEqual(result["analysis"]["mode"], "measured_plus_knowledge")
+        self.assertEqual(result["analysis"]["confidence"], "high")
+        self.assertEqual(result["analysis"]["measured"]["bpm"], 123.6)
+        self.assertEqual(result["analysis"]["measured"]["key"], "A minor")
+        self.assertEqual(len(result["analysis"]["measured"]["sections"]), 3)
+        self.assertIn("inferred", result["analysis"])
+        self.assertIn("limitations", result["analysis"])
         self.assertTrue(any(item["title"] == "BPM" for item in result["items"]))
         self.assertTrue(any(source["source"] == "spotify_audio_features" for source in result["sources"]))
 
@@ -4432,6 +4439,9 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(calls, ["status", "technical_track_analysis"])
         self.assertIn("diepe sectie-analyse is nu niet beschikbaar", result["text"])
         self.assertIn("Live audiofeatures zijn nu niet beschikbaar", result["text"])
+        self.assertEqual(result["analysis"]["mode"], "knowledge_plus_metadata")
+        self.assertEqual(result["analysis"]["confidence"], "low")
+        self.assertIn("BPM, key and audio feature values were not available", result["analysis"]["limitations"][0])
         self.assertEqual(result["items"], [])
         self.assertEqual(result["playback_actions"], [])
 

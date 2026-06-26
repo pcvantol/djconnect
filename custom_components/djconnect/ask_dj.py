@@ -4430,11 +4430,17 @@ def _normalize_ask_dj_response(
             "category": result_intent.get("category") or classification.category,
             "intent": result_intent.get("intent") or classification.intent,
             **(
+                {"action": result_intent.get("action") or action}
+                if result_intent.get("action") or action
+                else {}
+            ),
+            **(
                 {"item_type": result_intent["item_type"]}
                 if result_intent.get("item_type")
                 else {}
             ),
         },
+        **({"analysis": result.get("analysis")} if isinstance(result.get("analysis"), dict) else {}),
         "items": result.get("items") or [],
         "action": action,
         "memory_key": memory_key,
@@ -4448,6 +4454,7 @@ def _normalize_ask_dj_response(
             "links": links,
             "sources": sources,
             "items": result.get("items") or [],
+            **({"analysis": result.get("analysis")} if isinstance(result.get("analysis"), dict) else {}),
             "playback_actions": result.get("playback_actions") or [],
             "confirmation_actions": confirmation_actions,
         },
@@ -6794,6 +6801,19 @@ async def _technical_track_analysis_response(
     features = analysis.get("audio_features") if isinstance(analysis.get("audio_features"), dict) else {}
     audio_analysis = analysis.get("audio_analysis") if isinstance(analysis.get("audio_analysis"), dict) else {}
     sections = audio_analysis.get("sections") if isinstance(audio_analysis.get("sections"), list) else []
+    inferred = await _technical_track_inferred_context(hass, runtime, title, artist, features, sections)
+    limitations = _technical_track_limitations(features, sections, inferred)
+    measured = _technical_track_measured_context(features, sections)
+    mode = _technical_track_analysis_mode(measured, inferred)
+    analysis.update(
+        {
+            "mode": mode,
+            "confidence": _technical_track_confidence(measured, inferred),
+            "measured": measured,
+            "inferred": inferred,
+            "limitations": limitations,
+        }
+    )
     items = _technical_track_analysis_items(features, sections)
     message = _technical_track_analysis_text(title, artist, features, sections, analysis)
     sources = [{"source": "spotify_playback_context", "title": "Spotify playback context", "kind": "source"}]
@@ -6801,6 +6821,8 @@ async def _technical_track_analysis_response(
         sources.append({"source": "spotify_audio_features", "title": "Spotify audio features", "kind": "source"})
     if sections:
         sources.append({"source": "spotify_audio_analysis", "title": "Spotify audio analysis", "kind": "source"})
+    if inferred.get("provider") == "ha_conversation":
+        sources.append({"source": "ha_conversation", "title": "Home Assistant conversation", "kind": "source"})
     return {
         "success": True,
         "text": message,
@@ -6840,6 +6862,10 @@ def _technical_track_analysis_text(
         lines.append("- Opbouw: " + _technical_sections_summary(sections) + ".")
     else:
         lines.append("- Opbouw: diepe sectie-analyse is nu niet beschikbaar; ik baseer dit niet op verzonnen intro/couplet/refrein-labels.")
+    inferred = analysis.get("inferred") if isinstance(analysis.get("inferred"), dict) else {}
+    structure = str(inferred.get("structure") or "").strip()
+    if structure:
+        lines.append("- Muzikale duiding: " + structure)
     instrument_hint = _technical_instrument_hint(features)
     if instrument_hint:
         lines.append("- Instrumentatie/klank: " + instrument_hint)
@@ -6852,6 +6878,150 @@ def _technical_track_analysis_text(
             + "; ik kan daardoor geen betrouwbare BPM, key of arrangementdetails geven."
         )
     return "\n".join(lines)
+
+
+async def _technical_track_inferred_context(
+    hass: HomeAssistant,
+    runtime: Any,
+    title: str,
+    artist: str,
+    features: dict[str, Any],
+    sections: list[Any],
+) -> dict[str, Any]:
+    prompt = (
+        "Geef in maximaal twee korte Nederlandse zinnen een technische DJ-duiding "
+        "van deze track. Noem alleen exacte BPM, key, timestamps of sectielabels "
+        "als die expliciet in de meegegeven data staan. Markeer onzekerheid niet "
+        "uitgebreid; wees compact.\n"
+        f"Track: {artist + ' - ' if artist else ''}{title}\n"
+        f"Gemeten features: {_safe_inline_context(features)}\n"
+        f"Gemeten secties: {len(sections)}"
+    )
+    try:
+        assist_context = _assist_context(hass, getattr(runtime, "config", {}) or {})
+        language = assist_context.get("language") or DEFAULT_TTS_LANGUAGE
+        data = {"text": prompt, "language": language}
+        if assist_context.get("agent_id"):
+            data["agent_id"] = assist_context["agent_id"]
+        result = await hass.services.async_call(
+            "conversation",
+            "process",
+            data,
+            blocking=True,
+            return_response=True,
+        )
+        message = _speech_from_response((result or {}).get("response") or {})
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect technical track HA conversation inference unavailable: %s", exc)
+        message = ""
+    if message:
+        return {
+            "provider": "ha_conversation",
+            "structure": message,
+        }
+    return {
+        "provider": "local_fallback",
+        "structure": _technical_track_local_inference(title, artist, features, sections),
+    }
+
+
+def _technical_track_local_inference(
+    title: str,
+    artist: str,
+    features: dict[str, Any],
+    sections: list[Any],
+) -> str:
+    if features or sections:
+        parts = []
+        energy = _float_value(features.get("energy"))
+        danceability = _float_value(features.get("danceability"))
+        if energy is not None:
+            parts.append("hoog energetisch" if energy >= 0.7 else "rustiger energetisch" if energy <= 0.35 else "matig energetisch")
+        if danceability is not None:
+            parts.append("duidelijk groovegericht" if danceability >= 0.65 else "minder rechttoe-rechtaan dansbaar")
+        if sections:
+            parts.append(f"met {len(sections)} gedetecteerde sectiewissels")
+        if parts:
+            return "Op basis van de beschikbare brondata klinkt dit " + ", ".join(parts) + "."
+    label = f"{artist} - {title}" if artist else title
+    return (
+        f"Voor {label} heb ik nu vooral playbackmetadata; ik kan de muzikale rol duiden, "
+        "maar geen gemeten BPM, key of exacte songstructuur claimen."
+    )
+
+
+def _technical_track_measured_context(features: dict[str, Any], sections: list[Any]) -> dict[str, Any]:
+    measured: dict[str, Any] = {"features": {}}
+    tempo = _float_value(features.get("tempo"))
+    if tempo is not None:
+        measured["bpm"] = round(tempo, 1)
+    key = _musical_key_label(features.get("key"), features.get("mode"))
+    if key:
+        measured["key"] = key
+    if features.get("time_signature"):
+        measured["time_signature"] = features.get("time_signature")
+    for field in ("energy", "danceability", "acousticness", "instrumentalness", "valence", "speechiness"):
+        value = _float_value(features.get(field))
+        if value is not None:
+            measured["features"][field] = value
+    measured["sections"] = _technical_measured_sections(sections)
+    if not measured["features"]:
+        measured.pop("features", None)
+    return measured
+
+
+def _technical_measured_sections(sections: list[Any]) -> list[dict[str, Any]]:
+    result: list[dict[str, Any]] = []
+    for index, section in enumerate(sections, start=1):
+        if not isinstance(section, dict):
+            continue
+        start = _float_value(section.get("start"))
+        duration = _float_value(section.get("duration"))
+        confidence = _float_value(section.get("confidence"))
+        item: dict[str, Any] = {"label": "section", "index": index}
+        if start is not None:
+            item["start_ms"] = int(start * 1000)
+        if duration is not None:
+            item["duration_ms"] = int(duration * 1000)
+        if confidence is not None:
+            item["confidence"] = confidence
+        result.append(item)
+    return result
+
+
+def _technical_track_analysis_mode(measured: dict[str, Any], inferred: dict[str, Any]) -> str:
+    has_measured = any(measured.get(key) for key in ("bpm", "key", "time_signature", "sections", "features"))
+    has_inferred = bool(inferred.get("structure"))
+    if has_measured and has_inferred:
+        return "measured_plus_knowledge"
+    if has_measured:
+        return "measured"
+    if has_inferred:
+        return "knowledge_plus_metadata"
+    return "unavailable"
+
+
+def _technical_track_confidence(measured: dict[str, Any], inferred: dict[str, Any]) -> str:
+    if measured.get("bpm") and measured.get("key") and measured.get("sections"):
+        return "high"
+    if measured.get("bpm") or measured.get("key") or inferred.get("provider") == "ha_conversation":
+        return "medium"
+    return "low"
+
+
+def _technical_track_limitations(
+    features: dict[str, Any],
+    sections: list[Any],
+    inferred: dict[str, Any],
+) -> list[str]:
+    limitations = []
+    if not features:
+        limitations.append("BPM, key and audio feature values were not available from a measured provider.")
+    if not sections:
+        limitations.append("Exact intro, verse, chorus, drop or outro timestamps were not measured.")
+    if inferred.get("provider") == "local_fallback":
+        limitations.append("Musical interpretation is based on local metadata/fallback rules, not a deep model.")
+    return limitations
 
 
 def _technical_track_analysis_items(features: dict[str, Any], sections: list[Any]) -> list[dict[str, Any]]:

@@ -253,6 +253,38 @@ key, energy, danceability and detected section count. If Spotify audio features
 or deep audio analysis are unavailable, the backend must say so explicitly and
 must not invent intro/couplet/refrein labels.
 
+`analysis{}` uses a provider-neutral v1 shape:
+
+```json
+{
+  "mode": "knowledge_plus_metadata | measured_plus_knowledge | measured | unavailable",
+  "confidence": "low | medium | high",
+  "measured": {
+    "bpm": 128,
+    "key": "C minor",
+    "time_signature": 4,
+    "sections": [],
+    "features": {
+      "energy": 0.82,
+      "danceability": 0.71
+    }
+  },
+  "inferred": {
+    "provider": "ha_conversation | local_fallback",
+    "structure": "..."
+  },
+  "limitations": [
+    "Exact intro, verse, chorus, drop or outro timestamps were not measured."
+  ]
+}
+```
+
+v1 is local-first and self-installable: it must work without a DJConnect central
+backend. Extra providers may be added later through user-supplied keys or a
+local analyzer add-on, but clients should depend on `analysis.mode`,
+`analysis.measured`, `analysis.inferred`, `analysis.limitations` and `items[]`,
+not on a specific provider.
+
 ## Ask DJ Playback Without Active Speaker
 
 When a playback or hybrid Ask DJ intent cannot start because Spotify reports no

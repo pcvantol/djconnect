@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.1.96
+
+- Promote Ask DJ technical track analysis to a provider-neutral v1 contract with
+  `analysis.mode`, `analysis.measured`, `analysis.inferred` and
+  `analysis.limitations`, keeping the feature local-first and free of any
+  required DJConnect central backend.
+- Include Home Assistant Conversation or local fallback musical duiding in
+  technical track analysis responses while preserving measured-vs-inferred
+  source boundaries and read-only playback behavior.
+
 ## 3.1.95
 
 - Add deterministic offline Ask DJ E2E contract cases, including exact coverage
