@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.1.97
+
+- Move Ask DJ technical track analysis into a dedicated provider-neutral
+  `track_analysis.py` aggregator so `ask_dj.py` only routes the intent and
+  future user-configured providers can be added without growing the chat
+  handler.
+
 ## 3.1.96
 
 - Promote Ask DJ technical track analysis to a provider-neutral v1 contract with

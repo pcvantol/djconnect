@@ -131,6 +131,7 @@ class AskDjTest(unittest.TestCase):
         cls.ask_dj = importlib.import_module("custom_components.djconnect.ask_dj")
         cls.http = importlib.import_module("custom_components.djconnect.http")
         cls.const = importlib.import_module("custom_components.djconnect.const")
+        cls.track_analysis = importlib.import_module("custom_components.djconnect.track_analysis")
 
     def test_informational_request_does_not_modify_playback(self) -> None:
         runtime = make_runtime()
@@ -4312,8 +4313,10 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
+        original_status_command = self.ask_dj.handle_spotify_command
+        original_analysis_command = self.track_analysis.handle_spotify_command
         self.ask_dj.handle_spotify_command = command
+        self.track_analysis.handle_spotify_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -4328,7 +4331,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.handle_spotify_command = original_status_command
+            self.track_analysis.handle_spotify_command = original_analysis_command
 
         self.assertTrue(result["success"])
         self.assertEqual(calls, ["status", "technical_track_analysis"])
@@ -4374,8 +4378,10 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
+        original_status_command = self.ask_dj.handle_spotify_command
+        original_analysis_command = self.track_analysis.handle_spotify_command
         self.ask_dj.handle_spotify_command = command
+        self.track_analysis.handle_spotify_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -4390,7 +4396,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.handle_spotify_command = original_status_command
+            self.track_analysis.handle_spotify_command = original_analysis_command
 
         self.assertTrue(result["success"])
         self.assertEqual(calls, ["status", "technical_track_analysis"])
@@ -4418,8 +4425,10 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
+        original_status_command = self.ask_dj.handle_spotify_command
+        original_analysis_command = self.track_analysis.handle_spotify_command
         self.ask_dj.handle_spotify_command = command
+        self.track_analysis.handle_spotify_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -4433,7 +4442,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.handle_spotify_command = original_status_command
+            self.track_analysis.handle_spotify_command = original_analysis_command
 
         self.assertTrue(result["success"])
         self.assertEqual(calls, ["status", "technical_track_analysis"])
