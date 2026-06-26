@@ -4,6 +4,7 @@ import asyncio
 import importlib
 from pathlib import Path
 import sys
+import time
 import types
 import unittest
 
@@ -4682,11 +4683,18 @@ class AskDjTest(unittest.TestCase):
                     runtime.last_playback,
                 )
             )
+            second_result = asyncio.run(
+                self.track_analysis.async_analyze_current_track(
+                    types.SimpleNamespace(),
+                    runtime,
+                    runtime.last_playback,
+                )
+            )
         finally:
             self.track_analysis.handle_spotify_command = original_analysis_command
             self.track_analysis.async_get_clientsession = original_clientsession
 
-        self.assertEqual(calls, ["technical_track_analysis"])
+        self.assertEqual(calls, ["technical_track_analysis", "technical_track_analysis"])
         self.assertEqual(len(session.urls), 2)
         self.assertEqual(result["analysis"]["metadata"]["musicbrainz_recording_id"], "mbid-intro")
         self.assertEqual(result["analysis"]["metadata"]["listenbrainz_listen_count"], 4242)
@@ -4696,6 +4704,97 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(providers["metabrainz_metadata"]["status"], "used")
         self.assertEqual(providers["local_fallback"]["status"], "used")
         self.assertIn("MusicBrainz/ListenBrainz metadata is contextual", result["analysis"]["limitations"][-1])
+
+        self.assertEqual(len(session.urls), 2)
+        self.assertEqual(second_result["analysis"]["metadata"]["musicbrainz_recording_id"], "mbid-intro")
+
+    def test_technical_track_analysis_metabrainz_rate_limit_skips_network(self) -> None:
+        runtime = make_runtime()
+        runtime.config = {"track_analysis_use_ha_conversation": False}
+        runtime.backend_cache = {"track_analysis:last_request:metabrainz_metadata": time.monotonic()}
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            if command_name == "technical_track_analysis":
+                return {
+                    "success": True,
+                    "analysis": {
+                        "track": runtime.last_playback,
+                        "audio_features": {"tempo": 123.6, "key": 9, "mode": 0},
+                    },
+                }
+            raise AssertionError(f"unexpected command: {command_name}")
+
+        class Session:
+            def get(self, url, **kwargs):
+                raise AssertionError("rate-limited MetaBrainz provider should not call the network")
+
+        original_analysis_command = self.track_analysis.handle_spotify_command
+        original_clientsession = self.track_analysis.async_get_clientsession
+        self.track_analysis.handle_spotify_command = command
+        self.track_analysis.async_get_clientsession = lambda hass: Session()
+        try:
+            result = asyncio.run(
+                self.track_analysis.async_analyze_current_track(
+                    types.SimpleNamespace(),
+                    runtime,
+                    runtime.last_playback,
+                )
+            )
+        finally:
+            self.track_analysis.handle_spotify_command = original_analysis_command
+            self.track_analysis.async_get_clientsession = original_clientsession
+
+        providers = {provider["provider_id"]: provider for provider in result["analysis"]["providers"]}
+        self.assertEqual(providers["metabrainz_metadata"]["status"], "skipped")
+        self.assertEqual(providers["metabrainz_metadata"]["reason"], "rate_limited")
+        self.assertEqual(providers["local_fallback"]["status"], "used")
+        self.assertEqual(result["analysis"]["metadata"], {})
+        self.assertFalse(any(section["id"] == "metadata_context" for section in result["analysis"]["sections"]))
+        self.assertFalse(any(source["source"] == "metabrainz_metadata" for source in result["sources"]))
+
+    def test_technical_track_analysis_metabrainz_error_keeps_fallback_response(self) -> None:
+        runtime = make_runtime()
+        runtime.config = {"track_analysis_use_ha_conversation": False}
+        runtime.backend_cache = {}
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            if command_name == "technical_track_analysis":
+                return {
+                    "success": True,
+                    "analysis": {
+                        "track": runtime.last_playback,
+                        "audio_features": {"tempo": 123.6, "key": 9, "mode": 0},
+                    },
+                }
+            raise AssertionError(f"unexpected command: {command_name}")
+
+        class Session:
+            def get(self, url, **kwargs):
+                raise RuntimeError("network down")
+
+        original_analysis_command = self.track_analysis.handle_spotify_command
+        original_clientsession = self.track_analysis.async_get_clientsession
+        self.track_analysis.handle_spotify_command = command
+        self.track_analysis.async_get_clientsession = lambda hass: Session()
+        try:
+            result = asyncio.run(
+                self.track_analysis.async_analyze_current_track(
+                    types.SimpleNamespace(),
+                    runtime,
+                    runtime.last_playback,
+                )
+            )
+        finally:
+            self.track_analysis.handle_spotify_command = original_analysis_command
+            self.track_analysis.async_get_clientsession = original_clientsession
+
+        self.assertTrue(result["success"])
+        self.assertEqual(result["analysis"]["inferred"]["provider"], "local_fallback")
+        providers = {provider["provider_id"]: provider for provider in result["analysis"]["providers"]}
+        self.assertEqual(providers["metabrainz_metadata"]["status"], "error")
+        self.assertEqual(providers["metabrainz_metadata"]["reason"], "RuntimeError")
+        self.assertEqual(providers["local_fallback"]["status"], "used")
+        self.assertEqual(result["playback_actions"], [])
 
     def test_personal_memory_question_uses_dj_memory_only(self) -> None:
         runtime = make_runtime()

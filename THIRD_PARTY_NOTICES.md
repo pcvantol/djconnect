@@ -57,10 +57,14 @@ support by Spotify AB.
 ## Music Information APIs
 
 Ask DJ may use external public music information APIs for non-mutating
-informational answers. Concert agenda answers can use Bandsintown event data and
-return Bandsintown source links to DJConnect clients. These references are API
-usage only and do not imply endorsement, sponsorship, partnership or official
-support by Bandsintown.
+informational answers. Technical track analysis can use MusicBrainz and
+ListenBrainz metadata/context, with caching and rate-limit protection, to add
+release, genre/tag or public listen context. This metadata does not represent
+measured waveform, BPM, key, stems or exact arrangement-section analysis.
+Concert agenda answers can use Bandsintown event data and return Bandsintown
+source links to DJConnect clients. These references are API usage only and do
+not imply endorsement, sponsorship, partnership or official support by
+MusicBrainz, ListenBrainz, MetaBrainz Foundation or Bandsintown.
 
 ## DJConnect Firmware And Devices
 

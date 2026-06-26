@@ -352,6 +352,22 @@ only as optional diagnostic/context metadata and must tolerate unknown
 - `ha_conversation`: optional Home Assistant Conversation inference provider.
 - `local_fallback`: always-available local inference provider.
 
+MetaBrainz provider semantics:
+
+- It performs at most one MusicBrainz lookup and one ListenBrainz lookup for a
+  cache miss, then stores the compact result in the runtime backend cache for
+  roughly 24 hours.
+- It respects MusicBrainz's one-request-per-second client guidance by skipping
+  provider execution with `status:"skipped"` and `reason:"rate_limited"` when a
+  request was just attempted.
+- Network, timeout, HTTP and parsing failures must not fail the Ask DJ answer.
+  They are reported in `analysis.providers[]` with `status:"error"` or
+  `status:"unavailable"` and the response should continue with measured data,
+  HA Conversation or `local_fallback`.
+- Clients should render `analysis.metadata{}` and `metadata_context` only as
+  context. Do not infer or display exact arrangement labels, BPM, key, stems or
+  waveform facts from MetaBrainz fields.
+
 Canonical client fixtures:
 
 - `examples/ask_dj_track_analysis_v2_response.json`
