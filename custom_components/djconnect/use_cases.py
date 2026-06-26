@@ -9,8 +9,11 @@ from homeassistant.core import HomeAssistant
 from .const import (
     CONF_MUSIC_ASSISTANT_PLAYER,
     CONF_MUSIC_BACKEND,
+    CONF_MUSIC_BACKEND_REVISION,
+    CONF_SPOTIFY_REFRESH_TOKEN,
     DEFAULT_MUSIC_BACKEND,
     MUSIC_BACKEND_MUSIC_ASSISTANT,
+    MUSIC_BACKEND_NAMES,
     MUSIC_BACKEND_SPOTIFY_DIRECT,
 )
 from .spotify_backend import (
@@ -57,6 +60,19 @@ class MusicBackend(Protocol):
 
 class MusicBackendCapabilityError(SpotifyBackendError):
     """Raised when the selected backend cannot serve a use-case."""
+
+    def __init__(
+        self,
+        command: str,
+        capability: str | None = None,
+        backend: str | None = None,
+    ) -> None:
+        self.command = command
+        self.capability = capability or _CAPABILITY_BY_COMMAND.get(command) or "unknown"
+        self.backend = backend or "unknown"
+        super().__init__(
+            unsupported_capability_message(self.capability, self.backend)
+        )
 
 
 class SpotifyDirectBackend:
@@ -180,7 +196,9 @@ class MusicAssistantBackend:
         if normalized == "set_output":
             return {"success": True, "playback": self._playback_state(player)}
         raise MusicBackendCapabilityError(
-            f"Music Assistant backend does not support {normalized}"
+            normalized,
+            _CAPABILITY_BY_COMMAND.get(normalized),
+            self.provider,
         )
 
     async def _call_media_player(self, service: str, entity_id: str, **data: Any) -> None:
@@ -319,7 +337,9 @@ class DJConnectUseCases:
         capability = _CAPABILITY_BY_COMMAND.get(command)
         if capability and not getattr(self.backend.capabilities, capability, False):
             raise MusicBackendCapabilityError(
-                f"Selected music backend does not support {command}"
+                command,
+                capability,
+                getattr(self.backend, "provider", None),
             )
 
     def _normalize_result(self, result: dict[str, Any]) -> dict[str, Any]:
@@ -363,6 +383,82 @@ def _selected_backend(hass: HomeAssistant, runtime: Any) -> MusicBackend:
     if backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
         return MusicAssistantBackend(hass, runtime)
     return SpotifyDirectBackend(hass, runtime)
+
+
+def music_backend_metadata(hass: HomeAssistant, runtime: Any) -> dict[str, Any]:
+    """Return the client-visible selected music backend contract."""
+    backend = str(
+        getattr(runtime, "config", {}).get(CONF_MUSIC_BACKEND)
+        or DEFAULT_MUSIC_BACKEND
+    ).strip()
+    if backend not in MUSIC_BACKEND_NAMES:
+        backend = DEFAULT_MUSIC_BACKEND
+    adapter = _selected_backend(hass, runtime)
+    target_player = {}
+    if backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
+        player_id = str(
+            getattr(runtime, "config", {}).get(CONF_MUSIC_ASSISTANT_PLAYER) or ""
+        ).strip()
+        if player_id:
+            state = _state_for_entity(hass, player_id)
+            attrs = getattr(state, "attributes", {}) or {}
+            target_player = {
+                "id": player_id,
+                "name": attrs.get("friendly_name") or player_id,
+            }
+    available = True
+    error = None
+    if backend == MUSIC_BACKEND_SPOTIFY_DIRECT and not str(
+        getattr(runtime, "config", {}).get(CONF_SPOTIFY_REFRESH_TOKEN) or ""
+    ).strip():
+        available = False
+        error = {
+            "code": "spotify_oauth_required",
+            "message": "Spotify OAuth is required before Spotify Direct can play music.",
+        }
+    if backend == MUSIC_BACKEND_MUSIC_ASSISTANT and not target_player:
+        available = False
+        error = {
+            "code": "music_assistant_player_not_found",
+            "message": "The selected Music Assistant player is not configured.",
+        }
+    return {
+        "music_backend": backend,
+        "music_backend_name": MUSIC_BACKEND_NAMES[backend],
+        "music_backend_available": available,
+        "music_backend_revision": _int_revision(
+            getattr(runtime, "config", {}).get(CONF_MUSIC_BACKEND_REVISION)
+        ),
+        "music_backend_capabilities": dict(adapter.capabilities.__dict__),
+        "music_target_player": target_player,
+        "music_backend_error": error,
+    }
+
+
+def unsupported_capability_message(capability: str, backend: str) -> str:
+    """Return a safe user-facing unsupported capability message."""
+    labels = {
+        "supports_top_items": "top artists or tracks",
+        "supports_recently_played": "recent listening history",
+        "supports_favorites": "favorites or liked tracks",
+        "supports_queue": "queue browsing",
+        "supports_outputs": "output selection",
+        "supports_volume": "volume control",
+        "supports_shuffle": "shuffle control",
+        "supports_repeat": "repeat control",
+        "supports_recommendations": "recommendations",
+        "supports_library_profile": "music profile analysis",
+        "supports_search": "music search",
+    }
+    feature = labels.get(capability, "this music feature")
+    return f"The selected music backend does not provide {feature}."
+
+
+def _int_revision(value: Any) -> int:
+    try:
+        return max(0, int(value or 0))
+    except (TypeError, ValueError):
+        return 0
 
 
 def _state_for_entity(hass: HomeAssistant, entity_id: str) -> Any:

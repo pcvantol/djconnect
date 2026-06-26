@@ -89,6 +89,13 @@ Every release must review this roadmap.
 - [x] Add a small Music Assistant backend adapter behind the DJConnect use-case
   layer without rebuilding provider registries, universal library search,
   queue/grouping engines or Music Assistant setup flows (3.2, HA).
+- [x] Add an explicit Home Assistant options-flow action to switch between
+  Spotify Direct and Music Assistant without removing the integration, while
+  preserving pairing/history/memory and bumping `music_backend_revision` (3.2,
+  HA).
+- [x] Harden backend/client contracts with backend summary fields, backend-aware
+  playback actions, stale-action rejection and unsupported capability errors
+  for client implementation prompts (3.2, HA).
 - [ ] Add HA/AI tool surfaces as thin wrappers over DJConnect use-cases, never
   as direct Spotify or Music Assistant calls.
 - [ ] mDNS pairing plus manual Client adres fallback for ESP32/Raspberry Pi

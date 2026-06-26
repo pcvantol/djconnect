@@ -192,12 +192,30 @@
           "client_type": "Type DJConnect client: app, lokaal device of Assist-agent.",
           "local_url": "Geconfigureerd lokaal Client adres voor ESP32/Raspberry Pi. Alleen-lezen; gebruik opnieuw koppelen om deze URL te wijzigen.",
           "dj_response_enabled": "Maak een tijdelijke WAV of MP3 audio URL en stuur die met de DJ aankondiging naar het DJConnect device.",
-          "track_analysis_enabled": "Sta Ask DJ toe om alleen-lezen technische analysevragen over de huidige track te beantwoorden.",
-          "track_analysis_use_ha_conversation": "Gebruik de geconfigureerde Home Assistant Conversation/Assist-agent voor muzikale duiding wanneer gemeten providerdata onvolledig is.",
           "firmware_channel": "Kies stable voor normale OTA updates of beta om prerelease firmware te testen.",
-          "options_action": "Kies instellingen opslaan of Spotify opnieuw autoriseren.",
+          "options_action": "Kies instellingen opslaan, Spotify opnieuw autoriseren of expliciet de muziekbackend wijzigen.",
           "music_backend": "Gekozen playback-backend.",
           "music_assistant_player": "Geconfigureerde Music Assistant doelplayer."
+        }
+      },
+      "music_backend": {
+        "title": "Muziekbackend wijzigen",
+        "description": "De huidige backend staat hieronder. Wisselen behoudt pairing, device tokens, Ask DJ history, DJ Memory en pushregistraties. Oude backend-specifieke Ask DJ playback-acties of aanbevelingen zijn mogelijk niet meer uitvoerbaar.",
+        "data": {
+          "music_backend": "Muziekbackend"
+        },
+        "data_description": {
+          "music_backend": "Kies Spotify Direct of Music Assistant."
+        }
+      },
+      "music_assistant_player": {
+        "title": "Music Assistant player",
+        "description": "Kies de Music Assistant player die DJConnect moet bedienen. DJConnect toont geen Spotify Client ID- of OAuth-velden wanneer je naar Music Assistant wisselt.",
+        "data": {
+          "music_assistant_player": "Music Assistant player"
+        },
+        "data_description": {
+          "music_assistant_player": "De Home Assistant media_player entity die Music Assistant expose’t."
         }
       },
       "repair_pairing": {
@@ -242,9 +260,13 @@
       "central_api_url_invalid": "Vul een volledige HTTPS DJConnect API URL in.",
       "install_token_invalid": "Voer een DJConnect install-token in die begint met djci_.",
       "central_api_rotate_failed": "DJConnect kon de install-token niet roteren. Controleer de huidige token en probeer opnieuw.",
+      "music_assistant_not_configured": "Music Assistant is niet geïnstalleerd of geconfigureerd in Home Assistant.",
       "music_assistant_unavailable": "Music Assistant is niet geïnstalleerd of geconfigureerd in Home Assistant.",
       "music_assistant_no_players": "Er zijn geen bruikbare Music Assistant players gevonden.",
-      "music_assistant_player_missing": "De gekozen Music Assistant player bestaat niet meer."
+      "music_assistant_player_missing": "De gekozen Music Assistant player bestaat niet meer.",
+      "music_assistant_player_not_found": "De gekozen Music Assistant player bestaat niet meer.",
+      "spotify_oauth_required": "Spotify OAuth is vereist voordat Spotify Direct actief kan worden.",
+      "backend_switch_failed": "DJConnect kon de muziekbackend niet wijzigen. Controleer de gekozen backend en probeer opnieuw."
     }
   },
   "entity": {

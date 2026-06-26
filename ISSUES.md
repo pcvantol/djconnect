@@ -29,7 +29,11 @@
 - Current mitigation: Config flow validates MA availability and usable
   `media_player` entities, stores `music_backend=music_assistant`, skips
   DJConnect Spotify OAuth/repairs, exposes diagnostics capabilities and routes
-  basic playback through HA `media_player` services.
+  basic playback through HA `media_player` services. The options flow now has
+  an explicit `Muziekbackend wijzigen` action that preserves pairing, tokens,
+  Ask DJ history/memory and push registrations while bumping
+  `music_backend_revision`. Client responses expose safe backend summary/error
+  fields and reject stale Play Now actions with `stale_backend_action`.
 - Next action: Test a real Music Assistant setup for player selection,
   play/pause/next/previous/volume, command/status response shape and
   Ask DJ fallback text for unsupported recent-history/recommendation/profile

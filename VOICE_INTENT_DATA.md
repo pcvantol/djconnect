@@ -21,11 +21,11 @@ DJConnect handles spoken text after STT in this order:
 7. `track`
 8. `artist`
 
-The first two families are not Spotify search intents:
+The first two families are not provider search intents:
 
-- `current_track` reads current Spotify playback state and generates a DJ
+- `current_track` reads current selected-backend playback state and generates a DJ
   response without starting playback.
-- `playback_control` calls a Spotify backend command directly and then
+- `playback_control` calls a selected-backend command directly and then
   generates a DJ response.
 
 Ask DJ examples live in the separate top-level `ask_dj_intents` object. Keep
@@ -46,13 +46,13 @@ Examples:
 
 Behavior:
 
-- Call Spotify backend `status`.
-- Do not run Spotify search.
+- Call selected backend `status`.
+- Do not run provider search.
 - Do not start or change playback.
 - Generate DJ response text/audio from the current track metadata.
 - Informal Dutch track words such as `kraker`, `monsterhit`, `vette track`,
   `dikke knaller` and `beuker` can refer to the current/recent track.
-- If no track is active or Spotify is unavailable, still generate a friendly DJ
+- If no track is active or the selected backend is unavailable, still generate a friendly DJ
   response.
 
 ## Playback Controls
@@ -73,11 +73,11 @@ Examples and backend commands:
 
 Behavior:
 
-- Do not run Spotify search.
+- Do not run provider search.
 - Do not run Assist music intent parsing.
-- Use the existing Spotify backend command path.
+- Use the existing DJConnect use-case/backend command path.
 - Generate DJ response text/audio after the command.
-- If Spotify is unavailable, return a friendly DJ response instead of treating
+- If the selected backend is unavailable, return a friendly DJ response instead of treating
   the phrase as a music search query.
 - English one-word controls such as `next` and `skip` remain direct playback
   controls even when the user interface language is Dutch.
@@ -85,7 +85,8 @@ Behavior:
 
 ## Music Search Families
 
-Search families still map to Spotify search/playback:
+Search families map through the selected backend; Spotify Direct currently
+provides the richest search/playback implementation:
 
 - `default_playlist` uses the configured default playlist URI.
 - `playlist` searches/starts a playlist.
@@ -122,9 +123,9 @@ The website can use `ask_dj_intents` to render example families for:
 - `speaker_outputs`: questions such as `Welke speakers zijn er?`, `Wissel van
   speaker` and `Move music to the living room speaker`. Responses contain a
   text list plus `playback_actions[]` with `kind:"output"` and `Activeer` /
-  `Actief` button labels when devices are known.
+  `Actief` button labels when backend outputs/players are known.
 - `playback_output_selection`: playback/hybrid requests such as `Speel
-  Nirvana` can also return speaker rows when Spotify reports no active output.
+  Nirvana` can also return speaker rows when the backend reports no active output.
   The response uses `error:"no_active_output"`, `action:"select_output"` and
   `playback_actions[]` with `command:"ask_dj_play_request_on_output"`. Clients
   post the selected action value back unchanged; the backend sets the output and
@@ -208,9 +209,11 @@ The website can use `ask_dj_intents` to render example families for:
   deze muziek horen`. Prompts such as `Heb je meer nummers die hierop lijken`
   are also current-track variants. Broad genre/vibe prompts are treated as genre
   seeds; current-track variants use the active Spotify track URI as seed.
-  Responses return Play Now track rows and one Play Now `track_mix` action with
-  Spotify track URIs. Render the rows as list items with individual Play Now
-  buttons. Explicit requests such as `Ik wil vergelijkbare tracks` immediately
+  Responses return backend-aware Play Now track rows and one Play Now
+  `track_mix` action. Spotify Direct uses Spotify track URIs; clients must
+  follow the action `backend`, `provider`, `music_backend_revision` and nested
+  `value` fields rather than assuming Spotify. Render the rows as list items
+  with individual Play Now buttons. Explicit requests such as `Ik wil vergelijkbare tracks` immediately
   queue the recommendations and return the first 10 new queue rows; question
   prompts such as `Heb je meer nummers die hierop lijken` stay preview-only.
   When the user taps Play Now, Ask DJ can ask whether the mix should be saved as

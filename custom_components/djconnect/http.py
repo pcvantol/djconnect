@@ -40,6 +40,8 @@ from .const import (
     CONF_HA_EXTERNAL_URL,
     CONF_LOCAL_URL,
     CONF_MAX_AUDIO_BYTES,
+    CONF_MUSIC_BACKEND,
+    CONF_MUSIC_BACKEND_REVISION,
     CONF_PAIR_CODE,
     DOMAIN,
     CLIENT_TYPE_ESP32,
@@ -77,7 +79,11 @@ from .push import (
     async_unregister as async_unregister_push,
 )
 from .spotify_backend import SpotifyBackendError
-from .use_cases import run_music_command as handle_spotify_command
+from .use_cases import (
+    MusicBackendCapabilityError,
+    music_backend_metadata,
+    run_music_command as handle_spotify_command,
+)
 from .spotify_oauth import exchange_code_for_refresh_token
 
 _LOGGER = logging.getLogger(__name__)
@@ -1092,11 +1098,12 @@ def _backend_unavailable_payload(
     exc: Exception,
 ) -> dict[str, Any]:
     """Return a non-empty JSON body for backend command failures."""
+    metadata = music_backend_metadata(None, runtime)
     if str(command or "").strip().lower() == "playlists":
-        return {
+        payload = {
             "success": False,
             "error": "playback_backend_unavailable",
-            "message": str(exc) or "Playback backend unavailable",
+            "message": _safe_backend_error_message(exc) or "Playback backend unavailable",
             "backend_available": False,
             "playlists": [],
             "items": [],
@@ -1104,13 +1111,36 @@ def _backend_unavailable_payload(
             "result": {"playlists": [], "items": []},
             "count": 0,
         }
-    return {
+        payload.update(metadata)
+        return payload
+    payload = {
         "success": False,
         "error": "backend_unavailable",
-        "message": str(exc) or ERROR_MESSAGES["backend_unavailable"],
+        "message": _safe_backend_error_message(exc) or ERROR_MESSAGES["backend_unavailable"],
         "backend_available": False,
         "playback": getattr(runtime, "last_playback", None) or {},
     }
+    payload.update(metadata)
+    return payload
+
+
+def _unsupported_backend_capability_payload(
+    hass: Any,
+    runtime: Any,
+    exc: MusicBackendCapabilityError,
+) -> dict[str, Any]:
+    """Return the stable client contract for unsupported backend capabilities."""
+    payload = {
+        "success": False,
+        "error": "unsupported_backend_capability",
+        "capability": getattr(exc, "capability", "unknown"),
+        "backend": getattr(exc, "backend", None)
+        or music_backend_metadata(hass, runtime).get("music_backend"),
+        "message": str(exc) or "The selected music backend does not support this action.",
+        "backend_available": True,
+    }
+    payload.update(music_backend_metadata(hass, runtime))
+    return payload
 
 
 def _status_playback_unavailable_payload() -> dict[str, Any]:
@@ -1135,6 +1165,18 @@ async def _status_playback_payload(hass: Any, runtime: Any) -> dict[str, Any]:
     """Fetch the canonical command=status playback shape for app status responses."""
     try:
         result = await handle_spotify_command(hass, runtime, "status")
+    except MusicBackendCapabilityError as exc:
+        _LOGGER.debug(
+            "DJConnect status playback unsupported by selected backend: %s",
+            getattr(exc, "capability", "unknown"),
+        )
+        runtime.update(last_error=str(exc))
+        runtime.device_status["backend_available"] = True
+        return {
+            "backend_available": True,
+            "playback": {"has_playback": False},
+            "playback_error": "unsupported_backend_capability",
+        }
     except SpotifyBackendError as exc:
         _LOGGER.debug(
             "DJConnect status playback backend unavailable: %s",
@@ -1312,11 +1354,45 @@ async def _handle_ask_dj_play_recommendation(
             "message": "Aanbeveling ontbreekt.",
         }
     recommendation = _normalize_recommendation_value(value)
+    stale = _stale_backend_action_error(runtime, recommendation)
+    if stale:
+        stale.update(music_backend_metadata(hass, runtime))
+        return stale
+    backend_meta = music_backend_metadata(hass, runtime)
+    selected_backend = str(backend_meta.get("music_backend") or "").strip()
     uri = str(recommendation.get("uri") or "").strip()
     context_uri = str(recommendation.get("context_uri") or "").strip()
     offset_uri = str(recommendation.get("offset_uri") or "").strip()
     kind = str(recommendation.get("kind") or _spotify_recommendation_kind(uri or context_uri)).strip()
     uris = _recommendation_track_uris(recommendation.get("uris"))
+    if selected_backend == "music_assistant":
+        media_value = _music_assistant_recommendation_value(recommendation)
+        if not media_value:
+            return {
+                "success": False,
+                "error": "stale_backend_action",
+                "message": "This action was created for a previous music backend. Ask DJ again for a fresh recommendation.",
+                **backend_meta,
+            }
+        try:
+            result = await handle_spotify_command(hass, runtime, "play", media_value, play=True)
+        except MusicBackendCapabilityError as exc:
+            return _unsupported_backend_capability_payload(hass, runtime, exc)
+        except SpotifyBackendError as exc:
+            return {
+                "success": False,
+                "error": "backend_playback_failed",
+                "message": _safe_backend_error_message(exc),
+                **backend_meta,
+            }
+        return await _recommendation_play_success_response(
+            hass,
+            runtime,
+            recommendation,
+            request_payload,
+            result,
+            user_id=user_id,
+        )
     if not (uri or context_uri):
         return {
             "success": False,
@@ -1363,6 +1439,8 @@ async def _handle_ask_dj_play_recommendation(
         else:
             target = context_uri or uri
             result = await handle_spotify_command(hass, runtime, "play", target, play=True)
+    except MusicBackendCapabilityError as exc:
+        return _unsupported_backend_capability_payload(hass, runtime, exc)
     except SpotifyBackendError as exc:
         message = str(exc)
         if _looks_like_no_active_output(message):
@@ -1381,8 +1459,28 @@ async def _handle_ask_dj_play_recommendation(
         return {
             "success": False,
             "error": "spotify_playback_failed",
-            "message": message,
+            "message": _safe_backend_error_message(exc),
         }
+    return await _recommendation_play_success_response(
+        hass,
+        runtime,
+        recommendation,
+        request_payload,
+        result,
+        user_id=user_id,
+    )
+
+
+async def _recommendation_play_success_response(
+    hass: Any,
+    runtime: Any,
+    recommendation: dict[str, Any],
+    request_payload: dict[str, Any],
+    result: dict[str, Any],
+    *,
+    user_id: str | None = None,
+) -> dict[str, Any]:
+    kind = str(recommendation.get("kind") or "").strip()
     memory = getattr(runtime, "memory", None)
     if memory is not None:
         recorder = getattr(memory, "async_record_recommendation_play", None)
@@ -1440,6 +1538,7 @@ async def _handle_ask_dj_play_recommendation(
             for key in ("uri", "uris", "context_uri", "offset_uri", "kind", "title", "subtitle", "reason")
             if recommendation.get(key)
         },
+        **music_backend_metadata(hass, runtime),
     }
 
 
@@ -1743,6 +1842,7 @@ async def _append_followup_history(
 
 
 def _normalize_recommendation_value(value: dict[str, Any]) -> dict[str, Any]:
+    nested = value.get("value") if isinstance(value.get("value"), dict) else {}
     uri = str(value.get("uri") or "").strip()
     context_uri = str(value.get("context_uri") or "").strip()
     offset_uri = str(value.get("offset_uri") or "").strip()
@@ -1759,7 +1859,71 @@ def _normalize_recommendation_value(value: dict[str, Any]) -> dict[str, Any]:
         "kind": kind,
         "memory_key": str(value.get("memory_key") or "").strip(),
         "reason": str(value.get("reason") or "").strip(),
+        "backend": str(value.get("backend") or nested.get("backend") or "").strip(),
+        "provider": str(value.get("provider") or nested.get("provider") or "").strip(),
+        "music_backend_revision": value.get("music_backend_revision")
+        if value.get("music_backend_revision") is not None
+        else nested.get("music_backend_revision"),
+        "item_id": str(value.get("item_id") or nested.get("item_id") or "").strip(),
+        "media_type": str(value.get("media_type") or nested.get("media_type") or kind or "music").strip(),
+        "target_player_id": str(
+            value.get("target_player_id") or nested.get("target_player_id") or ""
+        ).strip(),
     }
+
+
+def _stale_backend_action_error(runtime: Any, action: dict[str, Any]) -> dict[str, Any]:
+    current = getattr(runtime, "config", {}) or {}
+    current_backend = str(current.get(CONF_MUSIC_BACKEND) or "spotify_direct").strip()
+    action_backend = str(action.get("backend") or "").strip()
+    if action_backend and action_backend != current_backend:
+        return _stale_backend_action_payload()
+    try:
+        action_revision = int(action.get("music_backend_revision"))
+    except (TypeError, ValueError):
+        action_revision = None
+    try:
+        current_revision = int(current.get(CONF_MUSIC_BACKEND_REVISION) or 0)
+    except (TypeError, ValueError):
+        current_revision = 0
+    if action_revision is not None and action_revision < current_revision:
+        return _stale_backend_action_payload()
+    return {}
+
+
+def _stale_backend_action_payload() -> dict[str, Any]:
+    return {
+        "success": False,
+        "error": "stale_backend_action",
+        "message": (
+            "This action was created for a previous music backend. "
+            "Ask DJ again for a fresh recommendation."
+        ),
+    }
+
+
+def _music_assistant_recommendation_value(action: dict[str, Any]) -> dict[str, Any]:
+    item_id = str(action.get("item_id") or action.get("uri") or "").strip()
+    if not item_id:
+        return {}
+    return {
+        "item_id": item_id,
+        "media_content_id": item_id,
+        "media_type": str(action.get("media_type") or action.get("kind") or "music"),
+        "media_content_type": str(action.get("media_type") or action.get("kind") or "music"),
+        "title": action.get("title"),
+        "subtitle": action.get("subtitle"),
+        "provider": action.get("provider") or "music_assistant",
+        "target_player_id": action.get("target_player_id"),
+    }
+
+
+def _safe_backend_error_message(exc: Exception) -> str:
+    text = str(exc or "").strip()
+    lowered = text.lower()
+    if any(part in lowered for part in ("token", "secret", "password", "authorization:")):
+        return "The selected music backend could not complete playback."
+    return text or "The selected music backend could not complete playback."
 
 
 def _spotify_recommendation_kind(uri: str) -> str:
@@ -1990,6 +2154,7 @@ class DJConnectPairView(HomeAssistantView):
             "event_path": API_EVENT,
         }
         response.update(_ask_dj_capabilities())
+        response.update(music_backend_metadata(hass, runtime))
         response.update(_esp32_language_payload(runtime))
         response.update(await async_ha_url_payload(hass, conf, client_type=client_type))
         _LOGGER.debug(
@@ -2093,6 +2258,7 @@ class DJConnectStatusView(HomeAssistantView):
             "playback": getattr(runtime, "last_playback", None) or {},
         }
         response.update(_ask_dj_capabilities())
+        response.update(music_backend_metadata(hass, runtime))
         response.update(
             await _push_status(
                 hass,
@@ -2111,7 +2277,10 @@ class DJConnectStatusView(HomeAssistantView):
             response.update(await _status_playback_payload(hass, runtime))
             backend_available = bool(response.get("backend_available"))
         else:
-            backend_available = bool(_current_spotify_credentials_for_status(hass, runtime))
+            if response.get("music_backend") == "music_assistant":
+                backend_available = bool(response.get("music_backend_available"))
+            else:
+                backend_available = bool(_current_spotify_credentials_for_status(hass, runtime))
             response["backend_available"] = backend_available
             playback = response.get("playback")
             if not isinstance(playback, dict) or "has_playback" not in playback:
@@ -2241,6 +2410,7 @@ class DJConnectCommandView(HomeAssistantView):
             if memory_key:
                 result.setdefault("memory_key", memory_key)
             result.update(_ha_version_payload())
+            result.update(music_backend_metadata(hass, runtime))
             return self.json(result, status_code=200 if result.get("success") else 400)
         if normalized_command == "ask_dj_play_recommendation":
             result = await _handle_ask_dj_play_recommendation(
@@ -2255,6 +2425,7 @@ class DJConnectCommandView(HomeAssistantView):
             elif memory_key:
                 result.setdefault("memory_key", memory_key)
             result.update(_ha_version_payload())
+            result.update(music_backend_metadata(hass, runtime))
             return self.json(result, status_code=200 if result.get("success") else 400)
         if normalized_command == "ask_dj_play_recommendation_on_output":
             result = await _handle_ask_dj_play_recommendation_on_output(
@@ -2267,6 +2438,7 @@ class DJConnectCommandView(HomeAssistantView):
             if memory_key:
                 result.setdefault("memory_key", memory_key)
             result.update(_ha_version_payload())
+            result.update(music_backend_metadata(hass, runtime))
             return self.json(result, status_code=200 if result.get("success") else 400)
         if normalized_command == "ask_dj_play_request_on_output":
             result = await _handle_ask_dj_play_request_on_output(
@@ -2279,6 +2451,7 @@ class DJConnectCommandView(HomeAssistantView):
             if memory_key:
                 result.setdefault("memory_key", memory_key)
             result.update(_ha_version_payload())
+            result.update(music_backend_metadata(hass, runtime))
             return self.json(result, status_code=200 if result.get("success") else 400)
         if normalized_command == "ask_dj_followup_response":
             result = await _handle_ask_dj_followup_response(
@@ -2291,12 +2464,14 @@ class DJConnectCommandView(HomeAssistantView):
             if memory_key:
                 result.setdefault("memory_key", memory_key)
             result.update(_ha_version_payload())
+            result.update(music_backend_metadata(hass, runtime))
             return self.json(result, status_code=200 if result.get("success") else 400)
         if normalized_command == "volume_delta":
             result = await _handle_volume_delta_command(hass, runtime, command_value)
             if memory_key:
                 result.setdefault("memory_key", memory_key)
             result.update(_ha_version_payload())
+            result.update(music_backend_metadata(hass, runtime))
             return self.json(result, status_code=200 if result.get("success") else 400)
         try:
             result = await handle_spotify_command(
@@ -2329,6 +2504,9 @@ class DJConnectCommandView(HomeAssistantView):
             return self.json(result)
         except ValueError as exc:
             return _json_error(self, "invalid_command", 400, str(exc))
+        except MusicBackendCapabilityError as exc:
+            runtime.update(last_error=str(exc))
+            return self.json(_unsupported_backend_capability_payload(hass, runtime, exc), status_code=400)
         except SpotifyBackendError as exc:
             runtime.update(last_error=str(exc))
             runtime.device_status["backend_available"] = False

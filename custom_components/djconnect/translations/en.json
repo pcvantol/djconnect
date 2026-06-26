@@ -195,13 +195,31 @@
           "client_type": "DJConnect client type: app, local device or Assist agent.",
           "local_url": "Configured local Client address for ESP32/Raspberry Pi. Read-only; use re-pairing to change this URL.",
           "dj_response_enabled": "Create a temporary WAV or MP3 audio URL and send it with the DJ announcement to the DJConnect device.",
-          "track_analysis_enabled": "Allow Ask DJ to answer read-only technical analysis questions about the currently playing track.",
-          "track_analysis_use_ha_conversation": "Use the configured Home Assistant Conversation/Assist agent for musical interpretation when measured provider data is incomplete.",
           "smart_home_context_entities": "Explicit read-only Home Assistant entities DJConnect may include in Ask DJ context, for example weather, room temperature, appliance status or scene state.",
           "firmware_channel": "Choose stable for normal OTA updates or beta to test prerelease firmware.",
-          "options_action": "Choose whether to save options or reauthorize Spotify.",
+          "options_action": "Choose whether to save settings, reauthorize Spotify or explicitly switch the music backend.",
           "music_backend": "Selected playback backend.",
           "music_assistant_player": "Configured Music Assistant target player."
+        }
+      },
+      "music_backend": {
+        "title": "Change music backend",
+        "description": "Current backend is shown below. Switching keeps pairing, device tokens, Ask DJ history, DJ Memory and push registrations. Older backend-specific Ask DJ playback actions or recommendations may no longer be executable.",
+        "data": {
+          "music_backend": "Music backend"
+        },
+        "data_description": {
+          "music_backend": "Choose Spotify Direct or Music Assistant."
+        }
+      },
+      "music_assistant_player": {
+        "title": "Music Assistant player",
+        "description": "Choose the Music Assistant player DJConnect should control. DJConnect will not show Spotify Client ID or OAuth fields while switching to Music Assistant.",
+        "data": {
+          "music_assistant_player": "Music Assistant player"
+        },
+        "data_description": {
+          "music_assistant_player": "The Home Assistant media_player entity exposed by Music Assistant."
         }
       },
       "repair_pairing": {
@@ -246,9 +264,13 @@
       "central_api_url_invalid": "Enter a complete HTTPS DJConnect API URL.",
       "install_token_invalid": "Enter a DJConnect install token that starts with djci_.",
       "central_api_rotate_failed": "DJConnect could not rotate the install token. Check the current token and try again.",
+      "music_assistant_not_configured": "Music Assistant is not installed or configured in Home Assistant.",
       "music_assistant_unavailable": "Music Assistant is not installed or configured in Home Assistant.",
       "music_assistant_no_players": "No usable Music Assistant players were found.",
-      "music_assistant_player_missing": "The selected Music Assistant player no longer exists."
+      "music_assistant_player_missing": "The selected Music Assistant player no longer exists.",
+      "music_assistant_player_not_found": "The selected Music Assistant player no longer exists.",
+      "spotify_oauth_required": "Spotify OAuth is required before Spotify Direct can become active.",
+      "backend_switch_failed": "DJConnect could not switch the music backend. Check the selected backend and try again."
     }
   },
   "entity": {

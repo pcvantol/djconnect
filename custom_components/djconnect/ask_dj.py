@@ -19,8 +19,13 @@ from .const import (
     CONF_CLIENT_TYPE,
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
+    CONF_MUSIC_ASSISTANT_PLAYER,
+    CONF_MUSIC_BACKEND,
+    CONF_MUSIC_BACKEND_REVISION,
     DEFAULT_TTS_LANGUAGE,
     DOMAIN,
+    DEFAULT_MUSIC_BACKEND,
+    MUSIC_BACKEND_MUSIC_ASSISTANT,
 )
 from .dj_response import async_send_dj_response_best_effort
 from .memory import prompt_context_text
@@ -6634,6 +6639,7 @@ def _playlist_search_playback_actions(
                     "image_url": proxy_image,
                     "thumbnail_url": proxy_image,
                     "reason": "Spotify playlist-resultaat op basis van je Ask DJ vraag.",
+                    **_backend_action_fields(hass, "playlist", uri, proxy_image, title, subtitle),
                 }.items()
                 if value not in ("", None)
             }
@@ -6690,6 +6696,7 @@ def _album_search_playback_actions(
                     "image_url": proxy_image,
                     "thumbnail_url": proxy_image,
                     "reason": "Spotify album-resultaat op basis van je Ask DJ vraag.",
+                    **_backend_action_fields(hass, "album", uri, proxy_image, title, subtitle),
                 }.items()
                 if value not in ("", None)
             }
@@ -7194,6 +7201,7 @@ def _recommendation_playback_actions(
             "action_style": "play_now",
             "image_url": proxy_image,
             "reason": reason,
+            **_backend_action_fields(hass, kind, uri, proxy_image, title, subtitle),
         }
         if kind == "track":
             context_uri = str(item.get("context_uri") or "").strip()
@@ -7261,6 +7269,7 @@ def _personal_artist_recommendation_actions(
             "action_style": "play_now" if uri.startswith("spotify:artist:") else "info",
             "image_url": proxy_image,
             "reason": "Past bij je Spotify-profiel en DJ Memory.",
+            **_backend_action_fields(hass, "artist", uri, proxy_image, name, subtitle),
         }
         actions.append({key: value for key, value in action.items() if value not in ("", None, [])})
         if len(actions) >= limit:
@@ -7307,6 +7316,7 @@ def _play_now_action_from_spotify_item(
         "action_style": "play_now",
         "image_url": proxy_image,
         "reason": "Voor je klaargezet terwijl het huidige nummer doorspeelt.",
+        **_backend_action_fields(hass, kind, uri, proxy_image, title, subtitle),
     }
     context_uri = str(item.get("context_uri") or "").strip()
     if kind == "track" and context_uri:
@@ -7670,6 +7680,58 @@ def image_proxy_target(hass: HomeAssistant, token: str) -> str | None:
         .get(IMAGE_PROXY_KEY, {})
         .get(str(token or "").strip())
     )
+
+
+def _backend_action_fields(
+    hass: HomeAssistant,
+    kind: str,
+    item_id: str,
+    image_url: str = "",
+    title: str = "",
+    subtitle: str = "",
+) -> dict[str, Any]:
+    """Return backend-aware playback action metadata for client contracts."""
+    runtime = _first_runtime(hass)
+    config = getattr(runtime, "config", {}) if runtime is not None else {}
+    backend = str(config.get(CONF_MUSIC_BACKEND) or DEFAULT_MUSIC_BACKEND).strip()
+    try:
+        revision = int(config.get(CONF_MUSIC_BACKEND_REVISION) or 0)
+    except (TypeError, ValueError):
+        revision = 0
+    provider = "music_assistant" if backend == MUSIC_BACKEND_MUSIC_ASSISTANT else "spotify"
+    value: dict[str, Any] = {
+        "title": title,
+        "subtitle": subtitle,
+        "image_url": image_url,
+    }
+    if backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
+        value.update(
+            {
+                "item_id": item_id,
+                "provider": provider,
+                "media_type": kind,
+                "target_player_id": str(config.get(CONF_MUSIC_ASSISTANT_PLAYER) or ""),
+            }
+        )
+    else:
+        value["uri"] = item_id
+    return {
+        "backend": backend,
+        "provider": provider,
+        "music_backend_revision": revision,
+        "value": {key: val for key, val in value.items() if val not in ("", None)},
+    }
+
+
+def _first_runtime(hass: HomeAssistant) -> Any | None:
+    domain_data = getattr(hass, "data", {}).get(DOMAIN, {})
+    if not isinstance(domain_data, dict):
+        return None
+    for key, value in domain_data.items():
+        if key == IMAGE_PROXY_KEY or not hasattr(value, "config"):
+            continue
+        return value
+    return None
 
 
 def _playback_volume(playback: Any, runtime: Any) -> int | None:
@@ -8185,7 +8247,9 @@ def _output_device_actions(devices: list[dict[str, Any]]) -> list[dict[str, Any]
                     "device_id": device_id,
                     "device_name": name,
                     "active": is_active,
-                    "reason": "Spotify Connect uitvoer wijzigen vanuit Ask DJ.",
+                    "backend": device.get("backend") or device.get("provider") or "spotify_direct",
+                    "provider": device.get("provider") or device.get("source") or "spotify",
+                    "reason": "Backend-uitvoer wijzigen vanuit Ask DJ.",
                 }.items()
                 if value not in ("", None)
             }

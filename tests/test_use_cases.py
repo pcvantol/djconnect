@@ -177,6 +177,37 @@ class UseCaseLayerTest(unittest.TestCase):
         self.assertEqual(result["devices"][0]["entity_id"], "media_player.mass_office")
         self.assertEqual(result["devices"][0]["name"], "Office")
 
+    def test_music_backend_metadata_reports_revision_capabilities_and_target(self) -> None:
+        uc = self.use_cases
+
+        class State:
+            attributes = {"friendly_name": "Woonkamer"}
+
+        class States:
+            def get(self, entity_id):
+                return State()
+
+        hass = types.SimpleNamespace(states=States())
+        runtime = types.SimpleNamespace(
+            config={
+                "music_backend": "music_assistant",
+                "music_backend_revision": 4,
+                "music_assistant_player": "media_player.mass_woonkamer",
+            }
+        )
+
+        metadata = uc.music_backend_metadata(hass, runtime)
+
+        self.assertEqual(metadata["music_backend"], "music_assistant")
+        self.assertEqual(metadata["music_backend_name"], "Music Assistant")
+        self.assertTrue(metadata["music_backend_available"])
+        self.assertEqual(metadata["music_backend_revision"], 4)
+        self.assertTrue(metadata["music_backend_capabilities"]["supports_volume"])
+        self.assertEqual(
+            metadata["music_target_player"],
+            {"id": "media_player.mass_woonkamer", "name": "Woonkamer"},
+        )
+
     def test_music_assistant_unsupported_use_case_degrades_by_capability(self) -> None:
         uc = self.use_cases
         hass = types.SimpleNamespace()

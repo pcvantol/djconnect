@@ -15,6 +15,17 @@
   adapter; Music Assistant is a small HA `media_player` adapter, not a
   replacement for the DJConnect DJ/voice/intent/memory layer and not a
   DJConnect-side provider registry, library index or queue/grouping engine.
+- The options flow now includes explicit `Muziekbackend wijzigen` / `Change
+  music backend`. Switching preserves pairing, device tokens, Ask DJ
+  history/memory and push registrations, bumps `music_backend_revision`, hides
+  Spotify reauthorize while Music Assistant is active and marks old
+  backend-specific pending playback actions stale.
+- Client-visible pair/status/command responses include the backend summary
+  fields `music_backend`, `music_backend_name`, `music_backend_available`,
+  `music_backend_revision`, `music_backend_capabilities`,
+  `music_target_player` and safe `music_backend_error`. Playback actions are
+  backend-aware and unsupported backend features return
+  `unsupported_backend_capability` instead of raw backend exceptions.
 - Home Assistant integration is HACS-distributed and MIT-licensed.
 - DJConnect client and firmware repositories are MIT-licensed unless their own repository metadata states otherwise.
 - Public firmware release assets live in `pcvantol/djconnect-firmware`.

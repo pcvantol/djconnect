@@ -40,6 +40,7 @@ from .const import (
     CONF_MAX_AUDIO_BYTES,
     CONF_MUSIC_ASSISTANT_PLAYER,
     CONF_MUSIC_BACKEND,
+    CONF_MUSIC_BACKEND_REVISION,
     CONF_MIN_BATTERY_FOR_OTA,
     CONF_PAIR_CODE,
     CONF_SPOTIFY_CLIENT_ID,
@@ -101,6 +102,7 @@ OPTIONS_ACTION_SAVE = "save_options"
 OPTIONS_ACTION_RETRY_PAIRING = "retry_device_pairing"
 OPTIONS_ACTION_REPAIR = "repair_device_pairing"
 OPTIONS_ACTION_SPOTIFY_REAUTH = "spotify_reauthorize"
+OPTIONS_ACTION_CHANGE_MUSIC_BACKEND = "change_music_backend"
 OPTIONS_ACTION_CENTRAL_API = "central_api"
 OPTIONS_ACTION_ROTATE_INSTALL_TOKEN = "rotate_install_token"
 BLE_ACTION_FIELD = "ble_action"
@@ -154,12 +156,14 @@ BLE_ACTION_NAMES_NL = {
 OPTIONS_ACTION_NAMES_EN = {
     OPTIONS_ACTION_SAVE: "Save options",
     OPTIONS_ACTION_SPOTIFY_REAUTH: "Reauthorize Spotify",
+    OPTIONS_ACTION_CHANGE_MUSIC_BACKEND: "Change music backend",
     OPTIONS_ACTION_RETRY_PAIRING: "Retry pairing with current code",
     OPTIONS_ACTION_REPAIR: "Re-pair with new pairing code",
 }
 OPTIONS_ACTION_NAMES_NL = {
     OPTIONS_ACTION_SAVE: "Instellingen opslaan",
     OPTIONS_ACTION_SPOTIFY_REAUTH: "Spotify opnieuw autoriseren",
+    OPTIONS_ACTION_CHANGE_MUSIC_BACKEND: "Muziekbackend wijzigen",
     OPTIONS_ACTION_RETRY_PAIRING: "Koppelen opnieuw proberen met huidige code",
     OPTIONS_ACTION_REPAIR: "Opnieuw koppelen met nieuwe koppelcode",
 }
@@ -180,8 +184,6 @@ VOICE_FORM_FIELDS = {
     CONF_TRACK_ANALYSIS_ENABLED,
     CONF_TRACK_ANALYSIS_USE_HA_CONVERSATION,
     CONF_FIRMWARE_CHANNEL,
-    CONF_MUSIC_BACKEND,
-    CONF_MUSIC_ASSISTANT_PLAYER,
 }
 
 
@@ -258,6 +260,7 @@ def _conversation_agent_options_actions(hass: Any, defaults: dict[str, Any]) -> 
     names = _options_action_names(hass)
     actions = {
         OPTIONS_ACTION_SAVE: names[OPTIONS_ACTION_SAVE],
+        OPTIONS_ACTION_CHANGE_MUSIC_BACKEND: names[OPTIONS_ACTION_CHANGE_MUSIC_BACKEND],
     }
     if defaults.get(CONF_MUSIC_BACKEND, DEFAULT_MUSIC_BACKEND) != MUSIC_BACKEND_MUSIC_ASSISTANT:
         actions[OPTIONS_ACTION_SPOTIFY_REAUTH] = names[OPTIONS_ACTION_SPOTIFY_REAUTH]
@@ -824,10 +827,6 @@ def _conversation_agent_options_schema(
             default=OPTIONS_ACTION_SAVE,
         ): vol.In(_conversation_agent_options_actions(hass, defaults)),
         vol.Optional(
-            CONF_MUSIC_BACKEND,
-            default=defaults.get(CONF_MUSIC_BACKEND, DEFAULT_MUSIC_BACKEND),
-        ): vol.In(MUSIC_BACKEND_NAMES),
-        vol.Optional(
             CONF_SMART_HOME_CONTEXT_ENTITIES,
             default=_entity_allowlist_default(defaults),
         ): _entity_allowlist_selector(),
@@ -846,17 +845,19 @@ def _conversation_agent_options_schema(
             ),
         ): bool,
     }
-    if defaults.get(CONF_MUSIC_BACKEND) == MUSIC_BACKEND_MUSIC_ASSISTANT:
-        players = _music_assistant_players(hass)
-        if players:
-            schema[
-                vol.Optional(
-                    CONF_MUSIC_ASSISTANT_PLAYER,
-                    default=defaults.get(CONF_MUSIC_ASSISTANT_PLAYER)
-                    or next(iter(players), ""),
-                )
-            ] = vol.In(players)
     return vol.Schema(schema)
+
+
+def _music_backend_switch_schema(defaults: dict[str, Any]) -> vol.Schema:
+    """Build the explicit backend switch schema."""
+    return vol.Schema(
+        {
+            vol.Required(
+                CONF_MUSIC_BACKEND,
+                default=defaults.get(CONF_MUSIC_BACKEND, DEFAULT_MUSIC_BACKEND),
+            ): vol.In(MUSIC_BACKEND_NAMES),
+        }
+    )
 
 
 def _conversation_agent_voice_schema(defaults: dict[str, Any]) -> vol.Schema:
@@ -1007,6 +1008,45 @@ def _firmware_channel_default(value: Any) -> str:
 def _voice_errors(user_input: dict[str, Any]) -> dict[str, str]:
     """Validate required voice/options fields."""
     return {}
+
+
+def _spotify_direct_ready(current: dict[str, Any]) -> bool:
+    """Return whether Spotify Direct has enough stored OAuth config to become active."""
+    return bool(
+        str(current.get(CONF_SPOTIFY_CLIENT_ID) or "").strip()
+        and str(current.get(CONF_SPOTIFY_REFRESH_TOKEN) or "").strip()
+    )
+
+
+def _current_backend_revision(current: dict[str, Any]) -> int:
+    try:
+        return max(0, int(current.get(CONF_MUSIC_BACKEND_REVISION) or 0))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _next_backend_revision(current: dict[str, Any]) -> int:
+    return _current_backend_revision(current) + 1
+
+
+def _mark_backend_specific_pending_state_stale(runtime: Any, revision: int) -> None:
+    """Mark backend-specific pending playback state stale after a backend switch."""
+    status = getattr(runtime, "device_status", None)
+    if isinstance(status, dict):
+        status["music_backend_actions_stale"] = True
+        status["music_backend_actions_stale_after_revision"] = revision
+    memory = getattr(runtime, "memory", None)
+    store = getattr(memory, "_data", None)
+    memories = store.get("memories") if isinstance(store, dict) else None
+    if isinstance(memories, dict):
+        for item in memories.values():
+            if not isinstance(item, dict):
+                continue
+            pending = item.get("pending_followup")
+            if isinstance(pending, dict) and not pending.get("handled"):
+                pending["handled"] = True
+                pending["stale"] = True
+                pending["stale_reason"] = "music_backend_changed"
 
 
 async def _async_pair_before_create(hass: Any, data: dict[str, Any]) -> None:
@@ -1693,6 +1733,7 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         self._config_entry = config_entry
         self._oauth: dict[str, str] = {}
+        self._pending_backend_switch: dict[str, Any] | None = None
 
     async def async_step_init(
         self,
@@ -1705,6 +1746,8 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
             action = user_input.get(OPTIONS_ACTION_FIELD)
             if action == OPTIONS_ACTION_SPOTIFY_REAUTH:
                 return await self.async_step_spotify_reauth()
+            if action == OPTIONS_ACTION_CHANGE_MUSIC_BACKEND:
+                return await self.async_step_music_backend()
             if action == OPTIONS_ACTION_CENTRAL_API:
                 return await self.async_step_central_api()
             if action == OPTIONS_ACTION_RETRY_PAIRING:
@@ -1712,23 +1755,6 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
             if action == OPTIONS_ACTION_REPAIR:
                 return await self.async_step_repair_pairing()
             errors = _voice_errors(user_input)
-            selected_backend = user_input.get(
-                CONF_MUSIC_BACKEND,
-                current.get(CONF_MUSIC_BACKEND, DEFAULT_MUSIC_BACKEND),
-            )
-            if selected_backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
-                players = _music_assistant_players(self.hass)
-                selected_player = str(
-                    user_input.get(CONF_MUSIC_ASSISTANT_PLAYER)
-                    or current.get(CONF_MUSIC_ASSISTANT_PLAYER)
-                    or ""
-                ).strip()
-                if not _music_assistant_available(self.hass):
-                    errors["base"] = "music_assistant_unavailable"
-                elif not players:
-                    errors["base"] = "music_assistant_no_players"
-                elif selected_player not in players:
-                    errors[CONF_MUSIC_ASSISTANT_PLAYER] = "music_assistant_player_missing"
             if not errors:
                 merged = dict(current)
                 merged.update(
@@ -1752,6 +1778,138 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
             data_schema=_conversation_agent_options_schema(self.hass, current),
             errors=errors,
         )
+
+    async def async_step_music_backend(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> FlowResult:
+        """Explicitly switch the selected music backend."""
+        current = {**self._config_entry.data, **self._config_entry.options}
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            selected_backend = str(
+                user_input.get(CONF_MUSIC_BACKEND)
+                or current.get(CONF_MUSIC_BACKEND)
+                or DEFAULT_MUSIC_BACKEND
+            ).strip()
+            if selected_backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
+                if not _music_assistant_available(self.hass):
+                    errors["base"] = "music_assistant_not_configured"
+                elif not _music_assistant_players(self.hass):
+                    errors["base"] = "music_assistant_no_players"
+                else:
+                    self._pending_backend_switch = {
+                        CONF_MUSIC_BACKEND: selected_backend,
+                    }
+                    return await self.async_step_music_assistant_player()
+            elif selected_backend == MUSIC_BACKEND_SPOTIFY_DIRECT:
+                merged = self._backend_switch_options(
+                    {
+                        CONF_MUSIC_BACKEND: selected_backend,
+                    }
+                )
+                if not _spotify_direct_ready({**self._config_entry.data, **merged}):
+                    self._pending_backend_switch = {
+                        CONF_MUSIC_BACKEND: selected_backend,
+                    }
+                    return await self.async_step_spotify_reauth()
+                return self._finish_backend_switch(merged)
+            else:
+                errors[CONF_MUSIC_BACKEND] = "backend_switch_failed"
+
+        return self.async_show_form(
+            step_id="music_backend",
+            data_schema=_music_backend_switch_schema(current),
+            errors=errors,
+        )
+
+    async def async_step_music_assistant_player(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> FlowResult:
+        """Choose the Music Assistant target player during a backend switch."""
+        current = {**self._config_entry.data, **self._config_entry.options}
+        players = _music_assistant_players(self.hass)
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            selected_player = str(
+                user_input.get(CONF_MUSIC_ASSISTANT_PLAYER) or ""
+            ).strip()
+            if not _music_assistant_available(self.hass):
+                errors["base"] = "music_assistant_not_configured"
+            elif not players:
+                errors["base"] = "music_assistant_no_players"
+            elif selected_player not in players:
+                errors[CONF_MUSIC_ASSISTANT_PLAYER] = "music_assistant_player_not_found"
+            else:
+                merged = self._backend_switch_options(
+                    {
+                        CONF_MUSIC_BACKEND: MUSIC_BACKEND_MUSIC_ASSISTANT,
+                        CONF_MUSIC_ASSISTANT_PLAYER: selected_player,
+                    }
+                )
+                return self._finish_backend_switch(merged)
+
+        if not _music_assistant_available(self.hass):
+            return self.async_show_form(
+                step_id="music_backend",
+                data_schema=_music_backend_switch_schema(current),
+                errors={"base": "music_assistant_not_configured"},
+            )
+        if not players:
+            return self.async_show_form(
+                step_id="music_backend",
+                data_schema=_music_backend_switch_schema(current),
+                errors={"base": "music_assistant_no_players"},
+            )
+        return self.async_show_form(
+            step_id="music_assistant_player",
+            data_schema=vol.Schema(
+                _music_assistant_schema(
+                    players,
+                    str(
+                        current.get(CONF_MUSIC_ASSISTANT_PLAYER)
+                        or next(iter(players), "")
+                    ),
+                )
+            ),
+            errors=errors,
+        )
+
+    def _backend_switch_options(self, updates: dict[str, Any]) -> dict[str, Any]:
+        merged = dict(self._config_entry.options)
+        old_backend = (
+            merged.get(CONF_MUSIC_BACKEND)
+            or self._config_entry.data.get(CONF_MUSIC_BACKEND)
+            or DEFAULT_MUSIC_BACKEND
+        )
+        merged.update(updates)
+        if merged.get(CONF_MUSIC_BACKEND) != old_backend:
+            merged[CONF_MUSIC_BACKEND_REVISION] = _next_backend_revision(
+                {**self._config_entry.data, **self._config_entry.options}
+            )
+        else:
+            merged.setdefault(
+                CONF_MUSIC_BACKEND_REVISION,
+                _current_backend_revision(
+                    {**self._config_entry.data, **self._config_entry.options}
+                ),
+            )
+        return merged
+
+    def _finish_backend_switch(self, options: dict[str, Any]) -> FlowResult:
+        runtime = self.hass.data.get(DOMAIN, {}).get(self._config_entry.entry_id)
+        if runtime is not None:
+            current_revision = _current_backend_revision(
+                {**self._config_entry.data, **self._config_entry.options}
+            )
+            if _current_backend_revision(options) > current_revision:
+                _mark_backend_specific_pending_state_stale(
+                    runtime,
+                    _current_backend_revision(options),
+                )
+            runtime.update(last_error=None)
+        return self.async_create_entry(title="", data=options)
 
     async def async_step_central_api(
         self,
@@ -1881,6 +2039,10 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
     ) -> FlowResult:
         """Show a translated completion step after Spotify OAuth reauthorization."""
         if user_input is not None:
+            if self._pending_backend_switch:
+                merged = self._backend_switch_options(self._pending_backend_switch)
+                self._pending_backend_switch = None
+                return self._finish_backend_switch(merged)
             return self.async_create_entry(
                 title="",
                 data=dict(self._config_entry.options),

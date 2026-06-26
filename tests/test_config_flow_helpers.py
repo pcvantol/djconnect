@@ -998,6 +998,12 @@ class ConfigFlowHelperTest(unittest.TestCase):
             ],
             "Save options",
         )
+        self.assertEqual(
+            self.config_flow._options_action_names(nl_hass)[
+                self.config_flow.OPTIONS_ACTION_CHANGE_MUSIC_BACKEND
+            ],
+            "Muziekbackend wijzigen",
+        )
 
     def test_options_actions_hide_pairing_retry_when_not_pending(self) -> None:
         hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en-US"))
@@ -1010,7 +1016,19 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertNotIn(self.config_flow.OPTIONS_ACTION_RETRY_PAIRING, actions)
         self.assertIn(self.config_flow.OPTIONS_ACTION_REPAIR, actions)
         self.assertIn(self.config_flow.OPTIONS_ACTION_SPOTIFY_REAUTH, actions)
+        self.assertIn(self.config_flow.OPTIONS_ACTION_CHANGE_MUSIC_BACKEND, actions)
         self.assertIn(self.config_flow.OPTIONS_ACTION_SAVE, actions)
+
+    def test_options_actions_hide_spotify_reauth_for_music_assistant(self) -> None:
+        hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en-US"))
+
+        actions = self.config_flow._options_actions_for_status(
+            hass,
+            {self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_MUSIC_ASSISTANT},
+        )
+
+        self.assertNotIn(self.config_flow.OPTIONS_ACTION_SPOTIFY_REAUTH, actions)
+        self.assertIn(self.config_flow.OPTIONS_ACTION_CHANGE_MUSIC_BACKEND, actions)
 
     def test_options_actions_show_pairing_retry_when_pending(self) -> None:
         hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en-US"))
@@ -1586,6 +1604,177 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertNotIn(self.const.CONF_ALLOW_OTA_ON_BATTERY, keys)
         self.assertNotIn(self.const.CONF_MIN_BATTERY_FOR_OTA, keys)
         self.assertNotIn("show_advanced_options", keys)
+
+    def test_options_flow_init_shows_change_music_backend_action(self) -> None:
+        entry = types.SimpleNamespace(data={}, options={})
+        flow = self.config_flow.DJConnectOptionsFlow(entry)
+        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en"))
+
+        form = asyncio.run(flow.async_step_init())
+        action_marker = next(
+            marker
+            for marker in form["data_schema"].schema
+            if marker.key == self.config_flow.OPTIONS_ACTION_FIELD
+        )
+
+        self.assertIn(
+            self.config_flow.OPTIONS_ACTION_CHANGE_MUSIC_BACKEND,
+            form["data_schema"].schema[action_marker],
+        )
+
+    def test_options_music_backend_step_shows_current_backend(self) -> None:
+        entry = types.SimpleNamespace(
+            data={self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_SPOTIFY_DIRECT},
+            options={},
+        )
+        flow = self.config_flow.DJConnectOptionsFlow(entry)
+        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en"))
+
+        form = asyncio.run(
+            flow.async_step_init(
+                {
+                    self.config_flow.OPTIONS_ACTION_FIELD:
+                        self.config_flow.OPTIONS_ACTION_CHANGE_MUSIC_BACKEND
+                }
+            )
+        )
+        marker = next(
+            marker
+            for marker in form["data_schema"].schema
+            if marker.key == self.const.CONF_MUSIC_BACKEND
+        )
+
+        self.assertEqual(form["step_id"], "music_backend")
+        self.assertEqual(marker.default, self.const.MUSIC_BACKEND_SPOTIFY_DIRECT)
+
+    def test_options_switch_to_music_assistant_without_spotify_fields(self) -> None:
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={
+                self.const.CONF_DEVICE_TOKEN: "keep-device-token",
+                self.const.CONF_SPOTIFY_REFRESH_TOKEN: "keep-refresh-token",
+            },
+            options={self.const.CONF_MUSIC_BACKEND_REVISION: 2},
+        )
+        state = types.SimpleNamespace(
+            state="idle",
+            attributes={
+                "friendly_name": "Woonkamer",
+                "integration": "music_assistant",
+            },
+        )
+        states = types.SimpleNamespace(
+            async_entity_ids=lambda domain: ["media_player.mass_woonkamer"],
+            get=lambda entity_id: state,
+        )
+        runtime = types.SimpleNamespace(
+            device_status={},
+            memory=types.SimpleNamespace(
+                _data={
+                    "memories": {
+                        "user": {"pending_followup": {"handled": False}}
+                    }
+                }
+            ),
+            update=lambda **kwargs: None,
+        )
+        flow = self.config_flow.DJConnectOptionsFlow(entry)
+        flow.hass = types.SimpleNamespace(
+            config=types.SimpleNamespace(language="en"),
+            data={self.const.DOMAIN: {"entry-1": runtime, "music_assistant": object()}},
+            states=states,
+        )
+
+        player_form = asyncio.run(
+            flow.async_step_music_backend(
+                {self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_MUSIC_ASSISTANT}
+            )
+        )
+        keys = {marker.key for marker in player_form["data_schema"].schema}
+        result = asyncio.run(
+            flow.async_step_music_assistant_player(
+                {self.const.CONF_MUSIC_ASSISTANT_PLAYER: "media_player.mass_woonkamer"}
+            )
+        )
+
+        self.assertEqual(player_form["step_id"], "music_assistant_player")
+        self.assertNotIn(self.const.CONF_SPOTIFY_CLIENT_ID, keys)
+        self.assertNotIn(self.const.CONF_HA_EXTERNAL_URL, keys)
+        self.assertEqual(result["type"], "create_entry")
+        self.assertEqual(
+            result["data"][self.const.CONF_MUSIC_BACKEND],
+            self.const.MUSIC_BACKEND_MUSIC_ASSISTANT,
+        )
+        self.assertEqual(result["data"][self.const.CONF_MUSIC_BACKEND_REVISION], 3)
+        self.assertEqual(entry.data[self.const.CONF_DEVICE_TOKEN], "keep-device-token")
+        self.assertEqual(
+            entry.data[self.const.CONF_SPOTIFY_REFRESH_TOKEN],
+            "keep-refresh-token",
+        )
+        pending = runtime.memory._data["memories"]["user"]["pending_followup"]
+        self.assertTrue(pending["handled"])
+        self.assertEqual(pending["stale_reason"], "music_backend_changed")
+
+    def test_options_music_assistant_missing_has_clear_error(self) -> None:
+        entry = types.SimpleNamespace(data={}, options={})
+        states = types.SimpleNamespace(
+            async_entity_ids=lambda domain: [],
+            get=lambda entity_id: None,
+        )
+        flow = self.config_flow.DJConnectOptionsFlow(entry)
+        flow.hass = types.SimpleNamespace(
+            config=types.SimpleNamespace(language="en"),
+            data={},
+            states=states,
+        )
+
+        result = asyncio.run(
+            flow.async_step_music_backend(
+                {self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_MUSIC_ASSISTANT}
+            )
+        )
+
+        self.assertEqual(result["errors"]["base"], "music_assistant_not_configured")
+
+    def test_options_music_assistant_without_players_has_clear_error(self) -> None:
+        entry = types.SimpleNamespace(data={}, options={})
+        states = types.SimpleNamespace(
+            async_entity_ids=lambda domain: [],
+            get=lambda entity_id: None,
+        )
+        flow = self.config_flow.DJConnectOptionsFlow(entry)
+        flow.hass = types.SimpleNamespace(
+            config=types.SimpleNamespace(language="en"),
+            data={"music_assistant": object()},
+            states=states,
+        )
+
+        result = asyncio.run(
+            flow.async_step_music_backend(
+                {self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_MUSIC_ASSISTANT}
+            )
+        )
+
+        self.assertEqual(result["errors"]["base"], "music_assistant_no_players")
+
+    def test_options_switch_to_spotify_direct_requires_oauth_when_missing(self) -> None:
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={self.const.CONF_HA_EXTERNAL_URL: "https://example.ui.nabu.casa"},
+            options={self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_MUSIC_ASSISTANT},
+        )
+        flow = self.config_flow.DJConnectOptionsFlow(entry)
+        flow.flow_id = "flow-1"
+        flow.hass = types.SimpleNamespace(data={})
+
+        result = asyncio.run(
+            flow.async_step_music_backend(
+                {self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_SPOTIFY_DIRECT}
+            )
+        )
+
+        self.assertEqual(result["type"], "form")
+        self.assertEqual(result["errors"]["base"], "oauth_setup_failed")
 
     def test_options_flow_save_preserves_hidden_device_values(self) -> None:
         entry = types.SimpleNamespace(

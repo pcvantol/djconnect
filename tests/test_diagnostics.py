@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def install_diagnostics_stubs() -> None:
     sys.modules.setdefault("homeassistant", types.ModuleType("homeassistant"))
+    aiohttp = sys.modules.setdefault("aiohttp", types.ModuleType("aiohttp"))
     core = sys.modules.setdefault(
         "homeassistant.core",
         types.ModuleType("homeassistant.core"),
@@ -21,8 +22,25 @@ def install_diagnostics_stubs() -> None:
         "homeassistant.config_entries",
         types.ModuleType("homeassistant.config_entries"),
     )
+    helpers = sys.modules.setdefault(
+        "homeassistant.helpers",
+        types.ModuleType("homeassistant.helpers"),
+    )
+    aiohttp_client = sys.modules.setdefault(
+        "homeassistant.helpers.aiohttp_client",
+        types.ModuleType("homeassistant.helpers.aiohttp_client"),
+    )
     core.HomeAssistant = object
     config_entries.ConfigEntry = object
+    aiohttp_client.async_get_clientsession = lambda hass: None
+    helpers.aiohttp_client = aiohttp_client
+    if not hasattr(aiohttp, "ClientTimeout"):
+        class ClientTimeout:
+            def __init__(self, *args, **kwargs):
+                self.args = args
+                self.kwargs = kwargs
+
+        aiohttp.ClientTimeout = ClientTimeout
 
     package = types.ModuleType("custom_components.djconnect")
     package.__path__ = [str(ROOT / "custom_components" / "djconnect")]

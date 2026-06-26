@@ -492,7 +492,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"command\": \"ask_dj_play_recommendation\",\n  \"play\": true,\n  \"value\": {\n    \"title\": \"Track Title\",\n    \"subtitle\": \"Artist Name\",\n    \"uri\": \"spotify:track:123\",\n    \"context_uri\": \"spotify:album:456\",\n    \"offset_uri\": \"spotify:track:123\",\n    \"kind\": \"track\",\n    \"memory_key\": \"{{memory_key}}\",\n    \"reason\": \"Past bij je recente voorkeur voor melodische opbouw.\"\n  }\n}"
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"command\": \"ask_dj_play_recommendation\",\n  \"play\": true,\n  \"value\": {\n    \"backend\": \"spotify_direct\",\n    \"provider\": \"spotify\",\n    \"music_backend_revision\": 1,\n    \"title\": \"Track Title\",\n    \"subtitle\": \"Artist Name\",\n    \"uri\": \"spotify:track:123\",\n    \"context_uri\": \"spotify:album:456\",\n    \"offset_uri\": \"spotify:track:123\",\n    \"kind\": \"track\",\n    \"memory_key\": \"{{memory_key}}\",\n    \"reason\": \"Past bij je recente voorkeur voor melodische opbouw.\",\n    \"value\": {\n      \"uri\": \"spotify:track:123\",\n      \"title\": \"Track Title\",\n      \"subtitle\": \"Artist Name\",\n      \"image_url\": \"{{image_url}}\"\n    }\n  }\n}"
             },
             "url": {
               "raw": "{{ha_base_url}}/api/djconnect/command",

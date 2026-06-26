@@ -550,6 +550,16 @@ Pattern:
 - Capabilities describe which user-visible features are available. Ask DJ and
   entities degrade on unsupported capabilities instead of rebuilding Spotify
   features locally.
+- Backend switching is an explicit options-flow action, not a silent dropdown
+  and not a reinstall requirement. This keeps users in control of provider
+  consequences while preserving pairing, device tokens, Ask DJ history, DJ
+  Memory and push registrations. A monotonic `music_backend_revision` lets
+  clients invalidate old backend-specific playback actions after a switch.
+- The backend contract is exposed in pair/status/command responses rather than
+  requiring client-specific discovery endpoints. Errors are normalized to safe
+  `music_backend_error`, `stale_backend_action` and
+  `unsupported_backend_capability` shapes so clients can recover without
+  seeing raw provider exceptions or secrets.
 
 Why:
 

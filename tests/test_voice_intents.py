@@ -55,6 +55,20 @@ class VoiceIntentDataTest(unittest.TestCase):
         self.assertIn("Speel vergelijkbare nummers", seed["nl"])
         self.assertIn("Queue similar tracks", seed["en"])
 
+    def test_backend_contract_wording_is_backend_neutral(self) -> None:
+        data = json.loads((ROOT / "examples" / "voice_intents.json").read_text())
+
+        playback = data["intents"]["playback_control"]
+        self.assertIn("selected DJConnect backend", playback["description"])
+        self.assertNotIn("Spotify backend command", playback["description"])
+
+        outputs = data["ask_dj_intents"]["speaker_outputs"]
+        self.assertIn("backend output", outputs["description"])
+        self.assertNotIn("Spotify output devices", outputs["description"])
+
+        seed = data["ask_dj_intents"]["seed_playlist_mix"]
+        self.assertIn("backend-aware Play Now actions", seed["description"])
+
 
 if __name__ == "__main__":
     unittest.main()

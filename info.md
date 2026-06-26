@@ -10,6 +10,8 @@ Use it when you want a voice/PTT music remote that can start Spotify playback, s
 
 Ask DJ can answer recent Spotify listening questions for tracks, albums, artists and playlist contexts with compact artwork/icon lists. Spotify-backed Home Assistant control/status entities reflect playback availability, volume, output, repeat, shuffle, queue and playlists when Spotify is authorized; DJConnect no longer creates a native playback proxy media player.
 
+DJConnect supports an explicit options-flow backend switch between Spotify Direct and Music Assistant. The switch keeps pairing, device tokens, Ask DJ history, DJ Memory and push registrations while clients use `music_backend_revision` to discard stale backend-specific playback actions. Pair/status/command responses include a safe backend summary and capabilities so clients can render About/debug and recover from unsupported backend features without extra endpoints.
+
 Apple push registration for iOS, macOS and watchOS clients is optional and relay-only through the central DJConnect API with a per-install token bootstrapped from a short-lived Apple-client proof; Home Assistant never stores APNs provider keys and only sends strict Ask DJ wake/sync hints.
 
 For APNs troubleshooting, use the `APNs registratie` diagnostic sensor and the `djconnect.test_apns_push` developer action. The action can run as a dry-run or send one test event, returning relay/config flags and actionable errors such as `missing_bootstrap_proof` without exposing APNs tokens, bearer tokens, bootstrap proofs or `djci_` install tokens.

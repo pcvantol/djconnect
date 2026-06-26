@@ -51,7 +51,7 @@
     "playback_control": {
       "spotify_type": "backend_command",
       "plays_music": false,
-      "description": "Direct playback controls. These do not run Spotify search. They call the Spotify backend command and then generate a DJ response.",
+      "description": "Direct playback controls. These do not run provider search. They call the selected DJConnect backend command and then generate a DJ response.",
       "commands": {
         "pause": {
           "spotify_command": "pause",
@@ -315,7 +315,7 @@
           "Actief"
         ]
       },
-      "description": "Ask which Spotify output devices are available or request speaker switching. DJConnect returns a text list plus output actions when devices are known.",
+      "description": "Ask which backend output devices or target players are available, or request speaker switching. DJConnect returns a text list plus backend-aware output actions when outputs are known.",
       "nl": [
         "Welke speakers zijn er?",
         "Welke apparaten kan ik gebruiken?",
@@ -614,7 +614,7 @@
     "seed_playlist_mix": {
       "plays_music": false,
       "action": "none",
-      "description": "Ask DJ to compose a playable mix from artist, track or genre seeds. The response returns a track_mix Play Now action and can later save the mix as a Spotify playlist.",
+      "description": "Ask DJ to compose a playable mix from artist, track or genre seeds. The response returns backend-aware Play Now actions; Spotify Direct can later save the mix as a Spotify playlist.",
       "nl": [
         "Stel een playlist samen op basis van Radiohead, Massive Attack en Portishead",
         "Maak een mix met Above & Beyond, Armin van Buuren en Ferry Corsten",

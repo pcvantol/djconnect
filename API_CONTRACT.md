@@ -51,12 +51,49 @@ Stable client-facing fields include:
 - `sources`
 - `playback_actions`
 - `backend_available`
+- `music_backend`
+- `music_backend_name`
+- `music_backend_available`
+- `music_backend_revision`
+- `music_backend_capabilities`
+- `music_target_player`
+- `music_backend_error`
 - `provider` / `source`
 
 Clients may display provider/source labels when present, but must not require
-provider-specific fields for core rendering. Future Music Assistant support
-should keep these same DJConnect shapes and report missing capabilities through
-normal `success:false`, `error` and `backend_available:false` responses.
+provider-specific fields for core rendering. `music_backend_error` is either
+`null` or a small safe object with `code` and user-facing `message`; it never
+contains raw exceptions, OAuth tokens, Music Assistant secrets or Home
+Assistant long-lived tokens.
+
+Pairing, status and command-status responses expose the active backend and a
+monotonic `music_backend_revision`. Clients should treat cached/pending
+backend-specific Play Now actions, recommendations and confirmation actions as
+stale when their local revision is lower than the server revision. The backend
+switch keeps pairing, device tokens, Ask DJ history, DJ Memory and APNs
+registrations; only backend-specific pending playback actions are invalidated.
+
+Unsupported backend capabilities use this stable shape instead of vague 500s:
+
+```json
+{
+  "success": false,
+  "error": "unsupported_backend_capability",
+  "capability": "supports_recently_played",
+  "backend": "music_assistant",
+  "message": "The selected music backend does not provide recent listening history."
+}
+```
+
+Stale backend-specific actions return:
+
+```json
+{
+  "success": false,
+  "error": "stale_backend_action",
+  "message": "This action was created for a previous music backend. Ask DJ again for a fresh recommendation."
+}
+```
 
 ## Ask DJ Mood Zones
 
@@ -119,10 +156,11 @@ before the assistant message for the same `client_message_id`.
 
 Supported action kinds:
 
-- `album`: direct Play Now action for a Spotify album. The action includes a
-  Spotify `uri`/`context_uri`, `title`, optional `subtitle`/artist and optional
-  proxied `image_url`.
-- `output`: Spotify Connect output selection. Render the action as an output row
+- `album`: direct Play Now action for an album. The action includes
+  backend-aware metadata, `title`, optional `subtitle`/artist and optional
+  proxied `image_url`. Spotify Direct actions keep legacy `uri`/`context_uri`
+  fields; clients should prefer the nested `value` object when present.
+- `output`: backend output/player selection. Render the action as an output row
   or button. Use `label`/`button_label` such as `Activeer`; an already active
   output may use `Actief`.
 - `control`: immediate playback control action. Pause/stop responses can return
@@ -150,9 +188,52 @@ Supported action kinds:
   metadata so clients can show and play the DJ announcement immediately instead
   of waiting for ambient playback facts.
 
+Playback actions are backend-aware. Clients must not assume Spotify URIs:
+
+```json
+{
+  "id": "spotify:track:123",
+  "kind": "track",
+  "command": "ask_dj_play_recommendation",
+  "label": "Play Now",
+  "backend": "spotify_direct",
+  "provider": "spotify",
+  "music_backend_revision": 1,
+  "value": {
+    "uri": "spotify:track:123",
+    "title": "Track Title",
+    "subtitle": "Artist Name",
+    "image_url": "/api/djconnect/image_proxy/token"
+  }
+}
+```
+
+Music Assistant actions use provider-neutral item metadata:
+
+```json
+{
+  "id": "ma:track:123",
+  "kind": "track",
+  "command": "ask_dj_play_recommendation",
+  "label": "Play Now",
+  "backend": "music_assistant",
+  "provider": "music_assistant",
+  "music_backend_revision": 4,
+  "value": {
+    "item_id": "ma:track:123",
+    "provider": "music_assistant",
+    "media_type": "track",
+    "title": "Track Title",
+    "subtitle": "Artist Name",
+    "image_url": "/api/djconnect/image_proxy/token",
+    "target_player_id": "media_player.mass_woonkamer"
+  }
+}
+```
+
 Speaker/output questions such as `welke speakers zijn er?` or
 `wissel van uitvoer` return a short text intro plus one `output` action per
-available Spotify Connect device. They must not include stale album art from an
+available backend output/player. They must not include stale album art from an
 earlier music response.
 
 Album-discography questions such as `Welke albums bracht Nirvana uit?` return a

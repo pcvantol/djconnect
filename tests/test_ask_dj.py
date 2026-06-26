@@ -374,7 +374,9 @@ class AskDjTest(unittest.TestCase):
                     "device_id": "speaker-1",
                     "device_name": "Woonkamer",
                     "active": True,
-                    "reason": "Spotify Connect uitvoer wijzigen vanuit Ask DJ.",
+                    "backend": "spotify_direct",
+                    "provider": "spotify",
+                    "reason": "Backend-uitvoer wijzigen vanuit Ask DJ.",
                 },
                 {
                     "id": "set_output:speaker-2",
@@ -387,7 +389,9 @@ class AskDjTest(unittest.TestCase):
                     "device_id": "speaker-2",
                     "device_name": "Keuken",
                     "active": False,
-                    "reason": "Spotify Connect uitvoer wijzigen vanuit Ask DJ.",
+                    "backend": "spotify_direct",
+                    "provider": "spotify",
+                    "reason": "Backend-uitvoer wijzigen vanuit Ask DJ.",
                 },
             ],
         )

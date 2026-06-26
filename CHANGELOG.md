@@ -18,6 +18,16 @@
   Assistant. Spotify Direct keeps DJConnect PKCE OAuth; Music Assistant uses a
   configured MA `media_player`, skips DJConnect Spotify OAuth/repairs and
   degrades unsupported Ask DJ/library features through backend capabilities.
+- Add an explicit `Muziekbackend wijzigen` / `Change music backend` options-flow
+  action so users can switch between Spotify Direct and Music Assistant without
+  removing the integration. Pairing, tokens, Ask DJ history, DJ Memory and push
+  registrations are preserved, while `music_backend_revision` marks old
+  backend-specific playback actions stale.
+- Harden the client-visible backend contract: pair/status/command responses now
+  include backend name, availability, revision, capabilities, target player and
+  safe `music_backend_error`; Play Now actions carry backend/provider/revision
+  metadata; stale actions and unsupported capabilities return explicit
+  user-facing error shapes.
 
 ## 3.1.99
 

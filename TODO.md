@@ -31,6 +31,13 @@
 - Keep backend choice explicit as `Spotify Direct` or `Music Assistant`; do not
   add Auto mode or a large Music Assistant setup flow unless a later product
   decision changes the contract.
+- Field-test the options-flow `Muziekbackend wijzigen` action in Home
+  Assistant: switching should preserve pairing/device token/history/memory,
+  bump `music_backend_revision`, hide Spotify reauthorize while Music Assistant
+  is active and mark old backend-specific Ask DJ actions stale.
+- Field-test client rendering of backend-aware `playback_actions[]`, stale
+  action rejection and `unsupported_backend_capability` errors on both Spotify
+  Direct and Music Assistant.
 
 ## PTT / Voice
 
