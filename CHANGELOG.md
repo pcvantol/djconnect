@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.1.98
 
 - Extend Ask DJ technical track analysis to provider-neutral contract v2 with
   client-ready `analysis.sections[]`, `analysis.timeline[]` and
