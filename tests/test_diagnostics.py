@@ -94,6 +94,30 @@ class DiagnosticsTest(unittest.TestCase):
         self.assertEqual(result["entry"]["data"]["spotify_refresh_token"], "REDACTED")
         self.assertEqual(result["entry"]["options"]["wifi_password"], "REDACTED")
 
+    def test_music_assistant_diagnostics_do_not_require_spotify_oauth(self) -> None:
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            title="DJConnect",
+            data={
+                "music_backend": "music_assistant",
+                "music_assistant_player": "media_player.mass_living",
+            },
+            options={},
+        )
+        hass = types.SimpleNamespace(data={"djconnect": {"entry-1": None}})
+
+        result = asyncio.run(
+            self.diagnostics.async_get_config_entry_diagnostics(hass, entry)
+        )
+
+        self.assertEqual(result["music_backend"]["selected"], "music_assistant")
+        self.assertFalse(result["spotify_oauth"]["required"])
+        self.assertFalse(result["spotify_oauth"]["reauthorization_required"])
+        self.assertTrue(result["music_backend"]["capabilities"]["supports_volume"])
+        self.assertFalse(
+            result["music_backend"]["capabilities"]["supports_recently_played"]
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

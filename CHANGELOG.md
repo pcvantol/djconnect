@@ -1,5 +1,24 @@
 # Changelog
 
+## 3.2.0
+
+- Start the 3.2 transport and pairing model: ESP32 and Raspberry Pi stay
+  LAN-only local devices, while iOS, macOS and Windows become inbound-only app
+  clients after local pairing.
+- Add capability-aware Home Assistant URL payloads so remote-capable app clients
+  can receive `ha_remote_url` when an HTTPS external/Nabu Casa URL is available,
+  while ESP32 and Raspberry Pi only receive `ha_local_url`.
+- Split setup copy and config-flow behavior so app pairing no longer asks for a
+  Client adres or calls client-hosted `/api/device/*` endpoints; local-device
+  pairing keeps Client adres as an advanced/fallback LAN field.
+- Add a thin DJConnect use-case layer and `MusicBackend` capability abstraction,
+  with Spotify Direct isolated behind a backend adapter for migrated command,
+  Ask DJ, processor and HA entity paths.
+- Add a hard playback backend choice between Spotify Direct and Music
+  Assistant. Spotify Direct keeps DJConnect PKCE OAuth; Music Assistant uses a
+  configured MA `media_player`, skips DJConnect Spotify OAuth/repairs and
+  degrades unsupported Ask DJ/library features through backend capabilities.
+
 ## 3.1.99
 
 - Add a free online MetaBrainz metadata/context provider for Ask DJ technical

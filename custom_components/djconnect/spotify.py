@@ -6,7 +6,7 @@ from homeassistant.core import HomeAssistant
 
 from .const import CONF_LIKED_PROXY, CONF_SPOTIFY_SOURCE
 from .music_intent import clean_music_query, extract_artist_query, parse_spoken_music_request
-from .spotify_backend import handle_spotify_command
+from .use_cases import run_music_command as handle_spotify_command
 
 MEDIA_CONTENT_TYPES = {
     "artist": "artist",

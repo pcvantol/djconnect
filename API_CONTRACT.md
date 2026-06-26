@@ -9,8 +9,8 @@ Pairing, status, command, Ask DJ and voice requests use canonical
 `client_type` values to distinguish runtimes. Current values are `esp32`, `ios`,
 `macos`, `watchos`, `raspberry_pi` and `windows`.
 
-App-like client ids must match their client type prefix and use the first 12
-alphanumeric characters of the stable client install id:
+Client ids must match their client type prefix and use the first 12
+alphanumeric characters of the stable client install id where applicable:
 
 - `ios`: `djconnect-ios-XXXXXXXXXXXX`
 - `macos`: `djconnect-macos-XXXXXXXXXXXX`
@@ -18,10 +18,45 @@ alphanumeric characters of the stable client install id:
 - `raspberry_pi`: `djconnect-raspberry-pi-XXXXXXXXXXXX`
 - `windows`: `djconnect-windows-XXXXXXXXXXXX`
 
-App-like clients may advertise `_djconnect._tcp` mDNS with TXT records including
-`device_id`, `client_type`, `device_name`, `local_url`, `version`/`app_version`
-and pairing code aliases. Home Assistant treats
-`GET /api/device/pairing-info` as authoritative when reachable.
+ESP32 and Raspberry Pi are local devices. They may advertise `_djconnect._tcp`
+with TXT records including `device_id`, `client_type`, `device_name`,
+`local_url`, `version`/`app_version` and pairing code aliases. Home Assistant
+treats `GET /api/device/pairing-info` as authoritative when reachable.
+
+iOS, macOS and Windows are inbound-only app clients. They do not expose a
+Home Assistant-callable `/api/device/*` API, do not need a Client address in the
+Home Assistant setup flow, and post local pairing requests to
+`POST /api/djconnect/pair`. After that local pairing, Home Assistant returns
+`device_token`, `ha_local_url`, optional `ha_remote_url`, capability flags and
+API paths. `ha_remote_url` is only returned to `ios`, `macos` and `windows`
+when Home Assistant has an HTTPS external/Nabu Casa URL. ESP32 and Raspberry Pi
+must never receive `ha_remote_url`. watchOS uses the iPhone proxy and is not a
+separate HA-direct pairing target.
+
+## Backend-Independent Response Shapes
+
+DJConnect clients should consume DJConnect response shapes, not Spotify Web API
+objects directly. In `3.2.x`, Spotify Direct is the default backend adapter, but
+commands and Ask DJ actions are routed through an internal use-case layer before
+the selected music backend.
+
+Stable client-facing fields include:
+
+- `playback`
+- `queue`
+- `items`
+- `playlists`
+- `devices` / `outputs`
+- `images`
+- `sources`
+- `playback_actions`
+- `backend_available`
+- `provider` / `source`
+
+Clients may display provider/source labels when present, but must not require
+provider-specific fields for core rendering. Future Music Assistant support
+should keep these same DJConnect shapes and report missing capabilities through
+normal `success:false`, `error` and `backend_available:false` responses.
 
 ## Ask DJ Mood Zones
 
@@ -201,6 +236,11 @@ These responses use:
 - `intent.item_type: "tracks" | "albums" | "artists" | "playlists"`
 - `action: "none"`
 - `sources[]` including `spotify_recently_played`
+
+If the selected music backend does not expose recent listening history, the
+response keeps `intent:"recently_played_history"`, `action:"none"` and empty
+playback actions, but returns a short backend-capability fallback text instead
+of Spotify OAuth or scope repair instructions.
 
 The response may include top-level `items[]` and the same list under
 `assistant_message.items[]`. Each item is display-ready:
@@ -455,7 +495,7 @@ Register payload:
   "push_token": "...",
   "push_environment": "sandbox",
   "app_bundle_id": "dev.djconnect.app",
-  "app_version": "3.1.99",
+  "app_version": "3.2.0",
   "locale": "nl-NL",
   "notification_categories": ["ask_dj_response", "ask_dj_confirm", "playback_change"]
 }

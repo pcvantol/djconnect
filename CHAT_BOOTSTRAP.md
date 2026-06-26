@@ -24,7 +24,7 @@ Lees eerst:
 
 Belangrijke huidige status:
 - Project: DJConnect Home Assistant custom integration, domain `djconnect`.
-- Laatste release: `3.1.99`.
+- Laatste release: `3.2.0`.
 - Repo is public en MIT-licensed.
 - Alle DJConnect repos zijn MIT-licensed, tenzij een specifieke third-party dependency anders vermeldt.
 - `FIRMWARE-LICENSE.md` is verwijderd.
@@ -38,10 +38,17 @@ Belangrijke huidige status:
 - Spotify OAuth gebruikt PKCE met een door de gebruiker aangemaakte Spotify Developer app; setup vraagt om `spotify_client_id` en toont de exacte redirect URI die in Spotify Developer Dashboard geregistreerd moet worden.
 - Actieve voice routes gebruiken Home Assistant Assist/TTS, geen directe externe AI/STT/TTS APIs.
 - DJConnect exposeert een Home Assistant conversation agent met vaste naam `DJConnect DJ`.
-- Initial setup heeft nu 3 opties:
+- Initial setup heeft nu 4 opties:
   - `Assist Conversation Agent` zonder client-koppelcode/device token/Client adres.
-  - `DJConnect app of device koppelen`;
+  - `DJConnect lokaal device koppelen` voor ESP32/Raspberry Pi LAN-only met mDNS en optioneel Client adres fallback;
+  - `DJConnect app koppelen` voor iOS/macOS/Windows inbound-only pairing zonder Client adres, met optionele `ha_remote_url` na lokale pairing;
   - `ESP32 device WiFi configureren (via Bluetooth)`.
+- ESP32 en Raspberry Pi blijven local-only; iOS, macOS en Windows zijn remote-capable na lokale pairing; watchOS loopt via iPhone proxy en krijgt geen eigen HA-direct pairingcontract.
+- `/api/device/*` is alleen voor ESP32/Raspberry Pi lokale device API. App clients bellen HA via `/api/djconnect/...`; HA probeert app clients niet lokaal terug te bellen.
+- `3.2.0` introduceert `custom_components/djconnect/use_cases.py` als dunne DJConnect use-case laag met `MusicBackend` capabilities. Spotify Direct is de default backend-adapter. Music Assistant is beschikbaar als kleine adapter via een gekozen HA `media_player`, niet als DJConnect-side provider registry, library index, queue engine, grouping/sync engine of Music Assistant light.
+- Config-flow kiest nu expliciet `Spotify Direct` of `Music Assistant`, zonder Auto. Spotify Direct gebruikt DJConnect PKCE OAuth en Spotify repairs. Music Assistant vereist geen DJConnect Spotify Client ID/OAuth; Music Assistant beheert provider-auth, DJConnect valideert dat MA beschikbaar is en bewaart de gekozen target player.
+- Diagnostics tonen `music_backend.selected` en capability flags. Voor Music Assistant staat `spotify_oauth.required=false` en worden Spotify OAuth/reauthorization repairs niet aangemaakt.
+- Nieuwe playback/control code mag niet rechtstreeks Spotify helpers aanroepen buiten de backend-adapter; routeer via de use-case laag.
 - Compacte conversation-agent options-flow toont alleen actie en smart-home context allowlist; DJ response stijl/prompt is geen user-facing optie meer en volgt runtime client mood of de hardcoded default.
 - Verwijderde opties:
   - Spotify source override;
@@ -60,7 +67,7 @@ Belangrijke huidige status:
 - Cross-device clear/trim is backend-authoritative: clients vergelijken `clear_revision`, `history_revision` en trim metadata; niet op system-message tekst parsen.
 - Ask DJ gebruikt `playback_actions[]` voor Play Now en confirmation buttons; `confirmation_actions[]` bevat dezelfde Ja/Nee confirmation actions voor clients die die apart willen renderen.
 - Ask DJ memory-summary vragen zoals `wat weet je nu over mij?` gebruiken intent `personal_memory_summary` en zijn DJ Memory-only. Render ze tekst-only met source `djconnect_memory`; geen oude album art, geen TTS/playback-knop en geen Play Now-knoppen reconstrueren.
-- Ask DJ recent-played vragen zoals `welke nummers heb ik afgelopen uur afgespeeld?`, `welke albums heb ik vandaag geluisterd?`, `welke artiesten hoorde ik net?` en `welke playlists heb ik afgelopen uur gespeeld?` gebruiken Spotify `/me/player/recently-played`, blijven informatief en muteren playback niet. Responses gebruiken intent `recently_played_history`, `intent.item_type` (`tracks`, `albums`, `artists`, `playlists`), `items[]`, `assistant_message.items[]`, `images[]` en source `spotify_recently_played`.
+- Ask DJ recent-played vragen zoals `welke nummers heb ik afgelopen uur afgespeeld?`, `welke albums heb ik vandaag geluisterd?`, `welke artiesten hoorde ik net?` en `welke playlists heb ik afgelopen uur gespeeld?` gebruiken bij Spotify Direct Spotify `/me/player/recently-played`, blijven informatief en muteren playback niet. Responses gebruiken intent `recently_played_history`, `intent.item_type` (`tracks`, `albums`, `artists`, `playlists`), `items[]`, `assistant_message.items[]`, `images[]` en source `spotify_recently_played`. Als de gekozen backend deze capability niet heeft, geeft Ask DJ een backend-capability fallback zonder Spotify-scope repairtekst.
 - Clients renderen `recently_played_history` als compacte lijst met art/icon links en titel/subtitel/tijd rechts. Niet als grote losse mediakaart renderen, geen oude artwork hergebruiken, en geen Play Now-knoppen toevoegen tenzij de backend expliciet `playback_actions[]` meestuurt.
 - `command:"ask_dj_followup_response"` handelt Ja/Nee follow-ups af via server-side pending state in DJ Memory; pending follow-ups verlopen na ongeveer 10 minuten.
 - `Goedemorgen`/`Good morning` met `trigger:"morning_startup"` en geen actieve playback geeft een ochtend-suggestie met Ja/Nee knoppen zonder automatisch te starten; `ik ga slapen` pauzeert muziek direct.

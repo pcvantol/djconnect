@@ -4,8 +4,16 @@ from typing import Any
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 
-from .const import CONF_SPOTIFY_SCOPES, DOMAIN, SPOTIFY_SCOPES
+from .const import (
+    CONF_MUSIC_BACKEND,
+    CONF_SPOTIFY_SCOPES,
+    DEFAULT_MUSIC_BACKEND,
+    DOMAIN,
+    MUSIC_BACKEND_MUSIC_ASSISTANT,
+    SPOTIFY_SCOPES,
+)
 from .spotify_oauth import missing_spotify_scopes, normalize_spotify_scopes
+from .use_cases import MusicAssistantBackend, SpotifyDirectBackend
 
 _REDACT_KEY_PARTS = ("token", "password", "secret", "proof", "authorization")
 LEGAL_DIAGNOSTICS = {
@@ -35,16 +43,36 @@ def _is_sensitive_key(key: Any) -> bool:
 
 async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, Any]:
     runtime = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+    backend = str(
+        entry.options.get(CONF_MUSIC_BACKEND)
+        or entry.data.get(CONF_MUSIC_BACKEND)
+        or DEFAULT_MUSIC_BACKEND
+    )
     configured_scopes = entry.data.get(CONF_SPOTIFY_SCOPES)
     missing_scopes = missing_spotify_scopes(configured_scopes)
+    capabilities = (
+        MusicAssistantBackend.capabilities
+        if backend == MUSIC_BACKEND_MUSIC_ASSISTANT
+        else SpotifyDirectBackend.capabilities
+    )
+    spotify_oauth = {
+        "configured_scopes": normalize_spotify_scopes(configured_scopes),
+        "required_scopes": SPOTIFY_SCOPES,
+        "missing_scopes": missing_scopes,
+        "reauthorization_required": bool(missing_scopes),
+    }
+    if backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
+        spotify_oauth = {
+            "required": False,
+            "reauthorization_required": False,
+        }
     return {
         "legal": LEGAL_DIAGNOSTICS,
-        "spotify_oauth": {
-            "configured_scopes": normalize_spotify_scopes(configured_scopes),
-            "required_scopes": SPOTIFY_SCOPES,
-            "missing_scopes": missing_scopes,
-            "reauthorization_required": bool(missing_scopes),
+        "music_backend": {
+            "selected": backend,
+            "capabilities": dict(capabilities.__dict__),
         },
+        "spotify_oauth": spotify_oauth,
         "entry": {
             "title": entry.title,
             "data": _redact(dict(entry.data)),

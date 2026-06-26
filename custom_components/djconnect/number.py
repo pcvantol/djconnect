@@ -11,7 +11,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import CLIENT_TYPE_ESP32, DOMAIN
 from .entity_ids import entry_unique_id
-from .spotify_backend import handle_spotify_command
+from .use_cases import run_music_command as handle_spotify_command
 
 MIN_VOLUME = 0.0
 MAX_VOLUME = 60.0

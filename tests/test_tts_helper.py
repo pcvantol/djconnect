@@ -817,21 +817,31 @@ class TtsHelperTest(unittest.TestCase):
         self.assertEqual(runtime.device_status["device_id"], "djconnect-macos-68B74487726D")
         self.assertEqual(runtime.device_status["client_type"], "macos")
 
-    def test_ha_url_payload_only_sends_local_url_not_nabu_casa_remote(self) -> None:
+    def test_ha_url_payload_sends_remote_only_to_remote_capable_clients(self) -> None:
         ha_urls = importlib.import_module("custom_components.djconnect.ha_urls")
         hass = types.SimpleNamespace(
             config=types.SimpleNamespace(external_url="https://fallback.ui.nabu.casa")
         )
 
-        payload = asyncio.run(
+        esp_payload = asyncio.run(
             ha_urls.async_ha_url_payload(
                 hass,
                 {self.const.CONF_HA_EXTERNAL_URL: "https://example.ui.nabu.casa"},
+                client_type=self.const.CLIENT_TYPE_ESP32,
+            )
+        )
+        ios_payload = asyncio.run(
+            ha_urls.async_ha_url_payload(
+                hass,
+                {self.const.CONF_HA_EXTERNAL_URL: "https://example.ui.nabu.casa"},
+                client_type=self.const.CLIENT_TYPE_IOS,
             )
         )
 
-        self.assertEqual(payload["ha_local_url"], "http://homeassistant.local:8123")
-        self.assertNotIn("ha_remote_url", payload)
+        self.assertEqual(esp_payload["ha_local_url"], "http://homeassistant.local:8123")
+        self.assertNotIn("ha_remote_url", esp_payload)
+        self.assertEqual(ios_payload["ha_local_url"], "http://homeassistant.local:8123")
+        self.assertEqual(ios_payload["ha_remote_url"], "https://example.ui.nabu.casa")
 
     def test_ha_local_url_uses_source_ip_fallback(self) -> None:
         helpers = sys.modules["homeassistant.helpers"]

@@ -21,7 +21,7 @@ from .const import (
 )
 from .entity_ids import entry_unique_id
 from .push import relay_configured
-from .spotify_backend import handle_spotify_command
+from .use_cases import run_music_command as handle_spotify_command
 
 MAX_SENSOR_STATE_TEXT_LENGTH = 255
 APNS_SUPPORTED_CLIENT_TYPES = {CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_WATCHOS}

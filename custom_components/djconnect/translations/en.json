@@ -3,26 +3,26 @@
     "step": {
       "user": {
         "title": "Set up DJConnect",
-        "description": "Choose the DJConnect DJ Assist-agent for Home Assistant Assist satellites, or pair a DJConnect client: iOS, macOS, Apple Watch, Raspberry Pi/Linux, Windows or ESP32.",
+        "description": "Choose the DJConnect DJ Assist agent, pair a local DJConnect device (ESP32/Raspberry Pi), or pair a DJConnect app (iOS/macOS/Windows).",
         "data": {
           "setup_method": "Setup method"
         }
       },
       "pair": {
         "title": "Pair DJConnect device",
-        "description": "Enter the pairing code shown on your DJConnect device. If Home Assistant finds the app or device through mDNS, Client adres, client type and device name are prefilled automatically. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by or sponsored by Spotify AB.",
+        "description": "Enter the pairing code. Apps pair by calling Home Assistant locally and do not need a Client address. For ESP32 and Raspberry Pi, Client address is a local advanced/fallback field. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by or sponsored by Spotify AB.",
         "data": {
           "pair_code": "Pairing code",
           "device_name": "Device name",
           "client_type": "Client type",
-          "local_url": "Client adres",
+          "local_url": "Client address",
           "discovered_client": "Discovered DJConnect client"
         },
         "data_description": {
           "pair_code": "The 6 digit code or 12 character device suffix shown on the device display.",
           "device_name": "Friendly name for this DJConnect remote.",
-          "client_type": "Type of DJConnect client pairing with Home Assistant: iOS app, macOS app, Apple Watch app, Linux/Raspberry Pi client, Windows app or ESP32 device.",
-          "local_url": "Copy the Client adres from the DJConnect app under Settings.",
+          "client_type": "DJConnect client type: iOS app, macOS app, Windows app, Raspberry Pi client or ESP32 device. Apple Watch uses the iPhone proxy and is not paired separately.",
+          "local_url": "Only for ESP32/Raspberry Pi local device API fallback; leave empty when mDNS works.",
           "discovered_client": "Choose an automatically discovered DJConnect client to prefill pairing details, or use manual entry."
         }
       },
@@ -45,15 +45,15 @@
       "spotify": {
         "title": "Connect Spotify",
         "description": "Create your own Spotify Developer app at {developer_url} and register this exact redirect URI: `{redirect_uri}`. Prefer your Nabu Casa HTTPS Home Assistant URL. DJConnect uses PKCE, so no Client Secret is needed.",
-                "data": {
-                  "spotify_client_id": "Spotify Client ID",
-                  "ha_external_url": "Home Assistant external URL"
-                },
-                "data_description": {
-                  "spotify_client_id": "Client ID from your own Spotify Developer app.",
-                  "ha_external_url": "External Home Assistant URL Spotify returns to after authorization."
-                }
-              },
+        "data": {
+          "spotify_client_id": "Spotify Client ID",
+          "ha_external_url": "Home Assistant external URL"
+        },
+        "data_description": {
+          "spotify_client_id": "Client ID from your own Spotify Developer app.",
+          "ha_external_url": "External Home Assistant URL Spotify returns to after authorization."
+        }
+      },
       "spotify_oauth": {
         "title": "Authorize DJConnect with Spotify",
         "description": "Home Assistant opens Spotify in your browser. After approving access, return here to continue setup."
@@ -63,7 +63,7 @@
         "data": {
           "assist_pipeline_id": "Assist pipeline",
           "client_type": "Client type",
-          "local_url": "Client adres",
+          "local_url": "Client address",
           "dj_response_enabled": "Play DJ announcement on device",
           "track_analysis_enabled": "Ask DJ track analysis",
           "track_analysis_use_ha_conversation": "Use HA Conversation for track analysis",
@@ -73,7 +73,7 @@
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline used by DJConnect devices for speech recognition and DJ announcement audio.",
-          "client_type": "Type of DJConnect client pairing with Home Assistant: iOS app, macOS app, Apple Watch app, Linux/Raspberry Pi client, Windows app or ESP32 device.",
+          "client_type": "DJConnect client type: app, local device or Assist agent.",
           "dj_response_enabled": "Create a temporary WAV or MP3 audio URL and send it with the DJ announcement to the DJConnect device.",
           "smart_home_context_entities": "Explicit read-only Home Assistant entities DJConnect may include in Ask DJ context, for example weather, room temperature, appliance status or scene state.",
           "firmware_channel": "Choose stable for normal OTA updates or beta to test prerelease firmware.",
@@ -86,18 +86,18 @@
       },
       "spotify_reauth_done": {
         "title": "Spotify OAuth succeeded",
-        "description": "DJConnect Spotify OAuth succeeded. The refresh token is stored in Home Assistant. You can close this window; Home Assistant now manages Spotify playback itself."
+        "description": "DJConnect Spotify OAuth succeeded. You can close this window; Home Assistant now manages Spotify playback itself."
       },
       "repair_pairing": {
         "title": "Re-pair DJConnect",
         "description": "Put the DJConnect device in pairing mode and enter the new pairing code shown on its display. Home Assistant will create a new device token.",
         "data": {
           "pair_code": "New pairing code",
-          "local_url": "Client adres"
+          "local_url": "Client address"
         },
         "data_description": {
           "pair_code": "The 6 digit code or 12 character device suffix shown on the device display.",
-          "local_url": "Copy the Client adres from the DJConnect app under Settings."
+          "local_url": "Only for ESP32/Raspberry Pi local device API fallback; leave empty to reuse the stored URL."
         }
       },
       "central_api": {
@@ -116,13 +116,35 @@
           "options_action": "Save support settings, or rotate the token through the central DJConnect API."
         }
       },
-      "spotify_reauth": {
-        "title": "Reauthorize Spotify",
-        "description": "Home Assistant opens Spotify so DJConnect can be authorized again. After approval you return to Home Assistant."
+      "backend": {
+        "title": "Music backend",
+        "description": "Choose the backend DJConnect uses for playback. Spotify Direct uses DJConnect Spotify OAuth. Music Assistant uses your Home Assistant Music Assistant setup and does not require a Spotify Client ID in DJConnect.",
+        "data": {
+          "music_backend": "Music backend"
+        },
+        "data_description": {
+          "music_backend": "Choose Spotify Direct or Music Assistant. Remote pairing is still not allowed."
+        }
       },
-      "spotify_reauth_done": {
-        "title": "Spotify OAuth succeeded",
-        "description": "DJConnect Spotify OAuth succeeded. You can close this window; Home Assistant now manages Spotify playback itself."
+      "music_assistant": {
+        "title": "Music Assistant player",
+        "description": "Choose the Music Assistant player DJConnect should control. Music Assistant must already be installed and configured in Home Assistant.",
+        "data": {
+          "music_assistant_player": "Music Assistant player"
+        },
+        "data_description": {
+          "music_assistant_player": "The Home Assistant media_player entity exposed by Music Assistant."
+        }
+      },
+      "init": {
+        "data": {
+          "music_backend": "Music backend",
+          "music_assistant_player": "Music Assistant player"
+        },
+        "data_description": {
+          "music_backend": "Selected playback backend.",
+          "music_assistant_player": "Configured Music Assistant target player."
+        }
       }
     },
     "error": {
@@ -139,11 +161,14 @@
       "ble_device_required": "Select a DJConnect BLE device or enter its Bluetooth address.",
       "wifi_ssid_required": "Enter the WiFi SSID to provision.",
       "ble_wifi_failed": "WiFi provisioning over Bluetooth failed. Check the selected device, SSID and password, then try again.",
-      "pairing_info_unavailable": "Home Assistant can see this DJConnect client through mDNS, but cannot reach its pairing-info endpoint. Check the Client adres or enter it manually.",
+      "pairing_info_unavailable": "Home Assistant can see this local DJConnect device through mDNS, but cannot reach its pairing-info endpoint. Check the Client address or enter it manually.",
       "repair_pairing_failed": "Re-pairing failed. Check that the DJConnect device is reachable and showing a pairing code.",
       "central_api_url_invalid": "Enter a complete HTTPS DJConnect API URL.",
       "install_token_invalid": "Enter a DJConnect install token that starts with djci_.",
-      "central_api_rotate_failed": "DJConnect could not rotate the install token. Check the current token and try again."
+      "central_api_rotate_failed": "DJConnect could not rotate the install token. Check the current token and try again.",
+      "music_assistant_unavailable": "Music Assistant is not installed or configured in Home Assistant.",
+      "music_assistant_no_players": "No usable Music Assistant players were found.",
+      "music_assistant_player_missing": "The selected Music Assistant player no longer exists."
     },
     "abort": {
       "already_configured": "This DJConnect device is already configured."
@@ -157,22 +182,26 @@
         "data": {
           "assist_pipeline_id": "Assist pipeline",
           "client_type": "Client type",
-          "local_url": "Client adres",
+          "local_url": "Client address",
           "dj_response_enabled": "Play DJ announcement on device",
           "smart_home_context_entities": "Shared smart-home entities",
           "firmware_channel": "Firmware channel",
-          "options_action": "Action"
+          "options_action": "Action",
+          "music_backend": "Music backend",
+          "music_assistant_player": "Music Assistant player"
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline used by DJConnect devices for speech recognition and DJ announcement audio.",
-          "client_type": "Type of DJConnect client pairing with Home Assistant: iOS app, macOS app, Apple Watch app, Linux/Raspberry Pi client, Windows app or ESP32 device.",
-          "local_url": "Configured Client adres. Read-only; use re-pairing to change this URL.",
+          "client_type": "DJConnect client type: app, local device or Assist agent.",
+          "local_url": "Configured local Client address for ESP32/Raspberry Pi. Read-only; use re-pairing to change this URL.",
           "dj_response_enabled": "Create a temporary WAV or MP3 audio URL and send it with the DJ announcement to the DJConnect device.",
           "track_analysis_enabled": "Allow Ask DJ to answer read-only technical analysis questions about the currently playing track.",
           "track_analysis_use_ha_conversation": "Use the configured Home Assistant Conversation/Assist agent for musical interpretation when measured provider data is incomplete.",
           "smart_home_context_entities": "Explicit read-only Home Assistant entities DJConnect may include in Ask DJ context, for example weather, room temperature, appliance status or scene state.",
           "firmware_channel": "Choose stable for normal OTA updates or beta to test prerelease firmware.",
-          "options_action": "Choose whether to save options or reauthorize Spotify."
+          "options_action": "Choose whether to save options or reauthorize Spotify.",
+          "music_backend": "Selected playback backend.",
+          "music_assistant_player": "Configured Music Assistant target player."
         }
       },
       "repair_pairing": {
@@ -180,11 +209,11 @@
         "description": "Put the DJConnect device in pairing mode and enter the new pairing code shown on its display. Home Assistant will create a new device token.",
         "data": {
           "pair_code": "New pairing code",
-          "local_url": "Client adres"
+          "local_url": "Client address"
         },
         "data_description": {
           "pair_code": "The 6 digit code or 12 character device suffix shown on the device display.",
-          "local_url": "Copy the Client adres from the DJConnect app under Settings."
+          "local_url": "Only for ESP32/Raspberry Pi local device API fallback; leave empty to reuse the stored URL."
         }
       },
       "central_api": {
@@ -216,7 +245,10 @@
       "repair_pairing_failed": "Re-pairing failed. Check that the DJConnect device is reachable and showing a pairing code.",
       "central_api_url_invalid": "Enter a complete HTTPS DJConnect API URL.",
       "install_token_invalid": "Enter a DJConnect install token that starts with djci_.",
-      "central_api_rotate_failed": "DJConnect could not rotate the install token. Check the current token and try again."
+      "central_api_rotate_failed": "DJConnect could not rotate the install token. Check the current token and try again.",
+      "music_assistant_unavailable": "Music Assistant is not installed or configured in Home Assistant.",
+      "music_assistant_no_players": "No usable Music Assistant players were found.",
+      "music_assistant_player_missing": "The selected Music Assistant player no longer exists."
     }
   },
   "entity": {

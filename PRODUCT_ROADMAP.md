@@ -52,9 +52,9 @@ Every release must review this roadmap.
 
 ### General Product Development
 
-- [ ] Stable `3.1.x` client/integration compatibility policy, with clear
+- [x] Stable `3.2.x` client/integration compatibility policy, with clear
   major.minor mismatch errors and no automatic token wipe.
-- [ ] Redacted diagnostics for support without bearer tokens, Spotify tokens,
+- [x] Redacted diagnostics for support without bearer tokens, Spotify tokens,
   WiFi passwords, Home Assistant tokens or temporary media URLs.
 - [ ] Clear error states for unpaired, stale token, backend unavailable, version
   mismatch, Home Assistant unreachable, STT failed and TTS failed.
@@ -72,15 +72,27 @@ Every release must review this roadmap.
   link, README rendering and restart/repair text.
 - [ ] Robust Spotify OAuth refresh-token rotation without normal playback repair
   loops.
-- [ ] Clear Spotify Premium requirement and resilient reauthorization flow.
+- [ ] Clear Spotify Direct Premium/Developer-app requirement, Music Assistant
+  alternative and resilient Spotify reauthorization flow.
 - [ ] Reliable Assist STT/TTS setup guidance and diagnostics.
 - [ ] Stable entity model per client type:
   ESP32 hardware entities, app-like client runtime entities and backend/playback
   entities without irrelevant controls.
 - [ ] HA sensors stay stable after status sync and do not fall back to unknown
   after initial valid values.
-- [ ] mDNS pairing plus manual Client adres fallback for networks where
-  Bonjour is filtered, stale or unavailable.
+- [x] Split transport/pairing model where ESP32/Raspberry Pi stay local-device
+  clients and iOS/macOS/Windows become inbound-only remote-capable app clients
+  after local pairing (3.2, HA/client contract).
+- [x] Add an internal DJConnect use-case layer and Spotify Direct backend
+  adapter boundary so migrated command, Ask DJ, processor and entity paths no
+  longer call Spotify helpers directly (3.2, HA).
+- [x] Add a small Music Assistant backend adapter behind the DJConnect use-case
+  layer without rebuilding provider registries, universal library search,
+  queue/grouping engines or Music Assistant setup flows (3.2, HA).
+- [ ] Add HA/AI tool surfaces as thin wrappers over DJConnect use-cases, never
+  as direct Spotify or Music Assistant calls.
+- [ ] mDNS pairing plus manual Client adres fallback for ESP32/Raspberry Pi
+  networks where Bonjour is filtered, stale or unavailable.
 - [ ] Queue/up-next response returns max 100 real backend items, artwork URLs,
   context URI and no artificial duplicate padding.
 - [x] Ask DJ server-side chat history sync supports bounded history,
@@ -158,11 +170,10 @@ Every release must review this roadmap.
 
 ### Apple Clients: iOS / macOS
 
-- [ ] Stable app pairing through Home Assistant with one persistent device ID
-  per installation.
-- [ ] Local `/api/device/*` endpoint for HA-to-app traffic where required by the
-  pairing/runtime contract.
-- [ ] Clear LAN/Bonjour permission guidance and manual Client adres fallback.
+- [x] Stable inbound app pairing through Home Assistant with one persistent
+  device ID per installation and no client-hosted local API requirement (3.2,
+  iOS/macOS/Windows contract).
+- [ ] Clear LAN pairing and remote URL guidance.
 - [ ] Current playback, queue, DJ announcement and status views match the shared
   Home Assistant contract.
 - [ ] App-side diagnostics copy/export with redaction and issue-template links.

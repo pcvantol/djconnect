@@ -33,7 +33,10 @@ from .music_intent import parse_spoken_music_request
 from .pipeline import _assist_context, _speech_from_response
 from .processor import process_text_command
 from .smart_home_context import smart_home_context, smart_home_context_text
-from .spotify_backend import handle_spotify_command
+from .use_cases import (
+    MusicBackendCapabilityError,
+    run_music_command as handle_spotify_command,
+)
 from .track_analysis import async_analyze_current_track
 
 _LOGGER = logging.getLogger(__name__)
@@ -2620,11 +2623,17 @@ async def _recently_played_history_response(
             {"limit": 50},
         )
     except Exception as exc:  # noqa: BLE001
-        _LOGGER.debug("DJConnect Spotify recently-played unavailable: %s", exc)
-        message = (
-            "Ik kan je recente Spotify-afspeelgeschiedenis nu niet ophalen. "
-            "Controleer of DJConnect Spotify opnieuw gemachtigd is met de scope user-read-recently-played."
-        )
+        _LOGGER.debug("DJConnect recent-played unavailable: %s", exc)
+        if isinstance(exc, MusicBackendCapabilityError):
+            message = (
+                "De gekozen muziekbackend maakt recente luistergeschiedenis "
+                "niet beschikbaar voor Ask DJ."
+            )
+        else:
+            message = (
+                "Ik kan je recente Spotify-afspeelgeschiedenis nu niet ophalen. "
+                "Controleer of DJConnect Spotify opnieuw gemachtigd is met de scope user-read-recently-played."
+            )
         return _recently_played_response(message)
     tracks = result.get("tracks") if isinstance(result, dict) else []
     tracks = tracks if isinstance(tracks, list) else []

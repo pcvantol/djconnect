@@ -4900,6 +4900,29 @@ class AskDjTest(unittest.TestCase):
         self.assertNotIn("Old Song", result["text"])
         self.assertTrue(any(source["source"] == "spotify_recently_played" for source in result["sources"]))
 
+    def test_recently_played_history_degrades_when_backend_lacks_capability(self) -> None:
+        runtime = make_runtime()
+        runtime.config["music_backend"] = "music_assistant"
+        runtime.config["music_assistant_player"] = "media_player.mass_living"
+
+        result = asyncio.run(
+            self.ask_dj.async_handle_ask_dj(
+                types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                runtime,
+                {
+                    "text": "welke nummers heb ik afgelopen uur afgespeeld?",
+                    "device_id": runtime.device_status["device_id"],
+                    "client_type": "ios",
+                },
+            )
+        )
+
+        self.assertTrue(result["success"])
+        self.assertEqual(result["intent"]["intent"], "recently_played_history")
+        self.assertIn("muziekbackend", result["text"])
+        self.assertNotIn("scope user-read-recently-played", result["text"])
+        self.assertEqual(result["playback_actions"], [])
+
     def test_what_played_before_this_reads_recently_played(self) -> None:
         runtime = make_runtime()
         calls = []

@@ -38,6 +38,8 @@ from .const import (
     CONF_HA_INSTALL_ID,
     CONF_LOCAL_URL,
     CONF_MAX_AUDIO_BYTES,
+    CONF_MUSIC_ASSISTANT_PLAYER,
+    CONF_MUSIC_BACKEND,
     CONF_MIN_BATTERY_FOR_OTA,
     CONF_PAIR_CODE,
     CONF_SPOTIFY_CLIENT_ID,
@@ -61,6 +63,7 @@ from .const import (
     DEFAULT_DJ_RESPONSE_TTL_SECONDS,
     DEFAULT_FIRMWARE_CHANNEL,
     DEFAULT_MAX_AUDIO_BYTES,
+    DEFAULT_MUSIC_BACKEND,
     DEFAULT_MIN_BATTERY_FOR_OTA,
     DEFAULT_SETUP_METHOD,
     DEFAULT_SPOTIFY_MARKET,
@@ -68,14 +71,21 @@ from .const import (
     DEFAULT_TRACK_ANALYSIS_ENABLED,
     DEFAULT_TRACK_ANALYSIS_USE_HA_CONVERSATION,
     FIRMWARE_CHANNELS,
+    MUSIC_BACKEND_NAMES,
+    MUSIC_BACKEND_MUSIC_ASSISTANT,
+    MUSIC_BACKEND_SPOTIFY_DIRECT,
     CLIENT_TYPE_NAMES,
     CLIENT_TYPES,
     CLIENT_TYPE_ESP32,
     CLIENT_TYPE_IOS,
+    CLIENT_TYPE_MACOS,
+    CLIENT_TYPE_RASPBERRY_PI,
+    CLIENT_TYPE_WINDOWS,
     DOMAIN,
     SETUP_METHOD_BLE_WIFI,
     SETUP_METHOD_CONVERSATION_AGENT,
-    SETUP_METHOD_PAIR_EXISTING,
+    SETUP_METHOD_PAIR_APP,
+    SETUP_METHOD_PAIR_LOCAL_DEVICE,
 )
 from .central_api import TOKEN_PREFIX, async_rotate_install_token
 from .ble import async_discover_devices, async_provision_wifi
@@ -106,9 +116,13 @@ SETUP_METHOD_NAMES_EN = {
         "DJConnect DJ Assist-agent\n"
         "For Home Assistant Assist satellites."
     ),
-    SETUP_METHOD_PAIR_EXISTING: (
-        "Pair DJConnect client\n"
-        "iOS, macOS, Apple Watch, Raspberry Pi/Linux, Windows or ESP32."
+    SETUP_METHOD_PAIR_LOCAL_DEVICE: (
+        "Pair DJConnect local device\n"
+        "ESP32 or Raspberry Pi on this LAN."
+    ),
+    SETUP_METHOD_PAIR_APP: (
+        "Pair DJConnect app\n"
+        "iOS, macOS or Windows. Pair locally first, then use remote URL when available."
     ),
     SETUP_METHOD_BLE_WIFI: "Configure ESP32 device WiFi (over Bluetooth)",
 }
@@ -117,9 +131,13 @@ SETUP_METHOD_NAMES_NL = {
         "DJConnect DJ Assist-agent\n"
         "Voor Home Assistant Assist-satellites."
     ),
-    SETUP_METHOD_PAIR_EXISTING: (
-        "DJConnect client koppelen\n"
-        "iOS, macOS, Apple Watch, Raspberry Pi/Linux, Windows of ESP32."
+    SETUP_METHOD_PAIR_LOCAL_DEVICE: (
+        "DJConnect lokaal device koppelen\n"
+        "ESP32 of Raspberry Pi op dit LAN."
+    ),
+    SETUP_METHOD_PAIR_APP: (
+        "DJConnect app koppelen\n"
+        "iOS, macOS of Windows. Eerst lokaal koppelen, daarna remote waar beschikbaar."
     ),
     SETUP_METHOD_BLE_WIFI: "ESP32 device WiFi configureren (via Bluetooth)",
 }
@@ -162,6 +180,8 @@ VOICE_FORM_FIELDS = {
     CONF_TRACK_ANALYSIS_ENABLED,
     CONF_TRACK_ANALYSIS_USE_HA_CONVERSATION,
     CONF_FIRMWARE_CHANNEL,
+    CONF_MUSIC_BACKEND,
+    CONF_MUSIC_ASSISTANT_PLAYER,
 }
 
 
@@ -225,19 +245,23 @@ def _options_action_names(hass: Any) -> dict[str, str]:
 def _options_actions_for_status(hass: Any, defaults: dict[str, Any]) -> dict[str, str]:
     """Return visible options actions for the current pairing state."""
     actions = dict(_options_action_names(hass))
+    if defaults.get(CONF_MUSIC_BACKEND) == MUSIC_BACKEND_MUSIC_ASSISTANT:
+        actions.pop(OPTIONS_ACTION_SPOTIFY_REAUTH, None)
     pairing_status = str(defaults.get("ha_pairing_status") or "").strip().lower()
     if pairing_status not in {"pending", "stale", "invalid", "unpaired"}:
         actions.pop(OPTIONS_ACTION_RETRY_PAIRING, None)
     return actions
 
 
-def _conversation_agent_options_actions(hass: Any) -> dict[str, str]:
+def _conversation_agent_options_actions(hass: Any, defaults: dict[str, Any]) -> dict[str, str]:
     """Return actions relevant for DJConnect as an Assist conversation agent."""
     names = _options_action_names(hass)
-    return {
+    actions = {
         OPTIONS_ACTION_SAVE: names[OPTIONS_ACTION_SAVE],
-        OPTIONS_ACTION_SPOTIFY_REAUTH: names[OPTIONS_ACTION_SPOTIFY_REAUTH],
     }
+    if defaults.get(CONF_MUSIC_BACKEND, DEFAULT_MUSIC_BACKEND) != MUSIC_BACKEND_MUSIC_ASSISTANT:
+        actions[OPTIONS_ACTION_SPOTIFY_REAUTH] = names[OPTIONS_ACTION_SPOTIFY_REAUTH]
+    return actions
 
 
 def _central_api_install_id(current: dict[str, Any]) -> str:
@@ -427,6 +451,73 @@ async def _provision_ble_wifi_safe(
 def _spotify_schema() -> dict[Any, Any]:
     """Build Spotify OAuth fields."""
     return _spotify_schema_with_defaults()
+
+
+def _backend_schema(default_backend: str = DEFAULT_MUSIC_BACKEND) -> dict[Any, Any]:
+    """Build the hard backend choice schema."""
+    return {
+        vol.Required(CONF_MUSIC_BACKEND, default=default_backend): vol.In(
+            MUSIC_BACKEND_NAMES
+        )
+    }
+
+
+def _music_assistant_schema(
+    players: dict[str, str],
+    default_player: str = "",
+) -> dict[Any, Any]:
+    """Build Music Assistant target player fields."""
+    return {
+        vol.Required(
+            CONF_MUSIC_ASSISTANT_PLAYER,
+            default=default_player or next(iter(players), ""),
+        ): vol.In(players)
+    }
+
+
+def _music_assistant_available(hass: Any) -> bool:
+    """Return whether Music Assistant appears configured in Home Assistant."""
+    data = getattr(hass, "data", {}) if hass is not None else {}
+    if isinstance(data, dict) and any(key in data for key in ("music_assistant", "mass")):
+        return True
+    return bool(_music_assistant_players(hass))
+
+
+def _music_assistant_players(hass: Any) -> dict[str, str]:
+    """Return usable Music Assistant media_player entities."""
+    players: dict[str, str] = {}
+    states = getattr(hass, "states", None)
+    entity_ids = []
+    if states and hasattr(states, "async_entity_ids"):
+        try:
+            entity_ids = list(states.async_entity_ids("media_player"))
+        except Exception:  # noqa: BLE001
+            entity_ids = []
+    for entity_id in sorted(entity_ids):
+        state = states.get(entity_id) if hasattr(states, "get") else None
+        attrs = getattr(state, "attributes", {}) or {}
+        integration = str(
+            attrs.get("integration")
+            or attrs.get("platform")
+            or attrs.get("source")
+            or attrs.get("mass_player_type")
+            or ""
+        ).lower()
+        if (
+            "music_assistant" in integration
+            or "mass" in integration
+            or attrs.get("mass_player_type")
+            or attrs.get("music_assistant_player")
+        ):
+            players[entity_id] = attrs.get("friendly_name") or entity_id
+    data = getattr(hass, "data", {}) if hass is not None else {}
+    if isinstance(data, dict):
+        for key in ("music_assistant_players", "mass_players"):
+            value = data.get(key)
+            if isinstance(value, dict):
+                for entity_id, label in value.items():
+                    players[str(entity_id)] = str(label or entity_id)
+    return players
 
 
 def _spotify_schema_with_defaults(
@@ -731,7 +822,11 @@ def _conversation_agent_options_schema(
         vol.Required(
             OPTIONS_ACTION_FIELD,
             default=OPTIONS_ACTION_SAVE,
-        ): vol.In(_conversation_agent_options_actions(hass)),
+        ): vol.In(_conversation_agent_options_actions(hass, defaults)),
+        vol.Optional(
+            CONF_MUSIC_BACKEND,
+            default=defaults.get(CONF_MUSIC_BACKEND, DEFAULT_MUSIC_BACKEND),
+        ): vol.In(MUSIC_BACKEND_NAMES),
         vol.Optional(
             CONF_SMART_HOME_CONTEXT_ENTITIES,
             default=_entity_allowlist_default(defaults),
@@ -751,6 +846,16 @@ def _conversation_agent_options_schema(
             ),
         ): bool,
     }
+    if defaults.get(CONF_MUSIC_BACKEND) == MUSIC_BACKEND_MUSIC_ASSISTANT:
+        players = _music_assistant_players(hass)
+        if players:
+            schema[
+                vol.Optional(
+                    CONF_MUSIC_ASSISTANT_PLAYER,
+                    default=defaults.get(CONF_MUSIC_ASSISTANT_PLAYER)
+                    or next(iter(players), ""),
+                )
+            ] = vol.In(players)
     return vol.Schema(schema)
 
 
@@ -940,6 +1045,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     def __init__(self) -> None:
         self._pairing: dict[str, Any] = {}
+        self._backend: dict[str, Any] = {CONF_MUSIC_BACKEND: DEFAULT_MUSIC_BACKEND}
         self._spotify: dict[str, Any] = {}
         self._oauth: dict[str, str] = {}
         self._discovery_checked = False
@@ -947,6 +1053,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._discovered_defaults: dict[str, Any] = {}
         self._discovered_device_name_authoritative = False
         self._selected_discovered_key = ""
+        self._pairing_setup_method = SETUP_METHOD_PAIR_APP
 
     async def async_step_user(
         self,
@@ -976,6 +1083,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             method = user_input.get(CONF_SETUP_METHOD, DEFAULT_SETUP_METHOD)
             if method == SETUP_METHOD_BLE_WIFI:
+                self._pairing_setup_method = SETUP_METHOD_PAIR_LOCAL_DEVICE
                 return await self.async_step_ble_wifi()
             if method == SETUP_METHOD_CONVERSATION_AGENT:
                 await self.async_set_unique_id("djconnect-conversation-agent")
@@ -987,7 +1095,11 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_CLIENT_TYPE: CLIENT_TYPE_CONVERSATION_AGENT,
                 }
                 self._conversation_agent_only = True
-                return await self.async_step_spotify()
+                return await self.async_step_backend()
+            if method in {SETUP_METHOD_PAIR_LOCAL_DEVICE, SETUP_METHOD_PAIR_APP}:
+                self._pairing_setup_method = method
+            else:
+                self._pairing_setup_method = SETUP_METHOD_PAIR_APP
             return await self.async_step_pair()
 
         return self.async_show_form(
@@ -1014,6 +1126,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             action = user_input.get(BLE_ACTION_FIELD, BLE_ACTION_PROVISION)
             if action == BLE_ACTION_CONTINUE_PAIRING:
+                self._pairing_setup_method = SETUP_METHOD_PAIR_LOCAL_DEVICE
                 return await self.async_step_pair()
             if action == BLE_ACTION_RETRY_SCAN:
                 return await self.async_step_ble_wifi()
@@ -1083,7 +1196,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 defaults = getattr(self, "_discovered_defaults", {})
                 client_type = _clean(
                     user_input.get(CONF_CLIENT_TYPE),
-                    defaults.get(CONF_CLIENT_TYPE, DEFAULT_CLIENT_TYPE),
+                    defaults.get(CONF_CLIENT_TYPE, self._default_pair_client_type()),
                 )
                 local_url = _clean(
                     user_input.get(CONF_LOCAL_URL),
@@ -1115,13 +1228,14 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     ),
                     CONF_CLIENT_TYPE: client_type,
                     CONF_DEVICE_TOKEN: secrets.token_urlsafe(32),
-                    CONF_LOCAL_URL: local_url,
                 }
+                if self._client_type_uses_local_device_api(client_type):
+                    self._pairing[CONF_LOCAL_URL] = local_url
                 if client_type == CLIENT_TYPE_ESP32:
                     self._pairing[CONF_DEVICE_LANGUAGE] = _ha_device_language(
                         getattr(self, "hass", None)
                     )
-                return await self.async_step_spotify()
+                return await self.async_step_backend()
 
         return self.async_show_form(
             step_id="pair",
@@ -1139,6 +1253,13 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect config-flow mDNS discovery failed: %s", exc)
             self._discovered_clients = []
+        if self._discovered_clients:
+            allowed = set(self._pair_client_type_options())
+            self._discovered_clients = [
+                client
+                for client in self._discovered_clients
+                if client.client_type in allowed
+            ]
         if self._discovered_clients:
             client = next(
                 (
@@ -1207,7 +1328,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             or getattr(self, "_last_pair_code", "")
             or ""
         )
-        client_type = _clean(defaults.get(CONF_CLIENT_TYPE), CLIENT_TYPE_IOS)
+        client_type = _clean(defaults.get(CONF_CLIENT_TYPE), self._default_pair_client_type())
         default_device_name = _clean(defaults.get(CONF_DEVICE_NAME), DEFAULT_DEVICE_NAME)
         if getattr(self, "_discovered_device_name_authoritative", False):
             device_name = default_device_name
@@ -1239,10 +1360,88 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Optional(
                 CONF_CLIENT_TYPE,
                 default=client_type,
-            ): vol.In(CLIENT_TYPE_NAMES),
-            vol.Optional(CONF_LOCAL_URL, default=local_url): str,
+            ): vol.In(self._pair_client_type_names()),
         })
+        if self._client_type_uses_local_device_api(client_type):
+            schema[vol.Optional(CONF_LOCAL_URL, default=local_url)] = str
         return schema
+
+    def _default_pair_client_type(self) -> str:
+        if getattr(self, "_pairing_setup_method", "") == SETUP_METHOD_PAIR_LOCAL_DEVICE:
+            return CLIENT_TYPE_ESP32
+        return CLIENT_TYPE_IOS
+
+    def _pair_client_type_options(self) -> list[str]:
+        if getattr(self, "_pairing_setup_method", "") == SETUP_METHOD_PAIR_LOCAL_DEVICE:
+            return [CLIENT_TYPE_ESP32, CLIENT_TYPE_RASPBERRY_PI]
+        if getattr(self, "_pairing_setup_method", "") == SETUP_METHOD_PAIR_APP:
+            return [CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_WINDOWS]
+        return list(CLIENT_TYPES)
+
+    def _pair_client_type_names(self) -> dict[str, str]:
+        return {
+            client_type: CLIENT_TYPE_NAMES[client_type]
+            for client_type in self._pair_client_type_options()
+        }
+
+    @staticmethod
+    def _client_type_uses_local_device_api(client_type: Any) -> bool:
+        return str(client_type or "").strip() in {
+            CLIENT_TYPE_ESP32,
+            CLIENT_TYPE_RASPBERRY_PI,
+        }
+
+    async def async_step_backend(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> FlowResult:
+        """Choose Spotify Direct or Music Assistant."""
+        if user_input is not None:
+            backend = str(
+                user_input.get(CONF_MUSIC_BACKEND) or DEFAULT_MUSIC_BACKEND
+            ).strip()
+            if backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
+                self._backend = {CONF_MUSIC_BACKEND: backend}
+                return await self.async_step_music_assistant()
+            self._backend = {CONF_MUSIC_BACKEND: MUSIC_BACKEND_SPOTIFY_DIRECT}
+            return await self.async_step_spotify()
+
+        return self.async_show_form(
+            step_id="backend",
+            data_schema=vol.Schema(_backend_schema()),
+            errors={},
+        )
+
+    async def async_step_music_assistant(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> FlowResult:
+        """Configure Music Assistant target player."""
+        errors: dict[str, str] = {}
+        players = _music_assistant_players(self.hass)
+        if not _music_assistant_available(self.hass):
+            errors["base"] = "music_assistant_unavailable"
+        elif not players:
+            errors["base"] = "music_assistant_no_players"
+        if user_input is not None and not errors:
+            player = str(user_input.get(CONF_MUSIC_ASSISTANT_PLAYER) or "").strip()
+            if player not in players:
+                errors[CONF_MUSIC_ASSISTANT_PLAYER] = "music_assistant_player_missing"
+            else:
+                self._backend = {
+                    CONF_MUSIC_BACKEND: MUSIC_BACKEND_MUSIC_ASSISTANT,
+                    CONF_MUSIC_ASSISTANT_PLAYER: player,
+                }
+                self._spotify = {}
+                return await self.async_step_voice()
+
+        return self.async_show_form(
+            step_id="music_assistant",
+            data_schema=vol.Schema(
+                _music_assistant_schema(players) if players else {}
+            ),
+            errors=errors,
+        )
 
     async def async_step_spotify(
         self,
@@ -1411,6 +1610,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if not errors:
                 data: dict[str, Any] = {}
                 data.update(self._pairing)
+                data.update(self._backend)
                 data.update(self._spotify)
                 client_type = data.get(CONF_CLIENT_TYPE, DEFAULT_CLIENT_TYPE)
                 data.update(
@@ -1422,6 +1622,11 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 if getattr(self, "_conversation_agent_only", False):
                     return self.async_create_entry(
                         title=data.get(CONF_DEVICE_NAME, "DJConnect DJ"),
+                        data=data,
+                    )
+                if not self._client_type_uses_local_device_api(client_type):
+                    return self.async_create_entry(
+                        title=data.get(CONF_DEVICE_NAME, DEFAULT_DEVICE_NAME),
                         data=data,
                     )
                 try:
@@ -1507,6 +1712,23 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
             if action == OPTIONS_ACTION_REPAIR:
                 return await self.async_step_repair_pairing()
             errors = _voice_errors(user_input)
+            selected_backend = user_input.get(
+                CONF_MUSIC_BACKEND,
+                current.get(CONF_MUSIC_BACKEND, DEFAULT_MUSIC_BACKEND),
+            )
+            if selected_backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
+                players = _music_assistant_players(self.hass)
+                selected_player = str(
+                    user_input.get(CONF_MUSIC_ASSISTANT_PLAYER)
+                    or current.get(CONF_MUSIC_ASSISTANT_PLAYER)
+                    or ""
+                ).strip()
+                if not _music_assistant_available(self.hass):
+                    errors["base"] = "music_assistant_unavailable"
+                elif not players:
+                    errors["base"] = "music_assistant_no_players"
+                elif selected_player not in players:
+                    errors[CONF_MUSIC_ASSISTANT_PLAYER] = "music_assistant_player_missing"
             if not errors:
                 merged = dict(current)
                 merged.update(

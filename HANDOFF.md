@@ -4,8 +4,17 @@
 
 - Repository: `pcvantol/djconnect`.
 - Integration domain: `djconnect`.
-- Current integration release: `3.1.99`.
-- Release status: DJConnect `3.1.99` is the current release. It adds the free online MetaBrainz metadata/context provider for Ask DJ technical track analysis on top of the 3.1.98 provider-neutral v2 analysis contract.
+- Current integration release: `3.2.0`.
+- Release status: DJConnect `3.2.0` starts the future-proof transport,
+  pairing and backend abstraction model: ESP32/Raspberry Pi stay local devices,
+  iOS/macOS/Windows become inbound-only remote-capable apps after local
+  pairing, and playback uses an explicit Spotify Direct or Music Assistant
+  backend choice.
+- 3.2 work has introduced an internal DJConnect use-case layer plus
+  `MusicBackend` capability abstraction. Spotify Direct is the default backend
+  adapter; Music Assistant is a small HA `media_player` adapter, not a
+  replacement for the DJConnect DJ/voice/intent/memory layer and not a
+  DJConnect-side provider registry, library index or queue/grouping engine.
 - Home Assistant integration is HACS-distributed and MIT-licensed.
 - DJConnect client and firmware repositories are MIT-licensed unless their own repository metadata states otherwise.
 - Public firmware release assets live in `pcvantol/djconnect-firmware`.
@@ -24,7 +33,7 @@
 DJConnect ESP device
   -> HA /api/djconnect/status, /command, /voice
   -> djconnect integration
-  -> HA Assist/STT/TTS + Spotify backend playback
+  -> HA Assist/STT/TTS + selected music backend
   -> optional /api/device/command or /api/device/dj_response back to ESP
 ```
 
@@ -35,7 +44,10 @@ DJConnect ESP device
 - Device pairing and device-token lifecycle.
 - Spotify OAuth PKCE through HA external step.
 - Spotify refresh-token rotation and revoked-token repair.
-- Backend playback orchestration and Spotify-backed HA control/status entities.
+- Backend playback orchestration through the selected backend:
+  Spotify Direct or Music Assistant.
+- Spotify-backed HA control/status entities when Spotify Direct is selected;
+  capability-based fallback for unsupported Music Assistant features.
 - Device settings/entities through ESP `/api/device/command`.
 - Raw WAV PTT processing via HA STT/Assist.
 - DJ response TTS and temporary WAV/MP3 audio URLs.
@@ -102,6 +114,14 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - ESP stores no Spotify/Sonos/backend credentials.
 - Pairing/status responses must never include `spotify_client_id`, `client_id`, `spotify_refresh_token`, `refresh_token` or nested Spotify OAuth secrets.
 - Spotify OAuth credentials stay HA-internal.
+- New playback/control code should route through `custom_components/djconnect/use_cases.py`
+  instead of importing Spotify Direct helpers. The use-case layer normalizes
+  provider/source/backend availability fields while preserving the existing
+  client response shapes.
+- Backend choice is explicit per entry: `spotify_direct` or `music_assistant`,
+  with no Auto mode. Spotify Direct keeps DJConnect PKCE OAuth and Spotify
+  repairs. Music Assistant skips DJConnect Spotify Client ID/OAuth/repairs and
+  stores the configured Music Assistant target `media_player`.
 - Spotify OAuth uses PKCE with a user-owned Spotify Developer app. Setup asks for `spotify_client_id`, shows the exact redirect URI that must be registered in Spotify, strongly recommends a stable Nabu Casa HTTPS external URL, and no longer uses a shared built-in Client ID.
 - Spotify access tokens are cached in Home Assistant until shortly before expiry. Normal access-token expiry must refresh on demand and retry once after Spotify API `401`; this must stay invisible to ESP/iOS/macOS/watchOS/Raspberry Pi/Windows clients.
 - Spotify refresh-token rotation must be handled silently. If Spotify rejects a refresh token, HA must retry any newer stored runtime/config-entry/config refresh token before creating a Repair issue.
@@ -110,10 +130,21 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Repair flow must open Spotify OAuth and may only close as fixed after a new/missing refresh token is stored, not merely because an old token exists.
 - Options flow also has a “Spotify opnieuw autoriseren” action using the same callback storage path.
 - Token sent by HA to ESP in `POST /api/device/pair` must be exactly the token accepted by HA `/status`, `/command` and `/voice`.
-- HA -> ESP pairing payload uses required `ha_local_url`; legacy `ha_url` and `ha_remote_url` must not be sent or expected.
-- `ha_local_url` must be present and must never be a `*.ui.nabu.casa` cloud URL. Resolve HA Network/internal/source-IP local URL first, prefer a LAN source-IP over `homeassistant.local`, then use `http://homeassistant.local:8123` only as final local fallback.
-- Cloud/Nabu Casa URLs are only for the Spotify OAuth config/repair flow, never for device-to-HA status, command or voice traffic.
-- HA may call `POST /api/device/pair` only for initial pairing, explicit re-pair/token rotation or stale-pairing recovery. Startup with a stored token, normal status sync, playback commands and settings sync must not call it.
+- HA -> ESP/Raspberry Pi local-device pairing payload uses required
+  `ha_local_url`; legacy `ha_url` and `ha_remote_url` must not be sent or
+  expected by local devices.
+- `ha_local_url` must be present and must never be a `*.ui.nabu.casa` cloud URL.
+  Resolve HA Network/internal/source-IP local URL first, prefer a LAN source-IP
+  over `homeassistant.local`, then use `http://homeassistant.local:8123` only as
+  final local fallback.
+- iOS, macOS and Windows app clients have no client-hosted local API. They post
+  inbound local pairing to `/api/djconnect/pair` and may receive `ha_remote_url`
+  when HA has an HTTPS external/Nabu Casa URL. ESP32 and Raspberry Pi never
+  receive `ha_remote_url`.
+- HA may call `POST /api/device/pair` only for ESP32/Raspberry Pi initial
+  pairing, explicit re-pair/token rotation or stale-pairing recovery. Startup
+  with a stored token, normal status sync, playback commands and settings sync
+  must not call it.
 - Setup-code pairing can start with a temporary six-digit identity, but HA must learn and persist only the real model-specific device ID from the first authenticated ESP call. Current ESP IDs are `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX` and `djconnect-esp32-s3-box-3-XXXXXXXXXXXX`; app/client IDs are `djconnect-ios-XXXXXXXXXXXX`, `djconnect-macos-XXXXXXXXXXXX`, `djconnect-watchos-XXXXXXXXXXXX`, `djconnect-raspberry-pi-XXXXXXXXXXXX` and `djconnect-windows-XXXXXXXXXXXX`. Legacy `djconnect-XXXXXXXXXXXX` IDs are not accepted.
 - `client_type` must match the device-id prefix: `ios` with `djconnect-ios-*`, `macos` with `djconnect-macos-*`, `watchos` with `djconnect-watchos-*`, `raspberry_pi` with `djconnect-raspberry-pi-*`, `windows` with `djconnect-windows-*`, and `esp32` with ESP model-specific IDs.
 - Ask DJ / DJ Memory is server-side in the Home Assistant integration. iOS, macOS, watchOS, Raspberry Pi and Windows clients remain lightweight and store no DJ Memory. HA keeps runtime session history plus persistent Store data under `djconnect_memory` version `1`, keyed by HA user id when available and otherwise by DJConnect device/client id. ESP32 does not get Ask DJ chat UI/history; it keeps the existing voice/playback command flow. Do not store OAuth tokens, bearer tokens, raw audio or full prompts in memory.
@@ -143,6 +174,10 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Spotify listening-profile support uses `GET /me/player/recently-played` and `GET /me/top/{artists,tracks}` with `short_term`, `medium_term` and `long_term`; required OAuth scopes are `user-read-recently-played` and `user-top-read`. Store only compact profile snapshots in DJ Memory with a multi-hour TTL, never unlimited raw Spotify listening history.
 - Profile-analysis responses should fill `sources[]` with Spotify and DJConnect Memory source names so iOS/macOS/watchOS/Raspberry Pi/Windows can show them under the answer.
 - Ask DJ `recently_played_history` supports recent track, album, artist and playlist-context questions such as `welke nummers heb ik afgelopen uur afgespeeld?` and `welke albums heb ik vandaag geluisterd?`. It reads Spotify recently played data, returns `items[]`, `assistant_message.items[]`, `images[]`, `intent.item_type` and source `spotify_recently_played`, keeps `action:"none"` and must not mutate playback or create client-side Play Now buttons.
+- Playback backend selection is explicit per entry: Spotify Direct keeps
+  DJConnect Spotify OAuth/PKCE and full Spotify capabilities; Music Assistant
+  uses a configured MA `media_player`, skips DJConnect Spotify OAuth/repairs and
+  relies on `MusicBackendCapabilities` for unsupported feature fallbacks.
 - `personal_music_recommendations` can return `playback_actions[]` for client Play Now buttons while keeping `action:"none"`. Play Now uses `/api/djconnect/command` with `command:"ask_dj_play_recommendation"` and a Spotify-only recommendation value. Successful plays are stored in DJ Memory as positive recommendation signals.
 - `Speel wat anders` is a personal recommendation request, not an immediate playback mutation. Build random Play Now candidates from DJConnect Memory plus Spotify recently played/top tracks/top artists. Include `image_url` whenever Spotify/DJ Memory exposes album, artist, playlist or media artwork.
 - DJ Memory stores compact listening-time context (`hour`, `weekday`, `weekday_name`, `is_weekend`, `daypart`) plus bounded recent time patterns so recommendations can become time-aware across clients.
@@ -195,15 +230,16 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 
 ## Current Release Notes
 
-- Current release line is `3.1.x`; only the latest GitHub release/tag should be kept after release cleanup.
-- Current latest baseline is `3.1.99`.
+- Current release line is `3.2.x`; only the latest GitHub release/tag should be kept after release cleanup.
+- Current latest baseline is `3.2.0`.
 - Release workflow expectation: before every release, review and update all repo documentation affected by the change or release, including `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant `examples/*`. Explicitly decide whether test coverage must be expanded for the change; add coverage for new behavior paths, regression risks, translations and edge cases. Keep `tests.test_postman_collection` aligned with the Postman examples so CI validates collection schema, auth headers, placeholders and client identity. After publishing a release, clean up old completed GitHub Actions workflow runs, keeping only the newest release/tag validation and newest `main` validation unless debugging requires more history. Also clean up old semver releases/tags with `./cleanup_old_releases.sh --keep 1 --execute` unless multiple releases are intentionally retained.
 - Before build/test/release validation, check whether third-party libraries, frameworks and build tools can be safely upgraded. If any version is upgraded, update lockfiles/manifests, `THIRD_PARTY_NOTICES.md` and dependency/design documentation in the same release. If an upgrade is skipped, record the reason here.
-- For the current `3.1.99` release, no pinned Python package versions were
-  upgraded. The current line includes provider-neutral Ask DJ technical track
-  analysis v2 plus the free online MetaBrainz metadata/context provider, while
-  preserving the earlier 3.1.x Spotify OAuth, backend entity, recent-played,
-  playback proxy, diagnostics and client discovery hardening.
+- For the current `3.2.0` release, no pinned Python package versions were
+  upgraded. The current line adds capability-aware local/remote HA URL payloads
+  and splits app pairing from ESP32/Raspberry Pi local-device pairing. It also
+  adds the use-case/backend adapter boundary for Spotify Direct while preserving
+  the 3.1.x Ask DJ, Spotify OAuth, backend entity, recent-played, diagnostics
+  and metadata-provider hardening.
   `THIRD_PARTY_NOTICES.md` did not require dependency updates for these changes.
 - AI-assisted/Codex development hygiene is now documented in
   `CONTRIBUTING.md`, `SECURITY.md` and `CHAT_BOOTSTRAP.md`; accepted changes
@@ -310,9 +346,9 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 
 ## Next Tasks
 
-1. Install the latest `3.1.x` release via HACS and restart Home Assistant.
+1. Install the latest `3.2.x` release via HACS and restart Home Assistant.
 2. Verify the README/HACS banner and `info.md` render the `https://djconnect.dev` link as intended.
-3. Update the external product website How To Start page with HACS installation, Spotify Premium requirement, HA Assist pipeline setup, ESP pairing and iOS/macOS/watchOS/Raspberry Pi/Windows Client adres steps.
+3. Update the external product website How To Start page with HACS installation, backend choice requirements (Spotify Direct Premium/Developer app or Music Assistant player), HA Assist pipeline setup, ESP/Raspberry Pi local-device pairing and iOS/macOS/Windows inbound app pairing steps.
 4. Verify `button.djconnect_refresh_up_next` updates `sensor.djconnect_queue` attributes.
 5. Verify `select.djconnect_sound_output` populates Spotify outputs without manually calling `devices`.
 6. Verify sensors keep last-known values after ESP status, playback command polling, voice tests and local device-info refreshes.

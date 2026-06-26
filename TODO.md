@@ -14,6 +14,23 @@
 - Confirm ESP `/status` updates persist the real `djconnect-XXXXXXXXXXXX` device id.
 - Confirm ESP `/status` updates persist the real `local_url` when provided.
 - Confirm old setup-code entries stop using `djconnect-[6-digit-code].local` after status repair.
+- Confirm `/api/djconnect/command`, Ask DJ playback actions, voice processor
+  playback and HA playback entities all route through the DJConnect use-case
+  layer and still return the existing response shapes.
+- Confirm Music Assistant setup on a real HA instance: backend choice skips
+  Spotify OAuth, lists usable MA players, stores the selected player, controls
+  play/pause/next/previous/volume through HA `media_player` services and keeps
+  Spotify repairs quiet.
+- Confirm Music Assistant unsupported capabilities degrade cleanly in clients:
+  recent-played, top items, recommendations, favorites, advanced queue/library
+  profile and Spotify-specific Play Now actions should not show stale artwork,
+  scope repair text or phantom controls.
+- Inventory remaining Spotify-specific response shaping in Ask DJ profile,
+  recommendation and technical-analysis paths and migrate safe pieces behind
+  the backend adapter without changing client contracts.
+- Keep backend choice explicit as `Spotify Direct` or `Music Assistant`; do not
+  add Auto mode or a large Music Assistant setup flow unless a later product
+  decision changes the contract.
 
 ## PTT / Voice
 
@@ -68,8 +85,9 @@
 - Test captive-portal WiFi setup followed by BLE screen action `Continue to pairing`.
 - Test BLE screen action `Rescan Bluetooth devices`.
 - Test BLE screen action `Write WiFi over Bluetooth`.
-- Test pairing with Client adres left empty for ESP devices.
-- Test pairing with iOS/macOS/watchOS/Raspberry Pi/Windows Client adres copied from client Settings.
+- Test local-device pairing with Client adres left empty for ESP32/Raspberry Pi.
+- Test iOS/macOS/Windows app pairing with no Client adres, where the app posts
+  locally to `/api/djconnect/pair` and receives optional `ha_remote_url`.
 - Test mDNS discovery through `_djconnect._tcp` for ESP32, iOS, macOS, watchOS, Raspberry Pi and Windows.
 - Test Raspberry Pi mDNS TXT discovery with `client_type=raspberry_pi`, stable `djconnect-raspberry-pi-XXXXXXXXXXXX` ID and TXT `local_url`.
 - Test Raspberry Pi `/api/device/pairing-info` override for Client adres, client type, device name, device ID, pair code, version and paired state.
@@ -86,11 +104,16 @@
 - Confirm normal config flow stays small and user-focused.
 - Confirm Add integration shows a clear Assist pipeline prerequisite error when Home Assistant has no Assist pipeline with both STT and TTS.
 - Confirm setup method is shown only in the first Add integration step and not repeated in normal pairing.
-- Confirm `client_type` and Client adres are visible in normal pairing, with client type choices ordered iOS, macOS, Apple Watch, Linux/Raspberry Pi, Windows and ESP32.
+- Confirm app pairing hides Client adres and offers iOS, macOS and Windows;
+  confirm local-device pairing keeps Client adres fallback and offers ESP32 and
+  Raspberry Pi.
 - Confirm standalone `stt_engine`, `tts_engine`, `tts_language` and `tts_voice` fields remain hidden; STT/TTS is managed through Home Assistant Assist.
 - Confirm internal compatibility/OTA/audio TTL defaults are no longer exposed in config/options flow.
 - Confirm firmware channel is visible and stored only for ESP32 clients, not for iOS, macOS, Apple Watch, Linux/Raspberry Pi or Windows clients.
 - Confirm Spotify setup requires a user-owned Spotify Developer app Client ID and shows the exact redirect URI to register.
+- Confirm Music Assistant setup never asks for Spotify Client ID, never opens
+  Spotify OAuth and shows translated errors for unavailable MA or missing
+  players.
 - Confirm no `spotify_player` field is required in config/options flow.
 - Confirm ESP32-only Wake word switch appears only for ESP32 clients and tracks `settings.wake_word_enabled` after ESP reboot/status refresh.
 - Confirm all titles, labels and error messages are available in Dutch and English.
@@ -164,7 +187,7 @@
 
 - Keep product/marketing website work in the external website location, not this HA integration repo.
 - Keep the public website link visible in HACS-facing docs: `https://djconnect.dev`.
-- Maintain a How To Start page covering HACS install, Spotify Premium, HA Assist pipeline STT/TTS setup, Spotify OAuth, ESP pairing and iOS/macOS/watchOS/Raspberry Pi/Windows Client adres pairing.
+- Maintain a How To Start page covering HACS install, Spotify Premium, HA Assist pipeline STT/TTS setup, Spotify OAuth, ESP/Raspberry Pi local-device pairing and iOS/macOS/Windows inbound app pairing.
 - Add real product photos/screenshots when final hardware imagery is available.
 - Keep requirements clear: Spotify Premium, Home Assistant, HACS, HA Assist pipeline, 2.4 GHz WiFi and mDNS/Nabu Casa recommendations.
 - Keep `PRODUCT_ROADMAP_IDEAS.md` current when adding product ideas, killer features, production must-haves or premium feature concepts.

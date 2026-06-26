@@ -2,6 +2,39 @@
 
 ## Open / Needs Field Validation
 
+### Music backend abstraction migration is intentionally incremental
+
+- Status: open / architecture follow-up.
+- Area: use-case layer / backend adapters.
+- Symptom: Spotify Direct and Music Assistant are now behind the
+  use-case/backend layer for migrated command, Ask DJ, processor and entity
+  paths, but some deeper Ask DJ helper code still uses Spotify-shaped concepts
+  and response details.
+- Current mitigation: `use_cases.py` provides `DJConnectUseCases`,
+  `MusicBackend`, capability checks, `SpotifyDirectBackend` and a small
+  `MusicAssistantBackend` over HA `media_player` services. New code should
+  route through this layer rather than importing Spotify Direct helpers.
+- Next action: Continue migrating low-risk Spotify-specific shaping behind the
+  adapter. Keep Music Assistant support adapter-sized: no DJConnect-side
+  provider registry, universal library index, queue engine, grouping/sync
+  engine or Auto backend mode.
+
+### Music Assistant backend needs field validation
+
+- Status: open / field validation.
+- Area: config flow / playback backend / Ask DJ degradation.
+- Symptom: Unit tests cover the Music Assistant adapter, config flow,
+  diagnostics and repairs, but a real HA Music Assistant install still needs
+  validation.
+- Current mitigation: Config flow validates MA availability and usable
+  `media_player` entities, stores `music_backend=music_assistant`, skips
+  DJConnect Spotify OAuth/repairs, exposes diagnostics capabilities and routes
+  basic playback through HA `media_player` services.
+- Next action: Test a real Music Assistant setup for player selection,
+  play/pause/next/previous/volume, command/status response shape and
+  Ask DJ fallback text for unsupported recent-history/recommendation/profile
+  features.
+
 ### PTT STT provider compatibility
 
 - Status: open.
@@ -26,13 +59,17 @@
 - Current mitigation: `/pair` and `/status` now persist real model/app-specific device ids and reported `local_url`.
 - Next action: Verify existing paired ESP posts `/status`; if not, manually use advanced device URL once or re-pair.
 
-### iOS/macOS/watchOS pairing and playback need field validation
+### iOS/macOS/Windows inbound pairing and remote playback need field validation
 
 - Status: open / field validation.
 - Area: app clients.
-- Symptom: iOS/macOS/watchOS clients depend on the app-reported Client adres and must not expose ESP-only firmware/reboot controls.
-- Current mitigation: Client type and Client adres are visible in normal pairing; OTA update and reboot entities are skipped/unavailable for `ios` and `macos`.
-- Next action: Test fresh iOS/macOS/watchOS pairing, re-pairing and PTT playback after HACS install/restart.
+- Symptom: iOS/macOS/Windows clients now pair inbound through Home Assistant and
+  may use `ha_remote_url` outside the LAN after local pairing.
+- Current mitigation: App pairing hides Client adres, does not call client
+  `/api/device/*`, returns optional `ha_remote_url` only for `ios`, `macos` and
+  `windows`, and keeps ESP-only firmware/reboot controls unavailable.
+- Next action: Test fresh iOS/macOS/Windows pairing, re-pairing, local/remote
+  Ask DJ sync and PTT playback after HACS install/restart.
 
 ### Ask DJ cross-device history retention and confirmation actions need field validation
 
@@ -168,8 +205,12 @@
 ## Regression Watchlist
 
 - Config flow must not expose manual `oauth_result`.
-- Config flow must show setup method only in the first step, then show `client_type` and Client adres in normal pairing; iOS/macOS/watchOS/Windows users need it, ESP users usually leave it empty. Client type choices should be ordered iOS, macOS, Apple Watch, Linux/Raspberry Pi, Windows and ESP32.
+- Config flow must show setup method only in the first step. App pairing must
+  hide Client adres and offer iOS/macOS/Windows. Local-device pairing must keep
+  Client adres fallback and offer ESP32/Raspberry Pi.
 - Config/options flow must not require `spotify_player`.
+- Music Assistant entries must not show Spotify OAuth or create Spotify
+  reauthorization repairs; Spotify Direct entries must keep the full OAuth flow.
 - Firmware channel, OTA update and reboot entities must not be active/available for `client_type=ios`, `client_type=macos`, `client_type=watchos`, `client_type=raspberry_pi` or `client_type=windows`.
 - App-like client discovery must not create setup-code-only duplicates when a stable `djconnect-ios-*`, `djconnect-macos-*`, `djconnect-watchos-*`, `djconnect-raspberry-pi-*` or `djconnect-windows-*` ID is known.
 - External product website must not imply official Spotify affiliation, endorsement or sponsorship.

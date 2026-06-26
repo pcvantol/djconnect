@@ -15,6 +15,7 @@ from .const import (
     CONF_CLIENT_TYPE,
     CONF_DEVICE_TOKEN,
     CONF_HA_EXTERNAL_URL,
+    CONF_MUSIC_BACKEND,
     CONF_SETUP_METHOD,
     CONF_SPOTIFY_CLIENT_ID,
     CONF_SPOTIFY_MARKET,
@@ -23,6 +24,7 @@ from .const import (
     DEFAULT_SPOTIFY_MARKET,
     DEFAULT_SPOTIFY_SCOPES,
     DOMAIN,
+    MUSIC_BACKEND_MUSIC_ASSISTANT,
     SETUP_METHOD_CONVERSATION_AGENT,
 )
 from .spotify_oauth import (
@@ -162,6 +164,8 @@ def _entry_requires_device_token(entry: ConfigEntry) -> bool:
 
 def _entry_requires_spotify_oauth(entry: ConfigEntry) -> bool:
     """Return true only for entries that own Spotify OAuth configuration."""
+    if str(_entry_value(entry, CONF_MUSIC_BACKEND) or "").strip() == MUSIC_BACKEND_MUSIC_ASSISTANT:
+        return False
     client_type = str(_entry_value(entry, CONF_CLIENT_TYPE) or "").strip()
     if client_type == CLIENT_TYPE_CONVERSATION_AGENT:
         return False

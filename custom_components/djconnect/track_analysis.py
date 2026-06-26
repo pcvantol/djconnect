@@ -22,7 +22,7 @@ from .const import (
     VERSION,
 )
 from .pipeline import _assist_context, _speech_from_response
-from .spotify_backend import handle_spotify_command
+from .use_cases import run_music_command as handle_spotify_command
 
 _LOGGER = logging.getLogger(__name__)
 

@@ -9,13 +9,65 @@ _LOGGER = logging.getLogger(__name__)
 HOMEASSISTANT_LOCAL_FALLBACK = "http://homeassistant.local:8123"
 
 
-async def async_ha_url_payload(hass: Any, conf: dict[str, Any]) -> dict[str, str]:
+async def async_ha_url_payload(
+    hass: Any,
+    conf: dict[str, Any],
+    *,
+    client_type: str | None = None,
+) -> dict[str, str]:
     """Build HA URL payload for device pairing/status responses."""
     local_url = await async_ha_local_url(hass, conf)
     payload: dict[str, str] = {}
     if local_url:
         payload["ha_local_url"] = local_url
+    if _is_remote_capable_client(client_type):
+        remote_url = await async_ha_remote_url(hass, conf)
+        if remote_url:
+            payload["ha_remote_url"] = remote_url
     return payload
+
+
+async def async_ha_remote_url(hass: Any, conf: dict[str, Any]) -> str:
+    """Return the best remote HA base URL for remote-capable app clients."""
+    configured = _clean_remote_url(conf.get("ha_external_url"))
+    if configured:
+        return configured
+    try:
+        from homeassistant.helpers import network
+
+        url_getter = getattr(network, "async_get_url", None)
+        if callable(url_getter):
+            try:
+                url = await _maybe_await(
+                    url_getter(
+                        hass,
+                        prefer_external=True,
+                        prefer_cloud=True,
+                        allow_internal=False,
+                        allow_external=True,
+                        allow_cloud=True,
+                        require_ssl=True,
+                    )
+                )
+            except TypeError:
+                url = await _maybe_await(url_getter(hass, prefer_external=True))
+            cleaned = _clean_remote_url(url)
+            if cleaned:
+                return cleaned
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect could not determine HA remote URL from network helper: %s", exc)
+
+    config = getattr(hass, "config", None)
+    for value in (
+        getattr(config, "external_url", None),
+        getattr(getattr(config, "api", None), "external_url", None),
+        _call_config_url_getter(config, "get_external_url"),
+        _call_config_url_getter(config, "async_get_external_url"),
+    ):
+        cleaned = _clean_remote_url(value)
+        if cleaned:
+            return cleaned
+    return ""
 
 
 async def async_ha_local_url(hass: Any, conf: dict[str, Any]) -> str:
@@ -72,6 +124,20 @@ def _clean_local_url(value: Any) -> str:
     if not url or _is_nabu_casa_url(url):
         return ""
     return url
+
+
+def _clean_remote_url(value: Any) -> str:
+    url = _clean_url(value)
+    if not url:
+        return ""
+    parsed = urlparse(url)
+    if parsed.scheme != "https" or not parsed.netloc:
+        return ""
+    return url
+
+
+def _is_remote_capable_client(client_type: str | None) -> bool:
+    return str(client_type or "").strip().lower() in {"ios", "macos", "windows"}
 
 
 def _is_nabu_casa_url(value: str) -> bool:

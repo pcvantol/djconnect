@@ -24,7 +24,7 @@ for DJConnect. Related DJConnect client and firmware repositories are also
 MIT-licensed unless their own repository metadata states otherwise.
 
 The integration domain is `djconnect`. The current implementation targets
-DJConnect protocol line `3.1.x`.
+DJConnect protocol line `3.2.x`.
 
 ## Python Design Decisions
 
@@ -78,6 +78,50 @@ Why:
 - Keeps `last_command`, `last_track` and DJ announcement debug values stable
   across sparse payloads.
 - Makes tests lightweight because runtime can be represented by simple stubs.
+
+### Use-Case Layer Before Music Backends
+
+Pattern:
+
+- `custom_components/djconnect/use_cases.py` defines the internal
+  `DJConnectUseCases` service layer, a small `MusicBackend` protocol and
+  capability flags.
+- Current migrated paths call `run_music_command(...)` or typed use-case methods
+  instead of importing Spotify Direct helpers directly. This includes
+  `/api/djconnect/command`, app/ESP status playback refresh, Ask DJ, voice
+  processor commands and HA playback entities.
+- `SpotifyDirectBackend` is the default adapter. It delegates to the existing
+  Spotify Web API implementation while keeping OAuth refresh, Spotify Connect
+  device handling, playlists, queue, recent-played, favorites and URI mapping
+  behind the adapter boundary.
+- Capability checks fail with a backend error before executing unsupported
+  actions, so a future backend can report that it lacks queue, output, volume,
+  favorites, recommendations or profile support without leaking provider
+  details into HTTP handlers.
+- Music Assistant support should be added later as another adapter behind this
+  interface. DJConnect must not build a Music Assistant clone, global provider
+  registry, universal library index, queue engine or player grouping/sync
+  engine.
+
+Primary source files:
+
+- `custom_components/djconnect/use_cases.py`
+- `custom_components/djconnect/spotify_backend.py`
+- `custom_components/djconnect/http.py`
+- `custom_components/djconnect/ask_dj.py`
+- `custom_components/djconnect/processor.py`
+- `custom_components/djconnect/sensor.py`
+- `custom_components/djconnect/number.py`
+- `custom_components/djconnect/select.py`
+- `custom_components/djconnect/switch.py`
+- `custom_components/djconnect/button.py`
+
+Why:
+
+- Keeps DJConnect as the DJ/voice/intent/personality/memory layer.
+- Prevents new app, Assist, service or future AI-tool code from growing deeper
+  Spotify-specific dependencies.
+- Preserves Spotify Direct for users who do not run Music Assistant.
 
 ### Guarded STT Correction Before Intent Parsing
 
@@ -172,9 +216,13 @@ Pattern:
 
 - HA TTS audio is stored in memory under a temporary token and exposed through
   `/api/djconnect/tts/{token}.wav` or `.mp3`.
-- DJ response delivery posts text plus optional `audio_url` to the client local
-  `/api/device/dj_response` endpoint.
-- The base URL for temporary audio uses the shared local Home Assistant URL
+- ESP32/Raspberry Pi DJ response delivery posts text plus optional `audio_url`
+  to the local `/api/device/dj_response` endpoint.
+- App Ask DJ clients render response/history themselves and fetch response
+  audio/images through HA `/api/djconnect/...` URLs. Remote-capable app
+  responses can use an HTTPS external/Nabu Casa base URL when the request/app
+  context requires it.
+- Local-device temporary audio uses the shared local Home Assistant URL
   resolver, not a single HA network helper version.
 
 Primary source files:
@@ -185,8 +233,9 @@ Primary source files:
 
 Why:
 
-- ESP/app clients can fetch local DJ announcement audio without requiring Nabu
-  Casa/cloud routing.
+- ESP32 and Raspberry Pi can fetch local DJ announcement audio without requiring
+  Nabu Casa/cloud routing, while app clients can use remote-capable HA URLs for
+  response/history/proxy assets when outside the LAN.
 - Older and newer Home Assistant versions expose different network helpers; the
   shared resolver preserves audio delivery across those versions.
 
@@ -218,14 +267,21 @@ Pattern:
 
 - `client_type` is the canonical runtime discriminator.
 - Current values are `esp32`, `ios`, `macos`, `watchos`, `raspberry_pi` and `windows`.
+- ESP32 and Raspberry Pi are local-device clients. They can use local mDNS,
+  Client adres fallback and `/api/device/*` APIs.
+- iOS, macOS and Windows are inbound-only app clients. They do not expose a
+  HA-callable local API, do not need Client adres in setup, and may receive
+  `ha_remote_url` after local pairing when Home Assistant has an HTTPS external
+  URL. watchOS uses the iPhone proxy instead of a HA-direct pairing contract.
 - ESP32 gets hardware-specific entities such as battery, WiFi RSSI, screen,
   LED, OTA and reboot controls.
 - iOS, macOS, watchOS, Raspberry Pi and Windows clients keep backend/playback/client entities
   only. Firmware channel and OTA controls are ESP32-only; Apple clients update
   through app distribution/TestFlight and Linux/Raspberry Pi and Windows clients update
   through their own source/install flow.
-- Config-flow client type choices are ordered iOS, macOS, Apple Watch, Linux/Raspberry Pi, Windows
-  and ESP32, and setup method is chosen only in the first config-flow step.
+- Config-flow setup is split into Assist Conversation Agent, local device
+  pairing and app pairing. Local device pairing offers ESP32/Raspberry Pi;
+  app pairing offers iOS/macOS/Windows.
 
 Primary source files:
 
@@ -479,6 +535,28 @@ Why:
 - Spotify token expiry and token rotation should be invisible to clients.
 - A user-facing Repair is only appropriate when Spotify rejects every known
   stored refresh token.
+
+### Music Backend Boundary
+
+Pattern:
+
+- `custom_components/djconnect/use_cases.py` is the thin use-case boundary for
+  playback commands.
+- `SpotifyDirectBackend` wraps the existing Spotify Web API backend.
+- `MusicAssistantBackend` targets one configured Music Assistant
+  `media_player` through Home Assistant `media_player` services.
+- The selected backend is explicit: `spotify_direct` or `music_assistant`.
+  There is no automatic fallback mode.
+- Capabilities describe which user-visible features are available. Ask DJ and
+  entities degrade on unsupported capabilities instead of rebuilding Spotify
+  features locally.
+
+Why:
+
+- DJConnect clients keep one backend-neutral command/response contract.
+- Music Assistant remains the owner of provider auth, library, queues and
+  grouping/sync behavior.
+- Spotify OAuth, scopes and repairs stay scoped to Spotify Direct entries.
 
 ### Assist And TTS As Home Assistant-Native Gateways
 

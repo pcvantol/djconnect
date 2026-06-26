@@ -22,7 +22,8 @@ from .const import (
 )
 from .entity_ids import entry_unique_id
 from .push import EVENT_ASK_DJ_CONFIRM, async_send_event as async_send_push_event
-from .spotify_backend import SpotifyBackendError, handle_spotify_command
+from .spotify_backend import SpotifyBackendError
+from .use_cases import run_music_command as handle_spotify_command
 
 _LOGGER = logging.getLogger(__name__)
 APPLE_PUSH_CLIENT_TYPES = {CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_WATCHOS}

@@ -1,0 +1,413 @@
+"""DJConnect use-case layer over music backend adapters."""
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Any, Protocol
+
+from homeassistant.core import HomeAssistant
+
+from .const import (
+    CONF_MUSIC_ASSISTANT_PLAYER,
+    CONF_MUSIC_BACKEND,
+    DEFAULT_MUSIC_BACKEND,
+    MUSIC_BACKEND_MUSIC_ASSISTANT,
+    MUSIC_BACKEND_SPOTIFY_DIRECT,
+)
+from .spotify_backend import (
+    SpotifyBackendError,
+    handle_spotify_command as _handle_spotify_command,
+)
+
+
+@dataclass(frozen=True)
+class MusicBackendCapabilities:
+    """Small capability map for DJConnect music use-cases."""
+
+    supports_search: bool = False
+    supports_playlists: bool = False
+    supports_queue: bool = False
+    supports_outputs: bool = False
+    supports_volume: bool = False
+    supports_favorites: bool = False
+    supports_recently_played: bool = False
+    supports_top_items: bool = False
+    supports_recommendations: bool = False
+    supports_library_profile: bool = False
+    supports_shuffle: bool = False
+    supports_repeat: bool = False
+    supports_seek: bool = False
+    supports_transfer_or_output_selection: bool = False
+
+
+class MusicBackend(Protocol):
+    """Protocol implemented by DJConnect music backend adapters."""
+
+    provider: str
+    capabilities: MusicBackendCapabilities
+
+    async def handle_command(
+        self,
+        command: str,
+        value: Any = None,
+        *,
+        play: bool | None = None,
+    ) -> dict[str, Any]:
+        """Run a backend command and return the DJConnect-compatible shape."""
+
+
+class MusicBackendCapabilityError(SpotifyBackendError):
+    """Raised when the selected backend cannot serve a use-case."""
+
+
+class SpotifyDirectBackend:
+    """Adapter that keeps Spotify Direct behind the use-case/backend boundary."""
+
+    provider = "spotify_direct"
+    capabilities = MusicBackendCapabilities(
+        supports_search=True,
+        supports_playlists=True,
+        supports_queue=True,
+        supports_outputs=True,
+        supports_volume=True,
+        supports_favorites=True,
+        supports_recently_played=True,
+        supports_top_items=True,
+        supports_recommendations=True,
+        supports_library_profile=True,
+        supports_shuffle=True,
+        supports_repeat=True,
+        supports_seek=True,
+        supports_transfer_or_output_selection=True,
+    )
+
+    def __init__(self, hass: HomeAssistant, runtime: Any) -> None:
+        self.hass = hass
+        self.runtime = runtime
+
+    async def handle_command(
+        self,
+        command: str,
+        value: Any = None,
+        *,
+        play: bool | None = None,
+    ) -> dict[str, Any]:
+        """Delegate to the existing Spotify Direct backend implementation."""
+        return await _handle_spotify_command(
+            self.hass,
+            self.runtime,
+            command,
+            value,
+            play=play,
+        )
+
+
+class MusicAssistantBackend:
+    """Music Assistant adapter using Home Assistant media_player services."""
+
+    provider = MUSIC_BACKEND_MUSIC_ASSISTANT
+    capabilities = MusicBackendCapabilities(
+        supports_search=False,
+        supports_playlists=False,
+        supports_queue=False,
+        supports_outputs=True,
+        supports_volume=True,
+        supports_favorites=False,
+        supports_recently_played=False,
+        supports_top_items=False,
+        supports_recommendations=False,
+        supports_library_profile=False,
+        supports_shuffle=False,
+        supports_repeat=False,
+        supports_seek=False,
+        supports_transfer_or_output_selection=False,
+    )
+
+    def __init__(self, hass: HomeAssistant, runtime: Any) -> None:
+        self.hass = hass
+        self.runtime = runtime
+
+    @property
+    def player_entity_id(self) -> str:
+        return str(self.runtime.config.get(CONF_MUSIC_ASSISTANT_PLAYER) or "").strip()
+
+    async def handle_command(
+        self,
+        command: str,
+        value: Any = None,
+        *,
+        play: bool | None = None,
+    ) -> dict[str, Any]:
+        """Handle DJConnect commands through a configured Music Assistant player."""
+        player = self.player_entity_id
+        if not player:
+            raise SpotifyBackendError("Music Assistant player is not configured")
+        normalized = str(command or "").strip().lower()
+        if normalized == "status":
+            return {"success": True, "playback": self._playback_state(player)}
+        if normalized == "devices":
+            return {
+                "success": True,
+                "devices": [self._output_item(player)],
+                "outputs": [self._output_item(player)],
+            }
+        if normalized == "play":
+            if value:
+                await self._call_media_player(
+                    "play_media",
+                    player,
+                    media_content_id=_media_content_id(value),
+                    media_content_type=_media_content_type(value),
+                )
+            else:
+                await self._call_media_player("media_play", player)
+            return {"success": True, "playback": self._playback_state(player)}
+        if normalized == "pause":
+            await self._call_media_player("media_pause", player)
+            return {"success": True, "playback": self._playback_state(player)}
+        if normalized == "next":
+            await self._call_media_player("media_next_track", player)
+            return {"success": True, "playback": self._playback_state(player)}
+        if normalized == "previous":
+            await self._call_media_player("media_previous_track", player)
+            return {"success": True, "playback": self._playback_state(player)}
+        if normalized == "set_volume":
+            await self._call_media_player(
+                "volume_set",
+                player,
+                volume_level=_volume_level(value),
+            )
+            return {"success": True, "playback": self._playback_state(player)}
+        if normalized == "set_output":
+            return {"success": True, "playback": self._playback_state(player)}
+        raise MusicBackendCapabilityError(
+            f"Music Assistant backend does not support {normalized}"
+        )
+
+    async def _call_media_player(self, service: str, entity_id: str, **data: Any) -> None:
+        services = getattr(self.hass, "services", None)
+        caller = getattr(services, "async_call", None)
+        if not callable(caller):
+            raise SpotifyBackendError("Home Assistant media_player services are unavailable")
+        await caller(
+            "media_player",
+            service,
+            {"entity_id": entity_id, **data},
+            blocking=True,
+        )
+
+    def _playback_state(self, entity_id: str) -> dict[str, Any]:
+        state = _state_for_entity(self.hass, entity_id)
+        attrs = getattr(state, "attributes", {}) or {}
+        status = str(getattr(state, "state", "") or "")
+        title = attrs.get("media_title")
+        artist = attrs.get("media_artist")
+        album = attrs.get("media_album_name")
+        image_url = attrs.get("entity_picture") or attrs.get("media_image_url")
+        volume = attrs.get("volume_level")
+        volume_percent = None
+        try:
+            volume_percent = int(round(float(volume) * 100))
+        except (TypeError, ValueError):
+            pass
+        return {
+            "has_playback": bool(title or artist or status in {"playing", "paused"}),
+            "is_playing": status == "playing",
+            "state": status,
+            "provider": self.provider,
+            "source": self.provider,
+            "device": self._output_item(entity_id),
+            "title": title,
+            "track_name": title,
+            "artist": artist,
+            "album": album,
+            "album_name": album,
+            "image_url": image_url,
+            "entity_picture": image_url,
+            "volume": volume_percent,
+            "volume_percent": volume_percent,
+            "media_type": attrs.get("media_content_type"),
+            "uri": attrs.get("media_content_id"),
+        }
+
+    def _output_item(self, entity_id: str) -> dict[str, Any]:
+        state = _state_for_entity(self.hass, entity_id)
+        attrs = getattr(state, "attributes", {}) or {}
+        return {
+            "id": entity_id,
+            "entity_id": entity_id,
+            "name": attrs.get("friendly_name") or entity_id,
+            "provider": self.provider,
+            "source": self.provider,
+            "is_active": str(getattr(state, "state", "") or "") == "playing",
+            "can_play": True,
+        }
+
+
+class DJConnectUseCases:
+    """Typed DJConnect music use-cases backed by the selected adapter."""
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        runtime: Any,
+        *,
+        backend: MusicBackend | None = None,
+    ) -> None:
+        self.hass = hass
+        self.runtime = runtime
+        self.backend = backend or _selected_backend(hass, runtime)
+
+    async def command(
+        self,
+        command: str,
+        value: Any = None,
+        *,
+        play: bool | None = None,
+    ) -> dict[str, Any]:
+        """Run a normalized DJConnect music command through the backend."""
+        normalized = str(command or "").strip().lower()
+        self._ensure_capability(normalized)
+        result = await self.backend.handle_command(normalized, value, play=play)
+        return self._normalize_result(result)
+
+    async def play_music(self, value: Any = None) -> dict[str, Any]:
+        return await self.command("play", value)
+
+    async def get_current_track(self) -> dict[str, Any]:
+        return await self.command("status")
+
+    async def get_queue(self) -> dict[str, Any]:
+        return await self.command("queue")
+
+    async def get_playlists(self, value: Any = None) -> dict[str, Any]:
+        return await self.command("playlists", value)
+
+    async def pause_music(self) -> dict[str, Any]:
+        return await self.command("pause")
+
+    async def resume_music(self) -> dict[str, Any]:
+        return await self.command("play")
+
+    async def next_track(self) -> dict[str, Any]:
+        return await self.command("next")
+
+    async def previous_track(self) -> dict[str, Any]:
+        return await self.command("previous")
+
+    async def set_volume(self, value: Any) -> dict[str, Any]:
+        return await self.command("set_volume", value)
+
+    async def set_output(self, value: Any, *, play: bool | None = None) -> dict[str, Any]:
+        return await self.command("set_output", value, play=play)
+
+    async def set_shuffle(self, value: Any) -> dict[str, Any]:
+        return await self.command("set_shuffle", value)
+
+    async def set_repeat(self, value: Any) -> dict[str, Any]:
+        return await self.command("set_repeat", value)
+
+    async def favorite_current_track(self, value: Any = True) -> dict[str, Any]:
+        return await self.command("set_current_track_favorite", value)
+
+    async def recommend_music(self, value: Any) -> dict[str, Any]:
+        return await self.command("artist_recommendations", value)
+
+    async def explain_track(self, value: Any = None) -> dict[str, Any]:
+        return await self.command("technical_track_analysis", value)
+
+    def _ensure_capability(self, command: str) -> None:
+        capability = _CAPABILITY_BY_COMMAND.get(command)
+        if capability and not getattr(self.backend.capabilities, capability, False):
+            raise MusicBackendCapabilityError(
+                f"Selected music backend does not support {command}"
+            )
+
+    def _normalize_result(self, result: dict[str, Any]) -> dict[str, Any]:
+        normalized = dict(result or {})
+        normalized.setdefault("provider", self.backend.provider)
+        normalized.setdefault("source", self.backend.provider)
+        if "success" not in normalized:
+            normalized["success"] = True
+        if normalized.get("success"):
+            normalized.setdefault("backend_available", True)
+        return normalized
+
+
+_CAPABILITY_BY_COMMAND = {
+    "devices": "supports_outputs",
+    "set_output": "supports_outputs",
+    "queue": "supports_queue",
+    "playlists": "supports_playlists",
+    "search_playlists": "supports_playlists",
+    "search_tracks": "supports_search",
+    "search_albums": "supports_search",
+    "search_media": "supports_search",
+    "set_volume": "supports_volume",
+    "save_current_track": "supports_favorites",
+    "set_current_track_favorite": "supports_favorites",
+    "toggle_current_track_favorite": "supports_favorites",
+    "recently_played": "supports_recently_played",
+    "artist_recommendations": "supports_recommendations",
+    "listening_profile": "supports_library_profile",
+    "set_shuffle": "supports_shuffle",
+    "set_repeat": "supports_repeat",
+    "seek_relative": "supports_seek",
+}
+
+
+def _selected_backend(hass: HomeAssistant, runtime: Any) -> MusicBackend:
+    backend = str(
+        getattr(runtime, "config", {}).get(CONF_MUSIC_BACKEND)
+        or DEFAULT_MUSIC_BACKEND
+    ).strip()
+    if backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
+        return MusicAssistantBackend(hass, runtime)
+    return SpotifyDirectBackend(hass, runtime)
+
+
+def _state_for_entity(hass: HomeAssistant, entity_id: str) -> Any:
+    states = getattr(hass, "states", None)
+    getter = getattr(states, "get", None)
+    return getter(entity_id) if callable(getter) else None
+
+
+def _media_content_id(value: Any) -> str:
+    if isinstance(value, dict):
+        for key in ("uri", "id", "media_content_id", "item_id"):
+            candidate = str(value.get(key) or "").strip()
+            if candidate:
+                return candidate
+    return str(value or "").strip()
+
+
+def _media_content_type(value: Any) -> str:
+    if isinstance(value, dict):
+        return str(
+            value.get("media_type")
+            or value.get("type")
+            or value.get("media_content_type")
+            or "music"
+        )
+    return "music"
+
+
+def _volume_level(value: Any) -> float:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        number = 0
+    if number > 1:
+        number = number / 100
+    return max(0.0, min(1.0, number))
+
+
+async def run_music_command(
+    hass: HomeAssistant,
+    runtime: Any,
+    command: str,
+    value: Any = None,
+    *,
+    play: bool | None = None,
+) -> dict[str, Any]:
+    """Run a DJConnect music command through the use-case layer."""
+    return await DJConnectUseCases(hass, runtime).command(command, value, play=play)

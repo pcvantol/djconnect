@@ -76,7 +76,8 @@ from .push import (
     async_status as async_push_status,
     async_unregister as async_unregister_push,
 )
-from .spotify_backend import SpotifyBackendError, handle_spotify_command
+from .spotify_backend import SpotifyBackendError
+from .use_cases import run_music_command as handle_spotify_command
 from .spotify_oauth import exchange_code_for_refresh_token
 
 _LOGGER = logging.getLogger(__name__)
@@ -1990,7 +1991,7 @@ class DJConnectPairView(HomeAssistantView):
         }
         response.update(_ask_dj_capabilities())
         response.update(_esp32_language_payload(runtime))
-        response.update(await async_ha_url_payload(hass, conf))
+        response.update(await async_ha_url_payload(hass, conf, client_type=client_type))
         _LOGGER.debug(
             "DJConnect pairing response status=200 payload=%s",
             _redact_debug_payload(response),
@@ -2105,7 +2106,7 @@ class DJConnectStatusView(HomeAssistantView):
             response["memory_key"] = memory_key
         response.update(_ha_version_payload())
         response.update(_esp32_language_payload(runtime))
-        response.update(await async_ha_url_payload(hass, conf))
+        response.update(await async_ha_url_payload(hass, conf, client_type=client_type))
         if _client_status_uses_backend_playback(client_type):
             response.update(await _status_playback_payload(hass, runtime))
             backend_available = bool(response.get("backend_available"))

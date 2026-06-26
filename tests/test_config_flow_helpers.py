@@ -181,6 +181,31 @@ def install_homeassistant_stubs() -> None:
     sys.modules["custom_components.djconnect"] = package
 
 
+def _hass_with_music_assistant_player() -> types.SimpleNamespace:
+    class State:
+        state = "playing"
+        attributes = {
+            "friendly_name": "Living room",
+            "mass_player_type": "player",
+            "media_title": "Bella",
+            "media_artist": "Finnebassen",
+            "volume_level": 0.42,
+        }
+
+    class States:
+        def async_entity_ids(self, domain):
+            return ["media_player.mass_living"] if domain == "media_player" else []
+
+        def get(self, entity_id):
+            return State() if entity_id == "media_player.mass_living" else None
+
+    return types.SimpleNamespace(
+        config=types.SimpleNamespace(language="en-US"),
+        data={"music_assistant": object()},
+        states=States(),
+    )
+
+
 class ConfigFlowHelperTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -454,14 +479,14 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(result["step_id"], "pair")
         self.assertEqual(result["errors"]["base"], "assist_pipeline_required")
 
-    def test_user_schema_shows_client_type_and_local_url_without_advanced(self) -> None:
+    def test_app_user_schema_hides_local_url_without_advanced(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
 
         keys = {marker.key for marker in flow._user_schema()}
 
         self.assertIn(self.const.CONF_CLIENT_TYPE, keys)
-        self.assertIn(self.const.CONF_LOCAL_URL, keys)
+        self.assertNotIn(self.const.CONF_LOCAL_URL, keys)
         self.assertNotIn(self.const.CONF_DEVICE_LANGUAGE, keys)
 
     def test_client_type_choices_put_app_clients_before_esp32(self) -> None:
@@ -489,9 +514,10 @@ class ConfigFlowHelperTest(unittest.TestCase):
             "Windows app",
         )
 
-    def test_user_schema_prefills_manual_device_url_from_pair_code(self) -> None:
+    def test_local_device_schema_prefills_manual_device_url_from_pair_code(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en-US"))
+        flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_LOCAL_DEVICE
         flow._last_pair_code = "90B70990A994"
 
         schema = flow._user_schema()
@@ -505,7 +531,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         )
 
 
-    def test_user_schema_prefills_single_discovered_app_client(self) -> None:
+    def test_user_schema_omits_local_url_for_discovered_app_client(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en-US"))
         client = self.config_flow.DiscoveredClient(
@@ -523,7 +549,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(defaults[self.const.CONF_PAIR_CODE], "555293")
         self.assertEqual(defaults[self.const.CONF_DEVICE_NAME], "DJConnect Mac")
         self.assertEqual(defaults[self.const.CONF_CLIENT_TYPE], self.const.CLIENT_TYPE_MACOS)
-        self.assertEqual(defaults[self.const.CONF_LOCAL_URL], "http://192.168.1.104:60955")
+        self.assertNotIn(self.const.CONF_LOCAL_URL, defaults)
 
     def test_user_schema_manual_defaults_are_not_esp32_specific(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
@@ -608,7 +634,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(defaults[self.const.CONF_PAIR_CODE], "123456")
         self.assertEqual(defaults[self.const.CONF_DEVICE_NAME], "DJConnect iPhone")
         self.assertEqual(defaults[self.const.CONF_CLIENT_TYPE], self.const.CLIENT_TYPE_IOS)
-        self.assertEqual(defaults[self.const.CONF_LOCAL_URL], "http://192.168.1.85:59331")
+        self.assertNotIn(self.const.CONF_LOCAL_URL, defaults)
 
     def test_user_schema_offers_multiple_discovered_clients(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
@@ -648,19 +674,19 @@ class ConfigFlowHelperTest(unittest.TestCase):
             schema[discovery_marker]["djconnect-watchos-1861DE8383C3"],
         )
 
-    def test_watchos_pairing_uses_discovered_stable_device_id(self) -> None:
+    def test_app_pairing_uses_discovered_stable_device_id_without_local_url(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en-US"))
         client = self.config_flow.DiscoveredClient(
             local_url="http://192.168.1.105:55817",
-            device_id="djconnect-watchos-1861DE8383C3",
-            client_type=self.const.CLIENT_TYPE_WATCHOS,
-            device_name="Apple Watch",
+            device_id="djconnect-macos-1861DE8383C3",
+            client_type=self.const.CLIENT_TYPE_MACOS,
+            device_name="DJConnect Mac",
             pair_code="186103",
             source="pairing-info",
         )
         flow._discovered_clients = [client]
-        flow._selected_discovered_key = "djconnect-watchos-1861DE8383C3"
+        flow._selected_discovered_key = "djconnect-macos-1861DE8383C3"
         flow._apply_discovered_client(client)
 
         async def fake_set_unique_id(unique_id):
@@ -669,36 +695,33 @@ class ConfigFlowHelperTest(unittest.TestCase):
         flow.async_set_unique_id = fake_set_unique_id
         flow._abort_if_unique_id_configured = lambda: None
 
-        async def fake_spotify(user_input=None):
+        async def fake_backend(user_input=None):
             return {"type": "next_step", "pairing": flow._pairing}
 
-        flow.async_step_spotify = fake_spotify
+        flow.async_step_backend = fake_backend
 
         result = asyncio.run(
             flow.async_step_pair(
                 {
-                    self.config_flow.DISCOVERY_CLIENT_FIELD: "djconnect-watchos-1861DE8383C3",
+                    self.config_flow.DISCOVERY_CLIENT_FIELD: "djconnect-macos-1861DE8383C3",
                     self.const.CONF_PAIR_CODE: "186103",
-                    self.const.CONF_DEVICE_NAME: "Apple Watch",
-                    self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_WATCHOS,
+                    self.const.CONF_DEVICE_NAME: "DJConnect Mac",
+                    self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_MACOS,
                     self.const.CONF_LOCAL_URL: "http://192.168.1.105:55817",
                 }
             )
         )
 
-        self.assertEqual(flow._unique_id, "djconnect-watchos-1861DE8383C3")
+        self.assertEqual(flow._unique_id, "djconnect-macos-1861DE8383C3")
         self.assertEqual(
             result["pairing"][self.const.CONF_DEVICE_ID],
-            "djconnect-watchos-1861DE8383C3",
+            "djconnect-macos-1861DE8383C3",
         )
         self.assertEqual(
             result["pairing"][self.const.CONF_CLIENT_TYPE],
-            self.const.CLIENT_TYPE_WATCHOS,
+            self.const.CLIENT_TYPE_MACOS,
         )
-        self.assertEqual(
-            result["pairing"][self.const.CONF_LOCAL_URL],
-            "http://192.168.1.105:55817",
-        )
+        self.assertNotIn(self.const.CONF_LOCAL_URL, result["pairing"])
 
     def test_user_schema_keeps_selected_discovered_device_name_without_suffix(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
@@ -811,10 +834,10 @@ class ConfigFlowHelperTest(unittest.TestCase):
         flow.async_set_unique_id = fake_set_unique_id
         flow._abort_if_unique_id_configured = lambda: None
 
-        async def fake_spotify(user_input=None):
+        async def fake_backend(user_input=None):
             return {"type": "next_step", "pairing": flow._pairing}
 
-        flow.async_step_spotify = fake_spotify
+        flow.async_step_backend = fake_backend
 
         result = asyncio.run(
             flow.async_step_pair(
@@ -898,17 +921,17 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertEqual(
             self.config_flow._setup_method_names(nl_hass)[
-                self.const.SETUP_METHOD_PAIR_EXISTING
+                self.const.SETUP_METHOD_PAIR_LOCAL_DEVICE
             ],
-            "DJConnect client koppelen\n"
-            "iOS, macOS, Apple Watch, Raspberry Pi/Linux, Windows of ESP32.",
+            "DJConnect lokaal device koppelen\n"
+            "ESP32 of Raspberry Pi op dit LAN.",
         )
         self.assertEqual(
             self.config_flow._setup_method_names(en_hass)[
-                self.const.SETUP_METHOD_PAIR_EXISTING
+                self.const.SETUP_METHOD_PAIR_APP
             ],
-            "Pair DJConnect client\n"
-            "iOS, macOS, Apple Watch, Raspberry Pi/Linux, Windows or ESP32.",
+            "Pair DJConnect app\n"
+            "iOS, macOS or Windows. Pair locally first, then use remote URL when available.",
         )
         self.assertEqual(
             self.config_flow._setup_method_names(nl_hass)[
@@ -1069,7 +1092,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
             )
         )
 
-        self.assertEqual(result["step_id"], "spotify")
+        self.assertEqual(result["step_id"], "backend")
         self.assertEqual(unique_ids, ["djconnect-conversation-agent"])
         self.assertTrue(flow._conversation_agent_only)
         self.assertEqual(
@@ -1086,7 +1109,78 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertIn(self.const.CONF_SPOTIFY_CLIENT_ID, keys)
         self.assertNotIn(self.const.CONF_SPOTIFY_MARKET, keys)
-        self.assertNotIn("show_advanced_options", keys)
+
+    def test_backend_step_routes_spotify_direct_to_oauth(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace()
+
+        async def fake_spotify(user_input=None):
+            return {"type": "form", "step_id": "spotify"}
+
+        flow.async_step_spotify = fake_spotify
+
+        result = asyncio.run(
+            flow.async_step_backend(
+                {self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_SPOTIFY_DIRECT}
+            )
+        )
+
+        self.assertEqual(result["step_id"], "spotify")
+        self.assertEqual(
+            flow._backend[self.const.CONF_MUSIC_BACKEND],
+            self.const.MUSIC_BACKEND_SPOTIFY_DIRECT,
+        )
+
+    def test_backend_step_routes_music_assistant_without_spotify_oauth(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = _hass_with_music_assistant_player()
+
+        async def fake_voice(user_input=None):
+            return {"type": "form", "step_id": "voice"}
+
+        flow.async_step_voice = fake_voice
+
+        result = asyncio.run(
+            flow.async_step_backend(
+                {self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_MUSIC_ASSISTANT}
+            )
+        )
+
+        self.assertEqual(result["step_id"], "music_assistant")
+        result = asyncio.run(
+            flow.async_step_music_assistant(
+                {self.const.CONF_MUSIC_ASSISTANT_PLAYER: "media_player.mass_living"}
+            )
+        )
+
+        self.assertEqual(result["step_id"], "voice")
+        self.assertEqual(flow._spotify, {})
+        self.assertEqual(
+            flow._backend[self.const.CONF_MUSIC_BACKEND],
+            self.const.MUSIC_BACKEND_MUSIC_ASSISTANT,
+        )
+        self.assertEqual(
+            flow._backend[self.const.CONF_MUSIC_ASSISTANT_PLAYER],
+            "media_player.mass_living",
+        )
+
+    def test_music_assistant_missing_blocks_setup(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(data={}, states=None)
+
+        result = asyncio.run(flow.async_step_music_assistant())
+
+        self.assertEqual(result["type"], "form")
+        self.assertEqual(result["errors"]["base"], "music_assistant_unavailable")
+
+    def test_music_assistant_without_players_blocks_setup(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(data={"music_assistant": object()}, states=None)
+
+        result = asyncio.run(flow.async_step_music_assistant())
+
+        self.assertEqual(result["type"], "form")
+        self.assertEqual(result["errors"]["base"], "music_assistant_no_players")
 
     def test_voice_schema_can_include_options_action(self) -> None:
         hass = types.SimpleNamespace(states=None, config=types.SimpleNamespace(language="nl-NL"))

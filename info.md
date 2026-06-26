@@ -4,9 +4,9 @@ DJConnect. Muziekbediening met karakter.
 
 Website: [https://djconnect.dev](https://djconnect.dev)
 
-DJConnect lets you ask for music from a dedicated ESP32, iOS, macOS, watchOS or Raspberry Pi client and hear a personal DJ announcement back on the device. Home Assistant handles pairing, Spotify OAuth, backend playback, Assist/STT/TTS, server-side Ask DJ memory/history and device status while playback credentials stay safely inside Home Assistant.
+DJConnect lets you ask for music from a dedicated ESP32, iOS, macOS, watchOS, Raspberry Pi or Windows client and hear a personal DJ announcement back on the device. Home Assistant handles pairing, Spotify OAuth, backend playback, Assist/STT/TTS, server-side Ask DJ memory/history and device status while playback credentials stay safely inside Home Assistant.
 
-Use it when you want a local voice/PTT music remote that can start Spotify playback, show queue/status data, answer Ask DJ music questions, list available speakers, show recent listening-history lists, offer Play Now recommendations and deliver mood-aware DJ announcements through the DJConnect client instead of a generic speaker.
+Use it when you want a voice/PTT music remote that can start Spotify playback, show queue/status data, answer Ask DJ music questions, list available speakers, show recent listening-history lists, offer Play Now recommendations and deliver mood-aware DJ announcements through the DJConnect client instead of a generic speaker. ESP32 and Raspberry Pi stay local-only; iOS, macOS and Windows can use a Home Assistant remote URL after local pairing.
 
 Ask DJ can answer recent Spotify listening questions for tracks, albums, artists and playlist contexts with compact artwork/icon lists. Spotify-backed Home Assistant control/status entities reflect playback availability, volume, output, repeat, shuffle, queue and playlists when Spotify is authorized; DJConnect no longer creates a native playback proxy media player.
 

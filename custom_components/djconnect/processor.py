@@ -18,7 +18,8 @@ from .mood import enrich_payload_with_mood_zone
 from .music_intent import parse_spoken_music_request
 from .smart_home_context import smart_home_context, smart_home_context_text
 from .spotify import play_from_intent
-from .spotify_backend import SpotifyBackendError, handle_spotify_command
+from .spotify_backend import SpotifyBackendError
+from .use_cases import run_music_command as handle_spotify_command
 
 
 async def process_text_command(
