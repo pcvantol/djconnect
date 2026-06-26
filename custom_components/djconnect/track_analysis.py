@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from dataclasses import dataclass
+from typing import Any, Protocol
 
 from homeassistant.core import HomeAssistant
 
@@ -19,6 +20,182 @@ from .pipeline import _assist_context, _speech_from_response
 from .spotify_backend import handle_spotify_command
 
 _LOGGER = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class TrackAnalysisProviderResult:
+    """Result returned by a track-analysis provider."""
+
+    provider_id: str
+    display_name: str
+    status: str
+    data: dict[str, Any] | None = None
+    reason: str | None = None
+
+
+class TrackAnalysisProvider(Protocol):
+    """Provider contract for self-hosted Ask DJ technical track analysis."""
+
+    provider_id: str
+    display_name: str
+    requires_config: bool
+
+    async def async_available(self, runtime: Any) -> bool:
+        """Return whether this provider should be attempted for this runtime."""
+
+    async def async_analyze(
+        self,
+        hass: HomeAssistant,
+        runtime: Any,
+        playback_context: dict[str, Any],
+        context: dict[str, Any],
+    ) -> TrackAnalysisProviderResult:
+        """Analyze the current track and return provider-scoped data."""
+
+
+class SpotifyMeasuredAnalysisProvider:
+    """Measured analysis provider backed by the user's own Spotify backend."""
+
+    provider_id = "spotify_measured"
+    display_name = "Spotify measured analysis"
+    requires_config = True
+
+    async def async_available(self, runtime: Any) -> bool:
+        return True
+
+    async def async_analyze(
+        self,
+        hass: HomeAssistant,
+        runtime: Any,
+        playback_context: dict[str, Any],
+        context: dict[str, Any],
+    ) -> TrackAnalysisProviderResult:
+        try:
+            result = await handle_spotify_command(
+                hass,
+                runtime,
+                "technical_track_analysis",
+                {"playback": playback_context},
+            )
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.debug("DJConnect technical track analysis unavailable: %s", exc)
+            return TrackAnalysisProviderResult(
+                self.provider_id,
+                self.display_name,
+                "error",
+                reason=exc.__class__.__name__,
+            )
+        analysis = result.get("analysis") if isinstance(result, dict) else {}
+        if not isinstance(analysis, dict):
+            analysis = {}
+        has_data = bool(analysis.get("audio_features") or analysis.get("audio_analysis") or analysis.get("track"))
+        return TrackAnalysisProviderResult(
+            self.provider_id,
+            self.display_name,
+            "used" if has_data else "unavailable",
+            data=analysis,
+            reason=str(analysis.get("unavailable_reason") or "") or None,
+        )
+
+
+class HAConversationAnalysisProvider:
+    """Inference provider using the user's configured Home Assistant conversation stack."""
+
+    provider_id = "ha_conversation"
+    display_name = "Home Assistant conversation"
+    requires_config = False
+
+    async def async_available(self, runtime: Any) -> bool:
+        conf = getattr(runtime, "config", {}) or {}
+        return _bool(
+            conf.get(CONF_TRACK_ANALYSIS_USE_HA_CONVERSATION),
+            DEFAULT_TRACK_ANALYSIS_USE_HA_CONVERSATION,
+        )
+
+    async def async_analyze(
+        self,
+        hass: HomeAssistant,
+        runtime: Any,
+        playback_context: dict[str, Any],
+        context: dict[str, Any],
+    ) -> TrackAnalysisProviderResult:
+        title = str(context.get("title") or "de huidige track")
+        artist = str(context.get("artist") or "")
+        features = context.get("features") if isinstance(context.get("features"), dict) else {}
+        sections = context.get("sections") if isinstance(context.get("sections"), list) else []
+        prompt = (
+            _analysis_prompt_instruction(_analysis_language(runtime))
+            +
+            f"Track: {artist + ' - ' if artist else ''}{title}\n"
+            f"Gemeten features: {_safe_inline_context(features)}\n"
+            f"Gemeten secties: {len(sections)}"
+        )
+        try:
+            assist_context = _assist_context(hass, getattr(runtime, "config", {}) or {})
+            language = _analysis_language(runtime)
+            data = {"text": prompt, "language": language}
+            if assist_context.get("agent_id"):
+                data["agent_id"] = assist_context["agent_id"]
+            result = await hass.services.async_call(
+                "conversation",
+                "process",
+                data,
+                blocking=True,
+                return_response=True,
+            )
+            message = _speech_from_response((result or {}).get("response") or {})
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.debug("DJConnect technical track HA conversation inference unavailable: %s", exc)
+            return TrackAnalysisProviderResult(
+                self.provider_id,
+                self.display_name,
+                "error",
+                reason=exc.__class__.__name__,
+            )
+        if not message:
+            return TrackAnalysisProviderResult(self.provider_id, self.display_name, "unavailable", reason="empty_response")
+        return TrackAnalysisProviderResult(
+            self.provider_id,
+            self.display_name,
+            "used",
+            data={"provider": self.provider_id, "structure": message},
+        )
+
+
+class LocalFallbackAnalysisProvider:
+    """Always-available local fallback provider with no external service calls."""
+
+    provider_id = "local_fallback"
+    display_name = "Local fallback"
+    requires_config = False
+
+    async def async_available(self, runtime: Any) -> bool:
+        return True
+
+    async def async_analyze(
+        self,
+        hass: HomeAssistant,
+        runtime: Any,
+        playback_context: dict[str, Any],
+        context: dict[str, Any],
+    ) -> TrackAnalysisProviderResult:
+        title = str(context.get("title") or "de huidige track")
+        artist = str(context.get("artist") or "")
+        features = context.get("features") if isinstance(context.get("features"), dict) else {}
+        sections = context.get("sections") if isinstance(context.get("sections"), list) else []
+        return TrackAnalysisProviderResult(
+            self.provider_id,
+            self.display_name,
+            "used",
+            data={"provider": self.provider_id, "structure": _local_inference(title, artist, features, sections)},
+        )
+
+
+TRACK_ANALYSIS_PROVIDERS: tuple[TrackAnalysisProvider, ...] = (
+    SpotifyMeasuredAnalysisProvider(),
+    HAConversationAnalysisProvider(),
+    LocalFallbackAnalysisProvider(),
+)
 
 
 async def async_analyze_current_track(
@@ -44,6 +221,23 @@ async def async_analyze_current_track(
                 "sections": [],
                 "timeline": [],
                 "dj_tips": [],
+                "providers": [
+                    _provider_status(
+                        "spotify_measured",
+                        "Spotify measured analysis",
+                        "skipped",
+                        True,
+                        "track_analysis_disabled",
+                    ),
+                    _provider_status(
+                        "ha_conversation",
+                        "Home Assistant conversation",
+                        "skipped",
+                        False,
+                        "track_analysis_disabled",
+                    ),
+                    _provider_status("local_fallback", "Local fallback", "skipped", False, "track_analysis_disabled"),
+                ],
                 "limitations": ["Track analysis is disabled in DJConnect options."],
             },
             "items": [],
@@ -52,19 +246,8 @@ async def async_analyze_current_track(
             "sources": [],
             "playback_actions": [],
         }
-    result: dict[str, Any] = {}
-    try:
-        result = await handle_spotify_command(
-            hass,
-            runtime,
-            "technical_track_analysis",
-            {"playback": playback_context},
-        )
-    except Exception as exc:  # noqa: BLE001
-        _LOGGER.debug("DJConnect technical track analysis unavailable: %s", exc)
-    analysis = result.get("analysis") if isinstance(result, dict) else {}
-    if not isinstance(analysis, dict):
-        analysis = {}
+    provider_results = await _run_provider_chain(hass, runtime, playback_context)
+    analysis = _provider_data(provider_results, "spotify_measured")
     track = analysis.get("track") if isinstance(analysis.get("track"), dict) else playback_context
     if not playback_context and not track:
         message = "Ik kan nu niet betrouwbaar zien welke track er speelt, dus ik kan nog geen technische trackanalyse geven."
@@ -82,6 +265,7 @@ async def async_analyze_current_track(
                 "sections": [],
                 "timeline": [],
                 "dj_tips": [],
+                "providers": _providers_contract(provider_results),
                 "limitations": ["No current playback context was available for track analysis."],
             },
             "items": [],
@@ -95,7 +279,17 @@ async def async_analyze_current_track(
     features = analysis.get("audio_features") if isinstance(analysis.get("audio_features"), dict) else {}
     audio_analysis = analysis.get("audio_analysis") if isinstance(analysis.get("audio_analysis"), dict) else {}
     sections = audio_analysis.get("sections") if isinstance(audio_analysis.get("sections"), list) else []
-    inferred = await _inferred_context(hass, runtime, title, artist, features, sections)
+    inference_results = await _run_inference_providers(
+        hass,
+        runtime,
+        playback_context,
+        title,
+        artist,
+        features,
+        sections,
+    )
+    provider_results.extend(inference_results)
+    inferred = _inferred_from_results(inference_results, title, artist, features, sections)
     measured = _measured_context(features, sections)
     limitations = _limitations(features, sections, inferred)
     analysis.update(
@@ -108,6 +302,7 @@ async def async_analyze_current_track(
             "sections": _client_sections(features, sections, inferred, limitations),
             "timeline": _client_timeline(sections),
             "dj_tips": _dj_tips(features, sections),
+            "providers": _providers_contract(provider_results),
             "limitations": limitations,
         }
     )
@@ -133,47 +328,105 @@ async def async_analyze_current_track(
     }
 
 
-async def _inferred_context(
+async def _run_provider_chain(
     hass: HomeAssistant,
     runtime: Any,
+    playback_context: dict[str, Any],
+) -> list[TrackAnalysisProviderResult]:
+    results: list[TrackAnalysisProviderResult] = []
+    provider = TRACK_ANALYSIS_PROVIDERS[0]
+    if not await provider.async_available(runtime):
+        return [TrackAnalysisProviderResult(provider.provider_id, provider.display_name, "skipped", reason="not_available")]
+    results.append(await provider.async_analyze(hass, runtime, playback_context, {}))
+    return results
+
+
+async def _run_inference_providers(
+    hass: HomeAssistant,
+    runtime: Any,
+    playback_context: dict[str, Any],
+    title: str,
+    artist: str,
+    features: dict[str, Any],
+    sections: list[Any],
+) -> list[TrackAnalysisProviderResult]:
+    results: list[TrackAnalysisProviderResult] = []
+    context = {"title": title, "artist": artist, "features": features, "sections": sections}
+    for provider in TRACK_ANALYSIS_PROVIDERS[1:]:
+        if not await provider.async_available(runtime):
+            results.append(
+                TrackAnalysisProviderResult(
+                    provider.provider_id,
+                    provider.display_name,
+                    "skipped",
+                    reason="disabled_by_options",
+                )
+            )
+            continue
+        result = await provider.async_analyze(hass, runtime, playback_context, context)
+        results.append(result)
+        if result.status == "used" and provider.provider_id != "local_fallback":
+            break
+    return results
+
+
+def _inferred_from_results(
+    results: list[TrackAnalysisProviderResult],
     title: str,
     artist: str,
     features: dict[str, Any],
     sections: list[Any],
 ) -> dict[str, Any]:
-    prompt = (
-        _analysis_prompt_instruction(_analysis_language(runtime))
-        +
-        f"Track: {artist + ' - ' if artist else ''}{title}\n"
-        f"Gemeten features: {_safe_inline_context(features)}\n"
-        f"Gemeten secties: {len(sections)}"
-    )
-    try:
-        conf = getattr(runtime, "config", {}) or {}
-        if not _bool(
-            conf.get(CONF_TRACK_ANALYSIS_USE_HA_CONVERSATION),
-            DEFAULT_TRACK_ANALYSIS_USE_HA_CONVERSATION,
-        ):
-            raise RuntimeError("HA Conversation track analysis disabled")
-        assist_context = _assist_context(hass, getattr(runtime, "config", {}) or {})
-        language = _analysis_language(runtime)
-        data = {"text": prompt, "language": language}
-        if assist_context.get("agent_id"):
-            data["agent_id"] = assist_context["agent_id"]
-        result = await hass.services.async_call(
-            "conversation",
-            "process",
-            data,
-            blocking=True,
-            return_response=True,
-        )
-        message = _speech_from_response((result or {}).get("response") or {})
-    except Exception as exc:  # noqa: BLE001
-        _LOGGER.debug("DJConnect technical track HA conversation inference unavailable: %s", exc)
-        message = ""
-    if message:
-        return {"provider": "ha_conversation", "structure": message}
+    for result in results:
+        data = result.data if isinstance(result.data, dict) else {}
+        if result.status == "used" and data.get("structure"):
+            return {"provider": result.provider_id, "structure": str(data["structure"])}
     return {"provider": "local_fallback", "structure": _local_inference(title, artist, features, sections)}
+
+
+def _provider_data(results: list[TrackAnalysisProviderResult], provider_id: str) -> dict[str, Any]:
+    for result in results:
+        if result.provider_id == provider_id and isinstance(result.data, dict):
+            return dict(result.data)
+    return {}
+
+
+def _providers_contract(results: list[TrackAnalysisProviderResult]) -> list[dict[str, Any]]:
+    return [
+        _provider_status(
+            result.provider_id,
+            result.display_name,
+            result.status,
+            _provider_requires_config(result.provider_id),
+            result.reason,
+        )
+        for result in results
+    ]
+
+
+def _provider_status(
+    provider_id: str,
+    display_name: str,
+    status: str,
+    requires_config: bool,
+    reason: str | None = None,
+) -> dict[str, Any]:
+    item: dict[str, Any] = {
+        "provider_id": provider_id,
+        "display_name": display_name,
+        "status": status,
+        "requires_config": requires_config,
+    }
+    if reason:
+        item["reason"] = reason
+    return item
+
+
+def _provider_requires_config(provider_id: str) -> bool:
+    for provider in TRACK_ANALYSIS_PROVIDERS:
+        if provider.provider_id == provider_id:
+            return provider.requires_config
+    return False
 
 
 def _analysis_prompt_instruction(language: str) -> str:

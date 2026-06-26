@@ -99,6 +99,11 @@
       {"kind": "set_placement", "title": "Energy placement", "text": "Best placed when the set can handle a higher-energy lift.", "confidence": "medium", "source": "measured"},
       {"kind": "mixing", "title": "Intro room", "text": "The first measured section lasts about 18 seconds, which may give room for a clean mix-in.", "confidence": "medium", "source": "measured"}
     ],
+    "providers": [
+      {"provider_id": "spotify_measured", "display_name": "Spotify measured analysis", "status": "used", "requires_config": true},
+      {"provider_id": "ha_conversation", "display_name": "Home Assistant conversation", "status": "skipped", "requires_config": false, "reason": "disabled_by_options"},
+      {"provider_id": "local_fallback", "display_name": "Local fallback", "status": "used", "requires_config": false}
+    ],
     "limitations": [
       "Exact intro, verse, chorus, drop or outro labels were not measured."
     ]

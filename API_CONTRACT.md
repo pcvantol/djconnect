@@ -309,6 +309,15 @@ rendering sections:
       "source": "measured | inferred | system"
     }
   ],
+  "providers": [
+    {
+      "provider_id": "spotify_measured | ha_conversation | local_fallback",
+      "display_name": "Spotify measured analysis",
+      "status": "used | skipped | unavailable | error",
+      "requires_config": true,
+      "reason": "disabled_by_options"
+    }
+  ],
   "limitations": [
     "Exact intro, verse, chorus, drop or outro timestamps were not measured."
   ]
@@ -320,6 +329,17 @@ then `dj_tips[]`. Clients must treat timestamps and section labels as measured
 only when `source:"measured"` is present, and should show low-confidence or
 unavailable sections as caveats instead of pretending that intro, verse, chorus
 or drop labels are known.
+
+`analysis.providers[]` is the provider plug-in contract v1. It reports which
+analysis providers were attempted without exposing secrets, access tokens, raw
+audio, prompts or provider-specific private payloads. Clients should render it
+only as optional diagnostic/context metadata and must tolerate unknown
+`provider_id`, `status` and `reason` values. Built-in provider ids are:
+
+- `spotify_measured`: measured metadata/audio feature provider using the user's
+  own Spotify-backed DJConnect backend.
+- `ha_conversation`: optional Home Assistant Conversation inference provider.
+- `local_fallback`: always-available local inference provider.
 
 Canonical client fixtures:
 

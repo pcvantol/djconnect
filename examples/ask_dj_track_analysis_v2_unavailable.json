@@ -17,6 +17,11 @@
     "sections": [],
     "timeline": [],
     "dj_tips": [],
+    "providers": [
+      {"provider_id": "spotify_measured", "display_name": "Spotify measured analysis", "status": "skipped", "requires_config": true, "reason": "track_analysis_disabled"},
+      {"provider_id": "ha_conversation", "display_name": "Home Assistant conversation", "status": "skipped", "requires_config": false, "reason": "track_analysis_disabled"},
+      {"provider_id": "local_fallback", "display_name": "Local fallback", "status": "skipped", "requires_config": false, "reason": "track_analysis_disabled"}
+    ],
     "limitations": [
       "Track analysis is disabled in DJConnect options."
     ]

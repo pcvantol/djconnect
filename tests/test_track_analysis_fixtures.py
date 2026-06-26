@@ -12,7 +12,7 @@ FIXTURES = [
 ]
 CONFIDENCE_VALUES = {"low", "medium", "high"}
 REQUIRED_TOP_LEVEL_ARRAYS = ("items", "images", "links", "sources", "playback_actions")
-REQUIRED_ANALYSIS_ARRAYS = ("sections", "timeline", "dj_tips", "limitations")
+REQUIRED_ANALYSIS_ARRAYS = ("sections", "timeline", "dj_tips", "providers", "limitations")
 
 
 class TrackAnalysisFixtureContractTest(unittest.TestCase):
@@ -67,6 +67,14 @@ class TrackAnalysisFixtureContractTest(unittest.TestCase):
                     self.assertIsInstance(tip.get("source"), str)
                     self.assertIn(tip.get("confidence"), CONFIDENCE_VALUES)
 
+                for provider in analysis["providers"]:
+                    self.assertIsInstance(provider.get("provider_id"), str)
+                    self.assertIsInstance(provider.get("display_name"), str)
+                    self.assertIn(provider.get("status"), {"used", "skipped", "unavailable", "error"})
+                    self.assertIsInstance(provider.get("requires_config"), bool)
+                    if "reason" in provider:
+                        self.assertIsInstance(provider["reason"], str)
+
     def test_happy_path_fixture_contains_renderable_v2_blocks(self) -> None:
         response = _load_json(FIXTURES[0])
         analysis = response["analysis"]
@@ -77,6 +85,7 @@ class TrackAnalysisFixtureContractTest(unittest.TestCase):
         self.assertIn("limitations", section_ids)
         self.assertGreaterEqual(len(analysis["timeline"]), 1)
         self.assertTrue(any(tip["kind"] == "mixing" for tip in analysis["dj_tips"]))
+        self.assertTrue(any(provider["provider_id"] == "spotify_measured" for provider in analysis["providers"]))
         self.assertTrue(any(source["source"] == "spotify_audio_analysis" for source in response["sources"]))
 
     def test_unavailable_fixture_stays_empty_and_explicit(self) -> None:
@@ -86,6 +95,7 @@ class TrackAnalysisFixtureContractTest(unittest.TestCase):
         self.assertEqual(analysis["sections"], [])
         self.assertEqual(analysis["timeline"], [])
         self.assertEqual(analysis["dj_tips"], [])
+        self.assertTrue(all(provider["status"] == "skipped" for provider in analysis["providers"]))
         self.assertGreaterEqual(len(analysis["limitations"]), 1)
         self.assertEqual(response["items"], [])
         self.assertEqual(response["sources"], [])

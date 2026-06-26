@@ -8,6 +8,9 @@
   fields for existing clients.
 - Add canonical Ask DJ track-analysis v2 response fixtures and contract tests so
   clients can build and validate their UI against stable golden samples.
+- Add provider plug-in contract v1 for Ask DJ track analysis with explicit
+  `analysis.providers[]` status reporting for Spotify measured analysis, Home
+  Assistant Conversation inference and local fallback providers.
 
 ## 3.1.97
 

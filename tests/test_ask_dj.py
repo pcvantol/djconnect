@@ -4355,6 +4355,10 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["analysis"]["timeline"][0]["start_ms"], 0)
         self.assertEqual(result["analysis"]["timeline"][0]["end_ms"], 18000)
         self.assertTrue(any(tip["kind"] == "mixing" for tip in result["analysis"]["dj_tips"]))
+        providers = {provider["provider_id"]: provider for provider in result["analysis"]["providers"]}
+        self.assertEqual(providers["spotify_measured"]["status"], "used")
+        self.assertEqual(providers["ha_conversation"]["status"], "error")
+        self.assertEqual(providers["local_fallback"]["status"], "used")
         self.assertIn("inferred", result["analysis"])
         self.assertIn("limitations", result["analysis"])
         self.assertTrue(any(item["title"] == "BPM" for item in result["items"]))
@@ -4501,6 +4505,10 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["analysis"]["sections"], [])
         self.assertEqual(result["analysis"]["timeline"], [])
         self.assertEqual(result["analysis"]["dj_tips"], [])
+        self.assertEqual(
+            [provider["status"] for provider in result["analysis"]["providers"]],
+            ["skipped", "skipped", "skipped"],
+        )
         self.assertIn("Track analysis is disabled", result["analysis"]["limitations"][0])
         self.assertEqual(result["playback_actions"], [])
 
@@ -4549,6 +4557,10 @@ class AskDjTest(unittest.TestCase):
 
         self.assertEqual(calls, ["status", "technical_track_analysis"])
         self.assertEqual(result["analysis"]["inferred"]["provider"], "local_fallback")
+        providers = {provider["provider_id"]: provider for provider in result["analysis"]["providers"]}
+        self.assertEqual(providers["ha_conversation"]["status"], "skipped")
+        self.assertEqual(providers["ha_conversation"]["reason"], "disabled_by_options")
+        self.assertEqual(providers["local_fallback"]["status"], "used")
         self.assertFalse(any(source["source"] == "ha_conversation" for source in result["sources"]))
 
     def test_technical_track_analysis_uses_english_device_language_for_prompt(self) -> None:
@@ -4588,6 +4600,10 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(seen["language"], "en-US")
         self.assertIn("Give at most two short English sentences", seen["text"])
         self.assertEqual(result["analysis"]["inferred"]["provider"], "ha_conversation")
+        providers = {provider["provider_id"]: provider for provider in result["analysis"]["providers"]}
+        self.assertEqual(providers["spotify_measured"]["status"], "used")
+        self.assertEqual(providers["ha_conversation"]["status"], "used")
+        self.assertNotIn("local_fallback", providers)
 
     def test_personal_memory_question_uses_dj_memory_only(self) -> None:
         runtime = make_runtime()
