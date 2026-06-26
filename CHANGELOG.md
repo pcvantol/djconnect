@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.1.99
 
 - Add a free online MetaBrainz metadata/context provider for Ask DJ technical
   track analysis, using MusicBrainz and ListenBrainz with compact caching,
