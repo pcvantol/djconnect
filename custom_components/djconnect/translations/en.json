@@ -65,6 +65,8 @@
           "client_type": "Client type",
           "local_url": "Client adres",
           "dj_response_enabled": "Play DJ announcement on device",
+          "track_analysis_enabled": "Ask DJ track analysis",
+          "track_analysis_use_ha_conversation": "Use HA Conversation for track analysis",
           "smart_home_context_entities": "Shared smart-home entities",
           "firmware_channel": "Firmware channel",
           "options_action": "Action"
@@ -166,6 +168,8 @@
           "client_type": "Type of DJConnect client pairing with Home Assistant: iOS app, macOS app, Apple Watch app, Linux/Raspberry Pi client, Windows app or ESP32 device.",
           "local_url": "Configured Client adres. Read-only; use re-pairing to change this URL.",
           "dj_response_enabled": "Create a temporary WAV or MP3 audio URL and send it with the DJ announcement to the DJConnect device.",
+          "track_analysis_enabled": "Allow Ask DJ to answer read-only technical analysis questions about the currently playing track.",
+          "track_analysis_use_ha_conversation": "Use the configured Home Assistant Conversation/Assist agent for musical interpretation when measured provider data is incomplete.",
           "smart_home_context_entities": "Explicit read-only Home Assistant entities DJConnect may include in Ask DJ context, for example weather, room temperature, appliance status or scene state.",
           "firmware_channel": "Choose stable for normal OTA updates or beta to test prerelease firmware.",
           "options_action": "Choose whether to save options or reauthorize Spotify."

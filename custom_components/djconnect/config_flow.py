@@ -46,6 +46,8 @@ from .const import (
     CONF_SPOTIFY_SCOPES,
     CONF_SETUP_METHOD,
     CONF_SMART_HOME_CONTEXT_ENTITIES,
+    CONF_TRACK_ANALYSIS_ENABLED,
+    CONF_TRACK_ANALYSIS_USE_HA_CONVERSATION,
     CONF_WIFI_PASSWORD,
     CONF_WIFI_SSID,
     DEFAULT_ASSIST_PIPELINE_ID,
@@ -63,6 +65,8 @@ from .const import (
     DEFAULT_SETUP_METHOD,
     DEFAULT_SPOTIFY_MARKET,
     DEFAULT_SPOTIFY_SCOPES,
+    DEFAULT_TRACK_ANALYSIS_ENABLED,
+    DEFAULT_TRACK_ANALYSIS_USE_HA_CONVERSATION,
     FIRMWARE_CHANNELS,
     CLIENT_TYPE_NAMES,
     CLIENT_TYPES,
@@ -155,6 +159,8 @@ VOICE_FORM_FIELDS = {
     CONF_ASSIST_PIPELINE_ID,
     CONF_DJ_RESPONSE_ENABLED,
     CONF_SMART_HOME_CONTEXT_ENTITIES,
+    CONF_TRACK_ANALYSIS_ENABLED,
+    CONF_TRACK_ANALYSIS_USE_HA_CONVERSATION,
     CONF_FIRMWARE_CHANNEL,
 }
 
@@ -648,6 +654,20 @@ def _base_voice_schema(
             ),
         ): bool,
         vol.Optional(
+            CONF_TRACK_ANALYSIS_ENABLED,
+            default=defaults.get(
+                CONF_TRACK_ANALYSIS_ENABLED,
+                DEFAULT_TRACK_ANALYSIS_ENABLED,
+            ),
+        ): bool,
+        vol.Optional(
+            CONF_TRACK_ANALYSIS_USE_HA_CONVERSATION,
+            default=defaults.get(
+                CONF_TRACK_ANALYSIS_USE_HA_CONVERSATION,
+                DEFAULT_TRACK_ANALYSIS_USE_HA_CONVERSATION,
+            ),
+        ): bool,
+        vol.Optional(
             CONF_SMART_HOME_CONTEXT_ENTITIES,
             default=_entity_allowlist_default(defaults),
         ): _entity_allowlist_selector(),
@@ -716,6 +736,20 @@ def _conversation_agent_options_schema(
             CONF_SMART_HOME_CONTEXT_ENTITIES,
             default=_entity_allowlist_default(defaults),
         ): _entity_allowlist_selector(),
+        vol.Optional(
+            CONF_TRACK_ANALYSIS_ENABLED,
+            default=defaults.get(
+                CONF_TRACK_ANALYSIS_ENABLED,
+                DEFAULT_TRACK_ANALYSIS_ENABLED,
+            ),
+        ): bool,
+        vol.Optional(
+            CONF_TRACK_ANALYSIS_USE_HA_CONVERSATION,
+            default=defaults.get(
+                CONF_TRACK_ANALYSIS_USE_HA_CONVERSATION,
+                DEFAULT_TRACK_ANALYSIS_USE_HA_CONVERSATION,
+            ),
+        ): bool,
     }
     return vol.Schema(schema)
 
@@ -809,6 +843,14 @@ def _voice_defaults(
         CONF_DJ_RESPONSE_ENABLED: _bool(
             source.get(CONF_DJ_RESPONSE_ENABLED),
             DEFAULT_DJ_RESPONSE_ENABLED,
+        ),
+        CONF_TRACK_ANALYSIS_ENABLED: _bool(
+            source.get(CONF_TRACK_ANALYSIS_ENABLED),
+            DEFAULT_TRACK_ANALYSIS_ENABLED,
+        ),
+        CONF_TRACK_ANALYSIS_USE_HA_CONVERSATION: _bool(
+            source.get(CONF_TRACK_ANALYSIS_USE_HA_CONVERSATION),
+            DEFAULT_TRACK_ANALYSIS_USE_HA_CONVERSATION,
         ),
         CONF_DJ_RESPONSE_TTL_SECONDS: _int(
             source.get(CONF_DJ_RESPONSE_TTL_SECONDS),

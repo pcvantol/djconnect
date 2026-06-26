@@ -6,7 +6,15 @@ from typing import Any
 
 from homeassistant.core import HomeAssistant
 
-from .const import DEFAULT_TTS_LANGUAGE
+from .const import (
+    CONF_DEVICE_LANGUAGE,
+    CONF_TRACK_ANALYSIS_ENABLED,
+    CONF_TRACK_ANALYSIS_USE_HA_CONVERSATION,
+    DEFAULT_DEVICE_LANGUAGE,
+    DEFAULT_TRACK_ANALYSIS_ENABLED,
+    DEFAULT_TRACK_ANALYSIS_USE_HA_CONVERSATION,
+    DEFAULT_TTS_LANGUAGE,
+)
 from .pipeline import _assist_context, _speech_from_response
 from .spotify_backend import handle_spotify_command
 
@@ -19,6 +27,31 @@ async def async_analyze_current_track(
     playback_context: dict[str, Any],
 ) -> dict[str, Any]:
     """Aggregate measured and inferred analysis for the current track."""
+    conf = getattr(runtime, "config", {}) or {}
+    if not _bool(conf.get(CONF_TRACK_ANALYSIS_ENABLED), DEFAULT_TRACK_ANALYSIS_ENABLED):
+        message = _disabled_text(runtime)
+        return {
+            "success": True,
+            "text": message,
+            "dj_text": message,
+            "action": "track_analysis",
+            "analysis": {
+                "contract_version": 2,
+                "mode": "unavailable",
+                "confidence": "low",
+                "measured": {},
+                "inferred": {},
+                "sections": [],
+                "timeline": [],
+                "dj_tips": [],
+                "limitations": ["Track analysis is disabled in DJConnect options."],
+            },
+            "items": [],
+            "images": [],
+            "links": [],
+            "sources": [],
+            "playback_actions": [],
+        }
     result: dict[str, Any] = {}
     try:
         result = await handle_spotify_command(
@@ -40,7 +73,17 @@ async def async_analyze_current_track(
             "text": message,
             "dj_text": message,
             "action": "track_analysis",
-            "analysis": {},
+            "analysis": {
+                "contract_version": 2,
+                "mode": "unavailable",
+                "confidence": "low",
+                "measured": {},
+                "inferred": {},
+                "sections": [],
+                "timeline": [],
+                "dj_tips": [],
+                "limitations": ["No current playback context was available for track analysis."],
+            },
             "items": [],
             "images": [],
             "links": [],
@@ -54,13 +97,18 @@ async def async_analyze_current_track(
     sections = audio_analysis.get("sections") if isinstance(audio_analysis.get("sections"), list) else []
     inferred = await _inferred_context(hass, runtime, title, artist, features, sections)
     measured = _measured_context(features, sections)
+    limitations = _limitations(features, sections, inferred)
     analysis.update(
         {
+            "contract_version": 2,
             "mode": _analysis_mode(measured, inferred),
             "confidence": _confidence(measured, inferred),
             "measured": measured,
             "inferred": inferred,
-            "limitations": _limitations(features, sections, inferred),
+            "sections": _client_sections(features, sections, inferred, limitations),
+            "timeline": _client_timeline(sections),
+            "dj_tips": _dj_tips(features, sections),
+            "limitations": limitations,
         }
     )
     sources = [{"source": "spotify_playback_context", "title": "Spotify playback context", "kind": "source"}]
@@ -94,17 +142,21 @@ async def _inferred_context(
     sections: list[Any],
 ) -> dict[str, Any]:
     prompt = (
-        "Geef in maximaal twee korte Nederlandse zinnen een technische DJ-duiding "
-        "van deze track. Noem alleen exacte BPM, key, timestamps of sectielabels "
-        "als die expliciet in de meegegeven data staan. Markeer onzekerheid niet "
-        "uitgebreid; wees compact.\n"
+        _analysis_prompt_instruction(_analysis_language(runtime))
+        +
         f"Track: {artist + ' - ' if artist else ''}{title}\n"
         f"Gemeten features: {_safe_inline_context(features)}\n"
         f"Gemeten secties: {len(sections)}"
     )
     try:
+        conf = getattr(runtime, "config", {}) or {}
+        if not _bool(
+            conf.get(CONF_TRACK_ANALYSIS_USE_HA_CONVERSATION),
+            DEFAULT_TRACK_ANALYSIS_USE_HA_CONVERSATION,
+        ):
+            raise RuntimeError("HA Conversation track analysis disabled")
         assist_context = _assist_context(hass, getattr(runtime, "config", {}) or {})
-        language = assist_context.get("language") or DEFAULT_TTS_LANGUAGE
+        language = _analysis_language(runtime)
         data = {"text": prompt, "language": language}
         if assist_context.get("agent_id"):
             data["agent_id"] = assist_context["agent_id"]
@@ -122,6 +174,49 @@ async def _inferred_context(
     if message:
         return {"provider": "ha_conversation", "structure": message}
     return {"provider": "local_fallback", "structure": _local_inference(title, artist, features, sections)}
+
+
+def _analysis_prompt_instruction(language: str) -> str:
+    if str(language or "").lower().startswith("en"):
+        return (
+            "Give at most two short English sentences with a technical DJ-style "
+            "interpretation of this track. Mention exact BPM, key, timestamps or "
+            "section labels only when they are explicitly present in the supplied "
+            "data. Keep uncertainty compact.\n"
+        )
+    return (
+        "Geef in maximaal twee korte Nederlandse zinnen een technische DJ-duiding "
+        "van deze track. Noem alleen exacte BPM, key, timestamps of sectielabels "
+        "als die expliciet in de meegegeven data staan. Markeer onzekerheid niet "
+        "uitgebreid; wees compact.\n"
+    )
+
+
+def _analysis_language(runtime: Any) -> str:
+    language = ""
+    getter = getattr(runtime, "device_language", None)
+    if callable(getter):
+        try:
+            language = str(getter() or "").strip()
+        except Exception:  # noqa: BLE001
+            language = ""
+    conf = getattr(runtime, "config", {}) or {}
+    language = language or str(conf.get(CONF_DEVICE_LANGUAGE) or "").strip()
+    if language.lower().startswith("en"):
+        return "en-US"
+    if language.lower().startswith("nl"):
+        return "nl-NL"
+    return DEFAULT_TTS_LANGUAGE or DEFAULT_DEVICE_LANGUAGE
+
+
+def _disabled_text(runtime: Any) -> str:
+    if _analysis_language(runtime).lower().startswith("en"):
+        return "Track analysis is disabled in DJConnect options."
+    return "Trackanalyse staat uit in de DJConnect opties."
+
+
+def _bool(value: Any, default: bool) -> bool:
+    return default if value is None else bool(value)
 
 
 def _analysis_text(
@@ -182,6 +277,202 @@ def _analysis_items(features: dict[str, Any], sections: list[Any]) -> list[dict[
     if sections:
         items.append({"kind": "arrangement", "title": "Sections", "value": str(len(sections))})
     return items
+
+
+def _client_sections(
+    features: dict[str, Any],
+    sections: list[Any],
+    inferred: dict[str, Any],
+    limitations: list[str],
+) -> list[dict[str, Any]]:
+    result: list[dict[str, Any]] = []
+    tempo = _rounded_number(features.get("tempo"))
+    key = _musical_key_label(features.get("key"), features.get("mode"))
+    basis_items = []
+    if tempo:
+        basis_items.append({"label": "BPM", "value": tempo, "source": "measured"})
+    if key:
+        basis_items.append({"label": "Key", "value": key, "source": "measured"})
+    signature = features.get("time_signature")
+    if signature:
+        basis_items.append({"label": "Time signature", "value": str(signature), "source": "measured"})
+    if basis_items:
+        result.append(
+            {
+                "id": "rhythm_bpm",
+                "title": "Rhythm & BPM",
+                "kind": "technical_metrics",
+                "confidence": "high" if tempo else "medium",
+                "source": "measured",
+                "items": basis_items,
+            }
+        )
+
+    groove_items = []
+    for field, label in (
+        ("danceability", "Danceability"),
+        ("energy", "Energy"),
+        ("valence", "Valence"),
+        ("acousticness", "Acousticness"),
+        ("instrumentalness", "Instrumentalness"),
+    ):
+        value = _percentage(features.get(field))
+        if value:
+            groove_items.append({"label": label, "value": value, "source": "measured"})
+    if groove_items:
+        result.append(
+            {
+                "id": "energy_curve",
+                "title": "Energy Curve",
+                "kind": "audio_features",
+                "confidence": "medium",
+                "source": "measured",
+                "items": groove_items,
+            }
+        )
+
+    if sections:
+        result.append(
+            {
+                "id": "buildup",
+                "title": "Build-up",
+                "kind": "arrangement",
+                "confidence": "medium",
+                "source": "measured",
+                "summary": _sections_summary(sections),
+                "items": [{"label": "Detected sections", "value": str(len(_measured_sections(sections))), "source": "measured"}],
+            }
+        )
+    else:
+        result.append(
+            {
+                "id": "buildup",
+                "title": "Build-up",
+                "kind": "arrangement",
+                "confidence": "low",
+                "source": "unavailable",
+                "summary": "Exact intro, verse, chorus, drop or outro timestamps were not measured.",
+                "items": [],
+            }
+        )
+
+    instrument_hint = _instrument_hint(features)
+    if instrument_hint:
+        result.append(
+            {
+                "id": "instrumentation",
+                "title": "Instrumentation",
+                "kind": "timbre_hint",
+                "confidence": "low",
+                "source": "inferred",
+                "summary": instrument_hint.rstrip("."),
+                "items": [],
+            }
+        )
+
+    structure = str(inferred.get("structure") or "").strip()
+    if structure:
+        result.append(
+            {
+                "id": "melody_harmony",
+                "title": "Melody & Harmony",
+                "kind": "musical_interpretation",
+                "confidence": "low" if inferred.get("provider") == "local_fallback" else "medium",
+                "source": inferred.get("provider") or "inferred",
+                "summary": structure,
+                "items": [],
+            }
+        )
+
+    result.append(
+        {
+            "id": "limitations",
+            "title": "Limitations",
+            "kind": "limitations",
+            "confidence": "high",
+            "source": "system",
+            "items": [{"label": "Note", "value": item, "source": "system"} for item in limitations],
+        }
+    )
+    return result
+
+
+def _client_timeline(sections: list[Any]) -> list[dict[str, Any]]:
+    timeline = []
+    for item in _measured_sections(sections):
+        entry = {
+            "label": f"Section {item['index']}",
+            "kind": "section",
+            "source": "measured",
+            "confidence": item.get("confidence"),
+        }
+        if "start_ms" in item:
+            entry["start_ms"] = item["start_ms"]
+        if "duration_ms" in item:
+            entry["duration_ms"] = item["duration_ms"]
+            if "start_ms" in item:
+                entry["end_ms"] = item["start_ms"] + item["duration_ms"]
+        timeline.append(entry)
+    return timeline
+
+
+def _dj_tips(features: dict[str, Any], sections: list[Any]) -> list[dict[str, Any]]:
+    tips: list[dict[str, Any]] = []
+    tempo = _rounded_number(features.get("tempo"))
+    if tempo:
+        tips.append(
+            {
+                "kind": "mixing",
+                "title": "Tempo match",
+                "text": f"Use {tempo} BPM as the beatmatch anchor.",
+                "confidence": "high",
+                "source": "measured",
+            }
+        )
+    energy = _float_value(features.get("energy"))
+    danceability = _float_value(features.get("danceability"))
+    if energy is not None:
+        if energy >= 0.75:
+            text = "Best placed when the set can handle a higher-energy lift."
+        elif energy <= 0.35:
+            text = "Best placed as a reset, warm-up or late-night breather."
+        else:
+            text = "Flexible energy: useful as a bridge between warm-up and peak material."
+        tips.append({"kind": "set_placement", "title": "Energy placement", "text": text, "confidence": "medium", "source": "measured"})
+    if danceability is not None and danceability < 0.45:
+        tips.append(
+            {
+                "kind": "watch_out",
+                "title": "Groove caution",
+                "text": "Danceability is modest, so check the transition by ear before relying on it as a floor lock.",
+                "confidence": "medium",
+                "source": "measured",
+            }
+        )
+    if sections:
+        first = next((section for section in sections if isinstance(section, dict)), {})
+        duration = _float_value(first.get("duration")) if isinstance(first, dict) else None
+        if duration is not None and duration >= 16:
+            tips.append(
+                {
+                    "kind": "mixing",
+                    "title": "Intro room",
+                    "text": f"The first measured section lasts about {_rounded_number(duration)} seconds, which may give room for a clean mix-in.",
+                    "confidence": "medium",
+                    "source": "measured",
+                }
+            )
+    if not tips:
+        tips.append(
+            {
+                "kind": "limitation",
+                "title": "DJ use",
+                "text": "Not enough measured audio data is available for reliable mix-in, mix-out or set-placement advice.",
+                "confidence": "low",
+                "source": "system",
+            }
+        )
+    return tips
 
 
 def _measured_context(features: dict[str, Any], sections: list[Any]) -> dict[str, Any]:

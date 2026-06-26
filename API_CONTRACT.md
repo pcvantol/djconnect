@@ -253,10 +253,13 @@ key, energy, danceability and detected section count. If Spotify audio features
 or deep audio analysis are unavailable, the backend must say so explicitly and
 must not invent intro/couplet/refrein labels.
 
-`analysis{}` uses a provider-neutral v1 shape:
+`analysis{}` uses a provider-neutral v2 shape. v2 keeps the v1
+`measured`/`inferred`/`limitations` fields intact and adds client-ready
+rendering sections:
 
 ```json
 {
+  "contract_version": 2,
   "mode": "knowledge_plus_metadata | measured_plus_knowledge | measured | unavailable",
   "confidence": "low | medium | high",
   "measured": {
@@ -273,17 +276,67 @@ must not invent intro/couplet/refrein labels.
     "provider": "ha_conversation | local_fallback",
     "structure": "..."
   },
+  "sections": [
+    {
+      "id": "rhythm_bpm | energy_curve | buildup | instrumentation | melody_harmony | limitations",
+      "title": "Rhythm & BPM",
+      "kind": "technical_metrics",
+      "confidence": "low | medium | high",
+      "source": "measured | inferred | ha_conversation | local_fallback | unavailable | system",
+      "summary": "...",
+      "items": [
+        {"label": "BPM", "value": "128", "source": "measured"}
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "label": "Section 1",
+      "kind": "section",
+      "source": "measured",
+      "start_ms": 0,
+      "duration_ms": 18000,
+      "end_ms": 18000,
+      "confidence": 0.86
+    }
+  ],
+  "dj_tips": [
+    {
+      "kind": "mixing | set_placement | watch_out | limitation",
+      "title": "Tempo match",
+      "text": "Use 128 BPM as the beatmatch anchor.",
+      "confidence": "low | medium | high",
+      "source": "measured | inferred | system"
+    }
+  ],
   "limitations": [
     "Exact intro, verse, chorus, drop or outro timestamps were not measured."
   ]
 }
 ```
 
-v1 is local-first and self-installable: it must work without a DJConnect central
+The canonical client display order is `sections[]`, optional `timeline[]`,
+then `dj_tips[]`. Clients must treat timestamps and section labels as measured
+only when `source:"measured"` is present, and should show low-confidence or
+unavailable sections as caveats instead of pretending that intro, verse, chorus
+or drop labels are known.
+
+Canonical client fixtures:
+
+- `examples/ask_dj_track_analysis_v2_response.json`
+- `examples/ask_dj_track_analysis_v2_unavailable.json`
+
+These fixtures are validated by `tests.test_track_analysis_fixtures` and should
+be used as golden responses by iOS, macOS, watchOS, Raspberry Pi and Windows
+clients.
+
+v2 is local-first and self-installable: it must work without a DJConnect central
 backend. Extra providers may be added later through user-supplied keys or a
 local analyzer add-on, but clients should depend on `analysis.mode`,
-`analysis.measured`, `analysis.inferred`, `analysis.limitations` and `items[]`,
-not on a specific provider.
+`analysis.measured`, `analysis.inferred`, `analysis.sections`,
+`analysis.timeline`, `analysis.dj_tips`, `analysis.limitations` and `items[]`,
+not on a specific provider. Existing v1 clients can keep using
+`measured`/`inferred`/`limitations`.
 
 ## Ask DJ Playback Without Active Speaker
 

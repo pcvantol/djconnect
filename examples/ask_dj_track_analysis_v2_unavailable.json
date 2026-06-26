@@ -1,0 +1,29 @@
+{
+  "success": true,
+  "text": "Trackanalyse staat uit in de DJConnect opties.",
+  "dj_text": "Trackanalyse staat uit in de DJConnect opties.",
+  "action": "track_analysis",
+  "intent": {
+    "category": "informational",
+    "intent": "technical_track_analysis",
+    "action": "track_analysis"
+  },
+  "analysis": {
+    "contract_version": 2,
+    "mode": "unavailable",
+    "confidence": "low",
+    "measured": {},
+    "inferred": {},
+    "sections": [],
+    "timeline": [],
+    "dj_tips": [],
+    "limitations": [
+      "Track analysis is disabled in DJConnect options."
+    ]
+  },
+  "items": [],
+  "images": [],
+  "links": [],
+  "sources": [],
+  "playback_actions": []
+}

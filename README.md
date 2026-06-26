@@ -341,10 +341,18 @@ and no `playback_actions[]`.
 Ask DJ also supports read-only technical track analysis prompts such as
 "Analyseer dit nummer". Those return `intent.intent:"technical_track_analysis"`,
 `action:"track_analysis"`, Spotify playback/audio-analysis sources when
-available, and no playback mutation. v1 is local-first: it works without a
-DJConnect central backend by combining current playback metadata, Home Assistant
-conversation context where available, and measured provider data only when the
-user's own installation can access it.
+available, and no playback mutation. The provider-neutral v2 contract adds
+client-ready `analysis.sections[]`, `analysis.timeline[]` and
+`analysis.dj_tips[]` next to the original measured/inferred/limitations data, so
+apps can render rhythm, energy, build-up, instrumentation, musical
+interpretation, caveats and DJ usage advice without parsing prose. v2 remains
+local-first: it works without a DJConnect central backend by combining current
+playback metadata, Home Assistant conversation context where available, and
+measured provider data only when the user's own installation can access it. Use
+[`examples/ask_dj_track_analysis_v2_response.json`](examples/ask_dj_track_analysis_v2_response.json)
+and
+[`examples/ask_dj_track_analysis_v2_unavailable.json`](examples/ask_dj_track_analysis_v2_unavailable.json)
+as client golden fixtures.
 `djconnect.clear_ask_dj_history` clears persistent Ask DJ chat history for the
 selected Home Assistant user when called as a developer service. The app HTTP
 clear route uses the same HA-user scoped history store and increments

@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Extend Ask DJ technical track analysis to provider-neutral contract v2 with
+  client-ready `analysis.sections[]`, `analysis.timeline[]` and
+  `analysis.dj_tips[]` while preserving the v1 measured/inferred/limitations
+  fields for existing clients.
+- Add canonical Ask DJ track-analysis v2 response fixtures and contract tests so
+  clients can build and validate their UI against stable golden samples.
+
 ## 3.1.97
 
 - Move Ask DJ technical track analysis into a dedicated provider-neutral

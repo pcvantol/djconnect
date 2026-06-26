@@ -4345,10 +4345,16 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("3 muzikale secties", result["text"])
         self.assertEqual(result["playback_actions"], [])
         self.assertEqual(result["analysis"]["mode"], "measured_plus_knowledge")
+        self.assertEqual(result["analysis"]["contract_version"], 2)
         self.assertEqual(result["analysis"]["confidence"], "high")
         self.assertEqual(result["analysis"]["measured"]["bpm"], 123.6)
         self.assertEqual(result["analysis"]["measured"]["key"], "A minor")
         self.assertEqual(len(result["analysis"]["measured"]["sections"]), 3)
+        self.assertTrue(any(section["id"] == "rhythm_bpm" for section in result["analysis"]["sections"]))
+        self.assertTrue(any(section["id"] == "buildup" for section in result["analysis"]["sections"]))
+        self.assertEqual(result["analysis"]["timeline"][0]["start_ms"], 0)
+        self.assertEqual(result["analysis"]["timeline"][0]["end_ms"], 18000)
+        self.assertTrue(any(tip["kind"] == "mixing" for tip in result["analysis"]["dj_tips"]))
         self.assertIn("inferred", result["analysis"])
         self.assertIn("limitations", result["analysis"])
         self.assertTrue(any(item["title"] == "BPM" for item in result["items"]))
@@ -4454,6 +4460,134 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("BPM, key and audio feature values were not available", result["analysis"]["limitations"][0])
         self.assertEqual(result["items"], [])
         self.assertEqual(result["playback_actions"], [])
+
+    def test_technical_track_analysis_can_be_disabled(self) -> None:
+        runtime = make_runtime()
+        runtime.config = {"track_analysis_enabled": False}
+        calls = []
+
+        async def status_command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append(command_name)
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            raise AssertionError(f"unexpected command: {command_name}")
+
+        async def analysis_command(hass, runtime_arg, command_name, value=None, *, play=None):
+            raise AssertionError(f"disabled track analysis must not call provider: {command_name}")
+
+        original_status_command = self.ask_dj.handle_spotify_command
+        original_analysis_command = self.track_analysis.handle_spotify_command
+        self.ask_dj.handle_spotify_command = status_command
+        self.track_analysis.handle_spotify_command = analysis_command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "analyseer dit nummer",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "watchos",
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.handle_spotify_command = original_status_command
+            self.track_analysis.handle_spotify_command = original_analysis_command
+
+        self.assertEqual(calls, ["status"])
+        self.assertEqual(result["analysis"]["mode"], "unavailable")
+        self.assertEqual(result["analysis"]["contract_version"], 2)
+        self.assertEqual(result["analysis"]["sections"], [])
+        self.assertEqual(result["analysis"]["timeline"], [])
+        self.assertEqual(result["analysis"]["dj_tips"], [])
+        self.assertIn("Track analysis is disabled", result["analysis"]["limitations"][0])
+        self.assertEqual(result["playback_actions"], [])
+
+    def test_technical_track_analysis_can_skip_ha_conversation(self) -> None:
+        runtime = make_runtime()
+        runtime.config = {"track_analysis_use_ha_conversation": False}
+        calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append(command_name)
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            if command_name == "technical_track_analysis":
+                return {
+                    "success": True,
+                    "analysis": {
+                        "track": runtime.last_playback,
+                        "audio_features": {"tempo": 123.6, "key": 9, "mode": 0},
+                    },
+                }
+            raise AssertionError(f"unexpected command: {command_name}")
+
+        class Services:
+            async def async_call(self, *args, **kwargs):
+                raise AssertionError("HA Conversation should be skipped")
+
+        original_status_command = self.ask_dj.handle_spotify_command
+        original_analysis_command = self.track_analysis.handle_spotify_command
+        self.ask_dj.handle_spotify_command = command
+        self.track_analysis.handle_spotify_command = command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=Services(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "analyseer dit nummer",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "watchos",
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.handle_spotify_command = original_status_command
+            self.track_analysis.handle_spotify_command = original_analysis_command
+
+        self.assertEqual(calls, ["status", "technical_track_analysis"])
+        self.assertEqual(result["analysis"]["inferred"]["provider"], "local_fallback")
+        self.assertFalse(any(source["source"] == "ha_conversation" for source in result["sources"]))
+
+    def test_technical_track_analysis_uses_english_device_language_for_prompt(self) -> None:
+        runtime = make_runtime()
+        runtime.device_language = lambda: "en"
+        seen = {}
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            if command_name == "technical_track_analysis":
+                return {
+                    "success": True,
+                    "analysis": {
+                        "track": runtime.last_playback,
+                        "audio_features": {"tempo": 128, "key": 0, "mode": 1},
+                    },
+                }
+            raise AssertionError(f"unexpected command: {command_name}")
+
+        class Services:
+            async def async_call(self, domain, service, data, **kwargs):
+                seen.update(data)
+                return {"response": {"speech": {"plain": {"speech": "A compact English analysis."}}}}
+
+        original_analysis_command = self.track_analysis.handle_spotify_command
+        self.track_analysis.handle_spotify_command = command
+        try:
+            result = asyncio.run(
+                self.track_analysis.async_analyze_current_track(
+                    types.SimpleNamespace(services=Services()),
+                    runtime,
+                    runtime.last_playback,
+                )
+            )
+        finally:
+            self.track_analysis.handle_spotify_command = original_analysis_command
+
+        self.assertEqual(seen["language"], "en-US")
+        self.assertIn("Give at most two short English sentences", seen["text"])
+        self.assertEqual(result["analysis"]["inferred"]["provider"], "ha_conversation")
 
     def test_personal_memory_question_uses_dj_memory_only(self) -> None:
         runtime = make_runtime()
