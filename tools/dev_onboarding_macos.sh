@@ -9,6 +9,9 @@ DEFAULT_HA_CONFIG_DIR="${HOME}/docker/homeassistant/config"
 HA_CONFIG_DIR="${HA_CONFIG_DIR:-$DEFAULT_HA_CONFIG_DIR}"
 HA_CONTAINER_NAME="${HA_CONTAINER_NAME:-homeassistant}"
 HA_IMAGE="${HA_IMAGE:-ghcr.io/home-assistant/home-assistant:stable}"
+MA_CONTAINER_NAME="${MA_CONTAINER_NAME:-music-assistant-server}"
+MA_IMAGE="${MA_IMAGE:-ghcr.io/music-assistant/server:latest}"
+MA_DATA_DIR="${MA_DATA_DIR:-${HOME}/docker/music-assistant-server/data}"
 MACOS_VM_NAME="${MACOS_VM_NAME:-DJConnect macOS Dev}"
 MACOS_VERSION="${MACOS_VERSION:-}"
 WINDOWS_VM_NAME="${WINDOWS_VM_NAME:-DJConnect Windows 11 ARM Dev}"
@@ -158,6 +161,8 @@ Options:
   --run-ci-push         Allow step 26 to push a CI smoke-test commit.
   --ci-branch BRANCH    Branch name for step 26.
                        Default: codex/onboarding-ci-smoke-<timestamp>
+  --ma-data-dir DIR     Music Assistant server data directory for step 27.
+                       Default: $MA_DATA_DIR
   --log-file FILE       Write a persistent run log. Default is timestamped.
   --no-log-file         Disable persistent run logging.
   --no-color            Disable ANSI colors and styled terminal output.
@@ -169,6 +174,9 @@ Environment overrides:
   HA_CONFIG_DIR         Same as --ha-config-dir.
   HA_CONTAINER_NAME     Default: homeassistant.
   HA_IMAGE              Default: ghcr.io/home-assistant/home-assistant:stable.
+  MA_CONTAINER_NAME     Default: music-assistant-server.
+  MA_IMAGE              Default: ghcr.io/music-assistant/server:latest.
+  MA_DATA_DIR           Same as --ma-data-dir.
   MACOS_VM_NAME         Same as --vm-name.
   MACOS_VERSION         Same as --macos-version.
   WINDOWS_VM_NAME       Same as --windows-vm-name.
@@ -374,6 +382,19 @@ preflight_home_assistant_port() {
   return 1
 }
 
+preflight_music_assistant_port() {
+  if ! lsof -nP -iTCP:8095 -sTCP:LISTEN >/dev/null 2>&1; then
+    status_ok "port 8095  free for Music Assistant"
+    return 0
+  fi
+  if have docker && docker ps --filter "name=$MA_CONTAINER_NAME" --format '{{.Names}}' | grep -qx "$MA_CONTAINER_NAME"; then
+    status_ok "port 8095  already used by $MA_CONTAINER_NAME"
+    return 0
+  fi
+  warn "Port 8095 for Music Assistant is already in use by another process."
+  return 1
+}
+
 step_0_preflight() {
   need_macos
   log "Running machine, VM, hardware, filesystem and network preflight."
@@ -434,6 +455,7 @@ step_0_preflight() {
   fi
 
   preflight_home_assistant_port || failed=1
+  preflight_music_assistant_port || warned=1
   preflight_port_free 8787 "Cloudflare Worker dev" || failed=1
   preflight_port_free 8080 "static website preview" || warned=1
   preflight_port_free 18080 "DJConnect Pi local API" || warned=1
@@ -758,11 +780,15 @@ DJConnect dev environment summary:
   HA URL:            http://localhost:8123
   HA container:      $HA_CONTAINER_NAME
   Integration path:  $HA_CONFIG_DIR/custom_components/djconnect
+  Music Assistant:  http://localhost:8095 after step 27
 
 Next manual UI steps:
   1. Open http://localhost:8123 and finish Home Assistant onboarding.
   2. Add HACS if HA asks for authorization.
   3. Add the DJConnect integration from Settings > Devices & services.
+  4. For Music Assistant backend testing, run step 27, open http://localhost:8095,
+     add a provider/player in Music Assistant, then add the Music Assistant
+     integration in Home Assistant.
 EOF
 }
 
@@ -942,10 +968,28 @@ release_dry_run_if_present() {
   fi
 }
 
+music_assistant_smoke_if_present() {
+  if ! have docker || ! docker ps -a --format '{{.Names}}' | grep -qx "$MA_CONTAINER_NAME"; then
+    warn "Music Assistant server container '$MA_CONTAINER_NAME' not found; skipping MA smoke check."
+    return 0
+  fi
+  run docker start "$MA_CONTAINER_NAME" >/dev/null
+  if [[ "$DRY_RUN" == "1" ]]; then
+    run curl -fsS http://localhost:8095
+    return 0
+  fi
+  if curl -fsS --connect-timeout 5 --max-time 20 http://localhost:8095 >/dev/null 2>&1; then
+    status_ok "Music Assistant server responds at http://localhost:8095"
+  else
+    warn "Music Assistant server container exists but did not respond at http://localhost:8095."
+  fi
+}
+
 step_24_e2e_local_release_smoke() {
   log "Running local E2E release/build smoke checks with version $E2E_VERSION."
   run_in_dir "$REPO_ROOT" python3 -m unittest discover -s tests
   release_dry_run_if_present "$REPO_ROOT" "$E2E_VERSION"
+  music_assistant_smoke_if_present
 
   if [[ -d "$GITHUB_ROOT/djconnect-website" ]]; then
     run_in_dir "$GITHUB_ROOT/djconnect-website" npm test
@@ -971,6 +1015,41 @@ step_24_e2e_local_release_smoke() {
     run_in_dir "$GITHUB_ROOT/djconnect-windows" dotnet format DJConnect.Windows.sln --verify-no-changes --no-restore
   fi
   log "Local E2E release/build smoke checks completed."
+}
+
+step_26_music_assistant_server() {
+  step_3_docker
+  log "Installing/starting Music Assistant server container."
+  warn "Music Assistant provider and player setup is still manual in the MA UI and HA UI."
+  warn "The Home Assistant Music Assistant integration is part of HA; this step starts the separate MA server for backend testing."
+  run mkdir -p "$MA_DATA_DIR"
+  if [[ "$DRY_RUN" == "1" ]]; then
+    run docker run -d \
+      --name "$MA_CONTAINER_NAME" \
+      --restart unless-stopped \
+      --network host \
+      -v "$MA_DATA_DIR:/data" \
+      "$MA_IMAGE"
+    run curl -fsS http://localhost:8095
+    return
+  fi
+  docker info >/dev/null 2>&1 || die "Docker is not running. Start Docker Desktop and rerun this step."
+  if docker ps -a --format '{{.Names}}' | grep -qx "$MA_CONTAINER_NAME"; then
+    log "Music Assistant container '$MA_CONTAINER_NAME' already exists."
+    run docker start "$MA_CONTAINER_NAME" >/dev/null
+  else
+    log "Starting Music Assistant container '$MA_CONTAINER_NAME'."
+    run docker run -d \
+      --name "$MA_CONTAINER_NAME" \
+      --restart unless-stopped \
+      --network host \
+      -v "$MA_DATA_DIR:/data" \
+      "$MA_IMAGE" >/dev/null
+  fi
+  docker ps --filter "name=$MA_CONTAINER_NAME" --format '{{.Names}}\t{{.Status}}\t{{.Ports}}'
+  log "Music Assistant should become available at http://localhost:8095."
+  log "After it starts, configure providers/players in Music Assistant and add the Music Assistant integration in Home Assistant."
+  music_assistant_smoke_if_present
 }
 
 step_25_ci_smoke_push() {
@@ -1155,6 +1234,7 @@ $(style "$CLR_BOLD" "Cross Repo")
  24. Apply package manager upgrades
  25. Local E2E release/build smoke checks
  26. GitHub CI smoke push and workflow validation
+ 27. Install/start Music Assistant server for backend testing
 
 $(style "$CLR_BOLD" "Examples")
   ./$SCRIPT_NAME --all --yes
@@ -1169,6 +1249,7 @@ $(style "$CLR_BOLD" "Examples")
   ./$SCRIPT_NAME --steps 24 --apply-upgrades
   ./$SCRIPT_NAME --steps 25 --e2e-version 3.1.999
   ./$SCRIPT_NAME --steps 26 --run-ci-push
+  ./$SCRIPT_NAME --steps 27
 
 EOF
 }
@@ -1202,6 +1283,7 @@ run_step() {
     24) step_22_apply_package_upgrades ;;
     25) step_24_e2e_local_release_smoke ;;
     26) step_25_ci_smoke_push ;;
+    27) step_26_music_assistant_server ;;
     *) die "Unknown step: $1" ;;
   esac
 }
@@ -1235,6 +1317,7 @@ step_label() {
     24) printf 'Apply package manager upgrades' ;;
     25) printf 'Local E2E release/build smoke checks' ;;
     26) printf 'GitHub CI smoke push and workflow validation' ;;
+    27) printf 'Install/start Music Assistant server for backend testing' ;;
     *) printf 'Unknown step' ;;
   esac
 }
@@ -1248,7 +1331,7 @@ parse_steps() {
   STEP_INDEX=0
   for step in "${parts[@]}"; do
     [[ "$step" =~ ^[0-9]+$ ]] || die "Invalid step: $step"
-    (( step >= 0 && step <= 26 )) || die "Step out of range: $step"
+    (( step >= 0 && step <= 27 )) || die "Step out of range: $step"
     if [[ "$PLAN_ONLY" == "1" ]]; then
       printf '%s %2s. %s\n' "$(style "$CLR_CYAN" "PLAN")" "$step" "$(step_label "$step")"
     else
