@@ -932,6 +932,194 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertEqual(text, "Real HA provider text")
         self.assertEqual(calls, [("nl-NL", b"RIFFxxxxWAVEdata")])
 
+    def test_transcribe_wav_uses_public_ha_stt_provider_processor(self) -> None:
+        assist_stt = importlib.import_module("custom_components.djconnect.assist_stt")
+        stt_module = types.ModuleType("homeassistant.components.stt")
+        pipeline_module = types.ModuleType(
+            "homeassistant.components.assist_pipeline.pipeline"
+        )
+        calls = []
+
+        class SpeechMetadata:
+            def __init__(self, **kwargs):
+                self.kwargs = kwargs
+
+        class AudioFormats:
+            WAV = "wav"
+
+        class AudioCodecs:
+            PCM = "pcm"
+
+        class Provider:
+            def check_metadata(self, metadata):
+                calls.append(("metadata", metadata.kwargs["format"]))
+                return True
+
+            async def async_process_audio_stream(self, metadata, stream):
+                chunks = []
+                async for chunk in stream:
+                    chunks.append(chunk)
+                calls.append(
+                    (
+                        "process",
+                        metadata.kwargs["language"],
+                        metadata.kwargs["sample_rate"],
+                        b"".join(chunks),
+                    )
+                )
+                return types.SimpleNamespace(text="Public HA provider text")
+
+        stt_module.SpeechMetadata = SpeechMetadata
+        stt_module.AudioFormats = AudioFormats
+        stt_module.AudioCodecs = AudioCodecs
+        stt_module.async_get_speech_to_text_engine = (
+            lambda hass, engine: Provider() if engine == "cloud" else None
+        )
+        pipeline_module.async_get_pipelines = lambda hass: [
+            types.SimpleNamespace(
+                id="preferred",
+                name="Home Assistant Cloud",
+                stt_engine="cloud",
+                stt_language="nl-NL",
+            )
+        ]
+        originals = self._install_stt_modules(stt_module, pipeline_module)
+        try:
+            text = asyncio.run(
+                assist_stt.transcribe_wav_with_assist(
+                    types.SimpleNamespace(data={}),
+                    b"RIFFxxxxWAVEdata",
+                    {},
+                )
+            )
+        finally:
+            self._restore_modules(originals)
+
+        self.assertEqual(text, "Public HA provider text")
+        self.assertEqual(
+            calls,
+            [
+                ("metadata", "wav"),
+                ("process", "nl-NL", 16000, b"RIFFxxxxWAVEdata"),
+            ],
+        )
+
+    def test_voice_view_ptt_runs_through_public_ha_stt_provider(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+        stt_module = types.ModuleType("homeassistant.components.stt")
+        pipeline_module = types.ModuleType(
+            "homeassistant.components.assist_pipeline.pipeline"
+        )
+        calls = []
+
+        class SpeechMetadata:
+            def __init__(self, **kwargs):
+                self.kwargs = kwargs
+
+        class AudioFormats:
+            WAV = "wav"
+
+        class AudioCodecs:
+            PCM = "pcm"
+
+        class Provider:
+            def check_metadata(self, metadata):
+                calls.append(("metadata", metadata.kwargs["format"]))
+                return True
+
+            async def async_process_audio_stream(self, metadata, stream):
+                chunks = []
+                async for chunk in stream:
+                    chunks.append(chunk)
+                calls.append(("audio", b"".join(chunks)))
+                return types.SimpleNamespace(text="Speel Eefje de Visser")
+
+        class Runtime:
+            config = {
+                const.CONF_ASSIST_PIPELINE_ID: "cloud-pipeline",
+                const.CONF_MAX_AUDIO_BYTES: 100,
+            }
+            device_token = "device-token"
+            pairing_device_id = "djconnect-ios-68B74487726D"
+            device_status = {
+                "device_id": "djconnect-ios-68B74487726D",
+                "client_type": "ios",
+                "firmware": self.http.VERSION,
+            }
+
+            def authorize_device_request(self, headers, body_device_id=None):
+                return (
+                    headers.get("Authorization") == "Bearer device-token"
+                    and body_device_id == "djconnect-ios-68B74487726D"
+                )
+
+            def update(self, **kwargs):
+                self.last_update = kwargs
+
+        async def ask_dj(hass, runtime, payload, *, user_id=None):
+            calls.append(("ask_dj", payload["text"], payload["input_type"]))
+            return {
+                "success": True,
+                "text": "Ik zet Eefje klaar.",
+                "dj_text": "Ik zet Eefje klaar.",
+                "message": "Ik zet Eefje klaar.",
+                "transcript": payload["text"],
+                "images": [],
+                "links": [],
+                "sources": [],
+            }
+
+        stt_module.SpeechMetadata = SpeechMetadata
+        stt_module.AudioFormats = AudioFormats
+        stt_module.AudioCodecs = AudioCodecs
+        stt_module.async_get_speech_to_text_engine = (
+            lambda hass, engine: Provider() if engine == "cloud" else None
+        )
+        pipeline_module.async_get_pipelines = lambda hass: [
+            types.SimpleNamespace(
+                id="cloud-pipeline",
+                name="Home Assistant Cloud",
+                stt_engine="cloud",
+                stt_language="nl-NL",
+            )
+        ]
+        runtime = Runtime()
+        hass = types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})
+        originals = self._install_stt_modules(stt_module, pipeline_module)
+        original_ask_dj = self.http.async_handle_ask_dj
+        self.http.async_handle_ask_dj = ask_dj
+
+        class Request:
+            headers = {
+                "Authorization": "Bearer device-token",
+                "X-DJConnect-Device-ID": "djconnect-ios-68B74487726D",
+                "X-DJConnect-Client-Type": "ios",
+                "Content-Type": "audio/wav",
+            }
+            app = {"hass": hass}
+
+            async def read(self):
+                return b"RIFFxxxxWAVEdata"
+
+        try:
+            response = asyncio.run(self.http.DJConnectVoiceView(None).post(Request()))
+        finally:
+            self.http.async_handle_ask_dj = original_ask_dj
+            self._restore_modules(originals)
+
+        self.assertEqual(response["status_code"], 200)
+        self.assertTrue(response["payload"]["success"])
+        self.assertEqual(response["payload"]["transcript"], "Speel Eefje de Visser")
+        self.assertEqual(response["payload"]["recognized_text"], "Speel Eefje de Visser")
+        self.assertEqual(
+            calls,
+            [
+                ("metadata", "wav"),
+                ("audio", b"RIFFxxxxWAVEdata"),
+                ("ask_dj", "Speel Eefje de Visser", "voice"),
+            ],
+        )
+
     def test_transcribe_wav_falls_back_to_first_stt_entity(self) -> None:
         assist_stt = importlib.import_module("custom_components.djconnect.assist_stt")
         stt_module = types.ModuleType("homeassistant.components.stt")
