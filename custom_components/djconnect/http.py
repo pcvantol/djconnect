@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 import html
 import logging
 from pathlib import Path
@@ -315,7 +316,7 @@ def _runtime(hass, device_id: str | None = None, headers: Any | None = None):
             )
         else:
             _log_stale_auth_warning(
-                "bearer_token",
+                f"bearer_token:{_token_fingerprint(token)}",
                 "DJConnect no runtime matched bearer token; rejecting stale client request"
             )
             return None
@@ -336,6 +337,11 @@ def _log_stale_auth_warning(key: str, message: str, *args: Any) -> None:
         return
     _last_stale_auth_log[key] = now
     _LOGGER.warning(message, *args)
+
+
+def _token_fingerprint(token: str) -> str:
+    """Return a non-secret token fingerprint for internal warning throttling."""
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()[:12]
 
 
 ERROR_MESSAGES = {
