@@ -523,6 +523,38 @@ def _music_assistant_players(hass: Any) -> dict[str, str]:
     return players
 
 
+def _validate_music_assistant_player(hass: Any, entity_id: Any) -> str | None:
+    """Return a field error when the selected Music Assistant player is invalid."""
+    player = str(entity_id or "").strip()
+    if not player:
+        return "music_assistant_player_missing"
+    if "." not in player:
+        return "music_assistant_player_invalid"
+    domain, _, object_id = player.partition(".")
+    if domain != "media_player" or not object_id:
+        return "music_assistant_player_invalid"
+    states = getattr(hass, "states", None)
+    state = states.get(player) if states and hasattr(states, "get") else None
+    if state is None:
+        return "music_assistant_player_not_found"
+    attrs = getattr(state, "attributes", {}) or {}
+    integration = str(
+        attrs.get("integration")
+        or attrs.get("platform")
+        or attrs.get("source")
+        or attrs.get("mass_player_type")
+        or ""
+    ).lower()
+    if not (
+        "music_assistant" in integration
+        or "mass" in integration
+        or attrs.get("mass_player_type")
+        or attrs.get("music_assistant_player")
+    ):
+        return "music_assistant_player_not_music_assistant"
+    return None
+
+
 def _spotify_schema_with_defaults(
     *,
     external_url: str = "",
@@ -1465,8 +1497,11 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors["base"] = "music_assistant_no_players"
         if user_input is not None and not errors:
             player = str(user_input.get(CONF_MUSIC_ASSISTANT_PLAYER) or "").strip()
-            if player not in players:
-                errors[CONF_MUSIC_ASSISTANT_PLAYER] = "music_assistant_player_missing"
+            player_error = _validate_music_assistant_player(self.hass, player)
+            if player_error:
+                errors[CONF_MUSIC_ASSISTANT_PLAYER] = player_error
+            elif player not in players:
+                errors[CONF_MUSIC_ASSISTANT_PLAYER] = "music_assistant_player_not_found"
             else:
                 self._backend = {
                     CONF_MUSIC_BACKEND: MUSIC_BACKEND_MUSIC_ASSISTANT,
@@ -1839,9 +1874,16 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
                 errors["base"] = "music_assistant_not_configured"
             elif not players:
                 errors["base"] = "music_assistant_no_players"
-            elif selected_player not in players:
-                errors[CONF_MUSIC_ASSISTANT_PLAYER] = "music_assistant_player_not_found"
             else:
+                player_error = _validate_music_assistant_player(self.hass, selected_player)
+                if player_error:
+                    errors[CONF_MUSIC_ASSISTANT_PLAYER] = player_error
+                elif selected_player not in players:
+                    errors[CONF_MUSIC_ASSISTANT_PLAYER] = "music_assistant_player_not_found"
+            if not errors:
+                selected_player = str(
+                    user_input.get(CONF_MUSIC_ASSISTANT_PLAYER) or ""
+                ).strip()
                 merged = self._backend_switch_options(
                     {
                         CONF_MUSIC_BACKEND: MUSIC_BACKEND_MUSIC_ASSISTANT,

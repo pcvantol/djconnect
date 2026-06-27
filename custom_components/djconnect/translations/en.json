@@ -267,8 +267,10 @@
       "music_assistant_not_configured": "Music Assistant is not installed or configured in Home Assistant.",
       "music_assistant_unavailable": "Music Assistant is not installed or configured in Home Assistant.",
       "music_assistant_no_players": "No usable Music Assistant players were found.",
-      "music_assistant_player_missing": "The selected Music Assistant player no longer exists.",
+      "music_assistant_player_invalid": "Choose a valid Home Assistant media_player entity.",
+      "music_assistant_player_missing": "Choose a Music Assistant player.",
       "music_assistant_player_not_found": "The selected Music Assistant player no longer exists.",
+      "music_assistant_player_not_music_assistant": "The selected media_player does not appear to be a Music Assistant player.",
       "spotify_oauth_required": "Spotify OAuth is required before Spotify Direct can become active.",
       "backend_switch_failed": "DJConnect could not switch the music backend. Check the selected backend and try again."
     }

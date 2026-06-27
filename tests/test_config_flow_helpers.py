@@ -206,6 +206,53 @@ def _hass_with_music_assistant_player() -> types.SimpleNamespace:
     )
 
 
+def _hass_with_music_assistant_data_only_player() -> types.SimpleNamespace:
+    class States:
+        def async_entity_ids(self, domain):
+            return [] if domain == "media_player" else []
+
+        def get(self, entity_id):
+            return None
+
+    return types.SimpleNamespace(
+        config=types.SimpleNamespace(language="en-US"),
+        data={
+            "music_assistant": object(),
+            "music_assistant_players": {"media_player.mass_missing": "Missing"},
+        },
+        states=States(),
+    )
+
+
+def _hass_with_music_assistant_and_plain_media_player() -> types.SimpleNamespace:
+    mass_state = types.SimpleNamespace(
+        state="playing",
+        attributes={"friendly_name": "Living room", "mass_player_type": "player"},
+    )
+    plain_state = types.SimpleNamespace(
+        state="idle",
+        attributes={"friendly_name": "Kitchen speaker"},
+    )
+
+    class States:
+        def async_entity_ids(self, domain):
+            if domain != "media_player":
+                return []
+            return ["media_player.mass_living", "media_player.kitchen_speaker"]
+
+        def get(self, entity_id):
+            return {
+                "media_player.mass_living": mass_state,
+                "media_player.kitchen_speaker": plain_state,
+            }.get(entity_id)
+
+    return types.SimpleNamespace(
+        config=types.SimpleNamespace(language="en-US"),
+        data={"music_assistant": object()},
+        states=States(),
+    )
+
+
 class ConfigFlowHelperTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -1200,6 +1247,58 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(result["type"], "form")
         self.assertEqual(result["errors"]["base"], "music_assistant_no_players")
 
+    def test_music_assistant_rejects_non_media_player_entity_id(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = _hass_with_music_assistant_player()
+
+        result = asyncio.run(
+            flow.async_step_music_assistant(
+                {self.const.CONF_MUSIC_ASSISTANT_PLAYER: "sensor.mass_living"}
+            )
+        )
+
+        self.assertEqual(result["step_id"], "music_assistant")
+        self.assertEqual(
+            result["errors"][self.const.CONF_MUSIC_ASSISTANT_PLAYER],
+            "music_assistant_player_invalid",
+        )
+
+    def test_music_assistant_rejects_stale_data_only_player(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = _hass_with_music_assistant_data_only_player()
+
+        result = asyncio.run(
+            flow.async_step_music_assistant(
+                {self.const.CONF_MUSIC_ASSISTANT_PLAYER: "media_player.mass_missing"}
+            )
+        )
+
+        self.assertEqual(result["step_id"], "music_assistant")
+        self.assertEqual(
+            result["errors"][self.const.CONF_MUSIC_ASSISTANT_PLAYER],
+            "music_assistant_player_not_found",
+        )
+
+    def test_music_assistant_rejects_plain_media_player(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = _hass_with_music_assistant_and_plain_media_player()
+
+        result = asyncio.run(
+            flow.async_step_music_assistant(
+                {
+                    self.const.CONF_MUSIC_ASSISTANT_PLAYER: (
+                        "media_player.kitchen_speaker"
+                    )
+                }
+            )
+        )
+
+        self.assertEqual(result["step_id"], "music_assistant")
+        self.assertEqual(
+            result["errors"][self.const.CONF_MUSIC_ASSISTANT_PLAYER],
+            "music_assistant_player_not_music_assistant",
+        )
+
     def test_voice_schema_can_include_options_action(self) -> None:
         hass = types.SimpleNamespace(states=None, config=types.SimpleNamespace(language="nl-NL"))
 
@@ -1756,6 +1855,27 @@ class ConfigFlowHelperTest(unittest.TestCase):
         )
 
         self.assertEqual(result["errors"]["base"], "music_assistant_no_players")
+
+    def test_options_music_assistant_rejects_plain_media_player(self) -> None:
+        entry = types.SimpleNamespace(data={"entry_id": "entry-1"}, options={})
+        flow = self.config_flow.DJConnectOptionsFlow(entry)
+        flow.hass = _hass_with_music_assistant_and_plain_media_player()
+
+        result = asyncio.run(
+            flow.async_step_music_assistant_player(
+                {
+                    self.const.CONF_MUSIC_ASSISTANT_PLAYER: (
+                        "media_player.kitchen_speaker"
+                    )
+                }
+            )
+        )
+
+        self.assertEqual(result["step_id"], "music_assistant_player")
+        self.assertEqual(
+            result["errors"][self.const.CONF_MUSIC_ASSISTANT_PLAYER],
+            "music_assistant_player_not_music_assistant",
+        )
 
     def test_options_switch_to_spotify_direct_requires_oauth_when_missing(self) -> None:
         entry = types.SimpleNamespace(
