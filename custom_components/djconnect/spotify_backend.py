@@ -499,7 +499,7 @@ class SpotifyBackend:
     async def queue(self) -> dict[str, Any]:
         data = await self._request("GET", "/me/player/queue")
         queue = data.get("queue") or []
-        normalized = [_normalize_queue_item(item) for item in queue[:MAX_QUEUE_ITEMS]]
+        normalized = _normalize_queue_items(queue, limit=MAX_QUEUE_ITEMS)
         playback = self.runtime.last_playback or {}
         context_uri = str(playback.get("context_uri") or playback.get("queue_context") or "").strip()
         if context_uri:
@@ -1728,14 +1728,34 @@ def _normalize_device(device: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _normalize_queue_item(item: dict[str, Any]) -> dict[str, str]:
+def _normalize_queue_items(items: Any, *, limit: int) -> list[dict[str, str]]:
+    normalized: list[dict[str, str]] = []
+    if not isinstance(items, list):
+        return normalized
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        normalized_item = _normalize_queue_item(item)
+        if normalized_item is None:
+            continue
+        normalized.append(normalized_item)
+        if len(normalized) >= limit:
+            break
+    return normalized
+
+
+def _normalize_queue_item(item: dict[str, Any]) -> dict[str, str] | None:
     artists = item.get("artists") or []
     images = (item.get("album") or {}).get("images") or item.get("images") or []
     album_image_url = _best_image_url(images)
+    title = str(item.get("name") or "").strip()
+    uri = str(item.get("uri") or "").strip()
+    if not title and not uri:
+        return None
     return {
-        "title": item.get("name") or "",
+        "title": title,
         "subtitle": ", ".join(artist.get("name", "") for artist in artists if artist.get("name")),
-        "uri": item.get("uri") or "",
+        "uri": uri,
         "album_image_url": album_image_url,
         "albumImageUrl": album_image_url,
         "image_url": album_image_url,
