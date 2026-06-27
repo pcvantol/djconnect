@@ -1606,6 +1606,107 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertNotIn("old-runtime-refresh", logs)
         self.assertNotIn("new-entry-refresh", logs)
 
+    def test_invalid_grant_retries_entry_options_token_when_data_token_is_stale(self) -> None:
+        calls = []
+
+        async def refresh(*args, **kwargs):
+            refresh_token = kwargs["refresh_token"]
+            calls.append(refresh_token)
+            if refresh_token in {"old-runtime-refresh", "old-data-refresh"}:
+                raise self.oauth.SpotifyTokenRefreshError(
+                    400,
+                    {"error": "invalid_grant", "error_description": "Refresh token revoked"},
+                )
+            return {"access_token": "new-access", "expires_in": 3600}
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={
+                "spotify_client_id": "client-id",
+                "spotify_refresh_token": "old-data-refresh",
+            },
+            options={"spotify_refresh_token": "new-options-refresh"},
+        )
+        runtime = types.SimpleNamespace(
+            entry=entry,
+            latest_spotify_refresh_token="old-runtime-refresh",
+            spotify_access_token=None,
+            spotify_access_token_expires_at=0,
+        )
+        runtime.config = {**entry.data, **entry.options}
+        runtime.update = lambda **kwargs: setattr(runtime, "last_update", kwargs)
+        backend = self.backend.SpotifyBackend(object(), runtime)
+
+        original = self.backend.refresh_access_token
+        self.backend.refresh_access_token = refresh
+        try:
+            with self.assertLogs(self.backend._LOGGER, level="DEBUG") as captured:
+                token = asyncio.run(backend._access_token())
+        finally:
+            self.backend.refresh_access_token = original
+
+        logs = "\n".join(captured.output)
+        self.assertEqual(token, "new-access")
+        self.assertEqual(calls, ["old-runtime-refresh", "old-data-refresh", "new-options-refresh"])
+        self.assertEqual(self.issues, [])
+        self.assertIn("source=entry_options", logs)
+        self.assertNotIn("old-runtime-refresh", logs)
+        self.assertNotIn("old-data-refresh", logs)
+        self.assertNotIn("new-options-refresh", logs)
+
+    def test_rotated_refresh_token_persists_even_when_runtime_already_updated(self) -> None:
+        updates = []
+
+        class ConfigEntries:
+            def async_update_entry(self, entry, *, data):
+                updates.append(data)
+                entry.data = data
+
+        async def refresh(*args, **kwargs):
+            return {
+                "access_token": "new-access",
+                "expires_in": 3600,
+                "refresh_token": "rotated-refresh",
+            }
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={"spotify_client_id": "client-id", "spotify_refresh_token": "old-refresh"},
+            options={},
+        )
+
+        class Runtime(types.SimpleNamespace):
+            def update_spotify_refresh_token(self, token):
+                self.latest_spotify_refresh_token = token
+                return False
+
+        runtime = Runtime(
+            entry=entry,
+            latest_spotify_refresh_token="rotated-refresh",
+            spotify_access_token=None,
+            spotify_access_token_expires_at=0,
+        )
+        runtime.config = dict(entry.data)
+        backend = self.backend.SpotifyBackend(
+            types.SimpleNamespace(config_entries=ConfigEntries()),
+            runtime,
+        )
+
+        original = self.backend.refresh_access_token
+        self.backend.refresh_access_token = refresh
+        try:
+            with self.assertLogs(self.backend._LOGGER, level="DEBUG") as captured:
+                token = asyncio.run(backend._access_token())
+        finally:
+            self.backend.refresh_access_token = original
+
+        logs = "\n".join(captured.output)
+        self.assertEqual(token, "new-access")
+        self.assertEqual(updates[0]["spotify_refresh_token"], "rotated-refresh")
+        self.assertEqual(entry.data["spotify_refresh_token"], "rotated-refresh")
+        self.assertIn("runtime_changed=False", logs)
+        self.assertNotIn("rotated-refresh", logs)
+
     def test_access_token_cache_avoids_unnecessary_refresh(self) -> None:
         calls = []
 

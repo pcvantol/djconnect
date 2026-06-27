@@ -62,7 +62,10 @@ repository root:
 
 It offers numbered steps for preflight checks, Homebrew/tooling, Docker
 Desktop, Home Assistant, HACS, Codex CLI, repo validation and syncing this
-integration into the local Home Assistant config. Step `0` validates machine,
+integration into the local Home Assistant config. Step `27` can start a local
+Music Assistant server container for Music Assistant backend testing; provider
+and player setup still happens in the Music Assistant and Home Assistant UIs.
+Step `0` validates machine,
 VM, hardware, filesystem and network requirements. Step `1` can install/open
 Parallels Desktop and bootstrap a macOS development VM with minimal input. Step
 `2` can bootstrap a Parallels Windows 11 ARM development VM on Apple Silicon,
@@ -142,9 +145,10 @@ Review lockfiles, manifests and dependency documentation after running step
 
 Step `25` runs local E2E release/build smoke checks across the DJConnect repos,
 including local tests and `release.sh <version> --dry-run` where available.
-Step `26` can create a dedicated CI smoke-test branch with an empty commit,
-push it and watch the GitHub Actions result, but only when `--run-ci-push` is
-explicitly present:
+If the Music Assistant server container from step `27` exists, step `25` also
+performs a lightweight `http://localhost:8095` smoke check. Step `26` can create
+a dedicated CI smoke-test branch with an empty commit, push it and watch the
+GitHub Actions result, but only when `--run-ci-push` is explicitly present:
 
 ```bash
 ./tools/dev_onboarding_macos.sh --steps 25 --e2e-version 3.1.999
@@ -152,6 +156,30 @@ explicitly present:
 ```
 
 Use `--dry-run` first to inspect the local release or GitHub CI commands.
+
+To bootstrap the Music Assistant server used by the DJConnect `Music Assistant`
+backend option:
+
+```bash
+./tools/dev_onboarding_macos.sh --steps 27
+```
+
+The server uses the Docker image `ghcr.io/music-assistant/server:latest`, stores
+data under `/Users/pcvantol/docker/music-assistant-server/data` by default and
+serves its UI on:
+
+```text
+http://localhost:8095
+```
+
+After the server is running, open Music Assistant, configure at least one music
+provider and usable player, then add/configure the Music Assistant integration
+inside Home Assistant before testing the DJConnect `Music Assistant` backend.
+Override the data path with:
+
+```bash
+./tools/dev_onboarding_macos.sh --steps 27 --ma-data-dir /path/to/music-assistant-data
+```
 
 For unattended setup of only this Home Assistant integration:
 

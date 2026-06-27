@@ -73,6 +73,14 @@ stale when their local revision is lower than the server revision. The backend
 switch keeps pairing, device tokens, Ask DJ history, DJ Memory and APNs
 registrations; only backend-specific pending playback actions are invalidated.
 
+Music Assistant is a backend-neutral target-player route, not a Spotify Direct
+fallback. When `music_backend` is `music_assistant`, clients should expect
+Music Assistant to own provider authentication, library browsing, queue
+semantics and grouping/sync. DJConnect may expose playback/control actions for
+the configured target player, but Spotify-only features such as recently played
+history, top artists/tracks, Spotify library favorites and Spotify OAuth repairs
+must be hidden or shown as unsupported based on `music_backend_capabilities`.
+
 Unsupported backend capabilities use this stable shape instead of vague 500s:
 
 ```json
@@ -208,7 +216,8 @@ Playback actions are backend-aware. Clients must not assume Spotify URIs:
 }
 ```
 
-Music Assistant actions use provider-neutral item metadata:
+Music Assistant actions use provider-neutral item metadata and include the
+configured target player:
 
 ```json
 {
@@ -610,7 +619,8 @@ relay. With `send:true`, it attempts one privacy-safe test event through
 - `explicit_user_request`, optional boolean; default `true`.
 
 Diagnostic responses are intentionally redacted and must not include APNs tokens,
-bearer tokens, bootstrap proofs or `djci_` token values:
+bearer tokens, bootstrap proofs, `djci_` token values, authorization headers,
+raw prompts, raw audio, Ask DJ history or DJ Memory dumps:
 
 ```json
 {

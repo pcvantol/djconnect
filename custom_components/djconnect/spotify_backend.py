@@ -342,14 +342,24 @@ class SpotifyBackend:
         rotated = str(token.get("refresh_token") or "").strip()
         if rotated:
             updater = getattr(self.runtime, "update_spotify_refresh_token", None)
-            if callable(updater) and updater(rotated):
-                entry = getattr(self.runtime, "entry", None)
-                if entry is not None:
-                    new_data = dict(entry.data)
-                    new_data[CONF_SPOTIFY_REFRESH_TOKEN] = rotated
-                    self.hass.config_entries.async_update_entry(entry, data=new_data)
+            runtime_changed = bool(callable(updater) and updater(rotated))
+            entry = getattr(self.runtime, "entry", None)
+            entry_token = str(
+                ((getattr(entry, "data", {}) or {}).get(CONF_SPOTIFY_REFRESH_TOKEN))
+                if entry is not None
+                else ""
+            ).strip()
+            if entry is not None and rotated != entry_token:
+                new_data = dict(entry.data)
+                new_data[CONF_SPOTIFY_REFRESH_TOKEN] = rotated
+                self.hass.config_entries.async_update_entry(entry, data=new_data)
                 _LOGGER.debug(
-                    "DJConnect Spotify refresh_token=rotated/persisted source=token_endpoint"
+                    "DJConnect Spotify refresh_token=rotated/persisted source=token_endpoint runtime_changed=%s",
+                    runtime_changed,
+                )
+            elif runtime_changed:
+                _LOGGER.debug(
+                    "DJConnect Spotify refresh_token=rotated/runtime source=token_endpoint"
                 )
         access_token = str(token.get("access_token") or "").strip()
         if not access_token:
@@ -1909,9 +1919,11 @@ def _refresh_token_candidates(runtime: Any, conf: dict[str, Any]) -> list[tuple[
     """Return known Spotify refresh tokens without exposing token values in logs."""
     entry = getattr(runtime, "entry", None)
     entry_data = getattr(entry, "data", {}) if entry is not None else {}
+    entry_options = getattr(entry, "options", {}) if entry is not None else {}
     raw_candidates = (
         ("runtime", getattr(runtime, "latest_spotify_refresh_token", None)),
         ("entry", entry_data.get(CONF_SPOTIFY_REFRESH_TOKEN)),
+        ("entry_options", entry_options.get(CONF_SPOTIFY_REFRESH_TOKEN)),
         ("config", conf.get(CONF_SPOTIFY_REFRESH_TOKEN)),
     )
     seen: set[str] = set()

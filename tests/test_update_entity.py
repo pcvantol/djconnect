@@ -239,29 +239,19 @@ class DJConnectUpdateEntityTest(unittest.TestCase):
 
         self.assertFalse(entity._attr_should_poll)
 
-    def test_update_entity_is_skipped_for_app_clients(self) -> None:
-        added = []
-        runtime = types.SimpleNamespace(client_type=lambda: "ios")
-        hass = types.SimpleNamespace(data={"djconnect": {"entry-1": runtime}})
-        entry = types.SimpleNamespace(entry_id="entry-1")
+    def test_update_entity_is_skipped_for_non_esp32_clients(self) -> None:
+        for client_type in ("ios", "macos", "watchos", "raspberry_pi", "windows", "conversation_agent"):
+            with self.subTest(client_type=client_type):
+                added = []
+                runtime = types.SimpleNamespace(client_type=lambda client_type=client_type: client_type)
+                hass = types.SimpleNamespace(data={"djconnect": {"entry-1": runtime}})
+                entry = types.SimpleNamespace(entry_id="entry-1")
 
-        asyncio.run(
-            self.update.async_setup_entry(hass, entry, lambda entities: added.extend(entities))
-        )
+                asyncio.run(
+                    self.update.async_setup_entry(hass, entry, lambda entities: added.extend(entities))
+                )
 
-        self.assertEqual(added, [])
-
-    def test_update_entity_is_skipped_for_raspberry_pi_clients(self) -> None:
-        added = []
-        runtime = types.SimpleNamespace(client_type=lambda: "raspberry_pi")
-        hass = types.SimpleNamespace(data={"djconnect": {"entry-1": runtime}})
-        entry = types.SimpleNamespace(entry_id="entry-1")
-
-        asyncio.run(
-            self.update.async_setup_entry(hass, entry, lambda entities: added.extend(entities))
-        )
-
-        self.assertEqual(added, [])
+                self.assertEqual(added, [])
 
     def test_existing_update_entity_is_unavailable_for_app_clients(self) -> None:
         runtime = types.SimpleNamespace(

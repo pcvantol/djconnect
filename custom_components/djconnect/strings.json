@@ -67,6 +67,7 @@
           "dj_response_enabled": "DJ aankondiging op apparaat afspelen",
           "track_analysis_enabled": "Ask DJ trackanalyse",
           "track_analysis_use_ha_conversation": "HA Conversation gebruiken voor trackanalyse",
+          "smart_home_context_entities": "Gedeelde smart-home entiteiten",
           "firmware_channel": "Firmwarekanaal",
           "options_action": "Actie"
         },
@@ -74,6 +75,7 @@
           "assist_pipeline_id": "Assist pipeline die DJConnect devices gebruiken voor spraakherkenning en DJ aankondiging audio.",
           "client_type": "Type DJConnect client: app, lokaal device of Assist-agent.",
           "dj_response_enabled": "Maak een tijdelijke WAV of MP3 audio URL en stuur die met de DJ aankondiging naar het DJConnect device.",
+          "smart_home_context_entities": "Expliciete alleen-lezen Home Assistant entiteiten die DJConnect in Ask DJ context mag gebruiken, bijvoorbeeld weer, kamertemperatuur, apparaatstatus of scene-status.",
           "firmware_channel": "Kies stable voor normale OTA updates of beta om prerelease firmware te testen.",
           "options_action": "Kies instellingen opslaan of Spotify opnieuw autoriseren."
         }
@@ -182,6 +184,7 @@
           "client_type": "Clienttype",
           "local_url": "Client adres",
           "dj_response_enabled": "DJ aankondiging op apparaat afspelen",
+          "smart_home_context_entities": "Gedeelde smart-home entiteiten",
           "firmware_channel": "Firmwarekanaal",
           "options_action": "Actie",
           "music_backend": "Muziekbackend",
@@ -192,6 +195,7 @@
           "client_type": "Type DJConnect client: app, lokaal device of Assist-agent.",
           "local_url": "Geconfigureerd lokaal Client adres voor ESP32/Raspberry Pi. Alleen-lezen; gebruik opnieuw koppelen om deze URL te wijzigen.",
           "dj_response_enabled": "Maak een tijdelijke WAV of MP3 audio URL en stuur die met de DJ aankondiging naar het DJConnect device.",
+          "smart_home_context_entities": "Expliciete alleen-lezen Home Assistant entiteiten die DJConnect in Ask DJ context mag gebruiken, bijvoorbeeld weer, kamertemperatuur, apparaatstatus of scene-status.",
           "firmware_channel": "Kies stable voor normale OTA updates of beta om prerelease firmware te testen.",
           "options_action": "Kies instellingen opslaan, Spotify opnieuw autoriseren of expliciet de muziekbackend wijzigen.",
           "music_backend": "Gekozen playback-backend.",

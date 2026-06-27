@@ -3,11 +3,12 @@ test_parse:
   description: >
     Developer test: send text through the configured Home Assistant Assist
     conversation pipeline and return the DJConnect intent. This action does not
-    start Spotify playback or send a DJ announcement.
+    start playback on Spotify Direct or Music Assistant and does not send a DJ
+    announcement.
   fields:
     command_text:
       name: Command text
-      description: Text as the DJConnect device would send it after HA Assist STT. Current-track questions and playback controls are handled by Home Assistant without client-side Spotify credentials.
+      description: Text as the DJConnect device would send it after HA Assist STT. Current-track questions and playback controls are handled by Home Assistant through the selected music backend without client-side provider credentials.
       example: "Welk nummer draait er nu?"
       required: true
       selector:
@@ -36,9 +37,10 @@ test_command:
   description: >
     Developer test: use the same text-command route as the DJConnect device.
     Text goes through Home Assistant to a DJConnect intent, can optionally start
-    Spotify playback, and then sends the DJ announcement to the ESP device.
+    playback through Spotify Direct or Music Assistant, and then sends the DJ
+    announcement to the ESP device.
     Current-track questions and direct playback controls are handled by Home
-    Assistant without client-side Spotify credentials or playback backend logic.
+    Assistant without client-side provider credentials or playback backend logic.
   fields:
     command_text:
       name: Command text
@@ -50,7 +52,7 @@ test_command:
           multiline: false
     play:
       name: Start playback
-      description: Turn off to test parser/result data without starting Spotify playback.
+      description: Turn off to test parser/result data without starting playback on the selected backend.
       required: false
       default: true
       selector:
@@ -60,9 +62,10 @@ test_ptt_text:
   name: Test PTT text flow
   description: >
     Developer test: start exactly after STT conversion. Enter the natural
-    language sentence the user said; DJConnect runs intent parsing, Spotify
-    search/playback, DJ announcement generation with text/audio, and sends the
-    result back to the connected DJConnect device/client.
+    language sentence the user said; DJConnect runs intent parsing, selected
+    backend search/playback where supported, DJ announcement generation with
+    text/audio, and sends the result back to the connected DJConnect
+    device/client.
   fields:
     command_text:
       name: Natural language text
@@ -139,9 +142,10 @@ ask_dj:
   description: >
     Ask DJ text request for iOS, macOS, Apple Watch, Raspberry Pi and Windows
     clients. Home Assistant
-    handles intent routing, DJ Memory, Spotify/Home Assistant actions and
-    informational answers. Responses can include text, audio_url, images, links,
-    intent, action and memory_key.
+    handles intent routing, DJ Memory, selected-backend/Home Assistant actions
+    and informational answers. Responses can include text, audio_url, images,
+    links, intent, action and memory_key. Spotify-only questions gracefully
+    degrade when Music Assistant is selected.
   fields:
     text:
       name: Text
@@ -230,8 +234,9 @@ start_spotify_oauth:
   name: Start Spotify OAuth
   description: >
     Developer helper: create a Spotify PKCE authorization URL for the Home
-    Assistant playback backend. Open the URL, sign in to Spotify, and the
-    callback stores the refresh token in DJConnect.
+    Assistant Spotify Direct backend. Open the URL, sign in to Spotify, and the
+    callback stores the refresh token in DJConnect. This is not used when Music
+    Assistant is the selected backend.
   fields:
     client_id:
       name: Spotify Client ID
@@ -273,6 +278,15 @@ start_spotify_oauth:
       selector:
         text:
           multiline: true
+
+music_backend_status:
+  name: Music backend status
+  description: >
+    Developer diagnostic: return the selected DJConnect music backend,
+    capabilities, revision, target player and safe availability/error metadata.
+    Use this to verify Music Assistant selection and target-player readiness
+    from Home Assistant Developer Tools without starting playback.
+  fields: {}
 
 device_command:
   name: Send device command

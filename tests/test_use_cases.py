@@ -221,6 +221,62 @@ class UseCaseLayerTest(unittest.TestCase):
         with self.assertRaises(uc.MusicBackendCapabilityError):
             asyncio.run(uc.run_music_command(hass, runtime, "recently_played"))
 
+    def test_spotify_direct_action_fields_keep_legacy_uri_value(self) -> None:
+        metadata = self.use_cases.music_backend_action_fields(
+            types.SimpleNamespace(
+                config={"music_backend": "spotify_direct", "music_backend_revision": 2}
+            ),
+            "track",
+            "spotify:track:abc",
+            "https://example.test/art.jpg",
+            "Track",
+            "Artist",
+        )
+
+        self.assertEqual(metadata["backend"], "spotify_direct")
+        self.assertEqual(metadata["provider"], "spotify")
+        self.assertEqual(metadata["music_backend_revision"], 2)
+        self.assertEqual(
+            metadata["value"],
+            {
+                "title": "Track",
+                "subtitle": "Artist",
+                "image_url": "https://example.test/art.jpg",
+                "uri": "spotify:track:abc",
+            },
+        )
+
+    def test_music_assistant_action_fields_use_generic_item_value(self) -> None:
+        metadata = self.use_cases.music_backend_action_fields(
+            types.SimpleNamespace(
+                config={
+                    "music_backend": "music_assistant",
+                    "music_backend_revision": 7,
+                    "music_assistant_player": "media_player.mass_living",
+                }
+            ),
+            "album",
+            "library://album/123",
+            "",
+            "Album",
+            "Artist",
+        )
+
+        self.assertEqual(metadata["backend"], "music_assistant")
+        self.assertEqual(metadata["provider"], "music_assistant")
+        self.assertEqual(metadata["music_backend_revision"], 7)
+        self.assertEqual(
+            metadata["value"],
+            {
+                "title": "Album",
+                "subtitle": "Artist",
+                "item_id": "library://album/123",
+                "provider": "music_assistant",
+                "media_type": "album",
+                "target_player_id": "media_player.mass_living",
+            },
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -105,7 +105,7 @@ class TtsHelperTest(unittest.TestCase):
         cls.http = importlib.import_module("custom_components.djconnect.http")
         cls.tts = importlib.import_module("custom_components.djconnect.tts")
 
-    def test_conversation_agent_entry_only_loads_conversation_platform(self) -> None:
+    def test_conversation_agent_entry_only_loads_conversation_and_sensor_platforms(self) -> None:
         entry = types.SimpleNamespace(
             data={self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_CONVERSATION_AGENT},
             options={},
@@ -116,14 +116,23 @@ class TtsHelperTest(unittest.TestCase):
         self.assertEqual(self.integration._platforms_for_runtime(runtime), ["conversation", "sensor"])
 
     def test_device_entry_loads_full_platform_set(self) -> None:
-        entry = types.SimpleNamespace(
-            data={self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_IOS},
-            options={},
-            entry_id="entry-ios",
-        )
-        runtime = self.integration.DJConnectRuntime(entry=entry)
+        for client_type in (
+            self.const.CLIENT_TYPE_ESP32,
+            self.const.CLIENT_TYPE_IOS,
+            self.const.CLIENT_TYPE_MACOS,
+            self.const.CLIENT_TYPE_WATCHOS,
+            self.const.CLIENT_TYPE_RASPBERRY_PI,
+            self.const.CLIENT_TYPE_WINDOWS,
+        ):
+            with self.subTest(client_type=client_type):
+                entry = types.SimpleNamespace(
+                    data={self.const.CONF_CLIENT_TYPE: client_type},
+                    options={},
+                    entry_id=f"entry-{client_type}",
+                )
+                runtime = self.integration.DJConnectRuntime(entry=entry)
 
-        self.assertEqual(self.integration._platforms_for_runtime(runtime), self.const.PLATFORMS)
+                self.assertEqual(self.integration._platforms_for_runtime(runtime), self.const.PLATFORMS)
 
     def test_push_debug_payload_reports_flags_without_secrets(self) -> None:
         entry = types.SimpleNamespace(

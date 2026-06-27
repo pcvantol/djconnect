@@ -18,6 +18,16 @@
   Assistant. Spotify Direct keeps DJConnect PKCE OAuth; Music Assistant uses a
   configured MA `media_player`, skips DJConnect Spotify OAuth/repairs and
   degrades unsupported Ask DJ/library features through backend capabilities.
+- Clarify the Music Assistant setup path in HACS/README/API docs as the
+  no-DJConnect-Spotify-OAuth route where Music Assistant owns provider auth,
+  library, queues and grouping/sync while DJConnect controls one target player.
+- Add the `djconnect.music_backend_status` developer action and make developer
+  service descriptions backend-aware so Music Assistant can be validated from
+  Home Assistant Developer Tools without starting playback.
+- Stabilize and document the Home Assistant entity matrix per `client_type`:
+  ESP32 keeps ESP-only hardware/settings/OTA entities, Raspberry Pi keeps only
+  Pi power actions, Apple clients keep APNs diagnostics/actions, Windows remains
+  app-like, and Assist-agent-only entries stay conversation plus diagnostics.
 - Add an explicit `Muziekbackend wijzigen` / `Change music backend` options-flow
   action so users can switch between Spotify Direct and Music Assistant without
   removing the integration. Pairing, tokens, Ask DJ history, DJ Memory and push
@@ -28,6 +38,22 @@
   safe `music_backend_error`; Play Now actions carry backend/provider/revision
   metadata; stale actions and unsupported capabilities return explicit
   user-facing error shapes.
+- Move reusable Ask DJ Play Now backend metadata shaping into the use-case layer
+  so new actions get the same backend/provider/revision/value envelope without
+  reimplementing Spotify-specific response code in Ask DJ.
+- Align config/options-flow base, English and Dutch translation keysets for
+  shared smart-home context entities.
+- Harden diagnostics and HTTP debug/failure surfaces so keys containing
+  token/password/secret/proof/authorization/prompt/history/memory/raw audio
+  aliases are redacted and secret-bearing backend exception text is replaced by
+  safe user-facing errors.
+- Add safe Assist STT/TTS diagnostics with configured pipeline id, resolved
+  pipeline/provider metadata, helper availability and readiness without raw
+  audio, prompt/history, generated audio or TTS voice-id leakage.
+- Harden Spotify OAuth refresh-token rotation by retrying stale runtime/data
+  tokens against newer config-entry options tokens before creating a Repair and
+  persisting rotated refresh tokens even when runtime memory already holds the
+  rotated value.
 
 ## 3.1.99
 

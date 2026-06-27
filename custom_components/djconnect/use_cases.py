@@ -435,6 +435,45 @@ def music_backend_metadata(hass: HomeAssistant, runtime: Any) -> dict[str, Any]:
     }
 
 
+def music_backend_action_fields(
+    runtime: Any,
+    kind: str,
+    item_id: str,
+    image_url: str = "",
+    title: str = "",
+    subtitle: str = "",
+) -> dict[str, Any]:
+    """Return backend-aware playback action metadata for client contracts."""
+    config = getattr(runtime, "config", {}) if runtime is not None else {}
+    backend = str(config.get(CONF_MUSIC_BACKEND) or DEFAULT_MUSIC_BACKEND).strip()
+    if backend not in MUSIC_BACKEND_NAMES:
+        backend = DEFAULT_MUSIC_BACKEND
+    revision = _int_revision(config.get(CONF_MUSIC_BACKEND_REVISION))
+    provider = MUSIC_BACKEND_MUSIC_ASSISTANT if backend == MUSIC_BACKEND_MUSIC_ASSISTANT else "spotify"
+    value: dict[str, Any] = {
+        "title": title,
+        "subtitle": subtitle,
+        "image_url": image_url,
+    }
+    if backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
+        value.update(
+            {
+                "item_id": item_id,
+                "provider": provider,
+                "media_type": kind,
+                "target_player_id": str(config.get(CONF_MUSIC_ASSISTANT_PLAYER) or ""),
+            }
+        )
+    else:
+        value["uri"] = item_id
+    return {
+        "backend": backend,
+        "provider": provider,
+        "music_backend_revision": revision,
+        "value": {key: val for key, val in value.items() if val not in ("", None)},
+    }
+
+
 def unsupported_capability_message(capability: str, backend: str) -> str:
     """Return a safe user-facing unsupported capability message."""
     labels = {

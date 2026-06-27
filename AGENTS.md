@@ -63,7 +63,7 @@ Architectuur beslissingen:
 - Normale config-flow blijft klein; de setupmethode wordt alleen in de eerste stap gekozen en niet herhaald in de pairingstap. Clienttype-keuzes staan in de volgorde iOS, macOS, Apple Watch, Linux/Raspberry Pi, Windows en ESP32. Firmware channel is alleen zichtbaar voor ESP32 clients; iOS/macOS/watchOS lopen via app-distributie/TestFlight en Linux/Raspberry Pi/Windows via eigen GitHub source/install flow. Max audio bytes, OTA battery settings en DJ announcement audio TTL gebruiken interne defaults en worden niet meer als config/options velden getoond. Spotify source override en standaard playlist override worden niet meer als config/options velden getoond. Firmware repo/asset/device settings horen niet meer in de flow; ESP32 OTA selecteert automatisch uit het public firmware manifest op basis van ESP device status/info. ESP32 gebruikers mogen wisselen tussen firmwarekanaal `stable` en `beta`.
 - Alle entities horen onder één HA device met één stabiele device identifier.
 - DJConnect repos zijn MIT-licensed tenzij een specifieke third-party dependency anders vermeldt.
-- Geen secrets in diagnostics/logs; redactie voor keys met `token`, `password` of `secret`.
+- Geen secrets in diagnostics/logs; redactie voor keys met `token`, `password`, `secret`, `proof`, `authorization`, `prompt`, `history`, `memory` of `raw_audio`.
 - Spotify trademark/non-affiliation notice blijft zichtbaar in docs/UI/diagnostics.
 
 Licentie/commercieel:
@@ -127,7 +127,7 @@ HA integration:
 - STT/TTS engine, taal en stem worden in Home Assistant Assist beheerd en niet als losse DJConnect config/options velden getoond.
 - Spotify source/device naam is dynamisch; toon geen Spotify source override meer in config/options.
 - Huidige firmware gebruikt de lokale ESP API met bearer token voor device-acties.
-- Diagnostics moeten alle keys met `token`, `password` of `secret` redacteren; log geen volledige ESP event payloads.
+- Diagnostics moeten alle keys met `token`, `password`, `secret`, `proof`, `authorization`, `prompt`, `history`, `memory` of `raw_audio` redacteren; log geen volledige ESP event payloads, ruwe prompts, ruwe audio of Ask DJ history.
 - Diagnostics output moet legal metadata bevatten:
   - `copyright`: `Copyright (c) 2026 Peter van Tol.`
   - `spotify_trademark`: `Spotify is a trademark of Spotify AB.`
@@ -216,6 +216,8 @@ README/release:
   - Controleer vóór build/test/release of third-party libraries, frameworks en build tools updates hebben; voer veilige upgrades uit als reviewbare wijzigingen en werk lockfiles/manifests, `THIRD_PARTY_NOTICES.md` en `TECHNICAL_DESIGN_DECISIONS.md` bij. Als dependency/framework/tool-versies zijn geüpgraded, is actualisatie van `THIRD_PARTY_NOTICES.md` en dependency/design documentatie verplicht. Als een upgrade bewust wordt overgeslagen, noteer waarom in `HANDOFF.md`.
   - Controleer dat `THIRD_PARTY_NOTICES.md` actueel is voor manifest dependencies/requirements.
   - Controleer README/config-flow/options-flow/diagnostics legal notices.
+  - Controleer config/options-flow base/EN/NL translation keysets en stale `data_description` keys.
+  - Controleer diagnostics/log redaction voor token/password/secret/proof/authorization/prompt/history/memory/raw_audio aliases.
   - Draai `python3 -m unittest tests.test_ask_dj_e2e_contract`.
   - Draai `python3 -m unittest discover -s tests`.
 - HACS release workflow bevat minimaal:

@@ -6,16 +6,30 @@ from homeassistant.config_entries import ConfigEntry
 
 from .const import (
     CONF_MUSIC_BACKEND,
+    CONF_ASSIST_PIPELINE_ID,
     CONF_SPOTIFY_SCOPES,
     DEFAULT_MUSIC_BACKEND,
     DOMAIN,
     MUSIC_BACKEND_MUSIC_ASSISTANT,
     SPOTIFY_SCOPES,
 )
+from .assist_stt import detect_stt_support
 from .spotify_oauth import missing_spotify_scopes, normalize_spotify_scopes
+from .tts import detect_tts_support
 from .use_cases import MusicAssistantBackend, SpotifyDirectBackend
 
-_REDACT_KEY_PARTS = ("token", "password", "secret", "proof", "authorization")
+_REDACT_KEY_PARTS = (
+    "token",
+    "password",
+    "secret",
+    "proof",
+    "authorization",
+    "prompt",
+    "history",
+    "memory",
+    "raw_audio",
+    "tts_voice",
+)
 LEGAL_DIAGNOSTICS = {
     "copyright": "Copyright (c) 2026 Peter van Tol. All rights reserved.",
     "spotify_trademark": "Spotify is a trademark of Spotify AB.",
@@ -39,6 +53,29 @@ def _redact(value: Any) -> Any:
 def _is_sensitive_key(key: Any) -> bool:
     normalized = str(key).lower()
     return any(part in normalized for part in _REDACT_KEY_PARTS)
+
+
+def _assist_diagnostics(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, Any]:
+    config = {**dict(entry.data), **dict(entry.options)}
+    stt = _safe_support_probe(detect_stt_support, hass, config)
+    tts = _safe_support_probe(detect_tts_support, hass, config)
+    return {
+        "configured_pipeline_id": config.get(CONF_ASSIST_PIPELINE_ID) or None,
+        "stt": stt,
+        "tts": tts,
+        "ready": bool(stt.get("configured") and tts.get("configured")),
+    }
+
+
+def _safe_support_probe(probe, hass: HomeAssistant, config: dict[str, Any]) -> dict[str, Any]:
+    try:
+        return _redact(probe(hass, config))
+    except Exception as exc:  # noqa: BLE001
+        return {
+            "configured": False,
+            "error": type(exc).__name__,
+            "message": str(exc)[:160],
+        }
 
 
 async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, Any]:
@@ -72,6 +109,7 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
             "selected": backend,
             "capabilities": dict(capabilities.__dict__),
         },
+        "assist": _assist_diagnostics(hass, entry),
         "spotify_oauth": spotify_oauth,
         "entry": {
             "title": entry.title,

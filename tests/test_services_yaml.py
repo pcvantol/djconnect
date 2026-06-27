@@ -19,6 +19,7 @@ class ServicesYamlTest(unittest.TestCase):
             "test_command",
             "test_ptt_text",
             "test_apns_push",
+            "music_backend_status",
             "start_spotify_oauth",
             "device_command",
             "refresh_device_info",
@@ -35,7 +36,9 @@ class ServicesYamlTest(unittest.TestCase):
         self.assertIn("start exactly after STT conversion", compact_text)
         self.assertIn("APNs push readiness", text)
         self.assertIn("diagnostic dry-run", text)
-        self.assertIn("Spotify search/playback", compact_text)
+        self.assertIn("selected backend search/playback", compact_text)
+        self.assertIn("Music backend status", text)
+        self.assertIn("Music Assistant selection", text)
         self.assertIn("Ask DJ text request", text)
         self.assertIn("clear local Ask DJ chat history", compact_text)
         self.assertIn("/api/djconnect/spotify/callback", text)
@@ -52,7 +55,7 @@ class ServicesYamlTest(unittest.TestCase):
         self.assertNotIn("\n    text:\n      name:", test_command_text)
         self.assertIn("play:", text)
         self.assertIn("Start playback", text)
-        self.assertIn("without starting Spotify playback", text)
+        self.assertIn("without starting playback on the selected backend", text)
 
 
 if __name__ == "__main__":

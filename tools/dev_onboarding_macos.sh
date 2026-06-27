@@ -969,15 +969,15 @@ release_dry_run_if_present() {
 }
 
 music_assistant_smoke_if_present() {
+  if [[ "$DRY_RUN" == "1" ]]; then
+    run curl -fsS http://localhost:8095
+    return 0
+  fi
   if ! have docker || ! docker ps -a --format '{{.Names}}' | grep -qx "$MA_CONTAINER_NAME"; then
     warn "Music Assistant server container '$MA_CONTAINER_NAME' not found; skipping MA smoke check."
     return 0
   fi
   run docker start "$MA_CONTAINER_NAME" >/dev/null
-  if [[ "$DRY_RUN" == "1" ]]; then
-    run curl -fsS http://localhost:8095
-    return 0
-  fi
   if curl -fsS --connect-timeout 5 --max-time 20 http://localhost:8095 >/dev/null 2>&1; then
     status_ok "Music Assistant server responds at http://localhost:8095"
   else
@@ -1391,6 +1391,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --ci-branch)
       CI_BRANCH="${2:-}"
+      shift 2
+      ;;
+    --ma-data-dir)
+      MA_DATA_DIR="${2:-}"
       shift 2
       ;;
     --ha-config-dir)

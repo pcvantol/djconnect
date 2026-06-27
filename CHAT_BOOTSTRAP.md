@@ -49,7 +49,14 @@ Belangrijke huidige status:
 - Config-flow kiest nu expliciet `Spotify Direct` of `Music Assistant`, zonder Auto. Spotify Direct gebruikt DJConnect PKCE OAuth en Spotify repairs. Music Assistant vereist geen DJConnect Spotify Client ID/OAuth; Music Assistant beheert provider-auth, DJConnect valideert dat MA beschikbaar is en bewaart de gekozen target player.
 - Options-flow heeft expliciet `Muziekbackend wijzigen` / `Change music backend`: wisselen bewaart pairing, device tokens, Ask DJ history, DJ Memory en pushregistraties, verhoogt `music_backend_revision`, verbergt Spotify reauthorize bij actieve Music Assistant en maakt oude backend-specifieke pending playback actions stale.
 - Pair/status/command responses bevatten backend summary velden: `music_backend`, `music_backend_name`, `music_backend_available`, `music_backend_revision`, `music_backend_capabilities`, `music_target_player` en veilige `music_backend_error`. `playback_actions[]` zijn backend-aware met backend/provider/revision; stale actions geven `stale_backend_action`, unsupported backend features geven `unsupported_backend_capability`.
+- Ask DJ Play Now backend metadata loopt via de use-case laag; nieuwe response
+  shaping moet backend/provider/revision/value velden daarvandaan halen en niet
+  opnieuw Spotify-specifiek in Ask DJ opbouwen.
 - Diagnostics tonen `music_backend.selected` en capability flags. Voor Music Assistant staat `spotify_oauth.required=false` en worden Spotify OAuth/reauthorization repairs niet aangemaakt.
+- Diagnostics/logs redacteren key aliases met `token`, `password`, `secret`,
+  `proof`, `authorization`, `prompt`, `history`, `memory` of `raw_audio`; raw
+  prompts, raw audio, Ask DJ history en DJ Memory dumps mogen niet in logs of
+  diagnostics terechtkomen.
 - Nieuwe playback/control code mag niet rechtstreeks Spotify helpers aanroepen buiten de backend-adapter; routeer via de use-case laag.
 - Compacte conversation-agent options-flow toont alleen actie en smart-home context allowlist; DJ response stijl/prompt is geen user-facing optie meer en volgt runtime client mood of de hardcoded default.
 - Verwijderde opties:

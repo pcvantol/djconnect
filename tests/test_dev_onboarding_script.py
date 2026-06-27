@@ -36,6 +36,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("--no-color", result.stdout)
         self.assertIn("--windows-vm-name", result.stdout)
         self.assertIn("--windows-iso", result.stdout)
+        self.assertIn("--ma-data-dir", result.stdout)
 
     def test_all_plan_includes_preflight_and_excludes_apply_upgrades(self) -> None:
         result = run_script("--all", "--plan", "--no-color")
@@ -135,6 +136,32 @@ class DevOnboardingScriptTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertIn("PLAN 25. Local E2E release/build smoke checks", result.stdout)
+
+    def test_music_assistant_step_is_plan_addressable(self) -> None:
+        result = run_script("--steps", "27", "--plan", "--no-color")
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn(
+            "PLAN 27. Install/start Music Assistant server for backend testing",
+            result.stdout,
+        )
+
+    def test_music_assistant_dry_run_prints_docker_commands(self) -> None:
+        result = run_script(
+            "--steps",
+            "27",
+            "--dry-run",
+            "--ma-data-dir",
+            "/tmp/djconnect-mass-test",
+            "--no-log-file",
+            "--no-color",
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("DRY docker run -d", result.stdout)
+        self.assertIn("--name music-assistant-server", result.stdout)
+        self.assertIn("ghcr.io/music-assistant/server:latest", result.stdout)
+        self.assertIn("DRY curl -fsS http://localhost:8095", result.stdout)
 
 
 if __name__ == "__main__":

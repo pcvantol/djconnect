@@ -34,6 +34,46 @@ def install_diagnostics_stubs() -> None:
     config_entries.ConfigEntry = object
     aiohttp_client.async_get_clientsession = lambda hass: None
     helpers.aiohttp_client = aiohttp_client
+    components = sys.modules.setdefault(
+        "homeassistant.components",
+        types.ModuleType("homeassistant.components"),
+    )
+    assist_pkg = sys.modules.setdefault(
+        "homeassistant.components.assist_pipeline",
+        types.ModuleType("homeassistant.components.assist_pipeline"),
+    )
+    assist_pipeline = sys.modules.setdefault(
+        "homeassistant.components.assist_pipeline.pipeline",
+        types.ModuleType("homeassistant.components.assist_pipeline.pipeline"),
+    )
+    stt_module = sys.modules.setdefault(
+        "homeassistant.components.stt",
+        types.ModuleType("homeassistant.components.stt"),
+    )
+    tts_module = sys.modules.setdefault(
+        "homeassistant.components.tts",
+        types.ModuleType("homeassistant.components.tts"),
+    )
+    components.assist_pipeline = assist_pkg
+    components.stt = stt_module
+    components.tts = tts_module
+    assist_pkg.pipeline = assist_pipeline
+    assist_pipeline.async_get_pipelines = lambda hass: []
+    class SpeechMetadata:
+        def __init__(self, **kwargs):
+            self.kwargs = kwargs
+
+    stt_module.SpeechMetadata = SpeechMetadata
+    stt_module.AudioFormats = types.SimpleNamespace(WAV="wav")
+    stt_module.AudioCodecs = types.SimpleNamespace(PCM="pcm")
+    stt_module.AudioBitRates = lambda value: value
+    stt_module.AudioSampleRates = lambda value: value
+    stt_module.AudioChannels = lambda value: value
+    tts_module.async_generate_media_source_id = lambda *args, **kwargs: "media-source://tts/test"
+    async def async_get_media_source_audio(*args, **kwargs):
+        return "audio/wav", b"RIFF....WAVE"
+
+    tts_module.async_get_media_source_audio = async_get_media_source_audio
     if not hasattr(aiohttp, "ClientTimeout"):
         class ClientTimeout:
             def __init__(self, *args, **kwargs):
@@ -63,6 +103,13 @@ class DiagnosticsTest(unittest.TestCase):
             "nested": {
                 "password": "nested-secret",
                 "client_id": "safe-client-id",
+                "tts_voice": "private-voice-id",
+                "Authorization": "Bearer device-token",
+                "bootstrap_proof": "proof-secret",
+                "raw_prompt": "prompt with hidden details",
+                "ask_dj_history": ["private history"],
+                "runtime_memory": {"secret": "memory-secret"},
+                "raw_audio_bytes": "audio-bytes",
             },
         }
 
@@ -74,6 +121,13 @@ class DiagnosticsTest(unittest.TestCase):
         self.assertEqual(redacted["push_token"], "REDACTED")
         self.assertEqual(redacted["wifi_password"], "REDACTED")
         self.assertEqual(redacted["nested"]["password"], "REDACTED")
+        self.assertEqual(redacted["nested"]["tts_voice"], "REDACTED")
+        self.assertEqual(redacted["nested"]["Authorization"], "REDACTED")
+        self.assertEqual(redacted["nested"]["bootstrap_proof"], "REDACTED")
+        self.assertEqual(redacted["nested"]["raw_prompt"], "REDACTED")
+        self.assertEqual(redacted["nested"]["ask_dj_history"], "REDACTED")
+        self.assertEqual(redacted["nested"]["runtime_memory"], "REDACTED")
+        self.assertEqual(redacted["nested"]["raw_audio_bytes"], "REDACTED")
         self.assertEqual(redacted["nested"]["client_id"], "safe-client-id")
 
     def test_diagnostics_include_legal_metadata_and_redact_secrets(self) -> None:
@@ -135,6 +189,60 @@ class DiagnosticsTest(unittest.TestCase):
         self.assertFalse(
             result["music_backend"]["capabilities"]["supports_recently_played"]
         )
+
+    def test_assist_diagnostics_include_stt_tts_pipeline_summary(self) -> None:
+        from homeassistant.components.assist_pipeline import pipeline as pipeline_module
+        from homeassistant.components import stt as stt_module
+
+        original_get_pipelines = pipeline_module.async_get_pipelines
+        original_get_stt = getattr(stt_module, "async_get_speech_to_text_engine", None)
+        pipeline_module.async_get_pipelines = lambda hass: [
+            types.SimpleNamespace(
+                id="pipeline-1",
+                name="Living Room Assist",
+                stt_engine="stt.local",
+                stt_language="nl-NL",
+                tts_engine="tts.local",
+                tts_language="nl-NL",
+                tts_voice="private-voice-id",
+            )
+        ]
+        stt_module.async_get_speech_to_text_engine = lambda *args, **kwargs: object()
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            title="DJConnect",
+            data={
+                "assist_pipeline_id": "pipeline-1",
+                "spotify_scopes": " ".join(self.diagnostics.SPOTIFY_SCOPES),
+            },
+            options={},
+        )
+        hass = types.SimpleNamespace(data={"djconnect": {"entry-1": None}})
+
+        try:
+            result = asyncio.run(
+                self.diagnostics.async_get_config_entry_diagnostics(hass, entry)
+            )
+        finally:
+            pipeline_module.async_get_pipelines = original_get_pipelines
+            if original_get_stt is None:
+                delattr(stt_module, "async_get_speech_to_text_engine")
+            else:
+                stt_module.async_get_speech_to_text_engine = original_get_stt
+            components = sys.modules.get("homeassistant.components")
+            if components is not None and getattr(components, "stt", None) is stt_module:
+                delattr(components, "stt")
+
+        self.assertTrue(result["assist"]["ready"])
+        self.assertEqual(result["assist"]["configured_pipeline_id"], "pipeline-1")
+        self.assertEqual(result["assist"]["stt"]["pipeline_id"], "pipeline-1")
+        self.assertEqual(result["assist"]["stt"]["pipeline_name"], "Living Room Assist")
+        self.assertEqual(result["assist"]["stt"]["stt_engine"], "stt.local")
+        self.assertEqual(result["assist"]["tts"]["pipeline_id"], "pipeline-1")
+        self.assertEqual(result["assist"]["tts"]["pipeline_name"], "Living Room Assist")
+        self.assertEqual(result["assist"]["tts"]["tts_engine"], "tts.local")
+        self.assertTrue(result["assist"]["tts"]["voice_configured"])
+        self.assertNotIn("private-voice-id", str(result))
 
 
 if __name__ == "__main__":

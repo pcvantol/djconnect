@@ -19,13 +19,8 @@ from .const import (
     CONF_CLIENT_TYPE,
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
-    CONF_MUSIC_ASSISTANT_PLAYER,
-    CONF_MUSIC_BACKEND,
-    CONF_MUSIC_BACKEND_REVISION,
     DEFAULT_TTS_LANGUAGE,
     DOMAIN,
-    DEFAULT_MUSIC_BACKEND,
-    MUSIC_BACKEND_MUSIC_ASSISTANT,
 )
 from .dj_response import async_send_dj_response_best_effort
 from .memory import prompt_context_text
@@ -40,6 +35,7 @@ from .processor import process_text_command
 from .smart_home_context import smart_home_context, smart_home_context_text
 from .use_cases import (
     MusicBackendCapabilityError,
+    music_backend_action_fields,
     run_music_command as handle_spotify_command,
 )
 from .track_analysis import async_analyze_current_track
@@ -7692,35 +7688,7 @@ def _backend_action_fields(
 ) -> dict[str, Any]:
     """Return backend-aware playback action metadata for client contracts."""
     runtime = _first_runtime(hass)
-    config = getattr(runtime, "config", {}) if runtime is not None else {}
-    backend = str(config.get(CONF_MUSIC_BACKEND) or DEFAULT_MUSIC_BACKEND).strip()
-    try:
-        revision = int(config.get(CONF_MUSIC_BACKEND_REVISION) or 0)
-    except (TypeError, ValueError):
-        revision = 0
-    provider = "music_assistant" if backend == MUSIC_BACKEND_MUSIC_ASSISTANT else "spotify"
-    value: dict[str, Any] = {
-        "title": title,
-        "subtitle": subtitle,
-        "image_url": image_url,
-    }
-    if backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
-        value.update(
-            {
-                "item_id": item_id,
-                "provider": provider,
-                "media_type": kind,
-                "target_player_id": str(config.get(CONF_MUSIC_ASSISTANT_PLAYER) or ""),
-            }
-        )
-    else:
-        value["uri"] = item_id
-    return {
-        "backend": backend,
-        "provider": provider,
-        "music_backend_revision": revision,
-        "value": {key: val for key, val in value.items() if val not in ("", None)},
-    }
+    return music_backend_action_fields(runtime, kind, item_id, image_url, title, subtitle)
 
 
 def _first_runtime(hass: HomeAssistant) -> Any | None:

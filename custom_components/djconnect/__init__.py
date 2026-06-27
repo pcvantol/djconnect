@@ -51,6 +51,8 @@ from .const import (
     CONF_HA_EXTERNAL_URL,
     CONF_HA_INSTALL_ID,
     CONF_LOCAL_URL,
+    CONF_MUSIC_BACKEND,
+    CONF_MUSIC_ASSISTANT_PLAYER,
     CONF_PAIR_CODE,
     CONF_SPOTIFY_CLIENT_ID,
     CONF_SPOTIFY_MARKET,
@@ -104,6 +106,7 @@ from .spotify_oauth import (
     create_code_verifier,
     ensure_spotify_scopes,
 )
+from .use_cases import music_backend_metadata
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -120,6 +123,18 @@ STATUS_SECRET_KEYS = {
     CONF_CENTRAL_API_BOOTSTRAP_PROOF,
     "bootstrap_proof",
 }
+DEBUG_REDACT_KEY_PARTS = (
+    "token",
+    "password",
+    "secret",
+    "proof",
+    "authorization",
+    "prompt",
+    "response",
+    "history",
+    "memory",
+    "raw_audio",
+)
 REAL_DJCONNECT_DEVICE_ID_PATTERN = re.compile(
     r"djconnect-(?:lilygo-t-embed-s3|esp32-s3-box-3|lilygo)-[0-9A-Fa-f]{12}"
     r"|djconnect-(?:ios|macos|watchos|raspberry-pi|windows)-[A-Za-z0-9]{12}"
@@ -136,7 +151,7 @@ def _redact_debug_payload(value: Any) -> Any:
         result: dict[str, Any] = {}
         for key, item in value.items():
             normalized = str(key).lower()
-            if any(secret in normalized for secret in ("token", "password", "secret", "proof")):
+            if any(secret in normalized for secret in DEBUG_REDACT_KEY_PARTS):
                 result[key] = "<redacted>"
             else:
                 result[key] = _redact_debug_payload(item)
@@ -1122,6 +1137,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
             vol.Optional("explicit_user_request", default=True): bool,
         }
     ),
+    "music_backend_status": _developer_service_schema({}),
     "start_spotify_oauth": _developer_service_schema(
         {
             vol.Optional("client_id"): str,
@@ -1595,6 +1611,24 @@ def _register_developer_services(
         )
         return debug
 
+    async def handle_music_backend_status(call: ServiceCall) -> dict[str, Any]:
+        metadata = music_backend_metadata(hass, runtime)
+        return {
+            "success": True,
+            **metadata,
+            "selected": metadata.get("music_backend"),
+            "target_player": metadata.get("music_target_player"),
+            "config": {
+                "music_backend": runtime.config.get(CONF_MUSIC_BACKEND),
+                "music_assistant_player_configured": bool(
+                    runtime.config.get(CONF_MUSIC_ASSISTANT_PLAYER)
+                ),
+                "spotify_direct_oauth_configured": bool(
+                    runtime.config.get(CONF_SPOTIFY_REFRESH_TOKEN)
+                ),
+            },
+        }
+
     async def handle_start_spotify_oauth(call: ServiceCall) -> dict[str, Any]:
         client_id = (
             call.data.get("client_id")
@@ -1716,6 +1750,7 @@ def _register_developer_services(
         "test_command": (handle_test_command, "optional"),
         "test_ptt_text": (handle_test_ptt_text, "optional"),
         "test_apns_push": (handle_test_apns_push, "optional"),
+        "music_backend_status": (handle_music_backend_status, "only"),
         "start_spotify_oauth": (handle_start_spotify_oauth, "only"),
         "device_command": (handle_device_command, "optional"),
         "refresh_device_info": (handle_refresh_device_info, "optional"),

@@ -124,7 +124,7 @@ class DJConnectButtonEntityTest(unittest.TestCase):
                 translation_keys = {entity._attr_translation_key for entity in added}
                 self.assertIn("test_push_message", translation_keys)
 
-        for client_type in ("esp32", "raspberry_pi"):
+        for client_type in ("esp32", "raspberry_pi", "windows"):
             with self.subTest(client_type=client_type):
                 added = []
                 runtime = types.SimpleNamespace(

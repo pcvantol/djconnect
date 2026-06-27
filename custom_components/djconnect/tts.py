@@ -69,6 +69,42 @@ async def create_error_wav(hass: HomeAssistant, message: str, conf: dict) -> byt
     return simple_tone_wav()
 
 
+def detect_tts_support(hass: HomeAssistant, conf: dict[str, Any]) -> dict[str, Any]:
+    """Return diagnostics for the configured HA TTS route without generating audio."""
+    candidates = _tts_pipeline_candidates(hass, conf)
+    pipeline = candidates[0] if candidates else None
+    engine = str(_first_attr(pipeline, "tts_engine", "tts_engine_id") or "").strip()
+    language = str(_first_attr(pipeline, "tts_language", "language") or "").strip()
+    voice = str(_first_attr(pipeline, "tts_voice", "voice") or "").strip()
+    pipeline_id = str(
+        _first_attr(pipeline, "id", "conversation_id")
+        or conf.get(CONF_ASSIST_PIPELINE_ID)
+        or ""
+    ).strip()
+    pipeline_name = str(_first_attr(pipeline, "name") or "").strip()
+    try:
+        from homeassistant.components import tts
+
+        generator_available = any(
+            callable(getattr(tts, name, None))
+            for name in ("async_generate_media_source_id", "generate_media_source_id")
+        )
+        audio_fetch_available = callable(getattr(tts, "async_get_media_source_audio", None))
+    except Exception:  # noqa: BLE001
+        generator_available = False
+        audio_fetch_available = False
+    return {
+        "pipeline_id": pipeline_id or None,
+        "pipeline_name": pipeline_name or None,
+        "tts_engine": engine or None,
+        "language": language or None,
+        "voice_configured": bool(voice),
+        "tts_generator_available": generator_available,
+        "tts_audio_fetch_available": audio_fetch_available,
+        "configured": bool(engine and generator_available and audio_fetch_available),
+    }
+
+
 def _audio_type(mime_type: Any, audio: bytes) -> str | None:
     normalized = str(mime_type or "").lower()
     if "wav" in normalized or (audio.startswith(b"RIFF") and audio[8:12] == b"WAVE"):

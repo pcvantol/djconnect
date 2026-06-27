@@ -249,6 +249,7 @@ class DJConnectShuffleSwitchTest(unittest.TestCase):
             ("macos", 1),
             ("watchos", 1),
             ("raspberry_pi", 1),
+            ("windows", 1),
         ):
             with self.subTest(client_type=client_type):
                 runtime = types.SimpleNamespace(

@@ -274,11 +274,16 @@ Pattern:
   `ha_remote_url` after local pairing when Home Assistant has an HTTPS external
   URL. watchOS uses the iPhone proxy instead of a HA-direct pairing contract.
 - ESP32 gets hardware-specific entities such as battery, WiFi RSSI, screen,
-  LED, OTA and reboot controls.
+  LED, device settings, OTA and reboot controls.
 - iOS, macOS, watchOS, Raspberry Pi and Windows clients keep backend/playback/client entities
-  only. Firmware channel and OTA controls are ESP32-only; Apple clients update
-  through app distribution/TestFlight and Linux/Raspberry Pi and Windows clients update
-  through their own source/install flow.
+  only. Apple clients additionally expose APNs readiness diagnostics and a
+  privacy-safe test-push button. Raspberry Pi clients additionally expose local
+  restart/shutdown buttons. Firmware channel and OTA controls are ESP32-only;
+  Apple clients update through app distribution/TestFlight and Linux/Raspberry
+  Pi and Windows clients update through their own source/install flow.
+- Assist Conversation Agent-only entries load only the conversation platform
+  and minimal diagnostics sensor, without playback, device-control, firmware or
+  push-action entities.
 - Config-flow setup is split into Assist Conversation Agent, local device
   pairing and app pairing. Local device pairing offers ESP32/Raspberry Pi;
   app pairing offers iOS/macOS/Windows.
@@ -521,7 +526,11 @@ Pattern:
 - Spotify API `401` clears the access token and retries once.
 - Refresh-token rotation is persisted immediately.
 - If Spotify rejects one refresh token, the backend retries newer stored
-  runtime/config-entry/config token sources before creating a Repair issue.
+  runtime/config-entry data/config-entry options/config token sources before
+  creating a Repair issue.
+- A token returned by Spotify's refresh endpoint is persisted to the config
+  entry whenever it differs from stored data, even if runtime memory already
+  contains that rotated value.
 
 Primary source files:
 
@@ -545,6 +554,9 @@ Pattern:
 - `SpotifyDirectBackend` wraps the existing Spotify Web API backend.
 - `MusicAssistantBackend` targets one configured Music Assistant
   `media_player` through Home Assistant `media_player` services.
+- Music Assistant is documented as the no-DJConnect-Spotify-OAuth route:
+  provider login, library browsing, queue semantics and grouping/sync stay in
+  Music Assistant, while DJConnect stores only the configured target player.
 - The selected backend is explicit: `spotify_direct` or `music_assistant`.
   There is no automatic fallback mode.
 - Capabilities describe which user-visible features are available. Ask DJ and
@@ -662,10 +674,16 @@ Why:
 
 Pattern:
 
-- Diagnostics redact keys containing `token`, `password` or `secret`.
-- Logs use metadata instead of raw secrets or full payload dumps.
+- Diagnostics redact keys containing `token`, `password`, `secret`, `proof`,
+  `authorization`, `prompt`, `history`, `memory` or `raw_audio`.
+- Logs use metadata instead of raw secrets, raw prompts, raw audio, Ask DJ
+  history, memory dumps or full payload dumps.
 - Spotify token logs include expiry timing, source names and rotation status,
   never token values.
+- Diagnostics expose Assist STT/TTS readiness as metadata only: configured
+  pipeline id, resolved pipeline names, provider engine ids, helper
+  availability and boolean readiness. They do not include raw audio, prompts,
+  transcript history, TTS voice ids or generated audio.
 
 Primary source files:
 
@@ -673,6 +691,8 @@ Primary source files:
 - `custom_components/djconnect/__init__.py`
 - `custom_components/djconnect/http.py`
 - `custom_components/djconnect/spotify_backend.py`
+- `custom_components/djconnect/assist_stt.py`
+- `custom_components/djconnect/tts.py`
 
 Why:
 
@@ -890,6 +910,41 @@ Why:
 - Prevents notification overload from ordinary playback state changes.
 - Preserves privacy by sending only generic wake/sync hints while clients fetch
   real content through `/api/djconnect/ask_dj/history`.
+
+## Ask DJ Backend Response Shaping Inventory
+
+As of `3.2.x`, Ask DJ may still use Spotify-specific retrieval paths for
+Spotify Direct only, but client-visible playback actions must carry backend-aware
+metadata. The reusable `backend`, `provider`, `music_backend_revision` and
+nested `value` fields are owned by `custom_components/djconnect/use_cases.py`
+through `music_backend_action_fields(...)`, not by Ask DJ.
+
+Migrated safe surface:
+
+- Search, playlist, album, recommendation and artist Play Now action metadata
+  now uses the backend/use-case helper for the stable backend-aware envelope.
+- Spotify Direct keeps legacy top-level `uri`, `context_uri` and `offset_uri`
+  fields for existing clients while also exposing the generic nested `value`.
+- Music Assistant actions use generic `item_id`, `media_type`,
+  `target_player_id` and `provider` in `value`, so future non-Spotify action
+  execution does not require clients to assume Spotify URIs.
+
+Remaining Spotify-specific shaping by design:
+
+- Spotify Direct search helpers still filter `spotify:track`, `spotify:album`,
+  `spotify:artist` and `spotify:playlist` URIs before creating actions.
+- Recently played, top-items, listening-profile, queue and playlist-save
+  responses still expose Spotify source labels because those capabilities are
+  only available from Spotify Direct today.
+- User-facing fallback text may mention Spotify OAuth/scopes only when the
+  selected backend is Spotify Direct; unsupported capability fallbacks for other
+  backends must use `MusicBackendCapabilityError`.
+
+Migration rule:
+
+- New client-visible Ask DJ action shapes should call backend/use-case helpers
+  for backend metadata first, then add provider-specific compatibility fields
+  only when the active adapter needs them.
 
 ## Third-Party Dependency Inventory
 

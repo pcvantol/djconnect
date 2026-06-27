@@ -118,6 +118,58 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         self.assertEqual(text, "Speel Pearl Jam")
 
+    def test_debug_redaction_hides_auth_prompt_history_and_memory(self) -> None:
+        redacted = self.http._redact_debug_payload(
+            {
+                "Authorization": "Bearer device-token",
+                "device_token": "device-secret",
+                "bootstrap_proof": "proof-secret",
+                "raw_prompt": "prompt with private details",
+                "ask_dj_history": ["private history"],
+                "runtime_memory": {"secret": "memory-secret"},
+                "raw_audio_bytes": "audio-bytes",
+                "safe": {"client_id": "public-client-id"},
+            }
+        )
+
+        self.assertEqual(redacted["Authorization"], "<redacted>")
+        self.assertEqual(redacted["device_token"], "<redacted>")
+        self.assertEqual(redacted["bootstrap_proof"], "<redacted>")
+        self.assertEqual(redacted["raw_prompt"], "<redacted>")
+        self.assertEqual(redacted["ask_dj_history"], "<redacted>")
+        self.assertEqual(redacted["runtime_memory"], "<redacted>")
+        self.assertEqual(redacted["raw_audio_bytes"], "<redacted>")
+        self.assertEqual(redacted["safe"]["client_id"], "public-client-id")
+
+    def test_safe_backend_error_message_hides_secret_bearing_text(self) -> None:
+        message = self.http._safe_backend_error_message(
+            RuntimeError("HTTP failed with Authorization: Bearer super-secret-token")
+        )
+
+        self.assertEqual(
+            message,
+            "The selected music backend could not complete playback.",
+        )
+        self.assertNotIn("super-secret-token", message)
+
+    def test_backend_unavailable_payload_hides_secret_bearing_exception(self) -> None:
+        runtime = types.SimpleNamespace(
+            config={},
+            last_playback={},
+        )
+
+        payload = self.http._backend_unavailable_payload(
+            "play",
+            runtime,
+            RuntimeError("password leaked in backend exception"),
+        )
+
+        self.assertEqual(
+            payload["message"],
+            "The selected music backend could not complete playback.",
+        )
+        self.assertNotIn("password leaked", payload["message"])
+
     def test_normalized_status_payload_aliases_app_version(self) -> None:
         payload = self.http._normalized_status_payload(
             {

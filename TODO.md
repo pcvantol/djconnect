@@ -80,7 +80,12 @@
 - Verify OAuth scopes include `playlist-read-private`.
 - Verify OAuth callback stores latest `spotify_refresh_token` persistently.
 - Verify concurrent Spotify API calls after HA restart do not refresh the same old token in parallel.
-- Verify stale runtime refresh tokens retry the newer config-entry token before creating a Spotify Repair issue.
+- Verify stale runtime refresh tokens retry newer config-entry data/options
+  tokens before creating a Spotify Repair issue. Automated regression coverage
+  exists in `tests.test_spotify_backend`.
+- Verify refresh endpoint rotations persist to config entry data even when
+  runtime memory already holds the rotated token. Automated regression coverage
+  exists in `tests.test_spotify_backend`.
 - Verify Spotify debug logs show access-token expiry/refresh metadata and refresh-token source names without token values.
 - Verify status payload with `spotify_configured=false` does not return Spotify credentials.
 - Verify Spotify OAuth credentials stay in Home Assistant and are not sent to ESP.
@@ -169,8 +174,11 @@
 
 ## Security / Privacy
 
-- Re-run diagnostics and confirm redaction for keys containing `token`, `password` or `secret`.
-- Confirm no device token, HA token, Spotify refresh token or WiFi password appears in logs.
+- Re-run diagnostics and confirm redaction for keys containing `token`,
+  `password`, `secret`, `proof`, `authorization`, `prompt`, `history`,
+  `memory` or `raw_audio`.
+- Confirm no device token, HA token, Spotify refresh token, WiFi password, raw
+  prompt, raw audio, Ask DJ history or DJ Memory dump appears in logs.
 - Confirm BLE provisioning only sends WiFi SSID/password.
 - Confirm no Spotify/device credentials are sent via BLE.
 - Confirm `THIRD_PARTY_NOTICES.md` remains accurate after dependency changes.

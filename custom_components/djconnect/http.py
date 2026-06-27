@@ -390,6 +390,18 @@ DJ_TEST_TEXTS = {
     "en": "DJConnect is ready for your next request.",
     "nl": "DJConnect is klaar voor je volgende verzoek.",
 }
+DEBUG_REDACT_KEY_PARTS = (
+    "token",
+    "password",
+    "secret",
+    "proof",
+    "authorization",
+    "prompt",
+    "response",
+    "history",
+    "memory",
+    "raw_audio",
+)
 
 
 def _json_error(
@@ -413,7 +425,7 @@ def _redact_debug_payload(value: Any) -> Any:
         result: dict[str, Any] = {}
         for key, item in value.items():
             normalized = str(key).lower()
-            if any(secret in normalized for secret in ("token", "password", "secret", "proof")):
+            if any(secret in normalized for secret in DEBUG_REDACT_KEY_PARTS):
                 result[key] = "<redacted>"
             else:
                 result[key] = _redact_debug_payload(item)
@@ -1170,7 +1182,7 @@ async def _status_playback_payload(hass: Any, runtime: Any) -> dict[str, Any]:
             "DJConnect status playback unsupported by selected backend: %s",
             getattr(exc, "capability", "unknown"),
         )
-        runtime.update(last_error=str(exc))
+        runtime.update(last_error=_safe_backend_error_message(exc))
         runtime.device_status["backend_available"] = True
         return {
             "backend_available": True,
@@ -1182,12 +1194,12 @@ async def _status_playback_payload(hass: Any, runtime: Any) -> dict[str, Any]:
             "DJConnect status playback backend unavailable: %s",
             exc.__class__.__name__,
         )
-        runtime.update(last_error=str(exc))
+        runtime.update(last_error=_safe_backend_error_message(exc))
         runtime.device_status["backend_available"] = False
         return _status_playback_unavailable_payload()
     except Exception as exc:  # noqa: BLE001
         _LOGGER.warning("DJConnect status playback refresh failed: %s", exc.__class__.__name__)
-        runtime.update(last_error=str(exc))
+        runtime.update(last_error=_safe_backend_error_message(exc))
         runtime.device_status["backend_available"] = False
         return _status_playback_unavailable_payload()
 
@@ -1443,6 +1455,7 @@ async def _handle_ask_dj_play_recommendation(
         return _unsupported_backend_capability_payload(hass, runtime, exc)
     except SpotifyBackendError as exc:
         message = str(exc)
+        safe_message = _safe_backend_error_message(exc)
         if _looks_like_no_active_output(message):
             return await _speaker_selection_for_recommendation(
                 hass,
@@ -1454,12 +1467,12 @@ async def _handle_ask_dj_play_recommendation(
             return {
                 "success": False,
                 "error": "spotify_auth_required",
-                "message": message,
+                "message": safe_message,
             }
         return {
             "success": False,
             "error": "spotify_playback_failed",
-            "message": _safe_backend_error_message(exc),
+            "message": safe_message,
         }
     return await _recommendation_play_success_response(
         hass,
@@ -1576,7 +1589,7 @@ async def _handle_ask_dj_play_recommendation_on_output(
         return {
             "success": False,
             "error": "output_selection_failed",
-            "message": str(exc),
+            "message": _safe_backend_error_message(exc),
         }
     return await _handle_ask_dj_play_recommendation(
         hass,
@@ -1622,7 +1635,7 @@ async def _handle_ask_dj_play_request_on_output(
         return {
             "success": False,
             "error": "output_selection_failed",
-            "message": str(exc),
+            "message": _safe_backend_error_message(exc),
         }
     ask_payload = {
         key: value
@@ -2505,29 +2518,29 @@ class DJConnectCommandView(HomeAssistantView):
         except ValueError as exc:
             return _json_error(self, "invalid_command", 400, str(exc))
         except MusicBackendCapabilityError as exc:
-            runtime.update(last_error=str(exc))
+            runtime.update(last_error=_safe_backend_error_message(exc))
             return self.json(_unsupported_backend_capability_payload(hass, runtime, exc), status_code=400)
         except SpotifyBackendError as exc:
-            runtime.update(last_error=str(exc))
+            runtime.update(last_error=_safe_backend_error_message(exc))
             runtime.device_status["backend_available"] = False
             if normalized_command == "playlists":
                 _LOGGER.debug(
                     "DJConnect playlists backend unavailable device_id=%s client_type=%s reason=%s",
                     data.get("device_id"),
                     client_type,
-                    exc,
+                    _safe_backend_error_message(exc),
                 )
             return self.json(_backend_unavailable_payload(command, runtime, exc))
         except Exception as exc:  # noqa: BLE001
-            _LOGGER.warning("DJConnect backend command failed: %s", exc)
-            runtime.update(last_error=str(exc))
+            _LOGGER.warning("DJConnect backend command failed: %s", _safe_backend_error_message(exc))
+            runtime.update(last_error=_safe_backend_error_message(exc))
             runtime.device_status["backend_available"] = False
             if normalized_command == "playlists":
                 _LOGGER.debug(
                     "DJConnect playlists backend unavailable device_id=%s client_type=%s reason=%s",
                     data.get("device_id"),
                     client_type,
-                    exc,
+                    _safe_backend_error_message(exc),
                 )
             return self.json(_backend_unavailable_payload(command, runtime, exc))
 
@@ -3055,18 +3068,18 @@ class DJConnectVoiceView(HomeAssistantView):
                     user_text = await transcribe_wav_with_assist(hass, wav, runtime.config)
                 except DJConnectNoSttProviderError as exc:
                     _set_device_state(runtime, "error")
-                    runtime.update(last_error=str(exc))
+                    runtime.update(last_error=_safe_backend_error_message(exc))
                     return _stt_error_response(
                         self,
-                        str(exc),
+                        _safe_backend_error_message(exc),
                         422 if _is_ask_dj_voice_client(header_client_type) else 503,
                     )
                 except Exception as exc:  # noqa: BLE001
                     _set_device_state(runtime, "error")
-                    runtime.update(last_error=str(exc))
+                    runtime.update(last_error=_safe_backend_error_message(exc))
                     return _stt_error_response(
                         self,
-                        str(exc),
+                        _safe_backend_error_message(exc),
                         422 if _is_ask_dj_voice_client(header_client_type) else 500,
                     )
             elif content_type == "application/json":
@@ -3105,9 +3118,9 @@ class DJConnectVoiceView(HomeAssistantView):
                         user_id=_request_user_id(request),
                     )
                 except Exception as exc:  # noqa: BLE001
-                    _LOGGER.warning("DJConnect Ask DJ voice failed: %s", exc)
+                    _LOGGER.warning("DJConnect Ask DJ voice failed: %s", _safe_backend_error_message(exc))
                     _set_device_state(runtime, "error")
-                    runtime.update(last_error=str(exc))
+                    runtime.update(last_error=_safe_backend_error_message(exc))
                     return self.json(
                         {
                             "success": False,
@@ -3193,10 +3206,10 @@ class DJConnectVoiceView(HomeAssistantView):
                     user_id=_request_user_id(request),
                 )
             except Exception as exc:  # noqa: BLE001
-                _LOGGER.warning("DJConnect command parser/playback failed: %s", exc)
+                _LOGGER.warning("DJConnect command parser/playback failed: %s", _safe_backend_error_message(exc))
                 _set_device_state(runtime, "responding")
                 dj_text = _command_failed_text(runtime, exc)
-                runtime.update(last_error=str(exc), last_dj_text=dj_text)
+                runtime.update(last_error=_safe_backend_error_message(exc), last_dj_text=dj_text)
                 dj_response = await async_send_dj_response_best_effort(
                     hass,
                     runtime,
@@ -3209,7 +3222,7 @@ class DJConnectVoiceView(HomeAssistantView):
                     {
                         "success": True,
                         "error": "command_failed",
-                        "message": str(exc),
+                        "message": _safe_backend_error_message(exc),
                         "text": dj_text,
                         "dj_text": dj_text,
                         "recognized_text": user_text,
@@ -3250,17 +3263,17 @@ class DJConnectVoiceView(HomeAssistantView):
             )
 
         except Exception as exc:  # noqa: BLE001
-            _LOGGER.exception("DJConnect request failed: %s", exc)
+            _LOGGER.exception("DJConnect request failed: %s", _safe_backend_error_message(exc))
             _set_device_state(runtime, "error")
-            runtime.update(last_error=str(exc))
+            runtime.update(last_error=_safe_backend_error_message(exc))
             dj_response = await _send_failure_dj_response(hass, runtime, exc)
             dj_text = _command_failed_text(runtime, exc)
-            runtime.update(last_error=str(exc))
+            runtime.update(last_error=_safe_backend_error_message(exc))
             return self.json(
                 {
                     "success": False,
                     "error": "command_failed",
-                    "message": str(exc),
+                    "message": _safe_backend_error_message(exc),
                     "dj_text": dj_text,
                     "dj_response": dj_response,
                 },

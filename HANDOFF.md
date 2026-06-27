@@ -26,6 +26,9 @@
   `music_target_player` and safe `music_backend_error`. Playback actions are
   backend-aware and unsupported backend features return
   `unsupported_backend_capability` instead of raw backend exceptions.
+- Reusable Ask DJ Play Now backend metadata is shaped through the use-case layer;
+  new action responses should not rebuild backend/provider/revision/value
+  envelopes directly in Ask DJ.
 - Home Assistant integration is HACS-distributed and MIT-licensed.
 - DJConnect client and firmware repositories are MIT-licensed unless their own repository metadata states otherwise.
 - Public firmware release assets live in `pcvantol/djconnect-firmware`.
@@ -135,7 +138,8 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
   stores the configured Music Assistant target `media_player`.
 - Spotify OAuth uses PKCE with a user-owned Spotify Developer app. Setup asks for `spotify_client_id`, shows the exact redirect URI that must be registered in Spotify, strongly recommends a stable Nabu Casa HTTPS external URL, and no longer uses a shared built-in Client ID.
 - Spotify access tokens are cached in Home Assistant until shortly before expiry. Normal access-token expiry must refresh on demand and retry once after Spotify API `401`; this must stay invisible to ESP/iOS/macOS/watchOS/Raspberry Pi/Windows clients.
-- Spotify refresh-token rotation must be handled silently. If Spotify rejects a refresh token, HA must retry any newer stored runtime/config-entry/config refresh token before creating a Repair issue.
+- Spotify refresh-token rotation must be handled silently. If Spotify rejects a refresh token, HA must retry any newer stored runtime/config-entry data/config-entry options/config refresh token before creating a Repair issue.
+- Spotify refresh endpoint rotations must be persisted to config entry data even when runtime memory already holds the same rotated token.
 - Spotify `invalid_grant` / revoked refresh tokens only produce a user-friendly reauthorize/Repair flow after every known stored refresh token has failed.
 - Startup/pairing repair checks must look at both config entry data and options before creating missing Spotify token/client/scope issues, so a newly paired client does not immediately show a false Spotify repair.
 - Repair flow must open Spotify OAuth and may only close as fixed after a new/missing refresh token is stored, not merely because an old token exists.
@@ -189,6 +193,10 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
   DJConnect Spotify OAuth/PKCE and full Spotify capabilities; Music Assistant
   uses a configured MA `media_player`, skips DJConnect Spotify OAuth/repairs and
   relies on `MusicBackendCapabilities` for unsupported feature fallbacks.
+- Music Assistant must be presented as an alternative setup route, not a hidden
+  fallback for missing Spotify OAuth. It controls one configured target player;
+  provider auth, library, queue semantics and grouping/sync remain Music
+  Assistant concerns.
 - `personal_music_recommendations` can return `playback_actions[]` for client Play Now buttons while keeping `action:"none"`. Play Now uses `/api/djconnect/command` with `command:"ask_dj_play_recommendation"` and a Spotify-only recommendation value. Successful plays are stored in DJ Memory as positive recommendation signals.
 - `Speel wat anders` is a personal recommendation request, not an immediate playback mutation. Build random Play Now candidates from DJConnect Memory plus Spotify recently played/top tracks/top artists. Include `image_url` whenever Spotify/DJ Memory exposes album, artist, playlist or media artwork.
 - DJ Memory stores compact listening-time context (`hour`, `weekday`, `weekday_name`, `is_weekend`, `daypart`) plus bounded recent time patterns so recommendations can become time-aware across clients.
@@ -202,6 +210,9 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - `POST /api/djconnect/command` should return JSON and avoid 503 loops for Spotify auth failures; report backend unavailable without causing ESP to clear pairing.
 - Physical PTT uses raw WAV upload to HA; ESP must not authenticate directly to HA Assist WebSocket.
 - HA STT/TTS provider selection is driven by the selected Home Assistant Assist pipeline; legacy DJConnect `stt_engine`/`tts_*` options are ignored by runtime paths.
+- Integration diagnostics include safe Assist STT/TTS readiness metadata
+  (`assist.stt`, `assist.tts`, configured pipeline id and readiness) without raw
+  audio, prompts, transcript history, generated audio or TTS voice ids.
 - DJConnect exposes a Home Assistant conversation agent named `DJConnect DJ` for Assist satellites such as Voice Preview Edition. Initial setup can create an Assist Conversation Agent-only entry without a DJConnect client pairing code, device token or Client adres. Its options flow must stay compact and must not show device pairing, Client adres, Assist pipeline, firmware channel, DJ announcement playback toggle or OTA/audio advanced fields.
 - The initial config flow chooses setup method only once. The pairing step must not repeat `setup_method`; it only collects discovery/client details. Client type choices are ordered iOS, macOS, Apple Watch, Linux/Raspberry Pi, Windows and ESP32.
 - Firmware channel is ESP32-only. iOS/macOS/watchOS update through app distribution/TestFlight, and Linux/Raspberry Pi and Windows clients update from their own GitHub source/install flow, so those client types must not show or store `firmware_channel`.
@@ -236,14 +247,17 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Device setting entities accept firmware aliases such as `brightness`, `screen_brightness`, `cue_volume`, `speaker_volume`, `screen_dim_timeout_ms` and `turn_off_after_ms`.
 - `number.djconnect_volume` and other numbers must publish `None/unavailable`, not invalid values outside HA ranges.
 - Firmware assets are device-specific, e.g. `djconnect-lilygo-t-embed-s3-vX.Y.Z.bin` and `djconnect-esp32-s3-box-3-vX.Y.Z.bin`. HA selects the matching `firmwares[]` manifest entry and sends that entry's `device` as the OTA target.
-- Secrets must not appear in logs, diagnostics or state attributes.
+- Secrets, raw prompts, raw audio, Ask DJ history and DJ Memory dumps must not
+  appear in logs, diagnostics or state attributes. Redaction covers key aliases
+  containing `token`, `password`, `secret`, `proof`, `authorization`, `prompt`,
+  `history`, `memory` or `raw_audio`.
 - Spotify trademark/non-affiliation notice remains in docs/UI/diagnostics.
 
 ## Current Release Notes
 
 - Current release line is `3.2.x`; only the latest GitHub release/tag should be kept after release cleanup.
 - Current latest baseline is `3.2.0`.
-- Release workflow expectation: before every release, review and update all repo documentation affected by the change or release, including `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant `examples/*`. Explicitly decide whether test coverage must be expanded for the change; add coverage for new behavior paths, regression risks, translations and edge cases. Keep `tests.test_postman_collection` aligned with the Postman examples so CI validates collection schema, auth headers, placeholders and client identity. After publishing a release, clean up old completed GitHub Actions workflow runs, keeping only the newest release/tag validation and newest `main` validation unless debugging requires more history. Also clean up old semver releases/tags with `./cleanup_old_releases.sh --keep 1 --execute` unless multiple releases are intentionally retained.
+- Release workflow expectation: before every release, review and update all repo documentation affected by the change or release, including `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant `examples/*`. Explicitly decide whether test coverage must be expanded for the change; add coverage for new behavior paths, regression risks, translations, config/options-flow base/EN/NL keysets, stale `data_description` keys, diagnostics/log redaction and edge cases. Keep `tests.test_postman_collection` aligned with the Postman examples so CI validates collection schema, auth headers, placeholders and client identity. After publishing a release, clean up old completed GitHub Actions workflow runs, keeping only the newest release/tag validation and newest `main` validation unless debugging requires more history. Also clean up old semver releases/tags with `./cleanup_old_releases.sh --keep 1 --execute` unless multiple releases are intentionally retained.
 - Before build/test/release validation, check whether third-party libraries, frameworks and build tools can be safely upgraded. If any version is upgraded, update lockfiles/manifests, `THIRD_PARTY_NOTICES.md` and dependency/design documentation in the same release. If an upgrade is skipped, record the reason here.
 - For the current `3.2.0` release, no pinned Python package versions were
   upgraded. The current line adds capability-aware local/remote HA URL payloads
@@ -309,7 +323,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - `sensor.djconnect_last_track` and `sensor.djconnect_last_command` cache their last non-empty native values at entity level and must not flip to unknown/unavailable because a sparse runtime snapshot omits them.
 - ESP status must include `client_type=esp32`; missing client type is surfaced as a visible HA status error.
 - Native HA entities include queue/up-next, output list, output select, device settings and test/refresh buttons under one HA device. Firmware OTA/update entities are ESP32-only.
-- ESP32 clients get ESP-only hardware/update/settings entities: battery, Wi-Fi RSSI, screen state, LED state, screen brightness/timeout, speaker volume, wake word, device language, auto-off, theme/log-level, firmware update and reboot. Wake word reads `settings.wake_word_enabled`, then top-level `wake_word_enabled`, then `wake_word`, and the HA switch sends canonical `{"command":"wake_word","value":true|false}`. iOS, macOS, watchOS, Raspberry Pi and Windows clients must not get those ESP-only entities; they keep only client/runtime and backend/playback entities. Raspberry Pi clients additionally get Pi-specific restart and shutdown buttons that call `/api/device/restart` and `/api/device/shutdown`.
+- ESP32 clients get ESP-only hardware/update/settings entities: battery, Wi-Fi RSSI, screen state, LED state, screen brightness/timeout, speaker volume, wake word, device language, auto-off, theme/log-level, firmware update and reboot. Wake word reads `settings.wake_word_enabled`, then top-level `wake_word_enabled`, then `wake_word`, and the HA switch sends canonical `{"command":"wake_word","value":true|false}`. iOS, macOS, watchOS, Raspberry Pi and Windows clients must not get those ESP-only entities; they keep only client/runtime and backend/playback entities. Apple clients additionally get APNs readiness diagnostics and the test-push button. Raspberry Pi clients additionally get Pi-specific restart and shutdown buttons that call `/api/device/restart` and `/api/device/shutdown`. Assist Conversation Agent-only entries load only the `DJConnect DJ` conversation agent plus the minimal diagnostics sensor.
 - `button.djconnect_refresh_up_next` refreshes Spotify/Home Assistant backend queue data through the `queue` command.
 - `command=queue` returns at most 100 real queue items plus top-level `context_uri` / `contextUri` and queue item artwork aliases so ESP/web/app Up Next can use `play_context_at` and show thumbnails.
 - `select.djconnect_sound_output` refreshes Spotify output devices itself and accepts `available_outputs`, `outputs`, `devices` and nested `items` aliases.
