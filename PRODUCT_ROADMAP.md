@@ -96,12 +96,12 @@ Every release must review this roadmap.
 - [x] Harden backend/client contracts with backend summary fields, backend-aware
   playback actions, stale-action rejection and unsupported capability errors
   for client implementation prompts (3.2, HA).
-- [ ] Add HA/AI tool surfaces as thin wrappers over DJConnect use-cases, never
-  as direct Spotify or Music Assistant calls.
+- [x] Add HA/AI tool surfaces as thin wrappers over DJConnect use-cases, never
+  as direct Spotify or Music Assistant calls (3.2, HA).
 - [ ] mDNS pairing plus manual Client adres fallback for ESP32/Raspberry Pi
   networks where Bonjour is filtered, stale or unavailable.
-- [ ] Queue/up-next response returns max 100 real backend items, artwork URLs,
-  context URI and no artificial duplicate padding.
+- [x] Queue/up-next response returns max 100 real backend items, artwork URLs,
+  context URI and no artificial duplicate padding (3.2, HA).
 - [x] Ask DJ server-side chat history sync supports bounded history,
   cross-device clear, retention metadata and client cache trimming (3.1, HA).
 - [x] Ask DJ supports confirmation-style follow-up actions with Ja/Nee buttons
@@ -118,8 +118,8 @@ Every release must review this roadmap.
 - [x] Spotify-backed HA control/status entities refresh from live Spotify backend state
   for play/pause, volume, album art, output, repeat, shuffle, queue and
   playlists (3.1.77, HA).
-- [ ] Last STT text, resolved Spotify result, DJ announcement and last track are
-  visible as entities or redacted debug attributes.
+- [x] Last STT text, resolved Spotify result, DJ announcement and last track are
+  visible as entities or redacted debug attributes (3.2, HA).
 - [ ] DJ announcement prompt is configurable, multiline and isolated from
   Spotify search/device lookup prompts.
 - [x] DJConnect is exposed as a Home Assistant Assist conversation agent for
@@ -130,8 +130,9 @@ Every release must review this roadmap.
 - [x] DJ announcement generation includes the concrete Spotify track returned
   by the just-executed artist playback command when Spotify provides one (3.1,
   HA).
-- [ ] End-to-end tests cover pairing, voice, Spotify search, queue, refresh-token
-  rotation, mDNS discovery, non-ESP entity filtering and OTA offers.
+- [x] End-to-end and contract tests cover pairing, voice/PTT, HA STT provider
+  compatibility, Spotify search, queue, refresh-token rotation, mDNS discovery,
+  non-ESP entity filtering, backend switching and OTA offers (3.2, HA).
 
 ### Website / Docs
 

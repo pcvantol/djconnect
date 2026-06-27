@@ -20,7 +20,8 @@
 - Confirm Music Assistant setup on a real HA instance: backend choice skips
   Spotify OAuth, lists usable MA players, stores the selected player, controls
   play/pause/next/previous/volume through HA `media_player` services and keeps
-  Spotify repairs quiet.
+  Spotify repairs quiet. Automated config/options validation now rejects stale,
+  missing and non-Music-Assistant `media_player` entities.
 - Confirm Music Assistant unsupported capabilities degrade cleanly in clients:
   recent-played, top items, recommendations, favorites, advanced queue/library
   profile and Spotify-specific Play Now actions should not show stale artwork,
@@ -45,7 +46,9 @@
 - Confirm ESP uploads raw WAV to `POST /api/djconnect/voice`.
 - Confirm HA logs selected Assist pipeline/STT provider metadata without secrets.
 - Confirm HA logs WAV metadata: sample rate, channel count, sample width and byte length.
-- Confirm selected HA STT provider accepts the WAV metadata.
+- Confirm selected HA STT provider accepts the WAV metadata on the target HA
+  instance. Automated coverage now exercises both HA STT provider object paths,
+  including `async_get_speech_to_text_engine(...).async_process_audio_stream(...)`.
 - Confirm recognized text reaches DJConnect command processing.
 - Confirm the guarded post-STT fuzzy-correction step improves common English artist/track/album names in Dutch sentences without changing correct transcripts.
 - Confirm `sensor.djconnect_last_corrected_stt` shows the last changed STT correction and remains stable after sparse runtime updates.
@@ -59,7 +62,10 @@
 - Confirm Voice Preview Edition can select the `DJConnect DJ` conversation agent and receives the generated DJ response through its speaker.
 - Confirm initial setup can create an Assist Conversation Agent-only entry without a DJConnect client pairing code.
 - Confirm the DJConnect conversation-agent options dialog only shows the action selector and smart-home context allowlist; DJ response style/prompt controls must stay removed because announcements follow runtime mood/default style.
-- Confirm successful DJ announcement TTS creates an `audio_url` using a local Home Assistant URL even when older HA network helpers are unavailable.
+- Confirm successful DJ announcement TTS creates an `audio_url` using a local
+  Home Assistant URL even when older HA network helpers are unavailable.
+  Automated coverage now exercises keyword and positional HA TTS media-source
+  generator signatures.
 - Confirm Dutch DJ announcements pronounce English artist, album and track names naturally in TTS.
 - Confirm a new PTT request such as Nirvana does not reuse previous Spotify playback metadata such as Red Hot Chili Peppers in the DJ aankondiging.
 - Confirm artist requests that start a concrete Spotify track include that returned track in the generative DJ aankondiging prompt.
@@ -68,7 +74,12 @@
 - Confirm `Probeer opnieuw` replays the previous retryable playback request and keeps the visible retry bubble in client history.
 - Confirm `stop muziek` shows a Resume action and `hervat muziek` starts playback directly.
 - Confirm repeated iOS/macOS/watchOS/Raspberry Pi/Windows PTT requests reuse or serialize Spotify token refresh without false `invalid_grant` repairs.
-- Confirm artist queue/up-next selection does not send invalid Spotify artist offset payloads.
+- Confirm artist queue/up-next selection does not send invalid Spotify artist
+  offset payloads. Automated regression coverage exists in
+  `tests.test_ask_dj` / `tests.test_spotify_backend`.
+- Confirm queue/up-next returns at most 100 real backend items, skipping empty
+  backend entries instead of counting them against the limit. Automated
+  regression coverage exists in `tests.test_spotify_backend`.
 - Confirm friendly DJ fallback response is returned when Spotify playback fails.
 - Confirm DJ fallback response follows `device_language` (`nl` or `en`).
 - Confirm ESP receives and plays WAV/MP3 `audio_url` when HA TTS generates supported audio.
@@ -101,6 +112,8 @@
 - Field-test iOS/macOS/Windows app pairing with no Client adres, where the app
   posts locally to `/api/djconnect/pair` and receives optional `ha_remote_url`;
   use `FIELD_TEST_APP_CLIENTS.md` and record the app build/HA version/backend.
+  Automated HA contract coverage now verifies inbound pair responses and remote
+  playback commands for iOS, macOS and Windows client IDs.
 - Test mDNS discovery through `_djconnect._tcp` for ESP32, iOS, macOS, watchOS, Raspberry Pi and Windows.
 - Test Raspberry Pi mDNS TXT discovery with `client_type=raspberry_pi`, stable `djconnect-raspberry-pi-XXXXXXXXXXXX` ID and TXT `local_url`.
 - Test Raspberry Pi `/api/device/pairing-info` override for Client adres, client type, device name, device ID, pair code, version and paired state.
