@@ -11,7 +11,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import CLIENT_TYPE_ESP32, DOMAIN
 from .entity_ids import entry_unique_id
-from .use_cases import run_music_command as handle_spotify_command
+from .use_cases import run_music_command
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -76,14 +76,14 @@ class DJConnectShuffleSwitch(SwitchEntity):
         await self._set_shuffle(False)
 
     async def _set_shuffle(self, enabled: bool) -> None:
-        await handle_spotify_command(self.hass, self.runtime, "set_shuffle", enabled)
+        await run_music_command(self.hass, self.runtime, "set_shuffle", enabled)
         self.runtime.device_status["shuffle"] = enabled
         self.runtime.update()
         await self._refresh_device_display()
 
     async def async_update(self) -> None:
         try:
-            await handle_spotify_command(self.hass, self.runtime, "status")
+            await run_music_command(self.hass, self.runtime, "status")
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect shuffle refresh failed: %s", exc)
 

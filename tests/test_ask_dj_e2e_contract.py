@@ -385,10 +385,10 @@ class AskDjE2EContractTest(unittest.TestCase):
             trace.tts_requests.append(text)
             return {"audio_url_value": "/api/djconnect/tts/e2e.mp3"}
 
-        original_command = self.ask_dj.handle_spotify_command
+        original_command = self.ask_dj.run_music_command
         original_tts = self.ask_dj.async_send_dj_response_best_effort
-        original_process_text = self.ask_dj.process_text_command
-        self.ask_dj.handle_spotify_command = command
+        original_process_text = self.ask_dj.run_text_command
+        self.ask_dj.run_music_command = command
         self.ask_dj.async_send_dj_response_best_effort = tts
         async def process_text(hass, runtime_arg, text, **kwargs):
             trace.process_text_requests.append(text)
@@ -401,7 +401,7 @@ class AskDjE2EContractTest(unittest.TestCase):
                 "dj_text": "Vorige track gestart." if action == "previous" else "Volgende track gestart." if action == "next" else f"Ik zet {text} voor je klaar.",
                 "playback": runtime.last_playback,
             }
-        self.ask_dj.process_text_command = process_text
+        self.ask_dj.run_text_command = process_text
         try:
             response = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -415,7 +415,7 @@ class AskDjE2EContractTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
             self.ask_dj.async_send_dj_response_best_effort = original_tts
-            self.ask_dj.process_text_command = original_process_text
+            self.ask_dj.run_text_command = original_process_text
         return response, trace

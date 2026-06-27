@@ -23,7 +23,7 @@ from .const import (
 from .entity_ids import entry_unique_id
 from .push import EVENT_ASK_DJ_CONFIRM, async_send_event as async_send_push_event
 from .spotify_backend import SpotifyBackendError
-from .use_cases import run_music_command as handle_spotify_command
+from .use_cases import run_music_command
 
 _LOGGER = logging.getLogger(__name__)
 APPLE_PUSH_CLIENT_TYPES = {CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_WATCHOS}
@@ -116,7 +116,7 @@ class DJConnectCommandButton(DJConnectBaseButton):
             elif self.command == "play_pause":
                 playback = await self._current_playback_for_toggle()
                 backend_command = "pause" if playback.get("is_playing") else "play"
-                await handle_spotify_command(self.hass, self.runtime, backend_command)
+                await run_music_command(self.hass, self.runtime, backend_command)
             else:
                 await self.runtime.async_device_command(self.hass, self.command)
         except SpotifyBackendError as exc:
@@ -127,7 +127,7 @@ class DJConnectCommandButton(DJConnectBaseButton):
 
     async def _current_playback_for_toggle(self) -> dict[str, Any]:
         try:
-            result = await handle_spotify_command(self.hass, self.runtime, "status")
+            result = await run_music_command(self.hass, self.runtime, "status")
             playback = result.get("playback") if isinstance(result, dict) else None
             if isinstance(playback, dict):
                 return playback
@@ -150,7 +150,7 @@ class DJConnectRefreshUpNextButton(DJConnectBaseButton):
 
     async def async_press(self) -> None:
         try:
-            await handle_spotify_command(self.hass, self.runtime, "queue")
+            await run_music_command(self.hass, self.runtime, "queue")
         except SpotifyBackendError as exc:
             self.runtime.update(last_error=str(exc))
             _LOGGER.warning("DJConnect up next refresh unavailable: %s", exc)

@@ -132,6 +132,7 @@ class AskDjTest(unittest.TestCase):
         cls.ask_dj = importlib.import_module("custom_components.djconnect.ask_dj")
         cls.http = importlib.import_module("custom_components.djconnect.http")
         cls.const = importlib.import_module("custom_components.djconnect.const")
+        cls.processor = importlib.import_module("custom_components.djconnect.processor")
         cls.track_analysis = importlib.import_module("custom_components.djconnect.track_analysis")
 
     def test_informational_request_does_not_modify_playback(self) -> None:
@@ -166,8 +167,8 @@ class AskDjTest(unittest.TestCase):
             async def async_call(self, domain, service, data, **kwargs):
                 return {"response": {"speech": {"plain": {"speech": "Omdat dit goed aansluit op je vorige rustiger verzoek."}}}}
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -183,7 +184,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertTrue(result["success"])
         self.assertEqual(calls, ["status"])
@@ -203,8 +204,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": runtime.last_playback}
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -218,7 +219,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual(calls, ["status"])
         self.assertEqual(result["dj_text"], "Shuffle staat aan.")
@@ -237,8 +238,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": runtime.last_playback}
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -252,7 +253,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual(result["dj_text"], "Shuffle staat uit.")
         self.assertEqual(result["playback_actions"][0]["command"], "set_shuffle")
@@ -279,9 +280,9 @@ class AskDjTest(unittest.TestCase):
             tts_calls.append(text)
             return {"audio_url_value": "/api/djconnect/tts/repeat-status.mp3"}
 
-        original_command = self.ask_dj.handle_spotify_command
+        original_command = self.ask_dj.run_music_command
         original_tts = self.ask_dj.async_send_dj_response_best_effort
-        self.ask_dj.handle_spotify_command = command
+        self.ask_dj.run_music_command = command
         self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             result = asyncio.run(
@@ -296,7 +297,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
             self.ask_dj.async_send_dj_response_best_effort = original_tts
 
         self.assertEqual(result["dj_text"], "Repeat staat op dit nummer.")
@@ -334,8 +335,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "devices": devices}
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -350,7 +351,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertTrue(result["success"])
         self.assertEqual(calls, [("status", None, None), ("devices", None, None)])
@@ -409,8 +410,8 @@ class AskDjTest(unittest.TestCase):
             calls.append(command_name)
             raise AssertionError(f"help must not call Spotify: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -425,7 +426,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertTrue(result["success"])
         self.assertEqual(calls, [])
@@ -483,9 +484,9 @@ class AskDjTest(unittest.TestCase):
         async def audio(*args, **kwargs):
             raise AssertionError("text follow-up must not generate audio by default")
 
-        original_command = self.ask_dj.handle_spotify_command
+        original_command = self.ask_dj.run_music_command
         original_audio = self.ask_dj.async_send_dj_response_best_effort
-        self.ask_dj.handle_spotify_command = command
+        self.ask_dj.run_music_command = command
         self.ask_dj.async_send_dj_response_best_effort = audio
         try:
             result = asyncio.run(
@@ -502,7 +503,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
             self.ask_dj.async_send_dj_response_best_effort = original_audio
 
         self.assertTrue(result["success"])
@@ -540,8 +541,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -556,7 +557,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "artist_albums"])
         self.assertEqual(calls[1][1], {"artist": "Radiohead"})
@@ -606,8 +607,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -622,7 +623,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "artist_albums"])
         self.assertEqual(result["intent"]["intent"], "ask_music_info")
@@ -663,8 +664,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -679,7 +680,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "artist_albums"])
         self.assertEqual(calls[1][1], {"artist": "guns n roses"})
@@ -733,8 +734,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -749,7 +750,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "artist_albums"])
         self.assertEqual(calls[1][1], {"artist": "nirvana"})
@@ -787,8 +788,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -803,7 +804,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "artist_albums"])
         self.assertEqual(calls[1][1], {"artist": "Suzan & Freek"})
@@ -837,8 +838,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "profile": {}}
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -853,7 +854,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "related_artists", "listening_profile"])
         self.assertEqual(calls[1][1], {"artist": "Suzan & Freek"})
@@ -896,8 +897,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -912,7 +913,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "related_artists", "listening_profile"])
         self.assertIn("Ik zie in je DJ Memory en Spotify-profiel", result["dj_text"])
@@ -945,8 +946,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "profile": {}}
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -961,7 +962,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "related_artists", "listening_profile"])
         self.assertEqual(calls[1][1], {"artist": "Radiohead"})
@@ -994,9 +995,9 @@ class AskDjTest(unittest.TestCase):
                 },
             ]
 
-        original_command = self.ask_dj.handle_spotify_command
+        original_command = self.ask_dj.run_music_command
         original_fetch = self.ask_dj._fetch_artist_concert_events
-        self.ask_dj.handle_spotify_command = command
+        self.ask_dj.run_music_command = command
         self.ask_dj._fetch_artist_concert_events = fetch_events
         try:
             result = asyncio.run(
@@ -1012,7 +1013,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
             self.ask_dj._fetch_artist_concert_events = original_fetch
 
         self.assertEqual(calls, ["status"])
@@ -1038,9 +1039,9 @@ class AskDjTest(unittest.TestCase):
             self.assertEqual(artist, "The National")
             return []
 
-        original_command = self.ask_dj.handle_spotify_command
+        original_command = self.ask_dj.run_music_command
         original_fetch = self.ask_dj._fetch_artist_concert_events
-        self.ask_dj.handle_spotify_command = command
+        self.ask_dj.run_music_command = command
         self.ask_dj._fetch_artist_concert_events = fetch_events
         try:
             result = asyncio.run(
@@ -1056,7 +1057,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
             self.ask_dj._fetch_artist_concert_events = original_fetch
 
         self.assertEqual(result["intent"]["intent"], "artist_concerts")
@@ -1082,8 +1083,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -1098,7 +1099,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "artist_profile"])
         self.assertEqual(calls[1][1], {"artist": "Beastie Boys"})
@@ -1125,8 +1126,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -1141,7 +1142,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "artist_profile"])
         self.assertEqual(calls[1][1], {"artist": "Muse"})
@@ -1169,8 +1170,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             for text in ("wat voor genre is dit?", "welk genre is dit"):
                 calls = []
@@ -1196,7 +1197,7 @@ class AskDjTest(unittest.TestCase):
                 self.assertNotIn("Daar is", result["dj_text"])
                 self.assertEqual(result["playback_actions"], [])
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
     def test_current_artist_info_question_uses_fresh_playback_artist(self) -> None:
         runtime = make_runtime()
@@ -1231,8 +1232,8 @@ class AskDjTest(unittest.TestCase):
             async def async_call(self, domain, service, data, **kwargs):
                 raise AssertionError("current artist info should not use stale generic Assist context")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -1247,7 +1248,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "artist_profile"])
         self.assertEqual(calls[1][1], {"artist": "Radiohead"})
@@ -1302,8 +1303,8 @@ class AskDjTest(unittest.TestCase):
         async def command(*args, **kwargs):
             raise AssertionError("laat maar must not execute playback")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -1318,7 +1319,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual(result["dj_text"], "Helemaal goed, ik laat 'm liggen.")
         self.assertEqual(result["action"], "none")
@@ -1335,8 +1336,8 @@ class AskDjTest(unittest.TestCase):
         async def command(*args, **kwargs):
             raise AssertionError("nee must not execute playback or repeat lookup")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -1351,7 +1352,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual(result["dj_text"], "Helemaal goed, dan laat ik die vraag liggen.")
         self.assertEqual(result["action"], "none")
@@ -1378,8 +1379,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": {}}
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -1394,7 +1395,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertIn(
             "Welke albums heeft Prince uitgebracht? alleen tussen 1980 en 1990",
@@ -1419,8 +1420,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": {}}
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -1436,7 +1437,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertIn("Mood/energy: 70/100 (energy:", seen["prompt"])
         self.assertIn("uptempo", seen["prompt"])
@@ -1478,8 +1479,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": {}}
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -1498,7 +1499,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertIn("Droger (sensor.dryer_status): klaar", seen["prompt"])
         self.assertNotIn("sensor.secret", seen["prompt"])
@@ -1554,8 +1555,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -1570,7 +1571,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "search_tracks"])
         self.assertEqual(result["intent"]["intent"], "track_title_choices")
@@ -1601,8 +1602,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": runtime.last_playback}
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -1617,7 +1618,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual(calls, ["status"])
         self.assertEqual(result["dj_text"], "Sorry, ik begrijp niet wat je bedoelt.")
@@ -1644,8 +1645,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": runtime.last_playback}
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -1659,7 +1660,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertIn("niet genoeg betrouwbare broninformatie", result["dj_text"])
         self.assertEqual(result["images"], [])
@@ -1679,8 +1680,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": runtime.last_playback}
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -1694,7 +1695,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual(calls, ["status"])
         self.assertEqual(result["dj_text"], "Sorry, ik begrijp niet wat je bedoelt.")
@@ -1714,8 +1715,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": runtime.last_playback}
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -1729,7 +1730,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual(calls, ["status"])
         self.assertEqual(result["dj_text"], "Sorry, ik begrijp niet wat je bedoelt.")
@@ -1763,8 +1764,8 @@ class AskDjTest(unittest.TestCase):
                 "dj_text": "Ik speel Sun & Moon van Above & Beyond nu af.",
             }
 
-        original_process = self.ask_dj.process_text_command
-        self.ask_dj.process_text_command = process
+        original_process = self.ask_dj.run_text_command
+        self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -1779,7 +1780,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_text_command = original_process
 
         self.assertEqual(seen["text"], "speel sun & moon Above & Beyond")
         self.assertTrue(seen["play"])
@@ -1824,8 +1825,8 @@ class AskDjTest(unittest.TestCase):
                 "dj_text": "Ik speel Zombie van Scala & Kolacny Brothers nu af.",
             }
 
-        original_process = self.ask_dj.process_text_command
-        self.ask_dj.process_text_command = process
+        original_process = self.ask_dj.run_text_command
+        self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -1840,7 +1841,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_text_command = original_process
 
         self.assertEqual(seen["text"], "speel Zombie Scala & Kolacny Brothers")
         self.assertTrue(seen["play"])
@@ -1873,8 +1874,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": {"context_uri": value}}
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             hass = types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}})
             first = asyncio.run(
@@ -1914,7 +1915,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertIn("Black van Pearl Jam", first["dj_text"])
         self.assertIn("op het album Ten", first["dj_text"])
@@ -1965,8 +1966,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": runtime.last_playback}
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -1980,7 +1981,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         favorite_action = result["playback_actions"][2]
         self.assertEqual(favorite_action["command"], "set_current_track_favorite")
@@ -2017,8 +2018,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": {"context_uri": value}}
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -2033,7 +2034,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual(result["dj_text"], "Ten is in je wachtrij gezet.")
         self.assertEqual(result["intent"]["intent"], "play_album_containing_track")
@@ -2063,8 +2064,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -2079,7 +2080,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual(
             result["dj_text"],
@@ -2137,8 +2138,8 @@ class AskDjTest(unittest.TestCase):
                 raise AssertionError(f"unexpected search type: {value}")
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -2153,7 +2154,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual(result["intent"]["intent"], "play_music")
         self.assertEqual([call[0] for call in calls], ["status", "search_media", "search_media", "search_media"])
@@ -2173,8 +2174,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": runtime.last_playback}
             raise AssertionError(f"negative preference must not trigger Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -2189,7 +2190,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual(result["intent"]["intent"], "blocked_music_preference")
         self.assertEqual(result["dj_text"], "Ik zal er rekening mee houden vanaf nu: ik zet bløf niet meer voor je op.")
@@ -2233,8 +2234,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": runtime.last_playback}
             raise AssertionError(f"negative preference must not trigger Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -2249,7 +2250,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual(result["intent"]["intent"], "blocked_music_preference")
         self.assertIn("Susan & Freek", result["dj_text"])
@@ -2280,8 +2281,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -2296,7 +2297,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertNotIn("spotify:", result["dj_text"])
         self.assertIn("BLØF", result["dj_text"])
@@ -2331,8 +2332,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -2347,7 +2348,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual(result["intent"]["intent"], "play_music")
         self.assertEqual([call[1]["type"] for call in calls[1:]], ["track", "playlist", "album"])
@@ -2397,8 +2398,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -2413,7 +2414,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual(result["intent"]["intent"], "play_music")
         self.assertEqual([call[0] for call in calls], ["status", "search_albums", "search_playlists"])
@@ -2450,8 +2451,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -2466,7 +2467,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "search_media"])
         self.assertEqual(result["playback_actions"][0]["kind"], "artist")
@@ -2497,8 +2498,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -2512,7 +2513,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "search_tracks"])
         self.assertIn("Ik vond nog meer nummers van scala", result["text"])
@@ -2581,8 +2582,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -2596,7 +2597,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "search_albums", "search_playlists", "search_tracks"])
         self.assertIn("eerst albums, daarna playlists en tracks", result["text"])
@@ -2622,8 +2623,8 @@ class AskDjTest(unittest.TestCase):
         async def process(*args, **kwargs):
             raise AssertionError("Ask DJ must not guess playback when artist context is missing")
 
-        original_process = self.ask_dj.process_text_command
-        self.ask_dj.process_text_command = process
+        original_process = self.ask_dj.run_text_command
+        self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -2638,7 +2639,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_text_command = original_process
 
         self.assertEqual(result["intent"]["intent"], "clarification_needed")
         self.assertEqual(result["action"], "none")
@@ -2671,8 +2672,8 @@ class AskDjTest(unittest.TestCase):
                 "dj_text": "Ik speel Rainbow in the Sky van DJ Paul Elstak.",
             }
 
-        original_process = self.ask_dj.process_text_command
-        self.ask_dj.process_text_command = process
+        original_process = self.ask_dj.run_text_command
+        self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -2687,7 +2688,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_text_command = original_process
 
         self.assertEqual(seen["text"], "speel rainbow in the sky DJ Paul Elstak")
         self.assertTrue(seen["play"])
@@ -2727,10 +2728,10 @@ class AskDjTest(unittest.TestCase):
         async def process(*args, **kwargs):
             raise AssertionError("deferred playback request must not auto-start playback")
 
-        original_command = self.ask_dj.handle_spotify_command
-        original_process = self.ask_dj.process_text_command
-        self.ask_dj.handle_spotify_command = command
-        self.ask_dj.process_text_command = process
+        original_command = self.ask_dj.run_music_command
+        original_process = self.ask_dj.run_text_command
+        self.ask_dj.run_music_command = command
+        self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -2745,8 +2746,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_music_command = original_command
+            self.ask_dj.run_text_command = original_process
 
         self.assertEqual([call[0] for call in calls], ["status", "search_media"])
         self.assertEqual(result["intent"]["intent"], "play_music")
@@ -2801,10 +2802,10 @@ class AskDjTest(unittest.TestCase):
         async def process(*args, **kwargs):
             raise AssertionError("deferred playback request must not auto-start playback")
 
-        original_command = self.ask_dj.handle_spotify_command
-        original_process = self.ask_dj.process_text_command
-        self.ask_dj.handle_spotify_command = command
-        self.ask_dj.process_text_command = process
+        original_command = self.ask_dj.run_music_command
+        original_process = self.ask_dj.run_text_command
+        self.ask_dj.run_music_command = command
+        self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -2819,8 +2820,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_music_command = original_command
+            self.ask_dj.run_text_command = original_process
 
         self.assertEqual([call[0] for call in calls], ["status", "search_media"])
         self.assertEqual(result["intent"]["intent"], "play_music")
@@ -2843,8 +2844,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": runtime.last_playback}
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -2859,7 +2860,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual(result["action"], "none")
         self.assertIn("In And Out Of Love", result["dj_text"])
@@ -2894,10 +2895,10 @@ class AskDjTest(unittest.TestCase):
                 "playback": runtime.last_playback,
             }
 
-        original_command = self.ask_dj.handle_spotify_command
-        original_process = self.ask_dj.process_text_command
-        self.ask_dj.handle_spotify_command = command
-        self.ask_dj.process_text_command = process
+        original_command = self.ask_dj.run_music_command
+        original_process = self.ask_dj.run_text_command
+        self.ask_dj.run_music_command = command
+        self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -2911,8 +2912,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_music_command = original_command
+            self.ask_dj.run_text_command = original_process
 
         self.assertEqual(seen["text"], "speel Armin van Buuren - In And Out Of Love")
         self.assertTrue(seen["play"])
@@ -2929,9 +2930,9 @@ class AskDjTest(unittest.TestCase):
         async def fail_tts(hass, runtime_arg, text):
             raise AssertionError("informational text chat should not generate TTS by default")
 
-        original_command = self.ask_dj.handle_spotify_command
+        original_command = self.ask_dj.run_music_command
         original_tts = self.ask_dj.async_send_dj_response_best_effort
-        self.ask_dj.handle_spotify_command = command
+        self.ask_dj.run_music_command = command
         self.ask_dj.async_send_dj_response_best_effort = fail_tts
         try:
             result = asyncio.run(
@@ -2946,7 +2947,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
             self.ask_dj.async_send_dj_response_best_effort = original_tts
 
         self.assertTrue(result["success"])
@@ -2965,9 +2966,9 @@ class AskDjTest(unittest.TestCase):
             tts_calls.append(text)
             return {"audio_url_value": "/api/djconnect/tts/forced.mp3"}
 
-        original_command = self.ask_dj.handle_spotify_command
+        original_command = self.ask_dj.run_music_command
         original_tts = self.ask_dj.async_send_dj_response_best_effort
-        self.ask_dj.handle_spotify_command = command
+        self.ask_dj.run_music_command = command
         self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             result = asyncio.run(
@@ -2983,7 +2984,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
             self.ask_dj.async_send_dj_response_best_effort = original_tts
 
         self.assertTrue(result["success"])
@@ -3007,9 +3008,9 @@ class AskDjTest(unittest.TestCase):
             tts_calls.append(text)
             return {"audio_url_value": "/api/djconnect/tts/action.mp3"}
 
-        original_command = self.ask_dj.handle_spotify_command
+        original_command = self.ask_dj.run_music_command
         original_tts = self.ask_dj.async_send_dj_response_best_effort
-        self.ask_dj.handle_spotify_command = command
+        self.ask_dj.run_music_command = command
         self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             result = asyncio.run(
@@ -3024,7 +3025,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
             self.ask_dj.async_send_dj_response_best_effort = original_tts
 
         self.assertTrue(result["success"])
@@ -3066,9 +3067,9 @@ class AskDjTest(unittest.TestCase):
             tts_calls.append(text)
             return {"audio_url_value": "/api/djconnect/tts/volume.mp3"}
 
-        original_command = self.ask_dj.handle_spotify_command
+        original_command = self.ask_dj.run_music_command
         original_tts = self.ask_dj.async_send_dj_response_best_effort
-        self.ask_dj.handle_spotify_command = command
+        self.ask_dj.run_music_command = command
         self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             result = asyncio.run(
@@ -3083,7 +3084,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
             self.ask_dj.async_send_dj_response_best_effort = original_tts
 
         self.assertEqual(calls, [("status", None), ("status", None), ("set_volume", 20)])
@@ -3109,8 +3110,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": {"is_playing": False}}
             return {"success": True}
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -3124,7 +3125,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertIn(("pause", None), calls)
         self.assertEqual(result["intent"]["category"], "action")
@@ -3148,8 +3149,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": {"is_playing": False}}
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -3163,7 +3164,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual(calls, [("status", None), ("pause", None)])
         self.assertEqual(result["action"], "pause")
@@ -3193,8 +3194,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": {"is_playing": True}}
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -3208,7 +3209,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual(calls, [("status", None), ("play", None)])
         self.assertEqual(result["intent"]["category"], "action")
@@ -3252,8 +3253,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -3271,7 +3272,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual(calls, ["status", "listening_profile"])
         self.assertEqual(result["intent"]["category"], "playback_confirmation")
@@ -3310,9 +3311,9 @@ class AskDjTest(unittest.TestCase):
             tts_calls.append(text)
             return {"audio_url_value": "/api/djconnect/tts/repeat.mp3"}
 
-        original_command = self.ask_dj.handle_spotify_command
+        original_command = self.ask_dj.run_music_command
         original_tts = self.ask_dj.async_send_dj_response_best_effort
-        self.ask_dj.handle_spotify_command = command
+        self.ask_dj.run_music_command = command
         self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             off_result = asyncio.run(
@@ -3338,7 +3339,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
             self.ask_dj.async_send_dj_response_best_effort = original_tts
 
         self.assertIn(("set_repeat", "off"), calls)
@@ -3379,9 +3380,9 @@ class AskDjTest(unittest.TestCase):
             tts_calls.append(text)
             return {"audio_url_value": "/api/djconnect/tts/favorite.mp3"}
 
-        original_command = self.ask_dj.handle_spotify_command
+        original_command = self.ask_dj.run_music_command
         original_tts = self.ask_dj.async_send_dj_response_best_effort
-        self.ask_dj.handle_spotify_command = command
+        self.ask_dj.run_music_command = command
         self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             result = asyncio.run(
@@ -3396,7 +3397,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
             self.ask_dj.async_send_dj_response_best_effort = original_tts
 
         self.assertEqual(calls, ["status", "set_current_track_favorite"])
@@ -3425,10 +3426,10 @@ class AskDjTest(unittest.TestCase):
                 "dj_text": "Ik zet Armin van Buuren voor je klaar.",
             }
 
-        original_command = self.ask_dj.handle_spotify_command
-        original_process = self.ask_dj.process_text_command
-        self.ask_dj.handle_spotify_command = command
-        self.ask_dj.process_text_command = process
+        original_command = self.ask_dj.run_music_command
+        original_process = self.ask_dj.run_text_command
+        self.ask_dj.run_music_command = command
+        self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -3443,8 +3444,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_music_command = original_command
+            self.ask_dj.run_text_command = original_process
 
         self.assertTrue(result["success"])
         self.assertEqual(result["intent"]["category"], "hybrid")
@@ -3474,10 +3475,10 @@ class AskDjTest(unittest.TestCase):
                 },
             }
 
-        original_command = self.ask_dj.handle_spotify_command
-        original_process = self.ask_dj.process_text_command
-        self.ask_dj.handle_spotify_command = command
-        self.ask_dj.process_text_command = process
+        original_command = self.ask_dj.run_music_command
+        original_process = self.ask_dj.run_text_command
+        self.ask_dj.run_music_command = command
+        self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -3491,8 +3492,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_music_command = original_command
+            self.ask_dj.run_text_command = original_process
 
         self.assertTrue(result["success"])
         self.assertEqual(result["images"][0]["kind"], "album_art")
@@ -3522,10 +3523,10 @@ class AskDjTest(unittest.TestCase):
         async def process(*args, **kwargs):
             raise AssertionError("DJ intro should use playback context without playback/search processor")
 
-        original_command = self.ask_dj.handle_spotify_command
-        original_process = self.ask_dj.process_text_command
-        self.ask_dj.handle_spotify_command = command
-        self.ask_dj.process_text_command = process
+        original_command = self.ask_dj.run_music_command
+        original_process = self.ask_dj.run_text_command
+        self.ask_dj.run_music_command = command
+        self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -3540,8 +3541,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_music_command = original_command
+            self.ask_dj.run_text_command = original_process
 
         self.assertEqual(calls, ["status"])
         self.assertEqual(result["intent"]["intent"], "dj_announcement")
@@ -3588,10 +3589,10 @@ class AskDjTest(unittest.TestCase):
                 },
             }
 
-        original_command = self.ask_dj.handle_spotify_command
-        original_process = self.ask_dj.process_text_command
-        self.ask_dj.handle_spotify_command = command
-        self.ask_dj.process_text_command = process
+        original_command = self.ask_dj.run_music_command
+        original_process = self.ask_dj.run_text_command
+        self.ask_dj.run_music_command = command
+        self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -3605,8 +3606,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_music_command = original_command
+            self.ask_dj.run_text_command = original_process
 
         self.assertTrue(result["success"])
         self.assertEqual(result["dj_text"], "Daar is DJ Paul Elstak.")
@@ -3648,10 +3649,10 @@ class AskDjTest(unittest.TestCase):
                 },
             }
 
-        original_command = self.ask_dj.handle_spotify_command
-        original_process = self.ask_dj.process_text_command
-        self.ask_dj.handle_spotify_command = command
-        self.ask_dj.process_text_command = process
+        original_command = self.ask_dj.run_music_command
+        original_process = self.ask_dj.run_text_command
+        self.ask_dj.run_music_command = command
+        self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -3665,8 +3666,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_music_command = original_command
+            self.ask_dj.run_text_command = original_process
 
         self.assertEqual(result["dj_text"], "Daar is London Grammar.")
         self.assertNotIn("HAEVN", result["dj_text"])
@@ -3706,11 +3707,11 @@ class AskDjTest(unittest.TestCase):
             tts_calls.append(text)
             return {"audio_url_value": "/api/djconnect/tts/snow-patrol.mp3"}
 
-        original_command = self.ask_dj.handle_spotify_command
-        original_process = self.ask_dj.process_text_command
+        original_command = self.ask_dj.run_music_command
+        original_process = self.ask_dj.run_text_command
         original_tts = self.ask_dj.async_send_dj_response_best_effort
-        self.ask_dj.handle_spotify_command = command
-        self.ask_dj.process_text_command = process
+        self.ask_dj.run_music_command = command
+        self.ask_dj.run_text_command = process
         self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             result = asyncio.run(
@@ -3727,8 +3728,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_music_command = original_command
+            self.ask_dj.run_text_command = original_process
             self.ask_dj.async_send_dj_response_best_effort = original_tts
 
         self.assertEqual(result["dj_text"], "Daar is Snow Patrol, met Chasing Cars. Van Eyes Open.")
@@ -3772,11 +3773,11 @@ class AskDjTest(unittest.TestCase):
             tts_calls.append(text)
             return {"audio_url_value": "/api/djconnect/tts/nirvana.mp3"}
 
-        original_command = self.ask_dj.handle_spotify_command
-        original_process = self.ask_dj.process_text_command
+        original_command = self.ask_dj.run_music_command
+        original_process = self.ask_dj.run_text_command
         original_tts = self.ask_dj.async_send_dj_response_best_effort
-        self.ask_dj.handle_spotify_command = command
-        self.ask_dj.process_text_command = process
+        self.ask_dj.run_music_command = command
+        self.ask_dj.run_text_command = process
         self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             result = asyncio.run(
@@ -3793,8 +3794,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_music_command = original_command
+            self.ask_dj.run_text_command = original_process
             self.ask_dj.async_send_dj_response_best_effort = original_tts
 
         self.assertEqual(result["dj_text"], "Daar is Nirvana, met Come As You Are. Van Nevermind.")
@@ -3837,10 +3838,10 @@ class AskDjTest(unittest.TestCase):
                 },
             }
 
-        original_command = self.ask_dj.handle_spotify_command
-        original_process = self.ask_dj.process_text_command
-        self.ask_dj.handle_spotify_command = command
-        self.ask_dj.process_text_command = process
+        original_command = self.ask_dj.run_music_command
+        original_process = self.ask_dj.run_text_command
+        self.ask_dj.run_music_command = command
+        self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -3855,8 +3856,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_music_command = original_command
+            self.ask_dj.run_text_command = original_process
 
         self.assertEqual(result["dj_text"], "Daar is The Logical Song van Scooter.")
         self.assertNotIn("Darude", result["dj_text"])
@@ -3891,10 +3892,10 @@ class AskDjTest(unittest.TestCase):
                 },
             }
 
-        original_command = self.ask_dj.handle_spotify_command
-        original_process = self.ask_dj.process_text_command
-        self.ask_dj.handle_spotify_command = command
-        self.ask_dj.process_text_command = process
+        original_command = self.ask_dj.run_music_command
+        original_process = self.ask_dj.run_text_command
+        self.ask_dj.run_music_command = command
+        self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -3909,8 +3910,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_music_command = original_command
+            self.ask_dj.run_text_command = original_process
 
         self.assertEqual(result["dj_text"], "Daar is Zombie van The Cranberries.")
         self.assertNotIn("zombie the cranberries", result["dj_text"])
@@ -3939,10 +3940,10 @@ class AskDjTest(unittest.TestCase):
                 },
             }
 
-        original_command = self.ask_dj.handle_spotify_command
-        original_process = self.ask_dj.process_text_command
-        self.ask_dj.handle_spotify_command = command
-        self.ask_dj.process_text_command = process
+        original_command = self.ask_dj.run_music_command
+        original_process = self.ask_dj.run_text_command
+        self.ask_dj.run_music_command = command
+        self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -3956,8 +3957,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_music_command = original_command
+            self.ask_dj.run_text_command = original_process
 
         self.assertEqual(result["dj_text"], "Daar is Radiohead, met Karma Police. Van OK Computer.")
         self.assertNotIn("poilce", result["dj_text"])
@@ -3982,10 +3983,10 @@ class AskDjTest(unittest.TestCase):
                 "dj_text": "Ik zet Armin van Buuren voor je klaar.",
             }
 
-        original_command = self.ask_dj.handle_spotify_command
-        original_process = self.ask_dj.process_text_command
-        self.ask_dj.handle_spotify_command = command
-        self.ask_dj.process_text_command = process
+        original_command = self.ask_dj.run_music_command
+        original_process = self.ask_dj.run_text_command
+        self.ask_dj.run_music_command = command
+        self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -4000,8 +4001,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_music_command = original_command
+            self.ask_dj.run_text_command = original_process
 
         self.assertTrue(result["success"])
         self.assertEqual(result["intent"]["category"], "hybrid")
@@ -4028,11 +4029,11 @@ class AskDjTest(unittest.TestCase):
             tts_calls.append(text)
             return {"audio_url_value": "/api/djconnect/tts/playback-failed.mp3"}
 
-        original_command = self.ask_dj.handle_spotify_command
-        original_process = self.ask_dj.process_text_command
+        original_command = self.ask_dj.run_music_command
+        original_process = self.ask_dj.run_text_command
         original_tts = self.ask_dj.async_send_dj_response_best_effort
-        self.ask_dj.handle_spotify_command = command
-        self.ask_dj.process_text_command = process
+        self.ask_dj.run_music_command = command
+        self.ask_dj.run_text_command = process
         self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             result = asyncio.run(
@@ -4047,8 +4048,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_music_command = original_command
+            self.ask_dj.run_text_command = original_process
             self.ask_dj.async_send_dj_response_best_effort = original_tts
 
         self.assertTrue(result["success"])
@@ -4088,10 +4089,10 @@ class AskDjTest(unittest.TestCase):
         async def process(hass, runtime_arg, text, *, play=True, correct_stt=False):
             raise RuntimeError("No active device")
 
-        original_command = self.ask_dj.handle_spotify_command
-        original_process = self.ask_dj.process_text_command
-        self.ask_dj.handle_spotify_command = command
-        self.ask_dj.process_text_command = process
+        original_command = self.ask_dj.run_music_command
+        original_process = self.ask_dj.run_text_command
+        self.ask_dj.run_music_command = command
+        self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -4106,8 +4107,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_music_command = original_command
+            self.ask_dj.run_text_command = original_process
 
         self.assertTrue(result["success"])
         self.assertEqual(result["error"], "no_active_output")
@@ -4149,10 +4150,10 @@ class AskDjTest(unittest.TestCase):
                 "dj_text": "Ik start Nothing Else Matters.",
             }
 
-        original_command = self.ask_dj.handle_spotify_command
-        original_process = self.ask_dj.process_text_command
-        self.ask_dj.handle_spotify_command = command
-        self.ask_dj.process_text_command = process
+        original_command = self.ask_dj.run_music_command
+        original_process = self.ask_dj.run_text_command
+        self.ask_dj.run_music_command = command
+        self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -4167,8 +4168,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_music_command = original_command
+            self.ask_dj.run_text_command = original_process
 
         self.assertTrue(result["success"])
         self.assertEqual(calls, [("Speel maar nothing else meters", True, False)])
@@ -4194,10 +4195,10 @@ class AskDjTest(unittest.TestCase):
                 "dj_text": "Ik start iets rustigers.",
             }
 
-        original_command = self.ask_dj.handle_spotify_command
-        original_process = self.ask_dj.process_text_command
-        self.ask_dj.handle_spotify_command = command
-        self.ask_dj.process_text_command = process
+        original_command = self.ask_dj.run_music_command
+        original_process = self.ask_dj.run_text_command
+        self.ask_dj.run_music_command = command
+        self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -4212,8 +4213,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_music_command = original_command
+            self.ask_dj.run_text_command = original_process
 
         self.assertTrue(result["success"])
         self.assertEqual(calls, [("Draai iets rustigers", True, False)])
@@ -4247,8 +4248,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -4263,7 +4264,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertTrue(result["success"])
         self.assertEqual(calls, ["status", "listening_profile"])
@@ -4318,10 +4319,10 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_status_command = self.ask_dj.handle_spotify_command
-        original_analysis_command = self.track_analysis.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
-        self.track_analysis.handle_spotify_command = command
+        original_status_command = self.ask_dj.run_music_command
+        original_analysis_command = self.track_analysis.run_music_command
+        self.ask_dj.run_music_command = command
+        self.track_analysis.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -4336,8 +4337,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_status_command
-            self.track_analysis.handle_spotify_command = original_analysis_command
+            self.ask_dj.run_music_command = original_status_command
+            self.track_analysis.run_music_command = original_analysis_command
 
         self.assertTrue(result["success"])
         self.assertEqual(calls, ["status", "technical_track_analysis"])
@@ -4393,10 +4394,10 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_status_command = self.ask_dj.handle_spotify_command
-        original_analysis_command = self.track_analysis.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
-        self.track_analysis.handle_spotify_command = command
+        original_status_command = self.ask_dj.run_music_command
+        original_analysis_command = self.track_analysis.run_music_command
+        self.ask_dj.run_music_command = command
+        self.track_analysis.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -4411,8 +4412,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_status_command
-            self.track_analysis.handle_spotify_command = original_analysis_command
+            self.ask_dj.run_music_command = original_status_command
+            self.track_analysis.run_music_command = original_analysis_command
 
         self.assertTrue(result["success"])
         self.assertEqual(calls, ["status", "technical_track_analysis"])
@@ -4440,10 +4441,10 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_status_command = self.ask_dj.handle_spotify_command
-        original_analysis_command = self.track_analysis.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
-        self.track_analysis.handle_spotify_command = command
+        original_status_command = self.ask_dj.run_music_command
+        original_analysis_command = self.track_analysis.run_music_command
+        self.ask_dj.run_music_command = command
+        self.track_analysis.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -4457,8 +4458,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_status_command
-            self.track_analysis.handle_spotify_command = original_analysis_command
+            self.ask_dj.run_music_command = original_status_command
+            self.track_analysis.run_music_command = original_analysis_command
 
         self.assertTrue(result["success"])
         self.assertEqual(calls, ["status", "technical_track_analysis"])
@@ -4484,10 +4485,10 @@ class AskDjTest(unittest.TestCase):
         async def analysis_command(hass, runtime_arg, command_name, value=None, *, play=None):
             raise AssertionError(f"disabled track analysis must not call provider: {command_name}")
 
-        original_status_command = self.ask_dj.handle_spotify_command
-        original_analysis_command = self.track_analysis.handle_spotify_command
-        self.ask_dj.handle_spotify_command = status_command
-        self.track_analysis.handle_spotify_command = analysis_command
+        original_status_command = self.ask_dj.run_music_command
+        original_analysis_command = self.track_analysis.run_music_command
+        self.ask_dj.run_music_command = status_command
+        self.track_analysis.run_music_command = analysis_command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -4501,8 +4502,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_status_command
-            self.track_analysis.handle_spotify_command = original_analysis_command
+            self.ask_dj.run_music_command = original_status_command
+            self.track_analysis.run_music_command = original_analysis_command
 
         self.assertEqual(calls, ["status"])
         self.assertEqual(result["analysis"]["mode"], "unavailable")
@@ -4540,10 +4541,10 @@ class AskDjTest(unittest.TestCase):
             async def async_call(self, *args, **kwargs):
                 raise AssertionError("HA Conversation should be skipped")
 
-        original_status_command = self.ask_dj.handle_spotify_command
-        original_analysis_command = self.track_analysis.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
-        self.track_analysis.handle_spotify_command = command
+        original_status_command = self.ask_dj.run_music_command
+        original_analysis_command = self.track_analysis.run_music_command
+        self.ask_dj.run_music_command = command
+        self.track_analysis.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -4557,8 +4558,8 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_status_command
-            self.track_analysis.handle_spotify_command = original_analysis_command
+            self.ask_dj.run_music_command = original_status_command
+            self.track_analysis.run_music_command = original_analysis_command
 
         self.assertEqual(calls, ["status", "technical_track_analysis"])
         self.assertEqual(result["analysis"]["inferred"]["provider"], "local_fallback")
@@ -4589,8 +4590,8 @@ class AskDjTest(unittest.TestCase):
                 seen.update(data)
                 return {"response": {"speech": {"plain": {"speech": "A compact English analysis."}}}}
 
-        original_analysis_command = self.track_analysis.handle_spotify_command
-        self.track_analysis.handle_spotify_command = command
+        original_analysis_command = self.track_analysis.run_music_command
+        self.track_analysis.run_music_command = command
         try:
             result = asyncio.run(
                 self.track_analysis.async_analyze_current_track(
@@ -4600,7 +4601,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.track_analysis.handle_spotify_command = original_analysis_command
+            self.track_analysis.run_music_command = original_analysis_command
 
         self.assertEqual(seen["language"], "en-US")
         self.assertIn("Give at most two short English sentences", seen["text"])
@@ -4675,9 +4676,9 @@ class AskDjTest(unittest.TestCase):
                 return Response({"metadata": {"total_listen_count": 4242, "recording_mbid": "mbid-intro"}})
 
         session = Session()
-        original_analysis_command = self.track_analysis.handle_spotify_command
+        original_analysis_command = self.track_analysis.run_music_command
         original_clientsession = self.track_analysis.async_get_clientsession
-        self.track_analysis.handle_spotify_command = command
+        self.track_analysis.run_music_command = command
         self.track_analysis.async_get_clientsession = lambda hass: session
         try:
             result = asyncio.run(
@@ -4695,7 +4696,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.track_analysis.handle_spotify_command = original_analysis_command
+            self.track_analysis.run_music_command = original_analysis_command
             self.track_analysis.async_get_clientsession = original_clientsession
 
         self.assertEqual(calls, ["technical_track_analysis", "technical_track_analysis"])
@@ -4732,9 +4733,9 @@ class AskDjTest(unittest.TestCase):
             def get(self, url, **kwargs):
                 raise AssertionError("rate-limited MetaBrainz provider should not call the network")
 
-        original_analysis_command = self.track_analysis.handle_spotify_command
+        original_analysis_command = self.track_analysis.run_music_command
         original_clientsession = self.track_analysis.async_get_clientsession
-        self.track_analysis.handle_spotify_command = command
+        self.track_analysis.run_music_command = command
         self.track_analysis.async_get_clientsession = lambda hass: Session()
         try:
             result = asyncio.run(
@@ -4745,7 +4746,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.track_analysis.handle_spotify_command = original_analysis_command
+            self.track_analysis.run_music_command = original_analysis_command
             self.track_analysis.async_get_clientsession = original_clientsession
 
         providers = {provider["provider_id"]: provider for provider in result["analysis"]["providers"]}
@@ -4776,9 +4777,9 @@ class AskDjTest(unittest.TestCase):
             def get(self, url, **kwargs):
                 raise RuntimeError("network down")
 
-        original_analysis_command = self.track_analysis.handle_spotify_command
+        original_analysis_command = self.track_analysis.run_music_command
         original_clientsession = self.track_analysis.async_get_clientsession
-        self.track_analysis.handle_spotify_command = command
+        self.track_analysis.run_music_command = command
         self.track_analysis.async_get_clientsession = lambda hass: Session()
         try:
             result = asyncio.run(
@@ -4789,7 +4790,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.track_analysis.handle_spotify_command = original_analysis_command
+            self.track_analysis.run_music_command = original_analysis_command
             self.track_analysis.async_get_clientsession = original_clientsession
 
         self.assertTrue(result["success"])
@@ -4812,8 +4813,8 @@ class AskDjTest(unittest.TestCase):
                 raise AssertionError("Memory-only question must not fetch Spotify profile data")
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -4828,7 +4829,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertTrue(result["success"])
         self.assertEqual(calls, ["status"])
@@ -4877,8 +4878,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -4892,7 +4893,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertTrue(result["success"])
         self.assertEqual([call[0] for call in calls], ["status", "recently_played"])
@@ -4950,8 +4951,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -4965,7 +4966,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertTrue(result["success"])
         self.assertEqual([call[0] for call in calls], ["status", "recently_played"])
@@ -4983,8 +4984,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "tracks": []}
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -4998,7 +4999,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertTrue(result["success"])
         self.assertEqual(result["intent"]["intent"], "recently_played_history")
@@ -5035,8 +5036,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -5050,7 +5051,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertTrue(result["success"])
         self.assertEqual(result["intent"]["item_type"], "albums")
@@ -5090,8 +5091,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -5105,7 +5106,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertTrue(result["success"])
         self.assertEqual(result["intent"]["item_type"], "artists")
@@ -5137,8 +5138,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -5152,7 +5153,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertTrue(result["success"])
         self.assertEqual(result["intent"]["item_type"], "playlists")
@@ -5179,8 +5180,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "profile": {}}
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -5194,7 +5195,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertTrue(result["success"])
         self.assertEqual(result["intent"]["intent"], "personal_music_profile_analysis")
@@ -5229,8 +5230,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -5244,7 +5245,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertTrue(result["success"])
         self.assertEqual(calls, ["status", "listening_profile"])
@@ -5289,8 +5290,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback/search command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -5305,7 +5306,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "listening_profile"])
         self.assertEqual(result["intent"]["intent"], "personal_artist_recommendations")
@@ -5344,8 +5345,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -5360,7 +5361,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "artist_recommendations"])
         self.assertEqual(result["intent"]["intent"], "mood_mix")
@@ -5433,9 +5434,9 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
+        original_command = self.ask_dj.run_music_command
         original_shuffle = self.ask_dj.random.shuffle
-        self.ask_dj.handle_spotify_command = command
+        self.ask_dj.run_music_command = command
         self.ask_dj.random.shuffle = lambda items: None
         try:
             result = asyncio.run(
@@ -5450,7 +5451,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
             self.ask_dj.random.shuffle = original_shuffle
 
         self.assertTrue(result["success"])
@@ -5504,9 +5505,9 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
+        original_command = self.ask_dj.run_music_command
         original_shuffle = self.ask_dj.random.shuffle
-        self.ask_dj.handle_spotify_command = command
+        self.ask_dj.run_music_command = command
         self.ask_dj.random.shuffle = lambda items: None
         try:
             result = asyncio.run(
@@ -5522,7 +5523,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
             self.ask_dj.random.shuffle = original_shuffle
 
         self.assertEqual(calls, ["status", "listening_profile"])
@@ -5560,8 +5561,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -5575,7 +5576,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "search_playlists"])
         self.assertTrue(result["success"])
@@ -5616,8 +5617,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -5631,7 +5632,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "search_playlists"])
         self.assertEqual(result["intent"]["intent"], "spotify_playlist_search")
@@ -5662,8 +5663,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -5677,7 +5678,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "search_playlists"])
         self.assertEqual(result["intent"]["intent"], "spotify_vibe_playlists")
@@ -5716,8 +5717,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -5731,7 +5732,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "search_playlists"])
         self.assertEqual(result["intent"]["intent"], "spotify_vibe_playlists")
@@ -5767,8 +5768,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -5782,7 +5783,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "artist_albums"])
         self.assertIn("Volgens Spotify heeft Radiohead", result["text"])
@@ -5827,8 +5828,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -5843,7 +5844,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "artist_albums"])
         self.assertEqual(result["intent"]["intent"], "artist_item_list")
@@ -5893,9 +5894,9 @@ class AskDjTest(unittest.TestCase):
             tts_calls.append(text)
             return {"audio_url_value": "/api/djconnect/tts/album-choice.mp3"}
 
-        original_command = self.ask_dj.handle_spotify_command
+        original_command = self.ask_dj.run_music_command
         original_tts = self.ask_dj.async_send_dj_response_best_effort
-        self.ask_dj.handle_spotify_command = command
+        self.ask_dj.run_music_command = command
         self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             result = asyncio.run(
@@ -5911,7 +5912,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
             self.ask_dj.async_send_dj_response_best_effort = original_tts
 
         self.assertEqual([call[0] for call in calls], ["status", "artist_albums"])
@@ -5950,8 +5951,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -5965,7 +5966,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "search_tracks"])
         self.assertIn("Ik vond deze nummers van The Cranberries", result["text"])
@@ -6009,8 +6010,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -6024,7 +6025,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "search_tracks"])
         self.assertIn("live-versies voor Till the Morning van HAEVN, Lily Meola", result["text"])
@@ -6053,8 +6054,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -6068,7 +6069,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertIn("akoestische versies voor Karma Police van Radiohead", result["text"])
         self.assertEqual(result["playback_actions"][0]["uri"], "spotify:track:acoustic")
@@ -6095,8 +6096,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -6110,7 +6111,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertIn("remixes voor Everything In Its Right Place van Radiohead", result["text"])
         self.assertEqual(result["playback_actions"][0]["uri"], "spotify:track:remix")
@@ -6139,8 +6140,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -6154,7 +6155,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "search_playlists"])
         self.assertIn("Ik vond deze Spotify-playlists rond The Cranberries", result["text"])
@@ -6187,8 +6188,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -6202,7 +6203,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "search_playlists"])
         self.assertTrue(result["success"])
@@ -6236,8 +6237,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -6251,7 +6252,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "search_playlists"])
         self.assertEqual(result["intent"]["intent"], "spotify_playlist_search")
@@ -6285,8 +6286,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -6300,7 +6301,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "search_tracks"])
         self.assertEqual(result["intent"]["intent"], "artist_item_list")
@@ -6336,8 +6337,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -6351,7 +6352,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "search_tracks"])
         self.assertEqual(result["intent"]["intent"], "spotify_playlist_search")
@@ -6388,8 +6389,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -6403,7 +6404,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "playlists"])
         self.assertTrue(result["success"])
@@ -6443,8 +6444,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -6458,7 +6459,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "playlists"])
         self.assertEqual(result["intent"]["intent"], "spotify_user_playlists")
@@ -6484,8 +6485,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": runtime.last_playback}
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -6500,7 +6501,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual(result["intent"]["intent"], "playlist_recommendation_offer")
         self.assertEqual(result["images"], [])
@@ -6540,8 +6541,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -6555,7 +6556,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "queue"])
         self.assertEqual(result["intent"]["intent"], "next_track_info")
@@ -6597,8 +6598,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -6612,7 +6613,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "queue"])
         self.assertEqual(result["intent"]["intent"], "next_track_info")
@@ -6641,8 +6642,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -6656,7 +6657,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual(result["images"][0]["url"], proxy_url)
         self.assertEqual(result["playback_actions"][0]["image_url"], proxy_url)
@@ -6694,8 +6695,8 @@ class AskDjTest(unittest.TestCase):
                 },
             }
 
-        original_process = self.ask_dj.process_text_command
-        self.ask_dj.process_text_command = process
+        original_process = self.ask_dj.run_text_command
+        self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -6709,7 +6710,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_text_command = original_process
 
         self.assertEqual(calls, [("next", True, False)])
         self.assertEqual(result["intent"]["intent"], "playback_control")
@@ -6778,12 +6779,12 @@ class AskDjTest(unittest.TestCase):
             self.assertEqual(media["album_image_url"], "https://img.example/new.jpg")
             return f"Nu speelt {media['track_name']} van {media['artist']}."
 
-        original_command = self.ask_dj.handle_spotify_command
-        original_processor_command = self.ask_dj.process_text_command.__globals__["handle_spotify_command"]
-        original_dj_response = self.ask_dj.process_text_command.__globals__["generate_dj_response_with_assist"]
-        self.ask_dj.handle_spotify_command = command
-        self.ask_dj.process_text_command.__globals__["handle_spotify_command"] = command
-        self.ask_dj.process_text_command.__globals__["generate_dj_response_with_assist"] = dj_response
+        original_command = self.ask_dj.run_music_command
+        original_processor_command = self.processor.run_music_command
+        original_dj_response = self.processor.generate_dj_response_with_assist
+        self.ask_dj.run_music_command = command
+        self.processor.run_music_command = command
+        self.processor.generate_dj_response_with_assist = dj_response
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -6797,9 +6798,9 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
-            self.ask_dj.process_text_command.__globals__["handle_spotify_command"] = original_processor_command
-            self.ask_dj.process_text_command.__globals__["generate_dj_response_with_assist"] = original_dj_response
+            self.ask_dj.run_music_command = original_command
+            self.processor.run_music_command = original_processor_command
+            self.processor.generate_dj_response_with_assist = original_dj_response
 
         self.assertEqual(calls, ["status", "next", "status", "queue"])
         self.assertIn("New Song van New Artist", result["dj_text"])
@@ -6854,12 +6855,12 @@ class AskDjTest(unittest.TestCase):
         async def dj_response(hass, *, media, fallback_text, conf, memory_context=None, debug=None):
             return f"Nu speelt {media['track_name']} van {media['artist']}."
 
-        original_command = self.ask_dj.handle_spotify_command
-        original_processor_command = self.ask_dj.process_text_command.__globals__["handle_spotify_command"]
-        original_dj_response = self.ask_dj.process_text_command.__globals__["generate_dj_response_with_assist"]
-        self.ask_dj.handle_spotify_command = command
-        self.ask_dj.process_text_command.__globals__["handle_spotify_command"] = command
-        self.ask_dj.process_text_command.__globals__["generate_dj_response_with_assist"] = dj_response
+        original_command = self.ask_dj.run_music_command
+        original_processor_command = self.processor.run_music_command
+        original_dj_response = self.processor.generate_dj_response_with_assist
+        self.ask_dj.run_music_command = command
+        self.processor.run_music_command = command
+        self.processor.generate_dj_response_with_assist = dj_response
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -6873,9 +6874,9 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
-            self.ask_dj.process_text_command.__globals__["handle_spotify_command"] = original_processor_command
-            self.ask_dj.process_text_command.__globals__["generate_dj_response_with_assist"] = original_dj_response
+            self.ask_dj.run_music_command = original_command
+            self.processor.run_music_command = original_processor_command
+            self.processor.generate_dj_response_with_assist = original_dj_response
 
         self.assertEqual(calls, ["status", "previous", "status", "queue"])
         self.assertIn("Previous Song van Previous Artist", result["dj_text"])
@@ -6912,8 +6913,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -6927,7 +6928,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "queue"])
         self.assertEqual(result["action"], "none")
@@ -6947,8 +6948,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "queue": []}
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -6962,7 +6963,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "queue"])
         self.assertEqual(result["intent"]["intent"], "next_track_info")
@@ -7009,8 +7010,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -7024,7 +7025,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual(calls, ["status", "listening_profile"])
         self.assertEqual(result["intent"]["intent"], "personal_music_recommendations")
@@ -7060,8 +7061,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -7075,7 +7076,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "artist_recommendations"])
         self.assertEqual(result["intent"]["intent"], "build_playlist_from_seeds")
@@ -7110,8 +7111,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -7125,7 +7126,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "artist_recommendations"])
         self.assertEqual(result["intent"]["intent"], "build_playlist_from_seeds")
@@ -7164,8 +7165,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -7180,7 +7181,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "artist_recommendations"])
         self.assertEqual(result["intent"]["intent"], "artist_seed_recommendations")
@@ -7217,8 +7218,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -7232,7 +7233,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "artist_recommendations"])
         self.assertEqual(result["intent"]["intent"], "build_playlist_from_seeds")
@@ -7266,8 +7267,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -7281,7 +7282,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "artist_recommendations"])
         self.assertEqual(result["intent"]["intent"], "song_recommendations")
@@ -7331,8 +7332,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             first = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -7357,7 +7358,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "search_tracks", "status", "search_tracks"])
         for result in (first, second):
@@ -7402,9 +7403,9 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": {"context_uri": "djconnect:london-grammar"}}
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
+        original_command = self.ask_dj.run_music_command
         original_shuffle = self.ask_dj.random.shuffle
-        self.ask_dj.handle_spotify_command = command
+        self.ask_dj.run_music_command = command
         self.ask_dj.random.shuffle = lambda items: None
         try:
             result = asyncio.run(
@@ -7419,7 +7420,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
             self.ask_dj.random.shuffle = original_shuffle
 
         self.assertEqual([call[0] for call in calls], ["status", "search_tracks", "play_uris"])
@@ -7483,8 +7484,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -7499,7 +7500,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "artist_recommendations"])
         self.assertIn("op basis van Freed From Desire van Gala, Molella, Phil Jay", result["dj_text"])
@@ -7531,8 +7532,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -7546,7 +7547,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertIn("meer muziek in de sfeer van Freed From Desire van Gala", result["text"])
         self.assertEqual(result["playback_actions"][0]["uri"], "spotify:track:similar-1")
@@ -7582,8 +7583,8 @@ class AskDjTest(unittest.TestCase):
                 raise AssertionError("similar-track suggestions must not start playback automatically")
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -7597,7 +7598,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "artist_recommendations"])
         track_actions = [action for action in result["playback_actions"] if action["kind"] == "track"]
@@ -7645,8 +7646,8 @@ class AskDjTest(unittest.TestCase):
                 }
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -7660,7 +7661,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual(
             [call[0] for call in calls],
@@ -7704,8 +7705,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": {"context_uri": "djconnect:mix"}}
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -7719,7 +7720,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "artist_recommendations", "play_uris"])
         self.assertEqual(result["action"], "play_music")
@@ -7765,8 +7766,8 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": {"context_uri": "djconnect:similar"}}
             raise AssertionError(f"unexpected command: {command_name}")
 
-        original_command = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -7780,7 +7781,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.handle_spotify_command = original_command
+            self.ask_dj.run_music_command = original_command
 
         self.assertEqual(
             [call[0] for call in calls],
@@ -7797,8 +7798,8 @@ class AskDjTest(unittest.TestCase):
         async def process(hass, runtime_arg, text, *, play, correct_stt):
             raise RuntimeError("Temporary backend timeout")
 
-        original_process = self.ask_dj.process_text_command
-        self.ask_dj.process_text_command = process
+        original_process = self.ask_dj.run_text_command
+        self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
@@ -7812,7 +7813,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
         finally:
-            self.ask_dj.process_text_command = original_process
+            self.ask_dj.run_text_command = original_process
 
         self.assertTrue(result["success"])
         self.assertEqual(result["error"], "playback_failed")
@@ -8190,12 +8191,12 @@ class AskDjTest(unittest.TestCase):
                     "mood": 35,
                 }
 
-        original = self.ask_dj.handle_spotify_command
-        self.ask_dj.handle_spotify_command = command
+        original = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
         try:
             response = asyncio.run(self.http.DJConnectAskDjIdleSuggestionView(None).post(Request()))
         finally:
-            self.ask_dj.handle_spotify_command = original
+            self.ask_dj.run_music_command = original
 
         self.assertEqual(response["status_code"], 200)
         payload = response["payload"]

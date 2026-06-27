@@ -180,12 +180,12 @@ class NumberTest(unittest.TestCase):
             runtime_arg.last_playback = {"volume_percent": 44}
             return {"success": True, "playback": runtime_arg.last_playback}
 
-        original = self.number.handle_spotify_command
-        self.number.handle_spotify_command = fake_handler
+        original = self.number.run_music_command
+        self.number.run_music_command = fake_handler
         try:
             asyncio.run(entity.async_update())
         finally:
-            self.number.handle_spotify_command = original
+            self.number.run_music_command = original
 
         self.assertEqual(calls, [("status", None, None)])
         self.assertEqual(entity.native_value, 44.0)

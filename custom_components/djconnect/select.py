@@ -11,7 +11,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import CLIENT_TYPE_ESP32, DOMAIN
 from .entity_ids import entry_unique_id
-from .use_cases import run_music_command as handle_spotify_command
+from .use_cases import run_music_command
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -165,7 +165,7 @@ class DJConnectCommandSelect(SelectEntity):
 
     async def async_select_option(self, option: str) -> None:
         if self.command == "set_output":
-            await handle_spotify_command(
+            await run_music_command(
                 self.hass,
                 self.runtime,
                 "set_output",
@@ -173,7 +173,7 @@ class DJConnectCommandSelect(SelectEntity):
                 play=False,
             )
         elif self.command == "set_repeat":
-            await handle_spotify_command(
+            await run_music_command(
                 self.hass,
                 self.runtime,
                 "set_repeat",
@@ -198,16 +198,16 @@ class DJConnectCommandSelect(SelectEntity):
             return
         if self.status_key == "repeat_state":
             try:
-                await handle_spotify_command(self.hass, self.runtime, "status")
+                await run_music_command(self.hass, self.runtime, "status")
             except Exception as exc:  # noqa: BLE001
                 _LOGGER.debug("DJConnect repeat state refresh failed: %s", exc)
             return
         try:
-            await handle_spotify_command(self.hass, self.runtime, "status")
+            await run_music_command(self.hass, self.runtime, "status")
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect sound output playback refresh failed: %s", exc)
         try:
-            await handle_spotify_command(self.hass, self.runtime, "devices")
+            await run_music_command(self.hass, self.runtime, "devices")
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect sound output refresh failed: %s", exc)
 

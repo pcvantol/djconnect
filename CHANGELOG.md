@@ -14,6 +14,10 @@
 - Add a thin DJConnect use-case layer and `MusicBackend` capability abstraction,
   with Spotify Direct isolated behind a backend adapter for migrated command,
   Ask DJ, processor and HA entity paths.
+- Route HA/AI tool surfaces through the DJConnect use-case boundary:
+  developer services, Assist conversation, HTTP command/status routes, Ask DJ
+  and HA playback entities now use `run_music_command` / `run_text_command`
+  instead of importing Spotify Direct or processor helpers directly.
 - Add a hard playback backend choice between Spotify Direct and Music
   Assistant. Spotify Direct keeps DJConnect PKCE OAuth; Music Assistant uses a
   configured MA `media_player`, skips DJConnect Spotify OAuth/repairs and

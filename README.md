@@ -62,8 +62,10 @@ runtime behavior. These decisions are part of the integration contract:
 - **HA owns backend playback**: the ESP does not store Spotify OAuth credentials and does not call the Spotify Web API directly. It sends generic playback commands to `POST /api/djconnect/command`; Home Assistant translates them to the selected backend.
 - **Use-case layer before music backends**: HTTP clients, app clients, ESP32,
   Raspberry Pi, Assist agent and Home Assistant entities route music actions
-  through DJConnect use-cases first. Spotify Direct is the default backend
-  adapter. Music Assistant is a small adapter over a configured HA
+  through DJConnect use-cases first. Developer services, Assist conversation
+  handling and HTTP command/status routes use the same `run_music_command` /
+  `run_text_command` boundary. Spotify Direct is the default backend adapter.
+  Music Assistant is a small adapter over a configured HA
   `media_player`; it does not turn DJConnect into a library index, queue engine
   or grouping/sync system.
 - **Backend playback controls**: Home Assistant exposes DJConnect buttons, numbers, selects and sensors for the backend playback session. DJConnect no longer creates a native `media_player` proxy; music control stays available through DJConnect commands and the Spotify-backed control entities.

@@ -148,12 +148,12 @@ class DJConnectSelectTest(unittest.TestCase):
             calls.append((command, value, play))
             return {"success": True}
 
-        original = self.select.handle_spotify_command
-        self.select.handle_spotify_command = fake_handler
+        original = self.select.run_music_command
+        self.select.run_music_command = fake_handler
         try:
             asyncio.run(repeat.async_select_option("track"))
         finally:
-            self.select.handle_spotify_command = original
+            self.select.run_music_command = original
 
         self.assertIn(("set_repeat", "track", None), calls)
         self.assertEqual(runtime.device_status["repeat_state"], "track")
@@ -317,12 +317,12 @@ class DJConnectSelectTest(unittest.TestCase):
             ]
             return {"success": True, "devices": runtime_arg.device_status["available_outputs"]}
 
-        original = self.select.handle_spotify_command
-        self.select.handle_spotify_command = fake_handler
+        original = self.select.run_music_command
+        self.select.run_music_command = fake_handler
         try:
             asyncio.run(sound_output.async_update())
         finally:
-            self.select.handle_spotify_command = original
+            self.select.run_music_command = original
 
         self.assertIn(("status", None, None), calls)
         self.assertIn(("devices", None, None), calls)
@@ -428,12 +428,12 @@ class DJConnectSelectTest(unittest.TestCase):
             runtime_arg.last_playback = {"repeat_state": "context"}
             return {"success": True, "playback": runtime_arg.last_playback}
 
-        original = self.select.handle_spotify_command
-        self.select.handle_spotify_command = fake_handler
+        original = self.select.run_music_command
+        self.select.run_music_command = fake_handler
         try:
             asyncio.run(repeat.async_update())
         finally:
-            self.select.handle_spotify_command = original
+            self.select.run_music_command = original
 
         self.assertEqual(calls, [("status", None, None)])
         self.assertEqual(repeat.current_option, "context")

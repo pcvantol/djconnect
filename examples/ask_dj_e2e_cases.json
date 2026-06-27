@@ -61,7 +61,7 @@
         "confirmation"
       ],
       "forbid_spotify_mutations": true,
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "listening_profile"
       ]
@@ -85,11 +85,11 @@
         "output"
       ],
       "items_min_count": 1,
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "devices"
       ],
-      "required_spotify_commands": [
+      "required_music_commands": [
         "devices"
       ]
     }
@@ -111,7 +111,7 @@
       ],
       "playback_actions_count": 0,
       "confirmation_actions_count": 0,
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status"
       ],
       "forbid_spotify_mutations": true
@@ -138,7 +138,7 @@
       ],
       "images_count": 0,
       "playback_actions_count": 0,
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status"
       ],
       "forbid_spotify_mutations": true
@@ -162,7 +162,7 @@
         "djconnect_memory",
         "spotify_top_tracks_short_term"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "listening_profile"
       ],
@@ -187,7 +187,7 @@
       "playback_action_kinds_include": [
         "track"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "listening_profile"
       ],
@@ -213,7 +213,7 @@
       "source_values_include": [
         "spotify_playback_context"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "technical_track_analysis"
       ],
@@ -239,7 +239,7 @@
       "source_values_include": [
         "spotify_playback_context"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "technical_track_analysis"
       ],
@@ -269,7 +269,7 @@
       ],
       "items_min_count": 1,
       "playback_actions_count": 0,
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "recently_played"
       ],
@@ -295,7 +295,7 @@
       "playback_action_kinds_include": [
         "output"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "devices"
       ],
@@ -317,7 +317,7 @@
         "Woonkamer",
         "muziek"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status"
       ],
       "forbid_spotify_mutations": true
@@ -338,7 +338,7 @@
         "Shuffle",
         "shuffle"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status"
       ],
       "forbid_spotify_mutations": true
@@ -361,7 +361,7 @@
       "source_values_include": [
         "spotify_queue"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "queue"
       ],
@@ -383,7 +383,7 @@
         "optredens",
         "live"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status"
       ],
       "forbid_spotify_mutations": true
@@ -404,7 +404,7 @@
         "vorige",
         "rustiger"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status"
       ],
       "forbid_spotify_mutations": true
@@ -430,7 +430,7 @@
         "spotify_artist_profile"
       ],
       "playback_actions_count": 0,
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "artist_profile"
       ],
@@ -458,7 +458,7 @@
         "spotify_artist_profile"
       ],
       "playback_actions_count": 0,
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "artist_profile"
       ],
@@ -482,7 +482,7 @@
         "The xx",
         "Daar is"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status"
       ],
       "forbid_spotify_mutations": true
@@ -514,7 +514,7 @@
       ],
       "playback_actions_count": 3,
       "items_count": 3,
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "search_tracks"
       ],
@@ -556,11 +556,11 @@
         "gepauzeerd",
         "pauze"
       ],
-      "required_spotify_commands": [
+      "required_music_commands": [
         "status",
         "pause"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "pause"
       ]
@@ -581,11 +581,11 @@
         "gestart",
         "muziek"
       ],
-      "required_spotify_commands": [
+      "required_music_commands": [
         "status",
         "play"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "play"
       ]
@@ -607,7 +607,7 @@
         "Next"
       ],
       "required_process_text": true,
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "queue"
       ]
@@ -629,7 +629,7 @@
         "Previous"
       ],
       "required_process_text": true,
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "queue"
       ]
@@ -649,11 +649,11 @@
       "contains_all": [
         "volume aangepast"
       ],
-      "required_spotify_commands": [
+      "required_music_commands": [
         "status",
         "set_volume"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "set_volume"
       ]
@@ -673,11 +673,11 @@
       "contains_all": [
         "Shuffle staat aan"
       ],
-      "required_spotify_commands": [
+      "required_music_commands": [
         "status",
         "set_shuffle"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "set_shuffle"
       ]
@@ -697,11 +697,11 @@
       "contains_all": [
         "Repeat is uitgezet"
       ],
-      "required_spotify_commands": [
+      "required_music_commands": [
         "status",
         "set_repeat"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "set_repeat"
       ]
@@ -724,11 +724,11 @@
       "images_count": 0,
       "items_count": 0,
       "playback_actions_count": 0,
-      "required_spotify_commands": [
+      "required_music_commands": [
         "status",
         "set_current_track_favorite"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "set_current_track_favorite"
       ]
@@ -751,7 +751,7 @@
       "source_values_include": [
         "spotify_user_playlists"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "playlists"
       ],
@@ -775,7 +775,7 @@
       "source_values_include": [
         "spotify_playlist_search"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "search_playlists"
       ],
@@ -799,7 +799,7 @@
       "source_values_include": [
         "spotify_playlist_search"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "search_playlists"
       ],
@@ -825,7 +825,7 @@
         "no"
       ],
       "forbid_spotify_mutations": true,
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status"
       ]
     }
@@ -849,7 +849,7 @@
       "playback_action_kinds_include": [
         "track"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "artist_recommendations"
       ],
@@ -880,7 +880,7 @@
       "source_values_include": [
         "spotify_recommendations"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "artist_recommendations"
       ],
@@ -904,7 +904,7 @@
       "source_values_include": [
         "spotify_recommendations"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "artist_recommendations"
       ],
@@ -925,7 +925,7 @@
         "albums",
         "Radiohead"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "artist_albums"
       ],
@@ -945,7 +945,7 @@
       "contains_any": [
         "playlist"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status"
       ],
       "forbid_spotify_mutations": true
@@ -965,7 +965,7 @@
         "rekening mee",
         "bløf"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status"
       ],
       "forbid_spotify_mutations": true
@@ -985,7 +985,7 @@
         "Black",
         "Pearl Jam"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "search_media"
       ],
@@ -1007,12 +1007,12 @@
         "Ten",
         "wachtrij"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "search_media",
         "play"
       ],
-      "required_spotify_commands": [
+      "required_music_commands": [
         "play"
       ]
     }
@@ -1032,11 +1032,11 @@
         "Ten",
         "wachtrij"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "play"
       ],
-      "required_spotify_commands": [
+      "required_music_commands": [
         "play"
       ]
     }
@@ -1056,7 +1056,7 @@
         "huidige nummer",
         "samengesteld"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "artist_recommendations"
       ],
@@ -1077,7 +1077,7 @@
         "versie",
         "live"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status",
         "search_tracks"
       ],
@@ -1099,7 +1099,7 @@
         "Welke artiest bedoel je",
         "Welke"
       ],
-      "allowed_spotify_commands": [
+      "allowed_music_commands": [
         "status"
       ],
       "forbid_spotify_mutations": true
@@ -1138,7 +1138,7 @@
       "success": true,
       "intent": "spotify_playlist_search",
       "intent_category": "informational",
-      "allowed_spotify_commands": ["status", "search_media"],
+      "allowed_music_commands": ["status", "search_media"],
       "forbid_spotify_mutations": true
     }
   },
@@ -1155,7 +1155,7 @@
       "intent": "artist_item_list",
       "intent_category": "informational",
       "contains_any": ["albums", "Radiohead"],
-      "allowed_spotify_commands": ["status", "artist_albums"],
+      "allowed_music_commands": ["status", "artist_albums"],
       "forbid_spotify_mutations": true
     }
   },
@@ -1167,7 +1167,7 @@
       "intent": "artist_item_list",
       "intent_category": "informational",
       "contains_any": ["albums", "Nirvana"],
-      "allowed_spotify_commands": ["status", "artist_albums"],
+      "allowed_music_commands": ["status", "artist_albums"],
       "forbid_spotify_mutations": true
     }
   },
@@ -1178,7 +1178,7 @@
       "success": true,
       "intent": "artist_item_list",
       "intent_category": "informational",
-      "allowed_spotify_commands": ["status", "search_tracks"],
+      "allowed_music_commands": ["status", "search_tracks"],
       "forbid_spotify_mutations": true
     }
   },
@@ -1189,7 +1189,7 @@
       "success": true,
       "intent": "artist_item_list",
       "intent_category": "informational",
-      "allowed_spotify_commands": ["status", "search_tracks"],
+      "allowed_music_commands": ["status", "search_tracks"],
       "forbid_spotify_mutations": true
     }
   },
@@ -1200,7 +1200,7 @@
       "success": true,
       "intent": "similar_artists",
       "intent_category": "informational",
-      "allowed_spotify_commands": ["status", "related_artists", "listening_profile"],
+      "allowed_music_commands": ["status", "related_artists", "listening_profile"],
       "forbid_spotify_mutations": true
     }
   },
@@ -1211,7 +1211,7 @@
       "success": true,
       "intent": "spotify_playlist_search",
       "intent_category": "informational",
-      "allowed_spotify_commands": ["status", "search_playlists"],
+      "allowed_music_commands": ["status", "search_playlists"],
       "forbid_spotify_mutations": true
     }
   },
@@ -1222,7 +1222,7 @@
       "success": true,
       "intent": "spotify_playlist_search",
       "intent_category": "informational",
-      "allowed_spotify_commands": ["status", "search_playlists"],
+      "allowed_music_commands": ["status", "search_playlists"],
       "forbid_spotify_mutations": true
     }
   },
@@ -1233,7 +1233,7 @@
       "success": true,
       "intent": "spotify_user_playlists",
       "intent_category": "informational",
-      "allowed_spotify_commands": ["status", "playlists"],
+      "allowed_music_commands": ["status", "playlists"],
       "forbid_spotify_mutations": true
     }
   },
@@ -1244,7 +1244,7 @@
       "success": true,
       "intent": "artist_more_tracks",
       "intent_category": "informational",
-      "allowed_spotify_commands": ["status", "search_tracks"],
+      "allowed_music_commands": ["status", "search_tracks"],
       "forbid_spotify_mutations": true
     }
   },
@@ -1255,7 +1255,7 @@
       "success": true,
       "intent": "build_playlist_from_seeds",
       "intent_category": "informational",
-      "allowed_spotify_commands": ["status", "artist_recommendations"],
+      "allowed_music_commands": ["status", "artist_recommendations"],
       "forbid_spotify_mutations": true
     }
   },
@@ -1266,7 +1266,7 @@
       "success": true,
       "intent": "current_track_seed_mix",
       "intent_category": "informational",
-      "allowed_spotify_commands": ["status", "artist_recommendations", "search_tracks"],
+      "allowed_music_commands": ["status", "artist_recommendations", "search_tracks"],
       "forbid_spotify_mutations": true
     }
   },
@@ -1279,7 +1279,7 @@
       "intent_category": "informational",
       "action": "devices",
       "playback_action_kinds_include": ["output"],
-      "allowed_spotify_commands": ["status", "devices"],
+      "allowed_music_commands": ["status", "devices"],
       "forbid_spotify_mutations": true
     }
   },
@@ -1291,24 +1291,24 @@
       "intent": "list_outputs",
       "intent_category": "informational",
       "action": "devices",
-      "allowed_spotify_commands": ["status", "devices"],
+      "allowed_music_commands": ["status", "devices"],
       "forbid_spotify_mutations": true
     }
   },
   {
     "id": "help_prompt_current_output",
     "request": {"text": "Waarop speelt de muziek?", "client_type": "ios"},
-    "expect": {"success": true, "intent": "current_output", "intent_category": "informational", "action": "status", "allowed_spotify_commands": ["status"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "current_output", "intent_category": "informational", "action": "status", "allowed_music_commands": ["status"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_pause",
     "request": {"text": "Pauzeer", "client_type": "ios"},
-    "expect": {"success": true, "intent": "playback_control", "intent_category": "action", "action": "pause", "required_spotify_commands": ["status", "pause"], "allowed_spotify_commands": ["status", "pause"]}
+    "expect": {"success": true, "intent": "playback_control", "intent_category": "action", "action": "pause", "required_music_commands": ["status", "pause"], "allowed_music_commands": ["status", "pause"]}
   },
   {
     "id": "help_prompt_resume",
     "request": {"text": "Speel verder", "client_type": "ios"},
-    "expect": {"success": true, "intent": "playback_control", "intent_category": "action", "action": "play", "required_spotify_commands": ["status", "play"], "allowed_spotify_commands": ["status", "play"]}
+    "expect": {"success": true, "intent": "playback_control", "intent_category": "action", "action": "play", "required_music_commands": ["status", "play"], "allowed_music_commands": ["status", "play"]}
   },
   {
     "id": "help_prompt_next",
@@ -1323,122 +1323,122 @@
   {
     "id": "help_prompt_queue",
     "request": {"text": "Wat staat er in de wachtrij?", "client_type": "ios"},
-    "expect": {"success": true, "intent": "next_track_info", "intent_category": "informational", "allowed_spotify_commands": ["status", "queue"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "next_track_info", "intent_category": "informational", "allowed_music_commands": ["status", "queue"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_next_track",
     "request": {"text": "Wat wordt het volgende nummer?", "client_type": "ios"},
-    "expect": {"success": true, "intent": "next_track_info", "intent_category": "informational", "allowed_spotify_commands": ["status", "queue"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "next_track_info", "intent_category": "informational", "allowed_music_commands": ["status", "queue"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_louder",
     "request": {"text": "Harder", "client_type": "ios"},
-    "expect": {"success": true, "intent": "playback_control", "intent_category": "action", "action": "volume_delta", "required_spotify_commands": ["status", "set_volume"], "allowed_spotify_commands": ["status", "set_volume"]}
+    "expect": {"success": true, "intent": "playback_control", "intent_category": "action", "action": "volume_delta", "required_music_commands": ["status", "set_volume"], "allowed_music_commands": ["status", "set_volume"]}
   },
   {
     "id": "help_prompt_quieter",
     "request": {"text": "Zachter", "client_type": "ios"},
-    "expect": {"success": true, "intent": "playback_control", "intent_category": "action", "action": "volume_delta", "required_spotify_commands": ["status", "set_volume"], "allowed_spotify_commands": ["status", "set_volume"]}
+    "expect": {"success": true, "intent": "playback_control", "intent_category": "action", "action": "volume_delta", "required_music_commands": ["status", "set_volume"], "allowed_music_commands": ["status", "set_volume"]}
   },
   {
     "id": "help_prompt_shuffle_on",
     "request": {"text": "Shuffle aan", "client_type": "ios"},
-    "expect": {"success": true, "intent": "playback_control", "intent_category": "action", "action": "set_shuffle", "required_spotify_commands": ["status", "set_shuffle"], "allowed_spotify_commands": ["status", "set_shuffle"]}
+    "expect": {"success": true, "intent": "playback_control", "intent_category": "action", "action": "set_shuffle", "required_music_commands": ["status", "set_shuffle"], "allowed_music_commands": ["status", "set_shuffle"]}
   },
   {
     "id": "help_prompt_repeat_off",
     "request": {"text": "Repeat uit", "client_type": "ios"},
-    "expect": {"success": true, "intent": "playback_control", "intent_category": "action", "action": "set_repeat", "required_spotify_commands": ["status", "set_repeat"], "allowed_spotify_commands": ["status", "set_repeat"]}
+    "expect": {"success": true, "intent": "playback_control", "intent_category": "action", "action": "set_repeat", "required_music_commands": ["status", "set_repeat"], "allowed_music_commands": ["status", "set_repeat"]}
   },
   {
     "id": "help_prompt_favorite_current_track",
     "request": {"text": "Zet huidig nummer in favorieten", "client_type": "ios"},
-    "expect": {"success": true, "intent": "playback_control", "intent_category": "action", "action": "set_current_track_favorite", "required_spotify_commands": ["status", "set_current_track_favorite"], "allowed_spotify_commands": ["status", "set_current_track_favorite"]}
+    "expect": {"success": true, "intent": "playback_control", "intent_category": "action", "action": "set_current_track_favorite", "required_music_commands": ["status", "set_current_track_favorite"], "allowed_music_commands": ["status", "set_current_track_favorite"]}
   },
   {
     "id": "help_prompt_now_playing",
     "request": {"text": "Wat speelt er nu?", "client_type": "ios"},
-    "expect": {"success": true, "intent": "current_track_reference", "intent_category": "informational", "allowed_spotify_commands": ["status"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "current_track_reference", "intent_category": "informational", "allowed_music_commands": ["status"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_why_this_track",
     "request": {"text": "Waarom koos je dit nummer?", "client_type": "ios"},
-    "expect": {"success": true, "intent": "ask_music_info", "intent_category": "informational", "allowed_spotify_commands": ["status", "artist_profile"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "ask_music_info", "intent_category": "informational", "allowed_music_commands": ["status", "artist_profile"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_artist_info",
     "request": {"text": "Vertel iets over deze artiest", "client_type": "ios"},
-    "expect": {"success": true, "intent": "ask_music_info", "intent_category": "informational", "allowed_spotify_commands": ["status", "artist_profile"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "ask_music_info", "intent_category": "informational", "allowed_music_commands": ["status", "artist_profile"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_which_track_next",
     "request": {"text": "Welk nummer komt hierna?", "client_type": "ios"},
-    "expect": {"success": true, "intent": "next_track_info", "intent_category": "informational", "allowed_spotify_commands": ["status", "queue"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "next_track_info", "intent_category": "informational", "allowed_music_commands": ["status", "queue"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_live_version",
     "request": {"text": "Heb je een live versie?", "client_type": "ios"},
-    "expect": {"success": true, "intent": "current_track_versions", "intent_category": "informational", "allowed_spotify_commands": ["status", "search_tracks"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "current_track_versions", "intent_category": "informational", "allowed_music_commands": ["status", "search_tracks"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_acoustic_version",
     "request": {"text": "Heb je een akoestische versie?", "client_type": "ios"},
-    "expect": {"success": true, "intent": "current_track_versions", "intent_category": "informational", "allowed_spotify_commands": ["status", "search_tracks"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "current_track_versions", "intent_category": "informational", "allowed_music_commands": ["status", "search_tracks"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_remixes",
     "request": {"text": "Heb je remixes?", "client_type": "ios"},
-    "expect": {"success": true, "intent": "current_track_versions", "intent_category": "informational", "allowed_spotify_commands": ["status", "search_tracks"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "current_track_versions", "intent_category": "informational", "allowed_music_commands": ["status", "search_tracks"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_dj_intro",
     "request": {"text": "Geef een DJ intro voor dit nummer", "client_type": "ios", "audio_response": "never"},
-    "expect": {"success": true, "intent": "dj_announcement", "intent_category": "hybrid", "action": "announce", "allowed_spotify_commands": ["status"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "dj_announcement", "intent_category": "hybrid", "action": "announce", "allowed_music_commands": ["status"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_analyse_current_track",
     "request": {"text": "Analyseer dit nummer", "client_type": "ios"},
-    "expect": {"success": true, "intent": "technical_track_analysis", "intent_category": "informational", "action": "track_analysis", "allowed_spotify_commands": ["status", "technical_track_analysis"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "technical_track_analysis", "intent_category": "informational", "action": "track_analysis", "allowed_music_commands": ["status", "technical_track_analysis"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_current_genre",
     "request": {"text": "Wat voor genre is dit?", "client_type": "ios"},
-    "expect": {"success": true, "intent": "ask_music_info", "intent_category": "informational", "allowed_spotify_commands": ["status", "artist_profile"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "ask_music_info", "intent_category": "informational", "allowed_music_commands": ["status", "artist_profile"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_memory_summary",
     "request": {"text": "Wat weet je nu over mij?", "client_type": "ios"},
-    "expect": {"success": true, "intent": "personal_memory_summary", "intent_category": "informational", "action": "memory_summary", "allowed_spotify_commands": ["status"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "personal_memory_summary", "intent_category": "informational", "action": "memory_summary", "allowed_music_commands": ["status"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_profile_analysis",
     "request": {"text": "Analyseer mijn luisterprofiel", "client_type": "ios"},
-    "expect": {"success": true, "intent": "personal_music_profile_analysis", "intent_category": "informational", "action": "profile_analysis", "allowed_spotify_commands": ["status", "listening_profile"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "personal_music_profile_analysis", "intent_category": "informational", "action": "profile_analysis", "allowed_music_commands": ["status", "listening_profile"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_last_month",
     "request": {"text": "Wat luisterde ik de afgelopen maand?", "client_type": "ios"},
-    "expect": {"success": true, "intent": "personal_music_profile_analysis", "intent_category": "informational", "action": "profile_analysis", "allowed_spotify_commands": ["status", "listening_profile"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "personal_music_profile_analysis", "intent_category": "informational", "action": "profile_analysis", "allowed_music_commands": ["status", "listening_profile"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_personal_recommendations",
     "request": {"text": "Geef persoonlijke muziekaanbevelingen", "client_type": "ios"},
-    "expect": {"success": true, "intent": "personal_music_recommendations", "intent_category": "informational", "action": "none", "allowed_spotify_commands": ["status", "listening_profile"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "personal_music_recommendations", "intent_category": "informational", "action": "none", "allowed_music_commands": ["status", "listening_profile"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_artists_taste",
     "request": {"text": "Welke artiesten passen bij mijn smaak?", "client_type": "ios"},
-    "expect": {"success": true, "intent": "personal_artist_recommendations", "intent_category": "informational", "action": "none", "allowed_spotify_commands": ["status", "listening_profile"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "personal_artist_recommendations", "intent_category": "informational", "action": "none", "allowed_music_commands": ["status", "listening_profile"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_more_this_music",
     "request": {"text": "Ik wil meer van deze muziek horen", "client_type": "ios"},
-    "expect": {"success": true, "intent": "current_track_seed_mix", "intent_category": "informational", "allowed_spotify_commands": ["status", "artist_recommendations", "search_tracks"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "current_track_seed_mix", "intent_category": "informational", "allowed_music_commands": ["status", "artist_recommendations", "search_tracks"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_similar_tracks",
     "request": {"text": "Ik wil vergelijkbare tracks", "client_type": "ios"},
-    "expect": {"success": true, "intent": "current_track_seed_mix", "intent_category": "informational", "allowed_spotify_commands": ["status", "artist_recommendations", "play_uris"], "required_spotify_commands": ["play_uris"]}
+    "expect": {"success": true, "intent": "current_track_seed_mix", "intent_category": "informational", "allowed_music_commands": ["status", "artist_recommendations", "play_uris"], "required_music_commands": ["play_uris"]}
   },
   {
     "id": "help_prompt_retry",
@@ -1448,12 +1448,12 @@
   {
     "id": "help_prompt_play_it",
     "request": {"text": "Speel af", "client_type": "ios"},
-    "expect": {"success": true, "intent": "clarification_needed", "intent_category": "informational", "action": "none", "allowed_spotify_commands": ["status"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "clarification_needed", "intent_category": "informational", "action": "none", "allowed_music_commands": ["status"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_live_correction",
     "request": {"text": "Nee, ik bedoel de live versie", "client_type": "ios"},
-    "expect": {"success": true, "intent": "current_track_versions", "intent_category": "informational", "allowed_spotify_commands": ["status", "search_tracks"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "current_track_versions", "intent_category": "informational", "allowed_music_commands": ["status", "search_tracks"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_nineties_only",
@@ -1463,6 +1463,6 @@
   {
     "id": "help_prompt_save_playlist",
     "request": {"text": "Maak hier een playlist van", "client_type": "ios"},
-    "expect": {"success": true, "intent": "save_generated_playlist", "intent_category": "informational", "allowed_spotify_commands": ["status"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "save_generated_playlist", "intent_category": "informational", "allowed_music_commands": ["status"], "forbid_spotify_mutations": true}
   }
 ]

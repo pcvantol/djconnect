@@ -11,7 +11,7 @@ from homeassistant.helpers import intent
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import CONF_DEVICE_NAME, DEFAULT_DEVICE_NAME, DOMAIN
-from .processor import process_text_command
+from .use_cases import run_text_command
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -86,25 +86,14 @@ class DJConnectConversationAgent(conversation.ConversationEntity):
         try:
             context = getattr(user_input, "context", None)
             user_id = getattr(context, "user_id", None)
-            try:
-                result = await process_text_command(
-                    self.hass,
-                    self._runtime,
-                    text,
-                    play=True,
-                    correct_stt=False,
-                    user_id=str(user_id) if user_id else None,
-                )
-            except TypeError as exc:
-                if "unexpected keyword" not in str(exc):
-                    raise
-                result = await process_text_command(
-                    self.hass,
-                    self._runtime,
-                    text,
-                    play=True,
-                    correct_stt=False,
-                )
+            result = await run_text_command(
+                self.hass,
+                self._runtime,
+                text,
+                play=True,
+                correct_stt=False,
+                user_id=str(user_id) if user_id else None,
+            )
 
             speech = str(result.get("dj_text") or "").strip()
 

@@ -92,7 +92,6 @@ from .ha_urls import async_ha_url_payload
 from .ask_dj import async_handle_ask_dj
 from .ask_dj_history import AskDJHistoryManager
 from .memory import DJMemoryManager
-from .processor import process_text_command
 from .push import (
     EVENT_ASK_DJ_CONFIRM,
     async_send_event as async_send_push_event,
@@ -106,7 +105,7 @@ from .spotify_oauth import (
     create_code_verifier,
     ensure_spotify_scopes,
 )
-from .use_cases import music_backend_metadata
+from .use_cases import music_backend_metadata, run_text_command
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -1486,7 +1485,7 @@ def _register_developer_services(
     async def handle_test_parse(call: ServiceCall) -> dict[str, Any] | None:
         text = _service_text(call, DEFAULT_TEST_COMMAND, "command_text")
         _LOGGER.debug("DJConnect developer action test_parse: %s", text)
-        result = await process_text_command(hass, runtime, text, play=False)
+        result = await run_text_command(hass, runtime, text, play=False)
         _LOGGER.debug("DJConnect test_parse: %s", result)
         return result
 
@@ -1505,7 +1504,7 @@ def _register_developer_services(
             play,
             text,
         )
-        result = await process_text_command(hass, runtime, text, play=play)
+        result = await run_text_command(hass, runtime, text, play=play)
         result["dj_response"] = await async_send_dj_response_best_effort(
             hass,
             runtime,
@@ -1528,7 +1527,7 @@ def _register_developer_services(
             "DJConnect developer action test_ptt_text after_stt_text=%s",
             text,
         )
-        result = await process_text_command(
+        result = await run_text_command(
             hass,
             runtime,
             text,

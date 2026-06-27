@@ -31,12 +31,12 @@ from .mood import (
 )
 from .music_intent import parse_spoken_music_request
 from .pipeline import _assist_context, _speech_from_response
-from .processor import process_text_command
 from .smart_home_context import smart_home_context, smart_home_context_text
 from .use_cases import (
     MusicBackendCapabilityError,
     music_backend_action_fields,
-    run_music_command as handle_spotify_command,
+    run_music_command,
+    run_text_command,
 )
 from .track_analysis import async_analyze_current_track
 
@@ -1362,7 +1362,7 @@ async def _handle_action(
 ) -> dict[str, Any]:
     action = classification.action or ""
     if action == "volume_delta":
-        status = await handle_spotify_command(hass, runtime, "status")
+        status = await run_music_command(hass, runtime, "status")
         playback = status.get("playback") if isinstance(status, dict) else {}
         current = _playback_volume(playback, runtime)
         if current is None:
@@ -1372,7 +1372,7 @@ async def _handle_action(
                 "error": "playback_unavailable",
             }
         target = max(0, min(60, current + int(classification.value or 0)))
-        result = await handle_spotify_command(hass, runtime, "set_volume", target)
+        result = await run_music_command(hass, runtime, "set_volume", target)
         return {
             "success": True,
             "text": "Ik heb het volume aangepast.",
@@ -1387,7 +1387,7 @@ async def _handle_action(
         }
     if action in {"pause", "play", "next", "previous"}:
         if action in {"next", "previous"}:
-            result = await process_text_command(
+            result = await run_text_command(
                 hass,
                 runtime,
                 text,
@@ -1412,7 +1412,7 @@ async def _handle_action(
                 "playback_actions": actions,
                 "items": actions,
             }
-        result = await handle_spotify_command(hass, runtime, action)
+        result = await run_music_command(hass, runtime, action)
         text_response = _action_text(action)
         return {
             "success": True,
@@ -1425,17 +1425,17 @@ async def _handle_action(
             "playback_actions": _playback_control_actions(action),
         }
     if action == "set_shuffle":
-        await handle_spotify_command(hass, runtime, "set_shuffle", classification.value)
+        await run_music_command(hass, runtime, "set_shuffle", classification.value)
         text_response = "Shuffle staat aan." if classification.value else "Shuffle staat uit."
         return {"success": True, "text": text_response, "dj_text": text_response, "images": []}
     if action == "set_repeat":
-        await handle_spotify_command(hass, runtime, "set_repeat", classification.value)
+        await run_music_command(hass, runtime, "set_repeat", classification.value)
         text_response = "Repeat is uitgezet." if classification.value == "off" else "Repeat is aangezet."
         return {"success": True, "text": text_response, "dj_text": text_response, "images": []}
     if action in {"save_current_track", "set_current_track_favorite"}:
         target_favorite = classification.value
         command_name = "set_current_track_favorite" if action == "set_current_track_favorite" else "save_current_track"
-        result = await handle_spotify_command(hass, runtime, command_name, target_favorite)
+        result = await run_music_command(hass, runtime, command_name, target_favorite)
         playback = result.get("playback") if isinstance(result, dict) else {}
         title = _track_label(playback) if isinstance(playback, dict) else ""
         favorite_status = _playback_favorite_status(playback) if isinstance(playback, dict) else None
@@ -1473,7 +1473,7 @@ async def _handle_hybrid(
     payload: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     try:
-        result = await process_text_command(
+        result = await run_text_command(
             hass,
             runtime,
             text,
@@ -1569,7 +1569,7 @@ async def _deferred_playback_request_response(
     if _is_fuzzy_music_search_request(_normalize(text)):
         return await _fuzzy_music_search_response(hass, runtime, query or text)
     try:
-        result = await handle_spotify_command(
+        result = await run_music_command(
             hass,
             runtime,
             "search_media",
@@ -1817,7 +1817,7 @@ async def _fuzzy_music_search_response(
     seen: set[str] = set()
     for media_type in ("track", "playlist", "album"):
         try:
-            result = await handle_spotify_command(
+            result = await run_music_command(
                 hass,
                 runtime,
                 "search_media",
@@ -2394,7 +2394,7 @@ async def _spotify_artist_albums(
     artist: str,
 ) -> dict[str, Any]:
     try:
-        result = await handle_spotify_command(
+        result = await run_music_command(
             hass,
             runtime,
             "artist_albums",
@@ -2464,7 +2464,7 @@ async def _next_track_info_response(
     runtime: Any,
 ) -> dict[str, Any]:
     try:
-        result = await handle_spotify_command(hass, runtime, "queue")
+        result = await run_music_command(hass, runtime, "queue")
     except Exception as exc:  # noqa: BLE001
         _LOGGER.debug("DJConnect Spotify queue unavailable for Ask DJ: %s", exc)
         result = {}
@@ -2556,7 +2556,7 @@ async def _next_queue_playback_action(
     current_playback: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     try:
-        result = await handle_spotify_command(hass, runtime, "queue")
+        result = await run_music_command(hass, runtime, "queue")
     except Exception as exc:  # noqa: BLE001
         _LOGGER.debug("DJConnect Spotify queue unavailable after skip: %s", exc)
         return {}
@@ -2617,7 +2617,7 @@ async def _recently_played_history_response(
 ) -> dict[str, Any]:
     window = _recently_played_window(text)
     try:
-        result = await handle_spotify_command(
+        result = await run_music_command(
             hass,
             runtime,
             "recently_played",
@@ -3134,7 +3134,7 @@ async def _play_current_album_response(
     if not uri:
         text = f"Ik weet dat dit {album} is, maar ik kan de Spotify album-URI nu niet vinden."
         return {"success": True, "text": text, "dj_text": text, "action": "none"}
-    result = await handle_spotify_command(hass, runtime, "play", uri, play=True)
+    result = await run_music_command(hass, runtime, "play", uri, play=True)
     text = f"{album} is in je wachtrij gezet."
     return {
         "success": True,
@@ -3158,7 +3158,7 @@ async def _play_album_containing_track_response(
         text = "Welk nummer en welke artiest bedoel je?"
         return {"success": True, "text": text, "dj_text": text, "action": "none"}
     try:
-        result = await handle_spotify_command(
+        result = await run_music_command(
             hass,
             runtime,
             "search_media",
@@ -3186,7 +3186,7 @@ async def _play_album_containing_track_response(
             "action": "none",
             "sources": [{"source": "spotify_search", "title": "Spotify search", "kind": "source"}],
         }
-    playback = await handle_spotify_command(hass, runtime, "play", uri, play=True)
+    playback = await run_music_command(hass, runtime, "play", uri, play=True)
     text = f"{album} is in je wachtrij gezet."
     return {
         "success": True,
@@ -3359,7 +3359,7 @@ async def _track_owner_response(
         text = "Welk nummer bedoel je?"
         return {"success": True, "text": text, "dj_text": text, "action": "none"}
     try:
-        result = await handle_spotify_command(
+        result = await run_music_command(
             hass,
             runtime,
             "search_media",
@@ -3463,7 +3463,7 @@ async def _search_current_album_uri(
     if not query:
         return ""
     try:
-        result = await handle_spotify_command(
+        result = await run_music_command(
             hass,
             runtime,
             "search_media",
@@ -3566,7 +3566,7 @@ async def _spotify_related_artists(
     artist: str,
 ) -> dict[str, Any]:
     try:
-        result = await handle_spotify_command(
+        result = await run_music_command(
             hass,
             runtime,
             "related_artists",
@@ -3584,7 +3584,7 @@ async def _spotify_artist_profile(
     artist: str,
 ) -> dict[str, Any]:
     try:
-        result = await handle_spotify_command(
+        result = await run_music_command(
             hass,
             runtime,
             "artist_profile",
@@ -5475,7 +5475,7 @@ async def _spotify_seed_mix(
     seeds: dict[str, list[str]],
 ) -> dict[str, Any]:
     try:
-        result = await handle_spotify_command(
+        result = await run_music_command(
             hass,
             runtime,
             "artist_recommendations",
@@ -5523,7 +5523,7 @@ async def _current_track_seed_mix_response(
         playback_result = {}
         if uris:
             try:
-                playback_result = await handle_spotify_command(hass, runtime, "play_uris", uris, play=True)
+                playback_result = await run_music_command(hass, runtime, "play_uris", uris, play=True)
             except Exception as exc:  # noqa: BLE001
                 _LOGGER.debug("DJConnect current-track similar queue failed: %s", exc)
         if track_actions and playback_result:
@@ -5761,7 +5761,7 @@ async def _song_recommendations_response(
         message = "Welke stijl of sfeer zoek je voor die nummers?"
         return {"success": True, "text": message, "dj_text": message, "action": "none"}
     try:
-        result = await handle_spotify_command(
+        result = await run_music_command(
             hass,
             runtime,
             "artist_recommendations",
@@ -5889,7 +5889,7 @@ async def _save_generated_playlist(
         return {"success": True, "text": message, "dj_text": message, "action": "none"}
     name = _playlist_name_from_save_request(text) or str(recommendation.get("title") or "DJConnect mix")
     try:
-        result = await handle_spotify_command(
+        result = await run_music_command(
             hass,
             runtime,
             "create_playlist",
@@ -5967,7 +5967,7 @@ async def _spotify_playlist_search(
     limit: int = 10,
 ) -> dict[str, Any]:
     try:
-        result = await handle_spotify_command(
+        result = await run_music_command(
             hass,
             runtime,
             "search_playlists",
@@ -5987,7 +5987,7 @@ async def _spotify_track_search(
     limit: int = 10,
 ) -> dict[str, Any]:
     try:
-        result = await handle_spotify_command(
+        result = await run_music_command(
             hass,
             runtime,
             "search_tracks",
@@ -6007,7 +6007,7 @@ async def _spotify_album_search(
     limit: int = 10,
 ) -> dict[str, Any]:
     try:
-        result = await handle_spotify_command(
+        result = await run_music_command(
             hass,
             runtime,
             "search_albums",
@@ -6224,7 +6224,7 @@ async def _artist_fun_queue_response(
     playback_result: dict[str, Any] = {}
     if uris:
         try:
-            playback_result = await handle_spotify_command(hass, runtime, "play_uris", uris, play=True)
+            playback_result = await run_music_command(hass, runtime, "play_uris", uris, play=True)
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect artist fun queue failed: %s", exc)
     if actions and playback_result:
@@ -6576,7 +6576,7 @@ async def _spotify_user_playlists(
     limit: int = 10,
 ) -> dict[str, Any]:
     try:
-        result = await handle_spotify_command(
+        result = await run_music_command(
             hass,
             runtime,
             "playlists",
@@ -6897,7 +6897,7 @@ async def _listening_profile_context(
     if fresh and stored:
         return stored
     try:
-        result = await handle_spotify_command(hass, runtime, "listening_profile")
+        result = await run_music_command(hass, runtime, "listening_profile")
     except Exception as exc:  # noqa: BLE001
         _LOGGER.debug("DJConnect Spotify listening profile unavailable: %s", exc)
         return stored if isinstance(stored, dict) else {}
@@ -7419,7 +7419,7 @@ def _identity_payload(runtime: Any, payload: dict[str, Any]) -> dict[str, Any]:
 
 async def _playback_context(hass: HomeAssistant, runtime: Any) -> dict[str, Any]:
     try:
-        result = await handle_spotify_command(hass, runtime, "status")
+        result = await run_music_command(hass, runtime, "status")
         playback = result.get("playback") if isinstance(result, dict) else {}
         return playback if isinstance(playback, dict) else {}
     except Exception:  # noqa: BLE001
@@ -7436,7 +7436,7 @@ async def _output_devices(
         devices = status.get("available_outputs")
         return devices if isinstance(devices, list) else []
     try:
-        result = await handle_spotify_command(hass, runtime, "devices")
+        result = await run_music_command(hass, runtime, "devices")
         devices = result.get("devices") if isinstance(result, dict) else []
         return devices if isinstance(devices, list) else []
     except Exception:  # noqa: BLE001
@@ -7865,7 +7865,7 @@ async def _store_pending_followup(
 
 async def _available_output_devices(hass: HomeAssistant, runtime: Any) -> list[dict[str, Any]]:
     try:
-        result = await handle_spotify_command(hass, runtime, "devices")
+        result = await run_music_command(hass, runtime, "devices")
         devices = result.get("devices") if isinstance(result, dict) else []
         if isinstance(devices, list) and devices:
             return [device for device in devices if isinstance(device, dict)]

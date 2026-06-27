@@ -80,13 +80,13 @@ def install_conversation_stubs() -> None:
     package = types.ModuleType("custom_components.djconnect")
     package.__path__ = [str(ROOT / "custom_components" / "djconnect")]
     sys.modules["custom_components.djconnect"] = package
-    processor = types.ModuleType("custom_components.djconnect.processor")
+    use_cases = types.ModuleType("custom_components.djconnect.use_cases")
 
-    async def process_text_command(*args, **kwargs):
+    async def run_text_command(*args, **kwargs):
         return {"dj_text": ""}
 
-    processor.process_text_command = process_text_command
-    sys.modules["custom_components.djconnect.processor"] = processor
+    use_cases.run_text_command = run_text_command
+    sys.modules["custom_components.djconnect.use_cases"] = use_cases
 
 
 class ConversationAgentTest(unittest.TestCase):
@@ -104,6 +104,7 @@ class ConversationAgentTest(unittest.TestCase):
     def tearDownClass(cls) -> None:
         for module_name in (
             "custom_components.djconnect.conversation",
+            "custom_components.djconnect.use_cases",
             "custom_components.djconnect.processor",
             "custom_components.djconnect.const",
             "custom_components.djconnect",
@@ -137,8 +138,8 @@ class ConversationAgentTest(unittest.TestCase):
     def test_process_returns_dj_text_from_command_flow(self) -> None:
         calls = []
 
-        async def process_text_command(hass, runtime, text, *, play, correct_stt):
-            calls.append((hass, runtime, text, play, correct_stt))
+        async def run_text_command(hass, runtime, text, *, play, correct_stt, user_id=None):
+            calls.append((hass, runtime, text, play, correct_stt, user_id))
             return {"dj_text": "Daar is Strobe van Deadmau5."}
 
         runtime = types.SimpleNamespace(
@@ -154,19 +155,19 @@ class ConversationAgentTest(unittest.TestCase):
             language="nl-NL",
             conversation_id="conv-1",
         )
-        original = self.conversation.process_text_command
-        self.conversation.process_text_command = process_text_command
+        original = self.conversation.run_text_command
+        self.conversation.run_text_command = run_text_command
         try:
             result = asyncio.run(agent.async_process(user_input))
         finally:
-            self.conversation.process_text_command = original
+            self.conversation.run_text_command = original
 
         self.assertEqual(result.response.speech, "Daar is Strobe van Deadmau5.")
         self.assertEqual(result.conversation_id, "conv-1")
-        self.assertEqual(calls, [(hass, runtime, "speel Strobe van Deadmau5", True, False)])
+        self.assertEqual(calls, [(hass, runtime, "speel Strobe van Deadmau5", True, False, None)])
 
     def test_process_error_returns_friendly_speech(self) -> None:
-        async def process_text_command(hass, runtime, text, *, play, correct_stt):
+        async def run_text_command(hass, runtime, text, *, play, correct_stt, user_id=None):
             raise RuntimeError("boom")
 
         updates = []
@@ -182,12 +183,12 @@ class ConversationAgentTest(unittest.TestCase):
             language="en-US",
             conversation_id=None,
         )
-        original = self.conversation.process_text_command
-        self.conversation.process_text_command = process_text_command
+        original = self.conversation.run_text_command
+        self.conversation.run_text_command = run_text_command
         try:
             result = asyncio.run(agent.async_process(user_input))
         finally:
-            self.conversation.process_text_command = original
+            self.conversation.run_text_command = original
 
         self.assertEqual(
             result.response.speech,

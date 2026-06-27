@@ -15,6 +15,10 @@
   adapter; Music Assistant is a small HA `media_player` adapter, not a
   replacement for the DJConnect DJ/voice/intent/memory layer and not a
   DJConnect-side provider registry, library index or queue/grouping engine.
+- HA/AI-facing tool surfaces must stay on top of use-cases: developer services,
+  Assist conversation, HTTP command/status routes, Ask DJ and HA playback
+  entities should call `run_music_command` or `run_text_command`, not Spotify
+  Direct helpers or processor internals directly.
 - The options flow now includes explicit `Muziekbackend wijzigen` / `Change
   music backend`. Switching preserves pairing, device tokens, Ask DJ
   history/memory and push registrations, bumps `music_backend_revision`, hides
@@ -132,6 +136,10 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
   instead of importing Spotify Direct helpers. The use-case layer normalizes
   provider/source/backend availability fields while preserving the existing
   client response shapes.
+- New HA service, Assist-agent, HTTP route or future AI-tool code that handles
+  natural-language requests should call `run_text_command` from the same
+  use-case module instead of importing `processor.process_text_command`
+  directly.
 - Backend choice is explicit per entry: `spotify_direct` or `music_assistant`,
   with no Auto mode. Spotify Direct keeps DJConnect PKCE OAuth and Spotify
   repairs. Music Assistant skips DJConnect Spotify Client ID/OAuth/repairs and

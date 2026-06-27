@@ -69,7 +69,6 @@ from .assist_stt import (
 from .dj_response import async_create_dj_audio_url, async_send_dj_response_best_effort, get_tts_audio
 from .ha_urls import async_ha_url_payload
 from .mood import enrich_payload_with_mood_zone
-from .processor import process_text_command
 from .push import (
     EVENT_ASK_DJ_CONFIRM,
     EVENT_ASK_DJ_RESPONSE,
@@ -82,7 +81,8 @@ from .spotify_backend import SpotifyBackendError
 from .use_cases import (
     MusicBackendCapabilityError,
     music_backend_metadata,
-    run_music_command as handle_spotify_command,
+    run_music_command,
+    run_text_command,
 )
 from .spotify_oauth import exchange_code_for_refresh_token
 
@@ -835,7 +835,7 @@ async def _update_memory_metadata(
     return await updater(runtime, payload or {}, user_id=user_id)
 
 
-async def _process_text_command_with_memory(
+async def _run_text_command_with_memory(
     hass: Any,
     runtime: Any,
     user_text: str,
@@ -846,7 +846,7 @@ async def _process_text_command_with_memory(
     user_id: str | None,
 ) -> dict[str, Any]:
     try:
-        return await process_text_command(
+        return await run_text_command(
             hass,
             runtime,
             user_text,
@@ -858,7 +858,7 @@ async def _process_text_command_with_memory(
     except TypeError as exc:
         if "unexpected keyword" not in str(exc):
             raise
-        return await process_text_command(
+        return await run_text_command(
             hass,
             runtime,
             user_text,
@@ -1139,7 +1139,7 @@ def _backend_unavailable_payload(
 def _unsupported_backend_capability_payload(
     hass: Any,
     runtime: Any,
-    exc: MusicBackendCapabilityError,
+    exc: Exception,
 ) -> dict[str, Any]:
     """Return the stable client contract for unsupported backend capabilities."""
     payload = {
@@ -1153,6 +1153,13 @@ def _unsupported_backend_capability_payload(
     }
     payload.update(music_backend_metadata(hass, runtime))
     return payload
+
+
+def _looks_like_backend_capability_error(exc: Exception) -> bool:
+    """Return true for capability errors even after test/module reload boundaries."""
+    return isinstance(exc, MusicBackendCapabilityError) or (
+        hasattr(exc, "capability") and hasattr(exc, "backend")
+    )
 
 
 def _status_playback_unavailable_payload() -> dict[str, Any]:
@@ -1176,7 +1183,7 @@ def _client_status_uses_backend_playback(client_type: str | None) -> bool:
 async def _status_playback_payload(hass: Any, runtime: Any) -> dict[str, Any]:
     """Fetch the canonical command=status playback shape for app status responses."""
     try:
-        result = await handle_spotify_command(hass, runtime, "status")
+        result = await run_music_command(hass, runtime, "status")
     except MusicBackendCapabilityError as exc:
         _LOGGER.debug(
             "DJConnect status playback unsupported by selected backend: %s",
@@ -1290,7 +1297,7 @@ async def _handle_volume_delta_command(hass: Any, runtime: Any, value: Any) -> d
             "links": [],
             "sources": [],
         }
-    status = await handle_spotify_command(hass, runtime, "status")
+    status = await run_music_command(hass, runtime, "status")
     playback = status.get("playback") if isinstance(status, dict) else {}
     current = _playback_volume_percent(playback, runtime)
     if current is None:
@@ -1303,7 +1310,7 @@ async def _handle_volume_delta_command(hass: Any, runtime: Any, value: Any) -> d
             "sources": [],
         }
     target = max(0, min(60, current + delta))
-    result = await handle_spotify_command(hass, runtime, "set_volume", target)
+    result = await run_music_command(hass, runtime, "set_volume", target)
     return {
         "success": True,
         "text": "Ik heb het volume aangepast.",
@@ -1387,7 +1394,7 @@ async def _handle_ask_dj_play_recommendation(
                 **backend_meta,
             }
         try:
-            result = await handle_spotify_command(hass, runtime, "play", media_value, play=True)
+            result = await run_music_command(hass, runtime, "play", media_value, play=True)
         except MusicBackendCapabilityError as exc:
             return _unsupported_backend_capability_payload(hass, runtime, exc)
         except SpotifyBackendError as exc:
@@ -1437,9 +1444,9 @@ async def _handle_ask_dj_play_recommendation(
         }
     try:
         if kind == "track_mix":
-            result = await handle_spotify_command(hass, runtime, "play_uris", uris, play=True)
+            result = await run_music_command(hass, runtime, "play_uris", uris, play=True)
         elif kind == "track" and context_uri and offset_uri:
-            result = await handle_spotify_command(
+            result = await run_music_command(
                 hass,
                 runtime,
                 "play_context_at",
@@ -1447,10 +1454,10 @@ async def _handle_ask_dj_play_recommendation(
                 play=True,
             )
         elif kind == "track":
-            result = await handle_spotify_command(hass, runtime, "play", uri, play=True)
+            result = await run_music_command(hass, runtime, "play", uri, play=True)
         else:
             target = context_uri or uri
-            result = await handle_spotify_command(hass, runtime, "play", target, play=True)
+            result = await run_music_command(hass, runtime, "play", target, play=True)
     except MusicBackendCapabilityError as exc:
         return _unsupported_backend_capability_payload(hass, runtime, exc)
     except SpotifyBackendError as exc:
@@ -1584,7 +1591,7 @@ async def _handle_ask_dj_play_recommendation_on_output(
             "message": "Ik weet niet welke aanbeveling ik moet afspelen.",
         }
     try:
-        await handle_spotify_command(hass, runtime, "set_output", output_id, play=False)
+        await run_music_command(hass, runtime, "set_output", output_id, play=False)
     except SpotifyBackendError as exc:
         return {
             "success": False,
@@ -1630,7 +1637,7 @@ async def _handle_ask_dj_play_request_on_output(
             "message": "Ik weet niet welk muziekverzoek ik moet starten.",
         }
     try:
-        await handle_spotify_command(hass, runtime, "set_output", output_id, play=False)
+        await run_music_command(hass, runtime, "set_output", output_id, play=False)
     except SpotifyBackendError as exc:
         return {
             "success": False,
@@ -1687,7 +1694,7 @@ async def _speaker_selection_for_recommendation(
 
 async def _available_output_devices(hass: Any, runtime: Any) -> list[dict[str, Any]]:
     try:
-        result = await handle_spotify_command(hass, runtime, "devices")
+        result = await run_music_command(hass, runtime, "devices")
         devices = result.get("devices") if isinstance(result, dict) else []
         if isinstance(devices, list) and devices:
             return [device for device in devices if isinstance(device, dict)]
@@ -2487,7 +2494,7 @@ class DJConnectCommandView(HomeAssistantView):
             result.update(music_backend_metadata(hass, runtime))
             return self.json(result, status_code=200 if result.get("success") else 400)
         try:
-            result = await handle_spotify_command(
+            result = await run_music_command(
                 hass,
                 runtime,
                 command,
@@ -2532,6 +2539,12 @@ class DJConnectCommandView(HomeAssistantView):
                 )
             return self.json(_backend_unavailable_payload(command, runtime, exc))
         except Exception as exc:  # noqa: BLE001
+            if _looks_like_backend_capability_error(exc):
+                runtime.update(last_error=_safe_backend_error_message(exc))
+                return self.json(
+                    _unsupported_backend_capability_payload(hass, runtime, exc),
+                    status_code=400,
+                )
             _LOGGER.warning("DJConnect backend command failed: %s", _safe_backend_error_message(exc))
             runtime.update(last_error=_safe_backend_error_message(exc))
             runtime.device_status["backend_available"] = False
@@ -3196,7 +3209,7 @@ class DJConnectVoiceView(HomeAssistantView):
             _set_device_state(runtime, "processing")
             runtime.update(last_text=user_text, last_error=None)
             try:
-                result = await _process_text_command_with_memory(
+                result = await _run_text_command_with_memory(
                     hass,
                     runtime,
                     user_text,

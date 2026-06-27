@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import importlib
+import sys
 import types
 import unittest
 
@@ -95,6 +96,39 @@ class UseCaseLayerTest(unittest.TestCase):
         self.assertEqual(result["provider"], "minimal")
         self.assertEqual(result["source"], "minimal")
         self.assertEqual(result["playback"], {"has_playback": False})
+
+    def test_run_text_command_delegates_through_use_case_boundary(self) -> None:
+        calls = []
+        processor = types.ModuleType("custom_components.djconnect.processor")
+
+        async def process_text_command(hass, runtime, text, *, play, correct_stt, user_id=None):
+            calls.append((hass, runtime, text, play, correct_stt, user_id))
+            return {"success": True, "dj_text": "Done"}
+
+        processor.process_text_command = process_text_command
+        original = sys.modules.get("custom_components.djconnect.processor")
+        sys.modules["custom_components.djconnect.processor"] = processor
+        try:
+            hass = types.SimpleNamespace()
+            runtime = types.SimpleNamespace(config={})
+            result = asyncio.run(
+                self.use_cases.run_text_command(
+                    hass,
+                    runtime,
+                    "play something",
+                    play=False,
+                    correct_stt=True,
+                    user_id="user-1",
+                )
+            )
+        finally:
+            if original is None:
+                sys.modules.pop("custom_components.djconnect.processor", None)
+            else:
+                sys.modules["custom_components.djconnect.processor"] = original
+
+        self.assertEqual(result["dj_text"], "Done")
+        self.assertEqual(calls, [(hass, runtime, "play something", False, True, "user-1")])
 
     def test_music_assistant_backend_routes_player_services(self) -> None:
         uc = self.use_cases

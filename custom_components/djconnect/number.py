@@ -11,7 +11,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import CLIENT_TYPE_ESP32, DOMAIN
 from .entity_ids import entry_unique_id
-from .use_cases import run_music_command as handle_spotify_command
+from .use_cases import run_music_command
 
 MIN_VOLUME = 0.0
 MAX_VOLUME = 60.0
@@ -102,7 +102,7 @@ class DJConnectVolumeNumber(NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         volume = max(MIN_VOLUME, min(MAX_VOLUME, float(value)))
-        await handle_spotify_command(
+        await run_music_command(
             self.hass,
             self.runtime,
             "set_volume",
@@ -113,7 +113,7 @@ class DJConnectVolumeNumber(NumberEntity):
 
     async def async_update(self) -> None:
         try:
-            await handle_spotify_command(self.hass, self.runtime, "status")
+            await run_music_command(self.hass, self.runtime, "status")
         except Exception:  # noqa: BLE001
             return
 

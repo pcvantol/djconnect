@@ -90,6 +90,10 @@ Pattern:
   instead of importing Spotify Direct helpers directly. This includes
   `/api/djconnect/command`, app/ESP status playback refresh, Ask DJ, voice
   processor commands and HA playback entities.
+- HA and AI-facing tool surfaces call `run_music_command(...)` or
+  `run_text_command(...)`: developer services, the Assist conversation agent,
+  HTTP command/status routes, Ask DJ and playback entities should stay thin and
+  should not import backend adapters or processor internals directly.
 - `SpotifyDirectBackend` is the default adapter. It delegates to the existing
   Spotify Web API implementation while keeping OAuth refresh, Spotify Connect
   device handling, playlists, queue, recent-played, favorites and URI mapping
@@ -98,10 +102,9 @@ Pattern:
   actions, so a future backend can report that it lacks queue, output, volume,
   favorites, recommendations or profile support without leaking provider
   details into HTTP handlers.
-- Music Assistant support should be added later as another adapter behind this
-  interface. DJConnect must not build a Music Assistant clone, global provider
-  registry, universal library index, queue engine or player grouping/sync
-  engine.
+- Music Assistant is another adapter behind this interface. DJConnect must not
+  build a Music Assistant clone, global provider registry, universal library
+  index, queue engine or player grouping/sync engine.
 
 Primary source files:
 
@@ -550,7 +553,7 @@ Why:
 Pattern:
 
 - `custom_components/djconnect/use_cases.py` is the thin use-case boundary for
-  playback commands.
+  playback and natural-language command execution.
 - `SpotifyDirectBackend` wraps the existing Spotify Web API backend.
 - `MusicAssistantBackend` targets one configured Music Assistant
   `media_player` through Home Assistant `media_player` services.

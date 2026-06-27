@@ -60,7 +60,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
         install_processor_stubs()
         cls.processor = importlib.import_module("custom_components.djconnect.processor")
 
-    def test_process_text_command_updates_text_before_processing_result(self) -> None:
+    def test_run_text_command_updates_text_before_processing_result(self) -> None:
         async def assist(hass, user_text, conf):
             return {
                 "type": "search",
@@ -112,7 +112,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
         self.assertEqual(runtime.last_playback["resolved_media"]["title"], "Black")
         self.assertEqual(result["playback"]["resolved_media"]["artist"], "Pearl Jam")
 
-    def test_process_text_command_falls_back_to_local_spotify_search_when_assist_fails(self) -> None:
+    def test_run_text_command_falls_back_to_local_spotify_search_when_assist_fails(self) -> None:
         async def assist(hass, user_text, conf):
             raise RuntimeError("HA Assist unavailable")
 
@@ -153,7 +153,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
         self.assertEqual(runtime.last_intent["spotify_search_query"], "Armin")
         self.assertEqual(result["playback"]["resolved_media"]["name"], "Armin van Buuren")
 
-    def test_process_text_command_corrects_stt_before_intent_parsing(self) -> None:
+    def test_run_text_command_corrects_stt_before_intent_parsing(self) -> None:
         seen = {}
 
         async def correct(hass, user_text, conf):
@@ -208,7 +208,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
         self.assertEqual(result["stt_text"], "speel nummer litiem van nervana")
         self.assertEqual(result["corrected_text"], "speel nummer Lithium van Nirvana")
 
-    def test_process_text_command_uses_generated_dj_response_for_resolved_track(self) -> None:
+    def test_run_text_command_uses_generated_dj_response_for_resolved_track(self) -> None:
         async def assist(hass, user_text, conf):
             return {
                 "type": "search",
@@ -279,7 +279,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
             "Pearl Jam komt binnen alsof de festivalweide net wakker wordt.",
         )
 
-    def test_process_text_command_uses_generated_dj_response_for_resolved_album(self) -> None:
+    def test_run_text_command_uses_generated_dj_response_for_resolved_album(self) -> None:
         async def assist(hass, user_text, conf):
             return {
                 "type": "album",
@@ -416,7 +416,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
             "Je luistert naar Radiohead met hun album OK Computer. Hier is het eerste nummer op het album, Airbag.",
         )
 
-    def test_process_text_command_adds_current_track_to_artist_dj_response_media(self) -> None:
+    def test_run_text_command_adds_current_track_to_artist_dj_response_media(self) -> None:
         async def assist(hass, user_text, conf):
             return {
                 "type": "artist",
@@ -490,7 +490,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
 
         self.assertEqual(result["dj_text"], "Pearl Jam met Soldier of Love staat klaar.")
 
-    def test_process_text_command_uses_plain_fallback_when_assist_generation_fails(self) -> None:
+    def test_run_text_command_uses_plain_fallback_when_assist_generation_fails(self) -> None:
         async def assist(hass, user_text, conf):
             return {
                 "type": "search",
@@ -542,7 +542,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
         )
         self.assertNotIn("spotify:artist", result["dj_text"])
 
-    def test_process_text_command_does_not_use_stale_device_playback_for_dj_response(self) -> None:
+    def test_run_text_command_does_not_use_stale_device_playback_for_dj_response(self) -> None:
         async def assist(hass, user_text, conf):
             return {
                 "type": "search",
@@ -647,7 +647,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
         self.assertEqual(seen_intents[0]["spotify_search_query"], "dj paul elstak")
         self.assertEqual(result["playback"]["resolved_media"]["artist"], "DJ Paul Elstak")
 
-    def test_process_text_command_ignores_conflicting_resolved_media_for_dj_response(self) -> None:
+    def test_run_text_command_ignores_conflicting_resolved_media_for_dj_response(self) -> None:
         async def assist(hass, user_text, conf):
             return {
                 "type": "artist",
@@ -733,10 +733,10 @@ class ProcessorRuntimeTest(unittest.TestCase):
             return "Je hoort nu Black van Pearl Jam, van Ten."
 
         original_play = self.processor.play_from_intent
-        original_status = self.processor.handle_spotify_command
+        original_status = self.processor.run_music_command
         original_dj_response = self.processor.generate_dj_response_with_assist
         self.processor.play_from_intent = play
-        self.processor.handle_spotify_command = status
+        self.processor.run_music_command = status
         self.processor.generate_dj_response_with_assist = generated_dj_response
         runtime = Runtime()
         runtime.config = {"tts_language": "nl"}
@@ -751,7 +751,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
             )
         finally:
             self.processor.play_from_intent = original_play
-            self.processor.handle_spotify_command = original_status
+            self.processor.run_music_command = original_status
             self.processor.generate_dj_response_with_assist = original_dj_response
 
         self.assertEqual(calls, ["status"])
@@ -775,9 +775,9 @@ class ProcessorRuntimeTest(unittest.TestCase):
             self.assertFalse(media["has_playback"])
             return fallback_text
 
-        original_status = self.processor.handle_spotify_command
+        original_status = self.processor.run_music_command
         original_dj_response = self.processor.generate_dj_response_with_assist
-        self.processor.handle_spotify_command = status
+        self.processor.run_music_command = status
         self.processor.generate_dj_response_with_assist = generated_dj_response
         runtime = Runtime()
         runtime.config = {"tts_language": "nl"}
@@ -791,7 +791,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
                 )
             )
         finally:
-            self.processor.handle_spotify_command = original_status
+            self.processor.run_music_command = original_status
             self.processor.generate_dj_response_with_assist = original_dj_response
 
         self.assertEqual(
@@ -808,9 +808,9 @@ class ProcessorRuntimeTest(unittest.TestCase):
             self.assertFalse(media["has_playback"])
             return fallback_text
 
-        original_status = self.processor.handle_spotify_command
+        original_status = self.processor.run_music_command
         original_dj_response = self.processor.generate_dj_response_with_assist
-        self.processor.handle_spotify_command = status
+        self.processor.run_music_command = status
         self.processor.generate_dj_response_with_assist = generated_dj_response
         runtime = Runtime()
         runtime.config = {"tts_language": "nl"}
@@ -824,7 +824,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
                 )
             )
         finally:
-            self.processor.handle_spotify_command = original_status
+            self.processor.run_music_command = original_status
             self.processor.generate_dj_response_with_assist = original_dj_response
 
         self.assertEqual(
@@ -870,11 +870,11 @@ class ProcessorRuntimeTest(unittest.TestCase):
 
                 original_assist = self.processor.process_text_with_assist
                 original_play = self.processor.play_from_intent
-                original_command = self.processor.handle_spotify_command
+                original_command = self.processor.run_music_command
                 original_dj_response = self.processor.generate_dj_response_with_assist
                 self.processor.process_text_with_assist = assist
                 self.processor.play_from_intent = play
-                self.processor.handle_spotify_command = command
+                self.processor.run_music_command = command
                 self.processor.generate_dj_response_with_assist = generated_dj_response
                 runtime = Runtime()
                 runtime.config = {"tts_language": "nl"}
@@ -890,7 +890,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
                 finally:
                     self.processor.process_text_with_assist = original_assist
                     self.processor.play_from_intent = original_play
-                    self.processor.handle_spotify_command = original_command
+                    self.processor.run_music_command = original_command
                     self.processor.generate_dj_response_with_assist = original_dj_response
 
                 expected_calls = [(expected_command, None)]
@@ -936,9 +936,9 @@ class ProcessorRuntimeTest(unittest.TestCase):
                     self.assertEqual(fallback_text, f"Ik zet het volume op {expected}.")
                     return fallback_text
 
-                original_command = self.processor.handle_spotify_command
+                original_command = self.processor.run_music_command
                 original_dj_response = self.processor.generate_dj_response_with_assist
-                self.processor.handle_spotify_command = command
+                self.processor.run_music_command = command
                 self.processor.generate_dj_response_with_assist = generated_dj_response
                 runtime = Runtime()
                 runtime.config = {"tts_language": "nl"}
@@ -952,14 +952,14 @@ class ProcessorRuntimeTest(unittest.TestCase):
                         )
                     )
                 finally:
-                    self.processor.handle_spotify_command = original_command
+                    self.processor.run_music_command = original_command
                     self.processor.generate_dj_response_with_assist = original_dj_response
 
                 self.assertEqual(calls, [("status", None), ("set_volume", expected)])
                 self.assertEqual(result["playback"]["requested_volume_percent"], expected)
                 self.assertEqual(result["dj_text"], f"Ik zet het volume op {expected}.")
 
-    def test_process_text_command_keeps_intent_when_playback_fails(self) -> None:
+    def test_run_text_command_keeps_intent_when_playback_fails(self) -> None:
         async def assist(hass, user_text, conf):
             return {
                 "type": "search",

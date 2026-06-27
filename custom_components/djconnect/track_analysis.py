@@ -22,7 +22,7 @@ from .const import (
     VERSION,
 )
 from .pipeline import _assist_context, _speech_from_response
-from .use_cases import run_music_command as handle_spotify_command
+from .use_cases import run_music_command
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -82,7 +82,7 @@ class SpotifyMeasuredAnalysisProvider:
         context: dict[str, Any],
     ) -> TrackAnalysisProviderResult:
         try:
-            result = await handle_spotify_command(
+            result = await run_music_command(
                 hass,
                 runtime,
                 "technical_track_analysis",

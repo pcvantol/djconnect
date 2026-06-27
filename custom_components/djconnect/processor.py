@@ -19,7 +19,7 @@ from .music_intent import parse_spoken_music_request
 from .smart_home_context import smart_home_context, smart_home_context_text
 from .spotify import play_from_intent
 from .spotify_backend import SpotifyBackendError
-from .use_cases import run_music_command as handle_spotify_command
+from .use_cases import run_music_command
 
 
 async def process_text_command(
@@ -301,21 +301,21 @@ async def _execute_playback_control(
     action = str(control.get("action") or "").strip()
     try:
         if action == "pause":
-            response = await handle_spotify_command(hass, runtime, "pause")
+            response = await run_music_command(hass, runtime, "pause")
         elif action == "play":
-            response = await handle_spotify_command(hass, runtime, "play")
+            response = await run_music_command(hass, runtime, "play")
         elif action == "next":
-            response = await handle_spotify_command(hass, runtime, "next")
+            response = await run_music_command(hass, runtime, "next")
             refreshed = await _post_control_playback_status(hass, runtime)
             if refreshed:
                 return refreshed
         elif action == "previous":
-            response = await handle_spotify_command(hass, runtime, "previous")
+            response = await run_music_command(hass, runtime, "previous")
             refreshed = await _post_control_playback_status(hass, runtime)
             if refreshed:
                 return refreshed
         elif action == "volume_delta":
-            status = await handle_spotify_command(hass, runtime, "status")
+            status = await run_music_command(hass, runtime, "status")
             playback = status.get("playback") if isinstance(status, dict) else None
             current = _playback_volume(playback, runtime)
             if current is None:
@@ -326,7 +326,7 @@ async def _execute_playback_control(
                     "volume_unknown": True,
                 }
             target = max(0, min(60, current + int(control.get("delta") or 0)))
-            response = await handle_spotify_command(hass, runtime, "set_volume", target)
+            response = await run_music_command(hass, runtime, "set_volume", target)
             playback = response.get("playback") if isinstance(response, dict) else None
             if isinstance(playback, dict):
                 playback = dict(playback)
@@ -371,7 +371,7 @@ async def _post_control_playback_status(
 ) -> dict[str, Any]:
     """Return a fresh playback snapshot after controls that change tracks."""
     try:
-        status = await handle_spotify_command(hass, runtime, "status")
+        status = await run_music_command(hass, runtime, "status")
     except Exception:  # noqa: BLE001
         return {}
     playback = status.get("playback") if isinstance(status, dict) else None
@@ -449,7 +449,7 @@ async def _lookup_current_playback(
 ) -> dict[str, Any]:
     """Fetch current Spotify playback, returning an answerable empty state on failure."""
     try:
-        response = await handle_spotify_command(hass, runtime, "status")
+        response = await run_music_command(hass, runtime, "status")
     except SpotifyBackendError as exc:
         return {
             "has_playback": False,

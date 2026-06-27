@@ -274,8 +274,8 @@ class SpotifyIntentTest(unittest.TestCase):
                 }
             }
 
-        original = self.spotify.handle_spotify_command
-        self.spotify.handle_spotify_command = command
+        original = self.spotify.run_music_command
+        self.spotify.run_music_command = command
         runtime = types.SimpleNamespace(
             last_resolved_media={
                 "type": "artist",
@@ -294,7 +294,7 @@ class SpotifyIntentTest(unittest.TestCase):
                 )
             )
         finally:
-            self.spotify.handle_spotify_command = original
+            self.spotify.run_music_command = original
 
         self.assertEqual(result["resolved_media"]["artist"], "Metallica")
         self.assertEqual(result["device_response"]["playback"]["artist"], "Guns N' Roses")
@@ -321,8 +321,8 @@ class SpotifyIntentTest(unittest.TestCase):
                 }
             }
 
-        original = self.spotify.handle_spotify_command
-        self.spotify.handle_spotify_command = command
+        original = self.spotify.run_music_command
+        self.spotify.run_music_command = command
         runtime = types.SimpleNamespace(last_resolved_media=None, last_spotify_search=None)
         try:
             result = asyncio.run(
@@ -334,7 +334,7 @@ class SpotifyIntentTest(unittest.TestCase):
                 )
             )
         finally:
-            self.spotify.handle_spotify_command = original
+            self.spotify.run_music_command = original
 
         self.assertEqual(calls, [("play_artist_top_tracks", {"query": "Above & Beyond"})])
         self.assertEqual(result["media_content_type"], "artist")
@@ -356,8 +356,8 @@ class SpotifyIntentTest(unittest.TestCase):
                 }
             }
 
-        original = self.spotify.handle_spotify_command
-        self.spotify.handle_spotify_command = command
+        original = self.spotify.run_music_command
+        self.spotify.run_music_command = command
         runtime = types.SimpleNamespace(
             last_resolved_media={
                 "type": "artist",
@@ -376,7 +376,7 @@ class SpotifyIntentTest(unittest.TestCase):
                 )
             )
         finally:
-            self.spotify.handle_spotify_command = original
+            self.spotify.run_music_command = original
 
         self.assertIsNone(result["resolved_media"])
         self.assertEqual(result["device_response"]["playback"]["artist"], "Red Hot Chili Peppers")

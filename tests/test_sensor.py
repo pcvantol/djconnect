@@ -164,8 +164,8 @@ class DJConnectSensorTest(unittest.TestCase):
                 return {"success": True, "playlists": runtime_arg.device_status["playlists"]}
             return {"success": True}
 
-        original = self.sensor.handle_spotify_command
-        self.sensor.handle_spotify_command = fake_handler
+        original = self.sensor.run_music_command
+        self.sensor.run_music_command = fake_handler
         try:
             playback_available = self.sensor.DJConnectPlaybackAvailableSensor(runtime, object())
             sound_output = self.sensor.DJConnectSoundOutputSensor(runtime, object())
@@ -185,7 +185,7 @@ class DJConnectSensorTest(unittest.TestCase):
             asyncio.run(queue.async_update())
             asyncio.run(playlists.async_update())
         finally:
-            self.sensor.handle_spotify_command = original
+            self.sensor.run_music_command = original
 
         self.assertIn("status", calls)
         self.assertIn("devices", calls)

@@ -546,3 +546,36 @@ async def run_music_command(
 ) -> dict[str, Any]:
     """Run a DJConnect music command through the use-case layer."""
     return await DJConnectUseCases(hass, runtime).command(command, value, play=play)
+
+
+async def run_text_command(
+    hass: HomeAssistant,
+    runtime: Any,
+    text: str,
+    *,
+    play: bool = True,
+    correct_stt: bool = False,
+    user_id: str | None = None,
+) -> dict[str, Any]:
+    """Run a natural-language DJConnect command through the use-case boundary."""
+    from .processor import process_text_command
+
+    try:
+        return await process_text_command(
+            hass,
+            runtime,
+            text,
+            play=play,
+            correct_stt=correct_stt,
+            user_id=user_id,
+        )
+    except TypeError as exc:
+        if user_id is None or "unexpected keyword" not in str(exc):
+            raise
+        return await process_text_command(
+            hass,
+            runtime,
+            text,
+            play=play,
+            correct_stt=correct_stt,
+        )

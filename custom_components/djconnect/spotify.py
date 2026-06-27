@@ -6,7 +6,7 @@ from homeassistant.core import HomeAssistant
 
 from .const import CONF_LIKED_PROXY, CONF_SPOTIFY_SOURCE
 from .music_intent import clean_music_query, extract_artist_query, parse_spoken_music_request
-from .use_cases import run_music_command as handle_spotify_command
+from .use_cases import run_music_command
 
 MEDIA_CONTENT_TYPES = {
     "artist": "artist",
@@ -26,7 +26,7 @@ async def play_from_intent(
 ) -> dict[str, Any]:
     source = (conf.get(CONF_SPOTIFY_SOURCE) or "").strip()
     if source:
-        await handle_spotify_command(hass, runtime, "set_output", source, play=False)
+        await run_music_command(hass, runtime, "set_output", source, play=False)
 
     media_content_id, media_content_type = _media_from_intent(intent, conf)
 
@@ -41,7 +41,7 @@ async def play_from_intent(
         value = {"query": media_content_id, "type": media_content_type}
     if command == "play_artist_top_tracks":
         value = {"query": media_content_id}
-    response = await handle_spotify_command(
+    response = await run_music_command(
         hass,
         runtime,
         command,

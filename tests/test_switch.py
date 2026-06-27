@@ -81,13 +81,13 @@ class DJConnectShuffleSwitchTest(unittest.TestCase):
             calls.append((command, value, play))
             return {"success": True}
 
-        original = self.switch.handle_spotify_command
-        self.switch.handle_spotify_command = fake_handler
+        original = self.switch.run_music_command
+        self.switch.run_music_command = fake_handler
         try:
             asyncio.run(entity.async_turn_on())
             asyncio.run(entity.async_turn_off())
         finally:
-            self.switch.handle_spotify_command = original
+            self.switch.run_music_command = original
 
         self.assertIn(("set_shuffle", True, None), calls)
         self.assertIn(("set_shuffle", False, None), calls)
@@ -170,12 +170,12 @@ class DJConnectShuffleSwitchTest(unittest.TestCase):
             runtime_arg.last_playback = {"shuffle": True}
             return {"success": True, "playback": runtime_arg.last_playback}
 
-        original = self.switch.handle_spotify_command
-        self.switch.handle_spotify_command = fake_handler
+        original = self.switch.run_music_command
+        self.switch.run_music_command = fake_handler
         try:
             asyncio.run(entity.async_update())
         finally:
-            self.switch.handle_spotify_command = original
+            self.switch.run_music_command = original
 
         self.assertEqual(calls, [("status", None, None)])
         self.assertTrue(entity.is_on)

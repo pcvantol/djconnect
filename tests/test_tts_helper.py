@@ -1172,16 +1172,16 @@ class TtsHelperTest(unittest.TestCase):
             async def json(self):
                 return {"text": "test"}
 
-        original_command = self.http.handle_spotify_command
+        original_command = self.http.run_music_command
         original_dj_response = self.http.async_send_dj_response_best_effort
-        self.http.handle_spotify_command = command_handler
+        self.http.run_music_command = command_handler
         self.http.async_send_dj_response_best_effort = dj_response_handler
         try:
             status_response = asyncio.run(self.http.DJConnectStatusView(None).post(StatusRequest()))
             command_response = asyncio.run(self.http.DJConnectCommandView(None).post(CommandRequest()))
             voice_response = asyncio.run(self.http.DJConnectVoiceView(None).post(VoiceRequest()))
         finally:
-            self.http.handle_spotify_command = original_command
+            self.http.run_music_command = original_command
             self.http.async_send_dj_response_best_effort = original_dj_response
 
         self.assertEqual(status_response["status_code"], 200)

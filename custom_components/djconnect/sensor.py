@@ -21,7 +21,7 @@ from .const import (
 )
 from .entity_ids import entry_unique_id
 from .push import relay_configured
-from .use_cases import run_music_command as handle_spotify_command
+from .use_cases import run_music_command
 
 MAX_SENSOR_STATE_TEXT_LENGTH = 255
 APNS_SUPPORTED_CLIENT_TYPES = {CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_WATCHOS}
@@ -99,11 +99,11 @@ class DJConnectBackendSensor(DJConnectBaseSensor):
         self.hass = hass
         super().__init__(runtime)
 
-    async def _spotify_command(self, command: str) -> dict | None:
+    async def _music_command(self, command: str) -> dict | None:
         if self.hass is None:
             return None
         try:
-            result = await handle_spotify_command(self.hass, self.runtime, command)
+            result = await run_music_command(self.hass, self.runtime, command)
         except Exception:  # noqa: BLE001
             return None
         if isinstance(result, dict):
@@ -467,7 +467,7 @@ class DJConnectSpotifyStatusSensor(DJConnectBackendSensor):
         return None
 
     async def async_update(self) -> None:
-        await self._spotify_command("status")
+        await self._music_command("status")
 
 
 class DJConnectPairingStatusSensor(DJConnectBaseSensor):
@@ -511,8 +511,8 @@ class DJConnectSoundOutputSensor(DJConnectBackendSensor):
         )
 
     async def async_update(self) -> None:
-        await self._spotify_command("status")
-        await self._spotify_command("devices")
+        await self._music_command("status")
+        await self._music_command("devices")
 
 
 class DJConnectPlaybackAvailableSensor(DJConnectBackendSensor):
@@ -540,7 +540,7 @@ class DJConnectPlaybackAvailableSensor(DJConnectBackendSensor):
         return None
 
     async def async_update(self) -> None:
-        result = await self._spotify_command("status")
+        result = await self._music_command("status")
         if result is not None:
             self.runtime.device_status["backend_available"] = bool(
                 result.get("backend_available", True)
@@ -590,7 +590,7 @@ class DJConnectQueueSensor(DJConnectBackendSensor):
         return attrs
 
     async def async_update(self) -> None:
-        await self._spotify_command("queue")
+        await self._music_command("queue")
 
 
 class DJConnectPlaylistsSensor(DJConnectBackendSensor):
@@ -628,7 +628,7 @@ class DJConnectPlaylistsSensor(DJConnectBackendSensor):
         return playlists if isinstance(playlists, list) else []
 
     async def async_update(self) -> None:
-        await self._spotify_command("playlists")
+        await self._music_command("playlists")
 
 
 class DJConnectOutputsSensor(DJConnectBackendSensor):
@@ -662,8 +662,8 @@ class DJConnectOutputsSensor(DJConnectBackendSensor):
         return {"items": self._last_items if not outputs else outputs}
 
     async def async_update(self) -> None:
-        await self._spotify_command("status")
-        await self._spotify_command("devices")
+        await self._music_command("status")
+        await self._music_command("devices")
 
 
 class DJConnectScreenStateSensor(DJConnectCachedStatusSensor):

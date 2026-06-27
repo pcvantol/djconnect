@@ -112,12 +112,12 @@ def validate_case_result(
     )
 
     commands = list(trace.spotify_commands)
-    if "required_spotify_commands" in expect:
-        for command in expect["required_spotify_commands"]:
+    if "required_music_commands" in expect:
+        for command in expect["required_music_commands"]:
             if command not in commands:
                 fail(f"required Spotify command {command!r} was not called; got {commands!r}")
-    if "allowed_spotify_commands" in expect:
-        allowed = set(expect["allowed_spotify_commands"])
+    if "allowed_music_commands" in expect:
+        allowed = set(expect["allowed_music_commands"])
         unexpected = [command for command in commands if command not in allowed]
         if unexpected:
             fail(f"unexpected Spotify commands {unexpected!r}; allowed {sorted(allowed)!r}")
@@ -126,7 +126,7 @@ def validate_case_result(
         if mutations:
             fail(f"Spotify playback mutations were forbidden but called {mutations!r}")
     if expect.get("required_process_text") and not trace.process_text_requests:
-        fail("process_text_command was expected but not called")
+        fail("run_text_command was expected but not called")
 
     return errors
 
