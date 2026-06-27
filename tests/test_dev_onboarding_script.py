@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import sys
 import subprocess
 import unittest
 from pathlib import Path
@@ -26,6 +27,7 @@ def run_script(*args: str) -> subprocess.CompletedProcess[str]:
     )
 
 
+@unittest.skipUnless(sys.platform == "darwin", "macOS onboarding script tests require Darwin")
 class DevOnboardingScriptTests(unittest.TestCase):
     def test_help_documents_testability_flags(self) -> None:
         result = run_script("--help")

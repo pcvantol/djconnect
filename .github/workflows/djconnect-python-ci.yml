@@ -7,7 +7,7 @@ on:
         description: Python version for the CI runner.
         required: false
         type: string
-        default: "3.x"
+        default: "3.11"
       test-command:
         description: Command used to run the repository test suite.
         required: false
