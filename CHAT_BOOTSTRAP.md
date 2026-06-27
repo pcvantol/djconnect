@@ -49,6 +49,14 @@ Belangrijke huidige status:
 - Config-flow kiest nu expliciet `Spotify Direct` of `Music Assistant`, zonder Auto. Spotify Direct gebruikt DJConnect PKCE OAuth en Spotify repairs. Music Assistant vereist geen DJConnect Spotify Client ID/OAuth; Music Assistant beheert provider-auth, DJConnect valideert dat MA beschikbaar is en bewaart de gekozen target player.
 - Options-flow heeft expliciet `Muziekbackend wijzigen` / `Change music backend`: wisselen bewaart pairing, device tokens, Ask DJ history, Music DNA en pushregistraties, verhoogt `music_backend_revision`, verbergt Spotify reauthorize bij actieve Music Assistant en maakt oude backend-specifieke pending playback actions stale.
 - Pair/status/command responses bevatten backend summary velden: `music_backend`, `music_backend_name`, `music_backend_available`, `music_backend_revision`, `music_backend_capabilities`, `music_target_player` en veilige `music_backend_error`. `playback_actions[]` zijn backend-aware met backend/provider/revision; stale actions geven `stale_backend_action`, unsupported backend features geven `unsupported_backend_capability`.
+- Lokale app-clients kunnen optioneel de Home Assistant native websocket API
+  gebruiken als fast path met `djconnect/capabilities` en
+  `djconnect/command`, `djconnect/ask_dj/message` en
+  `djconnect/track_insight`. Dit hergebruikt exact de equivalente HTTP
+  contracten inclusief DJConnect device token, `device_id` en canoniek
+  `client_type`; HTTP blijft canonical fallback voor remote access, pairing,
+  history clear/sync, voice uploads, image/TTS URLs en alle websocket
+  failures/timeouts.
 - Ask DJ Play Now backend metadata loopt via de use-case laag; nieuwe response
   shaping moet backend/provider/revision/value velden daarvandaan halen en niet
   opnieuw Spotify-specifiek in Ask DJ opbouwen.

@@ -1,0 +1,252 @@
+from __future__ import annotations
+
+from typing import Any
+
+import voluptuous as vol
+
+try:
+    from homeassistant.components import websocket_api
+except ImportError:  # pragma: no cover - only used by lightweight unit-test stubs.
+    websocket_api = None
+
+from .const import DOMAIN, VERSION
+from .http import (
+    async_handle_ask_dj_message_payload,
+    async_handle_command_payload,
+    async_handle_track_insight_payload,
+)
+
+
+WS_TYPE_CAPABILITIES = "djconnect/capabilities"
+WS_TYPE_ASK_DJ_MESSAGE = "djconnect/ask_dj/message"
+WS_TYPE_COMMAND = "djconnect/command"
+WS_TYPE_TRACK_INSIGHT = "djconnect/track_insight"
+
+
+def _websocket_command(schema: dict[Any, Any]) -> Any:
+    if websocket_api is None:
+        return lambda func: func
+    return websocket_api.websocket_command(schema)
+
+
+def _async_response(func: Any) -> Any:
+    if websocket_api is None:
+        return func
+    return websocket_api.async_response(func)
+
+
+def async_register(hass: Any) -> None:
+    """Register DJConnect commands on Home Assistant's native websocket API."""
+    if websocket_api is None:
+        return
+    domain_data = hass.data.setdefault(DOMAIN, {})
+    if domain_data.get("websocket_registered"):
+        return
+    websocket_api.async_register_command(hass, websocket_capabilities)
+    websocket_api.async_register_command(hass, websocket_command)
+    websocket_api.async_register_command(hass, websocket_ask_dj_message)
+    websocket_api.async_register_command(hass, websocket_track_insight)
+    domain_data["websocket_registered"] = True
+
+
+@_websocket_command(
+    {
+        vol.Required("type"): WS_TYPE_CAPABILITIES,
+    }
+)
+@_async_response
+async def websocket_capabilities(hass: Any, connection: Any, msg: dict[str, Any]) -> None:
+    """Return optional websocket transport capabilities for DJConnect clients."""
+    connection.send_result(
+        msg["id"],
+        {
+            "success": True,
+            "domain": DOMAIN,
+            "ha_version": VERSION,
+            "websocket_supported": True,
+            "commands": [
+                WS_TYPE_COMMAND,
+                WS_TYPE_ASK_DJ_MESSAGE,
+                WS_TYPE_TRACK_INSIGHT,
+            ],
+            "transports": {
+                "http": True,
+                "websocket": True,
+            },
+        },
+    )
+
+
+@_websocket_command(
+    {
+        vol.Required("type"): WS_TYPE_COMMAND,
+        vol.Optional("payload", default={}): dict,
+        vol.Optional("device_id"): str,
+        vol.Optional("client_type"): str,
+        vol.Optional("client_id"): str,
+        vol.Optional("device_name"): str,
+        vol.Optional("device_token"): str,
+        vol.Optional("authorization"): str,
+        vol.Optional("command"): str,
+        vol.Optional("value"): object,
+        vol.Optional("play"): bool,
+    }
+)
+@_async_response
+async def websocket_command(hass: Any, connection: Any, msg: dict[str, Any]) -> None:
+    """Handle a DJConnect command over HA websocket with HTTP-equivalent auth."""
+    payload = dict(msg.get("payload") or {})
+    for key in (
+        "device_id",
+        "client_type",
+        "client_id",
+        "device_name",
+        "command",
+        "value",
+        "play",
+    ):
+        if key in msg and key not in payload:
+            payload[key] = msg[key]
+    headers = _headers_from_message(payload, msg)
+    result, status_code = await async_handle_command_payload(
+        hass,
+        payload,
+        headers=headers,
+        user_id=_connection_user_id(connection),
+    )
+    if 200 <= status_code < 300:
+        connection.send_result(msg["id"], result)
+        return
+    _send_error(connection, msg, result)
+
+
+@_websocket_command(
+    {
+        vol.Required("type"): WS_TYPE_ASK_DJ_MESSAGE,
+        vol.Optional("payload", default={}): dict,
+        vol.Optional("device_id"): str,
+        vol.Optional("client_type"): str,
+        vol.Optional("client_id"): str,
+        vol.Optional("device_name"): str,
+        vol.Optional("device_token"): str,
+        vol.Optional("authorization"): str,
+        vol.Optional("client_message_id"): str,
+        vol.Optional("text"): str,
+        vol.Optional("audio_response"): str,
+        vol.Optional("mood"): object,
+        vol.Optional("music_dna_key"): str,
+    }
+)
+@_async_response
+async def websocket_ask_dj_message(hass: Any, connection: Any, msg: dict[str, Any]) -> None:
+    """Handle Ask DJ chat over HA websocket with canonical history sync."""
+    payload = _payload_from_message(
+        msg,
+        (
+            "device_id",
+            "client_type",
+            "client_id",
+            "device_name",
+            "client_message_id",
+            "text",
+            "audio_response",
+            "mood",
+            "music_dna_key",
+        ),
+    )
+    headers = _headers_from_message(payload, msg)
+    result, status_code = await async_handle_ask_dj_message_payload(
+        hass,
+        payload,
+        headers=headers,
+        user_id=_connection_user_id(connection),
+    )
+    if 200 <= status_code < 300:
+        connection.send_result(msg["id"], result)
+        return
+    _send_error(connection, msg, result)
+
+
+@_websocket_command(
+    {
+        vol.Required("type"): WS_TYPE_TRACK_INSIGHT,
+        vol.Optional("payload", default={}): dict,
+        vol.Optional("device_id"): str,
+        vol.Optional("client_type"): str,
+        vol.Optional("client_id"): str,
+        vol.Optional("device_name"): str,
+        vol.Optional("device_token"): str,
+        vol.Optional("authorization"): str,
+        vol.Optional("title"): str,
+        vol.Optional("artist"): str,
+        vol.Optional("album"): str,
+        vol.Optional("force_refresh"): bool,
+        vol.Optional("include_visual_profile"): bool,
+    }
+)
+@_async_response
+async def websocket_track_insight(hass: Any, connection: Any, msg: dict[str, Any]) -> None:
+    """Handle Track Insight over HA websocket."""
+    payload = _payload_from_message(
+        msg,
+        (
+            "device_id",
+            "client_type",
+            "client_id",
+            "device_name",
+            "title",
+            "artist",
+            "album",
+            "force_refresh",
+            "include_visual_profile",
+        ),
+    )
+    headers = _headers_from_message(payload, msg)
+    result, status_code = await async_handle_track_insight_payload(
+        hass,
+        payload,
+        headers=headers,
+        source="websocket",
+    )
+    if 200 <= status_code < 300:
+        connection.send_result(msg["id"], result)
+        return
+    _send_error(connection, msg, result)
+
+
+def _payload_from_message(msg: dict[str, Any], keys: tuple[str, ...]) -> dict[str, Any]:
+    payload = dict(msg.get("payload") or {})
+    for key in keys:
+        if key in msg and key not in payload:
+            payload[key] = msg[key]
+    return payload
+
+
+def _send_error(connection: Any, msg: dict[str, Any], result: dict[str, Any]) -> None:
+    connection.send_error(
+        msg["id"],
+        str(result.get("error") or "djconnect_error"),
+        str(result.get("message") or result.get("error") or "DJConnect request failed."),
+    )
+
+
+def _headers_from_message(payload: dict[str, Any], msg: dict[str, Any]) -> dict[str, str]:
+    headers: dict[str, str] = {}
+    device_id = str(payload.get("device_id") or msg.get("device_id") or "").strip()
+    if device_id:
+        headers["X-DJConnect-Device-ID"] = device_id
+    token = str(msg.get("device_token") or payload.get("device_token") or "").strip()
+    authorization = str(msg.get("authorization") or payload.get("authorization") or "").strip()
+    if authorization:
+        headers["Authorization"] = (
+            authorization if authorization.lower().startswith("bearer ") else f"Bearer {authorization}"
+        )
+    elif token:
+        headers["Authorization"] = f"Bearer {token}"
+    return headers
+
+
+def _connection_user_id(connection: Any) -> str | None:
+    user = getattr(connection, "user", None)
+    user_id = getattr(user, "id", None)
+    return str(user_id) if user_id else None

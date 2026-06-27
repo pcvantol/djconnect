@@ -30,6 +30,14 @@
   `music_target_player` and safe `music_backend_error`. Playback actions are
   backend-aware and unsupported backend features return
   `unsupported_backend_capability` instead of raw backend exceptions.
+- Local app clients may use Home Assistant's native `/api/websocket` as an
+  optional command fast path with `djconnect/capabilities` and
+  `djconnect/command`, `djconnect/ask_dj/message` and
+  `djconnect/track_insight`. Websocket payloads reuse the matching HTTP
+  contracts and still require the DJConnect device token, `device_id` and
+  canonical `client_type`; HTTP remains the canonical fallback for remote
+  access, pairing, history clear/sync, voice uploads, image/TTS URLs and
+  transport failures.
 - Reusable Ask DJ Play Now backend metadata is shaped through the use-case layer;
   new action responses should not rebuild backend/provider/revision/value
   envelopes directly in Ask DJ.

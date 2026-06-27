@@ -103,6 +103,121 @@ Stale backend-specific actions return:
 }
 ```
 
+## Local WebSocket Fast Path
+
+Local app clients may use Home Assistant's native websocket API as an optional
+low-latency transport for DJConnect commands. This is a fast path for local
+control only; HTTP remains canonical and must remain available for remote use,
+pairing, Ask DJ history sync, clear/history requests, voice uploads, image
+proxy URLs, TTS/audio downloads and fallback behavior.
+
+Connect to Home Assistant's normal websocket endpoint derived from the local HA
+URL:
+
+- `ws://<local-ha-host>/api/websocket`
+- `wss://<local-ha-host>/api/websocket`
+
+Authenticate with Home Assistant's native websocket auth flow. After login,
+feature-detect DJConnect support with:
+
+```json
+{
+  "id": 1,
+  "type": "djconnect/capabilities"
+}
+```
+
+A supporting server returns a successful result with
+`websocket_supported:true`, `transports.websocket:true` and
+`commands[]` containing supported DJConnect websocket message types. Clients
+must fall back to HTTP if a needed websocket command is missing, errors, times
+out or reports unsupported capabilities.
+
+Send commands with the same semantic payload used for
+`POST /api/djconnect/command`:
+
+```json
+{
+  "id": 2,
+  "type": "djconnect/command",
+  "device_id": "djconnect-ios-XXXXXXXXXXXX",
+  "client_type": "ios",
+  "client_id": "djconnect-ios-XXXXXXXXXXXX",
+  "device_name": "Peter's iPhone",
+  "device_token": "<paired DJConnect device token>",
+  "command": "next",
+  "value": null,
+  "play": false
+}
+```
+
+Alternatively clients may put the command fields under `payload`; nested payload
+values win over top-level defaults. The server translates `device_token` or
+`authorization` into the same bearer-token check used by HTTP, and validates
+`device_id`/`client_type` with the normal DJConnect pairing rules. The Home
+Assistant websocket login is not a replacement for the DJConnect device token.
+
+Supported fast-path commands are the existing `/command` actions, including
+`play`, `pause`, `next`, `previous`, `status`, `devices`, `queue`, `playlists`,
+`set_volume`, `volume_delta`, `set_shuffle`, `set_repeat`, `set_output`,
+`ask_dj_followup_response`, `ask_dj_play_recommendation`,
+`ask_dj_play_recommendation_on_output`, `ask_dj_play_request_on_output` and
+`ask_dj_message` when a client already routes that action through
+`/api/djconnect/command`. Chat clients should still prefer
+`POST /api/djconnect/ask_dj/message` for normal text chat because that endpoint
+owns history append, `messages[]` ordering and push/history synchronization.
+
+Servers that advertise the message type may also accept normal Ask DJ chat on:
+
+```json
+{
+  "id": 3,
+  "type": "djconnect/ask_dj/message",
+  "device_id": "djconnect-ios-XXXXXXXXXXXX",
+  "client_type": "ios",
+  "device_token": "<paired DJConnect device token>",
+  "client_message_id": "client-generated-id",
+  "text": "Wat draait er nu?",
+  "audio_response": "auto"
+}
+```
+
+This route is the websocket equivalent of
+`POST /api/djconnect/ask_dj/message`: it appends server-side history, returns
+the same `messages[]`, `history_revision` and `clear_revision` sync fields, and
+uses the same push/confirmation policy. Clients may use it as a local fast path
+only after capability detection; HTTP remains the fallback and remains required
+for remote-only sessions.
+
+Track Insight can use:
+
+```json
+{
+  "id": 4,
+  "type": "djconnect/track_insight",
+  "device_id": "djconnect-macos-XXXXXXXXXXXX",
+  "client_type": "macos",
+  "device_token": "<paired DJConnect device token>",
+  "title": "Windowlicker",
+  "artist": "Aphex Twin"
+}
+```
+
+The response is the same normalized Track Insight shape as
+`POST /api/djconnect/track_insight`. If `title`/`artist` are omitted, the
+backend resolves Now Playing through the selected music backend just like the
+HTTP route.
+
+Clients should treat websocket failures as transport failures, not pairing
+failures. On disconnect, auth error, HA websocket error, DJConnect websocket
+capability miss, timeout or protocol mismatch, immediately retry the user action
+through HTTP and reconnect the websocket later with backoff. Suggested client
+timeouts are about 2 seconds for short playback controls, 5 seconds for
+status/list requests and the existing longer Ask DJ/action timeout for commands
+that already wait on backend work. Never log HA auth tokens, DJConnect device
+tokens, authorization headers, raw prompts, raw audio, Ask DJ history or Music
+DNA while diagnosing websocket transport state.
+
 ## Ask DJ Mood Zones
 
 iOS, macOS and watchOS clients send `mood` as an optional integer-like value from

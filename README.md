@@ -63,6 +63,15 @@ of the integration contract:
 - **Server-side Music DNA for Ask DJ**: lightweight clients do not store Music DNA. Home Assistant owns compact `Ask DJ` context through runtime session memory plus Home Assistant Store key `djconnect_music_dna` version `1`. Memory is scoped first by HA user id when available, then by DJConnect client/device id, so a Watch request such as `Draai iets rustigers` can be followed later from another client with `Waarom koos je dit?`. Stored memory excludes OAuth tokens, bearer tokens, raw audio and full prompts.
 - **Music knowledge prompt policy**: DJConnect does not initialize external music sources on every request. The DJ response prompt tells the configured conversation agent to use provided Spotify metadata, Music DNA and media context first, and only use MusicBrainz, Wikidata, short Wikipedia summaries, Last.fm, Discogs or TheAudioDB when that knowledge is already available to the agent/integration. Trivia must be skipped rather than invented.
 - **HA owns backend playback**: clients do not store Spotify OAuth credentials and do not call the Spotify Web API directly. ESP32, iOS, macOS, watchOS, Raspberry Pi and Windows send generic playback commands to `POST /api/djconnect/command`; Home Assistant translates them to the selected backend and returns provider-neutral playback, queue, output and action shapes.
+- **Optional local websocket fast path**: app clients may use Home Assistant's
+  native `/api/websocket` route on the local HA URL for low-latency command
+  delivery. The websocket message types are `djconnect/capabilities` and
+  optional fast-path routes such as `djconnect/command`,
+  `djconnect/ask_dj/message` and `djconnect/track_insight`; payloads use the
+  same contracts as their HTTP equivalents and still include the DJConnect
+  device token, `device_id` and canonical `client_type`. HTTP remains the
+  canonical fallback for remote access, pairing, history clear/sync, voice
+  uploads, image/TTS URLs and any websocket failure or timeout.
 - **Use-case layer before music backends**: HTTP clients, app clients, ESP32,
   Raspberry Pi, Assist agent and Home Assistant entities route music actions
   through DJConnect use-cases first. Developer services, Assist conversation

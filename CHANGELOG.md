@@ -15,6 +15,11 @@
   Ask DJ primitives through that layer for now playing, outputs, Track Insight,
   recent history, search and recommendations, while keeping playback mutations
   behind server-side confirmation.
+- Add optional local fast-path delivery through Home Assistant's native
+  websocket API with `djconnect/capabilities`, `djconnect/command`,
+  `djconnect/ask_dj/message` and `djconnect/track_insight`, reusing the
+  matching HTTP contracts and preserving HTTP as the canonical fallback for
+  remote access and non-fast-path flows.
 - Split the AI tool layer into explicit registry and handler modules:
   `tool_registry.py` owns names, schemas and read-only metadata, while
   `tool_handlers.py` owns the backend use-case implementations shared by Ask DJ

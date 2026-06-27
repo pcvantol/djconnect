@@ -109,6 +109,7 @@ from .spotify_oauth import (
 )
 from .track_insight import TrackInsightError, TrackInsightHassService
 from .use_cases import music_backend_metadata, run_text_command
+from .websocket_api import async_register as async_register_websocket_api
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -1363,6 +1364,7 @@ def register_http_views(hass: HomeAssistant) -> None:
                 )
             ),
         )
+    async_register_websocket_api(hass)
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
