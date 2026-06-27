@@ -1,5 +1,28 @@
 # Changelog
 
+## 3.2.2
+
+- Replace the old Ask DJ track-analysis contract with the unified Track Insight
+  route for direct screen calls, Ask DJ intents, voice examples, the
+  `djconnect.track_insight` service and HTTP clients. Track Insight now returns
+  normalized JSON with track, analysis, Music DNA Match, visual-profile and
+  cache metadata.
+- Rename user-facing and persisted Ask DJ memory concepts to Music DNA,
+  including the Home Assistant Store key `djconnect_music_dna`, request/context
+  field `music_dna_key`, HTTP header `X-DJConnect-Music-DNA-Key`, service copy
+  and client contract docs.
+- Expose the complete nine-tool DJConnect AI/conversation allowlist and route
+  Ask DJ primitives through that layer for now playing, outputs, Track Insight,
+  recent history, search and recommendations, while keeping playback mutations
+  behind server-side confirmation.
+- Split the AI tool layer into explicit registry and handler modules:
+  `tool_registry.py` owns names, schemas and read-only metadata, while
+  `tool_handlers.py` owns the backend use-case implementations shared by Ask DJ
+  and Home Assistant AI tools.
+- Extend Ask DJ E2E Track Insight coverage with JSON-model validation and add
+  focused tests for Music DNA, Track Insight, AI-tool routing and conversation
+  tool exposure.
+
 ## 3.2.1
 
 - Validate Music Assistant backend setup against real Home Assistant
@@ -56,7 +79,7 @@
   app-like, and Assist-agent-only entries stay conversation plus diagnostics.
 - Add an explicit `Muziekbackend wijzigen` / `Change music backend` options-flow
   action so users can switch between Spotify Direct and Music Assistant without
-  removing the integration. Pairing, tokens, Ask DJ history, DJ Memory and push
+  removing the integration. Pairing, tokens, Ask DJ history, Music DNA and push
   registrations are preserved, while `music_backend_revision` marks old
   backend-specific playback actions stale.
 - Harden the client-visible backend contract: pair/status/command responses now
@@ -174,8 +197,8 @@
 - Improve Ask DJ contextual follow-ups, including artist carry-over for
   `ik wil Zombie horen`, album overview questions and queue/mood mix previews
   with clickable rows.
-- Add a DJ Memory-only Ask DJ intent for questions such as `wat weet je nu over
-  mij?`, with text-only responses, source `djconnect_memory`, no artwork and no
+- Add a Music DNA-only Ask DJ intent for questions such as `wat weet je nu over
+  mij?`, with text-only responses, source `djconnect_music_dna`, no artwork and no
   Play Now actions.
 - Refresh Ask DJ help, voice-intent data and client rendering documentation for
   the new memory, search, action-button and Play Now response shapes.
@@ -348,7 +371,7 @@
 
 ## 3.1.76
 
-- Clear server-side DJ Memory and Ask DJ history when the last DJConnect Home
+- Clear server-side Music DNA and Ask DJ history when the last DJConnect Home
   Assistant config entry is unloaded, preventing deleted clients from seeing old
   chat state after re-pairing.
 - Reject stale client requests when their `device_id` or bearer token no longer
@@ -367,7 +390,7 @@
   speaker/output actions, album lists, retry behavior, Resume controls,
   deterministic playback parsing and mood-driven DJ announcements.
 - Add DJ announcement prompt guidance for short personal intro lines from compact
-  DJ Memory and explicitly shared weather/temperature smart-home entities.
+  Music DNA and explicitly shared weather/temperature smart-home entities.
 
 ## 3.1.74
 
@@ -472,11 +495,11 @@
 
 ## 3.1.61
 
-- Add server-side DJ Memory groundwork for future Ask DJ clients, including HA Store persistence, runtime session context, playback/Ask DJ context tracking and watchOS voice metadata support.
+- Add server-side Music DNA groundwork for future Ask DJ clients, including HA Store persistence, runtime session context, playback/Ask DJ context tracking and watchOS voice metadata support.
 - Add the Ask DJ backend text API and services, including intent routing for informational questions versus playback actions, shared memory clear/history-state checks, proxied images, source links and optional audio responses.
 - Add Ask DJ intent `personal_music_profile_analysis` for non-mutating personal listening-profile analysis over periods such as last month, last 30 days and this year.
-- Add Spotify listening-profile enrichment for Ask DJ using recently played tracks and top artists/tracks, with compact DJ Memory snapshots and response `sources[]` metadata.
-- Add Ask DJ Push-To-Talk support for iOS/macOS/watchOS WAV uploads on `/api/djconnect/voice`, including transcript responses, shared Ask DJ memory/context handling and capability flags.
+- Add Spotify listening-profile enrichment for Ask DJ using recently played tracks and top artists/tracks, with compact Music DNA snapshots and response `sources[]` metadata.
+- Add Ask DJ Push-To-Talk support for iOS/macOS/watchOS WAV uploads on `/api/djconnect/voice`, including transcript responses, shared Ask Music DNA/context handling and capability flags.
 - Add Ask DJ Play Now support for personal recommendations through non-mutating `playback_actions[]` plus explicit `ask_dj_play_recommendation` command handling.
 - Add a Postman collection for the DJConnect Home Assistant HTTP API and include it in the release-cycle checklist.
 

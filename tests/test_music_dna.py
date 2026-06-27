@@ -13,11 +13,11 @@ package = types.ModuleType("custom_components.djconnect")
 package.__path__ = [str(ROOT / "custom_components" / "djconnect")]
 sys.modules.setdefault("custom_components.djconnect", package)
 
-memory_module = importlib.import_module("custom_components.djconnect.memory")
-DJMemoryManager = memory_module.DJMemoryManager
+memory_module = importlib.import_module("custom_components.djconnect.music_dna")
+MusicDNAManager = memory_module.MusicDNAManager
 enrich_user_text_with_memory = memory_module.enrich_user_text_with_memory
 prompt_context_text = memory_module.prompt_context_text
-resolve_memory_key = memory_module.resolve_memory_key
+resolve_music_dna_key = memory_module.resolve_music_dna_key
 
 
 class FakeStore:
@@ -52,16 +52,16 @@ def runtime_for(
     )
 
 
-class DJMemoryManagerTest(unittest.TestCase):
-    def test_watchos_memory_key_falls_back_to_device_id(self) -> None:
+class MusicDNAManagerTest(unittest.TestCase):
+    def test_watchos_music_dna_key_falls_back_to_device_id(self) -> None:
         runtime = runtime_for()
 
-        key = resolve_memory_key(runtime, {"client_type": "watchos"})
+        key = resolve_music_dna_key(runtime, {"client_type": "watchos"})
 
         self.assertEqual(key, "djconnect-watchos-8F3A2C91B45D")
 
     def test_runtime_follow_up_context_is_shared_by_user_id(self) -> None:
-        manager = DJMemoryManager(store=FakeStore())
+        manager = MusicDNAManager(store=FakeStore())
         watch = runtime_for()
         mac = runtime_for(
             device_id="djconnect-macos-68B74487726D",
@@ -97,14 +97,14 @@ class DJMemoryManagerTest(unittest.TestCase):
             )
         )
 
-        self.assertEqual(context["memory_key"], "user:ha-user-1")
+        self.assertEqual(context["music_dna_key"], "user:ha-user-1")
         self.assertIn("Draai iets rustigers", prompt_context_text(context))
         self.assertIn("Frank Ocean", prompt_context_text(context))
         self.assertIn("Ik heb iets rustigers gekozen", prompt_context_text(context))
 
     def test_store_persistence_loads_and_saves_compact_memory(self) -> None:
         store = FakeStore()
-        manager = DJMemoryManager(store=store)
+        manager = MusicDNAManager(store=store)
         runtime = runtime_for()
 
         asyncio.run(
@@ -137,7 +137,7 @@ class DJMemoryManagerTest(unittest.TestCase):
         self.assertEqual(memory["listening_time_patterns"][0]["daypart"], memory["listening_time_context"]["daypart"])
         self.assertNotIn("device_token", str(saved))
 
-        reloaded = DJMemoryManager(store=FakeStore(saved))
+        reloaded = MusicDNAManager(store=FakeStore(saved))
         context = asyncio.run(reloaded.async_context_for_runtime(runtime))
 
         self.assertEqual(context["memory"]["mood"], 65)
@@ -146,7 +146,7 @@ class DJMemoryManagerTest(unittest.TestCase):
 
     def test_blocked_music_preference_is_persisted_and_prompt_safe(self) -> None:
         store = FakeStore()
-        manager = DJMemoryManager(store=store)
+        manager = MusicDNAManager(store=store)
         runtime = runtime_for()
 
         asyncio.run(
@@ -172,7 +172,7 @@ class DJMemoryManagerTest(unittest.TestCase):
 
     def test_clear_memory_helper_removes_persistent_and_runtime_context(self) -> None:
         store = FakeStore()
-        manager = DJMemoryManager(store=store)
+        manager = MusicDNAManager(store=store)
         runtime = runtime_for()
 
         asyncio.run(
@@ -186,13 +186,13 @@ class DJMemoryManagerTest(unittest.TestCase):
 
         context = asyncio.run(manager.async_context_for_runtime(runtime))
 
-        self.assertEqual(context["memory_key"], "djconnect-watchos-8F3A2C91B45D")
+        self.assertEqual(context["music_dna_key"], "djconnect-watchos-8F3A2C91B45D")
         self.assertEqual(context["session"], [])
         self.assertNotIn("last_ask_dj", context["memory"])
 
-    def test_memory_prompt_enrichment_uses_compact_context(self) -> None:
+    def test_music_dna_prompt_enrichment_uses_compact_context(self) -> None:
         context = {
-            "memory_key": "user:1",
+            "music_dna_key": "user:1",
             "memory": {
                 "mood": 42,
                 "listening_time_context": {
@@ -221,11 +221,11 @@ class DJMemoryManagerTest(unittest.TestCase):
         self.assertIn("Luistertijdcontext", prompt)
         self.assertIn("avond", prompt)
 
-    def test_memory_logs_do_not_include_tokens_or_raw_prompts(self) -> None:
+    def test_music_dna_logs_do_not_include_tokens_or_raw_prompts(self) -> None:
         store = FakeStore()
-        manager = DJMemoryManager(store=store)
+        manager = MusicDNAManager(store=store)
         runtime = runtime_for()
-        logger = logging.getLogger("custom_components.djconnect.memory")
+        logger = logging.getLogger("custom_components.djconnect.music_dna")
 
         with self.assertLogs(logger, level="DEBUG") as captured:
             asyncio.run(
@@ -245,7 +245,7 @@ class DJMemoryManagerTest(unittest.TestCase):
             )
 
         logs = "\n".join(captured.output)
-        self.assertIn("DJConnect DJ Memory updated", logs)
+        self.assertIn("DJConnect Music DNA updated", logs)
         self.assertNotIn("secret-token", logs)
         self.assertNotIn("RAW VOICE TRANSCRIPT", logs)
         self.assertNotIn("token should not appear", logs)

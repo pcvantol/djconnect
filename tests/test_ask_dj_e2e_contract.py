@@ -33,7 +33,7 @@ class AskDjE2EContractTest(unittest.TestCase):
         "mood_mix",
         "morning_music_suggestion",
         "next_track_info",
-        "personal_memory_summary",
+        "personal_music_dna_summary",
         "personal_music_profile_analysis",
         "personal_music_recommendations",
         "play_album_containing_track",
@@ -48,8 +48,8 @@ class AskDjE2EContractTest(unittest.TestCase):
         "spotify_playlist_search",
         "spotify_user_playlists",
         "spotify_vibe_playlists",
-        "technical_track_analysis",
         "track_artist_album_lookup",
+        "track_insight",
         "track_title_choices",
     }
 

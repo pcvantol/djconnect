@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import importlib
 from pathlib import Path
-import time
 import types
 import unittest
 
@@ -21,9 +20,9 @@ class FakeMemory:
         self.generation = 0
 
     async def async_context_for_runtime(self, runtime, payload=None, *, user_id=None):
-        key = f"user:{user_id}" if user_id else payload.get("memory_key") or runtime.device_status["device_id"]
+        key = f"user:{user_id}" if user_id else payload.get("music_dna_key") or runtime.device_status["device_id"]
         return {
-            "memory_key": key,
+            "music_dna_key": key,
             "memory": {
                 "mood": 38,
                 "listening_time_context": {
@@ -51,17 +50,17 @@ class FakeMemory:
 
     async def async_update_last_ask_dj(self, runtime, *, input_text, result, payload=None, user_id=None):
         self.updated.append((input_text, result, payload, user_id))
-        return payload.get("memory_key") if payload else runtime.device_status["device_id"]
+        return payload.get("music_dna_key") if payload else runtime.device_status["device_id"]
 
     async def async_record_blocked_music_preference(self, runtime, item, payload=None, *, user_id=None):
         self.blocked.append((item, payload, user_id))
-        return payload.get("memory_key") if payload else runtime.device_status["device_id"]
+        return payload.get("music_dna_key") if payload else runtime.device_status["device_id"]
 
     async def async_mark_clear_required(self, runtime, payload=None, *, user_id=None):
         self.cleared = True
         self.generation += 1
         return {
-            "memory_key": payload.get("memory_key") or runtime.device_status["device_id"],
+            "music_dna_key": payload.get("music_dna_key") or runtime.device_status["device_id"],
             "ask_dj_clear_required": True,
             "generation": self.generation,
             "clear_requested_at": "2026-06-19T00:00:00+00:00",
@@ -69,7 +68,7 @@ class FakeMemory:
 
     async def async_history_state(self, runtime, payload=None, *, user_id=None, client_generation=None):
         return {
-            "memory_key": payload.get("memory_key") or runtime.device_status["device_id"],
+            "music_dna_key": payload.get("music_dna_key") or runtime.device_status["device_id"],
             "ask_dj_clear_required": client_generation is None or client_generation < self.generation,
             "generation": self.generation,
             "clear_requested_at": "2026-06-19T00:00:00+00:00" if self.generation else None,
@@ -132,7 +131,7 @@ class AskDjTest(unittest.TestCase):
         cls.http = importlib.import_module("custom_components.djconnect.http")
         cls.const = importlib.import_module("custom_components.djconnect.const")
         cls.processor = importlib.import_module("custom_components.djconnect.processor")
-        cls.track_analysis = importlib.import_module("custom_components.djconnect.track_analysis")
+        cls.track_insight = importlib.import_module("custom_components.djconnect.track_insight")
 
     def test_informational_request_does_not_modify_playback(self) -> None:
         runtime = make_runtime()
@@ -177,7 +176,7 @@ class AskDjTest(unittest.TestCase):
                         "text": "Waarom koos je dit nummer?",
                         "device_id": runtime.device_status["device_id"],
                         "client_type": "watchos",
-                        "memory_key": "shared",
+                        "music_dna_key": "shared",
                     },
                     user_id="user-1",
                 )
@@ -189,7 +188,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(calls, ["status"])
         self.assertEqual(result["intent"]["category"], "informational")
         self.assertIn("Omdat dit goed aansluit", result["text"])
-        self.assertEqual(result["memory_key"], "user:user-1")
+        self.assertEqual(result["music_dna_key"], "user:user-1")
         self.assertEqual(result["images"], [])
 
     def test_shuffle_status_returns_toggle_action(self) -> None:
@@ -452,6 +451,7 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("- Heb je een live versie?", result["text"])
         self.assertIn("- Heb je een akoestische versie?", result["text"])
         self.assertIn("- Heb je remixes?", result["text"])
+        self.assertIn("- Geef Track Insight voor dit nummer", result["text"])
         self.assertIn("\n\n## Persoonlijke muzieksmaak\n- Wat weet je nu over mij?", result["text"])
         self.assertIn("- Analyseer mijn luisterprofiel", result["text"])
         self.assertIn("- Ik wil meer van deze muziek horen", result["text"])
@@ -496,7 +496,7 @@ class AskDjTest(unittest.TestCase):
                         "text": "Geeft niet",
                         "device_id": runtime.device_status["device_id"],
                         "client_type": "watchos",
-                        "memory_key": "shared",
+                        "music_dna_key": "shared",
                     },
                     user_id="user-1",
                 )
@@ -915,7 +915,7 @@ class AskDjTest(unittest.TestCase):
             self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "related_artists", "listening_profile"])
-        self.assertIn("Ik zie in je DJ Memory en Spotify-profiel", result["dj_text"])
+        self.assertIn("Ik zie in je Music DNA en Spotify-profiel", result["dj_text"])
         self.assertIn("Above & Beyond", result["dj_text"])
         self.assertIn("Ferry Corsten", result["dj_text"])
         self.assertIn("Volgens Spotify", result["dj_text"])
@@ -4272,14 +4272,14 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["action"], "profile_analysis")
         self.assertIn("de afgelopen maand", result["text"])
         self.assertIn("The xx - Intro", result["text"])
-        self.assertIn("\n\nBronnen:\n- Spotify recent/top-data\n- DJConnect Memory", result["text"])
+        self.assertIn("\n\nBronnen:\n- Spotify recent/top-data\n- Music DNA", result["text"])
         self.assertIn("\n\n- Harde observatie:", result["text"])
         self.assertIn("\n\n- Interpretatie:", result["text"])
         self.assertIn("\n\nConcrete voorbeelden:\n- The xx - Intro", result["text"])
         self.assertIn("sources", result)
         self.assertTrue(any(source["source"] == "spotify_recently_played" for source in result["sources"]))
 
-    def test_technical_track_analysis_uses_live_audio_data_without_playback_mutation(self) -> None:
+    def test_track_insight_handles_explicit_prompt_without_playback_mutation(self) -> None:
         runtime = make_runtime()
         runtime.last_playback = {
             **runtime.last_playback,
@@ -4292,43 +4292,17 @@ class AskDjTest(unittest.TestCase):
             calls.append(command_name)
             if command_name == "status":
                 return {"success": True, "playback": runtime.last_playback}
-            if command_name == "technical_track_analysis":
-                return {
-                    "success": True,
-                    "analysis": {
-                        "track": runtime.last_playback,
-                        "audio_features": {
-                            "tempo": 123.6,
-                            "key": 9,
-                            "mode": 0,
-                            "danceability": 0.72,
-                            "energy": 0.81,
-                            "valence": 0.44,
-                            "acousticness": 0.12,
-                            "instrumentalness": 0.04,
-                        },
-                        "audio_analysis": {
-                            "sections": [
-                                {"start": 0.0, "duration": 18.0, "confidence": 0.86, "tempo": 122.9},
-                                {"start": 18.0, "duration": 41.0, "confidence": 0.77, "tempo": 123.8},
-                                {"start": 59.0, "duration": 62.0, "confidence": 0.81, "tempo": 124.1},
-                            ],
-                        },
-                    },
-                }
             raise AssertionError(f"unexpected playback mutation: {command_name}")
 
         original_status_command = self.ask_dj.run_music_command
-        original_analysis_command = self.track_analysis.run_music_command
         self.ask_dj.run_music_command = command
-        self.track_analysis.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
-                        "text": "Geef een technische track analyse van dit nummer met bpm en opbouw",
+                        "text": "Geef Track Insight voor dit nummer",
                         "device_id": runtime.device_status["device_id"],
                         "client_type": "watchos",
                     },
@@ -4337,467 +4311,61 @@ class AskDjTest(unittest.TestCase):
             )
         finally:
             self.ask_dj.run_music_command = original_status_command
-            self.track_analysis.run_music_command = original_analysis_command
 
         self.assertTrue(result["success"])
-        self.assertEqual(calls, ["status", "technical_track_analysis"])
-        self.assertEqual(result["intent"]["category"], "informational")
-        self.assertEqual(result["intent"]["intent"], "technical_track_analysis")
-        self.assertEqual(result["action"], "track_analysis")
-        self.assertIn("Technische trackanalyse voor The xx - Intro", result["text"])
-        self.assertIn("123.6 BPM", result["text"])
-        self.assertIn("A minor", result["text"])
-        self.assertIn("3 muzikale secties", result["text"])
-        self.assertEqual(result["playback_actions"], [])
-        self.assertEqual(result["analysis"]["mode"], "measured_plus_knowledge")
-        self.assertEqual(result["analysis"]["contract_version"], 2)
-        self.assertEqual(result["analysis"]["confidence"], "high")
-        self.assertEqual(result["analysis"]["measured"]["bpm"], 123.6)
-        self.assertEqual(result["analysis"]["measured"]["key"], "A minor")
-        self.assertEqual(len(result["analysis"]["measured"]["sections"]), 3)
-        self.assertTrue(any(section["id"] == "rhythm_bpm" for section in result["analysis"]["sections"]))
-        self.assertTrue(any(section["id"] == "buildup" for section in result["analysis"]["sections"]))
-        self.assertEqual(result["analysis"]["timeline"][0]["start_ms"], 0)
-        self.assertEqual(result["analysis"]["timeline"][0]["end_ms"], 18000)
-        self.assertTrue(any(tip["kind"] == "mixing" for tip in result["analysis"]["dj_tips"]))
-        providers = {provider["provider_id"]: provider for provider in result["analysis"]["providers"]}
-        self.assertEqual(providers["spotify_measured"]["status"], "used")
-        self.assertEqual(providers["ha_conversation"]["status"], "error")
-        self.assertEqual(providers["local_fallback"]["status"], "used")
-        self.assertIn("inferred", result["analysis"])
-        self.assertIn("limitations", result["analysis"])
-        self.assertTrue(any(item["title"] == "BPM" for item in result["items"]))
-        self.assertTrue(any(source["source"] == "spotify_audio_features" for source in result["sources"]))
-
-    def test_analyseer_dit_nummer_routes_to_specific_track_analysis_intent(self) -> None:
-        runtime = make_runtime()
-        runtime.last_playback = {
-            **runtime.last_playback,
-            "uri": "spotify:track:abc123",
-            "duration_ms": 181000,
-        }
-        calls = []
-
-        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
-            calls.append(command_name)
-            if command_name == "status":
-                return {"success": True, "playback": runtime.last_playback}
-            if command_name == "technical_track_analysis":
-                return {
-                    "success": True,
-                    "analysis": {
-                        "track": runtime.last_playback,
-                        "audio_features": {"tempo": 123.6, "key": 9, "mode": 0},
-                        "audio_analysis": {"sections": []},
-                    },
-                }
-            raise AssertionError(f"unexpected playback mutation: {command_name}")
-
-        original_status_command = self.ask_dj.run_music_command
-        original_analysis_command = self.track_analysis.run_music_command
-        self.ask_dj.run_music_command = command
-        self.track_analysis.run_music_command = command
-        try:
-            result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
-                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
-                    runtime,
-                    {
-                        "text": "analyseer dit nummer",
-                        "device_id": runtime.device_status["device_id"],
-                        "client_type": "watchos",
-                    },
-                    user_id="user-1",
-                )
-            )
-        finally:
-            self.ask_dj.run_music_command = original_status_command
-            self.track_analysis.run_music_command = original_analysis_command
-
-        self.assertTrue(result["success"])
-        self.assertEqual(calls, ["status", "technical_track_analysis"])
-        self.assertEqual(result["intent"]["category"], "informational")
-        self.assertEqual(result["intent"]["intent"], "technical_track_analysis")
-        self.assertEqual(result["action"], "track_analysis")
-        self.assertIn("Technische trackanalyse voor The xx - Intro", result["text"])
-        self.assertEqual(result["playback_actions"], [])
-
-    def test_technical_track_analysis_falls_back_when_audio_data_unavailable(self) -> None:
-        runtime = make_runtime()
-        calls = []
-
-        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
-            calls.append(command_name)
-            if command_name == "status":
-                return {"success": True, "playback": runtime.last_playback}
-            if command_name == "technical_track_analysis":
-                return {
-                    "success": True,
-                    "analysis": {
-                        "track": runtime.last_playback,
-                        "unavailable_reason": "spotify_audio_analysis_unavailable",
-                    },
-                }
-            raise AssertionError(f"unexpected playback mutation: {command_name}")
-
-        original_status_command = self.ask_dj.run_music_command
-        original_analysis_command = self.track_analysis.run_music_command
-        self.ask_dj.run_music_command = command
-        self.track_analysis.run_music_command = command
-        try:
-            result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
-                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
-                    runtime,
-                    {
-                        "text": "Analyseer technisch de opbouw van deze track",
-                        "device_id": runtime.device_status["device_id"],
-                        "client_type": "watchos",
-                    },
-                )
-            )
-        finally:
-            self.ask_dj.run_music_command = original_status_command
-            self.track_analysis.run_music_command = original_analysis_command
-
-        self.assertTrue(result["success"])
-        self.assertEqual(calls, ["status", "technical_track_analysis"])
-        self.assertIn("diepe sectie-analyse is nu niet beschikbaar", result["text"])
-        self.assertIn("Live audiofeatures zijn nu niet beschikbaar", result["text"])
-        self.assertEqual(result["analysis"]["mode"], "knowledge_plus_metadata")
-        self.assertEqual(result["analysis"]["confidence"], "low")
-        self.assertIn("BPM, key and audio feature values were not available", result["analysis"]["limitations"][0])
-        self.assertEqual(result["items"], [])
-        self.assertEqual(result["playback_actions"], [])
-
-    def test_technical_track_analysis_can_be_disabled(self) -> None:
-        runtime = make_runtime()
-        runtime.config = {"track_analysis_enabled": False}
-        calls = []
-
-        async def status_command(hass, runtime_arg, command_name, value=None, *, play=None):
-            calls.append(command_name)
-            if command_name == "status":
-                return {"success": True, "playback": runtime.last_playback}
-            raise AssertionError(f"unexpected command: {command_name}")
-
-        async def analysis_command(hass, runtime_arg, command_name, value=None, *, play=None):
-            raise AssertionError(f"disabled track analysis must not call provider: {command_name}")
-
-        original_status_command = self.ask_dj.run_music_command
-        original_analysis_command = self.track_analysis.run_music_command
-        self.ask_dj.run_music_command = status_command
-        self.track_analysis.run_music_command = analysis_command
-        try:
-            result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
-                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
-                    runtime,
-                    {
-                        "text": "analyseer dit nummer",
-                        "device_id": runtime.device_status["device_id"],
-                        "client_type": "watchos",
-                    },
-                )
-            )
-        finally:
-            self.ask_dj.run_music_command = original_status_command
-            self.track_analysis.run_music_command = original_analysis_command
-
         self.assertEqual(calls, ["status"])
-        self.assertEqual(result["analysis"]["mode"], "unavailable")
-        self.assertEqual(result["analysis"]["contract_version"], 2)
-        self.assertEqual(result["analysis"]["sections"], [])
-        self.assertEqual(result["analysis"]["timeline"], [])
-        self.assertEqual(result["analysis"]["dj_tips"], [])
-        self.assertEqual(
-            [provider["status"] for provider in result["analysis"]["providers"]],
-            ["skipped", "skipped", "skipped", "skipped"],
-        )
-        self.assertIn("Track analysis is disabled", result["analysis"]["limitations"][0])
+        self.assertEqual(result["intent"]["category"], "informational")
+        self.assertEqual(result["intent"]["intent"], "track_insight")
+        self.assertEqual(result["action"], "track_insight")
+        self.assertEqual(result["type"], "track_insight")
+        self.assertEqual(result["open_screen"], "track_insight")
+        self.assertIn("Track Insight", result["text"])
+        self.assertEqual(result["track_insight"]["track"]["title"], "Intro")
+        self.assertEqual(result["track_insight"]["track"]["artist"], "The xx")
         self.assertEqual(result["playback_actions"], [])
+        self.assertIsInstance(result["analysis"]["energy"], float)
+        self.assertIsInstance(result["track_insight"]["visual_profile"], dict)
 
-    def test_technical_track_analysis_can_skip_ha_conversation(self) -> None:
+    def test_track_insight_prompt_routes_to_same_contract(self) -> None:
         runtime = make_runtime()
-        runtime.config = {"track_analysis_use_ha_conversation": False}
+        runtime.last_playback = {
+            **runtime.last_playback,
+            "uri": "spotify:track:abc123",
+            "duration_ms": 181000,
+        }
         calls = []
 
         async def command(hass, runtime_arg, command_name, value=None, *, play=None):
             calls.append(command_name)
             if command_name == "status":
                 return {"success": True, "playback": runtime.last_playback}
-            if command_name == "technical_track_analysis":
-                return {
-                    "success": True,
-                    "analysis": {
-                        "track": runtime.last_playback,
-                        "audio_features": {"tempo": 123.6, "key": 9, "mode": 0},
-                    },
-                }
-            raise AssertionError(f"unexpected command: {command_name}")
-
-        class Services:
-            async def async_call(self, *args, **kwargs):
-                raise AssertionError("HA Conversation should be skipped")
+            raise AssertionError(f"unexpected playback mutation: {command_name}")
 
         original_status_command = self.ask_dj.run_music_command
-        original_analysis_command = self.track_analysis.run_music_command
         self.ask_dj.run_music_command = command
-        self.track_analysis.run_music_command = command
         try:
             result = asyncio.run(
                 self.ask_dj.async_handle_ask_dj(
-                    types.SimpleNamespace(services=Services(), data={self.const.DOMAIN: {}}),
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
                         "text": "analyseer dit nummer",
                         "device_id": runtime.device_status["device_id"],
                         "client_type": "watchos",
                     },
+                    user_id="user-1",
                 )
             )
         finally:
             self.ask_dj.run_music_command = original_status_command
-            self.track_analysis.run_music_command = original_analysis_command
-
-        self.assertEqual(calls, ["status", "technical_track_analysis"])
-        self.assertEqual(result["analysis"]["inferred"]["provider"], "local_fallback")
-        providers = {provider["provider_id"]: provider for provider in result["analysis"]["providers"]}
-        self.assertEqual(providers["ha_conversation"]["status"], "skipped")
-        self.assertEqual(providers["ha_conversation"]["reason"], "disabled_by_options")
-        self.assertEqual(providers["local_fallback"]["status"], "used")
-        self.assertFalse(any(source["source"] == "ha_conversation" for source in result["sources"]))
-
-    def test_technical_track_analysis_uses_english_device_language_for_prompt(self) -> None:
-        runtime = make_runtime()
-        runtime.device_language = lambda: "en"
-        seen = {}
-
-        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
-            if command_name == "technical_track_analysis":
-                return {
-                    "success": True,
-                    "analysis": {
-                        "track": runtime.last_playback,
-                        "audio_features": {"tempo": 128, "key": 0, "mode": 1},
-                    },
-                }
-            raise AssertionError(f"unexpected command: {command_name}")
-
-        class Services:
-            async def async_call(self, domain, service, data, **kwargs):
-                seen.update(data)
-                return {"response": {"speech": {"plain": {"speech": "A compact English analysis."}}}}
-
-        original_analysis_command = self.track_analysis.run_music_command
-        self.track_analysis.run_music_command = command
-        try:
-            result = asyncio.run(
-                self.track_analysis.async_analyze_current_track(
-                    types.SimpleNamespace(services=Services()),
-                    runtime,
-                    runtime.last_playback,
-                )
-            )
-        finally:
-            self.track_analysis.run_music_command = original_analysis_command
-
-        self.assertEqual(seen["language"], "en-US")
-        self.assertIn("Give at most two short English sentences", seen["text"])
-        self.assertEqual(result["analysis"]["inferred"]["provider"], "ha_conversation")
-        providers = {provider["provider_id"]: provider for provider in result["analysis"]["providers"]}
-        self.assertEqual(providers["spotify_measured"]["status"], "used")
-        self.assertEqual(providers["ha_conversation"]["status"], "used")
-        self.assertNotIn("local_fallback", providers)
-
-    def test_technical_track_analysis_uses_metabrainz_metadata_provider(self) -> None:
-        runtime = make_runtime()
-        runtime.config = {"track_analysis_use_ha_conversation": False}
-        runtime.backend_cache = {}
-        runtime.last_playback = {
-            **runtime.last_playback,
-            "track_name": "Intro",
-            "artist": "The xx",
-            "uri": "spotify:track:abc123",
-        }
-        calls = []
-
-        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
-            calls.append(command_name)
-            if command_name == "technical_track_analysis":
-                return {
-                    "success": True,
-                    "analysis": {
-                        "track": runtime.last_playback,
-                        "audio_features": {"tempo": 123.6, "key": 9, "mode": 0},
-                    },
-                }
-            raise AssertionError(f"unexpected command: {command_name}")
-
-        class Response:
-            status = 200
-
-            def __init__(self, data):
-                self._data = data
-
-            async def __aenter__(self):
-                return self
-
-            async def __aexit__(self, exc_type, exc, traceback):
-                return None
-
-            async def json(self, content_type=None):
-                return self._data
-
-        class Session:
-            def __init__(self):
-                self.urls = []
-
-            def get(self, url, **kwargs):
-                self.urls.append(url)
-                if "musicbrainz.org" in url:
-                    return Response(
-                        {
-                            "recordings": [
-                                {
-                                    "id": "mbid-intro",
-                                    "score": "100",
-                                    "title": "Intro",
-                                    "first-release-date": "2009-08-14",
-                                    "artist-credit": [{"artist": {"name": "The xx"}}],
-                                    "genres": [{"name": "indie pop"}],
-                                    "tags": [{"name": "minimal"}],
-                                    "releases": [{"title": "xx", "date": "2009-08-14", "country": "GB"}],
-                                }
-                            ]
-                        }
-                    )
-                return Response({"metadata": {"total_listen_count": 4242, "recording_mbid": "mbid-intro"}})
-
-        session = Session()
-        original_analysis_command = self.track_analysis.run_music_command
-        original_clientsession = self.track_analysis.async_get_clientsession
-        self.track_analysis.run_music_command = command
-        self.track_analysis.async_get_clientsession = lambda hass: session
-        try:
-            result = asyncio.run(
-                self.track_analysis.async_analyze_current_track(
-                    types.SimpleNamespace(),
-                    runtime,
-                    runtime.last_playback,
-                )
-            )
-            second_result = asyncio.run(
-                self.track_analysis.async_analyze_current_track(
-                    types.SimpleNamespace(),
-                    runtime,
-                    runtime.last_playback,
-                )
-            )
-        finally:
-            self.track_analysis.run_music_command = original_analysis_command
-            self.track_analysis.async_get_clientsession = original_clientsession
-
-        self.assertEqual(calls, ["technical_track_analysis", "technical_track_analysis"])
-        self.assertEqual(len(session.urls), 2)
-        self.assertEqual(result["analysis"]["metadata"]["musicbrainz_recording_id"], "mbid-intro")
-        self.assertEqual(result["analysis"]["metadata"]["listenbrainz_listen_count"], 4242)
-        self.assertTrue(any(section["id"] == "metadata_context" for section in result["analysis"]["sections"]))
-        self.assertTrue(any(source["source"] == "metabrainz_metadata" for source in result["sources"]))
-        providers = {provider["provider_id"]: provider for provider in result["analysis"]["providers"]}
-        self.assertEqual(providers["metabrainz_metadata"]["status"], "used")
-        self.assertEqual(providers["local_fallback"]["status"], "used")
-        self.assertIn("MusicBrainz/ListenBrainz metadata is contextual", result["analysis"]["limitations"][-1])
-
-        self.assertEqual(len(session.urls), 2)
-        self.assertEqual(second_result["analysis"]["metadata"]["musicbrainz_recording_id"], "mbid-intro")
-
-    def test_technical_track_analysis_metabrainz_rate_limit_skips_network(self) -> None:
-        runtime = make_runtime()
-        runtime.config = {"track_analysis_use_ha_conversation": False}
-        runtime.backend_cache = {"track_analysis:last_request:metabrainz_metadata": time.monotonic()}
-
-        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
-            if command_name == "technical_track_analysis":
-                return {
-                    "success": True,
-                    "analysis": {
-                        "track": runtime.last_playback,
-                        "audio_features": {"tempo": 123.6, "key": 9, "mode": 0},
-                    },
-                }
-            raise AssertionError(f"unexpected command: {command_name}")
-
-        class Session:
-            def get(self, url, **kwargs):
-                raise AssertionError("rate-limited MetaBrainz provider should not call the network")
-
-        original_analysis_command = self.track_analysis.run_music_command
-        original_clientsession = self.track_analysis.async_get_clientsession
-        self.track_analysis.run_music_command = command
-        self.track_analysis.async_get_clientsession = lambda hass: Session()
-        try:
-            result = asyncio.run(
-                self.track_analysis.async_analyze_current_track(
-                    types.SimpleNamespace(),
-                    runtime,
-                    runtime.last_playback,
-                )
-            )
-        finally:
-            self.track_analysis.run_music_command = original_analysis_command
-            self.track_analysis.async_get_clientsession = original_clientsession
-
-        providers = {provider["provider_id"]: provider for provider in result["analysis"]["providers"]}
-        self.assertEqual(providers["metabrainz_metadata"]["status"], "skipped")
-        self.assertEqual(providers["metabrainz_metadata"]["reason"], "rate_limited")
-        self.assertEqual(providers["local_fallback"]["status"], "used")
-        self.assertEqual(result["analysis"]["metadata"], {})
-        self.assertFalse(any(section["id"] == "metadata_context" for section in result["analysis"]["sections"]))
-        self.assertFalse(any(source["source"] == "metabrainz_metadata" for source in result["sources"]))
-
-    def test_technical_track_analysis_metabrainz_error_keeps_fallback_response(self) -> None:
-        runtime = make_runtime()
-        runtime.config = {"track_analysis_use_ha_conversation": False}
-        runtime.backend_cache = {}
-
-        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
-            if command_name == "technical_track_analysis":
-                return {
-                    "success": True,
-                    "analysis": {
-                        "track": runtime.last_playback,
-                        "audio_features": {"tempo": 123.6, "key": 9, "mode": 0},
-                    },
-                }
-            raise AssertionError(f"unexpected command: {command_name}")
-
-        class Session:
-            def get(self, url, **kwargs):
-                raise RuntimeError("network down")
-
-        original_analysis_command = self.track_analysis.run_music_command
-        original_clientsession = self.track_analysis.async_get_clientsession
-        self.track_analysis.run_music_command = command
-        self.track_analysis.async_get_clientsession = lambda hass: Session()
-        try:
-            result = asyncio.run(
-                self.track_analysis.async_analyze_current_track(
-                    types.SimpleNamespace(),
-                    runtime,
-                    runtime.last_playback,
-                )
-            )
-        finally:
-            self.track_analysis.run_music_command = original_analysis_command
-            self.track_analysis.async_get_clientsession = original_clientsession
 
         self.assertTrue(result["success"])
-        self.assertEqual(result["analysis"]["inferred"]["provider"], "local_fallback")
-        providers = {provider["provider_id"]: provider for provider in result["analysis"]["providers"]}
-        self.assertEqual(providers["metabrainz_metadata"]["status"], "error")
-        self.assertEqual(providers["metabrainz_metadata"]["reason"], "RuntimeError")
-        self.assertEqual(providers["local_fallback"]["status"], "used")
+        self.assertEqual(calls, ["status"])
+        self.assertEqual(result["intent"]["category"], "informational")
+        self.assertEqual(result["intent"]["intent"], "track_insight")
+        self.assertEqual(result["action"], "track_insight")
+        self.assertEqual(result["track_insight"]["track"]["title"], "Intro")
+        self.assertEqual(result["track_insight"]["track"]["artist"], "The xx")
         self.assertEqual(result["playback_actions"], [])
 
     def test_personal_memory_question_uses_dj_memory_only(self) -> None:
@@ -4832,17 +4400,17 @@ class AskDjTest(unittest.TestCase):
 
         self.assertTrue(result["success"])
         self.assertEqual(calls, ["status"])
-        self.assertEqual(result["intent"]["intent"], "personal_memory_summary")
-        self.assertEqual(result["action"], "memory_summary")
-        self.assertIn("Dit weet ik nu over jou uit DJ Memory", result["text"])
+        self.assertEqual(result["intent"]["intent"], "personal_music_dna_summary")
+        self.assertEqual(result["action"], "music_dna_summary")
+        self.assertIn("Dit laat je Music DNA nu zien", result["text"])
         self.assertIn("Mood/energy: 38/100", result["text"])
-        self.assertIn("Genres die ik onthoud: ambient en indie", result["text"])
+        self.assertIn("Favorite genres: ambient en indie", result["text"])
         self.assertIn("Recente voorbeelden: The xx - Intro", result["text"])
-        self.assertIn("alleen DJ Memory", result["text"])
+        self.assertIn("alleen je Music DNA", result["text"])
         self.assertNotIn("Sensation", result["text"])
         self.assertEqual(result["images"], [])
         self.assertEqual(result["playback_actions"], [])
-        self.assertEqual([source["source"] for source in result["sources"]], ["djconnect_memory"])
+        self.assertEqual([source["source"] for source in result["sources"]], ["djconnect_music_dna"])
 
     def test_recently_played_history_lists_tracks_from_last_hour(self) -> None:
         runtime = make_runtime()
@@ -5167,7 +4735,7 @@ class AskDjTest(unittest.TestCase):
 
         class EmptyMemory(FakeMemory):
             async def async_context_for_runtime(self, runtime, payload=None, *, user_id=None):
-                return {"memory_key": "shared", "memory": {}, "session": []}
+                return {"music_dna_key": "shared", "memory": {}, "session": []}
 
         runtime.memory = EmptyMemory()
         runtime.last_playback = {}
@@ -7186,7 +6754,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["intent"]["intent"], "artist_seed_recommendations")
         self.assertEqual(result["action"], "none")
         self.assertIn("op basis van Bloodhound Gang", result["text"])
-        self.assertNotIn("DJ Memory", result["text"])
+        self.assertNotIn("Music DNA", result["text"])
         self.assertNotIn("Sprookjes", result["text"])
         self.assertEqual([action["kind"] for action in result["playback_actions"]], ["track", "track", "track_mix"])
         self.assertEqual(result["playback_actions"][0]["uri"], "spotify:track:bad-touch")
@@ -8017,7 +7585,7 @@ class AskDjTest(unittest.TestCase):
                 "dj_text": "Ik kies iets rustigers.",
                 "images": [{"url": "/api/djconnect/image_proxy/abc", "title": "Cover"}],
                 "links": [{"url": "https://example.test", "kind": "source"}],
-                "sources": [{"source": "djconnect_memory", "kind": "source"}],
+                "sources": [{"source": "djconnect_music_dna", "kind": "source"}],
                 "audio_url": "/api/djconnect/tts/abc.mp3",
                 "playback_actions": [{"uri": "spotify:track:123", "kind": "track"}],
             }
@@ -8262,7 +7830,7 @@ class AskDjTest(unittest.TestCase):
                 ],
             },
             self.ask_dj.AskDjIntent("informational", "ask_music_info"),
-            memory_key="shared",
+            music_dna_key="shared",
             playback_context={},
         )
 
@@ -8286,7 +7854,7 @@ class AskDjTest(unittest.TestCase):
                 ],
             },
             self.ask_dj.AskDjIntent("informational", "ask_music_info"),
-            memory_key="shared",
+            music_dna_key="shared",
             playback_context={
                 "track_name": "FORZ4",
                 "artist": "t e s t p r e s s",
@@ -8311,7 +7879,7 @@ class AskDjTest(unittest.TestCase):
                 "text": "Als je jazz wilt, kan ik wat suggesties doen.",
             },
             self.ask_dj.AskDjIntent("informational", "ask_music_info"),
-            memory_key="shared",
+            music_dna_key="shared",
             playback_context={
                 "track_name": "Here For You",
                 "artist": "Armin van Buuren",

@@ -132,23 +132,23 @@
     }
   },
   {
-    "id": "personal_memory_summary",
+    "id": "personal_music_dna_summary",
     "request": {
       "text": "wat weet je nu over mij?",
       "client_type": "watchos"
     },
     "expect": {
       "success": true,
-      "intent": "personal_memory_summary",
+      "intent": "personal_music_dna_summary",
       "intent_category": "informational",
-      "action": "memory_summary",
+      "action": "music_dna_summary",
       "contains_all": [
-        "Dit weet ik nu over jou uit DJ Memory",
+        "Dit laat je Music DNA nu zien",
         "Mood/energy",
-        "alleen DJ Memory"
+        "alleen je Music DNA"
       ],
       "source_values_include": [
-        "djconnect_memory"
+        "djconnect_music_dna"
       ],
       "images_count": 0,
       "playback_actions_count": 0,
@@ -173,7 +173,7 @@
         "Concrete voorbeelden"
       ],
       "source_values_include": [
-        "djconnect_memory",
+        "djconnect_music_dna",
         "spotify_top_tracks_short_term"
       ],
       "allowed_music_commands": [
@@ -218,53 +218,143 @@
     }
   },
   {
-    "id": "technical_track_analysis",
+    "id": "track_insight_explicit_prompt",
     "request": {
-      "text": "Geef een technische track analyse van dit nummer met bpm en opbouw",
+      "text": "Geef Track Insight voor dit nummer",
       "client_type": "ios"
     },
     "expect": {
       "success": true,
-      "intent": "technical_track_analysis",
+      "intent": "track_insight",
       "intent_category": "informational",
-      "action": "track_analysis",
+      "action": "track_insight",
+      "top_level_fields": {
+        "type": "track_insight",
+        "open_screen": "track_insight"
+      },
+      "playback_actions_count": 0,
+      "json_model": {
+        "track_insight": {
+          "id": "non_empty_str",
+          "created_at": "non_empty_str",
+          "source": "non_empty_str",
+          "track": {
+            "title": "non_empty_str",
+            "artist": "non_empty_str",
+            "backend": "non_empty_str"
+          },
+          "analysis": {
+            "summary": "non_empty_str",
+            "full_text": "non_empty_str",
+            "energy": "number",
+            "danceability": "number",
+            "intensity": "number",
+            "confidence": "number",
+            "production_notes": "list",
+            "instrumentation": "list",
+            "arrangement_notes": "list",
+            "listening_cues": "list",
+            "similar_tracks": "list"
+          },
+          "music_dna": {
+            "match_percent": "int",
+            "label": "non_empty_str",
+            "summary": "non_empty_str"
+          },
+          "visual_profile": {
+            "motion_style": "non_empty_str",
+            "spectrum_bias": "non_empty_str",
+            "palette": "non_empty_list",
+            "pulse_speed": "number",
+            "wave_amplitude": "number",
+            "particle_density": "number",
+            "glow_strength": "number",
+            "seed": "non_empty_str"
+          },
+          "cache": "dict"
+        }
+      },
       "contains_any": [
-        "Technische trackanalyse",
-        "BPM",
-        "Opbouw"
+        "Track Insight",
+        "Here is the Track Insight",
+        "focused, expressive"
       ],
       "source_values_include": [
-        "spotify_playback_context"
+        "track_insight"
       ],
       "allowed_music_commands": [
-        "status",
-        "technical_track_analysis"
+        "status"
       ],
       "forbid_spotify_mutations": true
     }
   },
   {
-    "id": "technical_track_analysis_analyseer_dit_nummer",
+    "id": "track_insight_analyseer_dit_nummer",
     "request": {
       "text": "Analyseer dit nummer",
       "client_type": "ios"
     },
     "expect": {
       "success": true,
-      "intent": "technical_track_analysis",
+      "intent": "track_insight",
       "intent_category": "informational",
-      "action": "track_analysis",
+      "action": "track_insight",
+      "top_level_fields": {
+        "type": "track_insight",
+        "open_screen": "track_insight"
+      },
+      "playback_actions_count": 0,
+      "json_model": {
+        "track_insight": {
+          "id": "non_empty_str",
+          "created_at": "non_empty_str",
+          "source": "non_empty_str",
+          "track": {
+            "title": "non_empty_str",
+            "artist": "non_empty_str",
+            "backend": "non_empty_str"
+          },
+          "analysis": {
+            "summary": "non_empty_str",
+            "full_text": "non_empty_str",
+            "energy": "number",
+            "danceability": "number",
+            "intensity": "number",
+            "confidence": "number",
+            "production_notes": "list",
+            "instrumentation": "list",
+            "arrangement_notes": "list",
+            "listening_cues": "list",
+            "similar_tracks": "list"
+          },
+          "music_dna": {
+            "match_percent": "int",
+            "label": "non_empty_str",
+            "summary": "non_empty_str"
+          },
+          "visual_profile": {
+            "motion_style": "non_empty_str",
+            "spectrum_bias": "non_empty_str",
+            "palette": "non_empty_list",
+            "pulse_speed": "number",
+            "wave_amplitude": "number",
+            "particle_density": "number",
+            "glow_strength": "number",
+            "seed": "non_empty_str"
+          },
+          "cache": "dict"
+        }
+      },
       "contains_any": [
-        "Technische trackanalyse",
-        "BPM",
-        "Opbouw"
+        "Track Insight",
+        "Here is the Track Insight",
+        "focused, expressive"
       ],
       "source_values_include": [
-        "spotify_playback_context"
+        "track_insight"
       ],
       "allowed_music_commands": [
-        "status",
-        "technical_track_analysis"
+        "status"
       ],
       "forbid_spotify_mutations": true
     }
@@ -1430,7 +1520,12 @@
   {
     "id": "help_prompt_analyse_current_track",
     "request": {"text": "Analyseer dit nummer", "client_type": "ios"},
-    "expect": {"success": true, "intent": "technical_track_analysis", "intent_category": "informational", "action": "track_analysis", "allowed_music_commands": ["status", "technical_track_analysis"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "track_insight", "intent_category": "informational", "action": "track_insight", "allowed_music_commands": ["status"], "forbid_spotify_mutations": true}
+  },
+  {
+    "id": "help_prompt_track_insight_current_track",
+    "request": {"text": "Geef Track Insight voor dit nummer", "client_type": "ios"},
+    "expect": {"success": true, "intent": "track_insight", "intent_category": "informational", "action": "track_insight", "allowed_music_commands": ["status"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_current_genre",
@@ -1438,9 +1533,9 @@
     "expect": {"success": true, "intent": "ask_music_info", "intent_category": "informational", "allowed_music_commands": ["status", "artist_profile"], "forbid_spotify_mutations": true}
   },
   {
-    "id": "help_prompt_memory_summary",
+    "id": "help_prompt_music_dna_summary",
     "request": {"text": "Wat weet je nu over mij?", "client_type": "ios"},
-    "expect": {"success": true, "intent": "personal_memory_summary", "intent_category": "informational", "action": "memory_summary", "allowed_music_commands": ["status"], "forbid_spotify_mutations": true}
+    "expect": {"success": true, "intent": "personal_music_dna_summary", "intent_category": "informational", "action": "music_dna_summary", "allowed_music_commands": ["status"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_profile_analysis",

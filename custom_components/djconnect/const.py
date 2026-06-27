@@ -3,7 +3,7 @@ from __future__ import annotations
 
 DOMAIN = "djconnect"
 NAME = "DJConnect"
-VERSION = "3.2.1"
+VERSION = "3.2.2"
 
 API_BASE = "/api/djconnect"
 API_PAIR = f"{API_BASE}/pair"
@@ -18,6 +18,7 @@ API_ASK_DJ_HISTORY = f"{API_ASK_DJ}/history"
 API_ASK_DJ_HISTORY_CLEAR = f"{API_ASK_DJ_HISTORY}/clear"
 API_ASK_DJ_CLEAR = f"{API_ASK_DJ}/clear"
 API_ASK_DJ_HISTORY_STATE = f"{API_ASK_DJ}/history_state"
+API_TRACK_INSIGHT = f"{API_BASE}/track_insight"
 API_IMAGE_PROXY_BASE = f"{API_BASE}/image_proxy"
 API_IMAGE_PROXY = f"{API_IMAGE_PROXY_BASE}/{{token}}"
 API_PUSH_REGISTER = f"{API_BASE}/push/register"
@@ -64,8 +65,6 @@ CONF_DJ_RESPONSE_TTL_SECONDS = "dj_response_ttl_seconds"
 CONF_DJ_RESPONSE_PROMPT_PRESET = "dj_response_prompt_preset"
 CONF_DJ_RESPONSE_PROMPT = "dj_response_prompt"
 CONF_SMART_HOME_CONTEXT_ENTITIES = "smart_home_context_entities"
-CONF_TRACK_ANALYSIS_ENABLED = "track_analysis_enabled"
-CONF_TRACK_ANALYSIS_USE_HA_CONVERSATION = "track_analysis_use_ha_conversation"
 
 CONF_MAX_AUDIO_BYTES = "max_audio_bytes"
 
@@ -140,8 +139,6 @@ DEFAULT_TTS_ENGINE = ""
 DEFAULT_TTS_LANGUAGE = "nl-NL"
 DEFAULT_TTS_VOICE = ""
 DEFAULT_DJ_RESPONSE_ENABLED = True
-DEFAULT_TRACK_ANALYSIS_ENABLED = True
-DEFAULT_TRACK_ANALYSIS_USE_HA_CONVERSATION = True
 DEFAULT_DJ_RESPONSE_TTL_SECONDS = 60 * 60
 DJ_RESPONSE_PROMPT_PRESET_NEUTRAL = "neutral_business"
 DJ_RESPONSE_PROMPT_PRESET_WARM = "warm_personal"

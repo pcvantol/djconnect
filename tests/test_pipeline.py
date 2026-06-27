@@ -373,7 +373,7 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertIn("Last.fm", prompt)
         self.assertIn("Discogs", prompt)
         self.assertIn("TheAudioDB", prompt)
-        self.assertIn("DJConnect Memory", prompt)
+        self.assertIn("Music DNA", prompt)
         self.assertIn("Gebruik deze bronnen niet live als ze niet beschikbaar zijn", prompt)
         self.assertNotIn("spotify:artist", prompt)
         self.assertNotIn("{", prompt)

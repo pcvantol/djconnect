@@ -70,7 +70,7 @@ Pairing, status and command-status responses expose the active backend and a
 monotonic `music_backend_revision`. Clients should treat cached/pending
 backend-specific Play Now actions, recommendations and confirmation actions as
 stale when their local revision is lower than the server revision. The backend
-switch keeps pairing, device tokens, Ask DJ history, DJ Memory and APNs
+switch keeps pairing, device tokens, Ask DJ history, Music DNA and APNs
 registrations; only backend-specific pending playback actions are invalidated.
 
 Music Assistant is a backend-neutral target-player route, not a Spotify Direct
@@ -133,17 +133,80 @@ client includes `mood_zone` for display/debugging, HA still treats the numeric
 behavior.
 
 The zone is used in Ask DJ prompt/context generation, recommendations, idle
-suggestions, DJ Memory prompt context, spoken DJ announcement style and
+suggestions, Music DNA prompt context, spoken DJ announcement style and
 status/debug context. DJ announcement style is not a client or config option:
 when runtime mood is available, the mood zone drives the final announcement
 tone; otherwise DJConnect uses its hardcoded default announcement style.
 Responses do not need to echo mood fields.
 
 Spoken DJ announcements may include one short personal intro line when compact
-DJ Memory or explicitly shared smart-home context makes that natural. Temperature
+Music DNA or explicitly shared smart-home context makes that natural. Temperature
 or weather wording is allowed only from entities configured in
 `smart_home_context_entities`, for example a shared outdoor temperature sensor.
 Clients must not send arbitrary Home Assistant state or local memory for this.
+
+## Track Insight
+
+Track Insight is a backend-independent analysis feature for the currently
+playing track or an explicit artist/title. All entry points use the shared
+Track Insight service layer and the selected DJConnect music backend abstraction;
+clients must not assume Spotify, Music Assistant or a specific `media_player`.
+
+Entry points:
+
+- Ask DJ prompts such as `Tell me about this track`, `What is special about this
+  song?`, `What is the vibe of this track?`, `Geef Track Insight voor dit
+  nummer` or `Give me Track Insight`.
+- `POST /api/djconnect/track_insight` with Home Assistant auth.
+- Home Assistant service `djconnect.track_insight`, which fires
+  `djconnect_track_insight` with the normalized result.
+
+Request fields may include `title`, `artist`, `album`, `entity_id`,
+`player_id`, `music_backend`, `force_refresh`, `locale`,
+`include_visual_profile` and `include_raw_response`. If `title` and `artist`
+are present, the backend analyzes that explicit track; otherwise it resolves
+Now Playing through the music backend/status context.
+
+Responses use normalized TrackInsight JSON with `id`, `created_at`, `source`,
+`track`, `analysis`, `music_dna`, `visual_profile` and `cache`. Numeric
+analysis and visual values are normalized from `0.0` to `1.0`. `music_dna`
+contains a deterministic `match_percent` hint plus a short label/summary so
+clients can render Music DNA Match without treating it as a measured scientific
+score. `visual_profile` is deterministic and is only a rendering hint; clients
+remain responsible for final visualization and must not expect server-generated
+images or video. Structured errors use `error`/`message`, for example
+`no_track_playing`.
+
+## AI Conversation Tools
+
+DJConnect exposes AI/conversation tools through an explicit allowlist, not by
+publishing every Home Assistant service as a tool. Read-only tools may inspect
+Track Insight, playback status, Music DNA, recent history, search results,
+outputs and recommendation candidates. Playback mutation is limited to a
+server-side confirmation pair:
+
+- `djconnect_track_insight`
+- `djconnect_now_playing`
+- `djconnect_music_dna_summary`
+- `djconnect_recently_played`
+- `djconnect_search_music`
+- `djconnect_list_outputs`
+- `djconnect_build_recommendations`
+- `djconnect_prepare_playback_action`
+- `djconnect_execute_confirmed_action`
+
+`djconnect_prepare_playback_action` stores a bounded pending confirmation in
+Music DNA and returns confirmation actions only; it must not start playback.
+`djconnect_execute_confirmed_action` may execute only the latest stored
+DJConnect AI-tool confirmation payload and must not accept arbitrary
+`command`/`value` input.
+
+The registry and implementation are intentionally separate. `tool_registry.py`
+is the contract surface for tool names, JSON schemas and read-only flags.
+`tool_handlers.py` is the backend use-case layer and is the only place where AI
+tools call DJConnect backend primitives. Ask DJ uses the same handlers for
+now-playing, outputs, Track Insight, recent history, search and recommendation
+workflows so those routes cannot drift from the exposed Home Assistant AI tools.
 
 ## Ask DJ Message Actions
 
@@ -257,13 +320,13 @@ return a text-only categorized command list. `Probeer opnieuw` / `retry` replays
 the previous retryable playback request server-side; clients should send the
 user's retry text normally and let the server resolve the prior request.
 The help list includes exact prompt examples that are covered by
-`examples/ask_dj_e2e_cases.json`; for example `Analyseer dit nummer` maps to
-the read-only `technical_track_analysis` intent.
+`examples/ask_dj_e2e_cases.json`; for example `Geef Track Insight voor dit
+nummer` maps to the read-only `track_insight` intent.
 
 Personal memory questions such as `wat weet je nu over mij?`, `wat staat er in
-mijn DJ Memory?` and `what do you know about me?` return
-`intent.intent:"personal_memory_summary"` and `action:"memory_summary"`. The
-response is DJ Memory-only: `sources[]` contains `djconnect_memory`, `images`
+mijn Music DNA?` and `what do you know about me?` return
+`intent.intent:"personal_music_dna_summary"` and `action:"music_dna_summary"`. The
+response is Music DNA-only: `sources[]` contains `djconnect_music_dna`, `images`
 and `playback_actions` are empty, and the backend must not use live playback
 artwork or Spotify listening-profile enrichment for the answer.
 
@@ -356,164 +419,32 @@ Spotify's recently-played context may expose only a playlist URI without a
 playlist display name; in that case the backend can return a generic title such
 as `Spotify playlist` until richer playlist metadata is available.
 
-## Ask DJ Technical Track Analysis
+## Ask DJ Track Insight
 
-Ask DJ supports read-only live technical analysis questions for the currently
-playing Spotify track. Examples:
+Ask DJ supports read-only Track Insight questions through the unified Track
+Insight contract. Examples:
 
-- `geef een technische track analyse van dit nummer`
+- `geef Track Insight voor dit nummer`
 - `analyseer dit nummer`
-- `wat is de bpm en opbouw van deze track?`
-- `analyseer intro, coupletten en refrein`
-- `give me a technical analysis of this song`
+- `tell me about this track`
+- `what is special about this song?`
+- `give me Track Insight`
 
 These responses use:
 
 - `intent.category: "informational"`
-- `intent.intent: "technical_track_analysis"`
-- `intent.action: "track_analysis"`
-- `action: "track_analysis"`
+- `intent.intent: "track_insight"`
+- `intent.action: "track_insight"`
+- `action: "track_insight"`
+- `type: "track_insight"`
+- `open_screen: "track_insight"`
 - `playback_actions: []`
-- `sources[]` including `spotify_playback_context` and, when available,
-  `spotify_audio_features` / `spotify_audio_analysis`
+- top-level `track_insight{}` with normalized `track`, `analysis`,
+  `music_dna`, `visual_profile` and `cache`
 
-The response may include top-level `analysis{}` and display-ready `items[]`
-with `kind:"technical_metric"` or `kind:"arrangement"` for values such as BPM,
-key, energy, danceability and detected section count. If Spotify audio features
-or deep audio analysis are unavailable, the backend must say so explicitly and
-must not invent intro/couplet/refrein labels.
-
-`analysis{}` uses a provider-neutral v2 shape. v2 keeps the v1
-`measured`/`inferred`/`limitations` fields intact and adds client-ready
-rendering sections:
-
-```json
-{
-  "contract_version": 2,
-  "mode": "knowledge_plus_metadata | measured_plus_knowledge | measured | unavailable",
-  "confidence": "low | medium | high",
-  "measured": {
-    "bpm": 128,
-    "key": "C minor",
-    "time_signature": 4,
-    "sections": [],
-    "features": {
-      "energy": 0.82,
-      "danceability": 0.71
-    }
-  },
-  "inferred": {
-    "provider": "ha_conversation | metabrainz_metadata | local_fallback",
-    "structure": "..."
-  },
-  "metadata": {
-    "musicbrainz_recording_id": "...",
-    "first_release_date": "2009-08-14",
-    "genres": ["indie pop"],
-    "listenbrainz_listen_count": 4242
-  },
-  "sections": [
-    {
-      "id": "rhythm_bpm | energy_curve | buildup | metadata_context | instrumentation | melody_harmony | limitations",
-      "title": "Rhythm & BPM",
-      "kind": "technical_metrics",
-      "confidence": "low | medium | high",
-      "source": "measured | inferred | ha_conversation | local_fallback | unavailable | system",
-      "summary": "...",
-      "items": [
-        {"label": "BPM", "value": "128", "source": "measured"}
-      ]
-    }
-  ],
-  "timeline": [
-    {
-      "label": "Section 1",
-      "kind": "section",
-      "source": "measured",
-      "start_ms": 0,
-      "duration_ms": 18000,
-      "end_ms": 18000,
-      "confidence": 0.86
-    }
-  ],
-  "dj_tips": [
-    {
-      "kind": "mixing | set_placement | watch_out | limitation",
-      "title": "Tempo match",
-      "text": "Use 128 BPM as the beatmatch anchor.",
-      "confidence": "low | medium | high",
-      "source": "measured | inferred | system"
-    }
-  ],
-  "providers": [
-    {
-      "provider_id": "spotify_measured | metabrainz_metadata | ha_conversation | local_fallback",
-      "display_name": "Spotify measured analysis",
-      "status": "used | skipped | unavailable | error",
-      "requires_config": true,
-      "reason": "disabled_by_options"
-    }
-  ],
-  "limitations": [
-    "Exact intro, verse, chorus, drop or outro timestamps were not measured."
-  ]
-}
-```
-
-The canonical client display order is `sections[]`, optional `timeline[]`,
-then `dj_tips[]`. Clients must treat timestamps and section labels as measured
-only when `source:"measured"` is present, and should show low-confidence or
-unavailable sections as caveats instead of pretending that intro, verse, chorus
-or drop labels are known.
-
-`analysis.providers[]` is the provider plug-in contract v1. It reports which
-analysis providers were attempted without exposing secrets, access tokens, raw
-audio, prompts or provider-specific private payloads. Clients should render it
-only as optional diagnostic/context metadata and must tolerate unknown
-`provider_id`, `status` and `reason` values. Built-in provider ids are:
-
-- `spotify_measured`: measured metadata/audio feature provider using the user's
-  own Spotify-backed DJConnect backend.
-- `metabrainz_metadata`: free online MusicBrainz + ListenBrainz metadata/context
-  provider. It uses compact per-runtime caching and rate-limit protection, and
-  returns only contextual metadata such as MBIDs, release dates, genres/tags or
-  public ListenBrainz counts. It does not measure BPM, key, waveform, stems or
-  exact arrangement sections.
-- `ha_conversation`: optional Home Assistant Conversation inference provider.
-- `local_fallback`: always-available local inference provider.
-
-MetaBrainz provider semantics:
-
-- It performs at most one MusicBrainz lookup and one ListenBrainz lookup for a
-  cache miss, then stores the compact result in the runtime backend cache for
-  roughly 24 hours.
-- It respects MusicBrainz's one-request-per-second client guidance by skipping
-  provider execution with `status:"skipped"` and `reason:"rate_limited"` when a
-  request was just attempted.
-- Network, timeout, HTTP and parsing failures must not fail the Ask DJ answer.
-  They are reported in `analysis.providers[]` with `status:"error"` or
-  `status:"unavailable"` and the response should continue with measured data,
-  HA Conversation or `local_fallback`.
-- Clients should render `analysis.metadata{}` and `metadata_context` only as
-  context. Do not infer or display exact arrangement labels, BPM, key, stems or
-  waveform facts from MetaBrainz fields.
-
-Canonical client fixtures:
-
-- `examples/ask_dj_track_analysis_v2_response.json`
-- `examples/ask_dj_track_analysis_v2_unavailable.json`
-
-These fixtures are validated by `tests.test_track_analysis_fixtures` and should
-be used as golden responses by iOS, macOS, watchOS, Raspberry Pi and Windows
-clients.
-
-v2 is local-first and self-installable: it must work without a DJConnect central
-backend. Extra providers may be added later through user-supplied keys or a
-local analyzer add-on, but clients should depend on `analysis.mode`,
-`analysis.measured`, `analysis.inferred`, `analysis.sections`,
-`analysis.timeline`, `analysis.dj_tips`, `analysis.limitations` and `items[]`,
-not on a specific provider. Existing v1 clients can keep using
-`measured`/`inferred`/`limitations`.
+Track Insight is the only Ask DJ current-track insight contract. It must not
+expose a parallel response shape or a backend-specific Spotify audio-analysis
+command path.
 
 ## Ask DJ Playback Without Active Speaker
 
@@ -552,7 +483,7 @@ messages older than `history_trimmed_before` and must not parse retention messag
 text.
 
 When the last DJConnect Home Assistant config entry is unloaded or removed, HA
-clears server-side DJ Memory and Ask DJ history. A deleted app/device entry must
+clears server-side Music DNA and Ask DJ history. A deleted app/device entry must
 not keep using another active DJConnect runtime: requests with a stale
 `device_id` or bearer token are rejected instead of falling back to the current
 active entry. Clients should treat `401`/`403` and `not_configured`/stale-pairing
@@ -620,7 +551,7 @@ relay. With `send:true`, it attempts one privacy-safe test event through
 
 Diagnostic responses are intentionally redacted and must not include APNs tokens,
 bearer tokens, bootstrap proofs, `djci_` token values, authorization headers,
-raw prompts, raw audio, Ask DJ history or DJ Memory dumps:
+raw prompts, raw audio, Ask DJ history or Music DNA dumps:
 
 ```json
 {

@@ -13,7 +13,7 @@ from .pipeline import (
     generate_dj_response_with_assist,
     process_text_with_assist,
 )
-from .memory import prompt_context_text
+from .music_dna import prompt_context_text
 from .mood import enrich_payload_with_mood_zone
 from .music_intent import parse_spoken_music_request
 from .smart_home_context import smart_home_context, smart_home_context_text

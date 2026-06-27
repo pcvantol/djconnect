@@ -114,12 +114,12 @@ The website can use `ask_dj_intents` to render example families for:
 - `help`: phrases such as `Help`, `Hulp`, `Wat kun je?` and `Welke commando's
   kan ik gebruiken?`. Responses are categorized text-only prompt lists with no
   media cards, images or playback actions.
-- `personal_memory_summary`: phrases such as `Wat weet je nu over mij?`,
-  `Wat staat er in mijn DJ Memory?` and `What do you know about me?`. Responses
-  are text-only summaries from server-side DJ Memory only. They must not fetch
+- `personal_music_dna_summary`: phrases such as `Wat weet je nu over mij?`,
+  `Wat staat er in mijn Music DNA?` and `What do you know about me?`. Responses
+  are text-only summaries from server-side Music DNA only. They must not fetch
   Spotify profile enrichment, must not use the current playback card, and return
   no images or playback actions. Clients should render only the returned text
-  and `djconnect_memory` source metadata.
+  and `djconnect_music_dna` source metadata.
 - `speaker_outputs`: questions such as `Welke speakers zijn er?`, `Wissel van
   speaker` and `Move music to the living room speaker`. Responses contain a
   text list plus `playback_actions[]` with `kind:"output"` and `Activeer` /
@@ -137,7 +137,7 @@ The website can use `ask_dj_intents` to render example families for:
 - `contextual_play_followup`: short playback follow-ups such as `Speel af`,
   `Speel maar`, `Play it` and `Play that`. Ask DJ resolves these against recent
   chat context, for example a previously discussed track plus artist. It must
-  not guess from stale DJ Memory; if the artist is missing, Ask DJ asks `Welke
+  not guess from stale Music DNA; if the artist is missing, Ask DJ asks `Welke
   artiest bedoel je?` and keeps `action: none`.
 - `album_discography`: questions such as `Welke albums hebben Radiohead
   uitgebracht?` and `Welke albums bracht deze artiest uit?`. Responses can
@@ -167,18 +167,20 @@ The website can use `ask_dj_intents` to render example families for:
   context and returns matching track rows with `Play Now` buttons. It does not
   start playback automatically.
 - `personal_music_profile_analysis`: non-mutating listening-profile questions
-  based on DJConnect Memory plus Spotify recently played/top profile data.
-- `technical_track_analysis`: non-mutating live analysis questions about the
-  current track, such as `Geef een technische track analyse van dit nummer`,
-  `Analyseer dit nummer`, `Wat is de bpm en opbouw van deze track?` and
-  `Give me a technical analysis of this song`. Ask DJ can return BPM, key,
-  energy/danceability and detected
-  arrangement sections when Spotify audio data is available. If deep analysis is
-  unavailable, it must say so and must not invent intro/couplet/refrein labels.
+  based on Music DNA plus Spotify recently played/top profile data.
+- `track_insight`: non-mutating Track Insight questions about the current track,
+  such as `Geef Track Insight voor dit nummer`, `Vertel me over deze track`,
+  `Wat is de vibe van deze plaat?`, `What makes this track special?` and
+  `Give me Track Insight for this song`. Ask DJ returns the shared Track Insight
+  envelope and may open the Track Insight screen in clients. It must not start,
+  queue, skip, like or move playback.
   - Response contract: `intent.category:"informational"`,
-    `intent.intent:"technical_track_analysis"`, `action:"track_analysis"`,
-    `playback_actions:[]` and sources containing `spotify_playback_context`
-    plus optional `spotify_audio_features` / `spotify_audio_analysis`.
+    `intent.intent:"track_insight"`, `intent.action:"track_insight"`,
+    `action:"track_insight"`, `type:"track_insight"`,
+    `open_screen:"track_insight"`, `playback_actions:[]` and sources containing
+    `track_insight`.
+  - Response shape: top-level `track_insight{}` with normalized `track`,
+    `analysis`, `music_dna`, `visual_profile` and `cache`.
 - `recently_played_history`: non-mutating recent listening-history questions
   for tracks, albums, artists and playlist contexts, based on Spotify
   recently-played data. Clients should render returned `items[]` as compact
@@ -226,10 +228,10 @@ The website can use `ask_dj_intents` to render example families for:
   clients.
 - `idle_suggestion`: backend-generated Ask DJ system message when the client
   opens Ask DJ while Spotify is idle. It can include one personalized Play Now
-  action based on DJConnect Memory and Spotify recently played/top profile data.
+  action based on Music DNA and Spotify recently played/top profile data.
 - `morning_music_suggestion`: greetings such as `Goedemorgen` and
   `Good morning`. Ask DJ answers with a personalized morning suggestion based
-  on DJ Memory/listening-time patterns and includes Ja/Nee confirmation actions
+  on Music DNA/listening-time patterns and includes Ja/Nee confirmation actions
   instead of starting playback automatically.
 - `confirmation_followup`: server-generated follow-up questions such as
   `Wil je dit nu afspelen?` or `Zal ik je favoriete ochtendplaylist opzetten?`.

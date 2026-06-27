@@ -139,11 +139,6 @@ async def handle_spotify_command(
             "tracks": await backend.recently_played(limit=limit),
             "source": "spotify_recently_played",
         }
-    if normalized == "technical_track_analysis":
-        return {
-            "success": True,
-            "analysis": await backend.technical_track_analysis(value),
-        }
     if normalized == "artist_recommendations":
         return {
             "success": True,
@@ -789,39 +784,6 @@ class SpotifyBackend:
     async def recently_played(self, *, limit: int = 50) -> list[dict[str, Any]]:
         """Fetch recent Spotify playback history without top-item profile calls."""
         return await self._recently_played(limit=limit)
-
-    async def technical_track_analysis(self, value: Any = None) -> dict[str, Any]:
-        """Fetch live Spotify audio analysis data for the current or supplied track."""
-        playback = value.get("playback") if isinstance(value, dict) else {}
-        if not isinstance(playback, dict) or not playback.get("uri"):
-            try:
-                playback = await self.playback_state()
-            except SpotifyBackendError:
-                playback = {}
-        track = _track_from_playback_for_analysis(playback)
-        track_id = _spotify_id_from_uri(track.get("uri")) or str(track.get("id") or "").strip()
-        analysis: dict[str, Any] = {
-            "track": track,
-            "source": "spotify",
-        }
-        if not track_id:
-            analysis["unavailable_reason"] = "missing_spotify_track_id"
-            return analysis
-        features = await self._optional_spotify_track_data(f"/audio-features/{track_id}")
-        audio_analysis = await self._optional_spotify_track_data(f"/audio-analysis/{track_id}")
-        if features:
-            analysis["audio_features"] = features
-        if audio_analysis:
-            analysis["audio_analysis"] = {
-                "sections": audio_analysis.get("sections") or [],
-                "segments_count": len(audio_analysis.get("segments") or []),
-                "bars_count": len(audio_analysis.get("bars") or []),
-                "beats_count": len(audio_analysis.get("beats") or []),
-                "tatums_count": len(audio_analysis.get("tatums") or []),
-            }
-        if not features and not audio_analysis:
-            analysis["unavailable_reason"] = "spotify_audio_analysis_unavailable"
-        return analysis
 
     async def artist_albums(self, query: str) -> dict[str, Any]:
         """Fetch album discography for the best Spotify artist search result."""

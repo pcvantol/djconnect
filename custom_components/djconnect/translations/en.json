@@ -65,8 +65,6 @@
           "client_type": "Client type",
           "local_url": "Client address",
           "dj_response_enabled": "Play DJ announcement on device",
-          "track_analysis_enabled": "Ask DJ track analysis",
-          "track_analysis_use_ha_conversation": "Use HA Conversation for track analysis",
           "smart_home_context_entities": "Shared smart-home entities",
           "firmware_channel": "Firmware channel",
           "options_action": "Action"
@@ -204,7 +202,7 @@
       },
       "music_backend": {
         "title": "Change music backend",
-        "description": "Current backend is shown below. Switching keeps pairing, device tokens, Ask DJ history, DJ Memory and push registrations. Older backend-specific Ask DJ playback actions or recommendations may no longer be executable.",
+        "description": "Current backend is shown below. Switching keeps pairing, device tokens, Ask DJ history, Music DNA and push registrations. Older backend-specific Ask DJ playback actions or recommendations may no longer be executable.",
         "data": {
           "music_backend": "Music backend"
         },

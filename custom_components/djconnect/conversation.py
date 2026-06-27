@@ -10,6 +10,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import intent
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from .ai_tools import AI_TOOLS, async_call_ai_tool
 from .const import CONF_DEVICE_NAME, DEFAULT_DEVICE_NAME, DOMAIN
 from .use_cases import run_text_command
 
@@ -63,6 +64,25 @@ class DJConnectConversationAgent(conversation.ConversationEntity):
     @property
     def supported_languages(self) -> list[str]:
         return ["nl", "nl-NL", "en", "en-US", "en-GB"]
+
+    @property
+    def conversation_tools(self) -> tuple[dict[str, Any], ...]:
+        """Expose DJConnect tools available to AI conversation callers."""
+        return AI_TOOLS
+
+    async def async_call_tool(
+        self,
+        tool_name: str,
+        parameters: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Call a DJConnect conversation tool through the shared backend helper."""
+        return await async_call_ai_tool(
+            self.hass,
+            self._runtime,
+            tool_name,
+            parameters,
+            user_id=None,
+        )
 
     async def async_process(
         self,

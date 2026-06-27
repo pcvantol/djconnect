@@ -1,0 +1,842 @@
+[
+  {
+    "id": "help_001",
+    "text": "help",
+    "expect": {
+      "intent": "help",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "help_002",
+    "text": "hulp",
+    "expect": {
+      "intent": "help",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "help_004",
+    "text": "wat kun je",
+    "expect": {
+      "intent": "help",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "help_006",
+    "text": "wat kan ask dj",
+    "expect": {
+      "intent": "help",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "morning_music_suggestion_001",
+    "text": "goedemorgen",
+    "expect": {
+      "intent": "morning_music_suggestion",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "morning_music_suggestion_003",
+    "text": "good morning",
+    "expect": {
+      "intent": "morning_music_suggestion",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "personal_music_dna_summary_001",
+    "text": "wat weet je nu over mij",
+    "expect": {
+      "intent": "personal_music_dna_summary",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "personal_music_dna_summary_002",
+    "text": "wat weet je over mij",
+    "expect": {
+      "intent": "personal_music_dna_summary",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "personal_music_dna_summary_003",
+    "text": "wat weet je inmiddels over mij",
+    "expect": {
+      "intent": "personal_music_dna_summary",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "personal_music_dna_summary_004",
+    "text": "what do you know about me",
+    "expect": {
+      "intent": "personal_music_dna_summary",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "personal_music_profile_analysis_001",
+    "text": "analyseer mijn luisterprofiel",
+    "expect": {
+      "intent": "personal_music_profile_analysis",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "personal_music_profile_analysis_002",
+    "text": "omschrijf mijn luisterprofiel",
+    "expect": {
+      "intent": "personal_music_profile_analysis",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "personal_music_profile_analysis_003",
+    "text": "omschrijf mijn listening profile",
+    "expect": {
+      "intent": "personal_music_profile_analysis",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "personal_music_profile_analysis_004",
+    "text": "wat luisterde ik de afgelopen maand",
+    "expect": {
+      "intent": "personal_music_profile_analysis",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "personal_music_profile_analysis_005",
+    "text": "wat heb ik de afgelopen maand geluisterd",
+    "expect": {
+      "intent": "personal_music_profile_analysis",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "personal_music_profile_analysis_007",
+    "text": "geef een analyse van mijn muzieksmaak",
+    "expect": {
+      "intent": "personal_music_profile_analysis",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "personal_artist_recommendations_001",
+    "text": "welke artiesten passen bij mijn smaak",
+    "expect": {
+      "intent": "personal_artist_recommendations",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "personal_artist_recommendations_003",
+    "text": "geef artiesten die bij mijn smaak passen",
+    "expect": {
+      "intent": "personal_artist_recommendations",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "personal_music_recommendations_001",
+    "text": "geef persoonlijke muziekaanbevelingen",
+    "expect": {
+      "intent": "personal_music_recommendations",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "track_insight_001",
+    "text": "analyseer dit nummer",
+    "expect": {
+      "intent": "track_insight",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "track_insight_002",
+    "text": "analyseer deze track",
+    "expect": {
+      "intent": "track_insight",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "track_insight_003",
+    "text": "geef track insight voor dit nummer",
+    "expect": {
+      "intent": "track_insight",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "track_insight_004",
+    "text": "geef track insight",
+    "expect": {
+      "intent": "track_insight",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "track_insight_005",
+    "text": "vertel me over deze track",
+    "expect": {
+      "intent": "track_insight",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "track_insight_006",
+    "text": "wat is de vibe van deze plaat",
+    "expect": {
+      "intent": "track_insight",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "track_insight_007",
+    "text": "what is the vibe of this track",
+    "expect": {
+      "intent": "track_insight",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "track_insight_008",
+    "text": "give me track insight for this song",
+    "expect": {
+      "intent": "track_insight",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "recently_played_history_001",
+    "text": "welke nummers heb ik afgelopen uur afgespeeld",
+    "expect": {
+      "intent": "recently_played_history",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "recently_played_history_003",
+    "text": "welke tracks heb ik vandaag afgespeeld",
+    "expect": {
+      "intent": "recently_played_history",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "recently_played_history_004",
+    "text": "welke albums heb ik vandaag geluisterd",
+    "expect": {
+      "intent": "recently_played_history",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "recently_played_history_005",
+    "text": "welke playlists heb ik afgelopen uur gespeeld",
+    "expect": {
+      "intent": "recently_played_history",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "current_track_reference_001",
+    "text": "wat speelt er nu",
+    "expect": {
+      "intent": "current_track_reference",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "current_track_reference_004",
+    "text": "what song is playing",
+    "expect": {
+      "intent": "current_track_reference",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "dj_announcement_001",
+    "text": "geef een dj intro voor dit nummer",
+    "expect": {
+      "intent": "dj_announcement",
+      "intent_category": "hybrid"
+    }
+  },
+  {
+    "id": "dj_announcement_002",
+    "text": "maak een dj aankondiging",
+    "expect": {
+      "intent": "dj_announcement",
+      "intent_category": "hybrid"
+    }
+  },
+  {
+    "id": "next_track_info_001",
+    "text": "wat wordt het volgende nummer",
+    "expect": {
+      "intent": "next_track_info",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "next_track_info_002",
+    "text": "welk nummer komt hierna",
+    "expect": {
+      "intent": "next_track_info",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "next_track_info_003",
+    "text": "wat komt hierna",
+    "expect": {
+      "intent": "next_track_info",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "next_track_info_004",
+    "text": "what is next",
+    "expect": {
+      "intent": "next_track_info",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "artist_concerts_001",
+    "text": "wanneer speelt pearl jam in nederland",
+    "expect": {
+      "intent": "artist_concerts",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "artist_concerts_002",
+    "text": "wanneer treedt radiohead op",
+    "expect": {
+      "intent": "artist_concerts",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "artist_concerts_003",
+    "text": "concerten van radiohead",
+    "expect": {
+      "intent": "artist_concerts",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "artist_concerts_004",
+    "text": "tourdata van metallica",
+    "expect": {
+      "intent": "artist_concerts",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "artist_item_list_001",
+    "text": "welke muziek heeft scooter gemaakt",
+    "expect": {
+      "intent": "artist_item_list",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "artist_item_list_002",
+    "text": "welke nummers heeft radiohead gemaakt",
+    "expect": {
+      "intent": "artist_item_list",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "artist_item_list_003",
+    "text": "geef me 5 nummers van pearl jam",
+    "expect": {
+      "intent": "artist_item_list",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "artist_item_list_004",
+    "text": "geef me albums van radiohead",
+    "expect": {
+      "intent": "artist_item_list",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "artist_item_list_005",
+    "text": "toon playlists van metallica",
+    "expect": {
+      "intent": "artist_item_list",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "similar_artists_001",
+    "text": "vergelijkbare artiesten",
+    "expect": {
+      "intent": "similar_artists",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "similar_artists_002",
+    "text": "welke vergelijkbare artiesten zijn er",
+    "expect": {
+      "intent": "similar_artists",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "similar_artists_003",
+    "text": "similar artists",
+    "expect": {
+      "intent": "similar_artists",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "build_playlist_from_seeds_001",
+    "text": "stel een playlist samen op basis van radiohead en massive attack",
+    "expect": {
+      "intent": "build_playlist_from_seeds",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "build_playlist_from_seeds_002",
+    "text": "ik wil een playlist obv tracks reckoner teardrop",
+    "expect": {
+      "intent": "build_playlist_from_seeds",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "build_playlist_from_seeds_003",
+    "text": "ik wil een playlist in genre ambient techno",
+    "expect": {
+      "intent": "build_playlist_from_seeds",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "build_playlist_from_seeds_004",
+    "text": "maak playlist obv huidig nummer",
+    "expect": {
+      "intent": "build_playlist_from_seeds",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "spotify_user_playlists_001",
+    "text": "toon mijn playlists",
+    "expect": {
+      "intent": "spotify_user_playlists",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "spotify_user_playlists_002",
+    "text": "welke playlists heb ik",
+    "expect": {
+      "intent": "spotify_user_playlists",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "spotify_user_playlists_004",
+    "text": "mijn playlists",
+    "expect": {
+      "intent": "spotify_user_playlists",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "spotify_playlist_search_001",
+    "text": "zoek playlists voor techno",
+    "expect": {
+      "intent": "spotify_playlist_search",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "spotify_playlist_search_002",
+    "text": "zoek afspeellijsten met grunge",
+    "expect": {
+      "intent": "spotify_playlist_search",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "spotify_playlist_search_003",
+    "text": "vind playlists voor hardlopen",
+    "expect": {
+      "intent": "spotify_playlist_search",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "song_recommendations_002",
+    "text": "geef me song recommendations",
+    "expect": {
+      "intent": "song_recommendations",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "song_recommendations_004",
+    "text": "geef me nieuwe nummers",
+    "expect": {
+      "intent": "song_recommendations",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "artist_more_tracks_001",
+    "text": "meer nummers van radiohead",
+    "expect": {
+      "intent": "artist_more_tracks",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "artist_more_tracks_002",
+    "text": "nog meer tracks van pearl jam",
+    "expect": {
+      "intent": "artist_more_tracks",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "save_generated_playlist_001",
+    "text": "maak hier een playlist van",
+    "expect": {
+      "intent": "save_generated_playlist",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "save_generated_playlist_003",
+    "text": "bewaar dit als playlist",
+    "expect": {
+      "intent": "save_generated_playlist",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "list_outputs_001",
+    "text": "welke speakers zijn er",
+    "expect": {
+      "intent": "list_outputs",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "list_outputs_003",
+    "text": "wissel van speaker",
+    "expect": {
+      "intent": "list_outputs",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "current_output_001",
+    "text": "waarop speelt de muziek",
+    "expect": {
+      "intent": "current_output",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "current_output_002",
+    "text": "waarop draait muziek",
+    "expect": {
+      "intent": "current_output",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "playback_mode_status_001",
+    "text": "staat shuffle aan",
+    "expect": {
+      "intent": "playback_mode_status",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "playback_mode_status_002",
+    "text": "is shuffle actief",
+    "expect": {
+      "intent": "playback_mode_status",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "playback_mode_status_003",
+    "text": "staat repeat aan",
+    "expect": {
+      "intent": "playback_mode_status",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "playback_mode_status_004",
+    "text": "hoe staat repeat",
+    "expect": {
+      "intent": "playback_mode_status",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "playback_control_001",
+    "text": "pauzeer",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_002",
+    "text": "stop muziek",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_003",
+    "text": "stop de muziek",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_004",
+    "text": "ik ga slapen",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_005",
+    "text": "start muziek",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_006",
+    "text": "start de muziek",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_007",
+    "text": "speel verder",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_008",
+    "text": "hervat muziek",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_009",
+    "text": "resume",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_010",
+    "text": "next",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_011",
+    "text": "skip",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_012",
+    "text": "next song",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_013",
+    "text": "volgende nummer",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_014",
+    "text": "vorige nummer",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_015",
+    "text": "previous",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_016",
+    "text": "zet harder",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_017",
+    "text": "zet zachter",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_018",
+    "text": "shuffle aan",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_019",
+    "text": "shuffle uit",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_020",
+    "text": "repeat aan",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_021",
+    "text": "repeat uit",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_022",
+    "text": "herhaal dit",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_023",
+    "text": "zet huidig nummer in favorieten",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "play_music_001",
+    "text": "speel nirvana",
+    "expect": {
+      "intent": "play_music",
+      "intent_category": "hybrid"
+    }
+  },
+  {
+    "id": "play_music_002",
+    "text": "speel radiohead",
+    "expect": {
+      "intent": "play_music",
+      "intent_category": "hybrid"
+    }
+  },
+  {
+    "id": "play_music_003",
+    "text": "draai pearl jam",
+    "expect": {
+      "intent": "play_music",
+      "intent_category": "hybrid"
+    }
+  },
+  {
+    "id": "play_music_004",
+    "text": "zet metallica op",
+    "expect": {
+      "intent": "play_music",
+      "intent_category": "hybrid"
+    }
+  },
+  {
+    "id": "play_music_005",
+    "text": "speel paranoid android",
+    "expect": {
+      "intent": "play_music",
+      "intent_category": "hybrid"
+    }
+  },
+  {
+    "id": "play_music_006",
+    "text": "draai wat techno",
+    "expect": {
+      "intent": "play_music",
+      "intent_category": "hybrid"
+    }
+  },
+  {
+    "id": "play_music_007",
+    "text": "zet muziek voor koken op",
+    "expect": {
+      "intent": "play_music",
+      "intent_category": "hybrid"
+    }
+  }
+]

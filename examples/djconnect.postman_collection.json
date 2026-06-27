@@ -17,6 +17,11 @@
       "type": "string"
     },
     {
+      "key": "ha_access_token",
+      "value": "replace-with-home-assistant-long-lived-access-token",
+      "type": "string"
+    },
+    {
       "key": "device_id",
       "value": "djconnect-watchos-68B74487726D",
       "type": "string"
@@ -37,7 +42,7 @@
       "type": "string"
     },
     {
-      "key": "memory_key",
+      "key": "music_dna_key",
       "value": "postman-shared-memory",
       "type": "string"
     },
@@ -122,7 +127,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"platform\": \"{{client_type}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"firmware\": \"3.2.0\",\n  \"app_version\": \"3.2.0\",\n  \"battery_percent\": 86,\n  \"mood\": 42,\n  \"mood_zone\": \"groove\",\n  \"dj_style\": \"warm_radio_dj\",\n  \"memory_key\": \"{{memory_key}}\"\n}"
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"platform\": \"{{client_type}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"firmware\": \"3.2.0\",\n  \"app_version\": \"3.2.0\",\n  \"battery_percent\": 86,\n  \"mood\": 42,\n  \"mood_zone\": \"groove\",\n  \"dj_style\": \"warm_radio_dj\",\n  \"music_dna_key\": \"{{music_dna_key}}\"\n}"
             },
             "url": {
               "raw": "{{ha_base_url}}/api/djconnect/status",
@@ -135,7 +140,7 @@
                 "status"
               ]
             },
-            "description": "Authenticated client status update. App clients can include optional Ask DJ memory hints."
+            "description": "Authenticated client status update. App clients can include optional Music DNA hints."
           }
         },
         {
@@ -158,7 +163,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"command\": \"status\",\n  \"memory_key\": \"{{memory_key}}\"\n}"
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"command\": \"status\",\n  \"music_dna_key\": \"{{music_dna_key}}\"\n}"
             },
             "url": {
               "raw": "{{ha_base_url}}/api/djconnect/command",
@@ -307,7 +312,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"client_message_id\": \"{{$guid}}\",\n  \"client_id\": \"{{device_id}}\",\n  \"identity\": {\n    \"device_id\": \"{{device_id}}\",\n    \"client_type\": \"{{client_type}}\",\n    \"device_name\": \"{{device_name}}\"\n  },\n  \"text\": \"Waarom koos je dit nummer?\",\n  \"memory_key\": \"{{memory_key}}\",\n  \"mood\": 42,\n  \"mood_zone\": \"groove\",\n  \"dj_style\": \"warm_radio_dj\",\n  \"audio_response\": \"auto\"\n}"
+              "raw": "{\n  \"client_message_id\": \"{{$guid}}\",\n  \"client_id\": \"{{device_id}}\",\n  \"identity\": {\n    \"device_id\": \"{{device_id}}\",\n    \"client_type\": \"{{client_type}}\",\n    \"device_name\": \"{{device_name}}\"\n  },\n  \"text\": \"Waarom koos je dit nummer?\",\n  \"music_dna_key\": \"{{music_dna_key}}\",\n  \"mood\": 42,\n  \"mood_zone\": \"groove\",\n  \"dj_style\": \"warm_radio_dj\",\n  \"audio_response\": \"auto\"\n}"
             },
             "url": {
               "raw": "{{ha_base_url}}/api/djconnect/ask_dj/message",
@@ -344,7 +349,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"client_message_id\": \"{{$guid}}\",\n  \"client_id\": \"{{device_id}}\",\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"text\": \"Omschrijf eens waar ik zoal naar luisterde de afgelopen maand\",\n  \"memory_key\": \"{{memory_key}}\"\n}"
+              "raw": "{\n  \"client_message_id\": \"{{$guid}}\",\n  \"client_id\": \"{{device_id}}\",\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"text\": \"Omschrijf eens waar ik zoal naar luisterde de afgelopen maand\",\n  \"music_dna_key\": \"{{music_dna_key}}\"\n}"
             },
             "url": {
               "raw": "{{ha_base_url}}/api/djconnect/ask_dj/message",
@@ -358,7 +363,7 @@
                 "message"
               ]
             },
-            "description": "Personal music profile analysis intent. Expected intent: personal_music_profile_analysis. This must not mutate playback. Response should include sources[] such as spotify_recently_played, spotify_top_tracks_short_term and djconnect_memory when data is available."
+            "description": "Personal music profile analysis intent. Expected intent: personal_music_profile_analysis. This must not mutate playback. Response should include sources[] such as spotify_recently_played, spotify_top_tracks_short_term and djconnect_music_dna when data is available."
           }
         },
         {
@@ -381,7 +386,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"client_message_id\": \"{{$guid}}\",\n  \"client_id\": \"{{device_id}}\",\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"text\": \"Welke nummers heb ik afgelopen uur afgespeeld?\",\n  \"memory_key\": \"{{memory_key}}\"\n}"
+              "raw": "{\n  \"client_message_id\": \"{{$guid}}\",\n  \"client_id\": \"{{device_id}}\",\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"text\": \"Welke nummers heb ik afgelopen uur afgespeeld?\",\n  \"music_dna_key\": \"{{music_dna_key}}\"\n}"
             },
             "url": {
               "raw": "{{ha_base_url}}/api/djconnect/ask_dj/message",
@@ -418,7 +423,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"client_message_id\": \"{{$guid}}\",\n  \"client_id\": \"{{device_id}}\",\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"text\": \"Welke muziek raad je mij aan?\",\n  \"memory_key\": \"{{memory_key}}\"\n}"
+              "raw": "{\n  \"client_message_id\": \"{{$guid}}\",\n  \"client_id\": \"{{device_id}}\",\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"text\": \"Welke muziek raad je mij aan?\",\n  \"music_dna_key\": \"{{music_dna_key}}\"\n}"
             },
             "url": {
               "raw": "{{ha_base_url}}/api/djconnect/ask_dj/message",
@@ -455,7 +460,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"client_message_id\": \"{{$guid}}\",\n  \"client_id\": \"{{device_id}}\",\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"text\": \"Goedemorgen\",\n  \"trigger\": \"morning_startup\",\n  \"reason\": \"app_started_without_active_playback\",\n  \"has_active_now_playing\": \"false\",\n  \"local_date\": \"2026-06-20\",\n  \"local_hour\": \"8\",\n  \"memory_key\": \"{{memory_key}}\"\n}"
+              "raw": "{\n  \"client_message_id\": \"{{$guid}}\",\n  \"client_id\": \"{{device_id}}\",\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"text\": \"Goedemorgen\",\n  \"trigger\": \"morning_startup\",\n  \"reason\": \"app_started_without_active_playback\",\n  \"has_active_now_playing\": \"false\",\n  \"local_date\": \"2026-06-20\",\n  \"local_hour\": \"8\",\n  \"music_dna_key\": \"{{music_dna_key}}\"\n}"
             },
             "url": {
               "raw": "{{ha_base_url}}/api/djconnect/ask_dj/message",
@@ -492,7 +497,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"command\": \"ask_dj_play_recommendation\",\n  \"play\": true,\n  \"value\": {\n    \"backend\": \"spotify_direct\",\n    \"provider\": \"spotify\",\n    \"music_backend_revision\": 1,\n    \"title\": \"Track Title\",\n    \"subtitle\": \"Artist Name\",\n    \"uri\": \"spotify:track:123\",\n    \"context_uri\": \"spotify:album:456\",\n    \"offset_uri\": \"spotify:track:123\",\n    \"kind\": \"track\",\n    \"memory_key\": \"{{memory_key}}\",\n    \"reason\": \"Past bij je recente voorkeur voor melodische opbouw.\",\n    \"value\": {\n      \"uri\": \"spotify:track:123\",\n      \"title\": \"Track Title\",\n      \"subtitle\": \"Artist Name\",\n      \"image_url\": \"{{image_url}}\"\n    }\n  }\n}"
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"command\": \"ask_dj_play_recommendation\",\n  \"play\": true,\n  \"value\": {\n    \"backend\": \"spotify_direct\",\n    \"provider\": \"spotify\",\n    \"music_backend_revision\": 1,\n    \"title\": \"Track Title\",\n    \"subtitle\": \"Artist Name\",\n    \"uri\": \"spotify:track:123\",\n    \"context_uri\": \"spotify:album:456\",\n    \"offset_uri\": \"spotify:track:123\",\n    \"kind\": \"track\",\n    \"music_dna_key\": \"{{music_dna_key}}\",\n    \"reason\": \"Past bij je recente voorkeur voor melodische opbouw.\",\n    \"value\": {\n      \"uri\": \"spotify:track:123\",\n      \"title\": \"Track Title\",\n      \"subtitle\": \"Artist Name\",\n      \"image_url\": \"{{image_url}}\"\n    }\n  }\n}"
             },
             "url": {
               "raw": "{{ha_base_url}}/api/djconnect/command",
@@ -528,7 +533,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"command\": \"ask_dj_followup_response\",\n  \"value\": {\n    \"title\": \"Ja\",\n    \"kind\": \"confirmation\",\n    \"action_style\": \"confirmation\",\n    \"response_value\": \"yes\",\n    \"memory_key\": \"{{memory_key}}\"\n  }\n}"
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"command\": \"ask_dj_followup_response\",\n  \"value\": {\n    \"title\": \"Ja\",\n    \"kind\": \"confirmation\",\n    \"action_style\": \"confirmation\",\n    \"response_value\": \"yes\",\n    \"music_dna_key\": \"{{music_dna_key}}\"\n  }\n}"
             },
             "url": {
               "raw": "{{ha_base_url}}/api/djconnect/command",
@@ -564,7 +569,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"client_message_id\": \"{{$guid}}\",\n  \"client_id\": \"{{device_id}}\",\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"text\": \"Volgende nummer\",\n  \"memory_key\": \"{{memory_key}}\",\n  \"audio_response\": \"auto\"\n}"
+              "raw": "{\n  \"client_message_id\": \"{{$guid}}\",\n  \"client_id\": \"{{device_id}}\",\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"text\": \"Volgende nummer\",\n  \"music_dna_key\": \"{{music_dna_key}}\",\n  \"audio_response\": \"auto\"\n}"
             },
             "url": {
               "raw": "{{ha_base_url}}/api/djconnect/ask_dj/message",
@@ -579,6 +584,38 @@
               ]
             },
             "description": "Ask DJ playback action example. This can mutate playback."
+          }
+        },
+        {
+          "name": "Track Insight",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ha_access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Innerbloom\",\n  \"artist\": \"RUFUS DU SOL\",\n  \"album\": \"Bloom\",\n  \"force_refresh\": false,\n  \"include_visual_profile\": true,\n  \"include_raw_response\": false,\n  \"locale\": \"en\"\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/track_insight",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "track_insight"
+              ]
+            },
+            "description": "Standalone Track Insight endpoint for Apple and future clients. Uses Home Assistant auth and returns normalized TrackInsight JSON with track metadata, structured analysis, Music DNA Match, cache info and optional visual-profile hints."
           }
         },
         {
@@ -756,7 +793,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"text\": \"Wat speelt er nu?\",\n  \"memory_key\": \"{{memory_key}}\"\n}"
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"text\": \"Wat speelt er nu?\",\n  \"music_dna_key\": \"{{music_dna_key}}\"\n}"
             },
             "url": {
               "raw": "{{ha_base_url}}/api/djconnect/voice",
@@ -802,8 +839,8 @@
                 "value": "warm_radio_dj"
               },
               {
-                "key": "X-DJConnect-Memory-Key",
-                "value": "{{memory_key}}"
+                "key": "X-DJConnect-Music-DNA-Key",
+                "value": "{{music_dna_key}}"
               }
             ],
             "body": {

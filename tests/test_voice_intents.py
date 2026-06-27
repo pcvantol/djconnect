@@ -9,16 +9,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class VoiceIntentDataTest(unittest.TestCase):
-    def test_personal_memory_summary_intent_is_documented(self) -> None:
+    def test_personal_music_dna_summary_intent_is_documented(self) -> None:
         data = json.loads((ROOT / "examples" / "voice_intents.json").read_text())
-        intent = data["ask_dj_intents"]["personal_memory_summary"]
+        intent = data["ask_dj_intents"]["personal_music_dna_summary"]
 
         self.assertFalse(intent["plays_music"])
-        self.assertEqual(intent["intent"], "personal_memory_summary")
-        self.assertEqual(intent["action"], "memory_summary")
+        self.assertEqual(intent["intent"], "personal_music_dna_summary")
+        self.assertEqual(intent["action"], "music_dna_summary")
         self.assertEqual(intent["response_shape"]["images"], [])
         self.assertEqual(intent["response_shape"]["playback_actions"], [])
-        self.assertEqual(intent["response_shape"]["sources"], ["djconnect_memory"])
+        self.assertEqual(intent["response_shape"]["sources"], ["djconnect_music_dna"])
         self.assertIn("Wat weet je nu over mij?", intent["nl"])
         self.assertIn("What do you know about me?", intent["en"])
 
@@ -54,6 +54,24 @@ class VoiceIntentDataTest(unittest.TestCase):
         self.assertIn("Heb je meer nummers die hierop lijken?", seed["nl"])
         self.assertIn("Speel vergelijkbare nummers", seed["nl"])
         self.assertIn("Queue similar tracks", seed["en"])
+
+    def test_track_insight_voice_intent_uses_new_contract_examples(self) -> None:
+        data = json.loads((ROOT / "examples" / "voice_intents.json").read_text())
+        intent = data["ask_dj_intents"]["track_insight"]
+
+        self.assertFalse(intent["plays_music"])
+        self.assertEqual(intent["intent"], "track_insight")
+        self.assertEqual(intent["action"], "track_insight")
+        self.assertEqual(intent["response_shape"]["playback_actions"], "none")
+        self.assertIn("Geef Track Insight voor dit nummer", intent["nl"])
+        self.assertIn("Wat is de vibe van deze plaat?", intent["nl"])
+        self.assertIn("Give me Track Insight for this song", intent["en"])
+        self.assertIn("What makes this track special?", intent["en"])
+
+        examples = " ".join([*intent["nl"], *intent["en"]]).lower()
+        self.assertNotIn("technische track analyse", examples)
+        self.assertNotIn("technical analysis", examples)
+        self.assertNotIn("bpm", examples)
 
     def test_backend_contract_wording_is_backend_neutral(self) -> None:
         data = json.loads((ROOT / "examples" / "voice_intents.json").read_text())

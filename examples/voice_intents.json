@@ -277,30 +277,30 @@
         "Which commands can I use?"
       ]
     },
-    "personal_memory_summary": {
+    "personal_music_dna_summary": {
       "plays_music": false,
-      "action": "memory_summary",
-      "intent": "personal_memory_summary",
+      "action": "music_dna_summary",
+      "intent": "personal_music_dna_summary",
       "response_shape": {
         "text_only": true,
         "images": [],
         "playback_actions": [],
         "sources": [
-          "djconnect_memory"
+          "djconnect_music_dna"
         ]
       },
-      "description": "Ask what DJConnect currently remembers about the user. The response must be based on DJ Memory only, without live playback artwork, Spotify profile enrichment or Play Now actions.",
+      "description": "Ask what DJConnect currently remembers about the user. The response must be based on Music DNA only, without live playback artwork, Spotify profile enrichment or Play Now actions.",
       "nl": [
         "Wat weet je nu over mij?",
         "Wat weet je over mij?",
         "Wat weet DJConnect over mij?",
-        "Wat staat er in mijn DJ Memory?",
+        "Wat staat er in mijn Music DNA?",
         "Wat herinner je je over mij?"
       ],
       "en": [
         "What do you know about me?",
         "What does DJConnect know about me?",
-        "What is in my DJ Memory?",
+        "What is in my Music DNA?",
         "What do you remember about me?"
       ]
     },
@@ -512,7 +512,7 @@
     "personal_music_profile_analysis": {
       "plays_music": false,
       "action": "profile_analysis",
-      "description": "Ask for a personal listening profile based on DJConnect Memory and Spotify recently played/top profile data.",
+      "description": "Ask for a personal listening profile based on Music DNA and Spotify recently played/top profile data.",
       "nl": [
         "Omschrijf eens waar ik zoal naar luisterde de afgelopen maand",
         "Wat zegt mijn muziek van de laatste twee weken over mijn stemming?",
@@ -526,33 +526,32 @@
         "Make a profile of my music taste this year"
       ]
     },
-    "technical_track_analysis": {
+    "track_insight": {
       "plays_music": false,
-      "action": "track_analysis",
-      "intent": "technical_track_analysis",
+      "action": "track_insight",
+      "intent": "track_insight",
       "intent_category": "informational",
       "sources": [
-        "spotify_playback_context",
-        "spotify_audio_features",
-        "spotify_audio_analysis"
+        "track_insight"
       ],
       "response_shape": {
+        "track_insight": true,
         "analysis": true,
-        "items": true,
+        "visual_profile": true,
         "playback_actions": "none"
       },
-      "description": "Ask for a live technical analysis of the current track, including BPM, key, energy, arrangement sections and non-hallucinated notes about structure/instrumentation when data is available.",
+      "description": "Ask for Track Insight on the current track, returning normalized track metadata, concise analysis and deterministic visualization hints.",
       "nl": [
-        "Geef een technische track analyse van dit nummer",
-        "Wat is de bpm en opbouw van deze track?",
-        "Analyseer intro, coupletten en refrein van wat nu speelt",
-        "Welke instrumenten en melodische opbouw hoor je in deze plaat?"
+        "Geef Track Insight voor dit nummer",
+        "Vertel me over deze track",
+        "Wat is de vibe van deze plaat?",
+        "Wat maakt dit nummer bijzonder?"
       ],
       "en": [
-        "Give me a technical analysis of this song",
-        "What is the BPM and structure of this track?",
-        "Analyze the intro, verses and chorus of the current track",
-        "What instruments and melodic build-up are in this song?"
+        "Give me Track Insight for this song",
+        "Tell me about this track",
+        "What is the vibe of this song?",
+        "What makes this track special?"
       ]
     },
     "recently_played_history": {

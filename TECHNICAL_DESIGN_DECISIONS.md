@@ -179,7 +179,7 @@ Pattern:
   client mood is mapped to `chill`, `groove`, `energy` or `party` and the
   generated DJ announcement receives the matching style guidance. Missing mood
   keeps the hardcoded default style.
-- The DJ announcement prompt may include compact DJ Memory and explicitly shared
+- The DJ announcement prompt may include compact Music DNA and explicitly shared
   smart-home context for one short personal intro line. Weather or temperature
   references are allowed only when they come from configured read-only
   `smart_home_context_entities`; arbitrary HA state is never added.
@@ -295,7 +295,7 @@ Primary source files:
 
 - `custom_components/djconnect/const.py`
 
-### Server-Side DJ Memory
+### Server-Side Music DNA
 
 Pattern:
 
@@ -305,7 +305,7 @@ Pattern:
   chat/history and keeps the existing command/PTT flow.
 - Runtime session memory keeps bounded recent turns for follow-ups and may be
   lost on Home Assistant restart.
-- Persistent memory uses Home Assistant `Store(hass, 1, "djconnect_memory")`;
+- Persistent memory uses Home Assistant `Store(hass, 1, "djconnect_music_dna")`;
   no recorder database or vector database is used for v1.
 - Memory keys prefer HA user id when available and fall back to stable
   DJConnect client/device id.
@@ -314,7 +314,7 @@ Pattern:
 - Text Ask DJ requests from app/display clients enter through
   `POST /api/djconnect/ask_dj/message`; service `djconnect.ask_dj` and
   `POST /api/djconnect/ask_dj` remain developer/raw entrypoints.
-- Renderable Ask DJ chat history is separate from DJ Memory and uses Home
+- Renderable Ask DJ chat history is separate from Music DNA and uses Home
   Assistant `Store(hass, 1, "djconnect_ask_dj_history")`. It is keyed by HA
   user id, keeps at most 1000 messages per user and stores user/assistant
   messages with images, links, sources, audio_url and playback_actions.
@@ -328,7 +328,7 @@ Pattern:
 - `client_message_id` provides idempotency for retried message posts. `client_id`
   and `client_type` stay metadata for origin/device diagnostics and must not be
   used as the primary history key.
-- Pending Ask DJ follow-ups are stored compactly in DJ Memory with a short TTL
+- Pending Ask DJ follow-ups are stored compactly in Music DNA with a short TTL
   so a confirmation question can survive a cross-device reply. The first
   implementation uses a 10 minute expiry and stores only the proposed command
   metadata needed to execute or decline the follow-up.
@@ -366,20 +366,20 @@ Pattern:
   prompt disclosure or playback actions.
 - `personal_music_profile_analysis` is a dedicated informational intent. It
   parses common period phrases, defaults to the last 30 days, summarizes only
-  available DJ Memory/playback data and returns an insufficient-data answer when
+  available Music DNA/playback data and returns an insufficient-data answer when
   there is not enough history. It must not call mutating Spotify/Home Assistant
   actions.
-- `personal_memory_summary` is narrower than profile analysis. It answers
+- `personal_music_dna_summary` is narrower than profile analysis. It answers
   privacy-style questions such as `wat weet je nu over mij?` from server-side
-  DJ Memory only, returns source `djconnect_memory`, no images and no playback
+  Music DNA only, returns source `djconnect_music_dna`, no images and no playback
   actions, and must not fetch Spotify listening-profile enrichment or reuse the
   current playback media card.
 - Spotify listening-profile enrichment is non-mutating and uses official Web
   API reads only: `/me/player/recently-played` and `/me/top/{artists,tracks}`.
-  The integration caches compact profile snapshots in DJ Memory with a
+  The integration caches compact profile snapshots in Music DNA with a
   multi-hour TTL instead of storing unlimited raw listening history.
 - Ask DJ profile responses expose `sources[]` metadata so clients can show
-  Spotify recently played/top-items and DJConnect Memory provenance separately
+  Spotify recently played/top-items and Music DNA provenance separately
   from normal links.
 - `recently_played_history` is a separate read-only Ask DJ intent for questions
   about recently played tracks, albums, artists and playlist contexts. It uses
@@ -391,6 +391,14 @@ Pattern:
   `playback_actions[]`, but playback starts only after the explicit
   `ask_dj_play_recommendation` command. This prevents accidental playback
   mutations while still giving clients a Play Now affordance.
+- Ask DJ backend primitives are routed through the same AI tool handler layer
+  that Home Assistant exposes to conversation agents. `tool_registry.py` owns
+  schemas, tool names and read-only flags; `tool_handlers.py` owns the
+  implementations. Ask DJ may call those handlers directly for now-playing,
+  outputs, Track Insight, recent history, search and recommendations, but
+  recommendation and recent-history handlers must not call Ask DJ again. This
+  keeps tool exposure, HTTP/service calls and internal Ask DJ routing aligned
+  without creating recursive conversation loops.
 - Ask DJ concert agenda lookups are informational and non-mutating. The
   `artist_concerts` intent resolves an explicit artist, current playback artist
   or recent conversation artist and reads upcoming event data from Bandsintown
@@ -418,7 +426,7 @@ Pattern:
 
 Primary source files:
 
-- `custom_components/djconnect/memory.py`
+- `custom_components/djconnect/music_dna.py`
 - `custom_components/djconnect/ask_dj.py`
 - `custom_components/djconnect/http.py`
 - `custom_components/djconnect/processor.py`
@@ -978,8 +986,8 @@ unless imported or declared here.
 | HACS | Distribution surface for this custom integration | HACS metadata in `hacs.json`; HACS version not pinned | MIT License | https://github.com/hacs/integration |
 | DJConnect API relay | Central Apple push notification relay for DJConnect Apple clients | External DJConnect service; no library is vendored | DJConnect MIT-licensed service repo unless its own dependencies state otherwise | https://github.com/pcvantol/djconnect-api |
 | Spotify Web API | User-authorized backend playback, OAuth token endpoint and search/playback endpoints | External API; no library is vendored | Spotify Developer Terms | https://developer.spotify.com/documentation/web-api |
-| MusicBrainz API | Optional Ask DJ technical track-analysis metadata/context enrichment through `metabrainz_metadata` | External API; no library is vendored. Requests use JSON, a meaningful DJConnect User-Agent, compact runtime caching and one-request-per-second protection. | MusicBrainz/MetaBrainz terms and data licenses | https://musicbrainz.org/doc/MusicBrainz_API |
-| ListenBrainz API | Optional Ask DJ technical track-analysis public listen/metadata context through `metabrainz_metadata` | External API; no library is vendored. Requests are unauthenticated, cached compactly and failure-tolerant. | ListenBrainz/MetaBrainz terms and data licenses | https://listenbrainz.readthedocs.io/en/latest/users/api/index.html |
+| MusicBrainz API | Optional music knowledge context for Ask DJ and Track Insight when already available to the integration/agent | External API; no library is vendored. Any use must stay failure-tolerant, compactly cached and clearly labelled as contextual metadata rather than measured audio analysis. | MusicBrainz/MetaBrainz terms and data licenses | https://musicbrainz.org/doc/MusicBrainz_API |
+| ListenBrainz API | Optional public listen/metadata context for Ask DJ and Track Insight when already available to the integration/agent | External API; no library is vendored. Any use must be unauthenticated, compactly cached, failure-tolerant and labelled as contextual metadata. | ListenBrainz/MetaBrainz terms and data licenses | https://listenbrainz.readthedocs.io/en/latest/users/api/index.html |
 | Bandsintown API | Ask DJ upcoming artist concert agenda lookups | External API; no library is vendored | Bandsintown API terms | https://www.artists.bandsintown.com/support/api-installation |
 | GitHub REST API | Firmware release and release-asset discovery | External API; no library is vendored | GitHub Terms of Service | https://docs.github.com/rest |
 | Home Assistant Cloud / Nabu Casa URL | Preferred external HTTPS callback URL for Spotify OAuth | Optional user runtime service; no library is vendored | Nabu Casa service terms | https://www.nabucasa.com |

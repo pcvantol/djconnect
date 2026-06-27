@@ -142,9 +142,9 @@ ask_dj:
   description: >
     Ask DJ text request for iOS, macOS, Apple Watch, Raspberry Pi and Windows
     clients. Home Assistant
-    handles intent routing, DJ Memory, selected-backend/Home Assistant actions
+    handles intent routing, Music DNA, selected-backend/Home Assistant actions
     and informational answers. Responses can include text, audio_url, images,
-    links, intent, action and memory_key. Spotify-only questions gracefully
+    links, intent, action and music_dna_key. Spotify-only questions gracefully
     degrade when Music Assistant is selected.
   fields:
     text:
@@ -155,9 +155,9 @@ ask_dj:
       selector:
         text:
           multiline: true
-    memory_key:
+    music_dna_key:
       name: Memory key
-      description: Optional client-suggested Ask DJ memory key. Home Assistant may normalize it.
+      description: Optional client-suggested Music DNA key. Home Assistant may normalize it.
       required: false
       selector:
         text:
@@ -186,15 +186,94 @@ ask_dj:
         text:
           multiline: false
 
+track_insight:
+  name: Track Insight
+  description: >
+    Analyze the currently playing track or an explicit artist/title through the
+    selected DJConnect music backend. The service returns normalized Track
+    Insight JSON with Music DNA Match and visual-profile hints, then fires the
+    djconnect_track_insight event for automations and dashboards.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Optional media_player entity to inspect for now-playing metadata.
+      required: false
+      selector:
+        entity:
+          domain: media_player
+    player_id:
+      name: Player ID
+      description: Optional backend/player identifier.
+      required: false
+      selector:
+        text:
+          multiline: false
+    title:
+      name: Track title
+      description: Optional explicit track title. Provide artist too to analyze a track without now-playing metadata.
+      required: false
+      selector:
+        text:
+          multiline: false
+    artist:
+      name: Artist
+      description: Optional explicit artist name.
+      required: false
+      selector:
+        text:
+          multiline: false
+    album:
+      name: Album
+      description: Optional album name for identity, cache and visual seed.
+      required: false
+      selector:
+        text:
+          multiline: false
+    music_backend:
+      name: Music backend
+      description: Optional backend hint for cache identity and explicit-track analysis.
+      required: false
+      selector:
+        text:
+          multiline: false
+    force_refresh:
+      name: Force refresh
+      description: Ignore cached insight and request a fresh analysis.
+      required: false
+      default: false
+      selector:
+        boolean:
+    include_visual_profile:
+      name: Include visual profile
+      description: Include deterministic visualization hints for clients.
+      required: false
+      default: true
+      selector:
+        boolean:
+    include_raw_response:
+      name: Include raw response
+      description: Include the raw AI response for developer diagnostics.
+      required: false
+      default: false
+      selector:
+        boolean:
+    locale:
+      name: Locale
+      description: Optional response locale, for example en or nl.
+      required: false
+      selector:
+        text:
+          multiline: false
+
 clear_ask_dj_history:
   name: Clear Ask DJ history
   description: >
-    Clear server-side Ask DJ memory/history for a memory key and mark the
+    Clear server-side Music DNA/Ask DJ history for a memory key and mark the
     history generation so other clients know they must clear local chat cache.
   fields:
-    memory_key:
+    music_dna_key:
       name: Memory key
-      description: Ask DJ memory key to clear.
+      description: Music DNA key to clear.
       required: false
       selector:
         text:
@@ -213,9 +292,9 @@ ask_dj_history_state:
     Return whether a client should clear local Ask DJ chat history before
     showing the Ask DJ screen.
   fields:
-    memory_key:
+    music_dna_key:
       name: Memory key
-      description: Ask DJ memory key to check.
+      description: Music DNA key to check.
       required: false
       selector:
         text:

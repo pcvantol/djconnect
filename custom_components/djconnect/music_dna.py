@@ -1,4 +1,4 @@
-"""Server-side DJ Memory for Ask DJ context."""
+"""Server-side Music DNA for Ask DJ context."""
 from __future__ import annotations
 
 from collections import defaultdict, deque
@@ -14,7 +14,7 @@ from .mood import mood_zone_for_value
 
 _LOGGER = logging.getLogger(__name__)
 
-STORE_KEY = "djconnect_memory"
+STORE_KEY = "djconnect_music_dna"
 STORE_VERSION = 1
 MAX_SESSION_TURNS = 20
 MAX_RECENT_TRACKS = 20
@@ -25,8 +25,8 @@ PENDING_FOLLOWUP_TTL_SECONDS = 10 * 60
 SECRET_KEY_FRAGMENTS = ("token", "password", "secret", "authorization")
 
 
-class DJMemoryManager:
-    """Manage compact server-side DJ memory for Ask DJ."""
+class MusicDNAManager:
+    """Manage compact server-side Music DNA for Ask DJ."""
 
     def __init__(self, hass: Any | None = None, store: Any | None = None) -> None:
         self.hass = hass
@@ -43,7 +43,7 @@ class DJMemoryManager:
         return self._data
 
     async def async_load(self) -> dict[str, Any]:
-        """Load persistent DJ Memory from Home Assistant Store."""
+        """Load persistent Music DNA from Home Assistant Store."""
         if self._loaded:
             return self._data
         loaded: dict[str, Any] | None = None
@@ -54,16 +54,16 @@ class DJMemoryManager:
         return self._data
 
     async def async_save(self) -> None:
-        """Persist compact DJ Memory."""
+        """Persist compact Music DNA."""
         await self.async_load()
         if self._store is not None:
             await self._store.async_save(_compact_store_data(self._data))
 
-    async def async_clear(self, memory_key: str | None = None) -> None:
+    async def async_clear(self, music_dna_key: str | None = None) -> None:
         """Clear all memory or one resolved memory key."""
         await self.async_load()
-        if memory_key:
-            key = _safe_memory_key(memory_key)
+        if music_dna_key:
+            key = _safe_music_dna_key(music_dna_key)
             memory = self._memory_for_key(key)
             generation = int(memory.get("generation") or 0) + 1
             self._data["memories"][key] = {
@@ -86,7 +86,7 @@ class DJMemoryManager:
     ) -> dict[str, Any]:
         """Clear server-side history and mark clients to clear local chat cache."""
         await self.async_load()
-        key = resolve_memory_key(runtime, payload, user_id=user_id)
+        key = resolve_music_dna_key(runtime, payload, user_id=user_id)
         await self.async_update_client_metadata(runtime, payload, user_id=user_id)
         memory = self._memory_for_key(key)
         generation = int(memory.get("generation") or 0) + 1
@@ -108,7 +108,7 @@ class DJMemoryManager:
         self._session.pop(key, None)
         await self.async_save()
         return {
-            "memory_key": key,
+            "music_dna_key": key,
             "ask_dj_clear_required": True,
             "generation": generation,
             "clear_requested_at": self._data["memories"][key].get("clear_requested_at"),
@@ -136,7 +136,7 @@ class DJMemoryManager:
             and (client_generation is None or int(client_generation) < generation)
         )
         return {
-            "memory_key": key,
+            "music_dna_key": key,
             "ask_dj_clear_required": clear_required,
             "generation": generation,
             "clear_requested_at": memory.get("clear_requested_at"),
@@ -152,7 +152,7 @@ class DJMemoryManager:
         """Resolve memory key and update client metadata."""
         await self.async_load()
         payload = payload or {}
-        key = resolve_memory_key(runtime, payload, user_id=user_id)
+        key = resolve_music_dna_key(runtime, payload, user_id=user_id)
         memory = self._memory_for_key(key)
         now = _now()
         device_id = _first_text(
@@ -272,7 +272,7 @@ class DJMemoryManager:
             self.update_recent_tracks(key, track)
         await self.async_save()
         _LOGGER.debug(
-            "DJConnect DJ Memory updated key=%s client_type=%s has_track=%s has_response=%s",
+            "DJConnect Music DNA updated key=%s client_type=%s has_track=%s has_response=%s",
             key,
             memory.get("client_type") or "unknown",
             bool(track),
@@ -319,9 +319,9 @@ class DJMemoryManager:
         await self.async_save()
         return key
 
-    def update_recent_tracks(self, memory_key: str, track: dict[str, Any]) -> None:
+    def update_recent_tracks(self, music_dna_key: str, track: dict[str, Any]) -> None:
         """Update bounded recent track context."""
-        key = _safe_memory_key(memory_key)
+        key = _safe_music_dna_key(music_dna_key)
         memory = self._memory_for_key(key)
         recent = memory.get("recent_tracks")
         if not isinstance(recent, list):
@@ -511,14 +511,14 @@ class DJMemoryManager:
         key = await self.async_update_client_metadata(runtime, payload, user_id=user_id)
         memory = deepcopy(self._memory_for_key(key))
         return {
-            "memory_key": key,
+            "music_dna_key": key,
             "memory": _prompt_safe_memory(memory),
             "session": list(self._session.get(key, ())),
         }
 
     def _memory_for_key(self, key: str) -> dict[str, Any]:
         memories = self._data.setdefault("memories", {})
-        safe_key = _safe_memory_key(key)
+        safe_key = _safe_music_dna_key(key)
         memory = memories.setdefault(
             safe_key,
             {
@@ -545,12 +545,12 @@ class DJMemoryManager:
         try:
             from homeassistant.helpers.storage import Store
         except Exception:  # noqa: BLE001
-            _LOGGER.debug("Home Assistant Store unavailable for DJ Memory", exc_info=True)
+            _LOGGER.debug("Home Assistant Store unavailable for Music DNA", exc_info=True)
             return None
         return Store(hass, STORE_VERSION, STORE_KEY)
 
 
-def resolve_memory_key(
+def resolve_music_dna_key(
     runtime: Any,
     payload: dict[str, Any] | None = None,
     *,
@@ -558,12 +558,12 @@ def resolve_memory_key(
 ) -> str:
     """Resolve canonical memory key, preferring HA user identity."""
     payload = payload or {}
-    explicit = _clean_text(payload.get("memory_key"))
+    explicit = _clean_text(payload.get("music_dna_key"))
     user = _clean_text(user_id or payload.get("user_id"))
     if user:
-        return _safe_memory_key(f"user:{user}")
+        return _safe_music_dna_key(f"user:{user}")
     if explicit:
-        return _safe_memory_key(explicit)
+        return _safe_music_dna_key(explicit)
     device_id = _first_text(
         payload.get(CONF_DEVICE_ID),
         getattr(runtime, "device_status", {}).get(CONF_DEVICE_ID),
@@ -571,10 +571,10 @@ def resolve_memory_key(
         getattr(runtime, "config", {}).get(CONF_DEVICE_ID),
     )
     if device_id:
-        return _safe_memory_key(device_id)
+        return _safe_music_dna_key(device_id)
     entry = getattr(runtime, "entry", None)
     entry_id = _clean_text(getattr(entry, "entry_id", None))
-    return _safe_memory_key(f"entry:{entry_id or 'default'}")
+    return _safe_music_dna_key(f"entry:{entry_id or 'default'}")
 
 
 def prompt_context_text(context: dict[str, Any]) -> str:
@@ -671,7 +671,7 @@ def prompt_context_text(context: dict[str, Any]) -> str:
 
 
 def enrich_user_text_with_memory(user_text: str, context: dict[str, Any]) -> str:
-    """Append compact DJ Memory context for Assist while preserving user input."""
+    """Append compact Music DNA context for Assist while preserving user input."""
     memory_text = prompt_context_text(context)
     text = str(user_text or "").strip()
     if not memory_text:
@@ -700,7 +700,7 @@ def _compact_store_data(data: dict[str, Any]) -> dict[str, Any]:
     if isinstance(memories, dict):
         for key, memory in memories.items():
             if isinstance(memory, dict):
-                compact[_safe_memory_key(key)] = _prompt_safe_memory(memory)
+                compact[_safe_music_dna_key(key)] = _prompt_safe_memory(memory)
     return {"version": STORE_VERSION, "memories": compact}
 
 
@@ -998,7 +998,7 @@ def _intent_value(intent: Any, key: str) -> Any:
     return intent.get(key) if isinstance(intent, dict) else None
 
 
-def _safe_memory_key(value: Any) -> str:
+def _safe_music_dna_key(value: Any) -> str:
     text = _clean_text(value) or "default"
     return re.sub(r"[^A-Za-z0-9_.:@-]", "_", text)[:160] or "default"
 

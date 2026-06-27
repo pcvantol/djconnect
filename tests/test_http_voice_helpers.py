@@ -388,7 +388,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
             "http://ha/api/djconnect/tts/test.mp3",
         )
         self.assertEqual(response["payload"]["audio_type"], "mp3")
-        self.assertEqual(response["payload"]["memory_key"], "djconnect-watchos-68B74487726D")
+        self.assertEqual(response["payload"]["music_dna_key"], "djconnect-watchos-68B74487726D")
         self.assertEqual(runtime.memory.mood, 64)
 
     def test_voice_view_accepts_wav_upload_and_returns_audio_url(self) -> None:
@@ -424,7 +424,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
             self.assertEqual(payload["mood"], 100)
             self.assertEqual(payload["mood_zone"], "party")
             self.assertEqual(payload["dj_style"], "warm_radio_dj")
-            self.assertEqual(payload["memory_key"], "shared")
+            self.assertEqual(payload["music_dna_key"], "shared")
             return {
                 "success": True,
                 "text": "Daar gaan we",
@@ -434,7 +434,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 "audio_url": "http://ha/api/djconnect/tts/token.mp3",
                 "images": [],
                 "links": [],
-                "sources": [{"source": "djconnect_memory"}],
+                "sources": [{"source": "djconnect_music_dna"}],
                 "intent": {"category": "hybrid", "intent": "play_music"},
                 "action": "play_music",
             }
@@ -452,7 +452,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 "Content-Type": "audio/wav",
                 "X-DJConnect-Mood": "100",
                 "X-DJConnect-DJ-Style": "warm_radio_dj",
-                "X-DJConnect-Memory-Key": "shared",
+                "X-DJConnect-Music-DNA-Key": "shared",
             }
             app = {"hass": hass}
 
@@ -476,7 +476,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
             "http://ha/api/djconnect/tts/token.mp3",
         )
         self.assertEqual(response["payload"]["audio_type"], "mp3")
-        self.assertEqual(response["payload"]["sources"], [{"source": "djconnect_memory"}])
+        self.assertEqual(response["payload"]["sources"], [{"source": "djconnect_music_dna"}])
 
     def test_voice_debug_view_returns_last_debug_wav(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
@@ -3466,11 +3466,11 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 self.recorded = []
 
             async def async_update_client_metadata(self, runtime, payload=None, *, user_id=None):
-                return payload.get("memory_key") or "shared"
+                return payload.get("music_dna_key") or "shared"
 
             async def async_record_recommendation_play(self, runtime, recommendation, payload=None, *, user_id=None):
                 self.recorded.append((recommendation, payload, user_id))
-                return payload.get("memory_key") or "shared"
+                return payload.get("music_dna_key") or "shared"
 
         class Runtime:
             device_token = "device-token"
@@ -3520,7 +3520,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
                         "context_uri": "spotify:album:456",
                         "offset_uri": "spotify:track:123",
                         "kind": "track",
-                        "memory_key": "shared",
+                        "music_dna_key": "shared",
                         "reason": "Past bij je profiel.",
                     },
                 }
@@ -3572,7 +3572,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
             ],
         )
         self.assertEqual(runtime.memory.recorded[0][0]["uri"], "spotify:track:123")
-        self.assertEqual(runtime.memory.recorded[0][1]["memory_key"], "shared")
+        self.assertEqual(runtime.memory.recorded[0][1]["music_dna_key"], "shared")
 
     def test_command_view_returns_output_choices_when_recommendation_has_no_active_speaker(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
@@ -3805,7 +3805,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         class Memory:
             async def async_update_client_metadata(self, runtime, payload=None, *, user_id=None):
-                return payload.get("memory_key") or "shared"
+                return payload.get("music_dna_key") or "shared"
 
             async def async_pending_followup(self, runtime, payload=None, *, user_id=None):
                 return {
@@ -3822,7 +3822,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 return await self.async_pending_followup(runtime, payload, user_id=user_id)
 
             async def async_record_recommendation_play(self, runtime, recommendation, payload=None, *, user_id=None):
-                return payload.get("memory_key") or "shared"
+                return payload.get("music_dna_key") or "shared"
 
         class History:
             def __init__(self):
@@ -3868,7 +3868,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
                         "kind": "confirmation",
                         "action_style": "confirmation",
                         "response_value": "yes",
-                        "memory_key": "shared",
+                        "music_dna_key": "shared",
                     },
                 }
 
@@ -3893,7 +3893,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         class Memory:
             async def async_update_client_metadata(self, runtime, payload=None, *, user_id=None):
-                return payload.get("memory_key") or "shared"
+                return payload.get("music_dna_key") or "shared"
 
             async def async_pending_followup(self, runtime, payload=None, *, user_id=None):
                 return {"id": "followup-1", "proposed_action": "ask_dj_play_recommendation"}
@@ -3945,7 +3945,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
                         "kind": "confirmation",
                         "action_style": "confirmation",
                         "response_value": "no",
-                        "memory_key": "shared",
+                        "music_dna_key": "shared",
                     },
                 }
 
@@ -4047,7 +4047,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
                         "uri": "spotify:track:one",
                         "uris": ["spotify:track:one", "spotify:track:two"],
                         "kind": "track_mix",
-                        "memory_key": "shared",
+                        "music_dna_key": "shared",
                     },
                 }
 

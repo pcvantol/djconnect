@@ -193,7 +193,7 @@ Requirements:
   Apple Watch and Raspberry Pi clients. Explain that it is an AI-DJ chat for natural-language
   music questions, personal recommendations, playback actions and
   cross-device chat continuity, powered by the Home Assistant DJConnect
-  integration and server-side DJ Memory/history. ESP32 does not get Ask DJ chat
+  integration and server-side Music DNA/history. ESP32 does not get Ask DJ chat
   history/UI; ESP32 remains a physical voice/playback remote.
 - Ask DJ website/docs copy must make clear that recommendations do not start
   playback automatically. Clients show `Play Now` for concrete
@@ -205,9 +205,9 @@ Requirements:
   normal system bubble plus trim metadata so clients can clean their local
   cache.
 - Ask DJ website/docs copy must mention compact privacy boundaries: clients do
-  not store DJ Memory; Home Assistant stores compact context/history per user;
+  not store Music DNA; Home Assistant stores compact context/history per user;
   Spotify OAuth tokens, bearer tokens, raw audio and full prompts are not kept
-  in DJ Memory/history; raw voice audio is not stored by default.
+  in Music DNA/history; raw voice audio is not stored by default.
 - Ask DJ voice/PTT documentation should explain that iOS, macOS and Apple Watch
   can use voice/PTT through Home Assistant STT, with optional TTS audio replies
   when available. Raspberry Pi Ask DJ is `readonly_actions`: history/status
@@ -352,7 +352,7 @@ Requirements:
 - Mark APNs `BadDeviceToken`, `Unregistered` and HTTP 410 responses as
   disabled/invalid registrations.
 - Store only push routing metadata and minimal audit rows in D1. Do not store
-  prompts, assistant responses, full chat history, DJ Memory, Home Assistant
+  prompts, assistant responses, full chat history, Music DNA, Home Assistant
   tokens or Spotify tokens.
 - APNs payloads must remain generic wake/sync hints. For Ask DJ, use generic
   copy such as "Ask DJ heeft geantwoord." and "Ask DJ wacht op je keuze." plus
@@ -392,7 +392,7 @@ Requirements:
 - Home Assistant may relay privacy-safe push registration and event data to the
   central `pcvantol/djconnect-api` backend, but it must never receive or store
   the APNs provider private key. HA-to-central-API calls must not contain raw
-  prompts, raw assistant responses, full chat history, DJ Memory, Home
+  prompts, raw assistant responses, full chat history, Music DNA, Home
   Assistant tokens or Spotify tokens.
 - Home Assistant stores only `api_base_url`, stable `ha_install_id` and a
   per-install `djci_` token for central API calls. It must never contain
@@ -407,17 +407,17 @@ Requirements:
   push. Suppress foreground/recent-active targets when known and rate-limit to
   at most one push per 30 seconds and five pushes per ten minutes per HA user
   plus device/client.
-- Ask DJ / DJ Memory is server-side in the Home Assistant integration. iOS,
-  macOS, watchOS, Raspberry Pi and Windows clients must not store DJ Memory; they may send optional
-  `mood` (0-100), `dj_style` and `memory_key` hints on status/voice/command
-  payloads, but HA may normalize or override the resolved `memory_key`. ESP32
+- Ask DJ / Music DNA is server-side in the Home Assistant integration. iOS,
+  macOS, watchOS, Raspberry Pi and Windows clients must not store Music DNA; they may send optional
+  `mood` (0-100), `dj_style` and `music_dna_key` hints on status/voice/command
+  payloads, but HA may normalize or override the resolved `music_dna_key`. ESP32
   is excluded from Ask DJ chat/history and keeps its voice/playback command flow.
 - Numeric `mood` remains the cross-client wire contract. HA maps it to
   DJConnect mood zones for prompts and recommendations: `chill` for `0`-`24`,
   `groove` for `25`-`59`, `energy` for `60`-`84`, `party` for `85`-`100`.
   Clients may show title-case mode labels locally, but do not need to send
   `mood_zone`; HA derives the canonical lowercase value from `mood`.
-- DJ announcement intros may become more personal using compact DJ Memory and
+- DJ announcement intros may become more personal using compact Music DNA and
   explicitly shared smart-home context. Weather/temperature wording, such as a
   warm-day intro, may only come from HA entities configured in
   `smart_home_context_entities`; clients must not collect or send arbitrary HA
@@ -444,7 +444,7 @@ Requirements:
   chat cache still exist locally. If HA returns `401`/`403`, `not_configured` or
   stale-pairing for a previously paired device_id/token, clear local paired state
   and local Ask DJ cache for that HA installation. HA clears server-side
-  DJ Memory and Ask DJ history when the last DJConnect config entry unloads.
+  Music DNA and Ask DJ history when the last DJConnect config entry unloads.
 - Ask DJ may include assistant system messages such as `origin:
   history_retention` or `origin: spotify_playback_context`. Clients should
   style them as system/ambient assistant bubbles and must not auto-play audio
@@ -458,7 +458,7 @@ Requirements:
 - Ask DJ Push-To-Talk for iOS/macOS/watchOS/Windows uses POST /api/djconnect/voice with
   Content-Type audio/wav. The response includes transcript/recognized_text and
   the same rich Ask DJ fields. Send optional X-DJConnect-Mood,
-  X-DJConnect-DJ-Style and X-DJConnect-Memory-Key headers when available.
+  X-DJConnect-DJ-Style and X-DJConnect-Music-DNA-Key headers when available.
   Raspberry Pi Ask DJ is `readonly_actions`: it may display history/status and
   render HA-provided structured action buttons, but must not advertise or
   implement voice support unless a future Pi capability explicitly changes this.
@@ -519,7 +519,7 @@ Requirements:
   track/album/artist/playlist URI payload. Raspberry Pi may render and send
   these actions only when HA supplies them as structured action payloads; it
   must not invent playback payloads or send free text prompts. Use successful
-  commands from interactive clients as positive DJ Memory signals. Successful
+  commands from interactive clients as positive Music DNA signals. Successful
   Play Now command responses include `dj_text`, `dj_response` and optional
   `audio_url`/`audio_type`; clients should render/play that normal DJ
   announcement immediately. Ambient `DJ feitje` messages are separate system
@@ -696,13 +696,13 @@ Requirements:
   ESP-only HA entities such as battery, Wi-Fi RSSI, screen/LED state, speaker
   volume, firmware OTA or reboot for Windows clients.
 - Home Assistant remains the trusted backend for pairing, DJConnect bearer-token
-  lifecycle, Spotify OAuth/backend playback, Ask DJ history, DJ Memory,
+  lifecycle, Spotify OAuth/backend playback, Ask DJ history, Music DNA,
   Assist/STT/TTS and command execution.
 - Store only the DJConnect bearer token in platform credential storage:
   Windows Credential Manager on Windows and macOS Keychain when the same MAUI
   app runs on macOS. Keep local JSON settings non-secret.
 - Do not store Spotify credentials, Spotify OAuth tokens, Home Assistant
-  long-lived access tokens, DJ Memory, Ask DJ server history, raw audio,
+  long-lived access tokens, Music DNA, Ask DJ server history, raw audio,
   prompts or secret-bearing backend responses as source of truth.
 - Pair with Home Assistant using the app-generated pairing code and send it as
   `pairing_token`, `pair_code` and `pairing_code` for compatibility with
@@ -2266,17 +2266,17 @@ Requirements:
 - Home Assistant may relay privacy-safe push registration and event data to the
   central `pcvantol/djconnect-api` backend, but it must never receive or store
   the APNs provider private key. HA-to-central-API calls must not contain raw
-  prompts, raw assistant responses, full chat history, DJ Memory, Home
+  prompts, raw assistant responses, full chat history, Music DNA, Home
   Assistant tokens or Spotify tokens.
 - Home Assistant stores only central API settings scoped to one installation:
   `api_base_url`, stable `ha_install_id` and a per-install `djci_...` token.
   HACS must never contain `DJCONNECT_RELAY_SECRET` or any global
   relay/operator secret.
-- Ask DJ / DJ Memory is server-side in the Home Assistant integration. iOS,
-  macOS, watchOS, Raspberry Pi and Windows clients must not store DJ Memory; they may
-  send optional `mood` (0-100), `dj_style` and `memory_key` hints on
+- Ask DJ / Music DNA is server-side in the Home Assistant integration. iOS,
+  macOS, watchOS, Raspberry Pi and Windows clients must not store Music DNA; they may
+  send optional `mood` (0-100), `dj_style` and `music_dna_key` hints on
   status/voice/command payloads, but HA may normalize or override the resolved
-  `memory_key`. ESP32 is excluded from Ask DJ chat/history and keeps its
+  `music_dna_key`. ESP32 is excluded from Ask DJ chat/history and keeps its
   voice/playback command flow.
 - Ask DJ chat history is server-side per HA user and bounded. iOS, macOS,
   watchOS, Raspberry Pi and Windows clients
@@ -2444,13 +2444,13 @@ Requirements:
   ESP-only HA entities such as battery, Wi-Fi RSSI, screen/LED state, speaker
   volume, firmware OTA or reboot for Windows clients.
 - Home Assistant remains the trusted backend for pairing, DJConnect bearer-token
-  lifecycle, Spotify OAuth/backend playback, Ask DJ history, DJ Memory,
+  lifecycle, Spotify OAuth/backend playback, Ask DJ history, Music DNA,
   Assist/STT/TTS and command execution.
 - Store only the DJConnect bearer token in platform credential storage:
   Windows Credential Manager on Windows and macOS Keychain when the same MAUI
   app runs on macOS. Keep local JSON settings non-secret.
 - Do not store Spotify credentials, Spotify OAuth tokens, Home Assistant
-  long-lived access tokens, DJ Memory, Ask DJ server history, raw audio,
+  long-lived access tokens, Music DNA, Ask DJ server history, raw audio,
   prompts or secret-bearing backend responses as source of truth.
 - Pair with Home Assistant using the app-generated pairing code and send it as
   `pairing_token`, `pair_code` and `pairing_code` for compatibility with

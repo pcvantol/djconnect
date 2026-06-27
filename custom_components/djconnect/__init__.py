@@ -28,6 +28,7 @@ from .const import (
     API_PUSH_UNREGISTER,
     API_SPOTIFY_CALLBACK,
     API_STATUS,
+    API_TRACK_INSIGHT,
     API_TTS,
     API_VOICE,
     CONF_API_BASE_URL,
@@ -82,6 +83,7 @@ from .http import (
     DJConnectPushUnregisterView,
     DJConnectSpotifyCallbackView,
     DJConnectStatusView,
+    DJConnectTrackInsightView,
     DJConnectTtsView,
     DJConnectVoiceDebugView,
     DJConnectVoiceView,
@@ -91,7 +93,7 @@ from .dj_response import async_send_dj_response, async_send_dj_response_best_eff
 from .ha_urls import async_ha_url_payload
 from .ask_dj import async_handle_ask_dj
 from .ask_dj_history import AskDJHistoryManager
-from .memory import DJMemoryManager
+from .music_dna import MusicDNAManager
 from .push import (
     EVENT_ASK_DJ_CONFIRM,
     async_send_event as async_send_push_event,
@@ -105,6 +107,7 @@ from .spotify_oauth import (
     create_code_verifier,
     ensure_spotify_scopes,
 )
+from .track_insight import TrackInsightError, TrackInsightHassService
 from .use_cases import music_backend_metadata, run_text_command
 
 _LOGGER = logging.getLogger(__name__)
@@ -1157,7 +1160,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
     "ask_dj": _developer_service_schema(
         {
             vol.Required("text"): str,
-            vol.Optional("memory_key"): str,
+            vol.Optional("music_dna_key"): str,
             vol.Optional("client_type"): str,
             vol.Optional("device_id"): str,
             vol.Optional("device_name"): str,
@@ -1165,9 +1168,23 @@ DEVELOPER_SERVICE_SCHEMAS = {
             vol.Optional("mood"): int,
         }
     ),
+    "track_insight": _developer_service_schema(
+        {
+            vol.Optional("entity_id"): str,
+            vol.Optional("player_id"): str,
+            vol.Optional("title"): str,
+            vol.Optional("artist"): str,
+            vol.Optional("album"): str,
+            vol.Optional("music_backend"): str,
+            vol.Optional("force_refresh", default=False): bool,
+            vol.Optional("include_visual_profile", default=True): bool,
+            vol.Optional("include_raw_response", default=False): bool,
+            vol.Optional("locale"): str,
+        }
+    ),
     "clear_ask_dj_history": _developer_service_schema(
         {
-            vol.Optional("memory_key"): str,
+            vol.Optional("music_dna_key"): str,
             vol.Optional("client_type"): str,
             vol.Optional("device_id"): str,
             vol.Optional("device_name"): str,
@@ -1175,7 +1192,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
     ),
     "ask_dj_history_state": _developer_service_schema(
         {
-            vol.Optional("memory_key"): str,
+            vol.Optional("music_dna_key"): str,
             vol.Optional("client_type"): str,
             vol.Optional("device_id"): str,
             vol.Optional("device_name"): str,
@@ -1315,6 +1332,7 @@ def register_http_views(hass: HomeAssistant) -> None:
             DJConnectPushUnregisterView(hass),
             DJConnectPairView(hass),
             DJConnectStatusView(hass),
+            DJConnectTrackInsightView(hass),
             DJConnectEventView(hass),
             DJConnectTtsView(hass),
             DJConnectImageProxyView(hass),
@@ -1338,6 +1356,7 @@ def register_http_views(hass: HomeAssistant) -> None:
                     API_PUSH_UNREGISTER,
                     API_PAIR,
                     API_STATUS,
+                    API_TRACK_INSIGHT,
                     API_EVENT,
                     API_TTS,
                     API_SPOTIFY_CALLBACK,
@@ -1362,7 +1381,7 @@ def _restore_runtime(hass: HomeAssistant, entry: ConfigEntry) -> DJConnectRuntim
     runtime = DJConnectRuntime(entry=entry)
     memory_manager = hass.data[DOMAIN].get("memory_manager")
     if memory_manager is None:
-        memory_manager = DJMemoryManager(hass)
+        memory_manager = MusicDNAManager(hass)
         hass.data[DOMAIN]["memory_manager"] = memory_manager
     runtime.memory = memory_manager
     history_manager = hass.data[DOMAIN].get("ask_dj_history_manager")
@@ -1712,6 +1731,17 @@ def _register_developer_services(
         _LOGGER.debug("DJConnect Ask DJ service request received")
         return await async_handle_ask_dj(hass, runtime, payload)
 
+    async def handle_track_insight(call: ServiceCall) -> dict[str, Any]:
+        _LOGGER.debug("DJConnect Track Insight service request received")
+        try:
+            return await TrackInsightHassService().async_handle(
+                hass,
+                runtime,
+                dict(call.data),
+            )
+        except TrackInsightError as exc:
+            return exc.as_dict()
+
     async def handle_clear_ask_dj_history(call: ServiceCall) -> dict[str, Any]:
         history = getattr(runtime, "ask_dj_history", None)
         if history is None:
@@ -1756,6 +1786,7 @@ def _register_developer_services(
         "reboot_device": (handle_reboot_device, "optional"),
         "forget_device": (handle_forget_device, "optional"),
         "ask_dj": (handle_ask_dj, "optional"),
+        "track_insight": (handle_track_insight, "optional"),
         "clear_ask_dj_history": (handle_clear_ask_dj_history, "optional"),
         "ask_dj_history_state": (handle_ask_dj_history_state, "optional"),
     }
@@ -1837,7 +1868,7 @@ def _has_runtime_entries(hass: HomeAssistant) -> bool:
 
 
 async def _async_clear_all_server_state(hass: HomeAssistant) -> None:
-    """Clear server-side DJ Memory/history after the last DJConnect entry unloads."""
+    """Clear server-side Music DNA/history after the last DJConnect entry unloads."""
     domain_data = hass.data.setdefault(DOMAIN, {})
     memory_manager = domain_data.pop("memory_manager", None)
     if memory_manager is not None and hasattr(memory_manager, "async_clear"):
@@ -1845,7 +1876,7 @@ async def _async_clear_all_server_state(hass: HomeAssistant) -> None:
     history_manager = domain_data.pop("ask_dj_history_manager", None)
     if history_manager is not None and hasattr(history_manager, "async_clear_all"):
         await history_manager.async_clear_all()
-    _LOGGER.info("DJConnect cleared server-side DJ Memory and Ask DJ history after last entry unload")
+    _LOGGER.info("DJConnect cleared server-side Music DNA and Ask DJ history after last entry unload")
 
 
 async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:

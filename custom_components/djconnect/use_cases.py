@@ -330,9 +330,6 @@ class DJConnectUseCases:
     async def recommend_music(self, value: Any) -> dict[str, Any]:
         return await self.command("artist_recommendations", value)
 
-    async def explain_track(self, value: Any = None) -> dict[str, Any]:
-        return await self.command("technical_track_analysis", value)
-
     def _ensure_capability(self, command: str) -> None:
         capability = _CAPABILITY_BY_COMMAND.get(command)
         if capability and not getattr(self.backend.capabilities, capability, False):

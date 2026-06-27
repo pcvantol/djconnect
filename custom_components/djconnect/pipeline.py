@@ -18,7 +18,7 @@ _LOGGER = logging.getLogger(__name__)
 _ROOT_LOGGER = logging.getLogger("custom_components.djconnect")
 _MUSIC_KNOWLEDGE_POLICY_NL = (
     "Music knowledge beleid: gebruik eerst de meegegeven Spotify playbackmetadata, "
-    "DJ Memory en media-context. Als je via de conversation agent betrouwbare "
+    "Music DNA en media-context. Als je via de conversation agent betrouwbare "
     "kennis beschikbaar hebt, geef dan de voorkeur aan MusicBrainz, Wikidata, "
     "korte Wikipedia-samenvattingen, Last.fm tags/similar artists, Discogs "
     "release/label/credits, TheAudioDB en daarna alleen compacte eigen DJConnect "
@@ -27,10 +27,10 @@ _MUSIC_KNOWLEDGE_POLICY_NL = (
 )
 _MUSIC_KNOWLEDGE_POLICY_EN = (
     "Music knowledge policy: first use the provided Spotify playback metadata, "
-    "DJ Memory and media context. If reliable knowledge is available through the "
+    "Music DNA and media context. If reliable knowledge is available through the "
     "conversation agent, prefer MusicBrainz, Wikidata, short Wikipedia summaries, "
     "Last.fm tags/similar artists, Discogs release/label/credits, TheAudioDB and "
-    "then compact DJConnect Memory facts. Do not fetch these sources live unless "
+    "then compact Music DNA facts. Do not fetch these sources live unless "
     "they are available to the agent. Do not invent trivia; skip the fact when "
     "you are not sure."
 )
@@ -439,14 +439,14 @@ async def generate_dj_response_with_assist(
 
 
 def _personal_intro_style_text(memory_context: str | None, language: str = "nl") -> str:
-    """Return guidance for occasional DJ Memory based personal intro phrases."""
+    """Return guidance for occasional Music DNA based personal intro phrases."""
     context = str(memory_context or "").strip()
     if not context:
         return ""
     if not str(language or "").lower().startswith("nl"):
         return (
             "You may add one short personal opening line when it feels natural, based "
-            "only on the compact DJ Memory context below and on explicitly shared "
+            "only on the compact Music DNA context below and on explicitly shared "
             "Home Assistant smart-home context. If a shared weather or temperature "
             "entity indicates it is warm, cold, rainy or evening, you may weave that "
             "into the intro, for example 'Warm day out there, let's get into a sunny "
@@ -455,11 +455,11 @@ def _personal_intro_style_text(memory_context: str | None, language: str = "nl")
             "'Let's make this a beautiful musical day' or 'Let's rock and roll, baby'. "
             "Do not force this intro on every response and do not mention that memory "
             "or Home Assistant context exists.\n\n"
-            f"Compact DJ Memory context:\n{context}"
+            f"Compact Music DNA context:\n{context}"
         )
     return (
         "Je mag, als het natuurlijk voelt, één korte persoonlijke openingszin toevoegen "
-        "op basis van de compacte DJ Memory context hieronder en expliciet gedeelde "
+        "op basis van de compacte Music DNA context hieronder en expliciet gedeelde "
         "Home Assistant smart-home context. Als een gedeelde weer- of temperatuurentity "
         "laat zien dat het warm, koud, regenachtig of avond is, mag je dat subtiel "
         "meenemen, bijvoorbeeld 'Het is een warme dag, we gaan lekker swingen' of "
@@ -468,7 +468,7 @@ def _personal_intro_style_text(memory_context: str | None, language: str = "nl")
         "weer een mooie muzikale dag van maken' of 'Let's rock and roll, baby'. "
         "Forceer zo'n intro niet bij ieder antwoord en zeg niet dat er memory of "
         "Home Assistant context bestaat.\n\n"
-        f"Compacte DJ Memory context:\n{context}"
+        f"Compacte Music DNA context:\n{context}"
     )
 
 

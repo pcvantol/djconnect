@@ -31,6 +31,7 @@ from .const import (
     API_PUSH_UNREGISTER,
     API_STATUS,
     API_TTS,
+    API_TRACK_INSIGHT,
     API_VOICE,
     CONF_ASSIST_PIPELINE_ID,
     CONF_CENTRAL_API_BOOTSTRAP_PROOF,
@@ -78,6 +79,7 @@ from .push import (
     async_unregister as async_unregister_push,
 )
 from .spotify_backend import SpotifyBackendError
+from .track_insight import TrackInsightError, TrackInsightService
 from .use_cases import (
     MusicBackendCapabilityError,
     music_backend_metadata,
@@ -701,9 +703,9 @@ def _voice_header_payload(headers: Any, device_id: str, client_type: str | None)
         CONF_DEVICE_ID: device_id,
         CONF_CLIENT_TYPE: client_type,
     }
-    memory_key = str(headers.get("X-DJConnect-Memory-Key") or "").strip()
-    if memory_key:
-        payload["memory_key"] = memory_key
+    music_dna_key = str(headers.get("X-DJConnect-Music-DNA-Key") or "").strip()
+    if music_dna_key:
+        payload["music_dna_key"] = music_dna_key
     dj_style = str(headers.get("X-DJConnect-DJ-Style") or "").strip()
     if dj_style:
         payload["dj_style"] = dj_style
@@ -1512,8 +1514,8 @@ async def _recommendation_play_success_response(
         if callable(recorder):
             try:
                 memory_payload = dict(request_payload)
-                if recommendation.get("memory_key") and not memory_payload.get("memory_key"):
-                    memory_payload["memory_key"] = recommendation["memory_key"]
+                if recommendation.get("music_dna_key") and not memory_payload.get("music_dna_key"):
+                    memory_payload["music_dna_key"] = recommendation["music_dna_key"]
                 await recorder(runtime, recommendation, memory_payload, user_id=user_id)
             except Exception as exc:  # noqa: BLE001
                 _LOGGER.debug("DJConnect recommendation play memory update failed: %s", exc)
@@ -1882,7 +1884,7 @@ def _normalize_recommendation_value(value: dict[str, Any]) -> dict[str, Any]:
         "offset_uri": offset_uri,
         "uris": _recommendation_track_uris(value.get("uris")),
         "kind": kind,
-        "memory_key": str(value.get("memory_key") or "").strip(),
+        "music_dna_key": str(value.get("music_dna_key") or "").strip(),
         "reason": str(value.get("reason") or "").strip(),
         "backend": str(value.get("backend") or nested.get("backend") or "").strip(),
         "provider": str(value.get("provider") or nested.get("provider") or "").strip(),
@@ -2232,7 +2234,7 @@ class DJConnectStatusView(HomeAssistantView):
             )
             return _json_error(self, "invalid_client_type", 400)
         status_update[CONF_CLIENT_TYPE] = client_type
-        memory_key = await _update_memory_metadata(
+        music_dna_key = await _update_memory_metadata(
             runtime,
             status_update,
             user_id=_request_user_id(request),
@@ -2293,8 +2295,8 @@ class DJConnectStatusView(HomeAssistantView):
                 client_type=client_type,
             )
         )
-        if memory_key:
-            response["memory_key"] = memory_key
+        if music_dna_key:
+            response["music_dna_key"] = music_dna_key
         response.update(_ha_version_payload())
         response.update(_esp32_language_payload(runtime))
         response.update(await async_ha_url_payload(hass, conf, client_type=client_type))
@@ -2358,7 +2360,7 @@ class DJConnectCommandView(HomeAssistantView):
         if _is_command_payload(data):
             _LOGGER.debug("Ignoring command payload for device sensor update")
         runtime.device_status[CONF_CLIENT_TYPE] = client_type
-        memory_key = await _update_memory_metadata(
+        music_dna_key = await _update_memory_metadata(
             runtime,
             data,
             user_id=_request_user_id(request),
@@ -2432,8 +2434,8 @@ class DJConnectCommandView(HomeAssistantView):
                 ask_payload,
                 user_id=_request_user_id(request),
             )
-            if memory_key:
-                result.setdefault("memory_key", memory_key)
+            if music_dna_key:
+                result.setdefault("music_dna_key", music_dna_key)
             result.update(_ha_version_payload())
             result.update(music_backend_metadata(hass, runtime))
             return self.json(result, status_code=200 if result.get("success") else 400)
@@ -2445,10 +2447,10 @@ class DJConnectCommandView(HomeAssistantView):
                 data,
                 user_id=_request_user_id(request),
             )
-            if isinstance(command_value, dict) and command_value.get("memory_key"):
-                result["memory_key"] = str(command_value.get("memory_key") or "").strip()
-            elif memory_key:
-                result.setdefault("memory_key", memory_key)
+            if isinstance(command_value, dict) and command_value.get("music_dna_key"):
+                result["music_dna_key"] = str(command_value.get("music_dna_key") or "").strip()
+            elif music_dna_key:
+                result.setdefault("music_dna_key", music_dna_key)
             result.update(_ha_version_payload())
             result.update(music_backend_metadata(hass, runtime))
             return self.json(result, status_code=200 if result.get("success") else 400)
@@ -2460,8 +2462,8 @@ class DJConnectCommandView(HomeAssistantView):
                 data,
                 user_id=_request_user_id(request),
             )
-            if memory_key:
-                result.setdefault("memory_key", memory_key)
+            if music_dna_key:
+                result.setdefault("music_dna_key", music_dna_key)
             result.update(_ha_version_payload())
             result.update(music_backend_metadata(hass, runtime))
             return self.json(result, status_code=200 if result.get("success") else 400)
@@ -2473,8 +2475,8 @@ class DJConnectCommandView(HomeAssistantView):
                 data,
                 user_id=_request_user_id(request),
             )
-            if memory_key:
-                result.setdefault("memory_key", memory_key)
+            if music_dna_key:
+                result.setdefault("music_dna_key", music_dna_key)
             result.update(_ha_version_payload())
             result.update(music_backend_metadata(hass, runtime))
             return self.json(result, status_code=200 if result.get("success") else 400)
@@ -2486,15 +2488,15 @@ class DJConnectCommandView(HomeAssistantView):
                 data,
                 user_id=_request_user_id(request),
             )
-            if memory_key:
-                result.setdefault("memory_key", memory_key)
+            if music_dna_key:
+                result.setdefault("music_dna_key", music_dna_key)
             result.update(_ha_version_payload())
             result.update(music_backend_metadata(hass, runtime))
             return self.json(result, status_code=200 if result.get("success") else 400)
         if normalized_command == "volume_delta":
             result = await _handle_volume_delta_command(hass, runtime, command_value)
-            if memory_key:
-                result.setdefault("memory_key", memory_key)
+            if music_dna_key:
+                result.setdefault("music_dna_key", music_dna_key)
             result.update(_ha_version_payload())
             result.update(music_backend_metadata(hass, runtime))
             return self.json(result, status_code=200 if result.get("success") else 400)
@@ -2510,8 +2512,8 @@ class DJConnectCommandView(HomeAssistantView):
             if result.get("success"):
                 result.setdefault("backend_available", True)
                 runtime.device_status["backend_available"] = True
-            if memory_key:
-                result.setdefault("memory_key", memory_key)
+            if music_dna_key:
+                result.setdefault("music_dna_key", music_dna_key)
             result.update(_ha_version_payload())
             if normalized_command == "playlists":
                 _with_playlist_aliases(result)
@@ -2743,6 +2745,45 @@ class DJConnectAskDjMessageView(HomeAssistantView):
             explicit_user_request=True,
         )
         return self.json({**result, **sync})
+
+
+class DJConnectTrackInsightView(HomeAssistantView):
+    url = API_TRACK_INSIGHT
+    name = "api:djconnect:track_insight"
+    requires_auth = True
+
+    def __init__(self, hass):
+        self.hass = hass
+
+    async def post(self, request):
+        hass = request.app["hass"]
+        try:
+            data = await request.json()
+        except Exception:  # noqa: BLE001
+            return _json_error(self, "invalid_json", 400)
+        if not isinstance(data, dict):
+            return _json_error(self, "invalid_json", 400)
+        identity = _identity_payload(data)
+        runtime = _runtime(
+            hass,
+            identity.get("device_id") or request.headers.get("X-DJConnect-Device-ID"),
+            request.headers,
+        )
+        if runtime is None:
+            return _json_error(self, "not_configured", 503)
+        try:
+            result = await TrackInsightService().async_analyze(
+                hass,
+                runtime,
+                data,
+                source="http",
+            )
+        except TrackInsightError as exc:
+            return self.json(exc.as_dict(), status_code=exc.status)
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.debug("DJConnect Track Insight HTTP failed: %s", exc)
+            return _json_error(self, "track_insight_failed", 500)
+        return self.json(result)
 
 
 class DJConnectPushRegisterView(HomeAssistantView):
@@ -3178,7 +3219,7 @@ class DJConnectVoiceView(HomeAssistantView):
                         CONF_CLIENT_TYPE
                     ),
                 }
-            memory_key = await _update_memory_metadata(
+            music_dna_key = await _update_memory_metadata(
                 runtime,
                 memory_payload,
                 user_id=_request_user_id(request),
@@ -3206,7 +3247,7 @@ class DJConnectVoiceView(HomeAssistantView):
                         "dj_response": dj_response,
                         "audio_url": audio_url,
                         "audio_type": _audio_type_from_url(audio_url),
-                        "memory_key": memory_key,
+                        "music_dna_key": music_dna_key,
                     }
                 )
 
@@ -3248,7 +3289,7 @@ class DJConnectVoiceView(HomeAssistantView):
                         "dj_response": dj_response,
                         "audio_url": audio_url,
                         "audio_type": _audio_type_from_url(audio_url),
-                        "memory_key": memory_key,
+                        "music_dna_key": music_dna_key,
                     }
                 )
             _set_device_state(runtime, "responding")
@@ -3276,7 +3317,7 @@ class DJConnectVoiceView(HomeAssistantView):
                     "recognized_text": user_text,
                     "audio_url": audio_url,
                     "audio_type": _audio_type_from_url(audio_url),
-                    "memory_key": memory_key,
+                    "music_dna_key": music_dna_key,
                 }
             )
 

@@ -141,6 +141,8 @@ def validate_case_result(
     for key, value in (expect.get("top_level_fields") or {}).items():
         if response.get(key) != value:
             fail(f"top-level {key!r} expected {value!r}, got {response.get(key)!r}")
+    for key, model in (expect.get("json_model") or {}).items():
+        _expect_json_model(response.get(key), model, fail, path=key)
 
     return errors
 
@@ -216,3 +218,62 @@ def _contains_mapping_subset(items: list[Any], subset: dict[str, Any]) -> bool:
         if all(item.get(key) == value for key, value in subset.items()):
             return True
     return False
+
+
+def _expect_json_model(actual: Any, model: Any, fail: Any, *, path: str) -> None:
+    if isinstance(model, dict):
+        if not isinstance(actual, dict):
+            fail(f"{path} expected object, got {type(actual).__name__}")
+            return
+        for key, child_model in model.items():
+            if key not in actual:
+                fail(f"{path}.{key} is missing")
+                continue
+            _expect_json_model(actual.get(key), child_model, fail, path=f"{path}.{key}")
+        return
+    if isinstance(model, list):
+        if not isinstance(actual, list):
+            fail(f"{path} expected list, got {type(actual).__name__}")
+            return
+        if model and actual:
+            _expect_json_model(actual[0], model[0], fail, path=f"{path}[0]")
+        return
+    if isinstance(model, str):
+        if model == "present":
+            if actual in (None, ""):
+                fail(f"{path} expected present value, got {actual!r}")
+            return
+        if model == "dict":
+            if not isinstance(actual, dict):
+                fail(f"{path} expected dict, got {type(actual).__name__}")
+            return
+        if model == "list":
+            if not isinstance(actual, list):
+                fail(f"{path} expected list, got {type(actual).__name__}")
+            return
+        if model == "non_empty_list":
+            if not isinstance(actual, list) or not actual:
+                fail(f"{path} expected non-empty list, got {actual!r}")
+            return
+        if model == "str":
+            if not isinstance(actual, str):
+                fail(f"{path} expected str, got {type(actual).__name__}")
+            return
+        if model == "non_empty_str":
+            if not isinstance(actual, str) or not actual.strip():
+                fail(f"{path} expected non-empty str, got {actual!r}")
+            return
+        if model == "number":
+            if not isinstance(actual, int | float) or isinstance(actual, bool):
+                fail(f"{path} expected number, got {type(actual).__name__}")
+            return
+        if model == "int":
+            if not isinstance(actual, int) or isinstance(actual, bool):
+                fail(f"{path} expected int, got {type(actual).__name__}")
+            return
+        if model == "bool":
+            if not isinstance(actual, bool):
+                fail(f"{path} expected bool, got {type(actual).__name__}")
+            return
+    if actual != model:
+        fail(f"{path} expected {model!r}, got {actual!r}")

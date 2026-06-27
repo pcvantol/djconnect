@@ -181,7 +181,7 @@
 - Confirm follow-up confirmation buttons work cross-device, for example Ask DJ asks on iPhone and the user answers on macOS or Apple Watch.
 - Confirm Ask DJ playback requests with no active Spotify output return speaker `playback_actions[]` and that `ask_dj_play_request_on_output` sets the selected output before replaying the original request.
 - Confirm obvious gibberish and sandbox/prompt-injection-like prompts return the neutral unknown-intent fallback and do not trigger Spotify search, HA device lookup, prompt disclosure or playback mutation.
-- Confirm Play Now and recommendation flows still store only compact positive signals in DJ Memory and never raw prompts, bearer tokens, OAuth tokens or raw audio.
+- Confirm Play Now and recommendation flows still store only compact positive signals in Music DNA and never raw prompts, bearer tokens, OAuth tokens or raw audio.
 - Confirm recent-played Ask DJ questions for tracks, albums, artists and playlists render as compact item lists with art/icons and do not mutate playback or invent Play Now buttons.
 - Confirm Watch/iOS mood values map to the canonical DJConnect zones: Chill `0`-`24`, Groove `25`-`59`, Energy `60`-`84` and Party `85`-`100`.
 - Confirm smart-home-aware Ask DJ prompts only include explicitly shared `smart_home_context_entities`, never arbitrary HA states, and still require Ja/Nee confirmation before playback starts.
@@ -192,7 +192,7 @@
   `password`, `secret`, `proof`, `authorization`, `prompt`, `history`,
   `memory` or `raw_audio`.
 - Confirm no device token, HA token, Spotify refresh token, WiFi password, raw
-  prompt, raw audio, Ask DJ history or DJ Memory dump appears in logs.
+  prompt, raw audio, Ask DJ history or Music DNA dump appears in logs.
 - Confirm BLE provisioning only sends WiFi SSID/password.
 - Confirm no Spotify/device credentials are sent via BLE.
 - Confirm `THIRD_PARTY_NOTICES.md` remains accurate after dependency changes.

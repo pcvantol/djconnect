@@ -14,6 +14,7 @@ from aiohttp import ClientTimeout
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
+from .ai_tools import async_call_ai_tool
 from .const import (
     API_IMAGE_PROXY_BASE,
     CONF_CLIENT_TYPE,
@@ -23,7 +24,7 @@ from .const import (
     DOMAIN,
 )
 from .dj_response import async_send_dj_response_best_effort
-from .memory import prompt_context_text
+from .music_dna import prompt_context_text
 from .mood import (
     enrich_payload_with_mood_zone,
     mood_context_text,
@@ -38,7 +39,11 @@ from .use_cases import (
     run_music_command,
     run_text_command,
 )
-from .track_analysis import async_analyze_current_track
+from .track_insight import (
+    TrackInsightError,
+    is_track_insight_request,
+    track_insight_error_response,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -97,14 +102,14 @@ async def async_handle_ask_dj(
     identity_payload = _identity_payload(runtime, payload)
     memory = getattr(runtime, "memory", None)
     memory_context: dict[str, Any] = {}
-    memory_key = str(payload.get("memory_key") or "").strip() or None
+    music_dna_key = str(payload.get("music_dna_key") or "").strip() or None
     if memory is not None:
         memory_context = await memory.async_context_for_runtime(
             runtime,
             identity_payload,
             user_id=user_id,
         )
-        memory_key = memory_context.get("memory_key") or memory_key
+        music_dna_key = memory_context.get("music_dna_key") or music_dna_key
     history = getattr(runtime, "ask_dj_history", None)
     if history is not None:
         loader = getattr(history, "async_load", None)
@@ -127,7 +132,7 @@ async def async_handle_ask_dj(
             runtime,
             result,
             classification,
-            memory_key=memory_key,
+            music_dna_key=music_dna_key,
             playback_context={},
         )
         if memory is not None:
@@ -177,7 +182,7 @@ async def async_handle_ask_dj(
             runtime,
             result,
             classification,
-            memory_key=memory_key,
+            music_dna_key=music_dna_key,
             playback_context={},
         )
         if memory is not None:
@@ -211,7 +216,7 @@ async def async_handle_ask_dj(
             runtime,
             result,
             classification,
-            memory_key=memory_key,
+            music_dna_key=music_dna_key,
             playback_context={},
         )
         response.pop("playback", None)
@@ -229,7 +234,7 @@ async def async_handle_ask_dj(
             runtime,
             result,
             AskDjIntent("informational", "track_artist_album_lookup", "none"),
-            memory_key=memory_key,
+            music_dna_key=music_dna_key,
             playback_context=playback_context,
         )
         response.pop("playback", None)
@@ -246,7 +251,7 @@ async def async_handle_ask_dj(
             runtime,
             result,
             AskDjIntent("hybrid", "play_album_containing_track", "play_music", play=True),
-            memory_key=memory_key,
+            music_dna_key=music_dna_key,
             playback_context=playback_context,
         )
         response.pop("playback", None)
@@ -259,7 +264,7 @@ async def async_handle_ask_dj(
             runtime,
             result,
             AskDjIntent("hybrid", "artist_fun_queue", "play_music", play=True),
-            memory_key=memory_key,
+            music_dna_key=music_dna_key,
             playback_context=playback_context,
         )
         response.pop("playback", None)
@@ -272,7 +277,7 @@ async def async_handle_ask_dj(
             runtime,
             result,
             AskDjIntent("informational", "artist_seed_recommendations", "none"),
-            memory_key=memory_key,
+            music_dna_key=music_dna_key,
             playback_context=playback_context,
         )
         response.pop("playback", None)
@@ -285,7 +290,7 @@ async def async_handle_ask_dj(
             runtime,
             result,
             AskDjIntent("informational", "artist_item_list", "none"),
-            memory_key=memory_key,
+            music_dna_key=music_dna_key,
             playback_context=playback_context,
         )
         response.pop("playback", None)
@@ -297,7 +302,7 @@ async def async_handle_ask_dj(
             runtime,
             result,
             AskDjIntent("hybrid", "play_current_album", "play_music", play=True),
-            memory_key=memory_key,
+            music_dna_key=music_dna_key,
             playback_context=playback_context,
         )
         response.pop("playback", None)
@@ -310,7 +315,7 @@ async def async_handle_ask_dj(
             runtime,
             result,
             AskDjIntent("informational", "current_track_seed_mix", "none"),
-            memory_key=memory_key,
+            music_dna_key=music_dna_key,
             playback_context=playback_context,
         )
         response.pop("playback", None)
@@ -323,7 +328,7 @@ async def async_handle_ask_dj(
             runtime,
             result,
             AskDjIntent("informational", "current_track_versions", "none"),
-            memory_key=memory_key,
+            music_dna_key=music_dna_key,
             playback_context=playback_context,
         )
         response.pop("playback", None)
@@ -345,7 +350,7 @@ async def async_handle_ask_dj(
                 runtime,
                 result,
                 classification,
-                memory_key=memory_key,
+                music_dna_key=music_dna_key,
                 playback_context=playback_context,
             )
             response.pop("playback", None)
@@ -366,7 +371,7 @@ async def async_handle_ask_dj(
             runtime,
             result,
             classification,
-            memory_key=memory_key,
+            music_dna_key=music_dna_key,
             playback_context=playback_context,
         )
         response.pop("playback", None)
@@ -381,7 +386,7 @@ async def async_handle_ask_dj(
                     runtime,
                     result,
                     AskDjIntent("informational", "track_title_choices", "none"),
-                    memory_key=memory_key,
+                    music_dna_key=music_dna_key,
                     playback_context=playback_context,
                 )
                 response.pop("playback", None)
@@ -412,7 +417,7 @@ async def async_handle_ask_dj(
         return _error_response(
             "ask_dj_unavailable",
             "Ask DJ is nu niet bereikbaar.",
-            memory_key=memory_key,
+            music_dna_key=music_dna_key,
         )
 
     response = _normalize_ask_dj_response(
@@ -420,7 +425,7 @@ async def async_handle_ask_dj(
         runtime,
         result,
         classification,
-        memory_key=memory_key,
+        music_dna_key=music_dna_key,
         playback_context=playback_context,
     )
 
@@ -466,14 +471,14 @@ async def async_idle_suggestion(
     identity_payload = _identity_payload(runtime, payload)
     memory = getattr(runtime, "memory", None)
     memory_context: dict[str, Any] = {}
-    memory_key = str(payload.get("memory_key") or "").strip() or None
+    music_dna_key = str(payload.get("music_dna_key") or "").strip() or None
     if memory is not None:
         memory_context = await memory.async_context_for_runtime(
             runtime,
             identity_payload,
             user_id=user_id,
         )
-        memory_key = memory_context.get("memory_key") or memory_key
+        music_dna_key = memory_context.get("music_dna_key") or music_dna_key
     if payload.get("mood_zone") is None:
         last_mood = _profile_mood(memory_context.get("memory") if isinstance(memory_context, dict) else {})
         if last_mood is not None:
@@ -490,7 +495,7 @@ async def async_idle_suggestion(
             "origin": "idle_suggestion",
             "intent": {"category": "informational", "intent": "idle_suggestion"},
             "action": "none",
-            "memory_key": memory_key,
+            "music_dna_key": music_dna_key,
             "playback_actions": [],
         }
     spotify_profile = await _listening_profile_context(
@@ -530,7 +535,7 @@ async def async_idle_suggestion(
         "origin": "idle_suggestion",
         "intent": {"category": "informational", "intent": "idle_suggestion"},
         "action": "none",
-        "memory_key": memory_key,
+        "music_dna_key": music_dna_key,
         "playback_actions": selected_actions,
         "sources": _profile_sources(memory_context, spotify_profile),
     }
@@ -846,7 +851,7 @@ async def _record_blocked_music_preference_response(
         "items": [],
         "playback_actions": [],
         "confirmation_actions": [],
-        "sources": [{"source": "djconnect_memory", "title": "DJConnect Memory", "kind": "source"}],
+        "sources": [{"source": "djconnect_music_dna", "title": "Music DNA", "kind": "source"}],
         "intent": {"category": "informational", "intent": "blocked_music_preference"},
     }
 
@@ -1228,8 +1233,8 @@ def classify_ask_dj(text: str) -> AskDjIntent:
     if _is_personal_memory_request(normalized):
         return AskDjIntent(
             "informational",
-            "personal_memory_summary",
-            "memory_summary",
+            "personal_music_dna_summary",
+            "music_dna_summary",
         )
     if "luisterprofiel" in normalized or "listening profile" in normalized:
         return AskDjIntent(
@@ -1251,11 +1256,11 @@ def classify_ask_dj(text: str) -> AskDjIntent:
         )
     if _is_dj_announcement_request(normalized):
         return AskDjIntent("hybrid", "dj_announcement", "announce", play=False)
-    if _is_technical_track_analysis_request(normalized):
+    if is_track_insight_request(normalized) or _is_track_insight_analysis_request(normalized):
         return AskDjIntent(
             "informational",
-            "technical_track_analysis",
-            "track_analysis",
+            "track_insight",
+            "track_insight",
         )
     if _is_morning_start_request(normalized):
         return AskDjIntent(
@@ -2020,8 +2025,8 @@ async def _handle_informational(
         return await _next_track_info_response(hass, runtime)
     if ask_intent.intent == "recently_played_history":
         return await _recently_played_history_response(hass, runtime, text)
-    if ask_intent.intent == "technical_track_analysis":
-        return await _technical_track_analysis_response(hass, runtime, playback_context)
+    if ask_intent.intent == "track_insight":
+        return await _track_insight_response(hass, runtime, payload)
     if _is_current_track_album_question(text):
         return _current_track_album_response(hass, playback_context)
     if _is_current_playing_question(text):
@@ -2243,25 +2248,28 @@ async def _handle_informational(
             "action": "profile_analysis",
             "sources": _profile_sources(memory_context, spotify_profile),
         }
-    if ask_intent.intent == "personal_memory_summary":
-        message = _personal_memory_summary_text(memory_context)
+    if ask_intent.intent == "personal_music_dna_summary":
+        message = _personal_music_dna_summary_text(memory_context)
         return {
             "success": True,
             "text": message,
             "dj_text": message,
-            "action": "memory_summary",
+            "action": "music_dna_summary",
             "images": [],
             "links": [],
-            "sources": [{"source": "djconnect_memory", "title": "DJConnect Memory", "kind": "source"}],
+            "sources": [{"source": "djconnect_music_dna", "title": "Music DNA", "kind": "source"}],
             "playback_actions": [],
         }
     if ask_intent.intent == "personal_music_recommendations":
-        spotify_profile = await _listening_profile_context(
+        tool_result = await async_call_ai_tool(
             hass,
             runtime,
-            payload,
-            memory_context,
+            "djconnect_build_recommendations",
+            {"music_dna_key": payload.get("music_dna_key")},
         )
+        spotify_profile = tool_result.get("spotify_profile") if isinstance(tool_result, dict) else {}
+        if not isinstance(spotify_profile, dict):
+            spotify_profile = {}
         actions = _recommendation_playback_actions(
             hass,
             memory_context,
@@ -2271,7 +2279,7 @@ async def _handle_informational(
         )
         if actions:
             message = (
-                "Verrassing. Ik heb vijf suggesties gekozen op basis van je DJ Memory en Spotify-profiel. "
+                "Verrassing. Ik heb vijf suggesties gekozen op basis van je Music DNA en Spotify-profiel. "
                 "Ik start nog niets; tik op Play Now als je er eentje wilt horen."
             )
         else:
@@ -2299,7 +2307,7 @@ async def _handle_informational(
         actions = _personal_artist_recommendation_actions(hass, memory_context, spotify_profile, limit=8)
         if actions:
             message = (
-                "Deze artiesten passen goed bij je smaak op basis van je Spotify-profiel en DJ Memory. "
+                "Deze artiesten passen goed bij je smaak op basis van je Spotify-profiel en Music DNA. "
                 "Ik start niets automatisch."
             )
         else:
@@ -2363,7 +2371,7 @@ async def _playlist_recommendation_offer_response(
 ) -> dict[str, Any]:
     message = (
         "Ik kan een paar persoonlijke playlist- of muzieksuggesties voor je maken "
-        "op basis van je DJ Memory en luisterprofiel. Wil je dat?"
+        "op basis van je Music DNA en luisterprofiel. Wil je dat?"
     )
     confirmations = _confirmation_actions(yes_title="Ja graag", no_title="Nee dank je")
     await _store_pending_followup(
@@ -2617,11 +2625,14 @@ async def _recently_played_history_response(
 ) -> dict[str, Any]:
     window = _recently_played_window(text)
     try:
-        result = await run_music_command(
+        result = await async_call_ai_tool(
             hass,
             runtime,
-            "recently_played",
-            {"limit": 50},
+            "djconnect_recently_played",
+            {
+                "item_type": _recently_played_history_type(text),
+                "limit": 50,
+            },
         )
     except Exception as exc:  # noqa: BLE001
         _LOGGER.debug("DJConnect recent-played unavailable: %s", exc)
@@ -4405,7 +4416,7 @@ def _normalize_ask_dj_response(
     result: dict[str, Any],
     classification: AskDjIntent,
     *,
-    memory_key: str | None,
+    music_dna_key: str | None,
     playback_context: dict[str, Any],
 ) -> dict[str, Any]:
     text = str(result.get("dj_text") or result.get("text") or result.get("message") or "").strip()
@@ -4452,9 +4463,12 @@ def _normalize_ask_dj_response(
             ),
         },
         **({"analysis": result.get("analysis")} if isinstance(result.get("analysis"), dict) else {}),
+        **({"track_insight": result.get("track_insight")} if isinstance(result.get("track_insight"), dict) else {}),
+        **({"type": result.get("type")} if result.get("type") else {}),
+        **({"open_screen": result.get("open_screen")} if result.get("open_screen") else {}),
         "items": result.get("items") or [],
         "action": action,
-        "memory_key": memory_key,
+        "music_dna_key": music_dna_key,
         "playback": result.get("playback") or playback_context,
         "assistant_message": {
             "role": "assistant",
@@ -4466,6 +4480,8 @@ def _normalize_ask_dj_response(
             "sources": sources,
             "items": result.get("items") or [],
             **({"analysis": result.get("analysis")} if isinstance(result.get("analysis"), dict) else {}),
+            **({"track_insight": result.get("track_insight")} if isinstance(result.get("track_insight"), dict) else {}),
+            **({"open_screen": result.get("open_screen")} if result.get("open_screen") else {}),
             "playback_actions": result.get("playback_actions") or [],
             "confirmation_actions": confirmation_actions,
         },
@@ -4552,8 +4568,8 @@ def _is_personal_music_profile_request(normalized: str) -> bool:
     )
 
 
-def _is_technical_track_analysis_request(normalized: str) -> bool:
-    """Return true for live technical analysis questions about the current track."""
+def _is_track_insight_analysis_request(normalized: str) -> bool:
+    """Return true for analysis questions about the current track."""
     track_terms = (
         "dit nummer",
         "deze track",
@@ -4614,12 +4630,12 @@ def _is_personal_memory_request(normalized: str) -> bool:
         "wat weet je nu over mij",
         "wat weet je over mij",
         "wat weet djconnect over mij",
-        "wat staat er in mijn dj memory",
-        "wat staat er in dj memory",
+        "wat staat er in mijn Music DNA",
+        "wat staat er in Music DNA",
         "wat herinner je je over mij",
         "what do you know about me",
         "what does djconnect know about me",
-        "what is in my dj memory",
+        "what is in my Music DNA",
         "what do you remember about me",
     } or (
         ("wat weet" in normalized or "what do you know" in normalized)
@@ -5967,16 +5983,19 @@ async def _spotify_playlist_search(
     limit: int = 10,
 ) -> dict[str, Any]:
     try:
-        result = await run_music_command(
+        result = await async_call_ai_tool(
             hass,
             runtime,
-            "search_playlists",
-            {"query": query, "limit": limit},
+            "djconnect_search_music",
+            {"query": query, "media_type": "playlist", "limit": limit},
         )
     except Exception as exc:  # noqa: BLE001
         _LOGGER.debug("DJConnect Spotify playlist search unavailable: %s", exc)
         return {}
-    return result if isinstance(result, dict) else {}
+    if not isinstance(result, dict):
+        return {}
+    backend_result = result.get("result")
+    return backend_result if isinstance(backend_result, dict) else result
 
 
 async def _spotify_track_search(
@@ -6731,12 +6750,12 @@ def _personal_music_profile_text(
         spotify_hint = " Spotify gaf ook nog geen bruikbare recently-played of top-items terug." if spotify_profile else ""
         return (
             f"Ik heb nog te weinig luistergeschiedenis om je muzieksmaak over {period} eerlijk te analyseren."
-            f"{detail}{spotify_hint} Zodra er meer recente Spotify snapshots of DJ Memory data staat, kan ik daar een veel scherper profiel van maken."
+            f"{detail}{spotify_hint} Zodra er meer recente Spotify snapshots of Music DNA data staat, kan ik daar een veel scherper profiel van maken."
         )
 
     lines = [f"Voor {period} zie ik dit profiel op basis van de DJConnect context die ik nu heb."]
     if spotify_profile:
-        lines.extend(["", "Bronnen:", "- Spotify recent/top-data", "- DJConnect Memory"])
+        lines.extend(["", "Bronnen:", "- Spotify recent/top-data", "- Music DNA"])
     lines.append("")
     if genres:
         lines.append("- Harde observatie: je genres neigen naar " + _join_examples(genres, limit=4) + ".")
@@ -6759,11 +6778,11 @@ def _personal_music_profile_text(
         zone = mood_zone_for_value(mood)
         if zone is not None:
             lines.append(
-                f"- Laatste mood/energy in DJ Memory: {mood}/100 "
+                f"- Laatste mood/energy in Music DNA: {mood}/100 "
                 f"({zone.name}: {zone.prompt_hint})."
             )
         else:
-            lines.append(f"- Laatste mood/energy in DJ Memory: {mood}/100.")
+            lines.append(f"- Laatste mood/energy in Music DNA: {mood}/100.")
     if examples:
         lines.extend(["", "Concrete voorbeelden:", *[f"- {item}" for item in examples[:6]]])
     if spotify_profile and _profile_limited(spotify_profile):
@@ -6775,21 +6794,71 @@ def _personal_music_profile_text(
     return "\n".join(line for line in lines if line is not None).strip()
 
 
-async def _technical_track_analysis_response(
+async def _track_insight_response(
     hass: HomeAssistant,
     runtime: Any,
-    playback_context: dict[str, Any],
+    payload: dict[str, Any],
 ) -> dict[str, Any]:
-    """Return a read-only technical analysis of the current Spotify track."""
-    return await async_analyze_current_track(hass, runtime, playback_context)
+    """Return Track Insight through the shared backend service."""
+    try:
+        insight = await async_call_ai_tool(
+            hass,
+            runtime,
+            "djconnect_track_insight",
+            payload,
+        )
+    except TrackInsightError as exc:
+        error = track_insight_error_response(exc)
+        message = str(error.get("message") or "Track Insight is nu niet beschikbaar.")
+        return {
+            "success": False,
+            "text": message,
+            "dj_text": message,
+            "message": message,
+            "error": error.get("error"),
+            "action": "track_insight",
+            "intent": {"category": "informational", "intent": "track_insight", "action": "track_insight"},
+            "images": [],
+            "links": [],
+            "sources": [],
+            "items": [],
+            "playback_actions": [],
+        }
+    title = str((insight.get("track") or {}).get("title") or "dit nummer").strip()
+    artist = str((insight.get("track") or {}).get("artist") or "").strip()
+    speak = f"Here is the Track Insight for {title}{f' by {artist}' if artist else ''}."
+    music_dna = insight.get("music_dna") if isinstance(insight.get("music_dna"), dict) else {}
+    music_dna_summary = str(music_dna.get("summary") or "").strip()
+    if music_dna_summary:
+        speak = f"{speak} {music_dna_summary}"
+    summary = str((insight.get("analysis") or {}).get("summary") or "").strip()
+    if summary:
+        speak = f"{speak} {summary}"
+    return {
+        "success": True,
+        "type": "track_insight",
+        "text": speak,
+        "dj_text": speak,
+        "message": speak,
+        "action": "track_insight",
+        "open_screen": "track_insight",
+        "track_insight": insight,
+        "analysis": insight.get("analysis"),
+        "items": [],
+        "images": [],
+        "links": [],
+        "sources": [{"source": "track_insight", "kind": "source", "title": "DJConnect Track Insight"}],
+        "playback_actions": [],
+        "intent": {"category": "informational", "intent": "track_insight", "action": "track_insight"},
+    }
 
 
-def _personal_memory_summary_text(memory_context: dict[str, Any]) -> str:
+def _personal_music_dna_summary_text(memory_context: dict[str, Any]) -> str:
     memory = memory_context.get("memory") if isinstance(memory_context, dict) else {}
     session = memory_context.get("session") if isinstance(memory_context, dict) else []
     if not isinstance(memory, dict):
         memory = {}
-    lines = ["Dit weet ik nu over jou uit DJ Memory:"]
+    lines = ["Dit laat je Music DNA nu zien:"]
     has_detail = False
 
     mood = _profile_mood(memory)
@@ -6803,7 +6872,7 @@ def _personal_memory_summary_text(memory_context: dict[str, Any]) -> str:
 
     genres = _memory_text_values(memory.get("favorite_genres"), keys=("name", "genre"))
     if genres:
-        lines.append("- Genres die ik onthoud: " + _join_examples(genres, limit=5) + ".")
+        lines.append("- Favorite genres: " + _join_examples(genres, limit=5) + ".")
         has_detail = True
 
     artists = _memory_text_values(memory.get("favorite_artists"), keys=("name", "artist", "artist_name"))
@@ -6819,7 +6888,7 @@ def _personal_memory_summary_text(memory_context: dict[str, Any]) -> str:
 
     last_ask = memory.get("last_ask_dj")
     if isinstance(last_ask, dict) and last_ask.get("input"):
-        lines.append(f"- Laatste Ask DJ vraag die ik onthoud: {last_ask['input']}.")
+        lines.append(f"- Recent learned from Ask DJ: {last_ask['input']}.")
         has_detail = True
 
     if session:
@@ -6830,7 +6899,7 @@ def _personal_memory_summary_text(memory_context: dict[str, Any]) -> str:
         lines.append("- Nog weinig concreets. Zodra je meer vraagt of afspeelt, bouw ik dit compact op.")
 
     lines.append("")
-    lines.append("Ik gebruik hiervoor alleen DJ Memory, niet je live Spotify-status of extra Spotify-profieldata.")
+    lines.append("Ik gebruik hiervoor alleen je Music DNA, niet je live Spotify-status of extra Spotify-profieldata.")
     return "\n".join(lines).strip()
 
 
@@ -6999,7 +7068,7 @@ def _profile_artist_hint(
     memory_context: dict[str, Any],
     spotify_profile: dict[str, Any],
 ) -> str:
-    """Return a short user-facing hint that DJ Memory/listening profile was used."""
+    """Return a short user-facing hint that Music DNA/listening profile was used."""
     memory = memory_context.get("memory") if isinstance(memory_context, dict) else {}
     if not isinstance(memory, dict):
         memory = {}
@@ -7010,7 +7079,7 @@ def _profile_artist_hint(
     artists = [artist for artist in artists if artist][:3]
     if not artists:
         return ""
-    return f"Ik zie in je DJ Memory en Spotify-profiel dat je ook regelmatig naar {_join_human(artists)} luistert."
+    return f"Ik zie in je Music DNA en Spotify-profiel dat je ook regelmatig naar {_join_human(artists)} luistert."
 
 
 def _join_human(items: list[str]) -> str:
@@ -7104,7 +7173,7 @@ def _profile_sources(
     memory_context: dict[str, Any],
     spotify_profile: dict[str, Any],
 ) -> list[dict[str, str]]:
-    sources = [{"source": "djconnect_memory", "kind": "source", "title": "DJConnect Memory"}]
+    sources = [{"source": "djconnect_music_dna", "kind": "source", "title": "Music DNA"}]
     spotify_sources = spotify_profile.get("sources") if isinstance(spotify_profile, dict) else []
     for source in spotify_sources or []:
         text = str(source or "").strip()
@@ -7264,7 +7333,7 @@ def _personal_artist_recommendation_actions(
             "button_label": "Play Now" if uri.startswith("spotify:artist:") else "",
             "action_style": "play_now" if uri.startswith("spotify:artist:") else "info",
             "image_url": proxy_image,
-            "reason": "Past bij je Spotify-profiel en DJ Memory.",
+            "reason": "Past bij je Spotify-profiel en Music DNA.",
             **_backend_action_fields(hass, "artist", uri, proxy_image, name, subtitle),
         }
         actions.append({key: value for key, value in action.items() if value not in ("", None, [])})
@@ -7408,7 +7477,7 @@ def _identity_payload(runtime: Any, payload: dict[str, Any]) -> dict[str, Any]:
         CONF_DEVICE_ID: payload.get(CONF_DEVICE_ID) or identity.get(CONF_DEVICE_ID) or status.get(CONF_DEVICE_ID),
         CONF_CLIENT_TYPE: payload.get(CONF_CLIENT_TYPE) or identity.get(CONF_CLIENT_TYPE) or status.get(CONF_CLIENT_TYPE),
         CONF_DEVICE_NAME: payload.get(CONF_DEVICE_NAME) or identity.get(CONF_DEVICE_NAME) or status.get(CONF_DEVICE_NAME),
-        "memory_key": payload.get("memory_key") or identity.get("memory_key"),
+        "music_dna_key": payload.get("music_dna_key") or identity.get("music_dna_key"),
         "mood": payload.get("mood") if payload.get("mood") is not None else payload.get("energy"),
         "mood_zone": payload.get("mood_zone"),
         "mood_zone_prompt": payload.get("mood_zone_prompt"),
@@ -7419,7 +7488,7 @@ def _identity_payload(runtime: Any, payload: dict[str, Any]) -> dict[str, Any]:
 
 async def _playback_context(hass: HomeAssistant, runtime: Any) -> dict[str, Any]:
     try:
-        result = await run_music_command(hass, runtime, "status")
+        result = await async_call_ai_tool(hass, runtime, "djconnect_now_playing")
         playback = result.get("playback") if isinstance(result, dict) else {}
         return playback if isinstance(playback, dict) else {}
     except Exception:  # noqa: BLE001
@@ -7436,8 +7505,8 @@ async def _output_devices(
         devices = status.get("available_outputs")
         return devices if isinstance(devices, list) else []
     try:
-        result = await run_music_command(hass, runtime, "devices")
-        devices = result.get("devices") if isinstance(result, dict) else []
+        result = await async_call_ai_tool(hass, runtime, "djconnect_list_outputs")
+        devices = result.get("outputs") if isinstance(result, dict) else []
         return devices if isinstance(devices, list) else []
     except Exception:  # noqa: BLE001
         return []
@@ -7460,7 +7529,7 @@ def _informational_prompt(
         "Je bent DJConnect Ask DJ. Beantwoord informatieve muziekvragen zonder "
         "playback te wijzigen. Gebruik alleen meegegeven context en betrouwbare "
         "kennis die je al hebt; verzin geen trivia. Als bronnen beschikbaar zijn, "
-        "houd rekening met Spotify metadata, DJ Memory, MusicBrainz, Wikidata, "
+        "houd rekening met Spotify metadata, Music DNA, MusicBrainz, Wikidata, "
         "korte Wikipedia-samenvattingen, Last.fm, Discogs en TheAudioDB. "
         "Gebruik de recente Ask DJ gesprekshistorie. Als het laatste bericht een "
         "korte bevestiging, afwijzing, bedankje, excuus, emotionele reactie of "
@@ -7476,7 +7545,7 @@ def _informational_prompt(
         f"Smart-home context: {smart_home_text or 'geen expliciet gedeelde HA entities'}\n"
         f"Playback context: {_safe_inline_context(playback_context)}\n"
         f"Output devices: {_safe_inline_context(output_devices)}\n"
-        f"DJ Memory: {memory_text or 'geen eerdere context'}"
+        f"Music DNA: {memory_text or 'geen eerdere context'}"
     )
 
 
@@ -7907,7 +7976,7 @@ def _output_device_play_request_actions(
             "client_id": payload.get("client_id"),
             "device_id": payload.get("device_id"),
             "device_name": payload.get("device_name"),
-            "memory_key": payload.get("memory_key"),
+            "music_dna_key": payload.get("music_dna_key"),
             "mood": payload.get("mood"),
             "mood_zone": payload.get("mood_zone"),
             "audio_response": payload.get("audio_response"),
@@ -8066,6 +8135,7 @@ def _help_sections() -> list[tuple[str, list[str]]]:
                 "Heb je remixes?",
                 "Geef een DJ intro voor dit nummer",
                 "Analyseer dit nummer",
+                "Geef Track Insight voor dit nummer",
                 "Wat voor genre is dit?",
             ],
         ),
@@ -8372,7 +8442,7 @@ def _normalize(text: str) -> str:
     return " ".join(str(text or "").strip().lower().split())
 
 
-def _error_response(error: str, message: str, *, memory_key: str | None = None) -> dict[str, Any]:
+def _error_response(error: str, message: str, *, music_dna_key: str | None = None) -> dict[str, Any]:
     return {
         "success": False,
         "error": error,
@@ -8381,5 +8451,5 @@ def _error_response(error: str, message: str, *, memory_key: str | None = None) 
         "dj_text": message,
         "images": [],
         "links": [],
-        "memory_key": memory_key,
+        "music_dna_key": music_dna_key,
     }

@@ -65,8 +65,6 @@
           "client_type": "Clienttype",
           "local_url": "Client adres",
           "dj_response_enabled": "DJ aankondiging op apparaat afspelen",
-          "track_analysis_enabled": "Ask DJ trackanalyse",
-          "track_analysis_use_ha_conversation": "HA Conversation gebruiken voor trackanalyse",
           "smart_home_context_entities": "Gedeelde smart-home entiteiten",
           "firmware_channel": "Firmwarekanaal",
           "options_action": "Actie"
@@ -204,7 +202,7 @@
       },
       "music_backend": {
         "title": "Muziekbackend wijzigen",
-        "description": "De huidige backend staat hieronder. Wisselen behoudt pairing, device tokens, Ask DJ history, DJ Memory en pushregistraties. Oude backend-specifieke Ask DJ playback-acties of aanbevelingen zijn mogelijk niet meer uitvoerbaar.",
+        "description": "De huidige backend staat hieronder. Wisselen behoudt pairing, device tokens, Ask DJ history, Music DNA en pushregistraties. Oude backend-specifieke Ask DJ playback-acties of aanbevelingen zijn mogelijk niet meer uitvoerbaar.",
         "data": {
           "music_backend": "Muziekbackend"
         },

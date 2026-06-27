@@ -85,7 +85,11 @@ def install_conversation_stubs() -> None:
     async def run_text_command(*args, **kwargs):
         return {"dj_text": ""}
 
+    async def run_music_command(*args, **kwargs):
+        return {"success": True}
+
     use_cases.run_text_command = run_text_command
+    use_cases.run_music_command = run_music_command
     sys.modules["custom_components.djconnect.use_cases"] = use_cases
 
 
@@ -134,6 +138,65 @@ class ConversationAgentTest(unittest.TestCase):
         self.assertFalse(added[0]._attr_has_entity_name)
         self.assertTrue(added[0].available)
         self.assertEqual(added[0].state, "ready")
+
+    def test_agent_exposes_track_insight_conversation_tool(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            config={},
+        )
+        agent = self.conversation.DJConnectConversationAgent(runtime)
+
+        names = {tool["name"] for tool in agent.conversation_tools}
+
+        self.assertEqual(
+            names,
+            {
+                "djconnect_track_insight",
+                "djconnect_now_playing",
+                "djconnect_music_dna_summary",
+                "djconnect_recently_played",
+                "djconnect_search_music",
+                "djconnect_list_outputs",
+                "djconnect_build_recommendations",
+                "djconnect_prepare_playback_action",
+                "djconnect_execute_confirmed_action",
+            },
+        )
+        self.assertTrue(all("parameters" in tool for tool in agent.conversation_tools))
+
+    def test_agent_calls_track_insight_conversation_tool(self) -> None:
+        calls = []
+        track_insight = types.ModuleType("custom_components.djconnect.track_insight")
+
+        async def async_track_insight_tool(hass, runtime, **parameters):
+            calls.append((hass, runtime, parameters))
+            return {"success": True, "type": "track_insight"}
+
+        track_insight.async_track_insight_tool = async_track_insight_tool
+        sys.modules["custom_components.djconnect.track_insight"] = track_insight
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            config={},
+        )
+        agent = self.conversation.DJConnectConversationAgent(runtime)
+        hass = object()
+        agent.hass = hass
+
+        try:
+            result = asyncio.run(
+                agent.async_call_tool(
+                    "djconnect_track_insight",
+                    {"title": "Strobe", "artist": "Deadmau5"},
+                )
+            )
+        finally:
+            sys.modules.pop("custom_components.djconnect.track_insight", None)
+
+        self.assertEqual(result, {"success": True, "type": "track_insight"})
+        self.assertEqual(
+            calls,
+            [(hass, runtime, {"title": "Strobe", "artist": "Deadmau5"})],
+        )
 
     def test_process_returns_dj_text_from_command_flow(self) -> None:
         calls = []
