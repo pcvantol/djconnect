@@ -4,34 +4,11 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
-  ask_dj_e2e_contract:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
-      - name: Validate Ask DJ offline E2E contract cases
-        run: python -m unittest tests.test_ask_dj_e2e_contract
-  postman_collection:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
-      - name: Validate Postman collection
-        run: python -m unittest tests.test_postman_collection
-  hassfest:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: home-assistant/actions/hassfest@master
-  hacs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: hacs/action@main
-        with:
-          category: integration
+  validate:
+    uses: ./.github/workflows/djconnect-ha-integration-ci.yml
+    with:
+      test-command: python -m unittest discover -s tests

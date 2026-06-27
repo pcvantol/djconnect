@@ -1,0 +1,17 @@
+name: CodeQL
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "24 4 * * 1"
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    uses: ./.github/workflows/djconnect-codeql-ci.yml
+    with:
+      languages: python

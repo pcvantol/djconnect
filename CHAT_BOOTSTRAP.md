@@ -92,6 +92,7 @@ Werkstijl:
 - Run minimaal `python3 -m unittest discover -s tests` voor release/codewijzigingen.
 - Lokale HA dev-omgeving draait in Docker op `localhost:8123`; zie `DEVELOPMENT_ENVIRONMENT.md` voor sync/restart commands.
 - Release met `./release.sh X.Y.Z`; cleanup oude releases met `./cleanup_old_releases.sh --keep 1 --execute`.
+- Gedeelde DJConnect CI workflows en security rulesets staan in deze repo; zie `CI_BASELINE.md`. Andere DJConnect repos kunnen reusable workflows uit `.github/workflows/djconnect-*.yml` gebruiken.
 - `main` is beschermd; releasewerk gaat via PR. HACS/hassfest validatie verwacht geldige repo topics, `hacs.json` zonder verouderde `domains` key, gesorteerde `manifest.json` keys en geen letterlijke URLs in translation strings.
 - Houd docs en vertalingen actueel bij UI/config-flow/options-flow wijzigingen.
 - Geen secrets/tokens/wachtwoorden loggen of committen.

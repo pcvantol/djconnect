@@ -1,0 +1,16 @@
+name: Semgrep
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  semgrep:
+    uses: ./.github/workflows/djconnect-semgrep-ci.yml
+    with:
+      config: .semgrep/djconnect-security.yml
+      continue-on-error: true

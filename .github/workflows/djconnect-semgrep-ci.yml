@@ -1,0 +1,30 @@
+name: DJConnect shared Semgrep CI
+
+on:
+  workflow_call:
+    inputs:
+      config:
+        description: Semgrep config path or URL.
+        required: false
+        type: string
+        default: "https://raw.githubusercontent.com/pcvantol/djconnect/main/.semgrep/djconnect-security.yml"
+      continue-on-error:
+        description: Report Semgrep results without failing the workflow.
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  semgrep:
+    name: Semgrep
+    continue-on-error: ${{ inputs.continue-on-error }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: semgrep/semgrep-action@v1
+        with:
+          config: ${{ inputs.config }}

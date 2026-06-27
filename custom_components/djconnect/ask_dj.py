@@ -8,7 +8,7 @@ import random
 import re
 import secrets
 from typing import Any
-from urllib.parse import quote, urlsplit
+from urllib.parse import quote
 
 from aiohttp import ClientTimeout
 from homeassistant.core import HomeAssistant

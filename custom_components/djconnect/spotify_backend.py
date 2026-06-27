@@ -1302,7 +1302,6 @@ def _normalize_playback(data: dict[str, Any]) -> dict[str, Any]:
     context_uri = context.get("uri") or ""
     artists = item.get("artists") or []
     album = item.get("album") or {}
-    album_uri = str(album.get("uri") or "").strip()
     images = album.get("images") or item.get("images") or []
     album_image_url = _best_image_url(images)
     return {
