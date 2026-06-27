@@ -1689,6 +1689,114 @@ class TtsHelperTest(unittest.TestCase):
         self.assertEqual(result, "media-source://tts/default")
         self.assertEqual(calls[0], {"message": "Daar gaan we."})
 
+    def test_tts_media_source_supports_positional_generator_signature(self) -> None:
+        calls = []
+        pipeline_module_name = "homeassistant.components.assist_pipeline.pipeline"
+        original_pipeline_module = sys.modules.pop(pipeline_module_name, None)
+
+        class TtsModule:
+            @staticmethod
+            def generate_media_source_id(
+                hass,
+                message,
+                engine=None,
+                language=None,
+                options=None,
+            ):
+                calls.append(
+                    {
+                        "message": message,
+                        "engine": engine,
+                        "language": language,
+                        "options": options,
+                    }
+                )
+                return "media-source://tts/positional"
+
+        try:
+            result = asyncio.run(
+                self.tts._async_generate_tts_media_source_id(
+                    TtsModule,
+                    object(),
+                    "Daar gaan we.",
+                    {},
+                )
+            )
+        finally:
+            if original_pipeline_module is not None:
+                sys.modules[pipeline_module_name] = original_pipeline_module
+
+        self.assertEqual(result, "media-source://tts/positional")
+        self.assertEqual(
+            calls[0],
+            {
+                "message": "Daar gaan we.",
+                "engine": None,
+                "language": None,
+                "options": None,
+            },
+        )
+
+    def test_tts_media_source_supports_async_positional_pipeline_signature(self) -> None:
+        calls = []
+        pipeline_module_name = "homeassistant.components.assist_pipeline.pipeline"
+        original_pipeline_module = sys.modules.get(pipeline_module_name)
+        pipeline_module = types.ModuleType(pipeline_module_name)
+        pipeline_module.async_get_pipelines = lambda hass: [
+            types.SimpleNamespace(
+                id="living-room",
+                tts_engine="cloud",
+                tts_language="nl-NL",
+                tts_voice="Fenna",
+            )
+        ]
+        sys.modules[pipeline_module_name] = pipeline_module
+
+        class TtsModule:
+            @staticmethod
+            async def async_generate_media_source_id(
+                hass,
+                message,
+                engine=None,
+                language=None,
+                options=None,
+            ):
+                calls.append(
+                    {
+                        "message": message,
+                        "engine": engine,
+                        "language": language,
+                        "options": options,
+                    }
+                )
+                return "media-source://tts/async-positional"
+
+        try:
+            result = asyncio.run(
+                self.tts._async_generate_tts_media_source_id(
+                    TtsModule,
+                    object(),
+                    "Daar gaan we.",
+                    {self.const.CONF_ASSIST_PIPELINE_ID: "living-room"},
+                )
+            )
+        finally:
+            if original_pipeline_module is None:
+                sys.modules.pop(pipeline_module_name, None)
+            else:
+                sys.modules[pipeline_module_name] = original_pipeline_module
+
+        self.assertEqual(result, "media-source://tts/async-positional")
+        self.assertEqual(
+            calls[0],
+            {
+                "message": "Daar gaan we.",
+                "engine": "cloud",
+                "language": "nl-NL",
+                "options": {"voice": "Fenna"},
+            },
+        )
+
     def test_tts_text_candidates_add_english_title_language_hints(self) -> None:
         text = (
             'Je luistert naar Nirvana met het nummer "Heart-Shaped Box" '

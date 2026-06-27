@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 import html
+import inspect
 import re
 from typing import Any
 
@@ -135,7 +136,7 @@ async def _async_generate_tts_media_source_id(
             continue
         for kwargs in _tts_media_source_kwargs(hass, text=text, conf=conf):
             try:
-                value = generator(hass, **kwargs)
+                value = _call_tts_media_source_generator(generator, hass, kwargs)
                 if hasattr(value, "__await__"):
                     value = await value
                 if value:
@@ -153,6 +154,38 @@ async def _async_generate_tts_media_source_id(
                 _LOGGER.debug("DJConnect TTS media-source generation failed", exc_info=True)
                 continue
     return None
+
+
+def _call_tts_media_source_generator(
+    generator: Any,
+    hass: HomeAssistant,
+    kwargs: dict[str, Any],
+) -> Any:
+    """Call HA TTS media-source generators across keyword and positional APIs."""
+    try:
+        return generator(hass, **kwargs)
+    except TypeError as keyword_error:
+        try:
+            signature = inspect.signature(generator)
+        except (TypeError, ValueError):
+            signature = None
+        if signature is not None:
+            parameters = list(signature.parameters)
+            # Bound methods do not expose ``hass`` in their signatures.
+            if parameters and parameters[0] in {"self", "hass"}:
+                parameters = parameters[1:]
+            if not parameters or parameters[0] not in {"message", "text"}:
+                raise keyword_error
+        args: list[Any] = [kwargs.get("message")]
+        if any(key in kwargs for key in ("engine", "language", "options")):
+            args.extend(
+                [
+                    kwargs.get("engine"),
+                    kwargs.get("language"),
+                    kwargs.get("options"),
+                ]
+            )
+        return generator(hass, *args)
 
 
 def _tts_media_source_kwargs(
