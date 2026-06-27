@@ -98,7 +98,13 @@ class TtsHelperTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         install_integration_stubs()
-        sys.modules.pop("custom_components.djconnect", None)
+        for module_name in (
+            "custom_components.djconnect.http",
+            "custom_components.djconnect.tts",
+            "custom_components.djconnect.dj_response",
+            "custom_components.djconnect",
+        ):
+            sys.modules.pop(module_name, None)
         cls.integration = importlib.import_module("custom_components.djconnect")
         cls.const = importlib.import_module("custom_components.djconnect.const")
         cls.dj_response = importlib.import_module("custom_components.djconnect.dj_response")
