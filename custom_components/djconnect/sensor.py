@@ -25,6 +25,7 @@ from .use_cases import run_music_command as handle_spotify_command
 
 MAX_SENSOR_STATE_TEXT_LENGTH = 255
 APNS_SUPPORTED_CLIENT_TYPES = {CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_WATCHOS}
+EMPTY_STABLE_SENSOR_VALUES = {None, "", "unknown", "unavailable"}
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -107,6 +108,39 @@ class DJConnectBackendSensor(DJConnectBaseSensor):
             return None
         if isinstance(result, dict):
             return result
+        return None
+
+
+class DJConnectCachedStatusSensor(DJConnectBaseSensor):
+    """Status-backed sensor that keeps the last meaningful value across sparse syncs."""
+
+    def __init__(self, runtime) -> None:
+        super().__init__(runtime)
+        self._last_value = self._current_value()
+        self._last_runtime_update_state: tuple | None = None
+
+    @callback
+    def _handle_runtime_update(self) -> None:
+        current = self._runtime_update_state()
+        if current == self._last_runtime_update_state:
+            return
+        self._last_runtime_update_state = current
+        self.async_write_ha_state()
+
+    def _runtime_update_state(self) -> tuple:
+        return (self.native_value, self._raw_status_state())
+
+    @property
+    def native_value(self):
+        value = self._current_value()
+        if _is_stable_sensor_value(value):
+            self._last_value = value
+        return self._last_value
+
+    def _current_value(self):
+        return None
+
+    def _raw_status_state(self):
         return None
 
 
@@ -317,34 +351,37 @@ class DJConnectLastCorrectedSttSensor(DJConnectBaseSensor):
             "last_text": getattr(self.runtime, "last_text", None),
         }
 
-class DJConnectBatterySensor(DJConnectBaseSensor):
+class DJConnectBatterySensor(DJConnectCachedStatusSensor):
     _attr_translation_key = "battery"
     _attr_unique_id = "djconnect_battery"
     _attr_native_unit_of_measurement = PERCENTAGE
     _attr_device_class = SensorDeviceClass.BATTERY
     _attr_state_class = SensorStateClass.MEASUREMENT
 
-    @property
-    def native_value(self):
+    def _current_value(self):
         return self.runtime.device_status.get("battery_percent")
 
-class DJConnectWifiSensor(DJConnectBaseSensor):
+    def _raw_status_state(self):
+        return self.runtime.device_status.get("battery_percent")
+
+class DJConnectWifiSensor(DJConnectCachedStatusSensor):
     _attr_translation_key = "wifi_rssi"
     _attr_unique_id = "djconnect_wifi_rssi"
     _attr_native_unit_of_measurement = SIGNAL_STRENGTH_DECIBELS_MILLIWATT
     _attr_device_class = SensorDeviceClass.SIGNAL_STRENGTH
     _attr_state_class = SensorStateClass.MEASUREMENT
 
-    @property
-    def native_value(self):
+    def _current_value(self):
         return self.runtime.device_status.get("wifi_rssi")
 
-class DJConnectFirmwareSensor(DJConnectBaseSensor):
+    def _raw_status_state(self):
+        return self.runtime.device_status.get("wifi_rssi")
+
+class DJConnectFirmwareSensor(DJConnectCachedStatusSensor):
     _attr_translation_key = "firmware_version"
     _attr_unique_id = "djconnect_firmware_version"
 
-    @property
-    def native_value(self):
+    def _current_value(self):
         status = self.runtime.device_status
         return _first_non_empty(
             (
@@ -353,6 +390,15 @@ class DJConnectFirmwareSensor(DJConnectBaseSensor):
                 status.get("firmware"),
                 status.get("firmware_version"),
             )
+        )
+
+    def _raw_status_state(self):
+        status = self.runtime.device_status
+        return (
+            status.get("app_version"),
+            status.get("version"),
+            status.get("firmware"),
+            status.get("firmware_version"),
         )
 
 class DJConnectLastTrackSensor(DJConnectBaseSensor):
@@ -620,21 +666,24 @@ class DJConnectOutputsSensor(DJConnectBackendSensor):
         await self._spotify_command("devices")
 
 
-class DJConnectScreenStateSensor(DJConnectBaseSensor):
+class DJConnectScreenStateSensor(DJConnectCachedStatusSensor):
     _attr_translation_key = "screen_state"
     _attr_unique_id = "djconnect_screen_state"
 
-    @property
-    def native_value(self):
+    def _current_value(self):
         return self.runtime.device_status.get("screen_state")
 
+    def _raw_status_state(self):
+        return self.runtime.device_status.get("screen_state")
 
-class DJConnectLedStateSensor(DJConnectBaseSensor):
+class DJConnectLedStateSensor(DJConnectCachedStatusSensor):
     _attr_translation_key = "led_state"
     _attr_unique_id = "djconnect_led_state"
 
-    @property
-    def native_value(self):
+    def _current_value(self):
+        return self.runtime.device_status.get("led_state")
+
+    def _raw_status_state(self):
         return self.runtime.device_status.get("led_state")
 
 
@@ -697,6 +746,12 @@ def _first_non_empty(values) -> object | None:
         if value not in (None, "", [], {}):
             return value
     return None
+
+
+def _is_stable_sensor_value(value) -> bool:
+    if isinstance(value, str):
+        return value.strip().lower() not in EMPTY_STABLE_SENSOR_VALUES
+    return value is not None
 
 
 def _collection_items(value):

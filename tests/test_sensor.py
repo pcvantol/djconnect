@@ -380,6 +380,51 @@ class DJConnectSensorTest(unittest.TestCase):
         self.assertEqual(screen.native_value, "on")
         self.assertEqual(led.native_value, "off")
 
+    def test_hardware_sensors_keep_cached_values_after_sparse_status_sync(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            device_status={
+                "battery_percent": 82,
+                "wifi_rssi": -61,
+                "screen_state": "on",
+                "led_state": "off",
+            },
+            listeners=[],
+        )
+        battery = self.sensor.DJConnectBatterySensor(runtime)
+        wifi = self.sensor.DJConnectWifiSensor(runtime)
+        screen = self.sensor.DJConnectScreenStateSensor(runtime)
+        led = self.sensor.DJConnectLedStateSensor(runtime)
+
+        self.assertEqual(battery.native_value, 82)
+        self.assertEqual(wifi.native_value, -61)
+        self.assertEqual(screen.native_value, "on")
+        self.assertEqual(led.native_value, "off")
+
+        runtime.device_status = {
+            "battery_percent": None,
+            "wifi_rssi": "unknown",
+            "screen_state": "",
+            "led_state": "unavailable",
+        }
+
+        self.assertEqual(battery.native_value, 82)
+        self.assertEqual(wifi.native_value, -61)
+        self.assertEqual(screen.native_value, "on")
+        self.assertEqual(led.native_value, "off")
+
+        runtime.device_status = {
+            "battery_percent": 0,
+            "wifi_rssi": -70,
+            "screen_state": "off",
+            "led_state": "on",
+        }
+
+        self.assertEqual(battery.native_value, 0)
+        self.assertEqual(wifi.native_value, -70)
+        self.assertEqual(screen.native_value, "off")
+        self.assertEqual(led.native_value, "on")
+
     def test_conversation_agent_only_adds_apns_diagnostic_sensor(self) -> None:
         added = []
         runtime = types.SimpleNamespace(
@@ -740,6 +785,25 @@ class DJConnectSensorTest(unittest.TestCase):
         entity = self.sensor.DJConnectFirmwareSensor(runtime)
 
         self.assertEqual(entity.native_value, "3.1.46")
+
+    def test_version_sensor_keeps_cached_value_after_sparse_status_sync(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            device_status={
+                "client_type": "windows",
+                "app_version": "3.2.0",
+                "version": "3.2.0",
+            },
+            listeners=[],
+        )
+        entity = self.sensor.DJConnectFirmwareSensor(runtime)
+
+        self.assertEqual(entity.native_value, "3.2.0")
+        runtime.device_status = {"client_type": "windows", "app_version": "", "version": "unknown"}
+        self.assertEqual(entity.native_value, "3.2.0")
+
+        runtime.device_status = {"client_type": "windows", "app_version": "3.2.1"}
+        self.assertEqual(entity.native_value, "3.2.1")
 
     def test_app_version_sensor_falls_back_to_legacy_firmware(self) -> None:
         runtime = types.SimpleNamespace(
