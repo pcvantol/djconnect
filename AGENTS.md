@@ -11,7 +11,12 @@ Doel:
 
 Belangrijke repos:
 - HA integration: github.com/pcvantol/djconnect
-- ESP firmware source: github.com/pcvantol/djconnect-app
+- Apple clients source: github.com/pcvantol/djconnect-app
+- ESP32 firmware source: github.com/pcvantol/djconnect-esp32
+- Windows client source: github.com/pcvantol/djconnect-windows
+- Raspberry Pi client source: github.com/pcvantol/djconnect-pi
+- Product website/docs source: github.com/pcvantol/djconnect-website
+- Central API / APNs relay source: github.com/pcvantol/djconnect-api
 - Public firmware releases: github.com/pcvantol/djconnect-firmware
 
 Architectuur beslissingen:
@@ -167,7 +172,7 @@ ESP firmware:
 - ESP moet `firmware` bij status meesturen en HTTP `426` `version_mismatch` van HA behandelen als update-required/protocolblokkade zonder NVS pairing/token te wissen.
 
 Firmware releases:
-- Build vanuit separate repo `djconnect-app`.
+- Build vanuit separate repo `djconnect-esp32`.
 - Publish binaries naar public repo `djconnect-firmware`.
 - Private firmware repo moet bij voorkeur een eigen `release.sh` one-liner hebben:
   - `./release.sh X.Y.Z`
@@ -245,7 +250,7 @@ README/release:
   - `djconnect.test_parse`, `djconnect.test_command` en `djconnect.test_tts` testen.
   - Status, last command, last track en firmware update entities controleren.
 - Firmware release cross-check:
-  - Build firmware vanuit separate repo `djconnect-app`.
+  - Build firmware vanuit separate repo `djconnect-esp32`.
   - Gebruik bij voorkeur `./release.sh X.Y.Z` in de firmware repo.
   - Gebruik `./release.sh X.Y.Z --dry-run` bij twijfel voordat gepubliceerd wordt.
   - Publish binaries naar public repo `djconnect-firmware`.

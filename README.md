@@ -87,7 +87,12 @@ runtime behavior. These decisions are part of the integration contract:
 ## Repository Layout
 
 - Home Assistant integration: `3.2.0`
-- ESP firmware source: `pcvantol/djconnect-app`
+- Apple clients source: `pcvantol/djconnect-app`
+- ESP32 firmware source: `pcvantol/djconnect-esp32`
+- Windows client source: `pcvantol/djconnect-windows`
+- Raspberry Pi client source: `pcvantol/djconnect-pi`
+- Product website/docs source: `pcvantol/djconnect-website`
+- Central API / APNs relay source: `pcvantol/djconnect-api`
 - Public firmware releases: `pcvantol/djconnect-firmware`
 - Canonical cross-repo sync prompts live only in this HA repo: [`SYNC_PROMPTS.md`](SYNC_PROMPTS.md)
 - Canonical product roadmap lives only in this HA repo: [`PRODUCT_ROADMAP.md`](PRODUCT_ROADMAP.md)
@@ -1358,7 +1363,7 @@ When the ESP status payload reports `spotify_configured=false`, Home Assistant t
 
 ## Firmware OTA Releases
 
-Firmware builds come from the MIT-licensed `djconnect-app` repo and are published to the MIT-licensed `djconnect-firmware` repo.
+Firmware builds come from the MIT-licensed `djconnect-esp32` repo and are published to the MIT-licensed `djconnect-firmware` repo.
 
 Expected release assets:
 
@@ -1420,7 +1425,7 @@ Recommended firmware source release helper:
 ./release.sh 3.2.0
 ```
 
-In the separate `djconnect-app` repository, the firmware release script should
+In the separate `djconnect-esp32` repository, the firmware release script should
 validate the semantic version, update firmware version metadata, run the
 PlatformIO builds, rename firmware binaries to device-specific assets such as
 `djconnect-lilygo-t-embed-s3-vX.Y.Z.bin`, calculate SHA256, update
@@ -1560,7 +1565,7 @@ Home Assistant / HACS verification:
 
 Firmware release cross-check, when publishing firmware as well:
 
-- Build firmware from the separate `djconnect-app` repository.
+- Build firmware from the separate `djconnect-esp32` repository.
 - Prefer the firmware repo one-liner: `./release.sh X.Y.Z`.
 - Use `./release.sh X.Y.Z --dry-run` before publishing when in doubt.
 - Publish binaries to the public `djconnect-firmware` repository.

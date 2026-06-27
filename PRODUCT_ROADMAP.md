@@ -7,8 +7,10 @@ product roadmap for:
 - `pcvantol/djconnect`
 - `pcvantol/djconnect-app`
 - `pcvantol/djconnect-esp32`
+- `pcvantol/djconnect-windows`
 - `pcvantol/djconnect-website`
 - `pcvantol/djconnect-pi`
+- `pcvantol/djconnect-api`
 
 This roadmap is broader than `TODO.md`: not every idea here is committed scope.
 Use it to shape releases, validate demand and decide what belongs in the free
