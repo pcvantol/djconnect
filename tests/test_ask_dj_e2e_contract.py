@@ -116,6 +116,7 @@ class AskDjE2EContractTest(unittest.TestCase):
                 return {"id": f"followup-{len(trace.followups)}", **followup}
 
         runtime.memory = Memory()
+        runtime.config.update(case.get("runtime_config") or {})
         payload = {
             "device_id": runtime.device_status["device_id"],
             "client_message_id": f"e2e-{case['id']}",
@@ -125,7 +126,7 @@ class AskDjE2EContractTest(unittest.TestCase):
         runtime.device_status["client_type"] = payload.get("client_type") or "watchos"
 
         async def command(hass, runtime_arg, command_name, value=None, *, play=None):
-            trace.spotify_commands.append(command_name)
+            trace.music_commands.append(command_name)
             if command_name == "status":
                 if case["id"] == "morning_startup_confirmation":
                     return {"success": True, "playback": {"has_playback": False, "is_playing": False}}
@@ -379,7 +380,7 @@ class AskDjE2EContractTest(unittest.TestCase):
                         }
                     ],
                 }
-            raise AssertionError(f"unexpected Spotify command in {case['id']}: {command_name}")
+            raise AssertionError(f"unexpected music command in {case['id']}: {command_name}")
 
         async def tts(hass, runtime_arg, text):
             trace.tts_requests.append(text)

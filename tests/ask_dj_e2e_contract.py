@@ -28,10 +28,15 @@ PLAYBACK_MUTATION_COMMANDS = {
 
 @dataclass
 class AskDjE2ETrace:
-    spotify_commands: list[str] = field(default_factory=list)
+    music_commands: list[str] = field(default_factory=list)
     followups: list[dict[str, Any]] = field(default_factory=list)
     tts_requests: list[str] = field(default_factory=list)
     process_text_requests: list[str] = field(default_factory=list)
+
+    @property
+    def spotify_commands(self) -> list[str]:
+        """Backward-compatible alias for older tests."""
+        return self.music_commands
 
 
 def load_cases(path: str | Path) -> list[dict[str, Any]]:
@@ -111,22 +116,31 @@ def validate_case_result(
         fail,
     )
 
-    commands = list(trace.spotify_commands)
+    commands = list(trace.music_commands)
     if "required_music_commands" in expect:
         for command in expect["required_music_commands"]:
             if command not in commands:
-                fail(f"required Spotify command {command!r} was not called; got {commands!r}")
+                fail(f"required music command {command!r} was not called; got {commands!r}")
     if "allowed_music_commands" in expect:
         allowed = set(expect["allowed_music_commands"])
         unexpected = [command for command in commands if command not in allowed]
         if unexpected:
-            fail(f"unexpected Spotify commands {unexpected!r}; allowed {sorted(allowed)!r}")
-    if expect.get("forbid_spotify_mutations"):
+            fail(f"unexpected music commands {unexpected!r}; allowed {sorted(allowed)!r}")
+    if expect.get("forbid_music_mutations") or expect.get("forbid_spotify_mutations"):
         mutations = [command for command in commands if command in PLAYBACK_MUTATION_COMMANDS]
         if mutations:
-            fail(f"Spotify playback mutations were forbidden but called {mutations!r}")
+            fail(f"music playback mutations were forbidden but called {mutations!r}")
     if expect.get("required_process_text") and not trace.process_text_requests:
         fail("run_text_command was expected but not called")
+    for subset in expect.get("playback_actions_include") or []:
+        if not _contains_mapping_subset(response.get("playback_actions") or [], subset):
+            fail(f"playback_actions should include {subset!r}; got {response.get('playback_actions')!r}")
+    for subset in expect.get("items_include") or []:
+        if not _contains_mapping_subset(response.get("items") or [], subset):
+            fail(f"items should include {subset!r}; got {response.get('items')!r}")
+    for key, value in (expect.get("top_level_fields") or {}).items():
+        if response.get(key) != value:
+            fail(f"top-level {key!r} expected {value!r}, got {response.get(key)!r}")
 
     return errors
 
@@ -193,3 +207,12 @@ def _expect_values_include(
     missing = [value for value in expect[expect_key] if value not in actual]
     if missing:
         fail(f"{expect_key} missing {missing!r}; got {actual!r}")
+
+
+def _contains_mapping_subset(items: list[Any], subset: dict[str, Any]) -> bool:
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        if all(item.get(key) == value for key, value in subset.items()):
+            return True
+    return False

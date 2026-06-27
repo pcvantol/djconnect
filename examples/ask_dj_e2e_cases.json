@@ -91,6 +91,20 @@
       ],
       "required_music_commands": [
         "devices"
+      ],
+      "playback_actions_include": [
+        {
+          "kind": "output",
+          "command": "ask_dj_play_request_on_output",
+          "device_name": "Woonkamer"
+        }
+      ],
+      "items_include": [
+        {
+          "kind": "output",
+          "command": "ask_dj_play_request_on_output",
+          "device_name": "Woonkamer"
+        }
       ]
     }
   },
@@ -190,6 +204,15 @@
       "allowed_music_commands": [
         "status",
         "listening_profile"
+      ],
+      "playback_actions_include": [
+        {
+          "kind": "track",
+          "backend": "spotify_direct",
+          "provider": "spotify",
+          "music_backend_revision": 0,
+          "action_style": "play_now"
+        }
       ],
       "forbid_spotify_mutations": true
     }
@@ -852,6 +875,15 @@
       "allowed_music_commands": [
         "status",
         "artist_recommendations"
+      ],
+      "playback_actions_include": [
+        {
+          "kind": "track",
+          "backend": "spotify_direct",
+          "provider": "spotify",
+          "music_backend_revision": 0,
+          "action_style": "play_now"
+        }
       ],
       "forbid_spotify_mutations": true
     }

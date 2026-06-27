@@ -18,6 +18,8 @@
   developer services, Assist conversation, HTTP command/status routes, Ask DJ
   and HA playback entities now use `run_music_command` / `run_text_command`
   instead of importing Spotify Direct or processor helpers directly.
+- Expand Ask DJ E2E contract coverage for backend-aware Play Now metadata,
+  output-selection actions and provider-neutral music-command tracing.
 - Add a hard playback backend choice between Spotify Direct and Music
   Assistant. Spotify Direct keeps DJConnect PKCE OAuth; Music Assistant uses a
   configured MA `media_player`, skips DJConnect Spotify OAuth/repairs and
