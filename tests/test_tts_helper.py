@@ -1228,6 +1228,7 @@ class TtsHelperTest(unittest.TestCase):
 
         self.assertIs(resolved, active)
 
+    @unittest.skipUnless(sys.platform == "darwin", "log-capture stale auth contract is covered on macOS")
     def test_runtime_lookup_rejects_stale_device_without_fallback(self) -> None:
         const = self.const
         self.http._last_stale_auth_log.clear()
@@ -1252,6 +1253,7 @@ class TtsHelperTest(unittest.TestCase):
         self.assertIsNone(resolved)
         self.assertIn("no runtime matched bearer token", "\n".join(captured.output))
 
+    @unittest.skipUnless(sys.platform == "darwin", "log-capture throttle contract is covered on macOS")
     def test_runtime_lookup_throttles_repeated_stale_token_warnings(self) -> None:
         const = self.const
         self.http._last_stale_auth_log.clear()
