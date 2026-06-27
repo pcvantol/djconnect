@@ -98,8 +98,9 @@
 - Test BLE screen action `Rescan Bluetooth devices`.
 - Test BLE screen action `Write WiFi over Bluetooth`.
 - Test local-device pairing with Client adres left empty for ESP32/Raspberry Pi.
-- Test iOS/macOS/Windows app pairing with no Client adres, where the app posts
-  locally to `/api/djconnect/pair` and receives optional `ha_remote_url`.
+- Field-test iOS/macOS/Windows app pairing with no Client adres, where the app
+  posts locally to `/api/djconnect/pair` and receives optional `ha_remote_url`;
+  use `FIELD_TEST_APP_CLIENTS.md` and record the app build/HA version/backend.
 - Test mDNS discovery through `_djconnect._tcp` for ESP32, iOS, macOS, watchOS, Raspberry Pi and Windows.
 - Test Raspberry Pi mDNS TXT discovery with `client_type=raspberry_pi`, stable `djconnect-raspberry-pi-XXXXXXXXXXXX` ID and TXT `local_url`.
 - Test Raspberry Pi `/api/device/pairing-info` override for Client adres, client type, device name, device ID, pair code, version and paired state.

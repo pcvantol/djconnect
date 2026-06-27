@@ -1680,6 +1680,174 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 else:
                     self.assertNotIn("ha_remote_url", response["payload"])
 
+    def test_app_pair_view_contract_for_inbound_remote_capable_clients(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+
+        for client_type, device_id in (
+            ("ios", "djconnect-ios-68B74487726D"),
+            ("macos", "djconnect-macos-68B74487726D"),
+            ("windows", "djconnect-windows-68B74487726D"),
+        ):
+            with self.subTest(client_type=client_type):
+                class Runtime:
+                    config = {
+                        const.CONF_PAIR_CODE: "555293",
+                        const.CONF_CLIENT_TYPE: client_type,
+                        const.CONF_HA_EXTERNAL_URL: "https://remote.example.test",
+                    }
+                    device_status = {const.CONF_CLIENT_TYPE: client_type}
+
+                    def ensure_device_token(self):
+                        self.device_token = f"{client_type}-token"
+                        return self.device_token
+
+                    def device_language(self):
+                        return "nl"
+
+                    def update(self, **kwargs):
+                        self.last_update = kwargs
+
+                runtime = Runtime()
+
+                class Request:
+                    app = {
+                        "hass": types.SimpleNamespace(
+                            config=types.SimpleNamespace(
+                                external_url="https://fallback.example.test"
+                            ),
+                            data={const.DOMAIN: {"runtime": runtime}},
+                        )
+                    }
+
+                    async def json(self):
+                        return {
+                            "device_id": device_id,
+                            "client_type": client_type,
+                            "pair_code": "555293",
+                            "device_name": f"Field {client_type}",
+                        }
+
+                response = asyncio.run(self.http.DJConnectPairView(None).post(Request()))
+
+                self.assertEqual(response["status_code"], 200)
+                payload = response["payload"]
+                self.assertTrue(payload["success"])
+                self.assertEqual(payload["client_type"], client_type)
+                self.assertEqual(payload["device_token"], f"{client_type}-token")
+                self.assertEqual(payload["api_base"], "/api/djconnect")
+                self.assertEqual(payload["voice_path"], self.http.API_VOICE)
+                self.assertEqual(payload["status_path"], self.http.API_STATUS)
+                self.assertEqual(payload["ha_local_url"], "http://homeassistant.local:8123")
+                self.assertEqual(payload["ha_remote_url"], "https://remote.example.test")
+                self.assertNotIn("device_language", payload)
+                self.assertNotIn("language", payload)
+                self.assertNotIn("spotify_refresh_token", payload)
+                self.assertNotIn("refresh_token", payload)
+                self.assertEqual(runtime.device_status["device_id"], device_id)
+                self.assertEqual(runtime.device_status["client_type"], client_type)
+                self.assertEqual(runtime.device_status["ha_pairing_status"], "pending")
+                self.assertIsNone(runtime.device_status.get("local_url"))
+
+    def test_app_clients_can_send_remote_playback_commands_after_inbound_pairing(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+
+        for client_type, device_id in (
+            ("ios", "djconnect-ios-68B74487726D"),
+            ("macos", "djconnect-macos-68B74487726D"),
+            ("windows", "djconnect-windows-68B74487726D"),
+        ):
+            with self.subTest(client_type=client_type):
+                calls = []
+
+                class Runtime:
+                    device_token = f"{client_type}-token"
+                    pairing_device_id = device_id
+                    device_status = {
+                        "device_id": device_id,
+                        "client_type": client_type,
+                        "ha_pairing_status": "pending",
+                    }
+                    config = {
+                        const.CONF_CLIENT_TYPE: client_type,
+                        const.CONF_DEVICE_TOKEN: f"{client_type}-token",
+                    }
+
+                    def authorize_device_request(self, headers, body_device_id=None):
+                        return (
+                            headers.get("Authorization")
+                            == f"Bearer {client_type}-token"
+                            and body_device_id == device_id
+                        )
+
+                    def update(self, **kwargs):
+                        self.last_update = kwargs
+
+                runtime = Runtime()
+
+                async def command_handler(hass, runtime, command, value=None, *, play=None):
+                    calls.append(
+                        {
+                            "command": command,
+                            "value": value,
+                            "play": play,
+                            "client_type": runtime.device_status["client_type"],
+                        }
+                    )
+                    return {
+                        "success": True,
+                        "playback": {"has_playback": True, "source": "field-test"},
+                    }
+
+                class Request:
+                    headers = {
+                        "Authorization": f"Bearer {client_type}-token",
+                        "X-DJConnect-Device-ID": device_id,
+                    }
+                    app = {
+                        "hass": types.SimpleNamespace(
+                            data={const.DOMAIN: {"runtime": runtime}}
+                        )
+                    }
+
+                    async def json(self):
+                        return {
+                            "device_id": device_id,
+                            "client_type": client_type,
+                            "command": "play",
+                            "value": "spotify:track:123",
+                            "play": True,
+                        }
+
+                original = self.http.run_music_command
+                self.http.run_music_command = command_handler
+                try:
+                    response = asyncio.run(
+                        self.http.DJConnectCommandView(None).post(Request())
+                    )
+                finally:
+                    self.http.run_music_command = original
+
+                self.assertEqual(response["status_code"], 200)
+                self.assertTrue(response["payload"]["success"])
+                self.assertEqual(
+                    response["payload"]["playback"],
+                    {"has_playback": True, "source": "field-test"},
+                )
+                self.assertEqual(
+                    calls,
+                    [
+                        {
+                            "command": "play",
+                            "value": "spotify:track:123",
+                            "play": True,
+                            "client_type": client_type,
+                        }
+                    ],
+                )
+                self.assertEqual(runtime.device_status["client_type"], client_type)
+                self.assertEqual(runtime.device_status["backend_available"], True)
+                self.assertEqual(runtime.last_update["last_error"], None)
+
     def test_status_view_accepts_watchos_client_payload(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
 

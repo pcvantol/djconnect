@@ -73,6 +73,7 @@
   `/api/device/*`, returns optional `ha_remote_url` only for `ios`, `macos` and
   `windows`, and keeps ESP-only firmware/reboot controls unavailable.
 - Next action: Test fresh iOS/macOS/Windows pairing, re-pairing, local/remote
+  playback and app entity exposure using `FIELD_TEST_APP_CLIENTS.md`.
   Ask DJ sync and PTT playback after HACS install/restart.
 
 ### Ask DJ cross-device history retention and confirmation actions need field validation
