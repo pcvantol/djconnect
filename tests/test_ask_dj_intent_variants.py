@@ -21,7 +21,7 @@ class AskDjIntentVariantTest(unittest.TestCase):
             cls.variants = json.load(file)
 
     def test_variant_file_is_large_enough_to_catch_router_regressions(self) -> None:
-        self.assertGreaterEqual(len(self.variants), 100)
+        self.assertGreaterEqual(len(self.variants), 159)
 
     def test_variant_ids_and_phrases_are_unique(self) -> None:
         ids = [variant["id"] for variant in self.variants]

@@ -626,8 +626,12 @@ def _is_current_playing_question(text: str) -> bool:
         "wat draai je",
         "welk nummer speelt er",
         "welk nummer speelt nu",
+        "welk nummer speelt er nu",
+        "welk nummer draait er nu",
         "welke track speelt er",
         "welke track speelt nu",
+        "welke track hoor ik",
+        "wat is die beuker",
         "what is playing",
         "what's playing",
         "whats playing",
@@ -1220,6 +1224,8 @@ def classify_ask_dj(text: str) -> AskDjIntent:
     normalized = _normalize(text)
     if _is_help_request(normalized):
         return AskDjIntent("informational", "help", "none")
+    if _is_conversational_followup_request(normalized):
+        return AskDjIntent("informational", "conversational_followup", "none")
     if _is_current_playing_question(normalized):
         return AskDjIntent("informational", "current_track_reference", "none")
     if _is_retry_request(normalized):
@@ -1268,6 +1274,9 @@ def classify_ask_dj(text: str) -> AskDjIntent:
             "morning_music_suggestion",
             "none",
         )
+    favorite_target = _current_track_favorite_target(normalized)
+    if favorite_target is not None:
+        return AskDjIntent("action", "playback_control", "set_current_track_favorite", favorite_target)
     if _is_save_generated_playlist_request(normalized):
         return AskDjIntent("informational", "save_generated_playlist", "create_playlist")
     if _is_seed_mix_playlist_request(normalized):
@@ -1292,10 +1301,10 @@ def classify_ask_dj(text: str) -> AskDjIntent:
         return AskDjIntent("informational", "spotify_user_playlists", "none")
     if _vibe_playlist_query(normalized):
         return AskDjIntent("informational", "spotify_vibe_playlists", "none")
-    if _is_playlist_search_request(normalized):
-        return AskDjIntent("informational", "spotify_playlist_search", "none")
     if _is_open_playlist_recommendation_request(normalized):
         return AskDjIntent("informational", "playlist_recommendation_offer", "none")
+    if _is_playlist_search_request(normalized):
+        return AskDjIntent("informational", "spotify_playlist_search", "none")
     if _is_next_track_info_request(normalized):
         return AskDjIntent("informational", "next_track_info", "queue")
     if _is_concert_agenda_request(normalized):
@@ -1303,6 +1312,10 @@ def classify_ask_dj(text: str) -> AskDjIntent:
     if any(phrase in normalized for phrase in ("waarom koos", "waarom heb je", "vertel iets", "wanneer speelt", "analyseer", "welke albums", "album art", "cover")):
         return AskDjIntent("informational", "ask_music_info")
     if "vergelijkbare artiesten" in normalized or "similar artists" in normalized:
+        return AskDjIntent("informational", "similar_artists", "none")
+    if "vergelijkbare artiesten" in normalized or "similar artists" in normalized:
+        return AskDjIntent("informational", "similar_artists", "none")
+    if "vergelijkbare muziek" in normalized and "artiest" in normalized:
         return AskDjIntent("informational", "similar_artists", "none")
     if any(term in normalized for term in ("vergelijkbaar", "vergelijkbare", "similar", "zelfde soort", "lijkt op", "nog meer leuk")):
         return AskDjIntent("informational", "ask_music_info")
@@ -1334,9 +1347,6 @@ def classify_ask_dj(text: str) -> AskDjIntent:
         return AskDjIntent("action", "playback_control", "volume_delta", 10)
     if "zachter" in normalized:
         return AskDjIntent("action", "playback_control", "volume_delta", -10)
-    favorite_target = _current_track_favorite_target(normalized)
-    if favorite_target is not None:
-        return AskDjIntent("action", "playback_control", "set_current_track_favorite", favorite_target)
     if _is_playback_mode_status_question(normalized):
         return AskDjIntent("informational", "playback_mode_status", "status")
     if "shuffle" in normalized:
@@ -1350,7 +1360,11 @@ def classify_ask_dj(text: str) -> AskDjIntent:
         )
     if _is_output_selection_request(normalized):
         return AskDjIntent("informational", "list_outputs", "devices")
-    if "waarop" in normalized and "muziek" in normalized:
+    if (
+        "waarop" in normalized
+        and "muziek" in normalized
+        or "op welke speaker speelt de muziek" in normalized
+    ):
         return AskDjIntent("informational", "current_output", "status")
     if _is_deferred_playback_request(normalized):
         return AskDjIntent("hybrid", "play_music", "play_music", play=True)
@@ -3953,6 +3967,7 @@ def _is_concert_agenda_request(normalized: str) -> bool:
             "optreden",
             "optredens",
             "speelt in nederland",
+            "speelt metallica binnenkort",
             "wanneer speelt",
             "wanneer treedt",
             "when is",
@@ -4226,7 +4241,7 @@ def _artist_from_more_tracks_question(
 def _explicit_artist_from_more_tracks_question(text: str) -> str:
     patterns = (
         r"^\s*wat\s+heb\s+je\s+(?:nog\s+)?meer\s+van\s+(.+?)\s*\??\s*$",
-        r"^\s*(?:heb\s+je\s+)?(?:nog\s+)?meer\s+(?:nummers|songs|tracks|muziek|music)\s+van\s+(.+?)\s*\??\s*$",
+        r"^\s*(?:(?:heb\s+je|geef)\s+)?(?:nog\s+)?meer\s+(?:nummers|songs|tracks|muziek|music)\s+van\s+(.+?)\s*\??\s*$",
         r"^\s*(?:show\s+me\s+|give\s+me\s+)?more\s+(?:tracks|songs|music)\s+(?:by|from)\s+(.+?)\s*\??\s*$",
     )
     value = str(text or "").strip()
@@ -4521,6 +4536,7 @@ def _is_personal_music_profile_request(normalized: str) -> bool:
         "been listening",
         "listening habits",
         "music profile",
+        "waar ik naar luister",
         "genres",
         "stemming",
         "mood",
@@ -4637,6 +4653,7 @@ def _is_personal_memory_request(normalized: str) -> bool:
         "what does djconnect know about me",
         "what is in my Music DNA",
         "what do you remember about me",
+        "vertel wat je over mijn smaak weet",
     } or (
         ("wat weet" in normalized or "what do you know" in normalized)
         and ("over mij" in normalized or "about me" in normalized)
@@ -4669,6 +4686,7 @@ def _is_recently_played_history_request(normalized: str) -> bool:
         "welke playlists",
         "welke afspeellijsten",
         "wat heb ik",
+        "wat heb ik net",
         "wat luisterde ik",
         "wat heb ik geluisterd",
         "what songs",
@@ -4685,6 +4703,7 @@ def _is_recently_played_history_request(normalized: str) -> bool:
         "gespeeld",
         "gedraaid",
         "geluisterd",
+        "luisterde",
         "played",
         "listened",
         "listening history",
@@ -4696,6 +4715,7 @@ def _is_recently_played_history_request(normalized: str) -> bool:
         "afgelopen twee uur",
         "afgelopen paar uur",
         "vandaag",
+        "net",
         "last hour",
         "past hour",
         "last 2 hours",
@@ -4747,11 +4767,15 @@ def _is_personal_recommendation_request(normalized: str) -> bool:
         "raad je",
         "aanbevel",
         "aanrader",
+        "muziektip",
+        "muziektips",
         "recommend",
         "recommendation",
         "suggest",
         "suggestion",
         "wat past bij mij",
+        "welke muziek past bij mij",
+        "op basis van mijn smaak",
         "iets dat bij mij past",
         "muziekadvies",
     )
@@ -4779,6 +4803,7 @@ def _is_personal_artist_recommendation_request(normalized: str) -> bool:
         "passen bij",
         "past bij",
         "voor mij",
+        "leuk vinden",
         "music taste",
         "my taste",
         "fit my taste",
@@ -4810,6 +4835,7 @@ def _is_song_recommendation_request(normalized: str) -> bool:
         for term in (
             "heb je",
             "geef",
+            "raad",
             "toon",
             "laat zien",
             "aanbevel",
@@ -4819,6 +4845,7 @@ def _is_song_recommendation_request(normalized: str) -> bool:
             "leuke",
             "vette",
             "goede",
+            "moet ik luisteren",
         )
     )
 
@@ -4838,6 +4865,8 @@ def _is_dj_announcement_request(normalized: str) -> bool:
             "make a dj intro",
             "geef een intro",
             "maak een intro",
+            "kondig dit nummer aan",
+            "zeg iets over deze track als dj",
         )
     )
 
@@ -4972,6 +5001,8 @@ def _is_morning_start_request(normalized: str) -> bool:
         "goedemorgen",
         "goedemorgen!",
         "goede morgen",
+        "goeiemorgen",
+        "morgen",
         "good morning",
         "morning",
     }
@@ -4989,6 +5020,8 @@ def _is_next_track_info_request(normalized: str) -> bool:
             "welke track komt hierna",
             "what plays after this",
             "what comes next",
+            "what's next",
+            "whats next",
         )
     ):
         return True
@@ -5057,6 +5090,7 @@ def _is_playlist_search_request(normalized: str) -> bool:
             "heb je",
             "zoek",
             "vind",
+            "toon",
             "welke",
             "suggest",
             "recommend",
@@ -5089,6 +5123,7 @@ def _is_user_playlists_request(normalized: str) -> bool:
         "welke",
         "wat voor",
         "toon",
+        "laat",
         "laat zien",
         "geef",
         "show",
@@ -5143,18 +5178,28 @@ def _is_something_from_artist_request(normalized: str) -> bool:
 def _is_open_playlist_recommendation_request(normalized: str) -> bool:
     if "playlist" not in normalized and "afspeellijst" not in normalized:
         return False
+    if any(
+        phrase in normalized
+        for phrase in (
+            "welke playlist past",
+            "welke afspeellijst past",
+            "playlist tip",
+            "playlisttip",
+        )
+    ):
+        return True
     if _playlist_query_from_question(normalized):
         return False
     return any(
         phrase in normalized
         for phrase in (
-            "heb je",
-            "hebt je",
             "geef",
             "toon",
             "laat zien",
+            "raad",
             "suggest",
             "recommend",
+            "tip",
         )
     ) or any(term in normalized for term in ("leuke", "goede", "toffe", "vette", "mooie"))
 
@@ -5184,6 +5229,24 @@ def _vibe_playlist_query(text: str) -> str:
     energetic = _energetic_playlist_query(normalized)
     if energetic:
         return energetic
+    match = re.match(
+        r"^\s*(?:zoek|geef|heb\s+je)\s+(?:een\s+)?(.+?)\s+(?:playlists?|afspeellijsten?)\s*$",
+        normalized,
+        flags=re.IGNORECASE,
+    )
+    if match:
+        query = _clean_playlist_query(match.group(1))
+        if query in {"chill", "party", "ambient", "focus"}:
+            return query
+    match = re.match(
+        r"^\s*(?:heb\s+je|zoek|geef)\s+(?:een\s+)?(?:playlists?|afspeellijsten?)\s+(?:voor|for)\s+(.+?)\s*$",
+        normalized,
+        flags=re.IGNORECASE,
+    )
+    if match:
+        query = _clean_playlist_query(match.group(1))
+        if query in {"chill", "party", "ambient", "focus"}:
+            return query
     patterns = (
         r"^\s*(.+?)\s+(?:vibes?|mood|sfeer)\s*(?:graag|please|pls)?\s*$",
         r"^\s*(?:graag|please|pls)\s+(.+?)\s+(?:vibes?|mood|sfeer)\s*$",
@@ -5229,8 +5292,10 @@ def _is_seed_mix_playlist_request(normalized: str) -> bool:
             "stel",
             "samen",
             "maak",
+            "bouw",
             "op basis van",
             "obv",
+            "rond",
             "in genre",
             "in genres",
             "based on",
@@ -5295,6 +5360,7 @@ def _is_save_generated_playlist_request(normalized: str) -> bool:
             "bewaar deze",
             "bewaar dit",
             "maak hier een playlist",
+            "sla deze mix op",
             "save this",
             "save it",
             "make this a playlist",
@@ -5317,12 +5383,14 @@ def _current_track_favorite_target(normalized: str) -> bool | None:
         "current track",
         "this track",
         "this song",
+        "dit",
     )
     favorite_terms = (
         "favorieten",
         "favoriet",
         "liked songs",
         "likes",
+        "like",
         "library",
         "bibliotheek",
     )
@@ -6179,7 +6247,7 @@ def _artist_item_list_request(text: str) -> dict[str, Any]:
             if artist:
                 return {"item_type": "album", "artist": artist, "count": None}
     patterns = (
-        r"^\s*(?:geef|toon|laat\s+zien|zoek|vind)\s+(?:me|mij)?\s*(?:(\d+|een|twee|drie|vier|vijf|zes|zeven|acht|negen|tien)\s+)?(albums?|tracks?|nummers?|songs?|playlists?|afspeellijsten?)\s+van\s+(.+?)\s*\??\s*$",
+        r"^\s*(?:geef|toon|laat\s+zien|laat|zoek|vind)\s+(?:me|mij)?\s*(?:(\d+|een|twee|drie|vier|vijf|zes|zeven|acht|negen|tien)\s+)?(albums?|tracks?|nummers?|songs?|playlists?|afspeellijsten?)\s+van\s+(.+?)\s*\??\s*$",
         r"^\s*welke\s+(albums?)\s+(?:bracht|brachten|heeft|hebben)\s+(.+?)\s+(?:uit|uitgebracht|gereleased|released)\s*\??\s*$",
         r"^\s*welke\s+(muziek|tracks?|nummers?|songs?)\s+(?:heeft|hebben)\s+(.+?)\s+(?:gemaakt|uitgebracht|gereleased|released)\s*\??\s*$",
         r"^\s*what\s+(music|tracks?|songs?)\s+(?:has|have|did)\s+(.+?)\s+(?:made|released)\s*\??\s*$",
@@ -8033,13 +8101,19 @@ def _playback_failed_text(runtime: Any, text: str = "") -> str:
 
 
 def _is_help_request(normalized: str) -> bool:
+    normalized = str(normalized or "").strip(" ?.!'\"")
     if normalized in {
         "help",
         "hulp",
+        "help me even",
+        "help ask dj",
         "wat kan je",
         "wat kun je",
+        "wat kan je allemaal",
         "wat kan ik vragen",
         "wat kun je doen",
+        "toon hulp",
+        "laat hulp zien",
         "welke commando's",
         "welke commandos",
         "welke opdrachten",
@@ -8065,6 +8139,19 @@ def _is_help_request(normalized: str) -> bool:
             "wat kan ask dj",
         )
     )
+
+
+def _is_conversational_followup_request(normalized: str) -> bool:
+    return str(normalized or "").strip(" ?.!'\"") in {
+        "ok",
+        "oke",
+        "prima",
+        "top",
+        "dank je",
+        "thanks",
+        "laat maar",
+        "geeft niet",
+    }
 
 
 def _help_text() -> str:
@@ -8225,7 +8312,13 @@ def _devices_text(devices: list[dict[str, Any]]) -> str:
 
 
 def _is_output_selection_request(normalized: str) -> bool:
-    if "welke speakers" in normalized or "welke apparaten" in normalized:
+    if (
+        "welke speakers" in normalized
+        or "welke apparaten" in normalized
+        or "welke outputs" in normalized
+        or "laat speakers zien" in normalized
+        or "toon beschikbare speakers" in normalized
+    ):
         return True
     has_output = any(
         term in normalized

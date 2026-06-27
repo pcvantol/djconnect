@@ -16,8 +16,24 @@
     }
   },
   {
+    "id": "help_003",
+    "text": "help me even",
+    "expect": {
+      "intent": "help",
+      "intent_category": "informational"
+    }
+  },
+  {
     "id": "help_004",
     "text": "wat kun je",
+    "expect": {
+      "intent": "help",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "help_005",
+    "text": "wat kun je?",
     "expect": {
       "intent": "help",
       "intent_category": "informational"
@@ -32,6 +48,102 @@
     }
   },
   {
+    "id": "help_007",
+    "text": "wat kan je allemaal",
+    "expect": {
+      "intent": "help",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "help_008",
+    "text": "toon hulp",
+    "expect": {
+      "intent": "help",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "help_009",
+    "text": "laat hulp zien",
+    "expect": {
+      "intent": "help",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "help_010",
+    "text": "help ask dj",
+    "expect": {
+      "intent": "help",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "conversational_followup_001",
+    "text": "ok",
+    "expect": {
+      "intent": "conversational_followup",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "conversational_followup_002",
+    "text": "oke",
+    "expect": {
+      "intent": "conversational_followup",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "conversational_followup_003",
+    "text": "prima",
+    "expect": {
+      "intent": "conversational_followup",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "conversational_followup_004",
+    "text": "top",
+    "expect": {
+      "intent": "conversational_followup",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "conversational_followup_005",
+    "text": "dank je",
+    "expect": {
+      "intent": "conversational_followup",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "conversational_followup_006",
+    "text": "thanks",
+    "expect": {
+      "intent": "conversational_followup",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "conversational_followup_007",
+    "text": "laat maar",
+    "expect": {
+      "intent": "conversational_followup",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "conversational_followup_008",
+    "text": "geeft niet",
+    "expect": {
+      "intent": "conversational_followup",
+      "intent_category": "informational"
+    }
+  },
+  {
     "id": "morning_music_suggestion_001",
     "text": "goedemorgen",
     "expect": {
@@ -40,8 +152,24 @@
     }
   },
   {
+    "id": "morning_music_suggestion_002",
+    "text": "goeiemorgen",
+    "expect": {
+      "intent": "morning_music_suggestion",
+      "intent_category": "informational"
+    }
+  },
+  {
     "id": "morning_music_suggestion_003",
     "text": "good morning",
+    "expect": {
+      "intent": "morning_music_suggestion",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "morning_music_suggestion_004",
+    "text": "morgen",
     "expect": {
       "intent": "morning_music_suggestion",
       "intent_category": "informational"
@@ -74,6 +202,14 @@
   {
     "id": "personal_music_dna_summary_004",
     "text": "what do you know about me",
+    "expect": {
+      "intent": "personal_music_dna_summary",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "personal_music_dna_summary_005",
+    "text": "vertel wat je over mijn smaak weet",
     "expect": {
       "intent": "personal_music_dna_summary",
       "intent_category": "informational"
@@ -120,6 +256,14 @@
     }
   },
   {
+    "id": "personal_music_profile_analysis_006",
+    "text": "analyseer waar ik naar luister",
+    "expect": {
+      "intent": "personal_music_profile_analysis",
+      "intent_category": "informational"
+    }
+  },
+  {
     "id": "personal_music_profile_analysis_007",
     "text": "geef een analyse van mijn muzieksmaak",
     "expect": {
@@ -136,6 +280,14 @@
     }
   },
   {
+    "id": "personal_artist_recommendations_002",
+    "text": "welke artiesten zou ik leuk vinden",
+    "expect": {
+      "intent": "personal_artist_recommendations",
+      "intent_category": "informational"
+    }
+  },
+  {
     "id": "personal_artist_recommendations_003",
     "text": "geef artiesten die bij mijn smaak passen",
     "expect": {
@@ -146,6 +298,30 @@
   {
     "id": "personal_music_recommendations_001",
     "text": "geef persoonlijke muziekaanbevelingen",
+    "expect": {
+      "intent": "personal_music_recommendations",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "personal_music_recommendations_002",
+    "text": "geef me persoonlijke muziektips",
+    "expect": {
+      "intent": "personal_music_recommendations",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "personal_music_recommendations_003",
+    "text": "raad muziek aan op basis van mijn smaak",
+    "expect": {
+      "intent": "personal_music_recommendations",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "personal_music_recommendations_004",
+    "text": "welke muziek past bij mij",
     "expect": {
       "intent": "personal_music_recommendations",
       "intent_category": "informational"
@@ -224,6 +400,14 @@
     }
   },
   {
+    "id": "recently_played_history_002",
+    "text": "welke nummers luisterde ik afgelopen uur",
+    "expect": {
+      "intent": "recently_played_history",
+      "intent_category": "informational"
+    }
+  },
+  {
     "id": "recently_played_history_003",
     "text": "welke tracks heb ik vandaag afgespeeld",
     "expect": {
@@ -248,6 +432,14 @@
     }
   },
   {
+    "id": "recently_played_history_006",
+    "text": "wat heb ik net afgespeeld",
+    "expect": {
+      "intent": "recently_played_history",
+      "intent_category": "informational"
+    }
+  },
+  {
     "id": "current_track_reference_001",
     "text": "wat speelt er nu",
     "expect": {
@@ -256,8 +448,40 @@
     }
   },
   {
+    "id": "current_track_reference_002",
+    "text": "welk nummer speelt er nu",
+    "expect": {
+      "intent": "current_track_reference",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "current_track_reference_003",
+    "text": "welk nummer draait er nu",
+    "expect": {
+      "intent": "current_track_reference",
+      "intent_category": "informational"
+    }
+  },
+  {
     "id": "current_track_reference_004",
     "text": "what song is playing",
+    "expect": {
+      "intent": "current_track_reference",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "current_track_reference_005",
+    "text": "wat is die beuker",
+    "expect": {
+      "intent": "current_track_reference",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "current_track_reference_006",
+    "text": "welke track hoor ik",
     "expect": {
       "intent": "current_track_reference",
       "intent_category": "informational"
@@ -274,6 +498,22 @@
   {
     "id": "dj_announcement_002",
     "text": "maak een dj aankondiging",
+    "expect": {
+      "intent": "dj_announcement",
+      "intent_category": "hybrid"
+    }
+  },
+  {
+    "id": "dj_announcement_003",
+    "text": "kondig dit nummer aan",
+    "expect": {
+      "intent": "dj_announcement",
+      "intent_category": "hybrid"
+    }
+  },
+  {
+    "id": "dj_announcement_004",
+    "text": "zeg iets over deze track als dj",
     "expect": {
       "intent": "dj_announcement",
       "intent_category": "hybrid"
@@ -312,6 +552,14 @@
     }
   },
   {
+    "id": "next_track_info_005",
+    "text": "what's next",
+    "expect": {
+      "intent": "next_track_info",
+      "intent_category": "informational"
+    }
+  },
+  {
     "id": "artist_concerts_001",
     "text": "wanneer speelt pearl jam in nederland",
     "expect": {
@@ -338,6 +586,14 @@
   {
     "id": "artist_concerts_004",
     "text": "tourdata van metallica",
+    "expect": {
+      "intent": "artist_concerts",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "artist_concerts_005",
+    "text": "speelt metallica binnenkort in nederland",
     "expect": {
       "intent": "artist_concerts",
       "intent_category": "informational"
@@ -384,6 +640,14 @@
     }
   },
   {
+    "id": "artist_item_list_006",
+    "text": "laat nummers van nirvana zien",
+    "expect": {
+      "intent": "artist_item_list",
+      "intent_category": "informational"
+    }
+  },
+  {
     "id": "similar_artists_001",
     "text": "vergelijkbare artiesten",
     "expect": {
@@ -402,6 +666,14 @@
   {
     "id": "similar_artists_003",
     "text": "similar artists",
+    "expect": {
+      "intent": "similar_artists",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "similar_artists_004",
+    "text": "welke artiesten maken vergelijkbare muziek als wat nu speelt",
     "expect": {
       "intent": "similar_artists",
       "intent_category": "informational"
@@ -440,6 +712,14 @@
     }
   },
   {
+    "id": "build_playlist_from_seeds_005",
+    "text": "bouw een playlist rond portishead",
+    "expect": {
+      "intent": "build_playlist_from_seeds",
+      "intent_category": "informational"
+    }
+  },
+  {
     "id": "spotify_user_playlists_001",
     "text": "toon mijn playlists",
     "expect": {
@@ -456,10 +736,50 @@
     }
   },
   {
+    "id": "spotify_user_playlists_003",
+    "text": "laat mijn afspeellijsten zien",
+    "expect": {
+      "intent": "spotify_user_playlists",
+      "intent_category": "informational"
+    }
+  },
+  {
     "id": "spotify_user_playlists_004",
     "text": "mijn playlists",
     "expect": {
       "intent": "spotify_user_playlists",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "spotify_vibe_playlists_001",
+    "text": "zoek een chill playlist",
+    "expect": {
+      "intent": "spotify_vibe_playlists",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "spotify_vibe_playlists_002",
+    "text": "zoek een party playlist",
+    "expect": {
+      "intent": "spotify_vibe_playlists",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "spotify_vibe_playlists_003",
+    "text": "geef een ambient playlist",
+    "expect": {
+      "intent": "spotify_vibe_playlists",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "spotify_vibe_playlists_004",
+    "text": "heb je een playlist voor focus",
+    "expect": {
+      "intent": "spotify_vibe_playlists",
       "intent_category": "informational"
     }
   },
@@ -488,8 +808,56 @@
     }
   },
   {
+    "id": "spotify_playlist_search_004",
+    "text": "toon playlists voor jazz",
+    "expect": {
+      "intent": "spotify_playlist_search",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "playlist_recommendation_offer_001",
+    "text": "raad een playlist aan",
+    "expect": {
+      "intent": "playlist_recommendation_offer",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "playlist_recommendation_offer_002",
+    "text": "welke playlist past nu",
+    "expect": {
+      "intent": "playlist_recommendation_offer",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "playlist_recommendation_offer_003",
+    "text": "heb je een playlist tip",
+    "expect": {
+      "intent": "playlist_recommendation_offer",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "song_recommendations_001",
+    "text": "raad nummers aan",
+    "expect": {
+      "intent": "song_recommendations",
+      "intent_category": "informational"
+    }
+  },
+  {
     "id": "song_recommendations_002",
     "text": "geef me song recommendations",
+    "expect": {
+      "intent": "song_recommendations",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "song_recommendations_003",
+    "text": "welke tracks moet ik luisteren",
     "expect": {
       "intent": "song_recommendations",
       "intent_category": "informational"
@@ -520,8 +888,24 @@
     }
   },
   {
+    "id": "artist_more_tracks_003",
+    "text": "geef meer muziek van nirvana",
+    "expect": {
+      "intent": "artist_more_tracks",
+      "intent_category": "informational"
+    }
+  },
+  {
     "id": "save_generated_playlist_001",
     "text": "maak hier een playlist van",
+    "expect": {
+      "intent": "save_generated_playlist",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "save_generated_playlist_002",
+    "text": "sla deze mix op als playlist",
     "expect": {
       "intent": "save_generated_playlist",
       "intent_category": "informational"
@@ -544,8 +928,32 @@
     }
   },
   {
+    "id": "list_outputs_002",
+    "text": "welke outputs zijn er",
+    "expect": {
+      "intent": "list_outputs",
+      "intent_category": "informational"
+    }
+  },
+  {
     "id": "list_outputs_003",
     "text": "wissel van speaker",
+    "expect": {
+      "intent": "list_outputs",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "list_outputs_004",
+    "text": "laat speakers zien",
+    "expect": {
+      "intent": "list_outputs",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "list_outputs_005",
+    "text": "toon beschikbare speakers",
     "expect": {
       "intent": "list_outputs",
       "intent_category": "informational"
@@ -562,6 +970,14 @@
   {
     "id": "current_output_002",
     "text": "waarop draait muziek",
+    "expect": {
+      "intent": "current_output",
+      "intent_category": "informational"
+    }
+  },
+  {
+    "id": "current_output_003",
+    "text": "op welke speaker speelt de muziek",
     "expect": {
       "intent": "current_output",
       "intent_category": "informational"
@@ -778,6 +1194,22 @@
   {
     "id": "playback_control_023",
     "text": "zet huidig nummer in favorieten",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_024",
+    "text": "like dit nummer",
+    "expect": {
+      "intent": "playback_control",
+      "intent_category": "action"
+    }
+  },
+  {
+    "id": "playback_control_025",
+    "text": "save this track to liked songs",
     "expect": {
       "intent": "playback_control",
       "intent_category": "action"
