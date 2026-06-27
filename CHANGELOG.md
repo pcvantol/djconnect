@@ -1,5 +1,25 @@
 # Changelog
 
+## 3.2.1
+
+- Validate Music Assistant backend setup against real Home Assistant
+  `media_player` states, rejecting missing, stale and non-Music-Assistant
+  target players in config and options flows.
+- Add Home Assistant STT provider compatibility coverage for PTT, including the
+  public `async_get_speech_to_text_engine(...).async_process_audio_stream(...)`
+  provider path and the app voice endpoint.
+- Broaden DJ announcement TTS compatibility across Home Assistant versions by
+  accepting both keyword-style and positional TTS media-source generator
+  signatures when creating temporary WAV/MP3 `audio_url` values.
+- Add iOS, macOS and Windows inbound-pairing/remote-playback contract coverage
+  plus a real-client field-test checklist.
+- Return at most 100 real queue/up-next backend items, skipping empty backend
+  entries instead of counting them against the limit.
+- Refresh README, roadmap, TODO and release docs with the corrected DJConnect
+  repository map: Apple clients in `djconnect-app`, ESP32 firmware in
+  `djconnect-esp32`, plus Windows, Raspberry Pi, website and central API/APNs
+  relay repos.
+
 ## 3.2.0
 
 - Start the 3.2 transport and pairing model: ESP32 and Raspberry Pi stay
