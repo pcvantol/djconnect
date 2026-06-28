@@ -54,6 +54,124 @@ class UseCaseLayerTest(unittest.TestCase):
         self.assertTrue(result["backend_available"])
         self.assertEqual(result["provider"], "spotify_direct")
 
+    def test_run_music_command_accepts_typed_command_enum(self) -> None:
+        calls: list[dict] = []
+
+        async def fake_spotify_command(hass, runtime, command, value=None, *, play=None):
+            calls.append({"command": command, "value": value, "play": play})
+            return {"success": True}
+
+        original = self.use_cases._handle_spotify_command
+        self.use_cases._handle_spotify_command = fake_spotify_command
+        try:
+            result = asyncio.run(
+                self.use_cases.run_music_command(
+                    types.SimpleNamespace(),
+                    types.SimpleNamespace(config={}),
+                    self.use_cases.MusicCommand.SET_VOLUME,
+                    55,
+                )
+            )
+        finally:
+            self.use_cases._handle_spotify_command = original
+
+        self.assertEqual(calls, [{"command": "set_volume", "value": 55, "play": None}])
+        self.assertTrue(result["success"])
+
+    def test_music_backend_result_preserves_extra_fields(self) -> None:
+        result = self.use_cases.MusicBackendResult.from_mapping(
+            {
+                "success": True,
+                "backend_available": True,
+                "playback": {"track_name": "Alive"},
+                "devices": [{"name": "Kitchen"}],
+            },
+            provider="spotify_direct",
+        )
+
+        self.assertEqual(
+            result.to_dict(),
+            {
+                "devices": [{"name": "Kitchen"}],
+                "success": True,
+                "provider": "spotify_direct",
+                "source": "spotify_direct",
+                "backend_available": True,
+                "playback": {"track_name": "Alive"},
+            },
+        )
+
+    def test_playback_action_dto_serializes_backend_value(self) -> None:
+        action = self.use_cases.PlaybackAction(
+            id="spotify:track:1",
+            kind="track",
+            title="Alive",
+            backend="spotify_direct",
+            value=self.use_cases.BackendActionValue(
+                uri="spotify:track:1",
+                title="Alive",
+            ),
+        )
+
+        self.assertEqual(
+            action.to_dict(),
+            {
+                "id": "spotify:track:1",
+                "kind": "track",
+                "label": "Play Now",
+                "button_label": "Play Now",
+                "action_style": "play_now",
+                "title": "Alive",
+                "backend": "spotify_direct",
+                "provider": "spotify",
+                "music_backend_revision": 0,
+                "value": {"uri": "spotify:track:1", "title": "Alive"},
+            },
+        )
+
+    def test_build_playback_action_uses_spotify_uri_value(self) -> None:
+        action = self.use_cases.build_playback_action(
+            types.SimpleNamespace(config={"music_backend": "spotify_direct"}),
+            {
+                "uri": "spotify:album:abc",
+                "title": "Album",
+                "artist": "Artist",
+                "image_url": "https://example.test/album.jpg",
+            },
+            "album",
+            "Ask DJ result.",
+        )
+
+        self.assertEqual(action["uri"], "spotify:album:abc")
+        self.assertEqual(action["value"]["uri"], "spotify:album:abc")
+        self.assertEqual(action["kind"], "album")
+        self.assertEqual(action["reason"], "Ask DJ result.")
+
+    def test_build_playback_action_uses_music_assistant_item_id_value(self) -> None:
+        action = self.use_cases.build_playback_action(
+            types.SimpleNamespace(
+                config={
+                    "music_backend": "music_assistant",
+                    "music_backend_revision": 3,
+                    "music_assistant_player": "media_player.mass_living",
+                }
+            ),
+            {
+                "item_id": "library://playlist/abc",
+                "title": "Playlist",
+                "subtitle": "Library",
+            },
+            "playlist",
+            "Ask DJ result.",
+        )
+
+        self.assertNotIn("uri", action)
+        self.assertEqual(action["backend"], "music_assistant")
+        self.assertEqual(action["music_backend_revision"], 3)
+        self.assertEqual(action["value"]["item_id"], "library://playlist/abc")
+        self.assertEqual(action["value"]["media_type"], "playlist")
+        self.assertEqual(action["value"]["target_player_id"], "media_player.mass_living")
+
     def test_capability_fallback_raises_backend_error(self) -> None:
         uc = self.use_cases
 

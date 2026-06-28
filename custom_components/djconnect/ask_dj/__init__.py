@@ -14,36 +14,36 @@ from aiohttp import ClientTimeout
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .ai_tools import async_call_ai_tool
-from .const import (
-    API_IMAGE_PROXY_BASE,
+from ..ai_tools import async_call_ai_tool
+from ..const import (
     CONF_CLIENT_TYPE,
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
     DEFAULT_TTS_LANGUAGE,
     DOMAIN,
 )
-from .dj_response import async_send_dj_response_best_effort
-from .music_dna import prompt_context_text
-from .mood import (
+from ..dj_response import async_send_dj_response_best_effort
+from ..music_dna import prompt_context_text
+from ..mood import (
     enrich_payload_with_mood_zone,
     mood_context_text,
     mood_zone_for_value,
 )
-from .music_intent import parse_spoken_music_request
-from .pipeline import _assist_context, _speech_from_response
-from .smart_home_context import smart_home_context, smart_home_context_text
-from .use_cases import (
+from ..music_intent import parse_spoken_music_request
+from ..pipeline import _assist_context, _speech_from_response
+from ..smart_home_context import smart_home_context, smart_home_context_text
+from ..use_cases import (
     MusicBackendCapabilityError,
-    music_backend_action_fields,
+    build_playback_action,
     run_music_command,
     run_text_command,
 )
-from .track_insight import (
+from ..track_insight import (
     TrackInsightError,
     is_track_insight_request,
     track_insight_error_response,
 )
+from .responses import image_proxy_target, register_image_proxy_url
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -498,7 +498,7 @@ async def async_idle_suggestion(
             "music_dna_key": music_dna_key,
             "playback_actions": [],
         }
-    spotify_profile = await _listening_profile_context(
+    listening_profile = await _listening_profile_context(
         hass,
         runtime,
         payload,
@@ -509,7 +509,7 @@ async def async_idle_suggestion(
         runtime,
         memory_context,
         playback_context,
-        spotify_profile,
+        listening_profile,
     )
     selected_actions = actions[:1]
     if selected_actions:
@@ -538,7 +538,7 @@ async def async_idle_suggestion(
         "action": "none",
         "music_dna_key": music_dna_key,
         "playback_actions": selected_actions,
-        "sources": _profile_sources(memory_context, spotify_profile),
+        "sources": _profile_sources(memory_context, listening_profile),
     }
 
 
@@ -2227,13 +2227,13 @@ async def _handle_informational(
     if similar_artist:
         related = await _spotify_related_artists(hass, runtime, similar_artist)
         if related and related.get("artists"):
-            spotify_profile = await _listening_profile_context(
+            listening_profile = await _listening_profile_context(
                 hass,
                 runtime,
                 payload,
                 memory_context,
             )
-            return _related_artists_response(related, memory_context, spotify_profile)
+            return _related_artists_response(related, memory_context, listening_profile)
     concert_artist = _artist_from_concert_question(
         text,
         memory_context,
@@ -2268,7 +2268,7 @@ async def _handle_informational(
             "playback_actions": [],
         }
     if ask_intent.intent == "personal_music_profile_analysis":
-        spotify_profile = await _listening_profile_context(
+        listening_profile = await _listening_profile_context(
             hass,
             runtime,
             payload,
@@ -2278,14 +2278,14 @@ async def _handle_informational(
             text,
             memory_context,
             playback_context,
-            spotify_profile,
+            listening_profile,
         )
         return {
             "success": True,
             "text": message,
             "dj_text": message,
             "action": "profile_analysis",
-            "sources": _profile_sources(memory_context, spotify_profile),
+            "sources": _profile_sources(memory_context, listening_profile),
         }
     if ask_intent.intent == "personal_music_dna_summary":
         message = _personal_music_dna_summary_text(memory_context)
@@ -2306,19 +2306,23 @@ async def _handle_informational(
             "djconnect_build_recommendations",
             {"music_dna_key": payload.get("music_dna_key")},
         )
-        spotify_profile = (
-            (tool_result.get("profile") or tool_result.get("spotify_profile"))
+        listening_profile = (
+            (
+                tool_result.get("listening_profile")
+                or tool_result.get("profile")
+                or tool_result.get("spotify_profile")
+            )
             if isinstance(tool_result, dict)
             else {}
         )
-        if not isinstance(spotify_profile, dict):
-            spotify_profile = {}
+        if not isinstance(listening_profile, dict):
+            listening_profile = {}
         actions = _recommendation_playback_actions(
             hass,
             runtime,
             memory_context,
             playback_context,
-            spotify_profile,
+            listening_profile,
             limit=5,
         )
         if actions:
@@ -2339,16 +2343,16 @@ async def _handle_informational(
             "images": [],
             "playback_actions": actions,
             "confirmation_actions": _confirmation_actions() if actions else [],
-            "sources": _profile_sources(memory_context, spotify_profile),
+            "sources": _profile_sources(memory_context, listening_profile),
         }
     if ask_intent.intent == "personal_artist_recommendations":
-        spotify_profile = await _listening_profile_context(
+        listening_profile = await _listening_profile_context(
             hass,
             runtime,
             payload,
             memory_context,
         )
-        actions = _personal_artist_recommendation_actions(hass, runtime, memory_context, spotify_profile, limit=8)
+        actions = _personal_artist_recommendation_actions(hass, runtime, memory_context, listening_profile, limit=8)
         if actions:
             message = (
                 "Deze artiesten passen goed bij je smaak op basis van je luisterprofiel en Music DNA. "
@@ -2364,7 +2368,7 @@ async def _handle_informational(
             "images": [],
             "items": actions,
             "playback_actions": actions,
-            "sources": _profile_sources(memory_context, spotify_profile),
+            "sources": _profile_sources(memory_context, listening_profile),
         }
     if ask_intent.intent == "playlist_recommendation_offer":
         return await _playlist_recommendation_offer_response(runtime, payload)
@@ -2468,7 +2472,7 @@ async def _morning_music_suggestion_response(
     if _playback_is_active(playback_context):
         text = "Goedemorgen! Er speelt al muziek, dus ik laat alles lekker doorlopen."
         return {"success": True, "text": text, "dj_text": text, "action": "none"}
-    spotify_profile = await _listening_profile_context(
+    listening_profile = await _listening_profile_context(
         hass,
         runtime,
         payload,
@@ -2479,7 +2483,7 @@ async def _morning_music_suggestion_response(
         runtime,
         memory_context,
         playback_context,
-        spotify_profile,
+        listening_profile,
         limit=1,
     )
     selected = actions[:1]
@@ -2508,7 +2512,7 @@ async def _morning_music_suggestion_response(
         "intent": {"category": "playback_confirmation", "intent": "morning_music_suggestion"},
         "playback_actions": [*selected, *confirmations],
         "confirmation_actions": confirmations,
-        "sources": _profile_sources(memory_context, spotify_profile),
+        "sources": _profile_sources(memory_context, listening_profile),
     }
 
 
@@ -3751,7 +3755,7 @@ def _artist_albums_response(
 def _related_artists_response(
     related: dict[str, Any],
     memory_context: dict[str, Any] | None = None,
-    spotify_profile: dict[str, Any] | None = None,
+    listening_profile: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     artists = related.get("artists") if isinstance(related, dict) else []
     if not isinstance(artists, list) or not artists:
@@ -3768,7 +3772,7 @@ def _related_artists_response(
     visible = artists[:12]
     labels = [str(item.get("name") or item.get("title") or "").strip() for item in visible if isinstance(item, dict)]
     labels = [label for label in labels if label]
-    profile_hint = _profile_artist_hint(memory_context or {}, spotify_profile or {})
+    profile_hint = _profile_artist_hint(memory_context or {}, listening_profile or {})
     text = (
         f"Volgens Spotify zitten deze artiesten in dezelfde muzikale buurt als {source_artist}: "
         + ", ".join(labels)
@@ -3797,7 +3801,7 @@ def _related_artists_response(
         "images": images,
         "sources": [
             {"source": "spotify_related_artists", "title": "Spotify related artists", "kind": "source"},
-            *(_profile_sources(memory_context or {}, spotify_profile or {}) if profile_hint else []),
+            *(_profile_sources(memory_context or {}, listening_profile or {}) if profile_hint else []),
         ],
     }
 
@@ -6760,25 +6764,20 @@ def _playlist_search_playback_actions(
         title = str(playlist.get("title") or playlist.get("name") or uri).strip()
         subtitle = str(playlist.get("subtitle") or playlist.get("owner") or "Spotify playlist").strip()
         actions.append(
-            {
-                key: value
-                for key, value in {
-                    "id": uri,
-                    "title": title,
-                    "subtitle": subtitle,
+            build_playback_action(
+                _first_runtime(hass),
+                {
+                    **playlist,
                     "uri": uri,
                     "context_uri": uri,
-                    "kind": "playlist",
-                    "label": "Play Now",
-                    "button_label": "Play Now",
-                    "action_style": "play_now",
+                    "title": title,
+                    "subtitle": subtitle,
                     "image_url": proxy_image,
                     "thumbnail_url": proxy_image,
-                    "reason": "Spotify playlist-resultaat op basis van je Ask DJ vraag.",
-                    **_backend_action_fields(hass, "playlist", uri, proxy_image, title, subtitle),
-                }.items()
-                if value not in ("", None)
-            }
+                },
+                "playlist",
+                "Spotify playlist-resultaat op basis van je Ask DJ vraag.",
+            )
         )
         if len(actions) >= limit:
             break
@@ -6817,25 +6816,20 @@ def _album_search_playback_actions(
         title = str(album.get("title") or album.get("name") or uri).strip()
         subtitle = str(album.get("subtitle") or album.get("artist") or album.get("artist_name") or "").strip()
         actions.append(
-            {
-                key: value
-                for key, value in {
-                    "id": uri,
-                    "title": title,
-                    "subtitle": subtitle,
+            build_playback_action(
+                _first_runtime(hass),
+                {
+                    **album,
                     "uri": uri,
                     "context_uri": uri,
-                    "kind": "album",
-                    "label": "Play Now",
-                    "button_label": "Play Now",
-                    "action_style": "play_now",
+                    "title": title,
+                    "subtitle": subtitle,
                     "image_url": proxy_image,
                     "thumbnail_url": proxy_image,
-                    "reason": "Spotify album-resultaat op basis van je Ask DJ vraag.",
-                    **_backend_action_fields(hass, "album", uri, proxy_image, title, subtitle),
-                }.items()
-                if value not in ("", None)
-            }
+                },
+                "album",
+                "Spotify album-resultaat op basis van je Ask DJ vraag.",
+            )
         )
         if len(actions) >= limit:
             break
@@ -6846,16 +6840,16 @@ def _personal_music_profile_text(
     text: str,
     memory_context: dict[str, Any],
     playback_context: dict[str, Any],
-    spotify_profile: dict[str, Any] | None = None,
+    listening_profile: dict[str, Any] | None = None,
 ) -> str:
     period = _profile_period_label(text)
     memory = memory_context.get("memory") if isinstance(memory_context, dict) else {}
     session = memory_context.get("session") if isinstance(memory_context, dict) else []
-    spotify_profile = spotify_profile if isinstance(spotify_profile, dict) else {}
-    tracks = _profile_tracks(memory, playback_context, spotify_profile)
-    artists = _profile_artists(memory, tracks, spotify_profile)
+    listening_profile = listening_profile if isinstance(listening_profile, dict) else {}
+    tracks = _profile_tracks(memory, playback_context, listening_profile)
+    artists = _profile_artists(memory, tracks, listening_profile)
     albums = _top_values(tracks, ("album", "album_name"))
-    genres = _profile_genres(memory, spotify_profile)
+    genres = _profile_genres(memory, listening_profile)
     mood = _profile_mood(memory)
     energy = _profile_energy(tracks, memory)
     examples = _profile_examples(tracks)
@@ -6868,14 +6862,14 @@ def _personal_music_profile_text(
         if session:
             known.append("er is wel recente Ask DJ chatcontext")
         detail = " Ik zie " + " en ".join(known) + "." if known else ""
-        profile_hint = " Je backend gaf ook nog geen bruikbare recente of top-items terug." if spotify_profile else ""
+        profile_hint = " Je backend gaf ook nog geen bruikbare recente of top-items terug." if listening_profile else ""
         return (
             f"Ik heb nog te weinig luistergeschiedenis om je muzieksmaak over {period} eerlijk te analyseren."
             f"{detail}{profile_hint} Zodra er meer recente luisterprofiel-snapshots of Music DNA data staat, kan ik daar een veel scherper profiel van maken."
         )
 
     lines = [f"Voor {period} zie ik dit profiel op basis van de DJConnect context die ik nu heb."]
-    if spotify_profile:
+    if listening_profile:
         lines.extend(["", "Bronnen:", "- Luisterprofiel recent/top-data", "- Music DNA"])
     lines.append("")
     if genres:
@@ -6906,7 +6900,7 @@ def _personal_music_profile_text(
             lines.append(f"- Laatste mood/energy in Music DNA: {mood}/100.")
     if examples:
         lines.extend(["", "Concrete voorbeelden:", *[f"- {item}" for item in examples[:6]]])
-    if spotify_profile and _profile_limited(spotify_profile):
+    if listening_profile and _profile_limited(listening_profile):
         lines.append("")
         lines.append("Let op: DJConnect bewaart geen onbeperkte ruwe luistergeschiedenis, dus dit blijft een profielschets op basis van recente en top-item snapshots.")
     if isinstance(last_ask, dict) and last_ask.get("input"):
@@ -7089,7 +7083,7 @@ async def _listening_profile_context(
     try:
         result = await run_music_command(hass, runtime, "listening_profile")
     except Exception as exc:  # noqa: BLE001
-        _LOGGER.debug("DJConnect Spotify listening profile unavailable: %s", exc)
+        _LOGGER.debug("DJConnect listening profile unavailable: %s", exc)
         return stored if isinstance(stored, dict) else {}
     profile = result.get("profile") if isinstance(result, dict) else {}
     if isinstance(profile, dict) and profile:
@@ -7106,7 +7100,7 @@ async def _listening_profile_context(
 def _profile_tracks(
     memory: Any,
     playback_context: dict[str, Any],
-    spotify_profile: dict[str, Any] | None = None,
+    listening_profile: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     tracks: list[dict[str, Any]] = []
     if isinstance(memory, dict):
@@ -7119,11 +7113,11 @@ def _profile_tracks(
         profile = memory.get("listening_profile")
         if isinstance(profile, dict) and isinstance(profile.get("recent_tracks"), list):
             tracks.extend(item for item in profile["recent_tracks"] if isinstance(item, dict))
-    if isinstance(spotify_profile, dict):
-        recent = spotify_profile.get("recent_tracks")
+    if isinstance(listening_profile, dict):
+        recent = listening_profile.get("recent_tracks")
         if isinstance(recent, list):
             tracks.extend(item for item in recent if isinstance(item, dict))
-        top_tracks = spotify_profile.get("top_tracks_by_range")
+        top_tracks = listening_profile.get("top_tracks_by_range")
         if isinstance(top_tracks, dict):
             for range_name in ("short_term", "medium_term", "long_term"):
                 items = top_tracks.get(range_name)
@@ -7163,10 +7157,10 @@ def _top_values(tracks: list[dict[str, Any]], keys: tuple[str, ...]) -> list[str
 def _profile_artists(
     memory: Any,
     tracks: list[dict[str, Any]],
-    spotify_profile: dict[str, Any],
+    listening_profile: dict[str, Any],
 ) -> list[str]:
     artists = _top_values(tracks, ("artist", "artist_name"))
-    for source in (spotify_profile, memory.get("listening_profile") if isinstance(memory, dict) else {}):
+    for source in (listening_profile, memory.get("listening_profile") if isinstance(memory, dict) else {}):
         if not isinstance(source, dict):
             continue
         recent = source.get("recent_artists")
@@ -7187,13 +7181,13 @@ def _profile_artists(
 
 def _profile_artist_hint(
     memory_context: dict[str, Any],
-    spotify_profile: dict[str, Any],
+    listening_profile: dict[str, Any],
 ) -> str:
     """Return a short user-facing hint that Music DNA/listening profile was used."""
     memory = memory_context.get("memory") if isinstance(memory_context, dict) else {}
     if not isinstance(memory, dict):
         memory = {}
-    artists = _profile_artists({}, [], spotify_profile)
+    artists = _profile_artists({}, [], listening_profile)
     tracks = memory.get("recent_tracks") if isinstance(memory.get("recent_tracks"), list) else []
     artists.extend(_profile_artists(memory, tracks, {}))
     artists = _unique_ordered(artists)
@@ -7214,12 +7208,12 @@ def _join_human(items: list[str]) -> str:
     return f"{', '.join(values[:-1])} en {values[-1]}"
 
 
-def _profile_genres(memory: Any, spotify_profile: dict[str, Any]) -> list[str]:
+def _profile_genres(memory: Any, listening_profile: dict[str, Any]) -> list[str]:
     if not isinstance(memory, dict):
         memory = {}
     genres = memory.get("favorite_genres") or memory.get("genres")
     result = [str(item) for item in genres if item] if isinstance(genres, list) else []
-    for source in (spotify_profile, memory.get("listening_profile")):
+    for source in (listening_profile, memory.get("listening_profile")):
         if isinstance(source, dict) and isinstance(source.get("inferred_genres"), list):
             result.extend(str(item) for item in source["inferred_genres"] if item)
     return _unique_ordered(result)[:12]
@@ -7292,11 +7286,11 @@ def _join_examples(values: list[str], *, limit: int) -> str:
 
 def _profile_sources(
     memory_context: dict[str, Any],
-    spotify_profile: dict[str, Any],
+    listening_profile: dict[str, Any],
 ) -> list[dict[str, str]]:
     sources = [{"source": "djconnect_music_dna", "kind": "source", "title": "Music DNA"}]
-    spotify_sources = spotify_profile.get("sources") if isinstance(spotify_profile, dict) else []
-    for source in spotify_sources or []:
+    profile_sources = listening_profile.get("sources") if isinstance(listening_profile, dict) else []
+    for source in profile_sources or []:
         text = str(source or "").strip()
         if text:
             sources.append({"source": text, "kind": "source", "title": text.replace("_", " ")})
@@ -7310,24 +7304,24 @@ def _recommendation_playback_actions(
     runtime: Any,
     memory_context: dict[str, Any],
     playback_context: dict[str, Any],
-    spotify_profile: dict[str, Any],
+    listening_profile: dict[str, Any],
     *,
     limit: int = 5,
 ) -> list[dict[str, Any]]:
     candidates: list[dict[str, Any]] = []
-    top_tracks = spotify_profile.get("top_tracks_by_range") if isinstance(spotify_profile, dict) else {}
+    top_tracks = listening_profile.get("top_tracks_by_range") if isinstance(listening_profile, dict) else {}
     if isinstance(top_tracks, dict):
         for range_name in ("short_term", "medium_term", "long_term"):
             items = top_tracks.get(range_name)
             if isinstance(items, list):
                 candidates.extend(item for item in items if isinstance(item, dict))
-    top_artists = spotify_profile.get("top_artists_by_range") if isinstance(spotify_profile, dict) else {}
+    top_artists = listening_profile.get("top_artists_by_range") if isinstance(listening_profile, dict) else {}
     if isinstance(top_artists, dict):
         for range_name in ("short_term", "medium_term", "long_term"):
             items = top_artists.get(range_name)
             if isinstance(items, list):
                 candidates.extend(item for item in items if isinstance(item, dict))
-    recent = spotify_profile.get("recent_tracks") if isinstance(spotify_profile, dict) else []
+    recent = listening_profile.get("recent_tracks") if isinstance(listening_profile, dict) else []
     if isinstance(recent, list):
         candidates.extend(item for item in recent if isinstance(item, dict))
     memory = memory_context.get("memory") if isinstance(memory_context, dict) else {}
@@ -7369,27 +7363,18 @@ def _recommendation_playback_actions(
         proxy_image = register_image_proxy_url(hass, image_url) if image_url.startswith(("http://", "https://")) else image_url
         title = str(item.get("track_name") or item.get("title") or item.get("name") or item_id).strip()
         subtitle = str(item.get("artist") or item.get("artist_name") or item.get("album_name") or "").strip()
-        action = {
-            "id": item_id,
-            "title": title,
-            "subtitle": subtitle,
-            "uri": item_id if _looks_like_spotify_uri(item_id) else "",
-            "kind": kind,
-            "label": "Play Now",
-            "button_label": "Play Now",
-            "action_style": "play_now",
-            "image_url": proxy_image,
-            "reason": reason,
-            **_backend_action_fields(
-                hass,
-                kind,
-                item_id,
-                proxy_image,
-                title,
-                subtitle,
-                runtime=runtime,
-            ),
-        }
+        action = build_playback_action(
+            runtime,
+            {
+                **item,
+                "item_id": item_id,
+                "title": title,
+                "subtitle": subtitle,
+                "image_url": proxy_image,
+            },
+            kind,
+            reason,
+        )
         if kind == "track":
             context_uri = str(item.get("context_uri") or "").strip()
             if context_uri:
@@ -7405,12 +7390,12 @@ def _personal_artist_recommendation_actions(
     hass: HomeAssistant,
     runtime: Any,
     memory_context: dict[str, Any],
-    spotify_profile: dict[str, Any],
+    listening_profile: dict[str, Any],
     *,
     limit: int,
 ) -> list[dict[str, Any]]:
     candidates: list[dict[str, Any]] = []
-    top_artists = spotify_profile.get("top_artists_by_range") if isinstance(spotify_profile, dict) else {}
+    top_artists = listening_profile.get("top_artists_by_range") if isinstance(listening_profile, dict) else {}
     if isinstance(top_artists, dict):
         for range_name in ("short_term", "medium_term", "long_term"):
             items = top_artists.get(range_name)
@@ -7446,27 +7431,22 @@ def _personal_artist_recommendation_actions(
         proxy_image = register_image_proxy_url(hass, image_url) if image_url.startswith(("http://", "https://")) else image_url
         genres = item.get("genres")
         subtitle = ", ".join(str(genre) for genre in genres[:2]) if isinstance(genres, list) else ""
-        action = {
-            "id": item_id or f"djconnect:artist:{key}",
-            "title": name,
-            "subtitle": subtitle,
-            "uri": item_id if _looks_like_spotify_uri(item_id) else "",
-            "kind": "artist",
-            "label": "Play Now" if item_id else "",
-            "button_label": "Play Now" if item_id else "",
-            "action_style": "play_now" if item_id else "info",
-            "image_url": proxy_image,
-            "reason": "Past bij je luisterprofiel en Music DNA.",
-            **_backend_action_fields(
-                hass,
-                "artist",
-                item_id,
-                proxy_image,
-                name,
-                subtitle,
-                runtime=runtime,
-            ),
-        }
+        action = build_playback_action(
+            runtime,
+            {
+                **item,
+                "item_id": item_id or f"djconnect:artist:{key}",
+                "title": name,
+                "subtitle": subtitle,
+                "image_url": proxy_image,
+            },
+            "artist",
+            "Past bij je luisterprofiel en Music DNA.",
+        )
+        if not item_id:
+            action["label"] = ""
+            action["button_label"] = ""
+            action["action_style"] = "info"
         actions.append({key: value for key, value in action.items() if value not in ("", None, [])})
         if len(actions) >= limit:
             break
@@ -7501,19 +7481,19 @@ def _play_now_action_from_spotify_item(
         subtitle = ""
     if _looks_like_spotify_uri(subtitle):
         subtitle = ""
-    action = {
-        "id": uri,
-        "title": title,
-        "subtitle": subtitle,
-        "uri": uri,
-        "kind": kind,
-        "label": "Play Now",
-        "button_label": "Play Now",
-        "action_style": "play_now",
-        "image_url": proxy_image,
-        "reason": "Voor je klaargezet terwijl het huidige nummer doorspeelt.",
-        **_backend_action_fields(hass, kind, uri, proxy_image, title, subtitle),
-    }
+    action = build_playback_action(
+        _first_runtime(hass),
+        {
+            **item,
+            "uri": uri,
+            "title": title,
+            "subtitle": subtitle,
+            "image_url": proxy_image,
+            "thumbnail_url": proxy_image,
+        },
+        kind,
+        "Voor je klaargezet terwijl het huidige nummer doorspeelt.",
+    )
     context_uri = str(item.get("context_uri") or "").strip()
     if kind == "track" and context_uri:
         action["context_uri"] = context_uri
@@ -7571,10 +7551,10 @@ def _sources_from_context(result: dict[str, Any], links: list[dict[str, Any]]) -
     return sources
 
 
-def _profile_limited(spotify_profile: dict[str, Any]) -> bool:
-    recent = spotify_profile.get("recent_tracks")
-    top_tracks = spotify_profile.get("top_tracks_by_range")
-    top_artists = spotify_profile.get("top_artists_by_range")
+def _profile_limited(listening_profile: dict[str, Any]) -> bool:
+    recent = listening_profile.get("recent_tracks")
+    top_tracks = listening_profile.get("top_tracks_by_range")
+    top_artists = listening_profile.get("top_artists_by_range")
     count = len(recent) if isinstance(recent, list) else 0
     for group in (top_tracks, top_artists):
         if isinstance(group, dict):
@@ -7859,25 +7839,6 @@ def _links_from_context(
     return links
 
 
-def register_image_proxy_url(hass: HomeAssistant, external_url: str) -> str:
-    """Register an external image URL and return a Home Assistant proxy URL."""
-    url = str(external_url or "").strip()
-    if not url or url.startswith(API_IMAGE_PROXY_BASE) or not url.startswith(("http://", "https://")):
-        return url
-    token = secrets.token_urlsafe(18)
-    hass.data.setdefault(DOMAIN, {}).setdefault(IMAGE_PROXY_KEY, {})[token] = url
-    return f"{API_IMAGE_PROXY_BASE}/{token}"
-
-
-def image_proxy_target(hass: HomeAssistant, token: str) -> str | None:
-    """Return registered image proxy target URL."""
-    return (
-        hass.data.get(DOMAIN, {})
-        .get(IMAGE_PROXY_KEY, {})
-        .get(str(token or "").strip())
-    )
-
-
 def _playable_item_id(item: dict[str, Any]) -> str:
     for key in (
         "uri",
@@ -7907,21 +7868,6 @@ def _playable_item_kind(item: dict[str, Any], item_id: str) -> str:
         or "music"
     ).strip().lower()
     return kind if kind in {"track", "album", "artist", "playlist"} else "music"
-
-
-def _backend_action_fields(
-    hass: HomeAssistant,
-    kind: str,
-    item_id: str,
-    image_url: str = "",
-    title: str = "",
-    subtitle: str = "",
-    *,
-    runtime: Any | None = None,
-) -> dict[str, Any]:
-    """Return backend-aware playback action metadata for client contracts."""
-    runtime = runtime or _first_runtime(hass)
-    return music_backend_action_fields(runtime, kind, item_id, image_url, title, subtitle)
 
 
 def _first_runtime(hass: HomeAssistant) -> Any | None:

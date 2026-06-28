@@ -163,6 +163,7 @@ async def _build_recommendations(
         "success": True,
         "type": "recommendation_candidates",
         "music_dna": music_dna if isinstance(music_dna, dict) else {},
+        "listening_profile": profile if isinstance(profile, dict) else {},
         "spotify_profile": profile if isinstance(profile, dict) else {},
         "sources": [
             {"source": "djconnect_music_dna", "kind": "source", "title": "Music DNA"},

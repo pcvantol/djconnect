@@ -346,7 +346,7 @@ class MusicDNAManager:
         *,
         user_id: str | None = None,
     ) -> str:
-        """Persist a compact Spotify listening profile snapshot."""
+        """Persist a compact backend listening profile snapshot."""
         key = await self.async_update_client_metadata(runtime, payload, user_id=user_id)
         memory = self._memory_for_key(key)
         compact = _compact_listening_profile(profile)

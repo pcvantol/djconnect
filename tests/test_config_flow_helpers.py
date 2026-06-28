@@ -955,6 +955,68 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertFalse(self.config_flow._valid_pair_code("abc123"))
         self.assertEqual(self.config_flow._default_local_url("12345"), "")
 
+    def test_pairing_defaults_module_keeps_device_name_suffix_idempotent(self) -> None:
+        defaults = importlib.import_module("custom_components.djconnect.pairing_defaults")
+
+        self.assertEqual(
+            defaults.device_name_for_client_type(
+                "macos",
+                "DJConnect macOS",
+                suffixes={"macos": "macOS"},
+            ),
+            "DJConnect macOS",
+        )
+        self.assertEqual(
+            defaults.device_name_for_client_type(
+                "windows",
+                "Studio",
+                suffixes={"windows": "Windows"},
+            ),
+            "Studio Windows",
+        )
+
+    def test_client_identity_module_scopes_pairing_client_types(self) -> None:
+        identity = importlib.import_module("custom_components.djconnect.client_identity")
+
+        self.assertEqual(identity.default_pair_client_type("pair_local_device"), "esp32")
+        self.assertEqual(identity.default_pair_client_type("pair_app"), "ios")
+        self.assertEqual(identity.pair_client_type_options("pair_app"), ["ios", "macos", "windows"])
+        self.assertTrue(identity.client_type_uses_local_device_api("raspberry_pi"))
+        self.assertFalse(identity.client_type_uses_local_device_api("ios"))
+
+    def test_discovery_selection_module_builds_defaults(self) -> None:
+        selection = importlib.import_module("custom_components.djconnect.discovery_selection")
+        discovery = importlib.import_module("custom_components.djconnect.discovery")
+        client = discovery.DiscoveredClient(
+            local_url="http://mac.local",
+            device_id="djconnect-macos-ABCDEF123456",
+            client_type="macos",
+            device_name="Peter Mac",
+            pair_code="123456",
+        )
+
+        self.assertEqual(selection.discovered_client_key(client), "djconnect-macos-ABCDEF123456")
+        self.assertEqual(
+            selection.discovered_client_options([client]),
+            {
+                "djconnect-macos-ABCDEF123456": (
+                    "Peter Mac · djconnect-macos-ABCDEF123456 · mac.local"
+                )
+            },
+        )
+        self.assertEqual(selection.selected_discovered_client([client], "missing"), None)
+        self.assertEqual(selection.selected_discovered_client([client], "djconnect-macos-ABCDEF123456"), client)
+        self.assertEqual(
+            selection.discovered_client_defaults(client),
+            {
+                "device_id": "djconnect-macos-ABCDEF123456",
+                "device_name": "Peter Mac",
+                "client_type": "macos",
+                "local_url": "http://mac.local",
+                "pair_code": "123456",
+            },
+        )
+
     def test_device_language_default_uses_ha_language_when_supported(self) -> None:
         nl_hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
         en_hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en-US"))

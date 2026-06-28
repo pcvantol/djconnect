@@ -148,7 +148,7 @@ class AskDjAIToolRoutingTest(unittest.TestCase):
             calls.append((name, parameters))
             return {
                 "success": True,
-                "spotify_profile": {
+                "listening_profile": {
                     "top_tracks_by_range": {
                         "short_term": [
                             {
@@ -182,6 +182,42 @@ class AskDjAIToolRoutingTest(unittest.TestCase):
         self.assertEqual(result["playback_actions"][0]["uri"], "spotify:track:black")
         self.assertEqual(result["playback_actions"][0]["value"]["uri"], "spotify:track:black")
         self.assertEqual(calls, [("djconnect_build_recommendations", {"music_dna_key": None})])
+
+    def test_personal_recommendations_accept_legacy_spotify_profile_tool_key(self) -> None:
+        async def tool(hass, runtime, name, parameters=None, *, user_id=None):
+            return {
+                "success": True,
+                "spotify_profile": {
+                    "top_tracks_by_range": {
+                        "short_term": [
+                            {
+                                "track_name": "Black",
+                                "artist": "Pearl Jam",
+                                "uri": "spotify:track:black",
+                            }
+                        ]
+                    }
+                },
+            }
+
+        original = self.ask_dj.async_call_ai_tool
+        self.ask_dj.async_call_ai_tool = tool
+        try:
+            result = asyncio.run(
+                self.ask_dj._handle_informational(
+                    types.SimpleNamespace(),
+                    make_runtime(),
+                    "Geef persoonlijke muziekaanbevelingen",
+                    {},
+                    {"memory": {}, "session": []},
+                    {},
+                    [],
+                )
+            )
+        finally:
+            self.ask_dj.async_call_ai_tool = original
+
+        self.assertEqual(result["playback_actions"][0]["uri"], "spotify:track:black")
 
     def test_personal_recommendations_use_music_assistant_action_contract(self) -> None:
         async def tool(hass, runtime, name, parameters=None, *, user_id=None):

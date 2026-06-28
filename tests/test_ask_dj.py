@@ -1063,7 +1063,7 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("geen actuele concertagenda voor The National", result["dj_text"])
         self.assertEqual(result["sources"][0]["source"], "bandsintown")
 
-    def test_artist_genre_question_uses_spotify_profile(self) -> None:
+    def test_artist_genre_question_uses_backend_artist_profile(self) -> None:
         runtime = make_runtime()
         calls = []
 

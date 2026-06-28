@@ -1,7 +1,8 @@
 """DJConnect use-case layer over music backend adapters."""
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from enum import StrEnum
 from typing import Any, Protocol
 
 from homeassistant.core import HomeAssistant
@@ -20,6 +21,154 @@ from .spotify_backend import (
     SpotifyBackendError,
     handle_spotify_command as _handle_spotify_command,
 )
+
+
+class MusicCommand(StrEnum):
+    """Known DJConnect music backend commands."""
+
+    DEVICES = "devices"
+    SET_OUTPUT = "set_output"
+    QUEUE = "queue"
+    PLAYLISTS = "playlists"
+    SEARCH_PLAYLISTS = "search_playlists"
+    SEARCH_TRACKS = "search_tracks"
+    SEARCH_ALBUMS = "search_albums"
+    SEARCH_MEDIA = "search_media"
+    STATUS = "status"
+    PLAY = "play"
+    PLAY_URIS = "play_uris"
+    PAUSE = "pause"
+    NEXT = "next"
+    PREVIOUS = "previous"
+    SET_VOLUME = "set_volume"
+    SAVE_CURRENT_TRACK = "save_current_track"
+    SET_CURRENT_TRACK_FAVORITE = "set_current_track_favorite"
+    TOGGLE_CURRENT_TRACK_FAVORITE = "toggle_current_track_favorite"
+    RECENTLY_PLAYED = "recently_played"
+    ARTIST_RECOMMENDATIONS = "artist_recommendations"
+    LISTENING_PROFILE = "listening_profile"
+    SET_SHUFFLE = "set_shuffle"
+    SET_REPEAT = "set_repeat"
+    SEEK_RELATIVE = "seek_relative"
+
+
+@dataclass(frozen=True)
+class BackendActionValue:
+    """Backend-specific value payload for a client playback action."""
+
+    item_id: str = ""
+    uri: str = ""
+    provider: str = ""
+    media_type: str = ""
+    title: str = ""
+    subtitle: str = ""
+    image_url: str = ""
+    target_player_id: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            key: value
+            for key, value in {
+                "item_id": self.item_id,
+                "uri": self.uri,
+                "provider": self.provider,
+                "media_type": self.media_type,
+                "title": self.title,
+                "subtitle": self.subtitle,
+                "image_url": self.image_url,
+                "target_player_id": self.target_player_id,
+            }.items()
+            if value not in ("", None)
+        }
+
+
+@dataclass(frozen=True)
+class PlaybackAction:
+    """Client-visible playback action with typed backend metadata."""
+
+    id: str
+    kind: str
+    label: str = "Play Now"
+    button_label: str = "Play Now"
+    action_style: str = "play_now"
+    title: str = ""
+    subtitle: str = ""
+    image_url: str = ""
+    reason: str = ""
+    backend: str = DEFAULT_MUSIC_BACKEND
+    provider: str = "spotify"
+    music_backend_revision: int = 0
+    value: BackendActionValue = field(default_factory=BackendActionValue)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            key: value
+            for key, value in {
+                "id": self.id,
+                "kind": self.kind,
+                "label": self.label,
+                "button_label": self.button_label,
+                "action_style": self.action_style,
+                "title": self.title,
+                "subtitle": self.subtitle,
+                "image_url": self.image_url,
+                "reason": self.reason,
+                "backend": self.backend,
+                "provider": self.provider,
+                "music_backend_revision": self.music_backend_revision,
+                "value": self.value.to_dict(),
+            }.items()
+            if value not in ("", None, {})
+        }
+
+
+@dataclass(frozen=True)
+class MusicBackendResult:
+    """Normalized result from a music backend command."""
+
+    success: bool = True
+    provider: str = ""
+    source: str = ""
+    backend_available: bool | None = None
+    playback: dict[str, Any] = field(default_factory=dict)
+    data: dict[str, Any] = field(default_factory=dict)
+
+    @classmethod
+    def from_mapping(
+        cls,
+        result: dict[str, Any] | None,
+        *,
+        provider: str,
+    ) -> "MusicBackendResult":
+        payload = dict(result or {})
+        success = bool(payload.pop("success", True))
+        result_provider = str(payload.pop("provider", provider) or provider)
+        source = str(payload.pop("source", result_provider) or result_provider)
+        backend_available = payload.pop("backend_available", None)
+        playback = payload.pop("playback", {})
+        return cls(
+            success=success,
+            provider=result_provider,
+            source=source,
+            backend_available=backend_available,
+            playback=playback if isinstance(playback, dict) else {},
+            data=payload,
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        payload = dict(self.data)
+        payload.update(
+            {
+                "success": self.success,
+                "provider": self.provider,
+                "source": self.source or self.provider,
+            }
+        )
+        if self.backend_available is not None:
+            payload["backend_available"] = self.backend_available
+        if self.playback:
+            payload["playback"] = self.playback
+        return payload
 
 
 @dataclass(frozen=True)
@@ -50,7 +199,7 @@ class MusicBackend(Protocol):
 
     async def handle_command(
         self,
-        command: str,
+        command: MusicCommand | str,
         value: Any = None,
         *,
         play: bool | None = None,
@@ -102,16 +251,17 @@ class SpotifyDirectBackend:
 
     async def handle_command(
         self,
-        command: str,
+        command: MusicCommand | str,
         value: Any = None,
         *,
         play: bool | None = None,
     ) -> dict[str, Any]:
         """Delegate to the existing Spotify Direct backend implementation."""
+        command_value = normalize_music_command(command)
         return await _handle_spotify_command(
             self.hass,
             self.runtime,
-            command,
+            command_value,
             value,
             play=play,
         )
@@ -148,7 +298,7 @@ class MusicAssistantBackend:
 
     async def handle_command(
         self,
-        command: str,
+        command: MusicCommand | str,
         value: Any = None,
         *,
         play: bool | None = None,
@@ -157,7 +307,7 @@ class MusicAssistantBackend:
         player = self.player_entity_id
         if not player:
             raise SpotifyBackendError("Music Assistant player is not configured")
-        normalized = str(command or "").strip().lower()
+        normalized = normalize_music_command(command)
         if normalized == "status":
             return {"success": True, "playback": self._playback_state(player)}
         if normalized == "devices":
@@ -277,13 +427,13 @@ class DJConnectUseCases:
 
     async def command(
         self,
-        command: str,
+        command: MusicCommand | str,
         value: Any = None,
         *,
         play: bool | None = None,
     ) -> dict[str, Any]:
         """Run a normalized DJConnect music command through the backend."""
-        normalized = str(command or "").strip().lower()
+        normalized = normalize_music_command(command)
         self._ensure_capability(normalized)
         result = await self.backend.handle_command(normalized, value, play=play)
         return self._normalize_result(result)
@@ -340,36 +490,49 @@ class DJConnectUseCases:
             )
 
     def _normalize_result(self, result: dict[str, Any]) -> dict[str, Any]:
-        normalized = dict(result or {})
-        normalized.setdefault("provider", self.backend.provider)
-        normalized.setdefault("source", self.backend.provider)
-        if "success" not in normalized:
-            normalized["success"] = True
-        if normalized.get("success"):
-            normalized.setdefault("backend_available", True)
-        return normalized
+        backend_result = MusicBackendResult.from_mapping(
+            result,
+            provider=self.backend.provider,
+        )
+        if backend_result.success and backend_result.backend_available is None:
+            backend_result = MusicBackendResult(
+                success=backend_result.success,
+                provider=backend_result.provider,
+                source=backend_result.source,
+                backend_available=True,
+                playback=backend_result.playback,
+                data=backend_result.data,
+            )
+        return backend_result.to_dict()
 
 
 _CAPABILITY_BY_COMMAND = {
-    "devices": "supports_outputs",
-    "set_output": "supports_outputs",
-    "queue": "supports_queue",
-    "playlists": "supports_playlists",
-    "search_playlists": "supports_playlists",
-    "search_tracks": "supports_search",
-    "search_albums": "supports_search",
-    "search_media": "supports_search",
-    "set_volume": "supports_volume",
-    "save_current_track": "supports_favorites",
-    "set_current_track_favorite": "supports_favorites",
-    "toggle_current_track_favorite": "supports_favorites",
-    "recently_played": "supports_recently_played",
-    "artist_recommendations": "supports_recommendations",
-    "listening_profile": "supports_library_profile",
-    "set_shuffle": "supports_shuffle",
-    "set_repeat": "supports_repeat",
-    "seek_relative": "supports_seek",
+    MusicCommand.DEVICES.value: "supports_outputs",
+    MusicCommand.SET_OUTPUT.value: "supports_outputs",
+    MusicCommand.QUEUE.value: "supports_queue",
+    MusicCommand.PLAYLISTS.value: "supports_playlists",
+    MusicCommand.SEARCH_PLAYLISTS.value: "supports_playlists",
+    MusicCommand.SEARCH_TRACKS.value: "supports_search",
+    MusicCommand.SEARCH_ALBUMS.value: "supports_search",
+    MusicCommand.SEARCH_MEDIA.value: "supports_search",
+    MusicCommand.SET_VOLUME.value: "supports_volume",
+    MusicCommand.SAVE_CURRENT_TRACK.value: "supports_favorites",
+    MusicCommand.SET_CURRENT_TRACK_FAVORITE.value: "supports_favorites",
+    MusicCommand.TOGGLE_CURRENT_TRACK_FAVORITE.value: "supports_favorites",
+    MusicCommand.RECENTLY_PLAYED.value: "supports_recently_played",
+    MusicCommand.ARTIST_RECOMMENDATIONS.value: "supports_recommendations",
+    MusicCommand.LISTENING_PROFILE.value: "supports_library_profile",
+    MusicCommand.SET_SHUFFLE.value: "supports_shuffle",
+    MusicCommand.SET_REPEAT.value: "supports_repeat",
+    MusicCommand.SEEK_RELATIVE.value: "supports_seek",
 }
+
+
+def normalize_music_command(command: MusicCommand | str) -> str:
+    """Return the canonical backend command string."""
+    if isinstance(command, MusicCommand):
+        return command.value
+    return str(command or "").strip().lower()
 
 
 def _selected_backend(hass: HomeAssistant, runtime: Any) -> MusicBackend:
@@ -447,29 +610,87 @@ def music_backend_action_fields(
         backend = DEFAULT_MUSIC_BACKEND
     revision = _int_revision(config.get(CONF_MUSIC_BACKEND_REVISION))
     provider = MUSIC_BACKEND_MUSIC_ASSISTANT if backend == MUSIC_BACKEND_MUSIC_ASSISTANT else "spotify"
-    value: dict[str, Any] = {
-        "title": title,
-        "subtitle": subtitle,
-        "image_url": image_url,
-    }
     clean_kind = str(kind or "music").strip().lower() or "music"
     if backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
-        value.update(
-            {
-                "item_id": item_id,
-                "provider": provider,
-                "media_type": clean_kind,
-                "target_player_id": str(config.get(CONF_MUSIC_ASSISTANT_PLAYER) or ""),
-            }
+        value = BackendActionValue(
+            item_id=item_id,
+            provider=provider,
+            media_type=clean_kind,
+            title=title,
+            subtitle=subtitle,
+            image_url=image_url,
+            target_player_id=str(config.get(CONF_MUSIC_ASSISTANT_PLAYER) or ""),
         )
     else:
-        value["uri"] = item_id
+        value = BackendActionValue(
+            uri=item_id,
+            title=title,
+            subtitle=subtitle,
+            image_url=image_url,
+        )
     return {
         "backend": backend,
         "provider": provider,
         "music_backend_revision": revision,
-        "value": {key: val for key, val in value.items() if val not in ("", None)},
+        "value": value.to_dict(),
     }
+
+
+def build_playback_action(
+    runtime: Any,
+    item: dict[str, Any],
+    kind: str | None = None,
+    reason: str = "",
+) -> dict[str, Any]:
+    """Build a backend-aware client playback action from an intent item."""
+    if not isinstance(item, dict):
+        return {}
+    item_id = _playback_item_id(item)
+    clean_kind = str(kind or _playback_item_kind(item, item_id)).strip().lower() or "music"
+    title = str(
+        item.get("title")
+        or item.get("track_name")
+        or item.get("name")
+        or item_id
+        or ""
+    ).strip()
+    subtitle = str(
+        item.get("subtitle")
+        or item.get("artist")
+        or item.get("artist_name")
+        or item.get("album_name")
+        or item.get("owner")
+        or ""
+    ).strip()
+    image_url = str(
+        item.get("image_url")
+        or item.get("thumbnail_url")
+        or item.get("album_image_url")
+        or item.get("artist_image_url")
+        or item.get("album_art_url")
+        or item.get("media_image_url")
+        or item.get("entity_picture")
+        or ""
+    ).strip()
+    action = PlaybackAction(
+        id=item_id or str(item.get("id") or "").strip(),
+        title=title,
+        subtitle=subtitle,
+        kind=clean_kind,
+        image_url=image_url,
+        reason=reason,
+        **_playback_action_backend_fields(runtime, clean_kind, item_id, image_url, title, subtitle),
+    ).to_dict()
+    if item_id and item_id.startswith("spotify:"):
+        action["uri"] = item_id
+    context_uri = str(item.get("context_uri") or "").strip()
+    if context_uri:
+        action["context_uri"] = context_uri
+        if clean_kind == "track":
+            action["offset_uri"] = item_id
+    if image_url:
+        action["thumbnail_url"] = image_url
+    return {key: value for key, value in action.items() if value not in ("", None, [], {})}
 
 
 def unsupported_capability_message(capability: str, backend: str) -> str:
@@ -534,10 +755,65 @@ def _volume_level(value: Any) -> float:
     return max(0.0, min(1.0, number))
 
 
+def _playback_action_backend_fields(
+    runtime: Any,
+    kind: str,
+    item_id: str,
+    image_url: str,
+    title: str,
+    subtitle: str,
+) -> dict[str, Any]:
+    fields = music_backend_action_fields(runtime, kind, item_id, image_url, title, subtitle)
+    return {
+        "backend": fields["backend"],
+        "provider": fields["provider"],
+        "music_backend_revision": fields["music_backend_revision"],
+        "value": BackendActionValue(**fields["value"]),
+    }
+
+
+def _playback_item_id(item: dict[str, Any]) -> str:
+    for key in (
+        "uri",
+        "current_uri",
+        "context_uri",
+        "playlist_uri",
+        "album_uri",
+        "artist_uri",
+        "item_id",
+        "media_content_id",
+        "id",
+    ):
+        value = str(item.get(key) or "").strip()
+        if value:
+            return value
+    return ""
+
+
+def _playback_item_kind(item: dict[str, Any], item_id: str) -> str:
+    spotify_kind = _spotify_uri_kind(item_id)
+    if spotify_kind:
+        return spotify_kind
+    kind = str(
+        item.get("media_type")
+        or item.get("type")
+        or item.get("kind")
+        or "music"
+    ).strip().lower()
+    return kind if kind in {"track", "album", "artist", "playlist"} else "music"
+
+
+def _spotify_uri_kind(uri: str) -> str:
+    parts = str(uri or "").split(":")
+    if len(parts) >= 3 and parts[0] == "spotify" and parts[1] in {"track", "album", "artist", "playlist"}:
+        return parts[1]
+    return ""
+
+
 async def run_music_command(
     hass: HomeAssistant,
     runtime: Any,
-    command: str,
+    command: MusicCommand | str,
     value: Any = None,
     *,
     play: bool | None = None,

@@ -5,7 +5,6 @@ from __future__ import annotations
 import asyncio
 import inspect
 import logging
-import re
 import secrets
 from types import SimpleNamespace
 from typing import Any
@@ -72,11 +71,9 @@ from .const import (
     MUSIC_BACKEND_MUSIC_ASSISTANT,
     MUSIC_BACKEND_SPOTIFY_DIRECT,
     CLIENT_TYPE_NAMES,
-    CLIENT_TYPES,
     CLIENT_TYPE_ESP32,
     CLIENT_TYPE_IOS,
     CLIENT_TYPE_MACOS,
-    CLIENT_TYPE_RASPBERRY_PI,
     CLIENT_TYPE_WINDOWS,
     DOMAIN,
     SETUP_METHOD_BLE_WIFI,
@@ -86,13 +83,29 @@ from .const import (
 )
 from .central_api import TOKEN_PREFIX, async_rotate_install_token
 from .ble import async_discover_devices, async_provision_wifi
+from .client_identity import (
+    client_type_uses_local_device_api,
+    default_pair_client_type,
+    pair_client_type_options,
+)
 from .discovery import DiscoveredClient, async_discover_djconnect_clients
+from .discovery_selection import (
+    discovered_client_defaults,
+    discovered_client_key,
+    discovered_client_options,
+    selected_discovered_client,
+)
+from .pairing_defaults import (
+    clean as _clean,
+    default_local_url as _default_local_url,
+    device_name_for_client_type,
+    valid_pair_code as _valid_pair_code,
+)
 from .spotify_oauth import build_authorize_url, build_redirect_uri, create_code_verifier
 
 _LOGGER = logging.getLogger(__name__)
 
 DEVICE_LANGUAGE_NAMES = {"en": "English", "nl": "Nederlands"}
-PAIR_CODE_PATTERN = re.compile(r"^(?:\d{6}|[0-9A-Fa-f]{12})$")
 OPTIONS_ACTION_FIELD = "options_action"
 OPTIONS_ACTION_SAVE = "save_options"
 OPTIONS_ACTION_RETRY_PAIRING = "retry_device_pairing"
@@ -179,15 +192,6 @@ VOICE_FORM_FIELDS = {
     CONF_SMART_HOME_CONTEXT_ENTITIES,
     CONF_FIRMWARE_CHANNEL,
 }
-
-
-def _clean(value: Any, default: Any = "") -> Any:
-    """Normalize empty form values."""
-    if value is None:
-        return default
-    if isinstance(value, str) and value.strip() == "":
-        return default
-    return value
 
 
 def _bool(value: Any, default: bool = False) -> bool:
@@ -291,19 +295,11 @@ def _manual_discovery_label(hass: Any) -> str:
 
 def _device_name_for_client_type(client_type: Any, base_name: Any = DEFAULT_DEVICE_NAME) -> str:
     """Return the suggested HA device name with a client-type suffix."""
-    name = str(base_name or DEFAULT_DEVICE_NAME).strip() or DEFAULT_DEVICE_NAME
-    suffix = CLIENT_TYPE_NAME_SUFFIXES.get(str(client_type or DEFAULT_CLIENT_TYPE).strip())
-    if not suffix:
-        return name
-    normalized_name = " ".join(name.lower().split())
-    normalized_suffix = suffix.lower()
-    if normalized_name.endswith(f" {normalized_suffix}") or normalized_name.endswith(
-        f" ({normalized_suffix})"
-    ):
-        return name
-    if name == DEFAULT_DEVICE_NAME:
-        return f"{name} {suffix}"
-    return f"{name} {suffix}"
+    return device_name_for_client_type(
+        client_type,
+        base_name,
+        suffixes=CLIENT_TYPE_NAME_SUFFIXES,
+    )
 
 
 def _spotify_oauth_title(hass: Any, *, reauth: bool = False) -> str:
@@ -336,19 +332,6 @@ def _spotify_oauth_description(hass: Any, *, reauth: bool = False) -> str:
         "Home Assistant opens Spotify in your browser. "
         "After approving access, return here to continue setup."
     )
-
-
-def _default_local_url(pair_code: str | None) -> str:
-    """Return an mDNS URL only when the input is the device ID suffix."""
-    normalized = str(pair_code or "").strip()
-    if not re.fullmatch(r"[0-9A-Fa-f]{12}", normalized):
-        return ""
-    return f"http://djconnect-lilygo-t-embed-s3-{normalized}.local"
-
-
-def _valid_pair_code(pair_code: str) -> bool:
-    """Accept the displayed 6-digit code or 12-character device suffix."""
-    return bool(PAIR_CODE_PATTERN.fullmatch(str(pair_code or "").strip()))
 
 
 def _is_https_url(value: str) -> bool:
@@ -1312,43 +1295,25 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     def _selected_discovered_client(self) -> DiscoveredClient | None:
         """Return the selected mDNS client, if the user picked one."""
-        selected = getattr(self, "_selected_discovered_key", "")
-        if not selected:
-            return None
-        for client in getattr(self, "_discovered_clients", []):
-            if self._discovered_client_key(client) == selected:
-                return client
-        return None
+        return selected_discovered_client(
+            getattr(self, "_discovered_clients", []),
+            getattr(self, "_selected_discovered_key", ""),
+        )
 
     def _apply_discovered_client(self, client: DiscoveredClient) -> None:
         """Use a discovered client as authoritative defaults for pairing."""
-        client_type = (
-            client.client_type
-            if client.client_type in CLIENT_TYPES
-            else DEFAULT_CLIENT_TYPE
-        )
-        self._discovered_defaults = {
-            CONF_DEVICE_ID: client.device_id,
-            CONF_DEVICE_NAME: str(client.device_name or DEFAULT_DEVICE_NAME).strip()
-            or DEFAULT_DEVICE_NAME,
-            CONF_CLIENT_TYPE: client_type,
-            CONF_LOCAL_URL: client.local_url,
-            CONF_PAIR_CODE: client.pair_code,
-        }
+        self._discovered_defaults = discovered_client_defaults(client)
         self._discovered_device_name_authoritative = True
         if client.pair_code:
             self._last_pair_code = client.pair_code
 
     def _discovered_client_options(self) -> dict[str, str]:
         """Return mDNS discovery choices for the pairing form."""
-        return {
-            self._discovered_client_key(client): client.label
-            for client in getattr(self, "_discovered_clients", [])
-        }
+        return discovered_client_options(getattr(self, "_discovered_clients", []))
 
     @staticmethod
     def _discovered_client_key(client: DiscoveredClient) -> str:
-        return client.device_id or client.local_url
+        return discovered_client_key(client)
 
     def _user_schema(self) -> dict[Any, Any]:
         """Build pairing schema."""
@@ -1397,16 +1362,10 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return schema
 
     def _default_pair_client_type(self) -> str:
-        if getattr(self, "_pairing_setup_method", "") == SETUP_METHOD_PAIR_LOCAL_DEVICE:
-            return CLIENT_TYPE_ESP32
-        return CLIENT_TYPE_IOS
+        return default_pair_client_type(getattr(self, "_pairing_setup_method", ""))
 
     def _pair_client_type_options(self) -> list[str]:
-        if getattr(self, "_pairing_setup_method", "") == SETUP_METHOD_PAIR_LOCAL_DEVICE:
-            return [CLIENT_TYPE_ESP32, CLIENT_TYPE_RASPBERRY_PI]
-        if getattr(self, "_pairing_setup_method", "") == SETUP_METHOD_PAIR_APP:
-            return [CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_WINDOWS]
-        return list(CLIENT_TYPES)
+        return pair_client_type_options(getattr(self, "_pairing_setup_method", ""))
 
     def _pair_client_type_names(self) -> dict[str, str]:
         return {
@@ -1416,10 +1375,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     def _client_type_uses_local_device_api(client_type: Any) -> bool:
-        return str(client_type or "").strip() in {
-            CLIENT_TYPE_ESP32,
-            CLIENT_TYPE_RASPBERRY_PI,
-        }
+        return client_type_uses_local_device_api(client_type)
 
     async def async_step_backend(
         self,

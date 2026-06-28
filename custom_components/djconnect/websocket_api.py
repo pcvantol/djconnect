@@ -10,15 +10,6 @@ except ImportError:  # pragma: no cover - only used by lightweight unit-test stu
     websocket_api = None
 
 from .const import DOMAIN, VERSION
-from .http import (
-    async_handle_ask_dj_history_clear_payload,
-    async_handle_ask_dj_history_payload,
-    async_handle_ask_dj_history_state_payload,
-    async_handle_ask_dj_message_payload,
-    async_handle_command_payload,
-    async_handle_track_insight_payload,
-)
-
 
 WS_TYPE_CAPABILITIES = "djconnect/capabilities"
 WS_TYPE_ASK_DJ_MESSAGE = "djconnect/ask_dj/message"
@@ -27,6 +18,42 @@ WS_TYPE_ASK_DJ_HISTORY_CLEAR = "djconnect/ask_dj/history/clear"
 WS_TYPE_ASK_DJ_HISTORY_STATE = "djconnect/ask_dj/history/state"
 WS_TYPE_COMMAND = "djconnect/command"
 WS_TYPE_TRACK_INSIGHT = "djconnect/track_insight"
+
+
+async def async_handle_command_payload(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], int]:
+    from .api_handlers import async_handle_command_payload as handler
+
+    return await handler(*args, **kwargs)
+
+
+async def async_handle_ask_dj_message_payload(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], int]:
+    from .api_handlers import async_handle_ask_dj_message_payload as handler
+
+    return await handler(*args, **kwargs)
+
+
+async def async_handle_ask_dj_history_payload(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], int]:
+    from .api_handlers import async_handle_ask_dj_history_payload as handler
+
+    return await handler(*args, **kwargs)
+
+
+async def async_handle_ask_dj_history_clear_payload(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], int]:
+    from .api_handlers import async_handle_ask_dj_history_clear_payload as handler
+
+    return await handler(*args, **kwargs)
+
+
+async def async_handle_ask_dj_history_state_payload(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], int]:
+    from .api_handlers import async_handle_ask_dj_history_state_payload as handler
+
+    return await handler(*args, **kwargs)
+
+
+async def async_handle_track_insight_payload(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], int]:
+    from .api_handlers import async_handle_track_insight_payload as handler
+
+    return await handler(*args, **kwargs)
 
 
 def _websocket_command(schema: dict[Any, Any]) -> Any:
