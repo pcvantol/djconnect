@@ -43,7 +43,7 @@ from ..track_insight import (
     is_track_insight_request,
     track_insight_error_response,
 )
-from .responses import image_proxy_target, register_image_proxy_url
+from .responses import image_proxy_target as image_proxy_target, register_image_proxy_url
 
 _LOGGER = logging.getLogger(__name__)
 

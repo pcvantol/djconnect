@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.2.5
+
+- Refactor Ask DJ into focused intent, response, action, profile and recent-history modules while keeping the public `custom_components.djconnect.ask_dj` import path compatible.
+- Move shared HTTP/websocket request handling and runtime authorization helpers into transport-neutral modules so HTTP views and websocket routes stay thin.
+- Add typed music command/action/result DTOs plus a shared playback-action builder for backend-aware Ask DJ actions.
+- Split config-flow helper logic for pairing defaults, client identity and discovery selection.
+- Rename neutral recommendation profile payloads from `spotify_profile` to `listening_profile`, with a temporary legacy alias for existing clients.
+
 ## 3.2.3
 
 - Add optional local fast-path delivery through Home Assistant's native

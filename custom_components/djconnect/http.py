@@ -48,8 +48,6 @@ from .const import (
     CLIENT_TYPE_MACOS,
     CLIENT_TYPE_WATCHOS,
     CLIENT_TYPE_WINDOWS,
-    CLIENT_TYPES,
-    DEFAULT_CLIENT_TYPE,
     DEFAULT_MAX_AUDIO_BYTES,
     CONF_SPOTIFY_CLIENT_ID,
     CONF_SPOTIFY_MARKET,
@@ -69,8 +67,6 @@ from .dj_response import async_create_dj_audio_url, async_send_dj_response_best_
 from .ha_urls import async_ha_url_payload
 from .mood import enrich_payload_with_mood_zone
 from .push import (
-    EVENT_ASK_DJ_CONFIRM,
-    EVENT_ASK_DJ_RESPONSE,
     async_register as async_register_push,
     async_send_event as async_send_push_event,
     async_status as async_push_status,
@@ -80,16 +76,12 @@ from .request_auth import (
     _last_stale_auth_log,
     authorize_runtime_device_request as _authorize_runtime_device_request,
     identity_payload as _identity_payload,
-    is_real_device_id as _is_real_device_id,
     payload_client_type as _payload_client_type,
-    request_token as _request_token,
     resolve_runtime as _runtime,
     runtime_client_type as _runtime_client_type,
-    runtime_matches_device as _runtime_matches_device,
     validate_required_client_type as _validate_required_client_type,
 )
 from .spotify_backend import SpotifyBackendError
-from .track_insight import TrackInsightError, TrackInsightService
 from .use_cases import (
     MusicBackendCapabilityError,
     music_backend_metadata,
@@ -99,6 +91,7 @@ from .use_cases import (
 from .spotify_oauth import exchange_code_for_refresh_token
 
 _LOGGER = logging.getLogger(__name__)
+__all__ = ["_last_stale_auth_log", "async_send_push_event"]
 _LOGO_DATA_URI: str | None = None
 VOICE_DEBUG_KEY = "last_voice_debug"
 VOICE_DEBUG_URL = "/api/djconnect/debug/last_voice.wav"
