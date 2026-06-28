@@ -69,7 +69,10 @@ of the integration contract:
   optional fast-path routes such as `djconnect/command`,
   `djconnect/ask_dj/message` and `djconnect/track_insight`; payloads use the
   same contracts as their HTTP equivalents and still include the DJConnect
-  device token, `device_id` and canonical `client_type`. HTTP remains the
+  device token, `device_id` and canonical `client_type`. The DJConnect device
+  token authorizes the DJConnect payload after HA websocket login; it should not
+  be assumed to authenticate the Home Assistant websocket itself. Product
+  clients need a tested HA websocket auth mechanism, otherwise HTTP remains the
   canonical fallback for remote access, pairing, history clear/sync, voice
   uploads, image/TTS URLs and any websocket failure or timeout.
 - **Use-case layer before music backends**: HTTP clients, app clients, ESP32,
@@ -1544,6 +1547,15 @@ specific debugging reason requires retaining more:
 gh run list --limit 100
 for id in $(gh run list --limit 100 --json databaseId --jq '.[2:][].databaseId'); do gh run delete "$id"; done
 ```
+
+Branch protection/admin override hygiene:
+
+- Keep branch-protection or required-review overrides explicit and manual.
+- Do not automate admin override, required-review disablement or branch
+  protection changes in `release.sh`.
+- `release.sh` should push through the normal repository policy and fail when
+  `main` protection requires a PR/review. Use any temporary maintainer override
+  only as a deliberate one-off operation, then restore protection immediately.
 
 Release cleanup helper:
 

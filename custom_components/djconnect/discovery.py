@@ -80,12 +80,13 @@ async def async_discover_djconnect_clients(hass: Any) -> list[DiscoveredClient]:
         pairing_info = await async_probe_pairing_info(session, client.local_url)
         if not pairing_info:
             _LOGGER.debug(
-                "DJConnect ignoring stale/unreachable mDNS client device_id=%s url=%s",
+                "DJConnect marking mDNS client pairing-info unavailable device_id=%s url=%s",
                 client.device_id,
                 client.local_url,
             )
-            continue
-        client = _client_with_pairing_info(client, pairing_info)
+            client = _client_with_probe_failure(client)
+        else:
+            client = _client_with_pairing_info(client, pairing_info)
         if _is_valid_discovered_client(client):
             clients.append(client)
 

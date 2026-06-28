@@ -117,8 +117,12 @@ URL:
 - `ws://<local-ha-host>/api/websocket`
 - `wss://<local-ha-host>/api/websocket`
 
-Authenticate with Home Assistant's native websocket auth flow. After login,
-feature-detect DJConnect support with:
+Authenticate with Home Assistant's native websocket auth flow. The paired
+DJConnect device token is not accepted as the initial Home Assistant websocket
+login token unless Home Assistant itself explicitly supports that in a tested
+deployment. Product clients should assume they need an HA websocket access token
+or another HA-supported websocket auth mechanism before this fast path is
+product-ready. After HA websocket login, feature-detect DJConnect support with:
 
 ```json
 {
@@ -155,7 +159,9 @@ Alternatively clients may put the command fields under `payload`; nested payload
 values win over top-level defaults. The server translates `device_token` or
 `authorization` into the same bearer-token check used by HTTP, and validates
 `device_id`/`client_type` with the normal DJConnect pairing rules. The Home
-Assistant websocket login is not a replacement for the DJConnect device token.
+Assistant websocket login is not a replacement for the DJConnect device token,
+and the DJConnect device token is not a replacement for the Home Assistant
+websocket login.
 
 Supported fast-path commands are the existing `/command` actions, including
 `play`, `pause`, `next`, `previous`, `status`, `devices`, `queue`, `playlists`,

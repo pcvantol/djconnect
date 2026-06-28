@@ -52,7 +52,9 @@ and `<3.3.0`.
 - ESP32 and Raspberry Pi must never receive `ha_remote_url`.
 - Local app clients may optionally use Home Assistant's native
   `/api/websocket` as a low-latency fast path after normal local pairing and HA
-  websocket auth. Capability-detect with `djconnect/capabilities`, then use
+  websocket auth. Do not assume the DJConnect device token can authenticate the
+  HA websocket itself; it is included in DJConnect payloads after HA websocket
+  login. Capability-detect with `djconnect/capabilities`, then use
   `djconnect/command`, `djconnect/ask_dj/message` and
   `djconnect/track_insight` only when advertised. Payloads reuse the matching
   HTTP contracts and still include the DJConnect `device_token`, `device_id`

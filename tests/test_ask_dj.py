@@ -915,7 +915,7 @@ class AskDjTest(unittest.TestCase):
             self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "related_artists", "listening_profile"])
-        self.assertIn("Ik zie in je Music DNA en Spotify-profiel", result["dj_text"])
+        self.assertIn("Ik zie in je Music DNA en luisterprofiel", result["dj_text"])
         self.assertIn("Above & Beyond", result["dj_text"])
         self.assertIn("Ferry Corsten", result["dj_text"])
         self.assertIn("Volgens Spotify", result["dj_text"])
@@ -4272,7 +4272,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["action"], "profile_analysis")
         self.assertIn("de afgelopen maand", result["text"])
         self.assertIn("The xx - Intro", result["text"])
-        self.assertIn("\n\nBronnen:\n- Spotify recent/top-data\n- Music DNA", result["text"])
+        self.assertIn("\n\nBronnen:\n- Luisterprofiel recent/top-data\n- Music DNA", result["text"])
         self.assertIn("\n\n- Harde observatie:", result["text"])
         self.assertIn("\n\n- Interpretatie:", result["text"])
         self.assertIn("\n\nConcrete voorbeelden:\n- The xx - Intro", result["text"])

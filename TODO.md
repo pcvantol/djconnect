@@ -14,21 +14,25 @@
 - Confirm ESP `/status` updates persist the real `djconnect-XXXXXXXXXXXX` device id.
 - Confirm ESP `/status` updates persist the real `local_url` when provided.
 - Confirm old setup-code entries stop using `djconnect-[6-digit-code].local` after status repair.
-- Confirm `/api/djconnect/command`, Ask DJ playback actions, voice processor
-  playback and HA playback entities all route through the DJConnect use-case
-  layer and still return the existing response shapes.
+- Monitor `/api/djconnect/command`, Ask DJ playback actions, voice processor
+  playback and HA playback entities through the DJConnect use-case layer.
+  Automated coverage now verifies the shared use-case transport and response
+  shapes; field testing should focus on real HA/client rendering.
 - Confirm Music Assistant setup on a real HA instance: backend choice skips
   Spotify OAuth, lists usable MA players, stores the selected player, controls
   play/pause/next/previous/volume through HA `media_player` services and keeps
   Spotify repairs quiet. Automated config/options validation now rejects stale,
   missing and non-Music-Assistant `media_player` entities.
-- Confirm Music Assistant unsupported capabilities degrade cleanly in clients:
+- Monitor Music Assistant unsupported capabilities in clients:
   recent-played, top items, recommendations, favorites, advanced queue/library
   profile and Spotify-specific Play Now actions should not show stale artwork,
-  scope repair text or phantom controls.
-- Inventory remaining Spotify-specific response shaping in Ask DJ profile,
-  recommendation and technical-analysis paths and migrate safe pieces behind
-  the backend adapter without changing client contracts.
+  scope repair text or phantom controls. Automated backend/config/action-shape
+  coverage exists; real Music Assistant client rendering still needs field
+  validation.
+- Ask DJ profile/recommendation action shaping has been moved further behind
+  backend-aware action metadata. Continue monitoring lower-level Spotify Direct
+  informational helpers, but do not treat generic Music Assistant playback
+  actions as blocked by Spotify URI assumptions.
 - Keep backend choice explicit as `Spotify Direct` or `Music Assistant`; do not
   add Auto mode or a large Music Assistant setup flow unless a later product
   decision changes the contract.
@@ -39,6 +43,10 @@
 - Field-test client rendering of backend-aware `playback_actions[]`, stale
   action rejection and `unsupported_backend_capability` errors on both Spotify
   Direct and Music Assistant.
+- Live-test the local websocket fast path against Home Assistant before
+  enabling it as a product default in Windows or other clients. Confirm whether
+  the HA websocket auth flow requires a separate HA token; do not assume the
+  DJConnect device token authenticates `/api/websocket`.
 
 ## PTT / Voice
 
@@ -114,11 +122,20 @@
   use `FIELD_TEST_APP_CLIENTS.md` and record the app build/HA version/backend.
   Automated HA contract coverage now verifies inbound pair responses and remote
   playback commands for iOS, macOS and Windows client IDs.
-- Test mDNS discovery through `_djconnect._tcp` for ESP32, iOS, macOS, watchOS, Raspberry Pi and Windows.
-- Test Raspberry Pi mDNS TXT discovery with `client_type=raspberry_pi`, stable `djconnect-raspberry-pi-XXXXXXXXXXXX` ID and TXT `local_url`.
-- Test Raspberry Pi `/api/device/pairing-info` override for Client adres, client type, device name, device ID, pair code, version and paired state.
-- Test Raspberry Pi pairing-info failure: Home Assistant should show the translated pairing-info reachability error and allow manual Client adres correction.
-- Test duplicate Raspberry Pi discovery: a previously configured stable Pi device ID should not create a second setup-code-based HA entry.
+- Field-test mDNS discovery through `_djconnect._tcp` for ESP32, iOS, macOS,
+  watchOS, Raspberry Pi and Windows. Automated discovery helper coverage now
+  validates stable client-type/device-id matching for these client families.
+- Field-test Raspberry Pi mDNS TXT discovery with `client_type=raspberry_pi`,
+  stable `djconnect-raspberry-pi-XXXXXXXXXXXX` ID and TXT `local_url`.
+  Automated coverage validates TXT parsing.
+- Field-test Raspberry Pi `/api/device/pairing-info` override for Client adres,
+  client type, device name, device ID, pair code, version and paired state.
+  Automated coverage validates the merge/override behavior.
+- Field-test Raspberry Pi pairing-info failure on a real network. Automated
+  coverage now keeps the mDNS-visible Pi as a marked discovery choice and
+  verifies the manual-correction error path.
+- Monitor duplicate Raspberry Pi discovery: automated config-flow coverage
+  verifies stable Pi IDs do not create setup-code-only duplicate entries.
 - Test mDNS single-device fallback when only one DJConnect device is visible.
 - Test Client adres fallback on a network where mDNS fails.
 - Confirm invalid pairing code is rejected with a clear user message.
@@ -173,16 +190,29 @@
 
 ## Ask DJ
 
-- Confirm Ask DJ server history trims at 1000 messages per HA user, returns `history_limit`, `history_trimmed_before` and `history_trimmed_count`, and appends one `history_retention` system message without audio.
+- Monitor Ask DJ server history trimming at 1000 messages per HA user. Automated
+  coverage verifies `history_limit`, `history_trimmed_before`,
+  `history_trimmed_count` and retention system-message behavior; client field
+  testing should verify local cache pruning UX.
 - Confirm iOS, macOS and watchOS remove local chat messages older than `history_trimmed_before` after the next history sync.
-- Confirm `POST /api/djconnect/ask_dj/history/clear` still increments `clear_revision` and clears local cache across iOS, macOS and watchOS.
-- Confirm `Goedemorgen` returns a personalized morning suggestion with Ja/Nee controls and does not start playback until the user confirms.
-- Confirm `ask_dj_followup_response` executes a pending Yes action, declines a No action and returns a friendly expired/no-pending message after the pending follow-up TTL.
+- Monitor Ask DJ history clear sync. Automated HTTP/websocket coverage verifies
+  `clear_revision`/`history_revision`; iOS, macOS, watchOS, Raspberry Pi and
+  Windows still need local-cache field validation.
+- Monitor `Goedemorgen` personalized morning suggestions. Automated coverage
+  verifies Ja/Nee controls and no direct playback; field testing should verify
+  button rendering and push/sync UX.
+- Monitor `ask_dj_followup_response` pending-action behavior. Automated coverage
+  verifies Yes/No/no-pending paths; field testing should focus on cross-device
+  timing and expired pending follow-ups.
 - Confirm follow-up confirmation buttons work cross-device, for example Ask DJ asks on iPhone and the user answers on macOS or Apple Watch.
 - Confirm Ask DJ playback requests with no active Spotify output return speaker `playback_actions[]` and that `ask_dj_play_request_on_output` sets the selected output before replaying the original request.
-- Confirm obvious gibberish and sandbox/prompt-injection-like prompts return the neutral unknown-intent fallback and do not trigger Spotify search, HA device lookup, prompt disclosure or playback mutation.
+- Monitor obvious gibberish and sandbox/prompt-injection-like prompts. Automated
+  coverage verifies neutral fallback without Spotify search, HA device lookup,
+  prompt disclosure or playback mutation.
 - Confirm Play Now and recommendation flows still store only compact positive signals in Music DNA and never raw prompts, bearer tokens, OAuth tokens or raw audio.
-- Confirm recent-played Ask DJ questions for tracks, albums, artists and playlists render as compact item lists with art/icons and do not mutate playback or invent Play Now buttons.
+- Monitor recent-played Ask DJ questions for tracks, albums, artists and
+  playlists. Automated coverage verifies compact item payloads and no playback
+  mutation; app clients still need rendering field validation.
 - Confirm Watch/iOS mood values map to the canonical DJConnect zones: Chill `0`-`24`, Groove `25`-`59`, Energy `60`-`84` and Party `85`-`100`.
 - Confirm smart-home-aware Ask DJ prompts only include explicitly shared `smart_home_context_entities`, never arbitrary HA states, and still require Ja/Nee confirmation before playback starts.
 
@@ -226,9 +256,11 @@
 - Run `python3 -m unittest tests.test_ask_dj_e2e_contract`, the Ask DJ no-active-output regressions and `python3 -m unittest discover -s tests` before release.
 - Run `./release.sh X.Y.Z --dry-run` before publishing when changes are non-trivial.
 - Run `./release.sh X.Y.Z` for release.
+- Keep branch-protection/admin override manual and explicit; do not automate
+  required-review disablement or protection changes in `release.sh`.
 - Refresh HACS update info in Home Assistant.
 - Install new release from HACS.
 - Restart Home Assistant.
-- Run `./cleanup_old_releases.sh --keep 1 --execute` after successful release unless multiple releases are intentionally retained for support/testing.
+- Release/tag cleanup after v3.2.3 is done; `./cleanup_old_releases.sh --keep 1 --execute` kept only `v3.2.3`.
 - Clean up old completed GitHub Actions workflow runs after every release, keeping only the newest release/tag validation and newest `main` validation unless debugging requires more history.
 - Keep the CI Postman collection validator aligned with `examples/djconnect.postman_collection.json` whenever API examples change.

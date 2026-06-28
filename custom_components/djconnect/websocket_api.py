@@ -11,6 +11,9 @@ except ImportError:  # pragma: no cover - only used by lightweight unit-test stu
 
 from .const import DOMAIN, VERSION
 from .http import (
+    async_handle_ask_dj_history_clear_payload,
+    async_handle_ask_dj_history_payload,
+    async_handle_ask_dj_history_state_payload,
     async_handle_ask_dj_message_payload,
     async_handle_command_payload,
     async_handle_track_insight_payload,
@@ -19,6 +22,9 @@ from .http import (
 
 WS_TYPE_CAPABILITIES = "djconnect/capabilities"
 WS_TYPE_ASK_DJ_MESSAGE = "djconnect/ask_dj/message"
+WS_TYPE_ASK_DJ_HISTORY = "djconnect/ask_dj/history"
+WS_TYPE_ASK_DJ_HISTORY_CLEAR = "djconnect/ask_dj/history/clear"
+WS_TYPE_ASK_DJ_HISTORY_STATE = "djconnect/ask_dj/history/state"
 WS_TYPE_COMMAND = "djconnect/command"
 WS_TYPE_TRACK_INSIGHT = "djconnect/track_insight"
 
@@ -45,6 +51,9 @@ def async_register(hass: Any) -> None:
     websocket_api.async_register_command(hass, websocket_capabilities)
     websocket_api.async_register_command(hass, websocket_command)
     websocket_api.async_register_command(hass, websocket_ask_dj_message)
+    websocket_api.async_register_command(hass, websocket_ask_dj_history)
+    websocket_api.async_register_command(hass, websocket_ask_dj_history_clear)
+    websocket_api.async_register_command(hass, websocket_ask_dj_history_state)
     websocket_api.async_register_command(hass, websocket_track_insight)
     domain_data["websocket_registered"] = True
 
@@ -67,6 +76,9 @@ async def websocket_capabilities(hass: Any, connection: Any, msg: dict[str, Any]
             "commands": [
                 WS_TYPE_COMMAND,
                 WS_TYPE_ASK_DJ_MESSAGE,
+                WS_TYPE_ASK_DJ_HISTORY,
+                WS_TYPE_ASK_DJ_HISTORY_CLEAR,
+                WS_TYPE_ASK_DJ_HISTORY_STATE,
                 WS_TYPE_TRACK_INSIGHT,
             ],
             "transports": {
@@ -156,6 +168,111 @@ async def websocket_ask_dj_message(hass: Any, connection: Any, msg: dict[str, An
     )
     headers = _headers_from_message(payload, msg)
     result, status_code = await async_handle_ask_dj_message_payload(
+        hass,
+        payload,
+        headers=headers,
+        user_id=_connection_user_id(connection),
+    )
+    if 200 <= status_code < 300:
+        connection.send_result(msg["id"], result)
+        return
+    _send_error(connection, msg, result)
+
+
+@_websocket_command(
+    {
+        vol.Required("type"): WS_TYPE_ASK_DJ_HISTORY,
+        vol.Optional("payload", default={}): dict,
+        vol.Optional("device_id"): str,
+        vol.Optional("client_type"): str,
+        vol.Optional("device_token"): str,
+        vol.Optional("authorization"): str,
+        vol.Optional("since_revision"): object,
+    }
+)
+@_async_response
+async def websocket_ask_dj_history(hass: Any, connection: Any, msg: dict[str, Any]) -> None:
+    """Return Ask DJ history over HA websocket."""
+    payload = _payload_from_message(
+        msg,
+        (
+            "device_id",
+            "client_type",
+            "since_revision",
+        ),
+    )
+    headers = _headers_from_message(payload, msg)
+    result, status_code = await async_handle_ask_dj_history_payload(
+        hass,
+        payload,
+        headers=headers,
+        user_id=_connection_user_id(connection),
+    )
+    if 200 <= status_code < 300:
+        connection.send_result(msg["id"], result)
+        return
+    _send_error(connection, msg, result)
+
+
+@_websocket_command(
+    {
+        vol.Required("type"): WS_TYPE_ASK_DJ_HISTORY_CLEAR,
+        vol.Optional("payload", default={}): dict,
+        vol.Optional("device_id"): str,
+        vol.Optional("client_type"): str,
+        vol.Optional("device_token"): str,
+        vol.Optional("authorization"): str,
+    }
+)
+@_async_response
+async def websocket_ask_dj_history_clear(hass: Any, connection: Any, msg: dict[str, Any]) -> None:
+    """Clear Ask DJ history over HA websocket."""
+    payload = _payload_from_message(
+        msg,
+        (
+            "device_id",
+            "client_type",
+        ),
+    )
+    headers = _headers_from_message(payload, msg)
+    result, status_code = await async_handle_ask_dj_history_clear_payload(
+        hass,
+        payload,
+        headers=headers,
+        user_id=_connection_user_id(connection),
+    )
+    if 200 <= status_code < 300:
+        connection.send_result(msg["id"], result)
+        return
+    _send_error(connection, msg, result)
+
+
+@_websocket_command(
+    {
+        vol.Required("type"): WS_TYPE_ASK_DJ_HISTORY_STATE,
+        vol.Optional("payload", default={}): dict,
+        vol.Optional("device_id"): str,
+        vol.Optional("client_type"): str,
+        vol.Optional("device_token"): str,
+        vol.Optional("authorization"): str,
+        vol.Optional("since_revision"): object,
+        vol.Optional("clear_revision"): object,
+    }
+)
+@_async_response
+async def websocket_ask_dj_history_state(hass: Any, connection: Any, msg: dict[str, Any]) -> None:
+    """Return compact Ask DJ history state over HA websocket."""
+    payload = _payload_from_message(
+        msg,
+        (
+            "device_id",
+            "client_type",
+            "since_revision",
+            "clear_revision",
+        ),
+    )
+    headers = _headers_from_message(payload, msg)
+    result, status_code = await async_handle_ask_dj_history_state_payload(
         hass,
         payload,
         headers=headers,

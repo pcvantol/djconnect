@@ -45,10 +45,23 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
 
         http.async_handle_command_payload = async_handle_command_payload
         http.async_handle_ask_dj_message_payload = async_handle_command_payload
+        http.async_handle_ask_dj_history_payload = async_handle_command_payload
+        http.async_handle_ask_dj_history_clear_payload = async_handle_command_payload
+        http.async_handle_ask_dj_history_state_payload = async_handle_command_payload
         http.async_handle_track_insight_payload = async_handle_command_payload
         sys.modules.setdefault("custom_components.djconnect.http", http)
         cls.websocket_api = importlib.import_module("custom_components.djconnect.websocket_api")
         cls.websocket_api.websocket_api = websocket_api
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        for module_name in (
+            "custom_components.djconnect.websocket_api",
+            "custom_components.djconnect.http",
+            "custom_components.djconnect.const",
+            "homeassistant.components.websocket_api",
+        ):
+            sys.modules.pop(module_name, None)
 
     def test_registers_commands_once(self) -> None:
         calls = []
@@ -66,6 +79,9 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
                 "websocket_capabilities",
                 "websocket_command",
                 "websocket_ask_dj_message",
+                "websocket_ask_dj_history",
+                "websocket_ask_dj_history_clear",
+                "websocket_ask_dj_history_state",
                 "websocket_track_insight",
             ],
         )
@@ -98,6 +114,9 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
         self.assertEqual(result["domain"], "djconnect")
         self.assertIn(self.websocket_api.WS_TYPE_COMMAND, result["commands"])
         self.assertIn(self.websocket_api.WS_TYPE_ASK_DJ_MESSAGE, result["commands"])
+        self.assertIn(self.websocket_api.WS_TYPE_ASK_DJ_HISTORY, result["commands"])
+        self.assertIn(self.websocket_api.WS_TYPE_ASK_DJ_HISTORY_CLEAR, result["commands"])
+        self.assertIn(self.websocket_api.WS_TYPE_ASK_DJ_HISTORY_STATE, result["commands"])
         self.assertIn(self.websocket_api.WS_TYPE_TRACK_INSIGHT, result["commands"])
         self.assertEqual(result["transports"], {"http": True, "websocket": True})
 
@@ -359,6 +378,108 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
         self.assertEqual(headers["X-DJConnect-Device-ID"], "djconnect-macos-ABCDEF123456")
         self.assertEqual(source, "websocket")
         self.assertEqual(connection.results, [(14, {"success": True, "type": "track_insight"})])
+
+    def test_ask_dj_history_route_uses_history_sync_handler(self) -> None:
+        calls = []
+
+        async def handler(hass, payload, *, headers=None, user_id=None):
+            calls.append((payload, headers, user_id))
+            return {"success": True, "history_revision": 9, "messages": []}, 200
+
+        connection = _Connection(user_id="user-history")
+        original = self.websocket_api.async_handle_ask_dj_history_payload
+        self.websocket_api.async_handle_ask_dj_history_payload = handler
+        try:
+            asyncio.run(
+                self.websocket_api.websocket_ask_dj_history(
+                    types.SimpleNamespace(data={}),
+                    connection,
+                    {
+                        "id": 15,
+                        "type": self.websocket_api.WS_TYPE_ASK_DJ_HISTORY,
+                        "device_id": "djconnect-ios-ABCDEF123456",
+                        "client_type": "ios",
+                        "device_token": "device-secret",
+                        "since_revision": 8,
+                    },
+                )
+            )
+        finally:
+            self.websocket_api.async_handle_ask_dj_history_payload = original
+        payload, headers, user_id = calls[0]
+        self.assertEqual(payload["since_revision"], 8)
+        self.assertEqual(headers["Authorization"], "Bearer device-secret")
+        self.assertEqual(user_id, "user-history")
+        self.assertEqual(connection.results[0][1]["history_revision"], 9)
+
+    def test_ask_dj_history_clear_route_uses_clear_handler(self) -> None:
+        calls = []
+
+        async def handler(hass, payload, *, headers=None, user_id=None):
+            calls.append((payload, headers, user_id))
+            return {"success": True, "clear_revision": 3}, 200
+
+        connection = _Connection(user_id="user-clear")
+        original = self.websocket_api.async_handle_ask_dj_history_clear_payload
+        self.websocket_api.async_handle_ask_dj_history_clear_payload = handler
+        try:
+            asyncio.run(
+                self.websocket_api.websocket_ask_dj_history_clear(
+                    types.SimpleNamespace(data={}),
+                    connection,
+                    {
+                        "id": 16,
+                        "type": self.websocket_api.WS_TYPE_ASK_DJ_HISTORY_CLEAR,
+                        "payload": {
+                            "device_id": "djconnect-macos-ABCDEF123456",
+                            "client_type": "macos",
+                        },
+                        "device_token": "device-secret",
+                    },
+                )
+            )
+        finally:
+            self.websocket_api.async_handle_ask_dj_history_clear_payload = original
+        payload, headers, user_id = calls[0]
+        self.assertEqual(payload["client_type"], "macos")
+        self.assertEqual(headers["X-DJConnect-Device-ID"], "djconnect-macos-ABCDEF123456")
+        self.assertEqual(user_id, "user-clear")
+        self.assertEqual(connection.results, [(16, {"success": True, "clear_revision": 3})])
+
+    def test_ask_dj_history_state_route_uses_state_handler(self) -> None:
+        calls = []
+
+        async def handler(hass, payload, *, headers=None, user_id=None):
+            calls.append((payload, headers, user_id))
+            return {"success": True, "ask_dj_clear_required": True}, 200
+
+        connection = _Connection(user_id="user-state")
+        original = self.websocket_api.async_handle_ask_dj_history_state_payload
+        self.websocket_api.async_handle_ask_dj_history_state_payload = handler
+        try:
+            asyncio.run(
+                self.websocket_api.websocket_ask_dj_history_state(
+                    types.SimpleNamespace(data={}),
+                    connection,
+                    {
+                        "id": 17,
+                        "type": self.websocket_api.WS_TYPE_ASK_DJ_HISTORY_STATE,
+                        "device_id": "djconnect-watchos-ABCDEF123456",
+                        "client_type": "watchos",
+                        "device_token": "device-secret",
+                        "since_revision": 12,
+                        "clear_revision": 1,
+                    },
+                )
+            )
+        finally:
+            self.websocket_api.async_handle_ask_dj_history_state_payload = original
+        payload, headers, user_id = calls[0]
+        self.assertEqual(payload["since_revision"], 12)
+        self.assertEqual(payload["clear_revision"], 1)
+        self.assertEqual(headers["X-DJConnect-Device-ID"], "djconnect-watchos-ABCDEF123456")
+        self.assertEqual(user_id, "user-state")
+        self.assertEqual(connection.results, [(17, {"success": True, "ask_dj_clear_required": True})])
 
 
 class _Connection:

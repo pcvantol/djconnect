@@ -452,12 +452,13 @@ def music_backend_action_fields(
         "subtitle": subtitle,
         "image_url": image_url,
     }
+    clean_kind = str(kind or "music").strip().lower() or "music"
     if backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
         value.update(
             {
                 "item_id": item_id,
                 "provider": provider,
-                "media_type": kind,
+                "media_type": clean_kind,
                 "target_player_id": str(config.get(CONF_MUSIC_ASSISTANT_PLAYER) or ""),
             }
         )

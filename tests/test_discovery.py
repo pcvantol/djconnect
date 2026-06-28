@@ -342,7 +342,7 @@ class DiscoveryHelperTest(unittest.TestCase):
         self.assertTrue(client.pairing_info_failed)
         self.assertIn("pairing-info unavailable", client.label)
 
-    def test_async_discovery_ignores_unreachable_stale_mdns_client(self) -> None:
+    def test_async_discovery_marks_unreachable_mdns_client_for_manual_correction(self) -> None:
         stale_info = self._info(
             props={
                 "device_id": "djconnect-raspberry-pi-A1B2C3D4E5F6",
@@ -400,7 +400,11 @@ class DiscoveryHelperTest(unittest.TestCase):
             else:
                 components_module.zeroconf = original_zeroconf_attr
 
-        self.assertEqual(clients, [])
+        self.assertEqual(len(clients), 1)
+        self.assertEqual(clients[0].device_id, "djconnect-raspberry-pi-A1B2C3D4E5F6")
+        self.assertEqual(clients[0].client_type, "raspberry_pi")
+        self.assertTrue(clients[0].pairing_info_failed)
+        self.assertIn("pairing-info unavailable", clients[0].label)
 
     def test_async_discovery_accepts_watchos_after_pairing_info_probe(self) -> None:
         watch_info = self._info(

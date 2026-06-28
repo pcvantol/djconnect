@@ -27,6 +27,21 @@ def run_script(*args: str) -> subprocess.CompletedProcess[str]:
     )
 
 
+def run_script_with_env(extra_env: dict[str, str], *args: str) -> subprocess.CompletedProcess[str]:
+    env = os.environ.copy()
+    env.update(extra_env)
+    env["NO_COLOR"] = "1"
+    return subprocess.run(
+        [str(SCRIPT), *args],
+        cwd=ROOT,
+        env=env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=False,
+    )
+
+
 @unittest.skipUnless(sys.platform == "darwin", "macOS onboarding script tests require Darwin")
 class DevOnboardingScriptTests(unittest.TestCase):
     def test_help_documents_testability_flags(self) -> None:
@@ -39,6 +54,8 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("--windows-vm-name", result.stdout)
         self.assertIn("--windows-iso", result.stdout)
         self.assertIn("--ma-data-dir", result.stdout)
+        self.assertIn("DJCONNECT_HA_WS_URL", result.stdout)
+        self.assertIn("DJCONNECT_HA_TOKEN", result.stdout)
 
     def test_all_plan_includes_preflight_and_excludes_apply_upgrades(self) -> None:
         result = run_script("--all", "--plan", "--no-color")
@@ -138,6 +155,24 @@ class DevOnboardingScriptTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertIn("PLAN 25. Local E2E release/build smoke checks", result.stdout)
+
+    def test_e2e_local_dry_run_can_print_websocket_capability_smoke(self) -> None:
+        result = run_script_with_env(
+            {
+                "DJCONNECT_HA_WS_URL": "ws://localhost:8123/api/websocket",
+                "DJCONNECT_HA_TOKEN": "secret-token",
+            },
+            "--steps",
+            "25",
+            "--dry-run",
+            "--no-log-file",
+            "--no-color",
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("DJCONNECT_HA_WS_URL=ws://localhost:8123/api/websocket", result.stdout)
+        self.assertIn("DJCONNECT_HA_TOKEN=\\<redacted\\>", result.stdout)
+        self.assertNotIn("secret-token", result.stdout)
 
     def test_music_assistant_step_is_plan_addressable(self) -> None:
         result = run_script("--steps", "27", "--plan", "--no-color")

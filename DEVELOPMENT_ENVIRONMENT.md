@@ -146,9 +146,12 @@ Review lockfiles, manifests and dependency documentation after running step
 Step `25` runs local E2E release/build smoke checks across the DJConnect repos,
 including local tests and `release.sh <version> --dry-run` where available.
 If the Music Assistant server container from step `27` exists, step `25` also
-performs a lightweight `http://localhost:8095` smoke check. Step `26` can create
-a dedicated CI smoke-test branch with an empty commit, push it and watch the
-GitHub Actions result, but only when `--run-ci-push` is explicitly present:
+performs a lightweight `http://localhost:8095` smoke check. When
+`DJCONNECT_HA_WS_URL` and `DJCONNECT_HA_TOKEN` are set, step `25` also performs
+an optional Home Assistant websocket capability smoke against
+`djconnect/capabilities`; dry-run output redacts the token. Step `26` can
+create a dedicated CI smoke-test branch with an empty commit, push it and watch
+the GitHub Actions result, but only when `--run-ci-push` is explicitly present:
 
 ```bash
 ./tools/dev_onboarding_macos.sh --steps 25 --e2e-version 3.1.999

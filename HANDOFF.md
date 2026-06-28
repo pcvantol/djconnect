@@ -37,9 +37,10 @@
   `djconnect/command`, `djconnect/ask_dj/message` and
   `djconnect/track_insight`. Websocket payloads reuse the matching HTTP
   contracts and still require the DJConnect device token, `device_id` and
-  canonical `client_type`; HTTP remains the canonical fallback for remote
-  access, pairing, history clear/sync, voice uploads, image/TTS URLs and
-  transport failures.
+  canonical `client_type`; that device token is checked after Home Assistant's
+  own websocket auth succeeds and must not be treated as the HA websocket login
+  token. HTTP remains the canonical fallback for remote access, pairing,
+  history clear/sync, voice uploads, image/TTS URLs and transport failures.
 - Reusable Ask DJ Play Now backend metadata is shaped through the use-case layer;
   new action responses should not rebuild backend/provider/revision/value
   envelopes directly in Ask DJ.
@@ -275,7 +276,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 
 - Current release line is `3.2.x`; only the latest GitHub release/tag should be kept after release cleanup.
 - Current latest baseline is `3.2.3`.
-- Release workflow expectation: before every release, review and update all repo documentation affected by the change or release, including `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant `examples/*`. Explicitly decide whether test coverage must be expanded for the change; add coverage for new behavior paths, regression risks, translations, config/options-flow base/EN/NL keysets, stale `data_description` keys, diagnostics/log redaction and edge cases. Keep `tests.test_postman_collection` aligned with the Postman examples so CI validates collection schema, auth headers, placeholders and client identity. After publishing a release, clean up old completed GitHub Actions workflow runs, keeping only the newest release/tag validation and newest `main` validation unless debugging requires more history. Also clean up old semver releases/tags with `./cleanup_old_releases.sh --keep 1 --execute` unless multiple releases are intentionally retained.
+- Release workflow expectation: before every release, review and update all repo documentation affected by the change or release, including `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant `examples/*`. Explicitly decide whether test coverage must be expanded for the change; add coverage for new behavior paths, regression risks, translations, config/options-flow base/EN/NL keysets, stale `data_description` keys, diagnostics/log redaction and edge cases. Keep `tests.test_postman_collection` aligned with the Postman examples so CI validates collection schema, auth headers, placeholders and client identity. After publishing a release, clean up old completed GitHub Actions workflow runs, keeping only the newest release/tag validation and newest `main` validation unless debugging requires more history. Also clean up old semver releases/tags with `./cleanup_old_releases.sh --keep 1 --execute` unless multiple releases are intentionally retained. Keep any branch-protection/admin override explicit and manual; do not automate required-review disablement or protection changes in `release.sh`.
 - Before build/test/release validation, check whether third-party libraries, frameworks and build tools can be safely upgraded. If any version is upgraded, update lockfiles/manifests, `THIRD_PARTY_NOTICES.md` and dependency/design documentation in the same release. If an upgrade is skipped, record the reason here.
 - For the current `3.2.3` release, no pinned Python package versions were
   upgraded. The current line adds capability-aware local/remote HA URL payloads,

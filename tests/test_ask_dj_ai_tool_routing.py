@@ -180,7 +180,66 @@ class AskDjAIToolRoutingTest(unittest.TestCase):
 
         self.assertEqual(result["action"], "none")
         self.assertEqual(result["playback_actions"][0]["uri"], "spotify:track:black")
+        self.assertEqual(result["playback_actions"][0]["value"]["uri"], "spotify:track:black")
         self.assertEqual(calls, [("djconnect_build_recommendations", {"music_dna_key": None})])
+
+    def test_personal_recommendations_use_music_assistant_action_contract(self) -> None:
+        async def tool(hass, runtime, name, parameters=None, *, user_id=None):
+            return {
+                "success": True,
+                "profile": {
+                    "top_tracks_by_range": {
+                        "short_term": [
+                            {
+                                "track_name": "Intro",
+                                "artist": "The xx",
+                                "item_id": "library://track/intro",
+                                "media_type": "track",
+                            }
+                        ]
+                    }
+                },
+            }
+
+        runtime = make_runtime()
+        runtime.config = {
+            "music_backend": "music_assistant",
+            "music_backend_revision": 4,
+            "music_assistant_player": "media_player.mass_living",
+        }
+        original = self.ask_dj.async_call_ai_tool
+        self.ask_dj.async_call_ai_tool = tool
+        try:
+            result = asyncio.run(
+                self.ask_dj._handle_informational(
+                    types.SimpleNamespace(),
+                    runtime,
+                    "Geef persoonlijke muziekaanbevelingen",
+                    {},
+                    {"memory": {}, "session": []},
+                    {},
+                    [],
+                )
+            )
+        finally:
+            self.ask_dj.async_call_ai_tool = original
+
+        action = result["playback_actions"][0]
+        self.assertNotIn("uri", action)
+        self.assertEqual(action["backend"], "music_assistant")
+        self.assertEqual(action["provider"], "music_assistant")
+        self.assertEqual(action["music_backend_revision"], 4)
+        self.assertEqual(
+            action["value"],
+            {
+                "title": "Intro",
+                "subtitle": "The xx",
+                "item_id": "library://track/intro",
+                "provider": "music_assistant",
+                "media_type": "track",
+                "target_player_id": "media_player.mass_living",
+            },
+        )
 
 
 if __name__ == "__main__":

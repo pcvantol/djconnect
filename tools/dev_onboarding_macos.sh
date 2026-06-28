@@ -187,6 +187,9 @@ Environment overrides:
   NO_COLOR              Standard way to disable colored output.
   E2E_VERSION           Same as --e2e-version.
   CI_BRANCH             Same as --ci-branch.
+  DJCONNECT_HA_WS_URL   Optional HA websocket URL for step 25 capability smoke.
+                       Example: ws://localhost:8123/api/websocket
+  DJCONNECT_HA_TOKEN    Long-lived HA access token for websocket smoke.
 EOF
 }
 
@@ -985,11 +988,158 @@ music_assistant_smoke_if_present() {
   fi
 }
 
+websocket_capability_smoke_if_configured() {
+  local ws_url="${DJCONNECT_HA_WS_URL:-}"
+  local token="${DJCONNECT_HA_TOKEN:-}"
+  if [[ -z "$ws_url" || -z "$token" ]]; then
+    warn "DJCONNECT_HA_WS_URL/DJCONNECT_HA_TOKEN not set; skipping websocket capability smoke."
+    return 0
+  fi
+  if [[ "$DRY_RUN" == "1" ]]; then
+    run env DJCONNECT_HA_WS_URL="$ws_url" DJCONNECT_HA_TOKEN="<redacted>" python3 -c "print('DJConnect websocket capability smoke')"
+    return 0
+  fi
+  log "Running DJConnect websocket capability smoke against $ws_url."
+  DJCONNECT_HA_WS_URL="$ws_url" DJCONNECT_HA_TOKEN="$token" python3 - <<'PY'
+import base64
+import json
+import os
+import secrets
+import socket
+import ssl
+import struct
+import sys
+from urllib.parse import urlparse
+
+
+def fail(message):
+    print(f"DJConnect websocket smoke failed: {message}", file=sys.stderr)
+    raise SystemExit(1)
+
+
+url = os.environ["DJCONNECT_HA_WS_URL"]
+token = os.environ["DJCONNECT_HA_TOKEN"]
+parsed = urlparse(url)
+if parsed.scheme not in {"ws", "wss"}:
+    fail("DJCONNECT_HA_WS_URL must start with ws:// or wss://")
+host = parsed.hostname
+if not host:
+    fail("DJCONNECT_HA_WS_URL is missing a host")
+port = parsed.port or (443 if parsed.scheme == "wss" else 80)
+path = parsed.path or "/api/websocket"
+if parsed.query:
+    path = f"{path}?{parsed.query}"
+
+sock = socket.create_connection((host, port), timeout=10)
+if parsed.scheme == "wss":
+    sock = ssl.create_default_context().wrap_socket(sock, server_hostname=host)
+sock.settimeout(10)
+
+key = base64.b64encode(secrets.token_bytes(16)).decode("ascii")
+host_header = host if parsed.port is None else f"{host}:{port}"
+request = (
+    f"GET {path} HTTP/1.1\r\n"
+    f"Host: {host_header}\r\n"
+    "Upgrade: websocket\r\n"
+    "Connection: Upgrade\r\n"
+    f"Sec-WebSocket-Key: {key}\r\n"
+    "Sec-WebSocket-Version: 13\r\n"
+    "\r\n"
+)
+sock.sendall(request.encode("ascii"))
+header = b""
+while b"\r\n\r\n" not in header:
+    chunk = sock.recv(4096)
+    if not chunk:
+        fail("websocket upgrade closed before headers")
+    header += chunk
+status_line = header.split(b"\r\n", 1)[0]
+if b" 101 " not in status_line:
+    fail(status_line.decode("latin1", "replace"))
+
+
+def recv_exact(size):
+    data = b""
+    while len(data) < size:
+        chunk = sock.recv(size - len(data))
+        if not chunk:
+            fail("websocket closed unexpectedly")
+        data += chunk
+    return data
+
+
+def recv_json():
+    first, second = recv_exact(2)
+    opcode = first & 0x0F
+    length = second & 0x7F
+    if length == 126:
+        length = struct.unpack("!H", recv_exact(2))[0]
+    elif length == 127:
+        length = struct.unpack("!Q", recv_exact(8))[0]
+    if second & 0x80:
+        mask = recv_exact(4)
+        payload = bytes(b ^ mask[i % 4] for i, b in enumerate(recv_exact(length)))
+    else:
+        payload = recv_exact(length)
+    if opcode == 8:
+        fail("websocket closed by server")
+    if opcode != 1:
+        return recv_json()
+    return json.loads(payload.decode("utf-8"))
+
+
+def send_json(payload):
+    raw = json.dumps(payload, separators=(",", ":")).encode("utf-8")
+    mask = secrets.token_bytes(4)
+    if len(raw) < 126:
+        header = bytes([0x81, 0x80 | len(raw)])
+    elif len(raw) < 65536:
+        header = bytes([0x81, 0x80 | 126]) + struct.pack("!H", len(raw))
+    else:
+        header = bytes([0x81, 0x80 | 127]) + struct.pack("!Q", len(raw))
+    sock.sendall(header + mask + bytes(b ^ mask[i % 4] for i, b in enumerate(raw)))
+
+
+hello = recv_json()
+if hello.get("type") == "auth_required":
+    send_json({"type": "auth", "access_token": token})
+    auth = recv_json()
+    if auth.get("type") != "auth_ok":
+        fail(f"auth failed: {auth}")
+elif hello.get("type") != "auth_ok":
+    fail(f"unexpected websocket hello: {hello}")
+
+send_json({"id": 1, "type": "djconnect/capabilities"})
+response = recv_json()
+if response.get("type") != "result" or not response.get("success", True):
+    fail(f"capabilities command failed: {response}")
+result = response.get("result") or {}
+commands = set(result.get("commands") or [])
+required = {
+    "djconnect/capabilities",
+    "djconnect/command",
+    "djconnect/ask_dj/message",
+    "djconnect/ask_dj/history",
+    "djconnect/ask_dj/history/clear",
+    "djconnect/ask_dj/history/state",
+    "djconnect/track_insight",
+}
+missing = sorted(required - commands - {"djconnect/capabilities"})
+if not result.get("websocket_supported") or not result.get("transports", {}).get("websocket"):
+    fail(f"websocket transport not advertised: {result}")
+if missing:
+    fail(f"missing websocket commands: {', '.join(missing)}")
+print("DJConnect websocket capability smoke passed.")
+PY
+  status_ok "DJConnect websocket capability smoke passed."
+}
+
 step_24_e2e_local_release_smoke() {
   log "Running local E2E release/build smoke checks with version $E2E_VERSION."
   run_in_dir "$REPO_ROOT" python3 -m unittest discover -s tests
   release_dry_run_if_present "$REPO_ROOT" "$E2E_VERSION"
   music_assistant_smoke_if_present
+  websocket_capability_smoke_if_configured
 
   if [[ -d "$GITHUB_ROOT/djconnect-website" ]]; then
     run_in_dir "$GITHUB_ROOT/djconnect-website" npm test

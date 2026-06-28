@@ -2,22 +2,24 @@
 
 ## Open / Needs Field Validation
 
-### Music backend abstraction migration is intentionally incremental
+### Music backend abstraction migration is mostly adapter-clean, monitor remaining informational helpers
 
-- Status: open / architecture follow-up.
+- Status: monitor / architecture follow-up.
 - Area: use-case layer / backend adapters.
-- Symptom: Spotify Direct and Music Assistant are now behind the
-  use-case/backend layer for migrated command, Ask DJ, processor and entity
-  paths, but some deeper Ask DJ helper code still uses Spotify-shaped concepts
-  and response details.
+- Symptom: Spotify Direct and Music Assistant are behind the use-case/backend
+  layer for migrated command, Ask DJ, processor and entity paths. Ask DJ
+  profile/recommendation action shaping now emits backend-aware Play Now
+  metadata, but some lower-level Spotify Direct informational helpers still use
+  Spotify source labels where the feature itself is Spotify-specific.
 - Current mitigation: `use_cases.py` provides `DJConnectUseCases`,
   `MusicBackend`, capability checks, `SpotifyDirectBackend` and a small
-  `MusicAssistantBackend` over HA `media_player` services. New code should
-  route through this layer rather than importing Spotify Direct helpers.
-- Next action: Continue migrating low-risk Spotify-specific shaping behind the
-  adapter. Keep Music Assistant support adapter-sized: no DJConnect-side
-  provider registry, universal library index, queue engine, grouping/sync
-  engine or Auto backend mode.
+  `MusicAssistantBackend` over HA `media_player` services. Backend-aware action
+  metadata is covered by tests for Spotify Direct legacy `uri` values and Music
+  Assistant generic `item_id`/`media_type` values.
+- Next action: Monitor new code for direct Spotify helper imports and migrate
+  only low-risk shaping behind the adapter. Keep Music Assistant support
+  adapter-sized: no DJConnect-side provider registry, universal library index,
+  queue engine, grouping/sync engine or Auto backend mode.
 
 ### Music Assistant backend needs field validation
 
@@ -76,28 +78,59 @@
   playback and app entity exposure using `FIELD_TEST_APP_CLIENTS.md`.
   Ask DJ sync and PTT playback after HACS install/restart.
 
+### Local websocket fast path auth needs live HA confirmation
+
+- Status: open / product-readiness validation.
+- Area: client transport / Home Assistant websocket auth.
+- Symptom: DJConnect websocket message handlers accept the paired DJConnect
+  device token inside DJConnect payloads, but Home Assistant's `/api/websocket`
+  must first complete HA's native websocket auth flow.
+- Current mitigation: HTTP remains canonical fallback. API docs now state that
+  the DJConnect device token must not be assumed to authenticate the HA
+  websocket itself; product clients need a tested HA websocket access token or
+  another HA-supported auth mechanism.
+- Next action: Live-test against Home Assistant from the Windows client. Enable
+  websocket as a product default only if HA websocket auth is solved; otherwise
+  keep it as an opt-in local fast path with HTTP fallback.
+
 ### Ask DJ cross-device history retention and confirmation actions need field validation
 
 - Status: open / field validation.
 - Area: Ask DJ chat sync / iOS / macOS / watchOS / Raspberry Pi.
 - Symptom: Server-side Ask DJ history is now bounded and can trim older messages; clients must apply server trim metadata and render server follow-up actions consistently.
-- Current mitigation: Backend returns `history_limit`, `history_trimmed_before`, `history_trimmed_count`, `history_revision` and `clear_revision`; retention notices are stored as assistant system messages and follow-up buttons use `confirmation_actions[]` plus `ask_dj_followup_response`.
-- Next action: Test history trim, cross-device clear, Ja/Nee follow-up execution and expired pending follow-ups on iOS, macOS, Apple Watch, Raspberry Pi and Windows.
+- Current mitigation: Backend returns `history_limit`, `history_trimmed_before`,
+  `history_trimmed_count`, `history_revision` and `clear_revision`; retention
+  notices are stored as assistant system messages and follow-up buttons use
+  `confirmation_actions[]` plus `ask_dj_followup_response`. HTTP and HA native
+  websocket routes now share the same history/message/clear/state handlers, and
+  automated tests cover rich message sync, clear revisions, confirmation push
+  events and websocket capability/history routes.
+- Next action: Field-test history trim, cross-device clear, Ja/Nee follow-up
+  execution and expired pending follow-ups on iOS, macOS, Apple Watch,
+  Raspberry Pi and Windows.
 
 ### Ask DJ intent hardening and fuzzy fallback need field validation
 
-- Status: open / field validation.
+- Status: monitor / field validation.
 - Area: Ask DJ intent router.
 - Symptom: Gibberish or prompt-injection-like messages could previously be treated as music questions or stale context.
-- Current mitigation: Obvious gibberish and sandbox/prompt-injection-like text now returns the neutral unknown-intent fallback and performs no Spotify/HA mutation.
-- Next action: Test random text, sandbox/prompt requests, `next`, `skip`, `goedemorgen`, `ik ga slapen`, and normal artist/track/playlist prompts in Dutch and English.
+- Current mitigation: Obvious gibberish and sandbox/prompt-injection-like text
+  now returns the neutral unknown-intent fallback and performs no Spotify/HA
+  mutation. Automated Ask DJ regressions cover these backend outcomes.
+- Next action: Field-test random text, sandbox/prompt requests, `next`, `skip`,
+  `goedemorgen`, `ik ga slapen`, and normal artist/track/playlist prompts in
+  Dutch and English on real clients.
 
 ### Ask DJ recent-played list rendering needs client field validation
 
 - Status: open / field validation.
 - Area: Ask DJ chat rendering / iOS / macOS / watchOS / Raspberry Pi.
 - Symptom: Recent listening-history questions should show compact lists for tracks, albums, artists and playlists instead of a single oversized media card or stale artwork.
-- Current mitigation: Backend returns `intent:"recently_played_history"`, `intent.item_type`, top-level `items[]`, mirrored `assistant_message.items[]`, proxied `images[]` and `sources:["spotify_recently_played"]`; playback stays unchanged.
+- Current mitigation: Backend returns `intent:"recently_played_history"`,
+  `intent.item_type`, top-level `items[]`, mirrored `assistant_message.items[]`,
+  proxied `images[]` and `sources:["spotify_recently_played"]`; playback stays
+  unchanged. Automated coverage verifies backend payloads and no playback
+  mutation.
 - Next action: Test `welke nummers heb ik afgelopen uur afgespeeld?`, `welke albums heb ik vandaag geluisterd?`, `welke artiesten hoorde ik net?` and `welke playlists heb ik afgelopen uur gespeeld?` on all app clients. Accept that Spotify may expose only a playlist context URI, so unknown playlist names can display as `Spotify playlist`.
 
 ### mDNS reliability varies by network
@@ -113,7 +146,15 @@
 - Status: open / field validation.
 - Area: pairing/discovery.
 - Symptom: A Raspberry Pi client may be visible through `_djconnect._tcp` while Home Assistant cannot reach the advertised Client adres or `/api/device/pairing-info`.
-- Current mitigation: Discovery validates app-like client types including `client_type=raspberry_pi` and `client_type=windows` against stable IDs such as `djconnect-raspberry-pi-XXXXXXXXXXXX` and `djconnect-windows-XXXXXXXXXXXX`, uses TXT `local_url` or resolved address/port, probes `/api/device/pairing-info`, pre-fills confirmed metadata, and shows a translated pairing-info reachability error when TXT is visible but the endpoint is not reachable.
+- Current mitigation: Discovery validates app-like client types including
+  `client_type=raspberry_pi` and `client_type=windows` against stable IDs such
+  as `djconnect-raspberry-pi-XXXXXXXXXXXX` and `djconnect-windows-XXXXXXXXXXXX`,
+  uses TXT `local_url` or resolved address/port, probes
+  `/api/device/pairing-info`, pre-fills confirmed metadata, and keeps an
+  mDNS-visible but unreachable Pi as a marked discovery choice so the translated
+  pairing-info reachability error can guide manual Client adres correction.
+  Automated tests cover TXT parsing, pairing-info override, unreachable probe
+  marking and duplicate stable-ID prevention.
 - Next action: Test on the real Pi client/network that the advertised Client adres is reachable from Home Assistant and that pairing-info returns device ID, client type, name, pair code, version and paired state.
 
 ### Home Assistant restart is still required after HACS update
