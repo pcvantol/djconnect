@@ -24,7 +24,7 @@ Lees eerst:
 
 Belangrijke huidige status:
 - Project: DJConnect Home Assistant custom integration, domain `djconnect`.
-- Laatste release: `3.2.0`.
+- Laatste release: `3.2.3`.
 - Repo is public en MIT-licensed.
 - Alle DJConnect repos zijn MIT-licensed, tenzij een specifieke third-party dependency anders vermeldt.
 - `FIRMWARE-LICENSE.md` is verwijderd.
@@ -45,7 +45,7 @@ Belangrijke huidige status:
   - `ESP32 device WiFi configureren (via Bluetooth)`.
 - ESP32 en Raspberry Pi blijven local-only; iOS, macOS en Windows zijn remote-capable na lokale pairing; watchOS loopt via iPhone proxy en krijgt geen eigen HA-direct pairingcontract.
 - `/api/device/*` is alleen voor ESP32/Raspberry Pi lokale device API. App clients bellen HA via `/api/djconnect/...`; HA probeert app clients niet lokaal terug te bellen.
-- `3.2.0` introduceert `custom_components/djconnect/use_cases.py` als dunne DJConnect use-case laag met `MusicBackend` capabilities. Spotify Direct is de default backend-adapter. Music Assistant is beschikbaar als kleine adapter via een gekozen HA `media_player`, niet als DJConnect-side provider registry, library index, queue engine, grouping/sync engine of Music Assistant light.
+- De `3.2.x` lijn introduceert `custom_components/djconnect/use_cases.py` als dunne DJConnect use-case laag met `MusicBackend` capabilities. Spotify Direct is de default backend-adapter. Music Assistant is beschikbaar als kleine adapter via een gekozen HA `media_player`, niet als DJConnect-side provider registry, library index, queue engine, grouping/sync engine of Music Assistant light.
 - Config-flow kiest nu expliciet `Spotify Direct` of `Music Assistant`, zonder Auto. Spotify Direct gebruikt DJConnect PKCE OAuth en Spotify repairs. Music Assistant vereist geen DJConnect Spotify Client ID/OAuth; Music Assistant beheert provider-auth, DJConnect valideert dat MA beschikbaar is en bewaart de gekozen target player.
 - Options-flow heeft expliciet `Muziekbackend wijzigen` / `Change music backend`: wisselen bewaart pairing, device tokens, Ask DJ history, Music DNA en pushregistraties, verhoogt `music_backend_revision`, verbergt Spotify reauthorize bij actieve Music Assistant en maakt oude backend-specifieke pending playback actions stale.
 - Pair/status/command responses bevatten backend summary velden: `music_backend`, `music_backend_name`, `music_backend_available`, `music_backend_revision`, `music_backend_capabilities`, `music_target_player` en veilige `music_backend_error`. `playback_actions[]` zijn backend-aware met backend/provider/revision; stale actions geven `stale_backend_action`, unsupported backend features geven `unsupported_backend_capability`.

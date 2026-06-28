@@ -34,7 +34,7 @@ instead of storing their own copy.
 ## Current Protocol Line
 
 The current shared protocol/release line is `3.2.x`; this bundle was last
-aligned after Home Assistant integration release `v3.2.0`. DJConnect clients on the
+aligned after Home Assistant integration release `v3.2.3`. DJConnect clients on the
 `3.2.x` line are compatible with Home Assistant integration versions `>=3.2.0`
 and `<3.3.0`.
 
@@ -50,6 +50,15 @@ and `<3.3.0`.
   pairing contract.
 - Remote pairing is not allowed. Token bootstrap always happens locally.
 - ESP32 and Raspberry Pi must never receive `ha_remote_url`.
+- Local app clients may optionally use Home Assistant's native
+  `/api/websocket` as a low-latency fast path after normal local pairing and HA
+  websocket auth. Capability-detect with `djconnect/capabilities`, then use
+  `djconnect/command`, `djconnect/ask_dj/message` and
+  `djconnect/track_insight` only when advertised. Payloads reuse the matching
+  HTTP contracts and still include the DJConnect `device_token`, `device_id`
+  and canonical `client_type`; HTTP remains canonical fallback for remote
+  access, pairing, history clear/sync, voice uploads, image/TTS URLs and every
+  websocket timeout/error/disconnect.
 
 3.2 backend abstraction contract:
 
@@ -215,7 +224,7 @@ Requirements:
   text, TTS or local audio. Informational text chat is text-only by default;
   replay is shown only when an audio response exists.
 - Keep Ask DJ requirements visible and user-facing: Home Assistant, HACS
-  DJConnect integration v3.2.0 or newer, an Assist pipeline with STT/TTS for
+  DJConnect integration v3.2.3 or newer, an Assist pipeline with STT/TTS for
   voice/audio, and one selected music backend. Spotify Direct requires Spotify
   Premium, the user's own Spotify Developer app with Client ID and preferably
   Nabu Casa or another stable HTTPS external URL for Spotify OAuth. Music
@@ -954,7 +963,7 @@ Manifestvorm:
   "version_tag": "v3.2.x",
   "channel": "stable",
   "min_ha_integration": "3.1.0",
-  "max_ha_integration": "3.2.0",
+  "max_ha_integration": "3.3.0",
   "firmwares": [
     {
       "board": "t_embed_cc1101",

@@ -86,7 +86,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"pair_code\": \"{{pair_code}}\",\n  \"pairing_code\": \"{{pair_code}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"platform\": \"{{client_type}}\",\n  \"device_id\": \"{{device_id}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"firmware\": \"3.2.0\",\n  \"app_version\": \"3.2.0\"\n}"
+              "raw": "{\n  \"pair_code\": \"{{pair_code}}\",\n  \"pairing_code\": \"{{pair_code}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"platform\": \"{{client_type}}\",\n  \"device_id\": \"{{device_id}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"firmware\": \"3.2.3\",\n  \"app_version\": \"3.2.3\"\n}"
             },
             "url": {
               "raw": "{{ha_base_url}}/api/djconnect/pair",
@@ -127,7 +127,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"platform\": \"{{client_type}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"firmware\": \"3.2.0\",\n  \"app_version\": \"3.2.0\",\n  \"battery_percent\": 86,\n  \"mood\": 42,\n  \"mood_zone\": \"groove\",\n  \"dj_style\": \"warm_radio_dj\",\n  \"music_dna_key\": \"{{music_dna_key}}\"\n}"
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"platform\": \"{{client_type}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"firmware\": \"3.2.3\",\n  \"app_version\": \"3.2.3\",\n  \"battery_percent\": 86,\n  \"mood\": 42,\n  \"mood_zone\": \"groove\",\n  \"dj_style\": \"warm_radio_dj\",\n  \"music_dna_key\": \"{{music_dna_key}}\"\n}"
             },
             "url": {
               "raw": "{{ha_base_url}}/api/djconnect/status",
@@ -716,7 +716,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"device_id\": \"djconnect-ios-ABCDEFGHIJKL\",\n  \"client_type\": \"ios\",\n  \"push_token\": \"apns-token-from-client\",\n  \"bootstrap_proof\": \"replace-with-short-lived-bootstrap-proof\",\n  \"push_environment\": \"sandbox\",\n  \"app_bundle_id\": \"dev.djconnect.app\",\n  \"app_version\": \"3.2.0\",\n  \"locale\": \"nl-NL\",\n  \"notification_categories\": [\n    \"ask_dj_response\",\n    \"ask_dj_confirm\",\n    \"playback_change\"\n  ]\n}"
+              "raw": "{\n  \"device_id\": \"djconnect-ios-ABCDEFGHIJKL\",\n  \"client_type\": \"ios\",\n  \"push_token\": \"apns-token-from-client\",\n  \"bootstrap_proof\": \"replace-with-short-lived-bootstrap-proof\",\n  \"push_environment\": \"sandbox\",\n  \"app_bundle_id\": \"dev.djconnect.app\",\n  \"app_version\": \"3.2.3\",\n  \"locale\": \"nl-NL\",\n  \"notification_categories\": [\n    \"ask_dj_response\",\n    \"ask_dj_confirm\",\n    \"playback_change\"\n  ]\n}"
             },
             "url": {
               "raw": "{{ha_base_url}}/api/djconnect/push/register",

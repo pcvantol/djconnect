@@ -4,12 +4,14 @@
 
 - Repository: `pcvantol/djconnect`.
 - Integration domain: `djconnect`.
-- Current integration release: `3.2.0`.
-- Release status: DJConnect `3.2.0` starts the future-proof transport,
-  pairing and backend abstraction model: ESP32/Raspberry Pi stay local devices,
-  iOS/macOS/Windows become inbound-only remote-capable apps after local
-  pairing, and playback uses an explicit Spotify Direct or Music Assistant
-  backend choice.
+- Current integration release: `3.2.3`.
+- Release status: DJConnect `3.2.3` adds the optional local Home Assistant
+  websocket fast path for command, Ask DJ message and Track Insight requests
+  while preserving HTTP as the canonical fallback. The `3.2.x` line also starts
+  the future-proof transport, pairing and backend abstraction model:
+  ESP32/Raspberry Pi stay local devices, iOS/macOS/Windows become inbound-only
+  remote-capable apps after local pairing, and playback uses an explicit Spotify
+  Direct or Music Assistant backend choice.
 - 3.2 work has introduced an internal DJConnect use-case layer plus
   `MusicBackend` capability abstraction. Spotify Direct is the default backend
   adapter; Music Assistant is a small HA `media_player` adapter, not a
@@ -272,15 +274,16 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 ## Current Release Notes
 
 - Current release line is `3.2.x`; only the latest GitHub release/tag should be kept after release cleanup.
-- Current latest baseline is `3.2.0`.
+- Current latest baseline is `3.2.3`.
 - Release workflow expectation: before every release, review and update all repo documentation affected by the change or release, including `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant `examples/*`. Explicitly decide whether test coverage must be expanded for the change; add coverage for new behavior paths, regression risks, translations, config/options-flow base/EN/NL keysets, stale `data_description` keys, diagnostics/log redaction and edge cases. Keep `tests.test_postman_collection` aligned with the Postman examples so CI validates collection schema, auth headers, placeholders and client identity. After publishing a release, clean up old completed GitHub Actions workflow runs, keeping only the newest release/tag validation and newest `main` validation unless debugging requires more history. Also clean up old semver releases/tags with `./cleanup_old_releases.sh --keep 1 --execute` unless multiple releases are intentionally retained.
 - Before build/test/release validation, check whether third-party libraries, frameworks and build tools can be safely upgraded. If any version is upgraded, update lockfiles/manifests, `THIRD_PARTY_NOTICES.md` and dependency/design documentation in the same release. If an upgrade is skipped, record the reason here.
-- For the current `3.2.0` release, no pinned Python package versions were
-  upgraded. The current line adds capability-aware local/remote HA URL payloads
-  and splits app pairing from ESP32/Raspberry Pi local-device pairing. It also
-  adds the use-case/backend adapter boundary for Spotify Direct while preserving
-  the 3.1.x Ask DJ, Spotify OAuth, backend entity, recent-played, diagnostics
-  and metadata-provider hardening.
+- For the current `3.2.3` release, no pinned Python package versions were
+  upgraded. The current line adds capability-aware local/remote HA URL payloads,
+  splits app pairing from ESP32/Raspberry Pi local-device pairing, adds the
+  use-case/backend adapter boundary for Spotify Direct and now exposes optional
+  local websocket fast-path routes for command, Ask DJ message and Track
+  Insight while preserving the 3.1.x Ask DJ, Spotify OAuth, backend entity,
+  recent-played, diagnostics and metadata-provider hardening.
   `THIRD_PARTY_NOTICES.md` did not require dependency updates for these changes.
 - AI-assisted/Codex development hygiene is now documented in
   `CONTRIBUTING.md`, `SECURITY.md` and `CHAT_BOOTSTRAP.md`; accepted changes
