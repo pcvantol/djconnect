@@ -4,11 +4,13 @@
 
 - Repository: `pcvantol/djconnect`.
 - Integration domain: `djconnect`.
-- Current integration release: `3.2.3`.
-- Release status: DJConnect `3.2.3` adds the optional local Home Assistant
-  websocket fast path for command, Ask DJ message and Track Insight requests
-  while preserving HTTP as the canonical fallback. The `3.2.x` line also starts
-  the future-proof transport, pairing and backend abstraction model:
+- Current integration release: `3.2.5`.
+- Release status: DJConnect `3.2.5` keeps the `3.2.x` transport, pairing and
+  backend abstraction model while refactoring Ask DJ, HTTP/websocket transport
+  helpers, playback-action shaping and config-flow helpers into smaller focused
+  modules. The public `custom_components.djconnect.ask_dj` import path remains
+  compatible, and provider-neutral recommendation/profile payloads now use
+  `listening_profile` with a temporary legacy `spotify_profile` alias.
   ESP32/Raspberry Pi stay local devices, iOS/macOS/Windows become inbound-only
   remote-capable apps after local pairing, and playback uses an explicit Spotify
   Direct or Music Assistant backend choice.
@@ -34,13 +36,14 @@
   `unsupported_backend_capability` instead of raw backend exceptions.
 - Local app clients may use Home Assistant's native `/api/websocket` as an
   optional command fast path with `djconnect/capabilities` and
-  `djconnect/command`, `djconnect/ask_dj/message` and
-  `djconnect/track_insight`. Websocket payloads reuse the matching HTTP
-  contracts and still require the DJConnect device token, `device_id` and
-  canonical `client_type`; that device token is checked after Home Assistant's
-  own websocket auth succeeds and must not be treated as the HA websocket login
-  token. HTTP remains the canonical fallback for remote access, pairing,
-  history clear/sync, voice uploads, image/TTS URLs and transport failures.
+  `djconnect/command`, Ask DJ message/history/clear/state/idle-suggestion,
+  `djconnect/track_insight` and
+  `djconnect/music_dna/{profile,settings,clear}`. Websocket payloads reuse the
+  matching HTTP contracts and still require the DJConnect device token,
+  `device_id` and canonical `client_type`; that device token is checked after
+  Home Assistant's own websocket auth succeeds and must not be treated as the
+  HA websocket login token. HTTP remains the canonical fallback for remote
+  access, pairing, voice uploads, image/TTS URLs and transport failures.
 - Reusable Ask DJ Play Now backend metadata is shaped through the use-case layer;
   new action responses should not rebuild backend/provider/revision/value
   envelopes directly in Ask DJ.
@@ -107,7 +110,7 @@ DJConnect ESP device
 All protected ESP -> HA routes use:
 
 - `Authorization: Bearer <device_token>`
-- `X-DJConnect-Device-ID: djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX` or `djconnect-esp32-s3-box-3-XXXXXXXXXXXX`
+- `X-DJConnect-Device-ID: djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX`
 
 Version contract:
 
@@ -179,9 +182,23 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
   pairing, explicit re-pair/token rotation or stale-pairing recovery. Startup
   with a stored token, normal status sync, playback commands and settings sync
   must not call it.
-- Setup-code pairing can start with a temporary six-digit identity, but HA must learn and persist only the real model-specific device ID from the first authenticated ESP call. Current ESP IDs are `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX` and `djconnect-esp32-s3-box-3-XXXXXXXXXXXX`; app/client IDs are `djconnect-ios-XXXXXXXXXXXX`, `djconnect-macos-XXXXXXXXXXXX`, `djconnect-watchos-XXXXXXXXXXXX`, `djconnect-raspberry-pi-XXXXXXXXXXXX` and `djconnect-windows-XXXXXXXXXXXX`. Legacy `djconnect-XXXXXXXXXXXX` IDs are not accepted.
+- Setup-code pairing can start with a temporary six-digit identity, but HA must learn and persist only the real model-specific device ID from the first authenticated ESP call. Current ESP ID is `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX`; app/client IDs are `djconnect-ios-XXXXXXXXXXXX`, `djconnect-macos-XXXXXXXXXXXX`, `djconnect-watchos-XXXXXXXXXXXX`, `djconnect-raspberry-pi-XXXXXXXXXXXX` and `djconnect-windows-XXXXXXXXXXXX`. Legacy `djconnect-XXXXXXXXXXXX` IDs are not accepted.
 - `client_type` must match the device-id prefix: `ios` with `djconnect-ios-*`, `macos` with `djconnect-macos-*`, `watchos` with `djconnect-watchos-*`, `raspberry_pi` with `djconnect-raspberry-pi-*`, `windows` with `djconnect-windows-*`, and `esp32` with ESP model-specific IDs.
-- Ask DJ / Music DNA is server-side in the Home Assistant integration. iOS, macOS, watchOS, Raspberry Pi and Windows clients remain lightweight and store no Music DNA. HA keeps runtime session history plus persistent Store data under `djconnect_music_dna` version `1`, keyed by HA user id when available and otherwise by DJConnect device/client id. ESP32 does not get Ask DJ chat UI/history; it keeps the existing voice/playback command flow. Do not store OAuth tokens, bearer tokens, raw audio or full prompts in memory.
+- Ask DJ / Music DNA is server-side in the Home Assistant integration. iOS,
+  macOS, watchOS, Raspberry Pi and Windows clients remain lightweight and store
+  no Music DNA. HA keeps runtime session history plus persistent Store data
+  under `djconnect_music_dna` version `1`, keyed by HA user id when available
+  and otherwise by DJConnect device/client id. Music DNA knowledge collection is
+  explicit opt-in: while disabled, HA must not build new DNA knowledge from Ask
+  DJ, listening profiles, recent tracks or preferences. Clients use
+  `POST /api/djconnect/music_dna/profile`, `/settings` and `/clear` for the
+  first-class Music DNA screen, opt-in/out and user-initiated clearing. Clear
+  preserves the opt-in setting and enabled profiles begin learning again from
+  empty data. HA also exposes `djconnect.music_dna_profile`,
+  `djconnect.set_music_dna_enabled`, `djconnect.clear_music_dna` and read-only
+  AI tool `djconnect_music_dna_profile`. ESP32 does not get Ask DJ chat
+  UI/history; it keeps the existing voice/playback command flow. Do not store
+  OAuth tokens, bearer tokens, raw audio or full prompts in memory.
 - Text chat for app/display Ask DJ uses `POST /api/djconnect/ask_dj/message` from iOS, macOS, watchOS, Raspberry Pi and Windows; service `djconnect.ask_dj` remains a developer entrypoint. The backend classifies informational questions separately from playback/device actions, so questions such as "Waarom koos je dit nummer?" must not change playback while requests such as "Volgende nummer" or "Zet rustige muziek op" can execute Spotify/Home Assistant actions and return a DJ response.
 - Cross-device Ask DJ history is stored in Home Assistant Store key `djconnect_ask_dj_history` version `1`, scoped by HA user id. iOS, macOS, Apple Watch, Raspberry Pi and Windows clients use `GET /api/djconnect/ask_dj/history?since_revision=<number>` and `POST /api/djconnect/ask_dj/history/clear` to reconcile local cache. `client_message_id` dedupes retries; `client_id` and `client_type` are metadata only.
 - `API_CONTRACT.md` is the compact client-facing contract for Ask DJ mood-zones, history retention and smart-home context; keep it in sync with README and SYNC_PROMPTS.
@@ -265,7 +282,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - DJ response TTS is returned to ESP as text and optional temporary WAV/MP3 `audio_url`.
 - Device setting entities accept firmware aliases such as `brightness`, `screen_brightness`, `cue_volume`, `speaker_volume`, `screen_dim_timeout_ms` and `turn_off_after_ms`.
 - `number.djconnect_volume` and other numbers must publish `None/unavailable`, not invalid values outside HA ranges.
-- Firmware assets are device-specific, e.g. `djconnect-lilygo-t-embed-s3-vX.Y.Z.bin` and `djconnect-esp32-s3-box-3-vX.Y.Z.bin`. HA selects the matching `firmwares[]` manifest entry and sends that entry's `device` as the OTA target.
+- Firmware asset is `djconnect-lilygo-t-embed-s3-vX.Y.Z.bin`. HA selects the matching `firmwares[]` manifest entry and sends that entry's `device` as the OTA target.
 - Secrets, raw prompts, raw audio, Ask DJ history and Music DNA dumps must not
   appear in logs, diagnostics or state attributes. Redaction covers key aliases
   containing `token`, `password`, `secret`, `proof`, `authorization`, `prompt`,
@@ -275,16 +292,18 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 ## Current Release Notes
 
 - Current release line is `3.2.x`; only the latest GitHub release/tag should be kept after release cleanup.
-- Current latest baseline is `3.2.3`.
+- Current latest baseline is `3.2.5`.
 - Release workflow expectation: before every release, review and update all repo documentation affected by the change or release, including `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant `examples/*`. Explicitly decide whether test coverage must be expanded for the change; add coverage for new behavior paths, regression risks, translations, config/options-flow base/EN/NL keysets, stale `data_description` keys, diagnostics/log redaction and edge cases. Keep `tests.test_postman_collection` aligned with the Postman examples so CI validates collection schema, auth headers, placeholders and client identity. After publishing a release, clean up old completed GitHub Actions workflow runs, keeping only the newest release/tag validation and newest `main` validation unless debugging requires more history. Also clean up old semver releases/tags with `./cleanup_old_releases.sh --keep 1 --execute` unless multiple releases are intentionally retained. Keep any branch-protection/admin override explicit and manual; do not automate required-review disablement or protection changes in `release.sh`.
 - Before build/test/release validation, check whether third-party libraries, frameworks and build tools can be safely upgraded. If any version is upgraded, update lockfiles/manifests, `THIRD_PARTY_NOTICES.md` and dependency/design documentation in the same release. If an upgrade is skipped, record the reason here.
-- For the current `3.2.3` release, no pinned Python package versions were
+- For the current `3.2.5` release, no pinned Python package versions were
   upgraded. The current line adds capability-aware local/remote HA URL payloads,
   splits app pairing from ESP32/Raspberry Pi local-device pairing, adds the
-  use-case/backend adapter boundary for Spotify Direct and now exposes optional
-  local websocket fast-path routes for command, Ask DJ message and Track
-  Insight while preserving the 3.1.x Ask DJ, Spotify OAuth, backend entity,
-  recent-played, diagnostics and metadata-provider hardening.
+  use-case/backend adapter boundary for Spotify Direct, exposes optional local
+  websocket fast-path routes for command, Ask DJ message/history/idle
+  suggestion, Track Insight and Music DNA profile/settings/clear, and refactors
+  Ask DJ/transport/action/config-flow internals while preserving the
+  3.1.x Ask DJ, Spotify OAuth, backend entity, recent-played, diagnostics and
+  metadata-provider hardening.
   `THIRD_PARTY_NOTICES.md` did not require dependency updates for these changes.
 - AI-assisted/Codex development hygiene is now documented in
   `CONTRIBUTING.md`, `SECURITY.md` and `CHAT_BOOTSTRAP.md`; accepted changes
@@ -331,7 +350,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Firmware channel is a user-facing options-flow dropdown: `stable` uses GitHub `/releases/latest`; `beta` uses the newest prerelease from `pcvantol/djconnect-firmware`. Firmware repo/device remain automatic and hidden.
 - Sensor entities are push-only through runtime listeners. `last_command` and `last_track` additionally write HA state only when their cached value or relevant debug attributes actually change.
 - Spotify repair OAuth popups use the explicit `authorize` repair external step plus title/description placeholders so Home Assistant does not show a blank dialog when opening the website.
-- Strict current ESP device identity is model-specific: `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX` or `djconnect-esp32-s3-box-3-XXXXXXXXXXXX`; legacy `djconnect-XXXXXXXXXXXX` IDs are not accepted.
+- Strict current ESP device identity is model-specific: `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX`; legacy `djconnect-XXXXXXXXXXXX` IDs are not accepted.
 - If ESP status/command/voice auth returns `401`, HA must log the received device id, known device id, client type, token-present flag and rejection reason without logging token values.
 - HA blocks ESP calls with HTTP `426` `version_mismatch` when HA and ESP firmware `major.minor` differ, while preserving pairing/token state.
 - ESP status payloads are merged as partial updates, so sparse heartbeat/status posts do not clear known HA sensor values.

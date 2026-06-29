@@ -78,6 +78,9 @@ from .http import (
     DJConnectAskDjView,
     DJConnectEventView,
     DJConnectImageProxyView,
+    DJConnectMusicDnaClearView,
+    DJConnectMusicDnaProfileView,
+    DJConnectMusicDnaSettingsView,
     DJConnectPairView,
     DJConnectPushRegisterView,
     DJConnectPushUnregisterView,
@@ -1183,6 +1186,31 @@ DEVELOPER_SERVICE_SCHEMAS = {
             vol.Optional("locale"): str,
         }
     ),
+    "music_dna_profile": _developer_service_schema(
+        {
+            vol.Optional("music_dna_key"): str,
+            vol.Optional("client_type"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("device_name"): str,
+        }
+    ),
+    "set_music_dna_enabled": _developer_service_schema(
+        {
+            vol.Required("enabled"): bool,
+            vol.Optional("music_dna_key"): str,
+            vol.Optional("client_type"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("device_name"): str,
+        }
+    ),
+    "clear_music_dna": _developer_service_schema(
+        {
+            vol.Optional("music_dna_key"): str,
+            vol.Optional("client_type"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("device_name"): str,
+        }
+    ),
     "clear_ask_dj_history": _developer_service_schema(
         {
             vol.Optional("music_dna_key"): str,
@@ -1334,6 +1362,9 @@ def register_http_views(hass: HomeAssistant) -> None:
             DJConnectPairView(hass),
             DJConnectStatusView(hass),
             DJConnectTrackInsightView(hass),
+            DJConnectMusicDnaProfileView(hass),
+            DJConnectMusicDnaSettingsView(hass),
+            DJConnectMusicDnaClearView(hass),
             DJConnectEventView(hass),
             DJConnectTtsView(hass),
             DJConnectImageProxyView(hass),
@@ -1744,6 +1775,34 @@ def _register_developer_services(
         except TrackInsightError as exc:
             return exc.as_dict()
 
+    async def handle_music_dna_profile(call: ServiceCall) -> dict[str, Any]:
+        memory = getattr(runtime, "memory", None)
+        if memory is None:
+            raise RuntimeError("DJConnect Music DNA manager is unavailable")
+        user_id = call.data.get("user_id") or getattr(getattr(call, "context", None), "user_id", None)
+        return await memory.async_profile(runtime, dict(call.data), user_id=user_id)
+
+    async def handle_set_music_dna_enabled(call: ServiceCall) -> dict[str, Any]:
+        memory = getattr(runtime, "memory", None)
+        if memory is None:
+            raise RuntimeError("DJConnect Music DNA manager is unavailable")
+        user_id = call.data.get("user_id") or getattr(getattr(call, "context", None), "user_id", None)
+        return await memory.async_set_enabled(
+            runtime,
+            bool(call.data.get("enabled")),
+            dict(call.data),
+            user_id=user_id,
+        )
+
+    async def handle_clear_music_dna(call: ServiceCall) -> dict[str, Any]:
+        memory = getattr(runtime, "memory", None)
+        if memory is None:
+            raise RuntimeError("DJConnect Music DNA manager is unavailable")
+        user_id = call.data.get("user_id") or getattr(getattr(call, "context", None), "user_id", None)
+        context = await memory.async_context_for_runtime(runtime, dict(call.data), user_id=user_id)
+        await memory.async_clear(context.get("music_dna_key") or call.data.get("music_dna_key"))
+        return await memory.async_profile(runtime, dict(call.data), user_id=user_id)
+
     async def handle_clear_ask_dj_history(call: ServiceCall) -> dict[str, Any]:
         history = getattr(runtime, "ask_dj_history", None)
         if history is None:
@@ -1789,6 +1848,9 @@ def _register_developer_services(
         "forget_device": (handle_forget_device, "optional"),
         "ask_dj": (handle_ask_dj, "optional"),
         "track_insight": (handle_track_insight, "optional"),
+        "music_dna_profile": (handle_music_dna_profile, "optional"),
+        "set_music_dna_enabled": (handle_set_music_dna_enabled, "optional"),
+        "clear_music_dna": (handle_clear_music_dna, "optional"),
         "clear_ask_dj_history": (handle_clear_ask_dj_history, "optional"),
         "ask_dj_history_state": (handle_ask_dj_history_state, "optional"),
     }

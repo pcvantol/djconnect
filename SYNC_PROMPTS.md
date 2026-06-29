@@ -34,7 +34,7 @@ instead of storing their own copy.
 ## Current Protocol Line
 
 The current shared protocol/release line is `3.2.x`; this bundle was last
-aligned after Home Assistant integration release `v3.2.3`. DJConnect clients on the
+aligned after Home Assistant integration release `v3.2.5`. DJConnect clients on the
 `3.2.x` line are compatible with Home Assistant integration versions `>=3.2.0`
 and `<3.3.0`.
 
@@ -68,6 +68,9 @@ and `<3.3.0`.
   agent, HA services and future AI tools should route music actions through the
   DJConnect use-case layer.
 - Spotify Direct remains the default backend through a `MusicBackend` adapter.
+- Provider-neutral recommendation/profile payloads should use
+  `listening_profile`; `spotify_profile` is retained only as a temporary legacy
+  alias for older clients.
 - Music Assistant support is a small backend adapter over a configured Home
   Assistant `media_player`. It is not a DJConnect-side Music Assistant clone,
   provider registry, universal library index, queue engine or grouping/sync
@@ -226,7 +229,7 @@ Requirements:
   text, TTS or local audio. Informational text chat is text-only by default;
   replay is shown only when an audio response exists.
 - Keep Ask DJ requirements visible and user-facing: Home Assistant, HACS
-  DJConnect integration v3.2.3 or newer, an Assist pipeline with STT/TTS for
+  DJConnect integration v3.2.5 or newer, an Assist pipeline with STT/TTS for
   voice/audio, and one selected music backend. Spotify Direct requires Spotify
   Premium, the user's own Spotify Developer app with Client ID and preferably
   Nabu Casa or another stable HTTPS external URL for Spotify OAuth. Music
@@ -419,10 +422,15 @@ Requirements:
   at most one push per 30 seconds and five pushes per ten minutes per HA user
   plus device/client.
 - Ask DJ / Music DNA is server-side in the Home Assistant integration. iOS,
-  macOS, watchOS, Raspberry Pi and Windows clients must not store Music DNA; they may send optional
-  `mood` (0-100), `dj_style` and `music_dna_key` hints on status/voice/command
-  payloads, but HA may normalize or override the resolved `music_dna_key`. ESP32
-  is excluded from Ask DJ chat/history and keeps its voice/playback command flow.
+  macOS, watchOS, Raspberry Pi and Windows clients must not store Music DNA.
+  Music DNA is explicit opt-in; while disabled, HA must not build Music DNA
+  knowledge from Ask DJ, listening profiles, recent tracks or preferences.
+  Clients use `POST /api/djconnect/music_dna/profile`, `/settings` and
+  `/clear` to show structured DNA, enable/disable learning and clear learned DNA
+  at any time. Clients may send optional `mood` (0-100), `dj_style` and
+  `music_dna_key` hints on status/voice/command payloads, but HA may normalize
+  or override the resolved `music_dna_key`. ESP32 is excluded from Ask DJ
+  chat/history and keeps its voice/playback command flow.
 - Numeric `mood` remains the cross-client wire contract. HA maps it to
   DJConnect mood zones for prompts and recommendations: `chill` for `0`-`24`,
   `groove` for `25`-`59`, `energy` for `60`-`84`, `party` for `85`-`100`.
@@ -540,11 +548,10 @@ Requirements:
   require an official Home Assistant Spotify `media_player` entity. For Music
   Assistant playback, require a configured Music Assistant player and do not ask
   for DJConnect Spotify OAuth fields.
-- Pair app-like clients through POST /api/djconnect/pair. For Raspberry Pi, this is
-  the primary pairing path; do not try to call a Pi-local /api/device/pair
-  endpoint during initial pairing.
-- Pair ESP clients through their local /api/device/pair flow after resolving
-  /api/device/pairing-info and verifying the visible pair_code.
+- Pair app-like clients through POST /api/djconnect/pair.
+- Pair ESP32 and Raspberry Pi local-device clients through their local
+  /api/device/pair flow after resolving /api/device/pairing-info and verifying
+  the visible pair_code.
 - Accept stable device_id, device_name, client_type, firmware, app_version,
   platform and optional capabilities. Raspberry Pi status/pairing payloads may
   advertise capabilities such as touch=true, ask_dj_supported=true,
@@ -575,7 +582,8 @@ Requirements:
   service address/port or `local_url`, then always probe
   `GET /api/device/pairing-info` when the URL is reachable. Pairing-info is
   authoritative for `local_url`, `device_id`, `client_type`, `device_name`,
-  `pair_code`, `version/app_version/firmware` and `paired`.
+  `pair_code`/`pairing_code`, `pairing_path`, `pair_path`,
+  `version/app_version/firmware`, `api`, `model` and `paired`.
 - The HA pairing form must prefill Raspberry Pi `Client adres`,
   `client_type=raspberry_pi`, `device_name`, stable `device_id` and visible
   `pair_code` from pairing-info. If exactly one Pi is discovered, select it by
@@ -768,14 +776,17 @@ Requirements:
 - Keep one stable device_id per Pi installation across normal launches.
 - Use client_type raspberry_pi and device IDs shaped like
   djconnect-raspberry-pi-XXXXXXXXXXXX.
-- Treat the Pi as an app-like display remote, not ESP firmware.
-- Support both outbound POST /api/djconnect/pair and the app-like local Client
-  API URL flow. The Pi exposes GET /api/device/info,
-  GET /api/device/pairing-info, POST /api/device/pair,
-  POST /api/device/command and POST /api/device/forget.
+- Treat the Pi as an app-like display remote with a local-device pairing API,
+  not ESP firmware.
+- Support the local Client API URL flow used by HA for local-device clients.
+  The Pi exposes GET /api/device/info, GET /api/device/pairing-info,
+  POST /api/device/pair, POST /api/device/command and POST /api/device/forget.
 - Advertise `_djconnect._tcp` mDNS on the local Client API port with TXT records
-  including device_id, client_type=raspberry_pi, version, device_name and
-  local_url.
+  including name/device_name, device_id, client_type=raspberry_pi,
+  version/firmware/app_version, paired, api=/api/device, local_url,
+  pair_code/pairing_code, pairing_path, pair_path and model=raspberry_pi.
+- Validate the visible pair_code during POST /api/device/pair before storing
+  the per-device token and ha_local_url.
 - Store only the returned DJConnect bearer token plus ha_local_url.
 - Send status to POST /api/djconnect/status with device_id, device_name,
   client_type, version, firmware, ha_pairing_status and display-remote
@@ -2284,11 +2295,15 @@ Requirements:
   HACS must never contain `DJCONNECT_RELAY_SECRET` or any global
   relay/operator secret.
 - Ask DJ / Music DNA is server-side in the Home Assistant integration. iOS,
-  macOS, watchOS, Raspberry Pi and Windows clients must not store Music DNA; they may
-  send optional `mood` (0-100), `dj_style` and `music_dna_key` hints on
-  status/voice/command payloads, but HA may normalize or override the resolved
-  `music_dna_key`. ESP32 is excluded from Ask DJ chat/history and keeps its
-  voice/playback command flow.
+  macOS, watchOS, Raspberry Pi and Windows clients must not store Music DNA.
+  Music DNA is explicit opt-in; while disabled, HA must not build Music DNA
+  knowledge from Ask DJ, listening profiles, recent tracks or preferences.
+  Clients use `POST /api/djconnect/music_dna/profile`, `/settings` and
+  `/clear` to show structured DNA, enable/disable learning and clear learned DNA
+  at any time. Clients may send optional `mood` (0-100), `dj_style` and
+  `music_dna_key` hints on status/voice/command payloads, but HA may normalize
+  or override the resolved `music_dna_key`. ESP32 is excluded from Ask DJ
+  chat/history and keeps its voice/playback command flow.
 - Ask DJ chat history is server-side per HA user and bounded. iOS, macOS,
   watchOS, Raspberry Pi and Windows clients
   must use `history_revision`, `clear_revision`, `history_trimmed_before` and
@@ -2299,11 +2314,10 @@ Requirements:
   client-side. Raspberry Pi renders Ask DJ as `readonly_actions`: no free
   prompt controls, but HA-provided structured action buttons may be shown and
   sent through the normal command contract.
-- Pair app-like clients through POST /api/djconnect/pair. For Raspberry Pi, this is
-  the primary pairing path; do not try to call a Pi-local /api/device/pair
-  endpoint during initial pairing.
-- Pair ESP clients through their local /api/device/pair flow after resolving
-  /api/device/pairing-info and verifying the visible pair_code.
+- Pair app-like clients through POST /api/djconnect/pair.
+- Pair ESP32 and Raspberry Pi local-device clients through their local
+  /api/device/pair flow after resolving /api/device/pairing-info and verifying
+  the visible pair_code.
 - Accept stable device_id, device_name, client_type, firmware, app_version,
   platform and optional capabilities. Raspberry Pi status/pairing payloads may
   advertise capabilities such as touch=true, ask_dj_supported=true,
@@ -2329,7 +2343,8 @@ Requirements:
   service address/port or `local_url`, then always probe
   `GET /api/device/pairing-info` when the URL is reachable. Pairing-info is
   authoritative for `local_url`, `device_id`, `client_type`, `device_name`,
-  `pair_code`, `version/app_version/firmware` and `paired`.
+  `pair_code`/`pairing_code`, `pairing_path`, `pair_path`,
+  `version/app_version/firmware`, `api`, `model` and `paired`.
 - The HA pairing form must prefill Raspberry Pi `Client adres`,
   `client_type=raspberry_pi`, `device_name`, stable `device_id` and visible
   `pair_code` from pairing-info. If exactly one Pi is discovered, select it by
@@ -2516,14 +2531,17 @@ Requirements:
 - Keep one stable device_id per Pi installation across normal launches.
 - Use client_type raspberry_pi and device IDs shaped like
   djconnect-raspberry-pi-XXXXXXXXXXXX.
-- Treat the Pi as an app-like display remote, not ESP firmware.
-- Support both outbound POST /api/djconnect/pair and the app-like local Client
-  API URL flow. The Pi exposes GET /api/device/info, GET /api/device/pairing-info,
-  POST /api/device/pair, POST /api/device/command, POST /api/device/dj_response
-  and POST /api/device/forget.
+- Treat the Pi as an app-like display remote with a local-device pairing API,
+  not ESP firmware.
+- Support the local Client API URL flow used by HA for local-device clients.
+  The Pi exposes GET /api/device/info, GET /api/device/pairing-info,
+  POST /api/device/pair, POST /api/device/command and POST /api/device/forget.
 - Advertise `_djconnect._tcp` mDNS on the local Client API port with TXT records
-  including device_id, client_type=raspberry_pi, version, device_name and
-  local_url.
+  including name/device_name, device_id, client_type=raspberry_pi,
+  version/firmware/app_version, paired, api=/api/device, local_url,
+  pair_code/pairing_code, pairing_path, pair_path and model=raspberry_pi.
+- Validate the visible pair_code during POST /api/device/pair before storing
+  the per-device token and ha_local_url.
 - Store only the returned DJConnect bearer token plus ha_local_url.
 - Send status to POST /api/djconnect/status with device_id, device_name,
   client_type, version, firmware, ha_pairing_status and display-remote

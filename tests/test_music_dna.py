@@ -68,6 +68,7 @@ class MusicDNAManagerTest(unittest.TestCase):
             client_type="macos",
             device_name="Peter Mac",
         )
+        asyncio.run(manager.async_set_enabled(watch, True, {"client_type": "watchos"}, user_id="ha-user-1"))
 
         asyncio.run(
             manager.async_update_last_ask_dj(
@@ -106,6 +107,7 @@ class MusicDNAManagerTest(unittest.TestCase):
         store = FakeStore()
         manager = MusicDNAManager(store=store)
         runtime = runtime_for()
+        asyncio.run(manager.async_set_enabled(runtime, True))
 
         asyncio.run(
             manager.async_update_last_ask_dj(
@@ -148,6 +150,14 @@ class MusicDNAManagerTest(unittest.TestCase):
         store = FakeStore()
         manager = MusicDNAManager(store=store)
         runtime = runtime_for()
+        asyncio.run(
+            manager.async_set_enabled(
+                runtime,
+                True,
+                {"client_type": "watchos"},
+                user_id="ha-user-1",
+            )
+        )
 
         asyncio.run(
             manager.async_record_blocked_music_preference(
@@ -174,6 +184,7 @@ class MusicDNAManagerTest(unittest.TestCase):
         store = FakeStore()
         manager = MusicDNAManager(store=store)
         runtime = runtime_for()
+        asyncio.run(manager.async_set_enabled(runtime, True))
 
         asyncio.run(
             manager.async_append_runtime_message(
@@ -226,6 +237,7 @@ class MusicDNAManagerTest(unittest.TestCase):
         manager = MusicDNAManager(store=store)
         runtime = runtime_for()
         logger = logging.getLogger("custom_components.djconnect.music_dna")
+        asyncio.run(manager.async_set_enabled(runtime, True, {"client_type": "watchos"}))
 
         with self.assertLogs(logger, level="DEBUG") as captured:
             asyncio.run(
@@ -249,6 +261,67 @@ class MusicDNAManagerTest(unittest.TestCase):
         self.assertNotIn("secret-token", logs)
         self.assertNotIn("RAW VOICE TRANSCRIPT", logs)
         self.assertNotIn("token should not appear", logs)
+
+    def test_music_dna_requires_opt_in_before_building_knowledge(self) -> None:
+        store = FakeStore()
+        manager = MusicDNAManager(store=store)
+        runtime = runtime_for()
+
+        asyncio.run(
+            manager.async_update_last_ask_dj(
+                runtime,
+                input_text="Draai iets rustigers",
+                result={
+                    "intent": {"intent": "play_music"},
+                    "dj_text": "Ik kies iets zachts.",
+                    "playback": {"track": {"title": "Intro", "artist": "The xx"}},
+                },
+            )
+        )
+        disabled_profile = asyncio.run(manager.async_profile(runtime))
+
+        self.assertFalse(disabled_profile["enabled"])
+        self.assertEqual(disabled_profile["profile"], {})
+        self.assertNotIn("last_ask_dj", store.saved["memories"]["djconnect-watchos-8F3A2C91B45D"])
+
+        asyncio.run(manager.async_set_enabled(runtime, True))
+        asyncio.run(
+            manager.async_update_last_ask_dj(
+                runtime,
+                input_text="Draai iets rustigers",
+                result={
+                    "intent": {"intent": "play_music"},
+                    "dj_text": "Ik kies iets zachts.",
+                    "playback": {"track": {"title": "Intro", "artist": "The xx"}},
+                },
+            )
+        )
+        enabled_profile = asyncio.run(manager.async_profile(runtime))
+
+        self.assertTrue(enabled_profile["enabled"])
+        self.assertIn("recent_tracks", enabled_profile["profile"])
+
+    def test_clear_music_dna_preserves_opt_in_and_resets_profile(self) -> None:
+        manager = MusicDNAManager(store=FakeStore())
+        runtime = runtime_for()
+
+        asyncio.run(manager.async_set_enabled(runtime, True))
+        asyncio.run(
+            manager.async_update_last_ask_dj(
+                runtime,
+                input_text="Draai The xx",
+                result={
+                    "intent": {"intent": "play_music"},
+                    "dj_text": "Komt eraan.",
+                    "playback": {"track": {"title": "Intro", "artist": "The xx"}},
+                },
+            )
+        )
+        asyncio.run(manager.async_clear("djconnect-watchos-8F3A2C91B45D"))
+        profile = asyncio.run(manager.async_profile(runtime))
+
+        self.assertTrue(profile["enabled"])
+        self.assertEqual(profile["profile"]["summary"], "Music DNA is ingeschakeld, maar er is nog weinig profieldata opgebouwd.")
 
 
 if __name__ == "__main__":

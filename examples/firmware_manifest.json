@@ -1,24 +1,16 @@
 {
-  "version": "3.2.5",
-  "version_tag": "v3.2.5",
+  "version": "3.2.6",
+  "version_tag": "v3.2.6",
   "channel": "stable",
-  "min_ha_integration": "3.2.5",
+  "min_ha_integration": "3.2.6",
   "firmwares": [
     {
       "board": "t_embed_cc1101",
       "device": "lilygo-t-embed-s3",
-      "asset": "djconnect-lilygo-t-embed-s3-v3.2.5.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.2.5/djconnect-lilygo-t-embed-s3-v3.2.5.bin",
+      "asset": "djconnect-lilygo-t-embed-s3-v3.2.6.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.2.6/djconnect-lilygo-t-embed-s3-v3.2.6.bin",
       "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "size": 2113136
-    },
-    {
-      "board": "esp32_s3_box3",
-      "device": "esp32-s3-box-3",
-      "asset": "djconnect-esp32-s3-box-3-v3.2.5.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.2.5/djconnect-esp32-s3-box-3-v3.2.5.bin",
-      "sha256": "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210",
-      "size": 2097152
     }
   ],
   "notes": "Example DJConnect firmware release manifest. HA selects a firmwares[] entry and sends that entry's device as the OTA target."

@@ -24,7 +24,7 @@ Lees eerst:
 
 Belangrijke huidige status:
 - Project: DJConnect Home Assistant custom integration, domain `djconnect`.
-- Laatste release: `3.2.3`.
+- Laatste release: `3.2.5`.
 - Repo is public en MIT-licensed.
 - Alle DJConnect repos zijn MIT-licensed, tenzij een specifieke third-party dependency anders vermeldt.
 - `FIRMWARE-LICENSE.md` is verwijderd.
@@ -51,21 +51,32 @@ Belangrijke huidige status:
 - Pair/status/command responses bevatten backend summary velden: `music_backend`, `music_backend_name`, `music_backend_available`, `music_backend_revision`, `music_backend_capabilities`, `music_target_player` en veilige `music_backend_error`. `playback_actions[]` zijn backend-aware met backend/provider/revision; stale actions geven `stale_backend_action`, unsupported backend features geven `unsupported_backend_capability`.
 - Lokale app-clients kunnen optioneel de Home Assistant native websocket API
   gebruiken als fast path met `djconnect/capabilities` en
-  `djconnect/command`, `djconnect/ask_dj/message` en
-  `djconnect/track_insight`. Dit hergebruikt exact de equivalente HTTP
-  contracten inclusief DJConnect device token, `device_id` en canoniek
-  `client_type`; HTTP blijft canonical fallback voor remote access, pairing,
-  history clear/sync, voice uploads, image/TTS URLs en alle websocket
-  failures/timeouts.
+  `djconnect/command`, Ask DJ message/history/clear/state/idle-suggestion,
+  `djconnect/track_insight` en
+  `djconnect/music_dna/{profile,settings,clear}`. Dit hergebruikt exact de
+  equivalente HTTP contracten inclusief DJConnect device token, `device_id` en
+  canoniek `client_type`; HTTP blijft canonical fallback voor remote access,
+  pairing, voice uploads, image/TTS URLs en alle websocket failures/timeouts.
 - Ask DJ Play Now backend metadata loopt via de use-case laag; nieuwe response
   shaping moet backend/provider/revision/value velden daarvandaan halen en niet
   opnieuw Spotify-specifiek in Ask DJ opbouwen.
+- Music DNA is first-class en expliciet opt-in. Clients gebruiken
+  `POST /api/djconnect/music_dna/profile`, `/settings` en `/clear` voor
+  structured profile data, opt-in/out en wissen. Zolang Music DNA disabled is,
+  bouwt HA geen nieuwe kennis op uit Ask DJ, listening profiles, recente tracks
+  of voorkeuren. Clear behoudt de opt-in setting; als enabled waar blijft,
+  begint kennisopbouw daarna opnieuw vanaf leeg.
 - Diagnostics tonen `music_backend.selected` en capability flags. Voor Music Assistant staat `spotify_oauth.required=false` en worden Spotify OAuth/reauthorization repairs niet aangemaakt.
 - Diagnostics/logs redacteren key aliases met `token`, `password`, `secret`,
   `proof`, `authorization`, `prompt`, `history`, `memory` of `raw_audio`; raw
   prompts, raw audio, Ask DJ history en Music DNA dumps mogen niet in logs of
   diagnostics terechtkomen.
 - Nieuwe playback/control code mag niet rechtstreeks Spotify helpers aanroepen buiten de backend-adapter; routeer via de use-case laag.
+- De `3.2.5` release splitst Ask DJ, HTTP/websocket transporthelpers,
+  playback-action shaping en config-flow helpers in kleinere modules. Houd de
+  publieke `custom_components.djconnect.ask_dj` import compatibel en gebruik de
+  provider-neutrale `listening_profile` payloadnaam; `spotify_profile` is alleen
+  nog een tijdelijke legacy alias.
 - Compacte conversation-agent options-flow toont alleen actie en smart-home context allowlist; DJ response stijl/prompt is geen user-facing optie meer en volgt runtime client mood of de hardcoded default.
 - Verwijderde opties:
   - Spotify source override;

@@ -358,6 +358,136 @@ async def async_handle_track_insight_payload(
     return result, 200
 
 
+async def async_handle_ask_dj_idle_suggestion_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Return and append an Ask DJ idle suggestion for HTTP and websocket transports."""
+    headers = headers or {}
+    if not isinstance(data, dict):
+        return _error_payload("invalid_json"), 400
+    runtime = resolve_runtime(
+        hass,
+        data.get("device_id") or headers.get("X-DJConnect-Device-ID"),
+        headers,
+    )
+    if runtime is None:
+        return _error_payload("not_configured"), 503
+    client_type = validate_required_client_type(identity_payload(data))
+    if client_type is None:
+        return _error_payload("invalid_client_type"), 400
+    if not authorize_runtime_device_request(
+        runtime,
+        headers,
+        data.get("device_id"),
+        client_type,
+    ):
+        return _error_payload("unauthorized"), 401
+    payload = dict(data)
+    payload[CONF_CLIENT_TYPE] = client_type
+    payload = enrich_payload_with_mood_zone(payload)
+    result = await http_helpers.async_idle_suggestion(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+    )
+    if not result.get("success"):
+        return result, 500
+    sync = await _history_manager(hass, runtime).async_append_assistant_message(
+        user_id,
+        payload,
+        result,
+    )
+    return {**result, **sync}, 200
+
+
+async def async_handle_music_dna_profile_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Return the structured Music DNA profile for a client/user."""
+    runtime, payload, error = _music_dna_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    memory = getattr(runtime, "memory", None)
+    profile_getter = getattr(memory, "async_profile", None)
+    if not callable(profile_getter):
+        return _error_payload("music_dna_unavailable"), 503
+    return await profile_getter(runtime, payload, user_id=user_id), 200
+
+
+async def async_handle_music_dna_settings_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Update the Music DNA opt-in setting for a client/user."""
+    runtime, payload, error = _music_dna_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    if "enabled" not in payload:
+        return _error_payload("missing_enabled"), 400
+    memory = getattr(runtime, "memory", None)
+    setter = getattr(memory, "async_set_enabled", None)
+    if not callable(setter):
+        return _error_payload("music_dna_unavailable"), 503
+    return await setter(runtime, bool(payload.get("enabled")), payload, user_id=user_id), 200
+
+
+async def async_handle_music_dna_clear_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Clear Music DNA knowledge while preserving the current opt-in setting."""
+    runtime, payload, error = _music_dna_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    memory = getattr(runtime, "memory", None)
+    if memory is None or not callable(getattr(memory, "async_context_for_runtime", None)):
+        return _error_payload("music_dna_unavailable"), 503
+    context = await memory.async_context_for_runtime(runtime, payload, user_id=user_id)
+    key = context.get("music_dna_key") or payload.get("music_dna_key")
+    await memory.async_clear(str(key) if key else None)
+    return await memory.async_profile(runtime, payload, user_id=user_id), 200
+
+
+def _music_dna_runtime_payload(
+    hass: Any,
+    data: dict[str, Any],
+    headers: Any | None,
+) -> tuple[Any | None, dict[str, Any], tuple[dict[str, Any], int] | None]:
+    headers = headers or {}
+    if not isinstance(data, dict):
+        return None, {}, (_error_payload("invalid_json"), 400)
+    payload = dict(data)
+    identity = identity_payload(payload)
+    device_id = identity.get("device_id") or headers.get("X-DJConnect-Device-ID")
+    runtime = resolve_runtime(hass, device_id, headers)
+    if runtime is None:
+        return None, payload, (_error_payload("not_configured"), 503)
+    if not authorize_runtime_device_request(
+        runtime,
+        headers,
+        identity.get("device_id"),
+        payload_client_type(identity),
+    ):
+        return None, payload, (_error_payload("unauthorized"), 401)
+    payload.update({key: value for key, value in identity.items() if value})
+    return runtime, payload, None
+
+
 async def async_handle_ask_dj_history_payload(
     hass: Any,
     data: dict[str, Any],

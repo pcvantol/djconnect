@@ -403,7 +403,7 @@ class GithubFirmwareTest(unittest.TestCase):
             "lilygo.bin",
         )
 
-    def test_example_manifest_uses_multi_device_contract(self) -> None:
+    def test_example_manifest_uses_supported_device_contract(self) -> None:
         manifest = json.loads((ROOT / "examples" / "firmware_manifest.json").read_text())
 
         self.assertNotIn("asset", manifest)
@@ -411,18 +411,12 @@ class GithubFirmwareTest(unittest.TestCase):
         self.assertIsInstance(manifest["firmwares"], list)
 
         devices = {entry["device"] for entry in manifest["firmwares"]}
-        self.assertIn("lilygo-t-embed-s3", devices)
-        self.assertIn("esp32-s3-box-3", devices)
+        self.assertEqual(devices, {"lilygo-t-embed-s3"})
 
         lilygo = self.github._select_manifest_firmware(
             manifest,
             "lilygo-t-embed-s3",
         )
-        box3 = self.github._select_manifest_firmware(
-            manifest,
-            "esp32-s3-box-3",
-        )
-
         self.assertEqual(
             lilygo["asset"],
             f"djconnect-lilygo-t-embed-s3-v{manifest['version']}.bin",
@@ -430,15 +424,6 @@ class GithubFirmwareTest(unittest.TestCase):
         self.assertTrue(
             lilygo["url"].endswith(
                 f"/djconnect-lilygo-t-embed-s3-v{manifest['version']}.bin"
-            )
-        )
-        self.assertEqual(
-            box3["asset"],
-            f"djconnect-esp32-s3-box-3-v{manifest['version']}.bin",
-        )
-        self.assertTrue(
-            box3["url"].endswith(
-                f"/djconnect-esp32-s3-box-3-v{manifest['version']}.bin"
             )
         )
 

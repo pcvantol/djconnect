@@ -153,6 +153,7 @@ class ConversationAgentTest(unittest.TestCase):
             {
                 "djconnect_track_insight",
                 "djconnect_now_playing",
+                "djconnect_music_dna_profile",
                 "djconnect_music_dna_summary",
                 "djconnect_recently_played",
                 "djconnect_search_music",

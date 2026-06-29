@@ -3,14 +3,14 @@
     "step": {
       "user": {
         "title": "DJConnect instellen",
-        "description": "Kies de DJConnect DJ Assist-agent, koppel een lokaal DJConnect device (ESP32/Raspberry Pi) of koppel een DJConnect app (iOS/macOS/Windows).",
+        "description": "Kies de DJConnect DJ Assist-agent, koppel een lokaal DJConnect device (ESP32/Raspberry Pi) of koppel een DJConnect app (iPhone/Apple Watch/macOS/Windows).",
         "data": {
           "setup_method": "Setup methode"
         }
       },
       "pair": {
         "title": "DJConnect apparaat koppelen",
-        "description": "Voer de koppelcode in. Apps koppelen zelf lokaal met Home Assistant en hebben geen Client adres nodig. Voor ESP32 en Raspberry Pi kan Client adres als lokale advanced/fallback gebruikt worden. Spotify is een handelsmerk van Spotify AB. DJConnect is niet verbonden aan, goedgekeurd door of gesponsord door Spotify AB.",
+        "description": "Voor iPhone: scan de DJConnect QR-code met payload `{iphone_pairing_uri}`. Voor Apple Watch: scan op iPhone de Watch-proxy QR-code met payload `{watch_pairing_uri}` zodat de gekoppelde Watch pairt zonder HA URL-invoer. Voor macOS/Windows: voer Home Assistant URL `{ha_local_url}` en koppelcode `{pair_code}` in de app in. ESP32/Raspberry Pi tonen zelf een koppelcode; Client adres is alleen voor hun lokale API fallback. Spotify is een handelsmerk van Spotify AB. DJConnect is niet verbonden aan, goedgekeurd door of gesponsord door Spotify AB.",
         "data": {
           "pair_code": "Koppelcode",
           "device_name": "Apparaatnaam",
@@ -19,9 +19,9 @@
           "discovered_client": "Gevonden DJConnect client"
         },
         "data_description": {
-          "pair_code": "De 6-cijferige code of 12 tekens lange device-suffix op het apparaatdisplay.",
+          "pair_code": "Alleen voor ESP32/Raspberry Pi: de 6-cijferige code of 12 tekens lange device-suffix op het apparaatdisplay.",
           "device_name": "Leesbare naam voor deze DJConnect remote.",
-          "client_type": "Type DJConnect client: iOS app, macOS app, Windows app, Raspberry Pi client of ESP32 device. Apple Watch loopt via iPhone proxy en wordt niet apart gekoppeld.",
+          "client_type": "Type DJConnect client. iPhone en Apple Watch gebruiken QR/deep-link pairing; Apple Watch loopt via iPhone proxy. macOS en Windows gebruiken Home Assistant URL plus koppelcode.",
           "local_url": "Alleen voor ESP32/Raspberry Pi lokale device API fallback; laat leeg wanneer mDNS werkt.",
           "discovered_client": "Kies een automatisch gevonden DJConnect client om de koppelgegevens voor te vullen, of gebruik handmatige invoer."
         }
