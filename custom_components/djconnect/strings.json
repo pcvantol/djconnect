@@ -3,27 +3,35 @@
     "step": {
       "user": {
         "title": "DJConnect instellen",
-        "description": "Kies de DJConnect DJ Assist-agent, koppel een lokaal DJConnect device (ESP32/Raspberry Pi) of koppel een DJConnect app (iPhone/Apple Watch/macOS/Windows).",
+        "description": "Begin met de route die past bij je setup. Gebruik de Assist-agent zonder fysiek device, kies lokaal device voor ESP32/Raspberry Pi op je netwerk, of kies app voor iPhone, Apple Watch, macOS en Windows.",
         "data": {
           "setup_method": "Setup methode"
         }
       },
       "pair": {
-        "title": "DJConnect apparaat koppelen",
+        "title": "DJConnect device koppelen",
         "description": "Koppel een DJConnect client met Home Assistant.",
         "data": {
           "pair_code": "Koppelcode",
           "device_name": "Apparaatnaam",
           "client_type": "Clienttype",
           "local_url": "Client adres",
-          "discovered_client": "Gevonden DJConnect client"
+          "discovered_client": "Gevonden DJConnect client",
+          "app_pair_code": "Koppelcode voor apps",
+          "app_ha_local_url": "Home Assistant URL",
+          "app_iphone_pairing_uri": "iPhone QR/deep-link payload",
+          "app_watch_pairing_uri": "Apple Watch QR/deep-link payload"
         },
         "data_description": {
           "pair_code": "Alleen voor ESP32/Raspberry Pi: de 6-cijferige koppelcode op het DJConnect device.",
           "device_name": "Leesbare naam voor dit DJConnect apparaat.",
           "client_type": "Type DJConnect client. iPhone en Apple Watch gebruiken QR/deep-link pairing; Apple Watch loopt via iPhone proxy. macOS en Windows gebruiken Home Assistant URL plus koppelcode.",
           "local_url": "Alleen voor ESP32/Raspberry Pi lokale device API fallback; laat leeg wanneer mDNS werkt.",
-          "discovered_client": "Kies een automatisch gevonden DJConnect client om de koppelgegevens voor te vullen, of gebruik handmatige invoer."
+          "discovered_client": "Kies een automatisch gevonden DJConnect client om de koppelgegevens voor te vullen, of gebruik handmatige invoer.",
+          "app_pair_code": "Gebruik deze code in macOS/Windows, of laat iPhone/Apple Watch hem via de QR/deep-link payload overnemen.",
+          "app_ha_local_url": "Lokale Home Assistant URL die de app tijdens pairing gebruikt.",
+          "app_iphone_pairing_uri": "QR/deep-link payload voor de iPhone app.",
+          "app_watch_pairing_uri": "QR/deep-link payload die je op iPhone scant om de gekoppelde Apple Watch te pairen."
         }
       },
       "pair_local_device": {

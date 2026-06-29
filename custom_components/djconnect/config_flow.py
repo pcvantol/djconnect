@@ -6,7 +6,7 @@ import asyncio
 import inspect
 import logging
 import secrets
-from io import StringIO
+from io import BytesIO
 from types import SimpleNamespace
 from typing import Any
 from urllib.parse import quote, urlencode, urlparse
@@ -135,8 +135,7 @@ SETUP_METHOD_NAMES_EN = {
         "For Home Assistant Assist satellites."
     ),
     SETUP_METHOD_PAIR_LOCAL_DEVICE: (
-        "Pair DJConnect local device\n"
-        "ESP32 or Raspberry Pi on this LAN."
+        "Pair DJConnect device ESP32 or Raspberry Pi"
     ),
     SETUP_METHOD_PAIR_APP: (
         "Pair DJConnect app\n"
@@ -150,8 +149,7 @@ SETUP_METHOD_NAMES_NL = {
         "Voor Home Assistant Assist-satellites."
     ),
     SETUP_METHOD_PAIR_LOCAL_DEVICE: (
-        "DJConnect lokaal device koppelen\n"
-        "ESP32 of Raspberry Pi op dit LAN."
+        "DJConnect device koppelen ESP32 of Raspberry Pi"
     ),
     SETUP_METHOD_PAIR_APP: (
         "DJConnect app koppelen\n"
@@ -298,16 +296,20 @@ def _qr_svg_data_uri(value: str) -> str:
         import segno  # type: ignore[import-not-found]
     except Exception:  # noqa: BLE001
         return ""
-    out = StringIO()
-    segno.make(payload, error="m").save(
-        out,
-        kind="svg",
-        scale=4,
-        border=2,
-        xmldecl=False,
-        svgns=True,
-    )
-    return f"data:image/svg+xml;utf8,{quote(out.getvalue())}"
+    try:
+        out = BytesIO()
+        segno.make(payload, error="m").save(
+            out,
+            kind="svg",
+            scale=4,
+            border=2,
+            xmldecl=False,
+            svgns=True,
+        )
+        return f"data:image/svg+xml;utf8,{quote(out.getvalue().decode('utf-8'))}"
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect could not generate app pairing QR code: %s", exc)
+        return ""
 
 
 def _central_api_install_id(current: dict[str, Any]) -> str:
@@ -1287,11 +1289,6 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     def _pair_step_id(self) -> str:
         """Return the translated pair-step variant for the selected setup path."""
-        method = getattr(self, "_pairing_setup_method", "")
-        if method == SETUP_METHOD_PAIR_LOCAL_DEVICE:
-            return "pair_local_device"
-        if method == SETUP_METHOD_PAIR_APP:
-            return "pair_app"
         return "pair"
 
     async def async_step_pair_local_device(
@@ -1316,7 +1313,11 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return
         client_type = self._default_pair_client_type()
         pair_code = _generate_pair_code()
-        ha_local_url = await async_ha_local_url(getattr(self, "hass", None), {})
+        try:
+            ha_local_url = await async_ha_local_url(getattr(self, "hass", None), {})
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.debug("DJConnect could not determine app pairing HA URL: %s", exc)
+            ha_local_url = "http://homeassistant.local:8123"
         self._last_pair_code = pair_code
         self._discovered_defaults = {
             CONF_PAIR_CODE: pair_code,
@@ -1562,6 +1563,8 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_MUSIC_ASSISTANT_PLAYER: player,
                 }
                 self._spotify = {}
+                if getattr(self, "_conversation_agent_only", False):
+                    return self._create_conversation_agent_entry()
                 return await self.async_step_voice()
 
         return self.async_show_form(
@@ -1672,6 +1675,10 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             errors = self._handle_spotify_oauth_result(user_input)
             if not errors:
+                if getattr(self, "_conversation_agent_only", False):
+                    return self.async_external_step_done(
+                        next_step_id="finish_conversation_agent"
+                    )
                 return self.async_external_step_done(next_step_id="voice")
 
         if errors:
@@ -1726,7 +1733,31 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return {}
         except Exception:  # noqa: BLE001
             _LOGGER.exception("Spotify OAuth failed")
-            return {"base": "oauth_failed"}
+        return {"base": "oauth_failed"}
+
+    async def async_step_finish_conversation_agent(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> FlowResult:
+        """Finish conversation-agent-only setup without showing voice settings."""
+        return self._create_conversation_agent_entry()
+
+    def _create_conversation_agent_entry(self) -> FlowResult:
+        """Create the compact conversation-agent-only config entry."""
+        data: dict[str, Any] = {}
+        data.update(self._pairing)
+        data.update(self._backend)
+        data.update(self._spotify)
+        data.update(
+            _voice_defaults_for_client(
+                {},
+                client_type=CLIENT_TYPE_CONVERSATION_AGENT,
+            )
+        )
+        return self.async_create_entry(
+            title=data.get(CONF_DEVICE_NAME, "DJConnect DJ"),
+            data=data,
+        )
 
     async def async_step_voice(
         self,
@@ -1749,10 +1780,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     )
                 )
                 if getattr(self, "_conversation_agent_only", False):
-                    return self.async_create_entry(
-                        title=data.get(CONF_DEVICE_NAME, "DJConnect DJ"),
-                        data=data,
-                    )
+                    return self._create_conversation_agent_entry()
                 if not self._client_type_uses_local_device_api(client_type):
                     return self.async_create_entry(
                         title=data.get(CONF_DEVICE_NAME, DEFAULT_DEVICE_NAME),
@@ -2123,7 +2151,11 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
         result = self.async_external_step(
             step_id="spotify_reauth",
             url=self._oauth["authorize_url"],
-            description_placeholders={"redirect_uri": redirect_uri},
+            description_placeholders={
+                "redirect_uri": redirect_uri,
+                "title": _spotify_oauth_title(self.hass, reauth=True),
+                "description": _spotify_oauth_description(self.hass, reauth=True),
+            },
         )
         result["title"] = _spotify_oauth_title(self.hass, reauth=True)
         result["description"] = _spotify_oauth_description(self.hass, reauth=True)

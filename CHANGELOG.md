@@ -1,5 +1,21 @@
 # Changelog
 
+## 3.2.8
+
+- Fix app pairing QR-code generation by writing Segno SVG output to a byte
+  buffer before encoding it as an inline data URI.
+- Keep the Apple/Windows app-pairing route from aborting with a generic
+  unknown error when Home Assistant cannot determine a local URL or QR rendering
+  fails.
+- Restore translated labels on the pairing form by rendering the flow through
+  the stable `pair` step and adding app-pairing display labels there too.
+- Skip the empty voice/playback screen for Assist-agent-only setup after
+  Spotify Direct OAuth or Music Assistant player selection.
+- Harden Spotify reauthorization external steps with translated text and
+  placeholders for both options-flow and repair-flow OAuth popups.
+- Tighten setup-route copy, including the local device setup label for ESP32 and
+  Raspberry Pi.
+
 ## 3.2.7
 
 - Show real inline QR-code images for iPhone and Apple Watch app pairing while

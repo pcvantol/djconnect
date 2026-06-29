@@ -3,27 +3,35 @@
     "step": {
       "user": {
         "title": "Set up DJConnect",
-        "description": "Choose the DJConnect DJ Assist agent, pair a local DJConnect device (ESP32/Raspberry Pi), or pair a DJConnect app (iPhone/Apple Watch/macOS/Windows).",
+        "description": "Start with the route that matches your setup. Use the Assist agent without a physical device, choose local device for ESP32/Raspberry Pi on your network, or choose app for iPhone, Apple Watch, macOS and Windows.",
         "data": {
           "setup_method": "Setup method"
         }
       },
       "pair": {
-        "title": "Pair DJConnect device",
+        "title": "Pair DJConnect Device",
         "description": "Pair a DJConnect client with Home Assistant.",
         "data": {
           "pair_code": "Pairing code",
           "device_name": "Device name",
           "client_type": "Client type",
           "local_url": "Client address",
-          "discovered_client": "Discovered DJConnect client"
+          "discovered_client": "Discovered DJConnect client",
+          "app_pair_code": "App pairing code",
+          "app_ha_local_url": "Home Assistant URL",
+          "app_iphone_pairing_uri": "iPhone QR/deep-link payload",
+          "app_watch_pairing_uri": "Apple Watch QR/deep-link payload"
         },
         "data_description": {
           "pair_code": "Only for ESP32/Raspberry Pi: the 6 digit pairing code shown on the device display.",
           "device_name": "Friendly name for this DJConnect remote.",
           "client_type": "DJConnect client type. iPhone and Apple Watch use QR/deep-link pairing; Apple Watch uses the iPhone proxy. macOS and Windows use Home Assistant URL plus pairing code.",
           "local_url": "Only for ESP32/Raspberry Pi local device API fallback; leave empty when mDNS works.",
-          "discovered_client": "Choose an automatically discovered DJConnect client to prefill pairing details, or use manual entry."
+          "discovered_client": "Choose an automatically discovered DJConnect client to prefill pairing details, or use manual entry.",
+          "app_pair_code": "Use this code in macOS/Windows, or let iPhone/Apple Watch receive it from the QR/deep-link payload.",
+          "app_ha_local_url": "Local Home Assistant URL the app uses during pairing.",
+          "app_iphone_pairing_uri": "QR/deep-link payload for the iPhone app.",
+          "app_watch_pairing_uri": "QR/deep-link payload scanned on iPhone to pair the linked Apple Watch."
         }
       },
       "pair_local_device": {

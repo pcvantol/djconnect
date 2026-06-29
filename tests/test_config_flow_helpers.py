@@ -523,7 +523,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
             pipeline_module.async_get_pipelines = original_get_pipelines
 
         self.assertEqual(result["type"], "form")
-        self.assertEqual(result["step_id"], "pair_app")
+        self.assertEqual(result["step_id"], "pair")
         self.assertEqual(result["errors"]["base"], "assist_pipeline_required")
 
     def test_app_user_schema_hides_local_url_without_advanced(self) -> None:
@@ -618,7 +618,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
     def test_pairing_qr_helper_returns_inline_svg_data_uri(self) -> None:
         class FakeQr:
             def save(self, out, **_kwargs):
-                out.write('<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0h1v1z"/></svg>')
+                out.write(b'<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0h1v1z"/></svg>')
 
         fake_segno = types.ModuleType("segno")
         fake_segno.make = lambda *_args, **_kwargs: FakeQr()
@@ -634,6 +634,46 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertTrue(image.startswith("data:image/svg+xml;utf8,"))
         self.assertIn("%3Csvg", image)
+
+    def test_pairing_qr_helper_falls_back_when_generation_fails(self) -> None:
+        class BrokenQr:
+            def save(self, out, **_kwargs):
+                raise RuntimeError("qr failed")
+
+        fake_segno = types.ModuleType("segno")
+        fake_segno.make = lambda *_args, **_kwargs: BrokenQr()
+        original_segno = sys.modules.get("segno")
+        sys.modules["segno"] = fake_segno
+        try:
+            image = self.config_flow._qr_svg_data_uri("djconnect://pair?pair_code=123456")
+        finally:
+            if original_segno is None:
+                sys.modules.pop("segno", None)
+            else:
+                sys.modules["segno"] = original_segno
+
+        self.assertEqual(image, "")
+
+    def test_app_pairing_defaults_fall_back_when_ha_url_lookup_fails(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
+        flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_APP
+
+        async def broken_ha_local_url(_hass, _conf):
+            raise RuntimeError("network helper failed")
+
+        original_ha_local_url = self.config_flow.async_ha_local_url
+        self.config_flow.async_ha_local_url = broken_ha_local_url
+        try:
+            asyncio.run(flow._ensure_app_pairing_defaults())
+        finally:
+            self.config_flow.async_ha_local_url = original_ha_local_url
+
+        self.assertEqual(
+            flow._discovered_defaults["ha_local_url"],
+            "http://homeassistant.local:8123",
+        )
+        self.assertIn("djconnect://pair?", flow._discovered_defaults["iphone_pairing_uri"])
 
     def test_user_schema_manual_defaults_are_not_esp32_specific(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
@@ -1097,8 +1137,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
             self.config_flow._setup_method_names(nl_hass)[
                 self.const.SETUP_METHOD_PAIR_LOCAL_DEVICE
             ],
-            "DJConnect lokaal device koppelen\n"
-            "ESP32 of Raspberry Pi op dit LAN.",
+            "DJConnect device koppelen ESP32 of Raspberry Pi",
         )
         self.assertEqual(
             self.config_flow._setup_method_names(en_hass)[
@@ -1250,23 +1289,23 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertNotIn(self.const.CONF_SETUP_METHOD, keys)
         self.assertIn(self.const.CONF_PAIR_CODE, keys)
 
-    def test_pair_step_uses_local_device_translation_for_esp_pi_route(self) -> None:
+    def test_pair_step_uses_translated_pair_form_for_esp_pi_route(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
         flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_LOCAL_DEVICE
 
         result = asyncio.run(flow.async_step_pair())
 
-        self.assertEqual(result["step_id"], "pair_local_device")
+        self.assertEqual(result["step_id"], "pair")
 
-    def test_pair_step_uses_app_translation_for_apple_windows_route(self) -> None:
+    def test_pair_step_uses_translated_pair_form_for_apple_windows_route(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
         flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_APP
 
         result = asyncio.run(flow.async_step_pair())
 
-        self.assertEqual(result["step_id"], "pair_app")
+        self.assertEqual(result["step_id"], "pair")
 
     def test_setup_method_order_puts_conversation_agent_first(self) -> None:
         hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
@@ -1370,6 +1409,36 @@ class ConfigFlowHelperTest(unittest.TestCase):
             flow._backend[self.const.CONF_MUSIC_BACKEND],
             self.const.MUSIC_BACKEND_MUSIC_ASSISTANT,
         )
+
+    def test_conversation_agent_music_assistant_setup_skips_voice_step(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = _hass_with_music_assistant_player()
+        flow._conversation_agent_only = True
+        flow._pairing = {
+            self.const.CONF_SETUP_METHOD: self.const.SETUP_METHOD_CONVERSATION_AGENT,
+            self.const.CONF_DEVICE_ID: "djconnect-conversation-agent",
+            self.const.CONF_DEVICE_NAME: "DJConnect DJ",
+            self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_CONVERSATION_AGENT,
+        }
+
+        result = asyncio.run(
+            flow.async_step_music_assistant(
+                {self.const.CONF_MUSIC_ASSISTANT_PLAYER: "media_player.mass_living"}
+            )
+        )
+
+        self.assertEqual(result["type"], "create_entry")
+        self.assertEqual(result["title"], "DJConnect DJ")
+        self.assertEqual(
+            result["data"][self.const.CONF_MUSIC_BACKEND],
+            self.const.MUSIC_BACKEND_MUSIC_ASSISTANT,
+        )
+        self.assertEqual(
+            result["data"][self.const.CONF_MUSIC_ASSISTANT_PLAYER],
+            "media_player.mass_living",
+        )
+        self.assertNotIn(self.const.CONF_DEVICE_TOKEN, result["data"])
+        self.assertNotIn(self.const.CONF_LOCAL_URL, result["data"])
         self.assertEqual(
             flow._backend[self.const.CONF_MUSIC_ASSISTANT_PLAYER],
             "media_player.mass_living",
@@ -1602,6 +1671,68 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(result["type"], "external")
         self.assertEqual(result["title"], "DJConnect autoriseren bij Spotify")
         self.assertIn("Home Assistant opent Spotify", result["description"])
+
+    def test_conversation_agent_spotify_oauth_skips_voice_step_after_callback(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(
+            data={
+                self.const.DOMAIN: {
+                    "config_flow_oauth_results": {
+                        "oauth-state": {
+                            self.const.CONF_SPOTIFY_REFRESH_TOKEN: "refresh-token",
+                            self.const.CONF_SPOTIFY_MARKET: "NL",
+                            self.const.CONF_SPOTIFY_SCOPES: self.const.DEFAULT_SPOTIFY_SCOPES,
+                        }
+                    }
+                }
+            },
+        )
+        flow._conversation_agent_only = True
+        flow._backend = {self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_SPOTIFY_DIRECT}
+        flow._pairing = {
+            self.const.CONF_SETUP_METHOD: self.const.SETUP_METHOD_CONVERSATION_AGENT,
+            self.const.CONF_DEVICE_ID: "djconnect-conversation-agent",
+            self.const.CONF_DEVICE_NAME: "DJConnect DJ",
+            self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_CONVERSATION_AGENT,
+        }
+        flow._spotify = {
+            self.const.CONF_SPOTIFY_CLIENT_ID: "client-id",
+            self.const.CONF_HA_EXTERNAL_URL: "https://example.ui.nabu.casa",
+        }
+
+        result = asyncio.run(flow.async_step_spotify_oauth({"state": "oauth-state"}))
+
+        self.assertEqual(result["type"], "external_done")
+        self.assertEqual(result["next_step_id"], "finish_conversation_agent")
+
+    def test_finish_conversation_agent_step_creates_entry(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow._conversation_agent_only = True
+        flow._backend = {self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_SPOTIFY_DIRECT}
+        flow._pairing = {
+            self.const.CONF_SETUP_METHOD: self.const.SETUP_METHOD_CONVERSATION_AGENT,
+            self.const.CONF_DEVICE_ID: "djconnect-conversation-agent",
+            self.const.CONF_DEVICE_NAME: "DJConnect DJ",
+            self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_CONVERSATION_AGENT,
+        }
+        flow._spotify = {
+            self.const.CONF_SPOTIFY_CLIENT_ID: "client-id",
+            self.const.CONF_SPOTIFY_REFRESH_TOKEN: "refresh-token",
+            self.const.CONF_SPOTIFY_MARKET: "NL",
+            self.const.CONF_SPOTIFY_SCOPES: self.const.DEFAULT_SPOTIFY_SCOPES,
+            self.const.CONF_HA_EXTERNAL_URL: "https://example.ui.nabu.casa",
+        }
+
+        result = asyncio.run(flow.async_step_finish_conversation_agent())
+
+        self.assertEqual(result["type"], "create_entry")
+        self.assertEqual(result["title"], "DJConnect DJ")
+        self.assertEqual(
+            result["data"][self.const.CONF_CLIENT_TYPE],
+            self.const.CLIENT_TYPE_CONVERSATION_AGENT,
+        )
+        self.assertNotIn(self.const.CONF_DEVICE_TOKEN, result["data"])
+        self.assertNotIn(self.const.CONF_LOCAL_URL, result["data"])
 
     def test_voice_step_pairs_device_before_creating_entry(self) -> None:
         package = sys.modules["custom_components.djconnect"]
@@ -2143,6 +2274,14 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(external["step_id"], "spotify_reauth")
         self.assertEqual(external["title"], "Reauthorize Spotify")
         self.assertIn("Home Assistant opens Spotify", external["description"])
+        self.assertEqual(
+            external["description_placeholders"]["title"],
+            "Reauthorize Spotify",
+        )
+        self.assertIn(
+            "Home Assistant opens Spotify",
+            external["description_placeholders"]["description"],
+        )
         self.assertIn("https://accounts.spotify.com/authorize", external["url"])
         self.assertIn(
             flow._oauth["state"],
