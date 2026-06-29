@@ -265,6 +265,75 @@ track_insight:
         text:
           multiline: false
 
+music_dna_profile:
+  name: Music DNA profile
+  description: >
+    Return the current structured Music DNA profile for a user/client context.
+    If Music DNA is not enabled, the profile is empty and enabled is false.
+  fields:
+    music_dna_key:
+      name: Music DNA key
+      description: Optional Music DNA key to inspect.
+      required: false
+      selector:
+        text:
+          multiline: false
+    client_type:
+      name: Client type
+      description: Optional DJConnect client type used when resolving Music DNA.
+      required: false
+      selector:
+        text:
+          multiline: false
+
+set_music_dna_enabled:
+  name: Set Music DNA enabled
+  description: >
+    Opt a user/client context in or out of Music DNA. Disabling Music DNA clears
+    learned Music DNA knowledge and stops future knowledge collection.
+  fields:
+    enabled:
+      name: Enabled
+      description: Whether Music DNA may build knowledge for this context.
+      required: true
+      selector:
+        boolean:
+    music_dna_key:
+      name: Music DNA key
+      description: Optional Music DNA key to update.
+      required: false
+      selector:
+        text:
+          multiline: false
+    client_type:
+      name: Client type
+      description: Optional DJConnect client type used when resolving Music DNA.
+      required: false
+      selector:
+        text:
+          multiline: false
+
+clear_music_dna:
+  name: Clear Music DNA
+  description: >
+    Clear learned Music DNA knowledge for the resolved user/client context while
+    preserving the current opt-in setting.
+  fields:
+    music_dna_key:
+      name: Music DNA key
+      description: Optional Music DNA key to clear.
+      required: false
+      selector:
+        text:
+          multiline: false
+    client_type:
+      name: Client type
+      description: Optional DJConnect client type used when resolving Music DNA.
+      required: false
+      selector:
+        text:
+          multiline: false
+
 clear_ask_dj_history:
   name: Clear Ask DJ history
   description: >

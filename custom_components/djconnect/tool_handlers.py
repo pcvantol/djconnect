@@ -27,6 +27,8 @@ async def async_call_ai_tool(
         return await async_track_insight_tool(hass, runtime, **params)
     if tool_name == "djconnect_now_playing":
         return await _now_playing(hass, runtime)
+    if tool_name == "djconnect_music_dna_profile":
+        return await _music_dna_profile(runtime, params, user_id=user_id)
     if tool_name == "djconnect_music_dna_summary":
         return await _music_dna_summary(runtime, params, user_id=user_id)
     if tool_name == "djconnect_recently_played":
@@ -72,6 +74,14 @@ async def _music_dna_summary(runtime: Any, params: dict[str, Any], *, user_id: s
         "music_dna": context.get("memory") or {},
         "sources": [{"source": "djconnect_music_dna", "kind": "source", "title": "Music DNA"}],
     }
+
+
+async def _music_dna_profile(runtime: Any, params: dict[str, Any], *, user_id: str | None) -> dict[str, Any]:
+    memory = getattr(runtime, "memory", None)
+    profile_getter = getattr(memory, "async_profile", None)
+    if not callable(profile_getter):
+        return {"success": False, "error": "music_dna_unavailable", "message": "Music DNA is unavailable."}
+    return await profile_getter(runtime, params, user_id=user_id)
 
 
 async def _recently_played(

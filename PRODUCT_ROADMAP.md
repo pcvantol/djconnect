@@ -170,8 +170,8 @@ Every release must review this roadmap.
   display.
 - [ ] Web portal polish: mobile layout, album art popover, queue refresh, games,
   settings, diagnostics and OTA upload in the DJConnect blue/purple style.
-- [ ] LilyGO T-Embed S3 and ESP32-S3-BOX-3 builds, manifests, docs and OTA
-  selection remain in lockstep.
+- [ ] LilyGO T-Embed S3 builds, manifests, docs and OTA selection remain in
+  lockstep.
 - [ ] Serial/web logs remain atomic, searchable and useful for support.
 - [x] Up Next stores and renders up to 100 queue items from Home Assistant
   before local truncation (3.1, ESP32).
@@ -330,7 +330,6 @@ Every release must review this roadmap.
   speaker cue volume.
 - [ ] Voice debug tools showing last WAV duration/size, STT text, TTS URL status
   and provider error body.
-- [ ] ESP32-S3-BOX-3 optimized 320x240 layouts and touch affordances.
 - [ ] Offline-friendly setup screen with QR/deeplink to HA integration
   instructions.
 - [ ] Better battery, charging and OTA safety telemetry.
@@ -425,5 +424,3 @@ keeping the core local/Home Assistant experience useful without payment.
 - [ ] Hardware bundle SKU planning.
 - [ ] White-label hardware provisioning process.
 - [ ] App Store/TestFlight production-readiness scope.
-- [ ] Decide whether ESP32-S3-BOX-3 becomes fully supported hardware or remains
-  experimental until display/speaker/mic/touch validation is complete.

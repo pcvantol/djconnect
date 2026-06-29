@@ -44,9 +44,11 @@
   action rejection and `unsupported_backend_capability` errors on both Spotify
   Direct and Music Assistant.
 - Live-test the local websocket fast path against Home Assistant before
-  enabling it as a product default in Windows or other clients. Confirm whether
-  the HA websocket auth flow requires a separate HA token; do not assume the
-  DJConnect device token authenticates `/api/websocket`.
+  enabling it as a product default in Windows or other clients. Cover command,
+  Ask DJ message/history/clear/state/idle-suggestion, Track Insight and Music
+  DNA profile/settings/clear. Confirm whether the HA websocket auth flow
+  requires a separate HA token; do not assume the DJConnect device token
+  authenticates `/api/websocket`.
 
 ## PTT / Voice
 
@@ -261,6 +263,6 @@
 - Refresh HACS update info in Home Assistant.
 - Install new release from HACS.
 - Restart Home Assistant.
-- Release/tag cleanup after v3.2.3 is done; `./cleanup_old_releases.sh --keep 1 --execute` kept only `v3.2.3`.
+- Release/tag cleanup after v3.2.5 is done; `./cleanup_old_releases.sh --keep 1 --execute` should keep only `v3.2.5` when cleanup is run for this release line.
 - Clean up old completed GitHub Actions workflow runs after every release, keeping only the newest release/tag validation and newest `main` validation unless debugging requires more history.
 - Keep the CI Postman collection validator aligned with `examples/djconnect.postman_collection.json` whenever API examples change.

@@ -1,5 +1,22 @@
 # Changelog
 
+## 3.2.6
+
+- Promote Music DNA to a first-class opt-in client/backend contract with
+  dedicated profile, settings and clear endpoints, matching Home Assistant
+  developer actions and a read-only AI/conversation tool.
+- Respect Music DNA opt-in before building Ask DJ, listening-profile, recent
+  track or preference knowledge, while allowing users to clear learned DNA at
+  any time and restart learning from an empty profile when enabled.
+- Extend the Home Assistant websocket fast path with Ask DJ history/state,
+  idle suggestions and Music DNA profile/settings/clear routes while preserving
+  HTTP as the canonical fallback.
+- Split local-device pairing from inbound-only app pairing: ESP32/Raspberry Pi
+  keep LAN local-device callbacks, while iPhone/Apple Watch/macOS/Windows pair
+  by posting to Home Assistant with HA-generated codes or QR/deep-link payloads.
+- Remove ESP32-S3-BOX-3 from active firmware documentation and examples; the
+  public firmware manifest example now documents only LilyGO T-Embed S3.
+
 ## 3.2.5
 
 - Refactor Ask DJ into focused intent, response, action, profile and recent-history modules while keeping the public `custom_components.djconnect.ask_dj` import path compatible.
@@ -721,7 +738,7 @@
 
 ## 3.1.26
 
-- Tighten mDNS discovery validation so ESP32 clients are only accepted with current model-specific IDs (`djconnect-lilygo-t-embed-s3-*` or `djconnect-esp32-s3-box-3-*`) and legacy ESP discovery IDs are ignored.
+- Tighten mDNS discovery validation so ESP32 clients are only accepted with the current model-specific LilyGO ID (`djconnect-lilygo-t-embed-s3-*`) and legacy ESP discovery IDs are ignored.
 - Add regression coverage for rejecting legacy ESP32 device IDs during mDNS discovery.
 
 ## 3.1.25

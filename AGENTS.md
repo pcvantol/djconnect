@@ -25,7 +25,8 @@ Architectuur beslissingen:
 - Pairing/status gebruikt canoniek `client_type` om client runtimes te onderscheiden; huidige waarden zijn `esp32`, `ios`, `macos`, `watchos`, `raspberry_pi` en `windows`. ESP firmware moet verplicht `client_type: "esp32"` meesturen op JSON payloads.
 - iOS/macOS/watchOS/Raspberry Pi/Windows client IDs zijn respectievelijk `djconnect-ios-XXXXXXXXXXXX`, `djconnect-macos-XXXXXXXXXXXX`, `djconnect-watchos-XXXXXXXXXXXX`, `djconnect-raspberry-pi-XXXXXXXXXXXX` en `djconnect-windows-XXXXXXXXXXXX`, met de eerste 12 alfanumerieke chars van de client install ID; `client_type` moet met het device-id prefix matchen.
 - Backend playback loopt via de HA integration en wordt user-facing aangeboden via DJConnect commands en Spotify-backed HA control/status entities; er is geen native `media_player` playback proxy meer. Device-instellingen lopen via `POST /api/device/command`. Spotify-backed HA entities gebruiken live backend snapshots voor volume, output/source, repeat, shuffle, queue, playlists en playback availability.
-- Ask DJ / Music DNA is server-side in de HA integration. Apple Watch, iOS, macOS, Raspberry Pi en Windows bewaren geen Music DNA; HA bewaart compacte runtime session memory en persistente Home Assistant Store data met key `djconnect_music_dna`, versie `1`, gescopeerd op HA user id indien beschikbaar en anders op DJConnect device/client id. Memory mag nooit OAuth tokens, bearer tokens, raw audio of volledige prompts opslaan.
+- Ask DJ / Music DNA is server-side in de HA integration. Apple Watch, iOS, macOS, Raspberry Pi en Windows bewaren geen Music DNA; HA bewaart compacte runtime session memory en persistente Home Assistant Store data met key `djconnect_music_dna`, versie `1`, gescopeerd op HA user id indien beschikbaar en anders op DJConnect device/client id. Music DNA is expliciet opt-in: zolang `enabled` niet waar is, mag HA geen nieuwe Music DNA kennis opbouwen uit Ask DJ, listening profiles, recente tracks of voorkeuren. Memory mag nooit OAuth tokens, bearer tokens, raw audio of volledige prompts opslaan.
+- Music DNA is een first-class client/backend feature met dedicated endpoints `POST /api/djconnect/music_dna/profile`, `/settings` en `/clear`. Clients gebruiken `/profile` voor structured dashboarddata, `/settings` voor opt-in/out en `/clear` om DNA altijd te wissen; clear behoudt de opt-in setting en als de feature aan staat begint kennisopbouw daarna opnieuw vanaf leeg. HA exposeert dezelfde functionaliteit via developer services `djconnect.music_dna_profile`, `djconnect.set_music_dna_enabled`, `djconnect.clear_music_dna` en read-only AI tool `djconnect_music_dna_profile`.
 - Ask DJ chat history is ook server-side en is de bron van waarheid voor iOS, macOS, Apple Watch, Raspberry Pi en Windows. Gebruik Home Assistant Store key `djconnect_ask_dj_history`, versie `1`, met history per HA user id. `client_id`/`client_type` zijn metadata, geen primaire history-key. Houd maximaal de laatste 1000 berichten per user en gebruik `history_revision` plus `clear_revision` voor sync.
 - Als Ask DJ history door de limiet van 1000 berichten wordt getrimd, geeft de backend `history_limit`, `history_trimmed_before` en `history_trimmed_count` terug en voegt maximaal één assistant system message toe met `message_kind:"system"`, `origin:"history_retention"` en intent `history_limit_reached`. Clients moeten lokale berichten ouder dan `history_trimmed_before` verwijderen en niet op tekstinhoud parsen.
 - `POST /api/djconnect/ask_dj/message` is het tekstuele Ask DJ endpoint voor iOS, macOS, watchOS, Raspberry Pi en Windows clients. ESP32 krijgt geen Ask DJ chat UI/history en gebruikt de bestaande voice/playback command flow. Requests mogen top-level identity of een `identity` object bevatten met `client_type`, `device_id` en `device_name`, plus `client_message_id`, `client_id`, `text`, optioneel `music_dna_key`, `mood`, `dj_style` en `audio_response` (`auto`/`always`/`never`). Sla user request en assistant response op in user-scoped history. Dubbele `client_message_id` voor dezelfde HA user mag geen dubbele chat entry maken.
@@ -89,7 +90,7 @@ Licentie/commercieel:
 HA integration:
 - domain: `djconnect`
 - HACS custom integration.
-- Actuele integratieversie: `3.2.5`.
+- Actuele integratieversie: `3.2.6`.
 - Config flow moet blijven laden.
 - Centrale DJConnect API calls vanuit HACS gebruiken per-install `djci_` tokens, nooit een globale relay/operator secret. Voor Apple push clients (`ios`, `macos`, `watchos`) mag HACS een short-lived `bootstrap_proof` uit push registration/pairing/status gebruiken om via `/v1/install/token` een `djci_` token te minten; zonder proof blijft Apple push disabled/best-effort. ESP32, Raspberry Pi en Assist Conversation Agent-only entries hebben deze proof niet nodig omdat zij geen APNs push gebruiken.
 - Config flow blokkeert niet meer op een officiële Home Assistant Spotify `media_player` entity; DJConnect gebruikt eigen Spotify OAuth en de Spotify Web API voor backend playback.
@@ -115,7 +116,7 @@ HA integration:
 - Options-flow mag `config_entry` niet assignen; gebruik een eigen attribuut omdat recente Home Assistant versies `config_entry` read-only maken.
 - Options-flow bevat aparte acties voor instellingen opslaan, pairing opnieuw proberen met de huidige code, en volledig opnieuw koppelen met een nieuwe koppelcode; re-pair maakt een nieuw device token, bewaart dat persistent en probeert `/api/device/pair` opnieuw.
 - `POST /api/device/pair` mag alleen bij initiële config-flow pairing, expliciete re-pair/token rotation of stale-pairing recovery worden aangeroepen; nooit bij normale status sync, playback commands, settings sync of HA startup als er al een device token is opgeslagen.
-- Setup-code based pairing mag tijdelijk `djconnect-[6-cijferige-code]` gebruiken, maar HA moet na de eerste ESP status/command/voice call met dezelfde bearer token alleen de echte model-specifieke `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX` of `djconnect-esp32-s3-box-3-XXXXXXXXXXXX` device-id accepteren, leren en persistent opslaan.
+- Setup-code based pairing mag tijdelijk `djconnect-[6-cijferige-code]` gebruiken, maar HA moet na de eerste ESP status/command/voice call met dezelfde bearer token alleen de echte model-specifieke `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX` device-id accepteren, leren en persistent opslaan.
 - ESP32 device UI language wordt tijdens pairing automatisch gekozen als `en`/`nl`, default op HA taal indien ondersteund, en alleen voor ESP32 meegestuurd als `device_language` en `language`; ESP slaat dit op als `provision.language`. iOS, macOS, watchOS, Raspberry Pi en Windows clients bepalen hun taal zelf en krijgen geen HA-geforceerde `device_language`/`language` in pairing/status responses.
 - HA stuurt tijdens pairing `client_type` mee en bewaart dit persistent; ESP firmware gebruikt `esp32`, Apple app-clients gebruiken respectievelijk `ios`, `macos` of `watchos`, Raspberry Pi clients gebruiken `raspberry_pi` en Windows clients gebruiken `windows`.
 - Koppelcode/device-suffix uit de HA config-flow moet worden opgeslagen en ESP pairing moet een afwijkende code weigeren.
@@ -161,7 +162,7 @@ HA integration:
 ESP firmware:
 - Voeg pairing, mDNS, OTA en Spotify provisioning toe zonder bestaande Spotify/audio/UI code te herschrijven.
 - mDNS service: `_djconnect._tcp`
-- Device ID: `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX` of `djconnect-esp32-s3-box-3-XXXXXXXXXXXX`; accepteer geen legacy `djconnect-XXXXXXXXXXXX` device IDs.
+- Device ID: `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX`; accepteer geen legacy `djconnect-XXXXXXXXXXXX` device IDs.
 - NVS namespace: `djconnect`
 - OTA endpoint: `POST /api/device/ota`
 - ESP device command endpoint voor device-instellingen: `POST /api/device/command`
@@ -181,11 +182,10 @@ Firmware releases:
 - ESP firmware release-script moet semantic version valideren, firmware metadata bijwerken, PlatformIO builds draaien, binaries device-specifiek renamen, SHA256 berekenen, `firmware_manifest.json` bijwerken, committen, taggen en pushen.
 - Release asset namen:
   `djconnect-lilygo-t-embed-s3-vX.Y.Z.bin`
-  `djconnect-esp32-s3-box-3-vX.Y.Z.bin`
 - Manifest:
   `firmware_manifest.json`
 - Firmware manifest gebruikt `firmwares[]` met per device `device`, `asset`, `url`, `sha256` en `size`; HA gebruikt geen top-level `device`/`asset`/`sha256` fallback meer.
-- LilyGO gebruikt manifest device `lilygo-t-embed-s3`; ESP32-S3-BOX-3 gebruikt manifest device `esp32-s3-box-3`.
+- LilyGO gebruikt manifest device `lilygo-t-embed-s3`.
 - Firmwarekanaal `stable` gebruikt GitHub latest non-prerelease; firmwarekanaal `beta` gebruikt de nieuwste GitHub prerelease uit `pcvantol/djconnect-firmware`.
 - Firmwareversie wordt via PlatformIO build flags uit Git tag geïnjecteerd.
 - Public firmware repo mag alleen release binary, `firmware_manifest.json`, release metadata en niet-geheime documentatie bevatten.
@@ -254,7 +254,7 @@ README/release:
   - Gebruik bij voorkeur `./release.sh X.Y.Z` in de firmware repo.
   - Gebruik `./release.sh X.Y.Z --dry-run` bij twijfel voordat gepubliceerd wordt.
   - Publish binaries naar public repo `djconnect-firmware`.
-  - Release assets zijn device-specifiek, zoals `djconnect-lilygo-t-embed-s3-vX.Y.Z.bin` en `djconnect-esp32-s3-box-3-vX.Y.Z.bin`.
+  - Release asset is `djconnect-lilygo-t-embed-s3-vX.Y.Z.bin`.
   - Update `firmware_manifest.json` met manifest-level `version`, `version_tag`, `channel`, `min_ha_integration` en `firmwares[]` entries met `device`, `asset`, `url`, `sha256` en `size`.
   - Markeer beta firmware releases als GitHub prerelease zodat HA ze alleen toont wanneer firmwarekanaal `beta` gekozen is.
   - Controleer dat OTA de nieuwe firmware via de HA update entity ontdekt.

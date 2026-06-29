@@ -24,6 +24,15 @@ class FakeMemory:
             "session": [],
         }
 
+    async def async_profile(self, runtime, payload=None, *, user_id=None):
+        return {
+            "success": True,
+            "music_dna_key": (payload or {}).get("music_dna_key") or "user:test",
+            "enabled": True,
+            "profile": {"summary": "Test Music DNA"},
+            "sources": [{"source": "djconnect_music_dna"}],
+        }
+
     async def async_store_pending_followup(self, runtime, followup, payload=None, *, user_id=None):
         self.pending = {"id": "followup-1", **followup, "handled": False}
         return self.pending
@@ -51,10 +60,10 @@ class AIToolsTest(unittest.TestCase):
         )
         self.hass = types.SimpleNamespace()
 
-    def test_all_nine_tools_are_exposed_with_confirmation_boundaries(self) -> None:
+    def test_all_tools_are_exposed_with_confirmation_boundaries(self) -> None:
         names = {tool["name"] for tool in self.ai_tools.AI_TOOLS}
 
-        self.assertEqual(len(names), 9)
+        self.assertEqual(len(names), 10)
         self.assertIn("djconnect_prepare_playback_action", names)
         self.assertIn("djconnect_execute_confirmed_action", names)
         read_only = {
@@ -65,6 +74,7 @@ class AIToolsTest(unittest.TestCase):
         self.assertNotIn("djconnect_prepare_playback_action", read_only)
         self.assertNotIn("djconnect_execute_confirmed_action", read_only)
         self.assertIn("djconnect_track_insight", read_only)
+        self.assertIn("djconnect_music_dna_profile", read_only)
         self.assertIs(self.ai_tools.AI_TOOLS, self.tool_registry.AI_TOOLS)
         self.assertIs(self.ai_tools.async_call_ai_tool, self.tool_handlers.async_call_ai_tool)
 

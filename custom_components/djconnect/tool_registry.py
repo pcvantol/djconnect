@@ -6,6 +6,7 @@ from typing import Any
 READ_ONLY_TOOL_NAMES = {
     "djconnect_track_insight",
     "djconnect_now_playing",
+    "djconnect_music_dna_profile",
     "djconnect_music_dna_summary",
     "djconnect_recently_played",
     "djconnect_search_music",
@@ -52,6 +53,11 @@ AI_TOOLS: tuple[dict[str, Any], ...] = (
         },
     ),
     _tool("djconnect_now_playing", "Read the current DJConnect backend playback state.", {}),
+    _tool(
+        "djconnect_music_dna_profile",
+        "Read the structured Music DNA profile for the current user/client context.",
+        {"music_dna_key": {"type": "string"}},
+    ),
     _tool(
         "djconnect_music_dna_summary",
         "Read a compact Music DNA summary for the current user/client context.",

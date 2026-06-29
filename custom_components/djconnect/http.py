@@ -22,6 +22,9 @@ from .const import (
     API_ASK_DJ_MESSAGE,
     API_COMMAND,
     API_IMAGE_PROXY,
+    API_MUSIC_DNA_CLEAR,
+    API_MUSIC_DNA_PROFILE,
+    API_MUSIC_DNA_SETTINGS,
     API_SPOTIFY_CALLBACK,
     API_EVENT,
     API_PAIR,
@@ -2380,6 +2383,81 @@ class DJConnectTrackInsightView(HomeAssistantView):
         return self.json(result, status_code=status_code)
 
 
+class DJConnectMusicDnaProfileView(HomeAssistantView):
+    url = API_MUSIC_DNA_PROFILE
+    name = "api:djconnect:music_dna_profile"
+    requires_auth = False
+
+    def __init__(self, hass):
+        self.hass = hass
+
+    async def post(self, request):
+        hass = request.app["hass"]
+        try:
+            data = await request.json()
+        except Exception:  # noqa: BLE001
+            return _json_error(self, "invalid_json", 400)
+        from .api_handlers import async_handle_music_dna_profile_payload
+
+        result, status_code = await async_handle_music_dna_profile_payload(
+            hass,
+            data,
+            headers=request.headers,
+            user_id=_request_user_id(request),
+        )
+        return self.json(result, status_code=status_code)
+
+
+class DJConnectMusicDnaSettingsView(HomeAssistantView):
+    url = API_MUSIC_DNA_SETTINGS
+    name = "api:djconnect:music_dna_settings"
+    requires_auth = False
+
+    def __init__(self, hass):
+        self.hass = hass
+
+    async def post(self, request):
+        hass = request.app["hass"]
+        try:
+            data = await request.json()
+        except Exception:  # noqa: BLE001
+            return _json_error(self, "invalid_json", 400)
+        from .api_handlers import async_handle_music_dna_settings_payload
+
+        result, status_code = await async_handle_music_dna_settings_payload(
+            hass,
+            data,
+            headers=request.headers,
+            user_id=_request_user_id(request),
+        )
+        return self.json(result, status_code=status_code)
+
+
+class DJConnectMusicDnaClearView(HomeAssistantView):
+    url = API_MUSIC_DNA_CLEAR
+    name = "api:djconnect:music_dna_clear"
+    requires_auth = False
+
+    def __init__(self, hass):
+        self.hass = hass
+
+    async def post(self, request):
+        hass = request.app["hass"]
+        try:
+            data = await request.json()
+        except Exception:  # noqa: BLE001
+            return _json_error(self, "invalid_json", 400)
+        from .api_handlers import async_handle_music_dna_clear_payload
+
+        result, status_code = await async_handle_music_dna_clear_payload(
+            hass,
+            data,
+            headers=request.headers,
+            user_id=_request_user_id(request),
+        )
+        return self.json(result, status_code=status_code)
+
+
 class DJConnectPushRegisterView(HomeAssistantView):
     url = API_PUSH_REGISTER
     name = "api:djconnect:push_register"
@@ -2484,38 +2562,15 @@ class DJConnectAskDjIdleSuggestionView(HomeAssistantView):
             data = await request.json()
         except Exception:  # noqa: BLE001
             return _json_error(self, "invalid_json", 400)
-        identity = _identity_payload(data)
-        runtime = _runtime(
+        from .api_handlers import async_handle_ask_dj_idle_suggestion_payload
+
+        result, status_code = await async_handle_ask_dj_idle_suggestion_payload(
             hass,
-            identity.get("device_id") or request.headers.get("X-DJConnect-Device-ID"),
-            request.headers,
+            data,
+            headers=request.headers,
+            user_id=_request_user_id(request),
         )
-        if runtime is None:
-            return _json_error(self, "not_configured", 503)
-        client_type = _validate_required_client_type(identity)
-        if client_type is None:
-            return _json_error(self, "invalid_client_type", 400)
-        identity[CONF_CLIENT_TYPE] = client_type
-        if not _authorize_runtime_device_request(
-            runtime,
-            request.headers,
-            identity.get("device_id"),
-            client_type,
-        ):
-            return _json_error(self, "unauthorized", 401)
-        payload = dict(data)
-        payload.update({key: value for key, value in identity.items() if value is not None})
-        payload = enrich_payload_with_mood_zone(payload)
-        user_id = _request_user_id(request)
-        result = await async_idle_suggestion(hass, runtime, payload, user_id=user_id)
-        if not result.get("success"):
-            return self.json(result, status_code=500)
-        sync = await _history_manager(hass, runtime).async_append_assistant_message(
-            user_id,
-            payload,
-            result,
-        )
-        return self.json({**result, **sync})
+        return self.json(result, status_code=status_code)
 
 
 class DJConnectAskDjHistoryView(HomeAssistantView):

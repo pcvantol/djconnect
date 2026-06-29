@@ -8,6 +8,7 @@ from .const import (
     CLIENT_TYPE_IOS,
     CLIENT_TYPE_MACOS,
     CLIENT_TYPE_RASPBERRY_PI,
+    CLIENT_TYPE_WATCHOS,
     CLIENT_TYPE_WINDOWS,
     CLIENT_TYPES,
     SETUP_METHOD_PAIR_APP,
@@ -27,7 +28,7 @@ def pair_client_type_options(setup_method: Any) -> list[str]:
     if str(setup_method or "") == SETUP_METHOD_PAIR_LOCAL_DEVICE:
         return [CLIENT_TYPE_ESP32, CLIENT_TYPE_RASPBERRY_PI]
     if str(setup_method or "") == SETUP_METHOD_PAIR_APP:
-        return [CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_WINDOWS]
+        return [CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_WATCHOS, CLIENT_TYPE_WINDOWS]
     return list(CLIENT_TYPES)
 
 

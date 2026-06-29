@@ -66,7 +66,9 @@ class MusicDNAManager:
             key = _safe_music_dna_key(music_dna_key)
             memory = self._memory_for_key(key)
             generation = int(memory.get("generation") or 0) + 1
+            enabled = bool(memory.get("enabled"))
             self._data["memories"][key] = {
+                "enabled": enabled,
                 "generation": generation,
                 "clear_requested_at": _now(),
                 "updated_at": _now(),
@@ -175,6 +177,7 @@ class MusicDNAManager:
         )
         memory.update(
             {
+                "enabled": bool(memory.get("enabled")),
                 "user_id": _clean_text(user_id or payload.get("user_id")),
                 "device_id": device_id,
                 "client_type": client_type,
@@ -183,6 +186,9 @@ class MusicDNAManager:
                 "updated_at": now,
             }
         )
+        if not self._memory_enabled(memory):
+            await self.async_save()
+            return key
         mood = _clean_mood(payload.get("mood"))
         if mood is not None:
             memory["mood"] = mood
@@ -199,6 +205,72 @@ class MusicDNAManager:
         _update_time_context(memory)
         await self.async_save()
         return key
+
+    async def async_set_enabled(
+        self,
+        runtime: Any,
+        enabled: bool,
+        payload: dict[str, Any] | None = None,
+        *,
+        user_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Persist the user's Music DNA opt-in state."""
+        key = await self.async_update_client_metadata(runtime, payload, user_id=user_id)
+        memory = self._memory_for_key(key)
+        previous = bool(memory.get("enabled"))
+        memory["enabled"] = bool(enabled)
+        memory["consent_updated_at"] = _now()
+        memory["updated_at"] = _now()
+        if previous and not enabled:
+            self._clear_knowledge(memory)
+            memory["clear_requested_at"] = _now()
+            memory["generation"] = int(memory.get("generation") or 0) + 1
+            self._session.pop(key, None)
+        elif enabled:
+            payload = payload or {}
+            mood = _clean_mood(payload.get("mood"))
+            if mood is not None:
+                memory["mood"] = mood
+                zone = mood_zone_for_value(mood)
+                if zone is not None:
+                    memory["mood_zone"] = zone.name
+                    memory["mood_zone_prompt"] = zone.prompt_hint
+            dj_style = _clean_text(payload.get("dj_style"))
+            if dj_style:
+                memory["dj_style"] = dj_style
+            _update_time_context(memory)
+        await self.async_save()
+        return {
+            "success": True,
+            "music_dna_key": key,
+            "enabled": bool(memory.get("enabled")),
+            "generation": int(memory.get("generation") or 0),
+            "clear_requested_at": memory.get("clear_requested_at"),
+            "consent_updated_at": memory.get("consent_updated_at"),
+        }
+
+    async def async_profile(
+        self,
+        runtime: Any,
+        payload: dict[str, Any] | None = None,
+        *,
+        user_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Return a client-facing structured Music DNA profile."""
+        key = await self.async_update_client_metadata(runtime, payload, user_id=user_id)
+        memory = self._memory_for_key(key)
+        enabled = self._memory_enabled(memory)
+        profile = _profile_payload(memory) if enabled else {}
+        return {
+            "success": True,
+            "music_dna_key": key,
+            "enabled": enabled,
+            "generation": int(memory.get("generation") or 0),
+            "clear_requested_at": memory.get("clear_requested_at"),
+            "updated_at": memory.get("updated_at"),
+            "profile": profile,
+            "sources": [{"source": "djconnect_music_dna", "kind": "source", "title": "Music DNA"}],
+        }
 
     async def async_append_runtime_message(
         self,
@@ -232,6 +304,8 @@ class MusicDNAManager:
         """Update persistent Ask DJ context and runtime session history."""
         key = await self.async_update_client_metadata(runtime, payload, user_id=user_id)
         memory = self._memory_for_key(key)
+        if not self._memory_enabled(memory):
+            return key
         intent = result.get("intent") if isinstance(result, dict) else {}
         playback = result.get("playback") if isinstance(result, dict) else {}
         response_text = _clean_text(
@@ -291,6 +365,8 @@ class MusicDNAManager:
         """Persist a compact negative music preference for future Ask DJ choices."""
         key = await self.async_update_client_metadata(runtime, payload, user_id=user_id)
         memory = self._memory_for_key(key)
+        if not self._memory_enabled(memory):
+            return key
         kind = _clean_text(item.get("kind") or "artist") or "artist"
         name = _clean_text(item.get("name") or item.get("title") or item.get("artist"))
         if not name:
@@ -323,6 +399,8 @@ class MusicDNAManager:
         """Update bounded recent track context."""
         key = _safe_music_dna_key(music_dna_key)
         memory = self._memory_for_key(key)
+        if not self._memory_enabled(memory):
+            return
         recent = memory.get("recent_tracks")
         if not isinstance(recent, list):
             recent = []
@@ -349,6 +427,8 @@ class MusicDNAManager:
         """Persist a compact backend listening profile snapshot."""
         key = await self.async_update_client_metadata(runtime, payload, user_id=user_id)
         memory = self._memory_for_key(key)
+        if not self._memory_enabled(memory):
+            return key
         compact = _compact_listening_profile(profile)
         if compact:
             memory["listening_profile"] = compact
@@ -510,6 +590,12 @@ class MusicDNAManager:
         """Return compact memory context for prompt enrichment and response metadata."""
         key = await self.async_update_client_metadata(runtime, payload, user_id=user_id)
         memory = deepcopy(self._memory_for_key(key))
+        if not self._memory_enabled(memory):
+            return {
+                "music_dna_key": key,
+                "memory": {"enabled": False, "generation": int(memory.get("generation") or 0)},
+                "session": [],
+            }
         return {
             "music_dna_key": key,
             "memory": _prompt_safe_memory(memory),
@@ -537,6 +623,34 @@ class MusicDNAManager:
             },
         )
         return memory
+
+    @staticmethod
+    def _memory_enabled(memory: dict[str, Any]) -> bool:
+        return bool(memory.get("enabled"))
+
+    @staticmethod
+    def _clear_knowledge(memory: dict[str, Any]) -> None:
+        for key in (
+            "favorite_artists",
+            "favorite_genres",
+            "blocked_artists",
+            "blocked_items",
+            "recent_tracks",
+            "chat_facts",
+            "last_ask_dj",
+            "listening_profile",
+            "listening_time_context",
+            "listening_time_patterns",
+            "last_profile_refresh",
+            "recommendation_plays",
+            "last_played_recommendation",
+            "pending_followup",
+            "mood",
+            "mood_zone",
+            "mood_zone_prompt",
+            "dj_style",
+        ):
+            memory.pop(key, None)
 
     @staticmethod
     def _create_store(hass: Any | None) -> Any | None:
@@ -706,6 +820,8 @@ def _compact_store_data(data: dict[str, Any]) -> dict[str, Any]:
 
 def _prompt_safe_memory(memory: dict[str, Any]) -> dict[str, Any]:
     allowed = {
+        "enabled",
+        "consent_updated_at",
         "user_id",
         "device_id",
         "client_type",
@@ -749,6 +865,76 @@ def _prompt_safe_memory(memory: dict[str, Any]) -> dict[str, Any]:
     if isinstance(result.get("listening_time_patterns"), list):
         result["listening_time_patterns"] = result["listening_time_patterns"][:MAX_CHAT_FACTS]
     return result
+
+
+def _profile_payload(memory: dict[str, Any]) -> dict[str, Any]:
+    listening = memory.get("listening_profile") if isinstance(memory.get("listening_profile"), dict) else {}
+    recent_tracks = memory.get("recent_tracks") if isinstance(memory.get("recent_tracks"), list) else []
+    favorite_genres = _unique_texts(
+        [
+            *(memory.get("favorite_genres") or []),
+            *(listening.get("inferred_genres") or []),
+        ]
+    )[:20]
+    artists = _unique_texts(
+        [
+            *(memory.get("favorite_artists") or []),
+            *(listening.get("recent_artists") or []),
+            *[
+                artist.get("name") or artist.get("artist") or artist.get("artist_name")
+                for group in (listening.get("top_artists_by_range") or {}).values()
+                if isinstance(group, list)
+                for artist in group
+                if isinstance(artist, dict)
+            ],
+        ]
+    )[:20]
+    mood = memory.get("mood")
+    zone = mood_zone_for_value(mood) if mood is not None else None
+    return {
+        "summary": _profile_summary(memory, favorite_genres, artists, recent_tracks),
+        "favorite_genres": [{"name": value} for value in favorite_genres],
+        "favorite_artists": [{"name": value} for value in artists],
+        "recent_tracks": [_compact_track(track) for track in recent_tracks[:MAX_RECENT_TRACKS] if isinstance(track, dict)],
+        "top_tracks_by_range": listening.get("top_tracks_by_range") or {},
+        "top_artists_by_range": listening.get("top_artists_by_range") or {},
+        "mood": (
+            {
+                "value": mood,
+                "zone": zone.name if zone is not None else None,
+                "prompt_hint": zone.prompt_hint if zone is not None else None,
+            }
+            if mood is not None
+            else {}
+        ),
+        "time_patterns": memory.get("listening_time_patterns") or [],
+        "recommendation_signals": memory.get("recommendation_plays") or [],
+        "blocked_artists": memory.get("blocked_artists") or [],
+        "blocked_items": memory.get("blocked_items") or [],
+        "last_profile_refresh": listening.get("last_profile_refresh") or memory.get("last_profile_refresh"),
+        "consent_updated_at": memory.get("consent_updated_at"),
+    }
+
+
+def _profile_summary(
+    memory: dict[str, Any],
+    genres: list[str],
+    artists: list[str],
+    recent_tracks: list[Any],
+) -> str:
+    if not (genres or artists or recent_tracks or memory.get("mood") is not None):
+        return "Music DNA is ingeschakeld, maar er is nog weinig profieldata opgebouwd."
+    parts: list[str] = []
+    if genres:
+        parts.append("genres zoals " + ", ".join(genres[:3]))
+    if artists:
+        parts.append("artiesten zoals " + ", ".join(artists[:3]))
+    if memory.get("mood") is not None:
+        zone = mood_zone_for_value(memory.get("mood"))
+        parts.append(f"een {zone.name if zone is not None else 'bekende'} mood")
+    if not parts:
+        parts.append(f"{len(recent_tracks)} recente track(s)")
+    return "Je Music DNA bevat nu " + "; ".join(parts) + "."
 
 
 def _sanitize_value(value: Any) -> Any:

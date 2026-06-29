@@ -22,16 +22,33 @@ ESP32 and Raspberry Pi are local devices. They may advertise `_djconnect._tcp`
 with TXT records including `device_id`, `client_type`, `device_name`,
 `local_url`, `version`/`app_version` and pairing code aliases. Home Assistant
 treats `GET /api/device/pairing-info` as authoritative when reachable.
+No app-client mDNS/local-API discovery is supported.
 
-iOS, macOS and Windows are inbound-only app clients. They do not expose a
+iOS, macOS, watchOS and Windows are inbound-only app clients. They do not expose a
 Home Assistant-callable `/api/device/*` API, do not need a Client address in the
 Home Assistant setup flow, and post local pairing requests to
-`POST /api/djconnect/pair`. After that local pairing, Home Assistant returns
+`POST /api/djconnect/pair`. Home Assistant generates the app pairing code. The
+iPhone app pairs by scanning a QR/deep-link payload:
+
+```text
+djconnect://pair?ha_url=<local-ha-url>&pair_code=<code>&client_type=ios&pair_path=/api/djconnect/pair
+```
+
+Apple Watch pairs through the iPhone proxy: the iPhone scans the Watch QR/deep-link
+payload and forwards the pairing material to the paired Watch, which then uses
+`client_type=watchos` and its own `djconnect-watchos-*` device id. The Watch must
+not require manual HA URL entry:
+
+```text
+djconnect://pair?ha_url=<local-ha-url>&pair_code=<code>&client_type=watchos&pair_path=/api/djconnect/pair
+```
+
+macOS and Windows clients pair by manually entering the local Home Assistant URL
+and the HA-generated pairing code. After app pairing, Home Assistant returns
 `device_token`, `ha_local_url`, optional `ha_remote_url`, capability flags and
 API paths. `ha_remote_url` is only returned to `ios`, `macos` and `windows`
 when Home Assistant has an HTTPS external/Nabu Casa URL. ESP32 and Raspberry Pi
-must never receive `ha_remote_url`. watchOS uses the iPhone proxy and is not a
-separate HA-direct pairing target.
+must never receive `ha_remote_url`.
 
 ## Backend-Independent Response Shapes
 
@@ -195,11 +212,30 @@ uses the same push/confirmation policy. Clients may use it as a local fast path
 only after capability detection; HTTP remains the fallback and remains required
 for remote-only sessions.
 
-Track Insight can use:
+Idle suggestions can use:
 
 ```json
 {
   "id": 4,
+  "type": "djconnect/ask_dj/idle_suggestion",
+  "device_id": "djconnect-ios-XXXXXXXXXXXX",
+  "client_type": "ios",
+  "device_token": "<paired DJConnect device token>",
+  "music_dna_key": "optional-client-key",
+  "mood": 72
+}
+```
+
+The response is the websocket equivalent of
+`POST /api/djconnect/ask_dj/idle_suggestion`: it appends the server-generated
+system suggestion to user-scoped Ask DJ history and returns the same sync
+metadata as HTTP.
+
+Track Insight can use:
+
+```json
+{
+  "id": 5,
   "type": "djconnect/track_insight",
   "device_id": "djconnect-macos-XXXXXXXXXXXX",
   "client_type": "macos",
@@ -213,6 +249,44 @@ The response is the same normalized Track Insight shape as
 `POST /api/djconnect/track_insight`. If `title`/`artist` are omitted, the
 backend resolves Now Playing through the selected music backend just like the
 HTTP route.
+
+Music DNA can use these websocket equivalents when advertised in
+`djconnect/capabilities.commands[]`:
+
+```json
+{
+  "id": 6,
+  "type": "djconnect/music_dna/profile",
+  "device_id": "djconnect-ios-XXXXXXXXXXXX",
+  "client_type": "ios",
+  "device_token": "<paired DJConnect device token>",
+  "music_dna_key": "optional-client-key"
+}
+```
+
+```json
+{
+  "id": 7,
+  "type": "djconnect/music_dna/settings",
+  "device_id": "djconnect-ios-XXXXXXXXXXXX",
+  "client_type": "ios",
+  "device_token": "<paired DJConnect device token>",
+  "enabled": true
+}
+```
+
+```json
+{
+  "id": 8,
+  "type": "djconnect/music_dna/clear",
+  "device_id": "djconnect-ios-XXXXXXXXXXXX",
+  "client_type": "ios",
+  "device_token": "<paired DJConnect device token>"
+}
+```
+
+The response shapes match `POST /api/djconnect/music_dna/profile`,
+`/settings` and `/clear`. HTTP remains the canonical fallback.
 
 Clients should treat websocket failures as transport failures, not pairing
 failures. On disconnect, auth error, HA websocket error, DJConnect websocket
@@ -298,6 +372,77 @@ remain responsible for final visualization and must not expect server-generated
 images or video. Structured errors use `error`/`message`, for example
 `no_track_playing`.
 
+## Music DNA Profile Contract
+
+Music DNA is a first-class opt-in feature. Clients must not assume it is
+enabled. Home Assistant only builds Music DNA knowledge after the resolved
+user/client context has explicitly opted in, and disabling Music DNA clears
+learned knowledge and stops future collection. Clearing Music DNA is always
+available and preserves the current opt-in setting; if it remains enabled, new
+knowledge starts building again from an empty profile.
+
+HTTP endpoints use the regular DJConnect bearer token, `device_id` and
+canonical `client_type` identity contract:
+
+- `POST /api/djconnect/music_dna/profile`
+- `POST /api/djconnect/music_dna/settings`
+- `POST /api/djconnect/music_dna/clear`
+
+`/music_dna/settings` accepts:
+
+```json
+{
+  "device_id": "djconnect-ios-...",
+  "client_type": "ios",
+  "enabled": true
+}
+```
+
+`/music_dna/profile` and `/music_dna/clear` accept the same identity fields and
+optional `music_dna_key`. Profile responses are structured for the Music DNA
+screen:
+
+```json
+{
+  "success": true,
+  "music_dna_key": "user:abc123",
+  "enabled": true,
+  "generation": 2,
+  "clear_requested_at": null,
+  "updated_at": "2026-06-29T12:00:00+00:00",
+  "profile": {
+    "summary": "Je Music DNA bevat nu genres zoals ambient, techno.",
+    "favorite_genres": [{"name": "ambient"}],
+    "favorite_artists": [{"name": "The xx"}],
+    "recent_tracks": [{"title": "Intro", "artist": "The xx"}],
+    "top_tracks_by_range": {},
+    "top_artists_by_range": {},
+    "mood": {"value": 65, "zone": "energy", "prompt_hint": "..."},
+    "time_patterns": [],
+    "recommendation_signals": [],
+    "blocked_artists": [],
+    "blocked_items": [],
+    "last_profile_refresh": "2026-06-29T12:00:00+00:00",
+    "consent_updated_at": "2026-06-29T11:50:00+00:00"
+  },
+  "sources": [{"source": "djconnect_music_dna", "kind": "source", "title": "Music DNA"}]
+}
+```
+
+When Music DNA is disabled, `enabled:false` and `profile:{}` are returned.
+Clients should show an opt-in state instead of deriving a fake profile from
+local Track Insight history.
+
+Home Assistant developer actions mirror the HTTP contract:
+
+- `djconnect.music_dna_profile`
+- `djconnect.set_music_dna_enabled`
+- `djconnect.clear_music_dna`
+
+The conversation/AI tool allowlist also exposes read-only
+`djconnect_music_dna_profile` so the DJConnect conversation agent can inspect
+the same structured profile without mutating playback or consent.
+
 ## AI Conversation Tools
 
 DJConnect exposes AI/conversation tools through an explicit allowlist, not by
@@ -308,6 +453,7 @@ server-side confirmation pair:
 
 - `djconnect_track_insight`
 - `djconnect_now_playing`
+- `djconnect_music_dna_profile`
 - `djconnect_music_dna_summary`
 - `djconnect_recently_played`
 - `djconnect_search_music`
@@ -637,7 +783,7 @@ Register payload:
   "push_token": "...",
   "push_environment": "sandbox",
   "app_bundle_id": "dev.djconnect.app",
-  "app_version": "3.2.3",
+  "app_version": "3.2.5",
   "locale": "nl-NL",
   "notification_categories": ["ask_dj_response", "ask_dj_confirm", "playback_change"]
 }

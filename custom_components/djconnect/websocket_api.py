@@ -16,8 +16,12 @@ WS_TYPE_ASK_DJ_MESSAGE = "djconnect/ask_dj/message"
 WS_TYPE_ASK_DJ_HISTORY = "djconnect/ask_dj/history"
 WS_TYPE_ASK_DJ_HISTORY_CLEAR = "djconnect/ask_dj/history/clear"
 WS_TYPE_ASK_DJ_HISTORY_STATE = "djconnect/ask_dj/history/state"
+WS_TYPE_ASK_DJ_IDLE_SUGGESTION = "djconnect/ask_dj/idle_suggestion"
 WS_TYPE_COMMAND = "djconnect/command"
 WS_TYPE_TRACK_INSIGHT = "djconnect/track_insight"
+WS_TYPE_MUSIC_DNA_PROFILE = "djconnect/music_dna/profile"
+WS_TYPE_MUSIC_DNA_SETTINGS = "djconnect/music_dna/settings"
+WS_TYPE_MUSIC_DNA_CLEAR = "djconnect/music_dna/clear"
 
 
 async def async_handle_command_payload(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], int]:
@@ -50,8 +54,32 @@ async def async_handle_ask_dj_history_state_payload(*args: Any, **kwargs: Any) -
     return await handler(*args, **kwargs)
 
 
+async def async_handle_ask_dj_idle_suggestion_payload(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], int]:
+    from .api_handlers import async_handle_ask_dj_idle_suggestion_payload as handler
+
+    return await handler(*args, **kwargs)
+
+
 async def async_handle_track_insight_payload(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], int]:
     from .api_handlers import async_handle_track_insight_payload as handler
+
+    return await handler(*args, **kwargs)
+
+
+async def async_handle_music_dna_profile_payload(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], int]:
+    from .api_handlers import async_handle_music_dna_profile_payload as handler
+
+    return await handler(*args, **kwargs)
+
+
+async def async_handle_music_dna_settings_payload(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], int]:
+    from .api_handlers import async_handle_music_dna_settings_payload as handler
+
+    return await handler(*args, **kwargs)
+
+
+async def async_handle_music_dna_clear_payload(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], int]:
+    from .api_handlers import async_handle_music_dna_clear_payload as handler
 
     return await handler(*args, **kwargs)
 
@@ -81,7 +109,11 @@ def async_register(hass: Any) -> None:
     websocket_api.async_register_command(hass, websocket_ask_dj_history)
     websocket_api.async_register_command(hass, websocket_ask_dj_history_clear)
     websocket_api.async_register_command(hass, websocket_ask_dj_history_state)
+    websocket_api.async_register_command(hass, websocket_ask_dj_idle_suggestion)
     websocket_api.async_register_command(hass, websocket_track_insight)
+    websocket_api.async_register_command(hass, websocket_music_dna_profile)
+    websocket_api.async_register_command(hass, websocket_music_dna_settings)
+    websocket_api.async_register_command(hass, websocket_music_dna_clear)
     domain_data["websocket_registered"] = True
 
 
@@ -106,7 +138,11 @@ async def websocket_capabilities(hass: Any, connection: Any, msg: dict[str, Any]
                 WS_TYPE_ASK_DJ_HISTORY,
                 WS_TYPE_ASK_DJ_HISTORY_CLEAR,
                 WS_TYPE_ASK_DJ_HISTORY_STATE,
+                WS_TYPE_ASK_DJ_IDLE_SUGGESTION,
                 WS_TYPE_TRACK_INSIGHT,
+                WS_TYPE_MUSIC_DNA_PROFILE,
+                WS_TYPE_MUSIC_DNA_SETTINGS,
+                WS_TYPE_MUSIC_DNA_CLEAR,
             ],
             "transports": {
                 "http": True,
@@ -313,6 +349,47 @@ async def websocket_ask_dj_history_state(hass: Any, connection: Any, msg: dict[s
 
 @_websocket_command(
     {
+        vol.Required("type"): WS_TYPE_ASK_DJ_IDLE_SUGGESTION,
+        vol.Optional("payload", default={}): dict,
+        vol.Optional("device_id"): str,
+        vol.Optional("client_type"): str,
+        vol.Optional("client_id"): str,
+        vol.Optional("device_name"): str,
+        vol.Optional("device_token"): str,
+        vol.Optional("authorization"): str,
+        vol.Optional("music_dna_key"): str,
+        vol.Optional("mood"): object,
+    }
+)
+@_async_response
+async def websocket_ask_dj_idle_suggestion(hass: Any, connection: Any, msg: dict[str, Any]) -> None:
+    """Return an Ask DJ idle suggestion over HA websocket."""
+    payload = _payload_from_message(
+        msg,
+        (
+            "device_id",
+            "client_type",
+            "client_id",
+            "device_name",
+            "music_dna_key",
+            "mood",
+        ),
+    )
+    headers = _headers_from_message(payload, msg)
+    result, status_code = await async_handle_ask_dj_idle_suggestion_payload(
+        hass,
+        payload,
+        headers=headers,
+        user_id=_connection_user_id(connection),
+    )
+    if 200 <= status_code < 300:
+        connection.send_result(msg["id"], result)
+        return
+    _send_error(connection, msg, result)
+
+
+@_websocket_command(
+    {
         vol.Required("type"): WS_TYPE_TRACK_INSIGHT,
         vol.Optional("payload", default={}): dict,
         vol.Optional("device_id"): str,
@@ -351,6 +428,113 @@ async def websocket_track_insight(hass: Any, connection: Any, msg: dict[str, Any
         payload,
         headers=headers,
         source="websocket",
+    )
+    if 200 <= status_code < 300:
+        connection.send_result(msg["id"], result)
+        return
+    _send_error(connection, msg, result)
+
+
+@_websocket_command(
+    {
+        vol.Required("type"): WS_TYPE_MUSIC_DNA_PROFILE,
+        vol.Optional("payload", default={}): dict,
+        vol.Optional("device_id"): str,
+        vol.Optional("client_type"): str,
+        vol.Optional("device_token"): str,
+        vol.Optional("authorization"): str,
+        vol.Optional("music_dna_key"): str,
+    }
+)
+@_async_response
+async def websocket_music_dna_profile(hass: Any, connection: Any, msg: dict[str, Any]) -> None:
+    """Return Music DNA profile over HA websocket."""
+    payload = _payload_from_message(
+        msg,
+        (
+            "device_id",
+            "client_type",
+            "music_dna_key",
+        ),
+    )
+    headers = _headers_from_message(payload, msg)
+    result, status_code = await async_handle_music_dna_profile_payload(
+        hass,
+        payload,
+        headers=headers,
+        user_id=_connection_user_id(connection),
+    )
+    if 200 <= status_code < 300:
+        connection.send_result(msg["id"], result)
+        return
+    _send_error(connection, msg, result)
+
+
+@_websocket_command(
+    {
+        vol.Required("type"): WS_TYPE_MUSIC_DNA_SETTINGS,
+        vol.Optional("payload", default={}): dict,
+        vol.Optional("device_id"): str,
+        vol.Optional("client_type"): str,
+        vol.Optional("device_token"): str,
+        vol.Optional("authorization"): str,
+        vol.Optional("music_dna_key"): str,
+        vol.Optional("enabled"): bool,
+    }
+)
+@_async_response
+async def websocket_music_dna_settings(hass: Any, connection: Any, msg: dict[str, Any]) -> None:
+    """Update Music DNA opt-in over HA websocket."""
+    payload = _payload_from_message(
+        msg,
+        (
+            "device_id",
+            "client_type",
+            "music_dna_key",
+            "enabled",
+        ),
+    )
+    headers = _headers_from_message(payload, msg)
+    result, status_code = await async_handle_music_dna_settings_payload(
+        hass,
+        payload,
+        headers=headers,
+        user_id=_connection_user_id(connection),
+    )
+    if 200 <= status_code < 300:
+        connection.send_result(msg["id"], result)
+        return
+    _send_error(connection, msg, result)
+
+
+@_websocket_command(
+    {
+        vol.Required("type"): WS_TYPE_MUSIC_DNA_CLEAR,
+        vol.Optional("payload", default={}): dict,
+        vol.Optional("device_id"): str,
+        vol.Optional("client_type"): str,
+        vol.Optional("device_token"): str,
+        vol.Optional("authorization"): str,
+        vol.Optional("music_dna_key"): str,
+    }
+)
+@_async_response
+async def websocket_music_dna_clear(hass: Any, connection: Any, msg: dict[str, Any]) -> None:
+    """Clear Music DNA over HA websocket."""
+    payload = _payload_from_message(
+        msg,
+        (
+            "device_id",
+            "client_type",
+            "music_dna_key",
+        ),
+    )
+    headers = _headers_from_message(payload, msg)
+    result, status_code = await async_handle_music_dna_clear_payload(
+        hass,
+        payload,
+        headers=headers,
+        user_id=_connection_user_id(connection),
     )
     if 200 <= status_code < 300:
         connection.send_result(msg["id"], result)

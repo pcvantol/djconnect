@@ -29,7 +29,7 @@ class DiscoveryHelperTest(unittest.TestCase):
 
         return Info()
 
-    def test_ios_txt_with_valid_device_id_is_accepted(self) -> None:
+    def test_ios_txt_with_valid_device_id_is_ignored(self) -> None:
         client = self.discovery._client_from_service_info(
             self._info(
                 props={
@@ -45,13 +45,9 @@ class DiscoveryHelperTest(unittest.TestCase):
             )
         )
 
-        self.assertIsNotNone(client)
-        self.assertEqual(client.local_url, "http://192.168.1.42:51193")
-        self.assertEqual(client.client_type, "ios")
-        self.assertEqual(client.device_name, "DJConnect iPhone")
-        self.assertFalse(client.paired)
+        self.assertIsNone(client)
 
-    def test_macos_txt_with_valid_device_id_is_accepted(self) -> None:
+    def test_macos_txt_with_valid_device_id_is_ignored(self) -> None:
         client = self.discovery._client_from_service_info(
             self._info(
                 props={
@@ -63,11 +59,9 @@ class DiscoveryHelperTest(unittest.TestCase):
             )
         )
 
-        self.assertIsNotNone(client)
-        self.assertEqual(client.local_url, "http://djconnect-mac.local:60955")
-        self.assertEqual(client.client_type, "macos")
+        self.assertIsNone(client)
 
-    def test_watchos_txt_with_valid_device_id_is_accepted(self) -> None:
+    def test_watchos_txt_with_valid_device_id_is_ignored(self) -> None:
         client = self.discovery._client_from_service_info(
             self._info(
                 props={
@@ -84,14 +78,9 @@ class DiscoveryHelperTest(unittest.TestCase):
             )
         )
 
-        self.assertIsNotNone(client)
-        self.assertEqual(client.local_url, "http://192.168.1.77:61235")
-        self.assertEqual(client.client_type, "watchos")
-        self.assertEqual(client.device_name, "Peter Apple Watch")
-        self.assertEqual(client.version, "3.1.34")
-        self.assertFalse(client.paired)
+        self.assertIsNone(client)
 
-    def test_watchos_txt_accepts_known_apple_payload_aliases(self) -> None:
+    def test_watchos_txt_ignores_known_apple_payload_aliases(self) -> None:
         client = self.discovery._client_from_service_info(
             self._info(
                 props={
@@ -117,13 +106,7 @@ class DiscoveryHelperTest(unittest.TestCase):
             )
         )
 
-        self.assertIsNotNone(client)
-        self.assertEqual(client.local_url, "http://192.168.1.105:55817")
-        self.assertEqual(client.device_id, "djconnect-watchos-1861DE8383C3")
-        self.assertEqual(client.client_type, "watchos")
-        self.assertEqual(client.device_name, "Apple Watch")
-        self.assertEqual(client.pair_code, "186103")
-        self.assertFalse(client.paired)
+        self.assertIsNone(client)
 
     def test_raspberry_pi_txt_with_valid_device_id_is_accepted(self) -> None:
         client = self.discovery._client_from_service_info(
@@ -148,7 +131,7 @@ class DiscoveryHelperTest(unittest.TestCase):
         self.assertEqual(client.device_name, "DJConnect Pi")
         self.assertFalse(client.paired)
 
-    def test_windows_txt_with_valid_device_id_is_accepted(self) -> None:
+    def test_windows_txt_with_valid_device_id_is_ignored(self) -> None:
         client = self.discovery._client_from_service_info(
             self._info(
                 props={
@@ -165,11 +148,7 @@ class DiscoveryHelperTest(unittest.TestCase):
             )
         )
 
-        self.assertIsNotNone(client)
-        self.assertEqual(client.local_url, "http://192.168.1.88:61234")
-        self.assertEqual(client.client_type, "windows")
-        self.assertEqual(client.device_name, "DJConnect Windows")
-        self.assertFalse(client.paired)
+        self.assertIsNone(client)
 
     def test_client_type_device_id_mismatch_is_ignored(self) -> None:
         client = self.discovery._client_from_service_info(
@@ -406,7 +385,7 @@ class DiscoveryHelperTest(unittest.TestCase):
         self.assertTrue(clients[0].pairing_info_failed)
         self.assertIn("pairing-info unavailable", clients[0].label)
 
-    def test_async_discovery_accepts_watchos_after_pairing_info_probe(self) -> None:
+    def test_async_discovery_ignores_watchos_without_pairing_info_probe(self) -> None:
         watch_info = self._info(
             props={
                 "api": "device",
@@ -481,12 +460,8 @@ class DiscoveryHelperTest(unittest.TestCase):
             else:
                 components_module.zeroconf = original_zeroconf_attr
 
-        self.assertEqual(probe_urls, ["http://192.168.1.105:55817"])
-        self.assertEqual(len(clients), 1)
-        self.assertEqual(clients[0].device_id, "djconnect-watchos-1861DE8383C3")
-        self.assertEqual(clients[0].client_type, "watchos")
-        self.assertEqual(clients[0].device_name, "Apple Watch")
-        self.assertEqual(clients[0].pair_code, "186103")
+        self.assertEqual(probe_urls, [])
+        self.assertEqual(clients, [])
 
 
 if __name__ == "__main__":

@@ -86,7 +86,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"pair_code\": \"{{pair_code}}\",\n  \"pairing_code\": \"{{pair_code}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"platform\": \"{{client_type}}\",\n  \"device_id\": \"{{device_id}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"firmware\": \"3.2.3\",\n  \"app_version\": \"3.2.3\"\n}"
+              "raw": "{\n  \"pair_code\": \"{{pair_code}}\",\n  \"pairing_code\": \"{{pair_code}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"platform\": \"{{client_type}}\",\n  \"device_id\": \"{{device_id}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"firmware\": \"3.2.5\",\n  \"app_version\": \"3.2.5\"\n}"
             },
             "url": {
               "raw": "{{ha_base_url}}/api/djconnect/pair",
@@ -127,7 +127,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"platform\": \"{{client_type}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"firmware\": \"3.2.3\",\n  \"app_version\": \"3.2.3\",\n  \"battery_percent\": 86,\n  \"mood\": 42,\n  \"mood_zone\": \"groove\",\n  \"dj_style\": \"warm_radio_dj\",\n  \"music_dna_key\": \"{{music_dna_key}}\"\n}"
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"platform\": \"{{client_type}}\",\n  \"device_name\": \"{{device_name}}\",\n  \"firmware\": \"3.2.5\",\n  \"app_version\": \"3.2.5\",\n  \"battery_percent\": 86,\n  \"mood\": 42,\n  \"mood_zone\": \"groove\",\n  \"dj_style\": \"warm_radio_dj\",\n  \"music_dna_key\": \"{{music_dna_key}}\"\n}"
             },
             "url": {
               "raw": "{{ha_base_url}}/api/djconnect/status",
@@ -694,6 +694,117 @@
             },
             "description": "Synchronizes persistent HA-user Ask DJ history. Response includes user_id, history_revision, clear_revision, bounded messages[] and server_time."
           }
+        },
+        {
+          "name": "Music DNA - profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"music_dna_key\": \"{{music_dna_key}}\"\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/music_dna/profile",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "music_dna",
+                "profile"
+              ]
+            },
+            "description": "Fetches the structured server-side Music DNA profile for the client screen. If enabled is false, clients should show the opt-in/empty state instead of deriving a persistent profile from local Track Insight history."
+          }
+        },
+        {
+          "name": "Music DNA - set enabled",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"enabled\": true\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/music_dna/settings",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "music_dna",
+                "settings"
+              ]
+            },
+            "description": "Opts the resolved user/client context in or out of Music DNA. Disabling clears learned DNA and stops future knowledge collection."
+          }
+        },
+        {
+          "name": "Music DNA - clear",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"music_dna_key\": \"{{music_dna_key}}\"\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/music_dna/clear",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "music_dna",
+                "clear"
+              ]
+            },
+            "description": "Clears learned Music DNA while preserving the current opt-in setting. If Music DNA remains enabled, learning starts again from an empty profile."
+          }
         }
       ]
     },
@@ -716,7 +827,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"device_id\": \"djconnect-ios-ABCDEFGHIJKL\",\n  \"client_type\": \"ios\",\n  \"push_token\": \"apns-token-from-client\",\n  \"bootstrap_proof\": \"replace-with-short-lived-bootstrap-proof\",\n  \"push_environment\": \"sandbox\",\n  \"app_bundle_id\": \"dev.djconnect.app\",\n  \"app_version\": \"3.2.3\",\n  \"locale\": \"nl-NL\",\n  \"notification_categories\": [\n    \"ask_dj_response\",\n    \"ask_dj_confirm\",\n    \"playback_change\"\n  ]\n}"
+              "raw": "{\n  \"device_id\": \"djconnect-ios-ABCDEFGHIJKL\",\n  \"client_type\": \"ios\",\n  \"push_token\": \"apns-token-from-client\",\n  \"bootstrap_proof\": \"replace-with-short-lived-bootstrap-proof\",\n  \"push_environment\": \"sandbox\",\n  \"app_bundle_id\": \"dev.djconnect.app\",\n  \"app_version\": \"3.2.5\",\n  \"locale\": \"nl-NL\",\n  \"notification_categories\": [\n    \"ask_dj_response\",\n    \"ask_dj_confirm\",\n    \"playback_change\"\n  ]\n}"
             },
             "url": {
               "raw": "{{ha_base_url}}/api/djconnect/push/register",

@@ -11,12 +11,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import (
     CLIENT_TYPE_ESP32,
-    CLIENT_TYPE_IOS,
-    CLIENT_TYPE_MACOS,
-    CLIENT_TYPE_WATCHOS,
     CLIENT_TYPE_RASPBERRY_PI,
-    CLIENT_TYPE_WINDOWS,
-    CLIENT_TYPES,
     CONF_CLIENT_TYPE,
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
@@ -172,7 +167,10 @@ def _client_from_service_info(info: Any) -> DiscoveredClient | None:
     properties = _properties_from_service_info(info)
     client_type = str(properties.get(CONF_CLIENT_TYPE) or "").strip().lower()
     device_id = str(properties.get(CONF_DEVICE_ID) or "").strip()
-    if client_type not in CLIENT_TYPES or not _device_id_matches_client_type(
+    if client_type not in {
+        CLIENT_TYPE_ESP32,
+        CLIENT_TYPE_RASPBERRY_PI,
+    } or not _device_id_matches_client_type(
         device_id,
         client_type,
     ):
@@ -298,7 +296,7 @@ def _local_url_from_service_info(info: Any) -> str:
 def _is_valid_discovered_client(client: DiscoveredClient) -> bool:
     return bool(
         client.local_url
-        and client.client_type in CLIENT_TYPES
+        and client.client_type in {CLIENT_TYPE_ESP32, CLIENT_TYPE_RASPBERRY_PI}
         and _device_id_matches_client_type(client.device_id, client.client_type)
     )
 
@@ -316,19 +314,9 @@ def _dedupe_clients(clients: list[DiscoveredClient]) -> list[DiscoveredClient]:
 def _device_id_matches_client_type(device_id: str, client_type: str) -> bool:
     normalized_device = str(device_id or "").strip()
     normalized_client = str(client_type or "").strip().lower()
-    if normalized_client == CLIENT_TYPE_IOS:
-        return bool(re.fullmatch(r"djconnect-ios-[A-Za-z0-9]{12}", normalized_device))
-    if normalized_client == CLIENT_TYPE_MACOS:
-        return bool(re.fullmatch(r"djconnect-macos-[A-Za-z0-9]{12}", normalized_device))
-    if normalized_client == CLIENT_TYPE_WATCHOS:
-        return bool(re.fullmatch(r"djconnect-watchos-[A-Za-z0-9]{12}", normalized_device))
     if normalized_client == CLIENT_TYPE_RASPBERRY_PI:
         return bool(
             re.fullmatch(r"djconnect-raspberry-pi-[A-Za-z0-9]{12}", normalized_device)
-        )
-    if normalized_client == CLIENT_TYPE_WINDOWS:
-        return bool(
-            re.fullmatch(r"djconnect-windows-[A-Za-z0-9]{12}", normalized_device)
         )
     if normalized_client == CLIENT_TYPE_ESP32:
         return bool(
