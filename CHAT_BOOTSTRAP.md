@@ -77,7 +77,7 @@ Belangrijke huidige status:
   publieke `custom_components.djconnect.ask_dj` import compatibel en gebruik de
   provider-neutrale `listening_profile` payloadnaam; `spotify_profile` is alleen
   nog een tijdelijke legacy alias.
-- Compacte conversation-agent options-flow toont alleen actie en smart-home context allowlist; DJ response stijl/prompt is geen user-facing optie meer en volgt runtime client mood of de hardcoded default.
+- Compacte conversation-agent options-flow toont alleen actie; DJ response stijl/prompt is geen user-facing optie meer en volgt runtime client mood of de hardcoded default.
 - Verwijderde opties:
   - Spotify source override;
   - Standaard playlist override;

@@ -6,9 +6,10 @@ import asyncio
 import inspect
 import logging
 import secrets
+from io import StringIO
 from types import SimpleNamespace
 from typing import Any
-from urllib.parse import urlencode, urlparse
+from urllib.parse import quote, urlencode, urlparse
 
 import voluptuous as vol
 from homeassistant import config_entries
@@ -48,7 +49,6 @@ from .const import (
     CONF_SPOTIFY_REFRESH_TOKEN,
     CONF_SPOTIFY_SCOPES,
     CONF_SETUP_METHOD,
-    CONF_SMART_HOME_CONTEXT_ENTITIES,
     CONF_WIFI_PASSWORD,
     CONF_WIFI_SSID,
     DEFAULT_ASSIST_PIPELINE_ID,
@@ -122,6 +122,10 @@ BLE_ACTION_RETRY_SCAN = "retry_ble_scan"
 BLE_ACTION_CONTINUE_PAIRING = "continue_to_pairing"
 DISCOVERY_CLIENT_FIELD = "discovered_client"
 DISCOVERY_PAIRING_INFO_ERROR = "pairing_info_unavailable"
+APP_PAIR_CODE_DISPLAY_FIELD = "app_pair_code"
+APP_HA_LOCAL_URL_DISPLAY_FIELD = "app_ha_local_url"
+APP_IPHONE_PAIRING_URI_FIELD = "app_iphone_pairing_uri"
+APP_WATCH_PAIRING_URI_FIELD = "app_watch_pairing_uri"
 APP_PAIR_CODE_DIGITS = 6
 BLE_DISCOVERY_TIMEOUT = 5
 BLE_PROVISION_TIMEOUT = 25
@@ -192,7 +196,6 @@ CLIENT_TYPE_NAME_SUFFIXES = {
 VOICE_FORM_FIELDS = {
     CONF_ASSIST_PIPELINE_ID,
     CONF_DJ_RESPONSE_ENABLED,
-    CONF_SMART_HOME_CONTEXT_ENTITIES,
     CONF_FIRMWARE_CHANNEL,
 }
 
@@ -284,6 +287,27 @@ def _build_pairing_uri(ha_url: str, pair_code: str, client_type: str) -> str:
         }
     )
     return f"djconnect://pair?{query}"
+
+
+def _qr_svg_data_uri(value: str) -> str:
+    """Return an inline SVG QR code data URI for a pairing payload."""
+    payload = str(value or "").strip()
+    if not payload:
+        return ""
+    try:
+        import segno  # type: ignore[import-not-found]
+    except Exception:  # noqa: BLE001
+        return ""
+    out = StringIO()
+    segno.make(payload, error="m").save(
+        out,
+        kind="svg",
+        scale=4,
+        border=2,
+        xmldecl=False,
+        svgns=True,
+    )
+    return f"data:image/svg+xml;utf8,{quote(out.getvalue())}"
 
 
 def _central_api_install_id(current: dict[str, Any]) -> str:
@@ -777,10 +801,6 @@ def _base_voice_schema(
                 DEFAULT_DJ_RESPONSE_ENABLED,
             ),
         ): bool,
-        vol.Optional(
-            CONF_SMART_HOME_CONTEXT_ENTITIES,
-            default=_entity_allowlist_default(defaults),
-        ): _entity_allowlist_selector(),
     })
     if defaults.get(CONF_CLIENT_TYPE, DEFAULT_CLIENT_TYPE) == CLIENT_TYPE_ESP32:
         schema[
@@ -809,29 +829,6 @@ def _firmware_channel_selector() -> Any:
     return vol.In(FIRMWARE_CHANNELS)
 
 
-def _entity_allowlist_selector() -> Any:
-    """Return a HA entity multi-selector, falling back to comma-separated text."""
-    entity_selector = getattr(selector, "EntitySelector", None)
-    entity_config = getattr(selector, "EntitySelectorConfig", None)
-    if entity_selector and entity_config:
-        try:
-            return entity_selector(entity_config(multiple=True))
-        except TypeError:
-            return entity_selector(entity_config())
-    return selector.TextSelector(selector.TextSelectorConfig(multiline=True))
-
-
-def _entity_allowlist_default(defaults: dict[str, Any]) -> Any:
-    value = defaults.get(CONF_SMART_HOME_CONTEXT_ENTITIES, [])
-    if getattr(selector, "EntitySelector", None) and getattr(selector, "EntitySelectorConfig", None):
-        return value if isinstance(value, list) else []
-    if isinstance(value, str):
-        return value
-    if isinstance(value, (list, tuple, set)):
-        return ", ".join(str(item) for item in value if str(item).strip())
-    return ""
-
-
 def _conversation_agent_options_schema(
     hass: Any,
     defaults: dict[str, Any],
@@ -842,10 +839,6 @@ def _conversation_agent_options_schema(
             OPTIONS_ACTION_FIELD,
             default=OPTIONS_ACTION_SAVE,
         ): vol.In(_conversation_agent_options_actions(hass, defaults)),
-        vol.Optional(
-            CONF_SMART_HOME_CONTEXT_ENTITIES,
-            default=_entity_allowlist_default(defaults),
-        ): _entity_allowlist_selector(),
     }
     return vol.Schema(schema)
 
@@ -864,13 +857,7 @@ def _music_backend_switch_schema(defaults: dict[str, Any]) -> vol.Schema:
 
 def _conversation_agent_voice_schema(defaults: dict[str, Any]) -> vol.Schema:
     """Build the compact setup schema used for Assist conversation agent entries."""
-    schema: dict[Any, Any] = {
-        vol.Optional(
-            CONF_SMART_HOME_CONTEXT_ENTITIES,
-            default=_entity_allowlist_default(defaults),
-        ): _entity_allowlist_selector(),
-    }
-    return vol.Schema(schema)
+    return vol.Schema({})
 
 
 def _central_api_schema(current: dict[str, Any]) -> vol.Schema:
@@ -968,10 +955,6 @@ def _voice_defaults(
         ),
         CONF_FIRMWARE_CHANNEL: _firmware_channel_default(
             source.get(CONF_FIRMWARE_CHANNEL),
-        ),
-        CONF_SMART_HOME_CONTEXT_ENTITIES: source.get(
-            CONF_SMART_HOME_CONTEXT_ENTITIES,
-            [],
         ),
     }
 
@@ -1200,12 +1183,13 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> FlowResult:
         """Pair the DJConnect device using the displayed pair code."""
         errors: dict[str, str] = {}
+        step_id = self._pair_step_id()
         is_app_pairing = (
             getattr(self, "_pairing_setup_method", "") == SETUP_METHOD_PAIR_APP
         )
         if not _has_valid_assist_pipeline(getattr(self, "hass", None)):
             return self.async_show_form(
-                step_id="pair",
+                step_id=step_id,
                 data_schema=vol.Schema(self._user_schema()),
                 errors={"base": "assist_pipeline_required"},
             )
@@ -1259,7 +1243,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 ):
                     errors["base"] = DISCOVERY_PAIRING_INFO_ERROR
                     return self.async_show_form(
-                        step_id="pair",
+                        step_id=step_id,
                         data_schema=vol.Schema(self._user_schema()),
                         errors=errors,
                     )
@@ -1295,11 +1279,36 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_backend()
 
         return self.async_show_form(
-            step_id="pair",
+            step_id=step_id,
             data_schema=vol.Schema(self._user_schema()),
             errors=errors,
             description_placeholders=self._pair_description_placeholders(),
         )
+
+    def _pair_step_id(self) -> str:
+        """Return the translated pair-step variant for the selected setup path."""
+        method = getattr(self, "_pairing_setup_method", "")
+        if method == SETUP_METHOD_PAIR_LOCAL_DEVICE:
+            return "pair_local_device"
+        if method == SETUP_METHOD_PAIR_APP:
+            return "pair_app"
+        return "pair"
+
+    async def async_step_pair_local_device(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> FlowResult:
+        """Handle the translated local-device pair step."""
+        self._pairing_setup_method = SETUP_METHOD_PAIR_LOCAL_DEVICE
+        return await self.async_step_pair(user_input)
+
+    async def async_step_pair_app(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> FlowResult:
+        """Handle the translated app-client pair step."""
+        self._pairing_setup_method = SETUP_METHOD_PAIR_APP
+        return await self.async_step_pair(user_input)
 
     async def _ensure_app_pairing_defaults(self) -> None:
         """Prepare HA-generated pairing values for inbound-only app clients."""
@@ -1333,12 +1342,16 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def _pair_description_placeholders(self) -> dict[str, str]:
         """Return app pairing values shown in the HA config-flow description."""
         defaults = getattr(self, "_discovered_defaults", {})
+        iphone_pairing_uri = str(defaults.get("iphone_pairing_uri") or "")
+        watch_pairing_uri = str(defaults.get("watch_pairing_uri") or "")
         return {
             "pair_code": str(defaults.get(CONF_PAIR_CODE) or ""),
             "ha_local_url": str(defaults.get("ha_local_url") or ""),
             "pairing_uri": str(defaults.get(CONF_PAIRING_URI) or ""),
-            "iphone_pairing_uri": str(defaults.get("iphone_pairing_uri") or ""),
-            "watch_pairing_uri": str(defaults.get("watch_pairing_uri") or ""),
+            "iphone_pairing_uri": iphone_pairing_uri,
+            "watch_pairing_uri": watch_pairing_uri,
+            "iphone_qr_image": _qr_svg_data_uri(iphone_pairing_uri),
+            "watch_qr_image": _qr_svg_data_uri(watch_pairing_uri),
         }
 
     async def _ensure_mdns_discovery(self) -> None:
@@ -1438,7 +1451,27 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     **discovery_options,
                 }
             )
-        if getattr(self, "_pairing_setup_method", "") != SETUP_METHOD_PAIR_APP:
+        if getattr(self, "_pairing_setup_method", "") == SETUP_METHOD_PAIR_APP:
+            schema[vol.Optional(APP_PAIR_CODE_DISPLAY_FIELD, default=pair_code)] = str
+            schema[
+                vol.Optional(
+                    APP_HA_LOCAL_URL_DISPLAY_FIELD,
+                    default=str(defaults.get("ha_local_url") or ""),
+                )
+            ] = str
+            schema[
+                vol.Optional(
+                    APP_IPHONE_PAIRING_URI_FIELD,
+                    default=str(defaults.get("iphone_pairing_uri") or ""),
+                )
+            ] = str
+            schema[
+                vol.Optional(
+                    APP_WATCH_PAIRING_URI_FIELD,
+                    default=str(defaults.get("watch_pairing_uri") or ""),
+                )
+            ] = str
+        else:
             schema[vol.Optional(CONF_PAIR_CODE, default=pair_code)] = str
         schema.update(
             {
@@ -1482,6 +1515,18 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 user_input.get(CONF_MUSIC_BACKEND) or DEFAULT_MUSIC_BACKEND
             ).strip()
             if backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
+                if not _music_assistant_available(self.hass):
+                    return self.async_show_form(
+                        step_id="backend",
+                        data_schema=vol.Schema(_backend_schema()),
+                        errors={"base": "music_assistant_unavailable"},
+                    )
+                if not _music_assistant_players(self.hass):
+                    return self.async_show_form(
+                        step_id="backend",
+                        data_schema=vol.Schema(_backend_schema()),
+                        errors={"base": "music_assistant_no_players"},
+                    )
                 self._backend = {CONF_MUSIC_BACKEND: backend}
                 return await self.async_step_music_assistant()
             self._backend = {CONF_MUSIC_BACKEND: MUSIC_BACKEND_SPOTIFY_DIRECT}

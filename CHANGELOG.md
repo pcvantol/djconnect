@@ -1,5 +1,21 @@
 # Changelog
 
+## 3.2.7
+
+- Show real inline QR-code images for iPhone and Apple Watch app pairing while
+  keeping the generated pairing code, Home Assistant URL and deep-link payloads
+  visible as fallback fields.
+- Move Spotify trademark/non-affiliation copy out of pairing screens and into
+  the Spotify Direct / Music Assistant backend choice where Spotify is relevant.
+- Block Music Assistant backend setup when Music Assistant is unavailable or has
+  no players, avoiding the empty player selection screen.
+- Extend the macOS dev onboarding Docker Compose setup with Home Assistant,
+  Wyoming Whisper, Wyoming Piper and Music Assistant services.
+- Remove the shared smart-home entity context option and related Ask DJ context
+  plumbing from config/options flows.
+- Keep app, local-device and backend setup copy separated for ESP32/Raspberry
+  Pi versus iPhone, Apple Watch, macOS and Windows pairing routes.
+
 ## 3.2.6
 
 - Promote Music DNA to a first-class opt-in client/backend contract with

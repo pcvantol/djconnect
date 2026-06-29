@@ -436,11 +436,7 @@ Requirements:
   `groove` for `25`-`59`, `energy` for `60`-`84`, `party` for `85`-`100`.
   Clients may show title-case mode labels locally, but do not need to send
   `mood_zone`; HA derives the canonical lowercase value from `mood`.
-- DJ announcement intros may become more personal using compact Music DNA and
-  explicitly shared smart-home context. Weather/temperature wording, such as a
-  warm-day intro, may only come from HA entities configured in
-  `smart_home_context_entities`; clients must not collect or send arbitrary HA
-  states or local personal memory for this.
+- DJ announcement intros may become more personal using compact Music DNA. Clients must not collect or send arbitrary HA states or local personal memory for this.
 - Ask DJ text chat for iOS/macOS/watchOS/Raspberry Pi/Windows uses POST /api/djconnect/ask_dj/message.
   Request identity can be top-level or inside `identity`; include
   client_message_id for retry dedupe and client_id as origin metadata. Response
@@ -468,12 +464,6 @@ Requirements:
   history_retention` or `origin: spotify_playback_context`. Clients should
   style them as system/ambient assistant bubbles and must not auto-play audio
   for retention messages.
-- Smart-home-aware Ask DJ prompts are read-only and opt-in. The HA integration
-  only exposes entity states selected in `smart_home_context_entities`; clients
-  and sibling repos must not assume DJConnect can see arbitrary HA states.
-  System messages such as "droger klaar, wil je nu X horen?" should use the
-  normal Ask DJ message shape and confirmation-style playback_actions /
-  confirmation_actions before playback starts.
 - Ask DJ Push-To-Talk for iOS/macOS/watchOS/Windows uses POST /api/djconnect/voice with
   Content-Type audio/wav. The response includes transcript/recognized_text and
   the same rich Ask DJ fields. Send optional X-DJConnect-Mood,

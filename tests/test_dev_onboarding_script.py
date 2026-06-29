@@ -51,6 +51,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("--dry-run", result.stdout)
         self.assertIn("--plan", result.stdout)
         self.assertIn("--no-color", result.stdout)
+        self.assertIn("--ha-compose-file", result.stdout)
         self.assertIn("--windows-vm-name", result.stdout)
         self.assertIn("--windows-iso", result.stdout)
         self.assertIn("--ma-data-dir", result.stdout)
@@ -125,6 +126,23 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("DRY open -a", result.stdout)
         self.assertIn("DRY prlctl create", result.stdout)
 
+    def test_home_assistant_dry_run_uses_docker_compose(self) -> None:
+        result = run_script(
+            "--steps",
+            "9",
+            "--dry-run",
+            "--ha-compose-file",
+            "/tmp/djconnect-ha-compose.yml",
+            "--no-log-file",
+            "--no-color",
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("Using Docker Compose file: /tmp/djconnect-ha-compose.yml", result.stdout)
+        self.assertIn("DRY add homeassistant service to /tmp/djconnect-ha-compose.yml", result.stdout)
+        self.assertIn("DRY docker compose -f /tmp/djconnect-ha-compose.yml up -d homeassistant", result.stdout)
+        self.assertNotIn("docker run -d", result.stdout)
+
     def test_ci_smoke_requires_explicit_push_flag(self) -> None:
         result = run_script("--steps", "26", "--no-log-file", "--no-color")
 
@@ -179,7 +197,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertIn(
-            "PLAN 27. Install/start Music Assistant server for backend testing",
+            "PLAN 27. Install/start local HA voice/backend Docker Compose stack",
             result.stdout,
         )
 
@@ -188,6 +206,8 @@ class DevOnboardingScriptTests(unittest.TestCase):
             "--steps",
             "27",
             "--dry-run",
+            "--ha-compose-file",
+            "/tmp/djconnect-ha-compose.yml",
             "--ma-data-dir",
             "/tmp/djconnect-mass-test",
             "--no-log-file",
@@ -195,8 +215,18 @@ class DevOnboardingScriptTests(unittest.TestCase):
         )
 
         self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertIn("DRY docker run -d", result.stdout)
-        self.assertIn("--name music-assistant-server", result.stdout)
+        self.assertIn("Using Docker Compose file: /tmp/djconnect-ha-compose.yml", result.stdout)
+        self.assertIn(
+            "DRY add missing homeassistant, whisper, piper and music-assistant services to /tmp/djconnect-ha-compose.yml",
+            result.stdout,
+        )
+        self.assertIn("data dir /tmp/djconnect-mass-test", result.stdout)
+        self.assertIn("whisper image rhasspy/wyoming-whisper", result.stdout)
+        self.assertIn("piper image rhasspy/wyoming-piper", result.stdout)
+        self.assertIn(
+            "DRY docker compose -f /tmp/djconnect-ha-compose.yml up -d homeassistant whisper piper music-assistant",
+            result.stdout,
+        )
         self.assertIn("ghcr.io/music-assistant/server:latest", result.stdout)
         self.assertIn("DRY curl -fsS http://localhost:8095", result.stdout)
 

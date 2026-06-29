@@ -7,11 +7,18 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 GITHUB_ROOT="$(dirname "$REPO_ROOT")"
 DEFAULT_HA_CONFIG_DIR="${HOME}/docker/homeassistant/config"
 HA_CONFIG_DIR="${HA_CONFIG_DIR:-$DEFAULT_HA_CONFIG_DIR}"
+HA_COMPOSE_FILE="${HA_COMPOSE_FILE:-}"
 HA_CONTAINER_NAME="${HA_CONTAINER_NAME:-homeassistant}"
 HA_IMAGE="${HA_IMAGE:-ghcr.io/home-assistant/home-assistant:stable}"
 MA_CONTAINER_NAME="${MA_CONTAINER_NAME:-music-assistant-server}"
 MA_IMAGE="${MA_IMAGE:-ghcr.io/music-assistant/server:latest}"
 MA_DATA_DIR="${MA_DATA_DIR:-${HOME}/docker/music-assistant-server/data}"
+WHISPER_CONTAINER_NAME="${WHISPER_CONTAINER_NAME:-wyoming-whisper}"
+WHISPER_IMAGE="${WHISPER_IMAGE:-rhasspy/wyoming-whisper}"
+WHISPER_COMMAND="${WHISPER_COMMAND:---model tiny-int8 --language nl}"
+PIPER_CONTAINER_NAME="${PIPER_CONTAINER_NAME:-wyoming-piper}"
+PIPER_IMAGE="${PIPER_IMAGE:-rhasspy/wyoming-piper}"
+PIPER_COMMAND="${PIPER_COMMAND:---voice nl_NL-mls-medium}"
 MACOS_VM_NAME="${MACOS_VM_NAME:-DJConnect macOS Dev}"
 MACOS_VERSION="${MACOS_VERSION:-}"
 WINDOWS_VM_NAME="${WINDOWS_VM_NAME:-DJConnect Windows 11 ARM Dev}"
@@ -143,6 +150,9 @@ Options:
   --yes                 Use defaults and skip confirmation prompts.
   --ha-config-dir DIR   Home Assistant config directory.
                        Default: $DEFAULT_HA_CONFIG_DIR
+  --ha-compose-file FILE
+                       Docker Compose file for the local HA stack.
+                       Default: <ha-config-parent>/docker-compose.yml
   --vm-name NAME        Parallels macOS VM name for step 1.
                        Default: $MACOS_VM_NAME
   --macos-version VER   Optional macOS full installer version to fetch first.
@@ -172,11 +182,19 @@ Options:
 
 Environment overrides:
   HA_CONFIG_DIR         Same as --ha-config-dir.
+  HA_COMPOSE_FILE       Same as --ha-compose-file.
   HA_CONTAINER_NAME     Default: homeassistant.
   HA_IMAGE              Default: ghcr.io/home-assistant/home-assistant:stable.
   MA_CONTAINER_NAME     Default: music-assistant-server.
   MA_IMAGE              Default: ghcr.io/music-assistant/server:latest.
   MA_DATA_DIR           Same as --ma-data-dir.
+  WHISPER_CONTAINER_NAME
+                       Default: wyoming-whisper.
+  WHISPER_IMAGE         Default: rhasspy/wyoming-whisper.
+  WHISPER_COMMAND       Default: --model tiny-int8 --language nl.
+  PIPER_CONTAINER_NAME  Default: wyoming-piper.
+  PIPER_IMAGE           Default: rhasspy/wyoming-piper.
+  PIPER_COMMAND         Default: --voice nl_NL-mls-medium.
   MACOS_VM_NAME         Same as --vm-name.
   MACOS_VERSION         Same as --macos-version.
   WINDOWS_VM_NAME       Same as --windows-vm-name.
@@ -694,37 +712,21 @@ step_6_python_validation() {
 
 step_7_home_assistant_container() {
   step_3_docker
+  local compose_file
+  compose_file="$(resolve_ha_compose_file)"
   if [[ "$DRY_RUN" == "1" ]]; then
-    log "Dry-run: printing Home Assistant Docker container commands without requiring Docker to be running."
-    run mkdir -p "$HA_CONFIG_DIR"
-    run docker run -d \
-      --name "$HA_CONTAINER_NAME" \
-      --privileged \
-      --restart unless-stopped \
-      -e TZ=Europe/Amsterdam \
-      -v "$HA_CONFIG_DIR:/config" \
-      -p 8123:8123 \
-      "$HA_IMAGE"
+    log "Dry-run: printing Home Assistant Docker Compose commands without requiring Docker to be running."
+    log "Using Docker Compose file: $compose_file"
+    ensure_home_assistant_compose_service "$compose_file"
+    run docker compose -f "$compose_file" up -d homeassistant
     log "Home Assistant will be available at http://localhost:8123 after first startup."
     return
   fi
   docker info >/dev/null 2>&1 || die "Docker is not running. Start Docker Desktop and rerun this step."
-  log "Creating Home Assistant config directory at $HA_CONFIG_DIR."
-  run mkdir -p "$HA_CONFIG_DIR"
-  if docker ps -a --format '{{.Names}}' | grep -qx "$HA_CONTAINER_NAME"; then
-    log "Home Assistant container '$HA_CONTAINER_NAME' already exists."
-    run docker start "$HA_CONTAINER_NAME" >/dev/null
-  else
-    log "Starting Home Assistant container '$HA_CONTAINER_NAME'."
-    run docker run -d \
-      --name "$HA_CONTAINER_NAME" \
-      --privileged \
-      --restart unless-stopped \
-      -e TZ=Europe/Amsterdam \
-      -v "$HA_CONFIG_DIR:/config" \
-      -p 8123:8123 \
-      "$HA_IMAGE" >/dev/null
-  fi
+  log "Ensuring Home Assistant Docker Compose service in $compose_file."
+  ensure_home_assistant_compose_service "$compose_file"
+  log "Starting Home Assistant through Docker Compose."
+  run docker compose -f "$compose_file" up -d homeassistant
   docker ps --filter "name=$HA_CONTAINER_NAME" --format '{{.Names}}\t{{.Status}}\t{{.Ports}}'
   log "Home Assistant will be available at http://localhost:8123 after first startup."
   wait_for_home_assistant 180 || true
@@ -988,6 +990,227 @@ music_assistant_smoke_if_present() {
   fi
 }
 
+resolve_ha_compose_file() {
+  if [[ -n "$HA_COMPOSE_FILE" ]]; then
+    printf '%s' "$HA_COMPOSE_FILE"
+    return
+  fi
+  local compose_dir
+  compose_dir="$(dirname "$HA_CONFIG_DIR")"
+  if [[ -f "$compose_dir/docker-compose.yml" ]]; then
+    printf '%s' "$compose_dir/docker-compose.yml"
+  elif [[ -f "$compose_dir/compose.yml" ]]; then
+    printf '%s' "$compose_dir/compose.yml"
+  elif [[ -f "$compose_dir/docker-compose.yaml" ]]; then
+    printf '%s' "$compose_dir/docker-compose.yaml"
+  elif [[ -f "$compose_dir/compose.yaml" ]]; then
+    printf '%s' "$compose_dir/compose.yaml"
+  else
+    printf '%s' "$compose_dir/docker-compose.yml"
+  fi
+}
+
+ensure_home_assistant_compose_service() {
+  local compose_file="$1"
+  local compose_dir
+  compose_dir="$(dirname "$compose_file")"
+  if [[ "$DRY_RUN" == "1" ]]; then
+    run mkdir -p "$compose_dir" "$HA_CONFIG_DIR"
+    printf '%s add homeassistant service to %s using image %s\n' \
+      "$(style "$CLR_CYAN$CLR_BOLD" "DRY")" "$compose_file" "$HA_IMAGE"
+    return
+  fi
+  mkdir -p "$compose_dir" "$HA_CONFIG_DIR"
+  python3 - "$compose_file" "$HA_CONTAINER_NAME" "$HA_IMAGE" <<'PY'
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+compose_path = Path(sys.argv[1]).expanduser()
+container_name = sys.argv[2]
+image = sys.argv[3]
+
+service = f"""
+  homeassistant:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    container_name: {container_name}
+    image: {image}
+    volumes:
+      - ./config:/config
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=Europe/Amsterdam
+      - AIODNS_DISABLED=1
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+    ports:
+      - "8123:8123"
+    networks:
+      - ha_net
+    restart: unless-stopped
+"""
+
+if compose_path.exists():
+    text = compose_path.read_text(encoding="utf-8")
+else:
+    text = "services:\n\nnetworks:\n  ha_net:\n    driver: bridge\n    enable_ipv6: false\n"
+
+if "services:" not in text:
+    raise SystemExit(f"{compose_path} does not look like a Docker Compose file: missing services:")
+
+if "\n  homeassistant:" in text:
+    print(f"Service homeassistant already exists in {compose_path}.")
+else:
+    if "\nnetworks:" in text:
+        text = text.replace("\nnetworks:", service + "\nnetworks:", 1)
+    else:
+        if not text.endswith("\n"):
+            text += "\n"
+        text += service
+
+if "\nnetworks:" not in text:
+    text += "\nnetworks:\n  ha_net:\n    driver: bridge\n    enable_ipv6: false\n"
+elif "\n  ha_net:" not in text:
+    text = text.rstrip() + "\n  ha_net:\n    driver: bridge\n    enable_ipv6: false\n"
+
+compose_path.write_text(text, encoding="utf-8")
+print(f"Ensured Home Assistant service in {compose_path}.")
+PY
+}
+
+ensure_ha_voice_backend_compose_services() {
+  local compose_file="$1"
+  local compose_dir
+  compose_dir="$(dirname "$compose_file")"
+  if [[ "$DRY_RUN" == "1" ]]; then
+    run mkdir -p "$compose_dir" "$MA_DATA_DIR"
+    printf '%s add missing homeassistant, whisper, piper and music-assistant services to %s\n' \
+      "$(style "$CLR_CYAN$CLR_BOLD" "DRY")" "$compose_file"
+    printf '%s music-assistant image %s with data dir %s\n' \
+      "$(style "$CLR_CYAN$CLR_BOLD" "DRY")" "$MA_IMAGE" "$MA_DATA_DIR"
+    printf '%s whisper image %s command %s\n' \
+      "$(style "$CLR_CYAN$CLR_BOLD" "DRY")" "$WHISPER_IMAGE" "$WHISPER_COMMAND"
+    printf '%s piper image %s command %s\n' \
+      "$(style "$CLR_CYAN$CLR_BOLD" "DRY")" "$PIPER_IMAGE" "$PIPER_COMMAND"
+    return
+  fi
+  mkdir -p "$compose_dir" "$MA_DATA_DIR"
+  python3 - "$compose_file" "$HA_CONTAINER_NAME" "$HA_IMAGE" "$MA_CONTAINER_NAME" "$MA_IMAGE" "$MA_DATA_DIR" "$WHISPER_CONTAINER_NAME" "$WHISPER_IMAGE" "$WHISPER_COMMAND" "$PIPER_CONTAINER_NAME" "$PIPER_IMAGE" "$PIPER_COMMAND" <<'PY'
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+compose_path = Path(sys.argv[1]).expanduser()
+ha_container_name = sys.argv[2]
+ha_image = sys.argv[3]
+ma_container_name = sys.argv[4]
+ma_image = sys.argv[5]
+ma_data_dir = sys.argv[6]
+whisper_container_name = sys.argv[7]
+whisper_image = sys.argv[8]
+whisper_command = sys.argv[9]
+piper_container_name = sys.argv[10]
+piper_image = sys.argv[11]
+piper_command = sys.argv[12]
+
+
+services = {
+    "homeassistant": f"""
+  homeassistant:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    container_name: {ha_container_name}
+    image: {ha_image}
+    volumes:
+      - ./config:/config
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=Europe/Amsterdam
+      - AIODNS_DISABLED=1
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+    ports:
+      - "8123:8123"
+    networks:
+      - ha_net
+    restart: unless-stopped
+""",
+    "whisper": f"""
+  whisper:
+    container_name: {whisper_container_name}
+    image: {whisper_image}
+    command: {whisper_command}
+    ports:
+      - "10300:10300"
+    networks:
+      - ha_net
+    restart: unless-stopped
+""",
+    "piper": f"""
+  piper:
+    container_name: {piper_container_name}
+    image: {piper_image}
+    command: {piper_command}
+    ports:
+      - "10200:10200"
+    networks:
+      - ha_net
+    restart: unless-stopped
+""",
+    "music-assistant": f"""
+  music-assistant:
+    container_name: {ma_container_name}
+    image: {ma_image}
+    volumes:
+      - {ma_data_dir}:/data
+    ports:
+      - "8095:8095"
+    networks:
+      - ha_net
+    restart: unless-stopped
+""",
+}
+
+if compose_path.exists():
+    text = compose_path.read_text(encoding="utf-8")
+else:
+    text = "services:\n\nnetworks:\n  ha_net:\n    driver: bridge\n    enable_ipv6: false\n"
+
+if "services:" not in text:
+    raise SystemExit(f"{compose_path} does not look like a Docker Compose file: missing services:")
+
+added = []
+for name, service in services.items():
+    aliases = {name, name.replace("-", "_")}
+    if any(f"\n  {alias}:" in text for alias in aliases):
+        print(f"Service {name} already exists in {compose_path}.")
+        continue
+    if "\nnetworks:" in text:
+        text = text.replace("\nnetworks:", service + "\nnetworks:", 1)
+    else:
+        if not text.endswith("\n"):
+            text += "\n"
+        text += service
+    added.append(name)
+
+if "\nnetworks:" not in text:
+    text += "\nnetworks:\n  ha_net:\n    driver: bridge\n    enable_ipv6: false\n"
+elif "\n  ha_net:" not in text:
+    text = text.rstrip() + "\n  ha_net:\n    driver: bridge\n    enable_ipv6: false\n"
+
+compose_path.write_text(text, encoding="utf-8")
+if added:
+    print(f"Added services to {compose_path}: {', '.join(added)}.")
+else:
+    print(f"No compose service changes needed in {compose_path}.")
+PY
+}
+
 websocket_capability_smoke_if_configured() {
   local ws_url="${DJCONNECT_HA_WS_URL:-}"
   local token="${DJCONNECT_HA_TOKEN:-}"
@@ -1169,36 +1392,28 @@ step_24_e2e_local_release_smoke() {
 
 step_26_music_assistant_server() {
   step_3_docker
-  log "Installing/starting Music Assistant server container."
+  log "Installing/starting the local Home Assistant voice/backend Docker Compose stack."
+  warn "Whisper/Piper are Wyoming STT/TTS services; add their integrations in Home Assistant after startup."
   warn "Music Assistant provider and player setup is still manual in the MA UI and HA UI."
-  warn "The Home Assistant Music Assistant integration is part of HA; this step starts the separate MA server for backend testing."
-  run mkdir -p "$MA_DATA_DIR"
+  warn "The Home Assistant Music Assistant integration is part of HA; this step adds the separate MA server to the local HA compose stack."
+  local compose_file
+  compose_file="$(resolve_ha_compose_file)"
+  log "Using Docker Compose file: $compose_file"
+  log "Music Assistant image: $MA_IMAGE"
+  log "Whisper image: $WHISPER_IMAGE"
+  log "Piper image: $PIPER_IMAGE"
+  ensure_ha_voice_backend_compose_services "$compose_file"
   if [[ "$DRY_RUN" == "1" ]]; then
-    run docker run -d \
-      --name "$MA_CONTAINER_NAME" \
-      --restart unless-stopped \
-      --network host \
-      -v "$MA_DATA_DIR:/data" \
-      "$MA_IMAGE"
+    run docker compose -f "$compose_file" up -d homeassistant whisper piper music-assistant
     run curl -fsS http://localhost:8095
     return
   fi
   docker info >/dev/null 2>&1 || die "Docker is not running. Start Docker Desktop and rerun this step."
-  if docker ps -a --format '{{.Names}}' | grep -qx "$MA_CONTAINER_NAME"; then
-    log "Music Assistant container '$MA_CONTAINER_NAME' already exists."
-    run docker start "$MA_CONTAINER_NAME" >/dev/null
-  else
-    log "Starting Music Assistant container '$MA_CONTAINER_NAME'."
-    run docker run -d \
-      --name "$MA_CONTAINER_NAME" \
-      --restart unless-stopped \
-      --network host \
-      -v "$MA_DATA_DIR:/data" \
-      "$MA_IMAGE" >/dev/null
-  fi
-  docker ps --filter "name=$MA_CONTAINER_NAME" --format '{{.Names}}\t{{.Status}}\t{{.Ports}}'
+  run docker compose -f "$compose_file" up -d homeassistant whisper piper music-assistant
+  docker ps --filter "name=$HA_CONTAINER_NAME|$WHISPER_CONTAINER_NAME|$PIPER_CONTAINER_NAME|$MA_CONTAINER_NAME" --format '{{.Names}}\t{{.Status}}\t{{.Ports}}'
   log "Music Assistant should become available at http://localhost:8095."
-  log "After it starts, configure providers/players in Music Assistant and add the Music Assistant integration in Home Assistant."
+  log "Whisper should listen on port 10300 and Piper on port 10200."
+  log "After startup, configure Wyoming Protocol and Music Assistant integrations in Home Assistant."
   music_assistant_smoke_if_present
 }
 
@@ -1364,7 +1579,7 @@ $(style "$CLR_BOLD" "Core Home Assistant")
   6. Codex CLI
   7. Clone/update DJConnect repo
   8. Run repo validation tests
-  9. Create/start Home Assistant Docker container
+  9. Create/start Home Assistant with Docker Compose
  10. Install HACS into Home Assistant
  11. Sync DJConnect custom integration into Home Assistant
  12. GitHub/Codex auth checks and summary
@@ -1384,7 +1599,7 @@ $(style "$CLR_BOLD" "Cross Repo")
  24. Apply package manager upgrades
  25. Local E2E release/build smoke checks
  26. GitHub CI smoke push and workflow validation
- 27. Install/start Music Assistant server for backend testing
+ 27. Install/start local HA voice/backend Docker Compose stack
 
 $(style "$CLR_BOLD" "Examples")
   ./$SCRIPT_NAME --all --yes
@@ -1449,7 +1664,7 @@ step_label() {
     6) printf 'Codex CLI' ;;
     7) printf 'Clone/update DJConnect repo' ;;
     8) printf 'Run repo validation tests' ;;
-    9) printf 'Create/start Home Assistant Docker container' ;;
+    9) printf 'Create/start Home Assistant with Docker Compose' ;;
     10) printf 'Install HACS into Home Assistant' ;;
     11) printf 'Sync DJConnect custom integration into Home Assistant' ;;
     12) printf 'GitHub/Codex auth checks and summary' ;;
@@ -1467,7 +1682,7 @@ step_label() {
     24) printf 'Apply package manager upgrades' ;;
     25) printf 'Local E2E release/build smoke checks' ;;
     26) printf 'GitHub CI smoke push and workflow validation' ;;
-    27) printf 'Install/start Music Assistant server for backend testing' ;;
+    27) printf 'Install/start local HA voice/backend Docker Compose stack' ;;
     *) printf 'Unknown step' ;;
   esac
 }
@@ -1549,6 +1764,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --ha-config-dir)
       HA_CONFIG_DIR="${2:-}"
+      shift 2
+      ;;
+    --ha-compose-file)
+      HA_COMPOSE_FILE="${2:-}"
       shift 2
       ;;
     --vm-name)

@@ -71,7 +71,7 @@
 - Confirm AI DJ announcements use the selected/default HA Assist conversation engine when no DJConnect Assist pipeline is explicitly selected.
 - Confirm Voice Preview Edition can select the `DJConnect DJ` conversation agent and receives the generated DJ response through its speaker.
 - Confirm initial setup can create an Assist Conversation Agent-only entry without a DJConnect client pairing code.
-- Confirm the DJConnect conversation-agent options dialog only shows the action selector and smart-home context allowlist; DJ response style/prompt controls must stay removed because announcements follow runtime mood/default style.
+- Confirm the DJConnect conversation-agent options dialog only shows the action selector; DJ response style/prompt controls must stay removed because announcements follow runtime mood/default style.
 - Confirm successful DJ announcement TTS creates an `audio_url` using a local
   Home Assistant URL even when older HA network helpers are unavailable.
   Automated coverage now exercises keyword and positional HA TTS media-source
@@ -216,7 +216,6 @@
   playlists. Automated coverage verifies compact item payloads and no playback
   mutation; app clients still need rendering field validation.
 - Confirm Watch/iOS mood values map to the canonical DJConnect zones: Chill `0`-`24`, Groove `25`-`59`, Energy `60`-`84` and Party `85`-`100`.
-- Confirm smart-home-aware Ask DJ prompts only include explicitly shared `smart_home_context_entities`, never arbitrary HA states, and still require Ja/Nee confirmation before playback starts.
 
 ## Security / Privacy
 

@@ -334,11 +334,7 @@ when runtime mood is available, the mood zone drives the final announcement
 tone; otherwise DJConnect uses its hardcoded default announcement style.
 Responses do not need to echo mood fields.
 
-Spoken DJ announcements may include one short personal intro line when compact
-Music DNA or explicitly shared smart-home context makes that natural. Temperature
-or weather wording is allowed only from entities configured in
-`smart_home_context_entities`, for example a shared outdoor temperature sensor.
-Clients must not send arbitrary Home Assistant state or local memory for this.
+Spoken DJ announcements may include one short personal intro line when compact Music DNA makes that natural. Clients must not send arbitrary Home Assistant state or local memory for this.
 
 ## Track Insight
 
@@ -951,16 +947,8 @@ Central API event payload shape for `ask_dj_confirm`:
 }
 ```
 
-## Smart-Home Context
+## Playback Confirmation
 
-Ask DJ may use selected Home Assistant entity state as read-only context for
-future smart-home aware system messages, such as weather, room temperature,
-appliance-ready or scene-changed prompts.
-
-Only entities explicitly configured in `smart_home_context_entities` are exposed
-to Ask DJ. DJConnect must not expose arbitrary HA states and must not mutate
-smart-home devices from this context.
-
-If Ask DJ proposes music after a smart-home event, playback must still start only
+If Ask DJ proposes music from a contextual follow-up, playback must still start only
 after confirmation via `playback_actions[]` / `confirmation_actions[]` and
 `command:"ask_dj_followup_response"`.

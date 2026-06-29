@@ -446,28 +446,20 @@ def _personal_intro_style_text(memory_context: str | None, language: str = "nl")
     if not str(language or "").lower().startswith("nl"):
         return (
             "You may add one short personal opening line when it feels natural, based "
-            "only on the compact Music DNA context below and on explicitly shared "
-            "Home Assistant smart-home context. If a shared weather or temperature "
-            "entity indicates it is warm, cold, rainy or evening, you may weave that "
-            "into the intro, for example 'Warm day out there, let's get into a sunny "
-            "groove' or 'Rain outside, perfect time for something cozy'. Keep it "
-            "warm, playful and non-repetitive, for example 'Good to have you back', "
+            "only on the compact Music DNA context below. Keep it warm, playful "
+            "and non-repetitive, for example 'Good to have you back', "
             "'Let's make this a beautiful musical day' or 'Let's rock and roll, baby'. "
             "Do not force this intro on every response and do not mention that memory "
-            "or Home Assistant context exists.\n\n"
+            "exists.\n\n"
             f"Compact Music DNA context:\n{context}"
         )
     return (
         "Je mag, als het natuurlijk voelt, één korte persoonlijke openingszin toevoegen "
-        "op basis van de compacte Music DNA context hieronder en expliciet gedeelde "
-        "Home Assistant smart-home context. Als een gedeelde weer- of temperatuurentity "
-        "laat zien dat het warm, koud, regenachtig of avond is, mag je dat subtiel "
-        "meenemen, bijvoorbeeld 'Het is een warme dag, we gaan lekker swingen' of "
-        "'Buiten regent het, dus we maken het binnen extra gezellig'. Houd het warm, "
+        "op basis van de compacte Music DNA context hieronder. Houd het warm, "
         "speels en afwisselend, bijvoorbeeld 'Fijn dat je er weer bent', 'We gaan er "
         "weer een mooie muzikale dag van maken' of 'Let's rock and roll, baby'. "
         "Forceer zo'n intro niet bij ieder antwoord en zeg niet dat er memory of "
-        "Home Assistant context bestaat.\n\n"
+        "Music DNA context bestaat.\n\n"
         f"Compacte Music DNA context:\n{context}"
     )
 

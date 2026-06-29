@@ -167,9 +167,20 @@ backend option:
 ./tools/dev_onboarding_macos.sh --steps 27
 ```
 
-The server uses the Docker image `ghcr.io/music-assistant/server:latest`, stores
-data under `/Users/pcvantol/docker/music-assistant-server/data` by default and
-serves its UI on:
+The script adds any missing `homeassistant`, `whisper`, `piper` and
+`music-assistant` services to the local Home Assistant Docker Compose file, then
+runs:
+
+```bash
+docker compose -f /Users/pcvantol/docker/homeassistant/docker-compose.yml up -d homeassistant whisper piper music-assistant
+```
+
+Whisper uses `rhasspy/wyoming-whisper` with `--model tiny-int8 --language nl` on
+port `10300`. Piper uses `rhasspy/wyoming-piper` with
+`--voice nl_NL-mls-medium` on port `10200`. Music Assistant uses the Docker
+image `ghcr.io/music-assistant/server:latest`, stores data under
+`/Users/pcvantol/docker/music-assistant-server/data` by default and serves its UI
+on:
 
 ```text
 http://localhost:8095
@@ -182,6 +193,13 @@ Override the data path with:
 
 ```bash
 ./tools/dev_onboarding_macos.sh --steps 27 --ma-data-dir /path/to/music-assistant-data
+```
+
+If your compose file is not next to the Home Assistant `config` directory, pass
+it explicitly:
+
+```bash
+./tools/dev_onboarding_macos.sh --steps 27 --ha-compose-file /path/to/docker-compose.yml
 ```
 
 For unattended setup of only this Home Assistant integration:
@@ -220,6 +238,12 @@ The installed custom integration path is:
 /Users/pcvantol/docker/homeassistant/config/custom_components/djconnect
 ```
 
+The default local stack is managed through Docker Compose at:
+
+```text
+/Users/pcvantol/docker/homeassistant/docker-compose.yml
+```
+
 ## Install The Current Working Tree Into Home Assistant
 
 From this repository root, sync the current integration into the Docker Home
@@ -239,10 +263,10 @@ Confirm the installed manifest:
 python3 -m json.tool /Users/pcvantol/docker/homeassistant/config/custom_components/djconnect/manifest.json
 ```
 
-Then restart Home Assistant Core by restarting the Docker container:
+Then restart Home Assistant Core through Docker Compose:
 
 ```bash
-docker restart homeassistant
+docker compose -f /Users/pcvantol/docker/homeassistant/docker-compose.yml up -d homeassistant
 docker ps --filter name=homeassistant --format '{{.Names}}\t{{.Status}}\t{{.Ports}}'
 ```
 

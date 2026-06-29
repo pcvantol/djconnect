@@ -445,9 +445,7 @@ class AssistPipelineTest(unittest.TestCase):
                     "tts_language": "nl-NL",
                 },
                 memory_context=(
-                    "Luistertijdcontext: zaterdag, ochtend, weekend, 10:00\n"
-                    "Expliciet gedeelde smart-home context voor persoonlijke intro's: "
-                    "Buitentemperatuur (sensor.outdoor_temperature): 27 °C"
+                    "Luistertijdcontext: zaterdag, ochtend, weekend, 10:00"
                 ),
             )
         )
@@ -455,10 +453,10 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertEqual(text, "Fijn dat je er weer bent. Nirvana slingert de dag aan.")
         prompt = calls[0]["text"]
         self.assertIn("persoonlijke openingszin", prompt)
-        self.assertIn("Het is een warme dag, we gaan lekker swingen", prompt)
-        self.assertIn("Buitentemperatuur", prompt)
-        self.assertIn("27 °C", prompt)
-        self.assertIn("zeg niet dat er memory of Home Assistant context bestaat", prompt)
+        self.assertIn("Fijn dat je er weer bent", prompt)
+        self.assertNotIn("Home Assistant entity state", prompt)
+        self.assertNotIn("Buitentemperatuur", prompt)
+        self.assertIn("zeg niet dat er memory of Music DNA context bestaat", prompt)
 
     def test_generate_dj_response_ignores_assist_device_lookup_error(self) -> None:
         class Services:

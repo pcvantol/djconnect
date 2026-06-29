@@ -234,8 +234,6 @@ class ProcessorRuntimeTest(unittest.TestCase):
             self.assertEqual(media["mood"], 70)
             self.assertEqual(media["mood_zone"], "energy")
             self.assertIn("festival", conf["dj_response_prompt"])
-            self.assertIn("Buitentemperatuur", memory_context or "")
-            self.assertIn("27 °C", memory_context or "")
             if debug is not None:
                 debug["fallback_used"] = False
             return "Pearl Jam komt binnen alsof de festivalweide net wakker wordt."
@@ -248,21 +246,12 @@ class ProcessorRuntimeTest(unittest.TestCase):
         runtime.config = {
             "dj_response_prompt": "Maak een energieke festival-DJ-aankondiging.",
             "tts_language": "nl",
-            "smart_home_context_entities": ["sensor.outdoor_temperature"],
         }
-        class State:
-            state = "27"
-            name = "Buitentemperatuur"
-            attributes = {"unit_of_measurement": "°C", "device_class": "temperature"}
-
-        class States:
-            def get(self, entity_id):
-                return State() if entity_id == "sensor.outdoor_temperature" else None
 
         try:
             result = asyncio.run(
                 self.processor.process_text_command(
-                    types.SimpleNamespace(states=States()),
+                    types.SimpleNamespace(),
                     runtime,
                     "ik wil pearl jam starten",
                     play=True,

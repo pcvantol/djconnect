@@ -16,7 +16,6 @@ from .pipeline import (
 from .music_dna import prompt_context_text
 from .mood import enrich_payload_with_mood_zone
 from .music_intent import parse_spoken_music_request
-from .smart_home_context import smart_home_context, smart_home_context_text
 from .spotify import play_from_intent
 from .spotify_backend import SpotifyBackendError
 from .use_cases import run_music_command
@@ -432,15 +431,7 @@ def _announcement_context(
     memory_context: str | None = None,
 ) -> str:
     """Return compact context for personal DJ announcement intros."""
-    parts = [str(memory_context or "").strip()]
-    home_context = smart_home_context(hass, runtime)
-    home_text = smart_home_context_text(home_context)
-    if home_text:
-        parts.append(
-            "Expliciet gedeelde smart-home context voor persoonlijke intro's: "
-            f"{home_text}"
-        )
-    return "\n".join(part for part in parts if part)
+    return str(memory_context or "").strip()
 
 
 async def _lookup_current_playback(

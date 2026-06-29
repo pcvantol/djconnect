@@ -55,7 +55,7 @@ Architectuur beslissingen:
 - `/api/djconnect/status`, `/api/djconnect/command` en `/api/djconnect/voice` mogen optioneel `mood` (`0`-`100`), `dj_style` en `music_dna_key` accepteren voor Ask DJ. HA mag `music_dna_key` normaliseren/overrulen en kan de resolved `music_dna_key` teruggeven.
 - Ask DJ mood-zones worden server-side uit numerieke Apple client mood afgeleid: `0`-`24` = `chill`, `25`-`59` = `groove`, `60`-`84` = `energy`, `85`-`100` = `party`; waarden worden naar `0`-`100` geclamped en ontbrekende/ongeldige mood behoudt bestaand defaultgedrag.
 - Ask DJ aankondigingsstijl gebruikt runtime mood als promptcontext; er is geen losse user-facing DJ style/prompt optie meer. Album-playbackantwoorden houden album- en trackmetadata gescheiden, zodat een albumrequest niet het album als tracktitel uitspreekt.
-- DJ aankondigingen mogen één korte persoonlijke introzin gebruiken op basis van compacte Music DNA en expliciet gedeelde smart-home context. Temperatuur-/weerzinnen mogen alleen uit `smart_home_context_entities` komen; DJConnect mag hiervoor geen willekeurige HA state of client-local memory gebruiken.
+- DJ aankondigingen mogen één korte persoonlijke introzin gebruiken op basis van compacte Music DNA. DJConnect mag hiervoor geen willekeurige HA state of client-local memory gebruiken.
 - Actieve HA routes gebruiken geen directe externe AI/STT/TTS APIs; gebruik HA Assist en HA TTS.
 - DJ responses spelen op het DJConnect device af, niet via Spotify Connect of HA media_player; HA post `text` plus optionele tijdelijke WAV/MP3 `audio_url` naar `/api/device/dj_response`.
 - Fallback DJ responses bij command/playback fouten moeten de gekozen `device_language` volgen (`en`/`nl`).
@@ -65,7 +65,7 @@ Architectuur beslissingen:
 - Spotify refresh-token rotatie moet stil blijven voor clients: als een refresh token `invalid_grant` geeft, probeer eerst iedere nieuwere opgeslagen runtime/config-entry/config refresh token voordat je een Repair issue aanmaakt. Log alleen expiry/bron/rotatie-metadata en nooit tokenwaarden.
 - Als ESP `/api/djconnect/status` `spotify_configured=false` meldt, behandel dit alleen als compat/statushint voor backend playback; stuur geen Spotify OAuth credentials naar ESP.
 - BLE provisioning doet alleen WiFi SSID/password; geen Spotify credentials, device tokens of andere secrets via BLE.
-- Runtime discovery prefereert device-reported `local_url`, exacte `_djconnect._tcp` mDNS matches en daarna alleen een enkele zichtbare DJConnect mDNS service; genereer alleen model-specifieke hostnames zoals `http://djconnect-lilygo-t-embed-s3-[device-suffix].local` voor echte device IDs met 12-hex suffix, nooit voor 6-cijferige setupcodes.
+- Runtime discovery prefereert device-reported `local_url`, exacte `_djconnect._tcp` mDNS matches en daarna alleen een enkele zichtbare DJConnect mDNS service; genereer geen hostnames uit 6-cijferige setupcodes.
 - Normale config-flow blijft klein; de setupmethode wordt alleen in de eerste stap gekozen en niet herhaald in de pairingstap. Clienttype-keuzes staan in de volgorde iOS, macOS, Apple Watch, Linux/Raspberry Pi, Windows en ESP32. Firmware channel is alleen zichtbaar voor ESP32 clients; iOS/macOS/watchOS lopen via app-distributie/TestFlight en Linux/Raspberry Pi/Windows via eigen GitHub source/install flow. Max audio bytes, OTA battery settings en DJ announcement audio TTL gebruiken interne defaults en worden niet meer als config/options velden getoond. Spotify source override en standaard playlist override worden niet meer als config/options velden getoond. Firmware repo/asset/device settings horen niet meer in de flow; ESP32 OTA selecteert automatisch uit het public firmware manifest op basis van ESP device status/info. ESP32 gebruikers mogen wisselen tussen firmwarekanaal `stable` en `beta`.
 - Alle entities horen onder één HA device met één stabiele device identifier.
 - DJConnect repos zijn MIT-licensed tenzij een specifieke third-party dependency anders vermeldt.
@@ -90,7 +90,7 @@ Licentie/commercieel:
 HA integration:
 - domain: `djconnect`
 - HACS custom integration.
-- Actuele integratieversie: `3.2.6`.
+- Actuele integratieversie: `3.2.7`.
 - Config flow moet blijven laden.
 - Centrale DJConnect API calls vanuit HACS gebruiken per-install `djci_` tokens, nooit een globale relay/operator secret. Voor Apple push clients (`ios`, `macos`, `watchos`) mag HACS een short-lived `bootstrap_proof` uit push registration/pairing/status gebruiken om via `/v1/install/token` een `djci_` token te minten; zonder proof blijft Apple push disabled/best-effort. ESP32, Raspberry Pi en Assist Conversation Agent-only entries hebben deze proof niet nodig omdat zij geen APNs push gebruiken.
 - Config flow blokkeert niet meer op een officiële Home Assistant Spotify `media_player` entity; DJConnect gebruikt eigen Spotify OAuth en de Spotify Web API voor backend playback.
@@ -119,7 +119,7 @@ HA integration:
 - Setup-code based pairing mag tijdelijk `djconnect-[6-cijferige-code]` gebruiken, maar HA moet na de eerste ESP status/command/voice call met dezelfde bearer token alleen de echte model-specifieke `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX` device-id accepteren, leren en persistent opslaan.
 - ESP32 device UI language wordt tijdens pairing automatisch gekozen als `en`/`nl`, default op HA taal indien ondersteund, en alleen voor ESP32 meegestuurd als `device_language` en `language`; ESP slaat dit op als `provision.language`. iOS, macOS, watchOS, Raspberry Pi en Windows clients bepalen hun taal zelf en krijgen geen HA-geforceerde `device_language`/`language` in pairing/status responses.
 - HA stuurt tijdens pairing `client_type` mee en bewaart dit persistent; ESP firmware gebruikt `esp32`, Apple app-clients gebruiken respectievelijk `ios`, `macos` of `watchos`, Raspberry Pi clients gebruiken `raspberry_pi` en Windows clients gebruiken `windows`.
-- Koppelcode/device-suffix uit de HA config-flow moet worden opgeslagen en ESP pairing moet een afwijkende code weigeren.
+- De 6-cijferige koppelcode uit de HA config-flow moet worden opgeslagen en ESP pairing moet een afwijkende code weigeren.
 - HA pairingstatus mag pas `paired` tonen nadat ESP `ha_pairing_status=paired` bevestigt; een lokaal HA `device_token` is hooguit `pending`.
 - `spotify_player` is niet meer nodig; backend playback loopt via DJConnect commands en Spotify-backed HA control/status entities, en ESP device-instellingen via de lokale ESP command API.
 - Gebruik waar veilig HA-populated combo boxes/dropdowns i.p.v. vrije tekst:
@@ -140,12 +140,12 @@ HA integration:
   - `affiliation`: `DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB.`
 - Config-flow/options-flow UI moet subtiel en kort de Spotify trademark/non-affiliation notice tonen zonder UX te vervuilen.
 - Verberg lokale/manual device URL in de normale flow; toon die alleen onder HA advanced options als mDNS/manual override nodig is.
-- Als manual device URL leeg is tijdens setup, sla alleen automatisch een model-specifieke hostname zoals `http://djconnect-lilygo-t-embed-s3-[device-suffix].local` op als de pairingwaarde een echte 12-hex device suffix is; runtime blijft device-reported `local_url` en `_djconnect._tcp` mDNS prefereren en negeert oude `djconnect-[6-digit-code].local` fallbacks.
+- Als manual device URL leeg is tijdens setup, sla geen hostname op uit de 6-cijferige koppelcode; runtime blijft device-reported `local_url` en `_djconnect._tcp` mDNS prefereren en negeert oude `djconnect-[6-digit-code].local` fallbacks.
 - Alle DJConnect entities moeten onder één HA device vallen met hetzelfde device identifier.
 - ESP32 clients krijgen ESP-only hardware/update/settings entities zoals batterij, WiFi RSSI, schermstatus, LED status, schermhelderheid/timeout, speaker volume, wake word, device language, auto-off, theme/log-level, firmware update en reboot. iOS, macOS, watchOS, Raspberry Pi en Windows clients krijgen die ESP-only entities niet; zij houden client/runtime en backend/playback entities.
 - ESP status payloads naar HA moeten actuele device settings meesturen voor native entities, zoals screen_brightness_percent/screen_brightness, speaker_volume_percent/speaker_volume, wake_word_enabled/wake_word, screen_off_timeout_ms, turn_off_after/turn_off_after_ms, nested `settings`, `screen` en `led`; HA accepteert aliases en converteert milliseconden naar seconden/minuten.
 - `number.djconnect_volume` mag onbekende devicewaarden zoals `-1` nooit publiceren; geef dan `None/unavailable` terug binnen HA range 0–60.
-- Config-flow foutpaden moeten heldere NL/EN gebruikersmeldingen hebben, bijvoorbeeld bij lege of foutieve koppelcode/device-suffix, ontbrekende Spotify Client ID, foutieve external URL en OAuth fouten.
+- Config-flow foutpaden moeten heldere NL/EN gebruikersmeldingen hebben, bijvoorbeeld bij lege of foutieve 6-cijferige koppelcode, ontbrekende Spotify Client ID, foutieve external URL en OAuth fouten.
 - Bestaande modules niet verwijderen, zoals `wav_util.py`, `pipeline.py`.
 - Actieve routes gebruiken HA Assist/TTS en geen directe externe AI/STT/TTS API.
 - Voice STT mag niet afhankelijk zijn van niet-beschikbare/private Assist audio pipeline helpers; gebruik HA's ondersteunde STT helper en geef `No STT provider configured. Checked Assist pipeline/default STT.` terug als er geen STT provider is.

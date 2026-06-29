@@ -523,7 +523,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
             pipeline_module.async_get_pipelines = original_get_pipelines
 
         self.assertEqual(result["type"], "form")
-        self.assertEqual(result["step_id"], "pair")
+        self.assertEqual(result["step_id"], "pair_app")
         self.assertEqual(result["errors"]["base"], "assist_pipeline_required")
 
     def test_app_user_schema_hides_local_url_without_advanced(self) -> None:
@@ -561,21 +561,18 @@ class ConfigFlowHelperTest(unittest.TestCase):
             "Windows app",
         )
 
-    def test_local_device_schema_prefills_manual_device_url_from_pair_code(self) -> None:
+    def test_local_device_schema_does_not_prefill_manual_device_url_from_pair_code(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en-US"))
         flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_LOCAL_DEVICE
-        flow._last_pair_code = "90B70990A994"
+        flow._last_pair_code = "123456"
 
         schema = flow._user_schema()
         local_url_marker = next(
             marker for marker in schema if marker.key == self.const.CONF_LOCAL_URL
         )
 
-        self.assertEqual(
-            local_url_marker.default,
-            "http://djconnect-lilygo-t-embed-s3-90B70990A994.local",
-        )
+        self.assertEqual(local_url_marker.default, "")
 
 
     def test_app_user_schema_shows_generated_pairing_placeholders(self) -> None:
@@ -583,6 +580,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         flow.hass = types.SimpleNamespace(
             config=types.SimpleNamespace(language="en-US", internal_url="http://ha.local:8123")
         )
+        flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_APP
 
         asyncio.run(flow._ensure_app_pairing_defaults())
         schema = flow._user_schema()
@@ -591,6 +589,22 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertNotIn(self.const.CONF_PAIR_CODE, defaults)
         self.assertNotIn(self.const.CONF_LOCAL_URL, defaults)
+        self.assertRegex(
+            defaults[self.config_flow.APP_PAIR_CODE_DISPLAY_FIELD],
+            r"^\d{6}$",
+        )
+        self.assertEqual(
+            defaults[self.config_flow.APP_HA_LOCAL_URL_DISPLAY_FIELD],
+            "http://ha.local:8123",
+        )
+        self.assertIn(
+            "client_type=ios",
+            defaults[self.config_flow.APP_IPHONE_PAIRING_URI_FIELD],
+        )
+        self.assertIn(
+            "client_type=watchos",
+            defaults[self.config_flow.APP_WATCH_PAIRING_URI_FIELD],
+        )
         self.assertEqual(defaults[self.const.CONF_CLIENT_TYPE], self.const.CLIENT_TYPE_IOS)
         self.assertRegex(placeholders["pair_code"], r"^\d{6}$")
         self.assertEqual(placeholders["ha_local_url"], "http://ha.local:8123")
@@ -598,6 +612,28 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertIn("pair_path=%2Fapi%2Fdjconnect%2Fpair", placeholders["pairing_uri"])
         self.assertIn("client_type=ios", placeholders["iphone_pairing_uri"])
         self.assertIn("client_type=watchos", placeholders["watch_pairing_uri"])
+        self.assertIn("iphone_qr_image", placeholders)
+        self.assertIn("watch_qr_image", placeholders)
+
+    def test_pairing_qr_helper_returns_inline_svg_data_uri(self) -> None:
+        class FakeQr:
+            def save(self, out, **_kwargs):
+                out.write('<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0h1v1z"/></svg>')
+
+        fake_segno = types.ModuleType("segno")
+        fake_segno.make = lambda *_args, **_kwargs: FakeQr()
+        original_segno = sys.modules.get("segno")
+        sys.modules["segno"] = fake_segno
+        try:
+            image = self.config_flow._qr_svg_data_uri("djconnect://pair?pair_code=123456")
+        finally:
+            if original_segno is None:
+                sys.modules.pop("segno", None)
+            else:
+                sys.modules["segno"] = original_segno
+
+        self.assertTrue(image.startswith("data:image/svg+xml;utf8,"))
+        self.assertIn("%3Csvg", image)
 
     def test_user_schema_manual_defaults_are_not_esp32_specific(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
@@ -681,6 +717,22 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertNotIn(self.config_flow.DISCOVERY_CLIENT_FIELD, defaults)
         self.assertNotIn(self.const.CONF_PAIR_CODE, defaults)
+        self.assertRegex(
+            defaults[self.config_flow.APP_PAIR_CODE_DISPLAY_FIELD],
+            r"^\d{6}$",
+        )
+        self.assertEqual(
+            defaults[self.config_flow.APP_HA_LOCAL_URL_DISPLAY_FIELD],
+            "http://ha.local:8123",
+        )
+        self.assertIn(
+            "client_type=ios",
+            defaults[self.config_flow.APP_IPHONE_PAIRING_URI_FIELD],
+        )
+        self.assertIn(
+            "client_type=watchos",
+            defaults[self.config_flow.APP_WATCH_PAIRING_URI_FIELD],
+        )
         self.assertEqual(defaults[self.const.CONF_DEVICE_NAME], "DJConnect iOS")
         self.assertEqual(defaults[self.const.CONF_CLIENT_TYPE], self.const.CLIENT_TYPE_IOS)
         self.assertNotIn(self.const.CONF_LOCAL_URL, defaults)
@@ -957,14 +1009,11 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertEqual(flow._unique_id, "djconnect-raspberry-pi-A1B2C3D4E5F6")
 
-    def test_default_local_url_accepts_only_device_suffix(self) -> None:
+    def test_pair_code_validation_accepts_only_six_digits(self) -> None:
         self.assertEqual(self.config_flow._default_local_url("123456"), "")
-        self.assertEqual(
-            self.config_flow._default_local_url("90B70990A994"),
-            "http://djconnect-lilygo-t-embed-s3-90B70990A994.local",
-        )
+        self.assertEqual(self.config_flow._default_local_url("90B70990A994"), "")
         self.assertTrue(self.config_flow._valid_pair_code("123456"))
-        self.assertTrue(self.config_flow._valid_pair_code("90B70990A994"))
+        self.assertFalse(self.config_flow._valid_pair_code("90B70990A994"))
         self.assertFalse(self.config_flow._valid_pair_code("abc123"))
         self.assertEqual(self.config_flow._default_local_url("12345"), "")
 
@@ -1201,6 +1250,24 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertNotIn(self.const.CONF_SETUP_METHOD, keys)
         self.assertIn(self.const.CONF_PAIR_CODE, keys)
 
+    def test_pair_step_uses_local_device_translation_for_esp_pi_route(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
+        flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_LOCAL_DEVICE
+
+        result = asyncio.run(flow.async_step_pair())
+
+        self.assertEqual(result["step_id"], "pair_local_device")
+
+    def test_pair_step_uses_app_translation_for_apple_windows_route(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
+        flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_APP
+
+        result = asyncio.run(flow.async_step_pair())
+
+        self.assertEqual(result["step_id"], "pair_app")
+
     def test_setup_method_order_puts_conversation_agent_first(self) -> None:
         hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
 
@@ -1307,6 +1374,34 @@ class ConfigFlowHelperTest(unittest.TestCase):
             flow._backend[self.const.CONF_MUSIC_ASSISTANT_PLAYER],
             "media_player.mass_living",
         )
+
+    def test_backend_step_blocks_music_assistant_when_not_installed(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(data={}, states=None)
+
+        result = asyncio.run(
+            flow.async_step_backend(
+                {self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_MUSIC_ASSISTANT}
+            )
+        )
+
+        self.assertEqual(result["type"], "form")
+        self.assertEqual(result["step_id"], "backend")
+        self.assertEqual(result["errors"]["base"], "music_assistant_unavailable")
+
+    def test_backend_step_blocks_music_assistant_without_players(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(data={"music_assistant": object()}, states=None)
+
+        result = asyncio.run(
+            flow.async_step_backend(
+                {self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_MUSIC_ASSISTANT}
+            )
+        )
+
+        self.assertEqual(result["type"], "form")
+        self.assertEqual(result["step_id"], "backend")
+        self.assertEqual(result["errors"]["base"], "music_assistant_no_players")
 
     def test_music_assistant_missing_blocks_setup(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()

@@ -1443,68 +1443,6 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(seen["commands"], ["status"])
         self.assertEqual(result["intent"]["category"], "informational")
 
-    def test_explicit_smart_home_entities_reach_informational_prompt(self) -> None:
-        runtime = make_runtime()
-        runtime.config = {"smart_home_context_entities": ["sensor.dryer_status"]}
-        runtime.options = {}
-        seen = {}
-
-        class States:
-            def __init__(self):
-                self.values = {
-                    "sensor.dryer_status": types.SimpleNamespace(
-                        state="klaar",
-                        name="Droger",
-                        attributes={"friendly_name": "Droger"},
-                    ),
-                    "sensor.secret": types.SimpleNamespace(
-                        state="niet delen",
-                        name="Secret",
-                        attributes={},
-                    ),
-                }
-
-            def get(self, entity_id):
-                return self.values.get(entity_id)
-
-        class Services:
-            async def async_call(self, domain, service, data, **kwargs):
-                seen["prompt"] = data["text"]
-                return {"response": {"speech": {"plain": {"speech": "De droger is klaar; wil je iets vrolijks horen?"}}}}
-
-        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
-            seen.setdefault("commands", []).append(command_name)
-            if command_name == "status":
-                return {"success": True, "playback": {}}
-            raise AssertionError(f"unexpected playback mutation: {command_name}")
-
-        original_command = self.ask_dj.run_music_command
-        self.ask_dj.run_music_command = command
-        try:
-            result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
-                    types.SimpleNamespace(
-                        services=Services(),
-                        states=States(),
-                        data={self.const.DOMAIN: {}},
-                    ),
-                    runtime,
-                    {
-                        "text": "De droger is klaar, wil je nu iets horen?",
-                        "device_id": runtime.device_status["device_id"],
-                        "client_type": "watchos",
-                    },
-                    user_id="user-1",
-                )
-            )
-        finally:
-            self.ask_dj.run_music_command = original_command
-
-        self.assertIn("Droger (sensor.dryer_status): klaar", seen["prompt"])
-        self.assertNotIn("sensor.secret", seen["prompt"])
-        self.assertEqual(seen["commands"], ["status"])
-        self.assertEqual(result["intent"]["category"], "informational")
-
     def test_real_playback_prompt_stays_playback_intent(self) -> None:
         intent = self.ask_dj.classify_conversation_turn("zet iets anders op", {})
         self.assertEqual(intent.kind, "hybrid_intent")

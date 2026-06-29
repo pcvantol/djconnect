@@ -979,6 +979,7 @@ unless imported or declared here.
 | Home Assistant `cloud` component | Optional Nabu Casa external URL discovery for Spotify OAuth setup | Declared in `manifest.json` `after_dependencies` | Apache License 2.0 as part of Home Assistant Core | https://github.com/home-assistant/core |
 | aiohttp | HTTP client timeouts/session usage and `aiohttp.web` helpers | `aiohttp>=3.9.0` in `manifest.json` | Apache License 2.0 | https://github.com/aio-libs/aiohttp |
 | awesomeversion | Firmware semantic version comparison | `awesomeversion>=23.8.0` in `manifest.json` | MIT License | https://github.com/ludeeus/awesomeversion |
+| segno | Local inline SVG QR-code generation for app pairing config-flow descriptions | `segno>=1.6.1` in `manifest.json` | BSD License | https://github.com/heuer/segno |
 | voluptuous | Config-flow and repairs schema definitions | Provided by Home Assistant runtime; imported directly in `config_flow.py` and `repairs.py` | BSD-style license | https://github.com/alecthomas/voluptuous |
 | zeroconf | Async mDNS service browser and service-state changes | Provided through Home Assistant zeroconf dependency; imported dynamically in `discovery.py` | LGPL-2.1-or-later | https://github.com/python-zeroconf/python-zeroconf |
 | bleak | BLE GATT client for WiFi provisioning | Provided through Home Assistant Bluetooth stack; imported dynamically in `ble.py` | MIT License | https://github.com/hbldh/bleak |

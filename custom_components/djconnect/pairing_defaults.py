@@ -6,7 +6,7 @@ from typing import Any
 
 from .const import DEFAULT_DEVICE_NAME
 
-PAIR_CODE_PATTERN = re.compile(r"^(?:\d{6}|[0-9A-Fa-f]{12})$")
+PAIR_CODE_PATTERN = re.compile(r"^\d{6}$")
 
 
 def clean(value: Any, default: Any = "") -> Any:
@@ -19,15 +19,12 @@ def clean(value: Any, default: Any = "") -> Any:
 
 
 def default_local_url(pair_code: str | None) -> str:
-    """Return an mDNS URL only when the input is the device ID suffix."""
-    normalized = str(pair_code or "").strip()
-    if not re.fullmatch(r"[0-9A-Fa-f]{12}", normalized):
-        return ""
-    return f"http://djconnect-lilygo-t-embed-s3-{normalized}.local"
+    """Do not derive local URLs from pairing codes."""
+    return ""
 
 
 def valid_pair_code(pair_code: str) -> bool:
-    """Accept the displayed 6-digit code or 12-character device suffix."""
+    """Accept only the displayed 6-digit pairing code."""
     return bool(PAIR_CODE_PATTERN.fullmatch(str(pair_code or "").strip()))
 
 

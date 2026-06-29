@@ -31,7 +31,6 @@ from ..mood import (
 )
 from ..music_intent import parse_spoken_music_request
 from ..pipeline import _assist_context, _speech_from_response
-from ..smart_home_context import smart_home_context, smart_home_context_text
 from ..use_cases import (
     MusicBackendCapabilityError,
     build_playback_action,
@@ -222,9 +221,6 @@ async def async_handle_ask_dj(
         response.pop("playback", None)
         return response
     playback_context = await _playback_context(hass, runtime)
-    home_context = smart_home_context(hass, runtime)
-    if home_context:
-        memory_context["smart_home"] = home_context
     output_devices = await _output_devices(hass, runtime, classification)
     track_owner_request = _track_owner_question(effective_text)
     if track_owner_request:
@@ -7631,11 +7627,6 @@ def _informational_prompt(
     output_devices: list[dict[str, Any]],
 ) -> str:
     memory_text = prompt_context_text(memory_context)
-    smart_home_text = smart_home_context_text(
-        memory_context.get("smart_home")
-        if isinstance(memory_context.get("smart_home"), list)
-        else []
-    )
     return (
         "Je bent DJConnect Ask DJ. Beantwoord informatieve muziekvragen zonder "
         "playback te wijzigen. Gebruik alleen meegegeven context en betrouwbare "
@@ -7653,7 +7644,6 @@ def _informational_prompt(
         f"Vraag: {text}\n"
         f"Mood/energy: {mood_context_text(payload)}\n"
         f"DJ stijl: {payload.get('dj_style') or 'standaard'}\n"
-        f"Smart-home context: {smart_home_text or 'geen expliciet gedeelde HA entities'}\n"
         f"Playback context: {_safe_inline_context(playback_context)}\n"
         f"Output devices: {_safe_inline_context(output_devices)}\n"
         f"Music DNA: {memory_text or 'geen eerdere context'}"

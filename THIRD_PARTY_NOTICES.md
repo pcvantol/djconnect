@@ -23,6 +23,7 @@ The integration manifest may request or use these runtime packages/components:
 
 - `aiohttp` for HTTP client/server helpers used through Home Assistant.
 - `awesomeversion` for firmware version comparisons.
+- `segno` for generating local inline SVG QR codes in app pairing flows.
 - `voluptuous` for Home Assistant config-flow schemas.
 - `zeroconf` / Home Assistant zeroconf support for local device discovery.
 - Home Assistant `bluetooth` and `bluetooth_adapters` integrations for BLE WiFi

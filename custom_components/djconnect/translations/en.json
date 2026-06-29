@@ -10,7 +10,7 @@
       },
       "pair": {
         "title": "Pair DJConnect device",
-        "description": "For iPhone: scan the DJConnect QR code with payload `{iphone_pairing_uri}`. For Apple Watch: scan the Watch-proxy QR code on iPhone with payload `{watch_pairing_uri}` so the paired Watch pairs without HA URL entry. For macOS/Windows: enter Home Assistant URL `{ha_local_url}` and pairing code `{pair_code}` in the app. ESP32/Raspberry Pi show their own pairing code; Client address is only for their local API fallback. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by or sponsored by Spotify AB.",
+        "description": "Pair a DJConnect client with Home Assistant.",
         "data": {
           "pair_code": "Pairing code",
           "device_name": "Device name",
@@ -19,11 +19,50 @@
           "discovered_client": "Discovered DJConnect client"
         },
         "data_description": {
-          "pair_code": "Only for ESP32/Raspberry Pi: the 6 digit code or 12 character device suffix shown on the device display.",
+          "pair_code": "Only for ESP32/Raspberry Pi: the 6 digit pairing code shown on the device display.",
           "device_name": "Friendly name for this DJConnect remote.",
           "client_type": "DJConnect client type. iPhone and Apple Watch use QR/deep-link pairing; Apple Watch uses the iPhone proxy. macOS and Windows use Home Assistant URL plus pairing code.",
           "local_url": "Only for ESP32/Raspberry Pi local device API fallback; leave empty when mDNS works.",
           "discovered_client": "Choose an automatically discovered DJConnect client to prefill pairing details, or use manual entry."
+        }
+      },
+      "pair_local_device": {
+        "title": "Pair Local Device",
+        "description": "Use this route for ESP32 and Raspberry Pi clients on your local network. Choose a discovered device or enter the pairing code shown on the display. Client address is only needed when mDNS does not work.",
+        "data": {
+          "pair_code": "Pairing code",
+          "device_name": "Device name",
+          "client_type": "Client type",
+          "local_url": "Client address",
+          "discovered_client": "Discovered DJConnect client"
+        },
+        "data_description": {
+          "pair_code": "The 6 digit pairing code shown on the DJConnect device.",
+          "device_name": "Friendly name for this local device.",
+          "client_type": "Choose ESP32 or Raspberry Pi.",
+          "local_url": "Only for local device API fallback; leave empty when mDNS works.",
+          "discovered_client": "Choose an automatically discovered ESP32/Raspberry Pi client to prefill pairing details, or use manual entry."
+        }
+      },
+      "pair_app": {
+        "title": "Pair App",
+        "description": "Use this route for iPhone, Apple Watch, macOS and Windows.\n\n**iPhone**\n\n![iPhone QR code]({iphone_qr_image})\n\n**Apple Watch**\n\n![Apple Watch QR code]({watch_qr_image})\n\nmacOS and Windows use the Home Assistant URL and pairing code below.",
+        "data": {
+          "pair_code": "Pairing code",
+          "device_name": "Device name",
+          "client_type": "Client type",
+          "app_pair_code": "App pairing code",
+          "app_ha_local_url": "Home Assistant URL",
+          "app_iphone_pairing_uri": "iPhone QR/deep-link payload",
+          "app_watch_pairing_uri": "Apple Watch QR/deep-link payload"
+        },
+        "data_description": {
+          "device_name": "Friendly name for this app installation.",
+          "client_type": "Choose iPhone, Apple Watch, macOS or Windows.",
+          "app_pair_code": "Use this code in macOS/Windows, or let iPhone/Apple Watch receive it from the QR/deep-link payload.",
+          "app_ha_local_url": "Local Home Assistant URL the app uses during pairing.",
+          "app_iphone_pairing_uri": "QR/deep-link payload for the iPhone app.",
+          "app_watch_pairing_uri": "QR/deep-link payload scanned on iPhone to pair the linked Apple Watch."
         }
       },
       "ble_wifi": {
@@ -65,7 +104,6 @@
           "client_type": "Client type",
           "local_url": "Client address",
           "dj_response_enabled": "Play DJ announcement on device",
-          "smart_home_context_entities": "Shared smart-home entities",
           "firmware_channel": "Firmware channel",
           "options_action": "Action"
         },
@@ -73,7 +111,6 @@
           "assist_pipeline_id": "Assist pipeline used by DJConnect devices for speech recognition and DJ announcement audio.",
           "client_type": "DJConnect client type: app, local device or Assist agent.",
           "dj_response_enabled": "Create a temporary WAV or MP3 audio URL and send it with the DJ announcement to the DJConnect device.",
-          "smart_home_context_entities": "Explicit read-only Home Assistant entities DJConnect may include in Ask DJ context, for example weather, room temperature, appliance status or scene state.",
           "firmware_channel": "Choose stable for normal OTA updates or beta to test prerelease firmware.",
           "options_action": "Choose whether to save options or reauthorize Spotify."
         }
@@ -94,7 +131,7 @@
           "local_url": "Client address"
         },
         "data_description": {
-          "pair_code": "The 6 digit code or 12 character device suffix shown on the device display.",
+          "pair_code": "The 6 digit pairing code shown on the device display.",
           "local_url": "Only for ESP32/Raspberry Pi local device API fallback; leave empty to reuse the stored URL."
         }
       },
@@ -121,7 +158,7 @@
           "music_backend": "Music backend"
         },
         "data_description": {
-          "music_backend": "Choose Spotify Direct or Music Assistant. Remote pairing is still not allowed."
+          "music_backend": "Choose Spotify Direct or Music Assistant. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by or sponsored by Spotify AB."
         }
       },
       "music_assistant": {
@@ -147,7 +184,7 @@
     },
     "error": {
       "missing_pair_code": "Enter the pairing code shown on the DJConnect device display.",
-      "invalid_pair_code": "Enter either a 6 digit pairing code or a 12 character hexadecimal device suffix.",
+      "invalid_pair_code": "Enter a 6 digit pairing code.",
       "spotify_client_id_required": "Enter the Client ID from your Spotify Developer App.",
       "external_url_required": "Enter your Home Assistant external URL, for example your Nabu Casa URL.",
       "external_url_https_required": "Use an HTTPS external URL. The recommended URL is your Nabu Casa URL.",
@@ -182,7 +219,6 @@
           "client_type": "Client type",
           "local_url": "Client address",
           "dj_response_enabled": "Play DJ announcement on device",
-          "smart_home_context_entities": "Shared smart-home entities",
           "firmware_channel": "Firmware channel",
           "options_action": "Action",
           "music_backend": "Music backend",
@@ -193,7 +229,6 @@
           "client_type": "DJConnect client type: app, local device or Assist agent.",
           "local_url": "Configured local Client address for ESP32/Raspberry Pi. Read-only; use re-pairing to change this URL.",
           "dj_response_enabled": "Create a temporary WAV or MP3 audio URL and send it with the DJ announcement to the DJConnect device.",
-          "smart_home_context_entities": "Explicit read-only Home Assistant entities DJConnect may include in Ask DJ context, for example weather, room temperature, appliance status or scene state.",
           "firmware_channel": "Choose stable for normal OTA updates or beta to test prerelease firmware.",
           "options_action": "Choose whether to save settings, reauthorize Spotify or explicitly switch the music backend.",
           "music_backend": "Selected playback backend.",
@@ -207,7 +242,7 @@
           "music_backend": "Music backend"
         },
         "data_description": {
-          "music_backend": "Choose Spotify Direct or Music Assistant."
+          "music_backend": "Choose Spotify Direct or Music Assistant. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by or sponsored by Spotify AB."
         }
       },
       "music_assistant_player": {
@@ -228,7 +263,7 @@
           "local_url": "Client address"
         },
         "data_description": {
-          "pair_code": "The 6 digit code or 12 character device suffix shown on the device display.",
+          "pair_code": "The 6 digit pairing code shown on the device display.",
           "local_url": "Only for ESP32/Raspberry Pi local device API fallback; leave empty to reuse the stored URL."
         }
       },
