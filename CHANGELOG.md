@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.2.13
+
+- Add translation regression coverage for the app-pairing copy so iPhone/iPad
+  labels and DJConnect-prefixed app detail titles stay consistent across base,
+  English and Dutch strings.
+
 ## 3.2.12
 
 - Polish the pairing wizard UI by routing app and local-device setup through the

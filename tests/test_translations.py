@@ -55,6 +55,13 @@ REPAIR_PAIRING_DATA_KEYS = {
     "local_url",
 }
 
+APP_DETAIL_STEPS = {
+    "pair_app_ios_details",
+    "pair_app_watch_details",
+    "pair_app_macos_details",
+    "pair_app_windows_details",
+}
+
 VOICE_OPTION_DATA_KEYS = {
     "assist_pipeline_id",
     "client_type",
@@ -213,6 +220,45 @@ class TranslationTest(unittest.TestCase):
                     self.assertFalse(
                         missing_descriptions,
                         f"Missing {language} {section} repair descriptions: {sorted(missing_descriptions)}",
+                    )
+
+    def test_app_pairing_copy_uses_iphone_ipad_label(self) -> None:
+        for path in [
+            INTEGRATION / "strings.json",
+            TRANSLATIONS / "en.json",
+            TRANSLATIONS / "nl.json",
+        ]:
+            with self.subTest(path=path.name):
+                steps = json.loads(path.read_text())["config"]["step"]
+                app_text = json.dumps(
+                    {
+                        key: steps[key]
+                        for key in steps
+                        if key.startswith("pair_app")
+                    }
+                )
+                self.assertIn("iPhone/iPad", app_text)
+                self.assertNotIn("iPhone app", app_text)
+                self.assertNotIn("iPhone App", app_text)
+
+    def test_app_detail_titles_include_djconnect_brand(self) -> None:
+        expected_prefix = {
+            "strings.json": "DJConnect ",
+            "nl.json": "DJConnect ",
+            "en.json": "Pair DJConnect ",
+        }
+        for path in [
+            INTEGRATION / "strings.json",
+            TRANSLATIONS / "en.json",
+            TRANSLATIONS / "nl.json",
+        ]:
+            with self.subTest(path=path.name):
+                steps = json.loads(path.read_text())["config"]["step"]
+                for step_id in APP_DETAIL_STEPS:
+                    title = steps[step_id]["title"]
+                    self.assertTrue(
+                        title.startswith(expected_prefix[path.name]),
+                        f"{path.name} {step_id} title lacks DJConnect prefix: {title}",
                     )
 
     def test_options_flow_voice_fields_are_translated(self) -> None:

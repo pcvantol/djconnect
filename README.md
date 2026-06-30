@@ -14,7 +14,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 
 ## Current Version
 
-- Home Assistant integration: `3.2.12`
+- Home Assistant integration: `3.2.13`
 - Domain: `djconnect`
 - HACS category: `Integration`
 - Device target: DJConnect device
@@ -125,7 +125,7 @@ of the integration contract:
 
 ## Repository Layout
 
-- Home Assistant integration: `3.2.12`
+- Home Assistant integration: `3.2.13`
 - Apple clients source: `pcvantol/djconnect-app`
 - ESP32 firmware source: `pcvantol/djconnect-esp32`
 - Windows client source: `pcvantol/djconnect-windows`
@@ -1400,16 +1400,16 @@ Example manifest:
 
 ```json
 {
-  "version": "3.2.12",
-  "version_tag": "v3.2.12",
+  "version": "3.2.13",
+  "version_tag": "v3.2.13",
   "channel": "stable",
-  "min_ha_integration": "3.2.12",
+  "min_ha_integration": "3.2.13",
   "firmwares": [
     {
       "board": "t_embed_cc1101",
       "device": "lilygo-t-embed-s3",
-      "asset": "djconnect-lilygo-t-embed-s3-v3.2.12.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.2.12/djconnect-lilygo-t-embed-s3-v3.2.12.bin",
+      "asset": "djconnect-lilygo-t-embed-s3-v3.2.13.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.2.13/djconnect-lilygo-t-embed-s3-v3.2.13.bin",
       "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "size": 2113136
     }
@@ -1432,7 +1432,7 @@ The firmware version is injected through PlatformIO build flags from the Git tag
 Recommended firmware source release helper:
 
 ```bash
-./release.sh 3.2.12
+./release.sh 3.2.13
 ```
 
 In the separate `djconnect-esp32` repository, the firmware release script should
@@ -1444,14 +1444,14 @@ PlatformIO builds, rename firmware binaries to device-specific assets such as
 Preview the firmware release flow without changing files:
 
 ```bash
-./release.sh 3.2.12 --dry-run
+./release.sh 3.2.13 --dry-run
 ```
 
 When publishing to the public firmware repository, use the firmware script's
 public-repo option if available:
 
 ```bash
-./release.sh 3.2.12 --publish-firmware-repo ../djconnect-firmware
+./release.sh 3.2.13 --publish-firmware-repo ../djconnect-firmware
 ```
 
 The public `djconnect-firmware` repository should contain only the release
@@ -1512,7 +1512,7 @@ Tag and publish:
 One-liner:
 
 ```bash
-./release.sh 3.2.12
+./release.sh 3.2.13
 ```
 
 The script updates the integration version in `manifest.json`, `const.py`,
@@ -1523,18 +1523,18 @@ above.
 Preview without executing git/gh commands:
 
 ```bash
-./release.sh 3.2.12 --dry-run
+./release.sh 3.2.13 --dry-run
 ```
 
 Manual equivalent:
 
 ```bash
 git add .
-git commit -m "Release DJConnect v3.2.12"
-git tag v3.2.12
+git commit -m "Release DJConnect v3.2.13"
+git tag v3.2.13
 git push origin main
-git push origin v3.2.12
-gh release create v3.2.12 --title "DJConnect v3.2.12" --notes-file CHANGELOG.md
+git push origin v3.2.13
+gh release create v3.2.13 --title "DJConnect v3.2.13" --notes-file CHANGELOG.md
 ```
 
 After every release, clean up old completed GitHub Actions workflow runs. Keep
