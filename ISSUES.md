@@ -65,16 +65,16 @@
 - Current mitigation: `/pair` and `/status` now persist real model/app-specific device ids and reported `local_url`.
 - Next action: Verify existing paired ESP posts `/status`; if not, manually use advanced device URL once or re-pair.
 
-### iOS/macOS/Windows inbound pairing and remote playback need field validation
+### iPhone/iPad, Apple Watch, macOS and Windows inbound pairing and remote playback need field validation
 
 - Status: open / field validation.
 - Area: app clients.
-- Symptom: iOS/macOS/Windows clients now pair inbound through Home Assistant and
+- Symptom: iPhone/iPad, Apple Watch, macOS and Windows clients now pair inbound through Home Assistant and
   may use `ha_remote_url` outside the LAN after local pairing.
 - Current mitigation: App pairing hides Client adres, does not call client
   `/api/device/*`, returns optional `ha_remote_url` only for `ios`, `macos` and
   `windows`, and keeps ESP-only firmware/reboot controls unavailable.
-- Next action: Test fresh iOS/macOS/Windows pairing, re-pairing, local/remote
+- Next action: Test fresh iPhone/iPad, Apple Watch, macOS and Windows pairing, re-pairing, local/remote
   playback and app entity exposure using `FIELD_TEST_APP_CLIENTS.md`.
   Ask DJ sync and PTT playback after HACS install/restart.
 
@@ -252,8 +252,9 @@
 
 - Config flow must not expose manual `oauth_result`.
 - Config flow must show setup method only in the first step. App pairing must
-  hide Client adres and offer iOS/macOS/Windows. Local-device pairing must keep
-  Client adres fallback and offer ESP32/Raspberry Pi.
+  hide Client adres, offer iPhone/iPad, Apple Watch, macOS and Windows first,
+  then show only the relevant details. Local-device pairing must keep Client
+  adres fallback and offer ESP32/Raspberry Pi.
 - Config/options flow must not require `spotify_player`.
 - Music Assistant entries must not show Spotify OAuth or create Spotify
   reauthorization repairs; Spotify Direct entries must keep the full OAuth flow.

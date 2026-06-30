@@ -28,14 +28,14 @@ iOS, macOS, watchOS and Windows are inbound-only app clients. They do not expose
 Home Assistant-callable `/api/device/*` API, do not need a Client address in the
 Home Assistant setup flow, and post local pairing requests to
 `POST /api/djconnect/pair`. Home Assistant generates the app pairing code. The
-iPhone app pairs by scanning a QR/deep-link payload:
+iPhone/iPad app pairs by scanning a QR/deep-link payload:
 
 ```text
 djconnect://pair?ha_url=<local-ha-url>&pair_code=<code>&client_type=ios&pair_path=/api/djconnect/pair
 ```
 
-Apple Watch pairs through the iPhone proxy: the iPhone scans the Watch QR/deep-link
-payload and forwards the pairing material to the paired Watch, which then uses
+Apple Watch pairs through the iPhone/iPad proxy: the iPhone/iPad scans the Watch
+QR/deep-link payload and forwards the pairing material to the paired Watch, which then uses
 `client_type=watchos` and its own `djconnect-watchos-*` device id. The Watch must
 not require manual HA URL entry:
 
@@ -164,7 +164,7 @@ Send commands with the same semantic payload used for
   "device_id": "djconnect-ios-XXXXXXXXXXXX",
   "client_type": "ios",
   "client_id": "djconnect-ios-XXXXXXXXXXXX",
-  "device_name": "Peter's iPhone",
+  "device_name": "Peter's iPhone/iPad",
   "device_token": "<paired DJConnect device token>",
   "command": "next",
   "value": null,

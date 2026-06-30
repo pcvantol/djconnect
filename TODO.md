@@ -119,7 +119,7 @@
 - Test BLE screen action `Rescan Bluetooth devices`.
 - Test BLE screen action `Write WiFi over Bluetooth`.
 - Test local-device pairing with Client adres left empty for ESP32/Raspberry Pi.
-- Field-test iOS/macOS/Windows app pairing with no Client adres, where the app
+- Field-test iPhone/iPad, Apple Watch, macOS and Windows app pairing with no Client adres, where the app
   posts locally to `/api/djconnect/pair` and receives optional `ha_remote_url`;
   use `FIELD_TEST_APP_CLIENTS.md` and record the app build/HA version/backend.
   Automated HA contract coverage now verifies inbound pair responses and remote
@@ -149,8 +149,9 @@
 - Confirm normal config flow stays small and user-focused.
 - Confirm Add integration shows a clear Assist pipeline prerequisite error when Home Assistant has no Assist pipeline with both STT and TTS.
 - Confirm setup method is shown only in the first Add integration step and not repeated in normal pairing.
-- Confirm app pairing hides Client adres and offers iOS, macOS and Windows;
-  confirm local-device pairing keeps Client adres fallback and offers ESP32 and
+- Confirm app pairing hides Client adres, first offers iPhone/iPad, Apple Watch,
+  macOS and Windows, and only then shows client-specific details; confirm
+  local-device pairing keeps Client adres fallback and offers ESP32 and
   Raspberry Pi.
 - Confirm standalone `stt_engine`, `tts_engine`, `tts_language` and `tts_voice` fields remain hidden; STT/TTS is managed through Home Assistant Assist.
 - Confirm internal compatibility/OTA/audio TTL defaults are no longer exposed in config/options flow.
@@ -206,7 +207,7 @@
 - Monitor `ask_dj_followup_response` pending-action behavior. Automated coverage
   verifies Yes/No/no-pending paths; field testing should focus on cross-device
   timing and expired pending follow-ups.
-- Confirm follow-up confirmation buttons work cross-device, for example Ask DJ asks on iPhone and the user answers on macOS or Apple Watch.
+- Confirm follow-up confirmation buttons work cross-device, for example Ask DJ asks on iPhone/iPad and the user answers on macOS or Apple Watch.
 - Confirm Ask DJ playback requests with no active Spotify output return speaker `playback_actions[]` and that `ask_dj_play_request_on_output` sets the selected output before replaying the original request.
 - Monitor obvious gibberish and sandbox/prompt-injection-like prompts. Automated
   coverage verifies neutral fallback without Spotify search, HA device lookup,
@@ -247,7 +248,7 @@
 
 - Keep product/marketing website work in the external website location, not this HA integration repo.
 - Keep the public website link visible in HACS-facing docs: `https://djconnect.dev`.
-- Maintain a How To Start page covering HACS install, Spotify Premium, HA Assist pipeline STT/TTS setup, Spotify OAuth, ESP/Raspberry Pi local-device pairing and iOS/macOS/Windows inbound app pairing.
+- Maintain a How To Start page covering HACS install, Spotify Premium, HA Assist pipeline STT/TTS setup, Spotify OAuth, ESP/Raspberry Pi local-device pairing and iPhone/iPad, Apple Watch, macOS and Windows inbound app pairing.
 - Add real product photos/screenshots when final hardware imagery is available.
 - Keep requirements clear: Spotify Premium, Home Assistant, HACS, HA Assist pipeline, 2.4 GHz WiFi and mDNS/Nabu Casa recommendations.
 - Keep `PRODUCT_ROADMAP_IDEAS.md` current when adding product ideas, killer features, production must-haves or premium feature concepts.

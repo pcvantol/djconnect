@@ -1,8 +1,18 @@
 # Changelog
 
+## 3.2.12
+
+- Polish the pairing wizard UI by routing app and local-device setup through the
+  client-type choice before details, marking intermediate config/options forms
+  as non-final, and keeping final submit screens unchanged.
+- Render app-pairing QR codes with an explicit white SVG background so they stay
+  scannable in Home Assistant dark mode.
+- Update app-pairing copy to refer to `iPhone/iPad`, and prefix app detail
+  titles with `DJConnect`, such as `DJConnect iPhone/iPad app koppelen`.
+
 ## 3.2.11
 
-- Fix app-client pairing setup so the iOS, Apple Watch, macOS and Windows
+- Fix app-client pairing setup so the app-client
   detail steps all have matching Home Assistant config-flow handlers instead of
   failing with an `UnknownStep` error.
 
@@ -53,7 +63,7 @@
 
 ## 3.2.7
 
-- Show real inline QR-code images for iPhone and Apple Watch app pairing while
+- Show real inline QR-code images for iPhone/iPad and Apple Watch app pairing while
   keeping the generated pairing code, Home Assistant URL and deep-link payloads
   visible as fallback fields.
 - Move Spotify trademark/non-affiliation copy out of pairing screens and into
@@ -65,7 +75,7 @@
 - Remove the shared smart-home entity context option and related Ask DJ context
   plumbing from config/options flows.
 - Keep app, local-device and backend setup copy separated for ESP32/Raspberry
-  Pi versus iPhone, Apple Watch, macOS and Windows pairing routes.
+  Pi versus iPhone/iPad, Apple Watch, macOS and Windows pairing routes.
 
 ## 3.2.6
 
@@ -79,7 +89,7 @@
   idle suggestions and Music DNA profile/settings/clear routes while preserving
   HTTP as the canonical fallback.
 - Split local-device pairing from inbound-only app pairing: ESP32/Raspberry Pi
-  keep LAN local-device callbacks, while iPhone/Apple Watch/macOS/Windows pair
+  keep LAN local-device callbacks, while iPhone/iPad/Apple Watch/macOS/Windows pair
   by posting to Home Assistant with HA-generated codes or QR/deep-link payloads.
 - Remove ESP32-S3-BOX-3 from active firmware documentation and examples; the
   public firmware manifest example now documents only LilyGO T-Embed S3.
@@ -407,7 +417,7 @@
 ## 3.1.82
 
 - Keep mDNS/pairing-info discovered device names authoritative in the pairing
-  form so selecting `DJConnect Mac` or `DJConnect iPhone` does not append an
+  form so selecting `DJConnect Mac` or `DJConnect iPhone/iPad` does not append an
   extra client-type suffix.
 - Stop post-pairing entity update storms by making secondary backend sensors,
   numbers, switches and selects event-driven; the playback proxy remains the
@@ -687,7 +697,7 @@
 ## 3.1.44
 
 - Load the DJConnect OAuth callback logo through Home Assistant's executor so rendering the Spotify OAuth result page no longer performs blocking file I/O in the event loop.
-- Treat Home Assistant Assist "area called ..." prompt leakage as a device lookup error so iPhone PTT music requests fall back to DJConnect's local music parser instead of failing the command flow.
+- Treat Home Assistant Assist "area called ..." prompt leakage as a device lookup error so iPhone/iPad PTT music requests fall back to DJConnect's local music parser instead of failing the command flow.
 
 ## 3.1.43
 

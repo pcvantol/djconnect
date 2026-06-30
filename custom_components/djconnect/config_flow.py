@@ -134,28 +134,28 @@ BLE_PROVISION_TIMEOUT = 25
 SETUP_METHOD_NAMES_EN = {
     SETUP_METHOD_CONVERSATION_AGENT: (
         "DJConnect DJ Assist-agent\n"
-        "For Home Assistant Assist satellites."
+        "For Home Assistant Assist satellites"
     ),
     SETUP_METHOD_PAIR_LOCAL_DEVICE: (
         "Pair DJConnect device ESP32 or Raspberry Pi"
     ),
     SETUP_METHOD_PAIR_APP: (
         "Pair DJConnect app\n"
-        "iPhone, Apple Watch, macOS or Windows."
+        "iPhone/iPad, Apple Watch, macOS or Windows"
     ),
     SETUP_METHOD_BLE_WIFI: "Configure ESP32 device WiFi (over Bluetooth)",
 }
 SETUP_METHOD_NAMES_NL = {
     SETUP_METHOD_CONVERSATION_AGENT: (
         "DJConnect DJ Assist-agent\n"
-        "Voor Home Assistant Assist-satellites."
+        "Voor Home Assistant Assist-satellites"
     ),
     SETUP_METHOD_PAIR_LOCAL_DEVICE: (
         "DJConnect apparaat koppelen ESP32 of Raspberry Pi"
     ),
     SETUP_METHOD_PAIR_APP: (
         "DJConnect app koppelen\n"
-        "iPhone, Apple Watch, macOS of Windows."
+        "iPhone/iPad, Apple Watch, macOS of Windows"
     ),
     SETUP_METHOD_BLE_WIFI: "ESP32 apparaat WiFi configureren (via Bluetooth)",
 }
@@ -305,6 +305,7 @@ def _qr_svg_data_uri(value: str) -> str:
             kind="svg",
             scale=4,
             border=2,
+            background="white",
             xmldecl=False,
             svgns=True,
         )
@@ -1100,6 +1101,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         }
                     ),
                     errors=errors,
+                    last_step=False,
                 )
         if user_input is not None:
             method = user_input.get(CONF_SETUP_METHOD, DEFAULT_SETUP_METHOD)
@@ -1121,7 +1123,9 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self._pairing_setup_method = method
             else:
                 self._pairing_setup_method = SETUP_METHOD_PAIR_APP
-            return await self.async_step_pair()
+            if self._pairing_setup_method == SETUP_METHOD_PAIR_LOCAL_DEVICE:
+                return await self.async_step_pair_local_device()
+            return await self.async_step_pair_app()
 
         return self.async_show_form(
             step_id="user",
@@ -1134,6 +1138,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 }
             ),
             errors=errors,
+            last_step=False,
         )
 
     async def async_step_ble_wifi(
@@ -1179,6 +1184,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="ble_wifi",
             data_schema=vol.Schema(_ble_wifi_schema(devices, getattr(self, "hass", None))),
             errors=errors,
+            last_step=False,
         )
 
     async def async_step_pair(
@@ -1196,6 +1202,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 step_id=step_id,
                 data_schema=vol.Schema(self._user_schema()),
                 errors={"base": "assist_pipeline_required"},
+                last_step=False,
             )
 
         if user_input is None:
@@ -1251,6 +1258,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         step_id=step_id,
                         data_schema=vol.Schema(self._user_schema()),
                         errors=errors,
+                        last_step=False,
                     )
                 device_id = str(defaults.get(CONF_DEVICE_ID) or "").strip()
                 if not device_id or client_type == CLIENT_TYPE_ESP32:
@@ -1288,6 +1296,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(self._user_schema()),
             errors=errors,
             description_placeholders=self._pair_description_placeholders(),
+            last_step=False,
         )
 
     def _pair_step_id(self) -> str:
@@ -1425,6 +1434,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 }
             ),
             errors={},
+            last_step=False,
         )
 
     async def _ensure_app_pairing_defaults(self) -> None:
@@ -1627,12 +1637,14 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         step_id="backend",
                         data_schema=vol.Schema(_backend_schema()),
                         errors={"base": "music_assistant_unavailable"},
+                        last_step=False,
                     )
                 if not _music_assistant_players(self.hass):
                     return self.async_show_form(
                         step_id="backend",
                         data_schema=vol.Schema(_backend_schema()),
                         errors={"base": "music_assistant_no_players"},
+                        last_step=False,
                     )
                 self._backend = {CONF_MUSIC_BACKEND: backend}
                 return await self.async_step_music_assistant()
@@ -1643,6 +1655,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="backend",
             data_schema=vol.Schema(_backend_schema()),
             errors={},
+            last_step=False,
         )
 
     async def async_step_music_assistant(
@@ -1679,6 +1692,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 _music_assistant_schema(players) if players else {}
             ),
             errors=errors,
+            last_step=False,
         )
 
     async def async_step_spotify(
@@ -1728,6 +1742,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 "developer_url": "https://developer.spotify.com/dashboard",
                 "redirect_uri": build_redirect_uri(shown_external_url) if shown_external_url else "",
             },
+            last_step=False,
         )
 
     def _prepare_spotify_oauth(
@@ -1792,6 +1807,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 step_id="spotify_oauth",
                 data_schema=vol.Schema({}),
                 errors=errors,
+                last_step=False,
             )
 
         if not self._oauth.get("authorize_url"):
@@ -1799,6 +1815,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 step_id="spotify_oauth",
                 data_schema=vol.Schema({}),
                 errors={"base": "oauth_setup_failed"},
+                last_step=False,
             )
 
         result = self.async_external_step(
@@ -2000,6 +2017,7 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
             step_id="init",
             data_schema=_conversation_agent_options_schema(self.hass, current),
             errors=errors,
+            last_step=False,
         )
 
     async def async_step_music_backend(
