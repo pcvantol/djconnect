@@ -21,10 +21,6 @@ PIPER_IMAGE="${PIPER_IMAGE:-rhasspy/wyoming-piper}"
 PIPER_COMMAND="${PIPER_COMMAND:---voice nl_NL-mls-medium}"
 NGROK_DOMAIN="${NGROK_DOMAIN:-}"
 NGROK_LAUNCH_AGENT_LABEL="${NGROK_LAUNCH_AGENT_LABEL:-dev.djconnect.homeassistant.ngrok}"
-MACOS_VM_NAME="${MACOS_VM_NAME:-DJConnect macOS Dev}"
-MACOS_VERSION="${MACOS_VERSION:-}"
-WINDOWS_VM_NAME="${WINDOWS_VM_NAME:-DJConnect Windows 11 ARM Dev}"
-WINDOWS_ISO_PATH="${WINDOWS_ISO_PATH:-}"
 ONBOARDING_ENV_FILE="${ONBOARDING_ENV_FILE:-$REPO_ROOT/.djconnect-onboarding.env}"
 LOG_DIR="${LOG_DIR:-$REPO_ROOT/logs}"
 LOG_FILE="${LOG_FILE:-}"
@@ -148,21 +144,14 @@ Automates DJConnect developer onboarding on a clean-ish macOS machine.
 Options:
   --all                 Run all steps.
   --core                Run the Home Assistant integration core steps, 3-12.
-  --steps 1,2,5         Run selected numbered steps.
+  --steps 0,3,5         Run selected numbered steps.
+                       Omit --all/--core/--steps to open an interactive step menu.
   --yes                 Use defaults and skip confirmation prompts.
   --ha-config-dir DIR   Home Assistant config directory.
                        Default: $DEFAULT_HA_CONFIG_DIR
   --ha-compose-file FILE
                        Docker Compose file for the local HA stack.
                        Default: <ha-config-parent>/docker-compose.yml
-  --vm-name NAME        Parallels macOS VM name for step 1.
-                       Default: $MACOS_VM_NAME
-  --macos-version VER   Optional macOS full installer version to fetch first.
-                       Example: 15.5
-  --windows-vm-name NAME
-                       Parallels Windows 11 ARM VM name for step 2.
-                       Default: $WINDOWS_VM_NAME
-  --windows-iso PATH    Optional Windows 11 ARM ISO path for step 2.
   --warm-sudo           Ask for sudo once and keep the timestamp fresh.
   --prompt-secrets      Prompt for optional local tokens/API keys before steps.
   --plan                Print selected steps and exit without making changes.
@@ -203,10 +192,6 @@ Environment overrides:
   NGROK_DOMAIN          Reserved ngrok static domain for stable external URL.
   NGROK_LAUNCH_AGENT_LABEL
                        Default: dev.djconnect.homeassistant.ngrok.
-  MACOS_VM_NAME         Same as --vm-name.
-  MACOS_VERSION         Same as --macos-version.
-  WINDOWS_VM_NAME       Same as --windows-vm-name.
-  WINDOWS_ISO_PATH      Same as --windows-iso.
   ONBOARDING_ENV_FILE   Same as --env-file.
   LOG_DIR               Directory for default timestamped logs.
   LOG_FILE              Explicit persistent run log path.
@@ -452,7 +437,7 @@ step_0_preflight() {
     warn "Only ${mem_gb}GB RAM detected. Minimum is 8GB; 16GB+ is recommended."
     failed=1
   elif (( mem_gb < 16 )); then
-    warn "${mem_gb}GB RAM detected. This can work, but 16GB+ is recommended for Docker + Xcode + Parallels."
+    warn "${mem_gb}GB RAM detected. This can work, but 16GB+ is recommended for Docker + Xcode."
     warned=1
   else
     status_ok "RAM ${mem_gb}GB"
@@ -542,91 +527,6 @@ step_0_preflight() {
   fi
 }
 
-step_0_parallels_macos_vm() {
-  need_macos
-  ensure_homebrew
-  log "Preparing Parallels macOS VM bootstrap."
-  if ! have prlctl; then
-    log "Installing Parallels Desktop."
-    run brew install --cask parallels
-  fi
-  if [[ -n "$MACOS_VERSION" ]]; then
-    log "Fetching macOS full installer $MACOS_VERSION through softwareupdate."
-    run softwareupdate --fetch-full-installer --full-installer-version "$MACOS_VERSION" || \
-      warn "softwareupdate could not fetch macOS $MACOS_VERSION. Parallels may still download macOS during VM creation."
-  fi
-  run open -a "Parallels Desktop" || true
-  if [[ "$DRY_RUN" == "1" ]]; then
-    log "Attempting unattended macOS VM creation: $MACOS_VM_NAME."
-    run prlctl create "$MACOS_VM_NAME" --distribution macos
-    return
-  fi
-  if ! have prlctl; then
-    warn "prlctl is still not on PATH. Finish Parallels first-run setup, then rerun step 1."
-    return
-  fi
-  if prlctl list --all --output name 2>/dev/null | grep -Fxq "$MACOS_VM_NAME"; then
-    log "Parallels VM '$MACOS_VM_NAME' already exists."
-    return
-  fi
-  log "Attempting unattended macOS VM creation: $MACOS_VM_NAME."
-  if run prlctl create "$MACOS_VM_NAME" --distribution macos 2>/dev/null; then
-    log "Created Parallels macOS VM '$MACOS_VM_NAME'."
-  elif run prlctl create "$MACOS_VM_NAME" -o macos 2>/dev/null; then
-    log "Created Parallels macOS VM '$MACOS_VM_NAME'."
-  else
-    warn "Parallels CLI could not create the macOS VM automatically on this host/version."
-    warn "The Parallels Installation Assistant is open. Choose 'Install macOS' and name the VM '$MACOS_VM_NAME'."
-    warn "After first boot, run this onboarding script inside the VM with --core or selected steps."
-  fi
-}
-
-step_0b_parallels_windows_vm() {
-  need_macos
-  ensure_homebrew
-  log "Preparing Parallels Windows 11 ARM VM bootstrap."
-  if [[ "$(uname -m)" != "arm64" ]]; then
-    warn "This step targets Windows 11 ARM on Apple Silicon. Current arch: $(uname -m)."
-  fi
-  if ! have prlctl; then
-    log "Installing Parallels Desktop."
-    run brew install --cask parallels
-  fi
-  run open -a "Parallels Desktop" || true
-  if [[ "$DRY_RUN" == "1" ]]; then
-    log "Attempting unattended Windows 11 ARM VM creation: $WINDOWS_VM_NAME."
-    if [[ -n "$WINDOWS_ISO_PATH" ]]; then
-      run prlctl create "$WINDOWS_VM_NAME" --distribution win-11 --device-set cdrom0 --image "$WINDOWS_ISO_PATH"
-    else
-      run prlctl create "$WINDOWS_VM_NAME" --distribution win-11
-    fi
-    return
-  fi
-  if ! have prlctl; then
-    warn "prlctl is still not on PATH. Finish Parallels first-run setup, then rerun step 2."
-    return
-  fi
-  if prlctl list --all --output name 2>/dev/null | grep -Fxq "$WINDOWS_VM_NAME"; then
-    log "Parallels VM '$WINDOWS_VM_NAME' already exists."
-    return
-  fi
-  log "Attempting unattended Windows 11 ARM VM creation: $WINDOWS_VM_NAME."
-  if [[ -n "$WINDOWS_ISO_PATH" ]]; then
-    if [[ ! -f "$WINDOWS_ISO_PATH" && "$DRY_RUN" != "1" ]]; then
-      die "Windows ISO not found: $WINDOWS_ISO_PATH"
-    fi
-    run prlctl create "$WINDOWS_VM_NAME" --distribution win-11 --device-set cdrom0 --image "$WINDOWS_ISO_PATH" || \
-      warn "Parallels CLI could not create Windows VM from ISO automatically."
-    return
-  fi
-  if run prlctl create "$WINDOWS_VM_NAME" --distribution win-11 2>/dev/null; then
-    log "Created Parallels Windows VM '$WINDOWS_VM_NAME'."
-  else
-    warn "Parallels CLI could not create the Windows VM automatically on this host/version."
-    warn "The Parallels Installation Assistant is open. Choose 'Get Windows 11 from Microsoft' or select a Windows 11 ARM ISO, then name the VM '$WINDOWS_VM_NAME'."
-  fi
-}
-
 wait_for_home_assistant() {
   local url="http://localhost:8123"
   local max="${1:-120}"
@@ -696,8 +596,15 @@ step_4_codex() {
     run brew install node
   fi
   run npm install -g @openai/codex
+  local npm_bin
+  npm_bin="$(npm bin -g 2>/dev/null || true)"
+  if [[ -n "$npm_bin" && ":$PATH:" != *":$npm_bin:"* ]]; then
+    export PATH="$npm_bin:$PATH"
+  fi
   if ! have codex; then
     warn "Codex installed, but 'codex' is not on PATH yet. Open a new terminal or check npm global bin."
+  else
+    ok "Codex CLI available at $(command -v codex)"
   fi
 }
 
@@ -1860,9 +1767,7 @@ print_menu() {
 $(style "$CLR_CYAN$CLR_BOLD" "DJConnect macOS developer onboarding")
 
 $(style "$CLR_BOLD" "Machine")
-  0. Preflight machine, VM, hardware, filesystem and network requirements
-  1. Download/bootstrap a Parallels macOS development VM
-  2. Download/bootstrap a Parallels Windows 11 ARM development VM
+  0. Preflight machine, hardware, filesystem and network requirements
 
 $(style "$CLR_BOLD" "Core Home Assistant")
   3. Xcode Command Line Tools + Homebrew
@@ -1898,8 +1803,6 @@ $(style "$CLR_BOLD" "Examples")
   ./$SCRIPT_NAME --all --yes
   ./$SCRIPT_NAME --core --yes
   ./$SCRIPT_NAME --steps 0
-  ./$SCRIPT_NAME --steps 1 --macos-version 15.5
-  ./$SCRIPT_NAME --steps 2 --windows-vm-name "DJConnect Windows 11 ARM Dev"
   ./$SCRIPT_NAME --steps 3,4,5,9,10,11,12,21 --warm-sudo --prompt-secrets
   ./$SCRIPT_NAME --steps 13,14,15,16,17,18
   ./$SCRIPT_NAME --steps 13,14,15,16,17,18,19,22
@@ -1916,8 +1819,7 @@ EOF
 run_step() {
   case "$1" in
     0) step_0_preflight ;;
-    1) step_0_parallels_macos_vm ;;
-    2) step_0b_parallels_windows_vm ;;
+    1|2) die "Step $1 was removed. VM bootstrap is intentionally outside the onboarding script." ;;
     3) step_1_xcode_homebrew ;;
     4) step_2_cli_tooling ;;
     5) step_3_docker ;;
@@ -1950,9 +1852,8 @@ run_step() {
 
 step_label() {
   case "$1" in
-    0) printf 'Preflight machine, VM, hardware, filesystem and network requirements' ;;
-    1) printf 'Download/bootstrap a Parallels macOS development VM' ;;
-    2) printf 'Download/bootstrap a Parallels Windows 11 ARM development VM' ;;
+    0) printf 'Preflight machine, hardware, filesystem and network requirements' ;;
+    1|2) printf 'Removed VM bootstrap step' ;;
     3) printf 'Xcode Command Line Tools + Homebrew' ;;
     4) printf 'CLI tooling: git, gh, jq, Python, Node, rsync' ;;
     5) printf 'Docker Desktop' ;;
@@ -1993,6 +1894,7 @@ parse_steps() {
   for step in "${parts[@]}"; do
     [[ "$step" =~ ^[0-9]+$ ]] || die "Invalid step: $step"
     (( step >= 0 && step <= 28 )) || die "Step out of range: $step"
+    (( step != 1 && step != 2 )) || die "Step $step was removed. VM bootstrap is intentionally outside the onboarding script."
     if [[ "$PLAN_ONLY" == "1" ]]; then
       printf '%s %2s. %s\n' "$(style "$CLR_CYAN" "PLAN")" "$step" "$(step_label "$step")"
     else
@@ -2004,10 +1906,49 @@ parse_steps() {
   done
 }
 
+resolve_step_selection() {
+  local raw="$1"
+  raw="${raw// /}"
+  raw="$(printf '%s' "$raw" | tr '[:upper:]' '[:lower:]')"
+  case "$raw" in
+    q|quit|exit) return 1 ;;
+    all)
+      printf '%s' "0,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25,26,27,28"
+      ;;
+    core)
+      printf '%s' "3,4,5,6,7,8,9,10,11,12"
+      ;;
+    *)
+      printf '%s' "$raw"
+      ;;
+  esac
+}
+
+interactive_menu() {
+  local selected
+  print_menu
+  while true; do
+    read -r -p "Choose a step number, comma-separated steps, core/all, or q to quit: " selected || {
+      printf '\n'
+      return 0
+    }
+    if ! selected="$(resolve_step_selection "$selected")"; then
+      ok "Exiting onboarding menu."
+      return 0
+    fi
+    if [[ -z "$selected" ]]; then
+      printf 'No step selected. Enter q to quit.\n'
+      continue
+    fi
+    parse_steps "$selected"
+    print_menu
+  done
+}
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --all)
-      SELECTED_STEPS="0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23"
+      SELECTED_STEPS="0,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25,26,27,28"
       shift
       ;;
     --core)
@@ -2070,22 +2011,6 @@ while [[ $# -gt 0 ]]; do
       HA_COMPOSE_FILE="${2:-}"
       shift 2
       ;;
-    --vm-name)
-      MACOS_VM_NAME="${2:-}"
-      shift 2
-      ;;
-    --macos-version)
-      MACOS_VERSION="${2:-}"
-      shift 2
-      ;;
-    --windows-vm-name)
-      WINDOWS_VM_NAME="${2:-}"
-      shift 2
-      ;;
-    --windows-iso)
-      WINDOWS_ISO_PATH="${2:-}"
-      shift 2
-      ;;
     --env-file)
       ONBOARDING_ENV_FILE="${2:-}"
       shift 2
@@ -2127,13 +2052,8 @@ if [[ "$PROMPT_SECRETS" == "1" ]]; then
 fi
 
 if [[ -z "$SELECTED_STEPS" ]]; then
-  print_menu
-  read -r -p "Choose steps, for example 0, 1, 2,3,4,8,9,10 or 'core'/'all': " SELECTED_STEPS
-  if [[ "$(printf '%s' "$SELECTED_STEPS" | tr '[:upper:]' '[:lower:]')" == "all" ]]; then
-    SELECTED_STEPS="0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23"
-  elif [[ "$(printf '%s' "$SELECTED_STEPS" | tr '[:upper:]' '[:lower:]')" == "core" ]]; then
-    SELECTED_STEPS="3,4,5,6,7,8,9,10,11,12"
-  fi
+  interactive_menu
+  exit 0
 fi
 
 parse_steps "$SELECTED_STEPS"

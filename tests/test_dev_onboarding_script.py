@@ -1,8 +1,9 @@
-"""Contract tests for the macOS developer onboarding helper."""
+"""Contract tests for developer onboarding helpers."""
 
 from __future__ import annotations
 
 import os
+import shutil
 import sys
 import subprocess
 import unittest
@@ -11,9 +12,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "tools" / "dev_onboarding_macos.sh"
+WINDOWS_SCRIPT = ROOT / "tools" / "dev_onboarding_windows.ps1"
 
 
-def run_script(*args: str) -> subprocess.CompletedProcess[str]:
+def run_script(*args: str, stdin: str | None = None) -> subprocess.CompletedProcess[str]:
     env = os.environ.copy()
     env["NO_COLOR"] = "1"
     return subprocess.run(
@@ -21,13 +23,18 @@ def run_script(*args: str) -> subprocess.CompletedProcess[str]:
         cwd=ROOT,
         env=env,
         text=True,
+        input=stdin,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         check=False,
     )
 
 
-def run_script_with_env(extra_env: dict[str, str], *args: str) -> subprocess.CompletedProcess[str]:
+def run_script_with_env(
+    extra_env: dict[str, str],
+    *args: str,
+    stdin: str | None = None,
+) -> subprocess.CompletedProcess[str]:
     env = os.environ.copy()
     env.update(extra_env)
     env["NO_COLOR"] = "1"
@@ -36,6 +43,43 @@ def run_script_with_env(extra_env: dict[str, str], *args: str) -> subprocess.Com
         cwd=ROOT,
         env=env,
         text=True,
+        input=stdin,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=False,
+    )
+
+
+def run_windows_script(*args: str, stdin: str | None = None) -> subprocess.CompletedProcess[str]:
+    executable = "pwsh"
+    env = os.environ.copy()
+    env["NO_COLOR"] = "1"
+    return subprocess.run(
+        [executable, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(WINDOWS_SCRIPT), *args],
+        cwd=ROOT,
+        env=env,
+        text=True,
+        input=stdin,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=False,
+    )
+
+
+def run_windows_script_with_env(
+    extra_env: dict[str, str],
+    *args: str,
+    stdin: str | None = None,
+) -> subprocess.CompletedProcess[str]:
+    env = os.environ.copy()
+    env.update(extra_env)
+    env["NO_COLOR"] = "1"
+    return subprocess.run(
+        ["pwsh", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(WINDOWS_SCRIPT), *args],
+        cwd=ROOT,
+        env=env,
+        text=True,
+        input=stdin,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         check=False,
@@ -52,13 +96,16 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("--plan", result.stdout)
         self.assertIn("--no-color", result.stdout)
         self.assertIn("--ha-compose-file", result.stdout)
-        self.assertIn("--windows-vm-name", result.stdout)
-        self.assertIn("--windows-iso", result.stdout)
+        self.assertNotIn("--windows-vm-name", result.stdout)
+        self.assertNotIn("--windows-iso", result.stdout)
+        self.assertNotIn("--macos-version", result.stdout)
         self.assertIn("--ma-data-dir", result.stdout)
         self.assertIn("--ngrok-domain", result.stdout)
         self.assertIn("DJCONNECT_HA_WS_URL", result.stdout)
         self.assertIn("DJCONNECT_HA_TOKEN", result.stdout)
         self.assertIn("NGROK_AUTHTOKEN", result.stdout)
+        self.assertIn("@openai/codex", SCRIPT.read_text())
+        self.assertIn("npm bin -g", SCRIPT.read_text())
 
     def test_all_plan_includes_preflight_and_excludes_apply_upgrades(self) -> None:
         result = run_script("--all", "--plan", "--no-color")
@@ -75,6 +122,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("PLAN  3. Xcode Command Line Tools + Homebrew", result.stdout)
         self.assertIn("PLAN 12. GitHub/Codex auth checks and summary", result.stdout)
         self.assertNotIn("PLAN  1. Download/bootstrap", result.stdout)
+        self.assertNotIn("PLAN  2. Download/bootstrap", result.stdout)
 
     def test_apply_upgrades_requires_explicit_flag(self) -> None:
         result = run_script("--steps", "24", "--no-log-file", "--no-color")
@@ -96,37 +144,16 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("DRY brew update", result.stdout)
         self.assertIn("DRY brew upgrade", result.stdout)
 
-    def test_vm_bootstrap_dry_run_prints_macos_commands(self) -> None:
-        result = run_script(
-            "--steps",
-            "1",
-            "--macos-version",
-            "15.5",
-            "--dry-run",
-            "--no-log-file",
-            "--no-color",
-        )
+    def test_removed_vm_bootstrap_steps_are_rejected(self) -> None:
+        for step in ("1", "2"):
+            with self.subTest(step=step):
+                result = run_script("--steps", step, "--no-log-file", "--no-color")
 
-        self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertIn("DRY softwareupdate --fetch-full-installer", result.stdout)
-        self.assertIn("DRY open -a", result.stdout)
-        self.assertIn("DRY prlctl create", result.stdout)
-
-    def test_vm_bootstrap_dry_run_prints_windows_commands(self) -> None:
-        result = run_script(
-            "--steps",
-            "2",
-            "--windows-vm-name",
-            "DJConnect Windows Test",
-            "--dry-run",
-            "--no-log-file",
-            "--no-color",
-        )
-
-        self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertIn("Preparing Parallels Windows 11 ARM VM bootstrap", result.stdout)
-        self.assertIn("DRY open -a", result.stdout)
-        self.assertIn("DRY prlctl create", result.stdout)
+                self.assertNotEqual(result.returncode, 0, result.stdout)
+                self.assertIn(
+                    f"Step {step} was removed. VM bootstrap is intentionally outside the onboarding script.",
+                    result.stdout,
+                )
 
     def test_home_assistant_dry_run_uses_docker_compose(self) -> None:
         result = run_script(
@@ -265,6 +292,178 @@ class DevOnboardingScriptTests(unittest.TestCase):
             "configure Home Assistant external/internal URL and trusted proxy settings as https://victory-curvy-refold.ngrok-free.dev",
             result.stdout,
         )
+
+
+class WindowsDevOnboardingScriptTests(unittest.TestCase):
+    def test_windows_script_exists_and_documents_core_flags(self) -> None:
+        text = WINDOWS_SCRIPT.read_text()
+
+        self.assertIn("Automates DJConnect developer onboarding on a Windows 11", text)
+        self.assertIn("-DryRun", text)
+        self.assertIn("-Plan", text)
+        self.assertIn("-HaComposeFile", text)
+        self.assertIn("-HaHostUrl", text)
+        self.assertIn("-MaHostUrl", text)
+        self.assertIn("-NgrokDomain", text)
+        self.assertIn("Available steps:", text)
+        self.assertIn("Write-StepMenu", text)
+        self.assertIn("Invoke-InteractiveMenu", text)
+        self.assertIn("Choose a step number, comma-separated steps, core/all, or q to quit", text)
+        self.assertIn("Write-Styled", text)
+        self.assertIn("Write-StatusLine", text)
+        self.assertIn("Write-Dry", text)
+        self.assertIn("Refresh-ProcessPath", text)
+        self.assertIn("Get-GitCommandExpression", text)
+        self.assertIn("npm install -g @openai/codex", text)
+        self.assertIn("codex available after npm install", text)
+        self.assertIn("Add-GitSafeDirectory", text)
+        self.assertIn("%(prefix)$slashPath", text)
+        self.assertIn("Test-GitRepository", text)
+        self.assertIn("Move-NonGitDirectoryAside", text)
+        self.assertIn("New-CheckoutRootFallback", text)
+        self.assertIn("Using fresh checkout root", text)
+        self.assertIn("Get-CheckoutRootCandidates", text)
+        self.assertIn("Resolve-CheckoutRepoPath", text)
+        self.assertIn("Resolve-DjconnectRepoRoot", text)
+        self.assertIn('Resolve-CheckoutRepoPath -RepoName "djconnect-windows"', text)
+        self.assertIn("Command failed with exit code", text)
+        self.assertIn('dotnet workload restore `"DJConnect.Windows.sln`"', text)
+        self.assertIn("run step 3 first, then rerun step 6", text)
+        self.assertNotIn('Invoke-StepCommand "dotnet workload restore"', text)
+        self.assertIn("Get-DotNetSdkVersionFromGlobalJson", text)
+        self.assertIn("Install-DotNetSdkVersion", text)
+        self.assertIn("Microsoft.DotNet.SDK.10", text)
+        self.assertIn("$HOME\\.dotnet", text)
+        self.assertIn("dotnet-install.ps1", text)
+        self.assertIn("Test-IsAdministrator", text)
+        self.assertIn("Do not run this onboarding script as Administrator", text)
+        self.assertIn("C:\\Program Files\\Git\\cmd\\git.exe", text)
+        self.assertIn("Windows-local checkout root", text)
+        self.assertIn("Use a local Windows path", text)
+        self.assertIn("LocalDocuments\\GitHub\\djconnect", text)
+        self.assertIn("GitHubRoot must be under the current user's home directory", text)
+        self.assertNotIn('"C:\\Mac\\Home\\Documents\\GitHub\\djconnect"', text)
+        self.assertIn("Running Windows machine, hardware, filesystem and network preflight.", text)
+        self.assertIn("Test-WritableDirectory", text)
+        self.assertIn("Test-DiskFree", text)
+        self.assertIn("Test-PortStatus", text)
+        self.assertIn("Test-NetworkEndpoint", text)
+        self.assertIn("Test-HttpService", text)
+        self.assertIn("https://registry-1.docker.io/v2/", text)
+        self.assertNotIn('"Docker.DockerDesktop"', text)
+        self.assertIn("NGROK_AUTHTOKEN", text)
+        self.assertIn("DJCONNECT_HA_WS_URL", text)
+        self.assertIn("DJCONNECT_HA_TOKEN", text)
+
+    def test_macos_script_documents_interactive_menu(self) -> None:
+        text = SCRIPT.read_text()
+
+        self.assertIn("interactive_menu", text)
+        self.assertIn("resolve_step_selection", text)
+        self.assertIn("Choose a step number, comma-separated steps, core/all, or q to quit", text)
+        self.assertIn("Omit --all/--core/--steps to open an interactive step menu.", text)
+
+    @unittest.skipUnless(
+        shutil.which("pwsh"),
+        "PowerShell 7 is required to execute Windows onboarding script tests",
+    )
+    def test_windows_help_documents_testability_flags(self) -> None:
+        result = run_windows_script("-Help")
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("-DryRun", result.stdout)
+        self.assertIn("-Plan", result.stdout)
+        self.assertIn("-HaComposeFile", result.stdout)
+        self.assertIn("-HaHostUrl", result.stdout)
+        self.assertIn("-MaHostUrl", result.stdout)
+        self.assertIn("-NgrokDomain", result.stdout)
+        self.assertIn("Available steps:", result.stdout)
+        self.assertIn("  0. Preflight", result.stdout)
+        self.assertIn(" 14. CI smoke push", result.stdout)
+
+    @unittest.skipUnless(
+        shutil.which("pwsh"),
+        "PowerShell 7 is required to execute Windows onboarding script tests",
+    )
+    def test_windows_default_start_shows_steps_without_running_preflight(self) -> None:
+        result = run_windows_script("-NoLogFile", stdin="q\n")
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("Available steps:", result.stdout)
+        self.assertIn("  0. Preflight", result.stdout)
+        self.assertIn("Examples:", result.stdout)
+        self.assertIn("Exiting onboarding menu.", result.stdout)
+        self.assertNotIn("Running Windows preflight checks", result.stdout)
+
+    @unittest.skipUnless(
+        shutil.which("pwsh"),
+        "PowerShell 7 is required to execute Windows onboarding script tests",
+    )
+    def test_windows_interactive_menu_runs_selected_step_and_returns(self) -> None:
+        result = run_windows_script("-DryRun", "-NoLogFile", "-Yes", stdin="8\nq\n")
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("Checking Home Assistant published by the macOS host.", result.stdout)
+        self.assertIn("DRY curl.exe -fsS http://10.211.55.2:8123", result.stdout)
+        self.assertNotIn("Run step 8.", result.stdout)
+        self.assertGreaterEqual(result.stdout.count("Available steps:"), 2)
+        self.assertIn("Exiting onboarding menu.", result.stdout)
+
+    @unittest.skipUnless(
+        shutil.which("pwsh"),
+        "PowerShell 7 is required to execute Windows onboarding script tests",
+    )
+    def test_windows_core_plan_is_addressable(self) -> None:
+        result = run_windows_script("-Core", "-Plan")
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("PLAN  0. Preflight", result.stdout)
+        self.assertIn("PLAN  5. Run Home Assistant integration tests", result.stdout)
+        self.assertIn("PLAN 11. Check voice/backend services on macOS host", result.stdout)
+        self.assertNotIn("PLAN 14. CI smoke push", result.stdout)
+
+    @unittest.skipUnless(
+        shutil.which("pwsh"),
+        "PowerShell 7 is required to execute Windows onboarding script tests",
+    )
+    def test_windows_ha_stack_dry_run_uses_macos_host_url(self) -> None:
+        result = run_windows_script(
+            "-Steps",
+            "8",
+            "-DryRun",
+            "-HaHostUrl",
+            "http://10.211.55.2:8123",
+            "-NoLogFile",
+            "-Yes",
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("Windows ARM in Parallels cannot run Docker Desktop nested virtualization reliably.", result.stdout)
+        self.assertIn("Home Assistant host URL: http://10.211.55.2:8123", result.stdout)
+        self.assertIn("DRY curl.exe -fsS http://10.211.55.2:8123", result.stdout)
+        self.assertNotIn("docker compose", result.stdout)
+
+    @unittest.skipUnless(
+        shutil.which("pwsh"),
+        "PowerShell 7 is required to execute Windows onboarding script tests",
+    )
+    def test_windows_ngrok_dry_run_redacts_token(self) -> None:
+        result = run_windows_script_with_env(
+            {"NGROK_AUTHTOKEN": "secret-ngrok-token"},
+            "-Steps",
+            "12",
+            "-NgrokDomain",
+            "victory-curvy-refold.ngrok-free.dev",
+            "-DryRun",
+            "-NoLogFile",
+            "-Yes",
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("DRY ngrok config add-authtoken <redacted>", result.stdout)
+        self.assertNotIn("secret-ngrok-token", result.stdout)
+        self.assertIn("schtasks /Create", result.stdout)
+        self.assertIn("ngrok http --url=victory-curvy-refold.ngrok-free.dev 8123", result.stdout)
 
 
 if __name__ == "__main__":
