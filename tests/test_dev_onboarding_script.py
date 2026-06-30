@@ -314,7 +314,24 @@ class WindowsDevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("Write-Dry", text)
         self.assertIn("Refresh-ProcessPath", text)
         self.assertIn("Get-GitCommandExpression", text)
+        self.assertIn("Install-WingetPackage", text)
+        self.assertIn("already installed", text)
+        self.assertNotIn('Invoke-StepCommand "winget install --id Git.Git', text)
+        self.assertIn("Invoke-PythonInDirectory", text)
+        self.assertIn("Get-PythonCommandExpression", text)
+        self.assertIn("py -3.11", text)
+        self.assertIn("WindowsApps\\python.exe", text)
+        self.assertIn("Microsoft Store python.exe alias", text)
+        self.assertIn("PYTHONUTF8", text)
+        self.assertIn("PYTHONIOENCODING", text)
+        self.assertIn("python -X utf8", text)
         self.assertIn("npm install -g @openai/codex", text)
+        self.assertIn("Enable-CurrentUserPowerShellScripts", text)
+        self.assertIn("Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force", text)
+        self.assertIn("-ErrorAction SilentlyContinue", text)
+        self.assertIn("open a new normal PowerShell terminal", text)
+        self.assertIn("Test-CodexLaunchable", text)
+        self.assertIn("codex.cmd", text)
         self.assertIn("codex available after npm install", text)
         self.assertIn("Add-GitSafeDirectory", text)
         self.assertIn("%(prefix)$slashPath", text)
@@ -362,6 +379,18 @@ class WindowsDevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("resolve_step_selection", text)
         self.assertIn("Choose a step number, comma-separated steps, core/all, or q to quit", text)
         self.assertIn("Omit --all/--core/--steps to open an interactive step menu.", text)
+
+    def test_development_docs_cover_windows_onboarding_constraints(self) -> None:
+        text = (ROOT / "DEVELOPMENT_ENVIRONMENT.md").read_text()
+
+        self.assertIn("C:\\Users\\<user>\\LocalDocuments\\GitHub", text)
+        self.assertIn("Windows 11 ARM in Parallels on Apple Silicon should not run Docker Desktop", text)
+        self.assertIn("do not run it from an\nAdministrator terminal", text)
+        self.assertIn("npm install -g @openai/codex", text)
+        self.assertIn("RemoteSigned", text)
+        self.assertIn("global.json", text)
+        self.assertIn("C:\\Users\\<user>\\.dotnet", text)
+        self.assertIn("idempotent around `winget` packages", text)
 
     @unittest.skipUnless(
         shutil.which("pwsh"),

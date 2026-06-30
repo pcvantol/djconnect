@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.2.10
+
+- Add and harden the Windows developer onboarding helper with an interactive
+  step menu, Windows-local checkouts under `LocalDocuments`, Parallels macOS
+  host service checks, idempotent winget installs, Codex CLI setup, exact
+  .NET SDK installation from `global.json`, and UTF-8 Python test execution.
+- Tighten the macOS onboarding helper by keeping VM bootstrap outside the
+  script, preserving the interactive step menu, and verifying Codex CLI
+  availability after npm installation.
+- Document the Windows ARM/Parallels onboarding workflow, including host Docker
+  access, Codex PowerShell shim handling and local checkout constraints.
+
 ## 3.2.9
 
 - Split ESP32/Raspberry Pi and app pairing into a client-type choice step

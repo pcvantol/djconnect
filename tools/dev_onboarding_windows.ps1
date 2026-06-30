@@ -311,6 +311,68 @@ function Invoke-StepCommand {
     }
 }
 
+function Install-WingetPackage {
+    param([Parameter(Mandatory)][string]$Id)
+    $installCommand = "winget install --id $Id --exact --accept-package-agreements --accept-source-agreements"
+    if ($DryRun) {
+        Write-Dry $installCommand
+        return
+    }
+    $installed = & winget list --id $Id --exact --accept-source-agreements 2>$null
+    if ($LASTEXITCODE -eq 0 -and ($installed -match [regex]::Escape($Id))) {
+        Write-StatusOk "$Id already installed"
+        return
+    }
+    & winget install --id $Id --exact --accept-package-agreements --accept-source-agreements
+    if ($LASTEXITCODE -eq 0) {
+        return
+    }
+    $installed = & winget list --id $Id --exact --accept-source-agreements 2>$null
+    if ($installed -match [regex]::Escape($Id)) {
+        Write-StatusOk "$Id already installed"
+        return
+    }
+    throw "winget install failed with exit code ${LASTEXITCODE}: $Id"
+}
+
+function Enable-CurrentUserPowerShellScripts {
+    $policy = Get-ExecutionPolicy -Scope CurrentUser
+    if ($policy -in @("RemoteSigned", "Unrestricted", "Bypass")) {
+        Write-StatusOk "PowerShell CurrentUser execution policy allows npm shims ($policy)"
+        return
+    }
+    if ($DryRun) {
+        Write-Dry "Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force"
+        return
+    }
+    Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force -ErrorAction SilentlyContinue
+    $policy = Get-ExecutionPolicy -Scope CurrentUser
+    if ($policy -in @("RemoteSigned", "Unrestricted", "Bypass")) {
+        Write-StatusOk "PowerShell CurrentUser execution policy set to $policy for npm command shims"
+        $effectivePolicy = Get-ExecutionPolicy
+        if ($effectivePolicy -ne $policy) {
+            Write-StatusWarn "Current process execution policy is $effectivePolicy; open a new normal PowerShell terminal before launching codex."
+        }
+        return
+    }
+    Write-StatusWarn "Could not set CurrentUser execution policy. Launch Codex with codex.cmd, or ask IT/admin to allow RemoteSigned for CurrentUser."
+}
+
+function Test-CodexLaunchable {
+    Refresh-ProcessPath
+    $codex = Get-Command codex -ErrorAction SilentlyContinue
+    $codexCmd = Get-Command codex.cmd -ErrorAction SilentlyContinue
+    if ($codex) {
+        Write-StatusOk "codex command available at $($codex.Source)"
+    }
+    elseif ($codexCmd) {
+        Write-StatusWarn "codex PowerShell shim not launchable; use codex.cmd or rerun step 2"
+    }
+    else {
+        Write-StatusWarn "codex command not found; run step 2"
+    }
+}
+
 function Refresh-ProcessPath {
     $pathParts = @(
         "$HOME\.dotnet",
@@ -545,6 +607,37 @@ function Invoke-InDirectory {
     finally {
         Pop-Location
     }
+}
+
+function Invoke-PythonInDirectory {
+    param(
+        [Parameter(Mandatory)][string]$Directory,
+        [Parameter(Mandatory)][string]$Arguments
+    )
+    $python = Get-PythonCommandExpression
+    Invoke-InDirectory $Directory "`$env:PYTHONUTF8='1'; `$env:PYTHONIOENCODING='utf-8'; $python -X utf8 $Arguments"
+}
+
+function Get-PythonCommandExpression {
+    Refresh-ProcessPath
+    $pyLauncher = Get-Command py -ErrorAction SilentlyContinue
+    if ($pyLauncher) {
+        return "py -3.11"
+    }
+    foreach ($candidate in @(
+        (Join-Path $env:LOCALAPPDATA "Programs\Python\Python311-arm64\python.exe"),
+        (Join-Path $env:LOCALAPPDATA "Programs\Python\Python311\python.exe"),
+        "C:\Program Files\Python311\python.exe"
+    )) {
+        if ($candidate -and (Test-Path $candidate)) {
+            return "& '$candidate'"
+        }
+    }
+    $python = Get-Command python -ErrorAction SilentlyContinue
+    if ($python -and ($python.Source -notlike "*\WindowsApps\python.exe")) {
+        return "python"
+    }
+    throw "Python 3.11 is not available yet. Run step 2 again, open a new terminal, or disable the Microsoft Store python.exe alias under Settings > Apps > Advanced app settings > App execution aliases."
 }
 
 function Load-OnboardingEnv {
@@ -877,6 +970,7 @@ function Step-0-Preflight {
     Test-NetworkEndpoint -Label "Docker Hub" -Url "https://registry-1.docker.io/v2/" -ExpectedStatus @(200, 401)
     Test-NetworkEndpoint -Label "Cloudflare" -Url "https://api.cloudflare.com/client/v4/user/tokens/verify" -ExpectedStatus @(200, 400, 401)
     Test-NetworkEndpoint -Label "Microsoft Store" -Url "https://storeedgefd.dsx.mp.microsoft.com" -ExpectedStatus @(200, 404)
+    Test-CodexLaunchable
 }
 
 function Step-1-PackageManager {
@@ -898,7 +992,7 @@ function Step-2-Tooling {
         "Microsoft.DotNet.SDK.10",
         "Microsoft.PowerShell"
     )) {
-        Invoke-StepCommand "winget install --id $id --exact --accept-package-agreements --accept-source-agreements"
+        Install-WingetPackage $id
     }
     Refresh-ProcessPath
     if (Get-Command git -ErrorAction SilentlyContinue) {
@@ -913,12 +1007,19 @@ function Step-2-Tooling {
     Refresh-ProcessPath
     if (Get-Command npm -ErrorAction SilentlyContinue) {
         Invoke-StepCommand "npm install -g @openai/codex"
+        Enable-CurrentUserPowerShellScripts
         Refresh-ProcessPath
         if (Get-Command codex -ErrorAction SilentlyContinue) {
             Write-StatusOk "codex available after npm install"
         }
         else {
-            Write-StatusWarn "Codex installed, but 'codex' is not on PATH yet. Open a new terminal or check npm global bin."
+            $codexCmd = Get-Command codex.cmd -ErrorAction SilentlyContinue
+            if ($codexCmd) {
+                Write-StatusWarn "Codex installed but PowerShell may prefer a blocked codex.ps1 shim. Open a new terminal or run codex.cmd."
+            }
+            else {
+                Write-StatusWarn "Codex installed, but 'codex' is not on PATH yet. Open a new terminal or check npm global bin."
+            }
         }
     }
     else {
@@ -992,13 +1093,13 @@ function Step-3-Repos {
 function Step-4-Python {
     Write-Info "Preparing Python test environment."
     $repoRoot = Resolve-DjconnectRepoRoot
-    Invoke-InDirectory $repoRoot "python -m pip install --upgrade pip"
+    Invoke-PythonInDirectory $repoRoot "-m pip install --upgrade pip"
 }
 
 function Step-5-Tests {
     Write-Info "Running Home Assistant integration tests."
     $repoRoot = Resolve-DjconnectRepoRoot
-    Invoke-InDirectory $repoRoot "python -m unittest discover -s tests"
+    Invoke-PythonInDirectory $repoRoot "-m unittest discover -s tests"
 }
 
 function Step-6-Maui {
@@ -1070,7 +1171,7 @@ function Step-12-Ngrok {
         throw "NGROK_AUTHTOKEN is required. Run with -PromptSecrets or export it from your ngrok dashboard."
     }
     if (-not (Get-Command ngrok -ErrorAction SilentlyContinue)) {
-        Invoke-StepCommand "winget install --id Ngrok.Ngrok --exact --accept-package-agreements --accept-source-agreements"
+        Install-WingetPackage "Ngrok.Ngrok"
     }
     if ($DryRun) {
         Write-Dry "ngrok config add-authtoken <redacted>"
@@ -1091,7 +1192,7 @@ function Step-12-Ngrok {
 function Step-13-E2E {
     Write-Info "Running local E2E release/build smoke checks."
     $repoRoot = Resolve-DjconnectRepoRoot
-    Invoke-InDirectory $repoRoot "python -m unittest tests.test_ask_dj_e2e_contract"
+    Invoke-PythonInDirectory $repoRoot "-m unittest tests.test_ask_dj_e2e_contract"
     Invoke-InDirectory $repoRoot ".\release.sh $E2EVersion --dry-run"
     if ($env:DJCONNECT_HA_WS_URL -and $env:DJCONNECT_HA_TOKEN) {
         Write-Host "DJCONNECT_HA_WS_URL=$($env:DJCONNECT_HA_WS_URL)"

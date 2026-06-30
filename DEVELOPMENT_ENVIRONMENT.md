@@ -106,16 +106,34 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\dev_onboarding_windows.ps1
 pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\dev_onboarding_windows.ps1 -Steps 12 -NgrokDomain your-domain.ngrok-free.app -DryRun -Yes
 ```
 
-It offers numbered steps for preflight checks, Homebrew/tooling, Docker
-Desktop, Home Assistant, HACS, Codex CLI, repo validation and syncing this
-integration into the local Home Assistant config. Step `27` can start a local
-Music Assistant server container for Music Assistant backend testing; provider
-and player setup still happens in the Music Assistant and Home Assistant UIs.
-Step `0` validates machine, hardware, filesystem and network requirements. VM
-creation is intentionally outside the onboarding helper; create any macOS or
-Windows VM manually with your preferred virtualization tool, then run the
-platform-specific onboarding helper inside that environment. The script also
-includes optional cross-repo setup steps derived from the other DJConnect
+The Windows helper is intentionally current-user only: do not run it from an
+Administrator terminal. Its tooling step is idempotent around `winget` packages
+that are already installed, installs Codex with `npm install -g @openai/codex`,
+sets the current-user PowerShell execution policy to `RemoteSigned` so npm
+`.ps1` shims such as `codex.ps1` can launch, and refreshes PATH inside the same
+PowerShell session. When the onboarding script itself is launched with
+`-ExecutionPolicy Bypass`, PowerShell may report that this process still uses
+the process-level policy; open a new normal PowerShell terminal before launching
+`codex`. If a locked-down shell still blocks the shim, run `codex.cmd` from the
+same terminal. Python commands run with `PYTHONUTF8=1`, `PYTHONIOENCODING=utf-8`
+and `python -X utf8` so tests that read UTF-8 documentation do not fail under
+Windows code pages such as `cp1252`; the helper prefers the `py -3.11` launcher
+or a real Python install and avoids the Microsoft Store `python.exe` alias.
+When a Windows client checkout contains `global.json`, step `6` installs that
+exact .NET SDK version into
+`C:\Users\<user>\.dotnet` before running MAUI workload restore from the solution
+directory.
+
+The macOS helper offers numbered steps for preflight checks, Homebrew/tooling,
+Docker Desktop, Home Assistant, HACS, Codex CLI, repo validation and syncing
+this integration into the local Home Assistant config. Step `27` can start a
+local Music Assistant server container for Music Assistant backend testing;
+provider and player setup still happens in the Music Assistant and Home
+Assistant UIs. Step `0` validates machine, hardware, filesystem and network
+requirements. VM creation is intentionally outside the onboarding helper; create
+any macOS or Windows VM manually with your preferred virtualization tool, then
+run the platform-specific onboarding helper inside that environment. The script
+also includes optional cross-repo setup steps derived from the other DJConnect
 development docs: XcodeGen for the Apple app, PlatformIO for ESP32 firmware,
 npm/Playwright/Wrangler for the website/API, Python/PySide dev dependencies for
 the Raspberry Pi client and .NET MAUI workloads for the Windows/Mac Catalyst
