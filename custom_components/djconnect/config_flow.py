@@ -1352,6 +1352,42 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._pairing_setup_method = SETUP_METHOD_PAIR_APP
         return await self.async_step_pair(user_input)
 
+    async def async_step_pair_app_ios_details(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> FlowResult:
+        """Handle iOS app pairing details after client type selection."""
+        self._pairing_setup_method = SETUP_METHOD_PAIR_APP
+        self._selected_pair_client_type = CLIENT_TYPE_IOS
+        return await self.async_step_pair(user_input)
+
+    async def async_step_pair_app_watch_details(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> FlowResult:
+        """Handle Apple Watch app pairing details after client type selection."""
+        self._pairing_setup_method = SETUP_METHOD_PAIR_APP
+        self._selected_pair_client_type = CLIENT_TYPE_WATCHOS
+        return await self.async_step_pair(user_input)
+
+    async def async_step_pair_app_macos_details(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> FlowResult:
+        """Handle macOS app pairing details after client type selection."""
+        self._pairing_setup_method = SETUP_METHOD_PAIR_APP
+        self._selected_pair_client_type = CLIENT_TYPE_MACOS
+        return await self.async_step_pair(user_input)
+
+    async def async_step_pair_app_windows_details(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> FlowResult:
+        """Handle Windows app pairing details after client type selection."""
+        self._pairing_setup_method = SETUP_METHOD_PAIR_APP
+        self._selected_pair_client_type = CLIENT_TYPE_WINDOWS
+        return await self.async_step_pair(user_input)
+
     async def _async_step_pair_type(
         self,
         user_input: dict[str, Any] | None = None,

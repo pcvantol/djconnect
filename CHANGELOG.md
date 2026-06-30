@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.2.11
+
+- Fix app-client pairing setup so the iOS, Apple Watch, macOS and Windows
+  detail steps all have matching Home Assistant config-flow handlers instead of
+  failing with an `UnknownStep` error.
+
 ## 3.2.10
 
 - Add and harden the Windows developer onboarding helper with an interactive

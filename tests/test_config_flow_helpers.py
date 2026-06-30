@@ -1319,6 +1319,44 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertEqual(result["step_id"], "pair_app_ios_details")
 
+    def test_app_detail_step_variants_are_supported_by_flow_handlers(self) -> None:
+        for client_type, step_id, handler_name in (
+            (
+                self.const.CLIENT_TYPE_IOS,
+                "pair_app_ios_details",
+                "async_step_pair_app_ios_details",
+            ),
+            (
+                self.const.CLIENT_TYPE_WATCHOS,
+                "pair_app_watch_details",
+                "async_step_pair_app_watch_details",
+            ),
+            (
+                self.const.CLIENT_TYPE_MACOS,
+                "pair_app_macos_details",
+                "async_step_pair_app_macos_details",
+            ),
+            (
+                self.const.CLIENT_TYPE_WINDOWS,
+                "pair_app_windows_details",
+                "async_step_pair_app_windows_details",
+            ),
+        ):
+            with self.subTest(client_type=client_type):
+                flow = self.config_flow.DJConnectConfigFlow()
+                flow.hass = types.SimpleNamespace(
+                    config=types.SimpleNamespace(language="nl-NL")
+                )
+                flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_APP
+                flow._selected_pair_client_type = client_type
+
+                self.assertTrue(hasattr(flow, handler_name))
+                self.assertEqual(flow._pair_details_step_id(), step_id)
+                result = asyncio.run(getattr(flow, handler_name)())
+
+                self.assertEqual(result["type"], "form")
+                self.assertEqual(result["step_id"], step_id)
+
     def test_setup_method_order_puts_conversation_agent_first(self) -> None:
         hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
 
