@@ -80,6 +80,19 @@ class AskDjE2EContractTest(unittest.TestCase):
         }
         self.assertEqual(sorted(help_prompts - covered_prompts), [])
 
+    def test_validator_rejects_forbidden_json_paths(self) -> None:
+        errors = validate_case_result(
+            {
+                "id": "forbidden_path",
+                "expect": {"json_forbidden_paths": ["track_insight.music_dna.match_percent"]},
+            },
+            {"track_insight": {"music_dna": {"match_percent": 91}}},
+            AskDjE2ETrace(),
+        )
+
+        self.assertTrue(errors)
+        self.assertIn("forbidden JSON path", errors[0])
+
     def test_ask_dj_contract_cases(self) -> None:
         failures: list[str] = []
         for case in self.cases:

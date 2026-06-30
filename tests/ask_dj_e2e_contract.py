@@ -143,6 +143,9 @@ def validate_case_result(
             fail(f"top-level {key!r} expected {value!r}, got {response.get(key)!r}")
     for key, model in (expect.get("json_model") or {}).items():
         _expect_json_model(response.get(key), model, fail, path=key)
+    for path in expect.get("json_forbidden_paths") or []:
+        if _json_path_exists(response, str(path)):
+            fail(f"forbidden JSON path {path!r} was present")
 
     return errors
 
@@ -277,3 +280,13 @@ def _expect_json_model(actual: Any, model: Any, fail: Any, *, path: str) -> None
             return
     if actual != model:
         fail(f"{path} expected {model!r}, got {actual!r}")
+
+
+def _json_path_exists(value: Any, path: str) -> bool:
+    current = value
+    for part in path.split("."):
+        if isinstance(current, dict) and part in current:
+            current = current[part]
+            continue
+        return False
+    return True

@@ -615,7 +615,7 @@
                 "track_insight"
               ]
             },
-            "description": "Standalone Track Insight endpoint for Apple and future clients. Uses Home Assistant auth and returns normalized TrackInsight JSON with track metadata, structured analysis, Music DNA Match, cache info and optional visual-profile hints."
+            "description": "Standalone Track Insight endpoint for Apple and future clients. Uses Home Assistant auth and returns normalized TrackInsight JSON with track metadata, structured analysis, cache info and optional visual-profile hints. Track Insight does not include a Music DNA per-track match score."
           }
         },
         {

@@ -8,7 +8,7 @@ Assistant custom integration.
 Work from the repository root:
 
 ```bash
-cd /Users/pcvantol/Documents/GitHub/djconnect
+cd ~/Documents/GitHub/djconnect
 ```
 
 The integration source lives in:
@@ -172,14 +172,14 @@ The script adds any missing `homeassistant`, `whisper`, `piper` and
 runs:
 
 ```bash
-docker compose -f /Users/pcvantol/docker/homeassistant/docker-compose.yml up -d homeassistant whisper piper music-assistant
+docker compose -f "$HOME/docker/homeassistant/docker-compose.yml" up -d homeassistant whisper piper music-assistant
 ```
 
 Whisper uses `rhasspy/wyoming-whisper` with `--model tiny-int8 --language nl` on
 port `10300`. Piper uses `rhasspy/wyoming-piper` with
 `--voice nl_NL-mls-medium` on port `10200`. Music Assistant uses the Docker
 image `ghcr.io/music-assistant/server:latest`, stores data under
-`/Users/pcvantol/docker/music-assistant-server/data` by default and serves its UI
+`$HOME/docker/music-assistant-server/data` by default and serves its UI
 on:
 
 ```text
@@ -201,6 +201,39 @@ it explicitly:
 ```bash
 ./tools/dev_onboarding_macos.sh --steps 27 --ha-compose-file /path/to/docker-compose.yml
 ```
+
+To expose the local Home Assistant dev instance for iPhone, Spotify OAuth and
+remote-client testing without Nabu Casa, create a free ngrok account, reserve a
+static ngrok domain if you want the URL to survive reboot, then run:
+
+```bash
+export NGROK_AUTHTOKEN="<token from ngrok>"
+./tools/dev_onboarding_macos.sh --steps 28 --ngrok-domain your-domain.ngrok-free.app
+```
+
+Step `28` installs ngrok with Homebrew, stores the auth token in ngrok's own
+config, creates a macOS LaunchAgent under the current user's
+`~/Library/LaunchAgents`, starts it with `RunAtLoad`/`KeepAlive`, and updates
+`$HOME/docker/homeassistant/config/configuration.yaml` with:
+
+```yaml
+homeassistant:
+  external_url: "https://your-domain.ngrok-free.app"
+  internal_url: "https://your-domain.ngrok-free.app"
+
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 127.0.0.1
+    - ::1
+    - 172.16.0.0/12
+    - 192.168.65.0/24
+```
+
+If you run without `--ngrok-domain`, ngrok still starts, but the free ephemeral
+Forwarding URL can change. The script prints the current URL when available and
+reminds you where to configure it manually in Home Assistant if automatic config
+is not possible.
 
 For unattended setup of only this Home Assistant integration:
 
@@ -229,19 +262,19 @@ http://localhost:8123
 The local Home Assistant config path is:
 
 ```text
-/Users/pcvantol/docker/homeassistant/config
+$HOME/docker/homeassistant/config
 ```
 
 The installed custom integration path is:
 
 ```text
-/Users/pcvantol/docker/homeassistant/config/custom_components/djconnect
+$HOME/docker/homeassistant/config/custom_components/djconnect
 ```
 
 The default local stack is managed through Docker Compose at:
 
 ```text
-/Users/pcvantol/docker/homeassistant/docker-compose.yml
+$HOME/docker/homeassistant/docker-compose.yml
 ```
 
 ## Install The Current Working Tree Into Home Assistant
@@ -254,19 +287,19 @@ rsync -a --delete --delete-excluded \
   --exclude __pycache__ \
   --exclude '*.pyc' \
   custom_components/djconnect/ \
-  /Users/pcvantol/docker/homeassistant/config/custom_components/djconnect/
+  "$HOME/docker/homeassistant/config/custom_components/djconnect/"
 ```
 
 Confirm the installed manifest:
 
 ```bash
-python3 -m json.tool /Users/pcvantol/docker/homeassistant/config/custom_components/djconnect/manifest.json
+python3 -m json.tool "$HOME/docker/homeassistant/config/custom_components/djconnect/manifest.json"
 ```
 
 Then restart Home Assistant Core through Docker Compose:
 
 ```bash
-docker compose -f /Users/pcvantol/docker/homeassistant/docker-compose.yml up -d homeassistant
+docker compose -f "$HOME/docker/homeassistant/docker-compose.yml" up -d homeassistant
 docker ps --filter name=homeassistant --format '{{.Names}}\t{{.Status}}\t{{.Ports}}'
 ```
 

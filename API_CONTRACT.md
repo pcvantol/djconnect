@@ -359,14 +359,13 @@ are present, the backend analyzes that explicit track; otherwise it resolves
 Now Playing through the music backend/status context.
 
 Responses use normalized TrackInsight JSON with `id`, `created_at`, `source`,
-`track`, `analysis`, `music_dna`, `visual_profile` and `cache`. Numeric
-analysis and visual values are normalized from `0.0` to `1.0`. `music_dna`
-contains a deterministic `match_percent` hint plus a short label/summary so
-clients can render Music DNA Match without treating it as a measured scientific
-score. `visual_profile` is deterministic and is only a rendering hint; clients
-remain responsible for final visualization and must not expect server-generated
-images or video. Structured errors use `error`/`message`, for example
-`no_track_playing`.
+`track`, `analysis`, `visual_profile` and `cache`. Numeric analysis and visual
+values are normalized from `0.0` to `1.0`. Track Insight does not include a
+Music DNA per-track match score, label or reason; Music DNA remains a separate
+opt-in profile/context feature. `visual_profile` is deterministic and is only a
+rendering hint; clients remain responsible for final visualization and must not
+expect server-generated images or video. Structured errors use `error`/`message`,
+for example `no_track_playing`.
 
 ## Music DNA Profile Contract
 
@@ -703,7 +702,7 @@ These responses use:
 - `open_screen: "track_insight"`
 - `playback_actions: []`
 - top-level `track_insight{}` with normalized `track`, `analysis`,
-  `music_dna`, `visual_profile` and `cache`
+  `visual_profile` and `cache`
 
 Track Insight is the only Ask DJ current-track insight contract. It must not
 expose a parallel response shape or a backend-specific Spotify audio-analysis

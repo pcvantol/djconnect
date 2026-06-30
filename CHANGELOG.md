@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.2.9
+
+- Split ESP32/Raspberry Pi and app pairing into a client-type choice step
+  followed by client-specific pairing details, so each screen only shows fields
+  relevant to the selected DJConnect client.
+- Pre-fill the Home Assistant device name from the selected client type, such
+  as `DJConnect iOS`, `DJConnect Watch`, `DJConnect macOS` or
+  `DJConnect Windows`.
+- Clean up Dutch pairing copy to consistently use `apparaat` instead of
+  `device` in user-facing text.
+
 ## 3.2.8
 
 - Fix app pairing QR-code generation by writing Segno SVG output to a byte
@@ -15,6 +26,12 @@
   placeholders for both options-flow and repair-flow OAuth popups.
 - Tighten setup-route copy, including the local device setup label for ESP32 and
   Raspberry Pi.
+- Add a macOS developer onboarding step for a persistent free-tier ngrok tunnel
+  to the local Home Assistant dev instance, including LaunchAgent persistence,
+  Home Assistant external/internal URL configuration and trusted proxy settings.
+- Remove Track Insight's deterministic Music DNA per-track match output; Track Insight now
+  returns track analysis, visual profile and cache metadata without per-track
+  Music DNA score, label or reason fields.
 
 ## 3.2.7
 
@@ -70,8 +87,7 @@
 - Replace the old Ask DJ track-analysis contract with the unified Track Insight
   route for direct screen calls, Ask DJ intents, voice examples, the
   `djconnect.track_insight` service and HTTP clients. Track Insight now returns
-  normalized JSON with track, analysis, Music DNA Match, visual-profile and
-  cache metadata.
+  normalized JSON with track, analysis, visual-profile and cache metadata.
 - Rename user-facing and persisted Ask DJ memory concepts to Music DNA,
   including the Home Assistant Store key `djconnect_music_dna`, request/context
   field `music_dna_key`, HTTP header `X-DJConnect-Music-DNA-Key`, service copy

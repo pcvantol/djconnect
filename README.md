@@ -14,7 +14,7 @@ The Home Assistant integration handles pairing, Spotify OAuth, backend playback 
 
 ## Current Version
 
-- Home Assistant integration: `3.2.8`
+- Home Assistant integration: `3.2.9`
 - Domain: `djconnect`
 - HACS category: `Integration`
 - Device target: DJConnect device
@@ -101,8 +101,8 @@ of the integration contract:
   `djconnect.track_insight` developer service all use the same Track Insight
   service layer. It resolves Now Playing through the selected music backend,
   can analyze explicit artist/title payloads, returns normalized JSON plus a
-  deterministic Music DNA Match hint and visual hints, and does not generate
-  server-side images or video.
+  deterministic visual profile, and does not generate Music DNA per-track match
+  scores, server-side images or video.
 - **Backend playback controls**: Home Assistant exposes DJConnect buttons, numbers, selects and sensors for the backend playback session. DJConnect no longer creates a native `media_player` proxy; music control stays available through DJConnect commands and backend-backed control entities. App clients consume the same command/status shapes as Home Assistant entities, while ESP32 and Raspberry Pi can also expose local hardware or kiosk controls over that contract.
 - **Refresh-token rotation aware**: Spotify refresh tokens can rotate. Home Assistant stores the latest token and uses it as the canonical source for HA backend playback. If an older in-memory token is rejected but a newer stored token is available, DJConnect retries silently before creating a Repair issue. Pair/status responses never include Spotify OAuth secrets.
 - **Access-token cache**: Home Assistant caches short-lived Spotify access tokens and refreshes them on demand. A normal one-hour Spotify access-token expiry should not open a Repair flow; only a rejected/revoked refresh token after all known stored tokens have been tried should.
@@ -125,7 +125,7 @@ of the integration contract:
 
 ## Repository Layout
 
-- Home Assistant integration: `3.2.8`
+- Home Assistant integration: `3.2.9`
 - Apple clients source: `pcvantol/djconnect-app`
 - ESP32 firmware source: `pcvantol/djconnect-esp32`
 - Windows client source: `pcvantol/djconnect-windows`
@@ -145,8 +145,10 @@ This repository contains the Home Assistant custom integration under `custom_com
 
 Brand images for the Home Assistant frontend are bundled in `custom_components/djconnect/brand/`.
 
-For local development, Docker Home Assistant installation and restart commands,
-see [`DEVELOPMENT_ENVIRONMENT.md`](DEVELOPMENT_ENVIRONMENT.md).
+For local development, Docker Home Assistant installation, restart commands,
+Music Assistant backend testing and the optional persistent ngrok tunnel for
+iPhone/Spotify OAuth testing are documented in
+[`DEVELOPMENT_ENVIRONMENT.md`](DEVELOPMENT_ENVIRONMENT.md).
 The product/marketing website is maintained outside this integration repository.
 Cross-repo sync prompts are consolidated into this repo's `SYNC_PROMPTS.md`; do not re-add old loose prompt files or sibling-repo copies. The product roadmap is centralized in this repo's `PRODUCT_ROADMAP.md`; do not keep sibling-repo roadmap copies. Keep `TECHNICAL_DESIGN_DECISIONS.md` updated when implementation patterns, coding conventions, dependencies, libraries or external API usage change.
 
@@ -500,7 +502,7 @@ song?" and "What is the vibe of this track?" all route to Track Insight.
 Responses return
 `intent.intent:"track_insight"`, `action:"track_insight"`, no playback mutation,
 and a normalized `track_insight` object containing track metadata, structured
-analysis, Music DNA Match, cache metadata and deterministic visual-profile hints. Track Insight
+analysis, cache metadata and deterministic visual-profile hints. Track Insight
 does not expose a separate legacy technical-analysis contract.
 `djconnect.clear_ask_dj_history` clears persistent Ask DJ chat history for the
 selected Home Assistant user when called as a developer service. The app HTTP
@@ -1398,16 +1400,16 @@ Example manifest:
 
 ```json
 {
-  "version": "3.2.8",
-  "version_tag": "v3.2.8",
+  "version": "3.2.9",
+  "version_tag": "v3.2.9",
   "channel": "stable",
-  "min_ha_integration": "3.2.8",
+  "min_ha_integration": "3.2.9",
   "firmwares": [
     {
       "board": "t_embed_cc1101",
       "device": "lilygo-t-embed-s3",
-      "asset": "djconnect-lilygo-t-embed-s3-v3.2.8.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.2.8/djconnect-lilygo-t-embed-s3-v3.2.8.bin",
+      "asset": "djconnect-lilygo-t-embed-s3-v3.2.9.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.2.9/djconnect-lilygo-t-embed-s3-v3.2.9.bin",
       "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "size": 2113136
     }
@@ -1430,7 +1432,7 @@ The firmware version is injected through PlatformIO build flags from the Git tag
 Recommended firmware source release helper:
 
 ```bash
-./release.sh 3.2.8
+./release.sh 3.2.9
 ```
 
 In the separate `djconnect-esp32` repository, the firmware release script should
@@ -1442,14 +1444,14 @@ PlatformIO builds, rename firmware binaries to device-specific assets such as
 Preview the firmware release flow without changing files:
 
 ```bash
-./release.sh 3.2.8 --dry-run
+./release.sh 3.2.9 --dry-run
 ```
 
 When publishing to the public firmware repository, use the firmware script's
 public-repo option if available:
 
 ```bash
-./release.sh 3.2.8 --publish-firmware-repo ../djconnect-firmware
+./release.sh 3.2.9 --publish-firmware-repo ../djconnect-firmware
 ```
 
 The public `djconnect-firmware` repository should contain only the release
@@ -1510,7 +1512,7 @@ Tag and publish:
 One-liner:
 
 ```bash
-./release.sh 3.2.8
+./release.sh 3.2.9
 ```
 
 The script updates the integration version in `manifest.json`, `const.py`,
@@ -1521,18 +1523,18 @@ above.
 Preview without executing git/gh commands:
 
 ```bash
-./release.sh 3.2.8 --dry-run
+./release.sh 3.2.9 --dry-run
 ```
 
 Manual equivalent:
 
 ```bash
 git add .
-git commit -m "Release DJConnect v3.2.8"
-git tag v3.2.8
+git commit -m "Release DJConnect v3.2.9"
+git tag v3.2.9
 git push origin main
-git push origin v3.2.8
-gh release create v3.2.8 --title "DJConnect v3.2.8" --notes-file CHANGELOG.md
+git push origin v3.2.9
+gh release create v3.2.9 --title "DJConnect v3.2.9" --notes-file CHANGELOG.md
 ```
 
 After every release, clean up old completed GitHub Actions workflow runs. Keep

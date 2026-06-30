@@ -103,7 +103,7 @@ class TrackInsightCache:
             return None
         value = item.get("response")
         if isinstance(value, dict):
-            result = dict(value)
+            result = _strip_track_insight_music_dna_match(value)
             result["cache"] = {"hit": True, "key": key}
             return result
         return None
@@ -111,7 +111,7 @@ class TrackInsightCache:
     def set(self, key: str, response: dict[str, Any]) -> None:
         self._cache()[key] = {
             "_cached_at": time.time(),
-            "response": dict(response),
+            "response": _strip_track_insight_music_dna_match(response),
         }
 
     def _cache(self) -> dict[str, Any]:
@@ -196,7 +196,6 @@ class TrackInsightResponseSerializer:
             "source": request.source or "auto",
             "track": track,
             "analysis": analysis,
-            "music_dna": _music_dna_profile(track, analysis),
             "visual_profile": _visual_profile(track, analysis) if request.include_visual_profile else None,
             "cache": {"hit": cache_hit, "key": cache_key},
         }
@@ -335,10 +334,6 @@ class TrackInsightIntentHandler:
         title = str(track.get("title") or "this track")
         artist = str(track.get("artist") or "").strip()
         speak = f"Here is the Track Insight for {title}{f' by {artist}' if artist else ''}."
-        music_dna = insight.get("music_dna") if isinstance(insight.get("music_dna"), dict) else {}
-        music_dna_summary = str(music_dna.get("summary") or "").strip()
-        if music_dna_summary:
-            speak = f"{speak} {music_dna_summary}"
         summary = str((insight.get("analysis") or {}).get("summary") or "").strip()
         if summary:
             speak = f"{speak} {summary}"
@@ -597,29 +592,11 @@ def _visual_profile(track: dict[str, Any], analysis: dict[str, Any]) -> dict[str
     }
 
 
-def _music_dna_profile(track: dict[str, Any], analysis: dict[str, Any]) -> dict[str, Any]:
-    """Return deterministic Music DNA compatibility hints for clients."""
-    seed = _seed(track)
-    energy = _normalized_float(analysis.get("energy"), 0.5)
-    danceability = _normalized_float(analysis.get("danceability"), 0.5)
-    intensity = _normalized_float(analysis.get("intensity"), 0.5)
-    base = int(seed[18:20], 16) / 255
-    match = round((base * 0.35 + energy * 0.25 + danceability * 0.25 + intensity * 0.15) * 100)
-    match = max(0, min(100, int(match)))
-    if match >= 75:
-        label = "matches_music_dna"
-        summary = "This track fits your Music DNA."
-    elif match >= 45:
-        label = "expands_music_dna"
-        summary = "This track expands your Music DNA."
-    else:
-        label = "outside_music_dna"
-        summary = "This track sits outside your usual Music DNA."
-    return {
-        "match_percent": match,
-        "label": label,
-        "summary": summary,
-    }
+def _strip_track_insight_music_dna_match(response: dict[str, Any]) -> dict[str, Any]:
+    """Return response copy without legacy per-track Music DNA match data."""
+    sanitized = dict(response)
+    sanitized.pop("music_dna", None)
+    return sanitized
 
 
 def _palette(seed: str) -> list[str]:

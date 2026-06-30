@@ -55,8 +55,10 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("--windows-vm-name", result.stdout)
         self.assertIn("--windows-iso", result.stdout)
         self.assertIn("--ma-data-dir", result.stdout)
+        self.assertIn("--ngrok-domain", result.stdout)
         self.assertIn("DJCONNECT_HA_WS_URL", result.stdout)
         self.assertIn("DJCONNECT_HA_TOKEN", result.stdout)
+        self.assertIn("NGROK_AUTHTOKEN", result.stdout)
 
     def test_all_plan_includes_preflight_and_excludes_apply_upgrades(self) -> None:
         result = run_script("--all", "--plan", "--no-color")
@@ -229,6 +231,40 @@ class DevOnboardingScriptTests(unittest.TestCase):
         )
         self.assertIn("ghcr.io/music-assistant/server:latest", result.stdout)
         self.assertIn("DRY curl -fsS http://localhost:8095", result.stdout)
+
+    def test_ngrok_step_is_plan_addressable(self) -> None:
+        result = run_script("--steps", "28", "--plan", "--no-color")
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn(
+            "PLAN 28. Install/start persistent ngrok tunnel for local Home Assistant",
+            result.stdout,
+        )
+
+    def test_ngrok_dry_run_prints_launchagent_and_ha_config(self) -> None:
+        result = run_script_with_env(
+            {"NGROK_AUTHTOKEN": "secret-ngrok-token"},
+            "--steps",
+            "28",
+            "--ngrok-domain",
+            "victory-curvy-refold.ngrok-free.dev",
+            "--dry-run",
+            "--no-log-file",
+            "--no-color",
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("DRY ngrok config add-authtoken \\<redacted\\>", result.stdout)
+        self.assertNotIn("secret-ngrok-token", result.stdout)
+        self.assertIn("dev.djconnect.homeassistant.ngrok.plist", result.stdout)
+        self.assertIn(
+            "ngrok http --url=victory-curvy-refold.ngrok-free.dev 8123",
+            result.stdout,
+        )
+        self.assertIn(
+            "configure Home Assistant external/internal URL and trusted proxy settings as https://victory-curvy-refold.ngrok-free.dev",
+            result.stdout,
+        )
 
 
 if __name__ == "__main__":

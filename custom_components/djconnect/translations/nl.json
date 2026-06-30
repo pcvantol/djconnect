@@ -3,13 +3,13 @@
     "step": {
       "user": {
         "title": "DJConnect instellen",
-        "description": "Begin met de route die past bij je setup. Gebruik de Assist-agent zonder fysiek device, kies lokaal device voor ESP32/Raspberry Pi op je netwerk, of kies app voor iPhone, Apple Watch, macOS en Windows.",
+        "description": "Begin met de route die past bij je setup. Gebruik de Assist-agent zonder fysiek apparaat, kies lokaal apparaat voor ESP32/Raspberry Pi op je netwerk, of kies app voor iPhone, Apple Watch, macOS en Windows.",
         "data": {
           "setup_method": "Setup methode"
         }
       },
       "pair": {
-        "title": "DJConnect device koppelen",
+        "title": "DJConnect apparaat koppelen",
         "description": "Koppel een DJConnect client met Home Assistant.",
         "data": {
           "pair_code": "Koppelcode",
@@ -23,10 +23,10 @@
           "app_watch_pairing_uri": "Apple Watch QR/deep-link payload"
         },
         "data_description": {
-          "pair_code": "Alleen voor ESP32/Raspberry Pi: de 6-cijferige koppelcode op het apparaatdisplay.",
+          "pair_code": "De 6-cijferige koppelcode op het apparaatdisplay.",
           "device_name": "Leesbare naam voor dit DJConnect apparaat.",
-          "client_type": "Type DJConnect client. iPhone en Apple Watch gebruiken QR/deep-link pairing; Apple Watch loopt via iPhone proxy. macOS en Windows gebruiken Home Assistant URL plus koppelcode.",
-          "local_url": "Alleen voor ESP32/Raspberry Pi lokale device API fallback; laat leeg wanneer mDNS werkt.",
+          "client_type": "Kies ESP32 of Raspberry Pi.",
+          "local_url": "Lokale apparaat-API fallback; laat leeg wanneer mDNS werkt.",
           "discovered_client": "Kies een automatisch gevonden DJConnect client om de koppelgegevens voor te vullen, of gebruik handmatige invoer.",
           "app_pair_code": "Gebruik deze code in macOS/Windows, of laat iPhone/Apple Watch hem via de QR/deep-link payload overnemen.",
           "app_ha_local_url": "Lokale Home Assistant URL die de app tijdens pairing gebruikt.",
@@ -34,9 +34,45 @@
           "app_watch_pairing_uri": "QR/deep-link payload die je op iPhone scant om de gekoppelde Apple Watch te pairen."
         }
       },
+      "pair_type": {
+        "title": "Clienttype kiezen",
+        "description": "Kies eerst welk type DJConnect client je wilt koppelen.",
+        "data": {
+          "client_type": "Clienttype"
+        },
+        "data_description": {
+          "client_type": "DJConnect gebruikt dit om alleen de relevante koppelvelden te tonen."
+        }
+      },
+      "pair_local_device_type": {
+        "title": "Lokaal apparaat kiezen",
+        "description": "Kies welk lokaal DJConnect apparaat je wilt koppelen.",
+        "data": {
+          "client_type": "Clienttype"
+        },
+        "data_description": {
+          "client_type": "Kies ESP32 of Raspberry Pi."
+        }
+      },
+      "pair_local_device_details": {
+        "title": "Lokaal apparaat koppelen",
+        "description": "Voer de koppelgegevens voor dit lokale apparaat in.",
+        "data": {
+          "pair_code": "Koppelcode",
+          "device_name": "Apparaatnaam",
+          "local_url": "Client adres",
+          "discovered_client": "Gevonden DJConnect client"
+        },
+        "data_description": {
+          "pair_code": "De 6-cijferige koppelcode op het DJConnect apparaat.",
+          "device_name": "Leesbare naam voor dit lokale apparaat.",
+          "local_url": "Alleen voor lokale apparaat-API fallback; laat leeg wanneer mDNS werkt.",
+          "discovered_client": "Kies een automatisch gevonden ESP32/Raspberry Pi client om de koppelgegevens voor te vullen, of gebruik handmatige invoer."
+        }
+      },
       "pair_local_device": {
-        "title": "Lokaal device koppelen",
-        "description": "Gebruik deze route voor ESP32 en Raspberry Pi clients op je lokale netwerk. Kies een gevonden device of voer de koppelcode van het display in. Client adres is alleen nodig als mDNS niet werkt.",
+        "title": "Lokaal apparaat koppelen",
+        "description": "Gebruik deze route voor ESP32 en Raspberry Pi clients op je lokale netwerk. Kies een gevonden apparaat of voer de koppelcode van het display in. Client adres is alleen nodig als mDNS niet werkt.",
         "data": {
           "pair_code": "Koppelcode",
           "device_name": "Apparaatnaam",
@@ -45,10 +81,10 @@
           "discovered_client": "Gevonden DJConnect client"
         },
         "data_description": {
-          "pair_code": "De 6-cijferige koppelcode op het DJConnect device.",
-          "device_name": "Leesbare naam voor dit lokale device.",
+          "pair_code": "De 6-cijferige koppelcode op het DJConnect apparaat.",
+          "device_name": "Leesbare naam voor dit lokale apparaat.",
           "client_type": "Kies ESP32 of Raspberry Pi.",
-          "local_url": "Alleen voor lokale device API fallback; laat leeg wanneer mDNS werkt.",
+          "local_url": "Alleen voor lokale apparaat-API fallback; laat leeg wanneer mDNS werkt.",
           "discovered_client": "Kies een automatisch gevonden ESP32/Raspberry Pi client om de koppelgegevens voor te vullen, of gebruik handmatige invoer."
         }
       },
@@ -73,18 +109,76 @@
           "app_watch_pairing_uri": "QR/deep-link payload die je op iPhone scant om de gekoppelde Apple Watch te pairen."
         }
       },
-      "ble_wifi": {
-        "title": "ESP32 device WiFi configureren (via Bluetooth)",
-        "description": "Selecteer een DJConnect device in setup mode om WiFi via BLE te schrijven, of ga door naar koppelen als WiFi al via captive portal is ingesteld.",
+      "pair_app_type": {
+        "title": "App kiezen",
+        "description": "Kies welk type DJConnect app je wilt koppelen.",
         "data": {
-          "ble_address": "DJConnect BLE device",
+          "client_type": "Clienttype"
+        },
+        "data_description": {
+          "client_type": "Na deze keuze toont DJConnect alleen de koppelvelden voor deze app."
+        }
+      },
+      "pair_app_ios_details": {
+        "title": "iPhone app koppelen",
+        "description": "Scan deze QR-code met de iPhone app.\n\n![iPhone QR-code]({iphone_qr_image})",
+        "data": {
+          "device_name": "Apparaatnaam"
+        },
+        "data_description": {
+          "device_name": "Leesbare naam voor deze iPhone app-installatie."
+        }
+      },
+      "pair_app_watch_details": {
+        "title": "Apple Watch app koppelen",
+        "description": "Scan deze Watch QR-code op de iPhone om de gekoppelde Apple Watch te pairen.\n\n![Apple Watch QR-code]({watch_qr_image})",
+        "data": {
+          "device_name": "Apparaatnaam"
+        },
+        "data_description": {
+          "device_name": "Leesbare naam voor deze Apple Watch app-installatie."
+        }
+      },
+      "pair_app_macos_details": {
+        "title": "macOS app koppelen",
+        "description": "Gebruik deze Home Assistant URL en koppelcode in de macOS app.",
+        "data": {
+          "app_pair_code": "Koppelcode",
+          "app_ha_local_url": "Home Assistant URL",
+          "device_name": "Apparaatnaam"
+        },
+        "data_description": {
+          "app_pair_code": "Voer deze koppelcode in de macOS app in.",
+          "app_ha_local_url": "Lokale Home Assistant URL die de app tijdens pairing gebruikt.",
+          "device_name": "Leesbare naam voor deze macOS app-installatie."
+        }
+      },
+      "pair_app_windows_details": {
+        "title": "Windows app koppelen",
+        "description": "Gebruik deze Home Assistant URL en koppelcode in de Windows app.",
+        "data": {
+          "app_pair_code": "Koppelcode",
+          "app_ha_local_url": "Home Assistant URL",
+          "device_name": "Apparaatnaam"
+        },
+        "data_description": {
+          "app_pair_code": "Voer deze koppelcode in de Windows app in.",
+          "app_ha_local_url": "Lokale Home Assistant URL die de app tijdens pairing gebruikt.",
+          "device_name": "Leesbare naam voor deze Windows app-installatie."
+        }
+      },
+      "ble_wifi": {
+        "title": "ESP32 apparaat WiFi configureren (via Bluetooth)",
+        "description": "Selecteer een DJConnect apparaat in setupmodus om WiFi via BLE te schrijven, of ga door naar koppelen als WiFi al via captive portal is ingesteld.",
+        "data": {
+          "ble_address": "DJConnect BLE apparaat",
           "wifi_ssid": "WiFi SSID",
           "wifi_password": "WiFi wachtwoord",
           "ble_action": "Actie"
         },
         "data_description": {
-          "ble_address": "Bluetooth adres van het DJConnect setup device.",
-          "wifi_ssid": "WiFi netwerknaam die op het DJConnect device wordt opgeslagen.",
+          "ble_address": "Bluetooth adres van het DJConnect setupapparaat.",
+          "wifi_ssid": "WiFi netwerknaam die op het DJConnect apparaat wordt opgeslagen.",
           "wifi_password": "WiFi wachtwoord. Dit wordt alleen naar de BLE WiFi characteristic gestuurd en niet gelogd.",
           "ble_action": "Kies één actie: WiFi via Bluetooth schrijven, opnieuw scannen of direct doorgaan naar koppelen."
         }
@@ -117,8 +211,8 @@
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline die DJConnect apparaten gebruiken voor spraakherkenning en DJ aankondiging audio.",
-          "client_type": "Type DJConnect client: app, lokaal device of Assist-agent.",
-          "dj_response_enabled": "Maak een tijdelijke WAV of MP3 audio URL en stuur die met de DJ aankondiging naar het DJConnect device.",
+          "client_type": "Type DJConnect client: app, lokaal apparaat of Assist-agent.",
+          "dj_response_enabled": "Maak een tijdelijke WAV of MP3 audio URL en stuur die met de DJ aankondiging naar het DJConnect apparaat.",
           "firmware_channel": "Kies stable voor normale OTA updates of beta om prerelease firmware te testen.",
           "options_action": "Kies instellingen opslaan of Spotify opnieuw autoriseren."
         }
@@ -133,14 +227,14 @@
       },
       "repair_pairing": {
         "title": "DJConnect opnieuw koppelen",
-        "description": "Zet het DJConnect device in pairing mode en voer de nieuwe koppelcode in die op het scherm staat. Home Assistant maakt daarna een nieuw device token aan.",
+        "description": "Zet het DJConnect apparaat in pairingmodus en voer de nieuwe koppelcode in die op het scherm staat. Home Assistant maakt daarna een nieuw apparaattoken aan.",
         "data": {
           "pair_code": "Nieuwe koppelcode",
           "local_url": "Client adres"
         },
         "data_description": {
           "pair_code": "De 6-cijferige koppelcode op het apparaatdisplay.",
-          "local_url": "Alleen voor ESP32/Raspberry Pi lokale device API fallback; laat leeg om de bestaande URL te hergebruiken."
+          "local_url": "Alleen voor ESP32/Raspberry Pi lokale apparaat-API fallback; laat leeg om de bestaande URL te hergebruiken."
         }
       },
       "central_api": {
@@ -191,7 +285,7 @@
       }
     },
     "error": {
-      "missing_pair_code": "Voer de koppelcode in die op het DJConnect device-scherm staat.",
+      "missing_pair_code": "Voer de koppelcode in die op het DJConnect apparaatscherm staat.",
       "invalid_pair_code": "Voer een 6-cijferige koppelcode in.",
       "spotify_client_id_required": "Vul de Client ID van je Spotify Developer App in.",
       "external_url_required": "Vul je externe Home Assistant URL in, bijvoorbeeld je Nabu Casa URL.",
@@ -201,11 +295,11 @@
       "oauth_not_completed": "Spotify autorisatie is nog niet afgerond. Geef akkoord in Spotify en ga terug naar Home Assistant.",
       "oauth_failed": "Spotify autorisatie is mislukt. Start de Spotify stap opnieuw en controleer de Redirect URI in je Spotify app.",
       "assist_pipeline_required": "Configureer eerst een Home Assistant Assist pipeline met zowel STT als TTS. DJConnect gebruikt die pipeline voor spraakherkenning en DJ aankondigingen.",
-      "ble_device_required": "Selecteer een DJConnect BLE device of voer het Bluetooth adres in.",
+      "ble_device_required": "Selecteer een DJConnect BLE apparaat of voer het Bluetooth adres in.",
       "wifi_ssid_required": "Vul de WiFi SSID in om te provisionen.",
-      "ble_wifi_failed": "WiFi provisioning via Bluetooth is mislukt. Controleer device, SSID en wachtwoord en probeer opnieuw.",
-      "pairing_info_unavailable": "Home Assistant ziet dit lokale DJConnect device via mDNS, maar kan het pairing-info endpoint niet bereiken. Controleer het Client adres of vul het handmatig in.",
-      "repair_pairing_failed": "Opnieuw koppelen is mislukt. Controleer of het DJConnect device bereikbaar is en een koppelcode toont.",
+      "ble_wifi_failed": "WiFi provisioning via Bluetooth is mislukt. Controleer apparaat, SSID en wachtwoord en probeer opnieuw.",
+      "pairing_info_unavailable": "Home Assistant ziet dit lokale DJConnect apparaat via mDNS, maar kan het pairing-info endpoint niet bereiken. Controleer het Client adres of vul het handmatig in.",
+      "repair_pairing_failed": "Opnieuw koppelen is mislukt. Controleer of het DJConnect apparaat bereikbaar is en een koppelcode toont.",
       "central_api_url_invalid": "Vul een volledige HTTPS DJConnect API URL in.",
       "install_token_invalid": "Voer een DJConnect install-token in die begint met djci_.",
       "central_api_rotate_failed": "DJConnect kon de install-token niet roteren. Controleer de huidige token en probeer opnieuw.",
@@ -234,9 +328,9 @@
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline die DJConnect apparaten gebruiken voor spraakherkenning en DJ aankondiging audio.",
-          "client_type": "Type DJConnect client: app, lokaal device of Assist-agent.",
+          "client_type": "Type DJConnect client: app, lokaal apparaat of Assist-agent.",
           "local_url": "Geconfigureerd lokaal Client adres voor ESP32/Raspberry Pi. Alleen-lezen; gebruik opnieuw koppelen om deze URL te wijzigen.",
-          "dj_response_enabled": "Maak een tijdelijke WAV of MP3 audio URL en stuur die met de DJ aankondiging naar het DJConnect device.",
+          "dj_response_enabled": "Maak een tijdelijke WAV of MP3 audio URL en stuur die met de DJ aankondiging naar het DJConnect apparaat.",
           "firmware_channel": "Kies stable voor normale OTA updates of beta om prerelease firmware te testen.",
           "options_action": "Kies instellingen opslaan, Spotify opnieuw autoriseren of expliciet de muziekbackend wijzigen.",
           "music_backend": "Gekozen playback-backend.",
@@ -245,7 +339,7 @@
       },
       "music_backend": {
         "title": "Muziekbackend wijzigen",
-        "description": "De huidige backend staat hieronder. Wisselen behoudt pairing, device tokens, Ask DJ history, Music DNA en pushregistraties. Oude backend-specifieke Ask DJ playback-acties of aanbevelingen zijn mogelijk niet meer uitvoerbaar.",
+        "description": "De huidige backend staat hieronder. Wisselen behoudt pairing, apparaattokens, Ask DJ history, Music DNA en pushregistraties. Oude backend-specifieke Ask DJ playback-acties of aanbevelingen zijn mogelijk niet meer uitvoerbaar.",
         "data": {
           "music_backend": "Muziekbackend"
         },
@@ -265,14 +359,14 @@
       },
       "repair_pairing": {
         "title": "DJConnect opnieuw koppelen",
-        "description": "Zet het DJConnect device in pairing mode en voer de nieuwe koppelcode in die op het scherm staat. Home Assistant maakt daarna een nieuw device token aan.",
+        "description": "Zet het DJConnect apparaat in pairingmodus en voer de nieuwe koppelcode in die op het scherm staat. Home Assistant maakt daarna een nieuw apparaattoken aan.",
         "data": {
           "pair_code": "Nieuwe koppelcode",
           "local_url": "Client adres"
         },
         "data_description": {
           "pair_code": "De 6-cijferige koppelcode op het apparaatdisplay.",
-          "local_url": "Alleen voor ESP32/Raspberry Pi lokale device API fallback; laat leeg om de bestaande URL te hergebruiken."
+          "local_url": "Alleen voor ESP32/Raspberry Pi lokale apparaat-API fallback; laat leeg om de bestaande URL te hergebruiken."
         }
       },
       "central_api": {
@@ -301,7 +395,7 @@
       }
     },
     "error": {
-      "repair_pairing_failed": "Opnieuw koppelen is mislukt. Controleer of het DJConnect device bereikbaar is en een koppelcode toont.",
+      "repair_pairing_failed": "Opnieuw koppelen is mislukt. Controleer of het DJConnect apparaat bereikbaar is en een koppelcode toont.",
       "central_api_url_invalid": "Vul een volledige HTTPS DJConnect API URL in.",
       "install_token_invalid": "Voer een DJConnect install-token in die begint met djci_.",
       "central_api_rotate_failed": "DJConnect kon de install-token niet roteren. Controleer de huidige token en probeer opnieuw.",
@@ -384,7 +478,7 @@
         "name": "Play/pauze"
       },
       "refresh_device_info": {
-        "name": "Device-info verversen"
+        "name": "Apparaatinfo verversen"
       },
       "refresh_up_next": {
         "name": "Up next verversen"
@@ -393,7 +487,7 @@
         "name": "Test pushbericht"
       },
       "reboot_device": {
-        "name": "Device herstarten"
+        "name": "Apparaat herstarten"
       },
       "restart_device": {
         "name": "Raspberry Pi herstarten"
@@ -429,7 +523,7 @@
         "name": "Repeat"
       },
       "language": {
-        "name": "Device taal"
+        "name": "Apparaattaal"
       },
       "turn_off_after": {
         "name": "Uitschakelen na"
@@ -453,7 +547,7 @@
   "issues": {
     "missing_device_token": {
       "title": "DJConnect client is niet gekoppeld",
-      "description": "Deze DJConnect client mist een lokaal device token. Open de DJConnect opties en kies opnieuw koppelen met een nieuwe koppelcode. Assist-agent-only entries hebben geen device token nodig."
+      "description": "Deze DJConnect client mist een lokaal apparaattoken. Open de DJConnect opties en kies opnieuw koppelen met een nieuwe koppelcode. Assist-agent-only entries hebben geen apparaattoken nodig."
     },
     "missing_spotify_oauth_scopes": {
       "title": "Spotify autorisatie mist playlist scope",
