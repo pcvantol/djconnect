@@ -19,6 +19,8 @@ WHISPER_COMMAND="${WHISPER_COMMAND:---model tiny-int8 --language nl}"
 PIPER_CONTAINER_NAME="${PIPER_CONTAINER_NAME:-wyoming-piper}"
 PIPER_IMAGE="${PIPER_IMAGE:-rhasspy/wyoming-piper}"
 PIPER_COMMAND="${PIPER_COMMAND:---voice nl_NL-mls-medium}"
+NGROK_DOMAIN="${NGROK_DOMAIN:-}"
+NGROK_LAUNCH_AGENT_LABEL="${NGROK_LAUNCH_AGENT_LABEL:-dev.djconnect.homeassistant.ngrok}"
 MACOS_VM_NAME="${MACOS_VM_NAME:-DJConnect macOS Dev}"
 MACOS_VERSION="${MACOS_VERSION:-}"
 WINDOWS_VM_NAME="${WINDOWS_VM_NAME:-DJConnect Windows 11 ARM Dev}"
@@ -173,6 +175,8 @@ Options:
                        Default: codex/onboarding-ci-smoke-<timestamp>
   --ma-data-dir DIR     Music Assistant server data directory for step 27.
                        Default: $MA_DATA_DIR
+  --ngrok-domain DOMAIN Reserved ngrok static domain for step 28.
+                       Free-tier accounts can use a static domain from ngrok.
   --log-file FILE       Write a persistent run log. Default is timestamped.
   --no-log-file         Disable persistent run logging.
   --no-color            Disable ANSI colors and styled terminal output.
@@ -195,6 +199,10 @@ Environment overrides:
   PIPER_CONTAINER_NAME  Default: wyoming-piper.
   PIPER_IMAGE           Default: rhasspy/wyoming-piper.
   PIPER_COMMAND         Default: --voice nl_NL-mls-medium.
+  NGROK_AUTHTOKEN       ngrok auth token for persistent tunnel setup.
+  NGROK_DOMAIN          Reserved ngrok static domain for stable external URL.
+  NGROK_LAUNCH_AGENT_LABEL
+                       Default: dev.djconnect.homeassistant.ngrok.
   MACOS_VM_NAME         Same as --vm-name.
   MACOS_VERSION         Same as --macos-version.
   WINDOWS_VM_NAME       Same as --windows-vm-name.
@@ -331,6 +339,7 @@ collect_optional_secrets() {
   prompt_secret DJCONNECT_RELAY_SECRET_VALUE "DJConnect relay secret value for API provisioning"
   prompt_secret APNS_TOKEN_ENCRYPTION_KEY_VALUE "APNs token encryption key, base64 32 bytes"
   prompt_secret SPOTIFY_CLIENT_ID "Spotify Developer app Client ID for HA OAuth testing"
+  prompt_secret NGROK_AUTHTOKEN "ngrok auth token for the local Home Assistant tunnel"
 }
 
 ensure_homebrew() {
@@ -786,6 +795,7 @@ DJConnect dev environment summary:
   HA container:      $HA_CONTAINER_NAME
   Integration path:  $HA_CONFIG_DIR/custom_components/djconnect
   Music Assistant:  http://localhost:8095 after step 27
+  ngrok tunnel:     run step 28 to expose HA with a persistent LaunchAgent
 
 Next manual UI steps:
   1. Open http://localhost:8123 and finish Home Assistant onboarding.
@@ -794,6 +804,7 @@ Next manual UI steps:
   4. For Music Assistant backend testing, run step 27, open http://localhost:8095,
      add a provider/player in Music Assistant, then add the Music Assistant
      integration in Home Assistant.
+  5. For Spotify OAuth/mobile remote testing without Nabu Casa, run step 28.
 EOF
 }
 
@@ -987,6 +998,287 @@ music_assistant_smoke_if_present() {
     status_ok "Music Assistant server responds at http://localhost:8095"
   else
     warn "Music Assistant server container exists but did not respond at http://localhost:8095."
+  fi
+}
+
+configure_ha_ngrok_network() {
+  local external_url="$1"
+  local config_yaml="$HA_CONFIG_DIR/configuration.yaml"
+  if [[ "$DRY_RUN" == "1" ]]; then
+    printf '%s configure Home Assistant external/internal URL and trusted proxy settings as %s in %s\n' \
+      "$(style "$CLR_CYAN$CLR_BOLD" "DRY")" "$external_url" "$config_yaml"
+    return
+  fi
+  mkdir -p "$HA_CONFIG_DIR"
+  local status
+  set +e
+  python3 - "$config_yaml" "$external_url" <<'PY'
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+config_path = Path(sys.argv[1]).expanduser()
+external_url = sys.argv[2].rstrip("/")
+
+if config_path.exists():
+    text = config_path.read_text(encoding="utf-8")
+else:
+    text = ""
+
+lines = text.splitlines()
+blocks: list[tuple[str | None, list[str]]] = []
+current_name: str | None = None
+current_lines: list[str] = []
+
+
+def is_top_level_key(line: str) -> bool:
+    stripped = line.strip()
+    return bool(stripped) and not stripped.startswith("#") and not line.startswith((" ", "\t")) and ":" in stripped
+
+
+for line in lines:
+    if is_top_level_key(line):
+        blocks.append((current_name, current_lines))
+        current_name = line.split(":", 1)[0]
+        current_lines = [line]
+    else:
+        current_lines.append(line)
+blocks.append((current_name, current_lines))
+
+
+def upsert_block(name: str, replacement: list[str]) -> None:
+    for index, (block_name, block_lines) in enumerate(blocks):
+        if block_name != name:
+            continue
+        if name == "homeassistant":
+            kept = [
+                line
+                for line in block_lines[1:]
+                if not line.lstrip().startswith(("external_url:", "internal_url:"))
+            ]
+            blocks[index] = (
+                name,
+                [
+                    "homeassistant:",
+                    f'  external_url: "{external_url}"',
+                    f'  internal_url: "{external_url}"',
+                    *kept,
+                ],
+            )
+        elif name == "http":
+            kept: list[str] = []
+            skipping_trusted = False
+            for line in block_lines[1:]:
+                stripped = line.lstrip()
+                indent = len(line) - len(stripped)
+                if skipping_trusted:
+                    if line.strip().startswith("-") or indent > 2:
+                        continue
+                    skipping_trusted = False
+                if stripped.startswith("use_x_forwarded_for:"):
+                    continue
+                if stripped.startswith("trusted_proxies:"):
+                    skipping_trusted = True
+                    continue
+                kept.append(line)
+            blocks[index] = (name, [*replacement, *kept])
+        return
+    blocks.append((name, replacement))
+
+
+upsert_block(
+    "homeassistant",
+    [
+        "homeassistant:",
+        f'  external_url: "{external_url}"',
+        f'  internal_url: "{external_url}"',
+    ],
+)
+upsert_block(
+    "http",
+    [
+        "http:",
+        "  use_x_forwarded_for: true",
+        "  trusted_proxies:",
+        "    - 127.0.0.1",
+        "    - ::1",
+        "    - 172.16.0.0/12",
+        "    - 192.168.65.0/24",
+    ],
+)
+
+output_lines: list[str] = []
+for _, block_lines in blocks:
+    if not block_lines:
+        continue
+    if output_lines and output_lines[-1] != "":
+        output_lines.append("")
+    output_lines.extend(block_lines)
+
+config_path.write_text("\n".join(output_lines).rstrip() + "\n", encoding="utf-8")
+print(f"Configured Home Assistant ngrok network settings in {config_path}: {external_url}")
+PY
+  status="$?"
+  set -e
+  if [[ "$status" == "0" ]]; then
+    return 0
+  fi
+  if [[ "$status" == "2" ]]; then
+    warn "Set Home Assistant external/internal URL manually: Settings > System > Network > External URL = $external_url"
+    return 0
+  fi
+  return "$status"
+}
+
+ngrok_forwarding_url() {
+  python3 - <<'PY'
+from __future__ import annotations
+
+import json
+import sys
+import urllib.request
+
+try:
+    with urllib.request.urlopen("http://127.0.0.1:4040/api/tunnels", timeout=5) as response:
+        payload = json.load(response)
+except Exception:
+    raise SystemExit(1)
+
+for tunnel in payload.get("tunnels") or []:
+    url = tunnel.get("public_url")
+    if isinstance(url, str) and url.startswith("https://"):
+        print(url.rstrip("/"))
+        raise SystemExit(0)
+raise SystemExit(1)
+PY
+}
+
+step_27_ngrok_home_assistant_tunnel() {
+  need_macos
+  ensure_homebrew
+  log "Installing/starting persistent ngrok tunnel for local Home Assistant."
+  if [[ -z "${NGROK_AUTHTOKEN:-}" && "$DRY_RUN" != "1" ]]; then
+    die "NGROK_AUTHTOKEN is required. Run with --prompt-secrets or export NGROK_AUTHTOKEN from your ngrok dashboard."
+  fi
+  if ! have ngrok; then
+    run brew install ngrok/ngrok/ngrok
+  fi
+  if [[ "$DRY_RUN" == "1" ]]; then
+    run ngrok config add-authtoken "<redacted>"
+  else
+    run ngrok config add-authtoken "$NGROK_AUTHTOKEN"
+  fi
+
+  local ngrok_bin
+  ngrok_bin="$(command -v ngrok 2>/dev/null || printf '/opt/homebrew/bin/ngrok')"
+  local launch_agents_dir="$HOME/Library/LaunchAgents"
+  local launch_agent="$launch_agents_dir/$NGROK_LAUNCH_AGENT_LABEL.plist"
+  local logs_dir="$HOME/Library/Logs"
+  local stdout_log="$logs_dir/ngrok-ha.log"
+  local stderr_log="$logs_dir/ngrok-ha.err.log"
+  local external_url=""
+
+  if [[ -n "$NGROK_DOMAIN" ]]; then
+    external_url="https://${NGROK_DOMAIN#https://}"
+    external_url="${external_url%/}"
+  fi
+
+  if [[ "$DRY_RUN" == "1" ]]; then
+    run mkdir -p "$launch_agents_dir" "$logs_dir"
+    if [[ -n "$NGROK_DOMAIN" ]]; then
+      printf '%s write LaunchAgent %s running: %s http --url=%s 8123\n' \
+        "$(style "$CLR_CYAN$CLR_BOLD" "DRY")" "$launch_agent" "$ngrok_bin" "$NGROK_DOMAIN"
+    else
+      printf '%s write LaunchAgent %s running: %s http 8123\n' \
+        "$(style "$CLR_CYAN$CLR_BOLD" "DRY")" "$launch_agent" "$ngrok_bin"
+    fi
+    run launchctl unload "$launch_agent"
+    run launchctl load "$launch_agent"
+    if [[ -n "$external_url" ]]; then
+      configure_ha_ngrok_network "$external_url"
+    else
+      printf '%s fetch current ngrok Forwarding URL from http://127.0.0.1:4040/api/tunnels\n' \
+        "$(style "$CLR_CYAN$CLR_BOLD" "DRY")"
+    fi
+    return
+  fi
+
+  mkdir -p "$launch_agents_dir" "$logs_dir"
+  python3 - "$launch_agent" "$NGROK_LAUNCH_AGENT_LABEL" "$ngrok_bin" "$NGROK_DOMAIN" "$stdout_log" "$stderr_log" <<'PY'
+from __future__ import annotations
+
+import plistlib
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1]).expanduser()
+label = sys.argv[2]
+ngrok_bin = sys.argv[3]
+domain = sys.argv[4].strip()
+stdout_log = sys.argv[5]
+stderr_log = sys.argv[6]
+
+args = [ngrok_bin, "http"]
+if domain:
+    args.append(f"--url={domain.removeprefix('https://').rstrip('/')}")
+args.append("8123")
+
+plist = {
+    "Label": label,
+    "ProgramArguments": args,
+    "RunAtLoad": True,
+    "KeepAlive": True,
+    "StandardOutPath": stdout_log,
+    "StandardErrorPath": stderr_log,
+}
+with path.open("wb") as handle:
+    plistlib.dump(plist, handle)
+print(f"Wrote {path}")
+PY
+  launchctl unload "$launch_agent" >/dev/null 2>&1 || true
+  run launchctl load "$launch_agent"
+  sleep 3
+
+  if [[ -z "$external_url" ]]; then
+    external_url="$(ngrok_forwarding_url || true)"
+  fi
+
+  if [[ -n "$external_url" ]]; then
+    log "ngrok forwarding URL: $external_url"
+    configure_ha_ngrok_network "$external_url"
+    if have docker && docker ps -a --format '{{.Names}}' | grep -qx "$HA_CONTAINER_NAME"; then
+      run docker restart "$HA_CONTAINER_NAME" >/dev/null
+      log "Restarted Home Assistant so the ngrok URL/proxy settings are active."
+    else
+      warn "Restart Home Assistant after updating configuration.yaml."
+    fi
+    cat <<EOF
+
+ngrok tunnel is running persistently through LaunchAgent:
+  $launch_agent
+
+Use this Home Assistant external URL:
+  $external_url
+
+If it was not written automatically, set it in Home Assistant:
+  Settings > System > Network > External URL
+
+EOF
+  else
+    warn "ngrok started, but no Forwarding URL was available from http://127.0.0.1:4040/api/tunnels yet."
+    cat <<EOF
+
+Open the ngrok local inspector and copy the HTTPS Forwarding URL:
+  http://127.0.0.1:4040
+
+Then set it in Home Assistant:
+  Settings > System > Network > External URL
+
+For a stable free-tier URL after reboot, reserve an ngrok static domain and rerun:
+  ./$SCRIPT_NAME --steps 28 --ngrok-domain your-domain.ngrok-free.app
+
+EOF
   fi
 }
 
@@ -1600,6 +1892,7 @@ $(style "$CLR_BOLD" "Cross Repo")
  25. Local E2E release/build smoke checks
  26. GitHub CI smoke push and workflow validation
  27. Install/start local HA voice/backend Docker Compose stack
+ 28. Install/start persistent ngrok tunnel for local Home Assistant
 
 $(style "$CLR_BOLD" "Examples")
   ./$SCRIPT_NAME --all --yes
@@ -1615,6 +1908,7 @@ $(style "$CLR_BOLD" "Examples")
   ./$SCRIPT_NAME --steps 25 --e2e-version 3.1.999
   ./$SCRIPT_NAME --steps 26 --run-ci-push
   ./$SCRIPT_NAME --steps 27
+  ./$SCRIPT_NAME --steps 28 --ngrok-domain your-domain.ngrok-free.app
 
 EOF
 }
@@ -1649,6 +1943,7 @@ run_step() {
     25) step_24_e2e_local_release_smoke ;;
     26) step_25_ci_smoke_push ;;
     27) step_26_music_assistant_server ;;
+    28) step_27_ngrok_home_assistant_tunnel ;;
     *) die "Unknown step: $1" ;;
   esac
 }
@@ -1683,6 +1978,7 @@ step_label() {
     25) printf 'Local E2E release/build smoke checks' ;;
     26) printf 'GitHub CI smoke push and workflow validation' ;;
     27) printf 'Install/start local HA voice/backend Docker Compose stack' ;;
+    28) printf 'Install/start persistent ngrok tunnel for local Home Assistant' ;;
     *) printf 'Unknown step' ;;
   esac
 }
@@ -1696,7 +1992,7 @@ parse_steps() {
   STEP_INDEX=0
   for step in "${parts[@]}"; do
     [[ "$step" =~ ^[0-9]+$ ]] || die "Invalid step: $step"
-    (( step >= 0 && step <= 27 )) || die "Step out of range: $step"
+    (( step >= 0 && step <= 28 )) || die "Step out of range: $step"
     if [[ "$PLAN_ONLY" == "1" ]]; then
       printf '%s %2s. %s\n' "$(style "$CLR_CYAN" "PLAN")" "$step" "$(step_label "$step")"
     else
@@ -1760,6 +2056,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --ma-data-dir)
       MA_DATA_DIR="${2:-}"
+      shift 2
+      ;;
+    --ngrok-domain)
+      NGROK_DOMAIN="${2:-}"
       shift 2
       ;;
     --ha-config-dir)

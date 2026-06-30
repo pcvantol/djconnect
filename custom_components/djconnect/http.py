@@ -60,7 +60,7 @@ from .const import (
     DEFAULT_SPOTIFY_SCOPES,
     VERSION,
 )
-from .ask_dj import async_handle_ask_dj, async_idle_suggestion, image_proxy_target
+from .ask_dj import async_handle_ask_dj, async_idle_suggestion, image_proxy_target  # noqa: F401
 from .ask_dj_history import AskDJHistoryManager
 from .assist_stt import (
     DJConnectNoSttProviderError,

@@ -256,11 +256,6 @@
             "listening_cues": "list",
             "similar_tracks": "list"
           },
-          "music_dna": {
-            "match_percent": "int",
-            "label": "non_empty_str",
-            "summary": "non_empty_str"
-          },
           "visual_profile": {
             "motion_style": "non_empty_str",
             "spectrum_bias": "non_empty_str",
@@ -274,6 +269,12 @@
           "cache": "dict"
         }
       },
+      "json_forbidden_paths": [
+        "track_insight.music_dna",
+        "track_insight.music_dna.match_percent",
+        "track_insight.music_dna.label",
+        "track_insight.music_dna.match_reason"
+      ],
       "contains_any": [
         "Track Insight",
         "Here is the Track Insight",
@@ -327,11 +328,6 @@
             "listening_cues": "list",
             "similar_tracks": "list"
           },
-          "music_dna": {
-            "match_percent": "int",
-            "label": "non_empty_str",
-            "summary": "non_empty_str"
-          },
           "visual_profile": {
             "motion_style": "non_empty_str",
             "spectrum_bias": "non_empty_str",
@@ -345,6 +341,12 @@
           "cache": "dict"
         }
       },
+      "json_forbidden_paths": [
+        "track_insight.music_dna",
+        "track_insight.music_dna.match_percent",
+        "track_insight.music_dna.label",
+        "track_insight.music_dna.match_reason"
+      ],
       "contains_any": [
         "Track Insight",
         "Here is the Track Insight",

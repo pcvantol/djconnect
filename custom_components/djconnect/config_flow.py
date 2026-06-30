@@ -74,7 +74,9 @@ from .const import (
     CLIENT_TYPE_NAMES,
     CLIENT_TYPE_ESP32,
     CLIENT_TYPE_IOS,
+    CLIENT_TYPE_MACOS,
     CLIENT_TYPE_WATCHOS,
+    CLIENT_TYPE_WINDOWS,
     DOMAIN,
     SETUP_METHOD_BLE_WIFI,
     SETUP_METHOD_CONVERSATION_AGENT,
@@ -149,13 +151,13 @@ SETUP_METHOD_NAMES_NL = {
         "Voor Home Assistant Assist-satellites."
     ),
     SETUP_METHOD_PAIR_LOCAL_DEVICE: (
-        "DJConnect device koppelen ESP32 of Raspberry Pi"
+        "DJConnect apparaat koppelen ESP32 of Raspberry Pi"
     ),
     SETUP_METHOD_PAIR_APP: (
         "DJConnect app koppelen\n"
         "iPhone, Apple Watch, macOS of Windows."
     ),
-    SETUP_METHOD_BLE_WIFI: "ESP32 device WiFi configureren (via Bluetooth)",
+    SETUP_METHOD_BLE_WIFI: "ESP32 apparaat WiFi configureren (via Bluetooth)",
 }
 BLE_ACTION_NAMES_EN = {
     BLE_ACTION_PROVISION: "Write WiFi over Bluetooth",
@@ -164,7 +166,7 @@ BLE_ACTION_NAMES_EN = {
 }
 BLE_ACTION_NAMES_NL = {
     BLE_ACTION_PROVISION: "WiFi via Bluetooth schrijven",
-    BLE_ACTION_RETRY_SCAN: "Bluetooth devices opnieuw scannen",
+    BLE_ACTION_RETRY_SCAN: "Bluetooth apparaten opnieuw scannen",
     BLE_ACTION_CONTINUE_PAIRING: "Doorgaan naar koppelen",
 }
 OPTIONS_ACTION_NAMES_EN = {
@@ -1168,7 +1170,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         "DJConnect BLE WiFi provisioning completed: %s",
                         status.get("state"),
                     )
-                    return await self.async_step_pair()
+                    return await self.async_step_pair_local_device()
                 except Exception as exc:  # noqa: BLE001
                     _LOGGER.warning("DJConnect BLE WiFi provisioning failed: %s", exc)
                     errors["base"] = "ble_wifi_failed"
@@ -1185,7 +1187,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> FlowResult:
         """Pair the DJConnect device using the displayed pair code."""
         errors: dict[str, str] = {}
-        step_id = self._pair_step_id()
+        step_id = self._pair_details_step_id()
         is_app_pairing = (
             getattr(self, "_pairing_setup_method", "") == SETUP_METHOD_PAIR_APP
         )
@@ -1230,7 +1232,8 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 defaults = getattr(self, "_discovered_defaults", {})
                 client_type = _clean(
-                    user_input.get(CONF_CLIENT_TYPE),
+                    getattr(self, "_selected_pair_client_type", "")
+                    or user_input.get(CONF_CLIENT_TYPE),
                     defaults.get(CONF_CLIENT_TYPE, self._default_pair_client_type()),
                 )
                 local_url = _clean(
@@ -1289,13 +1292,47 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     def _pair_step_id(self) -> str:
         """Return the translated pair-step variant for the selected setup path."""
+        setup_method = getattr(self, "_pairing_setup_method", "")
+        if setup_method == SETUP_METHOD_PAIR_LOCAL_DEVICE:
+            return "pair_local_device_type"
+        if setup_method == SETUP_METHOD_PAIR_APP:
+            return "pair_app_type"
+        return "pair_type"
+
+    def _pair_details_step_id(self) -> str:
+        """Return the translated pair-details step for the selected setup path."""
+        setup_method = getattr(self, "_pairing_setup_method", "")
+        if setup_method == SETUP_METHOD_PAIR_LOCAL_DEVICE:
+            return "pair_local_device_details"
+        if setup_method == SETUP_METHOD_PAIR_APP:
+            client_type = _clean(
+                getattr(self, "_selected_pair_client_type", ""),
+                self._default_pair_client_type(),
+            )
+            if client_type == CLIENT_TYPE_IOS:
+                return "pair_app_ios_details"
+            if client_type == CLIENT_TYPE_WATCHOS:
+                return "pair_app_watch_details"
+            if client_type == CLIENT_TYPE_MACOS:
+                return "pair_app_macos_details"
+            if client_type == CLIENT_TYPE_WINDOWS:
+                return "pair_app_windows_details"
+            return "pair_app_details"
         return "pair"
 
     async def async_step_pair_local_device(
         self,
         user_input: dict[str, Any] | None = None,
     ) -> FlowResult:
-        """Handle the translated local-device pair step."""
+        """Choose the local-device client type before pairing details."""
+        self._pairing_setup_method = SETUP_METHOD_PAIR_LOCAL_DEVICE
+        return await self._async_step_pair_type(user_input)
+
+    async def async_step_pair_local_device_details(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> FlowResult:
+        """Handle local-device pairing details after client type selection."""
         self._pairing_setup_method = SETUP_METHOD_PAIR_LOCAL_DEVICE
         return await self.async_step_pair(user_input)
 
@@ -1303,15 +1340,65 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self,
         user_input: dict[str, Any] | None = None,
     ) -> FlowResult:
-        """Handle the translated app-client pair step."""
+        """Choose the app client type before pairing details."""
+        self._pairing_setup_method = SETUP_METHOD_PAIR_APP
+        return await self._async_step_pair_type(user_input)
+
+    async def async_step_pair_app_details(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> FlowResult:
+        """Handle app-client pairing details after client type selection."""
         self._pairing_setup_method = SETUP_METHOD_PAIR_APP
         return await self.async_step_pair(user_input)
+
+    async def _async_step_pair_type(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> FlowResult:
+        """Handle the client type choice before showing pairing details."""
+        if user_input is not None:
+            client_type = _clean(
+                user_input.get(CONF_CLIENT_TYPE),
+                self._default_pair_client_type(),
+            )
+            if client_type not in self._pair_client_type_options():
+                client_type = self._default_pair_client_type()
+            self._selected_pair_client_type = client_type
+            defaults = dict(getattr(self, "_discovered_defaults", {}) or {})
+            defaults[CONF_CLIENT_TYPE] = client_type
+            defaults[CONF_DEVICE_NAME] = _device_name_for_client_type(
+                client_type,
+                DEFAULT_DEVICE_NAME,
+            )
+            self._discovered_defaults = defaults
+            self._discovered_device_name_authoritative = False
+            return await self.async_step_pair(user_input=None)
+
+        return self.async_show_form(
+            step_id=self._pair_step_id(),
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_CLIENT_TYPE,
+                        default=_clean(
+                            getattr(self, "_selected_pair_client_type", ""),
+                            self._default_pair_client_type(),
+                        ),
+                    ): vol.In(self._pair_client_type_names()),
+                }
+            ),
+            errors={},
+        )
 
     async def _ensure_app_pairing_defaults(self) -> None:
         """Prepare HA-generated pairing values for inbound-only app clients."""
         if getattr(self, "_discovered_defaults", {}).get(CONF_PAIR_CODE):
             return
-        client_type = self._default_pair_client_type()
+        client_type = _clean(
+            getattr(self, "_selected_pair_client_type", ""),
+            self._default_pair_client_type(),
+        )
         pair_code = _generate_pair_code()
         try:
             ha_local_url = await async_ha_local_url(getattr(self, "hass", None), {})
@@ -1408,7 +1495,8 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     def _discovered_client_options(self) -> dict[str, str]:
         """Return mDNS discovery choices for the pairing form."""
-        allowed = set(self._pair_client_type_options())
+        selected_type = _clean(getattr(self, "_selected_pair_client_type", ""), "")
+        allowed = {selected_type} if selected_type else set(self._pair_client_type_options())
         return discovered_client_options(
             [
                 client
@@ -1430,6 +1518,10 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             or ""
         )
         client_type = _clean(defaults.get(CONF_CLIENT_TYPE), self._default_pair_client_type())
+        client_type = _clean(
+            getattr(self, "_selected_pair_client_type", "") or client_type,
+            self._default_pair_client_type(),
+        )
         default_device_name = _clean(defaults.get(CONF_DEVICE_NAME), DEFAULT_DEVICE_NAME)
         if getattr(self, "_discovered_device_name_authoritative", False):
             device_name = default_device_name
@@ -1453,39 +1545,17 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 }
             )
         if getattr(self, "_pairing_setup_method", "") == SETUP_METHOD_PAIR_APP:
-            schema[vol.Optional(APP_PAIR_CODE_DISPLAY_FIELD, default=pair_code)] = str
-            schema[
-                vol.Optional(
-                    APP_HA_LOCAL_URL_DISPLAY_FIELD,
-                    default=str(defaults.get("ha_local_url") or ""),
-                )
-            ] = str
-            schema[
-                vol.Optional(
-                    APP_IPHONE_PAIRING_URI_FIELD,
-                    default=str(defaults.get("iphone_pairing_uri") or ""),
-                )
-            ] = str
-            schema[
-                vol.Optional(
-                    APP_WATCH_PAIRING_URI_FIELD,
-                    default=str(defaults.get("watch_pairing_uri") or ""),
-                )
-            ] = str
+            if client_type in {CLIENT_TYPE_MACOS, CLIENT_TYPE_WINDOWS}:
+                schema[vol.Optional(APP_PAIR_CODE_DISPLAY_FIELD, default=pair_code)] = str
+                schema[
+                    vol.Optional(
+                        APP_HA_LOCAL_URL_DISPLAY_FIELD,
+                        default=str(defaults.get("ha_local_url") or ""),
+                    )
+                ] = str
         else:
             schema[vol.Optional(CONF_PAIR_CODE, default=pair_code)] = str
-        schema.update(
-            {
-                vol.Optional(
-                    CONF_DEVICE_NAME,
-                    default=device_name,
-                ): str,
-                vol.Optional(
-                    CONF_CLIENT_TYPE,
-                    default=client_type,
-                ): vol.In(self._pair_client_type_names()),
-            }
-        )
+        schema[vol.Optional(CONF_DEVICE_NAME, default=device_name)] = str
         if self._client_type_uses_local_device_api(client_type):
             schema[vol.Optional(CONF_LOCAL_URL, default=local_url)] = str
         return schema

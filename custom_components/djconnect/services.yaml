@@ -191,8 +191,8 @@ track_insight:
   description: >
     Analyze the currently playing track or an explicit artist/title through the
     selected DJConnect music backend. The service returns normalized Track
-    Insight JSON with Music DNA Match and visual-profile hints, then fires the
-    djconnect_track_insight event for automations and dashboards.
+    Insight JSON with analysis, cache metadata and visual-profile hints, then
+    fires the djconnect_track_insight event for automations and dashboards.
   fields:
     entity_id:
       name: Entity ID

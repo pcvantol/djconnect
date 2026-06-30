@@ -91,9 +91,8 @@ class TrackInsightTests(unittest.TestCase):
         self.assertEqual(result["analysis"]["energy"], 0.7)
         self.assertFalse(result["cache"]["hit"])
         self.assertEqual(len(result["visual_profile"]["palette"]), 3)
-        self.assertIn("music_dna", result)
-        self.assertGreaterEqual(result["music_dna"]["match_percent"], 0)
-        self.assertLessEqual(result["music_dna"]["match_percent"], 100)
+        self.assertNotIn("music_dna", result)
+        self.assert_no_music_dna_match_fields(result)
 
     def test_cache_avoids_repeated_conversation_calls(self) -> None:
         hass = FakeHass('{"summary":"One","full_text":"One","confidence":0.8}')
@@ -120,6 +119,37 @@ class TrackInsightTests(unittest.TestCase):
         self.assertFalse(first["cache"]["hit"])
         self.assertTrue(second["cache"]["hit"])
         self.assertEqual(len(hass.services.calls), 1)
+        self.assert_no_music_dna_match_fields(second)
+
+    def test_cache_strips_legacy_music_dna_match_fields(self) -> None:
+        runtime = Runtime()
+        key = self.track_insight._cache_key(
+            {
+                "title": "Song",
+                "artist": "Artist",
+                "album": None,
+                "backend": "spotify_direct",
+                "duration_ms": 0,
+            }
+        )
+        runtime.track_insight_cache = {
+            key: {
+                "_cached_at": 9999999999,
+                "response": {
+                    "track": {"title": "Song", "artist": "Artist"},
+                    "analysis": {"summary": "Cached"},
+                    "music" + "_dna": {
+                        "match" + "_percent": 91,
+                        "label": "matches" + "_music_dna",
+                    },
+                },
+            }
+        }
+
+        result = self.track_insight.TrackInsightCache(runtime).get(key)
+
+        self.assertIsNotNone(result)
+        self.assert_no_music_dna_match_fields(result)
 
     def test_missing_track_returns_structured_error(self) -> None:
         hass = FakeHass()
@@ -146,7 +176,8 @@ class TrackInsightTests(unittest.TestCase):
         self.assertEqual(result["type"], "track_insight")
         self.assertEqual(result["open_screen"], "track_insight")
         self.assertEqual(result["track_insight"]["track"]["artist"], "Artist")
-        self.assertIn("Music DNA", result["text"])
+        self.assertNotIn("Music DNA", result["text"])
+        self.assert_no_music_dna_match_fields(result)
 
     def test_hass_service_fires_event(self) -> None:
         hass = FakeHass('{"summary":"Ready","full_text":"Detailed","confidence":0.8}')
@@ -167,6 +198,29 @@ class TrackInsightTests(unittest.TestCase):
         self.assertTrue(self.track_insight.is_track_insight_request("Tell me about this track"))
         self.assertTrue(self.track_insight.is_track_insight_request("Give me Track Insight"))
         self.assertFalse(self.track_insight.is_track_insight_request("play something else"))
+
+    def assert_no_music_dna_match_fields(self, value) -> None:
+        forbidden = {
+            "music" + "_dna",
+            "match" + "_percent",
+            "match" + "_reason",
+        }
+        if isinstance(value, dict):
+            self.assertTrue(
+                forbidden.isdisjoint(value),
+                f"Track Insight response contains forbidden Music DNA match field(s): {forbidden & set(value)}",
+            )
+            if value.get("label") in {
+                "matches" + "_music_dna",
+                "expands" + "_music_dna",
+                "outside" + "_music_dna",
+            }:
+                self.fail("Track Insight response contains a Music DNA match label")
+            for child in value.values():
+                self.assert_no_music_dna_match_fields(child)
+        elif isinstance(value, list):
+            for child in value:
+                self.assert_no_music_dna_match_fields(child)
 
 
 if __name__ == "__main__":

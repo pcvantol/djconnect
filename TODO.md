@@ -232,7 +232,7 @@
 
 - Update `README.md` after any architecture/API change.
 - Update `AGENTS.md` after any durable project decision.
-- Keep `DEVELOPMENT_ENVIRONMENT.md` current when local HA Docker paths, sync commands, restart flow or manual validation workflow changes.
+- Keep `DEVELOPMENT_ENVIRONMENT.md` current when local HA Docker paths, sync commands, restart flow, ngrok tunnel setup, Home Assistant network URL/proxy config or manual validation workflow changes.
 - Keep `CHANGELOG.md` as a per-release changelog. Add a new section for each release and keep previous release sections.
 - Keep `HANDOFF.md` current after major debugging sessions.
 - Keep `TODO.md` and `ISSUES.md` current after field testing.
