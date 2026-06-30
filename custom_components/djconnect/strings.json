@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "DJConnect instellen",
-        "description": "Begin met de route die past bij je setup. Gebruik de Assist-agent zonder fysiek apparaat, kies lokaal apparaat voor ESP32/Raspberry Pi op je netwerk, of kies app voor iPhone, Apple Watch, macOS en Windows.",
+        "description": "Begin met de route die past bij je setup. Gebruik de Assist-agent zonder fysiek apparaat, kies lokaal apparaat voor ESP32/Raspberry Pi op je netwerk, of kies app voor iPhone/iPad, Apple Watch, macOS en Windows.",
         "data": {
           "setup_method": "Setup methode"
         }
@@ -19,7 +19,7 @@
           "discovered_client": "Gevonden DJConnect client",
           "app_pair_code": "Koppelcode voor apps",
           "app_ha_local_url": "Home Assistant URL",
-          "app_iphone_pairing_uri": "iPhone QR/deep-link payload",
+          "app_iphone_pairing_uri": "iPhone/iPad QR/deep-link payload",
           "app_watch_pairing_uri": "Apple Watch QR/deep-link payload"
         },
         "data_description": {
@@ -28,10 +28,10 @@
           "client_type": "Kies ESP32 of Raspberry Pi.",
           "local_url": "Lokale apparaat-API fallback; laat leeg wanneer mDNS werkt.",
           "discovered_client": "Kies een automatisch gevonden DJConnect client om de koppelgegevens voor te vullen, of gebruik handmatige invoer.",
-          "app_pair_code": "Gebruik deze code in macOS/Windows, of laat iPhone/Apple Watch hem via de QR/deep-link payload overnemen.",
+          "app_pair_code": "Gebruik deze code in macOS/Windows, of laat iPhone/iPad/Apple Watch hem via de QR/deep-link payload overnemen.",
           "app_ha_local_url": "Lokale Home Assistant URL die de app tijdens pairing gebruikt.",
-          "app_iphone_pairing_uri": "QR/deep-link payload voor de iPhone app.",
-          "app_watch_pairing_uri": "QR/deep-link payload die je op iPhone scant om de gekoppelde Apple Watch te pairen."
+          "app_iphone_pairing_uri": "QR/deep-link payload voor de iPhone/iPad app.",
+          "app_watch_pairing_uri": "QR/deep-link payload die je op iPhone/iPad scant om de gekoppelde Apple Watch te pairen."
         }
       },
       "pair_type": {
@@ -90,23 +90,23 @@
       },
       "pair_app": {
         "title": "App koppelen",
-        "description": "Gebruik deze route voor iPhone, Apple Watch, macOS en Windows.\n\n**iPhone**\n\n![iPhone QR-code]({iphone_qr_image})\n\n**Apple Watch**\n\n![Apple Watch QR-code]({watch_qr_image})\n\nmacOS en Windows gebruiken de Home Assistant URL en koppelcode hieronder.",
+        "description": "Gebruik deze route voor iPhone/iPad, Apple Watch, macOS en Windows.\n\n**iPhone/iPad**\n\n![iPhone/iPad QR-code]({iphone_qr_image})\n\n**Apple Watch**\n\n![Apple Watch QR-code]({watch_qr_image})\n\nmacOS en Windows gebruiken de Home Assistant URL en koppelcode hieronder.",
         "data": {
           "pair_code": "Koppelcode",
           "device_name": "Apparaatnaam",
           "client_type": "Clienttype",
           "app_pair_code": "Koppelcode voor apps",
           "app_ha_local_url": "Home Assistant URL",
-          "app_iphone_pairing_uri": "iPhone QR/deep-link payload",
+          "app_iphone_pairing_uri": "iPhone/iPad QR/deep-link payload",
           "app_watch_pairing_uri": "Apple Watch QR/deep-link payload"
         },
         "data_description": {
           "device_name": "Leesbare naam voor deze app-installatie.",
-          "client_type": "Kies iPhone, Apple Watch, macOS of Windows.",
-          "app_pair_code": "Gebruik deze code in macOS/Windows, of laat iPhone/Apple Watch hem via de QR/deep-link payload overnemen.",
+          "client_type": "Kies iPhone/iPad, Apple Watch, macOS of Windows.",
+          "app_pair_code": "Gebruik deze code in macOS/Windows, of laat iPhone/iPad/Apple Watch hem via de QR/deep-link payload overnemen.",
           "app_ha_local_url": "Lokale Home Assistant URL die de app tijdens pairing gebruikt.",
-          "app_iphone_pairing_uri": "QR/deep-link payload voor de iPhone app.",
-          "app_watch_pairing_uri": "QR/deep-link payload die je op iPhone scant om de gekoppelde Apple Watch te pairen."
+          "app_iphone_pairing_uri": "QR/deep-link payload voor de iPhone/iPad app.",
+          "app_watch_pairing_uri": "QR/deep-link payload die je op iPhone/iPad scant om de gekoppelde Apple Watch te pairen."
         }
       },
       "pair_app_type": {
@@ -120,18 +120,18 @@
         }
       },
       "pair_app_ios_details": {
-        "title": "iPhone app koppelen",
-        "description": "Scan deze QR-code met de iPhone app.\n\n![iPhone QR-code]({iphone_qr_image})",
+        "title": "DJConnect iPhone/iPad app koppelen",
+        "description": "Scan deze QR-code met de iPhone/iPad app.\n\n![iPhone/iPad QR-code]({iphone_qr_image})",
         "data": {
           "device_name": "Apparaatnaam"
         },
         "data_description": {
-          "device_name": "Leesbare naam voor deze iPhone app-installatie."
+          "device_name": "Leesbare naam voor deze iPhone/iPad app-installatie."
         }
       },
       "pair_app_watch_details": {
-        "title": "Apple Watch app koppelen",
-        "description": "Scan deze Watch QR-code op de iPhone om de gekoppelde Apple Watch te pairen.\n\n![Apple Watch QR-code]({watch_qr_image})",
+        "title": "DJConnect Apple Watch app koppelen",
+        "description": "Scan deze Watch QR-code op de iPhone/iPad om de gekoppelde Apple Watch te pairen.\n\n![Apple Watch QR-code]({watch_qr_image})",
         "data": {
           "device_name": "Apparaatnaam"
         },
@@ -140,7 +140,7 @@
         }
       },
       "pair_app_macos_details": {
-        "title": "macOS app koppelen",
+        "title": "DJConnect macOS app koppelen",
         "description": "Gebruik deze Home Assistant URL en koppelcode in de macOS app.",
         "data": {
           "app_pair_code": "Koppelcode",
@@ -154,7 +154,7 @@
         }
       },
       "pair_app_windows_details": {
-        "title": "Windows app koppelen",
+        "title": "DJConnect Windows app koppelen",
         "description": "Gebruik deze Home Assistant URL en koppelcode in de Windows app.",
         "data": {
           "app_pair_code": "Koppelcode",

@@ -275,7 +275,7 @@ Pattern:
 - iOS, macOS and Windows are inbound-only app clients. They do not expose a
   HA-callable local API, do not need Client adres in setup, and may receive
   `ha_remote_url` after local pairing when Home Assistant has an HTTPS external
-  URL. watchOS uses the iPhone proxy instead of a HA-direct pairing contract.
+  URL. watchOS uses the iPhone/iPad proxy instead of a HA-direct pairing contract.
 - ESP32 gets hardware-specific entities such as battery, WiFi RSSI, screen,
   LED, device settings, OTA and reboot controls.
 - iOS, macOS, watchOS, Raspberry Pi and Windows clients keep backend/playback/client entities
@@ -289,7 +289,8 @@ Pattern:
   push-action entities.
 - Config-flow setup is split into Assist Conversation Agent, local device
   pairing and app pairing. Local device pairing offers ESP32/Raspberry Pi;
-  app pairing offers iOS/macOS/Windows.
+  app pairing first asks for iPhone/iPad, Apple Watch, macOS or Windows and
+  then shows only the relevant pairing details.
 
 Primary source files:
 

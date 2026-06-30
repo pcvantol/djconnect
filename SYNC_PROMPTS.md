@@ -46,7 +46,7 @@ and `<3.3.0`.
   posting to `/api/djconnect/pair`, expose no HA-callable `/api/device/*`, and
   may use `ha_remote_url` after local pairing when Home Assistant has an HTTPS
   external/Nabu Casa URL.
-- watchOS uses the iPhone proxy and has no separate HA-direct local/remote
+- watchOS uses the iPhone/iPad proxy and has no separate HA-direct local/remote
   pairing contract.
 - Remote pairing is not allowed. Token bootstrap always happens locally.
 - ESP32 and Raspberry Pi must never receive `ha_remote_url`.
@@ -673,7 +673,7 @@ Requirements:
   macOS screens.
 - Settings may preflight Microphone and Speech Recognition. Do not fake a Local
   Network request button; Apple prompts when LAN/Bonjour access first occurs.
-- Keep permission rows compact on iPhone.
+- Keep permission rows compact on iPhone/iPad.
 - Local Games are app-only. When focused, game surfaces should consume arrow
   keys and space instead of triggering app navigation.
 - Expose current-track seek controls on iOS/macOS/watchOS by sending
@@ -2431,7 +2431,7 @@ Requirements:
   macOS screens.
 - Settings may preflight Microphone and Speech Recognition. Do not fake a Local
   Network request button; Apple prompts when LAN/Bonjour access first occurs.
-- Keep permission rows compact on iPhone.
+- Keep permission rows compact on iPhone/iPad.
 - Local Games are app-only. When focused, game surfaces should consume arrow
   keys and space instead of triggering app navigation.
 - Detect likely unclean exits and offer only user-mediated crash reporting:

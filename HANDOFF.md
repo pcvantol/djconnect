@@ -11,7 +11,7 @@
   modules. The public `custom_components.djconnect.ask_dj` import path remains
   compatible, and provider-neutral recommendation/profile payloads now use
   `listening_profile` with a temporary legacy `spotify_profile` alias.
-  ESP32/Raspberry Pi stay local devices, iOS/macOS/Windows become inbound-only
+  ESP32/Raspberry Pi stay local devices, iPhone/iPad, Apple Watch, macOS and Windows become inbound-only
   remote-capable apps after local pairing, and playback uses an explicit Spotify
   Direct or Music Assistant backend choice.
 - 3.2 work has introduced an internal DJConnect use-case layer plus
@@ -296,7 +296,9 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Before build/test/release validation, check whether third-party libraries, frameworks and build tools can be safely upgraded. If any version is upgraded, update lockfiles/manifests, `THIRD_PARTY_NOTICES.md` and dependency/design documentation in the same release. If an upgrade is skipped, record the reason here.
 - For the current `3.2.5` release, no pinned Python package versions were
   upgraded. The current line adds capability-aware local/remote HA URL payloads,
-  splits app pairing from ESP32/Raspberry Pi local-device pairing, adds the
+  splits app pairing from ESP32/Raspberry Pi local-device pairing, asks for the
+  app client type before showing iPhone/iPad, Apple Watch, macOS or Windows
+  details, adds the
   use-case/backend adapter boundary for Spotify Direct, exposes optional local
   websocket fast-path routes for command, Ask DJ message/history/idle
   suggestion, Track Insight and Music DNA profile/settings/clear, and refactors
@@ -311,7 +313,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Local development environment setup is documented in
   `DEVELOPMENT_ENVIRONMENT.md`, including the Docker Home Assistant config path,
   integration sync command, Core restart command, optional persistent ngrok
-  tunnel for iPhone/Spotify OAuth testing, Home Assistant network URL/proxy
+  tunnel for iPhone/iPad and Spotify OAuth testing, Home Assistant network URL/proxy
   configuration and manual UI validation list.
 - Changelog expectation: keep `CHANGELOG.md` as a per-release changelog. Add a new section for each release and do not consolidate old release notes into one current-version block.
 - HACS-visible docs now show the public DJConnect website. The external website should use the same setup requirements: Home Assistant, HACS, Spotify Premium, HA Assist pipeline with STT/TTS, local-network pairing, and Nabu Casa/external HTTPS URL for Spotify OAuth.
@@ -413,7 +415,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 
 1. Install the latest `3.2.x` release via HACS and restart Home Assistant.
 2. Verify the README/HACS banner and `info.md` render the `https://djconnect.dev` link as intended.
-3. Update the external product website How To Start page with HACS installation, backend choice requirements (Spotify Direct Premium/Developer app or Music Assistant player), HA Assist pipeline setup, ESP/Raspberry Pi local-device pairing and iOS/macOS/Windows inbound app pairing steps.
+3. Update the external product website How To Start page with HACS installation, backend choice requirements (Spotify Direct Premium/Developer app or Music Assistant player), HA Assist pipeline setup, ESP/Raspberry Pi local-device pairing and iPhone/iPad, Apple Watch, macOS and Windows inbound app pairing steps.
 4. Verify `button.djconnect_refresh_up_next` updates `sensor.djconnect_queue` attributes.
 5. Verify `select.djconnect_sound_output` populates Spotify outputs without manually calling `devices`.
 6. Verify sensors keep last-known values after ESP status, playback command polling, voice tests and local device-info refreshes.

@@ -41,9 +41,9 @@ Belangrijke huidige status:
 - Initial setup heeft nu 4 opties:
   - `Assist Conversation Agent` zonder client-koppelcode/device token/Client adres.
   - `DJConnect lokaal device koppelen` voor ESP32/Raspberry Pi LAN-only met mDNS en optioneel Client adres fallback;
-  - `DJConnect app koppelen` voor iOS/macOS/Windows inbound-only pairing zonder Client adres, met optionele `ha_remote_url` na lokale pairing;
+  - `DJConnect app koppelen` voor iPhone/iPad, Apple Watch, macOS en Windows inbound-only pairing zonder Client adres, met optionele `ha_remote_url` na lokale pairing;
   - `ESP32 device WiFi configureren (via Bluetooth)`.
-- ESP32 en Raspberry Pi blijven local-only; iOS, macOS en Windows zijn remote-capable na lokale pairing; watchOS loopt via iPhone proxy en krijgt geen eigen HA-direct pairingcontract.
+- ESP32 en Raspberry Pi blijven local-only; iOS, macOS en Windows zijn remote-capable na lokale pairing; watchOS loopt via iPhone/iPad proxy en krijgt geen eigen HA-direct pairingcontract.
 - `/api/device/*` is alleen voor ESP32/Raspberry Pi lokale device API. App clients bellen HA via `/api/djconnect/...`; HA probeert app clients niet lokaal terug te bellen.
 - De `3.2.x` lijn introduceert `custom_components/djconnect/use_cases.py` als dunne DJConnect use-case laag met `MusicBackend` capabilities. Spotify Direct is de default backend-adapter. Music Assistant is beschikbaar als kleine adapter via een gekozen HA `media_player`, niet als DJConnect-side provider registry, library index, queue engine, grouping/sync engine of Music Assistant light.
 - Config-flow kiest nu expliciet `Spotify Direct` of `Music Assistant`, zonder Auto. Spotify Direct gebruikt DJConnect PKCE OAuth en Spotify repairs. Music Assistant vereist geen DJConnect Spotify Client ID/OAuth; Music Assistant beheert provider-auth, DJConnect valideert dat MA beschikbaar is en bewaart de gekozen target player.

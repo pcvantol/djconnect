@@ -506,6 +506,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(result["type"], "form")
         self.assertEqual(result["step_id"], "user")
         self.assertEqual(result.get("errors"), {})
+        self.assertIs(result["last_step"], False)
 
     def test_pair_step_blocks_when_assist_pipeline_is_missing(self) -> None:
         from homeassistant.components.assist_pipeline import pipeline as pipeline_module
@@ -525,6 +526,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(result["type"], "form")
         self.assertEqual(result["step_id"], "pair_app_ios_details")
         self.assertEqual(result["errors"]["base"], "assist_pipeline_required")
+        self.assertIs(result["last_step"], False)
 
     def test_app_user_schema_hides_local_url_without_advanced(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
@@ -643,8 +645,11 @@ class ConfigFlowHelperTest(unittest.TestCase):
                     self.assertNotIn(self.config_flow.APP_HA_LOCAL_URL_DISPLAY_FIELD, defaults)
 
     def test_pairing_qr_helper_returns_inline_svg_data_uri(self) -> None:
+        save_kwargs = {}
+
         class FakeQr:
-            def save(self, out, **_kwargs):
+            def save(self, out, **kwargs):
+                save_kwargs.update(kwargs)
                 out.write(b'<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0h1v1z"/></svg>')
 
         fake_segno = types.ModuleType("segno")
@@ -661,6 +666,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertTrue(image.startswith("data:image/svg+xml;utf8,"))
         self.assertIn("%3Csvg", image)
+        self.assertEqual(save_kwargs["background"], "white")
 
     def test_pairing_qr_helper_falls_back_when_generation_fails(self) -> None:
         class BrokenQr:
@@ -1156,14 +1162,14 @@ class ConfigFlowHelperTest(unittest.TestCase):
                 self.const.SETUP_METHOD_PAIR_APP
             ],
             "Pair DJConnect app\n"
-            "iPhone, Apple Watch, macOS or Windows.",
+            "iPhone/iPad, Apple Watch, macOS or Windows",
         )
         self.assertEqual(
             self.config_flow._setup_method_names(nl_hass)[
                 self.const.SETUP_METHOD_CONVERSATION_AGENT
             ],
             "DJConnect DJ Assist-agent\n"
-            "Voor Home Assistant Assist-satellites.",
+            "Voor Home Assistant Assist-satellites",
         )
         self.assertEqual(
             self.config_flow._setup_method_names(nl_hass)[
@@ -1318,6 +1324,84 @@ class ConfigFlowHelperTest(unittest.TestCase):
         result = asyncio.run(flow.async_step_pair())
 
         self.assertEqual(result["step_id"], "pair_app_ios_details")
+        self.assertIs(result["last_step"], False)
+
+    def test_pair_client_type_choice_is_not_final_step(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
+        flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_APP
+
+        result = asyncio.run(flow.async_step_pair_app())
+
+        self.assertEqual(result["step_id"], "pair_app_type")
+        self.assertIs(result["last_step"], False)
+
+    def test_pair_type_step_variants_are_supported_by_flow_handlers(self) -> None:
+        for setup_method, step_id, handler_name in (
+            (
+                self.const.SETUP_METHOD_PAIR_LOCAL_DEVICE,
+                "pair_local_device_type",
+                "async_step_pair_local_device_type",
+            ),
+            (
+                self.const.SETUP_METHOD_PAIR_APP,
+                "pair_app_type",
+                "async_step_pair_app_type",
+            ),
+        ):
+            with self.subTest(setup_method=setup_method):
+                flow = self.config_flow.DJConnectConfigFlow()
+                flow.hass = types.SimpleNamespace(
+                    config=types.SimpleNamespace(language="nl-NL")
+                )
+                flow._pairing_setup_method = setup_method
+
+                self.assertTrue(hasattr(flow, handler_name))
+                self.assertEqual(flow._pair_step_id(), step_id)
+                result = asyncio.run(getattr(flow, handler_name)())
+
+                self.assertEqual(result["type"], "form")
+                self.assertEqual(result["step_id"], step_id)
+                self.assertIs(result["last_step"], False)
+
+    def test_app_detail_step_variants_are_supported_by_flow_handlers(self) -> None:
+        for client_type, step_id, handler_name in (
+            (
+                self.const.CLIENT_TYPE_IOS,
+                "pair_app_ios_details",
+                "async_step_pair_app_ios_details",
+            ),
+            (
+                self.const.CLIENT_TYPE_WATCHOS,
+                "pair_app_watch_details",
+                "async_step_pair_app_watch_details",
+            ),
+            (
+                self.const.CLIENT_TYPE_MACOS,
+                "pair_app_macos_details",
+                "async_step_pair_app_macos_details",
+            ),
+            (
+                self.const.CLIENT_TYPE_WINDOWS,
+                "pair_app_windows_details",
+                "async_step_pair_app_windows_details",
+            ),
+        ):
+            with self.subTest(client_type=client_type):
+                flow = self.config_flow.DJConnectConfigFlow()
+                flow.hass = types.SimpleNamespace(
+                    config=types.SimpleNamespace(language="nl-NL")
+                )
+                flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_APP
+                flow._selected_pair_client_type = client_type
+
+                self.assertTrue(hasattr(flow, handler_name))
+                self.assertEqual(flow._pair_details_step_id(), step_id)
+                result = asyncio.run(getattr(flow, handler_name)())
+
+                self.assertEqual(result["type"], "form")
+                self.assertEqual(result["step_id"], step_id)
+                self.assertIs(result["last_step"], False)
 
     def test_setup_method_order_puts_conversation_agent_first(self) -> None:
         hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
@@ -1363,6 +1447,38 @@ class ConfigFlowHelperTest(unittest.TestCase):
         )
         self.assertNotIn(self.const.CONF_DEVICE_TOKEN, flow._pairing)
         self.assertNotIn(self.const.CONF_LOCAL_URL, flow._pairing)
+
+    def test_user_step_routes_app_setup_to_client_type_choice_first(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
+
+        result = asyncio.run(
+            flow.async_step_user(
+                {self.const.CONF_SETUP_METHOD: self.const.SETUP_METHOD_PAIR_APP}
+            )
+        )
+
+        self.assertEqual(result["type"], "form")
+        self.assertEqual(result["step_id"], "pair_app_type")
+        self.assertIs(result["last_step"], False)
+
+    def test_user_step_routes_local_setup_to_client_type_choice_first(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
+
+        result = asyncio.run(
+            flow.async_step_user(
+                {
+                    self.const.CONF_SETUP_METHOD: (
+                        self.const.SETUP_METHOD_PAIR_LOCAL_DEVICE
+                    )
+                }
+            )
+        )
+
+        self.assertEqual(result["type"], "form")
+        self.assertEqual(result["step_id"], "pair_local_device_type")
+        self.assertIs(result["last_step"], False)
 
     def test_spotify_client_id_is_required_visible_field(self) -> None:
         schema = self.config_flow._spotify_schema()
@@ -1853,6 +1969,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertNotIn(self.const.CONF_ASSIST_PIPELINE_ID, keys)
         self.assertNotIn(self.const.CONF_FIRMWARE_CHANNEL, keys)
         self.assertNotIn(self.const.CONF_LOCAL_URL, keys)
+        self.assertNotIn("last_step", form)
 
     def test_voice_step_hides_firmware_channel_for_app_clients(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
@@ -2007,6 +2124,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         form = asyncio.run(flow.async_step_init())
         keys = {marker.key for marker in form["data_schema"].schema}
 
+        self.assertIs(form["last_step"], False)
         self.assertIn(self.config_flow.OPTIONS_ACTION_FIELD, keys)
         self.assertNotIn(self.const.CONF_DJ_RESPONSE_ENABLED, keys)
         self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT_PRESET, keys)

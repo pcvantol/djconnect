@@ -83,7 +83,7 @@ Every release must review this roadmap.
 - [ ] HA sensors stay stable after status sync and do not fall back to unknown
   after initial valid values.
 - [x] Split transport/pairing model where ESP32/Raspberry Pi stay local-device
-  clients and iOS/macOS/Windows become inbound-only remote-capable app clients
+  clients and iPhone/iPad, Apple Watch, macOS and Windows become inbound-only remote-capable app clients
   after local pairing (3.2, HA/client contract).
 - [x] Add an internal DJConnect use-case layer and Spotify Direct backend
   adapter boundary so migrated command, Ask DJ, processor and entity paths no
@@ -182,7 +182,7 @@ Every release must review this roadmap.
 
 - [x] Stable inbound app pairing through Home Assistant with one persistent
   device ID per installation and no client-hosted local API requirement (3.2,
-  iOS/macOS/Windows contract).
+  iPhone/iPad, Apple Watch, macOS and Windows contract).
 - [ ] Clear LAN pairing and remote URL guidance.
 - [ ] Current playback, queue, DJ announcement and status views match the shared
   Home Assistant contract.
@@ -251,7 +251,7 @@ Every release must review this roadmap.
 
 - [ ] iOS widgets for quick playback, voice request and current track.
 - [ ] macOS menu bar mini remote.
-- [ ] Continuity-friendly handoff between Mac/iPhone and room devices.
+- [ ] Continuity-friendly handoff between Mac/iPhone/iPad and room devices.
 - [ ] Voice/debug replay UI for the last WAV/STT/TTS response where HA exposes
   safe debug media.
 - [x] Ask DJ chat consumes server-side history, clear revisions, retention

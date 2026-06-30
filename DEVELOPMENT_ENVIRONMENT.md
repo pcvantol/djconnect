@@ -60,47 +60,90 @@ repository root:
 ./tools/dev_onboarding_macos.sh
 ```
 
-It offers numbered steps for preflight checks, Homebrew/tooling, Docker
-Desktop, Home Assistant, HACS, Codex CLI, repo validation and syncing this
-integration into the local Home Assistant config. Step `27` can start a local
-Music Assistant server container for Music Assistant backend testing; provider
-and player setup still happens in the Music Assistant and Home Assistant UIs.
-Step `0` validates machine,
-VM, hardware, filesystem and network requirements. Step `1` can install/open
-Parallels Desktop and bootstrap a macOS development VM with minimal input. Step
-`2` can bootstrap a Parallels Windows 11 ARM development VM on Apple Silicon,
-using the Parallels assistant or an optional local Windows ARM ISO. The script
-also includes optional cross-repo setup steps derived from the other
-DJConnect development docs: XcodeGen for the Apple app, PlatformIO for ESP32
-firmware, npm/Playwright/Wrangler for the website/API, Python/PySide dev
-dependencies for the Raspberry Pi client and .NET MAUI workloads for the
-Windows/Mac Catalyst client.
+For a fresh Windows 11 developer machine, use the PowerShell onboarding helper
+from the repository root:
 
-To bootstrap only the Parallels macOS VM:
-
-```bash
-./tools/dev_onboarding_macos.sh --steps 1 --vm-name "DJConnect macOS Dev"
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\dev_onboarding_windows.ps1
 ```
 
-Optionally ask macOS to fetch a specific full installer before Parallels opens:
+It offers Windows-native steps for preflight checks, winget-based tooling,
+GitHub/Python/Node/.NET setup, Codex CLI installation through npm, DJConnect repo checkout, Home Assistant
+integration tests, .NET MAUI workloads for the Windows client, local
+integration sync, optional HACS setup, host-service checks for the macOS Docker
+Home Assistant/Music Assistant/Wyoming stack, an optional persistent ngrok
+tunnel via Windows Task Scheduler and CI smoke pushes.
 
-```bash
-./tools/dev_onboarding_macos.sh --steps 1 --macos-version 15.5
+Windows 11 ARM in Parallels on Apple Silicon should not run Docker Desktop
+inside the VM. Run the Docker stack on the macOS host with the macOS onboarding
+script, then connect from Windows through the Parallels shared-network host
+address. The Windows helper defaults to:
+
+```text
+HA_HOST_URL=http://10.211.55.2:8123
+MA_HOST_URL=http://10.211.55.2:8095
 ```
 
-To bootstrap only the Parallels Windows 11 ARM VM:
+Override those with `-HaHostUrl`, `-MaHostUrl`, `HA_HOST_URL` or
+`MA_HOST_URL` when your Parallels network uses a different host address.
 
-```bash
-./tools/dev_onboarding_macos.sh --steps 2 --windows-vm-name "DJConnect Windows 11 ARM Dev"
+The Windows helper clones repositories to a Windows-local checkout root by
+default:
+
+```text
+C:\Users\<user>\LocalDocuments\GitHub
 ```
+
+Avoid `C:\Users\<user>\Documents\GitHub` in Parallels VMs when Documents is
+shared with macOS; Git for Windows can then hit shared-folder ownership and file
+locking issues.
+
+Useful Windows dry-run and planning commands:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\dev_onboarding_windows.ps1 -Core -Plan
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\dev_onboarding_windows.ps1 -Steps 8,9,11 -DryRun -Yes
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\dev_onboarding_windows.ps1 -Steps 12 -NgrokDomain your-domain.ngrok-free.app -DryRun -Yes
+```
+
+The Windows helper is intentionally current-user only: do not run it from an
+Administrator terminal. Its tooling step is idempotent around `winget` packages
+that are already installed, installs Codex with `npm install -g @openai/codex`,
+sets the current-user PowerShell execution policy to `RemoteSigned` so npm
+`.ps1` shims such as `codex.ps1` can launch, and refreshes PATH inside the same
+PowerShell session. When the onboarding script itself is launched with
+`-ExecutionPolicy Bypass`, PowerShell may report that this process still uses
+the process-level policy; open a new normal PowerShell terminal before launching
+`codex`. If a locked-down shell still blocks the shim, run `codex.cmd` from the
+same terminal. Python commands run with `PYTHONUTF8=1`, `PYTHONIOENCODING=utf-8`
+and `python -X utf8` so tests that read UTF-8 documentation do not fail under
+Windows code pages such as `cp1252`; the helper prefers the `py -3.11` launcher
+or a real Python install and avoids the Microsoft Store `python.exe` alias.
+When a Windows client checkout contains `global.json`, step `6` installs that
+exact .NET SDK version into
+`C:\Users\<user>\.dotnet` before running MAUI workload restore from the solution
+directory.
+
+The macOS helper offers numbered steps for preflight checks, Homebrew/tooling,
+Docker Desktop, Home Assistant, HACS, Codex CLI, repo validation and syncing
+this integration into the local Home Assistant config. Step `27` can start a
+local Music Assistant server container for Music Assistant backend testing;
+provider and player setup still happens in the Music Assistant and Home
+Assistant UIs. Step `0` validates machine, hardware, filesystem and network
+requirements. VM creation is intentionally outside the onboarding helper; create
+any macOS or Windows VM manually with your preferred virtualization tool, then
+run the platform-specific onboarding helper inside that environment. The script
+also includes optional cross-repo setup steps derived from the other DJConnect
+development docs: XcodeGen for the Apple app, PlatformIO for ESP32 firmware,
+npm/Playwright/Wrangler for the website/API, Python/PySide dev dependencies for
+the Raspberry Pi client and .NET MAUI workloads for the Windows/Mac Catalyst
+client.
 
 For a supervised full bootstrap run, use this sequence:
 
 ```bash
-./tools/dev_onboarding_macos.sh --steps 0,1,2,3,4,5,6,7,8,9,10,11,12,21 --plan
+./tools/dev_onboarding_macos.sh --steps 0,3,4,5,6,7,8,9,10,11,12,21 --plan
 ./tools/dev_onboarding_macos.sh --steps 0
-./tools/dev_onboarding_macos.sh --steps 1 --macos-version 15.5 --warm-sudo
-./tools/dev_onboarding_macos.sh --steps 2 --windows-vm-name "DJConnect Windows 11 ARM Dev" --warm-sudo
 ./tools/dev_onboarding_macos.sh --steps 3,4,5,6,7,8,9,10,11,12,21 --warm-sudo --prompt-secrets
 ./tools/dev_onboarding_macos.sh --steps 13,14,15,16,17,18,19,22 --warm-sudo --prompt-secrets
 ```

@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Set up DJConnect",
-        "description": "Start with the route that matches your setup. Use the Assist agent without a physical device, choose local device for ESP32/Raspberry Pi on your network, or choose app for iPhone, Apple Watch, macOS and Windows.",
+        "description": "Start with the route that matches your setup. Use the Assist agent without a physical device, choose local device for ESP32/Raspberry Pi on your network, or choose app for iPhone/iPad, Apple Watch, macOS and Windows.",
         "data": {
           "setup_method": "Setup method"
         }
@@ -19,7 +19,7 @@
           "discovered_client": "Discovered DJConnect client",
           "app_pair_code": "App pairing code",
           "app_ha_local_url": "Home Assistant URL",
-          "app_iphone_pairing_uri": "iPhone QR/deep-link payload",
+          "app_iphone_pairing_uri": "iPhone/iPad QR/deep-link payload",
           "app_watch_pairing_uri": "Apple Watch QR/deep-link payload"
         },
         "data_description": {
@@ -28,10 +28,10 @@
           "client_type": "Choose ESP32 or Raspberry Pi.",
           "local_url": "Local device API fallback; leave empty when mDNS works.",
           "discovered_client": "Choose an automatically discovered DJConnect client to prefill pairing details, or use manual entry.",
-          "app_pair_code": "Use this code in macOS/Windows, or let iPhone/Apple Watch receive it from the QR/deep-link payload.",
+          "app_pair_code": "Use this code in macOS/Windows, or let iPhone/iPad/Apple Watch receive it from the QR/deep-link payload.",
           "app_ha_local_url": "Local Home Assistant URL the app uses during pairing.",
-          "app_iphone_pairing_uri": "QR/deep-link payload for the iPhone app.",
-          "app_watch_pairing_uri": "QR/deep-link payload scanned on iPhone to pair the linked Apple Watch."
+          "app_iphone_pairing_uri": "QR/deep-link payload for the iPhone/iPad app.",
+          "app_watch_pairing_uri": "QR/deep-link payload scanned on iPhone/iPad to pair the linked Apple Watch."
         }
       },
       "pair_type": {
@@ -90,23 +90,23 @@
       },
       "pair_app": {
         "title": "Pair App",
-        "description": "Use this route for iPhone, Apple Watch, macOS and Windows.\n\n**iPhone**\n\n![iPhone QR code]({iphone_qr_image})\n\n**Apple Watch**\n\n![Apple Watch QR code]({watch_qr_image})\n\nmacOS and Windows use the Home Assistant URL and pairing code below.",
+        "description": "Use this route for iPhone/iPad, Apple Watch, macOS and Windows.\n\n**iPhone/iPad**\n\n![iPhone/iPad QR code]({iphone_qr_image})\n\n**Apple Watch**\n\n![Apple Watch QR code]({watch_qr_image})\n\nmacOS and Windows use the Home Assistant URL and pairing code below.",
         "data": {
           "pair_code": "Pairing code",
           "device_name": "Device name",
           "client_type": "Client type",
           "app_pair_code": "App pairing code",
           "app_ha_local_url": "Home Assistant URL",
-          "app_iphone_pairing_uri": "iPhone QR/deep-link payload",
+          "app_iphone_pairing_uri": "iPhone/iPad QR/deep-link payload",
           "app_watch_pairing_uri": "Apple Watch QR/deep-link payload"
         },
         "data_description": {
           "device_name": "Friendly name for this app installation.",
-          "client_type": "Choose iPhone, Apple Watch, macOS or Windows.",
-          "app_pair_code": "Use this code in macOS/Windows, or let iPhone/Apple Watch receive it from the QR/deep-link payload.",
+          "client_type": "Choose iPhone/iPad, Apple Watch, macOS or Windows.",
+          "app_pair_code": "Use this code in macOS/Windows, or let iPhone/iPad/Apple Watch receive it from the QR/deep-link payload.",
           "app_ha_local_url": "Local Home Assistant URL the app uses during pairing.",
-          "app_iphone_pairing_uri": "QR/deep-link payload for the iPhone app.",
-          "app_watch_pairing_uri": "QR/deep-link payload scanned on iPhone to pair the linked Apple Watch."
+          "app_iphone_pairing_uri": "QR/deep-link payload for the iPhone/iPad app.",
+          "app_watch_pairing_uri": "QR/deep-link payload scanned on iPhone/iPad to pair the linked Apple Watch."
         }
       },
       "pair_app_type": {
@@ -120,18 +120,18 @@
         }
       },
       "pair_app_ios_details": {
-        "title": "Pair iPhone App",
-        "description": "Scan this QR code with the iPhone app.\n\n![iPhone QR code]({iphone_qr_image})",
+        "title": "Pair DJConnect iPhone/iPad App",
+        "description": "Scan this QR code with the iPhone/iPad app.\n\n![iPhone/iPad QR code]({iphone_qr_image})",
         "data": {
           "device_name": "Device name"
         },
         "data_description": {
-          "device_name": "Friendly name for this iPhone app installation."
+          "device_name": "Friendly name for this iPhone/iPad app installation."
         }
       },
       "pair_app_watch_details": {
-        "title": "Pair Apple Watch App",
-        "description": "Scan this Watch QR code on iPhone to pair the linked Apple Watch.\n\n![Apple Watch QR code]({watch_qr_image})",
+        "title": "Pair DJConnect Apple Watch App",
+        "description": "Scan this Watch QR code on iPhone/iPad to pair the linked Apple Watch.\n\n![Apple Watch QR code]({watch_qr_image})",
         "data": {
           "device_name": "Device name"
         },
@@ -140,7 +140,7 @@
         }
       },
       "pair_app_macos_details": {
-        "title": "Pair macOS App",
+        "title": "Pair DJConnect macOS App",
         "description": "Use this Home Assistant URL and pairing code in the macOS app.",
         "data": {
           "app_pair_code": "Pairing code",
@@ -154,7 +154,7 @@
         }
       },
       "pair_app_windows_details": {
-        "title": "Pair Windows App",
+        "title": "Pair DJConnect Windows App",
         "description": "Use this Home Assistant URL and pairing code in the Windows app.",
         "data": {
           "app_pair_code": "Pairing code",
