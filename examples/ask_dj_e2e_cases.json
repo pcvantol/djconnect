@@ -1231,12 +1231,12 @@
   },
   {
     "id": "help_prompt_play_nirvana",
-    "request": {"text": "Speel Nirvana", "client_type": "ios"},
+    "request": {"text": "Speel [artiest]", "client_type": "ios"},
     "expect": {"success": true, "intent": "play_music", "intent_category": "hybrid", "action": "play_music", "required_process_text": true}
   },
   {
     "id": "help_prompt_i_want_zombie",
-    "request": {"text": "Ik wil Zombie horen", "client_type": "ios"},
+    "request": {"text": "Ik wil [nummer] horen", "client_type": "ios"},
     "expect": {
       "success": true,
       "intent": "play_music",
@@ -1247,12 +1247,12 @@
   },
   {
     "id": "help_prompt_play_metallica_one",
-    "request": {"text": "Speel Metallica, One", "client_type": "ios"},
+    "request": {"text": "Speel [artiest], [nummer]", "client_type": "ios"},
     "expect": {"success": true, "intent": "play_music", "intent_category": "hybrid", "action": "play_music", "required_process_text": true}
   },
   {
     "id": "help_prompt_play_nothing_else_matters",
-    "request": {"text": "Draai Nothing Else Matters", "client_type": "ios"},
+    "request": {"text": "Draai [nummer]", "client_type": "ios"},
     "expect": {"success": true, "intent": "play_music", "intent_category": "hybrid", "action": "play_music", "required_process_text": true}
   },
   {
@@ -1273,31 +1273,31 @@
   },
   {
     "id": "help_prompt_albums_radiohead",
-    "request": {"text": "Geef me albums van Radiohead", "client_type": "ios"},
+    "request": {"text": "Geef me albums van [artiest]", "client_type": "ios"},
     "expect": {
       "success": true,
       "intent": "artist_item_list",
       "intent_category": "informational",
-      "contains_any": ["albums", "Radiohead"],
+      "contains_any": ["albums", "[artiest]"],
       "allowed_music_commands": ["status", "artist_albums"],
       "forbid_spotify_mutations": true
     }
   },
   {
     "id": "help_prompt_albums_nirvana",
-    "request": {"text": "Welke albums bracht Nirvana uit?", "client_type": "ios"},
+    "request": {"text": "Welke albums bracht [artiest] uit?", "client_type": "ios"},
     "expect": {
       "success": true,
       "intent": "artist_item_list",
       "intent_category": "informational",
-      "contains_any": ["albums", "Nirvana"],
+      "contains_any": ["albums", "[artiest]"],
       "allowed_music_commands": ["status", "artist_albums"],
       "forbid_spotify_mutations": true
     }
   },
   {
     "id": "help_prompt_music_scooter",
-    "request": {"text": "Welke muziek heeft Scooter gemaakt?", "client_type": "ios"},
+    "request": {"text": "Welke muziek heeft [artiest] gemaakt?", "client_type": "ios"},
     "expect": {
       "success": true,
       "intent": "artist_item_list",
@@ -1308,7 +1308,7 @@
   },
   {
     "id": "help_prompt_five_radiohead_songs",
-    "request": {"text": "Geef me 5 nummers van Radiohead", "client_type": "ios"},
+    "request": {"text": "Geef me 5 nummers van [artiest]", "client_type": "ios"},
     "expect": {
       "success": true,
       "intent": "artist_item_list",
@@ -1319,7 +1319,7 @@
   },
   {
     "id": "help_prompt_similar_artists_the_xx",
-    "request": {"text": "Geef vergelijkbare artiesten als The xx", "client_type": "ios"},
+    "request": {"text": "Geef vergelijkbare artiesten als [artiest]", "client_type": "ios"},
     "expect": {
       "success": true,
       "intent": "similar_artists",
@@ -1340,8 +1340,8 @@
     }
   },
   {
-    "id": "help_prompt_grunge_playlists",
-    "request": {"text": "Wat voor grunge playlists heb je?", "client_type": "ios"},
+    "id": "help_prompt_genre_playlists",
+    "request": {"text": "Wat voor [genre] playlists heb je?", "client_type": "ios"},
     "expect": {
       "success": true,
       "intent": "spotify_playlist_search",
@@ -1363,7 +1363,7 @@
   },
   {
     "id": "help_prompt_more_scala",
-    "request": {"text": "Wat heb je nog meer van Scala?", "client_type": "ios"},
+    "request": {"text": "Wat heb je nog meer van [artiest]?", "client_type": "ios"},
     "expect": {
       "success": true,
       "intent": "artist_more_tracks",
@@ -1374,7 +1374,7 @@
   },
   {
     "id": "help_prompt_seed_mix_radiohead_massive_attack_bon_iver",
-    "request": {"text": "Maak een mix op basis van Radiohead, Massive Attack en Bon Iver", "client_type": "ios"},
+    "request": {"text": "Maak een mix op basis van [artiest], [artiest] en [artiest]", "client_type": "ios"},
     "expect": {
       "success": true,
       "intent": "build_playlist_from_seeds",

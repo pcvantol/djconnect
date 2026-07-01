@@ -127,8 +127,9 @@ Before publishing:
   DJConnect repository.
 - If a repo still carries `CODEX_RESTART_PROMPT.md`, keep it updated during the
   release cycle until it is retired or replaced by `CHAT_BOOTSTRAP.md`.
-- Review and update all user-facing translations for changed setup, options,
-  repair, entity and service strings in repos that ship localized UI.
+- Review and update all supported user-facing translations for changed setup,
+  options, repair, entity and service strings in repos that ship localized UI.
+  The HA integration supports `en`, `nl`, `de`, `fr` and `es`.
 - Update `pcvantol/djconnect/SYNC_PROMPTS.md` when the cross-repo contract or
   release checklist changes, even when the release is made from another repo.
 - Do not keep repo-local `SYNC_PROMPTS.md` copies in sibling repos. If a sibling
@@ -368,10 +369,11 @@ Requirements:
 - Store only push routing metadata and minimal audit rows in D1. Do not store
   prompts, assistant responses, full chat history, Music DNA, Home Assistant
   tokens or Spotify tokens.
-- APNs payloads must remain generic wake/sync hints. For Ask DJ, use generic
-  copy such as "Ask DJ heeft geantwoord." and "Ask DJ wacht op je keuze." plus
-  optional sync hints like `event_type`, `history_revision`,
-  `client_message_id` and `open_target`.
+- APNs payloads must remain generic wake/sync hints. For Ask DJ, use concise
+  localized copy from central relay message keys for `en`, `nl`, `de`, `fr` and
+  `es`; do not embed prompts, responses or history. Include only optional sync
+  hints like `event_type`, `history_revision`, `client_message_id` and
+  `open_target`.
 - Push policy is strict: send APNs only for `ask_dj_response` after an explicit
   user Ask DJ request and `ask_dj_confirm` when confirmation actions wait for a
   user choice. Do not push `track_change`, `playback_change`, `queue_change`,

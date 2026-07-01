@@ -1,5 +1,20 @@
 # Changelog
 
+## 3.2.14
+
+- Add full localization coverage for the Home Assistant integration across
+  English, Dutch, German, French and Spanish translation files.
+- Localize Spotify OAuth result pages and Ask DJ help text for the supported
+  languages while preserving protocol identifiers and machine-readable values.
+- Add a repository localization policy covering supported languages,
+  non-localizable protocol values, placeholder-only generic examples and the
+  Spotify trademark/non-affiliation disclaimer.
+- Expand translation regression tests so missing keys in any supported
+  translation file fail CI.
+- Add a server-side DJ voice profile option for controlled radio-style
+  announcement personas while keeping Home Assistant Assist/TTS responsible for
+  the actual spoken voice and mood responsible for announcement energy.
+
 ## 3.2.13
 
 - Add translation regression coverage for the app-pairing copy so iPhone/iPad

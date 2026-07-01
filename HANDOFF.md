@@ -251,7 +251,11 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - DJConnect exposes a Home Assistant conversation agent named `DJConnect DJ` for Assist satellites such as Voice Preview Edition. Initial setup can create an Assist Conversation Agent-only entry without a DJConnect client pairing code, device token or Client adres. Its options flow must stay compact and must not show device pairing, Client adres, Assist pipeline, firmware channel, DJ announcement playback toggle or OTA/audio advanced fields.
 - The initial config flow chooses setup method only once. The pairing step must not repeat `setup_method`; it only collects discovery/client details. Client type choices are ordered iOS, macOS, Apple Watch, Linux/Raspberry Pi, Windows and ESP32.
 - Firmware channel is ESP32-only. iOS/macOS/watchOS update through app distribution/TestFlight, and Linux/Raspberry Pi and Windows clients update from their own GitHub source/install flow, so those client types must not show or store `firmware_channel`.
-- DJ response tone is mood-aware at runtime: when a client sends `mood`, DJConnect adapts spoken announcements to the derived Chill/Groove/Energy/Party zone. There is no user-facing DJ style/prompt option; if no mood is available, the generator uses the hardcoded default announcement style. Old fixed `dj_style` / `dj_profile` choices are removed and must not be reintroduced.
+- DJ response tone is controlled by a server-side `voice_profile` plus runtime
+  mood. `voice_profile` chooses the DJConnect radio persona/format, while
+  client `mood` adapts spoken announcements to the derived
+  Chill/Groove/Energy/Party zone. Home Assistant Assist/TTS still owns the
+  actual spoken voice. Free-form DJ prompt fields remain hidden.
 - Apple push notifications are server-side, optional and best-effort for `ios`, `macos` and `watchos`. Clients register with authenticated `POST /api/djconnect/push/register` and unregister with `POST /api/djconnect/push/unregister`; Home Assistant validates the client/device request and relays registrations/events to the central `djconnect-api` push relay. HA does not persist APNs tokens and never receives the APNs provider `.p8` key. Apple clients may supply a short-lived `bootstrap_proof`; HACS uses it only to mint a per-install `djci_` token and never stores a global relay secret. Push payloads are wake/sync hints only and must never include Spotify/HA tokens, raw prompts, raw LLM context, full memory/history or long/raw assistant text. Clients must sync through `/ask_dj/history` after opening.
 - HACS central API configuration is limited to `api_base_url`, stable `ha_install_id` and the per-install `djci_` token stored in config entry options. Missing token/proof keeps Apple push disabled without breaking normal Ask DJ flow. The central `djconnect-api` service owns bootstrap proof validation, APNs provider auth, topics, sandbox/production selection, retries and invalid-token handling.
 - Central API operator endpoints are not HACS/client endpoints. `GET
@@ -266,7 +270,9 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - STT fuzzy correction, Spotify intent detection and AI DJ announcement generation use the configured conversation agent when present, otherwise resolve Home Assistant's preferred/default Assist pipeline and use its conversation engine.
 - The DJ response prompt must start with DJConnect-specific override instructions so global smart-home conversation-agent instructions do not steer the spoken DJ response.
 - Dutch DJ announcement prompts instruct Assist/TTS to pronounce English artist, album and track names in English inside Dutch copy.
-- Options flow no longer shows standalone STT/TTS engine, language or voice fields; manage those in Home Assistant Assist.
+- Options flow no longer shows standalone STT/TTS engine, language or voice
+  fields; manage those in Home Assistant Assist. DJConnect only exposes the
+  server-side `voice_profile` selector for announcement persona.
 - Text-only `/api/djconnect/voice` is a DJ response test and must not trigger Spotify playback parsing.
 - Raw WAV `/api/djconnect/voice` is the real STT + command + playback path.
 - Current-track questions such as `Welk nummer draait er nu?` and `Wat speelt er?`
@@ -291,20 +297,15 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 ## Current Release Notes
 
 - Current release line is `3.2.x`; only the latest GitHub release/tag should be kept after release cleanup.
-- Current latest baseline is `3.2.5`.
-- Release workflow expectation: before every release, review and update all repo documentation affected by the change or release, including `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant `examples/*`. Explicitly decide whether test coverage must be expanded for the change; add coverage for new behavior paths, regression risks, translations, config/options-flow base/EN/NL keysets, stale `data_description` keys, diagnostics/log redaction and edge cases. Keep `tests.test_postman_collection` aligned with the Postman examples so CI validates collection schema, auth headers, placeholders and client identity. After publishing a release, clean up old completed GitHub Actions workflow runs, keeping only the newest release/tag validation and newest `main` validation unless debugging requires more history. Also clean up old semver releases/tags with `./cleanup_old_releases.sh --keep 1 --execute` unless multiple releases are intentionally retained. Keep any branch-protection/admin override explicit and manual; do not automate required-review disablement or protection changes in `release.sh`.
+- Current latest baseline is `3.2.14`.
+- Release workflow expectation: before every release, review and update all repo documentation affected by the change or release, including `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant `examples/*`. Explicitly decide whether test coverage must be expanded for the change; add coverage for new behavior paths, regression risks, translations, config/options-flow base/EN/NL/DE/FR/ES keysets, stale `data_description` keys, diagnostics/log redaction and edge cases. Keep `tests.test_postman_collection` aligned with the Postman examples so CI validates collection schema, auth headers, placeholders and client identity. After publishing a release, clean up old completed GitHub Actions workflow runs, keeping only the newest release/tag validation and newest `main` validation unless debugging requires more history. Also clean up old semver releases/tags with `./cleanup_old_releases.sh --keep 1 --execute` unless multiple releases are intentionally retained. Keep any branch-protection/admin override explicit and manual; do not automate required-review disablement or protection changes in `release.sh`.
 - Before build/test/release validation, check whether third-party libraries, frameworks and build tools can be safely upgraded. If any version is upgraded, update lockfiles/manifests, `THIRD_PARTY_NOTICES.md` and dependency/design documentation in the same release. If an upgrade is skipped, record the reason here.
-- For the current `3.2.5` release, no pinned Python package versions were
-  upgraded. The current line adds capability-aware local/remote HA URL payloads,
-  splits app pairing from ESP32/Raspberry Pi local-device pairing, asks for the
-  app client type before showing iPhone/iPad, Apple Watch, macOS or Windows
-  details, adds the
-  use-case/backend adapter boundary for Spotify Direct, exposes optional local
-  websocket fast-path routes for command, Ask DJ message/history/idle
-  suggestion, Track Insight and Music DNA profile/settings/clear, and refactors
-  Ask DJ/transport/action/config-flow internals while preserving the
-  3.1.x Ask DJ, Spotify OAuth, backend entity, recent-played, diagnostics and
-  metadata-provider hardening.
+- For the current `3.2.14` release, no pinned Python package versions were
+  upgraded. The current release adds full `en`/`nl`/`de`/`fr`/`es`
+  localization coverage for the Home Assistant integration, localizes OAuth
+  result pages and Ask DJ help text, documents the localization policy and
+  expands translation regression coverage while preserving protocol values,
+  endpoint paths, `client_type` values and machine-readable error codes.
   `THIRD_PARTY_NOTICES.md` did not require dependency updates for these changes.
 - AI-assisted/Codex development hygiene is now documented in
   `CONTRIBUTING.md`, `SECURITY.md` and `CHAT_BOOTSTRAP.md`; accepted changes
@@ -342,7 +343,10 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
   local HA URL resolver. A device log with `audio_url=none` means HA fell back
   to text-only, usually because TTS audio generation failed, returned an
   unsupported type, or HA could not build a reachable local URL.
-- DJ announcement style controls are intentionally absent from config/options. Runtime mood determines the style; missing mood falls back to the hardcoded default. There is no backwards compatibility for old fixed `dj_style` or `dj_profile` values.
+- Free-form DJ announcement prompt controls are intentionally absent from
+  config/options. Use the controlled `voice_profile` selector for announcement
+  persona; runtime mood determines energy. Missing mood falls back to the
+  default profile energy.
 - Parser prompts must be isolated from response prompts so text such as "Noem waar mogelijk..." can never leak into Spotify search queries like `Opdracht Metallica`.
 - If Spotify playback fails because there is no active device, refresh `/me/player/devices`, transfer playback to a suitable active/default Spotify device when possible and retry once.
 - `spotify_source` and `liked_proxy_playlist_uri` are no longer shown as config/options fields. Runtime support may still tolerate older stored values, but new UI saves do not expose or write those overrides.

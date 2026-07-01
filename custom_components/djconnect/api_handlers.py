@@ -343,11 +343,24 @@ async def async_handle_track_insight_payload(
     )
     if runtime is None:
         return _error_payload("not_configured"), 503
+    client_type = validate_required_client_type(identity)
+    if client_type is None:
+        return _error_payload("invalid_client_type"), 400
+    identity[CONF_CLIENT_TYPE] = client_type
+    if not authorize_runtime_device_request(
+        runtime,
+        headers,
+        identity.get("device_id"),
+        client_type,
+    ):
+        return _error_payload("unauthorized"), 401
+    payload = dict(data)
+    payload.update({key: value for key, value in identity.items() if value is not None})
     try:
         result = await TrackInsightService().async_analyze(
             hass,
             runtime,
-            data,
+            payload,
             source=source,
         )
     except TrackInsightError as exc:

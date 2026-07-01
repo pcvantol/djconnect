@@ -71,7 +71,10 @@
 - Confirm AI DJ announcements use the selected/default HA Assist conversation engine when no DJConnect Assist pipeline is explicitly selected.
 - Confirm Voice Preview Edition can select the `DJConnect DJ` conversation agent and receives the generated DJ response through its speaker.
 - Confirm initial setup can create an Assist Conversation Agent-only entry without a DJConnect client pairing code.
-- Confirm the DJConnect conversation-agent options dialog only shows the action selector; DJ response style/prompt controls must stay removed because announcements follow runtime mood/default style.
+- Confirm the DJConnect conversation-agent options dialog only shows the action
+  selector plus the controlled DJ voice profile selector; free-form DJ response
+  style/prompt controls must stay removed because announcements follow
+  `voice_profile` plus runtime mood.
 - Confirm successful DJ announcement TTS creates an `audio_url` using a local
   Home Assistant URL even when older HA network helpers are unavailable.
   Automated coverage now exercises keyword and positional HA TTS media-source
@@ -153,7 +156,9 @@
   macOS and Windows, and only then shows client-specific details; confirm
   local-device pairing keeps Client adres fallback and offers ESP32 and
   Raspberry Pi.
-- Confirm standalone `stt_engine`, `tts_engine`, `tts_language` and `tts_voice` fields remain hidden; STT/TTS is managed through Home Assistant Assist.
+- Confirm standalone `stt_engine`, `tts_engine`, `tts_language` and `tts_voice`
+  fields remain hidden; STT/TTS is managed through Home Assistant Assist. The
+  DJConnect `voice_profile` selector controls only server-side radio persona.
 - Confirm internal compatibility/OTA/audio TTL defaults are no longer exposed in config/options flow.
 - Confirm firmware channel is visible and stored only for ESP32 clients, not for iOS, macOS, Apple Watch, Linux/Raspberry Pi or Windows clients.
 - Confirm Spotify setup requires a user-owned Spotify Developer app Client ID and shows the exact redirect URI to register.
@@ -162,7 +167,7 @@
   players.
 - Confirm no `spotify_player` field is required in config/options flow.
 - Confirm ESP32-only Wake word switch appears only for ESP32 clients and tracks `settings.wake_word_enabled` after ESP reboot/status refresh.
-- Confirm all titles, labels and error messages are available in Dutch and English.
+- Confirm all titles, labels and error messages are available in English, Dutch, German, French and Spanish.
 
 ## OTA / Firmware Updates
 

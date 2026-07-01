@@ -5,6 +5,7 @@ import html
 import logging
 from pathlib import Path
 import re
+import secrets
 from typing import Any
 from urllib.parse import urlsplit
 
@@ -39,7 +40,9 @@ from .const import (
     CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT,
     CONF_CLIENT_TYPE,
     CONF_DEVICE_ID,
+    CONF_DEVICE_NAME,
     CONF_DEVICE_TOKEN,
+    CONF_HA_EXTERNAL_URL,
     CONF_LOCAL_URL,
     CONF_MAX_AUDIO_BYTES,
     CONF_MUSIC_BACKEND,
@@ -129,11 +132,26 @@ async def _spotify_oauth_html_response(
     success: bool = True,
 ) -> web.Response:
     """Render a friendly standalone Spotify OAuth result page."""
+    language = _ui_language(hass)
+    close_label = {
+        "en": "Close window",
+        "nl": "Sluit venster",
+        "de": "Fenster schließen",
+        "fr": "Fermer la fenêtre",
+        "es": "Cerrar ventana",
+    }.get(language, "Close window")
+    footer = {
+        "en": "DJConnect manages playback through Home Assistant. Spotify is a trademark of Spotify AB.",
+        "nl": "DJConnect beheert playback via Home Assistant. Spotify is a trademark of Spotify AB.",
+        "de": "DJConnect verwaltet die Wiedergabe über Home Assistant. Spotify is a trademark of Spotify AB.",
+        "fr": "DJConnect gère la lecture via Home Assistant. Spotify is a trademark of Spotify AB.",
+        "es": "DJConnect gestiona la reproducción mediante Home Assistant. Spotify is a trademark of Spotify AB.",
+    }.get(language, "DJConnect manages playback through Home Assistant. Spotify is a trademark of Spotify AB.")
     accent = "#1db954" if success else "#ff8a00"
     icon = "✓" if success else "!"
     logo_data_uri = await _async_djconnect_logo_data_uri(hass)
     html_body = f"""<!doctype html>
-<html lang="nl">
+<html lang="{html.escape(language)}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -246,13 +264,114 @@ async def _spotify_oauth_html_response(
     <h1>{html.escape(title)}</h1>
     <p>{html.escape(message)}</p>
     <div class="actions">
-      <button onclick="window.close()">Sluit venster</button>
+      <button onclick="window.close()">{html.escape(close_label)}</button>
     </div>
-    <small>DJConnect beheert playback via Home Assistant. Spotify is a trademark of Spotify AB.</small>
+    <small>{html.escape(footer)}</small>
   </main>
 </body>
 </html>"""
     return web.Response(text=html_body, status=status, content_type="text/html")
+
+
+def _ui_language(hass: Any) -> str:
+    """Return the current supported Home Assistant UI language."""
+    language = str(getattr(getattr(hass, "config", None), "language", "") or "").lower()
+    if language.startswith(("nl", "de", "fr", "es")):
+        return language[:2]
+    return "en"
+
+
+def _oauth_copy(hass: Any, key: str, **placeholders: Any) -> str:
+    """Return localized Spotify OAuth callback page copy."""
+    language = _ui_language(hass)
+    copy = {
+        "oauth_error_title": {
+            "en": "Spotify OAuth failed",
+            "nl": "Spotify OAuth niet gelukt",
+            "de": "Spotify OAuth fehlgeschlagen",
+            "fr": "Échec OAuth Spotify",
+            "es": "OAuth de Spotify falló",
+        },
+        "oauth_error_message": {
+            "en": "Spotify returned this error: {error}. Start Spotify authorization again from Home Assistant.",
+            "nl": "Spotify gaf deze fout terug: {error}. Start de Spotify autorisatie opnieuw vanuit Home Assistant.",
+            "de": "Spotify hat diesen Fehler zurückgegeben: {error}. Starte die Spotify-Autorisierung erneut in Home Assistant.",
+            "fr": "Spotify a renvoyé cette erreur : {error}. Relance l’autorisation Spotify depuis Home Assistant.",
+            "es": "Spotify devolvió este error: {error}. Inicia de nuevo la autorización de Spotify desde Home Assistant.",
+        },
+        "oauth_incomplete_title": {
+            "en": "Spotify OAuth incomplete",
+            "nl": "Spotify OAuth niet compleet",
+            "de": "Spotify OAuth unvollständig",
+            "fr": "OAuth Spotify incomplet",
+            "es": "OAuth de Spotify incompleto",
+        },
+        "oauth_incomplete_message": {
+            "en": "The callback is missing state or code. Start Spotify authorization again from Home Assistant.",
+            "nl": "De callback mist een state of code. Start de Spotify autorisatie opnieuw vanuit Home Assistant.",
+            "de": "Dem Callback fehlt state oder code. Starte die Spotify-Autorisierung erneut in Home Assistant.",
+            "fr": "Le callback ne contient pas state ou code. Relance l’autorisation Spotify depuis Home Assistant.",
+            "es": "Al callback le falta state o code. Inicia de nuevo la autorización de Spotify desde Home Assistant.",
+        },
+        "linked_title": {
+            "en": "DJConnect is linked",
+            "nl": "DJConnect is gekoppeld",
+            "de": "DJConnect ist gekoppelt",
+            "fr": "DJConnect est associé",
+            "es": "DJConnect está emparejado",
+        },
+        "linked_message": {
+            "en": "Spotify is linked with DJConnect. You can close this window and return to Home Assistant to finish your DJConnect setup.",
+            "nl": "Spotify is gekoppeld met DJConnect. Je kunt dit venster sluiten en teruggaan naar Home Assistant om je DJConnect setup af te maken.",
+            "de": "Spotify ist mit DJConnect verbunden. Du kannst dieses Fenster schließen und zu Home Assistant zurückkehren, um die Einrichtung abzuschließen.",
+            "fr": "Spotify est associé à DJConnect. Tu peux fermer cette fenêtre et revenir à Home Assistant pour terminer la configuration DJConnect.",
+            "es": "Spotify está conectado con DJConnect. Puedes cerrar esta ventana y volver a Home Assistant para terminar la configuración de DJConnect.",
+        },
+        "oauth_exception_title": {
+            "en": "Spotify OAuth error",
+            "nl": "Spotify OAuth fout",
+            "de": "Spotify OAuth-Fehler",
+            "fr": "Erreur OAuth Spotify",
+            "es": "Error de OAuth de Spotify",
+        },
+        "oauth_exception_message": {
+            "en": "Home Assistant could not complete Spotify authorization: {error}",
+            "nl": "Home Assistant kon de Spotify autorisatie niet afronden: {error}",
+            "de": "Home Assistant konnte die Spotify-Autorisierung nicht abschließen: {error}",
+            "fr": "Home Assistant n’a pas pu terminer l’autorisation Spotify : {error}",
+            "es": "Home Assistant no pudo completar la autorización de Spotify: {error}",
+        },
+        "expired_title": {
+            "en": "Spotify OAuth expired",
+            "nl": "Spotify OAuth verlopen",
+            "de": "Spotify OAuth abgelaufen",
+            "fr": "OAuth Spotify expiré",
+            "es": "OAuth de Spotify caducó",
+        },
+        "expired_message": {
+            "en": "This OAuth session is unknown or expired. Start Spotify reauthorization again from Home Assistant.",
+            "nl": "Deze OAuth sessie is onbekend of verlopen. Start Spotify opnieuw autoriseren vanuit Home Assistant.",
+            "de": "Diese OAuth-Sitzung ist unbekannt oder abgelaufen. Starte die Spotify-Neuautorisierung erneut in Home Assistant.",
+            "fr": "Cette session OAuth est inconnue ou expirée. Relance la réautorisation Spotify depuis Home Assistant.",
+            "es": "Esta sesión OAuth es desconocida o caducó. Inicia de nuevo la reautorización de Spotify desde Home Assistant.",
+        },
+        "reauth_title": {
+            "en": "DJConnect is reauthorized",
+            "nl": "DJConnect is opnieuw geautoriseerd",
+            "de": "DJConnect ist erneut autorisiert",
+            "fr": "DJConnect est réautorisé",
+            "es": "DJConnect está reautorizado",
+        },
+        "reauth_message": {
+            "en": "Spotify is linked with DJConnect again. You can close this window and return to Home Assistant.",
+            "nl": "Spotify is opnieuw gekoppeld met DJConnect. Je kunt dit venster sluiten en teruggaan naar Home Assistant.",
+            "de": "Spotify ist erneut mit DJConnect verbunden. Du kannst dieses Fenster schließen und zu Home Assistant zurückkehren.",
+            "fr": "Spotify est de nouveau associé à DJConnect. Tu peux fermer cette fenêtre et revenir à Home Assistant.",
+            "es": "Spotify está conectado de nuevo con DJConnect. Puedes cerrar esta ventana y volver a Home Assistant.",
+        },
+    }
+    template = copy[key].get(language) or copy[key]["en"]
+    return template.format(**{name: str(value) for name, value in placeholders.items()})
 
 
 ERROR_MESSAGES = {
@@ -266,10 +385,12 @@ ERROR_MESSAGES = {
     "unsupported_media_type": "Send audio/wav, audio/x-wav, application/octet-stream or JSON text.",
     "invalid_command": "Send a valid DJConnect command.",
     "invalid_client_type": "Send a valid DJConnect client_type.",
+    "client_type_mismatch": "The selected DJConnect app type in Home Assistant does not match this client.",
     "backend_unavailable": "The configured playback backend is unavailable.",
     "stale_pairing": "DJConnect pairing is stale. Pair the device again.",
     "version_mismatch": "DJConnect Home Assistant integration and device firmware major.minor versions must match.",
 }
+APP_PAIRING_PENDING_KEY = "config_flow_app_pairing_pending"
 DJ_FAILURE_TEXTS = {
     "assist": {
         "en": (
@@ -1902,6 +2023,118 @@ async def _send_failure_dj_response(
     )
 
 
+async def _handle_pending_config_flow_app_pairing(
+    view: HomeAssistantView,
+    hass: Any,
+    data: dict[str, Any],
+) -> Any | None:
+    """Pair an app against an open config-flow app-pairing step."""
+    pair_code = str(data.get("pair_code") or "").strip()
+    pending = hass.data.setdefault(DOMAIN, {}).setdefault(APP_PAIRING_PENDING_KEY, {})
+    context = pending.get(pair_code) if isinstance(pending, dict) else None
+    if not isinstance(context, dict):
+        return None
+    if not str(context.get("flow_id") or "").strip():
+        pending.pop(pair_code, None)
+        return None
+
+    device_id = str(data.get("device_id") or "").strip()
+    if not device_id or not pair_code:
+        payload = {
+            "success": False,
+            "error": "missing_pair_data",
+            "message": ERROR_MESSAGES["missing_pair_data"],
+        }
+        _LOGGER.debug(
+            "DJConnect config-flow app pairing response status=400 payload=%s",
+            _redact_debug_payload(payload),
+        )
+        return view.json(payload, status_code=400)
+
+    client_type = _validate_required_client_type(data)
+    if client_type is None:
+        payload = {
+            "success": False,
+            "error": "invalid_client_type",
+            "message": ERROR_MESSAGES["invalid_client_type"],
+        }
+        _LOGGER.debug(
+            "DJConnect config-flow app pairing response status=400 payload=%s",
+            _redact_debug_payload(payload),
+        )
+        return view.json(payload, status_code=400)
+
+    expected_client_type = str(context.get(CONF_CLIENT_TYPE) or "").strip()
+    if expected_client_type and client_type != expected_client_type:
+        payload = {
+            "success": False,
+            "error": "client_type_mismatch",
+            "message": ERROR_MESSAGES["client_type_mismatch"],
+            "expected_client_type": expected_client_type,
+            "received_client_type": client_type,
+        }
+        _LOGGER.debug(
+            "DJConnect config-flow app pairing client type mismatch expected=%s received=%s",
+            expected_client_type,
+            client_type,
+        )
+        return view.json(payload, status_code=400)
+
+    token = str(context.get(CONF_DEVICE_TOKEN) or "").strip()
+    if not token:
+        token = context[CONF_DEVICE_TOKEN] = secrets.token_urlsafe(32)
+    context["pairing_received"] = {
+        CONF_DEVICE_ID: device_id,
+        CONF_DEVICE_NAME: data.get("device_name") or "DJConnect",
+        CONF_CLIENT_TYPE: client_type,
+        CONF_DEVICE_TOKEN: token,
+        "local_url": data.get("local_url"),
+        "firmware": data.get("firmware"),
+    }
+    bootstrap_proof = str(
+        data.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF) or data.get("bootstrap_proof") or ""
+    ).strip()
+    if bootstrap_proof:
+        context["pairing_received"][CONF_CENTRAL_API_BOOTSTRAP_PROOF] = bootstrap_proof
+    bootstrap_expires = str(
+        data.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT)
+        or data.get("bootstrap_proof_expires_at")
+        or ""
+    ).strip()
+    if bootstrap_expires:
+        context["pairing_received"][CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT] = (
+            bootstrap_expires
+        )
+
+    conf = {
+        CONF_PAIR_CODE: pair_code,
+        CONF_DEVICE_TOKEN: token,
+        CONF_ASSIST_PIPELINE_ID: str(
+            context.get(CONF_ASSIST_PIPELINE_ID) or ""
+        ),
+        CONF_HA_EXTERNAL_URL: str(context.get(CONF_HA_EXTERNAL_URL) or ""),
+    }
+    response = {
+        "success": True,
+        "setup_pending": True,
+        "client_type": client_type,
+        "device_token": token,
+        "assist_pipeline_id": conf.get(CONF_ASSIST_PIPELINE_ID, ""),
+        "api_base": "/api/djconnect",
+        "voice_path": API_VOICE,
+        "status_path": API_STATUS,
+        "event_path": API_EVENT,
+    }
+    response.update(_ask_dj_capabilities())
+    response.update(await async_ha_url_payload(hass, conf, client_type=client_type))
+    _LOGGER.info("DJConnect app paired with pending config-flow code %s", pair_code)
+    _LOGGER.debug(
+        "DJConnect config-flow app pairing response status=200 payload=%s",
+        _redact_debug_payload(response),
+    )
+    return view.json(response)
+
+
 class DJConnectPairView(HomeAssistantView):
     url = API_PAIR
     name = "api:djconnect:pair"
@@ -1912,18 +2145,6 @@ class DJConnectPairView(HomeAssistantView):
 
     async def post(self, request):
         hass = request.app["hass"]
-        runtime = _runtime(hass)
-        if runtime is None:
-            payload = {
-                "success": False,
-                "error": "not_configured",
-                "message": ERROR_MESSAGES["not_configured"],
-            }
-            _LOGGER.debug(
-                "DJConnect pairing response status=503 payload=%s",
-                _redact_debug_payload(payload),
-            )
-            return self.json(payload, status_code=503)
         try:
             data = await request.json()
         except Exception:  # noqa: BLE001
@@ -1937,6 +2158,26 @@ class DJConnectPairView(HomeAssistantView):
                 _redact_debug_payload(payload),
             )
             return self.json(payload, status_code=400)
+
+        runtime = _runtime(hass)
+        if runtime is None:
+            pending_response = await _handle_pending_config_flow_app_pairing(
+                self,
+                hass,
+                data,
+            )
+            if pending_response is not None:
+                return pending_response
+            payload = {
+                "success": False,
+                "error": "not_configured",
+                "message": ERROR_MESSAGES["not_configured"],
+            }
+            _LOGGER.debug(
+                "DJConnect pairing response status=503 payload=%s",
+                _redact_debug_payload(payload),
+            )
+            return self.json(payload, status_code=503)
 
         device_id = data.get("device_id")
         pair_code = str(data.get("pair_code") or "")
@@ -1970,6 +2211,28 @@ class DJConnectPairView(HomeAssistantView):
                 "error": "invalid_client_type",
                 "message": ERROR_MESSAGES["invalid_client_type"],
             }
+            _LOGGER.debug(
+                "DJConnect pairing response status=400 payload=%s",
+                _redact_debug_payload(payload),
+            )
+            return self.json(payload, status_code=400)
+        expected_client_type = str(_runtime_client_type(runtime) or "").strip()
+        if expected_client_type and client_type != expected_client_type:
+            runtime.update(last_error=ERROR_MESSAGES["client_type_mismatch"])
+            payload = {
+                "success": False,
+                "error": "client_type_mismatch",
+                "message": ERROR_MESSAGES["client_type_mismatch"],
+                "expected_client_type": expected_client_type,
+                "received_client_type": client_type,
+            }
+            _LOGGER.debug(
+                "DJConnect pairing client type mismatch device_id=%s "
+                "expected_client_type=%s received_client_type=%s",
+                device_id,
+                expected_client_type,
+                client_type,
+            )
             _LOGGER.debug(
                 "DJConnect pairing response status=400 payload=%s",
                 _redact_debug_payload(payload),
@@ -2361,7 +2624,7 @@ class DJConnectAskDjMessageView(HomeAssistantView):
 class DJConnectTrackInsightView(HomeAssistantView):
     url = API_TRACK_INSIGHT
     name = "api:djconnect:track_insight"
-    requires_auth = True
+    requires_auth = False
 
     def __init__(self, hass):
         self.hass = hass
@@ -3028,16 +3291,16 @@ class DJConnectSpotifyCallbackView(HomeAssistantView):
         if error:
             return await _spotify_oauth_html_response(
                 hass,
-                title="Spotify OAuth niet gelukt",
-                message=f"Spotify gaf deze fout terug: {error}. Start de Spotify autorisatie opnieuw vanuit Home Assistant.",
+                title=_oauth_copy(hass, "oauth_error_title"),
+                message=_oauth_copy(hass, "oauth_error_message", error=error),
                 status=400,
                 success=False,
             )
         if not state or not code:
             return await _spotify_oauth_html_response(
                 hass,
-                title="Spotify OAuth niet compleet",
-                message="De callback mist een state of code. Start de Spotify autorisatie opnieuw vanuit Home Assistant.",
+                title=_oauth_copy(hass, "oauth_incomplete_title"),
+                message=_oauth_copy(hass, "oauth_incomplete_message"),
                 status=400,
                 success=False,
             )
@@ -3076,19 +3339,16 @@ class DJConnectSpotifyCallbackView(HomeAssistantView):
                     await hass.config_entries.flow.async_configure(flow_id, {"state": state})
                 return await _spotify_oauth_html_response(
                     hass,
-                    title="DJConnect is gekoppeld",
-                    message=(
-                        "Spotify is gekoppeld met DJConnect. Je kunt dit venster sluiten en teruggaan naar "
-                        "Home Assistant om je DJConnect setup af te maken."
-                    ),
+                    title=_oauth_copy(hass, "linked_title"),
+                    message=_oauth_copy(hass, "linked_message"),
                     base_url=ctx.get("ha_external_url") or ctx.get("redirect_uri", "").split(API_SPOTIFY_CALLBACK)[0],
                 )
             except Exception as exc:  # noqa: BLE001
                 _LOGGER.exception("DJConnect config-flow OAuth callback failed")
                 return await _spotify_oauth_html_response(
                     hass,
-                    title="Spotify OAuth fout",
-                    message=f"Home Assistant kon de Spotify autorisatie niet afronden: {exc}",
+                    title=_oauth_copy(hass, "oauth_exception_title"),
+                    message=_oauth_copy(hass, "oauth_exception_message", error=exc),
                     status=500,
                     success=False,
                 )
@@ -3098,8 +3358,8 @@ class DJConnectSpotifyCallbackView(HomeAssistantView):
         if not ctx:
             return await _spotify_oauth_html_response(
                 hass,
-                title="Spotify OAuth verlopen",
-                message="Deze OAuth sessie is onbekend of verlopen. Start Spotify opnieuw autoriseren vanuit Home Assistant.",
+                title=_oauth_copy(hass, "expired_title"),
+                message=_oauth_copy(hass, "expired_message"),
                 status=400,
                 success=False,
             )
@@ -3141,19 +3401,16 @@ class DJConnectSpotifyCallbackView(HomeAssistantView):
                     )
             return await _spotify_oauth_html_response(
                 hass,
-                title="DJConnect is opnieuw geautoriseerd",
-                message=(
-                    "Spotify is opnieuw gekoppeld met DJConnect. Je kunt dit venster sluiten en teruggaan naar "
-                    "Home Assistant."
-                ),
+                title=_oauth_copy(hass, "reauth_title"),
+                message=_oauth_copy(hass, "reauth_message"),
                 base_url=ctx.get("ha_external_url") or ctx.get("redirect_uri", "").split(API_SPOTIFY_CALLBACK)[0],
             )
         except Exception as exc:  # noqa: BLE001
             _LOGGER.exception("DJConnect Spotify OAuth callback failed")
             return await _spotify_oauth_html_response(
                 hass,
-                title="Spotify OAuth fout",
-                message=f"Home Assistant kon de Spotify autorisatie niet afronden: {exc}",
+                title=_oauth_copy(hass, "oauth_exception_title"),
+                message=_oauth_copy(hass, "oauth_exception_message", error=exc),
                 status=500,
                 success=False,
             )

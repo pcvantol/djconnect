@@ -313,6 +313,31 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT_PRESET, keys)
         self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
+        self.assertIn(self.const.CONF_VOICE_PROFILE, keys)
+
+    def test_voice_defaults_store_supported_voice_profile(self) -> None:
+        defaults = self.config_flow._voice_defaults(
+            {
+                self.const.CONF_VOICE_PROFILE: self.const.VOICE_PROFILE_LATE_NIGHT,
+            }
+        )
+
+        self.assertEqual(
+            defaults[self.const.CONF_VOICE_PROFILE],
+            self.const.VOICE_PROFILE_LATE_NIGHT,
+        )
+
+    def test_voice_defaults_fall_back_for_unknown_voice_profile(self) -> None:
+        defaults = self.config_flow._voice_defaults(
+            {
+                self.const.CONF_VOICE_PROFILE: "celebrity_clone",
+            }
+        )
+
+        self.assertEqual(
+            defaults[self.const.CONF_VOICE_PROFILE],
+            self.const.DEFAULT_VOICE_PROFILE,
+        )
 
     def test_voice_defaults_ignore_legacy_dj_response_prompt_input(self) -> None:
         defaults = self.config_flow._voice_defaults(
@@ -367,7 +392,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertIn(self.const.CONF_FIRMWARE_CHANNEL, keys)
         self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT_PRESET, keys)
         self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
-        self.assertIn(self.const.CONF_DJ_RESPONSE_ENABLED, keys)
+        self.assertNotIn(self.const.CONF_DJ_RESPONSE_ENABLED, keys)
 
     def test_firmware_channel_uses_labeled_selector(self) -> None:
         hass = types.SimpleNamespace(states=None)
@@ -592,8 +617,11 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertNotIn(self.const.CONF_PAIR_CODE, defaults)
         self.assertNotIn(self.const.CONF_LOCAL_URL, defaults)
-        self.assertNotIn(self.config_flow.APP_PAIR_CODE_DISPLAY_FIELD, defaults)
-        self.assertNotIn(self.config_flow.APP_HA_LOCAL_URL_DISPLAY_FIELD, defaults)
+        self.assertRegex(defaults[self.config_flow.APP_PAIR_CODE_DISPLAY_FIELD], r"^\d{6}$")
+        self.assertEqual(
+            defaults[self.config_flow.APP_HA_LOCAL_URL_DISPLAY_FIELD],
+            "http://ha.local:8123",
+        )
         self.assertNotIn(self.config_flow.APP_IPHONE_PAIRING_URI_FIELD, defaults)
         self.assertNotIn(self.config_flow.APP_WATCH_PAIRING_URI_FIELD, defaults)
         self.assertEqual(defaults[self.const.CONF_DEVICE_NAME], "DJConnect iOS")
@@ -607,12 +635,12 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertIn("iphone_qr_image", placeholders)
         self.assertIn("watch_qr_image", placeholders)
 
-    def test_app_detail_schema_uses_only_fields_for_selected_client_type(self) -> None:
-        for client_type, expected_name, manual_fields in (
-            (self.const.CLIENT_TYPE_IOS, "DJConnect iOS", False),
-            (self.const.CLIENT_TYPE_WATCHOS, "DJConnect Watch", False),
-            (self.const.CLIENT_TYPE_MACOS, "DJConnect macOS", True),
-            (self.const.CLIENT_TYPE_WINDOWS, "DJConnect Windows", True),
+    def test_app_detail_schema_uses_fallback_pairing_fields_for_app_clients(self) -> None:
+        for client_type, expected_name in (
+            (self.const.CLIENT_TYPE_IOS, "DJConnect iOS"),
+            (self.const.CLIENT_TYPE_WATCHOS, "DJConnect Watch"),
+            (self.const.CLIENT_TYPE_MACOS, "DJConnect macOS"),
+            (self.const.CLIENT_TYPE_WINDOWS, "DJConnect Windows"),
         ):
             with self.subTest(client_type=client_type):
                 flow = self.config_flow.DJConnectConfigFlow()
@@ -631,18 +659,47 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
                 self.assertEqual(defaults[self.const.CONF_DEVICE_NAME], expected_name)
                 self.assertNotIn(self.const.CONF_CLIENT_TYPE, defaults)
-                if manual_fields:
-                    self.assertRegex(
-                        defaults[self.config_flow.APP_PAIR_CODE_DISPLAY_FIELD],
-                        r"^\d{6}$",
-                    )
-                    self.assertEqual(
-                        defaults[self.config_flow.APP_HA_LOCAL_URL_DISPLAY_FIELD],
-                        "http://ha.local:8123",
-                    )
-                else:
-                    self.assertNotIn(self.config_flow.APP_PAIR_CODE_DISPLAY_FIELD, defaults)
-                    self.assertNotIn(self.config_flow.APP_HA_LOCAL_URL_DISPLAY_FIELD, defaults)
+                self.assertRegex(
+                    defaults[self.config_flow.APP_PAIR_CODE_DISPLAY_FIELD],
+                    r"^\d{6}$",
+                )
+                self.assertEqual(
+                    defaults[self.config_flow.APP_HA_LOCAL_URL_DISPLAY_FIELD],
+                    "http://ha.local:8123",
+                )
+
+    def test_app_detail_step_resyncs_pending_context_when_client_type_changes(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.flow_id = "flow-1"
+        flow.hass = types.SimpleNamespace(
+            data={self.const.DOMAIN: {}},
+            config=types.SimpleNamespace(
+                language="en-US",
+                internal_url="http://ha.local:8123",
+            ),
+        )
+        flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_APP
+        flow._selected_pair_client_type = self.const.CLIENT_TYPE_MACOS
+        asyncio.run(flow._ensure_app_pairing_defaults())
+        pair_code = flow._discovered_defaults[self.const.CONF_PAIR_CODE]
+        pending = flow.hass.data[self.const.DOMAIN]["config_flow_app_pairing_pending"]
+        pending[pair_code]["pairing_received"] = {
+            self.const.CONF_DEVICE_ID: "djconnect-macos-68B74487726D",
+            self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_MACOS,
+        }
+
+        flow._selected_pair_client_type = self.const.CLIENT_TYPE_IOS
+        asyncio.run(flow._ensure_app_pairing_defaults())
+        defaults = flow._discovered_defaults
+
+        self.assertEqual(defaults[self.const.CONF_CLIENT_TYPE], self.const.CLIENT_TYPE_IOS)
+        self.assertEqual(defaults[self.const.CONF_DEVICE_NAME], "DJConnect iOS")
+        self.assertIn("client_type=ios", defaults[self.const.CONF_PAIRING_URI])
+        self.assertEqual(
+            pending[pair_code][self.const.CONF_CLIENT_TYPE],
+            self.const.CLIENT_TYPE_IOS,
+        )
+        self.assertFalse(pending[pair_code]["pairing_received"])
 
     def test_pairing_qr_helper_returns_inline_svg_data_uri(self) -> None:
         save_kwargs = {}
@@ -666,7 +723,8 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertTrue(image.startswith("data:image/svg+xml;utf8,"))
         self.assertIn("%3Csvg", image)
-        self.assertEqual(save_kwargs["background"], "white")
+        self.assertIn("fill%3D%22white%22", image)
+        self.assertNotIn("background", save_kwargs)
 
     def test_pairing_qr_helper_falls_back_when_generation_fails(self) -> None:
         class BrokenQr:
@@ -788,8 +846,11 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertNotIn(self.config_flow.DISCOVERY_CLIENT_FIELD, defaults)
         self.assertNotIn(self.const.CONF_PAIR_CODE, defaults)
         self.assertEqual(defaults[self.const.CONF_DEVICE_NAME], "DJConnect iOS")
-        self.assertNotIn(self.config_flow.APP_PAIR_CODE_DISPLAY_FIELD, defaults)
-        self.assertNotIn(self.config_flow.APP_HA_LOCAL_URL_DISPLAY_FIELD, defaults)
+        self.assertRegex(defaults[self.config_flow.APP_PAIR_CODE_DISPLAY_FIELD], r"^\d{6}$")
+        self.assertEqual(
+            defaults[self.config_flow.APP_HA_LOCAL_URL_DISPLAY_FIELD],
+            "http://ha.local:8123",
+        )
         self.assertNotIn(self.config_flow.APP_IPHONE_PAIRING_URI_FIELD, defaults)
         self.assertNotIn(self.config_flow.APP_WATCH_PAIRING_URI_FIELD, defaults)
         self.assertNotIn(self.const.CONF_CLIENT_TYPE, defaults)
@@ -823,13 +884,50 @@ class ConfigFlowHelperTest(unittest.TestCase):
         )
         self.assertNotIn("djconnect-macos-68B74487726D", schema[discovery_marker])
 
-    def test_app_pairing_uses_ha_generated_code_without_local_url(self) -> None:
+    def test_app_pairing_waits_for_client_payload_before_continuing(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(
+            data={self.const.DOMAIN: {}},
             config=types.SimpleNamespace(language="en-US", internal_url="http://ha.local:8123")
         )
+        flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_APP
+        flow._selected_pair_client_type = self.const.CLIENT_TYPE_MACOS
+        flow.flow_id = "flow-1"
+        asyncio.run(flow._ensure_app_pairing_defaults())
+
+        result = asyncio.run(
+            flow.async_step_pair(
+                {
+                    self.const.CONF_DEVICE_NAME: "DJConnect Mac",
+                    self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_MACOS,
+                }
+            )
+        )
+
+        self.assertEqual(result["type"], "form")
+        self.assertEqual(result["step_id"], "pair_app_macos_details")
+        self.assertEqual(result["errors"]["base"], "app_pairing_not_received")
+        self.assertFalse(getattr(flow, "_pairing", None))
+
+    def test_app_pairing_uses_pending_http_pair_payload(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(
+            data={self.const.DOMAIN: {}},
+            config=types.SimpleNamespace(language="en-US", internal_url="http://ha.local:8123"),
+        )
+        flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_APP
+        flow._selected_pair_client_type = self.const.CLIENT_TYPE_MACOS
+        flow.flow_id = "flow-1"
         asyncio.run(flow._ensure_app_pairing_defaults())
         pair_code = flow._discovered_defaults[self.const.CONF_PAIR_CODE]
+        flow.hass.data[self.const.DOMAIN]["config_flow_app_pairing_pending"][pair_code][
+            "pairing_received"
+        ] = {
+            self.const.CONF_DEVICE_ID: "djconnect-macos-68B74487726D",
+            self.const.CONF_DEVICE_NAME: "Peter Mac",
+            self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_MACOS,
+            self.const.CONF_DEVICE_TOKEN: "pending-device-token",
+        }
 
         async def fake_set_unique_id(unique_id):
             flow._unique_id = unique_id
@@ -845,30 +943,46 @@ class ConfigFlowHelperTest(unittest.TestCase):
         result = asyncio.run(
             flow.async_step_pair(
                 {
-                    self.const.CONF_DEVICE_NAME: "DJConnect Mac",
+                    self.const.CONF_DEVICE_NAME: "Fallback Name",
                     self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_MACOS,
                 }
             )
         )
 
-        self.assertEqual(flow._unique_id, f"djconnect-{pair_code}")
+        self.assertEqual(flow._unique_id, "djconnect-macos-68B74487726D")
         self.assertEqual(
             result["pairing"][self.const.CONF_DEVICE_ID],
-            f"djconnect-{pair_code}",
+            "djconnect-macos-68B74487726D",
         )
-        self.assertEqual(result["pairing"][self.const.CONF_PAIR_CODE], pair_code)
+        self.assertEqual(result["pairing"][self.const.CONF_DEVICE_NAME], "Peter Mac")
         self.assertEqual(
-            result["pairing"][self.const.CONF_CLIENT_TYPE],
-            self.const.CLIENT_TYPE_MACOS,
+            result["pairing"][self.const.CONF_DEVICE_TOKEN],
+            "pending-device-token",
         )
-        self.assertNotIn(self.const.CONF_LOCAL_URL, result["pairing"])
+        self.assertNotIn(
+            pair_code,
+            flow.hass.data[self.const.DOMAIN]["config_flow_app_pairing_pending"],
+        )
 
     def test_watch_app_pairing_uses_watch_proxy_pairing_uri(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(
+            data={self.const.DOMAIN: {}},
             config=types.SimpleNamespace(language="en-US", internal_url="http://ha.local:8123")
         )
+        flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_APP
+        flow._selected_pair_client_type = self.const.CLIENT_TYPE_WATCHOS
+        flow.flow_id = "flow-1"
         asyncio.run(flow._ensure_app_pairing_defaults())
+        pair_code = flow._discovered_defaults[self.const.CONF_PAIR_CODE]
+        flow.hass.data[self.const.DOMAIN]["config_flow_app_pairing_pending"][pair_code][
+            "pairing_received"
+        ] = {
+            self.const.CONF_DEVICE_ID: "djconnect-watchos-68B74487726D",
+            self.const.CONF_DEVICE_NAME: "Peter Apple Watch",
+            self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_WATCHOS,
+            self.const.CONF_DEVICE_TOKEN: "pending-watch-token",
+        }
 
         async def fake_set_unique_id(unique_id):
             flow._unique_id = unique_id
@@ -954,6 +1068,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
     def test_pair_step_blocks_unverified_raspberry_pi_discovery_until_url_changes(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en-US"))
+        flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_LOCAL_DEVICE
         client = self.config_flow.DiscoveredClient(
             local_url="http://djconnect-pi.local:61234",
             device_id="djconnect-raspberry-pi-A1B2C3D4E5F6",
@@ -987,6 +1102,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
     def test_raspberry_pi_pairing_uses_discovered_stable_device_id(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en-US"))
+        flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_LOCAL_DEVICE
         client = self.config_flow.DiscoveredClient(
             local_url="http://192.168.1.66:61234",
             device_id="djconnect-raspberry-pi-A1B2C3D4E5F6",
@@ -1031,6 +1147,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
     def test_raspberry_pi_duplicate_uses_discovered_device_id_for_abort_check(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en-US"))
+        flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_LOCAL_DEVICE
         client = self.config_flow.DiscoveredClient(
             local_url="http://192.168.1.66:61234",
             device_id="djconnect-raspberry-pi-A1B2C3D4E5F6",
@@ -1222,12 +1339,6 @@ class ConfigFlowHelperTest(unittest.TestCase):
                 self.config_flow.OPTIONS_ACTION_SPOTIFY_REAUTH
             ],
             "Reauthorize Spotify",
-        )
-        self.assertEqual(
-            self.config_flow._options_action_names(en_hass)[
-                self.config_flow.OPTIONS_ACTION_SAVE
-            ],
-            "Save options",
         )
         self.assertEqual(
             self.config_flow._options_action_names(nl_hass)[
@@ -1683,6 +1794,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         keys = {marker.key for marker in schema}
 
         self.assertIn(self.config_flow.OPTIONS_ACTION_FIELD, keys)
+        self.assertIn(self.const.CONF_VOICE_PROFILE, keys)
 
     def test_voice_schema_can_show_readonly_client_api_url(self) -> None:
         hass = types.SimpleNamespace(states=None, config=types.SimpleNamespace(language="nl-NL"))
@@ -2154,6 +2266,14 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertIn(
             self.config_flow.OPTIONS_ACTION_CHANGE_MUSIC_BACKEND,
             form["data_schema"].schema[action_marker],
+        )
+        self.assertIn(
+            self.config_flow.OPTIONS_ACTION_SAVE,
+            form["data_schema"].schema[action_marker],
+        )
+        self.assertEqual(
+            action_marker.default,
+            self.config_flow.OPTIONS_ACTION_SAVE,
         )
 
     def test_options_music_backend_step_shows_current_backend(self) -> None:

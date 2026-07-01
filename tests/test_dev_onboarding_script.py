@@ -433,7 +433,7 @@ class WindowsDevOnboardingScriptTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertIn("Checking Home Assistant published by the macOS host.", result.stdout)
-        self.assertIn("DRY curl.exe -fsS http://10.211.55.2:8123", result.stdout)
+        self.assertRegex(result.stdout, r"DRY\s+curl\.exe -fsS http://10\.211\.55\.2:8123")
         self.assertNotIn("Run step 8.", result.stdout)
         self.assertGreaterEqual(result.stdout.count("Available steps:"), 2)
         self.assertIn("Exiting onboarding menu.", result.stdout)
@@ -469,7 +469,7 @@ class WindowsDevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertIn("Windows ARM in Parallels cannot run Docker Desktop nested virtualization reliably.", result.stdout)
         self.assertIn("Home Assistant host URL: http://10.211.55.2:8123", result.stdout)
-        self.assertIn("DRY curl.exe -fsS http://10.211.55.2:8123", result.stdout)
+        self.assertRegex(result.stdout, r"DRY\s+curl\.exe -fsS http://10\.211\.55\.2:8123")
         self.assertNotIn("docker compose", result.stdout)
 
     @unittest.skipUnless(
@@ -489,7 +489,7 @@ class WindowsDevOnboardingScriptTests(unittest.TestCase):
         )
 
         self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertIn("DRY ngrok config add-authtoken <redacted>", result.stdout)
+        self.assertRegex(result.stdout, r"DRY\s+ngrok config add-authtoken <redacted>")
         self.assertNotIn("secret-ngrok-token", result.stdout)
         self.assertIn("schtasks /Create", result.stdout)
         self.assertIn("ngrok http --url=victory-curvy-refold.ngrok-free.dev 8123", result.stdout)

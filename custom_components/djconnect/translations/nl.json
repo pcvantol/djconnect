@@ -114,18 +114,19 @@
         "description": "Kies welk type DJConnect app je wilt koppelen.",
         "data": {
           "client_type": "Clienttype"
-        },
-        "data_description": {
-          "client_type": "Na deze keuze toont DJConnect alleen de koppelvelden voor deze app."
         }
       },
       "pair_app_ios_details": {
         "title": "DJConnect iPhone/iPad app koppelen",
         "description": "Scan deze QR-code met de iPhone/iPad app.\n\n![iPhone/iPad QR-code]({iphone_qr_image})",
         "data": {
+          "app_pair_code": "Koppelcode",
+          "app_ha_local_url": "Home Assistant URL",
           "device_name": "Apparaatnaam"
         },
         "data_description": {
+          "app_pair_code": "Gebruik deze code als de QR-code niet zichtbaar is.",
+          "app_ha_local_url": "Lokale Home Assistant URL voor app-koppeling.",
           "device_name": "Leesbare naam voor deze iPhone/iPad app-installatie."
         }
       },
@@ -133,9 +134,13 @@
         "title": "DJConnect Apple Watch app koppelen",
         "description": "Scan deze Watch QR-code op de iPhone/iPad om de gekoppelde Apple Watch te pairen.\n\n![Apple Watch QR-code]({watch_qr_image})",
         "data": {
+          "app_pair_code": "Koppelcode",
+          "app_ha_local_url": "Home Assistant URL",
           "device_name": "Apparaatnaam"
         },
         "data_description": {
+          "app_pair_code": "Gebruik deze code als de QR-code niet zichtbaar is.",
+          "app_ha_local_url": "Lokale Home Assistant URL voor app-koppeling.",
           "device_name": "Leesbare naam voor deze Apple Watch app-installatie."
         }
       },
@@ -205,16 +210,16 @@
           "assist_pipeline_id": "Assist pipeline",
           "client_type": "Clienttype",
           "local_url": "Client adres",
-          "dj_response_enabled": "DJ aankondiging op apparaat afspelen",
           "firmware_channel": "Firmwarekanaal",
-          "options_action": "Actie"
+          "options_action": "Actie",
+          "voice_profile": "DJ stemprofiel"
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline die DJConnect apparaten gebruiken voor spraakherkenning en DJ aankondiging audio.",
           "client_type": "Type DJConnect client: app, lokaal apparaat of Assist-agent.",
-          "dj_response_enabled": "Maak een tijdelijke WAV of MP3 audio URL en stuur die met de DJ aankondiging naar het DJConnect apparaat.",
           "firmware_channel": "Kies stable voor normale OTA updates of beta om prerelease firmware te testen.",
-          "options_action": "Kies instellingen opslaan of Spotify opnieuw autoriseren."
+          "options_action": "Kies welke actie je wilt uitvoeren.",
+          "voice_profile": "Kies de server-side DJConnect radiostijl. De gekozen Home Assistant TTS stem blijft bepalen hoe de audio klinkt; mood bepaalt de energie."
         }
       },
       "spotify_reauth": {
@@ -298,6 +303,7 @@
       "ble_device_required": "Selecteer een DJConnect BLE apparaat of voer het Bluetooth adres in.",
       "wifi_ssid_required": "Vul de WiFi SSID in om te provisionen.",
       "ble_wifi_failed": "WiFi provisioning via Bluetooth is mislukt. Controleer apparaat, SSID en wachtwoord en probeer opnieuw.",
+      "app_pairing_not_received": "DJConnect heeft nog geen koppeling van de app ontvangen. Vul de Home Assistant URL en koppelcode in de app in, tik daar op koppelen en ga daarna hier verder.",
       "pairing_info_unavailable": "Home Assistant ziet dit lokale DJConnect apparaat via mDNS, maar kan het pairing-info endpoint niet bereiken. Controleer het Client adres of vul het handmatig in.",
       "repair_pairing_failed": "Opnieuw koppelen is mislukt. Controleer of het DJConnect apparaat bereikbaar is en een koppelcode toont.",
       "central_api_url_invalid": "Vul een volledige HTTPS DJConnect API URL in.",
@@ -305,7 +311,8 @@
       "central_api_rotate_failed": "DJConnect kon de install-token niet roteren. Controleer de huidige token en probeer opnieuw.",
       "music_assistant_unavailable": "Music Assistant is niet geïnstalleerd of geconfigureerd in Home Assistant.",
       "music_assistant_no_players": "Er zijn geen bruikbare Music Assistant players gevonden.",
-      "music_assistant_player_missing": "De gekozen Music Assistant player bestaat niet meer."
+      "music_assistant_player_missing": "De gekozen Music Assistant player bestaat niet meer.",
+      "invalid_voice_profile": "Kies een ondersteund DJ stemprofiel."
     },
     "abort": {
       "already_configured": "Dit DJConnect apparaat is al geconfigureerd."
@@ -315,26 +322,26 @@
     "step": {
       "init": {
         "title": "DJConnect opties",
-        "description": "Pas DJConnect gespreksagent-, DJ response- en playback-instellingen aan. Spotify is een handelsmerk van Spotify AB. DJConnect is niet verbonden aan, goedgekeurd door of gesponsord door Spotify AB.",
+        "description": "Beheer DJConnect acties zoals de muziekbackend wijzigen, Spotify opnieuw autoriseren of opnieuw koppelen. Spotify is een handelsmerk van Spotify AB. DJConnect is niet verbonden aan, goedgekeurd door of gesponsord door Spotify AB.",
         "data": {
           "assist_pipeline_id": "Assist pipeline",
           "client_type": "Clienttype",
           "local_url": "Client adres",
-          "dj_response_enabled": "DJ aankondiging op apparaat afspelen",
           "firmware_channel": "Firmwarekanaal",
           "options_action": "Actie",
           "music_backend": "Muziekbackend",
-          "music_assistant_player": "Music Assistant player"
+          "music_assistant_player": "Music Assistant player",
+          "voice_profile": "DJ stemprofiel"
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline die DJConnect apparaten gebruiken voor spraakherkenning en DJ aankondiging audio.",
           "client_type": "Type DJConnect client: app, lokaal apparaat of Assist-agent.",
           "local_url": "Geconfigureerd lokaal Client adres voor ESP32/Raspberry Pi. Alleen-lezen; gebruik opnieuw koppelen om deze URL te wijzigen.",
-          "dj_response_enabled": "Maak een tijdelijke WAV of MP3 audio URL en stuur die met de DJ aankondiging naar het DJConnect apparaat.",
           "firmware_channel": "Kies stable voor normale OTA updates of beta om prerelease firmware te testen.",
-          "options_action": "Kies instellingen opslaan, Spotify opnieuw autoriseren of expliciet de muziekbackend wijzigen.",
+          "options_action": "Kies welke actie je wilt uitvoeren.",
           "music_backend": "Gekozen playback-backend.",
-          "music_assistant_player": "Geconfigureerde Music Assistant doelplayer."
+          "music_assistant_player": "Geconfigureerde Music Assistant doelplayer.",
+          "voice_profile": "Kies de server-side DJConnect radiostijl. De gekozen Home Assistant TTS stem blijft bepalen hoe de audio klinkt; mood bepaalt de energie."
         }
       },
       "music_backend": {
@@ -407,7 +414,8 @@
       "music_assistant_player_not_found": "De gekozen Music Assistant player bestaat niet meer.",
       "music_assistant_player_not_music_assistant": "De gekozen media_player lijkt geen Music Assistant player te zijn.",
       "spotify_oauth_required": "Spotify OAuth is vereist voordat Spotify Direct actief kan worden.",
-      "backend_switch_failed": "DJConnect kon de muziekbackend niet wijzigen. Controleer de gekozen backend en probeer opnieuw."
+      "backend_switch_failed": "DJConnect kon de muziekbackend niet wijzigen. Controleer de gekozen backend en probeer opnieuw.",
+      "invalid_voice_profile": "Kies een ondersteund DJ stemprofiel."
     }
   },
   "entity": {

@@ -90,7 +90,7 @@ Licentie/commercieel:
 HA integration:
 - domain: `djconnect`
 - HACS custom integration.
-- Actuele integratieversie: `3.2.13`.
+- Actuele integratieversie: `3.2.14`.
 - Config flow moet blijven laden.
 - Centrale DJConnect API calls vanuit HACS gebruiken per-install `djci_` tokens, nooit een globale relay/operator secret. Voor Apple push clients (`ios`, `macos`, `watchos`) mag HACS een short-lived `bootstrap_proof` uit push registration/pairing/status gebruiken om via `/v1/install/token` een `djci_` token te minten; zonder proof blijft Apple push disabled/best-effort. ESP32, Raspberry Pi en Assist Conversation Agent-only entries hebben deze proof niet nodig omdat zij geen APNs push gebruiken.
 - Config flow blokkeert niet meer op een officiële Home Assistant Spotify `media_player` entity; DJConnect gebruikt eigen Spotify OAuth en de Spotify Web API voor backend playback.
@@ -214,14 +214,14 @@ README/release:
   - Houd `pcvantol/djconnect/PRODUCT_ROADMAP.md` actueel als productideeën, productie must-haves, premium feature kandidaten of shipped roadmap items wijzigen, ook als de wijziging vanuit een andere DJConnect repo komt.
   - Houd `TECHNICAL_DESIGN_DECISIONS.md` actueel als code-level design patterns, coding conventions, frameworks, libraries, third-party dependencies, versions, licenses of source URLs wijzigen.
   - Houd `info.md` en HACS-facing tekst actueel voor de gebruiker.
-  - Controleer en actualiseer alle Nederlandse en Engelse vertalingen voor gewijzigde config-flow, options-flow, repair-flow, entity- en service-teksten.
+  - Controleer en actualiseer alle ondersteunde vertalingen (`en`, `nl`, `de`, `fr`, `es`) voor gewijzigde config-flow, options-flow, repair-flow, entity- en service-teksten.
   - Controleer bij elke code- of contractwijziging expliciet of de testdekking uitgebreid moet worden; voeg tests toe voor nieuwe gedragspaden, regressierisico's, vertalingen en edge cases.
   - Controleer `custom_components/djconnect/brand/icon.png`, `icon@2x.png` en `logo.png`.
   - Controleer dat `LICENSE` deze repo dekt en dat gerelateerde DJConnect repos hun MIT license metadata actueel houden.
   - Controleer vóór build/test/release of third-party libraries, frameworks en build tools updates hebben; voer veilige upgrades uit als reviewbare wijzigingen en werk lockfiles/manifests, `THIRD_PARTY_NOTICES.md` en `TECHNICAL_DESIGN_DECISIONS.md` bij. Als dependency/framework/tool-versies zijn geüpgraded, is actualisatie van `THIRD_PARTY_NOTICES.md` en dependency/design documentatie verplicht. Als een upgrade bewust wordt overgeslagen, noteer waarom in `HANDOFF.md`.
   - Controleer dat `THIRD_PARTY_NOTICES.md` actueel is voor manifest dependencies/requirements.
   - Controleer README/config-flow/options-flow/diagnostics legal notices.
-  - Controleer config/options-flow base/EN/NL translation keysets en stale `data_description` keys.
+  - Controleer config/options-flow base/EN/NL/DE/FR/ES translation keysets en stale `data_description` keys.
   - Controleer diagnostics/log redaction voor token/password/secret/proof/authorization/prompt/history/memory/raw_audio aliases.
   - Draai `python3 -m unittest tests.test_ask_dj_e2e_contract`.
   - Draai `python3 -m unittest discover -s tests`.
@@ -230,7 +230,7 @@ README/release:
   - `./release.sh X.Y.Z` moet de versie automatisch bijwerken in `manifest.json`, `const.py`, `README.md`, `CHANGELOG.md`, `AGENTS.md` en relevante voorbeeldmetadata voordat commit/tag gebeurt.
   - Controleer vóór release handmatig of alle documentatiebestanden (`README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `API_CONTRACT.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md`, `examples/*`) inhoudelijk kloppen; niet alleen versienummers.
   - Controleer vóór release handmatig dat `examples/djconnect.postman_collection.json` de actuele API contracten en testvoorbeelden bevat en geldige JSON is.
-  - Controleer vóór release handmatig dat alle Nederlandse en Engelse vertalingen compleet en passend zijn.
+  - Controleer vóór release handmatig dat alle ondersteunde vertalingen (`en`, `nl`, `de`, `fr`, `es`) compleet en passend zijn.
   - Controleer vóór release handmatig of de testdekking past bij de wijziging; documentatie-only changes mogen zonder nieuwe tests, maar code-/contract-/UI-string changes moeten expliciet bestaande of nieuwe tests dekken.
   - Dry-run kan via `./release.sh X.Y.Z --dry-run`.
   - `git add .`

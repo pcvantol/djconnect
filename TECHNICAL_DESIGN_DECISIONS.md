@@ -747,7 +747,8 @@ Observed conventions:
 - Entity unique IDs are derived through `entry_unique_id(...)` so multiple
   DJConnect entries do not collide.
 - User-facing strings live in Home Assistant translation files:
-  `strings.json`, `translations/en.json`, `translations/nl.json` and
+  `strings.json`, `translations/en.json`, `translations/nl.json`,
+  `translations/de.json`, `translations/fr.json`, `translations/es.json` and
   `services.yaml`.
 - Broad `except Exception` blocks are used only around optional Home Assistant
   APIs, third-party runtime helpers or best-effort cleanup, usually with debug
@@ -780,14 +781,21 @@ Why:
 
 Pattern:
 
-- English and Dutch translations are maintained in Home Assistant translation
-  JSON files.
+- English, Dutch, German, French and Spanish translations are maintained in
+  Home Assistant translation JSON files.
 - Config-flow, options-flow, repair and entity labels should not rely on raw
   key names in the UI.
+- Protocol values, JSON keys, endpoint paths, `client_type` values, tokens,
+  entity ids, service ids and machine-readable error codes stay literal and are
+  not localized.
+- Generic help and onboarding examples use placeholders such as `[artist]`,
+  `[song]`, `[artiest]`, `[nummer]`, `[playlist]` and `[genre]` instead of real
+  artist or song names.
 
 Why:
 
-- DJConnect is used in both Dutch and English Home Assistant environments.
+- DJConnect is used across multiple Home Assistant UI languages, while clients
+  and firmware depend on stable machine-readable contracts.
 - Translation coverage is tested.
 
 ### Service Schema

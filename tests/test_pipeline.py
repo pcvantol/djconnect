@@ -379,6 +379,91 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertNotIn("{", prompt)
         self.assertNotIn("}", prompt)
 
+    def test_generate_dj_response_prompt_combines_voice_profile_and_mood(self) -> None:
+        calls = []
+        debug = {}
+
+        class Services:
+            async def async_call(self, domain, service, data, **kwargs):
+                calls.append(data)
+                return {
+                    "response": {
+                        "speech": {
+                            "plain": {
+                                "speech": (
+                                    "We gaan de nacht in met Teardrop van Massive Attack."
+                                )
+                            }
+                        }
+                    }
+                }
+
+        hass = types.SimpleNamespace(services=Services())
+        text = asyncio.run(
+            self.pipeline.generate_dj_response_with_assist(
+                hass,
+                media={
+                    "type": "track",
+                    "artist": "Massive Attack",
+                    "title": "Teardrop",
+                    "mood": 15,
+                    "mood_zone": "chill",
+                    "mood_zone_prompt": "rustig en mellow",
+                },
+                fallback_text="Massive Attack staat klaar.",
+                conf={
+                    "tts_language": "nl-NL",
+                    "voice_profile": "late_night",
+                },
+                debug=debug,
+            )
+        )
+
+        self.assertEqual(text, "We gaan de nacht in met Teardrop van Massive Attack.")
+        prompt = calls[0]["text"]
+        self.assertIn("Voice profile: klink als late-night radio", prompt)
+        self.assertIn("Pas de DJ-aankondiging automatisch aan op mood=15", prompt)
+        self.assertEqual(debug["voice_profile"], "late_night")
+        self.assertTrue(debug["voice_profile_style_applied"])
+        self.assertTrue(debug["mood_style_applied"])
+
+    def test_generate_dj_response_uses_client_language_before_tts_language(self) -> None:
+        calls = []
+
+        class Services:
+            async def async_call(self, domain, service, data, **kwargs):
+                calls.append(data)
+                return {
+                    "response": {
+                        "speech": {
+                            "plain": {"speech": "Teardrop by Massive Attack is ready."}
+                        }
+                    }
+                }
+
+        hass = types.SimpleNamespace(services=Services())
+        text = asyncio.run(
+            self.pipeline.generate_dj_response_with_assist(
+                hass,
+                media={
+                    "type": "track",
+                    "artist": "Massive Attack",
+                    "title": "Teardrop",
+                    "language": "en-US",
+                },
+                fallback_text="Massive Attack staat klaar.",
+                conf={
+                    "tts_language": "nl-NL",
+                    "voice_profile": "classic_radio",
+                },
+            )
+        )
+
+        self.assertEqual(text, "Teardrop by Massive Attack is ready.")
+        self.assertEqual(calls[0]["language"], "en-US")
+        self.assertIn("Voice profile: sound like a recognizable radio host", calls[0]["text"])
+        self.assertNotIn("Negeer alle eventueel hierboven", calls[0]["text"])
+
     def test_generate_dj_response_orders_answer_before_fact(self) -> None:
         class Services:
             async def async_call(self, domain, service, data, **kwargs):

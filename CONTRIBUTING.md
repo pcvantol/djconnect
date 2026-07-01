@@ -47,13 +47,58 @@ python3 -m unittest tests.test_config_flow_helpers tests.test_translations
 - Preserve the architecture split: Home Assistant owns OAuth, backend playback, Assist/TTS/STT orchestration and OTA; clients and firmware should not receive Spotify credentials.
 - Keep active voice routes on Home Assistant Assist/TTS. Do not add direct external AI/STT/TTS APIs to active runtime paths.
 - Redact secrets in diagnostics and avoid logging full token/password payloads.
-- Update Dutch and English translations when changing config-flow, options-flow, repairs, entity or service text.
+- Update every supported localization when changing config-flow, options-flow, repairs, entity, service or other user-facing text.
 - Update docs and examples when behavior, user-facing setup, API contracts or
   release workflow changes. For Ask DJ endpoint changes, also update
   `README.md`, `HANDOFF.md`, `SYNC_PROMPTS.md`, `VOICE_INTENT_DATA.md` and
   `examples/djconnect.postman_collection.json` when the request/response shape
   changes.
 - Add or update tests for code, contract and UI-string changes.
+
+## Localization Policy
+
+DJConnect supports these Home Assistant UI languages in this repository: `en`,
+`nl`, `de`, `fr` and `es`.
+
+Localized Home Assistant strings live in:
+
+- `custom_components/djconnect/strings.json`: base integration strings and the
+  canonical key structure for config flows, options flows, entities, issues and
+  repairs.
+- `custom_components/djconnect/translations/en.json`,
+  `custom_components/djconnect/translations/nl.json`,
+  `custom_components/djconnect/translations/de.json`,
+  `custom_components/djconnect/translations/fr.json` and
+  `custom_components/djconnect/translations/es.json`: translated copies of the
+  same key structure.
+- `custom_components/djconnect/services.yaml`: Home Assistant service/action
+  names, descriptions, fields and examples.
+- Runtime text that is returned outside Home Assistant's localization renderer,
+  such as OAuth callback pages and Ask DJ help text, must use centralized helper
+  mappings with the same five language codes.
+
+All new user-facing strings must be added for `en`, `nl`, `de`, `fr` and `es`
+in the same change. Prefer centralized string keys, placeholders/format strings
+and shared error mappings over repeating near-identical prose in code. Run
+`python3 -m unittest tests.test_translations` or `pytest tests/test_translations.py`
+after touching localization files; missing keys in any supported translation
+file must fail tests and CI.
+
+Do not localize machine-readable values. Keep protocol values, JSON keys,
+endpoint paths, `client_type` values, tokens, entity ids, service ids and
+machine-readable error codes stable and literal. Examples include
+`/api/djconnect/command`, `client_type`, `esp32`, `ios`, `macos`, `watchos`,
+`raspberry_pi`, `windows`, `djci_`, `sensor.djconnect_*`,
+`djconnect.ask_dj`, `not_configured` and `version_mismatch`.
+
+Generic help, onboarding and examples must not use real artist, song, album or
+playlist names. Use placeholders such as `[artist]`, `[song]`, `[artiest]`,
+`[nummer]`, `[playlist]` and `[genre]`.
+
+The Spotify trademark/non-affiliation disclaimer must remain present in every
+supported language wherever DJConnect describes Spotify-backed setup or backend
+selection. Preserve the legal meaning: Spotify is a trademark of Spotify AB, and
+DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB.
 
 ## AI-Assisted Development
 

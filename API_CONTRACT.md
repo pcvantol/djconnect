@@ -897,6 +897,13 @@ in `pcvantol/djconnect-api/OPERATOR_RUNBOOK.md`; the current API runtime uses
 one active encryption key, so zero-downtime rotation requires temporary
 dual-key/backfill tooling before replacing the secret.
 
+Central API error responses keep the language-neutral `error` code stable.
+Clients may send `Accept-Language` or `lang`; the API may include an optional
+localized `message` in `en`, `nl`, `de`, `fr` or `es`. `Accept-Language`
+quality values are honored across supported languages. Unsupported locales fall
+back to the best supported language in the header, or English when none is
+present. Clients must make decisions from `error`, not localized message text.
+
 Push payloads are deliberately small and generic. They must not contain secrets,
 Spotify tokens, Home Assistant tokens, raw prompts, raw LLM context, full memory,
 full history or long/raw assistant responses. Default pushable events are only:
@@ -917,7 +924,10 @@ suppresses Ask DJ pushes back to that active client. HA rate-limits Ask DJ push
 events per HA user and device/client to at most one push per 30 seconds and five
 pushes per ten minutes. HA sends only the central API event payload below to
 `POST /v1/push/event`; the central API is responsible for APNs payload
-construction.
+construction. APNs alert text is selected from the registered client locale when
+available. Supported central relay languages are `en`, `nl`, `de`, `fr` and
+`es`; unsupported locales fall back to English. APNs payload keys, event values
+and `open_target` values are protocol fields and are never localized.
 
 Central API event payload shape for `ask_dj_response`:
 

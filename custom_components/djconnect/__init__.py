@@ -146,6 +146,7 @@ REAL_DJCONNECT_DEVICE_ID_PATTERN = re.compile(
     r"|djconnect-(?:ios|macos|watchos|raspberry-pi|windows)-[A-Za-z0-9]{12}"
 )
 CONF_LAST_DEVICE_STATUS = "last_device_status"
+APP_PAIRING_PENDING_KEY = "config_flow_app_pairing_pending"
 
 
 def _is_empty_status_value(value: Any) -> bool:
@@ -1914,6 +1915,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     platforms = _platforms_for_runtime(runtime) if runtime is not None else list(PLATFORMS)
     unloaded = await hass.config_entries.async_unload_platforms(entry, platforms)
     if unloaded:
+        _clear_pending_app_pairings_for_entry(hass, entry, runtime)
         hass.data[DOMAIN].pop(entry.entry_id, None)
         runtime = hass.data[DOMAIN].get("runtime")
         if runtime and runtime.entry.entry_id == entry.entry_id:
@@ -1921,6 +1923,55 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if not _has_runtime_entries(hass):
             await _async_clear_all_server_state(hass)
     return unloaded
+
+
+def _clear_pending_app_pairings_for_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    runtime: Any | None,
+) -> None:
+    """Remove pending app-pairing contexts tied to an unloaded entry."""
+    domain_data = hass.data.setdefault(DOMAIN, {})
+    pending = domain_data.get(APP_PAIRING_PENDING_KEY)
+    if not isinstance(pending, dict):
+        return
+    data = getattr(entry, "data", {}) or {}
+    status = getattr(runtime, "device_status", {}) or {}
+    device_ids = {
+        str(value).strip()
+        for value in (
+            data.get(CONF_DEVICE_ID),
+            status.get(CONF_DEVICE_ID),
+            getattr(runtime, "pairing_device_id", None),
+        )
+        if str(value or "").strip()
+    }
+    tokens = {
+        str(value).strip()
+        for value in (
+            data.get(CONF_DEVICE_TOKEN),
+            getattr(runtime, "device_token", None),
+        )
+        if str(value or "").strip()
+    }
+    for pair_code, context in list(pending.items()):
+        if not isinstance(context, dict):
+            continue
+        received = context.get("pairing_received")
+        received = received if isinstance(received, dict) else {}
+        context_device_id = str(
+            received.get(CONF_DEVICE_ID) or context.get(CONF_DEVICE_ID) or ""
+        ).strip()
+        context_token = str(
+            received.get(CONF_DEVICE_TOKEN) or context.get(CONF_DEVICE_TOKEN) or ""
+        ).strip()
+        if (
+            context_device_id
+            and context_device_id in device_ids
+            or context_token
+            and context_token in tokens
+        ):
+            pending.pop(pair_code, None)
 
 
 def _has_runtime_entries(hass: HomeAssistant) -> bool:

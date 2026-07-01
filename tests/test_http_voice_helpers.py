@@ -1548,6 +1548,141 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertEqual(response["payload"]["error"], "invalid_pair_code")
         self.assertIn("does not match", response["payload"]["message"])
 
+    def test_pair_view_accepts_open_config_flow_app_pairing_without_runtime(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+
+        pending = {
+            "604128": {
+                const.CONF_PAIR_CODE: "604128",
+                const.CONF_CLIENT_TYPE: const.CLIENT_TYPE_MACOS,
+                const.CONF_DEVICE_TOKEN: "pending-device-token",
+                const.CONF_ASSIST_PIPELINE_ID: "assist-pipeline",
+                "flow_id": "flow-1",
+                "ha_local_url": "https://victory-curvy-refold.ngrok-free.dev",
+                "pairing_received": {},
+            }
+        }
+        hass = types.SimpleNamespace(
+            data={
+                const.DOMAIN: {
+                    "config_flow_app_pairing_pending": pending,
+                }
+            },
+            config=types.SimpleNamespace(
+                internal_url="https://victory-curvy-refold.ngrok-free.dev",
+            ),
+        )
+
+        class Request:
+            app = {"hass": hass}
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-macos-68B74487726D",
+                    "device_name": "Peter Mac",
+                    "client_type": "macos",
+                    "pair_code": "604128",
+                }
+
+        response = asyncio.run(self.http.DJConnectPairView(None).post(Request()))
+
+        self.assertEqual(response["status_code"], 200)
+        self.assertTrue(response["payload"]["success"])
+        self.assertTrue(response["payload"]["setup_pending"])
+        self.assertEqual(response["payload"]["device_token"], "pending-device-token")
+        self.assertEqual(response["payload"]["client_type"], "macos")
+        self.assertEqual(
+            pending["604128"]["pairing_received"][const.CONF_DEVICE_ID],
+            "djconnect-macos-68B74487726D",
+        )
+        self.assertEqual(
+            pending["604128"]["pairing_received"][const.CONF_DEVICE_NAME],
+            "Peter Mac",
+        )
+
+    def test_pair_view_rejects_pending_app_client_type_mismatch_distinctly(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+
+        pending = {
+            "604128": {
+                const.CONF_PAIR_CODE: "604128",
+                const.CONF_CLIENT_TYPE: const.CLIENT_TYPE_MACOS,
+                const.CONF_DEVICE_TOKEN: "pending-device-token",
+                const.CONF_ASSIST_PIPELINE_ID: "assist-pipeline",
+                "flow_id": "flow-1",
+                "ha_local_url": "https://victory-curvy-refold.ngrok-free.dev",
+                "pairing_received": {},
+            }
+        }
+        hass = types.SimpleNamespace(
+            data={const.DOMAIN: {"config_flow_app_pairing_pending": pending}},
+            config=types.SimpleNamespace(
+                internal_url="https://victory-curvy-refold.ngrok-free.dev",
+            ),
+        )
+
+        class Request:
+            app = {"hass": hass}
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-ios-68B74487726D",
+                    "device_name": "Peter iPhone",
+                    "client_type": "ios",
+                    "pair_code": "604128",
+                }
+
+        response = asyncio.run(self.http.DJConnectPairView(None).post(Request()))
+
+        self.assertEqual(response["status_code"], 400)
+        self.assertEqual(response["payload"]["error"], "client_type_mismatch")
+        self.assertEqual(response["payload"]["expected_client_type"], "macos")
+        self.assertEqual(response["payload"]["received_client_type"], "ios")
+        self.assertNotEqual(response["payload"]["error"], "invalid_pair_code")
+        self.assertFalse(pending["604128"]["pairing_received"])
+
+    def test_pair_view_ignores_stale_pending_app_pairing_without_flow_id(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+
+        pending = {
+            "604128": {
+                const.CONF_PAIR_CODE: "604128",
+                const.CONF_CLIENT_TYPE: const.CLIENT_TYPE_MACOS,
+                const.CONF_DEVICE_TOKEN: "old-device-token",
+                const.CONF_ASSIST_PIPELINE_ID: "assist-pipeline",
+                "pairing_received": {
+                    const.CONF_DEVICE_ID: "djconnect-macos-68B74487726D",
+                    const.CONF_CLIENT_TYPE: const.CLIENT_TYPE_MACOS,
+                },
+            }
+        }
+        hass = types.SimpleNamespace(
+            data={const.DOMAIN: {"config_flow_app_pairing_pending": pending}},
+            config=types.SimpleNamespace(
+                internal_url="https://victory-curvy-refold.ngrok-free.dev",
+            ),
+        )
+
+        class Request:
+            app = {"hass": hass}
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-macos-68B74487726D",
+                    "device_name": "Peter Mac",
+                    "client_type": "macos",
+                    "pair_code": "604128",
+                }
+
+        response = asyncio.run(self.http.DJConnectPairView(None).post(Request()))
+
+        self.assertEqual(response["status_code"], 503)
+        self.assertEqual(response["payload"]["error"], "not_configured")
+        self.assertNotIn("604128", pending)
+
+    def test_track_insight_view_uses_djconnect_bearer_auth_not_ha_auth(self) -> None:
+        self.assertFalse(self.http.DJConnectTrackInsightView.requires_auth)
+
     def test_pair_view_does_not_include_spotify_oauth_secrets(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
 
@@ -1616,6 +1751,42 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertIn("DJConnect pairing response status=200", logs)
         self.assertIn("'device_token': '<redacted>'", logs)
         self.assertNotIn("device-token", logs)
+
+    def test_pair_view_rejects_runtime_client_type_mismatch_distinctly(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+
+        class Runtime:
+            config = {
+                const.CONF_PAIR_CODE: "604128",
+                const.CONF_CLIENT_TYPE: const.CLIENT_TYPE_MACOS,
+            }
+            device_status = {}
+
+            def update(self, **kwargs):
+                self.last_update = kwargs
+
+        runtime = Runtime()
+
+        class Request:
+            app = {"hass": types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})}
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-ios-68B74487726D",
+                    "client_type": "ios",
+                    "pair_code": "604128",
+                }
+
+        response = asyncio.run(self.http.DJConnectPairView(None).post(Request()))
+
+        self.assertEqual(response["status_code"], 400)
+        self.assertEqual(response["payload"]["error"], "client_type_mismatch")
+        self.assertEqual(response["payload"]["expected_client_type"], "macos")
+        self.assertEqual(response["payload"]["received_client_type"], "ios")
+        self.assertEqual(
+            runtime.last_update["last_error"],
+            self.http.ERROR_MESSAGES["client_type_mismatch"],
+        )
 
     def test_pair_view_omits_device_language_for_app_clients(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
@@ -4791,16 +4962,31 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         self.assertEqual(response.status, 200)
         self.assertEqual(response.content_type, "text/html")
-        self.assertIn("DJConnect is opnieuw geautoriseerd", response.text)
-        self.assertIn("Spotify is opnieuw gekoppeld met DJConnect", response.text)
+        self.assertIn("DJConnect is reauthorized", response.text)
+        self.assertIn("Spotify is linked with DJConnect again", response.text)
         self.assertNotIn("refresh token", response.text)
         self.assertNotIn("Open DJConnect in Home Assistant", response.text)
         self.assertNotIn("/config/integrations/integration/djconnect", response.text)
-        self.assertIn("Sluit venster", response.text)
+        self.assertIn("Close window", response.text)
         self.assertIn("data:image/png;base64,", response.text)
         self.assertIn("DJConnect app icon", response.text)
         self.assertEqual(entry.data[const.CONF_SPOTIFY_REFRESH_TOKEN], "new-refresh-token")
         self.assertEqual(config_entries.reloaded, "entry-1")
+
+    def test_spotify_oauth_html_response_uses_ha_language(self) -> None:
+        hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl"))
+        response = asyncio.run(
+            self.http._spotify_oauth_html_response(
+                hass,
+                title=self.http._oauth_copy(hass, "reauth_title"),
+                message=self.http._oauth_copy(hass, "reauth_message"),
+            )
+        )
+
+        self.assertIn('<html lang="nl">', response.text)
+        self.assertIn("DJConnect is opnieuw geautoriseerd", response.text)
+        self.assertIn("Spotify is opnieuw gekoppeld met DJConnect", response.text)
+        self.assertIn("Sluit venster", response.text)
 
     def test_spotify_oauth_logo_is_loaded_in_executor(self) -> None:
         calls = []
