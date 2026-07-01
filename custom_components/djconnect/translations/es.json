@@ -1,0 +1,636 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configurar DJConnect",
+        "description": "Empieza por la ruta que corresponde a tu configuración. Usa el agente Assist sin dispositivo físico, elige dispositivo local para ESP32/Raspberry Pi en tu red, o elige app para iPhone/iPad, Apple Watch, macOS y Windows.",
+        "data": {
+          "setup_method": "Método de configuración"
+        }
+      },
+      "pair": {
+        "title": "Emparejar dispositivo DJConnect",
+        "description": "Emparejar un cliente DJConnect con Home Assistant.",
+        "data": {
+          "pair_code": "Código de emparejamiento",
+          "device_name": "Nombre del dispositivo",
+          "client_type": "Tipo de cliente",
+          "local_url": "Dirección del cliente",
+          "discovered_client": "Cliente DJConnect descubierto",
+          "app_pair_code": "Código de emparejamiento de la app",
+          "app_ha_local_url": "URL de Home Assistant",
+          "app_iphone_pairing_uri": "iPhone/iPad QR/deep-link payload",
+          "app_watch_pairing_uri": "Apple Watch QR/deep-link payload"
+        },
+        "data_description": {
+          "pair_code": "El código de emparejamiento de 6 dígitos que aparece en el dispositivo.",
+          "device_name": "Nombre descriptivo para este mando DJConnect.",
+          "client_type": "Elige ESP32 o Raspberry Pi.",
+          "local_url": "Fallback de la API local del dispositivo; déjalo vacío si mDNS funciona.",
+          "discovered_client": "Elige un cliente DJConnect detectado automáticamente para rellenar los datos de emparejamiento, o usa la entrada manual.",
+          "app_pair_code": "Usa este código en macOS/Windows, o deja que iPhone/iPad/Apple Watch lo reciba desde el payload QR/deep-link.",
+          "app_ha_local_url": "URL local de Home Assistant que la app usa durante el emparejamiento.",
+          "app_iphone_pairing_uri": "Payload QR/deep-link para la app de iPhone/iPad.",
+          "app_watch_pairing_uri": "Payload QR/deep-link escaneado en iPhone/iPad para emparejar el Apple Watch vinculado."
+        }
+      },
+      "pair_type": {
+        "title": "Elegir tipo de cliente",
+        "description": "Primero elige qué tipo de cliente DJConnect quieres emparejar.",
+        "data": {
+          "client_type": "Tipo de cliente"
+        },
+        "data_description": {
+          "client_type": "DJConnect usa esto para mostrar solo los campos de emparejamiento relevantes."
+        }
+      },
+      "pair_local_device_type": {
+        "title": "Elegir dispositivo local",
+        "description": "Elige qué dispositivo DJConnect local quieres emparejar.",
+        "data": {
+          "client_type": "Tipo de cliente"
+        },
+        "data_description": {
+          "client_type": "Elige ESP32 o Raspberry Pi."
+        }
+      },
+      "pair_local_device_details": {
+        "title": "Emparejar dispositivo local",
+        "description": "Introduce los detalles de emparejamiento para este dispositivo local.",
+        "data": {
+          "pair_code": "Código de emparejamiento",
+          "device_name": "Nombre del dispositivo",
+          "local_url": "Dirección del cliente",
+          "discovered_client": "Cliente DJConnect descubierto"
+        },
+        "data_description": {
+          "pair_code": "El código de emparejamiento de 6 dígitos mostrado en el dispositivo DJConnect.",
+          "device_name": "Nombre descriptivo para este dispositivo local.",
+          "local_url": "Solo para fallback de la API local del dispositivo; déjalo vacío si mDNS funciona.",
+          "discovered_client": "Elige un cliente ESP32/Raspberry Pi detectado automáticamente para rellenar los datos de emparejamiento, o usa la entrada manual."
+        }
+      },
+      "pair_local_device": {
+        "title": "Emparejar dispositivo local",
+        "description": "Usa esta ruta para clientes ESP32 y Raspberry Pi en tu red local. Elige un dispositivo detectado o introduce el código de emparejamiento mostrado en la pantalla. La dirección del cliente solo es necesaria cuando mDNS no funciona.",
+        "data": {
+          "pair_code": "Código de emparejamiento",
+          "device_name": "Nombre del dispositivo",
+          "client_type": "Tipo de cliente",
+          "local_url": "Dirección del cliente",
+          "discovered_client": "Cliente DJConnect descubierto"
+        },
+        "data_description": {
+          "pair_code": "El código de emparejamiento de 6 dígitos mostrado en el dispositivo DJConnect.",
+          "device_name": "Nombre descriptivo para este dispositivo local.",
+          "client_type": "Elige ESP32 o Raspberry Pi.",
+          "local_url": "Solo para fallback de la API local del dispositivo; déjalo vacío si mDNS funciona.",
+          "discovered_client": "Elige un cliente ESP32/Raspberry Pi detectado automáticamente para rellenar los datos de emparejamiento, o usa la entrada manual."
+        }
+      },
+      "pair_app": {
+        "title": "Emparejar app",
+        "description": "Usa esta ruta para iPhone/iPad, Apple Watch, macOS y Windows.\n\n**iPhone/iPad**\n\n![iPhone/iPad QR code]({iphone_qr_image})\n\n**Apple Watch**\n\n![Apple Watch QR code]({watch_qr_image})\n\nmacOS y Windows usan la URL de Home Assistant y el código de emparejamiento de abajo.",
+        "data": {
+          "pair_code": "Código de emparejamiento",
+          "device_name": "Nombre del dispositivo",
+          "client_type": "Tipo de cliente",
+          "app_pair_code": "Código de emparejamiento de la app",
+          "app_ha_local_url": "URL de Home Assistant",
+          "app_iphone_pairing_uri": "iPhone/iPad QR/deep-link payload",
+          "app_watch_pairing_uri": "Apple Watch QR/deep-link payload"
+        },
+        "data_description": {
+          "device_name": "Nombre descriptivo para esta instalación de la app.",
+          "client_type": "Elige iPhone/iPad, Apple Watch, macOS o Windows.",
+          "app_pair_code": "Usa este código en macOS/Windows, o deja que iPhone/iPad/Apple Watch lo reciba desde el payload QR/deep-link.",
+          "app_ha_local_url": "URL local de Home Assistant que la app usa durante el emparejamiento.",
+          "app_iphone_pairing_uri": "Payload QR/deep-link para la app de iPhone/iPad.",
+          "app_watch_pairing_uri": "Payload QR/deep-link escaneado en iPhone/iPad para emparejar el Apple Watch vinculado."
+        }
+      },
+      "pair_app_type": {
+        "title": "Elegir app",
+        "description": "Elige qué tipo de app DJConnect quieres emparejar.",
+        "data": {
+          "client_type": "Tipo de cliente"
+        }
+      },
+      "pair_app_ios_details": {
+        "title": "Emparejar la app DJConnect iPhone/iPad",
+        "description": "Escanea este código QR con la app de iPhone/iPad.\n\n![iPhone/iPad QR code]({iphone_qr_image})",
+        "data": {
+          "app_pair_code": "Código de emparejamiento",
+          "app_ha_local_url": "URL de Home Assistant",
+          "device_name": "Nombre del dispositivo"
+        },
+        "data_description": {
+          "app_pair_code": "Usa este código si el código QR no está visible.",
+          "app_ha_local_url": "URL local de Home Assistant para emparejar la app.",
+          "device_name": "Nombre descriptivo para esta instalación de la app de iPhone/iPad."
+        }
+      },
+      "pair_app_watch_details": {
+        "title": "Emparejar la app DJConnect Apple Watch",
+        "description": "Escanea este código QR de Watch en iPhone/iPad para emparejar el Apple Watch vinculado.\n\n![Apple Watch QR code]({watch_qr_image})",
+        "data": {
+          "app_pair_code": "Código de emparejamiento",
+          "app_ha_local_url": "URL de Home Assistant",
+          "device_name": "Nombre del dispositivo"
+        },
+        "data_description": {
+          "app_pair_code": "Usa este código si el código QR no está visible.",
+          "app_ha_local_url": "URL local de Home Assistant para emparejar la app.",
+          "device_name": "Nombre descriptivo para esta instalación de la app de Apple Watch."
+        }
+      },
+      "pair_app_macos_details": {
+        "title": "Emparejar la app DJConnect macOS",
+        "description": "Usa esta URL de Home Assistant y este código de emparejamiento en la app de macOS.",
+        "data": {
+          "app_pair_code": "Código de emparejamiento",
+          "app_ha_local_url": "URL de Home Assistant",
+          "device_name": "Nombre del dispositivo"
+        },
+        "data_description": {
+          "app_pair_code": "Introduce este código de emparejamiento en la app de macOS.",
+          "app_ha_local_url": "URL local de Home Assistant que la app usa durante el emparejamiento.",
+          "device_name": "Nombre descriptivo para esta instalación de la app de macOS."
+        }
+      },
+      "pair_app_windows_details": {
+        "title": "Emparejar la app DJConnect Windows",
+        "description": "Usa esta URL de Home Assistant y este código de emparejamiento en la app de Windows.",
+        "data": {
+          "app_pair_code": "Código de emparejamiento",
+          "app_ha_local_url": "URL de Home Assistant",
+          "device_name": "Nombre del dispositivo"
+        },
+        "data_description": {
+          "app_pair_code": "Introduce este código de emparejamiento en la app de Windows.",
+          "app_ha_local_url": "URL local de Home Assistant que la app usa durante el emparejamiento.",
+          "device_name": "Nombre descriptivo para esta instalación de la app de Windows."
+        }
+      },
+      "ble_wifi": {
+        "title": "Configurar WiFi del ESP32 (por Bluetooth)",
+        "description": "Selecciona un dispositivo DJConnect en modo configuración para escribir WiFi por BLE, o continúa al emparejamiento si el WiFi ya se configuró mediante el portal cautivo.",
+        "data": {
+          "ble_address": "Dispositivo BLE DJConnect",
+          "wifi_ssid": "SSID WiFi",
+          "wifi_password": "Contraseña WiFi",
+          "ble_action": "Acción"
+        },
+        "data_description": {
+          "ble_address": "Dirección Bluetooth del dispositivo DJConnect en configuración.",
+          "wifi_ssid": "Nombre de la red WiFi que se guardará en el dispositivo DJConnect.",
+          "wifi_password": "Contraseña WiFi. Solo se envía a la característica BLE WiFi y no se registra.",
+          "ble_action": "Elige una acción: escribir WiFi por Bluetooth, volver a buscar dispositivos o continuar directamente al emparejamiento."
+        }
+      },
+      "spotify": {
+        "title": "Conectar Spotify",
+        "description": "Crea tu propia app de Spotify Developer en {developer_url} y registra exactamente esta URI de redirección: `{redirect_uri}`. Preferiblemente usa tu URL HTTPS de Home Assistant de Nabu Casa. DJConnect usa PKCE, así que no hace falta un Client Secret.",
+        "data": {
+          "spotify_client_id": "Spotify Client ID",
+          "ha_external_url": "URL externa de Home Assistant"
+        },
+        "data_description": {
+          "spotify_client_id": "Client ID de tu propia app de Spotify Developer.",
+          "ha_external_url": "URL externa de Home Assistant a la que Spotify vuelve después de la autorización."
+        }
+      },
+      "spotify_oauth": {
+        "title": "Autorizar DJConnect con Spotify",
+        "description": "Home Assistant abre Spotify en tu navegador. Después de aprobar el acceso, vuelve aquí para continuar la configuración."
+      },
+      "voice": {
+        "title": "Ajustes de voz y reproducción",
+        "data": {
+          "assist_pipeline_id": "Pipeline de Assist",
+          "client_type": "Tipo de cliente",
+          "local_url": "Dirección del cliente",
+          "firmware_channel": "Canal de firmware",
+          "options_action": "Acción",
+          "voice_profile": "Perfil de voz DJ"
+        },
+        "data_description": {
+          "assist_pipeline_id": "Pipeline Assist usado por los dispositivos DJConnect para reconocimiento de voz y audio de anuncios DJ.",
+          "client_type": "Tipo de cliente DJConnect: app, dispositivo local o agente Assist.",
+          "firmware_channel": "Elige stable para actualizaciones OTA normales o beta para probar firmware preliminar.",
+          "options_action": "Elige qué acción ejecutar.",
+          "voice_profile": "Elige el estilo de radio DJConnect del servidor. La voz TTS seleccionada en Home Assistant sigue determinando la voz de audio real; mood controla la energía."
+        }
+      },
+      "spotify_reauth": {
+        "title": "Reautorizar Spotify",
+        "description": "Home Assistant abre Spotify para volver a autorizar DJConnect. Después de aprobarlo, vuelve a Home Assistant."
+      },
+      "spotify_reauth_done": {
+        "title": "OAuth de Spotify correcto",
+        "description": "OAuth de Spotify para DJConnect correcto. Puedes cerrar esta ventana; Home Assistant ahora gestiona la reproducción de Spotify."
+      },
+      "repair_pairing": {
+        "title": "Volver a emparejar DJConnect",
+        "description": "Pon el dispositivo DJConnect en modo emparejamiento e introduce el nuevo código mostrado en su pantalla. Home Assistant creará un nuevo token de dispositivo.",
+        "data": {
+          "pair_code": "Nuevo código de emparejamiento",
+          "local_url": "Dirección del cliente"
+        },
+        "data_description": {
+          "pair_code": "El código de emparejamiento de 6 dígitos que aparece en el dispositivo.",
+          "local_url": "Solo para fallback de la API local del dispositivo ESP32/Raspberry Pi; déjalo vacío para reutilizar la URL guardada."
+        }
+      },
+      "central_api": {
+        "title": "Token de API de DJConnect",
+        "description": "Solo para soporte avanzado. DJConnect normalmente crea automáticamente el token por instalación internamente; el token es secreto y solo se usa para esta instalación de Home Assistant.",
+        "data": {
+          "api_base_url": "URL de API de DJConnect",
+          "ha_install_id": "ID de instalación de Home Assistant",
+          "djconnect_install_token": "Token de instalación de DJConnect",
+          "options_action": "Acción"
+        },
+        "data_description": {
+          "api_base_url": "URL base de la API central de DJConnect. Mantén el valor predeterminado salvo que soporte de DJConnect indique otra cosa.",
+          "ha_install_id": "ID estable para esta instalación de Home Assistant. Se genera localmente y no se puede editar aquí.",
+          "djconnect_install_token": "Token secreto por instalación. DJConnect normalmente lo rellena automáticamente; nunca pegues este token en issues ni logs.",
+          "options_action": "Guarda los ajustes de soporte o rota el token mediante la API central de DJConnect."
+        }
+      },
+      "backend": {
+        "title": "Backend de música",
+        "description": "Elige el backend que DJConnect usa para la reproducción. Spotify Direct usa DJConnect Spotify OAuth. Music Assistant usa tu configuración de Music Assistant en Home Assistant y no requiere Spotify Client ID en DJConnect.",
+        "data": {
+          "music_backend": "Backend de música"
+        },
+        "data_description": {
+          "music_backend": "Elige Spotify Direct o Music Assistant. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB."
+        }
+      },
+      "music_assistant": {
+        "title": "Reproductor de Music Assistant",
+        "description": "Elige el reproductor de Music Assistant que DJConnect debe controlar. Music Assistant debe estar instalado y configurado en Home Assistant.",
+        "data": {
+          "music_assistant_player": "Reproductor de Music Assistant"
+        },
+        "data_description": {
+          "music_assistant_player": "La entidad Home Assistant media_player expuesta por Music Assistant."
+        }
+      },
+      "init": {
+        "data": {
+          "music_backend": "Backend de música",
+          "music_assistant_player": "Reproductor de Music Assistant"
+        },
+        "data_description": {
+          "music_backend": "Backend de reproducción seleccionado.",
+          "music_assistant_player": "Reproductor de destino de Music Assistant configurado."
+        }
+      }
+    },
+    "error": {
+      "missing_pair_code": "Introduce el código de emparejamiento mostrado en la pantalla del dispositivo DJConnect.",
+      "invalid_pair_code": "Introduce un código de emparejamiento de 6 dígitos.",
+      "spotify_client_id_required": "Introduce el Client ID de tu app de Spotify Developer.",
+      "external_url_required": "Introduce tu URL externa de Home Assistant, por ejemplo tu URL de Nabu Casa.",
+      "external_url_https_required": "Usa una URL externa HTTPS. La URL recomendada es tu URL de Nabu Casa.",
+      "external_url_invalid": "Introduce una URL HTTPS completa, por ejemplo tu URL de Nabu Casa.",
+      "oauth_setup_failed": "No se pudo iniciar la autorización de Spotify. Revisa el Client ID y la URL externa e inténtalo de nuevo.",
+      "oauth_not_completed": "La autorización de Spotify aún no ha terminado. Aprueba el acceso en Spotify y vuelve a Home Assistant.",
+      "oauth_failed": "La autorización de Spotify falló. Inicia de nuevo el paso de Spotify y comprueba la URI de redirección en tu app de Spotify.",
+      "assist_pipeline_required": "Configura primero un pipeline Home Assistant Assist con STT y TTS. DJConnect usa ese pipeline para reconocimiento de voz y anuncios DJ.",
+      "ble_device_required": "Selecciona un dispositivo DJConnect BLE o introduce su dirección Bluetooth.",
+      "wifi_ssid_required": "Introduce el SSID WiFi que quieres configurar.",
+      "ble_wifi_failed": "La configuración WiFi por Bluetooth falló. Comprueba el dispositivo seleccionado, el SSID y la contraseña, e inténtalo de nuevo.",
+      "app_pairing_not_received": "DJConnect aún no ha recibido los datos de emparejamiento de la app. Introduce la URL de Home Assistant y el código de emparejamiento en la app, toca emparejar allí y continúa aquí.",
+      "pairing_info_unavailable": "Home Assistant puede ver este dispositivo DJConnect local por mDNS, pero no puede acceder a su endpoint pairing-info. Comprueba la dirección del cliente o introdúcela manualmente.",
+      "repair_pairing_failed": "El reemparejamiento falló. Comprueba que el dispositivo DJConnect sea accesible y muestre un código de emparejamiento.",
+      "central_api_url_invalid": "Introduce una URL HTTPS completa de la API DJConnect.",
+      "install_token_invalid": "Introduce un token de instalación de DJConnect que empiece por djci_.",
+      "central_api_rotate_failed": "DJConnect no pudo rotar el token de instalación. Comprueba el token actual e inténtalo de nuevo.",
+      "music_assistant_unavailable": "Music Assistant no está instalado o configurado en Home Assistant.",
+      "music_assistant_no_players": "No se encontraron reproductores de Music Assistant utilizables.",
+      "music_assistant_player_missing": "El reproductor de Music Assistant seleccionado ya no existe.",
+      "invalid_voice_profile": "Elige un perfil de voz DJ compatible."
+    },
+    "abort": {
+      "already_configured": "Este dispositivo DJConnect ya está configurado."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opciones de DJConnect",
+        "description": "Gestiona acciones de DJConnect como cambiar el backend de música, reautorizar Spotify o volver a emparejar. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB.",
+        "data": {
+          "assist_pipeline_id": "Pipeline de Assist",
+          "client_type": "Tipo de cliente",
+          "local_url": "Dirección del cliente",
+          "firmware_channel": "Canal de firmware",
+          "options_action": "Acción",
+          "music_backend": "Backend de música",
+          "music_assistant_player": "Reproductor de Music Assistant",
+          "voice_profile": "Perfil de voz DJ"
+        },
+        "data_description": {
+          "assist_pipeline_id": "Pipeline Assist usado por los dispositivos DJConnect para reconocimiento de voz y audio de anuncios DJ.",
+          "client_type": "Tipo de cliente DJConnect: app, dispositivo local o agente Assist.",
+          "local_url": "Dirección local configurada del cliente para ESP32/Raspberry Pi. Solo lectura; usa volver a emparejar para cambiar esta URL.",
+          "firmware_channel": "Elige stable para actualizaciones OTA normales o beta para probar firmware preliminar.",
+          "options_action": "Elige qué acción ejecutar.",
+          "music_backend": "Backend de reproducción seleccionado.",
+          "music_assistant_player": "Reproductor de destino de Music Assistant configurado.",
+          "voice_profile": "Elige el estilo de radio DJConnect del servidor. La voz TTS seleccionada en Home Assistant sigue determinando la voz de audio real; mood controla la energía."
+        }
+      },
+      "music_backend": {
+        "title": "Cambiar backend de música",
+        "description": "El backend actual se muestra abajo. Cambiarlo conserva el emparejamiento, los tokens de dispositivo, el historial de Ask DJ, Music DNA y los registros push. Es posible que las acciones de reproducción o recomendaciones antiguas de Ask DJ específicas del backend ya no se puedan ejecutar.",
+        "data": {
+          "music_backend": "Backend de música"
+        },
+        "data_description": {
+          "music_backend": "Elige Spotify Direct o Music Assistant. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB."
+        }
+      },
+      "music_assistant_player": {
+        "title": "Reproductor de Music Assistant",
+        "description": "Elige el reproductor de Music Assistant que DJConnect debe controlar. DJConnect no mostrará campos de Spotify Client ID ni OAuth al cambiar a Music Assistant.",
+        "data": {
+          "music_assistant_player": "Reproductor de Music Assistant"
+        },
+        "data_description": {
+          "music_assistant_player": "La entidad Home Assistant media_player expuesta por Music Assistant."
+        }
+      },
+      "repair_pairing": {
+        "title": "Volver a emparejar DJConnect",
+        "description": "Pon el dispositivo DJConnect en modo emparejamiento e introduce el nuevo código mostrado en su pantalla. Home Assistant creará un nuevo token de dispositivo.",
+        "data": {
+          "pair_code": "Nuevo código de emparejamiento",
+          "local_url": "Dirección del cliente"
+        },
+        "data_description": {
+          "pair_code": "El código de emparejamiento de 6 dígitos que aparece en el dispositivo.",
+          "local_url": "Solo para fallback de la API local del dispositivo ESP32/Raspberry Pi; déjalo vacío para reutilizar la URL guardada."
+        }
+      },
+      "central_api": {
+        "title": "Token de API de DJConnect",
+        "description": "Solo para soporte avanzado. DJConnect normalmente crea automáticamente el token por instalación internamente; el token es secreto y solo se usa para esta instalación de Home Assistant.",
+        "data": {
+          "api_base_url": "URL de API de DJConnect",
+          "ha_install_id": "ID de instalación de Home Assistant",
+          "djconnect_install_token": "Token de instalación de DJConnect",
+          "options_action": "Acción"
+        },
+        "data_description": {
+          "api_base_url": "URL base de la API central de DJConnect. Mantén el valor predeterminado salvo que soporte de DJConnect indique otra cosa.",
+          "ha_install_id": "ID estable para esta instalación de Home Assistant. Se genera localmente y no se puede editar aquí.",
+          "djconnect_install_token": "Token secreto por instalación. DJConnect normalmente lo rellena automáticamente; nunca pegues este token en issues ni logs.",
+          "options_action": "Guarda los ajustes de soporte o rota el token mediante la API central de DJConnect."
+        }
+      },
+      "spotify_reauth": {
+        "title": "Reautorizar Spotify",
+        "description": "Home Assistant abre Spotify para volver a autorizar DJConnect. Después de aprobarlo, vuelve a Home Assistant."
+      },
+      "spotify_reauth_done": {
+        "title": "OAuth de Spotify correcto",
+        "description": "OAuth de Spotify para DJConnect correcto. Puedes cerrar esta ventana; Home Assistant ahora gestiona la reproducción de Spotify."
+      }
+    },
+    "error": {
+      "repair_pairing_failed": "El reemparejamiento falló. Comprueba que el dispositivo DJConnect sea accesible y muestre un código de emparejamiento.",
+      "central_api_url_invalid": "Introduce una URL HTTPS completa de la API DJConnect.",
+      "install_token_invalid": "Introduce un token de instalación de DJConnect que empiece por djci_.",
+      "central_api_rotate_failed": "DJConnect no pudo rotar el token de instalación. Comprueba el token actual e inténtalo de nuevo.",
+      "music_assistant_not_configured": "Music Assistant no está instalado o configurado en Home Assistant.",
+      "music_assistant_unavailable": "Music Assistant no está instalado o configurado en Home Assistant.",
+      "music_assistant_no_players": "No se encontraron reproductores de Music Assistant utilizables.",
+      "music_assistant_player_invalid": "Elige una entidad Home Assistant media_player válida.",
+      "music_assistant_player_missing": "Elige un reproductor de Music Assistant.",
+      "music_assistant_player_not_found": "El reproductor de Music Assistant seleccionado ya no existe.",
+      "music_assistant_player_not_music_assistant": "La entidad media_player seleccionada no parece ser un reproductor de Music Assistant.",
+      "spotify_oauth_required": "Spotify OAuth es necesario antes de que Spotify Direct pueda activarse.",
+      "backend_switch_failed": "DJConnect no pudo cambiar el backend de música. Revisa el backend seleccionado e inténtalo de nuevo.",
+      "invalid_voice_profile": "Elige un perfil de voz DJ compatible."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "status": {
+        "name": "Estado"
+      },
+      "apns_registration": {
+        "name": "Registro APNs"
+      },
+      "last_command": {
+        "name": "Último comando"
+      },
+      "last_corrected_stt": {
+        "name": "Última STT corregida"
+      },
+      "battery": {
+        "name": "Batería"
+      },
+      "wifi_rssi": {
+        "name": "Wi-Fi RSSI"
+      },
+      "firmware_version": {
+        "name": "Versión de la app"
+      },
+      "last_track": {
+        "name": "Última canción"
+      },
+      "spotify_status": {
+        "name": "Estado de Spotify"
+      },
+      "ha_pairing_status": {
+        "name": "Estado de emparejamiento HA"
+      },
+      "sound_output": {
+        "name": "Salida de audio"
+      },
+      "playback_available": {
+        "name": "Reproducción disponible"
+      },
+      "queue": {
+        "name": "Cola"
+      },
+      "playlists": {
+        "name": "Playlists"
+      },
+      "outputs": {
+        "name": "Salidas"
+      },
+      "screen_state": {
+        "name": "Estado de pantalla"
+      },
+      "led_state": {
+        "name": "Estado LED"
+      }
+    },
+    "button": {
+      "test_dj_response": {
+        "name": "Probar anuncio DJ"
+      },
+      "next_track": {
+        "name": "Siguiente canción"
+      },
+      "previous_track": {
+        "name": "Canción anterior"
+      },
+      "play_pause": {
+        "name": "Reproducir/pausar"
+      },
+      "refresh_device_info": {
+        "name": "Actualizar info del dispositivo"
+      },
+      "refresh_up_next": {
+        "name": "Actualizar siguientes"
+      },
+      "test_push_message": {
+        "name": "Probar mensaje push"
+      },
+      "reboot_device": {
+        "name": "Reiniciar dispositivo"
+      },
+      "restart_device": {
+        "name": "Reiniciar Raspberry Pi"
+      },
+      "shutdown_device": {
+        "name": "Apagar Raspberry Pi"
+      }
+    },
+    "update": {
+      "firmware": {
+        "name": "Firmware"
+      }
+    },
+    "number": {
+      "volume": {
+        "name": "Volumen"
+      },
+      "brightness": {
+        "name": "Brillo de pantalla"
+      },
+      "screen_timeout": {
+        "name": "Tiempo de espera de pantalla"
+      },
+      "speaker_volume": {
+        "name": "Volumen del altavoz"
+      }
+    },
+    "select": {
+      "sound_output": {
+        "name": "Salida de audio"
+      },
+      "repeat_state": {
+        "name": "Repetición"
+      },
+      "language": {
+        "name": "Idioma del dispositivo"
+      },
+      "turn_off_after": {
+        "name": "Apagar después de"
+      },
+      "theme": {
+        "name": "Tema"
+      },
+      "log_level": {
+        "name": "Nivel de log"
+      }
+    },
+    "switch": {
+      "shuffle": {
+        "name": "Shuffle"
+      },
+      "wake_word": {
+        "name": "Palabra de activación"
+      }
+    }
+  },
+  "issues": {
+    "missing_device_token": {
+      "title": "El cliente DJConnect no está emparejado",
+      "description": "A este cliente DJConnect le falta su token local de dispositivo. Abre las opciones de DJConnect y elige volver a emparejar con un código nuevo. Las entradas solo de Assist-agent no necesitan token de dispositivo."
+    },
+    "missing_spotify_oauth_scopes": {
+      "title": "La autorización de Spotify no incluye el scope de playlists",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Autorizar DJConnect con Spotify",
+            "description": "DJConnect necesita de nuevo permiso de Spotify. Home Assistant abre Spotify en tu navegador; aprueba el acceso y vuelve a Home Assistant."
+          },
+          "authorize": {
+            "title": "Autorizar DJConnect con Spotify",
+            "description": "Home Assistant abre Spotify en tu navegador. Aprueba el acceso en Spotify y vuelve a Home Assistant."
+          },
+          "oauth_done": {
+            "title": "Finalizar autorización de Spotify",
+            "description": "Si aprobaste el acceso de Spotify, elige Enviar para terminar la reparación. Si cerraste la página de Spotify sin aprobar, elige Reparar de nuevo para reiniciar la autorización."
+          }
+        },
+        "error": {
+          "oauth_not_completed": "La autorización de Spotify aún no ha terminado. Aprueba el acceso en Spotify y vuelve a intentar finalizar."
+        },
+        "abort": {
+          "entry_not_found": "No se pudo encontrar la configuración de DJConnect."
+        }
+      }
+    },
+    "missing_spotify_refresh_token": {
+      "title": "Falta autorización de Spotify",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Autorizar DJConnect con Spotify",
+            "description": "DJConnect necesita permiso de Spotify para controlar música por ti. Home Assistant abre Spotify en tu navegador; aprueba el acceso y vuelve a Home Assistant."
+          },
+          "authorize": {
+            "title": "Autorizar DJConnect con Spotify",
+            "description": "Home Assistant abre Spotify en tu navegador. Aprueba el acceso en Spotify y vuelve a Home Assistant."
+          },
+          "oauth_done": {
+            "title": "Finalizar autorización de Spotify",
+            "description": "Si aprobaste el acceso de Spotify, elige Enviar para terminar la reparación. Si cerraste la página de Spotify sin aprobar, elige Reparar de nuevo para reiniciar la autorización."
+          }
+        },
+        "error": {
+          "oauth_not_completed": "La autorización de Spotify aún no ha terminado. Aprueba el acceso en Spotify y vuelve a intentar finalizar."
+        },
+        "abort": {
+          "entry_not_found": "No se pudo encontrar la configuración de DJConnect."
+        }
+      }
+    },
+    "spotify_refresh_token_revoked": {
+      "title": "La autorización de Spotify caducó o fue revocada",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Reautorizar DJConnect con Spotify",
+            "description": "El permiso de Spotify para DJConnect caducó o fue revocado. Home Assistant abre Spotify en tu navegador; aprueba el acceso de nuevo y vuelve a Home Assistant."
+          },
+          "authorize": {
+            "title": "Autorizar DJConnect con Spotify",
+            "description": "Home Assistant abre Spotify en tu navegador. Aprueba el acceso en Spotify y vuelve a Home Assistant."
+          },
+          "oauth_done": {
+            "title": "Finalizar autorización de Spotify",
+            "description": "Si aprobaste el acceso de Spotify, elige Enviar para terminar la reparación. Si cerraste la página de Spotify sin aprobar, elige Reparar de nuevo para reiniciar la autorización."
+          }
+        },
+        "error": {
+          "oauth_not_completed": "La autorización de Spotify aún no ha terminado. Aprueba el acceso en Spotify y vuelve a intentar finalizar."
+        },
+        "abort": {
+          "entry_not_found": "No se pudo encontrar la configuración de DJConnect."
+        }
+      }
+    }
+  }
+}

@@ -212,12 +212,14 @@ def _with_mood_context(
         if isinstance(status, dict):
             payload["mood"] = status.get("mood")
     enriched = enrich_payload_with_mood_zone(payload)
-    if enriched.get("mood_zone") is None:
-        return media
     merged = dict(media)
-    merged["mood"] = enriched["mood"]
-    merged["mood_zone"] = enriched["mood_zone"]
-    merged["mood_zone_prompt"] = enriched.get("mood_zone_prompt")
+    if enriched.get("mood_zone") is not None:
+        merged["mood"] = enriched["mood"]
+        merged["mood_zone"] = enriched["mood_zone"]
+        merged["mood_zone_prompt"] = enriched.get("mood_zone_prompt")
+    for key in ("language", "locale", "device_language"):
+        if enriched.get(key):
+            merged[key] = enriched[key]
     return merged
 
 

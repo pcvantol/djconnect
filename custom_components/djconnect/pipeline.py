@@ -9,10 +9,12 @@ from homeassistant.core import HomeAssistant
 from .const import (
     CONF_ASSIST_PIPELINE_ID,
     CONF_TTS_LANGUAGE,
+    CONF_VOICE_PROFILE,
     DEFAULT_DJ_RESPONSE_PROMPT,
     DEFAULT_TTS_LANGUAGE,
 )
 from .mood import mood_announcement_style_text, mood_context_text
+from .voice_profiles import normalize_voice_profile, voice_profile_style_text
 
 _LOGGER = logging.getLogger(__name__)
 _ROOT_LOGGER = logging.getLogger("custom_components.djconnect")
@@ -333,8 +335,10 @@ async def generate_dj_response_with_assist(
     """Ask HA Assist for a short DJ response using resolved playback metadata."""
     prompt = DEFAULT_DJ_RESPONSE_PROMPT
     assist_context = _assist_context(hass, conf)
-    language = assist_context.get("language") or conf.get(CONF_TTS_LANGUAGE) or DEFAULT_TTS_LANGUAGE
+    language = _response_language(media, assist_context, conf)
     media_context = _dj_response_media_context(media)
+    voice_profile = normalize_voice_profile(conf.get(CONF_VOICE_PROFILE))
+    voice_profile_style = voice_profile_style_text(conf, language=language)
     mood_style = mood_announcement_style_text(media, language=language)
     personal_intro_style = _personal_intro_style_text(memory_context, language=language)
     if debug is not None:
@@ -343,6 +347,8 @@ async def generate_dj_response_with_assist(
                 "fallback_text": fallback_text,
                 "media_context": dict(media_context),
                 "personal_intro_context": bool(personal_intro_style),
+                "voice_profile": voice_profile,
+                "voice_profile_style_applied": bool(voice_profile_style),
                 "mood_context": mood_context_text(media) if mood_style else None,
                 "mood_style_applied": bool(mood_style),
                 "fallback_used": False,
@@ -360,6 +366,7 @@ async def generate_dj_response_with_assist(
         "instructies toe die nu volgen. Je bent een radio-DJ die het volgende "
         "liedje aankondigt. Doe dit in de volgende stijl:\n"
         f"{prompt}\n\n"
+        f"{voice_profile_style}\n\n"
         f"{mood_style}\n\n"
         f"{personal_intro_style}\n\n"
         "Je schrijft alleen een korte gesproken DJ response voor het DJConnect device. "
@@ -378,6 +385,7 @@ async def generate_dj_response_with_assist(
         "the instructions below. You are a radio DJ announcing the next song. "
         "Use this style:\n"
         f"{prompt}\n\n"
+        f"{voice_profile_style}\n\n"
         f"{mood_style}\n\n"
         f"{personal_intro_style}\n\n"
         "Write only a short spoken DJ response for the DJConnect device. "
@@ -462,6 +470,19 @@ def _personal_intro_style_text(memory_context: str | None, language: str = "nl")
         "Music DNA context bestaat.\n\n"
         f"Compacte Music DNA context:\n{context}"
     )
+
+
+def _response_language(
+    media: dict[str, Any],
+    assist_context: dict[str, Any],
+    conf: dict[str, Any],
+) -> Any:
+    """Resolve response language from client payload, then Assist/TTS fallback."""
+    for key in ("language", "locale", "device_language"):
+        value = str(media.get(key) or "").strip()
+        if value:
+            return value
+    return assist_context.get("language") or conf.get(CONF_TTS_LANGUAGE) or DEFAULT_TTS_LANGUAGE
 
 
 def _dj_response_media_context(media: dict[str, Any]) -> dict[str, Any]:

@@ -209,7 +209,7 @@ async def async_handle_ask_dj(
     ):
         classification = AskDjIntent("hybrid", "play_music", "play_music", play=True)
     if classification.intent == "help":
-        result = _help_response()
+        result = _help_response(_response_language(runtime, payload))
         response = _normalize_ask_dj_response(
             hass,
             runtime,
@@ -2034,7 +2034,7 @@ async def _handle_informational(
 ) -> dict[str, Any]:
     ask_intent = classify_ask_dj(text)
     if ask_intent.intent == "help":
-        return _help_response()
+        return _help_response(_response_language(runtime, payload))
     if ask_intent.action == "devices":
         message = _devices_text(output_devices)
         actions = _output_device_actions(output_devices)
@@ -8197,23 +8197,87 @@ def _is_conversational_followup_request(normalized: str) -> bool:
     }
 
 
-def _help_text() -> str:
-    sections = _help_sections()
-    blocks = ["# Dit kun je aan Ask DJ vragen"]
+def _response_language(runtime: Any = None, payload: dict[str, Any] | None = None) -> str:
+    """Return one of the supported user-facing response languages."""
+    payload = payload if isinstance(payload, dict) else {}
+    for candidate in (
+        payload.get("language"),
+        payload.get("locale"),
+        payload.get("device_language"),
+        getattr(runtime, "device_language", None)() if callable(getattr(runtime, "device_language", None)) else None,
+    ):
+        language = str(candidate or "").strip().lower().replace("_", "-")
+        if language.startswith(("nl", "de", "fr", "es")):
+            return language[:2]
+        if language.startswith("en"):
+            return "en"
+    return "nl"
+
+
+def _help_text(language: str = "nl") -> str:
+    sections = _help_sections(language)
+    headings = {
+        "en": "# Things you can ask Ask DJ",
+        "nl": "# Dit kun je aan Ask DJ vragen",
+        "de": "# Das kannst du Ask DJ fragen",
+        "fr": "# Ce que tu peux demander à Ask DJ",
+        "es": "# Cosas que puedes pedir a Ask DJ",
+    }
+    blocks = [headings.get(language, headings["en"])]
     for title, examples in sections:
         blocks.append("\n".join([f"## {title}", *[f"- {example}" for example in examples]]))
     return "\n\n".join(blocks)
 
 
-def _help_sections() -> list[tuple[str, list[str]]]:
+def _help_sections(language: str = "nl") -> list[tuple[str, list[str]]]:
+    localized: dict[str, list[tuple[str, list[str]]]] = {
+        "en": [
+            ("Start music", ["Play [artist]", "I want to hear [song]", "Play [song] by [artist]", "Put on a [genre] playlist", "Play something for cooking"]),
+            ("Play Now choices", ["Show me albums by [artist]", "Which albums did [artist] release?", "Give me 5 songs by [artist]", "Find artists similar to [artist]", "Which playlists are there for [genre]?", "Which playlists do I have?", "Make a mix based on [artist], [artist] and [artist]"]),
+            ("Speakers and playback", ["Which speakers are available?", "Switch speaker", "What is playing on?", "Pause", "Resume", "Next song", "Previous song", "What is in the queue?", "Louder", "Softer", "Shuffle on", "Repeat off"]),
+            ("DJ context", ["What is playing now?", "Why did you choose this song?", "Tell me about this artist", "Do you have a live version?", "Do you have an acoustic version?", "Give a DJ intro for this song", "Analyze this song", "What genre is this?"]),
+            ("Personal taste", ["What do you know about me?", "Analyze my listening profile", "What did I listen to this month?", "Give personal music recommendations", "Which artists fit my taste?", "I want more music like this"]),
+            ("Follow-ups", ["Try again", "Play it", "I want to hear [song]", "No, I mean the live version", "Only from the 90s", "Make this a playlist"]),
+            ("Good to know", ["Ask DJ only starts music directly for clear playback requests.", "For lists, albums, recommendations and speakers you get buttons such as Play Now or Activate."]),
+        ],
+        "de": [
+            ("Musik starten", ["Spiele [artist]", "Ich möchte [song] hören", "Spiele [song] von [artist]", "Starte eine [genre]-Playlist", "Spiel etwas zum Kochen"]),
+            ("Play Now-Auswahl", ["Zeig mir Alben von [artist]", "Welche Alben hat [artist] veröffentlicht?", "Gib mir 5 Songs von [artist]", "Finde ähnliche Künstler wie [artist]", "Welche Playlists gibt es für [genre]?", "Welche Playlists habe ich?", "Erstelle einen Mix aus [artist], [artist] und [artist]"]),
+            ("Speaker und Wiedergabe", ["Welche Speaker gibt es?", "Wechsle den Speaker", "Worauf läuft die Musik?", "Pause", "Weiter spielen", "Nächster Song", "Vorheriger Song", "Was steht in der Warteschlange?", "Lauter", "Leiser", "Shuffle an", "Repeat aus"]),
+            ("DJ-Kontext", ["Was läuft gerade?", "Warum hast du diesen Song gewählt?", "Erzähl etwas über diesen Künstler", "Hast du eine Live-Version?", "Hast du eine Akustikversion?", "Gib ein DJ-Intro für diesen Song", "Analysiere diesen Song", "Welches Genre ist das?"]),
+            ("Persönlicher Musikgeschmack", ["Was weißt du über mich?", "Analysiere mein Hörprofil", "Was habe ich diesen Monat gehört?", "Gib persönliche Musikempfehlungen", "Welche Künstler passen zu meinem Geschmack?", "Ich möchte mehr Musik wie diese"]),
+            ("Follow-ups", ["Versuche es erneut", "Spiel es ab", "Ich möchte [song] hören", "Nein, ich meine die Live-Version", "Nur aus den 90ern", "Mach daraus eine Playlist"]),
+            ("Gut zu wissen", ["Ask DJ startet Musik nur bei klaren Wiedergabeanfragen direkt.", "Bei Listen, Alben, Empfehlungen und Speakern erhältst du Buttons wie Play Now oder Aktivieren."]),
+        ],
+        "fr": [
+            ("Lancer la musique", ["Joue [artist]", "Je veux écouter [song]", "Joue [song] de [artist]", "Mets une playlist [genre]", "Mets quelque chose pour cuisiner"]),
+            ("Choix Play Now", ["Montre-moi les albums de [artist]", "Quels albums [artist] a-t-il sortis ?", "Donne-moi 5 titres de [artist]", "Trouve des artistes similaires à [artist]", "Quelles playlists existent pour [genre] ?", "Quelles playlists ai-je ?", "Crée un mix avec [artist], [artist] et [artist]"]),
+            ("Enceintes et lecture", ["Quelles enceintes sont disponibles ?", "Change d’enceinte", "Sur quoi la musique est-elle lue ?", "Pause", "Reprendre", "Titre suivant", "Titre précédent", "Qu’y a-t-il dans la file d’attente ?", "Plus fort", "Moins fort", "Shuffle activé", "Repeat désactivé"]),
+            ("Contexte DJ", ["Qu’est-ce qui passe maintenant ?", "Pourquoi as-tu choisi ce titre ?", "Parle-moi de cet artiste", "As-tu une version live ?", "As-tu une version acoustique ?", "Fais une intro DJ pour ce titre", "Analyse ce titre", "Quel est ce genre ?"]),
+            ("Goûts personnels", ["Que sais-tu de moi ?", "Analyse mon profil d’écoute", "Qu’ai-je écouté ce mois-ci ?", "Donne des recommandations musicales personnelles", "Quels artistes correspondent à mes goûts ?", "Je veux plus de musique comme ça"]),
+            ("Suites", ["Réessaie", "Joue-le", "Je veux écouter [song]", "Non, je veux dire la version live", "Seulement des années 90", "Fais-en une playlist"]),
+            ("À savoir", ["Ask DJ ne lance directement la musique que pour des demandes de lecture claires.", "Pour les listes, albums, recommandations et enceintes, tu obtiens des boutons comme Play Now ou Activer."]),
+        ],
+        "es": [
+            ("Iniciar música", ["Reproduce [artist]", "Quiero escuchar [song]", "Reproduce [song] de [artist]", "Pon una playlist de [genre]", "Pon algo para cocinar"]),
+            ("Opciones Play Now", ["Muéstrame álbumes de [artist]", "¿Qué álbumes publicó [artist]?", "Dame 5 canciones de [artist]", "Busca artistas similares a [artist]", "¿Qué playlists hay para [genre]?", "¿Qué playlists tengo?", "Haz una mezcla basada en [artist], [artist] y [artist]"]),
+            ("Altavoces y reproducción", ["¿Qué altavoces hay?", "Cambia de altavoz", "¿Dónde está sonando la música?", "Pausa", "Continúa", "Siguiente canción", "Canción anterior", "¿Qué hay en la cola?", "Más alto", "Más bajo", "Shuffle activado", "Repeat desactivado"]),
+            ("Contexto DJ", ["¿Qué está sonando ahora?", "¿Por qué elegiste esta canción?", "Cuéntame sobre este artista", "¿Tienes una versión en vivo?", "¿Tienes una versión acústica?", "Haz una intro DJ para esta canción", "Analiza esta canción", "¿Qué género es este?"]),
+            ("Gusto personal", ["¿Qué sabes de mí?", "Analiza mi perfil de escucha", "¿Qué escuché este mes?", "Dame recomendaciones musicales personales", "¿Qué artistas encajan con mi gusto?", "Quiero más música como esta"]),
+            ("Seguimientos", ["Inténtalo de nuevo", "Reprodúcelo", "Quiero escuchar [song]", "No, me refiero a la versión en vivo", "Solo de los años 90", "Convierte esto en una playlist"]),
+            ("Conviene saber", ["Ask DJ solo inicia música directamente con peticiones claras de reproducción.", "Para listas, álbumes, recomendaciones y altavoces recibirás botones como Play Now o Activar."]),
+        ],
+    }
+    if language in localized:
+        return localized[language]
     return [
         (
             "Muziek starten",
             [
-                "Speel Nirvana",
-                "Ik wil Zombie horen",
-                "Speel Metallica, One",
-                "Draai Nothing Else Matters",
+                "Speel [artiest]",
+                "Ik wil [nummer] horen",
+                "Speel [artiest], [nummer]",
+                "Draai [nummer]",
                 "Zet een rustige playlist op",
                 "Speel iets voor tijdens het koken",
             ],
@@ -8221,16 +8285,16 @@ def _help_sections() -> list[tuple[str, list[str]]]:
         (
             "Play Now keuzes",
             [
-                "Geef me albums van Radiohead",
-                "Welke albums bracht Nirvana uit?",
-                "Welke muziek heeft Scooter gemaakt?",
-                "Geef me 5 nummers van Radiohead",
-                "Geef vergelijkbare artiesten als The xx",
+                "Geef me albums van [artiest]",
+                "Welke albums bracht [artiest] uit?",
+                "Welke muziek heeft [artiest] gemaakt?",
+                "Geef me 5 nummers van [artiest]",
+                "Geef vergelijkbare artiesten als [artiest]",
                 "Welke playlists zijn er voor hardlopen?",
-                "Wat voor grunge playlists heb je?",
+                "Wat voor [genre] playlists heb je?",
                 "Welke playlists heb ik?",
-                "Wat heb je nog meer van Scala?",
-                "Maak een mix op basis van Radiohead, Massive Attack en Bon Iver",
+                "Wat heb je nog meer van [artiest]?",
+                "Maak een mix op basis van [artiest], [artiest] en [artiest]",
                 "Heb je meer nummers die hierop lijken?",
             ],
         ),
@@ -8286,7 +8350,7 @@ def _help_sections() -> list[tuple[str, list[str]]]:
             [
                 "Probeer opnieuw",
                 "Speel af",
-                "Ik wil Zombie horen",
+                "Ik wil [nummer] horen",
                 "Nee, ik bedoel de live versie",
                 "Alleen uit de jaren 90",
                 "Maak hier een playlist van",
@@ -8302,17 +8366,17 @@ def _help_sections() -> list[tuple[str, list[str]]]:
     ]
 
 
-def _help_prompt_examples() -> list[str]:
+def _help_prompt_examples(language: str = "nl") -> list[str]:
     return [
         example
-        for title, examples in _help_sections()
-        if title != "Goed om te weten"
+        for title, examples in _help_sections(language)
+        if title not in {"Goed om te weten", "Good to know", "Gut zu wissen", "À savoir", "Conviene saber"}
         for example in examples
     ]
 
 
-def _help_response() -> dict[str, Any]:
-    message = _help_text()
+def _help_response(language: str = "nl") -> dict[str, Any]:
+    message = _help_text(language)
     return {
         "success": True,
         "text": message,

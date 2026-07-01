@@ -49,6 +49,7 @@ from .const import (
     CONF_SPOTIFY_REFRESH_TOKEN,
     CONF_SPOTIFY_SCOPES,
     CONF_SETUP_METHOD,
+    CONF_VOICE_PROFILE,
     CONF_WIFI_PASSWORD,
     CONF_WIFI_SSID,
     DEFAULT_ASSIST_PIPELINE_ID,
@@ -67,6 +68,7 @@ from .const import (
     DEFAULT_SETUP_METHOD,
     DEFAULT_SPOTIFY_MARKET,
     DEFAULT_SPOTIFY_SCOPES,
+    DEFAULT_VOICE_PROFILE,
     FIRMWARE_CHANNELS,
     MUSIC_BACKEND_NAMES,
     MUSIC_BACKEND_MUSIC_ASSISTANT,
@@ -106,6 +108,7 @@ from .pairing_defaults import (
 )
 from .ha_urls import async_ha_local_url
 from .spotify_oauth import build_authorize_url, build_redirect_uri, create_code_verifier
+from .voice_profiles import normalize_voice_profile, voice_profile_options
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -129,6 +132,7 @@ APP_HA_LOCAL_URL_DISPLAY_FIELD = "app_ha_local_url"
 APP_IPHONE_PAIRING_URI_FIELD = "app_iphone_pairing_uri"
 APP_WATCH_PAIRING_URI_FIELD = "app_watch_pairing_uri"
 APP_PAIR_CODE_DIGITS = 6
+APP_PAIRING_PENDING_KEY = "config_flow_app_pairing_pending"
 BLE_DISCOVERY_TIMEOUT = 5
 BLE_PROVISION_TIMEOUT = 25
 SETUP_METHOD_NAMES_EN = {
@@ -170,7 +174,7 @@ BLE_ACTION_NAMES_NL = {
     BLE_ACTION_CONTINUE_PAIRING: "Doorgaan naar koppelen",
 }
 OPTIONS_ACTION_NAMES_EN = {
-    OPTIONS_ACTION_SAVE: "Save options",
+    OPTIONS_ACTION_SAVE: "Save settings",
     OPTIONS_ACTION_SPOTIFY_REAUTH: "Reauthorize Spotify",
     OPTIONS_ACTION_CHANGE_MUSIC_BACKEND: "Change music backend",
     OPTIONS_ACTION_RETRY_PAIRING: "Retry pairing with current code",
@@ -195,8 +199,8 @@ CLIENT_TYPE_NAME_SUFFIXES = {
 
 VOICE_FORM_FIELDS = {
     CONF_ASSIST_PIPELINE_ID,
-    CONF_DJ_RESPONSE_ENABLED,
     CONF_FIRMWARE_CHANNEL,
+    CONF_VOICE_PROFILE,
 }
 
 
@@ -248,6 +252,11 @@ def _options_action_names(hass: Any) -> dict[str, str]:
     return OPTIONS_ACTION_NAMES_NL if language.startswith("nl") else OPTIONS_ACTION_NAMES_EN
 
 
+def _ha_language(hass: Any) -> str:
+    """Return the current Home Assistant UI language."""
+    return str(getattr(getattr(hass, "config", None), "language", "") or "")
+
+
 def _options_actions_for_status(hass: Any, defaults: dict[str, Any]) -> dict[str, str]:
     """Return visible options actions for the current pairing state."""
     actions = dict(_options_action_names(hass))
@@ -269,6 +278,11 @@ def _conversation_agent_options_actions(hass: Any, defaults: dict[str, Any]) -> 
     if defaults.get(CONF_MUSIC_BACKEND, DEFAULT_MUSIC_BACKEND) != MUSIC_BACKEND_MUSIC_ASSISTANT:
         actions[OPTIONS_ACTION_SPOTIFY_REAUTH] = names[OPTIONS_ACTION_SPOTIFY_REAUTH]
     return actions
+
+
+def _default_options_action(options_actions: dict[str, str]) -> str:
+    """Return the first visible options action."""
+    return next(iter(options_actions), OPTIONS_ACTION_CHANGE_MUSIC_BACKEND)
 
 
 def _generate_pair_code() -> str:
@@ -305,11 +319,19 @@ def _qr_svg_data_uri(value: str) -> str:
             kind="svg",
             scale=4,
             border=2,
-            background="white",
             xmldecl=False,
             svgns=True,
         )
-        return f"data:image/svg+xml;utf8,{quote(out.getvalue().decode('utf-8'))}"
+        svg = out.getvalue().decode("utf-8")
+        if "<svg" in svg and "<rect" not in svg:
+            insert_at = svg.find(">")
+            if insert_at != -1:
+                svg = (
+                    svg[: insert_at + 1]
+                    + '<rect width="100%" height="100%" fill="white"/>'
+                    + svg[insert_at + 1 :]
+                )
+        return f"data:image/svg+xml;utf8,{quote(svg)}"
     except Exception as exc:  # noqa: BLE001
         _LOGGER.debug("DJConnect could not generate app pairing QR code: %s", exc)
         return ""
@@ -340,7 +362,15 @@ def _password_selector() -> Any:
 def _manual_discovery_label(hass: Any) -> str:
     """Return the manual-entry label in the current Home Assistant language."""
     language = str(getattr(getattr(hass, "config", None), "language", "") or "").lower()
-    return "Handmatig invoeren" if language.startswith("nl") else "Manual entry"
+    if language.startswith("nl"):
+        return "Handmatig invoeren"
+    if language.startswith("de"):
+        return "Manuell eingeben"
+    if language.startswith("fr"):
+        return "Saisie manuelle"
+    if language.startswith("es"):
+        return "Entrada manual"
+    return "Manual entry"
 
 
 def _device_name_for_client_type(client_type: Any, base_name: Any = DEFAULT_DEVICE_NAME) -> str:
@@ -357,6 +387,12 @@ def _spotify_oauth_title(hass: Any, *, reauth: bool = False) -> str:
     language = str(getattr(getattr(hass, "config", None), "language", "") or "").lower()
     if language.startswith("nl"):
         return "Spotify opnieuw autoriseren" if reauth else "DJConnect autoriseren bij Spotify"
+    if language.startswith("de"):
+        return "Spotify erneut autorisieren" if reauth else "DJConnect bei Spotify autorisieren"
+    if language.startswith("fr"):
+        return "Réautoriser Spotify" if reauth else "Autoriser DJConnect avec Spotify"
+    if language.startswith("es"):
+        return "Reautorizar Spotify" if reauth else "Autorizar DJConnect con Spotify"
     return "Reauthorize Spotify" if reauth else "Authorize DJConnect with Spotify"
 
 
@@ -372,6 +408,36 @@ def _spotify_oauth_description(hass: Any, *, reauth: bool = False) -> str:
         return (
             "Home Assistant opent Spotify in je browser. "
             "Na akkoord ga je terug naar Home Assistant om de setup af te maken."
+        )
+    if language.startswith("de"):
+        if reauth:
+            return (
+                "Home Assistant öffnet Spotify, damit DJConnect erneut autorisiert werden kann. "
+                "Nach der Zustimmung kehrst du zu Home Assistant zurück."
+            )
+        return (
+            "Home Assistant öffnet Spotify in deinem Browser. "
+            "Kehre nach der Zustimmung hierher zurück, um die Einrichtung fortzusetzen."
+        )
+    if language.startswith("fr"):
+        if reauth:
+            return (
+                "Home Assistant ouvre Spotify afin de réautoriser DJConnect. "
+                "Après validation, reviens dans Home Assistant."
+            )
+        return (
+            "Home Assistant ouvre Spotify dans ton navigateur. "
+            "Après validation, reviens ici pour continuer la configuration."
+        )
+    if language.startswith("es"):
+        if reauth:
+            return (
+                "Home Assistant abre Spotify para autorizar DJConnect de nuevo. "
+                "Después de aprobarlo, vuelve a Home Assistant."
+            )
+        return (
+            "Home Assistant abre Spotify en tu navegador. "
+            "Después de aprobar el acceso, vuelve aquí para continuar la configuración."
         )
     if reauth:
         return (
@@ -774,6 +840,7 @@ def _has_valid_assist_pipeline(hass: Any) -> bool:
 
 
 def _base_voice_schema(
+    hass: Any,
     defaults: dict[str, Any],
     *,
     assist_options: dict[str, str],
@@ -786,7 +853,7 @@ def _base_voice_schema(
         schema[
             vol.Required(
                 OPTIONS_ACTION_FIELD,
-                default=OPTIONS_ACTION_SAVE,
+                default=_default_options_action(options_actions),
             )
         ] = vol.In(options_actions)
     if readonly_local_url is not None:
@@ -796,16 +863,13 @@ def _base_voice_schema(
         )
     schema.update({
         vol.Optional(
+            CONF_VOICE_PROFILE,
+            default=normalize_voice_profile(defaults.get(CONF_VOICE_PROFILE)),
+        ): vol.In(voice_profile_options(_ha_language(hass))),
+        vol.Optional(
             CONF_ASSIST_PIPELINE_ID,
             default=defaults.get(CONF_ASSIST_PIPELINE_ID, ""),
         ): vol.In(assist_options),
-        vol.Optional(
-            CONF_DJ_RESPONSE_ENABLED,
-            default=defaults.get(
-                CONF_DJ_RESPONSE_ENABLED,
-                DEFAULT_DJ_RESPONSE_ENABLED,
-            ),
-        ): bool,
     })
     if defaults.get(CONF_CLIENT_TYPE, DEFAULT_CLIENT_TYPE) == CLIENT_TYPE_ESP32:
         schema[
@@ -839,11 +903,16 @@ def _conversation_agent_options_schema(
     defaults: dict[str, Any],
 ) -> vol.Schema:
     """Build the compact options schema used from Assist conversation agent settings."""
+    actions = _conversation_agent_options_actions(hass, defaults)
     schema: dict[Any, Any] = {
+        vol.Optional(
+            CONF_VOICE_PROFILE,
+            default=normalize_voice_profile(defaults.get(CONF_VOICE_PROFILE)),
+        ): vol.In(voice_profile_options(_ha_language(hass))),
         vol.Required(
             OPTIONS_ACTION_FIELD,
-            default=OPTIONS_ACTION_SAVE,
-        ): vol.In(_conversation_agent_options_actions(hass, defaults)),
+            default=_default_options_action(actions),
+        ): vol.In(actions),
     }
     return vol.Schema(schema)
 
@@ -907,6 +976,7 @@ async def _voice_schema(
 ) -> vol.Schema:
     """Build a voice/options schema with dropdowns where HA can provide choices."""
     schema = _base_voice_schema(
+        hass,
         defaults,
         assist_options=await _assist_pipeline_options(
             hass,
@@ -949,6 +1019,9 @@ def _voice_defaults(
             DEFAULT_DJ_RESPONSE_TTL_SECONDS,
         ),
         CONF_DJ_RESPONSE_PROMPT: DEFAULT_DJ_RESPONSE_PROMPT,
+        CONF_VOICE_PROFILE: normalize_voice_profile(
+            source.get(CONF_VOICE_PROFILE) or DEFAULT_VOICE_PROFILE
+        ),
         CONF_MAX_AUDIO_BYTES: _int(
             source.get(CONF_MAX_AUDIO_BYTES),
             DEFAULT_MAX_AUDIO_BYTES,
@@ -989,6 +1062,9 @@ def _firmware_channel_default(value: Any) -> str:
 
 def _voice_errors(user_input: dict[str, Any]) -> dict[str, str]:
     """Validate required voice/options fields."""
+    profile = user_input.get(CONF_VOICE_PROFILE)
+    if profile is not None and normalize_voice_profile(profile) != profile:
+        return {CONF_VOICE_PROFILE: "invalid_voice_profile"}
     return {}
 
 
@@ -1261,6 +1337,24 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         last_step=False,
                     )
                 device_id = str(defaults.get(CONF_DEVICE_ID) or "").strip()
+                pending_app_pairing = (
+                    self._pending_app_pairing(pair_code) if is_app_pairing else {}
+                )
+                if is_app_pairing and not pending_app_pairing:
+                    errors["base"] = "app_pairing_not_received"
+                    return self.async_show_form(
+                        step_id=step_id,
+                        data_schema=vol.Schema(self._user_schema()),
+                        errors=errors,
+                        description_placeholders=self._pair_description_placeholders(),
+                        last_step=False,
+                    )
+                if pending_app_pairing:
+                    device_id = str(pending_app_pairing.get(CONF_DEVICE_ID) or "").strip()
+                    client_type = _clean(
+                        pending_app_pairing.get(CONF_CLIENT_TYPE),
+                        client_type,
+                    )
                 if not device_id or client_type == CLIENT_TYPE_ESP32:
                     device_id = f"djconnect-{pair_code}"
                 await self.async_set_unique_id(device_id)
@@ -1269,11 +1363,16 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_PAIR_CODE: pair_code,
                     CONF_DEVICE_ID: device_id,
                     CONF_DEVICE_NAME: _clean(
-                        user_input.get(CONF_DEVICE_NAME),
+                        pending_app_pairing.get(CONF_DEVICE_NAME)
+                        if pending_app_pairing
+                        else user_input.get(CONF_DEVICE_NAME),
                         defaults.get(CONF_DEVICE_NAME, DEFAULT_DEVICE_NAME),
                     ),
                     CONF_CLIENT_TYPE: client_type,
-                    CONF_DEVICE_TOKEN: secrets.token_urlsafe(32),
+                    CONF_DEVICE_TOKEN: str(
+                        pending_app_pairing.get(CONF_DEVICE_TOKEN) or ""
+                    )
+                    or secrets.token_urlsafe(32),
                 }
                 if is_app_pairing:
                     pairing_uri = _build_pairing_uri(
@@ -1289,6 +1388,8 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     self._pairing[CONF_DEVICE_LANGUAGE] = _ha_device_language(
                         getattr(self, "hass", None)
                     )
+                if is_app_pairing:
+                    self._clear_pending_app_pairing(pair_code)
                 return await self.async_step_backend()
 
         return self.async_show_form(
@@ -1454,6 +1555,39 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def _ensure_app_pairing_defaults(self) -> None:
         """Prepare HA-generated pairing values for inbound-only app clients."""
         if getattr(self, "_discovered_defaults", {}).get(CONF_PAIR_CODE):
+            defaults = dict(getattr(self, "_discovered_defaults", {}) or {})
+            client_type = _clean(
+                getattr(self, "_selected_pair_client_type", ""),
+                defaults.get(CONF_CLIENT_TYPE, self._default_pair_client_type()),
+            )
+            ha_local_url = str(defaults.get("ha_local_url") or "")
+            pair_code = str(defaults.get(CONF_PAIR_CODE) or "")
+            defaults.update(
+                {
+                    CONF_CLIENT_TYPE: client_type,
+                    CONF_DEVICE_NAME: _device_name_for_client_type(
+                        client_type,
+                        DEFAULT_DEVICE_NAME,
+                    ),
+                    CONF_PAIRING_URI: _build_pairing_uri(
+                        ha_local_url,
+                        pair_code,
+                        client_type,
+                    ),
+                    "iphone_pairing_uri": _build_pairing_uri(
+                        ha_local_url,
+                        pair_code,
+                        CLIENT_TYPE_IOS,
+                    ),
+                    "watch_pairing_uri": _build_pairing_uri(
+                        ha_local_url,
+                        pair_code,
+                        CLIENT_TYPE_WATCHOS,
+                    ),
+                }
+            )
+            self._discovered_defaults = defaults
+            self._register_pending_app_pairing_context()
             return
         client_type = _clean(
             getattr(self, "_selected_pair_client_type", ""),
@@ -1486,6 +1620,78 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 CLIENT_TYPE_WATCHOS,
             ),
         }
+        self._register_pending_app_pairing_context()
+
+    def _register_pending_app_pairing_context(self) -> None:
+        """Expose the open app-pairing config-flow step to the HTTP pair route."""
+        defaults = getattr(self, "_discovered_defaults", {}) or {}
+        pair_code = str(defaults.get(CONF_PAIR_CODE) or "").strip()
+        if not pair_code:
+            return
+        try:
+            register_http_views(self.hass)
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.debug("DJConnect could not register app pairing HTTP views: %s", exc)
+        hass_data = getattr(self.hass, "data", None)
+        if not isinstance(hass_data, dict):
+            return
+        domain_data = hass_data.setdefault(DOMAIN, {})
+        pending = domain_data.setdefault(APP_PAIRING_PENDING_KEY, {})
+        context = pending.setdefault(pair_code, {})
+        client_type = _clean(
+            defaults.get(CONF_CLIENT_TYPE),
+            self._default_pair_client_type(),
+        )
+        received = context.get("pairing_received")
+        if (
+            isinstance(received, dict)
+            and received
+            and str(received.get(CONF_CLIENT_TYPE) or "").strip() != client_type
+        ):
+            received = {}
+        context.update(
+            {
+                "flow_id": getattr(self, "flow_id", ""),
+                CONF_PAIR_CODE: pair_code,
+                CONF_CLIENT_TYPE: client_type,
+                CONF_DEVICE_TOKEN: str(context.get(CONF_DEVICE_TOKEN) or "")
+                or secrets.token_urlsafe(32),
+                CONF_ASSIST_PIPELINE_ID: str(
+                    defaults.get(CONF_ASSIST_PIPELINE_ID) or DEFAULT_ASSIST_PIPELINE_ID
+                ),
+                CONF_HA_EXTERNAL_URL: str(defaults.get(CONF_HA_EXTERNAL_URL) or ""),
+                "ha_local_url": str(defaults.get("ha_local_url") or ""),
+                "pairing_received": received or {},
+            }
+        )
+
+    def _pending_app_pairing(self, pair_code: str) -> dict[str, Any]:
+        """Return an app pairing payload received through the HTTP pair route."""
+        hass_data = getattr(getattr(self, "hass", None), "data", None)
+        if not isinstance(hass_data, dict):
+            return {}
+        pending = hass_data.setdefault(DOMAIN, {}).setdefault(APP_PAIRING_PENDING_KEY, {})
+        if not isinstance(pending, dict):
+            return {}
+        context = pending.get(pair_code)
+        if not isinstance(context, dict):
+            return {}
+        flow_id = str(context.get("flow_id") or "").strip()
+        if not flow_id or flow_id != str(getattr(self, "flow_id", "") or "").strip():
+            return {}
+        received = context.get("pairing_received")
+        if isinstance(received, dict) and received.get(CONF_DEVICE_ID):
+            return {**context, **received}
+        return {}
+
+    def _clear_pending_app_pairing(self, pair_code: str) -> None:
+        """Remove a consumed app-pairing context."""
+        hass_data = getattr(getattr(self, "hass", None), "data", None)
+        if not isinstance(hass_data, dict):
+            return
+        pending = hass_data.setdefault(DOMAIN, {}).setdefault(APP_PAIRING_PENDING_KEY, {})
+        if isinstance(pending, dict):
+            pending.pop(str(pair_code or "").strip(), None)
 
     def _pair_description_placeholders(self) -> dict[str, str]:
         """Return app pairing values shown in the HA config-flow description."""
@@ -1605,7 +1811,12 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 }
             )
         if getattr(self, "_pairing_setup_method", "") == SETUP_METHOD_PAIR_APP:
-            if client_type in {CLIENT_TYPE_MACOS, CLIENT_TYPE_WINDOWS}:
+            if client_type in {
+                CLIENT_TYPE_IOS,
+                CLIENT_TYPE_WATCHOS,
+                CLIENT_TYPE_MACOS,
+                CLIENT_TYPE_WINDOWS,
+            }:
                 schema[vol.Optional(APP_PAIR_CODE_DISPLAY_FIELD, default=pair_code)] = str
                 schema[
                     vol.Optional(
