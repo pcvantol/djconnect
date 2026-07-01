@@ -75,6 +75,9 @@ class AskDJHistoryManagerTest(unittest.TestCase):
 
         self.assertEqual(cleared["history_revision"], 2)
         self.assertEqual(cleared["clear_revision"], 1)
+        self.assertTrue(cleared["cleared"])
+        self.assertTrue(cleared["ask_dj_clear_required"])
+        self.assertEqual(cleared["messages"], [])
         self.assertEqual(user_one["messages"], [])
         self.assertEqual(len(user_two["messages"]), 2)
 
@@ -95,6 +98,9 @@ class AskDJHistoryManagerTest(unittest.TestCase):
 
         self.assertEqual(cleared["user_id"], "all")
         self.assertEqual(cleared["clear_revision"], 1)
+        self.assertTrue(cleared["cleared"])
+        self.assertTrue(cleared["ask_dj_clear_required"])
+        self.assertEqual(cleared["messages"], [])
         self.assertEqual(iphone_history["user_id"], "iphone-user")
         self.assertEqual(iphone_history["clear_revision"], 1)
         self.assertEqual(iphone_history["messages"], [])

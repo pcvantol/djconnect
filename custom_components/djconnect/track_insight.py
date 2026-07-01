@@ -429,14 +429,18 @@ def track_insight_error_response(exc: TrackInsightError) -> dict[str, Any]:
 
 
 def _request_from_payload(payload: dict[str, Any], source: str) -> TrackInsightRequest:
+    track_payload = payload.get("track") if isinstance(payload.get("track"), dict) else {}
+    playback_payload = payload.get("playback") if isinstance(payload.get("playback"), dict) else {}
+    media_payload = payload.get("media") if isinstance(payload.get("media"), dict) else {}
+    explicit = {**playback_payload, **media_payload, **track_payload, **payload}
     return TrackInsightRequest(
         source=str(payload.get("source") or source or "auto"),
-        title=_optional_text(payload.get("title")),
-        artist=_optional_text(payload.get("artist")),
-        album=_optional_text(payload.get("album")),
-        entity_id=_optional_text(payload.get("entity_id")),
-        player_id=_optional_text(payload.get("player_id")),
-        music_backend=_optional_text(payload.get("music_backend")),
+        title=_first_text(explicit, "title", "track_name", "media_title", "name", "track"),
+        artist=_first_text(explicit, "artist", "artist_name", "media_artist", "artists"),
+        album=_first_text(explicit, "album", "album_name", "media_album_name", "media_album"),
+        entity_id=_first_text(explicit, "entity_id"),
+        player_id=_first_text(explicit, "player_id"),
+        music_backend=_first_text(explicit, "music_backend", "backend", "provider"),
         force_refresh=_bool(payload.get("force_refresh")),
         locale=_optional_text(payload.get("locale")),
         include_visual_profile=_bool(payload.get("include_visual_profile"), True),

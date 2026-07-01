@@ -391,6 +391,45 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
         self.assertEqual(source, "websocket")
         self.assertEqual(connection.results, [(14, {"success": True, "type": "track_insight"})])
 
+    def test_track_insight_route_preserves_client_track_aliases(self) -> None:
+        calls = []
+
+        async def handler(hass, payload, *, headers=None, source="http"):
+            calls.append((payload, headers, source))
+            return {"success": True, "type": "track_insight"}, 200
+
+        connection = _Connection()
+        original = self.websocket_api.async_handle_track_insight_payload
+        self.websocket_api.async_handle_track_insight_payload = handler
+        try:
+            asyncio.run(
+                self.websocket_api.websocket_track_insight(
+                    types.SimpleNamespace(data={}),
+                    connection,
+                    {
+                        "id": 15,
+                        "type": self.websocket_api.WS_TYPE_TRACK_INSIGHT,
+                        "device_id": "djconnect-macos-ABCDEF123456",
+                        "client_type": "macos",
+                        "device_token": "device-secret",
+                        "track_name": "Windowlicker",
+                        "artist_name": "Aphex Twin",
+                        "album_name": "Windowlicker",
+                        "backend": "spotify_direct",
+                    },
+                )
+            )
+        finally:
+            self.websocket_api.async_handle_track_insight_payload = original
+        payload, headers, source = calls[0]
+        self.assertEqual(payload["track_name"], "Windowlicker")
+        self.assertEqual(payload["artist_name"], "Aphex Twin")
+        self.assertEqual(payload["album_name"], "Windowlicker")
+        self.assertEqual(payload["backend"], "spotify_direct")
+        self.assertEqual(source, "websocket")
+        self.assertEqual(headers["Authorization"], "Bearer device-secret")
+        self.assertEqual(connection.results, [(15, {"success": True, "type": "track_insight"})])
+
     def test_ask_dj_history_route_uses_history_sync_handler(self) -> None:
         calls = []
 
@@ -445,6 +484,8 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
                         "payload": {
                             "device_id": "djconnect-macos-ABCDEF123456",
                             "client_type": "macos",
+                            "client_id": "djconnect-macos-ABCDEF123456",
+                            "device_name": "DJConnect Mac",
                         },
                         "device_token": "device-secret",
                     },
@@ -454,6 +495,8 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
             self.websocket_api.async_handle_ask_dj_history_clear_payload = original
         payload, headers, user_id = calls[0]
         self.assertEqual(payload["client_type"], "macos")
+        self.assertEqual(payload["client_id"], "djconnect-macos-ABCDEF123456")
+        self.assertEqual(payload["device_name"], "DJConnect Mac")
         self.assertEqual(headers["X-DJConnect-Device-ID"], "djconnect-macos-ABCDEF123456")
         self.assertEqual(user_id, "user-clear")
         self.assertEqual(connection.results, [(16, {"success": True, "clear_revision": 3})])

@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.2.15
+
+- Make Track Insight accept macOS/client playback aliases such as `track_name`,
+  `artist_name` and nested playback payloads when resolving the explicit track.
+- Make Ask DJ history clear responses explicit for clients with `cleared`,
+  `ask_dj_clear_required`, empty `messages[]` and updated sync revisions.
+- Stop exposing separate Spotify/Music Assistant playback entities in Home
+  Assistant; backend playback state remains internal to DJConnect commands,
+  Ask DJ and clients.
+
 ## 3.2.14
 
 - Add full localization coverage for the Home Assistant integration across

@@ -10,6 +10,10 @@ from homeassistant.const import PERCENTAGE, SIGNAL_STRENGTH_DECIBELS_MILLIWATT
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+try:
+    from homeassistant.helpers import entity_registry as er
+except ImportError:  # pragma: no cover - older HA/test stubs
+    er = None
 
 from .const import (
     CLIENT_TYPE_CONVERSATION_AGENT,
@@ -26,6 +30,15 @@ from .use_cases import run_music_command
 MAX_SENSOR_STATE_TEXT_LENGTH = 255
 APNS_SUPPORTED_CLIENT_TYPES = {CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_WATCHOS}
 EMPTY_STABLE_SENSOR_VALUES = {None, "", "unknown", "unavailable"}
+REMOVED_BACKEND_SENSOR_KEYS = (
+    "last_track",
+    "spotify_status",
+    "sound_output",
+    "playback_available",
+    "queue",
+    "playlists",
+    "outputs",
+)
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -33,6 +46,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     runtime = hass.data[DOMAIN][entry.entry_id]
+    _remove_legacy_entities(hass, runtime, "sensor", REMOVED_BACKEND_SENSOR_KEYS)
     if _runtime_client_type(runtime) == CLIENT_TYPE_CONVERSATION_AGENT:
         async_add_entities([DJConnectApnsRegistrationSensor(runtime)])
         return
@@ -42,14 +56,7 @@ async def async_setup_entry(
         DJConnectLastTextSensor(runtime),
         DJConnectLastCorrectedSttSensor(runtime),
         DJConnectFirmwareSensor(runtime),
-        DJConnectLastTrackSensor(runtime),
-        DJConnectSpotifyStatusSensor(runtime, hass),
         DJConnectPairingStatusSensor(runtime),
-        DJConnectSoundOutputSensor(runtime, hass),
-        DJConnectPlaybackAvailableSensor(runtime, hass),
-        DJConnectQueueSensor(runtime, hass),
-        DJConnectPlaylistsSensor(runtime, hass),
-        DJConnectOutputsSensor(runtime, hass),
     ]
     if _runtime_client_type(runtime) == CLIENT_TYPE_ESP32:
         entities.extend(
@@ -61,6 +68,28 @@ async def async_setup_entry(
             ]
         )
     async_add_entities(entities)
+
+
+def _remove_legacy_entities(
+    hass: HomeAssistant,
+    runtime,
+    platform: str,
+    keys: tuple[str, ...],
+) -> None:
+    if er is None:
+        return
+    registry = er.async_get(hass)
+    if registry is None:
+        return
+    get_entity_id = getattr(registry, "async_get_entity_id", None)
+    remove_entity = getattr(registry, "async_remove", None)
+    if not callable(get_entity_id) or not callable(remove_entity):
+        return
+    for key in keys:
+        unique_id = entry_unique_id(runtime, key)
+        entity_id = get_entity_id(platform, DOMAIN, unique_id)
+        if entity_id:
+            remove_entity(entity_id)
 
 class DJConnectBaseSensor(SensorEntity):
     _attr_has_entity_name = True

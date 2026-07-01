@@ -90,9 +90,11 @@ class AskDJHistoryManager:
         await self.async_save()
         return {
             "success": True,
+            "cleared": True,
             "user_id": user_key,
             "history_revision": state["history_revision"],
             "clear_revision": self._effective_clear_revision(state),
+            "ask_dj_clear_required": True,
             **_history_limit_metadata(state),
             "messages": [],
             "server_time": _now(),
@@ -119,9 +121,11 @@ class AskDJHistoryManager:
         await self.async_save()
         return {
             "success": True,
+            "cleared": True,
             "user_id": "all",
             "history_revision": max_history_revision,
             "clear_revision": global_clear_revision,
+            "ask_dj_clear_required": True,
             "history_limit": MAX_MESSAGES_PER_USER,
             "history_trimmed_before": None,
             "history_trimmed_count": 0,

@@ -19,6 +19,7 @@ def install_button_stubs() -> None:
     core = types.ModuleType("homeassistant.core")
     helpers = sys.modules.setdefault("homeassistant.helpers", types.ModuleType("homeassistant.helpers"))
     device_registry = types.ModuleType("homeassistant.helpers.device_registry")
+    entity_registry = types.ModuleType("homeassistant.helpers.entity_registry")
     entity_platform = types.ModuleType("homeassistant.helpers.entity_platform")
 
     class ButtonEntity:
@@ -28,9 +29,11 @@ def install_button_stubs() -> None:
     config_entries.ConfigEntry = object
     core.HomeAssistant = object
     device_registry.DeviceInfo = dict
+    entity_registry.async_get = lambda hass: getattr(hass, "entity_registry", None)
     entity_platform.AddEntitiesCallback = object
     components.button = button
     helpers.device_registry = device_registry
+    helpers.entity_registry = entity_registry
     helpers.entity_platform = entity_platform
     homeassistant.components = components
 
@@ -68,6 +71,7 @@ def install_button_stubs() -> None:
     sys.modules["homeassistant.config_entries"] = config_entries
     sys.modules["homeassistant.core"] = core
     sys.modules["homeassistant.helpers.device_registry"] = device_registry
+    sys.modules["homeassistant.helpers.entity_registry"] = entity_registry
     sys.modules["homeassistant.helpers.entity_platform"] = entity_platform
 
 

@@ -96,10 +96,7 @@ class DJConnectSelectTest(unittest.TestCase):
 
                 asyncio.run(self.select.async_setup_entry(hass, entry, added.extend))
 
-                self.assertEqual(
-                    [entity._attr_translation_key for entity in added],
-                    ["sound_output", "repeat_state"],
-                )
+                self.assertEqual([entity._attr_translation_key for entity in added], [])
 
     def test_setup_entry_adds_device_selects_for_esp32(self) -> None:
         runtime = types.SimpleNamespace(
@@ -117,8 +114,6 @@ class DJConnectSelectTest(unittest.TestCase):
         self.assertEqual(
             [entity._attr_translation_key for entity in added],
             [
-                "sound_output",
-                "repeat_state",
                 "language",
                 "turn_off_after",
                 "theme",

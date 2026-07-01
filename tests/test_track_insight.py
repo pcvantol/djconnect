@@ -94,6 +94,31 @@ class TrackInsightTests(unittest.TestCase):
         self.assertNotIn("music_dna", result)
         self.assert_no_music_dna_match_fields(result)
 
+    def test_explicit_track_accepts_client_playback_aliases(self) -> None:
+        hass = FakeHass('{"summary":"Alias ok","full_text":"Detailed","confidence":0.8}')
+        runtime = Runtime()
+
+        result = asyncio.run(
+            self.track_insight.TrackInsightService().async_analyze(
+                hass,
+                runtime,
+                {
+                    "playback": {
+                        "track_name": "Windowlicker",
+                        "artist_name": "Aphex Twin",
+                        "album_name": "Windowlicker",
+                    },
+                    "backend": "spotify_direct",
+                },
+                source="websocket",
+            )
+        )
+
+        self.assertEqual(result["source"], "websocket")
+        self.assertEqual(result["track"]["title"], "Windowlicker")
+        self.assertEqual(result["track"]["artist"], "Aphex Twin")
+        self.assertEqual(result["track"]["album"], "Windowlicker")
+
     def test_cache_avoids_repeated_conversation_calls(self) -> None:
         hass = FakeHass('{"summary":"One","full_text":"One","confidence":0.8}')
         runtime = Runtime()

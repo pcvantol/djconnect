@@ -243,7 +243,7 @@ class NumberTest(unittest.TestCase):
         self.assertEqual(speaker.native_value, 44)
         self.assertEqual(screen_timeout.native_value, 45)
 
-    def test_setup_entry_adds_only_playback_volume_for_app_clients(self) -> None:
+    def test_setup_entry_skips_backend_volume_for_app_clients(self) -> None:
         for client_type in ("ios", "macos", "watchos", "raspberry_pi", "windows"):
             with self.subTest(client_type=client_type):
                 runtime = types.SimpleNamespace(
@@ -258,7 +258,7 @@ class NumberTest(unittest.TestCase):
 
                 asyncio.run(self.number.async_setup_entry(hass, entry, added.extend))
 
-                self.assertEqual([entity._attr_translation_key for entity in added], ["volume"])
+                self.assertEqual([entity._attr_translation_key for entity in added], [])
 
     def test_setup_entry_adds_device_numbers_for_esp32(self) -> None:
         runtime = types.SimpleNamespace(
@@ -275,7 +275,7 @@ class NumberTest(unittest.TestCase):
 
         self.assertEqual(
             [entity._attr_translation_key for entity in added],
-            ["volume", "brightness", "screen_timeout", "speaker_volume"],
+            ["brightness", "screen_timeout", "speaker_volume"],
         )
 
 

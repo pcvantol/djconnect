@@ -244,12 +244,12 @@ class DJConnectShuffleSwitchTest(unittest.TestCase):
 
     def test_setup_adds_wake_word_switch_only_for_esp32(self) -> None:
         for client_type, expected_count in (
-            ("esp32", 2),
-            ("ios", 1),
-            ("macos", 1),
-            ("watchos", 1),
-            ("raspberry_pi", 1),
-            ("windows", 1),
+            ("esp32", 1),
+            ("ios", 0),
+            ("macos", 0),
+            ("watchos", 0),
+            ("raspberry_pi", 0),
+            ("windows", 0),
         ):
             with self.subTest(client_type=client_type):
                 runtime = types.SimpleNamespace(

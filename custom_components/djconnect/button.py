@@ -8,6 +8,10 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.device_registry import DeviceInfo
+try:
+    from homeassistant.helpers import entity_registry as er
+except ImportError:  # pragma: no cover - older HA/test stubs
+    er = None
 
 from . import DEFAULT_TEST_TTS_TEXT, async_speak_dj_test
 from .const import (
@@ -27,6 +31,12 @@ from .use_cases import run_music_command
 
 _LOGGER = logging.getLogger(__name__)
 APPLE_PUSH_CLIENT_TYPES = {CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_WATCHOS}
+REMOVED_BACKEND_BUTTON_KEYS = (
+    "next_track",
+    "previous_track",
+    "play_pause",
+    "refresh_up_next",
+)
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -34,12 +44,9 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     runtime = hass.data[DOMAIN][entry.entry_id]
+    _remove_legacy_entities(hass, runtime, "button", REMOVED_BACKEND_BUTTON_KEYS)
     entities = [
         DJConnectTestVoiceButton(runtime, hass),
-        DJConnectCommandButton(runtime, hass, "next", "next_track"),
-        DJConnectCommandButton(runtime, hass, "previous", "previous_track"),
-        DJConnectCommandButton(runtime, hass, "play_pause", "play_pause"),
-        DJConnectRefreshUpNextButton(runtime, hass),
         DJConnectRefreshInfoButton(runtime, hass),
     ]
     if runtime.client_type() == CLIENT_TYPE_ESP32:
@@ -54,6 +61,27 @@ async def async_setup_entry(
     if runtime.client_type() in APPLE_PUSH_CLIENT_TYPES:
         entities.append(DJConnectTestPushButton(runtime, hass))
     async_add_entities(entities)
+
+
+def _remove_legacy_entities(
+    hass: HomeAssistant,
+    runtime: Any,
+    platform: str,
+    keys: tuple[str, ...],
+) -> None:
+    if er is None:
+        return
+    registry = er.async_get(hass)
+    if registry is None:
+        return
+    get_entity_id = getattr(registry, "async_get_entity_id", None)
+    remove_entity = getattr(registry, "async_remove", None)
+    if not callable(get_entity_id) or not callable(remove_entity):
+        return
+    for key in keys:
+        entity_id = get_entity_id(platform, DOMAIN, entry_unique_id(runtime, key))
+        if entity_id:
+            remove_entity(entity_id)
 
 class DJConnectTestVoiceButton(ButtonEntity):
     _attr_has_entity_name = True

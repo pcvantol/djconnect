@@ -8,6 +8,10 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+try:
+    from homeassistant.helpers import entity_registry as er
+except ImportError:  # pragma: no cover - older HA/test stubs
+    er = None
 
 from .const import CLIENT_TYPE_ESP32, DOMAIN
 from .entity_ids import entry_unique_id
@@ -16,6 +20,7 @@ from .use_cases import run_music_command
 _LOGGER = logging.getLogger(__name__)
 
 TURN_OFF_AFTER_OPTIONS = ["5", "15", "30", "60"]
+REMOVED_BACKEND_SELECT_KEYS = ("sound_output", "repeat_state")
 
 
 async def async_setup_entry(
@@ -24,24 +29,8 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     runtime = hass.data[DOMAIN][entry.entry_id]
-    entities: list[SelectEntity] = [
-        DJConnectCommandSelect(
-            runtime,
-            hass,
-            "sound_output",
-            "sound_output",
-            "set_output",
-            _options_from_status(runtime.device_status),
-        ),
-        DJConnectCommandSelect(
-            runtime,
-            hass,
-            "repeat_state",
-            "repeat_state",
-            "set_repeat",
-            ["off", "track", "context"],
-        ),
-    ]
+    _remove_legacy_entities(hass, runtime, "select", REMOVED_BACKEND_SELECT_KEYS)
+    entities: list[SelectEntity] = []
     if _runtime_client_type(runtime) == CLIENT_TYPE_ESP32:
         entities.extend(
             [
@@ -80,6 +69,27 @@ async def async_setup_entry(
             ]
         )
     async_add_entities(entities)
+
+
+def _remove_legacy_entities(
+    hass: HomeAssistant,
+    runtime: Any,
+    platform: str,
+    keys: tuple[str, ...],
+) -> None:
+    if er is None:
+        return
+    registry = er.async_get(hass)
+    if registry is None:
+        return
+    get_entity_id = getattr(registry, "async_get_entity_id", None)
+    remove_entity = getattr(registry, "async_remove", None)
+    if not callable(get_entity_id) or not callable(remove_entity):
+        return
+    for key in keys:
+        entity_id = get_entity_id(platform, DOMAIN, entry_unique_id(runtime, key))
+        if entity_id:
+            remove_entity(entity_id)
 
 
 class DJConnectCommandSelect(SelectEntity):

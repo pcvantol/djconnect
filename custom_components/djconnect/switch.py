@@ -8,12 +8,17 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+try:
+    from homeassistant.helpers import entity_registry as er
+except ImportError:  # pragma: no cover - older HA/test stubs
+    er = None
 
 from .const import CLIENT_TYPE_ESP32, DOMAIN
 from .entity_ids import entry_unique_id
 from .use_cases import run_music_command
 
 _LOGGER = logging.getLogger(__name__)
+REMOVED_BACKEND_SWITCH_KEYS = ("shuffle",)
 
 
 async def async_setup_entry(
@@ -22,10 +27,32 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     runtime = hass.data[DOMAIN][entry.entry_id]
-    entities: list[SwitchEntity] = [DJConnectShuffleSwitch(runtime, hass)]
+    _remove_legacy_entities(hass, runtime, "switch", REMOVED_BACKEND_SWITCH_KEYS)
+    entities: list[SwitchEntity] = []
     if _runtime_client_type(runtime) == CLIENT_TYPE_ESP32:
         entities.append(DJConnectWakeWordSwitch(runtime, hass))
     async_add_entities(entities)
+
+
+def _remove_legacy_entities(
+    hass: HomeAssistant,
+    runtime: Any,
+    platform: str,
+    keys: tuple[str, ...],
+) -> None:
+    if er is None:
+        return
+    registry = er.async_get(hass)
+    if registry is None:
+        return
+    get_entity_id = getattr(registry, "async_get_entity_id", None)
+    remove_entity = getattr(registry, "async_remove", None)
+    if not callable(get_entity_id) or not callable(remove_entity):
+        return
+    for key in keys:
+        entity_id = get_entity_id(platform, DOMAIN, entry_unique_id(runtime, key))
+        if entity_id:
+            remove_entity(entity_id)
 
 
 class DJConnectShuffleSwitch(SwitchEntity):

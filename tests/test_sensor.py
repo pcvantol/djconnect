@@ -331,8 +331,13 @@ class DJConnectSensorTest(unittest.TestCase):
         self.assertNotIn("led_state", keys)
         self.assertIn("status", keys)
         self.assertIn("last_corrected_stt", keys)
-        self.assertIn("queue", keys)
-        self.assertIn("playback_available", keys)
+        self.assertNotIn("last_track", keys)
+        self.assertNotIn("spotify_status", keys)
+        self.assertNotIn("sound_output", keys)
+        self.assertNotIn("playback_available", keys)
+        self.assertNotIn("queue", keys)
+        self.assertNotIn("playlists", keys)
+        self.assertNotIn("outputs", keys)
 
     def test_hardware_sensors_are_added_for_esp32_clients(self) -> None:
         added = []

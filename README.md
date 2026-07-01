@@ -103,13 +103,14 @@ and reauthorize DJConnect.
 
 ## Common Entities
 
-DJConnect can expose playback/status entities such as:
+DJConnect keeps music-backend playback state inside the integration and clients
+instead of exposing separate Spotify/Music Assistant playback entities in Home
+Assistant. Common entities include:
 
-- status, last command and last track sensors
-- playback availability, queue, playlists and outputs
-- sound output select
-- test voice, refresh queue and refresh device-info buttons
-- firmware update and ESP hardware entities for supported ESP32 devices
+- status, last command and corrected STT sensors
+- test voice and refresh device-info buttons
+- firmware update and ESP hardware/settings entities for supported ESP32 devices
+- Raspberry Pi restart/shutdown buttons
 - APNs readiness diagnostics for Apple app clients
 
 Entity IDs can differ if Home Assistant renames the device or entities.
