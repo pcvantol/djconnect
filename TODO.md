@@ -268,6 +268,6 @@
 - Refresh HACS update info in Home Assistant.
 - Install new release from HACS.
 - Restart Home Assistant.
-- Release/tag cleanup after v3.2.5 is done; `./cleanup_old_releases.sh --keep 1 --execute` should keep only `v3.2.5` when cleanup is run for this release line.
+- Release/tag cleanup after v3.2.15 is done; `./cleanup_old_releases.sh --keep 1 --execute` should keep only `v3.2.15` when cleanup is run for this release line unless multiple releases are intentionally retained.
 - Clean up old completed GitHub Actions workflow runs after every release, keeping only the newest release/tag validation and newest `main` validation unless debugging requires more history.
 - Keep the CI Postman collection validator aligned with `examples/djconnect.postman_collection.json` whenever API examples change.

@@ -29,9 +29,9 @@
           "local_url": "Lokale apparaat-API fallback; laat leeg wanneer mDNS werkt.",
           "discovered_client": "Kies een automatisch gevonden DJConnect client om de koppelgegevens voor te vullen, of gebruik handmatige invoer.",
           "app_pair_code": "Gebruik deze code in macOS/Windows, of laat iPhone/iPad/Apple Watch hem via de QR/deep-link payload overnemen.",
-          "app_ha_local_url": "Lokale Home Assistant URL die de app tijdens pairing gebruikt.",
+          "app_ha_local_url": "Lokale Home Assistant URL die de app tijdens het koppelen gebruikt.",
           "app_iphone_pairing_uri": "QR/deep-link payload voor de iPhone/iPad app.",
-          "app_watch_pairing_uri": "QR/deep-link payload die je op iPhone/iPad scant om de gekoppelde Apple Watch te pairen."
+          "app_watch_pairing_uri": "QR/deep-link payload die je op iPhone/iPad scant om de gekoppelde Apple Watch te koppelen."
         }
       },
       "pair_type": {
@@ -49,9 +49,6 @@
         "description": "Kies welk lokaal DJConnect apparaat je wilt koppelen.",
         "data": {
           "client_type": "Clienttype"
-        },
-        "data_description": {
-          "client_type": "Kies ESP32 of Raspberry Pi."
         }
       },
       "pair_local_device_details": {
@@ -104,9 +101,9 @@
           "device_name": "Leesbare naam voor deze app-installatie.",
           "client_type": "Kies iPhone/iPad, Apple Watch, macOS of Windows.",
           "app_pair_code": "Gebruik deze code in macOS/Windows, of laat iPhone/iPad/Apple Watch hem via de QR/deep-link payload overnemen.",
-          "app_ha_local_url": "Lokale Home Assistant URL die de app tijdens pairing gebruikt.",
+          "app_ha_local_url": "Lokale Home Assistant URL die de app tijdens het koppelen gebruikt.",
           "app_iphone_pairing_uri": "QR/deep-link payload voor de iPhone/iPad app.",
-          "app_watch_pairing_uri": "QR/deep-link payload die je op iPhone/iPad scant om de gekoppelde Apple Watch te pairen."
+          "app_watch_pairing_uri": "QR/deep-link payload die je op iPhone/iPad scant om de gekoppelde Apple Watch te koppelen."
         }
       },
       "pair_app_type": {
@@ -132,7 +129,7 @@
       },
       "pair_app_watch_details": {
         "title": "DJConnect Apple Watch app koppelen",
-        "description": "Scan deze Watch QR-code op de iPhone/iPad om de gekoppelde Apple Watch te pairen.\n\n![Apple Watch QR-code]({watch_qr_image})",
+        "description": "Scan deze Watch QR-code op de iPhone/iPad om de gekoppelde Apple Watch te koppelen.\n\n![Apple Watch QR-code]({watch_qr_image})",
         "data": {
           "app_pair_code": "Koppelcode",
           "app_ha_local_url": "Home Assistant URL",
@@ -154,7 +151,7 @@
         },
         "data_description": {
           "app_pair_code": "Voer deze koppelcode in de macOS app in.",
-          "app_ha_local_url": "Lokale Home Assistant URL die de app tijdens pairing gebruikt.",
+          "app_ha_local_url": "Lokale Home Assistant URL die de app tijdens het koppelen gebruikt.",
           "device_name": "Leesbare naam voor deze macOS app-installatie."
         }
       },
@@ -168,7 +165,7 @@
         },
         "data_description": {
           "app_pair_code": "Voer deze koppelcode in de Windows app in.",
-          "app_ha_local_url": "Lokale Home Assistant URL die de app tijdens pairing gebruikt.",
+          "app_ha_local_url": "Lokale Home Assistant URL die de app tijdens het koppelen gebruikt.",
           "device_name": "Leesbare naam voor deze Windows app-installatie."
         }
       },
@@ -232,7 +229,7 @@
       },
       "repair_pairing": {
         "title": "DJConnect opnieuw koppelen",
-        "description": "Zet het DJConnect apparaat in pairingmodus en voer de nieuwe koppelcode in die op het display staat. Home Assistant maakt een nieuw apparaattoken.",
+        "description": "Zet het DJConnect apparaat in koppelmodus en voer de nieuwe koppelcode in die op het display staat. Home Assistant maakt een nieuw apparaattoken.",
         "data": {
           "pair_code": "Nieuwe koppelcode",
           "local_url": "Client adres"
@@ -304,7 +301,7 @@
       "wifi_ssid_required": "Vul de WiFi SSID in om te provisionen.",
       "ble_wifi_failed": "WiFi provisioning via Bluetooth is mislukt. Controleer apparaat, SSID en wachtwoord en probeer opnieuw.",
       "app_pairing_not_received": "DJConnect heeft nog geen koppeling van de app ontvangen. Vul de Home Assistant URL en koppelcode in de app in, tik daar op koppelen en ga daarna hier verder.",
-      "pairing_info_unavailable": "Home Assistant ziet dit lokale DJConnect apparaat via mDNS, maar kan het pairing-info endpoint niet bereiken. Controleer het Client adres of vul het handmatig in.",
+      "pairing_info_unavailable": "Home Assistant ziet dit lokale DJConnect apparaat via mDNS, maar kan het endpoint voor koppelingsinformatie niet bereiken. Controleer het Client adres of vul het handmatig in.",
       "repair_pairing_failed": "Opnieuw koppelen is mislukt. Controleer of het DJConnect apparaat bereikbaar is en een koppelcode toont.",
       "central_api_url_invalid": "Vul een volledige HTTPS DJConnect API URL in.",
       "install_token_invalid": "Voer een DJConnect install-token in die begint met djci_.",
@@ -344,9 +341,23 @@
           "voice_profile": "Kies de server-side DJConnect radiostijl. De gekozen Home Assistant TTS stem blijft bepalen hoe de audio klinkt; mood bepaalt de energie."
         }
       },
+      "conversation_agent_init": {
+        "title": "DJConnect opties",
+        "description": "Beheer DJConnect acties zoals het DJ stemprofiel wijzigen, de muziekbackend wijzigen of Spotify opnieuw autoriseren. Spotify is een handelsmerk van Spotify AB. DJConnect is niet verbonden aan, goedgekeurd door of gesponsord door Spotify AB.",
+        "data": {
+          "options_action": "Actie",
+          "music_backend": "Muziekbackend",
+          "voice_profile": "DJ stemprofiel"
+        },
+        "data_description": {
+          "options_action": "Kies welke actie je wilt uitvoeren.",
+          "music_backend": "Gekozen playback-backend.",
+          "voice_profile": "Kies de server-side DJConnect radiostijl. De gekozen Home Assistant TTS stem blijft bepalen hoe de audio klinkt; mood bepaalt de energie."
+        }
+      },
       "music_backend": {
         "title": "Muziekbackend wijzigen",
-        "description": "De huidige backend staat hieronder. Wisselen behoudt pairing, apparaattokens, Ask DJ history, Music DNA en pushregistraties. Oude backend-specifieke Ask DJ playback-acties of aanbevelingen zijn mogelijk niet meer uitvoerbaar.",
+        "description": "De huidige backend staat hieronder. Wisselen behoudt de koppeling, apparaattokens, Ask DJ history, Music DNA en pushregistraties. Oude backend-specifieke Ask DJ playback-acties of aanbevelingen zijn mogelijk niet meer uitvoerbaar.",
         "data": {
           "music_backend": "Muziekbackend"
         },
@@ -366,7 +377,7 @@
       },
       "repair_pairing": {
         "title": "DJConnect opnieuw koppelen",
-        "description": "Zet het DJConnect apparaat in pairingmodus en voer de nieuwe koppelcode in die op het display staat. Home Assistant maakt een nieuw apparaattoken.",
+        "description": "Zet het DJConnect apparaat in koppelmodus en voer de nieuwe koppelcode in die op het display staat. Home Assistant maakt een nieuw apparaattoken.",
         "data": {
           "pair_code": "Nieuwe koppelcode",
           "local_url": "Client adres"
@@ -448,7 +459,7 @@
         "name": "Spotify status"
       },
       "ha_pairing_status": {
-        "name": "HA pairingstatus"
+        "name": "HA koppelingsstatus"
       },
       "sound_output": {
         "name": "Geluidsuitvoer"
@@ -484,9 +495,6 @@
       },
       "play_pause": {
         "name": "Play/pauze"
-      },
-      "refresh_device_info": {
-        "name": "Apparaatinfo verversen"
       },
       "refresh_up_next": {
         "name": "Up next verversen"

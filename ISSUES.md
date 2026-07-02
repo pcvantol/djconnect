@@ -269,7 +269,8 @@
 - Ask DJ history retention messages must not generate audio and must not leak raw prompts, tokens or raw voice payloads.
 - Ask DJ confirmation actions must execute only the pending server-side proposal and expire cleanly; a bare `ja` must not trigger arbitrary playback without pending context.
 - All entities should remain grouped under one HA device.
-- `number.djconnect_volume` must not publish out-of-range values such as `-1`.
+- Legacy backend/playback entities such as `number.djconnect_volume` should be
+  removed from the entity registry during setup and must not be recreated.
 - Spotify OAuth scopes must keep `playlist-read-private`.
 - Pairing must reject mismatched pairing codes.
 - BLE provisioning must remain WiFi-only.

@@ -34,7 +34,7 @@ instead of storing their own copy.
 ## Current Protocol Line
 
 The current shared protocol/release line is `3.2.x`; this bundle was last
-aligned after Home Assistant integration release `v3.2.5`. DJConnect clients on the
+aligned after Home Assistant integration release `v3.2.15`. DJConnect clients on the
 `3.2.x` line are compatible with Home Assistant integration versions `>=3.2.0`
 and `<3.3.0`.
 
@@ -230,7 +230,7 @@ Requirements:
   text, TTS or local audio. Informational text chat is text-only by default;
   replay is shown only when an audio response exists.
 - Keep Ask DJ requirements visible and user-facing: Home Assistant, HACS
-  DJConnect integration v3.2.5 or newer, an Assist pipeline with STT/TTS for
+  DJConnect integration v3.2.15 or newer, an Assist pipeline with STT/TTS for
   voice/audio, and one selected music backend. Spotify Direct requires Spotify
   Premium, the user's own Spotify Developer app with Client ID and preferably
   Nabu Casa or another stable HTTPS external URL for Spotify OAuth. Music
@@ -478,9 +478,11 @@ Requirements:
   ask_dj_voice_supported, voice_supported, tts_supported,
   local_audio_supported and ask_dj_audio_response_supported.
 - Ask DJ clear sync uses POST /api/djconnect/ask_dj/history/clear. Clients
-  clear local chat cache when their local clear_revision is older than the
-  server clear_revision, then reload server history. Raspberry Pi must observe
-  clear_revision through history sync, but must not expose a local clear action.
+  clear local chat cache immediately when the response has `success:true`,
+  `cleared:true`, `ask_dj_clear_required:true` or a newer `clear_revision`.
+  Then store the returned sync revisions and reload server history if needed.
+  Raspberry Pi must observe clear_revision through history sync, but must not
+  expose a local clear action.
 - Ask DJ follow-up questions can include `confirmation_actions[]` and
   confirmation-style `playback_actions[]` for Ja/Nee buttons. Send the selected
   answer to POST /api/djconnect/command with command
@@ -727,8 +729,9 @@ Requirements:
   `GET /api/djconnect/ask_dj/history?since_revision=<number>`; clear uses
   `POST /api/djconnect/ask_dj/history/clear`.
 - Persist only local sync cursors such as `history_revision` and
-  `clear_revision`. Clear local display cache when HA clear_revision advances
-  or pairing becomes stale. Honor `history_trimmed_before` and
+  `clear_revision`. Clear local display cache when HA clear_revision advances,
+  when a clear response includes `cleared:true`, or pairing becomes stale.
+  Honor `history_trimmed_before` and
   `history_trimmed_count` without parsing visible retention-message text.
 - Render Ask DJ `playback_actions[]` and `confirmation_actions[]` from HA.
   Confirmation actions use `command:"ask_dj_followup_response"`;
@@ -1619,8 +1622,8 @@ Recommended fields:
   "device_id": "djconnect-ios-8F3A2C91B45D",
   "device_name": "DJConnect iPhone",
   "client_type": "ios",
-  "firmware": "3.1.13",
-  "app_version": "3.1.13",
+  "firmware": "3.2.15",
+  "app_version": "3.2.15",
   "platform": "ios"
 }
 ```
@@ -1632,8 +1635,8 @@ For macOS:
   "device_id": "djconnect-macos-8F3A2C91B45D",
   "device_name": "DJConnect Mac",
   "client_type": "macos",
-  "firmware": "3.1.13",
-  "app_version": "3.1.13",
+  "firmware": "3.2.15",
+  "app_version": "3.2.15",
   "platform": "macos"
 }
 ```
@@ -1667,10 +1670,10 @@ Expected response:
   "success": false,
   "error": "version_mismatch",
   "message": "DJConnect Home Assistant integration and device firmware major.minor versions must match.",
-  "ha_version": "3.1.13",
-  "ha_major_minor": "3.1",
-  "firmware": "3.0.9",
-  "firmware_major_minor": "3.0"
+  "ha_version": "3.2.15",
+  "ha_major_minor": "3.2",
+  "firmware": "3.1.9",
+  "firmware_major_minor": "3.1"
 }
 ```
 
@@ -1777,7 +1780,11 @@ POST /api/device/forget
 `POST /api/device/reboot` and `POST /api/device/ota` are ESP-specific and
 should not be implemented unless the Apple app has a real equivalent.
 
-`GET /api/device/pairing-info` should return:
+App clients are inbound-only in the `3.2.x` contract. They do not expose
+Home Assistant-callable `/api/device/*` endpoints. Pairing material is generated
+by Home Assistant and the app posts it back to `/api/djconnect/pair`.
+
+The local app pairing payload sent to Home Assistant should include:
 
 ```json
 {
@@ -1785,9 +1792,9 @@ should not be implemented unless the Apple app has a real equivalent.
   "device_name": "DJConnect iPhone",
   "pair_code": "123456",
   "client_type": "ios",
-  "firmware": "3.1.13",
-  "app_version": "3.1.13",
-  "local_url": "http://djconnect-ios-8F3A2C91B45D.local:18080"
+  "firmware": "3.2.15",
+  "app_version": "3.2.15",
+  "platform": "ios"
 }
 ```
 
@@ -1796,15 +1803,14 @@ For watchOS, use `client_type:"watchos"`, `platform:"watchos"` and a
 `djconnect-watchos-...` device id.
 Never use `device_type` for identity.
 
-`POST /api/device/pair` from HA should accept:
+Home Assistant responds with DJConnect pairing data such as:
 
 ```json
 {
-  "pair_code": "123456",
-  "device_id": "djconnect-ios-8F3A2C91B45D",
-  "client_type": "ios",
+  "success": true,
   "device_token": "<device-token>",
-  "ha_local_url": "http://192.168.1.x:8123"
+  "ha_local_url": "http://192.168.1.x:8123",
+  "ha_remote_url": "https://example.ui.nabu.casa"
 }
 ```
 
@@ -1814,34 +1820,16 @@ Rules:
 - Accept only the expected `client_type` for the target app (`ios`, `macos` or `watchos`).
 - Store only the DJConnect bearer token, HA local URL and lightweight
   DJConnect settings.
-- Keep `ha_local_url` as the normal route for app -> HA status, command and
-  voice calls; `ha_remote_url` is fallback/diagnostics, not the normal path.
-- Do not erase the token automatically on a single HA -> app command failure.
+- Keep `ha_local_url` as the normal route for app -> HA status, command, Ask DJ
+  and voice calls; `ha_remote_url` is fallback/diagnostics for remote-capable
+  iOS/macOS/Windows clients.
+- Do not expose app-local `/api/device/*` endpoints for HA to call.
 - Return concise JSON errors for unauthorized, wrong device id, wrong
   client_type, missing token, or unsupported command.
 
-`POST /api/device/command` is where HA native entities should control the app.
-Suggested command scope:
-
-- status request;
-- playback controls mirrored into app state if relevant;
-- language/theme/log-level updates;
-- voice/PTT enable flags if exposed as HA entities;
-- diagnostics/log export trigger if explicitly supported.
-
-`POST /api/device/dj_response` should let HA push DJ announcement text and optional
-audio URL to the app UI:
-
-```json
-{
-  "text": "Daar gaan we.",
-  "audio_url": "http://homeassistant.local:8123/api/djconnect/tts/token.mp3"
-}
-```
-
-The app may display the text and play returned WAV/MP3 audio locally if enabled.
-If playback is disabled or unsupported, acknowledge the command and show the
-text-only response.
+DJ announcements, Ask DJ messages, playback actions and history clear/sync use
+the `/api/djconnect/...` endpoints or the optional Home Assistant websocket fast
+path. HTTP remains the canonical fallback.
 
 ## Status Endpoint
 
@@ -1858,8 +1846,8 @@ Minimum payload:
   "device_id": "djconnect-ios-8F3A2C91B45D",
   "client_type": "ios",
   "ha_pairing_status": "paired",
-  "firmware": "3.1.13",
-  "app_version": "3.1.13",
+  "firmware": "3.2.15",
+  "app_version": "3.2.15",
   "state": "online",
   "status": "online",
   "battery_percent": 85,

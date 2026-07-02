@@ -1600,6 +1600,67 @@ class VoiceHttpHelperTest(unittest.TestCase):
             "Peter Mac",
         )
 
+    def test_pair_view_prioritizes_open_app_pairing_over_conversation_runtime(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+
+        pending = {
+            "533968": {
+                const.CONF_PAIR_CODE: "533968",
+                const.CONF_CLIENT_TYPE: const.CLIENT_TYPE_MACOS,
+                const.CONF_DEVICE_TOKEN: "pending-macos-token",
+                const.CONF_ASSIST_PIPELINE_ID: "assist-pipeline",
+                "flow_id": "flow-macos",
+                "ha_local_url": "https://victory-curvy-refold.ngrok-free.dev",
+                "pairing_received": {},
+            }
+        }
+
+        class Runtime:
+            config = {
+                const.CONF_CLIENT_TYPE: const.CLIENT_TYPE_CONVERSATION_AGENT,
+                const.CONF_DEVICE_ID: "djconnect-conversation-agent",
+            }
+            device_status = {"device_id": "djconnect-conversation-agent"}
+
+            def update(self, **kwargs):
+                self.last_update = kwargs
+
+        runtime = Runtime()
+        hass = types.SimpleNamespace(
+            data={
+                const.DOMAIN: {
+                    "runtime": runtime,
+                    "config_flow_app_pairing_pending": pending,
+                }
+            },
+            config=types.SimpleNamespace(
+                internal_url="https://victory-curvy-refold.ngrok-free.dev",
+            ),
+        )
+
+        class Request:
+            app = {"hass": hass}
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-macos-160F462296C9",
+                    "device_name": "DJConnect Mac",
+                    "client_type": "macos",
+                    "pair_code": "533968",
+                }
+
+        response = asyncio.run(self.http.DJConnectPairView(None).post(Request()))
+
+        self.assertEqual(response["status_code"], 200)
+        self.assertTrue(response["payload"]["setup_pending"])
+        self.assertEqual(response["payload"]["client_type"], "macos")
+        self.assertEqual(response["payload"]["device_token"], "pending-macos-token")
+        self.assertEqual(
+            pending["533968"]["pairing_received"][const.CONF_DEVICE_ID],
+            "djconnect-macos-160F462296C9",
+        )
+        self.assertFalse(hasattr(runtime, "last_update"))
+
     def test_pair_view_rejects_pending_app_client_type_mismatch_distinctly(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
 

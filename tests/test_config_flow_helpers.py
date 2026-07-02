@@ -1649,7 +1649,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
             self.const.MUSIC_BACKEND_MUSIC_ASSISTANT,
         )
 
-    def test_conversation_agent_music_assistant_setup_skips_voice_step(self) -> None:
+    def test_conversation_agent_music_assistant_setup_routes_to_voice_profile(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = _hass_with_music_assistant_player()
         flow._conversation_agent_only = True
@@ -1666,18 +1666,8 @@ class ConfigFlowHelperTest(unittest.TestCase):
             )
         )
 
-        self.assertEqual(result["type"], "create_entry")
-        self.assertEqual(result["title"], "DJConnect DJ")
-        self.assertEqual(
-            result["data"][self.const.CONF_MUSIC_BACKEND],
-            self.const.MUSIC_BACKEND_MUSIC_ASSISTANT,
-        )
-        self.assertEqual(
-            result["data"][self.const.CONF_MUSIC_ASSISTANT_PLAYER],
-            "media_player.mass_living",
-        )
-        self.assertNotIn(self.const.CONF_DEVICE_TOKEN, result["data"])
-        self.assertNotIn(self.const.CONF_LOCAL_URL, result["data"])
+        self.assertEqual(result["type"], "form")
+        self.assertEqual(result["step_id"], "voice")
         self.assertEqual(
             flow._backend[self.const.CONF_MUSIC_ASSISTANT_PLAYER],
             "media_player.mass_living",
@@ -1912,7 +1902,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(result["title"], "DJConnect autoriseren bij Spotify")
         self.assertIn("Home Assistant opent Spotify", result["description"])
 
-    def test_conversation_agent_spotify_oauth_skips_voice_step_after_callback(self) -> None:
+    def test_conversation_agent_spotify_oauth_routes_to_voice_profile_after_callback(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(
             data={
@@ -1943,7 +1933,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         result = asyncio.run(flow.async_step_spotify_oauth({"state": "oauth-state"}))
 
         self.assertEqual(result["type"], "external_done")
-        self.assertEqual(result["next_step_id"], "finish_conversation_agent")
+        self.assertEqual(result["next_step_id"], "voice")
 
     def test_finish_conversation_agent_step_creates_entry(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
@@ -2056,7 +2046,11 @@ class ConfigFlowHelperTest(unittest.TestCase):
             self.const.CONF_HA_EXTERNAL_URL: "https://example.ui.nabu.casa",
         }
 
-        result = asyncio.run(flow.async_step_voice({}))
+        result = asyncio.run(
+            flow.async_step_voice(
+                {self.const.CONF_VOICE_PROFILE: self.const.VOICE_PROFILE_LATE_NIGHT}
+            )
+        )
 
         self.assertEqual(result["type"], "create_entry")
         self.assertEqual(result["title"], "DJConnect DJ")
@@ -2064,10 +2058,14 @@ class ConfigFlowHelperTest(unittest.TestCase):
             result["data"][self.const.CONF_CLIENT_TYPE],
             self.const.CLIENT_TYPE_CONVERSATION_AGENT,
         )
+        self.assertEqual(
+            result["data"][self.const.CONF_VOICE_PROFILE],
+            self.const.VOICE_PROFILE_LATE_NIGHT,
+        )
         self.assertNotIn(self.const.CONF_DEVICE_TOKEN, result["data"])
         self.assertNotIn(self.const.CONF_LOCAL_URL, result["data"])
 
-    def test_voice_step_conversation_agent_setup_hides_device_fields(self) -> None:
+    def test_voice_step_conversation_agent_setup_shows_only_voice_profile(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(states=None)
         flow._conversation_agent_only = True
@@ -2075,6 +2073,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         form = asyncio.run(flow.async_step_voice())
         keys = {marker.key for marker in form["data_schema"].schema}
 
+        self.assertIn(self.const.CONF_VOICE_PROFILE, keys)
         self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT_PRESET, keys)
         self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
         self.assertNotIn(self.const.CONF_DJ_RESPONSE_ENABLED, keys)
@@ -2224,6 +2223,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
     def test_options_flow_shows_only_conversation_agent_relevant_fields(self) -> None:
         entry = types.SimpleNamespace(
             data={
+                self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_CONVERSATION_AGENT,
                 self.const.CONF_LOCAL_URL: "http://device.local",
                 self.const.CONF_ASSIST_PIPELINE_ID: "pipeline-1",
                 self.const.CONF_FIRMWARE_CHANNEL: "beta",
@@ -2237,6 +2237,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         keys = {marker.key for marker in form["data_schema"].schema}
 
         self.assertIs(form["last_step"], False)
+        self.assertEqual(form["step_id"], "conversation_agent_init")
         self.assertIn(self.config_flow.OPTIONS_ACTION_FIELD, keys)
         self.assertNotIn(self.const.CONF_DJ_RESPONSE_ENABLED, keys)
         self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT_PRESET, keys)

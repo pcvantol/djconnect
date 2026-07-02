@@ -204,7 +204,9 @@ async def websocket_command(hass: Any, connection: Any, msg: dict[str, Any]) -> 
         vol.Optional("client_id"): str,
         vol.Optional("device_name"): str,
         vol.Optional("device_token"): str,
+        vol.Optional("client_token"): str,
         vol.Optional("authorization"): str,
+        vol.Optional("identity"): dict,
         vol.Optional("client_message_id"): str,
         vol.Optional("text"): str,
         vol.Optional("audio_response"): str,
@@ -222,6 +224,7 @@ async def websocket_ask_dj_message(hass: Any, connection: Any, msg: dict[str, An
             "client_type",
             "client_id",
             "device_name",
+            "identity",
             "client_message_id",
             "text",
             "audio_response",
@@ -249,7 +252,9 @@ async def websocket_ask_dj_message(hass: Any, connection: Any, msg: dict[str, An
         vol.Optional("device_id"): str,
         vol.Optional("client_type"): str,
         vol.Optional("device_token"): str,
+        vol.Optional("client_token"): str,
         vol.Optional("authorization"): str,
+        vol.Optional("identity"): dict,
         vol.Optional("since_revision"): object,
     }
 )
@@ -261,6 +266,7 @@ async def websocket_ask_dj_history(hass: Any, connection: Any, msg: dict[str, An
         (
             "device_id",
             "client_type",
+            "identity",
             "since_revision",
         ),
     )
@@ -286,7 +292,9 @@ async def websocket_ask_dj_history(hass: Any, connection: Any, msg: dict[str, An
         vol.Optional("client_id"): str,
         vol.Optional("device_name"): str,
         vol.Optional("device_token"): str,
+        vol.Optional("client_token"): str,
         vol.Optional("authorization"): str,
+        vol.Optional("identity"): dict,
     }
 )
 @_async_response
@@ -299,6 +307,7 @@ async def websocket_ask_dj_history_clear(hass: Any, connection: Any, msg: dict[s
             "client_type",
             "client_id",
             "device_name",
+            "identity",
         ),
     )
     headers = _headers_from_message(payload, msg)
@@ -321,7 +330,9 @@ async def websocket_ask_dj_history_clear(hass: Any, connection: Any, msg: dict[s
         vol.Optional("device_id"): str,
         vol.Optional("client_type"): str,
         vol.Optional("device_token"): str,
+        vol.Optional("client_token"): str,
         vol.Optional("authorization"): str,
+        vol.Optional("identity"): dict,
         vol.Optional("since_revision"): object,
         vol.Optional("clear_revision"): object,
     }
@@ -334,6 +345,7 @@ async def websocket_ask_dj_history_state(hass: Any, connection: Any, msg: dict[s
         (
             "device_id",
             "client_type",
+            "identity",
             "since_revision",
             "clear_revision",
         ),
@@ -360,7 +372,9 @@ async def websocket_ask_dj_history_state(hass: Any, connection: Any, msg: dict[s
         vol.Optional("client_id"): str,
         vol.Optional("device_name"): str,
         vol.Optional("device_token"): str,
+        vol.Optional("client_token"): str,
         vol.Optional("authorization"): str,
+        vol.Optional("identity"): dict,
         vol.Optional("music_dna_key"): str,
         vol.Optional("mood"): object,
     }
@@ -375,6 +389,7 @@ async def websocket_ask_dj_idle_suggestion(hass: Any, connection: Any, msg: dict
             "client_type",
             "client_id",
             "device_name",
+            "identity",
             "music_dna_key",
             "mood",
         ),
@@ -401,7 +416,9 @@ async def websocket_ask_dj_idle_suggestion(hass: Any, connection: Any, msg: dict
         vol.Optional("client_id"): str,
         vol.Optional("device_name"): str,
         vol.Optional("device_token"): str,
+        vol.Optional("client_token"): str,
         vol.Optional("authorization"): str,
+        vol.Optional("identity"): dict,
         vol.Optional("title"): str,
         vol.Optional("artist"): str,
         vol.Optional("album"): str,
@@ -419,6 +436,7 @@ async def websocket_track_insight(hass: Any, connection: Any, msg: dict[str, Any
             "client_type",
             "client_id",
             "device_name",
+            "identity",
             "title",
             "track_name",
             "media_title",
@@ -589,11 +607,35 @@ def _send_error(connection: Any, msg: dict[str, Any], result: dict[str, Any]) ->
 
 def _headers_from_message(payload: dict[str, Any], msg: dict[str, Any]) -> dict[str, str]:
     headers: dict[str, str] = {}
-    device_id = str(payload.get("device_id") or msg.get("device_id") or "").strip()
+    payload_identity = payload.get("identity") if isinstance(payload.get("identity"), dict) else {}
+    msg_identity = msg.get("identity") if isinstance(msg.get("identity"), dict) else {}
+    identity = {**msg_identity, **payload_identity}
+    device_id = str(
+        payload.get("device_id")
+        or msg.get("device_id")
+        or identity.get("device_id")
+        or identity.get("client_id")
+        or ""
+    ).strip()
     if device_id:
         headers["X-DJConnect-Device-ID"] = device_id
-    token = str(msg.get("device_token") or payload.get("device_token") or "").strip()
-    authorization = str(msg.get("authorization") or payload.get("authorization") or "").strip()
+    token = str(
+        msg.get("device_token")
+        or msg.get("client_token")
+        or payload.get("device_token")
+        or payload.get("client_token")
+        or identity.get("device_token")
+        or identity.get("client_token")
+        or identity.get("token")
+        or identity.get("bearer_token")
+        or ""
+    ).strip()
+    authorization = str(
+        msg.get("authorization")
+        or payload.get("authorization")
+        or identity.get("authorization")
+        or ""
+    ).strip()
     if authorization:
         headers["Authorization"] = (
             authorization if authorization.lower().startswith("bearer ") else f"Bearer {authorization}"

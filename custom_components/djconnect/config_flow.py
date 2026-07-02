@@ -929,9 +929,16 @@ def _music_backend_switch_schema(defaults: dict[str, Any]) -> vol.Schema:
     )
 
 
-def _conversation_agent_voice_schema(defaults: dict[str, Any]) -> vol.Schema:
+def _conversation_agent_voice_schema(hass: Any, defaults: dict[str, Any]) -> vol.Schema:
     """Build the compact setup schema used for Assist conversation agent entries."""
-    return vol.Schema({})
+    return vol.Schema(
+        {
+            vol.Optional(
+                CONF_VOICE_PROFILE,
+                default=normalize_voice_profile(defaults.get(CONF_VOICE_PROFILE)),
+            ): vol.In(voice_profile_options(_ha_language(hass))),
+        }
+    )
 
 
 def _central_api_schema(current: dict[str, Any]) -> vol.Schema:
@@ -1907,8 +1914,6 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_MUSIC_ASSISTANT_PLAYER: player,
                 }
                 self._spotify = {}
-                if getattr(self, "_conversation_agent_only", False):
-                    return self._create_conversation_agent_entry()
                 return await self.async_step_voice()
 
         return self.async_show_form(
@@ -2021,10 +2026,6 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             errors = self._handle_spotify_oauth_result(user_input)
             if not errors:
-                if getattr(self, "_conversation_agent_only", False):
-                    return self.async_external_step_done(
-                        next_step_id="finish_conversation_agent"
-                    )
                 return self.async_external_step_done(next_step_id="voice")
 
         if errors:
@@ -2090,7 +2091,10 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Finish conversation-agent-only setup without showing voice settings."""
         return self._create_conversation_agent_entry()
 
-    def _create_conversation_agent_entry(self) -> FlowResult:
+    def _create_conversation_agent_entry(
+        self,
+        voice_values: dict[str, Any] | None = None,
+    ) -> FlowResult:
         """Create the compact conversation-agent-only config entry."""
         data: dict[str, Any] = {}
         data.update(self._pairing)
@@ -2098,7 +2102,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         data.update(self._spotify)
         data.update(
             _voice_defaults_for_client(
-                {},
+                voice_values or {},
                 client_type=CLIENT_TYPE_CONVERSATION_AGENT,
             )
         )
@@ -2128,7 +2132,9 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     )
                 )
                 if getattr(self, "_conversation_agent_only", False):
-                    return self._create_conversation_agent_entry()
+                    return self._create_conversation_agent_entry(
+                        _voice_form_values(user_input)
+                    )
                 if not self._client_type_uses_local_device_api(client_type):
                     return self.async_create_entry(
                         title=data.get(CONF_DEVICE_NAME, DEFAULT_DEVICE_NAME),
@@ -2164,7 +2170,13 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="voice",
             data_schema=(
-                _conversation_agent_voice_schema(_voice_defaults({}))
+                _conversation_agent_voice_schema(
+                    self.hass,
+                    _voice_defaults_for_client(
+                        {},
+                        client_type=CLIENT_TYPE_CONVERSATION_AGENT,
+                    ),
+                )
                 if getattr(self, "_conversation_agent_only", False)
                 else await _voice_schema(
                     self.hass,
@@ -2239,7 +2251,11 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
                 )
 
         return self.async_show_form(
-            step_id="init",
+            step_id=(
+                "conversation_agent_init"
+                if current.get(CONF_CLIENT_TYPE) == CLIENT_TYPE_CONVERSATION_AGENT
+                else "init"
+            ),
             data_schema=_conversation_agent_options_schema(self.hass, current),
             errors=errors,
             last_step=False,

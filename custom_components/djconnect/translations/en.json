@@ -49,9 +49,6 @@
         "description": "Choose which local DJConnect device you want to pair.",
         "data": {
           "client_type": "Client type"
-        },
-        "data_description": {
-          "client_type": "Choose ESP32 or Raspberry Pi."
         }
       },
       "pair_local_device_details": {
@@ -344,6 +341,20 @@
           "voice_profile": "Choose the server-side DJConnect radio style. The selected Home Assistant TTS voice still determines the actual audio voice; mood controls energy."
         }
       },
+      "conversation_agent_init": {
+        "title": "DJConnect options",
+        "description": "Manage DJConnect actions such as changing the DJ voice profile, changing the music backend or reauthorizing Spotify. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB.",
+        "data": {
+          "options_action": "Action",
+          "music_backend": "Music backend",
+          "voice_profile": "DJ voice profile"
+        },
+        "data_description": {
+          "options_action": "Choose which action to run.",
+          "music_backend": "Selected playback backend.",
+          "voice_profile": "Choose the server-side DJConnect radio style. The selected Home Assistant TTS voice still determines the actual audio voice; mood controls energy."
+        }
+      },
       "music_backend": {
         "title": "Change music backend",
         "description": "Current backend is shown below. Switching keeps pairing, device tokens, Ask DJ history, Music DNA and push registrations. Older backend-specific Ask DJ playback actions or recommendations may no longer be executable.",
@@ -484,9 +495,6 @@
       },
       "play_pause": {
         "name": "Play/pause"
-      },
-      "refresh_device_info": {
-        "name": "Refresh device info"
       },
       "refresh_up_next": {
         "name": "Refresh up next"

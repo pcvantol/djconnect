@@ -4,16 +4,13 @@
 
 - Repository: `pcvantol/djconnect`.
 - Integration domain: `djconnect`.
-- Current integration release: `3.2.5`.
-- Release status: DJConnect `3.2.5` keeps the `3.2.x` transport, pairing and
-  backend abstraction model while refactoring Ask DJ, HTTP/websocket transport
-  helpers, playback-action shaping and config-flow helpers into smaller focused
-  modules. The public `custom_components.djconnect.ask_dj` import path remains
-  compatible, and provider-neutral recommendation/profile payloads now use
-  `listening_profile` with a temporary legacy `spotify_profile` alias.
-  ESP32/Raspberry Pi stay local devices, iPhone/iPad, Apple Watch, macOS and Windows become inbound-only
-  remote-capable apps after local pairing, and playback uses an explicit Spotify
-  Direct or Music Assistant backend choice.
+- Current integration release: `3.2.15`.
+- Release status: DJConnect `3.2.15` keeps the `3.2.x` transport, pairing and
+  backend abstraction model, fixes Track Insight client playback aliases,
+  hardens Ask DJ history clear responses for Apple clients, and removes the
+  separate Spotify/Music Assistant playback entities from Home Assistant.
+  Backend playback remains available through DJConnect commands, Ask DJ and
+  clients with explicit Spotify Direct or Music Assistant backend choice.
 - 3.2 work has introduced an internal DJConnect use-case layer plus
   `MusicBackend` capability abstraction. Spotify Direct is the default backend
   adapter; Music Assistant is a small HA `media_player` adapter, not a
@@ -78,8 +75,8 @@ DJConnect ESP device
 - Spotify refresh-token rotation and revoked-token repair.
 - Backend playback orchestration through the selected backend:
   Spotify Direct or Music Assistant.
-- Spotify-backed HA control/status entities when Spotify Direct is selected;
-  capability-based fallback for unsupported Music Assistant features.
+- Capability-based backend command/status responses for clients and Ask DJ,
+  without separate Spotify/Music Assistant playback entities in Home Assistant.
 - Device settings/entities through ESP `/api/device/command`.
 - Raw WAV PTT processing via HA STT/Assist.
 - DJ response TTS and temporary WAV/MP3 audio URLs.
@@ -141,7 +138,9 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 
 - The previous external message-bus control route is removed and must not be reintroduced.
 - ESP is not a Spotify Connect speaker/player.
-- DJConnect no longer exposes a native HA `media_player` playback proxy; backend playback is controlled through DJConnect commands and Spotify-backed HA control/status entities.
+- DJConnect no longer exposes a native HA `media_player` playback proxy or
+  separate Spotify/Music Assistant playback entities; backend playback is
+  controlled through DJConnect commands, Ask DJ and clients.
 - ESP speaker is only for local cues and DJ/voice response audio.
 - ESP stores no Spotify/Sonos/backend credentials.
 - Pairing/status responses must never include `spotify_client_id`, `client_id`, `spotify_refresh_token`, `refresh_token` or nested Spotify OAuth secrets.
@@ -286,7 +285,9 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
   `previous`), then generate a DJ response.
 - DJ response TTS is returned to ESP as text and optional temporary WAV/MP3 `audio_url`.
 - Device setting entities accept firmware aliases such as `brightness`, `screen_brightness`, `cue_volume`, `speaker_volume`, `screen_dim_timeout_ms` and `turn_off_after_ms`.
-- `number.djconnect_volume` and other numbers must publish `None/unavailable`, not invalid values outside HA ranges.
+- Legacy backend/playback entities such as `number.djconnect_volume`,
+  Spotify status, output, repeat, shuffle, queue and playlist entities are no
+  longer created and are removed from the entity registry during setup.
 - Firmware asset is `djconnect-lilygo-t-embed-s3-vX.Y.Z.bin`. HA selects the matching `firmwares[]` manifest entry and sends that entry's `device` as the OTA target.
 - Secrets, raw prompts, raw audio, Ask DJ history and Music DNA dumps must not
   appear in logs, diagnostics or state attributes. Redaction covers key aliases
@@ -297,15 +298,14 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 ## Current Release Notes
 
 - Current release line is `3.2.x`; only the latest GitHub release/tag should be kept after release cleanup.
-- Current latest baseline is `3.2.14`.
+- Current latest baseline is `3.2.15`.
 - Release workflow expectation: before every release, review and update all repo documentation affected by the change or release, including `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant `examples/*`. Explicitly decide whether test coverage must be expanded for the change; add coverage for new behavior paths, regression risks, translations, config/options-flow base/EN/NL/DE/FR/ES keysets, stale `data_description` keys, diagnostics/log redaction and edge cases. Keep `tests.test_postman_collection` aligned with the Postman examples so CI validates collection schema, auth headers, placeholders and client identity. After publishing a release, clean up old completed GitHub Actions workflow runs, keeping only the newest release/tag validation and newest `main` validation unless debugging requires more history. Also clean up old semver releases/tags with `./cleanup_old_releases.sh --keep 1 --execute` unless multiple releases are intentionally retained. Keep any branch-protection/admin override explicit and manual; do not automate required-review disablement or protection changes in `release.sh`.
 - Before build/test/release validation, check whether third-party libraries, frameworks and build tools can be safely upgraded. If any version is upgraded, update lockfiles/manifests, `THIRD_PARTY_NOTICES.md` and dependency/design documentation in the same release. If an upgrade is skipped, record the reason here.
-- For the current `3.2.14` release, no pinned Python package versions were
-  upgraded. The current release adds full `en`/`nl`/`de`/`fr`/`es`
-  localization coverage for the Home Assistant integration, localizes OAuth
-  result pages and Ask DJ help text, documents the localization policy and
-  expands translation regression coverage while preserving protocol values,
-  endpoint paths, `client_type` values and machine-readable error codes.
+- For the current `3.2.15` release, no pinned Python package versions were
+  upgraded. The current release fixes Track Insight alias handling for client
+  playback payloads, makes Ask DJ clear responses explicit for client cache
+  invalidation, and removes separate backend playback entities from Home
+  Assistant while keeping backend commands and Ask DJ routes intact.
   `THIRD_PARTY_NOTICES.md` did not require dependency updates for these changes.
 - AI-assisted/Codex development hygiene is now documented in
   `CONTRIBUTING.md`, `SECURITY.md` and `CHAT_BOOTSTRAP.md`; accepted changes
@@ -330,7 +330,10 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
   DJ announcements and ambient system facts.
 - Local deterministic intent parsing may override stale/generic HA Assist output, so a new request such as `Speel Nirvana` cannot keep using an older artist context such as Red Hot Chili Peppers.
 - Spotify playlist browsing may return up to 100 playlists to app-like clients, but HA must page Spotify `/me/playlists` internally with provider-safe pages of at most 50 items to avoid Spotify HTTP 400 `Invalid limit`.
-- Spotify-backed HA entities must cache backend playback snapshots so Spotify volume, selected output/source, repeat, shuffle, queue and playlists update in Home Assistant without a native playback proxy media player. The legacy `number.djconnect_volume` entity keeps its existing 0-60 range.
+- Music-backend playback state stays internal to DJConnect commands, Ask DJ and
+  clients. Do not reintroduce separate HA playback entities for backend volume,
+  output/source, repeat, shuffle, queue, playlists or Spotify status unless the
+  product decision changes.
 - Use Developer Tools action `djconnect.test_ptt_text` to debug the real PTT route immediately after STT conversion: enter recognized natural-language text, then DJConnect runs the guarded Assist fuzzy-correction step, intent parsing, Spotify search/playback, DJ aankondiging generation, TTS audio creation and delivery to the connected client/device.
 - Do not send arbitrary text as `context_uri`, and do not perform broad track/album search for generic artist requests.
 - Device DJ responses after successful PTT playback are generated from resolved Spotify/playback metadata and the runtime mood-zone/default announcement style, not from the generic Assist fallback announcement.
@@ -430,7 +433,9 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 11. Pair a device from scratch and verify token synchronization with required `ha_local_url`.
 12. Verify ESP `/status` includes current settings aliases consumed by HA.
 13. Run physical PTT end-to-end.
-14. Verify Spotify-backed DJConnect control/status entities update volume, output, repeat, shuffle, queue and playback availability without creating a native media player proxy.
+14. Verify old Spotify/Music Assistant playback entities are no longer created
+    and that backend playback still works through DJConnect commands, Ask DJ
+    and clients without a native media player proxy.
 15. Verify no Spotify OAuth secrets are sent to ESP or logged.
 16. Pair a Raspberry Pi client from mDNS discovery and verify the form pre-fills Client adres, `client_type=raspberry_pi`, device name, stable device ID and pair code from `/api/device/pairing-info`.
 17. Test the Raspberry Pi fallback path by advertising `_djconnect._tcp` while blocking `/api/device/pairing-info`; HA should show the translated pairing-info error and allow manual Client adres correction.

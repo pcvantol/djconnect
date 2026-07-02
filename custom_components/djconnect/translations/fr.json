@@ -49,9 +49,6 @@
         "description": "Choisis l’appareil DJConnect local à associer.",
         "data": {
           "client_type": "Type de client"
-        },
-        "data_description": {
-          "client_type": "Choisis ESP32 ou Raspberry Pi."
         }
       },
       "pair_local_device_details": {
@@ -344,6 +341,20 @@
           "voice_profile": "Choisis le style radio DJConnect côté serveur. La voix TTS Home Assistant sélectionnée détermine toujours la voix audio réelle ; mood règle l’énergie."
         }
       },
+      "conversation_agent_init": {
+        "title": "Options DJConnect",
+        "description": "Gère les actions DJConnect comme changer le profil vocal DJ, changer de backend musical ou réautoriser Spotify. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB.",
+        "data": {
+          "options_action": "Action",
+          "music_backend": "Backend musical",
+          "voice_profile": "Profil vocal DJ"
+        },
+        "data_description": {
+          "options_action": "Choisis l’action à exécuter.",
+          "music_backend": "Backend de lecture sélectionné.",
+          "voice_profile": "Choisis le style radio DJConnect côté serveur. La voix TTS Home Assistant sélectionnée détermine toujours la voix audio réelle ; mood règle l’énergie."
+        }
+      },
       "music_backend": {
         "title": "Changer de backend musical",
         "description": "Le backend actuel est indiqué ci-dessous. Le changement conserve l’association, les tokens d’appareil, l’historique Ask DJ, Music DNA et les enregistrements push. Les anciennes actions de lecture ou recommandations Ask DJ propres à un backend peuvent ne plus être exécutables.",
@@ -484,9 +495,6 @@
       },
       "play_pause": {
         "name": "Lecture/pause"
-      },
-      "refresh_device_info": {
-        "name": "Actualiser les infos appareil"
       },
       "refresh_up_next": {
         "name": "Actualiser À suivre"

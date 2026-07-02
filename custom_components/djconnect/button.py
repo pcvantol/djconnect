@@ -35,6 +35,7 @@ REMOVED_BACKEND_BUTTON_KEYS = (
     "next_track",
     "previous_track",
     "play_pause",
+    "refresh_device_info",
     "refresh_up_next",
 )
 
@@ -47,7 +48,6 @@ async def async_setup_entry(
     _remove_legacy_entities(hass, runtime, "button", REMOVED_BACKEND_BUTTON_KEYS)
     entities = [
         DJConnectTestVoiceButton(runtime, hass),
-        DJConnectRefreshInfoButton(runtime, hass),
     ]
     if runtime.client_type() == CLIENT_TYPE_ESP32:
         entities.append(DJConnectRebootButton(runtime, hass))
@@ -162,14 +162,6 @@ class DJConnectCommandButton(DJConnectBaseButton):
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect button playback status refresh failed: %s", exc)
         return self.runtime.last_playback or {}
-
-
-class DJConnectRefreshInfoButton(DJConnectBaseButton):
-    def __init__(self, runtime, hass: HomeAssistant) -> None:
-        super().__init__(runtime, hass, "refresh_device_info")
-
-    async def async_press(self) -> None:
-        await self.runtime.async_refresh_device_info(self.hass)
 
 
 class DJConnectRefreshUpNextButton(DJConnectBaseButton):

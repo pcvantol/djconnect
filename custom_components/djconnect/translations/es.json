@@ -49,9 +49,6 @@
         "description": "Elige qué dispositivo DJConnect local quieres emparejar.",
         "data": {
           "client_type": "Tipo de cliente"
-        },
-        "data_description": {
-          "client_type": "Elige ESP32 o Raspberry Pi."
         }
       },
       "pair_local_device_details": {
@@ -344,6 +341,20 @@
           "voice_profile": "Elige el estilo de radio DJConnect del servidor. La voz TTS seleccionada en Home Assistant sigue determinando la voz de audio real; mood controla la energía."
         }
       },
+      "conversation_agent_init": {
+        "title": "Opciones de DJConnect",
+        "description": "Gestiona acciones de DJConnect como cambiar el perfil de voz DJ, cambiar el backend de música o reautorizar Spotify. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB.",
+        "data": {
+          "options_action": "Acción",
+          "music_backend": "Backend de música",
+          "voice_profile": "Perfil de voz DJ"
+        },
+        "data_description": {
+          "options_action": "Elige qué acción ejecutar.",
+          "music_backend": "Backend de reproducción seleccionado.",
+          "voice_profile": "Elige el estilo de radio DJConnect del servidor. La voz TTS seleccionada en Home Assistant sigue determinando la voz de audio real; mood controla la energía."
+        }
+      },
       "music_backend": {
         "title": "Cambiar backend de música",
         "description": "El backend actual se muestra abajo. Cambiarlo conserva el emparejamiento, los tokens de dispositivo, el historial de Ask DJ, Music DNA y los registros push. Es posible que las acciones de reproducción o recomendaciones antiguas de Ask DJ específicas del backend ya no se puedan ejecutar.",
@@ -484,9 +495,6 @@
       },
       "play_pause": {
         "name": "Reproducir/pausar"
-      },
-      "refresh_device_info": {
-        "name": "Actualizar info del dispositivo"
       },
       "refresh_up_next": {
         "name": "Actualizar siguientes"

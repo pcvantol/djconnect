@@ -49,9 +49,6 @@
         "description": "Wähle, welches lokale DJConnect-Gerät du koppeln möchtest.",
         "data": {
           "client_type": "Client-Typ"
-        },
-        "data_description": {
-          "client_type": "Wähle ESP32 oder Raspberry Pi."
         }
       },
       "pair_local_device_details": {
@@ -344,6 +341,20 @@
           "voice_profile": "Wähle den serverseitigen DJConnect-Radiostil. Die ausgewählte Home Assistant TTS-Stimme bestimmt weiterhin die eigentliche Audiostimme; mood steuert die Energie."
         }
       },
+      "conversation_agent_init": {
+        "title": "DJConnect-Optionen",
+        "description": "Verwalte DJConnect-Aktionen wie DJ-Sprachprofil ändern, Musik-Backend ändern oder Spotify erneut autorisieren. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB.",
+        "data": {
+          "options_action": "Aktion",
+          "music_backend": "Musik-Backend",
+          "voice_profile": "DJ-Sprachprofil"
+        },
+        "data_description": {
+          "options_action": "Wähle die Aktion aus, die ausgeführt werden soll.",
+          "music_backend": "Ausgewähltes Wiedergabe-Backend.",
+          "voice_profile": "Wähle den serverseitigen DJConnect-Radiostil. Die ausgewählte Home Assistant TTS-Stimme bestimmt weiterhin die eigentliche Audiostimme; mood steuert die Energie."
+        }
+      },
       "music_backend": {
         "title": "Musik-Backend ändern",
         "description": "Das aktuelle Backend wird unten angezeigt. Beim Wechsel bleiben Kopplung, Gerätetokens, Ask DJ-Verlauf, Music DNA und Push-Registrierungen erhalten. Ältere backend-spezifische Ask DJ-Wiedergabeaktionen oder Empfehlungen sind möglicherweise nicht mehr ausführbar.",
@@ -484,9 +495,6 @@
       },
       "play_pause": {
         "name": "Wiedergabe/Pause"
-      },
-      "refresh_device_info": {
-        "name": "Geräteinfo aktualisieren"
       },
       "refresh_up_next": {
         "name": "Nächste Titel aktualisieren"

@@ -24,7 +24,7 @@ Lees eerst:
 
 Belangrijke huidige status:
 - Project: DJConnect Home Assistant custom integration, domain `djconnect`.
-- Laatste release: `3.2.5`.
+- Laatste release: `3.2.15`.
 - Repo is public en MIT-licensed.
 - Alle DJConnect repos zijn MIT-licensed, tenzij een specifieke third-party dependency anders vermeldt.
 - `FIRMWARE-LICENSE.md` is verwijderd.
@@ -49,6 +49,11 @@ Belangrijke huidige status:
 - Config-flow kiest nu expliciet `Spotify Direct` of `Music Assistant`, zonder Auto. Spotify Direct gebruikt DJConnect PKCE OAuth en Spotify repairs. Music Assistant vereist geen DJConnect Spotify Client ID/OAuth; Music Assistant beheert provider-auth, DJConnect valideert dat MA beschikbaar is en bewaart de gekozen target player.
 - Options-flow heeft expliciet `Muziekbackend wijzigen` / `Change music backend`: wisselen bewaart pairing, device tokens, Ask DJ history, Music DNA en pushregistraties, verhoogt `music_backend_revision`, verbergt Spotify reauthorize bij actieve Music Assistant en maakt oude backend-specifieke pending playback actions stale.
 - Pair/status/command responses bevatten backend summary velden: `music_backend`, `music_backend_name`, `music_backend_available`, `music_backend_revision`, `music_backend_capabilities`, `music_target_player` en veilige `music_backend_error`. `playback_actions[]` zijn backend-aware met backend/provider/revision; stale actions geven `stale_backend_action`, unsupported backend features geven `unsupported_backend_capability`.
+- Spotify/Music Assistant playback state blijft intern voor DJConnect commands,
+  Ask DJ en clients. De HA integration maakt geen losse backend playback
+  entities meer aan voor Spotify status, playback availability, queue,
+  playlists, outputs, volume, sound output, repeat of shuffle; oude registry
+  entries worden bij setup opgeruimd.
 - Lokale app-clients kunnen optioneel de Home Assistant native websocket API
   gebruiken als fast path met `djconnect/capabilities` en
   `djconnect/command`, Ask DJ message/history/clear/state/idle-suggestion,
@@ -72,8 +77,10 @@ Belangrijke huidige status:
   prompts, raw audio, Ask DJ history en Music DNA dumps mogen niet in logs of
   diagnostics terechtkomen.
 - Nieuwe playback/control code mag niet rechtstreeks Spotify helpers aanroepen buiten de backend-adapter; routeer via de use-case laag.
-- De `3.2.5` release splitst Ask DJ, HTTP/websocket transporthelpers,
-  playback-action shaping en config-flow helpers in kleinere modules. Houd de
+- De `3.2.15` release fixt Track Insight aliasvelden voor client playback
+  payloads, maakt Ask DJ clear responses expliciet met `cleared`,
+  `ask_dj_clear_required`, lege `messages[]` en sync-revisies, en verwijdert de
+  losse Spotify/Music Assistant playback entities uit Home Assistant. Houd de
   publieke `custom_components.djconnect.ask_dj` import compatibel en gebruik de
   provider-neutrale `listening_profile` payloadnaam; `spotify_profile` is alleen
   nog een tijdelijke legacy alias.

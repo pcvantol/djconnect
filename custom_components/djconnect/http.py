@@ -2159,15 +2159,16 @@ class DJConnectPairView(HomeAssistantView):
             )
             return self.json(payload, status_code=400)
 
+        pending_response = await _handle_pending_config_flow_app_pairing(
+            self,
+            hass,
+            data,
+        )
+        if pending_response is not None:
+            return pending_response
+
         runtime = _runtime(hass)
         if runtime is None:
-            pending_response = await _handle_pending_config_flow_app_pairing(
-                self,
-                hass,
-                data,
-            )
-            if pending_response is not None:
-                return pending_response
             payload = {
                 "success": False,
                 "error": "not_configured",

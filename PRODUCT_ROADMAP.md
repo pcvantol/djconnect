@@ -117,9 +117,9 @@ Every release must review this roadmap.
 - [x] Ask DJ recent-played questions return read-only track, album, artist and
   playlist-context lists with art/icon metadata from Spotify recently played
   data (3.1.77, HA/client contract).
-- [x] Spotify-backed HA control/status entities refresh from live Spotify backend state
-  for play/pause, volume, album art, output, repeat, shuffle, queue and
-  playlists (3.1.77, HA).
+- [x] Keep backend playback state out of separate Home Assistant playback
+  entities; clients, Ask DJ and DJConnect commands own playback UX while HA
+  remains the credential/backend orchestrator (3.2, HA).
 - [x] Last STT text, resolved Spotify result, DJ announcement and last track are
   visible as entities or redacted debug attributes (3.2, HA).
 - [ ] DJ announcement prompt is configurable, multiline and isolated from

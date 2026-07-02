@@ -737,6 +737,11 @@ response contains a higher `clear_revision` than the client has locally, the
 client must wipe its local Ask DJ cache for that HA user/context before merging
 new server messages.
 
+Clear responses also include `cleared:true`, `ask_dj_clear_required:true` and
+`messages:[]`. Clients should clear their local visible chat immediately after a
+successful clear response; do not wait for a later history fetch to empty the
+UI.
+
 Current retention limit: `1000` messages per HA user.
 
 History responses include `history_limit`, `history_trimmed_before` and
@@ -778,7 +783,7 @@ Register payload:
   "push_token": "...",
   "push_environment": "sandbox",
   "app_bundle_id": "dev.djconnect.app",
-  "app_version": "3.2.5",
+  "app_version": "3.2.15",
   "locale": "nl-NL",
   "notification_categories": ["ask_dj_response", "ask_dj_confirm", "playback_change"]
 }

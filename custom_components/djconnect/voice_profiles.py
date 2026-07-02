@@ -23,7 +23,7 @@ VOICE_PROFILE_LABELS: dict[str, dict[str, str]] = {
     },
     "nl": {
         VOICE_PROFILE_CLASSIC_RADIO: "Klassieke radiopresentator",
-        VOICE_PROFILE_LATE_NIGHT: "Late-night radio",
+        VOICE_PROFILE_LATE_NIGHT: "Late-night radiopresentator",
         VOICE_PROFILE_ENERGY: "Energieke presentator",
         VOICE_PROFILE_CLEAN_HOST: "Strakke presentator",
     },
