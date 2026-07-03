@@ -6,6 +6,7 @@ import types
 import unittest
 
 from tests.test_config_flow_helpers import install_homeassistant_stubs
+from tests.test_http_voice_helpers import install_http_stubs
 
 
 class FakeServices:
@@ -145,6 +146,79 @@ class TrackInsightTests(unittest.TestCase):
         self.assertTrue(second["cache"]["hit"])
         self.assertEqual(len(hass.services.calls), 1)
         self.assert_no_music_dna_match_fields(second)
+
+    def test_cache_is_scoped_by_language(self) -> None:
+        hass = FakeHass()
+        runtime = Runtime()
+        service = self.track_insight.TrackInsightService()
+
+        english = asyncio.run(
+            service.async_analyze(
+                hass,
+                runtime,
+                {"title": "Run", "artist": "Floor Jansen", "language": "en"},
+                source="http",
+            )
+        )
+        dutch = asyncio.run(
+            service.async_analyze(
+                hass,
+                runtime,
+                {"title": "Run", "artist": "Floor Jansen", "language": "nl"},
+                source="http",
+            )
+        )
+
+        self.assertNotEqual(english["cache"]["key"], dutch["cache"]["key"])
+        self.assertEqual(english["language"], "en")
+        self.assertEqual(dutch["language"], "nl")
+        self.assertIn("Run by Floor Jansen", english["analysis"]["summary"])
+        self.assertIn("Run van Floor Jansen", dutch["analysis"]["summary"])
+        self.assertIn("Luister", dutch["analysis"]["full_text"])
+
+    def test_track_insight_handler_uses_language_headers(self) -> None:
+        install_http_stubs()
+        api_handlers = importlib.import_module("custom_components.djconnect.api_handlers")
+        const = importlib.import_module("custom_components.djconnect.const")
+
+        class RuntimeWithAuth(Runtime):
+            device_token = "device-token"
+
+            def __init__(self) -> None:
+                super().__init__()
+                self.device_status = {"device_id": "djconnect-ios-68B74487726D"}
+
+            def authorize_device_request(self, headers, body_device_id=None, client_type=None):
+                return True
+
+        runtime = RuntimeWithAuth()
+        hass = FakeHass()
+        hass.data = {const.DOMAIN: {"runtime": runtime}}
+
+        result, status = asyncio.run(
+            api_handlers.async_handle_track_insight_payload(
+                hass,
+                {
+                    "device_id": "djconnect-ios-68B74487726D",
+                    "client_type": "ios",
+                    "title": "Run",
+                    "artist": "Floor Jansen",
+                },
+                headers={
+                    "Authorization": "Bearer device-token",
+                    "X-DJConnect-Device-ID": "djconnect-ios-68B74487726D",
+                    "X-DJConnect-Language": "nl",
+                    "X-DJConnect-Locale": "nl",
+                    "Accept-Language": "nl",
+                },
+                source="http",
+            )
+        )
+
+        self.assertEqual(status, 200)
+        self.assertEqual(result["language"], "nl")
+        self.assertIn("Run van Floor Jansen", result["analysis"]["summary"])
+        self.assertEqual(hass.services.calls[0]["data"]["language"], "nl")
 
     def test_cache_strips_legacy_music_dna_match_fields(self) -> None:
         runtime = Runtime()

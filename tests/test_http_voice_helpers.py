@@ -3222,6 +3222,68 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertEqual(response["status_code"], 200)
         self.assertEqual(calls, ["Meer van Scooter"])
 
+    def test_command_view_routes_help_command_to_ask_dj(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+        ask_calls = []
+        music_calls = []
+
+        class Runtime:
+            device_token = "device-token"
+            device_status = {"device_id": "djconnect-ios-68B74487726D"}
+            config = {}
+
+            def authorize_device_request(self, headers, body_device_id=None, client_type=None):
+                return True
+
+            def update(self, **kwargs):
+                self.last_update = kwargs
+
+        runtime = Runtime()
+
+        async def ask_handler(hass, runtime_arg, payload, **kwargs):
+            ask_calls.append(payload["text"])
+            return {
+                "success": True,
+                "text": "Dit kun je aan Ask DJ vragen",
+                "dj_text": "Dit kun je aan Ask DJ vragen",
+                "action": "none",
+                "playback_actions": [],
+            }
+
+        async def command_handler(hass, runtime_arg, command, value=None, *, play=False):
+            music_calls.append(command)
+            return {"success": True}
+
+        class Request:
+            headers = {
+                "Authorization": "Bearer device-token",
+                "X-DJConnect-Device-ID": "djconnect-ios-68B74487726D",
+            }
+            app = {"hass": types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})}
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-ios-68B74487726D",
+                    "client_type": "ios",
+                    "command": "help",
+                }
+
+        original_ask = self.http.async_handle_ask_dj
+        original_command = self.http.run_music_command
+        self.http.async_handle_ask_dj = ask_handler
+        self.http.run_music_command = command_handler
+        try:
+            response = asyncio.run(self.http.DJConnectCommandView(None).post(Request()))
+        finally:
+            self.http.async_handle_ask_dj = original_ask
+            self.http.run_music_command = original_command
+
+        self.assertEqual(response["status_code"], 200)
+        self.assertEqual(ask_calls, ["help"])
+        self.assertEqual(music_calls, [])
+        self.assertEqual(response["payload"]["action"], "none")
+        self.assertEqual(response["payload"]["playback_actions"], [])
+
     def test_command_view_handles_volume_delta_action(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
         calls = []
@@ -3720,7 +3782,14 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         async def command_handler(hass, runtime_arg, command, value=None, *, play=None):
             calls.append((command, value, play))
-            return {"success": True, "playback": {"track_name": "Track Title"}}
+            return {
+                "success": True,
+                "playback": {
+                    "track_name": "Track Title",
+                    "artist": "Artist Name",
+                    "album_name": "Album Title",
+                },
+            }
 
         delivered = []
 
@@ -3730,7 +3799,16 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         async def create_audio(hass, runtime_arg, text):
             self.assertIn("Track Title", text)
+            self.assertIn("Artist Name", text)
             return "http://ha/api/djconnect/tts/play-now.mp3"
+
+        async def generate_dj_response(hass, *, media, fallback_text, conf, memory_context=None, debug=None):
+            self.assertEqual(media["track_name"], "Track Title")
+            self.assertEqual(media["artist"], "Artist Name")
+            self.assertEqual(media["album_name"], "Album Title")
+            if debug is not None:
+                debug["fallback_used"] = False
+            return "Daar gaan we: Track Title van Artist Name, vanaf Album Title."
 
         class Request:
             headers = {
@@ -3760,20 +3838,26 @@ class VoiceHttpHelperTest(unittest.TestCase):
         original = self.http.run_music_command
         original_dj_response = self.http.async_send_dj_response_best_effort
         original_create_audio = self.http.async_create_dj_audio_url
+        original_generate = self.http.generate_dj_response_with_assist
         self.http.run_music_command = command_handler
         self.http.async_send_dj_response_best_effort = dj_response
         self.http.async_create_dj_audio_url = create_audio
+        self.http.generate_dj_response_with_assist = generate_dj_response
         try:
             response = asyncio.run(self.http.DJConnectCommandView(None).post(Request()))
         finally:
             self.http.run_music_command = original
             self.http.async_send_dj_response_best_effort = original_dj_response
             self.http.async_create_dj_audio_url = original_create_audio
+            self.http.generate_dj_response_with_assist = original_generate
 
         self.assertEqual(response["status_code"], 200)
         self.assertTrue(response["payload"]["success"])
         self.assertEqual(response["payload"]["action"], "spotify_start_recommendation")
-        self.assertIn("Track Title", response["payload"]["dj_text"])
+        self.assertEqual(
+            response["payload"]["dj_text"],
+            "Daar gaan we: Track Title van Artist Name, vanaf Album Title.",
+        )
         self.assertEqual(delivered, [])
         self.assertFalse(response["payload"]["dj_response"]["delivered"])
         self.assertFalse(response["payload"]["dj_response"]["spoken"])

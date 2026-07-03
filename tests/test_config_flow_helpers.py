@@ -2252,6 +2252,36 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertNotIn(self.const.CONF_MIN_BATTERY_FOR_OTA, keys)
         self.assertNotIn("show_advanced_options", keys)
 
+    def test_options_flow_conversation_agent_step_can_be_submitted(self) -> None:
+        entry = types.SimpleNamespace(
+            data={
+                self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_CONVERSATION_AGENT,
+                self.const.CONF_VOICE_PROFILE: self.const.DEFAULT_VOICE_PROFILE,
+            },
+            options={},
+        )
+        flow = self.config_flow.DJConnectOptionsFlow(entry)
+        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl"))
+
+        form = asyncio.run(flow.async_step_conversation_agent_init())
+        result = asyncio.run(
+            flow.async_step_conversation_agent_init(
+                {
+                    self.const.CONF_VOICE_PROFILE: self.const.VOICE_PROFILE_LATE_NIGHT,
+                    self.config_flow.OPTIONS_ACTION_FIELD:
+                        self.config_flow.OPTIONS_ACTION_SAVE,
+                }
+            )
+        )
+
+        self.assertEqual(form["step_id"], "conversation_agent_init")
+        self.assertEqual(result["type"], "create_entry")
+        self.assertEqual(
+            result["data"][self.const.CONF_VOICE_PROFILE],
+            self.const.VOICE_PROFILE_LATE_NIGHT,
+        )
+        self.assertNotIn(self.const.CONF_LOCAL_URL, result["data"])
+
     def test_options_flow_init_shows_change_music_backend_action(self) -> None:
         entry = types.SimpleNamespace(data={}, options={})
         flow = self.config_flow.DJConnectOptionsFlow(entry)

@@ -1937,8 +1937,10 @@ class SpotifyBackendTest(unittest.TestCase):
                         {
                             "name": "Next Song",
                             "uri": "spotify:track:next",
-                            "artists": [{"name": "Artist"}],
+                            "duration_ms": 213000,
+                            "artists": [{"name": "Artist"}, {"name": "Guest"}],
                             "album": {
+                                "name": "Next Album",
                                 "images": [
                                     {
                                         "url": "https://example.test/queue.jpg",
@@ -1947,7 +1949,23 @@ class SpotifyBackendTest(unittest.TestCase):
                                     }
                                 ]
                             },
-                        }
+                        },
+                        {
+                            "name": "Episode One",
+                            "uri": "spotify:episode:one",
+                            "duration_ms": 1800000,
+                            "show": {
+                                "name": "Show Name",
+                                "publisher": "Publisher Name",
+                                "images": [
+                                    {
+                                        "url": "https://example.test/show.jpg",
+                                        "width": 300,
+                                        "height": 300,
+                                    }
+                                ],
+                            },
+                        },
                     ]
                 }
 
@@ -1990,6 +2008,17 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertEqual(result["queue"][0]["imageUrl"], "https://example.test/queue.jpg")
         self.assertEqual(result["queue"][0]["context_uri"], "spotify:playlist:abc")
         self.assertEqual(result["queue"][0]["contextUri"], "spotify:playlist:abc")
+        self.assertEqual(result["queue"][0]["id"], "spotify:track:next")
+        self.assertEqual(result["queue"][0]["artist"], "Artist, Guest")
+        self.assertEqual(result["queue"][0]["artist_name"], "Artist, Guest")
+        self.assertEqual(result["queue"][0]["subtitle"], "Artist, Guest")
+        self.assertEqual(result["queue"][0]["album"], "Next Album")
+        self.assertEqual(result["queue"][0]["album_name"], "Next Album")
+        self.assertEqual(result["queue"][0]["duration_ms"], 213000)
+        self.assertEqual(result["queue"][1]["artist"], "Publisher Name")
+        self.assertEqual(result["queue"][1]["artist_name"], "Publisher Name")
+        self.assertEqual(result["queue"][1]["album"], "Show Name")
+        self.assertEqual(result["queue"][1]["album_image_url"], "https://example.test/show.jpg")
         self.assertEqual(runtime.device_status["queue"]["items"], result["queue"])
 
     def test_queue_command_caps_client_items_at_100(self) -> None:

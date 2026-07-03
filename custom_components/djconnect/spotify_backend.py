@@ -1689,8 +1689,8 @@ def _normalize_device(device: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _normalize_queue_items(items: Any, *, limit: int) -> list[dict[str, str]]:
-    normalized: list[dict[str, str]] = []
+def _normalize_queue_items(items: Any, *, limit: int) -> list[dict[str, Any]]:
+    normalized: list[dict[str, Any]] = []
     if not isinstance(items, list):
         return normalized
     for item in items:
@@ -1705,24 +1705,57 @@ def _normalize_queue_items(items: Any, *, limit: int) -> list[dict[str, str]]:
     return normalized
 
 
-def _normalize_queue_item(item: dict[str, Any]) -> dict[str, str] | None:
+def _normalize_queue_item(item: dict[str, Any]) -> dict[str, Any] | None:
     artists = item.get("artists") or []
-    images = (item.get("album") or {}).get("images") or item.get("images") or []
+    album = item.get("album") or {}
+    show = item.get("show") or {}
+    images = album.get("images") or item.get("images") or show.get("images") or []
     album_image_url = _best_image_url(images)
     title = str(item.get("name") or "").strip()
     uri = str(item.get("uri") or "").strip()
     if not title and not uri:
         return None
-    return {
+    artist = _queue_item_artist(item, artists)
+    album_name = str(album.get("name") or show.get("name") or "").strip()
+    normalized: dict[str, Any] = {
+        "id": uri or str(item.get("id") or "").strip(),
         "title": title,
-        "subtitle": ", ".join(artist.get("name", "") for artist in artists if artist.get("name")),
         "uri": uri,
+        "duration_ms": _int_or_none(item.get("duration_ms")),
         "album_image_url": album_image_url,
         "albumImageUrl": album_image_url,
         "image_url": album_image_url,
         "imageUrl": album_image_url,
         "thumbnail_url": album_image_url,
     }
+    if artist:
+        normalized["artist"] = artist
+        normalized["artist_name"] = artist
+        normalized["subtitle"] = artist
+    if album_name:
+        normalized["album"] = album_name
+        normalized["album_name"] = album_name
+    return normalized
+
+
+def _queue_item_artist(item: dict[str, Any], artists: Any) -> str:
+    if isinstance(artists, list):
+        names = [
+            str(artist.get("name") or "").strip()
+            for artist in artists
+            if isinstance(artist, dict) and str(artist.get("name") or "").strip()
+        ]
+        if names:
+            return ", ".join(names)
+    show = item.get("show") if isinstance(item.get("show"), dict) else {}
+    publisher = str(item.get("publisher") or show.get("publisher") or "").strip()
+    if publisher:
+        return publisher
+    for key in ("author", "artist", "artist_name"):
+        value = str(item.get(key) or "").strip()
+        if value:
+            return value
+    return str(show.get("name") or "").strip()
 
 
 def _normalize_playlist(item: dict[str, Any]) -> dict[str, str]:

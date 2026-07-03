@@ -2369,6 +2369,82 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("spotify_album_search", {source["source"] for source in result["sources"]})
         self.assertIn("spotify_playlist_search", {source["source"] for source in result["sources"]})
 
+    def test_speel_maar_iets_van_artist_returns_album_playlist_options(self) -> None:
+        runtime = make_runtime()
+        runtime.last_playback = {
+            "has_playback": True,
+            "is_playing": True,
+            "track_name": "Dansplaat",
+            "artist": "Brainpower",
+        }
+        calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append((command_name, value, play))
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            if command_name == "search_albums":
+                self.assertEqual(value, {"query": "scala", "limit": 10})
+                return {
+                    "success": True,
+                    "albums": [
+                        {
+                            "uri": f"spotify:album:scala-{index}",
+                            "title": f"Scala Album {index}",
+                            "artist": "Scala & Kolacny Brothers",
+                            "album_image_url": f"https://img.example/scala-album-{index}.jpg",
+                        }
+                        for index in range(1, 7)
+                    ],
+                }
+            if command_name == "search_playlists":
+                self.assertEqual(value, {"query": "scala", "limit": 10})
+                return {
+                    "success": True,
+                    "playlists": [
+                        {
+                            "uri": f"spotify:playlist:scala-{index}",
+                            "title": f"Scala Playlist {index}",
+                            "owner": "Spotify",
+                            "image_url": f"https://img.example/scala-playlist-{index}.jpg",
+                        }
+                        for index in range(1, 7)
+                    ],
+                }
+            raise AssertionError(f"unexpected playback mutation: {command_name}")
+
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "speel maar iets van scala",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "ios",
+                    },
+                    user_id="user-1",
+                )
+            )
+        finally:
+            self.ask_dj.run_music_command = original_command
+
+        self.assertEqual([call[0] for call in calls], ["status", "search_albums", "search_playlists"])
+        self.assertEqual(result["intent"]["intent"], "artist_item_list")
+        self.assertEqual(result["action"], "none")
+        self.assertEqual(len(result["playback_actions"]), 10)
+        self.assertEqual(
+            [action["kind"] for action in result["playback_actions"][:4]],
+            ["album", "playlist", "album", "playlist"],
+        )
+        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertEqual(result["items"], result["playback_actions"])
+        self.assertEqual(result["images"], [])
+        self.assertIn("albums en playlists van scala", result["dj_text"])
+        self.assertNotIn("Brainpower", result["dj_text"])
+
     def test_artist_play_request_does_not_become_genre_options(self) -> None:
         runtime = make_runtime()
         runtime.last_playback = {"has_playback": True, "is_playing": True, "track_name": "Current"}
@@ -3676,6 +3752,76 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["audio_url"], "/api/djconnect/tts/snow-patrol.mp3")
         self.assertEqual(result["images"][0]["title"], "Chasing Cars")
         self.assertEqual(result["images"][0]["subtitle"], "Snow Patrol")
+
+    def test_play_artist_request_keeps_rich_resolved_dj_announcement(self) -> None:
+        runtime = make_runtime()
+        tts_calls = []
+        rich_text = (
+            "Zeker, daar is Floor Jansen met Euphoria van het album Euphoria. "
+            "Die stem zet meteen de hele kamer open."
+        )
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            return {"success": True}
+
+        async def process(hass, runtime_arg, text, *, play=True, correct_stt=False):
+            return {
+                "text": rich_text,
+                "dj_text": rich_text,
+                "intent": {
+                    "intent": "play_music",
+                    "type": "artist",
+                    "artist": "Floor Jansen",
+                    "spotify_search_query": "Floor Jansen",
+                },
+                "playback": {
+                    "played": True,
+                    "media_content_id": "Floor Jansen",
+                    "media_content_type": "artist",
+                    "track_name": "Euphoria",
+                    "artist": "Floor Jansen",
+                    "album_name": "Euphoria",
+                    "album_image_url": "https://img.example/euphoria.jpg",
+                },
+            }
+
+        async def tts(hass, runtime_arg, text):
+            tts_calls.append(text)
+            return {"audio_url_value": "/api/djconnect/tts/floor-jansen.mp3"}
+
+        original_command = self.ask_dj.run_music_command
+        original_process = self.ask_dj.run_text_command
+        original_tts = self.ask_dj.async_send_dj_response_best_effort
+        self.ask_dj.run_music_command = command
+        self.ask_dj.run_text_command = process
+        self.ask_dj.async_send_dj_response_best_effort = tts
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "Speel Floor Jansen",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "ios",
+                        "audio_response": "always",
+                    },
+                    user_id="user-1",
+                )
+            )
+        finally:
+            self.ask_dj.run_music_command = original_command
+            self.ask_dj.run_text_command = original_process
+            self.ask_dj.async_send_dj_response_best_effort = original_tts
+
+        self.assertEqual(result["dj_text"], rich_text)
+        self.assertEqual(tts_calls, [rich_text])
+        self.assertNotEqual(result["dj_text"], "Daar is Floor Jansen, met Euphoria. Van Euphoria.")
+        self.assertEqual(result["audio_url"], "/api/djconnect/tts/floor-jansen.mp3")
+        self.assertEqual(result["images"][0]["title"], "Euphoria")
+        self.assertEqual(result["images"][0]["subtitle"], "Floor Jansen")
 
     def test_play_track_request_announces_actual_started_track_when_spotify_starts_different_result(self) -> None:
         runtime = make_runtime()

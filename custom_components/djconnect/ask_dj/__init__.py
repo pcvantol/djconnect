@@ -278,6 +278,19 @@ async def async_handle_ask_dj(
         )
         response.pop("playback", None)
         return response
+    something_from_artist = _play_something_from_artist_request(effective_text)
+    if something_from_artist:
+        result = await _artist_album_playlist_options_response(hass, runtime, something_from_artist)
+        response = _normalize_ask_dj_response(
+            hass,
+            runtime,
+            result,
+            AskDjIntent("informational", "artist_item_list", "none"),
+            music_dna_key=music_dna_key,
+            playback_context=playback_context,
+        )
+        response.pop("playback", None)
+        return response
     item_list_request = _artist_item_list_request(effective_text)
     if item_list_request:
         result = await _artist_item_list_response(hass, runtime, item_list_request)
@@ -1282,6 +1295,8 @@ def classify_ask_dj(text: str) -> AskDjIntent:
         return AskDjIntent("informational", "build_playlist_from_seeds", "none")
     if _is_mood_mix_request(normalized):
         return AskDjIntent("informational", "mood_mix", "none")
+    if _play_something_from_artist_request(text):
+        return AskDjIntent("informational", "artist_item_list", "none")
     if _artist_item_list_request(normalized):
         return AskDjIntent("informational", "artist_item_list", "none")
     if normalized == "meer muziek van deze artiest":
@@ -1521,7 +1536,7 @@ async def _handle_hybrid(
             correct_stt=_is_voice_input(payload or {}),
         )
         canonical_text = _canonical_playback_confirmation(result)
-        if canonical_text:
+        if canonical_text and _should_use_canonical_playback_confirmation(result, canonical_text):
             result = {**result, "text": canonical_text, "dj_text": canonical_text}
         return {"success": True, **result}
     except Exception as exc:  # noqa: BLE001
@@ -1681,6 +1696,60 @@ def _canonical_playback_confirmation(result: dict[str, Any]) -> str:
     if title and artist:
         return f"Daar is {title} van {artist}."
     return f"Daar is {title or artist}." if title or artist else ""
+
+
+def _should_use_canonical_playback_confirmation(
+    result: dict[str, Any],
+    canonical_text: str,
+) -> bool:
+    existing_text = str(result.get("dj_text") or result.get("text") or "").strip()
+    if not existing_text:
+        return True
+    if _normalize(existing_text) == _normalize(canonical_text):
+        return True
+    identity = _playback_confirmation_identity(result)
+    if identity.get("derived_from_query"):
+        return True
+    artist = str(identity.get("artist") or "").strip()
+    title = str(identity.get("title") or "").strip()
+    if artist and title:
+        return not (_text_mentions(existing_text, artist) and _text_mentions(existing_text, title))
+    if artist:
+        return not _text_mentions(existing_text, artist)
+    if title:
+        return not _text_mentions(existing_text, title)
+    return True
+
+
+def _playback_confirmation_identity(result: dict[str, Any]) -> dict[str, str]:
+    media = _resolved_media_from_result(result)
+    if not media:
+        return {}
+    artist_playback = _track_playback_from_artist_request(result, media)
+    if artist_playback:
+        return {
+            "title": str(artist_playback.get("track_name") or artist_playback.get("title") or "").strip(),
+            "artist": str(artist_playback.get("artist") or artist_playback.get("artist_name") or "").strip(),
+        }
+    derived = _track_from_search_query_and_playback_artist(result, media)
+    if derived:
+        return {
+            "title": str(derived.get("title") or "").strip(),
+            "artist": str(derived.get("artist") or "").strip(),
+            "derived_from_query": "1",
+        }
+    media_type = str(media.get("type") or media.get("media_content_type") or "").strip().lower()
+    title = str(media.get("track_name") or media.get("title") or media.get("name") or "").strip()
+    artist = str(media.get("artist") or media.get("artist_name") or "").strip()
+    if media_type == "artist":
+        return {"title": "", "artist": artist or title}
+    return {"title": title, "artist": artist}
+
+
+def _text_mentions(text: str, value: str) -> bool:
+    normalized_text = _normalize(text)
+    normalized_value = _normalize(value)
+    return bool(normalized_text and normalized_value and normalized_value in normalized_text)
 
 
 def _track_playback_from_artist_request(
@@ -5217,6 +5286,21 @@ def _playlist_question_wants_track_choices(text: str) -> bool:
     )
 
 
+def _play_something_from_artist_request(text: str) -> str:
+    value = str(text or "").strip()
+    patterns = (
+        r"^\s*(?:speel|draai|zet)\s+(?:maar\s+|eens\s+|even\s+|graag\s+)?(?:wat|iets|something|some)\s+van\s+(.+?)\s*\??\s*$",
+        r"^\s*(?:play|put\s+on)\s+(?:something|some)\s+(?:by|from)\s+(.+?)\s*\??\s*$",
+    )
+    for pattern in patterns:
+        match = re.match(pattern, value, flags=re.IGNORECASE)
+        if match:
+            artist = _clean_artist_item_name(match.group(1))
+            if artist:
+                return artist
+    return ""
+
+
 def _is_something_from_artist_request(normalized: str) -> bool:
     return bool(
         re.search(
@@ -5224,6 +5308,7 @@ def _is_something_from_artist_request(normalized: str) -> bool:
             normalized,
         )
         or re.search(r"\bi\s+(?:want|would\s+like)\s+(?:something|some)\s+by\s+.+", normalized)
+        or _play_something_from_artist_request(normalized)
     )
 
 
@@ -6246,6 +6331,46 @@ async def _genre_media_options_response(
         )
     else:
         message = f"Ik vond nu geen speelbare albums of playlists voor {genre}."
+    return {
+        "success": True,
+        "text": message,
+        "dj_text": message,
+        "action": "none",
+        "images": [],
+        "playback_actions": actions,
+        "items": actions,
+        "sources": [
+            {"source": "spotify_album_search", "title": "Spotify album search", "kind": "source"},
+            {"source": "spotify_playlist_search", "title": "Spotify playlist search", "kind": "source"},
+        ],
+    }
+
+
+async def _artist_album_playlist_options_response(
+    hass: HomeAssistant,
+    runtime: Any,
+    artist: str,
+) -> dict[str, Any]:
+    album_result = await _spotify_album_search(hass, runtime, artist, limit=10)
+    playlist_result = await _spotify_playlist_search(hass, runtime, artist, limit=10)
+    albums = album_result.get("albums") if isinstance(album_result, dict) else []
+    playlists = playlist_result.get("playlists") if isinstance(playlist_result, dict) else []
+    album_actions = _album_search_playback_actions(hass, albums, limit=10)
+    playlist_actions = _playlist_search_playback_actions(hass, playlists, limit=10)
+    actions = _interleave_playback_actions(album_actions, playlist_actions, limit=10)
+    if actions:
+        lines = [
+            f"{index}. {action.get('title') or 'Spotify resultaat'}"
+            + (f" - {action.get('subtitle')}" if action.get("subtitle") else "")
+            for index, action in enumerate(actions, start=1)
+        ]
+        message = (
+            f"Ik vond deze albums en playlists van {artist}.\n"
+            + "\n".join(lines)
+            + "\n\nTik op Play Now om er eentje direct te starten."
+        )
+    else:
+        message = f"Ik vond nu geen speelbare albums of playlists voor {artist}."
     return {
         "success": True,
         "text": message,

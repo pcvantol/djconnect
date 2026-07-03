@@ -72,6 +72,7 @@ from .assist_stt import (
 from .dj_response import async_create_dj_audio_url, async_send_dj_response_best_effort, get_tts_audio
 from .ha_urls import async_ha_url_payload
 from .mood import enrich_payload_with_mood_zone
+from .pipeline import generate_dj_response_with_assist
 from .push import (
     async_register as async_register_push,
     async_send_event as async_send_push_event,
@@ -1506,12 +1507,21 @@ async def _recommendation_play_success_response(
                 _LOGGER.debug("DJConnect recommendation play memory update failed: %s", exc)
     title = recommendation.get("title") or recommendation.get("uri") or recommendation.get("context_uri")
     if kind == "track_mix":
-        dj_text = (
+        fallback_dj_text = (
             f"Ik speel {title} nu af. Wil je dat ik deze mix opsla als Spotify playlist?"
         )
     else:
-        dj_text = f"Ik speel {title} nu af."
+        fallback_dj_text = f"Ik speel {title} nu af."
     playback = result.get("playback") if isinstance(result, dict) else {}
+    media = _play_now_dj_response_media(recommendation, playback, request_payload)
+    dj_response_debug: dict[str, Any] = {}
+    dj_text = await generate_dj_response_with_assist(
+        hass,
+        media=media,
+        fallback_text=fallback_dj_text,
+        conf=getattr(runtime, "config", {}) or {},
+        debug=dj_response_debug,
+    )
     audio_url = await async_create_dj_audio_url(hass, runtime, dj_text)
     dj_response = {
         "success": True,
@@ -1522,7 +1532,12 @@ async def _recommendation_play_success_response(
         "audio_url_value": audio_url,
         "audio_type": _audio_type_from_url(audio_url),
     }
-    runtime.update(last_error=None, last_dj_text=dj_text, last_playback=playback or getattr(runtime, "last_playback", None))
+    runtime.update(
+        last_error=None,
+        last_dj_text=dj_text,
+        last_dj_response_debug=dj_response_debug,
+        last_playback=playback or getattr(runtime, "last_playback", None),
+    )
     return {
         "success": True,
         "message": dj_text,
@@ -1552,6 +1567,56 @@ async def _recommendation_play_success_response(
         },
         **music_backend_metadata(hass, runtime),
     }
+
+
+def _play_now_dj_response_media(
+    recommendation: dict[str, Any],
+    playback: Any,
+    request_payload: dict[str, Any],
+) -> dict[str, Any]:
+    media: dict[str, Any] = {}
+    if isinstance(playback, dict):
+        media.update(
+            {
+                key: value
+                for key in (
+                    "type",
+                    "media_content_type",
+                    "track_name",
+                    "title",
+                    "artist",
+                    "artist_name",
+                    "album_name",
+                    "album",
+                    "playlist",
+                    "name",
+                )
+                if (value := playback.get(key)) not in (None, "", [], {})
+            }
+        )
+    kind = str(recommendation.get("kind") or _spotify_recommendation_kind(recommendation.get("uri") or recommendation.get("context_uri")) or "").strip()
+    title = str(recommendation.get("title") or "").strip()
+    subtitle = str(recommendation.get("subtitle") or "").strip()
+    if kind and not media.get("type"):
+        media["type"] = kind
+    if title:
+        if kind == "album":
+            media.setdefault("album_name", title)
+            media.setdefault("album", title)
+        elif kind == "playlist":
+            media.setdefault("playlist", title)
+            media.setdefault("name", title)
+        else:
+            media.setdefault("track_name", title)
+            media.setdefault("title", title)
+    if subtitle:
+        media.setdefault("artist", subtitle)
+        media.setdefault("artist_name", subtitle)
+    for key in ("language", "locale", "device_language"):
+        value = request_payload.get(key) or recommendation.get(key)
+        if value:
+            media[key] = value
+    return enrich_payload_with_mood_zone(media)
 
 
 async def _handle_ask_dj_play_recommendation_on_output(

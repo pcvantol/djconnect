@@ -2261,6 +2261,13 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
             last_step=False,
         )
 
+    async def async_step_conversation_agent_init(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> FlowResult:
+        """Manage compact options for Assist conversation agent entries."""
+        return await self.async_step_init(user_input)
+
     async def async_step_music_backend(
         self,
         user_input: dict[str, Any] | None = None,

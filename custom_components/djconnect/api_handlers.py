@@ -111,6 +111,20 @@ async def async_handle_command_payload(
     )
     command_value = data.get("value")
     normalized_command = command.lower()
+    if normalized_command in {"help", "hulp", "commands", "show_help", "show_commands"}:
+        ask_payload = {
+            **data,
+            "text": command,
+            "client_type": client_type,
+        }
+        result = await http_helpers.async_handle_ask_dj(
+            hass,
+            runtime,
+            ask_payload,
+            user_id=user_id,
+        )
+        _decorate_command_result(hass, runtime, result, music_dna_key)
+        return result, 200 if result.get("success") else 400
     if normalized_command == "set_repeat":
         command_value = _repeat_command_value(data)
     elif normalized_command == "set_shuffle":
@@ -356,6 +370,14 @@ async def async_handle_track_insight_payload(
         return _error_payload("unauthorized"), 401
     payload = dict(data)
     payload.update({key: value for key, value in identity.items() if value is not None})
+    for header_name, payload_key in (
+        ("X-DJConnect-Language", "language"),
+        ("X-DJConnect-Locale", "locale"),
+        ("Accept-Language", "locale"),
+    ):
+        value = headers.get(header_name) if hasattr(headers, "get") else None
+        if value and not payload.get(payload_key):
+            payload[payload_key] = str(value).split(",", 1)[0].strip()
     try:
         result = await TrackInsightService().async_analyze(
             hass,

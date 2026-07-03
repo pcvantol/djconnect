@@ -135,19 +135,20 @@ class TrackInsightAnalyzer:
         track: dict[str, Any],
         request: TrackInsightRequest,
     ) -> tuple[dict[str, Any], str | None]:
+        locale = request.locale or _runtime_locale(runtime)
         if _demo_enabled(runtime):
-            return _demo_analysis(track), None
-        prompt = self.prompt_builder.build(track, request.locale or _runtime_locale(runtime))
+            return _demo_analysis(track, locale), None
+        prompt = self.prompt_builder.build(track, locale)
         raw_response: str | None = None
         try:
             raw_response = await self._ask_conversation(hass, runtime, prompt, request)
             parsed = _parse_json_object(raw_response)
             if parsed:
-                return _normalize_analysis(parsed, track), raw_response
+                return _normalize_analysis(parsed, track, locale), raw_response
             _LOGGER.debug("DJConnect Track Insight conversation returned malformed JSON")
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect Track Insight conversation unavailable: %s", exc.__class__.__name__)
-        return _fallback_analysis(track), raw_response
+        return _fallback_analysis(track, locale), raw_response
 
     async def _ask_conversation(
         self,
@@ -194,6 +195,7 @@ class TrackInsightResponseSerializer:
             "id": _insight_id(cache_key),
             "created_at": datetime.now(UTC).isoformat(),
             "source": request.source or "auto",
+            "language": _language_code(request.locale),
             "track": track,
             "analysis": analysis,
             "visual_profile": _visual_profile(track, analysis) if request.include_visual_profile else None,
@@ -227,11 +229,15 @@ class TrackInsightService:
         started = time.monotonic()
         request = _request_from_payload(payload or {}, source)
         track = await self._resolve_track(hass, runtime, request)
-        cache_key = _cache_key(track)
+        cache_key = _cache_key(track, request.locale)
         cache = TrackInsightCache(runtime)
         cached = None if request.force_refresh else cache.get(cache_key)
         if cached is not None:
-            _LOGGER.debug("DJConnect Track Insight cache hit for %s", cache_key)
+            _LOGGER.debug(
+                "DJConnect Track Insight cache hit for %s language=%s",
+                cache_key,
+                _language_code(request.locale),
+            )
             return cached
         self._check_rate_limit(runtime, track, request)
         analysis, raw_response = await self.analyzer.analyze(hass, runtime, track, request)
@@ -245,10 +251,11 @@ class TrackInsightService:
         )
         cache.set(cache_key, response)
         _LOGGER.debug(
-            "DJConnect Track Insight analyzed track=%s artist=%s backend=%s latency_ms=%s",
+            "DJConnect Track Insight analyzed track=%s artist=%s backend=%s language=%s latency_ms=%s",
             track.get("title") or "unknown",
             track.get("artist") or "unknown",
             track.get("backend") or "unknown",
+            _language_code(request.locale),
             int((time.monotonic() - started) * 1000),
         )
         return response
@@ -294,7 +301,7 @@ class TrackInsightService:
             setattr(runtime, "track_insight_rate_limit", state)
         last_key = str(state.get("last_key") or "")
         last_at = _float(state.get("last_at")) or 0
-        key = _cache_key(track)
+        key = _cache_key(track, request.locale)
         if last_key == key and now - last_at < TRACK_INSIGHT_DEBOUNCE_SECONDS:
             raise TrackInsightError("rate_limited", "Track Insight was requested too quickly for the same track.", status=429)
         calls = [
@@ -442,7 +449,7 @@ def _request_from_payload(payload: dict[str, Any], source: str) -> TrackInsightR
         player_id=_first_text(explicit, "player_id"),
         music_backend=_first_text(explicit, "music_backend", "backend", "provider"),
         force_refresh=_bool(payload.get("force_refresh")),
-        locale=_optional_text(payload.get("locale")),
+        locale=_optional_text(payload.get("locale") or payload.get("language")),
         include_visual_profile=_bool(payload.get("include_visual_profile"), True),
         include_raw_response=_bool(payload.get("include_raw_response")),
     )
@@ -510,8 +517,8 @@ def _track_contract(playback: dict[str, Any], runtime: Any, request: TrackInsigh
     }
 
 
-def _normalize_analysis(data: dict[str, Any], track: dict[str, Any]) -> dict[str, Any]:
-    fallback = _fallback_analysis(track)
+def _normalize_analysis(data: dict[str, Any], track: dict[str, Any], locale: str | None = None) -> dict[str, Any]:
+    fallback = _fallback_analysis(track, locale)
     return {
         "summary": _text(data.get("summary")) or fallback["summary"],
         "full_text": _text(data.get("full_text")) or _text(data.get("detailed_analysis")) or fallback["full_text"],
@@ -533,13 +540,36 @@ def _normalize_analysis(data: dict[str, Any], track: dict[str, Any]) -> dict[str
     }
 
 
-def _fallback_analysis(track: dict[str, Any]) -> dict[str, Any]:
-    title = str(track.get("title") or "this track")
-    artist = str(track.get("artist") or "the artist")
+def _fallback_analysis(track: dict[str, Any], locale: str | None = None) -> dict[str, Any]:
+    title = str(track.get("title") or ("dit nummer" if _is_dutch_locale(locale) else "this track"))
+    artist = str(track.get("artist") or ("de artiest" if _is_dutch_locale(locale) else "the artist"))
     seed = _seed(track)
     energy = _seed_float(seed, 0)
     danceability = _seed_float(seed, 1)
     intensity = _seed_float(seed, 2)
+    if _is_dutch_locale(locale):
+        return {
+            "summary": f"{title} van {artist} komt naar voren als een gefocust, expressief nummer met een duidelijke muzikale identiteit.",
+            "full_text": (
+                f"{title} van {artist} balanceert groove, arrangement en textuur. "
+                "Luister naar hoe het kernmotief, de ritmesectie en de productieruimte de emotionele lijn ondersteunen."
+            ),
+            "genre": None,
+            "subgenre": None,
+            "mood": "reflectief" if intensity < 0.55 else "gedreven",
+            "vibe": "meeslepend",
+            "texture": "gelaagd",
+            "emotional_tone": "expressief",
+            "energy": energy,
+            "danceability": danceability,
+            "intensity": intensity,
+            "confidence": 0.45,
+            "production_notes": ["Let op de balans tussen de voorgrondmelodie en de ondersteunende textuur."],
+            "instrumentation": ["Leidend muzikaal motief", "Ritmische basis", "Gelaagde productie-elementen"],
+            "arrangement_notes": ["Het arrangement werkt waarschijnlijk door een herkenbaar idee te herhalen en tegelijk dichtheid en dynamiek te varieren."],
+            "listening_cues": ["Let op de eerste grote textuurverandering.", "Luister hoe het ritme de vocal of leadlijn ondersteunt."],
+            "similar_tracks": [],
+        }
     return {
         "summary": f"{title} by {artist} is presented as a focused, expressive track with a clear musical identity.",
         "full_text": (
@@ -564,8 +594,20 @@ def _fallback_analysis(track: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _demo_analysis(track: dict[str, Any]) -> dict[str, Any]:
-    analysis = _fallback_analysis(track)
+def _demo_analysis(track: dict[str, Any], locale: str | None = None) -> dict[str, Any]:
+    analysis = _fallback_analysis(track, locale)
+    if _is_dutch_locale(locale):
+        analysis.update(
+            {
+                "summary": "Demo Track Insight: een gepolijste, filmische groove met warme details en een zelfverzekerde puls.",
+                "genre": "electronic",
+                "subgenre": "melodic house",
+                "mood": "opbeurend",
+                "vibe": "filmisch",
+                "confidence": 0.8,
+            }
+        )
+        return analysis
     analysis.update(
         {
             "summary": "Demo Track Insight: a polished, cinematic groove with warm detail and a confident pulse.",
@@ -607,16 +649,28 @@ def _palette(seed: str) -> list[str]:
     return [f"#{seed[index:index + 6]}" for index in (0, 6, 12)]
 
 
-def _cache_key(track: dict[str, Any]) -> str:
+def _cache_key(track: dict[str, Any], locale: str | None = None) -> str:
     identity = "|".join(
         str(track.get(key) or "").strip().lower()
         for key in ("title", "artist", "album", "backend", "duration_ms")
     )
+    identity = f"{identity}|{_language_code(locale)}"
     return hashlib.sha256(identity.encode()).hexdigest()[:24]
 
 
 def _insight_id(cache_key: str) -> str:
     return f"track_insight_{cache_key}"
+
+
+def _language_code(locale: str | None) -> str:
+    value = str(locale or "").strip().lower().replace("_", "-")
+    if not value:
+        return "en"
+    return value.split("-", 1)[0] or "en"
+
+
+def _is_dutch_locale(locale: str | None) -> bool:
+    return _language_code(locale) == "nl"
 
 
 def _seed(track: dict[str, Any]) -> str:
