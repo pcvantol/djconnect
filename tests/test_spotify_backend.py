@@ -492,6 +492,99 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertEqual(runtime.ask_dj_history.messages[0][2]["message_kind"], "system")
         self.assertEqual(runtime.ask_dj_history.messages[0][2]["origin"], "spotify_playback_context")
 
+    def test_playback_state_records_artist_genres_in_music_dna_when_enabled(self) -> None:
+        class Response:
+            status = 200
+
+            def __init__(self, payload):
+                self.payload = payload
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                return self.payload
+
+            async def text(self):
+                return "{}"
+
+        class Session:
+            def __init__(self):
+                self.urls = []
+
+            def request(self, method, url, **kwargs):
+                self.urls.append(url)
+                if "/artists?ids=artist-1" in url:
+                    return Response(
+                        {
+                            "artists": [
+                                {
+                                    "id": "artist-1",
+                                    "name": "RUFUS DU SOL",
+                                    "genres": ["australian dance", "indietronica"],
+                                }
+                            ]
+                        }
+                    )
+                if "/me/tracks/contains" in url:
+                    return Response([False])
+                return Response(
+                    {
+                        "is_playing": True,
+                        "item": {
+                            "id": "track-1",
+                            "name": "Innerbloom",
+                            "uri": "spotify:track:track-1",
+                            "duration_ms": 585000,
+                            "artists": [{"id": "artist-1", "name": "RUFUS DU SOL"}],
+                            "album": {"name": "Bloom"},
+                        },
+                        "device": {"name": "Living room"},
+                    }
+                )
+
+        class Memory:
+            def __init__(self):
+                self.tracks = []
+                self.saved = 0
+
+            def update_recent_tracks(self, key, track):
+                self.tracks.append((key, dict(track)))
+
+            async def async_save(self):
+                self.saved += 1
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={"spotify_client_id": "client-id", "spotify_refresh_token": "refresh"},
+            options={},
+        )
+        runtime = types.SimpleNamespace(
+            entry=entry,
+            latest_spotify_refresh_token=None,
+            spotify_access_token="access",
+            spotify_access_token_expires_at=time.time() + 1800,
+            device_status={"device_id": "djconnect-ios-123456789ABC"},
+            ask_dj_history=None,
+            memory=Memory(),
+            update=lambda **kwargs: [setattr(runtime, key, value) for key, value in kwargs.items()],
+        )
+        runtime.config = dict(entry.data)
+        backend = self.backend.SpotifyBackend(object(), runtime)
+        backend.session = Session()
+        backend.hass = types.SimpleNamespace(services=types.SimpleNamespace())
+
+        playback = asyncio.run(backend.playback_state())
+
+        self.assertEqual(playback["genres"], ["australian dance", "indietronica"])
+        self.assertEqual(runtime.memory.tracks[0][0], "djconnect-ios-123456789ABC")
+        self.assertEqual(runtime.memory.tracks[0][1]["genres"], ["australian dance", "indietronica"])
+        self.assertEqual(runtime.memory.saved, 1)
+        self.assertTrue(any("/artists?ids=artist-1" in url for url in backend.session.urls))
+
     def test_playback_state_skips_ambient_fact_prompt_leak(self) -> None:
         class Response:
             status = 200

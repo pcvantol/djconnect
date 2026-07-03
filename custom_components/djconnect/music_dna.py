@@ -191,11 +191,7 @@ class MusicDNAManager:
             return key
         mood = _clean_mood(payload.get("mood"))
         if mood is not None:
-            memory["mood"] = mood
-            zone = mood_zone_for_value(mood)
-            if zone is not None:
-                memory["mood_zone"] = zone.name
-                memory["mood_zone_prompt"] = zone.prompt_hint
+            _record_mood_signal(memory, mood)
         dj_style = _clean_text(payload.get("dj_style"))
         if dj_style:
             memory["dj_style"] = dj_style
@@ -230,11 +226,7 @@ class MusicDNAManager:
             payload = payload or {}
             mood = _clean_mood(payload.get("mood"))
             if mood is not None:
-                memory["mood"] = mood
-                zone = mood_zone_for_value(mood)
-                if zone is not None:
-                    memory["mood_zone"] = zone.name
-                    memory["mood_zone_prompt"] = zone.prompt_hint
+                _record_mood_signal(memory, mood)
             dj_style = _clean_text(payload.get("dj_style"))
             if dj_style:
                 memory["dj_style"] = dj_style
@@ -408,12 +400,74 @@ class MusicDNAManager:
         if not compact_track:
             return
         identity = _track_identity(compact_track)
+        last_identity = _clean_text(memory.get("last_playback_track_identity"))
+        is_new_play_signal = bool(identity and identity != last_identity)
         deduped = [
             item
             for item in recent
             if _track_identity(item if isinstance(item, dict) else {}) != identity
         ]
         memory["recent_tracks"] = [compact_track, *deduped][:MAX_RECENT_TRACKS]
+        if identity:
+            memory["last_playback_track_identity"] = identity
+        artists = _track_artists(compact_track)
+        if artists and is_new_play_signal:
+            counts = memory.get("artist_play_counts")
+            if not isinstance(counts, dict):
+                counts = {}
+            for artist in artists:
+                counts[artist] = int(counts.get(artist) or 0) + 1
+            memory["artist_play_counts"] = dict(
+                sorted(
+                    counts.items(),
+                    key=lambda item: (-int(item[1] or 0), str(item[0]).lower()),
+                )[:50]
+            )
+            memory["favorite_artists"] = _favorite_artists_from_counts(
+                memory["artist_play_counts"],
+                memory.get("favorite_artists"),
+            )
+        genres = compact_track.get("genres")
+        if isinstance(genres, list) and genres:
+            memory["favorite_genres"] = _unique_texts(
+                [*genres, *(memory.get("favorite_genres") or [])]
+            )[:20]
+        memory["updated_at"] = _now()
+
+    def update_track_insight_energy(
+        self,
+        music_dna_key: str,
+        track: dict[str, Any],
+        analysis: dict[str, Any],
+    ) -> None:
+        """Store compact Track Insight energy signals for the Music DNA profile."""
+        key = _safe_music_dna_key(music_dna_key)
+        memory = self._memory_for_key(key)
+        if not self._memory_enabled(memory):
+            return
+        compact_track = _compact_track(track)
+        if not compact_track:
+            return
+        energy = _normalized_ratio(analysis.get("energy"))
+        danceability = _normalized_ratio(analysis.get("danceability"))
+        intensity = _normalized_ratio(analysis.get("intensity"))
+        if energy is None and danceability is None and intensity is None:
+            return
+        signal = {
+            **compact_track,
+            **({"energy": energy} if energy is not None else {}),
+            **({"danceability": danceability} if danceability is not None else {}),
+            **({"intensity": intensity} if intensity is not None else {}),
+            **({"confidence": _normalized_ratio(analysis.get("confidence"))} if _normalized_ratio(analysis.get("confidence")) is not None else {}),
+            **({"genre": _clean_text(analysis.get("genre"))} if _clean_text(analysis.get("genre")) else {}),
+            **({"mood": _clean_text(analysis.get("mood"))} if _clean_text(analysis.get("mood")) else {}),
+            **({"vibe": _clean_text(analysis.get("vibe"))} if _clean_text(analysis.get("vibe")) else {}),
+            "created_at": _now(),
+        }
+        signals = memory.get("track_insight_energy_signals")
+        if not isinstance(signals, list):
+            signals = []
+        memory["track_insight_energy_signals"] = [signal, *[item for item in signals if isinstance(item, dict)]][:50]
         memory["updated_at"] = _now()
 
     async def async_update_listening_profile(
@@ -614,7 +668,10 @@ class MusicDNAManager:
                 "device_name": None,
                 "generation": 0,
                 "favorite_artists": [],
+                "artist_play_counts": {},
                 "favorite_genres": [],
+                "track_insight_energy_signals": [],
+                "mood_signals": {},
                 "blocked_artists": [],
                 "blocked_items": [],
                 "recent_tracks": [],
@@ -632,7 +689,10 @@ class MusicDNAManager:
     def _clear_knowledge(memory: dict[str, Any]) -> None:
         for key in (
             "favorite_artists",
+            "artist_play_counts",
             "favorite_genres",
+            "track_insight_energy_signals",
+            "mood_signals",
             "blocked_artists",
             "blocked_items",
             "recent_tracks",
@@ -644,6 +704,7 @@ class MusicDNAManager:
             "last_profile_refresh",
             "recommendation_plays",
             "last_played_recommendation",
+            "last_playback_track_identity",
             "pending_followup",
             "mood",
             "mood_zone",
@@ -830,7 +891,10 @@ def _prompt_safe_memory(memory: dict[str, Any]) -> dict[str, Any]:
         "mood",
         "dj_style",
         "favorite_artists",
+        "artist_play_counts",
         "favorite_genres",
+        "track_insight_energy_signals",
+        "mood_signals",
         "blocked_artists",
         "blocked_items",
         "recent_tracks",
@@ -854,6 +918,8 @@ def _prompt_safe_memory(memory: dict[str, Any]) -> dict[str, Any]:
     }
     if isinstance(result.get("recent_tracks"), list):
         result["recent_tracks"] = result["recent_tracks"][:MAX_RECENT_TRACKS]
+    if isinstance(result.get("track_insight_energy_signals"), list):
+        result["track_insight_energy_signals"] = result["track_insight_energy_signals"][:50]
     if isinstance(result.get("chat_facts"), list):
         result["chat_facts"] = result["chat_facts"][:MAX_CHAT_FACTS]
     if isinstance(result.get("blocked_artists"), list):
@@ -876,37 +942,21 @@ def _profile_payload(memory: dict[str, Any]) -> dict[str, Any]:
             *(listening.get("inferred_genres") or []),
         ]
     )[:20]
-    artists = _unique_texts(
-        [
-            *(memory.get("favorite_artists") or []),
-            *(listening.get("recent_artists") or []),
-            *[
-                artist.get("name") or artist.get("artist") or artist.get("artist_name")
-                for group in (listening.get("top_artists_by_range") or {}).values()
-                if isinstance(group, list)
-                for artist in group
-                if isinstance(artist, dict)
-            ],
-        ]
-    )[:20]
+    artist_items = _profile_artist_items(memory, listening)
+    artists = [item["name"] for item in artist_items]
     mood = memory.get("mood")
     zone = mood_zone_for_value(mood) if mood is not None else None
+    mood_profile = _profile_mood(memory, mood, zone)
+    energy_profile = _profile_energy_profile(memory)
     return {
         "summary": _profile_summary(memory, favorite_genres, artists, recent_tracks),
         "favorite_genres": [{"name": value} for value in favorite_genres],
-        "favorite_artists": [{"name": value} for value in artists],
+        "favorite_artists": artist_items,
+        "energy_profile": energy_profile,
         "recent_tracks": [_compact_track(track) for track in recent_tracks[:MAX_RECENT_TRACKS] if isinstance(track, dict)],
         "top_tracks_by_range": listening.get("top_tracks_by_range") or {},
         "top_artists_by_range": listening.get("top_artists_by_range") or {},
-        "mood": (
-            {
-                "value": mood,
-                "zone": zone.name if zone is not None else None,
-                "prompt_hint": zone.prompt_hint if zone is not None else None,
-            }
-            if mood is not None
-            else {}
-        ),
+        "mood": mood_profile,
         "time_patterns": memory.get("listening_time_patterns") or [],
         "recommendation_signals": memory.get("recommendation_plays") or [],
         "blocked_artists": memory.get("blocked_artists") or [],
@@ -925,16 +975,193 @@ def _profile_summary(
     if not (genres or artists or recent_tracks or memory.get("mood") is not None):
         return "Music DNA is ingeschakeld, maar er is nog weinig profieldata opgebouwd."
     parts: list[str] = []
+    if recent_tracks:
+        parts.append(f"{len(recent_tracks)} recente track(s)")
+    if artists:
+        parts.append(f"{len(artists)} artiest(en)")
     if genres:
         parts.append("genres zoals " + ", ".join(genres[:3]))
-    if artists:
-        parts.append("artiesten zoals " + ", ".join(artists[:3]))
     if memory.get("mood") is not None:
         zone = mood_zone_for_value(memory.get("mood"))
         parts.append(f"een {zone.name if zone is not None else 'bekende'} mood")
-    if not parts:
-        parts.append(f"{len(recent_tracks)} recente track(s)")
     return "Je Music DNA bevat nu " + "; ".join(parts) + "."
+
+
+def _profile_artist_items(memory: dict[str, Any], listening: dict[str, Any]) -> list[dict[str, Any]]:
+    counts = memory.get("artist_play_counts")
+    count_items: list[dict[str, Any]] = []
+    if isinstance(counts, dict):
+        for name, count in counts.items():
+            artist = _clean_text(name)
+            if artist:
+                count_items.append({"name": artist, "play_count": max(1, int(count or 0))})
+    count_items.sort(key=lambda item: (-int(item.get("play_count") or 0), item["name"].lower()))
+    seen = {item["name"].lower() for item in count_items}
+    extras = _unique_texts(
+        [
+            *_artist_name_values(memory.get("favorite_artists")),
+            *(listening.get("recent_artists") or []),
+            *[
+                artist.get("name") or artist.get("artist") or artist.get("artist_name")
+                for group in (listening.get("top_artists_by_range") or {}).values()
+                if isinstance(group, list)
+                for artist in group
+                if isinstance(artist, dict)
+            ],
+        ]
+    )
+    for artist in extras:
+        if artist.lower() in seen:
+            continue
+        count_items.append({"name": artist})
+        seen.add(artist.lower())
+    return count_items[:20]
+
+
+def _profile_mood(memory: dict[str, Any], mood: Any, zone: Any) -> dict[str, Any]:
+    profile: dict[str, Any] = {}
+    if mood is not None:
+        profile.update(
+            {
+                "value": mood,
+                "zone": zone.name if zone is not None else None,
+                "prompt_hint": zone.prompt_hint if zone is not None else None,
+            }
+        )
+    signals = memory.get("mood_signals")
+    if not isinstance(signals, dict):
+        return profile
+    count = int(signals.get("count") or 0)
+    total = int(signals.get("total") or 0)
+    if count <= 0:
+        return profile
+    average = int(round(total / count))
+    average_zone = mood_zone_for_value(average)
+    zone_counts = signals.get("zones")
+    profile.update(
+        {
+            "sample_count": count,
+            "average": average,
+            "average_zone": average_zone.name if average_zone is not None else None,
+            "average_prompt_hint": average_zone.prompt_hint if average_zone is not None else None,
+            "zone_counts": dict(zone_counts) if isinstance(zone_counts, dict) else {},
+        }
+    )
+    return profile
+
+
+def _profile_energy_profile(memory: dict[str, Any]) -> dict[str, Any]:
+    signals = memory.get("track_insight_energy_signals")
+    if not isinstance(signals, list):
+        return {}
+    items = [item for item in signals if isinstance(item, dict)]
+    if not items:
+        return {}
+    energy_values = [_normalized_ratio(item.get("energy")) for item in items]
+    dance_values = [_normalized_ratio(item.get("danceability")) for item in items]
+    intensity_values = [_normalized_ratio(item.get("intensity")) for item in items]
+    energy = _average_ratio(energy_values)
+    danceability = _average_ratio(dance_values)
+    intensity = _average_ratio(intensity_values)
+    profile: dict[str, Any] = {
+        "sample_count": len(items),
+        "recent_signals": items[:10],
+    }
+    if energy is not None:
+        percent = int(round(energy * 100))
+        zone = mood_zone_for_value(percent)
+        profile.update(
+            {
+                "energy": energy,
+                "energy_percent": percent,
+                "zone": zone.name if zone is not None else None,
+                "prompt_hint": zone.prompt_hint if zone is not None else None,
+            }
+        )
+    if danceability is not None:
+        profile["danceability"] = danceability
+        profile["danceability_percent"] = int(round(danceability * 100))
+    if intensity is not None:
+        profile["intensity"] = intensity
+        profile["intensity_percent"] = int(round(intensity * 100))
+    return profile
+
+
+def _record_mood_signal(memory: dict[str, Any], mood: int) -> None:
+    memory["mood"] = mood
+    zone = mood_zone_for_value(mood)
+    if zone is not None:
+        memory["mood_zone"] = zone.name
+        memory["mood_zone_prompt"] = zone.prompt_hint
+    signals = memory.get("mood_signals")
+    if not isinstance(signals, dict):
+        signals = {}
+    zones = signals.get("zones")
+    if not isinstance(zones, dict):
+        zones = {}
+    if zone is not None:
+        zones[zone.name] = int(zones.get(zone.name) or 0) + 1
+    count = int(signals.get("count") or 0) + 1
+    total = int(signals.get("total") or 0) + mood
+    signals.update(
+        {
+            "count": count,
+            "total": total,
+            "average": int(round(total / count)),
+            "last_value": mood,
+            "last_seen": _now(),
+            "zones": zones,
+        }
+    )
+    memory["mood_signals"] = signals
+
+
+def _favorite_artists_from_counts(
+    counts: dict[str, Any],
+    existing: Any,
+) -> list[str]:
+    names = [
+        str(name)
+        for name, _count in sorted(
+            counts.items(),
+            key=lambda item: (-int(item[1] or 0), str(item[0]).lower()),
+        )
+        if _clean_text(name)
+    ]
+    return _unique_texts([*names, *_artist_name_values(existing)])[:20]
+
+
+def _artist_name_values(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [
+        text
+        for text in (
+            _clean_text(item.get("name") or item.get("artist") or item.get("artist_name"))
+            if isinstance(item, dict)
+            else _clean_text(item)
+            for item in value
+        )
+        if text
+    ]
+
+
+def _track_artists(track: dict[str, Any]) -> list[str]:
+    raw_artists = track.get("artists")
+    if isinstance(raw_artists, list):
+        names = _unique_texts(
+            [
+                item.get("name") if isinstance(item, dict) else item
+                for item in raw_artists
+            ]
+        )
+        if names:
+            return names
+    value = _clean_text(track.get("artist") or track.get("artist_name"))
+    if not value:
+        return []
+    parts = re.split(r"\s*,\s*|\s+feat\.?\s+|\s+ft\.?\s+|\s+&\s+", value, flags=re.IGNORECASE)
+    return _unique_texts([part for part in parts if _clean_text(part)])[:10]
 
 
 def _sanitize_value(value: Any) -> Any:
@@ -986,12 +1213,20 @@ def _compact_track(track: dict[str, Any]) -> dict[str, Any]:
         "artist_name",
         "album",
         "album_name",
+        "genres",
     )
-    return {
-        key: _clean_text(track.get(key))
-        for key in keys
-        if _clean_text(track.get(key))
-    }
+    result: dict[str, Any] = {}
+    for key in keys:
+        value = track.get(key)
+        if key == "genres" and isinstance(value, list):
+            genres = _unique_texts(value)[:10]
+            if genres:
+                result[key] = genres
+            continue
+        cleaned = _clean_text(value)
+        if cleaned:
+            result[key] = cleaned
+    return result
 
 
 def _update_time_context(memory: dict[str, Any]) -> None:
@@ -1205,6 +1440,25 @@ def _clean_mood(value: Any) -> int | None:
         return max(0, min(100, int(value)))
     except (TypeError, ValueError):
         return None
+
+
+def _normalized_ratio(value: Any) -> float | None:
+    if value is None or value == "":
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    if number > 1:
+        number = number / 100
+    return max(0.0, min(1.0, round(number, 4)))
+
+
+def _average_ratio(values: list[float | None]) -> float | None:
+    numbers = [value for value in values if isinstance(value, (int, float))]
+    if not numbers:
+        return None
+    return round(sum(float(value) for value in numbers) / len(numbers), 4)
 
 
 def _first_text(*values: Any) -> str | None:

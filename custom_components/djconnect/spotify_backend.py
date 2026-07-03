@@ -20,6 +20,7 @@ from .const import (
     DOMAIN,
     DEFAULT_SPOTIFY_MARKET,
 )
+from .music_dna import resolve_music_dna_key
 from .spotify_oauth import SpotifyTokenRefreshError, refresh_access_token
 
 SPOTIFY_API_BASE = "https://api.spotify.com/v1"
@@ -451,6 +452,7 @@ class SpotifyBackend:
         data = await self._request("GET", "/me/player")
         playback = _normalize_playback(data)
         await self._enrich_current_track_favorite_status(playback)
+        await self._enrich_playback_artist_genres(playback)
         _merge_playback_status(
             self.runtime.device_status,
             {
@@ -464,8 +466,56 @@ class SpotifyBackend:
             },
         )
         self.runtime.update(last_playback=playback, last_error=None)
+        await self._record_playback_in_music_dna(playback)
         await async_maybe_append_ambient_fact(self.hass, self.runtime, playback)
         return playback
+
+    async def _enrich_playback_artist_genres(self, playback: dict[str, Any]) -> None:
+        artist_ids = [
+            str(artist_id or "").strip()
+            for artist_id in (playback.get("artist_ids") or [])
+            if _looks_like_spotify_id(str(artist_id or ""))
+        ][:10]
+        if not artist_ids:
+            return
+        cache_key = "artists:" + ",".join(sorted(set(artist_ids)))
+
+        async def load():
+            return await self._request("GET", f"/artists?ids={','.join(artist_ids)}")
+
+        try:
+            data = await self._cached(cache_key, load, ttl=LISTENING_PROFILE_CACHE_TTL_SECONDS)
+        except SpotifyBackendError as exc:
+            _LOGGER.debug("DJConnect could not read current artist genres: %s", exc)
+            return
+        artists = data.get("artists") if isinstance(data, dict) else []
+        genres: list[str] = []
+        for artist in artists if isinstance(artists, list) else []:
+            if not isinstance(artist, dict):
+                continue
+            for genre in artist.get("genres") or []:
+                text = str(genre or "").strip()
+                if text:
+                    genres.append(text)
+        unique = _unique_values(genres)[:10]
+        if unique:
+            playback["genres"] = unique
+
+    async def _record_playback_in_music_dna(self, playback: dict[str, Any]) -> None:
+        if not playback.get("has_playback") or not playback.get("track_name"):
+            return
+        memory = getattr(self.runtime, "memory", None)
+        updater = getattr(memory, "update_recent_tracks", None)
+        saver = getattr(memory, "async_save", None)
+        if not callable(updater):
+            return
+        key = resolve_music_dna_key(self.runtime)
+        try:
+            updater(key, playback)
+            if callable(saver):
+                await saver()
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.debug("DJConnect could not update Music DNA from playback: %s", exc)
 
     async def _enrich_current_track_favorite_status(self, playback: dict[str, Any]) -> None:
         uri = str(playback.get("uri") or playback.get("current_uri") or "").strip()
@@ -1278,6 +1328,11 @@ def _normalize_playback(data: dict[str, Any]) -> dict[str, Any]:
         "queue_context": context_uri,
         "artist": ", ".join(artist.get("name", "") for artist in artists if artist.get("name")),
         "artist_name": ", ".join(artist.get("name", "") for artist in artists if artist.get("name")),
+        "artist_ids": [
+            str(artist.get("id") or "").strip()
+            for artist in artists
+            if isinstance(artist, dict) and str(artist.get("id") or "").strip()
+        ][:10],
         "album_name": album.get("name") or "",
         "album_image_url": album_image_url,
         "media_image_url": album_image_url,

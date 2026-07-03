@@ -146,6 +146,114 @@ class MusicDNAManagerTest(unittest.TestCase):
         self.assertEqual(context["memory"]["last_ask_dj"]["intent"], "explain_choice")
         self.assertIn("listening_time_context", context["memory"])
 
+    def test_recent_playback_track_genres_feed_profile_favorite_genres(self) -> None:
+        manager = MusicDNAManager(store=FakeStore())
+        runtime = runtime_for()
+        asyncio.run(manager.async_set_enabled(runtime, True))
+
+        manager.update_recent_tracks(
+            resolve_music_dna_key(runtime),
+            {
+                "title": "Innerbloom",
+                "artist": "RUFUS DU SOL",
+                "album": "Bloom",
+                "uri": "spotify:track:innerbloom",
+                "genres": ["australian dance", "indietronica"],
+            },
+        )
+        manager.update_recent_tracks(
+            resolve_music_dna_key(runtime),
+            {
+                "title": "Innerbloom",
+                "artist": "RUFUS DU SOL",
+                "album": "Bloom",
+                "uri": "spotify:track:innerbloom",
+                "genres": ["australian dance", "indietronica"],
+            },
+        )
+        manager.update_recent_tracks(
+            resolve_music_dna_key(runtime),
+            {
+                "title": "On My Knees",
+                "artist": "RUFUS DU SOL",
+                "album": "Surrender",
+                "uri": "spotify:track:on-my-knees",
+                "genres": ["australian dance"],
+            },
+        )
+        manager.update_recent_tracks(
+            resolve_music_dna_key(runtime),
+            {
+                "title": "Midnight City",
+                "artist": "M83",
+                "album": "Hurry Up, We're Dreaming",
+                "uri": "spotify:track:midnight-city",
+                "genres": ["indietronica"],
+            },
+        )
+        profile = asyncio.run(manager.async_profile(runtime))
+
+        self.assertEqual(
+            set(item["name"] for item in profile["profile"]["favorite_genres"][:2]),
+            {"australian dance", "indietronica"},
+        )
+        self.assertEqual(
+            profile["profile"]["recent_tracks"][0]["genres"],
+            ["indietronica"],
+        )
+        self.assertEqual(len(profile["profile"]["recent_tracks"]), 3)
+        self.assertEqual(profile["profile"]["favorite_artists"][0]["name"], "RUFUS DU SOL")
+        self.assertEqual(profile["profile"]["favorite_artists"][0]["play_count"], 2)
+        self.assertEqual(profile["profile"]["favorite_artists"][1]["name"], "M83")
+        self.assertEqual(profile["profile"]["favorite_artists"][1]["play_count"], 1)
+        self.assertIn("3 recente track(s)", profile["profile"]["summary"])
+        self.assertIn("2 artiest(en)", profile["profile"]["summary"])
+
+    def test_track_insight_energy_signals_feed_profile_energy_profile(self) -> None:
+        manager = MusicDNAManager(store=FakeStore())
+        runtime = runtime_for()
+        asyncio.run(manager.async_set_enabled(runtime, True))
+
+        manager.update_track_insight_energy(
+            resolve_music_dna_key(runtime),
+            {"title": "Sewing Machine", "artist": "Onur Yalcinsory", "album": "Scala"},
+            {"energy": 0.81, "danceability": 0.62, "intensity": 0.74, "confidence": 0.9},
+        )
+        manager.update_track_insight_energy(
+            resolve_music_dna_key(runtime),
+            {"title": "Dream On", "artist": "Scala & Kolacny Brothers", "album": "Dream On"},
+            {"energy": 0.59, "danceability": 0.45, "intensity": 0.5, "confidence": 0.8},
+        )
+
+        profile = asyncio.run(manager.async_profile(runtime))["profile"]
+
+        self.assertEqual(profile["energy_profile"]["sample_count"], 2)
+        self.assertEqual(profile["energy_profile"]["energy_percent"], 70)
+        self.assertEqual(profile["energy_profile"]["zone"], "energy")
+        self.assertEqual(profile["energy_profile"]["danceability_percent"], 54)
+        self.assertEqual(profile["energy_profile"]["intensity_percent"], 62)
+        self.assertEqual(profile["energy_profile"]["recent_signals"][0]["title"], "Dream On")
+
+    def test_client_mood_signals_feed_profile_mood_average(self) -> None:
+        manager = MusicDNAManager(store=FakeStore())
+        runtime = runtime_for()
+        asyncio.run(manager.async_set_enabled(runtime, True))
+
+        asyncio.run(manager.async_update_client_metadata(runtime, {"mood": 10}))
+        asyncio.run(manager.async_update_client_metadata(runtime, {"mood": 70}))
+        asyncio.run(manager.async_update_client_metadata(runtime, {"mood": 90}))
+
+        profile = asyncio.run(manager.async_profile(runtime))["profile"]
+
+        self.assertEqual(profile["mood"]["value"], 90)
+        self.assertEqual(profile["mood"]["zone"], "party")
+        self.assertEqual(profile["mood"]["sample_count"], 3)
+        self.assertEqual(profile["mood"]["average"], 57)
+        self.assertEqual(profile["mood"]["average_zone"], "groove")
+        self.assertEqual(profile["mood"]["zone_counts"]["chill"], 1)
+        self.assertEqual(profile["mood"]["zone_counts"]["energy"], 1)
+        self.assertEqual(profile["mood"]["zone_counts"]["party"], 1)
+
     def test_blocked_music_preference_is_persisted_and_prompt_safe(self) -> None:
         store = FakeStore()
         manager = MusicDNAManager(store=store)

@@ -106,6 +106,46 @@ class TrackInsightTests(unittest.TestCase):
         self.assertNotIn("music_dna", result)
         self.assert_no_music_dna_match_fields(result)
 
+    def test_track_insight_records_energy_signal_in_music_dna(self) -> None:
+        class Memory:
+            def __init__(self) -> None:
+                self.signals = []
+                self.saved = 0
+
+            def update_track_insight_energy(self, key, track, analysis):
+                self.signals.append((key, dict(track), dict(analysis)))
+
+            async def async_save(self):
+                self.saved += 1
+
+        hass = FakeHass(
+            '{"summary":"Warm and wide","full_text":"A detailed view",'
+            '"genre":"electronic","energy":0.81,"danceability":0.62,'
+            '"intensity":0.74,"confidence":0.9}'
+        )
+        runtime = Runtime()
+        runtime.memory = Memory()
+
+        result = asyncio.run(
+            self.track_insight.TrackInsightService().async_analyze(
+                hass,
+                runtime,
+                {
+                    "title": "Sewing Machine",
+                    "artist": "Onur Yalcinsory",
+                    "album": "Scala",
+                    "music_dna_key": "user:peter",
+                },
+                source="http",
+            )
+        )
+
+        self.assertEqual(result["analysis"]["energy"], 0.81)
+        self.assertEqual(runtime.memory.signals[0][0], "user:peter")
+        self.assertEqual(runtime.memory.signals[0][1]["title"], "Sewing Machine")
+        self.assertEqual(runtime.memory.signals[0][2]["energy"], 0.81)
+        self.assertEqual(runtime.memory.saved, 1)
+
     def test_explicit_track_accepts_client_playback_aliases(self) -> None:
         hass = FakeHass('{"summary":"Alias ok","full_text":"Detailed","confidence":0.8}')
         runtime = Runtime()

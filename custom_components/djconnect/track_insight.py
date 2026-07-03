@@ -14,6 +14,7 @@ from homeassistant.core import HomeAssistant
 
 from .const import DEFAULT_MUSIC_BACKEND
 from .mood import enrich_payload_with_mood_zone, mood_context_text
+from .music_dna import resolve_music_dna_key
 from .pipeline import _assist_context, _speech_from_response, call_conversation_process_with_agent_retry
 from .use_cases import run_music_command
 
@@ -245,6 +246,7 @@ class TrackInsightService:
                 _language_code(request.locale),
                 request.mood_zone or request.mood,
             )
+            await _record_track_insight_energy_in_music_dna(runtime, payload or {}, track, cached)
             return cached
         self._check_rate_limit(runtime, track, request)
         analysis, raw_response = await self.analyzer.analyze(hass, runtime, track, request)
@@ -257,6 +259,7 @@ class TrackInsightService:
             raw_response=raw_response,
         )
         cache.set(cache_key, response)
+        await _record_track_insight_energy_in_music_dna(runtime, payload or {}, track, response)
         _LOGGER.debug(
             "DJConnect Track Insight analyzed track=%s artist=%s backend=%s language=%s mood=%s latency_ms=%s",
             track.get("title") or "unknown",
@@ -403,6 +406,28 @@ async def async_track_insight_tool(
         parameters,
         source="tool",
     )
+
+
+async def _record_track_insight_energy_in_music_dna(
+    runtime: Any,
+    payload: dict[str, Any],
+    track: dict[str, Any],
+    response: dict[str, Any],
+) -> None:
+    memory = getattr(runtime, "memory", None)
+    updater = getattr(memory, "update_track_insight_energy", None)
+    saver = getattr(memory, "async_save", None)
+    if not callable(updater):
+        return
+    analysis = response.get("analysis") if isinstance(response.get("analysis"), dict) else {}
+    if not analysis:
+        return
+    try:
+        updater(resolve_music_dna_key(runtime, payload), track, analysis)
+        if callable(saver):
+            await saver()
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect could not update Music DNA from Track Insight: %s", exc)
 
 
 def is_track_insight_request(text: str) -> bool:
