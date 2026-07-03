@@ -30,7 +30,7 @@ from ..mood import (
     mood_zone_for_value,
 )
 from ..music_intent import parse_spoken_music_request
-from ..pipeline import _assist_context, _speech_from_response
+from ..pipeline import _assist_context, _speech_from_response, call_conversation_process_with_agent_retry
 from ..use_cases import (
     MusicBackendCapabilityError,
     build_playback_action,
@@ -2461,13 +2461,7 @@ async def _handle_informational(
         data = {"text": prompt, "language": language}
         if assist_context.get("agent_id"):
             data["agent_id"] = assist_context["agent_id"]
-        result = await hass.services.async_call(
-            "conversation",
-            "process",
-            data,
-            blocking=True,
-            return_response=True,
-        )
+        result = await call_conversation_process_with_agent_retry(hass, data)
         message = _speech_from_response((result or {}).get("response") or {})
     except Exception as exc:  # noqa: BLE001
         _LOGGER.debug("DJConnect Ask DJ informational Assist answer failed: %s", exc)
@@ -4554,11 +4548,18 @@ def _normalize_ask_dj_response(
     action = result.get("action") or classification.action
     confirmation_actions = result.get("confirmation_actions") or _confirmation_actions_from_playback_actions(result.get("playback_actions"))
     result_intent = result.get("intent") if isinstance(result.get("intent"), dict) else {}
+    generated_text = result.get("is_generated_text")
+    text_source = str(result.get("text_source") or "").strip()
+    text_generation_fields = {
+        **({"text_source": text_source} if text_source else {}),
+        **({"is_generated_text": bool(generated_text)} if generated_text is not None else {}),
+    }
     return {
         "success": bool(result.get("success", True)),
         "text": text,
         "dj_text": text,
         "message": text,
+        **text_generation_fields,
         "images": images,
         "links": links,
         "sources": sources,
@@ -4592,6 +4593,7 @@ def _normalize_ask_dj_response(
             "message_kind": str(result.get("message_kind") or "assistant"),
             "origin": str(result.get("origin") or ""),
             "text": text,
+            **text_generation_fields,
             "images": images,
             "links": links,
             "sources": sources,
@@ -8071,18 +8073,20 @@ def _artist_more_media_action(artist: str) -> dict[str, Any]:
     artist = str(artist or "").strip()
     if not artist:
         return {}
-    title = f"Meer van {artist}"
+    prompt = f"Meer van {artist}"
+    title = "Meer van deze artiest"
     return {
         "id": f"djconnect:artist_more:{_normalize(artist).replace(' ', '-')}",
         "kind": "control",
         "action_style": "control",
         "command": "ask_dj_message",
-        "value": {"text": title, "prompt": title},
-        "text": title,
+        "value": {"text": prompt, "prompt": prompt},
+        "text": prompt,
         "title": title,
         "label": title,
         "button_label": title,
-        "prompt": title,
+        "prompt": prompt,
+        "client_prompt": prompt,
         "reason": "Vraag Ask DJ om meer albums, playlists en tracks van deze artiest.",
     }
 

@@ -345,11 +345,13 @@
         "title": "DJConnect options",
         "description": "Manage DJConnect actions such as changing the DJ voice profile, changing the music backend or reauthorizing Spotify. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB.",
         "data": {
+          "assist_pipeline_id": "Assist pipeline",
           "options_action": "Action",
           "music_backend": "Music backend",
           "voice_profile": "DJ voice profile"
         },
         "data_description": {
+          "assist_pipeline_id": "Assist pipeline used by DJConnect for speech recognition and DJ announcements.",
           "options_action": "Choose which action to run.",
           "music_backend": "Selected playback backend.",
           "voice_profile": "Choose the server-side DJConnect radio style. The selected Home Assistant TTS voice still determines the actual audio voice; mood controls energy."

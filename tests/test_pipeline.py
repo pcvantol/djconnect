@@ -133,7 +133,8 @@ class AssistPipelineTest(unittest.TestCase):
 
         self.assertEqual(text, "speel nummer Lithium van Nirvana")
         self.assertIn("Transcript: speel nummer litiem van nervana", calls[0]["text"])
-        self.assertIn("agent_id", calls[0])
+        self.assertEqual(calls[0]["pipeline_id"], "conversation.openai")
+        self.assertNotIn("agent_id", calls[0])
 
     def test_correct_stt_text_with_assist_ignores_prompt_leak(self) -> None:
         class Services:
@@ -241,20 +242,52 @@ class AssistPipelineTest(unittest.TestCase):
                     }
                 }
 
-        hass = types.SimpleNamespace(services=Services())
-        text = asyncio.run(
-            self.pipeline.generate_dj_response_with_assist(
-                hass,
-                media={"type": "artist", "artist": "Metallica", "artist_name": "Metallica"},
-                fallback_text="Daar is Metallica.",
-                conf={
-                    "assist_pipeline_id": "conversation.openai",
-                    "tts_language": "nl-NL",
-                },
-            )
+        configured = types.SimpleNamespace(
+            id="djconnect-pipeline",
+            conversation_engine="conversation.openai",
+            conversation_language="nl-NL",
         )
 
+        class Pipelines:
+            def __iter__(self):
+                return iter([configured])
+
+        pipeline_module = types.ModuleType(
+            "homeassistant.components.assist_pipeline.pipeline"
+        )
+        pipeline_module.async_get_pipelines = lambda hass: Pipelines()
+        original_pipeline_module = sys.modules.get(
+            "homeassistant.components.assist_pipeline.pipeline"
+        )
+        sys.modules["homeassistant.components.assist_pipeline.pipeline"] = pipeline_module
+
+        hass = types.SimpleNamespace(services=Services())
+        try:
+            text = asyncio.run(
+                self.pipeline.generate_dj_response_with_assist(
+                    hass,
+                    media={
+                        "type": "artist",
+                        "artist": "Metallica",
+                        "artist_name": "Metallica",
+                    },
+                    fallback_text="Daar is Metallica.",
+                    conf={
+                        "assist_pipeline_id": "djconnect-pipeline",
+                        "tts_language": "nl-NL",
+                    },
+                )
+            )
+        finally:
+            if original_pipeline_module is None:
+                sys.modules.pop("homeassistant.components.assist_pipeline.pipeline", None)
+            else:
+                sys.modules[
+                    "homeassistant.components.assist_pipeline.pipeline"
+                ] = original_pipeline_module
+
         self.assertEqual(text, "Metallica staat klaar.")
+        self.assertEqual(calls[0]["pipeline_id"], "djconnect-pipeline")
         self.assertEqual(calls[0]["agent_id"], "conversation.openai")
         self.assertEqual(calls[0]["text"].count("artiest: Metallica"), 1)
 

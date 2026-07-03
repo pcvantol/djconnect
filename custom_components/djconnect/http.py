@@ -59,8 +59,13 @@ from .const import (
     CONF_SPOTIFY_MARKET,
     CONF_SPOTIFY_REFRESH_TOKEN,
     CONF_SPOTIFY_SCOPES,
+    CONF_TTS_LANGUAGE,
+    CONF_VOICE_PROFILE,
     DEFAULT_SPOTIFY_MARKET,
     DEFAULT_SPOTIFY_SCOPES,
+    VOICE_PROFILE_CLEAN_HOST,
+    VOICE_PROFILE_ENERGY,
+    VOICE_PROFILE_LATE_NIGHT,
     VERSION,
 )
 from .ask_dj import async_handle_ask_dj, async_idle_suggestion, image_proxy_target  # noqa: F401
@@ -71,7 +76,7 @@ from .assist_stt import (
 )
 from .dj_response import async_create_dj_audio_url, async_send_dj_response_best_effort, get_tts_audio
 from .ha_urls import async_ha_url_payload
-from .mood import enrich_payload_with_mood_zone
+from .mood import enrich_payload_with_mood_zone, mood_play_now_suffix
 from .pipeline import generate_dj_response_with_assist
 from .push import (
     async_register as async_register_push,
@@ -95,6 +100,7 @@ from .use_cases import (
     run_music_command,
     run_text_command,
 )
+from .voice_profiles import normalize_voice_profile
 from .spotify_oauth import exchange_code_for_refresh_token
 
 _LOGGER = logging.getLogger(__name__)
@@ -1505,15 +1511,14 @@ async def _recommendation_play_success_response(
                 await recorder(runtime, recommendation, memory_payload, user_id=user_id)
             except Exception as exc:  # noqa: BLE001
                 _LOGGER.debug("DJConnect recommendation play memory update failed: %s", exc)
-    title = recommendation.get("title") or recommendation.get("uri") or recommendation.get("context_uri")
-    if kind == "track_mix":
-        fallback_dj_text = (
-            f"Ik speel {title} nu af. Wil je dat ik deze mix opsla als Spotify playlist?"
-        )
-    else:
-        fallback_dj_text = f"Ik speel {title} nu af."
     playback = result.get("playback") if isinstance(result, dict) else {}
     media = _play_now_dj_response_media(recommendation, playback, request_payload)
+    fallback_dj_text = _play_now_fallback_dj_text(
+        media,
+        recommendation,
+        getattr(runtime, "config", {}) or {},
+        save_mix_prompt=kind == "track_mix",
+    )
     dj_response_debug: dict[str, Any] = {}
     dj_text = await generate_dj_response_with_assist(
         hass,
@@ -1522,6 +1527,8 @@ async def _recommendation_play_success_response(
         conf=getattr(runtime, "config", {}) or {},
         debug=dj_response_debug,
     )
+    generated_text = dj_response_debug.get("fallback_used") is False
+    text_source = "generated" if generated_text else "fallback"
     audio_url = await async_create_dj_audio_url(hass, runtime, dj_text)
     dj_response = {
         "success": True,
@@ -1543,6 +1550,8 @@ async def _recommendation_play_success_response(
         "message": dj_text,
         "text": dj_text,
         "dj_text": dj_text,
+        "text_source": text_source,
+        "is_generated_text": generated_text,
         "action": "spotify_start_recommendation",
         "playback": playback or {},
         "dj_response": dj_response,
@@ -1553,6 +1562,8 @@ async def _recommendation_play_success_response(
             "message_kind": "assistant",
             "origin": "play_now",
             "text": dj_text,
+            "text_source": text_source,
+            "is_generated_text": generated_text,
             "audio_url": audio_url,
             "playback_actions": [],
             "items": [],
@@ -1612,11 +1623,45 @@ def _play_now_dj_response_media(
     if subtitle:
         media.setdefault("artist", subtitle)
         media.setdefault("artist_name", subtitle)
-    for key in ("language", "locale", "device_language"):
+    for key in ("language", "locale", "device_language", "mood", "energy"):
         value = request_payload.get(key) or recommendation.get(key)
         if value:
             media[key] = value
     return enrich_payload_with_mood_zone(media)
+
+
+def _play_now_fallback_dj_text(
+    media: dict[str, Any],
+    recommendation: dict[str, Any],
+    conf: dict[str, Any],
+    *,
+    save_mix_prompt: bool = False,
+) -> str:
+    title = str(media.get("track_name") or media.get("title") or recommendation.get("title") or "").strip()
+    artist = str(media.get("artist") or media.get("artist_name") or recommendation.get("subtitle") or "").strip()
+    album = str(media.get("album_name") or media.get("album") or "").strip()
+    playlist = str(media.get("playlist") or "").strip()
+    subject = title or playlist or str(recommendation.get("uri") or recommendation.get("context_uri") or "je keuze").strip()
+    if artist and subject:
+        now_playing = f"{subject} van {artist}"
+    else:
+        now_playing = subject
+    if album and title and album != title:
+        now_playing = f"{now_playing}, van {album}"
+    profile = normalize_voice_profile(conf.get(CONF_VOICE_PROFILE))
+    if profile == VOICE_PROFILE_LATE_NIGHT:
+        text = f"Mooi, ik zet {now_playing} zacht in de spotlights. Leun maar even achterover."
+    elif profile == VOICE_PROFILE_ENERGY:
+        text = f"Daar gaan we: {now_playing}. Volume in je hoofd omhoog, dit is de volgende!"
+    elif profile == VOICE_PROFILE_CLEAN_HOST:
+        text = f"Gestart: {now_playing}. Ik houd de muziek voor je in beweging."
+    else:
+        text = f"Daar is {now_playing}. Een fijne keuze voor de volgende ronde."
+    language = media.get("language") or media.get("locale") or conf.get(CONF_TTS_LANGUAGE) or "nl"
+    text = f"{text}{mood_play_now_suffix(media, language)}"
+    if save_mix_prompt:
+        return f"{text} Wil je dat ik deze mix opsla als Spotify playlist?"
+    return text
 
 
 async def _handle_ask_dj_play_recommendation_on_output(

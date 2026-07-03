@@ -492,6 +492,85 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertEqual(runtime.ask_dj_history.messages[0][2]["message_kind"], "system")
         self.assertEqual(runtime.ask_dj_history.messages[0][2]["origin"], "spotify_playback_context")
 
+    def test_playback_state_skips_ambient_fact_prompt_leak(self) -> None:
+        class Response:
+            status = 200
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                return {
+                    "is_playing": True,
+                    "item": {
+                        "name": "Hollywood",
+                        "uri": "spotify:track:hollywood",
+                        "artists": [{"name": "LA Vision"}, {"name": "GIGI D'AGOSTINO"}],
+                        "album": {"name": "Hollywood"},
+                    },
+                    "device": {"name": "Living room"},
+                }
+
+            async def text(self):
+                return "{}"
+
+        class Session:
+            def request(self, method, url, **kwargs):
+                return Response()
+
+        class History:
+            def __init__(self):
+                self.messages = []
+
+            async def async_append_assistant_message(self, user_id, request_payload, response):
+                self.messages.append((user_id, request_payload, response))
+
+        class Services:
+            async def async_call(self, domain, service, data, **kwargs):
+                return {
+                    "response": {
+                        "speech": {
+                            "plain": {
+                                "speech": (
+                                    "Sorry, ik kan Nederlands Gebruik alleen breed bekende kennis "
+                                    "over deze artiest of dit album Als je geen betrouwbaar feitje "
+                                    "weet antwoord exact met SKIP Noem geen Spotify URI's en voer "
+                                    "geen playbackactie uit Maximaal twee korte zinnen Artiest "
+                                    "LA Vision GIGI D'AGOSTINO Album Hollywood Huidig nummer "
+                                    "Hollywood niet vinden"
+                                )
+                            }
+                        }
+                    }
+                }
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={"spotify_client_id": "client-id", "spotify_refresh_token": "refresh"},
+            options={},
+        )
+        runtime = types.SimpleNamespace(
+            entry=entry,
+            latest_spotify_refresh_token=None,
+            spotify_access_token="access",
+            spotify_access_token_expires_at=time.time() + 1800,
+            device_status={},
+            ask_dj_history=History(),
+            update=lambda **kwargs: [setattr(runtime, key, value) for key, value in kwargs.items()],
+        )
+        runtime.config = dict(entry.data)
+        backend = self.backend.SpotifyBackend(object(), runtime)
+        backend.session = Session()
+        backend.hass = types.SimpleNamespace(services=Services())
+
+        asyncio.run(backend.playback_state())
+
+        self.assertEqual(runtime.ask_dj_history.messages, [])
+        self.assertEqual(runtime.last_ambient_fact_key, "la vision, gigi d'agostino|hollywood")
+
     def test_playback_state_appends_ambient_fact_after_album_change(self) -> None:
         class Response:
             status = 200

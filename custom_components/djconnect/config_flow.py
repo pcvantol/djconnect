@@ -898,7 +898,7 @@ def _firmware_channel_selector() -> Any:
     return vol.In(FIRMWARE_CHANNELS)
 
 
-def _conversation_agent_options_schema(
+async def _conversation_agent_options_schema(
     hass: Any,
     defaults: dict[str, Any],
 ) -> vol.Schema:
@@ -909,6 +909,15 @@ def _conversation_agent_options_schema(
             CONF_VOICE_PROFILE,
             default=normalize_voice_profile(defaults.get(CONF_VOICE_PROFILE)),
         ): vol.In(voice_profile_options(_ha_language(hass))),
+        vol.Optional(
+            CONF_ASSIST_PIPELINE_ID,
+            default=defaults.get(CONF_ASSIST_PIPELINE_ID, ""),
+        ): vol.In(
+            await _assist_pipeline_options(
+                hass,
+                defaults.get(CONF_ASSIST_PIPELINE_ID, ""),
+            )
+        ),
         vol.Required(
             OPTIONS_ACTION_FIELD,
             default=_default_options_action(actions),
@@ -2250,13 +2259,20 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
                     ),
                 )
 
+        if current.get(CONF_CLIENT_TYPE) == CLIENT_TYPE_CONVERSATION_AGENT:
+            return self.async_show_form(
+                step_id="conversation_agent_init",
+                data_schema=await _conversation_agent_options_schema(self.hass, current),
+                errors=errors,
+                last_step=False,
+            )
         return self.async_show_form(
-            step_id=(
-                "conversation_agent_init"
-                if current.get(CONF_CLIENT_TYPE) == CLIENT_TYPE_CONVERSATION_AGENT
-                else "init"
+            step_id="init",
+            data_schema=await _voice_schema(
+                self.hass,
+                current,
+                include_options_action=True,
             ),
-            data_schema=_conversation_agent_options_schema(self.hass, current),
             errors=errors,
             last_step=False,
         )

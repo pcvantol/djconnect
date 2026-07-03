@@ -3890,6 +3890,87 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertEqual(runtime.memory.recorded[0][0]["uri"], "spotify:track:123")
         self.assertEqual(runtime.memory.recorded[0][1]["music_dna_key"], "shared")
 
+    def test_command_view_play_now_fallback_uses_voice_profile_style(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+
+        class Runtime:
+            device_token = "device-token"
+            device_status = {"device_id": "djconnect-ios-68B74487726D"}
+            config = {const.CONF_VOICE_PROFILE: const.VOICE_PROFILE_LATE_NIGHT}
+
+            def authorize_device_request(self, headers, body_device_id=None):
+                return headers.get("Authorization") == "Bearer device-token"
+
+            def update(self, **kwargs):
+                self.last_update = kwargs
+
+        runtime = Runtime()
+
+        async def command_handler(hass, runtime_arg, command, value=None, *, play=None):
+            return {
+                "success": True,
+                "playback": {
+                    "track_name": "Dream On",
+                    "artist": "Scala & Kolacny Brothers",
+                    "album_name": "Dream On",
+                },
+            }
+
+        async def generate_dj_response(hass, *, media, fallback_text, conf, memory_context=None, debug=None):
+            self.assertIn("Leun maar even achterover", fallback_text)
+            self.assertIn("Met wat extra drive erbij", fallback_text)
+            self.assertNotEqual(fallback_text, "Ik speel Dream On nu af.")
+            if debug is not None:
+                debug["fallback_used"] = True
+            return fallback_text
+
+        async def create_audio(hass, runtime_arg, text):
+            return "http://ha/api/djconnect/tts/play-now.mp3"
+
+        class Request:
+            headers = {
+                "Authorization": "Bearer device-token",
+                "X-DJConnect-Device-ID": "djconnect-ios-68B74487726D",
+            }
+            app = {"hass": types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})}
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-ios-68B74487726D",
+                    "client_type": "ios",
+                    "command": "ask_dj_play_recommendation",
+                    "mood": 70,
+                    "value": {
+                        "title": "Dream On",
+                        "subtitle": "Scala & Kolacny Brothers",
+                        "uri": "spotify:album:456",
+                        "kind": "album",
+                    },
+                }
+
+        original = self.http.run_music_command
+        original_create_audio = self.http.async_create_dj_audio_url
+        original_generate = self.http.generate_dj_response_with_assist
+        self.http.run_music_command = command_handler
+        self.http.async_create_dj_audio_url = create_audio
+        self.http.generate_dj_response_with_assist = generate_dj_response
+        try:
+            response = asyncio.run(self.http.DJConnectCommandView(None).post(Request()))
+        finally:
+            self.http.run_music_command = original
+            self.http.async_create_dj_audio_url = original_create_audio
+            self.http.generate_dj_response_with_assist = original_generate
+
+        self.assertEqual(response["status_code"], 200)
+        self.assertIn("Dream On van Scala & Kolacny Brothers", response["payload"]["dj_text"])
+        self.assertIn("Leun maar even achterover", response["payload"]["dj_text"])
+        self.assertIn("Met wat extra drive erbij", response["payload"]["dj_text"])
+        self.assertEqual(response["payload"]["text_source"], "fallback")
+        self.assertFalse(response["payload"]["is_generated_text"])
+        self.assertEqual(response["payload"]["assistant_message"]["text_source"], "fallback")
+        self.assertFalse(response["payload"]["assistant_message"]["is_generated_text"])
+        self.assertNotEqual(response["payload"]["dj_text"], "Ik speel Dream On nu af.")
+
     def test_command_view_returns_output_choices_when_recommendation_has_no_active_speaker(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
         calls = []

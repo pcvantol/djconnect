@@ -2245,7 +2245,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertNotIn(self.const.CONF_SPOTIFY_SOURCE, keys)
         self.assertNotIn(self.const.CONF_LIKED_PROXY, keys)
         self.assertNotIn(self.const.CONF_LOCAL_URL, keys)
-        self.assertNotIn(self.const.CONF_ASSIST_PIPELINE_ID, keys)
+        self.assertIn(self.const.CONF_ASSIST_PIPELINE_ID, keys)
         self.assertNotIn(self.const.CONF_FIRMWARE_CHANNEL, keys)
         self.assertNotIn(self.const.CONF_MAX_AUDIO_BYTES, keys)
         self.assertNotIn(self.const.CONF_ALLOW_OTA_ON_BATTERY, keys)
@@ -2268,6 +2268,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
             flow.async_step_conversation_agent_init(
                 {
                     self.const.CONF_VOICE_PROFILE: self.const.VOICE_PROFILE_LATE_NIGHT,
+                    self.const.CONF_ASSIST_PIPELINE_ID: "pipeline-2",
                     self.config_flow.OPTIONS_ACTION_FIELD:
                         self.config_flow.OPTIONS_ACTION_SAVE,
                 }
@@ -2280,20 +2281,31 @@ class ConfigFlowHelperTest(unittest.TestCase):
             result["data"][self.const.CONF_VOICE_PROFILE],
             self.const.VOICE_PROFILE_LATE_NIGHT,
         )
+        self.assertEqual(result["data"][self.const.CONF_ASSIST_PIPELINE_ID], "pipeline-2")
         self.assertNotIn(self.const.CONF_LOCAL_URL, result["data"])
 
     def test_options_flow_init_shows_change_music_backend_action(self) -> None:
-        entry = types.SimpleNamespace(data={}, options={})
+        entry = types.SimpleNamespace(
+            data={
+                self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_IOS,
+                self.const.CONF_ASSIST_PIPELINE_ID: "pipeline-1",
+            },
+            options={},
+        )
         flow = self.config_flow.DJConnectOptionsFlow(entry)
         flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en"))
 
         form = asyncio.run(flow.async_step_init())
+        keys = {marker.key for marker in form["data_schema"].schema}
         action_marker = next(
             marker
             for marker in form["data_schema"].schema
             if marker.key == self.config_flow.OPTIONS_ACTION_FIELD
         )
 
+        self.assertEqual(form["step_id"], "init")
+        self.assertIn(self.const.CONF_ASSIST_PIPELINE_ID, keys)
+        self.assertIn(self.const.CONF_VOICE_PROFILE, keys)
         self.assertIn(
             self.config_flow.OPTIONS_ACTION_CHANGE_MUSIC_BACKEND,
             form["data_schema"].schema[action_marker],

@@ -97,3 +97,28 @@ def mood_announcement_style_text(payload: dict[str, Any], language: str = "nl") 
         f"Pas de DJ-aankondiging automatisch aan op mood={zone.value} "
         f"zone={zone.name}: {zone.prompt_hint}."
     )
+
+
+def mood_play_now_suffix(payload: dict[str, Any], language: str = "nl") -> str:
+    """Return a short spoken suffix for deterministic Play Now responses."""
+    mood_value = (
+        payload.get("mood")
+        if payload.get("mood") is not None
+        else payload.get("energy")
+    )
+    zone = mood_zone_for_value(mood_value)
+    if zone is None:
+        return ""
+    if not str(language or "").lower().startswith("nl"):
+        return {
+            MOOD_ZONE_CHILL: " I’ll keep it warm and easy.",
+            MOOD_ZONE_GROOVE: " This should sit nicely in your groove.",
+            MOOD_ZONE_ENERGY: " A little extra drive for the moment.",
+            MOOD_ZONE_PARTY: " Let’s keep the momentum high.",
+        }.get(zone.name, "")
+    return {
+        MOOD_ZONE_CHILL: " Ik houd het warm en rustig.",
+        MOOD_ZONE_GROOVE: " Past mooi in je groove.",
+        MOOD_ZONE_ENERGY: " Met wat extra drive erbij.",
+        MOOD_ZONE_PARTY: " We houden de energie lekker hoog.",
+    }.get(zone.name, "")

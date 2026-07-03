@@ -67,6 +67,17 @@ class TrackInsightTests(unittest.TestCase):
         self.assertIn("Innerbloom", prompt)
         self.assertIn("energy", prompt)
 
+    def test_prompt_builder_includes_realtime_mood_context(self) -> None:
+        prompt = self.track_insight.TrackInsightPromptBuilder().build(
+            {"title": "Innerbloom", "artist": "RUFUS DU SOL", "album": "Bloom"},
+            "en",
+            "70/100 (energy: duidelijk meer drive, uptempo, actief)",
+        )
+
+        self.assertIn("Realtime client mood", prompt)
+        self.assertIn("70/100", prompt)
+        self.assertIn("visual energy", prompt)
+
     def test_explicit_track_returns_normalized_insight_and_visual_profile(self) -> None:
         hass = FakeHass(
             '{"summary":"Warm and wide","full_text":"A detailed view",'
@@ -176,6 +187,35 @@ class TrackInsightTests(unittest.TestCase):
         self.assertIn("Run van Floor Jansen", dutch["analysis"]["summary"])
         self.assertIn("Luister", dutch["analysis"]["full_text"])
 
+    def test_cache_is_scoped_by_realtime_mood(self) -> None:
+        hass = FakeHass('{"summary":"Mood aware","full_text":"Detailed","confidence":0.8}')
+        runtime = Runtime()
+        service = self.track_insight.TrackInsightService()
+
+        chill = asyncio.run(
+            service.async_analyze(
+                hass,
+                runtime,
+                {"title": "Run", "artist": "Floor Jansen", "language": "nl", "mood": 10},
+                source="http",
+            )
+        )
+        energy = asyncio.run(
+            service.async_analyze(
+                hass,
+                runtime,
+                {"title": "Run", "artist": "Floor Jansen", "language": "nl", "mood": 70},
+                source="http",
+            )
+        )
+
+        self.assertNotEqual(chill["cache"]["key"], energy["cache"]["key"])
+        self.assertEqual(chill["mood_context"]["zone"], "chill")
+        self.assertEqual(energy["mood_context"]["zone"], "energy")
+        self.assertEqual(len(hass.services.calls), 2)
+        self.assertIn("10/100", hass.services.calls[0]["data"]["text"])
+        self.assertIn("70/100", hass.services.calls[1]["data"]["text"])
+
     def test_track_insight_handler_uses_language_headers(self) -> None:
         install_http_stubs()
         api_handlers = importlib.import_module("custom_components.djconnect.api_handlers")
@@ -219,6 +259,49 @@ class TrackInsightTests(unittest.TestCase):
         self.assertEqual(result["language"], "nl")
         self.assertIn("Run van Floor Jansen", result["analysis"]["summary"])
         self.assertEqual(hass.services.calls[0]["data"]["language"], "nl")
+
+    def test_track_insight_handler_uses_mood_header(self) -> None:
+        install_http_stubs()
+        api_handlers = importlib.import_module("custom_components.djconnect.api_handlers")
+        const = importlib.import_module("custom_components.djconnect.const")
+
+        class RuntimeWithAuth(Runtime):
+            device_token = "device-token"
+
+            def __init__(self) -> None:
+                super().__init__()
+                self.device_status = {"device_id": "djconnect-ios-68B74487726D"}
+
+            def authorize_device_request(self, headers, body_device_id=None, client_type=None):
+                return True
+
+        runtime = RuntimeWithAuth()
+        hass = FakeHass()
+        hass.data = {const.DOMAIN: {"runtime": runtime}}
+
+        result, status = asyncio.run(
+            api_handlers.async_handle_track_insight_payload(
+                hass,
+                {
+                    "device_id": "djconnect-ios-68B74487726D",
+                    "client_type": "ios",
+                    "title": "Run",
+                    "artist": "Floor Jansen",
+                    "language": "nl",
+                },
+                headers={
+                    "Authorization": "Bearer device-token",
+                    "X-DJConnect-Device-ID": "djconnect-ios-68B74487726D",
+                    "X-DJConnect-Mood": "85",
+                },
+                source="http",
+            )
+        )
+
+        self.assertEqual(status, 200)
+        self.assertEqual(result["mood_context"]["value"], 85)
+        self.assertEqual(result["mood_context"]["zone"], "party")
+        self.assertIn("85/100", hass.services.calls[0]["data"]["text"])
 
     def test_cache_strips_legacy_music_dna_match_fields(self) -> None:
         runtime = Runtime()

@@ -10,7 +10,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import API_IMAGE_PROXY_BASE, CONF_DEVICE_LANGUAGE, CONF_TTS_LANGUAGE, DEFAULT_TTS_LANGUAGE, DOMAIN
-from .pipeline import _assist_context, _speech_from_response
+from .pipeline import _assist_context, _speech_from_response, call_conversation_process_with_agent_retry
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -93,13 +93,7 @@ async def _generate_ambient_fact(
         data = {"text": prompt, "language": language}
         if assist_context.get("agent_id"):
             data["agent_id"] = assist_context["agent_id"]
-        result = await hass.services.async_call(
-            "conversation",
-            "process",
-            data,
-            blocking=True,
-            return_response=True,
-        )
+        result = await call_conversation_process_with_agent_retry(hass, data)
     except Exception as exc:  # noqa: BLE001
         _LOGGER.debug("DJConnect ambient Ask DJ fact generation unavailable: %s", exc)
         return ""
@@ -240,6 +234,24 @@ def _should_skip_fact(text: str) -> bool:
     if normalized in _SKIP_VALUES:
         return True
     if "spotify:" in normalized or normalized.startswith(("{", "[")):
+        return True
+    prompt_leak = (
+        "gebruik alleen breed bekende kennis",
+        "antwoord exact met skip",
+        "noem geen spotify",
+        "voer geen playbackactie uit",
+        "maximaal twee korte zinnen",
+        "use only broadly known",
+        "reply exactly with skip",
+        "do not include spotify",
+        "do not control playback",
+        "use at most two short sentences",
+        "je bent djconnect ask dj",
+        "you are djconnect ask dj",
+        "huidig nummer:",
+        "current track:",
+    )
+    if any(phrase in normalized for phrase in prompt_leak):
         return True
     uncertain = (
         "ik heb niet genoeg",

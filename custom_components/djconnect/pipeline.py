@@ -71,6 +71,8 @@ async def correct_stt_text_with_assist(
     language = assist_context.get("language") or DEFAULT_TTS_LANGUAGE
     prompt = _stt_correction_prompt(original, str(language))
     data = {"text": prompt, "language": language}
+    if assist_context.get("pipeline_id"):
+        data["pipeline_id"] = assist_context["pipeline_id"]
     if assist_context.get("agent_id"):
         data["agent_id"] = assist_context["agent_id"]
 
@@ -123,7 +125,6 @@ def _assist_context(hass: HomeAssistant, conf: dict[str, Any]) -> dict[str, Any]
     )
     if pipeline is None:
         if pipeline_id:
-            context["agent_id"] = pipeline_id
             context["pipeline_id"] = pipeline_id
         return context
 
@@ -245,6 +246,8 @@ async def _conversation_process(
         "text": prompt,
         "language": language,
     }
+    if assist_context.get("pipeline_id"):
+        data["pipeline_id"] = assist_context["pipeline_id"]
     if assist_context.get("agent_id"):
         data["agent_id"] = assist_context["agent_id"]
 
@@ -266,6 +269,41 @@ async def _conversation_process(
     result["pipeline_id"] = assist_context.get("pipeline_id")
     result["agent_id"] = assist_context.get("agent_id")
     return result
+
+
+async def call_conversation_process_with_agent_retry(
+    hass: HomeAssistant,
+    data: dict[str, Any],
+    *,
+    debug: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Call HA conversation.process and retry without a stale/invalid agent id."""
+    try:
+        return await hass.services.async_call(
+            "conversation",
+            "process",
+            data,
+            blocking=True,
+            return_response=True,
+        )
+    except Exception as exc:  # noqa: BLE001
+        if not data.get("agent_id") or not _looks_like_invalid_agent_id_error(exc):
+            raise
+        retry_data = dict(data)
+        retry_data.pop("agent_id", None)
+        if debug is not None:
+            debug["agent_retry_without_agent_id"] = True
+        _LOGGER.debug(
+            "Retrying DJConnect conversation.process without invalid agent_id=%s",
+            data.get("agent_id"),
+        )
+        return await hass.services.async_call(
+            "conversation",
+            "process",
+            retry_data,
+            blocking=True,
+            return_response=True,
+        )
 
 
 def _djconnect_assist_prompt(
@@ -407,15 +445,11 @@ async def generate_dj_response_with_assist(
             assist_context.get("pipeline_id"),
         )
         data = {"text": text, "language": language}
+        if assist_context.get("pipeline_id"):
+            data["pipeline_id"] = assist_context["pipeline_id"]
         if assist_context.get("agent_id"):
             data["agent_id"] = assist_context["agent_id"]
-        result = await hass.services.async_call(
-            "conversation",
-            "process",
-            data,
-            blocking=True,
-            return_response=True,
-        )
+        result = await call_conversation_process_with_agent_retry(hass, data, debug=debug)
         response = (result or {}).get("response") or {}
         generated = _speech_from_response(response)
         if debug is not None:
@@ -573,6 +607,11 @@ def _starts_with_dj_fact(value: str) -> bool:
             "a fun fact",
         )
     )
+
+
+def _looks_like_invalid_agent_id_error(exc: Exception) -> bool:
+    message = str(exc).lower()
+    return "invalid agent id" in message or "invalid agent_id" in message
 
 
 def _first_media_value(media_context: dict[str, Any], *keys: str) -> str:

@@ -374,6 +374,7 @@ async def async_handle_track_insight_payload(
         ("X-DJConnect-Language", "language"),
         ("X-DJConnect-Locale", "locale"),
         ("Accept-Language", "locale"),
+        ("X-DJConnect-Mood", "mood"),
     ):
         value = headers.get(header_name) if hasattr(headers, "get") else None
         if value and not payload.get(payload_key):

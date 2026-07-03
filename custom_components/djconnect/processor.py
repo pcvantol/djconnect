@@ -109,6 +109,7 @@ async def process_text_command(
         "intent": intent,
         "playback": playback,
         "dj_text": dj_text,
+        **_dj_text_generation_metadata(dj_response_debug),
     }
     runtime.update(
         last_intent=intent,
@@ -283,6 +284,7 @@ async def _process_playback_control_request(
         "intent": intent,
         "playback": playback,
         "dj_text": dj_text,
+        **_dj_text_generation_metadata(dj_response_debug),
     }
     runtime.update(
         last_intent=intent,
@@ -416,6 +418,7 @@ async def _process_current_track_question(
         "intent": intent,
         "playback": playback,
         "dj_text": dj_text,
+        **_dj_text_generation_metadata(dj_response_debug),
     }
     runtime.update(
         last_intent=intent,
@@ -434,6 +437,14 @@ def _announcement_context(
 ) -> str:
     """Return compact context for personal DJ announcement intros."""
     return str(memory_context or "").strip()
+
+
+def _dj_text_generation_metadata(debug: dict[str, Any]) -> dict[str, Any]:
+    generated = debug.get("fallback_used") is False
+    return {
+        "text_source": "generated" if generated else "fallback",
+        "is_generated_text": generated,
+    }
 
 
 async def _lookup_current_playback(

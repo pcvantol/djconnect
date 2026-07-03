@@ -67,6 +67,16 @@ class MoodZoneTest(unittest.TestCase):
         self.assertIn("zone=energy", style)
         self.assertIn("uptempo", style)
 
+    def test_mood_play_now_suffix_uses_zone_and_language(self) -> None:
+        self.assertEqual(
+            self.mood.mood_play_now_suffix({"mood": 70}, "nl-NL"),
+            " Met wat extra drive erbij.",
+        )
+        self.assertEqual(
+            self.mood.mood_play_now_suffix({"mood": 100}, "en"),
+            " Let’s keep the momentum high.",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

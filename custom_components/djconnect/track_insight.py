@@ -13,7 +13,8 @@ from typing import Any
 from homeassistant.core import HomeAssistant
 
 from .const import DEFAULT_MUSIC_BACKEND
-from .pipeline import _assist_context, _speech_from_response
+from .mood import enrich_payload_with_mood_zone, mood_context_text
+from .pipeline import _assist_context, _speech_from_response, call_conversation_process_with_agent_retry
 from .use_cases import run_music_command
 
 _LOGGER = logging.getLogger(__name__)
@@ -54,6 +55,9 @@ class TrackInsightRequest:
     music_backend: str | None = None
     force_refresh: bool = False
     locale: str | None = None
+    mood: int | None = None
+    mood_zone: str | None = None
+    mood_zone_prompt: str | None = None
     include_visual_profile: bool = True
     include_raw_response: bool = False
 
@@ -61,10 +65,16 @@ class TrackInsightRequest:
 class TrackInsightPromptBuilder:
     """Build the strict JSON prompt sent to the configured conversation stack."""
 
-    def build(self, track: dict[str, Any], locale: str) -> str:
+    def build(self, track: dict[str, Any], locale: str, mood_context: str | None = None) -> str:
         title = track.get("title") or "Unknown title"
         artist = track.get("artist") or "Unknown artist"
         album = track.get("album") or "Unknown album"
+        mood_line = (
+            f"Realtime client mood: {mood_context}. Adapt wording, listening cues, "
+            "and visual energy to this mood without inventing track facts.\n"
+            if mood_context
+            else ""
+        )
         return (
             "You are DJConnect Track Insight. Analyze the music track below. "
             "Return JSON only, with no markdown and no surrounding explanation. "
@@ -72,6 +82,7 @@ class TrackInsightPromptBuilder:
             f"Track title: {title}\n"
             f"Artist: {artist}\n"
             f"Album: {album}\n"
+            f"{mood_line}"
             "Return this object shape exactly: "
             "{\"summary\": string, \"full_text\": string, \"genre\": string|null, "
             "\"subgenre\": string|null, \"mood\": string|null, \"vibe\": string|null, "
@@ -138,7 +149,7 @@ class TrackInsightAnalyzer:
         locale = request.locale or _runtime_locale(runtime)
         if _demo_enabled(runtime):
             return _demo_analysis(track, locale), None
-        prompt = self.prompt_builder.build(track, locale)
+        prompt = self.prompt_builder.build(track, locale, _request_mood_context(request))
         raw_response: str | None = None
         try:
             raw_response = await self._ask_conversation(hass, runtime, prompt, request)
@@ -165,13 +176,7 @@ class TrackInsightAnalyzer:
         data: dict[str, Any] = {"text": prompt, "language": request.locale or _runtime_locale(runtime)}
         if assist_context.get("agent_id"):
             data["agent_id"] = assist_context["agent_id"]
-        result = await caller(
-            "conversation",
-            "process",
-            data,
-            blocking=True,
-            return_response=True,
-        )
+        result = await call_conversation_process_with_agent_retry(hass, data)
         message = _speech_from_response((result or {}).get("response") or {})
         if not message:
             raise TrackInsightError("ai_empty_response", "Track Insight did not receive analysis text.", status=502)
@@ -196,6 +201,7 @@ class TrackInsightResponseSerializer:
             "created_at": datetime.now(UTC).isoformat(),
             "source": request.source or "auto",
             "language": _language_code(request.locale),
+            "mood_context": _request_mood_metadata(request),
             "track": track,
             "analysis": analysis,
             "visual_profile": _visual_profile(track, analysis) if request.include_visual_profile else None,
@@ -229,14 +235,15 @@ class TrackInsightService:
         started = time.monotonic()
         request = _request_from_payload(payload or {}, source)
         track = await self._resolve_track(hass, runtime, request)
-        cache_key = _cache_key(track, request.locale)
+        cache_key = _cache_key(track, request.locale, _request_mood_context(request))
         cache = TrackInsightCache(runtime)
         cached = None if request.force_refresh else cache.get(cache_key)
         if cached is not None:
             _LOGGER.debug(
-                "DJConnect Track Insight cache hit for %s language=%s",
+                "DJConnect Track Insight cache hit for %s language=%s mood=%s",
                 cache_key,
                 _language_code(request.locale),
+                request.mood_zone or request.mood,
             )
             return cached
         self._check_rate_limit(runtime, track, request)
@@ -251,11 +258,12 @@ class TrackInsightService:
         )
         cache.set(cache_key, response)
         _LOGGER.debug(
-            "DJConnect Track Insight analyzed track=%s artist=%s backend=%s language=%s latency_ms=%s",
+            "DJConnect Track Insight analyzed track=%s artist=%s backend=%s language=%s mood=%s latency_ms=%s",
             track.get("title") or "unknown",
             track.get("artist") or "unknown",
             track.get("backend") or "unknown",
             _language_code(request.locale),
+            request.mood_zone or request.mood,
             int((time.monotonic() - started) * 1000),
         )
         return response
@@ -301,7 +309,7 @@ class TrackInsightService:
             setattr(runtime, "track_insight_rate_limit", state)
         last_key = str(state.get("last_key") or "")
         last_at = _float(state.get("last_at")) or 0
-        key = _cache_key(track, request.locale)
+        key = _cache_key(track, request.locale, _request_mood_context(request))
         if last_key == key and now - last_at < TRACK_INSIGHT_DEBOUNCE_SECONDS:
             raise TrackInsightError("rate_limited", "Track Insight was requested too quickly for the same track.", status=429)
         calls = [
@@ -436,6 +444,7 @@ def track_insight_error_response(exc: TrackInsightError) -> dict[str, Any]:
 
 
 def _request_from_payload(payload: dict[str, Any], source: str) -> TrackInsightRequest:
+    payload = enrich_payload_with_mood_zone(payload)
     track_payload = payload.get("track") if isinstance(payload.get("track"), dict) else {}
     playback_payload = payload.get("playback") if isinstance(payload.get("playback"), dict) else {}
     media_payload = payload.get("media") if isinstance(payload.get("media"), dict) else {}
@@ -450,6 +459,9 @@ def _request_from_payload(payload: dict[str, Any], source: str) -> TrackInsightR
         music_backend=_first_text(explicit, "music_backend", "backend", "provider"),
         force_refresh=_bool(payload.get("force_refresh")),
         locale=_optional_text(payload.get("locale") or payload.get("language")),
+        mood=payload.get("mood") if isinstance(payload.get("mood"), int) else None,
+        mood_zone=_optional_text(payload.get("mood_zone")),
+        mood_zone_prompt=_optional_text(payload.get("mood_zone_prompt")),
         include_visual_profile=_bool(payload.get("include_visual_profile"), True),
         include_raw_response=_bool(payload.get("include_raw_response")),
     )
@@ -649,12 +661,16 @@ def _palette(seed: str) -> list[str]:
     return [f"#{seed[index:index + 6]}" for index in (0, 6, 12)]
 
 
-def _cache_key(track: dict[str, Any], locale: str | None = None) -> str:
+def _cache_key(
+    track: dict[str, Any],
+    locale: str | None = None,
+    mood_context: str | None = None,
+) -> str:
     identity = "|".join(
         str(track.get(key) or "").strip().lower()
         for key in ("title", "artist", "album", "backend", "duration_ms")
     )
-    identity = f"{identity}|{_language_code(locale)}"
+    identity = f"{identity}|{_language_code(locale)}|{str(mood_context or '').strip().lower()}"
     return hashlib.sha256(identity.encode()).hexdigest()[:24]
 
 
@@ -667,6 +683,29 @@ def _language_code(locale: str | None) -> str:
     if not value:
         return "en"
     return value.split("-", 1)[0] or "en"
+
+
+def _request_mood_context(request: TrackInsightRequest) -> str | None:
+    if request.mood is None:
+        return None
+    return mood_context_text(
+        {
+            "mood": request.mood,
+            "mood_zone": request.mood_zone,
+            "mood_zone_prompt": request.mood_zone_prompt,
+        }
+    )
+
+
+def _request_mood_metadata(request: TrackInsightRequest) -> dict[str, Any] | None:
+    if request.mood is None:
+        return None
+    return {
+        "value": request.mood,
+        "zone": request.mood_zone,
+        "prompt": request.mood_zone_prompt,
+        "text": _request_mood_context(request),
+    }
 
 
 def _is_dutch_locale(locale: str | None) -> bool:

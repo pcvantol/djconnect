@@ -345,11 +345,13 @@
         "title": "DJConnect opties",
         "description": "Beheer DJConnect acties zoals het DJ stemprofiel wijzigen, de muziekbackend wijzigen of Spotify opnieuw autoriseren. Spotify is een handelsmerk van Spotify AB. DJConnect is niet verbonden aan, goedgekeurd door of gesponsord door Spotify AB.",
         "data": {
+          "assist_pipeline_id": "Assist pipeline",
           "options_action": "Actie",
           "music_backend": "Muziekbackend",
           "voice_profile": "DJ stemprofiel"
         },
         "data_description": {
+          "assist_pipeline_id": "Assist pipeline die DJConnect gebruikt voor spraakherkenning en DJ aankondigingen.",
           "options_action": "Kies welke actie je wilt uitvoeren.",
           "music_backend": "Gekozen playback-backend.",
           "voice_profile": "Kies de server-side DJConnect radiostijl. De gekozen Home Assistant TTS stem blijft bepalen hoe de audio klinkt; mood bepaalt de energie."

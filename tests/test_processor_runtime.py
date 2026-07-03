@@ -59,6 +59,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
     def setUpClass(cls) -> None:
         install_processor_stubs()
         cls.processor = importlib.import_module("custom_components.djconnect.processor")
+        cls.pipeline = importlib.import_module("custom_components.djconnect.pipeline")
 
     def test_run_text_command_updates_text_before_processing_result(self) -> None:
         async def assist(hass, user_text, conf):
@@ -267,6 +268,8 @@ class ProcessorRuntimeTest(unittest.TestCase):
             result["dj_text"],
             "Pearl Jam komt binnen alsof de festivalweide net wakker wordt.",
         )
+        self.assertEqual(result["text_source"], "generated")
+        self.assertTrue(result["is_generated_text"])
 
     def test_run_text_command_uses_generated_dj_response_for_resolved_album(self) -> None:
         async def assist(hass, user_text, conf):
@@ -529,6 +532,8 @@ class ProcessorRuntimeTest(unittest.TestCase):
             result["dj_text"],
             "Daar is Example Artist.",
         )
+        self.assertEqual(result["text_source"], "fallback")
+        self.assertFalse(result["is_generated_text"])
         self.assertNotIn("spotify:artist", result["dj_text"])
 
     def test_run_text_command_does_not_use_stale_device_playback_for_dj_response(self) -> None:
@@ -692,6 +697,70 @@ class ProcessorRuntimeTest(unittest.TestCase):
             self.processor.generate_dj_response_with_assist = original_dj_response
 
         self.assertEqual(result["dj_text"], "Generated for Nirvana")
+
+    def test_dj_response_does_not_use_unresolved_pipeline_id_as_agent_id(self) -> None:
+        calls = []
+
+        class Services:
+            async def async_call(self, domain, service, data, *, blocking=False, return_response=False):
+                calls.append(data)
+                return {
+                    "response": {
+                        "speech": {"plain": {"speech": "Daar gaan we met Song van Artist."}}
+                    }
+                }
+
+        hass = types.SimpleNamespace(services=Services())
+        result = asyncio.run(
+            self.pipeline.generate_dj_response_with_assist(
+                hass,
+                media={"track_name": "Song", "artist": "Artist"},
+                fallback_text="Ik speel Song nu af.",
+                conf={"assist_pipeline_id": "missing-pipeline", "tts_language": "nl"},
+            )
+        )
+
+        self.assertEqual(result, "Daar gaan we met Song van Artist.")
+        self.assertEqual(len(calls), 1)
+        self.assertNotIn("agent_id", calls[0])
+
+    def test_dj_response_retries_without_invalid_agent_id(self) -> None:
+        calls = []
+
+        class Services:
+            async def async_call(self, domain, service, data, *, blocking=False, return_response=False):
+                calls.append(data)
+                if data.get("agent_id"):
+                    raise ValueError("invalid agent ID for dictionary value @ data['agent_id']")
+                return {
+                    "response": {
+                        "speech": {"plain": {"speech": "Daar gaan we met Song van Artist."}}
+                    }
+                }
+
+        def assist_context(hass, conf):
+            return {"language": "nl", "agent_id": "bad-agent", "pipeline_id": "pipeline"}
+
+        original_context = self.pipeline._assist_context
+        self.pipeline._assist_context = assist_context
+        debug = {}
+        try:
+            result = asyncio.run(
+                self.pipeline.generate_dj_response_with_assist(
+                    types.SimpleNamespace(services=Services()),
+                    media={"track_name": "Song", "artist": "Artist"},
+                    fallback_text="Ik speel Song nu af.",
+                    conf={"tts_language": "nl"},
+                    debug=debug,
+                )
+            )
+        finally:
+            self.pipeline._assist_context = original_context
+
+        self.assertEqual(result, "Daar gaan we met Song van Artist.")
+        self.assertEqual(calls[0]["agent_id"], "bad-agent")
+        self.assertNotIn("agent_id", calls[1])
+        self.assertTrue(debug["agent_retry_without_agent_id"])
 
     def test_current_track_question_reads_status_without_playback_action(self) -> None:
         calls = []

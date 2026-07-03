@@ -1872,8 +1872,11 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(first["playback_actions"][1]["value"]["text"], "Meer van Pearl Jam")
         self.assertEqual(first["playback_actions"][1]["value"]["prompt"], "Meer van Pearl Jam")
         self.assertEqual(first["playback_actions"][1]["text"], "Meer van Pearl Jam")
-        self.assertEqual(first["playback_actions"][1]["label"], "Meer van Pearl Jam")
+        self.assertEqual(first["playback_actions"][1]["title"], "Meer van deze artiest")
+        self.assertEqual(first["playback_actions"][1]["label"], "Meer van deze artiest")
+        self.assertEqual(first["playback_actions"][1]["button_label"], "Meer van deze artiest")
         self.assertEqual(first["playback_actions"][1]["prompt"], "Meer van Pearl Jam")
+        self.assertEqual(first["playback_actions"][1]["client_prompt"], "Meer van Pearl Jam")
         self.assertEqual(first["playback_actions"][2]["kind"], "control")
         self.assertEqual(first["playback_actions"][2]["command"], "set_current_track_favorite")
         self.assertTrue(first["playback_actions"][2]["value"])
@@ -2883,6 +2886,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["playback_actions"][0]["label"], "Play Now")
         self.assertEqual(result["playback_actions"][0]["button_label"], "Play Now")
         self.assertEqual(result["playback_actions"][1]["value"]["text"], "Meer van Armin van Buuren")
+        self.assertEqual(result["playback_actions"][1]["label"], "Meer van deze artiest")
         self.assertEqual(result["playback_actions"][2]["command"], "set_current_track_favorite")
         self.assertTrue(result["images"][0]["url"].startswith(self.const.API_IMAGE_PROXY_BASE))
 
@@ -7922,6 +7926,27 @@ class AskDjTest(unittest.TestCase):
 
         self.assertEqual(len(result["images"]), 2)
         self.assertTrue(all(item["url"].startswith(self.const.API_IMAGE_PROXY_BASE) for item in result["images"]))
+
+    def test_generated_text_metadata_is_preserved_on_assistant_message(self) -> None:
+        hass = types.SimpleNamespace(data={self.const.DOMAIN: {}})
+        result = self.ask_dj._normalize_ask_dj_response(
+            hass,
+            make_runtime(),
+            {
+                "success": True,
+                "text": "Een gegenereerde DJ aankondiging.",
+                "text_source": "generated",
+                "is_generated_text": True,
+            },
+            self.ask_dj.AskDjIntent("informational", "ask_music_info"),
+            music_dna_key="shared",
+            playback_context={},
+        )
+
+        self.assertEqual(result["text_source"], "generated")
+        self.assertTrue(result["is_generated_text"])
+        self.assertEqual(result["assistant_message"]["text_source"], "generated")
+        self.assertTrue(result["assistant_message"]["is_generated_text"])
 
     def test_album_art_is_included_on_assistant_message(self) -> None:
         hass = types.SimpleNamespace(data={self.const.DOMAIN: {}})
