@@ -216,7 +216,7 @@
           "client_type": "Tipo de cliente DJConnect: app, dispositivo local o agente Assist.",
           "firmware_channel": "Elige stable para actualizaciones OTA normales o beta para probar firmware preliminar.",
           "options_action": "Elige qué acción ejecutar.",
-          "voice_profile": "Elige el estilo de radio DJConnect del servidor. La voz TTS seleccionada en Home Assistant sigue determinando la voz de audio real; mood controla la energía."
+          "voice_profile": "Elige el estilo de radio DJConnect de respaldo. Cuando un cliente envía mood, esa mood selecciona automáticamente el perfil de voz; la voz TTS de Home Assistant sigue determinando la voz de audio real."
         }
       },
       "spotify_reauth": {
@@ -338,7 +338,7 @@
           "options_action": "Elige qué acción ejecutar.",
           "music_backend": "Backend de reproducción seleccionado.",
           "music_assistant_player": "Reproductor de destino de Music Assistant configurado.",
-          "voice_profile": "Elige el estilo de radio DJConnect del servidor. La voz TTS seleccionada en Home Assistant sigue determinando la voz de audio real; mood controla la energía."
+          "voice_profile": "Elige el estilo de radio DJConnect de respaldo. Cuando un cliente envía mood, esa mood selecciona automáticamente el perfil de voz; la voz TTS de Home Assistant sigue determinando la voz de audio real."
         }
       },
       "conversation_agent_init": {
@@ -354,7 +354,7 @@
           "assist_pipeline_id": "Pipeline Assist usado por DJConnect para reconocimiento de voz y anuncios DJ.",
           "options_action": "Elige qué acción ejecutar.",
           "music_backend": "Backend de reproducción seleccionado.",
-          "voice_profile": "Elige el estilo de radio DJConnect del servidor. La voz TTS seleccionada en Home Assistant sigue determinando la voz de audio real; mood controla la energía."
+          "voice_profile": "Elige el estilo de radio DJConnect de respaldo. Cuando un cliente envía mood, esa mood selecciona automáticamente el perfil de voz; la voz TTS de Home Assistant sigue determinando la voz de audio real."
         }
       },
       "music_backend": {

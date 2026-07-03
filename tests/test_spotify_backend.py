@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def install_backend_stubs() -> list[dict]:
     issues: list[dict] = []
+    deleted: list[dict] = []
     aiohttp = sys.modules.setdefault("aiohttp", types.ModuleType("aiohttp"))
     sys.modules.setdefault("homeassistant", types.ModuleType("homeassistant"))
     core = sys.modules.setdefault("homeassistant.core", types.ModuleType("homeassistant.core"))
@@ -31,17 +32,22 @@ def install_backend_stubs() -> list[dict]:
     def async_create_issue(hass, domain, issue_id, **kwargs):
         issues.append({"domain": domain, "issue_id": issue_id, **kwargs})
 
+    def async_delete_issue(hass, domain, issue_id):
+        deleted.append({"domain": domain, "issue_id": issue_id})
+
     aiohttp.ClientTimeout = ClientTimeout
     core.HomeAssistant = object
     aiohttp_client.async_get_clientsession = lambda hass: types.SimpleNamespace()
     issue_registry.IssueSeverity = IssueSeverity
     issue_registry.async_create_issue = async_create_issue
+    issue_registry.async_delete_issue = async_delete_issue
     helpers.issue_registry = issue_registry
     sys.modules["homeassistant.helpers.issue_registry"] = issue_registry
 
     package = types.ModuleType("custom_components.djconnect")
     package.__path__ = [str(ROOT / "custom_components" / "djconnect")]
     sys.modules.setdefault("custom_components.djconnect", package)
+    install_backend_stubs.deleted = deleted
     return issues
 
 
@@ -55,6 +61,7 @@ class SpotifyBackendTest(unittest.TestCase):
 
     def setUp(self) -> None:
         self.issues.clear()
+        install_backend_stubs.deleted.clear()
 
     def test_spotify_search_type_supports_track_album_and_playlist(self) -> None:
         self.assertEqual(self.backend._spotify_search_type("track"), "track")
@@ -1876,6 +1883,14 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertEqual(token, "new-access")
         self.assertEqual(updates[0]["spotify_refresh_token"], "rotated-refresh")
         self.assertEqual(entry.data["spotify_refresh_token"], "rotated-refresh")
+        self.assertIn(
+            {"domain": "djconnect", "issue_id": "spotify_refresh_token_revoked"},
+            install_backend_stubs.deleted,
+        )
+        self.assertIn(
+            {"domain": "djconnect", "issue_id": "entry-1_spotify_refresh_token_revoked"},
+            install_backend_stubs.deleted,
+        )
         self.assertIn("runtime_changed=False", logs)
         self.assertNotIn("rotated-refresh", logs)
 

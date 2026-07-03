@@ -42,6 +42,7 @@ from ..track_insight import (
     is_track_insight_request,
     track_insight_error_response,
 )
+from ..voice_profiles import voice_profile_for_mood_or_config, voice_profile_style_text_for_payload
 from .responses import image_proxy_target as image_proxy_target, register_image_proxy_url
 
 _LOGGER = logging.getLogger(__name__)
@@ -88,6 +89,7 @@ async def async_handle_ask_dj(
 ) -> dict[str, Any]:
     """Handle a text Ask DJ request and return the client response shape."""
     payload = enrich_payload_with_mood_zone(payload)
+    payload = _apply_mood_voice_profile(runtime, payload)
     text = str(payload.get("text") or payload.get("message") or "").strip()
     if not text:
         return _error_response("missing_text", "Ask DJ needs text to answer.")
@@ -587,6 +589,8 @@ def _should_generate_audio_response(
         return False
     input_type = str(payload.get("input_type") or "").strip().lower()
     if input_type in {"voice", "ptt", "audio"}:
+        return True
+    if classification.intent in {"current_track_info", "current_track_reference"}:
         return True
     return classification.category in {"action", "hybrid"}
 
@@ -2134,9 +2138,9 @@ async def _handle_informational(
     if _is_current_track_album_question(text):
         return _current_track_album_response(hass, playback_context)
     if _is_current_playing_question(text):
-        return _current_track_reference_response(hass, playback_context)
+        return await _current_track_reference_response(hass, runtime, payload, playback_context)
     if _is_slang_track_info_request(text):
-        return _current_track_reference_response(hass, playback_context)
+        return await _current_track_reference_response(hass, runtime, payload, playback_context)
     if ask_intent.action == "status":
         return _playback_status_response(text, playback_context)
     if ask_intent.intent == "save_generated_playlist":
@@ -2454,6 +2458,7 @@ async def _handle_informational(
         memory_context,
         playback_context,
         output_devices,
+        getattr(runtime, "config", {}) or {},
     )
     try:
         assist_context = _assist_context(hass, getattr(runtime, "config", {}) or {})
@@ -3070,15 +3075,17 @@ def _current_playback_uri(runtime: Any) -> str:
     return ""
 
 
-def _current_track_reference_response(
+async def _current_track_reference_response(
     hass: HomeAssistant,
+    runtime: Any,
+    payload: dict[str, Any],
     playback_context: dict[str, Any],
 ) -> dict[str, Any]:
     title = _playback_text(playback_context, "track_name", "title", "name")
     artist = _playback_text(playback_context, "artist", "artist_name")
     album = _playback_text(playback_context, "album_name", "album")
     if not title and not artist:
-        text = "Ik weet niet welke track je bedoelt."
+        text = "Er speelt nu niets."
         return {
             "success": True,
             "text": text,
@@ -3086,13 +3093,22 @@ def _current_track_reference_response(
             "action": "none",
             "images": [],
             "playback_actions": [],
+            "sources": [{"source": "spotify_playback_context", "title": "Spotify playback context", "kind": "source"}],
         }
-    if title and artist and album:
-        text = f"Er speelt nu {title} van {artist}, op het album {album}."
-    elif title and artist:
-        text = f"Er speelt nu {title} van {artist}."
-    else:
-        text = f"Er speelt nu {_track_label(playback_context) or title or artist}."
+    text, generated = await _current_track_generated_announcement(
+        hass,
+        runtime,
+        payload,
+        playback_context,
+    )
+    if not text:
+        if title and artist and album:
+            text = f"Er speelt nu {title} van {artist}, op het album {album}."
+        elif title and artist:
+            text = f"Er speelt nu {title} van {artist}."
+        else:
+            text = f"Er speelt nu {_track_label(playback_context) or title or artist}."
+        generated = False
     images = _images_from_context(hass, {}, playback_context)
     uri = str(playback_context.get("uri") or playback_context.get("track_uri") or "").strip()
     playback_actions: list[dict[str, Any]] = []
@@ -3121,11 +3137,57 @@ def _current_track_reference_response(
         "success": True,
         "text": text,
         "dj_text": text,
+        "text_source": "generated" if generated else "fallback",
+        "is_generated_text": generated,
         "action": "none",
         "images": images,
         "playback_actions": playback_actions,
         "sources": [{"source": "spotify_playback_context", "title": "Spotify playback context", "kind": "source"}],
     }
+
+
+async def _current_track_generated_announcement(
+    hass: HomeAssistant,
+    runtime: Any,
+    payload: dict[str, Any],
+    playback_context: dict[str, Any],
+) -> tuple[str, bool]:
+    title = _playback_text(playback_context, "track_name", "title", "name")
+    artist = _playback_text(playback_context, "artist", "artist_name")
+    album = _playback_text(playback_context, "album_name", "album")
+    if not title and not artist:
+        return "", False
+    mood_line = mood_context_text(payload)
+    voice_profile_style = voice_profile_style_text_for_payload(
+        getattr(runtime, "config", {}) or {},
+        payload,
+        language=payload.get("language") or DEFAULT_TTS_LANGUAGE,
+    )
+    prompt = (
+        "Je bent DJConnect Ask DJ. Geef antwoord op de vraag 'wat speelt er?' "
+        "als een korte Nederlandse DJ-aankondiging. "
+        "Noem de track en artiest correct, verzin geen feiten, geen markdown, maximaal twee zinnen.\n"
+        f"{voice_profile_style}\n"
+        f"Track: {title or 'onbekend'}\n"
+        f"Artiest: {artist or 'onbekend'}\n"
+        f"Album: {album or 'onbekend'}\n"
+        f"Mood: {mood_line}\n"
+    )
+    try:
+        assist_context = _assist_context(hass, getattr(runtime, "config", {}) or {})
+        language = assist_context.get("language") or payload.get("language") or DEFAULT_TTS_LANGUAGE
+        data = {"text": prompt, "language": language}
+        if assist_context.get("agent_id"):
+            data["agent_id"] = assist_context["agent_id"]
+        result = await call_conversation_process_with_agent_retry(hass, data)
+        message = _speech_from_response((result or {}).get("response") or {})
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect current track generated announcement unavailable: %s", exc)
+        message = ""
+    message = str(message or "").strip()
+    if not message or _looks_like_prompt_or_sandbox_attack(message):
+        return "", False
+    return message, True
 
 
 def _favorite_current_track_action(
@@ -4713,10 +4775,7 @@ def _is_track_insight_analysis_request(normalized: str) -> bool:
         "analyseer technisch",
         "analyseer de opbouw",
         "opbouw",
-        "bpm",
         "tempo",
-        "key",
-        "toonsoort",
         "maatsoort",
         "instrumenten",
         "instrumentatie",
@@ -7705,6 +7764,7 @@ def _now_iso() -> str:
 
 def _identity_payload(runtime: Any, payload: dict[str, Any]) -> dict[str, Any]:
     payload = enrich_payload_with_mood_zone(payload)
+    payload = _apply_mood_voice_profile(runtime, payload)
     identity = payload.get("identity") if isinstance(payload.get("identity"), dict) else {}
     status = getattr(runtime, "device_status", {}) or {}
     return {
@@ -7720,10 +7780,24 @@ def _identity_payload(runtime: Any, payload: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _apply_mood_voice_profile(runtime: Any, payload: dict[str, Any]) -> dict[str, Any]:
+    resolved = dict(payload)
+    profile = voice_profile_for_mood_or_config(getattr(runtime, "config", {}) or {}, resolved)
+    resolved["voice_profile"] = profile
+    resolved["dj_style"] = profile
+    return resolved
+
+
 async def _playback_context(hass: HomeAssistant, runtime: Any) -> dict[str, Any]:
     try:
         result = await async_call_ai_tool(hass, runtime, "djconnect_now_playing")
         playback = result.get("playback") if isinstance(result, dict) else {}
+        if isinstance(playback, dict):
+            updater = getattr(runtime, "update", None)
+            if callable(updater):
+                updater(last_playback=playback)
+            else:
+                setattr(runtime, "last_playback", playback)
         return playback if isinstance(playback, dict) else {}
     except Exception:  # noqa: BLE001
         return getattr(runtime, "last_playback", None) or {}
@@ -7752,8 +7826,10 @@ def _informational_prompt(
     memory_context: dict[str, Any],
     playback_context: dict[str, Any],
     output_devices: list[dict[str, Any]],
+    conf: dict[str, Any] | None = None,
 ) -> str:
     memory_text = prompt_context_text(memory_context)
+    voice_profile_style = voice_profile_style_text_for_payload(conf or {}, payload, language=payload.get("language") or "nl")
     return (
         "Je bent DJConnect Ask DJ. Beantwoord informatieve muziekvragen zonder "
         "playback te wijzigen. Gebruik alleen meegegeven context en betrouwbare "
@@ -7768,6 +7844,7 @@ def _informational_prompt(
         "laatste bericht de vorige vraag corrigeert of vernauwt, combineer het met "
         "die vorige vraag voordat je antwoordt. "
         "Geef een kort natuurlijk antwoord voor een chat UI.\n\n"
+        f"{voice_profile_style}\n"
         f"Vraag: {text}\n"
         f"Mood/energy: {mood_context_text(payload)}\n"
         f"DJ stijl: {payload.get('dj_style') or 'standaard'}\n"

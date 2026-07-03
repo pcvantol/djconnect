@@ -70,6 +70,8 @@ class TrackInsightPromptBuilder:
         title = track.get("title") or "Unknown title"
         artist = track.get("artist") or "Unknown artist"
         album = track.get("album") or "Unknown album"
+        genres = _track_genres(track)
+        genre_line = f"Known artist genres: {', '.join(genres)}\n" if genres else ""
         mood_line = (
             f"Realtime client mood: {mood_context}. Adapt wording, listening cues, "
             "and visual energy to this mood without inventing track facts.\n"
@@ -83,6 +85,7 @@ class TrackInsightPromptBuilder:
             f"Track title: {title}\n"
             f"Artist: {artist}\n"
             f"Album: {album}\n"
+            f"{genre_line}"
             f"{mood_line}"
             "Return this object shape exactly: "
             "{\"summary\": string, \"full_text\": string, \"genre\": string|null, "
@@ -280,7 +283,7 @@ class TrackInsightService:
         explicit_title = str(request.title or "").strip()
         explicit_artist = str(request.artist or "").strip()
         if explicit_title and explicit_artist:
-            return _track_contract(
+            track = _track_contract(
                 {
                     "title": explicit_title,
                     "artist": explicit_artist,
@@ -292,6 +295,7 @@ class TrackInsightService:
                 runtime,
                 request,
             )
+            return await _enrich_track_with_artist_genres(hass, runtime, track)
         playback = await _current_playback(hass, runtime, request)
         track = _track_contract(playback, runtime, request)
         if not track.get("title") or not track.get("artist"):
@@ -300,7 +304,7 @@ class TrackInsightService:
                 "No currently playing track could be resolved.",
                 status=404,
             )
-        return track
+        return await _enrich_track_with_artist_genres(hass, runtime, track)
 
     def _check_rate_limit(self, runtime: Any, track: dict[str, Any], request: TrackInsightRequest) -> None:
         if request.force_refresh:
@@ -532,6 +536,7 @@ async def _current_playback(
 
 def _track_contract(playback: dict[str, Any], runtime: Any, request: TrackInsightRequest) -> dict[str, Any]:
     device = playback.get("device") if isinstance(playback.get("device"), dict) else {}
+    genres = _track_genres(playback)
     backend = (
         request.music_backend
         or playback.get("backend")
@@ -551,6 +556,7 @@ def _track_contract(playback: dict[str, Any], runtime: Any, request: TrackInsigh
         "player_id": request.player_id or _first_text(playback, "player_id", "device_id") or device.get("id"),
         "entity_id": request.entity_id or _first_text(playback, "entity_id") or device.get("entity_id"),
         "backend": str(backend) if backend else None,
+        **({"genres": genres} if genres else {}),
     }
 
 
@@ -559,8 +565,8 @@ def _normalize_analysis(data: dict[str, Any], track: dict[str, Any], locale: str
     return {
         "summary": _text(data.get("summary")) or fallback["summary"],
         "full_text": _text(data.get("full_text")) or _text(data.get("detailed_analysis")) or fallback["full_text"],
-        "genre": _nullable_text(data.get("genre")),
-        "subgenre": _nullable_text(data.get("subgenre")),
+        "genre": _nullable_text(data.get("genre")) or fallback["genre"],
+        "subgenre": _nullable_text(data.get("subgenre")) or fallback["subgenre"],
         "mood": _nullable_text(data.get("mood")),
         "vibe": _nullable_text(data.get("vibe")),
         "texture": _nullable_text(data.get("texture")),
@@ -580,6 +586,7 @@ def _normalize_analysis(data: dict[str, Any], track: dict[str, Any], locale: str
 def _fallback_analysis(track: dict[str, Any], locale: str | None = None) -> dict[str, Any]:
     title = str(track.get("title") or ("dit nummer" if _is_dutch_locale(locale) else "this track"))
     artist = str(track.get("artist") or ("de artiest" if _is_dutch_locale(locale) else "the artist"))
+    genres = _track_genres(track)
     seed = _seed(track)
     energy = _seed_float(seed, 0)
     danceability = _seed_float(seed, 1)
@@ -591,8 +598,8 @@ def _fallback_analysis(track: dict[str, Any], locale: str | None = None) -> dict
                 f"{title} van {artist} balanceert groove, arrangement en textuur. "
                 "Luister naar hoe het kernmotief, de ritmesectie en de productieruimte de emotionele lijn ondersteunen."
             ),
-            "genre": None,
-            "subgenre": None,
+            "genre": genres[0] if genres else None,
+            "subgenre": genres[1] if len(genres) > 1 else None,
             "mood": "reflectief" if intensity < 0.55 else "gedreven",
             "vibe": "meeslepend",
             "texture": "gelaagd",
@@ -613,8 +620,8 @@ def _fallback_analysis(track: dict[str, Any], locale: str | None = None) -> dict
             f"{title} by {artist} balances groove, arrangement and texture. "
             "Listen for how the core motif, rhythm section and production space support the emotional arc."
         ),
-        "genre": None,
-        "subgenre": None,
+        "genre": genres[0] if genres else None,
+        "subgenre": genres[1] if len(genres) > 1 else None,
         "mood": "reflective" if intensity < 0.55 else "driven",
         "vibe": "immersive",
         "texture": "layered",
@@ -695,7 +702,8 @@ def _cache_key(
         str(track.get(key) or "").strip().lower()
         for key in ("title", "artist", "album", "backend", "duration_ms")
     )
-    identity = f"{identity}|{_language_code(locale)}|{str(mood_context or '').strip().lower()}"
+    genre_identity = ",".join(_track_genres(track)).lower()
+    identity = f"{identity}|{genre_identity}|{_language_code(locale)}|{str(mood_context or '').strip().lower()}"
     return hashlib.sha256(identity.encode()).hexdigest()[:24]
 
 
@@ -834,6 +842,54 @@ def _string_list(value: Any) -> list[str]:
     if isinstance(value, str) and value.strip():
         return [value.strip()]
     return []
+
+
+async def _enrich_track_with_artist_genres(
+    hass: HomeAssistant,
+    runtime: Any,
+    track: dict[str, Any],
+) -> dict[str, Any]:
+    if _track_genres(track):
+        return track
+    artist = _optional_text(track.get("artist"))
+    if not artist:
+        return track
+    try:
+        result = await run_music_command(hass, runtime, "artist_profile", {"artist": artist})
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect Track Insight artist genre lookup failed: %s", exc.__class__.__name__)
+        return track
+    profile = result.get("artist") if isinstance(result, dict) else {}
+    genres = _track_genres(profile if isinstance(profile, dict) else {})
+    if genres:
+        track = dict(track)
+        track["genres"] = genres
+    return track
+
+
+def _track_genres(value: Any) -> list[str]:
+    if not isinstance(value, dict):
+        return []
+    genres: list[str] = []
+    for key in ("genres", "genre_names"):
+        genres.extend(_string_list(value.get(key)))
+    genre = _nullable_text(value.get("genre"))
+    if genre:
+        genres.extend(part.strip() for part in genre.split(",") if part.strip())
+    return _unique_strings(genres)[:10]
+
+
+def _unique_strings(values: list[str]) -> list[str]:
+    seen: set[str] = set()
+    result: list[str] = []
+    for value in values:
+        text = str(value or "").strip()
+        normalized = text.casefold()
+        if not text or normalized in seen:
+            continue
+        seen.add(normalized)
+        result.append(text)
+    return result
 
 
 def _similar_tracks(value: Any) -> list[dict[str, str]]:

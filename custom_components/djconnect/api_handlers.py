@@ -172,6 +172,22 @@ async def async_handle_command_payload(
         )
         _decorate_command_result(hass, runtime, result, music_dna_key)
         return result, 200 if result.get("success") else 400
+    current_track_text = _current_track_question_text(data, command, command_value)
+    if current_track_text:
+        ask_payload = {
+            **data,
+            "text": current_track_text,
+            "client_type": client_type,
+            "audio_response": data.get("audio_response") or "auto",
+        }
+        result = await http_helpers.async_handle_ask_dj(
+            hass,
+            runtime,
+            ask_payload,
+            user_id=user_id,
+        )
+        _decorate_command_result(hass, runtime, result, music_dna_key)
+        return result, 200 if result.get("success") else 400
     if normalized_command == "ask_dj_play_recommendation":
         result = await _handle_ask_dj_play_recommendation(
             hass,
@@ -276,6 +292,56 @@ async def async_handle_command_payload(
                 _safe_backend_error_message(exc),
             )
         return _backend_unavailable_payload(command, runtime, exc), 200
+
+
+def _current_track_question_text(data: dict[str, Any], command: str, value: Any) -> str:
+    for candidate in (
+        command,
+        data.get("text"),
+        data.get("prompt"),
+        data.get("query"),
+        data.get("title"),
+        value,
+    ):
+        text = _text_candidate(candidate)
+        if text and _is_current_track_question_text(text):
+            return text
+    if isinstance(value, dict):
+        for key in ("text", "prompt", "query", "title"):
+            text = _text_candidate(value.get(key))
+            if text and _is_current_track_question_text(text):
+                return text
+    return ""
+
+
+def _text_candidate(value: Any) -> str:
+    if isinstance(value, dict):
+        return str(value.get("text") or value.get("prompt") or value.get("query") or value.get("title") or "").strip()
+    return str(value or "").strip()
+
+
+def _is_current_track_question_text(value: str) -> bool:
+    normalized = " ".join(str(value or "").lower().strip(" ?.!'\"").split())
+    return normalized in {
+        "wat speelt er",
+        "wat speelt er nu",
+        "wat speelt nu",
+        "wat draait er",
+        "wat draait er nu",
+        "hoe heet dit nummer",
+        "welk liedje is dit",
+        "welk nummer speelt er",
+        "welk nummer speelt nu",
+        "welke track speelt er",
+        "welke track hoor ik",
+        "what is playing",
+        "what's playing",
+        "whats playing",
+        "what song is playing",
+        "what track is playing",
+        "current song",
+        "current track",
+    }
 
 
 async def async_handle_ask_dj_message_payload(

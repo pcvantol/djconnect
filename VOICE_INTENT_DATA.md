@@ -180,8 +180,10 @@ The website can use `ask_dj_intents` to render example families for:
     `open_screen:"track_insight"`, `playback_actions:[]` and sources containing
     `track_insight`.
   - Response shape: top-level `track_insight{}` with normalized `track`,
-    `analysis`, `visual_profile` and `cache`. Track Insight does not include a
-    Music DNA per-track match score, label or reason.
+    `analysis`, `visual_profile` and `cache`. `analysis.genre`/`subgenre` are
+    the primary genre fields and `track.genres[]` is optional fallback/context.
+    Track Insight does not include measured timing/pitch-key cards or a Music
+    DNA per-track match score, label or reason.
 - `recently_played_history`: non-mutating recent listening-history questions
   for tracks, albums, artists and playlist contexts, based on Spotify
   recently-played data. Clients should render returned `items[]` as compact

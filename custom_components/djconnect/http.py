@@ -100,7 +100,7 @@ from .use_cases import (
     run_music_command,
     run_text_command,
 )
-from .voice_profiles import normalize_voice_profile
+from .voice_profiles import normalize_voice_profile, voice_profile_for_mood_or_config
 from .spotify_oauth import exchange_code_for_refresh_token
 
 _LOGGER = logging.getLogger(__name__)
@@ -975,6 +975,7 @@ def _delete_spotify_reauth_issues(hass: Any, entry_id: str) -> None:
             "missing_spotify_oauth_scopes",
             "spotify_refresh_token_revoked",
         ):
+            ir.async_delete_issue(hass, DOMAIN, suffix)
             ir.async_delete_issue(hass, DOMAIN, f"{entry_id}_{suffix}")
     except Exception:  # noqa: BLE001
         _LOGGER.debug("DJConnect could not delete Spotify reauth repair issues", exc_info=True)
@@ -1516,7 +1517,7 @@ async def _recommendation_play_success_response(
     fallback_dj_text = _play_now_fallback_dj_text(
         media,
         recommendation,
-        getattr(runtime, "config", {}) or {},
+        _play_now_response_conf(runtime, request_payload, recommendation),
         save_mix_prompt=kind == "track_mix",
     )
     dj_response_debug: dict[str, Any] = {}
@@ -1630,6 +1631,31 @@ def _play_now_dj_response_media(
     return enrich_payload_with_mood_zone(media)
 
 
+def _play_now_response_conf(
+    runtime: Any,
+    request_payload: dict[str, Any],
+    recommendation: dict[str, Any],
+) -> dict[str, Any]:
+    conf = dict(getattr(runtime, "config", {}) or {})
+    voice_profile = (
+        request_payload.get(CONF_VOICE_PROFILE)
+        or request_payload.get("voice_profile")
+        or request_payload.get("dj_style")
+        or recommendation.get(CONF_VOICE_PROFILE)
+        or recommendation.get("voice_profile")
+        or recommendation.get("dj_style")
+    )
+    if voice_profile:
+        conf[CONF_VOICE_PROFILE] = normalize_voice_profile(voice_profile)
+    mood_payload = enrich_payload_with_mood_zone({**recommendation, **request_payload})
+    conf[CONF_VOICE_PROFILE] = voice_profile_for_mood_or_config(conf, mood_payload)
+    for key in (CONF_TTS_LANGUAGE, "language", "locale", "device_language"):
+        value = request_payload.get(key) or recommendation.get(key)
+        if value:
+            conf[key] = value
+    return conf
+
+
 def _play_now_fallback_dj_text(
     media: dict[str, Any],
     recommendation: dict[str, Any],
@@ -1648,7 +1674,7 @@ def _play_now_fallback_dj_text(
         now_playing = subject
     if album and title and album != title:
         now_playing = f"{now_playing}, van {album}"
-    profile = normalize_voice_profile(conf.get(CONF_VOICE_PROFILE))
+    profile = voice_profile_for_mood_or_config(conf, media)
     if profile == VOICE_PROFILE_LATE_NIGHT:
         text = f"Mooi, ik zet {now_playing} zacht in de spotlights. Leun maar even achterover."
     elif profile == VOICE_PROFILE_ENERGY:

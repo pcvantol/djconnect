@@ -216,7 +216,7 @@
           "client_type": "Type DJConnect client: app, lokaal apparaat of Assist-agent.",
           "firmware_channel": "Kies stable voor normale OTA updates of beta om prerelease firmware te testen.",
           "options_action": "Kies welke actie je wilt uitvoeren.",
-          "voice_profile": "Kies de server-side DJConnect radiostijl. De gekozen Home Assistant TTS stem blijft bepalen hoe de audio klinkt; mood bepaalt de energie."
+          "voice_profile": "Kies de fallback DJConnect radiostijl. Als een client mood meestuurt, kiest die mood automatisch het stemprofiel; de Home Assistant TTS stem blijft bepalen hoe de audio klinkt."
         }
       },
       "spotify_reauth": {
@@ -338,7 +338,7 @@
           "options_action": "Kies welke actie je wilt uitvoeren.",
           "music_backend": "Gekozen playback-backend.",
           "music_assistant_player": "Geconfigureerde Music Assistant doelplayer.",
-          "voice_profile": "Kies de server-side DJConnect radiostijl. De gekozen Home Assistant TTS stem blijft bepalen hoe de audio klinkt; mood bepaalt de energie."
+          "voice_profile": "Kies de fallback DJConnect radiostijl. Als een client mood meestuurt, kiest die mood automatisch het stemprofiel; de Home Assistant TTS stem blijft bepalen hoe de audio klinkt."
         }
       },
       "conversation_agent_init": {
@@ -354,7 +354,7 @@
           "assist_pipeline_id": "Assist pipeline die DJConnect gebruikt voor spraakherkenning en DJ aankondigingen.",
           "options_action": "Kies welke actie je wilt uitvoeren.",
           "music_backend": "Gekozen playback-backend.",
-          "voice_profile": "Kies de server-side DJConnect radiostijl. De gekozen Home Assistant TTS stem blijft bepalen hoe de audio klinkt; mood bepaalt de energie."
+          "voice_profile": "Kies de fallback DJConnect radiostijl. Als een client mood meestuurt, kiest die mood automatisch het stemprofiel; de Home Assistant TTS stem blijft bepalen hoe de audio klinkt."
         }
       },
       "music_backend": {

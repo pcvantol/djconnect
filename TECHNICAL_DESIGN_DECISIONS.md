@@ -382,6 +382,13 @@ Pattern:
 - Ask DJ profile responses expose `sources[]` metadata so clients can show
   Spotify recently played/top-items and Music DNA provenance separately
   from normal links.
+- Track Insight is a server-side interpretive analysis contract, not measured
+  audio analysis. The response intentionally excludes BPM, tempo-BPM,
+  toonsoort/key and key-signature fields. Genre is still supported: the
+  backend returns `analysis.genre`/`analysis.subgenre` when available and may
+  enrich `track.genres[]` from Spotify artist metadata as deterministic
+  fallback/context. Clients must not calculate Music DNA or Track Insight
+  conclusions locally.
 - `recently_played_history` is a separate read-only Ask DJ intent for questions
   about recently played tracks, albums, artists and playlist contexts. It uses
   Spotify `/me/player/recently-played`, returns display-ready `items[]` plus

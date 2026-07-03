@@ -497,6 +497,66 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertIn("Voice profile: sound like a recognizable radio host", calls[0]["text"])
         self.assertNotIn("Negeer alle eventueel hierboven", calls[0]["text"])
 
+    def test_generate_dj_response_prefers_mood_voice_profile_over_config(self) -> None:
+        calls = []
+        debug = {}
+
+        class Services:
+            async def async_call(self, domain, service, data, **kwargs):
+                calls.append(data)
+                return {"response": {"speech": {"plain": {"speech": "Daar gaan we met Strong van London Grammar."}}}}
+
+        hass = types.SimpleNamespace(services=Services())
+        text = asyncio.run(
+            self.pipeline.generate_dj_response_with_assist(
+                hass,
+                media={
+                    "type": "track",
+                    "artist": "London Grammar",
+                    "title": "Strong",
+                    "mood": 70,
+                },
+                fallback_text="Strong staat klaar.",
+                conf={
+                    "tts_language": "nl-NL",
+                    "voice_profile": "late_night",
+                },
+                debug=debug,
+            )
+        )
+
+        self.assertEqual(text, "Daar gaan we met Strong van London Grammar.")
+        self.assertIn("Voice profile: klink als een energieke radiohost", calls[0]["text"])
+        self.assertNotIn("Voice profile: klink als late-night radio", calls[0]["text"])
+        self.assertEqual(debug["voice_profile"], "energy")
+
+    def test_voice_profile_mapping_follows_all_mood_zones(self) -> None:
+        voice_profiles = importlib.import_module("custom_components.djconnect.voice_profiles")
+
+        cases = {
+            0: "late_night",
+            25: "classic_radio",
+            60: "energy",
+            85: "clean_host",
+        }
+        for mood, expected in cases.items():
+            with self.subTest(mood=mood):
+                self.assertEqual(
+                    voice_profiles.voice_profile_for_mood_or_config(
+                        {"voice_profile": "late_night"},
+                        {"mood": mood},
+                    ),
+                    expected,
+                )
+
+        self.assertEqual(
+            voice_profiles.voice_profile_for_mood_or_config(
+                {"voice_profile": "clean_host"},
+                {},
+            ),
+            "clean_host",
+        )
+
     def test_generate_dj_response_orders_answer_before_fact(self) -> None:
         class Services:
             async def async_call(self, domain, service, data, **kwargs):

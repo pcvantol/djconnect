@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.2.16
+
+- Make realtime client mood the leading source for DJ announcement and
+  generated Ask DJ voice-profile style; the configured backend voice profile is
+  now only the fallback when a request has no valid mood.
+- Update Track Insight to carry artist genre context through `track.genres[]`
+  and use it as the fallback for `analysis.genre`/`analysis.subgenre` when the
+  generated analysis omits genre.
+- Align Music DNA and Track Insight client-sync documentation with the current
+  server-authoritative contracts.
+
 ## 3.2.15
 
 - Make Track Insight accept macOS/client playback aliases such as `track_name`,
@@ -248,8 +259,8 @@
 
 - Add a free online MetaBrainz metadata/context provider for Ask DJ technical
   track analysis, using MusicBrainz and ListenBrainz with compact caching,
-  rate-limit protection and explicit limitations that it does not measure BPM,
-  waveform, stems or exact arrangement sections.
+  rate-limit protection and explicit limitations around waveform, stems and
+  exact arrangement sections.
 
 ## 3.1.98
 

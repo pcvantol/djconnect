@@ -190,6 +190,118 @@ Canonical repo locations:
 - Website/docs: `pcvantol/djconnect-website`
 - Raspberry Pi client: `pcvantol/djconnect-pi`
 
+## Client: Music DNA
+
+```text
+Sync the DJConnect client with the current server-side Music DNA contract.
+
+Music DNA is owned by the Home Assistant integration. Clients must not build,
+persist or infer their own favorite genres, favorite artists, energy profile,
+mood profile, taste direction or profile summary from local chat/playback
+history. Clients send identity, language/locale and realtime mood, then render
+the backend profile.
+
+Endpoints:
+- POST /api/djconnect/music_dna/profile
+- POST /api/djconnect/music_dna/settings
+- POST /api/djconnect/music_dna/clear
+
+Requests should include `client_id`, `client_type`, `device_id`,
+`device_name`, optional `music_dna_key`, `language`, `locale` and optional
+`mood` 0..100.
+
+Rendering rules:
+- Respect `enabled`; while disabled, show the opt-in state and do not fake a
+  profile.
+- Render backend `summary`, `favorite_genres`, `favorite_artists`,
+  `recent_tracks`, `energy_profile`, `mood_profile`, `taste_direction`,
+  `based_on` and `updated_at` when present.
+- Accept both strings and objects with fields such as `name`, `title`,
+  `artist`, `count`, `score` and `genres`.
+- Preserve backend order and show compact top values, usually 3-5 items.
+- Hide empty cards or show a clean "not enough signals" state.
+- Do not show BPM or toonsoort/key anywhere in Music DNA.
+- Clear wipes server profile data but preserves the opt-in setting; after clear,
+  enabled profiles learn again from empty data.
+
+Backend builds Music DNA from successful playback/Play Now choices, recent
+playback metadata including artist genres where available, Track Insight
+energy/genre analysis, realtime mood samples and compact Spotify profile
+snapshots when available. The client only sends realtime context and renders
+the server-authoritative profile.
+```
+
+## Client: Track Insight
+
+```text
+Sync the DJConnect client with the current Track Insight contract.
+
+Track Insight is server-side in Home Assistant. Clients call
+POST /api/djconnect/track_insight with identity, auth, language/locale,
+realtime `mood` and optional track metadata. Render either a direct response
+with top-level `track`/`analysis`, or a wrapped response under
+`track_insight.track`/`track_insight.analysis`.
+
+Request fields:
+- `client_id`, `client_type`, `device_id`, `device_name`
+- `language`, `locale`, `mood`, optional `music_dna_key`
+- optional track aliases: `title`/`track_name`/`media_title`,
+  `artist`/`artist_name`/`media_artist`, `album`/`album_name`/`media_album`,
+  `artwork_url`/`image_url`/`album_image_url`, `uri`, optional `genres[]`
+- send language and mood headers when the platform supports them:
+  `Accept-Language`, `X-DJConnect-Language`, `X-DJConnect-Locale`,
+  `X-DJConnect-Mood`
+
+Response fields to render:
+- `track`: title, artist, album, artwork_url, duration_ms, progress_ms,
+  is_playing, backend, optional `genres[]`
+- `analysis`: summary, full_text, genre, subgenre, mood, vibe, texture,
+  emotional_tone, energy, danceability, intensity, confidence,
+  production_notes, instrumentation, arrangement_notes, listening_cues,
+  similar_tracks
+- `visual_profile`: palette, motion_style, pulse_speed, wave_amplitude,
+  particle_density, glow_strength, spectrum_bias, seed
+- `mood_context`, `language`, `cache`
+
+Important:
+- Remove BPM, tempo-BPM, toonsoort/key, key-signature UI cards, model fields,
+  placeholders, snapshots and tests. These fields are not part of the contract.
+- Render genre from `analysis.genre` first, `analysis.subgenre` as detail, and
+  fallback/context from `track.genres[]`. Hide the genre card if all are empty.
+- Energy/danceability/intensity/confidence are floats 0..1; render percentages
+  only visually where useful.
+- Client mood may override Track Insight screen colors, but must not rewrite
+  analysis text. Backend `mood_context` is the source of truth for the resolved
+  zone.
+- Do not translate backend analysis text client-side. If language content is
+  wrong, fix server language handling.
+- Handle `404 no_track_playing`, `429 rate_limited` and transient failures with
+  clean empty/retry states. Never reuse old insight data for another track.
+```
+
+## Client: Mood Voice Profiles
+
+```text
+Sync DJ announcement/generative-text behavior with the current mood-to-voice
+profile contract.
+
+When the client sends realtime `mood`, the Home Assistant backend maps it to
+the effective DJ voice profile for every DJ announcement, TTS prompt and
+generated Ask DJ response. The configured backend voice profile is fallback
+only when no valid mood is present.
+
+Mapping:
+- 0..24 `chill` -> `late_night`
+- 25..59 `groove` -> `classic_radio`
+- 60..84 `energy` -> `energy`
+- 85..100 `party` -> `clean_host`
+
+Clients should send `mood` on Ask DJ, Track Insight, status and command calls
+where available. Clients should not send or persist a separate user-facing DJ
+style selector. If a legacy `voice_profile`/`dj_style` is sent together with a
+valid mood, the backend mood mapping wins.
+```
+
 ## Website/Docs
 
 ```text

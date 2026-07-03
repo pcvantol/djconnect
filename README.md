@@ -23,9 +23,9 @@ Website: [https://djconnect.dev](https://djconnect.dev)
   recent listening questions.
 - Keep Music DNA opt-in and server-side in Home Assistant.
 - Use Home Assistant Assist/STT/TTS for voice and DJ responses.
-- Choose a server-side DJ voice profile for radio-style announcement phrasing;
-  Home Assistant Assist/TTS still owns the actual spoken voice, while mood
-  controls announcement energy.
+- Let realtime client mood choose the DJ announcement profile; the configured
+  DJ voice profile is the fallback when no mood is provided. Home Assistant
+  Assist/TTS still owns the actual spoken voice.
 - Update supported ESP32 firmware through the Home Assistant update entity.
 - Keep credentials in Home Assistant. DJConnect clients do not receive Spotify
   OAuth tokens.

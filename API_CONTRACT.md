@@ -329,10 +329,11 @@ behavior.
 
 The zone is used in Ask DJ prompt/context generation, recommendations, idle
 suggestions, Music DNA prompt context, spoken DJ announcement style and
-status/debug context. DJ announcement style is not a client or config option:
-when runtime mood is available, the mood zone drives the final announcement
-tone; otherwise DJConnect uses its hardcoded default announcement style.
-Responses do not need to echo mood fields.
+status/debug context. When runtime mood is available, the mood zone chooses the
+effective DJ voice profile: `chill -> late_night`, `groove -> classic_radio`,
+`energy -> energy` and `party -> clean_host`. The configured backend
+`voice_profile` is fallback only when a request has no valid mood. Responses do
+not need to echo mood fields.
 
 Spoken DJ announcements may include one short personal intro line when compact Music DNA makes that natural. Clients must not send arbitrary Home Assistant state or local memory for this.
 
@@ -353,16 +354,23 @@ Entry points:
   `djconnect_track_insight` with the normalized result.
 
 Request fields may include `title`, `artist`, `album`, `entity_id`,
-`player_id`, `music_backend`, `force_refresh`, `locale`,
-`include_visual_profile` and `include_raw_response`. If `title` and `artist`
+`player_id`, `music_backend`, `force_refresh`, `locale`, `language`, `mood`,
+`music_dna_key`, `include_visual_profile` and `include_raw_response`. Clients
+may also send nested `track`, `playback` or `media` objects with aliases such as
+`track_name`, `artist_name`, `album_name`, `media_title`, `media_artist`,
+`album_image_url`, `image_url` and optional `genres[]`. If `title` and `artist`
 are present, the backend analyzes that explicit track; otherwise it resolves
 Now Playing through the music backend/status context.
 
 Responses use normalized TrackInsight JSON with `id`, `created_at`, `source`,
-`track`, `analysis`, `visual_profile` and `cache`. Numeric analysis and visual
-values are normalized from `0.0` to `1.0`. Track Insight does not include a
-Music DNA per-track match score, label or reason; Music DNA remains a separate
-opt-in profile/context feature. `visual_profile` is deterministic and is only a
+`language`, optional `mood_context`, `track`, `analysis`, `visual_profile` and
+`cache`. `track` may include deterministic `genres[]` from playback or Spotify
+artist metadata. `analysis.genre` and `analysis.subgenre` are the primary genre
+display fields; clients can fall back to `track.genres[]`. Numeric analysis and
+visual values are normalized from `0.0` to `1.0`. Track Insight does not include
+measured timing or pitch-key cards and does not include a Music DNA per-track
+match score, label or reason; Music DNA remains a separate opt-in
+profile/context feature. `visual_profile` is deterministic and is only a
 rendering hint; clients remain responsible for final visualization and must not
 expect server-generated images or video. Structured errors use `error`/`message`,
 for example `no_track_playing`.
@@ -394,8 +402,8 @@ canonical `client_type` identity contract:
 ```
 
 `/music_dna/profile` and `/music_dna/clear` accept the same identity fields and
-optional `music_dna_key`. Profile responses are structured for the Music DNA
-screen:
+optional `music_dna_key`, `language`, `locale` and realtime `mood`. Profile
+responses are structured for the Music DNA screen:
 
 ```json
 {
@@ -427,6 +435,12 @@ screen:
 When Music DNA is disabled, `enabled:false` and `profile:{}` are returned.
 Clients should show an opt-in state instead of deriving a fake profile from
 local Track Insight history.
+
+Music DNA is server-authoritative. Clients should render backend-provided
+summary, favorite genres, favorite artists, recent tracks, energy/mood profile,
+taste direction, based-on values and update timestamps where present. Clients
+must not calculate favorite artists, favorite genres, energy, mood or taste
+direction locally from Ask DJ history or local playback cache.
 
 Home Assistant developer actions mirror the HTTP contract:
 

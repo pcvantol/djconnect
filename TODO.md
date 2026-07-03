@@ -74,7 +74,8 @@
 - Confirm the DJConnect conversation-agent options dialog only shows the action
   selector plus the controlled DJ voice profile selector; free-form DJ response
   style/prompt controls must stay removed because announcements follow
-  `voice_profile` plus runtime mood.
+  realtime client mood first and the configured `voice_profile` only as
+  fallback.
 - Confirm successful DJ announcement TTS creates an `audio_url` using a local
   Home Assistant URL even when older HA network helpers are unavailable.
   Automated coverage now exercises keyword and positional HA TTS media-source
@@ -158,7 +159,8 @@
   Raspberry Pi.
 - Confirm standalone `stt_engine`, `tts_engine`, `tts_language` and `tts_voice`
   fields remain hidden; STT/TTS is managed through Home Assistant Assist. The
-  DJConnect `voice_profile` selector controls only server-side radio persona.
+  DJConnect `voice_profile` selector controls only the fallback server-side
+  radio persona when clients do not send mood.
 - Confirm internal compatibility/OTA/audio TTL defaults are no longer exposed in config/options flow.
 - Confirm firmware channel is visible and stored only for ESP32 clients, not for iOS, macOS, Apple Watch, Linux/Raspberry Pi or Windows clients.
 - Confirm Spotify setup requires a user-owned Spotify Developer app Client ID and shows the exact redirect URI to register.

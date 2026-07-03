@@ -216,7 +216,7 @@
           "client_type": "DJConnect-Clienttyp: App, lokales Gerät oder Assist-Agent.",
           "firmware_channel": "Wähle stable für normale OTA-Updates oder beta zum Testen von Vorab-Firmware.",
           "options_action": "Wähle die Aktion aus, die ausgeführt werden soll.",
-          "voice_profile": "Wähle den serverseitigen DJConnect-Radiostil. Die ausgewählte Home Assistant TTS-Stimme bestimmt weiterhin die eigentliche Audiostimme; mood steuert die Energie."
+          "voice_profile": "Wähle den Fallback-DJConnect-Radiostil. Wenn ein Client mood sendet, wählt diese mood automatisch das Stimmprofil; die Home Assistant TTS-Stimme bestimmt weiterhin die eigentliche Audiostimme."
         }
       },
       "spotify_reauth": {
@@ -338,7 +338,7 @@
           "options_action": "Wähle die Aktion aus, die ausgeführt werden soll.",
           "music_backend": "Ausgewähltes Wiedergabe-Backend.",
           "music_assistant_player": "Konfigurierter Ziel-Player von Music Assistant.",
-          "voice_profile": "Wähle den serverseitigen DJConnect-Radiostil. Die ausgewählte Home Assistant TTS-Stimme bestimmt weiterhin die eigentliche Audiostimme; mood steuert die Energie."
+          "voice_profile": "Wähle den Fallback-DJConnect-Radiostil. Wenn ein Client mood sendet, wählt diese mood automatisch das Stimmprofil; die Home Assistant TTS-Stimme bestimmt weiterhin die eigentliche Audiostimme."
         }
       },
       "conversation_agent_init": {
@@ -354,7 +354,7 @@
           "assist_pipeline_id": "Assist-Pipeline, die DJConnect für Spracherkennung und DJ-Ansagen verwendet.",
           "options_action": "Wähle die Aktion aus, die ausgeführt werden soll.",
           "music_backend": "Ausgewähltes Wiedergabe-Backend.",
-          "voice_profile": "Wähle den serverseitigen DJConnect-Radiostil. Die ausgewählte Home Assistant TTS-Stimme bestimmt weiterhin die eigentliche Audiostimme; mood steuert die Energie."
+          "voice_profile": "Wähle den Fallback-DJConnect-Radiostil. Wenn ein Client mood sendet, wählt diese mood automatisch das Stimmprofil; die Home Assistant TTS-Stimme bestimmt weiterhin die eigentliche Audiostimme."
         }
       },
       "music_backend": {

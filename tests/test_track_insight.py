@@ -171,6 +171,64 @@ class TrackInsightTests(unittest.TestCase):
         self.assertEqual(result["track"]["artist"], "Aphex Twin")
         self.assertEqual(result["track"]["album"], "Windowlicker")
 
+    def test_track_insight_uses_playback_artist_genres_when_analysis_omits_genre(self) -> None:
+        hass = FakeHass('{"summary":"Genre from playback","full_text":"Detailed","confidence":0.8}')
+        runtime = Runtime()
+
+        async def fake_run_music_command(_hass, _runtime, command, value=None):
+            self.assertEqual(command, "status")
+            return {
+                "playback": {
+                    "title": "Dream On",
+                    "artist": "Scala & Kolacny Brothers",
+                    "album": "Dream On",
+                    "genres": ["belgian choir", "pop choir"],
+                    "backend": "spotify_direct",
+                }
+            }
+
+        original = self.track_insight.run_music_command
+        self.track_insight.run_music_command = fake_run_music_command
+        try:
+            result = asyncio.run(self.track_insight.TrackInsightService().async_analyze(hass, runtime, {}, source="http"))
+        finally:
+            self.track_insight.run_music_command = original
+
+        self.assertEqual(result["track"]["genres"], ["belgian choir", "pop choir"])
+        self.assertEqual(result["analysis"]["genre"], "belgian choir")
+        self.assertEqual(result["analysis"]["subgenre"], "pop choir")
+        self.assertIn("Known artist genres: belgian choir, pop choir", hass.services.calls[0]["data"]["text"])
+
+    def test_track_insight_fetches_artist_profile_genres_for_explicit_track(self) -> None:
+        hass = FakeHass('{"summary":"Genre from artist","full_text":"Detailed","confidence":0.8}')
+        runtime = Runtime()
+        calls = []
+
+        async def fake_run_music_command(_hass, _runtime, command, value=None):
+            calls.append((command, value))
+            if command == "artist_profile":
+                return {"success": True, "artist": {"name": "Massive Attack", "genres": ["trip hop", "downtempo"]}}
+            return {}
+
+        original = self.track_insight.run_music_command
+        self.track_insight.run_music_command = fake_run_music_command
+        try:
+            result = asyncio.run(
+                self.track_insight.TrackInsightService().async_analyze(
+                    hass,
+                    runtime,
+                    {"title": "Teardrop", "artist": "Massive Attack"},
+                    source="http",
+                )
+            )
+        finally:
+            self.track_insight.run_music_command = original
+
+        self.assertEqual(calls, [("artist_profile", {"artist": "Massive Attack"})])
+        self.assertEqual(result["track"]["genres"], ["trip hop", "downtempo"])
+        self.assertEqual(result["analysis"]["genre"], "trip hop")
+        self.assertEqual(result["analysis"]["subgenre"], "downtempo")
+
     def test_cache_avoids_repeated_conversation_calls(self) -> None:
         hass = FakeHass('{"summary":"One","full_text":"One","confidence":0.8}')
         runtime = Runtime()

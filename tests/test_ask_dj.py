@@ -1933,6 +1933,141 @@ class AskDjTest(unittest.TestCase):
         self.assertTrue(favorite_action["favorite_status"])
         self.assertEqual(favorite_action["client_prompt"], "Haal huidig nummer uit favorieten")
 
+    def test_current_track_question_generates_audio_response_by_default(self) -> None:
+        runtime = make_runtime()
+        runtime.last_playback = {
+            "has_playback": True,
+            "is_playing": True,
+            "track_name": "Black",
+            "artist": "Pearl Jam",
+            "album_name": "Ten",
+            "uri": "spotify:track:black",
+        }
+        tts_calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            raise AssertionError(f"unexpected Spotify command: {command_name}")
+
+        async def tts(hass, runtime_arg, text):
+            tts_calls.append(text)
+            return {"audio_url_value": "/api/djconnect/tts/current-track.mp3"}
+
+        original_command = self.ask_dj.run_music_command
+        original_tts = self.ask_dj.async_send_dj_response_best_effort
+        self.ask_dj.run_music_command = command
+        self.ask_dj.async_send_dj_response_best_effort = tts
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "wat speelt er",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "ios",
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.run_music_command = original_command
+            self.ask_dj.async_send_dj_response_best_effort = original_tts
+
+        self.assertEqual(result["audio_url"], "/api/djconnect/tts/current-track.mp3")
+        self.assertEqual(tts_calls, [result["dj_text"]])
+
+    def test_current_track_question_uses_fresh_empty_status_not_stale_playback(self) -> None:
+        runtime = make_runtime()
+        runtime.last_playback = {
+            "has_playback": True,
+            "is_playing": True,
+            "track_name": "Old Track",
+            "artist": "Old Artist",
+        }
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            if command_name == "status":
+                return {"success": True, "playback": {"has_playback": False, "is_playing": False}}
+            raise AssertionError(f"unexpected Spotify command: {command_name}")
+
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "wat speelt er",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "ios",
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.run_music_command = original_command
+
+        self.assertEqual(result["dj_text"], "Er speelt nu niets.")
+        self.assertNotIn("Old Track", result["dj_text"])
+        self.assertEqual(runtime.last_playback, {"has_playback": False, "is_playing": False})
+        self.assertNotIn("playback", result)
+        self.assertEqual(result["playback_actions"], [])
+
+    def test_current_track_question_prefers_generated_announcement_text(self) -> None:
+        runtime = make_runtime()
+        runtime.last_playback = {
+            "has_playback": True,
+            "is_playing": True,
+            "track_name": "Gave It All",
+            "artist": "HAEVN",
+            "album_name": "Eyes Closed",
+            "uri": "spotify:track:gave-it-all",
+        }
+        calls = []
+
+        class Services:
+            async def async_call(self, domain, service, data, **kwargs):
+                calls.append((domain, service, data))
+                return {
+                    "response": {
+                        "speech": {
+                            "plain": {
+                                "speech": "Je hoort nu Gave It All van HAEVN, warm en ruim neergezet."
+                            }
+                        }
+                    }
+                }
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            raise AssertionError(f"unexpected Spotify command: {command_name}")
+
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=Services(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "wat speelt er",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "ios",
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.run_music_command = original_command
+
+        self.assertEqual(result["dj_text"], "Je hoort nu Gave It All van HAEVN, warm en ruim neergezet.")
+        self.assertEqual(result["text_source"], "generated")
+        self.assertTrue(result["is_generated_text"])
+        self.assertEqual(result["assistant_message"]["text_source"], "generated")
+        self.assertTrue(result["assistant_message"]["is_generated_text"])
+        self.assertEqual(calls[0][0], "conversation")
+
     def test_play_album_containing_track_request_searches_track_then_plays_album(self) -> None:
         runtime = make_runtime()
         calls = []

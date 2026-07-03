@@ -216,7 +216,7 @@
           "client_type": "Type de client DJConnect : app, appareil local ou agent Assist.",
           "firmware_channel": "Choisis stable pour les mises à jour OTA normales ou beta pour tester un firmware de préversion.",
           "options_action": "Choisis l’action à exécuter.",
-          "voice_profile": "Choisis le style radio DJConnect côté serveur. La voix TTS Home Assistant sélectionnée détermine toujours la voix audio réelle ; mood règle l’énergie."
+          "voice_profile": "Choisis le style radio DJConnect de secours. Quand un client envoie mood, cette mood choisit automatiquement le profil vocal ; la voix TTS Home Assistant détermine toujours la voix audio réelle."
         }
       },
       "spotify_reauth": {
@@ -338,7 +338,7 @@
           "options_action": "Choisis l’action à exécuter.",
           "music_backend": "Backend de lecture sélectionné.",
           "music_assistant_player": "Lecteur cible Music Assistant configuré.",
-          "voice_profile": "Choisis le style radio DJConnect côté serveur. La voix TTS Home Assistant sélectionnée détermine toujours la voix audio réelle ; mood règle l’énergie."
+          "voice_profile": "Choisis le style radio DJConnect de secours. Quand un client envoie mood, cette mood choisit automatiquement le profil vocal ; la voix TTS Home Assistant détermine toujours la voix audio réelle."
         }
       },
       "conversation_agent_init": {
@@ -354,7 +354,7 @@
           "assist_pipeline_id": "Pipeline Assist utilisée par DJConnect pour la reconnaissance vocale et les annonces DJ.",
           "options_action": "Choisis l’action à exécuter.",
           "music_backend": "Backend de lecture sélectionné.",
-          "voice_profile": "Choisis le style radio DJConnect côté serveur. La voix TTS Home Assistant sélectionnée détermine toujours la voix audio réelle ; mood règle l’énergie."
+          "voice_profile": "Choisis le style radio DJConnect de secours. Quand un client envoie mood, cette mood choisit automatiquement le profil vocal ; la voix TTS Home Assistant détermine toujours la voix audio réelle."
         }
       },
       "music_backend": {

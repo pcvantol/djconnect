@@ -360,6 +360,10 @@ class SpotifyBackend:
         access_token = str(token.get("access_token") or "").strip()
         if not access_token:
             raise SpotifyBackendError("Spotify OAuth refresh did not return an access token")
+        _delete_spotify_reauth_issue(
+            self.hass,
+            getattr(self.runtime, "entry", None),
+        )
         expires_in = int(token.get("expires_in") or 3600)
         self.runtime.spotify_access_token = access_token
         self.runtime.spotify_access_token_expires_at = time.time() + max(60, expires_in)
@@ -2059,5 +2063,21 @@ def _create_spotify_reauth_issue(hass: HomeAssistant, entry: Any) -> None:
     except Exception:  # noqa: BLE001
         _LOGGER.debug(
             "DJConnect could not create Spotify reauthorization repair issue",
+            exc_info=True,
+        )
+
+
+def _delete_spotify_reauth_issue(hass: HomeAssistant, entry: Any) -> None:
+    """Clear stale Spotify reauthorization repair hints after a successful refresh."""
+    try:
+        from homeassistant.helpers import issue_registry as ir
+
+        ir.async_delete_issue(hass, DOMAIN, "spotify_refresh_token_revoked")
+        entry_id = str(getattr(entry, "entry_id", "") or "").strip()
+        if entry_id:
+            ir.async_delete_issue(hass, DOMAIN, f"{entry_id}_spotify_refresh_token_revoked")
+    except Exception:  # noqa: BLE001
+        _LOGGER.debug(
+            "DJConnect could not delete Spotify reauthorization repair issue",
             exc_info=True,
         )

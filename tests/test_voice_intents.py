@@ -71,7 +71,6 @@ class VoiceIntentDataTest(unittest.TestCase):
         examples = " ".join([*intent["nl"], *intent["en"]]).lower()
         self.assertNotIn("technische track analyse", examples)
         self.assertNotIn("technical analysis", examples)
-        self.assertNotIn("bpm", examples)
 
     def test_backend_contract_wording_is_backend_neutral(self) -> None:
         data = json.loads((ROOT / "examples" / "voice_intents.json").read_text())

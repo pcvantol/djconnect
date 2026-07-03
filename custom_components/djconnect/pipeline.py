@@ -9,12 +9,11 @@ from homeassistant.core import HomeAssistant
 from .const import (
     CONF_ASSIST_PIPELINE_ID,
     CONF_TTS_LANGUAGE,
-    CONF_VOICE_PROFILE,
     DEFAULT_DJ_RESPONSE_PROMPT,
     DEFAULT_TTS_LANGUAGE,
 )
 from .mood import mood_announcement_style_text, mood_context_text
-from .voice_profiles import normalize_voice_profile, voice_profile_style_text
+from .voice_profiles import voice_profile_for_mood_or_config, voice_profile_style_text_for_payload
 
 _LOGGER = logging.getLogger(__name__)
 _ROOT_LOGGER = logging.getLogger("custom_components.djconnect")
@@ -375,8 +374,8 @@ async def generate_dj_response_with_assist(
     assist_context = _assist_context(hass, conf)
     language = _response_language(media, assist_context, conf)
     media_context = _dj_response_media_context(media)
-    voice_profile = normalize_voice_profile(conf.get(CONF_VOICE_PROFILE))
-    voice_profile_style = voice_profile_style_text(conf, language=language)
+    voice_profile = voice_profile_for_mood_or_config(conf, media)
+    voice_profile_style = voice_profile_style_text_for_payload(conf, media, language=language)
     mood_style = mood_announcement_style_text(media, language=language)
     personal_intro_style = _personal_intro_style_text(memory_context, language=language)
     if debug is not None:

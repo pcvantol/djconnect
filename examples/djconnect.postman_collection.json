@@ -615,7 +615,7 @@
                 "track_insight"
               ]
             },
-            "description": "Standalone Track Insight endpoint for Apple and future clients. Uses Home Assistant auth and returns normalized TrackInsight JSON with track metadata, structured analysis, cache info and optional visual-profile hints. Track Insight does not include a Music DNA per-track match score."
+            "description": "Standalone Track Insight endpoint for Apple and future clients. Uses Home Assistant auth and returns normalized TrackInsight JSON with track metadata, optional track.genres, structured analysis, cache info and optional visual-profile hints. Genre is read from analysis.genre/subgenre with track.genres as fallback. Track Insight does not include measured timing/pitch-key cards or a Music DNA per-track match score."
           }
         },
         {
@@ -729,7 +729,7 @@
                 "profile"
               ]
             },
-            "description": "Fetches the structured server-side Music DNA profile for the client screen. If enabled is false, clients should show the opt-in/empty state instead of deriving a persistent profile from local Track Insight history."
+            "description": "Fetches the structured server-side Music DNA profile for the client screen. If enabled is false, clients should show the opt-in/empty state. Clients must not derive a persistent profile, favorite genres, favorite artists, energy profile or mood profile from local Track Insight or chat history."
           }
         },
         {
