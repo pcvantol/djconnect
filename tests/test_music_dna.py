@@ -254,6 +254,25 @@ class MusicDNAManagerTest(unittest.TestCase):
         self.assertEqual(profile["mood"]["zone_counts"]["energy"], 1)
         self.assertEqual(profile["mood"]["zone_counts"]["party"], 1)
 
+    def test_repeated_client_mood_refresh_does_not_inflate_signal_count(self) -> None:
+        manager = MusicDNAManager(store=FakeStore())
+        runtime = runtime_for()
+        asyncio.run(manager.async_set_enabled(runtime, True))
+
+        asyncio.run(manager.async_update_client_metadata(runtime, {"mood": 99}))
+        asyncio.run(manager.async_update_client_metadata(runtime, {"mood": 99}))
+        asyncio.run(manager.async_update_client_metadata(runtime, {"mood": 99}))
+        asyncio.run(manager.async_update_client_metadata(runtime, {"mood": 70}))
+
+        profile = asyncio.run(manager.async_profile(runtime))["profile"]
+
+        self.assertEqual(profile["mood"]["value"], 70)
+        self.assertEqual(profile["mood"]["sample_count"], 2)
+        self.assertEqual(profile["mood"]["average"], 84)
+        self.assertEqual(profile["mood"]["average_zone"], "energy")
+        self.assertEqual(profile["mood"]["zone_counts"]["party"], 1)
+        self.assertEqual(profile["mood"]["zone_counts"]["energy"], 1)
+
     def test_blocked_music_preference_is_persisted_and_prompt_safe(self) -> None:
         store = FakeStore()
         manager = MusicDNAManager(store=store)

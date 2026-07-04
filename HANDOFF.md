@@ -4,13 +4,12 @@
 
 - Repository: `pcvantol/djconnect`.
 - Integration domain: `djconnect`.
-- Current integration release: `3.2.15`.
-- Release status: DJConnect `3.2.15` keeps the `3.2.x` transport, pairing and
-  backend abstraction model, fixes Track Insight client playback aliases,
-  hardens Ask DJ history clear responses for Apple clients, and removes the
-  separate Spotify/Music Assistant playback entities from Home Assistant.
-  Backend playback remains available through DJConnect commands, Ask DJ and
-  clients with explicit Spotify Direct or Music Assistant backend choice.
+- Current integration release: `3.2.18`.
+- Release status: DJConnect `3.2.18` keeps the `3.2.x` transport, pairing and
+  backend abstraction model and adds the premium-ready VibeCast feed endpoint
+  for Apple clients. Backend playback remains available through DJConnect
+  commands, Ask DJ, VibeCast context and clients with explicit Spotify Direct
+  or Music Assistant backend choice.
 - 3.2 work has introduced an internal DJConnect use-case layer plus
   `MusicBackend` capability abstraction. Spotify Direct is the default backend
   adapter; Music Assistant is a small HA `media_player` adapter, not a
@@ -44,6 +43,12 @@
 - Reusable Ask DJ Play Now backend metadata is shaped through the use-case layer;
   new action responses should not rebuild backend/provider/revision/value
   envelopes directly in Ask DJ.
+- VibeCast is a premium-ready Apple client feature via
+  `GET /api/djconnect/vibecast`. macOS and iOS must receive the same functional
+  backend contract: same endpoint, response shape, item kinds, structured text
+  segment types, disabled reasons, TTL/polling/cache semantics, entitlement
+  behavior and current-track resolution. Differences belong only in client
+  presentation or reported render capabilities.
 - Home Assistant integration is HACS-distributed and MIT-licensed.
 - DJConnect client and firmware repositories are MIT-licensed unless their own repository metadata states otherwise.
 - Public firmware release assets live in `pcvantol/djconnect-firmware`.
@@ -319,14 +324,12 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 ## Current Release Notes
 
 - Current release line is `3.2.x`; only the latest GitHub release/tag should be kept after release cleanup.
-- Current latest baseline is `3.2.15`.
+- Current latest baseline is `3.2.18`.
 - Release workflow expectation: before every release, review and update all repo documentation affected by the change or release, including `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant `examples/*`. Explicitly decide whether test coverage must be expanded for the change; add coverage for new behavior paths, regression risks, translations, config/options-flow base/EN/NL/DE/FR/ES keysets, stale `data_description` keys, diagnostics/log redaction and edge cases. Keep `tests.test_postman_collection` aligned with the Postman examples so CI validates collection schema, auth headers, placeholders and client identity. After publishing a release, clean up old completed GitHub Actions workflow runs, keeping only the newest release/tag validation and newest `main` validation unless debugging requires more history. Also clean up old semver releases/tags with `./cleanup_old_releases.sh --keep 1 --execute` unless multiple releases are intentionally retained. Keep any branch-protection/admin override explicit and manual; do not automate required-review disablement or protection changes in `release.sh`.
 - Before build/test/release validation, check whether third-party libraries, frameworks and build tools can be safely upgraded. If any version is upgraded, update lockfiles/manifests, `THIRD_PARTY_NOTICES.md` and dependency/design documentation in the same release. If an upgrade is skipped, record the reason here.
-- For the current `3.2.15` release, no pinned Python package versions were
-  upgraded. The current release fixes Track Insight alias handling for client
-  playback payloads, makes Ask DJ clear responses explicit for client cache
-  invalidation, and removes separate backend playback entities from Home
-  Assistant while keeping backend commands and Ask DJ routes intact.
+- For the current `3.2.18` release, no pinned Python package versions were
+  upgraded. The current release adds the VibeCast backend feed and documents
+  macOS/iOS parity while keeping backend commands and Ask DJ routes intact.
   `THIRD_PARTY_NOTICES.md` did not require dependency updates for these changes.
 - AI-assisted/Codex development hygiene is now documented in
   `CONTRIBUTING.md`, `SECURITY.md` and `CHAT_BOOTSTRAP.md`; accepted changes

@@ -24,7 +24,7 @@ Lees eerst:
 
 Belangrijke huidige status:
 - Project: DJConnect Home Assistant custom integration, domain `djconnect`.
-- Laatste release: `3.2.15`.
+- Laatste release: `3.2.18`.
 - Repo is public en MIT-licensed.
 - Alle DJConnect repos zijn MIT-licensed, tenzij een specifieke third-party dependency anders vermeldt.
 - `FIRMWARE-LICENSE.md` is verwijderd.
@@ -77,13 +77,12 @@ Belangrijke huidige status:
   prompts, raw audio, Ask DJ history en Music DNA dumps mogen niet in logs of
   diagnostics terechtkomen.
 - Nieuwe playback/control code mag niet rechtstreeks Spotify helpers aanroepen buiten de backend-adapter; routeer via de use-case laag.
-- De `3.2.15` release fixt Track Insight aliasvelden voor client playback
-  payloads, maakt Ask DJ clear responses expliciet met `cleared`,
-  `ask_dj_clear_required`, lege `messages[]` en sync-revisies, en verwijdert de
-  losse Spotify/Music Assistant playback entities uit Home Assistant. Houd de
-  publieke `custom_components.djconnect.ask_dj` import compatibel en gebruik de
-  provider-neutrale `listening_profile` payloadnaam; `spotify_profile` is alleen
-  nog een tijdelijke legacy alias.
+- De `3.2.18` release voegt de premium-ready VibeCast backend feed toe via
+  `GET /api/djconnect/vibecast`, met expliciete macOS/iOS parity voor endpoint,
+  response contract, item kinds, structured text, disabled reasons en
+  polling/cache semantics. Houd de publieke `custom_components.djconnect.ask_dj`
+  import compatibel en gebruik de provider-neutrale `listening_profile`
+  payloadnaam; `spotify_profile` is alleen nog een tijdelijke legacy alias.
 - Compacte conversation-agent options-flow toont alleen actie; DJ response stijl/prompt is geen user-facing optie meer en volgt runtime client mood of de hardcoded default.
 - Verwijderde opties:
   - Spotify source override;

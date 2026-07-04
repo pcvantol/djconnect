@@ -200,6 +200,10 @@
 
 ## Ask DJ
 
+- Field-test VibeCast on macOS and iOS with the same active track and backend.
+  Confirm both clients receive equivalent item kinds, structured text,
+  disabled reasons, TTL/polling/cache metadata and current-track context; any
+  differences should be presentation-only or capability-driven.
 - Monitor Ask DJ server history trimming at 1000 messages per HA user. Automated
   coverage verifies `history_limit`, `history_trimmed_before`,
   `history_trimmed_count` and retention system-message behavior; client field
@@ -270,6 +274,6 @@
 - Refresh HACS update info in Home Assistant.
 - Install new release from HACS.
 - Restart Home Assistant.
-- Release/tag cleanup after v3.2.15 is done; `./cleanup_old_releases.sh --keep 1 --execute` should keep only `v3.2.15` when cleanup is run for this release line unless multiple releases are intentionally retained.
+- Release/tag cleanup after v3.2.18 is done; `./cleanup_old_releases.sh --keep 1 --execute` should keep only `v3.2.18` when cleanup is run for this release line unless multiple releases are intentionally retained.
 - Clean up old completed GitHub Actions workflow runs after every release, keeping only the newest release/tag validation and newest `main` validation unless debugging requires more history.
 - Keep the CI Postman collection validator aligned with `examples/djconnect.postman_collection.json` whenever API examples change.

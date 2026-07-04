@@ -1099,6 +1099,17 @@ def _record_mood_signal(memory: dict[str, Any], mood: int) -> None:
     zones = signals.get("zones")
     if not isinstance(zones, dict):
         zones = {}
+    previous = _clean_mood(signals.get("last_value"))
+    if previous == mood and int(signals.get("count") or 0) > 0:
+        signals.update(
+            {
+                "last_value": mood,
+                "last_seen": _now(),
+                "zones": zones,
+            }
+        )
+        memory["mood_signals"] = signals
+        return
     if zone is not None:
         zones[zone.name] = int(zones.get(zone.name) or 0) + 1
     count = int(signals.get("count") or 0) + 1

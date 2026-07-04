@@ -120,6 +120,10 @@ Every release must review this roadmap.
 - [x] Keep backend playback state out of separate Home Assistant playback
   entities; clients, Ask DJ and DJConnect commands own playback UX while HA
   remains the credential/backend orchestrator (3.2, HA).
+- [x] Add a premium-ready VibeCast backend feed for Apple clients, with macOS
+  and iOS sharing the same endpoint, response contract, item kinds, disabled
+  reasons, structured text model and polling/cache semantics (3.2, HA/client
+  contract).
 - [x] Last STT text, resolved Spotify result, DJ announcement and last track are
   visible as entities or redacted debug attributes (3.2, HA).
 - [ ] DJ announcement prompt is configurable, multiline and isolated from

@@ -22,12 +22,14 @@ AUTH_REQUIRED_PATHS = {
     "/api/djconnect/music_dna/clear",
     "/api/djconnect/push/register",
     "/api/djconnect/push/unregister",
+    "/api/djconnect/vibecast",
     "/api/djconnect/voice",
 }
 DEVICE_ID_HEADER_REQUIRED_PATHS = {
     "/api/djconnect/status",
     "/api/djconnect/command",
     "/api/djconnect/event",
+    "/api/djconnect/vibecast",
     "/api/djconnect/voice",
 }
 IDENTITY_REQUIRED_PATHS = {

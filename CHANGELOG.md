@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.2.18
+
+- Add the premium-ready VibeCast feed endpoint at `GET /api/djconnect/vibecast`
+  for Apple clients, returning safe structured track/artist vibe bubbles from
+  current backend playback context with cache metadata and clean disabled states.
+- Document and test VibeCast cross-platform parity so macOS and iOS share the
+  same backend contract, content flow, disabled reasons and polling/cache
+  semantics.
+
 ## 3.2.17
 
 - Prevent Home Assistant Assist prompt echoes from leaking DJConnect internal

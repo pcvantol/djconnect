@@ -298,6 +298,119 @@ that already wait on backend work. Never log HA auth tokens, DJConnect device
 tokens, authorization headers, raw prompts, raw audio, Ask DJ history or Music
 DNA while diagnosing websocket transport state.
 
+## VibeCast Feed
+
+Apple clients can poll `GET /api/djconnect/vibecast` for a small live feed of
+track, artist, album, genre, trivia, listening-tip, mood, production, history or
+system bubbles around the current backend playback context. The route uses the
+same paired DJConnect device token and canonical identity fields as other app
+client routes. Supported client types are `ios`, `macos` and `watchos`.
+
+VibeCast is a premium-ready first-class DJConnect platform feature for both
+macOS and iOS, with the same backend contract and functionally equivalent
+experience on both platforms. `client_type:"macos"` and `client_type:"ios"` use
+the same endpoint, response contract, item kinds, structured text segment types,
+disabled reasons and polling/cache semantics. The backend must not treat macOS
+and iOS differently for content quality, entitlement, fact generation, cache,
+TTL, revision or current-track resolution. Platform differences should be
+presentation- or capability-driven only, such as screen space, hover/focus,
+compact layout or reported render capabilities. If a render capability such as
+`magnify` is unavailable, clients should gracefully degrade that segment type or
+the backend can return equivalent safe fallback segments without changing the
+meaning of the item.
+
+Clients should send identity and rendering metadata through query parameters or
+existing headers where available: `device_id`, `device_name`, `client_id`,
+`client_type`, app version/build, locale/language, timezone and supported
+render capabilities such as `bold`, `emphasis`, `magnify`, `accent` and
+`emoji_safe`.
+
+Successful responses include `enabled:true`, `revision`, `ttl_seconds`,
+`poll_after_seconds`, a backend-neutral `context` and `items[]`. Polling is the
+current transport; future websocket or push delivery can reuse the same response
+shape without changing client rendering.
+
+VibeCast text is structured rich text, never HTML or Markdown:
+
+```json
+[
+  { "type": "text", "value": "This track rides on " },
+  { "type": "strong", "value": "space and pulse" },
+  { "type": "text", "value": "." }
+]
+```
+
+Allowed segment types are `text`, `strong`, `emphasis`, `magnify`, `accent` and
+`line_break`. Clients must ignore unknown fields and must not display raw
+provider, decoding or generative errors. Disabled responses always remain JSON,
+for example `enabled:false`, `reason:"no_active_playback"` and empty `items[]`.
+Known reasons include `feature_disabled`, `premium_unavailable`,
+`no_active_playback`, `playback_inactive`, `unknown_track`,
+`unsupported_backend`, `provider_unavailable`,
+`generative_provider_unavailable`, `rate_limited`, `cache_failure`,
+`unauthorized`, `invalid_client_type`, `client_type_mismatch` and
+`privacy_disabled`.
+
+Generated VibeCast copy is deliberately cautious. When facts are inferred rather
+than sourced, `source.kind` is `generated` and `source.confidence` is usually
+`medium`; clients should present those bubbles as playful context, not as
+verified biographies, chart claims, rights/sample claims or personal artist
+details.
+
+Example success:
+
+```json
+{
+  "enabled": true,
+  "revision": 12,
+  "ttl_seconds": 45,
+  "poll_after_seconds": 20,
+  "context": {
+    "track_id": "provider-or-stable-track-id",
+    "title": "Song Title",
+    "artist": "Artist Name",
+    "album": "Album Name",
+    "music_backend": "music_assistant",
+    "music_backend_name": "Music Assistant",
+    "music_backend_revision": 2
+  },
+  "items": [
+    {
+      "id": "stable-or-generated-id",
+      "kind": "track_fact",
+      "tone": "playful",
+      "priority": 50,
+      "display_seconds": 8,
+      "placement_hint": "side",
+      "text": [
+        { "type": "text", "value": "This track rides on " },
+        { "type": "strong", "value": "space and pulse" },
+        { "type": "text", "value": "." }
+      ],
+      "source": {
+        "kind": "generated",
+        "confidence": "medium"
+      }
+    }
+  ],
+  "cache": {
+    "hit": false
+  }
+}
+```
+
+Example disabled response:
+
+```json
+{
+  "enabled": false,
+  "reason": "no_active_playback",
+  "ttl_seconds": 30,
+  "poll_after_seconds": 30,
+  "items": []
+}
+```
+
 ## Ask DJ Mood Zones
 
 iOS, macOS and watchOS clients send `mood` as an optional integer-like value from

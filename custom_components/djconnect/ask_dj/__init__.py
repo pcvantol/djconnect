@@ -1300,7 +1300,7 @@ def classify_ask_dj(text: str) -> AskDjIntent:
     if _is_mood_mix_request(normalized):
         return AskDjIntent("informational", "mood_mix", "none")
     if _play_something_from_artist_request(text):
-        return AskDjIntent("informational", "artist_item_list", "none")
+        return AskDjIntent("hybrid", "play_music", "play_music", play=True)
     if _artist_item_list_request(normalized):
         return AskDjIntent("informational", "artist_item_list", "none")
     if normalized == "meer muziek van deze artiest":

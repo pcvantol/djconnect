@@ -21,6 +21,8 @@ Website: [https://djconnect.dev](https://djconnect.dev)
   Home Assistant entities.
 - Use Ask DJ for music requests, recommendations, follow-up questions and
   recent listening questions.
+- Use VibeCast on Apple clients for premium-ready live track/artist vibe
+  bubbles from the current Home Assistant music backend context.
 - Keep Music DNA opt-in and server-side in Home Assistant.
 - Use Home Assistant Assist/STT/TTS for voice and DJ responses.
 - Let realtime client mood choose the DJ announcement profile; the configured
@@ -114,6 +116,19 @@ Assistant. Common entities include:
 - APNs readiness diagnostics for Apple app clients
 
 Entity IDs can differ if Home Assistant renames the device or entities.
+
+## VibeCast
+
+Apple clients can poll `GET /api/djconnect/vibecast` with their paired
+DJConnect device token to receive cacheable structured bubbles for the current
+track. The response uses backend-neutral playback context and a small safe
+rich-text model instead of HTML or Markdown. If VibeCast is disabled, premium is
+unavailable, playback is inactive, the backend is unavailable or generation
+fails, the route still returns JSON with `enabled:false`, a stable `reason` and
+empty `items[]`; clients should hide or degrade the feature and never show raw
+errors. macOS and iOS use the same endpoint, response contract, item kinds,
+disabled reasons, TTL/revision/cache semantics and current-track resolution;
+differences belong in client presentation or reported render capabilities only.
 
 ## Troubleshooting
 

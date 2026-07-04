@@ -34,6 +34,7 @@ from .const import (
     API_STATUS,
     API_TTS,
     API_TRACK_INSIGHT,
+    API_VIBECAST,
     API_VOICE,
     CONF_ASSIST_PIPELINE_ID,
     CONF_CENTRAL_API_BOOTSTRAP_PROOF,
@@ -2779,6 +2780,26 @@ class DJConnectTrackInsightView(HomeAssistantView):
             data,
             headers=request.headers,
             source="http",
+        )
+        return self.json(result, status_code=status_code)
+
+
+class DJConnectVibeCastView(HomeAssistantView):
+    url = API_VIBECAST
+    name = "api:djconnect:vibecast"
+    requires_auth = False
+
+    def __init__(self, hass):
+        self.hass = hass
+
+    async def get(self, request):
+        hass = request.app["hass"]
+        from .vibecast import async_handle_vibecast_payload
+
+        result, status_code = await async_handle_vibecast_payload(
+            hass,
+            dict(request.query),
+            headers=request.headers,
         )
         return self.json(result, status_code=status_code)
 

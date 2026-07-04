@@ -34,7 +34,7 @@ instead of storing their own copy.
 ## Current Protocol Line
 
 The current shared protocol/release line is `3.2.x`; this bundle was last
-aligned after Home Assistant integration release `v3.2.15`. DJConnect clients on the
+aligned after Home Assistant integration release `v3.2.18`. DJConnect clients on the
 `3.2.x` line are compatible with Home Assistant integration versions `>=3.2.0`
 and `<3.3.0`.
 
@@ -85,6 +85,39 @@ and `<3.3.0`.
   degrade through backend-neutral fallback text and existing response shapes.
 - AI tools are thin HA-facing wrappers over DJConnect use-cases. They must not
   call Spotify Direct or Music Assistant directly.
+- VibeCast uses `GET /api/djconnect/vibecast` as a premium-ready Apple client
+  feed over current backend playback context. macOS and iOS must use the same
+  endpoint, response contract, item kinds, structured text segment types,
+  disabled reasons, polling/cache semantics, entitlement behavior, TTL,
+  revision handling and current-track resolution. Differences between macOS and
+  iOS are presentation/capability-only.
+
+## Client: VibeCast
+
+```text
+Sync the DJConnect client with the VibeCast backend contract.
+
+VibeCast is backend-owned and source-of-truth playback comes from Home
+Assistant. Clients poll:
+
+GET /api/djconnect/vibecast
+
+Use the paired DJConnect device token plus canonical `device_id` and
+`client_type`. Supported Apple client types are `ios`, `macos` and `watchos`.
+macOS and iOS must behave the same functionally: same endpoint, same item
+kinds, same structured text segment types, same disabled reasons, same
+TTL/polling/cache semantics, same premium entitlement handling and same
+current-track resolution. Platform differences are presentation-only or based
+on reported render capabilities.
+
+Render `items[].text[]` as safe structured text, not HTML or Markdown. Supported
+segment types are `text`, `strong`, `emphasis`, `magnify`, `accent` and
+`line_break`. If a capability such as `magnify` is not supported, degrade it
+gracefully without changing the item meaning.
+
+If `enabled:false`, hide or degrade VibeCast using `reason` and never show raw
+provider, cache, decoding or generation errors.
+```
 
 ## Shared Release Cycle
 
@@ -342,7 +375,7 @@ Requirements:
   text, TTS or local audio. Informational text chat is text-only by default;
   replay is shown only when an audio response exists.
 - Keep Ask DJ requirements visible and user-facing: Home Assistant, HACS
-  DJConnect integration v3.2.15 or newer, an Assist pipeline with STT/TTS for
+  DJConnect integration v3.2.18 or newer, an Assist pipeline with STT/TTS for
   voice/audio, and one selected music backend. Spotify Direct requires Spotify
   Premium, the user's own Spotify Developer app with Client ID and preferably
   Nabu Casa or another stable HTTPS external URL for Spotify OAuth. Music
@@ -1734,8 +1767,8 @@ Recommended fields:
   "device_id": "djconnect-ios-8F3A2C91B45D",
   "device_name": "DJConnect iPhone",
   "client_type": "ios",
-  "firmware": "3.2.15",
-  "app_version": "3.2.15",
+  "firmware": "3.2.18",
+  "app_version": "3.2.18",
   "platform": "ios"
 }
 ```
@@ -1747,8 +1780,8 @@ For macOS:
   "device_id": "djconnect-macos-8F3A2C91B45D",
   "device_name": "DJConnect Mac",
   "client_type": "macos",
-  "firmware": "3.2.15",
-  "app_version": "3.2.15",
+  "firmware": "3.2.18",
+  "app_version": "3.2.18",
   "platform": "macos"
 }
 ```
@@ -1782,7 +1815,7 @@ Expected response:
   "success": false,
   "error": "version_mismatch",
   "message": "DJConnect Home Assistant integration and device firmware major.minor versions must match.",
-  "ha_version": "3.2.15",
+  "ha_version": "3.2.18",
   "ha_major_minor": "3.2",
   "firmware": "3.1.9",
   "firmware_major_minor": "3.1"
@@ -1904,8 +1937,8 @@ The local app pairing payload sent to Home Assistant should include:
   "device_name": "DJConnect iPhone",
   "pair_code": "123456",
   "client_type": "ios",
-  "firmware": "3.2.15",
-  "app_version": "3.2.15",
+  "firmware": "3.2.18",
+  "app_version": "3.2.18",
   "platform": "ios"
 }
 ```
@@ -1958,8 +1991,8 @@ Minimum payload:
   "device_id": "djconnect-ios-8F3A2C91B45D",
   "client_type": "ios",
   "ha_pairing_status": "paired",
-  "firmware": "3.2.15",
-  "app_version": "3.2.15",
+  "firmware": "3.2.18",
+  "app_version": "3.2.18",
   "state": "online",
   "status": "online",
   "battery_percent": 85,

@@ -2,6 +2,18 @@
 
 ## Open / Needs Field Validation
 
+### VibeCast macOS/iOS parity needs field validation
+
+- Status: open / field validation.
+- Area: Apple clients / VibeCast.
+- Symptom: The backend contract now requires macOS and iOS to behave the same
+  functionally for VibeCast, but real client rendering still needs validation.
+- Current mitigation: Automated tests compare iOS and macOS active-track
+  VibeCast responses and disabled/error flows for equivalent contract,
+  structured text, item kinds, TTL/polling/cache metadata and safe reasons.
+- Next action: Field-test the same active track on macOS and iOS and confirm
+  differences are presentation-only or based on declared render capabilities.
+
 ### Music backend abstraction migration is mostly adapter-clean, monitor remaining informational helpers
 
 - Status: monitor / architecture follow-up.
