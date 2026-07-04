@@ -160,7 +160,7 @@ class MusicDnaApiHandlersTest(unittest.TestCase):
 
         self.assertEqual(status, 200)
         self.assertTrue(result["enabled"])
-        self.assertEqual(result["profile"]["recent_tracks"], [])
+        self.assertNotIn("recent_tracks", result["profile"])
         self.assertGreaterEqual(result["generation"], 1)
 
     def test_unauthorized_music_dna_request_is_rejected(self) -> None:

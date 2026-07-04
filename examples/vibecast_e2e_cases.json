@@ -1,0 +1,125 @@
+[
+  {
+    "id": "ios_active_track_success",
+    "request": {
+      "client_type": "ios",
+      "locale": "nl-NL",
+      "render_capabilities": "bold,emphasis,magnify,accent,emoji_safe"
+    },
+    "status": "active",
+    "expect": {
+      "status": 200,
+      "enabled": true,
+      "ttl_seconds": 45,
+      "poll_after_seconds": 20,
+      "item_kinds": ["track_fact", "artist_fact", "listening_tip"],
+      "context": {
+        "title": "Vibe Song",
+        "artist": "The Contexts",
+        "album": "Contract Album",
+        "music_backend": "spotify_direct"
+      },
+      "allowed_segment_types": ["text", "strong", "emphasis", "magnify", "accent", "line_break"]
+    }
+  },
+  {
+    "id": "macos_active_track_success",
+    "request": {
+      "client_type": "macos",
+      "locale": "nl-NL",
+      "render_capabilities": "bold,emphasis,magnify,accent,emoji_safe"
+    },
+    "status": "active",
+    "expect": {
+      "status": 200,
+      "enabled": true,
+      "ttl_seconds": 45,
+      "poll_after_seconds": 20,
+      "item_kinds": ["track_fact", "artist_fact", "listening_tip"],
+      "context": {
+        "title": "Vibe Song",
+        "artist": "The Contexts",
+        "album": "Contract Album",
+        "music_backend": "spotify_direct"
+      },
+      "allowed_segment_types": ["text", "strong", "emphasis", "magnify", "accent", "line_break"]
+    }
+  },
+  {
+    "id": "ios_no_active_playback_disabled",
+    "request": {
+      "client_type": "ios",
+      "locale": "nl-NL"
+    },
+    "status": "no_active_playback",
+    "expect": {
+      "status": 200,
+      "enabled": false,
+      "reason": "no_active_playback",
+      "items_count": 0
+    }
+  },
+  {
+    "id": "macos_missing_magnify_capability_success",
+    "request": {
+      "client_type": "macos",
+      "locale": "nl-NL",
+      "render_capabilities": "bold,emphasis,accent,emoji_safe"
+    },
+    "status": "active",
+    "expect": {
+      "status": 200,
+      "enabled": true,
+      "item_kinds": ["track_fact", "artist_fact", "listening_tip"]
+    }
+  },
+  {
+    "id": "watchos_active_track_success",
+    "request": {
+      "client_type": "watchos",
+      "locale": "en-US",
+      "render_capabilities": "bold,emphasis,accent"
+    },
+    "status": "active",
+    "expect": {
+      "status": 200,
+      "enabled": true,
+      "item_kinds": ["track_fact", "artist_fact", "listening_tip"],
+      "context": {
+        "title": "Vibe Song",
+        "artist": "The Contexts",
+        "album": "Contract Album",
+        "music_backend": "spotify_direct"
+      }
+    }
+  },
+  {
+    "id": "esp32_invalid_client_type",
+    "request": {
+      "client_type": "esp32",
+      "locale": "nl-NL"
+    },
+    "status": "active",
+    "expect": {
+      "status": 400,
+      "enabled": false,
+      "reason": "invalid_client_type",
+      "items_count": 0
+    }
+  },
+  {
+    "id": "ios_provider_unavailable_safe_json",
+    "request": {
+      "client_type": "ios",
+      "locale": "nl-NL"
+    },
+    "status": "provider_unavailable",
+    "expect": {
+      "status": 200,
+      "enabled": false,
+      "reason": "provider_unavailable",
+      "items_count": 0,
+      "forbidden_text": ["token", "secret", "provider exploded"]
+    }
+  }
+]

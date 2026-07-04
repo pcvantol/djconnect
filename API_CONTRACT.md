@@ -535,7 +535,54 @@ responses are structured for the Music DNA screen:
     "summary": "Je Music DNA bevat nu genres zoals ambient, techno.",
     "favorite_genres": [{"name": "ambient"}],
     "favorite_artists": [{"name": "The xx"}],
+    "playtime": {
+      "total_seconds": 5400,
+      "total_hours": 1.5,
+      "formatted_total": "1u 30m",
+      "top_artists": [
+        {"name": "The xx", "seconds": 3600, "hours": 1.0, "formatted": "1u"},
+        {"name": "Bon Iver", "seconds": 1200, "hours": 0.33, "formatted": "20m"},
+        {"name": "Radiohead", "seconds": 600, "hours": 0.17, "formatted": "10m"}
+      ],
+      "top_albums": [
+        {"name": "xx", "seconds": 2400, "hours": 0.67, "formatted": "40m"}
+      ]
+    },
+    "listening_rhythm": {
+      "sample_count": 6,
+      "top_daypart": "avond",
+      "top_weekday": "vrijdag",
+      "dayparts": [{"daypart": "avond", "count": 4, "percent": 66.7}],
+      "weekdays": [{"weekday": "vrijdag", "count": 3, "percent": 50.0}]
+    },
+    "mood_mix": {
+      "sample_count": 3,
+      "average": 57,
+      "top_zone": "groove",
+      "zones": [{"zone": "groove", "count": 2, "percent": 66.7}]
+    },
+    "repeat_magnets": {
+      "eligible": true,
+      "items": [
+        {"kind": "artist", "name": "The xx", "count": 3},
+        {"kind": "album", "name": "xx", "seconds": 2400, "formatted": "40m"}
+      ]
+    },
+    "explicit_positives": {
+      "eligible": true,
+      "signal_count": 2,
+      "favorite_tracks": [{"kind": "favorite_track", "title": "Far Behind", "artist": "Candlebox"}],
+      "accepted_recommendations": [{"kind": "accepted_recommendation", "title": "Intro", "subtitle": "The xx"}]
+    },
+    "taste_anchors": {
+      "eligible": true,
+      "items": [
+        {"kind": "artist", "name": "The xx", "play_count": 3, "seconds": 3600, "formatted": "1u"},
+        {"kind": "genre", "name": "ambient"}
+      ]
+    },
     "recent_tracks": [{"title": "Intro", "artist": "The xx"}],
+    "recent_favorite_tracks": [{"title": "Far Behind", "artist": "Candlebox"}],
     "top_tracks_by_range": {},
     "top_artists_by_range": {},
     "mood": {"value": 65, "zone": "energy", "prompt_hint": "..."},
@@ -555,10 +602,21 @@ Clients should show an opt-in state instead of deriving a fake profile from
 local Track Insight history.
 
 Music DNA is server-authoritative. Clients should render backend-provided
-summary, favorite genres, favorite artists, recent tracks, energy/mood profile,
-taste direction, based-on values and update timestamps where present. Clients
-must not calculate favorite artists, favorite genres, energy, mood or taste
-direction locally from Ask DJ history or local playback cache.
+summary, favorite genres, favorite artists, total play time, top artists/albums
+by play time, listening rhythm, mood mix, recent tracks, energy/mood profile,
+repeat magnets, explicit positives, taste anchors, recent favorite tracks, taste
+direction, based-on values and update timestamps where present. Clients must not
+calculate favorite artists, favorite genres, play time, listening rhythm, mood
+mix, repeat magnets, explicit positives, taste anchors, favorite history or
+taste direction locally from Ask DJ history or local playback cache.
+
+Music DNA dashboard fields are optional. Empty legacy placeholders such as empty
+arrays or empty objects are omitted; clients should hide absent blocks without a
+separate empty state. Conditional insight blocks expose `eligible:false` and a
+stable `reason` when there are not enough reliable compact signals. Clients
+should hide those blocks instead of showing empty charts. Current reasons include
+`insufficient_repeat_signals`, `no_explicit_positive_signals` and
+`insufficient_anchor_signals`.
 
 Home Assistant developer actions mirror the HTTP contract:
 
@@ -569,6 +627,95 @@ Home Assistant developer actions mirror the HTTP contract:
 The conversation/AI tool allowlist also exposes read-only
 `djconnect_music_dna_profile` so the DJConnect conversation agent can inspect
 the same structured profile without mutating playback or consent.
+
+## Music Discovery Contract
+
+Music Discovery is a first-class client surface for iOS, macOS and watchOS. It
+uses Music DNA as its primary recommendation input and is disabled until Music
+DNA is enabled for the resolved user/client context. Clients must not generate
+recommendations or reasons locally.
+
+HTTP endpoints:
+
+- `GET /api/djconnect/music_discovery`
+- `POST /api/djconnect/music_discovery/refresh`
+- `POST /api/djconnect/music_discovery/play`
+
+WebSocket equivalents, when advertised by `djconnect/capabilities.commands[]`:
+
+- `djconnect/music_discovery/feed`
+- `djconnect/music_discovery/refresh`
+- `djconnect/music_discovery/play`
+
+Disabled response:
+
+```json
+{
+  "success": true,
+  "enabled": false,
+  "reason": "music_dna_disabled",
+  "sections": []
+}
+```
+
+Feed responses are cached per Music DNA key for about one day. User-triggered
+refresh may be rate-limited and returns the current cached feed when limited:
+
+```json
+{
+  "success": true,
+  "enabled": true,
+  "revision": 12,
+  "generated_at": "2026-07-04T12:00:00+00:00",
+  "ttl_seconds": 86400,
+  "source": "music_dna",
+  "music_dna_key": "user:abc123",
+  "sections": [
+    {
+      "id": "because_you_like",
+      "title": "Omdat dit bij je smaak past",
+      "items": [
+        {
+          "id": "disc-123",
+          "kind": "track",
+          "title": "Intro",
+          "subtitle": "The xx",
+          "uri": "spotify:track:...",
+          "image_url": "/api/djconnect/image_proxy/...",
+          "reason": "Past bij je Music DNA smaakankers.",
+          "reason_sources": ["taste_anchors", "recent_tracks"],
+          "confidence": "medium"
+        }
+      ]
+    }
+  ]
+}
+```
+
+Displayed items must have `id`, `kind`, `title`, playable `uri` and a backend
+`reason`. If a good Music DNA reason cannot be generated, the backend should not
+return the item. Reasons are based on compact Music DNA signals only, such as
+taste anchors, explicit positives, repeat magnets, favorite genres/artists,
+playtime, mood mix and listening rhythm.
+
+Play requests must use the discovery play endpoint instead of generic playback
+commands so the backend can record the click as positive Music DNA feedback:
+
+```json
+{
+  "device_id": "djconnect-ios-...",
+  "client_type": "ios",
+  "discovery_item_id": "disc-123",
+  "section_id": "because_you_like",
+  "music_dna_key": "user:abc123"
+}
+```
+
+Successful play responses include `played:true` and
+`music_dna_feedback_recorded:true` when the feedback was stored. The feedback
+record keeps the discovery item id, section id, kind, URI, title, reason,
+reason sources and source `music_discovery_play`; it does not store raw prompts,
+tokens or unlimited listening history.
 
 ## AI Conversation Tools
 

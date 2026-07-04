@@ -408,7 +408,14 @@ async def async_handle_ask_dj(
 
     try:
         if classification.category == "action":
-            result = await _handle_action(hass, runtime, effective_text, classification)
+            result = await _handle_action(
+                hass,
+                runtime,
+                effective_text,
+                classification,
+                identity_payload,
+                user_id=user_id,
+            )
         elif classification.intent == "dj_announcement":
             result = _dj_announcement_response(playback_context)
         elif classification.category == "hybrid":
@@ -1418,6 +1425,9 @@ async def _handle_action(
     runtime: Any,
     text: str,
     classification: AskDjIntent,
+    payload: dict[str, Any] | None = None,
+    *,
+    user_id: str | None = None,
 ) -> dict[str, Any]:
     action = classification.action or ""
     if action == "volume_delta":
@@ -1498,6 +1508,13 @@ async def _handle_action(
         playback = result.get("playback") if isinstance(result, dict) else {}
         title = _track_label(playback) if isinstance(playback, dict) else ""
         favorite_status = _playback_favorite_status(playback) if isinstance(playback, dict) else None
+        if favorite_status is not False:
+            recorder = getattr(getattr(runtime, "memory", None), "async_record_current_track_favorite", None)
+            if recorder is not None and isinstance(playback, dict):
+                try:
+                    await recorder(runtime, playback, payload, user_id=user_id)
+                except Exception as exc:  # noqa: BLE001
+                    _LOGGER.debug("DJConnect could not record favorite track in Music DNA: %s", exc)
         if favorite_status is False:
             text_response = (
                 f"Ik heb {title} uit je favorieten gehaald."
@@ -4831,6 +4848,12 @@ def _is_personal_memory_request(normalized: str) -> bool:
         "what is in my Music DNA",
         "what do you remember about me",
         "vertel wat je over mijn smaak weet",
+        "wat heb ik laatst aan favorieten toegevoegd",
+        "wat heb ik recent aan favorieten toegevoegd",
+        "welke nummers heb ik laatst aan favorieten toegevoegd",
+        "laatst aan favorieten toegevoegd",
+        "what did i recently add to favorites",
+        "what did i recently add to liked songs",
     } or (
         ("wat weet" in normalized or "what do you know" in normalized)
         and ("over mij" in normalized or "about me" in normalized)
@@ -7185,10 +7208,33 @@ def _personal_music_dna_summary_text(memory_context: dict[str, Any]) -> str:
         lines.append("- Artiesten die terugkomen: " + _join_examples(artists, limit=5) + ".")
         has_detail = True
 
+    playtime = memory.get("playtime") if isinstance(memory.get("playtime"), dict) else {}
+    if not playtime and (
+        memory.get("total_play_seconds") is not None or isinstance(memory.get("artist_play_seconds"), dict)
+    ):
+        playtime = _music_dna_playtime_from_memory(memory)
+    if isinstance(playtime, dict) and int(playtime.get("total_seconds") or 0) > 0:
+        lines.append(f"- Totale luistertijd: {playtime.get('formatted_total') or str(playtime.get('total_hours')) + ' uur'}.")
+        top_artists = [
+            f"{artist.get('name')} ({artist.get('formatted')})"
+            for artist in playtime.get("top_artists") or []
+            if isinstance(artist, dict) and artist.get("name") and artist.get("formatted")
+        ]
+        if top_artists:
+            lines.append("- Top artiesten op luistertijd: " + _join_examples(top_artists, limit=3) + ".")
+        has_detail = True
+
     tracks = _profile_tracks(memory, {}, {})
     examples = _profile_examples(tracks)
     if examples:
         lines.append("- Recente voorbeelden: " + _join_examples(examples, limit=5) + ".")
+        has_detail = True
+
+    recent_favorites = _profile_examples(
+        [item for item in memory.get("recent_favorite_tracks") or [] if isinstance(item, dict)]
+    )
+    if recent_favorites:
+        lines.append("- Laatst aan favorieten toegevoegd: " + _join_examples(recent_favorites, limit=5) + ".")
         has_detail = True
 
     last_ask = memory.get("last_ask_dj")
@@ -7465,6 +7511,47 @@ def _profile_examples(tracks: list[dict[str, Any]]) -> list[str]:
         elif track.get("artist") or track.get("artist_name"):
             examples.append(str(track.get("artist") or track.get("artist_name")))
     return examples
+
+
+def _music_dna_playtime_from_memory(memory: dict[str, Any]) -> dict[str, Any]:
+    total_seconds = max(0, int(memory.get("total_play_seconds") or 0))
+    artist_seconds = memory.get("artist_play_seconds")
+    top_artists: list[dict[str, Any]] = []
+    if isinstance(artist_seconds, dict):
+        for artist, seconds in sorted(
+            artist_seconds.items(),
+            key=lambda item: (-int(item[1] or 0), str(item[0]).lower()),
+        )[:3]:
+            value = max(0, int(seconds or 0))
+            name = str(artist or "").strip()
+            if name and value > 0:
+                top_artists.append(
+                    {
+                        "name": name,
+                        "seconds": value,
+                        "hours": round(value / 3600, 2),
+                        "formatted": _format_playtime_duration(value),
+                    }
+                )
+    return {
+        "total_seconds": total_seconds,
+        "total_hours": round(total_seconds / 3600, 2),
+        "formatted_total": _format_playtime_duration(total_seconds),
+        "top_artists": top_artists,
+    }
+
+
+def _format_playtime_duration(seconds: int) -> str:
+    seconds = max(0, int(seconds or 0))
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    if hours and minutes:
+        return f"{hours}u {minutes}m"
+    if hours:
+        return f"{hours}u"
+    if minutes:
+        return f"{minutes}m"
+    return "0m"
 
 
 def _join_examples(values: list[str], *, limit: int) -> str:

@@ -209,6 +209,153 @@ class MusicDNAManagerTest(unittest.TestCase):
         self.assertIn("3 recente track(s)", profile["profile"]["summary"])
         self.assertIn("2 artiest(en)", profile["profile"]["summary"])
 
+    def test_current_track_favorite_records_bounded_recent_favorite_tracks(self) -> None:
+        manager = MusicDNAManager(store=FakeStore())
+        runtime = runtime_for()
+        asyncio.run(manager.async_set_enabled(runtime, True, {"client_type": "ios"}, user_id="ha-user-1"))
+
+        asyncio.run(
+            manager.async_record_current_track_favorite(
+                runtime,
+                {
+                    "track_name": "Far Behind",
+                    "artist": "Candlebox",
+                    "album_name": "Candlebox",
+                    "uri": "spotify:track:far-behind",
+                    "device_token": "must-not-persist",
+                },
+                {"client_type": "ios"},
+                user_id="ha-user-1",
+            )
+        )
+        asyncio.run(
+            manager.async_record_current_track_favorite(
+                runtime,
+                {
+                    "track_name": "Far Behind",
+                    "artist": "Candlebox",
+                    "album_name": "Candlebox",
+                    "uri": "spotify:track:far-behind",
+                },
+                {"client_type": "ios"},
+                user_id="ha-user-1",
+            )
+        )
+
+        profile = asyncio.run(manager.async_profile(runtime, {"client_type": "ios"}, user_id="ha-user-1"))
+        favorites = profile["profile"]["recent_favorite_tracks"]
+
+        self.assertEqual(len(favorites), 1)
+        self.assertEqual(favorites[0]["track_name"], "Far Behind")
+        self.assertEqual(favorites[0]["artist"], "Candlebox")
+        self.assertNotIn("device_token", str(profile))
+        self.assertEqual(
+            manager.data["memories"]["user:ha-user-1"]["recent_favorite_tracks"][0]["source"],
+            "ask_dj_current_track_favorite",
+        )
+
+    def test_playtime_profile_tracks_total_hours_and_top_three_artists(self) -> None:
+        manager = MusicDNAManager(store=FakeStore())
+        runtime = runtime_for()
+        key = resolve_music_dna_key(runtime)
+        asyncio.run(manager.async_set_enabled(runtime, True))
+
+        for track in (
+            {"track_name": "One", "artist": "Artist A", "album": "Album A", "uri": "spotify:track:1", "duration_ms": 30 * 60 * 1000},
+            {"track_name": "Two", "artist": "Artist B", "album": "Album B", "uri": "spotify:track:2", "duration_ms": 20 * 60 * 1000},
+            {"track_name": "Three", "artist": "Artist A", "album": "Album A", "uri": "spotify:track:3", "duration_ms": 15 * 60 * 1000},
+            {"track_name": "Four", "artist": "Artist C", "album": "Album C", "uri": "spotify:track:4", "duration_ms": 10 * 60 * 1000},
+            {"track_name": "Five", "artist": "Artist D", "album": "Album D", "uri": "spotify:track:5", "duration_ms": 5 * 60 * 1000},
+        ):
+            manager.update_recent_tracks(key, track)
+
+        profile = asyncio.run(manager.async_profile(runtime))
+        playtime = profile["profile"]["playtime"]
+
+        self.assertEqual(playtime["total_seconds"], 80 * 60)
+        self.assertEqual(playtime["total_hours"], 1.33)
+        self.assertEqual(playtime["formatted_total"], "1u 20m")
+        self.assertEqual(
+            [(item["name"], item["formatted"]) for item in playtime["top_artists"]],
+            [("Artist A", "45m"), ("Artist B", "20m"), ("Artist C", "10m")],
+        )
+        self.assertEqual(
+            [(item["name"], item["formatted"]) for item in playtime["top_albums"]],
+            [("Album A", "45m"), ("Album B", "20m"), ("Album C", "10m")],
+        )
+        self.assertIn("1u 20m luistertijd", profile["profile"]["summary"])
+        self.assertEqual(manager.data["memories"][key]["artist_play_seconds"]["Artist A"], 45 * 60)
+        self.assertEqual(manager.data["memories"][key]["album_play_seconds"]["Album A"], 45 * 60)
+
+    def test_listening_rhythm_profile_exposes_dayparts_and_weekdays(self) -> None:
+        manager = MusicDNAManager(store=FakeStore())
+        runtime = runtime_for()
+        key = resolve_music_dna_key(runtime)
+        asyncio.run(manager.async_set_enabled(runtime, True))
+        manager.data["memories"][key]["listening_time_signals"] = {
+            "count": 6,
+            "dayparts": {"avond": 4, "middag": 2},
+            "weekdays": {"vrijdag": 3, "zaterdag": 2, "maandag": 1},
+        }
+
+        rhythm = asyncio.run(manager.async_profile(runtime))["profile"]["listening_rhythm"]
+
+        self.assertGreaterEqual(rhythm["sample_count"], 6)
+        self.assertEqual(rhythm["top_daypart"], "avond")
+        self.assertEqual(rhythm["top_weekday"], "vrijdag")
+        self.assertEqual(rhythm["dayparts"][0]["daypart"], "avond")
+        self.assertGreaterEqual(rhythm["dayparts"][0]["count"], 4)
+        self.assertEqual(rhythm["weekdays"][0]["weekday"], "vrijdag")
+        self.assertGreaterEqual(rhythm["weekdays"][0]["count"], 3)
+
+    def test_conditional_music_dna_blocks_use_reliable_signals(self) -> None:
+        manager = MusicDNAManager(store=FakeStore())
+        runtime = runtime_for()
+        key = resolve_music_dna_key(runtime)
+        asyncio.run(manager.async_set_enabled(runtime, True))
+
+        sparse_profile = asyncio.run(manager.async_profile(runtime))["profile"]
+        self.assertFalse(sparse_profile["repeat_magnets"]["eligible"])
+        self.assertFalse(sparse_profile["explicit_positives"]["eligible"])
+        self.assertFalse(sparse_profile["taste_anchors"]["eligible"])
+
+        for track in (
+            {"track_name": "One", "artist": "Artist A", "album": "Album A", "uri": "spotify:track:1", "genres": ["indie"], "duration_ms": 30 * 60 * 1000},
+            {"track_name": "Two", "artist": "Artist A", "album": "Album A", "uri": "spotify:track:2", "genres": ["indie"], "duration_ms": 30 * 60 * 1000},
+            {"track_name": "Three", "artist": "Artist B", "album": "Album B", "uri": "spotify:track:3", "genres": ["ambient"], "duration_ms": 20 * 60 * 1000},
+            {"track_name": "Four", "artist": "Artist B", "album": "Album B", "uri": "spotify:track:4", "genres": ["ambient"], "duration_ms": 20 * 60 * 1000},
+        ):
+            manager.update_recent_tracks(key, track)
+        asyncio.run(
+            manager.async_record_current_track_favorite(
+                runtime,
+                {"track_name": "One", "artist": "Artist A", "uri": "spotify:track:1"},
+            )
+        )
+        asyncio.run(
+            manager.async_record_recommendation_play(
+                runtime,
+                {"title": "Recommended Track", "subtitle": "Artist C", "uri": "spotify:track:recommended"},
+            )
+        )
+
+        profile = asyncio.run(manager.async_profile(runtime))["profile"]
+
+        self.assertTrue(profile["repeat_magnets"]["eligible"])
+        self.assertEqual(profile["repeat_magnets"]["items"][0]["name"], "Artist A")
+        self.assertTrue(profile["explicit_positives"]["eligible"])
+        self.assertEqual(profile["explicit_positives"]["favorite_tracks"][0]["title"], "One")
+        self.assertEqual(profile["explicit_positives"]["accepted_recommendations"][0]["title"], "Recommended Track")
+        self.assertTrue(profile["taste_anchors"]["eligible"])
+        self.assertIn(
+            ("artist", "Artist A"),
+            [(item["kind"], item["name"]) for item in profile["taste_anchors"]["items"]],
+        )
+        self.assertIn(
+            ("genre", "ambient"),
+            [(item["kind"], item["name"]) for item in profile["taste_anchors"]["items"]],
+        )
+
     def test_track_insight_energy_signals_feed_profile_energy_profile(self) -> None:
         manager = MusicDNAManager(store=FakeStore())
         runtime = runtime_for()
@@ -253,6 +400,16 @@ class MusicDNAManagerTest(unittest.TestCase):
         self.assertEqual(profile["mood"]["zone_counts"]["chill"], 1)
         self.assertEqual(profile["mood"]["zone_counts"]["energy"], 1)
         self.assertEqual(profile["mood"]["zone_counts"]["party"], 1)
+        self.assertEqual(profile["mood_mix"]["sample_count"], 3)
+        self.assertEqual(profile["mood_mix"]["top_zone"], "chill")
+        self.assertEqual(
+            profile["mood_mix"]["zones"],
+            [
+                {"zone": "chill", "count": 1, "percent": 33.3},
+                {"zone": "energy", "count": 1, "percent": 33.3},
+                {"zone": "party", "count": 1, "percent": 33.3},
+            ],
+        )
 
     def test_repeated_client_mood_refresh_does_not_inflate_signal_count(self) -> None:
         manager = MusicDNAManager(store=FakeStore())
@@ -449,6 +606,35 @@ class MusicDNAManagerTest(unittest.TestCase):
 
         self.assertTrue(profile["enabled"])
         self.assertEqual(profile["profile"]["summary"], "Music DNA is ingeschakeld, maar er is nog weinig profieldata opgebouwd.")
+        self.assertNotIn("recent_tracks", profile["profile"])
+        self.assertNotIn("playtime", profile["profile"])
+
+    def test_empty_optional_dashboard_blocks_are_omitted(self) -> None:
+        manager = MusicDNAManager(store=FakeStore())
+        runtime = runtime_for()
+        asyncio.run(manager.async_set_enabled(runtime, True))
+
+        profile = asyncio.run(manager.async_profile(runtime))["profile"]
+
+        self.assertEqual(profile["summary"], "Music DNA is ingeschakeld, maar er is nog weinig profieldata opgebouwd.")
+        for key in (
+            "favorite_genres",
+            "favorite_artists",
+            "recent_tracks",
+            "recent_favorite_tracks",
+            "playtime",
+            "listening_rhythm",
+            "mood_mix",
+            "energy_profile",
+            "time_patterns",
+            "recommendation_signals",
+            "blocked_artists",
+            "blocked_items",
+        ):
+            self.assertNotIn(key, profile)
+        self.assertFalse(profile["repeat_magnets"]["eligible"])
+        self.assertFalse(profile["explicit_positives"]["eligible"])
+        self.assertFalse(profile["taste_anchors"]["eligible"])
 
 
 if __name__ == "__main__":

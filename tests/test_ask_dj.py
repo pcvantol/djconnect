@@ -17,6 +17,7 @@ class FakeMemory:
         self.cleared = False
         self.updated = []
         self.blocked = []
+        self.favorite_tracks = []
         self.generation = 0
 
     async def async_context_for_runtime(self, runtime, payload=None, *, user_id=None):
@@ -38,6 +39,19 @@ class FakeMemory:
                     {"artist": "Bon Iver", "track_name": "Holocene", "album_name": "Bon Iver"},
                     {"artist": "Radiohead", "track_name": "Reckoner", "album_name": "In Rainbows"},
                 ],
+                "recent_favorite_tracks": [
+                    {
+                        "artist": "Candlebox",
+                        "track_name": "Far Behind",
+                        "uri": "spotify:track:far-behind",
+                    }
+                ],
+                "total_play_seconds": 5400,
+                "artist_play_seconds": {
+                    "The xx": 3600,
+                    "Bon Iver": 1200,
+                    "Radiohead": 600,
+                },
                 "last_ask_dj": {
                     "input": "Draai iets rustigers",
                     "response_text": "Ik koos iets rustigers met dezelfde sfeer.",
@@ -54,6 +68,10 @@ class FakeMemory:
 
     async def async_record_blocked_music_preference(self, runtime, item, payload=None, *, user_id=None):
         self.blocked.append((item, payload, user_id))
+        return payload.get("music_dna_key") if payload else runtime.device_status["device_id"]
+
+    async def async_record_current_track_favorite(self, runtime, track, payload=None, *, user_id=None):
+        self.favorite_tracks.append((track, payload, user_id))
         return payload.get("music_dna_key") if payload else runtime.device_status["device_id"]
 
     async def async_mark_clear_required(self, runtime, payload=None, *, user_id=None):
@@ -3608,6 +3626,55 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["assistant_message"]["images"], [])
         self.assertFalse(result.get("audio_url"))
         self.assertEqual(tts_calls, [])
+        self.assertEqual(len(runtime.memory.favorite_tracks), 1)
+        favorite_track, favorite_payload, favorite_user_id = runtime.memory.favorite_tracks[0]
+        self.assertEqual(favorite_track["track_name"], "Far Behind")
+        self.assertEqual(favorite_track["artist"], "Candlebox")
+        self.assertEqual(favorite_payload["client_type"], "ios")
+        self.assertIsNone(favorite_user_id)
+
+    def test_music_dna_summary_can_show_recent_favorite_tracks(self) -> None:
+        runtime = make_runtime()
+
+        async def context(runtime_arg, payload=None, *, user_id=None):
+            return {
+                "music_dna_key": payload.get("music_dna_key") or runtime_arg.device_status["device_id"],
+                "memory": {
+                    "recent_favorite_tracks": [
+                        {
+                            "track_name": "Far Behind",
+                            "artist": "Candlebox",
+                            "uri": "spotify:track:far-behind",
+                        }
+                    ]
+                },
+                "session": [],
+            }
+
+        runtime.memory.async_context_for_runtime = context
+        async def no_tts(hass, runtime_arg, text):
+            return {}
+
+        original_tts = self.ask_dj.async_send_dj_response_best_effort
+        self.ask_dj.async_send_dj_response_best_effort = no_tts
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "wat heb ik laatst aan favorieten toegevoegd",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "ios",
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.async_send_dj_response_best_effort = original_tts
+
+        self.assertEqual(result["intent"]["intent"], "personal_music_dna_summary")
+        self.assertIn("Laatst aan favorieten toegevoegd", result["text"])
+        self.assertIn("Candlebox - Far Behind", result["text"])
 
     def test_voice_play_artist_request_uses_playback_parser_with_stt_correction(self) -> None:
         runtime = make_runtime()
@@ -4676,6 +4743,8 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("Dit laat je Music DNA nu zien", result["text"])
         self.assertIn("Mood/energy: 38/100", result["text"])
         self.assertIn("Favorite genres: ambient en indie", result["text"])
+        self.assertIn("Totale luistertijd: 1u 30m", result["text"])
+        self.assertIn("Top artiesten op luistertijd: The xx (1u)", result["text"])
         self.assertIn("Recente voorbeelden: The xx - Intro", result["text"])
         self.assertIn("alleen je Music DNA", result["text"])
         self.assertNotIn("Sensation", result["text"])

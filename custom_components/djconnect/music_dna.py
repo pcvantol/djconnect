@@ -427,6 +427,32 @@ class MusicDNAManager:
                 memory["artist_play_counts"],
                 memory.get("favorite_artists"),
             )
+            duration_seconds = _track_duration_seconds(compact_track)
+            if duration_seconds > 0:
+                memory["total_play_seconds"] = int(memory.get("total_play_seconds") or 0) + duration_seconds
+                artist_seconds = memory.get("artist_play_seconds")
+                if not isinstance(artist_seconds, dict):
+                    artist_seconds = {}
+                for artist in artists:
+                    artist_seconds[artist] = int(artist_seconds.get(artist) or 0) + duration_seconds
+                memory["artist_play_seconds"] = dict(
+                    sorted(
+                        artist_seconds.items(),
+                        key=lambda item: (-int(item[1] or 0), str(item[0]).lower()),
+                    )[:50]
+                )
+                album = _track_album(compact_track)
+                if album:
+                    album_seconds = memory.get("album_play_seconds")
+                    if not isinstance(album_seconds, dict):
+                        album_seconds = {}
+                    album_seconds[album] = int(album_seconds.get(album) or 0) + duration_seconds
+                    memory["album_play_seconds"] = dict(
+                        sorted(
+                            album_seconds.items(),
+                            key=lambda item: (-int(item[1] or 0), str(item[0]).lower()),
+                        )[:50]
+                    )
         genres = compact_track.get("genres")
         if isinstance(genres, list) and genres:
             memory["favorite_genres"] = _unique_texts(
@@ -561,6 +587,78 @@ class MusicDNAManager:
             await self.async_save()
         return key
 
+    async def async_record_current_track_favorite(
+        self,
+        runtime: Any,
+        track: dict[str, Any],
+        payload: dict[str, Any] | None = None,
+        *,
+        user_id: str | None = None,
+    ) -> str:
+        """Record a compact positive signal when the user favorites the current track."""
+        key = await self.async_update_client_metadata(runtime, payload, user_id=user_id)
+        memory = self._memory_for_key(key)
+        if not self._memory_enabled(memory):
+            return key
+        compact_track = _compact_track(track)
+        if not compact_track:
+            return key
+        record = {
+            **compact_track,
+            "source": "ask_dj_current_track_favorite",
+            "created_at": _now(),
+        }
+        favorites = memory.get("recent_favorite_tracks")
+        if not isinstance(favorites, list):
+            favorites = []
+        identity = _track_identity(compact_track)
+        deduped = [
+            item
+            for item in favorites
+            if _track_identity(item if isinstance(item, dict) else {}) != identity
+        ]
+        memory["recent_favorite_tracks"] = [record, *deduped][:MAX_CHAT_FACTS]
+        memory["updated_at"] = _now()
+        self.update_recent_tracks(key, compact_track)
+        await self.async_save()
+        return key
+
+    async def async_record_discovery_play(
+        self,
+        runtime: Any,
+        item: dict[str, Any],
+        payload: dict[str, Any] | None = None,
+        *,
+        user_id: str | None = None,
+    ) -> str:
+        """Record that the user played a Music Discovery recommendation."""
+        key = await self.async_update_client_metadata(runtime, payload, user_id=user_id)
+        memory = self._memory_for_key(key)
+        if not self._memory_enabled(memory):
+            return key
+        plays = memory.get("discovery_plays")
+        if not isinstance(plays, list):
+            plays = []
+        record = _compact_dict(
+            {
+                "discovery_item_id": item.get("id"),
+                "section_id": (payload or {}).get("section_id"),
+                "kind": item.get("kind"),
+                "uri": item.get("uri"),
+                "title": item.get("title"),
+                "subtitle": item.get("subtitle"),
+                "reason": item.get("reason"),
+                "reason_sources": _sanitize_value(item.get("reason_sources")),
+                "source": "music_discovery_play",
+                "created_at": _now(),
+            }
+        )
+        if record:
+            memory["discovery_plays"] = [record, *plays][:MAX_CHAT_FACTS]
+            memory["updated_at"] = _now()
+            await self.async_save()
+        return key
+
     async def async_store_pending_followup(
         self,
         runtime: Any,
@@ -690,6 +788,9 @@ class MusicDNAManager:
         for key in (
             "favorite_artists",
             "artist_play_counts",
+            "artist_play_seconds",
+            "album_play_seconds",
+            "total_play_seconds",
             "favorite_genres",
             "track_insight_energy_signals",
             "mood_signals",
@@ -700,9 +801,11 @@ class MusicDNAManager:
             "last_ask_dj",
             "listening_profile",
             "listening_time_context",
+            "listening_time_signals",
             "listening_time_patterns",
             "last_profile_refresh",
             "recommendation_plays",
+            "discovery_plays",
             "last_played_recommendation",
             "last_playback_track_identity",
             "pending_followup",
@@ -892,6 +995,9 @@ def _prompt_safe_memory(memory: dict[str, Any]) -> dict[str, Any]:
         "dj_style",
         "favorite_artists",
         "artist_play_counts",
+        "artist_play_seconds",
+        "album_play_seconds",
+        "total_play_seconds",
         "favorite_genres",
         "track_insight_energy_signals",
         "mood_signals",
@@ -902,9 +1008,12 @@ def _prompt_safe_memory(memory: dict[str, Any]) -> dict[str, Any]:
         "last_ask_dj",
         "listening_profile",
         "listening_time_context",
+        "listening_time_signals",
         "listening_time_patterns",
         "last_profile_refresh",
         "recommendation_plays",
+        "discovery_plays",
+        "recent_favorite_tracks",
         "pending_followup",
         "last_seen",
         "updated_at",
@@ -926,6 +1035,24 @@ def _prompt_safe_memory(memory: dict[str, Any]) -> dict[str, Any]:
         result["blocked_artists"] = result["blocked_artists"][:MAX_CHAT_FACTS]
     if isinstance(result.get("blocked_items"), list):
         result["blocked_items"] = result["blocked_items"][:MAX_CHAT_FACTS]
+    if isinstance(result.get("recent_favorite_tracks"), list):
+        result["recent_favorite_tracks"] = result["recent_favorite_tracks"][:MAX_CHAT_FACTS]
+    if isinstance(result.get("discovery_plays"), list):
+        result["discovery_plays"] = result["discovery_plays"][:MAX_CHAT_FACTS]
+    if isinstance(result.get("artist_play_seconds"), dict):
+        result["artist_play_seconds"] = dict(
+            sorted(
+                result["artist_play_seconds"].items(),
+                key=lambda item: (-int(item[1] or 0), str(item[0]).lower()),
+            )[:50]
+        )
+    if isinstance(result.get("album_play_seconds"), dict):
+        result["album_play_seconds"] = dict(
+            sorted(
+                result["album_play_seconds"].items(),
+                key=lambda item: (-int(item[1] or 0), str(item[0]).lower()),
+            )[:50]
+        )
     if isinstance(result.get("listening_profile"), dict):
         result["listening_profile"] = _compact_listening_profile(result["listening_profile"])
     if isinstance(result.get("listening_time_patterns"), list):
@@ -948,12 +1075,29 @@ def _profile_payload(memory: dict[str, Any]) -> dict[str, Any]:
     zone = mood_zone_for_value(mood) if mood is not None else None
     mood_profile = _profile_mood(memory, mood, zone)
     energy_profile = _profile_energy_profile(memory)
-    return {
-        "summary": _profile_summary(memory, favorite_genres, artists, recent_tracks),
+    playtime = _profile_playtime(memory)
+    listening_rhythm = _profile_listening_rhythm(memory)
+    mood_mix = _profile_mood_mix(memory)
+    repeat_magnets = _profile_repeat_magnets(memory)
+    explicit_positives = _profile_explicit_positives(memory)
+    taste_anchors = _profile_taste_anchors(memory, favorite_genres)
+    profile = {
+        "summary": _profile_summary(memory, favorite_genres, artists, recent_tracks, playtime),
         "favorite_genres": [{"name": value} for value in favorite_genres],
         "favorite_artists": artist_items,
         "energy_profile": energy_profile,
+        "playtime": playtime,
+        "listening_rhythm": listening_rhythm,
+        "mood_mix": mood_mix,
+        "repeat_magnets": repeat_magnets,
+        "explicit_positives": explicit_positives,
+        "taste_anchors": taste_anchors,
         "recent_tracks": [_compact_track(track) for track in recent_tracks[:MAX_RECENT_TRACKS] if isinstance(track, dict)],
+        "recent_favorite_tracks": [
+            _compact_track(track)
+            for track in (memory.get("recent_favorite_tracks") or [])[:MAX_CHAT_FACTS]
+            if isinstance(track, dict)
+        ],
         "top_tracks_by_range": listening.get("top_tracks_by_range") or {},
         "top_artists_by_range": listening.get("top_artists_by_range") or {},
         "mood": mood_profile,
@@ -964,6 +1108,7 @@ def _profile_payload(memory: dict[str, Any]) -> dict[str, Any]:
         "last_profile_refresh": listening.get("last_profile_refresh") or memory.get("last_profile_refresh"),
         "consent_updated_at": memory.get("consent_updated_at"),
     }
+    return _hide_empty_profile_blocks(profile)
 
 
 def _profile_summary(
@@ -971,10 +1116,14 @@ def _profile_summary(
     genres: list[str],
     artists: list[str],
     recent_tracks: list[Any],
+    playtime: dict[str, Any] | None = None,
 ) -> str:
-    if not (genres or artists or recent_tracks or memory.get("mood") is not None):
+    has_playtime = isinstance(playtime, dict) and int(playtime.get("total_seconds") or 0) > 0
+    if not (genres or artists or recent_tracks or memory.get("mood") is not None or has_playtime):
         return "Music DNA is ingeschakeld, maar er is nog weinig profieldata opgebouwd."
     parts: list[str] = []
+    if has_playtime:
+        parts.append(f"{playtime.get('formatted_total')} luistertijd")
     if recent_tracks:
         parts.append(f"{len(recent_tracks)} recente track(s)")
     if artists:
@@ -985,6 +1134,40 @@ def _profile_summary(
         zone = mood_zone_for_value(memory.get("mood"))
         parts.append(f"een {zone.name if zone is not None else 'bekende'} mood")
     return "Je Music DNA bevat nu " + "; ".join(parts) + "."
+
+
+def _hide_empty_profile_blocks(profile: dict[str, Any]) -> dict[str, Any]:
+    """Omit empty optional dashboard sections so clients can stay compact."""
+    cleaned = dict(profile)
+    for key in (
+        "favorite_genres",
+        "favorite_artists",
+        "recent_tracks",
+        "recent_favorite_tracks",
+        "recommendation_signals",
+        "blocked_artists",
+        "blocked_items",
+    ):
+        if cleaned.get(key) in (None, [], {}):
+            cleaned.pop(key, None)
+    if not isinstance(cleaned.get("time_patterns"), list) or len(cleaned.get("time_patterns") or []) < 3:
+        cleaned.pop("time_patterns", None)
+    for key in ("top_tracks_by_range", "top_artists_by_range", "mood", "energy_profile"):
+        if cleaned.get(key) in (None, {}, []):
+            cleaned.pop(key, None)
+    playtime = cleaned.get("playtime")
+    if not isinstance(playtime, dict) or int(playtime.get("total_seconds") or 0) <= 0:
+        cleaned.pop("playtime", None)
+    rhythm = cleaned.get("listening_rhythm")
+    if not isinstance(rhythm, dict) or int(rhythm.get("sample_count") or 0) < 3:
+        cleaned.pop("listening_rhythm", None)
+    mood_mix = cleaned.get("mood_mix")
+    if not isinstance(mood_mix, dict) or int(mood_mix.get("sample_count") or 0) <= 0:
+        cleaned.pop("mood_mix", None)
+    for key in ("last_profile_refresh", "consent_updated_at"):
+        if cleaned.get(key) in (None, "", [], {}):
+            cleaned.pop(key, None)
+    return cleaned
 
 
 def _profile_artist_items(memory: dict[str, Any], listening: dict[str, Any]) -> list[dict[str, Any]]:
@@ -1016,6 +1199,160 @@ def _profile_artist_items(memory: dict[str, Any], listening: dict[str, Any]) -> 
         count_items.append({"name": artist})
         seen.add(artist.lower())
     return count_items[:20]
+
+
+def _profile_playtime(memory: dict[str, Any]) -> dict[str, Any]:
+    total_seconds = max(0, int(memory.get("total_play_seconds") or 0))
+    top_artists = _top_duration_items(memory.get("artist_play_seconds"), limit=3)
+    top_albums = _top_duration_items(memory.get("album_play_seconds"), limit=3)
+    return {
+        "total_seconds": total_seconds,
+        "total_hours": round(total_seconds / 3600, 2),
+        "formatted_total": _format_duration(total_seconds),
+        "top_artists": top_artists,
+        "top_albums": top_albums,
+    }
+
+
+def _profile_listening_rhythm(memory: dict[str, Any]) -> dict[str, Any]:
+    signals = memory.get("listening_time_signals")
+    if not isinstance(signals, dict):
+        signals = {}
+    dayparts = _count_items(signals.get("dayparts"))
+    weekdays = _count_items(signals.get("weekdays"))
+    total = max(0, int(signals.get("count") or sum(dayparts.values()) or sum(weekdays.values())))
+    return {
+        "sample_count": total,
+        "dayparts": _top_count_items(dayparts, key_name="daypart"),
+        "weekdays": _top_count_items(weekdays, key_name="weekday"),
+        "top_daypart": _top_key(dayparts),
+        "top_weekday": _top_key(weekdays),
+    }
+
+
+def _profile_mood_mix(memory: dict[str, Any]) -> dict[str, Any]:
+    signals = memory.get("mood_signals")
+    if not isinstance(signals, dict):
+        return {"sample_count": 0, "zones": [], "top_zone": None}
+    zones = _count_items(signals.get("zones"))
+    total = max(0, int(signals.get("count") or sum(zones.values())))
+    zone_items: list[dict[str, Any]] = []
+    for zone, count in sorted(zones.items(), key=lambda item: (-item[1], item[0])):
+        percent = round((count / total) * 100, 1) if total else 0
+        zone_items.append({"zone": zone, "count": count, "percent": percent})
+    return {
+        "sample_count": total,
+        "average": int(signals.get("average") or 0) if total else None,
+        "top_zone": _top_key(zones),
+        "zones": zone_items,
+    }
+
+
+def _profile_repeat_magnets(memory: dict[str, Any]) -> dict[str, Any]:
+    artists = [
+        {"kind": "artist", "name": item["name"], "count": item["play_count"]}
+        for item in _profile_artist_items(memory, {})
+        if int(item.get("play_count") or 0) >= 2
+    ][:3]
+    albums = [
+        {"kind": "album", "name": item["name"], "seconds": item["seconds"], "formatted": item["formatted"]}
+        for item in _top_duration_items(memory.get("album_play_seconds"), limit=3)
+        if int(item.get("seconds") or 0) >= 20 * 60
+    ]
+    items = [*artists, *albums][:3]
+    if len(items) < 2:
+        return {"eligible": False, "items": [], "reason": "insufficient_repeat_signals"}
+    return {"eligible": True, "items": items}
+
+
+def _profile_explicit_positives(memory: dict[str, Any]) -> dict[str, Any]:
+    favorites = [
+        {
+            "kind": "favorite_track",
+            "title": track.get("title") or track.get("track_name") or track.get("name"),
+            "artist": track.get("artist") or track.get("artist_name"),
+            "uri": track.get("uri"),
+        }
+        for track in (memory.get("recent_favorite_tracks") or [])
+        if isinstance(track, dict) and (track.get("title") or track.get("track_name") or track.get("name"))
+    ][:3]
+    recommendations = [
+        {
+            "kind": "accepted_recommendation",
+            "title": item.get("title"),
+            "subtitle": item.get("subtitle"),
+            "uri": item.get("uri"),
+            "reason": item.get("reason"),
+        }
+        for item in (memory.get("recommendation_plays") or [])
+        if isinstance(item, dict) and (item.get("title") or item.get("uri"))
+    ][:3]
+    total = len(favorites) + len(recommendations)
+    if total <= 0:
+        return {
+            "eligible": False,
+            "favorite_tracks": [],
+            "accepted_recommendations": [],
+            "reason": "no_explicit_positive_signals",
+        }
+    return {
+        "eligible": True,
+        "favorite_tracks": favorites,
+        "accepted_recommendations": recommendations,
+        "signal_count": total,
+    }
+
+
+def _profile_taste_anchors(memory: dict[str, Any], favorite_genres: list[str]) -> dict[str, Any]:
+    artist_counts = memory.get("artist_play_counts")
+    artist_seconds = memory.get("artist_play_seconds")
+    anchors: list[dict[str, Any]] = []
+    if isinstance(artist_counts, dict):
+        for name, count in sorted(
+            artist_counts.items(),
+            key=lambda item: (-int(item[1] or 0), str(item[0]).lower()),
+        ):
+            artist = _clean_text(name)
+            play_count = int(count or 0)
+            seconds = int(artist_seconds.get(artist) or 0) if isinstance(artist_seconds, dict) and artist else 0
+            if artist and (play_count >= 2 or seconds >= 30 * 60):
+                anchors.append(
+                    {
+                        "kind": "artist",
+                        "name": artist,
+                        "play_count": play_count,
+                        "seconds": seconds,
+                        "formatted": _format_duration(seconds) if seconds > 0 else None,
+                    }
+                )
+            if len(anchors) >= 3:
+                break
+    genre_anchors = [{"kind": "genre", "name": genre} for genre in favorite_genres[:3]]
+    if len(anchors) + len(genre_anchors) < 2:
+        return {"eligible": False, "items": [], "reason": "insufficient_anchor_signals"}
+    return {"eligible": True, "items": [*anchors, *genre_anchors][:5]}
+
+
+def _top_duration_items(values: Any, *, limit: int) -> list[dict[str, Any]]:
+    if not isinstance(values, dict):
+        return []
+    items: list[dict[str, Any]] = []
+    for name, seconds in sorted(
+        values.items(),
+        key=lambda item: (-int(item[1] or 0), str(item[0]).lower()),
+    )[:limit]:
+        label = _clean_text(name)
+        value = max(0, int(seconds or 0))
+        if label and value > 0:
+            items.append(
+                {
+                    "name": label,
+                    "seconds": value,
+                    "hours": round(value / 3600, 2),
+                    "formatted": _format_duration(value),
+                }
+            )
+    return items
 
 
 def _profile_mood(memory: dict[str, Any], mood: Any, zone: Any) -> dict[str, Any]:
@@ -1175,6 +1512,10 @@ def _track_artists(track: dict[str, Any]) -> list[str]:
     return _unique_texts([part for part in parts if _clean_text(part)])[:10]
 
 
+def _track_album(track: dict[str, Any]) -> str | None:
+    return _clean_text(track.get("album") or track.get("album_name"))
+
+
 def _sanitize_value(value: Any) -> Any:
     if isinstance(value, dict):
         return _compact_dict(value)
@@ -1225,6 +1566,7 @@ def _compact_track(track: dict[str, Any]) -> dict[str, Any]:
         "album",
         "album_name",
         "genres",
+        "duration_ms",
     )
     result: dict[str, Any] = {}
     for key in keys:
@@ -1237,12 +1579,35 @@ def _compact_track(track: dict[str, Any]) -> dict[str, Any]:
         cleaned = _clean_text(value)
         if cleaned:
             result[key] = cleaned
+    duration_ms = _duration_ms(track)
+    if duration_ms > 0:
+        result["duration_ms"] = duration_ms
     return result
 
 
 def _update_time_context(memory: dict[str, Any]) -> None:
     context = _current_time_context()
     memory["listening_time_context"] = context
+    signals = memory.get("listening_time_signals")
+    if not isinstance(signals, dict):
+        signals = {}
+    dayparts = _count_items(signals.get("dayparts"))
+    weekdays = _count_items(signals.get("weekdays"))
+    daypart = _clean_text(context.get("daypart"))
+    weekday_name = _clean_text(context.get("weekday_name"))
+    if daypart:
+        dayparts[daypart] = int(dayparts.get(daypart) or 0) + 1
+    if weekday_name:
+        weekdays[weekday_name] = int(weekdays.get(weekday_name) or 0) + 1
+    signals.update(
+        {
+            "count": int(signals.get("count") or 0) + 1,
+            "dayparts": dayparts,
+            "weekdays": weekdays,
+            "last_seen": context.get("observed_at"),
+        }
+    )
+    memory["listening_time_signals"] = signals
     patterns = memory.get("listening_time_patterns")
     if not isinstance(patterns, list):
         patterns = []
@@ -1451,6 +1816,78 @@ def _clean_mood(value: Any) -> int | None:
         return max(0, min(100, int(value)))
     except (TypeError, ValueError):
         return None
+
+
+def _duration_ms(track: dict[str, Any]) -> int:
+    for key in ("duration_ms", "durationMs", "track_duration_ms"):
+        value = track.get(key)
+        if value not in (None, ""):
+            try:
+                return max(0, min(3 * 60 * 60 * 1000, int(value)))
+            except (TypeError, ValueError):
+                return 0
+    for key in ("duration_seconds", "duration", "track_duration_seconds"):
+        value = track.get(key)
+        if value not in (None, ""):
+            try:
+                return max(0, min(3 * 60 * 60 * 1000, int(float(value) * 1000)))
+            except (TypeError, ValueError):
+                return 0
+    return 0
+
+
+def _track_duration_seconds(track: dict[str, Any]) -> int:
+    return int(round(_duration_ms(track) / 1000))
+
+
+def _format_duration(seconds: int) -> str:
+    seconds = max(0, int(seconds or 0))
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    if hours and minutes:
+        return f"{hours}u {minutes}m"
+    if hours:
+        return f"{hours}u"
+    if minutes:
+        return f"{minutes}m"
+    return "0m"
+
+
+def _count_items(values: Any) -> dict[str, int]:
+    if not isinstance(values, dict):
+        return {}
+    result: dict[str, int] = {}
+    for key, value in values.items():
+        label = _clean_text(key)
+        if not label:
+            continue
+        try:
+            count = int(value or 0)
+        except (TypeError, ValueError):
+            count = 0
+        if count > 0:
+            result[label] = count
+    return result
+
+
+def _top_count_items(values: dict[str, int], *, key_name: str) -> list[dict[str, Any]]:
+    total = sum(max(0, int(value or 0)) for value in values.values())
+    items: list[dict[str, Any]] = []
+    for key, count in sorted(values.items(), key=lambda item: (-item[1], item[0]))[:7]:
+        items.append(
+            {
+                key_name: key,
+                "count": count,
+                "percent": round((count / total) * 100, 1) if total else 0,
+            }
+        )
+    return items
+
+
+def _top_key(values: dict[str, int]) -> str | None:
+    if not values:
+        return None
+    return sorted(values.items(), key=lambda item: (-item[1], item[0]))[0][0]
 
 
 def _normalized_ratio(value: Any) -> float | None:

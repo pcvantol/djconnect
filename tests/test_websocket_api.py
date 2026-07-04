@@ -91,6 +91,9 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
                 "websocket_music_dna_profile",
                 "websocket_music_dna_settings",
                 "websocket_music_dna_clear",
+                "websocket_music_discovery_feed",
+                "websocket_music_discovery_refresh",
+                "websocket_music_discovery_play",
             ],
         )
         self.assertTrue(hass.data["djconnect"]["websocket_registered"])
@@ -130,6 +133,9 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
         self.assertIn(self.websocket_api.WS_TYPE_MUSIC_DNA_PROFILE, result["commands"])
         self.assertIn(self.websocket_api.WS_TYPE_MUSIC_DNA_SETTINGS, result["commands"])
         self.assertIn(self.websocket_api.WS_TYPE_MUSIC_DNA_CLEAR, result["commands"])
+        self.assertIn(self.websocket_api.WS_TYPE_MUSIC_DISCOVERY_FEED, result["commands"])
+        self.assertIn(self.websocket_api.WS_TYPE_MUSIC_DISCOVERY_REFRESH, result["commands"])
+        self.assertIn(self.websocket_api.WS_TYPE_MUSIC_DISCOVERY_PLAY, result["commands"])
         self.assertEqual(result["transports"], {"http": True, "websocket": True})
 
     def test_command_uses_device_token_and_device_id_headers(self) -> None:

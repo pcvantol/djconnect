@@ -159,6 +159,32 @@
     }
   },
   {
+    "id": "personal_recent_favorites_summary",
+    "request": {
+      "text": "wat heb ik laatst aan favorieten toegevoegd",
+      "client_type": "ios"
+    },
+    "expect": {
+      "success": true,
+      "intent": "personal_music_dna_summary",
+      "intent_category": "informational",
+      "action": "music_dna_summary",
+      "contains_all": [
+        "Laatst aan favorieten toegevoegd",
+        "Candlebox - Far Behind"
+      ],
+      "source_values_include": [
+        "djconnect_music_dna"
+      ],
+      "images_count": 0,
+      "playback_actions_count": 0,
+      "allowed_music_commands": [
+        "status"
+      ],
+      "forbid_spotify_mutations": true
+    }
+  },
+  {
     "id": "personal_music_profile_analysis",
     "request": {
       "text": "Omschrijf eens waar ik zoal naar luisterde de afgelopen maand",
