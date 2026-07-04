@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.2.19
+
+- Document APNs push environment handling for development-signed Apple clients
+  and cover the missing-bootstrap-proof sandbox normalization path.
+- Validate the current release workspace with the full unit test suite:
+  `python3 -m unittest discover -s tests` passes with 921 tests and 6 skipped.
+
 ## 3.2.18
 
 - Add the premium-ready VibeCast feed endpoint at `GET /api/djconnect/vibecast`

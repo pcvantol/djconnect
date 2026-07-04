@@ -331,6 +331,38 @@ class PushTest(unittest.TestCase):
         self.assertEqual(result["last_push_error"], "missing_bootstrap_proof")
         self.assertEqual(hass.session.calls, [])
 
+    def test_register_missing_bootstrap_proof_keeps_macos_development_as_sandbox(self) -> None:
+        hass = types.SimpleNamespace(session=FakeSession())
+        runtime = self._runtime(token=None)
+
+        result = asyncio.run(
+            self.push.async_register(
+                hass,
+                runtime,
+                user_id="user-1",
+                payload={
+                    "device_id": "djconnect-macos-ABCDEFGHIJKL",
+                    "client_type": "macos",
+                    "push_token": "macos-token-secret-value",
+                    "push_environment": "development",
+                },
+            )
+        )
+
+        self.assertFalse(result["success"])
+        self.assertFalse(result["push_registered"])
+        self.assertEqual(result["push_environment"], "sandbox")
+        self.assertEqual(result["last_push_error"], "missing_bootstrap_proof")
+        self.assertEqual(
+            runtime.push_status["djconnect-macos-ABCDEFGHIJKL|macos"],
+            {
+                "push_registered": False,
+                "push_environment": "sandbox",
+                "last_push_error": "missing_bootstrap_proof",
+            },
+        )
+        self.assertEqual(hass.session.calls, [])
+
     def test_register_reports_push_relay_unavailable_on_transport_failure(self) -> None:
         hass = types.SimpleNamespace(session=FakeSession())
         runtime = self._runtime()

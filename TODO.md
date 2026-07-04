@@ -266,6 +266,8 @@
 
 ## Release Workflow
 
+- Latest local validation on 2026-07-04:
+  `python3 -m unittest discover -s tests` passed with 921 tests and 6 skipped.
 - Run `python3 -m unittest tests.test_ask_dj_e2e_contract`, the Ask DJ no-active-output regressions and `python3 -m unittest discover -s tests` before release.
 - Run `./release.sh X.Y.Z --dry-run` before publishing when changes are non-trivial.
 - Run `./release.sh X.Y.Z` for release.

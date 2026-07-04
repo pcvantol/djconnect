@@ -117,6 +117,21 @@ Assistant. Common entities include:
 
 Entity IDs can differ if Home Assistant renames the device or entities.
 
+## Apple Push Notifications
+
+iOS, macOS and Apple Watch clients register APNs tokens through
+`POST /api/djconnect/push/register`. Home Assistant validates the paired client
+identity and forwards only the redacted registration metadata to the DJConnect
+relay; APNs provider keys and raw APNs tokens are never stored in Home Assistant.
+
+Development-signed Apple builds may send `push_environment: "development"` when
+their APNs entitlement targets the sandbox. DJConnect normalizes that to
+canonical `sandbox` in relay calls, status and registration responses. Production
+builds must send `push_environment: "production"`. If registration reports
+`invalid_bootstrap_proof` or `missing_bootstrap_proof`, pair the app with Home
+Assistant again so the client receives a fresh bootstrap proof, then restart the
+app to retry push registration.
+
 ## VibeCast
 
 Apple clients can poll `GET /api/djconnect/vibecast` with their paired
