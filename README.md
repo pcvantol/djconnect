@@ -189,6 +189,9 @@ endorsed by, or sponsored by Spotify AB.
 Use this checklist for every Home Assistant integration release.
 
 - Confirm the working tree only contains intended changes.
+- Check third-party runtime packages, CI tools and local developer tools for
+  available updates. Apply safe updates before release; when an update is
+  intentionally skipped, record the reason in `HANDOFF.md`.
 - Update `custom_components/djconnect/manifest.json` to the target version.
 - Update `custom_components/djconnect/const.py` to the same target version.
 - Update touched documentation, including `README.md`, `CHANGELOG.md`,
@@ -210,8 +213,9 @@ Use this checklist for every Home Assistant integration release.
   and edge cases.
 - Verify `custom_components/djconnect/brand/` contains `icon.png`,
   `icon@2x.png` and `logo.png`.
-- Verify `LICENSE` and [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) stay
-  current.
+- Verify `LICENSE`, [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and the
+  dependency inventory in `TECHNICAL_DESIGN_DECISIONS.md` stay current after
+  dependency or tool changes.
 - Run the lightweight tests:
 
 ```bash

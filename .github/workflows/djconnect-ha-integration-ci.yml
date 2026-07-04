@@ -48,11 +48,48 @@ on:
         required: false
         type: boolean
         default: true
+      run-dependency-audit:
+        description: Report available updates for runtime dependencies and CI tools.
+        required: false
+        type: boolean
+        default: true
 
 permissions:
   contents: read
 
 jobs:
+  dependency-audit:
+    if: inputs.run-dependency-audit
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+      - name: Report dependency and tool update candidates
+        run: |
+          python -m pip install --upgrade pip
+          python - <<'PY' > /tmp/djconnect-runtime-requirements.txt
+          import json
+
+          with open("custom_components/djconnect/manifest.json", encoding="utf-8") as handle:
+              manifest = json.load(handle)
+
+          for requirement in manifest.get("requirements", []):
+              print(requirement)
+          PY
+          echo "Runtime requirements declared by manifest:"
+          cat /tmp/djconnect-runtime-requirements.txt
+          python -m pip install -r /tmp/djconnect-runtime-requirements.txt || true
+          echo
+          echo "Outdated installed runtime packages, if any:"
+          python -m pip list --outdated --format=columns || true
+          echo
+          echo "Latest CI tool versions visible to pip:"
+          python -m pip index versions ruff || true
+          python -m pip index versions bandit || true
+
   tests:
     if: inputs.run-tests
     runs-on: ubuntu-latest

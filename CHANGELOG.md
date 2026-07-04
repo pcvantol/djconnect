@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Add dependency and tool update checks to the shared CI workflows and release
+  documentation so maintainers review third-party package, framework and tooling
+  updates before publishing.
+
 ## 3.2.19
 
 - Document APNs push environment handling for development-signed Apple clients

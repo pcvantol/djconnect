@@ -324,12 +324,25 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 ## Current Release Notes
 
 - Current release line is `3.2.x`; only the latest GitHub release/tag should be kept after release cleanup.
-- Current latest baseline is `3.2.18`.
+- Current latest baseline is `3.2.19`.
 - Release workflow expectation: before every release, review and update all repo documentation affected by the change or release, including `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant `examples/*`. Explicitly decide whether test coverage must be expanded for the change; add coverage for new behavior paths, regression risks, translations, config/options-flow base/EN/NL/DE/FR/ES keysets, stale `data_description` keys, diagnostics/log redaction and edge cases. Keep `tests.test_postman_collection` aligned with the Postman examples so CI validates collection schema, auth headers, placeholders and client identity. After publishing a release, clean up old completed GitHub Actions workflow runs, keeping only the newest release/tag validation and newest `main` validation unless debugging requires more history. Also clean up old semver releases/tags with `./cleanup_old_releases.sh --keep 1 --execute` unless multiple releases are intentionally retained. Keep any branch-protection/admin override explicit and manual; do not automate required-review disablement or protection changes in `release.sh`.
-- Before build/test/release validation, check whether third-party libraries, frameworks and build tools can be safely upgraded. If any version is upgraded, update lockfiles/manifests, `THIRD_PARTY_NOTICES.md` and dependency/design documentation in the same release. If an upgrade is skipped, record the reason here.
-- For the current `3.2.18` release, no pinned Python package versions were
-  upgraded. The current release adds the VibeCast backend feed and documents
-  macOS/iOS parity while keeping backend commands and Ask DJ routes intact.
+- Before build/test/release validation, check whether third-party libraries, frameworks and build tools can be safely upgraded. Review the shared CI dependency-audit job plus local Homebrew/npm/pip/PlatformIO/.NET/tooling checks. If any version is upgraded, update lockfiles/manifests, `THIRD_PARTY_NOTICES.md` and dependency/design documentation in the same release. If an upgrade is skipped, record the reason here.
+- For the current `3.2.19` release, no pinned Python package versions were
+  upgraded. The current release documents APNs development/sandbox handling,
+  adds regression coverage for missing-bootstrap-proof normalization and keeps
+  backend commands and Ask DJ routes intact.
+- On 2026-07-04, ran the local package-manager upgrade flow:
+  `./tools/dev_onboarding_macos.sh --steps 23` and
+  `./tools/dev_onboarding_macos.sh --steps 24 --apply-upgrades`. Homebrew
+  upgraded `libevent` 2.1.12_1 -> 2.1.13, `tmux` 3.7 -> 3.7b, `ollama`
+  0.30.11 -> 0.31.1, `ngrok` 3.39.8 -> 3.39.9 and `zed` 1.8.2 -> 1.9.0.
+  npm reported no vulnerabilities and updated six packages in the checked
+  sibling workspace. The Pi editable install refreshed from
+  `djconnect-pi` 3.2.2 to 3.2.9. PlatformIO reported
+  `t_embed_cc1101` dependencies already up to date. A final workload/tooling
+  command reported `Inadequate permissions. Run the command with elevated
+  privileges.`; no DJConnect repo lockfiles, manifests or third-party notices
+  changed from that upgrade run.
   `THIRD_PARTY_NOTICES.md` did not require dependency updates for these changes.
 - AI-assisted/Codex development hygiene is now documented in
   `CONTRIBUTING.md`, `SECURITY.md` and `CHAT_BOOTSTRAP.md`; accepted changes

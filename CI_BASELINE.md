@@ -28,6 +28,8 @@ jobs:
 
 This runs:
 
+- an advisory dependency/tool audit that reports available updates without
+  failing the workflow by default;
 - the repository test command;
 - Ruff against `custom_components/djconnect` and `tests`;
 - Bandit against `custom_components/djconnect`;
@@ -132,3 +134,16 @@ clean. Semgrep defaults to advisory while the first GitHub runs are reviewed;
 make it blocking only after the shared rules are clean for the repository. MyPy
 can also start as advisory if an existing repository needs cleanup before it
 becomes required.
+
+## Dependency and tool updates
+
+Every shared Python/Home Assistant CI workflow includes an advisory
+`dependency-audit` job. It installs the repository-declared runtime dependencies
+where possible, reports outdated Python packages, and prints the newest visible
+Ruff and Bandit versions. The job is `continue-on-error` because new upstream
+versions are a maintenance signal, not an automatic release blocker.
+
+Release work must still review this output. Apply safe third-party package,
+framework and tool updates before publishing, update lockfiles/manifests and
+license/dependency documentation in the same change, or record the skipped
+upgrade and reason in `HANDOFF.md`.
