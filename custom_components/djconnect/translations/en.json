@@ -359,7 +359,7 @@
       },
       "music_backend": {
         "title": "Change music backend",
-        "description": "Current backend is shown below. Switching keeps pairing, device tokens, Ask DJ history, Music DNA and push registrations. Older backend-specific Ask DJ playback actions or recommendations may no longer be executable.",
+        "description": "Current backend is shown below. Switching keeps pairing, device tokens, Ask DJ history, Music DNA and push registrations. Music DNA export/import uses HTTP and remains protected by server-side opt-in. Older backend-specific Ask DJ playback actions or recommendations may no longer be executable.",
         "data": {
           "music_backend": "Music backend"
         },

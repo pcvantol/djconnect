@@ -307,6 +307,30 @@ class MusicDNAManager:
         await self.async_save()
         return await self.async_profile(runtime, payload, user_id=user_id), 200
 
+    async def async_export_profile(
+        self,
+        runtime: Any,
+        payload: dict[str, Any] | None = None,
+        *,
+        user_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Return a stable Music DNA export envelope for client downloads."""
+        profile = await self.async_profile(runtime, payload, user_id=user_id)
+        payload = payload or {}
+        return {
+            "success": True,
+            "format": "djconnect.music_dna.export",
+            "schema_version": 1,
+            "exported_at": _now(),
+            "exported_by_client_type": _clean_text(
+                payload.get(CONF_CLIENT_TYPE)
+                or getattr(runtime, "device_status", {}).get(CONF_CLIENT_TYPE)
+                or _call_or_none(getattr(runtime, "client_type", None))
+            ),
+            "app_version": _clean_text(payload.get("app_version") or payload.get("version")),
+            "profile": profile,
+        }
+
     async def async_append_runtime_message(
         self,
         runtime: Any,

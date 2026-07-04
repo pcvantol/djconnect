@@ -287,8 +287,9 @@ Music DNA can use these websocket equivalents when advertised in
 
 The response shapes match `POST /api/djconnect/music_dna/profile`,
 `/settings` and `/clear`. HTTP remains the canonical fallback.
-Music DNA import/export is intentionally HTTP-only; clients should not expect a
-`djconnect/music_dna/import` websocket command in capabilities.
+Music DNA import/export is intentionally HTTP-only; clients should not expect
+`djconnect/music_dna/export` or `djconnect/music_dna/import` websocket commands
+in capabilities.
 
 Clients should treat websocket failures as transport failures, not pairing
 failures. On disconnect, auth error, HA websocket error, DJConnect websocket
@@ -510,6 +511,7 @@ canonical `client_type` identity contract:
 - `POST /api/djconnect/music_dna/profile`
 - `POST /api/djconnect/music_dna/settings`
 - `POST /api/djconnect/music_dna/clear`
+- `POST /api/djconnect/music_dna/export`
 - `POST /api/djconnect/music_dna/import`
 
 `/music_dna/settings` accepts:
@@ -526,6 +528,32 @@ canonical `client_type` identity contract:
 optional `music_dna_key`, `language`, `locale` and realtime `mood`. Profile
 responses are structured for the Music DNA screen:
 
+`/music_dna/export` accepts the same identity/auth fields and returns a stable
+export envelope built by Home Assistant. Clients should use this route for JSON
+downloads instead of constructing the envelope locally from `/profile`.
+Export is HTTP-only and is not advertised through
+`djconnect/capabilities.commands[]`.
+
+```json
+{
+  "success": true,
+  "format": "djconnect.music_dna.export",
+  "schema_version": 1,
+  "exported_at": "2026-07-04T19:30:00Z",
+  "exported_by_client_type": "ios",
+  "app_version": "3.2.x",
+  "profile": {
+    "success": true,
+    "music_dna_key": "user:abc123",
+    "enabled": true,
+    "generation": 12,
+    "updated_at": "2026-07-04T19:30:00Z",
+    "profile": {"favorite_artists": [{"name": "The xx"}]},
+    "sources": []
+  }
+}
+```
+
 `/music_dna/import` accepts the same identity/auth fields plus a previously
 exported Music DNA profile response. It is an overwrite, not a merge, and it
 only succeeds when Music DNA is already enabled on the resolved server-side
@@ -534,7 +562,7 @@ enabled, Home Assistant returns HTTP `409` with
 `error:"music_dna_not_enabled"`. On success, Home Assistant increments
 `generation`, sets `updated_at`/`imported_at` internally to the import time and
 returns the normal profile response shape.
-This endpoint is HTTP-only and is not advertised through
+Import is HTTP-only and is not advertised through
 `djconnect/capabilities.commands[]`.
 
 ```json

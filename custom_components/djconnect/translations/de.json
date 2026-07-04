@@ -359,7 +359,7 @@
       },
       "music_backend": {
         "title": "Musik-Backend ändern",
-        "description": "Das aktuelle Backend wird unten angezeigt. Beim Wechsel bleiben Kopplung, Gerätetokens, Ask DJ-Verlauf, Music DNA und Push-Registrierungen erhalten. Ältere backend-spezifische Ask DJ-Wiedergabeaktionen oder Empfehlungen sind möglicherweise nicht mehr ausführbar.",
+        "description": "Das aktuelle Backend wird unten angezeigt. Beim Wechsel bleiben Kopplung, Gerätetokens, Ask DJ-Verlauf, Music DNA und Push-Registrierungen erhalten. Music DNA Export/Import läuft über HTTP und bleibt durch serverseitiges Opt-in geschützt. Ältere backend-spezifische Ask DJ-Wiedergabeaktionen oder Empfehlungen sind möglicherweise nicht mehr ausführbar.",
         "data": {
           "music_backend": "Musik-Backend"
         },

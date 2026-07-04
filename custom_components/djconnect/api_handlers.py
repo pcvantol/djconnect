@@ -583,6 +583,24 @@ async def async_handle_music_dna_import_payload(
     return await importer(runtime, payload, user_id=user_id)
 
 
+async def async_handle_music_dna_export_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Export Music DNA profile data for a client/user."""
+    runtime, payload, error = _music_dna_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    memory = getattr(runtime, "memory", None)
+    exporter = getattr(memory, "async_export_profile", None)
+    if not callable(exporter):
+        return _error_payload("music_dna_unavailable"), 503
+    return await exporter(runtime, payload, user_id=user_id), 200
+
+
 def _music_dna_runtime_payload(
     hass: Any,
     data: dict[str, Any],

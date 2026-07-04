@@ -904,6 +904,43 @@
             },
             "description": "Overwrites the resolved server-side Music DNA profile with a client export. Music DNA must already be enabled for this scope; disabled scopes return 409 music_dna_not_enabled. Import never creates opt-in consent."
           }
+        },
+        {
+          "name": "Music DNA - export",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identity\": {\n    \"device_id\": \"{{device_id}}\",\n    \"client_type\": \"{{client_type}}\",\n    \"device_name\": \"{{device_name}}\"\n  },\n  \"music_dna_key\": \"{{music_dna_key}}\",\n  \"app_version\": \"3.2.21\"\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/music_dna/export",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "music_dna",
+                "export"
+              ]
+            },
+            "description": "Returns a Home Assistant-built DJConnect Music DNA export envelope for client download. Export uses HTTP only and shares the profile/settings/clear authentication and identity contract."
+          }
         }
       ]
     },

@@ -204,6 +204,74 @@ class MusicDnaApiHandlersTest(unittest.TestCase):
         self.assertEqual(status, 401)
         self.assertEqual(result["error"], "unauthorized")
 
+    def test_unauthorized_music_dna_export_is_rejected(self) -> None:
+        self.api_handlers.authorize_runtime_device_request = (
+            lambda runtime, headers, device_id=None, client_type=None: False
+        )
+
+        result, status = asyncio.run(
+            self.api_handlers.async_handle_music_dna_export_payload(
+                self.hass,
+                {"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios"},
+                headers={"Authorization": "Bearer wrong"},
+                user_id="ha-user-1",
+            )
+        )
+
+        self.assertEqual(status, 401)
+        self.assertEqual(result["error"], "unauthorized")
+
+    def test_export_returns_backend_envelope_with_profile_response(self) -> None:
+        asyncio.run(
+            self.memory.async_set_enabled(
+                self.runtime,
+                True,
+                {"client_type": "ios", "app_version": "3.2.21"},
+                user_id="ha-user-1",
+            )
+        )
+        asyncio.run(
+            self.memory.async_update_last_ask_dj(
+                self.runtime,
+                input_text="Draai The xx",
+                result={
+                    "intent": {"intent": "play_music"},
+                    "dj_text": "Komt eraan.",
+                    "playback": {"track": {"title": "Intro", "artist": "The xx"}},
+                },
+                payload={"client_type": "ios"},
+                user_id="ha-user-1",
+            )
+        )
+
+        result, status = asyncio.run(
+            self.api_handlers.async_handle_music_dna_export_payload(
+                self.hass,
+                {
+                    "identity": {
+                        "device_id": "djconnect-ios-ABCDEFGHIJKL",
+                        "client_type": "ios",
+                        "device_name": "iPhone",
+                    },
+                    "app_version": "3.2.21",
+                },
+                headers={"Authorization": "Bearer token"},
+                user_id="ha-user-1",
+            )
+        )
+
+        self.assertEqual(status, 200)
+        self.assertTrue(result["success"])
+        self.assertEqual(result["format"], "djconnect.music_dna.export")
+        self.assertEqual(result["schema_version"], 1)
+        self.assertEqual(result["exported_by_client_type"], "ios")
+        self.assertEqual(result["app_version"], "3.2.21")
+        self.assertIn("exported_at", result)
+        self.assertTrue(result["profile"]["success"])
+        self.assertTrue(result["profile"]["enabled"])
+        self.assertEqual(result["profile"]["music_dna_key"], "user:ha-user-1")
+        self.assertEqual(result["profile"]["profile"]["recent_tracks"][0]["artist"], "The xx")
+
     def test_import_disabled_music_dna_returns_conflict(self) -> None:
         result, status = asyncio.run(
             self.api_handlers.async_handle_music_dna_import_payload(

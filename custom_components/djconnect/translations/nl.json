@@ -359,7 +359,7 @@
       },
       "music_backend": {
         "title": "Muziekbackend wijzigen",
-        "description": "De huidige backend staat hieronder. Wisselen behoudt de koppeling, apparaattokens, Ask DJ history, Music DNA en pushregistraties. Oude backend-specifieke Ask DJ playback-acties of aanbevelingen zijn mogelijk niet meer uitvoerbaar.",
+        "description": "De huidige backend staat hieronder. Wisselen behoudt de koppeling, apparaattokens, Ask DJ history, Music DNA en pushregistraties. Music DNA export/import loopt via HTTP en blijft server-side opt-in beschermd. Oude backend-specifieke Ask DJ playback-acties of aanbevelingen zijn mogelijk niet meer uitvoerbaar.",
         "data": {
           "music_backend": "Muziekbackend"
         },

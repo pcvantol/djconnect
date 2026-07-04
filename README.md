@@ -24,7 +24,7 @@ Website: [https://djconnect.dev](https://djconnect.dev)
 - Use VibeCast on Apple clients for premium-ready live track/artist vibe
   bubbles from the current Home Assistant music backend context.
 - Keep Music DNA opt-in and server-side in Home Assistant, with HTTP-only
-  import for Apple client JSON exports after opt-in.
+  export/import for Apple client JSON downloads and restores after opt-in.
 - Use Home Assistant Assist/STT/TTS for voice and DJ responses.
 - Let realtime client mood choose the DJ announcement profile; the configured
   DJ voice profile is the fallback when no mood is provided. Home Assistant

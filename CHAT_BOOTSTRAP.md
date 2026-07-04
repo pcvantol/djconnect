@@ -68,11 +68,12 @@ Belangrijke huidige status:
   opnieuw Spotify-specifiek in Ask DJ opbouwen.
 - Music DNA is first-class en expliciet opt-in. Clients gebruiken
   `POST /api/djconnect/music_dna/profile`, `/settings`, `/clear` en HTTP-only
-  `/import` voor structured profile data, opt-in/out, wissen en client-export
-  importeren. Zolang Music DNA disabled is, bouwt HA geen nieuwe kennis op uit
-  Ask DJ, listening profiles, recente tracks of voorkeuren en import geeft
-  HTTP `409` `music_dna_not_enabled`. Clear behoudt de opt-in setting; als
-  enabled waar blijft, begint kennisopbouw daarna opnieuw vanaf leeg.
+  `/export`/`/import` voor structured profile data, opt-in/out, wissen en
+  backend-gestuurde JSON export/import. Zolang Music DNA disabled is, bouwt HA
+  geen nieuwe kennis op uit Ask DJ, listening profiles, recente tracks of
+  voorkeuren en import geeft HTTP `409` `music_dna_not_enabled`. Clear behoudt
+  de opt-in setting; als enabled waar blijft, begint kennisopbouw daarna
+  opnieuw vanaf leeg.
 - Diagnostics tonen `music_backend.selected` en capability flags. Voor Music Assistant staat `spotify_oauth.required=false` en worden Spotify OAuth/reauthorization repairs niet aangemaakt.
 - Diagnostics/logs redacteren key aliases met `token`, `password`, `secret`,
   `proof`, `authorization`, `prompt`, `history`, `memory` of `raw_audio`; raw
