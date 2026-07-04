@@ -565,6 +565,24 @@ async def async_handle_music_dna_clear_payload(
     return await memory.async_profile(runtime, payload, user_id=user_id), 200
 
 
+async def async_handle_music_dna_import_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Import and overwrite Music DNA profile data for a client/user."""
+    runtime, payload, error = _music_dna_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    memory = getattr(runtime, "memory", None)
+    importer = getattr(memory, "async_import_profile", None)
+    if not callable(importer):
+        return _error_payload("music_dna_unavailable"), 503
+    return await importer(runtime, payload, user_id=user_id)
+
+
 def _music_dna_runtime_payload(
     hass: Any,
     data: dict[str, Any],

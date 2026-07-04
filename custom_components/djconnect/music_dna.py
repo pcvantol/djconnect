@@ -264,6 +264,49 @@ class MusicDNAManager:
             "sources": [{"source": "djconnect_music_dna", "kind": "source", "title": "Music DNA"}],
         }
 
+    async def async_import_profile(
+        self,
+        runtime: Any,
+        payload: dict[str, Any] | None = None,
+        *,
+        user_id: str | None = None,
+    ) -> tuple[dict[str, Any], int]:
+        """Overwrite server-side Music DNA with an imported client profile."""
+        payload = payload or {}
+        key = await self.async_update_client_metadata(runtime, payload, user_id=user_id)
+        memory = self._memory_for_key(key)
+        if not self._memory_enabled(memory):
+            return {
+                "success": False,
+                "error": "music_dna_not_enabled",
+                "message": "Music DNA must be enabled before import.",
+            }, 409
+        imported = _import_profile_payload(payload)
+        if imported is None:
+            return {
+                "success": False,
+                "error": "invalid_music_dna_profile",
+                "message": "Music DNA import requires a valid profile response.",
+            }, 400
+        metadata = {
+            "user_id": memory.get("user_id"),
+            "device_id": memory.get("device_id"),
+            "client_type": memory.get("client_type"),
+            "device_name": memory.get("device_name"),
+            "enabled": True,
+            "generation": int(memory.get("generation") or 0) + 1,
+            "consent_updated_at": memory.get("consent_updated_at"),
+            "imported_at": _now(),
+            "updated_at": _now(),
+        }
+        self._data.setdefault("memories", {})[key] = _memory_from_profile_payload(
+            imported,
+            metadata,
+        )
+        self._session.pop(key, None)
+        await self.async_save()
+        return await self.async_profile(runtime, payload, user_id=user_id), 200
+
     async def async_append_runtime_message(
         self,
         runtime: Any,
@@ -1798,6 +1841,53 @@ def _intent_value(intent: Any, key: str) -> Any:
 def _safe_music_dna_key(value: Any) -> str:
     text = _clean_text(value) or "default"
     return re.sub(r"[^A-Za-z0-9_.:@-]", "_", text)[:160] or "default"
+
+
+def _import_profile_payload(payload: dict[str, Any]) -> dict[str, Any] | None:
+    value = payload
+    if payload.get("format") != "djconnect.music_dna.export":
+        value = payload.get("profile")
+    if not isinstance(value, dict):
+        return None
+    if value.get("format") == "djconnect.music_dna.export":
+        value = value.get("profile")
+    if not isinstance(value, dict) or value.get("success") is not True:
+        return None
+    if "enabled" not in value or not isinstance(value.get("profile"), dict):
+        return None
+    return deepcopy(value["profile"])
+
+
+def _memory_from_profile_payload(profile: dict[str, Any], metadata: dict[str, Any]) -> dict[str, Any]:
+    memory = {
+        key: value
+        for key, value in metadata.items()
+        if value not in (None, "", [], {})
+    }
+    for key, value in profile.items():
+        if key in {"mood", "time_context"}:
+            continue
+        memory[key] = _sanitize_value(value)
+    mood = profile.get("mood")
+    if isinstance(mood, dict):
+        mood_value = _clean_mood(mood.get("value"))
+        if mood_value is not None:
+            zone_name = _clean_text(mood.get("zone")) or mood_zone_for_value(mood_value).name
+            memory["mood"] = mood_value
+            memory["mood_signals"] = {
+                "count": 1,
+                "total": mood_value,
+                "zones": {zone_name: 1},
+                "last": {
+                    "value": mood_value,
+                    "zone": zone_name,
+                    "updated_at": _clean_text(mood.get("updated_at")) or memory.get("updated_at"),
+                },
+            }
+    time_context = profile.get("time_context")
+    if isinstance(time_context, dict):
+        memory["time_context"] = _sanitize_value(time_context)
+    return _compact_dict(memory)
 
 
 def _clean_text(value: Any) -> str | None:

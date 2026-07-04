@@ -3,7 +3,7 @@ from __future__ import annotations
 
 DOMAIN = "djconnect"
 NAME = "DJConnect"
-VERSION = "3.2.20"
+VERSION = "3.2.21"
 
 API_BASE = "/api/djconnect"
 API_PAIR = f"{API_BASE}/pair"
@@ -22,6 +22,7 @@ API_MUSIC_DNA = f"{API_BASE}/music_dna"
 API_MUSIC_DNA_PROFILE = f"{API_MUSIC_DNA}/profile"
 API_MUSIC_DNA_SETTINGS = f"{API_MUSIC_DNA}/settings"
 API_MUSIC_DNA_CLEAR = f"{API_MUSIC_DNA}/clear"
+API_MUSIC_DNA_IMPORT = f"{API_MUSIC_DNA}/import"
 API_MUSIC_DISCOVERY = f"{API_BASE}/music_discovery"
 API_MUSIC_DISCOVERY_REFRESH = f"{API_MUSIC_DISCOVERY}/refresh"
 API_MUSIC_DISCOVERY_PLAY = f"{API_MUSIC_DISCOVERY}/play"

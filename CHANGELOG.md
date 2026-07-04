@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.2.21
+
+- Add HTTP-only Music DNA import support so iOS and macOS clients can upload a
+  DJConnect Music DNA JSON export after the resolved server-side scope has
+  already opted in.
+- Keep Music DNA import consent-safe by returning HTTP `409`
+  `music_dna_not_enabled` when Music DNA is disabled, overwriting rather than
+  merging profile data, bumping generation and preserving existing
+  profile/settings/clear behavior.
+- Document and test that Music DNA import/export is not advertised as a
+  Home Assistant websocket command; clients should use HTTP for import/export
+  and keep websocket as a fast path for profile/settings/clear only.
+
 ## 3.2.20
 
 - Add dependency and tool update checks to the shared CI workflows and release

@@ -27,6 +27,7 @@ from .const import (
     API_MUSIC_DISCOVERY_PLAY,
     API_MUSIC_DISCOVERY_REFRESH,
     API_MUSIC_DNA_CLEAR,
+    API_MUSIC_DNA_IMPORT,
     API_MUSIC_DNA_PROFILE,
     API_MUSIC_DNA_SETTINGS,
     API_SPOTIFY_CALLBACK,
@@ -2945,6 +2946,31 @@ class DJConnectMusicDnaClearView(HomeAssistantView):
         from .api_handlers import async_handle_music_dna_clear_payload
 
         result, status_code = await async_handle_music_dna_clear_payload(
+            hass,
+            data,
+            headers=request.headers,
+            user_id=_request_user_id(request),
+        )
+        return self.json(result, status_code=status_code)
+
+
+class DJConnectMusicDnaImportView(HomeAssistantView):
+    url = API_MUSIC_DNA_IMPORT
+    name = "api:djconnect:music_dna_import"
+    requires_auth = False
+
+    def __init__(self, hass):
+        self.hass = hass
+
+    async def post(self, request):
+        hass = request.app["hass"]
+        try:
+            data = await request.json()
+        except Exception:  # noqa: BLE001
+            return _json_error(self, "invalid_json", 400)
+        from .api_handlers import async_handle_music_dna_import_payload
+
+        result, status_code = await async_handle_music_dna_import_payload(
             hass,
             data,
             headers=request.headers,

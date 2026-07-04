@@ -287,6 +287,8 @@ Music DNA can use these websocket equivalents when advertised in
 
 The response shapes match `POST /api/djconnect/music_dna/profile`,
 `/settings` and `/clear`. HTTP remains the canonical fallback.
+Music DNA import/export is intentionally HTTP-only; clients should not expect a
+`djconnect/music_dna/import` websocket command in capabilities.
 
 Clients should treat websocket failures as transport failures, not pairing
 failures. On disconnect, auth error, HA websocket error, DJConnect websocket
@@ -508,6 +510,7 @@ canonical `client_type` identity contract:
 - `POST /api/djconnect/music_dna/profile`
 - `POST /api/djconnect/music_dna/settings`
 - `POST /api/djconnect/music_dna/clear`
+- `POST /api/djconnect/music_dna/import`
 
 `/music_dna/settings` accepts:
 
@@ -522,6 +525,59 @@ canonical `client_type` identity contract:
 `/music_dna/profile` and `/music_dna/clear` accept the same identity fields and
 optional `music_dna_key`, `language`, `locale` and realtime `mood`. Profile
 responses are structured for the Music DNA screen:
+
+`/music_dna/import` accepts the same identity/auth fields plus a previously
+exported Music DNA profile response. It is an overwrite, not a merge, and it
+only succeeds when Music DNA is already enabled on the resolved server-side
+scope. Import must not create consent or opt-in by itself. If the scope is not
+enabled, Home Assistant returns HTTP `409` with
+`error:"music_dna_not_enabled"`. On success, Home Assistant increments
+`generation`, sets `updated_at`/`imported_at` internally to the import time and
+returns the normal profile response shape.
+This endpoint is HTTP-only and is not advertised through
+`djconnect/capabilities.commands[]`.
+
+```json
+{
+  "identity": {
+    "device_id": "djconnect-ios-...",
+    "client_type": "ios",
+    "device_name": "iPhone"
+  },
+  "music_dna_key": "user:abc123",
+  "language": "nl",
+  "profile": {
+    "success": true,
+    "music_dna_key": "user:abc123",
+    "enabled": true,
+    "generation": 12,
+    "updated_at": "2026-07-04T19:30:00Z",
+    "profile": {"favorite_artists": [{"name": "The xx"}]},
+    "sources": []
+  }
+}
+```
+
+Clients may also wrap the profile response in an export envelope:
+
+```json
+{
+  "format": "djconnect.music_dna.export",
+  "schema_version": 1,
+  "exported_at": "2026-07-04T19:30:00Z",
+  "exported_by_client_type": "ios",
+  "app_version": "3.2.x",
+  "profile": {
+    "success": true,
+    "music_dna_key": "user:abc123",
+    "enabled": true,
+    "generation": 12,
+    "updated_at": "2026-07-04T19:30:00Z",
+    "profile": {"favorite_artists": [{"name": "The xx"}]},
+    "sources": []
+  }
+}
+```
 
 ```json
 {
