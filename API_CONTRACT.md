@@ -330,6 +330,11 @@ Successful responses include `enabled:true`, `revision`, `ttl_seconds`,
 current transport; future websocket or push delivery can reuse the same response
 shape without changing client rendering.
 
+Canonical item kinds are `track_fact`, `artist_fact`, `album_fact`,
+`genre_context`, `trivia`, `listening_tip`, `mood_context`,
+`production_note`, `history_note` and `system`. Clients should render unknown
+future kinds with the same safe text renderer and no provider-specific behavior.
+
 VibeCast text is structured rich text, never HTML or Markdown:
 
 ```json
@@ -910,7 +915,7 @@ Register payload:
   "push_token": "...",
   "push_environment": "sandbox",
   "app_bundle_id": "dev.djconnect.app",
-  "app_version": "3.2.15",
+  "app_version": "3.2.18",
   "locale": "nl-NL",
   "notification_categories": ["ask_dj_response", "ask_dj_confirm", "playback_change"]
 }
