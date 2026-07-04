@@ -1,5 +1,19 @@
 # Changelog
 
+## 3.2.23
+
+- Make Ask DJ queue/up-next answers deduplicate repeated backend queue items
+  before rendering the first 10 rows and Play Now actions.
+- Aggregate repeated Music Discovery recent-track inputs into one based-on item
+  with `play_count`/`based_on_count`, so repeated listens do not render as
+  duplicate recommendation basis rows.
+- Return current-track Ask DJ TTS audio on both top-level responses and
+  `assistant_message`, while preserving `text_source` and `is_generated_text`
+  metadata for generated text indicators.
+- Add VibeCast `emoji` rich-text segments for clients that advertise
+  `emoji_safe`, with contract tests for iOS/macOS parity and text-only fallback
+  when emoji rendering is not advertised.
+
 ## 3.2.22
 
 - Add HTTP-only Ask DJ history export so app clients can download the

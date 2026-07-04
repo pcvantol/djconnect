@@ -19,7 +19,7 @@
         "album": "Contract Album",
         "music_backend": "spotify_direct"
       },
-      "allowed_segment_types": ["text", "strong", "emphasis", "magnify", "accent", "line_break"]
+      "allowed_segment_types": ["text", "strong", "emphasis", "magnify", "accent", "emoji", "line_break"]
     }
   },
   {
@@ -42,7 +42,7 @@
         "album": "Contract Album",
         "music_backend": "spotify_direct"
       },
-      "allowed_segment_types": ["text", "strong", "emphasis", "magnify", "accent", "line_break"]
+      "allowed_segment_types": ["text", "strong", "emphasis", "magnify", "accent", "emoji", "line_break"]
     }
   },
   {

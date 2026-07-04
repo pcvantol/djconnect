@@ -262,26 +262,59 @@ def _items_from_tracks(
     limit: int,
 ) -> list[dict[str, Any]]:
     items: list[dict[str, Any]] = []
-    for track in tracks:
+    for track, play_count in _unique_tracks_with_counts(tracks):
         title = _first_text(track, "title", "track_name", "name")
         artist = _first_text(track, "artist", "artist_name", "subtitle")
         uri = _first_text(track, "uri", "context_uri")
         if not (title and uri):
             continue
-        items.append(
-            _item(
-                "track",
-                title,
-                artist,
-                uri,
-                reason,
-                reason_sources,
-                image_url=_first_text(track, "image_url", "album_image_url", "thumbnail_url"),
-            )
+        item = _item(
+            "track",
+            title,
+            artist,
+            uri,
+            reason,
+            reason_sources,
+            image_url=_first_text(track, "image_url", "album_image_url", "thumbnail_url"),
         )
+        if play_count > 1:
+            item["play_count"] = play_count
+            item["based_on_count"] = play_count
+        items.append(item)
         if len(items) >= limit:
             break
     return items
+
+
+def _unique_tracks_with_counts(tracks: list[dict[str, Any]]) -> list[tuple[dict[str, Any], int]]:
+    """Return ordered unique tracks plus repeated-play counts."""
+    ordered: list[tuple[dict[str, Any], int]] = []
+    positions: dict[str, int] = {}
+    for track in tracks:
+        if not isinstance(track, dict):
+            continue
+        key = _track_identity_key(track)
+        if not key:
+            continue
+        position = positions.get(key)
+        if position is None:
+            positions[key] = len(ordered)
+            ordered.append((track, 1))
+            continue
+        first, count = ordered[position]
+        ordered[position] = (first, count + 1)
+    return ordered
+
+
+def _track_identity_key(track: dict[str, Any]) -> str:
+    uri = _first_text(track, "uri", "context_uri")
+    if uri:
+        return f"uri:{uri.lower()}"
+    title = _first_text(track, "title", "track_name", "name").casefold()
+    artist = _first_text(track, "artist", "artist_name", "subtitle").casefold()
+    if title and artist:
+        return f"text:{title}|{artist}"
+    return ""
 
 
 def _items_from_recommendations(recommendations: list[dict[str, Any]], *, limit: int) -> list[dict[str, Any]]:

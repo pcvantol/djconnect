@@ -48,7 +48,16 @@
   backend contract: same endpoint, response shape, item kinds, structured text
   segment types, disabled reasons, TTL/polling/cache semantics, entitlement
   behavior and current-track resolution. Differences belong only in client
-  presentation or reported render capabilities.
+  presentation or reported render capabilities. Clients that advertise
+  `emoji_safe` can receive inline `emoji` segments with 1-3 decorative
+  music/vibe symbols.
+- Ask DJ queue/up-next answers dedupe repeated backend queue items before
+  returning the first 10 text rows, images and Play Now actions. Current-track
+  generated answers such as `wat speelt er` carry generated-text metadata and
+  replayable TTS audio on `assistant_message` when HA TTS can create audio.
+- Music Discovery dedupes repeated recent-track basis items and exposes
+  `play_count`/`based_on_count` for compact client labels such as repeated
+  listens, instead of returning duplicate based-on rows.
 - Home Assistant integration is HACS-distributed and MIT-licensed.
 - DJConnect client and firmware repositories are MIT-licensed unless their own repository metadata states otherwise.
 - Public firmware release assets live in `pcvantol/djconnect-firmware`.

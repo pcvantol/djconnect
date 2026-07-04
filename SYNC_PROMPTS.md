@@ -90,7 +90,13 @@ and `<3.3.0`.
   endpoint, response contract, item kinds, structured text segment types,
   disabled reasons, polling/cache semantics, entitlement behavior, TTL,
   revision handling and current-track resolution. Differences between macOS and
-  iOS are presentation/capability-only.
+  iOS are presentation/capability-only. Clients that can render emoji safely
+  should advertise `emoji_safe`; the backend may then return inline `emoji`
+  rich-text segments.
+- Music Discovery recommendations are backend-owned. Repeated recent-track
+  inputs are aggregated server-side with optional `play_count` and
+  `based_on_count`; clients render one row/card per unique item and show counts
+  as compact context instead of duplicating based-on titles.
 
 ## Client: VibeCast
 
@@ -111,12 +117,50 @@ current-track resolution. Platform differences are presentation-only or based
 on reported render capabilities.
 
 Render `items[].text[]` as safe structured text, not HTML or Markdown. Supported
-segment types are `text`, `strong`, `emphasis`, `magnify`, `accent` and
-`line_break`. If a capability such as `magnify` is not supported, degrade it
-gracefully without changing the item meaning.
+segment types are `text`, `strong`, `emphasis`, `magnify`, `accent`, `emoji`
+and `line_break`. Send `X-DJConnect-Render-Capabilities` with supported
+features; include `emoji_safe` only when inline emoji segments render cleanly.
+When `emoji_safe` is advertised, the backend may return one short `emoji`
+segment with 1-3 decorative music/vibe symbols per bubble. Render it inline as
+text and ignore unknown segment types safely. If a capability such as `magnify`
+or `emoji` is not supported, degrade it gracefully without changing the item
+meaning.
 
 If `enabled:false`, hide or degrade VibeCast using `reason` and never show raw
 provider, cache, decoding or generation errors.
+```
+
+## Client: Music Discovery
+
+```text
+Sync the DJConnect client with the Music Discovery backend contract.
+
+Music Discovery is backend-owned and source-of-truth data comes from Home
+Assistant Music DNA. Clients use:
+
+GET /api/djconnect/music_discovery
+POST /api/djconnect/music_discovery/refresh
+POST /api/djconnect/music_discovery/play
+
+Use the paired DJConnect device token plus canonical `device_id`,
+`client_type`, optional `client_id` and optional `music_dna_key`.
+
+Render `sections[].items[]` exactly from the backend. Do not generate
+recommendations, reasons or based-on lists locally. Each item has backend
+`id`, `kind`, `title`, `subtitle`, playable `uri`, optional `image_url`,
+`reason`, `reason_sources` and `confidence`.
+
+Render one card/row per unique `id` or `uri`. The backend aggregates repeated
+recent-track inputs, so if `play_count` or `based_on_count` is greater than 1,
+show it as compact context such as `4x afgespeeld` instead of repeating the
+same based-on title multiple times.
+
+Play buttons must call the Music Discovery play endpoint with
+`section_id` and `discovery_item_id`; do not start generic playback directly
+from the card.
+
+When `enabled:false`, hide or degrade Music Discovery using the stable
+`reason` and never fabricate fallback recommendations.
 ```
 
 ## Shared Release Cycle

@@ -147,6 +147,12 @@ empty `items[]`; clients should hide or degrade the feature and never show raw
 errors. macOS and iOS use the same endpoint, response contract, item kinds,
 disabled reasons, TTL/revision/cache semantics and current-track resolution;
 differences belong in client presentation or reported render capabilities only.
+Clients that include `emoji_safe` in `X-DJConnect-Render-Capabilities` may
+receive inline `emoji` rich-text segments such as music notes or vibe symbols;
+clients should render them inline and ignore unknown segment types safely.
+Music Discovery feed items aggregate repeated recent-track inputs: clients
+should render one item per unique `id`/`uri` and may show `play_count` or
+`based_on_count` as compact context instead of repeating the same title.
 
 ## Troubleshooting
 

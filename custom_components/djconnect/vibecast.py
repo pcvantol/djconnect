@@ -27,7 +27,7 @@ from .use_cases import MusicBackendCapabilityError, music_backend_metadata, run_
 _LOGGER = logging.getLogger(__name__)
 
 ALLOWED_VIBECAST_CLIENT_TYPES = {CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_WATCHOS}
-ALLOWED_TEXT_SEGMENT_TYPES = {"text", "strong", "emphasis", "magnify", "accent", "line_break"}
+ALLOWED_TEXT_SEGMENT_TYPES = {"text", "strong", "emphasis", "magnify", "accent", "emoji", "line_break"}
 VIBECAST_ITEM_KINDS = {
     "track_fact",
     "artist_fact",
@@ -107,7 +107,8 @@ async def async_handle_vibecast_payload(
     if not context.get("title") and not context.get("artist"):
         return _disabled("unknown_track"), 200
     locale = _locale(payload)
-    cache_key = _cache_key(context, locale)
+    render_profile = _render_profile(payload)
+    cache_key = _cache_key(context, locale, render_profile)
     cached = _cache(runtime).get(cache_key)
     now = time.monotonic()
     if isinstance(cached, dict) and now < float(cached.get("expires_at") or 0):
@@ -201,6 +202,7 @@ def _generate_items(context: dict[str, Any], locale: str, payload: dict[str, Any
                 context,
                 "track_fact",
                 [
+                    *_emoji_segments("track_fact", payload),
                     ("text", "Deze track leunt op "),
                     ("strong", "ritme en ruimte"),
                     ("text", f": luister hoe {title} steeds net genoeg openlaat."),
@@ -210,6 +212,7 @@ def _generate_items(context: dict[str, Any], locale: str, payload: dict[str, Any
                 context,
                 "artist_fact",
                 [
+                    *_emoji_segments("artist_fact", payload),
                     ("text", f"{artist} klinkt hier alsof elk detail een "),
                     ("accent", "kleine lichtflits"),
                     ("text", " in de mix mag zijn."),
@@ -220,6 +223,7 @@ def _generate_items(context: dict[str, Any], locale: str, payload: dict[str, Any
                 context,
                 "listening_tip",
                 [
+                    *_emoji_segments("listening_tip", payload),
                     ("text", "Tip: focus eens op de "),
                     ("magnify", "achtergrondlaag"),
                     ("text", " vlak voor het refrein of de drop."),
@@ -232,7 +236,10 @@ def _generate_items(context: dict[str, Any], locale: str, payload: dict[str, Any
                 _item(
                     context,
                     "album_fact",
-                    [("text", f"Albumcontext: {album} geeft deze track extra kleur zonder dat VibeCast harde claims hoeft te maken.")],
+                    [
+                        *_emoji_segments("album_fact", payload),
+                        ("text", f"Albumcontext: {album} geeft deze track extra kleur zonder dat VibeCast harde claims hoeft te maken."),
+                    ],
                     priority=32,
                 )
             )
@@ -241,29 +248,32 @@ def _generate_items(context: dict[str, Any], locale: str, payload: dict[str, Any
         _item(
             context,
             "track_fact",
-            [
-                ("text", "This track rides on "),
-                ("strong", "space and pulse"),
-                ("text", f": {title} leaves just enough air around the groove."),
+        [
+            *_emoji_segments("track_fact", payload),
+            ("text", "This track rides on "),
+            ("strong", "space and pulse"),
+            ("text", f": {title} leaves just enough air around the groove."),
             ],
         ),
         _item(
             context,
             "artist_fact",
-            [
-                ("text", f"{artist} makes the mix feel like every detail gets a "),
-                ("accent", "tiny spotlight"),
-                ("text", "."),
+        [
+            *_emoji_segments("artist_fact", payload),
+            ("text", f"{artist} makes the mix feel like every detail gets a "),
+            ("accent", "tiny spotlight"),
+            ("text", "."),
             ],
             priority=44,
         ),
         _item(
             context,
             "listening_tip",
-            [
-                ("text", "Try listening for the "),
-                ("magnify", "background layer"),
-                ("text", " right before the hook or drop."),
+        [
+            *_emoji_segments("listening_tip", payload),
+            ("text", "Try listening for the "),
+            ("magnify", "background layer"),
+            ("text", " right before the hook or drop."),
             ],
             priority=38,
         ),
@@ -297,6 +307,38 @@ def _item(
         "text": [{"type": segment_type, "value": value} for segment_type, value in text],
         "source": {"kind": "generated", "confidence": "medium"},
     }
+
+
+def _emoji_segments(kind: str, payload: dict[str, Any]) -> list[tuple[str, str]]:
+    """Return a tiny decorative emoji prefix when the client opts in."""
+    if not _emoji_safe(payload):
+        return []
+    emojis_by_kind = {
+        "track_fact": "♪ ♫",
+        "artist_fact": "✨",
+        "album_fact": "💿",
+        "genre_context": "🎚️",
+        "trivia": "🎵",
+        "listening_tip": "🎧",
+        "mood_context": "🌙",
+        "production_note": "🎛️",
+        "history_note": "🕰️",
+    }
+    value = emojis_by_kind.get(kind, "♪")
+    return [("emoji", f"{value} ")]
+
+
+def _emoji_safe(payload: dict[str, Any]) -> bool:
+    return "emoji_safe" in _render_capabilities(payload)
+
+
+def _render_capabilities(payload: dict[str, Any]) -> set[str]:
+    raw = str(payload.get("render_capabilities") or "").strip().lower()
+    return {part.strip() for part in raw.split(",") if part.strip()}
+
+
+def _render_profile(payload: dict[str, Any]) -> str:
+    return "emoji_safe" if _emoji_safe(payload) else "text_only"
 
 
 def _sanitize_item(item: dict[str, Any]) -> dict[str, Any]:
@@ -351,7 +393,7 @@ def _next_revision(runtime: Any) -> int:
     return revision
 
 
-def _cache_key(context: dict[str, Any], locale: str) -> str:
+def _cache_key(context: dict[str, Any], locale: str, render_profile: str = "text_only") -> str:
     return _stable_id(
         context.get("track_id"),
         context.get("title"),
@@ -360,6 +402,7 @@ def _cache_key(context: dict[str, Any], locale: str) -> str:
         context.get("music_backend"),
         context.get("music_backend_revision"),
         locale,
+        render_profile,
     )
 
 

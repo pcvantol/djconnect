@@ -342,6 +342,7 @@ VibeCast text is structured rich text, never HTML or Markdown:
 
 ```json
 [
+  { "type": "emoji", "value": "♪ ♫ " },
   { "type": "text", "value": "This track rides on " },
   { "type": "strong", "value": "space and pulse" },
   { "type": "text", "value": "." }
@@ -349,7 +350,10 @@ VibeCast text is structured rich text, never HTML or Markdown:
 ```
 
 Allowed segment types are `text`, `strong`, `emphasis`, `magnify`, `accent` and
-`line_break`. Clients must ignore unknown fields and must not display raw
+`emoji`, and `line_break`. When clients advertise `emoji_safe`, VibeCast bubbles
+may include one short `emoji` segment with 1-3 decorative music/vibe symbols;
+clients that do not advertise `emoji_safe` receive text-only structured
+segments. Clients must ignore unknown fields and must not display raw
 provider, decoding or generative errors. Disabled responses always remain JSON,
 for example `enabled:false`, `reason:"no_active_playback"` and empty `items[]`.
 Known reasons include `feature_disabled`, `premium_unavailable`,
@@ -768,6 +772,8 @@ refresh may be rate-limited and returns the current cached feed when limited:
           "image_url": "/api/djconnect/image_proxy/...",
           "reason": "Past bij je Music DNA smaakankers.",
           "reason_sources": ["taste_anchors", "recent_tracks"],
+          "play_count": 4,
+          "based_on_count": 4,
           "confidence": "medium"
         }
       ]
@@ -780,7 +786,11 @@ Displayed items must have `id`, `kind`, `title`, playable `uri` and a backend
 `reason`. If a good Music DNA reason cannot be generated, the backend should not
 return the item. Reasons are based on compact Music DNA signals only, such as
 taste anchors, explicit positives, repeat magnets, favorite genres/artists,
-playtime, mood mix and listening rhythm.
+playtime, mood mix and listening rhythm. Repeated recent plays are aggregated by
+the backend before recommendation items are returned. Clients should render one
+row/card per unique `id` or `uri`; when `play_count` or `based_on_count` is
+greater than `1`, show that as compact context such as `4x afgespeeld` instead
+of repeating the same based-on title.
 
 Play requests must use the discovery play endpoint instead of generic playback
 commands so the backend can record the click as positive Music DNA feedback:
@@ -849,6 +859,14 @@ local chat UI, and use `exchange_order` as the tie-breaker when optimistic UI,
 push events or history sync arrive close together. Older servers may omit these
 fields; in that case, keep the existing fallback of rendering the user message
 before the assistant message for the same `client_message_id`.
+
+Assistant messages may include `text_source:"generated"` and
+`is_generated_text:true` when Home Assistant's configured conversation agent
+created the answer text. Clients should show the generative-answer indicator
+from these fields even when the response is text-only. When `audio_url` is
+present on `assistant_message`, render the replay/play affordance for that exact
+assistant bubble; generated current-track answers such as `wat speelt er` can
+include both generated text metadata and a replayable TTS URL.
 
 Supported action kinds:
 

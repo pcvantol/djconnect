@@ -159,7 +159,7 @@ async def async_handle_ask_dj(
                 )
                 audio_url = dj_response.get("audio_url_value")
                 if audio_url:
-                    response["audio_url"] = audio_url
+                    _attach_audio_response(response, str(audio_url))
             except Exception as exc:  # noqa: BLE001
                 _LOGGER.debug("DJConnect Ask DJ audio response unavailable: %s", exc)
         response.pop("playback", None)
@@ -470,7 +470,7 @@ async def async_handle_ask_dj(
             )
             audio_url = dj_response.get("audio_url_value")
             if audio_url:
-                response["audio_url"] = audio_url
+                _attach_audio_response(response, str(audio_url))
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect Ask DJ audio response unavailable: %s", exc)
     response.pop("playback", None)
@@ -604,6 +604,30 @@ def _should_generate_audio_response(
 
 def _response_allows_audio(response: dict[str, Any]) -> bool:
     return str(response.get("error") or "").strip() != "playback_failed"
+
+
+def _attach_audio_response(response: dict[str, Any], audio_url: str) -> None:
+    """Attach replayable TTS audio to both response and assistant message."""
+    response["audio_url"] = audio_url
+    audio_type = _audio_type_from_url(audio_url)
+    if audio_type:
+        response["audio_type"] = audio_type
+    assistant = response.get("assistant_message")
+    if isinstance(assistant, dict):
+        assistant["audio_url"] = audio_url
+        if audio_type:
+            assistant["audio_type"] = audio_type
+
+
+def _audio_type_from_url(audio_url: str | None) -> str | None:
+    if not audio_url:
+        return None
+    lowered = str(audio_url).lower().split("?", 1)[0]
+    if lowered.endswith(".wav"):
+        return "wav"
+    if lowered.endswith(".mp3"):
+        return "mp3"
+    return None
 
 
 def _is_voice_input(payload: dict[str, Any]) -> bool:
@@ -2612,13 +2636,13 @@ async def _next_track_info_response(
         result = {}
     queue = result.get("queue") if isinstance(result, dict) else []
     current_uri = _current_playback_uri(runtime)
-    queue_items = [
+    queue_items = _dedupe_queue_items(
         item
         for item in (queue if isinstance(queue, list) else [])
         if isinstance(item, dict)
         and item
         and not (current_uri and str(item.get("uri") or "").strip() == current_uri)
-    ]
+    )
     next_track = queue_items[0] if queue_items else {}
     current_uri = _current_playback_uri(runtime)
     next_uri = str(next_track.get("uri") or "").strip() if isinstance(next_track, dict) else ""
@@ -2637,7 +2661,7 @@ async def _next_track_info_response(
             "playback_actions": [],
             "sources": [{"source": "spotify_queue", "title": "Spotify queue", "kind": "source"}],
         }
-    queue_preview = queue_items[:3]
+    queue_preview = queue_items[:10]
     lines = ["Hierna in de wachtrij:"]
     images = []
     playback_actions = []
@@ -2689,6 +2713,24 @@ async def _next_track_info_response(
         "playback_actions": playback_actions,
         "sources": [{"source": "spotify_queue", "title": "Spotify queue", "kind": "source"}],
     }
+
+
+def _dedupe_queue_items(items: Any) -> list[dict[str, Any]]:
+    """Return queue items once, preserving Spotify queue order."""
+    deduped: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        uri = str(item.get("uri") or "").strip().lower()
+        title = str(item.get("title") or item.get("track_name") or item.get("name") or "").strip().lower()
+        artist = str(item.get("subtitle") or item.get("artist") or item.get("artist_name") or "").strip().lower()
+        key = uri or f"{title}|{artist}"
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        deduped.append(item)
+    return deduped
 
 
 async def _next_queue_playback_action(
@@ -5255,10 +5297,13 @@ def _is_next_track_info_request(normalized: str) -> bool:
     question_prefixes = (
         "wat wordt",
         "wat is",
+        "wat zijn",
         "welk nummer wordt",
         "welk nummer is",
+        "welke nummers zijn",
         "welke track wordt",
         "welke track is",
+        "welke tracks zijn",
         "what is",
         "what will",
         "which song",
@@ -7081,7 +7126,12 @@ def _personal_music_profile_text(
             f"{detail}{profile_hint} Zodra er meer recente luisterprofiel-snapshots of Music DNA data staat, kan ik daar een veel scherper profiel van maken."
         )
 
-    lines = [f"Voor {period} zie ik dit profiel op basis van de DJConnect context die ik nu heb."]
+    profile_source = (
+        "je Music DNA en recente luistergeschiedenis"
+        if listening_profile
+        else "je Music DNA en beschikbare luistercontext"
+    )
+    lines = [f"Voor {period} zie ik dit profiel op basis van {profile_source}."]
     if listening_profile:
         lines.extend(["", "Bronnen:", "- Luisterprofiel recent/top-data", "- Music DNA"])
     lines.append("")

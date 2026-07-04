@@ -70,6 +70,74 @@ class VibeCastTests(unittest.TestCase):
         self.assertEqual(result["context"]["music_backend"], "spotify_direct")
         self.assertGreaterEqual(len(result["items"]), 1)
 
+    def test_emoji_safe_clients_get_one_to_three_emoji_prefixes_per_bubble(self) -> None:
+        self._patch_status()
+        result, status = asyncio.run(
+            vibecast.async_handle_vibecast_payload(
+                self.hass,
+                {
+                    "client_type": "ios",
+                    "device_id": "djconnect-ios-ABCDEF123456",
+                    "render_capabilities": "bold,accent,emoji_safe",
+                },
+                headers=self.headers,
+            )
+        )
+        self.assertEqual(status, 200)
+        for item in result["items"]:
+            emoji_segments = [segment for segment in item["text"] if segment["type"] == "emoji"]
+            self.assertEqual(len(emoji_segments), 1)
+            emojis = emoji_segments[0]["value"].strip().split()
+            self.assertGreaterEqual(len(emojis), 1)
+            self.assertLessEqual(len(emojis), 3)
+
+    def test_clients_without_emoji_safe_do_not_get_emoji_segments(self) -> None:
+        self._patch_status()
+        result, status = asyncio.run(
+            vibecast.async_handle_vibecast_payload(
+                self.hass,
+                {
+                    "client_type": "ios",
+                    "device_id": "djconnect-ios-ABCDEF123456",
+                    "render_capabilities": "bold,accent",
+                },
+                headers=self.headers,
+            )
+        )
+        self.assertEqual(status, 200)
+        self.assertTrue(result["items"])
+        self.assertFalse(
+            any(segment["type"] == "emoji" for item in result["items"] for segment in item["text"])
+        )
+
+    def test_vibecast_cache_separates_emoji_safe_render_profiles(self) -> None:
+        calls = []
+        self._original_run_music_command = vibecast.run_music_command
+
+        async def command(hass, runtime, command_name, value=None, *, play=None):
+            calls.append(command_name)
+            return _status_payload()
+
+        vibecast.run_music_command = command
+        payload = {"client_type": "ios", "device_id": "djconnect-ios-ABCDEF123456"}
+        no_emoji, _ = asyncio.run(
+            vibecast.async_handle_vibecast_payload(
+                self.hass,
+                {**payload, "render_capabilities": "bold,accent"},
+                headers=self.headers,
+            )
+        )
+        with_emoji, _ = asyncio.run(
+            vibecast.async_handle_vibecast_payload(
+                self.hass,
+                {**payload, "render_capabilities": "bold,accent,emoji_safe"},
+                headers=self.headers,
+            )
+        )
+        self.assertEqual(calls, ["status", "status"])
+        self.assertFalse(any(segment["type"] == "emoji" for item in no_emoji["items"] for segment in item["text"]))
+        self.assertTrue(any(segment["type"] == "emoji" for item in with_emoji["items"] for segment in item["text"]))
+
     def test_no_active_playback_returns_disabled_json(self) -> None:
         self._patch_status({"success": True, "playback": {"has_playback": False}})
         result, status = asyncio.run(

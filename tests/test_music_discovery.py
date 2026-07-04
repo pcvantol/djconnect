@@ -98,6 +98,46 @@ class MusicDiscoveryTests(unittest.TestCase):
         self.assertEqual(first["revision"], second["revision"])
         self.assertTrue(second["cache"]["hit"])
 
+    def test_feed_dedupes_repeated_recent_tracks_and_reports_play_count(self) -> None:
+        self.runtime.memory.recent_tracks = [
+            {
+                "track_name": "Strobe - Radio Edit",
+                "artist": "deadmau5",
+                "uri": "spotify:track:strobe-radio-edit",
+            },
+            {
+                "track_name": "Strobe - Radio Edit",
+                "artist": "deadmau5",
+                "uri": "spotify:track:strobe-radio-edit",
+            },
+            {
+                "track_name": "Strobe - Radio Edit",
+                "artist": "deadmau5",
+                "uri": "spotify:track:strobe-radio-edit",
+            },
+            {
+                "track_name": "Strobe - Radio Edit",
+                "artist": "deadmau5",
+                "uri": "spotify:track:strobe-radio-edit",
+            },
+        ]
+
+        result, status = asyncio.run(
+            music_discovery.async_handle_music_discovery_feed_payload(
+                self.hass,
+                _payload(),
+                headers=self.headers,
+                user_id="ha-user-1",
+            )
+        )
+
+        self.assertEqual(status, 200)
+        section = next(section for section in result["sections"] if section["id"] == "because_you_like")
+        strobe_items = [item for item in section["items"] if item["uri"] == "spotify:track:strobe-radio-edit"]
+        self.assertEqual(len(strobe_items), 1)
+        self.assertEqual(strobe_items[0]["play_count"], 4)
+        self.assertEqual(strobe_items[0]["based_on_count"], 4)
+
     def test_macos_feed_accepts_client_type_from_headers(self) -> None:
         runtime = _Runtime(
             client_type="macos",
@@ -205,6 +245,14 @@ class _Memory:
 
     def __init__(self) -> None:
         self.discovery_plays = []
+        self.recent_tracks = [
+            {
+                "track_name": "Intro",
+                "artist": "The xx",
+                "uri": "spotify:track:intro",
+                "album_image_url": "/api/djconnect/image_proxy/art",
+            }
+        ]
 
     async def async_context_for_runtime(self, runtime, payload=None, *, user_id=None):
         return {
@@ -213,14 +261,7 @@ class _Memory:
                 "enabled": self.enabled,
                 "favorite_genres": ["ambient", "indie"],
                 "favorite_artists": ["The xx"],
-                "recent_tracks": [
-                    {
-                        "track_name": "Intro",
-                        "artist": "The xx",
-                        "uri": "spotify:track:intro",
-                        "album_image_url": "/api/djconnect/image_proxy/art",
-                    }
-                ],
+                "recent_tracks": self.recent_tracks,
                 "recent_favorite_tracks": [
                     {
                         "track_name": "Holocene",

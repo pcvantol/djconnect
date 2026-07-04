@@ -19,6 +19,8 @@ class VibeCastDocsTest(unittest.TestCase):
             "`artist_fact`",
             "`listening_tip`",
             "`text`, `strong`, `emphasis`, `magnify`, `accent` and",
+            "`emoji`, and `line_break`",
+            "1-3 decorative music/vibe symbols",
             "`feature_disabled`",
             "`premium_unavailable`",
             "`no_active_playback`",
@@ -38,7 +40,22 @@ class VibeCastDocsTest(unittest.TestCase):
         self.assertIn("Clients poll:", sync_prompts)
         self.assertIn("GET /api/djconnect/vibecast", sync_prompts)
         self.assertIn("Platform differences are presentation-only", sync_prompts)
+        self.assertIn("emoji_safe", sync_prompts)
+        self.assertIn("`emoji`", sync_prompts)
         self.assertIn("never show raw", sync_prompts)
+
+    def test_music_discovery_docs_cover_deduped_based_on_counts(self) -> None:
+        api_contract = (ROOT / "API_CONTRACT.md").read_text(encoding="utf-8")
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        sync_prompts = (ROOT / "SYNC_PROMPTS.md").read_text(encoding="utf-8")
+
+        for text in (api_contract, readme, sync_prompts):
+            self.assertIn("play_count", text)
+            self.assertIn("based_on_count", text)
+        self.assertIn("Repeated recent plays are aggregated", api_contract)
+        self.assertIn("one item per unique `id`/`uri`", readme)
+        self.assertIn("Client: Music Discovery", sync_prompts)
+        self.assertIn("4x afgespeeld", sync_prompts)
 
 
 if __name__ == "__main__":

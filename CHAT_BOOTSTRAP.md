@@ -83,9 +83,19 @@ Belangrijke huidige status:
 - De `3.2.18` release voegt de premium-ready VibeCast backend feed toe via
   `GET /api/djconnect/vibecast`, met expliciete macOS/iOS parity voor endpoint,
   response contract, item kinds, structured text, disabled reasons en
-  polling/cache semantics. Houd de publieke `custom_components.djconnect.ask_dj`
-  import compatibel en gebruik de provider-neutrale `listening_profile`
-  payloadnaam; `spotify_profile` is alleen nog een tijdelijke legacy alias.
+  polling/cache semantics. Clients die `emoji_safe` adverteren kunnen inline
+  `emoji` rich-text segmenten krijgen met 1-3 muziek/vibe-symbolen. Houd de
+  publieke `custom_components.djconnect.ask_dj` import compatibel en gebruik de
+  provider-neutrale `listening_profile` payloadnaam; `spotify_profile` is alleen
+  nog een tijdelijke legacy alias.
+- Ask DJ queue/up-next antwoorden dedupliceren herhaalde backend queue-items
+  voordat de eerste 10 regels, images en Play Now acties worden teruggegeven.
+  Huidige-track antwoorden zoals `wat speelt er` geven generated-text metadata
+  en, wanneer HA TTS audio kan maken, `audio_url`/`audio_type` op
+  `assistant_message` terug.
+- Music Discovery dedupliceert herhaalde recente tracks als recommendation
+  basis en geeft `play_count`/`based_on_count` mee, zodat clients één
+  based-on item met compacte herhaalcontext tonen in plaats van dubbele regels.
 - Compacte conversation-agent options-flow toont alleen actie; DJ response stijl/prompt is geen user-facing optie meer en volgt runtime client mood of de hardcoded default.
 - Verwijderde opties:
   - Spotify source override;
