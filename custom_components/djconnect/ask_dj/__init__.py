@@ -2471,6 +2471,10 @@ async def _handle_informational(
     except Exception as exc:  # noqa: BLE001
         _LOGGER.debug("DJConnect Ask DJ informational Assist answer failed: %s", exc)
         message = ""
+    message = str(message or "").strip()
+    if _looks_like_internal_prompt_leak(message):
+        _LOGGER.debug("DJConnect Ask DJ informational answer ignored: internal prompt leak")
+        message = ""
     if not message:
         message = _fallback_info_text(text, memory_context, playback_context)
         return {"success": True, "text": message, "dj_text": message, "images": []}
@@ -3185,7 +3189,11 @@ async def _current_track_generated_announcement(
         _LOGGER.debug("DJConnect current track generated announcement unavailable: %s", exc)
         message = ""
     message = str(message or "").strip()
-    if not message or _looks_like_prompt_or_sandbox_attack(message):
+    if (
+        not message
+        or _looks_like_prompt_or_sandbox_attack(message)
+        or _looks_like_internal_prompt_leak(message)
+    ):
         return "", False
     return message, True
 
@@ -7937,6 +7945,56 @@ def _looks_like_prompt_or_sandbox_attack(text: str) -> bool:
             "security",
         )
     )
+
+
+def _looks_like_internal_prompt_leak(text: str) -> bool:
+    """Return whether Assist echoed DJConnect's hidden prompt instead of answering."""
+    normalized = _normalize(text)
+    if not normalized:
+        return False
+    leak_markers = (
+        "je bent djconnect ask dj",
+        "you are djconnect ask dj",
+        "beantwoord informatieve muziekvragen",
+        "answer informational music questions",
+        "zonder playback te wijzigen",
+        "without changing playback",
+        "gebruik alleen meegegeven context",
+        "use only provided context",
+        "betrouwbare kennis die je al hebt",
+        "reliable knowledge you already have",
+        "verzin geen trivia",
+        "do not invent trivia",
+        "als bronnen beschikbaar zijn",
+        "when sources are available",
+        "musicbrainz wikidata",
+        "last fm discogs",
+        "theaudiodb",
+        "gebruik de recente ask dj gespreksgeschiedenis",
+        "use the recent ask dj conversation history",
+        "geef een kort natuurlijk antwoord",
+        "give a short natural answer",
+        "voor een chat ui",
+        "for a chat ui",
+        "voice profile",
+        "klink als",
+        "sound like",
+        "mood energy",
+        "mood:",
+        "vraag:",
+        "question:",
+    )
+    matches = sum(1 for marker in leak_markers if marker in normalized)
+    if matches >= 2:
+        return True
+    device_error = (
+        "geen apparaat vinden" in normalized
+        or "kan geen apparaat" in normalized
+        or "can't find" in normalized
+        or "cannot find" in normalized
+        or "no device" in normalized
+    )
+    return device_error and matches >= 1
 
 
 def _images_from_context(

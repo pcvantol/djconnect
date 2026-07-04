@@ -1675,6 +1675,52 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["dj_text"], "Sorry, ik begrijp niet wat je bedoelt.")
         self.assertEqual(result["action"], "none")
 
+    def test_informational_assist_prompt_echo_is_never_returned(self) -> None:
+        runtime = make_runtime()
+        calls = []
+        leaked = (
+            "Sorry, ik kan geen apparaat vinden met de naam Je bent DJConnect Ask DJ "
+            "Beantwoord informatieve muziekvragen zonder playback te wijzigen Gebruik alleen "
+            "meegegeven context en betrouwbare kennis die je al hebt Voice profile klink als "
+            "een energieke radiohost"
+        )
+
+        class Services:
+            async def async_call(self, domain, service, data, **kwargs):
+                return {"response": {"speech": {"plain": {"speech": leaked}}}}
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append(command_name)
+            if command_name == "status":
+                return {"success": True, "playback": {}}
+            raise AssertionError(f"unexpected playback mutation: {command_name}")
+
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=Services(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "wat heb je van armin van buuren",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "macos",
+                        "mood": 72,
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.run_music_command = original_command
+
+        self.assertEqual(calls, ["status"])
+        self.assertNotEqual(result.get("action"), "play")
+        self.assertNotIn("Je bent DJConnect Ask DJ", result["dj_text"])
+        self.assertNotIn("Beantwoord informatieve muziekvragen", result["dj_text"])
+        self.assertNotIn("Voice profile", result["dj_text"])
+        self.assertNotIn("geen apparaat vinden", result["dj_text"])
+        self.assertTrue(result["dj_text"])
+
     def test_contextual_speel_af_uses_recent_track_and_artist_context(self) -> None:
         runtime = make_runtime()
         runtime.ask_dj_history = FakeAskDJHistory(

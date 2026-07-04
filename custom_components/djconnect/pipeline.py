@@ -901,5 +901,14 @@ def _looks_like_device_lookup_error(normalized: str) -> bool:
         "dj response",
         "djconnect muziekopdracht",
         "djconnect music request",
+        "je bent djconnect ask dj",
+        "you are djconnect ask dj",
+        "beantwoord informatieve muziekvragen",
+        "answer informational music questions",
+        "gebruik alleen meegegeven context",
+        "use only provided context",
+        "voice profile",
+        "voor een chat ui",
+        "for a chat ui",
     )
     return any(fragment in normalized for fragment in prompt_or_media_fragments)

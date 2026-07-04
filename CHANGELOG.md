@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Prevent Home Assistant Assist prompt echoes from leaking DJConnect internal
+  Ask DJ instructions into chat answers or generated DJ announcements.
+
 ## 3.2.16
 
 - Make realtime client mood the leading source for DJ announcement and

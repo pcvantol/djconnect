@@ -230,6 +230,38 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertNotIn("{'artist'", calls[0][2]["text"])
         self.assertNotIn("'uri'", calls[0][2]["text"])
 
+    def test_generate_dj_response_blocks_internal_prompt_echo(self) -> None:
+        class Services:
+            async def async_call(self, domain, service, data, **kwargs):
+                return {
+                    "response": {
+                        "speech": {
+                            "plain": {
+                                "speech": (
+                                    "Sorry, ik kan geen apparaat vinden met de naam "
+                                    "Je bent DJConnect Ask DJ Beantwoord informatieve "
+                                    "muziekvragen zonder playback te wijzigen Voice profile"
+                                )
+                            }
+                        }
+                    }
+                }
+
+        debug = {}
+        text = asyncio.run(
+            self.pipeline.generate_dj_response_with_assist(
+                types.SimpleNamespace(services=Services()),
+                media={"type": "track", "title": "Black", "artist": "Pearl Jam"},
+                fallback_text="Ik zet Black van Pearl Jam klaar.",
+                conf={"tts_language": "nl-NL"},
+                debug=debug,
+            )
+        )
+
+        self.assertEqual(text, "Ik zet Black van Pearl Jam klaar.")
+        self.assertTrue(debug["fallback_used"])
+        self.assertIn(debug["block_reason"], {"device lookup error", "geen apparaat vinden"})
+
     def test_generate_dj_response_uses_configured_conversation_agent(self) -> None:
         calls = []
 
