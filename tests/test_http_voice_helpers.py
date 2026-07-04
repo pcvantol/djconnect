@@ -2468,6 +2468,67 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertIs(calls[0][1], runtime)
         self.assertEqual(calls[0][2]["payload"]["client_type"], "watchos")
 
+    def test_push_register_accepts_macos_identity_from_headers(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+
+        class Runtime:
+            device_token = "device-token"
+            device_status = {"device_id": "djconnect-macos-ABCDEFGHIJKL"}
+            config = {"client_type": "macos"}
+
+            def authorize_device_request(self, headers, body_device_id=None, client_type=None):
+                return (
+                    headers.get("Authorization") == "Bearer device-token"
+                    and body_device_id == "djconnect-macos-ABCDEFGHIJKL"
+                    and client_type == "macos"
+                )
+
+        runtime = Runtime()
+        hass = types.SimpleNamespace(data={const.DOMAIN: {"entry-1": runtime}})
+
+        class Request:
+            headers = {
+                "Authorization": "Bearer device-token",
+                "X-DJConnect-Device-ID": "djconnect-macos-ABCDEFGHIJKL",
+                "X-DJConnect-Client-ID": "djconnect-macos-ABCDEFGHIJKL",
+                "X-DJConnect-Client-Type": "macos",
+                "X-DJConnect-Device-Name": "MacBook DJ",
+            }
+            app = {"hass": hass}
+
+            async def json(self):
+                return {
+                    "push_token": "macos-token-secret-value",
+                    "push_environment": "development",
+                    "app_bundle_id": "dev.djconnect.mac",
+                }
+
+        calls = []
+
+        async def register_push(hass_arg, runtime_arg, **kwargs):
+            calls.append((hass_arg, runtime_arg, kwargs))
+            return {
+                "success": True,
+                "push_supported": True,
+                "push_registered": True,
+                "push_environment": "development",
+            }
+
+        original_register = self.http.async_register_push
+        self.http.async_register_push = register_push
+        try:
+            response = asyncio.run(self.http.DJConnectPushRegisterView(None).post(Request()))
+        finally:
+            self.http.async_register_push = original_register
+
+        self.assertEqual(response["status_code"], 200)
+        payload = calls[0][2]["payload"]
+        self.assertEqual(payload["device_id"], "djconnect-macos-ABCDEFGHIJKL")
+        self.assertEqual(payload["client_id"], "djconnect-macos-ABCDEFGHIJKL")
+        self.assertEqual(payload["client_type"], "macos")
+        self.assertEqual(payload["device_name"], "MacBook DJ")
+        self.assertEqual(payload["authorization"], "<present>")
+
     def test_status_view_reports_push_registration(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
         class Runtime:

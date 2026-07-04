@@ -2967,7 +2967,8 @@ class DJConnectPushRegisterView(HomeAssistantView):
             data = await request.json()
         except Exception:  # noqa: BLE001
             return _json_error(self, "invalid_json", 400)
-        identity = _identity_payload(data)
+        payload = _push_payload_from_request(data, request.headers)
+        identity = _identity_payload(payload)
         runtime = _runtime(
             hass,
             identity.get("device_id") or request.headers.get("X-DJConnect-Device-ID"),
@@ -2981,11 +2982,10 @@ class DJConnectPushRegisterView(HomeAssistantView):
         if not _authorize_runtime_device_request(
             runtime,
             request.headers,
-            identity.get("device_id"),
+            identity.get("device_id") or request.headers.get("X-DJConnect-Device-ID"),
             client_type,
         ):
             return _json_error(self, "unauthorized", 401)
-        payload = dict(data)
         payload.update({key: value for key, value in identity.items() if value is not None})
         payload[CONF_CLIENT_TYPE] = client_type
         result = await async_register_push(
@@ -3012,7 +3012,8 @@ class DJConnectPushUnregisterView(HomeAssistantView):
             data = await request.json()
         except Exception:  # noqa: BLE001
             return _json_error(self, "invalid_json", 400)
-        identity = _identity_payload(data)
+        payload = _push_payload_from_request(data, request.headers)
+        identity = _identity_payload(payload)
         runtime = _runtime(
             hass,
             identity.get("device_id") or request.headers.get("X-DJConnect-Device-ID"),
@@ -3026,11 +3027,10 @@ class DJConnectPushUnregisterView(HomeAssistantView):
         if not _authorize_runtime_device_request(
             runtime,
             request.headers,
-            identity.get("device_id"),
+            identity.get("device_id") or request.headers.get("X-DJConnect-Device-ID"),
             client_type,
         ):
             return _json_error(self, "unauthorized", 401)
-        payload = dict(data)
         payload.update({key: value for key, value in identity.items() if value is not None})
         payload[CONF_CLIENT_TYPE] = client_type
         result = await async_unregister_push(
@@ -3041,6 +3041,27 @@ class DJConnectPushUnregisterView(HomeAssistantView):
         )
         status = 200 if result.get("success") else 400
         return self.json(result, status_code=status)
+
+
+def _push_payload_from_request(data: dict, headers) -> dict:
+    """Merge push request body with DJConnect identity headers."""
+    payload = dict(data or {})
+    for header_name, payload_key in (
+        ("X-DJConnect-Device-ID", CONF_DEVICE_ID),
+        ("X-DJConnect-Client-ID", "client_id"),
+        ("X-DJConnect-Client-Type", CONF_CLIENT_TYPE),
+        ("X-DJConnect-Device-Name", "device_name"),
+        ("X-DJConnect-App-Version", "app_version"),
+        ("X-DJConnect-App-Build", "app_build"),
+        ("X-DJConnect-Language", "language"),
+        ("X-DJConnect-Locale", "locale"),
+    ):
+        value = headers.get(header_name) if hasattr(headers, "get") else None
+        if value and not payload.get(payload_key):
+            payload[payload_key] = str(value).split(",", 1)[0].strip()
+    if headers.get("Authorization") and not payload.get("authorization"):
+        payload["authorization"] = "<present>"
+    return payload
 
 
 class DJConnectAskDjIdleSuggestionView(HomeAssistantView):

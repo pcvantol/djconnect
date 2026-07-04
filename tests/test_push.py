@@ -173,7 +173,7 @@ class PushTest(unittest.TestCase):
         self.assertFalse(hasattr(self.push, "APNsClient"))
         self.assertFalse(hasattr(self.push, "PushRegistrationManager"))
 
-    def test_register_normalizes_macos_development_environment_to_sandbox(self) -> None:
+    def test_register_normalizes_macos_development_environment_for_relay(self) -> None:
         hass = types.SimpleNamespace(session=FakeSession())
         hass.session.response = FakeResponse(data={"success": True, "push_environment": "production"})
         runtime = self._runtime()
@@ -197,11 +197,65 @@ class PushTest(unittest.TestCase):
 
         self.assertTrue(result["success"])
         self.assertTrue(result["push_registered"])
-        self.assertEqual(result["push_environment"], "sandbox")
+        self.assertEqual(result["push_environment"], "development")
         self.assertEqual(hass.session.calls[0]["json"]["push_environment"], "sandbox")
         status = runtime.push_status["djconnect-macos-ABCDEFGHIJKL|macos"]
         self.assertTrue(status["push_registered"])
-        self.assertEqual(status["push_environment"], "sandbox")
+        self.assertEqual(status["push_environment"], "development")
+
+    def test_register_accepts_develop_environment_alias(self) -> None:
+        hass = types.SimpleNamespace(session=FakeSession())
+        runtime = self._runtime()
+
+        result = asyncio.run(
+            self.push.async_register(
+                hass,
+                runtime,
+                user_id="user-1",
+                payload={
+                    "device_id": "djconnect-macos-ABCDEFGHIJKL",
+                    "client_type": "macos",
+                    "push_token": "macos-token-secret-value",
+                    "push_environment": "develop",
+                },
+            )
+        )
+
+        self.assertTrue(result["success"])
+        self.assertEqual(result["push_environment"], "development")
+        self.assertEqual(hass.session.calls[0]["json"]["push_environment"], "sandbox")
+
+    def test_register_updates_identity_before_bootstrap_with_stored_proof(self) -> None:
+        hass = types.SimpleNamespace(session=FakeSession(), config_entries=types.SimpleNamespace())
+        hass.config_entries.async_update_entry = lambda entry, **kwargs: setattr(entry, "options", kwargs["options"])
+        hass.session.response = FakeResponse(data={"success": True, "install_token": "djci_created_token"})
+        runtime = self._runtime(token=None)
+        runtime.entry.options["central_api_bootstrap_proof"] = "djcboot_stored_macos_proof"
+        runtime.device_status = {
+            "device_id": "djconnect-ios-OLDIDENTITY1",
+            "client_type": "ios",
+        }
+
+        result = asyncio.run(
+            self.push.async_register(
+                hass,
+                runtime,
+                user_id="user-1",
+                payload={
+                    "device_id": "djconnect-macos-ABCDEFGHIJKL",
+                    "client_type": "macos",
+                    "push_token": "macos-token-secret-value",
+                    "push_environment": "development",
+                },
+            )
+        )
+
+        self.assertTrue(result["success"])
+        bootstrap_call = hass.session.calls[0]
+        self.assertEqual(bootstrap_call["url"], "https://api.djconnect.dev/v1/install/token")
+        self.assertEqual(bootstrap_call["json"]["bootstrap_proof"], "djcboot_stored_macos_proof")
+        self.assertEqual(bootstrap_call["json"]["device_id"], "djconnect-macos-ABCDEFGHIJKL")
+        self.assertEqual(bootstrap_call["json"]["client_type"], "macos")
 
     def test_register_accepts_ios_macos_and_watchos_payloads(self) -> None:
         for client_type, device_id, bundle_id in (
@@ -351,17 +405,49 @@ class PushTest(unittest.TestCase):
 
         self.assertFalse(result["success"])
         self.assertFalse(result["push_registered"])
-        self.assertEqual(result["push_environment"], "sandbox")
+        self.assertEqual(result["push_environment"], "development")
         self.assertEqual(result["last_push_error"], "missing_bootstrap_proof")
         self.assertEqual(
             runtime.push_status["djconnect-macos-ABCDEFGHIJKL|macos"],
             {
                 "push_registered": False,
-                "push_environment": "sandbox",
+                "push_environment": "development",
                 "last_push_error": "missing_bootstrap_proof",
             },
         )
         self.assertEqual(hass.session.calls, [])
+
+    def test_failed_registration_logs_safe_debug_fields(self) -> None:
+        hass = types.SimpleNamespace(session=FakeSession())
+        runtime = self._runtime(token=None)
+
+        with self.assertLogs("custom_components.djconnect.push", level="INFO") as logs:
+            result = asyncio.run(
+                self.push.async_register(
+                    hass,
+                    runtime,
+                    user_id="user-1",
+                    payload={
+                        "device_id": "djconnect-macos-ABCDEFGHIJKL",
+                        "client_type": "macos",
+                        "push_token": "macos-token-secret-value",
+                        "push_environment": "development",
+                        "authorization": "<present>",
+                        "bootstrap_proof": "proof-secret-value",
+                    },
+                )
+            )
+
+        self.assertFalse(result["success"])
+        rendered = "\n".join(logs.output)
+        self.assertIn("client_type=macos", rendered)
+        self.assertIn("device_id=djconnect-macos-ABCDEFGHIJKL", rendered)
+        self.assertIn("push_environment=development", rendered)
+        self.assertIn("authorization_present=True", rendered)
+        self.assertIn("bootstrap_proof_present=True", rendered)
+        self.assertIn("reason=missing_install_token", rendered)
+        self.assertNotIn("macos-token-secret-value", rendered)
+        self.assertNotIn("proof-secret-value", rendered)
 
     def test_register_reports_push_relay_unavailable_on_transport_failure(self) -> None:
         hass = types.SimpleNamespace(session=FakeSession())

@@ -1,10 +1,17 @@
 # Changelog
 
-## Unreleased
+## 3.2.20
 
 - Add dependency and tool update checks to the shared CI workflows and release
   documentation so maintainers review third-party package, framework and tooling
   updates before publishing.
+- Accept DJConnect client identity headers on Music Discovery requests so macOS
+  and other Apple clients do not get `invalid_client_type` when identity is sent
+  outside the query/body payload.
+- Fix macOS development APNs registration by accepting header-based push
+  identity, normalizing `development`/`sandbox`/`develop` as development for
+  clients while still using relay-compatible sandbox payloads, and logging
+  privacy-safe push registration failure diagnostics.
 
 ## 3.2.19
 

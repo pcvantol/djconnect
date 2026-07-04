@@ -24,10 +24,12 @@ from .const import (
 )
 
 SUPPORTED_CLIENT_TYPES = {CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_WATCHOS}
-SUPPORTED_ENVIRONMENTS = {"sandbox", "production"}
+SUPPORTED_ENVIRONMENTS = {"development", "production"}
+RELAY_ENVIRONMENTS = {"sandbox", "production"}
 ENVIRONMENT_ALIASES = {
-    "development": "sandbox",
-    "dev": "sandbox",
+    "sandbox": "development",
+    "develop": "development",
+    "dev": "development",
 }
 EVENT_ASK_DJ_RESPONSE = "ask_dj_response"
 EVENT_ASK_DJ_CONFIRM = "ask_dj_confirm"
@@ -50,32 +52,37 @@ async def async_register(
     """Forward an Apple push token registration to the central DJConnect relay."""
     cleaned = _registration_payload(runtime, user_id=user_id, payload=payload)
     if not cleaned:
+        _log_registration_failure(runtime, payload, "invalid_push_registration")
         return {"success": False, "error": "invalid_push_registration"}
+    _remember_registration_identity(runtime, payload)
     _remember_bootstrap_proof(runtime, payload)
     result = await _post_relay(hass, runtime, "/v1/push/register", cleaned)
+    response_environment = _response_environment(cleaned.get("push_environment"))
     if result.get("success"):
         _remember_status(
             runtime,
             cleaned.get("device_id"),
             cleaned.get("client_type"),
             registered=True,
-            environment=cleaned.get("push_environment"),
+            environment=response_environment,
             error=None,
         )
     else:
+        error = _clean_text(result.get("error"), 120) or None
         _remember_status(
             runtime,
             cleaned.get("device_id"),
             cleaned.get("client_type"),
             registered=False,
-            environment=cleaned.get("push_environment"),
-            error=result.get("error"),
+            environment=response_environment,
+            error=error,
         )
+        _log_registration_failure(runtime, payload, error or "push_registration_failed", cleaned=cleaned)
     return {
         "success": bool(result.get("success")),
-        "push_supported": relay_configured(runtime),
+        "push_supported": _push_supported(runtime, cleaned.get("client_type")),
         "push_registered": bool(result.get("success")),
-        "push_environment": cleaned.get("push_environment") or result.get("push_environment"),
+        "push_environment": response_environment or _response_environment(result.get("push_environment")),
         "last_push_error": _clean_text(result.get("error"), 120) or None,
     }
 
@@ -90,22 +97,25 @@ async def async_unregister(
     """Forward an Apple push token unregister request to the central relay."""
     cleaned = _registration_payload(runtime, user_id=user_id, payload=payload)
     if not cleaned:
+        _log_registration_failure(runtime, payload, "invalid_push_registration")
         return {"success": False, "error": "invalid_push_registration"}
+    _remember_registration_identity(runtime, payload)
     result = await _post_relay(hass, runtime, "/v1/push/unregister", cleaned)
+    response_environment = _response_environment(cleaned.get("push_environment"))
     if result.get("success"):
         _remember_status(
             runtime,
             cleaned.get("device_id"),
             cleaned.get("client_type"),
             registered=False,
-            environment=cleaned.get("push_environment"),
+            environment=response_environment,
             error=None,
         )
     return {
         "success": bool(result.get("success")),
-        "push_supported": relay_configured(runtime),
+        "push_supported": _push_supported(runtime, cleaned.get("client_type")),
         "push_registered": False,
-        "push_environment": cleaned.get("push_environment") or result.get("push_environment"),
+        "push_environment": response_environment or _response_environment(result.get("push_environment")),
         "last_push_error": _clean_text(result.get("error"), 120) or None,
     }
 
@@ -123,7 +133,7 @@ async def async_status(
     _remember_client_activity(runtime, device_id, client_type)
     status = _status_for(runtime, device_id, client_type)
     return {
-        "push_supported": relay_configured(runtime) and _clean_client_type(client_type) in SUPPORTED_CLIENT_TYPES,
+        "push_supported": _push_supported(runtime, client_type),
         "push_registered": bool(status.get("push_registered")),
         "push_environment": status.get("push_environment"),
         "last_push_error": _clean_text(status.get("last_push_error"), 120) or None,
@@ -269,6 +279,11 @@ def relay_configured(runtime: Any | None = None) -> bool:
     return central_api_configured(runtime) if runtime is not None else False
 
 
+def _push_supported(runtime: Any, client_type: Any) -> bool:
+    """Return whether this runtime/client type can use Apple push."""
+    return relay_configured(runtime) and _clean_client_type(client_type) in SUPPORTED_CLIENT_TYPES
+
+
 def _relay_ready_or_bootstrappable(runtime: Any) -> bool:
     """Return true when push can use an install token or mint one from proof."""
     if relay_configured(runtime):
@@ -320,7 +335,7 @@ def _registration_payload(runtime: Any, *, user_id: str | None, payload: dict[st
         "device_id": device_id,
         "client_type": client_type,
         "push_token": push_token,
-        "push_environment": push_environment,
+        "push_environment": _relay_environment(push_environment),
         "app_bundle_id": _clean_text(payload.get("app_bundle_id"), 200),
         "app_version": _clean_text(payload.get("app_version"), 64),
         "locale": _clean_text(payload.get("locale"), 32),
@@ -353,6 +368,22 @@ def _remember_bootstrap_proof(runtime: Any, payload: dict[str, Any]) -> None:
     )
     if expires_at:
         status[CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT] = expires_at
+
+
+def _remember_registration_identity(runtime: Any, payload: dict[str, Any]) -> None:
+    """Keep runtime identity aligned before central token bootstrap."""
+    device_id = _clean_text(payload.get(CONF_DEVICE_ID) or payload.get("device_id"), 160)
+    client_type = _clean_client_type(payload.get(CONF_CLIENT_TYPE) or payload.get("client_type"))
+    if not device_id and not client_type:
+        return
+    status = getattr(runtime, "device_status", None)
+    if not isinstance(status, dict):
+        status = {}
+        setattr(runtime, "device_status", status)
+    if device_id:
+        status[CONF_DEVICE_ID] = device_id
+    if client_type:
+        status[CONF_CLIENT_TYPE] = client_type
 
 
 def _remember_status(
@@ -516,3 +547,69 @@ def _clean_environment(value: Any) -> str:
     environment = str(value or "").strip().lower()
     environment = ENVIRONMENT_ALIASES.get(environment, environment)
     return environment if environment in SUPPORTED_ENVIRONMENTS else ""
+
+
+def _relay_environment(value: Any) -> str:
+    environment = _clean_environment(value)
+    if environment == "development":
+        return "sandbox"
+    return environment if environment in RELAY_ENVIRONMENTS else ""
+
+
+def _response_environment(value: Any) -> str:
+    environment = str(value or "").strip().lower()
+    if environment == "sandbox":
+        return "development"
+    return _clean_environment(environment)
+
+
+def _log_registration_failure(
+    runtime: Any,
+    payload: dict[str, Any],
+    reason: str,
+    *,
+    cleaned: dict[str, Any] | None = None,
+) -> None:
+    """Log push registration failures without exposing APNs/proof/token values."""
+    cleaned = cleaned or {}
+    resolved_client_type = _clean_client_type(
+        cleaned.get("client_type") or payload.get("client_type") or payload.get(CONF_CLIENT_TYPE)
+    )
+    resolved_device_id = _clean_text(
+        cleaned.get("device_id") or payload.get("device_id") or payload.get(CONF_DEVICE_ID),
+        160,
+    )
+    resolved_environment = _response_environment(
+        cleaned.get("push_environment") or payload.get("push_environment")
+    )
+    has_authorization = bool(_clean_text(payload.get("authorization") or payload.get("Authorization"), 4096))
+    runtime_config = _runtime_config(runtime)
+    has_bootstrap_proof = bool(
+        _clean_text(
+            payload.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF)
+            or payload.get("bootstrap_proof")
+            or getattr(runtime, "device_status", {}).get(CONF_CENTRAL_API_BOOTSTRAP_PROOF)
+            or runtime_config.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF),
+            4096,
+        )
+    )
+    _LOGGER.info(
+        "DJConnect push registration failed: client_type=%s device_id=%s "
+        "push_environment=%s authorization_present=%s bootstrap_proof_present=%s reason=%s",
+        resolved_client_type or "missing",
+        resolved_device_id or "missing",
+        resolved_environment or "missing",
+        has_authorization,
+        has_bootstrap_proof,
+        _clean_text(reason, 120) or "unknown",
+    )
+
+
+def _runtime_config(runtime: Any) -> dict[str, Any]:
+    config = getattr(runtime, "config", None)
+    if isinstance(config, dict):
+        return config
+    entry = getattr(runtime, "entry", None) or getattr(runtime, "config_entry", None)
+    data = dict(getattr(entry, "data", {}) or {})
+    data.update(dict(getattr(entry, "options", {}) or {}))
+    return data

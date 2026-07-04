@@ -123,7 +123,7 @@ async def _authorized_payload(
     headers: Any | None,
 ) -> tuple[Any | None, dict[str, Any], tuple[dict[str, Any], int] | None]:
     headers = headers or {}
-    payload = dict(data or {})
+    payload = _metadata_payload(data or {}, headers)
     identity = identity_payload(payload)
     runtime = resolve_runtime(
         hass,
@@ -148,6 +148,27 @@ async def _authorized_payload(
     payload.setdefault(CONF_CLIENT_TYPE, client_type)
     payload.setdefault(CONF_DEVICE_ID, identity.get(CONF_DEVICE_ID) or payload.get(CONF_DEVICE_ID))
     return runtime, payload, None
+
+
+def _metadata_payload(data: dict[str, Any], headers: Any) -> dict[str, Any]:
+    """Merge request payload with DJConnect client identity headers."""
+    payload = dict(data)
+    for header_name, payload_key in (
+        ("X-DJConnect-Device-ID", CONF_DEVICE_ID),
+        ("X-DJConnect-Client-Type", CONF_CLIENT_TYPE),
+        ("X-DJConnect-Client-ID", "client_id"),
+        ("X-DJConnect-Device-Name", "device_name"),
+        ("X-DJConnect-App-Version", "app_version"),
+        ("X-DJConnect-App-Build", "app_build"),
+        ("X-DJConnect-Language", "language"),
+        ("X-DJConnect-Locale", "locale"),
+        ("Accept-Language", "locale"),
+        ("X-DJConnect-Timezone", "timezone"),
+    ):
+        value = headers.get(header_name) if hasattr(headers, "get") else None
+        if value and not payload.get(payload_key):
+            payload[payload_key] = str(value).split(",", 1)[0].strip()
+    return payload
 
 
 async def _music_dna_context(runtime: Any, payload: dict[str, Any], *, user_id: str | None) -> dict[str, Any]:

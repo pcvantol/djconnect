@@ -22,6 +22,7 @@ class MusicDiscoveryTests(unittest.TestCase):
         self.headers = {
             "Authorization": "Bearer token",
             "X-DJConnect-Device-ID": "djconnect-ios-ABCDEF123456",
+            "X-DJConnect-Client-Type": "ios",
         }
 
     def tearDown(self) -> None:
@@ -97,6 +98,33 @@ class MusicDiscoveryTests(unittest.TestCase):
         self.assertEqual(first["revision"], second["revision"])
         self.assertTrue(second["cache"]["hit"])
 
+    def test_macos_feed_accepts_client_type_from_headers(self) -> None:
+        runtime = _Runtime(
+            client_type="macos",
+            device_id="djconnect-macos-ABCDEF123456",
+        )
+        hass = types.SimpleNamespace(
+            data={"djconnect": {"runtime": runtime}},
+            states=types.SimpleNamespace(get=lambda entity_id: None),
+        )
+
+        result, status = asyncio.run(
+            music_discovery.async_handle_music_discovery_feed_payload(
+                hass,
+                {"music_dna_key": "user:ha-user-1"},
+                headers={
+                    "Authorization": "Bearer token",
+                    "X-DJConnect-Device-ID": "djconnect-macos-ABCDEF123456",
+                    "X-DJConnect-Client-Type": "macos",
+                },
+                user_id="ha-user-1",
+            )
+        )
+
+        self.assertEqual(status, 200)
+        self.assertTrue(result["enabled"])
+        self.assertNotEqual(result.get("reason"), "invalid_client_type")
+
     def test_play_validates_cached_item_starts_playback_and_records_feedback(self) -> None:
         calls = []
         self._original_run_music_command = music_discovery.run_music_command
@@ -147,23 +175,28 @@ def _payload() -> dict:
 
 
 class _Runtime:
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        *,
+        client_type: str = "ios",
+        device_id: str = "djconnect-ios-ABCDEF123456",
+    ) -> None:
         self.device_token = "token"
         self.config = {
-            CONF_CLIENT_TYPE: "ios",
-            CONF_DEVICE_ID: "djconnect-ios-ABCDEF123456",
+            CONF_CLIENT_TYPE: client_type,
+            CONF_DEVICE_ID: device_id,
         }
         self.device_status = dict(self.config)
         self.memory = _Memory()
 
     def client_type(self) -> str:
-        return "ios"
+        return self.config[CONF_CLIENT_TYPE]
 
     def authorize_device_request(self, headers, body_device_id=None, client_type=None) -> bool:
         return (
             headers.get("Authorization") == "Bearer token"
-            and body_device_id == "djconnect-ios-ABCDEF123456"
-            and client_type == "ios"
+            and body_device_id == self.config[CONF_DEVICE_ID]
+            and client_type == self.config[CONF_CLIENT_TYPE]
         )
 
 
