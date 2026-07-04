@@ -128,6 +128,8 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
         self.assertIn(self.websocket_api.WS_TYPE_ASK_DJ_HISTORY, result["commands"])
         self.assertIn(self.websocket_api.WS_TYPE_ASK_DJ_HISTORY_CLEAR, result["commands"])
         self.assertIn(self.websocket_api.WS_TYPE_ASK_DJ_HISTORY_STATE, result["commands"])
+        self.assertNotIn("djconnect/ask_dj/history/export", result["commands"])
+        self.assertFalse(hasattr(self.websocket_api, "WS_TYPE_ASK_DJ_HISTORY_EXPORT"))
         self.assertIn(self.websocket_api.WS_TYPE_ASK_DJ_IDLE_SUGGESTION, result["commands"])
         self.assertIn(self.websocket_api.WS_TYPE_TRACK_INSIGHT, result["commands"])
         self.assertIn(self.websocket_api.WS_TYPE_MUSIC_DNA_PROFILE, result["commands"])

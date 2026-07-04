@@ -647,6 +647,38 @@ async def async_handle_ask_dj_history_payload(
     return result, 200
 
 
+async def async_handle_ask_dj_history_export_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Export Ask DJ history for HTTP client downloads."""
+    headers = headers or {}
+    if not isinstance(data, dict):
+        return _error_payload("invalid_json"), 400
+    runtime, identity, error, status = _authorized_history_runtime(hass, data, headers)
+    if error:
+        return _error_payload(error), status
+    history = await _history_manager(hass, runtime).async_history(user_id)
+    return {
+        "success": True,
+        "format": "djconnect.ask_dj.history.export",
+        "schema_version": 1,
+        "exported_at": history.get("server_time"),
+        "exported_by_client_type": (
+            identity.get("client_type")
+            or headers.get("X-DJConnect-Client-Type")
+            or runtime_client_type(runtime)
+        ),
+        "app_version": data.get("app_version")
+        or data.get("version")
+        or headers.get("X-DJConnect-App-Version"),
+        **history,
+    }, 200
+
+
 async def async_handle_music_discovery_feed_payload(
     hass: Any,
     data: dict[str, Any],

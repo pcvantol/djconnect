@@ -3,7 +3,7 @@ from __future__ import annotations
 
 DOMAIN = "djconnect"
 NAME = "DJConnect"
-VERSION = "3.2.21"
+VERSION = "3.2.22"
 
 API_BASE = "/api/djconnect"
 API_PAIR = f"{API_BASE}/pair"
@@ -16,6 +16,7 @@ API_ASK_DJ_MESSAGE = f"{API_ASK_DJ}/message"
 API_ASK_DJ_IDLE_SUGGESTION = f"{API_ASK_DJ}/idle_suggestion"
 API_ASK_DJ_HISTORY = f"{API_ASK_DJ}/history"
 API_ASK_DJ_HISTORY_CLEAR = f"{API_ASK_DJ_HISTORY}/clear"
+API_ASK_DJ_HISTORY_EXPORT = f"{API_ASK_DJ_HISTORY}/export"
 API_ASK_DJ_CLEAR = f"{API_ASK_DJ}/clear"
 API_ASK_DJ_HISTORY_STATE = f"{API_ASK_DJ}/history_state"
 API_MUSIC_DNA = f"{API_BASE}/music_dna"

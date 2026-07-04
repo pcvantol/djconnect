@@ -21,6 +21,8 @@ Website: [https://djconnect.dev](https://djconnect.dev)
   Home Assistant entities.
 - Use Ask DJ for music requests, recommendations, follow-up questions and
   recent listening questions.
+- Export server-side Ask DJ chat history through the HTTP-only backend route
+  when clients need a user download.
 - Use VibeCast on Apple clients for premium-ready live track/artist vibe
   bubbles from the current Home Assistant music backend context.
 - Keep Music DNA opt-in and server-side in Home Assistant, with HTTP-only
@@ -205,8 +207,10 @@ Use this checklist for every Home Assistant integration release.
   change.
 - Keep `examples/ask_dj_e2e_cases.json` current for Ask DJ client-visible
   intents.
-- Review English, Dutch, German, French and Spanish translations for changed
-  config-flow, options-flow, repair-flow, entity and service strings.
+- Always review all five supported translations: English, Dutch, German,
+  French and Spanish. Keep them complete, natural and current for config-flow,
+  options-flow, repair-flow, entity, service, endpoint and client-facing text,
+  even when the change looks mostly API/docs/client-contract related.
 - Re-run security/diagnostics redaction checks when payloads, logs,
   diagnostics, Ask DJ history, memory, push registration or token handling
   changes.
@@ -226,6 +230,7 @@ python3 -m unittest discover -s tests
 For focused contract checks:
 
 ```bash
+python3 -m unittest tests.test_translations
 python3 -m unittest tests.test_ask_dj_e2e_contract
 python3 -m unittest tests.test_postman_collection
 ```

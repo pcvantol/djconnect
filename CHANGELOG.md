@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.2.22
+
+- Add HTTP-only Ask DJ history export so app clients can download the
+  server-side HA-user scoped chat history as a backend-built JSON envelope.
+- Keep Ask DJ history export read-only and outside the Home Assistant websocket
+  capability surface; Ask DJ history import is not supported.
+- Document and test the Ask DJ history export contract, Postman example,
+  authentication requirements and websocket exclusion.
+- Tighten release hygiene so every release explicitly reviews all five
+  supported translations (`en`, `nl`, `de`, `fr`, `es`) and runs the translation
+  regression tests.
+
 ## 3.2.21
 
 - Add HTTP-only Music DNA import support so iOS and macOS clients can upload a

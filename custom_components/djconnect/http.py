@@ -18,6 +18,7 @@ from .const import (
     API_ASK_DJ_CLEAR,
     API_ASK_DJ_HISTORY,
     API_ASK_DJ_HISTORY_CLEAR,
+    API_ASK_DJ_HISTORY_EXPORT,
     API_ASK_DJ_HISTORY_STATE,
     API_ASK_DJ_IDLE_SUGGESTION,
     API_ASK_DJ_MESSAGE,
@@ -3156,6 +3157,31 @@ class DJConnectAskDjHistoryView(HomeAssistantView):
         result, status_code = await async_handle_ask_dj_history_payload(
             hass,
             {"since_revision": _query_int(request, "since_revision")},
+            headers=request.headers,
+            user_id=_request_user_id(request),
+        )
+        return self.json(result, status_code=status_code)
+
+
+class DJConnectAskDjHistoryExportView(HomeAssistantView):
+    url = API_ASK_DJ_HISTORY_EXPORT
+    name = "api:djconnect:ask_dj_history_export"
+    requires_auth = False
+
+    def __init__(self, hass):
+        self.hass = hass
+
+    async def post(self, request):
+        hass = request.app["hass"]
+        try:
+            data = await request.json()
+        except Exception:  # noqa: BLE001
+            return _json_error(self, "invalid_json", 400)
+        from .api_handlers import async_handle_ask_dj_history_export_payload
+
+        result, status_code = await async_handle_ask_dj_history_export_payload(
+            hass,
+            data,
             headers=request.headers,
             user_id=_request_user_id(request),
         )

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import importlib
+import types
 import unittest
 
 from tests.test_http_voice_helpers import install_http_stubs
@@ -10,6 +11,7 @@ install_http_stubs()
 AskDJHistoryManager = importlib.import_module(
     "custom_components.djconnect.ask_dj_history"
 ).AskDJHistoryManager
+api_handlers = importlib.import_module("custom_components.djconnect.api_handlers")
 
 
 class FakeStore:
@@ -51,6 +53,94 @@ class AskDJHistoryManagerTest(unittest.TestCase):
         self.assertEqual(second_client["messages"][0]["client_id"], "watch")
         self.assertEqual(other_user["messages"], [])
         self.assertEqual(other_user["history_revision"], 0)
+
+    def test_history_export_handler_returns_backend_envelope(self) -> None:
+        manager = AskDJHistoryManager(store=FakeStore())
+        runtime = types.SimpleNamespace(
+            ask_dj_history=manager,
+            device_status={"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios"},
+            client_type=lambda: "ios",
+        )
+        original_resolve_runtime = api_handlers.resolve_runtime
+        original_authorize = api_handlers.authorize_runtime_device_request
+        api_handlers.resolve_runtime = lambda hass, device_id, headers=None: runtime
+        api_handlers.authorize_runtime_device_request = (
+            lambda runtime_arg, headers, device_id=None, client_type=None: True
+        )
+
+        async def run():
+            await manager.async_append_exchange(
+                "ha-user-1",
+                {
+                    "client_message_id": "ios-1",
+                    "client_id": "ios",
+                    "client_type": "ios",
+                    "text": "Wat speelde ik net?",
+                },
+                {"success": True, "dj_text": "Je luisterde net naar Intro."},
+            )
+            return await api_handlers.async_handle_ask_dj_history_export_payload(
+                types.SimpleNamespace(data={}),
+                {
+                    "identity": {
+                        "device_id": "djconnect-ios-ABCDEFGHIJKL",
+                        "client_type": "ios",
+                        "device_name": "iPhone",
+                    },
+                    "app_version": "3.2.21",
+                },
+                headers={"Authorization": "Bearer token"},
+                user_id="ha-user-1",
+            )
+
+        try:
+            result, status = asyncio.run(run())
+        finally:
+            api_handlers.resolve_runtime = original_resolve_runtime
+            api_handlers.authorize_runtime_device_request = original_authorize
+
+        self.assertEqual(status, 200)
+        self.assertTrue(result["success"])
+        self.assertEqual(result["format"], "djconnect.ask_dj.history.export")
+        self.assertEqual(result["schema_version"], 1)
+        self.assertEqual(result["exported_by_client_type"], "ios")
+        self.assertEqual(result["app_version"], "3.2.21")
+        self.assertEqual(result["user_id"], "ha-user-1")
+        self.assertEqual(result["history_revision"], 1)
+        self.assertEqual(result["clear_revision"], 0)
+        self.assertEqual(result["history_limit"], 1000)
+        self.assertIn("exported_at", result)
+        self.assertEqual(len(result["messages"]), 2)
+        self.assertEqual(result["messages"][0]["text"], "Wat speelde ik net?")
+
+    def test_unauthorized_history_export_is_rejected(self) -> None:
+        runtime = types.SimpleNamespace(
+            ask_dj_history=AskDJHistoryManager(store=FakeStore()),
+            device_status={"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios"},
+            client_type=lambda: "ios",
+        )
+        original_resolve_runtime = api_handlers.resolve_runtime
+        original_authorize = api_handlers.authorize_runtime_device_request
+        api_handlers.resolve_runtime = lambda hass, device_id, headers=None: runtime
+        api_handlers.authorize_runtime_device_request = (
+            lambda runtime_arg, headers, device_id=None, client_type=None: False
+        )
+
+        try:
+            result, status = asyncio.run(
+                api_handlers.async_handle_ask_dj_history_export_payload(
+                    types.SimpleNamespace(data={}),
+                    {"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios"},
+                    headers={"Authorization": "Bearer wrong"},
+                    user_id="ha-user-1",
+                )
+            )
+        finally:
+            api_handlers.resolve_runtime = original_resolve_runtime
+            api_handlers.authorize_runtime_device_request = original_authorize
+
+        self.assertEqual(status, 401)
+        self.assertEqual(result["error"], "unauthorized")
 
     def test_clear_increments_revisions_for_only_one_user(self) -> None:
         manager = AskDJHistoryManager(store=FakeStore())

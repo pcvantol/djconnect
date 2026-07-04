@@ -758,6 +758,44 @@
           }
         },
         {
+          "name": "Ask DJ - export history",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identity\": {\n    \"device_id\": \"{{device_id}}\",\n    \"client_type\": \"{{client_type}}\",\n    \"device_name\": \"{{device_name}}\"\n  },\n  \"app_version\": \"3.2.21\"\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/ask_dj/history/export",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "ask_dj",
+                "history",
+                "export"
+              ]
+            },
+            "description": "Exports the authenticated HA-user Ask DJ history as a backend-built JSON envelope. This is HTTP-only and read-only; Ask DJ history import is not supported."
+          }
+        },
+        {
           "name": "Music DNA - profile",
           "request": {
             "method": "POST",

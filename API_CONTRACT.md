@@ -1093,7 +1093,10 @@ request server-side. Clients must not reconstruct the original prompt locally.
 
 Ask DJ history is server-side and HA-user scoped. App clients synchronize through
 `GET /api/djconnect/ask_dj/history?since_revision=<number>` and clear through
-`POST /api/djconnect/ask_dj/history/clear`.
+`POST /api/djconnect/ask_dj/history/clear`. Clients can export the current
+bounded server-side history through HTTP-only
+`POST /api/djconnect/ask_dj/history/export`; this route is intentionally not a
+Home Assistant websocket command.
 
 `clear_revision` is the authoritative full-clear marker. When a history or clear
 response contains a higher `clear_revision` than the client has locally, the
@@ -1111,6 +1114,31 @@ History responses include `history_limit`, `history_trimmed_before` and
 `history_trimmed_count`. When trimming occurs, clients should delete local
 messages older than `history_trimmed_before` and must not parse retention message
 text.
+
+History export uses the same DJConnect bearer token and identity contract as
+history sync. The response is a backend-built envelope:
+
+```json
+{
+  "success": true,
+  "format": "djconnect.ask_dj.history.export",
+  "schema_version": 1,
+  "exported_at": "2026-07-04T19:30:00Z",
+  "exported_by_client_type": "ios",
+  "app_version": "3.2.x",
+  "user_id": "ha-user",
+  "history_revision": 12,
+  "clear_revision": 2,
+  "history_limit": 1000,
+  "history_trimmed_before": null,
+  "history_trimmed_count": 0,
+  "messages": []
+}
+```
+
+Export is read-only. It must not include bearer tokens, OAuth tokens,
+bootstrap proofs, raw prompts beyond the already persisted bounded chat
+messages, raw audio or Music DNA data. Ask DJ history import is not supported.
 
 When the last DJConnect Home Assistant config entry is unloaded or removed, HA
 clears server-side Music DNA and Ask DJ history. A deleted app/device entry must

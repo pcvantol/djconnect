@@ -97,6 +97,7 @@ Belangrijke huidige status:
 - DJ response prompts moeten artiest, album en nummer noemen waar bekend.
 - Config flow blokkeert niet meer op officiële Spotify media_player; DJConnect gebruikt eigen Spotify OAuth en Spotify Web API.
 - Ask DJ is server-side en cross-device voor iOS, macOS, watchOS en Raspberry Pi: deze clients gebruiken `/api/djconnect/ask_dj/message`, `/history`, `/history/clear`, `/idle_suggestion` en `/api/djconnect/command` voor Play Now/follow-up acties. ESP32 krijgt geen Ask DJ chat UI/history en blijft op de bestaande PTT/playback command flow.
+- Ask DJ history export is HTTP-only via `POST /api/djconnect/ask_dj/history/export`, geeft een backend-built `djconnect.ask_dj.history.export` envelope terug en ondersteunt geen import.
 - `/api/djconnect/ask_dj/message` responses bevatten canonical `messages[]` in render-volgorde plus gedeelde `exchange_id` en `exchange_order` (`0` user, `1` assistant). Clients gebruiken dit om vraag altijd boven antwoord te houden bij HTTP/push/history timing races.
 - Ask DJ history is HA-user scoped, max 1000 berichten, met retention system messages en `history_limit`, `history_trimmed_before`, `history_trimmed_count` metadata voor client cache cleanup.
 - Ask DJ mood-zones worden server-side uit Apple client `mood` afgeleid: `0`-`24` chill, `25`-`59` groove, `60`-`84` energy, `85`-`100` party. Spoken DJ announcements gebruiken die mood-zone.
