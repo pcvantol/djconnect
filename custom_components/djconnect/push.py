@@ -25,6 +25,10 @@ from .const import (
 
 SUPPORTED_CLIENT_TYPES = {CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_WATCHOS}
 SUPPORTED_ENVIRONMENTS = {"sandbox", "production"}
+ENVIRONMENT_ALIASES = {
+    "development": "sandbox",
+    "dev": "sandbox",
+}
 EVENT_ASK_DJ_RESPONSE = "ask_dj_response"
 EVENT_ASK_DJ_CONFIRM = "ask_dj_confirm"
 EVENT_PLAYBACK_CHANGE = "playback_change"
@@ -71,7 +75,7 @@ async def async_register(
         "success": bool(result.get("success")),
         "push_supported": relay_configured(runtime),
         "push_registered": bool(result.get("success")),
-        "push_environment": result.get("push_environment") or cleaned.get("push_environment"),
+        "push_environment": cleaned.get("push_environment") or result.get("push_environment"),
         "last_push_error": _clean_text(result.get("error"), 120) or None,
     }
 
@@ -101,7 +105,7 @@ async def async_unregister(
         "success": bool(result.get("success")),
         "push_supported": relay_configured(runtime),
         "push_registered": False,
-        "push_environment": result.get("push_environment") or cleaned.get("push_environment"),
+        "push_environment": cleaned.get("push_environment") or result.get("push_environment"),
         "last_push_error": _clean_text(result.get("error"), 120) or None,
     }
 
@@ -510,4 +514,5 @@ def _clean_categories(value: Any) -> list[str]:
 
 def _clean_environment(value: Any) -> str:
     environment = str(value or "").strip().lower()
+    environment = ENVIRONMENT_ALIASES.get(environment, environment)
     return environment if environment in SUPPORTED_ENVIRONMENTS else ""

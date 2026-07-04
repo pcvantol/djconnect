@@ -1082,6 +1082,10 @@ Registration responses include `push_supported`, `push_registered` and, when
 registered, `push_environment`. Status/capability responses may include
 `push_supported`, `push_registered`, `push_environment` and a redacted
 `last_push_error` summary.
+Clients may send `push_environment: "development"` for Apple development APNs
+entitlements; Home Assistant normalizes that to canonical `sandbox` for relay
+calls, stored status and registration responses. Production builds must keep
+using `push_environment: "production"`.
 
 Home Assistant also exposes `djconnect.test_apns_push` as a developer diagnostic
 service. By default it is a dry-run and does not contact APNs or the central

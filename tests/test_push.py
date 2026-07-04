@@ -173,6 +173,36 @@ class PushTest(unittest.TestCase):
         self.assertFalse(hasattr(self.push, "APNsClient"))
         self.assertFalse(hasattr(self.push, "PushRegistrationManager"))
 
+    def test_register_normalizes_macos_development_environment_to_sandbox(self) -> None:
+        hass = types.SimpleNamespace(session=FakeSession())
+        hass.session.response = FakeResponse(data={"success": True, "push_environment": "production"})
+        runtime = self._runtime()
+
+        result = asyncio.run(
+            self.push.async_register(
+                hass,
+                runtime,
+                user_id="user-1",
+                payload={
+                    "device_id": "djconnect-macos-ABCDEFGHIJKL",
+                    "client_type": "macos",
+                    "push_token": "macos-token-secret-value",
+                    "push_environment": "development",
+                    "app_bundle_id": "dev.djconnect.macos",
+                    "app_version": "3.2.18",
+                    "locale": "nl-NL",
+                },
+            )
+        )
+
+        self.assertTrue(result["success"])
+        self.assertTrue(result["push_registered"])
+        self.assertEqual(result["push_environment"], "sandbox")
+        self.assertEqual(hass.session.calls[0]["json"]["push_environment"], "sandbox")
+        status = runtime.push_status["djconnect-macos-ABCDEFGHIJKL|macos"]
+        self.assertTrue(status["push_registered"])
+        self.assertEqual(status["push_environment"], "sandbox")
+
     def test_register_accepts_ios_macos_and_watchos_payloads(self) -> None:
         for client_type, device_id, bundle_id in (
             ("ios", "djconnect-ios-ABCDEFGHIJKL", "dev.djconnect.ios"),
