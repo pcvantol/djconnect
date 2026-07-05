@@ -39,7 +39,18 @@ jobs:
             [ -n "${workflow_id}" ] || continue
 
             keep_limit="${KEEP_RUNS}"
-            if [ "${workflow_id}" = "${current_workflow_id}" ]; then
+            active_run_count="$(
+              {
+                gh api "/repos/${repo}/actions/workflows/${workflow_id}/runs?status=queued&per_page=100" \
+                  --paginate \
+                  --jq '.workflow_runs[] | .id'
+                gh api "/repos/${repo}/actions/workflows/${workflow_id}/runs?status=in_progress&per_page=100" \
+                  --paginate \
+                  --jq '.workflow_runs[] | .id'
+              } | awk -v current_run_id="${current_run_id}" '$0 != current_run_id { count++ } END { print count + 0 }'
+            )"
+
+            if [ "${workflow_id}" = "${current_workflow_id}" ] || [ "${active_run_count}" -gt 0 ]; then
               keep_limit=$((KEEP_RUNS - 1))
             fi
 
