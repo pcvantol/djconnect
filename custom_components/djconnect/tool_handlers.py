@@ -6,7 +6,8 @@ from typing import Any
 
 from homeassistant.core import HomeAssistant
 
-from .use_cases import run_music_command
+from .const import CONF_CLIENT_TYPE, CONF_DEVICE_ID
+from .use_cases import music_backend_metadata, run_music_command
 
 _DEFAULT_RUN_MUSIC_COMMAND = run_music_command
 
@@ -31,6 +32,12 @@ async def async_call_ai_tool(
         return await _music_dna_profile(runtime, params, user_id=user_id)
     if tool_name == "djconnect_music_dna_summary":
         return await _music_dna_summary(runtime, params, user_id=user_id)
+    if tool_name == "djconnect_music_discovery_feed":
+        return await _music_discovery_feed(runtime, params, user_id=user_id)
+    if tool_name == "djconnect_vibecast_feed":
+        return await _vibecast_feed(hass, runtime, params)
+    if tool_name == "djconnect_music_backend_status":
+        return await _music_backend_status(hass, runtime)
     if tool_name == "djconnect_recently_played":
         return await _recently_played(hass, runtime, params, user_id=user_id)
     if tool_name == "djconnect_search_music":
@@ -82,6 +89,39 @@ async def _music_dna_profile(runtime: Any, params: dict[str, Any], *, user_id: s
     if not callable(profile_getter):
         return {"success": False, "error": "music_dna_unavailable", "message": "Music DNA is unavailable."}
     return await profile_getter(runtime, params, user_id=user_id)
+
+
+async def _music_discovery_feed(runtime: Any, params: dict[str, Any], *, user_id: str | None) -> dict[str, Any]:
+    from .music_discovery import async_music_discovery_feed_tool
+
+    return await async_music_discovery_feed_tool(runtime, params, user_id=user_id)
+
+
+async def _vibecast_feed(hass: HomeAssistant, runtime: Any, params: dict[str, Any]) -> dict[str, Any]:
+    from .vibecast import async_handle_vibecast_payload
+
+    payload = _runtime_identity_payload(runtime, params)
+    headers = _runtime_identity_headers(runtime, payload)
+    result, _status = await async_handle_vibecast_payload(hass, payload, headers=headers)
+    return result
+
+
+async def _music_backend_status(hass: HomeAssistant, runtime: Any) -> dict[str, Any]:
+    metadata = music_backend_metadata(hass, runtime)
+    config = getattr(runtime, "config", {}) or {}
+    return {
+        "success": True,
+        "type": "music_backend_status",
+        **metadata,
+        "selected": metadata.get("music_backend"),
+        "target_player": metadata.get("music_target_player"),
+        "config": {
+            "music_backend": config.get("music_backend"),
+            "music_assistant_player_configured": bool(config.get("music_assistant_player")),
+            "spotify_direct_oauth_configured": bool(config.get("spotify_refresh_token")),
+        },
+        "sources": [{"source": "djconnect_music_backend", "kind": "source"}],
+    }
 
 
 async def _recently_played(
@@ -237,6 +277,52 @@ async def _execute_confirmed_action(
     if not isinstance(action, dict) or pending.get("proposed_action") != "djconnect_execute_prepared_playback":
         return {"success": False, "error": "no_pending_action", "message": "No matching confirmed action is pending."}
     return await _execute_playback_action(hass, runtime, action)
+
+
+def _runtime_identity_payload(runtime: Any, params: dict[str, Any]) -> dict[str, Any]:
+    payload = dict(params)
+    status = getattr(runtime, "device_status", {}) or {}
+    client_type = str(payload.get(CONF_CLIENT_TYPE) or _runtime_client_type(runtime) or "").strip()
+    device_id = str(
+        payload.get(CONF_DEVICE_ID)
+        or status.get(CONF_DEVICE_ID)
+        or getattr(runtime, "pairing_device_id", "")
+        or ""
+    ).strip()
+    if client_type:
+        payload[CONF_CLIENT_TYPE] = client_type
+    if device_id:
+        payload[CONF_DEVICE_ID] = device_id
+    return payload
+
+
+def _runtime_identity_headers(runtime: Any, payload: dict[str, Any]) -> dict[str, str]:
+    headers = {"Content-Type": "application/json"}
+    client_type = str(payload.get(CONF_CLIENT_TYPE) or "").strip()
+    device_id = str(payload.get(CONF_DEVICE_ID) or "").strip()
+    if client_type:
+        headers["X-DJConnect-Client-Type"] = client_type
+    if device_id:
+        headers["X-DJConnect-Device-ID"] = device_id
+    locale = str(payload.get("locale") or payload.get("language") or "").strip()
+    if locale:
+        headers["X-DJConnect-Locale"] = locale
+    render_capabilities = str(payload.get("render_capabilities") or "").strip()
+    if render_capabilities:
+        headers["X-DJConnect-Render-Capabilities"] = render_capabilities
+    token = str(getattr(runtime, "device_token", "") or "").strip()
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    return headers
+
+
+def _runtime_client_type(runtime: Any) -> str:
+    getter = getattr(runtime, "client_type", None)
+    if callable(getter):
+        return str(getter() or "").strip()
+    config = getattr(runtime, "config", {}) or {}
+    status = getattr(runtime, "device_status", {}) or {}
+    return str(config.get(CONF_CLIENT_TYPE) or status.get(CONF_CLIENT_TYPE) or "").strip()
 
 
 async def _execute_playback_action(hass: HomeAssistant, runtime: Any, action: dict[str, Any]) -> dict[str, Any]:

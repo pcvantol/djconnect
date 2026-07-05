@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import importlib
+import logging
 import types
 import unittest
 
@@ -88,14 +89,20 @@ class TrackInsightTests(unittest.TestCase):
         )
         runtime = Runtime()
 
-        result = asyncio.run(
-            self.track_insight.TrackInsightService().async_analyze(
-                hass,
-                runtime,
-                {"title": "Innerbloom", "artist": "RUFUS DU SOL", "album": "Bloom"},
-                source="http",
-            )
-        )
+        previous = self.track_insight._LOGGER.level
+        self.track_insight._LOGGER.setLevel(logging.DEBUG)
+        try:
+            with self.assertLogs(self.track_insight._LOGGER, level="DEBUG") as captured:
+                result = asyncio.run(
+                    self.track_insight.TrackInsightService().async_analyze(
+                        hass,
+                        runtime,
+                        {"title": "Innerbloom", "artist": "RUFUS DU SOL", "album": "Bloom"},
+                        source="http",
+                    )
+                )
+        finally:
+            self.track_insight._LOGGER.setLevel(previous)
 
         self.assertEqual(result["source"], "http")
         self.assertEqual(result["track"]["title"], "Innerbloom")
@@ -105,6 +112,10 @@ class TrackInsightTests(unittest.TestCase):
         self.assertEqual(len(result["visual_profile"]["palette"]), 3)
         self.assertNotIn("music_dna", result)
         self.assert_no_music_dna_match_fields(result)
+        logs = "\n".join(captured.output)
+        self.assertIn("Track Insight analyzed", logs)
+        self.assertNotIn("Innerbloom", logs)
+        self.assertNotIn("RUFUS DU SOL", logs)
 
     def test_track_insight_records_energy_signal_in_music_dna(self) -> None:
         class Memory:
@@ -333,30 +344,42 @@ class TrackInsightTests(unittest.TestCase):
         hass = FakeHass()
         hass.data = {const.DOMAIN: {"runtime": runtime}}
 
-        result, status = asyncio.run(
-            api_handlers.async_handle_track_insight_payload(
-                hass,
-                {
-                    "device_id": "djconnect-ios-68B74487726D",
-                    "client_type": "ios",
-                    "title": "Run",
-                    "artist": "Floor Jansen",
-                },
-                headers={
-                    "Authorization": "Bearer device-token",
-                    "X-DJConnect-Device-ID": "djconnect-ios-68B74487726D",
-                    "X-DJConnect-Language": "nl",
-                    "X-DJConnect-Locale": "nl",
-                    "Accept-Language": "nl",
-                },
-                source="http",
-            )
-        )
+        previous = api_handlers._LOGGER.level
+        api_handlers._LOGGER.setLevel(logging.DEBUG)
+        try:
+            with self.assertLogs(api_handlers._LOGGER, level="DEBUG") as captured:
+                result, status = asyncio.run(
+                    api_handlers.async_handle_track_insight_payload(
+                        hass,
+                        {
+                            "device_id": "djconnect-ios-68B74487726D",
+                            "client_type": "ios",
+                            "title": "Run",
+                            "artist": "Floor Jansen",
+                        },
+                        headers={
+                            "Authorization": "Bearer device-token",
+                            "X-DJConnect-Device-ID": "djconnect-ios-68B74487726D",
+                            "X-DJConnect-Language": "nl",
+                            "X-DJConnect-Locale": "nl",
+                            "Accept-Language": "nl",
+                        },
+                        source="http",
+                    )
+                )
+        finally:
+            api_handlers._LOGGER.setLevel(previous)
 
         self.assertEqual(status, 200)
         self.assertEqual(result["language"], "nl")
         self.assertIn("Run van Floor Jansen", result["analysis"]["summary"])
         self.assertEqual(hass.services.calls[0]["data"]["language"], "nl")
+        logs = "\n".join(captured.output)
+        self.assertIn("Track Insight http request", logs)
+        self.assertIn("Track Insight http result", logs)
+        self.assertIn("title_present=True", logs)
+        self.assertNotIn("Floor Jansen", logs)
+        self.assertNotIn("Bearer device-token", logs)
 
     def test_track_insight_handler_uses_mood_header(self) -> None:
         install_http_stubs()

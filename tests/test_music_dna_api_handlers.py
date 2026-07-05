@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import importlib
+import logging
 from pathlib import Path
 import sys
 import types
@@ -327,48 +328,62 @@ class MusicDnaApiHandlersTest(unittest.TestCase):
             )
         )
 
-        result, status = asyncio.run(
-            self.api_handlers.async_handle_music_dna_import_payload(
-                self.hass,
-                {
-                    "identity": {
-                        "device_id": "djconnect-ios-ABCDEFGHIJKL",
-                        "client_type": "ios",
-                        "device_name": "iPhone",
-                    },
-                    "language": "nl",
-                    "profile": {
-                        "format": "djconnect.music_dna.export",
-                        "schema_version": 1,
-                        "exported_at": "2026-07-04T19:30:00Z",
-                        "exported_by_client_type": "ios",
-                        "app_version": "3.2.20",
-                        "profile": {
-                            "success": True,
-                            "music_dna_key": "user:ha-user-1",
-                            "enabled": True,
-                            "generation": 12,
-                            "updated_at": "2026-07-04T19:30:00Z",
-                            "profile": {
-                                "favorite_artists": ["Bicep"],
-                                "favorite_genres": ["electronica"],
-                                "recent_tracks": [
-                                    {
-                                        "title": "Glue",
-                                        "artist": "Bicep",
-                                        "uri": "spotify:track:glue",
-                                    }
-                                ],
-                                "mood": {"value": 88, "zone": "party"},
+        previous = self.api_handlers._LOGGER.level
+        self.api_handlers._LOGGER.setLevel(logging.DEBUG)
+        try:
+            with self.assertLogs(self.api_handlers._LOGGER, level="DEBUG") as captured:
+                result, status = asyncio.run(
+                    self.api_handlers.async_handle_music_dna_import_payload(
+                        self.hass,
+                        {
+                            "identity": {
+                                "device_id": "djconnect-ios-ABCDEFGHIJKL",
+                                "client_type": "ios",
+                                "device_name": "iPhone",
                             },
-                            "sources": [],
+                            "language": "nl",
+                            "profile": {
+                                "format": "djconnect.music_dna.export",
+                                "schema_version": 1,
+                                "exported_at": "2026-07-04T19:30:00Z",
+                                "exported_by_client_type": "ios",
+                                "app_version": "3.2.20",
+                                "profile": {
+                                    "success": True,
+                                    "music_dna_key": "user:ha-user-1",
+                                    "enabled": True,
+                                    "generation": 12,
+                                    "updated_at": "2026-07-04T19:30:00Z",
+                                    "profile": {
+                                        "favorite_artists": ["Bicep"],
+                                        "favorite_genres": ["electronica"],
+                                        "recent_tracks": [
+                                            {
+                                                "title": "Glue",
+                                                "artist": "Bicep",
+                                                "uri": "spotify:track:glue",
+                                            }
+                                        ],
+                                        "mood": {"value": 88, "zone": "party"},
+                                    },
+                                    "sources": [],
+                                },
+                            },
                         },
-                    },
-                },
-                headers={"Authorization": "Bearer token"},
-                user_id="ha-user-1",
-            )
-        )
+                        headers={"Authorization": "Bearer token"},
+                        user_id="ha-user-1",
+                    )
+                )
+        finally:
+            self.api_handlers._LOGGER.setLevel(previous)
+        logs = "\n".join(captured.output)
+        self.assertIn("Music DNA import request", logs)
+        self.assertIn("Music DNA import result", logs)
+        self.assertIn("djconnect.music_dna.export", logs)
+        self.assertNotIn("Bicep", logs)
+        self.assertNotIn("Glue", logs)
+        self.assertNotIn("spotify:track:glue", logs)
+        self.assertNotIn("Bearer token", logs)
 
         self.assertEqual(status, 200)
         self.assertTrue(result["success"])

@@ -8,6 +8,9 @@ READ_ONLY_TOOL_NAMES = {
     "djconnect_now_playing",
     "djconnect_music_dna_profile",
     "djconnect_music_dna_summary",
+    "djconnect_music_discovery_feed",
+    "djconnect_vibecast_feed",
+    "djconnect_music_backend_status",
     "djconnect_recently_played",
     "djconnect_search_music",
     "djconnect_list_outputs",
@@ -62,6 +65,30 @@ AI_TOOLS: tuple[dict[str, Any], ...] = (
         "djconnect_music_dna_summary",
         "Read a compact Music DNA summary for the current user/client context.",
         {"music_dna_key": {"type": "string"}},
+    ),
+    _tool(
+        "djconnect_music_discovery_feed",
+        "Read the Music Discovery feed for the current Music DNA context without starting playback.",
+        {
+            "music_dna_key": {"type": "string"},
+            "client_type": {"type": "string"},
+            "locale": {"type": "string"},
+            "limit": {"type": "integer"},
+        },
+    ),
+    _tool(
+        "djconnect_vibecast_feed",
+        "Read the privacy-gated VibeCast feed for the current playback context.",
+        {
+            "client_type": {"type": "string"},
+            "locale": {"type": "string"},
+            "render_capabilities": {"type": "string"},
+        },
+    ),
+    _tool(
+        "djconnect_music_backend_status",
+        "Read safe selected music backend availability, capability and target-player metadata.",
+        {},
     ),
     _tool(
         "djconnect_recently_played",

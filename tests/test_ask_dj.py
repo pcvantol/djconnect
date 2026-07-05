@@ -294,7 +294,7 @@ class AskDjTest(unittest.TestCase):
 
         async def tts(hass, runtime_arg, text):
             tts_calls.append(text)
-            return {"audio_url_value": "/api/djconnect/tts/repeat-status.mp3"}
+            return {"audio_url_value": "/api/djconnect/v1/tts/repeat-status.mp3"}
 
         original_command = self.ask_dj.run_music_command
         original_tts = self.ask_dj.async_send_dj_response_best_effort
@@ -986,6 +986,100 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual([call[0] for call in calls], ["status", "related_artists", "listening_profile"])
         self.assertEqual(calls[1][1], {"artist": "Radiohead"})
         self.assertIn("The Smile", result["dj_text"])
+
+    def test_followup_which_tracks_uses_recent_artist_card_context(self) -> None:
+        runtime = make_runtime()
+        runtime.ask_dj_history = FakeAskDJHistory(
+            [
+                {"role": "user", "text": "speel above and beyond"},
+                {"role": "assistant", "text": "Daar is Above & Beyond."},
+            ]
+        )
+        calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append((command_name, value))
+            if command_name == "status":
+                return {"success": True, "playback": {}}
+            if command_name == "search_tracks":
+                self.assertEqual(value, {"query": "Above & Beyond", "limit": 10})
+                return {
+                    "success": True,
+                    "tracks": [
+                        {
+                            "uri": "spotify:track:sun-moon",
+                            "track_name": "Sun & Moon",
+                            "artist": "Above & Beyond",
+                        }
+                    ],
+                }
+            raise AssertionError(f"unexpected Spotify command: {command_name}")
+
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "welke nummers heb je",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "macos",
+                    },
+                    user_id="user-1",
+                )
+            )
+        finally:
+            self.ask_dj.run_music_command = original_command
+
+        self.assertEqual([call[0] for call in calls], ["status", "search_tracks"])
+        self.assertIn("Ik vond nog meer nummers van Above & Beyond", result["text"])
+        self.assertEqual(result["playback_actions"][0]["title"], "Sun & Moon")
+
+    def test_which_tracks_do_you_have_from_artist_returns_play_now_rows(self) -> None:
+        runtime = make_runtime()
+        calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append((command_name, value))
+            if command_name == "status":
+                return {"success": True, "playback": {}}
+            if command_name == "search_tracks":
+                self.assertEqual(value, {"query": "above and beyond", "limit": 10})
+                return {
+                    "success": True,
+                    "tracks": [
+                        {
+                            "uri": "spotify:track:alchemy",
+                            "track_name": "Alchemy - Original Mix",
+                            "artist": "Above & Beyond, Zoë Johnston",
+                        }
+                    ],
+                }
+            raise AssertionError(f"unexpected Spotify command: {command_name}")
+
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "welke nummers heb je van above and beyond",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "macos",
+                    },
+                    user_id="user-1",
+                )
+            )
+        finally:
+            self.ask_dj.run_music_command = original_command
+
+        self.assertEqual([call[0] for call in calls], ["status", "search_tracks"])
+        self.assertIn("Ik vond nog meer nummers van above and beyond", result["text"])
+        self.assertEqual(result["playback_actions"][0]["label"], "Play Now")
 
     def test_concert_agenda_question_returns_formatted_events_and_links(self) -> None:
         runtime = make_runtime()
@@ -2016,7 +2110,7 @@ class AskDjTest(unittest.TestCase):
 
         async def tts(hass, runtime_arg, text):
             tts_calls.append(text)
-            return {"audio_url_value": "/api/djconnect/tts/current-track.mp3"}
+            return {"audio_url_value": "/api/djconnect/v1/tts/current-track.mp3"}
 
         original_command = self.ask_dj.run_music_command
         original_tts = self.ask_dj.async_send_dj_response_best_effort
@@ -2038,9 +2132,9 @@ class AskDjTest(unittest.TestCase):
             self.ask_dj.run_music_command = original_command
             self.ask_dj.async_send_dj_response_best_effort = original_tts
 
-        self.assertEqual(result["audio_url"], "/api/djconnect/tts/current-track.mp3")
+        self.assertEqual(result["audio_url"], "/api/djconnect/v1/tts/current-track.mp3")
         self.assertEqual(result["audio_type"], "mp3")
-        self.assertEqual(result["assistant_message"]["audio_url"], "/api/djconnect/tts/current-track.mp3")
+        self.assertEqual(result["assistant_message"]["audio_url"], "/api/djconnect/v1/tts/current-track.mp3")
         self.assertEqual(result["assistant_message"]["audio_type"], "mp3")
         self.assertEqual(tts_calls, [result["dj_text"]])
 
@@ -2114,7 +2208,7 @@ class AskDjTest(unittest.TestCase):
 
         async def tts(hass, runtime_arg, text):
             tts_calls.append(text)
-            return {"audio_url_value": "/api/djconnect/tts/generated-current.wav"}
+            return {"audio_url_value": "/api/djconnect/v1/tts/generated-current.wav"}
 
         original_command = self.ask_dj.run_music_command
         original_tts = self.ask_dj.async_send_dj_response_best_effort
@@ -2141,9 +2235,9 @@ class AskDjTest(unittest.TestCase):
         self.assertTrue(result["is_generated_text"])
         self.assertEqual(result["assistant_message"]["text_source"], "generated")
         self.assertTrue(result["assistant_message"]["is_generated_text"])
-        self.assertEqual(result["audio_url"], "/api/djconnect/tts/generated-current.wav")
+        self.assertEqual(result["audio_url"], "/api/djconnect/v1/tts/generated-current.wav")
         self.assertEqual(result["audio_type"], "wav")
-        self.assertEqual(result["assistant_message"]["audio_url"], "/api/djconnect/tts/generated-current.wav")
+        self.assertEqual(result["assistant_message"]["audio_url"], "/api/djconnect/v1/tts/generated-current.wav")
         self.assertEqual(result["assistant_message"]["audio_type"], "wav")
         self.assertEqual(tts_calls, [result["dj_text"]])
         self.assertEqual(calls[0][0], "conversation")
@@ -2370,14 +2464,14 @@ class AskDjTest(unittest.TestCase):
                             "title": "Golgotha Tenement Blues",
                             "subtitle": "Machines Of Loving Grace",
                             "uri": "spotify:track:old-queue",
-                            "image_url": "/api/djconnect/image_proxy/old",
+                            "image_url": "/api/djconnect/v1/image_proxy/old",
                         }
                     ],
                     "images": [
                         {
                             "title": "Halverwege",
                             "artist": "Suzan & Freek",
-                            "url": "/api/djconnect/image_proxy/stale",
+                            "url": "/api/djconnect/v1/image_proxy/stale",
                         }
                     ],
                 }
@@ -3198,7 +3292,7 @@ class AskDjTest(unittest.TestCase):
 
         async def tts(hass, runtime_arg, text):
             tts_calls.append(text)
-            return {"audio_url_value": "/api/djconnect/tts/forced.mp3"}
+            return {"audio_url_value": "/api/djconnect/v1/tts/forced.mp3"}
 
         original_command = self.ask_dj.run_music_command
         original_tts = self.ask_dj.async_send_dj_response_best_effort
@@ -3222,7 +3316,7 @@ class AskDjTest(unittest.TestCase):
             self.ask_dj.async_send_dj_response_best_effort = original_tts
 
         self.assertTrue(result["success"])
-        self.assertEqual(result["audio_url"], "/api/djconnect/tts/forced.mp3")
+        self.assertEqual(result["audio_url"], "/api/djconnect/v1/tts/forced.mp3")
         self.assertTrue(tts_calls)
 
     def test_action_request_dispatches_spotify_command(self) -> None:
@@ -3240,7 +3334,7 @@ class AskDjTest(unittest.TestCase):
 
         async def tts(hass, runtime_arg, text):
             tts_calls.append(text)
-            return {"audio_url_value": "/api/djconnect/tts/action.mp3"}
+            return {"audio_url_value": "/api/djconnect/v1/tts/action.mp3"}
 
         original_command = self.ask_dj.run_music_command
         original_tts = self.ask_dj.async_send_dj_response_best_effort
@@ -3266,7 +3360,7 @@ class AskDjTest(unittest.TestCase):
         self.assertIn(("pause", None), calls)
         self.assertEqual(result["intent"]["category"], "action")
         self.assertEqual(result["action"], "pause")
-        self.assertEqual(result["audio_url"], "/api/djconnect/tts/action.mp3")
+        self.assertEqual(result["audio_url"], "/api/djconnect/v1/tts/action.mp3")
         self.assertEqual(result["images"], [])
         self.assertEqual(result["assistant_message"]["images"], [])
         self.assertEqual(result["playback_actions"][0]["kind"], "control")
@@ -3299,7 +3393,7 @@ class AskDjTest(unittest.TestCase):
 
         async def tts(hass, runtime_arg, text):
             tts_calls.append(text)
-            return {"audio_url_value": "/api/djconnect/tts/volume.mp3"}
+            return {"audio_url_value": "/api/djconnect/v1/tts/volume.mp3"}
 
         original_command = self.ask_dj.run_music_command
         original_tts = self.ask_dj.async_send_dj_response_best_effort
@@ -3543,7 +3637,7 @@ class AskDjTest(unittest.TestCase):
 
         async def tts(hass, runtime_arg, text):
             tts_calls.append(text)
-            return {"audio_url_value": "/api/djconnect/tts/repeat.mp3"}
+            return {"audio_url_value": "/api/djconnect/v1/tts/repeat.mp3"}
 
         original_command = self.ask_dj.run_music_command
         original_tts = self.ask_dj.async_send_dj_response_best_effort
@@ -3612,7 +3706,7 @@ class AskDjTest(unittest.TestCase):
 
         async def tts(hass, runtime_arg, text):
             tts_calls.append(text)
-            return {"audio_url_value": "/api/djconnect/tts/favorite.mp3"}
+            return {"audio_url_value": "/api/djconnect/v1/tts/favorite.mp3"}
 
         original_command = self.ask_dj.run_music_command
         original_tts = self.ask_dj.async_send_dj_response_best_effort
@@ -3988,7 +4082,7 @@ class AskDjTest(unittest.TestCase):
 
         async def tts(hass, runtime_arg, text):
             tts_calls.append(text)
-            return {"audio_url_value": "/api/djconnect/tts/snow-patrol.mp3"}
+            return {"audio_url_value": "/api/djconnect/v1/tts/snow-patrol.mp3"}
 
         original_command = self.ask_dj.run_music_command
         original_process = self.ask_dj.run_text_command
@@ -4017,7 +4111,7 @@ class AskDjTest(unittest.TestCase):
 
         self.assertEqual(result["dj_text"], "Daar is Snow Patrol, met Chasing Cars. Van Eyes Open.")
         self.assertEqual(tts_calls, ["Daar is Snow Patrol, met Chasing Cars. Van Eyes Open."])
-        self.assertEqual(result["audio_url"], "/api/djconnect/tts/snow-patrol.mp3")
+        self.assertEqual(result["audio_url"], "/api/djconnect/v1/tts/snow-patrol.mp3")
         self.assertEqual(result["images"][0]["title"], "Chasing Cars")
         self.assertEqual(result["images"][0]["subtitle"], "Snow Patrol")
 
@@ -4057,7 +4151,7 @@ class AskDjTest(unittest.TestCase):
 
         async def tts(hass, runtime_arg, text):
             tts_calls.append(text)
-            return {"audio_url_value": "/api/djconnect/tts/floor-jansen.mp3"}
+            return {"audio_url_value": "/api/djconnect/v1/tts/floor-jansen.mp3"}
 
         original_command = self.ask_dj.run_music_command
         original_process = self.ask_dj.run_text_command
@@ -4087,7 +4181,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["dj_text"], rich_text)
         self.assertEqual(tts_calls, [rich_text])
         self.assertNotEqual(result["dj_text"], "Daar is Floor Jansen, met Euphoria. Van Euphoria.")
-        self.assertEqual(result["audio_url"], "/api/djconnect/tts/floor-jansen.mp3")
+        self.assertEqual(result["audio_url"], "/api/djconnect/v1/tts/floor-jansen.mp3")
         self.assertEqual(result["images"][0]["title"], "Euphoria")
         self.assertEqual(result["images"][0]["subtitle"], "Floor Jansen")
 
@@ -4124,7 +4218,7 @@ class AskDjTest(unittest.TestCase):
 
         async def tts(hass, runtime_arg, text):
             tts_calls.append(text)
-            return {"audio_url_value": "/api/djconnect/tts/nirvana.mp3"}
+            return {"audio_url_value": "/api/djconnect/v1/tts/nirvana.mp3"}
 
         original_command = self.ask_dj.run_music_command
         original_process = self.ask_dj.run_text_command
@@ -4380,7 +4474,7 @@ class AskDjTest(unittest.TestCase):
 
         async def tts(hass, runtime_arg, text):
             tts_calls.append(text)
-            return {"audio_url_value": "/api/djconnect/tts/playback-failed.mp3"}
+            return {"audio_url_value": "/api/djconnect/v1/tts/playback-failed.mp3"}
 
         original_command = self.ask_dj.run_music_command
         original_process = self.ask_dj.run_text_command
@@ -5395,6 +5489,64 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["assistant_message"]["images"], [])
         self.assertTrue(all(action["image_url"].startswith(self.const.API_IMAGE_PROXY_BASE) for action in result["playback_actions"]))
 
+    def test_speel_maar_wat_af_matches_surprise_me_recommendations(self) -> None:
+        runtime = make_runtime()
+        calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append(command_name)
+            if command_name == "status":
+                return {"success": True, "playback": {}}
+            if command_name == "listening_profile":
+                return {
+                    "success": True,
+                    "profile": {
+                        "top_tracks_by_range": {
+                            "short_term": [
+                                {
+                                    "uri": f"spotify:track:{index}",
+                                    "track_name": f"Track {index}",
+                                    "artist": f"Artist {index}",
+                                    "album_image_url": f"https://img.example/track-{index}.jpg",
+                                }
+                                for index in range(1, 6)
+                            ]
+                        },
+                        "sources": ["spotify_top_tracks_short_term"],
+                    },
+                }
+            raise AssertionError(f"unexpected playback mutation: {command_name}")
+
+        original_command = self.ask_dj.run_music_command
+        original_shuffle = self.ask_dj.random.shuffle
+        self.ask_dj.run_music_command = command
+        self.ask_dj.random.shuffle = lambda items: None
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "speel maar wat af",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "ios",
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.run_music_command = original_command
+            self.ask_dj.random.shuffle = original_shuffle
+
+        self.assertTrue(result["success"])
+        self.assertEqual(calls, ["status", "listening_profile"])
+        self.assertEqual(result["intent"]["intent"], "personal_music_recommendations")
+        self.assertEqual(result["action"], "none")
+        self.assertEqual(len(result["playback_actions"]), 5)
+        self.assertTrue(all(action["kind"] == "track" for action in result["playback_actions"]))
+        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertEqual(result["images"], [])
+        self.assertEqual(result["assistant_message"]["images"], [])
+
     def test_no_do_something_routes_to_recommendations_after_clarification(self) -> None:
         runtime = make_runtime()
         runtime.ask_dj_history = FakeAskDJHistory(
@@ -5815,7 +5967,7 @@ class AskDjTest(unittest.TestCase):
 
         async def tts(hass, runtime_arg, text):
             tts_calls.append(text)
-            return {"audio_url_value": "/api/djconnect/tts/album-choice.mp3"}
+            return {"audio_url_value": "/api/djconnect/v1/tts/album-choice.mp3"}
 
         original_command = self.ask_dj.run_music_command
         original_tts = self.ask_dj.async_send_dj_response_best_effort
@@ -8057,10 +8209,10 @@ class AskDjTest(unittest.TestCase):
                 "success": True,
                 "text": "Ik kies iets rustigers.",
                 "dj_text": "Ik kies iets rustigers.",
-                "images": [{"url": "/api/djconnect/image_proxy/abc", "title": "Cover"}],
+                "images": [{"url": "/api/djconnect/v1/image_proxy/abc", "title": "Cover"}],
                 "links": [{"url": "https://example.test", "kind": "source"}],
                 "sources": [{"source": "djconnect_music_dna", "kind": "source"}],
-                "audio_url": "/api/djconnect/tts/abc.mp3",
+                "audio_url": "/api/djconnect/v1/tts/abc.mp3",
                 "playback_actions": [{"uri": "spotify:track:123", "kind": "track"}],
             }
         push_events = []
@@ -8105,7 +8257,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(response["payload"]["user_message"]["client_type"], "watchos")
         self.assertEqual(response["payload"]["user_message"]["text"], "Draai iets rustigers")
         self.assertEqual(response["payload"]["user_message"]["status"], "delivered")
-        self.assertEqual(response["payload"]["assistant_message"]["audio_url"], "/api/djconnect/tts/abc.mp3")
+        self.assertEqual(response["payload"]["assistant_message"]["audio_url"], "/api/djconnect/v1/tts/abc.mp3")
         self.assertEqual(response["payload"]["assistant_message"]["playback_actions"][0]["uri"], "spotify:track:123")
         self.assertEqual([message["role"] for message in response["payload"]["messages"]], ["user", "assistant"])
         self.assertEqual(response["payload"]["messages"][0]["exchange_order"], 0)

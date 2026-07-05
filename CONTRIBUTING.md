@@ -87,7 +87,7 @@ file must fail tests and CI.
 Do not localize machine-readable values. Keep protocol values, JSON keys,
 endpoint paths, `client_type` values, tokens, entity ids, service ids and
 machine-readable error codes stable and literal. Examples include
-`/api/djconnect/command`, `client_type`, `esp32`, `ios`, `macos`, `watchos`,
+`/api/djconnect/v1/command`, `client_type`, `esp32`, `ios`, `macos`, `watchos`,
 `raspberry_pi`, `windows`, `djci_`, `sensor.djconnect_*`,
 `djconnect.ask_dj`, `not_configured` and `version_mismatch`.
 

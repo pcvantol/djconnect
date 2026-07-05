@@ -216,7 +216,7 @@
 - Status: fixed, monitor.
 - Area: voice endpoint / developer test.
 - Previous symptom: Web test text request looked up a device named `Test` or attempted Spotify playback.
-- Fix: JSON/text-only `/api/djconnect/voice` requests are direct DJ-response tests.
+- Fix: JSON/text-only `/api/djconnect/v1/voice` requests are direct DJ-response tests.
 - Validation: Confirm web test returns a ready DJ aankondiging and optional TTS audio URL.
 
 ### Options flow internal server error

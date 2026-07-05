@@ -12,7 +12,7 @@ class VibeCastDocsTest(unittest.TestCase):
         text = (ROOT / "API_CONTRACT.md").read_text(encoding="utf-8")
 
         required = [
-            "GET /api/djconnect/vibecast",
+            "GET /api/djconnect/v1/vibecast",
             "`client_type:\"macos\"` and `client_type:\"ios\"`",
             "same endpoint, response contract, item kinds, structured text segment types",
             "`track_fact`",
@@ -38,7 +38,7 @@ class VibeCastDocsTest(unittest.TestCase):
 
         self.assertIn("macOS and iOS use the same endpoint", readme)
         self.assertIn("Clients poll:", sync_prompts)
-        self.assertIn("GET /api/djconnect/vibecast", sync_prompts)
+        self.assertIn("GET /api/djconnect/v1/vibecast", sync_prompts)
         self.assertIn("Platform differences are presentation-only", sync_prompts)
         self.assertIn("emoji_safe", sync_prompts)
         self.assertIn("`emoji`", sync_prompts)

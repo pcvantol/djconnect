@@ -88,7 +88,7 @@ Pattern:
   capability flags.
 - Current migrated paths call `run_music_command(...)` or typed use-case methods
   instead of importing Spotify Direct helpers directly. This includes
-  `/api/djconnect/command`, app/ESP status playback refresh, Ask DJ, voice
+  `/api/djconnect/v1/command`, app/ESP status playback refresh, Ask DJ, voice
   processor commands and HA playback entities.
 - HA and AI-facing tool surfaces call `run_music_command(...)` or
   `run_text_command(...)`: developer services, the Assist conversation agent,
@@ -218,11 +218,11 @@ Why:
 Pattern:
 
 - HA TTS audio is stored in memory under a temporary token and exposed through
-  `/api/djconnect/tts/{token}.wav` or `.mp3`.
+  `/api/djconnect/v1/tts/{token}.wav` or `.mp3`.
 - ESP32/Raspberry Pi DJ response delivery posts text plus optional `audio_url`
   to the local `/api/device/dj_response` endpoint.
 - App Ask DJ clients render response/history themselves and fetch response
-  audio/images through HA `/api/djconnect/...` URLs. Remote-capable app
+  audio/images through HA `/api/djconnect/v1/...` URLs. Remote-capable app
   responses can use an HTTPS external/Nabu Casa base URL when the request/app
   context requires it.
 - Local-device temporary audio uses the shared local Home Assistant URL
@@ -313,8 +313,8 @@ Pattern:
 - Stored memory is compact and excludes bearer tokens, Spotify OAuth tokens,
   Home Assistant tokens, raw audio and full prompts.
 - Text Ask DJ requests from app/display clients enter through
-  `POST /api/djconnect/ask_dj/message`; service `djconnect.ask_dj` and
-  `POST /api/djconnect/ask_dj` remain developer/raw entrypoints.
+  `POST /api/djconnect/v1/ask_dj/message`; service `djconnect.ask_dj` and
+  `POST /api/djconnect/v1/ask_dj` remain developer/raw entrypoints.
 - Renderable Ask DJ chat history is separate from Music DNA and uses Home
   Assistant `Store(hass, 1, "djconnect_ask_dj_history")`. It is keyed by HA
   user id, keeps at most 1000 messages per user and stores user/assistant
@@ -335,14 +335,14 @@ Pattern:
   metadata needed to execute or decline the follow-up.
 - Follow-up questions expose `confirmation_actions[]` and confirmation-style
   `playback_actions[]`. Clients render them as Ja/Nee controls and answer via
-  `POST /api/djconnect/command` with
+  `POST /api/djconnect/v1/command` with
   `command:"ask_dj_followup_response"`. A positive answer executes the stored
   proposal; a negative answer consumes it and leaves playback unchanged.
 - Ask DJ audio generation is policy-based. `audio_response:auto` avoids TTS for
   informational text chat to keep the chat UI fast, but keeps TTS for
   playback/hybrid intents and voice/PTT interactions. `always` and `never`
   provide explicit client overrides.
-- App Ask DJ Push-To-Talk enters through the existing `/api/djconnect/voice`
+- App Ask DJ Push-To-Talk enters through the existing `/api/djconnect/v1/voice`
   WAV route when a client supports voice. iOS, macOS and watchOS transcripts are
   routed to the same Ask DJ handler as text chat. Raspberry Pi Ask DJ is
   text-only unless a future Pi capability explicitly advertises voice support.
@@ -425,11 +425,11 @@ Pattern:
 - Clear/history state is revision-based: `history_revision` advances when a
   user/assistant exchange is stored or history is cleared; `clear_revision`
   advances only on clear. Clients compare local clear revision with
-  `GET /api/djconnect/ask_dj/history` or the developer history-state service
+  `GET /api/djconnect/v1/ask_dj/history` or the developer history-state service
   before rendering and clear local cache when the server value is newer.
 - Images are represented as structured `images[]` entries and any external
   image URL is registered behind the Home Assistant route
-  `/api/djconnect/image_proxy/{token}`. Source links remain explicit `links[]`
+  `/api/djconnect/v1/image_proxy/{token}`. Source links remain explicit `links[]`
   entries and are not mixed with images.
 
 Primary source files:
@@ -887,7 +887,7 @@ Why:
 Pattern:
 
 - Home Assistant keeps the authenticated client-facing
-  `/api/djconnect/push/register` and `/api/djconnect/push/unregister` routes,
+  `/api/djconnect/v1/push/register` and `/api/djconnect/v1/push/unregister` routes,
   but forwards registrations to the central `djconnect-api` relay instead of
   storing APNs tokens locally.
 - The HACS integration stores only per-install central API settings:
@@ -936,7 +936,7 @@ Why:
   Apple-client pairing proof before a new central install token can be minted.
 - Prevents notification overload from ordinary playback state changes.
 - Preserves privacy by sending only generic wake/sync hints while clients fetch
-  real content through `/api/djconnect/ask_dj/history`.
+  real content through `/api/djconnect/v1/ask_dj/history`.
 
 ## Ask DJ Backend Response Shaping Inventory
 

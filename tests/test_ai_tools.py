@@ -16,11 +16,12 @@ ROOT = Path(__file__).resolve().parents[1]
 class FakeMemory:
     def __init__(self) -> None:
         self.pending = None
+        self.context_memory = {"enabled": False, "mood": 42}
 
     async def async_context_for_runtime(self, runtime, payload=None, *, user_id=None):
         return {
             "music_dna_key": (payload or {}).get("music_dna_key") or "user:test",
-            "memory": {"mood": 42},
+            "memory": self.context_memory,
             "session": [],
         }
 
@@ -56,14 +57,26 @@ class AIToolsTest(unittest.TestCase):
     def setUp(self) -> None:
         self.runtime = types.SimpleNamespace(
             memory=FakeMemory(),
-            config={"music_backend": "spotify_direct"},
+            config={"music_backend": "spotify_direct", "client_type": "ios"},
+            device_status={
+                "device_id": "djconnect-ios-ABCDEF123456",
+                "client_type": "ios",
+            },
+            pairing_device_id="djconnect-ios-ABCDEF123456",
+            device_token="token",
+        )
+        self.runtime.client_type = lambda: "ios"
+        self.runtime.authorize_device_request = (
+            lambda headers, device_id, client_type=None: headers.get("Authorization") == "Bearer token"
+            and device_id == "djconnect-ios-ABCDEF123456"
+            and client_type == "ios"
         )
         self.hass = types.SimpleNamespace()
 
     def test_all_tools_are_exposed_with_confirmation_boundaries(self) -> None:
         names = {tool["name"] for tool in self.ai_tools.AI_TOOLS}
 
-        self.assertEqual(len(names), 10)
+        self.assertEqual(len(names), 13)
         self.assertIn("djconnect_prepare_playback_action", names)
         self.assertIn("djconnect_execute_confirmed_action", names)
         read_only = {
@@ -75,6 +88,9 @@ class AIToolsTest(unittest.TestCase):
         self.assertNotIn("djconnect_execute_confirmed_action", read_only)
         self.assertIn("djconnect_track_insight", read_only)
         self.assertIn("djconnect_music_dna_profile", read_only)
+        self.assertIn("djconnect_music_discovery_feed", read_only)
+        self.assertIn("djconnect_vibecast_feed", read_only)
+        self.assertIn("djconnect_music_backend_status", read_only)
         self.assertIs(self.ai_tools.AI_TOOLS, self.tool_registry.AI_TOOLS)
         self.assertIs(self.ai_tools.async_call_ai_tool, self.tool_handlers.async_call_ai_tool)
 
@@ -169,6 +185,100 @@ class AIToolsTest(unittest.TestCase):
 
         self.assertTrue(result["success"])
         self.assertEqual(result["sources"][0]["source"], "djconnect_music_dna")
+
+    def test_music_discovery_feed_tool_reads_feed_without_playback_mutation(self) -> None:
+        self.runtime.memory.context_memory = {
+            "enabled": True,
+            "recent_tracks": [
+                {
+                    "uri": "spotify:track:black",
+                    "track_name": "Black",
+                    "artist": "Pearl Jam",
+                    "album_image_url": "https://img.example/black.jpg",
+                }
+            ],
+        }
+        calls = []
+
+        async def run_music_command(hass, runtime, command, value=None, *, play=None):
+            calls.append((command, value, play))
+            return {"success": True}
+
+        original = self.tool_handlers.run_music_command
+        self.tool_handlers.run_music_command = run_music_command
+        try:
+            result = asyncio.run(
+                self.ai_tools.async_call_ai_tool(
+                    self.hass,
+                    self.runtime,
+                    "djconnect_music_discovery_feed",
+                    {"music_dna_key": "user:test", "limit": 1},
+                    user_id="user-1",
+                )
+            )
+        finally:
+            self.tool_handlers.run_music_command = original
+
+        self.assertTrue(result["success"])
+        self.assertTrue(result["enabled"])
+        self.assertEqual(result["source"], "music_dna")
+        self.assertEqual(result["sections"][0]["id"], "because_you_like")
+        self.assertEqual(result["sections"][0]["items"][0]["title"], "Black")
+        self.assertEqual(calls, [])
+
+    def test_music_backend_status_tool_returns_safe_metadata(self) -> None:
+        result = asyncio.run(
+            self.ai_tools.async_call_ai_tool(
+                self.hass,
+                self.runtime,
+                "djconnect_music_backend_status",
+            )
+        )
+
+        self.assertTrue(result["success"])
+        self.assertEqual(result["type"], "music_backend_status")
+        self.assertEqual(result["selected"], "spotify_direct")
+        self.assertIn("music_backend_capabilities", result)
+        self.assertNotIn("spotify_refresh_token", result)
+
+    def test_vibecast_feed_tool_uses_existing_gates_without_playback_mutation(self) -> None:
+        self.hass.data = {"djconnect": {"runtime": self.runtime}}
+        self.hass.states = types.SimpleNamespace(get=lambda entity_id: None)
+        vibecast = importlib.import_module("custom_components.djconnect.vibecast")
+        calls = []
+
+        async def run_music_command(hass, runtime, command, value=None, *, play=None):
+            calls.append((command, value, play))
+            return {
+                "success": True,
+                "playback": {
+                    "has_playback": True,
+                    "is_playing": True,
+                    "state": "playing",
+                    "title": "Black",
+                    "artist": "Pearl Jam",
+                    "album": "Ten",
+                },
+            }
+
+        original = vibecast.run_music_command
+        vibecast.run_music_command = run_music_command
+        try:
+            result = asyncio.run(
+                self.ai_tools.async_call_ai_tool(
+                    self.hass,
+                    self.runtime,
+                    "djconnect_vibecast_feed",
+                    {"locale": "nl-NL", "render_capabilities": "bold,accent"},
+                )
+            )
+        finally:
+            vibecast.run_music_command = original
+
+        self.assertTrue(result["success"])
+        self.assertTrue(result["enabled"])
+        self.assertEqual(result["context"]["title"], "Black")
+        self.assertEqual(calls, [("status", None, None)])
 
 
 if __name__ == "__main__":

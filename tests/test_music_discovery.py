@@ -98,6 +98,25 @@ class MusicDiscoveryTests(unittest.TestCase):
         self.assertEqual(first["revision"], second["revision"])
         self.assertTrue(second["cache"]["hit"])
 
+    def test_feed_writes_debug_logging_for_diagnostics(self) -> None:
+        with self.assertLogs("custom_components.djconnect.music_discovery", level="DEBUG") as logs:
+            result, status = asyncio.run(
+                music_discovery.async_handle_music_discovery_feed_payload(
+                    self.hass,
+                    _payload(),
+                    headers=self.headers,
+                    user_id="ha-user-1",
+                )
+            )
+
+        self.assertEqual(status, 200)
+        self.assertTrue(result["enabled"])
+        output = "\n".join(logs.output)
+        self.assertIn("Music Discovery feed request received", output)
+        self.assertIn("Music Discovery feed built", output)
+        self.assertIn("client_type=ios", output)
+        self.assertIn("items=", output)
+
     def test_feed_dedupes_repeated_recent_tracks_and_reports_play_count(self) -> None:
         self.runtime.memory.recent_tracks = [
             {
@@ -250,7 +269,7 @@ class _Memory:
                 "track_name": "Intro",
                 "artist": "The xx",
                 "uri": "spotify:track:intro",
-                "album_image_url": "/api/djconnect/image_proxy/art",
+                "album_image_url": "/api/djconnect/v1/image_proxy/art",
             }
         ]
 

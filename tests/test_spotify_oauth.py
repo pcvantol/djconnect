@@ -51,14 +51,14 @@ class SpotifyOAuthTest(unittest.TestCase):
     def test_redirect_uri_uses_djconnect_callback_path(self) -> None:
         self.assertEqual(
             self.oauth.build_redirect_uri("https://example.ui.nabu.casa/"),
-            "https://example.ui.nabu.casa/api/djconnect/spotify/callback",
+            "https://example.ui.nabu.casa/api/djconnect/v1/spotify/callback",
         )
 
     def test_authorize_url_contains_pkce_parameters(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
         url = self.oauth.build_authorize_url(
             "client-id",
-            "https://example.ui.nabu.casa/api/djconnect/spotify/callback",
+            "https://example.ui.nabu.casa/api/djconnect/v1/spotify/callback",
             const.DEFAULT_SPOTIFY_SCOPES,
             "state-value",
             "verifier-value",

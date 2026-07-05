@@ -44,7 +44,7 @@ Belangrijke huidige status:
   - `DJConnect app koppelen` voor iPhone/iPad, Apple Watch, macOS en Windows inbound-only pairing zonder Client adres, met optionele `ha_remote_url` na lokale pairing;
   - `ESP32 device WiFi configureren (via Bluetooth)`.
 - ESP32 en Raspberry Pi blijven local-only; iOS, macOS en Windows zijn remote-capable na lokale pairing; watchOS loopt via iPhone/iPad proxy en krijgt geen eigen HA-direct pairingcontract.
-- `/api/device/*` is alleen voor ESP32/Raspberry Pi lokale device API. App clients bellen HA via `/api/djconnect/...`; HA probeert app clients niet lokaal terug te bellen.
+- `/api/device/*` is alleen voor ESP32/Raspberry Pi lokale device API. App clients bellen HA via `/api/djconnect/v1/...`; HA probeert app clients niet lokaal terug te bellen.
 - De `3.2.x` lijn introduceert `custom_components/djconnect/use_cases.py` als dunne DJConnect use-case laag met `MusicBackend` capabilities. Spotify Direct is de default backend-adapter. Music Assistant is beschikbaar als kleine adapter via een gekozen HA `media_player`, niet als DJConnect-side provider registry, library index, queue engine, grouping/sync engine of Music Assistant light.
 - Config-flow kiest nu expliciet `Spotify Direct` of `Music Assistant`, zonder Auto. Spotify Direct gebruikt DJConnect PKCE OAuth en Spotify repairs. Music Assistant vereist geen DJConnect Spotify Client ID/OAuth; Music Assistant beheert provider-auth, DJConnect valideert dat MA beschikbaar is en bewaart de gekozen target player.
 - Options-flow heeft expliciet `Muziekbackend wijzigen` / `Change music backend`: wisselen bewaart pairing, device tokens, Ask DJ history, Music DNA en pushregistraties, verhoogt `music_backend_revision`, verbergt Spotify reauthorize bij actieve Music Assistant en maakt oude backend-specifieke pending playback actions stale.
@@ -67,7 +67,7 @@ Belangrijke huidige status:
   shaping moet backend/provider/revision/value velden daarvandaan halen en niet
   opnieuw Spotify-specifiek in Ask DJ opbouwen.
 - Music DNA is first-class en expliciet opt-in. Clients gebruiken
-  `POST /api/djconnect/music_dna/profile`, `/settings`, `/clear` en HTTP-only
+  `POST /api/djconnect/v1/music_dna/profile`, `/settings`, `/clear` en HTTP-only
   `/export`/`/import` voor structured profile data, opt-in/out, wissen en
   backend-gestuurde JSON export/import. Zolang Music DNA disabled is, bouwt HA
   geen nieuwe kennis op uit Ask DJ, listening profiles, recente tracks of
@@ -81,7 +81,7 @@ Belangrijke huidige status:
   diagnostics terechtkomen.
 - Nieuwe playback/control code mag niet rechtstreeks Spotify helpers aanroepen buiten de backend-adapter; routeer via de use-case laag.
 - De `3.2.18` release voegt de premium-ready VibeCast backend feed toe via
-  `GET /api/djconnect/vibecast`, met expliciete macOS/iOS parity voor endpoint,
+  `GET /api/djconnect/v1/vibecast`, met expliciete macOS/iOS parity voor endpoint,
   response contract, item kinds, structured text, disabled reasons en
   polling/cache semantics. Clients die `emoji_safe` adverteren kunnen inline
   `emoji` rich-text segmenten krijgen met 1-3 muziek/vibe-symbolen. Houd de
@@ -106,9 +106,9 @@ Belangrijke huidige status:
 - Conversation agent gebruikt Assist conversation agent voor Spotify intent bepaling en DJ response generatie, met DJConnect prompt override.
 - DJ response prompts moeten artiest, album en nummer noemen waar bekend.
 - Config flow blokkeert niet meer op officiële Spotify media_player; DJConnect gebruikt eigen Spotify OAuth en Spotify Web API.
-- Ask DJ is server-side en cross-device voor iOS, macOS, watchOS en Raspberry Pi: deze clients gebruiken `/api/djconnect/ask_dj/message`, `/history`, `/history/clear`, `/idle_suggestion` en `/api/djconnect/command` voor Play Now/follow-up acties. ESP32 krijgt geen Ask DJ chat UI/history en blijft op de bestaande PTT/playback command flow.
-- Ask DJ history export is HTTP-only via `POST /api/djconnect/ask_dj/history/export`, geeft een backend-built `djconnect.ask_dj.history.export` envelope terug en ondersteunt geen import.
-- `/api/djconnect/ask_dj/message` responses bevatten canonical `messages[]` in render-volgorde plus gedeelde `exchange_id` en `exchange_order` (`0` user, `1` assistant). Clients gebruiken dit om vraag altijd boven antwoord te houden bij HTTP/push/history timing races.
+- Ask DJ is server-side en cross-device voor iOS, macOS, watchOS en Raspberry Pi: deze clients gebruiken `/api/djconnect/v1/ask_dj/message`, `/history`, `/history/clear`, `/idle_suggestion` en `/api/djconnect/v1/command` voor Play Now/follow-up acties. ESP32 krijgt geen Ask DJ chat UI/history en blijft op de bestaande PTT/playback command flow.
+- Ask DJ history export is HTTP-only via `POST /api/djconnect/v1/ask_dj/history/export`, geeft een backend-built `djconnect.ask_dj.history.export` envelope terug en ondersteunt geen import.
+- `/api/djconnect/v1/ask_dj/message` responses bevatten canonical `messages[]` in render-volgorde plus gedeelde `exchange_id` en `exchange_order` (`0` user, `1` assistant). Clients gebruiken dit om vraag altijd boven antwoord te houden bij HTTP/push/history timing races.
 - Ask DJ history is HA-user scoped, max 1000 berichten, met retention system messages en `history_limit`, `history_trimmed_before`, `history_trimmed_count` metadata voor client cache cleanup.
 - Ask DJ mood-zones worden server-side uit Apple client `mood` afgeleid: `0`-`24` chill, `25`-`59` groove, `60`-`84` energy, `85`-`100` party. Spoken DJ announcements gebruiken die mood-zone.
 - Apple push in de HACS-integratie is relay-only via de centrale DJConnect API met een per-install `djci_` token. HACS bevat geen globale relay secret, bewaart geen APNs tokens en bevat geen APNs `.p8` provider key of directe Apple push delivery. iOS/macOS/watchOS clients leveren waar nodig een short-lived `bootstrap_proof` bij push registration; ESP32, Raspberry Pi en Assist-agent-only entries hebben die proof niet nodig. Push is alleen voor expliciete Ask DJ response/confirm attention events, met foreground suppression en rate limiting; nooit voor track/playback/status/idle updates.

@@ -244,10 +244,12 @@ class TrackInsightService:
         cached = None if request.force_refresh else cache.get(cache_key)
         if cached is not None:
             _LOGGER.debug(
-                "DJConnect Track Insight cache hit for %s language=%s mood=%s",
-                cache_key,
+                "DJConnect Track Insight cache hit cache_key=%s backend=%s language=%s mood=%s source=%s",
+                _safe_debug_identifier(cache_key),
+                track.get("backend") or "unknown",
                 _language_code(request.locale),
                 request.mood_zone or request.mood,
+                request.source,
             )
             await _record_track_insight_energy_in_music_dna(runtime, payload or {}, track, cached)
             return cached
@@ -264,12 +266,14 @@ class TrackInsightService:
         cache.set(cache_key, response)
         await _record_track_insight_energy_in_music_dna(runtime, payload or {}, track, response)
         _LOGGER.debug(
-            "DJConnect Track Insight analyzed track=%s artist=%s backend=%s language=%s mood=%s latency_ms=%s",
-            track.get("title") or "unknown",
-            track.get("artist") or "unknown",
+            "DJConnect Track Insight analyzed cache_key=%s backend=%s language=%s mood=%s source=%s cache_hit=%s analysis_keys=%s latency_ms=%s",
+            _safe_debug_identifier(cache_key),
             track.get("backend") or "unknown",
             _language_code(request.locale),
             request.mood_zone or request.mood,
+            request.source,
+            False,
+            sorted(str(key) for key in analysis.keys())[:16] if isinstance(analysis, dict) else [],
             int((time.monotonic() - started) * 1000),
         )
         return response
@@ -919,3 +923,12 @@ def _demo_enabled(runtime: Any) -> bool:
 
 def _normalize_text(text: str) -> str:
     return " ".join(str(text or "").casefold().split())
+
+
+def _safe_debug_identifier(value: Any) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    if len(text) <= 8:
+        return "***"
+    return f"{text[:8]}...{text[-4:]}"

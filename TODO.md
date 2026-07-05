@@ -14,7 +14,7 @@
 - Confirm ESP `/status` updates persist the real `djconnect-XXXXXXXXXXXX` device id.
 - Confirm ESP `/status` updates persist the real `local_url` when provided.
 - Confirm old setup-code entries stop using `djconnect-[6-digit-code].local` after status repair.
-- Monitor `/api/djconnect/command`, Ask DJ playback actions, voice processor
+- Monitor `/api/djconnect/v1/command`, Ask DJ playback actions, voice processor
   playback and HA playback entities through the DJConnect use-case layer.
   Automated coverage now verifies the shared use-case transport and response
   shapes; field testing should focus on real HA/client rendering.
@@ -53,7 +53,7 @@
 ## PTT / Voice
 
 - Test physical PTT end-to-end on the ESP device.
-- Confirm ESP uploads raw WAV to `POST /api/djconnect/voice`.
+- Confirm ESP uploads raw WAV to `POST /api/djconnect/v1/voice`.
 - Confirm HA logs selected Assist pipeline/STT provider metadata without secrets.
 - Confirm HA logs WAV metadata: sample rate, channel count, sample width and byte length.
 - Confirm selected HA STT provider accepts the WAV metadata on the target HA
@@ -124,7 +124,7 @@
 - Test BLE screen action `Write WiFi over Bluetooth`.
 - Test local-device pairing with Client adres left empty for ESP32/Raspberry Pi.
 - Field-test iPhone/iPad, Apple Watch, macOS and Windows app pairing with no Client adres, where the app
-  posts locally to `/api/djconnect/pair` and receives optional `ha_remote_url`;
+  posts locally to `/api/djconnect/v1/pair` and receives optional `ha_remote_url`;
   use `FIELD_TEST_APP_CLIENTS.md` and record the app build/HA version/backend.
   Automated HA contract coverage now verifies inbound pair responses and remote
   playback commands for iOS, macOS and Windows client IDs.

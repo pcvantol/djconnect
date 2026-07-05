@@ -629,7 +629,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertRegex(placeholders["pair_code"], r"^\d{6}$")
         self.assertEqual(placeholders["ha_local_url"], "http://ha.local:8123")
         self.assertIn("djconnect://pair?", placeholders["pairing_uri"])
-        self.assertIn("pair_path=%2Fapi%2Fdjconnect%2Fpair", placeholders["pairing_uri"])
+        self.assertIn("pair_path=%2Fapi%2Fdjconnect%2Fv1%2Fpair", placeholders["pairing_uri"])
         self.assertIn("client_type=ios", placeholders["iphone_pairing_uri"])
         self.assertIn("client_type=watchos", placeholders["watch_pairing_uri"])
         self.assertIn("iphone_qr_image", placeholders)
@@ -1866,7 +1866,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(client_id_marker.default, "")
         self.assertEqual(
             result["description_placeholders"]["redirect_uri"],
-            "https://api.ui.nabu.casa/api/djconnect/spotify/callback",
+            "https://api.ui.nabu.casa/api/djconnect/v1/spotify/callback",
         )
 
     def test_spotify_step_requires_user_spotify_client_id(self) -> None:
@@ -1893,7 +1893,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
         flow._oauth = {
             "authorize_url": "https://accounts.spotify.com/authorize",
-            "redirect_uri": "https://example.ui.nabu.casa/api/djconnect/spotify/callback",
+            "redirect_uri": "https://example.ui.nabu.casa/api/djconnect/v1/spotify/callback",
         }
 
         result = asyncio.run(flow.async_step_spotify_oauth())

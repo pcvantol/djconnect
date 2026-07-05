@@ -1,5 +1,19 @@
 # Changelog
 
+## 3.2.24
+
+- Let VibeCast use the configured Home Assistant conversation agent for
+  short track-specific trivia, listening tips and mood bubbles, with a more
+  varied metadata-based fallback when generation is unavailable.
+- Preserve comma-separated `X-DJConnect-Render-Capabilities` values so
+  `emoji_safe` reaches the VibeCast generator when sent as an HTTP header.
+- Route Ask DJ follow-up questions such as `welke nummers heb je` and
+  `welke nummers heb je van above and beyond` to artist track-list responses
+  with Play Now actions, including tolerant matching between `and` and `&`.
+- Add redacted debug logging for Music Discovery feed, refresh and play routes
+  so HA logs show incoming Ontdek calls, auth failures, disabled Music DNA,
+  cache hits, rate limits and generated section/item counts.
+
 ## 3.2.23
 
 - Make Ask DJ queue/up-next answers deduplicate repeated backend queue items
@@ -61,7 +75,7 @@
 
 ## 3.2.18
 
-- Add the premium-ready VibeCast feed endpoint at `GET /api/djconnect/vibecast`
+- Add the premium-ready VibeCast feed endpoint at `GET /api/djconnect/v1/vibecast`
   for Apple clients, returning safe structured track/artist vibe bubbles from
   current backend playback context with cache metadata and clean disabled states.
 - Document and test VibeCast cross-platform parity so macOS and iOS share the
@@ -403,7 +417,7 @@
 
 ## 3.1.93
 
-- Scope `/api/djconnect/ask_dj/history/clear` to the authenticated Home
+- Scope `/api/djconnect/v1/ask_dj/history/clear` to the authenticated Home
   Assistant user/context and keep `clear_revision` as the authoritative client
   cache clear marker.
 - Add a best-effort next-queue Play Now row after Ask DJ next/previous playback
@@ -429,7 +443,7 @@
 
 ## 3.1.91
 
-- Return a live Spotify playback snapshot from `/api/djconnect/status` for
+- Return a live Spotify playback snapshot from `/api/djconnect/v1/status` for
   watchOS, iOS and macOS clients, matching the `command: "status"` response
   shape and always including explicit `playback.has_playback` metadata.
 - Keep app status refreshes successful when no playback is active while marking
@@ -710,7 +724,7 @@
 
 ## 3.1.63
 
-- Add cross-device Ask DJ history sync with HA-user scoped persistent history, `/api/djconnect/ask_dj/message`, `/api/djconnect/ask_dj/history` and revision-based clear support.
+- Add cross-device Ask DJ history sync with HA-user scoped persistent history, `/api/djconnect/v1/ask_dj/message`, `/api/djconnect/v1/ask_dj/history` and revision-based clear support.
 - Add Ask DJ `audio_response` policy so informational text chat is text-only by default while playback/hybrid and voice/PTT responses still generate replayable TTS audio when available.
 - Clarify DJConnect client authentication warnings so app clients are no longer logged as ESP requests and bearer-token mismatches identify the entry mismatch without exposing token values.
 - Fix Ask DJ voice/PTT playback requests so commands such as "speel Armin van Buuren" and bare artist names route to the playback parser instead of the informational music fallback.
@@ -723,7 +737,7 @@
 - Add the Ask DJ backend text API and services, including intent routing for informational questions versus playback actions, shared memory clear/history-state checks, proxied images, source links and optional audio responses.
 - Add Ask DJ intent `personal_music_profile_analysis` for non-mutating personal listening-profile analysis over periods such as last month, last 30 days and this year.
 - Add Spotify listening-profile enrichment for Ask DJ using recently played tracks and top artists/tracks, with compact Music DNA snapshots and response `sources[]` metadata.
-- Add Ask DJ Push-To-Talk support for iOS/macOS/watchOS WAV uploads on `/api/djconnect/voice`, including transcript responses, shared Ask Music DNA/context handling and capability flags.
+- Add Ask DJ Push-To-Talk support for iOS/macOS/watchOS WAV uploads on `/api/djconnect/v1/voice`, including transcript responses, shared Ask Music DNA/context handling and capability flags.
 - Add Ask DJ Play Now support for personal recommendations through non-mutating `playback_actions[]` plus explicit `ask_dj_play_recommendation` command handling.
 - Add a Postman collection for the DJConnect Home Assistant HTTP API and include it in the release-cycle checklist.
 
@@ -859,7 +873,7 @@
 ## 3.1.36
 
 - Harden `command:"playlists"` responses so every success/failure path returns a non-empty JSON body with `playlists`, `items`, `data.playlists`, `data.items`, `result.playlists`, `result.items` and `count`, caps ESP playlist browsing at 20 items, adds playlist item aliases used by iOS/macOS/Pi/ESP clients, and logs playlist request/response metadata without secrets.
-- Add HA version metadata and redacted debug logging to `command:"status"` and `/api/djconnect/status` responses so app clients can distinguish no active playback from backend/auth unavailability.
+- Add HA version metadata and redacted debug logging to `command:"status"` and `/api/djconnect/v1/status` responses so app clients can distinguish no active playback from backend/auth unavailability.
 - Hide the “Retry pairing with current code” options-flow action unless the device pairing state is pending/stale, keeping the normal options UI focused on save, Spotify reauthorize and full re-pair.
 - Add regression coverage for playlist response aliases, ESP playlist limit capping, nested playlist result normalization and conditional pairing retry visibility.
 
@@ -1021,9 +1035,9 @@
 - Set the Spotify repair OAuth popup title and description directly on the Repairs external-step result, so Home Assistant no longer shows a blank dialog when translation lookup misses the dynamic repair issue id.
 - Add explicit Spotify repair-flow popup text for the initial repair action, so the Home Assistant repair dialog no longer opens as a blank external-website step.
 - Harden device sensor caching: local ESP command responses, device-info refreshes, empty Spotify playback snapshots and accidental command/voice payloads can no longer replace the cached ESP status with empty/unknown values.
-- Keep `ha_pairing_status`, firmware, battery, Wi-Fi RSSI, screen/LED state, sound output, volume and last track stable until a real `/api/djconnect/status` update or explicit user action changes them.
-- Guard device sensors against command/voice payloads: `/api/djconnect/command` and voice-only payloads now explicitly avoid device sensor merges, so sparse command/status polls cannot reset battery, firmware, RSSI, pairing, output or screen/LED state to unknown/pending.
-- Add an authenticated voice debug endpoint at `/api/djconnect/debug/last_voice.wav`; when DJConnect debug logging is enabled, HA keeps the last raw ESP WAV in memory so you can listen to exactly what STT received.
+- Keep `ha_pairing_status`, firmware, battery, Wi-Fi RSSI, screen/LED state, sound output, volume and last track stable until a real `/api/djconnect/v1/status` update or explicit user action changes them.
+- Guard device sensors against command/voice payloads: `/api/djconnect/v1/command` and voice-only payloads now explicitly avoid device sensor merges, so sparse command/status polls cannot reset battery, firmware, RSSI, pairing, output or screen/LED state to unknown/pending.
+- Add an authenticated voice debug endpoint at `/api/djconnect/v1/debug/last_voice.wav`; when DJConnect debug logging is enabled, HA keeps the last raw ESP WAV in memory so you can listen to exactly what STT received.
 - Add `button.djconnect_refresh_up_next` to refresh the backend queue/up-next list from Home Assistant.
 - Refresh Spotify output devices from the sound-output select so HA shows available outputs without needing a manual `devices` command first.
 - Accept output aliases from `available_outputs`, `outputs`, `devices` and nested `items` payloads.

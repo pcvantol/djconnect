@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import importlib
+import logging
 import types
 import unittest
 
@@ -112,6 +113,71 @@ class AskDJHistoryManagerTest(unittest.TestCase):
         self.assertIn("exported_at", result)
         self.assertEqual(len(result["messages"]), 2)
         self.assertEqual(result["messages"][0]["text"], "Wat speelde ik net?")
+
+    def test_message_handler_debug_log_omits_chat_text(self) -> None:
+        manager = AskDJHistoryManager(store=FakeStore())
+        runtime = types.SimpleNamespace(
+            ask_dj_history=manager,
+            device_status={"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios"},
+            client_type=lambda: "ios",
+        )
+        original_resolve_runtime = api_handlers.resolve_runtime
+        original_authorize = api_handlers.authorize_runtime_device_request
+        original_ask = api_handlers.http_helpers.async_handle_ask_dj
+        original_push = api_handlers.http_helpers.async_send_push_event
+        api_handlers.resolve_runtime = lambda hass, device_id, headers=None: runtime
+        api_handlers.authorize_runtime_device_request = (
+            lambda runtime_arg, headers, device_id=None, client_type=None: True
+        )
+
+        async def ask_handler(hass, runtime_arg, payload, *, user_id=None):
+            return {
+                "success": True,
+                "text": "Assistant private answer",
+                "dj_text": "Assistant private answer",
+                "intent": {"intent": "help"},
+                "action": "none",
+            }
+
+        async def push_handler(*args, **kwargs):
+            return None
+
+        api_handlers.http_helpers.async_handle_ask_dj = ask_handler
+        api_handlers.http_helpers.async_send_push_event = push_handler
+        previous = api_handlers._LOGGER.level
+        api_handlers._LOGGER.setLevel(logging.DEBUG)
+        try:
+            with self.assertLogs(api_handlers._LOGGER, level="DEBUG") as captured:
+                result, status = asyncio.run(
+                    api_handlers.async_handle_ask_dj_message_payload(
+                        types.SimpleNamespace(data={}),
+                        {
+                            "device_id": "djconnect-ios-ABCDEFGHIJKL",
+                            "client_type": "ios",
+                            "client_message_id": "ios-message-1",
+                            "text": "User private question",
+                        },
+                        headers={"Authorization": "Bearer token"},
+                        user_id="ha-user-1",
+                    )
+                )
+        finally:
+            api_handlers._LOGGER.setLevel(previous)
+            api_handlers.resolve_runtime = original_resolve_runtime
+            api_handlers.authorize_runtime_device_request = original_authorize
+            api_handlers.http_helpers.async_handle_ask_dj = original_ask
+            api_handlers.http_helpers.async_send_push_event = original_push
+
+        self.assertEqual(status, 200)
+        self.assertTrue(result["success"])
+        logs = "\n".join(captured.output)
+        self.assertIn("Ask DJ message request", logs)
+        self.assertIn("Ask DJ message result", logs)
+        self.assertIn("intent=help", logs)
+        self.assertIn("history_revision=1", logs)
+        self.assertNotIn("User private question", logs)
+        self.assertNotIn("Assistant private answer", logs)
+        self.assertNotIn("Bearer token", logs)
 
     def test_unauthorized_history_export_is_rejected(self) -> None:
         runtime = types.SimpleNamespace(
@@ -231,10 +297,10 @@ class AskDJHistoryManagerTest(unittest.TestCase):
                 {
                     "success": True,
                     "dj_text": "Deze drie passen goed.",
-                    "images": [{"url": "/api/djconnect/image_proxy/abc", "title": "Cover"}],
+                    "images": [{"url": "/api/djconnect/v1/image_proxy/abc", "title": "Cover"}],
                     "links": [{"url": "https://example.test", "title": "Bron", "kind": "source"}],
                     "sources": [{"source": "spotify_top_tracks_short_term", "kind": "source"}],
-                    "audio_url": "/api/djconnect/tts/123.mp3",
+                    "audio_url": "/api/djconnect/v1/tts/123.mp3",
                     "playback_actions": [
                         {
                             "id": "spotify:track:123",
@@ -249,8 +315,8 @@ class AskDJHistoryManagerTest(unittest.TestCase):
 
         message = asyncio.run(run())
 
-        self.assertEqual(message["audio_url"], "/api/djconnect/tts/123.mp3")
-        self.assertEqual(message["images"][0]["url"], "/api/djconnect/image_proxy/abc")
+        self.assertEqual(message["audio_url"], "/api/djconnect/v1/tts/123.mp3")
+        self.assertEqual(message["images"][0]["url"], "/api/djconnect/v1/image_proxy/abc")
         self.assertEqual(message["links"][0]["kind"], "source")
         self.assertEqual(message["sources"][0]["source"], "spotify_top_tracks_short_term")
         self.assertEqual(message["playback_actions"][0]["uri"], "spotify:track:123")

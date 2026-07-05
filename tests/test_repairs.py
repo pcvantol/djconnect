@@ -294,10 +294,15 @@ class RepairsTest(unittest.TestCase):
             )
         )
         flow.flow_id = "repair-flow-1"
-        result = asyncio.run(flow.async_step_init())
+        intro = asyncio.run(flow.async_step_init())
+        self.assertEqual(intro["type"], "form")
+        self.assertEqual(intro["step_id"], "init")
+        self.assertIn("repair_description", intro["description_placeholders"])
+
+        result = asyncio.run(flow.async_step_init({}))
 
         self.assertEqual(result["type"], "external")
-        self.assertEqual(result["step_id"], "init")
+        self.assertEqual(result["step_id"], "authorize")
         self.assertEqual(result["title"], "DJConnect opnieuw autoriseren bij Spotify")
         self.assertIn("Spotify toestemming", result["description"])
         self.assertIn("https://accounts.spotify.com/authorize", result["url"])
@@ -337,10 +342,14 @@ class RepairsTest(unittest.TestCase):
         )
 
         start = asyncio.run(flow.async_step_init())
-        self.assertEqual(start["type"], "external")
+        self.assertEqual(start["type"], "form")
         self.assertEqual(start["step_id"], "init")
 
-        done = asyncio.run(flow.async_step_authorize())
+        external = asyncio.run(flow.async_step_init({}))
+        self.assertEqual(external["type"], "external")
+        self.assertEqual(external["step_id"], "authorize")
+
+        done = asyncio.run(flow.async_step_authorize({"state": "callback-state"}))
         self.assertEqual(done["type"], "external_done")
         self.assertEqual(done["next_step_id"], "oauth_done")
 
@@ -351,7 +360,10 @@ class RepairsTest(unittest.TestCase):
         self.assertEqual(result["errors"]["base"], "oauth_not_completed")
 
         entry.data["spotify_refresh_token"] = "new-token"
-        result = asyncio.run(flow.async_step_oauth_done({}))
+        callback_done = asyncio.run(flow.async_step_authorize({"state": "callback-state"}))
+        self.assertEqual(callback_done["type"], "external_done")
+        self.assertEqual(callback_done["next_step_id"], "oauth_done")
+        result = asyncio.run(flow.async_step_oauth_done())
 
         self.assertEqual(result["type"], "create_entry")
         self.assertIn(
@@ -384,7 +396,9 @@ class RepairsTest(unittest.TestCase):
         )
 
         start = asyncio.run(flow.async_step_init())
-        self.assertEqual(start["type"], "external")
+        self.assertEqual(start["type"], "form")
+        external = asyncio.run(flow.async_step_init({}))
+        self.assertEqual(external["type"], "external")
 
         entry.data["spotify_refresh_token"] = "new-token"
         result = asyncio.run(flow.async_step_oauth_done({}))
@@ -419,7 +433,9 @@ class RepairsTest(unittest.TestCase):
             {},
         )
 
-        result = asyncio.run(flow.async_step_init())
+        intro = asyncio.run(flow.async_step_init())
+        self.assertEqual(intro["type"], "form")
+        result = asyncio.run(flow.async_step_init({}))
 
         self.assertEqual(result["type"], "external")
         self.assertEqual(result["title"], "DJConnect opnieuw autoriseren bij Spotify")

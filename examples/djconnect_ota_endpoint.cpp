@@ -54,7 +54,7 @@ void handleOtaRequest(const String& jsonBody) {
       // Device reboots automatically in many httpUpdate flows.
       break;
     case HTTP_UPDATE_FAILED:
-      // POST /api/djconnect/status with ota_state=failed and ota_error=httpUpdate.getLastErrorString()
+      // POST /api/djconnect/v1/status with ota_state=failed and ota_error=httpUpdate.getLastErrorString()
       break;
     case HTTP_UPDATE_NO_UPDATES:
       break;

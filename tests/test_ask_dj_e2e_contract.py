@@ -400,7 +400,7 @@ class AskDjE2EContractTest(unittest.TestCase):
 
         async def tts(hass, runtime_arg, text):
             trace.tts_requests.append(text)
-            return {"audio_url_value": "/api/djconnect/tts/e2e.mp3"}
+            return {"audio_url_value": "/api/djconnect/v1/tts/e2e.mp3"}
 
         original_command = self.ask_dj.run_music_command
         original_tts = self.ask_dj.async_send_dj_response_best_effort

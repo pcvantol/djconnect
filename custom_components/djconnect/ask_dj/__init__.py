@@ -1336,7 +1336,7 @@ def classify_ask_dj(text: str) -> AskDjIntent:
         return AskDjIntent("informational", "artist_item_list", "none")
     if normalized == "meer muziek van deze artiest":
         return AskDjIntent("informational", "artist_more_tracks", "none")
-    if _explicit_artist_from_more_tracks_question(text):
+    if _is_artist_more_tracks_question(normalized) or _explicit_artist_from_more_tracks_question(text):
         return AskDjIntent("informational", "artist_more_tracks", "none")
     if _is_dj_announcement_request(normalized):
         return AskDjIntent("hybrid", "dj_announcement", "announce", play=False)
@@ -2032,7 +2032,7 @@ async def _track_title_choice_response(
 ) -> dict[str, Any]:
     result = await _spotify_track_search(hass, runtime, query, limit=3)
     tracks = result.get("tracks") if isinstance(result, dict) else []
-    actions = _track_recommendation_actions(hass, tracks, limit=3)
+    actions = _track_recommendation_actions(hass, tracks, limit=3, runtime=runtime)
     if not actions:
         return {
             "success": True,
@@ -2195,7 +2195,7 @@ async def _handle_informational(
     if seed_mix:
         result = await _spotify_seed_mix(hass, runtime, seed_mix)
         tracks = result.get("tracks") if isinstance(result, dict) else []
-        track_actions = _track_recommendation_actions(hass, tracks, limit=10)
+        track_actions = _track_recommendation_actions(hass, tracks, limit=10, runtime=runtime)
         mix_action = _seed_mix_playback_action(hass, seed_mix, tracks)
         actions = track_actions + ([mix_action] if mix_action else [])
         if actions:
@@ -3470,7 +3470,7 @@ async def _current_track_version_response(
     result = await _spotify_track_search(hass, runtime, query, limit=10)
     tracks = result.get("tracks") if isinstance(result, dict) else []
     variant_tracks = _version_track_candidates(tracks, title, artist, variant)
-    actions = _track_recommendation_actions(hass, variant_tracks, limit=5)
+    actions = _track_recommendation_actions(hass, variant_tracks, limit=5, runtime=runtime)
     label = f"{title} van {artist}" if artist else title
     if actions:
         lines = [
@@ -4427,19 +4427,7 @@ def _artist_from_more_tracks_question(
     playback_context: dict[str, Any],
 ) -> str:
     normalized = _normalize(text)
-    if not any(
-        phrase in normalized
-        for phrase in (
-            "wat heb je nog meer van",
-            "wat heb je meer van",
-            "nog meer van",
-            "meer nummers van",
-            "meer muziek van",
-            "more tracks by",
-            "more songs by",
-            "more music by",
-        )
-    ):
+    if not _is_artist_more_tracks_question(normalized):
         return ""
     explicit = _explicit_artist_from_more_tracks_question(text)
     if explicit:
@@ -4464,6 +4452,7 @@ def _artist_from_more_tracks_question(
 
 def _explicit_artist_from_more_tracks_question(text: str) -> str:
     patterns = (
+        r"^\s*welke\s+(?:nummers|tracks|songs|muziek|music)\s+(?:heb\s+je|hebt\s+je|ken\s+je|have\s+you|do\s+you\s+have)\s+(?:van|by|from)\s+(.+?)\s*\??\s*$",
         r"^\s*wat\s+heb\s+je\s+(?:nog\s+)?meer\s+van\s+(.+?)\s*\??\s*$",
         r"^\s*meer\s+(?:nummers|songs|tracks|muziek|music)\s+van\s+(.+?)\s*\??\s*$",
         r"^\s*(?:(?:heb\s+je|geef)\s+)?(?:nog\s+)?meer\s+(?:nummers|songs|tracks|muziek|music)\s+van\s+(.+?)\s*\??\s*$",
@@ -4488,6 +4477,30 @@ def _explicit_artist_from_more_tracks_question(text: str) -> str:
                 return ""
             return artist
     return ""
+
+
+def _is_artist_more_tracks_question(normalized: str) -> bool:
+    if any(
+        phrase in normalized
+        for phrase in (
+            "wat heb je nog meer van",
+            "wat heb je meer van",
+            "nog meer van",
+            "meer nummers van",
+            "meer muziek van",
+            "more tracks by",
+            "more songs by",
+            "more music by",
+        )
+    ):
+        return True
+    return bool(
+        re.search(
+            r"\bwelke\s+(?:nummers|tracks|songs|muziek)\s+(?:heb\s+je|hebt\s+je|ken\s+je)\b",
+            normalized,
+        )
+        or re.search(r"\b(?:what|which)\s+(?:tracks|songs|music)\s+(?:do\s+you\s+have|have\s+you)\b", normalized)
+    )
 
 
 def _explicit_artist_from_similar_question(text: str) -> str:
@@ -4530,6 +4543,7 @@ def _artist_from_recent_context(memory_context: dict[str, Any]) -> str:
             or _explicit_artist_from_similar_question(text)
             or _explicit_artist_from_concert_question(text)
             or _explicit_artist_from_genre_question(text)
+            or _artist_from_history_text(text)
         )
         if artist:
             return artist
@@ -4544,6 +4558,7 @@ def _artist_from_recent_context(memory_context: dict[str, Any]) -> str:
                 or _explicit_artist_from_similar_question(text)
                 or _explicit_artist_from_concert_question(text)
                 or _explicit_artist_from_genre_question(text)
+                or _artist_from_history_text(text)
             )
             if artist:
                 return artist
@@ -4563,9 +4578,38 @@ def _artist_from_server_history_context(memory_context: dict[str, Any]) -> str:
             or _explicit_artist_from_similar_question(text)
             or _explicit_artist_from_concert_question(text)
             or _explicit_artist_from_genre_question(text)
+            or _artist_from_history_text(text)
         )
         if artist:
             return artist
+    return ""
+
+
+def _artist_from_history_text(text: str) -> str:
+    value = str(text or "").strip()
+    patterns = (
+        r"^\s*(?:speel|draai|zet)\s+(.+?)\s*\??\s*$",
+        r"^\s*(?:play|put\s+on)\s+(.+?)\s*\??\s*$",
+        r"^\s*daar\s+is\s+(.+?)(?:\.|!|\s*$)",
+        r"^\s*here\s+is\s+(.+?)(?:\.|!|\s*$)",
+    )
+    for pattern in patterns:
+        match = re.match(pattern, value, flags=re.IGNORECASE)
+        if not match:
+            continue
+        artist = _clean_artist_name(match.group(1))
+        if _normalize(artist) in {
+            "iets",
+            "wat",
+            "muziek",
+            "music",
+            "something",
+            "some",
+            "een nummer",
+            "a song",
+        }:
+            continue
+        return artist
     return ""
 
 
@@ -4984,6 +5028,16 @@ def _is_personal_recommendation_request(normalized: str) -> bool:
         "nee verras me",
         "nee verras mij",
         "surprise me",
+        "speel maar wat",
+        "speel maar wat af",
+        "speel maar iets",
+        "speel maar iets af",
+        "draai maar wat",
+        "draai maar wat af",
+        "draai maar iets",
+        "draai maar iets af",
+        "zet maar wat op",
+        "zet maar iets op",
         "speel wat anders",
         "speel iets anders",
         "draai wat anders",
@@ -5798,7 +5852,7 @@ async def _artist_seed_recommendations_response(
     seeds = {"artists": [artist]}
     result = await _spotify_seed_mix(hass, runtime, seeds)
     tracks = result.get("tracks") if isinstance(result, dict) else []
-    actions = _track_recommendation_actions(hass, tracks, limit=10)
+    actions = _track_recommendation_actions(hass, tracks, limit=10, runtime=runtime)
     mix_action = _seed_mix_playback_action(hass, seeds, tracks)
     if mix_action:
         actions.append(mix_action)
@@ -5874,7 +5928,7 @@ async def _current_track_seed_mix_response(
     if not tracks:
         tracks = await _current_track_search_fallback(hass, runtime, playback_context)
         used_search_fallback = bool(tracks)
-    track_actions = _track_recommendation_actions(hass, tracks, limit=10)
+    track_actions = _track_recommendation_actions(hass, tracks, limit=10, runtime=runtime)
     result_seeds = result.get("seeds") if isinstance(result.get("seeds"), dict) else seeds
     mix_action = {} if used_search_fallback else _seed_mix_playback_action(hass, result_seeds, tracks)
     if request_kind == "queue":
@@ -6045,7 +6099,7 @@ async def _mood_mix_response(
     seeds = {"genres": _mood_mix_genres(zone_name)}
     result = await _spotify_seed_mix(hass, runtime, seeds)
     tracks = result.get("tracks") if isinstance(result, dict) else []
-    track_actions = _track_recommendation_actions(hass, tracks, limit=10)
+    track_actions = _track_recommendation_actions(hass, tracks, limit=10, runtime=runtime)
     mix_action = _seed_mix_playback_action(hass, seeds, tracks)
     actions = track_actions + ([mix_action] if mix_action else [])
     mood_label = _mood_mix_label(mood_value, zone_name)
@@ -6130,7 +6184,7 @@ async def _song_recommendations_response(
         _LOGGER.debug("DJConnect Spotify song recommendations unavailable: %s", exc)
         result = {}
     tracks = result.get("tracks") if isinstance(result, dict) else []
-    track_actions = _track_recommendation_actions(hass, tracks, limit=10)
+    track_actions = _track_recommendation_actions(hass, tracks, limit=10, runtime=runtime)
     mix_action = _seed_mix_playback_action(hass, seeds, tracks)
     actions = track_actions + ([mix_action] if mix_action else [])
     if track_actions:
@@ -6155,6 +6209,7 @@ def _track_recommendation_actions(
     tracks: Any,
     *,
     limit: int,
+    runtime: Any | None = None,
 ) -> list[dict[str, Any]]:
     if not isinstance(tracks, list):
         return []
@@ -6167,7 +6222,7 @@ def _track_recommendation_actions(
         if not uri.startswith("spotify:track:") or uri in seen:
             continue
         seen.add(uri)
-        action = _play_now_action_from_spotify_item(hass, {**item, "type": "track"})
+        action = _play_now_action_from_spotify_item(hass, {**item, "type": "track"}, runtime=runtime)
         action["label"] = "Play Now"
         action["reason"] = "Aanbevolen op basis van je Ask DJ vraag."
         actions.append(action)
@@ -6621,7 +6676,7 @@ async def _artist_fun_queue_response(
     tracks = _tracks_matching_artist(result.get("tracks") if isinstance(result, dict) else [], artist)
     random.shuffle(tracks)
     selected = tracks[:5]
-    actions = _track_recommendation_actions(hass, selected, limit=5)
+    actions = _track_recommendation_actions(hass, selected, limit=5, runtime=runtime)
     uris = _track_uris_from_items(selected, limit=5)
     playback_result: dict[str, Any] = {}
     if uris:
@@ -6755,7 +6810,7 @@ async def _artist_item_list_response(
         result = await _spotify_track_search(hass, runtime, artist, limit=count)
         tracks = result.get("tracks") if isinstance(result, dict) else []
         tracks = _tracks_matching_artist(tracks, artist)
-        actions = _track_recommendation_actions(hass, tracks, limit=count)
+        actions = _track_recommendation_actions(hass, tracks, limit=count, runtime=runtime)
         return _artist_clickable_rows_response(
             artist,
             "nummers",
@@ -6781,6 +6836,7 @@ def _tracks_matching_artist(tracks: Any, artist: str) -> list[dict[str, Any]]:
     if not isinstance(tracks, list):
         return []
     wanted = _normalize(artist)
+    wanted_key = _artist_match_key(artist)
     matches: list[dict[str, Any]] = []
     for track in tracks:
         if not isinstance(track, dict):
@@ -6790,9 +6846,20 @@ def _tracks_matching_artist(tracks: Any, artist: str) -> list[dict[str, Any]]:
             str(track.get("artist_name") or ""),
             str(track.get("artists") or ""),
         ]
-        if any(wanted and wanted in _normalize(value) for value in artist_values):
+        if any(
+            (wanted and wanted in _normalize(value))
+            or (wanted_key and wanted_key in _artist_match_key(value))
+            for value in artist_values
+        ):
             matches.append(track)
     return matches
+
+
+def _artist_match_key(value: Any) -> str:
+    normalized = _normalize(str(value or ""))
+    normalized = re.sub(r"\b(?:and|en)\b", " ", normalized)
+    normalized = normalized.replace("&", " ")
+    return re.sub(r"\s+", " ", normalized).strip()
 
 
 def _artist_clickable_rows_response(
@@ -6842,7 +6909,7 @@ async def _artist_more_media_response(
         [
             *_album_search_playback_actions(hass, albums, limit=10),
             *_playlist_search_playback_actions(hass, playlists, limit=10),
-            *_track_recommendation_actions(hass, tracks, limit=10),
+            *_track_recommendation_actions(hass, tracks, limit=10, runtime=runtime),
         ],
         limit=10,
     )
@@ -6914,7 +6981,7 @@ async def _playlist_track_choices_response(
 ) -> dict[str, Any]:
     result = await _spotify_track_search(hass, runtime, query, limit=10)
     tracks = result.get("tracks") if isinstance(result, dict) else []
-    actions = _track_recommendation_actions(hass, tracks, limit=10)
+    actions = _track_recommendation_actions(hass, tracks, limit=10, runtime=runtime)
     if actions:
         lines = [
             f"{index}. {action.get('title') or 'Onbekend nummer'}"
@@ -6946,7 +7013,7 @@ async def _artist_more_tracks_response(
 ) -> dict[str, Any]:
     result = await _spotify_track_search(hass, runtime, artist, limit=10)
     tracks = result.get("tracks") if isinstance(result, dict) else []
-    actions = _track_recommendation_actions(hass, tracks, limit=10)
+    actions = _track_recommendation_actions(hass, tracks, limit=10, runtime=runtime)
     if actions:
         lines = [
             f"{index}. {action.get('title') or 'Onbekend nummer'}"
@@ -7783,6 +7850,8 @@ def _personal_artist_recommendation_actions(
 def _play_now_action_from_spotify_item(
     hass: HomeAssistant,
     item: dict[str, Any],
+    *,
+    runtime: Any | None = None,
 ) -> dict[str, Any]:
     uri = str(item.get("uri") or "").strip()
     kind = _spotify_uri_kind(uri) or str(item.get("type") or "track").strip().lower()
@@ -7809,7 +7878,7 @@ def _play_now_action_from_spotify_item(
     if _looks_like_spotify_uri(subtitle):
         subtitle = ""
     action = build_playback_action(
-        _first_runtime(hass),
+        runtime or _first_runtime(hass),
         {
             **item,
             "uri": uri,

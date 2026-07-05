@@ -107,7 +107,9 @@ from .ask_dj_history import AskDJHistoryManager
 from .music_dna import MusicDNAManager
 from .push import (
     EVENT_ASK_DJ_CONFIRM,
+    async_register as async_register_push,
     async_send_event as async_send_push_event,
+    async_unregister as async_unregister_push,
     relay_configured,
     should_send_push,
 )
@@ -118,7 +120,7 @@ from .spotify_oauth import (
     create_code_verifier,
     ensure_spotify_scopes,
 )
-from .track_insight import TrackInsightError, TrackInsightHassService
+from .track_insight import TRACK_INSIGHT_EVENT
 from .use_cases import music_backend_metadata, run_text_command
 from .websocket_api import async_register as async_register_websocket_api
 
@@ -1152,6 +1154,43 @@ DEVELOPER_SERVICE_SCHEMAS = {
             vol.Optional("explicit_user_request", default=True): bool,
         }
     ),
+    "push_register": _developer_service_schema(
+        {
+            vol.Required("push_token"): str,
+            vol.Required("push_environment"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("client_type"): str,
+            vol.Optional("client_id"): str,
+            vol.Optional("device_name"): str,
+            vol.Optional("user_id"): str,
+            vol.Optional("app_bundle_id"): str,
+            vol.Optional("app_version"): str,
+            vol.Optional("app_build"): str,
+            vol.Optional("locale"): str,
+            vol.Optional("language"): str,
+            vol.Optional("notification_categories"): object,
+            vol.Optional("bootstrap_proof"): str,
+            vol.Optional(CONF_CENTRAL_API_BOOTSTRAP_PROOF): str,
+            vol.Optional(CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT): str,
+        }
+    ),
+    "push_unregister": _developer_service_schema(
+        {
+            vol.Required("push_token"): str,
+            vol.Required("push_environment"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("client_type"): str,
+            vol.Optional("client_id"): str,
+            vol.Optional("device_name"): str,
+            vol.Optional("user_id"): str,
+            vol.Optional("app_bundle_id"): str,
+            vol.Optional("app_version"): str,
+            vol.Optional("app_build"): str,
+            vol.Optional("locale"): str,
+            vol.Optional("language"): str,
+            vol.Optional("notification_categories"): object,
+        }
+    ),
     "music_backend_status": _developer_service_schema({}),
     "start_spotify_oauth": _developer_service_schema(
         {
@@ -1167,6 +1206,66 @@ DEVELOPER_SERVICE_SCHEMAS = {
             vol.Optional("payload"): dict,
         }
     ),
+    "queue": _developer_service_schema(
+        {
+            vol.Optional("client_type"): str,
+            vol.Optional("client_id"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("device_name"): str,
+            vol.Optional("music_dna_key"): str,
+            vol.Optional("locale"): str,
+            vol.Optional("timezone"): str,
+        }
+    ),
+    "playlists": _developer_service_schema(
+        {
+            vol.Optional("client_type"): str,
+            vol.Optional("client_id"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("device_name"): str,
+            vol.Optional("music_dna_key"): str,
+            vol.Optional("limit"): int,
+            vol.Optional("market"): str,
+            vol.Optional("locale"): str,
+            vol.Optional("timezone"): str,
+        }
+    ),
+    "playback_status": _developer_service_schema(
+        {
+            vol.Optional("client_type"): str,
+            vol.Optional("client_id"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("device_name"): str,
+            vol.Optional("music_dna_key"): str,
+            vol.Optional("locale"): str,
+            vol.Optional("timezone"): str,
+        }
+    ),
+    "playback_devices": _developer_service_schema(
+        {
+            vol.Optional("client_type"): str,
+            vol.Optional("client_id"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("device_name"): str,
+            vol.Optional("music_dna_key"): str,
+            vol.Optional("locale"): str,
+            vol.Optional("timezone"): str,
+        }
+    ),
+    "playback_command": _developer_service_schema(
+        {
+            vol.Required("command"): str,
+            vol.Optional("value"): object,
+            vol.Optional("play", default=False): bool,
+            vol.Optional("client_type"): str,
+            vol.Optional("client_id"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("device_name"): str,
+            vol.Optional("music_dna_key"): str,
+            vol.Optional("locale"): str,
+            vol.Optional("timezone"): str,
+        }
+    ),
     "refresh_device_info": _developer_service_schema({}),
     "reboot_device": _developer_service_schema({}),
     "forget_device": _developer_service_schema({}),
@@ -1175,10 +1274,52 @@ DEVELOPER_SERVICE_SCHEMAS = {
             vol.Required("text"): str,
             vol.Optional("music_dna_key"): str,
             vol.Optional("client_type"): str,
+            vol.Optional("client_id"): str,
+            vol.Optional("client_message_id"): str,
             vol.Optional("device_id"): str,
             vol.Optional("device_name"): str,
             vol.Optional("dj_style"): str,
             vol.Optional("mood"): int,
+            vol.Optional("audio_response"): str,
+            vol.Optional("locale"): str,
+            vol.Optional("timezone"): str,
+        }
+    ),
+    "ask_dj_message": _developer_service_schema(
+        {
+            vol.Required("text"): str,
+            vol.Optional("music_dna_key"): str,
+            vol.Optional("client_type"): str,
+            vol.Optional("client_id"): str,
+            vol.Optional("client_message_id"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("device_name"): str,
+            vol.Optional("dj_style"): str,
+            vol.Optional("mood"): int,
+            vol.Optional("audio_response"): str,
+            vol.Optional("locale"): str,
+            vol.Optional("timezone"): str,
+        }
+    ),
+    "ask_dj_idle_suggestion": _developer_service_schema(
+        {
+            vol.Optional("music_dna_key"): str,
+            vol.Optional("client_type"): str,
+            vol.Optional("client_id"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("device_name"): str,
+            vol.Optional("locale"): str,
+            vol.Optional("timezone"): str,
+        }
+    ),
+    "ask_dj_history": _developer_service_schema(
+        {
+            vol.Optional("music_dna_key"): str,
+            vol.Optional("client_type"): str,
+            vol.Optional("client_id"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("device_name"): str,
+            vol.Optional("since_revision"): int,
         }
     ),
     "track_insight": _developer_service_schema(
@@ -1188,19 +1329,76 @@ DEVELOPER_SERVICE_SCHEMAS = {
             vol.Optional("title"): str,
             vol.Optional("artist"): str,
             vol.Optional("album"): str,
+            vol.Optional("genres"): object,
+            vol.Optional("music_dna_key"): str,
+            vol.Optional("client_type"): str,
+            vol.Optional("client_id"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("device_name"): str,
             vol.Optional("music_backend"): str,
             vol.Optional("force_refresh", default=False): bool,
             vol.Optional("include_visual_profile", default=True): bool,
             vol.Optional("include_raw_response", default=False): bool,
             vol.Optional("locale"): str,
+            vol.Optional("language"): str,
+            vol.Optional("mood"): int,
+            vol.Optional("timezone"): str,
+        }
+    ),
+    "vibecast_feed": _developer_service_schema(
+        {
+            vol.Optional("client_type"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("device_name"): str,
+            vol.Optional("locale"): str,
+            vol.Optional("language"): str,
+            vol.Optional("render_capabilities"): str,
+            vol.Optional("app_version"): str,
+            vol.Optional("app_build"): str,
+        }
+    ),
+    "music_discovery_feed": _developer_service_schema(
+        {
+            vol.Optional("music_dna_key"): str,
+            vol.Optional("client_type"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("device_name"): str,
+            vol.Optional("force_refresh", default=False): bool,
+            vol.Optional("locale"): str,
+            vol.Optional("timezone"): str,
+        }
+    ),
+    "refresh_music_discovery": _developer_service_schema(
+        {
+            vol.Optional("music_dna_key"): str,
+            vol.Optional("client_type"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("device_name"): str,
+            vol.Optional("locale"): str,
+            vol.Optional("timezone"): str,
+        }
+    ),
+    "play_music_discovery_item": _developer_service_schema(
+        {
+            vol.Required("discovery_item_id"): str,
+            vol.Optional("section_id"): str,
+            vol.Optional("music_dna_key"): str,
+            vol.Optional("client_type"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("device_name"): str,
+            vol.Optional("locale"): str,
+            vol.Optional("timezone"): str,
         }
     ),
     "music_dna_profile": _developer_service_schema(
         {
             vol.Optional("music_dna_key"): str,
             vol.Optional("client_type"): str,
+            vol.Optional("client_id"): str,
             vol.Optional("device_id"): str,
             vol.Optional("device_name"): str,
+            vol.Optional("locale"): str,
+            vol.Optional("timezone"): str,
         }
     ),
     "set_music_dna_enabled": _developer_service_schema(
@@ -1208,22 +1406,54 @@ DEVELOPER_SERVICE_SCHEMAS = {
             vol.Required("enabled"): bool,
             vol.Optional("music_dna_key"): str,
             vol.Optional("client_type"): str,
+            vol.Optional("client_id"): str,
             vol.Optional("device_id"): str,
             vol.Optional("device_name"): str,
+            vol.Optional("locale"): str,
+            vol.Optional("timezone"): str,
         }
     ),
     "clear_music_dna": _developer_service_schema(
         {
             vol.Optional("music_dna_key"): str,
             vol.Optional("client_type"): str,
+            vol.Optional("client_id"): str,
             vol.Optional("device_id"): str,
             vol.Optional("device_name"): str,
+            vol.Optional("locale"): str,
+            vol.Optional("timezone"): str,
+        }
+    ),
+    "music_dna_export": _developer_service_schema(
+        {
+            vol.Optional("music_dna_key"): str,
+            vol.Optional("client_type"): str,
+            vol.Optional("client_id"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("device_name"): str,
+            vol.Optional("app_version"): str,
+            vol.Optional("locale"): str,
+            vol.Optional("timezone"): str,
+        }
+    ),
+    "music_dna_import": _developer_service_schema(
+        {
+            vol.Required("profile"): object,
+            vol.Optional("music_dna_key"): str,
+            vol.Optional("client_type"): str,
+            vol.Optional("client_id"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("device_name"): str,
+            vol.Optional("app_version"): str,
+            vol.Optional("locale"): str,
+            vol.Optional("timezone"): str,
         }
     ),
     "clear_ask_dj_history": _developer_service_schema(
         {
             vol.Optional("music_dna_key"): str,
             vol.Optional("client_type"): str,
+            vol.Optional("client_id"): str,
             vol.Optional("device_id"): str,
             vol.Optional("device_name"): str,
         }
@@ -1232,8 +1462,11 @@ DEVELOPER_SERVICE_SCHEMAS = {
         {
             vol.Optional("music_dna_key"): str,
             vol.Optional("client_type"): str,
+            vol.Optional("client_id"): str,
             vol.Optional("device_id"): str,
             vol.Optional("device_name"): str,
+            vol.Optional("history_revision"): int,
+            vol.Optional("clear_revision"): int,
             vol.Optional("generation"): int,
         }
     ),
@@ -1679,6 +1912,54 @@ def _register_developer_services(
         )
         return debug
 
+    def apns_registration_payload(call: ServiceCall) -> dict[str, Any]:
+        payload = dict(call.data)
+        payload.setdefault(CONF_DEVICE_ID, _runtime_push_device_id(runtime, payload.get(CONF_DEVICE_ID)))
+        payload.setdefault(CONF_CLIENT_TYPE, _runtime_push_client_type(runtime, payload.get(CONF_CLIENT_TYPE)))
+        return payload
+
+    def apns_registration_user_id(call: ServiceCall) -> str | None:
+        return call.data.get("user_id") or getattr(getattr(call, "context", None), "user_id", None)
+
+    async def handle_push_register(call: ServiceCall) -> dict[str, Any]:
+        payload = apns_registration_payload(call)
+        _LOGGER.debug(
+            "DJConnect APNs push register service request client_type=%s device_id_present=%s environment=%s token_present=%s bootstrap_proof_present=%s",
+            payload.get(CONF_CLIENT_TYPE),
+            bool(str(payload.get(CONF_DEVICE_ID) or "").strip()),
+            str(payload.get("push_environment") or "").strip()[:32],
+            bool(str(payload.get("push_token") or "").strip()),
+            bool(
+                str(
+                    payload.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF)
+                    or payload.get("bootstrap_proof")
+                    or ""
+                ).strip()
+            ),
+        )
+        return await async_register_push(
+            hass,
+            runtime,
+            user_id=apns_registration_user_id(call),
+            payload=payload,
+        )
+
+    async def handle_push_unregister(call: ServiceCall) -> dict[str, Any]:
+        payload = apns_registration_payload(call)
+        _LOGGER.debug(
+            "DJConnect APNs push unregister service request client_type=%s device_id_present=%s environment=%s token_present=%s",
+            payload.get(CONF_CLIENT_TYPE),
+            bool(str(payload.get(CONF_DEVICE_ID) or "").strip()),
+            str(payload.get("push_environment") or "").strip()[:32],
+            bool(str(payload.get("push_token") or "").strip()),
+        )
+        return await async_unregister_push(
+            hass,
+            runtime,
+            user_id=apns_registration_user_id(call),
+            payload=payload,
+        )
+
     async def handle_music_backend_status(call: ServiceCall) -> dict[str, Any]:
         metadata = music_backend_metadata(hass, runtime)
         return {
@@ -1771,85 +2052,418 @@ def _register_developer_services(
         _LOGGER.debug("DJConnect developer action forget_device started")
         return await runtime.async_device_post(hass, "/api/device/forget")
 
-    async def handle_ask_dj(call: ServiceCall) -> dict[str, Any]:
+    def ask_dj_service_payload(call: ServiceCall) -> dict[str, Any]:
         payload = dict(call.data)
         payload.setdefault(CONF_CLIENT_TYPE, runtime.client_type())
         payload.setdefault(
             CONF_DEVICE_ID,
             runtime.device_status.get(CONF_DEVICE_ID) or runtime.pairing_device_id,
         )
+        return payload
+
+    def ask_dj_service_headers(payload: dict[str, Any]) -> dict[str, str]:
+        headers: dict[str, str] = {
+            "Content-Type": "application/json",
+            "X-DJConnect-Client-Type": str(payload.get(CONF_CLIENT_TYPE) or runtime.client_type()),
+        }
+        device_id = str(payload.get(CONF_DEVICE_ID) or "").strip()
+        if device_id:
+            headers["X-DJConnect-Device-ID"] = device_id
+        if payload.get("client_id"):
+            headers["X-DJConnect-Client-ID"] = str(payload.get("client_id"))
+        if payload.get("device_name"):
+            headers["X-DJConnect-Device-Name"] = str(payload.get("device_name"))
+        if payload.get("locale"):
+            headers["X-DJConnect-Locale"] = str(payload.get("locale"))
+        if payload.get("timezone"):
+            headers["X-DJConnect-Timezone"] = str(payload.get("timezone"))
+        if runtime.device_token:
+            headers["Authorization"] = f"Bearer {runtime.device_token}"
+        return headers
+
+    def ask_dj_service_user_id(call: ServiceCall) -> str | None:
+        return call.data.get("user_id") or getattr(getattr(call, "context", None), "user_id", None)
+
+    async def handle_ask_dj(call: ServiceCall) -> dict[str, Any]:
+        payload = ask_dj_service_payload(call)
         _LOGGER.debug("DJConnect Ask DJ service request received")
-        return await async_handle_ask_dj(hass, runtime, payload)
-
-    async def handle_track_insight(call: ServiceCall) -> dict[str, Any]:
-        _LOGGER.debug("DJConnect Track Insight service request received")
-        try:
-            return await TrackInsightHassService().async_handle(
-                hass,
-                runtime,
-                dict(call.data),
-            )
-        except TrackInsightError as exc:
-            return exc.as_dict()
-
-    async def handle_music_dna_profile(call: ServiceCall) -> dict[str, Any]:
-        memory = getattr(runtime, "memory", None)
-        if memory is None:
-            raise RuntimeError("DJConnect Music DNA manager is unavailable")
-        user_id = call.data.get("user_id") or getattr(getattr(call, "context", None), "user_id", None)
-        return await memory.async_profile(runtime, dict(call.data), user_id=user_id)
-
-    async def handle_set_music_dna_enabled(call: ServiceCall) -> dict[str, Any]:
-        memory = getattr(runtime, "memory", None)
-        if memory is None:
-            raise RuntimeError("DJConnect Music DNA manager is unavailable")
-        user_id = call.data.get("user_id") or getattr(getattr(call, "context", None), "user_id", None)
-        return await memory.async_set_enabled(
+        return await async_handle_ask_dj(
+            hass,
             runtime,
-            bool(call.data.get("enabled")),
-            dict(call.data),
-            user_id=user_id,
+            payload,
+            user_id=ask_dj_service_user_id(call),
         )
 
+    async def handle_ask_dj_message(call: ServiceCall) -> dict[str, Any]:
+        from .api_handlers import async_handle_ask_dj_message_payload
+
+        payload = ask_dj_service_payload(call)
+        _LOGGER.debug(
+            "DJConnect Ask DJ message service request client_type=%s client_message_id_present=%s audio_response=%s",
+            payload.get(CONF_CLIENT_TYPE),
+            bool(str(payload.get("client_message_id") or "").strip()),
+            str(payload.get("audio_response") or "").strip()[:24],
+        )
+        result, _status = await async_handle_ask_dj_message_payload(
+            hass,
+            payload,
+            headers=ask_dj_service_headers(payload),
+            user_id=ask_dj_service_user_id(call),
+        )
+        return result
+
+    async def handle_ask_dj_idle_suggestion(call: ServiceCall) -> dict[str, Any]:
+        from .api_handlers import async_handle_ask_dj_idle_suggestion_payload
+
+        payload = ask_dj_service_payload(call)
+        _LOGGER.debug(
+            "DJConnect Ask DJ idle suggestion service request client_type=%s",
+            payload.get(CONF_CLIENT_TYPE),
+        )
+        result, _status = await async_handle_ask_dj_idle_suggestion_payload(
+            hass,
+            payload,
+            headers=ask_dj_service_headers(payload),
+            user_id=ask_dj_service_user_id(call),
+        )
+        return result
+
+    async def handle_ask_dj_history(call: ServiceCall) -> dict[str, Any]:
+        from .api_handlers import async_handle_ask_dj_history_payload
+
+        payload = ask_dj_service_payload(call)
+        _LOGGER.debug(
+            "DJConnect Ask DJ history service request client_type=%s since_revision=%s",
+            payload.get(CONF_CLIENT_TYPE),
+            payload.get("since_revision"),
+        )
+        result, _status = await async_handle_ask_dj_history_payload(
+            hass,
+            payload,
+            headers=ask_dj_service_headers(payload),
+            user_id=ask_dj_service_user_id(call),
+        )
+        return result
+
+    async def handle_queue(call: ServiceCall) -> dict[str, Any]:
+        from .api_handlers import async_handle_command_payload
+
+        payload = ask_dj_service_payload(call)
+        payload["command"] = "queue"
+        _LOGGER.debug(
+            "DJConnect queue service request client_type=%s device_id_present=%s",
+            payload.get(CONF_CLIENT_TYPE),
+            bool(str(payload.get(CONF_DEVICE_ID) or "").strip()),
+        )
+        result, _status = await async_handle_command_payload(
+            hass,
+            payload,
+            headers=ask_dj_service_headers(payload),
+            user_id=ask_dj_service_user_id(call),
+        )
+        return result
+
+    async def handle_playlists(call: ServiceCall) -> dict[str, Any]:
+        from .api_handlers import async_handle_command_payload
+
+        payload = ask_dj_service_payload(call)
+        value = {
+            key: payload[key]
+            for key in ("limit", "market", "locale")
+            if payload.get(key) not in (None, "")
+        }
+        payload["command"] = "playlists"
+        if value:
+            payload["value"] = value
+        _LOGGER.debug(
+            "DJConnect playlists service request client_type=%s device_id_present=%s limit=%s",
+            payload.get(CONF_CLIENT_TYPE),
+            bool(str(payload.get(CONF_DEVICE_ID) or "").strip()),
+            value.get("limit"),
+        )
+        result, _status = await async_handle_command_payload(
+            hass,
+            payload,
+            headers=ask_dj_service_headers(payload),
+            user_id=ask_dj_service_user_id(call),
+        )
+        return result
+
+    async def handle_playback_command_service(
+        call: ServiceCall,
+        command: str | None = None,
+    ) -> dict[str, Any]:
+        from .api_handlers import async_handle_command_payload
+
+        payload = ask_dj_service_payload(call)
+        command_name = str(command or payload.get("command") or "").strip()
+        if not command_name:
+            raise RuntimeError("Provide a playback command")
+        payload["command"] = command_name
+        if "value" in call.data:
+            payload["value"] = call.data.get("value")
+        if "play" in call.data:
+            payload["play"] = bool(call.data.get("play"))
+        _LOGGER.debug(
+            "DJConnect playback service request command=%s client_type=%s device_id_present=%s play=%s value_present=%s",
+            command_name,
+            payload.get(CONF_CLIENT_TYPE),
+            bool(str(payload.get(CONF_DEVICE_ID) or "").strip()),
+            bool(payload.get("play", False)),
+            "value" in payload,
+        )
+        result, _status = await async_handle_command_payload(
+            hass,
+            payload,
+            headers=ask_dj_service_headers(payload),
+            user_id=ask_dj_service_user_id(call),
+        )
+        return result
+
+    async def handle_playback_status(call: ServiceCall) -> dict[str, Any]:
+        return await handle_playback_command_service(call, "status")
+
+    async def handle_playback_devices(call: ServiceCall) -> dict[str, Any]:
+        return await handle_playback_command_service(call, "devices")
+
+    async def handle_playback_command(call: ServiceCall) -> dict[str, Any]:
+        return await handle_playback_command_service(call)
+
+    async def handle_track_insight(call: ServiceCall) -> dict[str, Any]:
+        from .api_handlers import async_handle_track_insight_payload
+
+        payload = ask_dj_service_payload(call)
+        _LOGGER.debug(
+            "DJConnect Track Insight service request client_type=%s title_present=%s artist_present=%s force_refresh=%s",
+            payload.get(CONF_CLIENT_TYPE),
+            bool(str(payload.get("title") or "").strip()),
+            bool(str(payload.get("artist") or "").strip()),
+            bool(payload.get("force_refresh")),
+        )
+        result, _status = await async_handle_track_insight_payload(
+            hass,
+            payload,
+            headers=ask_dj_service_headers(payload),
+            source="service",
+        )
+        if result.get("success", True) and result.get("track"):
+            bus = getattr(hass, "bus", None)
+            fire = getattr(bus, "async_fire", None)
+            if callable(fire):
+                fire(TRACK_INSIGHT_EVENT, result)
+        return result
+
+    def discovery_service_payload(call: ServiceCall) -> dict[str, Any]:
+        payload = dict(call.data)
+        payload.setdefault(CONF_CLIENT_TYPE, runtime.client_type())
+        payload.setdefault(
+            CONF_DEVICE_ID,
+            runtime.device_status.get(CONF_DEVICE_ID) or runtime.pairing_device_id,
+        )
+        return payload
+
+    def discovery_service_headers(payload: dict[str, Any]) -> dict[str, str]:
+        headers: dict[str, str] = {
+            "Content-Type": "application/json",
+            "X-DJConnect-Client-Type": str(payload.get(CONF_CLIENT_TYPE) or runtime.client_type()),
+        }
+        device_id = str(payload.get(CONF_DEVICE_ID) or "").strip()
+        if device_id:
+            headers["X-DJConnect-Device-ID"] = device_id
+        if runtime.device_token:
+            headers["Authorization"] = f"Bearer {runtime.device_token}"
+        return headers
+
+    def discovery_service_user_id(call: ServiceCall) -> str | None:
+        return call.data.get("user_id") or getattr(getattr(call, "context", None), "user_id", None)
+
+    async def handle_vibecast_feed(call: ServiceCall) -> dict[str, Any]:
+        from .vibecast import async_handle_vibecast_payload
+
+        payload = discovery_service_payload(call)
+        _LOGGER.debug(
+            "DJConnect VibeCast feed service request client_type=%s render_capabilities_present=%s",
+            payload.get(CONF_CLIENT_TYPE),
+            bool(str(payload.get("render_capabilities") or "").strip()),
+        )
+        result, _status = await async_handle_vibecast_payload(
+            hass,
+            payload,
+            headers=discovery_service_headers(payload),
+        )
+        return result
+
+    async def handle_music_discovery_feed(call: ServiceCall) -> dict[str, Any]:
+        from .music_discovery import async_handle_music_discovery_feed_payload
+
+        payload = discovery_service_payload(call)
+        _LOGGER.debug(
+            "DJConnect Music Discovery feed service request client_type=%s force_refresh=%s",
+            payload.get(CONF_CLIENT_TYPE),
+            bool(payload.get("force_refresh")),
+        )
+        result, _status = await async_handle_music_discovery_feed_payload(
+            hass,
+            payload,
+            headers=discovery_service_headers(payload),
+            user_id=discovery_service_user_id(call),
+            force_refresh=bool(payload.get("force_refresh")),
+        )
+        return result
+
+    async def handle_refresh_music_discovery(call: ServiceCall) -> dict[str, Any]:
+        from .api_handlers import async_handle_music_discovery_refresh_payload
+
+        payload = discovery_service_payload(call)
+        _LOGGER.debug(
+            "DJConnect Music Discovery refresh service request client_type=%s",
+            payload.get(CONF_CLIENT_TYPE),
+        )
+        result, _status = await async_handle_music_discovery_refresh_payload(
+            hass,
+            payload,
+            headers=discovery_service_headers(payload),
+            user_id=discovery_service_user_id(call),
+        )
+        return result
+
+    async def handle_play_music_discovery_item(call: ServiceCall) -> dict[str, Any]:
+        from .api_handlers import async_handle_music_discovery_play_payload
+
+        payload = discovery_service_payload(call)
+        _LOGGER.debug(
+            "DJConnect Music Discovery play service request client_type=%s item_id_present=%s section_id_present=%s",
+            payload.get(CONF_CLIENT_TYPE),
+            bool(str(payload.get("discovery_item_id") or payload.get("item_id") or "").strip()),
+            bool(str(payload.get("section_id") or "").strip()),
+        )
+        result, _status = await async_handle_music_discovery_play_payload(
+            hass,
+            payload,
+            headers=discovery_service_headers(payload),
+            user_id=discovery_service_user_id(call),
+        )
+        return result
+
+    async def handle_music_dna_profile(call: ServiceCall) -> dict[str, Any]:
+        from .api_handlers import async_handle_music_dna_profile_payload
+
+        payload = ask_dj_service_payload(call)
+        _LOGGER.debug(
+            "DJConnect Music DNA profile service request client_type=%s music_dna_key_present=%s",
+            payload.get(CONF_CLIENT_TYPE),
+            bool(str(payload.get("music_dna_key") or "").strip()),
+        )
+        result, _status = await async_handle_music_dna_profile_payload(
+            hass,
+            payload,
+            headers=ask_dj_service_headers(payload),
+            user_id=ask_dj_service_user_id(call),
+        )
+        return result
+
+    async def handle_set_music_dna_enabled(call: ServiceCall) -> dict[str, Any]:
+        from .api_handlers import async_handle_music_dna_settings_payload
+
+        payload = ask_dj_service_payload(call)
+        _LOGGER.debug(
+            "DJConnect Music DNA settings service request client_type=%s enabled=%s",
+            payload.get(CONF_CLIENT_TYPE),
+            bool(payload.get("enabled")),
+        )
+        result, _status = await async_handle_music_dna_settings_payload(
+            hass,
+            payload,
+            headers=ask_dj_service_headers(payload),
+            user_id=ask_dj_service_user_id(call),
+        )
+        return result
+
     async def handle_clear_music_dna(call: ServiceCall) -> dict[str, Any]:
-        memory = getattr(runtime, "memory", None)
-        if memory is None:
-            raise RuntimeError("DJConnect Music DNA manager is unavailable")
-        user_id = call.data.get("user_id") or getattr(getattr(call, "context", None), "user_id", None)
-        context = await memory.async_context_for_runtime(runtime, dict(call.data), user_id=user_id)
-        await memory.async_clear(context.get("music_dna_key") or call.data.get("music_dna_key"))
-        return await memory.async_profile(runtime, dict(call.data), user_id=user_id)
+        from .api_handlers import async_handle_music_dna_clear_payload
+
+        payload = ask_dj_service_payload(call)
+        _LOGGER.debug(
+            "DJConnect Music DNA clear service request client_type=%s music_dna_key_present=%s",
+            payload.get(CONF_CLIENT_TYPE),
+            bool(str(payload.get("music_dna_key") or "").strip()),
+        )
+        result, _status = await async_handle_music_dna_clear_payload(
+            hass,
+            payload,
+            headers=ask_dj_service_headers(payload),
+            user_id=ask_dj_service_user_id(call),
+        )
+        return result
+
+    async def handle_music_dna_export(call: ServiceCall) -> dict[str, Any]:
+        from .api_handlers import async_handle_music_dna_export_payload
+
+        payload = ask_dj_service_payload(call)
+        _LOGGER.debug(
+            "DJConnect Music DNA export service request client_type=%s",
+            payload.get(CONF_CLIENT_TYPE),
+        )
+        result, _status = await async_handle_music_dna_export_payload(
+            hass,
+            payload,
+            headers=ask_dj_service_headers(payload),
+            user_id=ask_dj_service_user_id(call),
+        )
+        return result
+
+    async def handle_music_dna_import(call: ServiceCall) -> dict[str, Any]:
+        from .api_handlers import async_handle_music_dna_import_payload
+
+        payload = ask_dj_service_payload(call)
+        _LOGGER.debug(
+            "DJConnect Music DNA import service request client_type=%s profile_present=%s",
+            payload.get(CONF_CLIENT_TYPE),
+            "profile" in payload,
+        )
+        result, _status = await async_handle_music_dna_import_payload(
+            hass,
+            payload,
+            headers=ask_dj_service_headers(payload),
+            user_id=ask_dj_service_user_id(call),
+        )
+        return result
 
     async def handle_clear_ask_dj_history(call: ServiceCall) -> dict[str, Any]:
-        history = getattr(runtime, "ask_dj_history", None)
-        if history is None:
-            raise RuntimeError("DJConnect Ask DJ history manager is unavailable")
-        user_id = call.data.get("user_id") or getattr(getattr(call, "context", None), "user_id", None)
-        return await history.async_clear(user_id)
+        from .api_handlers import async_handle_ask_dj_history_clear_payload
+
+        payload = ask_dj_service_payload(call)
+        _LOGGER.debug(
+            "DJConnect Ask DJ history clear service request client_type=%s",
+            payload.get(CONF_CLIENT_TYPE),
+        )
+        result, _status = await async_handle_ask_dj_history_clear_payload(
+            hass,
+            payload,
+            headers=ask_dj_service_headers(payload),
+            user_id=ask_dj_service_user_id(call),
+        )
+        return result
 
     async def handle_ask_dj_history_state(call: ServiceCall) -> dict[str, Any]:
-        history = getattr(runtime, "ask_dj_history", None)
-        if history is None:
-            raise RuntimeError("DJConnect Ask DJ history manager is unavailable")
-        user_id = call.data.get("user_id") or getattr(getattr(call, "context", None), "user_id", None)
-        generation = call.data.get("history_revision")
-        try:
-            since_revision = int(generation) if generation is not None else None
-        except (TypeError, ValueError):
-            since_revision = None
-        result = await history.async_history(user_id, since_revision=since_revision)
-        try:
-            client_clear_revision = int(call.data.get("clear_revision") or 0)
-        except (TypeError, ValueError):
-            client_clear_revision = 0
-        return {
-            "success": True,
-            "user_id": result["user_id"],
-            "history_revision": result["history_revision"],
-            "clear_revision": result["clear_revision"],
-            "ask_dj_clear_required": client_clear_revision < int(result["clear_revision"] or 0),
-            "server_time": result["server_time"],
-        }
+        from .api_handlers import async_handle_ask_dj_history_state_payload
+
+        payload = ask_dj_service_payload(call)
+        if "history_revision" not in payload and "generation" in payload:
+            payload["history_revision"] = payload.get("generation")
+        _LOGGER.debug(
+            "DJConnect Ask DJ history state service request client_type=%s history_revision=%s clear_revision=%s",
+            payload.get(CONF_CLIENT_TYPE),
+            payload.get("history_revision"),
+            payload.get("clear_revision"),
+        )
+        result, _status = await async_handle_ask_dj_history_state_payload(
+            hass,
+            payload,
+            headers=ask_dj_service_headers(payload),
+            user_id=ask_dj_service_user_id(call),
+        )
+        return result
 
     service_handlers = {
         "test_parse": (handle_test_parse, "optional"),
@@ -1857,17 +2471,33 @@ def _register_developer_services(
         "test_command": (handle_test_command, "optional"),
         "test_ptt_text": (handle_test_ptt_text, "optional"),
         "test_apns_push": (handle_test_apns_push, "optional"),
+        "push_register": (handle_push_register, "optional"),
+        "push_unregister": (handle_push_unregister, "optional"),
         "music_backend_status": (handle_music_backend_status, "only"),
         "start_spotify_oauth": (handle_start_spotify_oauth, "only"),
         "device_command": (handle_device_command, "optional"),
+        "queue": (handle_queue, "optional"),
+        "playlists": (handle_playlists, "optional"),
+        "playback_status": (handle_playback_status, "optional"),
+        "playback_devices": (handle_playback_devices, "optional"),
+        "playback_command": (handle_playback_command, "optional"),
         "refresh_device_info": (handle_refresh_device_info, "optional"),
         "reboot_device": (handle_reboot_device, "optional"),
         "forget_device": (handle_forget_device, "optional"),
         "ask_dj": (handle_ask_dj, "optional"),
+        "ask_dj_message": (handle_ask_dj_message, "optional"),
+        "ask_dj_idle_suggestion": (handle_ask_dj_idle_suggestion, "optional"),
+        "ask_dj_history": (handle_ask_dj_history, "optional"),
         "track_insight": (handle_track_insight, "optional"),
+        "vibecast_feed": (handle_vibecast_feed, "optional"),
+        "music_discovery_feed": (handle_music_discovery_feed, "optional"),
+        "refresh_music_discovery": (handle_refresh_music_discovery, "optional"),
+        "play_music_discovery_item": (handle_play_music_discovery_item, "optional"),
         "music_dna_profile": (handle_music_dna_profile, "optional"),
         "set_music_dna_enabled": (handle_set_music_dna_enabled, "optional"),
         "clear_music_dna": (handle_clear_music_dna, "optional"),
+        "music_dna_export": (handle_music_dna_export, "optional"),
+        "music_dna_import": (handle_music_dna_import, "optional"),
         "clear_ask_dj_history": (handle_clear_ask_dj_history, "optional"),
         "ask_dj_history_state": (handle_ask_dj_history_state, "optional"),
     }

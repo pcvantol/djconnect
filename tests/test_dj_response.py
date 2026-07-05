@@ -117,7 +117,7 @@ class DjResponseTest(unittest.TestCase):
         payload = session.calls[0]["json"]
         self.assertEqual(session.calls[0]["url"], "http://djconnect.local/api/device/dj_response")
         self.assertEqual(payload["text"], "Daar gaan we")
-        self.assertIn("/api/djconnect/tts/", payload["audio_url"])
+        self.assertIn("/api/djconnect/v1/tts/", payload["audio_url"])
         self.assertTrue(payload["audio_url"].endswith(".wav"))
         self.assertTrue(result["spoken"])
         self.assertTrue(runtime.updated["last_dj_spoken"])

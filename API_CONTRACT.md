@@ -27,11 +27,11 @@ No app-client mDNS/local-API discovery is supported.
 iOS, macOS, watchOS and Windows are inbound-only app clients. They do not expose a
 Home Assistant-callable `/api/device/*` API, do not need a Client address in the
 Home Assistant setup flow, and post local pairing requests to
-`POST /api/djconnect/pair`. Home Assistant generates the app pairing code. The
+`POST /api/djconnect/v1/pair`. Home Assistant generates the app pairing code. The
 iPhone/iPad app pairs by scanning a QR/deep-link payload:
 
 ```text
-djconnect://pair?ha_url=<local-ha-url>&pair_code=<code>&client_type=ios&pair_path=/api/djconnect/pair
+djconnect://pair?ha_url=<local-ha-url>&pair_code=<code>&client_type=ios&pair_path=/api/djconnect/v1/pair
 ```
 
 Apple Watch pairs through the iPhone/iPad proxy: the iPhone/iPad scans the Watch
@@ -40,7 +40,7 @@ QR/deep-link payload and forwards the pairing material to the paired Watch, whic
 not require manual HA URL entry:
 
 ```text
-djconnect://pair?ha_url=<local-ha-url>&pair_code=<code>&client_type=watchos&pair_path=/api/djconnect/pair
+djconnect://pair?ha_url=<local-ha-url>&pair_code=<code>&client_type=watchos&pair_path=/api/djconnect/v1/pair
 ```
 
 macOS and Windows clients pair by manually entering the local Home Assistant URL
@@ -155,7 +155,7 @@ must fall back to HTTP if a needed websocket command is missing, errors, times
 out or reports unsupported capabilities.
 
 Send commands with the same semantic payload used for
-`POST /api/djconnect/command`:
+`POST /api/djconnect/v1/command`:
 
 ```json
 {
@@ -186,8 +186,8 @@ Supported fast-path commands are the existing `/command` actions, including
 `ask_dj_followup_response`, `ask_dj_play_recommendation`,
 `ask_dj_play_recommendation_on_output`, `ask_dj_play_request_on_output` and
 `ask_dj_message` when a client already routes that action through
-`/api/djconnect/command`. Chat clients should still prefer
-`POST /api/djconnect/ask_dj/message` for normal text chat because that endpoint
+`/api/djconnect/v1/command`. Chat clients should still prefer
+`POST /api/djconnect/v1/ask_dj/message` for normal text chat because that endpoint
 owns history append, `messages[]` ordering and push/history synchronization.
 
 Servers that advertise the message type may also accept normal Ask DJ chat on:
@@ -206,7 +206,7 @@ Servers that advertise the message type may also accept normal Ask DJ chat on:
 ```
 
 This route is the websocket equivalent of
-`POST /api/djconnect/ask_dj/message`: it appends server-side history, returns
+`POST /api/djconnect/v1/ask_dj/message`: it appends server-side history, returns
 the same `messages[]`, `history_revision` and `clear_revision` sync fields, and
 uses the same push/confirmation policy. Clients may use it as a local fast path
 only after capability detection; HTTP remains the fallback and remains required
@@ -227,7 +227,7 @@ Idle suggestions can use:
 ```
 
 The response is the websocket equivalent of
-`POST /api/djconnect/ask_dj/idle_suggestion`: it appends the server-generated
+`POST /api/djconnect/v1/ask_dj/idle_suggestion`: it appends the server-generated
 system suggestion to user-scoped Ask DJ history and returns the same sync
 metadata as HTTP.
 
@@ -246,7 +246,7 @@ Track Insight can use:
 ```
 
 The response is the same normalized Track Insight shape as
-`POST /api/djconnect/track_insight`. If `title`/`artist` are omitted, the
+`POST /api/djconnect/v1/track_insight`. If `title`/`artist` are omitted, the
 backend resolves Now Playing through the selected music backend just like the
 HTTP route.
 
@@ -285,7 +285,7 @@ Music DNA can use these websocket equivalents when advertised in
 }
 ```
 
-The response shapes match `POST /api/djconnect/music_dna/profile`,
+The response shapes match `POST /api/djconnect/v1/music_dna/profile`,
 `/settings` and `/clear`. HTTP remains the canonical fallback.
 Music DNA import/export is intentionally HTTP-only; clients should not expect
 `djconnect/music_dna/export` or `djconnect/music_dna/import` websocket commands
@@ -303,7 +303,7 @@ DNA while diagnosing websocket transport state.
 
 ## VibeCast Feed
 
-Apple clients can poll `GET /api/djconnect/vibecast` for a small live feed of
+Apple clients can poll `GET /api/djconnect/v1/vibecast` for a small live feed of
 track, artist, album, genre, trivia, listening-tip, mood, production, history or
 system bubbles around the current backend playback context. The route uses the
 same paired DJConnect device token and canonical identity fields as other app
@@ -363,8 +363,12 @@ Known reasons include `feature_disabled`, `premium_unavailable`,
 `unauthorized`, `invalid_client_type`, `client_type_mismatch` and
 `privacy_disabled`.
 
-Generated VibeCast copy is deliberately cautious. When facts are inferred rather
-than sourced, `source.kind` is `generated` and `source.confidence` is usually
+Generated VibeCast copy is deliberately cautious. The backend may ask the
+configured Home Assistant conversation agent for three short bubbles using the
+current track title, artist, album and genres: one trivia/fact, one concrete
+listening tip and one mood/texture line. When that succeeds, items use
+`source.kind:"conversation"`; when the backend falls back to local
+metadata-shaped copy, `source.kind:"generated"`. `source.confidence` is usually
 `medium`; clients should present those bubbles as playful context, not as
 verified biographies, chart claims, rights/sample claims or personal artist
 details.
@@ -428,10 +432,10 @@ Example disabled response:
 iOS, macOS and watchOS clients send `mood` as an optional integer-like value from
 `0` to `100`. The Home Assistant integration accepts the value on:
 
-- `POST /api/djconnect/ask_dj/message`
-- `POST /api/djconnect/ask_dj/idle_suggestion`
-- `POST /api/djconnect/voice`
-- `POST /api/djconnect/status`
+- `POST /api/djconnect/v1/ask_dj/message`
+- `POST /api/djconnect/v1/ask_dj/idle_suggestion`
+- `POST /api/djconnect/v1/voice`
+- `POST /api/djconnect/v1/status`
 
 The server clamps out-of-range values before using them:
 
@@ -474,7 +478,7 @@ Entry points:
 - Ask DJ prompts such as `Tell me about this track`, `What is special about this
   song?`, `What is the vibe of this track?`, `Geef Track Insight voor dit
   nummer` or `Give me Track Insight`.
-- `POST /api/djconnect/track_insight` with Home Assistant auth.
+- `POST /api/djconnect/v1/track_insight` with Home Assistant auth.
 - Home Assistant service `djconnect.track_insight`, which fires
   `djconnect_track_insight` with the normalized result.
 
@@ -512,11 +516,11 @@ knowledge starts building again from an empty profile.
 HTTP endpoints use the regular DJConnect bearer token, `device_id` and
 canonical `client_type` identity contract:
 
-- `POST /api/djconnect/music_dna/profile`
-- `POST /api/djconnect/music_dna/settings`
-- `POST /api/djconnect/music_dna/clear`
-- `POST /api/djconnect/music_dna/export`
-- `POST /api/djconnect/music_dna/import`
+- `POST /api/djconnect/v1/music_dna/profile`
+- `POST /api/djconnect/v1/music_dna/settings`
+- `POST /api/djconnect/v1/music_dna/clear`
+- `POST /api/djconnect/v1/music_dna/export`
+- `POST /api/djconnect/v1/music_dna/import`
 
 `/music_dna/settings` accepts:
 
@@ -725,15 +729,22 @@ recommendations or reasons locally.
 
 HTTP endpoints:
 
-- `GET /api/djconnect/music_discovery`
-- `POST /api/djconnect/music_discovery/refresh`
-- `POST /api/djconnect/music_discovery/play`
+- `GET /api/djconnect/v1/music_discovery`
+- `POST /api/djconnect/v1/music_discovery/refresh`
+- `POST /api/djconnect/v1/music_discovery/play`
 
 WebSocket equivalents, when advertised by `djconnect/capabilities.commands[]`:
 
 - `djconnect/music_discovery/feed`
 - `djconnect/music_discovery/refresh`
 - `djconnect/music_discovery/play`
+
+When Home Assistant debug logging is enabled for `custom_components.djconnect`,
+the HTTP handlers emit redacted diagnostics prefixed with
+`DJConnect Music Discovery`. These lines identify feed/refresh/play requests,
+auth failures, `music_dna_disabled`, cache hits, refresh rate limits and
+generated section/item counts. They include client type and device id but never
+tokens, raw prompts or full request payloads.
 
 Disabled response:
 
@@ -769,7 +780,7 @@ refresh may be rate-limited and returns the current cached feed when limited:
           "title": "Intro",
           "subtitle": "The xx",
           "uri": "spotify:track:...",
-          "image_url": "/api/djconnect/image_proxy/...",
+          "image_url": "/api/djconnect/v1/image_proxy/...",
           "reason": "Past bij je Music DNA smaakankers.",
           "reason_sources": ["taste_anchors", "recent_tracks"],
           "play_count": 4,
@@ -823,6 +834,9 @@ server-side confirmation pair:
 - `djconnect_now_playing`
 - `djconnect_music_dna_profile`
 - `djconnect_music_dna_summary`
+- `djconnect_music_discovery_feed`
+- `djconnect_vibecast_feed`
+- `djconnect_music_backend_status`
 - `djconnect_recently_played`
 - `djconnect_search_music`
 - `djconnect_list_outputs`
@@ -830,7 +844,13 @@ server-side confirmation pair:
 - `djconnect_prepare_playback_action`
 - `djconnect_execute_confirmed_action`
 
-`djconnect_prepare_playback_action` stores a bounded pending confirmation in
+`djconnect_music_discovery_feed` reads the backend-built Music Discovery feed
+for the resolved Music DNA context and must not call discovery play, force
+refresh or mutate playback. `djconnect_vibecast_feed` reads the same
+privacy/premium-gated VibeCast feed exposed to supported app clients and must
+not bypass VibeCast feature, privacy, entitlement or client-type gates.
+`djconnect_music_backend_status` returns safe selected-backend availability,
+capability and target-player metadata without secrets. `djconnect_prepare_playback_action` stores a bounded pending confirmation in
 Music DNA and returns confirmation actions only; it must not start playback.
 `djconnect_execute_confirmed_action` may execute only the latest stored
 DJConnect AI-tool confirmation payload and must not accept arbitrary
@@ -845,7 +865,7 @@ workflows so those routes cannot drift from the exposed Home Assistant AI tools.
 
 ## Ask DJ Message Actions
 
-`POST /api/djconnect/ask_dj/message` responses may include
+`POST /api/djconnect/v1/ask_dj/message` responses may include
 `playback_actions[]`. Clients should render actions by `kind` and must not infer
 missing media from previous chat bubbles. If a response has no `images[]`, show
 it as text-only.
@@ -882,7 +902,7 @@ Supported action kinds:
   show a Resume button. Clients may also send direct control commands such as
   `volume_delta`, `set_shuffle`, `set_repeat`, `save_current_track` and
   `set_current_track_favorite` through
-  `POST /api/djconnect/command`. Current-track Ask DJ responses such as
+  `POST /api/djconnect/v1/command`. Current-track Ask DJ responses such as
   `wat speelt er` may include a `set_current_track_favorite` control action
   with `toggle:true`, `favorite_status`, `toggle_state:"on"|"off"|"unknown"`,
   a boolean `value` target and `client_prompt` (`Zet huidig nummer in favorieten`
@@ -902,6 +922,15 @@ Supported action kinds:
   metadata so clients can show and play the DJ announcement immediately instead
   of waiting for ambient playback facts.
 
+Artist track-list questions such as `welke nummers heb je`,
+`welke nummers heb je van <artist>` and `more tracks by <artist>` are handled
+server-side. If the artist is omitted, the backend may resolve it from the
+current playback context or recent Ask DJ history. Successful responses return
+`playback_actions[]`/`items[]` rows with `kind:"track"` and Play Now labels; the
+client must render those backend rows and must not reinterpret the question as a
+style recommendation. Artist matching is tolerant of common textual differences
+such as `and` versus `&`.
+
 Playback actions are backend-aware. Clients must not assume Spotify URIs:
 
 ```json
@@ -917,7 +946,7 @@ Playback actions are backend-aware. Clients must not assume Spotify URIs:
     "uri": "spotify:track:123",
     "title": "Track Title",
     "subtitle": "Artist Name",
-    "image_url": "/api/djconnect/image_proxy/token"
+    "image_url": "/api/djconnect/v1/image_proxy/token"
   }
 }
 ```
@@ -940,7 +969,7 @@ configured target player:
     "media_type": "track",
     "title": "Track Title",
     "subtitle": "Artist Name",
-    "image_url": "/api/djconnect/image_proxy/token",
+    "image_url": "/api/djconnect/v1/image_proxy/token",
     "target_player_id": "media_player.mass_woonkamer"
   }
 }
@@ -1003,7 +1032,7 @@ python3 tools/run_ask_dj_e2e.py \
   --out reports/ask_dj_e2e_results.json
 ```
 
-The live runner posts each case to `/api/djconnect/ask_dj/message` with a
+The live runner posts each case to `/api/djconnect/v1/ask_dj/message` with a
 stable watchOS-style test identity. Offline tests additionally record backend
 commands so cases can assert that informational intents do not mutate playback.
 When adding a new client-visible Ask DJ intent, add or update a case in
@@ -1047,8 +1076,8 @@ The response may include top-level `items[]` and the same list under
   "title": "Even Flow",
   "subtitle": "Pearl Jam",
   "uri": "spotify:track:...",
-  "image_url": "/api/djconnect/image_proxy/...",
-  "thumbnail_url": "/api/djconnect/image_proxy/...",
+  "image_url": "/api/djconnect/v1/image_proxy/...",
+  "thumbnail_url": "/api/djconnect/v1/image_proxy/...",
   "played_at": "2026-06-23T12:34:56Z",
   "played_at_label": "12:34"
 }
@@ -1103,17 +1132,17 @@ failure if available Spotify devices can be listed. Instead it returns:
   and `command:"ask_dj_play_request_on_output"`
 
 Each output action carries `value.output_id` and `value.request.text`, so clients
-can post it unchanged to `/api/djconnect/command`. The command handler first
+can post it unchanged to `/api/djconnect/v1/command`. The command handler first
 sets the selected Spotify output and then replays the original Ask DJ playback
 request server-side. Clients must not reconstruct the original prompt locally.
 
 ## Ask DJ History
 
 Ask DJ history is server-side and HA-user scoped. App clients synchronize through
-`GET /api/djconnect/ask_dj/history?since_revision=<number>` and clear through
-`POST /api/djconnect/ask_dj/history/clear`. Clients can export the current
+`GET /api/djconnect/v1/ask_dj/history?since_revision=<number>` and clear through
+`POST /api/djconnect/v1/ask_dj/history/clear`. Clients can export the current
 bounded server-side history through HTTP-only
-`POST /api/djconnect/ask_dj/history/export`; this route is intentionally not a
+`POST /api/djconnect/v1/ask_dj/history/export`; this route is intentionally not a
 Home Assistant websocket command.
 
 `clear_revision` is the authoritative full-clear marker. When a history or clear
@@ -1170,12 +1199,12 @@ HA installation.
 
 Apple push notification support is server-side and best-effort. Push is only a
 wake/attention signal; clients must always sync through authenticated DJConnect
-APIs when opened, especially `GET /api/djconnect/ask_dj/history`.
+APIs when opened, especially `GET /api/djconnect/v1/ask_dj/history`.
 
 Endpoints:
 
-- `POST /api/djconnect/push/register`
-- `POST /api/djconnect/push/unregister`
+- `POST /api/djconnect/v1/push/register`
+- `POST /api/djconnect/v1/push/unregister`
 
 Both endpoints require the existing DJConnect bearer token and support only
 `ios`, `macos` and `watchos` clients. Home Assistant validates the client

@@ -345,7 +345,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
             return {
                 "success": True,
                 "spoken": True,
-                "audio_url_value": "http://ha/api/djconnect/tts/test.mp3",
+                "audio_url_value": "http://ha/api/djconnect/v1/tts/test.mp3",
             }
 
         original_command = self.http.run_text_command
@@ -385,7 +385,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
         )
         self.assertEqual(
             response["payload"]["audio_url"],
-            "http://ha/api/djconnect/tts/test.mp3",
+            "http://ha/api/djconnect/v1/tts/test.mp3",
         )
         self.assertEqual(response["payload"]["audio_type"], "mp3")
         self.assertEqual(response["payload"]["music_dna_key"], "djconnect-watchos-68B74487726D")
@@ -431,7 +431,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 "dj_text": "Daar gaan we",
                 "message": "Daar gaan we",
                 "transcript": "Speel Pearl Jam",
-                "audio_url": "http://ha/api/djconnect/tts/token.mp3",
+                "audio_url": "http://ha/api/djconnect/v1/tts/token.mp3",
                 "images": [],
                 "links": [],
                 "sources": [{"source": "djconnect_music_dna"}],
@@ -473,7 +473,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertEqual(response["payload"]["text"], "Daar gaan we")
         self.assertEqual(
             response["payload"]["audio_url"],
-            "http://ha/api/djconnect/tts/token.mp3",
+            "http://ha/api/djconnect/v1/tts/token.mp3",
         )
         self.assertEqual(response["payload"]["audio_type"], "mp3")
         self.assertEqual(response["payload"]["sources"], [{"source": "djconnect_music_dna"}])
@@ -1966,7 +1966,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 self.assertTrue(payload["success"])
                 self.assertEqual(payload["client_type"], client_type)
                 self.assertEqual(payload["device_token"], f"{client_type}-token")
-                self.assertEqual(payload["api_base"], "/api/djconnect")
+                self.assertEqual(payload["api_base"], "/api/djconnect/v1")
                 self.assertEqual(payload["voice_path"], self.http.API_VOICE)
                 self.assertEqual(payload["status_path"], self.http.API_STATUS)
                 self.assertEqual(payload["ha_local_url"], "http://homeassistant.local:8123")
@@ -3733,7 +3733,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 "success": True,
                 "text": "Je hoort nu Gave It All van HAEVN.",
                 "dj_text": "Je hoort nu Gave It All van HAEVN.",
-                "audio_url": "/api/djconnect/tts/current.mp3",
+                "audio_url": "/api/djconnect/v1/tts/current.mp3",
                 "is_generated_text": True,
                 "text_source": "generated",
             }
@@ -3765,7 +3765,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
             self.http.async_handle_ask_dj = original_ask
 
         self.assertEqual(response["status_code"], 200)
-        self.assertEqual(response["payload"]["audio_url"], "/api/djconnect/tts/current.mp3")
+        self.assertEqual(response["payload"]["audio_url"], "/api/djconnect/v1/tts/current.mp3")
         self.assertEqual(ask_calls[0]["text"], "wat speelt er")
         self.assertEqual(ask_calls[0]["audio_response"], "auto")
 
@@ -3923,7 +3923,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
         async def create_audio(hass, runtime_arg, text):
             self.assertIn("Track Title", text)
             self.assertIn("Artist Name", text)
-            return "http://ha/api/djconnect/tts/play-now.mp3"
+            return "http://ha/api/djconnect/v1/tts/play-now.mp3"
 
         async def generate_dj_response(hass, *, media, fallback_text, conf, memory_context=None, debug=None):
             self.assertEqual(media["track_name"], "Track Title")
@@ -3987,13 +3987,13 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertFalse(response["payload"]["dj_response"]["displayed"])
         self.assertEqual(
             response["payload"]["audio_url"],
-            "http://ha/api/djconnect/tts/play-now.mp3",
+            "http://ha/api/djconnect/v1/tts/play-now.mp3",
         )
         self.assertEqual(response["payload"]["assistant_message"]["origin"], "play_now")
         self.assertEqual(response["payload"]["assistant_message"]["text"], response["payload"]["dj_text"])
         self.assertEqual(
             response["payload"]["assistant_message"]["audio_url"],
-            "http://ha/api/djconnect/tts/play-now.mp3",
+            "http://ha/api/djconnect/v1/tts/play-now.mp3",
         )
         self.assertEqual(response["payload"]["assistant_message"]["playback_actions"], [])
         self.assertEqual(response["payload"]["audio_type"], "mp3")
@@ -4048,7 +4048,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
             return fallback_text
 
         async def create_audio(hass, runtime_arg, text):
-            return "http://ha/api/djconnect/tts/play-now.mp3"
+            return "http://ha/api/djconnect/v1/tts/play-now.mp3"
 
         class Request:
             headers = {
@@ -5358,7 +5358,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
                             "entry_id": "entry-1",
                             "client_id": "client-id",
                             "code_verifier": "verifier",
-                            "redirect_uri": "https://example.ui.nabu.casa/api/djconnect/spotify/callback",
+                            "redirect_uri": "https://example.ui.nabu.casa/api/djconnect/v1/spotify/callback",
                             "market": "NL",
                             "scopes": "scope",
                         }
@@ -5479,7 +5479,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
                             "entry_id": "entry-1",
                             "client_id": "client-id",
                             "code_verifier": "verifier",
-                            "redirect_uri": "https://example.ui.nabu.casa/api/djconnect/spotify/callback",
+                            "redirect_uri": "https://example.ui.nabu.casa/api/djconnect/v1/spotify/callback",
                             "market": "NL",
                             "scopes": "scope",
                         }

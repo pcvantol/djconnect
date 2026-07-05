@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import json
+import logging
 import types
 import unittest
 
@@ -90,6 +92,94 @@ class VibeCastTests(unittest.TestCase):
             emojis = emoji_segments[0]["value"].strip().split()
             self.assertGreaterEqual(len(emojis), 1)
             self.assertLessEqual(len(emojis), 3)
+
+    def test_emoji_safe_header_keeps_comma_separated_capabilities(self) -> None:
+        result = asyncio.run(_vibecast_for_client("macos"))
+
+        self.assertTrue(
+            any(segment["type"] == "emoji" for item in result["items"] for segment in item["text"])
+        )
+
+    def test_conversation_agent_can_generate_track_specific_bubbles(self) -> None:
+        self._patch_status(
+            _status_payload()
+            | {
+                "playback": {
+                    **_status_payload()["playback"],
+                    "title": "Omen",
+                    "artist": "Margarita Sipatova",
+                    "album": "Omen",
+                    "genres": ["melodic techno"],
+                }
+            }
+        )
+        original = vibecast.call_conversation_process_with_agent_retry
+        payload = {
+            "items": [
+                {"kind": "trivia", "text": "Feitje: Omen gebruikt spanning als hoofdinstrument."},
+                {"kind": "listening_tip", "text": "Luistertip: volg de baspuls onder de melodie."},
+                {"kind": "artist_fact", "text": "Sfeer: Margarita Sipatova houdt het filmisch en strak."},
+            ]
+        }
+
+        async def conversation(hass, data, debug=None):
+            return {
+                "response": {
+                    "speech": {"plain": {"speech": json.dumps(payload)}},
+                }
+            }
+
+        vibecast.call_conversation_process_with_agent_retry = conversation
+        try:
+            result, status = asyncio.run(
+                vibecast.async_handle_vibecast_payload(
+                    self.hass,
+                    {
+                        "client_type": "ios",
+                        "device_id": "djconnect-ios-ABCDEF123456",
+                        "render_capabilities": "bold,accent,emoji_safe",
+                    },
+                    headers=self.headers,
+                )
+            )
+        finally:
+            vibecast.call_conversation_process_with_agent_retry = original
+
+        self.assertEqual(status, 200)
+        rendered = " ".join(segment["value"] for item in result["items"] for segment in item["text"])
+        self.assertIn("Omen gebruikt spanning", rendered)
+        self.assertIn("baspuls onder de melodie", rendered)
+        self.assertIn("Margarita Sipatova", rendered)
+        self.assertTrue(all(item["source"]["kind"] == "conversation" for item in result["items"]))
+
+    def test_local_fallback_varies_bubbles_by_track_metadata(self) -> None:
+        first = vibecast._fallback_items(
+            {
+                "track_id": "spotify:track:omen",
+                "title": "Omen",
+                "artist": "Margarita Sipatova",
+                "album": "Omen",
+                "genres": ["melodic techno"],
+            },
+            "nl-nl",
+            {"render_capabilities": "emoji_safe"},
+        )
+        second = vibecast._fallback_items(
+            {
+                "track_id": "spotify:track:strobe",
+                "title": "Strobe - Radio Edit",
+                "artist": "deadmau5",
+                "album": "Strobe",
+                "genres": ["progressive house", "edm"],
+            },
+            "nl-nl",
+            {"render_capabilities": "emoji_safe"},
+        )
+
+        first_text = [" ".join(segment["value"] for segment in item["text"]) for item in first]
+        second_text = [" ".join(segment["value"] for segment in item["text"]) for item in second]
+        self.assertNotEqual(first_text, second_text)
+        self.assertFalse(all("ritme en ruimte" in text for text in first_text + second_text))
 
     def test_clients_without_emoji_safe_do_not_get_emoji_segments(self) -> None:
         self._patch_status()
@@ -211,6 +301,29 @@ class VibeCastTests(unittest.TestCase):
         self.assertFalse(result["enabled"])
         self.assertEqual(result["reason"], "provider_unavailable")
         self.assertNotIn("secret", str(result).lower())
+
+    def test_provider_failure_debug_log_omits_raw_error_text(self) -> None:
+        self._patch_status(raises=RuntimeError("token secret provider exploded"))
+        previous = vibecast._LOGGER.level
+        vibecast._LOGGER.setLevel(logging.DEBUG)
+        try:
+            with self.assertLogs(vibecast._LOGGER, level="DEBUG") as captured:
+                result, status = asyncio.run(
+                    vibecast.async_handle_vibecast_payload(
+                        self.hass,
+                        {"client_type": "ios", "device_id": "djconnect-ios-ABCDEF123456"},
+                        headers=self.headers,
+                    )
+                )
+        finally:
+            vibecast._LOGGER.setLevel(previous)
+        self.assertEqual(status, 200)
+        self.assertEqual(result["reason"], "provider_unavailable")
+        logs = "\n".join(captured.output).lower()
+        self.assertIn("status lookup failed", logs)
+        self.assertIn("runtimeerror", logs)
+        self.assertNotIn("secret", logs)
+        self.assertNotIn("bearer token", logs)
 
     def test_cache_hit_reuses_revision_and_items(self) -> None:
         calls = []

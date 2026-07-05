@@ -44,7 +44,7 @@
   new action responses should not rebuild backend/provider/revision/value
   envelopes directly in Ask DJ.
 - VibeCast is a premium-ready Apple client feature via
-  `GET /api/djconnect/vibecast`. macOS and iOS must receive the same functional
+  `GET /api/djconnect/v1/vibecast`. macOS and iOS must receive the same functional
   backend contract: same endpoint, response shape, item kinds, structured text
   segment types, disabled reasons, TTL/polling/cache semantics, entitlement
   behavior and current-track resolution. Differences belong only in client
@@ -74,7 +74,7 @@
 
 ```text
 DJConnect ESP device
-  -> HA /api/djconnect/status, /command, /voice
+  -> HA /api/djconnect/v1/status, /command, /voice
   -> djconnect integration
   -> HA Assist/STT/TTS + selected music backend
   -> optional /api/device/command or /api/device/dj_response back to ESP
@@ -112,11 +112,11 @@ DJConnect ESP device
 
 ### ESP -> HA
 
-- `POST /api/djconnect/pair`
-- `POST /api/djconnect/status`
-- `POST /api/djconnect/command`
-- `POST /api/djconnect/voice`
-- `POST /api/djconnect/event`
+- `POST /api/djconnect/v1/pair`
+- `POST /api/djconnect/v1/status`
+- `POST /api/djconnect/v1/command`
+- `POST /api/djconnect/v1/voice`
+- `POST /api/djconnect/v1/event`
 
 All protected ESP -> HA routes use:
 
@@ -188,7 +188,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
   over `homeassistant.local`, then use `http://homeassistant.local:8123` only as
   final local fallback.
 - iOS, macOS and Windows app clients have no client-hosted local API. They post
-  inbound local pairing to `/api/djconnect/pair` and may receive `ha_remote_url`
+  inbound local pairing to `/api/djconnect/v1/pair` and may receive `ha_remote_url`
   when HA has an HTTPS external/Nabu Casa URL. ESP32 and Raspberry Pi never
   receive `ha_remote_url`.
 - HA may call `POST /api/device/pair` only for ESP32/Raspberry Pi initial
@@ -204,7 +204,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
   and otherwise by DJConnect device/client id. Music DNA knowledge collection is
   explicit opt-in: while disabled, HA must not build new DNA knowledge from Ask
   DJ, listening profiles, recent tracks or preferences. Clients use
-  `POST /api/djconnect/music_dna/profile`, `/settings` and `/clear` for the
+  `POST /api/djconnect/v1/music_dna/profile`, `/settings` and `/clear` for the
   first-class Music DNA screen, opt-in/out and user-initiated clearing. Clear
   preserves the opt-in setting and enabled profiles begin learning again from
   empty data. HA also exposes `djconnect.music_dna_profile`,
@@ -212,8 +212,8 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
   AI tool `djconnect_music_dna_profile`. ESP32 does not get Ask DJ chat
   UI/history; it keeps the existing voice/playback command flow. Do not store
   OAuth tokens, bearer tokens, raw audio or full prompts in memory.
-- Text chat for app/display Ask DJ uses `POST /api/djconnect/ask_dj/message` from iOS, macOS, watchOS, Raspberry Pi and Windows; service `djconnect.ask_dj` remains a developer entrypoint. The backend classifies informational questions separately from playback/device actions, so questions such as "Waarom koos je dit nummer?" must not change playback while requests such as "Volgende nummer" or "Zet rustige muziek op" can execute Spotify/Home Assistant actions and return a DJ response.
-- Cross-device Ask DJ history is stored in Home Assistant Store key `djconnect_ask_dj_history` version `1`, scoped by HA user id. iOS, macOS, Apple Watch, Raspberry Pi and Windows clients use `GET /api/djconnect/ask_dj/history?since_revision=<number>` and `POST /api/djconnect/ask_dj/history/clear` to reconcile local cache. `client_message_id` dedupes retries; `client_id` and `client_type` are metadata only.
+- Text chat for app/display Ask DJ uses `POST /api/djconnect/v1/ask_dj/message` from iOS, macOS, watchOS, Raspberry Pi and Windows; service `djconnect.ask_dj` remains a developer entrypoint. The backend classifies informational questions separately from playback/device actions, so questions such as "Waarom koos je dit nummer?" must not change playback while requests such as "Volgende nummer" or "Zet rustige muziek op" can execute Spotify/Home Assistant actions and return a DJ response.
+- Cross-device Ask DJ history is stored in Home Assistant Store key `djconnect_ask_dj_history` version `1`, scoped by HA user id. iOS, macOS, Apple Watch, Raspberry Pi and Windows clients use `GET /api/djconnect/v1/ask_dj/history?since_revision=<number>` and `POST /api/djconnect/v1/ask_dj/history/clear` to reconcile local cache. `client_message_id` dedupes retries; `client_id` and `client_type` are metadata only.
 - `API_CONTRACT.md` is the compact client-facing contract for Ask DJ mood-zones and history retention; keep it in sync with README and SYNC_PROMPTS.
 - Ask DJ history is bounded to 1000 messages per HA user. When the backend trims old messages, responses include `history_limit`, `history_trimmed_before` and `history_trimmed_count`, and history gets one assistant system message with `origin:"history_retention"` and intent `history_limit_reached`. Clients should remove local messages older than `history_trimmed_before` and must not parse the visible text to detect trimming.
 - Numeric Ask DJ mood values are still accepted for backwards compatibility, but HA derives the canonical lowercase `mood_zone`: `chill` for `0`-`24`, `groove` for `25`-`59`, `energy` for `60`-`84` and `party` for `85`-`100`. Ask DJ prompts, Music DNA context, profile/recommendation text and spoken DJ announcements should use the zone name plus persona hint, not only the number.
@@ -224,7 +224,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
   The configured backend `voice_profile` is only the fallback when a request has
   no valid mood value.
 - Ask DJ text chat is conversation-aware before intent routing. Load recent server history and classify the latest turn as a conversational follow-up, clarification/correction, informational intent, playback intent or hybrid intent. Short acknowledgements/dismissals such as `Geeft niet`, `Dank je`, `Laat maar`, `Prima` or `Jammer` must answer naturally with `action:"none"` and no playback mutation. Short corrections such as `alleen tussen 1980 en 1990` should be merged with the previous user request before continuing through normal routing.
-- Ask DJ follow-up questions can include `confirmation_actions[]` and confirmation-style `playback_actions[]` for `Ja`/`Nee` UI buttons. Clients answer with `POST /api/djconnect/command` and `command:"ask_dj_followup_response"`. Pending follow-up state is kept server-side in Music DNA for about 10 minutes, then expires. `yes` executes the stored proposed action; `no` consumes it and leaves playback unchanged.
+- Ask DJ follow-up questions can include `confirmation_actions[]` and confirmation-style `playback_actions[]` for `Ja`/`Nee` UI buttons. Clients answer with `POST /api/djconnect/v1/command` and `command:"ask_dj_followup_response"`. Pending follow-up state is kept server-side in Music DNA for about 10 minutes, then expires. `yes` executes the stored proposed action; `no` consumes it and leaves playback unchanged.
 - If a playback/hybrid Ask DJ intent cannot start because Spotify has no active output, HA returns `error:"no_active_output"`, `action:"select_output"` and `playback_actions[]` speaker rows with `command:"ask_dj_play_request_on_output"`. Clients post the selected action value unchanged; HA sets the Spotify output and replays the original Ask DJ playback request server-side.
 - `Goedemorgen` / `Good morning` is a morning startup suggestion, not immediate playback. The backend uses Music DNA and Spotify profile context to suggest a likely morning favorite plus Ja/Nee actions. `Ik ga slapen` / `I'm going to sleep` pauses music directly and returns a short DJ response.
 - Obvious gibberish, sandbox-escape prompts and prompt-injection-like requests fall through to the neutral unknown-intent response instead of trying fuzzy artist search, conversation-agent lookup or playback mutation.
@@ -239,16 +239,16 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
   metadata where available, and falls back to those genres when the generated
   analysis omits genre.
 - Ask DJ concert-agenda questions such as `Wanneer speelt artiest X in Nederland?` resolve explicit/current/conversation artists and use Bandsintown web agenda data when available. Keep this informational and non-mutating. Return a readable date/location/link list plus `links[]` entries with `source: bandsintown` so clients can show clickable sources.
-- Ask DJ seed-mix requests such as `Stel een playlist samen op basis van artiesten X, Y`, `Ik wil een playlist obv tracks A, B` and `Ik wil een playlist in genre ambient, techno` use Spotify recommendations from up to five artist/track/genre seeds. Responses are non-mutating and return a Play Now `track_mix` action with bounded Spotify track `uris[]`. When the user taps Play Now, `/api/djconnect/command` starts those URIs and asks whether the mix should be saved. A follow-up such as `Sla deze mix op als Spotify playlist` creates a private Spotify playlist and adds the generated tracks; this requires Spotify `playlist-modify-private`/`playlist-modify-public` scopes.
+- Ask DJ seed-mix requests such as `Stel een playlist samen op basis van artiesten X, Y`, `Ik wil een playlist obv tracks A, B` and `Ik wil een playlist in genre ambient, techno` use Spotify recommendations from up to five artist/track/genre seeds. Responses are non-mutating and return a Play Now `track_mix` action with bounded Spotify track `uris[]`. When the user taps Play Now, `/api/djconnect/v1/command` starts those URIs and asks whether the mix should be saved. A follow-up such as `Sla deze mix op als Spotify playlist` creates a private Spotify playlist and adds the generated tracks; this requires Spotify `playlist-modify-private`/`playlist-modify-public` scopes.
 - Spotify playback status can create ambient Ask DJ messages without a user request when the observed artist/album combination changes. These are text-only `ambient_music_fact` assistant messages with `action:"none"`, `message_kind:"system"`, `origin:"spotify_playback_context"` and no playback mutation/audio generation; repeated tracks on the same artist+album do not create repeated messages. Clients can use `message_kind` to style these bubbles differently from normal assistant answers.
 - Ask DJ supports `audio_response:auto|always|never`. Default `auto` keeps informational text chat text-only, generates TTS for playback/hybrid intents, and generates TTS for voice/PTT interactions. `always` lets clients request replayable audio for an informational chat answer; `never` keeps any Ask DJ answer text-only.
-- Ask DJ Push-To-Talk for iOS/macOS/watchOS uses `POST /api/djconnect/voice` with `Content-Type: audio/wav`. Raspberry Pi Ask DJ is text-only unless a future Pi capability explicitly advertises voice support. After server-side STT, route the transcript through the same Ask DJ handler as text chat and return the rich Ask DJ response plus `transcript`/`recognized_text`. Keep ESP32 WAV PTT on the existing command parser flow and do not attach ESP32 to Ask DJ chat history.
+- Ask DJ Push-To-Talk for iOS/macOS/watchOS uses `POST /api/djconnect/v1/voice` with `Content-Type: audio/wav`. Raspberry Pi Ask DJ is text-only unless a future Pi capability explicitly advertises voice support. After server-side STT, route the transcript through the same Ask DJ handler as text chat and return the rich Ask DJ response plus `transcript`/`recognized_text`. Keep ESP32 WAV PTT on the existing command parser flow and do not attach ESP32 to Ask DJ chat history.
 - Pairing/status responses include Ask DJ capability booleans: `ask_dj_supported`, `ask_dj_voice_supported`, `voice_supported` and `ask_dj_audio_response_supported`.
 - `personal_music_profile_analysis` is an informational Ask DJ intent for personal listening-profile questions over periods such as today, this week, last month, last 30/90 days or this year. It must never mutate playback. Use only available Music DNA/playback context and be explicit when there is too little listening history.
 - `personal_music_dna_summary` handles questions like `wat weet je nu over mij?` and `wat staat er in mijn Music DNA?` from Music DNA only. It returns text-only `action:"music_dna_summary"`, source `djconnect_music_dna`, `images:[]` and `playback_actions:[]`; do not fetch Spotify profile data or reuse live playback media for this intent.
 - Spotify listening-profile support uses `GET /me/player/recently-played` and `GET /me/top/{artists,tracks}` with `short_term`, `medium_term` and `long_term`; required OAuth scopes are `user-read-recently-played` and `user-top-read`. Store only compact profile snapshots in Music DNA with a multi-hour TTL, never unlimited raw Spotify listening history.
 - Music DNA profile data is server-authoritative. Clients use
-  `/api/djconnect/music_dna/profile`, `/settings` and `/clear`, send identity,
+  `/api/djconnect/v1/music_dna/profile`, `/settings` and `/clear`, send identity,
   locale/language and realtime mood, and render backend arrays/objects without
   deriving local favorite artists, favorite genres, energy profile, mood
   profile or taste direction from chat history. The backend builds compact DNA
@@ -265,17 +265,17 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
   fallback for missing Spotify OAuth. It controls one configured target player;
   provider auth, library, queue semantics and grouping/sync remain Music
   Assistant concerns.
-- `personal_music_recommendations` can return `playback_actions[]` for client Play Now buttons while keeping `action:"none"`. Play Now uses `/api/djconnect/command` with `command:"ask_dj_play_recommendation"` and a Spotify-only recommendation value. Successful plays are stored in Music DNA as positive recommendation signals.
+- `personal_music_recommendations` can return `playback_actions[]` for client Play Now buttons while keeping `action:"none"`. Play Now uses `/api/djconnect/v1/command` with `command:"ask_dj_play_recommendation"` and a Spotify-only recommendation value. Successful plays are stored in Music DNA as positive recommendation signals.
 - `Speel wat anders` is a personal recommendation request, not an immediate playback mutation. Build random Play Now candidates from Music DNA plus Spotify recently played/top tracks/top artists. Include `image_url` whenever Spotify/Music DNA exposes album, artist, playlist or media artwork.
 - Music DNA stores compact listening-time context (`hour`, `weekday`, `weekday_name`, `is_weekend`, `daypart`) plus bounded recent time patterns so recommendations can become time-aware across clients.
 - Ask DJ clear synchronization is revision-based. A clear increments `clear_revision` and `history_revision` for the HA user. Clients clear local cache when their local clear revision is older than the server value, then reload server history.
-- Ask DJ responses can contain `images[]`, `links[]`, `audio_url`, `intent`, `action` and `music_dna_key`. External image URLs must be proxied through `/api/djconnect/image_proxy/{token}`; links/sources stay in `links[]` and are shown under Sources by clients.
+- Ask DJ responses can contain `images[]`, `links[]`, `audio_url`, `intent`, `action` and `music_dna_key`. External image URLs must be proxied through `/api/djconnect/v1/image_proxy/{token}`; links/sources stay in `links[]` and are shown under Sources by clients.
 - Ask DJ message responses include canonical `messages[]` in render order plus shared `exchange_id` and `exchange_order` (`0` user, `1` assistant). Clients should merge/render that array before falling back to separate `user_message` and `assistant_message`, so HTTP response, push and history sync timing cannot show an answer above its question.
 - DJConnect does not initialize external music-knowledge sources for every request. The DJ response prompt prioritizes provided Spotify metadata, Music DNA/media context and then MusicBrainz, Wikidata, short Wikipedia summaries, Last.fm, Discogs and TheAudioDB when that knowledge is available; trivia must be skipped instead of invented.
 - HA and ESP firmware compatibility is strict on `major.minor`: patch versions may differ, but `3.0.z` must not talk to `3.1.z`. HA returns HTTP `426` `version_mismatch` with HA/firmware metadata and keeps pairing intact.
 - ESP status payloads can report device settings as top-level fields or nested `settings`, `screen` and `led` objects; HA flattens those aliases for native entities, including `wake_word_enabled` / `wake_word`.
 - HA pairing status is `pending` until ESP confirms `ha_pairing_status=paired`; a locally stored token alone is not enough.
-- `POST /api/djconnect/command` should return JSON and avoid 503 loops for Spotify auth failures; report backend unavailable without causing ESP to clear pairing.
+- `POST /api/djconnect/v1/command` should return JSON and avoid 503 loops for Spotify auth failures; report backend unavailable without causing ESP to clear pairing.
 - Physical PTT uses raw WAV upload to HA; ESP must not authenticate directly to HA Assist WebSocket.
 - HA STT/TTS provider selection is driven by the selected Home Assistant Assist pipeline; legacy DJConnect `stt_engine`/`tts_*` options are ignored by runtime paths.
 - Integration diagnostics include safe Assist STT/TTS readiness metadata
@@ -289,7 +289,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
   four controlled profiles: chill/late-night, groove/classic radio,
   energy/energy host and party/clean host. Home Assistant Assist/TTS still owns
   the actual spoken voice. Free-form DJ prompt fields remain hidden.
-- Apple push notifications are server-side, optional and best-effort for `ios`, `macos` and `watchos`. Clients register with authenticated `POST /api/djconnect/push/register` and unregister with `POST /api/djconnect/push/unregister`; Home Assistant validates the client/device request and relays registrations/events to the central `djconnect-api` push relay. HA does not persist APNs tokens and never receives the APNs provider `.p8` key. Apple clients may supply a short-lived `bootstrap_proof`; HACS uses it only to mint a per-install `djci_` token and never stores a global relay secret. Push payloads are wake/sync hints only and must never include Spotify/HA tokens, raw prompts, raw LLM context, full memory/history or long/raw assistant text. Clients must sync through `/ask_dj/history` after opening.
+- Apple push notifications are server-side, optional and best-effort for `ios`, `macos` and `watchos`. Clients register with authenticated `POST /api/djconnect/v1/push/register` and unregister with `POST /api/djconnect/v1/push/unregister`; Home Assistant validates the client/device request and relays registrations/events to the central `djconnect-api` push relay. HA does not persist APNs tokens and never receives the APNs provider `.p8` key. Apple clients may supply a short-lived `bootstrap_proof`; HACS uses it only to mint a per-install `djci_` token and never stores a global relay secret. Push payloads are wake/sync hints only and must never include Spotify/HA tokens, raw prompts, raw LLM context, full memory/history or long/raw assistant text. Clients must sync through `/ask_dj/history` after opening.
 - HACS central API configuration is limited to `api_base_url`, stable `ha_install_id` and the per-install `djci_` token stored in config entry options. Missing token/proof keeps Apple push disabled without breaking normal Ask DJ flow. The central `djconnect-api` service owns bootstrap proof validation, APNs provider auth, topics, sandbox/production selection, retries and invalid-token handling.
 - Central API operator endpoints are not HACS/client endpoints. `GET
   /v1/admin/registrations` and `POST /v1/operator/install-token/revoke` require
@@ -307,8 +307,8 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
   fields; manage those in Home Assistant Assist. DJConnect only exposes the
   `voice_profile` selector as fallback announcement persona when clients do not
   send a valid mood.
-- Text-only `/api/djconnect/voice` is a DJ response test and must not trigger Spotify playback parsing.
-- Raw WAV `/api/djconnect/voice` is the real STT + command + playback path.
+- Text-only `/api/djconnect/v1/voice` is a DJ response test and must not trigger Spotify playback parsing.
+- Raw WAV `/api/djconnect/v1/voice` is the real STT + command + playback path.
 - Current-track questions such as `Welk nummer draait er nu?` and `Wat speelt er?`
   read Spotify playback state via the backend status command and generate a DJ
   response without starting new playback. If no track is playing or Spotify is
@@ -410,7 +410,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - If ESP status/command/voice auth returns `401`, HA must log the received device id, known device id, client type, token-present flag and rejection reason without logging token values.
 - HA blocks ESP calls with HTTP `426` `version_mismatch` when HA and ESP firmware `major.minor` differ, while preserving pairing/token state.
 - ESP status payloads are merged as partial updates, so sparse heartbeat/status posts do not clear known HA sensor values.
-- `/api/djconnect/status` is the only authoritative ESP device-status source. Command, voice, backend playback and local ESP info/command refreshes must never replace the full cached sensor snapshot with empty/unknown values.
+- `/api/djconnect/v1/status` is the only authoritative ESP device-status source. Command, voice, backend playback and local ESP info/command refreshes must never replace the full cached sensor snapshot with empty/unknown values.
 - Local ESP `/api/device/command` responses and `/api/device/info` refreshes are merge-only and preserve cached firmware, battery, RSSI, screen/LED, sound output, volume, last track and `ha_pairing_status` when fields are missing or empty.
 - Empty Spotify playback snapshots may update backend/playback state, but must not clear cached device sensor fields such as `sound_output`, `volume`, `last_track` or pairing status.
 - Command and voice payloads are never authoritative device-status sources; they must not clear sensor values or move `ha_pairing_status` back to `pending` when fields are absent.
@@ -423,7 +423,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - `command=queue` returns at most 100 real queue items plus top-level `context_uri` / `contextUri` and queue item artwork aliases so ESP/web/app Up Next can use `play_context_at` and show thumbnails.
 - `select.djconnect_sound_output` refreshes Spotify output devices itself and accepts `available_outputs`, `outputs`, `devices` and nested `items` aliases.
 - Backend playback snapshots keep artwork aliases such as `album_image_url`, `media_image_url`, `image_url` and `entity_picture` for clients and diagnostics.
-- Voice debug is opt-in via debug logging: when `custom_components.djconnect` debug logging is enabled, HA stores the last raw ESP WAV in memory and exposes it at authenticated URL `/api/djconnect/debug/last_voice.wav`.
+- Voice debug is opt-in via debug logging: when `custom_components.djconnect` debug logging is enabled, HA stores the last raw ESP WAV in memory and exposes it at authenticated URL `/api/djconnect/v1/debug/last_voice.wav`.
 - PTT/debug metadata is exposed as attributes on `sensor.djconnect_status`, `sensor.djconnect_last_command` and `sensor.djconnect_last_corrected_stt`, including last STT text, corrected text when changed, Spotify search summary and resolved media metadata.
 - Developer Actions use explicit UI field names `command_text` and `dj_response_text`; legacy `text` remains accepted for existing YAML/scripts.
 - Developer Actions also register explicit runtime service schemas so Home Assistant Developer Tools keeps the text fields visible after service metadata refreshes.
@@ -454,7 +454,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Validate options-flow “Spotify opnieuw autoriseren” in a real HA UI.
 - Confirm Nabu Casa/external URL is correctly detected or manually editable before OAuth.
 - Confirm the Spotify setup step shows the exact redirect URI and requires the user's own Spotify Developer app Client ID.
-- Confirm ESP remains paired after first `/api/djconnect/command` following direct pairing.
+- Confirm ESP remains paired after first `/api/djconnect/v1/command` following direct pairing.
 - Confirm ESP does not clear pairing when Spotify backend is temporarily unavailable.
 - Confirm ESP shows update-required state and keeps pairing intact after HA returns `426 version_mismatch`.
 - Confirm ESP status payload includes top-level or nested device settings so HA brightness/theme/log-level/speaker-volume entities do not remain unknown/minimum.

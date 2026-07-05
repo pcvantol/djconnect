@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 import hashlib
+import logging
 from typing import Any
 
 from .const import CONF_CLIENT_TYPE, CONF_DEVICE_ID
@@ -19,6 +20,8 @@ DISCOVERY_TTL_SECONDS = 24 * 60 * 60
 DISCOVERY_REFRESH_MIN_SECONDS = 5 * 60
 DISCOVERY_ITEM_KINDS = {"track", "album", "artist", "playlist"}
 
+_LOGGER = logging.getLogger(__name__)
+
 
 async def async_handle_music_discovery_feed_payload(
     hass: Any,
@@ -29,25 +32,84 @@ async def async_handle_music_discovery_feed_payload(
     force_refresh: bool = False,
 ) -> tuple[dict[str, Any], int]:
     """Return the Music Discovery feed for the resolved Music DNA context."""
+    _LOGGER.debug(
+        "DJConnect Music Discovery feed request received client_type=%s device_id=%s force_refresh=%s",
+        _request_client_type(data, headers),
+        _request_device_id(data, headers),
+        force_refresh,
+    )
     runtime, payload, error = await _authorized_payload(hass, data, headers)
     if error:
+        _log_error_response("feed", error)
         return error
     context = await _music_dna_context(runtime, payload, user_id=user_id)
     if not _music_dna_enabled(context):
-        return _disabled("music_dna_disabled", context), 200
+        response = _disabled("music_dna_disabled", context)
+        _LOGGER.debug(
+            "DJConnect Music Discovery feed disabled reason=music_dna_disabled client_type=%s device_id=%s music_dna_key_present=%s",
+            payload.get(CONF_CLIENT_TYPE),
+            payload.get(CONF_DEVICE_ID),
+            bool(context.get("music_dna_key")),
+        )
+        return response, 200
     cache_key = _cache_key(context)
     cached = _cache(runtime).get(cache_key)
     now = _now()
     if not force_refresh and _cache_valid(cached, now):
         response = dict(cached["response"])
         response["cache"] = {"hit": True}
+        _LOGGER.debug(
+            "DJConnect Music Discovery feed cache hit client_type=%s device_id=%s sections=%s items=%s revision=%s",
+            payload.get(CONF_CLIENT_TYPE),
+            payload.get(CONF_DEVICE_ID),
+            len(response.get("sections") or []),
+            _section_item_count(response.get("sections")),
+            response.get("revision"),
+        )
         return response, 200
     response = _build_feed(runtime, context, payload)
     _cache(runtime)[cache_key] = {
         "generated_at": now,
         "response": response,
     }
+    _LOGGER.debug(
+        "DJConnect Music Discovery feed built client_type=%s device_id=%s sections=%s items=%s revision=%s cache_hit=False",
+        payload.get(CONF_CLIENT_TYPE),
+        payload.get(CONF_DEVICE_ID),
+        len(response.get("sections") or []),
+        _section_item_count(response.get("sections")),
+        response.get("revision"),
+    )
     return response, 200
+
+
+async def async_music_discovery_feed_tool(
+    runtime: Any,
+    params: dict[str, Any] | None = None,
+    *,
+    user_id: str | None = None,
+) -> dict[str, Any]:
+    """Return the Music Discovery feed for an already-authorized AI tool context."""
+    payload = dict(params or {})
+    context = await _music_dna_context(runtime, payload, user_id=user_id)
+    if not _music_dna_enabled(context):
+        return _disabled("music_dna_disabled", context)
+    cache_key = _cache_key(context)
+    cached = _cache(runtime).get(cache_key)
+    now = _now()
+    if _cache_valid(cached, now):
+        response = dict(cached["response"])
+        response["cache"] = {"hit": True}
+    else:
+        response = _build_feed(runtime, context, payload)
+        _cache(runtime)[cache_key] = {
+            "generated_at": now,
+            "response": response,
+        }
+    limit = _tool_limit(payload)
+    if limit:
+        response = _limit_feed_items(response, limit)
+    return response
 
 
 async def async_handle_music_discovery_refresh_payload(
@@ -58,8 +120,14 @@ async def async_handle_music_discovery_refresh_payload(
     user_id: str | None = None,
 ) -> tuple[dict[str, Any], int]:
     """Force-refresh the Music Discovery feed with a small server-side rate limit."""
+    _LOGGER.debug(
+        "DJConnect Music Discovery refresh request received client_type=%s device_id=%s",
+        _request_client_type(data, headers),
+        _request_device_id(data, headers),
+    )
     runtime, payload, error = await _authorized_payload(hass, data, headers)
     if error:
+        _log_error_response("refresh", error)
         return error
     last_refresh = float(getattr(runtime, "music_discovery_last_refresh", 0) or 0)
     now_monotonic = __import__("time").monotonic()
@@ -70,8 +138,21 @@ async def async_handle_music_discovery_refresh_payload(
             response = dict(cached["response"])
             response["rate_limited"] = True
             response["cache"] = {"hit": True}
+            _LOGGER.debug(
+                "DJConnect Music Discovery refresh rate-limited client_type=%s device_id=%s sections=%s items=%s revision=%s",
+                payload.get(CONF_CLIENT_TYPE),
+                payload.get(CONF_DEVICE_ID),
+                len(response.get("sections") or []),
+                _section_item_count(response.get("sections")),
+                response.get("revision"),
+            )
             return response, 200
     setattr(runtime, "music_discovery_last_refresh", now_monotonic)
+    _LOGGER.debug(
+        "DJConnect Music Discovery refresh accepted client_type=%s device_id=%s",
+        payload.get(CONF_CLIENT_TYPE),
+        payload.get(CONF_DEVICE_ID),
+    )
     return await async_handle_music_discovery_feed_payload(
         hass,
         payload,
@@ -89,25 +170,60 @@ async def async_handle_music_discovery_play_payload(
     user_id: str | None = None,
 ) -> tuple[dict[str, Any], int]:
     """Play one discovery item and record the click as positive Music DNA feedback."""
+    _LOGGER.debug(
+        "DJConnect Music Discovery play request received client_type=%s device_id=%s item_id_present=%s section_id_present=%s",
+        _request_client_type(data, headers),
+        _request_device_id(data, headers),
+        bool(str((data or {}).get("discovery_item_id") or (data or {}).get("item_id") or "").strip()),
+        bool(str((data or {}).get("section_id") or "").strip()),
+    )
     runtime, payload, error = await _authorized_payload(hass, data, headers)
     if error:
+        _log_error_response("play", error)
         return error
     context = await _music_dna_context(runtime, payload, user_id=user_id)
     if not _music_dna_enabled(context):
-        return _disabled("music_dna_disabled", context), 200
+        response = _disabled("music_dna_disabled", context)
+        _LOGGER.debug(
+            "DJConnect Music Discovery play disabled reason=music_dna_disabled client_type=%s device_id=%s",
+            payload.get(CONF_CLIENT_TYPE),
+            payload.get(CONF_DEVICE_ID),
+        )
+        return response, 200
     item_id = str(payload.get("discovery_item_id") or payload.get("item_id") or "").strip()
     section_id = str(payload.get("section_id") or "").strip()
     item = _find_cached_item(runtime, context, item_id, section_id)
     if not item:
+        _LOGGER.debug(
+            "DJConnect Music Discovery play failed reason=discovery_item_not_found client_type=%s device_id=%s section_id_present=%s item_id_present=%s",
+            payload.get(CONF_CLIENT_TYPE),
+            payload.get(CONF_DEVICE_ID),
+            bool(section_id),
+            bool(item_id),
+        )
         return {"success": False, "error": "discovery_item_not_found", "message": "Discovery item is no longer available."}, 404
     uri = str(item.get("uri") or "").strip()
     if not uri:
+        _LOGGER.debug(
+            "DJConnect Music Discovery play failed reason=discovery_item_not_playable client_type=%s device_id=%s item_kind=%s",
+            payload.get(CONF_CLIENT_TYPE),
+            payload.get(CONF_DEVICE_ID),
+            item.get("kind"),
+        )
         return {"success": False, "error": "discovery_item_not_playable", "message": "Discovery item cannot be played."}, 400
     kind = str(item.get("kind") or "").strip()
     command = "play_uris" if kind == "track" else "play_context_at"
     value: Any = {"uris": [uri]} if kind == "track" else {"context_uri": uri}
     playback = await run_music_command(hass, runtime, command, value, play=True)
     recorded = await _record_discovery_play(runtime, item, payload, user_id=user_id)
+    _LOGGER.debug(
+        "DJConnect Music Discovery play completed client_type=%s device_id=%s item_kind=%s playback_success=%s feedback_recorded=%s",
+        payload.get(CONF_CLIENT_TYPE),
+        payload.get(CONF_DEVICE_ID),
+        kind,
+        bool(playback.get("success", True)) if isinstance(playback, dict) else True,
+        recorded,
+    )
     return {
         "success": bool(playback.get("success", True)) if isinstance(playback, dict) else True,
         "played": True,
@@ -131,12 +247,27 @@ async def _authorized_payload(
         headers,
     )
     if runtime is None:
+        _LOGGER.debug(
+            "DJConnect Music Discovery auth failed reason=not_configured client_type=%s device_id=%s",
+            identity.get(CONF_CLIENT_TYPE) or payload.get(CONF_CLIENT_TYPE),
+            identity.get(CONF_DEVICE_ID) or payload.get(CONF_DEVICE_ID),
+        )
         return None, payload, ({"success": False, "enabled": False, "reason": "not_configured", "sections": []}, 503)
     client_type = validate_required_client_type(identity or payload)
     if client_type is None:
+        _LOGGER.debug(
+            "DJConnect Music Discovery auth failed reason=invalid_client_type device_id=%s",
+            identity.get(CONF_DEVICE_ID) or payload.get(CONF_DEVICE_ID),
+        )
         return runtime, payload, ({"success": False, "enabled": False, "reason": "invalid_client_type", "sections": []}, 400)
     expected = str(runtime_client_type(runtime) or "").strip()
     if expected and expected != client_type:
+        _LOGGER.debug(
+            "DJConnect Music Discovery auth failed reason=client_type_mismatch expected=%s actual=%s device_id=%s",
+            expected,
+            client_type,
+            identity.get(CONF_DEVICE_ID) or payload.get(CONF_DEVICE_ID),
+        )
         return runtime, payload, ({"success": False, "enabled": False, "reason": "client_type_mismatch", "sections": []}, 400)
     if not authorize_runtime_device_request(
         runtime,
@@ -144,10 +275,71 @@ async def _authorized_payload(
         identity.get(CONF_DEVICE_ID) or payload.get(CONF_DEVICE_ID),
         client_type,
     ):
+        _LOGGER.debug(
+            "DJConnect Music Discovery auth failed reason=unauthorized client_type=%s device_id=%s authorization_present=%s",
+            client_type,
+            identity.get(CONF_DEVICE_ID) or payload.get(CONF_DEVICE_ID),
+            bool(headers.get("Authorization") if hasattr(headers, "get") else None),
+        )
         return runtime, payload, ({"success": False, "enabled": False, "reason": "unauthorized", "sections": []}, 401)
     payload.setdefault(CONF_CLIENT_TYPE, client_type)
     payload.setdefault(CONF_DEVICE_ID, identity.get(CONF_DEVICE_ID) or payload.get(CONF_DEVICE_ID))
     return runtime, payload, None
+
+
+def _request_client_type(data: dict[str, Any] | None, headers: Any | None) -> str:
+    payload = data or {}
+    identity = payload.get("identity") if isinstance(payload.get("identity"), dict) else {}
+    header_value = headers.get("X-DJConnect-Client-Type") if hasattr(headers, "get") else ""
+    return str(identity.get(CONF_CLIENT_TYPE) or payload.get(CONF_CLIENT_TYPE) or header_value or "").strip()
+
+
+def _request_device_id(data: dict[str, Any] | None, headers: Any | None) -> str:
+    payload = data or {}
+    identity = payload.get("identity") if isinstance(payload.get("identity"), dict) else {}
+    header_value = headers.get("X-DJConnect-Device-ID") if hasattr(headers, "get") else ""
+    return str(identity.get(CONF_DEVICE_ID) or payload.get(CONF_DEVICE_ID) or header_value or "").strip()
+
+
+def _log_error_response(route: str, error: tuple[dict[str, Any], int]) -> None:
+    body, status = error
+    _LOGGER.debug(
+        "DJConnect Music Discovery %s rejected status=%s reason=%s",
+        route,
+        status,
+        body.get("reason") or body.get("error"),
+    )
+
+
+def _section_item_count(sections: Any) -> int:
+    if not isinstance(sections, list):
+        return 0
+    return sum(len(section.get("items") or []) for section in sections if isinstance(section, dict))
+
+
+def _tool_limit(payload: dict[str, Any]) -> int:
+    try:
+        return max(0, min(int(payload.get("limit") or 0), 24))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _limit_feed_items(response: dict[str, Any], limit: int) -> dict[str, Any]:
+    if limit <= 0:
+        return response
+    result = dict(response)
+    remaining = limit
+    sections: list[dict[str, Any]] = []
+    for section in response.get("sections") or []:
+        if not isinstance(section, dict) or remaining <= 0:
+            continue
+        items = section.get("items") if isinstance(section.get("items"), list) else []
+        selected = items[:remaining]
+        if selected:
+            sections.append({**section, "items": selected})
+            remaining -= len(selected)
+    result["sections"] = sections
+    return result
 
 
 def _metadata_payload(data: dict[str, Any], headers: Any) -> dict[str, Any]:

@@ -100,7 +100,7 @@ DJConnect needs the app's Client ID, not a Client Secret.
 With Nabu Casa, the redirect URI usually looks like:
 
 ```text
-https://<your-nabu-casa-id>.ui.nabu.casa/api/djconnect/spotify/callback
+https://<your-nabu-casa-id>.ui.nabu.casa/api/djconnect/v1/spotify/callback
 ```
 
 If your Home Assistant external URL changes, update the redirect URI in Spotify
@@ -123,7 +123,7 @@ Entity IDs can differ if Home Assistant renames the device or entities.
 ## Apple Push Notifications
 
 iOS, macOS and Apple Watch clients register APNs tokens through
-`POST /api/djconnect/push/register`. Home Assistant validates the paired client
+`POST /api/djconnect/v1/push/register`. Home Assistant validates the paired client
 identity and forwards only the redacted registration metadata to the DJConnect
 relay; APNs provider keys and raw APNs tokens are never stored in Home Assistant.
 
@@ -137,7 +137,7 @@ app to retry push registration.
 
 ## VibeCast
 
-Apple clients can poll `GET /api/djconnect/vibecast` with their paired
+Apple clients can poll `GET /api/djconnect/v1/vibecast` with their paired
 DJConnect device token to receive cacheable structured bubbles for the current
 track. The response uses backend-neutral playback context and a small safe
 rich-text model instead of HTML or Markdown. If VibeCast is disabled, premium is
@@ -162,6 +162,10 @@ should render one item per unique `id`/`uri` and may show `play_count` or
   redirect URI exactly matches the URL shown by DJConnect.
 - If Spotify playback fails, reauthorize Spotify and check that the selected
   backend has an active playback target.
+- If Ontdek/Music Discovery shows no recommendations, enable debug logging for
+  DJConnect and look for `DJConnect Music Discovery` lines. They show whether
+  feed/refresh/play requests arrive, whether Music DNA is disabled, whether a
+  cached feed was used and how many sections/items were generated.
 - If a local device cannot pair, make sure Home Assistant and the client are on
   the same LAN and that the 6-digit pairing code is still current.
 - If the integration icon stays generic, redownload DJConnect in HACS, restart

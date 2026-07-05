@@ -27,7 +27,7 @@ Run once per client type: `ios`, `macos`, `windows`.
 4. Confirm the Home Assistant response contains:
    - `success: true`
    - `device_token`
-   - `api_base: /api/djconnect`
+   - `api_base: /api/djconnect/v1`
    - `status_path`, `voice_path` and `event_path`
    - `ha_local_url`
    - `ha_remote_url` for iOS, macOS and Windows when a HTTPS external URL is configured
@@ -40,9 +40,9 @@ Run once per client type: `ios`, `macos`, `windows`.
 
 Run once per paired client type.
 
-1. On LAN, send `/api/djconnect/status` with the returned bearer token.
-2. Send `/api/djconnect/command` with `command: status`.
-3. Send `/api/djconnect/command` with a playback command such as `play`,
+1. On LAN, send `/api/djconnect/v1/status` with the returned bearer token.
+2. Send `/api/djconnect/v1/command` with `command: status`.
+3. Send `/api/djconnect/v1/command` with a playback command such as `play`,
    `set_shuffle`, `set_repeat`, `devices`, `queue` and `playlists`.
 4. Leave the LAN and repeat the same command set via `ha_remote_url`.
 5. Confirm playback commands return HTTP 200 for successful backend calls and do not

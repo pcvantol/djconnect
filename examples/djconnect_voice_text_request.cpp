@@ -4,7 +4,7 @@
 
 #include <HTTPClient.h>
 
-static const char* HA_VOICE_URL = "http://homeassistant.local:8123/api/djconnect/voice";
+static const char* HA_VOICE_URL = "http://homeassistant.local:8123/api/djconnect/v1/voice";
 static const char* DEVICE_TOKEN = "DEVICE_TOKEN_FROM_PAIRING";
 static const char* DEVICE_ID = "djconnect-lilygo-90B70990A994";
 

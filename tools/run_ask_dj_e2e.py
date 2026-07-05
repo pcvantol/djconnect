@@ -65,7 +65,7 @@ def _post_case(args: argparse.Namespace, case: dict[str, Any]) -> dict[str, Any]
     client_type = request_payload.get("client_type") or "watchos"
     request_payload["client_type"] = client_type
     body = json.dumps(request_payload).encode("utf-8")
-    url = args.base_url.rstrip("/") + "/api/djconnect/ask_dj/message"
+    url = args.base_url.rstrip("/") + "/api/djconnect/v1/ask_dj/message"
     request = Request(
         url,
         data=body,

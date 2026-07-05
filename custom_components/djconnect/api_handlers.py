@@ -1,6 +1,7 @@
 """Transport-neutral DJConnect API request handlers."""
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from . import http as http_helpers
@@ -61,6 +62,7 @@ async def async_handle_command_payload(
     """Handle a DJConnect command payload for HTTP and HA websocket transports."""
     headers = headers or {}
     if not isinstance(data, dict):
+        _debug_playback_error("command", {}, (_error_payload("invalid_json"), 400))
         return _error_payload("invalid_json"), 400
     runtime = resolve_runtime(
         hass,
@@ -68,6 +70,7 @@ async def async_handle_command_payload(
         headers,
     )
     if runtime is None:
+        _debug_playback_error("command", data, (_error_payload("not_configured"), 503))
         return _error_payload("not_configured"), 503
     if not authorize_runtime_device_request(
         runtime,
@@ -75,9 +78,11 @@ async def async_handle_command_payload(
         data.get("device_id"),
         payload_client_type(data),
     ):
+        _debug_playback_error("command", data, (_error_payload("unauthorized"), 401))
         return _error_payload("unauthorized"), 401
     client_type = validate_required_client_type(data)
     if client_type is None:
+        _debug_playback_error("command", data, (_error_payload("invalid_client_type"), 400), runtime=runtime)
         return _error_payload("invalid_client_type"), 400
     if _is_command_payload(data):
         _LOGGER.debug("Ignoring command payload for device sensor update")
@@ -88,7 +93,9 @@ async def async_handle_command_payload(
         user_id=user_id,
     )
     if not _runtime_versions_compatible(runtime):
-        return _version_mismatch_payload(runtime), 426
+        result = _version_mismatch_payload(runtime)
+        _debug_playback_result("command", result, 426, runtime=runtime, command="version_mismatch")
+        return result, 426
     header_device = headers.get("X-DJConnect-Device-ID")
     real_device_id = data.get("device_id") or header_device
     if real_device_id and getattr(runtime, "device_token", None):
@@ -102,15 +109,19 @@ async def async_handle_command_payload(
         )
     command = str(data.get("command") or "").strip()
     if not command:
+        _debug_playback_error("command", data, (_error_payload("invalid_command"), 400), runtime=runtime)
         return _error_payload("invalid_command"), 400
     _LOGGER.debug(
         "DJConnect backend command from %s client_type=%s command=%s",
-        data.get("device_id"),
+        _safe_debug_identifier(data.get("device_id")),
         client_type,
         command,
     )
     command_value = data.get("value")
     normalized_command = command.lower()
+    _debug_playback_request(runtime, data, command=normalized_command)
+    if normalized_command == "queue":
+        _debug_queue_request(runtime, data)
     if normalized_command in {"help", "hulp", "commands", "show_help", "show_commands"}:
         ask_payload = {
             **data,
@@ -124,26 +135,18 @@ async def async_handle_command_payload(
             user_id=user_id,
         )
         _decorate_command_result(hass, runtime, result, music_dna_key)
-        return result, 200 if result.get("success") else 400
+        status = 200 if result.get("success") else 400
+        _debug_playback_result("command", result, status, runtime=runtime, command=normalized_command)
+        return result, status
     if normalized_command == "set_repeat":
         command_value = _repeat_command_value(data)
     elif normalized_command == "set_shuffle":
         command_value = _shuffle_command_value(data)
     elif normalized_command == "volume_delta":
         command_value = _volume_delta_command_value(data)
-    if normalized_command in {"status", "devices", "queue", "playlists"}:
-        _LOGGER.debug(
-            "DJConnect command request payload=%s",
-            _redact_debug_payload(data),
-        )
     if normalized_command == "playlists":
         command_value = _playlist_command_value(data, client_type)
-        _LOGGER.debug(
-            "DJConnect playlists request device_id=%s client_type=%s limit=%s",
-            data.get("device_id"),
-            client_type,
-            command_value.get("limit"),
-        )
+        _debug_playlists_request(runtime, data, command_value)
     if normalized_command == "ask_dj_message":
         message_value = command_value if isinstance(command_value, dict) else {"text": command_value}
         text_value = str(
@@ -157,6 +160,7 @@ async def async_handle_command_payload(
             or ""
         ).strip()
         if not text_value:
+            _debug_playback_error("command", data, (_error_payload("missing_ask_dj_text", "missing_ask_dj_text"), 400), runtime=runtime)
             return _error_payload("missing_ask_dj_text", "missing_ask_dj_text"), 400
         ask_payload = {
             **data,
@@ -171,7 +175,9 @@ async def async_handle_command_payload(
             user_id=user_id,
         )
         _decorate_command_result(hass, runtime, result, music_dna_key)
-        return result, 200 if result.get("success") else 400
+        status = 200 if result.get("success") else 400
+        _debug_playback_result("command", result, status, runtime=runtime, command=normalized_command)
+        return result, status
     current_track_text = _current_track_question_text(data, command, command_value)
     if current_track_text:
         ask_payload = {
@@ -187,7 +193,9 @@ async def async_handle_command_payload(
             user_id=user_id,
         )
         _decorate_command_result(hass, runtime, result, music_dna_key)
-        return result, 200 if result.get("success") else 400
+        status = 200 if result.get("success") else 400
+        _debug_playback_result("command", result, status, runtime=runtime, command="current_track_question")
+        return result, status
     if normalized_command == "ask_dj_play_recommendation":
         result = await _handle_ask_dj_play_recommendation(
             hass,
@@ -199,7 +207,9 @@ async def async_handle_command_payload(
         if isinstance(command_value, dict) and command_value.get("music_dna_key"):
             result["music_dna_key"] = str(command_value.get("music_dna_key") or "").strip()
         _decorate_command_result(hass, runtime, result, music_dna_key)
-        return result, 200 if result.get("success") else 400
+        status = 200 if result.get("success") else 400
+        _debug_playback_result("command", result, status, runtime=runtime, command=normalized_command)
+        return result, status
     if normalized_command == "ask_dj_play_recommendation_on_output":
         result = await _handle_ask_dj_play_recommendation_on_output(
             hass,
@@ -209,7 +219,9 @@ async def async_handle_command_payload(
             user_id=user_id,
         )
         _decorate_command_result(hass, runtime, result, music_dna_key)
-        return result, 200 if result.get("success") else 400
+        status = 200 if result.get("success") else 400
+        _debug_playback_result("command", result, status, runtime=runtime, command=normalized_command)
+        return result, status
     if normalized_command == "ask_dj_play_request_on_output":
         result = await _handle_ask_dj_play_request_on_output(
             hass,
@@ -219,7 +231,9 @@ async def async_handle_command_payload(
             user_id=user_id,
         )
         _decorate_command_result(hass, runtime, result, music_dna_key)
-        return result, 200 if result.get("success") else 400
+        status = 200 if result.get("success") else 400
+        _debug_playback_result("command", result, status, runtime=runtime, command=normalized_command)
+        return result, status
     if normalized_command == "ask_dj_followup_response":
         result = await _handle_ask_dj_followup_response(
             hass,
@@ -229,11 +243,15 @@ async def async_handle_command_payload(
             user_id=user_id,
         )
         _decorate_command_result(hass, runtime, result, music_dna_key)
-        return result, 200 if result.get("success") else 400
+        status = 200 if result.get("success") else 400
+        _debug_playback_result("command", result, status, runtime=runtime, command=normalized_command)
+        return result, status
     if normalized_command == "volume_delta":
         result = await _handle_volume_delta_command(hass, runtime, command_value)
         _decorate_command_result(hass, runtime, result, music_dna_key)
-        return result, 200 if result.get("success") else 400
+        status = 200 if result.get("success") else 400
+        _debug_playback_result("command", result, status, runtime=runtime, command=normalized_command)
+        return result, status
     try:
         result = await http_helpers.run_music_command(
             hass,
@@ -249,49 +267,62 @@ async def async_handle_command_payload(
         _decorate_command_result(hass, runtime, result, music_dna_key)
         if normalized_command == "playlists":
             _with_playlist_aliases(result)
-            _LOGGER.debug(
-                "DJConnect playlists response device_id=%s client_type=%s count=%s",
-                data.get("device_id"),
-                client_type,
-                result.get("count"),
-            )
-        if normalized_command in {"status", "devices", "queue", "playlists"}:
-            _LOGGER.debug(
-                "DJConnect command response payload=%s",
-                _redact_debug_payload(result),
-            )
+            _debug_playlists_result(result, 200, runtime=runtime)
+        if normalized_command == "queue":
+            _debug_queue_result(result, 200, runtime=runtime)
+        _debug_playback_result("command", result, 200, runtime=runtime, command=normalized_command)
         return result, 200
     except ValueError as exc:
-        return _error_payload("invalid_command", str(exc)), 400
+        result = _error_payload("invalid_command", str(exc))
+        if normalized_command == "playlists":
+            _debug_playlists_result(result, 400, runtime=runtime)
+        if normalized_command == "queue":
+            _debug_queue_result(result, 400, runtime=runtime)
+        _debug_playback_result("command", result, 400, runtime=runtime, command=normalized_command)
+        return result, 400
     except MusicBackendCapabilityError as exc:
         runtime.update(last_error=_safe_backend_error_message(exc))
-        return _unsupported_backend_capability_payload(hass, runtime, exc), 400
+        result = _unsupported_backend_capability_payload(hass, runtime, exc)
+        if normalized_command == "playlists":
+            _debug_playlists_result(result, 400, runtime=runtime)
+        if normalized_command == "queue":
+            _debug_queue_result(result, 400, runtime=runtime)
+        _debug_playback_result("command", result, 400, runtime=runtime, command=normalized_command)
+        return result, 400
     except SpotifyBackendError as exc:
         runtime.update(last_error=_safe_backend_error_message(exc))
         runtime.device_status["backend_available"] = False
         if normalized_command == "playlists":
-            _LOGGER.debug(
-                "DJConnect playlists backend unavailable device_id=%s client_type=%s reason=%s",
-                data.get("device_id"),
-                client_type,
-                _safe_backend_error_message(exc),
-            )
-        return _backend_unavailable_payload(command, runtime, exc), 200
+            _debug_playlists_backend_error(data, exc, runtime=runtime)
+        result = _backend_unavailable_payload(command, runtime, exc)
+        if normalized_command == "playlists":
+            _debug_playlists_result(result, 200, runtime=runtime)
+        if normalized_command == "queue":
+            _debug_queue_result(result, 200, runtime=runtime)
+        _debug_playback_result("command", result, 200, runtime=runtime, command=normalized_command)
+        return result, 200
     except Exception as exc:  # noqa: BLE001
         if _looks_like_backend_capability_error(exc):
             runtime.update(last_error=_safe_backend_error_message(exc))
-            return _unsupported_backend_capability_payload(hass, runtime, exc), 400
+            result = _unsupported_backend_capability_payload(hass, runtime, exc)
+            if normalized_command == "playlists":
+                _debug_playlists_result(result, 400, runtime=runtime)
+            if normalized_command == "queue":
+                _debug_queue_result(result, 400, runtime=runtime)
+            _debug_playback_result("command", result, 400, runtime=runtime, command=normalized_command)
+            return result, 400
         _LOGGER.warning("DJConnect backend command failed: %s", _safe_backend_error_message(exc))
         runtime.update(last_error=_safe_backend_error_message(exc))
         runtime.device_status["backend_available"] = False
         if normalized_command == "playlists":
-            _LOGGER.debug(
-                "DJConnect playlists backend unavailable device_id=%s client_type=%s reason=%s",
-                data.get("device_id"),
-                client_type,
-                _safe_backend_error_message(exc),
-            )
-        return _backend_unavailable_payload(command, runtime, exc), 200
+            _debug_playlists_backend_error(data, exc, runtime=runtime)
+        result = _backend_unavailable_payload(command, runtime, exc)
+        if normalized_command == "playlists":
+            _debug_playlists_result(result, 200, runtime=runtime)
+        if normalized_command == "queue":
+            _debug_queue_result(result, 200, runtime=runtime)
+        _debug_playback_result("command", result, 200, runtime=runtime, command=normalized_command)
+        return result, 200
 
 
 def _current_track_question_text(data: dict[str, Any], command: str, value: Any) -> str:
@@ -354,6 +385,7 @@ async def async_handle_ask_dj_message_payload(
     """Handle Ask DJ chat messages for HTTP and HA websocket transports."""
     headers = headers or {}
     if not isinstance(data, dict):
+        _debug_ask_dj_error("message", {}, (_error_payload("invalid_json"), 400))
         return _error_payload("invalid_json"), 400
     identity = identity_payload(data)
     runtime = resolve_runtime(
@@ -362,9 +394,11 @@ async def async_handle_ask_dj_message_payload(
         headers,
     )
     if runtime is None:
+        _debug_ask_dj_error("message", data, (_error_payload("not_configured"), 503))
         return _error_payload("not_configured"), 503
     client_type = validate_required_client_type(identity)
     if client_type is None:
+        _debug_ask_dj_error("message", data, (_error_payload("invalid_client_type"), 400), runtime=runtime)
         return _error_payload("invalid_client_type"), 400
     identity[CONF_CLIENT_TYPE] = client_type
     if not authorize_runtime_device_request(
@@ -373,12 +407,15 @@ async def async_handle_ask_dj_message_payload(
         identity.get("device_id"),
         client_type,
     ):
+        _debug_ask_dj_error("message", data, (_error_payload("unauthorized"), 401), runtime=runtime)
         return _error_payload("unauthorized"), 401
     payload = dict(data)
     payload.update({key: value for key, value in identity.items() if value is not None})
     payload = enrich_payload_with_mood_zone(payload)
+    _debug_ask_dj_request("message", runtime, payload, user_id=user_id)
     result = await http_helpers.async_handle_ask_dj(hass, runtime, payload, user_id=user_id)
     if not result.get("success"):
+        _debug_ask_dj_result("message", result, 500, runtime=runtime)
         return result, 500
     sync = await _history_manager(hass, runtime).async_append_exchange(
         user_id,
@@ -401,7 +438,9 @@ async def async_handle_ask_dj_message_payload(
         client_type=identity.get("client_type"),
         explicit_user_request=True,
     )
-    return {**result, **sync}, 200
+    response = {**result, **sync}
+    _debug_ask_dj_result("message", response, 200, runtime=runtime)
+    return response, 200
 
 
 async def async_handle_track_insight_payload(
@@ -414,6 +453,7 @@ async def async_handle_track_insight_payload(
     """Handle Track Insight requests for HTTP and HA websocket transports."""
     headers = headers or {}
     if not isinstance(data, dict):
+        _debug_track_insight_error("request", {}, (_error_payload("invalid_json"), 400), source=source)
         return _error_payload("invalid_json"), 400
     identity = identity_payload(data)
     runtime = resolve_runtime(
@@ -422,9 +462,11 @@ async def async_handle_track_insight_payload(
         headers,
     )
     if runtime is None:
+        _debug_track_insight_error("request", data, (_error_payload("not_configured"), 503), source=source)
         return _error_payload("not_configured"), 503
     client_type = validate_required_client_type(identity)
     if client_type is None:
+        _debug_track_insight_error("request", data, (_error_payload("invalid_client_type"), 400), runtime=runtime, source=source)
         return _error_payload("invalid_client_type"), 400
     identity[CONF_CLIENT_TYPE] = client_type
     if not authorize_runtime_device_request(
@@ -433,6 +475,7 @@ async def async_handle_track_insight_payload(
         identity.get("device_id"),
         client_type,
     ):
+        _debug_track_insight_error("request", data, (_error_payload("unauthorized"), 401), runtime=runtime, source=source)
         return _error_payload("unauthorized"), 401
     payload = dict(data)
     payload.update({key: value for key, value in identity.items() if value is not None})
@@ -445,6 +488,7 @@ async def async_handle_track_insight_payload(
         value = headers.get(header_name) if hasattr(headers, "get") else None
         if value and not payload.get(payload_key):
             payload[payload_key] = str(value).split(",", 1)[0].strip()
+    _debug_track_insight_request(runtime, payload, source=source)
     try:
         result = await TrackInsightService().async_analyze(
             hass,
@@ -453,10 +497,18 @@ async def async_handle_track_insight_payload(
             source=source,
         )
     except TrackInsightError as exc:
+        _debug_track_insight_error("result", payload, (exc.as_dict(), exc.status), runtime=runtime, source=source)
         return exc.as_dict(), exc.status
     except Exception as exc:  # noqa: BLE001
-        _LOGGER.debug("DJConnect Track Insight %s failed: %s", source, exc)
+        _LOGGER.debug(
+            "DJConnect Track Insight %s failed client_type=%s device_id=%s error=%s",
+            source,
+            payload_client_type(payload) or runtime_client_type(runtime),
+            _safe_debug_identifier(payload.get("device_id")),
+            exc.__class__.__name__,
+        )
         return _error_payload("track_insight_failed"), 500
+    _debug_track_insight_result(result, 200, runtime=runtime, source=source)
     return result, 200
 
 
@@ -477,9 +529,11 @@ async def async_handle_ask_dj_idle_suggestion_payload(
         headers,
     )
     if runtime is None:
+        _debug_ask_dj_error("idle_suggestion", data, (_error_payload("not_configured"), 503))
         return _error_payload("not_configured"), 503
     client_type = validate_required_client_type(identity_payload(data))
     if client_type is None:
+        _debug_ask_dj_error("idle_suggestion", data, (_error_payload("invalid_client_type"), 400), runtime=runtime)
         return _error_payload("invalid_client_type"), 400
     if not authorize_runtime_device_request(
         runtime,
@@ -487,10 +541,12 @@ async def async_handle_ask_dj_idle_suggestion_payload(
         data.get("device_id"),
         client_type,
     ):
+        _debug_ask_dj_error("idle_suggestion", data, (_error_payload("unauthorized"), 401), runtime=runtime)
         return _error_payload("unauthorized"), 401
     payload = dict(data)
     payload[CONF_CLIENT_TYPE] = client_type
     payload = enrich_payload_with_mood_zone(payload)
+    _debug_ask_dj_request("idle_suggestion", runtime, payload, user_id=user_id)
     result = await http_helpers.async_idle_suggestion(
         hass,
         runtime,
@@ -498,13 +554,16 @@ async def async_handle_ask_dj_idle_suggestion_payload(
         user_id=user_id,
     )
     if not result.get("success"):
+        _debug_ask_dj_result("idle_suggestion", result, 500, runtime=runtime)
         return result, 500
     sync = await _history_manager(hass, runtime).async_append_assistant_message(
         user_id,
         payload,
         result,
     )
-    return {**result, **sync}, 200
+    response = {**result, **sync}
+    _debug_ask_dj_result("idle_suggestion", response, 200, runtime=runtime)
+    return response, 200
 
 
 async def async_handle_music_dna_profile_payload(
@@ -517,12 +576,17 @@ async def async_handle_music_dna_profile_payload(
     """Return the structured Music DNA profile for a client/user."""
     runtime, payload, error = _music_dna_runtime_payload(hass, data, headers)
     if error is not None:
+        _debug_music_dna_error("profile", data, error)
         return error
+    _debug_music_dna_request("profile", runtime, payload, user_id=user_id)
     memory = getattr(runtime, "memory", None)
     profile_getter = getattr(memory, "async_profile", None)
     if not callable(profile_getter):
+        _debug_music_dna_error("profile", payload, (_error_payload("music_dna_unavailable"), 503), runtime=runtime)
         return _error_payload("music_dna_unavailable"), 503
-    return await profile_getter(runtime, payload, user_id=user_id), 200
+    result = await profile_getter(runtime, payload, user_id=user_id)
+    _debug_music_dna_result("profile", result, 200, runtime=runtime)
+    return result, 200
 
 
 async def async_handle_music_dna_settings_payload(
@@ -535,14 +599,20 @@ async def async_handle_music_dna_settings_payload(
     """Update the Music DNA opt-in setting for a client/user."""
     runtime, payload, error = _music_dna_runtime_payload(hass, data, headers)
     if error is not None:
+        _debug_music_dna_error("settings", data, error)
         return error
+    _debug_music_dna_request("settings", runtime, payload, user_id=user_id)
     if "enabled" not in payload:
+        _debug_music_dna_error("settings", payload, (_error_payload("missing_enabled"), 400), runtime=runtime)
         return _error_payload("missing_enabled"), 400
     memory = getattr(runtime, "memory", None)
     setter = getattr(memory, "async_set_enabled", None)
     if not callable(setter):
+        _debug_music_dna_error("settings", payload, (_error_payload("music_dna_unavailable"), 503), runtime=runtime)
         return _error_payload("music_dna_unavailable"), 503
-    return await setter(runtime, bool(payload.get("enabled")), payload, user_id=user_id), 200
+    result = await setter(runtime, bool(payload.get("enabled")), payload, user_id=user_id)
+    _debug_music_dna_result("settings", result, 200, runtime=runtime)
+    return result, 200
 
 
 async def async_handle_music_dna_clear_payload(
@@ -555,14 +625,19 @@ async def async_handle_music_dna_clear_payload(
     """Clear Music DNA knowledge while preserving the current opt-in setting."""
     runtime, payload, error = _music_dna_runtime_payload(hass, data, headers)
     if error is not None:
+        _debug_music_dna_error("clear", data, error)
         return error
+    _debug_music_dna_request("clear", runtime, payload, user_id=user_id)
     memory = getattr(runtime, "memory", None)
     if memory is None or not callable(getattr(memory, "async_context_for_runtime", None)):
+        _debug_music_dna_error("clear", payload, (_error_payload("music_dna_unavailable"), 503), runtime=runtime)
         return _error_payload("music_dna_unavailable"), 503
     context = await memory.async_context_for_runtime(runtime, payload, user_id=user_id)
     key = context.get("music_dna_key") or payload.get("music_dna_key")
     await memory.async_clear(str(key) if key else None)
-    return await memory.async_profile(runtime, payload, user_id=user_id), 200
+    result = await memory.async_profile(runtime, payload, user_id=user_id)
+    _debug_music_dna_result("clear", result, 200, runtime=runtime)
+    return result, 200
 
 
 async def async_handle_music_dna_import_payload(
@@ -575,12 +650,17 @@ async def async_handle_music_dna_import_payload(
     """Import and overwrite Music DNA profile data for a client/user."""
     runtime, payload, error = _music_dna_runtime_payload(hass, data, headers)
     if error is not None:
+        _debug_music_dna_error("import", data, error)
         return error
+    _debug_music_dna_request("import", runtime, payload, user_id=user_id)
     memory = getattr(runtime, "memory", None)
     importer = getattr(memory, "async_import_profile", None)
     if not callable(importer):
+        _debug_music_dna_error("import", payload, (_error_payload("music_dna_unavailable"), 503), runtime=runtime)
         return _error_payload("music_dna_unavailable"), 503
-    return await importer(runtime, payload, user_id=user_id)
+    result, status = await importer(runtime, payload, user_id=user_id)
+    _debug_music_dna_result("import", result, status, runtime=runtime)
+    return result, status
 
 
 async def async_handle_music_dna_export_payload(
@@ -593,12 +673,17 @@ async def async_handle_music_dna_export_payload(
     """Export Music DNA profile data for a client/user."""
     runtime, payload, error = _music_dna_runtime_payload(hass, data, headers)
     if error is not None:
+        _debug_music_dna_error("export", data, error)
         return error
+    _debug_music_dna_request("export", runtime, payload, user_id=user_id)
     memory = getattr(runtime, "memory", None)
     exporter = getattr(memory, "async_export_profile", None)
     if not callable(exporter):
+        _debug_music_dna_error("export", payload, (_error_payload("music_dna_unavailable"), 503), runtime=runtime)
         return _error_payload("music_dna_unavailable"), 503
-    return await exporter(runtime, payload, user_id=user_id), 200
+    result = await exporter(runtime, payload, user_id=user_id)
+    _debug_music_dna_result("export", result, 200, runtime=runtime)
+    return result, 200
 
 
 def _music_dna_runtime_payload(
@@ -626,6 +711,654 @@ def _music_dna_runtime_payload(
     return runtime, payload, None
 
 
+def _debug_music_dna_request(
+    endpoint: str,
+    runtime: Any,
+    payload: dict[str, Any],
+    *,
+    user_id: str | None = None,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    _LOGGER.debug(
+        "DJConnect Music DNA %s request client_type=%s device_id=%s music_dna_key=%s user_id=%s enabled_requested=%s import_format=%s profile_keys=%s",
+        endpoint,
+        payload_client_type(payload) or runtime_client_type(runtime),
+        _safe_debug_identifier(payload.get("device_id") or getattr(runtime, "device_status", {}).get("device_id")),
+        _safe_debug_identifier(payload.get("music_dna_key")),
+        _safe_debug_identifier(user_id),
+        payload.get("enabled") if endpoint == "settings" else None,
+        _safe_import_format(payload),
+        _safe_profile_keys(payload) if endpoint == "import" else [],
+    )
+
+
+def _debug_music_dna_result(
+    endpoint: str,
+    result: dict[str, Any],
+    status: int,
+    *,
+    runtime: Any | None = None,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    profile = _music_dna_profile_from_result(endpoint, result)
+    _LOGGER.debug(
+        "DJConnect Music DNA %s result status=%s success=%s enabled=%s generation=%s music_dna_key=%s client_type=%s profile_summary=%s error=%s",
+        endpoint,
+        status,
+        result.get("success") if isinstance(result, dict) else None,
+        _music_dna_enabled_from_result(endpoint, result),
+        _music_dna_generation_from_result(endpoint, result),
+        _safe_debug_identifier(_music_dna_key_from_result(endpoint, result)),
+        runtime_client_type(runtime) if runtime is not None else None,
+        _profile_debug_summary(profile),
+        result.get("error") if isinstance(result, dict) else None,
+    )
+
+
+def _debug_music_dna_error(
+    endpoint: str,
+    payload: dict[str, Any] | Any,
+    error: tuple[dict[str, Any], int],
+    *,
+    runtime: Any | None = None,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    body, status = error
+    data = payload if isinstance(payload, dict) else {}
+    _LOGGER.debug(
+        "DJConnect Music DNA %s rejected status=%s error=%s client_type=%s device_id=%s music_dna_key=%s",
+        endpoint,
+        status,
+        body.get("error") if isinstance(body, dict) else None,
+        payload_client_type(data) or (runtime_client_type(runtime) if runtime is not None else None),
+        _safe_debug_identifier(data.get("device_id")),
+        _safe_debug_identifier(data.get("music_dna_key")),
+    )
+
+
+def _music_dna_profile_from_result(endpoint: str, result: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(result, dict):
+        return {}
+    if endpoint == "export":
+        exported = result.get("profile")
+        return exported.get("profile") if isinstance(exported, dict) and isinstance(exported.get("profile"), dict) else {}
+    profile = result.get("profile")
+    return profile if isinstance(profile, dict) else {}
+
+
+def _music_dna_enabled_from_result(endpoint: str, result: dict[str, Any]) -> bool | None:
+    if not isinstance(result, dict):
+        return None
+    if endpoint == "export":
+        profile = result.get("profile")
+        return profile.get("enabled") if isinstance(profile, dict) else None
+    return result.get("enabled")
+
+
+def _music_dna_generation_from_result(endpoint: str, result: dict[str, Any]) -> Any:
+    if not isinstance(result, dict):
+        return None
+    if endpoint == "export":
+        profile = result.get("profile")
+        return profile.get("generation") if isinstance(profile, dict) else None
+    return result.get("generation")
+
+
+def _music_dna_key_from_result(endpoint: str, result: dict[str, Any]) -> Any:
+    if not isinstance(result, dict):
+        return None
+    if endpoint == "export":
+        profile = result.get("profile")
+        return profile.get("music_dna_key") if isinstance(profile, dict) else None
+    return result.get("music_dna_key")
+
+
+def _profile_debug_summary(profile: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(profile, dict) or not profile:
+        return {}
+    summary: dict[str, Any] = {"keys": sorted(str(key) for key in profile.keys())[:12]}
+    for key in (
+        "recent_tracks",
+        "favorite_artists",
+        "favorite_tracks",
+        "top_artists",
+        "top_tracks",
+        "moods",
+        "genres",
+        "listening_contexts",
+    ):
+        value = profile.get(key)
+        if isinstance(value, (list, tuple, set, dict)):
+            summary[f"{key}_count"] = len(value)
+    return summary
+
+
+def _safe_profile_keys(payload: dict[str, Any]) -> list[str]:
+    profile = payload.get("profile")
+    if isinstance(profile, dict) and profile.get("format") == "djconnect.music_dna.export":
+        profile = profile.get("profile")
+    if isinstance(profile, dict) and isinstance(profile.get("profile"), dict):
+        profile = profile.get("profile")
+    if not isinstance(profile, dict):
+        return []
+    return sorted(str(key) for key in profile.keys())[:12]
+
+
+def _safe_import_format(payload: dict[str, Any]) -> str:
+    profile = payload.get("profile")
+    if isinstance(profile, dict):
+        return str(profile.get("format") or "").strip()[:64]
+    return ""
+
+
+def _safe_debug_identifier(value: Any) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    if len(text) <= 8:
+        return "***"
+    return f"{text[:8]}...{text[-4:]}"
+
+
+def _debug_ask_dj_request(
+    endpoint: str,
+    runtime: Any,
+    payload: dict[str, Any],
+    *,
+    user_id: str | None = None,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    text = str(payload.get("text") or payload.get("prompt") or payload.get("query") or "").strip()
+    _LOGGER.debug(
+        "DJConnect Ask DJ %s request client_type=%s device_id=%s user_id=%s client_message_id=%s text_length=%s input_type=%s audio_response=%s mood_zone=%s since_revision=%s clear_revision=%s",
+        endpoint,
+        payload_client_type(payload) or runtime_client_type(runtime),
+        _safe_debug_identifier(payload.get("device_id") or getattr(runtime, "device_status", {}).get("device_id")),
+        _safe_debug_identifier(user_id),
+        _safe_debug_identifier(payload.get("client_message_id")),
+        len(text),
+        str(payload.get("input_type") or "").strip()[:24],
+        str(payload.get("audio_response") or "").strip()[:24],
+        str(payload.get("mood_zone") or "").strip()[:24],
+        _int_or_none(payload.get("since_revision")),
+        _int_or_none(payload.get("clear_revision")),
+    )
+
+
+def _debug_ask_dj_result(
+    endpoint: str,
+    result: dict[str, Any],
+    status: int,
+    *,
+    runtime: Any | None = None,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    _LOGGER.debug(
+        "DJConnect Ask DJ %s result status=%s success=%s intent=%s action=%s audio=%s images=%s links=%s sources=%s playback_actions=%s confirmation_actions=%s messages=%s items=%s history_revision=%s clear_revision=%s trimmed_count=%s error=%s client_type=%s",
+        endpoint,
+        status,
+        result.get("success") if isinstance(result, dict) else None,
+        _intent_name(result.get("intent") if isinstance(result, dict) else None),
+        str(result.get("action") or "").strip()[:48] if isinstance(result, dict) else "",
+        bool((result or {}).get("audio_url") or _assistant_message_value(result, "audio_url")),
+        _count(result.get("images")) if isinstance(result, dict) else 0,
+        _count(result.get("links")) if isinstance(result, dict) else 0,
+        _count(result.get("sources")) if isinstance(result, dict) else 0,
+        _count(result.get("playback_actions")) if isinstance(result, dict) else 0,
+        _count(result.get("confirmation_actions")) if isinstance(result, dict) else 0,
+        _count(result.get("messages")) if isinstance(result, dict) else 0,
+        _count(result.get("items")) if isinstance(result, dict) else 0,
+        result.get("history_revision") if isinstance(result, dict) else None,
+        result.get("clear_revision") if isinstance(result, dict) else None,
+        result.get("history_trimmed_count") if isinstance(result, dict) else None,
+        result.get("error") if isinstance(result, dict) else None,
+        runtime_client_type(runtime) if runtime is not None else None,
+    )
+
+
+def _debug_ask_dj_error(
+    endpoint: str,
+    payload: dict[str, Any] | Any,
+    error: tuple[dict[str, Any], int],
+    *,
+    runtime: Any | None = None,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    body, status = error
+    data = payload if isinstance(payload, dict) else {}
+    _LOGGER.debug(
+        "DJConnect Ask DJ %s rejected status=%s error=%s client_type=%s device_id=%s client_message_id=%s",
+        endpoint,
+        status,
+        body.get("error") if isinstance(body, dict) else None,
+        payload_client_type(data) or (runtime_client_type(runtime) if runtime is not None else None),
+        _safe_debug_identifier(data.get("device_id")),
+        _safe_debug_identifier(data.get("client_message_id")),
+    )
+
+
+def _intent_name(value: Any) -> str:
+    if isinstance(value, dict):
+        return str(value.get("intent") or value.get("name") or "").strip()[:64]
+    return str(value or "").strip()[:64]
+
+
+def _assistant_message_value(result: dict[str, Any] | Any, key: str) -> Any:
+    if not isinstance(result, dict):
+        return None
+    message = result.get("assistant_message")
+    return message.get(key) if isinstance(message, dict) else None
+
+
+def _count(value: Any) -> int:
+    if isinstance(value, (list, tuple, set, dict)):
+        return len(value)
+    return 0
+
+
+def _debug_track_insight_request(
+    runtime: Any,
+    payload: dict[str, Any],
+    *,
+    source: str,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    _LOGGER.debug(
+        "DJConnect Track Insight %s request client_type=%s device_id=%s source=%s title_present=%s artist_present=%s entity_present=%s force_refresh=%s locale=%s mood_zone=%s include_visual_profile=%s include_raw_response=%s",
+        source,
+        payload_client_type(payload) or runtime_client_type(runtime),
+        _safe_debug_identifier(payload.get("device_id") or getattr(runtime, "device_status", {}).get("device_id")),
+        str(payload.get("source") or source or "").strip()[:32],
+        bool(str(payload.get("title") or "").strip()),
+        bool(str(payload.get("artist") or "").strip()),
+        bool(str(payload.get("entity_id") or payload.get("player_id") or "").strip()),
+        bool(payload.get("force_refresh")),
+        str(payload.get("locale") or payload.get("language") or "").strip()[:24],
+        str(payload.get("mood_zone") or "").strip()[:24],
+        payload.get("include_visual_profile"),
+        payload.get("include_raw_response"),
+    )
+
+
+def _debug_track_insight_result(
+    result: dict[str, Any],
+    status: int,
+    *,
+    runtime: Any | None = None,
+    source: str,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    track = result.get("track") if isinstance(result, dict) else {}
+    analysis = result.get("analysis") if isinstance(result, dict) else {}
+    cache = result.get("cache") if isinstance(result, dict) else {}
+    visual = result.get("visual_profile") if isinstance(result, dict) else None
+    _LOGGER.debug(
+        "DJConnect Track Insight %s result status=%s success=%s backend=%s language=%s cache_hit=%s cache_key=%s analysis_keys=%s visual_profile=%s genre_present=%s production_notes=%s listening_cues=%s similar_tracks=%s error=%s client_type=%s",
+        source,
+        status,
+        result.get("success", True) if isinstance(result, dict) else None,
+        track.get("backend") if isinstance(track, dict) else None,
+        result.get("language") if isinstance(result, dict) else None,
+        cache.get("hit") if isinstance(cache, dict) else None,
+        _safe_debug_identifier(cache.get("key") if isinstance(cache, dict) else None),
+        sorted(str(key) for key in analysis.keys())[:16] if isinstance(analysis, dict) else [],
+        isinstance(visual, dict),
+        bool(analysis.get("genre") or analysis.get("subgenre")) if isinstance(analysis, dict) else False,
+        _count(analysis.get("production_notes")) if isinstance(analysis, dict) else 0,
+        _count(analysis.get("listening_cues")) if isinstance(analysis, dict) else 0,
+        _count(analysis.get("similar_tracks")) if isinstance(analysis, dict) else 0,
+        result.get("error") if isinstance(result, dict) else None,
+        runtime_client_type(runtime) if runtime is not None else None,
+    )
+
+
+def _debug_track_insight_error(
+    phase: str,
+    payload: dict[str, Any] | Any,
+    error: tuple[dict[str, Any], int],
+    *,
+    runtime: Any | None = None,
+    source: str,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    body, status = error
+    data = payload if isinstance(payload, dict) else {}
+    _LOGGER.debug(
+        "DJConnect Track Insight %s rejected phase=%s status=%s error=%s client_type=%s device_id=%s title_present=%s artist_present=%s",
+        source,
+        phase,
+        status,
+        body.get("error") if isinstance(body, dict) else None,
+        payload_client_type(data) or (runtime_client_type(runtime) if runtime is not None else None),
+        _safe_debug_identifier(data.get("device_id")),
+        bool(str(data.get("title") or "").strip()),
+        bool(str(data.get("artist") or "").strip()),
+    )
+
+
+def _debug_playback_request(
+    runtime: Any,
+    payload: dict[str, Any],
+    *,
+    command: str,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    backend = music_backend_metadata(None, runtime)
+    _LOGGER.debug(
+        "DJConnect playback command request command=%s client_type=%s device_id=%s backend=%s backend_available=%s play=%s value_shape=%s output_requested=%s mood_zone=%s",
+        command,
+        payload_client_type(payload) or runtime_client_type(runtime),
+        _safe_debug_identifier(payload.get("device_id") or getattr(runtime, "device_status", {}).get("device_id")),
+        backend.get("music_backend"),
+        backend.get("music_backend_available"),
+        bool(payload.get("play", False)),
+        _playback_value_shape(payload.get("value")),
+        _has_output_selection(payload.get("value")),
+        str(payload.get("mood_zone") or "").strip()[:24],
+    )
+
+
+def _debug_playback_result(
+    endpoint: str,
+    result: dict[str, Any],
+    status: int,
+    *,
+    runtime: Any | None = None,
+    command: str,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    playback = result.get("playback") if isinstance(result, dict) else {}
+    backend = music_backend_metadata(None, runtime) if runtime is not None else {}
+    _LOGGER.debug(
+        "DJConnect playback %s result command=%s status=%s success=%s backend=%s backend_available=%s playback_state=%s has_playback=%s is_playing=%s devices=%s queue_items=%s playlists=%s playback_actions=%s error=%s client_type=%s",
+        endpoint,
+        command,
+        status,
+        result.get("success") if isinstance(result, dict) else None,
+        (result.get("music_backend") or backend.get("music_backend")) if isinstance(result, dict) else backend.get("music_backend"),
+        result.get("backend_available") if isinstance(result, dict) else backend.get("music_backend_available"),
+        _safe_playback_state(playback.get("state") if isinstance(playback, dict) else None),
+        playback.get("has_playback") if isinstance(playback, dict) else None,
+        playback.get("is_playing") if isinstance(playback, dict) else None,
+        _count(result.get("devices")) if isinstance(result, dict) else 0,
+        _queue_count(result),
+        _playlist_count(result),
+        _count(result.get("playback_actions")) if isinstance(result, dict) else 0,
+        result.get("error") if isinstance(result, dict) else None,
+        runtime_client_type(runtime) if runtime is not None else None,
+    )
+
+
+def _debug_playback_error(
+    endpoint: str,
+    payload: dict[str, Any] | Any,
+    error: tuple[dict[str, Any], int],
+    *,
+    runtime: Any | None = None,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    body, status = error
+    data = payload if isinstance(payload, dict) else {}
+    _LOGGER.debug(
+        "DJConnect playback %s rejected status=%s error=%s command=%s client_type=%s device_id=%s",
+        endpoint,
+        status,
+        body.get("error") if isinstance(body, dict) else None,
+        str(data.get("command") or "").strip()[:48],
+        payload_client_type(data) or (runtime_client_type(runtime) if runtime is not None else None),
+        _safe_debug_identifier(data.get("device_id")),
+    )
+
+
+def _debug_queue_request(runtime: Any, payload: dict[str, Any]) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    backend = music_backend_metadata(None, runtime)
+    _LOGGER.debug(
+        "DJConnect queue endpoint request client_type=%s device_id=%s backend=%s backend_available=%s value_shape=%s",
+        payload_client_type(payload) or runtime_client_type(runtime),
+        _safe_debug_identifier(payload.get("device_id") or getattr(runtime, "device_status", {}).get("device_id")),
+        backend.get("music_backend"),
+        backend.get("music_backend_available"),
+        _playback_value_shape(payload.get("value")),
+    )
+
+
+def _debug_queue_result(
+    result: dict[str, Any],
+    status: int,
+    *,
+    runtime: Any | None = None,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    queue = _queue_payload(result)
+    playback = result.get("playback") if isinstance(result, dict) else {}
+    backend = music_backend_metadata(None, runtime) if runtime is not None else {}
+    _LOGGER.debug(
+        "DJConnect queue endpoint result status=%s success=%s backend=%s backend_available=%s queue_items=%s context_present=%s current_present=%s playback_state=%s error=%s client_type=%s",
+        status,
+        result.get("success") if isinstance(result, dict) else None,
+        (result.get("music_backend") or backend.get("music_backend")) if isinstance(result, dict) else backend.get("music_backend"),
+        result.get("backend_available") if isinstance(result, dict) else backend.get("music_backend_available"),
+        _queue_count(result),
+        _queue_context_present(result, queue),
+        _queue_current_present(queue),
+        _safe_playback_state(playback.get("state") if isinstance(playback, dict) else None),
+        result.get("error") if isinstance(result, dict) else None,
+        runtime_client_type(runtime) if runtime is not None else None,
+    )
+
+
+def _debug_playlists_request(
+    runtime: Any,
+    payload: dict[str, Any],
+    command_value: dict[str, Any],
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    backend = music_backend_metadata(None, runtime)
+    _LOGGER.debug(
+        "DJConnect playlists endpoint request client_type=%s device_id=%s backend=%s backend_available=%s limit=%s has_client_context=%s value_shape=%s",
+        payload_client_type(payload) or runtime_client_type(runtime),
+        _safe_debug_identifier(payload.get("device_id") or getattr(runtime, "device_status", {}).get("device_id")),
+        backend.get("music_backend"),
+        backend.get("music_backend_available"),
+        _safe_int(command_value.get("limit")),
+        _playlist_client_context_present(command_value),
+        _playback_value_shape(payload.get("value")),
+    )
+
+
+def _debug_playlists_result(
+    result: dict[str, Any],
+    status: int,
+    *,
+    runtime: Any | None = None,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    backend = music_backend_metadata(None, runtime) if runtime is not None else {}
+    _LOGGER.debug(
+        "DJConnect playlists endpoint result status=%s success=%s backend=%s backend_available=%s playlists=%s count=%s aliases_present=%s error=%s client_type=%s",
+        status,
+        result.get("success") if isinstance(result, dict) else None,
+        (result.get("music_backend") or backend.get("music_backend")) if isinstance(result, dict) else backend.get("music_backend"),
+        result.get("backend_available") if isinstance(result, dict) else backend.get("music_backend_available"),
+        _playlist_count(result),
+        _safe_int(result.get("count")) if isinstance(result, dict) else None,
+        _playlist_aliases_present(result),
+        result.get("error") if isinstance(result, dict) else None,
+        runtime_client_type(runtime) if runtime is not None else None,
+    )
+
+
+def _debug_playlists_backend_error(
+    payload: dict[str, Any],
+    exc: Exception,
+    *,
+    runtime: Any | None = None,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    _LOGGER.debug(
+        "DJConnect playlists endpoint backend unavailable client_type=%s device_id=%s reason=%s",
+        payload_client_type(payload) or (runtime_client_type(runtime) if runtime is not None else None),
+        _safe_debug_identifier(payload.get("device_id")),
+        _safe_backend_error_message(exc),
+    )
+
+
+def _playback_value_shape(value: Any) -> str:
+    if isinstance(value, dict):
+        unsafe_fragments = (
+            "token",
+            "secret",
+            "password",
+            "authorization",
+            "uri",
+            "url",
+            "text",
+            "prompt",
+            "query",
+            "title",
+            "artist",
+            "album",
+            "name",
+            "label",
+            "subtitle",
+        )
+        safe_keys = [
+            key
+            for key in sorted(str(key) for key in value.keys())
+            if not any(fragment in key.lower() for fragment in unsafe_fragments)
+        ]
+        return "dict:" + ",".join(safe_keys[:10])
+    if isinstance(value, list):
+        return f"list:{len(value)}"
+    if value in (None, ""):
+        return "empty"
+    return type(value).__name__
+
+
+def _has_output_selection(value: Any) -> bool:
+    if not isinstance(value, dict):
+        return False
+    return any(str(value.get(key) or "").strip() for key in ("device_id", "device_name", "output_id", "output_name", "target_player_id"))
+
+
+def _safe_playback_state(value: Any) -> str:
+    text = str(value or "").strip().lower()
+    return text if text in {"playing", "paused", "stopped", "idle", "off"} else ""
+
+
+def _queue_count(result: dict[str, Any] | Any) -> int:
+    if not isinstance(result, dict):
+        return 0
+    for key in ("queue", "items", "tracks"):
+        value = result.get(key)
+        if isinstance(value, list):
+            return len(value)
+        if isinstance(value, dict):
+            for nested_key in ("items", "queue", "tracks"):
+                nested = value.get(nested_key)
+                if isinstance(nested, list):
+                    return len(nested)
+    return 0
+
+
+def _queue_payload(result: dict[str, Any] | Any) -> Any:
+    if not isinstance(result, dict):
+        return None
+    value = result.get("queue")
+    if isinstance(value, dict):
+        return value
+    status = result.get("status")
+    if isinstance(status, dict) and isinstance(status.get("queue"), dict):
+        return status["queue"]
+    return value
+
+
+def _queue_context_present(result: dict[str, Any] | Any, queue: Any) -> bool:
+    if isinstance(queue, dict):
+        for key in ("context", "queue_context", "context_uri", "contextUri"):
+            if str(queue.get(key) or "").strip():
+                return True
+    if isinstance(result, dict):
+        for key in ("context", "queue_context", "context_uri", "contextUri"):
+            if str(result.get(key) or "").strip():
+                return True
+    return False
+
+
+def _queue_current_present(queue: Any) -> bool:
+    if isinstance(queue, dict):
+        return bool(queue.get("currently_playing") or queue.get("current"))
+    return False
+
+
+def _playlist_count(result: dict[str, Any] | Any) -> int:
+    if not isinstance(result, dict):
+        return 0
+    if isinstance(result.get("playlists"), list):
+        return len(result["playlists"])
+    if isinstance(result.get("playlists"), dict):
+        playlists = result["playlists"]
+        for key in ("items", "playlists"):
+            value = playlists.get(key)
+            if isinstance(value, list):
+                return len(value)
+    for key in ("items",):
+        value = result.get(key)
+        if isinstance(value, list):
+            return len(value)
+    for container_key in ("data", "result"):
+        container = result.get(container_key)
+        if isinstance(container, dict):
+            count = _playlist_count(container)
+            if count:
+                return count
+    count = result.get("count")
+    try:
+        return int(count) if count is not None else 0
+    except (TypeError, ValueError):
+        return 0
+
+
+def _playlist_aliases_present(result: dict[str, Any] | Any) -> bool:
+    if not isinstance(result, dict):
+        return False
+    return any(key in result for key in ("playlists", "items", "data", "result"))
+
+
+def _playlist_client_context_present(value: dict[str, Any] | Any) -> bool:
+    if not isinstance(value, dict):
+        return False
+    return any(
+        str(value.get(key) or "").strip()
+        for key in ("client_type", "device_id", "market", "locale")
+    )
+
+
+def _safe_int(value: Any) -> int | None:
+    try:
+        return int(value) if value is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
 async def async_handle_ask_dj_history_payload(
     hass: Any,
     data: dict[str, Any],
@@ -636,14 +1369,18 @@ async def async_handle_ask_dj_history_payload(
     """Return Ask DJ history for HTTP and HA websocket transports."""
     headers = headers or {}
     if not isinstance(data, dict):
+        _debug_ask_dj_error("history", {}, (_error_payload("invalid_json"), 400))
         return _error_payload("invalid_json"), 400
-    runtime, _identity, error, status = _authorized_history_runtime(hass, data, headers)
+    runtime, identity, error, status = _authorized_history_runtime(hass, data, headers)
     if error:
+        _debug_ask_dj_error("history", data, (_error_payload(error), status), runtime=runtime)
         return _error_payload(error), status
+    _debug_ask_dj_request("history", runtime, {**data, **identity}, user_id=user_id)
     result = await _history_manager(hass, runtime).async_history(
         user_id,
         since_revision=_int_or_none(data.get("since_revision")),
     )
+    _debug_ask_dj_result("history", result, 200, runtime=runtime)
     return result, 200
 
 
@@ -657,12 +1394,15 @@ async def async_handle_ask_dj_history_export_payload(
     """Export Ask DJ history for HTTP client downloads."""
     headers = headers or {}
     if not isinstance(data, dict):
+        _debug_ask_dj_error("history_export", {}, (_error_payload("invalid_json"), 400))
         return _error_payload("invalid_json"), 400
     runtime, identity, error, status = _authorized_history_runtime(hass, data, headers)
     if error:
+        _debug_ask_dj_error("history_export", data, (_error_payload(error), status), runtime=runtime)
         return _error_payload(error), status
+    _debug_ask_dj_request("history_export", runtime, {**data, **identity}, user_id=user_id)
     history = await _history_manager(hass, runtime).async_history(user_id)
-    return {
+    response = {
         "success": True,
         "format": "djconnect.ask_dj.history.export",
         "schema_version": 1,
@@ -676,7 +1416,9 @@ async def async_handle_ask_dj_history_export_payload(
         or data.get("version")
         or headers.get("X-DJConnect-App-Version"),
         **history,
-    }, 200
+    }
+    _debug_ask_dj_result("history_export", response, 200, runtime=runtime)
+    return response, 200
 
 
 async def async_handle_music_discovery_feed_payload(
@@ -728,16 +1470,20 @@ async def async_handle_ask_dj_history_clear_payload(
     """Clear Ask DJ history for HTTP and HA websocket transports."""
     headers = headers or {}
     if not isinstance(data, dict):
+        _debug_ask_dj_error("history_clear", {}, (_error_payload("invalid_json"), 400))
         return _error_payload("invalid_json"), 400
-    runtime, _identity, error, status = _authorized_history_runtime(
+    runtime, identity, error, status = _authorized_history_runtime(
         hass,
         data,
         headers,
         require_client_type=True,
     )
     if error:
+        _debug_ask_dj_error("history_clear", data, (_error_payload(error), status), runtime=runtime)
         return _error_payload(error), status
+    _debug_ask_dj_request("history_clear", runtime, {**data, **identity}, user_id=user_id)
     result = await _history_manager(hass, runtime).async_clear(user_id)
+    _debug_ask_dj_result("history_clear", result, 200, runtime=runtime)
     return result, 200
 
 
@@ -751,35 +1497,37 @@ async def async_handle_ask_dj_history_state_payload(
     """Return compact Ask DJ history sync state for HTTP and HA websocket."""
     headers = headers or {}
     if not isinstance(data, dict):
+        _debug_ask_dj_error("history_state", {}, (_error_payload("invalid_json"), 400))
         return _error_payload("invalid_json"), 400
-    runtime, _identity, error, status = _authorized_history_runtime(
+    runtime, identity, error, status = _authorized_history_runtime(
         hass,
         data,
         headers,
         require_client_type=True,
     )
     if error:
+        _debug_ask_dj_error("history_state", data, (_error_payload(error), status), runtime=runtime)
         return _error_payload(error), status
+    _debug_ask_dj_request("history_state", runtime, {**data, **identity}, user_id=user_id)
     result = await _history_manager(hass, runtime).async_history(
         user_id,
         since_revision=_int_or_none(data.get("since_revision")),
     )
     clear_revision = int(result.get("clear_revision") or 0)
     client_clear_revision = _int_or_none(data.get("clear_revision")) or 0
-    return (
-        {
-            "success": True,
-            "user_id": result.get("user_id"),
-            "history_revision": result.get("history_revision"),
-            "clear_revision": clear_revision,
-            "history_limit": result.get("history_limit"),
-            "history_trimmed_before": result.get("history_trimmed_before"),
-            "history_trimmed_count": result.get("history_trimmed_count"),
-            "ask_dj_clear_required": client_clear_revision < clear_revision,
-            "server_time": result.get("server_time"),
-        },
-        200,
-    )
+    response = {
+        "success": True,
+        "user_id": result.get("user_id"),
+        "history_revision": result.get("history_revision"),
+        "clear_revision": clear_revision,
+        "history_limit": result.get("history_limit"),
+        "history_trimmed_before": result.get("history_trimmed_before"),
+        "history_trimmed_count": result.get("history_trimmed_count"),
+        "ask_dj_clear_required": client_clear_revision < clear_revision,
+        "server_time": result.get("server_time"),
+    }
+    _debug_ask_dj_result("history_state", response, 200, runtime=runtime)
+    return response, 200
 
 
 def _decorate_command_result(

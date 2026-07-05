@@ -22,6 +22,7 @@ from .const import (
     API_ASK_DJ_HISTORY_STATE,
     API_ASK_DJ_IDLE_SUGGESTION,
     API_ASK_DJ_MESSAGE,
+    API_BASE,
     API_COMMAND,
     API_IMAGE_PROXY,
     API_MUSIC_DISCOVERY,
@@ -114,7 +115,7 @@ _LOGGER = logging.getLogger(__name__)
 __all__ = ["_last_stale_auth_log", "async_send_push_event"]
 _LOGO_DATA_URI: str | None = None
 VOICE_DEBUG_KEY = "last_voice_debug"
-VOICE_DEBUG_URL = "/api/djconnect/debug/last_voice.wav"
+VOICE_DEBUG_URL = "/api/djconnect/v1/debug/last_voice.wav"
 CONF_LAST_DEVICE_STATUS = "last_device_status"
 
 
@@ -469,6 +470,26 @@ def _json_error(
         },
         status_code=status_code,
     )
+
+
+def _safe_debug_identifier(value: Any) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    if len(text) <= 8:
+        return "***"
+    return f"{text[:8]}...{text[-4:]}"
+
+
+def _safe_playback_state(value: Any) -> str:
+    text = str(value or "").strip().lower()
+    return text if text in {"playing", "paused", "stopped", "idle", "off"} else ""
+
+
+def _safe_intent_name(value: Any) -> str:
+    if isinstance(value, dict):
+        return str(value.get("intent") or value.get("name") or "").strip()[:64]
+    return str(value or "").strip()[:64]
 
 
 def _redact_debug_payload(value: Any) -> Any:
@@ -2263,7 +2284,7 @@ async def _handle_pending_config_flow_app_pairing(
         "client_type": client_type,
         "device_token": token,
         "assist_pipeline_id": conf.get(CONF_ASSIST_PIPELINE_ID, ""),
-        "api_base": "/api/djconnect",
+        "api_base": API_BASE,
         "voice_path": API_VOICE,
         "status_path": API_STATUS,
         "event_path": API_EVENT,
@@ -2446,7 +2467,7 @@ class DJConnectPairView(HomeAssistantView):
             "client_type": _runtime_client_type(runtime),
             "device_token": token,
             "assist_pipeline_id": conf.get(CONF_ASSIST_PIPELINE_ID, ""),
-            "api_base": "/api/djconnect",
+            "api_base": API_BASE,
             "voice_path": API_VOICE,
             "status_path": API_STATUS,
             "event_path": API_EVENT,
@@ -2477,8 +2498,11 @@ class DJConnectStatusView(HomeAssistantView):
         except Exception:  # noqa: BLE001
             return _json_error(self, "invalid_json", 400)
         _LOGGER.debug(
-            "DJConnect status request payload=%s",
-            _redact_debug_payload(data),
+            "DJConnect playback status request client_type=%s device_id=%s spotify_configured=%s playback_present=%s",
+            data.get(CONF_CLIENT_TYPE) or data.get("client_type"),
+            _safe_debug_identifier(data.get("device_id") or request.headers.get("X-DJConnect-Device-ID")),
+            data.get("spotify_configured"),
+            isinstance(data.get("playback"), dict),
         )
         runtime = _runtime(
             hass,
@@ -2585,15 +2609,23 @@ class DJConnectStatusView(HomeAssistantView):
                 response["playback"] = {"has_playback": False}
         _LOGGER.debug(
             "DJConnect status from device %s: spotify_configured=%s backend_available=%s",
-            data.get("device_id"),
+            _safe_debug_identifier(data.get("device_id")),
             spotify_configured,
             backend_available,
         )
-        runtime.device_status["backend_available"] = backend_available
+        playback = response.get("playback") if isinstance(response.get("playback"), dict) else {}
         _LOGGER.debug(
-            "DJConnect status response payload=%s",
-            _redact_debug_payload(response),
+            "DJConnect playback status result client_type=%s device_id=%s backend=%s backend_available=%s music_backend_available=%s has_playback=%s playback_state=%s is_playing=%s",
+            client_type,
+            _safe_debug_identifier(data.get("device_id")),
+            response.get("music_backend"),
+            backend_available,
+            response.get("music_backend_available"),
+            playback.get("has_playback") if isinstance(playback, dict) else None,
+            _safe_playback_state(playback.get("state") if isinstance(playback, dict) else None),
+            playback.get("is_playing") if isinstance(playback, dict) else None,
         )
+        runtime.device_status["backend_available"] = backend_available
         return self.json(response)
 
 
@@ -2680,9 +2712,17 @@ class DJConnectAskDjView(HomeAssistantView):
             request.headers,
         )
         if runtime is None:
+            _LOGGER.debug(
+                "DJConnect Ask DJ raw rejected status=503 error=not_configured device_id=%s",
+                _safe_debug_identifier(identity.get("device_id")),
+            )
             return _json_error(self, "not_configured", 503)
         client_type = _validate_required_client_type(identity)
         if client_type is None:
+            _LOGGER.debug(
+                "DJConnect Ask DJ raw rejected status=400 error=invalid_client_type device_id=%s",
+                _safe_debug_identifier(identity.get("device_id")),
+            )
             return _json_error(self, "invalid_client_type", 400)
         identity[CONF_CLIENT_TYPE] = client_type
         if not _authorize_runtime_device_request(
@@ -2691,17 +2731,47 @@ class DJConnectAskDjView(HomeAssistantView):
             identity.get("device_id"),
             client_type,
         ):
+            _LOGGER.debug(
+                "DJConnect Ask DJ raw rejected status=401 error=unauthorized client_type=%s device_id=%s",
+                client_type,
+                _safe_debug_identifier(identity.get("device_id")),
+            )
             return _json_error(self, "unauthorized", 401)
         payload = dict(data)
         payload.update({key: value for key, value in identity.items() if value is not None})
         payload = enrich_payload_with_mood_zone(payload)
+        text = str(payload.get("text") or payload.get("prompt") or payload.get("query") or "").strip()
+        _LOGGER.debug(
+            "DJConnect Ask DJ raw request client_type=%s device_id=%s user_id=%s text_length=%s audio_response=%s mood_zone=%s",
+            client_type,
+            _safe_debug_identifier(identity.get("device_id")),
+            _safe_debug_identifier(_request_user_id(request)),
+            len(text),
+            str(payload.get("audio_response") or "").strip()[:24],
+            str(payload.get("mood_zone") or "").strip()[:24],
+        )
         result = await async_handle_ask_dj(
             hass,
             runtime,
             payload,
             user_id=_request_user_id(request),
         )
-        return self.json(result, status_code=200 if result.get("success") else 500)
+        status_code = 200 if result.get("success") else 500
+        _LOGGER.debug(
+            "DJConnect Ask DJ raw result status=%s success=%s intent=%s action=%s audio=%s images=%s links=%s sources=%s playback_actions=%s confirmation_actions=%s error=%s",
+            status_code,
+            result.get("success"),
+            _safe_intent_name(result.get("intent")),
+            str(result.get("action") or "").strip()[:48],
+            bool(result.get("audio_url")),
+            len(result.get("images") or []),
+            len(result.get("links") or []),
+            len(result.get("sources") or []),
+            len(result.get("playback_actions") or []),
+            len(result.get("confirmation_actions") or []),
+            result.get("error"),
+        )
+        return self.json(result, status_code=status_code)
 
 
 class DJConnectAskDjClearView(HomeAssistantView):

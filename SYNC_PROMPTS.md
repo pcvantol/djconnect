@@ -43,7 +43,7 @@ and `<3.3.0`.
 - ESP32 and Raspberry Pi stay LAN-only local devices with mDNS, optional Client
   adres fallback and `/api/device/*`.
 - iOS, macOS and Windows are inbound-only app clients. They pair locally by
-  posting to `/api/djconnect/pair`, expose no HA-callable `/api/device/*`, and
+  posting to `/api/djconnect/v1/pair`, expose no HA-callable `/api/device/*`, and
   may use `ha_remote_url` after local pairing when Home Assistant has an HTTPS
   external/Nabu Casa URL.
 - watchOS uses the iPhone/iPad proxy and has no separate HA-direct local/remote
@@ -85,7 +85,7 @@ and `<3.3.0`.
   degrade through backend-neutral fallback text and existing response shapes.
 - AI tools are thin HA-facing wrappers over DJConnect use-cases. They must not
   call Spotify Direct or Music Assistant directly.
-- VibeCast uses `GET /api/djconnect/vibecast` as a premium-ready Apple client
+- VibeCast uses `GET /api/djconnect/v1/vibecast` as a premium-ready Apple client
   feed over current backend playback context. macOS and iOS must use the same
   endpoint, response contract, item kinds, structured text segment types,
   disabled reasons, polling/cache semantics, entitlement behavior, TTL,
@@ -106,7 +106,7 @@ Sync the DJConnect client with the VibeCast backend contract.
 VibeCast is backend-owned and source-of-truth playback comes from Home
 Assistant. Clients poll:
 
-GET /api/djconnect/vibecast
+GET /api/djconnect/v1/vibecast
 
 Use the paired DJConnect device token plus canonical `device_id` and
 `client_type`. Supported Apple client types are `ios`, `macos` and `watchos`.
@@ -138,9 +138,9 @@ Sync the DJConnect client with the Music Discovery backend contract.
 Music Discovery is backend-owned and source-of-truth data comes from Home
 Assistant Music DNA. Clients use:
 
-GET /api/djconnect/music_discovery
-POST /api/djconnect/music_discovery/refresh
-POST /api/djconnect/music_discovery/play
+GET /api/djconnect/v1/music_discovery
+POST /api/djconnect/v1/music_discovery/refresh
+POST /api/djconnect/v1/music_discovery/play
 
 Use the paired DJConnect device token plus canonical `device_id`,
 `client_type`, optional `client_id` and optional `music_dna_key`.
@@ -279,9 +279,9 @@ history. Clients send identity, language/locale and realtime mood, then render
 the backend profile.
 
 Endpoints:
-- POST /api/djconnect/music_dna/profile
-- POST /api/djconnect/music_dna/settings
-- POST /api/djconnect/music_dna/clear
+- POST /api/djconnect/v1/music_dna/profile
+- POST /api/djconnect/v1/music_dna/settings
+- POST /api/djconnect/v1/music_dna/clear
 
 Requests should include `client_id`, `client_type`, `device_id`,
 `device_name`, optional `music_dna_key`, `language`, `locale` and optional
@@ -314,7 +314,7 @@ the server-authoritative profile.
 Sync the DJConnect client with the current Track Insight contract.
 
 Track Insight is server-side in Home Assistant. Clients call
-POST /api/djconnect/track_insight with identity, auth, language/locale,
+POST /api/djconnect/v1/track_insight with identity, auth, language/locale,
 realtime `mood` and optional track metadata. Render either a direct response
 with top-level `track`/`analysis`, or a wrapped response under
 `track_insight.track`/`track_insight.analysis`.
@@ -521,7 +521,7 @@ Requirements:
 - Keep central relay endpoints under `/v1/push/register`,
   `/v1/push/unregister` and `/v1/push/event`. These are HA-to-central-API
   endpoints and are separate from the Home Assistant client-facing
-  `/api/djconnect/push/register` and `/api/djconnect/push/unregister`
+  `/api/djconnect/v1/push/register` and `/api/djconnect/v1/push/unregister`
   endpoints.
 - Require per-install `djci_` bearer auth on all `/v1/push/*` calls. Do not
   allow anonymous register/event calls and do not require or distribute a
@@ -570,7 +570,7 @@ Requirements:
   status refreshes, polling or Spotify progress updates. Coalesce Ask DJ pushes
   with `thread-id: djconnect.askdj` and apply per-user/device rate limits.
 - Apple clients must always sync with their own Home Assistant instance after
-  opening, especially `GET /api/djconnect/ask_dj/history`.
+  opening, especially `GET /api/djconnect/v1/ask_dj/history`.
 - Keep `README.md`, `API_CONTRACT.md`, `SECURITY.md`, `CHANGELOG.md`,
   `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `TECHNICAL_DESIGN_DECISIONS.md`,
   `THIRD_PARTY_NOTICES.md`, `DEVELOPMENT_ENVIRONMENT.md`, `CONTRIBUTING.md`,
@@ -616,7 +616,7 @@ Requirements:
   macOS, watchOS, Raspberry Pi and Windows clients must not store Music DNA.
   Music DNA is explicit opt-in; while disabled, HA must not build Music DNA
   knowledge from Ask DJ, listening profiles, recent tracks or preferences.
-  Clients use `POST /api/djconnect/music_dna/profile`, `/settings` and
+  Clients use `POST /api/djconnect/v1/music_dna/profile`, `/settings` and
   `/clear` to show structured DNA, enable/disable learning and clear learned DNA
   at any time. Clients may send optional `mood` (0-100), `dj_style` and
   `music_dna_key` hints on status/voice/command payloads, but HA may normalize
@@ -628,7 +628,7 @@ Requirements:
   Clients may show title-case mode labels locally, but do not need to send
   `mood_zone`; HA derives the canonical lowercase value from `mood`.
 - DJ announcement intros may become more personal using compact Music DNA. Clients must not collect or send arbitrary HA states or local personal memory for this.
-- Ask DJ text chat for iOS/macOS/watchOS/Raspberry Pi/Windows uses POST /api/djconnect/ask_dj/message.
+- Ask DJ text chat for iOS/macOS/watchOS/Raspberry Pi/Windows uses POST /api/djconnect/v1/ask_dj/message.
   Request identity can be top-level or inside `identity`; include
   client_message_id for retry dedupe and client_id as origin metadata. Response
   shape includes success, text/dj_text/message, optional audio_url, images[],
@@ -640,7 +640,7 @@ Requirements:
   voice/PTT. Use always when the client wants replayable audio for an
   informational answer; use never for text-only.
 - Ask DJ history is server-side per Home Assistant user. Sync with GET
-  /api/djconnect/ask_dj/history?since_revision=<number>. Response includes
+  /api/djconnect/v1/ask_dj/history?since_revision=<number>. Response includes
   user_id, history_revision, clear_revision, messages[], server_time,
   history_limit and optional trim metadata. The current server limit is 1000
   messages per HA user. If history_trimmed_before is present, clients should
@@ -655,7 +655,7 @@ Requirements:
   history_retention` or `origin: spotify_playback_context`. Clients should
   style them as system/ambient assistant bubbles and must not auto-play audio
   for retention messages.
-- Ask DJ Push-To-Talk for iOS/macOS/watchOS/Windows uses POST /api/djconnect/voice with
+- Ask DJ Push-To-Talk for iOS/macOS/watchOS/Windows uses POST /api/djconnect/v1/voice with
   Content-Type audio/wav. The response includes transcript/recognized_text and
   the same rich Ask DJ fields. Send optional X-DJConnect-Mood,
   X-DJConnect-DJ-Style and X-DJConnect-Music-DNA-Key headers when available.
@@ -666,7 +666,7 @@ Requirements:
   ask_dj_free_input_supported, ask_dj_actions_supported,
   ask_dj_voice_supported, voice_supported, tts_supported,
   local_audio_supported and ask_dj_audio_response_supported.
-- Ask DJ clear sync uses POST /api/djconnect/ask_dj/history/clear. Clients
+- Ask DJ clear sync uses POST /api/djconnect/v1/ask_dj/history/clear. Clients
   clear local chat cache immediately when the response has `success:true`,
   `cleared:true`, `ask_dj_clear_required:true` or a newer `clear_revision`.
   Then store the returned sync revisions and reload server history if needed.
@@ -674,7 +674,7 @@ Requirements:
   expose a local clear action.
 - Ask DJ follow-up questions can include `confirmation_actions[]` and
   confirmation-style `playback_actions[]` for Ja/Nee buttons. Send the selected
-  answer to POST /api/djconnect/command with command
+  answer to POST /api/djconnect/v1/command with command
   `ask_dj_followup_response`. The pending proposal lives server-side and
   expires, so clients should not reconstruct the action locally. Raspberry Pi
   may render HA-provided structured action controls from its Ask DJ screen and
@@ -714,10 +714,10 @@ Requirements:
   text-only; if the response has `images: []`, do not reuse current playback
   album art from an earlier bubble.
 - Ask DJ images must be proxied through Home Assistant/DJConnect URLs such as
-  /api/djconnect/image_proxy/{token}; source links are separate links[] entries.
+  /api/djconnect/v1/image_proxy/{token}; source links are separate links[] entries.
 - Ask DJ personal recommendations may include playback_actions[] for Play Now
   buttons, but must not start playback until the client sends POST
-  /api/djconnect/command with command ask_dj_play_recommendation and a Spotify
+  /api/djconnect/v1/command with command ask_dj_play_recommendation and a Spotify
   track/album/artist/playlist URI payload. Raspberry Pi may render and send
   these actions only when HA supplies them as structured action payloads; it
   must not invent playback payloads or send free text prompts. Use successful
@@ -731,7 +731,7 @@ Requirements:
   require an official Home Assistant Spotify `media_player` entity. For Music
   Assistant playback, require a configured Music Assistant player and do not ask
   for DJConnect Spotify OAuth fields.
-- Pair app-like clients through POST /api/djconnect/pair.
+- Pair app-like clients through POST /api/djconnect/v1/pair.
 - Pair ESP32 and Raspberry Pi local-device clients through their local
   /api/device/pair flow after resolving /api/device/pairing-info and verifying
   the visible pair_code.
@@ -832,7 +832,7 @@ Requirements:
 - Keep one stable device_id per app installation across normal launches.
 - Reset Pairing clears the DJConnect bearer token, rotates the app pairing
   code, and creates a fresh device_id for a new setup.
-- Pair by polling POST /api/djconnect/pair with pair_code, pairing_code, and
+- Pair by polling POST /api/djconnect/v1/pair with pair_code, pairing_code, and
   pairing_token set to the same app-generated code.
 - Store only the returned DJConnect bearer token in Keychain and persist
   ha_local_url, device_id, and client_type.
@@ -910,13 +910,13 @@ Requirements:
   `pairing_token`, `pair_code` and `pairing_code` for compatibility with
   current HA builds. Store the returned `device_token` only in the platform
   credential store.
-- Send status to `POST /api/djconnect/status` with `device_id`, `device_name`,
+- Send status to `POST /api/djconnect/v1/status` with `device_id`, `device_name`,
   `client_type`, `firmware` and app version metadata. Treat `401`/`403` as
   stale pairing and HTTP `426` version_mismatch as update-required without
   clearing the token automatically.
-- Ask DJ text chat uses `POST /api/djconnect/ask_dj/message`; history sync uses
-  `GET /api/djconnect/ask_dj/history?since_revision=<number>`; clear uses
-  `POST /api/djconnect/ask_dj/history/clear`.
+- Ask DJ text chat uses `POST /api/djconnect/v1/ask_dj/message`; history sync uses
+  `GET /api/djconnect/v1/ask_dj/history?since_revision=<number>`; clear uses
+  `POST /api/djconnect/v1/ask_dj/history/clear`.
 - Persist only local sync cursors such as `history_revision` and
   `clear_revision`. Clear local display cache when HA clear_revision advances,
   when a clear response includes `cleared:true`, or pairing becomes stale.
@@ -930,7 +930,7 @@ Requirements:
 - Render `recently_played_history` responses as compact `items[]` lists. Do
   not invent Play Now buttons or reuse stale artwork unless HA explicitly
   returns `playback_actions[]` or current response images.
-- Playback buttons send generic commands to `POST /api/djconnect/command`,
+- Playback buttons send generic commands to `POST /api/djconnect/v1/command`,
   including play, pause, next, previous and future backend commands. Spotify
   OAuth and backend playback remain HA-owned.
 - Keep the Spotify trademark/non-affiliation notice visible in docs/About UI:
@@ -972,20 +972,20 @@ Requirements:
 - Validate the visible pair_code during POST /api/device/pair before storing
   the per-device token and ha_local_url.
 - Store only the returned DJConnect bearer token plus ha_local_url.
-- Send status to POST /api/djconnect/status with device_id, device_name,
+- Send status to POST /api/djconnect/v1/status with device_id, device_name,
   client_type, version, firmware, ha_pairing_status and display-remote
   capabilities.
-- Send playback commands to POST /api/djconnect/command. Supported first
+- Send playback commands to POST /api/djconnect/v1/command. Supported first
   version commands are status, play, pause, next, previous, set_volume,
   set_shuffle and set_repeat.
 - Implement Ask DJ as a read-only feed with structured touch actions. Use
-  GET /api/djconnect/ask_dj/history with history_revision/clear_revision to
+  GET /api/djconnect/v1/ask_dj/history with history_revision/clear_revision to
   render server-side history, clear/trim metadata, assistant/system/status/user
   bubbles, images, links/sources and HA-provided action buttons. Raspberry Pi
   must not expose local message input, voice input, idle suggestions, history
   clear or free prompt sending from the Ask DJ screen. Action taps may only send
-  the structured HA-provided action payload through POST /api/djconnect/command.
-- Do not implement PTT, microphone capture, POST /api/djconnect/voice, Ask DJ
+  the structured HA-provided action payload through POST /api/djconnect/v1/command.
+- Do not implement PTT, microphone capture, POST /api/djconnect/v1/voice, Ask DJ
   message sending or local DJ response audio playback for Raspberry Pi.
   Raspberry Pi must not expose a Pi-local `/api/device/dj_response` endpoint.
 - Do not expose ESP-only reboot, OTA, battery, Wi-Fi RSSI, screen brightness,
@@ -1048,7 +1048,7 @@ Requirements:
   in status payloads.
 - Support HA local device command `{"command":"wake_word","value":true|false}`
   to persistently enable/disable local wake-word detection. Default is off.
-- Send raw WAV voice audio to POST /api/djconnect/voice with Authorization:
+- Send raw WAV voice audio to POST /api/djconnect/v1/voice with Authorization:
   Bearer <device_token> and X-DJConnect-Device-ID.
 - Keep Up Next queue capacity aligned with the shared contract: accept and
   render up to 100 real queue items from Home Assistant, then truncate locally.
@@ -1105,11 +1105,11 @@ Regels:
 - Stuur geen `ha_remote_url` naar de ESP en gebruik geen cloud/Nabu Casa URL voor ESP runtime verkeer.
 - Als geen local URL bekend is, moet pairing pending/falen; zet cloud niet in local.
 - Bepaal local via HA network config, internal URL, source IP of fallback `http://<HA LAN IP>:8123`.
-- ESP firmware gebruikt uitsluitend `ha_local_url` voor `/api/djconnect/status`, `/api/djconnect/command` en `/api/djconnect/voice`. Cloud URL is alleen relevant voor HA/backend OAuth-configuratie, niet voor ESP verkeer.
+- ESP firmware gebruikt uitsluitend `ha_local_url` voor `/api/djconnect/v1/status`, `/api/djconnect/v1/command` en `/api/djconnect/v1/voice`. Cloud URL is alleen relevant voor HA/backend OAuth-configuratie, niet voor ESP verkeer.
 
 ### ESP Payload Identity
 
-Alle ESP -> HA JSON payloads naar `/api/djconnect/status` en `/api/djconnect/command` bevatten top-level:
+Alle ESP -> HA JSON payloads naar `/api/djconnect/v1/status` en `/api/djconnect/v1/command` bevatten top-level:
 
 ```json
 {
@@ -1122,7 +1122,7 @@ Gebruik nergens meer `device_type`.
 
 ### Status Is Authoritative
 
-`POST /api/djconnect/status` is de enige bron voor HA sensoren zoals:
+`POST /api/djconnect/v1/status` is de enige bron voor HA sensoren zoals:
 
 - pairing status
 - firmware
@@ -1198,7 +1198,7 @@ Regels:
 
 ### Queue / Up Next
 
-Voor `POST /api/djconnect/command` met `command:"queue"`:
+Voor `POST /api/djconnect/v1/command` met `command:"queue"`:
 
 ```json
 {
@@ -1228,18 +1228,18 @@ Regels:
 
 ### Voice
 
-ESP physical PTT uploadt WAV naar `/api/djconnect/voice` met bearer token en `X-DJConnect-Device-ID`.
+ESP physical PTT uploadt WAV naar `/api/djconnect/v1/voice` met bearer token en `X-DJConnect-Device-ID`.
 HA doet Assist/STT/TTS en retourneert DJ tekst plus optionele `audio_url`.
 
 Firmware in de huidige `3.2.x` lijn kan de lokale PTT/DJ-aankondiging flow annuleren met de middelste encoderknop tijdens processing of het DJ-aankondiging scherm. HA hoeft hiervoor geen extra endpoint te implementeren; als een request al loopt mag de ESP de latere response lokaal negeren.
 
 ### Wake Word
 
-Okay Nabu wake-word detectie draait lokaal op de ESP. HA hoeft geen wake-word audio te verwerken. Na detectie start de ESP dezelfde fysieke PTT flow en uploadt daarna een WAV naar `/api/djconnect/voice`.
+Okay Nabu wake-word detectie draait lokaal op de ESP. HA hoeft geen wake-word audio te verwerken. Na detectie start de ESP dezelfde fysieke PTT flow en uploadt daarna een WAV naar `/api/djconnect/v1/voice`.
 
 Regels:
 
-- HA moet dezelfde `/api/djconnect/voice` response blijven gebruiken voor PTT en wake-word activatie.
+- HA moet dezelfde `/api/djconnect/v1/voice` response blijven gebruiken voor PTT en wake-word activatie.
 - STT/TTS fouten moeten als duidelijke JSON body terugkomen met `success:false`, `error` en `message`.
 - Een optionele `audio_url` mag WAV of MP3 zijn.
 - De ESP mag een late voice response negeren als de gebruiker de lokale flow heeft geannuleerd.
@@ -1259,10 +1259,10 @@ Home Assistant local URL: http://192.168.1.x:8123
 - Playback commands gebruiken local:
 
 ```text
-url=http://192.168.1.x:8123/api/djconnect/command
+url=http://192.168.1.x:8123/api/djconnect/v1/command
 ```
 
-- De eerste ESP statuspost naar HA accepteert dezelfde `device_id`, `client_type:"esp32"` en `device_token` als de pairing callback. Een `401` op `/api/djconnect/status` terwijl HA nog ESP `/api/device/*` commands kan sturen wijst op een HA-side token/device-id mismatch in de statusroute, niet op een ESP cloud-route fallback.
+- De eerste ESP statuspost naar HA accepteert dezelfde `device_id`, `client_type:"esp32"` en `device_token` als de pairing callback. Een `401` op `/api/djconnect/v1/status` terwijl HA nog ESP `/api/device/*` commands kan sturen wijst op een HA-side token/device-id mismatch in de statusroute, niet op een ESP cloud-route fallback.
 
 - Geen HA sensor valt enkele seconden na update terug naar `unknown`.
 - `sensor.djconnect_ha_pairing_status` wordt `paired` zodra ESP `ha_pairing_status:"paired"` meldt.
@@ -1346,10 +1346,10 @@ Endpoint contract
 ESP -> HA
 Protected routes:
 
-POST /api/djconnect/status
-POST /api/djconnect/command
-POST /api/djconnect/voice
-POST /api/djconnect/event indien gebruikt
+POST /api/djconnect/v1/status
+POST /api/djconnect/v1/command
+POST /api/djconnect/v1/voice
+POST /api/djconnect/v1/event indien gebruikt
 Headers:
 
 Authorization: Bearer <device_token>
@@ -1386,9 +1386,9 @@ ESP accepteert en verwacht geen oud enkelvoudig HA-URL pairingveld meer.
 ESP accepteert als persistent device ID alleen de eigen model-specifieke ID.
 Een tijdelijke setup/pairing code mag alleen als `pair_code` bestaan; na pairing moet de firmware de echte model-specifieke device ID gebruiken.
 ESP slaat exact die token persistent op.
-Eerste call naar HA /api/djconnect/command gebruikt exact die token.
-Eerste call naar HA /api/djconnect/status gebruikt exact die token.
-Eerste call naar HA /api/djconnect/voice gebruikt exact die token.
+Eerste call naar HA /api/djconnect/v1/command gebruikt exact die token.
+Eerste call naar HA /api/djconnect/v1/status gebruikt exact die token.
+Eerste call naar HA /api/djconnect/v1/voice gebruikt exact die token.
 ESP mag pending pairing niet wissen bij tijdelijke Spotify/backend fouten.
 ESP mag pending pairing alleen stale/invalid markeren bij echte HA auth/pairing errors:
 401;
@@ -1457,7 +1457,7 @@ log_level.
 3. Generic playback command API naar HA
 ESP stuurt playback commands naar:
 
-POST /api/djconnect/command
+POST /api/djconnect/v1/command
 Payload voorbeelden:
 
 {"device_id":"djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX","client_type":"esp32","command":"status"}
@@ -1502,7 +1502,7 @@ Verwachte response shapes:
 }
 Command responses are transport/command success first, playback-state second.
 A command response with `success:true` and `playback.has_playback:false` is not
-an error state. `command:"status"` and `POST /api/djconnect/status` must always
+an error state. `command:"status"` and `POST /api/djconnect/v1/status` must always
 return a non-empty JSON body with `success`, `backend_available`, `ha_version`,
 `ha_major_minor` and `playback`. If there is no active Spotify playback,
 `backend_available` remains `true` when Spotify credentials/backend browsing are
@@ -1531,7 +1531,7 @@ auth is invalid, and still return a non-empty JSON body with `success:false`,
 
 HA debug logging should include redacted request/response metadata for
 `command:"status"`, `command:"devices"`, `command:"queue"`,
-`command:"playlists"` and `POST /api/djconnect/status`: command, client_type,
+`command:"playlists"` and `POST /api/djconnect/v1/status`: command, client_type,
 device_id, requested limit, playlist count and backend/auth unavailable reason.
 Never log bearer tokens, refresh tokens, passwords or secrets.
 
@@ -1602,7 +1602,7 @@ of:
 Physical PTT:
 
 ESP records WAV
--> POST /api/djconnect/voice raw audio/wav
+-> POST /api/djconnect/v1/voice raw audio/wav
 -> HA does STT
 -> HA may run a guarded HA Assist fuzzy-correction step on the recognized text
 -> HA does Spotify intent parsing/playback/TTS
@@ -1629,7 +1629,7 @@ Expected HA response:
   "success": true,
   "text": "Daar gaan we.",
   "dj_text": "Daar gaan we.",
-  "audio_url": "http://homeassistant.local:8123/api/djconnect/tts/token.mp3",
+  "audio_url": "http://homeassistant.local:8123/api/djconnect/v1/tts/token.mp3",
   "audio_type": "mp3"
 }
 
@@ -1726,7 +1726,7 @@ No Spotify OAuth secret keys in status/pair/provision payloads.
 OTA payload device target matcht het boardprofiel (`lilygo-t-embed-s3` voor de huidige ondersteunde firmware build).
 DJConnect asset conversie test of snapshot/checksum zodat het firmware asset niet per ongeluk terugvalt naar een oud producticoon.
 Acceptatiecriteria
-ESP pairt met HA en blijft paired na de eerste /api/djconnect/command.
+ESP pairt met HA en blijft paired na de eerste /api/djconnect/v1/command.
 ESP gebruikt uitsluitend de eigen model-specifieke device ID als echte device ID en accepteert geen legacy `djconnect-XXXXXXXXXXXX`, `djconnect-lilygo-XXXXXXXXXXXX` of `djconnect-[6-cijferige-code]`.
 ESP wist pairing niet door Spotify OAuth/backend failures.
 ESP status houdt HA native entities actueel.
@@ -1971,7 +1971,7 @@ should not be implemented unless the Apple app has a real equivalent.
 
 App clients are inbound-only in the `3.2.x` contract. They do not expose
 Home Assistant-callable `/api/device/*` endpoints. Pairing material is generated
-by Home Assistant and the app posts it back to `/api/djconnect/pair`.
+by Home Assistant and the app posts it back to `/api/djconnect/v1/pair`.
 
 The local app pairing payload sent to Home Assistant should include:
 
@@ -2017,7 +2017,7 @@ Rules:
   client_type, missing token, or unsupported command.
 
 DJ announcements, Ask DJ messages, playback actions and history clear/sync use
-the `/api/djconnect/...` endpoints or the optional Home Assistant websocket fast
+the `/api/djconnect/v1/...` endpoints or the optional Home Assistant websocket fast
 path. HTTP remains the canonical fallback.
 
 ## Status Endpoint
@@ -2025,7 +2025,7 @@ path. HTTP remains the canonical fallback.
 Post client status to:
 
 ```http
-POST /api/djconnect/status
+POST /api/djconnect/v1/status
 ```
 
 Minimum payload:
@@ -2083,13 +2083,13 @@ client. Command payloads must not be used as partial status snapshots.
 Send generic playback commands to:
 
 ```http
-POST /api/djconnect/command
+POST /api/djconnect/v1/command
 ```
 
 All command payloads must include `device_id` and `client_type`.
 Keep command payloads focused on playback commands and client identity. Do not
-send partial device-status snapshots in `/api/djconnect/command`; use
-`/api/djconnect/status` as the authoritative source for client status and
+send partial device-status snapshots in `/api/djconnect/v1/command`; use
+`/api/djconnect/v1/status` as the authoritative source for client status and
 settings mirrored into Home Assistant entities.
 
 Examples:
@@ -2177,7 +2177,7 @@ Expected success shape:
 
 Command responses are transport/command success first, playback-state second.
 A command response with `success:true` and `playback.has_playback:false` is not
-an error state. `command:"status"` and `POST /api/djconnect/status` must always
+an error state. `command:"status"` and `POST /api/djconnect/v1/status` must always
 return a non-empty JSON body with `success`, `backend_available`, `ha_version`,
 `ha_major_minor` and `playback`. If there is no active Spotify playback,
 `backend_available` remains `true` when Spotify credentials/backend browsing are
@@ -2206,7 +2206,7 @@ auth is invalid, and still return a non-empty JSON body with `success:false`,
 
 HA debug logging should include redacted request/response metadata for
 `command:"status"`, `command:"devices"`, `command:"queue"`,
-`command:"playlists"` and `POST /api/djconnect/status`: command, client_type,
+`command:"playlists"` and `POST /api/djconnect/v1/status`: command, client_type,
 device_id, requested limit, playlist count and backend/auth unavailable reason.
 Never log bearer tokens, refresh tokens, passwords or secrets.
 
@@ -2257,7 +2257,7 @@ If implementing push-to-talk:
 2. App uploads raw WAV to HA:
 
 ```http
-POST /api/djconnect/voice
+POST /api/djconnect/v1/voice
 Content-Type: audio/wav
 Authorization: Bearer <device_token>
 X-DJConnect-Device-ID: <device_id>
@@ -2274,7 +2274,7 @@ Expected response:
   "success": true,
   "text": "Daar gaan we.",
   "dj_text": "Daar gaan we.",
-  "audio_url": "http://homeassistant.local:8123/api/djconnect/tts/token.mp3",
+  "audio_url": "http://homeassistant.local:8123/api/djconnect/v1/tts/token.mp3",
   "audio_type": "mp3"
 }
 ```
@@ -2290,7 +2290,7 @@ Rules:
   late HA response from the in-flight request.
 - If implementing wake-word support on Apple platforms, keep detection local to
   the app/device where Apple platform policy permits it, then start the same
-  `/api/djconnect/voice` WAV upload flow. HA should not need a separate
+  `/api/djconnect/v1/voice` WAV upload flow. HA should not need a separate
   wake-word endpoint.
 
 ## OTA And Device Updates
@@ -2421,7 +2421,7 @@ Do not put SwiftUI view logic into the HTTP client.
 - Backend unavailable does not reset pairing.
 - HTTP 426 version mismatch shows update-required UI and keeps pairing.
 - 401/403/404 show stale pairing/setup recovery and keep token until user reset.
-- Voice/PTT, if implemented, uploads raw WAV to `/api/djconnect/voice`.
+- Voice/PTT, if implemented, uploads raw WAV to `/api/djconnect/v1/voice`.
 - Apple clients do not consume ESP OTA firmware manifest assets.
 - No secrets appear in logs or diagnostics.
 - iOS and macOS clients can coexist with ESP32 clients in the same HA backend.
@@ -2467,7 +2467,7 @@ Requirements:
   macOS, watchOS, Raspberry Pi and Windows clients must not store Music DNA.
   Music DNA is explicit opt-in; while disabled, HA must not build Music DNA
   knowledge from Ask DJ, listening profiles, recent tracks or preferences.
-  Clients use `POST /api/djconnect/music_dna/profile`, `/settings` and
+  Clients use `POST /api/djconnect/v1/music_dna/profile`, `/settings` and
   `/clear` to show structured DNA, enable/disable learning and clear learned DNA
   at any time. Clients may send optional `mood` (0-100), `dj_style` and
   `music_dna_key` hints on status/voice/command payloads, but HA may normalize
@@ -2483,7 +2483,7 @@ Requirements:
   client-side. Raspberry Pi renders Ask DJ as `readonly_actions`: no free
   prompt controls, but HA-provided structured action buttons may be shown and
   sent through the normal command contract.
-- Pair app-like clients through POST /api/djconnect/pair.
+- Pair app-like clients through POST /api/djconnect/v1/pair.
 - Pair ESP32 and Raspberry Pi local-device clients through their local
   /api/device/pair flow after resolving /api/device/pairing-info and verifying
   the visible pair_code.
@@ -2576,7 +2576,7 @@ Requirements:
 - Keep one stable device_id per app installation across normal launches.
 - Reset Pairing clears the DJConnect bearer token, rotates the app pairing
   code, and creates a fresh device_id for a new setup.
-- Pair by polling POST /api/djconnect/pair with pair_code, pairing_code, and
+- Pair by polling POST /api/djconnect/v1/pair with pair_code, pairing_code, and
   pairing_token set to the same app-generated code.
 - Store only the returned DJConnect bearer token in Keychain and persist
   ha_local_url, device_id, and client_type.
@@ -2651,13 +2651,13 @@ Requirements:
   `pairing_token`, `pair_code` and `pairing_code` for compatibility with
   current HA builds. Store the returned `device_token` only in the platform
   credential store.
-- Send status to `POST /api/djconnect/status` with `device_id`, `device_name`,
+- Send status to `POST /api/djconnect/v1/status` with `device_id`, `device_name`,
   `client_type`, `firmware` and app version metadata. Treat `401`/`403` as
   stale pairing and HTTP `426` version_mismatch as update-required without
   clearing the token automatically.
-- Ask DJ text chat uses `POST /api/djconnect/ask_dj/message`; history sync uses
-  `GET /api/djconnect/ask_dj/history?since_revision=<number>`; clear uses
-  `POST /api/djconnect/ask_dj/history/clear`.
+- Ask DJ text chat uses `POST /api/djconnect/v1/ask_dj/message`; history sync uses
+  `GET /api/djconnect/v1/ask_dj/history?since_revision=<number>`; clear uses
+  `POST /api/djconnect/v1/ask_dj/history/clear`.
 - Persist only local sync cursors such as `history_revision` and
   `clear_revision`. Clear local display cache when HA clear_revision advances
   or pairing becomes stale. Honor `history_trimmed_before` and
@@ -2670,7 +2670,7 @@ Requirements:
 - Render `recently_played_history` responses as compact `items[]` lists. Do
   not invent Play Now buttons or reuse stale artwork unless HA explicitly
   returns `playback_actions[]` or current response images.
-- Playback buttons send generic commands to `POST /api/djconnect/command`,
+- Playback buttons send generic commands to `POST /api/djconnect/v1/command`,
   including play, pause, next, previous and future backend commands. Spotify
   OAuth and backend playback remain HA-owned.
 - Keep the Spotify trademark/non-affiliation notice visible in docs/About UI:
@@ -2712,20 +2712,20 @@ Requirements:
 - Validate the visible pair_code during POST /api/device/pair before storing
   the per-device token and ha_local_url.
 - Store only the returned DJConnect bearer token plus ha_local_url.
-- Send status to POST /api/djconnect/status with device_id, device_name,
+- Send status to POST /api/djconnect/v1/status with device_id, device_name,
   client_type, version, firmware, ha_pairing_status and display-remote
   capabilities.
-- Send playback commands to POST /api/djconnect/command. Supported first
+- Send playback commands to POST /api/djconnect/v1/command. Supported first
   version commands are status, play, pause, next, previous, set_volume,
   set_shuffle and set_repeat.
 - Implement Ask DJ as a read-only feed with structured touch actions. Use
-  GET /api/djconnect/ask_dj/history with history_revision/clear_revision to
+  GET /api/djconnect/v1/ask_dj/history with history_revision/clear_revision to
   render server-side history, clear/trim metadata, assistant/system/status/user
   bubbles, images, links/sources and HA-provided action buttons. Raspberry Pi
   must not expose local message input, voice input, idle suggestions, history
   clear or free prompt sending from the Ask DJ screen. Action taps may only send
-  the structured HA-provided action payload through POST /api/djconnect/command.
-- Do not implement PTT, microphone capture, POST /api/djconnect/voice, Ask DJ
+  the structured HA-provided action payload through POST /api/djconnect/v1/command.
+- Do not implement PTT, microphone capture, POST /api/djconnect/v1/voice, Ask DJ
   message sending or local DJ response audio playback for Raspberry Pi.
   Raspberry Pi must not expose a Pi-local `/api/device/dj_response` endpoint.
 - Do not expose ESP-only reboot, OTA, battery, Wi-Fi RSSI, screen brightness,
@@ -2773,7 +2773,7 @@ Requirements:
   Never use Nabu Casa/cloud URLs for device runtime traffic.
 - Send device_id, client_type esp32, firmware, ha_pairing_status, local_url,
   language, log_level, and current device settings in status payloads.
-- Send raw WAV voice audio to POST /api/djconnect/voice with Authorization:
+- Send raw WAV voice audio to POST /api/djconnect/v1/voice with Authorization:
   Bearer <device_token> and X-DJConnect-Device-ID.
 - Treat backend_unavailable and version_mismatch as recoverable without
   clearing pairing.

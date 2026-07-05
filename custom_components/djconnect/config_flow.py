@@ -85,6 +85,7 @@ from .const import (
     SETUP_METHOD_PAIR_APP,
     SETUP_METHOD_PAIR_LOCAL_DEVICE,
     API_PAIR,
+    API_SPOTIFY_CALLBACK,
 )
 from .central_api import TOKEN_PREFIX, async_rotate_install_token
 from .ble import async_discover_devices, async_provision_wifi
@@ -1977,7 +1978,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             ),
             errors=errors,
             description_placeholders={
-                "callback_path": "/api/djconnect/spotify/callback",
+                "callback_path": API_SPOTIFY_CALLBACK,
                 "developer_url": "https://developer.spotify.com/dashboard",
                 "redirect_uri": build_redirect_uri(shown_external_url) if shown_external_url else "",
             },
