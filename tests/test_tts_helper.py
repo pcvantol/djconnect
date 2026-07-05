@@ -43,6 +43,10 @@ def install_integration_stubs() -> None:
         "homeassistant.helpers.aiohttp_client",
         types.ModuleType("homeassistant.helpers.aiohttp_client"),
     )
+    config_validation = sys.modules.setdefault(
+        "homeassistant.helpers.config_validation",
+        types.ModuleType("homeassistant.helpers.config_validation"),
+    )
     issue_registry = sys.modules.setdefault(
         "homeassistant.helpers.issue_registry",
         types.ModuleType("homeassistant.helpers.issue_registry"),
@@ -85,9 +89,11 @@ def install_integration_stubs() -> None:
     http.HomeAssistantView = HomeAssistantView
     repairs.RepairsFlow = RepairsFlow
     aiohttp_client.async_get_clientsession = lambda hass: None
+    config_validation.config_entry_only_config_schema = lambda domain: voluptuous.Schema({})
     issue_registry.IssueSeverity = types.SimpleNamespace(WARNING="warning")
     issue_registry.async_create_issue = lambda *args, **kwargs: None
     helpers.issue_registry = issue_registry
+    helpers.config_validation = config_validation
     typing.ConfigType = dict
     aiohttp.web = types.SimpleNamespace(Response=Response)
     sys.modules["homeassistant"].components = components

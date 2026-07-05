@@ -13,6 +13,7 @@ import voluptuous as vol
 from aiohttp import ClientTimeout
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.typing import ConfigType
 
@@ -126,12 +127,7 @@ from .websocket_api import async_register as async_register_websocket_api
 
 _LOGGER = logging.getLogger(__name__)
 
-try:
-    from homeassistant.helpers import config_validation as cv
-
-    CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
-except ImportError:
-    CONFIG_SCHEMA = vol.Schema({})
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 DEFAULT_TEST_COMMAND = "Welk nummer draait er nu?"
 DEFAULT_TEST_TTS_TEXT = (
