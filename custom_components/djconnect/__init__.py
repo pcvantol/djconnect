@@ -126,6 +126,13 @@ from .websocket_api import async_register as async_register_websocket_api
 
 _LOGGER = logging.getLogger(__name__)
 
+try:
+    from homeassistant.helpers import config_validation as cv
+
+    CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+except ImportError:
+    CONFIG_SCHEMA = vol.Schema({})
+
 DEFAULT_TEST_COMMAND = "Welk nummer draait er nu?"
 DEFAULT_TEST_TTS_TEXT = (
     "Daar gaan we. DJConnect is gekoppeld, de stem werkt, "
