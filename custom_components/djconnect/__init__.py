@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from datetime import date
 import json
 import logging
 import re
@@ -16,6 +17,11 @@ from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.typing import ConfigType
+
+try:
+    from homeassistant.helpers.event import async_track_time_change
+except ImportError:  # pragma: no cover - test stubs without HA event helpers
+    async_track_time_change = None
 
 from .const import (
     API_COMMAND,
@@ -108,6 +114,8 @@ from .ask_dj_history import AskDJHistoryManager
 from .music_dna import MusicDNAManager
 from .push import (
     EVENT_ASK_DJ_CONFIRM,
+    EVENT_MUSIC_DISCOVERY_READY,
+    SUPPORTED_CLIENT_TYPES as APNS_SUPPORTED_CLIENT_TYPES,
     async_register as async_register_push,
     async_send_event as async_send_push_event,
     async_unregister as async_unregister_push,
@@ -160,6 +168,7 @@ REAL_DJCONNECT_DEVICE_ID_PATTERN = re.compile(
 )
 CONF_LAST_DEVICE_STATUS = "last_device_status"
 APP_PAIRING_PENDING_KEY = "config_flow_app_pairing_pending"
+MUSIC_DISCOVERY_DAILY_PUSH_HOUR = 8
 
 
 def _is_empty_status_value(value: Any) -> bool:
@@ -2519,6 +2528,86 @@ def _register_developer_services(
         )
 
 
+def _schedule_daily_music_discovery_push(hass: HomeAssistant, entry: ConfigEntry, runtime: Any) -> None:
+    """Schedule the daily Music Discovery APNs wake/sync hint."""
+    if async_track_time_change is None:
+        _LOGGER.debug("DJConnect daily Music Discovery push scheduler unavailable")
+        return
+
+    async def _send_daily_push(now) -> None:
+        await _async_send_daily_music_discovery_push(hass, runtime, now=now)
+
+    unsub = async_track_time_change(
+        hass,
+        _send_daily_push,
+        hour=MUSIC_DISCOVERY_DAILY_PUSH_HOUR,
+        minute=0,
+        second=0,
+    )
+    entry.async_on_unload(unsub)
+
+
+async def _async_send_daily_music_discovery_push(
+    hass: HomeAssistant,
+    runtime: Any,
+    *,
+    now: Any | None = None,
+) -> dict[str, Any]:
+    """Send one daily Music Discovery push when Music DNA is enabled."""
+    client_type = _runtime_push_client_type(runtime)
+    if client_type not in APNS_SUPPORTED_CLIENT_TYPES:
+        return {"success": True, "sent": 0, "suppressed": "unsupported_client_type"}
+    device_id = _runtime_push_device_id(runtime)
+    if not await _music_dna_enabled_for_daily_push(runtime, device_id, client_type):
+        return {"success": True, "sent": 0, "suppressed": "music_dna_disabled"}
+    today = (now.date() if hasattr(now, "date") else date.today()).isoformat()
+    if getattr(runtime, "music_discovery_daily_push_date", None) == today:
+        return {"success": True, "sent": 0, "suppressed": "already_sent_today"}
+    result = await async_send_push_event(
+        hass,
+        runtime,
+        user_id=None,
+        event_type=EVENT_MUSIC_DISCOVERY_READY,
+        source_device_id=device_id,
+        client_type=client_type,
+    )
+    if result.get("sent"):
+        setattr(runtime, "music_discovery_daily_push_date", today)
+    _LOGGER.debug(
+        "DJConnect daily Music Discovery push result sent=%s suppressed=%s error=%s client_type=%s",
+        result.get("sent"),
+        result.get("suppressed"),
+        result.get("error") or result.get("last_push_error"),
+        client_type,
+    )
+    return result
+
+
+async def _music_dna_enabled_for_daily_push(
+    runtime: Any,
+    device_id: str | None,
+    client_type: str,
+) -> bool:
+    memory = getattr(runtime, "memory", None)
+    if memory is None:
+        return False
+    payload = {
+        key: value
+        for key, value in (
+            (CONF_DEVICE_ID, device_id),
+            (CONF_CLIENT_TYPE, client_type),
+        )
+        if value
+    }
+    try:
+        context = await memory.async_context_for_runtime(runtime, payload, user_id=None)
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect daily Music Discovery push Music DNA lookup failed: %s", exc.__class__.__name__)
+        return False
+    memory_payload = context.get("memory") if isinstance(context, dict) else {}
+    return bool(isinstance(memory_payload, dict) and memory_payload.get("enabled"))
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     option_updates = dict(entry.options)
@@ -2552,6 +2641,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await async_create_fixable_issues(hass, entry)
     await _try_initial_device_provisioning(hass, runtime)
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
+    _schedule_daily_music_discovery_push(hass, entry, runtime)
     _register_developer_services(hass, entry, runtime)
 
     await hass.config_entries.async_forward_entry_setups(entry, _platforms_for_runtime(runtime))

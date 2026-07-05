@@ -1,14 +1,14 @@
 {
-  "version": "3.2.25",
-  "version_tag": "v3.2.25",
+  "version": "3.2.26",
+  "version_tag": "v3.2.26",
   "channel": "stable",
-  "min_ha_integration": "3.2.25",
+  "min_ha_integration": "3.2.26",
   "firmwares": [
     {
       "board": "t_embed_cc1101",
       "device": "lilygo-t-embed-s3",
-      "asset": "djconnect-lilygo-t-embed-s3-v3.2.25.bin",
-      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.2.25/djconnect-lilygo-t-embed-s3-v3.2.25.bin",
+      "asset": "djconnect-lilygo-t-embed-s3-v3.2.26.bin",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.2.26/djconnect-lilygo-t-embed-s3-v3.2.26.bin",
       "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "size": 2113136
     }

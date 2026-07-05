@@ -2,6 +2,11 @@
 
 ## 3.2.25
 
+- Add a VibeCast `context.genre_badge` hint so Apple clients can render the
+  current track genre as a compact top-right badge.
+- Add a daily 08:00 HA-scheduled `music_discovery_ready` APNs wake/sync hint
+  for Apple clients when Music DNA is enabled, deep-linking to Ontdek and
+  instructing clients to refresh the Music Discovery backend feed.
 - Add proxied VibeCast artist shout-out artwork on the response context and
   `artist_fact` items when the selected backend can resolve artist images.
 - Document and test the VibeCast artist image contract across API docs, Apple

@@ -157,6 +157,14 @@ POST /api/djconnect/v1/music_discovery/play
 Use the paired DJConnect device token plus canonical `device_id`,
 `client_type`, optional `client_id` and optional `music_dna_key`.
 
+APNs event `music_discovery_ready` means Home Assistant has sent the daily
+Ontdek reminder. It contains `open_target:"music_discovery"`,
+`refresh_target:"music_discovery"`, `deeplink:"djconnect://music-discovery"` and
+body text `Je nieuwe aanbevelingen staan klaar!`. On receipt/open, navigate to
+Ontdek and refresh the backend feed through
+`POST /api/djconnect/v1/music_discovery/refresh` or the websocket refresh
+command. Do not render recommendations from the push payload.
+
 Render `sections[].items[]` exactly from the backend. Do not generate
 recommendations, reasons or based-on lists locally. Each item has backend
 `id`, `kind`, `title`, `subtitle`, playable `uri`, optional `image_url`,

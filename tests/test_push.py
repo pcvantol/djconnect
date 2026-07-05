@@ -537,6 +537,22 @@ class PushTest(unittest.TestCase):
         self.assertNotIn("history_revision", payload)
         self.assertNotIn("client_message_id", payload)
 
+    def test_music_discovery_ready_payload_targets_discovery_refresh(self) -> None:
+        runtime = self._runtime()
+
+        payload = self.push.build_relay_event_payload(
+            runtime,
+            user_id=None,
+            event_type="music_discovery_ready",
+        )
+
+        self.assertEqual(payload["event_type"], "music_discovery_ready")
+        self.assertEqual(payload["open_target"], "music_discovery")
+        self.assertEqual(payload["refresh_target"], "music_discovery")
+        self.assertEqual(payload["deeplink"], "djconnect://music-discovery")
+        self.assertEqual(payload["body"], "Je nieuwe aanbevelingen staan klaar!")
+        self.assertNotIn("ha_user_hash", payload)
+
     def test_status_uses_runtime_flag_not_token_store(self) -> None:
         runtime = self._runtime()
         self.push._remember_status(
@@ -562,7 +578,7 @@ class PushTest(unittest.TestCase):
         self.assertTrue(status["push_registered"])
         self.assertEqual(status["push_environment"], "sandbox")
 
-    def test_non_ask_dj_events_are_default_disabled(self) -> None:
+    def test_non_pushable_events_are_default_disabled(self) -> None:
         hass = types.SimpleNamespace(session=FakeSession())
         runtime = self._runtime()
 
@@ -581,6 +597,31 @@ class PushTest(unittest.TestCase):
             self.assertEqual(result["sent"], 0)
             self.assertEqual(result["suppressed"], "event_not_pushable")
         self.assertEqual(hass.session.calls, [])
+
+    def test_music_discovery_ready_posts_generic_refresh_payload(self) -> None:
+        hass = types.SimpleNamespace(session=FakeSession())
+        runtime = self._runtime()
+
+        result = asyncio.run(
+            self.push.async_send_event(
+                hass,
+                runtime,
+                user_id=None,
+                event_type="music_discovery_ready",
+                source_device_id="djconnect-ios-ABCDEFGHIJKL",
+                client_type="ios",
+            )
+        )
+
+        self.assertEqual(result["sent"], 1)
+        payload = hass.session.calls[0]["json"]
+        self.assertEqual(payload["event_type"], "music_discovery_ready")
+        self.assertEqual(payload["open_target"], "music_discovery")
+        self.assertEqual(payload["refresh_target"], "music_discovery")
+        self.assertEqual(payload["body"], "Je nieuwe aanbevelingen staan klaar!")
+        self.assertNotIn("aps", payload)
+        self.assertNotIn("source_device_id", payload)
+        self.assertNotIn("client_type", payload)
 
     def test_ask_dj_response_requires_explicit_user_request(self) -> None:
         hass = types.SimpleNamespace(session=FakeSession())

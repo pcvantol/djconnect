@@ -33,8 +33,9 @@ ENVIRONMENT_ALIASES = {
 }
 EVENT_ASK_DJ_RESPONSE = "ask_dj_response"
 EVENT_ASK_DJ_CONFIRM = "ask_dj_confirm"
+EVENT_MUSIC_DISCOVERY_READY = "music_discovery_ready"
 EVENT_PLAYBACK_CHANGE = "playback_change"
-PUSHABLE_EVENTS = {EVENT_ASK_DJ_RESPONSE, EVENT_ASK_DJ_CONFIRM}
+PUSHABLE_EVENTS = {EVENT_ASK_DJ_RESPONSE, EVENT_ASK_DJ_CONFIRM, EVENT_MUSIC_DISCOVERY_READY}
 RATE_LIMIT_WINDOW_SECONDS = 30
 RATE_LIMIT_BURST_SECONDS = 10 * 60
 RATE_LIMIT_BURST_MAX = 5
@@ -233,9 +234,18 @@ def build_relay_event_payload(
         "ha_install_id": ensure_ha_install_id(runtime),
         "ha_user_hash": _hash_value(user_id) if user_id else None,
         "event_type": event,
-        "open_target": "ask_dj",
+        "open_target": _open_target_for_event(event),
         "client_types": sorted(SUPPORTED_CLIENT_TYPES),
     }
+    if event == EVENT_MUSIC_DISCOVERY_READY:
+        payload.update(
+            {
+                "title": "DJConnect",
+                "body": "Je nieuwe aanbevelingen staan klaar!",
+                "deeplink": "djconnect://music-discovery",
+                "refresh_target": "music_discovery",
+            }
+        )
     if payload["ha_user_hash"] is None:
         payload.pop("ha_user_hash")
     if client_message_id:
@@ -246,6 +256,12 @@ def build_relay_event_payload(
         except (TypeError, ValueError):
             pass
     return payload
+
+
+def _open_target_for_event(event: str) -> str:
+    if event == EVENT_MUSIC_DISCOVERY_READY:
+        return "music_discovery"
+    return "ask_dj"
 
 
 def should_send_push(
@@ -259,7 +275,7 @@ def should_send_push(
     now: float | None = None,
     consume_rate_limit: bool = True,
 ) -> dict[str, Any]:
-    """Apply the strict DJConnect Ask DJ push policy before relay delivery."""
+    """Apply the strict DJConnect push policy before relay delivery."""
     event = _clean_text(event_type, 64)
     if event not in PUSHABLE_EVENTS:
         return {"send": False, "disabled": True, "reason": "event_not_pushable"}

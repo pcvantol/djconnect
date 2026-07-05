@@ -252,10 +252,11 @@ def _context_payload(hass: Any, runtime: Any, playback: dict[str, Any]) -> dict[
     artist = _first_text(playback, "artist", "artist_name", "media_artist")
     album = _first_text(playback, "album", "album_name", "media_album_name")
     genres = _texts(playback.get("genres"))
+    genre_badge = _genre_badge(genres)
     track_id = _first_text(playback, "track_id", "id", "uri", "media_content_id")
     if not track_id:
         track_id = _stable_id(title, artist, album, backend.get("music_backend"))
-    return {
+    context = {
         "track_id": track_id,
         "title": title,
         "artist": artist,
@@ -268,6 +269,9 @@ def _context_payload(hass: Any, runtime: Any, playback: dict[str, Any]) -> dict[
         or MUSIC_BACKEND_NAMES.get(DEFAULT_MUSIC_BACKEND, "Spotify Direct"),
         "music_backend_revision": backend.get("music_backend_revision", 0),
     }
+    if genre_badge:
+        context["genre_badge"] = genre_badge
+    return context
 
 
 async def _enrich_context_with_artist_image(
@@ -774,6 +778,18 @@ def _texts(values: Any) -> list[str]:
         if text:
             result.append(text)
     return result
+
+
+def _genre_badge(genres: list[str]) -> dict[str, str]:
+    genre = next((str(value or "").strip() for value in genres if str(value or "").strip()), "")
+    if not genre:
+        return {}
+    label = re.sub(r"\s+", " ", genre.replace("-", " ")).strip()
+    return {
+        "label": label[:32],
+        "genre": genre,
+        "placement": "top_trailing",
+    }
 
 
 def _debug_disabled(

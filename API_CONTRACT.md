@@ -333,6 +333,12 @@ Successful responses include `enabled:true`, `revision`, `ttl_seconds`,
 current transport; future websocket or push delivery can reuse the same response
 shape without changing client rendering.
 
+When genre metadata is known, `context.genre_badge` contains the first
+backend-provided genre as a compact badge hint. Clients should render
+`genre_badge.label` as a small badge in the top-right/top-trailing corner of the
+VibeCast surface and may keep `genre_badge.genre` as the canonical genre value.
+If `genre_badge` is omitted, clients should simply hide the badge.
+
 When the selected backend can provide artist artwork, VibeCast includes a
 proxied `context.artist_image_url` and mirrors it on the `artist_fact` item as
 `image_url`/`thumbnail_url` with `image_alt` and `image_source`. The URL always
@@ -393,6 +399,12 @@ Example success:
     "title": "Song Title",
     "artist": "Artist Name",
     "album": "Album Name",
+    "genres": ["melodic techno"],
+    "genre_badge": {
+      "label": "melodic techno",
+      "genre": "melodic techno",
+      "placement": "top_trailing"
+    },
     "artist_image_url": "/api/djconnect/v1/image_proxy/...",
     "music_backend": "music_assistant",
     "music_backend_name": "Music Assistant",
@@ -761,6 +773,15 @@ WebSocket equivalents, when advertised by `djconnect/capabilities.commands[]`:
 - `djconnect/music_discovery/feed`
 - `djconnect/music_discovery/refresh`
 - `djconnect/music_discovery/play`
+
+When Apple push is registered and Music DNA is enabled, Home Assistant may send
+one daily `music_discovery_ready` wake/sync hint around 08:00 local HA time. The
+push deep-links to the Ontdek/Music Discovery surface and tells clients to
+refresh the Music Discovery backend feed; the APNs payload never contains
+recommendation contents. Clients should open the Ontdek page and call
+`POST /api/djconnect/v1/music_discovery/refresh` or the equivalent websocket
+refresh command, falling back to the regular feed endpoint if refresh is
+rate-limited or unavailable.
 
 When Home Assistant debug logging is enabled for `custom_components.djconnect`,
 the HTTP handlers emit redacted diagnostics prefixed with
@@ -1382,6 +1403,8 @@ full history or long/raw assistant responses. Default pushable events are only:
   history has advanced.
 - `ask_dj_confirm`: when the Ask DJ response contains `confirmation_actions` and
   waits for a user choice.
+- `music_discovery_ready`: once daily around 08:00 local HA time, only when
+  Music DNA is enabled, as a generic Ontdek/Music Discovery refresh hint.
 
 DJConnect does not push for `track_change`, `playback_change`, `queue_change`,
 `volume_change`, `mood_change`, `idle_suggestion`, ambient/system messages,
@@ -1409,6 +1432,21 @@ Central API event payload shape for `ask_dj_response`:
   "open_target": "ask_dj",
   "history_revision": 123,
   "client_message_id": "client-1",
+  "client_types": ["ios", "macos", "watchos"]
+}
+```
+
+Central API event payload shape for `music_discovery_ready`:
+
+```json
+{
+  "ha_install_id": "ha_...",
+  "event_type": "music_discovery_ready",
+  "open_target": "music_discovery",
+  "refresh_target": "music_discovery",
+  "deeplink": "djconnect://music-discovery",
+  "title": "DJConnect",
+  "body": "Je nieuwe aanbevelingen staan klaar!",
   "client_types": ["ios", "macos", "watchos"]
 }
 ```

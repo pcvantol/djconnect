@@ -84,6 +84,34 @@ class VibeCastTests(unittest.TestCase):
         self.assertTrue(result["context"]["artist_image_url"].startswith("/api/djconnect/v1/image_proxy/"))
         self.assertGreaterEqual(len(result["items"]), 1)
 
+    def test_context_includes_top_trailing_genre_badge(self) -> None:
+        self._patch_status(
+            _status_payload()
+            | {
+                "playback": {
+                    **_status_payload()["playback"],
+                    "genres": ["melodic-techno", "progressive house"],
+                }
+            }
+        )
+        result, status = asyncio.run(
+            vibecast.async_handle_vibecast_payload(
+                self.hass,
+                {"client_type": "ios", "device_id": "djconnect-ios-ABCDEF123456"},
+                headers=self.headers,
+            )
+        )
+
+        self.assertEqual(status, 200)
+        self.assertEqual(
+            result["context"]["genre_badge"],
+            {
+                "label": "melodic techno",
+                "genre": "melodic-techno",
+                "placement": "top_trailing",
+            },
+        )
+
     def test_artist_fact_carries_proxied_artist_shoutout_image(self) -> None:
         self._patch_status()
         result, status = asyncio.run(
@@ -506,6 +534,7 @@ def _status_payload(provider: str = "spotify_direct") -> dict:
             "title": "Vibe Song",
             "artist": "The Contexts",
             "album": "Contract Album",
+            "genres": ["indie pop"],
         },
     }
 

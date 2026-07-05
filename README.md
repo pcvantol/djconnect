@@ -134,6 +134,11 @@ builds must send `push_environment: "production"`. If registration reports
 `invalid_bootstrap_proof` or `missing_bootstrap_proof`, pair the app with Home
 Assistant again so the client receives a fresh bootstrap proof, then restart the
 app to retry push registration.
+When Music DNA is enabled, Home Assistant sends at most one daily
+`music_discovery_ready` APNs wake/sync hint around 08:00 local time with
+`body:"Je nieuwe aanbevelingen staan klaar!"`, `open_target:"music_discovery"`
+and a deeplink to Ontdek. Clients should open Ontdek and refresh the Music
+Discovery backend feed; the push never contains recommendation contents.
 
 ## VibeCast
 
@@ -150,6 +155,9 @@ differences belong in client presentation or reported render capabilities only.
 Clients that include `emoji_safe` in `X-DJConnect-Render-Capabilities` may
 receive inline `emoji` rich-text segments such as music notes or vibe symbols;
 clients should render them inline and ignore unknown segment types safely.
+When genre metadata is available, `context.genre_badge.label` gives clients a
+compact top-right badge for the VibeCast surface; if the field is absent, hide
+the badge.
 When the selected backend has artist artwork, VibeCast also returns a proxied
 artist shout-out image on `context.artist_image_url` and the `artist_fact`
 bubble's `image_url`/`thumbnail_url`, so clients can show the visual without

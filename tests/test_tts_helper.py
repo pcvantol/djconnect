@@ -186,6 +186,80 @@ class TtsHelperTest(unittest.TestCase):
         self.assertNotIn("djci_secret", rendered)
         self.assertNotIn("proof-secret", rendered)
 
+    def test_daily_music_discovery_push_requires_enabled_music_dna(self) -> None:
+        class Memory:
+            async def async_context_for_runtime(self, runtime, payload, *, user_id=None):
+                return {"memory": {"enabled": False}, "music_dna_key": "client:test"}
+
+        entry = types.SimpleNamespace(
+            data={},
+            options={
+                self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_IOS,
+                self.const.CONF_DEVICE_ID: "djconnect-ios-ABCDEFGHIJKL",
+            },
+            entry_id="entry-ios",
+        )
+        runtime = self.integration.DJConnectRuntime(entry=entry)
+        runtime.memory = Memory()
+
+        result = asyncio.run(
+            self.integration._async_send_daily_music_discovery_push(
+                object(),
+                runtime,
+            )
+        )
+
+        self.assertEqual(result["sent"], 0)
+        self.assertEqual(result["suppressed"], "music_dna_disabled")
+
+    def test_daily_music_discovery_push_sends_discovery_refresh_event_once_per_day(self) -> None:
+        class Memory:
+            async def async_context_for_runtime(self, runtime, payload, *, user_id=None):
+                return {"memory": {"enabled": True}, "music_dna_key": "client:test"}
+
+        calls = []
+
+        async def send_push(*args, **kwargs):
+            calls.append(kwargs)
+            return {"success": True, "sent": 1}
+
+        entry = types.SimpleNamespace(
+            data={},
+            options={
+                self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_IOS,
+                self.const.CONF_DEVICE_ID: "djconnect-ios-ABCDEFGHIJKL",
+            },
+            entry_id="entry-ios",
+        )
+        runtime = self.integration.DJConnectRuntime(entry=entry)
+        runtime.memory = Memory()
+        original = self.integration.async_send_push_event
+        self.integration.async_send_push_event = send_push
+        try:
+            first = asyncio.run(
+                self.integration._async_send_daily_music_discovery_push(
+                    object(),
+                    runtime,
+                    now=types.SimpleNamespace(date=lambda: __import__("datetime").date(2026, 7, 5)),
+                )
+            )
+            second = asyncio.run(
+                self.integration._async_send_daily_music_discovery_push(
+                    object(),
+                    runtime,
+                    now=types.SimpleNamespace(date=lambda: __import__("datetime").date(2026, 7, 5)),
+                )
+            )
+        finally:
+            self.integration.async_send_push_event = original
+
+        self.assertEqual(first["sent"], 1)
+        self.assertEqual(second["sent"], 0)
+        self.assertEqual(second["suppressed"], "already_sent_today")
+        self.assertEqual(calls[0]["event_type"], "music_discovery_ready")
+        self.assertEqual(calls[0]["source_device_id"], "djconnect-ios-ABCDEFGHIJKL")
+        self.assertEqual(calls[0]["client_type"], "ios")
+
     def test_device_command_posts_to_local_command_api(self) -> None:
         class Response:
             status = 200
