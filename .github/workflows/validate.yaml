@@ -3,6 +3,7 @@ name: Validate Home Assistant custom integration
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -12,3 +13,49 @@ jobs:
     uses: ./.github/workflows/djconnect-ha-integration-ci.yml
     with:
       test-command: python -m unittest discover -s tests
+
+  cleanup-workflow-runs:
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
+    needs:
+      - validate
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      KEEP_COMPLETED_RUNS: "25"
+    steps:
+      - name: Delete old completed workflow runs
+        run: |
+          set -euo pipefail
+
+          repo="${GITHUB_REPOSITORY}"
+          current_run_id="${GITHUB_RUN_ID}"
+
+          gh api "/repos/${repo}/actions/workflows" --paginate --jq '.workflows[] | [.id, .name] | @tsv' |
+          while IFS=$'\t' read -r workflow_id workflow_name; do
+            [ -n "${workflow_id}" ] || continue
+
+            deleted_count=0
+            run_ids="$(
+              gh api "/repos/${repo}/actions/workflows/${workflow_id}/runs?status=completed&per_page=100" \
+                --paginate \
+                --jq '.workflow_runs[] | .id' |
+              tail -n +"$((KEEP_COMPLETED_RUNS + 1))"
+            )"
+
+            while IFS= read -r run_id; do
+              [ -n "${run_id}" ] || continue
+              if [ "${run_id}" = "${current_run_id}" ]; then
+                continue
+              fi
+
+              gh api \
+                --method DELETE \
+                "/repos/${repo}/actions/runs/${run_id}"
+              deleted_count=$((deleted_count + 1))
+            done < <(printf '%s\n' "${run_ids}")
+
+            echo "Workflow '${workflow_name}' (${workflow_id}): deleted ${deleted_count} completed runs older than the newest ${KEEP_COMPLETED_RUNS}."
+          done
