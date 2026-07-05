@@ -249,6 +249,14 @@ class AIToolsTest(unittest.TestCase):
 
         async def run_music_command(hass, runtime, command, value=None, *, play=None):
             calls.append((command, value, play))
+            if command == "search_media":
+                return {
+                    "success": True,
+                    "item": {
+                        "artist": value.get("query"),
+                        "image_url": "https://img.example/pearl-jam.jpg",
+                    },
+                }
             return {
                 "success": True,
                 "playback": {
@@ -278,7 +286,14 @@ class AIToolsTest(unittest.TestCase):
         self.assertTrue(result["success"])
         self.assertTrue(result["enabled"])
         self.assertEqual(result["context"]["title"], "Black")
-        self.assertEqual(calls, [("status", None, None)])
+        self.assertTrue(result["context"]["artist_image_url"].startswith("/api/djconnect/v1/image_proxy/"))
+        self.assertEqual(
+            calls,
+            [
+                ("status", None, None),
+                ("search_media", {"query": "Pearl Jam", "type": "artist", "limit": 1}, None),
+            ],
+        )
 
 
 if __name__ == "__main__":

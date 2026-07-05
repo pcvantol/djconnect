@@ -21,6 +21,9 @@ class VibeCastDocsTest(unittest.TestCase):
             "`text`, `strong`, `emphasis`, `magnify`, `accent` and",
             "`emoji`, and `line_break`",
             "1-3 decorative music/vibe symbols",
+            "`context.artist_image_url`",
+            "`image_url`/`thumbnail_url`",
+            "/api/djconnect/v1/image_proxy/...",
             "`feature_disabled`",
             "`premium_unavailable`",
             "`no_active_playback`",
@@ -42,6 +45,10 @@ class VibeCastDocsTest(unittest.TestCase):
         self.assertIn("Platform differences are presentation-only", sync_prompts)
         self.assertIn("emoji_safe", sync_prompts)
         self.assertIn("`emoji`", sync_prompts)
+        self.assertIn("context.artist_image_url", sync_prompts)
+        self.assertIn("artist_fact", sync_prompts)
+        self.assertIn("image_url", sync_prompts)
+        self.assertIn("DJConnect image proxy", sync_prompts)
         self.assertIn("never show raw", sync_prompts)
 
     def test_music_discovery_docs_cover_deduped_based_on_counts(self) -> None:

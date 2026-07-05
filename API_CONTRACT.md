@@ -333,6 +333,13 @@ Successful responses include `enabled:true`, `revision`, `ttl_seconds`,
 current transport; future websocket or push delivery can reuse the same response
 shape without changing client rendering.
 
+When the selected backend can provide artist artwork, VibeCast includes a
+proxied `context.artist_image_url` and mirrors it on the `artist_fact` item as
+`image_url`/`thumbnail_url` with `image_alt` and `image_source`. The URL always
+uses DJConnect's image proxy path, so clients should load the proxied
+`/api/djconnect/v1/image_proxy/...` URL rather than a direct Spotify, Wikipedia
+or catalog URL. If no artist image is available, those fields are omitted.
+
 Canonical item kinds are `track_fact`, `artist_fact`, `album_fact`,
 `genre_context`, `trivia`, `listening_tip`, `mood_context`,
 `production_note`, `history_note` and `system`. Clients should render unknown
@@ -386,6 +393,7 @@ Example success:
     "title": "Song Title",
     "artist": "Artist Name",
     "album": "Album Name",
+    "artist_image_url": "/api/djconnect/v1/image_proxy/...",
     "music_backend": "music_assistant",
     "music_backend_name": "Music Assistant",
     "music_backend_revision": 2
@@ -402,6 +410,21 @@ Example success:
         { "type": "text", "value": "This track rides on " },
         { "type": "strong", "value": "space and pulse" },
         { "type": "text", "value": "." }
+      ],
+      "source": {
+        "kind": "generated",
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "stable-or-generated-id",
+      "kind": "artist_fact",
+      "image_url": "/api/djconnect/v1/image_proxy/...",
+      "thumbnail_url": "/api/djconnect/v1/image_proxy/...",
+      "image_alt": "Artist Name artist image",
+      "image_source": "spotify",
+      "text": [
+        { "type": "text", "value": "Artist Name keeps the mix expressive." }
       ],
       "source": {
         "kind": "generated",

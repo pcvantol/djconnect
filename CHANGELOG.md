@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.2.25
+
+- Add proxied VibeCast artist shout-out artwork on the response context and
+  `artist_fact` items when the selected backend can resolve artist images.
+- Document and test the VibeCast artist image contract across API docs, Apple
+  client sync prompts, Postman examples and iOS/macOS E2E fixtures.
+- Require Home Assistant `config_validation.config_entry_only_config_schema`
+  directly and update local test stubs for the current Home Assistant helper.
+
 ## 3.2.24
 
 - Let VibeCast use the configured Home Assistant conversation agent for

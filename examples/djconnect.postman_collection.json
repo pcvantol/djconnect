@@ -677,7 +677,7 @@
                 }
               ]
             },
-            "description": "Polls the premium-ready VibeCast feed for current-track bubbles. Responses always stay JSON; clients should hide/degrade on enabled:false and never show raw provider or generation errors."
+            "description": "Polls the premium-ready VibeCast feed for current-track bubbles. Responses always stay JSON; clients should hide/degrade on enabled:false and never show raw provider or generation errors. When available, artist shout-out artwork is returned through context.artist_image_url and artist_fact image_url/thumbnail_url using the DJConnect image proxy."
           }
         },
         {

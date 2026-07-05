@@ -49,6 +49,17 @@ class VibeCastTests(unittest.TestCase):
         self._original_run_music_command = vibecast.run_music_command
 
         async def command(hass, runtime, command_name, value=None, *, play=None):
+            if command_name == "search_media":
+                self.assertEqual(value.get("type"), "artist")
+                return {
+                    "success": True,
+                    "provider": "spotify",
+                    "source": "spotify",
+                    "item": {
+                        "artist": value.get("query"),
+                        "image_url": "https://img.example/the-contexts-artist.jpg",
+                    },
+                }
             self.assertEqual(command_name, "status")
             if raises is not None:
                 raise raises
@@ -70,7 +81,29 @@ class VibeCastTests(unittest.TestCase):
         self.assertEqual(result["context"]["title"], "Vibe Song")
         self.assertEqual(result["context"]["artist"], "The Contexts")
         self.assertEqual(result["context"]["music_backend"], "spotify_direct")
+        self.assertTrue(result["context"]["artist_image_url"].startswith("/api/djconnect/v1/image_proxy/"))
         self.assertGreaterEqual(len(result["items"]), 1)
+
+    def test_artist_fact_carries_proxied_artist_shoutout_image(self) -> None:
+        self._patch_status()
+        result, status = asyncio.run(
+            vibecast.async_handle_vibecast_payload(
+                self.hass,
+                {"client_type": "ios", "device_id": "djconnect-ios-ABCDEF123456"},
+                headers=self.headers,
+            )
+        )
+
+        self.assertEqual(status, 200)
+        artist_item = next(item for item in result["items"] if item["kind"] == "artist_fact")
+        self.assertTrue(artist_item["image_url"].startswith("/api/djconnect/v1/image_proxy/"))
+        self.assertEqual(artist_item["thumbnail_url"], artist_item["image_url"])
+        self.assertEqual(artist_item["image_source"], "spotify")
+        token = artist_item["image_url"].rsplit("/", 1)[-1]
+        self.assertEqual(
+            self.hass.data["djconnect"]["image_proxy"][token],
+            "https://img.example/the-contexts-artist.jpg",
+        )
 
     def test_emoji_safe_clients_get_one_to_three_emoji_prefixes_per_bubble(self) -> None:
         self._patch_status()
@@ -224,7 +257,7 @@ class VibeCastTests(unittest.TestCase):
                 headers=self.headers,
             )
         )
-        self.assertEqual(calls, ["status", "status"])
+        self.assertEqual(calls, ["status", "search_media", "status", "search_media"])
         self.assertFalse(any(segment["type"] == "emoji" for item in no_emoji["items"] for segment in item["text"]))
         self.assertTrue(any(segment["type"] == "emoji" for item in with_emoji["items"] for segment in item["text"]))
 
@@ -337,7 +370,7 @@ class VibeCastTests(unittest.TestCase):
         payload = {"client_type": "ios", "device_id": "djconnect-ios-ABCDEF123456"}
         first, _ = asyncio.run(vibecast.async_handle_vibecast_payload(self.hass, payload, headers=self.headers))
         second, _ = asyncio.run(vibecast.async_handle_vibecast_payload(self.hass, payload, headers=self.headers))
-        self.assertEqual(calls, ["status", "status"])
+        self.assertEqual(calls, ["status", "search_media", "status"])
         self.assertEqual(first["revision"], second["revision"])
         self.assertEqual(first["items"], second["items"])
         self.assertTrue(second["cache"]["hit"])
@@ -380,8 +413,8 @@ class VibeCastTests(unittest.TestCase):
                 for segment in item["text"]:
                     self.assertIn(segment["type"], vibecast.ALLOWED_TEXT_SEGMENT_TYPES)
 
-        ios_without_revision = {key: value for key, value in ios.items() if key not in {"revision", "cache"}}
-        macos_without_revision = {key: value for key, value in macos.items() if key not in {"revision", "cache"}}
+        ios_without_revision = _normalize_proxy_urls({key: value for key, value in ios.items() if key not in {"revision", "cache"}})
+        macos_without_revision = _normalize_proxy_urls({key: value for key, value in macos.items() if key not in {"revision", "cache"}})
         self.assertEqual(ios_without_revision, macos_without_revision)
 
     def test_ios_and_macos_disabled_reasons_are_equivalent(self) -> None:
@@ -496,6 +529,16 @@ async def _vibecast_for_client(
     async def command(hass, runtime, command_name, value=None, *, play=None):
         if raises is not None:
             raise raises
+        if command_name == "search_media":
+            return {
+                "success": True,
+                "provider": "spotify",
+                "source": "spotify",
+                "item": {
+                    "artist": value.get("query") if isinstance(value, dict) else "",
+                    "image_url": "https://img.example/the-contexts-artist.jpg",
+                },
+            }
         return status_payload or _status_payload()
 
     vibecast.run_music_command = command
@@ -519,3 +562,13 @@ async def _vibecast_for_client(
         vibecast.run_music_command = original
     assert status == 200
     return result
+
+
+def _normalize_proxy_urls(value):
+    if isinstance(value, dict):
+        return {key: _normalize_proxy_urls(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_normalize_proxy_urls(item) for item in value]
+    if isinstance(value, str) and value.startswith("/api/djconnect/v1/image_proxy/"):
+        return "/api/djconnect/v1/image_proxy/<token>"
+    return value

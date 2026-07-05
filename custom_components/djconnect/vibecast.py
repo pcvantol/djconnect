@@ -24,6 +24,7 @@ from .request_auth import (
     runtime_client_type,
     validate_required_client_type,
 )
+from .ask_dj.responses import register_image_proxy_url
 from .pipeline import _assist_context, _speech_from_response, call_conversation_process_with_agent_retry
 from .use_cases import MusicBackendCapabilityError, music_backend_metadata, run_music_command
 
@@ -34,6 +35,7 @@ ALLOWED_TEXT_SEGMENT_TYPES = {"text", "strong", "emphasis", "magnify", "accent",
 VIBECAST_ITEM_KINDS = {
     "track_fact",
     "artist_fact",
+    "artist_shoutout",
     "album_fact",
     "genre_context",
     "trivia",
@@ -163,6 +165,7 @@ async def async_handle_vibecast_payload(
             len(response.get("items") or []),
         )
         return response, 200
+    await _enrich_context_with_artist_image(hass, runtime, context, playback)
     try:
         items = await _generate_items(hass, runtime, context, locale, payload)
     except Exception as exc:  # noqa: BLE001
@@ -258,11 +261,65 @@ def _context_payload(hass: Any, runtime: Any, playback: dict[str, Any]) -> dict[
         "artist": artist,
         "album": album,
         "genres": genres[:4],
+        "album_image_url": _first_text(playback, "album_image_url", "media_image_url", "image_url", "thumbnail_url"),
+        "artist_image_url": _first_text(playback, "artist_image_url", "artist_image", "artist_artwork_url"),
         "music_backend": backend.get("music_backend") or DEFAULT_MUSIC_BACKEND,
         "music_backend_name": backend.get("music_backend_name")
         or MUSIC_BACKEND_NAMES.get(DEFAULT_MUSIC_BACKEND, "Spotify Direct"),
         "music_backend_revision": backend.get("music_backend_revision", 0),
     }
+
+
+async def _enrich_context_with_artist_image(
+    hass: Any,
+    runtime: Any,
+    context: dict[str, Any],
+    playback: dict[str, Any],
+) -> None:
+    """Attach a proxied artist image URL when the selected backend can provide one."""
+    artist = str(context.get("artist") or "").strip()
+    if not artist:
+        return
+    image_url = _first_text(
+        context,
+        "artist_image_url",
+    ) or _first_text(
+        playback,
+        "artist_image_url",
+        "artist_image",
+        "artist_artwork_url",
+        "artist_thumbnail_url",
+    )
+    source = "playback"
+    if not image_url:
+        try:
+            result = await run_music_command(
+                hass,
+                runtime,
+                "search_media",
+                {"query": artist, "type": "artist", "limit": 1},
+            )
+        except MusicBackendCapabilityError:
+            result = {}
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.debug("DJConnect VibeCast artist image lookup unavailable: %s", exc.__class__.__name__)
+            result = {}
+        item = result.get("item") if isinstance(result, dict) else {}
+        if isinstance(item, dict):
+            image_url = _first_text(item, "artist_image_url", "image_url", "thumbnail_url", "album_image_url")
+            source = str(result.get("source") or result.get("provider") or "music_catalog")
+    proxied = _proxy_image_url(hass, image_url)
+    if proxied:
+        context["artist_image_url"] = proxied
+        context["artist_image_source"] = source
+        context["artist_image_alt"] = f"{artist} artist image"
+
+
+def _proxy_image_url(hass: Any, image_url: str) -> str:
+    url = str(image_url or "").strip()
+    if url.startswith(("http://", "https://")):
+        return register_image_proxy_url(hass, url)
+    return url
 
 
 async def _generate_items(
@@ -506,6 +563,21 @@ def _item(
         "placement_hint": "side",
         "text": [{"type": segment_type, "value": value} for segment_type, value in text],
         "source": {"kind": source_kind, "confidence": "medium"},
+        **_item_image_fields(context, kind),
+    }
+
+
+def _item_image_fields(context: dict[str, Any], kind: str) -> dict[str, Any]:
+    if kind not in {"artist_fact", "artist_shoutout"}:
+        return {}
+    image_url = str(context.get("artist_image_url") or "").strip()
+    if not image_url:
+        return {}
+    return {
+        "image_url": image_url,
+        "thumbnail_url": image_url,
+        "image_alt": str(context.get("artist_image_alt") or "Artist image"),
+        "image_source": str(context.get("artist_image_source") or "music_catalog"),
     }
 
 

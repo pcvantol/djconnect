@@ -55,8 +55,8 @@ class VibeCastE2EContractTest(unittest.TestCase):
             self.assertEqual(response["poll_after_seconds"], 20)
 
         ignored = {"revision", "cache"}
-        ios_contract = {key: value for key, value in ios.items() if key not in ignored}
-        macos_contract = {key: value for key, value in macos.items() if key not in ignored}
+        ios_contract = _normalize_proxy_urls({key: value for key, value in ios.items() if key not in ignored})
+        macos_contract = _normalize_proxy_urls({key: value for key, value in macos.items() if key not in ignored})
         self.assertEqual(ios_contract, macos_contract)
 
 
@@ -71,6 +71,19 @@ async def _run_case(case: dict[str, Any]) -> tuple[dict[str, Any], int]:
     original_command = vibecast.run_music_command
 
     async def command(hass_arg, runtime_arg, command_name, value=None, *, play=None):
+        if command_name == "search_media":
+            artist_image = case.get("artist_image")
+            if not artist_image:
+                return {"success": True, "item": {}}
+            return {
+                "success": True,
+                "provider": artist_image.get("provider") or "spotify",
+                "source": artist_image.get("source") or "spotify",
+                "item": {
+                    "artist": value.get("query") if isinstance(value, dict) else "",
+                    "image_url": artist_image.get("url"),
+                },
+            }
         if command_name != "status":
             raise AssertionError(f"unexpected VibeCast command: {command_name}")
         status_kind = case.get("status") or "active"
@@ -124,8 +137,34 @@ def _validate_case_result(case: dict[str, Any], response: dict[str, Any], status
             fail(f"item kinds expected {expect['item_kinds']!r}, got {actual!r}")
     for key, value in (expect.get("context") or {}).items():
         context = response.get("context") if isinstance(response.get("context"), dict) else {}
-        if context.get(key) != value:
+        actual = context.get(key)
+        if value == "<image_proxy>":
+            if not (isinstance(actual, str) and actual.startswith("/api/djconnect/v1/image_proxy/")):
+                fail(f"context.{key} expected proxied image URL, got {actual!r}")
+        elif actual != value:
             fail(f"context.{key} expected {value!r}, got {context.get(key)!r}")
+    for image_expect in expect.get("item_images") or []:
+        kind = image_expect.get("kind")
+        item = next(
+            (
+                candidate
+                for candidate in response.get("items") or []
+                if isinstance(candidate, dict) and candidate.get("kind") == kind
+            ),
+            None,
+        )
+        if not item:
+            fail(f"missing item image target kind {kind!r}")
+            continue
+        for key, value in image_expect.items():
+            if key == "kind":
+                continue
+            actual = item.get(key)
+            if value == "<image_proxy>":
+                if not (isinstance(actual, str) and actual.startswith("/api/djconnect/v1/image_proxy/")):
+                    fail(f"{kind}.{key} expected proxied image URL, got {actual!r}")
+            elif actual != value:
+                fail(f"{kind}.{key} expected {value!r}, got {actual!r}")
     allowed_segment_types = set(expect.get("allowed_segment_types") or vibecast.ALLOWED_TEXT_SEGMENT_TYPES)
     for item in response.get("items") or []:
         if not isinstance(item, dict):
@@ -165,6 +204,16 @@ def _status_payload() -> dict[str, Any]:
             "album": "Contract Album",
         },
     }
+
+
+def _normalize_proxy_urls(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {key: _normalize_proxy_urls(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_normalize_proxy_urls(item) for item in value]
+    if isinstance(value, str) and value.startswith("/api/djconnect/v1/image_proxy/"):
+        return "/api/djconnect/v1/image_proxy/<token>"
+    return value
 
 
 class _Runtime:

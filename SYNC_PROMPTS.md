@@ -34,7 +34,7 @@ instead of storing their own copy.
 ## Current Protocol Line
 
 The current shared protocol/release line is `3.2.x`; this bundle was last
-aligned after Home Assistant integration release `v3.2.18`. DJConnect clients on the
+aligned after Home Assistant integration release `v3.2.25`. DJConnect clients on the
 `3.2.x` line are compatible with Home Assistant integration versions `>=3.2.0`
 and `<3.3.0`.
 
@@ -128,6 +128,18 @@ meaning.
 
 If `enabled:false`, hide or degrade VibeCast using `reason` and never show raw
 provider, cache, decoding or generation errors.
+
+VibeCast can include artist shout-out artwork when the Home Assistant backend
+can resolve it from playback metadata or the selected music catalog. Prefer
+`items[]` where `kind:"artist_fact"` and `image_url` is present; fall back to
+`context.artist_image_url` if the item image is absent. `thumbnail_url` may be
+used only when `image_url` is absent. `image_alt` can be used for
+accessibility/VoiceOver. `image_source` is metadata/debug context and should not
+be prominent UI copy. All artist artwork URLs are DJConnect image proxy URLs;
+clients must load the DJConnect image proxy URL and must not perform their own
+Spotify, Wikipedia, MusicBrainz or catalog image lookup. If a later VibeCast
+response has no image fields, clear the previous shout-out image rather than
+reusing stale artwork.
 ```
 
 ## Client: Music Discovery

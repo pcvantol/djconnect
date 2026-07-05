@@ -6,28 +6,10 @@
       "locale": "nl-NL",
       "render_capabilities": "bold,emphasis,magnify,accent,emoji_safe"
     },
-    "status": "active",
-    "expect": {
-      "status": 200,
-      "enabled": true,
-      "ttl_seconds": 45,
-      "poll_after_seconds": 20,
-      "item_kinds": ["track_fact", "artist_fact", "listening_tip"],
-      "context": {
-        "title": "Vibe Song",
-        "artist": "The Contexts",
-        "album": "Contract Album",
-        "music_backend": "spotify_direct"
-      },
-      "allowed_segment_types": ["text", "strong", "emphasis", "magnify", "accent", "emoji", "line_break"]
-    }
-  },
-  {
-    "id": "macos_active_track_success",
-    "request": {
-      "client_type": "macos",
-      "locale": "nl-NL",
-      "render_capabilities": "bold,emphasis,magnify,accent,emoji_safe"
+    "artist_image": {
+      "url": "https://img.example/the-contexts-artist.jpg",
+      "source": "spotify",
+      "provider": "spotify"
     },
     "status": "active",
     "expect": {
@@ -40,8 +22,56 @@
         "title": "Vibe Song",
         "artist": "The Contexts",
         "album": "Contract Album",
+        "artist_image_url": "<image_proxy>",
         "music_backend": "spotify_direct"
       },
+      "item_images": [
+        {
+          "kind": "artist_fact",
+          "image_url": "<image_proxy>",
+          "thumbnail_url": "<image_proxy>",
+          "image_alt": "The Contexts artist image",
+          "image_source": "spotify"
+        }
+      ],
+      "allowed_segment_types": ["text", "strong", "emphasis", "magnify", "accent", "emoji", "line_break"]
+    }
+  },
+  {
+    "id": "macos_active_track_success",
+    "request": {
+      "client_type": "macos",
+      "locale": "nl-NL",
+      "render_capabilities": "bold,emphasis,magnify,accent,emoji_safe"
+    },
+    "artist_image": {
+      "url": "https://img.example/the-contexts-artist.jpg",
+      "source": "spotify",
+      "provider": "spotify"
+    },
+    "status": "active",
+    "expect": {
+      "status": 200,
+      "enabled": true,
+      "ttl_seconds": 45,
+      "poll_after_seconds": 20,
+      "item_kinds": ["track_fact", "artist_fact", "listening_tip"],
+      "context": {
+        "title": "Vibe Song",
+        "artist": "The Contexts",
+        "album": "Contract Album",
+        "artist_image_url": "<image_proxy>",
+        "music_backend": "spotify_direct"
+      },
+      "item_images": [
+        {
+          "kind": "artist_fact",
+          "image_url": "<image_proxy>",
+          "thumbnail_url": "<image_proxy>",
+          "image_alt": "The Contexts artist image",
+          "image_source": "spotify"
+        }
+      ],
       "allowed_segment_types": ["text", "strong", "emphasis", "magnify", "accent", "emoji", "line_break"]
     }
   },

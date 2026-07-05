@@ -4,12 +4,12 @@
 
 - Repository: `pcvantol/djconnect`.
 - Integration domain: `djconnect`.
-- Current integration release: `3.2.18`.
-- Release status: DJConnect `3.2.18` keeps the `3.2.x` transport, pairing and
-  backend abstraction model and adds the premium-ready VibeCast feed endpoint
-  for Apple clients. Backend playback remains available through DJConnect
-  commands, Ask DJ, VibeCast context and clients with explicit Spotify Direct
-  or Music Assistant backend choice.
+- Current integration release: `3.2.25`.
+- Release status: DJConnect `3.2.25` keeps the `3.2.x` transport, pairing and
+  backend abstraction model, including the premium-ready VibeCast feed endpoint
+  for Apple clients and proxied artist shout-out images. Backend playback
+  remains available through DJConnect commands, Ask DJ, VibeCast context and
+  clients with explicit Spotify Direct or Music Assistant backend choice.
 - 3.2 work has introduced an internal DJConnect use-case layer plus
   `MusicBackend` capability abstraction. Spotify Direct is the default backend
   adapter; Music Assistant is a small HA `media_player` adapter, not a

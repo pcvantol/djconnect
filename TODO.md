@@ -202,8 +202,9 @@
 
 - Field-test VibeCast on macOS and iOS with the same active track and backend.
   Confirm both clients receive equivalent item kinds, structured text,
-  disabled reasons, TTL/polling/cache metadata and current-track context; any
-  differences should be presentation-only or capability-driven.
+  disabled reasons, TTL/polling/cache metadata, current-track context and
+  proxied artist shout-out images; any differences should be presentation-only
+  or capability-driven.
 - Monitor Ask DJ server history trimming at 1000 messages per HA user. Automated
   coverage verifies `history_limit`, `history_trimmed_before`,
   `history_trimmed_count` and retention system-message behavior; client field

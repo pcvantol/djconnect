@@ -150,6 +150,10 @@ differences belong in client presentation or reported render capabilities only.
 Clients that include `emoji_safe` in `X-DJConnect-Render-Capabilities` may
 receive inline `emoji` rich-text segments such as music notes or vibe symbols;
 clients should render them inline and ignore unknown segment types safely.
+When the selected backend has artist artwork, VibeCast also returns a proxied
+artist shout-out image on `context.artist_image_url` and the `artist_fact`
+bubble's `image_url`/`thumbnail_url`, so clients can show the visual without
+loading direct external catalog URLs.
 Music Discovery feed items aggregate repeated recent-track inputs: clients
 should render one item per unique `id`/`uri` and may show `play_count` or
 `based_on_count` as compact context instead of repeating the same title.
