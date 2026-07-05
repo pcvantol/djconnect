@@ -314,16 +314,91 @@ The installed custom integration path is:
 $HOME/docker/homeassistant/config/custom_components/djconnect
 ```
 
-The default local stack is managed through Docker Compose at:
+The default local stack is managed through Docker Compose. The deploy script
+auto-detects the common compose file names in this order:
 
 ```text
+$HOME/docker/homeassistant/compose.yaml
+$HOME/docker/homeassistant/compose.yml
 $HOME/docker/homeassistant/docker-compose.yml
+$HOME/docker/homeassistant/docker-compose.yaml
 ```
 
-## Install The Current Working Tree Into Home Assistant
+## Deploy The Current Tree To Home Assistant Dev
 
-From this repository root, sync the current integration into the Docker Home
-Assistant config:
+Use `deploy_ha_dev.sh` whenever you want the Home Assistant dev instance to run
+the code from this working tree. The script is intentionally local-dev only: it
+does not commit, tag, publish a release or touch HACS metadata. It only syncs
+the integration files into your local HA config and restarts the dev container.
+
+```bash
+./deploy_ha_dev.sh
+```
+
+Default behavior:
+
+- Source: `custom_components/djconnect/`
+- Target: `$HOME/docker/homeassistant/config/custom_components/djconnect/`
+- Sync mode: `rsync --delete`, excluding `__pycache__` and `*.pyc`
+- Restart: `docker compose ... up -d homeassistant`, then `docker restart homeassistant`
+- Verification: validates the installed manifest and prints the DJConnect
+  version imported from inside the container
+
+Common variants:
+
+```bash
+# Show what would happen without changing files or restarting HA.
+./deploy_ha_dev.sh --dry-run
+
+# Sync the integration but leave Home Assistant running.
+./deploy_ha_dev.sh --no-restart
+
+# Use explicit paths when your local HA stack lives somewhere else.
+./deploy_ha_dev.sh --config "$HOME/docker/homeassistant/config" --compose "$HOME/docker/homeassistant/compose.yaml"
+
+# Use different Docker names when your compose service/container are not both homeassistant.
+./deploy_ha_dev.sh --service homeassistant --container homeassistant
+```
+
+Expected successful output includes these lines:
+
+```text
+Installed DJConnect manifest version: 3.2.x (repo: 3.2.x)
+homeassistant  Up ...  0.0.0.0:8123->8123/tcp
+Container DJConnect VERSION: 3.2.x
+```
+
+Home Assistant should come back on `localhost:8123`.
+
+### Troubleshooting HA Dev Deploy
+
+If the script cannot find the Home Assistant config directory, pass it
+explicitly:
+
+```bash
+./deploy_ha_dev.sh --config /path/to/homeassistant/config
+```
+
+If the script cannot find Docker Compose, pass the compose file explicitly or
+sync without restarting:
+
+```bash
+./deploy_ha_dev.sh --compose /path/to/compose.yaml
+./deploy_ha_dev.sh --no-restart
+```
+
+If Home Assistant still appears to run an older DJConnect version after
+redeploy, verify the mounted config inside the container:
+
+```bash
+docker exec homeassistant cat /config/custom_components/djconnect/manifest.json
+docker exec homeassistant python3 -c 'import custom_components.djconnect.const as c; print(c.VERSION)'
+```
+
+If those commands show the expected version but the UI still looks stale,
+restart Home Assistant again and refresh the browser/app cache.
+
+Manual equivalent, useful when debugging the script itself:
 
 ```bash
 rsync -a --delete --delete-excluded \
@@ -331,22 +406,11 @@ rsync -a --delete --delete-excluded \
   --exclude '*.pyc' \
   custom_components/djconnect/ \
   "$HOME/docker/homeassistant/config/custom_components/djconnect/"
-```
-
-Confirm the installed manifest:
-
-```bash
 python3 -m json.tool "$HOME/docker/homeassistant/config/custom_components/djconnect/manifest.json"
-```
-
-Then restart Home Assistant Core through Docker Compose:
-
-```bash
-docker compose -f "$HOME/docker/homeassistant/docker-compose.yml" up -d homeassistant
+docker compose -f "$HOME/docker/homeassistant/compose.yaml" up -d homeassistant
+docker restart homeassistant
 docker ps --filter name=homeassistant --format '{{.Names}}\t{{.Status}}\t{{.Ports}}'
 ```
-
-Home Assistant should come back on `localhost:8123`.
 
 ## Manual UI Validation
 
