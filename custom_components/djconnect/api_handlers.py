@@ -21,7 +21,6 @@ from .http import (
     _major_minor,
     _persist_paired_device,
     _playlist_command_value,
-    _redact_debug_payload,
     _repeat_command_value,
     _runtime_firmware_version,
     _runtime_versions_compatible,

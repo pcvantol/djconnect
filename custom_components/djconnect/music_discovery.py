@@ -545,7 +545,12 @@ def _item(
     *,
     image_url: str = "",
 ) -> dict[str, Any]:
-    item_id = "disc-" + hashlib.sha1("|".join((kind, uri, title)).encode()).hexdigest()[:16]
+    item_id = (
+        "disc-"
+        + hashlib.sha1(
+            "|".join((kind, uri, title)).encode(), usedforsecurity=False
+        ).hexdigest()[:16]
+    )
     return {
         "id": item_id,
         "kind": kind,
