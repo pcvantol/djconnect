@@ -24,7 +24,7 @@ jobs:
       contents: read
     env:
       GH_TOKEN: ${{ github.token }}
-      KEEP_COMPLETED_RUNS: "25"
+      KEEP_RUNS: "2"
     steps:
       - name: Delete old completed workflow runs
         run: |
@@ -32,22 +32,32 @@ jobs:
 
           repo="${GITHUB_REPOSITORY}"
           current_run_id="${GITHUB_RUN_ID}"
+          current_workflow_id="$(gh api "/repos/${repo}/actions/runs/${current_run_id}" --jq '.workflow_id')"
 
           gh api "/repos/${repo}/actions/workflows" --paginate --jq '.workflows[] | [.id, .name] | @tsv' |
           while IFS=$'\t' read -r workflow_id workflow_name; do
             [ -n "${workflow_id}" ] || continue
 
+            keep_limit="${KEEP_RUNS}"
+            if [ "${workflow_id}" = "${current_workflow_id}" ]; then
+              keep_limit=$((KEEP_RUNS - 1))
+            fi
+
             deleted_count=0
-            run_ids="$(
+            mapfile -t run_ids < <(
               gh api "/repos/${repo}/actions/workflows/${workflow_id}/runs?status=completed&per_page=100" \
                 --paginate \
-                --jq '.workflow_runs[] | .id' |
-              tail -n +"$((KEEP_COMPLETED_RUNS + 1))"
-            )"
+                --jq '.workflow_runs | sort_by(.created_at) | reverse | .[].id'
+            )
 
-            while IFS= read -r run_id; do
-              [ -n "${run_id}" ] || continue
-              if [ "${run_id}" = "${current_run_id}" ]; then
+            if ((${#run_ids[@]} <= keep_limit)); then
+              echo "Workflow '${workflow_name}' (${workflow_id}): no completed runs to delete."
+              continue
+            fi
+
+            for index in "${!run_ids[@]}"; do
+              run_id="${run_ids[$index]}"
+              if ((index < keep_limit)) || [ "${run_id}" = "${current_run_id}" ]; then
                 continue
               fi
 
@@ -55,7 +65,7 @@ jobs:
                 --method DELETE \
                 "/repos/${repo}/actions/runs/${run_id}"
               deleted_count=$((deleted_count + 1))
-            done < <(printf '%s\n' "${run_ids}")
+            done
 
-            echo "Workflow '${workflow_name}' (${workflow_id}): deleted ${deleted_count} completed runs older than the newest ${KEEP_COMPLETED_RUNS}."
+            echo "Workflow '${workflow_name}' (${workflow_id}): deleted ${deleted_count} completed runs older than the effective keep limit ${keep_limit}."
           done
