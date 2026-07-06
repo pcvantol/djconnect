@@ -34,7 +34,7 @@ instead of storing their own copy.
 ## Current Protocol Line
 
 The current shared protocol/release line is `3.2.x`; this bundle was last
-aligned after Home Assistant integration release `v3.2.25`. DJConnect clients on the
+aligned after Home Assistant integration release `v3.2.27`. DJConnect clients on the
 `3.2.x` line are compatible with Home Assistant integration versions `>=3.2.0`
 and `<3.3.0`.
 

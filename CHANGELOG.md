@@ -1,5 +1,25 @@
 # Changelog
 
+## 3.2.27
+
+- Align the fresh-chat bootstrap, handoff and cross-repo sync context with the
+  current `3.2.x` release line so new maintenance sessions start from the
+  latest release state.
+- Restore the missing `3.2.26` changelog notes in the public changelog before
+  publishing the next patch release.
+
+## 3.2.26
+
+- Add safe temporary TTS/audio URL support so DJConnect can expose generated
+  WAV/MP3 announcement audio through authenticated DJConnect download routes.
+- Add VibeCast genre-badge and artist shout-out image contract coverage across
+  backend tests and documentation checks.
+- Add the daily Music Discovery APNs wake/sync hint for Apple clients when
+  Music DNA is enabled, while keeping push payloads privacy-safe.
+- Update push bootstrap handling and tests for relay-only APNs registration
+  without storing APNs provider credentials in Home Assistant.
+- Bump the integration and example firmware manifest metadata to `3.2.26`.
+
 ## 3.2.25
 
 - Add a VibeCast `context.genre_badge` hint so Apple clients can render the
