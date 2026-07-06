@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.2.28
+
+- Refresh release bootstrap, handoff and sync metadata for the next `3.2.x`
+  maintenance patch so future Codex sessions and cross-repo prompts start from
+  the newest published release.
+- Keep the release artifacts aligned with the current Home Assistant
+  integration version and example firmware manifest metadata.
+
 ## 3.2.27
 
 - Align the fresh-chat bootstrap, handoff and cross-repo sync context with the
