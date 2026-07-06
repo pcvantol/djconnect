@@ -12,8 +12,10 @@ Examples:
   ./release.sh 3.0.1 --dry-run
 
 The script stages all changes, commits, tags, pushes main and the tag, and
-creates a GitHub release from CHANGELOG.md. It also updates the integration
-version in the repo before committing.
+creates a GitHub release from the matching CHANGELOG.md version section. It
+also updates the integration version in the repo before committing. The release
+commit can be made from any branch whose HEAD is based on origin/main; the
+script pushes the release commit explicitly to origin/main.
 EOF
 }
 
@@ -66,8 +68,56 @@ run_always() {
   "$@"
 }
 
+preflight_release_base() {
+  if [[ "$DRY_RUN" == true ]]; then
+    echo "+ git fetch origin main --tags --dry-run"
+    return
+  fi
+  run_always git fetch origin main --tags
+  if ! git rev-parse --verify origin/main >/dev/null 2>&1; then
+    echo "origin/main is unavailable after fetch." >&2
+    exit 1
+  fi
+  if ! git merge-base --is-ancestor origin/main HEAD; then
+    echo "Current HEAD is not based on origin/main. Rebase or merge origin/main before releasing." >&2
+    exit 1
+  fi
+}
+
 validate_release() {
   run_always python3 -m unittest tests.test_ask_dj_e2e_contract
+}
+
+write_release_notes() {
+  RELEASE_NOTES_FILE="$(mktemp "${TMPDIR:-/tmp}/djconnect-release-${TAG}.XXXXXX")"
+  export RELEASE_NOTES_FILE
+  echo "+ extract CHANGELOG.md section for ${VERSION} to ${RELEASE_NOTES_FILE}"
+  VERSION="$VERSION" DRY_RUN="$DRY_RUN" RELEASE_NOTES_FILE="$RELEASE_NOTES_FILE" python3 - <<'PY'
+import os
+import re
+from pathlib import Path
+
+version = os.environ["VERSION"]
+dry_run = os.environ["DRY_RUN"] == "true"
+notes_path = Path(os.environ["RELEASE_NOTES_FILE"])
+text = Path("CHANGELOG.md").read_text()
+match = re.search(
+    rf"^## {re.escape(version)}\n(?P<body>.*?)(?=^## \d+\.\d+\.\d+\n|\Z)",
+    text,
+    flags=re.MULTILINE | re.DOTALL,
+)
+if not match:
+    if dry_run:
+        notes_path.write_text(
+            f"Dry-run release notes for {version}; CHANGELOG.md has no generated section yet.\n"
+        )
+        raise SystemExit(0)
+    raise SystemExit(f"Missing CHANGELOG.md section for {version}")
+body = match.group("body").strip()
+if not body:
+    raise SystemExit(f"Empty CHANGELOG.md section for {version}")
+notes_path.write_text(body + "\n")
+PY
 }
 
 bump_versions() {
@@ -153,7 +203,7 @@ replace_text(
         (r"git push origin v[0-9]+\.[0-9]+\.[0-9]+", f"git push origin {tag}"),
         (
             r'gh release create v[0-9]+\.[0-9]+\.[0-9]+ --title "DJConnect v[^"]+" --notes-file CHANGELOG\.md',
-            f'gh release create {tag} --title "DJConnect {tag}" --notes-file CHANGELOG.md',
+            f'gh release create {tag} --title "DJConnect {tag}" --notes-file "$RELEASE_NOTES_FILE"',
         ),
     ],
 )
@@ -193,16 +243,52 @@ replace_text(
     "AGENTS.md",
     [(r"^- Actuele integratieversie: `[^`]+`\.$", f"- Actuele integratieversie: `{version}`.")],
 )
+replace_text(
+    "CHAT_BOOTSTRAP.md",
+    [(r"^- Laatste release: `[^`]+`\.$", f"- Laatste release: `{version}`.")],
+)
+replace_text(
+    "HANDOFF.md",
+    [
+        (
+            r"^- Current integration release: `[^`]+`\.$",
+            f"- Current integration release: `{version}`.",
+        ),
+        (
+            r"^- Release status: DJConnect `[^`]+` keeps the `3\.2\.x` transport, pairing and$",
+            f"- Release status: DJConnect `{version}` keeps the `3.2.x` transport, pairing and",
+        ),
+        (
+            r"^- Current latest baseline is `[^`]+`\.$",
+            f"- Current latest baseline is `{version}`.",
+        ),
+        (
+            r"^- For the current `[^`]+` release, no pinned Python package versions were$",
+            f"- For the current `{version}` release, no pinned Python package versions were",
+        ),
+    ],
+)
+replace_text(
+    "SYNC_PROMPTS.md",
+    [
+        (
+            r"aligned after Home Assistant integration release `v[^`]+`\. DJConnect clients on the",
+            f"aligned after Home Assistant integration release `{tag}`. DJConnect clients on the",
+        ),
+    ],
+)
 PY
 }
 
+preflight_release_base
 validate_release
 bump_versions
+write_release_notes
 run git add .
 run git commit -m "Release DJConnect ${TAG}"
 run git tag "$TAG"
-run git push origin main
+run git push origin HEAD:main
 run git push origin "$TAG"
-run gh release create "$TAG" --title "DJConnect ${TAG}" --notes-file CHANGELOG.md
+run gh release create "$TAG" --title "DJConnect ${TAG}" --notes-file "$RELEASE_NOTES_FILE"
 
 echo "Release ${TAG} complete."

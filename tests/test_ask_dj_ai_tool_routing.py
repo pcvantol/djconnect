@@ -122,6 +122,35 @@ class AskDjAIToolRoutingTest(unittest.TestCase):
         self.assertEqual(result["intent"]["intent"], "recently_played_history")
         self.assertEqual(calls[0][0], "djconnect_recently_played")
 
+    def test_recently_played_matches_where_listened_phrases(self) -> None:
+        phrases = (
+            "Waar heb ik eerder naar geluisterd?",
+            "Waar heb ik recent naar geluisterd?",
+            "Waar heb ik afgelopen uur naar geluisterd?",
+            "Waar heb ik afgelopen dag naar geluisterd?",
+            "Waar heb ik afgelopen week naar geluisterd?",
+            "Waar heb ik zojuist naar geluisterd?",
+            "Waar heb ik om 10 uur naar geluisterd?",
+        )
+
+        for phrase in phrases:
+            with self.subTest(phrase=phrase):
+                self.assertTrue(
+                    self.ask_dj._is_recently_played_history_request(
+                        self.ask_dj._normalize(phrase)
+                    )
+                )
+
+    def test_recently_played_window_supports_day_and_week(self) -> None:
+        self.assertEqual(
+            self.ask_dj._recently_played_window("Waar heb ik afgelopen dag naar geluisterd?").days,
+            1,
+        )
+        self.assertEqual(
+            self.ask_dj._recently_played_window("Waar heb ik afgelopen week naar geluisterd?").days,
+            7,
+        )
+
     def test_playlist_search_routes_through_search_tool(self) -> None:
         calls = []
 

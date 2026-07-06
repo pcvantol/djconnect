@@ -3055,6 +3055,28 @@ def _recently_played_window(text: str) -> timedelta:
         now = datetime.now(timezone.utc)
         start = now.replace(hour=0, minute=0, second=0, microsecond=0)
         return max(timedelta(minutes=1), now - start)
+    if any(
+        term in normalized
+        for term in (
+            "afgelopen week",
+            "laatste week",
+            "past week",
+            "last week",
+        )
+    ):
+        return timedelta(days=7)
+    if any(
+        term in normalized
+        for term in (
+            "afgelopen dag",
+            "laatste dag",
+            "past day",
+            "last day",
+            "yesterday",
+            "gisteren",
+        )
+    ):
+        return timedelta(days=1)
     if any(term in normalized for term in ("afgelopen paar uur", "last few hours", "past few hours")):
         return timedelta(hours=3)
     match = re.search(r"(?:afgelopen|laatste|last|past)\s+(\d+)\s*(?:uur|uren|hour|hours)", normalized)
@@ -4979,6 +5001,11 @@ def _is_recently_played_history_request(normalized: str) -> bool:
         "wat heb ik net",
         "wat luisterde ik",
         "wat heb ik geluisterd",
+        "waar heb ik",
+        "waar heb ik net",
+        "waar heb ik naar geluisterd",
+        "waar luisterde ik",
+        "waar luister ik",
         "what songs",
         "what tracks",
         "what albums",
@@ -4987,13 +5014,18 @@ def _is_recently_played_history_request(normalized: str) -> bool:
         "what did i play",
         "what have i played",
         "what did i listen",
+        "what have i listened",
+        "where did i listen",
+        "where have i listened",
     )
     playback_terms = (
         "afgespeeld",
         "gespeeld",
         "gedraaid",
         "geluisterd",
+        "naar geluisterd",
         "luisterde",
+        "luister",
         "played",
         "listened",
         "listening history",
@@ -5004,18 +5036,38 @@ def _is_recently_played_history_request(normalized: str) -> bool:
         "afgelopen 2 uur",
         "afgelopen twee uur",
         "afgelopen paar uur",
+        "afgelopen dag",
+        "laatste dag",
+        "afgelopen week",
+        "laatste week",
         "vandaag",
         "net",
+        "zojuist",
+        "eerder",
+        "recent",
+        "gisteren",
         "last hour",
         "past hour",
         "last 2 hours",
         "past 2 hours",
+        "last day",
+        "past day",
+        "last week",
+        "past week",
         "today",
+        "recently",
+        "earlier",
+        "just now",
+        "yesterday",
     )
     return (
         any(term in normalized for term in history_terms)
         and any(term in normalized for term in playback_terms)
-        and any(term in normalized for term in period_terms)
+        and (
+            any(term in normalized for term in period_terms)
+            or re.search(r"\b(?:om|rond|around|at)\s+\d{1,2}(?::\d{2})?\s*(?:uur|u|am|pm)?\b", normalized)
+            is not None
+        )
     )
 
 
