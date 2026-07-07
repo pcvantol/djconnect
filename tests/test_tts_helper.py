@@ -512,6 +512,115 @@ class TtsHelperTest(unittest.TestCase):
             "http://djconnect-lilygo-90B70990A994.local",
         )
 
+    def test_update_listener_skips_reload_for_spotify_refresh_token_rotation(self) -> None:
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={
+                self.const.CONF_SPOTIFY_CLIENT_ID: "client-id",
+                self.const.CONF_SPOTIFY_REFRESH_TOKEN: "old-token",
+                self.const.CONF_CLIENT_TYPE: "ios",
+            },
+            options={},
+        )
+        runtime = self.integration.DJConnectRuntime(entry=entry)
+        reloads = []
+
+        class ConfigEntries:
+            async def async_reload(self, entry_id):
+                reloads.append(entry_id)
+
+        hass = types.SimpleNamespace(
+            data={
+                self.const.DOMAIN: {
+                    "entry_reload_signatures": {
+                        "entry-1": self.integration._entry_reload_signature(entry)
+                    },
+                    "entry-1": runtime,
+                }
+            },
+            config_entries=ConfigEntries(),
+        )
+        entry.data = {
+            **entry.data,
+            self.const.CONF_SPOTIFY_REFRESH_TOKEN: "new-token",
+        }
+
+        asyncio.run(self.integration._async_update_listener(hass, entry))
+
+        self.assertEqual(reloads, [])
+        self.assertEqual(runtime.latest_spotify_refresh_token, "new-token")
+        self.assertEqual(runtime.config[self.const.CONF_SPOTIFY_REFRESH_TOKEN], "new-token")
+
+    def test_update_listener_skips_reload_for_status_cache_update(self) -> None:
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={
+                self.const.CONF_CLIENT_TYPE: "ios",
+                "last_device_status": {"battery_percent": 10},
+            },
+            options={},
+        )
+        runtime = self.integration.DJConnectRuntime(entry=entry)
+        reloads = []
+
+        class ConfigEntries:
+            async def async_reload(self, entry_id):
+                reloads.append(entry_id)
+
+        hass = types.SimpleNamespace(
+            data={
+                self.const.DOMAIN: {
+                    "entry_reload_signatures": {
+                        "entry-1": self.integration._entry_reload_signature(entry)
+                    },
+                    "entry-1": runtime,
+                }
+            },
+            config_entries=ConfigEntries(),
+        )
+        entry.data = {
+            **entry.data,
+            "last_device_status": {"battery_percent": 85, "last_track": "Song"},
+        }
+
+        asyncio.run(self.integration._async_update_listener(hass, entry))
+
+        self.assertEqual(reloads, [])
+        self.assertEqual(runtime.device_status["battery_percent"], 85)
+        self.assertEqual(runtime.device_status["last_track"], "Song")
+
+    def test_update_listener_reloads_for_non_token_config_change(self) -> None:
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={
+                self.const.CONF_SPOTIFY_CLIENT_ID: "client-id",
+                self.const.CONF_SPOTIFY_REFRESH_TOKEN: "token",
+                self.const.CONF_CLIENT_TYPE: "ios",
+            },
+            options={},
+        )
+        reloads = []
+
+        class ConfigEntries:
+            async def async_reload(self, entry_id):
+                reloads.append(entry_id)
+
+        hass = types.SimpleNamespace(
+            data={
+                self.const.DOMAIN: {
+                    "entry_reload_signatures": {
+                        "entry-1": self.integration._entry_reload_signature(entry)
+                    },
+                }
+            },
+            config_entries=ConfigEntries(),
+        )
+        entry.data = {**entry.data, self.const.CONF_SPOTIFY_MARKET: "NL"}
+
+        asyncio.run(self.integration._async_update_listener(hass, entry))
+
+        self.assertEqual(reloads, ["entry-1"])
+
     def test_runtime_update_caches_last_command_and_track_in_device_status(self) -> None:
         entry = types.SimpleNamespace(entry_id="entry-1", data={}, options={})
         runtime = self.integration.DJConnectRuntime(entry=entry)

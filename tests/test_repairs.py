@@ -350,26 +350,21 @@ class RepairsTest(unittest.TestCase):
         self.assertEqual(external["step_id"], "authorize")
 
         done = asyncio.run(flow.async_step_authorize({"state": "callback-state"}))
-        self.assertEqual(done["type"], "external_done")
-        self.assertEqual(done["next_step_id"], "oauth_done")
-
-        result = asyncio.run(flow.async_step_oauth_done({}))
-
-        self.assertEqual(result["type"], "form")
-        self.assertEqual(result["step_id"], "oauth_done")
-        self.assertEqual(result["errors"]["base"], "oauth_not_completed")
+        self.assertEqual(done["type"], "form")
+        self.assertEqual(done["step_id"], "oauth_done")
+        self.assertEqual(done["errors"]["base"], "oauth_not_completed")
 
         entry.data["spotify_refresh_token"] = "new-token"
+        hass.data.setdefault("djconnect", {})["spotify_reauth_issue_throttle"] = {
+            "entry-1": 123.0
+        }
         callback_done = asyncio.run(flow.async_step_authorize({"state": "callback-state"}))
-        self.assertEqual(callback_done["type"], "external_done")
-        self.assertEqual(callback_done["next_step_id"], "oauth_done")
-        result = asyncio.run(flow.async_step_oauth_done())
-
-        self.assertEqual(result["type"], "create_entry")
+        self.assertEqual(callback_done["type"], "create_entry")
         self.assertIn(
             {"domain": "djconnect", "issue_id": "entry-1_spotify_refresh_token_revoked"},
             install_repairs_stubs.deleted,
         )
+        self.assertEqual(hass.data["djconnect"]["spotify_reauth_issue_throttle"], {})
 
     def test_spotify_reauth_fix_flow_accepts_token_when_missing_before(self) -> None:
         entry = types.SimpleNamespace(

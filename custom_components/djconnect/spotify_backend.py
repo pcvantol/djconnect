@@ -26,6 +26,7 @@ from .spotify_oauth import SpotifyTokenRefreshError, refresh_access_token
 SPOTIFY_API_BASE = "https://api.spotify.com/v1"
 CACHE_TTL_SECONDS = 30
 LISTENING_PROFILE_CACHE_TTL_SECONDS = 6 * 60 * 60
+ARTIST_GENRE_ERROR_BACKOFF_SECONDS = 10 * 60
 ACCESS_TOKEN_EXPIRY_SAFETY_SECONDS = 60
 REAUTH_REPAIR_THROTTLE_SECONDS = 30 * 60
 MAX_QUEUE_ITEMS = 100
@@ -484,6 +485,16 @@ class SpotifyBackend:
         if not artist_ids:
             return
         cache_key = "artists:" + ",".join(sorted(set(artist_ids)))
+        backoff_key = f"{cache_key}:error_backoff"
+        cache = getattr(self.runtime, "backend_cache", None)
+        if cache is None:
+            self.runtime.backend_cache = {}
+            cache = self.runtime.backend_cache
+        backoff = cache.get(backoff_key)
+        now = time.monotonic()
+        if backoff and now - float(backoff[0]) < ARTIST_GENRE_ERROR_BACKOFF_SECONDS:
+            _LOGGER.debug("DJConnect skipping current artist genre lookup during backoff")
+            return
 
         async def load():
             return await self._request("GET", f"/artists?ids={','.join(artist_ids)}")
@@ -491,8 +502,10 @@ class SpotifyBackend:
         try:
             data = await self._cached(cache_key, load, ttl=LISTENING_PROFILE_CACHE_TTL_SECONDS)
         except SpotifyBackendError as exc:
+            cache[backoff_key] = (time.monotonic(), True)
             _LOGGER.debug("DJConnect could not read current artist genres: %s", exc)
             return
+        cache.pop(backoff_key, None)
         artists = data.get("artists") if isinstance(data, dict) else []
         genres: list[str] = []
         for artist in artists if isinstance(artists, list) else []:

@@ -592,6 +592,79 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertEqual(runtime.memory.saved, 1)
         self.assertTrue(any("/artists?ids=artist-1" in url for url in backend.session.urls))
 
+    def test_playback_state_backs_off_artist_genre_lookup_after_429(self) -> None:
+        class Response:
+            def __init__(self, status, payload):
+                self.status = status
+                self.payload = payload
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                return self.payload
+
+            async def text(self):
+                return str(self.payload)
+
+        class Session:
+            def __init__(self):
+                self.artist_calls = 0
+
+            def request(self, method, url, **kwargs):
+                if "/artists?ids=artist-1" in url:
+                    self.artist_calls += 1
+                    return Response(429, {"error": {"message": "Too many requests"}})
+                if "/me/tracks/contains" in url:
+                    return Response(200, [False])
+                return Response(
+                    200,
+                    {
+                        "is_playing": True,
+                        "item": {
+                            "id": "track-1",
+                            "name": "Innerbloom",
+                            "uri": "spotify:track:track-1",
+                            "duration_ms": 585000,
+                            "artists": [{"id": "artist-1", "name": "RUFUS DU SOL"}],
+                            "album": {"name": "Bloom"},
+                        },
+                        "device": {"name": "Living room"},
+                    },
+                )
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={"spotify_client_id": "client-id", "spotify_refresh_token": "refresh"},
+            options={},
+        )
+        runtime = types.SimpleNamespace(
+            entry=entry,
+            latest_spotify_refresh_token=None,
+            spotify_access_token="access",
+            spotify_access_token_expires_at=time.time() + 1800,
+            device_status={},
+            ask_dj_history=None,
+            memory=None,
+            backend_cache={},
+            update=lambda **kwargs: [setattr(runtime, key, value) for key, value in kwargs.items()],
+        )
+        runtime.config = dict(entry.data)
+        backend = self.backend.SpotifyBackend(object(), runtime)
+        session = Session()
+        backend.session = session
+        backend.hass = types.SimpleNamespace(services=types.SimpleNamespace())
+
+        first = asyncio.run(backend.playback_state())
+        second = asyncio.run(backend.playback_state())
+
+        self.assertTrue(first["has_playback"])
+        self.assertTrue(second["has_playback"])
+        self.assertEqual(session.artist_calls, 1)
+
     def test_playback_state_skips_ambient_fact_prompt_leak(self) -> None:
         class Response:
             status = 200

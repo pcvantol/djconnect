@@ -1768,6 +1768,9 @@ def _restore_runtime(hass: HomeAssistant, entry: ConfigEntry) -> DJConnectRuntim
         runtime.device_status["local_url"] = local_url
     hass.data[DOMAIN][entry.entry_id] = runtime
     hass.data[DOMAIN]["runtime"] = runtime
+    hass.data[DOMAIN].setdefault("entry_reload_signatures", {})[
+        entry.entry_id
+    ] = _entry_reload_signature(entry)
     _LOGGER.debug("DJConnect runtime restored for entry %s", entry.entry_id)
     return runtime
 
@@ -2793,4 +2796,46 @@ async def _async_clear_all_server_state(hass: HomeAssistant) -> None:
 
 
 async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    domain_data = hass.data.setdefault(DOMAIN, {})
+    signatures = domain_data.setdefault("entry_reload_signatures", {})
+    current_signature = _entry_reload_signature(entry)
+    previous_signature = signatures.get(entry.entry_id)
+    signatures[entry.entry_id] = current_signature
+    if previous_signature == current_signature:
+        runtime = domain_data.get(entry.entry_id)
+        if runtime is not None:
+            runtime.entry = entry
+            cached_status = entry.data.get(CONF_LAST_DEVICE_STATUS)
+            if isinstance(cached_status, dict):
+                _merge_cached_device_status(
+                    runtime.device_status,
+                    cached_status,
+                    source="persisted device status update",
+                )
+            if entry.data.get(CONF_SPOTIFY_REFRESH_TOKEN):
+                runtime.latest_spotify_refresh_token = entry.data[
+                    CONF_SPOTIFY_REFRESH_TOKEN
+                ]
+        _LOGGER.debug(
+            "DJConnect config entry update only changed runtime cache fields; skipping reload"
+        )
+        return
     await hass.config_entries.async_reload(entry.entry_id)
+
+
+def _entry_reload_signature(entry: ConfigEntry) -> tuple[tuple[str, Any], tuple[str, Any]]:
+    """Return config values that should trigger a full integration reload."""
+
+    def stable_items(values: dict[str, Any]) -> tuple[tuple[str, Any], ...]:
+        return tuple(
+            sorted(
+                (str(key), value)
+                for key, value in (values or {}).items()
+                if key not in {CONF_SPOTIFY_REFRESH_TOKEN, CONF_LAST_DEVICE_STATUS}
+            )
+        )
+
+    return (
+        stable_items(getattr(entry, "data", {}) or {}),
+        stable_items(getattr(entry, "options", {}) or {}),
+    )

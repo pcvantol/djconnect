@@ -242,9 +242,6 @@ class SpotifyOAuthRepairFlow(RepairsFlow):
         if entry is None:
             return self.async_abort(reason="entry_not_found")
         if user_input and user_input.get("state"):
-            external_done = getattr(self, "async_external_step_done", None)
-            if callable(external_done):
-                return external_done(next_step_id="oauth_done")
             return await self.async_step_oauth_done(user_input)
         if not self._authorize_url:
             self._original_refresh_token = str(
@@ -385,3 +382,7 @@ def _delete_spotify_reauth_issues(hass: HomeAssistant, entry_id: str) -> None:
                 ir.async_delete_issue(hass, DOMAIN, issue_id)
             except Exception:  # noqa: BLE001
                 pass
+    domain_data = hass.data.setdefault(DOMAIN, {}) if hasattr(hass, "data") else {}
+    throttle = domain_data.get("spotify_reauth_issue_throttle")
+    if isinstance(throttle, dict):
+        throttle.pop(entry_id or "global", None)
