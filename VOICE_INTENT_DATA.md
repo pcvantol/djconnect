@@ -95,6 +95,10 @@ provides the richest search/playback implementation:
 - `track` resolves to track search.
 - `artist` remains the fallback for generic music requests such as
   `Speel Nirvana`.
+- Explicit artist-prefix playback requests such as `Speel artiest Nirvana`,
+  `Speel band Pearl Jam` and `play artist Radiohead` are still artist intents.
+  They should start artist playback/top tracks instead of being treated as
+  track searches for a title named `artiest` or `artist`.
 
 Explicit media words win over generic phrasing. For example, `album`,
 `plaat`, `nummer`, `liedje`, `track`, `playlist` and `afspeellijst` should

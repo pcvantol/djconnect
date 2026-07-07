@@ -160,6 +160,9 @@ class SpotifyIntentTest(unittest.TestCase):
             "artiest Nirvana": "Nirvana",
             "band Pearl Jam": "Pearl Jam",
             "artist Radiohead": "Radiohead",
+            "speel artiest Nirvana": "Nirvana",
+            "speel band Pearl Jam": "Pearl Jam",
+            "play artist Radiohead": "Radiohead",
         }
 
         for text, expected in examples.items():

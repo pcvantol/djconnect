@@ -4,8 +4,8 @@
 
 - Repository: `pcvantol/djconnect`.
 - Integration domain: `djconnect`.
-- Current integration release: `3.2.28`.
-- Release status: DJConnect `3.2.28` keeps the `3.2.x` transport, pairing and
+- Current integration release: `3.2.29`.
+- Release status: DJConnect `3.2.29` keeps the `3.2.x` transport, pairing and
   backend abstraction model, including the premium-ready VibeCast feed endpoint
   for Apple clients and proxied artist shout-out images. Backend playback
   remains available through DJConnect commands, Ask DJ, VibeCast context and
@@ -333,10 +333,10 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 ## Current Release Notes
 
 - Current release line is `3.2.x`; only the latest GitHub release/tag should be kept after release cleanup.
-- Current latest baseline is `3.2.28`.
+- Current latest baseline is `3.2.29`.
 - Release workflow expectation: before every release, review and update all repo documentation affected by the change or release, including `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant `examples/*`. Always review all five supported translations (`en`, `nl`, `de`, `fr`, `es`) for completeness, natural wording and current behavior, even when the release appears API/docs/client-contract only. Explicitly decide whether test coverage must be expanded for the change; add coverage for new behavior paths, regression risks, translations, config/options-flow base/EN/NL/DE/FR/ES keysets, stale `data_description` keys, diagnostics/log redaction and edge cases, and run `python3 -m unittest tests.test_translations`. Keep `tests.test_postman_collection` aligned with the Postman examples so CI validates collection schema, auth headers, placeholders and client identity. Normal `main` CI now automatically cleans up old completed GitHub Actions workflow runs, keeping the newest 2 completed runs per workflow; keep extra history only when debugging requires it. Also clean up old semver releases/tags with `./cleanup_old_releases.sh --keep 1 --execute` unless multiple releases are intentionally retained. Keep any branch-protection/admin override explicit and manual; do not automate required-review disablement or protection changes in `release.sh`.
 - Before build/test/release validation, check whether third-party libraries, frameworks and build tools can be safely upgraded. Review the shared CI dependency-audit job plus local Homebrew/npm/pip/PlatformIO/.NET/tooling checks. If any version is upgraded, update lockfiles/manifests, `THIRD_PARTY_NOTICES.md` and dependency/design documentation in the same release. If an upgrade is skipped, record the reason here.
-- For the current `3.2.28` release, no pinned Python package versions were
+- For the current `3.2.29` release, no pinned Python package versions were
   upgraded. The current release refreshes release bootstrap, handoff and sync
   metadata while keeping backend commands and Ask DJ routes intact.
 - CI maintenance updated GitHub Actions runtime actions to `actions/checkout@v7`
@@ -366,7 +366,7 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Changelog expectation: keep `CHANGELOG.md` as a per-release changelog. Add a new section for each release and do not consolidate old release notes into one current-version block.
 - HACS-visible docs now show the public DJConnect website. The external website should use the same setup requirements: Home Assistant, HACS, Spotify Premium, HA Assist pipeline with STT/TTS, local-network pairing, and Nabu Casa/external HTTPS URL for Spotify OAuth.
 - `TECHNICAL_DESIGN_DECISIONS.md` documents reverse-engineered code-level design patterns, language-specific coding conventions and the dependency/license/source inventory. Keep it in the release checklist whenever architecture, dependencies, frameworks or external API usage changes.
-- Voice/Assist search text such as "ik wil Pearl Jam starten" must resolve to a Spotify artist first; generic free-text PTT search stays artist-first unless the request explicitly names another media type.
+- Voice/Assist search text such as "ik wil Pearl Jam starten" must resolve to a Spotify artist first; generic free-text PTT search stays artist-first unless the request explicitly names another media type. Explicit artist-prefix playback requests such as `Speel artiest Nirvana`, `Speel band Pearl Jam` and `play artist Radiohead` are artist intents and must not be parsed as track requests with title `artiest`/`artist`.
 - Explicit PTT media words choose the matching Spotify Search type: `nummer`/`liedje`/`track` -> track, `album`/`plaat` -> album, `playlist`/`afspeellijst` -> playlist, and `standaard playlist`/`favorieten`/`liked songs` -> configured default playlist.
 - Canonical spoken intent examples live in `examples/voice_intents.json`, with
   the maintenance contract in `VOICE_INTENT_DATA.md`; keep website/client docs

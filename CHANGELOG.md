@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.2.29
+
+- Fix deterministic spoken artist parsing so requests such as `Speel artiest
+  Nirvana` and `play artist Radiohead` resolve as artist playback, not as a
+  mistaken track search with title `artiest`.
+
 ## 3.2.28
 
 - Refresh release bootstrap, handoff and sync metadata for the next `3.2.x`

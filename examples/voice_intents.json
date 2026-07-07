@@ -16,6 +16,7 @@
     "Requests with album/plaat are album intents, even when the sentence also contains van/by.",
     "Requests with nummer/liedje/track/song are track intents.",
     "Generic requests such as Speel Nirvana remain artist-first.",
+    "Explicit artist-prefix playback requests such as Speel artiest Nirvana and play artist Radiohead remain artist-first.",
     "Current-track questions read Spotify playback status and generate a DJ response without starting playback.",
     "Direct playback-control phrases bypass Spotify search and Assist intent parsing.",
     "Local deterministic parsing can override stale or generic HA Assist results.",
@@ -154,6 +155,8 @@
       "plays_music": true,
       "nl": [
         "Speel Nirvana",
+        "Speel artiest Nirvana",
+        "Speel band Pearl Jam",
         "Start Metallica",
         "Zet London Grammar op",
         "Draai Pearl Jam",
@@ -163,6 +166,7 @@
       ],
       "en": [
         "Play Nirvana",
+        "Play artist Radiohead",
         "Start Metallica",
         "Put on London Grammar",
         "I want Pearl Jam",
