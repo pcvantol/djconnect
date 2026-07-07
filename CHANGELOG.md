@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.2.33
+
+- Throttle duplicate Spotify reauthorization repairs when Spotify rejects the
+  stored refresh token, so normal client polling no longer recreates the same
+  repair every minute while the user still gets one actionable reauthorization
+  issue.
+- Add regression coverage for repeated Spotify `invalid_grant` refresh failures
+  to keep repair creation idempotent during status and command polling.
+
 ## 3.2.32
 
 - Compact ESP32 playlist command responses so firmware receives non-empty JSON

@@ -27,6 +27,7 @@ SPOTIFY_API_BASE = "https://api.spotify.com/v1"
 CACHE_TTL_SECONDS = 30
 LISTENING_PROFILE_CACHE_TTL_SECONDS = 6 * 60 * 60
 ACCESS_TOKEN_EXPIRY_SAFETY_SECONDS = 60
+REAUTH_REPAIR_THROTTLE_SECONDS = 30 * 60
 MAX_QUEUE_ITEMS = 100
 MAX_PLAYLIST_ITEMS = 100
 SPOTIFY_PLAYLIST_PAGE_LIMIT = 50
@@ -2048,6 +2049,17 @@ def _create_spotify_reauth_issue(hass: HomeAssistant, entry: Any) -> None:
     """Create a repair hint when Spotify revoked the stored refresh token."""
     if entry is None:
         return
+    entry_id = str(getattr(entry, "entry_id", "") or "").strip()
+    throttle_key = entry_id or "global"
+    domain_data = hass.data.setdefault(DOMAIN, {}) if hasattr(hass, "data") else {}
+    throttle = domain_data.setdefault("spotify_reauth_issue_throttle", {})
+    now = time.monotonic()
+    last_created = float(throttle.get(throttle_key) or 0)
+    if last_created and now - last_created < REAUTH_REPAIR_THROTTLE_SECONDS:
+        _LOGGER.debug(
+            "DJConnect Spotify reauthorization repair already active; suppressing duplicate"
+        )
+        return
     try:
         from homeassistant.helpers import issue_registry as ir
 
@@ -2060,6 +2072,7 @@ def _create_spotify_reauth_issue(hass: HomeAssistant, entry: Any) -> None:
             severity=ir.IssueSeverity.WARNING,
             translation_key="spotify_refresh_token_revoked",
         )
+        throttle[throttle_key] = now
     except Exception:  # noqa: BLE001
         _LOGGER.debug(
             "DJConnect could not create Spotify reauthorization repair issue",
@@ -2076,6 +2089,10 @@ def _delete_spotify_reauth_issue(hass: HomeAssistant, entry: Any) -> None:
         entry_id = str(getattr(entry, "entry_id", "") or "").strip()
         if entry_id:
             ir.async_delete_issue(hass, DOMAIN, f"{entry_id}_spotify_refresh_token_revoked")
+        domain_data = hass.data.setdefault(DOMAIN, {}) if hasattr(hass, "data") else {}
+        throttle = domain_data.get("spotify_reauth_issue_throttle")
+        if isinstance(throttle, dict):
+            throttle.pop(entry_id or "global", None)
     except Exception:  # noqa: BLE001
         _LOGGER.debug(
             "DJConnect could not delete Spotify reauthorization repair issue",

@@ -4,8 +4,8 @@
 
 - Repository: `pcvantol/djconnect`.
 - Integration domain: `djconnect`.
-- Current integration release: `3.2.32`.
-- Release status: DJConnect `3.2.32` keeps the `3.2.x` transport, pairing and
+- Current integration release: `3.2.33`.
+- Release status: DJConnect `3.2.33` keeps the `3.2.x` transport, pairing and
   backend abstraction model, including the premium-ready VibeCast feed endpoint
   for Apple clients and proxied artist shout-out images. Backend playback
   remains available through DJConnect commands, Ask DJ, VibeCast context and
@@ -333,10 +333,10 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 ## Current Release Notes
 
 - Current release line is `3.2.x`; only the latest GitHub release/tag should be kept after release cleanup.
-- Current latest baseline is `3.2.32`.
+- Current latest baseline is `3.2.33`.
 - Release workflow expectation: before every release, review and update all repo documentation affected by the change or release, including `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant `examples/*`. Always review all five supported translations (`en`, `nl`, `de`, `fr`, `es`) for completeness, natural wording and current behavior, even when the release appears API/docs/client-contract only. Explicitly decide whether test coverage must be expanded for the change; add coverage for new behavior paths, regression risks, translations, config/options-flow base/EN/NL/DE/FR/ES keysets, stale `data_description` keys, diagnostics/log redaction and edge cases, and run `python3 -m unittest tests.test_translations`. Keep `tests.test_postman_collection` aligned with the Postman examples so CI validates collection schema, auth headers, placeholders and client identity. Normal `main` CI now automatically cleans up old completed GitHub Actions workflow runs, keeping the newest 2 completed runs per workflow; keep extra history only when debugging requires it. Also clean up old semver releases/tags with `./cleanup_old_releases.sh --keep 1 --execute` unless multiple releases are intentionally retained. Keep any branch-protection/admin override explicit and manual; do not automate required-review disablement or protection changes in `release.sh`.
 - Before build/test/release validation, check whether third-party libraries, frameworks and build tools can be safely upgraded. Review the shared CI dependency-audit job plus local Homebrew/npm/pip/PlatformIO/.NET/tooling checks. If any version is upgraded, update lockfiles/manifests, `THIRD_PARTY_NOTICES.md` and dependency/design documentation in the same release. If an upgrade is skipped, record the reason here.
-- For the current `3.2.32` release, no pinned Python package versions were
+- For the current `3.2.33` release, no pinned Python package versions were
   upgraded. The current release refreshes release bootstrap, handoff and sync
   metadata while keeping backend commands and Ask DJ routes intact.
 - CI maintenance updated GitHub Actions runtime actions to `actions/checkout@v7`

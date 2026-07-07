@@ -1659,6 +1659,40 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertEqual(self.issues[0]["translation_key"], "spotify_refresh_token_revoked")
         self.assertNotIn("secret-refresh", str(captured.exception))
 
+    def test_repeated_invalid_grant_throttles_duplicate_reauth_issue(self) -> None:
+        async def revoked(*args, **kwargs):
+            raise self.oauth.SpotifyTokenRefreshError(
+                400,
+                {"error": "invalid_grant", "error_description": "Refresh token revoked"},
+            )
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={"spotify_client_id": "client-id", "spotify_refresh_token": "secret-refresh"},
+            options={},
+        )
+        runtime = types.SimpleNamespace(entry=entry, latest_spotify_refresh_token=None)
+        runtime.config = dict(entry.data)
+        runtime.update = lambda **kwargs: setattr(runtime, "last_update", kwargs)
+        backend = self.backend.SpotifyBackend(types.SimpleNamespace(data={}), runtime)
+
+        original = self.backend.refresh_access_token
+        self.backend.refresh_access_token = revoked
+        try:
+            with self.assertRaises(self.backend.SpotifyReauthRequiredError):
+                asyncio.run(backend._access_token(force_refresh=True))
+            with self.assertLogs(self.backend._LOGGER, level="DEBUG") as captured:
+                with self.assertRaises(self.backend.SpotifyReauthRequiredError):
+                    asyncio.run(backend._access_token(force_refresh=True))
+        finally:
+            self.backend.refresh_access_token = original
+
+        self.assertEqual(
+            [issue["issue_id"] for issue in self.issues],
+            ["spotify_refresh_token_revoked"],
+        )
+        self.assertIn("suppressing duplicate", "\n".join(captured.output))
+
     def test_concurrent_access_token_refresh_uses_single_refresh_call(self) -> None:
         calls = []
 
