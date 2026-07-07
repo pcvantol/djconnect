@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib
 import asyncio
+import json
 import logging
 from pathlib import Path
 import sys
@@ -4719,32 +4720,190 @@ class VoiceHttpHelperTest(unittest.TestCase):
             [
                 {
                     "name": "DJConnect 0",
-                    "uri": "spotify:playlist:0",
                     "owner": "Peter",
+                    "uri": "spotify:playlist:0",
                     "image_url": "https://example.test/cover-0.jpg",
                 },
                 {
                     "name": "DJConnect 1",
-                    "uri": "spotify:playlist:1",
                     "owner": "Peter",
+                    "uri": "spotify:playlist:1",
                     "image_url": "https://example.test/cover-1.jpg",
                 },
                 {
                     "name": "DJConnect 2",
-                    "uri": "spotify:playlist:2",
                     "owner": "Peter",
+                    "uri": "spotify:playlist:2",
                     "image_url": "https://example.test/cover-2.jpg",
                 },
             ],
         )
         self.assertEqual(response["payload"]["items"], response["payload"]["playlists"])
-        self.assertEqual(response["payload"]["data"]["playlists"], response["payload"]["playlists"])
-        self.assertEqual(response["payload"]["data"]["items"], response["payload"]["playlists"])
-        self.assertEqual(response["payload"]["result"]["playlists"], response["payload"]["playlists"])
-        self.assertEqual(response["payload"]["result"]["items"], response["payload"]["playlists"])
+        self.assertNotIn("data", response["payload"])
+        self.assertNotIn("result", response["payload"])
         self.assertEqual(response["payload"]["count"], 3)
         self.assertTrue(all(item.get("uri") for item in response["payload"]["playlists"]))
         self.assertTrue(all(item.get("image_url") for item in response["payload"]["playlists"]))
+
+    def test_command_view_playlists_returns_json_for_model_specific_esp32_payload(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+        device_id = "djconnect-lilygo-t-embed-s3-90B70990A994"
+        calls = []
+
+        class Runtime:
+            device_token = "device-token"
+            device_status = {"device_id": device_id, "client_type": "esp32"}
+            config = {"client_type": "esp32"}
+            last_playback = {"has_playback": False, "is_playing": False}
+
+            def authorize_device_request(self, headers, body_device_id=None, client_type=None):
+                return (
+                    headers.get("Authorization") == "Bearer device-token"
+                    and headers.get("X-DJConnect-Device-ID") == device_id
+                    and body_device_id == device_id
+                    and client_type == "esp32"
+                )
+
+            def update(self, **kwargs):
+                self.last_update = kwargs
+
+        runtime = Runtime()
+
+        async def command_handler(hass, runtime_arg, command, value=None, *, play=None):
+            calls.append((command, value, play))
+            return {
+                "success": True,
+                "backend_available": True,
+                "playlists": [
+                    {
+                        "name": "Roadtrip",
+                        "uri": "spotify:playlist:roadtrip",
+                        "owner": "Peter",
+                        "image_url": "https://example.test/roadtrip.jpg",
+                    }
+                ],
+            }
+
+        class Request:
+            headers = {
+                "Authorization": "Bearer device-token",
+                "X-DJConnect-Device-ID": device_id,
+            }
+            app = {"hass": types.SimpleNamespace(data={const.DOMAIN: {"entry-1": runtime}})}
+
+            async def json(self):
+                return {
+                    "command": "playlists",
+                    "limit": 20,
+                    "device_id": device_id,
+                    "client_type": "esp32",
+                    "payload_type": "command",
+                    "firmware": "0.0.0",
+                }
+
+        original = self.http.run_music_command
+        self.http.run_music_command = command_handler
+        try:
+            response = asyncio.run(self.http.DJConnectCommandView(None).post(Request()))
+        finally:
+            self.http.run_music_command = original
+
+        self.assertEqual(response["status_code"], 200)
+        self.assertIsInstance(response["payload"], dict)
+        self.assertTrue(response["payload"])
+        self.assertEqual(
+            calls,
+            [("playlists", {"client_type": "esp32", "limit": 20}, False)],
+        )
+        self.assertTrue(response["payload"]["success"])
+        self.assertTrue(response["payload"]["backend_available"])
+        self.assertEqual(response["payload"]["playlists"][0]["name"], "Roadtrip")
+        self.assertEqual(response["payload"]["playlists"][0]["uri"], "spotify:playlist:roadtrip")
+        self.assertEqual(response["payload"]["items"], response["payload"]["playlists"])
+        self.assertNotIn("data", response["payload"])
+        self.assertNotIn("result", response["payload"])
+        self.assertEqual(response["payload"]["count"], 1)
+
+    def test_command_view_playlists_compacts_rich_esp32_playlist_payload(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+        device_id = "djconnect-lilygo-t-embed-s3-90B70990A994"
+
+        class Runtime:
+            device_token = "device-token"
+            device_status = {"device_id": device_id, "client_type": "esp32"}
+            config = {"client_type": "esp32"}
+
+            def authorize_device_request(self, headers, body_device_id=None, client_type=None):
+                return True
+
+            def update(self, **kwargs):
+                self.last_update = kwargs
+
+        rich_playlists = [
+            {
+                "id": f"spotify:playlist:{index}",
+                "name": f"Roadtrip playlist with a fairly long display name {index}",
+                "title": f"Roadtrip playlist with a fairly long display name {index}",
+                "display_title": f"Roadtrip playlist with a fairly long display name {index}",
+                "owner": "Peter",
+                "subtitle": "Peter",
+                "uri": f"spotify:playlist:{index}",
+                "value": f"spotify:playlist:{index}",
+                "playlist_uri": f"spotify:playlist:{index}",
+                "image_url": f"https://image-cdn.example.test/playlists/{index}/cover-640.jpg",
+                "imageUrl": f"https://image-cdn.example.test/playlists/{index}/cover-640.jpg",
+                "album_image_url": f"https://image-cdn.example.test/playlists/{index}/cover-640.jpg",
+                "albumImageUrl": f"https://image-cdn.example.test/playlists/{index}/cover-640.jpg",
+                "album_art_url": f"https://image-cdn.example.test/playlists/{index}/cover-640.jpg",
+                "media_image_url": f"https://image-cdn.example.test/playlists/{index}/cover-640.jpg",
+                "entity_picture": f"https://image-cdn.example.test/playlists/{index}/cover-640.jpg",
+                "thumbnail_url": f"https://image-cdn.example.test/playlists/{index}/cover-640.jpg",
+            }
+            for index in range(20)
+        ]
+
+        async def command_handler(hass, runtime_arg, command, value=None, *, play=None):
+            return {
+                "success": True,
+                "backend_available": True,
+                "playlists": rich_playlists,
+                "items": rich_playlists,
+                "data": {"playlists": rich_playlists, "items": rich_playlists},
+                "result": {"playlists": rich_playlists, "items": rich_playlists},
+            }
+
+        class Request:
+            headers = {
+                "Authorization": "Bearer device-token",
+                "X-DJConnect-Device-ID": device_id,
+            }
+            app = {"hass": types.SimpleNamespace(data={const.DOMAIN: {"entry-1": Runtime()}})}
+
+            async def json(self):
+                return {
+                    "command": "playlists",
+                    "limit": 20,
+                    "device_id": device_id,
+                    "client_type": "esp32",
+                    "payload_type": "command",
+                    "firmware": "0.0.0",
+                }
+
+        original = self.http.run_music_command
+        self.http.run_music_command = command_handler
+        try:
+            response = asyncio.run(self.http.DJConnectCommandView(None).post(Request()))
+        finally:
+            self.http.run_music_command = original
+
+        body = json.dumps(response["payload"], separators=(",", ":"))
+        self.assertEqual(response["status_code"], 200)
+        self.assertEqual(response["payload"]["count"], 20)
+        self.assertEqual(len(response["payload"]["playlists"]), 20)
+        self.assertEqual(response["payload"]["items"], response["payload"]["playlists"])
+        self.assertNotIn("data", response["payload"])
+        self.assertNotIn("result", response["payload"])
+        self.assertLess(len(body), 12000)
 
     def test_command_view_playlists_merges_client_context_from_value(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")

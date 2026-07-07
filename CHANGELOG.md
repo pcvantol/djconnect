@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.2.32
+
+- Compact ESP32 playlist command responses so firmware receives non-empty JSON
+  with top-level `playlists`/`items` aliases without oversized nested
+  duplicate payloads.
+- Add regression coverage for the model-specific ESP32 playlists payload with
+  `client_type:"esp32"`, `limit:20`, `payload_type:"command"` and firmware
+  metadata.
+
 ## 3.2.31
 
 - Keep the local ESP32 pairing flow default device name at `DJConnect ESP32`

@@ -5,7 +5,7 @@ import logging
 from typing import Any
 
 from . import http as http_helpers
-from .const import CONF_CLIENT_TYPE, CONF_LOCAL_URL, VERSION
+from .const import CLIENT_TYPE_ESP32, CONF_CLIENT_TYPE, CONF_LOCAL_URL, VERSION
 from .http import (
     ERROR_MESSAGES,
     _backend_unavailable_payload,
@@ -265,12 +265,16 @@ async def async_handle_command_payload(
             runtime.device_status["backend_available"] = True
         _decorate_command_result(hass, runtime, result, music_dna_key)
         if normalized_command == "playlists":
-            _with_playlist_aliases(result)
+            if client_type == CLIENT_TYPE_ESP32:
+                _with_esp32_playlist_aliases(result)
+            else:
+                _with_playlist_aliases(result)
             _debug_playlists_result(result, 200, runtime=runtime)
         if normalized_command == "queue":
             _debug_queue_result(result, 200, runtime=runtime)
         _debug_playback_result("command", result, 200, runtime=runtime, command=normalized_command)
         return result, 200
+
     except ValueError as exc:
         result = _error_payload("invalid_command", str(exc))
         if normalized_command == "playlists":
@@ -322,6 +326,71 @@ async def async_handle_command_payload(
             _debug_queue_result(result, 200, runtime=runtime)
         _debug_playback_result("command", result, 200, runtime=runtime, command=normalized_command)
         return result, 200
+
+
+def _with_esp32_playlist_aliases(result: dict[str, Any]) -> dict[str, Any]:
+    """Expose playlist aliases for firmware without duplicating large payloads."""
+    playlists = [
+        _esp32_playlist_item(item)
+        for item in http_helpers._playlist_items_from_result(result)
+        if isinstance(item, dict)
+    ]
+    result["playlists"] = playlists
+    result["items"] = playlists
+    result["count"] = len(playlists)
+    for key in ("data", "result"):
+        container = result.get(key)
+        if isinstance(container, dict) and not any(
+            nested in container for nested in ("items", "playlists")
+        ):
+            continue
+        result.pop(key, None)
+    return result
+
+
+def _esp32_playlist_item(item: dict[str, Any]) -> dict[str, Any]:
+    """Return the compact playlist fields the ESP firmware reads."""
+    name = str(
+        item.get("name")
+        or item.get("title")
+        or item.get("display_title")
+        or item.get("displayTitle")
+        or ""
+    ).strip()
+    owner = str(
+        item.get("owner")
+        or item.get("owner_name")
+        or item.get("subtitle")
+        or item.get("creator")
+        or ""
+    ).strip()
+    uri = str(
+        item.get("uri")
+        or item.get("playlist_uri")
+        or item.get("playlistUri")
+        or item.get("media_content_id")
+        or item.get("mediaContentId")
+        or item.get("value")
+        or item.get("id")
+        or ""
+    ).strip()
+    image_url = str(
+        item.get("image_url")
+        or item.get("imageUrl")
+        or item.get("album_image_url")
+        or item.get("albumImageUrl")
+        or item.get("entity_picture")
+        or item.get("thumbnail_url")
+        or ""
+    ).strip()
+    compact = {
+        "name": name,
+        "owner": owner,
+        "uri": uri,
+    }
+    if image_url:
+        compact["image_url"] = image_url
+    return compact
 
 
 def _current_track_question_text(data: dict[str, Any], command: str, value: Any) -> str:
