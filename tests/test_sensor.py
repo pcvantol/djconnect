@@ -366,6 +366,7 @@ class DJConnectSensorTest(unittest.TestCase):
         self.assertNotIn("screen_state", keys)
         self.assertNotIn("led_state", keys)
         self.assertIn("status", keys)
+        self.assertIn("firmware_version", keys)
         self.assertIn("last_corrected_stt", keys)
         self.assertNotIn("last_track", keys)
         self.assertNotIn("spotify_status", keys)
@@ -403,10 +404,57 @@ class DJConnectSensorTest(unittest.TestCase):
 
         keys = {entity._attr_translation_key for entity in added}
         self.assertIn("apns_registration", keys)
+        self.assertNotIn("firmware_version", keys)
         self.assertIn("battery", keys)
         self.assertIn("wifi_rssi", keys)
         self.assertIn("screen_state", keys)
         self.assertIn("led_state", keys)
+
+    def test_esp32_setup_removes_legacy_app_version_sensor(self) -> None:
+        class Registry:
+            def __init__(self) -> None:
+                self.removed = []
+
+            def async_get_entity_id(self, platform, domain, unique_id):
+                if unique_id == "djconnect_entry-1_firmware_version":
+                    return "sensor.djconnect_app_versie"
+                return None
+
+            def async_remove(self, entity_id):
+                self.removed.append(entity_id)
+
+        registry = Registry()
+        original_er = self.sensor.er
+        self.sensor.er = types.SimpleNamespace(async_get=lambda hass: registry)
+        try:
+            added = []
+            runtime = types.SimpleNamespace(
+                entry=types.SimpleNamespace(entry_id="entry-1"),
+                device_token="device-token",
+                device_status={"client_type": "esp32"},
+                last_error=None,
+                last_playback=None,
+                last_text=None,
+                last_stt_text=None,
+                last_dj_text=None,
+                last_intent=None,
+                last_spotify_search=None,
+                last_resolved_media=None,
+                ota_in_progress=False,
+                ota_last_error=None,
+                listeners=[],
+                client_type=lambda: "esp32",
+            )
+            hass = types.SimpleNamespace(data={"djconnect": {"entry-1": runtime}})
+            entry = types.SimpleNamespace(entry_id="entry-1")
+
+            asyncio.run(
+                self.sensor.async_setup_entry(hass, entry, lambda entities: added.extend(entities))
+            )
+        finally:
+            self.sensor.er = original_er
+
+        self.assertIn("sensor.djconnect_app_versie", registry.removed)
 
     def test_screen_and_led_state_sensors_read_status_payload(self) -> None:
         runtime = types.SimpleNamespace(

@@ -1806,12 +1806,16 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._default_pair_client_type(),
         )
         default_device_name = _clean(defaults.get(CONF_DEVICE_NAME), DEFAULT_DEVICE_NAME)
+        pairing_setup_method = getattr(self, "_pairing_setup_method", "")
         if getattr(self, "_discovered_device_name_authoritative", False):
             device_name = default_device_name
-        elif not defaults.get(CONF_CLIENT_TYPE):
-            device_name = default_device_name
-        else:
+        elif (
+            defaults.get(CONF_CLIENT_TYPE)
+            or pairing_setup_method == SETUP_METHOD_PAIR_LOCAL_DEVICE
+        ):
             device_name = _device_name_for_client_type(client_type, default_device_name)
+        else:
+            device_name = default_device_name
         local_url = _clean(defaults.get(CONF_LOCAL_URL), _default_local_url(pair_code))
         schema: dict[Any, Any] = {}
         discovery_options = self._discovered_client_options()

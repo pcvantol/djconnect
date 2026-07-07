@@ -39,6 +39,7 @@ REMOVED_BACKEND_SENSOR_KEYS = (
     "playlists",
     "outputs",
 )
+REMOVED_ESP32_SENSOR_KEYS = ("firmware_version",)
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -47,6 +48,7 @@ async def async_setup_entry(
 ) -> None:
     runtime = hass.data[DOMAIN][entry.entry_id]
     _remove_legacy_entities(hass, runtime, "sensor", REMOVED_BACKEND_SENSOR_KEYS)
+    client_type = _runtime_client_type(runtime)
     if _runtime_client_type(runtime) == CLIENT_TYPE_CONVERSATION_AGENT:
         async_add_entities([DJConnectApnsRegistrationSensor(runtime)])
         return
@@ -55,10 +57,10 @@ async def async_setup_entry(
         DJConnectApnsRegistrationSensor(runtime),
         DJConnectLastTextSensor(runtime),
         DJConnectLastCorrectedSttSensor(runtime),
-        DJConnectFirmwareSensor(runtime),
         DJConnectPairingStatusSensor(runtime),
     ]
-    if _runtime_client_type(runtime) == CLIENT_TYPE_ESP32:
+    if client_type == CLIENT_TYPE_ESP32:
+        _remove_legacy_entities(hass, runtime, "sensor", REMOVED_ESP32_SENSOR_KEYS)
         entities.extend(
             [
                 DJConnectBatterySensor(runtime),
@@ -67,6 +69,8 @@ async def async_setup_entry(
                 DJConnectLedStateSensor(runtime),
             ]
         )
+    else:
+        entities.append(DJConnectFirmwareSensor(runtime))
     async_add_entities(entities)
 
 

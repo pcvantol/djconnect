@@ -1443,6 +1443,16 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertEqual(result["step_id"], "pair_local_device_details")
 
+    def test_pair_step_prefills_esp32_device_name_for_local_route(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
+        flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_LOCAL_DEVICE
+
+        result = asyncio.run(flow.async_step_pair())
+        defaults = {marker.key: marker.default for marker in result["data_schema"].schema}
+
+        self.assertEqual(defaults[self.const.CONF_DEVICE_NAME], "DJConnect ESP32")
+
     def test_pair_step_uses_translated_pair_form_for_apple_windows_route(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))

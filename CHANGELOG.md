@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.2.31
+
+- Keep the local ESP32 pairing flow default device name at `DJConnect ESP32`
+  instead of falling back to the generic `DJConnect` label.
+- Stop creating the app-version sensor for ESP32 entries and remove the legacy
+  entity during setup, while keeping the ESP32 firmware update entity.
+
 ## 3.2.30
 
 - Use explicit Home Assistant default device names for local runtimes:
