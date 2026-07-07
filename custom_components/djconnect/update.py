@@ -9,7 +9,6 @@ from typing import Any
 from homeassistant.components.update import UpdateEntity, UpdateEntityFeature
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import (
@@ -25,6 +24,7 @@ from .const import (
     DEFAULT_MIN_BATTERY_FOR_OTA,
     DOMAIN,
 )
+from .device_info import djconnect_device_info
 from .entity_ids import entry_unique_id
 from .github import fetch_latest_firmware_release, is_newer
 
@@ -80,13 +80,8 @@ class DJConnectFirmwareUpdate(UpdateEntity):
         return _runtime_client_type(self.runtime) == CLIENT_TYPE_ESP32
 
     @property
-    def device_info(self) -> DeviceInfo:
-        return DeviceInfo(
-            identifiers={(DOMAIN, self.runtime.entry.entry_id)},
-            name="DJConnect",
-            manufacturer="DJConnect",
-            model="DJConnect device",
-        )
+    def device_info(self):
+        return djconnect_device_info(self.runtime)
 
     @property
     def installed_version(self) -> str | None:

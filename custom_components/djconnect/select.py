@@ -6,7 +6,6 @@ from typing import Any
 from homeassistant.components.select import SelectEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 try:
     from homeassistant.helpers import entity_registry as er
@@ -14,6 +13,7 @@ except ImportError:  # pragma: no cover - older HA/test stubs
     er = None
 
 from .const import CLIENT_TYPE_ESP32, DOMAIN
+from .device_info import djconnect_device_info
 from .entity_ids import entry_unique_id
 from .use_cases import run_music_command
 
@@ -117,13 +117,8 @@ class DJConnectCommandSelect(SelectEntity):
         runtime.listeners.append(self._handle_runtime_update)
 
     @property
-    def device_info(self) -> DeviceInfo:
-        return DeviceInfo(
-            identifiers={(DOMAIN, self.runtime.entry.entry_id)},
-            name="DJConnect",
-            manufacturer="DJConnect",
-            model="DJConnect device",
-        )
+    def device_info(self):
+        return djconnect_device_info(self.runtime)
 
     @property
     def options(self) -> list[str]:

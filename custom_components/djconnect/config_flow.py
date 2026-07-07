@@ -193,7 +193,7 @@ CLIENT_TYPE_NAME_SUFFIXES = {
     "ios": "iOS",
     "macos": "macOS",
     "watchos": "Watch",
-    "raspberry_pi": "Raspberry Pi",
+    "raspberry_pi": "Pi",
     "windows": "Windows",
     CLIENT_TYPE_CONVERSATION_AGENT: "Assist",
 }

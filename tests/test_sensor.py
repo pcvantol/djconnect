@@ -98,6 +98,42 @@ class DJConnectSensorTest(unittest.TestCase):
 
         self.assertEqual(entity.native_value, "paired")
 
+    def test_device_info_uses_client_type_default_names(self) -> None:
+        cases = (
+            ("esp32", "DJConnect ESP32"),
+            ("raspberry_pi", "DJConnect Pi"),
+        )
+        for client_type, expected_name in cases:
+            with self.subTest(client_type=client_type):
+                runtime = types.SimpleNamespace(
+                    entry=types.SimpleNamespace(entry_id=f"entry-{client_type}"),
+                    config={"client_type": client_type},
+                    device_status={},
+                    device_token="device-token",
+                    listeners=[],
+                    client_type=lambda client_type=client_type: client_type,
+                )
+
+                self.assertEqual(
+                    self.sensor.DJConnectStatusSensor(runtime).device_info["name"],
+                    expected_name,
+                )
+
+    def test_device_info_preserves_configured_device_name(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            config={"client_type": "esp32", "device_name": "Studio DJConnect"},
+            device_status={},
+            device_token="device-token",
+            listeners=[],
+            client_type=lambda: "esp32",
+        )
+
+        self.assertEqual(
+            self.sensor.DJConnectStatusSensor(runtime).device_info["name"],
+            "Studio DJConnect",
+        )
+
     def test_app_client_backend_sensors_prefer_playback_and_keep_unknown_unknown(self) -> None:
         runtime = types.SimpleNamespace(
             entry=types.SimpleNamespace(entry_id="entry-1"),

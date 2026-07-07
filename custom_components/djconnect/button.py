@@ -7,7 +7,6 @@ from homeassistant.components.button import ButtonEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.device_registry import DeviceInfo
 try:
     from homeassistant.helpers import entity_registry as er
 except ImportError:  # pragma: no cover - older HA/test stubs
@@ -24,6 +23,7 @@ from .const import (
     CONF_DEVICE_ID,
     DOMAIN,
 )
+from .device_info import djconnect_device_info
 from .entity_ids import entry_unique_id
 from .push import EVENT_ASK_DJ_CONFIRM, async_send_event as async_send_push_event
 from .spotify_backend import SpotifyBackendError
@@ -94,13 +94,8 @@ class DJConnectTestVoiceButton(ButtonEntity):
         self._attr_unique_id = entry_unique_id(runtime, "test_dj_voice")
 
     @property
-    def device_info(self) -> DeviceInfo:
-        return DeviceInfo(
-            identifiers={(DOMAIN, self.runtime.entry.entry_id)},
-            name="DJConnect",
-            manufacturer="DJConnect",
-            model="DJConnect device",
-        )
+    def device_info(self):
+        return djconnect_device_info(self.runtime)
 
     async def async_press(self) -> None:
         await async_speak_dj_test(self.hass, self.runtime, DEFAULT_TEST_TTS_TEXT)
@@ -117,13 +112,8 @@ class DJConnectBaseButton(ButtonEntity):
         self._attr_unique_id = entry_unique_id(runtime, translation_key)
 
     @property
-    def device_info(self) -> DeviceInfo:
-        return DeviceInfo(
-            identifiers={(DOMAIN, self.runtime.entry.entry_id)},
-            name="DJConnect",
-            manufacturer="DJConnect",
-            model="DJConnect device",
-        )
+    def device_info(self):
+        return djconnect_device_info(self.runtime)
 
 
 class DJConnectCommandButton(DJConnectBaseButton):

@@ -8,7 +8,6 @@ except ImportError:  # pragma: no cover - older HA/test stubs
     EntityCategory = None
 from homeassistant.const import PERCENTAGE, SIGNAL_STRENGTH_DECIBELS_MILLIWATT
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 try:
     from homeassistant.helpers import entity_registry as er
@@ -23,6 +22,7 @@ from .const import (
     CLIENT_TYPE_WATCHOS,
     DOMAIN,
 )
+from .device_info import djconnect_device_info
 from .entity_ids import entry_unique_id
 from .push import relay_configured
 from .use_cases import run_music_command
@@ -104,13 +104,8 @@ class DJConnectBaseSensor(SensorEntity):
         runtime.listeners.append(self._handle_runtime_update)
 
     @property
-    def device_info(self) -> DeviceInfo:
-        return DeviceInfo(
-            identifiers={(DOMAIN, self.runtime.entry.entry_id)},
-            name="DJConnect",
-            manufacturer="DJConnect",
-            model="DJConnect device",
-        )
+    def device_info(self):
+        return djconnect_device_info(self.runtime)
 
     @callback
     def _handle_runtime_update(self) -> None:

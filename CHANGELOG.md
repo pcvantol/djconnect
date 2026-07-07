@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.2.30
+
+- Use explicit Home Assistant default device names for local runtimes:
+  `DJConnect ESP32` and `DJConnect Pi`, while preserving configured custom
+  device names.
+- Let local ESP device calls fall back to the cached status IP address when a
+  stored `.local` mDNS URL is unavailable, so HA can still reach paired ESP32
+  devices after mDNS failures.
+
 ## 3.2.29
 
 - Fix deterministic spoken artist parsing so requests such as `Speel artiest

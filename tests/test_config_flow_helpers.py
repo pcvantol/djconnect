@@ -1212,6 +1212,22 @@ class ConfigFlowHelperTest(unittest.TestCase):
             "Studio Windows",
         )
 
+    def test_config_flow_suggests_local_device_type_names(self) -> None:
+        self.assertEqual(
+            self.config_flow._device_name_for_client_type(
+                self.const.CLIENT_TYPE_ESP32,
+                "DJConnect",
+            ),
+            "DJConnect ESP32",
+        )
+        self.assertEqual(
+            self.config_flow._device_name_for_client_type(
+                self.const.CLIENT_TYPE_RASPBERRY_PI,
+                "DJConnect",
+            ),
+            "DJConnect Pi",
+        )
+
     def test_client_identity_module_scopes_pairing_client_types(self) -> None:
         identity = importlib.import_module("custom_components.djconnect.client_identity")
 

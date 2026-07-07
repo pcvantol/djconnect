@@ -1531,7 +1531,6 @@ class TtsHelperTest(unittest.TestCase):
         self.assertEqual(
             [call["url"] for call in session.calls],
             [
-                "http://djconnect-lilygo-t-embed-s3-90B70990A994.local/api/device/ota",
                 "http://192.168.1.109/api/device/ota",
             ],
         )
@@ -1707,6 +1706,50 @@ class TtsHelperTest(unittest.TestCase):
             self.integration.async_discover_device_url = original_discover
 
         self.assertEqual(url, "http://djconnect-lilygo-90B70990A994.local")
+
+    def test_device_local_url_falls_back_to_cached_wifi_ip_when_mdns_unavailable(self) -> None:
+        entry = types.SimpleNamespace(
+            data={
+                self.const.CONF_DEVICE_ID: "djconnect-lilygo-t-embed-s3-90B70990A994",
+                self.const.CONF_LOCAL_URL: "http://djconnect-lilygo-t-embed-s3-90B70990A994.local:61234",
+            },
+            options={},
+        )
+        runtime = self.integration.DJConnectRuntime(entry=entry)
+        runtime.device_status["wifi"] = {"ip": "192.168.1.109"}
+
+        async def discover(hass, runtime):
+            return None
+
+        original_discover = self.integration.async_discover_device_url
+        self.integration.async_discover_device_url = discover
+        try:
+            url = asyncio.run(runtime.async_device_local_url(hass=object()))
+        finally:
+            self.integration.async_discover_device_url = original_discover
+
+        self.assertEqual(url, "http://192.168.1.109:61234")
+        self.assertEqual(runtime.device_status["local_url"], "http://192.168.1.109:61234")
+
+    def test_device_local_url_falls_back_to_cached_status_ip_without_stored_url(self) -> None:
+        entry = types.SimpleNamespace(
+            data={self.const.CONF_DEVICE_ID: "djconnect-lilygo-t-embed-s3-90B70990A994"},
+            options={},
+        )
+        runtime = self.integration.DJConnectRuntime(entry=entry)
+        runtime.device_status["network"] = {"ip_address": "192.168.1.110", "api_port": 61234}
+
+        async def discover(hass, runtime):
+            return None
+
+        original_discover = self.integration.async_discover_device_url
+        self.integration.async_discover_device_url = discover
+        try:
+            url = asyncio.run(runtime.async_device_local_url(hass=object()))
+        finally:
+            self.integration.async_discover_device_url = original_discover
+
+        self.assertEqual(url, "http://192.168.1.110:61234")
 
     def test_tts_audio_store_returns_wav_and_unknown_404(self) -> None:
         hass = types.SimpleNamespace(data={})

@@ -370,12 +370,20 @@ class DJConnectRuntime:
         if local_url:
             local_url = str(local_url)
             if not _is_pair_code_mdns_url(local_url):
+                ip_fallback_url = _status_ip_fallback_url(self.device_status, local_url)
+                if ip_fallback_url and _is_mdns_url(local_url):
+                    self.device_status["local_url"] = ip_fallback_url
+                    return ip_fallback_url
                 return local_url
             _LOGGER.debug("DJConnect ignoring pair-code based mDNS URL: %s", local_url)
         discovered_url = await async_discover_device_url(hass, self)
         if discovered_url:
             self.device_status["local_url"] = discovered_url
             return discovered_url
+        ip_fallback_url = _status_ip_fallback_url(self.device_status, local_url)
+        if ip_fallback_url:
+            self.device_status["local_url"] = ip_fallback_url
+            return ip_fallback_url
         device_id = self.device_status.get("device_id") or self.pairing_device_id
         device_id = device_id or self.config.get(CONF_DEVICE_ID)
         return _device_id_mdns_fallback_url(device_id)
@@ -1009,6 +1017,52 @@ def _is_ipv4_address(value: str) -> bool:
         return False
 
 
+def _status_ip_fallback_url(status: dict[str, Any], previous_url: Any = "") -> str | None:
+    """Return an IP-based device URL from cached ESP status."""
+    if not isinstance(status, dict):
+        return None
+    ip = _first_status_ip(status)
+    if not ip:
+        return None
+    port = _url_port(previous_url) or _first_status_port(status)
+    return f"http://{ip}{f':{port}' if port else ''}"
+
+
+def _first_status_ip(status: dict[str, Any]) -> str:
+    for source in (
+        status,
+        status.get("wifi") if isinstance(status.get("wifi"), dict) else {},
+        status.get("network") if isinstance(status.get("network"), dict) else {},
+    ):
+        for key in ("ip", "ip_address", "wifi_ip", "local_ip"):
+            value = str(source.get(key) or "").strip()
+            if _is_ipv4_address(value):
+                return value
+    return ""
+
+
+def _first_status_port(status: dict[str, Any]) -> str:
+    for source in (
+        status,
+        status.get("api") if isinstance(status.get("api"), dict) else {},
+        status.get("network") if isinstance(status.get("network"), dict) else {},
+    ):
+        for key in ("port", "api_port", "local_port"):
+            value = source.get(key)
+            try:
+                port = int(value)
+            except (TypeError, ValueError):
+                continue
+            if 0 < port <= 65535:
+                return str(port)
+    return ""
+
+
+def _url_port(url: Any) -> str:
+    match = re.match(r"^https?://[^/:]+:(\d+)(?:/|$)", str(url or "").strip())
+    return match.group(1) if match else ""
+
+
 def _is_real_djconnect_device_id(device_id: str) -> bool:
     return bool(REAL_DJCONNECT_DEVICE_ID_PATTERN.fullmatch(str(device_id or "").strip()))
 
@@ -1063,7 +1117,12 @@ def _device_id_matches(known_device: str, request_device: str) -> bool:
 
 def _is_pair_code_mdns_url(value: str) -> bool:
     """Detect obsolete fallback URLs created from short setup pair codes."""
-    return bool(re.fullmatch(r"https?://djconnect-\d{6}\.local/?", value.strip()))
+    return bool(re.fullmatch(r"https?://djconnect-\d{6}\.local(?::\d+)?/?", value.strip()))
+
+
+def _is_mdns_url(value: str) -> bool:
+    """Detect a local mDNS hostname URL."""
+    return bool(re.match(r"^https?://[^/]+\.local(?::\d+)?(?:/.*)?$", str(value or "").strip()))
 
 
 def _url_from_service_info(info: Any, runtime: DJConnectRuntime) -> str | None:
