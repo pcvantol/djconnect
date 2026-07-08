@@ -24,7 +24,7 @@ Lees eerst:
 
 Belangrijke huidige status:
 - Project: DJConnect Home Assistant custom integration, domain `djconnect`.
-- Laatste release: `3.2.39`.
+- Laatste release: `3.2.40`.
 - Repo is public en MIT-licensed.
 - Alle DJConnect repos zijn MIT-licensed, tenzij een specifieke third-party dependency anders vermeldt.
 - `FIRMWARE-LICENSE.md` is verwijderd.
@@ -111,6 +111,12 @@ Belangrijke huidige status:
 - `/api/djconnect/v1/ask_dj/message` responses bevatten canonical `messages[]` in render-volgorde plus gedeelde `exchange_id` en `exchange_order` (`0` user, `1` assistant). Clients gebruiken dit om vraag altijd boven antwoord te houden bij HTTP/push/history timing races.
 - Ask DJ history is HA-user scoped, max 1000 berichten, met retention system messages en `history_limit`, `history_trimmed_before`, `history_trimmed_count` metadata voor client cache cleanup.
 - Ask DJ mood-zones worden server-side uit Apple client `mood` afgeleid: `0`-`24` chill, `25`-`59` groove, `60`-`84` energy, `85`-`100` party. Spoken DJ announcements gebruiken die mood-zone.
+- Apple push bootstrap metadata staat in HA pairing/status/command responses:
+  `ha_install_id`, `integration_version` en alleen bij echte pairingcontext
+  optioneel `pairing_session_id`. Dit is niet geheim en is bedoeld voor Apple
+  clients die zelf bij Central `/v1/pairing/bootstrap-proof` aanroepen; HA geeft
+  daarbij nooit APNs tokens, install tokens, bearer tokens of bootstrap proofs
+  aan clients terug.
 - Apple push in de HACS-integratie is relay-only via de centrale DJConnect API met een per-install `djci_` token. HACS bevat geen globale relay secret, bewaart geen APNs tokens en bevat geen APNs `.p8` provider key of directe Apple push delivery. iOS/macOS/watchOS clients leveren waar nodig een short-lived `bootstrap_proof` bij push registration; ESP32, Raspberry Pi en Assist-agent-only entries hebben die proof niet nodig. Push is alleen voor expliciete Ask DJ response/confirm attention events, met foreground suppression en rate limiting; nooit voor track/playback/status/idle updates.
 - Cross-device clear/trim is backend-authoritative: clients vergelijken `clear_revision`, `history_revision` en trim metadata; niet op system-message tekst parsen.
 - Ask DJ gebruikt `playback_actions[]` voor Play Now en confirmation buttons; `confirmation_actions[]` bevat dezelfde Ja/Nee confirmation actions voor clients die die apart willen renderen.

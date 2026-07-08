@@ -9,6 +9,7 @@ from .const import CLIENT_TYPE_ESP32, CONF_CLIENT_TYPE, CONF_LOCAL_URL, VERSION
 from .http import (
     ERROR_MESSAGES,
     _backend_unavailable_payload,
+    _bootstrap_metadata,
     _ha_version_payload,
     _handle_ask_dj_followup_response,
     _handle_ask_dj_play_recommendation,
@@ -1606,6 +1607,7 @@ def _decorate_command_result(
 ) -> None:
     if music_dna_key:
         result.setdefault("music_dna_key", music_dna_key)
+    result.update(_bootstrap_metadata(hass, runtime))
     result.update(_ha_version_payload())
     result.update(music_backend_metadata(hass, runtime))
 

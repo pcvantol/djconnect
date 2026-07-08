@@ -39,13 +39,15 @@ class DJConnectCentralApiError(Exception):
     """Raised when the central API cannot be called safely."""
 
 
-def ensure_ha_install_id(runtime: Any) -> str:
+def ensure_ha_install_id(runtime: Any, hass: Any | None = None) -> str:
     """Return a stable HA install id, generating one for old config entries."""
     config = _runtime_config(runtime)
     current = _clean(config.get(CONF_HA_INSTALL_ID), 160)
     if current:
         return current
-    return f"ha_{secrets.token_urlsafe(24)}"
+    install_id = f"ha_{secrets.token_urlsafe(24)}"
+    _persist_ha_install_id(hass, runtime, install_id)
+    return install_id
 
 
 def central_api_configured(runtime: Any) -> bool:
@@ -65,7 +67,7 @@ async def async_ensure_install_token(
     existing = _install_token(runtime)
     if existing:
         return {"success": True, "created": False}
-    install_id = ensure_ha_install_id(runtime)
+    install_id = ensure_ha_install_id(runtime, hass)
     proof = _clean(bootstrap_proof, 4096)
     if not proof:
         return {"success": False, "error": "missing_bootstrap_proof"}
@@ -134,7 +136,7 @@ async def async_post(
         token = _install_token(runtime)
     if not token:
         raise DJConnectCentralApiError("missing_install_token")
-    install_id = ensure_ha_install_id(runtime)
+    install_id = ensure_ha_install_id(runtime, hass)
     body = dict(payload)
     body["ha_install_id"] = install_id
     _assert_safe_payload(body)
@@ -196,8 +198,27 @@ async def async_rotate_install_token(hass: Any, runtime: Any) -> dict[str, Any]:
     new_token = _clean(result.get("install_token") or result.get(CONF_DJCONNECT_INSTALL_TOKEN), 4096)
     if not result.get("success") or not _valid_install_token(new_token):
         return {"success": False, "error": _clean(result.get("error"), 120) or "invalid_install_token"}
-    _persist_install_settings(hass, runtime, install_id=ensure_ha_install_id(runtime), token=new_token)
+    _persist_install_settings(hass, runtime, install_id=ensure_ha_install_id(runtime, hass), token=new_token)
     return {"success": True, CONF_DJCONNECT_INSTALL_TOKEN: new_token}
+
+
+def _persist_ha_install_id(hass: Any | None, runtime: Any, install_id: str) -> None:
+    """Persist the non-secret HA install id without requiring a central token."""
+    entry = getattr(runtime, "entry", None) or getattr(runtime, "config_entry", None)
+    if entry is not None:
+        options = dict(getattr(entry, "options", {}) or {})
+        if options.get(CONF_HA_INSTALL_ID) != install_id:
+            options[CONF_HA_INSTALL_ID] = install_id
+            if hasattr(getattr(hass, "config_entries", None), "async_update_entry"):
+                try:
+                    hass.config_entries.async_update_entry(entry, options=options)
+                except TypeError:
+                    setattr(entry, "options", options)
+            else:
+                setattr(entry, "options", options)
+    config = getattr(runtime, "config", None)
+    if isinstance(config, dict):
+        config[CONF_HA_INSTALL_ID] = install_id
 
 
 def _persist_install_settings(hass: Any, runtime: Any, *, install_id: str, token: str) -> None:
@@ -214,7 +235,10 @@ def _persist_install_settings(hass: Any, runtime: Any, *, install_id: str, token
     options.pop("central_api_bootstrap_proof_expires_at", None)
     options.pop("bootstrap_proof_expires_at", None)
     if hasattr(getattr(hass, "config_entries", None), "async_update_entry"):
-        hass.config_entries.async_update_entry(entry, options=options)
+        try:
+            hass.config_entries.async_update_entry(entry, options=options)
+        except TypeError:
+            setattr(entry, "options", options)
     else:
         setattr(entry, "options", options)
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.2.40
+
+- Add non-secret Home Assistant bootstrap metadata (`ha_install_id`,
+  `integration_version` and optional `pairing_session_id`) to pairing, status
+  and command responses so Apple clients can request Central push bootstrap
+  proofs without HA exposing APNs tokens or backend secrets.
+
 ## 3.2.39
 
 - Remove the low-value `last_command` and `last_corrected_stt` sensor entities

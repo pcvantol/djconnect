@@ -105,6 +105,28 @@ class PushTest(unittest.TestCase):
         )
         self.assertEqual(hass.session.calls, [])
 
+    def test_ha_install_id_is_persisted_without_install_token(self) -> None:
+        entry = types.SimpleNamespace(entry_id="entry-1", data={}, options={})
+        updates = []
+        hass = types.SimpleNamespace(config_entries=types.SimpleNamespace())
+
+        def update_entry(target, **kwargs):
+            updates.append(kwargs["options"])
+            target.options = kwargs["options"]
+
+        hass.config_entries.async_update_entry = update_entry
+        runtime = types.SimpleNamespace(entry=entry, config={})
+
+        first = self.central_api.ensure_ha_install_id(runtime, hass)
+        reloaded_runtime = types.SimpleNamespace(entry=entry)
+        second = self.central_api.ensure_ha_install_id(reloaded_runtime, hass)
+
+        self.assertTrue(first.startswith("ha_"))
+        self.assertEqual(second, first)
+        self.assertEqual(entry.options["ha_install_id"], first)
+        self.assertEqual(runtime.config["ha_install_id"], first)
+        self.assertEqual(updates[-1]["ha_install_id"], first)
+
     def test_register_bootstraps_install_token_with_pairing_proof(self) -> None:
         hass = types.SimpleNamespace(session=FakeSession(), config_entries=types.SimpleNamespace())
         hass.config_entries.async_update_entry = lambda entry, **kwargs: setattr(entry, "options", kwargs["options"])
@@ -135,6 +157,8 @@ class PushTest(unittest.TestCase):
         self.assertEqual(bootstrap_call["json"]["bootstrap_proof"], "djcboot_registration_proof")
         self.assertEqual(bootstrap_call["json"]["device_id"], "djconnect-ios-ABCDEFGHIJKL")
         self.assertEqual(bootstrap_call["json"]["client_type"], "ios")
+        self.assertNotIn("push_token", bootstrap_call["json"])
+        self.assertNotIn("apns_token", bootstrap_call["json"])
         self.assertEqual(register_call["url"], "https://api.djconnect.dev/v1/push/register")
         self.assertEqual(register_call["headers"]["Authorization"], "Bearer djci_created_token")
         self.assertNotIn("bootstrap_proof", register_call["json"])

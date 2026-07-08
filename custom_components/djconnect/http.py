@@ -52,6 +52,7 @@ from .const import (
     CONF_DEVICE_NAME,
     CONF_DEVICE_TOKEN,
     CONF_HA_EXTERNAL_URL,
+    CONF_HA_INSTALL_ID,
     CONF_LOCAL_URL,
     CONF_MAX_AUDIO_BYTES,
     CONF_MUSIC_BACKEND,
@@ -83,6 +84,7 @@ from .assist_stt import (
     DJConnectNoSttProviderError,
     transcribe_wav_with_assist,
 )
+from .central_api import ensure_ha_install_id
 from .dj_response import async_create_dj_audio_url, async_send_dj_response_best_effort, get_tts_audio
 from .ha_urls import async_ha_url_payload
 from .mood import enrich_payload_with_mood_zone, mood_play_now_suffix
@@ -555,6 +557,35 @@ def _ha_version_payload() -> dict[str, str | None]:
         "ha_version": VERSION,
         "ha_major_minor": _major_minor(VERSION),
     }
+
+
+def _bootstrap_metadata(
+    hass: Any,
+    runtime: Any | None,
+    *,
+    pairing_session_id: Any = None,
+) -> dict[str, str]:
+    """Return non-secret HA metadata Apple clients need for bootstrap proofs."""
+    install_id = ensure_ha_install_id(runtime, hass) if runtime is not None else _pending_ha_install_id(hass)
+    metadata = {
+        "ha_install_id": install_id,
+        "integration_version": VERSION,
+    }
+    session_id = str(pairing_session_id or "").strip()
+    if session_id:
+        metadata["pairing_session_id"] = session_id
+    return metadata
+
+
+def _pending_ha_install_id(hass: Any) -> str:
+    """Return a stable id for pending app pairing before a config entry exists."""
+    domain_data = getattr(hass, "data", {}).setdefault(DOMAIN, {})
+    current = str(domain_data.get(CONF_HA_INSTALL_ID) or "").strip()
+    if current:
+        return current
+    current = f"ha_{secrets.token_urlsafe(24)}"
+    domain_data[CONF_HA_INSTALL_ID] = current
+    return current
 
 
 def _runtime_firmware_version(runtime: Any) -> Any:
@@ -2276,6 +2307,7 @@ async def _handle_pending_config_flow_app_pairing(
         "status_path": API_STATUS,
         "event_path": API_EVENT,
     }
+    response.update(_bootstrap_metadata(hass, None, pairing_session_id=context.get("flow_id")))
     response.update(_ask_dj_capabilities())
     response.update(await async_ha_url_payload(hass, conf, client_type=client_type))
     _LOGGER.info("DJConnect app paired with pending config-flow code %s", pair_code)
@@ -2445,6 +2477,7 @@ class DJConnectPairView(HomeAssistantView):
             "status_path": API_STATUS,
             "event_path": API_EVENT,
         }
+        response.update(_bootstrap_metadata(hass, runtime))
         response.update(_ask_dj_capabilities())
         response.update(music_backend_metadata(hass, runtime))
         response.update(_esp32_language_payload(runtime))
@@ -2552,6 +2585,7 @@ class DJConnectStatusView(HomeAssistantView):
             "assist_pipeline_id": conf.get(CONF_ASSIST_PIPELINE_ID, ""),
             "playback": getattr(runtime, "last_playback", None) or {},
         }
+        response.update(_bootstrap_metadata(hass, runtime))
         response.update(_ask_dj_capabilities())
         response.update(music_backend_metadata(hass, runtime))
         response.update(

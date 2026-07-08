@@ -1592,6 +1592,9 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertTrue(response["payload"]["setup_pending"])
         self.assertEqual(response["payload"]["device_token"], "pending-device-token")
         self.assertEqual(response["payload"]["client_type"], "macos")
+        self.assertIn("ha_install_id", response["payload"])
+        self.assertEqual(response["payload"]["integration_version"], const.VERSION)
+        self.assertEqual(response["payload"]["pairing_session_id"], "flow-1")
         self.assertEqual(
             pending["604128"]["pairing_received"][const.CONF_DEVICE_ID],
             "djconnect-macos-68B74487726D",
@@ -1966,6 +1969,9 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 payload = response["payload"]
                 self.assertTrue(payload["success"])
                 self.assertEqual(payload["client_type"], client_type)
+                self.assertIn("ha_install_id", payload)
+                self.assertEqual(payload["integration_version"], const.VERSION)
+                self.assertNotIn("pairing_session_id", payload)
                 self.assertEqual(payload["device_token"], f"{client_type}-token")
                 self.assertEqual(payload["api_base"], "/api/djconnect/v1")
                 self.assertEqual(payload["voice_path"], self.http.API_VOICE)
@@ -2126,6 +2132,9 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         self.assertEqual(response["status_code"], 200)
         self.assertEqual(response["payload"]["client_type"], "watchos")
+        self.assertIn("ha_install_id", response["payload"])
+        self.assertEqual(response["payload"]["integration_version"], const.VERSION)
+        self.assertNotIn("pairing_session_id", response["payload"])
         self.assertNotIn("device_language", response["payload"])
         self.assertNotIn("language", response["payload"])
         self.assertEqual(runtime.device_status["client_type"], "watchos")
@@ -5025,6 +5034,9 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         self.assertEqual(response["status_code"], 200)
         self.assertEqual(response["payload"]["command"], "status")
+        self.assertIn("ha_install_id", response["payload"])
+        self.assertEqual(response["payload"]["integration_version"], const.VERSION)
+        self.assertNotIn("pairing_session_id", response["payload"])
         self.assertEqual(runtime.device_status["client_type"], "watchos")
         self.assertEqual(seen_commands, [("status", None, False)])
 
