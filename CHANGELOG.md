@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.2.37
+
+- Add the authenticated Apple push bootstrap endpoint so paired iOS, macOS and
+  watchOS clients can request a short-lived `bootstrap_proof` before APNs
+  registration when Home Assistant still needs to mint its per-install `djci_`
+  relay token.
+
 ## 3.2.36
 
 - Make Ask DJ queue answers compact by returning only `Hierna in de wachtrij:`

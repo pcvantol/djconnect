@@ -56,6 +56,7 @@ class ServicesYamlTest(unittest.TestCase):
         self.assertIn("APNs push readiness", text)
         self.assertIn("diagnostic dry-run", text)
         self.assertIn("APNs push registration", text)
+        self.assertIn("/api/djconnect/v1/push/bootstrap", text)
         self.assertIn("/api/djconnect/v1/push/register", text)
         self.assertIn("APNs push unregistration", text)
         self.assertIn("/api/djconnect/v1/push/unregister", text)

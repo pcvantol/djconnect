@@ -57,7 +57,8 @@ Run for iOS and macOS development builds, and for watchOS when push is enabled.
 1. Confirm the app APNs entitlement matches the registration environment:
    - development entitlement: client sends `push_environment: development` or `sandbox`
    - production entitlement: client sends `push_environment: production`
-2. Pair the app fresh with Home Assistant so the registration request can include a
+2. Pair the app fresh with Home Assistant, then call
+   `POST /api/djconnect/v1/push/bootstrap` if the client does not already have a
    current bootstrap proof.
 3. Fully quit and restart the app, then let it retry APNs registration once the
    device token and Home Assistant bearer token are available.
@@ -66,9 +67,10 @@ Run for iOS and macOS development builds, and for watchOS when push is enabled.
    `registered with Home Assistant env=sandbox`.
 5. Confirm a development build is reported as canonical `push_environment: sandbox`
    by Home Assistant, not `production`.
-6. If the response contains `invalid_bootstrap_proof` or `missing_bootstrap_proof`,
-   re-pair before debugging APNs entitlements; stale bootstrap proof is the first
-   blocker.
+6. If the response contains `missing_bootstrap_proof`, request a fresh proof
+   through `/push/bootstrap` and retry registration. If it contains
+   `invalid_bootstrap_proof`, request a fresh proof or re-pair before debugging
+   APNs entitlements; stale bootstrap proof is the first blocker.
 7. Confirm no APNs token, bearer token, bootstrap proof or `djci_` install token is
    copied into notes, screenshots or logs.
 

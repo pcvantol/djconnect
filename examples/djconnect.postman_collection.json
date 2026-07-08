@@ -986,6 +986,40 @@
       "name": "Apple Push",
       "item": [
         {
+          "name": "Push bootstrap",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"djconnect-macos-ABCDEFGHIJKL\",\n  \"client_type\": \"macos\",\n  \"push_environment\": \"sandbox\",\n  \"app_bundle_id\": \"dev.djconnect.mac\",\n  \"app_version\": \"3.2.36\",\n  \"locale\": \"nl-NL\"\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/push/bootstrap",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "push",
+                "bootstrap"
+              ]
+            },
+            "description": "Requests a short-lived APNs bootstrap proof for an already paired Apple client. Use the returned bootstrap_proof immediately with /api/djconnect/v1/push/register when Home Assistant does not yet have a djci_ install token."
+          },
+          "response": []
+        },
+        {
           "name": "Push register",
           "request": {
             "method": "POST",

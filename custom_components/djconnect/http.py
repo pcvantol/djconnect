@@ -36,6 +36,7 @@ from .const import (
     API_SPOTIFY_CALLBACK,
     API_EVENT,
     API_PAIR,
+    API_PUSH_BOOTSTRAP,
     API_PUSH_REGISTER,
     API_PUSH_UNREGISTER,
     API_STATUS,
@@ -87,6 +88,7 @@ from .ha_urls import async_ha_url_payload
 from .mood import enrich_payload_with_mood_zone, mood_play_now_suffix
 from .pipeline import generate_dj_response_with_assist
 from .push import (
+    async_bootstrap as async_bootstrap_push,
     async_register as async_register_push,
     async_send_event as async_send_push_event,
     async_status as async_push_status,
@@ -3112,6 +3114,51 @@ class DJConnectPushRegisterView(HomeAssistantView):
         payload.update({key: value for key, value in identity.items() if value is not None})
         payload[CONF_CLIENT_TYPE] = client_type
         result = await async_register_push(
+            hass,
+            runtime,
+            user_id=_request_user_id(request),
+            payload=payload,
+        )
+        status = 200 if result.get("success") else 400
+        return self.json(result, status_code=status)
+
+
+class DJConnectPushBootstrapView(HomeAssistantView):
+    url = API_PUSH_BOOTSTRAP
+    name = "api:djconnect:push_bootstrap"
+    requires_auth = False
+
+    def __init__(self, hass):
+        self.hass = hass
+
+    async def post(self, request):
+        hass = request.app["hass"]
+        try:
+            data = await request.json()
+        except Exception:  # noqa: BLE001
+            return _json_error(self, "invalid_json", 400)
+        payload = _push_payload_from_request(data, request.headers)
+        identity = _identity_payload(payload)
+        runtime = _runtime(
+            hass,
+            identity.get("device_id") or request.headers.get("X-DJConnect-Device-ID"),
+            request.headers,
+        )
+        if runtime is None:
+            return _json_error(self, "not_configured", 503)
+        client_type = _validate_required_client_type(identity)
+        if client_type is None or client_type not in {CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_WATCHOS}:
+            return _json_error(self, "invalid_client_type", 400)
+        if not _authorize_runtime_device_request(
+            runtime,
+            request.headers,
+            identity.get("device_id") or request.headers.get("X-DJConnect-Device-ID"),
+            client_type,
+        ):
+            return _json_error(self, "unauthorized", 401)
+        payload.update({key: value for key, value in identity.items() if value is not None})
+        payload[CONF_CLIENT_TYPE] = client_type
+        result = await async_bootstrap_push(
             hass,
             runtime,
             user_id=_request_user_id(request),

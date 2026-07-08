@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+from datetime import datetime, timezone
 import logging
 import secrets
 from typing import Any
@@ -64,6 +65,8 @@ async def async_ensure_install_token(hass: Any, runtime: Any) -> dict[str, Any]:
     proof = _bootstrap_proof(runtime)
     if not proof:
         return {"success": False, "error": "missing_bootstrap_proof"}
+    if _bootstrap_proof_expired(runtime):
+        return {"success": False, "error": "invalid_bootstrap_proof"}
     payload = {
         "ha_install_id": install_id,
         "integration": "djconnect_hacs",
@@ -230,6 +233,17 @@ def _bootstrap_proof_expires_at(runtime: Any) -> str:
         ),
         120,
     )
+
+
+def _bootstrap_proof_expired(runtime: Any) -> bool:
+    value = _bootstrap_proof_expires_at(runtime)
+    if not value:
+        return False
+    try:
+        expires = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    return expires <= datetime.now(timezone.utc)
 
 
 def _device_id(runtime: Any) -> str:

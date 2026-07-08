@@ -139,6 +139,83 @@ class PushTest(unittest.TestCase):
         self.assertEqual(register_call["headers"]["Authorization"], "Bearer djci_created_token")
         self.assertNotIn("bootstrap_proof", register_call["json"])
 
+    def test_bootstrap_issues_short_lived_macos_proof_for_register(self) -> None:
+        hass = types.SimpleNamespace(session=FakeSession(), config_entries=types.SimpleNamespace())
+        hass.config_entries.async_update_entry = lambda entry, **kwargs: setattr(entry, "options", kwargs["options"])
+        runtime = self._runtime(token=None)
+
+        bootstrap = asyncio.run(
+            self.push.async_bootstrap(
+                hass,
+                runtime,
+                user_id="user-1",
+                payload={
+                    "device_id": "djconnect-macos-ABCDEFGHIJKL",
+                    "client_type": "macos",
+                    "push_environment": "sandbox",
+                    "app_bundle_id": "dev.djconnect.mac",
+                    "app_version": "3.2.36",
+                    "locale": "nl-NL",
+                },
+            )
+        )
+
+        self.assertTrue(bootstrap["success"])
+        self.assertTrue(bootstrap["push_supported"])
+        self.assertFalse(bootstrap["push_registered"])
+        self.assertEqual(bootstrap["push_environment"], "sandbox")
+        self.assertTrue(bootstrap["bootstrap_proof"].startswith("djcboot_"))
+        self.assertIn("bootstrap_proof_expires_at", bootstrap)
+        self.assertEqual(
+            runtime.device_status["central_api_bootstrap_proof"],
+            bootstrap["bootstrap_proof"],
+        )
+        self.assertEqual(runtime.device_status["device_id"], "djconnect-macos-ABCDEFGHIJKL")
+        self.assertEqual(runtime.device_status["client_type"], "macos")
+
+        hass.session.response = FakeResponse(data={"success": True, "install_token": "djci_created_token"})
+        register = asyncio.run(
+            self.push.async_register(
+                hass,
+                runtime,
+                user_id="user-1",
+                payload={
+                    "device_id": "djconnect-macos-ABCDEFGHIJKL",
+                    "client_type": "macos",
+                    "push_token": "token-secret-value",
+                    "push_environment": "sandbox",
+                    "bootstrap_proof": bootstrap["bootstrap_proof"],
+                },
+            )
+        )
+
+        self.assertTrue(register["success"])
+        self.assertEqual(hass.session.calls[0]["url"], "https://api.djconnect.dev/v1/install/token")
+        self.assertEqual(
+            hass.session.calls[0]["json"]["bootstrap_proof"],
+            bootstrap["bootstrap_proof"],
+        )
+        self.assertEqual(hass.session.calls[0]["json"]["device_id"], "djconnect-macos-ABCDEFGHIJKL")
+        self.assertEqual(hass.session.calls[0]["json"]["client_type"], "macos")
+        self.assertEqual(hass.session.calls[1]["url"], "https://api.djconnect.dev/v1/push/register")
+        self.assertNotIn("bootstrap_proof", hass.session.calls[1]["json"])
+
+    def test_expired_bootstrap_proof_reports_invalid_bootstrap_proof(self) -> None:
+        hass = types.SimpleNamespace(session=FakeSession())
+        runtime = self._runtime(token=None)
+        runtime.device_status = {
+            "device_id": "djconnect-macos-ABCDEFGHIJKL",
+            "client_type": "macos",
+            "central_api_bootstrap_proof": "djcboot_old",
+            "central_api_bootstrap_proof_expires_at": "2020-01-01T00:00:00Z",
+        }
+
+        result = asyncio.run(self.central_api.async_ensure_install_token(hass, runtime))
+
+        self.assertFalse(result["success"])
+        self.assertEqual(result["error"], "invalid_bootstrap_proof")
+        self.assertEqual(hass.session.calls, [])
+
     def test_register_forwards_to_relay_without_local_storage(self) -> None:
         hass = types.SimpleNamespace(session=FakeSession())
         runtime = self._runtime()

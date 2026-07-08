@@ -88,7 +88,7 @@ class CentralApiTest(unittest.TestCase):
         status = {}
         if proof:
             status["central_api_bootstrap_proof"] = proof
-            status["central_api_bootstrap_proof_expires_at"] = "2026-06-20T14:30:00Z"
+            status["central_api_bootstrap_proof_expires_at"] = "2099-06-20T14:30:00Z"
         return types.SimpleNamespace(entry=entry, device_status=status)
 
     def test_missing_token_requires_bootstrap_proof(self) -> None:

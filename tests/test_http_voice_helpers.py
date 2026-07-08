@@ -2377,6 +2377,17 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         calls = []
 
+        async def bootstrap_push(hass_arg, runtime_arg, **kwargs):
+            calls.append(("bootstrap", hass_arg, runtime_arg, kwargs))
+            return {
+                "success": True,
+                "push_supported": True,
+                "push_registered": False,
+                "push_environment": "sandbox",
+                "bootstrap_proof": "djcboot_test_proof",
+                "bootstrap_proof_expires_at": "2026-07-08T12:10:00Z",
+            }
+
         async def register_push(hass_arg, runtime_arg, **kwargs):
             calls.append(("register", hass_arg, runtime_arg, kwargs))
             return {
@@ -2394,25 +2405,32 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 "push_registered": False,
             }
 
+        original_bootstrap = self.http.async_bootstrap_push
         original_register = self.http.async_register_push
         original_unregister = self.http.async_unregister_push
+        self.http.async_bootstrap_push = bootstrap_push
         self.http.async_register_push = register_push
         self.http.async_unregister_push = unregister_push
         try:
+            bootstrap = asyncio.run(self.http.DJConnectPushBootstrapView(None).post(RegisterRequest()))
             register = asyncio.run(self.http.DJConnectPushRegisterView(None).post(RegisterRequest()))
             unregister = asyncio.run(self.http.DJConnectPushUnregisterView(None).post(RegisterRequest()))
         finally:
+            self.http.async_bootstrap_push = original_bootstrap
             self.http.async_register_push = original_register
             self.http.async_unregister_push = original_unregister
 
+        self.assertEqual(bootstrap["status_code"], 200)
+        self.assertEqual(bootstrap["payload"]["bootstrap_proof"], "djcboot_test_proof")
         self.assertEqual(register["status_code"], 200)
         self.assertTrue(register["payload"]["push_registered"])
         self.assertEqual(unregister["status_code"], 200)
         self.assertFalse(unregister["payload"]["push_registered"])
-        self.assertEqual(calls[0][0], "register")
-        self.assertEqual(calls[0][3]["user_id"], "user-1")
-        self.assertEqual(calls[0][3]["payload"]["push_token"], "secret-push-token")
-        self.assertEqual(calls[1][0], "unregister")
+        self.assertEqual(calls[0][0], "bootstrap")
+        self.assertEqual(calls[1][0], "register")
+        self.assertEqual(calls[1][3]["user_id"], "user-1")
+        self.assertEqual(calls[1][3]["payload"]["push_token"], "secret-push-token")
+        self.assertEqual(calls[2][0], "unregister")
 
     def test_push_register_finds_watchos_runtime_by_device_id(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")

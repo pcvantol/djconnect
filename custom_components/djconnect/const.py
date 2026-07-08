@@ -3,7 +3,7 @@ from __future__ import annotations
 
 DOMAIN = "djconnect"
 NAME = "DJConnect"
-VERSION = "3.2.36"
+VERSION = "3.2.37"
 
 API_BASE = "/api/djconnect/v1"
 API_PAIR = f"{API_BASE}/pair"
@@ -32,6 +32,7 @@ API_TRACK_INSIGHT = f"{API_BASE}/track_insight"
 API_VIBECAST = f"{API_BASE}/vibecast"
 API_IMAGE_PROXY_BASE = f"{API_BASE}/image_proxy"
 API_IMAGE_PROXY = f"{API_IMAGE_PROXY_BASE}/{{token}}"
+API_PUSH_BOOTSTRAP = f"{API_BASE}/push/bootstrap"
 API_PUSH_REGISTER = f"{API_BASE}/push/register"
 API_PUSH_UNREGISTER = f"{API_BASE}/push/unregister"
 API_TTS_BASE = f"{API_BASE}/tts"

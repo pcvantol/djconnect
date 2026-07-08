@@ -1247,14 +1247,46 @@ APIs when opened, especially `GET /api/djconnect/v1/ask_dj/history`.
 
 Endpoints:
 
+- `POST /api/djconnect/v1/push/bootstrap`
 - `POST /api/djconnect/v1/push/register`
 - `POST /api/djconnect/v1/push/unregister`
 
-Both endpoints require the existing DJConnect bearer token and support only
+All endpoints require the existing DJConnect bearer token and support only
 `ios`, `macos` and `watchos` clients. Home Assistant validates the client
 request, hashes the HA user id, and relays registration/unregistration to the
 central `djconnect-api` push relay. Home Assistant does not persist APNs tokens
 and never requires the APNs provider `.p8` key.
+
+Bootstrap payload:
+
+```json
+{
+  "device_id": "djconnect-macos-ABCDEFGHIJKL",
+  "client_type": "macos",
+  "push_environment": "sandbox",
+  "app_bundle_id": "dev.djconnect.mac",
+  "app_version": "3.2.36",
+  "locale": "nl-NL"
+}
+```
+
+Bootstrap response:
+
+```json
+{
+  "success": true,
+  "push_supported": true,
+  "push_registered": false,
+  "push_environment": "sandbox",
+  "bootstrap_proof": "djcboot_...",
+  "bootstrap_proof_expires_at": "2026-07-08T12:10:00Z"
+}
+```
+
+Clients should request a bootstrap proof after local pairing when
+`/push/register` reports `missing_bootstrap_proof`, then retry registration with
+the returned proof before it expires. Home Assistant stores the proof only
+temporarily in runtime status and redacts it from logs and diagnostics.
 
 Register payload:
 

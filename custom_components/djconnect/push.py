@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import logging
 import re
+import secrets
 import time
 from typing import Any
 
@@ -40,6 +41,7 @@ RATE_LIMIT_WINDOW_SECONDS = 30
 RATE_LIMIT_BURST_SECONDS = 10 * 60
 RATE_LIMIT_BURST_MAX = 5
 RECENT_ACTIVE_SECONDS = 30
+BOOTSTRAP_PROOF_TTL_SECONDS = 10 * 60
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -138,6 +140,42 @@ async def async_status(
         "push_registered": bool(status.get("push_registered")),
         "push_environment": status.get("push_environment"),
         "last_push_error": _clean_text(status.get("last_push_error"), 120) or None,
+    }
+
+
+async def async_bootstrap(
+    hass: Any,
+    runtime: Any,
+    *,
+    user_id: str | None,
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    """Issue a short-lived bootstrap proof for an authenticated Apple client."""
+    del hass, user_id
+    cleaned = _bootstrap_payload(runtime, payload=payload)
+    if not cleaned:
+        _log_registration_failure(runtime, payload, "invalid_push_bootstrap")
+        return {"success": False, "error": "invalid_push_bootstrap"}
+    _remember_registration_identity(runtime, cleaned)
+    proof = f"djcboot_{secrets.token_urlsafe(32)}"
+    expires_at = _bootstrap_expires_at()
+    _remember_bootstrap_proof(
+        runtime,
+        {
+            **cleaned,
+            CONF_CENTRAL_API_BOOTSTRAP_PROOF: proof,
+            CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT: expires_at,
+        },
+    )
+    status = _status_for(runtime, cleaned.get("device_id"), cleaned.get("client_type"))
+    response_environment = _clean_text(cleaned.get("push_environment"), 32) or "sandbox"
+    return {
+        "success": True,
+        "push_supported": _clean_client_type(cleaned.get("client_type")) in SUPPORTED_CLIENT_TYPES,
+        "push_registered": bool(status.get("push_registered")),
+        "push_environment": response_environment,
+        "bootstrap_proof": proof,
+        "bootstrap_proof_expires_at": expires_at,
     }
 
 
@@ -357,6 +395,30 @@ def _registration_payload(runtime: Any, *, user_id: str | None, payload: dict[st
         "locale": _clean_text(payload.get("locale"), 32),
         "notification_categories": _clean_categories(payload.get("notification_categories")),
     }
+
+
+def _bootstrap_payload(runtime: Any, *, payload: dict[str, Any]) -> dict[str, Any]:
+    device_id = _clean_text(payload.get("device_id"), 160)
+    client_type = _clean_client_type(payload.get("client_type"))
+    push_environment = _clean_environment(payload.get("push_environment"))
+    if not _device_id_matches_client_type(device_id, client_type):
+        return {}
+    return {
+        "ha_install_id": ensure_ha_install_id(runtime),
+        "device_id": device_id,
+        "client_type": client_type,
+        "push_environment": _relay_environment(push_environment) if push_environment else "sandbox",
+        "app_bundle_id": _clean_text(payload.get("app_bundle_id"), 200),
+        "app_version": _clean_text(payload.get("app_version"), 64),
+        "locale": _clean_text(payload.get("locale"), 32),
+    }
+
+
+def _bootstrap_expires_at(now: float | None = None) -> str:
+    return time.strftime(
+        "%Y-%m-%dT%H:%M:%SZ",
+        time.gmtime((time.time() if now is None else now) + BOOTSTRAP_PROOF_TTL_SECONDS),
+    )
 
 
 def _remember_bootstrap_proof(runtime: Any, payload: dict[str, Any]) -> None:

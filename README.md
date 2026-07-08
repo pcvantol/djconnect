@@ -123,17 +123,21 @@ Entity IDs can differ if Home Assistant renames the device or entities.
 ## Apple Push Notifications
 
 iOS, macOS and Apple Watch clients register APNs tokens through
-`POST /api/djconnect/v1/push/register`. Home Assistant validates the paired client
-identity and forwards only the redacted registration metadata to the DJConnect
-relay; APNs provider keys and raw APNs tokens are never stored in Home Assistant.
+`POST /api/djconnect/v1/push/register`. If Home Assistant does not yet have a
+per-install `djci_` relay token, a paired Apple client first calls
+`POST /api/djconnect/v1/push/bootstrap` to get a short-lived bootstrap proof for
+that registration. Home Assistant validates the paired client identity and
+forwards only the redacted registration metadata to the DJConnect relay; APNs
+provider keys and raw APNs tokens are never stored in Home Assistant.
 
 Development-signed Apple builds may send `push_environment: "development"` when
 their APNs entitlement targets the sandbox. DJConnect normalizes that to
 canonical `sandbox` in relay calls, status and registration responses. Production
 builds must send `push_environment: "production"`. If registration reports
-`invalid_bootstrap_proof` or `missing_bootstrap_proof`, pair the app with Home
-Assistant again so the client receives a fresh bootstrap proof, then restart the
-app to retry push registration.
+`missing_bootstrap_proof`, call `/push/bootstrap` and retry registration with the
+returned proof. If registration reports `invalid_bootstrap_proof`, request a
+fresh proof or pair the app with Home Assistant again, then retry push
+registration.
 When Music DNA is enabled, Home Assistant sends at most one daily
 `music_discovery_ready` APNs wake/sync hint around 08:00 local time with
 `body:"Je nieuwe aanbevelingen staan klaar!"`, `open_target:"music_discovery"`
