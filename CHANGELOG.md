@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.2.35
+
+- Expand the plain default Home Assistant device name `DJConnect` to
+  `DJConnect ESP32` for ESP32 entries, including existing entries whose cached
+  status still reports the generic default name, while preserving custom names.
+
 ## 3.2.34
 
 - Stop reloading the DJConnect config entry when only Spotify refresh tokens or

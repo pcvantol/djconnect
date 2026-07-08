@@ -134,6 +134,21 @@ class DJConnectSensorTest(unittest.TestCase):
             "Studio DJConnect",
         )
 
+    def test_device_info_expands_plain_default_device_name_for_esp32(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-1"),
+            config={"client_type": "esp32", "device_name": "DJConnect"},
+            device_status={"device_name": "DJConnect"},
+            device_token="device-token",
+            listeners=[],
+            client_type=lambda: "esp32",
+        )
+
+        self.assertEqual(
+            self.sensor.DJConnectStatusSensor(runtime).device_info["name"],
+            "DJConnect ESP32",
+        )
+
     def test_app_client_backend_sensors_prefer_playback_and_keep_unknown_unknown(self) -> None:
         runtime = types.SimpleNamespace(
             entry=types.SimpleNamespace(entry_id="entry-1"),

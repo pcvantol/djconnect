@@ -45,12 +45,14 @@ def djconnect_device_name(runtime: Any) -> str:
     """Resolve the display name used for the single HA device."""
     status = getattr(runtime, "device_status", {}) or {}
     config = getattr(runtime, "config", {}) or {}
+    client_type = _runtime_client_type(runtime, status, config)
     for source in (status, config):
         if isinstance(source, dict):
             name = str(source.get(CONF_DEVICE_NAME) or "").strip()
             if name:
+                if name == DEFAULT_DEVICE_NAME:
+                    return DEFAULT_DEVICE_NAMES.get(client_type, DEFAULT_DEVICE_NAME)
                 return name
-    client_type = _runtime_client_type(runtime, status, config)
     return DEFAULT_DEVICE_NAMES.get(client_type, DEFAULT_DEVICE_NAME)
 
 
