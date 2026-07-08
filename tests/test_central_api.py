@@ -111,24 +111,25 @@ class CentralApiTest(unittest.TestCase):
         self.assertEqual(str(ctx.exception), "missing_bootstrap_proof")
         self.assertEqual(hass.session.calls, [])
 
-    def test_missing_token_bootstraps_with_pairing_proof(self) -> None:
+    def test_missing_token_bootstraps_with_transient_proof(self) -> None:
         hass = types.SimpleNamespace(
             session=FakeSession(FakeResponse(data={"success": True, "install_token": "djci_created_token"})),
             config_entries=FakeConfigEntries(),
         )
-        runtime = self._runtime(token=None, proof="djcboot_pairing_proof")
+        runtime = self._runtime(token=None)
 
         result = asyncio.run(
-            self.api.async_post(
+            self.api.async_ensure_install_token(
                 hass,
                 runtime,
-                "/v1/push/event",
-                {"event_type": "ask_dj_response"},
+                bootstrap_proof="djcboot_pairing_proof",
+                device_id="djconnect-ios-ABCDEFGHIJKL",
+                client_type="ios",
             )
         )
 
         self.assertTrue(result["success"])
-        self.assertEqual(len(hass.session.calls), 2)
+        self.assertEqual(len(hass.session.calls), 1)
         bootstrap_call = hass.session.calls[0]
         self.assertEqual(bootstrap_call["url"], "https://api.djconnect.dev/v1/install/token")
         self.assertNotIn("Authorization", bootstrap_call["headers"])
@@ -137,19 +138,47 @@ class CentralApiTest(unittest.TestCase):
         self.assertEqual(bootstrap_call["json"]["client_type"], "ios")
         self.assertEqual(bootstrap_call["json"]["ha_install_id"], "ha-install-1")
         self.assertEqual(runtime.entry.options["djconnect_install_token"], "djci_created_token")
-        self.assertEqual(hass.session.calls[1]["headers"]["Authorization"], "Bearer djci_created_token")
+        self.assertNotIn("central_api_bootstrap_proof", runtime.entry.options)
+
+    def test_missing_token_ignores_stored_bootstrap_proof(self) -> None:
+        hass = types.SimpleNamespace(
+            session=FakeSession(FakeResponse(data={"success": True, "install_token": "djci_created_token"})),
+            config_entries=FakeConfigEntries(),
+        )
+        runtime = self._runtime(token=None, proof="djcboot_pairing_proof")
+
+        with self.assertRaises(self.api.DJConnectCentralApiError) as ctx:
+            asyncio.run(
+                self.api.async_post(
+                    hass,
+                    runtime,
+                    "/v1/push/event",
+                    {"event_type": "ask_dj_response"},
+                )
+            )
+
+        self.assertEqual(str(ctx.exception), "missing_bootstrap_proof")
+        self.assertEqual(hass.session.calls, [])
 
     def test_missing_token_gives_clear_config_error_when_bootstrap_fails(self) -> None:
         hass = types.SimpleNamespace(
             session=FakeSession(FakeResponse(status=503, data={"success": False, "error": "token_unavailable"})),
             config_entries=FakeConfigEntries(),
         )
-        runtime = self._runtime(token=None, proof="djcboot_pairing_proof")
+        runtime = self._runtime(token=None)
 
-        with self.assertRaises(self.api.DJConnectCentralApiError) as ctx:
-            asyncio.run(self.api.async_post(hass, runtime, "/v1/push/event", {}))
+        result = asyncio.run(
+            self.api.async_ensure_install_token(
+                hass,
+                runtime,
+                bootstrap_proof="djcboot_pairing_proof",
+                device_id="djconnect-ios-ABCDEFGHIJKL",
+                client_type="ios",
+            )
+        )
 
-        self.assertEqual(str(ctx.exception), "token_unavailable")
+        self.assertFalse(result["success"])
+        self.assertEqual(result["error"], "token_unavailable")
 
     def test_authorization_uses_djci_install_token(self) -> None:
         hass = types.SimpleNamespace(session=FakeSession())

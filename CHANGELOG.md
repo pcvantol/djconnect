@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.2.38
+
+- Stop returning locally generated Apple push bootstrap proofs from Home
+  Assistant; `/push/bootstrap` now reports `bootstrap_proof_unavailable`, while
+  `/push/register` transiently exchanges the Apple client supplied
+  central-issued proof for a per-install `djci_` token.
+
 ## 3.2.37
 
 - Add the authenticated Apple push bootstrap endpoint so paired iOS, macOS and

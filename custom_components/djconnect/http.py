@@ -2257,21 +2257,6 @@ async def _handle_pending_config_flow_app_pairing(
         "local_url": data.get("local_url"),
         "firmware": data.get("firmware"),
     }
-    bootstrap_proof = str(
-        data.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF) or data.get("bootstrap_proof") or ""
-    ).strip()
-    if bootstrap_proof:
-        context["pairing_received"][CONF_CENTRAL_API_BOOTSTRAP_PROOF] = bootstrap_proof
-    bootstrap_expires = str(
-        data.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT)
-        or data.get("bootstrap_proof_expires_at")
-        or ""
-    ).strip()
-    if bootstrap_expires:
-        context["pairing_received"][CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT] = (
-            bootstrap_expires
-        )
-
     conf = {
         CONF_PAIR_CODE: pair_code,
         CONF_DEVICE_TOKEN: token,
@@ -2440,20 +2425,6 @@ class DJConnectPairView(HomeAssistantView):
                 "ha_pairing_status": "pending",
             }
         )
-        bootstrap_proof = str(
-            data.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF)
-            or data.get("bootstrap_proof")
-            or ""
-        ).strip()
-        if bootstrap_proof:
-            runtime.device_status[CONF_CENTRAL_API_BOOTSTRAP_PROOF] = bootstrap_proof
-        bootstrap_expires = str(
-            data.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT)
-            or data.get("bootstrap_proof_expires_at")
-            or ""
-        ).strip()
-        if bootstrap_expires:
-            runtime.device_status[CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT] = bootstrap_expires
         runtime.update(last_error=None)
         _persist_paired_device(
             hass,

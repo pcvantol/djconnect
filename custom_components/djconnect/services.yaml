@@ -144,8 +144,11 @@ push_register:
     the same backend path as /api/djconnect/v1/push/register. Home Assistant
     forwards the token to the DJConnect central relay and stores only compact
     registration status. If registration reports missing_bootstrap_proof, a
-    paired Apple client should first request /api/djconnect/v1/push/bootstrap
-    and retry registration with the returned short-lived bootstrap proof.
+    paired Apple client should obtain a trusted central-issued short-lived
+    bootstrap proof from the Apple pairing issuer and retry registration with
+    bootstrap_proof. HA does not locally mint, request or store bootstrap
+    proofs; /api/djconnect/v1/push/bootstrap only reports
+    bootstrap_proof_unavailable.
   fields:
     push_token:
       name: Push token
@@ -213,7 +216,7 @@ push_register:
           multiline: false
     bootstrap_proof:
       name: Bootstrap proof
-      description: Optional short-lived Apple client bootstrap proof from /api/djconnect/v1/push/bootstrap, used to mint a DJConnect install token when needed.
+      description: Optional short-lived Apple client bootstrap proof from the trusted Apple pairing issuer, used transiently to mint a DJConnect install token when needed.
       required: false
       selector:
         text:

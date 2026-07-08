@@ -2380,12 +2380,12 @@ class VoiceHttpHelperTest(unittest.TestCase):
         async def bootstrap_push(hass_arg, runtime_arg, **kwargs):
             calls.append(("bootstrap", hass_arg, runtime_arg, kwargs))
             return {
-                "success": True,
+                "success": False,
                 "push_supported": True,
                 "push_registered": False,
                 "push_environment": "sandbox",
-                "bootstrap_proof": "djcboot_test_proof",
-                "bootstrap_proof_expires_at": "2026-07-08T12:10:00Z",
+                "error": "bootstrap_proof_unavailable",
+                "last_push_error": "bootstrap_proof_unavailable",
             }
 
         async def register_push(hass_arg, runtime_arg, **kwargs):
@@ -2420,8 +2420,9 @@ class VoiceHttpHelperTest(unittest.TestCase):
             self.http.async_register_push = original_register
             self.http.async_unregister_push = original_unregister
 
-        self.assertEqual(bootstrap["status_code"], 200)
-        self.assertEqual(bootstrap["payload"]["bootstrap_proof"], "djcboot_test_proof")
+        self.assertEqual(bootstrap["status_code"], 400)
+        self.assertEqual(bootstrap["payload"]["error"], "bootstrap_proof_unavailable")
+        self.assertNotIn("bootstrap_proof", bootstrap["payload"])
         self.assertEqual(register["status_code"], 200)
         self.assertTrue(register["payload"]["push_registered"])
         self.assertEqual(unregister["status_code"], 200)

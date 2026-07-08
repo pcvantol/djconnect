@@ -1015,7 +1015,7 @@
                 "bootstrap"
               ]
             },
-            "description": "Requests a short-lived APNs bootstrap proof for an already paired Apple client. Use the returned bootstrap_proof immediately with /api/djconnect/v1/push/register when Home Assistant does not yet have a djci_ install token."
+            "description": "Requests a short-lived APNs bootstrap proof for an already paired Apple client. Home Assistant returns a bootstrap_proof only when it already has a trusted central-issued proof from pairing/runtime state; otherwise it returns bootstrap_proof_unavailable. Use a returned proof immediately with /api/djconnect/v1/push/register when Home Assistant does not yet have a djci_ install token."
           },
           "response": []
         },

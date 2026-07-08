@@ -4,12 +4,12 @@ from __future__ import annotations
 import hashlib
 import logging
 import re
-import secrets
 import time
 from typing import Any
 
 from .central_api import (
     DJConnectCentralApiError,
+    async_ensure_install_token,
     async_post as async_central_post,
     central_api_configured,
     ensure_ha_install_id,
@@ -19,7 +19,6 @@ from .const import (
     CLIENT_TYPE_MACOS,
     CLIENT_TYPE_WATCHOS,
     CONF_CENTRAL_API_BOOTSTRAP_PROOF,
-    CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT,
     CONF_CLIENT_TYPE,
     CONF_DEVICE_ID,
 )
@@ -41,7 +40,6 @@ RATE_LIMIT_WINDOW_SECONDS = 30
 RATE_LIMIT_BURST_SECONDS = 10 * 60
 RATE_LIMIT_BURST_MAX = 5
 RECENT_ACTIVE_SECONDS = 30
-BOOTSTRAP_PROOF_TTL_SECONDS = 10 * 60
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -57,10 +55,77 @@ async def async_register(
     if not cleaned:
         _log_registration_failure(runtime, payload, "invalid_push_registration")
         return {"success": False, "error": "invalid_push_registration"}
+    incoming_proof = _clean_text(
+        payload.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF) or payload.get("bootstrap_proof"),
+        4096,
+    )
+    _LOGGER.info(
+        "DJConnect push register request: client_type=%s device_id=%s "
+        "push_environment=%s app_bundle_id=%s app_version=%s locale=%s "
+        "push_token_present=%s bootstrap_proof_present=%s "
+        "install_token_present=%s ha_install_id_present=%s",
+        cleaned.get("client_type") or "missing",
+        cleaned.get("device_id") or "missing",
+        cleaned.get("apns_environment") or "missing",
+        cleaned.get("app_bundle_id") or "missing",
+        cleaned.get("app_version") or "missing",
+        cleaned.get("locale") or "missing",
+        bool(cleaned.get("apns_token")),
+        bool(incoming_proof),
+        central_api_configured(runtime),
+        bool(ensure_ha_install_id(runtime)),
+    )
     _remember_registration_identity(runtime, payload)
-    _remember_bootstrap_proof(runtime, payload)
+    if not central_api_configured(runtime) and not incoming_proof:
+        error = "missing_bootstrap_proof"
+        response_environment = _response_environment(cleaned.get("apns_environment"))
+        _remember_status(
+            runtime,
+            cleaned.get("device_id"),
+            cleaned.get("client_type"),
+            registered=False,
+            environment=response_environment,
+            error=error,
+        )
+        _log_registration_failure(runtime, payload, error, cleaned=cleaned)
+        return {
+            "success": False,
+            "push_supported": _push_supported(runtime, cleaned.get("client_type")),
+            "push_registered": False,
+            "push_environment": response_environment,
+            "error": error,
+            "last_push_error": error,
+        }
+    if incoming_proof and not central_api_configured(runtime):
+        token_result = await async_ensure_install_token(
+            hass,
+            runtime,
+            bootstrap_proof=incoming_proof,
+            device_id=cleaned.get("device_id"),
+            client_type=cleaned.get("client_type"),
+        )
+        if not token_result.get("success"):
+            error = _clean_text(token_result.get("error"), 120) or "missing_install_token"
+            response_environment = _response_environment(cleaned.get("apns_environment"))
+            _remember_status(
+                runtime,
+                cleaned.get("device_id"),
+                cleaned.get("client_type"),
+                registered=False,
+                environment=response_environment,
+                error=error,
+            )
+            _log_registration_failure(runtime, payload, error, cleaned=cleaned)
+            return {
+                "success": False,
+                "push_supported": _push_supported(runtime, cleaned.get("client_type")),
+                "push_registered": False,
+                "push_environment": response_environment,
+                "error": error,
+                "last_push_error": error,
+            }
     result = await _post_relay(hass, runtime, "/v1/push/register", cleaned)
-    response_environment = _response_environment(cleaned.get("push_environment"))
+    response_environment = _response_environment(cleaned.get("apns_environment"))
     if result.get("success"):
         _remember_status(
             runtime,
@@ -104,7 +169,7 @@ async def async_unregister(
         return {"success": False, "error": "invalid_push_registration"}
     _remember_registration_identity(runtime, payload)
     result = await _post_relay(hass, runtime, "/v1/push/unregister", cleaned)
-    response_environment = _response_environment(cleaned.get("push_environment"))
+    response_environment = _response_environment(cleaned.get("apns_environment"))
     if result.get("success"):
         _remember_status(
             runtime,
@@ -118,7 +183,7 @@ async def async_unregister(
         "success": bool(result.get("success")),
         "push_supported": _push_supported(runtime, cleaned.get("client_type")),
         "push_registered": False,
-        "push_environment": response_environment or _response_environment(result.get("push_environment")),
+        "push_environment": response_environment or _response_environment(result.get("apns_environment")),
         "last_push_error": _clean_text(result.get("error"), 120) or None,
     }
 
@@ -150,32 +215,44 @@ async def async_bootstrap(
     user_id: str | None,
     payload: dict[str, Any],
 ) -> dict[str, Any]:
-    """Issue a short-lived bootstrap proof for an authenticated Apple client."""
+    """Report that HA cannot mint Apple push bootstrap proofs."""
     del hass, user_id
     cleaned = _bootstrap_payload(runtime, payload=payload)
     if not cleaned:
         _log_registration_failure(runtime, payload, "invalid_push_bootstrap")
         return {"success": False, "error": "invalid_push_bootstrap"}
     _remember_registration_identity(runtime, cleaned)
-    proof = f"djcboot_{secrets.token_urlsafe(32)}"
-    expires_at = _bootstrap_expires_at()
-    _remember_bootstrap_proof(
-        runtime,
-        {
-            **cleaned,
-            CONF_CENTRAL_API_BOOTSTRAP_PROOF: proof,
-            CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT: expires_at,
-        },
-    )
     status = _status_for(runtime, cleaned.get("device_id"), cleaned.get("client_type"))
     response_environment = _clean_text(cleaned.get("push_environment"), 32) or "sandbox"
+    _remember_status(
+        runtime,
+        cleaned.get("device_id"),
+        cleaned.get("client_type"),
+        registered=False,
+        environment=response_environment,
+        error="bootstrap_proof_unavailable",
+    )
+    _LOGGER.info(
+        "DJConnect push bootstrap unavailable: client_type=%s device_id=%s "
+        "push_environment=%s app_bundle_id=%s app_version=%s locale=%s "
+        "bootstrap_proof_present=False install_token_present=%s "
+        "ha_install_id_present=%s reason=bootstrap_proof_unavailable",
+        cleaned.get("client_type") or "missing",
+        cleaned.get("device_id") or "missing",
+        response_environment,
+        cleaned.get("app_bundle_id") or "missing",
+        cleaned.get("app_version") or "missing",
+        cleaned.get("locale") or "missing",
+        central_api_configured(runtime),
+        bool(ensure_ha_install_id(runtime)),
+    )
     return {
-        "success": True,
+        "success": False,
         "push_supported": _clean_client_type(cleaned.get("client_type")) in SUPPORTED_CLIENT_TYPES,
         "push_registered": bool(status.get("push_registered")),
         "push_environment": response_environment,
-        "bootstrap_proof": proof,
-        "bootstrap_proof_expires_at": expires_at,
+        "error": "bootstrap_proof_unavailable",
+        "last_push_error": "bootstrap_proof_unavailable",
     }
 
 
@@ -319,7 +396,7 @@ def should_send_push(
         return {"send": False, "disabled": True, "reason": "event_not_pushable"}
     if event == EVENT_ASK_DJ_RESPONSE and not explicit_user_request:
         return {"send": False, "disabled": True, "reason": "not_explicit_user_request"}
-    if not _relay_ready_or_bootstrappable(runtime):
+    if not relay_configured(runtime):
         return {"send": False, "disabled": True, "reason": "missing_bootstrap_proof"}
     if _target_recently_active(runtime, source_device_id, client_type, now=now):
         return {"send": False, "disabled": True, "reason": "client_recently_active"}
@@ -339,15 +416,8 @@ def _push_supported(runtime: Any, client_type: Any) -> bool:
 
 
 def _relay_ready_or_bootstrappable(runtime: Any) -> bool:
-    """Return true when push can use an install token or mint one from proof."""
-    if relay_configured(runtime):
-        return True
-    config = getattr(runtime, "config", {}) or {}
-    status = getattr(runtime, "device_status", {}) or {}
-    return bool(
-        config.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF)
-        or status.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF)
-    )
+    """Return true when push has an install token."""
+    return relay_configured(runtime)
 
 
 def redact_push_token(value: Any) -> str:
@@ -375,7 +445,7 @@ async def _post_relay(
 def _registration_payload(runtime: Any, *, user_id: str | None, payload: dict[str, Any]) -> dict[str, Any]:
     device_id = _clean_text(payload.get("device_id"), 160)
     client_type = _clean_client_type(payload.get("client_type"))
-    push_token = _clean_text(payload.get("push_token"), 4096)
+    push_token = _clean_text(payload.get("apns_token") or payload.get("push_token"), 4096)
     push_environment = _clean_environment(payload.get("push_environment"))
     if (
         not _device_id_matches_client_type(device_id, client_type)
@@ -388,12 +458,12 @@ def _registration_payload(runtime: Any, *, user_id: str | None, payload: dict[st
         "ha_user_hash": _hash_value(user_id),
         "device_id": device_id,
         "client_type": client_type,
-        "push_token": push_token,
-        "push_environment": _relay_environment(push_environment),
+        "apns_token": push_token,
+        "apns_environment": _relay_environment(push_environment),
         "app_bundle_id": _clean_text(payload.get("app_bundle_id"), 200),
         "app_version": _clean_text(payload.get("app_version"), 64),
         "locale": _clean_text(payload.get("locale"), 32),
-        "notification_categories": _clean_categories(payload.get("notification_categories")),
+        "categories": _clean_categories(payload.get("categories") or payload.get("notification_categories")),
     }
 
 
@@ -412,40 +482,6 @@ def _bootstrap_payload(runtime: Any, *, payload: dict[str, Any]) -> dict[str, An
         "app_version": _clean_text(payload.get("app_version"), 64),
         "locale": _clean_text(payload.get("locale"), 32),
     }
-
-
-def _bootstrap_expires_at(now: float | None = None) -> str:
-    return time.strftime(
-        "%Y-%m-%dT%H:%M:%SZ",
-        time.gmtime((time.time() if now is None else now) + BOOTSTRAP_PROOF_TTL_SECONDS),
-    )
-
-
-def _remember_bootstrap_proof(runtime: Any, payload: dict[str, Any]) -> None:
-    proof = _clean_text(
-        payload.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF) or payload.get("bootstrap_proof"),
-        4096,
-    )
-    if not proof:
-        return
-    status = getattr(runtime, "device_status", None)
-    if not isinstance(status, dict):
-        status = {}
-        setattr(runtime, "device_status", status)
-    status[CONF_CENTRAL_API_BOOTSTRAP_PROOF] = proof
-    device_id = _clean_text(payload.get(CONF_DEVICE_ID) or payload.get("device_id"), 160)
-    client_type = _clean_client_type(payload.get(CONF_CLIENT_TYPE) or payload.get("client_type"))
-    if device_id:
-        status[CONF_DEVICE_ID] = device_id
-    if client_type:
-        status[CONF_CLIENT_TYPE] = client_type
-    expires_at = _clean_text(
-        payload.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT)
-        or payload.get("bootstrap_proof_expires_at"),
-        120,
-    )
-    if expires_at:
-        status[CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT] = expires_at
 
 
 def _remember_registration_identity(runtime: Any, payload: dict[str, Any]) -> None:
@@ -616,9 +652,11 @@ def _valid_push_token(value: Any) -> bool:
 
 def _clean_categories(value: Any) -> list[str]:
     if not isinstance(value, list):
-        return []
-    allowed = {EVENT_ASK_DJ_RESPONSE, EVENT_ASK_DJ_CONFIRM, EVENT_PLAYBACK_CHANGE}
-    return sorted({_clean_text(item, 64) for item in value if _clean_text(item, 64) in allowed})
+        return ["ask_dj"]
+    cleaned = {_clean_text(item, 64) for item in value}
+    if "ask_dj" in cleaned or cleaned & {EVENT_ASK_DJ_RESPONSE, EVENT_ASK_DJ_CONFIRM}:
+        return ["ask_dj"]
+    return ["ask_dj"]
 
 
 def _clean_environment(value: Any) -> str:
@@ -658,16 +696,12 @@ def _log_registration_failure(
         160,
     )
     resolved_environment = _response_environment(
-        cleaned.get("push_environment") or payload.get("push_environment")
+        cleaned.get("apns_environment") or payload.get("apns_environment") or payload.get("push_environment")
     )
     has_authorization = bool(_clean_text(payload.get("authorization") or payload.get("Authorization"), 4096))
-    runtime_config = _runtime_config(runtime)
     has_bootstrap_proof = bool(
         _clean_text(
-            payload.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF)
-            or payload.get("bootstrap_proof")
-            or getattr(runtime, "device_status", {}).get(CONF_CENTRAL_API_BOOTSTRAP_PROOF)
-            or runtime_config.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF),
+            payload.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF) or payload.get("bootstrap_proof"),
             4096,
         )
     )

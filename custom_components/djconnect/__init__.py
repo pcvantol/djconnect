@@ -768,20 +768,6 @@ class DJConnectRuntime:
         reported_local_url = str(pairing_info.get("local_url") or "").strip()
         if reported_local_url:
             self.device_status["local_url"] = reported_local_url
-        bootstrap_proof = str(
-            pairing_info.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF)
-            or pairing_info.get("bootstrap_proof")
-            or ""
-        ).strip()
-        if bootstrap_proof:
-            self.device_status[CONF_CENTRAL_API_BOOTSTRAP_PROOF] = bootstrap_proof
-        bootstrap_expires = str(
-            pairing_info.get(CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT)
-            or pairing_info.get("bootstrap_proof_expires_at")
-            or ""
-        ).strip()
-        if bootstrap_expires:
-            self.device_status[CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT] = bootstrap_expires
         token = self.ensure_device_token()
         url = local_url.rstrip("/") + "/api/device/pair"
         payload_client_type = (

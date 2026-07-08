@@ -1270,23 +1270,27 @@ Bootstrap payload:
 }
 ```
 
-Bootstrap response:
+The legacy `/push/bootstrap` endpoint does not mint local proofs and normally
+responds:
 
 ```json
 {
-  "success": true,
+  "success": false,
   "push_supported": true,
   "push_registered": false,
   "push_environment": "sandbox",
-  "bootstrap_proof": "djcboot_...",
-  "bootstrap_proof_expires_at": "2026-07-08T12:10:00Z"
+  "error": "bootstrap_proof_unavailable",
+  "last_push_error": "bootstrap_proof_unavailable"
 }
 ```
 
-Clients should request a bootstrap proof after local pairing when
-`/push/register` reports `missing_bootstrap_proof`, then retry registration with
-the returned proof before it expires. Home Assistant stores the proof only
-temporarily in runtime status and redacts it from logs and diagnostics.
+Clients should treat `bootstrap_proof_unavailable` as an instruction to use the
+trusted Apple issuer flow. When `/push/register` reports
+`missing_bootstrap_proof`, request a central-issued proof from that issuer and
+retry registration with `bootstrap_proof` before it expires. Home Assistant does
+not locally mint, request or store bootstrap proofs for `/v1/install/token`.
+HA/HACS never calls central bootstrap-proof issuer routes and never has relay,
+pairing-issuer or APNs provider secrets.
 
 Register payload:
 
@@ -1299,7 +1303,8 @@ Register payload:
   "app_bundle_id": "dev.djconnect.app",
   "app_version": "3.2.18",
   "locale": "nl-NL",
-  "notification_categories": ["ask_dj_response", "ask_dj_confirm", "playback_change"]
+  "notification_categories": ["ask_dj_response", "ask_dj_confirm", "playback_change"],
+  "bootstrap_proof": "djcboot_..."
 }
 ```
 

@@ -124,20 +124,28 @@ Entity IDs can differ if Home Assistant renames the device or entities.
 
 iOS, macOS and Apple Watch clients register APNs tokens through
 `POST /api/djconnect/v1/push/register`. If Home Assistant does not yet have a
-per-install `djci_` relay token, a paired Apple client first calls
-`POST /api/djconnect/v1/push/bootstrap` to get a short-lived bootstrap proof for
-that registration. Home Assistant validates the paired client identity and
-forwards only the redacted registration metadata to the DJConnect relay; APNs
-provider keys and raw APNs tokens are never stored in Home Assistant.
+per-install `djci_` relay token, the Apple client obtains a central-issued
+short-lived `djcboot_` proof from the trusted Apple pairing issuer and includes
+it in the `/push/register` payload. Home Assistant exchanges that transient
+proof for a per-install token through `/v1/install/token`, stores only the
+`djci_` token and then registers the APNs device with the relay. Home Assistant
+does not locally mint, request or store bootstrap proofs. It validates the
+paired client identity and forwards only redacted registration metadata to the
+DJConnect relay; APNs provider keys and raw APNs tokens are never stored in Home
+Assistant.
 
 Development-signed Apple builds may send `push_environment: "development"` when
 their APNs entitlement targets the sandbox. DJConnect normalizes that to
 canonical `sandbox` in relay calls, status and registration responses. Production
 builds must send `push_environment: "production"`. If registration reports
-`missing_bootstrap_proof`, call `/push/bootstrap` and retry registration with the
-returned proof. If registration reports `invalid_bootstrap_proof`, request a
-fresh proof or pair the app with Home Assistant again, then retry push
-registration.
+`missing_bootstrap_proof`, the Apple client should request a fresh proof from
+the trusted Apple issuer and retry `/push/register` with `bootstrap_proof`. If
+registration reports `invalid_bootstrap_proof`, `bootstrap_proof_expired`,
+`bootstrap_proof_used`, `install_id_mismatch` or `bootstrap_rate_limited`,
+request a fresh proof or pair the app with Home Assistant again, then retry push
+registration. The legacy `/push/bootstrap` endpoint returns
+`bootstrap_proof_unavailable`; HA/HACS never calls central proof-issuer routes
+and never has relay, pairing-issuer or APNs provider secrets.
 When Music DNA is enabled, Home Assistant sends at most one daily
 `music_discovery_ready` APNs wake/sync hint around 08:00 local time with
 `body:"Je nieuwe aanbevelingen staan klaar!"`, `open_target:"music_discovery"`

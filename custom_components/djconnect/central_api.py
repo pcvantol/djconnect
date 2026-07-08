@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timezone
 import logging
 import secrets
 from typing import Any
@@ -11,8 +10,6 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import (
     CONF_API_BASE_URL,
-    CONF_CENTRAL_API_BOOTSTRAP_PROOF,
-    CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT,
     CONF_CLIENT_TYPE,
     CONF_DJCONNECT_INSTALL_TOKEN,
     CONF_DEVICE_ID,
@@ -56,32 +53,44 @@ def central_api_configured(runtime: Any) -> bool:
     return bool(_install_token(runtime))
 
 
-async def async_ensure_install_token(hass: Any, runtime: Any) -> dict[str, Any]:
+async def async_ensure_install_token(
+    hass: Any,
+    runtime: Any,
+    *,
+    bootstrap_proof: Any = None,
+    device_id: Any = None,
+    client_type: Any = None,
+) -> dict[str, Any]:
     """Ensure this HA installation has a central API install token."""
     existing = _install_token(runtime)
     if existing:
         return {"success": True, "created": False}
     install_id = ensure_ha_install_id(runtime)
-    proof = _bootstrap_proof(runtime)
+    proof = _clean(bootstrap_proof, 4096)
     if not proof:
         return {"success": False, "error": "missing_bootstrap_proof"}
-    if _bootstrap_proof_expired(runtime):
-        return {"success": False, "error": "invalid_bootstrap_proof"}
     payload = {
         "ha_install_id": install_id,
         "integration": "djconnect_hacs",
         "integration_version": VERSION,
         "bootstrap_proof": proof,
     }
-    device_id = _device_id(runtime)
-    client_type = _client_type(runtime)
+    device_id = _clean(device_id, 160) or _device_id(runtime)
+    client_type = _clean(client_type, 80) or _client_type(runtime)
     if device_id:
         payload[CONF_DEVICE_ID] = device_id
     if client_type:
         payload[CONF_CLIENT_TYPE] = client_type
-    expires_at = _bootstrap_proof_expires_at(runtime)
-    if expires_at:
-        payload[CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT] = expires_at
+    _LOGGER.info(
+        "DJConnect central install token bootstrap request: device_id=%s "
+        "client_type=%s ha_install_id_present=%s bootstrap_proof_present=%s "
+        "bootstrap_expires_at_present=%s install_token_present=False",
+        device_id or "missing",
+        client_type or "missing",
+        bool(install_id),
+        bool(proof),
+        False,
+    )
     result = await _post_json(
         hass,
         runtime,
@@ -91,8 +100,20 @@ async def async_ensure_install_token(hass: Any, runtime: Any) -> dict[str, Any]:
     )
     new_token = _clean(result.get("install_token") or result.get(CONF_DJCONNECT_INSTALL_TOKEN), 4096)
     if not result.get("success") or not _valid_install_token(new_token):
+        _LOGGER.info(
+            "DJConnect central install token bootstrap result: success=False "
+            "central_status=%s central_error=%s install_token_received=%s",
+            result.get("status") or "unknown",
+            _clean(result.get("error"), 120) or "missing_install_token",
+            bool(new_token),
+        )
         return {"success": False, "error": _clean(result.get("error"), 120) or "missing_install_token"}
     _persist_install_settings(hass, runtime, install_id=install_id, token=new_token)
+    _LOGGER.info(
+        "DJConnect central install token bootstrap result: success=True "
+        "central_status=%s central_error=None install_token_received=True",
+        result.get("status") or "unknown",
+    )
     return {"success": True, "created": True}
 
 
@@ -143,8 +164,16 @@ async def _post_json(
                 data = await _response_json(response)
                 success = 200 <= int(getattr(response, "status", 0)) < 300 and data.get("success", True)
                 if success:
-                    return {"success": True, **data}
+                    return {"success": True, "status": int(getattr(response, "status", 0)), **data}
                 last_error = _clean(data.get("error") or getattr(response, "status", ""), 120)
+                _LOGGER.info(
+                    "DJConnect central API request result: path=%s status=%s "
+                    "success=False central_error=%s authorization_present=%s",
+                    path,
+                    int(getattr(response, "status", 0)),
+                    last_error or "unknown",
+                    bool(token),
+                )
                 if int(getattr(response, "status", 0)) < 500:
                     break
         except (TimeoutError, asyncio.TimeoutError):
@@ -180,6 +209,10 @@ def _persist_install_settings(hass: Any, runtime: Any, *, install_id: str, token
     options.setdefault(CONF_API_BASE_URL, _api_base_url(runtime))
     options[CONF_HA_INSTALL_ID] = install_id
     options[CONF_DJCONNECT_INSTALL_TOKEN] = token
+    options.pop("central_api_bootstrap_proof", None)
+    options.pop("bootstrap_proof", None)
+    options.pop("central_api_bootstrap_proof_expires_at", None)
+    options.pop("bootstrap_proof_expires_at", None)
     if hasattr(getattr(hass, "config_entries", None), "async_update_entry"):
         hass.config_entries.async_update_entry(entry, options=options)
     else:
@@ -215,35 +248,6 @@ def _install_token(runtime: Any) -> str:
     config = _runtime_config(runtime)
     token = _clean(config.get(CONF_DJCONNECT_INSTALL_TOKEN), 4096)
     return token if _valid_install_token(token) else ""
-
-
-def _bootstrap_proof(runtime: Any) -> str:
-    return _clean(
-        _runtime_value(runtime, CONF_CENTRAL_API_BOOTSTRAP_PROOF, "bootstrap_proof"),
-        4096,
-    )
-
-
-def _bootstrap_proof_expires_at(runtime: Any) -> str:
-    return _clean(
-        _runtime_value(
-            runtime,
-            CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT,
-            "bootstrap_proof_expires_at",
-        ),
-        120,
-    )
-
-
-def _bootstrap_proof_expired(runtime: Any) -> bool:
-    value = _bootstrap_proof_expires_at(runtime)
-    if not value:
-        return False
-    try:
-        expires = datetime.fromisoformat(value.replace("Z", "+00:00"))
-    except ValueError:
-        return False
-    return expires <= datetime.now(timezone.utc)
 
 
 def _device_id(runtime: Any) -> str:
