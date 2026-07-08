@@ -125,7 +125,8 @@ Every release must review this roadmap.
   reasons, structured text model and polling/cache semantics (3.2, HA/client
   contract).
 - [x] Last STT text, resolved Spotify result, DJ announcement and last track are
-  visible as entities or redacted debug attributes (3.2, HA).
+  visible through focused entities or redacted status/debug attributes, without
+  low-value standalone command/STT sensors (3.2, HA).
 - [ ] DJ announcement prompt is configurable, multiline and isolated from
   Spotify search/device lookup prompts.
 - [x] DJConnect is exposed as a Home Assistant Assist conversation agent for

@@ -61,7 +61,8 @@
   including `async_get_speech_to_text_engine(...).async_process_audio_stream(...)`.
 - Confirm recognized text reaches DJConnect command processing.
 - Confirm the guarded post-STT fuzzy-correction step improves common English artist/track/album names in Dutch sentences without changing correct transcripts.
-- Confirm `sensor.djconnect_last_corrected_stt` shows the last changed STT correction and remains stable after sparse runtime updates.
+- Confirm `sensor.djconnect_status` exposes corrected STT/debug metadata while
+  `last_command` and `last_corrected_stt` remain absent as standalone entities.
 - Confirm Spotify playback action runs when Spotify is idle.
 - Confirm current-track questions such as `Welk nummer draait er nu?` return a DJ response without starting new Spotify playback, including no-track and Spotify-unavailable cases.
 - Confirm direct playback controls `Stop muziek`, `Start muziek`, `Zet harder`, `Zet zachter`, `Volgende nummer` and `Vorig nummer` execute backend commands without Spotify search and return DJ responses.

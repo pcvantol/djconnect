@@ -55,8 +55,6 @@ async def async_setup_entry(
     entities = [
         DJConnectStatusSensor(runtime),
         DJConnectApnsRegistrationSensor(runtime),
-        DJConnectLastTextSensor(runtime),
-        DJConnectLastCorrectedSttSensor(runtime),
         DJConnectPairingStatusSensor(runtime),
     ]
     if client_type == CLIENT_TYPE_ESP32:
@@ -273,110 +271,6 @@ class DJConnectStatusSensor(DJConnectBaseSensor):
             else None,
             "ota_in_progress": self.runtime.ota_in_progress,
             "ota_last_error": self.runtime.ota_last_error,
-        }
-
-class DJConnectLastTextSensor(DJConnectBaseSensor):
-    _attr_translation_key = "last_command"
-    _attr_unique_id = "djconnect_last_command"
-
-    def __init__(self, runtime) -> None:
-        super().__init__(runtime)
-        self._last_value = _last_command_value(runtime)
-        self._last_runtime_update_state: tuple | None = None
-
-    @callback
-    def _handle_runtime_update(self) -> None:
-        current = self._runtime_update_state()
-        if current == self._last_runtime_update_state:
-            return
-        self._last_runtime_update_state = current
-        self.async_write_ha_state()
-
-    def _runtime_update_state(self) -> tuple:
-        return (
-            self.native_value,
-            _last_command_first_raw_value(self.runtime),
-            getattr(self.runtime, "last_text", None),
-            getattr(self.runtime, "last_stt_text", None),
-            getattr(self.runtime, "last_corrected_text", None),
-            getattr(self.runtime, "last_dj_text", None),
-            _stable_repr(getattr(self.runtime, "last_intent", None)),
-            _stable_repr(getattr(self.runtime, "last_spotify_search", None)),
-            _stable_repr(getattr(self.runtime, "last_resolved_media", None)),
-        )
-
-    @property
-    def native_value(self):
-        value = _last_command_value(self.runtime)
-        if value not in (None, ""):
-            self._last_value = value
-        return self._last_value
-
-    @property
-    def available(self) -> bool:
-        return True
-
-    @property
-    def extra_state_attributes(self):
-        full_value = _last_command_first_raw_value(self.runtime) or self._last_value
-        return {
-            "full_value": full_value,
-            "state_truncated": _is_long_text_state(full_value),
-            "state_prompt_leak_ignored": _looks_like_assist_prompt_leak(full_value or ""),
-            "last_stt_text": getattr(self.runtime, "last_stt_text", None) or self._last_value,
-            "last_corrected_text": getattr(self.runtime, "last_corrected_text", None),
-            "last_text": getattr(self.runtime, "last_text", None),
-            "last_dj_text": getattr(self.runtime, "last_dj_text", None) or self._last_value,
-            "last_intent": getattr(self.runtime, "last_intent", None),
-            "last_spotify_search": getattr(self.runtime, "last_spotify_search", None),
-            "last_resolved_media": getattr(self.runtime, "last_resolved_media", None),
-        }
-
-
-class DJConnectLastCorrectedSttSensor(DJConnectBaseSensor):
-    _attr_translation_key = "last_corrected_stt"
-    _attr_unique_id = "djconnect_last_corrected_stt"
-
-    def __init__(self, runtime) -> None:
-        super().__init__(runtime)
-        self._last_value = _safe_text_state(getattr(runtime, "last_corrected_text", None))
-        self._last_runtime_update_state: tuple | None = None
-
-    @callback
-    def _handle_runtime_update(self) -> None:
-        current = self._runtime_update_state()
-        if current == self._last_runtime_update_state:
-            return
-        self._last_runtime_update_state = current
-        self.async_write_ha_state()
-
-    def _runtime_update_state(self) -> tuple:
-        return (
-            self.native_value,
-            getattr(self.runtime, "last_corrected_text", None),
-            getattr(self.runtime, "last_stt_text", None),
-            getattr(self.runtime, "last_text", None),
-        )
-
-    @property
-    def native_value(self):
-        value = _safe_text_state(getattr(self.runtime, "last_corrected_text", None))
-        if value not in (None, ""):
-            self._last_value = value
-        return self._last_value
-
-    @property
-    def available(self) -> bool:
-        return True
-
-    @property
-    def extra_state_attributes(self):
-        full_value = getattr(self.runtime, "last_corrected_text", None) or self._last_value
-        return {
-            "full_value": full_value,
-            "state_truncated": _is_long_text_state(full_value),
-            "last_stt_text": getattr(self.runtime, "last_stt_text", None),
-            "last_text": getattr(self.runtime, "last_text", None),
         }
 
 class DJConnectBatterySensor(DJConnectCachedStatusSensor):
@@ -851,40 +745,6 @@ def _queue_currently_playing(queue):
         value = queue.get("currently_playing") or queue.get("current")
         if isinstance(value, dict):
             return value
-    return None
-
-
-def _last_command_value(runtime):
-    return _safe_text_state(_last_command_raw_value(runtime))
-
-
-def _last_command_raw_value(runtime):
-    for key in ("last_dj_text", "last_text", "last_stt_text"):
-        value = getattr(runtime, key, None)
-        if value not in (None, ""):
-            safe = _safe_text_state(value)
-            if safe not in (None, ""):
-                return value
-    status = getattr(runtime, "device_status", {}) or {}
-    for key in ("last_dj_text", "last_command", "last_text", "last_stt_text"):
-        value = status.get(key)
-        if value not in (None, ""):
-            safe = _safe_text_state(value)
-            if safe not in (None, ""):
-                return value
-    return None
-
-
-def _last_command_first_raw_value(runtime):
-    for key in ("last_dj_text", "last_text", "last_stt_text"):
-        value = getattr(runtime, key, None)
-        if value not in (None, ""):
-            return str(value)
-    status = getattr(runtime, "device_status", {}) or {}
-    for key in ("last_dj_text", "last_command", "last_text", "last_stt_text"):
-        value = status.get(key)
-        if value not in (None, ""):
-            return str(value)
     return None
 
 

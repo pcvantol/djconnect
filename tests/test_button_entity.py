@@ -108,6 +108,7 @@ class DJConnectButtonEntityTest(unittest.TestCase):
 
         translation_keys = {entity._attr_translation_key for entity in added}
         self.assertNotIn("reboot_device", translation_keys)
+        self.assertNotIn("test_dj_response", translation_keys)
         self.assertIn("test_push_message", translation_keys)
 
     def test_test_push_button_is_added_for_apple_clients_only(self) -> None:
@@ -127,6 +128,7 @@ class DJConnectButtonEntityTest(unittest.TestCase):
 
                 translation_keys = {entity._attr_translation_key for entity in added}
                 self.assertIn("test_push_message", translation_keys)
+                self.assertNotIn("test_dj_response", translation_keys)
 
         for client_type in ("esp32", "raspberry_pi", "windows"):
             with self.subTest(client_type=client_type):
@@ -144,6 +146,8 @@ class DJConnectButtonEntityTest(unittest.TestCase):
 
                 translation_keys = {entity._attr_translation_key for entity in added}
                 self.assertNotIn("test_push_message", translation_keys)
+                if client_type != "esp32":
+                    self.assertNotIn("test_dj_response", translation_keys)
 
     def test_test_push_button_sends_ask_dj_attention_event(self) -> None:
         push = importlib.import_module("custom_components.djconnect.push")
@@ -218,6 +222,7 @@ class DJConnectButtonEntityTest(unittest.TestCase):
 
         translation_keys = {entity._attr_translation_key for entity in added}
         self.assertNotIn("reboot_device", translation_keys)
+        self.assertNotIn("test_dj_response", translation_keys)
         self.assertIn("restart_device", translation_keys)
         self.assertIn("shutdown_device", translation_keys)
 
@@ -253,6 +258,7 @@ class DJConnectButtonEntityTest(unittest.TestCase):
         )
 
         translation_keys = {entity._attr_translation_key for entity in added}
+        self.assertIn("test_dj_response", translation_keys)
         self.assertIn("reboot_device", translation_keys)
 
 

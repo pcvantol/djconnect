@@ -439,12 +439,6 @@
       "apns_registration": {
         "name": "Enregistrement APNs"
       },
-      "last_command": {
-        "name": "Dernière commande"
-      },
-      "last_corrected_stt": {
-        "name": "Dernière STT corrigée"
-      },
       "battery": {
         "name": "Batterie"
       },

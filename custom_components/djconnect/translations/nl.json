@@ -439,12 +439,6 @@
       "apns_registration": {
         "name": "APNs registratie"
       },
-      "last_command": {
-        "name": "Laatste opdracht"
-      },
-      "last_corrected_stt": {
-        "name": "Laatste gecorrigeerde STT"
-      },
       "battery": {
         "name": "Batterij"
       },

@@ -46,11 +46,14 @@ async def async_setup_entry(
 ) -> None:
     runtime = hass.data[DOMAIN][entry.entry_id]
     _remove_legacy_entities(hass, runtime, "button", REMOVED_BACKEND_BUTTON_KEYS)
-    entities = [
-        DJConnectTestVoiceButton(runtime, hass),
-    ]
+    entities = []
     if runtime.client_type() == CLIENT_TYPE_ESP32:
-        entities.append(DJConnectRebootButton(runtime, hass))
+        entities.extend(
+            [
+                DJConnectTestVoiceButton(runtime, hass),
+                DJConnectRebootButton(runtime, hass),
+            ]
+        )
     if runtime.client_type() == CLIENT_TYPE_RASPBERRY_PI:
         entities.extend(
             [

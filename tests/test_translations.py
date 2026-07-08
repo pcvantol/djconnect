@@ -74,7 +74,6 @@ VOICE_OPTION_DATA_KEYS = {
 
 ENTITY_TRANSLATION_KEYS = {
     ("sensor", "status"),
-    ("sensor", "last_command"),
     ("sensor", "battery"),
     ("sensor", "wifi_rssi"),
     ("sensor", "firmware_version"),

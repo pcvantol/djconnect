@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.2.39
+
+- Remove the low-value `last_command` and `last_corrected_stt` sensor entities
+  from new setups while keeping their debug metadata on the main status sensor.
+- Limit the Home Assistant `test_dj_response` button entity to ESP32 clients,
+  where Home Assistant can send the local DJ announcement to the device.
+
 ## 3.2.38
 
 - Stop returning locally generated Apple push bootstrap proofs from Home

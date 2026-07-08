@@ -4,8 +4,8 @@
 
 - Repository: `pcvantol/djconnect`.
 - Integration domain: `djconnect`.
-- Current integration release: `3.2.38`.
-- Release status: DJConnect `3.2.38` keeps the `3.2.x` transport, pairing and
+- Current integration release: `3.2.39`.
+- Release status: DJConnect `3.2.39` keeps the `3.2.x` transport, pairing and
   backend abstraction model, including the premium-ready VibeCast feed endpoint
   for Apple clients and proxied artist shout-out images. Backend playback
   remains available through DJConnect commands, Ask DJ, VibeCast context and
@@ -333,10 +333,10 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 ## Current Release Notes
 
 - Current release line is `3.2.x`; only the latest GitHub release/tag should be kept after release cleanup.
-- Current latest baseline is `3.2.38`.
+- Current latest baseline is `3.2.39`.
 - Release workflow expectation: before every release, review and update all repo documentation affected by the change or release, including `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant `examples/*`. Always review all five supported translations (`en`, `nl`, `de`, `fr`, `es`) for completeness, natural wording and current behavior, even when the release appears API/docs/client-contract only. Explicitly decide whether test coverage must be expanded for the change; add coverage for new behavior paths, regression risks, translations, config/options-flow base/EN/NL/DE/FR/ES keysets, stale `data_description` keys, diagnostics/log redaction and edge cases, and run `python3 -m unittest tests.test_translations`. Keep `tests.test_postman_collection` aligned with the Postman examples so CI validates collection schema, auth headers, placeholders and client identity. Normal `main` CI now automatically cleans up old completed GitHub Actions workflow runs, keeping the newest 2 completed runs per workflow; keep extra history only when debugging requires it. Also clean up old semver releases/tags with `./cleanup_old_releases.sh --keep 1 --execute` unless multiple releases are intentionally retained. Keep any branch-protection/admin override explicit and manual; do not automate required-review disablement or protection changes in `release.sh`.
 - Before build/test/release validation, check whether third-party libraries, frameworks and build tools can be safely upgraded. Review the shared CI dependency-audit job plus local Homebrew/npm/pip/PlatformIO/.NET/tooling checks. If any version is upgraded, update lockfiles/manifests, `THIRD_PARTY_NOTICES.md` and dependency/design documentation in the same release. If an upgrade is skipped, record the reason here.
-- For the current `3.2.38` release, no pinned Python package versions were
+- For the current `3.2.39` release, no pinned Python package versions were
   upgraded. The current release refreshes release bootstrap, handoff and sync
   metadata while keeping backend commands and Ask DJ routes intact.
 - CI maintenance updated GitHub Actions runtime actions to `actions/checkout@v7`
@@ -405,7 +405,10 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - The options-flow “re-pair with new pairing code” field stays empty instead of pre-filling the old stored pairing code; leaving Client adres empty reuses the stored URL for that client.
 - Firmware update entity is non-polling. It checks GitHub on add/manual refresh/install and then on a one-hour internal schedule, so HA must not refresh the entity every 10 seconds.
 - Firmware channel is a user-facing options-flow dropdown: `stable` uses GitHub `/releases/latest`; `beta` uses the newest prerelease from `pcvantol/djconnect-firmware`. Firmware repo/device remain automatic and hidden.
-- Sensor entities are push-only through runtime listeners. `last_command` and `last_track` additionally write HA state only when their cached value or relevant debug attributes actually change.
+- Sensor entities are push-only through runtime listeners. `last_track` writes
+  HA state only when its cached value or relevant debug attributes actually
+  change. `last_command` and `last_corrected_stt` are intentionally no longer
+  exposed as standalone sensor entities.
 - Spotify repair OAuth popups use the explicit `authorize` repair external step plus title/description placeholders so Home Assistant does not show a blank dialog when opening the website.
 - Strict current ESP device identity is model-specific: `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX`; legacy `djconnect-XXXXXXXXXXXX` IDs are not accepted.
 - If ESP status/command/voice auth returns `401`, HA must log the received device id, known device id, client type, token-present flag and rejection reason without logging token values.
@@ -416,16 +419,35 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - Empty Spotify playback snapshots may update backend/playback state, but must not clear cached device sensor fields such as `sound_output`, `volume`, `last_track` or pairing status.
 - Command and voice payloads are never authoritative device-status sources; they must not clear sensor values or move `ha_pairing_status` back to `pending` when fields are absent.
 - Last-known ESP device status is persisted in config entry data as `last_device_status` and restored on HA reload/startup; never store secrets there.
-- `sensor.djconnect_last_track` and `sensor.djconnect_last_command` cache their last non-empty native values at entity level and must not flip to unknown/unavailable because a sparse runtime snapshot omits them.
+- `sensor.djconnect_last_track` caches its last non-empty native value at entity
+  level and must not flip to unknown/unavailable because a sparse runtime
+  snapshot omits it.
 - ESP status must include `client_type=esp32`; missing client type is surfaced as a visible HA status error.
-- Native HA entities include queue/up-next, output list, output select, device settings and test/refresh buttons under one HA device. Firmware OTA/update entities are ESP32-only.
-- ESP32 clients get ESP-only hardware/update/settings entities: battery, Wi-Fi RSSI, screen state, LED state, screen brightness/timeout, speaker volume, wake word, device language, auto-off, theme/log-level, firmware update and reboot. Wake word reads `settings.wake_word_enabled`, then top-level `wake_word_enabled`, then `wake_word`, and the HA switch sends canonical `{"command":"wake_word","value":true|false}`. iOS, macOS, watchOS, Raspberry Pi and Windows clients must not get those ESP-only entities; they keep only client/runtime and backend/playback entities. Apple clients additionally get APNs readiness diagnostics and the test-push button. Raspberry Pi clients additionally get Pi-specific restart and shutdown buttons that call `/api/device/restart` and `/api/device/shutdown`. Assist Conversation Agent-only entries load only the `DJConnect DJ` conversation agent plus the minimal diagnostics sensor.
+- Native HA entities include queue/up-next, output list, output select, device
+  settings and client-appropriate buttons under one HA device. Firmware
+  OTA/update entities are ESP32-only.
+- ESP32 clients get ESP-only hardware/update/settings entities: battery, Wi-Fi
+  RSSI, screen state, LED state, screen brightness/timeout, speaker volume,
+  wake word, device language, auto-off, theme/log-level, firmware update,
+  reboot and the test DJ announcement button. Wake word reads
+  `settings.wake_word_enabled`, then top-level `wake_word_enabled`, then
+  `wake_word`, and the HA switch sends canonical
+  `{"command":"wake_word","value":true|false}`. iOS, macOS, watchOS, Raspberry
+  Pi and Windows clients must not get those ESP-only entities; they keep only
+  client/runtime and backend/playback entities. Apple clients additionally get
+  APNs readiness diagnostics and the test-push button. Raspberry Pi clients
+  additionally get Pi-specific restart and shutdown buttons that call
+  `/api/device/restart` and `/api/device/shutdown`. Assist Conversation
+  Agent-only entries load only the `DJConnect DJ` conversation agent plus the
+  minimal diagnostics sensor.
 - `button.djconnect_refresh_up_next` refreshes Spotify/Home Assistant backend queue data through the `queue` command.
 - `command=queue` returns at most 100 real queue items plus top-level `context_uri` / `contextUri` and queue item artwork aliases so ESP/web/app Up Next can use `play_context_at` and show thumbnails.
 - `select.djconnect_sound_output` refreshes Spotify output devices itself and accepts `available_outputs`, `outputs`, `devices` and nested `items` aliases.
 - Backend playback snapshots keep artwork aliases such as `album_image_url`, `media_image_url`, `image_url` and `entity_picture` for clients and diagnostics.
 - Voice debug is opt-in via debug logging: when `custom_components.djconnect` debug logging is enabled, HA stores the last raw ESP WAV in memory and exposes it at authenticated URL `/api/djconnect/v1/debug/last_voice.wav`.
-- PTT/debug metadata is exposed as attributes on `sensor.djconnect_status`, `sensor.djconnect_last_command` and `sensor.djconnect_last_corrected_stt`, including last STT text, corrected text when changed, Spotify search summary and resolved media metadata.
+- PTT/debug metadata is exposed as attributes on `sensor.djconnect_status`,
+  including last STT text, corrected text when changed, Spotify search summary
+  and resolved media metadata.
 - Developer Actions use explicit UI field names `command_text` and `dj_response_text`; legacy `text` remains accepted for existing YAML/scripts.
 - Developer Actions also register explicit runtime service schemas so Home Assistant Developer Tools keeps the text fields visible after service metadata refreshes.
 - `djconnect.test_apns_push` is the APNs developer diagnostic action. Default

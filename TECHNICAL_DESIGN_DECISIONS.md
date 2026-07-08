@@ -75,8 +75,9 @@ Primary source files:
 Why:
 
 - Avoids Home Assistant polling for frequent local status changes.
-- Keeps `last_command`, `last_track` and DJ announcement debug values stable
-  across sparse payloads.
+- Keeps `last_track` and DJ announcement debug values stable across sparse
+  payloads while leaving low-value command/STT details on the main status
+  sensor attributes instead of standalone entities.
 - Makes tests lightweight because runtime can be represented by simple stubs.
 
 ### Use-Case Layer Before Music Backends
