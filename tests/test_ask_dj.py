@@ -6636,10 +6636,8 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual([call[0] for call in calls], ["status", "queue"])
         self.assertEqual(result["intent"]["intent"], "next_track_info")
         self.assertEqual(result["action"], "none")
-        self.assertIn("Hierna in de wachtrij:", result["dj_text"])
-        self.assertIn("1. HAEVN Song 1 - HAEVN", result["dj_text"])
-        self.assertIn("3. HAEVN Song 3 - HAEVN", result["dj_text"])
-        self.assertIn("6. HAEVN Song 6 - HAEVN", result["dj_text"])
+        self.assertEqual(result["dj_text"], "Hierna in de wachtrij:")
+        self.assertEqual(result["images"], [])
         self.assertEqual(len(result["playback_actions"]), 6)
         self.assertEqual(result["playback_actions"][0]["kind"], "track")
         self.assertEqual(result["playback_actions"][0]["label"], "Play Now")
@@ -6648,9 +6646,9 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["playback_actions"][0]["uri"], "spotify:track:haevn-1")
         self.assertEqual(result["playback_actions"][0]["context_uri"], "spotify:playlist:haevn")
         self.assertEqual(result["playback_actions"][0]["offset_uri"], "spotify:track:haevn-1")
-        self.assertTrue(result["images"][0]["url"].startswith(self.const.API_IMAGE_PROXY_BASE))
+        self.assertTrue(result["playback_actions"][0]["image_url"].startswith(self.const.API_IMAGE_PROXY_BASE))
 
-    def test_next_numbers_question_returns_first_ten_queue_rows(self) -> None:
+    def test_next_numbers_question_returns_first_ten_queue_actions(self) -> None:
         runtime = make_runtime()
         calls = []
 
@@ -6694,7 +6692,8 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual([call[0] for call in calls], ["status", "queue"])
         self.assertEqual(result["intent"]["intent"], "next_track_info")
         self.assertEqual(result["action"], "none")
-        self.assertIn("10. Queue Song 10 - Queue Artist 10", result["text"])
+        self.assertEqual(result["text"], "Hierna in de wachtrij:")
+        self.assertEqual(result["images"], [])
         self.assertNotIn("Queue Song 11", result["text"])
         self.assertEqual(len(result["playback_actions"]), 10)
         self.assertTrue(all(action["kind"] == "track" for action in result["playback_actions"]))
@@ -6755,10 +6754,8 @@ class AskDjTest(unittest.TestCase):
 
         self.assertEqual(result["intent"]["intent"], "next_track_info")
         self.assertEqual(len(result["playback_actions"]), 3)
-        self.assertEqual(len(result["images"]), 3)
-        self.assertIn("1. Carry Me Home - Extended Mix - Above & Beyond, Zoe Johnston", result["text"])
-        self.assertIn("2. Carry Me Home - Above & Beyond, Zoe Johnston", result["text"])
-        self.assertIn("3. Alchemy - Original Mix - Above & Beyond, Zoe Johnston", result["text"])
+        self.assertEqual(result["images"], [])
+        self.assertEqual(result["text"], "Hierna in de wachtrij:")
         self.assertNotIn("4. Carry Me Home", result["text"])
         self.assertEqual(
             [action["uri"] for action in result["playback_actions"]],
@@ -6810,7 +6807,8 @@ class AskDjTest(unittest.TestCase):
 
         self.assertEqual([call[0] for call in calls], ["status", "queue"])
         self.assertEqual(result["intent"]["intent"], "next_track_info")
-        self.assertIn("The Lightning Strike - Snow Patrol", result["dj_text"])
+        self.assertEqual(result["dj_text"], "Hierna in de wachtrij:")
+        self.assertEqual(result["images"], [])
         self.assertEqual(result["playback_actions"][0]["uri"], "spotify:track:lightning")
 
     def test_next_track_question_does_not_double_proxy_queue_art(self) -> None:
@@ -6852,7 +6850,7 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.run_music_command = original_command
 
-        self.assertEqual(result["images"][0]["url"], proxy_url)
+        self.assertEqual(result["images"], [])
         self.assertEqual(result["playback_actions"][0]["image_url"], proxy_url)
         self.assertEqual(hass.data[self.const.DOMAIN]["image_proxy"], {"existing": "https://img.example/original.jpg"})
 

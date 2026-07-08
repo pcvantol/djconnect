@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.2.36
+
+- Make Ask DJ queue answers compact by returning only `Hierna in de wachtrij:`
+  plus Play Now actions, without the numbered text list or separate image
+  cards.
+
 ## 3.2.35
 
 - Expand the plain default Home Assistant device name `DJConnect` to

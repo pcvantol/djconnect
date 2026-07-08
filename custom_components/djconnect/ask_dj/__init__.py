@@ -2662,28 +2662,14 @@ async def _next_track_info_response(
             "sources": [{"source": "spotify_queue", "title": "Spotify queue", "kind": "source"}],
         }
     queue_preview = queue_items[:10]
-    lines = ["Hierna in de wachtrij:"]
-    images = []
+    text = "Hierna in de wachtrij:"
     playback_actions = []
     for index, item in enumerate(queue_preview, start=1):
         title = str(item.get("title") or item.get("track_name") or f"nummer {index}").strip()
         artist = str(item.get("subtitle") or item.get("artist") or "").strip()
         uri = str(item.get("uri") or "").strip()
-        label = f"{title} - {artist}" if artist else title
-        lines.append(f"{index}. {label}")
         image_url = str(item.get("image_url") or item.get("album_image_url") or item.get("thumbnail_url") or "").strip()
         proxy = register_image_proxy_url(hass, image_url) if image_url.startswith(("http://", "https://")) else image_url
-        if proxy:
-            images.append(
-                {
-                    "url": proxy,
-                    "thumbnail_url": proxy,
-                    "title": title,
-                    "subtitle": artist,
-                    "kind": "album_art",
-                    "source": "spotify",
-                }
-            )
         if uri.startswith("spotify:track:"):
             action: dict[str, Any] = {
                 "id": uri,
@@ -2703,13 +2689,12 @@ async def _next_track_info_response(
             if proxy:
                 action["image_url"] = proxy
             playback_actions.append(action)
-    text = "\n".join(lines)
     return {
         "success": True,
         "text": text,
         "dj_text": text,
         "action": "none",
-        "images": images,
+        "images": [],
         "playback_actions": playback_actions,
         "sources": [{"source": "spotify_queue", "title": "Spotify queue", "kind": "source"}],
     }
