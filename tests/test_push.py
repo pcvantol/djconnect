@@ -323,7 +323,9 @@ class PushTest(unittest.TestCase):
         self.assertFalse(hasattr(self.push, "PushRegistrationManager"))
 
     def test_register_normalizes_macos_development_environment_for_relay(self) -> None:
-        hass = types.SimpleNamespace(session=FakeSession())
+        const = importlib.import_module("custom_components.djconnect.const")
+        hass = types.SimpleNamespace(session=FakeSession(), config_entries=types.SimpleNamespace())
+        hass.config_entries.async_update_entry = lambda entry, **kwargs: setattr(entry, "data", kwargs["data"])
         hass.session.response = FakeResponse(data={"success": True, "push_environment": "production"})
         runtime = self._runtime()
 
@@ -351,6 +353,10 @@ class PushTest(unittest.TestCase):
         status = runtime.push_status["djconnect-macos-ABCDEFGHIJKL|macos"]
         self.assertTrue(status["push_registered"])
         self.assertEqual(status["push_environment"], "development")
+        persisted = runtime.entry.data[const.CONF_LAST_PUSH_STATUS]
+        self.assertTrue(persisted["djconnect-macos-ABCDEFGHIJKL|macos"]["push_registered"])
+        self.assertNotIn("push_token", str(persisted))
+        self.assertNotIn("djci_test_install_token", str(persisted))
 
     def test_register_accepts_develop_environment_alias(self) -> None:
         hass = types.SimpleNamespace(session=FakeSession())
@@ -698,6 +704,22 @@ class PushTest(unittest.TestCase):
         self.assertEqual(payload["body"], "Je nieuwe aanbevelingen staan klaar!")
         self.assertNotIn("ha_user_hash", payload)
 
+    def test_test_push_payload_has_clear_test_message(self) -> None:
+        runtime = self._runtime()
+
+        payload = self.push.build_relay_event_payload(
+            runtime,
+            user_id=None,
+            event_type="test_push",
+        )
+
+        self.assertEqual(payload["event_type"], "test_push")
+        self.assertEqual(payload["open_target"], "ask_dj")
+        self.assertEqual(payload["title"], "DJConnect")
+        self.assertEqual(payload["body"], "DJConnect pushberichten zijn actief.")
+        self.assertEqual(payload["deeplink"], "djconnect://ask-dj")
+        self.assertNotIn("ha_user_hash", payload)
+
     def test_status_uses_runtime_flag_not_token_store(self) -> None:
         runtime = self._runtime()
         self.push._remember_status(
@@ -788,7 +810,9 @@ class PushTest(unittest.TestCase):
         self.assertEqual(hass.session.calls, [])
 
     def test_explicit_ask_dj_response_posts_generic_payload(self) -> None:
-        hass = types.SimpleNamespace(session=FakeSession())
+        const = importlib.import_module("custom_components.djconnect.const")
+        hass = types.SimpleNamespace(session=FakeSession(), config_entries=types.SimpleNamespace())
+        hass.config_entries.async_update_entry = lambda entry, **kwargs: setattr(entry, "data", kwargs["data"])
         runtime = self._runtime()
 
         result = asyncio.run(
@@ -815,6 +839,8 @@ class PushTest(unittest.TestCase):
         self.assertNotIn("aps", payload)
         self.assertNotIn("source_device_id", payload)
         self.assertNotIn("client_type", payload)
+        persisted = runtime.entry.data[const.CONF_LAST_PUSH_STATUS]
+        self.assertTrue(persisted["djconnect-ios-ABCDEFGHIJKL|ios"]["push_registered"])
 
     def test_rate_limit_blocks_frequent_pushes(self) -> None:
         runtime = self._runtime()

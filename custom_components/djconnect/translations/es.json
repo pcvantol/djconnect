@@ -434,7 +434,7 @@
   "entity": {
     "sensor": {
       "status": {
-        "name": "Estado"
+        "name": "Estado de integración"
       },
       "apns_registration": {
         "name": "Registro APNs"

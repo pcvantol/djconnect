@@ -59,6 +59,7 @@ from .const import (
     CONF_DJCONNECT_INSTALL_TOKEN,
     CONF_HA_EXTERNAL_URL,
     CONF_HA_INSTALL_ID,
+    CONF_LAST_PUSH_STATUS,
     CONF_LOCAL_URL,
     CONF_MUSIC_BACKEND,
     CONF_MUSIC_ASSISTANT_PLAYER,
@@ -116,6 +117,7 @@ from .music_dna import MusicDNAManager
 from .push import (
     EVENT_ASK_DJ_CONFIRM,
     EVENT_MUSIC_DISCOVERY_READY,
+    EVENT_TEST_PUSH,
     SUPPORTED_CLIENT_TYPES as APNS_SUPPORTED_CLIENT_TYPES,
     async_register as async_register_push,
     async_send_event as async_send_push_event,
@@ -1206,7 +1208,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
         {
             vol.Optional("device_id"): str,
             vol.Optional("client_type"): str,
-            vol.Optional("event_type", default=EVENT_ASK_DJ_CONFIRM): str,
+            vol.Optional("event_type", default=EVENT_TEST_PUSH): str,
             vol.Optional("user_id"): str,
             vol.Optional("send", default=False): bool,
             vol.Optional("explicit_user_request", default=True): bool,
@@ -1738,6 +1740,17 @@ def _restore_runtime(hass: HomeAssistant, entry: ConfigEntry) -> DJConnectRuntim
             cached_status,
             source="persisted device status",
         )
+    cached_push_status = entry.data.get(CONF_LAST_PUSH_STATUS)
+    if isinstance(cached_push_status, dict):
+        runtime.push_status = {
+            str(key): {
+                "push_registered": bool(value.get("push_registered")),
+                "push_environment": value.get("push_environment"),
+                "last_push_error": value.get("last_push_error"),
+            }
+            for key, value in cached_push_status.items()
+            if isinstance(value, dict)
+        }
     if entry.data.get(CONF_SPOTIFY_REFRESH_TOKEN):
         runtime.latest_spotify_refresh_token = entry.data[CONF_SPOTIFY_REFRESH_TOKEN]
     if entry.data.get(CONF_DEVICE_TOKEN):
@@ -1915,7 +1928,7 @@ def _register_developer_services(
         return result
 
     async def handle_test_apns_push(call: ServiceCall) -> dict[str, Any]:
-        event_type = str(call.data.get("event_type") or EVENT_ASK_DJ_CONFIRM).strip()
+        event_type = str(call.data.get("event_type") or EVENT_TEST_PUSH).strip()
         user_id = call.data.get("user_id") or getattr(
             getattr(call, "context", None),
             "user_id",

@@ -3,7 +3,8 @@ from __future__ import annotations
 
 DOMAIN = "djconnect"
 NAME = "DJConnect"
-VERSION = "3.2.41"
+VERSION = "3.2.42"
+CONF_LAST_PUSH_STATUS = "last_push_status"
 
 API_BASE = "/api/djconnect/v1"
 API_PAIR = f"{API_BASE}/pair"

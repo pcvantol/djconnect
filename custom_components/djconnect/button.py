@@ -25,7 +25,7 @@ from .const import (
 )
 from .device_info import djconnect_device_info
 from .entity_ids import entry_unique_id
-from .push import EVENT_ASK_DJ_CONFIRM, async_send_event as async_send_push_event
+from .push import EVENT_TEST_PUSH, async_send_event as async_send_push_event
 from .spotify_backend import SpotifyBackendError
 from .use_cases import run_music_command
 
@@ -178,7 +178,7 @@ class DJConnectTestPushButton(DJConnectBaseButton):
             self.hass,
             self.runtime,
             user_id=None,
-            event_type=EVENT_ASK_DJ_CONFIRM,
+            event_type=EVENT_TEST_PUSH,
             source_device_id=_runtime_device_id(self.runtime),
             client_type=_runtime_client_type(self.runtime),
             explicit_user_request=True,

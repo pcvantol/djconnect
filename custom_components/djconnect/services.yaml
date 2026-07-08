@@ -108,10 +108,11 @@ test_apns_push:
       name: Event type
       description: Push event to test.
       required: false
-      default: ask_dj_confirm
+      default: test_push
       selector:
         select:
           options:
+            - test_push
             - ask_dj_confirm
             - ask_dj_response
           mode: dropdown

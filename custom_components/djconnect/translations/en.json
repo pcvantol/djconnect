@@ -434,7 +434,7 @@
   "entity": {
     "sensor": {
       "status": {
-        "name": "Status"
+        "name": "Integration status"
       },
       "apns_registration": {
         "name": "APNs registration"

@@ -234,7 +234,7 @@ class DJConnectStatusSensor(DJConnectBaseSensor):
 
     @property
     def native_value(self):
-        if self.runtime.ota_in_progress:
+        if _runtime_uses_ota(self.runtime) and self.runtime.ota_in_progress:
             return "updating"
         return "error" if self.runtime.last_error else "ready"
 
@@ -243,7 +243,7 @@ class DJConnectStatusSensor(DJConnectBaseSensor):
         status = getattr(self.runtime, "device_status", {}) or {}
         playback = getattr(self.runtime, "last_playback", None) or {}
         playback_device = playback.get("device") if isinstance(playback, dict) else None
-        return {
+        attrs = {
             "last_error": self.runtime.last_error,
             "last_stt_text": getattr(self.runtime, "last_stt_text", None),
             "last_corrected_text": getattr(self.runtime, "last_corrected_text", None),
@@ -269,9 +269,11 @@ class DJConnectStatusSensor(DJConnectBaseSensor):
             "playback_device": playback_device.get("name")
             if isinstance(playback_device, dict)
             else None,
-            "ota_in_progress": self.runtime.ota_in_progress,
-            "ota_last_error": self.runtime.ota_last_error,
         }
+        if _runtime_uses_ota(self.runtime):
+            attrs["ota_in_progress"] = self.runtime.ota_in_progress
+            attrs["ota_last_error"] = self.runtime.ota_last_error
+        return attrs
 
 class DJConnectBatterySensor(DJConnectCachedStatusSensor):
     _attr_translation_key = "battery"
@@ -630,6 +632,10 @@ def _runtime_device_id(runtime) -> str | None:
         or config.get("device_id")
     )
     return str(value).strip() if value else None
+
+
+def _runtime_uses_ota(runtime) -> bool:
+    return _runtime_client_type(runtime) == CLIENT_TYPE_ESP32
 
 
 def _push_statuses_for_runtime(runtime, client_type: str) -> list[dict]:

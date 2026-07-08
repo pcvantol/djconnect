@@ -21,6 +21,7 @@ from .const import (
     CONF_CENTRAL_API_BOOTSTRAP_PROOF,
     CONF_CLIENT_TYPE,
     CONF_DEVICE_ID,
+    CONF_LAST_PUSH_STATUS,
 )
 
 SUPPORTED_CLIENT_TYPES = {CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_WATCHOS}
@@ -34,8 +35,14 @@ ENVIRONMENT_ALIASES = {
 EVENT_ASK_DJ_RESPONSE = "ask_dj_response"
 EVENT_ASK_DJ_CONFIRM = "ask_dj_confirm"
 EVENT_MUSIC_DISCOVERY_READY = "music_discovery_ready"
+EVENT_TEST_PUSH = "test_push"
 EVENT_PLAYBACK_CHANGE = "playback_change"
-PUSHABLE_EVENTS = {EVENT_ASK_DJ_RESPONSE, EVENT_ASK_DJ_CONFIRM, EVENT_MUSIC_DISCOVERY_READY}
+PUSHABLE_EVENTS = {
+    EVENT_ASK_DJ_RESPONSE,
+    EVENT_ASK_DJ_CONFIRM,
+    EVENT_MUSIC_DISCOVERY_READY,
+    EVENT_TEST_PUSH,
+}
 RATE_LIMIT_WINDOW_SECONDS = 30
 RATE_LIMIT_BURST_SECONDS = 10 * 60
 RATE_LIMIT_BURST_MAX = 5
@@ -87,6 +94,7 @@ async def async_register(
             environment=response_environment,
             error=error,
         )
+        _persist_push_status(hass, runtime)
         _log_registration_failure(runtime, payload, error, cleaned=cleaned)
         return {
             "success": False,
@@ -115,6 +123,7 @@ async def async_register(
                 environment=response_environment,
                 error=error,
             )
+            _persist_push_status(hass, runtime)
             _log_registration_failure(runtime, payload, error, cleaned=cleaned)
             return {
                 "success": False,
@@ -146,6 +155,7 @@ async def async_register(
             error=error,
         )
         _log_registration_failure(runtime, payload, error or "push_registration_failed", cleaned=cleaned)
+    _persist_push_status(hass, runtime)
     return {
         "success": bool(result.get("success")),
         "push_supported": _push_supported(runtime, cleaned.get("client_type")),
@@ -179,6 +189,7 @@ async def async_unregister(
             environment=response_environment,
             error=None,
         )
+        _persist_push_status(hass, runtime)
     return {
         "success": bool(result.get("success")),
         "push_supported": _push_supported(runtime, cleaned.get("client_type")),
@@ -197,7 +208,7 @@ async def async_status(
     client_type: str | None,
 ) -> dict[str, Any]:
     """Return local relay capability/status without storing APNs tokens in HA."""
-    del hass, user_id
+    del user_id
     _remember_client_activity(runtime, device_id, client_type)
     status = _status_for(runtime, device_id, client_type)
     return {
@@ -216,7 +227,7 @@ async def async_bootstrap(
     payload: dict[str, Any],
 ) -> dict[str, Any]:
     """Report that HA cannot mint Apple push bootstrap proofs."""
-    del hass, user_id
+    del user_id
     cleaned = _bootstrap_payload(runtime, payload=payload)
     if not cleaned:
         _log_registration_failure(runtime, payload, "invalid_push_bootstrap")
@@ -232,6 +243,7 @@ async def async_bootstrap(
         environment=response_environment,
         error="bootstrap_proof_unavailable",
     )
+    _persist_push_status(hass, runtime)
     _LOGGER.info(
         "DJConnect push bootstrap unavailable: client_type=%s device_id=%s "
         "push_environment=%s app_bundle_id=%s app_version=%s locale=%s "
@@ -287,6 +299,7 @@ async def async_send_event(
                 registered=False,
                 error=reason,
             )
+            _persist_push_status(hass, runtime)
             return {
                 "success": False,
                 "push_supported": relay_configured(runtime),
@@ -314,7 +327,16 @@ async def async_send_event(
         return {"success": True, "push_supported": relay_configured(runtime), "sent": 0, "disabled": True}
     result = await _post_relay(hass, runtime, "/v1/push/event", payload)
     error = _clean_text(result.get("error"), 120) or None
-    if not result.get("success"):
+    if result.get("success"):
+        _remember_status(
+            runtime,
+            source_device_id,
+            client_type,
+            registered=True,
+            error=None,
+        )
+        _persist_push_status(hass, runtime)
+    else:
         _remember_status(
             runtime,
             source_device_id,
@@ -322,6 +344,7 @@ async def async_send_event(
             registered=False,
             error=error,
         )
+        _persist_push_status(hass, runtime)
     return {
         "success": bool(result.get("success")),
         "push_supported": relay_configured(runtime),
@@ -359,6 +382,14 @@ def build_relay_event_payload(
                 "body": "Je nieuwe aanbevelingen staan klaar!",
                 "deeplink": "djconnect://music-discovery",
                 "refresh_target": "music_discovery",
+            }
+        )
+    elif event == EVENT_TEST_PUSH:
+        payload.update(
+            {
+                "title": "DJConnect",
+                "body": "DJConnect pushberichten zijn actief.",
+                "deeplink": "djconnect://ask-dj",
             }
         )
     if payload["ha_user_hash"] is None:
@@ -519,6 +550,35 @@ def _remember_status(
         "push_environment": _clean_text(environment, 32) or None,
         "last_push_error": _clean_text(error, 120) or None,
     }
+
+
+def _persist_push_status(hass: Any, runtime: Any) -> None:
+    """Persist safe APNs registration status without APNs or install tokens."""
+    entry = getattr(runtime, "entry", None)
+    updater = getattr(getattr(hass, "config_entries", None), "async_update_entry", None)
+    statuses = getattr(runtime, "push_status", None)
+    if entry is None or not callable(updater) or not isinstance(statuses, dict):
+        return
+    safe_statuses = {
+        str(key): {
+            "push_registered": bool(item.get("push_registered")),
+            "push_environment": _clean_text(item.get("push_environment"), 32) or None,
+            "last_push_error": _clean_text(item.get("last_push_error"), 120) or None,
+        }
+        for key, item in statuses.items()
+        if isinstance(item, dict)
+    }
+    data = dict(getattr(entry, "data", {}) or {})
+    if data.get(CONF_LAST_PUSH_STATUS) == safe_statuses:
+        return
+    data[CONF_LAST_PUSH_STATUS] = safe_statuses
+    try:
+        updater(entry, data=data)
+    except (KeyError, TypeError):
+        try:
+            setattr(entry, "data", data)
+        except AttributeError:
+            _LOGGER.debug("DJConnect could not persist APNs registration status")
 
 
 def _remember_client_activity(runtime: Any, device_id: Any, client_type: Any) -> None:

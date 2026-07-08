@@ -690,12 +690,13 @@ class DJConnectSensorTest(unittest.TestCase):
                 "firmware": "3.1.83",
                 "queue": {"items": [{"title": "Noisy"}]},
             },
-            ota_in_progress=False,
-            ota_last_error=None,
+            ota_in_progress=True,
+            ota_last_error="should-not-show-for-app",
             listeners=[],
         )
         entity = self.sensor.DJConnectStatusSensor(runtime)
 
+        self.assertEqual(entity.native_value, "ready")
         attrs = entity.extra_state_attributes
         self.assertEqual(attrs["last_stt_text"], "ik wil pearl jam starten")
         self.assertEqual(attrs["last_spotify_search"]["query"], "pearl jam")
@@ -703,6 +704,8 @@ class DJConnectSensorTest(unittest.TestCase):
         self.assertTrue(attrs["last_dj_response_debug"]["fallback_used"])
         self.assertEqual(attrs["playback_state"], "idle")
         self.assertEqual(attrs["playback_device"], "Woonkamer")
+        self.assertNotIn("ota_in_progress", attrs)
+        self.assertNotIn("ota_last_error", attrs)
         self.assertNotIn("device_status", attrs)
         self.assertNotIn("last_playback", attrs)
 

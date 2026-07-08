@@ -490,6 +490,13 @@ class TtsHelperTest(unittest.TestCase):
                     "last_command": "ik wil pearl jam starten",
                     "last_track": "Pearl Jam",
                 },
+                self.const.CONF_LAST_PUSH_STATUS: {
+                    "djconnect-ios-ABCDEFGHIJKL|ios": {
+                        "push_registered": True,
+                        "push_environment": "production",
+                        "last_push_error": None,
+                    }
+                },
             },
             options={},
         )
@@ -507,6 +514,13 @@ class TtsHelperTest(unittest.TestCase):
         self.assertEqual(runtime.device_status["sound_output"], "Living room")
         self.assertEqual(runtime.device_status["last_command"], "ik wil pearl jam starten")
         self.assertEqual(runtime.device_status["last_track"], "Pearl Jam")
+        self.assertTrue(
+            runtime.push_status["djconnect-ios-ABCDEFGHIJKL|ios"]["push_registered"]
+        )
+        self.assertEqual(
+            runtime.push_status["djconnect-ios-ABCDEFGHIJKL|ios"]["push_environment"],
+            "production",
+        )
         self.assertEqual(
             runtime.device_status["local_url"],
             "http://djconnect-lilygo-90B70990A994.local",

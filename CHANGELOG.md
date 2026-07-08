@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.2.42
+
+- Persist safe APNs registration status in Home Assistant config entry data so
+  the APNs registration sensor keeps showing registered/error state after
+  Home Assistant reloads without storing APNs tokens or relay install tokens.
+- Add a dedicated `test_push` relay event for the Home Assistant test push
+  button and developer action with the clear message `DJConnect pushberichten
+  zijn actief.`.
+- Rename the generic `Status` sensor to `Integratiestatus` / `Integration
+  status` and keep OTA status fields ESP32-only so Apple client entries do not
+  expose ESP-only OTA semantics.
+
 ## 3.2.41
 
 - Fix startup for entries missing `ha_install_id` by persisting the generated

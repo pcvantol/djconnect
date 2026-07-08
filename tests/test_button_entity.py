@@ -59,6 +59,7 @@ def install_button_stubs() -> None:
     sys.modules["custom_components.djconnect.spotify_backend"] = spotify_backend
     push = types.ModuleType("custom_components.djconnect.push")
     push.EVENT_ASK_DJ_CONFIRM = "ask_dj_confirm"
+    push.EVENT_TEST_PUSH = "test_push"
     push.calls = []
 
     async def async_send_event(*args, **kwargs):
@@ -149,7 +150,7 @@ class DJConnectButtonEntityTest(unittest.TestCase):
                 if client_type != "esp32":
                     self.assertNotIn("test_dj_response", translation_keys)
 
-    def test_test_push_button_sends_ask_dj_attention_event(self) -> None:
+    def test_test_push_button_sends_test_push_event(self) -> None:
         push = importlib.import_module("custom_components.djconnect.push")
         push.calls.clear()
         runtime = types.SimpleNamespace(
@@ -167,7 +168,7 @@ class DJConnectButtonEntityTest(unittest.TestCase):
         args, kwargs = push.calls[0]
         self.assertIs(args[0], hass)
         self.assertIs(args[1], runtime)
-        self.assertEqual(kwargs["event_type"], "ask_dj_confirm")
+        self.assertEqual(kwargs["event_type"], "test_push")
         self.assertEqual(kwargs["source_device_id"], "djconnect-macos-ABCDEFGHIJKL")
         self.assertEqual(kwargs["client_type"], "macos")
         self.assertTrue(kwargs["explicit_user_request"])
