@@ -1736,7 +1736,8 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             _LOGGER.debug("DJConnect config-flow mDNS discovery failed: %s", exc)
             self._discovered_clients = []
         if self._discovered_clients:
-            allowed = set(self._pair_client_type_options())
+            selected_type = _clean(getattr(self, "_selected_pair_client_type", ""), "")
+            allowed = {selected_type} if selected_type else set(self._pair_client_type_options())
             self._discovered_clients = [
                 client
                 for client in self._discovered_clients

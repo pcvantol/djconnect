@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.2.41
+
+- Fix startup for entries missing `ha_install_id` by persisting the generated
+  Home Assistant install ID through `async_update_entry` instead of mutating
+  read-only config entry options directly.
+- Keep local-device mDNS discovery scoped to the selected client type during
+  pairing so an ESP32 flow cannot be auto-filled from a visible Raspberry Pi
+  client, or the other way around.
+
 ## 3.2.40
 
 - Add non-secret Home Assistant bootstrap metadata (`ha_install_id`,

@@ -603,6 +603,52 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertEqual(local_url_marker.default, "")
 
+    def test_local_device_discovery_respects_selected_client_type(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en-US"))
+        flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_LOCAL_DEVICE
+        flow._selected_pair_client_type = self.const.CLIENT_TYPE_ESP32
+
+        clients = [
+            self.config_flow.DiscoveredClient(
+                local_url="http://djconnect-pi.local",
+                device_id="djconnect-raspberry-pi-ABCDEF123456",
+                client_type=self.const.CLIENT_TYPE_RASPBERRY_PI,
+                device_name="DJConnect Pi",
+                pair_code="654321",
+            ),
+            self.config_flow.DiscoveredClient(
+                local_url="http://djconnect-esp32.local",
+                device_id="djconnect-lilygo-t-embed-s3-ABCDEF123456",
+                client_type=self.const.CLIENT_TYPE_ESP32,
+                device_name="DJConnect ESP32",
+                pair_code="123456",
+            ),
+        ]
+
+        async def fake_discover(_hass):
+            return clients
+
+        original = self.config_flow.async_discover_djconnect_clients
+        self.config_flow.async_discover_djconnect_clients = fake_discover
+        try:
+            asyncio.run(flow._ensure_mdns_discovery())
+        finally:
+            self.config_flow.async_discover_djconnect_clients = original
+
+        self.assertEqual(
+            flow._discovered_defaults[self.const.CONF_CLIENT_TYPE],
+            self.const.CLIENT_TYPE_ESP32,
+        )
+        self.assertEqual(flow._discovered_defaults[self.const.CONF_PAIR_CODE], "123456")
+        self.assertEqual(
+            flow._selected_discovered_key,
+            flow._discovered_client_key(clients[1]),
+        )
+        self.assertEqual(
+            [client.client_type for client in flow._discovered_clients],
+            [self.const.CLIENT_TYPE_ESP32],
+        )
 
     def test_app_user_schema_shows_generated_pairing_placeholders(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()

@@ -209,13 +209,14 @@ def _persist_ha_install_id(hass: Any | None, runtime: Any, install_id: str) -> N
         options = dict(getattr(entry, "options", {}) or {})
         if options.get(CONF_HA_INSTALL_ID) != install_id:
             options[CONF_HA_INSTALL_ID] = install_id
-            if hasattr(getattr(hass, "config_entries", None), "async_update_entry"):
+            updater = getattr(getattr(hass, "config_entries", None), "async_update_entry", None)
+            if callable(updater):
                 try:
-                    hass.config_entries.async_update_entry(entry, options=options)
+                    updater(entry, options=options)
                 except TypeError:
-                    setattr(entry, "options", options)
+                    _set_fake_entry_options(entry, options)
             else:
-                setattr(entry, "options", options)
+                _set_fake_entry_options(entry, options)
     config = getattr(runtime, "config", None)
     if isinstance(config, dict):
         config[CONF_HA_INSTALL_ID] = install_id
@@ -234,13 +235,24 @@ def _persist_install_settings(hass: Any, runtime: Any, *, install_id: str, token
     options.pop("bootstrap_proof", None)
     options.pop("central_api_bootstrap_proof_expires_at", None)
     options.pop("bootstrap_proof_expires_at", None)
-    if hasattr(getattr(hass, "config_entries", None), "async_update_entry"):
+    updater = getattr(getattr(hass, "config_entries", None), "async_update_entry", None)
+    if callable(updater):
         try:
-            hass.config_entries.async_update_entry(entry, options=options)
+            updater(entry, options=options)
         except TypeError:
-            setattr(entry, "options", options)
+            _set_fake_entry_options(entry, options)
     else:
+        _set_fake_entry_options(entry, options)
+
+
+def _set_fake_entry_options(entry: Any, options: dict[str, Any]) -> None:
+    """Update lightweight test fakes without mutating read-only HA ConfigEntry."""
+    try:
         setattr(entry, "options", options)
+    except AttributeError:
+        _LOGGER.debug(
+            "DJConnect could not persist HA install id without config entry updater",
+        )
 
 
 def redacted(value: Any) -> Any:

@@ -2665,7 +2665,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if not option_updates.get(CONF_API_BASE_URL):
         option_updates[CONF_API_BASE_URL] = DEFAULT_API_BASE_URL
     if not option_updates.get(CONF_HA_INSTALL_ID) and not entry.data.get(CONF_HA_INSTALL_ID):
-        option_updates[CONF_HA_INSTALL_ID] = ensure_ha_install_id(runtime_for_defaults)
+        option_updates[CONF_HA_INSTALL_ID] = ensure_ha_install_id(
+            runtime_for_defaults,
+            hass,
+        )
     if option_updates != dict(entry.options):
         hass.config_entries.async_update_entry(entry, options=option_updates)
     runtime = _restore_runtime(hass, entry)

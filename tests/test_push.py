@@ -127,6 +127,22 @@ class PushTest(unittest.TestCase):
         self.assertEqual(runtime.config["ha_install_id"], first)
         self.assertEqual(updates[-1]["ha_install_id"], first)
 
+    def test_ha_install_id_without_hass_does_not_mutate_read_only_entry_options(self) -> None:
+        class ReadOnlyEntry:
+            entry_id = "entry-1"
+            data = {}
+
+            @property
+            def options(self):
+                return {}
+
+        runtime = types.SimpleNamespace(entry=ReadOnlyEntry(), config={})
+
+        install_id = self.central_api.ensure_ha_install_id(runtime)
+
+        self.assertTrue(install_id.startswith("ha_"))
+        self.assertEqual(runtime.config["ha_install_id"], install_id)
+
     def test_register_bootstraps_install_token_with_pairing_proof(self) -> None:
         hass = types.SimpleNamespace(session=FakeSession(), config_entries=types.SimpleNamespace())
         hass.config_entries.async_update_entry = lambda entry, **kwargs: setattr(entry, "options", kwargs["options"])
