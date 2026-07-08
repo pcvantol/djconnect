@@ -115,7 +115,7 @@
       },
       "pair_app_ios_details": {
         "title": "DJConnect iPhone/iPad App koppeln",
-        "description": "Scanne diesen QR-Code mit der iPhone/iPad-App.\n\n![iPhone/iPad QR code]({iphone_qr_image})",
+        "description": "Scanne diesen QR-Code mit der iPhone/iPad-App.\n\n![iPhone/iPad QR code]({iphone_qr_image})\n\nWenn der QR-Code nicht sichtbar ist, gib diese Werte in der App ein:\n\n- Home Assistant-URL: `{ha_local_url}`\n- Kopplungscode: `{pair_code}`",
         "data": {
           "app_pair_code": "Kopplungscode",
           "app_ha_local_url": "Home Assistant-URL",
@@ -129,7 +129,7 @@
       },
       "pair_app_watch_details": {
         "title": "DJConnect Apple Watch App koppeln",
-        "description": "Scanne diesen Watch-QR-Code auf iPhone/iPad, um die verknüpfte Apple Watch zu koppeln.\n\n![Apple Watch QR code]({watch_qr_image})",
+        "description": "Scanne diesen Watch-QR-Code auf iPhone/iPad, um die verknüpfte Apple Watch zu koppeln.\n\n![Apple Watch QR code]({watch_qr_image})\n\nWenn der QR-Code nicht sichtbar ist, gib diese Werte in der App ein:\n\n- Home Assistant-URL: `{ha_local_url}`\n- Kopplungscode: `{pair_code}`",
         "data": {
           "app_pair_code": "Kopplungscode",
           "app_ha_local_url": "Home Assistant-URL",
@@ -143,7 +143,7 @@
       },
       "pair_app_macos_details": {
         "title": "DJConnect macOS App koppeln",
-        "description": "Verwende diese Home Assistant-URL und diesen Kopplungscode in der macOS-App.",
+        "description": "Verwende diese Werte in der macOS-App:\n\n- Home Assistant-URL: `{ha_local_url}`\n- Kopplungscode: `{pair_code}`",
         "data": {
           "app_pair_code": "Kopplungscode",
           "app_ha_local_url": "Home Assistant-URL",
@@ -157,7 +157,7 @@
       },
       "pair_app_windows_details": {
         "title": "DJConnect Windows App koppeln",
-        "description": "Verwende diese Home Assistant-URL und diesen Kopplungscode in der Windows-App.",
+        "description": "Verwende diese Werte in der Windows-App:\n\n- Home Assistant-URL: `{ha_local_url}`\n- Kopplungscode: `{pair_code}`",
         "data": {
           "app_pair_code": "Kopplungscode",
           "app_ha_local_url": "Home Assistant-URL",

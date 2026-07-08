@@ -1,5 +1,19 @@
 # Changelog
 
+## 3.2.34
+
+- Stop reloading the DJConnect config entry when only Spotify refresh tokens or
+  persisted device status cache fields change, preventing client status polling
+  from causing a Spotify refresh-token/reload loop and stale OAuth repair
+  popups.
+- Finish Spotify repair callbacks directly once a new refresh token is stored
+  and clear the reauthorization repair throttle state.
+- Back off current-artist genre enrichment after Spotify API errors such as
+  HTTP 429 so normal playback/status polling does not repeatedly retry the same
+  non-critical metadata lookup.
+- Show Home Assistant app-pairing URLs and pairing codes as read-only
+  description values instead of editable config-flow fields for app clients.
+
 ## 3.2.33
 
 - Throttle duplicate Spotify reauthorization repairs when Spotify rejects the

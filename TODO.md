@@ -87,7 +87,11 @@
 - Confirm Ask DJ album-list questions render album bullets plus direct Play Now album actions.
 - Confirm `Probeer opnieuw` replays the previous retryable playback request and keeps the visible retry bubble in client history.
 - Confirm `stop muziek` shows a Resume action and `hervat muziek` starts playback directly.
-- Confirm repeated iOS/macOS/watchOS/Raspberry Pi/Windows PTT requests reuse or serialize Spotify token refresh without false `invalid_grant` repairs.
+- Confirm repeated iOS/macOS/watchOS/Raspberry Pi/Windows PTT requests reuse
+  or serialize Spotify token refresh without false `invalid_grant` repairs.
+  Automated coverage exists in `tests.test_spotify_backend`; live HA dev logs
+  confirmed iOS status polling reuses cached access tokens after refresh-token
+  rotation.
 - Confirm artist queue/up-next selection does not send invalid Spotify artist
   offset payloads. Automated regression coverage exists in
   `tests.test_ask_dj` / `tests.test_spotify_backend`.
@@ -111,6 +115,13 @@
 - Verify refresh endpoint rotations persist to config entry data even when
   runtime memory already holds the rotated token. Automated regression coverage
   exists in `tests.test_spotify_backend`.
+- Verify Spotify refresh-token rotation and `last_device_status` persistence do
+  not reload the DJConnect config entry. Automated regression coverage exists in
+  `tests.test_tts_helper`; live HA dev logs confirmed runtime-cache updates
+  skip reloads while backend status remains available.
+- Verify Spotify current-artist genre enrichment backs off after HTTP 429 and
+  does not break playback/status polling. Automated regression coverage exists
+  in `tests.test_spotify_backend`.
 - Verify Spotify debug logs show access-token expiry/refresh metadata and refresh-token source names without token values.
 - Verify status payload with `spotify_configured=false` does not return Spotify credentials.
 - Verify Spotify OAuth credentials stay in Home Assistant and are not sent to ESP.

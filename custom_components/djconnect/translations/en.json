@@ -115,7 +115,7 @@
       },
       "pair_app_ios_details": {
         "title": "Pair DJConnect iPhone/iPad App",
-        "description": "Scan this QR code with the iPhone/iPad app.\n\n![iPhone/iPad QR code]({iphone_qr_image})",
+        "description": "Scan this QR code with the iPhone/iPad app.\n\n![iPhone/iPad QR code]({iphone_qr_image})\n\nIf the QR code is not visible, enter these values in the app:\n\n- Home Assistant URL: `{ha_local_url}`\n- Pairing code: `{pair_code}`",
         "data": {
           "app_pair_code": "Pairing code",
           "app_ha_local_url": "Home Assistant URL",
@@ -129,7 +129,7 @@
       },
       "pair_app_watch_details": {
         "title": "Pair DJConnect Apple Watch App",
-        "description": "Scan this Watch QR code on iPhone/iPad to pair the linked Apple Watch.\n\n![Apple Watch QR code]({watch_qr_image})",
+        "description": "Scan this Watch QR code on iPhone/iPad to pair the linked Apple Watch.\n\n![Apple Watch QR code]({watch_qr_image})\n\nIf the QR code is not visible, enter these values in the app:\n\n- Home Assistant URL: `{ha_local_url}`\n- Pairing code: `{pair_code}`",
         "data": {
           "app_pair_code": "Pairing code",
           "app_ha_local_url": "Home Assistant URL",
@@ -143,7 +143,7 @@
       },
       "pair_app_macos_details": {
         "title": "Pair DJConnect macOS App",
-        "description": "Use this Home Assistant URL and pairing code in the macOS app.",
+        "description": "Use these values in the macOS app:\n\n- Home Assistant URL: `{ha_local_url}`\n- Pairing code: `{pair_code}`",
         "data": {
           "app_pair_code": "Pairing code",
           "app_ha_local_url": "Home Assistant URL",
@@ -157,7 +157,7 @@
       },
       "pair_app_windows_details": {
         "title": "Pair DJConnect Windows App",
-        "description": "Use this Home Assistant URL and pairing code in the Windows app.",
+        "description": "Use these values in the Windows app:\n\n- Home Assistant URL: `{ha_local_url}`\n- Pairing code: `{pair_code}`",
         "data": {
           "app_pair_code": "Pairing code",
           "app_ha_local_url": "Home Assistant URL",

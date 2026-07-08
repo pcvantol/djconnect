@@ -4,8 +4,8 @@
 
 - Repository: `pcvantol/djconnect`.
 - Integration domain: `djconnect`.
-- Current integration release: `3.2.33`.
-- Release status: DJConnect `3.2.33` keeps the `3.2.x` transport, pairing and
+- Current integration release: `3.2.34`.
+- Release status: DJConnect `3.2.34` keeps the `3.2.x` transport, pairing and
   backend abstraction model, including the premium-ready VibeCast feed endpoint
   for Apple clients and proxied artist shout-out images. Backend playback
   remains available through DJConnect commands, Ask DJ, VibeCast context and
@@ -333,10 +333,10 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 ## Current Release Notes
 
 - Current release line is `3.2.x`; only the latest GitHub release/tag should be kept after release cleanup.
-- Current latest baseline is `3.2.33`.
+- Current latest baseline is `3.2.34`.
 - Release workflow expectation: before every release, review and update all repo documentation affected by the change or release, including `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant `examples/*`. Always review all five supported translations (`en`, `nl`, `de`, `fr`, `es`) for completeness, natural wording and current behavior, even when the release appears API/docs/client-contract only. Explicitly decide whether test coverage must be expanded for the change; add coverage for new behavior paths, regression risks, translations, config/options-flow base/EN/NL/DE/FR/ES keysets, stale `data_description` keys, diagnostics/log redaction and edge cases, and run `python3 -m unittest tests.test_translations`. Keep `tests.test_postman_collection` aligned with the Postman examples so CI validates collection schema, auth headers, placeholders and client identity. Normal `main` CI now automatically cleans up old completed GitHub Actions workflow runs, keeping the newest 2 completed runs per workflow; keep extra history only when debugging requires it. Also clean up old semver releases/tags with `./cleanup_old_releases.sh --keep 1 --execute` unless multiple releases are intentionally retained. Keep any branch-protection/admin override explicit and manual; do not automate required-review disablement or protection changes in `release.sh`.
 - Before build/test/release validation, check whether third-party libraries, frameworks and build tools can be safely upgraded. Review the shared CI dependency-audit job plus local Homebrew/npm/pip/PlatformIO/.NET/tooling checks. If any version is upgraded, update lockfiles/manifests, `THIRD_PARTY_NOTICES.md` and dependency/design documentation in the same release. If an upgrade is skipped, record the reason here.
-- For the current `3.2.33` release, no pinned Python package versions were
+- For the current `3.2.34` release, no pinned Python package versions were
   upgraded. The current release refreshes release bootstrap, handoff and sync
   metadata while keeping backend commands and Ask DJ routes intact.
 - CI maintenance updated GitHub Actions runtime actions to `actions/checkout@v7`
@@ -442,6 +442,17 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - `pcvantol/djconnect/PRODUCT_ROADMAP.md` is the only canonical product roadmap for all DJConnect repos.
 - Spotify OAuth callback stores tokens even if an options flow is already closed and `UnknownFlow` occurs.
 - Spotify OAuth Repair flow starts an external Spotify OAuth step and does not mark the issue fixed until a new token is stored.
+- Spotify refresh-token rotation and `last_device_status` persistence are
+  runtime-cache updates and must not reload the config entry. In HA debug logs,
+  token/status cache persistence should show
+  `DJConnect config entry update only changed runtime cache fields; skipping
+  reload`, followed by cached Spotify access-token reuse.
+- Spotify repair callbacks should complete directly once the new refresh token
+  is stored; they must not leave a stale Home Assistant external-step popup
+  behind.
+- Spotify current-artist genre enrichment is best-effort. HTTP 429 or similar
+  Spotify errors should enter a short backoff and must not break playback/status
+  responses.
 - Backend playback auth failures are returned as user-friendly JSON without forcing ESP pairing reset.
 - Device number/select entities accept common firmware status aliases and unit conversions.
 - Pairing config-flow browses `_djconnect._tcp` for app-like clients including watchOS, Raspberry Pi and Windows. It validates app-like client types against stable IDs such as `djconnect-watchos-XXXXXXXXXXXX`, `djconnect-raspberry-pi-XXXXXXXXXXXX` and `djconnect-windows-XXXXXXXXXXXX`, accepts TXT `local_url` when present, probes `GET /api/device/pairing-info`, and treats pairing-info as authoritative for Client adres, stable device ID, client type, device name, pair code, version and paired state.
@@ -453,6 +464,11 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 
 - Validate the Repair “Fix” button in a real HA UI: it should show translated explanatory text and open Spotify OAuth instead of a blank popup or instantly closing.
 - Validate options-flow “Spotify opnieuw autoriseren” in a real HA UI.
+- Validate repeated iOS/macOS status polling after Spotify refresh-token
+  rotation: backend stays available, HA does not repeatedly reload DJConnect,
+  and no stale OAuth/repair popup remains.
+- Validate Spotify HTTP 429 during current-artist genre enrichment only logs a
+  best-effort metadata failure/backoff and does not break playback/status.
 - Confirm Nabu Casa/external URL is correctly detected or manually editable before OAuth.
 - Confirm the Spotify setup step shows the exact redirect URI and requires the user's own Spotify Developer app Client ID.
 - Confirm ESP remains paired after first `/api/djconnect/v1/command` following direct pairing.

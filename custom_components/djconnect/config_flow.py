@@ -1831,25 +1831,11 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     **discovery_options,
                 }
             )
-        if getattr(self, "_pairing_setup_method", "") == SETUP_METHOD_PAIR_APP:
-            if client_type in {
-                CLIENT_TYPE_IOS,
-                CLIENT_TYPE_WATCHOS,
-                CLIENT_TYPE_MACOS,
-                CLIENT_TYPE_WINDOWS,
-            }:
-                schema[vol.Optional(APP_PAIR_CODE_DISPLAY_FIELD, default=pair_code)] = str
-                schema[
-                    vol.Optional(
-                        APP_HA_LOCAL_URL_DISPLAY_FIELD,
-                        default=str(defaults.get("ha_local_url") or ""),
-                    )
-                ] = str
-        else:
+        if getattr(self, "_pairing_setup_method", "") != SETUP_METHOD_PAIR_APP:
             schema[vol.Optional(CONF_PAIR_CODE, default=pair_code)] = str
-        schema[vol.Optional(CONF_DEVICE_NAME, default=device_name)] = str
-        if self._client_type_uses_local_device_api(client_type):
-            schema[vol.Optional(CONF_LOCAL_URL, default=local_url)] = str
+            schema[vol.Optional(CONF_DEVICE_NAME, default=device_name)] = str
+            if self._client_type_uses_local_device_api(client_type):
+                schema[vol.Optional(CONF_LOCAL_URL, default=local_url)] = str
         return schema
 
     def _default_pair_client_type(self) -> str:

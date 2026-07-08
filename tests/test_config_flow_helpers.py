@@ -556,10 +556,11 @@ class ConfigFlowHelperTest(unittest.TestCase):
     def test_app_user_schema_hides_local_url_without_advanced(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
+        flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_APP
 
         keys = {marker.key for marker in flow._user_schema()}
 
-        self.assertIn(self.const.CONF_DEVICE_NAME, keys)
+        self.assertNotIn(self.const.CONF_DEVICE_NAME, keys)
         self.assertNotIn(self.const.CONF_CLIENT_TYPE, keys)
         self.assertNotIn(self.const.CONF_LOCAL_URL, keys)
         self.assertNotIn(self.const.CONF_DEVICE_LANGUAGE, keys)
@@ -617,14 +618,11 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertNotIn(self.const.CONF_PAIR_CODE, defaults)
         self.assertNotIn(self.const.CONF_LOCAL_URL, defaults)
-        self.assertRegex(defaults[self.config_flow.APP_PAIR_CODE_DISPLAY_FIELD], r"^\d{6}$")
-        self.assertEqual(
-            defaults[self.config_flow.APP_HA_LOCAL_URL_DISPLAY_FIELD],
-            "http://ha.local:8123",
-        )
+        self.assertNotIn(self.config_flow.APP_PAIR_CODE_DISPLAY_FIELD, defaults)
+        self.assertNotIn(self.config_flow.APP_HA_LOCAL_URL_DISPLAY_FIELD, defaults)
         self.assertNotIn(self.config_flow.APP_IPHONE_PAIRING_URI_FIELD, defaults)
         self.assertNotIn(self.config_flow.APP_WATCH_PAIRING_URI_FIELD, defaults)
-        self.assertEqual(defaults[self.const.CONF_DEVICE_NAME], "DJConnect iOS")
+        self.assertNotIn(self.const.CONF_DEVICE_NAME, defaults)
         self.assertNotIn(self.const.CONF_CLIENT_TYPE, defaults)
         self.assertRegex(placeholders["pair_code"], r"^\d{6}$")
         self.assertEqual(placeholders["ha_local_url"], "http://ha.local:8123")
@@ -635,12 +633,12 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertIn("iphone_qr_image", placeholders)
         self.assertIn("watch_qr_image", placeholders)
 
-    def test_app_detail_schema_uses_fallback_pairing_fields_for_app_clients(self) -> None:
-        for client_type, expected_name in (
-            (self.const.CLIENT_TYPE_IOS, "DJConnect iOS"),
-            (self.const.CLIENT_TYPE_WATCHOS, "DJConnect Watch"),
-            (self.const.CLIENT_TYPE_MACOS, "DJConnect macOS"),
-            (self.const.CLIENT_TYPE_WINDOWS, "DJConnect Windows"),
+    def test_app_detail_schema_uses_read_only_pairing_placeholders_for_app_clients(self) -> None:
+        for client_type in (
+            self.const.CLIENT_TYPE_IOS,
+            self.const.CLIENT_TYPE_WATCHOS,
+            self.const.CLIENT_TYPE_MACOS,
+            self.const.CLIENT_TYPE_WINDOWS,
         ):
             with self.subTest(client_type=client_type):
                 flow = self.config_flow.DJConnectConfigFlow()
@@ -656,17 +654,13 @@ class ConfigFlowHelperTest(unittest.TestCase):
                 asyncio.run(flow._ensure_app_pairing_defaults())
                 schema = flow._user_schema()
                 defaults = {marker.key: marker.default for marker in schema}
+                placeholders = flow._pair_description_placeholders()
 
-                self.assertEqual(defaults[self.const.CONF_DEVICE_NAME], expected_name)
+                self.assertEqual(defaults, {})
+                self.assertNotIn(self.const.CONF_DEVICE_NAME, defaults)
                 self.assertNotIn(self.const.CONF_CLIENT_TYPE, defaults)
-                self.assertRegex(
-                    defaults[self.config_flow.APP_PAIR_CODE_DISPLAY_FIELD],
-                    r"^\d{6}$",
-                )
-                self.assertEqual(
-                    defaults[self.config_flow.APP_HA_LOCAL_URL_DISPLAY_FIELD],
-                    "http://ha.local:8123",
-                )
+                self.assertRegex(placeholders["pair_code"], r"^\d{6}$")
+                self.assertEqual(placeholders["ha_local_url"], "http://ha.local:8123")
 
     def test_app_detail_step_resyncs_pending_context_when_client_type_changes(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
@@ -766,14 +760,22 @@ class ConfigFlowHelperTest(unittest.TestCase):
         )
         self.assertIn("djconnect://pair?", flow._discovered_defaults["iphone_pairing_uri"])
 
-    def test_user_schema_manual_defaults_are_not_esp32_specific(self) -> None:
+    def test_user_schema_defaults_match_pairing_mode(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
+        flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_LOCAL_DEVICE
 
         schema = flow._user_schema()
         defaults = {marker.key: marker.default for marker in schema}
 
-        self.assertEqual(defaults[self.const.CONF_DEVICE_NAME], "DJConnect")
+        self.assertEqual(defaults[self.const.CONF_DEVICE_NAME], "DJConnect ESP32")
+        self.assertNotIn(self.const.CONF_CLIENT_TYPE, defaults)
+
+        flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_APP
+        schema = flow._user_schema()
+        defaults = {marker.key: marker.default for marker in schema}
+
+        self.assertNotIn(self.const.CONF_DEVICE_NAME, defaults)
         self.assertNotIn(self.const.CONF_CLIENT_TYPE, defaults)
 
     def test_pair_step_prefills_single_discovered_raspberry_pi_client(self) -> None:
@@ -845,12 +847,9 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertNotIn(self.config_flow.DISCOVERY_CLIENT_FIELD, defaults)
         self.assertNotIn(self.const.CONF_PAIR_CODE, defaults)
-        self.assertEqual(defaults[self.const.CONF_DEVICE_NAME], "DJConnect iOS")
-        self.assertRegex(defaults[self.config_flow.APP_PAIR_CODE_DISPLAY_FIELD], r"^\d{6}$")
-        self.assertEqual(
-            defaults[self.config_flow.APP_HA_LOCAL_URL_DISPLAY_FIELD],
-            "http://ha.local:8123",
-        )
+        self.assertNotIn(self.const.CONF_DEVICE_NAME, defaults)
+        self.assertNotIn(self.config_flow.APP_PAIR_CODE_DISPLAY_FIELD, defaults)
+        self.assertNotIn(self.config_flow.APP_HA_LOCAL_URL_DISPLAY_FIELD, defaults)
         self.assertNotIn(self.config_flow.APP_IPHONE_PAIRING_URI_FIELD, defaults)
         self.assertNotIn(self.config_flow.APP_WATCH_PAIRING_URI_FIELD, defaults)
         self.assertNotIn(self.const.CONF_CLIENT_TYPE, defaults)

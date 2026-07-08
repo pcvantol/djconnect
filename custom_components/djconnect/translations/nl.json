@@ -115,7 +115,7 @@
       },
       "pair_app_ios_details": {
         "title": "DJConnect iPhone/iPad app koppelen",
-        "description": "Scan deze QR-code met de iPhone/iPad app.\n\n![iPhone/iPad QR-code]({iphone_qr_image})",
+        "description": "Scan deze QR-code met de iPhone/iPad app.\n\n![iPhone/iPad QR-code]({iphone_qr_image})\n\nAls de QR-code niet zichtbaar is, voer deze waarden in de app in:\n\n- Home Assistant URL: `{ha_local_url}`\n- Koppelcode: `{pair_code}`",
         "data": {
           "app_pair_code": "Koppelcode",
           "app_ha_local_url": "Home Assistant URL",
@@ -129,7 +129,7 @@
       },
       "pair_app_watch_details": {
         "title": "DJConnect Apple Watch app koppelen",
-        "description": "Scan deze Watch QR-code op de iPhone/iPad om de gekoppelde Apple Watch te koppelen.\n\n![Apple Watch QR-code]({watch_qr_image})",
+        "description": "Scan deze Watch QR-code op de iPhone/iPad om de gekoppelde Apple Watch te koppelen.\n\n![Apple Watch QR-code]({watch_qr_image})\n\nAls de QR-code niet zichtbaar is, voer deze waarden in de app in:\n\n- Home Assistant URL: `{ha_local_url}`\n- Koppelcode: `{pair_code}`",
         "data": {
           "app_pair_code": "Koppelcode",
           "app_ha_local_url": "Home Assistant URL",
@@ -143,7 +143,7 @@
       },
       "pair_app_macos_details": {
         "title": "DJConnect macOS app koppelen",
-        "description": "Gebruik deze Home Assistant URL en koppelcode in de macOS app.",
+        "description": "Gebruik deze waarden in de macOS app:\n\n- Home Assistant URL: `{ha_local_url}`\n- Koppelcode: `{pair_code}`",
         "data": {
           "app_pair_code": "Koppelcode",
           "app_ha_local_url": "Home Assistant URL",
@@ -157,7 +157,7 @@
       },
       "pair_app_windows_details": {
         "title": "DJConnect Windows app koppelen",
-        "description": "Gebruik deze Home Assistant URL en koppelcode in de Windows app.",
+        "description": "Gebruik deze waarden in de Windows app:\n\n- Home Assistant URL: `{ha_local_url}`\n- Koppelcode: `{pair_code}`",
         "data": {
           "app_pair_code": "Koppelcode",
           "app_ha_local_url": "Home Assistant URL",

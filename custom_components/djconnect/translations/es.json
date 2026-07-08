@@ -115,7 +115,7 @@
       },
       "pair_app_ios_details": {
         "title": "Emparejar la app DJConnect iPhone/iPad",
-        "description": "Escanea este código QR con la app de iPhone/iPad.\n\n![iPhone/iPad QR code]({iphone_qr_image})",
+        "description": "Escanea este código QR con la app de iPhone/iPad.\n\n![iPhone/iPad QR code]({iphone_qr_image})\n\nSi el código QR no está visible, introduce estos valores en la app:\n\n- URL de Home Assistant: `{ha_local_url}`\n- Código de emparejamiento: `{pair_code}`",
         "data": {
           "app_pair_code": "Código de emparejamiento",
           "app_ha_local_url": "URL de Home Assistant",
@@ -129,7 +129,7 @@
       },
       "pair_app_watch_details": {
         "title": "Emparejar la app DJConnect Apple Watch",
-        "description": "Escanea este código QR de Watch en iPhone/iPad para emparejar el Apple Watch vinculado.\n\n![Apple Watch QR code]({watch_qr_image})",
+        "description": "Escanea este código QR de Watch en iPhone/iPad para emparejar el Apple Watch vinculado.\n\n![Apple Watch QR code]({watch_qr_image})\n\nSi el código QR no está visible, introduce estos valores en la app:\n\n- URL de Home Assistant: `{ha_local_url}`\n- Código de emparejamiento: `{pair_code}`",
         "data": {
           "app_pair_code": "Código de emparejamiento",
           "app_ha_local_url": "URL de Home Assistant",
@@ -143,7 +143,7 @@
       },
       "pair_app_macos_details": {
         "title": "Emparejar la app DJConnect macOS",
-        "description": "Usa esta URL de Home Assistant y este código de emparejamiento en la app de macOS.",
+        "description": "Usa estos valores en la app de macOS:\n\n- URL de Home Assistant: `{ha_local_url}`\n- Código de emparejamiento: `{pair_code}`",
         "data": {
           "app_pair_code": "Código de emparejamiento",
           "app_ha_local_url": "URL de Home Assistant",
@@ -157,7 +157,7 @@
       },
       "pair_app_windows_details": {
         "title": "Emparejar la app DJConnect Windows",
-        "description": "Usa esta URL de Home Assistant y este código de emparejamiento en la app de Windows.",
+        "description": "Usa estos valores en la app de Windows:\n\n- URL de Home Assistant: `{ha_local_url}`\n- Código de emparejamiento: `{pair_code}`",
         "data": {
           "app_pair_code": "Código de emparejamiento",
           "app_ha_local_url": "URL de Home Assistant",

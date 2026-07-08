@@ -115,7 +115,7 @@
       },
       "pair_app_ios_details": {
         "title": "Associer l’application DJConnect iPhone/iPad",
-        "description": "Scanne ce QR code avec l’app iPhone/iPad.\n\n![iPhone/iPad QR code]({iphone_qr_image})",
+        "description": "Scanne ce QR code avec l’app iPhone/iPad.\n\n![iPhone/iPad QR code]({iphone_qr_image})\n\nSi le QR code n’est pas visible, saisis ces valeurs dans l’app:\n\n- URL Home Assistant: `{ha_local_url}`\n- Code d’association: `{pair_code}`",
         "data": {
           "app_pair_code": "Code d’association",
           "app_ha_local_url": "URL Home Assistant",
@@ -129,7 +129,7 @@
       },
       "pair_app_watch_details": {
         "title": "Associer l’application DJConnect Apple Watch",
-        "description": "Scanne ce QR code Watch sur iPhone/iPad pour associer l’Apple Watch liée.\n\n![Apple Watch QR code]({watch_qr_image})",
+        "description": "Scanne ce QR code Watch sur iPhone/iPad pour associer l’Apple Watch liée.\n\n![Apple Watch QR code]({watch_qr_image})\n\nSi le QR code n’est pas visible, saisis ces valeurs dans l’app:\n\n- URL Home Assistant: `{ha_local_url}`\n- Code d’association: `{pair_code}`",
         "data": {
           "app_pair_code": "Code d’association",
           "app_ha_local_url": "URL Home Assistant",
@@ -143,7 +143,7 @@
       },
       "pair_app_macos_details": {
         "title": "Associer l’application DJConnect macOS",
-        "description": "Utilise cette URL Home Assistant et ce code d’association dans l’app macOS.",
+        "description": "Utilise ces valeurs dans l’app macOS:\n\n- URL Home Assistant: `{ha_local_url}`\n- Code d’association: `{pair_code}`",
         "data": {
           "app_pair_code": "Code d’association",
           "app_ha_local_url": "URL Home Assistant",
@@ -157,7 +157,7 @@
       },
       "pair_app_windows_details": {
         "title": "Associer l’application DJConnect Windows",
-        "description": "Utilise cette URL Home Assistant et ce code d’association dans l’app Windows.",
+        "description": "Utilise ces valeurs dans l’app Windows:\n\n- URL Home Assistant: `{ha_local_url}`\n- Code d’association: `{pair_code}`",
         "data": {
           "app_pair_code": "Code d’association",
           "app_ha_local_url": "URL Home Assistant",
