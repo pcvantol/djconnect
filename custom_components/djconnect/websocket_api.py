@@ -67,6 +67,14 @@ FEATURE_COMMANDS = {
     "music_discovery_feedback": (WS_TYPE_MUSIC_DISCOVERY_FEEDBACK,),
 }
 
+PROFILE_CONTEXT_SCHEMA_FIELDS = {
+    vol.Optional("profile_id"): str,
+    vol.Optional("private_session"): bool,
+    vol.Optional("privacy_mode"): str,
+}
+
+PROFILE_CONTEXT_MESSAGE_KEYS = ("profile_id", "private_session", "privacy_mode")
+
 
 async def async_handle_command_payload(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], int]:
     from .api_handlers import async_handle_command_payload as handler
@@ -341,23 +349,24 @@ def _capability_fallbacks(commands: list[str]) -> dict[str, dict[str, Any]]:
         vol.Optional("command"): str,
         vol.Optional("value"): object,
         vol.Optional("play"): bool,
+        **PROFILE_CONTEXT_SCHEMA_FIELDS,
     }
 )
 @_async_response
 async def websocket_command(hass: Any, connection: Any, msg: dict[str, Any]) -> None:
     """Handle a DJConnect command over HA websocket with HTTP-equivalent auth."""
-    payload = dict(msg.get("payload") or {})
-    for key in (
-        "device_id",
-        "client_type",
-        "client_id",
-        "device_name",
-        "command",
-        "value",
-        "play",
-    ):
-        if key in msg and key not in payload:
-            payload[key] = msg[key]
+    payload = _payload_from_message(
+        msg,
+        (
+            "device_id",
+            "client_type",
+            "client_id",
+            "device_name",
+            "command",
+            "value",
+            "play",
+        ),
+    )
     headers = _headers_from_message(payload, msg)
     result, status_code = await async_handle_command_payload(
         hass,
@@ -388,6 +397,7 @@ async def websocket_command(hass: Any, connection: Any, msg: dict[str, Any]) -> 
         vol.Optional("audio_response"): str,
         vol.Optional("mood"): object,
         vol.Optional("music_dna_key"): str,
+        **PROFILE_CONTEXT_SCHEMA_FIELDS,
     }
 )
 @_async_response
@@ -432,6 +442,7 @@ async def websocket_ask_dj_message(hass: Any, connection: Any, msg: dict[str, An
         vol.Optional("authorization"): str,
         vol.Optional("identity"): dict,
         vol.Optional("since_revision"): object,
+        **PROFILE_CONTEXT_SCHEMA_FIELDS,
     }
 )
 @_async_response
@@ -471,6 +482,7 @@ async def websocket_ask_dj_history(hass: Any, connection: Any, msg: dict[str, An
         vol.Optional("client_token"): str,
         vol.Optional("authorization"): str,
         vol.Optional("identity"): dict,
+        **PROFILE_CONTEXT_SCHEMA_FIELDS,
     }
 )
 @_async_response
@@ -511,6 +523,7 @@ async def websocket_ask_dj_history_clear(hass: Any, connection: Any, msg: dict[s
         vol.Optional("identity"): dict,
         vol.Optional("since_revision"): object,
         vol.Optional("clear_revision"): object,
+        **PROFILE_CONTEXT_SCHEMA_FIELDS,
     }
 )
 @_async_response
@@ -553,6 +566,7 @@ async def websocket_ask_dj_history_state(hass: Any, connection: Any, msg: dict[s
         vol.Optional("identity"): dict,
         vol.Optional("music_dna_key"): str,
         vol.Optional("mood"): object,
+        **PROFILE_CONTEXT_SCHEMA_FIELDS,
     }
 )
 @_async_response
@@ -600,6 +614,7 @@ async def websocket_ask_dj_idle_suggestion(hass: Any, connection: Any, msg: dict
         vol.Optional("album"): str,
         vol.Optional("force_refresh"): bool,
         vol.Optional("include_visual_profile"): bool,
+        **PROFILE_CONTEXT_SCHEMA_FIELDS,
     }
 )
 @_async_response
@@ -667,6 +682,7 @@ async def websocket_track_insight(hass: Any, connection: Any, msg: dict[str, Any
         vol.Optional("device_token"): str,
         vol.Optional("authorization"): str,
         vol.Optional("music_dna_key"): str,
+        **PROFILE_CONTEXT_SCHEMA_FIELDS,
     }
 )
 @_async_response
@@ -703,6 +719,7 @@ async def websocket_music_dna_profile(hass: Any, connection: Any, msg: dict[str,
         vol.Optional("authorization"): str,
         vol.Optional("music_dna_key"): str,
         vol.Optional("enabled"): bool,
+        **PROFILE_CONTEXT_SCHEMA_FIELDS,
     }
 )
 @_async_response
@@ -739,6 +756,7 @@ async def websocket_music_dna_settings(hass: Any, connection: Any, msg: dict[str
         vol.Optional("device_token"): str,
         vol.Optional("authorization"): str,
         vol.Optional("music_dna_key"): str,
+        **PROFILE_CONTEXT_SCHEMA_FIELDS,
     }
 )
 @_async_response
@@ -776,6 +794,7 @@ async def websocket_music_dna_clear(hass: Any, connection: Any, msg: dict[str, A
         vol.Optional("music_dna_key"): str,
         vol.Optional("profile"): dict,
         vol.Optional("import_mode"): str,
+        **PROFILE_CONTEXT_SCHEMA_FIELDS,
     }
 )
 @_async_response
@@ -813,6 +832,7 @@ async def websocket_music_dna_import(hass: Any, connection: Any, msg: dict[str, 
         vol.Optional("device_token"): str,
         vol.Optional("authorization"): str,
         vol.Optional("music_dna_key"): str,
+        **PROFILE_CONTEXT_SCHEMA_FIELDS,
     }
 )
 @_async_response
@@ -850,6 +870,7 @@ async def websocket_music_dna_export(hass: Any, connection: Any, msg: dict[str, 
         vol.Optional("device_token"): str,
         vol.Optional("authorization"): str,
         vol.Optional("music_dna_key"): str,
+        **PROFILE_CONTEXT_SCHEMA_FIELDS,
     }
 )
 @_async_response
@@ -889,6 +910,7 @@ async def websocket_music_discovery_feed(hass: Any, connection: Any, msg: dict[s
         vol.Optional("device_token"): str,
         vol.Optional("authorization"): str,
         vol.Optional("music_dna_key"): str,
+        **PROFILE_CONTEXT_SCHEMA_FIELDS,
     }
 )
 @_async_response
@@ -930,6 +952,7 @@ async def websocket_music_discovery_refresh(hass: Any, connection: Any, msg: dic
         vol.Optional("music_dna_key"): str,
         vol.Optional("discovery_item_id"): str,
         vol.Optional("section_id"): str,
+        **PROFILE_CONTEXT_SCHEMA_FIELDS,
     }
 )
 @_async_response
@@ -975,6 +998,7 @@ async def websocket_music_discovery_play(hass: Any, connection: Any, msg: dict[s
         vol.Optional("section_id"): str,
         vol.Optional("feedback"): str,
         vol.Optional("action"): str,
+        **PROFILE_CONTEXT_SCHEMA_FIELDS,
     }
 )
 @_async_response
@@ -1009,7 +1033,7 @@ async def websocket_music_discovery_feedback(hass: Any, connection: Any, msg: di
 
 def _payload_from_message(msg: dict[str, Any], keys: tuple[str, ...]) -> dict[str, Any]:
     payload = dict(msg.get("payload") or {})
-    for key in keys:
+    for key in (*PROFILE_CONTEXT_MESSAGE_KEYS, *keys):
         if key in msg and key not in payload:
             payload[key] = msg[key]
     return payload

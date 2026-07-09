@@ -1385,6 +1385,70 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
         )
         self.assertEqual([call[0] for call in calls], ["play", "feedback"])
 
+    def test_top_level_profile_context_fields_reach_websocket_handlers(self) -> None:
+        calls = []
+
+        async def ask_handler(hass, payload, *, headers=None, user_id=None):
+            calls.append(("ask", payload, headers, user_id))
+            return {"success": True}, 200
+
+        async def discovery_handler(hass, payload, *, headers=None, user_id=None):
+            calls.append(("discovery", payload, headers, user_id))
+            return {"success": True, "sections": []}, 200
+
+        originals = (
+            self.websocket_api.async_handle_ask_dj_message_payload,
+            self.websocket_api.async_handle_music_discovery_feed_payload,
+        )
+        self.websocket_api.async_handle_ask_dj_message_payload = ask_handler
+        self.websocket_api.async_handle_music_discovery_feed_payload = discovery_handler
+        try:
+            connection = _Connection(user_id="ha-user")
+            base = {
+                "device_id": "djconnect-ios-ABCDEF123456",
+                "client_type": "ios",
+                "device_token": "device-secret",
+                "profile_id": "profile-personal",
+                "private_session": True,
+                "privacy_mode": "private",
+            }
+            asyncio.run(
+                self.websocket_api.websocket_ask_dj_message(
+                    types.SimpleNamespace(data={}),
+                    connection,
+                    {
+                        "id": 46,
+                        "type": self.websocket_api.WS_TYPE_ASK_DJ_MESSAGE,
+                        **base,
+                        "text": "Play something",
+                    },
+                )
+            )
+            asyncio.run(
+                self.websocket_api.websocket_music_discovery_feed(
+                    types.SimpleNamespace(data={}),
+                    connection,
+                    {
+                        "id": 47,
+                        "type": self.websocket_api.WS_TYPE_MUSIC_DISCOVERY_FEED,
+                        **base,
+                    },
+                )
+            )
+        finally:
+            (
+                self.websocket_api.async_handle_ask_dj_message_payload,
+                self.websocket_api.async_handle_music_discovery_feed_payload,
+            ) = originals
+
+        self.assertEqual(connection.errors, [])
+        self.assertEqual(len(connection.results), 2)
+        for _kind, payload, _headers, user_id in calls:
+            self.assertEqual(payload["profile_id"], "profile-personal")
+            self.assertTrue(payload["private_session"])
+            self.assertEqual(payload["privacy_mode"], "private")
+            self.assertEqual(user_id, "ha-user")
+
 
 class _Connection:
     def __init__(self, user_id: str | None = None) -> None:
