@@ -127,7 +127,7 @@ Constraints:
 **Status:** 🟢 Vision  
 **Domain:** Personal / Profiles / Export-Import
 
-Allow a DJConnect profile to move between Home Assistant installations.
+Allow a DJConnect Profile to move between Home Assistant installations.
 
 Profile export may include profile metadata, Music DNA, mood settings/history, DJ voice/response style, Ask DJ chat history, recommendation memory, likes/dislikes, optional device mappings, and optional backend/account bindings without secrets.
 
@@ -348,3 +348,62 @@ Library management belongs to music backends such as Music Assistant or provider
 - What data should never leave the local Home Assistant instance?
 - How should future cloud features enhance rather than replace local-first Community?
 - When does an immersive experience add value instead of becoming a gimmick?
+
+---
+
+## Epic 2 discovery recommendations
+
+These ideas came from Platform Discovery. They are not committed roadmap items.
+
+### Ambient Client capability budget
+
+**Status:** 🟡 Exploration  
+**Domain:** Client Capability Classes / Raspberry Pi / Shared Devices
+
+Define how rich an Ambient Client should become before it stops being ambient.
+
+The Raspberry Pi client can render Track Insight, Music DNA and Music Discovery in a room display context, but the platform needs explicit shared-screen privacy and capability boundaries.
+
+Open questions:
+
+- Which Music DNA blocks are safe on shared displays?
+- Should Pi support profile switching or only room/household profiles?
+- Which actions should require an explicitly linked personal profile?
+
+### Contract Fixture Compatibility Dashboard
+
+**Status:** 🟡 Exploration  
+**Domain:** Developer Experience / Platform Quality
+
+The Home Assistant repo exports contract fixtures and Apple, Windows and Pi consume them. A compatibility dashboard could show which clients pass which fixture families.
+
+Open questions:
+
+- Should fixture conformance be published in release notes?
+- Should release repositories include fixture manifest versions?
+- Can CI collect client conformance without creating cross-repo coupling?
+
+### Foundation language lint
+
+**Status:** 🟡 Exploration  
+**Domain:** Product Language / Website / Release Repositories
+
+Add lightweight checks for avoid terms such as `Spotify profile`, stale `Client API URL`, trial/lite tier language or client-owned intelligence language in public docs.
+
+Open questions:
+
+- Which terms should fail CI and which should warn?
+- How should historical changelog entries be handled?
+
+### Shared device privacy preview
+
+**Status:** 🟡 Exploration  
+**Domain:** Privacy / Profiles / Shared Devices
+
+Create product mockups or contract examples showing how household, room, guest and personal profiles behave on Pi and VibeCast before Profile Architecture reaches implementation.
+
+Open questions:
+
+- What should a default shared profile reveal?
+- How does a user temporarily personalize a shared device?
+- How does private mode interact with VibeCast and guest companion?
