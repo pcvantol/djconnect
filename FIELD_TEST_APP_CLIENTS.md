@@ -77,6 +77,39 @@ Run for iOS and macOS development builds, and for watchOS when push is enabled.
 7. Confirm no APNs token, bearer token, bootstrap proof or `djci_` install token is
    copied into notes, screenshots or logs.
 
+## DJ Announcement Speaker Output
+
+Run for iOS/macOS/Windows, and for watchOS through the existing iPhone proxy
+behavior when available.
+
+1. In Home Assistant, configure DJConnect with a suitable Home Assistant
+   `media_player` speaker for DJ announcements, such as Voice Preview Edition,
+   an ESPHome speaker or another player that supports `play_media`.
+2. Confirm pairing/status/capabilities expose `dj_announcement` with:
+   - `speaker_configured: true`
+   - `supported_outputs` including `client_device`, `both`, `ha_speaker` and
+     `text_only`
+   - default/effective output `both` for app clients unless the client setting
+     overrides it
+3. Set the client output to “device + Home Assistant speaker” and trigger an
+   Ask DJ playback/hybrid response. Confirm the HA speaker speaks and the client
+   still receives/plays the response when local autoplay is enabled.
+4. Set the client output to “Home Assistant speaker only”. Confirm the HA
+   speaker speaks, the client renders text, and the client does not play local
+   audio even when autoplay is enabled.
+5. Set the client output to “text only”. Confirm Home Assistant returns text
+   only, no HA speaker playback occurs and the client does not show a replay
+   affordance.
+6. Remove/clear the HA announcement speaker in DJConnect options. Confirm
+   speaker modes are locked/hidden in the client and the client falls back to
+   `client_device` or `text_only`.
+7. While using Spotify Direct, confirm Spotify playback is not paused, resumed
+   or volume-adjusted by DJ announcements. The DJ voice should play separately
+   through the selected HA speaker.
+8. For Apple push, confirm push only wakes/syncs. The client may autoplay only
+   after fetching the canonical Ask DJ response and checking local
+   `auto_play_announcements` plus response `announcement` metadata.
+
 ## Evidence To Record
 
 - Client type and app build.
@@ -86,4 +119,5 @@ Run for iOS and macOS development builds, and for watchOS when push is enabled.
 - Local pairing result.
 - Remote command result.
 - APNs environment and registration result for Apple clients.
+- DJ announcement output mode and whether a HA speaker was configured.
 - Any HA Repair issue created during the test.

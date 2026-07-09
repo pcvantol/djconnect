@@ -688,6 +688,53 @@ class PushTest(unittest.TestCase):
         self.assertNotIn("history_revision", payload)
         self.assertNotIn("client_message_id", payload)
 
+    def test_event_payload_includes_only_safe_announcement_hints(self) -> None:
+        runtime = self._runtime()
+
+        payload = self.push.build_relay_event_payload(
+            runtime,
+            user_id="user-1",
+            event_type="ask_dj_response",
+            history_revision=125,
+            client_message_id="client-2",
+            announcement={
+                "delivery": "both",
+                "audio_url": "https://ha.local/api/djconnect/v1/tts/secret.mp3",
+                "audio_available": True,
+                "speaker_delivery": "attempted",
+                "text": "private generated response",
+                "prompt": "raw prompt",
+                "token": "secret-token",
+            },
+        )
+
+        self.assertEqual(
+            payload["announcement"],
+            {
+                "delivery": "both",
+                "audio_available": True,
+                "speaker_delivery": "attempted",
+            },
+        )
+        rendered = str(payload)
+        self.assertNotIn("audio_url", rendered)
+        self.assertNotIn("secret.mp3", rendered)
+        self.assertNotIn("private generated response", rendered)
+        self.assertNotIn("raw prompt", rendered)
+        self.assertNotIn("secret-token", rendered)
+
+    def test_event_payload_drops_invalid_announcement_delivery(self) -> None:
+        runtime = self._runtime()
+
+        payload = self.push.build_relay_event_payload(
+            runtime,
+            user_id="user-1",
+            event_type="ask_dj_response",
+            announcement={"delivery": "spotify_ducking", "audio_available": True},
+        )
+
+        self.assertNotIn("announcement", payload)
+
     def test_music_discovery_ready_payload_targets_discovery_refresh(self) -> None:
         runtime = self._runtime()
 

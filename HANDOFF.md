@@ -403,6 +403,15 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
   local HA URL resolver. A device log with `audio_url=none` means HA fell back
   to text-only, usually because TTS audio generation failed, returned an
   unsupported type, or HA could not build a reachable local URL.
+- App/Pi DJ announcement output is now explicit via `announcement{}` metadata.
+  App clients may choose `client_device`, `both`, `ha_speaker` or `text_only`;
+  Raspberry Pi may choose only `text_only` or `ha_speaker` when HA has a
+  configured announcement speaker. HA owns `dj_announcement_speaker_entity_id`.
+  ESP32 remains on `/api/device/dj_response` and does not use these app modes.
+  `text_only` skips TTS, `ha_speaker` plays server-side without client
+  `audio_url`, and `both` plays server-side plus returns client `audio_url`.
+  Spotify Direct must not pause, resume, duck or change Spotify volume for
+  announcement delivery.
 - Free-form DJ announcement prompt controls are intentionally absent from
   config/options. Use the controlled `voice_profile` selector for announcement
   persona; runtime mood determines energy. Missing mood falls back to the

@@ -87,6 +87,33 @@ class AnnouncementTests(unittest.TestCase):
         self.assertEqual(capabilities["supported_outputs"], ["text_only"])
         self.assertEqual(capabilities["output"], "text_only")
 
+    def test_app_without_speaker_locks_speaker_modes(self):
+        runtime = self._runtime(client_type="ios", speaker="", output="both")
+
+        capabilities = self.announcements.announcement_capabilities(runtime)
+
+        self.assertEqual(capabilities["supported_outputs"], ["client_device", "text_only"])
+        self.assertIn("both", capabilities["locked_outputs"])
+        self.assertIn("ha_speaker", capabilities["locked_outputs"])
+        self.assertEqual(capabilities["output"], "client_device")
+
+    def test_pi_with_speaker_defaults_to_ha_speaker(self):
+        runtime = self._runtime(client_type="raspberry_pi", speaker="media_player.voice_preview")
+
+        capabilities = self.announcements.announcement_capabilities(runtime)
+
+        self.assertEqual(capabilities["supported_outputs"], ["text_only", "ha_speaker"])
+        self.assertEqual(capabilities["default_output"], "ha_speaker")
+        self.assertEqual(capabilities["output"], "ha_speaker")
+
+    def test_speaker_validation_rejects_non_play_media_player(self):
+        error = self.announcements.validate_announcement_speaker(
+            self._hass(),
+            "media_player.display_only",
+        )
+
+        self.assertEqual(error, "announcement_speaker_no_play_media")
+
     def test_both_returns_audio_url_and_calls_ha_speaker(self):
         hass = self._hass()
         runtime = self._runtime(output="both")
