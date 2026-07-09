@@ -133,6 +133,12 @@ Maintainer releases use:
 
 Release changes should keep `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant `examples/` files aligned when affected.
 
+As a review/QA step for every release or client-contract change, check each
+DJConnect repo against the `DJ Announcement Output Sync` section in
+`SYNC_PROMPTS.md`. Confirm announcement output modes, optional HA speaker
+handling, nested `announcement.audio_url`, push-safe hints and product/docs
+wording still match the contract for that repo.
+
 ## Licensing
 
 By contributing to this repository, you agree that your contribution is licensed under the MIT License in `LICENSE`.

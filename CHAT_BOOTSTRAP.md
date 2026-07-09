@@ -31,6 +31,9 @@ Belangrijke huidige status:
 - Community/security docs staan in `CODE_OF_CONDUCT.md` en `SECURITY.md`; security contact is `security@djconnect.dev`.
 - DJConnect wordt ontwikkeld en onderhouden met AI-assisted/agentic engineering workflows, inclusief Codex; accepted changes blijven maintainer-reviewed en prompts/logs/issues mogen geen secrets of private data bevatten.
 - Fresh-chat promptbestanden heten in alle DJConnect repos `CHAT_BOOTSTRAP.md`.
+- Nieuwe review/QA-stap: laat elke DJConnect repo bij release- of
+  client-contractwerk checken tegen de `DJ Announcement Output Sync` sectie in
+  `SYNC_PROMPTS.md`.
 - HACS/HA integration repo: `pcvantol/djconnect`.
 - Firmware repo/source en client repos zijn aparte MIT repos.
 - Home Assistant integration blijft verantwoordelijk voor pairing, Spotify OAuth/backend playback, Assist/STT/TTS, OTA, status en diagnostics.
