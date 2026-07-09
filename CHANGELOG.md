@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.2.46
+
+- Add exported client contract fixtures with a manifest and export script so
+  Apple, Raspberry Pi and Windows clients can reuse the same golden payloads in
+  their own CI.
+- Add mocked Home Assistant websocket smoke coverage for auth, capabilities,
+  Music DNA profile and Music Discovery feed flows without requiring a live HA
+  token.
+- Add cross-transport parity tests and negative mutation/auth websocket tests
+  for Music DNA and Music Discovery routes.
+
 ## 3.2.45
 
 - Expose all Music DNA functions over Home Assistant websocket transport,
