@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from datetime import timedelta
 import importlib
 from pathlib import Path
 import sys
@@ -404,6 +405,191 @@ class TtsHelperTest(unittest.TestCase):
         self.assertEqual([call[0] for call in calls], ["listening_profile", "artist_recommendations"])
         self.assertIn("spotify_top_tracks_short_term", runtime.memory.updated_profiles[0]["sources"])
         self.assertEqual(runtime.memory.updated_profiles[0]["top_tracks_by_range"]["short_term"][0]["track_name"], "Top Native Track")
+
+    def test_hourly_music_discovery_refresh_scheduler_registers_one_hour_interval(self) -> None:
+        scheduled = {}
+        calls = []
+
+        def track_interval(hass, action, interval):
+            scheduled["hass"] = hass
+            scheduled["action"] = action
+            scheduled["interval"] = interval
+            return "unsub-hourly"
+
+        async def refresh(hass, runtime):
+            calls.append((hass, runtime))
+            return {"success": True, "refreshed": True}
+
+        entry = types.SimpleNamespace(unloads=[], async_on_unload=lambda unsub: entry.unloads.append(unsub))
+        runtime = object()
+        hass = object()
+        original_interval = self.integration.async_track_time_interval
+        original_refresh = self.integration._async_refresh_music_discovery_server_side
+        self.integration.async_track_time_interval = track_interval
+        self.integration._async_refresh_music_discovery_server_side = refresh
+        try:
+            self.integration._schedule_hourly_music_discovery_refresh(hass, entry, runtime)
+            asyncio.run(scheduled["action"](object()))
+        finally:
+            self.integration.async_track_time_interval = original_interval
+            self.integration._async_refresh_music_discovery_server_side = original_refresh
+
+        self.assertEqual(scheduled["hass"], hass)
+        self.assertEqual(scheduled["interval"], timedelta(hours=1))
+        self.assertEqual(entry.unloads, ["unsub-hourly"])
+        self.assertEqual(calls, [(hass, runtime)])
+
+    def test_hourly_music_discovery_refresh_skips_spotify_profile_when_fresh_but_rebuilds_feed(self) -> None:
+        class Memory:
+            async def async_context_for_runtime(self, runtime, payload, *, user_id=None):
+                return {
+                    "memory": {
+                        "enabled": True,
+                        "favorite_artists": ["The xx"],
+                        "recent_tracks": [
+                            {
+                                "track_name": "Intro",
+                                "artist": "The xx",
+                                "uri": "spotify:track:intro",
+                            }
+                        ],
+                    },
+                    "music_dna_key": "client:test",
+                }
+
+            async def async_listening_profile_is_fresh(self, runtime, payload=None, *, user_id=None, ttl_seconds=0):
+                self.ttl_seconds = ttl_seconds
+                return True
+
+            async def async_update_listening_profile(self, runtime, profile, payload=None, *, user_id=None):
+                raise AssertionError("fresh hourly Music DNA must not fetch or update Spotify profile")
+
+        calls = []
+
+        async def command(hass, runtime, command_name, value=None, *, play=None):
+            calls.append((command_name, value, play))
+            if command_name == "artist_recommendations":
+                return {
+                    "success": True,
+                    "recommended_tracks": [
+                        {
+                            "track_name": "Fresh Hourly Recommendation",
+                            "artist": "New Artist",
+                            "uri": "spotify:track:fresh-hourly",
+                        }
+                    ],
+                }
+            raise AssertionError(f"unexpected command: {command_name}")
+
+        entry = types.SimpleNamespace(
+            data={},
+            options={
+                self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_IOS,
+                self.const.CONF_DEVICE_ID: "djconnect-ios-ABCDEFGHIJKL",
+            },
+            entry_id="entry-ios",
+        )
+        runtime = self.integration.DJConnectRuntime(entry=entry)
+        runtime.device_token = "token"
+        runtime.memory = Memory()
+        hass = types.SimpleNamespace(data={self.const.DOMAIN: {entry.entry_id: runtime}})
+        music_discovery = importlib.import_module("custom_components.djconnect.music_discovery")
+        original_discovery_command = music_discovery.run_music_command
+        original_integration_command = self.integration.run_music_command
+        music_discovery.run_music_command = command
+        self.integration.run_music_command = command
+        try:
+            result = asyncio.run(
+                self.integration._async_refresh_music_discovery_server_side(
+                    hass,
+                    runtime,
+                )
+            )
+        finally:
+            music_discovery.run_music_command = original_discovery_command
+            self.integration.run_music_command = original_integration_command
+
+        self.assertTrue(result["refreshed"])
+        self.assertFalse(result["music_dna_profile_refreshed"])
+        self.assertEqual(runtime.memory.ttl_seconds, 60 * 60)
+        self.assertEqual([call[0] for call in calls], ["artist_recommendations"])
+        self.assertGreaterEqual(result["items"], 1)
+
+    def test_hourly_music_discovery_refresh_force_rebuilds_existing_server_cache(self) -> None:
+        class Memory:
+            async def async_context_for_runtime(self, runtime, payload, *, user_id=None):
+                return {
+                    "memory": {
+                        "enabled": True,
+                        "favorite_artists": ["The xx"],
+                        "recent_tracks": [
+                            {
+                                "track_name": "Intro",
+                                "artist": "The xx",
+                                "uri": "spotify:track:intro",
+                            }
+                        ],
+                    },
+                    "music_dna_key": "client:test",
+                }
+
+            async def async_listening_profile_is_fresh(self, runtime, payload=None, *, user_id=None, ttl_seconds=0):
+                return True
+
+        calls = []
+
+        async def command(hass, runtime, command_name, value=None, *, play=None):
+            calls.append(command_name)
+            if command_name == "artist_recommendations":
+                suffix = len(calls)
+                return {
+                    "success": True,
+                    "recommended_tracks": [
+                        {
+                            "track_name": f"Fresh Hourly Recommendation {suffix}",
+                            "artist": "New Artist",
+                            "uri": f"spotify:track:fresh-hourly-{suffix}",
+                        }
+                    ],
+                }
+            raise AssertionError(f"unexpected command: {command_name}")
+
+        entry = types.SimpleNamespace(
+            data={},
+            options={
+                self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_IOS,
+                self.const.CONF_DEVICE_ID: "djconnect-ios-ABCDEFGHIJKL",
+            },
+            entry_id="entry-ios",
+        )
+        runtime = self.integration.DJConnectRuntime(entry=entry)
+        runtime.device_token = "token"
+        runtime.memory = Memory()
+        hass = types.SimpleNamespace(data={self.const.DOMAIN: {entry.entry_id: runtime}})
+        music_discovery = importlib.import_module("custom_components.djconnect.music_discovery")
+        original_discovery_command = music_discovery.run_music_command
+        music_discovery.run_music_command = command
+        try:
+            first = asyncio.run(
+                self.integration._async_refresh_music_discovery_server_side(
+                    hass,
+                    runtime,
+                )
+            )
+            first_revision = runtime.music_discovery_revision
+            second = asyncio.run(
+                self.integration._async_refresh_music_discovery_server_side(
+                    hass,
+                    runtime,
+                )
+            )
+        finally:
+            music_discovery.run_music_command = original_discovery_command
+
+        self.assertTrue(first["refreshed"])
+        self.assertTrue(second["refreshed"])
+        self.assertEqual(calls, ["artist_recommendations", "artist_recommendations"])
+        self.assertGreater(runtime.music_discovery_revision, first_revision)
 
     def test_device_command_posts_to_local_command_api(self) -> None:
         class Response:

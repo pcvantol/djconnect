@@ -24,7 +24,7 @@ Lees eerst:
 
 Belangrijke huidige status:
 - Project: DJConnect Home Assistant custom integration, domain `djconnect`.
-- Laatste release: `3.2.44`.
+- Laatste release: `3.2.45`.
 - Repo is public en MIT-licensed.
 - Alle DJConnect repos zijn MIT-licensed, tenzij een specifieke third-party dependency anders vermeldt.
 - `FIRMWARE-LICENSE.md` is verwijderd.

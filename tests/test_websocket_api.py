@@ -53,6 +53,8 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
         http.async_handle_music_dna_profile_payload = async_handle_command_payload
         http.async_handle_music_dna_settings_payload = async_handle_command_payload
         http.async_handle_music_dna_clear_payload = async_handle_command_payload
+        http.async_handle_music_dna_import_payload = async_handle_command_payload
+        http.async_handle_music_dna_export_payload = async_handle_command_payload
         sys.modules.setdefault("custom_components.djconnect.http", http)
         cls.websocket_api = importlib.import_module("custom_components.djconnect.websocket_api")
         cls.websocket_api.websocket_api = websocket_api
@@ -91,6 +93,8 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
                 "websocket_music_dna_profile",
                 "websocket_music_dna_settings",
                 "websocket_music_dna_clear",
+                "websocket_music_dna_import",
+                "websocket_music_dna_export",
                 "websocket_music_discovery_feed",
                 "websocket_music_discovery_refresh",
                 "websocket_music_discovery_play",
@@ -136,10 +140,8 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
         self.assertIn(self.websocket_api.WS_TYPE_MUSIC_DNA_PROFILE, result["commands"])
         self.assertIn(self.websocket_api.WS_TYPE_MUSIC_DNA_SETTINGS, result["commands"])
         self.assertIn(self.websocket_api.WS_TYPE_MUSIC_DNA_CLEAR, result["commands"])
-        self.assertNotIn("djconnect/music_dna/export", result["commands"])
-        self.assertNotIn("djconnect/music_dna/import", result["commands"])
-        self.assertFalse(hasattr(self.websocket_api, "WS_TYPE_MUSIC_DNA_EXPORT"))
-        self.assertFalse(hasattr(self.websocket_api, "WS_TYPE_MUSIC_DNA_IMPORT"))
+        self.assertIn(self.websocket_api.WS_TYPE_MUSIC_DNA_IMPORT, result["commands"])
+        self.assertIn(self.websocket_api.WS_TYPE_MUSIC_DNA_EXPORT, result["commands"])
         self.assertIn(self.websocket_api.WS_TYPE_MUSIC_DISCOVERY_FEED, result["commands"])
         self.assertIn(self.websocket_api.WS_TYPE_MUSIC_DISCOVERY_REFRESH, result["commands"])
         self.assertIn(self.websocket_api.WS_TYPE_MUSIC_DISCOVERY_PLAY, result["commands"])
@@ -150,6 +152,14 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
         self.assertEqual(
             result["fallbacks"]["music_discovery"]["http_paths"]["feed"],
             "/api/djconnect/v1/music_discovery",
+        )
+        self.assertEqual(
+            result["fallbacks"]["music_dna"]["http_paths"]["import"],
+            "/api/djconnect/v1/music_dna/import",
+        )
+        self.assertEqual(
+            result["fallbacks"]["music_dna"]["http_paths"]["export"],
+            "/api/djconnect/v1/music_dna/export",
         )
         self.assertEqual(
             result["fallbacks"]["music_discovery_feedback"]["missing_behavior"],
@@ -178,6 +188,91 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
             fallbacks["music_discovery_feedback"]["missing_behavior"],
             "hide_negative_feedback_controls",
         )
+
+    def test_music_discovery_websocket_routes_match_http_contract(self) -> None:
+        calls = []
+
+        async def feed_handler(hass, payload, *, headers=None, user_id=None):
+            calls.append(("feed", payload, headers, user_id))
+            return {"success": True, "enabled": True, "sections": []}, 200
+
+        async def play_handler(hass, payload, *, headers=None, user_id=None):
+            calls.append(("play", payload, headers, user_id))
+            return {"success": True, "played": True, "music_dna_feedback_recorded": True}, 200
+
+        async def feedback_handler(hass, payload, *, headers=None, user_id=None):
+            calls.append(("feedback", payload, headers, user_id))
+            return {"success": True, "feedback": payload["feedback"], "music_dna_feedback_recorded": True}, 200
+
+        originals = (
+            self.websocket_api.async_handle_music_discovery_feed_payload,
+            self.websocket_api.async_handle_music_discovery_play_payload,
+            self.websocket_api.async_handle_music_discovery_feedback_payload,
+        )
+        self.websocket_api.async_handle_music_discovery_feed_payload = feed_handler
+        self.websocket_api.async_handle_music_discovery_play_payload = play_handler
+        self.websocket_api.async_handle_music_discovery_feedback_payload = feedback_handler
+        try:
+            connection = _Connection(user_id="user-discovery")
+            base = {
+                "device_id": "djconnect-ios-ABCDEF123456",
+                "client_type": "ios",
+                "device_token": "device-secret",
+                "music_dna_key": "user:ha-user-1",
+            }
+            asyncio.run(
+                self.websocket_api.websocket_music_discovery_feed(
+                    types.SimpleNamespace(data={}),
+                    connection,
+                    {"id": 21, "type": self.websocket_api.WS_TYPE_MUSIC_DISCOVERY_FEED, **base},
+                )
+            )
+            asyncio.run(
+                self.websocket_api.websocket_music_discovery_play(
+                    types.SimpleNamespace(data={}),
+                    connection,
+                    {
+                        "id": 22,
+                        "type": self.websocket_api.WS_TYPE_MUSIC_DISCOVERY_PLAY,
+                        **base,
+                        "section_id": "new_for_you",
+                        "discovery_item_id": "disc-1",
+                    },
+                )
+            )
+            asyncio.run(
+                self.websocket_api.websocket_music_discovery_feedback(
+                    types.SimpleNamespace(data={}),
+                    connection,
+                    {
+                        "id": 23,
+                        "type": self.websocket_api.WS_TYPE_MUSIC_DISCOVERY_FEEDBACK,
+                        **base,
+                        "section_id": "new_for_you",
+                        "discovery_item_id": "disc-1",
+                        "feedback": "not_for_me",
+                    },
+                )
+            )
+        finally:
+            (
+                self.websocket_api.async_handle_music_discovery_feed_payload,
+                self.websocket_api.async_handle_music_discovery_play_payload,
+                self.websocket_api.async_handle_music_discovery_feedback_payload,
+            ) = originals
+
+        self.assertEqual(connection.errors, [])
+        self.assertEqual([msg_id for msg_id, _ in connection.results], [21, 22, 23])
+        self.assertEqual([call[0] for call in calls], ["feed", "play", "feedback"])
+        for _, payload, headers, user_id in calls:
+            self.assertEqual(payload["device_id"], "djconnect-ios-ABCDEF123456")
+            self.assertEqual(payload["client_type"], "ios")
+            self.assertEqual(payload["music_dna_key"], "user:ha-user-1")
+            self.assertEqual(headers["Authorization"], "Bearer device-secret")
+            self.assertEqual(headers["X-DJConnect-Device-ID"], "djconnect-ios-ABCDEF123456")
+            self.assertEqual(user_id, "user-discovery")
+        self.assertEqual(calls[1][1]["discovery_item_id"], "disc-1")
+        self.assertEqual(calls[2][1]["feedback"], "not_for_me")
 
     def test_command_uses_device_token_and_device_id_headers(self) -> None:
         calls = []
@@ -796,6 +891,89 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
         self.assertEqual(headers["X-DJConnect-Device-ID"], "djconnect-watchos-ABCDEF123456")
         self.assertEqual(user_id, "user-dna")
         self.assertEqual(connection.results, [(20, {"success": True, "enabled": False, "profile": {}})])
+
+    def test_music_dna_import_route_uses_import_handler(self) -> None:
+        calls = []
+
+        async def handler(hass, payload, *, headers=None, user_id=None):
+            calls.append((payload, headers, user_id))
+            return {"success": True, "imported": True, "enabled": True}, 200
+
+        connection = _Connection(user_id="user-dna")
+        original = self.websocket_api.async_handle_music_dna_import_payload
+        self.websocket_api.async_handle_music_dna_import_payload = handler
+        try:
+            asyncio.run(
+                self.websocket_api.websocket_music_dna_import(
+                    types.SimpleNamespace(data={}),
+                    connection,
+                    {
+                        "id": 24,
+                        "type": self.websocket_api.WS_TYPE_MUSIC_DNA_IMPORT,
+                        "device_id": "djconnect-ios-ABCDEF123456",
+                        "client_type": "ios",
+                        "device_token": "device-secret",
+                        "music_dna_key": "user:ha-user",
+                        "profile": {
+                            "format": "djconnect.music_dna.export",
+                            "profile": {"enabled": True},
+                        },
+                    },
+                )
+            )
+        finally:
+            self.websocket_api.async_handle_music_dna_import_payload = original
+        payload, headers, user_id = calls[0]
+        self.assertEqual(payload["music_dna_key"], "user:ha-user")
+        self.assertEqual(payload["profile"]["format"], "djconnect.music_dna.export")
+        self.assertEqual(headers["Authorization"], "Bearer device-secret")
+        self.assertEqual(headers["X-DJConnect-Device-ID"], "djconnect-ios-ABCDEF123456")
+        self.assertEqual(user_id, "user-dna")
+        self.assertEqual(connection.results, [(24, {"success": True, "imported": True, "enabled": True})])
+
+    def test_music_dna_export_route_uses_export_handler(self) -> None:
+        calls = []
+
+        async def handler(hass, payload, *, headers=None, user_id=None):
+            calls.append((payload, headers, user_id))
+            return {
+                "success": True,
+                "format": "djconnect.music_dna.export",
+                "schema_version": 1,
+            }, 200
+
+        connection = _Connection(user_id="user-dna")
+        original = self.websocket_api.async_handle_music_dna_export_payload
+        self.websocket_api.async_handle_music_dna_export_payload = handler
+        try:
+            asyncio.run(
+                self.websocket_api.websocket_music_dna_export(
+                    types.SimpleNamespace(data={}),
+                    connection,
+                    {
+                        "id": 25,
+                        "type": self.websocket_api.WS_TYPE_MUSIC_DNA_EXPORT,
+                        "payload": {
+                            "device_id": "djconnect-macos-ABCDEF123456",
+                            "client_type": "macos",
+                            "music_dna_key": "user:ha-user",
+                        },
+                        "device_token": "device-secret",
+                    },
+                )
+            )
+        finally:
+            self.websocket_api.async_handle_music_dna_export_payload = original
+        payload, headers, user_id = calls[0]
+        self.assertEqual(payload["client_type"], "macos")
+        self.assertEqual(payload["music_dna_key"], "user:ha-user")
+        self.assertEqual(headers["Authorization"], "Bearer device-secret")
+        self.assertEqual(headers["X-DJConnect-Device-ID"], "djconnect-macos-ABCDEF123456")
+        self.assertEqual(user_id, "user-dna")
+        self.assertEqual(
+            connection.results,
+            [(25, {"success": True, "format": "djconnect.music_dna.export", "schema_version": 1})],
+        )
 
 
 class _Connection:

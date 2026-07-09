@@ -1,7 +1,13 @@
 # Changelog
 
-## Unreleased
+## 3.2.45
 
+- Expose all Music DNA functions over Home Assistant websocket transport,
+  including profile, settings, clear, import and export with HTTP fallback
+  capability metadata.
+- Add CI-safe contract coverage for Music Discovery HTTP/websocket payloads,
+  Music DNA disabled/empty/rich profile shapes, Ask DJ phrase matrices, privacy
+  regressions, client rendering contracts and unattended hourly refresh edges.
 - Expand Ask DJ E2E contract phrase coverage for Music DNA privacy/data
   questions, Discover feedback/refresh explanations, negative preference
   wording and same-title track-version searches.

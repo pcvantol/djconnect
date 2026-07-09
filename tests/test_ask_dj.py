@@ -336,6 +336,100 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.run_music_command = original_command
 
+    def test_discover_and_music_dna_phrase_matrix_is_read_only(self) -> None:
+        runtime = make_runtime()
+        calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append((command_name, value, play))
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            raise AssertionError(f"unexpected command: {command_name}")
+
+        cases = [
+            ("Hoe werkt Discover?", "music_discovery_summary", "music_discovery_summary", "Discover"),
+            ("Wat staat er in Ontdek?", "music_discovery_summary", "music_discovery_summary", "Discover"),
+            ("Hoe werkt Discover met feedback?", "music_discovery_summary", "music_discovery_summary", "feedback"),
+            ("Refresh my Discover recommendations", "music_discovery_summary", "music_discovery_summary", "ververst"),
+            ("Waarom past deze aanbeveling bij mijn smaak?", "music_discovery_summary", "music_discovery_summary", "kwaliteitsscore"),
+            ("Wat zegt mijn Music DNA?", "personal_music_dna_summary", "music_dna_summary", "Music DNA"),
+            ("Welke gegevens bewaart Music DNA over mij?", "personal_music_dna_summary", "music_dna_summary", "Privacy"),
+            ("What data is in my Music DNA?", "personal_music_dna_summary", "music_dna_summary", "Privacy"),
+        ]
+
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
+        try:
+            for text, expected_intent, expected_action, expected_text in cases:
+                with self.subTest(text=text):
+                    before = len(calls)
+                    result = asyncio.run(
+                        self.ask_dj.async_handle_ask_dj(
+                            types.SimpleNamespace(data={self.const.DOMAIN: {}}),
+                            runtime,
+                            {
+                                "text": text,
+                                "device_id": runtime.device_status["device_id"],
+                                "client_type": "watchos",
+                            },
+                            user_id="user-1",
+                        )
+                    )
+                    self.assertTrue(result["success"])
+                    self.assertEqual(result["intent"]["category"], "informational")
+                    self.assertEqual(result["intent"]["intent"], expected_intent)
+                    self.assertEqual(result["action"], expected_action)
+                    self.assertIn(expected_text, result["text"])
+                    self.assertEqual(result["playback_actions"], [])
+                    self.assertEqual([call[0] for call in calls[before:]], ["status"])
+        finally:
+            self.ask_dj.run_music_command = original_command
+
+    def test_informational_privacy_responses_do_not_leak_sensitive_terms(self) -> None:
+        runtime = make_runtime()
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            if command_name == "status":
+                return {
+                    "success": True,
+                    "playback": {
+                        **runtime.last_playback,
+                        "access_token": "spotify-access-token",
+                        "refresh_token": "spotify-refresh-token",
+                        "Authorization": "Bearer secret",
+                    },
+                }
+            raise AssertionError(f"unexpected command: {command_name}")
+
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
+        try:
+            for text in (
+                "Welke gegevens bewaart Music DNA over mij?",
+                "Hoe werkt Discover met feedback?",
+                "Wat zegt mijn Music DNA?",
+            ):
+                with self.subTest(text=text):
+                    result = asyncio.run(
+                        self.ask_dj.async_handle_ask_dj(
+                            types.SimpleNamespace(data={self.const.DOMAIN: {}}),
+                            runtime,
+                            {
+                                "text": text,
+                                "device_id": runtime.device_status["device_id"],
+                                "client_type": "watchos",
+                            },
+                            user_id="user-1",
+                        )
+                    )
+                    serialized = str(result)
+                    self.assertNotIn("spotify-access-token", serialized)
+                    self.assertNotIn("spotify-refresh-token", serialized)
+                    self.assertNotIn("Bearer secret", serialized)
+                    self.assertNotIn("raw_audio", serialized)
+        finally:
+            self.ask_dj.run_music_command = original_command
+
     def test_shuffle_status_returns_toggle_action(self) -> None:
         runtime = make_runtime()
         runtime.last_playback = {"has_playback": True, "shuffle": True}
@@ -5053,6 +5147,67 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("Rossi. - High On Me", result["text"])
         self.assertNotIn("Old Song", result["text"])
         self.assertTrue(any(source["source"] == "spotify_recently_played" for source in result["sources"]))
+
+    def test_recently_played_history_payload_is_client_rendering_contract(self) -> None:
+        runtime = make_runtime()
+        now = self.ask_dj.datetime.now(self.ask_dj.timezone.utc)
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            if command_name == "recently_played":
+                return {
+                    "success": True,
+                    "tracks": [
+                        {
+                            "track_name": "Bella",
+                            "artist": "Finnebassen",
+                            "uri": "spotify:track:bella",
+                            "album_image_url": "https://img.example/bella.jpg",
+                            "played_at": (now - self.ask_dj.timedelta(minutes=10)).isoformat(),
+                        }
+                    ],
+                }
+            raise AssertionError(f"unexpected playback mutation: {command_name}")
+
+        hass = types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}})
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    hass,
+                    runtime,
+                    {
+                        "text": "welke nummers heb ik afgelopen uur afgespeeld?",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "ios",
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.run_music_command = original_command
+
+        self.assertTrue(result["success"])
+        self.assertEqual(result["intent"]["category"], "informational")
+        self.assertEqual(result["intent"]["intent"], "recently_played_history")
+        self.assertEqual(result["intent"]["item_type"], "tracks")
+        self.assertEqual(result["action"], "none")
+        self.assertEqual(result["playback_actions"], [])
+        self.assertEqual(result["confirmation_actions"], [])
+        self.assertEqual(result["links"], [])
+        self.assertEqual(result["sources"][0]["source"], "spotify_recently_played")
+        self.assertEqual(len(result["items"]), 1)
+        item = result["items"][0]
+        self.assertLessEqual(
+            {"title", "subtitle", "kind", "uri", "image_url", "thumbnail_url", "played_at", "played_at_label"},
+            set(item),
+        )
+        self.assertEqual(item["kind"], "track")
+        self.assertEqual(item["uri"], "spotify:track:bella")
+        self.assertTrue(item["image_url"].startswith(self.const.API_IMAGE_PROXY_BASE))
+        self.assertEqual(result["images"][0]["url"], item["image_url"])
+        self.assertEqual(result["images"][0]["source"], "spotify_recently_played")
 
     def test_recently_played_history_degrades_when_backend_lacks_capability(self) -> None:
         runtime = make_runtime()

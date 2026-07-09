@@ -22,6 +22,8 @@ WS_TYPE_TRACK_INSIGHT = "djconnect/track_insight"
 WS_TYPE_MUSIC_DNA_PROFILE = "djconnect/music_dna/profile"
 WS_TYPE_MUSIC_DNA_SETTINGS = "djconnect/music_dna/settings"
 WS_TYPE_MUSIC_DNA_CLEAR = "djconnect/music_dna/clear"
+WS_TYPE_MUSIC_DNA_IMPORT = "djconnect/music_dna/import"
+WS_TYPE_MUSIC_DNA_EXPORT = "djconnect/music_dna/export"
 WS_TYPE_MUSIC_DISCOVERY_FEED = "djconnect/music_discovery/feed"
 WS_TYPE_MUSIC_DISCOVERY_REFRESH = "djconnect/music_discovery/refresh"
 WS_TYPE_MUSIC_DISCOVERY_PLAY = "djconnect/music_discovery/play"
@@ -35,6 +37,8 @@ HTTP_FALLBACK_PATHS = {
     "music_dna_profile": "/api/djconnect/v1/music_dna/profile",
     "music_dna_settings": "/api/djconnect/v1/music_dna/settings",
     "music_dna_clear": "/api/djconnect/v1/music_dna/clear",
+    "music_dna_import": "/api/djconnect/v1/music_dna/import",
+    "music_dna_export": "/api/djconnect/v1/music_dna/export",
     "music_discovery_feed": "/api/djconnect/v1/music_discovery",
     "music_discovery_refresh": "/api/djconnect/v1/music_discovery/refresh",
     "music_discovery_play": "/api/djconnect/v1/music_discovery/play",
@@ -52,6 +56,8 @@ FEATURE_COMMANDS = {
         WS_TYPE_MUSIC_DNA_PROFILE,
         WS_TYPE_MUSIC_DNA_SETTINGS,
         WS_TYPE_MUSIC_DNA_CLEAR,
+        WS_TYPE_MUSIC_DNA_IMPORT,
+        WS_TYPE_MUSIC_DNA_EXPORT,
     ),
     "music_discovery": (
         WS_TYPE_MUSIC_DISCOVERY_FEED,
@@ -122,6 +128,18 @@ async def async_handle_music_dna_clear_payload(*args: Any, **kwargs: Any) -> tup
     return await handler(*args, **kwargs)
 
 
+async def async_handle_music_dna_import_payload(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], int]:
+    from .api_handlers import async_handle_music_dna_import_payload as handler
+
+    return await handler(*args, **kwargs)
+
+
+async def async_handle_music_dna_export_payload(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], int]:
+    from .api_handlers import async_handle_music_dna_export_payload as handler
+
+    return await handler(*args, **kwargs)
+
+
 async def async_handle_music_discovery_feed_payload(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], int]:
     from .api_handlers import async_handle_music_discovery_feed_payload as handler
 
@@ -176,6 +194,8 @@ def async_register(hass: Any) -> None:
     websocket_api.async_register_command(hass, websocket_music_dna_profile)
     websocket_api.async_register_command(hass, websocket_music_dna_settings)
     websocket_api.async_register_command(hass, websocket_music_dna_clear)
+    websocket_api.async_register_command(hass, websocket_music_dna_import)
+    websocket_api.async_register_command(hass, websocket_music_dna_export)
     websocket_api.async_register_command(hass, websocket_music_discovery_feed)
     websocket_api.async_register_command(hass, websocket_music_discovery_refresh)
     websocket_api.async_register_command(hass, websocket_music_discovery_play)
@@ -223,6 +243,8 @@ def _supported_websocket_commands() -> list[str]:
         WS_TYPE_MUSIC_DNA_PROFILE,
         WS_TYPE_MUSIC_DNA_SETTINGS,
         WS_TYPE_MUSIC_DNA_CLEAR,
+        WS_TYPE_MUSIC_DNA_IMPORT,
+        WS_TYPE_MUSIC_DNA_EXPORT,
         WS_TYPE_MUSIC_DISCOVERY_FEED,
         WS_TYPE_MUSIC_DISCOVERY_REFRESH,
         WS_TYPE_MUSIC_DISCOVERY_PLAY,
@@ -277,6 +299,8 @@ def _capability_fallbacks(commands: list[str]) -> dict[str, dict[str, Any]]:
                 "profile": HTTP_FALLBACK_PATHS["music_dna_profile"],
                 "settings": HTTP_FALLBACK_PATHS["music_dna_settings"],
                 "clear": HTTP_FALLBACK_PATHS["music_dna_clear"],
+                "import": HTTP_FALLBACK_PATHS["music_dna_import"],
+                "export": HTTP_FALLBACK_PATHS["music_dna_export"],
             },
             "missing_behavior": "use_http_or_hide_feature",
         },
@@ -725,6 +749,80 @@ async def websocket_music_dna_clear(hass: Any, connection: Any, msg: dict[str, A
     )
     headers = _headers_from_message(payload, msg)
     result, status_code = await async_handle_music_dna_clear_payload(
+        hass,
+        payload,
+        headers=headers,
+        user_id=_connection_user_id(connection),
+    )
+    if 200 <= status_code < 300:
+        connection.send_result(msg["id"], result)
+        return
+    _send_error(connection, msg, result)
+
+
+@_websocket_command(
+    {
+        vol.Required("type"): WS_TYPE_MUSIC_DNA_IMPORT,
+        vol.Optional("payload", default={}): dict,
+        vol.Optional("device_id"): str,
+        vol.Optional("client_type"): str,
+        vol.Optional("device_token"): str,
+        vol.Optional("authorization"): str,
+        vol.Optional("music_dna_key"): str,
+        vol.Optional("profile"): dict,
+        vol.Optional("import_mode"): str,
+    }
+)
+@_async_response
+async def websocket_music_dna_import(hass: Any, connection: Any, msg: dict[str, Any]) -> None:
+    """Import Music DNA over HA websocket."""
+    payload = _payload_from_message(
+        msg,
+        (
+            "device_id",
+            "client_type",
+            "music_dna_key",
+            "profile",
+            "import_mode",
+        ),
+    )
+    headers = _headers_from_message(payload, msg)
+    result, status_code = await async_handle_music_dna_import_payload(
+        hass,
+        payload,
+        headers=headers,
+        user_id=_connection_user_id(connection),
+    )
+    if 200 <= status_code < 300:
+        connection.send_result(msg["id"], result)
+        return
+    _send_error(connection, msg, result)
+
+
+@_websocket_command(
+    {
+        vol.Required("type"): WS_TYPE_MUSIC_DNA_EXPORT,
+        vol.Optional("payload", default={}): dict,
+        vol.Optional("device_id"): str,
+        vol.Optional("client_type"): str,
+        vol.Optional("device_token"): str,
+        vol.Optional("authorization"): str,
+        vol.Optional("music_dna_key"): str,
+    }
+)
+@_async_response
+async def websocket_music_dna_export(hass: Any, connection: Any, msg: dict[str, Any]) -> None:
+    """Export Music DNA over HA websocket."""
+    payload = _payload_from_message(
+        msg,
+        (
+            "device_id",
+            "client_type",
+            "music_dna_key",
+        ),
+    )
+    headers = _headers_from_message(payload, msg)
+    result, status_code = await async_handle_music_dna_export_payload(
         hass,
         payload,
         headers=headers,
