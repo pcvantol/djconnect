@@ -313,3 +313,12 @@ Phase 2 also wires the Home Assistant config/options flow to create and manage
 the minimum Profile Platform state. It intentionally does not rewire services,
 REST/websocket APIs, Ask DJ history, Music DNA, recommendations, export/import
 or clients.
+
+Epic 3 Phase 3 wires services and integration API entrypoints through
+`custom_components/djconnect/profile_context.py`. Runtime requests can carry
+optional `profile_id` and `device_id`; the shared request context resolves the
+Profile with the canonical resolver, enriches current adapter payloads with a
+profile-scoped `music_dna_key`, and exposes profile-derived backend/account/zone
+metadata. Phase 3 keeps Ask DJ, Music DNA and Discovery storage adapters in
+place so Phase 4 can migrate durable state without changing service/API
+signatures again.

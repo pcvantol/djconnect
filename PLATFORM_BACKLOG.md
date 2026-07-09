@@ -111,7 +111,7 @@ Scope:
 
 ## Epic 3 — Profile Architecture
 
-**Status:** 🚧 Phase 2 in progress  
+**Status:** 🚧 Phase 3 in progress
 **Goal:** Implement Profile as the primary identity between devices and music backends.
 
 Scope:
