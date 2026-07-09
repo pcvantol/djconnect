@@ -13,6 +13,7 @@ Resolution order is defined by the Platform Foundation and must remain singular:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from enum import StrEnum
 
 from ..device import Device
 from ..errors import DeviceNotMapped, ProfileNotFound, ProfileRequired
@@ -21,14 +22,69 @@ from ..models import clean_identifier
 from ..profile import Profile
 
 
+class ProfileResolutionReason(StrEnum):
+    """Structured reason describing how a Profile was resolved."""
+
+    EXPLICIT_PROFILE = "explicit_profile"
+    DEVICE_MAPPING = "device_mapping"
+    SATELLITE_MAPPING = "satellite_mapping"
+    HA_USER_MAPPING = "ha_user_mapping"
+    AREA_MAPPING = "area_mapping"
+    PLAYBACK_ZONE_MAPPING = "playback_zone_mapping"
+    FALLBACK = "fallback"
+
+
 @dataclass(frozen=True)
 class ProfileResolutionContext:
-    """Inputs available while resolving a DJConnect Profile."""
+    """Typed request context used to resolve a DJConnect Profile.
 
-    profile_id: str = ""
+    Only explicit_profile_id, device_id, ha_user_id and room_id actively affect
+    Epic 3A runtime resolution. Other fields are reserved request-source
+    signals for Epic 3B follow-up work and must not own personal state.
+    """
+
+    explicit_profile_id: str = ""
     device_id: str = ""
+    client_type: str = ""
     ha_user_id: str = ""
+    satellite_id: str = ""
+    ha_device_id: str = ""
+    area_id: str = ""
     room_id: str = ""
+    player_id: str = ""
+    playback_zone_id: str = ""
+    session_id: str = ""
+    request_source: str = ""
+    speaker_identity_hint: str = ""
+
+    def __post_init__(self) -> None:
+        """Normalize context identifiers without adding persistence semantics."""
+        for field_name in (
+            "explicit_profile_id",
+            "device_id",
+            "client_type",
+            "ha_user_id",
+            "satellite_id",
+            "ha_device_id",
+            "area_id",
+            "room_id",
+            "player_id",
+            "playback_zone_id",
+            "session_id",
+            "request_source",
+            "speaker_identity_hint",
+        ):
+            object.__setattr__(self, field_name, clean_identifier(getattr(self, field_name)))
+
+
+@dataclass(frozen=True)
+class ProfileResolutionResult:
+    """Resolved Profile plus safe diagnostics about the resolution path."""
+
+    profile: Profile
+    reason: ProfileResolutionReason
+    signal: str = ""
+    fallback_used: bool = False
 
 
 @dataclass(frozen=True)
@@ -86,31 +142,56 @@ class ProfileResolver:
 
     def resolve(self, context: ProfileResolutionContext) -> Profile:
         """Resolve a Profile using the canonical priority order."""
-        explicit_profile_id = clean_identifier(context.profile_id)
-        if explicit_profile_id:
-            return self._require_profile(explicit_profile_id)
+        return self.resolve_with_result(context).profile
 
-        device_id = clean_identifier(context.device_id)
+    def resolve_with_result(self, context: ProfileResolutionContext) -> ProfileResolutionResult:
+        """Resolve a Profile and return safe resolution diagnostics."""
+        explicit_profile_id = context.explicit_profile_id
+        if explicit_profile_id:
+            return ProfileResolutionResult(
+                self._require_profile(explicit_profile_id),
+                ProfileResolutionReason.EXPLICIT_PROFILE,
+                signal=explicit_profile_id,
+            )
+
+        device_id = context.device_id
         if device_id:
             device_profile_id = self._profile_id_for_device(device_id)
             if device_profile_id:
-                return self._require_profile(device_profile_id)
+                return ProfileResolutionResult(
+                    self._require_profile(device_profile_id),
+                    ProfileResolutionReason.DEVICE_MAPPING,
+                    signal=device_id,
+                )
 
-        ha_user_id = clean_identifier(context.ha_user_id)
+        ha_user_id = context.ha_user_id
         if ha_user_id:
             ha_profile_id = clean_identifier(self._index.ha_user_profile_ids.get(ha_user_id))
             if ha_profile_id:
-                return self._require_profile(ha_profile_id)
+                return ProfileResolutionResult(
+                    self._require_profile(ha_profile_id),
+                    ProfileResolutionReason.HA_USER_MAPPING,
+                    signal=ha_user_id,
+                )
 
-        room_id = clean_identifier(context.room_id)
+        room_id = context.area_id or context.room_id
         if room_id:
             room_profile_id = clean_identifier(self._index.room_profile_ids.get(room_id))
             if room_profile_id:
-                return self._require_profile(room_profile_id)
+                return ProfileResolutionResult(
+                    self._require_profile(room_profile_id),
+                    ProfileResolutionReason.AREA_MAPPING,
+                    signal=room_id,
+                )
 
         fallback_profile_id = clean_identifier(self._index.fallback_profile_id)
         if fallback_profile_id:
-            return self._require_profile(fallback_profile_id)
+            return ProfileResolutionResult(
+                self._require_profile(fallback_profile_id),
+                ProfileResolutionReason.FALLBACK,
+                signal=fallback_profile_id,
+                fallback_used=True,
+            )
 
         raise ProfileRequired()
 

@@ -35,6 +35,7 @@ from custom_components.djconnect.domain import (  # noqa: E402
     ProfilePrivacyMode,
     ProfileRequired,
     ProfileResolutionContext,
+    ProfileResolutionReason,
     ProfileResolver,
     ProfileState,
     ProfileType,
@@ -259,7 +260,7 @@ class ProfileResolverTest(unittest.TestCase):
         """Explicit profile wins over every other hint."""
         profile = self.resolver.resolve(
             ProfileResolutionContext(
-                profile_id=self.explicit.profile_id,
+                explicit_profile_id=self.explicit.profile_id,
                 device_id=self.device.device_id,
                 ha_user_id="ha-user-1",
                 room_id="living-room",
@@ -294,6 +295,12 @@ class ProfileResolverTest(unittest.TestCase):
 
         self.assertEqual(profile.profile_id, self.room_profile.profile_id)
 
+    def test_resolver_uses_area_mapping_as_room_context(self) -> None:
+        """Area context maps through the current room mapping index."""
+        profile = self.resolver.resolve(ProfileResolutionContext(area_id="living-room"))
+
+        self.assertEqual(profile.profile_id, self.room_profile.profile_id)
+
     def test_resolver_uses_fallback_profile(self) -> None:
         """Fallback profile is used when no stronger hint resolves."""
         profile = self.resolver.resolve(ProfileResolutionContext())
@@ -303,7 +310,7 @@ class ProfileResolverTest(unittest.TestCase):
     def test_resolver_raises_profile_not_found_for_bad_explicit_profile(self) -> None:
         """Bad explicit profile id raises canonical error."""
         with self.assertRaises(ProfileNotFound):
-            self.resolver.resolve(ProfileResolutionContext(profile_id="missing"))
+            self.resolver.resolve(ProfileResolutionContext(explicit_profile_id="missing"))
 
     def test_resolver_raises_device_not_mapped_for_known_unmapped_device(self) -> None:
         """Known device without profile mapping raises canonical error."""
@@ -326,6 +333,43 @@ class ProfileResolverTest(unittest.TestCase):
 
         with self.assertRaises(ProfileRequired):
             resolver.resolve(ProfileResolutionContext())
+
+    def test_resolution_context_normalizes_and_is_immutable(self) -> None:
+        """Resolution context keeps safe defaults and normalized identifiers."""
+        context = ProfileResolutionContext(
+            explicit_profile_id=" profile ",
+            device_id=" device ",
+            client_type=" ios ",
+            ha_user_id=" ha-user ",
+            satellite_id=" satellite ",
+            ha_device_id=" ha-device ",
+            area_id=" kitchen ",
+            room_id=" room ",
+            player_id=" player ",
+            playback_zone_id=" zone ",
+            session_id=" session ",
+            request_source=" ask_dj ",
+            speaker_identity_hint=" future-hint ",
+        )
+
+        self.assertEqual(context.explicit_profile_id, "profile")
+        self.assertEqual(context.device_id, "device")
+        self.assertEqual(context.client_type, "ios")
+        self.assertEqual(context.area_id, "kitchen")
+        self.assertEqual(context.speaker_identity_hint, "future-hint")
+        with self.assertRaises(Exception):
+            context.device_id = "changed"  # type: ignore[misc]
+
+    def test_resolution_result_reason_is_reported(self) -> None:
+        """Resolver can report a safe reason without changing resolve()."""
+        result = self.resolver.resolve_with_result(
+            ProfileResolutionContext(device_id=self.device.device_id)
+        )
+
+        self.assertEqual(result.profile.profile_id, self.device_profile.profile_id)
+        self.assertEqual(result.reason, ProfileResolutionReason.DEVICE_MAPPING)
+        self.assertEqual(result.signal, self.device.device_id)
+        self.assertFalse(result.fallback_used)
 
 
 if __name__ == "__main__":
