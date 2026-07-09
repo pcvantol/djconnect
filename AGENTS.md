@@ -19,10 +19,31 @@ Belangrijke repos:
 - Central API / APNs relay source: github.com/pcvantol/djconnect-api
 - Public firmware releases: github.com/pcvantol/djconnect-firmware
 
-DJConnect Platform Foundation:
-- Gebruik de foundationdocumenten in deze repo als richtinggevend kader voor product-, design-, architectuur- en governancebeslissingen: `DJCONNECT_CONSTITUTION.md`, `PRODUCT_VISION.md`, `DESIGN_PRINCIPLES.md`, `ARCHITECTURE_PRINCIPLES.md`, `DOMAIN_MODEL.md`, `CLIENT_CAPABILITY_MATRIX.md`, `PRODUCT_LANGUAGE.md`, `PLATFORM_GOVERNANCE.md`, `PLATFORM_QUALITY_STANDARD.md`, `PLATFORM_BACKLOG.md`, `INNOVATION_LAB.md`, `ADR_INDEX.md` en `CI_CD_RELEASE_GOVERNANCE.md`.
-- Behandel deze foundation als aanvullend op de bestaande repo-specifieke instructies hieronder; bij concrete implementatie- of releasevragen blijven de bestaande AGENTS/HANDOFF/API-contractregels leidend.
-- Voeg nieuwe foundation/ADR-afspraken additive toe en herschrijf `PRODUCT_ROADMAP.md` of `SYNC_PROMPTS.md` niet als onderdeel van gewone foundation-docs PR's.
+## DJConnect Platform Foundation
+
+This repository is the canonical source of truth for the entire DJConnect platform.
+
+Before implementing new product features, architecture changes, API contracts, cross-repository changes, release processes or platform decisions, consult and update the canonical foundation documents in this repository.
+
+Treat the following documents as the authoritative platform guidance:
+
+- `DJCONNECT_CONSTITUTION.md`
+- `PRODUCT_VISION.md`
+- `DESIGN_PRINCIPLES.md`
+- `ARCHITECTURE_PRINCIPLES.md`
+- `DOMAIN_MODEL.md`
+- `CLIENT_CAPABILITY_MATRIX.md`
+- `PRODUCT_LANGUAGE.md`
+- `PLATFORM_GOVERNANCE.md`
+- `PLATFORM_QUALITY_STANDARD.md`
+- `PLATFORM_BACKLOG.md`
+- `INNOVATION_LAB.md`
+- `ADR_INDEX.md`
+- `CI_CD_RELEASE_GOVERNANCE.md`
+
+These foundation documents complement the repository-specific guidance below.
+
+Implementation details, API contracts, operational procedures, release workflows and repository-specific instructions in this AGENTS file remain authoritative for this repository.
 
 Architectuur beslissingen:
 - HA integration orchestreert pairing, OAuth, backend playback, OTA, status en Assist/TTS; ESP firmware blijft eigenaar van device runtime/audio/UI.
