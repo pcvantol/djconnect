@@ -14,7 +14,7 @@ It is not a sprint board and not a replacement for GitHub issues. It defines the
 
 ## Epic 1 — Platform Foundation
 
-**Status:** 🟡 In progress  
+**Status:** ✅ Done  
 **Goal:** Establish the canonical product, design, architecture, language and governance foundation.
 
 Deliverables:
@@ -29,9 +29,14 @@ Deliverables:
 - ✅ `CLIENT_CAPABILITY_MATRIX.md`
 - ✅ `PLATFORM_GOVERNANCE.md`
 - ✅ `PLATFORM_BACKLOG.md`
-- ⏳ `PLATFORM_QUALITY_STANDARD.md`
-- ⏳ `ADR_INDEX.md`
-- ⏳ Cross-repo AGENTS / sync alignment
+- ✅ `PLATFORM_QUALITY_STANDARD.md`
+- ✅ `ADR_INDEX.md`
+- ✅ Cross-repo AGENTS / sync alignment
+- ✅ `FOUNDATION_INDEX.md`
+- ✅ `DESIGN_FOUNDATION_VERSION.md`
+- ✅ `PLATFORM_PRINCIPLES.md`
+- ✅ `REPOSITORY_OWNERSHIP.md`
+- ✅ `EPIC_1_COMPLETION_REPORT.md`
 
 Exit criteria:
 
@@ -40,7 +45,7 @@ Exit criteria:
 - no duplicate product roadmap/sync prompt truth exists outside the HA repo;
 - Epic 2 can start with a clear review standard.
 
-## Epic 2 — Platform Discovery
+## Epic 2 — Platform Discovery & Repository Audit
 
 **Status:** ⏳ Not started  
 **Goal:** Audit every repository for product, architecture, CI/CD, security, privacy, release and documentation quality.

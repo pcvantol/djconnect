@@ -20,6 +20,13 @@ Each ADR should include:
 
 ## Accepted ADRs
 
+### ADR-0000 — Why DJConnect exists
+
+**Status:** Accepted  
+**File:** `docs/adr/0000-why-djconnect-exists.md`
+
+Decision to define DJConnect as an AI music platform centered on an AI DJ experience, with Home Assistant as the first local-first runtime, Music Backends as adapters, clients as renderers/control surfaces and DJConnect Profiles as personalization boundaries.
+
 ### ADR-0001 — DJConnect Profile is the primary identity
 
 **Status:** Accepted  
