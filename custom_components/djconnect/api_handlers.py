@@ -38,6 +38,16 @@ from .profile_context import (
     ProfilePlatformNotConfigured,
     async_apply_profile_context,
     profile_error_payload,
+    profile_storage,
+)
+from .profile_export import (
+    async_clear_profile_personal_state,
+    async_export_household,
+    async_export_integration,
+    async_export_profile,
+    async_import_household,
+    async_import_profile,
+    profile_export_error_payload,
 )
 from .request_auth import (
     authorize_runtime_device_request,
@@ -137,11 +147,15 @@ async def async_handle_command_payload(
     )
     if profile_error is not None:
         return profile_error, int(profile_status or 400)
-    music_dna_key = await _update_memory_metadata(
-        runtime,
-        data,
-        user_id=user_id,
-    )
+    privacy_policy = getattr(runtime, "profile_context_privacy_policy", None)
+    if getattr(privacy_policy, "allow_music_dna_persistence", True):
+        music_dna_key = await _update_memory_metadata(
+            runtime,
+            data,
+            user_id=user_id,
+        )
+    else:
+        music_dna_key = str(data.get("music_dna_key") or "").strip() or None
     if not _runtime_versions_compatible(runtime):
         result = _version_mismatch_payload(runtime)
         _debug_playback_result("command", result, 426, runtime=runtime, command="version_mismatch")
@@ -545,28 +559,40 @@ async def async_handle_ask_dj_message_payload(
     if not result.get("success"):
         _debug_ask_dj_result("message", result, 500, runtime=runtime)
         return result, 500
-    sync = await _history_manager(hass, runtime).async_append_exchange(
-        user_id,
-        payload,
-        result,
-    )
+    privacy_policy = getattr(runtime, "profile_context_privacy_policy", None)
+    if getattr(privacy_policy, "allow_history_persistence", True):
+        sync = await _history_manager(hass, runtime).async_append_exchange(
+            user_id,
+            payload,
+            result,
+        )
+    else:
+        sync = {
+            "success": True,
+            "history_revision": None,
+            "clear_revision": None,
+            "messages": [],
+            "history_persisted": False,
+            "privacy_mode": str(payload.get("profile_privacy_mode") or ""),
+        }
     event_type = (
         EVENT_ASK_DJ_CONFIRM
         if result.get("confirmation_actions")
         else EVENT_ASK_DJ_RESPONSE
     )
-    await http_helpers.async_send_push_event(
-        hass,
-        runtime,
-        user_id=user_id,
-        event_type=event_type,
-        history_revision=sync.get("history_revision"),
-        client_message_id=payload.get("client_message_id"),
-        source_device_id=identity.get("device_id"),
-        client_type=identity.get("client_type"),
-        explicit_user_request=True,
-        announcement=result.get("announcement") if isinstance(result, dict) else None,
-    )
+    if sync.get("history_persisted", True):
+        await http_helpers.async_send_push_event(
+            hass,
+            runtime,
+            user_id=user_id,
+            event_type=event_type,
+            history_revision=sync.get("history_revision"),
+            client_message_id=payload.get("client_message_id"),
+            source_device_id=identity.get("device_id"),
+            client_type=identity.get("client_type"),
+            explicit_user_request=True,
+            announcement=result.get("announcement") if isinstance(result, dict) else None,
+        )
     response = {**result, **sync}
     _debug_ask_dj_result("message", response, 200, runtime=runtime)
     return response, 200
@@ -735,6 +761,17 @@ async def async_handle_music_dna_profile_payload(
     if profile_error is not None:
         return profile_error, int(profile_status or 400)
     _debug_music_dna_request("profile", runtime, payload, user_id=user_id)
+    privacy_policy = getattr(runtime, "profile_context_privacy_policy", None)
+    if not getattr(privacy_policy, "allow_personal_read", True):
+        return {
+            "success": True,
+            "music_dna_key": payload.get("music_dna_key"),
+            "enabled": False,
+            "generation": 0,
+            "profile": {},
+            "redacted": True,
+            "privacy_mode": payload.get("profile_privacy_mode"),
+        }, 200
     memory = getattr(runtime, "memory", None)
     profile_getter = getattr(memory, "async_profile", None)
     if not callable(profile_getter):
@@ -774,6 +811,13 @@ async def async_handle_music_dna_settings_payload(
     if profile_error is not None:
         return profile_error, int(profile_status or 400)
     _debug_music_dna_request("settings", runtime, payload, user_id=user_id)
+    privacy_policy = getattr(runtime, "profile_context_privacy_policy", None)
+    if not getattr(privacy_policy, "allow_music_dna_persistence", True):
+        return {
+            "success": False,
+            "error": "profile_privacy_blocks_persistence",
+            "message": "Profile privacy mode blocks Music DNA persistence.",
+        }, 403
     if "enabled" not in payload:
         _debug_music_dna_error("settings", payload, (_error_payload("missing_enabled"), 400), runtime=runtime)
         return _error_payload("missing_enabled"), 400
@@ -1890,6 +1934,210 @@ def _decorate_profile_response(result: dict[str, Any], payload: dict[str, Any]) 
     music_dna_key = str(payload.get("music_dna_key") or "").strip()
     if music_dna_key:
         result.setdefault("music_dna_key", music_dna_key)
+
+
+async def async_handle_profile_export_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Export a single resolved Profile without secrets."""
+    runtime, payload, error = _profile_operation_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="profile_export",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    try:
+        result = await async_export_profile(
+            profile_storage(hass),
+            str(payload.get("profile_id") or ""),
+            include_personal_data=bool(payload.get("include_personal_data", True)),
+        )
+        _decorate_profile_response(result, payload)
+        return result, 200
+    except Exception as exc:  # noqa: BLE001
+        return profile_export_error_payload(exc)
+
+
+async def async_handle_household_export_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Export household Profile Platform metadata without secrets."""
+    runtime, payload, error = _profile_operation_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="household_export",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    try:
+        result = await async_export_household(profile_storage(hass))
+        _decorate_profile_response(result, payload)
+        return result, 200
+    except Exception as exc:  # noqa: BLE001
+        return profile_export_error_payload(exc)
+
+
+async def async_handle_integration_export_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Export a full non-secret DJConnect integration envelope."""
+    runtime, payload, error = _profile_operation_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="integration_export",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    try:
+        result = await async_export_integration(
+            profile_storage(hass),
+            non_secret_config=getattr(runtime, "config", {}),
+        )
+        _decorate_profile_response(result, payload)
+        return result, 200
+    except Exception as exc:  # noqa: BLE001
+        return profile_export_error_payload(exc)
+
+
+async def async_handle_profile_import_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Import a Profile export envelope."""
+    _runtime, payload, error = _profile_operation_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    try:
+        result = await async_import_profile(
+            profile_storage(hass),
+            payload.get("export") if isinstance(payload.get("export"), dict) else payload,
+            overwrite=bool(payload.get("overwrite", False)),
+            reassign_id=bool(payload.get("reassign_id", False)),
+        )
+        return result, 200
+    except Exception as exc:  # noqa: BLE001
+        return profile_export_error_payload(exc)
+
+
+async def async_handle_household_import_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Import a household or full integration export envelope."""
+    _runtime, payload, error = _profile_operation_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    try:
+        result = await async_import_household(
+            profile_storage(hass),
+            payload.get("export") if isinstance(payload.get("export"), dict) else payload,
+            overwrite=bool(payload.get("overwrite", False)),
+        )
+        return result, 200
+    except Exception as exc:  # noqa: BLE001
+        return profile_export_error_payload(exc)
+
+
+async def async_handle_profile_clear_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Clear resolved Profile personal state without deleting the Profile."""
+    runtime, payload, error = _profile_operation_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="profile_clear",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    try:
+        profile_id = str(payload.get("profile_id") or "")
+        cleared_profile = await async_clear_profile_personal_state(
+            profile_storage(hass),
+            profile_id,
+            ask_dj=bool(payload.get("ask_dj", False)),
+            music_dna=bool(payload.get("music_dna", False)),
+            recommendations=bool(payload.get("recommendations", False)),
+            mood=bool(payload.get("mood", False)),
+            all_state=bool(payload.get("all", False)),
+        )
+        if payload.get("ask_dj") or payload.get("all"):
+            await _history_manager(hass, runtime).async_clear(user_id)
+        if payload.get("music_dna") or payload.get("all"):
+            memory = getattr(runtime, "memory", None)
+            if memory is not None and callable(getattr(memory, "async_clear", None)):
+                await memory.async_clear(str(payload.get("music_dna_key") or ""))
+        return {
+            "success": True,
+            "cleared": True,
+            "profile_id": cleared_profile.profile_id,
+            "deleted": False,
+        }, 200
+    except Exception as exc:  # noqa: BLE001
+        return profile_export_error_payload(exc)
+
+
+def _profile_operation_runtime_payload(
+    hass: Any,
+    data: dict[str, Any],
+    headers: Any | None,
+) -> tuple[Any | None, dict[str, Any], tuple[dict[str, Any], int] | None]:
+    headers = headers or {}
+    if not isinstance(data, dict):
+        return None, {}, (_error_payload("invalid_json"), 400)
+    identity = identity_payload(data)
+    runtime = resolve_runtime(
+        hass,
+        identity.get("device_id") or headers.get("X-DJConnect-Device-ID"),
+        headers,
+    )
+    if runtime is None:
+        return None, {}, (_error_payload("not_configured"), 503)
+    payload = dict(data)
+    payload.update({key: value for key, value in identity.items() if value is not None})
+    return runtime, payload, None
 
 
 def _decorate_command_result(

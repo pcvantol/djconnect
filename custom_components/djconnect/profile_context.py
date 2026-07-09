@@ -9,6 +9,11 @@ from .const import CONF_DEVICE_ID, DOMAIN
 from .domain import Profile, ProfilePrivacyMode, ProfileResolutionContext
 from .domain.errors import DeviceNotMapped, ProfileNotFound, ProfileRequired, ResolverError
 from .domain.storage import ProfilePlatformStorage, STORE_KEY as PROFILE_PLATFORM_STORE_KEY
+from .profile_privacy import (
+    ProfilePrivacyPolicy,
+    privacy_response_metadata,
+    resolve_profile_privacy_policy,
+)
 
 
 @dataclass(frozen=True)
@@ -23,6 +28,7 @@ class DJConnectRequestContext:
     music_account_id: str = ""
     playback_zone_id: str = ""
     privacy_mode: ProfilePrivacyMode = ProfilePrivacyMode.NORMAL
+    privacy_policy: ProfilePrivacyPolicy = ProfilePrivacyPolicy(ProfilePrivacyMode.NORMAL)
     request_source: str = ""
 
     @property
@@ -120,6 +126,7 @@ async def async_resolve_request_context(
         room_id=str(payload.get("room_id") or payload.get("room") or "").strip(),
     )
     profile = manager.resolver().resolve(context)
+    privacy_policy = resolve_profile_privacy_policy(profile, payload)
     preferences = profile.preferences
     backend_id = preferences.default_backend_id
     music_account_id = preferences.default_music_account_id
@@ -139,7 +146,8 @@ async def async_resolve_request_context(
         backend_id=backend_id,
         music_account_id=music_account_id,
         playback_zone_id=preferences.fallback_playback_zone_id,
-        privacy_mode=profile.privacy_mode,
+        privacy_mode=privacy_policy.mode,
+        privacy_policy=privacy_policy,
         request_source=request_source,
     )
 
@@ -163,6 +171,8 @@ async def async_apply_profile_context(
     payload["profile_id"] = context.profile_id
     payload.setdefault("music_dna_key", context.music_dna_key)
     payload["profile_privacy_mode"] = context.privacy_mode.value
+    payload["profile_privacy"] = privacy_response_metadata(context.privacy_policy)
+    payload["private_session"] = context.privacy_policy.private_session
     if context.backend_id:
         payload.setdefault("profile_backend_id", context.backend_id)
     if context.music_account_id:
@@ -173,6 +183,7 @@ async def async_apply_profile_context(
     setattr(runtime, "profile_context_backend_id", context.backend_id)
     setattr(runtime, "profile_context_music_account_id", context.music_account_id)
     setattr(runtime, "profile_context_playback_zone_id", context.playback_zone_id)
+    setattr(runtime, "profile_context_privacy_policy", context.privacy_policy)
     return context
 
 
@@ -183,6 +194,11 @@ def _profile_storage(hass: Any) -> ProfilePlatformStorage:
         manager = ProfilePlatformStorage(hass)
         domain_data[PROFILE_PLATFORM_STORE_KEY] = manager
     return manager
+
+
+def profile_storage(hass: Any) -> ProfilePlatformStorage:
+    """Return the canonical Profile Platform storage manager."""
+    return _profile_storage(hass)
 
 
 def _payload(code: str, message: str, **extra: Any) -> dict[str, Any]:
