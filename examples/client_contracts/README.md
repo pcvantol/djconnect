@@ -18,6 +18,14 @@ Fixtures:
 - `music_dna.profile.empty.json`
 - `music_dna.profile.rich.json`
 - `music_discovery.feed.json`
+- `profile_context.requests.json`
+- `profile_context.responses.json`
+- `profile_context.errors.json`
 - `ask_dj.recently_played_history.json`
 
 `manifest.json` lists fixture ids, files, transport and contract purpose.
+
+Profile context fixtures define the canonical Profile Adoption Contract for
+Apple, Windows, Raspberry Pi, ESP32, HA Voice Satellite and future clients.
+Sibling repos should consume these fixtures as golden request/response/error
+shapes instead of inventing local profile resolution rules.

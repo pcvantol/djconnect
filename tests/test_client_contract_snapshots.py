@@ -50,6 +50,8 @@ class ClientContractSnapshotsTest(unittest.TestCase):
                 key: websocket_api._capability_fallbacks(commands)[key]
                 for key in ("music_dna", "music_discovery", "music_discovery_feedback")
             },
+            "capabilities": websocket_api._platform_capabilities(),
+            "contract_versions": websocket_api._contract_versions(),
             "transports": {
                 "http": True,
                 "websocket": True,
@@ -57,6 +59,9 @@ class ClientContractSnapshotsTest(unittest.TestCase):
         }
 
         self.assertEqual(snapshot, generated)
+        self.assertTrue(snapshot["capabilities"]["profiles"])
+        self.assertTrue(snapshot["capabilities"]["explicit_profile_selection"])
+        self.assertEqual(snapshot["contract_versions"]["profile_context"], 1)
 
     def test_music_dna_profile_snapshots_cover_disabled_empty_and_rich_states(self) -> None:
         disabled = _load_snapshot("music_dna.profile.disabled.json")
@@ -136,6 +141,73 @@ class ClientContractSnapshotsTest(unittest.TestCase):
         self.assertEqual(snapshot["sources"][0]["source"], "spotify_recently_played")
         self.assertEqual(snapshot["images"][0]["source"], "spotify_recently_played")
         self.assertEqual(snapshot["items"][0]["image_url"], snapshot["images"][0]["url"])
+
+    def test_profile_context_request_fixture_covers_client_classes(self) -> None:
+        snapshot = _load_snapshot("profile_context.requests.json")
+        requests = snapshot["requests"]
+
+        self.assertEqual(snapshot["contract_version"], 1)
+        for key in (
+            "apple_explicit_profile",
+            "windows_device_mapped",
+            "pi_shared_ambient",
+            "esp32_ptt",
+            "ha_voice_derived",
+            "private_session",
+        ):
+            self.assertIn(key, requests)
+        self.assertEqual(requests["apple_explicit_profile"]["client_type"], "ios")
+        self.assertEqual(requests["windows_device_mapped"]["client_type"], "windows")
+        self.assertEqual(requests["pi_shared_ambient"]["client_type"], "raspberry_pi")
+        self.assertEqual(requests["esp32_ptt"]["client_type"], "esp32")
+        self.assertNotIn("device_id", requests["ha_voice_derived"])
+        self.assertIn("server_context", requests["ha_voice_derived"])
+        self.assertTrue(requests["private_session"]["private_session"])
+
+    def test_profile_context_response_fixture_is_minimal_and_privacy_safe(self) -> None:
+        snapshot = _load_snapshot("profile_context.responses.json")
+        responses = snapshot["responses"]
+
+        personal = responses["personal_profile"]
+        self.assertEqual(personal["resolved_profile"]["id"], personal["profile_id"])
+        self.assertEqual(personal["resolution"]["source"], "device_mapping")
+        self.assertNotIn("music_dna", personal["resolved_profile"])
+        self.assertNotIn("history", json.dumps(personal).casefold())
+
+        shared = responses["shared_profile"]
+        self.assertEqual(shared["resolved_profile"]["privacy_mode"], "shared")
+        self.assertEqual(shared["resolution"]["source"], "area_mapping")
+
+        private = responses["private_session"]
+        self.assertTrue(private["profile_privacy"]["private_session"])
+        self.assertFalse(private["profile_privacy"]["allow_history"])
+        self.assertFalse(private["profile_privacy"]["allow_music_dna_updates"])
+
+    def test_profile_context_error_fixture_defines_stable_codes(self) -> None:
+        snapshot = _load_snapshot("profile_context.errors.json")
+        errors = snapshot["errors"]
+
+        expected = {
+            "profile_required",
+            "profile_not_found",
+            "device_not_mapped",
+            "backend_not_configured",
+            "music_account_not_configured",
+            "backend_account_mismatch",
+            "profile_access_denied",
+            "private_session_restriction",
+            "invalid_client_type",
+            "invalid_request_context",
+        }
+        self.assertEqual(set(errors), expected)
+        for error in errors.values():
+            self.assertFalse(error["retryable"])
+            self.assertIn("error", error)
+            self.assertIn("http_status", error)
+            self.assertIn("client_behavior", error)
+        self.assertEqual(errors["profile_required"]["http_status"], 428)
+        self.assertEqual(errors["profile_not_found"]["error"], "invalid_profile")
+        self.assertEqual(errors["device_not_mapped"]["http_status"], 409)
 
     def test_snapshots_do_not_contain_secrets_or_raw_audio(self) -> None:
         forbidden = (

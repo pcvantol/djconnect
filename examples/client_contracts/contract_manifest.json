@@ -38,6 +38,24 @@
       "contract": "music_discovery.feed"
     },
     {
+      "id": "profile_context.requests",
+      "file": "profile_context.requests.json",
+      "transport": "http_or_websocket_or_service",
+      "contract": "profile_context.requests"
+    },
+    {
+      "id": "profile_context.responses",
+      "file": "profile_context.responses.json",
+      "transport": "http_or_websocket_or_service",
+      "contract": "profile_context.responses"
+    },
+    {
+      "id": "profile_context.errors",
+      "file": "profile_context.errors.json",
+      "transport": "http_or_websocket_or_service",
+      "contract": "profile_context.errors"
+    },
+    {
       "id": "ask_dj.recently_played_history",
       "file": "ask_dj.recently_played_history.json",
       "transport": "http_or_websocket",
