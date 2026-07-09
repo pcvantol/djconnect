@@ -128,13 +128,15 @@ Scope:
 
 ## Epic 3B — Client and Voice Endpoint Profile Adoption
 
-**Status:** ⏳ Not started
+**Status:** 🟡 In progress
 **Goal:** Extend Profile adoption across clients and Home Assistant voice
 request sources without reopening Epic 3 server-side foundation work.
 
 Scope:
 
-- verify the request-context resolver contract across source types;
+- ✅ verify the request-context resolver contract across source types;
+- ✅ define reusable Profile Adoption Contract fixtures;
+- ✅ expose profile context capability/version discovery;
 - add explicit HA Voice satellite mapping support;
 - add room/area mapping management;
 - add playback player/zone mapping where configured;
