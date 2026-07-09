@@ -6,6 +6,11 @@ It is **not** a roadmap. Inclusion here does not imply commitment, priority, or 
 
 Ideas should be promoted to `PRODUCT_ROADMAP.md` only after they align with the Constitution, Product Vision, Design Principles, Architecture Principles, and implementation capacity.
 
+Runtime evolution research belongs in `docs/research/`, not in the Innovation
+Lab. Product ideas remain here; strategic runtime questions such as Home
+Assistant-only, standalone runtime, hosted runtime or cloud runtime belong to
+`docs/research/R0_RUNTIME_INDEPENDENCE.md`.
+
 ## Status labels
 
 - 🟢 Vision: product direction or long-term concept.

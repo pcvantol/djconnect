@@ -239,3 +239,30 @@ Scope:
 - profile portability;
 - hosted AI;
 - privacy/compliance model.
+
+## Research Program
+
+Research items are strategic investigations. They are not implementation epics,
+not roadmap commitments and not architectural decisions.
+
+### R0 — Runtime Independence
+
+**Status:** 🔵 Research
+**Priority:** Strategic
+**Schedule:** Not scheduled
+**Goal:** Explore whether DJConnect could eventually support additional
+runtimes while preserving one platform architecture and keeping Home Assistant
+first-class.
+
+Deliverable:
+
+- `docs/research/R0_RUNTIME_INDEPENDENCE.md`
+
+Scope:
+
+- current Home Assistant runtime strengths and limitations;
+- possible runtime evolution scenarios;
+- Home Assistant dependency matrix;
+- possible DJConnect Core and runtime adapter model;
+- plugin architecture considerations;
+- migration, business and risk analysis.

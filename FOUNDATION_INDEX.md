@@ -17,8 +17,9 @@ The foundation defines the shared product direction, design principles, architec
 9. `PLATFORM_QUALITY_STANDARD.md`
 10. `PLATFORM_BACKLOG.md`
 11. `INNOVATION_LAB.md`
-12. `ADR_INDEX.md`
-13. `CI_CD_RELEASE_GOVERNANCE.md`
+12. `docs/research/R0_RUNTIME_INDEPENDENCE.md` where runtime evolution is relevant
+13. `ADR_INDEX.md`
+14. `CI_CD_RELEASE_GOVERNANCE.md`
 
 ## Conflict-resolution order
 
@@ -49,6 +50,16 @@ Operational docs describe how work is performed, reviewed, released, secured or 
 ### Implementation docs
 
 Implementation docs describe current repository behavior, API contracts, runtime details and tests. Examples include `API_CONTRACT.md`, `VOICE_INTENT_DATA.md`, `SYNC_PROMPTS.md`, module-level documentation and repository-specific AGENTS instructions.
+
+### Research docs
+
+Research docs explore long-term strategic questions without making
+architecture decisions or roadmap commitments. They are inputs for future
+epics, ADRs and backlog refinement.
+
+- `docs/research/R0_RUNTIME_INDEPENDENCE.md` explores whether DJConnect could
+  eventually support additional runtimes while preserving Home Assistant as the
+  primary runtime today.
 
 ## Sibling repositories
 
