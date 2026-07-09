@@ -47,7 +47,7 @@ Exit criteria:
 
 ## Epic 2 — Platform Discovery & Repository Audit
 
-**Status:** ⏳ Not started  
+**Status:** ✅ Done  
 **Goal:** Audit every repository for product, architecture, CI/CD, security, privacy, release and documentation quality.
 
 Repositories:
@@ -65,13 +65,49 @@ Repositories:
 
 Deliverables:
 
-- Platform Discovery Report;
-- Repository Scorecards;
-- Technical Debt Register;
-- Product Debt Register;
-- CI/CD Review;
-- Security/Privacy Review;
-- Release Process Review.
+- ✅ `PLATFORM_DISCOVERY_REPORT.md`
+- ✅ Repository Discovery Reports under `docs/discovery/`
+- ✅ Repository Scorecards
+- ✅ Technical Debt Register
+- ✅ Product Debt Register
+- ✅ CI/CD Review
+- ✅ Security/Privacy Review
+- ✅ Release Process Review
+- ✅ `docs/discovery/BACKLOG_RECOMMENDATIONS.md`
+- ✅ `docs/discovery/INNOVATION_RECOMMENDATIONS.md`
+
+Discovery policy:
+
+- do not implement runtime features during Epic 2;
+- do not perform large refactors during Epic 2;
+- only make documentation, report, backlog, issue and ADR-proposal changes;
+- runtime changes are allowed only for a discovered critical bug and should be reviewed explicitly before implementation.
+
+## Epic 2A — Foundation Sync Across Repositories
+
+**Status:** ⏳ Not started  
+**Goal:** Ensure every DJConnect repository points to the canonical foundation without copying or redefining it.
+
+Scope:
+
+- add or refresh `AGENTS.md` in every repository;
+- remove or replace repo-local cross-repo `SYNC_PROMPTS.md` files with canonical pointers;
+- align release repositories with `REPOSITORY_OWNERSHIP.md`;
+- keep repo-specific implementation guidance intact;
+- avoid local copies of canonical foundation documents.
+
+## Epic 2B — Contract Fixture Compatibility Suite
+
+**Status:** ⏳ Not started  
+**Goal:** Turn existing HA client contract fixtures into an explicit cross-client compatibility suite.
+
+Scope:
+
+- versioned fixture manifest;
+- Apple, Windows and Pi conformance status;
+- HTTP and websocket fixture families;
+- privacy/redaction fixture checks;
+- release-note and CI visibility for fixture compatibility.
 
 ## Epic 3 — Profile Architecture
 
@@ -107,13 +143,15 @@ Scope:
 ## Epic 5 — Feature Flags and Experimental Framework
 
 **Status:** ⏳ Not started  
-**Goal:** Add platform-wide maturity, rollout and experimental toggles.
+**Goal:** Add platform-wide maturity, rollout, experimental toggles and client capability governance.
 
 Scope:
 
 - feature maturity model;
 - profile-level experimental settings;
 - client capability advertisement;
+- required/optional/forbidden capability matrix by client class;
+- Apple/Windows/Pi/ESP parity tracking;
 - developer/preview toggles;
 - kill switches;
 - release promotion path.
@@ -134,7 +172,9 @@ Scope:
 - Microsoft Store route;
 - release notes and communication;
 - privacy/store metadata;
-- beta community.
+- beta community;
+- public release repository README/license hygiene;
+- artifact checksum/manifest validation for release-only repositories.
 
 ## Epic 7 — Platform Quality Standard
 
@@ -169,7 +209,8 @@ Scope:
 - privacy;
 - screenshots/videos;
 - download/release flows;
-- future cloud kept appropriately future-facing.
+- future cloud kept appropriately future-facing;
+- product-language linting for public docs and release-note templates.
 
 ## Epic 9 — Future Clients
 
