@@ -426,6 +426,14 @@ class VoiceHttpHelperTest(unittest.TestCase):
             self.assertEqual(payload["mood_zone"], "party")
             self.assertEqual(payload["dj_style"], "warm_radio_dj")
             self.assertEqual(payload["music_dna_key"], "shared")
+            self.assertEqual(payload["profile_id"], "profile-peter")
+            self.assertEqual(payload["satellite_id"], "satellite-kitchen")
+            self.assertEqual(payload["ha_device_id"], "ha-device-kitchen")
+            self.assertEqual(payload["area_id"], "kitchen")
+            self.assertEqual(payload["room_id"], "kitchen")
+            self.assertEqual(payload["player_id"], "ma-player-kitchen")
+            self.assertEqual(payload["playback_zone_id"], "zone-kitchen")
+            self.assertEqual(payload["session_id"], "voice-session")
             return {
                 "success": True,
                 "text": "Daar gaan we",
@@ -454,6 +462,14 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 "X-DJConnect-Mood": "100",
                 "X-DJConnect-DJ-Style": "warm_radio_dj",
                 "X-DJConnect-Music-DNA-Key": "shared",
+                "X-DJConnect-Profile-ID": "profile-peter",
+                "X-DJConnect-Satellite-ID": "satellite-kitchen",
+                "X-DJConnect-HA-Device-ID": "ha-device-kitchen",
+                "X-DJConnect-Area-ID": "kitchen",
+                "X-DJConnect-Room-ID": "kitchen",
+                "X-DJConnect-Player-ID": "ma-player-kitchen",
+                "X-DJConnect-Playback-Zone-ID": "zone-kitchen",
+                "X-DJConnect-Session-ID": "voice-session",
             }
             app = {"hass": hass}
 
