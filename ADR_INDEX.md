@@ -18,25 +18,30 @@ Each ADR should include:
 - affected repositories;
 - related foundation documents.
 
-## Initial ADR backlog
+## Accepted ADRs
 
 ### ADR-0001 — DJConnect Profile is the primary identity
 
-**Status:** Planned
+**Status:** Accepted  
+**File:** `docs/adr/0001-profile-is-primary-identity.md`
 
 Decision to place personal state on DJConnect Profile instead of Device, Spotify account or Home Assistant user.
 
 ### ADR-0002 — Music backends are adapters
 
-**Status:** Planned
+**Status:** Accepted  
+**File:** `docs/adr/0002-music-backends-are-adapters.md`
 
 Decision to keep Spotify Direct, Music Assistant and future providers behind a backend abstraction.
 
 ### ADR-0003 — Backend owns intelligence
 
-**Status:** Planned
+**Status:** Accepted  
+**File:** `docs/adr/0003-backend-owns-intelligence.md`
 
 Decision that durable intelligence, Music DNA, recommendations and Ask DJ memory live in the backend rather than clients.
+
+## ADR backlog
 
 ### ADR-0004 — Community and Personal tier model
 
