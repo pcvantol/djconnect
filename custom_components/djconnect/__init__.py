@@ -1553,6 +1553,57 @@ DEVELOPER_SERVICE_SCHEMAS = {
             vol.Optional("generation"): int,
         }
     ),
+    "profile_export": _developer_service_schema(
+        {
+            vol.Optional("profile_id"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("client_type"): str,
+            vol.Optional("include_personal_data", default=True): bool,
+        }
+    ),
+    "household_export": _developer_service_schema(
+        {
+            vol.Optional("profile_id"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("client_type"): str,
+        }
+    ),
+    "integration_export": _developer_service_schema(
+        {
+            vol.Optional("profile_id"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("client_type"): str,
+        }
+    ),
+    "profile_import": _developer_service_schema(
+        {
+            vol.Required("export"): object,
+            vol.Optional("overwrite", default=False): bool,
+            vol.Optional("reassign_id", default=False): bool,
+            vol.Optional("device_id"): str,
+            vol.Optional("client_type"): str,
+        }
+    ),
+    "household_import": _developer_service_schema(
+        {
+            vol.Required("export"): object,
+            vol.Optional("overwrite", default=False): bool,
+            vol.Optional("device_id"): str,
+            vol.Optional("client_type"): str,
+        }
+    ),
+    "clear_profile_state": _developer_service_schema(
+        {
+            vol.Optional("profile_id"): str,
+            vol.Optional("device_id"): str,
+            vol.Optional("client_type"): str,
+            vol.Optional("ask_dj", default=False): bool,
+            vol.Optional("music_dna", default=False): bool,
+            vol.Optional("recommendations", default=False): bool,
+            vol.Optional("mood", default=False): bool,
+            vol.Optional("all", default=False): bool,
+        }
+    ),
 }
 
 
@@ -2582,6 +2633,78 @@ def _register_developer_services(
         )
         return result
 
+    async def handle_profile_export(call: ServiceCall) -> dict[str, Any]:
+        from .api_handlers import async_handle_profile_export_payload
+
+        payload = ask_dj_service_payload(call)
+        result, _status = await async_handle_profile_export_payload(
+            hass,
+            payload,
+            headers=ask_dj_service_headers(payload),
+            user_id=ask_dj_service_user_id(call),
+        )
+        return result
+
+    async def handle_household_export(call: ServiceCall) -> dict[str, Any]:
+        from .api_handlers import async_handle_household_export_payload
+
+        payload = ask_dj_service_payload(call)
+        result, _status = await async_handle_household_export_payload(
+            hass,
+            payload,
+            headers=ask_dj_service_headers(payload),
+            user_id=ask_dj_service_user_id(call),
+        )
+        return result
+
+    async def handle_integration_export(call: ServiceCall) -> dict[str, Any]:
+        from .api_handlers import async_handle_integration_export_payload
+
+        payload = ask_dj_service_payload(call)
+        result, _status = await async_handle_integration_export_payload(
+            hass,
+            payload,
+            headers=ask_dj_service_headers(payload),
+            user_id=ask_dj_service_user_id(call),
+        )
+        return result
+
+    async def handle_profile_import(call: ServiceCall) -> dict[str, Any]:
+        from .api_handlers import async_handle_profile_import_payload
+
+        payload = ask_dj_service_payload(call)
+        result, _status = await async_handle_profile_import_payload(
+            hass,
+            payload,
+            headers=ask_dj_service_headers(payload),
+            user_id=ask_dj_service_user_id(call),
+        )
+        return result
+
+    async def handle_household_import(call: ServiceCall) -> dict[str, Any]:
+        from .api_handlers import async_handle_household_import_payload
+
+        payload = ask_dj_service_payload(call)
+        result, _status = await async_handle_household_import_payload(
+            hass,
+            payload,
+            headers=ask_dj_service_headers(payload),
+            user_id=ask_dj_service_user_id(call),
+        )
+        return result
+
+    async def handle_clear_profile_state(call: ServiceCall) -> dict[str, Any]:
+        from .api_handlers import async_handle_profile_clear_payload
+
+        payload = ask_dj_service_payload(call)
+        result, _status = await async_handle_profile_clear_payload(
+            hass,
+            payload,
+            headers=ask_dj_service_headers(payload),
+            user_id=ask_dj_service_user_id(call),
+        )
+        return result
+
     service_handlers = {
         "test_parse": (handle_test_parse, "optional"),
         "test_tts": (handle_test_tts, "optional"),
@@ -2618,6 +2741,12 @@ def _register_developer_services(
         "music_dna_import": (handle_music_dna_import, "optional"),
         "clear_ask_dj_history": (handle_clear_ask_dj_history, "optional"),
         "ask_dj_history_state": (handle_ask_dj_history_state, "optional"),
+        "profile_export": (handle_profile_export, "optional"),
+        "household_export": (handle_household_export, "optional"),
+        "integration_export": (handle_integration_export, "optional"),
+        "profile_import": (handle_profile_import, "optional"),
+        "household_import": (handle_household_import, "optional"),
+        "clear_profile_state": (handle_clear_profile_state, "optional"),
     }
     for service_name, (handler, response_mode) in service_handlers.items():
         hass.services.async_register(

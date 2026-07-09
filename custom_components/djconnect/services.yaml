@@ -1488,3 +1488,147 @@ forget_device:
     Developer helper: ask the paired DJConnect device to forget its local pairing
     through /api/device/forget. Re-pair the device afterwards.
   fields: {}
+
+profile_export:
+  name: Export profile
+  description: >
+    Export the resolved DJConnect Profile without OAuth tokens, provider secrets,
+    Home Assistant tokens, APNs tokens or device tokens.
+  fields:
+    profile_id:
+      name: Profile ID
+      description: Optional explicit Profile ID. Device, HA user and fallback resolution are used when omitted.
+      required: false
+      selector:
+        text:
+          multiline: false
+    include_personal_data:
+      name: Include personal data
+      description: Include allowed personal references such as Music DNA, mood and likes. Guest-safe/private exports still redact personal state.
+      required: false
+      default: true
+      selector:
+        boolean:
+
+household_export:
+  name: Export household
+  description: >
+    Export household Profile Platform metadata, mappings, backend/account metadata
+    and non-secret configuration. Provider credentials must be re-linked after import.
+  fields:
+    profile_id:
+      name: Profile ID
+      description: Optional Profile ID used only for profile resolution/authorization context.
+      required: false
+      selector:
+        text:
+          multiline: false
+
+integration_export:
+  name: Export integration
+  description: >
+    Export a full non-secret DJConnect integration envelope. Secrets are excluded
+    by default and explicitly marked as excluded in the response.
+  fields:
+    profile_id:
+      name: Profile ID
+      description: Optional Profile ID used only for profile resolution/authorization context.
+      required: false
+      selector:
+        text:
+          multiline: false
+
+profile_import:
+  name: Import profile
+  description: >
+    Import a single DJConnect Profile export. Secret-like fields are rejected and
+    provider accounts must be re-linked where credentials are missing.
+  fields:
+    export:
+      name: Export
+      description: Profile export envelope.
+      required: true
+      selector:
+        object:
+    overwrite:
+      name: Overwrite
+      description: Allow replacing an existing profile with the same ID.
+      required: false
+      default: false
+      selector:
+        boolean:
+    reassign_id:
+      name: Reassign ID
+      description: Create a new imported Profile ID when the export ID already exists.
+      required: false
+      default: false
+      selector:
+        boolean:
+
+household_import:
+  name: Import household
+  description: >
+    Import a household or full non-secret integration export. Existing profiles
+    are not overwritten unless overwrite is true.
+  fields:
+    export:
+      name: Export
+      description: Household or integration export envelope.
+      required: true
+      selector:
+        object:
+    overwrite:
+      name: Overwrite
+      description: Allow replacing the existing Profile Platform household state.
+      required: false
+      default: false
+      selector:
+        boolean:
+
+clear_profile_state:
+  name: Clear profile state
+  description: >
+    Clear selected personal state for the resolved Profile without deleting the Profile.
+  fields:
+    profile_id:
+      name: Profile ID
+      description: Optional explicit Profile ID. Device, HA user and fallback resolution are used when omitted.
+      required: false
+      selector:
+        text:
+          multiline: false
+    ask_dj:
+      name: Ask DJ history
+      description: Clear Ask DJ conversation references/history for this context.
+      required: false
+      default: false
+      selector:
+        boolean:
+    music_dna:
+      name: Music DNA
+      description: Reset Music DNA references/data for this context.
+      required: false
+      default: false
+      selector:
+        boolean:
+    recommendations:
+      name: Recommendations
+      description: Clear recommendation references, likes and dislikes.
+      required: false
+      default: false
+      selector:
+        boolean:
+    mood:
+      name: Mood
+      description: Clear durable mood state.
+      required: false
+      default: false
+      selector:
+        boolean:
+    all:
+      name: All personal state
+      description: Clear all personal state references without deleting the Profile.
+      required: false
+      default: false
+      selector:
+        boolean:
