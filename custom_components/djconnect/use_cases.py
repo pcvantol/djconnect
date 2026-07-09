@@ -537,7 +537,8 @@ def normalize_music_command(command: MusicCommand | str) -> str:
 
 def _selected_backend(hass: HomeAssistant, runtime: Any) -> MusicBackend:
     backend = str(
-        getattr(runtime, "config", {}).get(CONF_MUSIC_BACKEND)
+        getattr(runtime, "profile_context_backend_id", "")
+        or getattr(runtime, "config", {}).get(CONF_MUSIC_BACKEND)
         or DEFAULT_MUSIC_BACKEND
     ).strip()
     if backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
@@ -548,7 +549,8 @@ def _selected_backend(hass: HomeAssistant, runtime: Any) -> MusicBackend:
 def music_backend_metadata(hass: HomeAssistant, runtime: Any) -> dict[str, Any]:
     """Return the client-visible selected music backend contract."""
     backend = str(
-        getattr(runtime, "config", {}).get(CONF_MUSIC_BACKEND)
+        getattr(runtime, "profile_context_backend_id", "")
+        or getattr(runtime, "config", {}).get(CONF_MUSIC_BACKEND)
         or DEFAULT_MUSIC_BACKEND
     ).strip()
     if backend not in MUSIC_BACKEND_NAMES:

@@ -34,6 +34,31 @@ iPhone/iPad app pairs by scanning a QR/deep-link payload:
 djconnect://pair?ha_url=<local-ha-url>&pair_code=<code>&client_type=ios&pair_path=/api/djconnect/v1/pair
 ```
 
+## Profile Resolution
+
+Service and API entrypoints that touch personal state, backend routing, Ask DJ,
+Music DNA, Discovery, Track Insight or playback preferences may include optional
+`profile_id` and `device_id`.
+
+The backend resolves Profile context in this order:
+
+1. explicit `profile_id`;
+2. linked profile for `device_id`;
+3. Home Assistant user hint;
+4. room mapping;
+5. configured fallback profile;
+6. structured profile error.
+
+Profile-aware responses may include `profile_id`, profile-scoped
+`music_dna_key` values in the form `profile:<profile_id>`, and structured errors
+such as `profile_required`, `invalid_profile`, `device_not_mapped`,
+`profile_backend_missing`, `profile_music_account_missing` and
+`profile_backend_account_mismatch`.
+
+Existing clients do not need to send `profile_id` when their `device_id` is
+mapped in the Profile Platform. Explicit `profile_id` is additive and intended
+for clients with profile switching.
+
 Apple Watch pairs through the iPhone/iPad proxy: the iPhone/iPad scans the Watch
 QR/deep-link payload and forwards the pairing material to the paired Watch, which then uses
 `client_type=watchos` and its own `djconnect-watchos-*` device id. The Watch must

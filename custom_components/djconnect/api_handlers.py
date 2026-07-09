@@ -34,6 +34,11 @@ from .http import (
 )
 from .mood import enrich_payload_with_mood_zone
 from .push import EVENT_ASK_DJ_CONFIRM, EVENT_ASK_DJ_RESPONSE
+from .profile_context import (
+    ProfilePlatformNotConfigured,
+    async_apply_profile_context,
+    profile_error_payload,
+)
 from .request_auth import (
     authorize_runtime_device_request,
     identity_payload,
@@ -52,6 +57,40 @@ from .use_cases import (
 
 _LOGGER = http_helpers._LOGGER
 MUSIC_DNA_PROFILE_REFRESH_SECONDS = 60 * 60
+
+
+async def _apply_profile_or_error(
+    hass: Any,
+    runtime: Any,
+    payload: dict[str, Any],
+    *,
+    user_id: str | None,
+    source: str,
+) -> tuple[dict[str, Any] | None, int | None]:
+    """Apply canonical Profile context or return structured error."""
+    _clear_profile_runtime_context(runtime)
+    try:
+        await async_apply_profile_context(
+            hass,
+            runtime,
+            payload,
+            user_id=user_id,
+            request_source=source,
+        )
+        return None, None
+    except Exception as exc:  # noqa: BLE001
+        if isinstance(exc, ProfilePlatformNotConfigured):
+            return None, None
+        result, status = profile_error_payload(exc)
+        return result, status
+
+
+def _clear_profile_runtime_context(runtime: Any) -> None:
+    """Clear transient profile routing hints before resolving a request."""
+    setattr(runtime, "profile_context_profile_id", "")
+    setattr(runtime, "profile_context_backend_id", "")
+    setattr(runtime, "profile_context_music_account_id", "")
+    setattr(runtime, "profile_context_playback_zone_id", "")
 
 
 async def async_handle_command_payload(
@@ -89,6 +128,15 @@ async def async_handle_command_payload(
     if _is_command_payload(data):
         _LOGGER.debug("Ignoring command payload for device sensor update")
     runtime.device_status[CONF_CLIENT_TYPE] = client_type
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        data,
+        user_id=user_id,
+        source="command",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
     music_dna_key = await _update_memory_metadata(
         runtime,
         data,
@@ -483,6 +531,15 @@ async def async_handle_ask_dj_message_payload(
     payload = dict(data)
     payload.update({key: value for key, value in identity.items() if value is not None})
     payload = enrich_payload_with_mood_zone(payload)
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="ask_dj_message",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
     _debug_ask_dj_request("message", runtime, payload, user_id=user_id)
     result = await http_helpers.async_handle_ask_dj(hass, runtime, payload, user_id=user_id)
     if not result.get("success"):
@@ -551,6 +608,15 @@ async def async_handle_track_insight_payload(
         return _error_payload("unauthorized"), 401
     payload = dict(data)
     payload.update({key: value for key, value in identity.items() if value is not None})
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=None,
+        source=f"track_insight:{source}",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
     for header_name, payload_key in (
         ("X-DJConnect-Language", "language"),
         ("X-DJConnect-Locale", "locale"),
@@ -618,6 +684,15 @@ async def async_handle_ask_dj_idle_suggestion_payload(
     payload = dict(data)
     payload[CONF_CLIENT_TYPE] = client_type
     payload = enrich_payload_with_mood_zone(payload)
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="ask_dj_idle_suggestion",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
     _debug_ask_dj_request("idle_suggestion", runtime, payload, user_id=user_id)
     result = await http_helpers.async_idle_suggestion(
         hass,
@@ -650,6 +725,15 @@ async def async_handle_music_dna_profile_payload(
     if error is not None:
         _debug_music_dna_error("profile", data, error)
         return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="music_dna_profile",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
     _debug_music_dna_request("profile", runtime, payload, user_id=user_id)
     memory = getattr(runtime, "memory", None)
     profile_getter = getattr(memory, "async_profile", None)
@@ -680,6 +764,15 @@ async def async_handle_music_dna_settings_payload(
     if error is not None:
         _debug_music_dna_error("settings", data, error)
         return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="music_dna_settings",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
     _debug_music_dna_request("settings", runtime, payload, user_id=user_id)
     if "enabled" not in payload:
         _debug_music_dna_error("settings", payload, (_error_payload("missing_enabled"), 400), runtime=runtime)
@@ -706,6 +799,15 @@ async def async_handle_music_dna_clear_payload(
     if error is not None:
         _debug_music_dna_error("clear", data, error)
         return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="music_dna_clear",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
     _debug_music_dna_request("clear", runtime, payload, user_id=user_id)
     memory = getattr(runtime, "memory", None)
     if memory is None or not callable(getattr(memory, "async_context_for_runtime", None)):
@@ -731,6 +833,15 @@ async def async_handle_music_dna_import_payload(
     if error is not None:
         _debug_music_dna_error("import", data, error)
         return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="music_dna_import",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
     _debug_music_dna_request("import", runtime, payload, user_id=user_id)
     memory = getattr(runtime, "memory", None)
     importer = getattr(memory, "async_import_profile", None)
@@ -754,6 +865,15 @@ async def async_handle_music_dna_export_payload(
     if error is not None:
         _debug_music_dna_error("export", data, error)
         return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="music_dna_export",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
     _debug_music_dna_request("export", runtime, payload, user_id=user_id)
     memory = getattr(runtime, "memory", None)
     exporter = getattr(memory, "async_export_profile", None)
@@ -788,6 +908,15 @@ def _music_dna_runtime_payload(
         return None, payload, (_error_payload("unauthorized"), 401)
     payload.update({key: value for key, value in identity.items() if value})
     return runtime, payload, None
+
+
+def _discovery_runtime_payload(
+    hass: Any,
+    data: dict[str, Any],
+    headers: Any | None,
+) -> tuple[Any | None, dict[str, Any], tuple[dict[str, Any], int] | None]:
+    """Resolve and authorize a music discovery runtime payload."""
+    return _music_dna_runtime_payload(hass, data, headers)
 
 
 async def _refresh_music_dna_profile_if_stale(
@@ -1497,11 +1626,22 @@ async def async_handle_ask_dj_history_payload(
     if error:
         _debug_ask_dj_error("history", data, (_error_payload(error), status), runtime=runtime)
         return _error_payload(error), status
-    _debug_ask_dj_request("history", runtime, {**data, **identity}, user_id=user_id)
+    payload = {**data, **identity}
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="ask_dj_history",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    _debug_ask_dj_request("history", runtime, payload, user_id=user_id)
     result = await _history_manager(hass, runtime).async_history(
         user_id,
-        since_revision=_int_or_none(data.get("since_revision")),
+        since_revision=_int_or_none(payload.get("since_revision")),
     )
+    _decorate_profile_response(result, payload)
     _debug_ask_dj_result("history", result, 200, runtime=runtime)
     return result, 200
 
@@ -1522,7 +1662,17 @@ async def async_handle_ask_dj_history_export_payload(
     if error:
         _debug_ask_dj_error("history_export", data, (_error_payload(error), status), runtime=runtime)
         return _error_payload(error), status
-    _debug_ask_dj_request("history_export", runtime, {**data, **identity}, user_id=user_id)
+    payload = {**data, **identity}
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="ask_dj_history_export",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    _debug_ask_dj_request("history_export", runtime, payload, user_id=user_id)
     history = await _history_manager(hass, runtime).async_history(user_id)
     response = {
         "success": True,
@@ -1534,11 +1684,12 @@ async def async_handle_ask_dj_history_export_payload(
             or headers.get("X-DJConnect-Client-Type")
             or runtime_client_type(runtime)
         ),
-        "app_version": data.get("app_version")
-        or data.get("version")
+        "app_version": payload.get("app_version")
+        or payload.get("version")
         or headers.get("X-DJConnect-App-Version"),
         **history,
     }
+    _decorate_profile_response(response, payload)
     _debug_ask_dj_result("history_export", response, 200, runtime=runtime)
     return response, 200
 
@@ -1552,8 +1703,19 @@ async def async_handle_music_discovery_feed_payload(
 ) -> tuple[dict[str, Any], int]:
     """Return Music Discovery feed for HTTP and websocket transports."""
     from .music_discovery import async_handle_music_discovery_feed_payload as handler
-
-    return await handler(hass, data, headers=headers, user_id=user_id)
+    runtime, payload, error = _discovery_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="music_discovery_feed",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    return await handler(hass, payload, headers=headers, user_id=user_id)
 
 
 async def async_handle_music_discovery_refresh_payload(
@@ -1565,8 +1727,19 @@ async def async_handle_music_discovery_refresh_payload(
 ) -> tuple[dict[str, Any], int]:
     """Refresh Music Discovery feed for HTTP and websocket transports."""
     from .music_discovery import async_handle_music_discovery_refresh_payload as handler
-
-    return await handler(hass, data, headers=headers, user_id=user_id)
+    runtime, payload, error = _discovery_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="music_discovery_refresh",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    return await handler(hass, payload, headers=headers, user_id=user_id)
 
 
 async def async_handle_music_discovery_play_payload(
@@ -1578,8 +1751,19 @@ async def async_handle_music_discovery_play_payload(
 ) -> tuple[dict[str, Any], int]:
     """Play Music Discovery item for HTTP and websocket transports."""
     from .music_discovery import async_handle_music_discovery_play_payload as handler
-
-    return await handler(hass, data, headers=headers, user_id=user_id)
+    runtime, payload, error = _discovery_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="music_discovery_play",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    return await handler(hass, payload, headers=headers, user_id=user_id)
 
 
 async def async_handle_music_discovery_feedback_payload(
@@ -1591,8 +1775,19 @@ async def async_handle_music_discovery_feedback_payload(
 ) -> tuple[dict[str, Any], int]:
     """Record Music Discovery feedback for HTTP and websocket transports."""
     from .music_discovery import async_handle_music_discovery_feedback_payload as handler
-
-    return await handler(hass, data, headers=headers, user_id=user_id)
+    runtime, payload, error = _discovery_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="music_discovery_feedback",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    return await handler(hass, payload, headers=headers, user_id=user_id)
 
 
 async def async_handle_ask_dj_history_clear_payload(
@@ -1616,8 +1811,19 @@ async def async_handle_ask_dj_history_clear_payload(
     if error:
         _debug_ask_dj_error("history_clear", data, (_error_payload(error), status), runtime=runtime)
         return _error_payload(error), status
-    _debug_ask_dj_request("history_clear", runtime, {**data, **identity}, user_id=user_id)
+    payload = {**data, **identity}
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="ask_dj_history_clear",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    _debug_ask_dj_request("history_clear", runtime, payload, user_id=user_id)
     result = await _history_manager(hass, runtime).async_clear(user_id)
+    _decorate_profile_response(result, payload)
     _debug_ask_dj_result("history_clear", result, 200, runtime=runtime)
     return result, 200
 
@@ -1643,13 +1849,23 @@ async def async_handle_ask_dj_history_state_payload(
     if error:
         _debug_ask_dj_error("history_state", data, (_error_payload(error), status), runtime=runtime)
         return _error_payload(error), status
-    _debug_ask_dj_request("history_state", runtime, {**data, **identity}, user_id=user_id)
+    payload = {**data, **identity}
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="ask_dj_history_state",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    _debug_ask_dj_request("history_state", runtime, payload, user_id=user_id)
     result = await _history_manager(hass, runtime).async_history(
         user_id,
-        since_revision=_int_or_none(data.get("since_revision")),
+        since_revision=_int_or_none(payload.get("since_revision")),
     )
     clear_revision = int(result.get("clear_revision") or 0)
-    client_clear_revision = _int_or_none(data.get("clear_revision")) or 0
+    client_clear_revision = _int_or_none(payload.get("clear_revision")) or 0
     response = {
         "success": True,
         "user_id": result.get("user_id"),
@@ -1661,8 +1877,19 @@ async def async_handle_ask_dj_history_state_payload(
         "ask_dj_clear_required": client_clear_revision < clear_revision,
         "server_time": result.get("server_time"),
     }
+    _decorate_profile_response(response, payload)
     _debug_ask_dj_result("history_state", response, 200, runtime=runtime)
     return response, 200
+
+
+def _decorate_profile_response(result: dict[str, Any], payload: dict[str, Any]) -> None:
+    """Attach resolved Profile metadata to an existing response payload."""
+    profile_id = str(payload.get("profile_id") or "").strip()
+    if profile_id:
+        result.setdefault("profile_id", profile_id)
+    music_dna_key = str(payload.get("music_dna_key") or "").strip()
+    if music_dna_key:
+        result.setdefault("music_dna_key", music_dna_key)
 
 
 def _decorate_command_result(
