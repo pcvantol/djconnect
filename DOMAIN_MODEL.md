@@ -302,3 +302,14 @@ The Phase 1 domain layer defines:
 Phase 1 intentionally does not implement persistence, config/options flow,
 services, API/websocket changes, Ask DJ migration, Music DNA migration,
 export/import or client changes.
+
+Epic 3 Phase 2 adds durable Profile Platform storage through
+`ProfilePlatformStorage` in `custom_components/djconnect/domain/storage.py`.
+The storage schema persists Household, Profile, Device, Music Backend, Music
+Account, Playback Zone, fallback and privacy-default state. OAuth tokens and
+provider secrets remain outside profile/account metadata.
+
+Phase 2 also wires the Home Assistant config/options flow to create and manage
+the minimum Profile Platform state. It intentionally does not rewire services,
+REST/websocket APIs, Ask DJ history, Music DNA, recommendations, export/import
+or clients.
