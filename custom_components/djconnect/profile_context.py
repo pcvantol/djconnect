@@ -3,10 +3,16 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import logging
 from typing import Any
 
-from .const import CONF_DEVICE_ID, DOMAIN
-from .domain import Profile, ProfilePrivacyMode, ProfileResolutionContext
+from .const import CONF_CLIENT_TYPE, CONF_DEVICE_ID, DOMAIN
+from .domain import (
+    Profile,
+    ProfilePrivacyMode,
+    ProfileResolutionContext,
+    ProfileResolutionReason,
+)
 from .domain.errors import DeviceNotMapped, ProfileNotFound, ProfileRequired, ResolverError
 from .domain.storage import ProfilePlatformStorage, STORE_KEY as PROFILE_PLATFORM_STORE_KEY
 from .profile_privacy import (
@@ -14,6 +20,8 @@ from .profile_privacy import (
     privacy_response_metadata,
     resolve_profile_privacy_policy,
 )
+
+_LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -23,13 +31,24 @@ class DJConnectRequestContext:
     profile: Profile
     profile_id: str
     device_id: str = ""
+    client_type: str = ""
     ha_user_id: str = ""
+    satellite_id: str = ""
+    ha_device_id: str = ""
+    area_id: str = ""
+    room_id: str = ""
+    player_id: str = ""
+    playback_zone_id: str = ""
+    session_id: str = ""
     backend_id: str = ""
     music_account_id: str = ""
-    playback_zone_id: str = ""
+    profile_playback_zone_id: str = ""
     privacy_mode: ProfilePrivacyMode = ProfilePrivacyMode.NORMAL
     privacy_policy: ProfilePrivacyPolicy = ProfilePrivacyPolicy(ProfilePrivacyMode.NORMAL)
     request_source: str = ""
+    resolution_reason: ProfileResolutionReason = ProfileResolutionReason.FALLBACK
+    resolution_signal: str = ""
+    fallback_used: bool = False
 
     @property
     def music_dna_key(self) -> str:
@@ -96,6 +115,45 @@ def profile_error_payload(exc: Exception) -> tuple[dict[str, Any], int]:
     return _payload("profile_resolution_failed", str(exc)), 400
 
 
+def profile_resolution_context_from_payload(
+    runtime: Any,
+    payload: dict[str, Any] | None = None,
+    *,
+    user_id: str | None = None,
+    request_source: str = "",
+) -> ProfileResolutionContext:
+    """Build canonical Profile resolution input from a runtime request payload."""
+    payload = payload or {}
+    device_id = str(
+        payload.get(CONF_DEVICE_ID)
+        or payload.get("device_id")
+        or getattr(runtime, "pairing_device_id", "")
+        or getattr(runtime, "device_status", {}).get(CONF_DEVICE_ID)
+        or ""
+    ).strip()
+    return ProfileResolutionContext(
+        explicit_profile_id=str(
+            payload.get("profile_id") or payload.get("explicit_profile_id") or ""
+        ).strip(),
+        device_id=device_id,
+        client_type=str(payload.get(CONF_CLIENT_TYPE) or payload.get("client_type") or "").strip(),
+        ha_user_id=str(user_id or payload.get("ha_user_id") or payload.get("user_id") or "").strip(),
+        satellite_id=str(
+            payload.get("satellite_id") or payload.get("assist_satellite_id") or ""
+        ).strip(),
+        ha_device_id=str(payload.get("ha_device_id") or payload.get("ha_device") or "").strip(),
+        area_id=str(payload.get("area_id") or payload.get("area") or "").strip(),
+        room_id=str(payload.get("room_id") or payload.get("room") or "").strip(),
+        player_id=str(payload.get("player_id") or payload.get("target_player_id") or "").strip(),
+        playback_zone_id=str(
+            payload.get("playback_zone_id") or payload.get("zone_id") or ""
+        ).strip(),
+        session_id=str(payload.get("session_id") or "").strip(),
+        request_source=request_source,
+        speaker_identity_hint=str(payload.get("speaker_identity_hint") or "").strip(),
+    )
+
+
 async def async_resolve_request_context(
     hass: Any,
     runtime: Any,
@@ -113,19 +171,14 @@ async def async_resolve_request_context(
         and not str(payload.get("profile_id") or "").strip()
     ):
         raise ProfilePlatformNotConfigured("Profile Platform is not configured.")
-    device_id = str(
-        payload.get(CONF_DEVICE_ID)
-        or getattr(runtime, "pairing_device_id", "")
-        or getattr(runtime, "device_status", {}).get(CONF_DEVICE_ID)
-        or ""
-    ).strip()
-    context = ProfileResolutionContext(
-        profile_id=str(payload.get("profile_id") or "").strip(),
-        device_id=device_id,
-        ha_user_id=str(user_id or payload.get("user_id") or "").strip(),
-        room_id=str(payload.get("room_id") or payload.get("room") or "").strip(),
+    context = profile_resolution_context_from_payload(
+        runtime,
+        payload,
+        user_id=user_id,
+        request_source=request_source,
     )
-    profile = manager.resolver().resolve(context)
+    resolution = manager.resolver().resolve_with_result(context)
+    profile = resolution.profile
     privacy_policy = resolve_profile_privacy_policy(profile, payload)
     preferences = profile.preferences
     backend_id = preferences.default_backend_id
@@ -141,14 +194,25 @@ async def async_resolve_request_context(
     return DJConnectRequestContext(
         profile=profile,
         profile_id=profile.profile_id,
-        device_id=device_id,
-        ha_user_id=str(user_id or payload.get("user_id") or "").strip(),
+        device_id=context.device_id,
+        client_type=context.client_type,
+        ha_user_id=context.ha_user_id,
+        satellite_id=context.satellite_id,
+        ha_device_id=context.ha_device_id,
+        area_id=context.area_id,
+        room_id=context.room_id,
+        player_id=context.player_id,
+        playback_zone_id=context.playback_zone_id,
+        session_id=context.session_id,
         backend_id=backend_id,
         music_account_id=music_account_id,
-        playback_zone_id=preferences.fallback_playback_zone_id,
+        profile_playback_zone_id=preferences.fallback_playback_zone_id,
         privacy_mode=privacy_policy.mode,
         privacy_policy=privacy_policy,
         request_source=request_source,
+        resolution_reason=resolution.reason,
+        resolution_signal=resolution.signal,
+        fallback_used=resolution.fallback_used,
     )
 
 
@@ -177,13 +241,25 @@ async def async_apply_profile_context(
         payload.setdefault("profile_backend_id", context.backend_id)
     if context.music_account_id:
         payload.setdefault("profile_music_account_id", context.music_account_id)
-    if context.playback_zone_id:
-        payload.setdefault("profile_playback_zone_id", context.playback_zone_id)
+    if context.profile_playback_zone_id:
+        payload.setdefault("profile_playback_zone_id", context.profile_playback_zone_id)
+    _LOGGER.debug(
+        "DJConnect Profile resolved source=%s reason=%s profile_id=%s device_id=%s "
+        "has_satellite=%s area_id=%s fallback_used=%s",
+        context.request_source or "unknown",
+        context.resolution_reason.value,
+        _safe_debug_identifier(context.profile_id),
+        _safe_debug_identifier(context.device_id),
+        bool(context.satellite_id or context.ha_device_id),
+        _safe_debug_identifier(context.area_id or context.room_id),
+        context.fallback_used,
+    )
     setattr(runtime, "profile_context_profile_id", context.profile_id)
     setattr(runtime, "profile_context_backend_id", context.backend_id)
     setattr(runtime, "profile_context_music_account_id", context.music_account_id)
-    setattr(runtime, "profile_context_playback_zone_id", context.playback_zone_id)
+    setattr(runtime, "profile_context_playback_zone_id", context.profile_playback_zone_id)
     setattr(runtime, "profile_context_privacy_policy", context.privacy_policy)
+    setattr(runtime, "profile_context_resolution_reason", context.resolution_reason.value)
     return context
 
 
@@ -208,3 +284,11 @@ def _payload(code: str, message: str, **extra: Any) -> dict[str, Any]:
         "message": message,
         **{key: value for key, value in extra.items() if value not in ("", None)},
     }
+
+
+def _safe_debug_identifier(value: Any) -> str:
+    """Return a bounded non-secret identifier for debug logs."""
+    text = str(value or "").strip()
+    if len(text) <= 64:
+        return text
+    return f"{text[:32]}...{text[-12:]}"

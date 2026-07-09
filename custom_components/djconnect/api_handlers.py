@@ -101,6 +101,7 @@ def _clear_profile_runtime_context(runtime: Any) -> None:
     setattr(runtime, "profile_context_backend_id", "")
     setattr(runtime, "profile_context_music_account_id", "")
     setattr(runtime, "profile_context_playback_zone_id", "")
+    setattr(runtime, "profile_context_resolution_reason", "")
 
 
 async def async_handle_command_payload(

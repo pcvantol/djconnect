@@ -126,6 +126,47 @@ Scope:
 - config/options flow;
 - tests.
 
+## Epic 3B — Client and Voice Endpoint Profile Adoption
+
+**Status:** ⏳ Not started
+**Goal:** Extend Profile adoption across clients and Home Assistant voice
+request sources without reopening Epic 3 server-side foundation work.
+
+Scope:
+
+- verify the request-context resolver contract across source types;
+- add explicit HA Voice satellite mapping support;
+- add room/area mapping management;
+- add playback player/zone mapping where configured;
+- align Apple profile/device context;
+- align Windows profile/device context;
+- align Raspberry Pi profile/device context;
+- verify ESP32 continues resolving through registered `device_id`;
+- add cross-client resolver contract tests for DJConnect Device, HA Voice
+  satellite, Home Assistant user hint, room/area, playback zone/player, fallback
+  and ambiguous contexts.
+
+Privacy requirements:
+
+- shared voice satellites must not expose personal Ask DJ history by default;
+- room mapping should normally target shared, household, room, kids or guest
+  profiles;
+- linking a shared satellite to a personal profile requires explicit
+  configuration;
+- ambiguous speaker identity must fall back safely rather than guessing a
+  personal profile;
+- private-session rules still apply after Profile resolution.
+
+Suggested subphases:
+
+1. contract verification;
+2. Apple;
+3. Windows;
+4. Pi;
+5. ESP32;
+6. HA Voice satellites;
+7. cross-client resolver contract tests.
+
 ## Epic 4 — Intelligence Engine / Insight Feed
 
 **Status:** ⏳ Not started  

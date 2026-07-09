@@ -38,7 +38,13 @@ from .profile import (
     ResponseStyle,
     VoiceStyle,
 )
-from .resolver import ProfileResolutionContext, ProfileResolver, ProfileResolverIndex
+from .resolver import (
+    ProfileResolutionContext,
+    ProfileResolutionReason,
+    ProfileResolutionResult,
+    ProfileResolver,
+    ProfileResolverIndex,
+)
 from .storage import ProfilePlatformStorage, ProfileStorageValidationError
 
 __all__ = [
@@ -72,6 +78,8 @@ __all__ = [
     "ProfilePrivacyMode",
     "ProfileRequired",
     "ProfileResolutionContext",
+    "ProfileResolutionReason",
+    "ProfileResolutionResult",
     "ProfileResolver",
     "ProfileResolverIndex",
     "ProfilePlatformStorage",

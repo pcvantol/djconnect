@@ -4,7 +4,7 @@ This document clarifies repository boundaries. The HA/HACS repository remains th
 
 ## `pcvantol/djconnect`
 
-Owns: Home Assistant integration, local-first backend runtime, canonical foundation docs, DJConnect Profile orchestration, Music Backend orchestration, Track Insight orchestration, Ask DJ, Music DNA, OTA/status/diagnostics and HA-facing API contracts.
+Owns: Home Assistant integration, local-first backend runtime, canonical foundation docs, DJConnect Profile orchestration, canonical Profile Resolver, Request Context / ProfileResolutionContext model, HA Voice satellite/area/profile mappings, Assist-to-Profile orchestration, Music Backend orchestration, Track Insight orchestration, Ask DJ, Music DNA, OTA/status/diagnostics and HA-facing API contracts.
 
 Does not own: native client UX code, ESP32 firmware implementation, public website implementation, central APNs provider credentials or release artifact repositories.
 
@@ -12,11 +12,23 @@ Must follow: the full platform foundation and Home Assistant/HACS quality expect
 
 Update canonical docs when: product direction, architecture principles, domain language, repository boundaries, API contracts, ADRs or cross-repo release rules change.
 
+Request-source ownership examples:
+
+- Apple and Windows clients send the profile/device context they can reliably
+  know.
+- ESP32 sends its registered DJConnect device identity.
+- Raspberry Pi sends device/profile context as appropriate for an Ambient
+  Client.
+- The HA integration derives HA Voice satellite, Home Assistant device/entity,
+  area/room and Assist pipeline context from Home Assistant.
+- Clients must not invent durable personal identity when the backend cannot
+  resolve one.
+
 ## `pcvantol/djconnect-app`
 
 Owns: Apple Intelligence Client UX for iOS, macOS and watchOS.
 
-Does not own: backend intelligence, Music DNA storage, Spotify OAuth secrets, central relay logic or canonical foundation docs.
+Does not own: backend intelligence, Music DNA storage, Spotify OAuth secrets, central relay logic, canonical Profile resolution or canonical foundation docs.
 
 Must follow: DJConnect Profile, Device, Music Backend, Renderer/Client, privacy and push/bootstrap contracts from the canonical foundation.
 
@@ -26,7 +38,7 @@ Update canonical docs when: Apple UX requires new shared client capabilities, AP
 
 Owns: Windows Intelligence Client UX.
 
-Does not own: backend intelligence, provider-specific playback logic, canonical Ask DJ history or foundation docs.
+Does not own: backend intelligence, provider-specific playback logic, canonical Ask DJ history, canonical Profile resolution or foundation docs.
 
 Must follow: shared client contracts, Music Backend capability behavior, DJConnect Profile boundaries and privacy rules.
 
@@ -36,7 +48,7 @@ Update canonical docs when: Windows introduces reusable client capability requir
 
 Owns: Raspberry Pi Ambient Client.
 
-Does not own: canonical backend intelligence, Music DNA storage, Spotify credentials or foundation docs.
+Does not own: canonical backend intelligence, Music DNA storage, Spotify credentials, canonical Profile resolution or foundation docs.
 
 Must follow: Device/runtime boundaries, renderer/client responsibilities, local-first pairing and backend-owned intelligence contracts.
 
@@ -46,7 +58,7 @@ Update canonical docs when: Pi capabilities change shared Ambient Client expecta
 
 Owns: ESP32 Voice/Control Client firmware.
 
-Does not own: Spotify credentials, backend playback orchestration, Music DNA, Ask DJ chat history or foundation docs.
+Does not own: Spotify credentials, backend playback orchestration, Music DNA, Ask DJ chat history, canonical Profile resolution or foundation docs.
 
 Must follow: Device identity, firmware protocol, local device API, pairing, OTA, privacy and backend command contracts.
 

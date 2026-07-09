@@ -5,12 +5,14 @@ These principles describe where responsibilities live in the DJConnect platform.
 ## Canonical model
 
 ```text
-Device
+Interaction / Request
+  -> Request Context
+  -> Profile Resolver
   -> DJConnect Profile
-    -> Music Backend / Music Account
-      -> Intelligence Engine
-        -> Insight Feed
-          -> Renderer / Client
+  -> Music Backend / Music Account
+  -> Intelligence Engine
+  -> Insight Feed
+  -> Renderer / Client
 ```
 
 ## Primary domain concepts
@@ -80,16 +82,48 @@ Renderers consume this feed according to capabilities.
 
 All intents, services, API endpoints, and client calls should resolve profile context through one central resolver.
 
+Profile resolution accepts a general request context, not only a DJConnect
+Device. Devices are important request sources, but not every interaction
+originates from a DJConnect Device. Home Assistant Voice Assist satellites,
+automations, services, Home Assistant user context, room/area context, playback
+players and future speaker recognition all use the same canonical
+`ProfileResolver`.
+
+Do not implement separate identity resolution paths per client, service,
+websocket endpoint, Assist surface or integration entrypoint.
+
 Resolution priority:
 
 1. explicit `profile_id` from DJConnect client/request;
 2. linked profile for `device_id`;
-3. mapped Home Assistant `user_id` hint if available;
-4. room/satellite mapping;
-5. configured fallback profile;
-6. clear `profile_required` error.
+3. explicit satellite mapping;
+4. mapped Home Assistant `user_id` hint if available;
+5. area/room mapping;
+6. playback zone/player mapping, when configured;
+7. configured fallback profile;
+8. clear `profile_required` error.
 
-Home Assistant `user_id` is useful but not authoritative. Voice satellites should normally resolve by device/room/fallback, not by speaker identity.
+Home Assistant `user_id` is useful but not authoritative. Voice satellites
+should normally resolve by explicit satellite mapping, area/room mapping or
+fallback, not by speaker identity. Future speaker recognition may provide a
+hint, but it must not silently override explicit profile selection.
+
+Tie-breaking must be deterministic:
+
+- explicit profile selection always wins;
+- invalid explicit profiles return an error instead of falling through to a
+  different personal profile;
+- linked DJConnect device profiles beat inferred room/area mappings;
+- explicit satellite mappings beat inferred area mappings;
+- shared room satellites default to shared, room, household or guest-safe
+  profiles unless explicitly configured otherwise.
+
+Current Epic 3 runtime support is narrower than the target model: the
+implemented `ProfileResolutionContext` currently accepts `profile_id`,
+`device_id`, `ha_user_id` and `room_id`, with Home Assistant user hints before
+room mapping. Satellite, area, playback-zone/player and speaker-recognition
+signals require a follow-up implementation and must still route through the same
+`ProfileResolver`.
 
 ## Backend resolution
 

@@ -783,6 +783,19 @@ def _voice_header_payload(headers: Any, device_id: str, client_type: str | None)
         CONF_DEVICE_ID: device_id,
         CONF_CLIENT_TYPE: client_type,
     }
+    for header, key in (
+        ("X-DJConnect-Profile-ID", "profile_id"),
+        ("X-DJConnect-Satellite-ID", "satellite_id"),
+        ("X-DJConnect-HA-Device-ID", "ha_device_id"),
+        ("X-DJConnect-Area-ID", "area_id"),
+        ("X-DJConnect-Room-ID", "room_id"),
+        ("X-DJConnect-Player-ID", "player_id"),
+        ("X-DJConnect-Playback-Zone-ID", "playback_zone_id"),
+        ("X-DJConnect-Session-ID", "session_id"),
+    ):
+        value = str(headers.get(header) or "").strip()
+        if value:
+            payload[key] = value
     music_dna_key = str(headers.get("X-DJConnect-Music-DNA-Key") or "").strip()
     if music_dna_key:
         payload["music_dna_key"] = music_dna_key
