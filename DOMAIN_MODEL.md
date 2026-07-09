@@ -283,3 +283,22 @@ When adding a feature, ask:
 5. Is this presentation? Put it in a Renderer.
 6. Is this temporary? Make it a Session with expiry.
 7. Is this experimental? Put it behind Feature Flags.
+
+## Implementation status
+
+Epic 3 Phase 1 establishes the runtime-neutral core domain under
+`custom_components/djconnect/domain/`.
+
+The Phase 1 domain layer defines:
+
+- Profile-owned personal state and references;
+- Device-owned runtime state;
+- Household-owned registrations and defaults;
+- Music Backend registrations and capabilities;
+- Music Account bindings;
+- Playback Zone targets;
+- one canonical Profile Resolver with the foundation-defined resolution priority.
+
+Phase 1 intentionally does not implement persistence, config/options flow,
+services, API/websocket changes, Ask DJ migration, Music DNA migration,
+export/import or client changes.
