@@ -322,3 +322,13 @@ profile-scoped `music_dna_key`, and exposes profile-derived backend/account/zone
 metadata. Phase 3 keeps Ask DJ, Music DNA and Discovery storage adapters in
 place so Phase 4 can migrate durable state without changing service/API
 signatures again.
+
+Epic 3 Phase 4 completes the Profile Platform with
+`custom_components/djconnect/profile_privacy.py` and
+`custom_components/djconnect/profile_export.py`. Privacy policy is resolved once
+per Profile request and controls whether Ask DJ history, Music DNA,
+recommendations, likes/dislikes and mood may persist. Export/import operates on
+the explicit Profile Platform storage schema and excludes OAuth tokens, provider
+secrets, Home Assistant tokens, APNs tokens, device tokens and raw credentials
+by default. Clear/reset flows remove profile-owned personal references without
+deleting the Profile.

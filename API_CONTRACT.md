@@ -59,6 +59,34 @@ Existing clients do not need to send `profile_id` when their `device_id` is
 mapped in the Profile Platform. Explicit `profile_id` is additive and intended
 for clients with profile switching.
 
+## Profile Privacy, Export And Import
+
+Profile-aware requests may include `private_session: true`. A private session
+uses the resolved Profile for routing but does not persist Ask DJ history, Music
+DNA updates, recommendation history, likes/dislikes or mood changes from that
+request. Profiles with privacy mode `private`, `shared` or `guest-safe` apply
+the same backend-owned policy automatically.
+
+Shared and guest-safe Profiles do not expose personal Music DNA or private Ask
+DJ history by default. Guest-safe exports redact personal references, mood,
+likes and dislikes.
+
+Developer services expose non-secret Profile Platform portability:
+
+- `djconnect.profile_export`;
+- `djconnect.household_export`;
+- `djconnect.integration_export`;
+- `djconnect.profile_import`;
+- `djconnect.household_import`;
+- `djconnect.clear_profile_state`.
+
+Export envelopes are versioned and explicitly exclude OAuth tokens, provider
+refresh tokens, provider secrets, Home Assistant tokens, APNs tokens, device
+tokens and raw credentials. Imported provider accounts must be re-linked when
+credentials are absent. Import rejects secret-like fields and does not overwrite
+existing Profiles unless `overwrite` is true or profile import uses
+`reassign_id`.
+
 Apple Watch pairs through the iPhone/iPad proxy: the iPhone/iPad scans the Watch
 QR/deep-link payload and forwards the pairing material to the paired Watch, which then uses
 `client_type=watchos` and its own `djconnect-watchos-*` device id. The Watch must
