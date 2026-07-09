@@ -218,6 +218,10 @@ versions, and must fall back to HTTP or hide optional controls if a needed
 websocket command is missing, errors, times out or reports unsupported
 capabilities.
 
+Profile-aware websocket commands accept `profile_id`, `private_session` and
+`privacy_mode` either inside the command `payload` object or as top-level
+websocket message fields. Payload fields win when both are present.
+
 Example capability fallback block:
 
 ```json
