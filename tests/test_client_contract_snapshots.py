@@ -11,6 +11,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 SNAPSHOT_DIR = ROOT / "examples" / "client_contracts"
+SOURCE_MANIFEST = "contract_manifest.json"
 
 
 def _load_snapshot(name: str) -> dict:
@@ -19,12 +20,12 @@ def _load_snapshot(name: str) -> dict:
 
 class ClientContractSnapshotsTest(unittest.TestCase):
     def test_manifest_lists_all_exported_contract_fixtures(self) -> None:
-        manifest = _load_snapshot("manifest.json")
+        manifest = _load_snapshot(SOURCE_MANIFEST)
         fixture_files = {entry["file"] for entry in manifest["fixtures"]}
         actual_files = {
             path.name
             for path in SNAPSHOT_DIR.glob("*.json")
-            if path.name != "manifest.json"
+            if path.name != SOURCE_MANIFEST
         }
 
         self.assertEqual(manifest["format"], "djconnect.client_contract_fixtures")

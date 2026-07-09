@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.2.50
+
+- Rename the source client-contract fixture manifest so Home Assistant hassfest
+  no longer treats it as an integration manifest, while keeping exported client
+  fixtures compatible with `manifest.json`.
+
 ## 3.2.49
 
 - Fix release CI validation by making push event re-export intent explicit for

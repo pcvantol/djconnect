@@ -144,7 +144,10 @@ product-ready. After HA websocket login, feature-detect DJConnect support with:
 Client contract fixtures are exported from `examples/client_contracts/` for
 Apple, Raspberry Pi and Windows client tests. Use
 `python3 tools/export_client_contracts.py --output <client-fixture-dir>` to copy
-the current golden payloads, including the fixture `manifest.json`.
+the current golden payloads. The source manifest is named
+`contract_manifest.json` so Home Assistant hassfest does not confuse it with an
+integration manifest; the export tool still writes it to client repos as
+`manifest.json`.
 
 ```json
 {
