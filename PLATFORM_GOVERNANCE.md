@@ -97,6 +97,30 @@ Move an item from Innovation Lab to Roadmap only when:
 - Do not create repo-local product roadmaps or sync prompts when canonical files exist.
 - Do not ship experimental capabilities as stable by accident.
 
+## Implementation Framework
+
+Every implementation epic should follow the canonical framework in `docs/implementation/`.
+
+Default lifecycle:
+
+```text
+Context
+  -> Phases
+  -> Review
+  -> Completion
+  -> Foundation update
+```
+
+The framework requires:
+
+- an Epic Context before implementation starts;
+- small, mergeable implementation phases;
+- architecture review after each phase;
+- completion reporting before the Epic is closed;
+- foundation updates or ADRs when implementation changes platform truth.
+
+Large architectural work should not be implemented as one broad PR. Each phase must compile independently, pass its expected tests and remain mergeable.
+
 ## Release governance
 
 Every release should consider:
