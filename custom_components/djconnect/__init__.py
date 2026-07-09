@@ -1275,6 +1275,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
             vol.Optional("device_id"): str,
             vol.Optional("device_name"): str,
             vol.Optional("music_dna_key"): str,
+            vol.Optional("profile_id"): str,
             vol.Optional("locale"): str,
             vol.Optional("timezone"): str,
         }
@@ -1286,6 +1287,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
             vol.Optional("device_id"): str,
             vol.Optional("device_name"): str,
             vol.Optional("music_dna_key"): str,
+            vol.Optional("profile_id"): str,
             vol.Optional("limit"): int,
             vol.Optional("market"): str,
             vol.Optional("locale"): str,
@@ -1299,6 +1301,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
             vol.Optional("device_id"): str,
             vol.Optional("device_name"): str,
             vol.Optional("music_dna_key"): str,
+            vol.Optional("profile_id"): str,
             vol.Optional("locale"): str,
             vol.Optional("timezone"): str,
         }
@@ -1310,6 +1313,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
             vol.Optional("device_id"): str,
             vol.Optional("device_name"): str,
             vol.Optional("music_dna_key"): str,
+            vol.Optional("profile_id"): str,
             vol.Optional("locale"): str,
             vol.Optional("timezone"): str,
         }
@@ -1324,6 +1328,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
             vol.Optional("device_id"): str,
             vol.Optional("device_name"): str,
             vol.Optional("music_dna_key"): str,
+            vol.Optional("profile_id"): str,
             vol.Optional("locale"): str,
             vol.Optional("timezone"): str,
         }
@@ -1335,6 +1340,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
         {
             vol.Required("text"): str,
             vol.Optional("music_dna_key"): str,
+            vol.Optional("profile_id"): str,
             vol.Optional("client_type"): str,
             vol.Optional("client_id"): str,
             vol.Optional("client_message_id"): str,
@@ -1351,6 +1357,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
         {
             vol.Required("text"): str,
             vol.Optional("music_dna_key"): str,
+            vol.Optional("profile_id"): str,
             vol.Optional("client_type"): str,
             vol.Optional("client_id"): str,
             vol.Optional("client_message_id"): str,
@@ -1366,6 +1373,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
     "ask_dj_idle_suggestion": _developer_service_schema(
         {
             vol.Optional("music_dna_key"): str,
+            vol.Optional("profile_id"): str,
             vol.Optional("client_type"): str,
             vol.Optional("client_id"): str,
             vol.Optional("device_id"): str,
@@ -1377,6 +1385,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
     "ask_dj_history": _developer_service_schema(
         {
             vol.Optional("music_dna_key"): str,
+            vol.Optional("profile_id"): str,
             vol.Optional("client_type"): str,
             vol.Optional("client_id"): str,
             vol.Optional("device_id"): str,
@@ -1393,6 +1402,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
             vol.Optional("album"): str,
             vol.Optional("genres"): object,
             vol.Optional("music_dna_key"): str,
+            vol.Optional("profile_id"): str,
             vol.Optional("client_type"): str,
             vol.Optional("client_id"): str,
             vol.Optional("device_id"): str,
@@ -1412,6 +1422,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
             vol.Optional("client_type"): str,
             vol.Optional("device_id"): str,
             vol.Optional("device_name"): str,
+            vol.Optional("profile_id"): str,
             vol.Optional("locale"): str,
             vol.Optional("language"): str,
             vol.Optional("render_capabilities"): str,
@@ -1422,6 +1433,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
     "music_discovery_feed": _developer_service_schema(
         {
             vol.Optional("music_dna_key"): str,
+            vol.Optional("profile_id"): str,
             vol.Optional("client_type"): str,
             vol.Optional("device_id"): str,
             vol.Optional("device_name"): str,
@@ -1433,6 +1445,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
     "refresh_music_discovery": _developer_service_schema(
         {
             vol.Optional("music_dna_key"): str,
+            vol.Optional("profile_id"): str,
             vol.Optional("client_type"): str,
             vol.Optional("device_id"): str,
             vol.Optional("device_name"): str,
@@ -1445,6 +1458,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
             vol.Required("discovery_item_id"): str,
             vol.Optional("section_id"): str,
             vol.Optional("music_dna_key"): str,
+            vol.Optional("profile_id"): str,
             vol.Optional("client_type"): str,
             vol.Optional("device_id"): str,
             vol.Optional("device_name"): str,
@@ -1455,6 +1469,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
     "music_dna_profile": _developer_service_schema(
         {
             vol.Optional("music_dna_key"): str,
+            vol.Optional("profile_id"): str,
             vol.Optional("client_type"): str,
             vol.Optional("client_id"): str,
             vol.Optional("device_id"): str,
@@ -1467,6 +1482,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
         {
             vol.Required("enabled"): bool,
             vol.Optional("music_dna_key"): str,
+            vol.Optional("profile_id"): str,
             vol.Optional("client_type"): str,
             vol.Optional("client_id"): str,
             vol.Optional("device_id"): str,
@@ -1478,6 +1494,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
     "clear_music_dna": _developer_service_schema(
         {
             vol.Optional("music_dna_key"): str,
+            vol.Optional("profile_id"): str,
             vol.Optional("client_type"): str,
             vol.Optional("client_id"): str,
             vol.Optional("device_id"): str,
@@ -1489,6 +1506,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
     "music_dna_export": _developer_service_schema(
         {
             vol.Optional("music_dna_key"): str,
+            vol.Optional("profile_id"): str,
             vol.Optional("client_type"): str,
             vol.Optional("client_id"): str,
             vol.Optional("device_id"): str,
@@ -1502,6 +1520,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
         {
             vol.Required("profile"): object,
             vol.Optional("music_dna_key"): str,
+            vol.Optional("profile_id"): str,
             vol.Optional("client_type"): str,
             vol.Optional("client_id"): str,
             vol.Optional("device_id"): str,
@@ -1514,6 +1533,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
     "clear_ask_dj_history": _developer_service_schema(
         {
             vol.Optional("music_dna_key"): str,
+            vol.Optional("profile_id"): str,
             vol.Optional("client_type"): str,
             vol.Optional("client_id"): str,
             vol.Optional("device_id"): str,
@@ -1523,6 +1543,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
     "ask_dj_history_state": _developer_service_schema(
         {
             vol.Optional("music_dna_key"): str,
+            vol.Optional("profile_id"): str,
             vol.Optional("client_type"): str,
             vol.Optional("client_id"): str,
             vol.Optional("device_id"): str,
