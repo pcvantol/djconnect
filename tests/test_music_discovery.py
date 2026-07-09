@@ -76,6 +76,32 @@ class MusicDiscoveryTests(unittest.TestCase):
                 self.assertTrue(item["uri"])
                 self.assertTrue(item["reason"])
                 self.assertTrue(item["reason_sources"])
+                self.assertIsInstance(item["quality_score"], int)
+                self.assertGreaterEqual(item["quality_score"], 0)
+                self.assertLessEqual(item["quality_score"], 100)
+                self.assertIn(item["quality_band"], {"low", "medium", "high"})
+                self.assertTrue(item["quality_factors"])
+
+    def test_feed_includes_expanded_backend_owned_sections(self) -> None:
+        result, status = asyncio.run(
+            music_discovery.async_handle_music_discovery_feed_payload(
+                self.hass,
+                _payload(),
+                headers=self.headers,
+                user_id="ha-user-1",
+                force_refresh=True,
+            )
+        )
+
+        self.assertEqual(status, 200)
+        section_ids = [section["id"] for section in result["sections"]]
+        self.assertIn("rediscover", section_ids)
+        self.assertIn("artist_spotlight", section_ids)
+        self.assertIn("accepted_recommendations", section_ids)
+        rediscover = next(section for section in result["sections"] if section["id"] == "rediscover")
+        self.assertEqual(rediscover["items"][0]["uri"], "spotify:track:top-track")
+        artist_spotlight = next(section for section in result["sections"] if section["id"] == "artist_spotlight")
+        self.assertEqual(artist_spotlight["items"][0]["uri"], "spotify:artist:the-xx")
 
     def test_feed_cache_and_refresh_revision(self) -> None:
         first, _ = asyncio.run(
@@ -97,6 +123,66 @@ class MusicDiscoveryTests(unittest.TestCase):
 
         self.assertEqual(first["revision"], second["revision"])
         self.assertTrue(second["cache"]["hit"])
+
+    def test_feed_rebuilds_cached_feed_when_music_dna_context_changes(self) -> None:
+        calls = []
+        self._original_run_music_command = music_discovery.run_music_command
+
+        async def command(hass, runtime, command_name, value=None, *, play=None):
+            calls.append(command_name)
+            if command_name == "artist_recommendations":
+                suffix = len(calls)
+                return {
+                    "success": True,
+                    "recommended_tracks": [
+                        {
+                            "track_name": f"Fresh Discovery {suffix}",
+                            "artist": "New Artist",
+                            "uri": f"spotify:track:fresh-discovery-{suffix}",
+                        }
+                    ],
+                }
+            return {"success": True, "tracks": []}
+
+        music_discovery.run_music_command = command
+        first, _ = asyncio.run(
+            music_discovery.async_handle_music_discovery_feed_payload(
+                self.hass,
+                _payload(),
+                headers=self.headers,
+                user_id="ha-user-1",
+            )
+        )
+        second, _ = asyncio.run(
+            music_discovery.async_handle_music_discovery_feed_payload(
+                self.hass,
+                _payload(),
+                headers=self.headers,
+                user_id="ha-user-1",
+            )
+        )
+        self.assertEqual(first["revision"], second["revision"])
+        self.assertTrue(second["cache"]["hit"])
+
+        self.runtime.memory.recent_tracks = [
+            {
+                "track_name": "New Context Track",
+                "artist": "Context Artist",
+                "uri": "spotify:track:new-context",
+            }
+        ]
+        third, _ = asyncio.run(
+            music_discovery.async_handle_music_discovery_feed_payload(
+                self.hass,
+                _payload(),
+                headers=self.headers,
+                user_id="ha-user-1",
+            )
+        )
+
+        self.assertGreater(third["revision"], second["revision"])
+        self.assertFalse(third["cache"]["hit"])
+        self.assertEqual(calls, ["artist_recommendations", "artist_recommendations"])
 
     def test_feed_writes_debug_logging_for_diagnostics(self) -> None:
         with self.assertLogs("custom_components.djconnect.music_discovery", level="DEBUG") as logs:
@@ -216,6 +302,10 @@ class MusicDiscoveryTests(unittest.TestCase):
         self.assertEqual(self.runtime.memory.updated_profiles[0]["sources"], ["spotify_recently_played"])
         section = next(section for section in result["sections"] if section["id"] == "new_for_you")
         self.assertEqual(section["items"][0]["uri"], "spotify:track:fresh-discovery")
+        self.assertIn("The xx", section["items"][0]["reason"])
+        self.assertIn("ambient", section["items"][0]["reason"])
+        self.assertIn("music_dna_artists", section["items"][0]["reason_sources"])
+        self.assertIn("music_dna_genres", section["items"][0]["reason_sources"])
         self.assertNotIn("spotify:track:native-spotify", [item["uri"] for item in section["items"]])
 
     def test_macos_feed_accepts_client_type_from_headers(self) -> None:
@@ -285,6 +375,219 @@ class MusicDiscoveryTests(unittest.TestCase):
         self.assertTrue(calls[0][2])
         self.assertEqual(self.runtime.memory.discovery_plays[0]["discovery_item_id"], item["id"])
         self.assertEqual(self.runtime.memory.discovery_plays[0]["reason"], item["reason"])
+        self.assertNotIn(
+            "context_signature",
+            self.runtime.music_discovery_cache["user:ha-user-1"],
+        )
+
+    def test_negative_feedback_records_signal_and_removes_cached_item(self) -> None:
+        self._original_run_music_command = music_discovery.run_music_command
+
+        async def command(hass, runtime, command_name, value=None, *, play=None):
+            if command_name == "artist_recommendations":
+                return {
+                    "success": True,
+                    "recommended_tracks": [
+                        {
+                            "track_name": "Fresh Discovery",
+                            "artist": "New Artist",
+                            "uri": "spotify:track:fresh-discovery",
+                        }
+                    ],
+                }
+            return {"success": True, "tracks": []}
+
+        music_discovery.run_music_command = command
+        feed, _ = asyncio.run(
+            music_discovery.async_handle_music_discovery_feed_payload(
+                self.hass,
+                _payload(),
+                headers=self.headers,
+                user_id="ha-user-1",
+                force_refresh=True,
+            )
+        )
+        section = next(section for section in feed["sections"] if section["id"] == "new_for_you")
+        item = section["items"][0]
+
+        result, status = asyncio.run(
+            music_discovery.async_handle_music_discovery_feedback_payload(
+                self.hass,
+                {
+                    **_payload(),
+                    "section_id": section["id"],
+                    "discovery_item_id": item["id"],
+                    "feedback": "hide_artist",
+                },
+                headers=self.headers,
+                user_id="ha-user-1",
+            )
+        )
+
+        self.assertEqual(status, 200)
+        self.assertTrue(result["success"])
+        self.assertEqual(result["feedback"], "hide_artist")
+        self.assertTrue(result["music_dna_feedback_recorded"])
+        self.assertEqual(self.runtime.memory.blocked_preferences[0]["kind"], "artist")
+        self.assertEqual(self.runtime.memory.blocked_preferences[0]["name"], "New Artist")
+        cached = self.runtime.music_discovery_cache["user:ha-user-1"]["response"]
+        cached_uris = [
+            cached_item["uri"]
+            for cached_section in cached["sections"]
+            for cached_item in cached_section["items"]
+        ]
+        self.assertNotIn(item["uri"], cached_uris)
+
+    def test_feed_filters_blocked_items_and_artists(self) -> None:
+        self.runtime.memory.blocked_items = [{"kind": "track", "name": "Blocked Track"}]
+        self.runtime.memory.blocked_artists = [{"kind": "artist", "name": "Blocked Artist"}]
+        self._original_run_music_command = music_discovery.run_music_command
+
+        async def command(hass, runtime, command_name, value=None, *, play=None):
+            if command_name == "artist_recommendations":
+                return {
+                    "success": True,
+                    "recommended_tracks": [
+                        {
+                            "track_name": "Blocked Track",
+                            "artist": "Allowed Artist",
+                            "uri": "spotify:track:blocked-track",
+                        },
+                        {
+                            "track_name": "Allowed Track",
+                            "artist": "Blocked Artist",
+                            "uri": "spotify:track:blocked-artist",
+                        },
+                        {
+                            "track_name": "Fresh Discovery",
+                            "artist": "New Artist",
+                            "uri": "spotify:track:fresh-discovery",
+                        },
+                    ],
+                }
+            return {"success": True, "tracks": []}
+
+        music_discovery.run_music_command = command
+
+        result, status = asyncio.run(
+            music_discovery.async_handle_music_discovery_feed_payload(
+                self.hass,
+                _payload(),
+                headers=self.headers,
+                user_id="ha-user-1",
+                force_refresh=True,
+            )
+        )
+
+        self.assertEqual(status, 200)
+        section = next(section for section in result["sections"] if section["id"] == "new_for_you")
+        self.assertEqual([item["uri"] for item in section["items"]], ["spotify:track:fresh-discovery"])
+
+    def test_feed_dedupes_title_variants_album_overlap_and_artist_overload(self) -> None:
+        self._original_run_music_command = music_discovery.run_music_command
+
+        async def command(hass, runtime, command_name, value=None, *, play=None):
+            if command_name == "artist_recommendations":
+                return {
+                    "success": True,
+                    "recommended_tracks": [
+                        {
+                            "track_name": "Ocean Drive",
+                            "artist": "Duke Dumont",
+                            "album": "Ocean Drive",
+                            "uri": "spotify:track:ocean-drive",
+                        },
+                        {
+                            "track_name": "Ocean Drive - Radio Edit",
+                            "artist": "Duke Dumont",
+                            "album": "Ocean Drive",
+                            "uri": "spotify:track:ocean-drive-radio",
+                        },
+                        {
+                            "track_name": "Ocean Drive - Live 2024 Remaster",
+                            "artist": "Duke Dumont",
+                            "album": "Ocean Drive",
+                            "uri": "spotify:track:ocean-drive-live",
+                        },
+                        {
+                            "track_name": "Need U",
+                            "artist": "Duke Dumont",
+                            "uri": "spotify:track:need-u",
+                        },
+                        {
+                            "track_name": "Won't Look Back",
+                            "artist": "Duke Dumont",
+                            "uri": "spotify:track:wont-look-back",
+                        },
+                        {
+                            "track_name": "Fresh Discovery",
+                            "artist": "New Artist",
+                            "uri": "spotify:track:fresh-discovery",
+                        },
+                    ],
+                }
+            return {"success": True, "tracks": []}
+
+        music_discovery.run_music_command = command
+
+        result, status = asyncio.run(
+            music_discovery.async_handle_music_discovery_feed_payload(
+                self.hass,
+                _payload(),
+                headers=self.headers,
+                user_id="ha-user-1",
+                force_refresh=True,
+            )
+        )
+
+        self.assertEqual(status, 200)
+        section = next(section for section in result["sections"] if section["id"] == "new_for_you")
+        self.assertEqual(
+            [item["uri"] for item in section["items"]],
+            ["spotify:track:ocean-drive", "spotify:track:need-u", "spotify:track:fresh-discovery"],
+        )
+
+    def test_quality_score_promotes_stronger_profile_matches(self) -> None:
+        self._original_run_music_command = music_discovery.run_music_command
+
+        async def command(hass, runtime, command_name, value=None, *, play=None):
+            if command_name == "artist_recommendations":
+                return {
+                    "success": True,
+                    "recommended_tracks": [
+                        {
+                            "track_name": "Good Unknown",
+                            "artist": "Unknown Artist",
+                            "uri": "spotify:track:unknown",
+                        },
+                        {
+                            "track_name": "Strong Match",
+                            "artist": "The xx",
+                            "uri": "spotify:track:strong-match",
+                            "album_image_url": "/api/djconnect/v1/image_proxy/strong",
+                        },
+                    ],
+                }
+            return {"success": True, "tracks": []}
+
+        music_discovery.run_music_command = command
+
+        result, status = asyncio.run(
+            music_discovery.async_handle_music_discovery_feed_payload(
+                self.hass,
+                _payload(),
+                headers=self.headers,
+                user_id="ha-user-1",
+                force_refresh=True,
+            )
+        )
+
+        self.assertEqual(status, 200)
+        section = next(section for section in result["sections"] if section["id"] == "new_for_you")
+        self.assertEqual(section["items"][0]["uri"], "spotify:track:strong-match")
+        self.assertGreater(section["items"][0]["quality_score"], section["items"][1]["quality_score"])
+        self.assertEqual(section["items"][0]["quality_band"], "high")
+        self.assertIn("favorite_artist_match", section["items"][0]["quality_factors"])
 
 
 def _payload() -> dict:
@@ -326,6 +629,9 @@ class _Memory:
 
     def __init__(self) -> None:
         self.discovery_plays = []
+        self.blocked_preferences = []
+        self.blocked_items = []
+        self.blocked_artists = []
         self.listening_profile_fresh = True
         self.listening_profile_ttl_seconds = None
         self.updated_profiles = []
@@ -361,6 +667,27 @@ class _Memory:
                         "reason": "Paste eerder goed bij je smaak.",
                     }
                 ],
+                "blocked_items": self.blocked_items,
+                "blocked_artists": self.blocked_artists,
+                "listening_profile": {
+                    "top_tracks_by_range": {
+                        "medium_term": [
+                            {
+                                "title": "Top Track",
+                                "artist": "The xx",
+                                "uri": "spotify:track:top-track",
+                            }
+                        ]
+                    },
+                    "top_artists_by_range": {
+                        "medium_term": [
+                            {
+                                "name": "The xx",
+                                "uri": "spotify:artist:the-xx",
+                            }
+                        ]
+                    },
+                },
             },
         }
 
@@ -384,6 +711,14 @@ class _Memory:
                 "section_id": (payload or {}).get("section_id"),
             }
         )
+        return "user:test"
+
+    async def async_record_blocked_music_preference(self, runtime, item, payload=None, *, user_id=None):
+        self.blocked_preferences.append(item)
+        if item.get("kind") == "artist":
+            self.blocked_artists.insert(0, item)
+        else:
+            self.blocked_items.insert(0, item)
         return "user:test"
 
 

@@ -1302,6 +1302,12 @@ def classify_ask_dj(text: str) -> AskDjIntent:
             "personal_music_dna_summary",
             "music_dna_summary",
         )
+    if _is_music_discovery_summary_request(normalized):
+        return AskDjIntent(
+            "informational",
+            "music_discovery_summary",
+            "music_discovery_summary",
+        )
     if "luisterprofiel" in normalized or "listening profile" in normalized:
         return AskDjIntent(
             "informational",
@@ -2420,6 +2426,21 @@ async def _handle_informational(
             "images": [],
             "links": [],
             "sources": [{"source": "djconnect_music_dna", "title": "Music DNA", "kind": "source"}],
+            "playback_actions": [],
+        }
+    if ask_intent.intent == "music_discovery_summary":
+        message = _music_discovery_summary_text(text, memory_context)
+        return {
+            "success": True,
+            "text": message,
+            "dj_text": message,
+            "action": "music_discovery_summary",
+            "images": [],
+            "links": [],
+            "sources": [
+                {"source": "djconnect_music_discovery", "title": "Music Discovery", "kind": "source"},
+                {"source": "djconnect_music_dna", "title": "Music DNA", "kind": "source"},
+            ],
             "playback_actions": [],
         }
     if ask_intent.intent == "personal_music_recommendations":
@@ -5094,6 +5115,7 @@ def _is_track_insight_analysis_request(normalized: str) -> bool:
 
 def _is_personal_memory_request(normalized: str) -> bool:
     """Return true for questions asking what DJConnect currently remembers."""
+    normalized = str(normalized or "").strip(" ?.!'\"")
     return normalized in {
         "wat weet je nu over mij",
         "wat weet je over mij",
@@ -5101,6 +5123,7 @@ def _is_personal_memory_request(normalized: str) -> bool:
         "wat staat er in mijn Music DNA",
         "wat staat er in Music DNA",
         "wat is mijn music dna",
+        "wat zegt mijn music dna",
         "geef mijn music dna samenvatting",
         "wat herinner je je over mij",
         "what do you know about me",
@@ -5117,6 +5140,71 @@ def _is_personal_memory_request(normalized: str) -> bool:
     } or (
         ("wat weet" in normalized or "what do you know" in normalized)
         and ("over mij" in normalized or "about me" in normalized)
+    ) or (
+        "music dna" in normalized
+        and any(term in normalized for term in ("wat zegt", "what does", "wat staat", "what is in"))
+    )
+
+
+def _is_music_discovery_summary_request(normalized: str) -> bool:
+    """Return true for read-only questions about the Discover recommendation feed."""
+    normalized = str(normalized or "").strip(" ?.!'\"")
+    if (
+        ("deze aanbeveling" in normalized or "this recommendation" in normalized)
+        and ("smaak" in normalized or "taste" in normalized or "past" in normalized or "fit" in normalized)
+    ):
+        return True
+    discovery_terms = (
+        "discover",
+        "ontdek",
+        "music discovery",
+    )
+    if not any(term in normalized for term in discovery_terms):
+        return False
+    return any(
+        phrase in normalized
+        for phrase in (
+            "wat is er nieuw",
+            "wat is nieuw",
+            "wat staat er",
+            "ververs",
+            "refresh",
+            "aanbevelingen",
+            "recommendations",
+            "passen het beste",
+            "fit me best",
+            "past deze aanbeveling",
+            "why does this recommendation",
+            "recommendation fit",
+        )
+    )
+
+
+def _music_discovery_summary_text(text: str, memory_context: dict[str, Any]) -> str:
+    """Return a compact read-only explanation for Discover help-style requests."""
+    memory = memory_context.get("memory") if isinstance(memory_context, dict) else {}
+    enabled = bool(memory.get("enabled")) if isinstance(memory, dict) else False
+    normalized = _normalize(text)
+    if "ververs" in normalized or "refresh" in normalized:
+        return (
+            "Discover wordt server-side vanuit Music DNA en Spotify-profielsignalen ververst. "
+            "Open het Discover-scherm of gebruik de Discover refresh-knop om de nieuwste backend-feed op te halen; "
+            "ik start hierbij geen muziek."
+        )
+    if "waarom" in normalized or "why" in normalized or "past deze aanbeveling" in normalized:
+        return (
+            "Discover legt aanbevelingen uit met compacte Music DNA-signalen zoals favoriete artiesten, genres, "
+            "recente luistercontext, kwaliteitsscore en feedback. Een Play Now-keuze telt als positief signaal; "
+            "Niet voor mij of Verberg artiest telt als negatief signaal voor toekomstige tips."
+        )
+    if enabled:
+        return (
+            "Discover gebruikt je ingeschakelde Music DNA om nieuwe aanbevelingen, rediscover-tips en artiestankers te maken. "
+            "De feed toont backend-aanbevelingen met redenen en Play Now-knoppen; recent afgespeelde tracks worden alleen als context gebruikt."
+        )
+    return (
+        "Discover werkt pas persoonlijk zodra Music DNA is ingeschakeld. Daarna gebruikt de backend compacte luistersignalen "
+        "om aanbevelingen met redenen en Play Now-knoppen te maken."
     )
 
 
@@ -8907,36 +8995,40 @@ def _help_sections(language: str = "nl") -> list[tuple[str, list[str]]]:
     localized: dict[str, list[tuple[str, list[str]]]] = {
         "en": [
             ("Start music", ["Play [artist]", "I want to hear [song]", "Play [song] by [artist]", "Put on a [genre] playlist", "Play something for cooking"]),
-            ("Play Now choices", ["Show me albums by [artist]", "Which albums did [artist] release?", "Give me 5 songs by [artist]", "Find artists similar to [artist]", "Which playlists are there for [genre]?", "Which playlists do I have?", "Make a mix based on [artist], [artist] and [artist]"]),
+            ("Play Now choices", ["Show me albums by [artist]", "Which albums did [artist] release?", "Give me 5 songs by [artist]", "Give me 10 versions of [song] by different artists", "Find artists similar to [artist]", "Which playlists are there for [genre]?", "Which playlists do I have?", "Make a mix based on [artist], [artist] and [artist]"]),
             ("Speakers and playback", ["Which speakers are available?", "Switch speaker", "What is playing on?", "Pause", "Resume", "Next song", "Previous song", "What is in the queue?", "Louder", "Softer", "Shuffle on", "Repeat off"]),
             ("DJ context", ["What is playing now?", "Why did you choose this song?", "Tell me about this artist", "Do you have a live version?", "Do you have an acoustic version?", "Give a DJ intro for this song", "Analyze this song", "What genre is this?"]),
+            ("Discover and Music DNA", ["What is new in Discover?", "Refresh my Discover recommendations", "What does my Music DNA say?", "Which Discover recommendations fit me best?", "Why does this recommendation fit my taste?"]),
             ("Personal taste", ["What do you know about me?", "Analyze my listening profile", "What did I listen to this month?", "Give personal music recommendations", "Which artists fit my taste?", "I want more music like this"]),
             ("Follow-ups", ["Try again", "Play it", "I want to hear [song]", "No, I mean the live version", "Only from the 90s", "Make this a playlist"]),
             ("Good to know", ["Ask DJ only starts music directly for clear playback requests.", "For lists, albums, recommendations and speakers you get buttons such as Play Now or Activate."]),
         ],
         "de": [
             ("Musik starten", ["Spiele [artist]", "Ich möchte [song] hören", "Spiele [song] von [artist]", "Starte eine [genre]-Playlist", "Spiel etwas zum Kochen"]),
-            ("Play Now-Auswahl", ["Zeig mir Alben von [artist]", "Welche Alben hat [artist] veröffentlicht?", "Gib mir 5 Songs von [artist]", "Finde ähnliche Künstler wie [artist]", "Welche Playlists gibt es für [genre]?", "Welche Playlists habe ich?", "Erstelle einen Mix aus [artist], [artist] und [artist]"]),
+            ("Play Now-Auswahl", ["Zeig mir Alben von [artist]", "Welche Alben hat [artist] veröffentlicht?", "Gib mir 5 Songs von [artist]", "Gib mir 10 Versionen von [song] von verschiedenen Künstlern", "Finde ähnliche Künstler wie [artist]", "Welche Playlists gibt es für [genre]?", "Welche Playlists habe ich?", "Erstelle einen Mix aus [artist], [artist] und [artist]"]),
             ("Speaker und Wiedergabe", ["Welche Speaker gibt es?", "Wechsle den Speaker", "Worauf läuft die Musik?", "Pause", "Weiter spielen", "Nächster Song", "Vorheriger Song", "Was steht in der Warteschlange?", "Lauter", "Leiser", "Shuffle an", "Repeat aus"]),
             ("DJ-Kontext", ["Was läuft gerade?", "Warum hast du diesen Song gewählt?", "Erzähl etwas über diesen Künstler", "Hast du eine Live-Version?", "Hast du eine Akustikversion?", "Gib ein DJ-Intro für diesen Song", "Analysiere diesen Song", "Welches Genre ist das?"]),
+            ("Discover und Music DNA", ["Was ist neu in Discover?", "Aktualisiere meine Discover-Empfehlungen", "Was sagt mein Music DNA?", "Welche Discover-Empfehlungen passen am besten zu mir?", "Warum passt diese Empfehlung zu meinem Geschmack?"]),
             ("Persönlicher Musikgeschmack", ["Was weißt du über mich?", "Analysiere mein Hörprofil", "Was habe ich diesen Monat gehört?", "Gib persönliche Musikempfehlungen", "Welche Künstler passen zu meinem Geschmack?", "Ich möchte mehr Musik wie diese"]),
             ("Follow-ups", ["Versuche es erneut", "Spiel es ab", "Ich möchte [song] hören", "Nein, ich meine die Live-Version", "Nur aus den 90ern", "Mach daraus eine Playlist"]),
             ("Gut zu wissen", ["Ask DJ startet Musik nur bei klaren Wiedergabeanfragen direkt.", "Bei Listen, Alben, Empfehlungen und Speakern erhältst du Buttons wie Play Now oder Aktivieren."]),
         ],
         "fr": [
             ("Lancer la musique", ["Joue [artist]", "Je veux écouter [song]", "Joue [song] de [artist]", "Mets une playlist [genre]", "Mets quelque chose pour cuisiner"]),
-            ("Choix Play Now", ["Montre-moi les albums de [artist]", "Quels albums [artist] a-t-il sortis ?", "Donne-moi 5 titres de [artist]", "Trouve des artistes similaires à [artist]", "Quelles playlists existent pour [genre] ?", "Quelles playlists ai-je ?", "Crée un mix avec [artist], [artist] et [artist]"]),
+            ("Choix Play Now", ["Montre-moi les albums de [artist]", "Quels albums [artist] a-t-il sortis ?", "Donne-moi 5 titres de [artist]", "Donne-moi 10 versions de [song] par différents artistes", "Trouve des artistes similaires à [artist]", "Quelles playlists existent pour [genre] ?", "Quelles playlists ai-je ?", "Crée un mix avec [artist], [artist] et [artist]"]),
             ("Enceintes et lecture", ["Quelles enceintes sont disponibles ?", "Change d’enceinte", "Sur quoi la musique est-elle lue ?", "Pause", "Reprendre", "Titre suivant", "Titre précédent", "Qu’y a-t-il dans la file d’attente ?", "Plus fort", "Moins fort", "Shuffle activé", "Repeat désactivé"]),
             ("Contexte DJ", ["Qu’est-ce qui passe maintenant ?", "Pourquoi as-tu choisi ce titre ?", "Parle-moi de cet artiste", "As-tu une version live ?", "As-tu une version acoustique ?", "Fais une intro DJ pour ce titre", "Analyse ce titre", "Quel est ce genre ?"]),
+            ("Discover et Music DNA", ["Quoi de neuf dans Discover ?", "Actualise mes recommandations Discover", "Que dit mon Music DNA ?", "Quelles recommandations Discover me correspondent le mieux ?", "Pourquoi cette recommandation correspond-elle à mes goûts ?"]),
             ("Goûts personnels", ["Que sais-tu de moi ?", "Analyse mon profil d’écoute", "Qu’ai-je écouté ce mois-ci ?", "Donne des recommandations musicales personnelles", "Quels artistes correspondent à mes goûts ?", "Je veux plus de musique comme ça"]),
             ("Suites", ["Réessaie", "Joue-le", "Je veux écouter [song]", "Non, je veux dire la version live", "Seulement des années 90", "Fais-en une playlist"]),
             ("À savoir", ["Ask DJ ne lance directement la musique que pour des demandes de lecture claires.", "Pour les listes, albums, recommandations et enceintes, tu obtiens des boutons comme Play Now ou Activer."]),
         ],
         "es": [
             ("Iniciar música", ["Reproduce [artist]", "Quiero escuchar [song]", "Reproduce [song] de [artist]", "Pon una playlist de [genre]", "Pon algo para cocinar"]),
-            ("Opciones Play Now", ["Muéstrame álbumes de [artist]", "¿Qué álbumes publicó [artist]?", "Dame 5 canciones de [artist]", "Busca artistas similares a [artist]", "¿Qué playlists hay para [genre]?", "¿Qué playlists tengo?", "Haz una mezcla basada en [artist], [artist] y [artist]"]),
+            ("Opciones Play Now", ["Muéstrame álbumes de [artist]", "¿Qué álbumes publicó [artist]?", "Dame 5 canciones de [artist]", "Dame 10 versiones de [song] de distintos artistas", "Busca artistas similares a [artist]", "¿Qué playlists hay para [genre]?", "¿Qué playlists tengo?", "Haz una mezcla basada en [artist], [artist] y [artist]"]),
             ("Altavoces y reproducción", ["¿Qué altavoces hay?", "Cambia de altavoz", "¿Dónde está sonando la música?", "Pausa", "Continúa", "Siguiente canción", "Canción anterior", "¿Qué hay en la cola?", "Más alto", "Más bajo", "Shuffle activado", "Repeat desactivado"]),
             ("Contexto DJ", ["¿Qué está sonando ahora?", "¿Por qué elegiste esta canción?", "Cuéntame sobre este artista", "¿Tienes una versión en vivo?", "¿Tienes una versión acústica?", "Haz una intro DJ para esta canción", "Analiza esta canción", "¿Qué género es este?"]),
+            ("Discover y Music DNA", ["¿Qué hay de nuevo en Discover?", "Actualiza mis recomendaciones de Discover", "¿Qué dice mi Music DNA?", "¿Qué recomendaciones de Discover encajan mejor conmigo?", "¿Por qué esta recomendación encaja con mi gusto?"]),
             ("Gusto personal", ["¿Qué sabes de mí?", "Analiza mi perfil de escucha", "¿Qué escuché este mes?", "Dame recomendaciones musicales personales", "¿Qué artistas encajan con mi gusto?", "Quiero más música como esta"]),
             ("Seguimientos", ["Inténtalo de nuevo", "Reprodúcelo", "Quiero escuchar [song]", "No, me refiero a la versión en vivo", "Solo de los años 90", "Convierte esto en una playlist"]),
             ("Conviene saber", ["Ask DJ solo inicia música directamente con peticiones claras de reproducción.", "Para listas, álbumes, recomendaciones y altavoces recibirás botones como Play Now o Activar."]),
@@ -8963,6 +9055,7 @@ def _help_sections(language: str = "nl") -> list[tuple[str, list[str]]]:
                 "Welke albums bracht [artiest] uit?",
                 "Welke muziek heeft [artiest] gemaakt?",
                 "Geef me 5 nummers van [artiest]",
+                "Geef me 10 uitvoeringen van [nummer] door verschillende artiesten",
                 "Geef vergelijkbare artiesten als [artiest]",
                 "Welke playlists zijn er voor hardlopen?",
                 "Wat voor [genre] playlists heb je?",
@@ -9017,6 +9110,16 @@ def _help_sections(language: str = "nl") -> list[tuple[str, list[str]]]:
                 "Welke artiesten passen bij mijn smaak?",
                 "Ik wil meer van deze muziek horen",
                 "Ik wil vergelijkbare tracks",
+            ],
+        ),
+        (
+            "Discover en Music DNA",
+            [
+                "Wat is er nieuw in Discover?",
+                "Ververs mijn Discover aanbevelingen",
+                "Wat zegt mijn Music DNA?",
+                "Welke Discover aanbevelingen passen het beste bij mij?",
+                "Waarom past deze aanbeveling bij mijn smaak?",
             ],
         ),
         (

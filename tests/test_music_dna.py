@@ -60,6 +60,59 @@ class MusicDNAManagerTest(unittest.TestCase):
 
         self.assertEqual(key, "djconnect-watchos-8F3A2C91B45D")
 
+    def test_listening_profile_snapshots_are_compact_and_bounded(self) -> None:
+        manager = MusicDNAManager(store=FakeStore())
+        runtime = runtime_for(client_type="ios", device_id="djconnect-ios-ABCDEF123456")
+        asyncio.run(manager.async_set_enabled(runtime, True, {"client_type": "ios"}, user_id="ha-user-1"))
+
+        for index in range(14):
+            asyncio.run(
+                manager.async_update_listening_profile(
+                    runtime,
+                    {
+                        "recent_tracks": [
+                            {
+                                "track_name": f"Recent {index}",
+                                "artist": "Artist",
+                                "uri": f"spotify:track:recent-{index}",
+                            }
+                        ],
+                        "top_tracks_by_range": {
+                            "short_term": [
+                                {
+                                    "track_name": f"Top {index}",
+                                    "artist": "Artist",
+                                    "uri": f"spotify:track:top-{index}",
+                                }
+                            ]
+                        },
+                        "top_artists_by_range": {
+                            "short_term": [
+                                {
+                                    "name": f"Artist {index}",
+                                    "uri": f"spotify:artist:{index}",
+                                    "genres": ["indie"],
+                                }
+                            ]
+                        },
+                        "inferred_genres": ["indie", "ambient"],
+                        "sources": ["spotify_recently_played", "spotify_top_tracks_short_term"],
+                        "last_profile_refresh": f"2026-07-09T{index:02d}:00:00+00:00",
+                    },
+                    {"client_type": "ios"},
+                    user_id="ha-user-1",
+                )
+            )
+
+        profile = asyncio.run(manager.async_profile(runtime, {"client_type": "ios"}, user_id="ha-user-1"))["profile"]
+        snapshots = profile["snapshot_history"]
+        self.assertEqual(len(snapshots), 12)
+        self.assertEqual(snapshots[0]["captured_at"], "2026-07-09T13:00:00+00:00")
+        self.assertEqual(snapshots[-1]["captured_at"], "2026-07-09T02:00:00+00:00")
+        self.assertEqual(snapshots[0]["top_tracks"][0]["title"], "Top 13")
+        self.assertEqual(snapshots[0]["top_artists"][0]["name"], "Artist 13")
+        self.assertNotIn("recent_tracks", snapshots[0])
+
     def test_runtime_follow_up_context_is_shared_by_user_id(self) -> None:
         manager = MusicDNAManager(store=FakeStore())
         watch = runtime_for()
@@ -464,6 +517,50 @@ class MusicDNAManagerTest(unittest.TestCase):
         )
         self.assertIn("Niet meer draaien volgens gebruiker: BLØF", prompt_context_text(context))
 
+    def test_discover_feedback_is_available_to_ask_dj_context(self) -> None:
+        store = FakeStore()
+        manager = MusicDNAManager(store=store)
+        runtime = runtime_for()
+        asyncio.run(manager.async_set_enabled(runtime, True, user_id="ha-user-1"))
+
+        asyncio.run(
+            manager.async_record_discovery_play(
+                runtime,
+                {
+                    "id": "track:1",
+                    "kind": "track",
+                    "uri": "spotify:track:1",
+                    "title": "Midnight City",
+                    "subtitle": "M83",
+                    "reason": "past bij je recente synthpop",
+                    "quality_score": 91,
+                    "quality_band": "high",
+                },
+                {"section_id": "new_for_you"},
+                user_id="ha-user-1",
+            )
+        )
+        asyncio.run(
+            manager.async_record_blocked_music_preference(
+                runtime,
+                {"kind": "artist", "name": "Coldplay", "reason": "hide_artist"},
+                user_id="ha-user-1",
+            )
+        )
+
+        context = asyncio.run(manager.async_context_for_runtime(runtime, user_id="ha-user-1"))
+        prompt_text = prompt_context_text(context)
+        self.assertIn("Discover gekozen door gebruiker: Midnight City - M83, kwaliteit 91", prompt_text)
+        self.assertIn("reden: past bij je recente synthpop", prompt_text)
+        self.assertIn("Discover negatieve feedback: artiest Coldplay", prompt_text)
+
+        profile = asyncio.run(manager.async_profile(runtime, user_id="ha-user-1"))["profile"]
+        feedback = profile["discovery_feedback"]
+        self.assertTrue(feedback["eligible"])
+        self.assertEqual(feedback["accepted_items"][0]["title"], "Midnight City")
+        self.assertEqual(feedback["accepted_items"][0]["quality_score"], 91)
+        self.assertEqual(feedback["blocked_artists"][0]["name"], "Coldplay")
+
     def test_clear_memory_helper_removes_persistent_and_runtime_context(self) -> None:
         store = FakeStore()
         manager = MusicDNAManager(store=store)
@@ -630,6 +727,7 @@ class MusicDNAManagerTest(unittest.TestCase):
             "recommendation_signals",
             "blocked_artists",
             "blocked_items",
+            "discovery_feedback",
         ):
             self.assertNotIn(key, profile)
         self.assertFalse(profile["repeat_magnets"]["eligible"])

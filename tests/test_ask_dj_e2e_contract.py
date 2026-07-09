@@ -32,6 +32,7 @@ class AskDjE2EContractTest(unittest.TestCase):
         "list_outputs",
         "mood_mix",
         "morning_music_suggestion",
+        "music_discovery_summary",
         "next_track_info",
         "personal_music_dna_summary",
         "personal_music_profile_analysis",

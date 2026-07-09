@@ -1581,6 +1581,19 @@ async def async_handle_music_discovery_play_payload(
     return await handler(hass, data, headers=headers, user_id=user_id)
 
 
+async def async_handle_music_discovery_feedback_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Record Music Discovery feedback for HTTP and websocket transports."""
+    from .music_discovery import async_handle_music_discovery_feedback_payload as handler
+
+    return await handler(hass, data, headers=headers, user_id=user_id)
+
+
 async def async_handle_ask_dj_history_clear_payload(
     hass: Any,
     data: dict[str, Any],

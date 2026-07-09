@@ -26,6 +26,7 @@ from .const import (
     API_COMMAND,
     API_IMAGE_PROXY,
     API_MUSIC_DISCOVERY,
+    API_MUSIC_DISCOVERY_FEEDBACK,
     API_MUSIC_DISCOVERY_PLAY,
     API_MUSIC_DISCOVERY_REFRESH,
     API_MUSIC_DNA_CLEAR,
@@ -2975,6 +2976,31 @@ class DJConnectMusicDiscoveryPlayView(HomeAssistantView):
         from .api_handlers import async_handle_music_discovery_play_payload
 
         result, status_code = await async_handle_music_discovery_play_payload(
+            hass,
+            data,
+            headers=request.headers,
+            user_id=_request_user_id(request),
+        )
+        return self.json(result, status_code=status_code)
+
+
+class DJConnectMusicDiscoveryFeedbackView(HomeAssistantView):
+    url = API_MUSIC_DISCOVERY_FEEDBACK
+    name = "api:djconnect:music_discovery_feedback"
+    requires_auth = False
+
+    def __init__(self, hass):
+        self.hass = hass
+
+    async def post(self, request):
+        hass = request.app["hass"]
+        try:
+            data = await request.json()
+        except Exception:  # noqa: BLE001
+            return _json_error(self, "invalid_json", 400)
+        from .api_handlers import async_handle_music_discovery_feedback_payload
+
+        result, status_code = await async_handle_music_discovery_feedback_payload(
             hass,
             data,
             headers=request.headers,

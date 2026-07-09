@@ -805,6 +805,52 @@ play_music_discovery_item:
         text:
           multiline: false
 
+music_discovery_feedback:
+  name: Music Discovery feedback
+  description: >
+    Developer helper: record negative feedback for a cached Music Discovery item
+    through the same route as /api/djconnect/v1/music_discovery/feedback. This
+    updates compact Music DNA preference signals without starting playback.
+  fields:
+    discovery_item_id:
+      name: Discovery item ID
+      description: Item id from a Music Discovery feed response.
+      required: true
+      selector:
+        text:
+          multiline: false
+    section_id:
+      name: Section ID
+      description: Optional section id from the Music Discovery feed response.
+      required: false
+      selector:
+        text:
+          multiline: false
+    feedback:
+      name: Feedback
+      description: Negative feedback action to record.
+      required: true
+      selector:
+        select:
+          options:
+            - not_for_me
+            - less_like_this
+            - hide_artist
+    music_dna_key:
+      name: Music DNA key
+      description: Optional Music DNA key to resolve the cached feed.
+      required: false
+      selector:
+        text:
+          multiline: false
+    client_type:
+      name: Client type
+      description: Optional DJConnect client type used when resolving Music DNA.
+      required: false
+      selector:
+        text:
+          multiline: false
+
 music_dna_profile:
   name: Music DNA profile
   description: >

@@ -170,6 +170,12 @@ The website can use `ask_dj_intents` to render example families for:
   and `Heb je remixes?`. Ask DJ searches Spotify from the active track/artist
   context and returns matching track rows with `Play Now` buttons. It does not
   start playback automatically.
+- `track_versions_search`: same-title variant searches such as `Geef me 10
+  uitvoeringen van [nummer] door verschillende artiesten`, `Zoek versies van
+  "[nummer]"`, `Toon covers van "[nummer]"`, `Find versions of "[song]"` and
+  `Give me versions titled [song]`. Ask DJ searches Spotify with limit 10,
+  requires every meaningful title word to appear in each returned track title,
+  returns `Play Now` buttons and does not start playback automatically.
 - `personal_music_profile_analysis`: non-mutating listening-profile questions
   based on Music DNA plus Spotify recently played/top profile data.
 - `track_insight`: non-mutating Track Insight questions about the current track,

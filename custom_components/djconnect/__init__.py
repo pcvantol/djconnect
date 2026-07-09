@@ -89,6 +89,7 @@ from .http import (
     DJConnectAskDjView,
     DJConnectEventView,
     DJConnectImageProxyView,
+    DJConnectMusicDiscoveryFeedbackView,
     DJConnectMusicDiscoveryPlayView,
     DJConnectMusicDiscoveryRefreshView,
     DJConnectMusicDiscoveryView,
@@ -1671,6 +1672,7 @@ def register_http_views(hass: HomeAssistant) -> None:
             DJConnectMusicDiscoveryView(hass),
             DJConnectMusicDiscoveryRefreshView(hass),
             DJConnectMusicDiscoveryPlayView(hass),
+            DJConnectMusicDiscoveryFeedbackView(hass),
             DJConnectMusicDnaProfileView(hass),
             DJConnectMusicDnaSettingsView(hass),
             DJConnectMusicDnaClearView(hass),
@@ -2421,6 +2423,24 @@ def _register_developer_services(
         )
         return result
 
+    async def handle_music_discovery_feedback(call: ServiceCall) -> dict[str, Any]:
+        from .api_handlers import async_handle_music_discovery_feedback_payload
+
+        payload = discovery_service_payload(call)
+        _LOGGER.debug(
+            "DJConnect Music Discovery feedback service request client_type=%s action=%s item_id_present=%s",
+            payload.get(CONF_CLIENT_TYPE),
+            payload.get("feedback") or payload.get("action"),
+            bool(str(payload.get("discovery_item_id") or payload.get("item_id") or "").strip()),
+        )
+        result, _status = await async_handle_music_discovery_feedback_payload(
+            hass,
+            payload,
+            headers=discovery_service_headers(payload),
+            user_id=discovery_service_user_id(call),
+        )
+        return result
+
     async def handle_music_dna_profile(call: ServiceCall) -> dict[str, Any]:
         from .api_handlers import async_handle_music_dna_profile_payload
 
@@ -2569,6 +2589,7 @@ def _register_developer_services(
         "music_discovery_feed": (handle_music_discovery_feed, "optional"),
         "refresh_music_discovery": (handle_refresh_music_discovery, "optional"),
         "play_music_discovery_item": (handle_play_music_discovery_item, "optional"),
+        "music_discovery_feedback": (handle_music_discovery_feedback, "optional"),
         "music_dna_profile": (handle_music_dna_profile, "optional"),
         "set_music_dna_enabled": (handle_set_music_dna_enabled, "optional"),
         "clear_music_dna": (handle_clear_music_dna, "optional"),

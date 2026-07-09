@@ -25,6 +25,41 @@ WS_TYPE_MUSIC_DNA_CLEAR = "djconnect/music_dna/clear"
 WS_TYPE_MUSIC_DISCOVERY_FEED = "djconnect/music_discovery/feed"
 WS_TYPE_MUSIC_DISCOVERY_REFRESH = "djconnect/music_discovery/refresh"
 WS_TYPE_MUSIC_DISCOVERY_PLAY = "djconnect/music_discovery/play"
+WS_TYPE_MUSIC_DISCOVERY_FEEDBACK = "djconnect/music_discovery/feedback"
+
+HTTP_FALLBACK_PATHS = {
+    "ask_dj_message": "/api/djconnect/v1/ask_dj/message",
+    "ask_dj_history": "/api/djconnect/v1/ask_dj/history",
+    "ask_dj_history_clear": "/api/djconnect/v1/ask_dj/history/clear",
+    "command": "/api/djconnect/v1/command",
+    "music_dna_profile": "/api/djconnect/v1/music_dna/profile",
+    "music_dna_settings": "/api/djconnect/v1/music_dna/settings",
+    "music_dna_clear": "/api/djconnect/v1/music_dna/clear",
+    "music_discovery_feed": "/api/djconnect/v1/music_discovery",
+    "music_discovery_refresh": "/api/djconnect/v1/music_discovery/refresh",
+    "music_discovery_play": "/api/djconnect/v1/music_discovery/play",
+    "music_discovery_feedback": "/api/djconnect/v1/music_discovery/feedback",
+    "track_insight": "/api/djconnect/v1/track_insight",
+}
+
+FEATURE_COMMANDS = {
+    "ask_dj_chat": (WS_TYPE_ASK_DJ_MESSAGE,),
+    "ask_dj_history": (WS_TYPE_ASK_DJ_HISTORY, WS_TYPE_ASK_DJ_HISTORY_CLEAR),
+    "ask_dj_idle_suggestion": (WS_TYPE_ASK_DJ_IDLE_SUGGESTION,),
+    "backend_commands": (WS_TYPE_COMMAND,),
+    "track_insight": (WS_TYPE_TRACK_INSIGHT,),
+    "music_dna": (
+        WS_TYPE_MUSIC_DNA_PROFILE,
+        WS_TYPE_MUSIC_DNA_SETTINGS,
+        WS_TYPE_MUSIC_DNA_CLEAR,
+    ),
+    "music_discovery": (
+        WS_TYPE_MUSIC_DISCOVERY_FEED,
+        WS_TYPE_MUSIC_DISCOVERY_REFRESH,
+        WS_TYPE_MUSIC_DISCOVERY_PLAY,
+    ),
+    "music_discovery_feedback": (WS_TYPE_MUSIC_DISCOVERY_FEEDBACK,),
+}
 
 
 async def async_handle_command_payload(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], int]:
@@ -105,6 +140,12 @@ async def async_handle_music_discovery_play_payload(*args: Any, **kwargs: Any) -
     return await handler(*args, **kwargs)
 
 
+async def async_handle_music_discovery_feedback_payload(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], int]:
+    from .api_handlers import async_handle_music_discovery_feedback_payload as handler
+
+    return await handler(*args, **kwargs)
+
+
 def _websocket_command(schema: dict[Any, Any]) -> Any:
     if websocket_api is None:
         return lambda func: func
@@ -138,6 +179,7 @@ def async_register(hass: Any) -> None:
     websocket_api.async_register_command(hass, websocket_music_discovery_feed)
     websocket_api.async_register_command(hass, websocket_music_discovery_refresh)
     websocket_api.async_register_command(hass, websocket_music_discovery_play)
+    websocket_api.async_register_command(hass, websocket_music_discovery_feedback)
     domain_data["websocket_registered"] = True
 
 
@@ -149,6 +191,7 @@ def async_register(hass: Any) -> None:
 @_async_response
 async def websocket_capabilities(hass: Any, connection: Any, msg: dict[str, Any]) -> None:
     """Return optional websocket transport capabilities for DJConnect clients."""
+    commands = _supported_websocket_commands()
     connection.send_result(
         msg["id"],
         {
@@ -156,27 +199,104 @@ async def websocket_capabilities(hass: Any, connection: Any, msg: dict[str, Any]
             "domain": DOMAIN,
             "ha_version": VERSION,
             "websocket_supported": True,
-            "commands": [
-                WS_TYPE_COMMAND,
-                WS_TYPE_ASK_DJ_MESSAGE,
-                WS_TYPE_ASK_DJ_HISTORY,
-                WS_TYPE_ASK_DJ_HISTORY_CLEAR,
-                WS_TYPE_ASK_DJ_HISTORY_STATE,
-                WS_TYPE_ASK_DJ_IDLE_SUGGESTION,
-                WS_TYPE_TRACK_INSIGHT,
-                WS_TYPE_MUSIC_DNA_PROFILE,
-                WS_TYPE_MUSIC_DNA_SETTINGS,
-                WS_TYPE_MUSIC_DNA_CLEAR,
-                WS_TYPE_MUSIC_DISCOVERY_FEED,
-                WS_TYPE_MUSIC_DISCOVERY_REFRESH,
-                WS_TYPE_MUSIC_DISCOVERY_PLAY,
-            ],
+            "commands": commands,
+            "features": _feature_capabilities(commands),
+            "fallbacks": _capability_fallbacks(commands),
             "transports": {
                 "http": True,
                 "websocket": True,
             },
         },
     )
+
+
+def _supported_websocket_commands() -> list[str]:
+    """Return supported DJConnect websocket command types in stable order."""
+    return [
+        WS_TYPE_COMMAND,
+        WS_TYPE_ASK_DJ_MESSAGE,
+        WS_TYPE_ASK_DJ_HISTORY,
+        WS_TYPE_ASK_DJ_HISTORY_CLEAR,
+        WS_TYPE_ASK_DJ_HISTORY_STATE,
+        WS_TYPE_ASK_DJ_IDLE_SUGGESTION,
+        WS_TYPE_TRACK_INSIGHT,
+        WS_TYPE_MUSIC_DNA_PROFILE,
+        WS_TYPE_MUSIC_DNA_SETTINGS,
+        WS_TYPE_MUSIC_DNA_CLEAR,
+        WS_TYPE_MUSIC_DISCOVERY_FEED,
+        WS_TYPE_MUSIC_DISCOVERY_REFRESH,
+        WS_TYPE_MUSIC_DISCOVERY_PLAY,
+        WS_TYPE_MUSIC_DISCOVERY_FEEDBACK,
+    ]
+
+
+def _feature_capabilities(commands: list[str]) -> dict[str, bool]:
+    """Return coarse feature flags so clients can degrade without version parsing."""
+    available = set(commands)
+    return {
+        feature: all(command in available for command in required)
+        for feature, required in FEATURE_COMMANDS.items()
+    }
+
+
+def _capability_fallbacks(commands: list[str]) -> dict[str, dict[str, Any]]:
+    """Return client fallback hints for each backend-facing feature."""
+    features = _feature_capabilities(commands)
+    return {
+        "ask_dj_chat": {
+            "available": features["ask_dj_chat"],
+            "preferred_transport": "websocket" if features["ask_dj_chat"] else "http",
+            "http_path": HTTP_FALLBACK_PATHS["ask_dj_message"],
+            "missing_behavior": "use_http",
+        },
+        "ask_dj_history": {
+            "available": features["ask_dj_history"],
+            "preferred_transport": "websocket" if features["ask_dj_history"] else "http",
+            "http_paths": {
+                "history": HTTP_FALLBACK_PATHS["ask_dj_history"],
+                "clear": HTTP_FALLBACK_PATHS["ask_dj_history_clear"],
+            },
+            "missing_behavior": "use_http",
+        },
+        "backend_commands": {
+            "available": features["backend_commands"],
+            "preferred_transport": "websocket" if features["backend_commands"] else "http",
+            "http_path": HTTP_FALLBACK_PATHS["command"],
+            "missing_behavior": "use_http",
+        },
+        "track_insight": {
+            "available": features["track_insight"],
+            "preferred_transport": "websocket" if features["track_insight"] else "http",
+            "http_path": HTTP_FALLBACK_PATHS["track_insight"],
+            "missing_behavior": "use_http",
+        },
+        "music_dna": {
+            "available": features["music_dna"],
+            "preferred_transport": "websocket" if features["music_dna"] else "http",
+            "http_paths": {
+                "profile": HTTP_FALLBACK_PATHS["music_dna_profile"],
+                "settings": HTTP_FALLBACK_PATHS["music_dna_settings"],
+                "clear": HTTP_FALLBACK_PATHS["music_dna_clear"],
+            },
+            "missing_behavior": "use_http_or_hide_feature",
+        },
+        "music_discovery": {
+            "available": features["music_discovery"],
+            "preferred_transport": "websocket" if features["music_discovery"] else "http",
+            "http_paths": {
+                "feed": HTTP_FALLBACK_PATHS["music_discovery_feed"],
+                "refresh": HTTP_FALLBACK_PATHS["music_discovery_refresh"],
+                "play": HTTP_FALLBACK_PATHS["music_discovery_play"],
+            },
+            "missing_behavior": "use_http_or_hide_feature",
+        },
+        "music_discovery_feedback": {
+            "available": features["music_discovery_feedback"],
+            "preferred_transport": "websocket" if features["music_discovery_feedback"] else "http",
+            "http_path": HTTP_FALLBACK_PATHS["music_discovery_feedback"],
+            "missing_behavior": "hide_negative_feedback_controls",
+        },
+    }
 
 
 @_websocket_command(
@@ -726,6 +846,53 @@ async def websocket_music_discovery_play(hass: Any, connection: Any, msg: dict[s
     )
     headers = _headers_from_message(payload, msg)
     result, status_code = await async_handle_music_discovery_play_payload(
+        hass,
+        payload,
+        headers=headers,
+        user_id=_connection_user_id(connection),
+    )
+    if 200 <= status_code < 300:
+        connection.send_result(msg["id"], result)
+        return
+    _send_error(connection, msg, result)
+
+
+@_websocket_command(
+    {
+        vol.Required("type"): WS_TYPE_MUSIC_DISCOVERY_FEEDBACK,
+        vol.Optional("payload", default={}): dict,
+        vol.Optional("device_id"): str,
+        vol.Optional("client_type"): str,
+        vol.Optional("client_id"): str,
+        vol.Optional("device_name"): str,
+        vol.Optional("device_token"): str,
+        vol.Optional("authorization"): str,
+        vol.Optional("music_dna_key"): str,
+        vol.Optional("discovery_item_id"): str,
+        vol.Optional("section_id"): str,
+        vol.Optional("feedback"): str,
+        vol.Optional("action"): str,
+    }
+)
+@_async_response
+async def websocket_music_discovery_feedback(hass: Any, connection: Any, msg: dict[str, Any]) -> None:
+    """Record Music Discovery feedback over HA websocket."""
+    payload = _payload_from_message(
+        msg,
+        (
+            "device_id",
+            "client_type",
+            "client_id",
+            "device_name",
+            "music_dna_key",
+            "discovery_item_id",
+            "section_id",
+            "feedback",
+            "action",
+        ),
+    )
+    headers = _headers_from_message(payload, msg)
+    result, status_code = await async_handle_music_discovery_feedback_payload(
         hass,
         payload,
         headers=headers,

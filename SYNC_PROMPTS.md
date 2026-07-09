@@ -34,7 +34,7 @@ instead of storing their own copy.
 ## Current Protocol Line
 
 The current shared protocol/release line is `3.2.x`; this bundle was last
-aligned after Home Assistant integration release `v3.2.43`. DJConnect clients on the
+aligned after Home Assistant integration release `v3.2.44`. DJConnect clients on the
 `3.2.x` line are compatible with Home Assistant integration versions `>=3.2.0`
 and `<3.3.0`.
 
@@ -153,9 +153,17 @@ Assistant Music DNA. Clients use:
 GET /api/djconnect/v1/music_discovery
 POST /api/djconnect/v1/music_discovery/refresh
 POST /api/djconnect/v1/music_discovery/play
+POST /api/djconnect/v1/music_discovery/feedback
 
 Use the paired DJConnect device token plus canonical `device_id`,
 `client_type`, optional `client_id` and optional `music_dna_key`.
+
+Before using websocket fast paths, call `djconnect/capabilities` and inspect
+`features.music_discovery`, `features.music_discovery_feedback` and
+`fallbacks`. If a websocket command is missing, use the advertised HTTP path;
+if feedback is unavailable on both transports, hide negative-feedback controls
+instead of faking a local blocklist. Do not parse HA integration versions to
+infer support.
 
 APNs event `music_discovery_ready` means Home Assistant has sent the daily
 Ontdek reminder. It contains `open_target:"music_discovery"`,
@@ -169,20 +177,41 @@ Home Assistant also refreshes Music DNA and Music Discovery server-side about
 once per hour when Music DNA is enabled. Spotify recently-played/top profile
 data is seed/context only; raw recent tracks must not be displayed as Music
 Discovery cards unless the backend explicitly returns them in `sections[]`.
+The feed cache is context-aware: compact Music DNA changes such as new recent
+track identities, changed top profile data, mood, Play Now choices or negative
+feedback may cause the backend to rebuild the feed even before the normal TTL
+expires. Clients should refetch after meaningful actions and render the returned
+revision; do not infer cache invalidation locally.
 
 Render `sections[].items[]` exactly from the backend. Do not generate
 recommendations, reasons or based-on lists locally. Each item has backend
 `id`, `kind`, `title`, `subtitle`, playable `uri`, optional `image_url`,
-`reason`, `reason_sources` and `confidence`.
+`reason`, `reason_sources`, `confidence`, optional `quality_score` 0-100,
+`quality_band` and `quality_factors`. Reasons and quality may mention compact
+backend-owned signals such as favorite artist, genre or recent listening
+context; clients render them as text/hints and do not infer or rewrite them.
 
 Render one card/row per unique backend-provided `id` or `uri`. Known current
-sections include `new_for_you` for generated recommendations and
+sections include `new_for_you` for generated recommendations, `rediscover` for
+known favorites worth replaying, `artist_spotlight` for artist anchors and
 `accepted_recommendations` for earlier accepted choices, but clients must render
 the backend-provided `sections[]` in order and must not hardcode section ids.
+Do not resort by local heuristics; backend quality already influences item order.
+The backend already filters known/recent/blocked items, collapses common title
+variants such as live/remix/radio edit/remaster, avoids album/title duplicates
+and limits artist overload. Do not re-expand or locally relax these filters.
 
 Play buttons must call the Music Discovery play endpoint with
 `section_id` and `discovery_item_id`; do not start generic playback directly
-from the card.
+from the card. Successful plays are stored as compact Music DNA feedback and
+become Ask DJ context for later recommendations.
+
+Negative controls such as `Niet voor mij`, `Minder hiervan` and
+`Verberg artiest` must call the Music Discovery feedback endpoint with
+`feedback:"not_for_me"`, `"less_like_this"` or `"hide_artist"`. Do not keep a
+client-owned long-lived blocklist; the backend records compact negative Music
+DNA signals, filters future recommendations and feeds the avoid-signal back
+into Ask DJ.
 
 When `enabled:false`, hide or degrade Music Discovery using the stable
 `reason` and never fabricate fallback recommendations.
@@ -317,7 +346,8 @@ Rendering rules:
   profile.
 - Render backend `summary`, `favorite_genres`, `favorite_artists`,
   `recent_tracks`, `energy_profile`, `mood_profile`, `taste_direction`,
-  `based_on` and `updated_at` when present.
+  `snapshot_history`, `discovery_feedback`, `privacy_dashboard`, `based_on` and
+  `updated_at` when present.
 - Accept both strings and objects with fields such as `name`, `title`,
   `artist`, `count`, `score` and `genres`.
 - Preserve backend order and show compact top values, usually 3-5 items.
@@ -329,7 +359,12 @@ Rendering rules:
 Backend builds Music DNA from successful playback/Play Now choices, recent
 playback metadata including artist genres where available, Track Insight
 energy/genre analysis, realtime mood samples and compact Spotify profile
-snapshots when available. The client only sends realtime context and renders
+snapshots when available. Snapshot history is backend-owned, bounded and compact;
+clients must not reconstruct trends from local playback or Ask DJ history. The
+client only sends realtime context and renders
+`privacy_dashboard` as transparency metadata: active sources, rough counts,
+retention limits and controls. Never infer or display raw prompts, raw audio,
+OAuth tokens or full listening history.
 the server-authoritative profile.
 ```
 

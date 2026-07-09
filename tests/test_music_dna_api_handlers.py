@@ -128,6 +128,13 @@ class MusicDnaApiHandlersTest(unittest.TestCase):
         self.assertTrue(profile["enabled"])
         self.assertEqual(profile["profile"]["recent_tracks"][0]["artist"], "The xx")
         self.assertEqual(profile["profile"]["mood"]["value"], 65)
+        privacy = profile["profile"]["privacy_dashboard"]
+        self.assertTrue(privacy["enabled"])
+        self.assertFalse(privacy["stores_raw_audio"])
+        self.assertFalse(privacy["stores_oauth_tokens"])
+        self.assertFalse(privacy["stores_full_prompts"])
+        self.assertTrue(privacy["controls"]["clear_supported"])
+        self.assertIn("recent_tracks", [source["id"] for source in privacy["data_sources"]])
 
     def test_profile_refreshes_stale_spotify_listening_profile_hourly(self) -> None:
         asyncio.run(
@@ -196,6 +203,18 @@ class MusicDnaApiHandlersTest(unittest.TestCase):
         self.assertEqual(profile["profile"]["recent_tracks"][0]["track_name"], "Outside DJConnect")
         self.assertEqual(profile["profile"]["top_tracks_by_range"]["short_term"][0]["track_name"], "Top Native Track")
         self.assertEqual(profile["profile"]["favorite_genres"][0]["name"], "indie")
+        snapshot = profile["profile"]["snapshot_history"][0]
+        self.assertEqual(snapshot["captured_at"], "2026-07-09T10:00:00+00:00")
+        self.assertEqual(snapshot["top_tracks"][0]["title"], "Top Native Track")
+        self.assertEqual(snapshot["top_artists"][0]["name"], "Native Spotify")
+        self.assertEqual(snapshot["inferred_genres"], ["indie"])
+        privacy = profile["profile"]["privacy_dashboard"]
+        spotify_source = next(
+            source for source in privacy["data_sources"] if source["id"] == "spotify_listening_profile"
+        )
+        self.assertTrue(spotify_source["enabled"])
+        self.assertEqual(spotify_source["count"], 1)
+        self.assertEqual(spotify_source["last_updated"], "2026-07-09T10:00:00+00:00")
 
     def test_clear_preserves_opt_in_and_returns_empty_enabled_profile(self) -> None:
         asyncio.run(

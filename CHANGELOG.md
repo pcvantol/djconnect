@@ -1,5 +1,42 @@
 # Changelog
 
+## 3.2.44
+
+- Make Music Discovery recommendation explanations more specific by deriving
+  backend-owned item reasons from compact Music DNA artist, genre and recent
+  Spotify listening-profile signals.
+- Add negative Music Discovery feedback via HTTP, websocket and developer
+  service routes so clients can send `not_for_me`, `less_like_this` and
+  `hide_artist` signals that filter future recommendations server-side.
+- Expand Music Discovery with backend-owned `rediscover` and `artist_spotlight`
+  sections alongside `new_for_you` and `accepted_recommendations`.
+- Harden Music Discovery freshness and dedupe by filtering known/recent/blocked
+  track URIs, collapsing common title variants and limiting repeated artists per
+  section.
+- Add bounded Music DNA `snapshot_history` from compact Spotify listening-profile
+  refreshes so clients can show trend snapshots without storing raw playback
+  history.
+- Add context-aware Music Discovery cache refresh so changed compact Music DNA
+  signals, Play Now choices and negative feedback rebuild the feed without
+  waiting for the normal TTL.
+- Add backend-owned Music Discovery quality metadata (`quality_score`,
+  `quality_band`, `quality_factors`) and use it to order recommendations within
+  sections.
+- Add a Music DNA `privacy_dashboard` profile block with active source metadata,
+  retention limits and clear/export/import controls without exposing raw audio,
+  OAuth tokens, full prompts or full playback history.
+- Feed Music Discovery Play Now and negative feedback back into compact Music
+  DNA prompt context so Ask DJ can lean into accepted discoveries and avoid
+  rejected items or artists.
+- Add backend-capability fallback metadata to `djconnect/capabilities` so
+  clients can use HTTP fallbacks or hide unsupported optional controls without
+  parsing integration versions.
+- Expand Ask DJ help examples with Discover, Music DNA and same-title track
+  searches across different artists.
+- Document and test same-title Ask DJ track-version search phrase variants,
+  including covers, live/acoustic/remix wording and English `versions titled`
+  requests.
+
 ## 3.2.43
 
 - Add unattended hourly server-side Music DNA and Music Discovery refresh from

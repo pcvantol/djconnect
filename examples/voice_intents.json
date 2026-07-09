@@ -513,6 +513,34 @@
         "Find a remix of this track"
       ]
     },
+    "track_versions_search": {
+      "plays_music": false,
+      "action": "none",
+      "intent": "track_versions_search",
+      "response_shape": {
+        "playback_actions_kind": "track",
+        "button_labels": [
+          "Play Now"
+        ],
+        "max_results": 10,
+        "requires_all_title_words": true
+      },
+      "description": "Ask for versions, covers, remixes, live or acoustic recordings of a named track title, possibly by different artists. DJConnect searches Spotify tracks, requires every meaningful title word in returned titles, returns Play Now rows and does not start playback automatically.",
+      "nl": [
+        "Geef me 10 uitvoeringen van [nummer] door verschillende artiesten",
+        "Doe me 10 uitvoeringen door verschillende artiesten van \"[nummer]\"",
+        "Zoek versies van \"[nummer]\"",
+        "Toon covers van \"[nummer]\"",
+        "Heb je live versies van \"[nummer]\""
+      ],
+      "en": [
+        "Find versions of \"[song]\"",
+        "Show covers of \"[song]\"",
+        "Give me 10 versions of [song] by different artists",
+        "Give me versions titled [song]",
+        "Do you have live versions of \"[song]\""
+      ]
+    },
     "personal_music_profile_analysis": {
       "plays_music": false,
       "action": "profile_analysis",

@@ -1344,6 +1344,17 @@
     }
   },
   {
+    "id": "help_prompt_same_title_versions",
+    "request": {"text": "Geef me 10 uitvoeringen van [nummer] door verschillende artiesten", "client_type": "ios"},
+    "expect": {
+      "success": true,
+      "intent": "track_title_choices",
+      "intent_category": "informational",
+      "allowed_music_commands": ["status", "search_tracks"],
+      "forbid_spotify_mutations": true
+    }
+  },
+  {
     "id": "help_prompt_similar_artists_the_xx",
     "request": {"text": "Geef vergelijkbare artiesten als [artiest]", "client_type": "ios"},
     "expect": {
@@ -1594,6 +1605,31 @@
     "id": "help_prompt_similar_tracks",
     "request": {"text": "Ik wil vergelijkbare tracks", "client_type": "ios"},
     "expect": {"success": true, "intent": "current_track_seed_mix", "intent_category": "informational", "allowed_music_commands": ["status", "artist_recommendations", "play_uris"], "required_music_commands": ["play_uris"]}
+  },
+  {
+    "id": "help_prompt_discover_new",
+    "request": {"text": "Wat is er nieuw in Discover?", "client_type": "ios"},
+    "expect": {"success": true, "intent": "music_discovery_summary", "intent_category": "informational", "action": "music_discovery_summary", "source_values_include": ["djconnect_music_discovery", "djconnect_music_dna"], "contains_any": ["Discover", "Music DNA"], "images_count": 0, "playback_actions_count": 0, "allowed_music_commands": ["status"], "forbid_spotify_mutations": true}
+  },
+  {
+    "id": "help_prompt_discover_refresh",
+    "request": {"text": "Ververs mijn Discover aanbevelingen", "client_type": "ios"},
+    "expect": {"success": true, "intent": "music_discovery_summary", "intent_category": "informational", "action": "music_discovery_summary", "source_values_include": ["djconnect_music_discovery", "djconnect_music_dna"], "contains_any": ["ververst", "Discover"], "images_count": 0, "playback_actions_count": 0, "allowed_music_commands": ["status"], "forbid_spotify_mutations": true}
+  },
+  {
+    "id": "help_prompt_music_dna_wording",
+    "request": {"text": "Wat zegt mijn Music DNA?", "client_type": "ios"},
+    "expect": {"success": true, "intent": "personal_music_dna_summary", "intent_category": "informational", "action": "music_dna_summary", "source_values_include": ["djconnect_music_dna"], "images_count": 0, "playback_actions_count": 0, "allowed_music_commands": ["status"], "forbid_spotify_mutations": true}
+  },
+  {
+    "id": "help_prompt_discover_best_fit",
+    "request": {"text": "Welke Discover aanbevelingen passen het beste bij mij?", "client_type": "ios"},
+    "expect": {"success": true, "intent": "music_discovery_summary", "intent_category": "informational", "action": "music_discovery_summary", "source_values_include": ["djconnect_music_discovery", "djconnect_music_dna"], "contains_any": ["Discover", "aanbevelingen"], "images_count": 0, "playback_actions_count": 0, "allowed_music_commands": ["status"], "forbid_spotify_mutations": true}
+  },
+  {
+    "id": "help_prompt_discover_reason",
+    "request": {"text": "Waarom past deze aanbeveling bij mijn smaak?", "client_type": "ios"},
+    "expect": {"success": true, "intent": "music_discovery_summary", "intent_category": "informational", "action": "music_discovery_summary", "source_values_include": ["djconnect_music_discovery", "djconnect_music_dna"], "contains_any": ["kwaliteitsscore", "Music DNA"], "images_count": 0, "playback_actions_count": 0, "allowed_music_commands": ["status"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_retry",

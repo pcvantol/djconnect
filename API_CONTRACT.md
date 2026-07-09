@@ -150,9 +150,42 @@ product-ready. After HA websocket login, feature-detect DJConnect support with:
 
 A supporting server returns a successful result with
 `websocket_supported:true`, `transports.websocket:true` and
-`commands[]` containing supported DJConnect websocket message types. Clients
-must fall back to HTTP if a needed websocket command is missing, errors, times
-out or reports unsupported capabilities.
+`commands[]` containing supported DJConnect websocket message types. The same
+response also includes coarse `features{}` flags and `fallbacks{}` hints. Clients
+must feature-detect these fields rather than parse Home Assistant integration
+versions, and must fall back to HTTP or hide optional controls if a needed
+websocket command is missing, errors, times out or reports unsupported
+capabilities.
+
+Example capability fallback block:
+
+```json
+{
+  "features": {
+    "music_dna": true,
+    "music_discovery": true,
+    "music_discovery_feedback": true
+  },
+  "fallbacks": {
+    "music_discovery": {
+      "available": true,
+      "preferred_transport": "websocket",
+      "http_paths": {
+        "feed": "/api/djconnect/v1/music_discovery",
+        "refresh": "/api/djconnect/v1/music_discovery/refresh",
+        "play": "/api/djconnect/v1/music_discovery/play"
+      },
+      "missing_behavior": "use_http_or_hide_feature"
+    },
+    "music_discovery_feedback": {
+      "available": true,
+      "preferred_transport": "websocket",
+      "http_path": "/api/djconnect/v1/music_discovery/feedback",
+      "missing_behavior": "hide_negative_feedback_controls"
+    }
+  }
+}
+```
 
 Send commands with the same semantic payload used for
 `POST /api/djconnect/v1/command`:
@@ -712,11 +745,63 @@ Clients may also wrap the profile response in an export envelope:
     "recent_favorite_tracks": [{"title": "Far Behind", "artist": "Candlebox"}],
     "top_tracks_by_range": {},
     "top_artists_by_range": {},
+    "snapshot_history": [
+      {
+        "captured_at": "2026-06-29T12:00:00+00:00",
+        "source": "spotify",
+        "sources": ["spotify_recently_played", "spotify_top_tracks_short_term"],
+        "recent_artists": ["The xx"],
+        "top_artists": [{"name": "The xx", "uri": "spotify:artist:..."}],
+        "top_tracks": [{"title": "Intro", "artist": "The xx", "uri": "spotify:track:..."}],
+        "inferred_genres": ["ambient"],
+        "recent_track_count": 20
+      }
+    ],
     "mood": {"value": 65, "zone": "energy", "prompt_hint": "..."},
     "time_patterns": [],
     "recommendation_signals": [],
     "blocked_artists": [],
     "blocked_items": [],
+    "discovery_feedback": {
+      "eligible": true,
+      "accepted_count": 1,
+      "negative_count": 1,
+      "accepted_items": [
+        {
+          "kind": "track",
+          "title": "Midnight City",
+          "subtitle": "M83",
+          "uri": "spotify:track:...",
+          "reason": "Past bij je recente synthpop.",
+          "source": "music_discovery_play",
+          "section_id": "new_for_you",
+          "quality_score": 91,
+          "quality_band": "high"
+        }
+      ],
+      "blocked_artists": [{"kind": "artist", "name": "Coldplay", "reason": "hide_artist"}],
+      "blocked_items": []
+    },
+    "privacy_dashboard": {
+      "enabled": true,
+      "scope": "ha_user_or_client",
+      "stores_raw_audio": false,
+      "stores_oauth_tokens": false,
+      "stores_full_prompts": false,
+      "active_source_count": 3,
+      "data_sources": [
+        {"id": "recent_tracks", "label": "Recent DJConnect tracks", "enabled": true, "count": 3},
+        {"id": "spotify_listening_profile", "label": "Spotify recent/top profile snapshots", "enabled": true, "count": 1, "last_updated": "2026-06-29T12:00:00+00:00"},
+        {"id": "recommendation_feedback", "label": "Recommendation feedback", "enabled": true, "count": 2}
+      ],
+      "retention": {"recent_tracks_max": 20, "chat_facts_max": 20, "snapshot_history_max": 12},
+      "controls": {
+        "clear_supported": true,
+        "export_supported": true,
+        "import_supported": true,
+        "opt_out_preserves_clear": true
+      }
+    },
     "last_profile_refresh": "2026-06-29T12:00:00+00:00",
     "consent_updated_at": "2026-06-29T11:50:00+00:00"
   },
@@ -732,10 +817,27 @@ Music DNA is server-authoritative. Clients should render backend-provided
 summary, favorite genres, favorite artists, total play time, top artists/albums
 by play time, listening rhythm, mood mix, recent tracks, energy/mood profile,
 repeat magnets, explicit positives, taste anchors, recent favorite tracks, taste
-direction, based-on values and update timestamps where present. Clients must not
+direction, compact snapshot history, based-on values and update timestamps where present. Clients must not
 calculate favorite artists, favorite genres, play time, listening rhythm, mood
-mix, repeat magnets, explicit positives, taste anchors, favorite history or
-taste direction locally from Ask DJ history or local playback cache.
+mix, repeat magnets, explicit positives, taste anchors, favorite history,
+snapshot trends or taste direction locally from Ask DJ history or local playback
+cache.
+
+`privacy_dashboard` is a compact transparency block for Music DNA settings and
+dashboard screens. It lists which backend signal sources currently contribute,
+rough counts, retention limits and supported controls. It must never include
+OAuth tokens, bearer tokens, raw audio, full prompts or full playback history.
+
+`snapshot_history` is a bounded backend summary of recent Spotify listening
+profile refreshes, not raw playback history. It keeps only compact timestamped
+top artists, top tracks, recent artist names, inferred genres, source labels and
+counts, currently capped to the most recent 12 snapshots.
+
+`discovery_feedback` is the compact bridge from Music Discovery back into Ask
+DJ. It summarizes accepted Discovery/Ask DJ recommendations and negative
+Discovery feedback so future Ask DJ recommendations can respect what the user
+played, hid or marked as not fitting. Clients must send feedback through the
+backend endpoints and must not build separate local taste rules.
 
 Music DNA dashboard fields are optional. Empty legacy placeholders such as empty
 arrays or empty objects are omitted; clients should hide absent blocks without a
@@ -767,12 +869,14 @@ HTTP endpoints:
 - `GET /api/djconnect/v1/music_discovery`
 - `POST /api/djconnect/v1/music_discovery/refresh`
 - `POST /api/djconnect/v1/music_discovery/play`
+- `POST /api/djconnect/v1/music_discovery/feedback`
 
 WebSocket equivalents, when advertised by `djconnect/capabilities.commands[]`:
 
 - `djconnect/music_discovery/feed`
 - `djconnect/music_discovery/refresh`
 - `djconnect/music_discovery/play`
+- `djconnect/music_discovery/feedback`
 
 When Apple push is registered and Music DNA is enabled, Home Assistant may send
 one daily `music_discovery_ready` wake/sync hint around 08:00 local HA time. The
@@ -788,6 +892,12 @@ for eligible runtimes. When Music DNA is enabled, this refresh updates compact
 Music DNA listening-profile data from Spotify recently-played/top tracks/top
 artists, then rebuilds the Music Discovery cache. Recently played tracks are
 used as seeds/context only; they must not be surfaced as raw Discovery cards.
+The feed cache is also context-aware: when compact Music DNA signals change
+between requests, for example new recent-track identities, changed top
+artist/track profile data, mood changes, accepted recommendations, blocked
+items/artists or Discovery play/feedback signals, Home Assistant can rebuild the
+feed even while the normal TTL is still valid. Clients should simply refetch the
+feed after meaningful user actions and render the returned revision.
 
 When Home Assistant debug logging is enabled for `custom_components.djconnect`,
 the HTTP handlers emit redacted diagnostics prefixed with
@@ -808,7 +918,9 @@ Disabled response:
 ```
 
 Feed responses are cached per Music DNA key for about one day. User-triggered
-refresh may be rate-limited and returns the current cached feed when limited:
+refresh may be rate-limited and returns the current cached feed when limited.
+Contextual server refreshes are automatic and do not require clients to decide
+which Music DNA fields changed:
 
 ```json
 {
@@ -831,9 +943,50 @@ refresh may be rate-limited and returns the current cached feed when limited:
           "subtitle": "New Artist",
           "uri": "spotify:track:...",
           "image_url": "/api/djconnect/v1/image_proxy/...",
-          "reason": "Nieuwe aanbeveling op basis van je Music DNA en Spotify luisterprofiel.",
-          "reason_sources": ["spotify_recommendations", "djconnect_music_dna"],
-          "confidence": "medium"
+          "reason": "Omdat je vaak naar The xx luistert en ambient in je Music DNA zit.",
+          "reason_sources": ["spotify_recommendations", "djconnect_music_dna", "music_dna_artists", "music_dna_genres"],
+          "confidence": "medium",
+          "quality_score": 88,
+          "quality_band": "high",
+          "quality_factors": ["spotify_recommendation", "fresh_candidate", "favorite_artist_match"]
+        }
+      ]
+    },
+    {
+      "id": "rediscover",
+      "title": "Opnieuw ontdekken",
+      "items": [
+        {
+          "id": "disc-456",
+          "kind": "track",
+          "title": "Top Track",
+          "subtitle": "The xx",
+          "uri": "spotify:track:...",
+          "reason": "Een bekende favoriet uit je Music DNA om opnieuw op te pakken.",
+          "reason_sources": ["djconnect_music_dna", "spotify_top_tracks"],
+          "confidence": "medium",
+          "quality_score": 70,
+          "quality_band": "medium",
+          "quality_factors": ["known_favorite", "rediscover"]
+        }
+      ]
+    },
+    {
+      "id": "artist_spotlight",
+      "title": "Artiesten om verder te verkennen",
+      "items": [
+        {
+          "id": "disc-789",
+          "kind": "artist",
+          "title": "The xx",
+          "subtitle": "Artist",
+          "uri": "spotify:artist:...",
+          "reason": "Artiest die sterk terugkomt in je Music DNA.",
+          "reason_sources": ["djconnect_music_dna", "spotify_top_artists"],
+          "confidence": "medium",
+          "quality_score": 74,
+          "quality_band": "medium",
+          "quality_factors": ["artist_anchor", "spotify_top_artists"]
         }
       ]
     }
@@ -843,11 +996,28 @@ refresh may be rate-limited and returns the current cached feed when limited:
 
 Displayed items must have `id`, `kind`, `title`, playable `uri` and a backend
 `reason`. If a good backend reason cannot be generated, the backend should not
-return the item. Reasons are based on compact Music DNA signals and backend
-recommendation provenance. `new_for_you` items are generated recommendations;
-raw Spotify recently-played, favorite or top-track entries are filtered out and
-must not be reconstructed locally by clients. Clients should render one row/card
-per unique backend-provided `id` or `uri` and should not hardcode section ids.
+return the item. Reasons are based on compact Music DNA signals, Spotify profile
+seeds and backend recommendation provenance. Prefer specific explanations such
+as a favorite artist, genre or recent listening context over generic copy.
+`new_for_you` items are generated recommendations; `rediscover` may contain
+known favorite tracks from compact Music DNA/top-track profile data; and
+`artist_spotlight` may contain artist anchors for further exploration. Raw
+Spotify recently-played entries are not a Discovery section unless the backend
+explicitly returns such a section in the future. Clients should render one
+row/card per unique backend-provided `id` or `uri` and should not hardcode
+section ids.
+
+Items may include backend-owned quality metadata: `quality_score` from 0-100,
+`quality_band` (`low`, `medium`, `high`) and compact `quality_factors[]`.
+The backend uses these values to order items within a section; clients may show
+subtle confidence/fit hints but must not calculate or override quality locally.
+
+The backend applies freshness and dedupe filters before returning sections:
+known/recent/top/blocked track URIs are excluded from generated new-music rows,
+common title variants such as live, remix, radio edit and remaster are collapsed
+per artist, album/title overlap is treated as duplicate context, and a section
+should avoid overloading the user with too many items from the same artist.
+Clients must not attempt to recreate or loosen these filters locally.
 
 Play requests must use the discovery play endpoint instead of generic playback
 commands so the backend can record the click as positive Music DNA feedback:
@@ -865,8 +1035,34 @@ commands so the backend can record the click as positive Music DNA feedback:
 Successful play responses include `played:true` and
 `music_dna_feedback_recorded:true` when the feedback was stored. The feedback
 record keeps the discovery item id, section id, kind, URI, title, reason,
-reason sources and source `music_discovery_play`; it does not store raw prompts,
-tokens or unlimited listening history.
+reason sources, optional quality metadata and source `music_discovery_play`; it
+does not store raw prompts, tokens or unlimited listening history. Stored
+Discovery play feedback is also exposed to Ask DJ through compact Music DNA
+context so later recommendations can lean into accepted discoveries.
+
+Negative feedback must use the discovery feedback endpoint, never local client
+filtering only. Supported `feedback` values are `not_for_me`, `less_like_this`
+and `hide_artist`:
+
+```json
+{
+  "device_id": "djconnect-ios-...",
+  "client_type": "ios",
+  "discovery_item_id": "disc-123",
+  "section_id": "new_for_you",
+  "feedback": "hide_artist",
+  "music_dna_key": "user:abc123"
+}
+```
+
+Successful feedback responses include `music_dna_feedback_recorded:true` when
+the compact negative signal was stored. The backend may remove the item from
+the cached feed immediately and filters future generated recommendations
+against blocked item and artist signals. Ask DJ also receives those compact
+negative signals through Music DNA context and should avoid repeating the same
+item or artist unless the user explicitly asks for it. Clients may show controls
+such as `Niet voor mij`, `Minder hiervan` and `Verberg artiest`, but must send
+the backend action and must not maintain their own long-lived blocklist.
 
 ## AI Conversation Tools
 
@@ -1040,6 +1236,17 @@ user's retry text normally and let the server resolve the prior request.
 The help list includes exact prompt examples that are covered by
 `examples/ask_dj_e2e_cases.json`; for example `Geef Track Insight voor dit
 nummer` maps to the read-only `track_insight` intent.
+
+Same-title track variant searches such as
+`Geef me 10 uitvoeringen van [nummer] door verschillende artiesten`,
+`Doe me 10 uitvoeringen door verschillende artiesten van "[nummer]"`,
+`Zoek versies van "[nummer]"`, `Toon covers van "[nummer]"`,
+`Find versions of "[song]"` and `Give me versions titled [song]` return
+`intent.intent:"track_versions_search"`. Ask DJ searches Spotify tracks with
+limit 10, keeps only results whose title contains all meaningful words from the
+requested title, returns rows plus `kind:"track"` `Play Now` actions, and does
+not start playback automatically. Title extraction supports quoted titles or
+titles after `van`, `voor`, `of`, `called`, `named` or `titled`.
 
 Personal memory questions such as `wat weet je nu over mij?`, `wat staat er in
 mijn Music DNA?` and `what do you know about me?` return

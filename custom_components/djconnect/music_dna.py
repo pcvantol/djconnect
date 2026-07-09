@@ -19,6 +19,7 @@ STORE_VERSION = 1
 MAX_SESSION_TURNS = 20
 MAX_RECENT_TRACKS = 20
 MAX_CHAT_FACTS = 20
+MAX_PROFILE_SNAPSHOTS = 12
 MAX_TEXT_LENGTH = 500
 LISTENING_PROFILE_TTL_SECONDS = 6 * 60 * 60
 PENDING_FOLLOWUP_TTL_SECONDS = 10 * 60
@@ -579,6 +580,10 @@ class MusicDNAManager:
         compact = _compact_listening_profile(profile)
         if compact:
             memory["listening_profile"] = compact
+            memory["listening_profile_snapshots"] = _updated_listening_profile_snapshots(
+                memory.get("listening_profile_snapshots"),
+                compact,
+            )
             memory["last_profile_refresh"] = compact.get("last_profile_refresh") or _now()
             memory["updated_at"] = _now()
             for track in compact.get("recent_tracks") or []:
@@ -716,6 +721,9 @@ class MusicDNAManager:
                 "subtitle": item.get("subtitle"),
                 "reason": item.get("reason"),
                 "reason_sources": _sanitize_value(item.get("reason_sources")),
+                "quality_score": item.get("quality_score"),
+                "quality_band": item.get("quality_band"),
+                "quality_factors": _sanitize_value(item.get("quality_factors")),
                 "source": "music_discovery_play",
                 "created_at": _now(),
             }
@@ -972,6 +980,37 @@ def prompt_context_text(context: dict[str, Any]) -> str:
         ]
         if names:
             lines.append("Vermijd deze muziekitems: " + "; ".join(names))
+    discovery_feedback = _profile_discovery_feedback(memory)
+    if discovery_feedback.get("eligible"):
+        accepted_lines = []
+        for item in discovery_feedback.get("accepted_items") or []:
+            if not isinstance(item, dict):
+                continue
+            title = _clean_text(item.get("title"))
+            subtitle = _clean_text(item.get("subtitle"))
+            if not title:
+                continue
+            score = item.get("quality_score")
+            score_text = f", kwaliteit {score}" if score is not None else ""
+            reason = _clean_text(item.get("reason"))
+            reason_text = f", reden: {reason}" if reason else ""
+            accepted_lines.append(
+                title
+                + (f" - {subtitle}" if subtitle else "")
+                + score_text
+                + reason_text
+            )
+        if accepted_lines:
+            lines.append("Discover gekozen door gebruiker: " + "; ".join(accepted_lines[:5]))
+        avoid_lines = []
+        for item in discovery_feedback.get("blocked_artists") or []:
+            if isinstance(item, dict) and item.get("name"):
+                avoid_lines.append(f"artiest {item.get('name')}")
+        for item in discovery_feedback.get("blocked_items") or []:
+            if isinstance(item, dict) and item.get("name"):
+                avoid_lines.append(str(item.get("name")))
+        if avoid_lines:
+            lines.append("Discover negatieve feedback: " + "; ".join(avoid_lines[:8]))
     time_context = memory.get("listening_time_context")
     if isinstance(time_context, dict):
         day = time_context.get("weekday_name")
@@ -1074,6 +1113,7 @@ def _prompt_safe_memory(memory: dict[str, Any]) -> dict[str, Any]:
         "chat_facts",
         "last_ask_dj",
         "listening_profile",
+        "listening_profile_snapshots",
         "listening_time_context",
         "listening_time_signals",
         "listening_time_patterns",
@@ -1122,6 +1162,16 @@ def _prompt_safe_memory(memory: dict[str, Any]) -> dict[str, Any]:
         )
     if isinstance(result.get("listening_profile"), dict):
         result["listening_profile"] = _compact_listening_profile(result["listening_profile"])
+    if isinstance(result.get("listening_profile_snapshots"), list):
+        result["listening_profile_snapshots"] = [
+            snapshot
+            for snapshot in (
+                _compact_listening_profile_snapshot(snapshot)
+                for snapshot in result["listening_profile_snapshots"][:MAX_PROFILE_SNAPSHOTS]
+                if isinstance(snapshot, dict)
+            )
+            if snapshot
+        ]
     if isinstance(result.get("listening_time_patterns"), list):
         result["listening_time_patterns"] = result["listening_time_patterns"][:MAX_CHAT_FACTS]
     return result
@@ -1148,6 +1198,7 @@ def _profile_payload(memory: dict[str, Any]) -> dict[str, Any]:
     repeat_magnets = _profile_repeat_magnets(memory)
     explicit_positives = _profile_explicit_positives(memory)
     taste_anchors = _profile_taste_anchors(memory, favorite_genres)
+    discovery_feedback = _profile_discovery_feedback(memory)
     profile = {
         "summary": _profile_summary(memory, favorite_genres, artists, recent_tracks, playtime),
         "favorite_genres": [{"name": value} for value in favorite_genres],
@@ -1167,11 +1218,14 @@ def _profile_payload(memory: dict[str, Any]) -> dict[str, Any]:
         ],
         "top_tracks_by_range": listening.get("top_tracks_by_range") or {},
         "top_artists_by_range": listening.get("top_artists_by_range") or {},
+        "snapshot_history": memory.get("listening_profile_snapshots") or [],
         "mood": mood_profile,
         "time_patterns": memory.get("listening_time_patterns") or [],
         "recommendation_signals": memory.get("recommendation_plays") or [],
         "blocked_artists": memory.get("blocked_artists") or [],
         "blocked_items": memory.get("blocked_items") or [],
+        "discovery_feedback": discovery_feedback,
+        "privacy_dashboard": _profile_privacy_dashboard(memory, listening),
         "last_profile_refresh": listening.get("last_profile_refresh") or memory.get("last_profile_refresh"),
         "consent_updated_at": memory.get("consent_updated_at"),
     }
@@ -1203,6 +1257,63 @@ def _profile_summary(
     return "Je Music DNA bevat nu " + "; ".join(parts) + "."
 
 
+def _profile_privacy_dashboard(memory: dict[str, Any], listening: dict[str, Any]) -> dict[str, Any]:
+    """Return compact transparency metadata for the Music DNA dashboard."""
+    sources: list[dict[str, Any]] = []
+
+    def add_source(source_id: str, label: str, *, enabled: bool, count: int = 0, last_updated: str = "") -> None:
+        sources.append(
+            {
+                "id": source_id,
+                "label": label,
+                "enabled": bool(enabled),
+                **({"count": max(0, int(count))} if count else {}),
+                **({"last_updated": last_updated} if last_updated else {}),
+            }
+        )
+
+    recent_tracks = memory.get("recent_tracks") if isinstance(memory.get("recent_tracks"), list) else []
+    favorite_tracks = memory.get("recent_favorite_tracks") if isinstance(memory.get("recent_favorite_tracks"), list) else []
+    recommendation_plays = memory.get("recommendation_plays") if isinstance(memory.get("recommendation_plays"), list) else []
+    discovery_plays = memory.get("discovery_plays") if isinstance(memory.get("discovery_plays"), list) else []
+    blocked_items = memory.get("blocked_items") if isinstance(memory.get("blocked_items"), list) else []
+    blocked_artists = memory.get("blocked_artists") if isinstance(memory.get("blocked_artists"), list) else []
+    snapshots = memory.get("listening_profile_snapshots") if isinstance(memory.get("listening_profile_snapshots"), list) else []
+    energy_signals = memory.get("track_insight_energy_signals") if isinstance(memory.get("track_insight_energy_signals"), list) else []
+    mood_signals = memory.get("mood_signals") if isinstance(memory.get("mood_signals"), list) else []
+
+    add_source("ask_dj", "Ask DJ playback context", enabled=bool(memory.get("last_ask_dj")), count=1 if memory.get("last_ask_dj") else 0)
+    add_source("recent_tracks", "Recent DJConnect tracks", enabled=bool(recent_tracks), count=len(recent_tracks))
+    add_source("spotify_listening_profile", "Spotify recent/top profile snapshots", enabled=bool(listening or snapshots), count=len(snapshots), last_updated=_clean_text(listening.get("last_profile_refresh") or memory.get("last_profile_refresh")))
+    add_source("recommendation_feedback", "Recommendation feedback", enabled=bool(recommendation_plays or discovery_plays), count=len(recommendation_plays) + len(discovery_plays))
+    add_source("negative_feedback", "Blocked artists/items", enabled=bool(blocked_items or blocked_artists), count=len(blocked_items) + len(blocked_artists))
+    add_source("favorites", "Explicit favorite signals", enabled=bool(favorite_tracks), count=len(favorite_tracks))
+    add_source("track_insight", "Track Insight energy signals", enabled=bool(energy_signals), count=len(energy_signals))
+    add_source("mood", "Client mood samples", enabled=bool(mood_signals or memory.get("mood") is not None), count=len(mood_signals))
+
+    active_count = sum(1 for source in sources if source.get("enabled"))
+    return {
+        "enabled": bool(memory.get("enabled")),
+        "scope": "ha_user_or_client",
+        "stores_raw_audio": False,
+        "stores_oauth_tokens": False,
+        "stores_full_prompts": False,
+        "data_sources": sources,
+        "active_source_count": active_count,
+        "retention": {
+            "recent_tracks_max": MAX_RECENT_TRACKS,
+            "chat_facts_max": MAX_CHAT_FACTS,
+            "snapshot_history_max": MAX_PROFILE_SNAPSHOTS,
+        },
+        "controls": {
+            "clear_supported": True,
+            "export_supported": True,
+            "import_supported": True,
+            "opt_out_preserves_clear": True,
+        },
+    }
+
+
 def _hide_empty_profile_blocks(profile: dict[str, Any]) -> dict[str, Any]:
     """Omit empty optional dashboard sections so clients can stay compact."""
     cleaned = dict(profile)
@@ -1217,9 +1328,12 @@ def _hide_empty_profile_blocks(profile: dict[str, Any]) -> dict[str, Any]:
     ):
         if cleaned.get(key) in (None, [], {}):
             cleaned.pop(key, None)
+    discovery_feedback = cleaned.get("discovery_feedback")
+    if not isinstance(discovery_feedback, dict) or not discovery_feedback.get("eligible"):
+        cleaned.pop("discovery_feedback", None)
     if not isinstance(cleaned.get("time_patterns"), list) or len(cleaned.get("time_patterns") or []) < 3:
         cleaned.pop("time_patterns", None)
-    for key in ("top_tracks_by_range", "top_artists_by_range", "mood", "energy_profile"):
+    for key in ("top_tracks_by_range", "top_artists_by_range", "snapshot_history", "privacy_dashboard", "mood", "energy_profile"):
         if cleaned.get(key) in (None, {}, []):
             cleaned.pop(key, None)
     playtime = cleaned.get("playtime")
@@ -1367,6 +1481,95 @@ def _profile_explicit_positives(memory: dict[str, Any]) -> dict[str, Any]:
         "favorite_tracks": favorites,
         "accepted_recommendations": recommendations,
         "signal_count": total,
+    }
+
+
+def _profile_discovery_feedback(memory: dict[str, Any]) -> dict[str, Any]:
+    """Return compact Discover feedback that Ask DJ may use as taste context."""
+    recommendation_plays = memory.get("recommendation_plays")
+    discovery_plays = memory.get("discovery_plays")
+    blocked_artists = memory.get("blocked_artists")
+    blocked_items = memory.get("blocked_items")
+    if not isinstance(recommendation_plays, list):
+        recommendation_plays = []
+    if not isinstance(discovery_plays, list):
+        discovery_plays = []
+    if not isinstance(blocked_artists, list):
+        blocked_artists = []
+    if not isinstance(blocked_items, list):
+        blocked_items = []
+
+    accepted_items: list[dict[str, Any]] = []
+    seen: set[tuple[str, str]] = set()
+    for item in [*discovery_plays, *recommendation_plays]:
+        if not isinstance(item, dict):
+            continue
+        title = _clean_text(item.get("title"))
+        uri = _clean_text(item.get("uri") or item.get("context_uri"))
+        if not title and not uri:
+            continue
+        identity = (uri.lower(), title.lower())
+        if identity in seen:
+            continue
+        seen.add(identity)
+        accepted_items.append(
+            _compact_dict(
+                {
+                    "kind": item.get("kind") or "track",
+                    "title": title,
+                    "subtitle": item.get("subtitle"),
+                    "uri": uri,
+                    "reason": item.get("reason"),
+                    "source": item.get("source") or item.get("source_intent") or "ask_dj_recommendation_play",
+                    "section_id": item.get("section_id"),
+                    "quality_score": item.get("quality_score"),
+                    "quality_band": item.get("quality_band"),
+                    "created_at": item.get("created_at"),
+                }
+            )
+        )
+
+    blocked_artist_items = [
+        _compact_dict(
+            {
+                "kind": "artist",
+                "name": item.get("name"),
+                "reason": item.get("reason"),
+                "created_at": item.get("created_at"),
+            }
+        )
+        for item in blocked_artists
+        if isinstance(item, dict) and item.get("name")
+    ][:8]
+    blocked_music_items = [
+        _compact_dict(
+            {
+                "kind": item.get("kind") or "track",
+                "name": item.get("name"),
+                "reason": item.get("reason"),
+                "created_at": item.get("created_at"),
+            }
+        )
+        for item in blocked_items
+        if isinstance(item, dict) and item.get("name")
+    ][:8]
+    accepted_count = len(accepted_items)
+    negative_count = len(blocked_artist_items) + len(blocked_music_items)
+    if accepted_count + negative_count <= 0:
+        return {
+            "eligible": False,
+            "accepted_items": [],
+            "blocked_artists": [],
+            "blocked_items": [],
+            "reason": "no_discovery_feedback_signals",
+        }
+    return {
+        "eligible": True,
+        "accepted_items": accepted_items[:8],
+        "blocked_artists": blocked_artist_items,
+        "blocked_items": blocked_music_items,
+        "accepted_count": accepted_count,
+        "negative_count": negative_count,
     }
 
 
@@ -1815,6 +2018,102 @@ def _compact_listening_profile(profile: dict[str, Any]) -> dict[str, Any]:
         for key, value in result.items()
         if value not in (None, "", [], {})
     }
+
+
+def _updated_listening_profile_snapshots(existing: Any, profile: dict[str, Any]) -> list[dict[str, Any]]:
+    snapshot = _compact_listening_profile_snapshot(profile)
+    snapshots = [
+        compact
+        for compact in (
+            _compact_listening_profile_snapshot(item)
+            for item in (existing if isinstance(existing, list) else [])
+            if isinstance(item, dict)
+        )
+        if compact
+    ]
+    if not snapshot:
+        return snapshots[:MAX_PROFILE_SNAPSHOTS]
+    snapshot_key = snapshot.get("captured_at")
+    deduped = [
+        item
+        for item in snapshots
+        if item.get("captured_at") != snapshot_key
+    ]
+    return [snapshot, *deduped][:MAX_PROFILE_SNAPSHOTS]
+
+
+def _compact_listening_profile_snapshot(profile: dict[str, Any]) -> dict[str, Any]:
+    captured_at = _clean_text(profile.get("captured_at") or profile.get("last_profile_refresh")) or _now()
+    top_tracks = _snapshot_top_tracks(profile.get("top_tracks_by_range"))
+    top_artists = _snapshot_top_artists(profile.get("top_artists_by_range"))
+    recent_artists = _unique_texts(profile.get("recent_artists") or [])[:5]
+    inferred_genres = _unique_texts(profile.get("inferred_genres") or [])[:8]
+    result = {
+        "captured_at": captured_at,
+        "source": _clean_text(profile.get("source") or "spotify"),
+        "sources": _unique_texts(profile.get("sources") or [])[:8],
+        "recent_artists": recent_artists,
+        "top_artists": top_artists,
+        "top_tracks": top_tracks,
+        "inferred_genres": inferred_genres,
+        "recent_track_count": len(profile.get("recent_tracks") or []),
+    }
+    return {
+        key: value
+        for key, value in result.items()
+        if value not in (None, "", [], {})
+    }
+
+
+def _snapshot_top_tracks(value: Any) -> list[dict[str, Any]]:
+    tracks: list[dict[str, Any]] = []
+    for track in _range_items(value):
+        compact = _compact_track(track)
+        if not compact:
+            continue
+        item = _compact_dict(
+            {
+                "title": compact.get("title") or compact.get("track_name") or compact.get("name"),
+                "artist": compact.get("artist"),
+                "uri": compact.get("uri"),
+            }
+        )
+        if item:
+            tracks.append(item)
+        if len(tracks) >= 5:
+            break
+    return tracks
+
+
+def _snapshot_top_artists(value: Any) -> list[dict[str, Any]]:
+    artists: list[dict[str, Any]] = []
+    for artist in _range_items(value):
+        compact = _compact_profile_artist(artist)
+        if not compact:
+            continue
+        item = _compact_dict(
+            {
+                "name": compact.get("name"),
+                "uri": compact.get("uri"),
+                "genres": compact.get("genres"),
+            }
+        )
+        if item:
+            artists.append(item)
+        if len(artists) >= 5:
+            break
+    return artists
+
+
+def _range_items(value: Any) -> list[dict[str, Any]]:
+    if not isinstance(value, dict):
+        return []
+    items: list[dict[str, Any]] = []
+    for range_name in ("short_term", "medium_term", "long_term"):
+        values = value.get(range_name)
+        if isinstance(values, list):
+            items.extend(item for item in values if isinstance(item, dict))
+    return items
 
 
 def _unique_texts(values: Any) -> list[str]:

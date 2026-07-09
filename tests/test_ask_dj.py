@@ -278,6 +278,64 @@ class AskDjTest(unittest.TestCase):
         self.assertNotIn("spotify:track:partial", str(result["playback_actions"]))
         self.assertEqual([call[0] for call in calls], ["status", "search_tracks"])
 
+    def test_track_versions_search_supports_documented_phrase_variants(self) -> None:
+        runtime = make_runtime()
+        calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append((command_name, value, play))
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            if command_name == "search_tracks":
+                return {
+                    "success": True,
+                    "tracks": [
+                        {
+                            "uri": f"spotify:track:{len(calls)}",
+                            "title": value["query"],
+                            "artist": "Artist",
+                        }
+                    ],
+                }
+            raise AssertionError(f"unexpected command: {command_name}")
+
+        requests = [
+            ("Geef me 10 uitvoeringen van Nothing else matters door verschillende artiesten", "Nothing else matters"),
+            ('Zoek versies van "Nothing else matters"', "Nothing else matters"),
+            ('Toon covers van "Nothing else matters"', "Nothing else matters"),
+            ('Heb je live versies van "Nothing else matters"', "Nothing else matters"),
+            ('Find versions of "Nothing else matters"', "Nothing else matters"),
+            ('Show covers of "Nothing else matters"', "Nothing else matters"),
+            ("Give me versions titled Nothing else matters", "Nothing else matters"),
+        ]
+
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
+        try:
+            for text, expected_query in requests:
+                with self.subTest(text=text):
+                    before = len(calls)
+                    result = asyncio.run(
+                        self.ask_dj.async_handle_ask_dj(
+                            types.SimpleNamespace(data={self.const.DOMAIN: {}}),
+                            runtime,
+                            {
+                                "text": text,
+                                "device_id": runtime.device_status["device_id"],
+                                "client_type": "ios",
+                            },
+                            user_id="user-1",
+                        )
+                    )
+                    self.assertTrue(result["success"])
+                    self.assertEqual(result["intent"]["intent"], "track_versions_search")
+                    self.assertEqual(result["playback_actions"][0]["label"], "Play Now")
+                    self.assertEqual(calls[before + 1][0], "search_tracks")
+                    self.assertEqual(calls[before + 1][1]["query"], expected_query)
+                    self.assertEqual(calls[before + 1][1]["limit"], 10)
+        finally:
+            self.ask_dj.run_music_command = original_command
+
     def test_shuffle_status_returns_toggle_action(self) -> None:
         runtime = make_runtime()
         runtime.last_playback = {"has_playback": True, "shuffle": True}
@@ -526,6 +584,7 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("- Welke albums bracht [artiest] uit?", result["text"])
         self.assertIn("- Welke muziek heeft [artiest] gemaakt?", result["text"])
         self.assertIn("- Geef me 5 nummers van [artiest]", result["text"])
+        self.assertIn("- Geef me 10 uitvoeringen van [nummer] door verschillende artiesten", result["text"])
         self.assertIn("- Wat voor [genre] playlists heb je?", result["text"])
         self.assertIn("- Welke playlists heb ik?", result["text"])
         self.assertIn("- Wat heb je nog meer van [artiest]?", result["text"])
@@ -543,6 +602,10 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("- Analyseer mijn luisterprofiel", result["text"])
         self.assertIn("- Ik wil meer van deze muziek horen", result["text"])
         self.assertIn("- Ik wil vergelijkbare tracks", result["text"])
+        self.assertIn("\n\n## Discover en Music DNA\n- Wat is er nieuw in Discover?", result["text"])
+        self.assertIn("- Ververs mijn Discover aanbevelingen", result["text"])
+        self.assertIn("- Wat zegt mijn Music DNA?", result["text"])
+        self.assertIn("- Welke Discover aanbevelingen passen het beste bij mij?", result["text"])
         self.assertIn("\n\n## Follow-ups\n- Probeer opnieuw", result["text"])
         self.assertNotIn("vragen:Muziek", result["text"])
         self.assertNotIn("startenSpeel", result["text"])

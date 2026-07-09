@@ -94,6 +94,7 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
                 "websocket_music_discovery_feed",
                 "websocket_music_discovery_refresh",
                 "websocket_music_discovery_play",
+                "websocket_music_discovery_feedback",
             ],
         )
         self.assertTrue(hass.data["djconnect"]["websocket_registered"])
@@ -142,7 +143,41 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
         self.assertIn(self.websocket_api.WS_TYPE_MUSIC_DISCOVERY_FEED, result["commands"])
         self.assertIn(self.websocket_api.WS_TYPE_MUSIC_DISCOVERY_REFRESH, result["commands"])
         self.assertIn(self.websocket_api.WS_TYPE_MUSIC_DISCOVERY_PLAY, result["commands"])
+        self.assertIn(self.websocket_api.WS_TYPE_MUSIC_DISCOVERY_FEEDBACK, result["commands"])
+        self.assertTrue(result["features"]["music_dna"])
+        self.assertTrue(result["features"]["music_discovery"])
+        self.assertTrue(result["features"]["music_discovery_feedback"])
+        self.assertEqual(
+            result["fallbacks"]["music_discovery"]["http_paths"]["feed"],
+            "/api/djconnect/v1/music_discovery",
+        )
+        self.assertEqual(
+            result["fallbacks"]["music_discovery_feedback"]["missing_behavior"],
+            "hide_negative_feedback_controls",
+        )
         self.assertEqual(result["transports"], {"http": True, "websocket": True})
+
+    def test_backend_capability_fallbacks_degrade_when_command_is_missing(self) -> None:
+        commands = [
+            command
+            for command in self.websocket_api._supported_websocket_commands()
+            if command != self.websocket_api.WS_TYPE_MUSIC_DISCOVERY_FEEDBACK
+        ]
+
+        features = self.websocket_api._feature_capabilities(commands)
+        fallbacks = self.websocket_api._capability_fallbacks(commands)
+
+        self.assertTrue(features["music_discovery"])
+        self.assertFalse(features["music_discovery_feedback"])
+        self.assertEqual(fallbacks["music_discovery_feedback"]["preferred_transport"], "http")
+        self.assertEqual(
+            fallbacks["music_discovery_feedback"]["http_path"],
+            "/api/djconnect/v1/music_discovery/feedback",
+        )
+        self.assertEqual(
+            fallbacks["music_discovery_feedback"]["missing_behavior"],
+            "hide_negative_feedback_controls",
+        )
 
     def test_command_uses_device_token_and_device_id_headers(self) -> None:
         calls = []
