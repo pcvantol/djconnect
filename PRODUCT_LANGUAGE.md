@@ -49,7 +49,11 @@ Use these terms consistently:
 | Music Backend | Provider adapter such as Spotify Direct or Music Assistant |
 | Music Account | Provider account binding used by a profile |
 | Household Profile | Shared profile for shared devices and family spaces |
+| Shared Room Profile | Shared profile for a room, area or satellite context |
 | Guest Profile | Guest-safe shared profile with no personal leakage |
+| Voice Satellite / HA Voice Satellite | Home Assistant voice endpoint that can invoke DJConnect through Assist |
+| Request Context | Developer-facing resolver input describing where an interaction originated |
+| Satellite mapping | Developer-facing mapping from an HA Voice Satellite to a DJConnect Profile |
 | Personal | Paid/profile-level personalization tier |
 | Community | Open-source/local-first foundation |
 | Experimental | Feature exists for testing and may change |
@@ -63,6 +67,8 @@ Use these terms consistently:
 | Spotify profile | DJConnect Profile | Spotify is only a backend/account binding |
 | Backend profile | DJConnect Profile | Avoid identity confusion |
 | HA user profile | DJConnect Profile | HA user is only a hint |
+| Request Context as a feature name | Profile, device, room or voice context | Developer-facing term, not consumer-facing copy |
+| Speaker recognition supported | Future speaker recognition hint | Not in current product scope |
 | Karaoke | Live Lyrics / Lyrics Explain | DJConnect is not a karaoke product |
 | AI assistant | AI DJ | More specific and emotional |
 | Track Analysis | Insights / Track Insight | Analysis sounds technical |

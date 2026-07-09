@@ -22,14 +22,14 @@ Each ADR should include:
 
 ### ADR-0000 — Why DJConnect exists
 
-**Status:** Accepted  
+**Status:** Accepted
 **File:** `docs/adr/0000-why-djconnect-exists.md`
 
 Decision to define DJConnect as an AI music platform centered on an AI DJ experience, with Home Assistant as the first local-first runtime, Music Backends as adapters, clients as renderers/control surfaces and DJConnect Profiles as personalization boundaries.
 
 ### ADR-0001 — DJConnect Profile is the primary identity
 
-**Status:** Accepted  
+**Status:** Accepted
 **File:** `docs/adr/0001-profile-is-primary-identity.md`
 
 Decision to place personal state on DJConnect Profile instead of Device, Spotify account or Home Assistant user.
@@ -47,6 +47,15 @@ Decision to keep Spotify Direct, Music Assistant and future providers behind a b
 **File:** `docs/adr/0003-backend-owns-intelligence.md`
 
 Decision that durable intelligence, Music DNA, recommendations and Ask DJ memory live in the backend rather than clients.
+
+### ADR-0011 — Profile resolution uses Request Context
+
+**Status:** Accepted
+**File:** `docs/adr/0011-profile-resolution-uses-request-context.md`
+
+Decision to keep one canonical Profile Resolver and resolve DJConnect Profiles
+from a general Request Context instead of assuming every interaction originates
+from a DJConnect Device.
 
 ## ADR backlog
 

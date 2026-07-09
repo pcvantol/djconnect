@@ -38,11 +38,20 @@ A Profile owns:
 
 Devices link to profiles. Music accounts bind to profiles. Home Assistant users may map to profiles as hints.
 
+Profile resolution is performed from a request context, not only from a
+DJConnect Device. A request context may include a DJConnect device ID, Home
+Assistant user hint, Home Assistant Voice Assist satellite, HA device/entity,
+room/area, playback player/zone, session or future speaker-identity hint. These
+signals help the canonical `ProfileResolver` select a Profile; they do not
+become primary identity.
+
 ## Consequences
 
 - Device state must not contain durable personal intelligence.
 - Ask DJ history should be profile-bound.
 - Shared devices should normally resolve to household/room/guest/kids profiles.
+- Shared Home Assistant Voice Assist satellites should normally resolve through
+  explicit satellite, room/area or fallback mappings.
 - Personal devices should normally resolve to a personal profile.
 - Future Personal/Paid capabilities can be sold and explained as profile-level capabilities.
 - Export/import can become profile-centered.

@@ -10,7 +10,7 @@ No client owns product features. Clients render or expose platform capabilities 
 | --- | --- | --- |
 | Intelligence Client | iOS, iPadOS, macOS, Windows, future Android/web | Rich personal DJConnect experience |
 | Ambient Client | Raspberry Pi display, wall display, household screen | Shared room display/control experience |
-| Voice / Control Client | ESP32, HA Voice Assist satellite | Physical control, PTT, short TTS responses |
+| Voice / Control Client | ESP32, HA Voice Assist satellite | Physical control, Assist/voice entrypoint, PTT, short TTS responses |
 | Presentation Client | VibeCast / AirPlay / TV | Shared visual rendering of Insight Feed |
 | Immersive Client | Future VR/MR | Spatial renderer and exploratory interface |
 
@@ -56,6 +56,29 @@ By default, Pi should resolve to a shared profile unless explicitly linked to a 
 ESP32 is a Voice / Control Client. It should remain simple, robust and community-first.
 
 It should not gain rich intelligence UI, Music DNA, persistent chat history or Discover. It may play short TTS DJ responses through its built-in speaker.
+
+### Home Assistant Voice Assist satellites
+
+Home Assistant Voice Assist satellites are Voice / Control request sources for
+Assist-driven DJConnect interactions. They may be represented by Home Assistant
+device IDs, satellite/entity IDs, Assist pipeline context and area/room
+associations.
+
+A DJConnect ESP32 PTT device is a registered Voice / Control Client and resolves
+through `device_id`. A generic Home Assistant Voice Assist satellite resolves
+through HA satellite/device/area context. These flows may use similar voice and
+Assist paths, but they are not necessarily the same domain object.
+
+An HA Voice Assist satellite does not need to become a full DJConnect Device
+solely for Profile resolution. It should resolve through the canonical
+`ProfileResolver` using explicit satellite mapping, area/room mapping or
+fallback. Shared room satellites should normally resolve to shared, room,
+household, guest-safe or kids profiles unless explicitly configured otherwise.
+
+Future speaker recognition may become a resolver hint, but it is not a current
+client capability and must not override explicit profile selection. HA Voice
+satellites have no persistent personal UI and no automatic access to personal
+Ask DJ history.
 
 ### VibeCast
 

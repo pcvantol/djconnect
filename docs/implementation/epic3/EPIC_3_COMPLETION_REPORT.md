@@ -15,6 +15,14 @@ Epic 3 makes Profile the primary DJConnect runtime identity. Devices remain
 runtime mappings, Music Backends own provider playback, Music Accounts are
 metadata bindings and Profile Resolver is the single identity resolution path.
 
+The completed runtime resolves the implemented `ProfileResolutionContext`
+fields: explicit `profile_id`, `device_id`, Home Assistant `user_id` hint,
+`room_id` and fallback. The foundation now clarifies the broader request-context
+target for HA Voice Assist satellites, Home Assistant device/entity IDs,
+area/room, playback players/zones and future speaker-identity hints. Those
+additional signals remain follow-up work and must be added through the same
+canonical `ProfileResolver`.
+
 ## Runtime Behavior Changed
 
 - Profile context is resolved before personal service/API work.
@@ -51,6 +59,9 @@ Coverage includes:
 
 - Move legacy Ask DJ history storage from HA-user primary key to Profile-native
   storage when the broader history migration is scheduled.
+- Extend `ProfileResolutionContext` and resolver indexes for explicit HA Voice
+  satellite mappings, Home Assistant device/area context and playback
+  player/zone mappings.
 - Expand client UX for profile switching and private-session controls.
 - Add cross-client fixture coverage for Profile privacy and export behavior.
 - Add cloud/profile portability only in a later Cloud epic.
@@ -78,4 +89,3 @@ state exists.
 Exports exclude OAuth tokens, provider refresh tokens, provider secrets, Home
 Assistant tokens, APNs tokens, device tokens and raw credentials. Imports reject
 secret-like fields rather than silently storing them.
-

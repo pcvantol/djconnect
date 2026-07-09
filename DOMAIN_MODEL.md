@@ -20,14 +20,14 @@ Household
 A simpler request-time view:
 
 ```text
-Request
-  -> resolve Profile
-  -> resolve Music Backend
-  -> resolve Music Account
-  -> resolve Playback Target
-  -> execute Use Case
-  -> publish Insight / Response
-  -> render on Client
+Interaction / Request
+  -> Request Context
+  -> Profile Resolver
+  -> DJConnect Profile
+  -> Music Backend / Music Account
+  -> Playback Zone
+  -> Use Case / Intelligence
+  -> Client or Renderer
 ```
 
 ## Household
@@ -76,9 +76,49 @@ A Profile owns:
 
 Multiple devices may link to the same Profile. When they do, personal state roams across those devices because it is profile-owned.
 
+## Request Context
+
+A Request Context describes where and how a DJConnect interaction originated.
+The current implementation names this typed input `ProfileResolutionContext`.
+
+A Request Context may contain:
+
+- `explicit_profile_id`;
+- `device_id`;
+- `client_type`;
+- `ha_user_id`;
+- `satellite_id`;
+- `ha_device_id`;
+- `area_id`;
+- `room_id`;
+- `player_id`;
+- `playback_zone_id`;
+- `session_id`;
+- request source/type;
+- future `speaker_identity_hint`.
+
+Request Context is temporary resolver input. It is not an identity by itself,
+not durable personal state and not a replacement for Profile. It exists so the
+Profile Resolver can deterministically select the correct DJConnect Profile
+before personal state, backend routing or intelligence behavior is used.
+
+Not every interaction source is a registered DJConnect Device. Apple, Windows,
+Raspberry Pi and ESP32 clients are commonly registered devices. Home Assistant
+Voice Assist satellites, automations, service calls, Home Assistant user
+context, room/area context, playback players and future speaker recognition may
+all provide resolver signals without becoming Device-owned identity.
+
 ## Device
 
 A Device is hardware, client, runtime and UI context.
+
+A DJConnect Device is a paired or registered DJConnect client or hardware
+runtime. Examples:
+
+- Apple app installation;
+- Windows app installation;
+- Raspberry Pi client;
+- ESP32 client.
 
 Device-owned state:
 
@@ -95,6 +135,29 @@ Device-owned state:
 - local pairing/runtime metadata.
 
 A Device must not own persistent Music DNA, Ask DJ history, recommendation memory, profile mood or long-term DJ response style.
+
+## Home Assistant Voice Satellite
+
+A Home Assistant Voice Satellite is a Home Assistant voice endpoint that invokes
+DJConnect through Assist.
+
+It may be represented by:
+
+- Home Assistant device ID;
+- satellite/entity ID;
+- area/room association;
+- Assist pipeline context.
+
+An HA Voice Satellite is a request source and resolution signal. It does not
+need to become a full DJConnect Device solely to resolve a Profile. Registering
+it as a DJConnect Device is appropriate only when registration creates real
+product value, such as runtime capability tracking, device settings, pairing or
+release/update ownership.
+
+Shared room-based satellites should normally resolve to shared, room, household,
+guest-safe or kids profiles through explicit satellite mapping, area/room
+mapping or fallback. They should not write personal Music DNA merely because no
+speaker identity was detected.
 
 ## Music Backend
 
@@ -298,6 +361,42 @@ The Phase 1 domain layer defines:
 - Music Account bindings;
 - Playback Zone targets;
 - one canonical Profile Resolver with the foundation-defined resolution priority.
+
+The canonical target resolution priority is:
+
+1. explicit `profile_id`;
+2. linked DJConnect Profile for `device_id`;
+3. explicit satellite mapping;
+4. Home Assistant `user_id` mapping/hint, when available;
+5. area/room mapping;
+6. playback zone/player mapping, when configured;
+7. configured fallback profile;
+8. structured `ProfileRequired` error.
+
+Resolution must be deterministic. Explicit profile selection has highest
+priority, and an invalid explicit profile must return a structured error rather
+than silently selecting a different personal profile. Explicit device mapping
+beats inferred room mapping. Explicit satellite mapping beats area mapping. A
+shared satellite should default to a shared, room or household profile unless
+explicitly configured otherwise. Future speaker recognition may become a hint,
+but it must never silently override explicit profile selection and is not part
+of the current implementation.
+
+Current Epic 3 runtime implementation uses `ProfileResolutionContext` with
+`profile_id`, `device_id`, `ha_user_id` and `room_id`, and resolves in this
+implemented order:
+
+1. explicit `profile_id`;
+2. `device_id` mapping;
+3. Home Assistant `user_id` hint;
+4. room mapping;
+5. fallback profile;
+6. `ProfileRequired`.
+
+Satellite, HA device, area, player/playback zone and speaker-identity fields are
+foundation-level target inputs for a follow-up implementation. Until those
+fields exist in code, services must not create separate client-specific identity
+resolution paths.
 
 Phase 1 intentionally does not implement persistence, config/options flow,
 services, API/websocket changes, Ask DJ migration, Music DNA migration,

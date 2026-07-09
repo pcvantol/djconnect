@@ -10,6 +10,31 @@ Example: A user's preferred DJ tone and recommendation history move with their D
 
 Anti-example: Storing durable listening preferences only on one phone or one ESP32 device.
 
+## Every interaction resolves a Profile from Request Context
+
+Every DJConnect interaction must resolve a DJConnect Profile from an explicit
+and deterministic Request Context before using personal state, durable
+intelligence or profile-scoped backend routing.
+
+The request source does not own personal state. Profile owns personal state.
+Device, Home Assistant Voice Satellite, room/area, playback zone/player and Home
+Assistant user are resolution signals only.
+
+Shared contexts should default safely to shared, room, household, guest-safe or
+kids profiles unless explicitly configured otherwise. Home Assistant `user_id`
+is a useful hint, but it is not the primary identity.
+
+Example: Kitchen Voice Satellite -> satellite mapping or Kitchen area -> Kitchen
+/ Household Profile.
+
+Example: Peter's iPhone -> DJConnect device mapping -> Peter Profile.
+
+Anti-example: A voice endpoint writes its own Music DNA because no explicit user
+was detected.
+
+Anti-example: A service call creates a local resolver that treats Home Assistant
+`user_id` as the durable DJConnect identity.
+
 ## Everything hardware/client/runtime-specific belongs to a Device
 
 Hardware capabilities, firmware version, local URL, battery state, screen settings and runtime status belong to a Device.

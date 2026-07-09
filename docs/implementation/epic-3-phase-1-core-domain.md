@@ -52,7 +52,7 @@ Accounts model provider account bindings without OAuth or persistence behavior.
 Playback Zones model targets only; playback execution remains out of scope.
 
 `ProfileResolver` is the single canonical resolver and follows the foundation
-priority exactly:
+priority implemented in Phase 1:
 
 1. explicit `profile_id`;
 2. `device_id` mapping;
@@ -60,6 +60,13 @@ priority exactly:
 4. room mapping;
 5. fallback profile;
 6. `ProfileRequired`.
+
+After Phase 1, the foundation clarified that resolver input is a broader
+request context. The canonical target model also allows explicit satellite,
+Home Assistant device, area, playback-zone/player and future speaker-identity
+hints. Those signals were not part of the Phase 1 runtime implementation and
+should be added only through the same `ProfileResolver`, not by creating
+client-specific resolver paths.
 
 ## Review Checklist
 
