@@ -4,7 +4,7 @@ This document captures product ideas, experiments, long-term concepts, and desig
 
 It is **not** a roadmap. Inclusion here does not imply commitment, priority, or implementation.
 
-Ideas should be promoted to `PRODUCT_ROADMAP.md` only after they are aligned with the Constitution, product vision, design principles, architecture principles, and implementation capacity.
+Ideas should be promoted to `PRODUCT_ROADMAP.md` only after they align with the Constitution, Product Vision, Design Principles, Architecture Principles, and implementation capacity.
 
 ## Status labels
 
@@ -13,6 +13,8 @@ Ideas should be promoted to `PRODUCT_ROADMAP.md` only after they are aligned wit
 - 🔵 Research: external dependency or feasibility needs research.
 - 🟣 Prototype: worth building experimentally.
 - ⚫ Rejected: intentionally not planned.
+
+---
 
 ## Music Intelligence
 
@@ -33,19 +35,11 @@ Potential capabilities:
 - VibeCast lyric/context layers;
 - Track Insight dynamic lyric facts.
 
-Dependencies:
-
-- lyrics provider;
-- cached track lyrics;
-- Insight Feed;
-- profile privacy behavior;
-- VibeCast active session state.
-
 Constraints:
 
-- do not use the term karaoke as the product feature name;
-- do not persist sensitive lyric-derived user interpretations unless profile settings allow it;
-- degrade gracefully if lyrics are unavailable.
+- do not use karaoke as the product feature name;
+- degrade gracefully if lyrics are unavailable;
+- consider licensing and provider coverage before implementation.
 
 ### Live Lyrics Layer
 
@@ -60,8 +54,8 @@ Open questions:
 - synchronization quality;
 - licensing;
 - local caching;
-- fallback behavior;
-- whether LRCLIB coverage is sufficient for MVP.
+- LRCLIB coverage and reliability;
+- fallback behavior.
 
 ### Hybrid VibeCast
 
@@ -71,6 +65,8 @@ Open questions:
 VibeCast should become a hybrid presentation surface where artist, album, track, lyrics, mood, artwork, and insight information naturally combine into one ambient experience.
 
 VibeCast should not require users to choose many separate modes. It should default to a coherent hybrid mode.
+
+---
 
 ## VibeCast and Guest Experiences
 
@@ -122,12 +118,7 @@ Constraints:
 - endpoint must expire automatically;
 - rate limiting should exist for love events.
 
-Open questions:
-
-- local network only or Nabu Casa/remote option later;
-- token lifetime after track change;
-- whether love events are realtime-only or aggregated;
-- whether this remains Community-only and intentionally non-personal.
+---
 
 ## Personal Intelligence
 
@@ -138,17 +129,7 @@ Open questions:
 
 Allow a DJConnect profile to move between Home Assistant installations.
 
-Profile export may include:
-
-- profile metadata;
-- Music DNA;
-- mood history/settings;
-- DJ voice/response style;
-- Ask DJ chat history;
-- recommendation memory;
-- likes/dislikes;
-- optional device mappings;
-- optional backend/account bindings without secrets.
+Profile export may include profile metadata, Music DNA, mood settings/history, DJ voice/response style, Ask DJ chat history, recommendation memory, likes/dislikes, optional device mappings, and optional backend/account bindings without secrets.
 
 OAuth tokens and provider secrets must not be exported by default. New installations should require account re-linking.
 
@@ -161,16 +142,14 @@ Ask DJ conversation history should be profile-bound, not device-bound.
 
 Personal devices linked to the same profile should share context. Shared profiles should have separate shared history. Shared devices should not show personal history unless explicitly linked to a personal profile.
 
-## Household Intelligence
-
 ### Household DJ Profiles
 
 **Status:** 🟢 Vision  
 **Domain:** Profiles / Household
 
-Support profiles such as Household, Living Room, Kitchen, Kids, Guest, and Party.
+Support profiles such as Household, Living Room, Kitchen, Kids, Guest, and Party. These profiles should support shared experiences without leaking personal state.
 
-These profiles should support shared experiences without leaking personal state.
+---
 
 ## Discover
 
@@ -191,6 +170,111 @@ Recommend lesser-known tracks aligned with Music DNA.
 **Status:** 🟢 Vision
 
 Every recommendation should be explainable: why this track, why now, why for this profile.
+
+---
+
+## Immersive / VR / MR Experiences
+
+### DJConnect VR Experience
+
+**Status:** 🟡 Exploration  
+**Domain:** VR / MR / Spatial Computing / Personal Intelligence / VibeCast  
+**Potential clients:** Meta Quest, future Apple Vision Pro, future spatial web
+
+DJConnect should not become another music player in VR. The opportunity is to create something only DJConnect can do because it combines AI, Home Assistant, music backends, profile intelligence, VibeCast-style visuals, and spatial presence.
+
+#### Favorite direction: AI DJ avatar in your room
+
+Your living room becomes a virtual club or listening lounge.
+
+- An AI DJ avatar appears near the TV or music zone.
+- It reacts to what is playing.
+- It tells artist trivia, track context and mood notes.
+- It can announce tracks like a radio DJ.
+- It can be interrupted naturally:
+  - “Play something more energetic.”
+  - “More trance from 2005.”
+  - “What is this track?”
+
+Unique angle: not a chatbot window, but a spatial DJ personality that feels physically present in the room.
+
+#### Spatial Music Journey
+
+The listener walks through music as spatial worlds:
+
+- rock as a stadium;
+- ambient as a forest;
+- techno as a warehouse;
+- trance as a futuristic tunnel.
+
+Scenes could be generated from BPM, energy, genre, lyrics and mood.
+
+#### Spotify Wrapped Live / Music Year World
+
+A 3D experience of the profile's listening history:
+
+- favorite artists as floating objects;
+- timeline of the music year;
+- genres as planets or clusters;
+- personalized Music DNA landscape.
+
+This is highly shareable but depends on mature profile intelligence and privacy controls.
+
+#### DJConnect Party Mode
+
+Multiple headsets or guests in the same room:
+
+- people vote on music;
+- AI DJ explains or mediates the vibe;
+- spatial audio and visuals react to the room;
+- quizzes or lightweight guest interactions may be added.
+
+Constraint: avoid becoming a social network or complex party platform.
+
+#### Music Discovery Galaxy
+
+Commercially promising concept: the user's library and recommendations become a galaxy.
+
+- each artist is a star;
+- genres are clusters;
+- related artists are spatially close;
+- the user flies through taste and recommendations;
+- Ask DJ can create discovery routes, for example: “Show me artists between Above & Beyond and London Grammar.”
+
+This uses spatial computing as a meaningful discovery interface rather than a gimmick.
+
+#### DJConnect MR Visualizer
+
+Likely fastest prototype:
+
+- lasers, particles and projections in the living room;
+- album art floating in space;
+- mood-reactive visual layers;
+- VibeCast Insight Feed rendered in mixed reality;
+- synchronized with current playback.
+
+This could be a modern mixed-reality evolution of music visualizers.
+
+#### Priority if researched later
+
+1. AI DJ avatar in your room.
+2. Music Discovery Galaxy.
+3. Spatial Music Journey.
+4. MR Visualizer as fastest prototype path.
+
+Core proposition:
+
+> Talk to an AI DJ that knows your music, your profile, your home, and appears as a spatial personality in your living room.
+
+Constraints:
+
+- no VR-only product fork;
+- no separate VR music player;
+- no persistent personal data on shared/guest headsets without explicit profile resolution;
+- use the same Profile, Music Backend and Insight Feed architecture;
+- clients render platform capabilities rather than owning intelligence.
+
+---
 
 ## Future Cloud
 
@@ -214,6 +298,8 @@ Optional cloud sync for profiles across Home Assistant installations and clients
 
 The central API may become the trust and entitlement boundary for Personal and future Cloud features.
 
+---
+
 ## Crazy Ideas
 
 These are intentionally unconstrained.
@@ -226,6 +312,8 @@ These are intentionally unconstrained.
 - DJConnect for cars / CarPlay-style continuity;
 - live concert companion;
 - party voting without becoming a social network.
+
+---
 
 ## Rejected or constrained ideas
 
@@ -247,6 +335,8 @@ DJConnect may support guest reactions and sharing, but it should not become a so
 
 Library management belongs to music backends such as Music Assistant or provider apps.
 
+---
+
 ## Design questions
 
 - When should DJConnect speak, and when should it stay silent?
@@ -257,3 +347,4 @@ Library management belongs to music backends such as Music Assistant or provider
 - How should DJConnect explain recommendations without feeling clinical?
 - What data should never leave the local Home Assistant instance?
 - How should future cloud features enhance rather than replace local-first Community?
+- When does an immersive experience add value instead of becoming a gimmick?
