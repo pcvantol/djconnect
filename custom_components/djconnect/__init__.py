@@ -117,7 +117,7 @@ from .ask_dj import async_handle_ask_dj
 from .ask_dj_history import AskDJHistoryManager
 from .music_dna import MusicDNAManager
 from .push import (
-    EVENT_ASK_DJ_CONFIRM,
+    EVENT_ASK_DJ_CONFIRM as EVENT_ASK_DJ_CONFIRM,
     EVENT_MUSIC_DISCOVERY_READY,
     EVENT_TEST_PUSH,
     SUPPORTED_CLIENT_TYPES as APNS_SUPPORTED_CLIENT_TYPES,

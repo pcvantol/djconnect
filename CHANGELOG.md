@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.2.49
+
+- Fix release CI validation by making push event re-export intent explicit for
+  current Ruff and removing unused HTTP imports.
+
 ## 3.2.48
 
 - Add DJ announcement output QA guidance to the bootstrap, contribution and
