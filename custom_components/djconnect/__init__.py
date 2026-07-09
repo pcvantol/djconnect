@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import date
+from datetime import date, timedelta
 import json
 import logging
 import re
@@ -19,9 +19,10 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.typing import ConfigType
 
 try:
-    from homeassistant.helpers.event import async_track_time_change
+    from homeassistant.helpers.event import async_track_time_change, async_track_time_interval
 except ImportError:  # pragma: no cover - test stubs without HA event helpers
     async_track_time_change = None
+    async_track_time_interval = None
 
 from .const import (
     API_COMMAND,
@@ -133,7 +134,7 @@ from .spotify_oauth import (
     ensure_spotify_scopes,
 )
 from .track_insight import TRACK_INSIGHT_EVENT
-from .use_cases import music_backend_metadata, run_text_command
+from .use_cases import music_backend_metadata, run_music_command, run_text_command
 from .websocket_api import async_register as async_register_websocket_api
 
 _LOGGER = logging.getLogger(__name__)
@@ -2610,6 +2611,112 @@ def _schedule_daily_music_discovery_push(hass: HomeAssistant, entry: ConfigEntry
     entry.async_on_unload(unsub)
 
 
+def _schedule_hourly_music_discovery_refresh(hass: HomeAssistant, entry: ConfigEntry, runtime: Any) -> None:
+    """Schedule server-side Music Discovery refresh without waiting for clients."""
+    if async_track_time_interval is None:
+        _LOGGER.debug("DJConnect hourly Music Discovery refresh scheduler unavailable")
+        return
+
+    async def _refresh(_now) -> None:
+        await _async_refresh_music_discovery_server_side(hass, runtime)
+
+    unsub = async_track_time_interval(hass, _refresh, timedelta(hours=1))
+    entry.async_on_unload(unsub)
+
+
+async def _async_refresh_music_discovery_server_side(
+    hass: HomeAssistant,
+    runtime: Any,
+) -> dict[str, Any]:
+    """Refresh Music DNA/Discovery cache for eligible runtimes on the server."""
+    client_type = _runtime_push_client_type(runtime)
+    device_id = _runtime_push_device_id(runtime)
+    if not client_type or not device_id:
+        return {"success": True, "refreshed": False, "suppressed": "missing_identity"}
+    device_token = str(getattr(runtime, "device_token", "") or "").strip()
+    if not device_token:
+        return {"success": True, "refreshed": False, "suppressed": "missing_device_token"}
+    if not await _music_dna_enabled_for_daily_push(runtime, device_id, client_type):
+        return {"success": True, "refreshed": False, "suppressed": "music_dna_disabled"}
+    profile_refreshed = await _async_refresh_music_dna_listening_profile_server_side(
+        hass,
+        runtime,
+        {
+            CONF_DEVICE_ID: device_id,
+            CONF_CLIENT_TYPE: client_type,
+        },
+    )
+    try:
+        from .music_discovery import async_handle_music_discovery_feed_payload
+
+        result, status = await async_handle_music_discovery_feed_payload(
+            hass,
+            {
+                CONF_DEVICE_ID: device_id,
+                CONF_CLIENT_TYPE: client_type,
+            },
+            headers={
+                "Authorization": f"Bearer {device_token}",
+                "X-DJConnect-Device-ID": device_id,
+                "X-DJConnect-Client-Type": client_type,
+            },
+            user_id=None,
+            force_refresh=True,
+        )
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect hourly Music Discovery refresh failed: %s", exc.__class__.__name__)
+        return {"success": False, "refreshed": False, "error": "refresh_failed"}
+    sections = result.get("sections") if isinstance(result, dict) else []
+    item_count = sum(len(section.get("items") or []) for section in sections if isinstance(section, dict))
+    refreshed = status == 200 and bool(result.get("enabled"))
+    _LOGGER.debug(
+        "DJConnect hourly Music Discovery refresh result refreshed=%s status=%s sections=%s items=%s client_type=%s",
+        refreshed,
+        status,
+        len(sections) if isinstance(sections, list) else 0,
+        item_count,
+        client_type,
+    )
+    return {
+        "success": bool(status == 200),
+        "refreshed": refreshed,
+        "music_dna_profile_refreshed": profile_refreshed,
+        "status": status,
+        "sections": len(sections) if isinstance(sections, list) else 0,
+        "items": item_count,
+    }
+
+
+async def _async_refresh_music_dna_listening_profile_server_side(
+    hass: HomeAssistant,
+    runtime: Any,
+    payload: dict[str, Any],
+) -> bool:
+    """Refresh compact Music DNA Spotify profile data on the server."""
+    memory = getattr(runtime, "memory", None)
+    freshness = getattr(memory, "async_listening_profile_is_fresh", None)
+    updater = getattr(memory, "async_update_listening_profile", None)
+    if not callable(freshness) or not callable(updater):
+        return False
+    try:
+        if await freshness(runtime, payload, user_id=None, ttl_seconds=60 * 60):
+            return False
+        result = await run_music_command(hass, runtime, "listening_profile")
+        profile = result.get("profile") if isinstance(result, dict) else {}
+        if not isinstance(profile, dict) or not profile:
+            return False
+        await updater(runtime, profile, payload, user_id=None)
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect hourly Music DNA listening profile refresh failed: %s", exc.__class__.__name__)
+        return False
+    _LOGGER.debug(
+        "DJConnect hourly Music DNA listening profile refreshed client_type=%s device_id=%s",
+        payload.get(CONF_CLIENT_TYPE),
+        payload.get(CONF_DEVICE_ID),
+    )
+    return True
+
+
 async def _async_send_daily_music_discovery_push(
     hass: HomeAssistant,
     runtime: Any,
@@ -2708,6 +2815,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await _try_initial_device_provisioning(hass, runtime)
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
     _schedule_daily_music_discovery_push(hass, entry, runtime)
+    _schedule_hourly_music_discovery_refresh(hass, entry, runtime)
     _register_developer_services(hass, entry, runtime)
 
     await hass.config_entries.async_forward_entry_setups(entry, _platforms_for_runtime(runtime))

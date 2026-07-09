@@ -58,6 +58,7 @@ class MusicDnaApiHandlersTest(unittest.TestCase):
         self.hass = types.SimpleNamespace()
         self._original_resolve_runtime = self.api_handlers.resolve_runtime
         self._original_authorize = self.api_handlers.authorize_runtime_device_request
+        self._original_run_music_command = self.api_handlers.run_music_command
         self.api_handlers.resolve_runtime = lambda hass, device_id, headers=None: self.runtime
         self.api_handlers.authorize_runtime_device_request = (
             lambda runtime, headers, device_id=None, client_type=None: True
@@ -66,6 +67,7 @@ class MusicDnaApiHandlersTest(unittest.TestCase):
     def tearDown(self) -> None:
         self.api_handlers.resolve_runtime = self._original_resolve_runtime
         self.api_handlers.authorize_runtime_device_request = self._original_authorize
+        self.api_handlers.run_music_command = self._original_run_music_command
 
     def test_profile_returns_disabled_empty_profile_before_opt_in(self) -> None:
         result, status = asyncio.run(
@@ -126,6 +128,74 @@ class MusicDnaApiHandlersTest(unittest.TestCase):
         self.assertTrue(profile["enabled"])
         self.assertEqual(profile["profile"]["recent_tracks"][0]["artist"], "The xx")
         self.assertEqual(profile["profile"]["mood"]["value"], 65)
+
+    def test_profile_refreshes_stale_spotify_listening_profile_hourly(self) -> None:
+        asyncio.run(
+            self.memory.async_set_enabled(
+                self.runtime,
+                True,
+                {"client_type": "ios"},
+                user_id="ha-user-1",
+            )
+        )
+        calls = []
+
+        async def command(hass, runtime, command_name, value=None, *, play=None):
+            calls.append((command_name, value, play))
+            if command_name == "listening_profile":
+                return {
+                    "success": True,
+                    "profile": {
+                        "recent_tracks": [
+                            {
+                                "id": "outside",
+                                "track_name": "Outside DJConnect",
+                                "artist": "Native Spotify",
+                                "uri": "spotify:track:outside",
+                            }
+                        ],
+                        "top_tracks_by_range": {
+                            "short_term": [
+                                {
+                                    "track_name": "Top Native Track",
+                                    "artist": "Native Spotify",
+                                    "uri": "spotify:track:top-native",
+                                }
+                            ]
+                        },
+                        "top_artists_by_range": {
+                            "short_term": [
+                                {
+                                    "name": "Native Spotify",
+                                    "uri": "spotify:artist:native",
+                                    "genres": ["indie"],
+                                }
+                            ]
+                        },
+                        "inferred_genres": ["indie"],
+                        "sources": ["spotify_recently_played", "spotify_top_tracks_short_term"],
+                        "last_profile_refresh": "2026-07-09T10:00:00+00:00",
+                    },
+                }
+            raise AssertionError(f"unexpected command: {command_name}")
+
+        self.api_handlers.run_music_command = command
+
+        profile, status = asyncio.run(
+            self.api_handlers.async_handle_music_dna_profile_payload(
+                self.hass,
+                {"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios"},
+                headers={"Authorization": "Bearer token"},
+                user_id="ha-user-1",
+            )
+        )
+
+        self.assertEqual(status, 200)
+        self.assertEqual(calls, [("listening_profile", None, None)])
+        self.assertTrue(profile["enabled"])
+        self.assertEqual(profile["profile"]["recent_tracks"][0]["track_name"], "Outside DJConnect")
+        self.assertEqual(profile["profile"]["top_tracks_by_range"]["short_term"][0]["track_name"], "Top Native Track")
+        self.assertEqual(profile["profile"]["favorite_genres"][0]["name"], "indie")
 
     def test_clear_preserves_opt_in_and_returns_empty_enabled_profile(self) -> None:
         asyncio.run(

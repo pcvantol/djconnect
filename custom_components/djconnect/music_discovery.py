@@ -18,6 +18,7 @@ from .use_cases import run_music_command
 
 DISCOVERY_TTL_SECONDS = 24 * 60 * 60
 DISCOVERY_REFRESH_MIN_SECONDS = 5 * 60
+DISCOVERY_RECENTLY_PLAYED_REFRESH_SECONDS = 60 * 60
 DISCOVERY_ITEM_KINDS = {"track", "album", "artist", "playlist"}
 
 _LOGGER = logging.getLogger(__name__)
@@ -52,10 +53,18 @@ async def async_handle_music_discovery_feed_payload(
             bool(context.get("music_dna_key")),
         )
         return response, 200
+    refreshed_recently_played = await _refresh_recently_played_if_stale(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+    )
+    if refreshed_recently_played:
+        context = await _music_dna_context(runtime, payload, user_id=user_id)
     cache_key = _cache_key(context)
     cached = _cache(runtime).get(cache_key)
     now = _now()
-    if not force_refresh and _cache_valid(cached, now):
+    if not force_refresh and not refreshed_recently_played and _cache_valid(cached, now):
         response = dict(cached["response"])
         response["cache"] = {"hit": True}
         _LOGGER.debug(
@@ -67,7 +76,7 @@ async def async_handle_music_discovery_feed_payload(
             response.get("revision"),
         )
         return response, 200
-    response = _build_feed(runtime, context, payload)
+    response = await _build_feed(hass, runtime, context, payload)
     _cache(runtime)[cache_key] = {
         "generated_at": now,
         "response": response,
@@ -101,7 +110,7 @@ async def async_music_discovery_feed_tool(
         response = dict(cached["response"])
         response["cache"] = {"hit": True}
     else:
-        response = _build_feed(runtime, context, payload)
+        response = await _build_feed(None, runtime, context, payload)
         _cache(runtime)[cache_key] = {
             "generated_at": now,
             "response": response,
@@ -375,6 +384,72 @@ def _music_dna_enabled(context: dict[str, Any]) -> bool:
     return bool(isinstance(memory, dict) and memory.get("enabled"))
 
 
+async def _refresh_recently_played_if_stale(
+    hass: Any,
+    runtime: Any,
+    payload: dict[str, Any],
+    *,
+    user_id: str | None,
+) -> bool:
+    """Refresh Music DNA from backend recent history without mutating playback."""
+    memory = getattr(runtime, "memory", None)
+    freshness = getattr(memory, "async_listening_profile_is_fresh", None)
+    updater = getattr(memory, "async_update_listening_profile", None)
+    if not callable(freshness) or not callable(updater):
+        return False
+    try:
+        if await freshness(
+            runtime,
+            payload,
+            user_id=user_id,
+            ttl_seconds=DISCOVERY_RECENTLY_PLAYED_REFRESH_SECONDS,
+        ):
+            return False
+        result = await run_music_command(
+            hass,
+            runtime,
+            "recently_played",
+            {"limit": 50},
+        )
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug(
+            "DJConnect Music Discovery recently played refresh skipped: %s",
+            exc.__class__.__name__,
+        )
+        return False
+    tracks = result.get("tracks") if isinstance(result, dict) else []
+    if not isinstance(tracks, list) or not tracks:
+        return False
+    await updater(
+        runtime,
+        {
+            "source": "spotify",
+            "recent_tracks": tracks[:50],
+            "recent_track_ids": [
+                str(track.get("id") or "").strip()
+                for track in tracks
+                if isinstance(track, dict) and str(track.get("id") or "").strip()
+            ][:50],
+            "recent_artists": _unique_text_values(
+                track.get("artist")
+                for track in tracks
+                if isinstance(track, dict)
+            )[:25],
+            "sources": ["spotify_recently_played"],
+            "last_profile_refresh": _now().isoformat(),
+        },
+        payload,
+        user_id=user_id,
+    )
+    _LOGGER.debug(
+        "DJConnect Music Discovery refreshed recently played profile tracks=%s client_type=%s device_id=%s",
+        len(tracks[:50]),
+        payload.get(CONF_CLIENT_TYPE),
+        payload.get(CONF_DEVICE_ID),
+    )
+    return True
+
+
 def _disabled(reason: str, context: dict[str, Any]) -> dict[str, Any]:
     return {
         "success": True,
@@ -385,10 +460,17 @@ def _disabled(reason: str, context: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _build_feed(runtime: Any, context: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
+async def _build_feed(hass: Any, runtime: Any, context: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
     memory = context.get("memory") if isinstance(context.get("memory"), dict) else {}
     profile = _profile_from_memory(memory)
-    sections = [section for section in _sections_from_profile(profile) if section.get("items")]
+    sections = [
+        section
+        for section in [
+            await _new_music_section(hass, runtime, profile),
+            *_sections_from_profile(profile),
+        ]
+        if section.get("items")
+    ]
     revision = int(getattr(runtime, "music_discovery_revision", 0) or 0) + 1
     setattr(runtime, "music_discovery_revision", revision)
     generated_at = _now().isoformat()
@@ -406,38 +488,21 @@ def _build_feed(runtime: Any, context: dict[str, Any], payload: dict[str, Any]) 
 
 
 def _profile_from_memory(memory: dict[str, Any]) -> dict[str, Any]:
+    listening = memory.get("listening_profile") if isinstance(memory.get("listening_profile"), dict) else {}
     return {
         "favorite_genres": _texts(memory.get("favorite_genres")),
         "favorite_artists": _artist_names(memory.get("favorite_artists")),
         "recent_tracks": [item for item in memory.get("recent_tracks") or [] if isinstance(item, dict)],
         "recent_favorite_tracks": [item for item in memory.get("recent_favorite_tracks") or [] if isinstance(item, dict)],
         "recommendation_plays": [item for item in memory.get("recommendation_plays") or [] if isinstance(item, dict)],
+        "top_tracks_by_range": listening.get("top_tracks_by_range") if isinstance(listening.get("top_tracks_by_range"), dict) else {},
+        "top_artists_by_range": listening.get("top_artists_by_range") if isinstance(listening.get("top_artists_by_range"), dict) else {},
         "taste_anchors": _texts(memory.get("favorite_genres"))[:3] + _artist_names(memory.get("favorite_artists"))[:3],
     }
 
 
 def _sections_from_profile(profile: dict[str, Any]) -> list[dict[str, Any]]:
     return [
-        {
-            "id": "because_you_like",
-            "title": "Omdat dit bij je smaak past",
-            "items": _items_from_tracks(
-                profile.get("recent_tracks") or [],
-                reason="Past bij je Music DNA smaakankers.",
-                reason_sources=["taste_anchors", "recent_tracks"],
-                limit=6,
-            ),
-        },
-        {
-            "id": "recent_vibe",
-            "title": "Verder in je recente vibe",
-            "items": _items_from_tracks(
-                profile.get("recent_favorite_tracks") or [],
-                reason="Gebaseerd op muziek die je recent aan favorieten toevoegde.",
-                reason_sources=["explicit_positives", "recent_favorite_tracks"],
-                limit=6,
-            ),
-        },
         {
             "id": "accepted_recommendations",
             "title": "Meer zoals je eerdere keuzes",
@@ -446,67 +511,128 @@ def _sections_from_profile(profile: dict[str, Any]) -> list[dict[str, Any]]:
     ]
 
 
-def _items_from_tracks(
-    tracks: list[dict[str, Any]],
-    *,
-    reason: str,
-    reason_sources: list[str],
-    limit: int,
-) -> list[dict[str, Any]]:
-    items: list[dict[str, Any]] = []
-    for track, play_count in _unique_tracks_with_counts(tracks):
-        title = _first_text(track, "title", "track_name", "name")
-        artist = _first_text(track, "artist", "artist_name", "subtitle")
-        uri = _first_text(track, "uri", "context_uri")
-        if not (title and uri):
-            continue
-        item = _item(
-            "track",
-            title,
-            artist,
-            uri,
-            reason,
-            reason_sources,
-            image_url=_first_text(track, "image_url", "album_image_url", "thumbnail_url"),
+async def _new_music_section(hass: Any, runtime: Any, profile: dict[str, Any]) -> dict[str, Any]:
+    if hass is None:
+        return {"id": "new_for_you", "title": "Nieuw voor jou", "items": []}
+    seeds = _recommendation_seeds(profile)
+    if not any(seeds.values()):
+        return {"id": "new_for_you", "title": "Nieuw voor jou", "items": []}
+    try:
+        result = await run_music_command(
+            hass,
+            runtime,
+            "artist_recommendations",
+            {**seeds, "limit": 12},
         )
-        if play_count > 1:
-            item["play_count"] = play_count
-            item["based_on_count"] = play_count
-        items.append(item)
-        if len(items) >= limit:
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect Music Discovery recommendations unavailable: %s", exc.__class__.__name__)
+        return {"id": "new_for_you", "title": "Nieuw voor jou", "items": []}
+    tracks = result.get("recommended_tracks") or result.get("tracks") if isinstance(result, dict) else []
+    items = _items_from_recommended_tracks(
+        tracks if isinstance(tracks, list) else [],
+        excluded_uris=_known_track_uris(profile),
+        limit=6,
+    )
+    return {
+        "id": "new_for_you",
+        "title": "Nieuw voor jou",
+        "items": items,
+    }
+
+
+def _recommendation_seeds(profile: dict[str, Any]) -> dict[str, list[str]]:
+    tracks: list[str] = []
+    for source in (
+        profile.get("recent_favorite_tracks") or [],
+        profile.get("recommendation_plays") or [],
+        _range_items(profile.get("top_tracks_by_range")),
+        profile.get("recent_tracks") or [],
+    ):
+        for item in source if isinstance(source, list) else []:
+            if not isinstance(item, dict):
+                continue
+            uri = _first_text(item, "uri", "context_uri")
+            title = _first_text(item, "title", "track_name", "name")
+            artist = _first_text(item, "artist", "artist_name", "subtitle")
+            value = uri if uri.startswith("spotify:track:") else " ".join(part for part in (title, artist) if part)
+            if value and value not in tracks:
+                tracks.append(value)
+            if len(tracks) >= 3:
+                break
+        if len(tracks) >= 3:
             break
+    artists = _unique_text_values(
+        [
+            *profile.get("favorite_artists", []),
+            *[
+                _first_text(item, "name", "artist", "artist_name")
+                for item in _range_items(profile.get("top_artists_by_range"))
+                if isinstance(item, dict)
+            ],
+        ]
+    )[:2]
+    genres = _unique_text_values(profile.get("favorite_genres") or [])[:2]
+    return {"tracks": tracks[:3], "artists": artists, "genres": genres}
+
+
+def _range_items(value: Any) -> list[dict[str, Any]]:
+    if not isinstance(value, dict):
+        return []
+    items: list[dict[str, Any]] = []
+    for range_name in ("short_term", "medium_term", "long_term"):
+        values = value.get(range_name)
+        if isinstance(values, list):
+            items.extend(item for item in values if isinstance(item, dict))
     return items
 
 
-def _unique_tracks_with_counts(tracks: list[dict[str, Any]]) -> list[tuple[dict[str, Any], int]]:
-    """Return ordered unique tracks plus repeated-play counts."""
-    ordered: list[tuple[dict[str, Any], int]] = []
-    positions: dict[str, int] = {}
+def _known_track_uris(profile: dict[str, Any]) -> set[str]:
+    uris: set[str] = set()
+    for source in (
+        profile.get("recent_tracks") or [],
+        profile.get("recent_favorite_tracks") or [],
+        profile.get("recommendation_plays") or [],
+        _range_items(profile.get("top_tracks_by_range")),
+    ):
+        for item in source if isinstance(source, list) else []:
+            if isinstance(item, dict):
+                uri = _first_text(item, "uri", "context_uri").lower()
+                if uri:
+                    uris.add(uri)
+    return uris
+
+
+def _items_from_recommended_tracks(
+    tracks: list[dict[str, Any]],
+    *,
+    excluded_uris: set[str],
+    limit: int,
+) -> list[dict[str, Any]]:
+    items: list[dict[str, Any]] = []
+    seen: set[str] = set()
     for track in tracks:
-        if not isinstance(track, dict):
+        uri = _first_text(track, "uri", "context_uri")
+        if not uri or uri.lower() in excluded_uris or uri.lower() in seen:
             continue
-        key = _track_identity_key(track)
-        if not key:
+        title = _first_text(track, "title", "track_name", "name")
+        artist = _first_text(track, "artist", "artist_name", "subtitle")
+        if not title:
             continue
-        position = positions.get(key)
-        if position is None:
-            positions[key] = len(ordered)
-            ordered.append((track, 1))
-            continue
-        first, count = ordered[position]
-        ordered[position] = (first, count + 1)
-    return ordered
-
-
-def _track_identity_key(track: dict[str, Any]) -> str:
-    uri = _first_text(track, "uri", "context_uri")
-    if uri:
-        return f"uri:{uri.lower()}"
-    title = _first_text(track, "title", "track_name", "name").casefold()
-    artist = _first_text(track, "artist", "artist_name", "subtitle").casefold()
-    if title and artist:
-        return f"text:{title}|{artist}"
-    return ""
+        seen.add(uri.lower())
+        items.append(
+            _item(
+                "track",
+                title,
+                artist,
+                uri,
+                "Nieuwe aanbeveling op basis van je Music DNA en Spotify luisterprofiel.",
+                ["spotify_recommendations", "djconnect_music_dna"],
+                image_url=_first_text(track, "image_url", "album_image_url", "thumbnail_url"),
+            )
+        )
+        if len(items) >= limit:
+            break
+    return items
 
 
 def _items_from_recommendations(recommendations: list[dict[str, Any]], *, limit: int) -> list[dict[str, Any]]:
@@ -634,6 +760,19 @@ def _texts(values: Any) -> list[str]:
     if not isinstance(values, list):
         return []
     return [str(value.get("name") if isinstance(value, dict) else value).strip() for value in values if value]
+
+
+def _unique_text_values(values: Any) -> list[str]:
+    seen: set[str] = set()
+    result: list[str] = []
+    for value in values or []:
+        text = str(value or "").strip()
+        key = text.casefold()
+        if not text or key in seen:
+            continue
+        seen.add(key)
+        result.append(text)
+    return result
 
 
 def _artist_names(values: Any) -> list[str]:

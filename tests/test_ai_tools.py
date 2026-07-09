@@ -189,11 +189,11 @@ class AIToolsTest(unittest.TestCase):
     def test_music_discovery_feed_tool_reads_feed_without_playback_mutation(self) -> None:
         self.runtime.memory.context_memory = {
             "enabled": True,
-            "recent_tracks": [
+            "recommendation_plays": [
                 {
                     "uri": "spotify:track:black",
-                    "track_name": "Black",
-                    "artist": "Pearl Jam",
+                    "title": "Black",
+                    "subtitle": "Pearl Jam",
                     "album_image_url": "https://img.example/black.jpg",
                 }
             ],
@@ -222,7 +222,7 @@ class AIToolsTest(unittest.TestCase):
         self.assertTrue(result["success"])
         self.assertTrue(result["enabled"])
         self.assertEqual(result["source"], "music_dna")
-        self.assertEqual(result["sections"][0]["id"], "because_you_like")
+        self.assertEqual(result["sections"][0]["id"], "accepted_recommendations")
         self.assertEqual(result["sections"][0]["items"][0]["title"], "Black")
         self.assertEqual(calls, [])
 

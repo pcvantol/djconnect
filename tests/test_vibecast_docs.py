@@ -54,24 +54,25 @@ class VibeCastDocsTest(unittest.TestCase):
         self.assertIn("DJConnect image proxy", sync_prompts)
         self.assertIn("never show raw", sync_prompts)
 
-    def test_music_discovery_docs_cover_deduped_based_on_counts_and_daily_push(self) -> None:
+    def test_music_discovery_docs_cover_recommendation_contract_and_server_refresh(self) -> None:
         api_contract = (ROOT / "API_CONTRACT.md").read_text(encoding="utf-8")
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         sync_prompts = (ROOT / "SYNC_PROMPTS.md").read_text(encoding="utf-8")
 
         for text in (api_contract, readme, sync_prompts):
-            self.assertIn("play_count", text)
-            self.assertIn("based_on_count", text)
             self.assertIn("music_discovery_ready", text)
             self.assertIn("Je nieuwe aanbevelingen staan klaar!", text)
-        self.assertIn("Repeated recent plays are aggregated", api_contract)
+            self.assertIn("new_for_you", text)
+            self.assertIn("accepted_recommendations", text)
+        self.assertIn("server-side about once per hour", api_contract)
+        self.assertIn("must not be surfaced as raw Discovery cards", api_contract)
         self.assertIn("08:00 local HA time", api_contract)
         self.assertIn('"refresh_target": "music_discovery"', api_contract)
         self.assertIn("POST /api/djconnect/v1/music_discovery/refresh", api_contract)
-        self.assertIn("one item per unique `id`/`uri`", readme)
+        self.assertIn("not a listening-history list", readme)
         self.assertIn("open_target:\"music_discovery\"", readme)
         self.assertIn("Client: Music Discovery", sync_prompts)
-        self.assertIn("4x afgespeeld", sync_prompts)
+        self.assertIn("must not hardcode section ids", sync_prompts)
         self.assertIn('deeplink:"djconnect://music-discovery"', sync_prompts)
 
 

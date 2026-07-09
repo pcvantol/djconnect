@@ -34,7 +34,7 @@ instead of storing their own copy.
 ## Current Protocol Line
 
 The current shared protocol/release line is `3.2.x`; this bundle was last
-aligned after Home Assistant integration release `v3.2.42`. DJConnect clients on the
+aligned after Home Assistant integration release `v3.2.43`. DJConnect clients on the
 `3.2.x` line are compatible with Home Assistant integration versions `>=3.2.0`
 and `<3.3.0`.
 
@@ -93,10 +93,10 @@ and `<3.3.0`.
   iOS are presentation/capability-only. Clients that can render emoji safely
   should advertise `emoji_safe`; the backend may then return inline `emoji`
   rich-text segments.
-- Music Discovery recommendations are backend-owned. Repeated recent-track
-  inputs are aggregated server-side with optional `play_count` and
-  `based_on_count`; clients render one row/card per unique item and show counts
-  as compact context instead of duplicating based-on titles.
+- Music Discovery recommendations are backend-owned. Spotify recent/top profile
+  data is used as server-side seed/context only; clients render backend
+  `sections[]` such as `new_for_you` and `accepted_recommendations` and must not
+  reconstruct cards from raw recent tracks.
 
 ## Client: VibeCast
 
@@ -165,15 +165,20 @@ Ontdek and refresh the backend feed through
 `POST /api/djconnect/v1/music_discovery/refresh` or the websocket refresh
 command. Do not render recommendations from the push payload.
 
+Home Assistant also refreshes Music DNA and Music Discovery server-side about
+once per hour when Music DNA is enabled. Spotify recently-played/top profile
+data is seed/context only; raw recent tracks must not be displayed as Music
+Discovery cards unless the backend explicitly returns them in `sections[]`.
+
 Render `sections[].items[]` exactly from the backend. Do not generate
 recommendations, reasons or based-on lists locally. Each item has backend
 `id`, `kind`, `title`, `subtitle`, playable `uri`, optional `image_url`,
 `reason`, `reason_sources` and `confidence`.
 
-Render one card/row per unique `id` or `uri`. The backend aggregates repeated
-recent-track inputs, so if `play_count` or `based_on_count` is greater than 1,
-show it as compact context such as `4x afgespeeld` instead of repeating the
-same based-on title multiple times.
+Render one card/row per unique backend-provided `id` or `uri`. Known current
+sections include `new_for_you` for generated recommendations and
+`accepted_recommendations` for earlier accepted choices, but clients must render
+the backend-provided `sections[]` in order and must not hardcode section ids.
 
 Play buttons must call the Music Discovery play endpoint with
 `section_id` and `discovery_item_id`; do not start generic playback directly

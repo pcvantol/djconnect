@@ -783,6 +783,12 @@ recommendation contents. Clients should open the Ontdek page and call
 refresh command, falling back to the regular feed endpoint if refresh is
 rate-limited or unavailable.
 
+Home Assistant also refreshes Music Discovery server-side about once per hour
+for eligible runtimes. When Music DNA is enabled, this refresh updates compact
+Music DNA listening-profile data from Spotify recently-played/top tracks/top
+artists, then rebuilds the Music Discovery cache. Recently played tracks are
+used as seeds/context only; they must not be surfaced as raw Discovery cards.
+
 When Home Assistant debug logging is enabled for `custom_components.djconnect`,
 the HTTP handlers emit redacted diagnostics prefixed with
 `DJConnect Music Discovery`. These lines identify feed/refresh/play requests,
@@ -815,20 +821,18 @@ refresh may be rate-limited and returns the current cached feed when limited:
   "music_dna_key": "user:abc123",
   "sections": [
     {
-      "id": "because_you_like",
-      "title": "Omdat dit bij je smaak past",
+      "id": "new_for_you",
+      "title": "Nieuw voor jou",
       "items": [
         {
           "id": "disc-123",
           "kind": "track",
-          "title": "Intro",
-          "subtitle": "The xx",
+          "title": "Fresh Discovery",
+          "subtitle": "New Artist",
           "uri": "spotify:track:...",
           "image_url": "/api/djconnect/v1/image_proxy/...",
-          "reason": "Past bij je Music DNA smaakankers.",
-          "reason_sources": ["taste_anchors", "recent_tracks"],
-          "play_count": 4,
-          "based_on_count": 4,
+          "reason": "Nieuwe aanbeveling op basis van je Music DNA en Spotify luisterprofiel.",
+          "reason_sources": ["spotify_recommendations", "djconnect_music_dna"],
           "confidence": "medium"
         }
       ]
@@ -838,14 +842,12 @@ refresh may be rate-limited and returns the current cached feed when limited:
 ```
 
 Displayed items must have `id`, `kind`, `title`, playable `uri` and a backend
-`reason`. If a good Music DNA reason cannot be generated, the backend should not
-return the item. Reasons are based on compact Music DNA signals only, such as
-taste anchors, explicit positives, repeat magnets, favorite genres/artists,
-playtime, mood mix and listening rhythm. Repeated recent plays are aggregated by
-the backend before recommendation items are returned. Clients should render one
-row/card per unique `id` or `uri`; when `play_count` or `based_on_count` is
-greater than `1`, show that as compact context such as `4x afgespeeld` instead
-of repeating the same based-on title.
+`reason`. If a good backend reason cannot be generated, the backend should not
+return the item. Reasons are based on compact Music DNA signals and backend
+recommendation provenance. `new_for_you` items are generated recommendations;
+raw Spotify recently-played, favorite or top-track entries are filtered out and
+must not be reconstructed locally by clients. Clients should render one row/card
+per unique backend-provided `id` or `uri` and should not hardcode section ids.
 
 Play requests must use the discovery play endpoint instead of generic playback
 commands so the backend can record the click as positive Music DNA feedback:
@@ -855,7 +857,7 @@ commands so the backend can record the click as positive Music DNA feedback:
   "device_id": "djconnect-ios-...",
   "client_type": "ios",
   "discovery_item_id": "disc-123",
-  "section_id": "because_you_like",
+  "section_id": "new_for_you",
   "music_dna_key": "user:abc123"
 }
 ```

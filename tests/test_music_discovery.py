@@ -117,7 +117,7 @@ class MusicDiscoveryTests(unittest.TestCase):
         self.assertIn("client_type=ios", output)
         self.assertIn("items=", output)
 
-    def test_feed_dedupes_repeated_recent_tracks_and_reports_play_count(self) -> None:
+    def test_feed_does_not_publish_recent_tracks_as_discovery_items(self) -> None:
         self.runtime.memory.recent_tracks = [
             {
                 "track_name": "Strobe - Radio Edit",
@@ -151,11 +151,72 @@ class MusicDiscoveryTests(unittest.TestCase):
         )
 
         self.assertEqual(status, 200)
-        section = next(section for section in result["sections"] if section["id"] == "because_you_like")
-        strobe_items = [item for item in section["items"] if item["uri"] == "spotify:track:strobe-radio-edit"]
-        self.assertEqual(len(strobe_items), 1)
-        self.assertEqual(strobe_items[0]["play_count"], 4)
-        self.assertEqual(strobe_items[0]["based_on_count"], 4)
+        uris = [
+            item["uri"]
+            for section in result["sections"]
+            for item in section["items"]
+        ]
+        self.assertNotIn("spotify:track:strobe-radio-edit", uris)
+
+    def test_feed_refreshes_stale_recently_played_from_backend_history(self) -> None:
+        calls = []
+        self.runtime.memory.listening_profile_fresh = False
+        self._original_run_music_command = music_discovery.run_music_command
+
+        async def command(hass, runtime, command_name, value=None, *, play=None):
+            calls.append((command_name, value, play))
+            if command_name == "recently_played":
+                return {
+                    "success": True,
+                    "tracks": [
+                        {
+                            "id": "native-spotify",
+                            "track_name": "Native Spotify Track",
+                            "artist": "Outside DJConnect",
+                            "uri": "spotify:track:native-spotify",
+                        }
+                    ],
+                }
+            if command_name == "artist_recommendations":
+                return {
+                    "success": True,
+                    "recommended_tracks": [
+                        {
+                            "track_name": "Native Spotify Track",
+                            "artist": "Outside DJConnect",
+                            "uri": "spotify:track:native-spotify",
+                        },
+                        {
+                            "track_name": "Fresh Discovery",
+                            "artist": "New Artist",
+                            "uri": "spotify:track:fresh-discovery",
+                        },
+                    ],
+                }
+            raise AssertionError(f"unexpected command: {command_name}")
+
+        music_discovery.run_music_command = command
+
+        result, status = asyncio.run(
+            music_discovery.async_handle_music_discovery_feed_payload(
+                self.hass,
+                _payload(),
+                headers=self.headers,
+                user_id="ha-user-1",
+            )
+        )
+
+        self.assertEqual(status, 200)
+        self.assertEqual([call[0] for call in calls], ["recently_played", "artist_recommendations"])
+        self.assertEqual(
+            self.runtime.memory.listening_profile_ttl_seconds,
+            music_discovery.DISCOVERY_RECENTLY_PLAYED_REFRESH_SECONDS,
+        )
+        self.assertEqual(self.runtime.memory.listening_profile_ttl_seconds, 60 * 60)
+        self.assertEqual(self.runtime.memory.updated_profiles[0]["sources"], ["spotify_recently_played"])
+        section = next(section for section in result["sections"] if section["id"] == "new_for_you")
+        self.assertEqual(section["items"][0]["uri"], "spotify:track:fresh-discovery")
+        self.assertNotIn("spotify:track:native-spotify", [item["uri"] for item in section["items"]])
 
     def test_macos_feed_accepts_client_type_from_headers(self) -> None:
         runtime = _Runtime(
@@ -203,6 +264,7 @@ class MusicDiscoveryTests(unittest.TestCase):
         )
         section = feed["sections"][0]
         item = section["items"][0]
+        calls.clear()
 
         result, status = asyncio.run(
             music_discovery.async_handle_music_discovery_play_payload(
@@ -264,6 +326,9 @@ class _Memory:
 
     def __init__(self) -> None:
         self.discovery_plays = []
+        self.listening_profile_fresh = True
+        self.listening_profile_ttl_seconds = None
+        self.updated_profiles = []
         self.recent_tracks = [
             {
                 "track_name": "Intro",
@@ -298,6 +363,18 @@ class _Memory:
                 ],
             },
         }
+
+    async def async_listening_profile_is_fresh(self, runtime, payload=None, *, user_id=None, ttl_seconds=0):
+        self.listening_profile_ttl_seconds = ttl_seconds
+        return self.listening_profile_fresh
+
+    async def async_update_listening_profile(self, runtime, profile, payload=None, *, user_id=None):
+        self.updated_profiles.append(profile)
+        self.recent_tracks = [
+            track for track in profile.get("recent_tracks") or [] if isinstance(track, dict)
+        ]
+        self.listening_profile_fresh = True
+        return "user:test"
 
     async def async_record_discovery_play(self, runtime, item, payload=None, *, user_id=None):
         self.discovery_plays.append(

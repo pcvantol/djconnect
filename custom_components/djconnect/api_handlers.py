@@ -47,9 +47,11 @@ from .track_insight import TrackInsightError, TrackInsightService
 from .use_cases import (
     MusicBackendCapabilityError,
     music_backend_metadata,
+    run_music_command,
 )
 
 _LOGGER = http_helpers._LOGGER
+MUSIC_DNA_PROFILE_REFRESH_SECONDS = 60 * 60
 
 
 async def async_handle_command_payload(
@@ -654,6 +656,13 @@ async def async_handle_music_dna_profile_payload(
         _debug_music_dna_error("profile", payload, (_error_payload("music_dna_unavailable"), 503), runtime=runtime)
         return _error_payload("music_dna_unavailable"), 503
     result = await profile_getter(runtime, payload, user_id=user_id)
+    if result.get("enabled") and await _refresh_music_dna_profile_if_stale(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+    ):
+        result = await profile_getter(runtime, payload, user_id=user_id)
     _debug_music_dna_result("profile", result, 200, runtime=runtime)
     return result, 200
 
@@ -778,6 +787,49 @@ def _music_dna_runtime_payload(
         return None, payload, (_error_payload("unauthorized"), 401)
     payload.update({key: value for key, value in identity.items() if value})
     return runtime, payload, None
+
+
+async def _refresh_music_dna_profile_if_stale(
+    hass: Any,
+    runtime: Any,
+    payload: dict[str, Any],
+    *,
+    user_id: str | None,
+) -> bool:
+    memory = getattr(runtime, "memory", None)
+    freshness = getattr(memory, "async_listening_profile_is_fresh", None)
+    updater = getattr(memory, "async_update_listening_profile", None)
+    if not callable(freshness) or not callable(updater):
+        return False
+    try:
+        if await freshness(
+            runtime,
+            payload,
+            user_id=user_id,
+            ttl_seconds=MUSIC_DNA_PROFILE_REFRESH_SECONDS,
+        ):
+            return False
+        result = await run_music_command(
+            hass,
+            runtime,
+            "listening_profile",
+        )
+        profile = result.get("profile") if isinstance(result, dict) else {}
+        if not isinstance(profile, dict) or not profile:
+            return False
+        await updater(runtime, profile, payload, user_id=user_id)
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug(
+            "DJConnect Music DNA profile refresh skipped: %s",
+            exc.__class__.__name__,
+        )
+        return False
+    _LOGGER.debug(
+        "DJConnect Music DNA profile refreshed from backend listening profile client_type=%s device_id=%s",
+        payload.get(CONF_CLIENT_TYPE),
+        payload.get("device_id"),
+    )
+    return True
 
 
 def _debug_music_dna_request(

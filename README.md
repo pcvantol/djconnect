@@ -151,6 +151,9 @@ When Music DNA is enabled, Home Assistant sends at most one daily
 `body:"Je nieuwe aanbevelingen staan klaar!"`, `open_target:"music_discovery"`
 and a deeplink to Ontdek. Clients should open Ontdek and refresh the Music
 Discovery backend feed; the push never contains recommendation contents.
+Home Assistant also refreshes Music DNA and the Music Discovery cache
+server-side about once per hour when Music DNA is enabled, using compact
+Spotify recently-played/top profile data as recommendation seeds.
 
 ## VibeCast
 
@@ -174,9 +177,13 @@ When the selected backend has artist artwork, VibeCast also returns a proxied
 artist shout-out image on `context.artist_image_url` and the `artist_fact`
 bubble's `image_url`/`thumbnail_url`, so clients can show the visual without
 loading direct external catalog URLs.
-Music Discovery feed items aggregate repeated recent-track inputs: clients
-should render one item per unique `id`/`uri` and may show `play_count` or
-`based_on_count` as compact context instead of repeating the same title.
+Music Discovery is a recommendation surface, not a listening-history list.
+Clients must render only backend-provided `sections[].items[]`; do not rebuild
+cards locally from recent tracks, top tracks or Music DNA cache. The
+`new_for_you` section contains backend recommendations generated from Music DNA
+and Spotify profile seeds, with already-known/recently played URIs filtered out.
+`accepted_recommendations` contains tracks the user previously started through
+DJConnect recommendations when those compact positive signals are available.
 
 ## Troubleshooting
 

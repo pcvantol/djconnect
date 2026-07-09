@@ -209,6 +209,75 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["music_dna_key"], "user:user-1")
         self.assertEqual(result["images"], [])
 
+    def test_track_versions_search_requires_all_title_words_and_returns_play_now(self) -> None:
+        runtime = make_runtime()
+        calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append((command_name, value, play))
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            if command_name == "search_tracks":
+                self.assertEqual(value["query"], "Nothing else matters")
+                self.assertEqual(value["limit"], 10)
+                return {
+                    "success": True,
+                    "tracks": [
+                        {
+                            "uri": "spotify:track:metallica",
+                            "title": "Nothing Else Matters",
+                            "artist": "Metallica",
+                            "album_image_url": "https://img.example/metallica.jpg",
+                        },
+                        {
+                            "uri": "spotify:track:live",
+                            "title": "Nothing Else Matters - Live",
+                            "artist": "Metallica",
+                        },
+                        {
+                            "uri": "spotify:track:cover",
+                            "title": "Nothing Else Matters - Acoustic Cover",
+                            "artist": "Apocalyptica",
+                        },
+                        {
+                            "uri": "spotify:track:partial",
+                            "title": "Nothing Matters",
+                            "artist": "Other Artist",
+                        },
+                    ],
+                }
+            raise AssertionError(f"unexpected command: {command_name}")
+
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": 'doe me 10 uitvoeringen door verschillende artiesten van "Nothing else matters"',
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "watchos",
+                    },
+                    user_id="user-1",
+                )
+            )
+        finally:
+            self.ask_dj.run_music_command = original_command
+
+        self.assertTrue(result["success"])
+        self.assertEqual(result["intent"]["intent"], "track_versions_search")
+        self.assertEqual([action["uri"] for action in result["playback_actions"]], [
+            "spotify:track:metallica",
+            "spotify:track:live",
+            "spotify:track:cover",
+        ])
+        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertIn("Nothing else matters", result["text"])
+        self.assertNotIn("spotify:track:partial", str(result["playback_actions"]))
+        self.assertEqual([call[0] for call in calls], ["status", "search_tracks"])
+
     def test_shuffle_status_returns_toggle_action(self) -> None:
         runtime = make_runtime()
         runtime.last_playback = {"has_playback": True, "shuffle": True}

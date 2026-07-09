@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.2.43
+
+- Add unattended hourly server-side Music DNA and Music Discovery refresh from
+  Spotify recently-played/top profile data, using those signals as
+  recommendation seeds while filtering known/recently played tracks out of the
+  Discover feed.
+- Change the Music Discovery feed contract from raw recent-track based sections
+  to backend-generated recommendations in `new_for_you`, while keeping
+  `accepted_recommendations` for earlier accepted choices.
+
 ## 3.2.42
 
 - Persist safe APNs registration status in Home Assistant config entry data so
@@ -175,9 +185,6 @@
 
 - Make Ask DJ queue/up-next answers deduplicate repeated backend queue items
   before rendering the first 10 rows and Play Now actions.
-- Aggregate repeated Music Discovery recent-track inputs into one based-on item
-  with `play_count`/`based_on_count`, so repeated listens do not render as
-  duplicate recommendation basis rows.
 - Return current-track Ask DJ TTS audio on both top-level responses and
   `assistant_message`, while preserving `text_source` and `is_generated_text`
   metadata for generated text indicators.

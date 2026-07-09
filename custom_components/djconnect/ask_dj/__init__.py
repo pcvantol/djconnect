@@ -331,6 +331,19 @@ async def async_handle_ask_dj(
         )
         response.pop("playback", None)
         return response
+    track_versions_query = _track_versions_search_request(effective_text)
+    if track_versions_query:
+        result = await _track_versions_search_response(hass, runtime, track_versions_query)
+        response = _normalize_ask_dj_response(
+            hass,
+            runtime,
+            result,
+            AskDjIntent("informational", "track_versions_search", "none"),
+            music_dna_key=music_dna_key,
+            playback_context=playback_context,
+        )
+        response.pop("playback", None)
+        return response
     version_request = _current_track_version_request(effective_text)
     if version_request:
         result = await _current_track_version_response(hass, runtime, playback_context, version_request)
@@ -3451,6 +3464,160 @@ async def _play_album_containing_track_response(
         "playback": playback.get("playback") if isinstance(playback, dict) else {},
         "sources": [{"source": "spotify_search", "title": "Spotify search", "kind": "source"}],
     }
+
+
+def _track_versions_search_request(text: str) -> str:
+    normalized = _normalize(text)
+    if not normalized:
+        return ""
+    if not any(
+        term in normalized
+        for term in (
+            "uitvoering",
+            "uitvoeringen",
+            "versie",
+            "versies",
+            "version",
+            "versions",
+            "cover",
+            "covers",
+            "remix",
+            "remixes",
+            "live",
+            "akoestisch",
+            "acoustic",
+            "opname",
+            "recording",
+        )
+    ):
+        return ""
+    if not re.search(r"\b(?:zoek|vind|geef|toon|laat\s+zien|doe\s+me|heb\s+je|find|show|give)\b", normalized):
+        return ""
+    value = str(text or "").strip()
+    quoted = re.search(r"[\"'“”‘’](.+?)[\"'“”‘’]", value)
+    if quoted:
+        return _clean_track_versions_query(quoted.group(1))
+    for pattern in (
+        r"(?:van|voor|of)\s+(.+?)\s*$",
+        r"(?:called|named|titled)\s+(.+?)\s*$",
+    ):
+        match = re.search(pattern, value, flags=re.IGNORECASE)
+        if not match:
+            continue
+        query = _clean_track_versions_query(match.group(1))
+        if query:
+            return query
+    return ""
+
+
+def _clean_track_versions_query(value: str) -> str:
+    cleaned = re.sub(
+        r"\b(?:max(?:imaal)?|maximum|top)\s+\d+\s*(?:resultaten|results)?\b",
+        " ",
+        str(value or ""),
+        flags=re.IGNORECASE,
+    )
+    cleaned = re.sub(
+        r"\b(?:door|by)\s+(?:verschillende|different|meerdere|multiple)\s+(?:artiesten|artists)\b",
+        " ",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    cleaned = re.sub(
+        r"\b(?:mag|may|can)\s+(?:van|by)\s+(?:dezelfde|same|verschillende|different).*$",
+        " ",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    cleaned = re.sub(
+        r"\b(?:remix(?:es)?|live|akoestisch(?:e)?|acoustic|cover(?:s)?|uitvoering(?:en)?|versie(?:s)?|version(?:s)?)\b",
+        " ",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    cleaned = re.sub(r"\s+", " ", cleaned).strip(" ?.!'\"“”‘’")
+    return cleaned if len(_track_versions_required_words(cleaned)) >= 2 else ""
+
+
+async def _track_versions_search_response(
+    hass: HomeAssistant,
+    runtime: Any,
+    query: str,
+) -> dict[str, Any]:
+    required_words = _track_versions_required_words(query)
+    result = await _spotify_track_search(hass, runtime, query, limit=10)
+    tracks = result.get("tracks") if isinstance(result, dict) else []
+    candidates = _track_versions_candidates(tracks, required_words)
+    actions = _track_recommendation_actions(hass, candidates, limit=10, runtime=runtime)
+    if actions:
+        lines = [
+            f"{index}. {action.get('title') or 'Onbekend nummer'}"
+            + (f" - {action.get('subtitle')}" if action.get("subtitle") else "")
+            for index, action in enumerate(actions, start=1)
+        ]
+        text = (
+            f"Ik vond deze uitvoeringen voor {query}. "
+            "Ik start nog niets; tik op Play Now om er eentje te horen:\n"
+            + "\n".join(lines)
+        )
+    else:
+        text = f"Ik vond nu geen duidelijke uitvoeringen waarbij alle woorden uit {query} terugkomen."
+    return {
+        "success": True,
+        "text": text,
+        "dj_text": text,
+        "action": "none",
+        "images": [],
+        "items": actions,
+        "playback_actions": actions,
+        "sources": [{"source": "spotify_track_search", "title": "Spotify track search", "kind": "source"}],
+    }
+
+
+def _track_versions_required_words(query: str) -> list[str]:
+    normalized = re.sub(r"[^a-z0-9À-ÿ]+", " ", _normalize(query))
+    words: list[str] = []
+    for word in normalized.split():
+        if len(word) < 2 or word in {"the", "de", "het", "een", "and", "en"}:
+            continue
+        if word not in words:
+            words.append(word)
+    return words
+
+
+def _track_versions_candidates(tracks: Any, required_words: list[str]) -> list[dict[str, Any]]:
+    if not isinstance(tracks, list) or not required_words:
+        return []
+    selected: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for item in tracks:
+        if not isinstance(item, dict):
+            continue
+        uri = str(item.get("uri") or "").strip()
+        if not uri.startswith("spotify:track:") or uri in seen:
+            continue
+        haystack = _normalize(
+            " ".join(
+                str(item.get(key) or "")
+                for key in (
+                    "track_name",
+                    "title",
+                    "name",
+                    "album_name",
+                    "album",
+                    "artist",
+                    "artist_name",
+                    "subtitle",
+                )
+            )
+        )
+        haystack = re.sub(r"[^a-z0-9À-ÿ]+", " ", haystack)
+        if all(re.search(rf"\b{re.escape(word)}\b", haystack) for word in required_words):
+            seen.add(uri)
+            selected.append(item)
+        if len(selected) >= 10:
+            break
+    return selected
 
 
 async def _current_track_version_response(

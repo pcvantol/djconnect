@@ -24,7 +24,7 @@ Lees eerst:
 
 Belangrijke huidige status:
 - Project: DJConnect Home Assistant custom integration, domain `djconnect`.
-- Laatste release: `3.2.42`.
+- Laatste release: `3.2.43`.
 - Repo is public en MIT-licensed.
 - Alle DJConnect repos zijn MIT-licensed, tenzij een specifieke third-party dependency anders vermeldt.
 - `FIRMWARE-LICENSE.md` is verwijderd.
@@ -93,9 +93,12 @@ Belangrijke huidige status:
   Huidige-track antwoorden zoals `wat speelt er` geven generated-text metadata
   en, wanneer HA TTS audio kan maken, `audio_url`/`audio_type` op
   `assistant_message` terug.
-- Music Discovery dedupliceert herhaalde recente tracks als recommendation
-  basis en geeft `play_count`/`based_on_count` mee, zodat clients één
-  based-on item met compacte herhaalcontext tonen in plaats van dubbele regels.
+- Music Discovery is een backend-owned aanbevelingenfeed, geen recent-played
+  lijst. HA ververst Music DNA en Discover server-side ongeveer uurlijks vanuit
+  compacte Spotify recently-played/top profile data, gebruikt die data alleen
+  als seed/context en filtert bekende/recent gespeelde URI's uit
+  `new_for_you`. Clients renderen alleen backend-provided `sections[]` zoals
+  `new_for_you` en `accepted_recommendations` en hardcoden geen oude secties.
 - Compacte conversation-agent options-flow toont alleen actie; DJ response stijl/prompt is geen user-facing optie meer en volgt runtime client mood of de hardcoded default.
 - Verwijderde opties:
   - Spotify source override;
