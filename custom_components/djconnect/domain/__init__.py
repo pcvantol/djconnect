@@ -39,6 +39,7 @@ from .profile import (
     VoiceStyle,
 )
 from .resolver import ProfileResolutionContext, ProfileResolver, ProfileResolverIndex
+from .storage import ProfilePlatformStorage, ProfileStorageValidationError
 
 __all__ = [
     "BackendProvider",
@@ -73,6 +74,8 @@ __all__ = [
     "ProfileResolutionContext",
     "ProfileResolver",
     "ProfileResolverIndex",
+    "ProfilePlatformStorage",
+    "ProfileStorageValidationError",
     "ProfileState",
     "ProfileType",
     "RecommendationReference",

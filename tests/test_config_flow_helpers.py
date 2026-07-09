@@ -1695,10 +1695,10 @@ class ConfigFlowHelperTest(unittest.TestCase):
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = _hass_with_music_assistant_player()
 
-        async def fake_voice(user_input=None):
-            return {"type": "form", "step_id": "voice"}
+        async def fake_profile_setup(user_input=None):
+            return {"type": "form", "step_id": "profile_setup"}
 
-        flow.async_step_voice = fake_voice
+        flow.async_step_profile_setup = fake_profile_setup
 
         result = asyncio.run(
             flow.async_step_backend(
@@ -1713,14 +1713,14 @@ class ConfigFlowHelperTest(unittest.TestCase):
             )
         )
 
-        self.assertEqual(result["step_id"], "voice")
+        self.assertEqual(result["step_id"], "profile_setup")
         self.assertEqual(flow._spotify, {})
         self.assertEqual(
             flow._backend[self.const.CONF_MUSIC_BACKEND],
             self.const.MUSIC_BACKEND_MUSIC_ASSISTANT,
         )
 
-    def test_conversation_agent_music_assistant_setup_routes_to_voice_profile(self) -> None:
+    def test_conversation_agent_music_assistant_setup_routes_to_profile_setup(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = _hass_with_music_assistant_player()
         flow._conversation_agent_only = True
@@ -1738,10 +1738,108 @@ class ConfigFlowHelperTest(unittest.TestCase):
         )
 
         self.assertEqual(result["type"], "form")
-        self.assertEqual(result["step_id"], "voice")
+        self.assertEqual(result["step_id"], "profile_setup")
         self.assertEqual(
             flow._backend[self.const.CONF_MUSIC_ASSISTANT_PLAYER],
             "media_player.mass_living",
+        )
+
+    def test_profile_setup_manual_backend_persists_profile_device_and_fallback(self) -> None:
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en-US"), data={})
+        flow._pairing = {
+            self.const.CONF_DEVICE_ID: "djconnect-ios-ABCDEFGHIJKL",
+            self.const.CONF_CLIENT_TYPE: "ios",
+            self.const.CONF_DEVICE_NAME: "Peter iPhone",
+        }
+
+        backend_result = asyncio.run(
+            flow.async_step_backend(
+                {self.const.CONF_MUSIC_BACKEND: self.config_flow.BACKEND_LATER_MANUAL}
+            )
+        )
+        profile_result = asyncio.run(
+            flow.async_step_profile_setup(
+                {
+                    self.config_flow.CONF_PROFILE_NAME: "Peter",
+                    self.config_flow.CONF_PROFILE_TYPE: "personal",
+                    self.config_flow.CONF_REQUIRE_PROFILE: False,
+                }
+            )
+        )
+
+        manager = flow.hass.data[self.const.DOMAIN][self.config_flow.PROFILE_PLATFORM_STORE_KEY]
+        household = manager.household
+        profile = next(iter(household.profiles.values()))
+        self.assertEqual(backend_result["step_id"], "profile_setup")
+        self.assertEqual(profile_result["step_id"], "voice")
+        self.assertEqual(profile.display_name, "Peter")
+        self.assertEqual(
+            household.devices["djconnect-ios-ABCDEFGHIJKL"].linked_profile_id,
+            profile.profile_id,
+        )
+        self.assertEqual(household.fallback.fallback_profile_id, profile.profile_id)
+
+    def test_options_flow_adds_profile(self) -> None:
+        hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en-US"), data={})
+        entry = types.SimpleNamespace(data={}, options={}, entry_id="entry-1")
+        flow = self.config_flow.DJConnectOptionsFlow(entry)
+        flow.hass = hass
+
+        result = asyncio.run(
+            flow.async_step_profile_platform(
+                {
+                    self.config_flow.PROFILE_PLATFORM_ACTION_FIELD: (
+                        self.config_flow.PROFILE_PLATFORM_ACTION_ADD_PROFILE
+                    ),
+                    self.config_flow.CONF_PROFILE_NAME: "Guest",
+                    self.config_flow.CONF_PROFILE_TYPE: "guest",
+                    self.config_flow.CONF_PROFILE_PRIVACY_MODE: "guest-safe",
+                }
+            )
+        )
+
+        manager = hass.data[self.const.DOMAIN][self.config_flow.PROFILE_PLATFORM_STORE_KEY]
+        self.assertEqual(result["type"], "create_entry")
+        self.assertEqual(next(iter(manager.household.profiles.values())).display_name, "Guest")
+
+    def test_options_flow_links_and_unlinks_device(self) -> None:
+        hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en-US"), data={})
+        manager = self.config_flow._profile_storage(hass)
+        profile = asyncio.run(manager.async_create_profile("Peter"))
+        entry = types.SimpleNamespace(data={}, options={}, entry_id="entry-1")
+        flow = self.config_flow.DJConnectOptionsFlow(entry)
+        flow.hass = hass
+
+        asyncio.run(
+            flow.async_step_profile_platform(
+                {
+                    self.config_flow.PROFILE_PLATFORM_ACTION_FIELD: (
+                        self.config_flow.PROFILE_PLATFORM_ACTION_LINK_DEVICE
+                    ),
+                    self.config_flow.CONF_PROFILE_ID: profile.profile_id,
+                    self.const.CONF_DEVICE_ID: "djconnect-windows-ABCDEFGHIJKL",
+                    self.const.CONF_CLIENT_TYPE: "windows",
+                    self.const.CONF_DEVICE_NAME: "Windows",
+                }
+            )
+        )
+        linked = manager.household.devices["djconnect-windows-ABCDEFGHIJKL"]
+        asyncio.run(
+            flow.async_step_profile_platform(
+                {
+                    self.config_flow.PROFILE_PLATFORM_ACTION_FIELD: (
+                        self.config_flow.PROFILE_PLATFORM_ACTION_UNLINK_DEVICE
+                    ),
+                    self.const.CONF_DEVICE_ID: "djconnect-windows-ABCDEFGHIJKL",
+                }
+            )
+        )
+
+        self.assertEqual(linked.linked_profile_id, profile.profile_id)
+        self.assertEqual(
+            manager.household.devices["djconnect-windows-ABCDEFGHIJKL"].linked_profile_id,
+            "",
         )
 
     def test_backend_step_blocks_music_assistant_when_not_installed(self) -> None:
@@ -1973,7 +2071,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(result["title"], "DJConnect autoriseren bij Spotify")
         self.assertIn("Home Assistant opent Spotify", result["description"])
 
-    def test_conversation_agent_spotify_oauth_routes_to_voice_profile_after_callback(self) -> None:
+    def test_conversation_agent_spotify_oauth_routes_to_profile_setup_after_callback(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(
             data={
@@ -2004,7 +2102,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         result = asyncio.run(flow.async_step_spotify_oauth({"state": "oauth-state"}))
 
         self.assertEqual(result["type"], "external_done")
-        self.assertEqual(result["next_step_id"], "voice")
+        self.assertEqual(result["next_step_id"], "profile_setup")
 
     def test_finish_conversation_agent_step_creates_entry(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
