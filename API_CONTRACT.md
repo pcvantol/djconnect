@@ -141,6 +141,11 @@ deployment. Product clients should assume they need an HA websocket access token
 or another HA-supported websocket auth mechanism before this fast path is
 product-ready. After HA websocket login, feature-detect DJConnect support with:
 
+Client contract fixtures are exported from `examples/client_contracts/` for
+Apple, Raspberry Pi and Windows client tests. Use
+`python3 tools/export_client_contracts.py --output <client-fixture-dir>` to copy
+the current golden payloads, including the fixture `manifest.json`.
+
 ```json
 {
   "id": 1,
