@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Expand Ask DJ E2E contract phrase coverage for Music DNA privacy/data
+  questions, Discover feedback/refresh explanations, negative preference
+  wording and same-title track-version searches.
+
 ## 3.2.44
 
 - Make Music Discovery recommendation explanations more specific by deriving

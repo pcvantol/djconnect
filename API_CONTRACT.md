@@ -1237,6 +1237,12 @@ The help list includes exact prompt examples that are covered by
 `examples/ask_dj_e2e_cases.json`; for example `Geef Track Insight voor dit
 nummer` maps to the read-only `track_insight` intent.
 
+Discover and Music DNA explanation questions such as `Hoe werkt Discover met
+feedback?`, `Refresh my Discover recommendations`, `Wat zegt mijn Music DNA?`
+and `welke gegevens bewaart Music DNA over mij?` are read-only. They return
+text plus source metadata, never start playback and never mutate Discover or
+Music DNA state directly.
+
 Same-title track variant searches such as
 `Geef me 10 uitvoeringen van [nummer] door verschillende artiesten`,
 `Doe me 10 uitvoeringen door verschillende artiesten van "[nummer]"`,

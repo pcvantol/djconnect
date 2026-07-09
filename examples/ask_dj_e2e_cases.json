@@ -185,6 +185,35 @@
     }
   },
   {
+    "id": "music_dna_privacy_data_summary",
+    "request": {
+      "text": "welke gegevens bewaart Music DNA over mij?",
+      "client_type": "ios"
+    },
+    "expect": {
+      "success": true,
+      "intent": "personal_music_dna_summary",
+      "intent_category": "informational",
+      "action": "music_dna_summary",
+      "contains_all": [
+        "Dit laat je Music DNA nu zien",
+        "Privacy",
+        "geen raw audio",
+        "OAuth tokens",
+        "volledige prompts"
+      ],
+      "source_values_include": [
+        "djconnect_music_dna"
+      ],
+      "images_count": 0,
+      "playback_actions_count": 0,
+      "allowed_music_commands": [
+        "status"
+      ],
+      "forbid_spotify_mutations": true
+    }
+  },
+  {
     "id": "personal_music_profile_analysis",
     "request": {
       "text": "Omschrijf eens waar ik zoal naar luisterde de afgelopen maand",
@@ -1122,6 +1151,29 @@
     }
   },
   {
+    "id": "blocked_music_preference_hide_artist",
+    "request": {
+      "text": "speel nooit meer bløf",
+      "client_type": "ios"
+    },
+    "expect": {
+      "success": true,
+      "intent": "blocked_music_preference",
+      "intent_category": "informational",
+      "contains_any": [
+        "rekening mee",
+        "artiest"
+      ],
+      "source_values_include": [
+        "djconnect_music_dna"
+      ],
+      "allowed_music_commands": [
+        "status"
+      ],
+      "forbid_spotify_mutations": true
+    }
+  },
+  {
     "id": "track_artist_album_lookup",
     "request": {
       "text": "van wie is ook al weer het nummer Black?",
@@ -1350,6 +1402,19 @@
       "success": true,
       "intent": "track_title_choices",
       "intent_category": "informational",
+      "allowed_music_commands": ["status", "search_tracks"],
+      "forbid_spotify_mutations": true
+    }
+  },
+  {
+    "id": "track_versions_search_english_titled",
+    "request": {"text": "Give me versions titled Paranoid Android", "client_type": "ios"},
+    "expect": {
+      "success": true,
+      "intent": "track_versions_search",
+      "intent_category": "informational",
+      "action": "none",
+      "playback_action_kinds_include": ["track"],
       "allowed_music_commands": ["status", "search_tracks"],
       "forbid_spotify_mutations": true
     }
@@ -1615,6 +1680,16 @@
     "id": "help_prompt_discover_refresh",
     "request": {"text": "Ververs mijn Discover aanbevelingen", "client_type": "ios"},
     "expect": {"success": true, "intent": "music_discovery_summary", "intent_category": "informational", "action": "music_discovery_summary", "source_values_include": ["djconnect_music_discovery", "djconnect_music_dna"], "contains_any": ["ververst", "Discover"], "images_count": 0, "playback_actions_count": 0, "allowed_music_commands": ["status"], "forbid_spotify_mutations": true}
+  },
+  {
+    "id": "discover_how_feedback_works",
+    "request": {"text": "Hoe werkt Discover met feedback?", "client_type": "ios"},
+    "expect": {"success": true, "intent": "music_discovery_summary", "intent_category": "informational", "action": "music_discovery_summary", "source_values_include": ["djconnect_music_discovery", "djconnect_music_dna"], "contains_all": ["feedback", "Play Now", "negatief signaal"], "images_count": 0, "playback_actions_count": 0, "allowed_music_commands": ["status"], "forbid_spotify_mutations": true}
+  },
+  {
+    "id": "discover_english_refresh",
+    "request": {"text": "Refresh my Discover recommendations", "client_type": "ios"},
+    "expect": {"success": true, "intent": "music_discovery_summary", "intent_category": "informational", "action": "music_discovery_summary", "source_values_include": ["djconnect_music_discovery", "djconnect_music_dna"], "contains_any": ["Discover", "ververst"], "images_count": 0, "playback_actions_count": 0, "allowed_music_commands": ["status"], "forbid_spotify_mutations": true}
   },
   {
     "id": "help_prompt_music_dna_wording",

@@ -5142,7 +5142,21 @@ def _is_personal_memory_request(normalized: str) -> bool:
         and ("over mij" in normalized or "about me" in normalized)
     ) or (
         "music dna" in normalized
-        and any(term in normalized for term in ("wat zegt", "what does", "wat staat", "what is in"))
+        and any(
+            term in normalized
+            for term in (
+                "wat zegt",
+                "what does",
+                "wat staat",
+                "what is in",
+                "wat bewaart",
+                "welke gegevens",
+                "privacy",
+                "data sources",
+                "which data",
+                "what data",
+            )
+        )
     )
 
 
@@ -5164,13 +5178,19 @@ def _is_music_discovery_summary_request(normalized: str) -> bool:
     return any(
         phrase in normalized
         for phrase in (
+            "hoe werkt",
+            "how does",
             "wat is er nieuw",
             "wat is nieuw",
             "wat staat er",
+            "waarom",
             "ververs",
             "refresh",
             "aanbevelingen",
             "recommendations",
+            "feedback",
+            "play now",
+            "niet voor mij",
             "passen het beste",
             "fit me best",
             "past deze aanbeveling",
@@ -5191,7 +5211,14 @@ def _music_discovery_summary_text(text: str, memory_context: dict[str, Any]) -> 
             "Open het Discover-scherm of gebruik de Discover refresh-knop om de nieuwste backend-feed op te halen; "
             "ik start hierbij geen muziek."
         )
-    if "waarom" in normalized or "why" in normalized or "past deze aanbeveling" in normalized:
+    if (
+        "waarom" in normalized
+        or "why" in normalized
+        or "past deze aanbeveling" in normalized
+        or "feedback" in normalized
+        or "play now" in normalized
+        or "niet voor mij" in normalized
+    ):
         return (
             "Discover legt aanbevelingen uit met compacte Music DNA-signalen zoals favoriete artiesten, genres, "
             "recente luistercontext, kwaliteitsscore en feedback. Een Play Now-keuze telt als positief signaal; "
@@ -7660,6 +7687,7 @@ def _personal_music_dna_summary_text(memory_context: dict[str, Any]) -> str:
 
     lines.append("")
     lines.append("Ik gebruik hiervoor alleen je Music DNA, niet je live playbackstatus of extra backend-profieldata.")
+    lines.append("Privacy: Music DNA bewaart geen raw audio, OAuth tokens of volledige prompts.")
     return "\n".join(lines).strip()
 
 
