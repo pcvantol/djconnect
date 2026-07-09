@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.2.47
+
+- Add optional Home Assistant `media_player` speaker routing for Ask DJ/DJ
+  announcement TTS, with `client_device`, `both`, `ha_speaker` and `text_only`
+  output modes.
+- Expose DJ announcement capabilities in pairing/status/websocket metadata and
+  keep APNs push payloads limited to privacy-safe wake/sync hints.
+- Preserve the ESP32 `/api/device/dj_response` path while app and Raspberry Pi
+  clients use the new announcement output contract.
+
 ## 3.2.46
 
 - Add exported client contract fixtures with a manifest and export script so
