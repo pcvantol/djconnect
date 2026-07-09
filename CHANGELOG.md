@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.2.48
+
+- Add DJ announcement output QA guidance to the bootstrap, contribution and
+  handoff docs so cross-repo release/client-contract work checks app, Pi and
+  central API behavior against the same source of truth.
+- Expand field-test client guidance for app and Raspberry Pi DJ announcement
+  output modes, including text-only, Home Assistant speaker and privacy-safe
+  push hint behavior.
+- Add regression coverage for DJ announcement output capability metadata and
+  privacy-safe push announcement hints.
+
 ## 3.2.47
 
 - Add optional Home Assistant `media_player` speaker routing for Ask DJ/DJ
