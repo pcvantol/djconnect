@@ -79,6 +79,7 @@ from .const import (
     VOICE_PROFILE_LATE_NIGHT,
     VERSION,
 )
+from .announcements import announcement_capabilities
 from .ask_dj import async_handle_ask_dj, async_idle_suggestion, image_proxy_target  # noqa: F401
 from .ask_dj_history import AskDJHistoryManager
 from .assist_stt import (
@@ -796,14 +797,24 @@ def _voice_header_payload(headers: Any, device_id: str, client_type: str | None)
     return enrich_payload_with_mood_zone(payload)
 
 
-def _ask_dj_capabilities() -> dict[str, bool]:
-    return {
+def _ask_dj_capabilities(
+    runtime: Any | None = None,
+    *,
+    client_type: str | None = None,
+) -> dict[str, Any]:
+    payload: dict[str, Any] = {
         "ask_dj_supported": True,
         "ask_dj_voice_supported": True,
         "voice_supported": True,
         "ask_dj_audio_response_supported": True,
         "push_supported": True,
     }
+    if runtime is not None:
+        payload["dj_announcement"] = announcement_capabilities(
+            runtime,
+            client_type=client_type,
+        )
+    return payload
 
 
 async def _push_status(
@@ -2479,7 +2490,7 @@ class DJConnectPairView(HomeAssistantView):
             "event_path": API_EVENT,
         }
         response.update(_bootstrap_metadata(hass, runtime))
-        response.update(_ask_dj_capabilities())
+        response.update(_ask_dj_capabilities(runtime, client_type=client_type))
         response.update(music_backend_metadata(hass, runtime))
         response.update(_esp32_language_payload(runtime))
         response.update(await async_ha_url_payload(hass, conf, client_type=client_type))
@@ -2587,7 +2598,7 @@ class DJConnectStatusView(HomeAssistantView):
             "playback": getattr(runtime, "last_playback", None) or {},
         }
         response.update(_bootstrap_metadata(hass, runtime))
-        response.update(_ask_dj_capabilities())
+        response.update(_ask_dj_capabilities(runtime, client_type=client_type))
         response.update(music_backend_metadata(hass, runtime))
         response.update(
             await _push_status(

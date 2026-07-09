@@ -80,6 +80,19 @@ CONF_DJ_RESPONSE_TTL_SECONDS = "dj_response_ttl_seconds"
 CONF_DJ_RESPONSE_PROMPT_PRESET = "dj_response_prompt_preset"
 CONF_DJ_RESPONSE_PROMPT = "dj_response_prompt"
 CONF_VOICE_PROFILE = "voice_profile"
+CONF_DJ_ANNOUNCEMENT_SPEAKER = "dj_announcement_speaker_entity_id"
+CONF_DJ_ANNOUNCEMENT_OUTPUT = "dj_announcement_output"
+
+DJ_ANNOUNCEMENT_CLIENT_DEVICE = "client_device"
+DJ_ANNOUNCEMENT_BOTH = "both"
+DJ_ANNOUNCEMENT_HA_SPEAKER = "ha_speaker"
+DJ_ANNOUNCEMENT_TEXT_ONLY = "text_only"
+DJ_ANNOUNCEMENT_OUTPUTS = [
+    DJ_ANNOUNCEMENT_CLIENT_DEVICE,
+    DJ_ANNOUNCEMENT_BOTH,
+    DJ_ANNOUNCEMENT_HA_SPEAKER,
+    DJ_ANNOUNCEMENT_TEXT_ONLY,
+]
 
 CONF_MAX_AUDIO_BYTES = "max_audio_bytes"
 

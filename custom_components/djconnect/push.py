@@ -279,6 +279,7 @@ async def async_send_event(
     source_device_id: str | None = None,
     client_type: str | None = None,
     explicit_user_request: bool = False,
+    announcement: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Send a privacy-safe wake/sync event to the central push relay."""
     decision = should_send_push(
@@ -322,6 +323,7 @@ async def async_send_event(
         event_type=event_type,
         history_revision=history_revision,
         client_message_id=client_message_id,
+        announcement=announcement,
     )
     if not payload:
         return {"success": True, "push_supported": relay_configured(runtime), "sent": 0, "disabled": True}
@@ -363,6 +365,7 @@ def build_relay_event_payload(
     event_type: str,
     history_revision: int | None = None,
     client_message_id: str | None = None,
+    announcement: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build the small relay event payload; no prompts, responses or tokens."""
     event = _clean_text(event_type, 64)
@@ -401,6 +404,9 @@ def build_relay_event_payload(
             payload["history_revision"] = int(history_revision)
         except (TypeError, ValueError):
             pass
+    safe_announcement = _safe_announcement_push_payload(announcement)
+    if safe_announcement:
+        payload["announcement"] = safe_announcement
     return payload
 
 
@@ -408,6 +414,20 @@ def _open_target_for_event(event: str) -> str:
     if event == EVENT_MUSIC_DISCOVERY_READY:
         return "music_discovery"
     return "ask_dj"
+
+
+def _safe_announcement_push_payload(announcement: dict[str, Any] | None) -> dict[str, Any]:
+    """Return privacy-safe announcement hints for push wake/sync payloads."""
+    if not isinstance(announcement, dict):
+        return {}
+    delivery = _clean_text(announcement.get("delivery") or announcement.get("output"), 40)
+    if delivery not in {"client_device", "both", "ha_speaker", "text_only"}:
+        return {}
+    return {
+        "delivery": delivery,
+        "audio_available": bool(announcement.get("audio_url")),
+        "speaker_delivery": "attempted" if delivery in {"both", "ha_speaker"} else "none",
+    }
 
 
 def should_send_push(

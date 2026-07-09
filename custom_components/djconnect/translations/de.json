@@ -208,12 +208,14 @@
           "client_type": "Client-Typ",
           "local_url": "Client-Adresse",
           "firmware_channel": "Firmware-Kanal",
+          "dj_announcement_speaker_entity_id": "Home Assistant-Lautsprecher für DJ-Ansagen",
           "options_action": "Aktion",
           "voice_profile": "DJ-Sprachprofil"
         },
         "data_description": {
           "assist_pipeline_id": "Assist-Pipeline, die DJConnect-Geräte für Spracherkennung und DJ-Ansageaudio verwenden.",
           "client_type": "DJConnect-Clienttyp: App, lokales Gerät oder Assist-Agent.",
+          "dj_announcement_speaker_entity_id": "Optionale media_player-Entität für gesprochene DJ-Ansagen. Spotify Direct spielt weiter; DJConnect gibt die Stimme separat über diesen Lautsprecher aus.",
           "firmware_channel": "Wähle stable für normale OTA-Updates oder beta zum Testen von Vorab-Firmware.",
           "options_action": "Wähle die Aktion aus, die ausgeführt werden soll.",
           "voice_profile": "Wähle den Fallback-DJConnect-Radiostil. Wenn ein Client mood sendet, wählt diese mood automatisch das Stimmprofil; die Home Assistant TTS-Stimme bestimmt weiterhin die eigentliche Audiostimme."
@@ -328,12 +330,14 @@
           "options_action": "Aktion",
           "music_backend": "Musik-Backend",
           "music_assistant_player": "Music Assistant-Player",
+          "dj_announcement_speaker_entity_id": "Home Assistant-Lautsprecher für DJ-Ansagen",
           "voice_profile": "DJ-Sprachprofil"
         },
         "data_description": {
           "assist_pipeline_id": "Assist-Pipeline, die DJConnect-Geräte für Spracherkennung und DJ-Ansageaudio verwenden.",
           "client_type": "DJConnect-Clienttyp: App, lokales Gerät oder Assist-Agent.",
           "local_url": "Konfigurierte lokale Client-Adresse für ESP32/Raspberry Pi. Schreibgeschützt; verwende erneutes Koppeln, um diese URL zu ändern.",
+          "dj_announcement_speaker_entity_id": "Optionale media_player-Entität für gesprochene DJ-Ansagen. Spotify Direct spielt weiter; DJConnect gibt die Stimme separat über diesen Lautsprecher aus.",
           "firmware_channel": "Wähle stable für normale OTA-Updates oder beta zum Testen von Vorab-Firmware.",
           "options_action": "Wähle die Aktion aus, die ausgeführt werden soll.",
           "music_backend": "Ausgewähltes Wiedergabe-Backend.",
@@ -426,6 +430,10 @@
       "music_assistant_player_missing": "Wähle einen Music Assistant-Player.",
       "music_assistant_player_not_found": "Der ausgewählte Music Assistant-Player existiert nicht mehr.",
       "music_assistant_player_not_music_assistant": "Die ausgewählte media_player-Entität scheint kein Music Assistant-Player zu sein.",
+      "announcement_speaker_invalid": "Wähle eine gültige Home Assistant media_player-Entität.",
+      "announcement_speaker_not_found": "Der ausgewählte DJ-Ansage-Lautsprecher existiert nicht mehr.",
+      "announcement_speaker_unavailable": "Der ausgewählte DJ-Ansage-Lautsprecher ist nicht verfügbar.",
+      "announcement_speaker_no_play_media": "Wähle einen media_player, der Audio wiedergeben kann.",
       "spotify_oauth_required": "Spotify OAuth ist erforderlich, bevor Spotify Direct aktiv werden kann.",
       "backend_switch_failed": "DJConnect konnte das Musik-Backend nicht wechseln. Prüfe das ausgewählte Backend und versuche es erneut.",
       "invalid_voice_profile": "Wähle ein unterstütztes DJ-Sprachprofil."

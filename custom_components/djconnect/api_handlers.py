@@ -508,6 +508,7 @@ async def async_handle_ask_dj_message_payload(
         source_device_id=identity.get("device_id"),
         client_type=identity.get("client_type"),
         explicit_user_request=True,
+        announcement=result.get("announcement") if isinstance(result, dict) else None,
     )
     response = {**result, **sync}
     _debug_ask_dj_result("message", response, 200, runtime=runtime)

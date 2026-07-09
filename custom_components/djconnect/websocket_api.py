@@ -222,6 +222,11 @@ async def websocket_capabilities(hass: Any, connection: Any, msg: dict[str, Any]
             "commands": commands,
             "features": _feature_capabilities(commands),
             "fallbacks": _capability_fallbacks(commands),
+            "dj_announcement": {
+                "outputs": ["client_device", "both", "ha_speaker", "text_only"],
+                "audio_transport": "http_audio_url",
+                "speaker_delivery": "server_side_media_player",
+            },
             "transports": {
                 "http": True,
                 "websocket": True,

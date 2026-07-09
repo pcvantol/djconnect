@@ -208,12 +208,14 @@
           "client_type": "Type de client",
           "local_url": "Adresse du client",
           "firmware_channel": "Canal du firmware",
+          "dj_announcement_speaker_entity_id": "Enceinte Home Assistant pour les annonces DJ",
           "options_action": "Action",
           "voice_profile": "Profil vocal DJ"
         },
         "data_description": {
           "assist_pipeline_id": "Pipeline Assist utilisé par les appareils DJConnect pour la reconnaissance vocale et l’audio des annonces DJ.",
           "client_type": "Type de client DJConnect : app, appareil local ou agent Assist.",
+          "dj_announcement_speaker_entity_id": "Entité media_player optionnelle pour les annonces DJ parlées. Spotify Direct continue la lecture ; DJConnect lit la voix séparément via cette enceinte.",
           "firmware_channel": "Choisis stable pour les mises à jour OTA normales ou beta pour tester un firmware de préversion.",
           "options_action": "Choisis l’action à exécuter.",
           "voice_profile": "Choisis le style radio DJConnect de secours. Quand un client envoie mood, cette mood choisit automatiquement le profil vocal ; la voix TTS Home Assistant détermine toujours la voix audio réelle."
@@ -328,12 +330,14 @@
           "options_action": "Action",
           "music_backend": "Backend musical",
           "music_assistant_player": "Lecteur Music Assistant",
+          "dj_announcement_speaker_entity_id": "Enceinte Home Assistant pour les annonces DJ",
           "voice_profile": "Profil vocal DJ"
         },
         "data_description": {
           "assist_pipeline_id": "Pipeline Assist utilisé par les appareils DJConnect pour la reconnaissance vocale et l’audio des annonces DJ.",
           "client_type": "Type de client DJConnect : app, appareil local ou agent Assist.",
           "local_url": "Adresse locale configurée du client pour ESP32/Raspberry Pi. Lecture seule ; utilise la réassociation pour modifier cette URL.",
+          "dj_announcement_speaker_entity_id": "Entité media_player optionnelle pour les annonces DJ parlées. Spotify Direct continue la lecture ; DJConnect lit la voix séparément via cette enceinte.",
           "firmware_channel": "Choisis stable pour les mises à jour OTA normales ou beta pour tester un firmware de préversion.",
           "options_action": "Choisis l’action à exécuter.",
           "music_backend": "Backend de lecture sélectionné.",
@@ -426,6 +430,10 @@
       "music_assistant_player_missing": "Choisis un lecteur Music Assistant.",
       "music_assistant_player_not_found": "Le lecteur Music Assistant sélectionné n’existe plus.",
       "music_assistant_player_not_music_assistant": "L’entité media_player sélectionnée ne semble pas être un lecteur Music Assistant.",
+      "announcement_speaker_invalid": "Choisis une entité Home Assistant media_player valide.",
+      "announcement_speaker_not_found": "L’enceinte d’annonce DJ sélectionnée n’existe plus.",
+      "announcement_speaker_unavailable": "L’enceinte d’annonce DJ sélectionnée n’est pas disponible.",
+      "announcement_speaker_no_play_media": "Choisis un media_player capable de lire de l’audio.",
       "spotify_oauth_required": "Spotify OAuth est requis avant que Spotify Direct puisse devenir actif.",
       "backend_switch_failed": "DJConnect n’a pas pu changer de backend musical. Vérifie le backend sélectionné, puis réessaie.",
       "invalid_voice_profile": "Choisis un profil vocal DJ pris en charge."

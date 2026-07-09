@@ -621,8 +621,9 @@ Requirements:
 - APNs payloads must remain generic wake/sync hints. For Ask DJ, use concise
   localized copy from central relay message keys for `en`, `nl`, `de`, `fr` and
   `es`; do not embed prompts, responses or history. Include only optional sync
-  hints like `event_type`, `history_revision`, `client_message_id` and
-  `open_target`.
+  hints like `event_type`, `history_revision`, `client_message_id`,
+  `open_target` and privacy-safe `announcement{delivery,audio_available,
+  speaker_delivery}`. Push never transports TTS audio or generated text.
 - Push policy is strict: send APNs only for `ask_dj_response` after an explicit
   user Ask DJ request and `ask_dj_confirm` when confirmation actions wait for a
   user choice. Do not push `track_change`, `playback_change`, `queue_change`,
@@ -688,6 +689,16 @@ Requirements:
   Clients may show title-case mode labels locally, but do not need to send
   `mood_zone`; HA derives the canonical lowercase value from `mood`.
 - DJ announcement intros may become more personal using compact Music DNA. Clients must not collect or send arbitrary HA states or local personal memory for this.
+- DJ announcements use explicit output modes: `client_device`, `both`,
+  `ha_speaker` and `text_only`. HA owns the optional
+  `dj_announcement_speaker_entity_id`; clients may only change the output mode.
+  If no HA speaker is configured, app clients expose `client_device` and
+  `text_only` only. Raspberry Pi exposes `text_only` and, when configured,
+  `ha_speaker`; it has no local audio output. ESP32 keeps the existing
+  `/api/device/dj_response` path. For `ha_speaker`, HA plays TTS server-side and
+  sends no client `audio_url`; for `both`, HA plays server-side and returns
+  `audio_url`; for `text_only`, HA skips TTS. Spotify Direct must not pause,
+  resume or change Spotify volume for announcements.
 - Ask DJ text chat for iOS/macOS/watchOS/Raspberry Pi/Windows uses POST /api/djconnect/v1/ask_dj/message.
   Request identity can be top-level or inside `identity`; include
   client_message_id for retry dedupe and client_id as origin metadata. Response
@@ -1075,6 +1086,65 @@ Requirements:
   clearing pairing.
 - Never log bearer tokens, HA tokens, Spotify secrets, Wi-Fi passwords or
   temporary audio URLs.
+```
+
+## DJ Announcement Output Sync
+
+```text
+Sync DJ announcement output behavior with the Home Assistant integration.
+
+Home Assistant is the contract source for DJ announcement output modes:
+- `client_device`: app/client receives replayable TTS audio.
+- `both`: HA plays TTS server-side on the configured HA speaker and the client
+  also receives replayable `audio_url`.
+- `ha_speaker`: HA plays TTS server-side on the configured HA speaker; the
+  client receives text/metadata and no client-playback `audio_url`.
+- `text_only`: HA skips TTS entirely and returns text/metadata only.
+
+HA owns the optional `dj_announcement_speaker_entity_id` selected in the
+DJConnect config/options flow. Clients must not set or overwrite this HA entity.
+Clients may only choose and send `dj_announcement_output`.
+
+Client behavior:
+- iOS, macOS, watchOS and Windows expose `client_device` and `text_only`
+  always. Expose `both` and `ha_speaker` only when HA capabilities report an
+  announcement speaker is configured. If a speaker was configured during HA
+  setup, the HA default for app clients is `both`.
+- Raspberry Pi has no local announcement audio output. Expose only `text_only`
+  and, when HA reports a configured speaker, `ha_speaker`. Never try to play
+  local TTS/audio from Pi.
+- ESP32 does not use app announcement modes. Keep the existing
+  `/api/device/dj_response` path with `text` plus optional `audio_url`.
+
+Response handling:
+- Prefer nested `announcement.audio_url` over legacy/top-level `audio_url`.
+- If `announcement.delivery` is `ha_speaker` or `text_only`, do not play local
+  client audio.
+- If `announcement.audio_url` is absent, render text-only for local playback.
+- Preserve/handle `announcement.target` and `announcement.warnings` as optional
+  metadata; do not parse user-facing text to infer delivery state.
+- Websocket Ask DJ responses use the same response shape. Audio remains fetched
+  over the temporary HTTP `audio_url`, never as websocket binary payload.
+
+Push behavior:
+- Push is wake/sync only and never starts audio directly.
+- Apple clients decide autoplay only after fetching canonical message/history
+  data and checking local `auto_play_announcements`, app state, and response
+  `announcement` metadata.
+- Central API/APNs may carry only safe hints:
+  `announcement.delivery`, `announcement.audio_available` and
+  `announcement.speaker_delivery`. Never include generated text, prompts,
+  history, Music DNA, TTS audio or temporary `audio_url` in push payloads.
+
+Product/docs wording:
+- Ask DJ is the intelligence/personality.
+- A Home Assistant Voice satellite/speaker is an optional physical voice output
+  for DJConnect announcements.
+- With Spotify Direct, Spotify playback keeps playing normally; DJConnect does
+  not pause, resume, duck or change Spotify volume. The DJ voice plays
+  separately through the chosen HA speaker.
+- Music Assistant may later support richer current-output/ducking behavior, but
+  do not claim it is available unless implemented and tested.
 ```
 
 ## ESP Firmware

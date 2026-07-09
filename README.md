@@ -31,6 +31,9 @@ Website: [https://djconnect.dev](https://djconnect.dev)
 - Let realtime client mood choose the DJ announcement profile; the configured
   DJ voice profile is the fallback when no mood is provided. Home Assistant
   Assist/TTS still owns the actual spoken voice.
+- Optionally route spoken DJ announcements to a configured Home Assistant
+  `media_player` speaker. With Spotify Direct, Spotify playback keeps playing
+  normally and DJConnect plays the voice separately through that speaker.
 - Update supported ESP32 firmware through the Home Assistant update entity.
 - Keep credentials in Home Assistant. DJConnect clients do not receive Spotify
   OAuth tokens.

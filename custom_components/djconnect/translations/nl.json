@@ -208,12 +208,14 @@
           "client_type": "Clienttype",
           "local_url": "Client adres",
           "firmware_channel": "Firmwarekanaal",
+          "dj_announcement_speaker_entity_id": "Home Assistant speaker voor DJ-aankondigingen",
           "options_action": "Actie",
           "voice_profile": "DJ stemprofiel"
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline die DJConnect apparaten gebruiken voor spraakherkenning en DJ aankondiging audio.",
           "client_type": "Type DJConnect client: app, lokaal apparaat of Assist-agent.",
+          "dj_announcement_speaker_entity_id": "Optionele media_player voor gesproken DJ-aankondigingen. Spotify Direct blijft gewoon doorspelen; DJConnect speelt de stem apart via deze speaker.",
           "firmware_channel": "Kies stable voor normale OTA updates of beta om prerelease firmware te testen.",
           "options_action": "Kies welke actie je wilt uitvoeren.",
           "voice_profile": "Kies de fallback DJConnect radiostijl. Als een client mood meestuurt, kiest die mood automatisch het stemprofiel; de Home Assistant TTS stem blijft bepalen hoe de audio klinkt."
@@ -325,6 +327,7 @@
           "client_type": "Clienttype",
           "local_url": "Client adres",
           "firmware_channel": "Firmwarekanaal",
+          "dj_announcement_speaker_entity_id": "Home Assistant speaker voor DJ-aankondigingen",
           "options_action": "Actie",
           "music_backend": "Muziekbackend",
           "music_assistant_player": "Music Assistant player",
@@ -334,6 +337,7 @@
           "assist_pipeline_id": "Assist pipeline die DJConnect apparaten gebruiken voor spraakherkenning en DJ aankondiging audio.",
           "client_type": "Type DJConnect client: app, lokaal apparaat of Assist-agent.",
           "local_url": "Geconfigureerd lokaal Client adres voor ESP32/Raspberry Pi. Alleen-lezen; gebruik opnieuw koppelen om deze URL te wijzigen.",
+          "dj_announcement_speaker_entity_id": "Optionele media_player voor gesproken DJ-aankondigingen. Spotify Direct blijft gewoon doorspelen; DJConnect speelt de stem apart via deze speaker.",
           "firmware_channel": "Kies stable voor normale OTA updates of beta om prerelease firmware te testen.",
           "options_action": "Kies welke actie je wilt uitvoeren.",
           "music_backend": "Gekozen playback-backend.",
@@ -426,6 +430,10 @@
       "music_assistant_player_missing": "Kies een Music Assistant player.",
       "music_assistant_player_not_found": "De gekozen Music Assistant player bestaat niet meer.",
       "music_assistant_player_not_music_assistant": "De gekozen media_player lijkt geen Music Assistant player te zijn.",
+      "announcement_speaker_invalid": "Kies een geldige Home Assistant media_player entity.",
+      "announcement_speaker_not_found": "De gekozen DJ-aankondiging speaker bestaat niet meer.",
+      "announcement_speaker_unavailable": "De gekozen DJ-aankondiging speaker is niet beschikbaar.",
+      "announcement_speaker_no_play_media": "Kies een media_player die audio kan afspelen.",
       "spotify_oauth_required": "Spotify OAuth is vereist voordat Spotify Direct actief kan worden.",
       "backend_switch_failed": "DJConnect kon de muziekbackend niet wijzigen. Controleer de gekozen backend en probeer opnieuw.",
       "invalid_voice_profile": "Kies een ondersteund DJ stemprofiel."

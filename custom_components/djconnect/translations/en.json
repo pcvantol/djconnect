@@ -208,12 +208,14 @@
           "client_type": "Client type",
           "local_url": "Client address",
           "firmware_channel": "Firmware channel",
+          "dj_announcement_speaker_entity_id": "Home Assistant speaker for DJ announcements",
           "options_action": "Action",
           "voice_profile": "DJ voice profile"
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline used by DJConnect devices for speech recognition and DJ announcement audio.",
           "client_type": "DJConnect client type: app, local device or Assist agent.",
+          "dj_announcement_speaker_entity_id": "Optional media_player for spoken DJ announcements. Spotify Direct keeps playing; DJConnect plays the voice separately through this speaker.",
           "firmware_channel": "Choose stable for normal OTA updates or beta to test prerelease firmware.",
           "options_action": "Choose which action to run.",
           "voice_profile": "Choose the fallback DJConnect radio style. When a client sends mood, that mood automatically selects the voice profile; the Home Assistant TTS voice still determines the actual audio voice."
@@ -328,12 +330,14 @@
           "options_action": "Action",
           "music_backend": "Music backend",
           "music_assistant_player": "Music Assistant player",
+          "dj_announcement_speaker_entity_id": "Home Assistant speaker for DJ announcements",
           "voice_profile": "DJ voice profile"
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline used by DJConnect devices for speech recognition and DJ announcement audio.",
           "client_type": "DJConnect client type: app, local device or Assist agent.",
           "local_url": "Configured local Client address for ESP32/Raspberry Pi. Read-only; use re-pairing to change this URL.",
+          "dj_announcement_speaker_entity_id": "Optional media_player for spoken DJ announcements. Spotify Direct keeps playing; DJConnect plays the voice separately through this speaker.",
           "firmware_channel": "Choose stable for normal OTA updates or beta to test prerelease firmware.",
           "options_action": "Choose which action to run.",
           "music_backend": "Selected playback backend.",
@@ -426,6 +430,10 @@
       "music_assistant_player_missing": "Choose a Music Assistant player.",
       "music_assistant_player_not_found": "The selected Music Assistant player no longer exists.",
       "music_assistant_player_not_music_assistant": "The selected media_player does not appear to be a Music Assistant player.",
+      "announcement_speaker_invalid": "Choose a valid Home Assistant media_player entity.",
+      "announcement_speaker_not_found": "The selected DJ announcement speaker no longer exists.",
+      "announcement_speaker_unavailable": "The selected DJ announcement speaker is unavailable.",
+      "announcement_speaker_no_play_media": "Choose a media_player that can play audio.",
       "spotify_oauth_required": "Spotify OAuth is required before Spotify Direct can become active.",
       "backend_switch_failed": "DJConnect could not switch the music backend. Check the selected backend and try again.",
       "invalid_voice_profile": "Choose a supported DJ voice profile."

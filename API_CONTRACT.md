@@ -1135,6 +1135,44 @@ present on `assistant_message`, render the replay/play affordance for that exact
 assistant bubble; generated current-track answers such as `wat speelt er` can
 include both generated text metadata and a replayable TTS URL.
 
+DJ announcement audio routing is explicit. App clients may send or store
+`dj_announcement_output` as one of `client_device`, `both`, `ha_speaker` or
+`text_only`; the Home Assistant config/options flow owns the optional
+`dj_announcement_speaker_entity_id` and clients must not set the HA entity id.
+When no HA speaker is configured, app clients support only `client_device` and
+`text_only`. Raspberry Pi supports `text_only` and, when a backend speaker is
+configured, `ha_speaker`; it does not expose local client audio. ESP32 keeps the
+existing `/api/device/dj_response` device-speaker path and does not use these app
+announcement modes.
+
+Responses include an `announcement{}` object when Ask DJ evaluates announcement
+delivery:
+
+```json
+{
+  "announcement": {
+    "output": "both",
+    "delivery": "both",
+    "audio_response_effective": "always",
+    "audio_url": "/api/djconnect/v1/tts/token.mp3",
+    "audio_type": "mp3",
+    "target": {
+      "kind": "ha_media_player",
+      "entity_id": "media_player.voice_preview",
+      "name": "Voice Preview"
+    },
+    "warnings": []
+  }
+}
+```
+
+For `ha_speaker`, Home Assistant plays the generated TTS server-side on the
+configured `media_player` and does not return client-playback `audio_url`. For
+`both`, HA plays server-side and also returns `audio_url` for clients that allow
+autoplay/replay. For `text_only`, HA skips TTS entirely. Spotify Direct never
+pauses, resumes or changes Spotify volume for DJ announcements; the HA speaker
+plays separately from Spotify playback.
+
 Supported action kinds:
 
 - `album`: direct Play Now action for an album. The action includes
@@ -1689,6 +1727,11 @@ Central API event payload shape for `ask_dj_response`:
   "open_target": "ask_dj",
   "history_revision": 123,
   "client_message_id": "client-1",
+  "announcement": {
+    "delivery": "both",
+    "audio_available": true,
+    "speaker_delivery": "attempted"
+  },
   "client_types": ["ios", "macos", "watchos"]
 }
 ```

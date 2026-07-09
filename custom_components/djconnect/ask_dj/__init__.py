@@ -22,7 +22,8 @@ from ..const import (
     DEFAULT_TTS_LANGUAGE,
     DOMAIN,
 )
-from ..dj_response import async_send_dj_response_best_effort
+from ..announcements import async_apply_announcement_output
+from ..dj_response import async_create_dj_audio_url
 from ..music_dna import prompt_context_text
 from ..mood import (
     enrich_payload_with_mood_zone,
@@ -58,6 +59,15 @@ TRACK_REFERENCE_WORDS = (
     "knaller",
     "beuker",
 )
+
+
+async def async_send_dj_response_best_effort(
+    hass: HomeAssistant,
+    runtime: Any,
+    text: str,
+) -> dict[str, Any]:
+    """Create replayable Ask DJ audio without posting to a local ESP device."""
+    return {"audio_url_value": await async_create_dj_audio_url(hass, runtime, text)}
 
 
 @dataclass(frozen=True)
@@ -150,18 +160,18 @@ async def async_handle_ask_dj(
                 payload=identity_payload,
                 user_id=user_id,
             )
-        if response.get("dj_text") and _response_allows_audio(response) and _should_generate_audio_response(payload, classification):
-            try:
-                dj_response = await async_send_dj_response_best_effort(
-                    hass,
-                    runtime,
-                    str(response.get("dj_text") or ""),
-                )
-                audio_url = dj_response.get("audio_url_value")
-                if audio_url:
-                    _attach_audio_response(response, str(audio_url))
-            except Exception as exc:  # noqa: BLE001
-                _LOGGER.debug("DJConnect Ask DJ audio response unavailable: %s", exc)
+        await async_apply_announcement_output(
+            hass,
+            runtime,
+            response,
+            payload=payload,
+            generate_audio=(
+                bool(response.get("dj_text"))
+                and _response_allows_audio(response)
+                and _should_generate_audio_response(payload, classification)
+            ),
+            audio_url_factory=async_send_dj_response_best_effort,
+        )
         response.pop("playback", None)
         return response
 
@@ -474,18 +484,18 @@ async def async_handle_ask_dj(
             user_id=user_id,
         )
 
-    if response.get("dj_text") and _response_allows_audio(response) and _should_generate_audio_response(payload, classification):
-        try:
-            dj_response = await async_send_dj_response_best_effort(
-                hass,
-                runtime,
-                str(response.get("dj_text") or ""),
-            )
-            audio_url = dj_response.get("audio_url_value")
-            if audio_url:
-                _attach_audio_response(response, str(audio_url))
-        except Exception as exc:  # noqa: BLE001
-            _LOGGER.debug("DJConnect Ask DJ audio response unavailable: %s", exc)
+    await async_apply_announcement_output(
+        hass,
+        runtime,
+        response,
+        payload=payload,
+        generate_audio=(
+            bool(response.get("dj_text"))
+            and _response_allows_audio(response)
+            and _should_generate_audio_response(payload, classification)
+        ),
+        audio_url_factory=async_send_dj_response_best_effort,
+    )
     response.pop("playback", None)
     return response
 

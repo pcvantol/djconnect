@@ -29,6 +29,8 @@ from .const import (
     CONF_DEVICE_LANGUAGE,
     CONF_DEVICE_NAME,
     CONF_DEVICE_TOKEN,
+    CONF_DJ_ANNOUNCEMENT_OUTPUT,
+    CONF_DJ_ANNOUNCEMENT_SPEAKER,
     CONF_DJCONNECT_INSTALL_TOKEN,
     CONF_DJ_RESPONSE_ENABLED,
     CONF_DJ_RESPONSE_PROMPT,
@@ -69,6 +71,8 @@ from .const import (
     DEFAULT_SPOTIFY_MARKET,
     DEFAULT_SPOTIFY_SCOPES,
     DEFAULT_VOICE_PROFILE,
+    DJ_ANNOUNCEMENT_BOTH,
+    DJ_ANNOUNCEMENT_CLIENT_DEVICE,
     FIRMWARE_CHANNELS,
     MUSIC_BACKEND_NAMES,
     MUSIC_BACKEND_MUSIC_ASSISTANT,
@@ -87,6 +91,7 @@ from .const import (
     API_PAIR,
     API_SPOTIFY_CALLBACK,
 )
+from .announcements import announcement_speaker_options, validate_announcement_speaker
 from .central_api import TOKEN_PREFIX, async_rotate_install_token
 from .ble import async_discover_devices, async_provision_wifi
 from .client_identity import (
@@ -200,6 +205,8 @@ CLIENT_TYPE_NAME_SUFFIXES = {
 
 VOICE_FORM_FIELDS = {
     CONF_ASSIST_PIPELINE_ID,
+    CONF_DJ_ANNOUNCEMENT_OUTPUT,
+    CONF_DJ_ANNOUNCEMENT_SPEAKER,
     CONF_FIRMWARE_CHANNEL,
     CONF_VOICE_PROFILE,
 }
@@ -864,6 +871,13 @@ def _base_voice_schema(
         )
     schema.update({
         vol.Optional(
+            CONF_DJ_ANNOUNCEMENT_SPEAKER,
+            default=defaults.get(CONF_DJ_ANNOUNCEMENT_SPEAKER, ""),
+        ): vol.In(
+            announcement_speaker_options(hass)
+            or {"": "None"}
+        ),
+        vol.Optional(
             CONF_VOICE_PROFILE,
             default=normalize_voice_profile(defaults.get(CONF_VOICE_PROFILE)),
         ): vol.In(voice_profile_options(_ha_language(hass))),
@@ -1039,6 +1053,14 @@ def _voice_defaults(
         CONF_VOICE_PROFILE: normalize_voice_profile(
             source.get(CONF_VOICE_PROFILE) or DEFAULT_VOICE_PROFILE
         ),
+        CONF_DJ_ANNOUNCEMENT_SPEAKER: str(
+            source.get(CONF_DJ_ANNOUNCEMENT_SPEAKER) or ""
+        ).strip(),
+        CONF_DJ_ANNOUNCEMENT_OUTPUT: (
+            str(source.get(CONF_DJ_ANNOUNCEMENT_OUTPUT) or DJ_ANNOUNCEMENT_BOTH).strip()
+            if str(source.get(CONF_DJ_ANNOUNCEMENT_SPEAKER) or "").strip()
+            else DJ_ANNOUNCEMENT_CLIENT_DEVICE
+        ),
         CONF_MAX_AUDIO_BYTES: _int(
             source.get(CONF_MAX_AUDIO_BYTES),
             DEFAULT_MAX_AUDIO_BYTES,
@@ -1083,6 +1105,15 @@ def _voice_errors(user_input: dict[str, Any]) -> dict[str, str]:
     if profile is not None and normalize_voice_profile(profile) != profile:
         return {CONF_VOICE_PROFILE: "invalid_voice_profile"}
     return {}
+
+
+def _announcement_errors(hass: Any, user_input: dict[str, Any]) -> dict[str, str]:
+    """Validate optional DJ announcement speaker settings."""
+    error = validate_announcement_speaker(
+        hass,
+        user_input.get(CONF_DJ_ANNOUNCEMENT_SPEAKER),
+    )
+    return {CONF_DJ_ANNOUNCEMENT_SPEAKER: error} if error else {}
 
 
 def _spotify_direct_ready(current: dict[str, Any]) -> bool:
@@ -2120,6 +2151,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
         if user_input is not None:
             errors = _voice_errors(user_input)
+            errors.update(_announcement_errors(self.hass, user_input))
             if not errors:
                 data: dict[str, Any] = {}
                 data.update(self._pairing)
@@ -2233,6 +2265,7 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
             if action == OPTIONS_ACTION_REPAIR:
                 return await self.async_step_repair_pairing()
             errors = _voice_errors(user_input)
+            errors.update(_announcement_errors(self.hass, user_input))
             if not errors:
                 merged = dict(current)
                 merged.update(
