@@ -4,6 +4,21 @@ These are platform-wide implementation rules for future DJConnect epics.
 
 The foundation documents remain authoritative. Runtime code, tests and repository-local docs must conform to the foundation rather than silently redefining it.
 
+## Clean Codex Sessions
+
+Clean Codex or AI-agent sessions must start with
+`BOOTSTRAP_CODEX_SESSION.md`.
+
+The required startup order is:
+
+1. read `BOOTSTRAP_CODEX_SESSION.md`;
+2. read the local repository `AGENTS.md`;
+3. read the current epic context;
+4. read the active phase or implementation prompt.
+
+After bootstrap, return a readiness summary and wait. Do not start
+implementation until the user provides the next phase or implementation prompt.
+
 ## Core rules
 
 - Always read the Foundation first.

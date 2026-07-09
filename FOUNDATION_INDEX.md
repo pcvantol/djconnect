@@ -6,6 +6,10 @@ The foundation defines the shared product direction, design principles, architec
 
 ## Recommended reading order
 
+For clean Codex or AI-agent sessions, start with
+`BOOTSTRAP_CODEX_SESSION.md`. That file defines the session startup procedure.
+The files below define the platform foundation itself.
+
 1. `DJCONNECT_CONSTITUTION.md`
 2. `PRODUCT_VISION.md`
 3. `DESIGN_PRINCIPLES.md`
@@ -42,6 +46,17 @@ Repository-specific AGENTS guidance, API contracts, operational procedures and r
 ### Foundation docs
 
 Foundation docs define stable cross-repository intent and rules. They include the constitution, product vision, design principles, architecture principles, domain model, client capability model, product language, governance, quality standard, backlog, innovation model, ADR index and release governance.
+
+### AI-agent bootstrap
+
+`BOOTSTRAP_CODEX_SESSION.md` defines how Codex and other AI agents start clean
+DJConnect sessions. It does not replace the foundation. It tells agents which
+foundation files, repository-local instructions and epic/phase context to read
+before reporting readiness.
+
+`AGENTS.md` files define repository-local implementation rules. They extend the
+platform foundation and bootstrap procedure; they do not redefine platform
+truth.
 
 ### Operational docs
 

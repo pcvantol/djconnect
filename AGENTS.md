@@ -19,6 +19,18 @@ Belangrijke repos:
 - Central API / APNs relay source: github.com/pcvantol/djconnect-api
 - Public firmware releases: github.com/pcvantol/djconnect-firmware
 
+## DJConnect Platform Bootstrap
+
+For a clean Codex/AI-agent session, first follow the canonical platform bootstrap:
+
+`pcvantol/djconnect/BOOTSTRAP_CODEX_SESSION.md`
+
+Then continue with the repository-specific instructions in this file.
+
+This repository is the canonical source of the DJConnect Platform Foundation.
+Repository-specific guidance in this file remains authoritative for
+implementation details.
+
 ## DJConnect Platform Foundation
 
 This repository is the canonical source of truth for the entire DJConnect platform.

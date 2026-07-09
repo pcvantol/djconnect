@@ -86,7 +86,7 @@ Examples:
 - `API_CONTRACT.md`
 - `TECHNICAL_DESIGN_DECISIONS.md`
 - `SYNC_PROMPTS.md`
-- `CHAT_BOOTSTRAP.md`
+- `BOOTSTRAP_CODEX_SESSION.md`
 - relevant README files;
 - foundation docs if a principle changes;
 - ADRs if a decision is made.
