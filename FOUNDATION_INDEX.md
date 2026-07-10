@@ -28,6 +28,12 @@ The files below define the platform foundation itself.
 16. `CI_CD_RELEASE_GOVERNANCE.md`
 17. `docs/verification/00_VERIFICATION_VISION.md`
 18. `docs/verification/01_VERIFICATION_ARCHITECTURE.md`
+19. `docs/meta/AI_COLLABORATION_MODEL.md`
+20. `docs/meta/ENGINEERING_PLAYBOOK.md`
+21. `docs/meta/ARCHITECTURAL_HEURISTICS.md`
+22. `docs/meta/DECISION_PATTERNS.md`
+23. `docs/meta/REPOSITORY_AS_MEMORY.md`
+24. `docs/meta/AI_AGENT_GUIDELINES.md`
 
 ## Conflict-resolution order
 
@@ -68,6 +74,24 @@ before reporting readiness.
 `AGENTS.md` files define repository-local implementation rules. They extend the
 platform foundation and bootstrap procedure; they do not redefine platform
 truth.
+
+### Meta engineering docs
+
+Meta engineering docs define how humans, AI agents, reviewers and maintainers
+collaborate while evolving the platform.
+
+- `docs/meta/AI_COLLABORATION_MODEL.md` defines the canonical AI collaboration
+  model and repository-first engineering memory principle.
+- `docs/meta/ENGINEERING_PLAYBOOK.md` defines the canonical engineering
+  lifecycle from idea to production.
+- `docs/meta/ARCHITECTURAL_HEURISTICS.md` defines practical architecture
+  decision-making heuristics for the platform.
+- `docs/meta/DECISION_PATTERNS.md` defines where newly discovered engineering
+  knowledge belongs in the repository.
+- `docs/meta/REPOSITORY_AS_MEMORY.md` explains why the repository is the
+  durable engineering memory instead of prompts or chat history.
+- `docs/meta/AI_AGENT_GUIDELINES.md` defines how AI agents are expected to
+  operate within the DJConnect engineering process.
 
 ### Operational docs
 
