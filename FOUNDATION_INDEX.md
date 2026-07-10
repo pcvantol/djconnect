@@ -28,6 +28,7 @@ The files below define the platform foundation itself.
 16. `CI_CD_RELEASE_GOVERNANCE.md`
 17. `docs/verification/00_VERIFICATION_VISION.md`
 18. `docs/verification/01_VERIFICATION_ARCHITECTURE.md`
+19. `docs/meta/AI_COLLABORATION_MODEL.md`
 
 ## Conflict-resolution order
 
@@ -68,6 +69,14 @@ before reporting readiness.
 `AGENTS.md` files define repository-local implementation rules. They extend the
 platform foundation and bootstrap procedure; they do not redefine platform
 truth.
+
+### Meta engineering docs
+
+Meta engineering docs define how humans, AI agents, reviewers and maintainers
+collaborate while evolving the platform.
+
+- `docs/meta/AI_COLLABORATION_MODEL.md` defines the canonical AI collaboration
+  model and repository-first engineering memory principle.
 
 ### Operational docs
 
