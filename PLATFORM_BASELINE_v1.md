@@ -1,11 +1,20 @@
 # DJConnect Platform Baseline v1
 
-Status: accepted  
+Status: Accepted
 Date: 2026-07-10  
+Version: Profile Platform v1
 Baseline owner: `pcvantol/djconnect`
 
-This document is the implementation baseline for Epic 4. It records the Profile
-Platform state accepted at the close of Epic 3 and Epic 3B.
+## Purpose
+
+This document captures the officially accepted DJConnect platform baseline
+after Epic 3 and Epic 3B.
+
+The foundation describes platform principles. This baseline describes the
+accepted implementation architecture those principles produced for the Profile
+Platform.
+
+Future platform work starts from this baseline.
 
 ## Version Baseline
 
@@ -21,9 +30,23 @@ Privacy Contract Version: 1
 | Profile Platform | 1 | `DOMAIN_MODEL.md`, `ARCHITECTURE_PRINCIPLES.md`, ADR-0001 |
 | Profile Resolver | 1 | `custom_components/djconnect/domain/resolver/profile_resolver.py` |
 | Request Context | 1 | `ProfileResolutionContext`, ADR-0011 |
-| Profile Contract | 1 | `docs/implementation/epic3b/01-profile-adoption-contract.md` |
-| Capability Contract | 1 | `examples/client_contracts/capabilities.websocket.json` |
+| Profile Adoption Contract | 1 | `docs/implementation/epic3b/01-profile-adoption-contract.md` |
+| Capability Discovery | 1 | `examples/client_contracts/capabilities.websocket.json` |
 | Privacy Contract | 1 | Profile privacy/export implementation and fixtures |
+
+## Canonical Components
+
+The accepted Profile Platform v1 baseline includes these canonical components:
+
+- Profile
+- Request Context
+- Profile Resolver
+- Music Backend abstraction
+- Music Account abstraction
+- Playback Zone abstraction
+- Capability Discovery
+- Profile Adoption Contract v1
+- Privacy Contract v1
 
 ## Accepted Identity Model
 
@@ -83,15 +106,23 @@ Deterministic rules:
   profiles unless explicitly configured otherwise;
 - future speaker identity may be a hint only and must use the same resolver.
 
-## Supported Client Classes
+## Accepted Client Classes
+
+Profile Platform v1 accepts these client classes:
+
+- Intelligence Client
+- Ambient Client
+- Voice & Control Client
+- Voice Endpoint
+- Presentation Client
 
 | Client class | Current examples | Baseline role |
 | --- | --- | --- |
 | Intelligence Client | Apple, Windows | Rich personal UI; sends device/profile context; renders backend-owned state. |
 | Ambient Client | Raspberry Pi | Shared room/household display and control; defaults safely to shared context. |
-| Voice / Control Client | ESP32, HA Voice Endpoint | Physical or spoken control; no durable personal intelligence ownership. |
+| Voice & Control Client | ESP32 | Physical control surface; no durable personal intelligence ownership. |
+| Voice Endpoint | HA Voice Endpoint | Spoken request source and mapping signal; no automatic personal identity. |
 | Presentation Client | VibeCast / future TV renderer | Shared rendering of backend-owned intelligence output. |
-| Immersive Client | Future VR/MR | Future renderer only; must reuse Profile and backend contracts. |
 
 ## Accepted Capability Baseline
 
@@ -130,7 +161,7 @@ The Profile Platform privacy baseline is accepted with these constraints:
 
 ## Platform Parity Matrix
 
-Legend: Supported, Future, Not Applicable, Missing.
+Legend: Supported, Future, Not Applicable.
 
 | Capability | Apple | Windows | Pi | ESP32 | Voice Endpoint |
 | --- | --- | --- | --- | --- | --- |
@@ -151,13 +182,24 @@ Legend: Supported, Future, Not Applicable, Missing.
 
 ## Accepted Architectural Constraints
 
-- Backend-owned intelligence remains mandatory.
-- Clients may render, cache short-lived presentation state and submit request
-  context, but must not own Music DNA, Ask DJ memory or resolver order.
-- Music backend/provider behavior remains behind backend adapters.
+- Profile is the only durable identity for personal and shared state.
+- Request Context is the only input to the Profile Resolver.
+- One canonical Profile Resolver owns identity resolution.
+- Devices, Voice Endpoints, Home Assistant users, Areas and Playback Zones are
+  resolver signals, not identities.
+- Music Backend and Music Account abstractions own provider-specific behavior.
+- Playback Zone owns playback target context without becoming identity.
+- Backend owns intelligence, personal state and durable memory.
+- Clients render backend-owned state and may not own personal intelligence.
+- Devices never own personal state.
+- Voice Endpoints are request sources and mapping signals, not automatic
+  personal identities.
+- Capability Discovery advertises supported platform contracts before clients
+  depend on them.
+- Profile Adoption Contract v1 is the shared client adoption contract.
+- Privacy Contract v1 applies to every profile-aware request, including shared,
+  guest, room, household, Voice Endpoint and private-session contexts.
 - Repository ownership remains as defined in `REPOSITORY_OWNERSHIP.md`.
-- New intelligence features for Epic 4 must build on Profile, Request Context,
-  Resolver and privacy contracts instead of introducing feature-local identity.
 
 ## Baseline Debt Carried Forward
 
@@ -170,8 +212,11 @@ These items do not block Epic 3 acceptance:
 - formal required/optional/forbidden client parity belongs in Epic 5;
 - distribution and public product-language cleanup belongs in Epic 6/Epic 8.
 
-## Baseline Decision
+## Governance
 
-GO.
+This baseline is not a new epic and does not reopen Epic 3. It records the
+accepted platform state after Epic 3 acceptance review.
 
-DJConnect is ready to begin Epic 4: Intelligence Engine / Insight Feed.
+Future identity, intelligence, recommendation, insight, voice, client and
+runtime work must start from Profile Platform v1 unless a later accepted ADR or
+platform baseline explicitly supersedes it.

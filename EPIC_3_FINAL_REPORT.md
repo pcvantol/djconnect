@@ -39,13 +39,13 @@ implementation. Remaining issues are backlog, not closure blockers.
 
 ## Client Adoption Summary
 
-| Client | Adoption verdict | Notes |
-| --- | --- | --- |
-| Apple | Fully adopted as baseline contract consumer | Rich Intelligence Client; must continue avoiding local resolver or Music DNA ownership. |
-| Windows | Fully adopted as baseline contract consumer | Uses the same contract expectations as Apple; parity remains tracked by fixtures. |
-| Raspberry Pi | Partially adopted | Ambient Client behavior is safe; richer shared/readonly UX remains future work. |
-| ESP32 | Fully adopted for its class | Resolves through registered `device_id`; no profile UI or durable intelligence expected. |
-| Voice Endpoint | Partially adopted | Resolver/storage signals are accepted; polished HA mapping UI and hardware validation remain follow-up. |
+| Client | Role | Adoption | Status |
+| --- | --- | --- | --- |
+| Apple | Intelligence Client | Complete | Reference |
+| Windows | Intelligence Client | Complete | Parity |
+| Pi | Ambient Client | Partial | Shared-first |
+| ESP32 | Voice & Control Client | Complete | Reference |
+| Voice Endpoint | Voice Endpoint | Partial | Shared-first |
 
 ## Profile Platform Summary
 
@@ -53,11 +53,20 @@ The platform now treats Profile as the only durable identity. Devices, HA users,
 rooms, Voice Endpoints and playback zones are resolver signals. Personal state
 must attach to Profile, not client/device/runtime identity.
 
+## Platform Baseline
+
+The accepted platform baseline is captured in `PLATFORM_BASELINE_v1.md`.
+
 ## Resolver Summary
 
 Only one resolver exists. The accepted deterministic order is explicit profile,
 device mapping, Voice Endpoint/HA device mapping, HA user hint, area/room
 mapping, playback player/zone mapping, fallback and structured error.
+
+Request Context is the canonical input to the Profile Resolver.
+
+Devices, Voice Endpoints, HA users, Areas and Playback Zones are resolution
+signals. They are not identities.
 
 No client-side, Voice-specific or Device-specific resolver is accepted.
 
@@ -153,6 +162,9 @@ Never:
 - Voice Endpoints are request sources, not automatically DJConnect Devices.
 - Fixture contracts are the right guardrail for multi-client parity.
 - Privacy rules must be part of identity resolution, not a later UI concern.
+- Home Assistant remains the primary runtime of DJConnect. It is not the
+  architectural boundary of the platform. Reference:
+  `docs/research/R0_RUNTIME_INDEPENDENCE.md`.
 
 ## Recommendations
 
@@ -162,10 +174,14 @@ Never:
 - Keep client adoption validated through fixture contracts.
 - Move feature maturity and strict parity governance into Epic 5.
 - Keep distribution, website and public-language cleanup in Epic 6/Epic 8.
+- No future Intelligence feature should introduce new identity ownership
+  outside the Profile Platform.
+- Every new capability should first be placed inside the Domain Model before
+  implementation.
 
 ## Epic 4 Readiness
 
 GO.
 
 DJConnect is ready to build the Intelligence Platform. Start Epic 4:
-Intelligence Engine / Insight Feed.
+Intelligence Platform.
