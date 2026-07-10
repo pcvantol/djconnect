@@ -230,6 +230,8 @@ async def websocket_capabilities(hass: Any, connection: Any, msg: dict[str, Any]
             "commands": commands,
             "features": _feature_capabilities(commands),
             "fallbacks": _capability_fallbacks(commands),
+            "capabilities": _platform_capabilities(),
+            "contract_versions": _contract_versions(),
             "dj_announcement": {
                 "outputs": ["client_device", "both", "ha_speaker", "text_only"],
                 "audio_transport": "http_audio_url",
@@ -263,6 +265,25 @@ def _supported_websocket_commands() -> list[str]:
         WS_TYPE_MUSIC_DISCOVERY_PLAY,
         WS_TYPE_MUSIC_DISCOVERY_FEEDBACK,
     ]
+
+
+def _platform_capabilities() -> dict[str, bool]:
+    """Return platform capability flags that are independent of transport."""
+    return {
+        "profiles": True,
+        "explicit_profile_selection": True,
+        "private_sessions": True,
+        "profile_export": True,
+        "request_context": True,
+    }
+
+
+def _contract_versions() -> dict[str, int]:
+    """Return additive contract versions clients can feature-detect."""
+    return {
+        "profile_context": 1,
+        "client_contract_fixtures": 1,
+    }
 
 
 def _feature_capabilities(commands: list[str]) -> dict[str, bool]:

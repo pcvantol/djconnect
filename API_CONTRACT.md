@@ -59,6 +59,17 @@ Existing clients do not need to send `profile_id` when their `device_id` is
 mapped in the Profile Platform. Explicit `profile_id` is additive and intended
 for clients with profile switching.
 
+The versioned Profile Adoption Contract lives in
+`docs/implementation/epic3b/01-profile-adoption-contract.md`. Reusable client
+fixtures live in `examples/client_contracts/`:
+
+- `profile_context.requests.json`
+- `profile_context.responses.json`
+- `profile_context.errors.json`
+
+The current profile context contract version is `1` and remains part of the
+existing `/api/djconnect/v1` surface.
+
 ## Profile Privacy, Export And Import
 
 Profile-aware requests may include `private_session: true`. A private session
@@ -217,6 +228,24 @@ must feature-detect these fields rather than parse Home Assistant integration
 versions, and must fall back to HTTP or hide optional controls if a needed
 websocket command is missing, errors, times out or reports unsupported
 capabilities.
+
+The same response also advertises Profile Platform support:
+
+```json
+{
+  "capabilities": {
+    "profiles": true,
+    "explicit_profile_selection": true,
+    "private_sessions": true,
+    "profile_export": true,
+    "request_context": true
+  },
+  "contract_versions": {
+    "profile_context": 1,
+    "client_contract_fixtures": 1
+  }
+}
+```
 
 Profile-aware websocket commands accept `profile_id`, `private_session` and
 `privacy_mode` either inside the command `payload` object or as top-level
