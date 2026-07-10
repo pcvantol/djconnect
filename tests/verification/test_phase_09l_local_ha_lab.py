@@ -8,6 +8,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from tools.verification.environment import docker_ha as docker_ha_module
 from tools.verification.config import load_config
 from tools.verification.environment.docker_ha import DockerCommandResult, HADockerDiscovery, HALabConfig, HALocalVerificationLab
 from tools.verification.environment.github import GitHubInspector
@@ -158,6 +159,35 @@ class Phase09LLocalHALabTests(unittest.TestCase):
         self.assertEqual("verification/lab/home_assistant/compose.yaml", metadata["compose_file"])
         self.assertFalse(str(metadata["lab_root"]).startswith("/Users/"))
 
+    def test_lab_token_prefers_external_environment_without_persistence(self) -> None:
+        lab = HALocalVerificationLab(self.root, FakeDocker({}), _lab_config(self.root))
+
+        with patch.dict("os.environ", {"DJCONNECT_VERIFICATION_HA_TOKEN": "external-secret"}):
+            token = lab._resolve_token(None)
+
+        self.assertTrue(token["ok"])
+        self.assertEqual("environment", token["source"])
+        self.assertEqual("external-secret", token["token"])
+        self.assertFalse(lab._auth_file().exists())
+
+    def test_bootstrap_auth_creates_lab_user_and_redacts_token(self) -> None:
+        config = _lab_config(self.root)
+        fake = _fake_lab_runtime(self.root)
+        responses = [
+            _HTTPResponse([{"step": "user", "done": False}]),
+            _HTTPResponse({}),
+            _HTTPResponse({"access_token": "generated-secret-token", "token_type": "Bearer", "expires_in": 1800}),
+        ]
+
+        with patch.object(docker_ha_module, "urlopen", side_effect=responses):
+            gate = HALocalVerificationLab(self.root, fake, config).lifecycle("bootstrap-auth")
+
+        self.assertEqual(GateState.PASS, gate.state)
+        rendered = json.dumps(gate.metadata)
+        self.assertNotIn("generated-secret-token", rendered)
+        self.assertIn("<redacted>", rendered)
+        self.assertTrue((config.lab_root / ".secrets" / "ha_lab_auth.json").exists())
+
 
 def _lab_config(root: Path) -> HALabConfig:
     temp_root = Path(tempfile.mkdtemp()) / "lab"
@@ -213,6 +243,22 @@ def _git_sha(root: Path) -> str:
     import subprocess
 
     return subprocess.check_output(("git", "rev-parse", "HEAD"), cwd=root, text=True).strip()
+
+
+class _HTTPResponse:
+    status = 200
+
+    def __init__(self, payload: object) -> None:
+        self.payload = payload
+
+    def __enter__(self) -> "_HTTPResponse":
+        return self
+
+    def __exit__(self, *_args: object) -> None:
+        return None
+
+    def read(self) -> bytes:
+        return json.dumps(self.payload).encode("utf-8")
 
 
 if __name__ == "__main__":

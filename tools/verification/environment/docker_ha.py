@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import base64
+import secrets
 import socket
 import shutil
 import subprocess
@@ -13,6 +14,7 @@ import struct
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlencode
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -236,13 +238,22 @@ class HALocalVerificationLab:
         self.discovery = HADockerDiscovery(root, self.docker)
 
     def lifecycle(self, action: str, *, allow_destructive: bool = False) -> GateResult:
-        if action not in {"build", "start", "stop", "restart", "recreate", "fresh", "clean", "destroy"}:
+        if action not in {"build", "start", "stop", "restart", "recreate", "fresh", "clean", "destroy", "bootstrap-auth"}:
             return GateResult("ha_lab_lifecycle", GateState.FAIL, f"Unsupported lab action: {action}")
         if action == "destroy" and not allow_destructive:
             return GateResult("ha_lab_lifecycle", GateState.FAIL, "Destructive lab destroy requires explicit opt-in")
         if action == "clean":
             return self._clean()
         self._ensure_layout()
+        if action == "bootstrap-auth":
+            runtime = self._selected_runtime()
+            result = self._bootstrap_auth(runtime)
+            return GateResult(
+                "ha_lab_lifecycle",
+                GateState.PASS if result["ok"] else GateState.FAIL,
+                "Lab auth bootstrap completed" if result["ok"] else "Lab auth bootstrap failed",
+                _redact_mapping(result),
+            )
         if action in {"start", "recreate", "fresh"}:
             recovery = self._recover_stale_container()
             if not recovery["ok"]:
@@ -299,8 +310,9 @@ class HALocalVerificationLab:
             checks["production_volume"] = _check(False, "Production volume safety unavailable", "container not selected")
             checks["safe"] = _check(False, "Runtime safety unavailable", "container not selected")
             checks["running"] = _check(False, "Container not running", "container not selected")
-        token = os.getenv("DJCONNECT_VERIFICATION_HA_TOKEN", "")
-        checks["token"] = _check(bool(token), "HA token provided externally", "DJCONNECT_VERIFICATION_HA_TOKEN missing")
+        token_result = self._resolve_token(runtime)
+        token = str(token_result.get("token") or "")
+        checks["token"] = _check(bool(token), "HA token available", _redact_mapping(token_result))
         checks["rest"] = self._rest_check("/api/", token, runtime)
         checks["websocket"] = self._websocket_check(token, runtime)
         checks["storage"] = _check(self.config.config_dir.exists(), "Approved lab config/storage path reachable", str(self.config.config_dir))
@@ -316,6 +328,7 @@ class HALocalVerificationLab:
                 "docker": _safe_json(docker_version.stdout),
                 "compose": _safe_json(compose_version.stdout),
                 "runtime": _runtime_metadata(runtime) if runtime else None,
+                "token": _redact_mapping(token_result),
             },
         )
 
@@ -353,6 +366,132 @@ class HALocalVerificationLab:
     def _clean_runtime_state(self) -> None:
         if self.config.config_dir.exists():
             shutil.rmtree(self.config.config_dir)
+
+    def _selected_runtime(self) -> HADockerRuntime | None:
+        runtimes = self.discovery.discover(expected_port=self.config.port, expected_name=self.config.name)
+        return runtimes[0] if len(runtimes) == 1 else None
+
+    def _resolve_token(self, runtime: HADockerRuntime | None) -> dict[str, Any]:
+        external = os.getenv("DJCONNECT_VERIFICATION_HA_TOKEN", "")
+        if external:
+            return {"ok": True, "source": "environment", "token": external}
+        if not runtime or runtime.status != "running":
+            return {"ok": False, "source": "none", "reason": "lab_runtime_not_running"}
+        credentials = self._load_lab_credentials()
+        if credentials:
+            token = self._request_auth_token(credentials["username"], credentials["password"])
+            if token.get("ok"):
+                return {**token, "source": "lab_credentials"}
+            return {**token, "source": "lab_credentials"}
+        return self._bootstrap_auth(runtime)
+
+    def _bootstrap_auth(self, runtime: HADockerRuntime | None) -> dict[str, Any]:
+        if not runtime or runtime.status != "running":
+            return {"ok": False, "source": "bootstrap", "reason": "lab_runtime_not_running"}
+        onboarding = self._onboarding_status()
+        if not onboarding.get("ok"):
+            return onboarding
+        user_step = _onboarding_step(onboarding.get("data"), "user")
+        if user_step is None:
+            return {"ok": False, "source": "bootstrap", "reason": "onboarding_user_step_unavailable", "onboarding": onboarding.get("data")}
+        credentials = self._load_lab_credentials()
+        if not user_step.get("done") and not credentials:
+            credentials = self._create_lab_credentials()
+            created = self._create_onboarding_user(credentials)
+            if not created.get("ok"):
+                return created
+            self._save_lab_credentials(credentials)
+        if not credentials:
+            return {"ok": False, "source": "bootstrap", "reason": "home_assistant_already_onboarded_without_lab_credentials"}
+        token = self._request_auth_token(credentials["username"], credentials["password"])
+        return {**token, "source": "bootstrap"}
+
+    def _auth_file(self) -> Path:
+        return self.config.lab_root / ".secrets" / "ha_lab_auth.json"
+
+    def _load_lab_credentials(self) -> dict[str, str] | None:
+        path = self._auth_file()
+        if not path.exists():
+            return None
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return None
+        username = str(data.get("username") or "")
+        password = str(data.get("password") or "")
+        return {"username": username, "password": password} if username and password else None
+
+    def _save_lab_credentials(self, credentials: dict[str, str]) -> None:
+        path = self._auth_file()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(credentials, indent=2, sort_keys=True), encoding="utf-8")
+        try:
+            path.chmod(0o600)
+        except OSError:
+            pass
+
+    def _create_lab_credentials(self) -> dict[str, str]:
+        return {
+            "name": "DJConnect Verification",
+            "username": "djconnect_verification",
+            "password": secrets.token_urlsafe(32),
+        }
+
+    def _onboarding_status(self) -> dict[str, Any]:
+        try:
+            with urlopen(f"http://127.0.0.1:{self.config.port}/api/onboarding", timeout=5) as response:
+                return {"ok": True, "data": json.loads(response.read().decode("utf-8"))}
+        except (OSError, URLError, HTTPError, json.JSONDecodeError) as exc:
+            return {"ok": False, "source": "bootstrap", "reason": "onboarding_status_failed", "error": str(exc)}
+
+    def _create_onboarding_user(self, credentials: dict[str, str]) -> dict[str, Any]:
+        payload = {
+            "client_id": f"http://127.0.0.1:{self.config.port}/",
+            "name": credentials["name"],
+            "username": credentials["username"],
+            "password": credentials["password"],
+            "language": "en",
+        }
+        request = Request(
+            f"http://127.0.0.1:{self.config.port}/api/onboarding/users",
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urlopen(request, timeout=10) as response:
+                data = response.read().decode("utf-8")
+                return {"ok": 200 <= int(response.status) < 300, "source": "bootstrap", "status": int(response.status), "data": _safe_json(data)}
+        except (OSError, URLError, HTTPError) as exc:
+            return {"ok": False, "source": "bootstrap", "reason": "onboarding_user_create_failed", "error": str(exc)}
+
+    def _request_auth_token(self, username: str, password: str) -> dict[str, Any]:
+        body = urlencode(
+            {
+                "grant_type": "password",
+                "client_id": f"http://127.0.0.1:{self.config.port}/",
+                "username": username,
+                "password": password,
+            }
+        ).encode("utf-8")
+        request = Request(
+            f"http://127.0.0.1:{self.config.port}/auth/token",
+            data=body,
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            method="POST",
+        )
+        try:
+            with urlopen(request, timeout=10) as response:
+                data = json.loads(response.read().decode("utf-8"))
+                token = str(data.get("access_token") or "")
+                return {
+                    "ok": bool(token),
+                    "token": token,
+                    "token_type": data.get("token_type"),
+                    "expires_in": data.get("expires_in"),
+                }
+        except (OSError, URLError, HTTPError, json.JSONDecodeError) as exc:
+            return {"ok": False, "reason": "auth_token_request_failed", "error": str(exc)}
 
     def _recover_stale_container(self) -> dict[str, Any]:
         summary = self._container_summary()
@@ -503,6 +642,32 @@ def _redacted_env(items: list[str]) -> dict[str, str]:
         else:
             result[key] = value
     return result
+
+
+def _redact_mapping(value: Any) -> Any:
+    if isinstance(value, dict):
+        result: dict[str, Any] = {}
+        for key, item in value.items():
+            if any(part in str(key).lower() for part in SECRET_KEY_PARTS):
+                result[str(key)] = "<redacted>"
+            else:
+                result[str(key)] = _redact_mapping(item)
+        return result
+    if isinstance(value, list):
+        return [_redact_mapping(item) for item in value]
+    return value
+
+
+def _onboarding_step(data: Any, step: str) -> dict[str, Any] | None:
+    if isinstance(data, list):
+        for item in data:
+            if isinstance(item, dict) and item.get("step") == step:
+                return item
+    if isinstance(data, dict):
+        for item in data.get("data") or data.get("steps") or []:
+            if isinstance(item, dict) and item.get("step") == step:
+                return item
+    return None
 
 
 def _fingerprint(value: Any) -> str:

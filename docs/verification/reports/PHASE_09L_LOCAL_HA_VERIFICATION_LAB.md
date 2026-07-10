@@ -21,8 +21,10 @@ execution because the local Docker runtime cannot remove the stale dedicated
 state, `docker inspect` and `docker logs` time out, and even scoped recovery
 with `docker rm -f djconnect-verification-ha` times out.
 
-The remaining blocker is now a narrow external Docker Desktop/runtime
-prerequisite, plus the still-required operator-provided Home Assistant token.
+The remaining live blocker is now a narrow external Docker Desktop/runtime
+prerequisite. Lab-only Home Assistant auth bootstrap has been added so a fresh
+dedicated lab can create verification credentials and request a runtime access
+token without committing secrets.
 
 No production Home Assistant container or volume was mutated.
 
@@ -61,6 +63,9 @@ Implemented within the existing Verification Execution Environment:
   running and a token is provided.
 - WebSocket qualification now has a live Home Assistant websocket probe for
   token-authenticated `get_config`.
+- Lab auth bootstrap now creates a verification-only Home Assistant user
+  through the HA onboarding API for fresh dedicated labs and requests a fresh
+  access token from generated local credentials.
 - Lifecycle `start`, `recreate` and `fresh` attempt safe recovery of only the
   dedicated stale lab container before Compose startup.
 - Lifecycle diagnostics now include scoped container summary and log-tail
@@ -68,7 +73,8 @@ Implemented within the existing Verification Execution Environment:
 - Source SHA matching now requires the runtime source SHA label to match the
   current repository SHA.
 - Focused tests cover created-state classification, inspect timeout fallback,
-  scoped stale-container recovery and no-token WebSocket blocking.
+  scoped stale-container recovery, generated lab auth and no-token WebSocket
+  blocking.
 
 No new Verification architecture subsystem was introduced.
 
@@ -96,9 +102,13 @@ Dedicated lab container:
   `3e6f3eb76850a268b0148f5b0a51f82255fe0ea0`
 - Current tested SHA: `6248b5d65016f8f2eefdd07d7725fb69c0fbada5`
 
-Token:
+Token/auth:
 
-- `DJCONNECT_VERIFICATION_HA_TOKEN` was not configured.
+- `DJCONNECT_VERIFICATION_HA_TOKEN` was not configured during the original
+  live attempt.
+- Phase 9L-R now supports `lab ha bootstrap-auth` for fresh dedicated labs.
+- Bootstrap stores generated lab credentials only under the ignored lab root
+  and redacts tokens from metadata/evidence.
 
 ## Live Qualification Attempt
 
@@ -126,7 +136,7 @@ Observed:
   - missing port ownership;
   - source identity not live-proven;
   - runtime not safe for verification;
-  - missing HA token;
+  - missing HA token before auth bootstrap was implemented;
   - REST/WebSocket blocked before running runtime and token.
 - `lab ha start` attempted scoped stale-container recovery.
 - Recovery failed because `docker rm -f djconnect-verification-ha` timed out
@@ -147,7 +157,7 @@ Observed:
 | Source SHA/fingerprint proven | FAIL | Runtime source mount and current SHA are not live-proven. |
 | No production volume detected | PASS | No production mount was observed from fallback metadata. |
 | Runtime safe for verification | FAIL | Safety requires running, inspectable runtime with matching source identity. |
-| HA token provided externally | BLOCKED | `DJCONNECT_VERIFICATION_HA_TOKEN` not configured. |
+| HA token available | BLOCKED | Requires running lab; token can come from `DJCONNECT_VERIFICATION_HA_TOKEN` or generated lab credentials. |
 | REST reachable | BLOCKED | Requires running lab and token. |
 | WebSocket reachable | BLOCKED | Requires running lab and token. |
 | Approved storage reachable | PASS | Dedicated config/storage path exists. |
@@ -205,7 +215,7 @@ Results:
 | Dedicated lab container remains in `Created` state | Environment issue | Local Docker / Verification Environment | Yes | Restart or repair Docker Desktop, then remove only `djconnect-verification-ha` and rerun `lab ha start`. |
 | `docker inspect`, `docker logs` and `docker rm -f` time out for the dedicated container | Environment issue | Local Docker | Yes | Stabilize Docker Desktop/containerd state; do not use production HA containers as a workaround. |
 | Runtime source identity is stale/unproven | Environment issue | Verification Environment | Yes | After stale-container removal, recreate the dedicated lab so labels match the tested SHA. |
-| `DJCONNECT_VERIFICATION_HA_TOKEN` is missing | Environment issue | Operator / Verification Environment | Yes | Provide a non-committed HA token externally after the lab starts. |
+| HA auth could not be qualified live | Environment issue | Verification Environment | Yes | After Docker recovery, run `lab ha bootstrap-auth` or provide `DJCONNECT_VERIFICATION_HA_TOKEN`, then rerun `lab ha doctor`. |
 | REST/WebSocket not qualified | Environment issue / HA Adapter live prerequisite | Yes | Rerun `lab ha doctor` after the lab is running and the token is available. |
 
 ## Remaining External Prerequisites
@@ -226,12 +236,14 @@ Smallest remaining prerequisites:
    python3 -m tools.verification.cli lab ha doctor
    ```
 
-3. Create a least-privilege token inside the dedicated lab and provide it only
-   through:
+3. Bootstrap lab-only HA auth:
 
    ```bash
-   DJCONNECT_VERIFICATION_HA_TOKEN
+   python3 -m tools.verification.cli lab ha bootstrap-auth
    ```
+
+   Alternatively, provide a non-committed existing token through
+   `DJCONNECT_VERIFICATION_HA_TOKEN`.
 
 4. Rerun:
 
@@ -248,7 +260,8 @@ Required before rerun:
 1. Dedicated lab container reaches running state.
 2. Docker inspect reports verification labels and current source mount identity.
 3. Expected host port `18123` is owned by the lab container.
-4. A non-committed HA token is provided externally.
+4. HA auth is available through generated lab credentials or
+   `DJCONNECT_VERIFICATION_HA_TOKEN`.
 5. REST and WebSocket probes pass.
 6. Approved storage and log collection are live-proven.
 7. `python3 -m tools.verification.cli lab ha doctor` returns

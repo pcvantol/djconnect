@@ -21,6 +21,7 @@ Use the Verification CLI:
 ```bash
 python3 -m tools.verification.cli lab ha build
 python3 -m tools.verification.cli lab ha start
+python3 -m tools.verification.cli lab ha bootstrap-auth
 python3 -m tools.verification.cli lab ha doctor
 python3 -m tools.verification.cli lab ha stop
 ```
@@ -31,6 +32,30 @@ Destructive cleanup requires explicit opt-in:
 python3 -m tools.verification.cli lab ha destroy --allow-destructive
 ```
 
+## Lab Authentication
+
+The lab supports two token sources:
+
+- `DJCONNECT_VERIFICATION_HA_TOKEN` from the local environment;
+- generated lab-only Home Assistant credentials under the ignored lab root.
+
+For a fresh dedicated lab, run:
+
+```bash
+python3 -m tools.verification.cli lab ha bootstrap-auth
+```
+
+This creates a verification-only Home Assistant user through the Home
+Assistant onboarding API and stores the generated password only under:
+
+```text
+artifacts/verification/lab/home_assistant/.secrets/
+```
+
+The CLI requests a fresh Home Assistant access token from those credentials
+when `lab ha doctor` runs. Tokens are never committed and are redacted from
+reports and evidence.
+
 ## Safety
 
 The lab must prove:
@@ -40,4 +65,5 @@ The lab must prove:
 - dedicated config/log/storage paths;
 - no production Home Assistant volumes;
 - exact repository SHA/fingerprint evidence;
-- token and GitHub credentials loaded from the environment only.
+- HA tokens loaded from the environment or generated lab-only credentials;
+- GitHub credentials loaded from the environment only.
