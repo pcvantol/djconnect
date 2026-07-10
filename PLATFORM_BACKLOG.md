@@ -111,7 +111,7 @@ Scope:
 
 ## Epic 3 — Profile Architecture
 
-**Status:** ✅ Complete
+**Status:** ✅ Complete  
 **Goal:** Implement Profile as the primary identity between devices and music backends.
 
 Scope:
@@ -128,7 +128,7 @@ Scope:
 
 ## Epic 3B — Client and Voice Endpoint Profile Adoption
 
-**Status:** 🟡 In progress
+**Status:** ✅ Complete  
 **Goal:** Extend Profile adoption across clients and Home Assistant voice
 request sources without reopening Epic 3 server-side foundation work.
 
@@ -171,7 +171,7 @@ Suggested subphases:
 
 ## Epic 4 — Intelligence Engine / Insight Feed
 
-**Status:** ⏳ Not started  
+**Status:** 🟡 Current  
 **Goal:** Consolidate Track Insight, Lyrics Explain, Artist/Album Insight, Discover and VibeCast around a shared backend-owned intelligence/feed model.
 
 Scope:
