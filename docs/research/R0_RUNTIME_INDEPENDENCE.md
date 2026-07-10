@@ -11,6 +11,10 @@ proposal to leave Home Assistant.
 
 Home Assistant remains the primary DJConnect runtime.
 
+Epic 3 established a runtime-independent identity model. Future runtime
+evolution can build on the Profile Platform without redesigning identity. No
+runtime changes are recommended before Epic 4.
+
 ## 1. Current Situation
 
 DJConnect currently uses this architecture:
@@ -503,6 +507,11 @@ The balanced conclusion is:
 - Home Assistant is currently the correct primary runtime.
 - Home Assistant is a major strength and a real adoption barrier.
 - Runtime independence may become strategically valuable.
+- Epic 3 established a runtime-independent identity model through the Profile
+  Platform.
+- Future runtime evolution can build on Profile, Request Context and the
+  Profile Resolver without redesigning identity.
+- No runtime changes are recommended before Epic 4.
 - The platform should avoid premature abstraction.
 - Any future runtime evolution must preserve one domain model, one capability
   contract and first-class Home Assistant support.
@@ -510,9 +519,8 @@ The balanced conclusion is:
 This topic should be revisited after:
 
 - Epic 3: Profile Architecture;
-- Epic 4: Intelligence Engine / Insight Feed;
+- Epic 4: Intelligence Platform;
 - Epic 5: Feature Flags and Experimental Framework.
 
 At that point, DJConnect should have enough mature architecture to judge whether
 runtime independence is an opportunity, a distraction or a necessary evolution.
-

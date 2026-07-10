@@ -15,15 +15,16 @@ The files below define the platform foundation itself.
 3. `DESIGN_PRINCIPLES.md`
 4. `ARCHITECTURE_PRINCIPLES.md`
 5. `DOMAIN_MODEL.md`
-6. `CLIENT_CAPABILITY_MATRIX.md`
-7. `PRODUCT_LANGUAGE.md`
-8. `PLATFORM_GOVERNANCE.md`
-9. `PLATFORM_QUALITY_STANDARD.md`
-10. `PLATFORM_BACKLOG.md`
-11. `INNOVATION_LAB.md`
-12. `docs/research/R0_RUNTIME_INDEPENDENCE.md` where runtime evolution is relevant
-13. `ADR_INDEX.md`
-14. `CI_CD_RELEASE_GOVERNANCE.md`
+6. `PLATFORM_BASELINE_v1.md`
+7. `CLIENT_CAPABILITY_MATRIX.md`
+8. `PRODUCT_LANGUAGE.md`
+9. `PLATFORM_GOVERNANCE.md`
+10. `PLATFORM_QUALITY_STANDARD.md`
+11. `PLATFORM_BACKLOG.md`
+12. `INNOVATION_LAB.md`
+13. `docs/research/R0_RUNTIME_INDEPENDENCE.md` where runtime evolution is relevant
+14. `ADR_INDEX.md`
+15. `CI_CD_RELEASE_GOVERNANCE.md`
 
 ## Conflict-resolution order
 
@@ -46,6 +47,13 @@ Repository-specific AGENTS guidance, API contracts, operational procedures and r
 ### Foundation docs
 
 Foundation docs define stable cross-repository intent and rules. They include the constitution, product vision, design principles, architecture principles, domain model, client capability model, product language, governance, quality standard, backlog, innovation model, ADR index and release governance.
+
+### Platform baseline
+
+`PLATFORM_BASELINE_v1.md` captures accepted platform architecture after major
+implementation epics.
+
+Foundation describes principles. Baseline describes accepted implementation.
 
 ### AI-agent bootstrap
 

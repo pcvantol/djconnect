@@ -169,18 +169,28 @@ Suggested subphases:
 6. HA Voice satellites;
 7. cross-client resolver contract tests.
 
-## Epic 4 — Intelligence Engine / Insight Feed
+## Epic 4 — Intelligence Platform
 
 **Status:** 🟡 Current  
-**Goal:** Consolidate Track Insight, Lyrics Explain, Artist/Album Insight, Discover and VibeCast around a shared backend-owned intelligence/feed model.
+**Goal:** Consolidate Insight Providers, Music Intelligence, AI orchestration,
+insight generation, recommendation reasoning, mood reasoning,
+profile-aware intelligence and future orchestration around a shared
+backend-owned intelligence platform.
 
 Scope:
 
 - Insight Provider model;
+- Music Intelligence model;
 - Insight Feed contract;
+- AI orchestration;
+- insight generation;
+- recommendation reasoning;
+- mood reasoning;
+- profile-aware intelligence;
 - VibeCast hybrid mode;
 - Lyrics Explain research;
 - Discover contract alignment;
+- future orchestration;
 - client renderer updates.
 
 ## Epic 5 — Feature Flags and Experimental Framework
