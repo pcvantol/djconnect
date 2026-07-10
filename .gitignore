@@ -1,22 +1,7 @@
-# Python bytecode and test caches
+artifacts/
+logs/
 __pycache__/
 *.py[cod]
-*$py.class
 .pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
-
-# Local OS/editor metadata
 .DS_Store
-
-# Local secrets and environment overrides
-.env
-.env.*
-!.env.example
-.djconnect-onboarding.env
-*.p8
-
-# Local onboarding logs
-logs/
+.env*.local

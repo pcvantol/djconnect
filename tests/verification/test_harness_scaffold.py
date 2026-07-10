@@ -21,10 +21,10 @@ class VerificationHarnessTests(unittest.TestCase):
 
         config = load_config(root)
 
-        self.assertIn(root / "verification/schema/examples", config.scenario_paths)
+        self.assertIn(root / "verification/scenarios", config.scenario_paths)
         self.assertEqual(config.evidence_dir, root / "artifacts/verification/evidence")
 
-    def test_scenario_loader_reads_existing_catalog_examples(self) -> None:
+    def test_scenario_loader_reads_existing_catalog(self) -> None:
         root = Path(__file__).resolve().parents[2]
         scenarios = ScenarioLoader(load_config(root)).load()
 
