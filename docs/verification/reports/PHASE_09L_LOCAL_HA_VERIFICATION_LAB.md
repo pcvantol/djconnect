@@ -4,9 +4,9 @@ Final result: LOCAL_VERIFICATION_LAB_NOT_QUALIFIED
 
 Date: 2026-07-10
 Repository: `pcvantol/djconnect`
-Branch: `phase-09l-r2-docker-runtime-remediation`
-Tested SHA: `2dbe7842bafc37fe962989a9bd89b41f1517d16b`
-Remediation phase: Phase 9L-R3
+Branch: `phase-09l-r4-docker-desktop-clean-runtime-repair`
+Tested SHA: `1a8ba9d2d5c0ab5587c925f976baa61c165928ef`
+Remediation phase: Phase 9L-R4
 
 ## Decision
 
@@ -154,6 +154,51 @@ be useful if the verification lab later reaches HTTP/WebSocket startup and
 shows network/proxy errors. They do not explain the current R3 blocker because
 the no-mount `/bin/true` probe has no Home Assistant networking dependency and
 still returned to the `Created` failure mode after the first successful start.
+
+## Phase 9L-R4 Docker Desktop Clean Runtime Attempt
+
+Observed on 2026-07-10:
+
+- The R3/R4 prompt state had been closed without merge, so the local R4 commit
+  was restored from the local git object database onto branch
+  `phase-09l-r4-docker-desktop-clean-runtime-repair`.
+- Docker server metadata was available before the stable gate:
+  - Docker Desktop `4.81.0`;
+  - Docker Engine `29.6.1`;
+  - containerd `v2.2.5`;
+  - runc `1.3.6`;
+  - LinuxKit kernel `6.12.76-linuxkit`.
+- No `djconnect-verification-*` containers existed before the stable gate.
+- The R4 stable Docker gate attempted the required no-mount probe:
+
+  ```bash
+  docker run --rm --name djconnect-verification-docker-probe \
+    --entrypoint /bin/true ghcr.io/home-assistant/home-assistant:stable
+  ```
+
+- Probe 1 timed out after 30 seconds.
+- The probe container remained in `Created` state.
+- `docker inspect` showed:
+  - no bind mounts;
+  - `AutoRemove=true`;
+  - `NetworkMode=bridge`;
+  - `State.Status=created`;
+  - `StartedAt=0001-01-01T00:00:00Z`;
+  - empty `SandboxID`, `EndpointID`, `Gateway`, `IPAddress` and port fields.
+- `docker logs` was empty because the container never reached `Running`.
+- Docker events showed `container create` and `container attach`, but no
+  matching `container start` or `container die`.
+- Docker Desktop backend logs showed `ContainerCreateCliLinux`,
+  `ContainerStartCliLinux`, volume approval and port exposer calls for the
+  stuck probe.
+- The dedicated probe container was removed with
+  `docker rm -f djconnect-verification-docker-probe`.
+
+Conclusion: Phase 9L-R4 failed before the HA lab was started. Docker Desktop
+can answer daemon metadata requests, but it still cannot reliably start even a
+no-mount `/bin/true` container from the already-local Home Assistant image. The
+next action requires an operator-approved Docker Desktop runtime reset or
+reinstall outside repository state.
 
 ## Lab Definition
 
@@ -370,6 +415,7 @@ The modular lab refinement validates:
 | Docker Desktop restart returned HTTP 500 and later hung on `docker version` | Environment issue | Local Docker | Yes | Repair or reset Docker Desktop runtime; do not use production HA containers as a workaround. |
 | Docker Desktop logs show `no route to host` to `192.168.65.7:2376` and guest-service connection refusals | Environment issue | Local Docker / Docker Desktop VM | Yes | Treat as Docker Desktop VM/engine connectivity failure before attempting more lab changes. |
 | Phase 9L-R3 Docker restart allowed one no-mount probe to start, but subsequent HA image starts returned to `Created` without `start` events | Environment issue | Local Docker / Docker Desktop VM | Yes | Perform a stronger Docker Desktop runtime reset or reinstall outside repository state, then rerun Phase 9L-R4. |
+| Phase 9L-R4 stable Docker gate failed on probe 1 with the no-mount HA image stuck in `Created` | Environment issue | Local Docker / Operator | Yes | Run an operator-approved Docker Desktop runtime reset or reinstall, then rerun the stable gate before starting HA lab. |
 | Runtime source identity is stale/unproven | Environment issue | Verification Environment | Yes | After stale-container removal, recreate the dedicated lab so labels match the tested SHA. |
 | HA auth could not be qualified live | Environment issue | Verification Environment | Yes | After Docker recovery, run `lab ha bootstrap-auth` or provide `DJCONNECT_VERIFICATION_HA_TOKEN`, then rerun `lab ha doctor`. |
 | REST/WebSocket not qualified | Environment issue / HA Adapter live prerequisite | Yes | Rerun `lab ha doctor` after the lab is running and the token is available. |
@@ -378,21 +424,23 @@ The modular lab refinement validates:
 
 Smallest remaining prerequisites:
 
-1. Restore Docker Desktop/containerd behavior so repeated no-mount local image
-   probes can start and exit cleanly, not just the first probe after a Desktop
-   restart.
+1. Perform an operator-approved Docker Desktop runtime reset or reinstall
+   outside repository state.
 
-2. Verify Docker runtime health with repeated no-mount probes before starting
+2. Restore Docker Desktop/containerd behavior so repeated no-mount local image
+   probes can start and exit cleanly.
+
+3. Verify Docker runtime health with repeated no-mount probes before starting
    the lab.
 
-3. Rerun:
+4. Rerun:
 
    ```bash
    python3 -m tools.verification.cli lab ha start
    python3 -m tools.verification.cli lab ha doctor
    ```
 
-4. Bootstrap lab-only HA auth:
+5. Bootstrap lab-only HA auth:
 
    ```bash
    python3 -m tools.verification.cli lab ha bootstrap-auth
@@ -401,7 +449,7 @@ Smallest remaining prerequisites:
    Alternatively, provide a non-committed existing token through
    `DJCONNECT_VERIFICATION_HA_TOKEN`.
 
-5. Rerun:
+6. Rerun:
 
    ```bash
    python3 -m tools.verification.cli lab ha doctor
