@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "items": [
+    {"repo": "djconnect", "framework": "Python logging", "persistence": "Home Assistant logs plus diagnostics", "redaction": "Sensitive key redaction and payload redaction helpers", "classification": "CONFIRMED_CODE"},
+    {"repo": "djconnect-app", "framework": "Swift logging/diagnostics", "persistence": "UNKNOWN", "redaction": "DOCUMENTED_ONLY/partial source evidence", "classification": "UNKNOWN"},
+    {"repo": "djconnect-windows", "framework": ".NET diagnostics/tests plus DiagnosticRedactor", "persistence": "bounded local diagnostic preferences/files", "redaction": "Authorization, bearer/device tokens, pairing codes, bootstrap proofs, HA/push tokens, private URLs", "classification": "CONFIRMED_CODE"},
+    {"repo": "djconnect-pi", "framework": "Python logging", "persistence": "system/app logs; exact rotation UNKNOWN", "redaction": "observed logs avoid token values", "classification": "CONFIRMED_CODE"},
+    {"repo": "djconnect-esp32", "framework": "AppLog and Serial", "persistence": "device log buffer/serial; exact rotation UNKNOWN", "redaction": "logs token presence, not values in observed pairing paths", "classification": "CONFIRMED_CODE"},
+    {"repo": "djconnect-api", "framework": "console.error plus D1 diagnostics", "persistence": "D1 route/status/error summaries", "redaction": "no raw APNs token in diagnostics inventory; encrypted/hash token storage", "classification": "CONFIRMED_CODE"}
+  ]
+}
