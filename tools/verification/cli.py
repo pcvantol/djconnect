@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from dataclasses import asdict
 from pathlib import Path
 
@@ -43,7 +44,22 @@ def build_parser() -> argparse.ArgumentParser:
     restore = subparsers.add_parser("restore")
     restore.add_argument("--apply", action="store_true")
     restore.add_argument("--allow-destructive", action="store_true")
-    subparsers.add_parser("doctor")
+    doctor = subparsers.add_parser("doctor")
+    doctor.add_argument("--environment", choices=("ha-docker",), default=None)
+    doctor.add_argument("--ha-container", default=None)
+    doctor.add_argument("--ha-port", type=int, default=None)
+    doctor.add_argument("--fix-auth", action="store_true")
+    doctor.add_argument("--interactive-auth", action="store_true")
+    investigate = subparsers.add_parser("investigate")
+    investigate.add_argument("run_id")
+    investigate.add_argument("--scenario")
+    investigate.add_argument("--failure")
+    runs = subparsers.add_parser("runs")
+    run_subparsers = runs.add_subparsers(dest="runs_command", required=True)
+    run_subparsers.add_parser("list")
+    for command in ("show", "verify", "evidence"):
+        sub = run_subparsers.add_parser(command)
+        sub.add_argument("run_id")
     subparsers.add_parser("env")
     subparsers.add_parser("schema")
     subparsers.add_parser("config")
@@ -134,9 +150,61 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "doctor":
+        if args.environment == "ha-docker":
+            from .environment.docker_ha import HADockerDiscovery
+
+            expected_name = args.ha_container or os.getenv("DJCONNECT_VERIFICATION_HA_CONTAINER")
+            expected_port = args.ha_port or int(os.getenv("DJCONNECT_VERIFICATION_HA_PORT", "8123"))
+            gate = HADockerDiscovery(config.root).qualify(expected_port=expected_port, expected_name=expected_name)
+            print(json.dumps(gate.__dict__, indent=2, sort_keys=True, default=str))
+            return 0 if gate.passed else 1
+        if args.fix_auth or args.interactive_auth:
+            gate = orchestrator.execution_environment.github.auth_status(
+                fix_auth=args.fix_auth or args.interactive_auth,
+                interactive=args.interactive_auth or None,
+            )
+            print(f"{gate.state.value}\t{gate.name}\t{gate.message}")
+            return 0 if gate.passed else 1
         for gate in orchestrator.doctor():
             print(f"{gate.state.value}\t{gate.name}\t{gate.message}")
         return 0
+
+    if args.command == "investigate":
+        from .core.investigator import VerificationInvestigator, investigation_to_dicts
+        from .evidence import RunStore
+
+        run_dir = config.evidence_dir / args.run_id
+        bundle_path = run_dir / "summary.json"
+        if not bundle_path.exists():
+            print(json.dumps({"error": "run_not_found", "run_id": args.run_id}, indent=2, sort_keys=True))
+            return 1
+        results = VerificationInvestigator().investigate_file(
+            bundle_path,
+            scenario_id=args.scenario,
+            failure_id=args.failure,
+        )
+        RunStore(config.evidence_dir).write_json(args.run_id, "investigation.json", investigation_to_dicts(results))
+        print(json.dumps(investigation_to_dicts(results), indent=2, sort_keys=True))
+        return 0
+
+    if args.command == "runs":
+        from .evidence import RunStore
+
+        store = RunStore(config.evidence_dir)
+        if args.runs_command == "list":
+            print(json.dumps({"runs": store.list_runs()}, indent=2, sort_keys=True))
+            return 0
+        if args.runs_command == "show":
+            print(json.dumps(store.show(args.run_id), indent=2, sort_keys=True))
+            return 0
+        if args.runs_command == "verify":
+            result = store.verify(args.run_id)
+            print(json.dumps(result, indent=2, sort_keys=True))
+            return 0 if result.get("ok") else 1
+        if args.runs_command == "evidence":
+            path = config.evidence_dir / args.run_id / "evidence-index.json"
+            print(path.read_text(encoding="utf-8") if path.exists() else "{}")
+            return 0 if path.exists() else 1
 
     if args.command == "env":
         print(json.dumps(orchestrator.snapshot().__dict__, indent=2, sort_keys=True))

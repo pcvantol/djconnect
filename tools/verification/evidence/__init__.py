@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from .index import EvidenceCollector, checksum, redact
+from .run_store import RunStore, RunStoreError
 from tools.verification.artifacts import ArtifactManager
 from tools.verification.models import EvidenceItem, EvidenceKind
 
@@ -37,6 +38,8 @@ __all__ = [
     "EvidenceManager",
     "LogManager",
     "PerformanceCollector",
+    "RunStore",
+    "RunStoreError",
     "ScreenshotManager",
     "SerialManager",
     "checksum",
