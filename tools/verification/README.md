@@ -6,6 +6,9 @@ Builds on: `docs/verification/00_VERIFICATION_VISION.md`,
 `docs/verification/01_VERIFICATION_ARCHITECTURE.md` and
 `docs/verification/02_SCENARIO_SCHEMA.md`
 
+Clean verification sessions should start with
+`BOOTSTRAP_CODEX_VERIFICATION.md` and `PROMPT_INDEX.md`.
+
 The Verification Harness is the reusable execution framework for DJConnect
 platform scenarios. Scenarios describe platform behavior. The harness loads,
 validates, schedules, qualifies, executes through adapters, collects evidence

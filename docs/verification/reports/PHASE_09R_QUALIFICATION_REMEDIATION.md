@@ -5,7 +5,7 @@ Status: REMEDIATED WITH EXTERNAL PREREQUISITES
 Date: 2026-07-10
 Timezone: Europe/Amsterdam
 Repository: `pcvantol/djconnect`
-Branch: `codex-phase-09r-qualification-remediation`
+Branch: `docs/phase-09r-remediation-prompt-v2`
 
 ## Decision
 
@@ -39,7 +39,7 @@ Observed container:
 - HA version label: `2026.6.3`
 - Status: running
 - Port: `0.0.0.0:8123->8123/tcp`
-- Config mount: `/Users/pcvantol/docker/homeassistant/config` -> `/config`
+- Config mount: `<local-ha-config-root>` -> `/config`
 
 The new Docker safety gate intentionally failed:
 
@@ -61,7 +61,7 @@ runs fail clearly when no valid credential is available. Interactive repair is
 available through:
 
 ```bash
-python3 -m tools.verification.cli --root /Users/pcvantol/Documents/GitHub/djconnect doctor --fix-auth --interactive-auth
+python3 -m tools.verification.cli --root <repo-root> doctor --fix-auth --interactive-auth
 ```
 
 If the operator shell cannot complete `gh auth login`, the prerequisite remains
@@ -70,11 +70,11 @@ blocked outside the Verification Framework.
 ## New Commands
 
 ```bash
-python3 -m tools.verification.cli --root /Users/pcvantol/Documents/GitHub/djconnect doctor --environment ha-docker
-python3 -m tools.verification.cli --root /Users/pcvantol/Documents/GitHub/djconnect doctor --fix-auth
-python3 -m tools.verification.cli --root /Users/pcvantol/Documents/GitHub/djconnect runs list
-python3 -m tools.verification.cli --root /Users/pcvantol/Documents/GitHub/djconnect runs verify <run-id>
-python3 -m tools.verification.cli --root /Users/pcvantol/Documents/GitHub/djconnect investigate <run-id>
+python3 -m tools.verification.cli --root <repo-root> doctor --environment ha-docker
+python3 -m tools.verification.cli --root <repo-root> doctor --fix-auth
+python3 -m tools.verification.cli --root <repo-root> runs list
+python3 -m tools.verification.cli --root <repo-root> runs verify <run-id>
+python3 -m tools.verification.cli --root <repo-root> investigate <run-id>
 ```
 
 ## Tests
