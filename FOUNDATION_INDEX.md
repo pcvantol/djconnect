@@ -26,6 +26,8 @@ The files below define the platform foundation itself.
 14. `docs/research/R0_RUNTIME_INDEPENDENCE.md` where runtime evolution is relevant
 15. `ADR_INDEX.md`
 16. `CI_CD_RELEASE_GOVERNANCE.md`
+17. `docs/verification/00_VERIFICATION_VISION.md`
+18. `docs/verification/01_VERIFICATION_ARCHITECTURE.md`
 
 ## Conflict-resolution order
 
@@ -84,6 +86,18 @@ epics, ADRs and backlog refinement.
 - `docs/research/R0_RUNTIME_INDEPENDENCE.md` explores whether DJConnect could
   eventually support additional runtimes while preserving Home Assistant as the
   primary runtime today.
+
+### Verification docs
+
+Verification docs define how DJConnect proves that platform requirements,
+accepted baselines, contracts, release artifacts and production readiness are
+true in practice.
+
+- `docs/verification/00_VERIFICATION_VISION.md` defines the long-term purpose,
+  philosophy and principles of platform verification.
+- `docs/verification/01_VERIFICATION_ARCHITECTURE.md` defines the permanent
+  verification subsystem architecture: scenario catalog, orchestrator,
+  adapters, evidence, reports and readiness.
 
 ## Sibling repositories
 
