@@ -6,9 +6,9 @@ Status: implemented in source, pending review/merge.
 
 The backend is ready for Apple and Windows profile adoption planning.
 
-The backend is not ready for HA Voice Satellite rollout because explicit
-satellite mapping and HA-derived satellite/area configuration are not yet
-implemented.
+Phase 6 supersedes the earlier Voice Endpoint blocker by adding resolver and
+storage support for Voice Endpoint, HA device, area and player mappings. A
+polished Home Assistant mapping UI remains follow-up UX work.
 
 ## Fixes Made In This Phase
 
@@ -44,16 +44,15 @@ default to shared/room/household profile semantics.
 No immediate backend blocker. ESP32 remains on registered `device_id` mapping
 and does not need profile UI in this phase.
 
-### Before HA Voice Satellite Adoption
+### Before Voice Endpoint Adoption
 
-Blocked.
+Resolver/storage support is implemented in Phase 6.
 
-Required follow-ups:
+Remaining follow-ups:
 
-- satellite mapping storage/configuration;
-- HA Assist satellite/device/area extraction;
-- shared profile defaults for voice endpoints;
-- contract tests for unmapped/ambiguous HA Voice contexts.
+- polished Home Assistant mapping UI;
+- broader HA Assist metadata extraction as HA surfaces evolve;
+- end-to-end validation with real Home Assistant Voice Satellite hardware.
 
 ## Non-Blocking Follow-Ups
 
@@ -61,14 +60,14 @@ Required follow-ups:
 - Normalize profile-not-found wire code in a future compatibility window if
   desired; current wire code remains `invalid_profile`.
 - Expand service-schema docs for profile-aware developer services.
-- Add playback-zone/player mapping only when a client or voice flow requires it.
+- Expose mapping management through a user-facing HA flow.
 
 ## Unresolved Follow-Up Work
 
 - Epic 3B Phase 2 Apple adoption.
 - Epic 3B Windows adoption.
 - Epic 3B Pi adoption.
-- Epic 3B HA Voice Satellite mapping phase.
+- Epic 3B Voice Endpoint mapping UI phase.
 - Cross-client fixture import in sibling repositories.
 
 ## Recommended Client Adoption Order
@@ -77,7 +76,7 @@ Required follow-ups:
 2. Windows Intelligence Client.
 3. Raspberry Pi Ambient Client.
 4. ESP32 compatibility verification.
-5. HA Voice Assist Satellite mapping and shared-room rollout.
+5. Voice Endpoint mapping UI and shared-room rollout.
 
 ## Apple Go / No-Go
 

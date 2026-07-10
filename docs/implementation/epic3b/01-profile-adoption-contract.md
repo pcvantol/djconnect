@@ -74,8 +74,8 @@ ESP32 sends:
 - `client_type: "esp32"`;
 - device bearer token.
 
-HA Voice Assist satellite requests are derived by the Home Assistant integration.
-A generic HA Voice satellite does not need a DJConnect `device_id` unless it is
+Voice Endpoint requests are derived by the Home Assistant integration. A generic
+Home Assistant Voice Satellite does not need a DJConnect `device_id` unless it is
 also registered as a DJConnect Device.
 
 ### Optional Fields
@@ -83,10 +83,9 @@ also registered as a DJConnect Device.
 - `profile_id`: explicit profile selection, highest priority.
 - `private_session`: suppresses persistence for the resolved request.
 - `session_id`: temporary client/session correlation.
-- `room_id` or `area_id`: accepted where the backend or HA context can provide
-  it.
-- `satellite_id`, `ha_device_id`, `player_id`, `playback_zone_id`: reserved
-  server-side request-context fields for later Epic 3B phases.
+- `voice_endpoint_id`, `satellite_id`, `assist_pipeline_id`, `ha_device_id`,
+  `area_id`, `room_id`, `player_id`, `playback_zone_id`: server-side
+  request-context signals when available.
 
 ### Forbidden Fields
 
@@ -108,18 +107,14 @@ The implemented backend resolution order is:
 
 1. explicit `profile_id`;
 2. DJConnect `device_id` mapping;
-3. Home Assistant `ha_user_id` hint;
-4. `area_id` / `room_id` mapping through the room mapping index;
-5. configured fallback profile;
-6. structured Profile error.
+3. explicit Voice Endpoint / HA device mapping;
+4. Home Assistant `ha_user_id` hint;
+5. `area_id` / `room_id` mapping;
+6. playback player / zone mapping;
+7. configured fallback profile;
+8. structured Profile error.
 
-Reserved future signals:
-
-- explicit HA Voice satellite mapping;
-- playback zone/player mapping;
-- future speaker identity hint.
-
-Future signals must be added to the same `ProfileResolver`.
+Future speaker identity hints must be added to the same `ProfileResolver`.
 
 ## Canonical Response Envelope
 
@@ -183,7 +178,7 @@ Endpoints must not invent endpoint-specific profile error strings.
 | Windows Intelligence Client | `device_id`, `client_type`; may send `profile_id` | Required for adoption | Explicit selected/shared profile | Visible for resolved personal profile only | Required | No local Music DNA or resolver order |
 | Raspberry Pi Ambient Client | `device_id`, `client_type` | Optional/admin | Defaults to shared/room profile | Read-only/limited | Optional | No personal profile guessing |
 | ESP32 Voice/Control Client | `device_id`, `client_type:"esp32"` | Future only | Device mapping/fallback | None | Not required | No profile UI unless future scoped feature |
-| HA Voice Assist Satellite | Server-derived satellite/area context | Future HA config | Defaults to shared/room/household profile | No automatic access | Future | No speaker identity guessing |
+| Voice Endpoint / Home Assistant Voice Satellite | Server-derived Voice Endpoint/area context | HA-owned mappings | Defaults to shared/room/household profile | No automatic access | Supported resolver signals | No speaker identity guessing |
 | Future Web/Android | `device_id`, `client_type`; may send `profile_id` | Required | Explicit selected/shared profile | Visible for resolved personal profile only | Required | No local resolver order |
 | Presentation Client | Session/controller-derived context | Controller-owned | Shared/guest-safe by default | None | Optional | No durable intelligence state |
 
@@ -200,7 +195,7 @@ Endpoints must not invent endpoint-specific profile error strings.
 | WebSocket capabilities | `djconnect/capabilities` | None | No resolution needed | `capabilities`, `contract_versions` | HA websocket errors | Apple, Windows local fast path | Detect `profile_context:1`. |
 | WebSocket commands | `djconnect/command`, Ask DJ, Music DNA, Discovery, Track Insight | `profile_id`, `private_session`, `privacy_mode` top-level or payload; `device_id`, `client_type` | Yes via equivalent handlers | Same as REST equivalents | Same as REST equivalents surfaced as websocket errors | Apple, Windows local fast path | HTTP remains fallback. |
 | Device status/pairing | `/api/djconnect/v1/status`, `/pair`, `/api/device/*` | `device_id`, `client_type`; config flow maps device to profile | Partially; status/pairing creates/mirrors device state | Pair/status capability metadata | Auth/version/pairing errors | ESP32, Pi, app pairing | Not all status payloads are personal. |
-| Voice/PTT | `POST /api/djconnect/v1/voice` | `device_id`, `client_type`; optional voice headers for profile/satellite/area context | Ask DJ voice path uses same Ask DJ handler | Ask DJ voice response | STT/Ask DJ/profile errors | Apple voice, ESP32/Pi voice paths | HA satellite metadata derivation is follow-up. |
+| Voice/PTT | `POST /api/djconnect/v1/voice` | `device_id`, `client_type`; optional voice headers for profile/Voice Endpoint/area context | Ask DJ voice path uses same Ask DJ handler | Ask DJ voice response | STT/Ask DJ/profile errors | Apple voice, ESP32/Pi voice paths | Voice Endpoint metadata is resolver input only. |
 | Pair/bootstrap/config | Config flow, app pairing, push bootstrap | `client_type`, pairing code, device identity | Creates profile/device mappings indirectly | Device token/capability response | Pair/auth/config errors | All clients | Does not expose profile resolver output directly. |
 
 ## Known Gaps
@@ -208,8 +203,8 @@ Endpoints must not invent endpoint-specific profile error strings.
 | Gap | Classification | Notes |
 | --- | --- | --- |
 | Rich `resolved_profile` response envelope is fixture-defined but not universally emitted. | Non-blocking cleanup before Apple | Current `profile_id` and `music_dna_key` are enough for initial adoption; add richer metadata only after privacy review. |
-| HA Voice satellite mapping is not implemented. | Blocker before HA Voice adoption | Phase 0 carries fields, but no config UI or mapping index exists. |
-| Playback zone/player mapping is reserved only. | Future enhancement | Not required for Apple Phase 2 profile adoption. |
+| End-user mapping UI is not implemented. | Follow-up UX work | Resolver/storage support exists; polished HA config/options UI is deferred. |
+| Speaker recognition is not implemented. | Future enhancement | Voice Endpoint adoption keeps this as a future hint only. |
 | Service schemas are not yet fully documented as profile-context schemas. | Non-blocking cleanup | Services route through same handlers where applicable. |
 | Existing wire code for missing explicit profile is `invalid_profile`, while category is `profile_not_found`. | Non-blocking cleanup | Preserve current wire code; docs define category mapping. |
 | Unknown device can surface as auth/config errors before profile resolution. | Non-blocking cleanup | Correct because device auth happens before profile resolution. |

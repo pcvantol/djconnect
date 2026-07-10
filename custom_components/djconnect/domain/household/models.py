@@ -26,7 +26,12 @@ class SharedConfiguration:
     """Household shared room and routing mappings."""
 
     room_profile_ids: dict[str, str] = field(default_factory=dict)
+    area_profile_ids: dict[str, str] = field(default_factory=dict)
+    voice_endpoint_profile_ids: dict[str, str] = field(default_factory=dict)
+    ha_device_profile_ids: dict[str, str] = field(default_factory=dict)
     ha_user_profile_ids: dict[str, str] = field(default_factory=dict)
+    player_profile_ids: dict[str, str] = field(default_factory=dict)
+    playback_zone_profile_ids: dict[str, str] = field(default_factory=dict)
     default_room_playback_zone_ids: dict[str, str] = field(default_factory=dict)
 
 

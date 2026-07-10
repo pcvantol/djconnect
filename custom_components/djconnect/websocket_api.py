@@ -275,6 +275,8 @@ def _platform_capabilities() -> dict[str, bool]:
         "private_sessions": True,
         "profile_export": True,
         "request_context": True,
+        "voice_endpoint_request_context": True,
+        "voice_endpoint_mappings": True,
     }
 
 

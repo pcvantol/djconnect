@@ -832,10 +832,24 @@ async def run_text_command(
     play: bool = True,
     correct_stt: bool = False,
     user_id: str | None = None,
+    memory_payload: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Run a natural-language DJConnect command through the use-case boundary."""
     from .processor import process_text_command
+    from .profile_context import ProfilePlatformNotConfigured, async_apply_profile_context
 
+    payload = dict(memory_payload or {})
+    if payload:
+        try:
+            await async_apply_profile_context(
+                hass,
+                runtime,
+                payload,
+                user_id=user_id,
+                request_source=str(payload.get("request_source") or "voice_endpoint"),
+            )
+        except ProfilePlatformNotConfigured:
+            pass
     try:
         return await process_text_command(
             hass,
@@ -843,15 +857,18 @@ async def run_text_command(
             text,
             play=play,
             correct_stt=correct_stt,
+            memory_payload=payload or memory_payload,
             user_id=user_id,
         )
     except TypeError as exc:
-        if user_id is None or "unexpected keyword" not in str(exc):
+        if "unexpected keyword" not in str(exc):
             raise
-        return await process_text_command(
-            hass,
-            runtime,
-            text,
-            play=play,
-            correct_stt=correct_stt,
-        )
+        kwargs: dict[str, Any] = {
+            "play": play,
+            "correct_stt": correct_stt,
+        }
+        if user_id is not None and "user_id" not in str(exc):
+            kwargs["user_id"] = user_id
+        if (payload or memory_payload) and "memory_payload" not in str(exc):
+            kwargs["memory_payload"] = payload or memory_payload
+        return await process_text_command(hass, runtime, text, **kwargs)

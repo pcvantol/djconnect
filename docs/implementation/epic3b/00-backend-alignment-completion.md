@@ -7,7 +7,7 @@ Status: implemented in source, pending review/merge.
 Phase 0 aligns the Home Assistant backend with the foundation decision that
 Profile resolution uses a general request context, not only a DJConnect Device.
 
-This phase does not implement client adoption, HA Voice Satellite management UI,
+This phase does not implement client adoption, Voice Endpoint management UI,
 speaker recognition, cloud identity or new public API contracts.
 
 ## Context Model Introduced
@@ -46,7 +46,9 @@ mapping.
 The typed context also carries reserved request-source fields:
 
 - `client_type`;
+- `voice_endpoint_id`;
 - `satellite_id`;
+- `assist_pipeline_id`;
 - `ha_device_id`;
 - `player_id`;
 - `playback_zone_id`;
@@ -54,8 +56,8 @@ The typed context also carries reserved request-source fields:
 - `request_source`;
 - `speaker_identity_hint`.
 
-These fields do not yet implement satellite, playback-zone or speaker-recognition
-resolution. They create a clear integration path for later Epic 3B phases.
+Phase 6 implements Voice Endpoint, HA device, area and playback player/zone
+resolution through the single resolver. Speaker-recognition remains future work.
 
 ## Runtime Entrypoints Aligned
 
@@ -92,23 +94,25 @@ Current resolution reasons are:
 
 - `explicit_profile`;
 - `device_mapping`;
-- `satellite_mapping` (reserved);
+- `satellite_mapping`;
 - `ha_user_mapping`;
 - `area_mapping`;
 - `playback_zone_mapping` (reserved);
 - `fallback`.
 
-Debug logging records source, reason, profile id, device id, satellite presence,
+Debug logging records source, reason, profile id, device id, Voice Endpoint presence,
 area/room and fallback use. It does not log tokens, provider secrets, raw
 conversation history, profile content or Music DNA.
 
-## HA Voice Satellite Limitations
+## Voice Endpoint Limitations
 
-Phase 0 can carry optional voice request metadata from headers into the internal
+Phase 0 introduced optional voice request metadata from headers into the internal
 Ask DJ payload and typed resolution context:
 
 - profile ID;
+- Voice Endpoint ID;
 - satellite ID;
+- Assist pipeline ID;
 - Home Assistant device ID;
 - area ID;
 - room ID;
@@ -116,10 +120,11 @@ Ask DJ payload and typed resolution context:
 - playback zone ID;
 - session ID.
 
-Home Assistant Assist satellite/device/area metadata is not yet automatically
-derived from Assist internals. There is no satellite mapping UI, no voiceprint
-storage and no speaker recognition. Shared voice endpoints therefore continue to
-resolve through explicit profile/device/user/area-room/fallback signals only.
+Phase 6 derives best-effort Home Assistant Assist metadata when available and
+supports explicit Voice Endpoint mappings in storage. There is still no polished
+mapping UI, voiceprint storage or speaker recognition. Shared Voice Endpoints
+therefore resolve through explicit profile/device/Voice Endpoint/HA user/area
+or player mappings, then fallback.
 
 ## Contract Changes
 

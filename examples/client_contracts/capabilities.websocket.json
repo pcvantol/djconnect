@@ -65,7 +65,9 @@
     "explicit_profile_selection": true,
     "private_sessions": true,
     "profile_export": true,
-    "request_context": true
+    "request_context": true,
+    "voice_endpoint_request_context": true,
+    "voice_endpoint_mappings": true
   },
   "contract_versions": {
     "profile_context": 1,

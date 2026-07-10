@@ -88,8 +88,12 @@ def install_conversation_stubs() -> None:
     async def run_music_command(*args, **kwargs):
         return {"success": True}
 
+    def music_backend_metadata(*args, **kwargs):
+        return {}
+
     use_cases.run_text_command = run_text_command
     use_cases.run_music_command = run_music_command
+    use_cases.music_backend_metadata = music_backend_metadata
     sys.modules["custom_components.djconnect.use_cases"] = use_cases
 
 
@@ -205,8 +209,17 @@ class ConversationAgentTest(unittest.TestCase):
     def test_process_returns_dj_text_from_command_flow(self) -> None:
         calls = []
 
-        async def run_text_command(hass, runtime, text, *, play, correct_stt, user_id=None):
-            calls.append((hass, runtime, text, play, correct_stt, user_id))
+        async def run_text_command(
+            hass,
+            runtime,
+            text,
+            *,
+            play,
+            correct_stt,
+            user_id=None,
+            memory_payload=None,
+        ):
+            calls.append((hass, runtime, text, play, correct_stt, user_id, memory_payload))
             return {"dj_text": "Daar is Strobe van Deadmau5."}
 
         runtime = types.SimpleNamespace(
@@ -231,10 +244,64 @@ class ConversationAgentTest(unittest.TestCase):
 
         self.assertEqual(result.response.speech, "Daar is Strobe van Deadmau5.")
         self.assertEqual(result.conversation_id, "conv-1")
-        self.assertEqual(calls, [(hass, runtime, "speel Strobe van Deadmau5", True, False, None)])
+        self.assertEqual(
+            calls,
+            [
+                (
+                    hass,
+                    runtime,
+                    "speel Strobe van Deadmau5",
+                    True,
+                    False,
+                    None,
+                    {"request_source": "voice_endpoint", "session_id": "conv-1"},
+                )
+            ],
+        )
+
+    def test_voice_endpoint_request_context_extracts_available_assist_fields(self) -> None:
+        user_input = types.SimpleNamespace(
+            conversation_id="conv-1",
+            agent_id="pipeline-1",
+            device_id="ha-device-1",
+            area_id="kitchen",
+            context=types.SimpleNamespace(
+                user_id="ha-user",
+                entity_id="assist_satellite.kitchen",
+            ),
+            extra_system_prompt={
+                "satellite_id": "satellite-kitchen",
+                "player_id": "media_player.kitchen",
+            },
+        )
+
+        payload = self.conversation._voice_endpoint_request_context(user_input)
+
+        self.assertEqual(
+            payload,
+            {
+                "request_source": "voice_endpoint",
+                "session_id": "conv-1",
+                "assist_pipeline_id": "pipeline-1",
+                "ha_device_id": "ha-device-1",
+                "area_id": "kitchen",
+                "voice_endpoint_id": "assist_satellite.kitchen",
+                "satellite_id": "satellite-kitchen",
+                "player_id": "media_player.kitchen",
+            },
+        )
 
     def test_process_error_returns_friendly_speech(self) -> None:
-        async def run_text_command(hass, runtime, text, *, play, correct_stt, user_id=None):
+        async def run_text_command(
+            hass,
+            runtime,
+            text,
+            *,
+            play,
+            correct_stt,
+            user_id=None,
+            memory_payload=None,
+        ):
             raise RuntimeError("boom")
 
         updates = []

@@ -34,6 +34,8 @@ class DJConnectRequestContext:
     client_type: str = ""
     ha_user_id: str = ""
     satellite_id: str = ""
+    voice_endpoint_id: str = ""
+    assist_pipeline_id: str = ""
     ha_device_id: str = ""
     area_id: str = ""
     room_id: str = ""
@@ -141,6 +143,15 @@ def profile_resolution_context_from_payload(
         satellite_id=str(
             payload.get("satellite_id") or payload.get("assist_satellite_id") or ""
         ).strip(),
+        voice_endpoint_id=str(
+            payload.get("voice_endpoint_id")
+            or payload.get("voice_endpoint")
+            or payload.get("assist_voice_endpoint_id")
+            or ""
+        ).strip(),
+        assist_pipeline_id=str(
+            payload.get("assist_pipeline_id") or payload.get("pipeline_id") or ""
+        ).strip(),
         ha_device_id=str(payload.get("ha_device_id") or payload.get("ha_device") or "").strip(),
         area_id=str(payload.get("area_id") or payload.get("area") or "").strip(),
         room_id=str(payload.get("room_id") or payload.get("room") or "").strip(),
@@ -198,6 +209,8 @@ async def async_resolve_request_context(
         client_type=context.client_type,
         ha_user_id=context.ha_user_id,
         satellite_id=context.satellite_id,
+        voice_endpoint_id=context.voice_endpoint_id,
+        assist_pipeline_id=context.assist_pipeline_id,
         ha_device_id=context.ha_device_id,
         area_id=context.area_id,
         room_id=context.room_id,

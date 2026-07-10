@@ -175,6 +175,8 @@ class ProfileContextTest(unittest.TestCase):
                 "client_type": " ios ",
                 "ha_user_id": " ha-user ",
                 "satellite_id": " satellite ",
+                "voice_endpoint_id": " voice-endpoint ",
+                "assist_pipeline_id": " pipeline ",
                 "ha_device_id": " ha-device ",
                 "area_id": " kitchen ",
                 "room_id": " room ",
@@ -192,6 +194,8 @@ class ProfileContextTest(unittest.TestCase):
         self.assertEqual(context.client_type, "ios")
         self.assertEqual(context.ha_user_id, "ha-user")
         self.assertEqual(context.satellite_id, "satellite")
+        self.assertEqual(context.voice_endpoint_id, "voice-endpoint")
+        self.assertEqual(context.assist_pipeline_id, "pipeline")
         self.assertEqual(context.ha_device_id, "ha-device")
         self.assertEqual(context.area_id, "kitchen")
         self.assertEqual(context.room_id, "room")
@@ -214,6 +218,113 @@ class ProfileContextTest(unittest.TestCase):
                     request_source="test",
                 )
             )
+
+
+    def test_voice_endpoint_mapping_beats_ha_user_hint(self) -> None:
+        voice_profile = asyncio.run(self.manager.async_create_profile("Kitchen Household"))
+        user_profile = asyncio.run(self.manager.async_create_profile("Peter"))
+        asyncio.run(
+            self.manager.async_set_profile_mapping(
+                "voice_endpoint",
+                "assist.kitchen",
+                voice_profile.profile_id,
+            )
+        )
+        asyncio.run(
+            self.manager.async_set_profile_mapping(
+                "ha_user",
+                "ha-user",
+                user_profile.profile_id,
+            )
+        )
+
+        context = asyncio.run(
+            async_apply_profile_context(
+                self.hass,
+                _runtime(""),
+                {"voice_endpoint_id": "assist.kitchen", "ha_user_id": "ha-user"},
+                request_source="voice_endpoint",
+            )
+        )
+
+        self.assertEqual(context.profile_id, voice_profile.profile_id)
+        self.assertEqual(context.resolution_reason, ProfileResolutionReason.SATELLITE_MAPPING)
+
+    def test_area_mapping_beats_player_and_fallback(self) -> None:
+        area_profile = asyncio.run(self.manager.async_create_profile("Kitchen"))
+        player_profile = asyncio.run(self.manager.async_create_profile("Speaker"))
+        asyncio.run(
+            self.manager.async_set_profile_mapping("area", "kitchen", area_profile.profile_id)
+        )
+        asyncio.run(
+            self.manager.async_set_profile_mapping(
+                "player",
+                "media_player.kitchen",
+                player_profile.profile_id,
+            )
+        )
+
+        context = asyncio.run(
+            async_apply_profile_context(
+                self.hass,
+                _runtime(""),
+                {"area_id": "kitchen", "player_id": "media_player.kitchen"},
+                request_source="voice_endpoint",
+            )
+        )
+
+        self.assertEqual(context.profile_id, area_profile.profile_id)
+        self.assertEqual(context.resolution_reason, ProfileResolutionReason.AREA_MAPPING)
+
+    def test_player_mapping_resolves_after_area_and_user_miss(self) -> None:
+        profile = asyncio.run(self.manager.async_create_profile("Living Room Player"))
+        asyncio.run(
+            self.manager.async_set_profile_mapping(
+                "player",
+                "media_player.living_room",
+                profile.profile_id,
+            )
+        )
+
+        context = asyncio.run(
+            async_apply_profile_context(
+                self.hass,
+                _runtime(""),
+                {"area_id": "unknown", "player_id": "media_player.living_room"},
+                request_source="voice_endpoint",
+            )
+        )
+
+        self.assertEqual(context.profile_id, profile.profile_id)
+        self.assertEqual(
+            context.resolution_reason,
+            ProfileResolutionReason.PLAYBACK_ZONE_MAPPING,
+        )
+
+    def test_voice_endpoint_private_session_uses_profile_without_persistence_flags(self) -> None:
+        profile = asyncio.run(self.manager.async_create_profile("Guest"))
+        asyncio.run(
+            self.manager.async_set_profile_mapping(
+                "voice_endpoint",
+                "assist.guest",
+                profile.profile_id,
+            )
+        )
+        payload = {"voice_endpoint_id": "assist.guest", "private_session": True}
+
+        context = asyncio.run(
+            async_apply_profile_context(
+                self.hass,
+                _runtime(""),
+                payload,
+                request_source="voice_endpoint",
+            )
+        )
+
+        self.assertEqual(context.profile_id, profile.profile_id)
+        self.assertTrue(context.privacy_policy.private_session)
+        self.assertFalse(context.privacy_policy.allow_music_dna_persistence)
+        self.assertTrue(payload["private_session"])
 
 
 if __name__ == "__main__":

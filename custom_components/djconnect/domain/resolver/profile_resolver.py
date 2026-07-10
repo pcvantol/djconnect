@@ -4,10 +4,12 @@ Resolution order is defined by the Platform Foundation and must remain singular:
 
 1. explicit profile_id
 2. device_id mapping
-3. Home Assistant user hint
-4. room mapping
-5. fallback profile
-6. ProfileRequired
+3. voice endpoint mapping
+4. Home Assistant user hint
+5. area mapping
+6. player mapping
+7. fallback profile
+8. ProfileRequired
 """
 
 from __future__ import annotations
@@ -38,9 +40,8 @@ class ProfileResolutionReason(StrEnum):
 class ProfileResolutionContext:
     """Typed request context used to resolve a DJConnect Profile.
 
-    Only explicit_profile_id, device_id, ha_user_id and room_id actively affect
-    Epic 3A runtime resolution. Other fields are reserved request-source
-    signals for Epic 3B follow-up work and must not own personal state.
+    Request-source signals are resolver input only. They must not become
+    durable personal identity or own profile-scoped state.
     """
 
     explicit_profile_id: str = ""
@@ -48,6 +49,8 @@ class ProfileResolutionContext:
     client_type: str = ""
     ha_user_id: str = ""
     satellite_id: str = ""
+    voice_endpoint_id: str = ""
+    assist_pipeline_id: str = ""
     ha_device_id: str = ""
     area_id: str = ""
     room_id: str = ""
@@ -65,6 +68,8 @@ class ProfileResolutionContext:
             "client_type",
             "ha_user_id",
             "satellite_id",
+            "voice_endpoint_id",
+            "assist_pipeline_id",
             "ha_device_id",
             "area_id",
             "room_id",
@@ -97,8 +102,13 @@ class ProfileResolverIndex:
     """
 
     device_profile_ids: dict[str, str] = field(default_factory=dict)
+    voice_endpoint_profile_ids: dict[str, str] = field(default_factory=dict)
+    ha_device_profile_ids: dict[str, str] = field(default_factory=dict)
     ha_user_profile_ids: dict[str, str] = field(default_factory=dict)
+    area_profile_ids: dict[str, str] = field(default_factory=dict)
     room_profile_ids: dict[str, str] = field(default_factory=dict)
+    player_profile_ids: dict[str, str] = field(default_factory=dict)
+    playback_zone_profile_ids: dict[str, str] = field(default_factory=dict)
     fallback_profile_id: str = ""
 
     @classmethod
@@ -111,8 +121,13 @@ class ProfileResolverIndex:
         }
         return cls(
             device_profile_ids=device_profile_ids,
+            voice_endpoint_profile_ids=dict(household.shared.voice_endpoint_profile_ids),
+            ha_device_profile_ids=dict(household.shared.ha_device_profile_ids),
             ha_user_profile_ids=dict(household.shared.ha_user_profile_ids),
+            area_profile_ids=dict(household.shared.area_profile_ids),
             room_profile_ids=dict(household.shared.room_profile_ids),
+            player_profile_ids=dict(household.shared.player_profile_ids),
+            playback_zone_profile_ids=dict(household.shared.playback_zone_profile_ids),
             fallback_profile_id=household.fallback.fallback_profile_id,
         )
 
@@ -164,6 +179,30 @@ class ProfileResolver:
                     signal=device_id,
                 )
 
+        voice_signal = context.voice_endpoint_id or context.satellite_id
+        if voice_signal:
+            voice_profile_id = clean_identifier(
+                self._index.voice_endpoint_profile_ids.get(voice_signal)
+            )
+            if voice_profile_id:
+                return ProfileResolutionResult(
+                    self._require_profile(voice_profile_id),
+                    ProfileResolutionReason.SATELLITE_MAPPING,
+                    signal=voice_signal,
+                )
+
+        ha_device_id = context.ha_device_id
+        if ha_device_id:
+            ha_device_profile_id = clean_identifier(
+                self._index.ha_device_profile_ids.get(ha_device_id)
+            )
+            if ha_device_profile_id:
+                return ProfileResolutionResult(
+                    self._require_profile(ha_device_profile_id),
+                    ProfileResolutionReason.SATELLITE_MAPPING,
+                    signal=ha_device_id,
+                )
+
         ha_user_id = context.ha_user_id
         if ha_user_id:
             ha_profile_id = clean_identifier(self._index.ha_user_profile_ids.get(ha_user_id))
@@ -174,7 +213,17 @@ class ProfileResolver:
                     signal=ha_user_id,
                 )
 
-        room_id = context.area_id or context.room_id
+        area_id = context.area_id
+        if area_id:
+            area_profile_id = clean_identifier(self._index.area_profile_ids.get(area_id))
+            if area_profile_id:
+                return ProfileResolutionResult(
+                    self._require_profile(area_profile_id),
+                    ProfileResolutionReason.AREA_MAPPING,
+                    signal=area_id,
+                )
+
+        room_id = context.room_id
         if room_id:
             room_profile_id = clean_identifier(self._index.room_profile_ids.get(room_id))
             if room_profile_id:
@@ -182,6 +231,28 @@ class ProfileResolver:
                     self._require_profile(room_profile_id),
                     ProfileResolutionReason.AREA_MAPPING,
                     signal=room_id,
+                )
+
+        player_id = context.player_id
+        if player_id:
+            player_profile_id = clean_identifier(self._index.player_profile_ids.get(player_id))
+            if player_profile_id:
+                return ProfileResolutionResult(
+                    self._require_profile(player_profile_id),
+                    ProfileResolutionReason.PLAYBACK_ZONE_MAPPING,
+                    signal=player_id,
+                )
+
+        playback_zone_id = context.playback_zone_id
+        if playback_zone_id:
+            zone_profile_id = clean_identifier(
+                self._index.playback_zone_profile_ids.get(playback_zone_id)
+            )
+            if zone_profile_id:
+                return ProfileResolutionResult(
+                    self._require_profile(zone_profile_id),
+                    ProfileResolutionReason.PLAYBACK_ZONE_MAPPING,
+                    signal=playback_zone_id,
                 )
 
         fallback_profile_id = clean_identifier(self._index.fallback_profile_id)

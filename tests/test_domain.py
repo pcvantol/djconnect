@@ -222,6 +222,18 @@ class ProfileResolverTest(unittest.TestCase):
             profile_type=ProfileType.ROOM,
             privacy_mode=ProfilePrivacyMode.SHARED,
         )
+        self.voice_profile = Profile(
+            profile_id="profile-voice",
+            display_name="Kitchen Voice Endpoint",
+            profile_type=ProfileType.ROOM,
+            privacy_mode=ProfilePrivacyMode.SHARED,
+        )
+        self.player_profile = Profile(
+            profile_id="profile-player",
+            display_name="Kitchen Player",
+            profile_type=ProfileType.ROOM,
+            privacy_mode=ProfilePrivacyMode.SHARED,
+        )
         self.fallback = Profile(
             profile_id="profile-fallback",
             display_name="Household",
@@ -244,13 +256,17 @@ class ProfileResolverTest(unittest.TestCase):
                     self.device_profile,
                     self.ha_profile,
                     self.room_profile,
+                    self.voice_profile,
+                    self.player_profile,
                     self.fallback,
                 )
             },
             devices={self.device.device_id: self.device},
             shared=SharedConfiguration(
                 room_profile_ids={"living-room": self.room_profile.profile_id},
+                voice_endpoint_profile_ids={"assist.kitchen": self.voice_profile.profile_id},
                 ha_user_profile_ids={"ha-user-1": self.ha_profile.profile_id},
+                player_profile_ids={"media_player.kitchen": self.player_profile.profile_id},
             ),
             fallback=FallbackConfiguration(fallback_profile_id=self.fallback.profile_id),
         )
@@ -281,8 +297,20 @@ class ProfileResolverTest(unittest.TestCase):
 
         self.assertEqual(profile.profile_id, self.device_profile.profile_id)
 
-    def test_resolver_uses_ha_user_hint_before_room_mapping(self) -> None:
-        """HA user hint has priority over room mapping."""
+    def test_resolver_uses_voice_endpoint_mapping_before_ha_user_hint(self) -> None:
+        """Voice Endpoint mapping has priority over HA user hint."""
+        profile = self.resolver.resolve(
+            ProfileResolutionContext(
+                voice_endpoint_id="assist.kitchen",
+                ha_user_id="ha-user-1",
+                room_id="living-room",
+            )
+        )
+
+        self.assertEqual(profile.profile_id, self.voice_profile.profile_id)
+
+    def test_resolver_uses_ha_user_hint_before_area_mapping(self) -> None:
+        """HA user hint has priority over area mapping."""
         profile = self.resolver.resolve(
             ProfileResolutionContext(ha_user_id="ha-user-1", room_id="living-room")
         )
@@ -295,11 +323,34 @@ class ProfileResolverTest(unittest.TestCase):
 
         self.assertEqual(profile.profile_id, self.room_profile.profile_id)
 
-    def test_resolver_uses_area_mapping_as_room_context(self) -> None:
-        """Area context maps through the current room mapping index."""
-        profile = self.resolver.resolve(ProfileResolutionContext(area_id="living-room"))
+    def test_resolver_uses_area_mapping_before_room_mapping(self) -> None:
+        """Area context uses explicit area mapping before legacy room mapping."""
+        household = Household(
+            household_id="home",
+            display_name="Home",
+            profiles=self.household.profiles,
+            shared=SharedConfiguration(
+                area_profile_ids={"kitchen": self.voice_profile.profile_id},
+                room_profile_ids={"kitchen": self.room_profile.profile_id},
+            ),
+            fallback=FallbackConfiguration(fallback_profile_id=self.fallback.profile_id),
+        )
+        resolver = ProfileResolver.for_household(household)
+        profile = resolver.resolve(ProfileResolutionContext(area_id="kitchen", room_id="kitchen"))
 
-        self.assertEqual(profile.profile_id, self.room_profile.profile_id)
+        self.assertEqual(profile.profile_id, self.voice_profile.profile_id)
+
+    def test_resolver_uses_player_mapping_after_area_miss(self) -> None:
+        """Player mapping resolves after user and area/room mappings miss."""
+        profile = self.resolver.resolve(
+            ProfileResolutionContext(
+                area_id="unknown",
+                room_id="unknown",
+                player_id="media_player.kitchen",
+            )
+        )
+
+        self.assertEqual(profile.profile_id, self.player_profile.profile_id)
 
     def test_resolver_uses_fallback_profile(self) -> None:
         """Fallback profile is used when no stronger hint resolves."""
@@ -342,6 +393,8 @@ class ProfileResolverTest(unittest.TestCase):
             client_type=" ios ",
             ha_user_id=" ha-user ",
             satellite_id=" satellite ",
+            voice_endpoint_id=" voice-endpoint ",
+            assist_pipeline_id=" pipeline ",
             ha_device_id=" ha-device ",
             area_id=" kitchen ",
             room_id=" room ",
@@ -355,6 +408,8 @@ class ProfileResolverTest(unittest.TestCase):
         self.assertEqual(context.explicit_profile_id, "profile")
         self.assertEqual(context.device_id, "device")
         self.assertEqual(context.client_type, "ios")
+        self.assertEqual(context.voice_endpoint_id, "voice-endpoint")
+        self.assertEqual(context.assist_pipeline_id, "pipeline")
         self.assertEqual(context.area_id, "kitchen")
         self.assertEqual(context.speaker_identity_hint, "future-hint")
         with self.assertRaises(Exception):

@@ -17,14 +17,14 @@ and deterministic Request Context before using personal state, durable
 intelligence or profile-scoped backend routing.
 
 The request source does not own personal state. Profile owns personal state.
-Device, Home Assistant Voice Satellite, room/area, playback zone/player and Home
+Device, Voice Endpoint, room/area, playback zone/player and Home
 Assistant user are resolution signals only.
 
 Shared contexts should default safely to shared, room, household, guest-safe or
 kids profiles unless explicitly configured otherwise. Home Assistant `user_id`
 is a useful hint, but it is not the primary identity.
 
-Example: Kitchen Voice Satellite -> satellite mapping or Kitchen area -> Kitchen
+Example: Kitchen Voice Endpoint -> Voice Endpoint mapping or Kitchen area -> Kitchen
 / Household Profile.
 
 Example: Peter's iPhone -> DJConnect device mapping -> Peter Profile.

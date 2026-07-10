@@ -4,7 +4,7 @@ This document clarifies repository boundaries. The HA/HACS repository remains th
 
 ## `pcvantol/djconnect`
 
-Owns: Home Assistant integration, local-first backend runtime, canonical foundation docs, DJConnect Profile orchestration, canonical Profile Resolver, Request Context / ProfileResolutionContext model, HA Voice satellite/area/profile mappings, Assist-to-Profile orchestration, Music Backend orchestration, Track Insight orchestration, Ask DJ, Music DNA, OTA/status/diagnostics and HA-facing API contracts.
+Owns: Home Assistant integration, local-first backend runtime, canonical foundation docs, DJConnect Profile orchestration, canonical Profile Resolver, Request Context / ProfileResolutionContext model, Voice Endpoint/HA device/area/profile mappings, Assist-to-Profile orchestration, Music Backend orchestration, Track Insight orchestration, Ask DJ, Music DNA, OTA/status/diagnostics and HA-facing API contracts.
 
 Does not own: native client UX code, ESP32 firmware implementation, public website implementation, central APNs provider credentials or release artifact repositories.
 
@@ -19,7 +19,7 @@ Request-source ownership examples:
 - ESP32 sends its registered DJConnect device identity.
 - Raspberry Pi sends device/profile context as appropriate for an Ambient
   Client.
-- The HA integration derives HA Voice satellite, Home Assistant device/entity,
+- The HA integration derives Voice Endpoint, Home Assistant device/entity,
   area/room and Assist pipeline context from Home Assistant.
 - Clients must not invent durable personal identity when the backend cannot
   resolve one.

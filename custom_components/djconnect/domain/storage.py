@@ -186,9 +186,34 @@ class ProfilePlatformStorage:
                 for room, mapped in household.shared.room_profile_ids.items()
                 if mapped != profile.profile_id or reassign_id
             },
+            area_profile_ids={
+                area: (reassign_id if mapped == profile.profile_id else mapped)
+                for area, mapped in household.shared.area_profile_ids.items()
+                if mapped != profile.profile_id or reassign_id
+            },
+            voice_endpoint_profile_ids={
+                endpoint: (reassign_id if mapped == profile.profile_id else mapped)
+                for endpoint, mapped in household.shared.voice_endpoint_profile_ids.items()
+                if mapped != profile.profile_id or reassign_id
+            },
+            ha_device_profile_ids={
+                device: (reassign_id if mapped == profile.profile_id else mapped)
+                for device, mapped in household.shared.ha_device_profile_ids.items()
+                if mapped != profile.profile_id or reassign_id
+            },
             ha_user_profile_ids={
                 user: (reassign_id if mapped == profile.profile_id else mapped)
                 for user, mapped in household.shared.ha_user_profile_ids.items()
+                if mapped != profile.profile_id or reassign_id
+            },
+            player_profile_ids={
+                player: (reassign_id if mapped == profile.profile_id else mapped)
+                for player, mapped in household.shared.player_profile_ids.items()
+                if mapped != profile.profile_id or reassign_id
+            },
+            playback_zone_profile_ids={
+                zone: (reassign_id if mapped == profile.profile_id else mapped)
+                for zone, mapped in household.shared.playback_zone_profile_ids.items()
                 if mapped != profile.profile_id or reassign_id
             },
         )
@@ -353,6 +378,33 @@ class ProfilePlatformStorage:
         await self.async_save()
         return self._household
 
+    async def async_set_profile_mapping(
+        self,
+        mapping_type: str,
+        source_id: str,
+        profile_id: str,
+    ) -> Household:
+        """Set or clear a Household-owned request-source -> Profile mapping."""
+        household = await self.async_load()
+        clean_source_id = clean_identifier(source_id)
+        clean_profile_id = clean_identifier(profile_id)
+        if not clean_source_id:
+            raise ProfileStorageValidationError("mapping source_id is required")
+        if clean_profile_id:
+            _require_profile(household, clean_profile_id)
+        field_name = _mapping_field_name(mapping_type)
+        mapping = dict(getattr(household.shared, field_name))
+        if clean_profile_id:
+            mapping[clean_source_id] = clean_profile_id
+        else:
+            mapping.pop(clean_source_id, None)
+        self._household = replace(
+            household,
+            shared=replace(household.shared, **{field_name: mapping}),
+        )
+        await self.async_save()
+        return self._household
+
     def resolver(self) -> ProfileResolver:
         """Return a resolver for the loaded Household state."""
         return ProfileResolver.for_household(self._household)
@@ -369,7 +421,12 @@ class ProfilePlatformStorage:
                 raise ProfileStorageValidationError("device mapped to missing profile")
         for mapping in (
             household.shared.room_profile_ids,
+            household.shared.area_profile_ids,
+            household.shared.voice_endpoint_profile_ids,
+            household.shared.ha_device_profile_ids,
             household.shared.ha_user_profile_ids,
+            household.shared.player_profile_ids,
+            household.shared.playback_zone_profile_ids,
         ):
             for profile_id in mapping.values():
                 if clean_identifier(profile_id) not in household.profiles:
@@ -412,6 +469,33 @@ def default_household() -> Household:
         display_name=DEFAULT_HOUSEHOLD_NAME,
         privacy_defaults=PrivacyDefaults(),
     )
+
+
+def _mapping_field_name(mapping_type: str) -> str:
+    normalized = clean_identifier(mapping_type).replace("-", "_")
+    aliases = {
+        "room": "room_profile_ids",
+        "area": "area_profile_ids",
+        "voice_endpoint": "voice_endpoint_profile_ids",
+        "satellite": "voice_endpoint_profile_ids",
+        "ha_device": "ha_device_profile_ids",
+        "ha_user": "ha_user_profile_ids",
+        "player": "player_profile_ids",
+        "playback_zone": "playback_zone_profile_ids",
+    }
+    field_name = aliases.get(normalized, normalized)
+    allowed = {
+        "room_profile_ids",
+        "area_profile_ids",
+        "voice_endpoint_profile_ids",
+        "ha_device_profile_ids",
+        "ha_user_profile_ids",
+        "player_profile_ids",
+        "playback_zone_profile_ids",
+    }
+    if field_name not in allowed:
+        raise ProfileStorageValidationError("unknown profile mapping type")
+    return field_name
 
 
 def household_from_storage(data: Any) -> Household:
@@ -462,7 +546,17 @@ def household_from_storage(data: Any) -> Household:
         ),
         shared=SharedConfiguration(
             room_profile_ids=_clean_mapping(shared_raw.get("room_profile_ids")),
+            area_profile_ids=_clean_mapping(shared_raw.get("area_profile_ids")),
+            voice_endpoint_profile_ids=_clean_mapping(
+                shared_raw.get("voice_endpoint_profile_ids")
+                or shared_raw.get("satellite_profile_ids")
+            ),
+            ha_device_profile_ids=_clean_mapping(shared_raw.get("ha_device_profile_ids")),
             ha_user_profile_ids=_clean_mapping(shared_raw.get("ha_user_profile_ids")),
+            player_profile_ids=_clean_mapping(shared_raw.get("player_profile_ids")),
+            playback_zone_profile_ids=_clean_mapping(
+                shared_raw.get("playback_zone_profile_ids")
+            ),
             default_room_playback_zone_ids=_clean_mapping(
                 shared_raw.get("default_room_playback_zone_ids")
             ),
@@ -510,7 +604,16 @@ def household_to_storage(household: Household) -> dict[str, Any]:
             },
             "shared": {
                 "room_profile_ids": dict(household.shared.room_profile_ids),
+                "area_profile_ids": dict(household.shared.area_profile_ids),
+                "voice_endpoint_profile_ids": dict(
+                    household.shared.voice_endpoint_profile_ids
+                ),
+                "ha_device_profile_ids": dict(household.shared.ha_device_profile_ids),
                 "ha_user_profile_ids": dict(household.shared.ha_user_profile_ids),
+                "player_profile_ids": dict(household.shared.player_profile_ids),
+                "playback_zone_profile_ids": dict(
+                    household.shared.playback_zone_profile_ids
+                ),
                 "default_room_playback_zone_ids": dict(
                     household.shared.default_room_playback_zone_ids
                 ),
