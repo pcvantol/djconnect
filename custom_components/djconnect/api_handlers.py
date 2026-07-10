@@ -329,6 +329,8 @@ async def async_handle_command_payload(
         if result.get("success"):
             result.setdefault("backend_available", True)
             runtime.device_status["backend_available"] = True
+        if normalized_command in {"set_current_track_favorite", "toggle_current_track_favorite"}:
+            await _record_removed_favorite_in_music_dna(runtime, result, data, user_id=user_id)
         _decorate_command_result(hass, runtime, result, music_dna_key)
         if normalized_command == "playlists":
             if client_type == CLIENT_TYPE_ESP32:
@@ -2152,6 +2154,69 @@ def _decorate_command_result(
     result.update(_bootstrap_metadata(hass, runtime))
     result.update(_ha_version_payload())
     result.update(music_backend_metadata(hass, runtime))
+
+
+async def _record_removed_favorite_in_music_dna(
+    runtime: Any,
+    result: dict[str, Any],
+    payload: dict[str, Any],
+    *,
+    user_id: str | None,
+) -> None:
+    playback = result.get("playback") if isinstance(result, dict) else {}
+    if not isinstance(playback, dict) or _playback_favorite_status(playback) is not False:
+        return
+    memory = getattr(runtime, "memory", None)
+    recorder = getattr(memory, "async_record_blocked_music_preference", None)
+    if not callable(recorder):
+        return
+    try:
+        await recorder(
+            runtime,
+            _favorite_removed_preference(playback),
+            payload,
+            user_id=user_id,
+        )
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect could not record removed favorite in Music DNA: %s", exc)
+
+
+def _playback_favorite_status(playback: dict[str, Any]) -> bool | None:
+    for key in ("is_liked", "favorite_status", "liked", "is_favorite"):
+        if key in playback:
+            value = playback.get(key)
+            if isinstance(value, bool):
+                return value
+            if isinstance(value, str):
+                normalized = value.strip().lower()
+                if normalized in {"true", "1", "yes", "ja", "on"}:
+                    return True
+                if normalized in {"false", "0", "no", "nee", "off"}:
+                    return False
+    return None
+
+
+def _favorite_removed_preference(playback: dict[str, Any]) -> dict[str, str]:
+    title = _text_value(playback, "track_name", "title", "name")
+    artist = _text_value(playback, "artist", "artist_name")
+    uri = _text_value(playback, "uri", "current_uri")
+    name = " - ".join(value for value in (artist, title) if value) or title or uri
+    return {
+        "kind": "track",
+        "name": name,
+        "title": title or name,
+        "artist": artist,
+        "uri": uri,
+        "reason": "removed_from_favorites",
+    }
+
+
+def _text_value(data: dict[str, Any], *keys: str) -> str:
+    for key in keys:
+        value = str(data.get(key) or "").strip()
+        if value:
+            return value
+    return ""
 
 
 def _error_payload(error: str, message: str | None = None) -> dict[str, Any]:

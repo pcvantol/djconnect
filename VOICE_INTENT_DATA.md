@@ -216,7 +216,12 @@ The website can use `ask_dj_intents` to render example families for:
   in favorieten`, `Voeg dit nummer toe aan favorieten`, `Like dit nummer` and
   `Save this track to liked songs`. Ask DJ calls `save_current_track`, returns
   text-only confirmation, and current-track/Now Playing responses may expose the
-  same command as a `Zet in favorieten` control action.
+  same command as a `Zet in favorieten` control action. Requests such as `Haal
+  huidig nummer uit favorieten`, `Unlike this track` and Now Playing favorite
+  toggles use `set_current_track_favorite` with `value:false`; when Spotify
+  confirms the track is no longer liked and Music DNA is enabled, Home
+  Assistant records a compact negative track preference with
+  `reason:"removed_from_favorites"`.
 - `seed_playlist_mix`: requests such as `Stel een playlist samen op basis van
   Radiohead, Massive Attack en Portishead`, `Ik wil een playlist obv tracks
   Reckoner, Teardrop`, `Ik wil een playlist in genre ambient, techno`, `Maak

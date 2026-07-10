@@ -517,6 +517,46 @@ class MusicDNAManagerTest(unittest.TestCase):
         )
         self.assertIn("Niet meer draaien volgens gebruiker: BLØF", prompt_context_text(context))
 
+    def test_removed_favorite_track_is_persisted_as_blocked_item(self) -> None:
+        store = FakeStore()
+        manager = MusicDNAManager(store=store)
+        runtime = runtime_for()
+        asyncio.run(manager.async_set_enabled(runtime, True, {"client_type": "ios"}, user_id="ha-user-1"))
+
+        asyncio.run(
+            manager.async_record_blocked_music_preference(
+                runtime,
+                {
+                    "kind": "track",
+                    "name": "Radiohead - Karma Police",
+                    "title": "Karma Police",
+                    "artist": "Radiohead",
+                    "uri": "spotify:track:karma-police",
+                    "reason": "removed_from_favorites",
+                    "device_token": "must-not-persist",
+                },
+                {"client_type": "ios"},
+                user_id="ha-user-1",
+            )
+        )
+
+        memory = store.saved["memories"]["user:ha-user-1"]
+        self.assertEqual(memory["blocked_items"][0]["kind"], "track")
+        self.assertEqual(memory["blocked_items"][0]["name"], "Radiohead - Karma Police")
+        self.assertEqual(memory["blocked_items"][0]["reason"], "removed_from_favorites")
+        self.assertNotIn("device_token", str(memory))
+
+        context = asyncio.run(
+            manager.async_context_for_runtime(
+                runtime,
+                {"client_type": "ios"},
+                user_id="ha-user-1",
+            )
+        )
+        self.assertIn("Discover negatieve feedback: Radiohead - Karma Police", prompt_context_text(context))
+        profile = asyncio.run(manager.async_profile(runtime, {"client_type": "ios"}, user_id="ha-user-1"))["profile"]
+        self.assertEqual(profile["discovery_feedback"]["blocked_items"][0]["name"], "Radiohead - Karma Police")
+
     def test_discover_feedback_is_available_to_ask_dj_context(self) -> None:
         store = FakeStore()
         manager = MusicDNAManager(store=store)

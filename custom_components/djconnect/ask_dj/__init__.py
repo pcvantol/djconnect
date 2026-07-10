@@ -1569,6 +1569,17 @@ async def _handle_action(
                 except Exception as exc:  # noqa: BLE001
                     _LOGGER.debug("DJConnect could not record favorite track in Music DNA: %s", exc)
         if favorite_status is False:
+            recorder = getattr(getattr(runtime, "memory", None), "async_record_blocked_music_preference", None)
+            if recorder is not None and isinstance(playback, dict):
+                try:
+                    await recorder(
+                        runtime,
+                        _favorite_removed_preference(playback),
+                        payload,
+                        user_id=user_id,
+                    )
+                except Exception as exc:  # noqa: BLE001
+                    _LOGGER.debug("DJConnect could not record removed favorite in Music DNA: %s", exc)
             text_response = (
                 f"Ik heb {title} uit je favorieten gehaald."
                 if title
@@ -1592,6 +1603,22 @@ async def _handle_action(
             "playback_actions": [],
         }
     raise ValueError(f"Unsupported Ask DJ action: {action}")
+
+
+def _favorite_removed_preference(playback: dict[str, Any]) -> dict[str, str]:
+    """Return a compact negative preference for a track removed from favorites."""
+    title = _playback_text(playback, "track_name", "title", "name")
+    artist = _playback_text(playback, "artist", "artist_name")
+    uri = _playback_text(playback, "uri", "current_uri")
+    name = " - ".join(value for value in (artist, title) if value) or title or uri
+    return {
+        "kind": "track",
+        "name": name,
+        "title": title or name,
+        "artist": artist,
+        "uri": uri,
+        "reason": "removed_from_favorites",
+    }
 
 
 async def _handle_hybrid(

@@ -3233,6 +3233,16 @@ class VoiceHttpHelperTest(unittest.TestCase):
             device_status = {"device_id": "djconnect-ios-68B74487726D"}
             config = {}
 
+            def __init__(self):
+                self.memory = types.SimpleNamespace(
+                    blocked=[],
+                    async_record_blocked_music_preference=self._record_blocked,
+                )
+
+            async def _record_blocked(self, runtime, item, payload=None, *, user_id=None):
+                self.memory.blocked.append((item, payload, user_id))
+                return payload.get("music_dna_key") if payload else self.device_status["device_id"]
+
             def authorize_device_request(self, headers, body_device_id=None, client_type=None):
                 return True
 
@@ -3281,6 +3291,14 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertEqual(calls, [("set_current_track_favorite", False, False)])
         self.assertEqual(response["payload"]["playback"]["uri"], "spotify:track:karma-police")
         self.assertFalse(response["payload"]["playback"]["is_liked"])
+        self.assertEqual(len(runtime.memory.blocked), 1)
+        blocked_item, blocked_payload, blocked_user_id = runtime.memory.blocked[0]
+        self.assertEqual(blocked_item["kind"], "track")
+        self.assertEqual(blocked_item["name"], "Radiohead - Karma Police")
+        self.assertEqual(blocked_item["uri"], "spotify:track:karma-police")
+        self.assertEqual(blocked_item["reason"], "removed_from_favorites")
+        self.assertEqual(blocked_payload["client_type"], "ios")
+        self.assertIsNone(blocked_user_id)
 
     def test_command_view_accepts_ask_dj_message_prompt_fallback(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")

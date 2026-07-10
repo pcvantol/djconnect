@@ -3969,6 +3969,61 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(favorite_payload["client_type"], "ios")
         self.assertIsNone(favorite_user_id)
 
+    def test_remove_current_track_from_favorites_records_negative_music_dna_signal(self) -> None:
+        runtime = make_runtime()
+        calls = []
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append((command_name, value))
+            if command_name == "status":
+                return {"success": True, "playback": {"has_playback": True, "is_liked": True}}
+            if command_name == "set_current_track_favorite":
+                self.assertFalse(value)
+                return {
+                    "success": True,
+                    "playback": {
+                        "track_name": "Karma Police",
+                        "artist": "Radiohead",
+                        "uri": "spotify:track:karma-police",
+                        "is_liked": False,
+                    },
+                }
+            raise AssertionError(f"unexpected Spotify command: {command_name}")
+
+        async def no_tts(hass, runtime_arg, text):
+            return {}
+
+        original_command = self.ask_dj.run_music_command
+        original_tts = self.ask_dj.async_send_dj_response_best_effort
+        self.ask_dj.run_music_command = command
+        self.ask_dj.async_send_dj_response_best_effort = no_tts
+        try:
+            result = asyncio.run(
+                self.ask_dj.async_handle_ask_dj(
+                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
+                    runtime,
+                    {
+                        "text": "haal huidig nummer uit favorieten",
+                        "device_id": runtime.device_status["device_id"],
+                        "client_type": "ios",
+                    },
+                )
+            )
+        finally:
+            self.ask_dj.run_music_command = original_command
+            self.ask_dj.async_send_dj_response_best_effort = original_tts
+
+        self.assertEqual(calls, [("status", None), ("set_current_track_favorite", False)])
+        self.assertEqual(result["dj_text"], "Ik heb Radiohead - Karma Police uit je favorieten gehaald.")
+        self.assertEqual(len(runtime.memory.blocked), 1)
+        blocked_item, blocked_payload, blocked_user_id = runtime.memory.blocked[0]
+        self.assertEqual(blocked_item["kind"], "track")
+        self.assertEqual(blocked_item["name"], "Radiohead - Karma Police")
+        self.assertEqual(blocked_item["uri"], "spotify:track:karma-police")
+        self.assertEqual(blocked_item["reason"], "removed_from_favorites")
+        self.assertEqual(blocked_payload["client_type"], "ios")
+        self.assertIsNone(blocked_user_id)
+
     def test_music_dna_summary_can_show_recent_favorite_tracks(self) -> None:
         runtime = make_runtime()
 

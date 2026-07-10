@@ -884,7 +884,13 @@ Clients may also wrap the profile response in an export envelope:
         }
       ],
       "blocked_artists": [{"kind": "artist", "name": "Coldplay", "reason": "hide_artist"}],
-      "blocked_items": []
+      "blocked_items": [
+        {
+          "kind": "track",
+          "name": "Radiohead - Karma Police",
+          "reason": "removed_from_favorites"
+        }
+      ]
     },
     "privacy_dashboard": {
       "enabled": true,
@@ -926,6 +932,12 @@ calculate favorite artists, favorite genres, play time, listening rhythm, mood
 mix, repeat magnets, explicit positives, taste anchors, favorite history,
 snapshot trends or taste direction locally from Ask DJ history or local playback
 cache.
+
+Favorite changes are also server-authoritative. Adding the current track to
+Spotify favorites is recorded as an explicit positive Music DNA signal when
+Music DNA is enabled. Removing the current track from favorites is recorded as
+a compact negative track preference with `reason:"removed_from_favorites"`;
+clients must not synthesize or persist that preference locally.
 
 `privacy_dashboard` is a compact transparency block for Music DNA settings and
 dashboard screens. It lists which backend signal sources currently contribute,
@@ -1292,7 +1304,9 @@ Supported action kinds:
   a boolean `value` target and `client_prompt` (`Zet huidig nummer in favorieten`
   or `Haal huidig nummer uit favorieten`). Render it as an immediate Now
   Playing / Ask DJ toggle button and do not route it through
-  `ask_dj_play_recommendation`.
+  `ask_dj_play_recommendation`. When the command succeeds with
+  `favorite_status:false` or `is_liked:false`, Home Assistant records a compact
+  negative Music DNA track signal if Music DNA is enabled.
 - `confirmation`: Ja/Nee follow-up action with
   `command:"ask_dj_followup_response"` and a server-side pending proposal.
   Generic playlist/recommendation offers may use labels such as `Ja graag` and
