@@ -1,0 +1,78 @@
+id: DISCOVER-008
+title: Profile separation keeps recommendations scoped
+description: Verify that DJConnect platform behavior for profile separation keeps recommendations scoped matches the canonical Scenario Catalog expectation.
+purpose: Protect the accepted DJConnect platform contract for profile separation keeps recommendations scoped.
+owner: DJConnect Verification
+category: Discover
+subcategory: recommendations
+priority: P1
+risk: medium
+verification_level: V3
+automation_level: ENVIRONMENT_DEPENDENT
+required_components: [HA, Apple, Windows Native ARM64]
+supported_platforms: [Home Assistant, iOS, Windows ARM64]
+required_locales: [representative]
+required_build_types: [Debug, Instrumented]
+required_capabilities: [profiles, request_context]
+required_profiles: [personal_profile, household_profile]
+required_backends: [Spotify Direct]
+required_devices: [djconnect_client]
+required_environment: [configured_ha_instance]
+preconditions:
+  - The verification environment contains the components required for profile separation keeps recommendations scoped.
+  - Scenario fixture data is isolated from real user data or explicitly approved for test use.
+setup:
+  - Prepare the canonical fixture state for profile separation keeps recommendations scoped.
+  - Record environment metadata before execution.
+steps:
+  - number: 1
+    action: Execute the platform flow for profile separation keeps recommendations scoped.
+  - number: 2
+    action: Observe backend, client, hardware or artifact behavior as applicable.
+  - number: 3
+    action: Collect sanitized evidence and compare it to expected results.
+assertions:
+  backend:
+    - Profile separation keeps recommendations scoped follows the accepted platform ownership and contract boundaries.
+    - Structured errors are returned for unsupported or invalid state.
+  client:
+    - Clients render backend-owned state without reconstructing personal intelligence locally.
+  privacy:
+    - Evidence excludes OAuth tokens, bearer tokens, raw prompts, raw audio, Ask DJ history dumps and Music DNA contents.
+expected_results:
+  machine:
+    - code: profile_separation_keeps_recommendations_scoped
+      expected: true
+    - code: privacy_redaction_complete
+      expected: true
+  human:
+    - Profile separation keeps recommendations scoped behaves according to the canonical platform baseline without moving ownership into the wrong component.
+cleanup:
+  - Remove scenario-created state or restore the isolated fixture baseline.
+  - Retain only sanitized evidence needed for reporting.
+timeouts:
+  setup_seconds: 120
+  execution_seconds: 120
+  cleanup_seconds: 60
+retry_policy:
+  mode: CONTROLLED_RETRY
+  max_attempts: 2
+  reason: Runtime, hardware or live-service behavior may be transient.
+  delay_seconds: 5
+artifacts:
+  - type: logs
+    required: true
+    description: Sanitized evidence for profile separation keeps recommendations scoped.
+    redaction: Remove secrets, raw prompts, raw audio, private history and Music DNA contents unless explicitly required and approved.
+  - type: environment_snapshot
+    required: true
+    description: Versions, selected profiles, capabilities and relevant fixture metadata.
+privacy_classification: [Internal, Requires redaction]
+destructive: false
+tags: [discover, recommendations]
+estimated_duration: 5m
+manual_actions: []
+future_notes:
+  - Phase 4 may bind this scenario to one or more concrete adapters without changing the expected platform behavior.
+version: 1
+schema_version: "1.0"
