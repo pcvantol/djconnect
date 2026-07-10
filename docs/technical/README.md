@@ -7,6 +7,9 @@ Scope: current implementation archaeology, not redesign
 This directory documents how the current DJConnect platform really works as
 observed from local source code, tests, fixtures and repository-local docs.
 
+For guidance on where new technical discoveries belong, read
+`../meta/META_ENGINEERING_INDEX.md` and `../meta/DECISION_PATTERNS.md`.
+
 Classification tags used throughout:
 
 | Tag | Meaning |

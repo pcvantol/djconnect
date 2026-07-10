@@ -4,6 +4,9 @@ This directory defines the standard implementation structure for future DJConnec
 
 The framework is part of the DJConnect Platform Foundation. It exists so Epic 3 and later work can start from a repeatable architecture-first process instead of inventing a new workflow every time.
 
+For engineering workflow, AI-agent behavior and knowledge placement guidance,
+start with `../meta/META_ENGINEERING_INDEX.md`.
+
 ## Overview
 
 Implementation epics turn foundation, discovery and ADR decisions into working software. They must keep DJConnect coherent across repositories, preserve the Profile / Device / Music Backend / Renderer ownership model and avoid letting code become the product specification.

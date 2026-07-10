@@ -58,6 +58,16 @@ These foundation documents complement the repository-specific guidance below.
 
 Implementation details, API contracts, operational procedures, release workflows and repository-specific instructions in this AGENTS file remain authoritative for this repository.
 
+## Meta Engineering Foundation
+
+The Meta Engineering Foundation is mandatory reading before significant
+engineering work, architecture changes, verification work, completion reports
+or AI-agent execution.
+
+Start from `docs/meta/README.md`. It links the canonical Meta Engineering
+navigation, reading order and documents. Do not duplicate those documents in
+prompts or chat context.
+
 ## Localization
 
 DJConnect user-facing product surfaces must follow the canonical five-language
