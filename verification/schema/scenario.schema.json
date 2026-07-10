@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://djconnect.dev/verification/scenario.schema.json",
+  "title": "DJConnect Verification Scenario",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title",
+    "description",
+    "purpose",
+    "owner",
+    "category",
+    "priority",
+    "risk",
+    "verification_level",
+    "automation_level",
+    "required_components",
+    "supported_platforms",
+    "required_locales",
+    "required_build_types",
+    "preconditions",
+    "setup",
+    "steps",
+    "assertions",
+    "expected_results",
+    "cleanup",
+    "timeouts",
+    "retry_policy",
+    "artifacts",
+    "privacy_classification",
+    "destructive",
+    "tags",
+    "estimated_duration",
+    "version",
+    "schema_version"
+  ],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[A-Z]+-[0-9]{3}$" },
+    "title": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "purpose": { "type": "string", "minLength": 1 },
+    "owner": { "type": "string", "minLength": 1 },
+    "category": {
+      "type": "string",
+      "enum": ["Setup", "Profiles", "Identity", "Resolver", "Ask DJ", "Music DNA", "Discover", "Track Insight", "Playback", "Backend", "Privacy", "Localization", "Performance", "Hardware", "Networking", "Capabilities", "Release", "Regression", "Export", "Import", "Cloud", "Future"]
+    },
+    "subcategory": { "type": "string" },
+    "priority": { "type": "string", "enum": ["P0", "P1", "P2", "P3"] },
+    "risk": { "type": "string", "enum": ["critical", "high", "medium", "low"] },
+    "verification_level": { "type": "string", "enum": ["V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7"] },
+    "automation_level": { "type": "string", "enum": ["FULL", "ENVIRONMENT_DEPENDENT", "SEMI_AUTOMATED", "MANUAL"] },
+    "required_components": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "enum": ["HA", "Apple", "Windows Catalyst", "Windows Native ARM64", "Pi", "ESP32", "Voice Endpoint", "Spotify Direct", "Music Assistant", "Website", "Release Repo", "Future Android", "Future Runtime", "Future Cloud"] }
+    },
+    "supported_platforms": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } },
+    "required_locales": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "enum": ["en", "nl", "de", "fr", "es", "all", "representative", "not_applicable"] }
+    },
+    "required_build_types": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "enum": ["Debug", "Instrumented", "Release-equivalent", "Production artifact", "Simulator", "Native", "Hardware", "Mixed"] }
+    },
+    "required_capabilities": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+    "required_profiles": { "type": "array", "items": { "type": "string" } },
+    "required_backends": { "type": "array", "items": { "type": "string" } },
+    "required_devices": { "type": "array", "items": { "type": "string" } },
+    "required_environment": { "type": "array", "items": { "type": "string" } },
+    "preconditions": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/text_item" } },
+    "setup": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/text_item" } },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["number", "action"],
+        "properties": {
+          "number": { "type": "integer", "minimum": 1 },
+          "action": { "type": "string", "minLength": 1 },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "assertions": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "backend": { "$ref": "#/$defs/string_list" },
+        "client": { "$ref": "#/$defs/string_list" },
+        "hardware": { "$ref": "#/$defs/string_list" },
+        "privacy": { "$ref": "#/$defs/string_list" },
+        "localization": { "$ref": "#/$defs/string_list" },
+        "performance": { "$ref": "#/$defs/string_list" }
+      }
+    },
+    "expected_results": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["machine", "human"],
+      "properties": {
+        "machine": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["code", "expected"],
+            "properties": {
+              "code": { "type": "string" },
+              "expected": { "type": ["string", "number", "boolean", "object", "array"] }
+            }
+          }
+        },
+        "human": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+      }
+    },
+    "cleanup": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/text_item" } },
+    "timeouts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["setup_seconds", "execution_seconds", "cleanup_seconds"],
+      "properties": {
+        "setup_seconds": { "type": "integer", "minimum": 0 },
+        "execution_seconds": { "type": "integer", "minimum": 0 },
+        "cleanup_seconds": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "retry_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "max_attempts"],
+      "properties": {
+        "mode": { "type": "string", "enum": ["NONE", "ONE_RETRY", "CONTROLLED_RETRY", "MANUAL_RETRY"] },
+        "max_attempts": { "type": "integer", "minimum": 1 },
+        "reason": { "type": "string" },
+        "delay_seconds": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type", "required", "description"],
+        "properties": {
+          "type": { "type": "string", "enum": ["logs", "screenshots", "serial_logs", "requests", "responses", "environment_snapshot", "artifact_metadata", "checksums", "ci_results", "video", "audio", "memory_dumps"] },
+          "required": { "type": "boolean" },
+          "description": { "type": "string" },
+          "redaction": { "type": "string" }
+        }
+      }
+    },
+    "privacy_classification": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "enum": ["Public", "Internal", "Contains profile data", "Contains Music DNA", "Contains Ask DJ", "Contains secrets", "Requires redaction"] }
+    },
+    "destructive": { "type": "boolean" },
+    "tags": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } },
+    "estimated_duration": { "type": "string", "pattern": "^[0-9]+(s|m|h)$" },
+    "manual_actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["description", "required"],
+        "properties": {
+          "description": { "type": "string" },
+          "required": { "type": "boolean" }
+        }
+      }
+    },
+    "future_notes": { "type": "array", "items": { "type": "string" } },
+    "version": { "type": "integer", "minimum": 1 },
+    "schema_version": { "type": "string", "pattern": "^1\\.0$" }
+  },
+  "allOf": [
+    { "if": { "properties": { "destructive": { "const": true } } }, "then": { "properties": { "cleanup": { "minItems": 1 } } } },
+    { "if": { "properties": { "automation_level": { "const": "FULL" } } }, "then": { "properties": { "manual_actions": { "maxItems": 0 } } } }
+  ],
+  "$defs": {
+    "string_list": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+    "text_item": { "type": "string", "minLength": 1 }
+  }
+}

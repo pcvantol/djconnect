@@ -1,0 +1,80 @@
+id: ASKDJ-001
+title: Ask DJ message stores profile-scoped history
+description: Verify that an Ask DJ text message stores user and assistant messages under the resolved DJConnect Profile.
+purpose: Protect backend-owned Ask DJ continuity across clients.
+owner: DJConnect Verification
+category: Ask DJ
+subcategory: history_sync
+priority: P0
+risk: high
+verification_level: V3
+automation_level: ENVIRONMENT_DEPENDENT
+required_components: [HA, Apple, Windows Native ARM64]
+supported_platforms: [Home Assistant, iOS, Windows ARM64]
+required_locales: [representative]
+required_build_types: [Instrumented, Native]
+required_capabilities: [ask_dj_supported, profiles, request_context]
+required_profiles: [personal_profile]
+required_backends: [Spotify Direct]
+required_devices: [apple_client, windows_client]
+required_environment: [configured_ha_instance, configured_music_backend]
+preconditions:
+  - Music DNA and Ask DJ are available for the personal profile.
+  - Apple and Windows clients are linked to the same profile.
+setup:
+  - Clear or isolate Ask DJ history for the scenario profile.
+  - Ensure the selected backend can answer a text-only Ask DJ request.
+steps:
+  - number: 1
+    action: Send an Ask DJ text message from the Apple client using the personal profile.
+  - number: 2
+    action: Fetch Ask DJ history from the Windows client using the same profile.
+  - number: 3
+    action: Compare stored messages and history revision.
+assertions:
+  backend:
+    - The user message and assistant response are stored under the resolved profile.
+    - History revision increases exactly for the stored exchange.
+  client:
+    - Windows renders the same profile-scoped exchange without reconstructing client-local history.
+  privacy:
+    - Evidence excludes raw OAuth tokens, bearer tokens and unredacted private history beyond the scenario exchange.
+expected_results:
+  machine:
+    - code: history_scope
+      expected: profile
+    - code: cross_client_history_visible
+      expected: true
+  human:
+    - Ask DJ continuity follows the DJConnect Profile rather than one client device.
+cleanup:
+  - Clear scenario-created Ask DJ messages or restore the isolated profile fixture.
+timeouts:
+  setup_seconds: 120
+  execution_seconds: 60
+  cleanup_seconds: 60
+retry_policy:
+  mode: CONTROLLED_RETRY
+  max_attempts: 2
+  reason: Live backend and client synchronization can be transient.
+  delay_seconds: 5
+artifacts:
+  - type: requests
+    required: true
+    description: Sanitized Ask DJ request metadata.
+    redaction: Remove tokens and full private prompts not needed for proof.
+  - type: responses
+    required: true
+    description: Sanitized Ask DJ response metadata and history revision.
+  - type: screenshots
+    required: false
+    description: Client rendering evidence for the exchanged message.
+privacy_classification: [Internal, Contains profile data, Contains Ask DJ, Requires redaction]
+destructive: false
+tags: [ask_dj, profile, history, client]
+estimated_duration: 5m
+manual_actions: []
+future_notes:
+  - Add Pi read-only or shared-context variants as separate scenarios if expected behavior differs.
+version: 1
+schema_version: "1.0"
