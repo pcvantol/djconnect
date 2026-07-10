@@ -191,10 +191,11 @@ Completed:
 - ✅ Phase 8A Verification Data Framework.
 - ✅ Phase 8B Verification Modes and Verification Policies.
 - ✅ Phase 8C Verification Planning Engine.
+- ✅ Phase 9 Home Assistant Verification Adapter.
 
 Next:
 
-- ⏳ Phase 9 Home Assistant Verification Adapter.
+- ⏳ Home Assistant live validation and next scenario-driven adapter primitives.
 
 ## Epic 4 — Intelligence Platform
 

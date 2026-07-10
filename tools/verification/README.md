@@ -40,12 +40,14 @@ environment:
 - run identity and environment snapshots;
 - cleanup planning and restore operations;
 - adapter interface and adapter registry;
+- Home Assistant adapter primitives for the first profile scenario set;
 - planning engine for policies, modes, matrix profiles, data profiles,
   resource plans, environment plans and execution batches;
 - evidence, result and reporter models;
 - CLI command surface for future execution.
 
-It does not implement platform adapters and does not own product assertions.
+It implements the first Home Assistant runtime adapter and does not own product
+assertions.
 
 ## CLI
 
@@ -55,6 +57,7 @@ Run with Python while the command is a local scaffold:
 python -m tools.verification.cli list
 python -m tools.verification.cli validate
 python -m tools.verification.cli dry-run --scenario-id PROFILE-001
+python -m tools.verification.cli --ha-adapter execute --scenario-id PROFILE-001
 python -m tools.verification.cli report --tag localization
 python -m tools.verification.cli plan --strategy smoke --format json
 python -m tools.verification.cli doctor

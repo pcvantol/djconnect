@@ -49,7 +49,36 @@ class ScenarioEngine:
     def execute(self, scenarios: list[Scenario]) -> list[ScenarioResult]:
         results: list[ScenarioResult] = []
         for scenario in scenarios:
-            self.plan(scenario)
+            plan = self.plan(scenario)
+            adapter = self.adapters.get("home_assistant")
+            if adapter is not None and _targets_home_assistant(scenario):
+                primitive_results = [adapter.execute_action(action) for action in plan.actions]
+                state = ResultState.PASS if all(result.ok for result in primitive_results) else ResultState.FAIL
+                failed = [result for result in primitive_results if not result.ok]
+                message = (
+                    "Runtime primitives executed through Home Assistant adapter; "
+                    "scenario assertions remain owned by the Scenario Engine."
+                )
+                if failed:
+                    message = f"{message} Failed primitives: {', '.join(result.action for result in failed)}."
+                results.append(
+                    ScenarioResult(
+                        scenario_id=scenario.id,
+                        state=state,
+                        message=message,
+                        evidence=tuple(
+                            evidence
+                            for result in primitive_results
+                            for evidence in result.evidence
+                        ),
+                        duration_seconds=sum(
+                            float(result.data.get("duration_seconds", 0.0))
+                            for result in primitive_results
+                            if isinstance(result.data, dict)
+                        ),
+                    )
+                )
+                continue
             results.append(
                 ScenarioResult(
                     scenario_id=scenario.id,
@@ -63,6 +92,26 @@ class ScenarioEngine:
         return results
 
     def _actions(self, scenario: Scenario) -> list[PrimitiveAction]:
+        if _is_first_profile_adapter_scenario(scenario):
+            return [
+                PrimitiveAction("collect_environment"),
+                PrimitiveAction("health"),
+                PrimitiveAction("capabilities"),
+                PrimitiveAction(
+                    "create_fixture",
+                    {
+                        "kind": "profile",
+                        "name": scenario.id.lower(),
+                        "scenario_id": scenario.id,
+                    },
+                ),
+                PrimitiveAction("snapshot_storage", {"key": "djconnect_profile_platform"}),
+                PrimitiveAction("collect_logs"),
+                PrimitiveAction(
+                    "remove_fixture",
+                    {"fixture_id": f"verification-profile-{scenario.id.lower()}"},
+                ),
+            ]
         actions: list[PrimitiveAction] = []
         timeout = None
         timeouts = scenario.raw.get("timeouts")
@@ -79,3 +128,19 @@ class ScenarioEngine:
                     )
                 )
         return actions
+
+
+def _targets_home_assistant(scenario: Scenario) -> bool:
+    platforms = {str(item) for item in scenario.raw.get("supported_platforms") or ()}
+    components = set(scenario.required_components)
+    return "Home Assistant" in platforms or "HA" in components
+
+
+def _is_first_profile_adapter_scenario(scenario: Scenario) -> bool:
+    return (
+        scenario.id in {"PROFILE-001", "PROFILE-002", "PROFILE-003", "PROFILE-004", "PROFILE-005"}
+        and scenario.category == "Profiles"
+        and _targets_home_assistant(scenario)
+        and scenario.source is not None
+        and "verification/scenarios/profile" in scenario.source.as_posix()
+    )

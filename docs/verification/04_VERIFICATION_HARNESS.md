@@ -70,6 +70,11 @@ and execution placeholders only.
 `adapters.py` defines the common adapter interface. Adapters prepare, execute,
 collect evidence and clean up, but never define expected results.
 
+`home_assistant_adapter.py` implements the first thin runtime adapter. It
+performs Home Assistant REST, websocket, service, storage snapshot, fixture and
+metadata primitives for the first profile scenarios without embedding Profile,
+Privacy, Music DNA or assertion logic.
+
 `evidence.py` owns evidence and artifact helpers for logs, requests,
 responses, screenshots, serial logs, environment metadata, artifacts,
 checksums, timing, performance and future audio/video evidence.
@@ -109,6 +114,7 @@ Initial commands:
 python -m tools.verification.cli list
 python -m tools.verification.cli validate
 python -m tools.verification.cli dry-run
+python -m tools.verification.cli --ha-adapter execute --scenario-id PROFILE-001
 python -m tools.verification.cli plan
 python -m tools.verification.cli prepare
 python -m tools.verification.cli restore

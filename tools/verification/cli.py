@@ -23,6 +23,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--secrets-file", type=Path)
     parser.add_argument("--ci", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--ha-adapter", action="store_true")
 
     subparsers = parser.add_subparsers(dest="command", required=True)
     for command in ("list", "validate", "dry-run", "execute", "report"):
@@ -62,7 +63,14 @@ def main(argv: list[str] | None = None) -> int:
     )
     loader = ScenarioLoader(config)
     scenarios = loader.load()
-    orchestrator = VerificationOrchestrator(config)
+    adapters = None
+    if args.ha_adapter:
+        from .adapters import AdapterRegistry
+        from .home_assistant_adapter import HomeAssistantAdapterConfig, HomeAssistantVerificationAdapter
+
+        adapters = AdapterRegistry()
+        adapters.register(HomeAssistantVerificationAdapter(HomeAssistantAdapterConfig.from_environment(config.root)))
+    orchestrator = VerificationOrchestrator(config, adapters=adapters)
 
     if args.command == "list":
         selected = _select(args, scenarios)

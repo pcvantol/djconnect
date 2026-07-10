@@ -74,18 +74,22 @@ Completed:
 - Planning now composes scenarios, modes, policies, matrix profiles and data
   profiles into machine-readable execution plans without executing them.
 
-Still pending for adapter implementation:
+Closed by Phase 9:
 
-- Use generated plans as the input contract for Phase 9 adapters.
-- Extend live adapter capability matching once adapters exist.
+- VG-001: first Home Assistant adapter implemented.
+- VG-002: first HA executable subset defined as PROFILE-001 through
+  PROFILE-005.
+- VG-003: HA adapter output uses the existing redaction baseline for runtime
+  logs and structured data.
 
-Still pending for Phase 9 Home Assistant Adapter:
+Still pending after Phase 9:
 
-- VG-001 remains open: implement first Home Assistant adapter.
-- VG-002 remains open: define the HA executable scenario subset in adapter
-  configuration.
-- VG-003 remains open: connect HA adapter evidence to the redaction/evidence
-  baseline.
+- Live HA validation remains opt-in and should be run against a configured local
+  HA development environment.
+- Extend live websocket capability matching through the existing adapter
+  transport hook.
+- Add evidence file emission for live adapter logs through the existing
+  evidence pipeline.
 
 ## Adapter Phase Must Not Do
 
@@ -96,10 +100,7 @@ Still pending for Phase 9 Home Assistant Adapter:
 
 ## Phase 9 Home Assistant Adapter Recommended Scope
 
-- HA adapter skeleton.
-- Scenario loading/filtering for HA-owned categories.
-- HTTP route calls with sanitized request/response evidence.
-- Websocket producer checks.
-- Profile resolver/storage checks.
-- Export/import/privacy checks.
-- Deterministic voice error/helper checks where no real STT device is needed.
+- Completed first HA adapter skeleton and runtime primitives.
+- Completed first profile scenario runtime execution path.
+- Keep future growth scenario-driven and inside the existing adapter/core
+  subsystems.

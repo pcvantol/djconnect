@@ -10,6 +10,7 @@ from tools.verification.environment import EnvironmentSnapshotter, VerificationE
 from tools.verification.execution import ResultAggregator, ScenarioExecutor
 from tools.verification.hygiene import RepositoryHygiene
 from tools.verification.models import HarnessConfig, Scenario
+from tools.verification.planning import VerificationPlanningEngine
 
 
 class VerificationCore:
@@ -46,6 +47,7 @@ class VerificationCore:
     def execute(self, scenarios: list[Scenario]):
         snapshot = self.snapshot()
         environment = self.prepare_environment(scenarios)
+        plan = VerificationPlanningEngine(self.config).plan(scenarios, strategy_id="smoke", policy_id="smoke")
         return self.results.aggregate(
             "execute",
             self.executor.execute(scenarios),
@@ -53,5 +55,13 @@ class VerificationCore:
                 "environment": asdict(snapshot),
                 "execution_environment": environment,
                 "adapters": list(self.adapters.names()),
+                "execution_plan": {
+                    "plan_id": plan.plan_id,
+                    "strategy": plan.strategy,
+                    "policy": plan.policy,
+                    "case_count": plan.coverage.case_count,
+                    "batches": len(plan.batches),
+                    "estimated_seconds": plan.estimated_seconds,
+                },
             },
         )
