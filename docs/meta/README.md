@@ -11,3 +11,5 @@ maintainers collaborate while evolving the DJConnect platform.
   heuristics for the platform.
 - `DECISION_PATTERNS.md` defines where newly discovered engineering knowledge
   belongs in the repository.
+- `REPOSITORY_AS_MEMORY.md` explains why the repository is the durable
+  engineering memory instead of prompts or chat history.

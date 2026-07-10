@@ -32,6 +32,7 @@ The files below define the platform foundation itself.
 20. `docs/meta/ENGINEERING_PLAYBOOK.md`
 21. `docs/meta/ARCHITECTURAL_HEURISTICS.md`
 22. `docs/meta/DECISION_PATTERNS.md`
+23. `docs/meta/REPOSITORY_AS_MEMORY.md`
 
 ## Conflict-resolution order
 
@@ -86,6 +87,8 @@ collaborate while evolving the platform.
   decision-making heuristics for the platform.
 - `docs/meta/DECISION_PATTERNS.md` defines where newly discovered engineering
   knowledge belongs in the repository.
+- `docs/meta/REPOSITORY_AS_MEMORY.md` explains why the repository is the
+  durable engineering memory instead of prompts or chat history.
 
 ### Operational docs
 
