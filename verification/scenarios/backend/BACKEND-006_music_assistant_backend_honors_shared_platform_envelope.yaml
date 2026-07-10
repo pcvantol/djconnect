@@ -1,0 +1,76 @@
+id: BACKEND-006
+title: Music Assistant backend honors shared platform envelope
+description: Verify that DJConnect platform behavior for music assistant backend honors shared platform envelope matches the canonical Scenario Catalog expectation.
+purpose: Protect the accepted DJConnect platform contract for music assistant backend honors shared platform envelope.
+owner: DJConnect Verification
+category: Backend
+subcategory: music_backend
+priority: P0
+risk: high
+verification_level: V3
+automation_level: ENVIRONMENT_DEPENDENT
+required_components: [HA, Spotify Direct, Music Assistant]
+supported_platforms: [Home Assistant, Spotify Direct, Music Assistant]
+required_locales: [representative]
+required_build_types: [Debug, Instrumented]
+required_capabilities: []
+required_profiles: [personal_profile, household_profile]
+required_backends: [Spotify Direct]
+required_devices: []
+required_environment: [configured_ha_instance]
+preconditions:
+  - The verification environment contains the components required for music assistant backend honors shared platform envelope.
+  - Scenario fixture data is isolated from real user data or explicitly approved for test use.
+setup:
+  - Prepare the canonical fixture state for music assistant backend honors shared platform envelope.
+  - Record environment metadata before execution.
+steps:
+  - number: 1
+    action: Execute the platform flow for music assistant backend honors shared platform envelope.
+  - number: 2
+    action: Observe backend, client, hardware or artifact behavior as applicable.
+  - number: 3
+    action: Collect sanitized evidence and compare it to expected results.
+assertions:
+  backend:
+    - Music Assistant backend honors shared platform envelope follows the accepted platform ownership and contract boundaries.
+    - Structured errors are returned for unsupported or invalid state.
+  privacy:
+    - Evidence excludes OAuth tokens, bearer tokens, raw prompts, raw audio, Ask DJ history dumps and Music DNA contents.
+expected_results:
+  machine:
+    - code: music_assistant_backend_honors_shared_platform_envelope
+      expected: true
+    - code: privacy_redaction_complete
+      expected: true
+  human:
+    - Music Assistant backend honors shared platform envelope behaves according to the canonical platform baseline without moving ownership into the wrong component.
+cleanup:
+  - Remove scenario-created state or restore the isolated fixture baseline.
+  - Retain only sanitized evidence needed for reporting.
+timeouts:
+  setup_seconds: 120
+  execution_seconds: 120
+  cleanup_seconds: 60
+retry_policy:
+  mode: CONTROLLED_RETRY
+  max_attempts: 2
+  reason: Runtime, hardware or live-service behavior may be transient.
+  delay_seconds: 5
+artifacts:
+  - type: logs
+    required: true
+    description: Sanitized evidence for music assistant backend honors shared platform envelope.
+    redaction: Remove secrets, raw prompts, raw audio, private history and Music DNA contents unless explicitly required and approved.
+  - type: environment_snapshot
+    required: true
+    description: Versions, selected profiles, capabilities and relevant fixture metadata.
+privacy_classification: [Internal, Requires redaction]
+destructive: false
+tags: [backend, music_backend]
+estimated_duration: 5m
+manual_actions: []
+future_notes:
+  - Phase 4 may bind this scenario to one or more concrete adapters without changing the expected platform behavior.
+version: 1
+schema_version: "1.0"

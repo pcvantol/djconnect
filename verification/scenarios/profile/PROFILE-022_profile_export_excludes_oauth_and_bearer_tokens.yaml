@@ -1,0 +1,78 @@
+id: PROFILE-022
+title: Profile export excludes OAuth and bearer tokens
+description: Verify that DJConnect platform behavior for profile export excludes oauth and bearer tokens matches the canonical Scenario Catalog expectation.
+purpose: Protect the accepted DJConnect platform contract for profile export excludes oauth and bearer tokens.
+owner: DJConnect Verification
+category: Profiles
+subcategory: profiles
+priority: P0
+risk: high
+verification_level: V2
+automation_level: ENVIRONMENT_DEPENDENT
+required_components: [HA, Apple, Windows Native ARM64]
+supported_platforms: [Home Assistant, iOS, Windows ARM64]
+required_locales: [not_applicable]
+required_build_types: [Debug, Instrumented]
+required_capabilities: [profiles, request_context]
+required_profiles: [personal_profile, household_profile]
+required_backends: []
+required_devices: []
+required_environment: [configured_ha_instance]
+preconditions:
+  - The verification environment contains the components required for profile export excludes oauth and bearer tokens.
+  - Scenario fixture data is isolated from real user data or explicitly approved for test use.
+setup:
+  - Prepare the canonical fixture state for profile export excludes oauth and bearer tokens.
+  - Record environment metadata before execution.
+steps:
+  - number: 1
+    action: Execute the platform flow for profile export excludes oauth and bearer tokens.
+  - number: 2
+    action: Observe backend, client, hardware or artifact behavior as applicable.
+  - number: 3
+    action: Collect sanitized evidence and compare it to expected results.
+assertions:
+  backend:
+    - Profile export excludes OAuth and bearer tokens follows the accepted platform ownership and contract boundaries.
+    - Structured errors are returned for unsupported or invalid state.
+  client:
+    - Clients render backend-owned state without reconstructing personal intelligence locally.
+  privacy:
+    - Evidence excludes OAuth tokens, bearer tokens, raw prompts, raw audio, Ask DJ history dumps and Music DNA contents.
+expected_results:
+  machine:
+    - code: profile_export_excludes_oauth_and_bearer_tokens
+      expected: true
+    - code: privacy_redaction_complete
+      expected: true
+  human:
+    - Profile export excludes OAuth and bearer tokens behaves according to the canonical platform baseline without moving ownership into the wrong component.
+cleanup:
+  - Remove scenario-created state or restore the isolated fixture baseline.
+  - Retain only sanitized evidence needed for reporting.
+timeouts:
+  setup_seconds: 120
+  execution_seconds: 60
+  cleanup_seconds: 60
+retry_policy:
+  mode: CONTROLLED_RETRY
+  max_attempts: 2
+  reason: Runtime, hardware or live-service behavior may be transient.
+  delay_seconds: 5
+artifacts:
+  - type: logs
+    required: true
+    description: Sanitized evidence for profile export excludes oauth and bearer tokens.
+    redaction: Remove secrets, raw prompts, raw audio, private history and Music DNA contents unless explicitly required and approved.
+  - type: environment_snapshot
+    required: true
+    description: Versions, selected profiles, capabilities and relevant fixture metadata.
+privacy_classification: [Internal, Requires redaction]
+destructive: false
+tags: [profile, profiles]
+estimated_duration: 2m
+manual_actions: []
+future_notes:
+  - Phase 4 may bind this scenario to one or more concrete adapters without changing the expected platform behavior.
+version: 1
+schema_version: "1.0"
