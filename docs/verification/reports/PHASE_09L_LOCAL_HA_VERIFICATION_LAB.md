@@ -4,9 +4,9 @@ Final result: LOCAL_VERIFICATION_LAB_NOT_QUALIFIED
 
 Date: 2026-07-10
 Repository: `pcvantol/djconnect`
-Branch: `codex/phase-09l-r-local-ha-lab-remediation`
-Tested SHA: `6248b5d65016f8f2eefdd07d7725fb69c0fbada5`
-Remediation phase: Phase 9L-R
+Branch: `phase-09l-r2-docker-runtime-remediation`
+Tested SHA: `7cd3f78823928bd499a509dcaf241923f1175b41`
+Remediation phase: Phase 9L-R2
 
 ## Decision
 
@@ -15,11 +15,15 @@ run by making the local HA lab doctor and lifecycle commands fail closed with
 clear diagnostics instead of hanging or collapsing distinct failures into one
 generic blocker.
 
-The local HA verification lab is still not qualified for live Phase 9V
-execution because the local Docker runtime cannot remove the stale dedicated
-`djconnect-verification-ha` container. The container remains in `Created`
-state, `docker inspect` and `docker logs` time out, and even scoped recovery
-with `docker rm -f djconnect-verification-ha` times out.
+Phase 9L-R2 verified that Docker can now remove the stale dedicated
+`djconnect-verification-ha` container, but the local HA verification lab is
+still not qualified for live Phase 9V execution because the local Docker
+Desktop/containerd runtime cannot start containers. A dedicated HA lab start
+created the expected labeled container with the correct source SHA and mounts,
+but it remained in `Created` state with no logs or bound ports. A no-mount
+`docker run` probe using the already-local Home Assistant image also remained
+in `Created` state. After restarting Docker Desktop, `docker version` returned
+an HTTP 500 and then hung while reconnecting.
 
 The remaining live blocker is now a narrow external Docker Desktop/runtime
 prerequisite. Lab-only Home Assistant auth bootstrap has been added so a fresh
@@ -33,6 +37,39 @@ Environment resolves them to canonical lab profiles and deterministic Compose
 fragments.
 
 No production Home Assistant container or volume was mutated.
+
+## Phase 9L-R2 Docker Runtime Remediation Attempt
+
+Observed on 2026-07-10:
+
+- Docker Desktop server initially responded to `docker version`.
+- No dedicated `djconnect-verification-*` containers were present before the
+  R2 run.
+- `python3 -m tools.verification.cli lab ha metadata` selected `ha-profile`
+  and resolved to `docker/verification/compose.base.yaml`.
+- `python3 -m tools.verification.cli lab ha start` invoked Docker Compose but
+  hung while the dedicated lab container remained in `Created` state.
+- `docker inspect djconnect-verification-ha` succeeded and showed:
+  - `djconnect.verification=true`;
+  - `djconnect.lab.profile=ha-profile`;
+  - `djconnect.source_sha=7cd3f78823928bd499a509dcaf241923f1175b41`;
+  - source mounted read-only at `/djconnect-source`;
+  - dedicated config mounted at `/config`;
+  - no production volume mount.
+- `docker rm -f djconnect-verification-ha` succeeded.
+- A no-mount probe,
+  `docker run --rm --name djconnect-verification-docker-probe ghcr.io/home-assistant/home-assistant:stable /bin/true`,
+  also remained in `Created` state.
+- The no-mount probe was removed with
+  `docker rm -f djconnect-verification-docker-probe`.
+- Docker Desktop was restarted with `osascript -e 'quit app "Docker"'` and
+  `open -a Docker`.
+- After restart, `docker version` returned an HTTP 500 for `/v1.55/version` and
+  subsequent readiness checks hung before returning server metadata.
+
+Conclusion: Phase 9L-R2 isolated the remaining blocker to local Docker
+Desktop/containerd container-start health, not the DJConnect Compose profile,
+Home Assistant configuration, source mount, lab auth, or scenario planning.
 
 ## Lab Definition
 
@@ -244,8 +281,9 @@ The modular lab refinement validates:
 
 | Failure | Classification | Owner | Blocking | Recommended action |
 | --- | --- | --- | --- | --- |
-| Dedicated lab container remains in `Created` state | Environment issue | Local Docker / Verification Environment | Yes | Restart or repair Docker Desktop, then remove only `djconnect-verification-ha` and rerun `lab ha start`. |
-| `docker inspect`, `docker logs` and `docker rm -f` time out for the dedicated container | Environment issue | Local Docker | Yes | Stabilize Docker Desktop/containerd state; do not use production HA containers as a workaround. |
+| Dedicated lab container remains in `Created` state | Environment issue | Local Docker / Verification Environment | Yes | Repair Docker Desktop/containerd container-start health, then rerun `lab ha start`. |
+| No-mount Docker probe remains in `Created` state | Environment issue | Local Docker | Yes | Stabilize Docker Desktop/containerd before retrying the HA lab. |
+| Docker Desktop restart returned HTTP 500 and later hung on `docker version` | Environment issue | Local Docker | Yes | Repair or reset Docker Desktop runtime; do not use production HA containers as a workaround. |
 | Runtime source identity is stale/unproven | Environment issue | Verification Environment | Yes | After stale-container removal, recreate the dedicated lab so labels match the tested SHA. |
 | HA auth could not be qualified live | Environment issue | Verification Environment | Yes | After Docker recovery, run `lab ha bootstrap-auth` or provide `DJCONNECT_VERIFICATION_HA_TOKEN`, then rerun `lab ha doctor`. |
 | REST/WebSocket not qualified | Environment issue / HA Adapter live prerequisite | Yes | Rerun `lab ha doctor` after the lab is running and the token is available. |
@@ -254,21 +292,19 @@ The modular lab refinement validates:
 
 Smallest remaining prerequisites:
 
-1. Restore Docker Desktop/containerd behavior so the dedicated stale container
-   can be removed with:
+1. Restore Docker Desktop/containerd behavior so a no-mount local image probe
+   can start and exit cleanly.
 
-   ```bash
-   docker rm -f djconnect-verification-ha
-   ```
+2. Verify Docker runtime health with a no-mount probe before starting the lab.
 
-2. Rerun:
+3. Rerun:
 
    ```bash
    python3 -m tools.verification.cli lab ha start
    python3 -m tools.verification.cli lab ha doctor
    ```
 
-3. Bootstrap lab-only HA auth:
+4. Bootstrap lab-only HA auth:
 
    ```bash
    python3 -m tools.verification.cli lab ha bootstrap-auth
@@ -277,7 +313,7 @@ Smallest remaining prerequisites:
    Alternatively, provide a non-committed existing token through
    `DJCONNECT_VERIFICATION_HA_TOKEN`.
 
-4. Rerun:
+5. Rerun:
 
    ```bash
    python3 -m tools.verification.cli lab ha doctor

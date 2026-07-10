@@ -8,18 +8,20 @@ not required.
 
 ## Active Next Phase
 
-Phase 9L-R has run and is not yet qualified. The active next step is the narrow
-Phase 9L-R2 Docker runtime remediation. The modular local HA lab model is now
+Phase 9L-R2 has run and is not yet qualified. The active next step is the
+narrow Phase 9L-R3 Docker Desktop repair. The modular local HA lab model is
 implemented and validated: scenarios declare logical requirements, the planner
 selects the smallest canonical profile, and `PROFILE-001` through `PROFILE-005`
-select `ha-profile`. Live lab qualification is still blocked by the local
-Docker Desktop/containerd runtime. The blockers are recorded in
+select `ha-profile`. Phase 9L-R2 isolated the remaining blocker to local Docker
+Desktop/containerd container-start health: a no-mount local image probe remained
+in `Created`, and Docker Desktop restart returned HTTP 500/hung readiness
+checks. The blockers are recorded in
 `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md`.
 
 Use this clean-session prompt:
 
 ```text
-Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 9L-R2 from PROMPT_INDEX.md after restoring local Docker.
+Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 9L-R3 from PROMPT_INDEX.md after repairing Docker Desktop.
 ```
 
 ## Prompt Table
@@ -43,7 +45,8 @@ Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 9L-R2 from PROMPT_INDEX.m
 | 9R | Verification Platform Qualification Remediation | Remediated with external prerequisites | `prompts/verification/PHASE_09R_QUALIFICATION_REMEDIATION.md` | Phase 9V not qualified | `docs/verification/reports/PHASE_09R_QUALIFICATION_REMEDIATION.md` | PR #63 branch `docs/phase-09r-remediation-prompt-v2` | Phase 9L |
 | 9L | Local HA Verification Lab | Not qualified | `prompts/verification/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md` | Phase 9R | `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md`; evidence `artifacts/verification/evidence/phase-09l-local-ha-lab-20260710T1450Z/` | Merge Phase 9L implementation before remediation or continue same PR if still open | Phase 9L-R |
 | 9L-R | Local HA Lab Remediation | Not qualified - external Docker prerequisite | `prompts/verification/PHASE_09L_R_LOCAL_HA_LAB_REMEDIATION.md` | Phase 9L not qualified | Updated `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md`; evidence `artifacts/verification/evidence/phase-09l-r-local-ha-lab-20260710T153557Z/`; `docs/verification/reports/PHASE_09L_LAB_REQUIREMENT_COVERAGE.md` | PR #67 branch `codex/phase-09l-r-local-ha-lab-remediation` | Phase 9L-R2 |
-| 9L-R2 | Docker Runtime Remediation And Local HA Lab Qualification | Active | `prompts/verification/PHASE_09L_R2_DOCKER_RUNTIME_REMEDIATION.md` | Phase 9L-R not qualified, modular lab validation complete | Update `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md`; evidence under `artifacts/verification/evidence/` | Continue PR #67 or merge before rerun if governance requires | Phase 9V rerun only after lab qualification |
+| 9L-R2 | Docker Runtime Remediation And Local HA Lab Qualification | Not qualified - Docker Desktop container-start blocker | `prompts/verification/PHASE_09L_R2_DOCKER_RUNTIME_REMEDIATION.md` | Phase 9L-R not qualified, modular lab validation complete | Updated `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md` | New remediation branch | Phase 9L-R3 |
+| 9L-R3 | Docker Desktop Repair And Local HA Lab Qualification | Active | `prompts/verification/PHASE_09L_R3_DOCKER_DESKTOP_REPAIR.md` | Phase 9L-R2 not qualified; no-mount Docker probe cannot start | Update `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md`; evidence under `artifacts/verification/evidence/` | New remediation PR | Phase 9V rerun only after lab qualification |
 | 9V rerun | Verification Platform Qualification Rerun | Blocked pending Phase 9L-R | To be created only after Phase 9L-R qualifies the lab | Phase 9L-R qualified | `docs/verification/reports/PHASE_09V_VERIFICATION_PLATFORM_QUALIFICATION_RERUN.md` | Must merge before Phase 10 | Phase 10 |
 | 10 | Apple Verification Adapter | Blocked | To be created after Phase 9V rerun qualifies the platform | Phase 9V rerun qualified | Future Phase 10 report | New PR after approval | Future adapter qualification |
 
@@ -69,5 +72,5 @@ qualification report and the final result line.
 Exact clean-session command for the active phase:
 
 ```text
-Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 9L-R2 from PROMPT_INDEX.md after restoring local Docker.
+Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 9L-R3 from PROMPT_INDEX.md after repairing Docker Desktop.
 ```
