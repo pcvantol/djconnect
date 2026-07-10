@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "items": [
+    {"repo": "djconnect", "storage": ["Home Assistant Store", "config entries/options", "runtime memory"], "secrets": "Spotify refresh token and device token in HA config/runtime; redacted diagnostics", "classification": "CONFIRMED_CODE"},
+    {"repo": "djconnect-app", "storage": ["UserDefaults/Keychain-style local state"], "secrets": "device token/local credentials expected in platform secure storage; exact keys UNKNOWN", "classification": "UNKNOWN"},
+    {"repo": "djconnect-windows", "storage": ["Windows Credential Manager", "macOS Keychain", "MAUI Preferences", "AppData files"], "secrets": "device bearer token in Credential Manager/Keychain", "classification": "CONFIRMED_CODE"},
+    {"repo": "djconnect-pi", "storage": ["local config files", "updater status files", "release directories"], "secrets": "device token in local config", "classification": "CONFIRMED_CODE"},
+    {"repo": "djconnect-esp32", "storage": ["ESP Preferences/NVS"], "secrets": "HA device token and WiFi provisioning in NVS", "classification": "CONFIRMED_CODE"},
+    {"repo": "djconnect-api", "storage": ["Cloudflare D1"], "secrets": "install token hashes, bootstrap proofs, APNs token hash/encrypted token", "classification": "CONFIRMED_CODE"}
+  ]
+}

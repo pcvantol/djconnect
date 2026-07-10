@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "items": [
+    {"repo": "djconnect", "builds": ["HACS custom integration", "Python tests"], "authoritative": "current HA integration version 3.2.50", "classification": "CONFIRMED_CODE"},
+    {"repo": "djconnect-app", "builds": ["iOS", "macOS", "watchOS", "simulator/debug/release inferred from Xcode project"], "authoritative": "UNKNOWN", "classification": "INFERRED"},
+    {"repo": "djconnect-windows", "builds": [".NET MAUI Debug", ".NET MAUI Release", "native Windows ARM64 documented"], "authoritative": "native Windows ARM64 per verification docs", "classification": "CONFIRMED_CODE"},
+    {"repo": "djconnect-pi", "builds": ["Python package", "release tarball/bundle", "systemd install"], "authoritative": "Pi release bundle", "classification": "CONFIRMED_CODE"},
+    {"repo": "djconnect-esp32", "builds": ["PlatformIO env t_embed_cc1101", "native unit tests", "release firmware binary"], "authoritative": "t_embed_cc1101", "classification": "CONFIRMED_CODE"},
+    {"repo": "djconnect-api", "builds": ["Cloudflare Worker", "wrangler deploy", "TypeScript tests"], "authoritative": "wrangler deployment", "classification": "CONFIRMED_CODE"},
+    {"repo": "djconnect-website", "builds": ["website build"], "authoritative": "UNKNOWN", "classification": "DOCUMENTED_ONLY"},
+    {"repo": "djconnect-firmware", "builds": ["release artifact repository"], "authoritative": "firmware release manifest/assets", "classification": "DOCUMENTED_ONLY"}
+  ]
+}

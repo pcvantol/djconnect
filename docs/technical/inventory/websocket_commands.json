@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "classification": "CONFIRMED_CODE",
+  "source": "custom_components/djconnect/websocket_api.py",
+  "authentication": "Home Assistant native websocket authentication; client payload also carries DJConnect identity/token fields where required",
+  "capabilities_command": "djconnect/capabilities",
+  "commands": [
+    {"type": "djconnect/capabilities", "http_fallback": null, "feature": "capability_discovery"},
+    {"type": "djconnect/command", "http_fallback": "/api/djconnect/v1/command", "feature": "backend_commands"},
+    {"type": "djconnect/ask_dj/message", "http_fallback": "/api/djconnect/v1/ask_dj/message", "feature": "ask_dj_chat"},
+    {"type": "djconnect/ask_dj/history", "http_fallback": "/api/djconnect/v1/ask_dj/history", "feature": "ask_dj_history"},
+    {"type": "djconnect/ask_dj/history/clear", "http_fallback": "/api/djconnect/v1/ask_dj/history/clear", "feature": "ask_dj_history"},
+    {"type": "djconnect/ask_dj/history/state", "http_fallback": "/api/djconnect/v1/ask_dj/history_state", "feature": "ask_dj_history"},
+    {"type": "djconnect/ask_dj/idle_suggestion", "http_fallback": "/api/djconnect/v1/ask_dj/idle_suggestion", "feature": "ask_dj_idle_suggestion"},
+    {"type": "djconnect/track_insight", "http_fallback": "/api/djconnect/v1/track_insight", "feature": "track_insight"},
+    {"type": "djconnect/music_dna/profile", "http_fallback": "/api/djconnect/v1/music_dna/profile", "feature": "music_dna"},
+    {"type": "djconnect/music_dna/settings", "http_fallback": "/api/djconnect/v1/music_dna/settings", "feature": "music_dna"},
+    {"type": "djconnect/music_dna/clear", "http_fallback": "/api/djconnect/v1/music_dna/clear", "feature": "music_dna"},
+    {"type": "djconnect/music_dna/import", "http_fallback": "/api/djconnect/v1/music_dna/import", "feature": "music_dna"},
+    {"type": "djconnect/music_dna/export", "http_fallback": "/api/djconnect/v1/music_dna/export", "feature": "music_dna"},
+    {"type": "djconnect/music_discovery/feed", "http_fallback": "/api/djconnect/v1/music_discovery", "feature": "music_discovery"},
+    {"type": "djconnect/music_discovery/refresh", "http_fallback": "/api/djconnect/v1/music_discovery/refresh", "feature": "music_discovery"},
+    {"type": "djconnect/music_discovery/play", "http_fallback": "/api/djconnect/v1/music_discovery/play", "feature": "music_discovery"},
+    {"type": "djconnect/music_discovery/feedback", "http_fallback": "/api/djconnect/v1/music_discovery/feedback", "feature": "music_discovery_feedback"}
+  ],
+  "not_supported_over_websocket": [
+    "pairing",
+    "voice_wav_upload",
+    "tts_binary_download",
+    "image_proxy",
+    "spotify_oauth_callback",
+    "local_device_api"
+  ]
+}
