@@ -54,6 +54,21 @@ Still pending for future generator execution:
 - Add executable generator code that consumes the catalog IDs.
 - Add schema validation for data catalog files if the static JSON format grows.
 
+## Phase 8B Progress
+
+Completed:
+
+- Verification Modes Framework implemented under `verification/modes/`.
+- Verification Policies Framework implemented under `verification/policies/`.
+- Canonical mode and policy catalogs added with traceability to scenario
+  categories, matrix profiles, data profiles, risks and workflows.
+
+Still pending for Phase 8C Planning Engine:
+
+- Compose scenarios, modes, policies, matrix profiles and data profiles into
+  executable plans.
+- Validate policy/mode catalog references automatically.
+
 Still pending for Phase 9 Home Assistant Adapter:
 
 - VG-001 remains open: implement first Home Assistant adapter.

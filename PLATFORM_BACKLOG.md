@@ -189,9 +189,11 @@ Completed:
 - ✅ Implementation Gap Analysis;
 - ✅ Phase 8 Verification Execution Environment.
 - ✅ Phase 8A Verification Data Framework.
+- ✅ Phase 8B Verification Modes and Verification Policies.
 
 Next:
 
+- ⏳ Phase 8C Verification Planning Engine.
 - ⏳ Phase 9 Home Assistant Verification Adapter.
 
 ## Epic 4 — Intelligence Platform
