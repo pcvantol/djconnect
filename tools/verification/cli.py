@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
+from .artifacts import ArtifactManager
 from .config import load_config
+from .configuration import SecretLoader
 from .orchestrator import VerificationOrchestrator
-from .reporters import JSONReporter, MarkdownReporter, SummaryReporter
+from .reporters import JSONReporter, JUnitReporter, MarkdownReporter, SummaryReporter
 from .scenarios import ScenarioLoader, ScenarioScheduler, ScenarioValidator
 
 
@@ -18,17 +21,20 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--env-file", type=Path)
     parser.add_argument("--secrets-file", type=Path)
     parser.add_argument("--ci", action="store_true")
+    parser.add_argument("--dry-run", action="store_true")
 
     subparsers = parser.add_subparsers(dest="command", required=True)
     for command in ("list", "validate", "dry-run", "execute", "report"):
         sub = subparsers.add_parser(command)
         _add_filters(sub)
-    subparsers.add_parser("evidence")
-    subparsers.add_parser("clean")
+    report = subparsers.choices["report"]
+    report.add_argument("--format", choices=("markdown", "json", "junit"), default="markdown")
+    clean = subparsers.add_parser("clean")
+    clean.add_argument("--apply", action="store_true")
     subparsers.add_parser("doctor")
     subparsers.add_parser("env")
-    subparsers.add_parser("build")
-    subparsers.add_parser("ci")
+    subparsers.add_parser("schema")
+    subparsers.add_parser("config")
     return parser
 
 
@@ -41,9 +47,11 @@ def main(argv: list[str] | None = None) -> int:
         environment_file=args.env_file,
         secrets_file=args.secrets_file,
         ci=args.ci,
+        dry_run=args.dry_run,
     )
     loader = ScenarioLoader(config)
     scenarios = loader.load()
+    orchestrator = VerificationOrchestrator(config)
 
     if args.command == "list":
         selected = _select(args, scenarios)
@@ -61,23 +69,65 @@ def main(argv: list[str] | None = None) -> int:
         return 1 if any(issue.severity == "error" for issue in issues) else 0
 
     if args.command == "dry-run":
-        result = VerificationOrchestrator(config).dry_run(_select(args, scenarios))
+        result = orchestrator.dry_run(_select(args, scenarios))
         print(SummaryReporter().render(result))
         return 0
 
     if args.command == "execute":
-        result = VerificationOrchestrator(config).execute(_select(args, scenarios))
+        result = orchestrator.execute(_select(args, scenarios))
         print(SummaryReporter().render(result))
         return 0
 
     if args.command == "report":
-        result = VerificationOrchestrator(config).dry_run(_select(args, scenarios))
-        print(MarkdownReporter().render(result))
-        print(JSONReporter().render(result))
+        result = orchestrator.dry_run(_select(args, scenarios))
+        reporter = {
+            "markdown": MarkdownReporter(),
+            "json": JSONReporter(),
+            "junit": JUnitReporter(),
+        }[args.format]
+        print(reporter.render(result))
         return 0
 
-    print(f"{args.command}: scaffold command registered; implementation pending")
-    return 0
+    if args.command == "doctor":
+        for gate in orchestrator.doctor():
+            print(f"{gate.state.value}\t{gate.name}\t{gate.message}")
+        return 0
+
+    if args.command == "env":
+        print(json.dumps(orchestrator.snapshot().__dict__, indent=2, sort_keys=True))
+        return 0
+
+    if args.command == "clean":
+        paths = ArtifactManager(config.evidence_dir).clean(dry_run=not args.apply)
+        mode = "would remove" if not args.apply else "removed"
+        print(f"{mode} {len(paths)} evidence entries")
+        return 0
+
+    if args.command == "schema":
+        schema = config.root / "verification/schema/scenario.schema.json"
+        print(schema.read_text(encoding="utf-8") if schema.exists() else "{}")
+        return 0
+
+    if args.command == "config":
+        secrets = SecretLoader().load(config.secrets_file)
+        print(
+            json.dumps(
+                {
+                    "root": str(config.root),
+                    "scenario_paths": [str(path) for path in config.scenario_paths],
+                    "evidence_dir": str(config.evidence_dir),
+                    "report_dir": str(config.report_dir),
+                    "ci": config.ci,
+                    "secrets": {"source": secrets.source, "names": list(secrets.names)},
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return 0
+
+    parser.error(f"unsupported command: {args.command}")
+    return 2
 
 
 def _add_filters(parser: argparse.ArgumentParser) -> None:
