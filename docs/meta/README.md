@@ -7,3 +7,5 @@ maintainers collaborate while evolving the DJConnect platform.
   repository-first engineering memory principle.
 - `ENGINEERING_PLAYBOOK.md` defines the canonical engineering lifecycle from
   idea to production.
+- `ARCHITECTURAL_HEURISTICS.md` defines practical architecture decision-making
+  heuristics for the platform.

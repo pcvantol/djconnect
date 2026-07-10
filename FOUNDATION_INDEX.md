@@ -30,6 +30,7 @@ The files below define the platform foundation itself.
 18. `docs/verification/01_VERIFICATION_ARCHITECTURE.md`
 19. `docs/meta/AI_COLLABORATION_MODEL.md`
 20. `docs/meta/ENGINEERING_PLAYBOOK.md`
+21. `docs/meta/ARCHITECTURAL_HEURISTICS.md`
 
 ## Conflict-resolution order
 
@@ -80,6 +81,8 @@ collaborate while evolving the platform.
   model and repository-first engineering memory principle.
 - `docs/meta/ENGINEERING_PLAYBOOK.md` defines the canonical engineering
   lifecycle from idea to production.
+- `docs/meta/ARCHITECTURAL_HEURISTICS.md` defines practical architecture
+  decision-making heuristics for the platform.
 
 ### Operational docs
 
