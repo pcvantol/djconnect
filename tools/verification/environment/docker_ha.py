@@ -5,8 +5,11 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import base64
+import socket
 import shutil
 import subprocess
+import struct
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -69,6 +72,7 @@ class HADockerRuntime:
     source_mount: str = ""
     source_matches_sha: bool = False
     safe_for_verification: bool = False
+    inspect_error: str = ""
 
 
 @dataclass(frozen=True)
@@ -118,9 +122,7 @@ class HADockerDiscovery:
             summary = json.loads(line)
             container_id = str(summary.get("ID") or "")
             inspect = self._inspect(container_id)
-            if not inspect:
-                continue
-            runtime = self._runtime_from_inspect(inspect)
+            runtime = self._runtime_from_inspect(inspect) if inspect else self._runtime_from_summary(summary, "docker inspect unavailable or timed out")
             if expected_name and runtime.name != expected_name:
                 continue
             if not expected_name and not _looks_like_home_assistant(runtime):
@@ -164,13 +166,31 @@ class HADockerDiscovery:
         )
 
     def _inspect(self, container_id: str) -> dict[str, Any] | None:
-        result = self.docker.run("inspect", container_id)
+        result = self.docker.run("inspect", container_id, timeout=5)
         if not result.ok:
             return None
         data = json.loads(result.stdout)
         if not isinstance(data, list) or not data:
             return None
         return data[0]
+
+    def _runtime_from_summary(self, data: dict[str, Any], inspect_error: str) -> HADockerRuntime:
+        name = str(data.get("Names") or data.get("Name") or "").lstrip("/")
+        state = str(data.get("State") or data.get("Status") or "unknown").lower()
+        return HADockerRuntime(
+            container_id=str(data.get("ID") or "")[:12],
+            name=name,
+            image=str(data.get("Image") or ""),
+            image_id=str(data.get("ImageID") or ""),
+            status=state,
+            state=state,
+            health="unknown",
+            created=str(data.get("CreatedAt") or ""),
+            started_at="",
+            network_mode=str(data.get("Networks") or ""),
+            labels=_summary_labels(data),
+            inspect_error=inspect_error,
+        )
 
     def _runtime_from_inspect(self, data: dict[str, Any]) -> HADockerRuntime:
         config = data.get("Config") or {}
@@ -183,7 +203,7 @@ class HADockerDiscovery:
         source_mount = _source_mount(mounts, self.root)
         current_sha = _git_sha(self.root)
         label_sha = labels.get("djconnect.source_sha")
-        source_matches = bool(source_mount) and current_sha is not None and label_sha not in {"unknown", ""} and (label_sha is None or label_sha == current_sha)
+        source_matches = bool(source_mount) and current_sha is not None and label_sha == current_sha
         safe = _safe_label(labels) or _safe_name(str(data.get("Name") or ""))
         return HADockerRuntime(
             container_id=str(data.get("Id") or "")[:12],
@@ -223,6 +243,10 @@ class HALocalVerificationLab:
         if action == "clean":
             return self._clean()
         self._ensure_layout()
+        if action in {"start", "recreate", "fresh"}:
+            recovery = self._recover_stale_container()
+            if not recovery["ok"]:
+                return GateResult("ha_lab_lifecycle", GateState.FAIL, "Lab recovery failed before lifecycle action", recovery)
         env = self._compose_env()
         compose = ("compose", "-f", str(self.config.compose_file))
         commands = {
@@ -237,13 +261,14 @@ class HALocalVerificationLab:
         if action == "fresh":
             self._clean_runtime_state()
             self._ensure_layout()
-        result = self.docker.run(*commands[action], env=env, timeout=180)
+        result = self.docker.run(*commands[action], env=env, timeout=300)
         state = GateState.PASS if result.ok else GateState.FAIL
+        diagnostics = self._container_diagnostics()
         return GateResult(
             "ha_lab_lifecycle",
             state,
             f"Lab {action} {'completed' if result.ok else 'failed'}",
-            {"action": action, "stdout": result.stdout[-4000:], "stderr": result.stderr[-4000:], "returncode": result.returncode},
+            {"action": action, "stdout": result.stdout[-4000:], "stderr": result.stderr[-4000:], "returncode": result.returncode, "diagnostics": diagnostics},
         )
 
     def qualify(self) -> GateResult:
@@ -257,6 +282,8 @@ class HALocalVerificationLab:
         checks["container_selection"] = _check(len(runtimes) == 1, "Exactly one intended lab container selected", f"{len(runtimes)} candidates")
         runtime = runtimes[0] if len(runtimes) == 1 else None
         if runtime:
+            checks["inspect"] = _check(not runtime.inspect_error, "Docker inspect completed", runtime.inspect_error or "ok")
+            checks["container_state"] = _check(runtime.status not in {"created", "exited", "dead", "restarting"}, "Container not stuck before runtime qualification", runtime.status)
             checks["port"] = _check(_owns_port(runtime, self.config.port), "Expected host port belongs to lab container", runtime.ports)
             checks["labels"] = _check(_safe_label(runtime.labels), "Verification labels present", runtime.labels)
             checks["source"] = _check(runtime.source_matches_sha, "Repository source mount matches current tree", runtime.source_mount)
@@ -264,6 +291,8 @@ class HALocalVerificationLab:
             checks["safe"] = _check(runtime.safe_for_verification, "Runtime safe for verification", _runtime_metadata(runtime))
             checks["running"] = _check(runtime.status == "running", "Container running", runtime.status)
         else:
+            checks["inspect"] = _check(False, "Docker inspect unavailable", "container not selected")
+            checks["container_state"] = _check(False, "Container state unavailable", "container not selected")
             checks["port"] = _check(False, "Expected host port unavailable", "container not selected")
             checks["labels"] = _check(False, "Verification labels unavailable", "container not selected")
             checks["source"] = _check(False, "Repository source mount unavailable", "container not selected")
@@ -272,10 +301,10 @@ class HALocalVerificationLab:
             checks["running"] = _check(False, "Container not running", "container not selected")
         token = os.getenv("DJCONNECT_VERIFICATION_HA_TOKEN", "")
         checks["token"] = _check(bool(token), "HA token provided externally", "DJCONNECT_VERIFICATION_HA_TOKEN missing")
-        checks["rest"] = self._rest_check("/api/", token)
-        checks["websocket"] = _check(False, "WebSocket live probe requires Phase 9L lab token/runtime", "not attempted before REST/token gate")
+        checks["rest"] = self._rest_check("/api/", token, runtime)
+        checks["websocket"] = self._websocket_check(token, runtime)
         checks["storage"] = _check(self.config.config_dir.exists(), "Approved lab config/storage path reachable", str(self.config.config_dir))
-        checks["logs"] = _check(self.config.log_path.parent.exists(), "Dedicated lab log path reachable", str(self.config.log_path))
+        checks["logs"] = self._logs_check(runtime)
         passed = all(item["ok"] for item in checks.values())
         return GateResult(
             "ha_local_verification_lab",
@@ -325,6 +354,51 @@ class HALocalVerificationLab:
         if self.config.config_dir.exists():
             shutil.rmtree(self.config.config_dir)
 
+    def _recover_stale_container(self) -> dict[str, Any]:
+        summary = self._container_summary()
+        if not summary:
+            return {"ok": True, "action": "none", "reason": "container_absent"}
+        state = str(summary.get("State") or summary.get("Status") or "").lower()
+        name = str(summary.get("Names") or summary.get("Name") or "").lstrip("/")
+        if name != self.config.name:
+            return {"ok": False, "action": "blocked", "reason": "unexpected_container_name", "name": name}
+        if state not in {"created", "exited", "dead"}:
+            return {"ok": True, "action": "none", "state": state}
+        result = self.docker.run("rm", "-f", self.config.name, timeout=30)
+        return {
+            "ok": result.ok,
+            "action": "rm_stale_dedicated_container",
+            "state": state,
+            "stdout": result.stdout[-1000:],
+            "stderr": result.stderr[-1000:],
+            "returncode": result.returncode,
+        }
+
+    def _container_summary(self) -> dict[str, Any] | None:
+        result = self.docker.run("ps", "-a", "--filter", f"name={self.config.name}", "--format", "{{json .}}", timeout=10)
+        if not result.ok:
+            return None
+        for line in result.stdout.splitlines():
+            if not line.strip():
+                continue
+            try:
+                summary = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if str(summary.get("Names") or summary.get("Name") or "").lstrip("/") == self.config.name:
+                return summary
+        return None
+
+    def _container_diagnostics(self) -> dict[str, Any]:
+        summary = self._container_summary()
+        logs = self.docker.run("logs", "--tail", "80", "--timestamps", self.config.name, timeout=5)
+        return {
+            "summary": summary or {},
+            "logs_available": logs.ok,
+            "logs_tail": logs.stdout[-4000:] if logs.ok else "",
+            "logs_error": logs.stderr[-1000:] if not logs.ok else "",
+        }
+
     def _compose_env(self) -> dict[str, str]:
         return {
             "DJCONNECT_VERIFICATION_HA_CONTAINER": self.config.name,
@@ -336,7 +410,9 @@ class HALocalVerificationLab:
             "DJCONNECT_VERIFICATION_SOURCE_FINGERPRINT": self.config.source_fingerprint,
         }
 
-    def _rest_check(self, path: str, token: str) -> dict[str, Any]:
+    def _rest_check(self, path: str, token: str, runtime: HADockerRuntime | None) -> dict[str, Any]:
+        if not runtime or runtime.status != "running":
+            return _check(False, "REST probe blocked until lab container is running", runtime.status if runtime else "container not selected")
         if not token:
             return _check(False, "REST probe blocked until HA token is provided", "missing token")
         url = f"http://127.0.0.1:{self.config.port}{path}"
@@ -349,6 +425,26 @@ class HALocalVerificationLab:
         except (OSError, URLError) as exc:
             return _check(False, "REST probe failed", str(exc))
 
+    def _websocket_check(self, token: str, runtime: HADockerRuntime | None) -> dict[str, Any]:
+        if not runtime or runtime.status != "running":
+            return _check(False, "WebSocket probe blocked until lab container is running", runtime.status if runtime else "container not selected")
+        if not token:
+            return _check(False, "WebSocket probe blocked until HA token is provided", "missing token")
+        try:
+            return _ha_websocket_probe("127.0.0.1", self.config.port, token)
+        except OSError as exc:
+            return _check(False, "WebSocket probe failed", str(exc))
+
+    def _logs_check(self, runtime: HADockerRuntime | None) -> dict[str, Any]:
+        if not self.config.log_path.parent.exists():
+            return _check(False, "Dedicated lab log path unavailable", str(self.config.log_path))
+        if not runtime:
+            return _check(False, "Live HA logs unavailable until lab container is selected", "container not selected")
+        result = self.docker.run("logs", "--tail", "80", "--timestamps", self.config.name, timeout=5)
+        if not result.ok:
+            return _check(False, "Live HA logs unavailable", result.stderr)
+        return _check(True, "Live HA logs reachable", {"bytes": len(result.stdout), "tail": result.stdout[-2000:]})
+
 def _looks_like_home_assistant(runtime: HADockerRuntime) -> bool:
     text = f"{runtime.name} {runtime.image}".lower()
     return "homeassistant" in text or "home-assistant" in text or "home-assistant" in runtime.image.lower()
@@ -356,6 +452,18 @@ def _looks_like_home_assistant(runtime: HADockerRuntime) -> bool:
 
 def _owns_port(runtime: HADockerRuntime, port: int) -> bool:
     return any(str(item.get("HostPort")) == str(port) or str(item.get("PrivatePort")) == str(port) for item in runtime.ports)
+
+
+def _summary_labels(data: dict[str, Any]) -> dict[str, str]:
+    labels = data.get("Labels")
+    if isinstance(labels, dict):
+        return {str(k): str(v) for k, v in labels.items()}
+    result: dict[str, str] = {}
+    for item in str(labels or "").split(","):
+        key, sep, value = item.partition("=")
+        if sep and key:
+            result[key] = value
+    return result
 
 
 def _safe_label(labels: dict[str, str]) -> bool:
@@ -431,7 +539,90 @@ def _runtime_metadata(runtime: HADockerRuntime) -> dict[str, Any]:
         "source_mount": runtime.source_mount,
         "source_matches_sha": runtime.source_matches_sha,
         "safe_for_verification": runtime.safe_for_verification,
+        "inspect_error": runtime.inspect_error,
     }
+
+
+def _ha_websocket_probe(host: str, port: int, token: str) -> dict[str, Any]:
+    key = base64.b64encode(os.urandom(16)).decode("ascii")
+    with socket.create_connection((host, port), timeout=5) as sock:
+        sock.settimeout(5)
+        request = (
+            "GET /api/websocket HTTP/1.1\r\n"
+            f"Host: {host}:{port}\r\n"
+            "Upgrade: websocket\r\n"
+            "Connection: Upgrade\r\n"
+            f"Sec-WebSocket-Key: {key}\r\n"
+            "Sec-WebSocket-Version: 13\r\n"
+            "\r\n"
+        )
+        sock.sendall(request.encode("ascii"))
+        response = _recv_until(sock, b"\r\n\r\n")
+        if b" 101 " not in response.split(b"\r\n", 1)[0]:
+            return _check(False, "WebSocket handshake failed", response.decode("utf-8", errors="replace")[:500])
+        auth_required = _read_ws_json(sock)
+        _send_ws_json(sock, {"type": "auth", "access_token": token})
+        auth = _read_ws_json(sock)
+        if auth.get("type") != "auth_ok":
+            return _check(False, "WebSocket authentication failed", {"auth_required": auth_required, "auth": auth})
+        _send_ws_json(sock, {"id": 1, "type": "get_config"})
+        config = _read_ws_json(sock)
+        ok = config.get("id") == 1 and config.get("type") == "result" and bool(config.get("success"))
+        return _check(ok, "WebSocket probe completed", {"auth_required": auth_required, "auth": auth, "result": config})
+
+
+def _recv_until(sock: socket.socket, marker: bytes) -> bytes:
+    data = b""
+    while marker not in data:
+        chunk = sock.recv(4096)
+        if not chunk:
+            break
+        data += chunk
+    return data
+
+
+def _read_ws_json(sock: socket.socket) -> dict[str, Any]:
+    header = sock.recv(2)
+    if len(header) != 2:
+        raise OSError("incomplete websocket frame")
+    first, second = header
+    length = second & 0x7F
+    if length == 126:
+        length = struct.unpack("!H", _recv_exact(sock, 2))[0]
+    elif length == 127:
+        length = struct.unpack("!Q", _recv_exact(sock, 8))[0]
+    masked = bool(second & 0x80)
+    mask = _recv_exact(sock, 4) if masked else b""
+    payload = bytearray(_recv_exact(sock, length))
+    if masked:
+        for index, value in enumerate(payload):
+            payload[index] = value ^ mask[index % 4]
+    if first & 0x0F == 8:
+        raise OSError("websocket closed")
+    return json.loads(payload.decode("utf-8"))
+
+
+def _send_ws_json(sock: socket.socket, payload: dict[str, Any]) -> None:
+    data = json.dumps(payload).encode("utf-8")
+    mask = os.urandom(4)
+    if len(data) < 126:
+        header = bytes([0x81, 0x80 | len(data)])
+    elif len(data) < 65536:
+        header = bytes([0x81, 0x80 | 126]) + struct.pack("!H", len(data))
+    else:
+        header = bytes([0x81, 0x80 | 127]) + struct.pack("!Q", len(data))
+    masked = bytes(value ^ mask[index % 4] for index, value in enumerate(data))
+    sock.sendall(header + mask + masked)
+
+
+def _recv_exact(sock: socket.socket, size: int) -> bytes:
+    data = b""
+    while len(data) < size:
+        chunk = sock.recv(size - len(data))
+        if not chunk:
+            raise OSError("unexpected websocket EOF")
+        data += chunk
+    return data
 
 
 def _safe_json(text: str) -> dict[str, Any]:
