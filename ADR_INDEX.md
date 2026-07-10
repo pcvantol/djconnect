@@ -57,6 +57,16 @@ Decision to keep one canonical Profile Resolver and resolve DJConnect Profiles
 from a general Request Context instead of assuming every interaction originates
 from a DJConnect Device.
 
+### ADR-0012 — DJConnect supports one canonical five-language product set
+
+**Status:** Accepted
+**File:** `docs/adr/0012-canonical-five-language-product-set.md`
+
+Decision that DJConnect's user-facing product surfaces support one canonical
+language set, `en`, `nl`, `de`, `fr` and `es`, with English fallback,
+machine-readable values left untranslated and CI validation for key and
+placeholder parity where practical.
+
 ## ADR backlog
 
 ### ADR-0004 — Community and Personal tier model

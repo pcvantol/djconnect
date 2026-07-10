@@ -43,6 +43,8 @@ Verification starts from these accepted documents:
 - Keep Request Context free of tokens, raw prompts, raw audio, Ask DJ history
   and Music DNA contents.
 - Preserve repository ownership boundaries while collecting cross-repo evidence.
+- Validate user-facing surfaces against the canonical five-language localization
+  contract.
 
 ## Result States
 
@@ -96,9 +98,51 @@ issues update the canonical docs or repository-local docs according to
 | Music backend | Spotify Direct and Music Assistant configured separately. |
 | Accounts | At least one personal account, one household/shared account path and one relink flow. |
 
+## Localization Verification Track
+
+The verification program includes a localization track based on
+`LOCALIZATION_STANDARD.md` and
+`docs/localization/LOCALIZATION_VALIDATION_SPEC.md`.
+
+Required automated scenarios:
+
+- launch or render primary flows in all five languages;
+- validate onboarding in all five languages;
+- validate profile and privacy errors in all five languages;
+- validate fallback to English;
+- validate key completeness;
+- validate placeholder consistency;
+- validate shared-profile and private-session copy;
+- validate website route/content availability;
+- validate release/install copy where multilingual;
+- capture screenshots for key surfaces where practical.
+
+Platform-specific targets:
+
+- Apple: test iOS simulator, macOS and watchOS where practical using native
+  Apple localization tooling and tests.
+- Windows: treat macOS Catalyst development/debug and native Windows ARM64 on
+  Windows 11 on ARM under Parallels as separate execution targets. Native
+  Windows ARM64 is authoritative for Windows-specific rendering and behavior.
+- Raspberry Pi: use SSH and remote UI input to automate locale switching,
+  restart persistence, screenshots, missing-key detection and touch UI overflow
+  checks.
+- ESP32: validate localized firmware/web-portal strings with build-time catalog
+  checks, serial logs, local web portal screenshots or requests and
+  constrained-display overflow checks where possible. Protocol and log tokens
+  are not translated.
+- Website: validate locale routes or locale switching, metadata, navigation,
+  privacy/support pages, canonical product terms, broken links per locale,
+  fallback behavior and sitemap/hreflang if implemented.
+- Release repositories: validate that user-facing release/install information
+  does not contradict or silently omit the platform language policy. Raw
+  generated checksums and machine metadata are not translated.
+
 ## Deliverables
 
 - `PROFILE_PLATFORM_VERIFICATION.md`
+- `docs/localization/LOCALIZATION_REPOSITORY_AUDIT.md`
+- `docs/localization/LOCALIZATION_VALIDATION_SPEC.md`
 - `LIVE_SCENARIOS.md`
 - `KNOWN_LIMITATIONS.md`
 - `VERIFICATION_REPORT.md`

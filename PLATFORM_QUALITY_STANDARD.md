@@ -136,16 +136,44 @@ For App Store, TestFlight, Microsoft Store or future Play Store routes, track:
 - demo mode or reviewer guidance;
 - subscription/IAP behavior if applicable.
 
-## Localization and accessibility
+## Localization standard
 
-User-facing clients and website should aim for:
+Localization is a release quality gate, not an aspirational polish item.
 
-- stable localization keys;
-- no hardcoded user-facing strings in logic;
+All user-facing product surfaces that support localized copy must support the
+canonical five locales defined in `LOCALIZATION_STANDARD.md`:
+
+```text
+en
+nl
+de
+fr
+es
+```
+
+The localization baseline requires:
+
+- key parity across all five locales;
+- no hardcoded user-facing strings in business logic;
+- placeholder and formatting-specifier consistency across locales;
+- explicit English fallback;
+- no raw localization keys in production UI;
+- website and release/distribution surfaces included where they contain
+  end-user copy;
+- localization regressions failing CI where practical.
+
+Repository validators should follow
+`docs/localization/LOCALIZATION_VALIDATION_SPEC.md`.
+
+## Accessibility
+
+User-facing clients and website should provide:
+
 - accessible labels for controls and images;
 - readable contrast;
 - graceful rendering without emoji or advanced rich text support;
-- platform-native accessibility where practical.
+- platform-native accessibility where practical;
+- localized accessibility labels where the platform supports them.
 
 ## Scorecard scale
 

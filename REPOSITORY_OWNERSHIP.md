@@ -4,7 +4,7 @@ This document clarifies repository boundaries. The HA/HACS repository remains th
 
 ## `pcvantol/djconnect`
 
-Owns: Home Assistant integration, local-first backend runtime, canonical foundation docs, DJConnect Profile orchestration, canonical Profile Resolver, Request Context / ProfileResolutionContext model, Voice Endpoint/HA device/area/profile mappings, Assist-to-Profile orchestration, Music Backend orchestration, Track Insight orchestration, Ask DJ, Music DNA, OTA/status/diagnostics and HA-facing API contracts.
+Owns: Home Assistant integration, local-first backend runtime, canonical foundation docs, canonical language contract, DJConnect Profile orchestration, canonical Profile Resolver, Request Context / ProfileResolutionContext model, Voice Endpoint/HA device/area/profile mappings, Assist-to-Profile orchestration, Music Backend orchestration, Track Insight orchestration, Ask DJ, Music DNA, OTA/status/diagnostics and HA-facing API contracts.
 
 Does not own: native client UX code, ESP32 firmware implementation, public website implementation, central APNs provider credentials or release artifact repositories.
 
@@ -28,6 +28,9 @@ Request-source ownership examples:
 
 Owns: Apple Intelligence Client UX for iOS, macOS and watchOS.
 
+Also owns: correct localized rendering for Apple presentation and distribution
+surfaces.
+
 Does not own: backend intelligence, Music DNA storage, Spotify OAuth secrets, central relay logic, canonical Profile resolution or canonical foundation docs.
 
 Must follow: DJConnect Profile, Device, Music Backend, Renderer/Client, privacy and push/bootstrap contracts from the canonical foundation.
@@ -37,6 +40,9 @@ Update canonical docs when: Apple UX requires new shared client capabilities, AP
 ## `pcvantol/djconnect-windows`
 
 Owns: Windows Intelligence Client UX.
+
+Also owns: correct localized rendering for Windows presentation and
+distribution surfaces.
 
 Does not own: backend intelligence, provider-specific playback logic, canonical Ask DJ history, canonical Profile resolution or foundation docs.
 
@@ -48,6 +54,9 @@ Update canonical docs when: Windows introduces reusable client capability requir
 
 Owns: Raspberry Pi Ambient Client.
 
+Also owns: correct localized rendering for Pi presentation and distribution
+surfaces.
+
 Does not own: canonical backend intelligence, Music DNA storage, Spotify credentials, canonical Profile resolution or foundation docs.
 
 Must follow: Device/runtime boundaries, renderer/client responsibilities, local-first pairing and backend-owned intelligence contracts.
@@ -57,6 +66,9 @@ Update canonical docs when: Pi capabilities change shared Ambient Client expecta
 ## `pcvantol/djconnect-esp32`
 
 Owns: ESP32 Voice/Control Client firmware.
+
+Also owns: correct localized rendering for firmware, constrained device UI and
+web portal surfaces.
 
 Does not own: Spotify credentials, backend playback orchestration, Music DNA, Ask DJ chat history, canonical Profile resolution or foundation docs.
 
@@ -68,6 +80,9 @@ Update canonical docs when: firmware changes require new platform protocol, Devi
 
 Owns: central API trust/relay boundary, APNs relay, per-install token bootstrap and future entitlement/profile-cloud surfaces.
 
+Also owns: localized display-message mapping for API-owned user-facing errors
+where the API, rather than a client, owns the display copy.
+
 Does not own: local-first Community runtime, Home Assistant integration behavior, client UX or canonical foundation docs.
 
 Must follow: local-first value, optional cloud extension, privacy, profile boundary and central trust rules.
@@ -77,6 +92,9 @@ Update canonical docs when: central API responsibilities expand into entitlement
 ## `pcvantol/djconnect-website`
 
 Owns: public product story, onboarding, documentation presentation and release/download guidance.
+
+Also owns: correct localized rendering for public website, metadata,
+onboarding and support surfaces.
 
 Does not own: runtime contracts, canonical architecture decisions, client implementation or release artifacts.
 
@@ -88,6 +106,9 @@ Update canonical docs when: website work reveals product-language drift, onboard
 
 Owns: public firmware release distribution artifacts only.
 
+Also owns: localization consistency for end-user release/install copy stored in
+the repository or attached to releases.
+
 Does not own: ESP32 source code, firmware architecture, HA integration behavior or foundation docs.
 
 Must follow: release artifact naming, manifest, licensing, security and release governance rules.
@@ -98,6 +119,9 @@ Update canonical docs when: firmware distribution format or release governance n
 
 Owns: public app release artifacts only.
 
+Also owns: localization consistency for end-user release/install copy stored in
+the repository or attached to releases.
+
 Does not own: Apple client source, backend contracts, entitlement model or foundation docs.
 
 Must follow: release governance, product language, privacy and distribution rules.
@@ -107,6 +131,9 @@ Update canonical docs when: app release distribution strategy changes platform r
 ## `pcvantol/djconnect-pi-releases`
 
 Owns: public Raspberry Pi release artifacts only.
+
+Also owns: localization consistency for end-user release/install copy stored in
+the repository or attached to releases.
 
 Does not own: Pi source code, backend contracts, canonical docs or client architecture.
 

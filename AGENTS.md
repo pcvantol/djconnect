@@ -50,12 +50,32 @@ Treat the following documents as the authoritative platform guidance:
 - `PLATFORM_QUALITY_STANDARD.md`
 - `PLATFORM_BACKLOG.md`
 - `INNOVATION_LAB.md`
+- `LOCALIZATION_STANDARD.md`
 - `ADR_INDEX.md`
 - `CI_CD_RELEASE_GOVERNANCE.md`
 
 These foundation documents complement the repository-specific guidance below.
 
 Implementation details, API contracts, operational procedures, release workflows and repository-specific instructions in this AGENTS file remain authoritative for this repository.
+
+## Localization
+
+DJConnect user-facing product surfaces must follow the canonical five-language
+contract in `LOCALIZATION_STANDARD.md`.
+
+Supported language families are exactly `en`, `nl`, `de`, `fr` and `es`.
+Regional variants may be used by native platform tooling, but cross-repository
+parity normalizes to those five families.
+
+New user-facing strings, public website copy, release/install copy and
+localized accessibility labels must ship with all five supported languages
+where applicable. Machine-readable API codes, protocol values, JSON keys,
+service names, endpoint paths, log tokens and source identifiers remain
+untranslated.
+
+Each presentation or distribution repository owns correct localized rendering
+for its surfaces. This HA repository owns the canonical language contract,
+canonical terminology and shared validation policy.
 
 Architectuur beslissingen:
 - HA integration orchestreert pairing, OAuth, backend playback, OTA, status en Assist/TTS; ESP firmware blijft eigenaar van device runtime/audio/UI.

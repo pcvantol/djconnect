@@ -24,6 +24,7 @@ Request Context Version: 1
 Profile Contract Version: 1  
 Capability Contract Version: 1  
 Privacy Contract Version: 1
+Localization Contract Version: 1
 
 | Contract | Accepted version | Source of truth |
 | --- | ---: | --- |
@@ -33,6 +34,7 @@ Privacy Contract Version: 1
 | Profile Adoption Contract | 1 | `docs/implementation/epic3b/01-profile-adoption-contract.md` |
 | Capability Discovery | 1 | `examples/client_contracts/capabilities.websocket.json` |
 | Privacy Contract | 1 | Profile privacy/export implementation and fixtures |
+| Localization Contract | 1 | `LOCALIZATION_STANDARD.md`, ADR-0012 |
 
 ## Canonical Components
 
@@ -159,6 +161,25 @@ The Profile Platform privacy baseline is accepted with these constraints:
 - Voice Endpoints do not infer personal identity from room or ambiguous speaker
   context.
 
+## Accepted Localization Baseline
+
+Localization Contract v1 is accepted.
+
+Supported locales:
+
+```text
+en
+nl
+de
+fr
+es
+```
+
+Every user-facing product surface must treat those five languages as the
+platform set. Regional variants may be used by native tooling but must
+normalize to the canonical language families for parity, fallback and
+verification.
+
 ## Platform Parity Matrix
 
 Legend: Supported, Future, Not Applicable.
@@ -199,6 +220,8 @@ Legend: Supported, Future, Not Applicable.
 - Profile Adoption Contract v1 is the shared client adoption contract.
 - Privacy Contract v1 applies to every profile-aware request, including shared,
   guest, room, household, Voice Endpoint and private-session contexts.
+- Localization Contract v1 applies to user-facing UI, public website and
+  release/distribution copy.
 - Repository ownership remains as defined in `REPOSITORY_OWNERSHIP.md`.
 
 ## Baseline Debt Carried Forward
