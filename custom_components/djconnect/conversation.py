@@ -113,6 +113,7 @@ class DJConnectConversationAgent(conversation.ConversationEntity):
                 play=True,
                 correct_stt=False,
                 user_id=str(user_id) if user_id else None,
+                memory_payload=_voice_endpoint_request_context(user_input),
             )
 
             speech = str(result.get("dj_text") or "").strip()
@@ -143,3 +144,41 @@ class DJConnectConversationAgent(conversation.ConversationEntity):
             response=response,
             conversation_id=getattr(user_input, "conversation_id", None),
         )
+
+
+def _voice_endpoint_request_context(user_input: conversation.ConversationInput) -> dict[str, Any]:
+    """Extract available HA Assist voice endpoint signals without inventing identity."""
+    payload: dict[str, Any] = {"request_source": "voice_endpoint"}
+    _copy_attr(payload, user_input, "conversation_id", "session_id")
+    _copy_attr(payload, user_input, "agent_id", "assist_pipeline_id")
+    _copy_attr(payload, user_input, "device_id", "ha_device_id")
+    _copy_attr(payload, user_input, "area_id", "area_id")
+    _copy_attr(payload, user_input, "satellite_id", "satellite_id")
+    _copy_attr(payload, user_input, "voice_endpoint_id", "voice_endpoint_id")
+    context = getattr(user_input, "context", None)
+    if context is not None:
+        _copy_attr(payload, context, "device_id", "ha_device_id")
+        _copy_attr(payload, context, "area_id", "area_id")
+        _copy_attr(payload, context, "entity_id", "voice_endpoint_id")
+        _copy_attr(payload, context, "id", "session_id")
+    extra = getattr(user_input, "extra_system_prompt", None)
+    if isinstance(extra, dict):
+        for source_key, target_key in (
+            ("satellite_id", "satellite_id"),
+            ("voice_endpoint_id", "voice_endpoint_id"),
+            ("assist_pipeline_id", "assist_pipeline_id"),
+            ("ha_device_id", "ha_device_id"),
+            ("area_id", "area_id"),
+            ("room_id", "room_id"),
+            ("player_id", "player_id"),
+        ):
+            value = str(extra.get(source_key) or "").strip()
+            if value:
+                payload[target_key] = value
+    return {key: value for key, value in payload.items() if value}
+
+
+def _copy_attr(payload: dict[str, Any], source: Any, attr: str, key: str) -> None:
+    value = str(getattr(source, attr, "") or "").strip()
+    if value and not payload.get(key):
+        payload[key] = value

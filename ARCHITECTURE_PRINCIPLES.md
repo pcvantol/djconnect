@@ -84,8 +84,8 @@ All intents, services, API endpoints, and client calls should resolve profile co
 
 Profile resolution accepts a general request context, not only a DJConnect
 Device. Devices are important request sources, but not every interaction
-originates from a DJConnect Device. Home Assistant Voice Assist satellites,
-automations, services, Home Assistant user context, room/area context, playback
+originates from a DJConnect Device. Voice Endpoints such as Home Assistant
+Voice Satellites, automations, services, Home Assistant user context, room/area context, playback
 players and future speaker recognition all use the same canonical
 `ProfileResolver`.
 
@@ -96,15 +96,15 @@ Resolution priority:
 
 1. explicit `profile_id` from DJConnect client/request;
 2. linked profile for `device_id`;
-3. explicit satellite mapping;
+3. explicit Voice Endpoint mapping;
 4. mapped Home Assistant `user_id` hint if available;
 5. area/room mapping;
 6. playback zone/player mapping, when configured;
 7. configured fallback profile;
 8. clear `profile_required` error.
 
-Home Assistant `user_id` is useful but not authoritative. Voice satellites
-should normally resolve by explicit satellite mapping, area/room mapping or
+Home Assistant `user_id` is useful but not authoritative. Voice Endpoints
+should normally resolve by explicit Voice Endpoint mapping, area/room mapping or
 fallback, not by speaker identity. Future speaker recognition may provide a
 hint, but it must not silently override explicit profile selection.
 
@@ -114,16 +114,14 @@ Tie-breaking must be deterministic:
 - invalid explicit profiles return an error instead of falling through to a
   different personal profile;
 - linked DJConnect device profiles beat inferred room/area mappings;
-- explicit satellite mappings beat inferred area mappings;
-- shared room satellites default to shared, room, household or guest-safe
+- explicit Voice Endpoint mappings beat inferred area mappings;
+- shared room Voice Endpoints default to shared, room, household or guest-safe
   profiles unless explicitly configured otherwise.
 
-Current Epic 3 runtime support is narrower than the target model: the
-implemented `ProfileResolutionContext` currently accepts `profile_id`,
-`device_id`, `ha_user_id` and `room_id`, with Home Assistant user hints before
-room mapping. Satellite, area, playback-zone/player and speaker-recognition
-signals require a follow-up implementation and must still route through the same
-`ProfileResolver`.
+Current Epic 3B runtime support accepts explicit profile, device, Voice
+Endpoint, Home Assistant user, area/room and playback player/zone signals
+through `ProfileResolutionContext`. Speaker-recognition signals remain future
+hints and must still route through the same `ProfileResolver`.
 
 ## Backend resolution
 
@@ -173,7 +171,7 @@ Capabilities may include now playing, light insights, Discover feed, read-only A
 
 ### Voice/control clients
 
-Examples: ESP32, firmware remotes, HA Voice Assist satellites.
+Examples: ESP32, firmware remotes, Home Assistant Voice Satellites.
 
 Capabilities may include intents, push-to-talk, playback controls, and short TTS DJ response playback.
 

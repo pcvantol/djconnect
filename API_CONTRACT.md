@@ -44,10 +44,12 @@ The backend resolves Profile context in this order:
 
 1. explicit `profile_id`;
 2. linked profile for `device_id`;
-3. Home Assistant user hint;
-4. room mapping;
-5. configured fallback profile;
-6. structured profile error.
+3. explicit Voice Endpoint / HA device mapping;
+4. Home Assistant user hint;
+5. area or room mapping;
+6. playback player or zone mapping;
+7. configured fallback profile;
+8. structured profile error.
 
 Profile-aware responses may include `profile_id`, profile-scoped
 `music_dna_key` values in the form `profile:<profile_id>`, and structured errors
@@ -58,6 +60,12 @@ such as `profile_required`, `invalid_profile`, `device_not_mapped`,
 Existing clients do not need to send `profile_id` when their `device_id` is
 mapped in the Profile Platform. Explicit `profile_id` is additive and intended
 for clients with profile switching.
+
+Home Assistant Voice Endpoints are request sources, not identities. The HA
+integration may derive `voice_endpoint_id`, `satellite_id`,
+`assist_pipeline_id`, `ha_device_id`, `area_id`, `room_id` and `player_id` from
+Assist context when available, and the single Profile Resolver uses those
+signals without creating a second identity model.
 
 The versioned Profile Adoption Contract lives in
 `docs/implementation/epic3b/01-profile-adoption-contract.md`. Reusable client
@@ -238,7 +246,9 @@ The same response also advertises Profile Platform support:
     "explicit_profile_selection": true,
     "private_sessions": true,
     "profile_export": true,
-    "request_context": true
+    "request_context": true,
+    "voice_endpoint_request_context": true,
+    "voice_endpoint_mappings": true
   },
   "contract_versions": {
     "profile_context": 1,

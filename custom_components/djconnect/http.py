@@ -786,6 +786,8 @@ def _voice_header_payload(headers: Any, device_id: str, client_type: str | None)
     for header, key in (
         ("X-DJConnect-Profile-ID", "profile_id"),
         ("X-DJConnect-Satellite-ID", "satellite_id"),
+        ("X-DJConnect-Voice-Endpoint-ID", "voice_endpoint_id"),
+        ("X-DJConnect-Assist-Pipeline-ID", "assist_pipeline_id"),
         ("X-DJConnect-HA-Device-ID", "ha_device_id"),
         ("X-DJConnect-Area-ID", "area_id"),
         ("X-DJConnect-Room-ID", "room_id"),
