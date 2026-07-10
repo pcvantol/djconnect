@@ -135,7 +135,9 @@ class VerificationCoreImplementationTests(unittest.TestCase):
     def test_scenario_engine_owns_interpretation_metadata(self) -> None:
         root = Path(__file__).resolve().parents[2]
         scenario = next(
-            scenario for scenario in ScenarioLoader(load_config(root)).load() if scenario.id == "PROFILE-001"
+            scenario
+            for scenario in ScenarioLoader(load_config(root, overrides={"scenario_paths": ["verification/schema/examples"]})).load()
+            if scenario.id == "PROFILE-001"
         )
 
         plan = ScenarioEngine(AdapterRegistry()).plan(scenario)

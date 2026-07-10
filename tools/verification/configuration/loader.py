@@ -9,7 +9,7 @@ from typing import Any
 
 from tools.verification.models import HarnessConfig
 
-DEFAULT_SCENARIO_PATHS = (Path("verification/schema/examples"),)
+DEFAULT_SCENARIO_PATHS = (Path("verification/scenarios"),)
 DEFAULT_EVIDENCE_DIR = Path("artifacts/verification/evidence")
 DEFAULT_REPORT_DIR = Path("artifacts/verification/reports")
 

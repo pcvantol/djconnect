@@ -60,6 +60,11 @@ def build_parser() -> argparse.ArgumentParser:
     for command in ("show", "verify", "evidence"):
         sub = run_subparsers.add_parser(command)
         sub.add_argument("run_id")
+    lab = subparsers.add_parser("lab")
+    lab_subparsers = lab.add_subparsers(dest="lab_target", required=True)
+    ha_lab = lab_subparsers.add_parser("ha")
+    ha_lab.add_argument("lab_command", choices=("build", "start", "stop", "restart", "recreate", "fresh", "clean", "destroy", "doctor", "metadata"))
+    ha_lab.add_argument("--allow-destructive", action="store_true")
     subparsers.add_parser("env")
     subparsers.add_parser("schema")
     subparsers.add_parser("config")
@@ -205,6 +210,21 @@ def main(argv: list[str] | None = None) -> int:
             path = config.evidence_dir / args.run_id / "evidence-index.json"
             print(path.read_text(encoding="utf-8") if path.exists() else "{}")
             return 0 if path.exists() else 1
+
+    if args.command == "lab":
+        from .environment.docker_ha import HALocalVerificationLab
+
+        lab = HALocalVerificationLab(config.root)
+        if args.lab_target == "ha":
+            if args.lab_command == "doctor":
+                gate = lab.qualify()
+            elif args.lab_command == "metadata":
+                print(json.dumps(lab.metadata(), indent=2, sort_keys=True, default=str))
+                return 0
+            else:
+                gate = lab.lifecycle(args.lab_command, allow_destructive=args.allow_destructive)
+            print(json.dumps(gate.__dict__, indent=2, sort_keys=True, default=str))
+            return 0 if gate.passed else 1
 
     if args.command == "env":
         print(json.dumps(orchestrator.snapshot().__dict__, indent=2, sort_keys=True))

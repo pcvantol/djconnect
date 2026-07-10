@@ -17,6 +17,9 @@ Do not create GitHub issues automatically from this backlog.
 | VPB-009 | P1 | Verification Gap | Exact-SHA CI qualification implemented; CI still requires valid local auth or approved token. | Execution Environment / Operator | `djconnect` | Blocks CI qualification | S | Phase 9R |
 | VPB-010 | P1 | Dogfooding Gap | Investigator unit tests added to the verification regression subset. | Verification Core | `djconnect` | No | Done | Phase 9R |
 | VPB-011 | P2 | Documentation issue | Qualification commands need a canonical local HA setup profile. | Verification Docs | `djconnect` | Non-blocking after tooling fixes | S | Phase 9V follow-up |
+| VPB-012 | P0 | Environment issue | Dedicated HA lab Compose workflow created the `djconnect-verification-ha` container, but Docker Compose start timed out and the container remained in `Created` state. | Verification Environment / Local Docker | `djconnect` | Blocks Phase 9V rerun | M | Phase 9L fix |
+| VPB-013 | P0 | Environment issue | `DJCONNECT_VERIFICATION_HA_TOKEN` is not configured, so REST and WebSocket live probes cannot qualify. | Operator / Verification Environment | `djconnect` | Blocks Phase 9V rerun | S | Phase 9L fix |
+| VPB-014 | P0 | Verification Gap | Local HA lab doctor must return `LOCAL_VERIFICATION_LAB_QUALIFIED` before Phase 9V rerun. | Verification Environment | `djconnect` | Blocks Phase 9V rerun | S | Phase 9L fix |
 
 ## Regression Subset Required After Fixes
 

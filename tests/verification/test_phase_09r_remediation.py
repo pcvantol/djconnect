@@ -19,7 +19,7 @@ class FakeDocker:
     def __init__(self, responses: dict[tuple[str, ...], DockerCommandResult]) -> None:
         self.responses = responses
 
-    def run(self, *args: str) -> DockerCommandResult:
+    def run(self, *args: str, env: dict[str, str] | None = None, timeout: int = 30) -> DockerCommandResult:
         return self.responses.get(tuple(args), DockerCommandResult(False, stderr="missing fake response", returncode=1))
 
 

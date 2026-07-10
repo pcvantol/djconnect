@@ -1,0 +1,21 @@
+name: djconnect-verification-ha
+
+services:
+  homeassistant:
+    image: ${DJCONNECT_VERIFICATION_HA_IMAGE:-ghcr.io/home-assistant/home-assistant:stable}
+    container_name: ${DJCONNECT_VERIFICATION_HA_CONTAINER:-djconnect-verification-ha}
+    labels:
+      djconnect.verification: "true"
+      djconnect.phase: "9L"
+      djconnect.repository: "pcvantol/djconnect"
+      djconnect.source_sha: "${DJCONNECT_VERIFICATION_SOURCE_SHA:-unknown}"
+      djconnect.source_fingerprint: "${DJCONNECT_VERIFICATION_SOURCE_FINGERPRINT:-unknown}"
+    ports:
+      - "${DJCONNECT_VERIFICATION_HA_PORT:-18123}:8123"
+    volumes:
+      - ${DJCONNECT_VERIFICATION_LAB_ROOT:-./.runtime}/config:/config
+      - ${DJCONNECT_VERIFICATION_REPO_ROOT:-../..}/custom_components/djconnect:/config/custom_components/djconnect:ro
+    environment:
+      TZ: ${TZ:-UTC}
+      DJCONNECT_VERIFICATION_LAB: "true"
+    restart: "no"

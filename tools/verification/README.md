@@ -72,6 +72,9 @@ python -m tools.verification.cli restore
 python -m tools.verification.cli runs list
 python -m tools.verification.cli runs verify <run-id>
 python -m tools.verification.cli investigate <run-id>
+python -m tools.verification.cli lab ha metadata
+python -m tools.verification.cli lab ha start
+python -m tools.verification.cli lab ha doctor
 ```
 
 Reserved commands:
