@@ -1,0 +1,10 @@
+{
+  "template_id": "esp",
+  "strategy": "hardware",
+  "policy": "hardware",
+  "platforms": ["ESP32"],
+  "matrix_profiles": ["ESP Verification Profile"],
+  "required_resources": ["serial", "wifi", "development_board", "production_hardware_optional"],
+  "adapter": "esp32",
+  "execution": "planned_only"
+}

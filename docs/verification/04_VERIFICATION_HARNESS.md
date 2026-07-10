@@ -20,6 +20,7 @@ through a platform surface.
 Scenario Loader
   -> Scenario Validator
   -> Scenario Scheduler
+  -> Verification Planning Engine
   -> Repository Hygiene Gate
   -> Verification Execution Environment
   -> Build Qualification
@@ -49,6 +50,11 @@ quality attribute is evaluated without changing scenarios.
 `verification/policies/` owns canonical Verification Policies. Policies select
 which modes, matrix profiles, data profiles, platforms and build types should
 run.
+
+`verification/planning/` owns canonical planning metadata, strategies,
+templates and examples. The implementation in `tools/verification/planning/`
+expands scenarios, policies, matrix profiles, data profiles and modes into
+machine-readable execution plans without executing anything.
 
 `gates.py` owns compatibility access to reusable gates.
 
@@ -103,6 +109,7 @@ Initial commands:
 python -m tools.verification.cli list
 python -m tools.verification.cli validate
 python -m tools.verification.cli dry-run
+python -m tools.verification.cli plan
 python -m tools.verification.cli prepare
 python -m tools.verification.cli restore
 python -m tools.verification.cli report

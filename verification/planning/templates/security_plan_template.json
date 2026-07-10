@@ -1,0 +1,10 @@
+{
+  "template_id": "security",
+  "strategy": "security",
+  "policy": "security",
+  "matrix_profiles": ["Privacy Profile", "Regression Profile"],
+  "data_profiles": ["security", "boundary", "chaos"],
+  "modes": ["security", "boundary"],
+  "expected_runtime": "medium",
+  "blocking": true
+}

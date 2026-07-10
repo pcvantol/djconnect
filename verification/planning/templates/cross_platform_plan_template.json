@@ -1,0 +1,9 @@
+{
+  "template_id": "cross_platform",
+  "strategy": "release",
+  "policy": "release_candidate",
+  "platforms": ["Home Assistant", "Apple", "Windows", "Pi", "ESP32", "Voice Endpoint", "Website", "Release"],
+  "matrix_profiles": ["Release Qualification Profile", "Regression Profile"],
+  "required_resources": ["ha_development", "simulators", "vms", "ssh", "serial", "ci"],
+  "execution": "planned_only"
+}

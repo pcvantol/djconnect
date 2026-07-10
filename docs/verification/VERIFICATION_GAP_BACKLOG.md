@@ -63,11 +63,21 @@ Completed:
 - Canonical mode and policy catalogs added with traceability to scenario
   categories, matrix profiles, data profiles, risks and workflows.
 
-Still pending for Phase 8C Planning Engine:
+## Phase 8C Progress
 
-- Compose scenarios, modes, policies, matrix profiles and data profiles into
-  executable plans.
-- Validate policy/mode catalog references automatically.
+Completed:
+
+- Verification Planning Engine implemented under `tools/verification/planning/`.
+- Canonical planning metadata, strategies, templates and examples added under
+  `verification/planning/`.
+- CLI `plan` added under the existing verification namespace.
+- Planning now composes scenarios, modes, policies, matrix profiles and data
+  profiles into machine-readable execution plans without executing them.
+
+Still pending for adapter implementation:
+
+- Use generated plans as the input contract for Phase 9 adapters.
+- Extend live adapter capability matching once adapters exist.
 
 Still pending for Phase 9 Home Assistant Adapter:
 

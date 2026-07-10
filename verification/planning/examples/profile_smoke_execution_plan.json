@@ -1,0 +1,26 @@
+{
+  "plan_id": "example-smoke-profile",
+  "strategy": "smoke",
+  "policy": "smoke",
+  "cases": [
+    {
+      "case_id": "PROFILE-001-functional-smoke-test-profile-smoke",
+      "scenario_id": "PROFILE-001",
+      "mode": "functional",
+      "matrix_profile": "Smoke Test Profile",
+      "data_profile": "smoke",
+      "platform": "Home Assistant",
+      "adapter": "home_assistant",
+      "batch_id": "batch-001",
+      "executes": false
+    }
+  ],
+  "coverage": {
+    "scenario_count": 1,
+    "case_count": 1,
+    "by_mode": {
+      "functional": 1
+    }
+  },
+  "expected_reports": ["execution_plan", "coverage_report", "resource_plan", "environment_plan"]
+}

@@ -1,0 +1,10 @@
+{
+  "template_id": "apple",
+  "strategy": "regression",
+  "policy": "regression",
+  "platforms": ["Apple"],
+  "matrix_profiles": ["Apple Verification Profile"],
+  "required_resources": ["xcode", "ios_simulator", "watchos_simulator", "physical_device_optional"],
+  "adapter": "apple",
+  "execution": "planned_only"
+}

@@ -1,0 +1,10 @@
+{
+  "template_id": "pi",
+  "strategy": "hardware",
+  "policy": "hardware",
+  "platforms": ["Pi"],
+  "matrix_profiles": ["Pi Verification Profile"],
+  "required_resources": ["ssh", "pi", "touch_optional"],
+  "adapter": "raspberry_pi",
+  "execution": "planned_only"
+}

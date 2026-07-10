@@ -1,0 +1,10 @@
+{
+  "template_id": "smoke",
+  "strategy": "smoke",
+  "policy": "smoke",
+  "matrix_profiles": ["Smoke Test Profile"],
+  "data_profiles": ["smoke"],
+  "modes": ["functional"],
+  "expected_runtime": "minutes",
+  "blocking": false
+}

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from dataclasses import asdict
 from pathlib import Path
 
 from .artifacts import ArtifactManager
@@ -29,6 +30,11 @@ def build_parser() -> argparse.ArgumentParser:
         _add_filters(sub)
     report = subparsers.choices["report"]
     report.add_argument("--format", choices=("markdown", "json", "junit"), default="markdown")
+    plan = subparsers.add_parser("plan")
+    _add_filters(plan)
+    plan.add_argument("--policy", default=None)
+    plan.add_argument("--strategy", default="smoke")
+    plan.add_argument("--format", choices=("summary", "json"), default="summary")
     clean = subparsers.add_parser("clean")
     clean.add_argument("--apply", action="store_true")
     prepare = subparsers.add_parser("prepare")
@@ -91,6 +97,32 @@ def main(argv: list[str] | None = None) -> int:
             "junit": JUnitReporter(),
         }[args.format]
         print(reporter.render(result))
+        return 0
+
+    if args.command == "plan":
+        from .planning import VerificationPlanningEngine
+
+        planning_engine = VerificationPlanningEngine(config)
+        plan = planning_engine.plan(
+            _select(args, scenarios),
+            policy_id=args.policy,
+            strategy_id=args.strategy,
+        )
+        if args.format == "json":
+            print(json.dumps(asdict(plan), indent=2, sort_keys=True, default=str))
+        else:
+            print(
+                "\n".join(
+                    [
+                        f"plan_id: {plan.plan_id}",
+                        f"strategy: {plan.strategy}",
+                        f"policy: {plan.policy}",
+                        f"cases: {plan.coverage.case_count}",
+                        f"batches: {len(plan.batches)}",
+                        f"estimated_seconds: {plan.estimated_seconds}",
+                    ]
+                )
+            )
         return 0
 
     if args.command == "doctor":

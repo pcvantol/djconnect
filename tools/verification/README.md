@@ -1,6 +1,6 @@
 # DJConnect Verification Harness
 
-Status: core plus execution environment
+Status: core plus execution environment and planning engine
 Scope owner: `pcvantol/djconnect`  
 Builds on: `docs/verification/00_VERIFICATION_VISION.md`,
 `docs/verification/01_VERIFICATION_ARCHITECTURE.md` and
@@ -19,6 +19,7 @@ Scenario Loader
   -> Repository Hygiene Gate
   -> Verification Execution Environment
   -> Build Qualification
+  -> Verification Planning Engine
   -> Verification Orchestrator
   -> Platform Adapters
   -> Evidence Collector
@@ -39,6 +40,8 @@ environment:
 - run identity and environment snapshots;
 - cleanup planning and restore operations;
 - adapter interface and adapter registry;
+- planning engine for policies, modes, matrix profiles, data profiles,
+  resource plans, environment plans and execution batches;
 - evidence, result and reporter models;
 - CLI command surface for future execution.
 
@@ -53,6 +56,7 @@ python -m tools.verification.cli list
 python -m tools.verification.cli validate
 python -m tools.verification.cli dry-run --scenario-id PROFILE-001
 python -m tools.verification.cli report --tag localization
+python -m tools.verification.cli plan --strategy smoke --format json
 python -m tools.verification.cli doctor
 python -m tools.verification.cli prepare --scenario-id PROFILE-001
 python -m tools.verification.cli restore
@@ -65,6 +69,7 @@ Reserved commands:
 - `dry-run`
 - `execute`
 - `report`
+- `plan`
 - `prepare`
 - `restore`
 - `clean`

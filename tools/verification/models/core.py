@@ -182,6 +182,83 @@ class ScenarioExecutionPlan:
 
 
 @dataclass(frozen=True)
+class PlannedCase:
+    case_id: str
+    scenario_id: str
+    scenario_category: str
+    mode: str
+    policy: str
+    matrix_profile: str
+    data_profile: str
+    platform: str
+    adapter: str
+    batch_id: str
+    priority: str
+    estimated_seconds: int
+    depends_on: tuple[str, ...] = ()
+    retry_policy: dict[str, Any] = field(default_factory=dict)
+    traceability: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class PlanBatch:
+    batch_id: str
+    case_ids: tuple[str, ...]
+    execution: str
+    required_resources: tuple[str, ...] = ()
+    estimated_seconds: int = 0
+
+
+@dataclass(frozen=True)
+class PlanGraph:
+    nodes: tuple[str, ...]
+    edges: tuple[tuple[str, str], ...]
+
+
+@dataclass(frozen=True)
+class ResourcePlan:
+    required_hardware: tuple[str, ...] = ()
+    required_builds: tuple[str, ...] = ()
+    required_services: tuple[str, ...] = ()
+    exclusive_resources: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class EnvironmentPlan:
+    environments: tuple[str, ...]
+    capabilities: tuple[str, ...]
+    configuration: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class CoverageReport:
+    scenario_count: int
+    case_count: int
+    by_mode: dict[str, int] = field(default_factory=dict)
+    by_platform: dict[str, int] = field(default_factory=dict)
+    by_data_profile: dict[str, int] = field(default_factory=dict)
+    by_matrix_profile: dict[str, int] = field(default_factory=dict)
+    by_policy: dict[str, int] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class ExecutionPlan:
+    plan_id: str
+    strategy: str
+    policy: str
+    cases: tuple[PlannedCase, ...]
+    batches: tuple[PlanBatch, ...]
+    graph: PlanGraph
+    resource_plan: ResourcePlan
+    environment_plan: EnvironmentPlan
+    coverage: CoverageReport
+    estimated_seconds: int
+    required_evidence: tuple[str, ...] = ()
+    expected_reports: tuple[str, ...] = ()
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
 class RunResult:
     run_id: str
     state: ResultState

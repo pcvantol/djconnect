@@ -1,0 +1,10 @@
+{
+  "template_id": "voice",
+  "strategy": "regression",
+  "policy": "regression",
+  "platforms": ["Voice Endpoint"],
+  "matrix_profiles": ["Voice Endpoint Verification Profile"],
+  "required_resources": ["home_assistant", "assist_pipeline", "playback_zone"],
+  "adapter": "voice_endpoint",
+  "execution": "planned_only"
+}
