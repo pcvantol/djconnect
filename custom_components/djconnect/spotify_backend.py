@@ -25,6 +25,7 @@ from .spotify_oauth import SpotifyTokenRefreshError, refresh_access_token
 
 SPOTIFY_API_BASE = "https://api.spotify.com/v1"
 CACHE_TTL_SECONDS = 30
+SPOTIFY_DEVICE_CACHE_TTL_SECONDS = 30 * 24 * 60 * 60
 LISTENING_PROFILE_CACHE_TTL_SECONDS = 6 * 60 * 60
 ARTIST_GENRE_ERROR_BACKOFF_SECONDS = 10 * 60
 ACCESS_TOKEN_EXPIRY_SAFETY_SECONDS = 60
@@ -554,8 +555,9 @@ class SpotifyBackend:
             data = await self._request("GET", "/me/player/devices")
             return [_normalize_device(device) for device in data.get("devices", [])]
 
-        devices = await self._cached("devices", load)
+        devices = _merge_known_spotify_devices(self.runtime, await self._cached("devices", load))
         self.runtime.device_status["available_outputs"] = devices
+        _persist_runtime_device_status(self.hass, self.runtime)
         self.runtime.update()
         return devices
 
@@ -1760,6 +1762,167 @@ def _normalize_device(device: dict[str, Any]) -> dict[str, Any]:
         "supports_volume": not bool(device.get("is_restricted")),
         "volume_percent": device.get("volume_percent"),
     }
+
+
+def _merge_known_spotify_devices(runtime: Any, current_devices: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    now = time.time()
+    status = getattr(runtime, "device_status", None)
+    if not isinstance(status, dict):
+        runtime.device_status = {}
+        status = runtime.device_status
+
+    known = _known_spotify_device_items(status)
+    merged: dict[str, dict[str, Any]] = {}
+    order: list[str] = []
+
+    for device in current_devices:
+        if not isinstance(device, dict):
+            continue
+        item = _cached_spotify_device_item(device, now=now, cached=False)
+        key = _spotify_device_cache_key(item)
+        if not key:
+            continue
+        previous = known.get(key, {})
+        if previous.get("first_seen_at") is not None:
+            item["first_seen_at"] = previous.get("first_seen_at")
+        merged[key] = item
+        order.append(key)
+
+    for key, previous in known.items():
+        if key in merged:
+            continue
+        last_seen = _float_or_none(previous.get("last_seen_at"))
+        if last_seen is None or now - last_seen > SPOTIFY_DEVICE_CACHE_TTL_SECONDS:
+            continue
+        item = dict(previous)
+        item["cached"] = True
+        item["active"] = False
+        item["is_active"] = False
+        merged[key] = item
+        order.append(key)
+
+    devices = [merged[key] for key in order]
+    status["spotify_device_cache"] = {
+        "updated_at": now,
+        "ttl_seconds": SPOTIFY_DEVICE_CACHE_TTL_SECONDS,
+        "devices": devices,
+    }
+    return devices
+
+
+def _known_spotify_device_items(status: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    known: dict[str, dict[str, Any]] = {}
+    cache = status.get("spotify_device_cache")
+    cached_devices = cache.get("devices") if isinstance(cache, dict) else []
+    for source in (cached_devices, status.get("available_outputs")):
+        for device in source if isinstance(source, list) else []:
+            if not isinstance(device, dict):
+                continue
+            item = _cached_spotify_device_item(device, now=_float_or_none(device.get("last_seen_at")), cached=True)
+            key = _spotify_device_cache_key(item)
+            if key and key not in known:
+                known[key] = item
+    return known
+
+
+def _cached_spotify_device_item(
+    device: dict[str, Any],
+    *,
+    now: float | None,
+    cached: bool,
+) -> dict[str, Any]:
+    seen_at = now if now is not None else time.time()
+    item = dict(device)
+    item["id"] = str(item.get("id") or "").strip()
+    item["name"] = str(item.get("name") or "").strip()
+    item["type"] = str(item.get("type") or "").strip()
+    item["active"] = bool(item.get("active") or item.get("is_active")) and not cached
+    item["is_active"] = item["active"]
+    item["cached"] = cached
+    item["first_seen_at"] = _float_or_none(item.get("first_seen_at")) or seen_at
+    item["last_seen_at"] = seen_at
+    item["source"] = item.get("source") or "spotify"
+    item["provider"] = item.get("provider") or "spotify"
+    return item
+
+
+def _spotify_device_cache_key(device: dict[str, Any]) -> str:
+    device_id = str(device.get("id") or "").strip()
+    if device_id:
+        return f"id:{device_id}"
+    name = str(device.get("name") or "").strip().lower()
+    device_type = str(device.get("type") or "").strip().lower()
+    return f"name:{name}|type:{device_type}" if name else ""
+
+
+def _float_or_none(value: Any) -> float | None:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _persist_runtime_device_status(hass: Any, runtime: Any) -> None:
+    entry = getattr(runtime, "entry", None)
+    config_entries = getattr(hass, "config_entries", None)
+    updater = getattr(config_entries, "async_update_entry", None)
+    if entry is None or not callable(updater):
+        return
+    data = dict(getattr(entry, "data", {}) or {})
+    previous = data.get("last_device_status")
+    persisted = dict(previous) if isinstance(previous, dict) else {}
+    persisted.update(
+        _persistable_spotify_device_status(getattr(runtime, "device_status", {}) or {})
+    )
+    data["last_device_status"] = persisted
+    updater(entry, data=data)
+
+
+def _persistable_spotify_device_status(status: dict[str, Any]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in status.items():
+        normalized = str(key).lower()
+        if any(secret in normalized for secret in ("token", "password", "secret", "proof")):
+            continue
+        if key in {"available_outputs", "spotify_device_cache"}:
+            result[key] = _compact_spotify_device_cache(value)
+        elif isinstance(value, (str, int, float, bool)):
+            result[key] = value
+    return result
+
+
+def _compact_spotify_device_cache(value: Any) -> Any:
+    if isinstance(value, list):
+        return [_compact_spotify_device(item) for item in value if isinstance(item, dict)][:50]
+    if isinstance(value, dict):
+        result = {
+            key: item
+            for key, item in value.items()
+            if key in {"updated_at", "ttl_seconds"} and isinstance(item, (int, float))
+        }
+        devices = value.get("devices")
+        if isinstance(devices, list):
+            result["devices"] = _compact_spotify_device_cache(devices)
+        return result
+    return value
+
+
+def _compact_spotify_device(device: dict[str, Any]) -> dict[str, Any]:
+    allowed = {
+        "id",
+        "name",
+        "type",
+        "active",
+        "is_active",
+        "supports_volume",
+        "volume_percent",
+        "cached",
+        "first_seen_at",
+        "last_seen_at",
+        "source",
+        "provider",
+    }
+    return {key: value for key, value in device.items() if key in allowed and value is not None}
 
 
 def _normalize_queue_items(items: Any, *, limit: int) -> list[dict[str, Any]]:

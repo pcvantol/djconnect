@@ -1701,6 +1701,129 @@ class SpotifyBackendTest(unittest.TestCase):
         transfer = next(call for call in session.calls if call["url"].endswith("/me/player"))
         self.assertEqual(transfer["json"], {"device_ids": ["dev-2"], "play": False})
 
+    def test_devices_merges_recent_server_side_cache(self) -> None:
+        class Response:
+            status = 200
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                return {
+                    "devices": [
+                        {"id": "dev-1", "name": "Kitchen", "type": "speaker"},
+                    ]
+                }
+
+            async def text(self):
+                return "{}"
+
+        class Session:
+            def request(self, method, url, **kwargs):
+                return Response()
+
+        entry_updates = []
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={"spotify_client_id": "client-id", "spotify_refresh_token": "refresh"},
+            options={},
+        )
+        now = time.time()
+        runtime = types.SimpleNamespace(
+            entry=entry,
+            latest_spotify_refresh_token=None,
+            spotify_access_token="access",
+            spotify_access_token_expires_at=now + 1800,
+            backend_cache={},
+            device_status={
+                "spotify_device_cache": {
+                    "devices": [
+                        {
+                            "id": "dev-2",
+                            "name": "Living room",
+                            "type": "speaker",
+                            "last_seen_at": now - 60,
+                        }
+                    ]
+                }
+            },
+            update=lambda **kwargs: setattr(runtime, "last_update", kwargs),
+        )
+        runtime.config = dict(entry.data)
+        hass = types.SimpleNamespace(
+            config_entries=types.SimpleNamespace(
+                async_update_entry=lambda entry_arg, **kwargs: entry_updates.append(kwargs)
+            )
+        )
+        backend = self.backend.SpotifyBackend(hass, runtime)
+        backend.session = Session()
+
+        devices = asyncio.run(backend.devices())
+
+        self.assertEqual([device["name"] for device in devices], ["Kitchen", "Living room"])
+        self.assertFalse(devices[0]["cached"])
+        self.assertTrue(devices[1]["cached"])
+        self.assertEqual(runtime.device_status["available_outputs"], devices)
+        self.assertIn("spotify_device_cache", entry_updates[-1]["data"]["last_device_status"])
+
+    def test_devices_drops_month_old_server_side_cache(self) -> None:
+        class Response:
+            status = 200
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, traceback):
+                return None
+
+            async def json(self, content_type=None):
+                return {"devices": []}
+
+            async def text(self):
+                return "{}"
+
+        class Session:
+            def request(self, method, url, **kwargs):
+                return Response()
+
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={"spotify_client_id": "client-id", "spotify_refresh_token": "refresh"},
+            options={},
+        )
+        now = time.time()
+        runtime = types.SimpleNamespace(
+            entry=entry,
+            latest_spotify_refresh_token=None,
+            spotify_access_token="access",
+            spotify_access_token_expires_at=now + 1800,
+            backend_cache={},
+            device_status={
+                "spotify_device_cache": {
+                    "devices": [
+                        {
+                            "id": "old-dev",
+                            "name": "Old speaker",
+                            "type": "speaker",
+                            "last_seen_at": now - self.backend.SPOTIFY_DEVICE_CACHE_TTL_SECONDS - 1,
+                        }
+                    ]
+                }
+            },
+            update=lambda **kwargs: setattr(runtime, "last_update", kwargs),
+        )
+        runtime.config = dict(entry.data)
+        backend = self.backend.SpotifyBackend(object(), runtime)
+        backend.session = Session()
+
+        devices = asyncio.run(backend.devices())
+
+        self.assertEqual(devices, [])
+        self.assertEqual(runtime.device_status["available_outputs"], [])
+
     def test_invalid_grant_creates_reauth_issue_and_friendly_error(self) -> None:
         async def revoked(*args, **kwargs):
             raise self.oauth.SpotifyTokenRefreshError(
