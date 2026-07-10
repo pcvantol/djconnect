@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "dataset_version": "1.0",
+  "generator_version": "1.0",
+  "profile_id": "smoke",
+  "seed": "djconnect-v1-smoke",
+  "scenario_id": "PROFILE-001",
+  "items": [
+    {
+      "id": "profile.personal.smoke.peter",
+      "type": "profile",
+      "profile_kind": "personal",
+      "display_name": "Peter Test",
+      "private_session": false,
+      "music_dna_enabled": false
+    },
+    {
+      "id": "profile.household.smoke.home",
+      "type": "profile",
+      "profile_kind": "household",
+      "display_name": "Household Test",
+      "private_session": false,
+      "music_dna_enabled": false
+    }
+  ],
+  "traceability": {
+    "generator_refs": ["domain.profile.v1"],
+    "scenario_categories": ["Profiles", "Resolver", "Privacy"]
+  }
+}

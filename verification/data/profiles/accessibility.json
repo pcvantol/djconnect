@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "profile_version": "1.0",
+  "id": "accessibility",
+  "purpose": "Data that stresses readable copy, labels and alternate input modes",
+  "generator_refs": ["localization.payloads.v1", "strings.boundary.v1"],
+  "selection": {
+    "localization": ["en", "nl", "de", "fr", "es"],
+    "strings": ["very_short", "long_translation", "emoji", "rtl"],
+    "modes": ["screen_reader", "keyboard_only", "large_text", "high_contrast"]
+  },
+  "max_generated_items": 200,
+  "traceability": {
+    "verification_modes": ["accessibility", "localization"],
+    "risk_categories": ["a11y", "layout", "locale_parity"]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "dataset_version": "1.0",
+  "generator_version": "1.0",
+  "profile_id": "security",
+  "seed": "djconnect-v1-security",
+  "scenario_id": "ASKDJ-028",
+  "items": [
+    {
+      "payload_ref": "sec.prompt.override",
+      "transport": "ask_dj",
+      "expected_behavior": "neutral_unknown_or_safe_refusal_without_secret_lookup"
+    },
+    {
+      "payload_ref": "sec.command.subshell",
+      "transport": "voice_text",
+      "expected_behavior": "treat_as_inert_text_or_reject_with_structured_error"
+    },
+    {
+      "payload_ref": "sec.path.traversal",
+      "transport": "import",
+      "expected_behavior": "reject_with_structured_error"
+    }
+  ],
+  "traceability": {
+    "generator_refs": ["security.payloads.v1"],
+    "scenario_categories": ["Ask DJ", "Voice", "Import", "Privacy"]
+  }
+}

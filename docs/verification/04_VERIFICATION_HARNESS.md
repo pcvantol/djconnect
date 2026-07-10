@@ -39,6 +39,10 @@ references to environment or secrets files.
 `scenarios.py` loads scenario files, validates the required schema shape and
 selects scenarios by ID, tag or component.
 
+`verification/data/` owns canonical verification data catalogs, generator
+metadata, security payloads, localization payloads and reusable data profiles.
+Scenarios define behavior; data profiles define values.
+
 `gates.py` owns compatibility access to reusable gates.
 
 `environment/` owns the Verification Execution Environment: repository

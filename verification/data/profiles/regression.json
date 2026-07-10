@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "profile_version": "1.0",
+  "id": "regression",
+  "purpose": "Representative broad coverage for changed behavior",
+  "generator_refs": ["domain.profile.v1", "strings.boundary.v1", "localization.payloads.v1"],
+  "selection": {
+    "strings": ["normal", "empty", "whitespace", "unicode", "maximum_allowed"],
+    "profiles": ["personal", "household", "guest"],
+    "localization": ["en", "nl", "de"],
+    "sessions": ["normal", "private", "resumed"]
+  },
+  "max_generated_items": 250,
+  "traceability": {
+    "verification_modes": ["regression"],
+    "risk_categories": ["contract", "privacy", "localization", "compatibility"]
+  }
+}
