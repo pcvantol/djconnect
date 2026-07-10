@@ -1,0 +1,273 @@
+{
+  "schema_version": "1.0",
+  "catalog_version": "1.0",
+  "modes": [
+    {
+      "id": "functional",
+      "purpose": "Validate expected behavior in nominal conditions",
+      "scope": ["happy_path", "nominal_cases", "expected_contracts"],
+      "assertions": ["expected_result", "structured_response", "ownership_boundary"],
+      "evidence": ["request", "response", "logs", "environment"],
+      "metrics": ["pass_rate", "duration_seconds"],
+      "exit_criteria": ["critical_functional_scenarios_pass"],
+      "recommended_data_profiles": ["smoke", "regression"],
+      "applicable_scenario_categories": ["Setup", "Profiles", "Resolver", "Ask DJ", "Music DNA", "Discover", "Track Insight", "Playback", "Backend", "Capabilities", "Export", "Import"],
+      "required_matrix_dimensions": ["Client Platform", "Runtime", "Profile", "Session"],
+      "typical_runtime": "short",
+      "typical_cost": "low",
+      "traceability": {
+        "quality_attributes": ["correctness", "contract"],
+        "platform_principles": ["backend_ownership", "profile_as_identity"],
+        "risk_categories": ["regression", "contract_drift"]
+      }
+    },
+    {
+      "id": "boundary",
+      "purpose": "Validate limits and edge conditions",
+      "scope": ["min", "max", "overflow", "underflow", "optional_fields", "required_fields", "field_lengths", "empty_values", "unexpected_values"],
+      "assertions": ["structured_error", "no_crash", "bounded_storage", "bounded_response"],
+      "evidence": ["request", "response", "logs"],
+      "metrics": ["boundary_pass_rate", "error_shape_consistency"],
+      "exit_criteria": ["no_unhandled_boundary_failure"],
+      "recommended_data_profiles": ["boundary", "regression"],
+      "applicable_scenario_categories": ["Setup", "Profiles", "Resolver", "Ask DJ", "Music DNA", "Playback", "Backend", "Privacy", "Export", "Import"],
+      "required_matrix_dimensions": ["Runtime", "Data Profile"],
+      "typical_runtime": "medium",
+      "typical_cost": "medium",
+      "traceability": {
+        "quality_attributes": ["robustness", "schema_safety"],
+        "platform_principles": ["fail_closed", "structured_errors"],
+        "risk_categories": ["overflow", "validation", "parser_crash"]
+      }
+    },
+    {
+      "id": "security",
+      "purpose": "Validate hostile input and security controls",
+      "scope": ["injection", "authentication", "authorization", "secrets", "privilege", "malformed_payloads", "unexpected_encodings", "header_manipulation", "replay", "rate_limiting", "prompt_injection"],
+      "assertions": ["reject_or_sanitize", "no_secret_leakage", "no_privilege_escalation", "safe_prompt_handling"],
+      "evidence": ["request", "response", "redacted_logs", "security_metadata"],
+      "metrics": ["security_payloads_exercised", "blocked_payloads", "redaction_pass_rate"],
+      "exit_criteria": ["no_critical_security_failure"],
+      "recommended_data_profiles": ["security", "boundary", "chaos"],
+      "applicable_scenario_categories": ["Privacy", "Ask DJ", "Voice", "Backend", "Networking", "Import", "Export"],
+      "required_matrix_dimensions": ["Network", "Runtime", "Profile", "Session"],
+      "typical_runtime": "medium",
+      "typical_cost": "medium_high",
+      "traceability": {
+        "quality_attributes": ["security", "privacy"],
+        "platform_principles": ["no_secrets_in_logs", "least_privilege"],
+        "risk_categories": ["injection", "auth", "prompt_injection", "secret_leakage"]
+      }
+    },
+    {
+      "id": "privacy",
+      "purpose": "Validate profile isolation and personal data protection",
+      "scope": ["profile_isolation", "household_separation", "private_session", "guest", "data_persistence", "logs", "diagnostics", "export", "secrets", "redaction"],
+      "assertions": ["no_cross_profile_leak", "redaction_complete", "private_session_not_persisted", "guest_safe"],
+      "evidence": ["redacted_logs", "export_metadata", "diagnostics_metadata", "request_context"],
+      "metrics": ["redaction_pass_rate", "isolation_pass_rate"],
+      "exit_criteria": ["no_privacy_blocker"],
+      "recommended_data_profiles": ["security", "regression", "migration"],
+      "applicable_scenario_categories": ["Profiles", "Resolver", "Ask DJ", "Music DNA", "Discover", "Privacy", "Export", "Import"],
+      "required_matrix_dimensions": ["Profile", "Session", "Lifecycle"],
+      "typical_runtime": "medium",
+      "typical_cost": "medium",
+      "traceability": {
+        "quality_attributes": ["privacy", "data_minimization"],
+        "platform_principles": ["profile_as_identity", "privacy_by_default"],
+        "risk_categories": ["profile_leakage", "secret_leakage", "unexpected_persistence"]
+      }
+    },
+    {
+      "id": "localization",
+      "purpose": "Validate canonical locale behavior and language stress cases",
+      "scope": ["five_supported_languages", "fallback", "missing_translations", "formatting", "pluralization", "unicode", "rtl", "long_strings", "truncation", "layout"],
+      "assertions": ["all_required_locales_present", "fallback_to_english", "no_raw_keys", "layout_not_broken"],
+      "evidence": ["screenshots", "translation_catalogs", "rendered_text", "logs"],
+      "metrics": ["locale_coverage", "missing_keys", "layout_failures"],
+      "exit_criteria": ["canonical_locale_contract_satisfied"],
+      "recommended_data_profiles": ["localization", "accessibility"],
+      "applicable_scenario_categories": ["Localization", "Setup", "Privacy", "Release"],
+      "required_matrix_dimensions": ["Localization", "Screen Size", "Appearance"],
+      "typical_runtime": "medium",
+      "typical_cost": "medium",
+      "traceability": {
+        "quality_attributes": ["localization", "ux"],
+        "platform_principles": ["five_language_contract"],
+        "risk_categories": ["missing_translation", "layout_overflow", "fallback"]
+      }
+    },
+    {
+      "id": "accessibility",
+      "purpose": "Validate inclusive access behavior",
+      "scope": ["dynamic_type", "voiceover", "keyboard", "contrast", "large_text", "screen_reader", "focus", "reduced_motion"],
+      "assertions": ["accessible_labels_present", "focus_order_valid", "contrast_acceptable", "large_text_usable"],
+      "evidence": ["screenshots", "accessibility_tree", "manual_attestation"],
+      "metrics": ["a11y_issue_count", "contrast_failures"],
+      "exit_criteria": ["no_blocking_accessibility_failure"],
+      "recommended_data_profiles": ["accessibility", "localization"],
+      "applicable_scenario_categories": ["Localization", "Setup", "Ask DJ", "Discover", "Release"],
+      "required_matrix_dimensions": ["Accessibility", "Screen Size", "Appearance"],
+      "typical_runtime": "medium",
+      "typical_cost": "medium_high",
+      "traceability": {
+        "quality_attributes": ["accessibility", "ux"],
+        "platform_principles": ["inclusive_clients"],
+        "risk_categories": ["unusable_ui", "missing_labels"]
+      }
+    },
+    {
+      "id": "compatibility",
+      "purpose": "Validate supported versions, clients, APIs and schema evolution",
+      "scope": ["supported_os_versions", "supported_clients", "supported_apis", "backward_compatibility", "forward_compatibility", "migration"],
+      "assertions": ["supported_versions_pass", "unsupported_versions_fail_cleanly", "future_values_degrade_safely"],
+      "evidence": ["environment", "request", "response", "artifact_metadata"],
+      "metrics": ["version_matrix_coverage", "compatibility_failures"],
+      "exit_criteria": ["no_supported_version_blocker"],
+      "recommended_data_profiles": ["compatibility", "migration", "regression"],
+      "applicable_scenario_categories": ["Setup", "Capabilities", "Backend", "Release", "Import", "Export"],
+      "required_matrix_dimensions": ["Operating System", "Client Platform", "Build Qualification"],
+      "typical_runtime": "medium",
+      "typical_cost": "medium",
+      "traceability": {
+        "quality_attributes": ["compatibility", "migration"],
+        "platform_principles": ["capability_discovery", "forward_compatibility"],
+        "risk_categories": ["version_drift", "schema_drift"]
+      }
+    },
+    {
+      "id": "performance",
+      "purpose": "Validate resource and latency behavior",
+      "scope": ["latency", "memory", "cpu", "storage", "network", "rendering", "profile_resolution", "ask_dj"],
+      "assertions": ["within_budget", "no_unbounded_growth", "stable_under_load"],
+      "evidence": ["timing", "resource_metrics", "logs", "environment"],
+      "metrics": ["p50", "p95", "p99", "memory_mb", "cpu_percent", "storage_bytes"],
+      "exit_criteria": ["critical_budgets_met"],
+      "recommended_data_profiles": ["performance", "regression"],
+      "applicable_scenario_categories": ["Performance", "Resolver", "Ask DJ", "Music DNA", "Discover", "Track Insight", "Playback", "Backend"],
+      "required_matrix_dimensions": ["Runtime", "Network", "Build Qualification"],
+      "typical_runtime": "long",
+      "typical_cost": "high",
+      "traceability": {
+        "quality_attributes": ["performance", "scalability"],
+        "platform_principles": ["responsive_clients", "bounded_runtime"],
+        "risk_categories": ["latency", "memory", "network"]
+      }
+    },
+    {
+      "id": "resilience",
+      "purpose": "Validate recovery from disruption",
+      "scope": ["restart", "reconnect", "offline", "network_loss", "timeout", "recovery", "persistence"],
+      "assertions": ["recovers_cleanly", "state_preserved_or_rebuilt", "structured_degraded_response"],
+      "evidence": ["logs", "environment", "request", "response"],
+      "metrics": ["recovery_seconds", "retry_count", "state_recovered"],
+      "exit_criteria": ["no_unrecoverable_critical_failure"],
+      "recommended_data_profiles": ["regression", "boundary", "performance"],
+      "applicable_scenario_categories": ["Setup", "Resolver", "Ask DJ", "Music DNA", "Networking", "Hardware", "Backend"],
+      "required_matrix_dimensions": ["Lifecycle", "Network", "Runtime"],
+      "typical_runtime": "medium_long",
+      "typical_cost": "medium_high",
+      "traceability": {
+        "quality_attributes": ["resilience", "reliability"],
+        "platform_principles": ["local_first_resilience"],
+        "risk_categories": ["restart", "offline", "timeout"]
+      }
+    },
+    {
+      "id": "chaos",
+      "purpose": "Validate behavior under random and partial failures",
+      "scope": ["random_failures", "partial_failures", "service_loss", "storage_corruption", "unexpected_shutdown", "random_delays"],
+      "assertions": ["fails_closed", "evidence_preserved", "cleanup_safe"],
+      "evidence": ["logs", "environment", "failure_injection_metadata"],
+      "metrics": ["failure_modes_exercised", "recovery_rate"],
+      "exit_criteria": ["no_data_loss_or_secret_leakage"],
+      "recommended_data_profiles": ["chaos", "security", "performance"],
+      "applicable_scenario_categories": ["Networking", "Hardware", "Backend", "Privacy", "Import", "Export"],
+      "required_matrix_dimensions": ["Lifecycle", "Network", "Runtime"],
+      "typical_runtime": "long",
+      "typical_cost": "high",
+      "traceability": {
+        "quality_attributes": ["resilience", "security"],
+        "platform_principles": ["fail_closed", "recoverability"],
+        "risk_categories": ["partial_failure", "storage_corruption", "service_loss"]
+      }
+    },
+    {
+      "id": "release_qualification",
+      "purpose": "Validate release readiness from release-equivalent evidence",
+      "scope": ["release_equivalent_builds", "signing", "artifacts", "ci", "environment", "critical_scenarios_only"],
+      "assertions": ["ci_green", "artifact_integrity", "release_metadata_valid", "critical_scenarios_pass"],
+      "evidence": ["artifact_metadata", "checksums", "ci_metadata", "release_notes"],
+      "metrics": ["required_checks_passed", "artifact_count", "release_blockers"],
+      "exit_criteria": ["no_release_blocker"],
+      "recommended_data_profiles": ["smoke", "regression", "localization", "security", "compatibility"],
+      "applicable_scenario_categories": ["Release", "Setup", "Localization", "Privacy", "Capabilities"],
+      "required_matrix_dimensions": ["Build Qualification", "CI State", "Runtime"],
+      "typical_runtime": "long",
+      "typical_cost": "high",
+      "traceability": {
+        "quality_attributes": ["release_quality", "integrity"],
+        "platform_principles": ["release_governance"],
+        "risk_categories": ["artifact_drift", "unsigned_release", "ci_failure"]
+      }
+    },
+    {
+      "id": "nightly",
+      "purpose": "Validate broad practical regression coverage",
+      "scope": ["broad_regression", "slow_tests", "long_running_scenarios", "stress", "large_datasets", "cross_platform_combinations"],
+      "assertions": ["no_new_regression", "trend_ready_evidence"],
+      "evidence": ["full_redacted_evidence", "reports", "history"],
+      "metrics": ["scenario_count", "duration", "trend_delta"],
+      "exit_criteria": ["nightly_regression_within_threshold"],
+      "recommended_data_profiles": ["regression", "boundary", "security", "localization", "performance", "compatibility"],
+      "applicable_scenario_categories": ["Setup", "Profiles", "Resolver", "Ask DJ", "Music DNA", "Discover", "Track Insight", "Playback", "Backend", "Privacy", "Localization", "Capabilities", "Voice", "Networking", "Export", "Import"],
+      "required_matrix_dimensions": ["CI State", "Runtime", "Client Platform"],
+      "typical_runtime": "long",
+      "typical_cost": "high",
+      "traceability": {
+        "quality_attributes": ["regression", "reliability"],
+        "platform_principles": ["continuous_verification"],
+        "risk_categories": ["slow_regression", "cross_platform_drift"]
+      }
+    },
+    {
+      "id": "migration",
+      "purpose": "Validate state evolution and schema compatibility",
+      "scope": ["import", "export", "upgrade", "downgrade", "schema_evolution", "legacy_compatibility"],
+      "assertions": ["state_migrates", "secrets_excluded", "unsupported_schema_rejected_cleanly"],
+      "evidence": ["export_metadata", "import_result", "storage_metadata", "logs"],
+      "metrics": ["migration_success_rate", "schema_versions_covered"],
+      "exit_criteria": ["no_blocking_migration_failure"],
+      "recommended_data_profiles": ["migration", "compatibility", "boundary"],
+      "applicable_scenario_categories": ["Setup", "Profiles", "Music DNA", "Export", "Import", "Release"],
+      "required_matrix_dimensions": ["Lifecycle", "Build Qualification", "Profile"],
+      "typical_runtime": "medium",
+      "typical_cost": "medium",
+      "traceability": {
+        "quality_attributes": ["migration", "data_integrity"],
+        "platform_principles": ["portable_profile_state"],
+        "risk_categories": ["schema_migration", "legacy_behavior"]
+      }
+    },
+    {
+      "id": "ai_evaluation",
+      "purpose": "Reserved future mode for AI quality evaluation",
+      "scope": ["prompt_quality_future", "llm_behavior_future", "recommendation_quality_future", "insight_quality_future"],
+      "assertions": [],
+      "evidence": ["future_ai_eval_metadata"],
+      "metrics": ["reserved"],
+      "exit_criteria": ["not_implemented"],
+      "recommended_data_profiles": [],
+      "applicable_scenario_categories": ["Ask DJ", "Discover", "Track Insight"],
+      "required_matrix_dimensions": ["Not Applicable"],
+      "typical_runtime": "unknown",
+      "typical_cost": "unknown",
+      "implemented": false,
+      "traceability": {
+        "quality_attributes": ["ai_quality_future"],
+        "platform_principles": ["backend_owned_intelligence"],
+        "risk_categories": ["future"]
+      }
+    }
+  ]
+}

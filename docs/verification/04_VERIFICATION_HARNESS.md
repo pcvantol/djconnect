@@ -43,6 +43,13 @@ selects scenarios by ID, tag or component.
 metadata, security payloads, localization payloads and reusable data profiles.
 Scenarios define behavior; data profiles define values.
 
+`verification/modes/` owns canonical Verification Modes. Modes define which
+quality attribute is evaluated without changing scenarios.
+
+`verification/policies/` owns canonical Verification Policies. Policies select
+which modes, matrix profiles, data profiles, platforms and build types should
+run.
+
 `gates.py` owns compatibility access to reusable gates.
 
 `environment/` owns the Verification Execution Environment: repository
