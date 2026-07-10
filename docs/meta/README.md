@@ -19,8 +19,9 @@ Use `META_ENGINEERING_INDEX.md` as the canonical navigation page.
 3. `REPOSITORY_AS_MEMORY.md`
 4. `AI_AGENT_GUIDELINES.md`
 5. `ENGINEERING_PLAYBOOK.md`
-6. `ARCHITECTURAL_HEURISTICS.md`
-7. `DECISION_PATTERNS.md`
+6. `PHASE_COMPLETION_PROTOCOL.md`
+7. `ARCHITECTURAL_HEURISTICS.md`
+8. `DECISION_PATTERNS.md`
 
 ## Documents
 
@@ -28,6 +29,8 @@ Use `META_ENGINEERING_INDEX.md` as the canonical navigation page.
   repository-first engineering memory principle.
 - `ENGINEERING_PLAYBOOK.md` defines the canonical engineering lifecycle from
   idea to production.
+- `PHASE_COMPLETION_PROTOCOL.md` defines the mandatory completion workflow
+  after every implementation phase.
 - `ARCHITECTURAL_HEURISTICS.md` defines practical architecture decision-making
   heuristics for the platform.
 - `DECISION_PATTERNS.md` defines where newly discovered engineering knowledge
