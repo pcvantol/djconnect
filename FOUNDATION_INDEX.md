@@ -17,14 +17,15 @@ The files below define the platform foundation itself.
 5. `DOMAIN_MODEL.md`
 6. `PLATFORM_BASELINE_v1.md`
 7. `CLIENT_CAPABILITY_MATRIX.md`
-8. `PRODUCT_LANGUAGE.md`
-9. `PLATFORM_GOVERNANCE.md`
-10. `PLATFORM_QUALITY_STANDARD.md`
-11. `PLATFORM_BACKLOG.md`
-12. `INNOVATION_LAB.md`
-13. `docs/research/R0_RUNTIME_INDEPENDENCE.md` where runtime evolution is relevant
-14. `ADR_INDEX.md`
-15. `CI_CD_RELEASE_GOVERNANCE.md`
+8. `LOCALIZATION_STANDARD.md`
+9. `PRODUCT_LANGUAGE.md`
+10. `PLATFORM_GOVERNANCE.md`
+11. `PLATFORM_QUALITY_STANDARD.md`
+12. `PLATFORM_BACKLOG.md`
+13. `INNOVATION_LAB.md`
+14. `docs/research/R0_RUNTIME_INDEPENDENCE.md` where runtime evolution is relevant
+15. `ADR_INDEX.md`
+16. `CI_CD_RELEASE_GOVERNANCE.md`
 
 ## Conflict-resolution order
 
@@ -46,7 +47,7 @@ Repository-specific AGENTS guidance, API contracts, operational procedures and r
 
 ### Foundation docs
 
-Foundation docs define stable cross-repository intent and rules. They include the constitution, product vision, design principles, architecture principles, domain model, client capability model, product language, governance, quality standard, backlog, innovation model, ADR index and release governance.
+Foundation docs define stable cross-repository intent and rules. They include the constitution, product vision, design principles, architecture principles, domain model, client capability model, localization standard, product language, governance, quality standard, backlog, innovation model, ADR index and release governance.
 
 ### Platform baseline
 

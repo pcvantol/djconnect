@@ -60,6 +60,28 @@ Use these terms consistently:
 | Preview | Feature is usable but not yet stable |
 | Stable | Feature is part of the expected product experience |
 
+## Supported Languages
+
+DJConnect's canonical user-facing product languages are:
+
+- English
+- Dutch
+- German
+- French
+- Spanish
+
+The canonical locale families are `en`, `nl`, `de`, `fr` and `es`; see
+`LOCALIZATION_STANDARD.md` for the full platform contract.
+
+Preferred terms must be translated consistently across clients, website and
+release surfaces. Brand and feature names may remain invariant where the
+product language requires it, including `DJConnect`, `Music DNA`, `Ask DJ` and
+`VibeCast`.
+
+Machine-readable terms such as API paths, JSON keys, service names, protocol
+values and error codes remain untranslated. Consumer copy should be natural in
+each locale, not direct word-for-word translation from English.
+
 ## Avoid or restrict
 
 | Avoid | Prefer | Reason |

@@ -67,6 +67,18 @@ Example: Apple and Windows clients render the same backend-provided `playback_ac
 
 Anti-example: The backend emitting client-specific screen layouts for every platform.
 
+## Everything user-facing works in all supported languages
+
+Every user-facing capability is designed and validated for the canonical
+five-language set: English, Dutch, German, French and Spanish.
+
+Example: A new Music DNA onboarding screen adds stable localization keys and
+ships translations for `en`, `nl`, `de`, `fr` and `es` in the same release.
+
+Anti-example: A profile privacy error is added in English in the Windows client
+while the website and Pi client keep showing raw keys or stale untranslated
+copy.
+
 ## Everything temporary belongs to a Session with expiry
 
 Short-lived state such as follow-up confirmations, guest access, transient pairing context and temporary media URLs must expire.

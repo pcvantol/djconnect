@@ -80,6 +80,21 @@ pair/status metadata where applicable:
 | PR-06 | Shared/household profile on Pi | No personal Music DNA or private Ask DJ history | NOT TESTED |
 | PR-07 | Voice Endpoint ambiguous context | No personal identity guessing | NOT TESTED |
 
+## Localization Verification
+
+| ID | Scenario | Expected behavior | Status |
+| --- | --- | --- | --- |
+| L-01 | Catalog validation | Required locale catalogs or native equivalents exist for `en`, `nl`, `de`, `fr` and `es` where user-facing copy exists | NOT TESTED |
+| L-02 | Key completeness | All required catalogs contain the same required user-facing keys | NOT TESTED |
+| L-03 | Placeholder consistency | Placeholder names, counts and formatting specifiers match across locales | NOT TESTED |
+| L-04 | English fallback | Unsupported or regional locale variants fall back deterministically to English | NOT TESTED |
+| L-05 | Raw-key smoke test | Rendered primary flows do not show raw localization keys | NOT TESTED |
+| L-06 | Onboarding | Pairing/onboarding renders correctly in all five languages | NOT TESTED |
+| L-07 | Profile/privacy errors | Profile-required, device-not-mapped, backend-not-configured and privacy/private-session errors render localized display messages while machine codes remain untranslated | NOT TESTED |
+| L-08 | Shared and private contexts | Shared-profile, guest-profile and private-session copy is localized and privacy-safe | NOT TESTED |
+| L-09 | Website | Website routes or locale switching, metadata, privacy/support pages and canonical terms are available and validated per locale | NOT TESTED |
+| L-10 | Release/install copy | Release and install instructions intended for end users follow the five-language policy where multilingual release copy is present | NOT TESTED |
+
 ## Acceptance Criteria
 
 Profile Platform verification passes when all resolver, state and privacy
