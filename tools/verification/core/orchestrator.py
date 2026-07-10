@@ -8,6 +8,7 @@ from tools.verification.adapters import AdapterRegistry
 from tools.verification.build import BuildQualification
 from tools.verification.environment import EnvironmentSnapshotter, VerificationExecutionEnvironment
 from tools.verification.execution import ResultAggregator, ScenarioExecutor
+from tools.verification.evidence import RunStore
 from tools.verification.hygiene import RepositoryHygiene
 from tools.verification.models import HarnessConfig, Scenario
 from tools.verification.planning import VerificationPlanningEngine
@@ -23,6 +24,7 @@ class VerificationCore:
         self.execution_environment = VerificationExecutionEnvironment(config)
         self.executor = ScenarioExecutor(self.adapters)
         self.results = ResultAggregator()
+        self.run_store = RunStore(config.evidence_dir)
 
     def doctor(self) -> list:
         return [*self.hygiene.check(), *self.builds.qualify()]
@@ -48,9 +50,16 @@ class VerificationCore:
         snapshot = self.snapshot()
         environment = self.prepare_environment(scenarios)
         plan = VerificationPlanningEngine(self.config).plan(scenarios, strategy_id="smoke", policy_id="smoke")
-        return self.results.aggregate(
+        run_identity = environment.get("run_identity", {})
+        run_id = str(run_identity.get("run_id") or "execute")
+        self.run_store.ensure(run_id)
+        self.run_store.write_json(run_id, "environment.json", asdict(snapshot))
+        self.run_store.write_json(run_id, "qualification.json", environment)
+        self.run_store.write_json(run_id, "execution-plan.json", asdict(plan))
+        scenario_results = self.executor.execute(scenarios)
+        result = self.results.aggregate(
             "execute",
-            self.executor.execute(scenarios),
+            scenario_results,
             {
                 "environment": asdict(snapshot),
                 "execution_environment": environment,
@@ -65,3 +74,13 @@ class VerificationCore:
                 },
             },
         )
+        self.run_store.write_json(run_id, "summary.json", asdict(result))
+        for scenario_result in scenario_results:
+            case_id = next((case.case_id for case in plan.cases if case.scenario_id == scenario_result.scenario_id), scenario_result.scenario_id)
+            self.run_store.write_json(
+                run_id,
+                f"scenarios/{scenario_result.scenario_id}/{case_id}/result.json",
+                asdict(scenario_result),
+            )
+        self.run_store.finalize(run_id, state=result.state.value, summary={"result_state": result.state.value})
+        return result

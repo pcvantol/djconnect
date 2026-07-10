@@ -8,6 +8,7 @@ from tools.verification.configuration import SecretLoader
 from tools.verification.environment.cleanup import CleanupManager
 from tools.verification.environment.dependencies import DependencyInspector
 from tools.verification.environment.github import GitHubInspector
+from tools.verification.environment.docker_ha import HADockerDiscovery
 from tools.verification.environment.identity import RunIdentityManager
 from tools.verification.environment.platforms import (
     AppleDevelopmentEnvironment,
@@ -33,12 +34,15 @@ class VerificationExecutionEnvironment:
         self.github = GitHubInspector(config.root)
         self.cleanup = CleanupManager(config.root)
         self.secrets = SecretLoader()
+        self.ha_docker = HADockerDiscovery(config.root)
 
     def prepare(self, scenarios: list[Scenario] | None = None) -> dict:
         run_identity = self.identity.create(scenarios or [])
         snapshot = self.snapshotter.collect(self.config)
         gates = [
             self.github.validate_workflows(),
+            self.github.commit_status(snapshot.git_sha),
+            self.ha_docker.qualify(),
             *self.dependencies.validate(self.config.root),
             self.cleanup.clean(dry_run=True),
             self._secret_gate(),

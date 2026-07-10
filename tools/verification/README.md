@@ -61,8 +61,14 @@ python -m tools.verification.cli --ha-adapter execute --scenario-id PROFILE-001
 python -m tools.verification.cli report --tag localization
 python -m tools.verification.cli plan --strategy smoke --format json
 python -m tools.verification.cli doctor
+python -m tools.verification.cli doctor --environment ha-docker
+python -m tools.verification.cli doctor --environment ha-docker --ha-container homeassistant --ha-port 8123
+python -m tools.verification.cli doctor --fix-auth
 python -m tools.verification.cli prepare --scenario-id PROFILE-001
 python -m tools.verification.cli restore
+python -m tools.verification.cli runs list
+python -m tools.verification.cli runs verify <run-id>
+python -m tools.verification.cli investigate <run-id>
 ```
 
 Reserved commands:
@@ -111,3 +117,9 @@ Secrets files are referenced only. They must not be committed.
   execution, assertions, evidence, cleanup, result and report.
 - Evidence must be structured, redacted and reproducible.
 - Build qualification must pass before real execution.
+- Docker-based Home Assistant qualification must prove that the selected
+  runtime is an intended verification/development instance before any mutation.
+- GitHub CI qualification is exact-SHA based; missing auth, missing data and
+  SHA mismatches are blocking qualification states.
+- Run evidence is persisted under the configured evidence directory and can be
+  listed, shown, verified and investigated through the CLI.
