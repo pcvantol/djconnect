@@ -9,3 +9,5 @@ maintainers collaborate while evolving the DJConnect platform.
   idea to production.
 - `ARCHITECTURAL_HEURISTICS.md` defines practical architecture decision-making
   heuristics for the platform.
+- `DECISION_PATTERNS.md` defines where newly discovered engineering knowledge
+  belongs in the repository.

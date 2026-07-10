@@ -31,6 +31,7 @@ The files below define the platform foundation itself.
 19. `docs/meta/AI_COLLABORATION_MODEL.md`
 20. `docs/meta/ENGINEERING_PLAYBOOK.md`
 21. `docs/meta/ARCHITECTURAL_HEURISTICS.md`
+22. `docs/meta/DECISION_PATTERNS.md`
 
 ## Conflict-resolution order
 
@@ -83,6 +84,8 @@ collaborate while evolving the platform.
   lifecycle from idea to production.
 - `docs/meta/ARCHITECTURAL_HEURISTICS.md` defines practical architecture
   decision-making heuristics for the platform.
+- `docs/meta/DECISION_PATTERNS.md` defines where newly discovered engineering
+  knowledge belongs in the repository.
 
 ### Operational docs
 
