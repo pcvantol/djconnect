@@ -13,6 +13,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from tools.verification.models import EnvironmentSnapshot, HarnessConfig
+from tools.verification.environment.toolchain import ToolchainInspector
 
 
 class EnvironmentSnapshotter:
@@ -26,24 +27,30 @@ class EnvironmentSnapshotter:
         fingerprint = hashlib.sha256(
             json.dumps(fingerprint_payload, sort_keys=True).encode("utf-8")
         ).hexdigest()
+        toolchain = _toolchain()
+        capabilities = {
+            name: info.state.value
+            for name, info in ToolchainInspector().discover().items()
+        }
         return EnvironmentSnapshot(
             timestamp=datetime.now(timezone.utc).isoformat(),
             host=platform.node(),
             os=f"{platform.system()} {platform.release()}",
             architecture=platform.machine(),
-            toolchain=_toolchain(),
+            toolchain=toolchain,
             locale=locale.getlocale()[0] or "",
             timezone=time.tzname[0] if time.tzname else "",
             git_sha=_git(config.root, "rev-parse", "HEAD"),
             git_branch=_git(config.root, "rev-parse", "--abbrev-ref", "HEAD"),
             dependency_versions=dependency_versions,
             configuration_fingerprint=fingerprint,
+            capabilities=capabilities,
         )
 
 
 def _toolchain() -> dict[str, str]:
     tools: dict[str, str] = {"python": platform.python_version()}
-    for command in ("git", "pytest"):
+    for command in ("git", "pytest", "node", "npm", "xcodebuild", "swift", "dotnet", "pio", "docker", "prlctl"):
         resolved = shutil.which(command)
         if resolved:
             tools[command] = resolved

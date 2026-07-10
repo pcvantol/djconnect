@@ -31,6 +31,11 @@ def build_parser() -> argparse.ArgumentParser:
     report.add_argument("--format", choices=("markdown", "json", "junit"), default="markdown")
     clean = subparsers.add_parser("clean")
     clean.add_argument("--apply", action="store_true")
+    prepare = subparsers.add_parser("prepare")
+    _add_filters(prepare)
+    restore = subparsers.add_parser("restore")
+    restore.add_argument("--apply", action="store_true")
+    restore.add_argument("--allow-destructive", action="store_true")
     subparsers.add_parser("doctor")
     subparsers.add_parser("env")
     subparsers.add_parser("schema")
@@ -101,6 +106,18 @@ def main(argv: list[str] | None = None) -> int:
         paths = ArtifactManager(config.evidence_dir).clean(dry_run=not args.apply)
         mode = "would remove" if not args.apply else "removed"
         print(f"{mode} {len(paths)} evidence entries")
+        return 0
+
+    if args.command == "prepare":
+        print(json.dumps(orchestrator.prepare_environment(_select(args, scenarios)), indent=2, sort_keys=True, default=str))
+        return 0
+
+    if args.command == "restore":
+        gate = orchestrator.restore_environment(
+            dry_run=not args.apply,
+            allow_destructive=args.allow_destructive,
+        )
+        print(json.dumps(gate.__dict__, indent=2, sort_keys=True, default=str))
         return 0
 
     if args.command == "schema":

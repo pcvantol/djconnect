@@ -1,6 +1,6 @@
 # Verification Gap Backlog
 
-Status: Phase 7 backlog
+Status: Phase 8 updated backlog
 Date: 2026-07-10
 
 Do not automatically create GitHub issues from this file.
@@ -28,14 +28,34 @@ Do not automatically create GitHub issues from this file.
 | VG-019 | P3 | Documentation Gap | Keep technical design docs updated as adapter evidence finds drift. | Platform Docs | `djconnect` | Non-blocking | S ongoing | Phase 8+ |
 | VG-020 | P3 | Foundation Gap | Consider ADR for central push/install-token trust boundary if APNs relay becomes long-term platform contract. | Platform Architecture | `djconnect` | Non-blocking | M | Future ADR phase |
 
-## Phase 8 Must Not Do
+## Phase 8 Progress
+
+Completed:
+
+- Verification Execution Environment implemented.
+- Repository hygiene expanded with SHA validation, fetch/prune dry-runs,
+  dependency inspection, toolchain inspection and GitHub CI inspection.
+- Run identity, environment snapshots, toolchain discovery, dependency
+  inspection, GitHub workflow discovery, cleanup safeguards and platform
+  environment controllers added.
+- CLI `prepare` and `restore` added under the existing verification namespace.
+
+Still pending for Phase 9 Home Assistant Adapter:
+
+- VG-001 remains open: implement first Home Assistant adapter.
+- VG-002 remains open: define the HA executable scenario subset in adapter
+  configuration.
+- VG-003 remains open: connect HA adapter evidence to the redaction/evidence
+  baseline.
+
+## Adapter Phase Must Not Do
 
 - Do not implement Apple/Windows/Pi/ESP adapters.
 - Do not mark hardware or live-client scenarios as passing.
 - Do not add runtime features to satisfy scenarios.
 - Do not redesign pairing, profile identity or capability discovery.
 
-## Phase 8 Recommended Scope
+## Phase 9 Home Assistant Adapter Recommended Scope
 
 - HA adapter skeleton.
 - Scenario loading/filtering for HA-owned categories.
