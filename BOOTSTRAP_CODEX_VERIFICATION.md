@@ -27,8 +27,9 @@ The Verification Foundation, Core, Execution Environment, Data Framework,
 Modes, Policies, Planning Engine and Home Assistant Verification Adapter exist.
 Phase 9V concluded `VERIFICATION PLATFORM NOT QUALIFIED`.
 
-Phase 9R converted several qualification blockers into executable checks, but
-the local HA Docker runtime is still not proven safe for live verification.
+Phase 9R converted several qualification blockers into executable checks.
+Phase 9L created the dedicated local HA verification lab definition, but the
+lab is not yet qualified for live verification.
 
 The active next phase is listed in `PROMPT_INDEX.md`.
 
