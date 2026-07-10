@@ -28,12 +28,7 @@ The files below define the platform foundation itself.
 16. `CI_CD_RELEASE_GOVERNANCE.md`
 17. `docs/verification/00_VERIFICATION_VISION.md`
 18. `docs/verification/01_VERIFICATION_ARCHITECTURE.md`
-19. `docs/meta/AI_COLLABORATION_MODEL.md`
-20. `docs/meta/ENGINEERING_PLAYBOOK.md`
-21. `docs/meta/ARCHITECTURAL_HEURISTICS.md`
-22. `docs/meta/DECISION_PATTERNS.md`
-23. `docs/meta/REPOSITORY_AS_MEMORY.md`
-24. `docs/meta/AI_AGENT_GUIDELINES.md`
+19. `docs/meta/META_ENGINEERING_INDEX.md`
 
 ## Conflict-resolution order
 
@@ -80,6 +75,8 @@ truth.
 Meta engineering docs define how humans, AI agents, reviewers and maintainers
 collaborate while evolving the platform.
 
+- `docs/meta/META_ENGINEERING_INDEX.md` is the canonical navigation page for
+  Meta Engineering.
 - `docs/meta/AI_COLLABORATION_MODEL.md` defines the canonical AI collaboration
   model and repository-first engineering memory principle.
 - `docs/meta/ENGINEERING_PLAYBOOK.md` defines the canonical engineering

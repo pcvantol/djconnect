@@ -37,25 +37,30 @@ The active next phase is listed in `PROMPT_INDEX.md`.
 
 1. `BOOTSTRAP_CODEX_SESSION.md`
 2. `AGENTS.md`
-3. `BOOTSTRAP_CODEX_VERIFICATION.md`
-4. `PROMPT_INDEX.md`
-5. Active prompt under `prompts/verification/`
-6. `docs/verification/00_VERIFICATION_VISION.md`
-7. `docs/verification/01_VERIFICATION_ARCHITECTURE.md`
-8. `docs/verification/02_SCENARIO_SCHEMA.md`
-9. `docs/verification/03_SCENARIO_CATALOG.md`
-10. `docs/verification/03A_VERIFICATION_MATRIX.md`
-11. `docs/verification/08_VERIFICATION_EXECUTION_ENVIRONMENT.md`
-12. `docs/verification/08A_VERIFICATION_DATA_FRAMEWORK.md`
-13. `docs/verification/08B_VERIFICATION_MODES.md`
-14. `docs/verification/08B_VERIFICATION_POLICIES.md`
-15. `docs/verification/08C_VERIFICATION_PLANNING_ENGINE.md`
-16. `docs/verification/09_HOME_ASSISTANT_VERIFICATION_ADAPTER.md`
-17. Current reports under `docs/verification/reports/`
-18. Current backlog and scorecards under `docs/verification/`
+3. `docs/meta/README.md`
+4. `BOOTSTRAP_CODEX_VERIFICATION.md`
+5. `PROMPT_INDEX.md`
+6. Active prompt under `prompts/verification/`
+7. `docs/verification/00_VERIFICATION_VISION.md`
+8. `docs/verification/01_VERIFICATION_ARCHITECTURE.md`
+9. `docs/verification/02_SCENARIO_SCHEMA.md`
+10. `docs/verification/03_SCENARIO_CATALOG.md`
+11. `docs/verification/03A_VERIFICATION_MATRIX.md`
+12. `docs/verification/08_VERIFICATION_EXECUTION_ENVIRONMENT.md`
+13. `docs/verification/08A_VERIFICATION_DATA_FRAMEWORK.md`
+14. `docs/verification/08B_VERIFICATION_MODES.md`
+15. `docs/verification/08B_VERIFICATION_POLICIES.md`
+16. `docs/verification/08C_VERIFICATION_PLANNING_ENGINE.md`
+17. `docs/verification/09_HOME_ASSISTANT_VERIFICATION_ADAPTER.md`
+18. Current reports under `docs/verification/reports/`
+19. Current backlog and scorecards under `docs/verification/`
 
 Read implementation files only after the canonical documents establish the
 responsibility boundary.
+
+Meta Engineering defines the repository-first, evidence-first AI-agent
+workflow used while executing verification phases. It does not redefine
+verification behavior.
 
 ## Frozen Boundaries
 
