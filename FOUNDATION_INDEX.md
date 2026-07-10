@@ -33,6 +33,7 @@ The files below define the platform foundation itself.
 21. `docs/meta/ARCHITECTURAL_HEURISTICS.md`
 22. `docs/meta/DECISION_PATTERNS.md`
 23. `docs/meta/REPOSITORY_AS_MEMORY.md`
+24. `docs/meta/AI_AGENT_GUIDELINES.md`
 
 ## Conflict-resolution order
 
@@ -89,6 +90,8 @@ collaborate while evolving the platform.
   knowledge belongs in the repository.
 - `docs/meta/REPOSITORY_AS_MEMORY.md` explains why the repository is the
   durable engineering memory instead of prompts or chat history.
+- `docs/meta/AI_AGENT_GUIDELINES.md` defines how AI agents are expected to
+  operate within the DJConnect engineering process.
 
 ### Operational docs
 

@@ -13,3 +13,5 @@ maintainers collaborate while evolving the DJConnect platform.
   belongs in the repository.
 - `REPOSITORY_AS_MEMORY.md` explains why the repository is the durable
   engineering memory instead of prompts or chat history.
+- `AI_AGENT_GUIDELINES.md` defines how AI agents are expected to operate within
+  the DJConnect engineering process.
