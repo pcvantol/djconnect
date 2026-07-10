@@ -1,0 +1,14 @@
+services:
+  music-assistant:
+    image: ${DJCONNECT_VERIFICATION_MA_IMAGE:-ghcr.io/music-assistant/server:latest}
+    container_name: ${DJCONNECT_VERIFICATION_MA_CONTAINER:-djconnect-verification-music-assistant}
+    labels:
+      djconnect.verification: "true"
+      djconnect.lab.service: "music_assistant"
+    ports:
+      - "${DJCONNECT_VERIFICATION_MA_PORT:-18140}:8095"
+    volumes:
+      - ${DJCONNECT_VERIFICATION_LAB_ROOT:-./.runtime}/music-assistant:/data
+    networks:
+      - djconnect-verification
+    restart: "no"

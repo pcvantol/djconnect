@@ -100,7 +100,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "validate":
-        validator = ScenarioValidator()
+        validator = ScenarioValidator(config.root)
         issues = [issue for scenario in _select(args, scenarios) for issue in validator.validate(scenario)]
         for issue in issues:
             source = f"{issue.source}: " if issue.source else ""

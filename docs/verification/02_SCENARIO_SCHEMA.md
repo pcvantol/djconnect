@@ -55,6 +55,7 @@ The schema includes these top-level fields:
 | `required_backends` | Music backends needed. |
 | `required_devices` | Devices or device classes needed. |
 | `required_environment` | Environmental prerequisites. |
+| `requires` | Logical runtime capabilities and lab resources required by the scenario. |
 | `preconditions` | State that must already be true. |
 | `setup` | Reproducible setup before execution. |
 | `steps` | Atomic behavior-level actions. |
@@ -75,6 +76,35 @@ The schema includes these top-level fields:
 
 The schema is intentionally expressive. Not every field requires a long value,
 but every scenario should make its assumptions explicit.
+
+## Runtime Requirements
+
+Every canonical scenario declares a `requires` block. This block is the
+scenario-owned description of what runtime capabilities and resources must
+exist before the scenario can execute.
+
+Scenarios declare logical requirements only. They must not name Compose files,
+container names, image tags, host paths or implementation commands.
+
+The `requires` block may include:
+
+- `capabilities`: mandatory logical capabilities;
+- `optional_capabilities`: enhancements that may increase coverage;
+- `services`: logical lab services such as `homeassistant`, `whisper`,
+  `piper`, `fake_music_backend` or `music_assistant`;
+- `integrations`: Home Assistant integrations such as `djconnect`;
+- `bootstrap`: required prepared state such as `djconnect.loaded`;
+- `resources`: network, persistence, external and virtual resources;
+- `hardware`: physical resources such as `esp32` or `raspberry_pi`;
+- `secrets`: named credentials such as `ha.access_token`;
+- `persistence`: whether the scenario needs persistent lab state;
+- `exclusive_resources`: resources that cannot be shared concurrently;
+- `unresolved`: explicitly unresolved requirements.
+
+Runtime capability identifiers are defined in
+`verification/lab/capabilities.yaml`. The Scenario Catalog validator fails when
+a canonical scenario has no `requires` block or references an unknown
+capability or lab service.
 
 ## Stable IDs
 

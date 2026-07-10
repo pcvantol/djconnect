@@ -1,0 +1,35 @@
+profile_id: ha-assist
+inherits:
+  - ha-profile
+provided_capabilities:
+  - assist.conversation
+  - assist.pipeline
+  - assist.stt
+  - assist.tts
+  - assist.audio_input
+  - assist.audio_output
+  - stt.whisper
+  - tts.piper
+services:
+  - whisper
+  - piper
+compose_fragments:
+  - docker/verification/compose.whisper.yaml
+  - docker/verification/compose.piper.yaml
+bootstrap_actions:
+  - assist.configure_whisper
+  - assist.configure_piper
+  - assist.reconcile_pipeline
+  - assist.pipeline_health_probe
+readiness_gates:
+  - stt.whisper
+  - tts.piper
+  - assist.pipeline
+required_secrets: []
+supported_scenario_categories:
+  - Ask DJ
+  - Hardware
+cost:
+  startup_seconds: 300
+  runtime: medium
+persistence: persistent

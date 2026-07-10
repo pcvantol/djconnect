@@ -1,0 +1,33 @@
+profile_id: ha-profile
+inherits:
+  - ha-minimal
+provided_capabilities:
+  - ha.storage
+  - ha.persistence
+  - ha.restart
+  - ha.registries
+  - djconnect.profile_platform
+  - djconnect.profile_resolution
+  - djconnect.private_session
+  - djconnect.export_import
+services: []
+compose_fragments: []
+bootstrap_actions:
+  - profile.fixtures
+  - profile.resolver_mappings
+readiness_gates:
+  - ha.storage
+  - ha.persistence
+  - djconnect.profile_platform
+required_secrets: []
+supported_scenario_categories:
+  - Profiles
+  - Resolver
+  - Identity
+  - Privacy
+  - Export
+  - Import
+cost:
+  startup_seconds: 150
+  runtime: low
+persistence: persistent

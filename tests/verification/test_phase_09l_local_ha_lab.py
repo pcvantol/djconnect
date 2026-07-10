@@ -196,6 +196,8 @@ def _lab_config(root: Path) -> HALabConfig:
         port=18123,
         image="ghcr.io/home-assistant/home-assistant:stable",
         compose_file=root / "verification/lab/home_assistant/compose.yaml",
+        compose_files=(root / "verification/lab/home_assistant/compose.yaml",),
+        profile="ha-profile",
         lab_root=temp_root,
         config_dir=temp_root / "config",
         log_path=temp_root / "config/home-assistant.log",

@@ -18,6 +18,31 @@ required_profiles: [personal_profile, household_profile]
 required_backends: []
 required_devices: []
 required_environment: [configured_ha_instance]
+requires:
+  capabilities:
+    - djconnect.capabilities
+    - djconnect.loaded
+    - evidence.storage
+    - ha.access_token
+    - ha.logs
+    - ha.rest
+    - ha.runtime
+    - ha.services
+    - ha.websocket
+    - network.internet
+  services:
+    - homeassistant
+  integrations:
+    - djconnect
+  bootstrap:
+    - djconnect.loaded
+    - ha.auth
+  resources:
+    network: internet
+    persistent_storage: false
+  secrets:
+    - ha.access_token
+  persistence: ephemeral
 preconditions:
   - The verification environment contains the components required for image proxy returns tokenized local route.
   - Scenario fixture data is isolated from real user data or explicitly approved for test use.

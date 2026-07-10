@@ -14,6 +14,34 @@ artifacts/verification/lab/home_assistant/
 
 Runtime state, logs and generated configuration are not committed.
 
+## Modular Composition
+
+The lab is modular and scenario-driven. Scenarios declare logical requirements
+in `requires`; the Planning Engine aggregates those requirements; the
+Execution Environment selects the smallest canonical lab profile that satisfies
+the local lab capabilities.
+
+Canonical lab assets:
+
+- capability taxonomy: `verification/lab/capabilities.yaml`;
+- service definitions: `verification/lab/services/`;
+- profile definitions: `verification/lab/profiles/`;
+- Compose fragments: `docker/verification/`.
+
+Supported canonical profiles:
+
+- `ha-minimal`;
+- `ha-profile`;
+- `ha-assist`;
+- `ha-music`;
+- `ha-full`.
+
+The default profile is `ha-profile`. Override it locally with:
+
+```bash
+DJCONNECT_VERIFICATION_LAB_PROFILE=ha-minimal python3 -m tools.verification.cli lab ha start
+```
+
 ## Commands
 
 Use the Verification CLI:
@@ -25,6 +53,9 @@ python3 -m tools.verification.cli lab ha bootstrap-auth
 python3 -m tools.verification.cli lab ha doctor
 python3 -m tools.verification.cli lab ha stop
 ```
+
+The CLI resolves the selected profile into a deterministic Compose fragment
+list. It does not generate unique topologies per scenario.
 
 Destructive cleanup requires explicit opt-in:
 

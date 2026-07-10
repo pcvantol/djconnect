@@ -20,6 +20,7 @@ Do not create GitHub issues automatically from this backlog.
 | VPB-012 | P0 | Environment issue | Phase 9L-R doctor now classifies the stale dedicated lab container, but local Docker cannot remove `djconnect-verification-ha`; `docker rm -f djconnect-verification-ha` times out while the container remains `Created`. | Verification Environment / Local Docker | `djconnect` | Blocks Phase 9V rerun | S | Phase 9L-R retry after Docker Desktop repair |
 | VPB-013 | P0 | Environment issue | Phase 9L-R now supports generated lab-only HA auth, but REST and WebSocket live probes cannot qualify until the lab runtime is recovered and `lab ha bootstrap-auth` or `DJCONNECT_VERIFICATION_HA_TOKEN` provides a token. | Verification Environment / Operator | `djconnect` | Blocks Phase 9V rerun | S | Phase 9L-R retry after lab starts |
 | VPB-014 | P0 | Verification Gap | Local HA lab doctor must return `LOCAL_VERIFICATION_LAB_QUALIFIED` before Phase 9V rerun; Phase 9L-R improved fail-closed diagnostics but did not qualify the live lab. | Verification Environment | `djconnect` | Blocks Phase 9V rerun | S | Phase 9L-R retry |
+| VPB-015 | P0 | Environment issue | Modular lab requirements, profiles and Compose fragments are implemented and validated, but live lab qualification still cannot complete until Docker Desktop/containerd can start a fresh canonical profile. | Verification Environment / Local Docker | `djconnect` | Blocks Phase 9V rerun | S | Phase 9L-R2 Docker runtime remediation |
 
 ## Regression Subset Required After Fixes
 

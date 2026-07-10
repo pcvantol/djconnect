@@ -1,0 +1,38 @@
+profile_id: ha-minimal
+inherits: []
+provided_capabilities:
+  - docker.runtime
+  - evidence.storage
+  - ha.runtime
+  - ha.rest
+  - ha.websocket
+  - ha.services
+  - ha.events
+  - ha.logs
+  - ha.access_token
+  - djconnect.loaded
+  - djconnect.capabilities
+  - djconnect.pairing
+services:
+  - homeassistant
+compose_fragments:
+  - docker/verification/compose.base.yaml
+bootstrap_actions:
+  - ha.copy_djconnect
+  - ha.bootstrap_auth
+  - djconnect.verify_loaded
+readiness_gates:
+  - docker.runtime
+  - ha.runtime
+  - ha.rest
+  - ha.websocket
+  - djconnect.loaded
+required_secrets: []
+supported_scenario_categories:
+  - Setup
+  - Capabilities
+  - Networking
+cost:
+  startup_seconds: 120
+  runtime: low
+persistence: ephemeral

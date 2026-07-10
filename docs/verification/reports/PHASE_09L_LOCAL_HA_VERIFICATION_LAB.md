@@ -26,6 +26,12 @@ prerequisite. Lab-only Home Assistant auth bootstrap has been added so a fresh
 dedicated lab can create verification credentials and request a runtime access
 token without committing secrets.
 
+During the modular lab refinement, Phase 9L also stopped treating the local HA
+lab as a monolithic container. Scenarios now declare logical requirements,
+the Planning Engine aggregates those requirements, and the Execution
+Environment resolves them to canonical lab profiles and deterministic Compose
+fragments.
+
 No production Home Assistant container or volume was mutated.
 
 ## Lab Definition
@@ -75,6 +81,13 @@ Implemented within the existing Verification Execution Environment:
 - Focused tests cover created-state classification, inspect timeout fallback,
   scoped stale-container recovery, generated lab auth and no-token WebSocket
   blocking.
+- Modular lab composition was added so scenarios declare logical runtime
+  requirements and the Planning Engine selects the smallest canonical lab
+  profile instead of defaulting to a monolithic HA container.
+- Canonical capabilities, lab services, lab profiles and Compose fragments now
+  live under `verification/lab/` and `docker/verification/`.
+- The canonical scenario catalog now has explicit `requires` declarations for
+  all 231 scenarios.
 
 No new Verification architecture subsystem was introduced.
 
@@ -188,6 +201,13 @@ Included:
 - final summary;
 - evidence index with checksums.
 
+Additional requirement coverage reports:
+
+```text
+docs/verification/reports/PHASE_09L_LAB_REQUIREMENT_COVERAGE.md
+docs/verification/reports/PHASE_09L_LAB_REQUIREMENT_COVERAGE.json
+```
+
 ## Tests Run
 
 Focused tests:
@@ -204,9 +224,21 @@ python3 -m unittest tests.verification.test_home_assistant_adapter tests.verific
 
 Results:
 
-- Phase 9L focused tests: 11 passed.
-- Regression subset: 56 passed.
+- Focused modular lab and Phase 9L/9R/planning tests: 34 passed.
+- Full `tests/verification` discovery: 66 passed.
 - Scenario validation covered 231 canonical scenarios.
+
+The modular lab refinement validates:
+
+- 231 of 231 canonical scenarios have `requires` declarations;
+- 0 unresolved scenario requirement mappings;
+- capability catalog contains 46 capabilities;
+- service catalog contains 6 modular services;
+- lab profile catalog contains 5 canonical profiles;
+- `PROFILE-001` through `PROFILE-005` select `ha-profile`;
+- Assist requirements select `ha-assist`;
+- music requirements select `ha-music`;
+- combined Assist and music requirements select `ha-full`.
 
 ## Failure Classification
 

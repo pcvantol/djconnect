@@ -140,6 +140,48 @@ The implementation keeps each generated case traceable to scenario id, mode,
 policy, matrix profile, data profile, platform, adapter, execution environment
 and expected evidence.
 
+## Lab Requirement Planning
+
+The Planning Engine also aggregates scenario `requires` declarations into a
+Lab Execution Plan. This plan is metadata only. It does not start Docker,
+configure Home Assistant or call adapters.
+
+The Lab Execution Plan includes:
+
+- selected scenario IDs;
+- transitive required capabilities;
+- optional capabilities;
+- selected canonical lab profile;
+- selected lab services;
+- Compose fragments;
+- bootstrap actions;
+- required secrets;
+- required hardware;
+- external resources;
+- persistence mode;
+- readiness gates;
+- evidence requirements;
+- unresolved requirements.
+
+The planner selects the smallest canonical lab profile that satisfies the local
+lab capabilities. Future client runtimes, physical hardware and external
+services remain explicit resource requirements and do not force `ha-full`.
+
+Canonical lab profiles are defined in:
+
+```text
+verification/lab/profiles/
+```
+
+The capability taxonomy is defined in:
+
+```text
+verification/lab/capabilities.yaml
+```
+
+For `PROFILE-001` through `PROFILE-005`, the aggregated requirements select
+`ha-profile`.
+
 ## Planning Strategies
 
 The canonical strategies are:

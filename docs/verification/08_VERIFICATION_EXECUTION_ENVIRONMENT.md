@@ -75,6 +75,40 @@ python -m tools.verification.cli restore
 
 This is not a HA-specific or adapter-specific CLI.
 
+## Modular Local HA Lab
+
+The Execution Environment owns modular lab composition. Platform adapters do
+not decide which containers, sidecars, integrations or bootstrap actions are
+required.
+
+The model is:
+
+```text
+Selected scenarios
+  -> required capabilities
+  -> Lab Execution Plan
+  -> canonical lab profile
+  -> Compose fragments
+  -> idempotent bootstrap
+  -> capability readiness
+```
+
+Canonical lab definitions live under:
+
+- `verification/lab/capabilities.yaml`;
+- `verification/lab/services/`;
+- `verification/lab/profiles/`;
+- `verification/lab/bootstrap/`;
+- `docker/verification/`.
+
+The Execution Environment resolves a selected profile into a deterministic
+Compose file list and records the effective profile, fragments and readiness
+gates as evidence. It rejects unknown capabilities, unknown services and
+unsupported profile promises through validation.
+
+Readiness is capability-based. A healthy container is not sufficient proof that
+an integration, Assist pipeline, music backend or storage fixture is ready.
+
 ## Execution Model
 
 Preparation produces a structured metadata bundle:

@@ -19,6 +19,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from tools.verification.models import GateResult, GateState
+from tools.verification.lab import LabCatalog
 
 
 SECRET_KEY_PARTS = ("token", "password", "secret", "proof", "authorization", "key")
@@ -83,6 +84,8 @@ class HALabConfig:
     port: int
     image: str
     compose_file: Path
+    compose_files: tuple[Path, ...]
+    profile: str
     lab_root: Path
     config_dir: Path
     log_path: Path
@@ -94,11 +97,17 @@ class HALabConfig:
     def from_root(cls, root: Path) -> "HALabConfig":
         lab_root = Path(os.getenv("DJCONNECT_VERIFICATION_LAB_ROOT", str(root / "artifacts/verification/lab/home_assistant")))
         source_sha = _git_sha(root) or "unknown"
+        profile = os.getenv("DJCONNECT_VERIFICATION_LAB_PROFILE", "ha-profile")
+        catalog = LabCatalog(root)
+        fragments = catalog.profile_compose_fragments(profile)
+        compose_files = tuple(root / fragment for fragment in fragments) or (root / "verification/lab/home_assistant/compose.yaml",)
         return cls(
             name=os.getenv("DJCONNECT_VERIFICATION_HA_CONTAINER", "djconnect-verification-ha"),
             port=int(os.getenv("DJCONNECT_VERIFICATION_HA_PORT", "18123")),
             image=os.getenv("DJCONNECT_VERIFICATION_HA_IMAGE", "ghcr.io/home-assistant/home-assistant:stable"),
-            compose_file=root / "verification/lab/home_assistant/compose.yaml",
+            compose_file=compose_files[0],
+            compose_files=compose_files,
+            profile=profile,
             lab_root=lab_root,
             config_dir=lab_root / "config",
             log_path=lab_root / "config/home-assistant.log",
@@ -259,7 +268,7 @@ class HALocalVerificationLab:
             if not recovery["ok"]:
                 return GateResult("ha_lab_lifecycle", GateState.FAIL, "Lab recovery failed before lifecycle action", recovery)
         env = self._compose_env()
-        compose = ("compose", "-f", str(self.config.compose_file))
+        compose = self._compose_args()
         commands = {
             "build": (*compose, "pull"),
             "start": (*compose, "up", "-d"),
@@ -338,12 +347,23 @@ class HALocalVerificationLab:
             "port": self.config.port,
             "image": self.config.image,
             "compose_file": str(self.config.compose_file.relative_to(self.root)),
+            "compose_files": [
+                str(path.relative_to(self.root)) if _is_relative_to(path, self.root) else str(path)
+                for path in self.config.compose_files
+            ],
+            "profile": self.config.profile,
             "lab_root": str(self.config.lab_root.relative_to(self.root)) if _is_relative_to(self.config.lab_root, self.root) else "<external-lab-root>",
             "config_dir": str(self.config.config_dir.relative_to(self.root)) if _is_relative_to(self.config.config_dir, self.root) else "<external-config-dir>",
             "log_path": str(self.config.log_path.relative_to(self.root)) if _is_relative_to(self.config.log_path, self.root) else "<external-log-path>",
             "source_sha": self.config.source_sha,
             "source_fingerprint": self.config.source_fingerprint,
         }
+
+    def _compose_args(self) -> tuple[str, ...]:
+        args: list[str] = ["compose"]
+        for path in self.config.compose_files:
+            args.extend(["-f", str(path)])
+        return tuple(args)
 
     def _ensure_layout(self) -> None:
         self.config.config_dir.mkdir(parents=True, exist_ok=True)
@@ -547,6 +567,7 @@ class HALocalVerificationLab:
             "DJCONNECT_VERIFICATION_REPO_ROOT": str(self.config.repo_root),
             "DJCONNECT_VERIFICATION_SOURCE_SHA": self.config.source_sha,
             "DJCONNECT_VERIFICATION_SOURCE_FINGERPRINT": self.config.source_fingerprint,
+            "DJCONNECT_VERIFICATION_LAB_PROFILE": self.config.profile,
         }
 
     def _rest_check(self, path: str, token: str, runtime: HADockerRuntime | None) -> dict[str, Any]:

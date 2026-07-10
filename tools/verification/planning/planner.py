@@ -18,6 +18,7 @@ from tools.verification.models import (
     ResourcePlan,
     Scenario,
 )
+from tools.verification.lab import LabCatalog
 
 from .catalogs import PlanningCatalogs
 from .strategies import PlanningStrategyRegistry
@@ -98,6 +99,7 @@ class VerificationPlanningEngine:
         resource_plan = self._resource_plan(policy, cases)
         environment_plan = self._environment_plan(policy)
         coverage = self._coverage(selected_scenarios, cases)
+        lab_execution_plan = LabCatalog(self.config.root).plan_for_scenarios(selected_scenarios)
         plan_id = f"plan-{resolved_policy_id}-{strategy.id}-{_utc_stamp()}"
         return ExecutionPlan(
             plan_id=plan_id,
@@ -119,6 +121,7 @@ class VerificationPlanningEngine:
                 "executes": False,
                 "evaluates": False,
                 "calls_adapters": False,
+                "lab_execution_plan": lab_execution_plan.to_dict(),
             },
         )
 

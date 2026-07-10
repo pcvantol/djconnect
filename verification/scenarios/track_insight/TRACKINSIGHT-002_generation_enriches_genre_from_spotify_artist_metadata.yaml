@@ -18,6 +18,37 @@ required_profiles: [personal_profile, household_profile]
 required_backends: [Spotify Direct]
 required_devices: [djconnect_client]
 required_environment: [configured_ha_instance]
+requires:
+  capabilities:
+    - apple.runtime
+    - djconnect.capabilities
+    - djconnect.loaded
+    - djconnect.track_insight
+    - evidence.storage
+    - ha.access_token
+    - ha.logs
+    - ha.rest
+    - ha.runtime
+    - ha.services
+    - ha.websocket
+    - music.fake_backend
+    - pi.runtime
+  services:
+    - fake_music_backend
+    - homeassistant
+  integrations:
+    - djconnect
+  bootstrap:
+    - djconnect.loaded
+    - ha.auth
+  resources:
+    network: local
+    persistent_storage: false
+  hardware:
+    - raspberry_pi
+  secrets:
+    - ha.access_token
+  persistence: ephemeral
 preconditions:
   - The verification environment contains the components required for generation enriches genre from spotify artist metadata.
   - Scenario fixture data is isolated from real user data or explicitly approved for test use.

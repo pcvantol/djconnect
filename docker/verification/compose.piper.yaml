@@ -1,0 +1,12 @@
+services:
+  piper:
+    image: ${DJCONNECT_VERIFICATION_PIPER_IMAGE:-rhasspy/wyoming-piper:latest}
+    container_name: ${DJCONNECT_VERIFICATION_PIPER_CONTAINER:-djconnect-verification-piper}
+    labels:
+      djconnect.verification: "true"
+      djconnect.lab.service: "piper"
+    ports:
+      - "${DJCONNECT_VERIFICATION_PIPER_PORT:-18132}:10200"
+    networks:
+      - djconnect-verification
+    restart: "no"

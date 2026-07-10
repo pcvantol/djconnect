@@ -1,0 +1,19 @@
+service_id: evidence_helper
+provided_capabilities:
+  - evidence.storage
+required_capabilities: []
+image: local-verification-evidence-helper
+configuration_inputs:
+  - DJCONNECT_VERIFICATION_EVIDENCE_DIR
+secrets: []
+networks:
+  - djconnect-verification
+volumes:
+  - evidence
+ports: []
+health_probe: evidence_write_probe
+readiness_probe: evidence_index_probe
+bootstrap_dependencies: []
+cleanup: preserve_evidence
+evidence_sources:
+  - evidence_index

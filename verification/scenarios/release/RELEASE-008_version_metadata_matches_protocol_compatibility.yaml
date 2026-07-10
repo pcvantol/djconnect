@@ -18,6 +18,15 @@ required_profiles: []
 required_backends: []
 required_devices: []
 required_environment: [release_artifacts_available]
+requires:
+  capabilities:
+    - evidence.storage
+    - github.ci
+    - release.artifacts
+  resources:
+    network: internet
+    persistent_storage: false
+  persistence: ephemeral
 preconditions:
   - The verification environment contains the components required for version metadata matches protocol compatibility.
   - Scenario fixture data is isolated from real user data or explicitly approved for test use.
