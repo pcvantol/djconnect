@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "profile_version": "1.0",
+  "id": "localization",
+  "purpose": "Canonical and stress localization data",
+  "generator_refs": ["localization.payloads.v1"],
+  "selection": {
+    "canonical_locales": ["en", "nl", "de", "fr", "es"],
+    "stress_locales": ["ja", "zh", "ar", "he", "rtl", "emoji", "mixed_language"],
+    "layout_cases": ["long_translation", "very_short_translation", "normalization"]
+  },
+  "max_generated_items": 300,
+  "traceability": {
+    "verification_modes": ["localization", "accessibility"],
+    "risk_categories": ["locale_parity", "layout", "fallback"]
+  }
+}

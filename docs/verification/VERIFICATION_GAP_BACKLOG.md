@@ -1,6 +1,6 @@
 # Verification Gap Backlog
 
-Status: Phase 8 updated backlog
+Status: Phase 8A updated backlog
 Date: 2026-07-10
 
 Do not automatically create GitHub issues from this file.
@@ -39,6 +39,20 @@ Completed:
   inspection, GitHub workflow discovery, cleanup safeguards and platform
   environment controllers added.
 - CLI `prepare` and `restore` added under the existing verification namespace.
+
+## Phase 8A Progress
+
+Completed:
+
+- Verification Data Framework implemented under `verification/data/`.
+- Canonical data categories, boundaries, domain generator metadata, security
+  payloads, localization payloads, data profiles and example datasets added.
+- Deterministic seed strategy and data versioning documented.
+
+Still pending for future generator execution:
+
+- Add executable generator code that consumes the catalog IDs.
+- Add schema validation for data catalog files if the static JSON format grows.
 
 Still pending for Phase 9 Home Assistant Adapter:
 

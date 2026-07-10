@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0",
+  "dataset_version": "1.0",
+  "boundaries": [
+    {
+      "id": "numeric_standard",
+      "category": "numbers",
+      "values": {
+        "min": -2147483648,
+        "max": 2147483647,
+        "min_minus_one": -2147483649,
+        "max_plus_one": 2147483648,
+        "typical": 42,
+        "huge": "999999999999999999999999",
+        "overflow": "1e309",
+        "underflow": "-1e309",
+        "invalid": "not-a-number"
+      }
+    },
+    {
+      "id": "string_lengths",
+      "category": "strings",
+      "values": {
+        "min": "",
+        "max": "x-repeat-maximum-allowed",
+        "min_minus_one": null,
+        "max_plus_one": "x-repeat-maximum-plus-one",
+        "typical": "DJConnect verification",
+        "huge": "x-repeat-huge",
+        "invalid": "\u0000"
+      }
+    },
+    {
+      "id": "array_sizes",
+      "category": "arrays",
+      "values": {
+        "min": [],
+        "max": ["item-repeat-maximum-allowed"],
+        "min_minus_one": null,
+        "max_plus_one": ["item-repeat-maximum-plus-one"],
+        "typical": ["one", "two", "three"],
+        "huge": ["item-repeat-huge"],
+        "invalid": "not-an-array"
+      }
+    },
+    {
+      "id": "date_time_standard",
+      "category": "date_time",
+      "values": {
+        "epoch": "1970-01-01T00:00:00Z",
+        "leap_year": "2024-02-29T12:00:00Z",
+        "dst_transition": "2026-03-29T01:30:00+01:00",
+        "future": "2099-12-31T23:59:59Z",
+        "past": "2000-01-01T00:00:00Z",
+        "invalid": "2026-02-31T99:99:99Z",
+        "malformed": "not-a-date"
+      }
+    }
+  ],
+  "traceability": {
+    "scenario_categories": ["Setup", "Profiles", "Resolver", "Ask DJ", "Music DNA", "Playback", "Privacy", "Localization", "Release", "Export", "Import"],
+    "verification_modes": ["boundary", "regression", "security", "performance"]
+  }
+}

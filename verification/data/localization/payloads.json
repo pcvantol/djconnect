@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0",
+  "dataset_version": "1.0",
+  "canonical_locales": ["en", "nl", "de", "fr", "es"],
+  "payloads": [
+    {
+      "id": "loc.en.basic",
+      "locale": "en",
+      "category": "canonical",
+      "text": "DJConnect Profile",
+      "purpose": "English source-language baseline"
+    },
+    {
+      "id": "loc.nl.basic",
+      "locale": "nl",
+      "category": "canonical",
+      "text": "DJConnect-profiel",
+      "purpose": "Dutch canonical locale"
+    },
+    {
+      "id": "loc.de.basic",
+      "locale": "de",
+      "category": "canonical",
+      "text": "DJConnect-Profil",
+      "purpose": "German canonical locale"
+    },
+    {
+      "id": "loc.fr.basic",
+      "locale": "fr",
+      "category": "canonical",
+      "text": "Profil DJConnect",
+      "purpose": "French canonical locale"
+    },
+    {
+      "id": "loc.es.basic",
+      "locale": "es",
+      "category": "canonical",
+      "text": "Perfil de DJConnect",
+      "purpose": "Spanish canonical locale"
+    },
+    {
+      "id": "loc.ja.future",
+      "locale": "ja",
+      "category": "future_locale",
+      "text": "\u30c7\u30a3\u30fc\u30b8\u30a7\u30a4\u30b3\u30cd\u30af\u30c8",
+      "purpose": "Future Japanese layout stress"
+    },
+    {
+      "id": "loc.zh.future",
+      "locale": "zh",
+      "category": "future_locale",
+      "text": "\u8fde\u63a5\u914d\u7f6e\u6587\u672c",
+      "purpose": "Future Chinese layout stress"
+    },
+    {
+      "id": "loc.ar.rtl",
+      "locale": "ar",
+      "category": "rtl",
+      "text": "\u0645\u0644\u0641 DJConnect",
+      "purpose": "Arabic RTL stress"
+    },
+    {
+      "id": "loc.he.rtl",
+      "locale": "he",
+      "category": "rtl",
+      "text": "\u05e4\u05e8\u05d5\u05e4\u05d9\u05dc DJConnect",
+      "purpose": "Hebrew RTL stress"
+    },
+    {
+      "id": "loc.emoji.status",
+      "locale": "emoji",
+      "category": "emoji",
+      "text": "DJConnect \ud83c\udfb5",
+      "purpose": "Emoji rendering stress"
+    },
+    {
+      "id": "loc.mixed.language",
+      "locale": "mixed",
+      "category": "mixed_language",
+      "text": "Ask DJ speelt musica para morgen",
+      "purpose": "Mixed-language input stress"
+    },
+    {
+      "id": "loc.normalization.combining",
+      "locale": "unicode",
+      "category": "normalization",
+      "text": "Cafe\u0301 DJConnect",
+      "purpose": "Combining-character normalization stress"
+    },
+    {
+      "id": "loc.long.translation",
+      "locale": "de",
+      "category": "long_translation",
+      "text": "Dies ist ein absichtlich sehr langer DJConnect-Uebersetzungstext fuer Layout- und Zeilenumbruchpruefungen.",
+      "purpose": "Long translation layout stress"
+    },
+    {
+      "id": "loc.short.translation",
+      "locale": "en",
+      "category": "very_short_translation",
+      "text": "OK",
+      "purpose": "Very short translation layout stress"
+    }
+  ],
+  "traceability": {
+    "scenario_categories": ["Localization", "Setup", "Privacy", "Release"],
+    "verification_modes": ["localization", "accessibility", "regression"]
+  }
+}
