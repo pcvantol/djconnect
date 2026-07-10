@@ -66,6 +66,17 @@ Observed on 2026-07-10:
   `open -a Docker`.
 - After restart, `docker version` returned an HTTP 500 for `/v1.55/version` and
   subsequent readiness checks hung before returning server metadata.
+- Docker and container logs were inspected after the 500/hung readiness
+  failure. Container logs were empty/unavailable because the failed probe
+  containers never reached `Running`. Docker Desktop host logs showed repeated
+  backend and VM connectivity failures:
+  - `com.docker.backend.apiproxy` repeatedly logged
+    `connect tcp 192.168.65.7:2376: no route to host`;
+  - `com.docker.backend.services` repeatedly logged connection refusal for
+    `/run/guest-services/stats.sock`;
+  - `ContainerEventTracker` logged that it could not connect to the Docker
+    daemon at `unix:///var/run/docker.sock`;
+  - `/pause/events` also returned connection refused.
 
 Conclusion: Phase 9L-R2 isolated the remaining blocker to local Docker
 Desktop/containerd container-start health, not the DJConnect Compose profile,
@@ -284,6 +295,7 @@ The modular lab refinement validates:
 | Dedicated lab container remains in `Created` state | Environment issue | Local Docker / Verification Environment | Yes | Repair Docker Desktop/containerd container-start health, then rerun `lab ha start`. |
 | No-mount Docker probe remains in `Created` state | Environment issue | Local Docker | Yes | Stabilize Docker Desktop/containerd before retrying the HA lab. |
 | Docker Desktop restart returned HTTP 500 and later hung on `docker version` | Environment issue | Local Docker | Yes | Repair or reset Docker Desktop runtime; do not use production HA containers as a workaround. |
+| Docker Desktop logs show `no route to host` to `192.168.65.7:2376` and guest-service connection refusals | Environment issue | Local Docker / Docker Desktop VM | Yes | Treat as Docker Desktop VM/engine connectivity failure before attempting more lab changes. |
 | Runtime source identity is stale/unproven | Environment issue | Verification Environment | Yes | After stale-container removal, recreate the dedicated lab so labels match the tested SHA. |
 | HA auth could not be qualified live | Environment issue | Verification Environment | Yes | After Docker recovery, run `lab ha bootstrap-auth` or provide `DJCONNECT_VERIFICATION_HA_TOKEN`, then rerun `lab ha doctor`. |
 | REST/WebSocket not qualified | Environment issue / HA Adapter live prerequisite | Yes | Rerun `lab ha doctor` after the lab is running and the token is available. |
