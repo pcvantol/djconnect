@@ -1,6 +1,6 @@
 # DJConnect Verification Harness
 
-Status: scaffold  
+Status: core plus execution environment
 Scope owner: `pcvantol/djconnect`  
 Builds on: `docs/verification/00_VERIFICATION_VISION.md`,
 `docs/verification/01_VERIFICATION_ARCHITECTURE.md` and
@@ -17,7 +17,7 @@ verification scenarios directly.
 ```text
 Scenario Loader
   -> Repository Hygiene Gate
-  -> Environment Validation
+  -> Verification Execution Environment
   -> Build Qualification
   -> Verification Orchestrator
   -> Platform Adapters
@@ -28,17 +28,21 @@ Scenario Loader
 
 ## Current Scope
 
-This package intentionally implements the framework shape only:
+This package implements the framework shape and the platform-neutral execution
+environment:
 
 - scenario loading from the canonical catalog/examples;
 - schema-oriented validation checks;
 - scheduler filters for IDs, tags and components;
-- repository, environment and build gate placeholders;
+- repository hygiene, toolchain discovery, dependency inspection and GitHub
+  workflow/status inspection;
+- run identity and environment snapshots;
+- cleanup planning and restore operations;
 - adapter interface and adapter registry;
 - evidence, result and reporter models;
 - CLI command surface for future execution.
 
-It does not implement platform adapters and does not execute real scenarios.
+It does not implement platform adapters and does not own product assertions.
 
 ## CLI
 
@@ -50,6 +54,8 @@ python -m tools.verification.cli validate
 python -m tools.verification.cli dry-run --scenario-id PROFILE-001
 python -m tools.verification.cli report --tag localization
 python -m tools.verification.cli doctor
+python -m tools.verification.cli prepare --scenario-id PROFILE-001
+python -m tools.verification.cli restore
 ```
 
 Reserved commands:
@@ -59,10 +65,12 @@ Reserved commands:
 - `dry-run`
 - `execute`
 - `report`
-- `evidence`
+- `prepare`
+- `restore`
 - `clean`
 - `doctor`
 - `env`
+- `evidence`
 - `build`
 - `ci`
 
@@ -82,6 +90,7 @@ supports:
 - secrets file;
 - local developer mode;
 - CI mode.
+- execution environment overrides.
 
 Secrets files are referenced only. They must not be committed.
 

@@ -52,6 +52,18 @@ class EvidenceKind(StrEnum):
     CHECKSUM = "checksum"
 
 
+class CleanupMode(StrEnum):
+    SOFT = "soft"
+    DESTRUCTIVE = "destructive"
+
+
+class ResourceState(StrEnum):
+    AVAILABLE = "available"
+    MISSING = "missing"
+    UNKNOWN = "unknown"
+    SKIPPED = "skipped"
+
+
 @dataclass(frozen=True)
 class PrimitiveAction:
     name: str
@@ -205,3 +217,45 @@ class EnvironmentSnapshot:
     git_branch: str | None
     dependency_versions: dict[str, str]
     configuration_fingerprint: str
+    capabilities: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class RunIdentity:
+    run_id: str
+    environment_id: str
+    correlation_id: str
+    scenario_ids: tuple[str, ...] = ()
+    artifact_prefix: str = ""
+
+
+@dataclass(frozen=True)
+class ToolchainInfo:
+    name: str
+    executable: str | None
+    version: str | None
+    state: ResourceState
+
+
+@dataclass(frozen=True)
+class DependencyInspection:
+    ecosystem: str
+    manifest: Path
+    lockfile: Path | None = None
+    package_count: int = 0
+    security_advisories_checked: bool = False
+    drift_checked: bool = False
+
+
+@dataclass(frozen=True)
+class GitHubWorkflowInfo:
+    path: Path
+    name: str
+    triggers: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class ManagedPlatform:
+    name: str
+    state: ResourceState
+    metadata: dict[str, Any] = field(default_factory=dict)

@@ -21,7 +21,7 @@ Scenario Loader
   -> Scenario Validator
   -> Scenario Scheduler
   -> Repository Hygiene Gate
-  -> Environment Manager
+  -> Verification Execution Environment
   -> Build Qualification
   -> Verification Orchestrator
   -> Adapter Manager
@@ -39,10 +39,13 @@ references to environment or secrets files.
 `scenarios.py` loads scenario files, validates the required schema shape and
 selects scenarios by ID, tag or component.
 
-`gates.py` owns reusable repository hygiene, environment validation and build
-qualification gates. Future phases will connect open PR checks, branch state,
-working tree state, dependencies, toolchains, clean builds, artifact cleanup,
-environment snapshots and reproducibility manifests.
+`gates.py` owns compatibility access to reusable gates.
+
+`environment/` owns the Verification Execution Environment: repository
+hygiene, toolchain discovery, dependency inspection, GitHub CI inspection,
+run identity, platform environment discovery, cleanup planning, environment
+snapshots and restore operations. It prepares the world around execution but
+does not own scenario behavior or adapter assertions.
 
 `orchestrator.py` owns the run lifecycle. In the scaffold it supports dry runs
 and execution placeholders only.
@@ -89,6 +92,8 @@ Initial commands:
 python -m tools.verification.cli list
 python -m tools.verification.cli validate
 python -m tools.verification.cli dry-run
+python -m tools.verification.cli prepare
+python -m tools.verification.cli restore
 python -m tools.verification.cli report
 ```
 
@@ -97,9 +102,9 @@ Reserved future commands:
 ```bash
 python -m tools.verification.cli execute
 python -m tools.verification.cli evidence
-python -m tools.verification.cli clean
 python -m tools.verification.cli doctor
 python -m tools.verification.cli env
+python -m tools.verification.cli clean
 python -m tools.verification.cli build
 python -m tools.verification.cli ci
 ```
@@ -112,10 +117,11 @@ level, build type and component.
 1. Add or update scenarios in the canonical scenario catalog.
 2. Run `validate` to confirm scenario shape.
 3. Run `dry-run` to verify scenario selection and report plumbing.
-4. Add or extend the smallest required adapter.
-5. Qualify repository hygiene, environment and build artifacts.
-6. Execute through the harness, never directly through ad hoc scripts.
-7. Store sanitized evidence and publish Markdown, JSON, JUnit and summary
+4. Run `prepare` to capture the execution environment and cleanup plan.
+5. Add or extend the smallest required adapter.
+6. Qualify repository hygiene, environment and build artifacts.
+7. Execute through the harness, never directly through ad hoc scripts.
+8. Store sanitized evidence and publish Markdown, JSON, JUnit and summary
    reports.
 
 ## Future Readiness

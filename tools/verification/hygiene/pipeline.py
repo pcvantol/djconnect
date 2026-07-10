@@ -8,6 +8,9 @@ import subprocess
 from pathlib import Path
 
 from tools.verification.models import GateResult, GateState
+from tools.verification.environment.dependencies import DependencyInspector
+from tools.verification.environment.github import GitHubInspector
+from tools.verification.environment.toolchain import ToolchainInspector
 
 
 class RepositoryHygiene:
@@ -19,8 +22,10 @@ class RepositoryHygiene:
             self.working_tree_validation(),
             self.open_pr_validation(),
             self.branch_validation(),
+            self.sha_validation(),
             self.dependency_validation(),
             self.toolchain_validation(),
+            self.github_ci_validation(),
             self.clean_build_directories(dry_run=True),
             self.clean_logs(dry_run=True),
             self.artifact_cleanup(dry_run=True),
@@ -35,6 +40,20 @@ class RepositoryHygiene:
             return GateResult("working_tree_validation", GateState.WARNING, "Working tree has changes")
         return GateResult("working_tree_validation", GateState.PASS, "Working tree is clean")
 
+    def fetch(self, *, dry_run: bool = True) -> GateResult:
+        if dry_run:
+            return GateResult("git_fetch", GateState.PASS, "Fetch planned", {"dry_run": True})
+        result = _git(self.root, "fetch", "--all")
+        state = GateState.PASS if result is not None else GateState.WARNING
+        return GateResult("git_fetch", state, "Fetch complete" if result is not None else "Fetch unavailable")
+
+    def prune(self, *, dry_run: bool = True) -> GateResult:
+        if dry_run:
+            return GateResult("git_prune", GateState.PASS, "Prune planned", {"dry_run": True})
+        result = _git(self.root, "fetch", "--prune")
+        state = GateState.PASS if result is not None else GateState.WARNING
+        return GateResult("git_prune", state, "Prune complete" if result is not None else "Prune unavailable")
+
     def open_pr_validation(self) -> GateResult:
         return GateResult("open_pr_validation", GateState.SKIPPED, "No platform-neutral PR provider configured")
 
@@ -44,16 +63,32 @@ class RepositoryHygiene:
             return GateResult("branch_validation", GateState.WARNING, "Git branch unavailable")
         return GateResult("branch_validation", GateState.PASS, f"Current branch: {branch}", {"branch": branch})
 
+    def sha_validation(self) -> GateResult:
+        sha = _git(self.root, "rev-parse", "HEAD")
+        if not sha:
+            return GateResult("sha_validation", GateState.WARNING, "Git SHA unavailable")
+        return GateResult("sha_validation", GateState.PASS, "Git SHA recorded", {"sha": sha})
+
     def dependency_validation(self) -> GateResult:
-        if (self.root / "pyproject.toml").exists():
-            return GateResult("dependency_validation", GateState.PASS, "pyproject.toml present")
-        return GateResult("dependency_validation", GateState.WARNING, "No dependency manifest found")
+        return DependencyInspector().validate(self.root)[0]
 
     def toolchain_validation(self) -> GateResult:
-        missing = [tool for tool in ("git", "python") if shutil.which(tool) is None]
+        discovered = ToolchainInspector().discover()
+        missing = [
+            name for name in ("git", "python")
+            if discovered.get(name) is None or discovered[name].executable is None
+        ]
         if missing:
             return GateResult("toolchain_validation", GateState.FAIL, f"Missing tools: {', '.join(missing)}")
-        return GateResult("toolchain_validation", GateState.PASS, "Required generic tools available")
+        return GateResult(
+            "toolchain_validation",
+            GateState.PASS,
+            "Required generic tools available",
+            {"available": sorted(name for name, info in discovered.items() if info.executable or name in {"operating_system", "architecture"})},
+        )
+
+    def github_ci_validation(self) -> GateResult:
+        return GitHubInspector(self.root).commit_status()
 
     def clean_build_directories(self, *, dry_run: bool) -> GateResult:
         return _cleanup_gate(self.root, "clean_build_directories", (".pytest_cache", "build", "dist"), dry_run)

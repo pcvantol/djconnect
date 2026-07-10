@@ -169,6 +169,30 @@ Suggested subphases:
 6. HA Voice satellites;
 7. cross-client resolver contract tests.
 
+## Verification Program V1
+
+**Status:** 🟡 In progress
+**Goal:** Build durable platform verification before expanding adapter
+coverage.
+
+Completed:
+
+- ✅ Verification Vision;
+- ✅ Verification Architecture;
+- ✅ Scenario Schema;
+- ✅ Scenario Catalog;
+- ✅ Verification Matrix;
+- ✅ Verification Harness Architecture;
+- ✅ Verification Core;
+- ✅ Verification Core Refinement;
+- ✅ Technical Design Reconstruction;
+- ✅ Implementation Gap Analysis;
+- ✅ Phase 8 Verification Execution Environment.
+
+Next:
+
+- ⏳ Phase 9 Home Assistant Verification Adapter.
+
 ## Epic 4 — Intelligence Platform
 
 **Status:** 🟡 Current  

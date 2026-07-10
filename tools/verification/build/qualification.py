@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import hashlib
+import json
+from pathlib import Path
 
 from tools.verification.models import ArtifactMetadata, GateResult, GateState
 
@@ -25,6 +27,26 @@ class BuildQualification:
     def with_checksum(self, artifact: ArtifactMetadata) -> ArtifactMetadata:
         digest = hashlib.sha256(artifact.path.read_bytes()).hexdigest()
         return ArtifactMetadata(**{**artifact.__dict__, "sha256": digest})
+
+    def from_path(
+        self,
+        path: Path,
+        *,
+        name: str | None = None,
+        build_type: str | None = None,
+        release_equivalent: bool = False,
+        instrumented: bool = False,
+    ) -> ArtifactMetadata:
+        artifact = ArtifactMetadata(
+            path=path,
+            name=name or path.name,
+            version=_version_from_manifest(path),
+            build_type=build_type,
+            configuration={"exists": path.exists(), "size": path.stat().st_size if path.exists() else 0},
+            release_equivalent=release_equivalent,
+            instrumented=instrumented,
+        )
+        return self.with_checksum(artifact) if path.exists() and path.is_file() else artifact
 
     def artifact_metadata(self, artifacts: list[ArtifactMetadata]) -> GateResult:
         state = GateState.PASS if artifacts else GateState.SKIPPED
@@ -65,3 +87,15 @@ def _metadata_gate(name: str, artifacts: list[ArtifactMetadata], attribute: str)
     missing = [artifact.name for artifact in artifacts if not getattr(artifact, attribute)]
     state = GateState.WARNING if missing else GateState.PASS if artifacts else GateState.SKIPPED
     return GateResult(name, state, f"{name} checked", {"missing": missing})
+
+
+def _version_from_manifest(path: Path) -> str | None:
+    manifest = path if path.name == "manifest.json" else path.parent / "manifest.json"
+    if not manifest.exists():
+        return None
+    try:
+        data = json.loads(manifest.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return None
+    value = data.get("version")
+    return str(value) if value is not None else None
