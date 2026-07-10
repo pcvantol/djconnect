@@ -1,0 +1,76 @@
+id: VOICE-001
+title: Shared Voice Endpoint does not infer personal identity
+description: Verify that a shared Voice Endpoint without explicit personal mapping resolves safely and does not expose personal Ask DJ history or Music DNA.
+purpose: Protect privacy-safe shared voice behavior.
+owner: DJConnect Verification
+category: Identity
+subcategory: voice_endpoint_resolution
+priority: P0
+risk: critical
+verification_level: V3
+automation_level: ENVIRONMENT_DEPENDENT
+required_components: [HA, Voice Endpoint]
+supported_platforms: [Home Assistant, Voice Endpoint]
+required_locales: [representative]
+required_build_types: [Instrumented, Hardware]
+required_capabilities: [voice_endpoint_request_context, voice_endpoint_mappings, profiles]
+required_profiles: [personal_profile, household_profile]
+required_backends: []
+required_devices: [shared_voice_endpoint]
+required_environment: [configured_voice_endpoint, assist_pipeline_available]
+preconditions:
+  - A shared Voice Endpoint exists in a room mapped to a household profile.
+  - A personal profile with private Ask DJ history exists in the same Home Assistant instance.
+setup:
+  - Ensure the Voice Endpoint has no explicit personal profile mapping.
+  - Ensure the room or fallback mapping resolves to a shared or household profile.
+steps:
+  - number: 1
+    action: Send a voice request through the shared Voice Endpoint.
+  - number: 2
+    action: Resolve the request context.
+  - number: 3
+    action: Inspect the response scope and stored history behavior.
+assertions:
+  backend:
+    - The request resolves to the shared, room or household profile.
+    - The resolver does not infer the personal profile from ambiguous context.
+  privacy:
+    - Personal Ask DJ history and Music DNA are not exposed to the shared endpoint.
+    - Evidence does not contain raw audio, raw prompts or private history.
+expected_results:
+  machine:
+    - code: inferred_personal_identity
+      expected: false
+    - code: personal_history_exposed
+      expected: false
+  human:
+    - Shared voice requests remain privacy-safe unless explicitly configured otherwise.
+cleanup:
+  - Clear any scenario-created shared profile history or restore fixture state.
+timeouts:
+  setup_seconds: 120
+  execution_seconds: 60
+  cleanup_seconds: 60
+retry_policy:
+  mode: CONTROLLED_RETRY
+  max_attempts: 2
+  reason: Voice endpoint runtime and STT availability may be transient.
+  delay_seconds: 5
+artifacts:
+  - type: logs
+    required: true
+    description: Sanitized resolver and voice request logs.
+    redaction: Remove raw audio, raw prompt text and personal history contents.
+  - type: environment_snapshot
+    required: true
+    description: Voice Endpoint mapping, HA version and integration version.
+privacy_classification: [Internal, Contains profile data, Contains Ask DJ, Requires redaction]
+destructive: false
+tags: [voice_endpoint, privacy, resolver, shared_profile]
+estimated_duration: 5m
+manual_actions: []
+future_notes:
+  - Speaker recognition, if added later, must remain a hint and use this scenario family for privacy validation.
+version: 1
+schema_version: "1.0"

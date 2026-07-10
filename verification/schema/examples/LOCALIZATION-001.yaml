@@ -1,0 +1,69 @@
+id: LOCALIZATION-001
+title: Canonical locale set is complete
+description: Verify that user-facing localization catalogs for a release surface include the canonical five DJConnect language families.
+purpose: Protect the platform localization contract for user-facing surfaces.
+owner: DJConnect Verification
+category: Localization
+subcategory: catalog_completeness
+priority: P0
+risk: high
+verification_level: V0
+automation_level: FULL
+required_components: [HA, Apple, Windows Native ARM64, Pi, ESP32, Website, Release Repo]
+supported_platforms: [Home Assistant, iOS, macOS, watchOS, Windows ARM64, Raspberry Pi, ESP32, Website]
+required_locales: [all]
+required_build_types: [Debug, Release-equivalent, Production artifact]
+required_capabilities: []
+required_profiles: []
+required_backends: []
+required_devices: []
+required_environment: [localization_catalogs_available]
+preconditions:
+  - The verified surface contains user-facing localized copy.
+setup:
+  - Select the repository or release surface localization catalogs for validation.
+steps:
+  - number: 1
+    action: Enumerate localization catalogs or native equivalents for the surface.
+  - number: 2
+    action: Confirm presence of en, nl, de, fr and es language families.
+  - number: 3
+    action: Confirm placeholder parity for required keys.
+assertions:
+  localization:
+    - All five canonical language families are present where user-facing copy exists.
+    - Placeholder names and counts match across locales.
+    - No raw localization keys are accepted as production user-facing copy.
+expected_results:
+  machine:
+    - code: canonical_locale_set_complete
+      expected: true
+    - code: placeholder_parity
+      expected: true
+  human:
+    - The verified surface honors the DJConnect five-language localization contract.
+cleanup:
+  - No runtime cleanup required; retain validation report as evidence.
+timeouts:
+  setup_seconds: 30
+  execution_seconds: 60
+  cleanup_seconds: 10
+retry_policy:
+  mode: NONE
+  max_attempts: 1
+artifacts:
+  - type: logs
+    required: true
+    description: Localization validation output.
+  - type: artifact_metadata
+    required: true
+    description: Catalog paths, repository SHA and verified surface metadata.
+privacy_classification: [Public]
+destructive: false
+tags: [localization, catalog, parity]
+estimated_duration: 2m
+manual_actions: []
+future_notes:
+  - Rendered screenshot scenarios should use separate V4 or V6 scenarios.
+version: 1
+schema_version: "1.0"
