@@ -18,6 +18,36 @@ required_profiles: [personal_profile, household_profile]
 required_backends: [Spotify Direct]
 required_devices: []
 required_environment: [configured_ha_instance]
+requires:
+  capabilities:
+    - djconnect.capabilities
+    - djconnect.loaded
+    - djconnect.playback
+    - evidence.storage
+    - ha.access_token
+    - ha.logs
+    - ha.rest
+    - ha.runtime
+    - ha.services
+    - ha.websocket
+    - music.fake_backend
+    - music.playback_target
+    - music.spotify_direct
+  services:
+    - fake_music_backend
+    - homeassistant
+  integrations:
+    - djconnect
+  bootstrap:
+    - djconnect.loaded
+    - ha.auth
+  resources:
+    network: internet
+    persistent_storage: false
+  secrets:
+    - ha.access_token
+    - spotify.access_token
+  persistence: ephemeral
 preconditions:
   - The verification environment contains the components required for command ask followup response executes pending action.
   - Scenario fixture data is isolated from real user data or explicitly approved for test use.

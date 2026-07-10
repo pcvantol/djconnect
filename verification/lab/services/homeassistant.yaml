@@ -1,0 +1,40 @@
+service_id: homeassistant
+provided_capabilities:
+  - ha.runtime
+  - ha.rest
+  - ha.websocket
+  - ha.services
+  - ha.events
+  - ha.registries
+  - ha.storage
+  - ha.persistence
+  - ha.restart
+  - ha.logs
+  - ha.access_token
+  - djconnect.loaded
+  - djconnect.capabilities
+required_capabilities:
+  - docker.runtime
+image: ghcr.io/home-assistant/home-assistant:stable
+configuration_inputs:
+  - DJCONNECT_VERIFICATION_HA_PORT
+  - DJCONNECT_VERIFICATION_LAB_ROOT
+  - DJCONNECT_VERIFICATION_REPO_ROOT
+secrets: []
+networks:
+  - djconnect-verification
+volumes:
+  - lab_config
+  - djconnect_source
+ports:
+  - 18123:8123
+health_probe: ha_http_root
+readiness_probe: ha_rest_and_websocket
+bootstrap_dependencies:
+  - ha.auth
+  - djconnect.copy_integration
+cleanup: remove_container_and_dedicated_lab_volume
+evidence_sources:
+  - docker_metadata
+  - ha_logs
+  - ha_storage_snapshot

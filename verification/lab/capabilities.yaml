@@ -1,0 +1,462 @@
+version: 1
+capabilities:
+  ha.runtime:
+    description: Home Assistant runtime is running and reachable.
+    owner: Verification Execution Environment
+    provided_by: [homeassistant]
+    dependencies: [docker.runtime]
+    readiness_probe: ha_http_root
+    evidence: [container_metadata, ha_version]
+    resource_type: local
+    emulatable: false
+    blocking: true
+  ha.rest:
+    description: Home Assistant REST API accepts authenticated requests.
+    owner: Verification Execution Environment
+    provided_by: [homeassistant]
+    dependencies: [ha.runtime, ha.access_token]
+    readiness_probe: ha_rest_api
+    evidence: [request_response]
+    resource_type: local
+    emulatable: false
+    blocking: true
+  ha.websocket:
+    description: Home Assistant WebSocket API accepts authenticated commands.
+    owner: Verification Execution Environment
+    provided_by: [homeassistant]
+    dependencies: [ha.runtime, ha.access_token]
+    readiness_probe: ha_websocket_get_config
+    evidence: [websocket_transcript]
+    resource_type: local
+    emulatable: false
+    blocking: true
+  ha.services:
+    description: Home Assistant service registry can execute service calls.
+    owner: Verification Execution Environment
+    provided_by: [homeassistant]
+    dependencies: [ha.rest, ha.websocket]
+    readiness_probe: ha_service_registry
+    evidence: [service_registry]
+    resource_type: local
+    emulatable: false
+    blocking: true
+  ha.events:
+    description: Home Assistant event bus can publish and observe events.
+    owner: Verification Execution Environment
+    provided_by: [homeassistant]
+    dependencies: [ha.websocket]
+    readiness_probe: ha_event_subscribe
+    evidence: [event_transcript]
+    resource_type: local
+    emulatable: false
+    blocking: true
+  ha.registries:
+    description: Home Assistant entity, device and area registries are inspectable.
+    owner: Verification Execution Environment
+    provided_by: [homeassistant]
+    dependencies: [ha.storage]
+    readiness_probe: ha_registry_snapshot
+    evidence: [registry_snapshot]
+    resource_type: local
+    emulatable: false
+    blocking: true
+  ha.storage:
+    description: Approved Home Assistant storage paths are readable as evidence.
+    owner: Verification Execution Environment
+    provided_by: [homeassistant]
+    dependencies: [ha.runtime]
+    readiness_probe: approved_storage_snapshot
+    evidence: [storage_snapshot]
+    resource_type: local
+    emulatable: false
+    blocking: true
+  ha.persistence:
+    description: Home Assistant state survives restart within the dedicated lab.
+    owner: Verification Execution Environment
+    provided_by: [homeassistant]
+    dependencies: [ha.storage, ha.restart]
+    readiness_probe: restart_persistence_probe
+    evidence: [before_after_storage_snapshot]
+    resource_type: local
+    emulatable: false
+    blocking: true
+  ha.restart:
+    description: Dedicated lab Home Assistant runtime can be restarted safely.
+    owner: Verification Execution Environment
+    provided_by: [homeassistant]
+    dependencies: [ha.runtime]
+    readiness_probe: controlled_restart
+    evidence: [restart_log]
+    resource_type: local
+    emulatable: false
+    blocking: true
+  ha.logs:
+    description: Runtime logs are available and redacted.
+    owner: Verification Execution Environment
+    provided_by: [homeassistant]
+    dependencies: [ha.runtime]
+    readiness_probe: log_tail
+    evidence: [logs]
+    resource_type: local
+    emulatable: false
+    blocking: true
+  ha.access_token:
+    description: Lab-only Home Assistant access token is available through environment or bootstrap credentials.
+    owner: Verification Execution Environment
+    provided_by: [homeassistant]
+    dependencies: [ha.runtime]
+    readiness_probe: auth_token_request
+    evidence: [redacted_auth_metadata]
+    resource_type: local
+    emulatable: false
+    blocking: true
+  djconnect.loaded:
+    description: DJConnect custom integration is installed and loaded in the HA lab.
+    owner: Home Assistant integration
+    provided_by: [homeassistant]
+    dependencies: [ha.runtime]
+    readiness_probe: djconnect_integration_loaded
+    evidence: [integration_state]
+    resource_type: local
+    emulatable: false
+    blocking: true
+  djconnect.capabilities:
+    description: DJConnect capability discovery can be queried.
+    owner: Home Assistant adapter
+    provided_by: [homeassistant]
+    dependencies: [djconnect.loaded, ha.rest, ha.websocket]
+    readiness_probe: djconnect_capability_probe
+    evidence: [capability_response]
+    resource_type: local
+    emulatable: false
+    blocking: true
+  djconnect.profile_platform:
+    description: Profile Platform storage and state model are available.
+    owner: Verification Core
+    provided_by: [homeassistant]
+    dependencies: [djconnect.loaded, ha.storage, ha.persistence]
+    readiness_probe: profile_fixture_probe
+    evidence: [profile_fixture_snapshot]
+    resource_type: local
+    emulatable: false
+    blocking: true
+  djconnect.profile_resolution:
+    description: Profile resolver mappings can be created and observed.
+    owner: Verification Core
+    provided_by: [homeassistant]
+    dependencies: [djconnect.profile_platform, ha.registries]
+    readiness_probe: resolver_fixture_probe
+    evidence: [resolver_mapping_snapshot]
+    resource_type: local
+    emulatable: false
+    blocking: true
+  djconnect.pairing:
+    description: DJConnect pairing runtime primitives are available.
+    owner: Home Assistant adapter
+    provided_by: [homeassistant]
+    dependencies: [djconnect.loaded, ha.rest]
+    readiness_probe: pairing_endpoint_probe
+    evidence: [pairing_response]
+    resource_type: local
+    emulatable: true
+    blocking: true
+  djconnect.ask_dj:
+    description: Ask DJ backend routes and state are available.
+    owner: Verification Core
+    provided_by: [homeassistant]
+    dependencies: [djconnect.loaded, djconnect.profile_platform, ha.storage]
+    readiness_probe: ask_dj_route_probe
+    evidence: [ask_dj_response]
+    resource_type: local
+    emulatable: true
+    blocking: true
+  djconnect.music_dna:
+    description: Music DNA storage and opt-in model are available.
+    owner: Verification Core
+    provided_by: [homeassistant]
+    dependencies: [djconnect.profile_platform, ha.storage]
+    readiness_probe: music_dna_storage_probe
+    evidence: [music_dna_metadata]
+    resource_type: local
+    emulatable: true
+    blocking: true
+  djconnect.track_insight:
+    description: Track Insight backend route and cache model are available.
+    owner: Verification Core
+    provided_by: [homeassistant]
+    dependencies: [djconnect.loaded, music.fake_backend]
+    readiness_probe: track_insight_fixture_probe
+    evidence: [track_insight_response]
+    resource_type: local
+    emulatable: true
+    blocking: true
+  djconnect.playback:
+    description: DJConnect backend playback commands can be issued safely.
+    owner: Verification Core
+    provided_by: [homeassistant, fake_music_backend]
+    dependencies: [djconnect.loaded, music.fake_backend, music.playback_target]
+    readiness_probe: playback_fixture_probe
+    evidence: [playback_command_response]
+    resource_type: local
+    emulatable: true
+    blocking: true
+  djconnect.export_import:
+    description: Export and import surfaces can be exercised with redaction.
+    owner: Verification Core
+    provided_by: [homeassistant]
+    dependencies: [djconnect.profile_platform, ha.storage]
+    readiness_probe: export_import_probe
+    evidence: [redacted_export]
+    resource_type: local
+    emulatable: false
+    blocking: true
+  djconnect.private_session:
+    description: Private session behavior can be verified without persistence leakage.
+    owner: Verification Core
+    provided_by: [homeassistant]
+    dependencies: [djconnect.profile_platform, ha.storage]
+    readiness_probe: private_session_fixture_probe
+    evidence: [before_after_storage_snapshot]
+    resource_type: local
+    emulatable: true
+    blocking: true
+  assist.pipeline:
+    description: Home Assistant Assist pipeline is configured and callable.
+    owner: Verification Execution Environment
+    provided_by: [homeassistant, whisper, piper]
+    dependencies: [assist.conversation, assist.stt, assist.tts]
+    readiness_probe: assist_pipeline_probe
+    evidence: [pipeline_metadata]
+    resource_type: local
+    emulatable: true
+    blocking: true
+  assist.conversation:
+    description: Home Assistant conversation integration is available.
+    owner: Verification Execution Environment
+    provided_by: [homeassistant]
+    dependencies: [ha.runtime]
+    readiness_probe: conversation_agent_probe
+    evidence: [conversation_metadata]
+    resource_type: local
+    emulatable: true
+    blocking: true
+  assist.stt:
+    description: Assist speech-to-text provider is available.
+    owner: Verification Execution Environment
+    provided_by: [whisper]
+    dependencies: [stt.whisper]
+    readiness_probe: stt_provider_probe
+    evidence: [stt_provider_metadata]
+    resource_type: local
+    emulatable: true
+    blocking: true
+  assist.tts:
+    description: Assist text-to-speech provider is available.
+    owner: Verification Execution Environment
+    provided_by: [piper]
+    dependencies: [tts.piper]
+    readiness_probe: tts_provider_probe
+    evidence: [tts_provider_metadata]
+    resource_type: local
+    emulatable: true
+    blocking: true
+  assist.audio_input:
+    description: Audio input fixtures are available for voice scenarios.
+    owner: Verification Data Framework
+    provided_by: [homeassistant]
+    dependencies: [assist.pipeline]
+    readiness_probe: audio_fixture_probe
+    evidence: [audio_fixture_metadata]
+    resource_type: local
+    emulatable: true
+    blocking: true
+  assist.audio_output:
+    description: Audio output can be generated and captured.
+    owner: Verification Execution Environment
+    provided_by: [piper]
+    dependencies: [assist.tts]
+    readiness_probe: audio_output_probe
+    evidence: [audio_artifact_metadata]
+    resource_type: local
+    emulatable: true
+    blocking: true
+  stt.whisper:
+    description: Whisper sidecar is healthy and reachable.
+    owner: Verification Execution Environment
+    provided_by: [whisper]
+    dependencies: [docker.runtime]
+    readiness_probe: whisper_health
+    evidence: [service_health]
+    resource_type: local
+    emulatable: true
+    blocking: true
+  tts.piper:
+    description: Piper sidecar is healthy and reachable.
+    owner: Verification Execution Environment
+    provided_by: [piper]
+    dependencies: [docker.runtime]
+    readiness_probe: piper_health
+    evidence: [service_health]
+    resource_type: local
+    emulatable: true
+    blocking: true
+  music.fake_backend:
+    description: Deterministic fake music backend is available.
+    owner: Verification Data Framework
+    provided_by: [fake_music_backend]
+    dependencies: [docker.runtime]
+    readiness_probe: fake_backend_health
+    evidence: [fixture_catalog]
+    resource_type: local
+    emulatable: true
+    blocking: true
+  music.spotify_direct:
+    description: Spotify Direct credentials and live API access are available.
+    owner: Operator
+    provided_by: [external_spotify]
+    dependencies: [network.internet]
+    readiness_probe: spotify_token_probe
+    evidence: [redacted_spotify_metadata]
+    resource_type: external
+    emulatable: false
+    blocking: true
+  music.music_assistant:
+    description: Music Assistant sidecar is healthy and integrated.
+    owner: Verification Execution Environment
+    provided_by: [music_assistant]
+    dependencies: [docker.runtime]
+    readiness_probe: music_assistant_health
+    evidence: [service_health]
+    resource_type: local
+    emulatable: true
+    blocking: true
+  music.playback_target:
+    description: Deterministic playback target is registered.
+    owner: Verification Execution Environment
+    provided_by: [fake_music_backend, music_assistant]
+    dependencies: [music.fake_backend]
+    readiness_probe: playback_target_probe
+    evidence: [target_metadata]
+    resource_type: local
+    emulatable: true
+    blocking: true
+  network.internet:
+    description: Internet access is available for explicitly external scenarios.
+    owner: Operator
+    provided_by: [external_network]
+    dependencies: []
+    readiness_probe: internet_probe
+    evidence: [network_probe]
+    resource_type: external
+    emulatable: false
+    blocking: true
+  network.offline_control:
+    description: Network degradation or offline mode can be controlled.
+    owner: Verification Execution Environment
+    provided_by: [docker_network]
+    dependencies: [docker.runtime]
+    readiness_probe: network_policy_probe
+    evidence: [network_policy_metadata]
+    resource_type: virtual
+    emulatable: true
+    blocking: true
+  github.ci:
+    description: GitHub CI status can be inspected for an exact SHA.
+    owner: Verification Execution Environment
+    provided_by: [github]
+    dependencies: [network.internet]
+    readiness_probe: gh_ci_status
+    evidence: [ci_metadata]
+    resource_type: external
+    emulatable: false
+    blocking: true
+  evidence.storage:
+    description: Immutable evidence storage is available.
+    owner: Verification Core
+    provided_by: [evidence_store]
+    dependencies: []
+    readiness_probe: evidence_write_probe
+    evidence: [evidence_index]
+    resource_type: local
+    emulatable: false
+    blocking: true
+  docker.runtime:
+    description: Docker runtime can create, start and remove verification containers.
+    owner: Verification Execution Environment
+    provided_by: [docker]
+    dependencies: []
+    readiness_probe: docker_run_probe
+    evidence: [docker_metadata]
+    resource_type: local
+    emulatable: false
+    blocking: true
+  apple.runtime:
+    description: Apple runtime or simulator is available.
+    owner: Future Apple adapter
+    provided_by: [apple_device]
+    dependencies: []
+    readiness_probe: future_apple_probe
+    evidence: [future_evidence]
+    resource_type: physical
+    emulatable: true
+    blocking: true
+  windows.runtime:
+    description: Windows runtime or VM is available.
+    owner: Future Windows adapter
+    provided_by: [windows_vm]
+    dependencies: []
+    readiness_probe: future_windows_probe
+    evidence: [future_evidence]
+    resource_type: virtual
+    emulatable: true
+    blocking: true
+  pi.runtime:
+    description: Raspberry Pi runtime is available.
+    owner: Future Pi adapter
+    provided_by: [raspberry_pi]
+    dependencies: []
+    readiness_probe: future_pi_probe
+    evidence: [future_evidence]
+    resource_type: physical
+    emulatable: false
+    blocking: true
+  esp32.runtime:
+    description: ESP32 device or emulator is available.
+    owner: Future ESP adapter
+    provided_by: [esp32]
+    dependencies: []
+    readiness_probe: future_esp32_probe
+    evidence: [future_evidence]
+    resource_type: physical
+    emulatable: false
+    blocking: true
+  voice_endpoint.runtime:
+    description: Voice endpoint runtime is available.
+    owner: Future Voice adapter
+    provided_by: [voice_endpoint]
+    dependencies: [assist.pipeline]
+    readiness_probe: future_voice_endpoint_probe
+    evidence: [future_evidence]
+    resource_type: physical
+    emulatable: true
+    blocking: true
+  website.runtime:
+    description: Website/browser runtime is available.
+    owner: Future Website verification
+    provided_by: [browser]
+    dependencies: []
+    readiness_probe: future_website_probe
+    evidence: [future_evidence]
+    resource_type: virtual
+    emulatable: true
+    blocking: true
+  release.artifacts:
+    description: Release artifacts are available for qualification.
+    owner: Release engineering
+    provided_by: [release_repo]
+    dependencies: [github.ci]
+    readiness_probe: release_artifact_probe
+    evidence: [artifact_metadata]
+    resource_type: external
+    emulatable: false
+    blocking: true

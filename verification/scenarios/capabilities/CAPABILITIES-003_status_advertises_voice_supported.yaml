@@ -18,6 +18,37 @@ required_profiles: [personal_profile, household_profile]
 required_backends: []
 required_devices: [djconnect_client]
 required_environment: [configured_ha_instance]
+requires:
+  capabilities:
+    - apple.runtime
+    - djconnect.capabilities
+    - djconnect.loaded
+    - evidence.storage
+    - ha.access_token
+    - ha.logs
+    - ha.rest
+    - ha.runtime
+    - ha.services
+    - ha.websocket
+    - pi.runtime
+    - voice_endpoint.runtime
+    - windows.runtime
+  services:
+    - homeassistant
+  integrations:
+    - djconnect
+  bootstrap:
+    - djconnect.loaded
+    - ha.auth
+  resources:
+    network: local
+    persistent_storage: false
+  hardware:
+    - raspberry_pi
+    - voice_endpoint
+  secrets:
+    - ha.access_token
+  persistence: ephemeral
 preconditions:
   - The verification environment contains the components required for status advertises voice_supported.
   - Scenario fixture data is isolated from real user data or explicitly approved for test use.

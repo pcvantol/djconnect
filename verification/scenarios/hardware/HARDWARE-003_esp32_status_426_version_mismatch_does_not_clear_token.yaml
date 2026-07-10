@@ -18,6 +18,34 @@ required_profiles: [personal_profile, household_profile]
 required_backends: []
 required_devices: [djconnect_esp32]
 required_environment: [configured_ha_instance]
+requires:
+  capabilities:
+    - djconnect.capabilities
+    - djconnect.loaded
+    - djconnect.pairing
+    - esp32.runtime
+    - evidence.storage
+    - ha.access_token
+    - ha.logs
+    - ha.rest
+    - ha.runtime
+    - ha.services
+    - ha.websocket
+  services:
+    - homeassistant
+  integrations:
+    - djconnect
+  bootstrap:
+    - djconnect.loaded
+    - ha.auth
+  resources:
+    network: local
+    persistent_storage: false
+  hardware:
+    - esp32
+  secrets:
+    - ha.access_token
+  persistence: ephemeral
 preconditions:
   - The verification environment contains the components required for esp32 status 426 version mismatch does not clear token.
   - Scenario fixture data is isolated from real user data or explicitly approved for test use.

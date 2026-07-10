@@ -8,14 +8,18 @@ not required.
 
 ## Active Next Phase
 
-Phase 9L has run and is not yet qualified. The active next phase is Phase 9L-R,
-a narrowly scoped remediation of the proven local HA lab blockers recorded in
+Phase 9L-R has run and is not yet qualified. The active next step is the narrow
+Phase 9L-R2 Docker runtime remediation. The modular local HA lab model is now
+implemented and validated: scenarios declare logical requirements, the planner
+selects the smallest canonical profile, and `PROFILE-001` through `PROFILE-005`
+select `ha-profile`. Live lab qualification is still blocked by the local
+Docker Desktop/containerd runtime. The blockers are recorded in
 `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md`.
 
 Use this clean-session prompt:
 
 ```text
-Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 9L-R from PROMPT_INDEX.md.
+Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 9L-R2 from PROMPT_INDEX.md after restoring local Docker.
 ```
 
 ## Prompt Table
@@ -38,7 +42,8 @@ Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 9L-R from PROMPT_INDEX.md
 | 9V | Verification Platform Qualification | Not qualified | Historical chat prompt; reconstructed in report | Phase 9 | `docs/verification/reports/PHASE_09V_VERIFICATION_PLATFORM_QUALIFICATION.md`; `docs/verification/reports/VERIFICATION_PLATFORM_SCORECARD.md`; `docs/verification/reports/VERIFICATION_PLATFORM_BACKLOG.md` | Reports committed to `main` | Phase 9R |
 | 9R | Verification Platform Qualification Remediation | Remediated with external prerequisites | `prompts/verification/PHASE_09R_QUALIFICATION_REMEDIATION.md` | Phase 9V not qualified | `docs/verification/reports/PHASE_09R_QUALIFICATION_REMEDIATION.md` | PR #63 branch `docs/phase-09r-remediation-prompt-v2` | Phase 9L |
 | 9L | Local HA Verification Lab | Not qualified | `prompts/verification/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md` | Phase 9R | `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md`; evidence `artifacts/verification/evidence/phase-09l-local-ha-lab-20260710T1450Z/` | Merge Phase 9L implementation before remediation or continue same PR if still open | Phase 9L-R |
-| 9L-R | Local HA Lab Remediation | Active next phase | `prompts/verification/PHASE_09L_R_LOCAL_HA_LAB_REMEDIATION.md` | Phase 9L not qualified | Updated `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md`; new ignored evidence run under `artifacts/verification/evidence/` | Same Phase 9L PR unless already merged; otherwise new remediation PR | Phase 9V rerun only if qualified |
+| 9L-R | Local HA Lab Remediation | Not qualified - external Docker prerequisite | `prompts/verification/PHASE_09L_R_LOCAL_HA_LAB_REMEDIATION.md` | Phase 9L not qualified | Updated `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md`; evidence `artifacts/verification/evidence/phase-09l-r-local-ha-lab-20260710T153557Z/`; `docs/verification/reports/PHASE_09L_LAB_REQUIREMENT_COVERAGE.md` | PR #67 branch `codex/phase-09l-r-local-ha-lab-remediation` | Phase 9L-R2 |
+| 9L-R2 | Docker Runtime Remediation And Local HA Lab Qualification | Active | `prompts/verification/PHASE_09L_R2_DOCKER_RUNTIME_REMEDIATION.md` | Phase 9L-R not qualified, modular lab validation complete | Update `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md`; evidence under `artifacts/verification/evidence/` | Continue PR #67 or merge before rerun if governance requires | Phase 9V rerun only after lab qualification |
 | 9V rerun | Verification Platform Qualification Rerun | Blocked pending Phase 9L-R | To be created only after Phase 9L-R qualifies the lab | Phase 9L-R qualified | `docs/verification/reports/PHASE_09V_VERIFICATION_PLATFORM_QUALIFICATION_RERUN.md` | Must merge before Phase 10 | Phase 10 |
 | 10 | Apple Verification Adapter | Blocked | To be created after Phase 9V rerun qualifies the platform | Phase 9V rerun qualified | Future Phase 10 report | New PR after approval | Future adapter qualification |
 
@@ -50,6 +55,10 @@ Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 9L-R from PROMPT_INDEX.md
 - `Remediated with external prerequisites` means blockers were converted into
   checks or explicit prerequisites, but the platform is not yet qualified.
 - `Active next phase` means a clean session should execute that prompt.
+- `Not qualified - external Docker prerequisite` means remediation code
+  improved framework behavior, including lab-only HA auth bootstrap and modular
+  lab composition, but live lab qualification is blocked by local Docker runtime
+  prerequisites outside repository code.
 - `Blocked` means do not start the phase until the predecessor result changes.
 - `Not qualified` means the phase produced required artifacts but still has
   blocking prerequisites.
@@ -60,5 +69,5 @@ qualification report and the final result line.
 Exact clean-session command for the active phase:
 
 ```text
-Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 9L-R from PROMPT_INDEX.md.
+Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 9L-R2 from PROMPT_INDEX.md after restoring local Docker.
 ```

@@ -1,0 +1,35 @@
+profile_id: ha-music
+inherits:
+  - ha-profile
+provided_capabilities:
+  - music.fake_backend
+  - music.music_assistant
+  - music.playback_target
+  - djconnect.playback
+  - djconnect.track_insight
+  - djconnect.ask_dj
+  - djconnect.music_dna
+services:
+  - fake_music_backend
+  - music_assistant
+compose_fragments:
+  - docker/verification/compose.fake-backend.yaml
+  - docker/verification/compose.music-assistant.yaml
+bootstrap_actions:
+  - music.fake_backend_fixtures
+  - music.playback_targets
+readiness_gates:
+  - music.fake_backend
+  - music.playback_target
+required_secrets: []
+supported_scenario_categories:
+  - Backend
+  - Playback
+  - Music DNA
+  - Discover
+  - Track Insight
+  - Ask DJ
+cost:
+  startup_seconds: 360
+  runtime: medium
+persistence: persistent

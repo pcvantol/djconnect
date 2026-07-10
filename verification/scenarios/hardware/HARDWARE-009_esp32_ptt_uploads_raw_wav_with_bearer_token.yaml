@@ -18,6 +18,40 @@ required_profiles: [personal_profile, household_profile]
 required_backends: []
 required_devices: [djconnect_esp32]
 required_environment: [configured_ha_instance]
+requires:
+  capabilities:
+    - assist.audio_input
+    - assist.pipeline
+    - djconnect.capabilities
+    - djconnect.loaded
+    - djconnect.pairing
+    - esp32.runtime
+    - evidence.storage
+    - ha.access_token
+    - ha.logs
+    - ha.rest
+    - ha.runtime
+    - ha.services
+    - ha.websocket
+    - stt.whisper
+    - tts.piper
+  services:
+    - homeassistant
+    - piper
+    - whisper
+  integrations:
+    - djconnect
+  bootstrap:
+    - djconnect.loaded
+    - ha.auth
+  resources:
+    network: local
+    persistent_storage: false
+  hardware:
+    - esp32
+  secrets:
+    - ha.access_token
+  persistence: ephemeral
 preconditions:
   - The verification environment contains the components required for esp32 ptt uploads raw wav with bearer token.
   - Scenario fixture data is isolated from real user data or explicitly approved for test use.

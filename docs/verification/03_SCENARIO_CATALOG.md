@@ -10,10 +10,37 @@ The catalog intentionally favors breadth. The goal is to stop rediscovering what
 - Scenario IDs are stable long-term references.
 - Scenario YAML files are the canonical assets; this document is the human index.
 - Scenarios describe platform behavior and evidence requirements, not implementation details.
+- Scenarios declare logical runtime requirements in `requires`.
 - Adapters may map one scenario to many concrete runtimes, but may not change expected results.
 - Evidence must remain privacy preserving and follow the redaction rules in the schema and scenario files.
 ## Location
 Scenario files live under `verification/scenarios/`, grouped by category.
+
+## Runtime Requirement Classification
+
+All canonical scenario files include a validated `requires` declaration.
+Requirements are expressed as logical capabilities, services, integrations,
+bootstrap state, resources, hardware and named secrets. They intentionally do
+not include Docker Compose filenames, image tags, host paths or container
+names.
+
+The capability taxonomy lives in:
+
+```text
+verification/lab/capabilities.yaml
+```
+
+The current coverage report is generated at:
+
+```text
+docs/verification/reports/PHASE_09L_LAB_REQUIREMENT_COVERAGE.md
+docs/verification/reports/PHASE_09L_LAB_REQUIREMENT_COVERAGE.json
+```
+
+The Planning Engine aggregates these requirements across the selected scenario
+set and chooses the smallest canonical lab profile that satisfies the local lab
+requirements. Future client, hardware and external capabilities remain explicit
+resource requirements and are not silently mapped to a larger HA lab profile.
 ## Summary
 | Group | Scenario files | Directory |
 | --- | ---: | --- |

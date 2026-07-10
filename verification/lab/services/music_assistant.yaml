@@ -1,0 +1,24 @@
+service_id: music_assistant
+provided_capabilities:
+  - music.music_assistant
+  - music.playback_target
+required_capabilities:
+  - docker.runtime
+image: ghcr.io/music-assistant/server:latest
+configuration_inputs:
+  - DJCONNECT_VERIFICATION_MA_PORT
+secrets: []
+networks:
+  - djconnect-verification
+volumes:
+  - music_assistant_config
+ports:
+  - 18140:8095
+health_probe: music_assistant_health
+readiness_probe: music_assistant_api_probe
+bootstrap_dependencies:
+  - music.fixtures
+cleanup: remove_container_and_dedicated_lab_volume
+evidence_sources:
+  - container_logs
+  - service_health

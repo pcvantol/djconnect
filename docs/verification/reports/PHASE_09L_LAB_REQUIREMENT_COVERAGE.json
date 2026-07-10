@@ -1,0 +1,6513 @@
+{
+  "capabilities": [
+    {
+      "capability": "apple.runtime",
+      "evidence": [
+        "future_evidence"
+      ],
+      "owner": "Future Apple adapter",
+      "provided_by": [
+        "apple_device"
+      ],
+      "readiness_probe": "future_apple_probe",
+      "scenario_count": 94
+    },
+    {
+      "capability": "assist.audio_input",
+      "evidence": [
+        "audio_fixture_metadata"
+      ],
+      "owner": "Verification Data Framework",
+      "provided_by": [
+        "homeassistant"
+      ],
+      "readiness_probe": "audio_fixture_probe",
+      "scenario_count": 1
+    },
+    {
+      "capability": "assist.audio_output",
+      "evidence": [
+        "audio_artifact_metadata"
+      ],
+      "owner": "Verification Execution Environment",
+      "provided_by": [
+        "piper"
+      ],
+      "readiness_probe": "audio_output_probe",
+      "scenario_count": 0
+    },
+    {
+      "capability": "assist.conversation",
+      "evidence": [
+        "conversation_metadata"
+      ],
+      "owner": "Verification Execution Environment",
+      "provided_by": [
+        "homeassistant"
+      ],
+      "readiness_probe": "conversation_agent_probe",
+      "scenario_count": 0
+    },
+    {
+      "capability": "assist.pipeline",
+      "evidence": [
+        "pipeline_metadata"
+      ],
+      "owner": "Verification Execution Environment",
+      "provided_by": [
+        "homeassistant",
+        "whisper",
+        "piper"
+      ],
+      "readiness_probe": "assist_pipeline_probe",
+      "scenario_count": 1
+    },
+    {
+      "capability": "assist.stt",
+      "evidence": [
+        "stt_provider_metadata"
+      ],
+      "owner": "Verification Execution Environment",
+      "provided_by": [
+        "whisper"
+      ],
+      "readiness_probe": "stt_provider_probe",
+      "scenario_count": 0
+    },
+    {
+      "capability": "assist.tts",
+      "evidence": [
+        "tts_provider_metadata"
+      ],
+      "owner": "Verification Execution Environment",
+      "provided_by": [
+        "piper"
+      ],
+      "readiness_probe": "tts_provider_probe",
+      "scenario_count": 0
+    },
+    {
+      "capability": "djconnect.ask_dj",
+      "evidence": [
+        "ask_dj_response"
+      ],
+      "owner": "Verification Core",
+      "provided_by": [
+        "homeassistant"
+      ],
+      "readiness_probe": "ask_dj_route_probe",
+      "scenario_count": 44
+    },
+    {
+      "capability": "djconnect.capabilities",
+      "evidence": [
+        "capability_response"
+      ],
+      "owner": "Home Assistant adapter",
+      "provided_by": [
+        "homeassistant"
+      ],
+      "readiness_probe": "djconnect_capability_probe",
+      "scenario_count": 223
+    },
+    {
+      "capability": "djconnect.export_import",
+      "evidence": [
+        "redacted_export"
+      ],
+      "owner": "Verification Core",
+      "provided_by": [
+        "homeassistant"
+      ],
+      "readiness_probe": "export_import_probe",
+      "scenario_count": 12
+    },
+    {
+      "capability": "djconnect.loaded",
+      "evidence": [
+        "integration_state"
+      ],
+      "owner": "Home Assistant integration",
+      "provided_by": [
+        "homeassistant"
+      ],
+      "readiness_probe": "djconnect_integration_loaded",
+      "scenario_count": 223
+    },
+    {
+      "capability": "djconnect.music_dna",
+      "evidence": [
+        "music_dna_metadata"
+      ],
+      "owner": "Verification Core",
+      "provided_by": [
+        "homeassistant"
+      ],
+      "readiness_probe": "music_dna_storage_probe",
+      "scenario_count": 34
+    },
+    {
+      "capability": "djconnect.pairing",
+      "evidence": [
+        "pairing_response"
+      ],
+      "owner": "Home Assistant adapter",
+      "provided_by": [
+        "homeassistant"
+      ],
+      "readiness_probe": "pairing_endpoint_probe",
+      "scenario_count": 35
+    },
+    {
+      "capability": "djconnect.playback",
+      "evidence": [
+        "playback_command_response"
+      ],
+      "owner": "Verification Core",
+      "provided_by": [
+        "homeassistant",
+        "fake_music_backend"
+      ],
+      "readiness_probe": "playback_fixture_probe",
+      "scenario_count": 23
+    },
+    {
+      "capability": "djconnect.private_session",
+      "evidence": [
+        "before_after_storage_snapshot"
+      ],
+      "owner": "Verification Core",
+      "provided_by": [
+        "homeassistant"
+      ],
+      "readiness_probe": "private_session_fixture_probe",
+      "scenario_count": 20
+    },
+    {
+      "capability": "djconnect.profile_platform",
+      "evidence": [
+        "profile_fixture_snapshot"
+      ],
+      "owner": "Verification Core",
+      "provided_by": [
+        "homeassistant"
+      ],
+      "readiness_probe": "profile_fixture_probe",
+      "scenario_count": 136
+    },
+    {
+      "capability": "djconnect.profile_resolution",
+      "evidence": [
+        "resolver_mapping_snapshot"
+      ],
+      "owner": "Verification Core",
+      "provided_by": [
+        "homeassistant"
+      ],
+      "readiness_probe": "resolver_fixture_probe",
+      "scenario_count": 28
+    },
+    {
+      "capability": "djconnect.track_insight",
+      "evidence": [
+        "track_insight_response"
+      ],
+      "owner": "Verification Core",
+      "provided_by": [
+        "homeassistant"
+      ],
+      "readiness_probe": "track_insight_fixture_probe",
+      "scenario_count": 8
+    },
+    {
+      "capability": "docker.runtime",
+      "evidence": [
+        "docker_metadata"
+      ],
+      "owner": "Verification Execution Environment",
+      "provided_by": [
+        "docker"
+      ],
+      "readiness_probe": "docker_run_probe",
+      "scenario_count": 0
+    },
+    {
+      "capability": "esp32.runtime",
+      "evidence": [
+        "future_evidence"
+      ],
+      "owner": "Future ESP adapter",
+      "provided_by": [
+        "esp32"
+      ],
+      "readiness_probe": "future_esp32_probe",
+      "scenario_count": 10
+    },
+    {
+      "capability": "evidence.storage",
+      "evidence": [
+        "evidence_index"
+      ],
+      "owner": "Verification Core",
+      "provided_by": [
+        "evidence_store"
+      ],
+      "readiness_probe": "evidence_write_probe",
+      "scenario_count": 231
+    },
+    {
+      "capability": "github.ci",
+      "evidence": [
+        "ci_metadata"
+      ],
+      "owner": "Verification Execution Environment",
+      "provided_by": [
+        "github"
+      ],
+      "readiness_probe": "gh_ci_status",
+      "scenario_count": 18
+    },
+    {
+      "capability": "ha.access_token",
+      "evidence": [
+        "redacted_auth_metadata"
+      ],
+      "owner": "Verification Execution Environment",
+      "provided_by": [
+        "homeassistant"
+      ],
+      "readiness_probe": "auth_token_request",
+      "scenario_count": 223
+    },
+    {
+      "capability": "ha.events",
+      "evidence": [
+        "event_transcript"
+      ],
+      "owner": "Verification Execution Environment",
+      "provided_by": [
+        "homeassistant"
+      ],
+      "readiness_probe": "ha_event_subscribe",
+      "scenario_count": 0
+    },
+    {
+      "capability": "ha.logs",
+      "evidence": [
+        "logs"
+      ],
+      "owner": "Verification Execution Environment",
+      "provided_by": [
+        "homeassistant"
+      ],
+      "readiness_probe": "log_tail",
+      "scenario_count": 223
+    },
+    {
+      "capability": "ha.persistence",
+      "evidence": [
+        "before_after_storage_snapshot"
+      ],
+      "owner": "Verification Execution Environment",
+      "provided_by": [
+        "homeassistant"
+      ],
+      "readiness_probe": "restart_persistence_probe",
+      "scenario_count": 98
+    },
+    {
+      "capability": "ha.registries",
+      "evidence": [
+        "registry_snapshot"
+      ],
+      "owner": "Verification Execution Environment",
+      "provided_by": [
+        "homeassistant"
+      ],
+      "readiness_probe": "ha_registry_snapshot",
+      "scenario_count": 28
+    },
+    {
+      "capability": "ha.rest",
+      "evidence": [
+        "request_response"
+      ],
+      "owner": "Verification Execution Environment",
+      "provided_by": [
+        "homeassistant"
+      ],
+      "readiness_probe": "ha_rest_api",
+      "scenario_count": 223
+    },
+    {
+      "capability": "ha.restart",
+      "evidence": [
+        "restart_log"
+      ],
+      "owner": "Verification Execution Environment",
+      "provided_by": [
+        "homeassistant"
+      ],
+      "readiness_probe": "controlled_restart",
+      "scenario_count": 10
+    },
+    {
+      "capability": "ha.runtime",
+      "evidence": [
+        "container_metadata",
+        "ha_version"
+      ],
+      "owner": "Verification Execution Environment",
+      "provided_by": [
+        "homeassistant"
+      ],
+      "readiness_probe": "ha_http_root",
+      "scenario_count": 223
+    },
+    {
+      "capability": "ha.services",
+      "evidence": [
+        "service_registry"
+      ],
+      "owner": "Verification Execution Environment",
+      "provided_by": [
+        "homeassistant"
+      ],
+      "readiness_probe": "ha_service_registry",
+      "scenario_count": 223
+    },
+    {
+      "capability": "ha.storage",
+      "evidence": [
+        "storage_snapshot"
+      ],
+      "owner": "Verification Execution Environment",
+      "provided_by": [
+        "homeassistant"
+      ],
+      "readiness_probe": "approved_storage_snapshot",
+      "scenario_count": 145
+    },
+    {
+      "capability": "ha.websocket",
+      "evidence": [
+        "websocket_transcript"
+      ],
+      "owner": "Verification Execution Environment",
+      "provided_by": [
+        "homeassistant"
+      ],
+      "readiness_probe": "ha_websocket_get_config",
+      "scenario_count": 223
+    },
+    {
+      "capability": "music.fake_backend",
+      "evidence": [
+        "fixture_catalog"
+      ],
+      "owner": "Verification Data Framework",
+      "provided_by": [
+        "fake_music_backend"
+      ],
+      "readiness_probe": "fake_backend_health",
+      "scenario_count": 47
+    },
+    {
+      "capability": "music.music_assistant",
+      "evidence": [
+        "service_health"
+      ],
+      "owner": "Verification Execution Environment",
+      "provided_by": [
+        "music_assistant"
+      ],
+      "readiness_probe": "music_assistant_health",
+      "scenario_count": 8
+    },
+    {
+      "capability": "music.playback_target",
+      "evidence": [
+        "target_metadata"
+      ],
+      "owner": "Verification Execution Environment",
+      "provided_by": [
+        "fake_music_backend",
+        "music_assistant"
+      ],
+      "readiness_probe": "playback_target_probe",
+      "scenario_count": 31
+    },
+    {
+      "capability": "music.spotify_direct",
+      "evidence": [
+        "redacted_spotify_metadata"
+      ],
+      "owner": "Operator",
+      "provided_by": [
+        "external_spotify"
+      ],
+      "readiness_probe": "spotify_token_probe",
+      "scenario_count": 18
+    },
+    {
+      "capability": "network.internet",
+      "evidence": [
+        "network_probe"
+      ],
+      "owner": "Operator",
+      "provided_by": [
+        "external_network"
+      ],
+      "readiness_probe": "internet_probe",
+      "scenario_count": 3
+    },
+    {
+      "capability": "network.offline_control",
+      "evidence": [
+        "network_policy_metadata"
+      ],
+      "owner": "Verification Execution Environment",
+      "provided_by": [
+        "docker_network"
+      ],
+      "readiness_probe": "network_policy_probe",
+      "scenario_count": 1
+    },
+    {
+      "capability": "pi.runtime",
+      "evidence": [
+        "future_evidence"
+      ],
+      "owner": "Future Pi adapter",
+      "provided_by": [
+        "raspberry_pi"
+      ],
+      "readiness_probe": "future_pi_probe",
+      "scenario_count": 26
+    },
+    {
+      "capability": "release.artifacts",
+      "evidence": [
+        "artifact_metadata"
+      ],
+      "owner": "Release engineering",
+      "provided_by": [
+        "release_repo"
+      ],
+      "readiness_probe": "release_artifact_probe",
+      "scenario_count": 18
+    },
+    {
+      "capability": "stt.whisper",
+      "evidence": [
+        "service_health"
+      ],
+      "owner": "Verification Execution Environment",
+      "provided_by": [
+        "whisper"
+      ],
+      "readiness_probe": "whisper_health",
+      "scenario_count": 1
+    },
+    {
+      "capability": "tts.piper",
+      "evidence": [
+        "service_health"
+      ],
+      "owner": "Verification Execution Environment",
+      "provided_by": [
+        "piper"
+      ],
+      "readiness_probe": "piper_health",
+      "scenario_count": 1
+    },
+    {
+      "capability": "voice_endpoint.runtime",
+      "evidence": [
+        "future_evidence"
+      ],
+      "owner": "Future Voice adapter",
+      "provided_by": [
+        "voice_endpoint"
+      ],
+      "readiness_probe": "future_voice_endpoint_probe",
+      "scenario_count": 16
+    },
+    {
+      "capability": "website.runtime",
+      "evidence": [
+        "future_evidence"
+      ],
+      "owner": "Future Website verification",
+      "provided_by": [
+        "browser"
+      ],
+      "readiness_probe": "future_website_probe",
+      "scenario_count": 10
+    },
+    {
+      "capability": "windows.runtime",
+      "evidence": [
+        "future_evidence"
+      ],
+      "owner": "Future Windows adapter",
+      "provided_by": [
+        "windows_vm"
+      ],
+      "readiness_probe": "future_windows_probe",
+      "scenario_count": 86
+    }
+  ],
+  "classified_scenarios": 231,
+  "external_blocked_capabilities": {
+    "apple.runtime": 94,
+    "esp32.runtime": 10,
+    "github.ci": 18,
+    "music.spotify_direct": 18,
+    "network.internet": 39,
+    "pi.runtime": 26,
+    "release.artifacts": 18,
+    "voice_endpoint.runtime": 16,
+    "website.runtime": 10,
+    "windows.runtime": 86
+  },
+  "hardware_requirements": {
+    "esp32": 10,
+    "raspberry_pi": 26,
+    "voice_endpoint": 16
+  },
+  "profiles": [
+    {
+      "capabilities": [
+        "assist.audio_input",
+        "assist.audio_output",
+        "assist.conversation",
+        "assist.pipeline",
+        "assist.stt",
+        "assist.tts",
+        "djconnect.capabilities",
+        "djconnect.export_import",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "djconnect.private_session",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "docker.runtime",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.events",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.restart",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "stt.whisper",
+        "tts.piper"
+      ],
+      "compose_fragments": [
+        "docker/verification/compose.base.yaml",
+        "docker/verification/compose.whisper.yaml",
+        "docker/verification/compose.piper.yaml"
+      ],
+      "profile": "ha-assist",
+      "satisfiable_scenarios": 17,
+      "services": [
+        "homeassistant",
+        "piper",
+        "whisper"
+      ]
+    },
+    {
+      "capabilities": [
+        "assist.audio_input",
+        "assist.audio_output",
+        "assist.conversation",
+        "assist.pipeline",
+        "assist.stt",
+        "assist.tts",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.export_import",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.pairing",
+        "djconnect.playback",
+        "djconnect.private_session",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "djconnect.track_insight",
+        "docker.runtime",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.events",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.restart",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.music_assistant",
+        "music.playback_target",
+        "network.offline_control",
+        "stt.whisper",
+        "tts.piper"
+      ],
+      "compose_fragments": [
+        "docker/verification/compose.base.yaml",
+        "docker/verification/compose.whisper.yaml",
+        "docker/verification/compose.piper.yaml",
+        "docker/verification/compose.fake-backend.yaml",
+        "docker/verification/compose.music-assistant.yaml",
+        "docker/verification/compose.observability.yaml"
+      ],
+      "profile": "ha-full",
+      "satisfiable_scenarios": 1,
+      "services": [
+        "evidence_helper",
+        "fake_music_backend",
+        "homeassistant",
+        "music_assistant",
+        "piper",
+        "whisper"
+      ]
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "docker.runtime",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.events",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket"
+      ],
+      "compose_fragments": [
+        "docker/verification/compose.base.yaml"
+      ],
+      "profile": "ha-minimal",
+      "satisfiable_scenarios": 33,
+      "services": [
+        "homeassistant"
+      ]
+    },
+    {
+      "capabilities": [
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.export_import",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.pairing",
+        "djconnect.playback",
+        "djconnect.private_session",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "djconnect.track_insight",
+        "docker.runtime",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.events",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.restart",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.music_assistant",
+        "music.playback_target"
+      ],
+      "compose_fragments": [
+        "docker/verification/compose.base.yaml",
+        "docker/verification/compose.fake-backend.yaml",
+        "docker/verification/compose.music-assistant.yaml"
+      ],
+      "profile": "ha-music",
+      "satisfiable_scenarios": 88,
+      "services": [
+        "fake_music_backend",
+        "homeassistant",
+        "music_assistant"
+      ]
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.export_import",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "djconnect.private_session",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "docker.runtime",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.events",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.restart",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "compose_fragments": [
+        "docker/verification/compose.base.yaml"
+      ],
+      "profile": "ha-profile",
+      "satisfiable_scenarios": 92,
+      "services": [
+        "homeassistant"
+      ]
+    }
+  ],
+  "scenarios": [
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-001",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-002",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-003",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-004",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-005",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-006",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-007",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-008",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-009",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-010",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.private_session",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-011",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.private_session",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-012",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-013",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-014",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-015",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-016",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.playback",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.restart",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-017",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.restart",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-018",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.restart",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-019",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.restart",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-020",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-021",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-022",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-023",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.playback",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-024",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.playback",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-025",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.playback",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-026",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-027",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.playback",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "windows.runtime"
+      ],
+      "category": "Ask DJ",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "ASKDJ-028",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.playback",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.music_assistant",
+        "music.spotify_direct"
+      ],
+      "category": "Backend",
+      "external": [
+        "music.spotify_direct",
+        "network.internet"
+      ],
+      "hardware": [],
+      "id": "BACKEND-001",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.playback",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.music_assistant",
+        "music.spotify_direct"
+      ],
+      "category": "Backend",
+      "external": [
+        "music.spotify_direct",
+        "network.internet"
+      ],
+      "hardware": [],
+      "id": "BACKEND-002",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.playback",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.music_assistant",
+        "music.spotify_direct"
+      ],
+      "category": "Backend",
+      "external": [
+        "music.spotify_direct",
+        "network.internet"
+      ],
+      "hardware": [],
+      "id": "BACKEND-003",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.playback",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.music_assistant",
+        "music.spotify_direct"
+      ],
+      "category": "Backend",
+      "external": [
+        "music.spotify_direct",
+        "network.internet"
+      ],
+      "hardware": [],
+      "id": "BACKEND-004",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.playback",
+        "djconnect.private_session",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.music_assistant",
+        "music.spotify_direct"
+      ],
+      "category": "Backend",
+      "external": [
+        "music.spotify_direct",
+        "network.internet"
+      ],
+      "hardware": [],
+      "id": "BACKEND-005",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.playback",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.music_assistant",
+        "music.spotify_direct"
+      ],
+      "category": "Backend",
+      "external": [
+        "music.spotify_direct",
+        "network.internet"
+      ],
+      "hardware": [],
+      "id": "BACKEND-006",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.playback",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.music_assistant",
+        "music.spotify_direct"
+      ],
+      "category": "Backend",
+      "external": [
+        "music.spotify_direct",
+        "network.internet"
+      ],
+      "hardware": [],
+      "id": "BACKEND-007",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.playback",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.music_assistant",
+        "music.spotify_direct"
+      ],
+      "category": "Backend",
+      "external": [
+        "music.spotify_direct",
+        "network.internet"
+      ],
+      "hardware": [],
+      "id": "BACKEND-008",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "pi.runtime",
+        "voice_endpoint.runtime",
+        "windows.runtime"
+      ],
+      "category": "Capabilities",
+      "external": [
+        "apple.runtime",
+        "pi.runtime",
+        "voice_endpoint.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi",
+        "voice_endpoint"
+      ],
+      "id": "CAPABILITIES-001",
+      "profile": "ha-assist"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "pi.runtime",
+        "voice_endpoint.runtime",
+        "windows.runtime"
+      ],
+      "category": "Capabilities",
+      "external": [
+        "apple.runtime",
+        "pi.runtime",
+        "voice_endpoint.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi",
+        "voice_endpoint"
+      ],
+      "id": "CAPABILITIES-002",
+      "profile": "ha-assist"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "pi.runtime",
+        "voice_endpoint.runtime",
+        "windows.runtime"
+      ],
+      "category": "Capabilities",
+      "external": [
+        "apple.runtime",
+        "pi.runtime",
+        "voice_endpoint.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi",
+        "voice_endpoint"
+      ],
+      "id": "CAPABILITIES-003",
+      "profile": "ha-assist"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "pi.runtime",
+        "voice_endpoint.runtime",
+        "windows.runtime"
+      ],
+      "category": "Capabilities",
+      "external": [
+        "apple.runtime",
+        "pi.runtime",
+        "voice_endpoint.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi",
+        "voice_endpoint"
+      ],
+      "id": "CAPABILITIES-004",
+      "profile": "ha-assist"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "pi.runtime",
+        "voice_endpoint.runtime",
+        "windows.runtime"
+      ],
+      "category": "Capabilities",
+      "external": [
+        "apple.runtime",
+        "pi.runtime",
+        "voice_endpoint.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi",
+        "voice_endpoint"
+      ],
+      "id": "CAPABILITIES-005",
+      "profile": "ha-assist"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "pi.runtime",
+        "voice_endpoint.runtime",
+        "windows.runtime"
+      ],
+      "category": "Capabilities",
+      "external": [
+        "apple.runtime",
+        "pi.runtime",
+        "voice_endpoint.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi",
+        "voice_endpoint"
+      ],
+      "id": "CAPABILITIES-006",
+      "profile": "ha-assist"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "pi.runtime",
+        "voice_endpoint.runtime",
+        "windows.runtime"
+      ],
+      "category": "Capabilities",
+      "external": [
+        "apple.runtime",
+        "pi.runtime",
+        "voice_endpoint.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi",
+        "voice_endpoint"
+      ],
+      "id": "CAPABILITIES-007",
+      "profile": "ha-assist"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "pi.runtime",
+        "voice_endpoint.runtime",
+        "windows.runtime"
+      ],
+      "category": "Capabilities",
+      "external": [
+        "apple.runtime",
+        "pi.runtime",
+        "voice_endpoint.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi",
+        "voice_endpoint"
+      ],
+      "id": "CAPABILITIES-008",
+      "profile": "ha-assist"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "windows.runtime"
+      ],
+      "category": "Discover",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "DISCOVER-001",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "windows.runtime"
+      ],
+      "category": "Discover",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "DISCOVER-002",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "windows.runtime"
+      ],
+      "category": "Discover",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "DISCOVER-003",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "windows.runtime"
+      ],
+      "category": "Discover",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "DISCOVER-004",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "windows.runtime"
+      ],
+      "category": "Discover",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "DISCOVER-005",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "windows.runtime"
+      ],
+      "category": "Discover",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "DISCOVER-006",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "windows.runtime"
+      ],
+      "category": "Discover",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "DISCOVER-007",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "windows.runtime"
+      ],
+      "category": "Discover",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "DISCOVER-008",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "windows.runtime"
+      ],
+      "category": "Discover",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "DISCOVER-009",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "windows.runtime"
+      ],
+      "category": "Discover",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "DISCOVER-010",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "windows.runtime"
+      ],
+      "category": "Discover",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "DISCOVER-011",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "windows.runtime"
+      ],
+      "category": "Discover",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "DISCOVER-012",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "windows.runtime"
+      ],
+      "category": "Discover",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "DISCOVER-013",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "windows.runtime"
+      ],
+      "category": "Discover",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "DISCOVER-014",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "windows.runtime"
+      ],
+      "category": "Discover",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "DISCOVER-015",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.ask_dj",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "windows.runtime"
+      ],
+      "category": "Discover",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "DISCOVER-016",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.export_import",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Export",
+      "external": [],
+      "hardware": [],
+      "id": "EXPORT-001",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.export_import",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Export",
+      "external": [],
+      "hardware": [],
+      "id": "EXPORT-002",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.export_import",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Export",
+      "external": [],
+      "hardware": [],
+      "id": "EXPORT-003",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.export_import",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Export",
+      "external": [],
+      "hardware": [],
+      "id": "EXPORT-004",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.export_import",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Export",
+      "external": [],
+      "hardware": [],
+      "id": "EXPORT-005",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.export_import",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Export",
+      "external": [],
+      "hardware": [],
+      "id": "EXPORT-006",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "esp32.runtime",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket"
+      ],
+      "category": "Hardware",
+      "external": [
+        "esp32.runtime"
+      ],
+      "hardware": [
+        "esp32"
+      ],
+      "id": "HARDWARE-001",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "esp32.runtime",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket"
+      ],
+      "category": "Hardware",
+      "external": [
+        "esp32.runtime"
+      ],
+      "hardware": [
+        "esp32"
+      ],
+      "id": "HARDWARE-002",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "esp32.runtime",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket"
+      ],
+      "category": "Hardware",
+      "external": [
+        "esp32.runtime"
+      ],
+      "hardware": [
+        "esp32"
+      ],
+      "id": "HARDWARE-003",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "esp32.runtime",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket"
+      ],
+      "category": "Hardware",
+      "external": [
+        "esp32.runtime"
+      ],
+      "hardware": [
+        "esp32"
+      ],
+      "id": "HARDWARE-004",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "esp32.runtime",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket"
+      ],
+      "category": "Hardware",
+      "external": [
+        "esp32.runtime"
+      ],
+      "hardware": [
+        "esp32"
+      ],
+      "id": "HARDWARE-005",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "esp32.runtime",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket"
+      ],
+      "category": "Hardware",
+      "external": [
+        "esp32.runtime"
+      ],
+      "hardware": [
+        "esp32"
+      ],
+      "id": "HARDWARE-006",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "esp32.runtime",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket"
+      ],
+      "category": "Hardware",
+      "external": [
+        "esp32.runtime"
+      ],
+      "hardware": [
+        "esp32"
+      ],
+      "id": "HARDWARE-007",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "esp32.runtime",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket"
+      ],
+      "category": "Hardware",
+      "external": [
+        "esp32.runtime"
+      ],
+      "hardware": [
+        "esp32"
+      ],
+      "id": "HARDWARE-008",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "assist.audio_input",
+        "assist.pipeline",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "esp32.runtime",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "stt.whisper",
+        "tts.piper"
+      ],
+      "category": "Hardware",
+      "external": [
+        "esp32.runtime"
+      ],
+      "hardware": [
+        "esp32"
+      ],
+      "id": "HARDWARE-009",
+      "profile": "ha-assist"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "esp32.runtime",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket"
+      ],
+      "category": "Hardware",
+      "external": [
+        "esp32.runtime"
+      ],
+      "hardware": [
+        "esp32"
+      ],
+      "id": "HARDWARE-010",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.export_import",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Import",
+      "external": [],
+      "hardware": [],
+      "id": "IMPORT-001",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.export_import",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Import",
+      "external": [],
+      "hardware": [],
+      "id": "IMPORT-002",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.export_import",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Import",
+      "external": [],
+      "hardware": [],
+      "id": "IMPORT-003",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.export_import",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Import",
+      "external": [],
+      "hardware": [],
+      "id": "IMPORT-004",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.export_import",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Import",
+      "external": [],
+      "hardware": [],
+      "id": "IMPORT-005",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.export_import",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Import",
+      "external": [],
+      "hardware": [],
+      "id": "IMPORT-006",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "github.ci",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "pi.runtime",
+        "release.artifacts",
+        "website.runtime",
+        "windows.runtime"
+      ],
+      "category": "Localization",
+      "external": [
+        "apple.runtime",
+        "github.ci",
+        "network.internet",
+        "pi.runtime",
+        "release.artifacts",
+        "website.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi"
+      ],
+      "id": "LOCALIZATION-001",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "github.ci",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "pi.runtime",
+        "release.artifacts",
+        "website.runtime",
+        "windows.runtime"
+      ],
+      "category": "Localization",
+      "external": [
+        "apple.runtime",
+        "github.ci",
+        "network.internet",
+        "pi.runtime",
+        "release.artifacts",
+        "website.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi"
+      ],
+      "id": "LOCALIZATION-002",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "github.ci",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "pi.runtime",
+        "release.artifacts",
+        "website.runtime",
+        "windows.runtime"
+      ],
+      "category": "Localization",
+      "external": [
+        "apple.runtime",
+        "github.ci",
+        "network.internet",
+        "pi.runtime",
+        "release.artifacts",
+        "website.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi"
+      ],
+      "id": "LOCALIZATION-003",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "github.ci",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "pi.runtime",
+        "release.artifacts",
+        "website.runtime",
+        "windows.runtime"
+      ],
+      "category": "Localization",
+      "external": [
+        "apple.runtime",
+        "github.ci",
+        "network.internet",
+        "pi.runtime",
+        "release.artifacts",
+        "website.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi"
+      ],
+      "id": "LOCALIZATION-004",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "github.ci",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "pi.runtime",
+        "release.artifacts",
+        "website.runtime",
+        "windows.runtime"
+      ],
+      "category": "Localization",
+      "external": [
+        "apple.runtime",
+        "github.ci",
+        "network.internet",
+        "pi.runtime",
+        "release.artifacts",
+        "website.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi"
+      ],
+      "id": "LOCALIZATION-005",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "github.ci",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "pi.runtime",
+        "release.artifacts",
+        "website.runtime",
+        "windows.runtime"
+      ],
+      "category": "Localization",
+      "external": [
+        "apple.runtime",
+        "github.ci",
+        "network.internet",
+        "pi.runtime",
+        "release.artifacts",
+        "website.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi"
+      ],
+      "id": "LOCALIZATION-006",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.private_session",
+        "evidence.storage",
+        "github.ci",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "pi.runtime",
+        "release.artifacts",
+        "website.runtime",
+        "windows.runtime"
+      ],
+      "category": "Localization",
+      "external": [
+        "apple.runtime",
+        "github.ci",
+        "network.internet",
+        "pi.runtime",
+        "release.artifacts",
+        "website.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi"
+      ],
+      "id": "LOCALIZATION-007",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "github.ci",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "pi.runtime",
+        "release.artifacts",
+        "website.runtime",
+        "windows.runtime"
+      ],
+      "category": "Localization",
+      "external": [
+        "apple.runtime",
+        "github.ci",
+        "network.internet",
+        "pi.runtime",
+        "release.artifacts",
+        "website.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi"
+      ],
+      "id": "LOCALIZATION-008",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "github.ci",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "pi.runtime",
+        "release.artifacts",
+        "website.runtime",
+        "windows.runtime"
+      ],
+      "category": "Localization",
+      "external": [
+        "apple.runtime",
+        "github.ci",
+        "network.internet",
+        "pi.runtime",
+        "release.artifacts",
+        "website.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi"
+      ],
+      "id": "LOCALIZATION-009",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "github.ci",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "pi.runtime",
+        "release.artifacts",
+        "website.runtime",
+        "windows.runtime"
+      ],
+      "category": "Localization",
+      "external": [
+        "apple.runtime",
+        "github.ci",
+        "network.internet",
+        "pi.runtime",
+        "release.artifacts",
+        "website.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi"
+      ],
+      "id": "LOCALIZATION-010",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Music DNA",
+      "external": [],
+      "hardware": [],
+      "id": "MUSICDNA-001",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Music DNA",
+      "external": [],
+      "hardware": [],
+      "id": "MUSICDNA-002",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Music DNA",
+      "external": [],
+      "hardware": [],
+      "id": "MUSICDNA-003",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.private_session",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Music DNA",
+      "external": [],
+      "hardware": [],
+      "id": "MUSICDNA-004",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Music DNA",
+      "external": [],
+      "hardware": [],
+      "id": "MUSICDNA-005",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Music DNA",
+      "external": [],
+      "hardware": [],
+      "id": "MUSICDNA-006",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Music DNA",
+      "external": [],
+      "hardware": [],
+      "id": "MUSICDNA-007",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Music DNA",
+      "external": [],
+      "hardware": [],
+      "id": "MUSICDNA-008",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Music DNA",
+      "external": [],
+      "hardware": [],
+      "id": "MUSICDNA-009",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Music DNA",
+      "external": [],
+      "hardware": [],
+      "id": "MUSICDNA-010",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Music DNA",
+      "external": [],
+      "hardware": [],
+      "id": "MUSICDNA-011",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Music DNA",
+      "external": [],
+      "hardware": [],
+      "id": "MUSICDNA-012",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.private_session",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Music DNA",
+      "external": [],
+      "hardware": [],
+      "id": "MUSICDNA-013",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.private_session",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Music DNA",
+      "external": [],
+      "hardware": [],
+      "id": "MUSICDNA-014",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Music DNA",
+      "external": [],
+      "hardware": [],
+      "id": "MUSICDNA-015",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Music DNA",
+      "external": [],
+      "hardware": [],
+      "id": "MUSICDNA-016",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Music DNA",
+      "external": [],
+      "hardware": [],
+      "id": "MUSICDNA-017",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.music_dna",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Music DNA",
+      "external": [],
+      "hardware": [],
+      "id": "MUSICDNA-018",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket"
+      ],
+      "category": "Networking",
+      "external": [],
+      "hardware": [],
+      "id": "NETWORKING-001",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket"
+      ],
+      "category": "Networking",
+      "external": [],
+      "hardware": [],
+      "id": "NETWORKING-002",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket"
+      ],
+      "category": "Networking",
+      "external": [],
+      "hardware": [],
+      "id": "NETWORKING-003",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "network.internet"
+      ],
+      "category": "Networking",
+      "external": [
+        "network.internet"
+      ],
+      "hardware": [],
+      "id": "NETWORKING-004",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "network.internet"
+      ],
+      "category": "Networking",
+      "external": [
+        "network.internet"
+      ],
+      "hardware": [],
+      "id": "NETWORKING-005",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket"
+      ],
+      "category": "Networking",
+      "external": [],
+      "hardware": [],
+      "id": "NETWORKING-006",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "network.internet"
+      ],
+      "category": "Networking",
+      "external": [
+        "network.internet"
+      ],
+      "hardware": [],
+      "id": "NETWORKING-007",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "network.offline_control"
+      ],
+      "category": "Networking",
+      "external": [],
+      "hardware": [],
+      "id": "NETWORKING-008",
+      "profile": "ha-full"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.playback",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "music.spotify_direct"
+      ],
+      "category": "Playback",
+      "external": [
+        "music.spotify_direct",
+        "network.internet"
+      ],
+      "hardware": [],
+      "id": "PLAYBACK-001",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.playback",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "music.spotify_direct"
+      ],
+      "category": "Playback",
+      "external": [
+        "music.spotify_direct",
+        "network.internet"
+      ],
+      "hardware": [],
+      "id": "PLAYBACK-002",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.playback",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "music.spotify_direct"
+      ],
+      "category": "Playback",
+      "external": [
+        "music.spotify_direct",
+        "network.internet"
+      ],
+      "hardware": [],
+      "id": "PLAYBACK-003",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.playback",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "music.spotify_direct"
+      ],
+      "category": "Playback",
+      "external": [
+        "music.spotify_direct",
+        "network.internet"
+      ],
+      "hardware": [],
+      "id": "PLAYBACK-004",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.playback",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "music.spotify_direct"
+      ],
+      "category": "Playback",
+      "external": [
+        "music.spotify_direct",
+        "network.internet"
+      ],
+      "hardware": [],
+      "id": "PLAYBACK-005",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.playback",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "music.spotify_direct"
+      ],
+      "category": "Playback",
+      "external": [
+        "music.spotify_direct",
+        "network.internet"
+      ],
+      "hardware": [],
+      "id": "PLAYBACK-006",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.playback",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "music.spotify_direct"
+      ],
+      "category": "Playback",
+      "external": [
+        "music.spotify_direct",
+        "network.internet"
+      ],
+      "hardware": [],
+      "id": "PLAYBACK-007",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.playback",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "music.spotify_direct"
+      ],
+      "category": "Playback",
+      "external": [
+        "music.spotify_direct",
+        "network.internet"
+      ],
+      "hardware": [],
+      "id": "PLAYBACK-008",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.playback",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "music.spotify_direct"
+      ],
+      "category": "Playback",
+      "external": [
+        "music.spotify_direct",
+        "network.internet"
+      ],
+      "hardware": [],
+      "id": "PLAYBACK-009",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.playback",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "music.playback_target",
+        "music.spotify_direct"
+      ],
+      "category": "Playback",
+      "external": [
+        "music.spotify_direct",
+        "network.internet"
+      ],
+      "hardware": [],
+      "id": "PLAYBACK-010",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.private_session",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Privacy",
+      "external": [],
+      "hardware": [],
+      "id": "PRIVACY-001",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.private_session",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Privacy",
+      "external": [],
+      "hardware": [],
+      "id": "PRIVACY-002",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.private_session",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Privacy",
+      "external": [],
+      "hardware": [],
+      "id": "PRIVACY-003",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.private_session",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Privacy",
+      "external": [],
+      "hardware": [],
+      "id": "PRIVACY-004",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.private_session",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Privacy",
+      "external": [],
+      "hardware": [],
+      "id": "PRIVACY-005",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.private_session",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Privacy",
+      "external": [],
+      "hardware": [],
+      "id": "PRIVACY-006",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.private_session",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Privacy",
+      "external": [],
+      "hardware": [],
+      "id": "PRIVACY-007",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.private_session",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Privacy",
+      "external": [],
+      "hardware": [],
+      "id": "PRIVACY-008",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.private_session",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Privacy",
+      "external": [],
+      "hardware": [],
+      "id": "PRIVACY-009",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.private_session",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Privacy",
+      "external": [],
+      "hardware": [],
+      "id": "PRIVACY-010",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-001",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-002",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.private_session",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-003",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-004",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-005",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-006",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-007",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-008",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.private_session",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-009",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-010",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.restart",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-011",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-012",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-013",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-014",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-015",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-016",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-017",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-018",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-019",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-020",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-021",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-022",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-023",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "windows.runtime"
+      ],
+      "category": "Profiles",
+      "external": [
+        "apple.runtime",
+        "windows.runtime"
+      ],
+      "hardware": [],
+      "id": "PROFILE-024",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "evidence.storage",
+        "github.ci",
+        "release.artifacts"
+      ],
+      "category": "Release",
+      "external": [
+        "github.ci",
+        "network.internet",
+        "release.artifacts"
+      ],
+      "hardware": [],
+      "id": "RELEASE-001",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "evidence.storage",
+        "github.ci",
+        "release.artifacts"
+      ],
+      "category": "Release",
+      "external": [
+        "github.ci",
+        "network.internet",
+        "release.artifacts"
+      ],
+      "hardware": [],
+      "id": "RELEASE-002",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "evidence.storage",
+        "github.ci",
+        "release.artifacts"
+      ],
+      "category": "Release",
+      "external": [
+        "github.ci",
+        "network.internet",
+        "release.artifacts"
+      ],
+      "hardware": [],
+      "id": "RELEASE-003",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "evidence.storage",
+        "github.ci",
+        "release.artifacts"
+      ],
+      "category": "Release",
+      "external": [
+        "github.ci",
+        "network.internet",
+        "release.artifacts"
+      ],
+      "hardware": [],
+      "id": "RELEASE-004",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "evidence.storage",
+        "github.ci",
+        "release.artifacts"
+      ],
+      "category": "Release",
+      "external": [
+        "github.ci",
+        "network.internet",
+        "release.artifacts"
+      ],
+      "hardware": [],
+      "id": "RELEASE-005",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "evidence.storage",
+        "github.ci",
+        "release.artifacts"
+      ],
+      "category": "Release",
+      "external": [
+        "github.ci",
+        "network.internet",
+        "release.artifacts"
+      ],
+      "hardware": [],
+      "id": "RELEASE-006",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "evidence.storage",
+        "github.ci",
+        "release.artifacts"
+      ],
+      "category": "Release",
+      "external": [
+        "github.ci",
+        "network.internet",
+        "release.artifacts"
+      ],
+      "hardware": [],
+      "id": "RELEASE-007",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "evidence.storage",
+        "github.ci",
+        "release.artifacts"
+      ],
+      "category": "Release",
+      "external": [
+        "github.ci",
+        "network.internet",
+        "release.artifacts"
+      ],
+      "hardware": [],
+      "id": "RELEASE-008",
+      "profile": "ha-minimal"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Resolver",
+      "external": [],
+      "hardware": [],
+      "id": "RESOLVER-001",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Resolver",
+      "external": [],
+      "hardware": [],
+      "id": "RESOLVER-002",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Resolver",
+      "external": [],
+      "hardware": [],
+      "id": "RESOLVER-003",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.restart",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Resolver",
+      "external": [],
+      "hardware": [],
+      "id": "RESOLVER-004",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Resolver",
+      "external": [],
+      "hardware": [],
+      "id": "RESOLVER-005",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Resolver",
+      "external": [],
+      "hardware": [],
+      "id": "RESOLVER-006",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Resolver",
+      "external": [],
+      "hardware": [],
+      "id": "RESOLVER-007",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Resolver",
+      "external": [],
+      "hardware": [],
+      "id": "RESOLVER-008",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Resolver",
+      "external": [],
+      "hardware": [],
+      "id": "RESOLVER-009",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Resolver",
+      "external": [],
+      "hardware": [],
+      "id": "RESOLVER-010",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Resolver",
+      "external": [],
+      "hardware": [],
+      "id": "RESOLVER-011",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Resolver",
+      "external": [],
+      "hardware": [],
+      "id": "RESOLVER-012",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Resolver",
+      "external": [],
+      "hardware": [],
+      "id": "RESOLVER-013",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Resolver",
+      "external": [],
+      "hardware": [],
+      "id": "RESOLVER-014",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Resolver",
+      "external": [],
+      "hardware": [],
+      "id": "RESOLVER-015",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Resolver",
+      "external": [],
+      "hardware": [],
+      "id": "RESOLVER-016",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Resolver",
+      "external": [],
+      "hardware": [],
+      "id": "RESOLVER-017",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Resolver",
+      "external": [],
+      "hardware": [],
+      "id": "RESOLVER-018",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.restart",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Resolver",
+      "external": [],
+      "hardware": [],
+      "id": "RESOLVER-019",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.restart",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Resolver",
+      "external": [],
+      "hardware": [],
+      "id": "RESOLVER-020",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-001",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-002",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-003",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-004",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-005",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-006",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-007",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-008",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-009",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-010",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-011",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-012",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-013",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-014",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-015",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-016",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-017",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-018",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.restart",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-019",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.restart",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-020",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-021",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-022",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-023",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-024",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.pairing",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket"
+      ],
+      "category": "Setup",
+      "external": [],
+      "hardware": [],
+      "id": "SETUP-025",
+      "profile": "ha-profile"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.track_insight",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "pi.runtime"
+      ],
+      "category": "Track Insight",
+      "external": [
+        "apple.runtime",
+        "pi.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi"
+      ],
+      "id": "TRACKINSIGHT-001",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.track_insight",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "pi.runtime"
+      ],
+      "category": "Track Insight",
+      "external": [
+        "apple.runtime",
+        "pi.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi"
+      ],
+      "id": "TRACKINSIGHT-002",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.track_insight",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "pi.runtime"
+      ],
+      "category": "Track Insight",
+      "external": [
+        "apple.runtime",
+        "pi.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi"
+      ],
+      "id": "TRACKINSIGHT-003",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.track_insight",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "pi.runtime"
+      ],
+      "category": "Track Insight",
+      "external": [
+        "apple.runtime",
+        "pi.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi"
+      ],
+      "id": "TRACKINSIGHT-004",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.track_insight",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "pi.runtime"
+      ],
+      "category": "Track Insight",
+      "external": [
+        "apple.runtime",
+        "pi.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi"
+      ],
+      "id": "TRACKINSIGHT-005",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.track_insight",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "pi.runtime"
+      ],
+      "category": "Track Insight",
+      "external": [
+        "apple.runtime",
+        "pi.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi"
+      ],
+      "id": "TRACKINSIGHT-006",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.track_insight",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "pi.runtime"
+      ],
+      "category": "Track Insight",
+      "external": [
+        "apple.runtime",
+        "pi.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi"
+      ],
+      "id": "TRACKINSIGHT-007",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "apple.runtime",
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.private_session",
+        "djconnect.track_insight",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.websocket",
+        "music.fake_backend",
+        "pi.runtime"
+      ],
+      "category": "Track Insight",
+      "external": [
+        "apple.runtime",
+        "pi.runtime"
+      ],
+      "hardware": [
+        "raspberry_pi"
+      ],
+      "id": "TRACKINSIGHT-008",
+      "profile": "ha-music"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "voice_endpoint.runtime"
+      ],
+      "category": "Identity",
+      "external": [
+        "voice_endpoint.runtime"
+      ],
+      "hardware": [
+        "voice_endpoint"
+      ],
+      "id": "VOICE-001",
+      "profile": "ha-assist"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "voice_endpoint.runtime"
+      ],
+      "category": "Identity",
+      "external": [
+        "voice_endpoint.runtime"
+      ],
+      "hardware": [
+        "voice_endpoint"
+      ],
+      "id": "VOICE-002",
+      "profile": "ha-assist"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "voice_endpoint.runtime"
+      ],
+      "category": "Identity",
+      "external": [
+        "voice_endpoint.runtime"
+      ],
+      "hardware": [
+        "voice_endpoint"
+      ],
+      "id": "VOICE-003",
+      "profile": "ha-assist"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "voice_endpoint.runtime"
+      ],
+      "category": "Identity",
+      "external": [
+        "voice_endpoint.runtime"
+      ],
+      "hardware": [
+        "voice_endpoint"
+      ],
+      "id": "VOICE-004",
+      "profile": "ha-assist"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "voice_endpoint.runtime"
+      ],
+      "category": "Identity",
+      "external": [
+        "voice_endpoint.runtime"
+      ],
+      "hardware": [
+        "voice_endpoint"
+      ],
+      "id": "VOICE-005",
+      "profile": "ha-assist"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "voice_endpoint.runtime"
+      ],
+      "category": "Identity",
+      "external": [
+        "voice_endpoint.runtime"
+      ],
+      "hardware": [
+        "voice_endpoint"
+      ],
+      "id": "VOICE-006",
+      "profile": "ha-assist"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "voice_endpoint.runtime"
+      ],
+      "category": "Identity",
+      "external": [
+        "voice_endpoint.runtime"
+      ],
+      "hardware": [
+        "voice_endpoint"
+      ],
+      "id": "VOICE-007",
+      "profile": "ha-assist"
+    },
+    {
+      "capabilities": [
+        "djconnect.capabilities",
+        "djconnect.loaded",
+        "djconnect.profile_platform",
+        "djconnect.profile_resolution",
+        "evidence.storage",
+        "ha.access_token",
+        "ha.logs",
+        "ha.persistence",
+        "ha.registries",
+        "ha.rest",
+        "ha.runtime",
+        "ha.services",
+        "ha.storage",
+        "ha.websocket",
+        "voice_endpoint.runtime"
+      ],
+      "category": "Identity",
+      "external": [
+        "voice_endpoint.runtime"
+      ],
+      "hardware": [
+        "voice_endpoint"
+      ],
+      "id": "VOICE-008",
+      "profile": "ha-assist"
+    }
+  ],
+  "scenarios_per_capability": {
+    "apple.runtime": 94,
+    "assist.audio_input": 1,
+    "assist.pipeline": 1,
+    "djconnect.ask_dj": 44,
+    "djconnect.capabilities": 223,
+    "djconnect.export_import": 12,
+    "djconnect.loaded": 223,
+    "djconnect.music_dna": 34,
+    "djconnect.pairing": 35,
+    "djconnect.playback": 23,
+    "djconnect.private_session": 20,
+    "djconnect.profile_platform": 136,
+    "djconnect.profile_resolution": 28,
+    "djconnect.track_insight": 8,
+    "esp32.runtime": 10,
+    "evidence.storage": 231,
+    "github.ci": 18,
+    "ha.access_token": 223,
+    "ha.logs": 223,
+    "ha.persistence": 98,
+    "ha.registries": 28,
+    "ha.rest": 223,
+    "ha.restart": 10,
+    "ha.runtime": 223,
+    "ha.services": 223,
+    "ha.storage": 145,
+    "ha.websocket": 223,
+    "music.fake_backend": 47,
+    "music.music_assistant": 8,
+    "music.playback_target": 31,
+    "music.spotify_direct": 18,
+    "network.internet": 3,
+    "network.offline_control": 1,
+    "pi.runtime": 26,
+    "release.artifacts": 18,
+    "stt.whisper": 1,
+    "tts.piper": 1,
+    "voice_endpoint.runtime": 16,
+    "website.runtime": 10,
+    "windows.runtime": 86
+  },
+  "scenarios_per_lab_profile": {
+    "ha-assist": 17,
+    "ha-full": 1,
+    "ha-minimal": 33,
+    "ha-music": 88,
+    "ha-profile": 92
+  },
+  "total_scenarios": 231,
+  "unresolved": [],
+  "unresolved_scenarios": 0
+}

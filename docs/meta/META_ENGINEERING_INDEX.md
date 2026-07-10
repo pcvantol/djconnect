@@ -27,8 +27,9 @@ or Completion Report documents.
 2. `REPOSITORY_AS_MEMORY.md`
 3. `AI_AGENT_GUIDELINES.md`
 4. `ENGINEERING_PLAYBOOK.md`
-5. `ARCHITECTURAL_HEURISTICS.md`
-6. `DECISION_PATTERNS.md`
+5. `PHASE_COMPLETION_PROTOCOL.md`
+6. `ARCHITECTURAL_HEURISTICS.md`
+7. `DECISION_PATTERNS.md`
 
 Read this order for clean-session onboarding. Read individual documents when a
 task only needs one specific Meta Engineering concern.
@@ -56,6 +57,11 @@ the DJConnect engineering process.
 
 `ENGINEERING_PLAYBOOK.md` defines the preferred lifecycle from idea to
 production.
+
+## Phase Completion Protocol
+
+`PHASE_COMPLETION_PROTOCOL.md` defines the mandatory completion workflow that
+executes after every implementation phase.
 
 ## Architectural Heuristics
 
@@ -110,7 +116,6 @@ genuinely changes or a recurring workflow needs a durable canonical home.
 Potential future areas:
 
 - review discipline;
-- completion report structure;
 - cross-repository handoff practice;
 - lessons learned taxonomy;
 - AI-agent evaluation and regression practice.

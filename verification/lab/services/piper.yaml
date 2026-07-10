@@ -1,0 +1,23 @@
+service_id: piper
+provided_capabilities:
+  - tts.piper
+  - assist.tts
+  - assist.audio_output
+required_capabilities:
+  - docker.runtime
+image: rhasspy/wyoming-piper:latest
+configuration_inputs:
+  - DJCONNECT_VERIFICATION_PIPER_PORT
+secrets: []
+networks:
+  - djconnect-verification
+volumes: []
+ports:
+  - 18132:10200
+health_probe: piper_health
+readiness_probe: wyoming_tts_probe
+bootstrap_dependencies: []
+cleanup: remove_container
+evidence_sources:
+  - container_logs
+  - service_health

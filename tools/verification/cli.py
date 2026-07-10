@@ -63,7 +63,7 @@ def build_parser() -> argparse.ArgumentParser:
     lab = subparsers.add_parser("lab")
     lab_subparsers = lab.add_subparsers(dest="lab_target", required=True)
     ha_lab = lab_subparsers.add_parser("ha")
-    ha_lab.add_argument("lab_command", choices=("build", "start", "stop", "restart", "recreate", "fresh", "clean", "destroy", "doctor", "metadata"))
+    ha_lab.add_argument("lab_command", choices=("build", "start", "stop", "restart", "recreate", "fresh", "clean", "destroy", "bootstrap-auth", "doctor", "metadata"))
     ha_lab.add_argument("--allow-destructive", action="store_true")
     subparsers.add_parser("env")
     subparsers.add_parser("schema")
@@ -100,7 +100,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "validate":
-        validator = ScenarioValidator()
+        validator = ScenarioValidator(config.root)
         issues = [issue for scenario in _select(args, scenarios) for issue in validator.validate(scenario)]
         for issue in issues:
             source = f"{issue.source}: " if issue.source else ""

@@ -1,0 +1,22 @@
+service_id: whisper
+provided_capabilities:
+  - stt.whisper
+  - assist.stt
+required_capabilities:
+  - docker.runtime
+image: rhasspy/wyoming-whisper:latest
+configuration_inputs:
+  - DJCONNECT_VERIFICATION_WHISPER_PORT
+secrets: []
+networks:
+  - djconnect-verification
+volumes: []
+ports:
+  - 18131:10300
+health_probe: whisper_health
+readiness_probe: wyoming_stt_probe
+bootstrap_dependencies: []
+cleanup: remove_container
+evidence_sources:
+  - container_logs
+  - service_health

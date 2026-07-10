@@ -18,6 +18,32 @@ required_profiles: [personal_profile, household_profile]
 required_backends: []
 required_devices: []
 required_environment: [configured_ha_instance]
+requires:
+  capabilities:
+    - djconnect.capabilities
+    - djconnect.loaded
+    - djconnect.pairing
+    - evidence.storage
+    - ha.access_token
+    - ha.logs
+    - ha.rest
+    - ha.runtime
+    - ha.services
+    - ha.storage
+    - ha.websocket
+  services:
+    - homeassistant
+  integrations:
+    - djconnect
+  bootstrap:
+    - djconnect.loaded
+    - ha.auth
+  resources:
+    network: local
+    persistent_storage: false
+  secrets:
+    - ha.access_token
+  persistence: ephemeral
 preconditions:
   - The verification environment contains the components required for backend selection falls back with structured error.
   - Scenario fixture data is isolated from real user data or explicitly approved for test use.

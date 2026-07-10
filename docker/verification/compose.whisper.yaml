@@ -1,0 +1,12 @@
+services:
+  whisper:
+    image: ${DJCONNECT_VERIFICATION_WHISPER_IMAGE:-rhasspy/wyoming-whisper:latest}
+    container_name: ${DJCONNECT_VERIFICATION_WHISPER_CONTAINER:-djconnect-verification-whisper}
+    labels:
+      djconnect.verification: "true"
+      djconnect.lab.service: "whisper"
+    ports:
+      - "${DJCONNECT_VERIFICATION_WHISPER_PORT:-18131}:10300"
+    networks:
+      - djconnect-verification
+    restart: "no"

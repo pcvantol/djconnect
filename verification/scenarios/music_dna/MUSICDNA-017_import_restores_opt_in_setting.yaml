@@ -18,6 +18,34 @@ required_profiles: [personal_profile, household_profile]
 required_backends: [Spotify Direct]
 required_devices: []
 required_environment: [configured_ha_instance]
+requires:
+  capabilities:
+    - djconnect.capabilities
+    - djconnect.loaded
+    - djconnect.music_dna
+    - djconnect.profile_platform
+    - evidence.storage
+    - ha.access_token
+    - ha.logs
+    - ha.persistence
+    - ha.rest
+    - ha.runtime
+    - ha.services
+    - ha.storage
+    - ha.websocket
+  services:
+    - homeassistant
+  integrations:
+    - djconnect
+  bootstrap:
+    - djconnect.loaded
+    - ha.auth
+  resources:
+    network: local
+    persistent_storage: true
+  secrets:
+    - ha.access_token
+  persistence: persistent
 preconditions:
   - The verification environment contains the components required for import restores opt-in setting.
   - Scenario fixture data is isolated from real user data or explicitly approved for test use.

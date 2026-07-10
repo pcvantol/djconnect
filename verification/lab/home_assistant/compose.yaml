@@ -14,8 +14,17 @@ services:
       - "${DJCONNECT_VERIFICATION_HA_PORT:-18123}:8123"
     volumes:
       - ${DJCONNECT_VERIFICATION_LAB_ROOT:-./.runtime}/config:/config
-      - ${DJCONNECT_VERIFICATION_REPO_ROOT:-../..}/custom_components/djconnect:/config/custom_components/djconnect:ro
+      - ${DJCONNECT_VERIFICATION_REPO_ROOT:-../..}/custom_components/djconnect:/djconnect-source:ro
     environment:
       TZ: ${TZ:-UTC}
       DJCONNECT_VERIFICATION_LAB: "true"
+    entrypoint:
+      - /bin/sh
+    command:
+      - -c
+      - |
+        rm -rf /config/custom_components/djconnect
+        mkdir -p /config/custom_components
+        cp -a /djconnect-source /config/custom_components/djconnect
+        exec /init
     restart: "no"

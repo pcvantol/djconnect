@@ -19,6 +19,7 @@
     "supported_platforms",
     "required_locales",
     "required_build_types",
+    "requires",
     "preconditions",
     "setup",
     "steps",
@@ -74,6 +75,34 @@
     "required_backends": { "type": "array", "items": { "type": "string" } },
     "required_devices": { "type": "array", "items": { "type": "string" } },
     "required_environment": { "type": "array", "items": { "type": "string" } },
+    "requires": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capabilities"],
+      "properties": {
+        "capabilities": { "$ref": "#/$defs/string_list" },
+        "optional_capabilities": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+        "services": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+        "integrations": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+        "bootstrap": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+        "resources": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "network": { "type": "string", "enum": ["local", "internet", "offline", "mixed", "not_applicable"] },
+            "persistent_storage": { "type": "boolean" },
+            "exclusive": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+            "external": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+            "virtual": { "type": "array", "uniqueItems": true, "items": { "type": "string" } }
+          }
+        },
+        "hardware": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+        "secrets": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+        "persistence": { "type": "string", "enum": ["none", "ephemeral", "persistent"] },
+        "exclusive_resources": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+        "unresolved": { "type": "array", "uniqueItems": true, "items": { "type": "string" } }
+      }
+    },
     "preconditions": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/text_item" } },
     "setup": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/text_item" } },
     "steps": {

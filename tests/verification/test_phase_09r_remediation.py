@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -130,7 +131,7 @@ def _inspect_payload(root: Path) -> dict:
         "Image": "sha256:image",
         "Config": {
             "Image": "ghcr.io/home-assistant/home-assistant:stable",
-            "Labels": {"djconnect.verification": "true"},
+            "Labels": {"djconnect.verification": "true", "djconnect.source_sha": _git_sha(root)},
             "Env": ["TOKEN=secret", "SAFE=value"],
         },
         "State": {"Status": "running", "StartedAt": "2026-07-10T00:01:00Z", "Health": {"Status": "healthy"}},
@@ -138,6 +139,10 @@ def _inspect_payload(root: Path) -> dict:
         "NetworkSettings": {"Ports": {"8123/tcp": [{"HostIp": "0.0.0.0", "HostPort": "8123"}]}},
         "Mounts": [{"Source": str(root), "Destination": "/config/custom_components/djconnect", "Type": "bind"}],
     }
+
+
+def _git_sha(root: Path) -> str:
+    return subprocess.check_output(("git", "rev-parse", "HEAD"), cwd=root, text=True).strip()
 
 
 if __name__ == "__main__":
