@@ -1,6 +1,6 @@
 """Execution orchestration."""
 
-from .executor import ScenarioExecutor
+from .executor import ParallelExecutionOptions, ScenarioExecutor
 from .results import ResultAggregator
 
-__all__ = ["ResultAggregator", "ScenarioExecutor"]
+__all__ = ["ParallelExecutionOptions", "ResultAggregator", "ScenarioExecutor"]

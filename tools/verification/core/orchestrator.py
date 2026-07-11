@@ -7,7 +7,7 @@ from dataclasses import asdict
 from tools.verification.adapters import AdapterRegistry
 from tools.verification.build import BuildQualification
 from tools.verification.environment import EnvironmentSnapshotter, VerificationExecutionEnvironment
-from tools.verification.execution import ResultAggregator, ScenarioExecutor
+from tools.verification.execution import ParallelExecutionOptions, ResultAggregator, ScenarioExecutor
 from tools.verification.evidence import RunStore
 from tools.verification.hygiene import RepositoryHygiene
 from tools.verification.models import HarnessConfig, Scenario
@@ -22,7 +22,14 @@ class VerificationCore:
         self.builds = BuildQualification()
         self.environment = EnvironmentSnapshotter()
         self.execution_environment = VerificationExecutionEnvironment(config)
-        self.executor = ScenarioExecutor(self.adapters)
+        self.executor = ScenarioExecutor(
+            self.adapters,
+            parallel=ParallelExecutionOptions(
+                enabled=config.parallel_execution,
+                max_workers=config.parallel_workers,
+                sandbox_root=config.root / "artifacts" / "verification" / "sandboxes",
+            ),
+        )
         self.results = ResultAggregator()
         self.run_store = RunStore(config.evidence_dir)
 
@@ -71,6 +78,11 @@ class VerificationCore:
                     "case_count": plan.coverage.case_count,
                     "batches": len(plan.batches),
                     "estimated_seconds": plan.estimated_seconds,
+                },
+                "parallel_execution": {
+                    "enabled": self.config.parallel_execution,
+                    "workers": self.config.parallel_workers,
+                    "sandbox_root": str(self.config.root / "artifacts" / "verification" / "sandboxes"),
                 },
             },
         )

@@ -25,6 +25,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--ci", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--test-mode", choices=("stable", "future_beta"), default=None)
+    parser.add_argument("--parallel", action="store_true")
+    parser.add_argument("--workers", type=int, default=None)
     parser.add_argument("--ha-adapter", action="store_true")
 
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -86,7 +88,7 @@ def main(argv: list[str] | None = None) -> int:
         secrets_file=args.secrets_file,
         ci=args.ci,
         dry_run=args.dry_run,
-        overrides={"test_mode": args.test_mode} if args.test_mode else None,
+        overrides=_cli_overrides(args),
     )
     loader = ScenarioLoader(config)
     scenarios = loader.load()
@@ -284,6 +286,8 @@ def main(argv: list[str] | None = None) -> int:
                     "report_dir": str(config.report_dir),
                     "ci": config.ci,
                     "test_mode": config.test_mode,
+                    "parallel_execution": config.parallel_execution,
+                    "parallel_workers": config.parallel_workers,
                     "secrets": {"source": secrets.source, "names": list(secrets.names)},
                 },
                 indent=2,
@@ -304,6 +308,17 @@ def _add_filters(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--locale", action="append", default=[])
     parser.add_argument("--automation-level", action="append", default=[])
     parser.add_argument("--build-type", action="append", default=[])
+
+
+def _cli_overrides(args: argparse.Namespace) -> dict[str, str] | None:
+    overrides: dict[str, str] = {}
+    if args.test_mode:
+        overrides["test_mode"] = args.test_mode
+    if args.parallel:
+        overrides["parallel_execution"] = "true"
+    if args.workers is not None:
+        overrides["parallel_workers"] = str(args.workers)
+    return overrides or None
 
 
 def _select(args: argparse.Namespace, scenarios):

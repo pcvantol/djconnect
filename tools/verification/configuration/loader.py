@@ -45,6 +45,8 @@ def load_config(
         ci=ci or _truthy(merged.get("ci")),
         dry_run=dry_run,
         test_mode=str(merged.get("test_mode") or "stable"),
+        parallel_execution=_truthy(merged.get("parallel_execution")),
+        parallel_workers=_bounded_workers(merged.get("parallel_workers"), parallel_enabled=_truthy(merged.get("parallel_execution"))),
         overrides=overrides or {},
     )
 
@@ -62,6 +64,10 @@ def _env_config() -> dict[str, Any]:
         data["ci"] = value
     if value := os.getenv(prefix + "TEST_MODE"):
         data["test_mode"] = value
+    if value := os.getenv(prefix + "PARALLEL"):
+        data["parallel_execution"] = value
+    if value := os.getenv(prefix + "PARALLEL_WORKERS"):
+        data["parallel_workers"] = value
     return data
 
 
@@ -77,3 +83,11 @@ def _resolve(root: Path, path: Path) -> Path:
 
 def _truthy(value: Any) -> bool:
     return str(value).lower() in {"1", "true", "yes", "on"}
+
+
+def _bounded_workers(value: Any, *, parallel_enabled: bool = False) -> int:
+    try:
+        workers = int(value)
+    except (TypeError, ValueError):
+        return min(max((os.cpu_count() or 8) - 2, 2), 16) if parallel_enabled else 1
+    return max(1, min(workers, 32))

@@ -14,7 +14,7 @@ Scoring scale:
 | Area | Score | Deduction |
 | --- | ---: | --- |
 | Planning Engine | 4 | Correctly generated the five-case smoke plan and selected `ha-profile`; minor deduction because `PROFILE-002` still carries future rich-client resources into an HA-only plan as external requirements. |
-| Execution Environment | 4 | Exact-SHA CI, Docker runtime discovery, dependency inspection, cleanup planning and lab qualification passed; minor deduction because live runs still require approved local Docker access. |
+| Execution Environment | 4 | Exact-SHA CI, Docker runtime discovery, dependency inspection, cleanup planning, lab qualification and opt-in sandboxed parallel scenario waves are implemented; minor deduction because live runs still require approved local Docker access. |
 | Home Assistant Adapter | 4 | Live REST/WebSocket/runtime/storage/log primitives executed across 195 Home Assistant backend and backend assertion-path scenarios; deeper product assertions remain scenario-driven future work. |
 | Verification Core | 4 | Aggregated qualified runs, expanded HA backend mappings and preserved primitive diagnostics in summaries; minor deduction because successful primitive timing is still coarse. |
 | Evidence Pipeline | 4 | Persisted immutable run evidence with environment, qualification, plan, scenario result files and summary-level diagnostics; richer request/response transcripts remain future adapter evidence work. |
@@ -23,7 +23,7 @@ Scoring scale:
 | Repository Hygiene | 5 | Branch, SHA and working tree state were known before execution. |
 | Build Qualification | 4 | Runtime/build metadata and lab image identity were captured; no production artifact signing was in Phase 9V scope. |
 | GitHub CI | 5 | Exact-SHA CI inspected two successful GitHub Actions runs for the tested SHA. |
-| Dogfooding Coverage | 4 | `tests/verification` passed 69 tests and catalog validation covered 231 scenarios; live Docker tests remain opt-in. |
+| Dogfooding Coverage | 4 | `tests/verification` passed 105 tests and catalog validation covered 231 scenarios; live Docker tests remain opt-in. |
 | Home Assistant Backend Coverage | 4 | Phase 9E-R executed and qualified 195 HA backend or separable HA backend assertion-path scenarios; 28 client/hardware/release/voice-localization scenarios remain correctly deferred. |
 | Apple Adapter | 3 | Thin Apple adapter primitives, Scenario Engine selection and Execution Environment simulator metadata are implemented and mock-tested; Phase 10E-R qualified an older selected iOS simulator runtime, but the stricter latest-runtime gate is blocked by the iOS 27.0 integrated XCTest healthcheck timeout. |
 | Overall | 4 | The platform is qualified for the next adapter phase with non-blocking framework improvements tracked. |
@@ -56,3 +56,12 @@ maintenance and target freshness enforcement; Phase 10E-R2 passed toolchain
 maintenance with Xcode 26.6 and iOS 27.0 available, but the full latest-runtime
 gate is blocked by the integrated XCTest UI healthcheck timeout. Continue
 Phase 10E-R2 before Phase 10E retry or Phase 11.
+
+Parallel execution is now opt-in for workstation runs through
+`DJCONNECT_VERIFICATION_PARALLEL=1`, `DJCONNECT_VERIFICATION_PARALLEL_WORKERS`
+or CLI flags `--parallel --workers <n>`. When enabled without an explicit worker
+count, the harness uses CPU count minus two, bounded between two and sixteen
+workers, so a 64 GB Apple Silicon workstation can run independent scenario
+waves aggressively while keeping headroom for Xcode, simulators, Docker and
+Home Assistant. Dependencies and declared exclusive resources remain fail-closed
+gates before scenarios share a wave.

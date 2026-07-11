@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -14,8 +15,9 @@ from tools.verification.config import load_config
 from tools.verification.configuration import SecretLoader
 from tools.verification.environment import EnvironmentSnapshotter
 from tools.verification.evidence import EvidenceCollector, LogManager
+from tools.verification.execution import ParallelExecutionOptions, ScenarioExecutor
 from tools.verification.hygiene import RepositoryHygiene
-from tools.verification.models import ArtifactMetadata, EvidenceKind, GateState, ResultState, ScenarioResult
+from tools.verification.models import ArtifactMetadata, EvidenceKind, GateState, PrimitiveResult, ResultState, Scenario, ScenarioResult
 from tools.verification.reporting import JSONReporter, JUnitReporter, PlatformReadinessCalculator
 from tools.verification.results import ResultManager
 from tools.verification.scenario import ScenarioEngine
@@ -114,6 +116,13 @@ class VerificationCoreImplementationTests(unittest.TestCase):
         self.assertEqual("schema", parser.parse_args(["schema"]).command)
         self.assertEqual("config", parser.parse_args(["config"]).command)
 
+    def test_cli_parses_parallel_execution_controls(self) -> None:
+        parser = build_parser()
+        args = parser.parse_args(["--parallel", "--workers", "12", "execute"])
+
+        self.assertTrue(args.parallel)
+        self.assertEqual(12, args.workers)
+
     def test_cli_validate_catalog_and_report_json(self) -> None:
         root = Path(__file__).resolve().parents[2]
 
@@ -149,6 +158,151 @@ class VerificationCoreImplementationTests(unittest.TestCase):
         self.assertEqual({"mode": "NONE", "max_attempts": 1}, plan.retry_policy)
         self.assertEqual(10, plan.timeouts["execution_seconds"])
 
+    def test_parallel_executor_runs_independent_scenarios_in_sandboxed_workers(self) -> None:
+        registry = AdapterRegistry()
+        registry.register(_SleepyAdapter(delay=0.01))
+        scenarios = [
+            _ha_scenario("PAR-001"),
+            _ha_scenario("PAR-002"),
+        ]
+
+        started = time.time()
+        results = ScenarioExecutor(
+            registry,
+            parallel=ParallelExecutionOptions(enabled=True, max_workers=2),
+        ).execute(scenarios)
+
+        self.assertLess(time.time() - started, 0.08)
+        self.assertEqual(["PAR-001", "PAR-002"], [result.scenario_id for result in results])
+        self.assertTrue(all(result.state == ResultState.PASS for result in results))
+        self.assertTrue(all("sandbox" in result.diagnostics for result in results))
+        self.assertEqual({"PAR-001", "PAR-002"}, set(results[0].diagnostics["parallel_wave"]["wave_scenario_ids"]))
+
+    def test_parallel_executor_respects_dependencies_between_scenarios(self) -> None:
+        registry = AdapterRegistry()
+        registry.register(_SleepyAdapter(delay=0.0))
+        scenarios = [
+            _ha_scenario("PAR-A"),
+            _ha_scenario("PAR-B", depends_on=["PAR-A"]),
+        ]
+
+        results = ScenarioExecutor(
+            registry,
+            parallel=ParallelExecutionOptions(enabled=True, max_workers=2),
+        ).execute(scenarios)
+
+        self.assertEqual(["PAR-A"], results[0].diagnostics["parallel_wave"]["wave_scenario_ids"])
+        self.assertEqual(["PAR-B"], results[1].diagnostics["parallel_wave"]["wave_scenario_ids"])
+
+    def test_parallel_executor_separates_exclusive_resource_conflicts(self) -> None:
+        registry = AdapterRegistry()
+        registry.register(_SleepyAdapter(delay=0.0))
+        scenarios = [
+            _ha_scenario("PAR-R1", exclusive=["shared-ha-storage"]),
+            _ha_scenario("PAR-R2", exclusive=["shared-ha-storage"]),
+        ]
+
+        results = ScenarioExecutor(
+            registry,
+            parallel=ParallelExecutionOptions(enabled=True, max_workers=2),
+        ).execute(scenarios)
+
+        self.assertEqual(["PAR-R1"], results[0].diagnostics["parallel_wave"]["wave_scenario_ids"])
+        self.assertEqual(["PAR-R2"], results[1].diagnostics["parallel_wave"]["wave_scenario_ids"])
+
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class _SleepyAdapter(VerificationAdapter):
+    name = "home_assistant"
+
+    def __init__(self, *, delay: float) -> None:
+        self.delay = delay
+
+    def initialize(self) -> None:
+        return None
+
+    def shutdown(self) -> None:
+        return None
+
+    def health(self) -> dict:
+        return {"ok": True}
+
+    def prepare_environment(self) -> None:
+        return None
+
+    def launch(self, target: str | None = None) -> PrimitiveResult:
+        return PrimitiveResult("launch", True)
+
+    def stop(self) -> PrimitiveResult:
+        return PrimitiveResult("stop", True)
+
+    def restart(self) -> PrimitiveResult:
+        return PrimitiveResult("restart", True)
+
+    def click(self, target: str, **kwargs) -> PrimitiveResult:
+        return PrimitiveResult("click", True)
+
+    def type(self, text: str, **kwargs) -> PrimitiveResult:
+        return PrimitiveResult("type", True)
+
+    def execute_service(self, name: str, payload: dict | None = None) -> PrimitiveResult:
+        return PrimitiveResult("service", True)
+
+    def execute_rest(self, method: str, path: str, payload: dict | None = None, headers: dict | None = None) -> PrimitiveResult:
+        return PrimitiveResult("http_request", True)
+
+    def execute_websocket(self, message: dict) -> PrimitiveResult:
+        return PrimitiveResult("websocket", True)
+
+    def execute_action(self, action) -> PrimitiveResult:
+        time.sleep(self.delay)
+        return PrimitiveResult(action.name, True, {"duration_seconds": self.delay})
+
+    def cleanup(self) -> None:
+        return None
+
+    def collect_logs(self) -> tuple:
+        return ()
+
+    def collect_artifacts(self) -> tuple:
+        return ()
+
+    def capture_screenshot(self, name: str | None = None) -> PrimitiveResult:
+        return PrimitiveResult("screenshot", True)
+
+    def capture_serial(self) -> tuple:
+        return ()
+
+    def collect_environment(self):
+        return {}
+
+    def collect_artifact_metadata(self) -> tuple:
+        return ()
+
+    def reset(self) -> None:
+        return None
+
+
+def _ha_scenario(scenario_id: str, *, depends_on: list[str] | None = None, exclusive: list[str] | None = None) -> Scenario:
+    raw = {
+        "supported_platforms": ["Home Assistant"],
+        "requires": {"capabilities": ["ha.runtime"]},
+    }
+    if depends_on:
+        raw["depends_on"] = depends_on
+    if exclusive:
+        raw["requires"]["exclusive_resources"] = exclusive
+    return Scenario(
+        id=scenario_id,
+        title=scenario_id,
+        description=scenario_id,
+        category="Profiles",
+        priority="P1",
+        verification_level="V4",
+        automation_level="automated",
+        required_components=("HA",),
+        raw=raw,
+    )

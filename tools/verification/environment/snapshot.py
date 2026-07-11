@@ -23,6 +23,8 @@ class EnvironmentSnapshotter:
             "scenario_paths": [str(path) for path in config.scenario_paths],
             "ci": config.ci,
             "test_mode": config.test_mode,
+            "parallel_execution": config.parallel_execution,
+            "parallel_workers": config.parallel_workers,
             "overrides": sorted(config.overrides),
         }
         fingerprint = hashlib.sha256(
