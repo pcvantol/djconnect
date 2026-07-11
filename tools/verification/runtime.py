@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 RUNTIME_NAME = "djconnect-verification-platform"
-RUNTIME_VERSION = "0.2.0"
+RUNTIME_VERSION = "1.0.0"
 RUNTIME_SCHEMA_VERSION = 1
 
 

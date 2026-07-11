@@ -69,7 +69,7 @@ declared exclusive resources remain fail-closed gates before scenarios share a
 wave.
 
 Verification Platform runtime release packaging is now available as a generic
-Docker image path for runtime version `0.2.0`. The image is intentionally
+Docker image path for runtime version `1.0.0`. The image is intentionally
 engine-only: DJConnect scenario catalogs, product checkouts, Home Assistant lab
 state, Apple artifacts, secrets and evidence are supplied externally at run
 time.

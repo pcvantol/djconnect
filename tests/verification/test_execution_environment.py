@@ -288,10 +288,10 @@ class ExecutionEnvironmentTests(unittest.TestCase):
 
         text = output.getvalue()
         self.assertIn("docker build", text)
-        self.assertIn("VERIFICATION_RUNTIME_VERSION=0.2.0", text)
+        self.assertIn("VERIFICATION_RUNTIME_VERSION=1.0.0", text)
         self.assertIn("RELEASE_SHA=abcdef1234567890", text)
-        self.assertIn("example/verification-platform:0.2.0", text)
-        self.assertIn("example/verification-platform:0.2.0-abcdef123456", text)
+        self.assertIn("example/verification-platform:1.0.0", text)
+        self.assertIn("example/verification-platform:1.0.0-abcdef123456", text)
 
     def test_verification_platform_dockerfile_excludes_repository_scenarios(self) -> None:
         root = Path(__file__).resolve().parents[2]

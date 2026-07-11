@@ -28,7 +28,7 @@ Modes, Policies, Planning Engine, Home Assistant Verification Adapter and
 dedicated local Home Assistant verification lab exist.
 
 The Verification Platform runtime is versioned and releaseable as a generic
-Docker image. Current runtime version: `0.2.0`. Runtime identity is captured in
+Docker image. Current runtime version: `1.0.0`. Runtime identity is captured in
 environment snapshots, run metadata and reports under `verification_runtime`.
 Execution summaries include total execution time and scenario status counts.
 The Docker runtime image contains only reusable engine components; scenario

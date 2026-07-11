@@ -5,7 +5,7 @@ Date opened: 2026-07-10
 Scope owner: `pcvantol/djconnect`  
 Platform baseline: `PLATFORM_BASELINE_v1.md`  
 Epic gate: Epic 4 must not begin until `VERIFICATION_REPORT.md` reaches GO.
-Verification runtime: `djconnect-verification-platform` `0.2.0`
+Verification runtime: `djconnect-verification-platform` `1.0.0`
 
 ## Purpose
 

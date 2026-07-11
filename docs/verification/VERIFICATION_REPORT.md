@@ -45,7 +45,7 @@ Future updates to this report must include:
 | Field | Value |
 | --- | --- |
 | Verification runtime | `djconnect-verification-platform` |
-| Runtime version | `0.2.0` or newer |
+| Runtime version | `1.0.0` or newer |
 | Runtime schema version | Recorded from run metadata |
 | Parallel execution | Recorded from run metadata |
 | Worker count | Recorded from run metadata |

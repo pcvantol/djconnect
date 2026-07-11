@@ -5,7 +5,7 @@ Scope owner: `pcvantol/djconnect`
 Builds on: `docs/verification/00_VERIFICATION_VISION.md`,
 `docs/verification/01_VERIFICATION_ARCHITECTURE.md` and
 `docs/verification/02_SCENARIO_SCHEMA.md`
-Runtime version: `0.2.0`
+Runtime version: `1.0.0`
 
 Clean verification sessions should start with
 `BOOTSTRAP_CODEX_VERIFICATION.md` and `PROMPT_INDEX.md`.
@@ -156,7 +156,7 @@ python -m tools.verification.cli docker release \
   --image ghcr.io/pcvantol/djconnect-verification-platform \
   --release-sha "$(git rev-parse HEAD)"
 
-docker run --rm ghcr.io/pcvantol/djconnect-verification-platform:0.2.0 config
+docker run --rm ghcr.io/pcvantol/djconnect-verification-platform:1.0.0 config
 ```
 
 Published Verification Platform releases are authoritative. When verification
@@ -275,13 +275,13 @@ the image with:
 - `<runtime-version>-<short-release-sha>`
 - `sha-<short-release-sha>`
 
-For the current runtime this means tags such as `0.2.0`,
-`0.2.0-<short-sha>` and `sha-<short-sha>`.
+For the current runtime this means tags such as `1.0.0`,
+`1.0.0-<short-sha>` and `sha-<short-sha>`.
 
 Smoke test an image with:
 
 ```bash
-docker run --rm ghcr.io/pcvantol/djconnect-verification-platform:0.2.0 config
+docker run --rm ghcr.io/pcvantol/djconnect-verification-platform:1.0.0 config
 ```
 
 Run repository scenarios by mounting a checkout and invoking the runtime from
@@ -292,7 +292,7 @@ released image:
 docker run --rm \
   -v "$PWD:/workspace:ro" \
   -v "$PWD/artifacts/verification:/artifacts/verification" \
-  ghcr.io/pcvantol/djconnect-verification-platform:0.2.0 \
+  ghcr.io/pcvantol/djconnect-verification-platform:1.0.0 \
   --config /workspace/verification-config.json validate
 ```
 
@@ -306,8 +306,8 @@ Consumers must pull the latest published stable Verification Platform image
 from Docker Hub before running Docker-based verification:
 
 ```bash
-docker pull pcvantol/djconnect:0.2.0
-docker run --rm pcvantol/djconnect:0.2.0 config
+docker pull pcvantol/djconnect:1.0.0
+docker run --rm pcvantol/djconnect:1.0.0 config
 ```
 
 Do not silently fall back to a stale local image or ad hoc local build. If the

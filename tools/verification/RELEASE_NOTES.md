@@ -11,7 +11,7 @@ capabilities. Product scenarios, DJConnect feature changes, Home Assistant
 integration changes and client/firmware changes belong in their owning release
 notes.
 
-## 0.2.0 - 2026-07-11
+## 1.0.0 - 2026-07-11
 
 Runtime name: `djconnect-verification-platform`  
 Runtime schema version: `1`
@@ -36,7 +36,7 @@ Runtime schema version: `1`
 - Regular repository CI now runs the Verification Platform unit test suite
   `tests/verification` as its own check.
 - Default Docker Hub publish target documented as `pcvantol/djconnect` with
-  runtime tags `0.2.0`, `0.2.0-<short-sha>` and `sha-<short-sha>`.
+  runtime tags `1.0.0`, `1.0.0-<short-sha>` and `sha-<short-sha>`.
 - Stable versus `future_beta` runtime channel separation for Apple/Xcode and
   Home Assistant beta verification evidence.
 - Installation documentation for local checkout, Docker runtime and GitHub
@@ -65,9 +65,9 @@ Runtime schema version: `1`
 
 - `python3 -m pytest tests/verification` passed with 115 tests.
 - Docker release dry-runs produced the expected runtime tags:
-  `0.2.0`, `0.2.0-<short-sha>` and `sha-<short-sha>`.
+  `1.0.0`, `1.0.0-<short-sha>` and `sha-<short-sha>`.
 - Runtime config reports `parallel_execution: true`, stable test mode and
-  `verification_runtime.version: "0.2.0"`.
+  `verification_runtime.version: "1.0.0"`.
 - GitHub workflow structure is covered by `tests/verification` to keep image
   label inspection and `docker run ... config` smoke testing before publication.
 - The repository validation workflow includes a dedicated Verification

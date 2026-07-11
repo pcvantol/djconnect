@@ -281,7 +281,7 @@ Typical use with a checked-out project mounted as `/workspace`:
 ```bash
 docker run --rm \
   -v "$PWD:/workspace" \
-  ghcr.io/pcvantol/djconnect-verification-platform:0.2.0 \
+  ghcr.io/pcvantol/djconnect-verification-platform:1.0.0 \
   --root /workspace config
 ```
 
