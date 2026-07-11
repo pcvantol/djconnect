@@ -30,6 +30,9 @@ Runtime schema version: `1`
   base image and license metadata.
 - GitHub Actions runner positioning for hosted non-mutating verification jobs
   and capability-gated self-hosted runner jobs.
+- GitHub Actions workflow for publishing the generic runtime image to Docker
+  Hub using repository Docker Hub secrets, with pre-publication image label
+  inspection and container smoke testing.
 - Stable versus `future_beta` runtime channel separation for Apple/Xcode and
   Home Assistant beta verification evidence.
 - Installation documentation for local checkout, Docker runtime and GitHub

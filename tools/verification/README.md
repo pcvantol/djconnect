@@ -135,6 +135,19 @@ Assistant Docker labs, Apple simulators, hardware, SSH/serial, signing material
 or destructive cleanup. Those jobs must advertise and gate on their required
 capabilities before execution.
 
+The repository workflow `.github/workflows/verification-platform-docker-release.yml`
+publishes the generic runtime image to Docker Hub. It requires these repository
+secrets:
+
+- `DOCKERHUB_USERNAME`
+- `DOCKERHUB_TOKEN`
+
+The workflow can be started manually with `workflow_dispatch` or by pushing a
+tag named `verification-platform-v<version>`. It runs `tests/verification`,
+checks the Docker release command with `--dry-run`, builds the image, verifies
+OCI labels, smoke-tests `docker run ... config`, then publishes the verified
+runtime tags to the configured image repository.
+
 ## CLI
 
 Run with Python while the command is a local scaffold:

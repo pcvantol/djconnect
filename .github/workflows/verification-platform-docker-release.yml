@@ -1,0 +1,154 @@
+name: Verification Platform Docker Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: Docker image repository to publish.
+        required: true
+        default: pcvantol/djconnect
+      release_sha:
+        description: Release SHA to record in image labels and immutable tags. Defaults to the checked-out SHA.
+        required: false
+        default: ""
+      push:
+        description: Push image tags to Docker Hub.
+        required: true
+        type: boolean
+        default: true
+  push:
+    tags:
+      - "verification-platform-v*"
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Build and publish verification runtime
+    runs-on: ubuntu-latest
+    env:
+      DEFAULT_IMAGE: pcvantol/djconnect
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install PyYAML==6.0.2 pytest
+
+      - name: Run verification framework tests
+        run: python -m pytest tests/verification
+
+      - name: Resolve release parameters
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          image="${{ inputs.image || env.DEFAULT_IMAGE }}"
+          release_sha="${{ inputs.release_sha }}"
+          runtime_version="$(python - <<'PY'
+          from tools.verification.runtime import RUNTIME_VERSION
+          print(RUNTIME_VERSION)
+          PY
+          )"
+
+          if [ -z "${release_sha}" ]; then
+            release_sha="${GITHUB_SHA}"
+          fi
+
+          short_sha="${release_sha:0:12}"
+
+          echo "image=${image}" >> "${GITHUB_OUTPUT}"
+          echo "release_sha=${release_sha}" >> "${GITHUB_OUTPUT}"
+          echo "short_sha=${short_sha}" >> "${GITHUB_OUTPUT}"
+          echo "runtime_version=${runtime_version}" >> "${GITHUB_OUTPUT}"
+          echo "tag_version=${image}:${runtime_version}" >> "${GITHUB_OUTPUT}"
+          echo "tag_version_sha=${image}:${runtime_version}-${short_sha}" >> "${GITHUB_OUTPUT}"
+          echo "tag_sha=${image}:sha-${short_sha}" >> "${GITHUB_OUTPUT}"
+
+      - name: Verify Docker release command
+        run: |
+          python -m tools.verification.cli docker release \
+            --image "${{ steps.release.outputs.image }}" \
+            --release-sha "${{ steps.release.outputs.release_sha }}" \
+            --dry-run
+
+      - name: Build Docker image
+        run: |
+          python -m tools.verification.cli docker release \
+            --image "${{ steps.release.outputs.image }}" \
+            --release-sha "${{ steps.release.outputs.release_sha }}"
+
+      - name: Inspect Docker image labels
+        run: |
+          set -euo pipefail
+
+          docker image inspect "${{ steps.release.outputs.tag_version }}" \
+            --format '{{json .Config.Labels}}' > /tmp/verification-platform-labels.json
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          labels = json.loads(Path("/tmp/verification-platform-labels.json").read_text())
+          expected = {
+              "org.opencontainers.image.title": "DJConnect Verification Platform Runtime",
+              "org.opencontainers.image.version": "${{ steps.release.outputs.runtime_version }}",
+              "org.opencontainers.image.revision": "${{ steps.release.outputs.release_sha }}",
+              "org.opencontainers.image.base.name": "python:3.12-slim",
+              "org.opencontainers.image.licenses": "MIT",
+          }
+          missing = {
+              key: value
+              for key, value in expected.items()
+              if labels.get(key) != value
+          }
+          if missing:
+              raise SystemExit(f"Unexpected verification runtime image labels: {missing}")
+          PY
+
+      - name: Smoke test Docker image
+        run: |
+          set -euo pipefail
+
+          docker run --rm "${{ steps.release.outputs.tag_version }}" config \
+            > /tmp/verification-platform-config.json
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          config = json.loads(Path("/tmp/verification-platform-config.json").read_text())
+          runtime = config.get("verification_runtime", {})
+          expected_version = "${{ steps.release.outputs.runtime_version }}"
+          if runtime.get("name") != "djconnect-verification-platform":
+              raise SystemExit(f"Unexpected runtime name: {runtime!r}")
+          if runtime.get("version") != expected_version:
+              raise SystemExit(f"Unexpected runtime version: {runtime!r}")
+          if runtime.get("schema_version") != 1:
+              raise SystemExit(f"Unexpected runtime schema version: {runtime!r}")
+          if config.get("parallel_execution") is not True:
+              raise SystemExit("Expected parallel_execution to be true")
+          if config.get("test_mode") != "stable":
+              raise SystemExit(f"Unexpected test_mode: {config.get('test_mode')!r}")
+          PY
+
+      - name: Log in to Docker Hub
+        if: ${{ github.event_name == 'push' || inputs.push }}
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push verified Docker image tags
+        if: ${{ github.event_name == 'push' || inputs.push }}
+        run: |
+          docker push "${{ steps.release.outputs.tag_version }}"
+          docker push "${{ steps.release.outputs.tag_version_sha }}"
+          docker push "${{ steps.release.outputs.tag_sha }}"
