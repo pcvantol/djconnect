@@ -20,8 +20,10 @@ APPLE_RUNTIME_QUALIFIED
 
 Later in the same branch, the operator tightened the Apple prerequisite:
 verification must always check the current Xcode/iOS simulator platform and use
-the latest locally available iOS simulator runtime. That stricter requirement
-supersedes this report as the active Apple runtime gate. See:
+the latest eligible iOS simulator runtime for the active verification mode.
+Stable mode excludes beta runtimes such as iOS 27.0 on 2026-07-11; future/beta
+verification is explicitly separated through `future_beta`. That stricter
+requirement supersedes this report as the active Apple runtime gate. See:
 
 ```text
 docs/verification/reports/PHASE_10E_R2_APPLE_LATEST_RUNTIME_QUALIFICATION.md

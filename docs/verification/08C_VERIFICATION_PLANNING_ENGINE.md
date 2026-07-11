@@ -295,8 +295,9 @@ Plans identify required resources:
 - Home Assistant development environment;
 - build artifacts.
 
-Exclusive resources such as serial ports, a Pi, an ESP32 board or a physical
-watch are marked so future schedulers can avoid unsafe parallelism.
+Exclusive resources such as serial ports, a Pi, an ESP32 board, shared
+persistent storage or a physical watch are marked so the execution scheduler
+can avoid unsafe parallelism.
 
 ## Parallel Execution
 
@@ -309,6 +310,12 @@ The planner supports:
 Batching respects dependencies and resource exclusivity. Hardware policies use
 limited or sequential batching; CI-friendly policies may use safe parallel
 batches.
+
+The execution engine runs independent scenarios in parallel by default. It
+forms waves from scenarios whose `depends_on` or `dependencies` are satisfied,
+then excludes scenarios that share `requires.exclusive_resources` from the same
+wave. Operators can force sequential execution with `--no-parallel` or
+`DJCONNECT_VERIFICATION_PARALLEL=0`.
 
 ## Retry Planning
 

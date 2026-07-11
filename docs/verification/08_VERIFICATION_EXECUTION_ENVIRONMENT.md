@@ -71,6 +71,9 @@ The existing CLI namespace now includes:
 ```bash
 python -m tools.verification.cli prepare
 python -m tools.verification.cli restore
+python -m tools.verification.cli config
+python -m tools.verification.cli apple ensure-ios-runtime
+python -m tools.verification.cli apple qualify-runtime
 ```
 
 This is not a HA-specific or adapter-specific CLI.
@@ -125,6 +128,27 @@ Preparation produces a structured metadata bundle:
 Restore uses cleanup planning. It defaults to dry-run mode and blocks
 destructive cleanup unless `allow_destructive` is explicitly true.
 
+Scenario execution is parallel by default. The execution engine groups ready
+scenarios into sandboxed waves, preserves result order, records wave/sandbox
+diagnostics and blocks unsafe concurrency when dependencies or exclusive
+resources require sequencing.
+
+Default worker count is derived dynamically from host CPU capacity. On Apple
+Silicon, the loader reads performance and efficiency core counts through
+`sysctl` and bounds the worker count by logical CPU capacity. When that metadata
+is unavailable, it falls back to logical CPU count with local headroom. Operators
+can override or disable this behavior:
+
+```bash
+python -m tools.verification.cli --workers 12 execute
+python -m tools.verification.cli --no-parallel execute
+```
+
+```text
+DJCONNECT_VERIFICATION_PARALLEL_WORKERS=12
+DJCONNECT_VERIFICATION_PARALLEL=0
+```
+
 ## Supported Environment Surfaces
 
 The current execution environment can inspect or scaffold control for:
@@ -142,6 +166,12 @@ The current execution environment can inspect or scaffold control for:
 - future Docker/Linux/cloud runner extension points.
 
 Platform-specific behavior remains for future adapters.
+
+Apple runtime qualification distinguishes stable and future/beta evidence.
+Stable mode is the default and uses the latest eligible stable iOS simulator
+runtime. Future/beta validation requires `DJCONNECT_VERIFICATION_TEST_MODE` set
+to `future_beta`; Xcode beta and Home Assistant beta routes are isolated from
+stable release qualification evidence.
 
 ## Repository Hygiene
 
@@ -211,7 +241,8 @@ localization or Music DNA assertions.
 
 Snapshots capture date/time/timezone, host, OS, architecture, toolchain paths,
 toolchain capability state, DJConnect integration manifest version,
-requirements/dependencies, Git SHA, branch and configuration fingerprint.
+requirements/dependencies, Git SHA, branch, parallel execution settings and
+configuration fingerprint.
 
 The snapshot model is reusable by every adapter.
 
@@ -271,16 +302,17 @@ Security rules:
 
 Unit and mock tests cover run identity, toolchain discovery, dependency
 inspection, GitHub workflow discovery, cleanup safeguards, platform controller
-boundaries, execution environment preparation, fetch/prune dry-runs and CLI
-`prepare`/`restore`.
+boundaries, execution environment preparation, fetch/prune dry-runs, CLI
+`prepare`/`restore`/`config`, dynamic parallel worker detection, parallel
+disable overrides and Apple stable/future-beta runtime channel separation.
 
 ## Future Extensions
 
-Future phases may add richer HA process control, Xcode simulator lifecycle
-helpers, Apple install/uninstall/launch control, Parallels VM snapshots and
-command execution, Pi SSH file copy and service restart helpers, ESP serial
-monitor and flash/OTA helpers, artifact downloads from GitHub Actions,
-security advisory scanner integration and Docker/Linux/cloud runner backends.
+Future phases may add richer HA process control, more simulator lifecycle
+helpers, Parallels VM snapshots and command execution, Pi SSH file copy and
+service restart helpers, ESP serial monitor and flash/OTA helpers, artifact
+downloads from GitHub Actions, security advisory scanner integration and
+Docker/Linux/cloud runner backends.
 
 These remain execution-environment features, not platform adapter assertions.
 

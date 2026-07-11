@@ -1,7 +1,7 @@
 # DJConnect Verification Harness
 
-Status: scaffold architecture  
-Scope owner: `pcvantol/djconnect`  
+Status: implemented platform harness
+Scope owner: `pcvantol/djconnect`
 Related code: `tools/verification/`
 
 ## Purpose
@@ -64,8 +64,9 @@ run identity, platform environment discovery, cleanup planning, environment
 snapshots and restore operations. It prepares the world around execution but
 does not own scenario behavior or adapter assertions.
 
-`orchestrator.py` owns the run lifecycle. In the scaffold it supports dry runs
-and execution placeholders only.
+`orchestrator.py` owns the run lifecycle. It prepares the execution
+environment, records run evidence, delegates scenario execution, aggregates
+results and persists summaries.
 
 `adapters.py` defines the common adapter interface. Adapters prepare, execute,
 collect evidence and clean up, but never define expected results.
@@ -86,6 +87,10 @@ checksums, timing, performance and future audio/video evidence.
 `reporters.py` renders Markdown, JSON, JUnit XML and summary output.
 
 `cli.py` exposes the command surface for local and CI usage.
+
+`execution/` owns scenario execution. It preserves scenario order in reported
+results while allowing independent scenarios to run in sandboxed parallel
+waves.
 
 ## Adapter Targets
 
@@ -119,22 +124,55 @@ python -m tools.verification.cli plan
 python -m tools.verification.cli prepare
 python -m tools.verification.cli restore
 python -m tools.verification.cli report
+python -m tools.verification.cli config
+python -m tools.verification.cli apple ensure-ios-runtime
+python -m tools.verification.cli apple qualify-runtime
 ```
 
-Reserved future commands:
+Additional commands:
 
 ```bash
-python -m tools.verification.cli execute
-python -m tools.verification.cli evidence
 python -m tools.verification.cli doctor
 python -m tools.verification.cli env
 python -m tools.verification.cli clean
-python -m tools.verification.cli build
-python -m tools.verification.cli ci
+python -m tools.verification.cli schema
+python -m tools.verification.cli runs list
 ```
 
 Filters are designed for scenario IDs, tags, platform, locale, automation
 level, build type and component.
+
+Parallel scenario execution is enabled by default. The harness detects local
+CPU capacity dynamically, using Apple Silicon performance/efficiency core
+metadata when available and falling back to logical CPU count otherwise. The
+worker count can be overridden or disabled:
+
+```bash
+python -m tools.verification.cli --workers 12 execute
+python -m tools.verification.cli --no-parallel execute
+```
+
+Equivalent environment controls:
+
+```text
+DJCONNECT_VERIFICATION_PARALLEL=0
+DJCONNECT_VERIFICATION_PARALLEL_WORKERS=12
+```
+
+Parallel waves remain dependency-aware and resource-aware. Scenarios with
+`depends_on` or `dependencies` wait for their prerequisites. Scenarios sharing
+`requires.exclusive_resources` are never placed in the same wave.
+
+Stable verification is the default test mode. Future/beta runtime evidence is
+explicitly separated:
+
+```text
+DJCONNECT_VERIFICATION_TEST_MODE=future_beta
+```
+
+In stable mode, Apple runtime qualification uses the latest eligible stable iOS
+simulator runtime. Beta iOS runtimes, Xcode beta and Home Assistant beta are
+advisory early-warning routes and do not replace stable release qualification.
 
 ## Developer Workflow
 
@@ -150,6 +188,6 @@ level, build type and component.
 
 ## Future Readiness
 
-The scaffold is intentionally shaped for nightly runs, hardware farms, cloud
-execution, remote runners, parallel execution, distributed execution,
-dashboard ingestion, historical trends and production readiness gates.
+The harness is intentionally shaped for nightly runs, hardware farms, cloud
+execution, remote runners, distributed execution, dashboard ingestion,
+historical trends and production readiness gates.

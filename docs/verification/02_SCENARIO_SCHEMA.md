@@ -106,11 +106,15 @@ Runtime capability identifiers are defined in
 a canonical scenario has no `requires` block or references an unknown
 capability or lab service.
 
-The execution engine may run independent scenarios concurrently when parallel
-execution is explicitly enabled. Scenarios that declare `depends_on` or
-`dependencies` run only after their dependencies pass through the scheduler.
-Scenarios that declare `requires.exclusive_resources` are never placed in the
-same parallel wave as another scenario using the same exclusive resource.
+Parallel execution is currently enabled by default in the harness. Scenario
+authors must declare dependency and exclusivity metadata whenever ordering or
+shared runtime state matters; otherwise the scheduler is allowed to place the
+scenario in the same wave as other ready scenarios.
+
+Scenarios that declare `depends_on` or `dependencies` run only after their
+dependencies pass through the scheduler. Scenarios that declare
+`requires.exclusive_resources` are never placed in the same parallel wave as
+another scenario using the same exclusive resource.
 
 ## Stable IDs
 
