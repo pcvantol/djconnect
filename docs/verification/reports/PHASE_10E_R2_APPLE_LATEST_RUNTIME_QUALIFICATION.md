@@ -24,6 +24,10 @@ simulator runtime is iOS 27.0.
 The full Apple Runtime Qualification was then rerun against an iPhone 17 Pro
 iOS 27.0 simulator. Release-equivalent build, install, launch, screenshot and
 scoped log evidence passed, but the integrated XCTest UI healthcheck timed out.
+After follow-up review, the gate was tightened further so
+`DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA` is cleaned before every
+release-equivalent build and only approved verification scratch roots may be
+used for that cleanup.
 
 Decision:
 
@@ -93,7 +97,7 @@ dev.djconnect.ios
 | APNs entitlements/signing metadata | PASS | Entitlement files were discovered. |
 | Simulator target | PASS | Prepared target JSON used the latest locally available iOS runtime. |
 | Physical-device target | SKIPPED | Physical-device execution remains explicit opt-in. |
-| DerivedData isolation | PASS | Latest-runtime rerun used isolated DerivedData paths. |
+| DerivedData isolation | PASS | Latest-runtime rerun used isolated DerivedData paths; the gate now cleans the configured DerivedData path before each release-equivalent build. |
 | Install app | PASS | The app artifact installed on the iOS 27.0 simulator. |
 | Launch app | PASS | `xcrun simctl launch dev.djconnect.ios` returned pid `38568`. |
 | Screenshot | PASS | Simulator screenshot was captured and persisted. |
@@ -119,6 +123,11 @@ and persists the latest locally available iOS simulator runtime in evidence.
 The Phase 10E Apple Runtime Qualification gate now fails closed when
 `DJCONNECT_VERIFICATION_APPLE_TARGET_JSON` points at a simulator that is not on
 the latest locally available iOS runtime.
+
+The gate also fails closed unless `DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA`
+is an absolute path under `/private/tmp`, `/tmp` or this repository's
+`artifacts/verification` scratch tree. Approved DerivedData paths are removed
+and recreated before the release-equivalent build command runs.
 
 ## Tests And Commands Run
 

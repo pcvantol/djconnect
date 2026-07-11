@@ -34,6 +34,11 @@ python3 -m tools.verification.cli apple qualify-runtime
 The runtime gate must fail closed if the configured target JSON does not use
 the latest locally available iOS runtime.
 
+The runtime gate must also clean `DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA`
+before every release-equivalent build. Use only an absolute DerivedData path
+under `/private/tmp`, `/tmp` or `artifacts/verification`; any other cleanup
+target must fail closed.
+
 ## Stop Conditions
 
 Stop and report blocked if:
@@ -43,6 +48,8 @@ Stop and report blocked if:
   cannot be applied from the session.
 - `xcodebuild -downloadPlatform iOS` fails.
 - No available iOS simulator runtime exists.
+- The DerivedData path is missing, relative or outside the approved verification
+  scratch roots.
 - The latest-runtime XCTest healthcheck still times out after remediation.
 
 ## Completion Criteria

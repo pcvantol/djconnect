@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import platform
+import shutil
 import subprocess
 import time
 from dataclasses import asdict, dataclass
@@ -67,11 +68,22 @@ class AppleRuntimeQualification:
         evidence_dir.mkdir(parents=True, exist_ok=True)
 
         checks: list[AppleQualificationCheck] = []
-        checks.append(self._release_equivalent_build())
+        derived_data = self._derived_data_isolation()
+        checks.append(derived_data)
+        if derived_data.state == "PASS":
+            checks.append(self._release_equivalent_build())
+        else:
+            checks.append(
+                _check(
+                    "release_equivalent_build",
+                    "BLOCKED",
+                    "Release-equivalent build skipped because clean DerivedData isolation is not available.",
+                    {},
+                )
+            )
         checks.append(self._apns_entitlements())
         checks.append(self._simulator_target())
         checks.append(self._physical_device_target())
-        checks.append(self._derived_data_isolation())
 
         adapter_config = AppleAdapterConfig.from_environment(self.root)
         if adapter_config.evidence_dir is None:
@@ -189,7 +201,25 @@ class AppleRuntimeQualification:
         path = os.getenv("DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA")
         if not path:
             return _check("derived_data_isolation", "BLOCKED", "No isolated DerivedData path configured for Phase 10E.", {"required_env": "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA"})
-        return _check("derived_data_isolation", "PASS", "Isolated DerivedData path configured.", {"derived_data": path})
+        derived_data = Path(path).expanduser()
+        if not derived_data.is_absolute():
+            return _check("derived_data_isolation", "BLOCKED", "DerivedData path must be absolute.", {"derived_data": path})
+        if not _safe_clean_path(derived_data, self.root):
+            return _check(
+                "derived_data_isolation",
+                "BLOCKED",
+                "DerivedData cleanup path is outside the approved verification scratch roots.",
+                {"derived_data": str(derived_data), "approved_roots": _approved_clean_roots(self.root)},
+            )
+        existed_before = derived_data.exists()
+        shutil.rmtree(derived_data, ignore_errors=True)
+        derived_data.mkdir(parents=True, exist_ok=True)
+        return _check(
+            "derived_data_isolation",
+            "PASS",
+            "Isolated DerivedData path was cleaned before the release-equivalent build.",
+            {"derived_data": str(derived_data), "existed_before_cleanup": existed_before, "cleaned_before_build": True},
+        )
 
     def _logs(self, adapter: AppleVerificationAdapter) -> AppleQualificationCheck:
         logs = adapter.collect_logs()
@@ -239,6 +269,28 @@ def _run_shell(command: str, cwd: Path, *, timeout: int) -> tuple[int, str]:
 
 def result_to_json(result: AppleQualificationResult) -> str:
     return json.dumps(asdict(result), indent=2, sort_keys=True)
+
+
+def _approved_clean_roots(root: Path) -> list[str]:
+    return [
+        "/private/tmp",
+        "/tmp",
+        str((root / "artifacts" / "verification").resolve()),
+    ]
+
+
+def _safe_clean_path(path: Path, root: Path) -> bool:
+    try:
+        resolved = path.resolve()
+    except OSError:
+        resolved = path.absolute()
+    for approved in _approved_clean_roots(root):
+        approved_path = Path(approved).resolve()
+        if resolved == approved_path:
+            return False
+        if approved_path in resolved.parents:
+            return True
+    return False
 
 
 def latest_ios_simulator_runtime(runner: CommandRunner | None = None) -> dict[str, Any] | None:

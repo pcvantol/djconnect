@@ -283,7 +283,7 @@ class AppleAdapterTests(unittest.TestCase):
                 {
                     "DJCONNECT_VERIFICATION_APPLE_TARGET_JSON": target_json,
                     "DJCONNECT_VERIFICATION_APPLE_BUILD_COMMAND": "true",
-                    "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(Path(tmp) / "DerivedData"),
+                    "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(root / "artifacts" / "verification" / "DerivedData"),
                     "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
                     "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
                 },
@@ -322,7 +322,7 @@ class AppleAdapterTests(unittest.TestCase):
                 {
                     "DJCONNECT_VERIFICATION_APPLE_TARGET_JSON": target_json,
                     "DJCONNECT_VERIFICATION_APPLE_BUILD_COMMAND": "true",
-                    "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(Path(tmp) / "DerivedData"),
+                    "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(root / "artifacts" / "verification" / "DerivedData"),
                     "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
                     "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
                 },
@@ -335,6 +335,52 @@ class AppleAdapterTests(unittest.TestCase):
             simulator = next(check for check in result.checks if check.name == "simulator_target")
             self.assertEqual("BLOCKED", simulator.state)
             self.assertIn("could not be determined", simulator.message)
+
+    def test_phase_10e_runtime_qualification_cleans_derived_data_before_build(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "djconnect"
+            apple_repo = Path(tmp) / "djconnect-app"
+            app_path = Path(tmp) / "DJConnect.app"
+            derived_data = root / "artifacts" / "verification" / "DerivedData"
+            stale_file = derived_data / "stale-build-output"
+            (root / "artifacts" / "verification" / "evidence").mkdir(parents=True)
+            derived_data.mkdir(parents=True)
+            stale_file.write_text("old", encoding="utf-8")
+            (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
+            (apple_repo / "App.entitlements").write_text("<plist/>", encoding="utf-8")
+            app_path.write_text("fixture", encoding="utf-8")
+            target_json = json.dumps(
+                {
+                    "target_id": "ios-target",
+                    "variant": "ios",
+                    "runtime": "simulator",
+                    "name": "iPhone 17 Pro",
+                    "udid": "SIM-IOS-27-0",
+                    "bundle_id": "dev.djconnect.ios",
+                    "app_path": str(app_path),
+                }
+            )
+            with patch.dict(
+                "os.environ",
+                {
+                    "DJCONNECT_VERIFICATION_APPLE_TARGET_JSON": target_json,
+                    "DJCONNECT_VERIFICATION_APPLE_BUILD_COMMAND": f"test ! -e {stale_file}",
+                    "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(derived_data),
+                    "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
+                    "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
+                },
+                clear=False,
+            ), patch("tools.verification.apple_runtime_qualification.CommandRunner", lambda: FakeRunner({
+                ("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON),
+            })):
+                result = AppleRuntimeQualification(root, apple_repo=apple_repo).run()
+
+            states = {check.name: check.state for check in result.checks}
+            derived_check = next(check for check in result.checks if check.name == "derived_data_isolation")
+            self.assertEqual("PASS", states["derived_data_isolation"])
+            self.assertEqual("PASS", states["release_equivalent_build"])
+            self.assertTrue(derived_check.data["cleaned_before_build"])
+            self.assertFalse(stale_file.exists())
 
 
 if __name__ == "__main__":
