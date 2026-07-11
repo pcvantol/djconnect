@@ -293,6 +293,14 @@ Apple simulator runs, hardware rigs and destructive cleanup remain gated and
 belong on explicitly prepared self-hosted runners or local labs with the
 required host capabilities.
 
+Published stable Docker Hub images are the authoritative runtime distribution
+for Docker-based verification. When the Verification Platform engine changes,
+create a new stable runtime release through the GitHub CI Docker release
+workflow. That workflow must build, verify and push the image before any
+Docker-based verification consumers use the new framework behavior. Consumers
+must pull the latest published stable Docker Hub tag and must not fall back to
+stale local images or ad hoc local builds.
+
 Runtime release notes are maintained separately from the DJConnect product
 changelog in `tools/verification/RELEASE_NOTES.md`. They record engine-level
 changes, validation commands, known limitations and runner/release notes for

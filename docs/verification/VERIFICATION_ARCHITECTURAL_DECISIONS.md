@@ -392,3 +392,35 @@ Status: accepted.
 Related documents: `docs/verification/04_VERIFICATION_HARNESS.md`,
 `docs/verification/08_VERIFICATION_EXECUTION_ENVIRONMENT.md`,
 `tools/verification/README.md`.
+
+## VAD-019 - Published Runtime Images Are Authoritative
+
+Context: The Verification Platform is now versioned and distributed as a
+generic Docker runtime, and GitHub runners are expected to consume that runtime
+for portable verification jobs.
+
+Decision: When the Verification Platform engine changes, a new stable runtime
+release must be built, verified and pushed through the GitHub CI Docker release
+workflow before Docker-based consumers use that framework behavior. Consumers
+must pull the latest published stable Docker Hub image and must not silently
+fall back to stale local images or ad hoc local builds.
+
+Rationale: Verification results must identify a reproducible runtime that was
+built and verified by the release workflow. Local builds are useful for
+development, but they are not release evidence and can drift from what GitHub
+runners or other operators execute.
+
+Rejected alternatives: allowing Docker-based verification to use whatever
+local tag exists, or treating a local build as equivalent to a published
+runtime release.
+
+Consequences: Docker-based verification should fail closed when Docker Hub pull
+or runtime tag resolution fails. Release notes and runtime metadata must record
+the published version, release SHA and verification checks.
+
+Status: accepted.
+
+Related documents: `docs/verification/04_VERIFICATION_HARNESS.md`,
+`tools/verification/README.md`,
+`tools/verification/RELEASE_NOTES.md`,
+`.github/workflows/verification-platform-docker-release.yml`.

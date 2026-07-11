@@ -159,6 +159,12 @@ python -m tools.verification.cli docker release \
 docker run --rm ghcr.io/pcvantol/djconnect-verification-platform:0.2.0 config
 ```
 
+Published Verification Platform releases are authoritative. When verification
+framework code changes, cut a new stable runtime release through the GitHub CI
+Docker release workflow, let that workflow build, verify and push the image to
+Docker Hub, and then consume the newly published Docker Hub tag. Do not treat a
+local build as a release substitute.
+
 When using Docker, mount the repository and artifacts from outside the image.
 The image is engine-only and must not contain product scenarios, secrets or run
 evidence.
@@ -295,6 +301,18 @@ Use `--dry-run` when preparing release metadata without building locally.
 In GitHub Actions, the workflow should provide the checkout, mount or pass the
 workspace to the container, upload `artifacts/verification/`, and record GitHub
 run/job metadata beside `verification_runtime` and `execution_summary`.
+
+Consumers must pull the latest published stable Verification Platform image
+from Docker Hub before running Docker-based verification:
+
+```bash
+docker pull pcvantol/djconnect:0.2.0
+docker run --rm pcvantol/djconnect:0.2.0 config
+```
+
+Do not silently fall back to a stale local image or ad hoc local build. If the
+Docker Hub pull fails, block the Docker-based verification run and fix
+publishing, authentication or network access first.
 
 Update `tools/verification/RELEASE_NOTES.md` for every runtime release. Keep
 those notes scoped to the generic engine and leave DJConnect product changes in

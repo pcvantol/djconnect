@@ -43,6 +43,9 @@ Runtime schema version: `1`
   runner usage.
 - Functional help documentation for common operator workflows, result
   interpretation and failure handling.
+- Release governance requiring changed Verification Platform runtime behavior
+  to be published through the CI Docker release workflow before Docker-based
+  consumers use it.
 
 ### Changed
 
@@ -52,6 +55,9 @@ Runtime schema version: `1`
   execution time as required metadata for new runs.
 - Docker runtime packaging is explicitly engine-only: product scenarios, source
   checkouts, lab state, secrets and evidence remain external inputs.
+- Docker Hub published stable images are authoritative for Docker-based
+  verification; local builds are development artifacts and must not be used as
+  silent fallback runtime releases.
 - Apple stable qualification excludes beta iOS runtimes by default; beta
   evidence is advisory and isolated in `future_beta` mode.
 
