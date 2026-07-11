@@ -55,6 +55,13 @@ start because release-equivalent build command, prepared Apple target JSON,
 isolated DerivedData, install/launch target, screenshot/log evidence and UI
 automation healthcheck configuration were missing.
 
+Phase 10E-R Apple Runtime Qualification Remediation returned
+`APPLE_RUNTIME_QUALIFIED`. The local iOS simulator runtime path is qualified
+with release-equivalent simulator build, prepared iPhone target JSON, isolated
+DerivedData, install, launch, screenshot, scoped logs and XCTest healthcheck
+evidence. Broad Apple scenario coverage can resume in a Phase 10E retry, but
+Phase 11 must not start until Apple scenario coverage itself has reported.
+
 The active next phase is listed in `PROMPT_INDEX.md`.
 
 ## Required Reading Order

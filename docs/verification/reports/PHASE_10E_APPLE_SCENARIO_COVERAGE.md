@@ -120,7 +120,13 @@ healthcheck.
 
 ## Completion Decision
 
-Phase 10E is complete as a fail-closed qualification run:
+Phase 10E-R later remediated this runtime blocker and returned:
+
+```text
+APPLE_RUNTIME_QUALIFIED
+```
+
+Phase 10E remains complete as a fail-closed qualification run:
 
 ```text
 APPLE_RUNTIME_QUALIFICATION_BLOCKED

@@ -4,7 +4,13 @@
   "evidence_dir": "artifacts/verification/evidence/apple10e-20260711T114536Z-417af0454b/",
   "phase": "10E",
   "run_id": "apple10e-20260711T114536Z-417af0454b",
-  "status": "blocked",
+  "remediation": {
+    "decision": "APPLE_RUNTIME_QUALIFIED",
+    "phase": "10E-R",
+    "report": "docs/verification/reports/PHASE_10E_R_APPLE_RUNTIME_QUALIFICATION_REMEDIATION.md",
+    "run_id": "apple10e-20260711T115656Z-4cea94c38f"
+  },
+  "status": "blocked_then_remediated",
   "summary": "Mandatory Apple Runtime Qualification failed closed before broad Apple scenario execution.",
   "checks": {
     "release_equivalent_build": "BLOCKED",
