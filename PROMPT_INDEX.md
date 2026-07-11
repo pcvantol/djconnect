@@ -41,13 +41,16 @@ with Xcode 26.6 and stable iOS 26.5 available, then returned
 session did not provide isolated DerivedData, prepared Apple target JSON,
 distribution signing expectations or UI healthcheck configuration.
 
-The active next step is Phase 10E-R2: Apple Latest Runtime Qualification
-Remediation.
+Phase 10E-R2 is closed in this branch with result
+`APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED`; the missing Apple operator
+configuration is tracked as follow-up backlog. Do not reopen Phase 10E retry
+until the Phase 10E-R2 follow-ups are satisfied and a rerun returns
+`APPLE_LATEST_RUNTIME_QUALIFIED`.
 
 Use this clean-session prompt:
 
 ```text
-Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 10E-R2 from PROMPT_INDEX.md.
+Read BOOTSTRAP_CODEX_VERIFICATION.md and resolve the Phase 10E-R2 follow-up backlog items from PROMPT_INDEX.md.
 ```
 
 ## Prompt Table
@@ -82,7 +85,7 @@ Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 10E-R2 from PROMPT_INDEX.
 | 10 | Apple Verification Adapter | Qualified with live runtime skipped | `prompts/verification/PHASE_10_APPLE_VERIFICATION_ADAPTER.md` | Phase 9E-R returned `HOME_ASSISTANT_BACKEND_QUALIFIED_WITH_WARNINGS` with warnings explicitly non-blocking for Apple work | `docs/verification/reports/PHASE_10_APPLE_ADAPTER_COMPLETION.md` | New PR; merge only after Phase 10 completion protocol | Phase 10E |
 | 10E | Apple Scenario Coverage Expansion | Blocked - runtime qualification missing local configuration | `prompts/verification/PHASE_10E_APPLE_SCENARIO_COVERAGE_EXPANSION.md` | Phase 10 returned `APPLE_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_SKIPPED` | `docs/verification/reports/PHASE_10E_APPLE_SCENARIO_COVERAGE.md`; evidence `artifacts/verification/evidence/apple10e-20260711T114536Z-417af0454b/` | New PR; do not merge as Apple coverage qualified | Phase 10E-R |
 | 10E-R | Apple Runtime Qualification Remediation | Qualified on older selected runtime | `prompts/verification/PHASE_10E_R_APPLE_RUNTIME_QUALIFICATION_REMEDIATION.md` | Phase 10E returned `APPLE_RUNTIME_QUALIFICATION_BLOCKED` | `docs/verification/reports/PHASE_10E_R_APPLE_RUNTIME_QUALIFICATION_REMEDIATION.md`; evidence `artifacts/verification/evidence/apple10e-20260711T115656Z-4cea94c38f/` | Continue Phase 10E PR if still open | Phase 10E-R2 |
-| 10E-R2 | Apple Latest Runtime Qualification Remediation | Active - stable runtime config blocked | `prompts/verification/PHASE_10E_R2_APPLE_LATEST_RUNTIME_QUALIFICATION_REMEDIATION.md` | Latest-runtime rule requires Xcode/iOS simulator maintenance and stable iOS 26.5 qualification | `docs/verification/reports/PHASE_10E_R2_APPLE_LATEST_RUNTIME_QUALIFICATION.md`; evidence `artifacts/verification/evidence/appletoolchain-20260711T152806Z-b88e218cd8/`; blocked evidence `artifacts/verification/evidence/apple10e-20260711T152822Z-a6328549f9/` | Continue Phase 10E PR if still open; do not merge as Apple coverage qualified | Phase 10E retry |
+| 10E-R2 | Apple Latest Runtime Qualification Remediation | Closed - stable runtime config follow-ups | `prompts/verification/PHASE_10E_R2_APPLE_LATEST_RUNTIME_QUALIFICATION_REMEDIATION.md` | Latest-runtime rule requires Xcode/iOS simulator maintenance and stable iOS 26.5 qualification | `docs/verification/reports/PHASE_10E_R2_APPLE_LATEST_RUNTIME_QUALIFICATION.md`; evidence `artifacts/verification/evidence/appletoolchain-20260711T152806Z-b88e218cd8/`; blocked evidence `artifacts/verification/evidence/apple10e-20260711T152822Z-a6328549f9/`; follow-ups `VPB-031`, `VPB-036`, `VPB-037`, `VPB-038` | Continue Phase 10E PR if still open; do not merge as Apple coverage qualified | Phase 10E retry |
 | 10E retry | Apple Scenario Coverage Expansion After Runtime Qualification | Blocked until latest runtime qualifies | `prompts/verification/PHASE_10E_APPLE_SCENARIO_COVERAGE_EXPANSION.md` | Phase 10E-R2 must return `APPLE_LATEST_RUNTIME_QUALIFIED` | Future updated Phase 10E coverage report | Continue Phase 10E PR if still open | Phase 11 |
 | 11+ | Additional Platform Adapters | Future | To be generated after Apple coverage work | Phase 10E and roadmap review | Future adapter reports | Future PRs | Future adapter qualification |
 
@@ -93,6 +96,9 @@ Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 10E-R2 from PROMPT_INDEX.
 - `Not qualified` means the phase ran and produced a negative decision.
 - `Remediated with external prerequisites` means blockers were converted into
   checks or explicit prerequisites, but the platform is not yet qualified.
+- `Closed - stable runtime config follow-ups` means the phase executed and
+  produced a repository decision, but the next qualification attempt is
+  intentionally deferred to explicit follow-up backlog items.
 - `Active next phase` means a clean session should execute that prompt.
 - `Qualified` means repository evidence exists and the phase decision permits
   the next phase to start after merge.
@@ -107,8 +113,8 @@ Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 10E-R2 from PROMPT_INDEX.
 Do not mark Phase 9L complete until repository evidence includes its local lab
 qualification report and the final result line.
 
-Exact clean-session command for the active phase:
+Exact clean-session command for the current follow-up gate:
 
 ```text
-Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 10E-R2 from PROMPT_INDEX.md.
+Read BOOTSTRAP_CODEX_VERIFICATION.md and resolve the Phase 10E-R2 follow-up backlog items from PROMPT_INDEX.md.
 ```

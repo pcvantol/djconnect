@@ -78,10 +78,11 @@ iOS 26.5 as the latest eligible stable simulator runtime. Runtime qualification
 then failed closed before live mutation because isolated DerivedData, prepared
 Apple target JSON, distribution signing expectations and UI healthcheck
 configuration were not provided in the session. Broad Apple scenario coverage
-must not resume until Phase 10E-R2 receives that stable-runtime configuration
-and returns `APPLE_LATEST_RUNTIME_QUALIFIED`.
+must not resume until the Phase 10E-R2 follow-up backlog items are satisfied
+and a rerun returns `APPLE_LATEST_RUNTIME_QUALIFIED`.
 
-The active next phase is listed in `PROMPT_INDEX.md`.
+Phase 10E-R2 is closed in this branch as blocked, with follow-up backlog items
+recorded in `docs/verification/reports/VERIFICATION_PLATFORM_BACKLOG.md`.
 
 ## Required Reading Order
 

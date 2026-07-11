@@ -41,6 +41,9 @@ Do not create GitHub issues automatically from this backlog.
 | VPB-033 | P2 | Release operations follow-up | Docker Hub secret provisioning for the publish workflow is intentionally operator-owned and will be configured outside this branch. Missing GitHub `DOCKERHUB_USERNAME`/`DOCKERHUB_TOKEN` does not block the framework code or documentation in this branch. | Operator / Release Operations | `djconnect` | No | S | Release operations follow-up |
 | VPB-034 | P2 | Release operations follow-up | Docker repository naming may be improved later, for example by moving the generic runtime to a clearer verification-platform-specific Docker repository. The current published `pcvantol/djconnect` tags remain valid for this branch. | Operator / Release Operations | Docker Hub | No | S | Release naming follow-up |
 | VPB-035 | P1 | Runner infrastructure epic | Self-hosted runner support for labs, Apple simulators, hardware, SSH/serial and signing is deferred to a separate epic. Hosted GitHub runner support for non-mutating framework tests and Docker release publishing is implemented. | Platform Infrastructure | `djconnect` | No | L | Future self-hosted runner epic |
+| VPB-036 | P0 | Apple operator configuration follow-up | Provide the stable Apple qualification workspace inputs for the latest eligible stable iOS simulator: approved `DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA` and prepared `DJCONNECT_VERIFICATION_APPLE_TARGET_JSON` that resolves to the current stable runtime, currently iOS 26.5 in the July 11, 2026 evidence. | Operator / Apple Adapter / `djconnect-app` | `djconnect`, `djconnect-app` | Blocks Phase 10E retry and broad Apple scenario execution | S | Phase 10E-R2 reopen prerequisite |
+| VPB-037 | P0 | Apple release signing follow-up | Provide release-equivalent signing expectations for the Apple qualification gate: `DJCONNECT_VERIFICATION_APPLE_DISTRIBUTION_IDENTITY`, `DJCONNECT_VERIFICATION_APPLE_TEAM_ID`, `DJCONNECT_VERIFICATION_APPLE_BUNDLE_ID` and `DJCONNECT_VERIFICATION_APPLE_PROVISIONING_PROFILE`, sourced from the operator keychain/provisioning profile inventory. | Operator / Apple Release Engineering | `djconnect-app` | Blocks Phase 10E retry and broad Apple scenario execution | S | Phase 10E-R2 reopen prerequisite |
+| VPB-038 | P0 | Apple UI automation follow-up | Provide the UI healthcheck path for the latest-stable simulator qualification: `DJCONNECT_VERIFICATION_APPLE_UI_DRIVER` and `DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND`, preferably using XCTest/accessibility so install, launch, screenshot and scoped logs are validated before scenario mutation. | Apple Adapter / Apple Client / Operator | `djconnect`, `djconnect-app` | Blocks Phase 10E retry and broad Apple scenario execution | M | Phase 10E-R2 reopen prerequisite |
 
 ## Regression Subset Required After Fixes
 
@@ -79,7 +82,8 @@ APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED
 
 Framework runtime, Docker release workflow and regular CI are not blocked by
 Docker Hub secret provisioning, Docker repository naming or self-hosted runner
-availability; those are tracked as follow-ups above. Phase 10E retry remains
-blocked only by Apple latest stable-runtime qualification returning
-`APPLE_LATEST_RUNTIME_QUALIFIED`. Phase 11 remains blocked until Apple scenario
-coverage itself has reported.
+availability; those are tracked as follow-ups above. Phase 10E-R2 is closed in
+this branch as `APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED`. Phase 10E retry
+remains blocked until `VPB-031`, `VPB-036`, `VPB-037` and `VPB-038` are
+resolved and a Phase 10E-R2 rerun returns `APPLE_LATEST_RUNTIME_QUALIFIED`.
+Phase 11 remains blocked until Apple scenario coverage itself has reported.

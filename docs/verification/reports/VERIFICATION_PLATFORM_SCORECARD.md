@@ -56,8 +56,10 @@ maintenance and target freshness enforcement. The latest Phase 10E-R2 rerun
 passed toolchain maintenance with Xcode 26.6 and stable iOS 26.5 available, but
 runtime qualification blocked before live mutation because required operator
 configuration was absent: isolated DerivedData, prepared Apple target JSON,
-distribution signing expectations and UI healthcheck command/driver. Continue
-Phase 10E-R2 with that configuration before Phase 10E retry or Phase 11.
+distribution signing expectations and UI healthcheck command/driver. Phase
+10E-R2 is closed in this branch as blocked; continue only by resolving
+`VPB-031`, `VPB-036`, `VPB-037` and `VPB-038`, then rerun Phase 10E-R2 before
+Phase 10E retry or Phase 11.
 
 Parallel execution is now the default for workstation runs. The harness detects
 available CPU capacity dynamically, using Apple Silicon performance/efficiency

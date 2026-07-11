@@ -305,13 +305,25 @@ Blocking: yes for broad Apple scenario execution and Phase 10E retry.
 
 ## Completion Decision
 
-Phase 10E-R2 is not complete:
+Phase 10E-R2 execution is complete for this branch and closed with the
+following decision:
 
 ```text
 APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED
 ```
 
-Continue Phase 10E-R2 by providing the required stable-runtime configuration:
-approved DerivedData path, prepared latest-stable Apple target JSON,
-distribution identity/team/bundle/profile metadata and XCTest/accessibility UI
-healthcheck command. Do not begin Phase 10E retry or Phase 11 yet.
+This is not an Apple coverage qualification. Continue only by resolving the
+recorded follow-up backlog items, then rerun Phase 10E-R2 and require
+`APPLE_LATEST_RUNTIME_QUALIFIED` before starting Phase 10E retry or Phase 11.
+
+## Follow-Up Backlog
+
+The close-out follow-ups are tracked in
+`docs/verification/reports/VERIFICATION_PLATFORM_BACKLOG.md`:
+
+- `VPB-031`: commit the cross-repo `djconnect-app` clean-clone build fix.
+- `VPB-036`: provide the stable Apple DerivedData path and latest-stable target
+  JSON.
+- `VPB-037`: provide release signing identity, team, bundle and provisioning
+  profile metadata.
+- `VPB-038`: provide the XCTest/accessibility UI healthcheck driver and command.
