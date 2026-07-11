@@ -25,7 +25,7 @@ Scoring scale:
 | GitHub CI | 5 | Exact-SHA CI inspected two successful GitHub Actions runs for the tested SHA. |
 | Dogfooding Coverage | 4 | `tests/verification` passed 115 tests and catalog validation covered 231 scenarios; live Docker tests remain opt-in. |
 | Home Assistant Backend Coverage | 4 | Phase 9E-R executed and qualified 195 HA backend or separable HA backend assertion-path scenarios; 28 client/hardware/release/voice-localization scenarios remain correctly deferred. |
-| Apple Adapter | 3 | Thin Apple adapter primitives, Scenario Engine selection and Execution Environment simulator metadata are implemented and mock-tested; Phase 10E-R qualified an older selected iOS simulator runtime, and stable latest-runtime qualification remains blocked until rerun against the latest eligible stable iOS runtime. iOS 27.0 evidence is future-beta only. |
+| Apple Adapter | 3 | Thin Apple adapter primitives, Scenario Engine selection and Execution Environment simulator metadata are implemented and mock-tested; Phase 10E-R qualified an older selected iOS simulator runtime, and the latest Phase 10E-R2 rerun resolved stable iOS 26.5 but remains blocked until operator signing, target, DerivedData and UI healthcheck configuration are provided. iOS 27.0 evidence is future-beta only. |
 | Overall | 4 | The platform is qualified for the next adapter phase with non-blocking framework improvements tracked. |
 
 ## Decision
@@ -52,11 +52,12 @@ Phase 10 completed the thin Apple adapter with mock/unit evidence. Phase 10E
 executed the mandatory Apple Runtime Qualification gate first and correctly
 failed closed. Phase 10E-R then qualified the originally selected local iOS
 simulator runtime path. The later latest-runtime requirement added toolchain
-maintenance and target freshness enforcement. Phase 10E-R2 passed toolchain
-maintenance with Xcode 26.6 and iOS 27.0 available, but iOS 27.0 is beta on
-2026-07-11 and is now excluded from default stable qualification. Continue
-Phase 10E-R2 against the latest eligible stable iOS runtime before Phase 10E
-retry or Phase 11.
+maintenance and target freshness enforcement. The latest Phase 10E-R2 rerun
+passed toolchain maintenance with Xcode 26.6 and stable iOS 26.5 available, but
+runtime qualification blocked before live mutation because required operator
+configuration was absent: isolated DerivedData, prepared Apple target JSON,
+distribution signing expectations and UI healthcheck command/driver. Continue
+Phase 10E-R2 with that configuration before Phase 10E retry or Phase 11.
 
 Parallel execution is now the default for workstation runs. The harness detects
 available CPU capacity dynamically, using Apple Silicon performance/efficiency

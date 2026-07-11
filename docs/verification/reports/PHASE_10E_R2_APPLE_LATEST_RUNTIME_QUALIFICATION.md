@@ -8,7 +8,7 @@ Date: 2026-07-11
 Phase 10E-R2 implements the stricter Apple runtime prerequisite requested by
 the operator: before Apple verification runs, the local Xcode/iOS simulator
 toolchain must be checked and the Phase 10E runtime gate must use the latest
-locally available iOS simulator runtime.
+eligible stable iOS simulator runtime by default.
 
 The new toolchain maintenance gate passed. Local Xcode reported:
 
@@ -18,9 +18,9 @@ Build version 17F113
 ```
 
 `softwareupdate --list` reported no available Xcode update, and
-`xcodebuild -downloadPlatform iOS` completed. The machine also had an iOS 27.0
-simulator runtime installed, but iOS 27.0 is beta on 2026-07-11 and is not the
-default stable qualification target.
+`xcodebuild -downloadPlatform iOS` completed. The initial evidence also had an
+iOS 27.0 simulator runtime installed, but iOS 27.0 is beta on 2026-07-11 and is
+not the default stable qualification target.
 
 The full Apple Runtime Qualification was then rerun against an iPhone 17 Pro
 iOS 27.0 simulator as future/beta evidence. Release-equivalent build, install,
@@ -47,12 +47,27 @@ Broad Apple scenario coverage remains blocked until the stable latest-eligible
 runtime qualification passes. iOS 27.0 remains available only for the
 `future_beta` route until it is the official stable iOS runtime.
 
+The latest rerun on 2026-07-11 refreshed the stable toolchain gate. Xcode 26.6
+remained selected, `softwareupdate --list` reported no Xcode update, and
+`xcodebuild -downloadPlatform iOS` resolved iOS 26.5 as the latest eligible
+stable simulator runtime. Runtime qualification then failed closed before live
+mutation because this shell did not provide the required operator configuration:
+isolated DerivedData, prepared Apple target JSON, distribution signing
+expectations and UI healthcheck command/driver. This supersedes the earlier
+future-beta iOS 27.0 healthcheck timeout as the active blocker in this branch.
+
 ## Evidence
 
 Toolchain maintenance evidence:
 
 ```text
 artifacts/verification/evidence/appletoolchain-20260711T120519Z-d8c912c54e/
+```
+
+Latest stable toolchain maintenance rerun:
+
+```text
+artifacts/verification/evidence/appletoolchain-20260711T152806Z-b88e218cd8/
 ```
 
 Primary machine-readable toolchain evidence:
@@ -65,6 +80,12 @@ Blocked latest-runtime qualification evidence:
 
 ```text
 artifacts/verification/evidence/apple10e-20260711T121537Z-9c692b98a7/
+```
+
+Latest stable-runtime qualification rerun:
+
+```text
+artifacts/verification/evidence/apple10e-20260711T152822Z-a6328549f9/
 ```
 
 Primary machine-readable runtime evidence:
@@ -89,6 +110,20 @@ iOS 27.0
 90318F40-1066-4B89-B4D0-CD0EA9A5C435
 ```
 
+Latest stable runtime from the rerun:
+
+```text
+iOS 26.5
+com.apple.CoreSimulator.SimRuntime.iOS-26-5
+```
+
+Available iOS 26.5 simulator targets included:
+
+```text
+iPhone 17 Pro - 7B10306E-5AC5-46F6-96AC-5F4C592BA85B
+DJConnect Monkey iPhone 13 mini iOS 26.5 - D1DDCACC-2651-4EB9-A55E-2315C9314AA6
+```
+
 Bundle id:
 
 ```text
@@ -99,21 +134,21 @@ dev.djconnect.ios
 
 | Check | Result | Notes |
 | --- | --- | --- |
-| Toolchain maintenance | PASS | Xcode 26.6 was present, Software Update advertised no Xcode update, and `xcodebuild -downloadPlatform iOS` completed. |
+| Toolchain maintenance | PASS | Xcode 26.6 was present, Software Update advertised no Xcode update, and `xcodebuild -downloadPlatform iOS` completed. Latest rerun resolved iOS 26.5 as stable. |
 | Future/beta channel isolation | Tightened after run | Xcode beta and Home Assistant beta now require `DJCONNECT_VERIFICATION_TEST_MODE=future_beta` and produce separate advisory evidence. |
-| Latest iOS runtime discovery | Updated after run | Stable mode now selects the latest eligible stable iOS runtime and excludes iOS 27.0 beta by default. `future_beta` mode may select `com.apple.CoreSimulator.SimRuntime.iOS-27-0`. |
+| Latest iOS runtime discovery | PASS | Stable mode selected iOS 26.5 in the latest rerun and excludes iOS 27.0 beta by default. `future_beta` mode may select `com.apple.CoreSimulator.SimRuntime.iOS-27-0`. |
 | APNs entitlements/signing metadata | PASS | Entitlement files were discovered. |
-| Distribution signing assets | Tightened after run | Future runs require matching Apple Distribution identity, team id, bundle id and provisioning profile metadata before release build. |
-| Release-equivalent build | PASS | Release simulator build completed for the future/beta iOS 27.0 target in the blocked evidence run. |
-| Simulator target | Updated after run | Prepared target JSON must use the latest eligible iOS runtime for the active verification mode. Stable mode excludes beta runtimes by default. |
+| Distribution signing assets | BLOCKED | Latest rerun did not provide `DJCONNECT_VERIFICATION_APPLE_DISTRIBUTION_IDENTITY`, `DJCONNECT_VERIFICATION_APPLE_TEAM_ID`, `DJCONNECT_VERIFICATION_APPLE_BUNDLE_ID` or `DJCONNECT_VERIFICATION_APPLE_PROVISIONING_PROFILE`. |
+| Release-equivalent build | BLOCKED | Latest rerun skipped the build because isolated DerivedData and distribution signing assets were not configured. |
+| Simulator target | BLOCKED | Latest rerun did not provide `DJCONNECT_VERIFICATION_APPLE_TARGET_JSON`; no live install/launch target was available. |
 | Cross-device simulator targets | Tightened after run | Future cross-device or multi-iOS batches require every configured simulator UDID and declared runtime version to be available before execution. |
 | Physical-device target | SKIPPED | Physical-device execution remains explicit opt-in. |
-| DerivedData isolation | PASS | Latest-runtime rerun used isolated DerivedData paths; the gate now cleans the configured DerivedData path before each release-equivalent build. |
-| Install app | PASS | The app artifact installed on the iOS 27.0 simulator. |
-| Launch app | PASS | `xcrun simctl launch dev.djconnect.ios` returned pid `38568`. |
-| Screenshot | PASS | Simulator screenshot was captured and persisted. |
-| Scoped log collection | PASS | Adapter operation logs and simulator log excerpt were persisted and redacted. |
-| UI automation healthcheck | FAIL | Integrated XCTest healthcheck timed out after 600 seconds in the original blocked run; the active default timeout is now 180 seconds and remains overrideable with `DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_TIMEOUT`. |
+| DerivedData isolation | BLOCKED | Latest rerun did not provide `DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA`; the gate stopped before cleanup/build. |
+| Install app | BLOCKED | No prepared target/app artifact was available after the simulator target gate blocked. |
+| Launch app | BLOCKED | No prepared target/app artifact was available after the simulator target gate blocked. |
+| Screenshot | BLOCKED | No prepared simulator target was available. |
+| Scoped log collection | BLOCKED | No runtime log evidence was produced because runtime execution did not start. |
+| UI automation healthcheck | BLOCKED | Latest rerun did not provide `DJCONNECT_VERIFICATION_APPLE_UI_DRIVER` and `DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND`. |
 
 ## Implementation Changes
 
@@ -241,14 +276,30 @@ Result:
 BLOCKED
 ```
 
+Latest stable rerun:
+
+```bash
+python3 -m tools.verification.cli apple ensure-ios-runtime
+python3 -m tools.verification.cli apple qualify-runtime
+```
+
+Result:
+
+```text
+Toolchain maintenance: PASS
+Latest stable runtime: iOS 26.5
+Runtime qualification: BLOCKED
+```
+
 ## Classification
 
-Primary class: Apple verification execution environment / XCTest sequencing
-blocker.
+Primary class: Apple verification execution environment / operator
+configuration blocker.
 
 Confidence: medium.
 
-Owner: Verification Execution Environment / Apple Adapter.
+Owner: Verification Execution Environment / operator Apple signing and runtime
+configuration.
 
 Blocking: yes for broad Apple scenario execution and Phase 10E retry.
 
@@ -260,6 +311,7 @@ Phase 10E-R2 is not complete:
 APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED
 ```
 
-Continue Phase 10E-R2 by remediating or rerunning the integrated XCTest
-healthcheck on the latest eligible stable iOS runtime. Do not begin Phase 10E
-retry or Phase 11 yet.
+Continue Phase 10E-R2 by providing the required stable-runtime configuration:
+approved DerivedData path, prepared latest-stable Apple target JSON,
+distribution identity/team/bundle/profile metadata and XCTest/accessibility UI
+healthcheck command. Do not begin Phase 10E retry or Phase 11 yet.

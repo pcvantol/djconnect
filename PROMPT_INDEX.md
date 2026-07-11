@@ -34,11 +34,12 @@ did not start. Phase 10E-R remediated the local Apple runtime path and returned
 
 The Apple runtime prerequisite was later tightened: verification now has to run
 the Apple toolchain maintenance gate, keep the iOS simulator platform current
-through Xcode, and qualify only the latest locally available iOS simulator
-runtime. Phase 10E-R2 found iOS 27.0 locally available and returned
-`APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED` because the integrated XCTest UI
-healthcheck timed out after the release build, install, launch, screenshot and
-log steps had passed.
+through Xcode, and qualify only the latest eligible stable iOS simulator
+runtime by default. The latest Phase 10E-R2 rerun passed toolchain maintenance
+with Xcode 26.6 and stable iOS 26.5 available, then returned
+`APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED` before live mutation because the
+session did not provide isolated DerivedData, prepared Apple target JSON,
+distribution signing expectations or UI healthcheck configuration.
 
 The active next step is Phase 10E-R2: Apple Latest Runtime Qualification
 Remediation.
@@ -81,7 +82,7 @@ Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 10E-R2 from PROMPT_INDEX.
 | 10 | Apple Verification Adapter | Qualified with live runtime skipped | `prompts/verification/PHASE_10_APPLE_VERIFICATION_ADAPTER.md` | Phase 9E-R returned `HOME_ASSISTANT_BACKEND_QUALIFIED_WITH_WARNINGS` with warnings explicitly non-blocking for Apple work | `docs/verification/reports/PHASE_10_APPLE_ADAPTER_COMPLETION.md` | New PR; merge only after Phase 10 completion protocol | Phase 10E |
 | 10E | Apple Scenario Coverage Expansion | Blocked - runtime qualification missing local configuration | `prompts/verification/PHASE_10E_APPLE_SCENARIO_COVERAGE_EXPANSION.md` | Phase 10 returned `APPLE_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_SKIPPED` | `docs/verification/reports/PHASE_10E_APPLE_SCENARIO_COVERAGE.md`; evidence `artifacts/verification/evidence/apple10e-20260711T114536Z-417af0454b/` | New PR; do not merge as Apple coverage qualified | Phase 10E-R |
 | 10E-R | Apple Runtime Qualification Remediation | Qualified on older selected runtime | `prompts/verification/PHASE_10E_R_APPLE_RUNTIME_QUALIFICATION_REMEDIATION.md` | Phase 10E returned `APPLE_RUNTIME_QUALIFICATION_BLOCKED` | `docs/verification/reports/PHASE_10E_R_APPLE_RUNTIME_QUALIFICATION_REMEDIATION.md`; evidence `artifacts/verification/evidence/apple10e-20260711T115656Z-4cea94c38f/` | Continue Phase 10E PR if still open | Phase 10E-R2 |
-| 10E-R2 | Apple Latest Runtime Qualification Remediation | Active - latest runtime UI healthcheck blocked | `prompts/verification/PHASE_10E_R2_APPLE_LATEST_RUNTIME_QUALIFICATION_REMEDIATION.md` | Latest-runtime rule requires Xcode/iOS simulator maintenance and iOS 27.0 qualification | `docs/verification/reports/PHASE_10E_R2_APPLE_LATEST_RUNTIME_QUALIFICATION.md`; evidence `artifacts/verification/evidence/appletoolchain-20260711T120519Z-d8c912c54e/`; blocked evidence `artifacts/verification/evidence/apple10e-20260711T121537Z-9c692b98a7/` | Continue Phase 10E PR if still open; do not merge as Apple coverage qualified | Phase 10E retry |
+| 10E-R2 | Apple Latest Runtime Qualification Remediation | Active - stable runtime config blocked | `prompts/verification/PHASE_10E_R2_APPLE_LATEST_RUNTIME_QUALIFICATION_REMEDIATION.md` | Latest-runtime rule requires Xcode/iOS simulator maintenance and stable iOS 26.5 qualification | `docs/verification/reports/PHASE_10E_R2_APPLE_LATEST_RUNTIME_QUALIFICATION.md`; evidence `artifacts/verification/evidence/appletoolchain-20260711T152806Z-b88e218cd8/`; blocked evidence `artifacts/verification/evidence/apple10e-20260711T152822Z-a6328549f9/` | Continue Phase 10E PR if still open; do not merge as Apple coverage qualified | Phase 10E retry |
 | 10E retry | Apple Scenario Coverage Expansion After Runtime Qualification | Blocked until latest runtime qualifies | `prompts/verification/PHASE_10E_APPLE_SCENARIO_COVERAGE_EXPANSION.md` | Phase 10E-R2 must return `APPLE_LATEST_RUNTIME_QUALIFIED` | Future updated Phase 10E coverage report | Continue Phase 10E PR if still open | Phase 11 |
 | 11+ | Additional Platform Adapters | Future | To be generated after Apple coverage work | Phase 10E and roadmap review | Future adapter reports | Future PRs | Future adapter qualification |
 

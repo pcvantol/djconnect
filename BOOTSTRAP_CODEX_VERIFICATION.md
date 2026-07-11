@@ -72,13 +72,14 @@ qualification targets to use the latest locally available iOS simulator
 runtime.
 
 Phase 10E-R2 Apple Latest Runtime Qualification returned
-`APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED`. The toolchain maintenance gate
-passed with Xcode 26.6, no macOS Software Update Xcode update advertised, and
-latest local iOS runtime 27.0 available. The full runtime qualification on iOS
-27.0 passed build, install, launch, screenshot and log collection, but the
-integrated XCTest UI healthcheck timed out. Broad Apple scenario coverage must
-not resume until Phase 10E-R2 remediates or classifies that latest-runtime
-healthcheck blocker.
+`APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED`. The latest rerun on July 11,
+2026 passed the Apple toolchain maintenance gate with Xcode 26.6 and resolved
+iOS 26.5 as the latest eligible stable simulator runtime. Runtime qualification
+then failed closed before live mutation because isolated DerivedData, prepared
+Apple target JSON, distribution signing expectations and UI healthcheck
+configuration were not provided in the session. Broad Apple scenario coverage
+must not resume until Phase 10E-R2 receives that stable-runtime configuration
+and returns `APPLE_LATEST_RUNTIME_QUALIFIED`.
 
 The active next phase is listed in `PROMPT_INDEX.md`.
 
