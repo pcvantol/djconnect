@@ -24,12 +24,16 @@ and must not be treated as canonical.
 ## Current Status
 
 The Verification Foundation, Core, Execution Environment, Data Framework,
-Modes, Policies, Planning Engine and Home Assistant Verification Adapter exist.
-Phase 9V concluded `VERIFICATION PLATFORM NOT QUALIFIED`.
+Modes, Policies, Planning Engine, Home Assistant Verification Adapter and
+dedicated local Home Assistant verification lab exist.
 
-Phase 9R converted several qualification blockers into executable checks.
-Phase 9L created the dedicated local HA verification lab definition, but the
-lab is not yet qualified for live verification.
+Phase 9V rerun concluded:
+
+```text
+VERIFICATION PLATFORM QUALIFIED
+```
+
+The platform is ready for Phase 10: Apple Verification Adapter.
 
 The active next phase is listed in `PROMPT_INDEX.md`.
 
