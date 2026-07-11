@@ -55,7 +55,7 @@ Primary evidence:
 | Verification Runtime | WARNING | Versioned runtime exists; release operations/self-hosted execution remain follow-ups. |
 | Meta Engineering | PASS | Process foundation is complete and indexed. |
 | Repository Bootstrap | PASS | Clean-session and canonical reference flow exists. |
-| Platform Adapters | FAIL | Home Assistant passed with warnings; Apple latest runtime is blocked; Pi, ESP32, Voice and Windows are not qualified. |
+| Platform Adapters | FAIL | Home Assistant passed with warnings; Apple latest-runtime follow-ups are resolved for current platform verification, but Apple scenario coverage retry remains open; Pi, ESP32, Voice and Windows are not qualified. |
 | Cross-platform | FAIL | Shared contracts exist, but cross-platform qualification is not complete. |
 | Software Assurance | PASS | Architecture is complete; implementation correctly deferred. |
 | Platform Health | WARNING | Measurement architecture exists; implementation is future Software Assurance work. |
@@ -73,7 +73,7 @@ baseline.
 
 Current fails:
 
-- primary adapters are not qualified;
+- primary adapters are not fully qualified;
 - cross-platform qualification is not complete.
 
 Current result:

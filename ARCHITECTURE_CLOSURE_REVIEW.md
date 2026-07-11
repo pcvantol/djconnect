@@ -155,9 +155,9 @@ The architecture can support long-term business-first engineering.
 The platform is not yet operationally ready to start business-first
 engineering because required qualification evidence is incomplete:
 
-- Apple latest runtime qualification is blocked by VPB-031, VPB-036, VPB-037
-  and VPB-038.
-- Apple scenario coverage has not completed.
+- Apple latest-runtime follow-ups VPB-031, VPB-036, VPB-037 and VPB-038 are
+  resolved for current platform verification, but Apple scenario coverage has
+  not completed.
 - Raspberry Pi, ESP32, Voice and Windows adapter qualification remains future
   work.
 - Cross-platform qualification has not completed.

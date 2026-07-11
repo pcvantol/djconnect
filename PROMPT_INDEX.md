@@ -18,8 +18,8 @@ The Architecture Closure Review completed on 2026-07-11 with decision
 
 Platform Baseline v1.0 has not yet been certified. The current platform
 decision is `PLATFORM_BASELINE_V1_NOT_CERTIFIED`. The active engineering
-objective is Platform Qualification, and the active next verification work
-remains the Phase 10E-R2 follow-up backlog.
+objective is Platform Qualification, and the active next verification work is
+the Phase 10E retry.
 
 Phase 9V rerun has qualified the Verification Platform using the dedicated
 local Home Assistant verification lab. The canonical planner selected the
@@ -112,7 +112,7 @@ Prompt 1.
 Use this clean-session prompt:
 
 ```text
-Read BOOTSTRAP_CODEX_VERIFICATION.md and resolve the Phase 10E-R2 follow-up backlog items from PROMPT_INDEX.md.
+Read BOOTSTRAP_CODEX_VERIFICATION.md and execute the Phase 10E retry from PROMPT_INDEX.md.
 ```
 
 ## Prompt Table
@@ -178,5 +178,5 @@ qualification report and the final result line.
 Exact clean-session command for the current follow-up gate:
 
 ```text
-Read BOOTSTRAP_CODEX_VERIFICATION.md and resolve the Phase 10E-R2 follow-up backlog items from PROMPT_INDEX.md.
+Read BOOTSTRAP_CODEX_VERIFICATION.md and execute the Phase 10E retry from PROMPT_INDEX.md.
 ```

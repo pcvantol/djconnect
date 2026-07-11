@@ -18,7 +18,9 @@ cross-repository governance and Home Assistant integration implementation.
 ## Current Phase
 
 Platform Qualification after the Software Assurance Platform Architecture
-Sprint, Product Strategy Foundation setup and Architecture Closure Review.
+Sprint, Product Strategy Foundation setup, Architecture Closure Review,
+Software Assurance deferred implementation registration and Phase 10E-R2
+follow-up closure for current platform verification.
 
 Canonical lifecycle:
 
@@ -29,13 +31,13 @@ Platform Architecture
   -> Business-first Engineering
 ```
 
-This phase is governance transition documentation only. It is not a product
-implementation phase, not a verification execution phase, not a CI/tooling
-enablement phase and not a new architecture phase.
+The current repository status task is documentation synchronization only. It
+is not a product implementation phase, not a verification execution phase, not
+a CI/tooling enablement phase and not a new architecture phase.
 
-The active verification prompt index still records Phase 10E-R2 follow-up work
-as the next verification gate. That verification work continues inside the
-frozen architecture.
+The active verification prompt index records Phase 10E retry as the next
+verification gate. That verification work continues inside the frozen
+architecture.
 
 ## Status
 
@@ -56,7 +58,8 @@ foundational gap.
 
 Prompt 4 Software Assurance governance and rollout strategy are complete. The
 architecture decision is `SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE`,
-and implementation is intentionally deferred.
+deferred implementation has been registered, and implementation remains
+deferred until `PLATFORM_BASELINE_V1_CERTIFIED`.
 
 The architecture closure review found that foundation, verification platform,
 meta engineering, repository bootstrap, cross-repository governance,
@@ -65,29 +68,21 @@ architecture are stable enough to freeze.
 
 ## Blocking Dependencies
 
-- Software Assurance implementation must not begin until later explicit
-  implementation prompts.
+- Software Assurance implementation must not begin until
+  `PLATFORM_BASELINE_V1_CERTIFIED` and later explicit implementation prompts.
 - Remaining platform adapters and cross-platform qualification must continue
   inside the frozen architecture.
-- CI workflow changes, scanner enablement and release gates are out of scope
-  for Prompt 1.
-- Apple scenario coverage remains blocked by the Phase 10E-R2 follow-up backlog
-  recorded in the Verification Platform backlog; this does not block this
-  architecture-only Software Assurance phase.
+- CI workflow changes, scanner enablement, trusted delivery and release gates
+  are deferred Software Assurance implementation work.
+- Apple scenario coverage remains incomplete. Phase 10E retry can proceed with
+  the Xcode account/development-signing gate, latest eligible simulator target
+  and prepared XCTest healthcheck recorded by Phase 10E-R2 follow-up work.
 
 ## Current Prompt
 
 Attached request:
 
-`DJConnect Platform - Architecture Transition`
-
-Additional attached request:
-
-`DJConnect Platform - Product Strategy Foundation`
-
-Final attached request:
-
-`DJConnect Platform - Architecture Closure Review`
+`Repository Synchronization Task - RST-001 Canonical Platform Status Synchronization`
 
 ## Completion Report
 
@@ -126,13 +121,31 @@ Architecture Closure outputs:
 - `ARCHITECTURE_CLOSURE_REVIEW.md`
 - `ARCHITECTURE_DECISION.md`
 
+Deferred Software Assurance implementation outputs:
+
+- `SOFTWARE_ASSURANCE_IMPLEMENTATION.md`
+- `prompts/deferred/software_assurance/`
+
 ## Last Qualification
 
 Most recent recorded verification qualification:
 
-Phase 10E-R2 Apple Latest Runtime Qualification closed as
-`APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED` with follow-up backlog items
-`VPB-031`, `VPB-036`, `VPB-037` and `VPB-038`.
+Phase 10E-R2 Apple Latest Runtime Qualification remains historical blocked
+evidence, but its follow-up backlog items `VPB-031`, `VPB-036`, `VPB-037` and
+`VPB-038` are resolved for current platform verification. Phase 10E retry can
+proceed with development signing, the latest eligible simulator target and the
+prepared XCTest healthcheck. App Store/TestFlight distribution signing is
+deferred to release v1.0 readiness.
+
+Most recent Verification Framework qualification:
+
+Phase 9V rerun returned `VERIFICATION PLATFORM QUALIFIED`.
+
+Verification Runtime status:
+
+The runtime is versioned as `1.0.0` and stable for current platform
+verification. Release operations and self-hosted runner maturity remain
+follow-ups; they do not make the framework incomplete.
 
 Most recent Home Assistant backend qualification:
 
@@ -149,10 +162,10 @@ contain the SHA of the commit that includes its own content.
 
 ## Repository-Local Next Action
 
-Return to the active Verification roadmap follow-up work before any Software
-Assurance implementation or business-first engineering begins. Resolve the
-Apple latest runtime follow-ups, complete remaining adapter qualification and
-cross-platform qualification, then rerun Platform Baseline certification.
-Do not start additional foundational architecture work unless a future
+Return to the active Verification roadmap before any Software Assurance
+implementation or business-first engineering begins. Execute the Phase 10E
+Apple scenario coverage retry, complete remaining adapter qualification and
+cross-platform qualification, then rerun Platform Baseline certification. Do
+not start additional foundational architecture work unless a future
 Architecture Review with objective evidence demonstrates a genuine
 architecture gap.
