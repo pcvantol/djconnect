@@ -33,6 +33,8 @@ Runtime schema version: `1`
 - GitHub Actions workflow for publishing the generic runtime image to Docker
   Hub using repository Docker Hub secrets, with pre-publication image label
   inspection and container smoke testing.
+- Regular repository CI now runs the Verification Platform unit test suite
+  `tests/verification` as its own check.
 - Default Docker Hub publish target documented as `pcvantol/djconnect` with
   runtime tags `0.2.0`, `0.2.0-<short-sha>` and `sha-<short-sha>`.
 - Stable versus `future_beta` runtime channel separation for Apple/Xcode and
@@ -60,6 +62,8 @@ Runtime schema version: `1`
   `verification_runtime.version: "0.2.0"`.
 - GitHub workflow structure is covered by `tests/verification` to keep image
   label inspection and `docker run ... config` smoke testing before publication.
+- The repository validation workflow includes a dedicated Verification
+  framework test job.
 
 ### Known Limitations
 
