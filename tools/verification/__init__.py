@@ -1,7 +1,9 @@
-"""DJConnect Verification Harness scaffold."""
+"""DJConnect Verification Platform runtime."""
 
 from __future__ import annotations
 
-__all__ = ["__version__"]
+from .runtime import RUNTIME_VERSION, runtime_metadata
 
-__version__ = "0.1.0"
+__all__ = ["__version__", "runtime_metadata"]
+
+__version__ = RUNTIME_VERSION

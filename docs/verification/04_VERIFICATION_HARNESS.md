@@ -92,6 +92,11 @@ checksums, timing, performance and future audio/video evidence.
 results while allowing independent scenarios to run in sandboxed parallel
 waves.
 
+`runtime.py` owns the Verification Platform runtime identity. Every run,
+environment snapshot, summary and machine-readable report records the
+`djconnect-verification-platform` runtime name, runtime version and runtime
+schema version.
+
 ## Adapter Targets
 
 The interface is designed for these adapters:
@@ -173,6 +178,15 @@ DJCONNECT_VERIFICATION_TEST_MODE=future_beta
 In stable mode, Apple runtime qualification uses the latest eligible stable iOS
 simulator runtime. Beta iOS runtimes, Xcode beta and Home Assistant beta are
 advisory early-warning routes and do not replace stable release qualification.
+
+The runtime version is part of verification evidence. Operators can inspect it
+before execution with:
+
+```bash
+python -m tools.verification.cli config
+```
+
+Reports and summaries expose it under `verification_runtime`.
 
 ## Developer Workflow
 

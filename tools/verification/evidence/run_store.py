@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from tools.verification.evidence.index import redact
+from tools.verification.runtime import runtime_metadata
 
 
 RUN_SCHEMA_VERSION = 1
@@ -30,7 +31,16 @@ class RunStore:
             path.mkdir(parents=True, exist_ok=False)
         except FileExistsError as exc:
             raise RunStoreError(f"run directory already exists: {run_id}") from exc
-        self.write_json(run_id, "summary.json", {"run_id": run_id, "state": "PARTIAL", "schema_version": RUN_SCHEMA_VERSION})
+        self.write_json(
+            run_id,
+            "summary.json",
+            {
+                "run_id": run_id,
+                "state": "PARTIAL",
+                "schema_version": RUN_SCHEMA_VERSION,
+                "verification_runtime": runtime_metadata(),
+            },
+        )
         return path
 
     def ensure(self, run_id: str) -> Path:
@@ -74,6 +84,7 @@ class RunStore:
                 "run_id": run_id,
                 "state": state,
                 "schema_version": RUN_SCHEMA_VERSION,
+                "verification_runtime": runtime_metadata(),
                 **(summary or {}),
             },
         )

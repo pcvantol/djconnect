@@ -220,6 +220,7 @@ class ExecutionEnvironmentTests(unittest.TestCase):
         data = json.loads(output.getvalue())
         self.assertTrue(data["parallel_execution"])
         self.assertEqual(12, data["parallel_workers"])
+        self.assertEqual("djconnect-verification-platform", data["verification_runtime"]["name"])
 
         with patch("tools.verification.configuration.loader.os.cpu_count", return_value=12), patch(
             "tools.verification.configuration.loader.subprocess.run",

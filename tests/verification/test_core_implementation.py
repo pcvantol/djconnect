@@ -18,7 +18,7 @@ from tools.verification.evidence import EvidenceCollector, LogManager
 from tools.verification.execution import ParallelExecutionOptions, ScenarioExecutor
 from tools.verification.hygiene import RepositoryHygiene
 from tools.verification.models import ArtifactMetadata, EvidenceKind, GateState, PrimitiveResult, ResultState, Scenario, ScenarioResult
-from tools.verification.reporting import JSONReporter, JUnitReporter, PlatformReadinessCalculator
+from tools.verification.reporting import JSONReporter, JUnitReporter, MarkdownReporter, PlatformReadinessCalculator
 from tools.verification.results import ResultManager
 from tools.verification.scenario import ScenarioEngine
 from tools.verification.scenarios import ScenarioLoader, ScenarioValidator
@@ -58,6 +58,7 @@ class VerificationCoreImplementationTests(unittest.TestCase):
         self.assertTrue(snapshot.timestamp)
         self.assertTrue(snapshot.configuration_fingerprint)
         self.assertIn("python", snapshot.toolchain)
+        self.assertEqual("djconnect-verification-platform", snapshot.verification_runtime["name"])
 
     def test_repository_hygiene_exposes_required_gates(self) -> None:
         root = Path(__file__).resolve().parents[2]
@@ -106,7 +107,10 @@ class VerificationCoreImplementationTests(unittest.TestCase):
         )
 
         self.assertEqual("not_ready", PlatformReadinessCalculator().calculate(result)["status"])
-        self.assertEqual("FAIL", json.loads(JSONReporter().render(result))["state"])
+        rendered = json.loads(JSONReporter().render(result))
+        self.assertEqual("FAIL", rendered["state"])
+        self.assertEqual("djconnect-verification-platform", rendered["metadata"]["verification_runtime"]["name"])
+        self.assertIn("Verification runtime:", MarkdownReporter().render(result))
         self.assertIn("failure", JUnitReporter().render(result))
 
     def test_cli_parses_phase_five_commands(self) -> None:

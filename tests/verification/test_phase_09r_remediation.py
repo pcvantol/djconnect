@@ -127,6 +127,7 @@ class Phase09RRemediationTests(unittest.TestCase):
             with self.assertRaises(RunStoreError):
                 store.create("run-1")
             self.assertTrue(store.verify("run-1")["ok"])
+            self.assertEqual("djconnect-verification-platform", store.show("run-1")["verification_runtime"]["name"])
             text = (Path(temp_dir) / "run-1" / "environment.json").read_text(encoding="utf-8")
             self.assertIn("[redacted-key]", text)
 
@@ -141,6 +142,7 @@ class Phase09RRemediationTests(unittest.TestCase):
             summary = store.show("run-1")
             self.assertEqual([{"scenario_id": "A-001"}], summary["scenario_results"])
             self.assertEqual("FAIL", summary["state"])
+            self.assertEqual("djconnect-verification-platform", summary["verification_runtime"]["name"])
 
     def test_github_ci_decision_states_from_gh_payloads(self) -> None:
         inspector = GitHubInspector(Path.cwd())

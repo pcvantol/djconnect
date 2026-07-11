@@ -17,6 +17,7 @@ class MarkdownReporter:
             "",
             f"Overall result: {result.state.value}",
             f"Readiness: {readiness['status']} ({readiness['score']}%)",
+            f"Verification runtime: {_runtime_label(result)}",
             "",
             "## Summary",
             "",
@@ -87,3 +88,12 @@ class JUnitReporter:
 class SummaryReporter:
     def render(self, result: RunResult) -> str:
         return f"{result.run_id}: {result.state.value} ({len(result.scenario_results)} scenarios)"
+
+
+def _runtime_label(result: RunResult) -> str:
+    runtime = result.metadata.get("verification_runtime")
+    if not isinstance(runtime, dict):
+        return "unknown"
+    name = runtime.get("name") or "unknown"
+    version = runtime.get("version") or "unknown"
+    return f"{name} {version}"

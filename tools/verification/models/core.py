@@ -298,6 +298,7 @@ class EnvironmentSnapshot:
     git_branch: str | None
     dependency_versions: dict[str, str]
     configuration_fingerprint: str
+    verification_runtime: dict[str, Any] = field(default_factory=dict)
     capabilities: dict[str, Any] = field(default_factory=dict)
 
 

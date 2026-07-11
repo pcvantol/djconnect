@@ -13,6 +13,7 @@ from .config import load_config
 from .configuration import SecretLoader
 from .orchestrator import VerificationOrchestrator
 from .reporters import JSONReporter, JUnitReporter, MarkdownReporter, SummaryReporter
+from .runtime import runtime_metadata
 from .scenarios import ScenarioLoader, ScenarioScheduler, ScenarioValidator
 
 
@@ -290,6 +291,7 @@ def main(argv: list[str] | None = None) -> int:
                     "test_mode": config.test_mode,
                     "parallel_execution": config.parallel_execution,
                     "parallel_workers": config.parallel_workers,
+                    "verification_runtime": runtime_metadata(),
                     "secrets": {"source": secrets.source, "names": list(secrets.names)},
                 },
                 indent=2,

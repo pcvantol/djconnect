@@ -246,6 +246,17 @@ configuration fingerprint.
 
 The snapshot model is reusable by every adapter.
 
+Snapshots include Verification Platform runtime metadata:
+
+```text
+verification_runtime.name
+verification_runtime.version
+verification_runtime.schema_version
+```
+
+The same metadata is persisted in run summaries and report metadata so test
+results can be traced back to the runtime implementation that produced them.
+
 ## Run Identity
 
 Every prepared run receives `run_id`, `environment_id`, `correlation_id`,

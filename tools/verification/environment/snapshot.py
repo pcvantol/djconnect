@@ -14,12 +14,14 @@ from pathlib import Path
 
 from tools.verification.models import EnvironmentSnapshot, HarnessConfig
 from tools.verification.environment.toolchain import ToolchainInspector
+from tools.verification.runtime import runtime_metadata
 
 
 class EnvironmentSnapshotter:
     def collect(self, config: HarnessConfig) -> EnvironmentSnapshot:
         dependency_versions = _dependency_versions(config.root)
         fingerprint_payload = {
+            "verification_runtime": runtime_metadata(),
             "scenario_paths": [str(path) for path in config.scenario_paths],
             "ci": config.ci,
             "test_mode": config.test_mode,
@@ -47,6 +49,7 @@ class EnvironmentSnapshotter:
             git_branch=_git(config.root, "rev-parse", "--abbrev-ref", "HEAD"),
             dependency_versions=dependency_versions,
             configuration_fingerprint=fingerprint,
+            verification_runtime=runtime_metadata(),
             capabilities=capabilities,
         )
 
