@@ -13,7 +13,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
-from tools.verification.apple_adapter import AppleAdapterConfig, AppleVerificationAdapter
+from tools.verification.apple_adapter import AppleAdapterConfig, AppleRuntimeTarget, AppleVerificationAdapter
 from tools.verification.evidence import RunStore
 from tools.verification.environment.identity import RunIdentityManager
 from tools.verification.environment.platforms import CommandRunner
@@ -24,6 +24,7 @@ MANDATORY_CHECKS = (
     "distribution_signing_assets",
     "release_equivalent_build",
     "simulator_target",
+    "cross_device_simulator_targets",
     "physical_device_target",
     "derived_data_isolation",
     "install",
@@ -87,6 +88,7 @@ class AppleRuntimeQualification:
                 )
             )
         checks.append(self._simulator_target())
+        checks.append(self._cross_device_simulator_targets())
         checks.append(self._physical_device_target())
 
         adapter_config = AppleAdapterConfig.from_environment(self.root)
@@ -108,7 +110,7 @@ class AppleRuntimeQualification:
         checks.append(self._ui_healthcheck())
 
         state = "PASS" if all(
-            check.state == "PASS" or (check.name == "physical_device_target" and check.state == "SKIPPED")
+            check.state == "PASS" or (check.name in {"physical_device_target", "cross_device_simulator_targets"} and check.state == "SKIPPED")
             for check in checks
         ) else "BLOCKED"
         result = AppleQualificationResult(
@@ -248,6 +250,55 @@ class AppleRuntimeQualification:
             "PASS",
             "Prepared simulator target configured on the latest locally available iOS runtime.",
             {"target": target.to_dict(), "latest_ios_runtime": ios_runtime},
+        )
+
+    def _cross_device_simulator_targets(self) -> AppleQualificationCheck:
+        targets_json = os.getenv("DJCONNECT_VERIFICATION_APPLE_TARGETS_JSON", "")
+        if not targets_json:
+            return _check("cross_device_simulator_targets", "SKIPPED", "No cross-device Apple simulator target set configured.", {})
+        try:
+            raw_targets = json.loads(targets_json)
+        except json.JSONDecodeError as exc:
+            return _check("cross_device_simulator_targets", "BLOCKED", "Cross-device Apple target set JSON is invalid.", {"error": str(exc)})
+        if not isinstance(raw_targets, list) or len(raw_targets) < 2:
+            return _check(
+                "cross_device_simulator_targets",
+                "BLOCKED",
+                "Cross-device Apple tests require at least two configured simulator targets.",
+                {"target_count": len(raw_targets) if isinstance(raw_targets, list) else 0},
+            )
+        available = available_ios_simulator_devices()
+        if not available:
+            return _check("cross_device_simulator_targets", "BLOCKED", "Available iOS simulator devices could not be determined.", {})
+        by_udid = {device["udid"]: device for device in available if device.get("udid")}
+        resolved: list[dict[str, Any]] = []
+        missing: list[dict[str, Any]] = []
+        for raw in raw_targets:
+            if not isinstance(raw, dict):
+                missing.append({"target": raw, "reason": "target is not an object"})
+                continue
+            target = AppleRuntimeTarget.from_mapping(raw)
+            expected_version = str(raw.get("ios_version") or raw.get("runtime_version") or target.metadata.get("ios_version") or target.metadata.get("runtime_version") or "")
+            device = by_udid.get(target.udid)
+            if not device:
+                missing.append({"target": target.to_dict(), "reason": "udid not available"})
+                continue
+            if expected_version and device.get("version") != expected_version:
+                missing.append({"target": target.to_dict(), "reason": "runtime version mismatch", "expected_version": expected_version, "actual_version": device.get("version")})
+                continue
+            resolved.append({"target": target.to_dict(), "available_device": device})
+        if missing:
+            return _check(
+                "cross_device_simulator_targets",
+                "BLOCKED",
+                "One or more configured cross-device Apple simulators are unavailable.",
+                {"missing": missing, "resolved": resolved},
+            )
+        return _check(
+            "cross_device_simulator_targets",
+            "PASS",
+            "All configured cross-device Apple simulators are available.",
+            {"targets": resolved},
         )
 
     def _physical_device_target(self) -> AppleQualificationCheck:
@@ -462,6 +513,39 @@ def latest_ios_simulator_runtime(runner: CommandRunner | None = None) -> dict[st
         return None
     latest = sorted(ios_runtimes, key=lambda item: item["version_key"])[-1]
     return {key: value for key, value in latest.items() if key != "version_key"}
+
+
+def available_ios_simulator_devices(runner: CommandRunner | None = None) -> list[dict[str, Any]]:
+    runner = runner or CommandRunner()
+    code, output = runner.run(("xcrun", "simctl", "list", "devices", "available", "--json"), timeout=20)
+    if code != 0:
+        return []
+    try:
+        data = json.loads(output)
+    except json.JSONDecodeError:
+        return []
+    devices_by_runtime = data.get("devices")
+    if not isinstance(devices_by_runtime, dict):
+        return []
+    devices: list[dict[str, Any]] = []
+    for runtime, runtime_devices in devices_by_runtime.items():
+        runtime_text = str(runtime)
+        if "SimRuntime.iOS-" not in runtime_text or not isinstance(runtime_devices, list):
+            continue
+        version = _runtime_version(runtime_text)
+        for device in runtime_devices:
+            if not isinstance(device, dict) or not device.get("isAvailable", device.get("is_available")):
+                continue
+            devices.append(
+                {
+                    "runtime": runtime_text,
+                    "version": version,
+                    "name": device.get("name"),
+                    "udid": device.get("udid"),
+                    "state": device.get("state"),
+                }
+            )
+    return devices
 
 
 def _runtime_version(runtime: str) -> str:

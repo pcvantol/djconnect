@@ -34,6 +34,12 @@ python3 -m tools.verification.cli apple qualify-runtime
 The runtime gate must fail closed if the configured target JSON does not use
 the latest locally available iOS runtime.
 
+For cross-device or multi-iOS scenario batches, configure
+`DJCONNECT_VERIFICATION_APPLE_TARGETS_JSON` with all required simulator
+targets. The gate must verify each configured simulator UDID is available and
+that any declared `ios_version` or `runtime_version` matches the discovered
+CoreSimulator runtime before the batch can run.
+
 The runtime gate must also clean `DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA`
 before every release-equivalent build. Use only an absolute DerivedData path
 under `/private/tmp`, `/tmp` or `artifacts/verification`; any other cleanup
@@ -64,6 +70,8 @@ Stop and report blocked if:
   cannot be applied from the session.
 - `xcodebuild -downloadPlatform iOS` fails.
 - No available iOS simulator runtime exists.
+- A cross-device or multi-iOS target set is configured but any required
+  simulator UDID or declared iOS runtime version is unavailable.
 - The DerivedData path is missing, relative or outside the approved verification
   scratch roots.
 - The expected Apple Distribution identity is missing from the keychain.
@@ -81,8 +89,8 @@ APPLE_LATEST_RUNTIME_QUALIFIED
 
 only when the latest-runtime qualification passes release-equivalent build,
 entitlements metadata, distribution signing assets, simulator target freshness,
-isolated DerivedData, install, launch, screenshot, scoped log collection and UI
-automation healthcheck.
+configured cross-device simulator availability, isolated DerivedData, install,
+launch, screenshot, scoped log collection and UI automation healthcheck.
 
 Do not begin Phase 10E retry or Phase 11 until this phase returns
 `APPLE_LATEST_RUNTIME_QUALIFIED`.

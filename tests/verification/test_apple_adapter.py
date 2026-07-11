@@ -110,6 +110,10 @@ def _signing_env(profiles_dir: Path) -> dict[str, str]:
     }
 
 
+def _no_cross_device_targets_env() -> dict[str, str]:
+    return {"DJCONNECT_VERIFICATION_APPLE_TARGETS_JSON": ""}
+
+
 class AppleAdapterTests(unittest.TestCase):
     def test_simulator_discovery_parses_simctl_json(self) -> None:
         devices = parse_simctl_devices(SIMCTL_JSON)
@@ -267,6 +271,7 @@ class AppleAdapterTests(unittest.TestCase):
                     "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": "",
                     "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "",
                     "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "",
+                    **_no_cross_device_targets_env(),
                 },
                 clear=False,
             ):
@@ -320,6 +325,7 @@ class AppleAdapterTests(unittest.TestCase):
                     "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
                     "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
                     **_signing_env(profiles_dir),
+                    **_no_cross_device_targets_env(),
                 },
                 clear=False,
             ), patch("tools.verification.apple_runtime_qualification.CommandRunner", lambda: FakeRunner({
@@ -363,6 +369,7 @@ class AppleAdapterTests(unittest.TestCase):
                     "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
                     "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
                     **_signing_env(profiles_dir),
+                    **_no_cross_device_targets_env(),
                 },
                 clear=False,
             ), patch("tools.verification.apple_runtime_qualification.CommandRunner", lambda: FakeRunner({
@@ -410,6 +417,7 @@ class AppleAdapterTests(unittest.TestCase):
                     "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
                     "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
                     **_signing_env(profiles_dir),
+                    **_no_cross_device_targets_env(),
                 },
                 clear=False,
             ), patch("tools.verification.apple_runtime_qualification.CommandRunner", lambda: FakeRunner({
@@ -459,6 +467,7 @@ class AppleAdapterTests(unittest.TestCase):
                     "DJCONNECT_VERIFICATION_APPLE_BUNDLE_ID": "",
                     "DJCONNECT_VERIFICATION_APPLE_PROVISIONING_PROFILE": "",
                     "DJCONNECT_VERIFICATION_APPLE_PROFILES_DIR": "",
+                    **_no_cross_device_targets_env(),
                 },
                 clear=False,
             ), patch("tools.verification.apple_runtime_qualification.CommandRunner", lambda: FakeRunner({
@@ -471,6 +480,116 @@ class AppleAdapterTests(unittest.TestCase):
             self.assertEqual("BLOCKED", states["distribution_signing_assets"])
             self.assertEqual("BLOCKED", states["release_equivalent_build"])
             self.assertIn("DJCONNECT_VERIFICATION_APPLE_DISTRIBUTION_IDENTITY", signing_check.data["missing"])
+
+    def test_phase_10e_runtime_qualification_passes_configured_cross_device_targets(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "djconnect"
+            apple_repo = Path(tmp) / "djconnect-app"
+            app_path = Path(tmp) / "DJConnect.app"
+            profiles_dir = Path(tmp) / "profiles"
+            _write_distribution_profile(profiles_dir)
+            (root / "artifacts" / "verification" / "evidence").mkdir(parents=True)
+            (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
+            (apple_repo / "App.entitlements").write_text("<plist/>", encoding="utf-8")
+            app_path.write_text("fixture", encoding="utf-8")
+            primary_target = {
+                "target_id": "ios-27-primary",
+                "variant": "ios",
+                "runtime": "simulator",
+                "name": "iPhone 17 Pro",
+                "udid": "SIM-IOS-27-0",
+                "bundle_id": "dev.djconnect.ios",
+                "app_path": str(app_path),
+            }
+            cross_targets = [
+                primary_target | {"ios_version": "27.0"},
+                {
+                    "target_id": "ios-26-secondary",
+                    "variant": "ios",
+                    "runtime": "simulator",
+                    "name": "iPhone 17",
+                    "udid": "SIM-IOS-26-5",
+                    "bundle_id": "dev.djconnect.ios",
+                    "app_path": str(app_path),
+                    "ios_version": "26.5",
+                },
+            ]
+            with patch.dict(
+                "os.environ",
+                {
+                    "DJCONNECT_VERIFICATION_APPLE_TARGET_JSON": json.dumps(primary_target),
+                    "DJCONNECT_VERIFICATION_APPLE_TARGETS_JSON": json.dumps(cross_targets),
+                    "DJCONNECT_VERIFICATION_APPLE_BUILD_COMMAND": "true",
+                    "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(root / "artifacts" / "verification" / "DerivedData"),
+                    "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
+                    "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
+                    **_signing_env(profiles_dir),
+                },
+                clear=False,
+            ), patch("tools.verification.apple_runtime_qualification.CommandRunner", lambda: FakeRunner({
+                ("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON),
+                ("security", "find-identity", "-v", "-p", "codesigning"): (0, SIGNING_IDENTITY_OUTPUT),
+            })):
+                result = AppleRuntimeQualification(root, apple_repo=apple_repo).run()
+
+            cross_check = next(check for check in result.checks if check.name == "cross_device_simulator_targets")
+            self.assertEqual("PASS", cross_check.state)
+            self.assertEqual(2, len(cross_check.data["targets"]))
+
+    def test_phase_10e_runtime_qualification_blocks_missing_cross_device_target(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "djconnect"
+            apple_repo = Path(tmp) / "djconnect-app"
+            app_path = Path(tmp) / "DJConnect.app"
+            profiles_dir = Path(tmp) / "profiles"
+            _write_distribution_profile(profiles_dir)
+            (root / "artifacts" / "verification" / "evidence").mkdir(parents=True)
+            (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
+            (apple_repo / "App.entitlements").write_text("<plist/>", encoding="utf-8")
+            app_path.write_text("fixture", encoding="utf-8")
+            primary_target = {
+                "target_id": "ios-27-primary",
+                "variant": "ios",
+                "runtime": "simulator",
+                "name": "iPhone 17 Pro",
+                "udid": "SIM-IOS-27-0",
+                "bundle_id": "dev.djconnect.ios",
+                "app_path": str(app_path),
+            }
+            cross_targets = [
+                primary_target | {"ios_version": "27.0"},
+                {
+                    "target_id": "missing-ios",
+                    "variant": "ios",
+                    "runtime": "simulator",
+                    "name": "Missing iPhone",
+                    "udid": "SIM-MISSING",
+                    "bundle_id": "dev.djconnect.ios",
+                    "app_path": str(app_path),
+                    "ios_version": "26.5",
+                },
+            ]
+            with patch.dict(
+                "os.environ",
+                {
+                    "DJCONNECT_VERIFICATION_APPLE_TARGET_JSON": json.dumps(primary_target),
+                    "DJCONNECT_VERIFICATION_APPLE_TARGETS_JSON": json.dumps(cross_targets),
+                    "DJCONNECT_VERIFICATION_APPLE_BUILD_COMMAND": "true",
+                    "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(root / "artifacts" / "verification" / "DerivedData"),
+                    "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
+                    "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
+                    **_signing_env(profiles_dir),
+                },
+                clear=False,
+            ), patch("tools.verification.apple_runtime_qualification.CommandRunner", lambda: FakeRunner({
+                ("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON),
+                ("security", "find-identity", "-v", "-p", "codesigning"): (0, SIGNING_IDENTITY_OUTPUT),
+            })):
+                result = AppleRuntimeQualification(root, apple_repo=apple_repo).run()
+
+            cross_check = next(check for check in result.checks if check.name == "cross_device_simulator_targets")
+            self.assertEqual("BLOCKED", cross_check.state)
+            self.assertEqual("SIM-MISSING", cross_check.data["missing"][0]["target"]["udid"])
 
 
 if __name__ == "__main__":

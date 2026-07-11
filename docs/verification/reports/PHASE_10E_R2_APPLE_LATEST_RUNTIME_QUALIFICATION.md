@@ -30,7 +30,8 @@ release-equivalent build and only approved verification scratch roots may be
 used for that cleanup. A second follow-up tightened release signing: the gate
 now requires the configured Apple Distribution identity to be present in the
 keychain and a matching provisioning profile to be available before the
-release-equivalent build command can run.
+release-equivalent build command can run. A third follow-up added an explicit
+cross-device target-set gate for multi-device or multi-iOS scenario batches.
 
 Decision:
 
@@ -100,6 +101,7 @@ dev.djconnect.ios
 | Distribution signing assets | Tightened after run | Future runs require matching Apple Distribution identity, team id, bundle id and provisioning profile metadata before release build. |
 | Release-equivalent build | PASS | Release simulator build completed for the iOS 27.0 target. |
 | Simulator target | PASS | Prepared target JSON used the latest locally available iOS runtime. |
+| Cross-device simulator targets | Tightened after run | Future cross-device or multi-iOS batches require every configured simulator UDID and declared runtime version to be available before execution. |
 | Physical-device target | SKIPPED | Physical-device execution remains explicit opt-in. |
 | DerivedData isolation | PASS | Latest-runtime rerun used isolated DerivedData paths; the gate now cleans the configured DerivedData path before each release-equivalent build. |
 | Install app | PASS | The app artifact installed on the iOS 27.0 simulator. |
@@ -154,6 +156,18 @@ and scans provisioning profiles from
 `DJCONNECT_VERIFICATION_APPLE_PROFILES_DIR` is set. Evidence records only
 metadata needed to prove the match; it does not persist private keys,
 certificate material or full profile payloads.
+
+For cross-device or multi-iOS scenario batches, the gate accepts:
+
+```text
+DJCONNECT_VERIFICATION_APPLE_TARGETS_JSON
+```
+
+This is a JSON list of required simulator targets. Each target must include a
+UDID, and may include `ios_version` or `runtime_version`. When configured, the
+gate verifies every listed simulator is present in
+`xcrun simctl list devices available --json` and that declared runtime versions
+match the discovered CoreSimulator runtime.
 
 ## Tests And Commands Run
 
