@@ -285,6 +285,20 @@ scenarios, lab definitions, prompts, docs, tests, product source and evidence
 artifacts. The image is therefore a reusable engine runtime; repositories mount
 their own scenarios and assets at execution time.
 
+The Docker runtime is also the portability layer for GitHub Actions runners.
+Hosted GitHub runners can use the image for repository-safe verification work:
+runtime smoke tests, scenario validation, planning, report/schema validation,
+exact-SHA metadata capture and non-mutating dry-runs. Jobs that require Docker
+Home Assistant labs, Xcode simulator state, local ports, hardware, SSH, serial
+devices, signing material or destructive cleanup must run only on self-hosted
+GitHub runners or approved local labs that advertise those capabilities.
+
+GitHub runner execution must preserve the same evidence contract as local
+execution: record `verification_runtime`, GitHub run/job metadata, checked
+commit SHA, parallel worker count, execution summary totals and artifact paths.
+The Docker image supplies the engine; the workflow supplies repository checkout,
+scenario inputs, credentials by name, artifact upload and policy gates.
+
 ## Run Identity
 
 Every prepared run receives `run_id`, `environment_id`, `correlation_id`,

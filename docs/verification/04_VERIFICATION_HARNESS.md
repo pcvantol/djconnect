@@ -240,6 +240,14 @@ docker run --rm \
   --root /workspace config
 ```
 
+The same image is intended to run inside GitHub Actions. In hosted GitHub
+runners it should execute engine validation, scenario catalog validation,
+planning, report schema checks, Docker dry-runs and other non-mutating
+verification steps against the checked-out repository. Live Home Assistant labs,
+Apple simulator runs, hardware rigs and destructive cleanup remain gated and
+belong on explicitly prepared self-hosted runners or local labs with the
+required host capabilities.
+
 ## Developer Workflow
 
 1. Add or update scenarios in the canonical scenario catalog.

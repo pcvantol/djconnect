@@ -363,3 +363,32 @@ Status: accepted.
 Related documents: `docs/verification/04_VERIFICATION_HARNESS.md`,
 `docs/verification/08_VERIFICATION_EXECUTION_ENVIRONMENT.md`,
 `tools/verification/README.md`.
+
+## VAD-018 - GitHub Runners Are A First-Class Execution Surface
+
+Context: The Verification Platform must eventually run beyond a developer
+MacBook while keeping local lab and hardware requirements explicit.
+
+Decision: GitHub Actions runners are a first-class execution surface for the
+Verification Platform. Hosted runners may execute repository-safe engine,
+scenario, planning and report validation through the generic Docker runtime.
+Live labs, Apple simulators, hardware, SSH, serial, signing and destructive
+cleanup require capability-gated self-hosted runners or approved local labs.
+
+Rationale: The Docker runtime was introduced to make the engine portable into
+GitHub runners without baking in DJConnect product state or assuming local
+hardware capabilities.
+
+Rejected alternatives: treating GitHub Actions only as an external status
+source, or allowing hosted runners to attempt lab/hardware scenarios without
+declared capabilities.
+
+Consequences: Future CI workflows should use the Docker runtime for portable
+verification jobs, upload evidence artifacts, record GitHub run metadata and
+fail closed when required runner capabilities are absent.
+
+Status: accepted.
+
+Related documents: `docs/verification/04_VERIFICATION_HARNESS.md`,
+`docs/verification/08_VERIFICATION_EXECUTION_ENVIRONMENT.md`,
+`tools/verification/README.md`.

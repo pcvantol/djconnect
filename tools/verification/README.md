@@ -20,6 +20,12 @@ The generic runtime can also be released as a Docker image. That image contains
 only the reusable verification engine, not DJConnect product scenarios,
 artifacts, secrets or lab state.
 
+The Docker image is the portability layer for GitHub Actions runners. Hosted
+GitHub runners should use it for engine smoke tests, scenario validation,
+planning, schema/report checks and non-mutating dry-runs. Live labs, Apple
+simulators, hardware, SSH, serial devices, signing and destructive cleanup need
+self-hosted runners or approved local labs with explicit capabilities.
+
 ## Pipeline
 
 ```text
@@ -165,6 +171,10 @@ docker run --rm \
 ```
 
 Use `--dry-run` when preparing release metadata without building locally.
+
+In GitHub Actions, the workflow should provide the checkout, mount or pass the
+workspace to the container, upload `artifacts/verification/`, and record GitHub
+run/job metadata beside `verification_runtime` and `execution_summary`.
 
 ## Extension Rules
 
