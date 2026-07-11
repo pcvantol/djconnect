@@ -42,6 +42,23 @@ The default profile is `ha-profile`. Override it locally with:
 DJCONNECT_VERIFICATION_LAB_PROFILE=ha-minimal python3 -m tools.verification.cli lab ha start
 ```
 
+The fallback Home Assistant image is pinned to the current stable lab baseline:
+
+```text
+ghcr.io/home-assistant/home-assistant:2026.7.2
+```
+
+When the lab lifecycle starts an image through `build`, `start`, `recreate` or
+`fresh`, the Execution Environment checks `ghcr.io/home-assistant/home-assistant:stable`,
+reads the Home Assistant version label and runs the exact version tag for that
+stable release. This keeps normal local lab runs current while preserving
+evidence with an explicit image tag.
+
+Override it locally with `DJCONNECT_VERIFICATION_HA_IMAGE` only when a phase
+explicitly asks to qualify a different Home Assistant version. Set
+`DJCONNECT_VERIFICATION_HA_AUTO_UPDATE=0` to use the fallback image without
+checking the latest stable tag.
+
 ## Commands
 
 Use the Verification CLI:

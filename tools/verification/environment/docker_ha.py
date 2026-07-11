@@ -11,7 +11,9 @@ import socket
 import shutil
 import subprocess
 import struct
-from dataclasses import dataclass, field
+import uuid
+from dataclasses import dataclass, field, replace
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlencode
@@ -23,6 +25,8 @@ from tools.verification.lab import LabCatalog
 
 
 SECRET_KEY_PARTS = ("token", "password", "secret", "proof", "authorization", "key")
+DEFAULT_HA_STABLE_IMAGE = "ghcr.io/home-assistant/home-assistant:stable"
+DEFAULT_HA_BASELINE_IMAGE = "ghcr.io/home-assistant/home-assistant:2026.7.2"
 
 
 @dataclass(frozen=True)
@@ -92,6 +96,7 @@ class HALabConfig:
     repo_root: Path
     source_sha: str
     source_fingerprint: str
+    auto_update_image: bool = False
 
     @classmethod
     def from_root(cls, root: Path) -> "HALabConfig":
@@ -101,10 +106,12 @@ class HALabConfig:
         catalog = LabCatalog(root)
         fragments = catalog.profile_compose_fragments(profile)
         compose_files = tuple(root / fragment for fragment in fragments) or (root / "verification/lab/home_assistant/compose.yaml",)
+        configured_image = os.getenv("DJCONNECT_VERIFICATION_HA_IMAGE")
+        auto_update_image = configured_image is None and os.getenv("DJCONNECT_VERIFICATION_HA_AUTO_UPDATE", "1").lower() not in {"0", "false", "no", "off"}
         return cls(
             name=os.getenv("DJCONNECT_VERIFICATION_HA_CONTAINER", "djconnect-verification-ha"),
             port=int(os.getenv("DJCONNECT_VERIFICATION_HA_PORT", "18123")),
-            image=os.getenv("DJCONNECT_VERIFICATION_HA_IMAGE", "ghcr.io/home-assistant/home-assistant:stable"),
+            image=configured_image or DEFAULT_HA_BASELINE_IMAGE,
             compose_file=compose_files[0],
             compose_files=compose_files,
             profile=profile,
@@ -114,6 +121,7 @@ class HALabConfig:
             repo_root=root,
             source_sha=source_sha,
             source_fingerprint=_source_fingerprint(root),
+            auto_update_image=auto_update_image,
         )
 
 
@@ -267,6 +275,7 @@ class HALocalVerificationLab:
             recovery = self._recover_stale_container()
             if not recovery["ok"]:
                 return GateResult("ha_lab_lifecycle", GateState.FAIL, "Lab recovery failed before lifecycle action", recovery)
+        image_resolution = self._resolve_default_image(action)
         env = self._compose_env()
         compose = self._compose_args()
         commands = {
@@ -288,7 +297,14 @@ class HALocalVerificationLab:
             "ha_lab_lifecycle",
             state,
             f"Lab {action} {'completed' if result.ok else 'failed'}",
-            {"action": action, "stdout": result.stdout[-4000:], "stderr": result.stderr[-4000:], "returncode": result.returncode, "diagnostics": diagnostics},
+            {
+                "action": action,
+                "image_resolution": image_resolution,
+                "stdout": result.stdout[-4000:],
+                "stderr": result.stderr[-4000:],
+                "returncode": result.returncode,
+                "diagnostics": diagnostics,
+            },
         )
 
     def qualify(self) -> GateResult:
@@ -365,12 +381,96 @@ class HALocalVerificationLab:
             args.extend(["-f", str(path)])
         return tuple(args)
 
+    def _resolve_default_image(self, action: str) -> dict[str, Any]:
+        if action not in {"build", "start", "recreate", "fresh"}:
+            return {"mode": "skipped", "reason": "action_does_not_start_image"}
+        if not self.config.auto_update_image:
+            return {"mode": "fixed", "image": self.config.image}
+        pull = self.docker.run("pull", DEFAULT_HA_STABLE_IMAGE, timeout=300)
+        if not pull.ok:
+            return {
+                "mode": "fallback",
+                "reason": "stable_pull_failed",
+                "image": self.config.image,
+                "stderr": pull.stderr[-1000:],
+            }
+        inspect = self.docker.run("image", "inspect", DEFAULT_HA_STABLE_IMAGE, timeout=30)
+        if not inspect.ok:
+            return {
+                "mode": "fallback",
+                "reason": "stable_inspect_failed",
+                "image": self.config.image,
+                "stderr": inspect.stderr[-1000:],
+            }
+        version = _home_assistant_image_version(inspect.stdout)
+        if not version:
+            return {"mode": "fallback", "reason": "stable_version_label_missing", "image": self.config.image}
+        resolved = f"ghcr.io/home-assistant/home-assistant:{version}"
+        if resolved != self.config.image:
+            self.config = replace(self.config, image=resolved)
+            version_pull = self.docker.run("pull", resolved, timeout=300)
+            if not version_pull.ok:
+                self.config = replace(self.config, image=DEFAULT_HA_BASELINE_IMAGE)
+                return {
+                    "mode": "fallback",
+                    "reason": "version_pull_failed",
+                    "resolved_image": resolved,
+                    "image": self.config.image,
+                    "stderr": version_pull.stderr[-1000:],
+                }
+        return {"mode": "latest_stable", "stable_image": DEFAULT_HA_STABLE_IMAGE, "image": self.config.image, "version": version}
+
     def _ensure_layout(self) -> None:
         self.config.config_dir.mkdir(parents=True, exist_ok=True)
         template = self.root / "verification/lab/home_assistant/configuration.yaml"
         target = self.config.config_dir / "configuration.yaml"
         if template.exists() and not target.exists():
             shutil.copy2(template, target)
+        self._ensure_djconnect_config_entry()
+
+    def _ensure_djconnect_config_entry(self) -> None:
+        storage = self.config.config_dir / ".storage"
+        storage.mkdir(parents=True, exist_ok=True)
+        path = storage / "core.config_entries"
+        if path.exists():
+            try:
+                payload = json.loads(path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                return
+        else:
+            payload = {"version": 1, "minor_version": 5, "key": "core.config_entries", "data": {"entries": []}}
+        data = payload.setdefault("data", {})
+        entries = data.setdefault("entries", [])
+        if not isinstance(entries, list):
+            return
+        if any(isinstance(entry, dict) and entry.get("domain") == "djconnect" for entry in entries):
+            return
+        now = datetime.now(timezone.utc).isoformat()
+        entries.append(
+            {
+                "created_at": now,
+                "data": {
+                    "device_id": "djconnect-conversation-agent",
+                    "device_name": "DJConnect Verification Lab",
+                    "client_type": "conversation_agent",
+                },
+                "disabled_by": None,
+                "discovery_keys": {},
+                "domain": "djconnect",
+                "entry_id": uuid.uuid4().hex,
+                "minor_version": 1,
+                "modified_at": now,
+                "options": {},
+                "pref_disable_new_entities": False,
+                "pref_disable_polling": False,
+                "source": "user",
+                "subentries": [],
+                "title": "DJConnect Verification Lab",
+                "unique_id": "djconnect-conversation-agent",
+                "version": 1,
+            }
+        )
+        path.write_text(json.dumps(payload, separators=(",", ":")), encoding="utf-8")
 
     def _clean(self) -> GateResult:
         removed: list[str] = []
@@ -486,12 +586,20 @@ class HALocalVerificationLab:
             return {"ok": False, "source": "bootstrap", "reason": "onboarding_user_create_failed", "error": str(exc)}
 
     def _request_auth_token(self, username: str, password: str) -> dict[str, Any]:
+        client_id = f"http://127.0.0.1:{self.config.port}/"
+        login_flow = self._create_login_flow(client_id)
+        if not login_flow.get("ok"):
+            return login_flow
+        flow_id = str(login_flow.get("flow_id") or "")
+        authorization = self._complete_login_flow(client_id, flow_id, username, password)
+        if not authorization.get("ok"):
+            return authorization
+        code = str(authorization.get("code") or "")
         body = urlencode(
             {
-                "grant_type": "password",
-                "client_id": f"http://127.0.0.1:{self.config.port}/",
-                "username": username,
-                "password": password,
+                "grant_type": "authorization_code",
+                "client_id": client_id,
+                "code": code,
             }
         ).encode("utf-8")
         request = Request(
@@ -512,6 +620,49 @@ class HALocalVerificationLab:
                 }
         except (OSError, URLError, HTTPError, json.JSONDecodeError) as exc:
             return {"ok": False, "reason": "auth_token_request_failed", "error": str(exc)}
+
+    def _create_login_flow(self, client_id: str) -> dict[str, Any]:
+        payload = {
+            "client_id": client_id,
+            "handler": ["homeassistant", None],
+            "redirect_uri": client_id,
+            "type": "authorize",
+        }
+        request = Request(
+            f"http://127.0.0.1:{self.config.port}/auth/login_flow",
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urlopen(request, timeout=10) as response:
+                data = json.loads(response.read().decode("utf-8"))
+                flow_id = str(data.get("flow_id") or "")
+                return {"ok": bool(flow_id), "flow_id": flow_id}
+        except (OSError, URLError, HTTPError, json.JSONDecodeError) as exc:
+            return {"ok": False, "reason": "auth_login_flow_create_failed", "error": str(exc)}
+
+    def _complete_login_flow(self, client_id: str, flow_id: str, username: str, password: str) -> dict[str, Any]:
+        if not flow_id:
+            return {"ok": False, "reason": "auth_login_flow_missing_id"}
+        payload = {
+            "client_id": client_id,
+            "username": username,
+            "password": password,
+        }
+        request = Request(
+            f"http://127.0.0.1:{self.config.port}/auth/login_flow/{flow_id}",
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urlopen(request, timeout=10) as response:
+                data = json.loads(response.read().decode("utf-8"))
+                code = str(data.get("result") or "")
+                return {"ok": bool(code), "code": code}
+        except (OSError, URLError, HTTPError, json.JSONDecodeError) as exc:
+            return {"ok": False, "reason": "auth_login_flow_complete_failed", "error": str(exc)}
 
     def _recover_stale_container(self) -> dict[str, Any]:
         summary = self._container_summary()
@@ -816,6 +967,21 @@ def _safe_json(text: str) -> dict[str, Any]:
         return json.loads(text)
     except json.JSONDecodeError:
         return {}
+
+
+def _home_assistant_image_version(text: str) -> str:
+    try:
+        payload = json.loads(text)
+    except json.JSONDecodeError:
+        return ""
+    image = payload[0] if isinstance(payload, list) and payload else payload
+    if not isinstance(image, dict):
+        return ""
+    labels = (image.get("Config") or {}).get("Labels") or {}
+    if not isinstance(labels, dict):
+        return ""
+    version = str(labels.get("io.hass.version") or labels.get("org.opencontainers.image.version") or "")
+    return version if version and version[0].isdigit() else ""
 
 
 def _source_fingerprint(root: Path) -> str:

@@ -81,7 +81,7 @@ class Phase09LLocalHALabTests(unittest.TestCase):
                         {
                             "ID": "abc",
                             "Names": "djconnect-verification-ha",
-                            "Image": "ghcr.io/home-assistant/home-assistant:stable",
+                            "Image": "ghcr.io/home-assistant/home-assistant:2026.7.2",
                             "State": "created",
                         }
                     ),
@@ -144,6 +144,46 @@ class Phase09LLocalHALabTests(unittest.TestCase):
         self.assertIn(("rm", "-f", "djconnect-verification-ha"), fake.calls)
         self.assertIn(("compose", "-f", str(config.compose_file), "up", "-d"), fake.calls)
 
+    def test_start_auto_resolves_latest_stable_ha_image(self) -> None:
+        config = _lab_config(self.root, auto_update_image=True)
+        fake = FakeDocker(
+            {
+                ("ps", "-a", "--filter", "name=djconnect-verification-ha", "--format", "{{json .}}"): DockerCommandResult(True, stdout=""),
+                ("pull", "ghcr.io/home-assistant/home-assistant:stable"): DockerCommandResult(True, stdout="stable pulled"),
+                ("image", "inspect", "ghcr.io/home-assistant/home-assistant:stable"): DockerCommandResult(
+                    True,
+                    stdout=json.dumps([{"Config": {"Labels": {"io.hass.version": "2026.8.1"}}}]),
+                ),
+                ("pull", "ghcr.io/home-assistant/home-assistant:2026.8.1"): DockerCommandResult(True, stdout="version pulled"),
+                ("compose", "-f", str(config.compose_file), "up", "-d"): DockerCommandResult(True, stdout="started"),
+                ("logs", "--tail", "80", "--timestamps", "djconnect-verification-ha"): DockerCommandResult(True, stdout=""),
+            }
+        )
+
+        gate = HALocalVerificationLab(self.root, fake, config).lifecycle("start")
+
+        self.assertEqual(GateState.PASS, gate.state)
+        self.assertEqual("latest_stable", gate.metadata["image_resolution"]["mode"])
+        self.assertEqual("ghcr.io/home-assistant/home-assistant:2026.8.1", gate.metadata["image_resolution"]["image"])
+        self.assertIn(("pull", "ghcr.io/home-assistant/home-assistant:stable"), fake.calls)
+        self.assertIn(("pull", "ghcr.io/home-assistant/home-assistant:2026.8.1"), fake.calls)
+
+    def test_start_keeps_explicit_ha_image_without_auto_update(self) -> None:
+        config = _lab_config(self.root, image="example/ha:test", auto_update_image=False)
+        fake = FakeDocker(
+            {
+                ("ps", "-a", "--filter", "name=djconnect-verification-ha", "--format", "{{json .}}"): DockerCommandResult(True, stdout=""),
+                ("compose", "-f", str(config.compose_file), "up", "-d"): DockerCommandResult(True, stdout="started"),
+                ("logs", "--tail", "80", "--timestamps", "djconnect-verification-ha"): DockerCommandResult(True, stdout=""),
+            }
+        )
+
+        gate = HALocalVerificationLab(self.root, fake, config).lifecycle("start")
+
+        self.assertEqual(GateState.PASS, gate.state)
+        self.assertEqual({"mode": "fixed", "image": "example/ha:test"}, gate.metadata["image_resolution"])
+        self.assertNotIn(("pull", "ghcr.io/home-assistant/home-assistant:stable"), fake.calls)
+
     def test_github_auth_accepts_gh_token_noninteractive_as_warning(self) -> None:
         inspector = GitHubInspector(self.root)
         with patch("tools.verification.environment.github._gh_status") as status, patch.dict("os.environ", {"GH_TOKEN": "redacted"}):
@@ -176,6 +216,8 @@ class Phase09LLocalHALabTests(unittest.TestCase):
         responses = [
             _HTTPResponse([{"step": "user", "done": False}]),
             _HTTPResponse({}),
+            _HTTPResponse({"flow_id": "flow-1"}),
+            _HTTPResponse({"result": "authorization-code"}),
             _HTTPResponse({"access_token": "generated-secret-token", "token_type": "Bearer", "expires_in": 1800}),
         ]
 
@@ -188,13 +230,28 @@ class Phase09LLocalHALabTests(unittest.TestCase):
         self.assertIn("<redacted>", rendered)
         self.assertTrue((config.lab_root / ".secrets" / "ha_lab_auth.json").exists())
 
+    def test_lab_layout_creates_djconnect_config_entry(self) -> None:
+        config = _lab_config(self.root)
+        HALocalVerificationLab(self.root, FakeDocker({}), config)._ensure_layout()
 
-def _lab_config(root: Path) -> HALabConfig:
+        entries = json.loads((config.config_dir / ".storage/core.config_entries").read_text(encoding="utf-8"))
+        djconnect = [
+            entry
+            for entry in entries["data"]["entries"]
+            if entry.get("domain") == "djconnect"
+        ]
+
+        self.assertEqual(1, len(djconnect))
+        self.assertEqual("conversation_agent", djconnect[0]["data"]["client_type"])
+        self.assertEqual("djconnect-conversation-agent", djconnect[0]["unique_id"])
+
+
+def _lab_config(root: Path, *, image: str = "ghcr.io/home-assistant/home-assistant:2026.7.2", auto_update_image: bool = False) -> HALabConfig:
     temp_root = Path(tempfile.mkdtemp()) / "lab"
     return HALabConfig(
         name="djconnect-verification-ha",
         port=18123,
-        image="ghcr.io/home-assistant/home-assistant:stable",
+        image=image,
         compose_file=root / "verification/lab/home_assistant/compose.yaml",
         compose_files=(root / "verification/lab/home_assistant/compose.yaml",),
         profile="ha-profile",
@@ -204,6 +261,7 @@ def _lab_config(root: Path) -> HALabConfig:
         repo_root=root,
         source_sha=_git_sha(root),
         source_fingerprint="fingerprint",
+        auto_update_image=auto_update_image,
     )
 
 
@@ -230,7 +288,7 @@ def _inspect_payload(root: Path, *, labels: dict[str, str] | None = None, mount_
         "Created": "2026-07-10T00:00:00Z",
         "Image": "sha256:image",
         "Config": {
-            "Image": "ghcr.io/home-assistant/home-assistant:stable",
+            "Image": "ghcr.io/home-assistant/home-assistant:2026.7.2",
             "Labels": labels or {"djconnect.verification": "true", "djconnect.source_sha": _git_sha(root)},
             "Env": ["TOKEN=secret", "SAFE=value"],
         },

@@ -15,7 +15,7 @@ provided_capabilities:
   - djconnect.capabilities
 required_capabilities:
   - docker.runtime
-image: ghcr.io/home-assistant/home-assistant:stable
+image: ghcr.io/home-assistant/home-assistant:2026.7.2
 configuration_inputs:
   - DJCONNECT_VERIFICATION_HA_PORT
   - DJCONNECT_VERIFICATION_LAB_ROOT

@@ -2,7 +2,7 @@ name: djconnect-verification-ha
 
 services:
   homeassistant:
-    image: ${DJCONNECT_VERIFICATION_HA_IMAGE:-ghcr.io/home-assistant/home-assistant:stable}
+    image: ${DJCONNECT_VERIFICATION_HA_IMAGE:-ghcr.io/home-assistant/home-assistant:2026.7.2}
     container_name: ${DJCONNECT_VERIFICATION_HA_CONTAINER:-djconnect-verification-ha}
     labels:
       djconnect.verification: "true"
