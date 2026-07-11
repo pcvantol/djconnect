@@ -1,6 +1,6 @@
 # Verification Platform Backlog
 
-Status: active after Phase 9E-R
+Status: active after Phase 10
 
 Do not create GitHub issues automatically from this backlog.
 
@@ -31,6 +31,10 @@ Do not create GitHub issues automatically from this backlog.
 | VPB-023 | P0 | Execution Environment / Adapter integration defect | HA adapter execution did not automatically reuse the dedicated lab-derived HA URL, token, storage and log configuration. Phase 9E-R now wires lab-derived config into adapter execution in-process without serializing token values. | Execution Environment / Home Assistant Adapter | `djconnect` | No | Done | Phase 9E-R |
 | VPB-024 | P1 | Verification Core defect | Primitive failures from Phase 9E produced insufficient structured failure details for the Investigator. Phase 9E-R preserves primitive diagnostics in run summaries and the Investigator classified live websocket timeouts from summary evidence. | Verification Investigator | `djconnect` | No | Done | Phase 9E-R |
 | VPB-025 | P2 | Environment issue | The regenerated separable backend batch saw two transient live websocket timeouts. The Investigator classified both as environment issues and the affected-scenario rerun passed. Keep this as a non-blocking local lab stability watch item. | Verification Environment / Local Docker | Local workstation | No | S | Phase 10 regression watch |
+| VPB-026 | P1 | Apple Adapter gap | Live Apple simulator execution needs explicit `DJCONNECT_VERIFICATION_APPLE_TARGET_JSON`, evidence directory configuration and a built `.app` artifact from `djconnect-app`. Phase 10 mock/unit coverage passed, but live runtime proof was skipped. | Apple Adapter / Execution Environment / Operator | `djconnect`, `djconnect-app` | Blocks live Apple scenario pass | M | Phase 10E |
+| VPB-027 | P1 | Planning Engine gap | Phase 10 added Apple adapter execution for Apple-only scenarios, while most catalog scenarios with `apple.runtime` are cross-runtime HA/Apple/Windows scenarios. Phase 10E must select the first Apple-executable set without inventing expected behavior in the adapter. | Planning Engine / Scenario Catalog | `djconnect` | No | M | Phase 10E |
+| VPB-028 | P1 | Apple Adapter gap | UI input primitives currently fail closed because no XCTest/accessibility driver is configured. Choose the first supported driver only when a scenario requires UI input. | Apple Adapter / Apple Client | `djconnect`, `djconnect-app` | Blocks UI-driven Apple scenarios | M | Phase 10E or Apple UI remediation |
+| VPB-029 | P2 | Apple Adapter gap | watchOS paired simulator orchestration and physical Apple Watch execution are not implemented in Phase 10. Physical devices must remain explicit opt-in. | Apple Adapter / Execution Environment / Operator | `djconnect`, `djconnect-app` | Blocks watchOS live coverage | L | Future Apple coverage phase |
 
 ## Regression Subset Required After Fixes
 
@@ -50,3 +54,11 @@ HOME_ASSISTANT_BACKEND_QUALIFIED_WITH_WARNINGS
 
 Phase 10 is unblocked. The Phase 9E-R warning is explicitly non-blocking for
 Apple client adapter work.
+
+Phase 10 reports:
+
+APPLE_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_SKIPPED
+
+Phase 10E is unblocked for Apple scenario coverage expansion. Live Apple
+simulator/device execution must remain skipped or blocked unless explicit
+target and artifact configuration is present.

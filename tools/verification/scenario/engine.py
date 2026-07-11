@@ -95,6 +95,48 @@ class ScenarioEngine:
                     )
                 )
                 continue
+            adapter = self.adapters.get("apple")
+            if adapter is not None and _targets_apple(scenario):
+                attempts = _execute_with_controlled_retry(adapter, plan)
+                primitive_results = attempts[-1]
+                state = ResultState.PASS if all(result.ok for result in primitive_results) else ResultState.FAIL
+                failed = [result for result in primitive_results if not result.ok]
+                message = (
+                    "Runtime primitives executed through Apple adapter; "
+                    "scenario assertions remain owned by the Scenario Engine."
+                )
+                if failed:
+                    message = f"{message} Failed primitives: {', '.join(result.action for result in failed)}."
+                results.append(
+                    ScenarioResult(
+                        scenario_id=scenario.id,
+                        state=state,
+                        message=message,
+                        evidence=tuple(
+                            evidence
+                            for result in primitive_results
+                            for evidence in result.evidence
+                        ),
+                        diagnostics={
+                            "primitive_results": _primitive_result_dicts(primitive_results),
+                            "attempts": [
+                                {
+                                    "attempt": index,
+                                    "primitive_results": _primitive_result_dicts(attempt),
+                                }
+                                for index, attempt in enumerate(attempts, start=1)
+                            ],
+                            "retry": _retry_diagnostics(plan, attempts),
+                        },
+                        duration_seconds=sum(
+                            float(result.data.get("duration_seconds", 0.0))
+                            for attempt in attempts
+                            for result in attempt
+                            if isinstance(result.data, dict)
+                        ),
+                    )
+                )
+                continue
             results.append(
                 ScenarioResult(
                     scenario_id=scenario.id,
@@ -108,6 +150,8 @@ class ScenarioEngine:
         return results
 
     def _actions(self, scenario: Scenario) -> list[PrimitiveAction]:
+        if _targets_apple(scenario) and not _targets_home_assistant(scenario):
+            return _apple_runtime_actions(scenario)
         if _is_first_profile_adapter_scenario(scenario):
             return _home_assistant_backend_actions(scenario)
         if _is_home_assistant_backend_scenario(scenario):
@@ -207,6 +251,17 @@ def _targets_home_assistant(scenario: Scenario) -> bool:
     return "Home Assistant" in platforms or "HA" in components
 
 
+def _targets_apple(scenario: Scenario) -> bool:
+    platforms = {str(item) for item in scenario.raw.get("supported_platforms") or ()}
+    components = set(scenario.required_components)
+    required = _required_capabilities(scenario)
+    return (
+        any(platform in {"Apple", "iOS", "iPadOS", "macOS", "watchOS"} for platform in platforms)
+        or "Apple" in components
+        or any(capability.startswith(("apple.", "ios.", "macos.", "watchos.")) for capability in required)
+    )
+
+
 def _is_home_assistant_backend_scenario(scenario: Scenario) -> bool:
     if not _targets_home_assistant(scenario):
         return False
@@ -236,6 +291,27 @@ def _is_home_assistant_backend_scenario(scenario: Scenario) -> bool:
         capability.startswith(("ha.", "djconnect.", "evidence.", "fake_music_backend", "music_assistant", "whisper", "piper"))
         for capability in required
     )
+
+
+def _apple_runtime_actions(scenario: Scenario) -> list[PrimitiveAction]:
+    required = _required_capabilities(scenario)
+    actions = [
+        PrimitiveAction("collect_environment"),
+        PrimitiveAction("discover_simulators"),
+        PrimitiveAction("validate_target_identity"),
+        PrimitiveAction("collect_app_metadata"),
+    ]
+    if any(capability in required for capability in {"apple.install", "apple.runtime", "ios.runtime", "macos.runtime", "watchos.runtime"}):
+        actions.append(PrimitiveAction("install_app"))
+    if any(capability in required for capability in {"apple.launch", "apple.runtime", "ios.runtime", "macos.runtime", "watchos.runtime"}):
+        actions.append(PrimitiveAction("launch_app"))
+    if "apple.screenshot" in required or "evidence.screenshot" in required:
+        actions.append(PrimitiveAction("capture_screenshot", {"name": scenario.id.lower()}))
+    if "apple.logs" in required or "evidence.logs" in required or "apple.runtime" in required:
+        actions.append(PrimitiveAction("collect_logs"))
+    if any(capability in required for capability in {"apple.terminate", "apple.runtime", "ios.runtime", "macos.runtime", "watchos.runtime"}):
+        actions.append(PrimitiveAction("terminate_app"))
+    return actions
 
 
 def _home_assistant_backend_actions(scenario: Scenario) -> list[PrimitiveAction]:

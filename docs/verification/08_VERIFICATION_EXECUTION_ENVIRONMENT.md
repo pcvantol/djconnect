@@ -197,7 +197,9 @@ The platform controllers in `platforms.py` are environment controls only:
 
 - Home Assistant: discover local `ha`/`hass`, report health metadata, scaffold
   start/stop/restart operations.
-- Apple: discover Xcode and `xcrun`, list simulators through a command runner.
+- Apple: discover Xcode and `xcrun`, record Xcode version, list simulators as
+  structured metadata through a command runner, and keep physical-device
+  discovery skipped unless explicitly configured.
 - Windows: discover Parallels prerequisites.
 - Raspberry Pi: record SSH availability and configured host metadata.
 - ESP32: discover PlatformIO and externalized serial configuration.

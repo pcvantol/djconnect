@@ -42,8 +42,11 @@ lab qualified on the current remediation branch, 195 Home Assistant backend or
 separable HA backend assertion-path scenarios passed, and the only warning was
 a transient local websocket timeout that passed on affected-scenario rerun.
 
-Phase 10 Apple Verification Adapter is unblocked. The Phase 9E-R warning is
-explicitly non-blocking for Apple client adapter work.
+Phase 10 Apple Verification Adapter completed with
+`APPLE_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_SKIPPED`. The adapter is qualified
+for mock/unit primitive coverage and planning/engine integration. Live Apple
+runtime proof remains explicitly deferred until a prepared Apple target JSON
+and app artifact are configured.
 
 The active next phase is listed in `PROMPT_INDEX.md`.
 

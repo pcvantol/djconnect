@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import shutil
 import subprocess
 from pathlib import Path
@@ -58,19 +59,66 @@ class AppleDevelopmentEnvironment:
     def discover(self) -> ManagedPlatform:
         xcode = shutil.which("xcodebuild")
         simctl = shutil.which("xcrun")
+        code, version = self.runner.run(("xcodebuild", "-version"), timeout=10) if xcode else (127, "")
+        simulators = self.simulators() if simctl else ManagedPlatform("apple_simulators", ResourceState.MISSING, {"output": ""})
         return ManagedPlatform(
             "apple_development",
             ResourceState.AVAILABLE if xcode and simctl else ResourceState.MISSING,
-            {"xcodebuild": xcode, "xcrun": simctl},
+            {
+                "xcodebuild": xcode,
+                "xcrun": simctl,
+                "xcode_version": version if code == 0 else None,
+                "simulators": simulators.metadata,
+            },
         )
 
     def simulators(self) -> ManagedPlatform:
-        code, output = self.runner.run(("xcrun", "simctl", "list", "devices", "available"), timeout=20)
+        code, output = self.runner.run(("xcrun", "simctl", "list", "devices", "available", "--json"), timeout=20)
         return ManagedPlatform(
             "apple_simulators",
             ResourceState.AVAILABLE if code == 0 else ResourceState.MISSING,
-            {"output": output[:4000]},
+            {"devices": _summarize_simctl_devices(output), "raw_output_excerpt": output[:4000]},
         )
+
+    def physical_devices(self, *, allow_physical_devices: bool = False) -> ManagedPlatform:
+        if not allow_physical_devices:
+            return ManagedPlatform(
+                "apple_physical_devices",
+                ResourceState.SKIPPED,
+                {"requires_explicit_configuration": True},
+            )
+        code, output = self.runner.run(("xcrun", "devicectl", "list", "devices", "--json-output", "-"), timeout=20)
+        return ManagedPlatform(
+            "apple_physical_devices",
+            ResourceState.AVAILABLE if code == 0 else ResourceState.MISSING,
+            {"raw_output_excerpt": output[:4000]},
+        )
+
+
+def _summarize_simctl_devices(payload: str) -> list[dict[str, str | bool | None]]:
+    try:
+        data = json.loads(payload)
+    except json.JSONDecodeError:
+        return []
+    devices_by_runtime = data.get("devices") if isinstance(data, dict) else None
+    if not isinstance(devices_by_runtime, dict):
+        return []
+    devices: list[dict[str, str | bool | None]] = []
+    for runtime, runtime_devices in devices_by_runtime.items():
+        if not isinstance(runtime_devices, list):
+            continue
+        for device in runtime_devices:
+            if isinstance(device, dict):
+                devices.append(
+                    {
+                        "runtime": str(runtime),
+                        "name": device.get("name"),
+                        "udid": device.get("udid"),
+                        "state": device.get("state"),
+                        "is_available": device.get("isAvailable", device.get("is_available")),
+                    }
+                )
+    return devices
 
 
 class WindowsDevelopmentEnvironment:
