@@ -33,6 +33,8 @@ Runtime schema version: `1`
 - GitHub Actions workflow for publishing the generic runtime image to Docker
   Hub using repository Docker Hub secrets, with pre-publication image label
   inspection and container smoke testing.
+- Default Docker Hub publish target documented as `pcvantol/djconnect` with
+  runtime tags `0.2.0`, `0.2.0-<short-sha>` and `sha-<short-sha>`.
 - Stable versus `future_beta` runtime channel separation for Apple/Xcode and
   Home Assistant beta verification evidence.
 - Installation documentation for local checkout, Docker runtime and GitHub
@@ -56,11 +58,16 @@ Runtime schema version: `1`
   `0.2.0`, `0.2.0-<short-sha>` and `sha-<short-sha>`.
 - Runtime config reports `parallel_execution: true`, stable test mode and
   `verification_runtime.version: "0.2.0"`.
+- GitHub workflow structure is covered by `tests/verification` to keep image
+  label inspection and `docker run ... config` smoke testing before publication.
 
 ### Known Limitations
 
 - Hosted GitHub runners are intended for non-mutating verification work until
   workflow jobs and artifact upload are implemented.
+- Docker Hub publication requires GitHub repository secrets
+  `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` with push scope for
+  `pcvantol/djconnect`.
 - Live Home Assistant labs, Apple simulator runs, hardware, SSH/serial, signing
   material and destructive cleanup require capability-gated self-hosted runners
   or approved local labs.
