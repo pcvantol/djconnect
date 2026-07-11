@@ -18,12 +18,14 @@ Build version 17F113
 ```
 
 `softwareupdate --list` reported no available Xcode update, and
-`xcodebuild -downloadPlatform iOS` completed. The latest locally available iOS
-simulator runtime is iOS 27.0.
+`xcodebuild -downloadPlatform iOS` completed. The machine also had an iOS 27.0
+simulator runtime installed, but iOS 27.0 is beta on 2026-07-11 and is not the
+default stable qualification target.
 
 The full Apple Runtime Qualification was then rerun against an iPhone 17 Pro
-iOS 27.0 simulator. Release-equivalent build, install, launch, screenshot and
-scoped log evidence passed, but the integrated XCTest UI healthcheck timed out.
+iOS 27.0 simulator as future/beta evidence. Release-equivalent build, install,
+launch, screenshot and scoped log evidence passed, but the integrated XCTest UI
+healthcheck timed out.
 After follow-up review, the gate was tightened further so
 `DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA` is cleaned before every
 release-equivalent build and only approved verification scratch roots may be
@@ -41,9 +43,9 @@ Decision:
 APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED
 ```
 
-Broad Apple scenario coverage remains blocked until the iOS 27.0/latest-runtime
-qualification run passes or the integrated XCTest timeout is remediated and
-classified with evidence.
+Broad Apple scenario coverage remains blocked until the stable latest-eligible
+runtime qualification passes. iOS 27.0 remains available only for the
+`future_beta` route until it is the official stable iOS runtime.
 
 ## Evidence
 
@@ -79,7 +81,7 @@ Apple source repository:
 /Users/pcvantol/Documents/GitHub/djconnect-app
 ```
 
-Latest selected simulator:
+Future/beta selected simulator from the blocked evidence:
 
 ```text
 iPhone 17 Pro
@@ -99,11 +101,11 @@ dev.djconnect.ios
 | --- | --- | --- |
 | Toolchain maintenance | PASS | Xcode 26.6 was present, Software Update advertised no Xcode update, and `xcodebuild -downloadPlatform iOS` completed. |
 | Future/beta channel isolation | Tightened after run | Xcode beta and Home Assistant beta now require `DJCONNECT_VERIFICATION_TEST_MODE=future_beta` and produce separate advisory evidence. |
-| Latest iOS runtime discovery | PASS | Latest local runtime resolved to `com.apple.CoreSimulator.SimRuntime.iOS-27-0`. |
+| Latest iOS runtime discovery | Updated after run | Stable mode now selects the latest eligible stable iOS runtime and excludes iOS 27.0 beta by default. `future_beta` mode may select `com.apple.CoreSimulator.SimRuntime.iOS-27-0`. |
 | APNs entitlements/signing metadata | PASS | Entitlement files were discovered. |
 | Distribution signing assets | Tightened after run | Future runs require matching Apple Distribution identity, team id, bundle id and provisioning profile metadata before release build. |
-| Release-equivalent build | PASS | Release simulator build completed for the iOS 27.0 target. |
-| Simulator target | PASS | Prepared target JSON used the latest locally available iOS runtime. |
+| Release-equivalent build | PASS | Release simulator build completed for the future/beta iOS 27.0 target in the blocked evidence run. |
+| Simulator target | Updated after run | Prepared target JSON must use the latest eligible iOS runtime for the active verification mode. Stable mode excludes beta runtimes by default. |
 | Cross-device simulator targets | Tightened after run | Future cross-device or multi-iOS batches require every configured simulator UDID and declared runtime version to be available before execution. |
 | Physical-device target | SKIPPED | Physical-device execution remains explicit opt-in. |
 | DerivedData isolation | PASS | Latest-runtime rerun used isolated DerivedData paths; the gate now cleans the configured DerivedData path before each release-equivalent build. |
@@ -127,11 +129,17 @@ This command records Xcode version, checks macOS Software Update, runs:
 xcodebuild -downloadPlatform iOS
 ```
 
-and persists the latest locally available iOS simulator runtime in evidence.
+and persists the latest eligible iOS simulator runtime in evidence.
 
 The Phase 10E Apple Runtime Qualification gate now fails closed when
 `DJCONNECT_VERIFICATION_APPLE_TARGET_JSON` points at a simulator that is not on
-the latest locally available iOS runtime.
+the latest eligible iOS runtime for the active verification mode. In default
+stable mode, iOS 27.0 is excluded while it is beta; `future_beta` mode can verify
+against it explicitly.
+
+The default stable iOS major ceiling is `26` for this evidence date. It can be
+advanced explicitly with `DJCONNECT_VERIFICATION_STABLE_IOS_MAJOR_VERSION` once
+Apple releases a newer iOS major as stable.
 
 The gate also fails closed unless `DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA`
 is an absolute path under `/private/tmp`, `/tmp` or this repository's
@@ -252,6 +260,6 @@ Phase 10E-R2 is not complete:
 APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED
 ```
 
-Continue Phase 10E-R2 by remediating the integrated XCTest healthcheck timeout
-on the latest locally available iOS runtime. Do not begin Phase 10E retry or
-Phase 11 yet.
+Continue Phase 10E-R2 by remediating or rerunning the integrated XCTest
+healthcheck on the latest eligible stable iOS runtime. Do not begin Phase 10E
+retry or Phase 11 yet.

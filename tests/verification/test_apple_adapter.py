@@ -311,16 +311,29 @@ class AppleAdapterTests(unittest.TestCase):
             self.assertEqual("SKIPPED", states["physical_device_target"])
             self.assertTrue((Path(result.evidence_dir) / "summary.json").exists())
 
-    def test_latest_ios_simulator_runtime_selects_highest_available_ios_runtime(self) -> None:
+    def test_latest_ios_simulator_runtime_selects_highest_stable_ios_runtime_by_default(self) -> None:
         runner = FakeRunner({("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON)})
 
-        runtime = latest_ios_simulator_runtime(runner)
+        with patch.dict("os.environ", {"DJCONNECT_VERIFICATION_TEST_MODE": "stable"}, clear=False):
+            runtime = latest_ios_simulator_runtime(runner)
+
+        self.assertIsNotNone(runtime)
+        self.assertEqual("26.5", runtime["version"])
+        self.assertEqual("stable", runtime["channel"])
+        self.assertEqual(["SIM-IOS-26-5"], runtime["udids"])
+
+    def test_latest_ios_simulator_runtime_selects_beta_ios_runtime_in_future_beta_mode(self) -> None:
+        runner = FakeRunner({("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON)})
+
+        with patch.dict("os.environ", {"DJCONNECT_VERIFICATION_TEST_MODE": "future_beta"}, clear=False):
+            runtime = latest_ios_simulator_runtime(runner)
 
         self.assertIsNotNone(runtime)
         self.assertEqual("27.0", runtime["version"])
+        self.assertEqual("beta", runtime["channel"])
         self.assertEqual(["SIM-IOS-27-0"], runtime["udids"])
 
-    def test_phase_10e_runtime_qualification_blocks_non_latest_ios_target(self) -> None:
+    def test_phase_10e_runtime_qualification_blocks_beta_ios_target_in_stable_mode(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "djconnect"
             apple_repo = Path(tmp) / "djconnect-app"
@@ -333,11 +346,11 @@ class AppleAdapterTests(unittest.TestCase):
             app_path.write_text("fixture", encoding="utf-8")
             target_json = json.dumps(
                 {
-                    "target_id": "old-ios",
+                    "target_id": "beta-ios",
                     "variant": "ios",
                     "runtime": "simulator",
                     "name": "iPhone 17",
-                    "udid": "SIM-IOS-26-5",
+                    "udid": "SIM-IOS-27-0",
                     "bundle_id": "dev.djconnect.ios",
                     "app_path": str(app_path),
                 }
@@ -350,6 +363,7 @@ class AppleAdapterTests(unittest.TestCase):
                     "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(root / "artifacts" / "verification" / "DerivedData"),
                     "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
                     "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
+                    "DJCONNECT_VERIFICATION_TEST_MODE": "stable",
                     **_signing_env(profiles_dir),
                     **_no_cross_device_targets_env(),
                 },
@@ -362,7 +376,7 @@ class AppleAdapterTests(unittest.TestCase):
 
             simulator = next(check for check in result.checks if check.name == "simulator_target")
             self.assertEqual("BLOCKED", simulator.state)
-            self.assertIn("latest locally available iOS runtime", simulator.message)
+            self.assertIn("latest eligible iOS runtime", simulator.message)
 
     def test_phase_10e_runtime_qualification_blocks_when_latest_ios_runtime_unknown(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -549,6 +563,7 @@ class AppleAdapterTests(unittest.TestCase):
                     "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(root / "artifacts" / "verification" / "DerivedData"),
                     "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
                     "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
+                    "DJCONNECT_VERIFICATION_TEST_MODE": "future_beta",
                     **_signing_env(profiles_dir),
                 },
                 clear=False,
@@ -604,6 +619,7 @@ class AppleAdapterTests(unittest.TestCase):
                     "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(root / "artifacts" / "verification" / "DerivedData"),
                     "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
                     "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
+                    "DJCONNECT_VERIFICATION_TEST_MODE": "future_beta",
                     **_signing_env(profiles_dir),
                 },
                 clear=False,

@@ -17,6 +17,7 @@ from tools.verification.apple_adapter import AppleAdapterConfig, AppleRuntimeTar
 from tools.verification.evidence import RunStore
 from tools.verification.environment.identity import RunIdentityManager
 from tools.verification.environment.platforms import CommandRunner
+from tools.verification.runtime_channels import future_beta_enabled, verification_test_mode
 
 
 MANDATORY_CHECKS = (
@@ -228,9 +229,10 @@ class AppleRuntimeQualification:
             return _check(
                 "simulator_target",
                 "BLOCKED",
-                "Latest locally available iOS simulator runtime could not be determined.",
+                "Latest eligible iOS simulator runtime could not be determined.",
                 {
                     "target": target.to_dict(),
+                    "test_mode": verification_test_mode(),
                     "recommended_action": "Run `python3 -m tools.verification.cli apple ensure-ios-runtime`, then retry Apple Runtime Qualification.",
                 },
             )
@@ -238,17 +240,18 @@ class AppleRuntimeQualification:
             return _check(
                 "simulator_target",
                 "BLOCKED",
-                "Configured simulator target is not on the latest locally available iOS runtime.",
+                "Configured simulator target is not on the latest eligible iOS runtime for the active verification mode.",
                 {
                     "target": target.to_dict(),
                     "latest_ios_runtime": ios_runtime,
-                    "recommended_action": "Run `python3 -m tools.verification.cli apple ensure-ios-runtime`, then regenerate DJCONNECT_VERIFICATION_APPLE_TARGET_JSON from the latest iOS simulator runtime.",
+                    "test_mode": verification_test_mode(),
+                    "recommended_action": "Run `python3 -m tools.verification.cli apple ensure-ios-runtime`, then regenerate DJCONNECT_VERIFICATION_APPLE_TARGET_JSON from the latest eligible iOS simulator runtime.",
                 },
             )
         return _check(
             "simulator_target",
             "PASS",
-            "Prepared simulator target configured on the latest locally available iOS runtime.",
+            "Prepared simulator target configured on the latest eligible iOS runtime.",
             {"target": target.to_dict(), "latest_ios_runtime": ios_runtime},
         )
 
@@ -493,10 +496,12 @@ def latest_ios_simulator_runtime(runner: CommandRunner | None = None, *, xcrun: 
         if not available_devices:
             continue
         version = _runtime_version(runtime_text)
+        channel = _ios_runtime_channel(version)
         ios_runtimes.append(
             {
                 "runtime": runtime_text,
                 "version": version,
+                "channel": channel,
                 "version_key": _version_key(version),
                 "devices": [
                     {
@@ -511,7 +516,10 @@ def latest_ios_simulator_runtime(runner: CommandRunner | None = None, *, xcrun: 
         )
     if not ios_runtimes:
         return None
-    latest = sorted(ios_runtimes, key=lambda item: item["version_key"])[-1]
+    eligible = ios_runtimes if future_beta_enabled() else [runtime for runtime in ios_runtimes if runtime["channel"] == "stable"]
+    if not eligible:
+        return None
+    latest = sorted(eligible, key=lambda item: item["version_key"])[-1]
     return {key: value for key, value in latest.items() if key != "version_key"}
 
 
@@ -563,3 +571,22 @@ def _version_key(version: str) -> tuple[int, ...]:
         except ValueError:
             parts.append(0)
     return tuple(parts)
+
+
+def _ios_runtime_channel(version: str) -> str:
+    return "stable" if _ios_runtime_major(version) <= _stable_ios_major_version() else "beta"
+
+
+def _ios_runtime_major(version: str) -> int:
+    try:
+        return int(version.split(".", 1)[0])
+    except (TypeError, ValueError):
+        return 0
+
+
+def _stable_ios_major_version() -> int:
+    value = os.getenv("DJCONNECT_VERIFICATION_STABLE_IOS_MAJOR_VERSION", "26")
+    try:
+        return max(1, int(value))
+    except ValueError:
+        return 26
