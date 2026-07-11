@@ -36,9 +36,15 @@ VERIFICATION PLATFORM QUALIFIED
 Phase 9V qualifies the Verification Platform. It does not qualify broad
 DJConnect Home Assistant backend scenario coverage.
 
-The platform is ready for Phase 9E: Home Assistant Scenario Coverage
-Expansion. Phase 10 Apple Verification Adapter remains blocked until Phase 9E
-returns `HOME_ASSISTANT_BACKEND_QUALIFIED` or
+Phase 9E Home Assistant Scenario Coverage Expansion returned
+`HOME_ASSISTANT_BACKEND_NOT_QUALIFIED`. The dedicated Home Assistant lab and
+the first five Profile scenarios remain qualified, but broad Home Assistant
+backend scenario coverage is blocked by missing executable Scenario Engine
+mappings and adapter/lab configuration plumbing.
+
+The platform is ready for Phase 9E-R: Home Assistant Scenario Coverage
+Remediation. Phase 10 Apple Verification Adapter remains blocked until Phase
+9E-R returns `HOME_ASSISTANT_BACKEND_QUALIFIED` or
 `HOME_ASSISTANT_BACKEND_QUALIFIED_WITH_WARNINGS` with all warnings explicitly
 non-blocking for Apple client work.
 

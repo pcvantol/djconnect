@@ -1,6 +1,6 @@
 # Verification Platform Scorecard
 
-Status: QUALIFIED
+Status: PLATFORM QUALIFIED; HOME ASSISTANT BACKEND COVERAGE NOT QUALIFIED
 
 Scoring scale:
 
@@ -24,14 +24,22 @@ Scoring scale:
 | Build Qualification | 4 | Runtime/build metadata and lab image identity were captured; no production artifact signing was in Phase 9V scope. |
 | GitHub CI | 5 | Exact-SHA CI inspected two successful GitHub Actions runs for the tested SHA. |
 | Dogfooding Coverage | 4 | `tests/verification` passed 69 tests and catalog validation covered 231 scenarios; live Docker tests remain opt-in. |
+| Home Assistant Backend Coverage | 1 | Phase 9E recomputed 223 HA/DJConnect-related scenarios and executed only the five currently mapped Profile scenarios. Broad HA backend coverage is not qualified until Scenario Engine mappings expand. |
 | Overall | 4 | The platform is qualified for the next adapter phase with non-blocking framework improvements tracked. |
 
 ## Decision
 
 VERIFICATION PLATFORM QUALIFIED
 
-The platform can be used for Phase 9E Home Assistant Scenario Coverage
-Expansion. The qualification is scoped to the first approved Profile scenario
-set and the dedicated Home Assistant lab; it does not prove full Home
-Assistant backend coverage. Future adapters still require their own
+HOME_ASSISTANT_BACKEND_NOT_QUALIFIED
+
+The Verification Platform itself remains qualified, but Phase 9E proved that
+full Home Assistant backend coverage is not yet qualified. The prior platform
+qualification is scoped to the first approved Profile scenario set and the
+dedicated Home Assistant lab; future adapters still require their own
 qualification before trust expands to those runtimes.
+
+Phase 9E executed on 2026-07-11 and did not qualify broad Home Assistant
+backend coverage. Phase 10 remains blocked until Phase 9E-R returns
+`HOME_ASSISTANT_BACKEND_QUALIFIED` or
+`HOME_ASSISTANT_BACKEND_QUALIFIED_WITH_WARNINGS` with Apple-safe warnings.

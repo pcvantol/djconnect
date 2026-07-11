@@ -1,6 +1,6 @@
 # Verification Platform Backlog
 
-Status: active after Phase 9V rerun
+Status: active after Phase 9E
 
 Do not create GitHub issues automatically from this backlog.
 
@@ -27,21 +27,25 @@ Do not create GitHub issues automatically from this backlog.
 | VPB-019 | P0 | Environment issue | Docker Desktop access to macOS `Documents` was approved by the operator. The bind-mount probe and local HA lab qualification passed in Phase 9L-R6; no Docker purge, factory reset or reinstall was required. | Local Docker / Operator | Local workstation | No | Done | Phase 9L-R6 |
 | VPB-020 | P1 | Verification Gap | Automated Investigator classification reported the initial Phase 9V wrapper failure as `unknown` even though manual investigation identified missing runtime token caused by an unapproved Docker-access invocation. | Verification Core / Investigator | `djconnect` | No | S | Phase 9E regression or Verification Core maintenance |
 | VPB-021 | P2 | Planning Engine gap | `PROFILE-002` correctly declares rich-client requirements, but HA-only smoke planning exposes `apple.runtime` and `windows.runtime` as external resources. Future coverage planning should make cross-runtime coverage intent more explicit. | Planning Engine / Scenario Catalog | `djconnect` | No | M | Phase 9E and Phase 10 Apple Adapter |
+| VPB-022 | P0 | Verification Core defect | Phase 9E found 223 HA/DJConnect-related scenarios, but the Scenario Engine currently maps only `PROFILE-001` through `PROFILE-005` to executable Home Assistant primitives. Broad HA backend scenario coverage is not qualified. | Scenario Engine / Verification Core | `djconnect` | Yes | L | Phase 9E-R |
+| VPB-023 | P0 | Execution Environment / Adapter integration defect | HA adapter execution does not automatically reuse the dedicated lab-derived HA URL, token, storage and log configuration. Manual in-process token injection was required for the passing Phase 9E supported batch. | Execution Environment / Home Assistant Adapter | `djconnect` | Yes for unattended broad coverage | M | Phase 9E-R |
+| VPB-024 | P1 | Verification Core defect | Primitive failures from Phase 9E still produced insufficient structured failure details for the Investigator, which reported the failed evidence bundle as `unknown`. | Verification Investigator | `djconnect` | No | S | Phase 9E-R |
 
 ## Regression Subset Required After Fixes
 
-After any Phase 9V fix, rerun only the affected scenario(s), then run:
+After any Phase 9E-R fix, rerun only the affected scenario batch, then run:
 
 ```bash
-python3 -m unittest discover tests/verification
+python3 -m pytest tests/verification
 ```
 
 Phase 9V rerun reports:
 
 VERIFICATION PLATFORM QUALIFIED
 
-Phase 9E may start after the Phase 9V rerun report, scorecard, backlog and
-prompt index are merged.
+Phase 9E reports:
 
-Phase 10 remains blocked until Phase 9E qualifies broad Home Assistant backend
-scenario coverage.
+HOME_ASSISTANT_BACKEND_NOT_QUALIFIED
+
+Phase 10 remains blocked until Phase 9E-R qualifies broad Home Assistant
+backend scenario coverage.
