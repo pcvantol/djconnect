@@ -27,16 +27,20 @@ Software Assurance Platform
   -> architecture prompts before quality tooling rollout
   -> implementation phases only after explicit approval
 
-Platform Baseline v1.0 Certification
-  -> certified on 2026-07-11
-  -> resume adapter and cross-platform qualification inside the baseline
-
 Architecture Closure Review
   -> frozen on 2026-07-11
   -> do not create more foundational architecture without evidence-backed review
 
+Platform Qualification
+  -> current platform stage
+  -> complete adapter and cross-platform qualification inside the frozen architecture
+
+Platform Baseline v1.0 Certification
+  -> not certified
+  -> rerun only after Platform Qualification evidence is complete
+
 Epic 8: Website and Product Story
-  -> phases to be defined after product-language audit
+  -> phases to be defined after Platform Baseline v1.0 certification and product-language audit
 
 Future Cloud and Personal
   -> only after Profile Architecture and central trust/relay ADRs are accepted
@@ -102,8 +106,13 @@ implementation prompt starts Software Assurance work.
 
 ## Platform Baseline v1.0 Certification
 
-The 2026-07-11 Architecture Baseline certification returned
-`PLATFORM_BASELINE_V1_CERTIFIED`.
+The current Platform Baseline v1.0 certification result is
+`PLATFORM_BASELINE_V1_NOT_CERTIFIED`.
+
+Platform Baseline is not the completion of architecture. Architecture is
+already frozen by the Architecture Closure Review. Platform Baseline certifies
+the implemented and qualified platform after Platform Qualification has
+produced sufficient evidence.
 
 Canonical assessment artifacts:
 
@@ -111,9 +120,9 @@ Canonical assessment artifacts:
 - `PLATFORM_BASELINE_CERTIFICATION.md`
 - `PLATFORM_BASELINE_GAP_ANALYSIS.md`
 
-Business-first engineering may now proceed where it fits inside the certified
-architecture. Adapter qualification, cross-platform qualification and runtime
-maturity remain platform follow-up work.
+Business-first engineering has not yet started. Adapter qualification,
+cross-platform qualification and runtime maturity remain current Platform
+Qualification work.
 
 ## Architecture Closure Review
 

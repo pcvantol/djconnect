@@ -9,8 +9,9 @@ Current certification record: `PLATFORM_BASELINE_CERTIFICATION.md`
 
 ## Purpose
 
-This assessment determines whether DJConnect may transition from
-Platform-first Engineering to Business-first Engineering.
+This assessment determines whether DJConnect may transition from Platform
+Qualification to Platform Baseline certification, and then to Business-first
+Engineering.
 
 It does not introduce product functionality.
 

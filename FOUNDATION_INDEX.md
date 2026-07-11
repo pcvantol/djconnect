@@ -92,6 +92,17 @@ features, epics, stories, roadmap sequencing or backlog work.
 execution priorities are now platform qualification, adapter completion and
 cross-platform evidence inside the frozen architecture.
 
+Canonical lifecycle:
+
+```text
+Platform Architecture
+  -> Platform Qualification
+  -> Platform Baseline
+  -> Business-first Engineering
+```
+
+The current platform state is Platform Qualification.
+
 ### Architecture closure
 
 `ARCHITECTURE_CLOSURE_REVIEW.md` and `ARCHITECTURE_DECISION.md` record the

@@ -20,6 +20,15 @@ cross-repository governance and Home Assistant integration implementation.
 Platform Qualification after the Software Assurance Platform Architecture
 Sprint, Product Strategy Foundation setup and Architecture Closure Review.
 
+Canonical lifecycle:
+
+```text
+Platform Architecture
+  -> Platform Qualification
+  -> Platform Baseline
+  -> Business-first Engineering
+```
+
 This phase is governance transition documentation only. It is not a product
 implementation phase, not a verification execution phase, not a CI/tooling
 enablement phase and not a new architecture phase.

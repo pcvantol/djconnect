@@ -37,7 +37,19 @@ Transition to Business-first Engineering: no
 ```
 
 The platform should continue with verification, adapter qualification,
-quality enablement and product learning inside the frozen architecture.
+quality enablement and Platform Qualification inside the frozen architecture.
+
+The canonical lifecycle is:
+
+```text
+Platform Architecture
+  -> Platform Qualification
+  -> Platform Baseline
+  -> Business-first Engineering
+```
+
+This review completes Platform Architecture. It does not certify Platform
+Baseline and does not start Business-first Engineering.
 
 ## Evidence Read
 
@@ -150,8 +162,9 @@ engineering because required qualification evidence is incomplete:
   work.
 - Cross-platform qualification has not completed.
 
-These are execution, verification and readiness blockers. They do not require
-new foundational architecture.
+These are implementation, verification, documentation, operator configuration
+or backlog blockers. They do not require new foundational architecture unless
+future objective evidence triggers an Architecture Review.
 
 ## Platform Baseline
 

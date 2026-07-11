@@ -1,6 +1,4 @@
-# DJConnect Platform
-
-# Architecture Baseline v1.0
+# DJConnect Platform Baseline v1.0 Certification
 
 Status: NOT CERTIFIED
 
@@ -67,6 +65,31 @@ The primary engineering objective now becomes:
 - prepare for business-first engineering only after Platform Baseline v1.0 is
   certified.
 
+## Platform Lifecycle
+
+The canonical lifecycle is:
+
+```text
+Platform Architecture
+  -> Platform Qualification
+  -> Platform Baseline
+  -> Business-first Engineering
+```
+
+Current state:
+
+```text
+Platform Qualification
+```
+
+Architecture is frozen. Platform Baseline v1.0 remains uncertified.
+Business-first engineering has not yet started.
+
+Platform Baseline is not the completion of architecture. Architecture precedes
+Platform Baseline. Qualification produces Platform Baseline by proving the
+implemented platform across primary adapters, runtime maturity and
+cross-platform behavior.
+
 ## Architecture Principles
 
 The following principles are now considered canonical.
@@ -111,18 +134,18 @@ Future platform evolution should primarily occur through:
 
 rather than foundational redesign.
 
-## Transition
+## Qualification State
 
-The platform now enters the transition from:
+The platform has completed:
 
 ```text
-Platform-first Engineering
+Platform Architecture
 ```
 
-towards:
+The platform now operates in:
 
 ```text
-Platform Qualification and Product Engineering
+Platform Qualification
 ```
 
 Platform engineering continues.
@@ -142,6 +165,14 @@ Routine engineering work must not modify foundational architecture.
 
 Routine implementation work must not reopen architecture.
 
+Routine findings should be classified as:
+
+- implementation;
+- verification;
+- documentation;
+- operator configuration;
+- backlog.
+
 New architectural work requires:
 
 - Architecture Review;
@@ -153,6 +184,10 @@ Future engineering should prefer:
 - implementation;
 - verification;
 - qualification;
+- documentation;
+- evidence;
+- coverage;
+- operator readiness;
 - platform maturity;
 - business value after Platform Baseline v1.0 certification;
 

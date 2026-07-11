@@ -40,8 +40,8 @@ qualification and cross-platform qualification are incomplete.
 4. Qualify Pi, ESP32, Voice and Windows primary adapters.
 5. Run cross-platform qualification over shared contracts and interoperability.
 6. Stabilize Verification Runtime release operations enough to remove warning.
-7. Preserve Architecture Baseline v1.0 unless a future Architecture Review
-   supersedes it.
+7. Preserve the frozen Platform Architecture unless a future Architecture
+   Review supersedes it.
 
 ## Out Of Scope
 

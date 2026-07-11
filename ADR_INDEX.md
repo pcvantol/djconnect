@@ -74,8 +74,8 @@ placeholder parity where practical.
 **Status:** Planned
 
 Decision to formalize how Platform Baseline certification decisions are made,
-which evidence is mandatory, and how non-certification affects the transition
-from Platform-first Engineering to Business-first Engineering.
+which evidence is mandatory, and how non-certification keeps the platform in
+Platform Qualification before Business-first Engineering.
 
 ### ADR-0004 — Community and Personal tier model
 

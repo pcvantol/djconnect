@@ -285,8 +285,11 @@ Until Platform Baseline v1.0 is certified, future engineering should prefer:
 - implementation;
 - verification;
 - qualification;
+- documentation;
+- evidence;
+- coverage;
+- operator readiness;
 - platform maturity;
-- business value that fits within the frozen architecture;
 
 over:
 
@@ -296,6 +299,9 @@ over:
 
 New architectural work requires Architecture Review with objective evidence.
 Routine implementation work must not reopen architecture.
+Routine findings should be classified as implementation, verification,
+documentation, operator configuration or backlog unless objective evidence
+shows a genuine architecture gap.
 
 ---
 

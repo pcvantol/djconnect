@@ -75,10 +75,20 @@ Every strategic decision should contribute to this objective.
 
 The current strategic objective is:
 
-Complete a production-ready, fully verified cross-platform platform baseline.
+Complete qualification of all primary platform runtimes.
 
-Business feature velocity is intentionally secondary until this objective has
-been achieved.
+Examples include:
+
+- Apple;
+- Raspberry Pi;
+- ESP32;
+- Voice Endpoint;
+- Windows;
+- cross-platform verification.
+
+No new foundational architecture is expected during this stage. Business
+feature velocity is intentionally secondary until Platform Baseline v1.0 has
+been certified.
 
 ## Strategic Priorities
 
@@ -86,7 +96,7 @@ The current platform priorities are:
 
 1. Complete remaining platform adapters.
 2. Complete cross-platform qualification.
-3. Complete the Software Assurance Platform architecture.
+3. Mature the Verification Runtime and platform evidence model.
 4. Establish Platform Baseline v1.0.
 5. Transition to business-first engineering.
 
@@ -109,16 +119,7 @@ approval.
 
 ## Current Platform Focus
 
-The platform now operates in the Architecture Baseline v1.0 transition state.
-
-The Architecture Baseline v1.0 certification dated 2026-07-11 returned:
-
-```text
-PLATFORM_BASELINE_V1_CERTIFIED
-```
-
-Therefore the platform may transition primarily from platform construction
-toward product evolution and business-first engineering.
+The platform now operates in the Platform Qualification stage.
 
 The Architecture Closure Review dated 2026-07-11 returned:
 
@@ -126,20 +127,42 @@ The Architecture Closure Review dated 2026-07-11 returned:
 ARCHITECTURE_FROZEN
 ```
 
-Remaining adapter, runtime operations and cross-platform qualification work
-continues inside the certified architecture. These are not reasons to create
-additional foundational architecture.
+The architecture is frozen. Platform Baseline v1.0 has not yet been
+certified.
+
+The current platform decision remains:
+
+```text
+PLATFORM_BASELINE_V1_NOT_CERTIFIED
+```
+
+The current engineering objective is proving the platform. Remaining adapter,
+runtime operations and cross-platform qualification work continues inside the
+frozen architecture. These are not reasons to create additional foundational
+architecture.
 
 This means engineering effort should primarily improve:
 
+- implementation;
 - remaining platform adapters;
 - verification;
 - cross-platform consistency;
-- Software Assurance implementation after baseline;
-- product and user value.
+- documentation;
+- evidence;
+- coverage;
+- operator readiness;
+- platform maturity.
 
-Platform engineering remains important, but it is now an enabling capability
-rather than the dominant engineering objective.
+Platform Qualification is not architecture work. Findings during routine
+engineering should normally be classified as:
+
+- implementation;
+- verification;
+- documentation;
+- operator configuration;
+- backlog.
+
+Architecture changes require objective evidence and an Architecture Review.
 
 ## Deferred Investments
 
@@ -156,46 +179,93 @@ Deferred work is not abandoned.
 
 It is postponed until the explicit post-baseline phase that owns the work.
 
-## Platform Evolution
+## Platform Lifecycle
 
-The platform evolves through four strategic stages.
+The canonical platform lifecycle has four strategic stages.
 
-### Stage 1: Platform Buildout
+```text
+Platform Architecture
+  -> Platform Qualification
+  -> Platform Baseline
+  -> Business-first Engineering
+```
 
-Focus:
+### Stage 1: Platform Architecture
 
-- Foundation
-- Verification
-- Adapters
-- Infrastructure
+Purpose:
 
-### Stage 2: Platform Stabilization
+Design the platform.
 
-Focus:
+Status:
 
-- Cross-platform qualification
-- Software Assurance architecture
-- Platform maturity
+```text
+COMPLETE
+```
+
+Decision:
+
+```text
+ARCHITECTURE_FROZEN
+```
+
+### Stage 2: Platform Qualification
+
+Purpose:
+
+Prove the platform.
+
+Status:
+
+```text
+CURRENT
+```
+
+Activities include:
+
+- adapter implementation;
+- adapter verification;
+- platform qualification;
+- cross-platform verification;
+- Verification Runtime maturity;
+- Platform maturity;
+- documentation;
+- evidence;
+- coverage;
+- operator readiness.
 
 ### Stage 3: Platform Baseline
 
-Focus:
+Purpose:
 
-- Release-quality engineering platform
-- Stable engineering processes
-- Frozen foundational architecture
+Certify platform maturity.
 
-### Stage 4: Business Evolution
+Decision:
 
-Focus:
+```text
+PLATFORM_BASELINE_V1_CERTIFIED
+```
 
-- Business value
-- Continuous feature delivery
-- Product differentiation
+This stage ends platform-first engineering. Platform Baseline is not the
+completion of architecture. Architecture precedes Platform Baseline.
+Qualification produces Platform Baseline.
 
-Platform evolution becomes incremental.
+### Stage 4: Business-first Engineering
 
-The platform should spend progressively less effort on foundational work.
+Purpose:
+
+Deliver business value.
+
+Examples include:
+
+- Music DNA;
+- Discover;
+- Track Insight;
+- Voice Personas;
+- AI Radio;
+- Community;
+- Cloud.
+
+Platform work becomes supporting work.
 
 ## Strategic Transitions
 
@@ -213,20 +283,23 @@ These transition criteria should remain objective and evidence-based.
 
 ## Strategy Success
 
-The current platform construction strategy is considered successful because:
+The platform strategy is considered successful when:
 
-The platform reached Architecture Baseline v1.0.
+- architecture remains frozen without blocking implementation;
+- all primary runtimes are qualified;
+- cross-platform verification is complete;
+- Platform Baseline v1.0 is certified;
+- business-first engineering can begin without repeated foundational work.
 
-Architecture Baseline v1.0 certifies that:
+The Architecture Closure Review completed the Platform Architecture stage. It
+did not certify Platform Baseline v1.0.
 
-- the Verification Platform is stable;
-- the Software Assurance architecture is complete;
-- the platform can sustainably deliver new features without introducing new
-  foundational engineering work.
+The current Platform Qualification stage exists to produce the evidence needed
+for Platform Baseline certification.
 
 ## Business Transition
 
-After Platform Baseline v1.0:
+After Platform Baseline v1.0 certification:
 
 The primary engineering objective changes.
 
@@ -243,12 +316,12 @@ Examples include:
 - Cloud Sync
 - Community capabilities
 
-Future business initiatives should normally fit within the existing platform
-architecture.
+Future business initiatives should normally fit within the existing frozen
+platform architecture.
 
-Remaining adapter and cross-platform qualification work is post-baseline
-platform work. It should improve evidence and quality without reopening the
-foundation.
+Remaining adapter and cross-platform qualification work is pre-baseline
+Platform Qualification work. It should improve evidence and quality without
+reopening the foundation.
 
 Architecture-first work is now closed unless a future evidence-backed
 Architecture Review demonstrates a genuine foundational gap.
