@@ -6,6 +6,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from tools.verification.adapters import AdapterRegistry
 from tools.verification.apple_adapter import (
@@ -15,6 +16,7 @@ from tools.verification.apple_adapter import (
     parse_simctl_devices,
 )
 from tools.verification.environment.platforms import AppleDevelopmentEnvironment
+from tools.verification.apple_runtime_qualification import AppleRuntimeQualification
 from tools.verification.models import PrimitiveAction, Scenario
 from tools.verification.scenario.engine import ScenarioEngine
 
@@ -192,6 +194,36 @@ class AppleAdapterTests(unittest.TestCase):
 
         self.assertEqual("available", platform.state)
         self.assertEqual("SIM-IPHONE", platform.metadata["devices"][0]["udid"])
+
+    def test_phase_10e_runtime_qualification_fails_closed_without_target_and_build_config(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "djconnect"
+            apple_repo = Path(tmp) / "djconnect-app"
+            (root / "artifacts" / "verification" / "evidence").mkdir(parents=True)
+            (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
+            (apple_repo / "App.entitlements").write_text("<plist/>", encoding="utf-8")
+            (apple_repo / "release.sh").write_text("#!/bin/sh\n", encoding="utf-8")
+
+            with patch.dict(
+                "os.environ",
+                {
+                    "DJCONNECT_VERIFICATION_APPLE_TARGET_JSON": "",
+                    "DJCONNECT_VERIFICATION_APPLE_BUILD_COMMAND": "",
+                    "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": "",
+                    "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "",
+                    "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "",
+                },
+                clear=False,
+            ):
+                result = AppleRuntimeQualification(root, apple_repo=apple_repo).run()
+
+            self.assertEqual("BLOCKED", result.state)
+            self.assertFalse(result.broad_scenario_execution_allowed)
+            states = {check.name: check.state for check in result.checks}
+            self.assertEqual("BLOCKED", states["release_equivalent_build"])
+            self.assertEqual("BLOCKED", states["simulator_target"])
+            self.assertEqual("SKIPPED", states["physical_device_target"])
+            self.assertTrue((Path(result.evidence_dir) / "summary.json").exists())
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 # Verification Platform Backlog
 
-Status: active after Phase 10
+Status: active after Phase 10E
 
 Do not create GitHub issues automatically from this backlog.
 
@@ -35,6 +35,7 @@ Do not create GitHub issues automatically from this backlog.
 | VPB-027 | P1 | Planning Engine gap | Phase 10 added Apple adapter execution for Apple-only scenarios, while most catalog scenarios with `apple.runtime` are cross-runtime HA/Apple/Windows scenarios. Phase 10E must select the first Apple-executable set without inventing expected behavior in the adapter. | Planning Engine / Scenario Catalog | `djconnect` | No | M | Phase 10E |
 | VPB-028 | P1 | Apple Adapter gap | UI input primitives currently fail closed because no XCTest/accessibility driver is configured. Choose the first supported driver only when a scenario requires UI input. | Apple Adapter / Apple Client | `djconnect`, `djconnect-app` | Blocks UI-driven Apple scenarios | M | Phase 10E or Apple UI remediation |
 | VPB-029 | P2 | Apple Adapter gap | watchOS paired simulator orchestration and physical Apple Watch execution are not implemented in Phase 10. Physical devices must remain explicit opt-in. | Apple Adapter / Execution Environment / Operator | `djconnect`, `djconnect-app` | Blocks watchOS live coverage | L | Future Apple coverage phase |
+| VPB-030 | P0 | Environment issue | Phase 10E added and executed `python3 -m tools.verification.cli apple qualify-runtime`; the gate correctly returned `APPLE_RUNTIME_QUALIFICATION_BLOCKED` because release-equivalent build command, prepared simulator target JSON, isolated DerivedData, install/launch artifact, screenshot/log evidence and UI automation healthcheck were not configured. | Verification Execution Environment / Apple Adapter / Operator | `djconnect`, `djconnect-app` | Blocks broad Apple scenario execution | M | Phase 10E-R |
 
 ## Regression Subset Required After Fixes
 
@@ -59,6 +60,10 @@ Phase 10 reports:
 
 APPLE_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_SKIPPED
 
-Phase 10E is unblocked for Apple scenario coverage expansion. Live Apple
-simulator/device execution must remain skipped or blocked unless explicit
-target and artifact configuration is present.
+Phase 10E reports:
+
+APPLE_RUNTIME_QUALIFICATION_BLOCKED
+
+Phase 10E-R must qualify release-equivalent Apple build, prepared simulator
+target JSON, isolated DerivedData, install/launch, screenshot, scoped logs and
+UI automation healthcheck before broad Apple scenario execution can begin.

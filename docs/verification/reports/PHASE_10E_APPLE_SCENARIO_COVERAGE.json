@@ -1,0 +1,21 @@
+{
+  "broad_scenario_execution_allowed": false,
+  "decision": "APPLE_RUNTIME_QUALIFICATION_BLOCKED",
+  "evidence_dir": "artifacts/verification/evidence/apple10e-20260711T114536Z-417af0454b/",
+  "phase": "10E",
+  "run_id": "apple10e-20260711T114536Z-417af0454b",
+  "status": "blocked",
+  "summary": "Mandatory Apple Runtime Qualification failed closed before broad Apple scenario execution.",
+  "checks": {
+    "release_equivalent_build": "BLOCKED",
+    "apns_entitlements": "PASS",
+    "simulator_target": "BLOCKED",
+    "physical_device_target": "SKIPPED",
+    "derived_data_isolation": "BLOCKED",
+    "install": "BLOCKED",
+    "launch": "BLOCKED",
+    "screenshot": "BLOCKED",
+    "log_collection": "BLOCKED",
+    "ui_automation_healthcheck": "BLOCKED"
+  }
+}

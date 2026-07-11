@@ -48,6 +48,13 @@ for mock/unit primitive coverage and planning/engine integration. Live Apple
 runtime proof remains explicitly deferred until a prepared Apple target JSON
 and app artifact are configured.
 
+Phase 10E Apple Scenario Coverage Expansion executed the mandatory Apple
+Runtime Qualification gate first and returned
+`APPLE_RUNTIME_QUALIFICATION_BLOCKED`. Broad Apple scenario execution did not
+start because release-equivalent build command, prepared Apple target JSON,
+isolated DerivedData, install/launch target, screenshot/log evidence and UI
+automation healthcheck configuration were missing.
+
 The active next phase is listed in `PROMPT_INDEX.md`.
 
 ## Required Reading Order

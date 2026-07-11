@@ -65,6 +65,9 @@ def build_parser() -> argparse.ArgumentParser:
     ha_lab = lab_subparsers.add_parser("ha")
     ha_lab.add_argument("lab_command", choices=("build", "start", "stop", "restart", "recreate", "fresh", "clean", "destroy", "bootstrap-auth", "doctor", "metadata"))
     ha_lab.add_argument("--allow-destructive", action="store_true")
+    apple = subparsers.add_parser("apple")
+    apple_subparsers = apple.add_subparsers(dest="apple_command", required=True)
+    apple_subparsers.add_parser("qualify-runtime")
     subparsers.add_parser("env")
     subparsers.add_parser("schema")
     subparsers.add_parser("config")
@@ -225,6 +228,14 @@ def main(argv: list[str] | None = None) -> int:
                 gate = lab.lifecycle(args.lab_command, allow_destructive=args.allow_destructive)
             print(json.dumps(gate.__dict__, indent=2, sort_keys=True, default=str))
             return 0 if gate.passed else 1
+
+    if args.command == "apple":
+        from .apple_runtime_qualification import AppleRuntimeQualification, result_to_json
+
+        if args.apple_command == "qualify-runtime":
+            result = AppleRuntimeQualification(config.root).run()
+            print(result_to_json(result))
+            return 0 if result.state == "PASS" else 1
 
     if args.command == "env":
         print(json.dumps(orchestrator.snapshot().__dict__, indent=2, sort_keys=True))

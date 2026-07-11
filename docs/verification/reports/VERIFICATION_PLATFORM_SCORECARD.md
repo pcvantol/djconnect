@@ -1,6 +1,6 @@
 # Verification Platform Scorecard
 
-Status: PLATFORM QUALIFIED; HOME ASSISTANT BACKEND COVERAGE QUALIFIED WITH WARNINGS; APPLE ADAPTER QUALIFIED WITH LIVE RUNTIME SKIPPED
+Status: PLATFORM QUALIFIED; HOME ASSISTANT BACKEND COVERAGE QUALIFIED WITH WARNINGS; APPLE RUNTIME QUALIFICATION BLOCKED
 
 Scoring scale:
 
@@ -25,7 +25,7 @@ Scoring scale:
 | GitHub CI | 5 | Exact-SHA CI inspected two successful GitHub Actions runs for the tested SHA. |
 | Dogfooding Coverage | 4 | `tests/verification` passed 69 tests and catalog validation covered 231 scenarios; live Docker tests remain opt-in. |
 | Home Assistant Backend Coverage | 4 | Phase 9E-R executed and qualified 195 HA backend or separable HA backend assertion-path scenarios; 28 client/hardware/release/voice-localization scenarios remain correctly deferred. |
-| Apple Adapter | 3 | Thin Apple adapter primitives, Scenario Engine selection and Execution Environment simulator metadata are implemented and mock-tested; live simulator/device execution is explicitly skipped until target/artifact configuration is provided. |
+| Apple Adapter | 3 | Thin Apple adapter primitives, Scenario Engine selection and Execution Environment simulator metadata are implemented and mock-tested; Phase 10E added a fail-closed runtime qualification gate, but live simulator scenario execution remains blocked until target/artifact/build/UI configuration is provided. |
 | Overall | 4 | The platform is qualified for the next adapter phase with non-blocking framework improvements tracked. |
 
 ## Decision
@@ -36,12 +36,17 @@ HOME_ASSISTANT_BACKEND_QUALIFIED_WITH_WARNINGS
 
 APPLE_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_SKIPPED
 
+APPLE_RUNTIME_QUALIFICATION_BLOCKED
+
 The Verification Platform itself remains qualified, and Phase 9E-R qualifies
 broad Home Assistant backend coverage with one non-blocking warning. The
 warning was a transient local HA websocket timeout affecting two scenarios in a
 regenerated batch; the Investigator classified it as an environment issue and
 the affected-scenario rerun passed.
 
-Phase 10 completed the thin Apple adapter with mock/unit evidence. Phase 10E is
-unblocked for Apple scenario coverage expansion, with live Apple runtime proof
-still explicitly requiring prepared target and artifact configuration.
+Phase 10 completed the thin Apple adapter with mock/unit evidence. Phase 10E
+executed the mandatory Apple Runtime Qualification gate first and correctly
+failed closed because the local run did not provide release-equivalent build
+command, prepared target JSON, isolated DerivedData, install/launch target,
+screenshot/log evidence or UI automation healthcheck configuration. Continue
+with Phase 10E-R before broad Apple scenario execution or Phase 11.

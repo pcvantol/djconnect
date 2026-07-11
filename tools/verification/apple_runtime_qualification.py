@@ -1,0 +1,209 @@
+"""Apple runtime qualification gate for Phase 10E verification."""
+
+from __future__ import annotations
+
+import json
+import os
+import platform
+import subprocess
+import time
+from dataclasses import asdict, dataclass
+from pathlib import Path
+from typing import Any
+
+from tools.verification.apple_adapter import AppleAdapterConfig, AppleVerificationAdapter
+from tools.verification.evidence import RunStore
+from tools.verification.environment.identity import RunIdentityManager
+
+
+MANDATORY_CHECKS = (
+    "release_equivalent_build",
+    "apns_entitlements",
+    "simulator_target",
+    "physical_device_target",
+    "derived_data_isolation",
+    "install",
+    "launch",
+    "screenshot",
+    "log_collection",
+    "ui_automation_healthcheck",
+)
+
+
+@dataclass(frozen=True)
+class AppleQualificationCheck:
+    name: str
+    state: str
+    message: str
+    data: dict[str, Any]
+
+
+@dataclass(frozen=True)
+class AppleQualificationResult:
+    run_id: str
+    state: str
+    started_at: float
+    completed_at: float
+    checks: tuple[AppleQualificationCheck, ...]
+    evidence_dir: str
+    broad_scenario_execution_allowed: bool
+
+
+class AppleRuntimeQualification:
+    """Run the mandatory fail-closed Apple runtime qualification gate."""
+
+    def __init__(self, root: Path, *, apple_repo: Path | None = None) -> None:
+        self.root = root
+        self.apple_repo = apple_repo or root.parent / "djconnect-app"
+        self.evidence_root = root / "artifacts" / "verification" / "evidence"
+
+    def run(self) -> AppleQualificationResult:
+        started = time.time()
+        run_id = RunIdentityManager().create([], prefix="apple10e").run_id
+        store = RunStore(self.evidence_root)
+        run_dir = store.ensure(run_id)
+        evidence_dir = run_dir / "apple"
+        evidence_dir.mkdir(parents=True, exist_ok=True)
+
+        checks: list[AppleQualificationCheck] = []
+        checks.append(self._release_equivalent_build())
+        checks.append(self._apns_entitlements())
+        checks.append(self._simulator_target())
+        checks.append(self._physical_device_target())
+        checks.append(self._derived_data_isolation())
+
+        adapter_config = AppleAdapterConfig.from_environment(self.root)
+        if adapter_config.evidence_dir is None:
+            adapter_config = AppleAdapterConfig(
+                target=adapter_config.target,
+                timeout_seconds=adapter_config.timeout_seconds,
+                allow_destructive=adapter_config.allow_destructive,
+                allow_physical_devices=adapter_config.allow_physical_devices,
+                evidence_dir=evidence_dir,
+            )
+        adapter = AppleVerificationAdapter(adapter_config)
+
+        checks.append(self._primitive("install", adapter.install_app()))
+        launch = adapter.launch_app()
+        checks.append(self._primitive("launch", launch))
+        checks.append(self._primitive("screenshot", adapter.capture_screenshot("phase-10e-runtime-qualification")))
+        checks.append(self._logs(adapter))
+        checks.append(self._ui_healthcheck())
+
+        state = "PASS" if all(
+            check.state == "PASS" or (check.name == "physical_device_target" and check.state == "SKIPPED")
+            for check in checks
+        ) else "BLOCKED"
+        result = AppleQualificationResult(
+            run_id=run_id,
+            state=state,
+            started_at=started,
+            completed_at=time.time(),
+            checks=tuple(checks),
+            evidence_dir=str(run_dir),
+            broad_scenario_execution_allowed=state == "PASS",
+        )
+        store.write_json(run_id, "apple/runtime-qualification.json", asdict(result))
+        store.finalize(
+            run_id,
+            state=state,
+            summary={
+                "phase": "10E",
+                "gate": "apple_runtime_qualification",
+                "broad_scenario_execution_allowed": result.broad_scenario_execution_allowed,
+                "apple_repo": str(self.apple_repo),
+                "host": platform.node(),
+                "os": platform.platform(),
+            },
+        )
+        return result
+
+    def _release_equivalent_build(self) -> AppleQualificationCheck:
+        project = self.apple_repo / "DJConnectApp.xcodeproj"
+        release_script = self.apple_repo / "release.sh"
+        command = os.getenv("DJCONNECT_VERIFICATION_APPLE_BUILD_COMMAND")
+        if not self.apple_repo.exists() or not project.exists():
+            return _check("release_equivalent_build", "BLOCKED", "Apple source repository or Xcode project is unavailable.", {"apple_repo": str(self.apple_repo)})
+        if not command:
+            return _check(
+                "release_equivalent_build",
+                "BLOCKED",
+                "No explicit release-equivalent Apple build command configured.",
+                {
+                    "apple_repo": str(self.apple_repo),
+                    "project": str(project),
+                    "release_script": str(release_script),
+                    "required_env": "DJCONNECT_VERIFICATION_APPLE_BUILD_COMMAND",
+                },
+            )
+        code, output = _run_shell(command, self.apple_repo, timeout=1800)
+        return _check("release_equivalent_build", "PASS" if code == 0 else "FAIL", "Release-equivalent build command executed." if code == 0 else "Release-equivalent build command failed.", {"command": command, "returncode": code, "output_tail": output[-4000:]})
+
+    def _apns_entitlements(self) -> AppleQualificationCheck:
+        entitlements = sorted(str(path.relative_to(self.apple_repo)) for path in self.apple_repo.rglob("*.entitlements")) if self.apple_repo.exists() else []
+        state = "PASS" if entitlements else "BLOCKED"
+        return _check("apns_entitlements", state, "Entitlement files discovered." if entitlements else "No Apple entitlement files found for APNs/signing verification.", {"entitlement_files": entitlements})
+
+    def _simulator_target(self) -> AppleQualificationCheck:
+        target = AppleAdapterConfig.from_environment(self.root).target
+        if target is None:
+            return _check("simulator_target", "BLOCKED", "No prepared Apple target JSON configured.", {"required_env": "DJCONNECT_VERIFICATION_APPLE_TARGET_JSON"})
+        if target.runtime != "simulator":
+            return _check("simulator_target", "BLOCKED", "Configured target is not a simulator.", {"target": target.to_dict()})
+        return _check("simulator_target", "PASS", "Prepared simulator target configured.", {"target": target.to_dict()})
+
+    def _physical_device_target(self) -> AppleQualificationCheck:
+        if os.getenv("DJCONNECT_VERIFICATION_APPLE_ALLOW_PHYSICAL", "").lower() not in {"1", "true", "yes", "on"}:
+            return _check("physical_device_target", "SKIPPED", "Physical-device qualification is opt-in and was not configured.", {})
+        return _check("physical_device_target", "BLOCKED", "Physical-device opt-in is set but no physical-device qualification runner is configured.", {})
+
+    def _derived_data_isolation(self) -> AppleQualificationCheck:
+        path = os.getenv("DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA")
+        if not path:
+            return _check("derived_data_isolation", "BLOCKED", "No isolated DerivedData path configured for Phase 10E.", {"required_env": "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA"})
+        return _check("derived_data_isolation", "PASS", "Isolated DerivedData path configured.", {"derived_data": path})
+
+    def _logs(self, adapter: AppleVerificationAdapter) -> AppleQualificationCheck:
+        logs = adapter.collect_logs()
+        ok = bool(logs)
+        return _check("log_collection", "PASS" if ok else "BLOCKED", "Scoped Apple runtime logs collected." if ok else "Apple runtime log collection did not produce evidence.", {"log_entries": len(logs), "logs": list(logs)[-3:]})
+
+    def _ui_healthcheck(self) -> AppleQualificationCheck:
+        driver = os.getenv("DJCONNECT_VERIFICATION_APPLE_UI_DRIVER")
+        command = os.getenv("DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND")
+        if not driver or not command:
+            return _check(
+                "ui_automation_healthcheck",
+                "BLOCKED",
+                "No XCTest/accessibility UI healthcheck driver and command configured.",
+                {
+                    "required_env": [
+                        "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER",
+                        "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND",
+                    ]
+                },
+            )
+        code, output = _run_shell(command, self.apple_repo, timeout=300)
+        return _check("ui_automation_healthcheck", "PASS" if code == 0 else "FAIL", "UI automation healthcheck executed." if code == 0 else "UI automation healthcheck failed.", {"driver": driver, "returncode": code, "output_tail": output[-4000:]})
+
+    @staticmethod
+    def _primitive(name: str, primitive: Any) -> AppleQualificationCheck:
+        return _check(name, "PASS" if primitive.ok else "BLOCKED", f"{name} primitive executed." if primitive.ok else f"{name} primitive did not qualify.", {"result": primitive.data, "message": primitive.message})
+
+
+def _check(name: str, state: str, message: str, data: dict[str, Any]) -> AppleQualificationCheck:
+    return AppleQualificationCheck(name=name, state=state, message=message, data=data)
+
+
+def _run_shell(command: str, cwd: Path, *, timeout: int) -> tuple[int, str]:
+    try:
+        output = subprocess.check_output(command, cwd=cwd, shell=True, text=True, stderr=subprocess.STDOUT, timeout=timeout)
+        return 0, output.strip()
+    except subprocess.CalledProcessError as exc:
+        return exc.returncode, str(exc.output).strip()
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return 127, str(exc)
+
+
+def result_to_json(result: AppleQualificationResult) -> str:
+    return json.dumps(asdict(result), indent=2, sort_keys=True)

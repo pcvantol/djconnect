@@ -21,12 +21,16 @@ Phase 10 implemented and qualified the thin Apple Verification Adapter with
 mock/unit evidence. Live Apple simulator/device execution was explicitly
 skipped because no prepared Apple target JSON and app artifact were configured.
 
-The active next step is Phase 10E: Apple Scenario Coverage Expansion.
+Phase 10E executed the mandatory Apple Runtime Qualification gate first and
+returned `APPLE_RUNTIME_QUALIFICATION_BLOCKED`. Broad Apple scenario execution
+did not start.
+
+The active next step is Phase 10E-R: Apple Runtime Qualification Remediation.
 
 Use this clean-session prompt:
 
 ```text
-Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 10E from PROMPT_INDEX.md.
+Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 10E-R from PROMPT_INDEX.md.
 ```
 
 ## Prompt Table
@@ -59,7 +63,8 @@ Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 10E from PROMPT_INDEX.md.
 | 9E | Home Assistant Scenario Coverage Expansion | Not qualified | `prompts/verification/PHASE_09E_HOME_ASSISTANT_SCENARIO_COVERAGE_EXPANSION.md` | Phase 9V rerun qualified the Verification Platform | `docs/verification/reports/PHASE_09E_HOME_ASSISTANT_SCENARIO_COVERAGE.md`; `docs/verification/reports/PHASE_09E_HOME_ASSISTANT_SCENARIO_COVERAGE.json` | New PR; merge only after Phase 9E completion protocol | Phase 9E-R |
 | 9E-R | Home Assistant Scenario Coverage Remediation | Qualified with non-blocking warnings | `prompts/verification/PHASE_09E_R_HOME_ASSISTANT_SCENARIO_COVERAGE_REMEDIATION.md` | Phase 9E returned `HOME_ASSISTANT_BACKEND_NOT_QUALIFIED` | Updated `docs/verification/reports/PHASE_09E_HOME_ASSISTANT_SCENARIO_COVERAGE.md`; updated JSON report | New PR or continue Phase 9E PR if still open | Phase 10 |
 | 10 | Apple Verification Adapter | Qualified with live runtime skipped | `prompts/verification/PHASE_10_APPLE_VERIFICATION_ADAPTER.md` | Phase 9E-R returned `HOME_ASSISTANT_BACKEND_QUALIFIED_WITH_WARNINGS` with warnings explicitly non-blocking for Apple work | `docs/verification/reports/PHASE_10_APPLE_ADAPTER_COMPLETION.md` | New PR; merge only after Phase 10 completion protocol | Phase 10E |
-| 10E | Apple Scenario Coverage Expansion | Active | `prompts/verification/PHASE_10E_APPLE_SCENARIO_COVERAGE_EXPANSION.md` | Phase 10 returned `APPLE_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_SKIPPED` | Future Phase 10E coverage report | Future PR | Phase 11 |
+| 10E | Apple Scenario Coverage Expansion | Blocked - runtime qualification missing local configuration | `prompts/verification/PHASE_10E_APPLE_SCENARIO_COVERAGE_EXPANSION.md` | Phase 10 returned `APPLE_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_SKIPPED` | `docs/verification/reports/PHASE_10E_APPLE_SCENARIO_COVERAGE.md`; evidence `artifacts/verification/evidence/apple10e-20260711T114536Z-417af0454b/` | New PR; do not merge as Apple coverage qualified | Phase 10E-R |
+| 10E-R | Apple Runtime Qualification Remediation | Active | `prompts/verification/PHASE_10E_R_APPLE_RUNTIME_QUALIFICATION_REMEDIATION.md` | Phase 10E returned `APPLE_RUNTIME_QUALIFICATION_BLOCKED` | Future Phase 10E-R remediation report | Future PR or continue Phase 10E PR if still open | Phase 10E retry |
 | 11+ | Additional Platform Adapters | Future | To be generated after Apple coverage work | Phase 10E and roadmap review | Future adapter reports | Future PRs | Future adapter qualification |
 
 ## Status Rules
@@ -86,5 +91,5 @@ qualification report and the final result line.
 Exact clean-session command for the active phase:
 
 ```text
-Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 10E from PROMPT_INDEX.md.
+Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 10E-R from PROMPT_INDEX.md.
 ```
