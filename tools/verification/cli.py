@@ -90,7 +90,7 @@ def main(argv: list[str] | None = None) -> int:
         from .home_assistant_adapter import HomeAssistantAdapterConfig, HomeAssistantVerificationAdapter
 
         adapters = AdapterRegistry()
-        adapters.register(HomeAssistantVerificationAdapter(HomeAssistantAdapterConfig.from_environment(config.root)))
+        adapters.register(HomeAssistantVerificationAdapter(_home_assistant_adapter_config(config.root)))
     orchestrator = VerificationOrchestrator(config, adapters=adapters)
 
     if args.command == "list":
@@ -291,6 +291,25 @@ def _select(args: argparse.Namespace, scenarios):
         ids=set(args.scenario_id or ()),
         tags=set(args.tag or ()),
         components=set(args.component or ()),
+    )
+
+
+def _home_assistant_adapter_config(root: Path) -> "HomeAssistantAdapterConfig":
+    from .environment.docker_ha import HALocalVerificationLab
+    from .home_assistant_adapter import HomeAssistantAdapterConfig
+
+    explicit = HomeAssistantAdapterConfig.from_environment(root)
+    if os.getenv("DJCONNECT_VERIFICATION_HA_TOKEN"):
+        return explicit
+    lab_config = HALocalVerificationLab(root).adapter_config()
+    return HomeAssistantAdapterConfig(
+        base_url=os.getenv("DJCONNECT_VERIFICATION_HA_URL", str(lab_config["base_url"])).rstrip("/"),
+        token=str(lab_config.get("token") or ""),
+        storage_dir=explicit.storage_dir or lab_config.get("storage_dir"),
+        log_path=explicit.log_path or lab_config.get("log_path"),
+        timeout_seconds=explicit.timeout_seconds,
+        allow_destructive=explicit.allow_destructive,
+        fixture_namespace=explicit.fixture_namespace,
     )
 
 

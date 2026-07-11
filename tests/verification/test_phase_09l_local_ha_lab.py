@@ -132,6 +132,7 @@ class Phase09LLocalHALabTests(unittest.TestCase):
                     True,
                     stdout=json.dumps({"Names": "djconnect-verification-ha", "State": "created"}),
                 ),
+                ("desktop", "update", "--check-only"): DockerCommandResult(True, stdout="Docker Desktop 4.81.0 is already the latest version"),
                 ("rm", "-f", "djconnect-verification-ha"): DockerCommandResult(True, stdout="removed"),
                 ("compose", "-f", str(config.compose_file), "up", "-d"): DockerCommandResult(True, stdout="started"),
                 ("logs", "--tail", "80", "--timestamps", "djconnect-verification-ha"): DockerCommandResult(True, stdout=""),
@@ -143,12 +144,32 @@ class Phase09LLocalHALabTests(unittest.TestCase):
         self.assertEqual(GateState.PASS, gate.state)
         self.assertIn(("rm", "-f", "djconnect-verification-ha"), fake.calls)
         self.assertIn(("compose", "-f", str(config.compose_file), "up", "-d"), fake.calls)
+        self.assertEqual("latest", gate.metadata["docker_desktop_update"]["mode"])
+
+    def test_start_blocks_when_docker_desktop_update_is_available_or_unknown(self) -> None:
+        config = _lab_config(self.root)
+        fake = FakeDocker(
+            {
+                ("desktop", "update", "--check-only"): DockerCommandResult(
+                    False,
+                    stdout="Docker Desktop 4.82.0 is available",
+                    returncode=1,
+                ),
+            }
+        )
+
+        gate = HALocalVerificationLab(self.root, fake, config).lifecycle("start")
+
+        self.assertEqual(GateState.FAIL, gate.state)
+        self.assertIn("Docker Desktop must be updated", gate.message)
+        self.assertNotIn(("compose", "-f", str(config.compose_file), "up", "-d"), fake.calls)
 
     def test_start_auto_resolves_latest_stable_ha_image(self) -> None:
         config = _lab_config(self.root, auto_update_image=True)
         fake = FakeDocker(
             {
                 ("ps", "-a", "--filter", "name=djconnect-verification-ha", "--format", "{{json .}}"): DockerCommandResult(True, stdout=""),
+                ("desktop", "update", "--check-only"): DockerCommandResult(True, stdout="Docker Desktop 4.81.0 is already the latest version"),
                 ("pull", "ghcr.io/home-assistant/home-assistant:stable"): DockerCommandResult(True, stdout="stable pulled"),
                 ("image", "inspect", "ghcr.io/home-assistant/home-assistant:stable"): DockerCommandResult(
                     True,
@@ -173,6 +194,7 @@ class Phase09LLocalHALabTests(unittest.TestCase):
         fake = FakeDocker(
             {
                 ("ps", "-a", "--filter", "name=djconnect-verification-ha", "--format", "{{json .}}"): DockerCommandResult(True, stdout=""),
+                ("desktop", "update", "--check-only"): DockerCommandResult(True, stdout="Docker Desktop 4.81.0 is already the latest version"),
                 ("compose", "-f", str(config.compose_file), "up", "-d"): DockerCommandResult(True, stdout="started"),
                 ("logs", "--tail", "80", "--timestamps", "djconnect-verification-ha"): DockerCommandResult(True, stdout=""),
             }

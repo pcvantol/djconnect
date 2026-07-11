@@ -1,6 +1,6 @@
 # Verification Platform Backlog
 
-Status: active after Phase 9E
+Status: active after Phase 9E-R
 
 Do not create GitHub issues automatically from this backlog.
 
@@ -27,9 +27,10 @@ Do not create GitHub issues automatically from this backlog.
 | VPB-019 | P0 | Environment issue | Docker Desktop access to macOS `Documents` was approved by the operator. The bind-mount probe and local HA lab qualification passed in Phase 9L-R6; no Docker purge, factory reset or reinstall was required. | Local Docker / Operator | Local workstation | No | Done | Phase 9L-R6 |
 | VPB-020 | P1 | Verification Gap | Automated Investigator classification reported the initial Phase 9V wrapper failure as `unknown` even though manual investigation identified missing runtime token caused by an unapproved Docker-access invocation. | Verification Core / Investigator | `djconnect` | No | S | Phase 9E regression or Verification Core maintenance |
 | VPB-021 | P2 | Planning Engine gap | `PROFILE-002` correctly declares rich-client requirements, but HA-only smoke planning exposes `apple.runtime` and `windows.runtime` as external resources. Future coverage planning should make cross-runtime coverage intent more explicit. | Planning Engine / Scenario Catalog | `djconnect` | No | M | Phase 9E and Phase 10 Apple Adapter |
-| VPB-022 | P0 | Verification Core defect | Phase 9E found 223 HA/DJConnect-related scenarios, but the Scenario Engine currently maps only `PROFILE-001` through `PROFILE-005` to executable Home Assistant primitives. Broad HA backend scenario coverage is not qualified. | Scenario Engine / Verification Core | `djconnect` | Yes | L | Phase 9E-R |
-| VPB-023 | P0 | Execution Environment / Adapter integration defect | HA adapter execution does not automatically reuse the dedicated lab-derived HA URL, token, storage and log configuration. Manual in-process token injection was required for the passing Phase 9E supported batch. | Execution Environment / Home Assistant Adapter | `djconnect` | Yes for unattended broad coverage | M | Phase 9E-R |
-| VPB-024 | P1 | Verification Core defect | Primitive failures from Phase 9E still produced insufficient structured failure details for the Investigator, which reported the failed evidence bundle as `unknown`. | Verification Investigator | `djconnect` | No | S | Phase 9E-R |
+| VPB-022 | P0 | Verification Core defect | Phase 9E found 223 HA/DJConnect-related scenarios, but the Scenario Engine mapped only `PROFILE-001` through `PROFILE-005`. Phase 9E-R expanded executable Home Assistant backend mappings and qualified 195 HA backend or separable HA backend assertion-path scenarios. | Scenario Engine / Verification Core | `djconnect` | No | Done | Phase 9E-R |
+| VPB-023 | P0 | Execution Environment / Adapter integration defect | HA adapter execution did not automatically reuse the dedicated lab-derived HA URL, token, storage and log configuration. Phase 9E-R now wires lab-derived config into adapter execution in-process without serializing token values. | Execution Environment / Home Assistant Adapter | `djconnect` | No | Done | Phase 9E-R |
+| VPB-024 | P1 | Verification Core defect | Primitive failures from Phase 9E produced insufficient structured failure details for the Investigator. Phase 9E-R preserves primitive diagnostics in run summaries and the Investigator classified live websocket timeouts from summary evidence. | Verification Investigator | `djconnect` | No | Done | Phase 9E-R |
+| VPB-025 | P2 | Environment issue | The regenerated separable backend batch saw two transient live websocket timeouts. The Investigator classified both as environment issues and the affected-scenario rerun passed. Keep this as a non-blocking local lab stability watch item. | Verification Environment / Local Docker | Local workstation | No | S | Phase 10 regression watch |
 
 ## Regression Subset Required After Fixes
 
@@ -43,9 +44,9 @@ Phase 9V rerun reports:
 
 VERIFICATION PLATFORM QUALIFIED
 
-Phase 9E reports:
+Phase 9E-R reports:
 
-HOME_ASSISTANT_BACKEND_NOT_QUALIFIED
+HOME_ASSISTANT_BACKEND_QUALIFIED_WITH_WARNINGS
 
-Phase 10 remains blocked until Phase 9E-R qualifies broad Home Assistant
-backend scenario coverage.
+Phase 10 is unblocked. The Phase 9E-R warning is explicitly non-blocking for
+Apple client adapter work.

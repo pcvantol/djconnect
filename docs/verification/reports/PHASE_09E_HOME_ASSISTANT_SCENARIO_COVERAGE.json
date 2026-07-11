@@ -1,33 +1,124 @@
 {
-  "branch": "phase-09e-home-assistant-scenario-coverage",
+  "branch": "phase-09e-r-home-assistant-scenario-coverage-remediation",
   "coverage": {
-    "blocked": 98,
-    "deferred_to_client_hardware_external": 120,
-    "executed": 5,
+    "blocked": 0,
+    "deferred_to_client_hardware_external": 28,
+    "executed": 195,
     "failed": 0,
-    "passed": 5,
+    "passed": 195,
     "skipped": 0,
-    "unresolved": 0
+    "unresolved": 0,
+    "warning_reruns": 2
   },
   "coverage_by_domain": {
-    "Ask DJ": {"canonical": 28, "executed": 0, "ha_related": 28, "status": "blocked"},
-    "Backend": {"canonical": 8, "executed": 0, "ha_related": 8, "status": "blocked_deferred"},
-    "Capabilities": {"canonical": 8, "executed": 0, "ha_related": 8, "status": "blocked"},
-    "Discover": {"canonical": 16, "executed": 0, "ha_related": 16, "status": "blocked"},
-    "Export": {"canonical": 6, "executed": 0, "ha_related": 6, "status": "blocked"},
-    "Hardware": {"canonical": 10, "executed": 0, "ha_related": 10, "status": "deferred"},
-    "Identity": {"canonical": 8, "executed": 0, "ha_related": 8, "status": "blocked"},
-    "Import": {"canonical": 6, "executed": 0, "ha_related": 6, "status": "blocked"},
-    "Localization": {"canonical": 10, "executed": 0, "ha_related": 10, "status": "blocked_deferred"},
-    "Music DNA": {"canonical": 18, "executed": 0, "ha_related": 18, "status": "blocked"},
-    "Networking": {"canonical": 8, "executed": 0, "ha_related": 8, "status": "blocked_deferred"},
-    "Playback": {"canonical": 10, "executed": 0, "ha_related": 10, "status": "blocked"},
-    "Privacy": {"canonical": 10, "executed": 0, "ha_related": 10, "status": "blocked"},
-    "Profiles": {"canonical": 24, "executed": 5, "ha_related": 24, "status": "partial"},
-    "Release": {"canonical": 8, "executed": 0, "ha_related": 0, "status": "deferred"},
-    "Resolver": {"canonical": 20, "executed": 0, "ha_related": 20, "status": "blocked"},
-    "Setup": {"canonical": 25, "executed": 0, "ha_related": 25, "status": "blocked_deferred"},
-    "Track Insight": {"canonical": 8, "executed": 0, "ha_related": 8, "status": "blocked"}
+    "Ask DJ": {
+      "canonical": 28,
+      "executed": 28,
+      "ha_related": 28,
+      "status": "qualified_ha_backend_path"
+    },
+    "Backend": {
+      "canonical": 8,
+      "executed": 8,
+      "ha_related": 8,
+      "status": "qualified"
+    },
+    "Capabilities": {
+      "canonical": 8,
+      "executed": 8,
+      "ha_related": 8,
+      "status": "qualified_ha_backend_path"
+    },
+    "Discover": {
+      "canonical": 16,
+      "executed": 16,
+      "ha_related": 16,
+      "status": "qualified_ha_backend_path"
+    },
+    "Export": {
+      "canonical": 6,
+      "executed": 6,
+      "ha_related": 6,
+      "status": "qualified"
+    },
+    "Hardware": {
+      "canonical": 10,
+      "executed": 0,
+      "ha_related": 10,
+      "status": "deferred_to_hardware_adapter"
+    },
+    "Identity": {
+      "canonical": 8,
+      "executed": 0,
+      "ha_related": 8,
+      "status": "deferred_to_voice_endpoint_adapter"
+    },
+    "Import": {
+      "canonical": 6,
+      "executed": 6,
+      "ha_related": 6,
+      "status": "qualified"
+    },
+    "Localization": {
+      "canonical": 10,
+      "executed": 0,
+      "ha_related": 10,
+      "status": "deferred_to_client_release_adapters"
+    },
+    "Music DNA": {
+      "canonical": 18,
+      "executed": 18,
+      "ha_related": 18,
+      "status": "qualified"
+    },
+    "Networking": {
+      "canonical": 8,
+      "executed": 8,
+      "ha_related": 8,
+      "status": "qualified"
+    },
+    "Playback": {
+      "canonical": 10,
+      "executed": 10,
+      "ha_related": 10,
+      "status": "qualified"
+    },
+    "Privacy": {
+      "canonical": 10,
+      "executed": 10,
+      "ha_related": 10,
+      "status": "qualified"
+    },
+    "Profiles": {
+      "canonical": 24,
+      "executed": 24,
+      "ha_related": 24,
+      "status": "qualified_ha_backend_path"
+    },
+    "Release": {
+      "canonical": 8,
+      "executed": 0,
+      "ha_related": 0,
+      "status": "deferred_to_release_qualification"
+    },
+    "Resolver": {
+      "canonical": 20,
+      "executed": 20,
+      "ha_related": 20,
+      "status": "qualified"
+    },
+    "Setup": {
+      "canonical": 25,
+      "executed": 25,
+      "ha_related": 25,
+      "status": "qualified"
+    },
+    "Track Insight": {
+      "canonical": 8,
+      "executed": 8,
+      "ha_related": 8,
+      "status": "qualified_ha_backend_path"
+    }
   },
   "coverage_by_lab_profile": {
     "ha-assist": 1,
@@ -37,37 +128,66 @@
     "ha-profile": 100
   },
   "coverage_by_mode": {
-    "boundary": {"executed": 0, "passed": 0},
-    "functional": {"executed": 5, "passed": 5},
-    "localization": {"executed": 0, "passed": 0},
-    "privacy": {"executed": 0, "passed": 0},
-    "resilience": {"executed": 0, "passed": 0},
-    "security": {"executed": 0, "passed": 0}
+    "boundary": {
+      "executed": 0,
+      "passed": 0
+    },
+    "functional": {
+      "executed": 195,
+      "passed": 195
+    },
+    "localization": {
+      "executed": 0,
+      "passed": 0
+    },
+    "privacy": {
+      "executed": 10,
+      "passed": 10
+    },
+    "resilience": {
+      "executed": 2,
+      "note": "affected websocket-timeout rerun",
+      "passed": 2
+    },
+    "security": {
+      "executed": 0,
+      "passed": 0
+    }
   },
-  "decision": "HOME_ASSISTANT_BACKEND_NOT_QUALIFIED",
+  "decision": "HOME_ASSISTANT_BACKEND_QUALIFIED_WITH_WARNINGS",
   "evidence": {
-    "failed_runs": [
-      "artifacts/verification/evidence/djv-20260711T094425Z-dea478d0b1/",
-      "artifacts/verification/evidence/djv-20260711T094516Z-660862c9a4/"
-    ],
     "inventory": "artifacts/verification/phase-09e-scenario-inventory.json",
-    "lab_doctor": "artifacts/verification/phase-09e-lab-doctor.json",
-    "passing_run": "artifacts/verification/evidence/djv-20260711T094553Z-61af356688/"
+    "lab_doctor": "python -m tools.verification.cli lab ha doctor -> LOCAL_VERIFICATION_LAB_QUALIFIED on current branch",
+    "passing_runs": [
+      "artifacts/verification/evidence/djv-20260711T102421Z-ccf1cb4e6a/",
+      "artifacts/verification/evidence/djv-20260711T102725Z-3664892062/",
+      "artifacts/verification/evidence/djv-20260711T103327Z-5dc6021c6a/"
+    ],
+    "regression": "python -m pytest tests/verification -> 74 passed",
+    "warning_investigation": "artifacts/verification/evidence/djv-20260711T102849Z-cf26e0d150/investigation.json",
+    "warning_run": "artifacts/verification/evidence/djv-20260711T102849Z-cf26e0d150/"
   },
   "failure_ownership": [
     {
-      "blocking": true,
-      "classification": "Verification Core defect",
+      "blocking": false,
+      "classification": "Remediated Verification Core defect",
       "confidence": "high",
       "owner": "Scenario Engine / Verification Core",
-      "recommended_action": "Add executable Home Assistant mappings and assertions for the HA-only Phase 9E scenario set."
+      "recommended_action": "Keep HA backend primitive mappings covered by tests and future generated reports."
     },
     {
-      "blocking": true,
-      "classification": "Execution Environment / Adapter integration defect",
+      "blocking": false,
+      "classification": "Remediated Execution Environment / Adapter integration defect",
       "confidence": "high",
       "owner": "Execution Environment / Home Assistant Adapter",
-      "recommended_action": "Wire lab-derived token, URL, storage and log configuration into adapter execution without exposing secrets."
+      "recommended_action": "Use lab-derived adapter configuration for unattended HA execution; do not serialize tokens."
+    },
+    {
+      "blocking": false,
+      "classification": "Environment issue",
+      "confidence": "high",
+      "owner": "Local HA lab runtime",
+      "recommended_action": "Two live websocket timeouts passed on affected-scenario rerun; non-blocking for Apple adapter work."
     }
   ],
   "inventory": {
@@ -82,8 +202,8 @@
     "total_canonical_scenarios": 231,
     "unresolved_lab_profile_scenarios": 0
   },
-  "next_prompt": "prompts/verification/PHASE_09E_R_HOME_ASSISTANT_SCENARIO_COVERAGE_REMEDIATION.md",
-  "readiness_for_phase_10": "blocked",
+  "next_prompt": "prompts/verification/PHASE_10_APPLE_VERIFICATION_ADAPTER.md",
+  "readiness_for_phase_10": "allowed_with_non_blocking_warnings",
   "schema_version": 1,
-  "tested_sha": "8ffab1530f23e501794ff2b6855f733ab76a7c2a"
+  "tested_sha": "a400dab0efc7f9ab71609078ec16930dce9f61a8"
 }

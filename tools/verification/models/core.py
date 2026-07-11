@@ -167,6 +167,7 @@ class ScenarioResult:
     message: str
     evidence: tuple[EvidenceItem, ...] = ()
     duration_seconds: float = 0.0
+    diagnostics: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)

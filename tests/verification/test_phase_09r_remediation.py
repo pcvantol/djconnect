@@ -88,6 +88,35 @@ class Phase09RRemediationTests(unittest.TestCase):
         self.assertEqual("unknown", result.classification)
         self.assertTrue(result.human_review_required)
 
+    def test_investigator_extracts_failed_primitive_diagnostics(self) -> None:
+        results = VerificationInvestigator().investigate_bundle(
+            {
+                "run_id": "run-1",
+                "scenario_results": [
+                    {
+                        "scenario_id": "PROFILE-001",
+                        "state": "FAIL",
+                        "message": "Runtime primitives executed through Home Assistant adapter.",
+                        "diagnostics": {
+                            "primitive_results": [
+                                {"action": "health", "ok": True, "data": {}},
+                                {
+                                    "action": "http_request",
+                                    "ok": False,
+                                    "message": "AuthenticationFailed",
+                                    "data": {"error": "AuthenticationFailed"},
+                                },
+                            ]
+                        },
+                    }
+                ],
+            }
+        )
+
+        self.assertEqual(1, len(results))
+        self.assertEqual("PROFILE-001-http_request-2", results[0].failure_id)
+        self.assertEqual("execution_environment_defect", results[0].classification)
+
     def test_run_store_is_immutable_and_verifiable(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             store = RunStore(Path(temp_dir))
@@ -100,6 +129,18 @@ class Phase09RRemediationTests(unittest.TestCase):
             self.assertTrue(store.verify("run-1")["ok"])
             text = (Path(temp_dir) / "run-1" / "environment.json").read_text(encoding="utf-8")
             self.assertIn("[redacted-key]", text)
+
+    def test_run_store_finalize_preserves_existing_summary_details(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            store = RunStore(Path(temp_dir))
+            store.create("run-1")
+            store.write_json("run-1", "summary.json", {"run_id": "run-1", "scenario_results": [{"scenario_id": "A-001"}]})
+
+            store.finalize("run-1", state="FAIL", summary={"result_state": "FAIL"})
+
+            summary = store.show("run-1")
+            self.assertEqual([{"scenario_id": "A-001"}], summary["scenario_results"])
+            self.assertEqual("FAIL", summary["state"])
 
     def test_github_ci_decision_states_from_gh_payloads(self) -> None:
         inspector = GitHubInspector(Path.cwd())

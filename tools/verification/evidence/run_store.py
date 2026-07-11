@@ -58,7 +58,25 @@ class RunStore:
         return path
 
     def finalize(self, run_id: str, *, state: str, summary: dict[str, Any] | None = None) -> Path:
-        self.write_json(run_id, "summary.json", {"run_id": run_id, "state": state, "schema_version": RUN_SCHEMA_VERSION, **(summary or {})})
+        existing_path = self.ensure(run_id) / "summary.json"
+        existing: dict[str, Any] = {}
+        if existing_path.exists():
+            try:
+                loaded = json.loads(existing_path.read_text(encoding="utf-8"))
+                existing = loaded if isinstance(loaded, dict) else {}
+            except json.JSONDecodeError:
+                existing = {}
+        self.write_json(
+            run_id,
+            "summary.json",
+            {
+                **existing,
+                "run_id": run_id,
+                "state": state,
+                "schema_version": RUN_SCHEMA_VERSION,
+                **(summary or {}),
+            },
+        )
         return self.write_index(run_id)
 
     def write_index(self, run_id: str) -> Path:

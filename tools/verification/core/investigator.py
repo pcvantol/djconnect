@@ -107,6 +107,10 @@ class VerificationInvestigator:
             return _result(run_id, failure_id, scenario_id, test_case_id, "ci_qualification_issue", 0.9, evidence_refs, "Verification Execution Environment", "Re-authenticate GitHub CLI or configure an approved token source.", "qualification")
         if "docker" in text or "home assistant runtime" in text or "ha runtime" in text or "storage_dir" in text:
             return _result(run_id, failure_id, scenario_id, test_case_id, "environment_issue", 0.85, evidence_refs, "Verification Execution Environment", "Start and qualify the intended Docker Home Assistant development runtime.", "affected_scenario")
+        if "authenticationfailed" in text or "missing home assistant token" in text or "missing token" in text:
+            return _result(run_id, failure_id, scenario_id, test_case_id, "execution_environment_defect", 0.85, evidence_refs, "Verification Execution Environment", "Wire a valid lab-derived Home Assistant token into adapter execution and rerun the affected scenario.", "affected_scenario")
+        if "connectionfailed" in text or "connection refused" in text or "timed out" in text:
+            return _result(run_id, failure_id, scenario_id, test_case_id, "environment_issue", 0.8, evidence_refs, "Verification Execution Environment", "Confirm the dedicated Home Assistant lab is running and reachable, then rerun the affected scenario.", "affected_scenario")
         if "websocket" in text:
             return _result(run_id, failure_id, scenario_id, test_case_id, "ha_adapter_defect", 0.8, evidence_refs, "Home Assistant Verification Adapter", "Qualify or inject a live websocket transport and rerun the affected scenario.", "affected_scenario")
         if "snapshot_storage" in text or "storage" in text:
@@ -125,8 +129,41 @@ def _failure_items(bundle: dict[str, Any]) -> list[dict[str, Any]]:
         return [item for item in bundle["failures"] if isinstance(item, dict)]
     items: list[dict[str, Any]] = []
     for result in bundle.get("scenario_results") or []:
-        if isinstance(result, dict) and result.get("state") not in {None, "PASS", "SKIPPED", "NOT TESTED"}:
+        if not isinstance(result, dict) or result.get("state") in {None, "PASS", "SKIPPED", "NOT TESTED"}:
+            continue
+        primitive_items = _primitive_failure_items(result)
+        if primitive_items:
+            items.extend(primitive_items)
+        else:
             items.append(result)
+    return items
+
+
+def _primitive_failure_items(result: dict[str, Any]) -> list[dict[str, Any]]:
+    diagnostics = result.get("diagnostics")
+    if not isinstance(diagnostics, dict):
+        return []
+    primitive_results = diagnostics.get("primitive_results")
+    if not isinstance(primitive_results, list):
+        return []
+    items: list[dict[str, Any]] = []
+    scenario_id = str(result.get("scenario_id") or "")
+    for index, primitive in enumerate(primitive_results, start=1):
+        if not isinstance(primitive, dict) or primitive.get("ok") is not False:
+            continue
+        action = str(primitive.get("action") or "primitive")
+        items.append(
+            {
+                "failure_id": f"{scenario_id or 'scenario'}-{action}-{index}",
+                "scenario_id": scenario_id,
+                "test_case_id": str(result.get("test_case_id") or ""),
+                "message": result.get("message"),
+                "primitive_action": action,
+                "primitive_message": primitive.get("message"),
+                "primitive_data": primitive.get("data"),
+                "evidence_references": result.get("evidence_references") or ("summary",),
+            }
+        )
     return items
 
 

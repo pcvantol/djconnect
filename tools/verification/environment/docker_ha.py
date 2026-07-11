@@ -272,9 +272,19 @@ class HALocalVerificationLab:
                 _redact_mapping(result),
             )
         if action in {"start", "recreate", "fresh"}:
+            desktop_update = self._docker_desktop_update_check()
+            if not desktop_update["ok"]:
+                return GateResult(
+                    "ha_lab_lifecycle",
+                    GateState.FAIL,
+                    "Docker Desktop must be updated before starting the lab",
+                    {"action": action, "docker_desktop_update": desktop_update},
+                )
             recovery = self._recover_stale_container()
             if not recovery["ok"]:
                 return GateResult("ha_lab_lifecycle", GateState.FAIL, "Lab recovery failed before lifecycle action", recovery)
+        else:
+            desktop_update = {"mode": "skipped", "reason": "action_does_not_start_lab"}
         image_resolution = self._resolve_default_image(action)
         env = self._compose_env()
         compose = self._compose_args()
@@ -299,6 +309,7 @@ class HALocalVerificationLab:
             f"Lab {action} {'completed' if result.ok else 'failed'}",
             {
                 "action": action,
+                "docker_desktop_update": desktop_update,
                 "image_resolution": image_resolution,
                 "stdout": result.stdout[-4000:],
                 "stderr": result.stderr[-4000:],
@@ -375,6 +386,23 @@ class HALocalVerificationLab:
             "source_fingerprint": self.config.source_fingerprint,
         }
 
+    def adapter_config(self) -> dict[str, Any]:
+        """Return live adapter configuration for the dedicated lab.
+
+        The token is intentionally included only for in-process consumers. Do
+        not serialize this value to reports or logs.
+        """
+        runtime = self._selected_runtime()
+        token_result = self._resolve_token(runtime)
+        return {
+            "base_url": f"http://127.0.0.1:{self.config.port}",
+            "token": str(token_result.get("token") or ""),
+            "storage_dir": self.config.config_dir / ".storage",
+            "log_path": self.config.log_path,
+            "token_source": token_result.get("source"),
+            "token_available": bool(token_result.get("token")),
+        }
+
     def _compose_args(self) -> tuple[str, ...]:
         args: list[str] = ["compose"]
         for path in self.config.compose_files:
@@ -419,6 +447,18 @@ class HALocalVerificationLab:
                     "stderr": version_pull.stderr[-1000:],
                 }
         return {"mode": "latest_stable", "stable_image": DEFAULT_HA_STABLE_IMAGE, "image": self.config.image, "version": version}
+
+    def _docker_desktop_update_check(self) -> dict[str, Any]:
+        result = self.docker.run("desktop", "update", "--check-only", timeout=120)
+        output = "\n".join(part for part in (result.stdout, result.stderr) if part).strip()
+        current = "already the latest version" in output.lower()
+        return {
+            "ok": result.ok and current,
+            "mode": "latest" if result.ok and current else "blocked",
+            "stdout": result.stdout[-1000:],
+            "stderr": result.stderr[-1000:],
+            "returncode": result.returncode,
+        }
 
     def _ensure_layout(self) -> None:
         self.config.config_dir.mkdir(parents=True, exist_ok=True)
