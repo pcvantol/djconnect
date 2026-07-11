@@ -55,7 +55,8 @@ The files below define Platform Strategy, then the platform foundation itself.
 38. `SOFTWARE_ASSURANCE_IMPLEMENTATION_STRATEGY.md`
 39. `SOFTWARE_ASSURANCE_QUALITY_GATES.md`
 40. `SOFTWARE_ASSURANCE_VERSIONING.md`
-41. `docs/meta/META_ENGINEERING_INDEX.md`
+41. `SOFTWARE_ASSURANCE_IMPLEMENTATION.md`
+42. `docs/meta/META_ENGINEERING_INDEX.md`
 
 ## Conflict-resolution order
 
@@ -228,6 +229,9 @@ governance layer that extends Verification without replacing it.
   without enabling gates.
 - `SOFTWARE_ASSURANCE_VERSIONING.md` defines lifecycle, semantic versioning
   and compatibility expectations.
+- `SOFTWARE_ASSURANCE_IMPLEMENTATION.md` registers the future implementation
+  epic, records its deferred state and requires
+  `PLATFORM_BASELINE_V1_CERTIFIED` before Prompt 1 may begin.
 
 ## Sibling repositories
 

@@ -13,10 +13,17 @@ Software Assurance implementation may begin only after:
 - Windows qualified;
 - cross-platform qualification completed;
 - Verification Runtime released as stable;
-- Platform Baseline updated.
+- Platform Baseline v1.0 certified.
+
+The mandatory platform prerequisite is:
+
+```text
+PLATFORM_BASELINE_V1_CERTIFIED
+```
 
 These prerequisites are mandatory and must not be weakened by repository-local
 prompts, workflow edits or partial implementation milestones.
 
 When all prerequisites are satisfied, the first implementation prompt should
-start with Wave 1 Static Quality as defined in `SOFTWARE_ASSURANCE_ROLLOUT.md`.
+start only through the registered implementation sequence in
+`SOFTWARE_ASSURANCE_IMPLEMENTATION.md`.

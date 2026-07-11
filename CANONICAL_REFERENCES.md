@@ -98,13 +98,15 @@ must not redefine the canonical Verification Foundation.
   `SOFTWARE_ASSURANCE_GOVERNANCE.md`,
   `SOFTWARE_ASSURANCE_ROLLOUT.md`,
   `SOFTWARE_ASSURANCE_IMPLEMENTATION_STRATEGY.md`,
-  `SOFTWARE_ASSURANCE_QUALITY_GATES.md` and
-  `SOFTWARE_ASSURANCE_VERSIONING.md`
+  `SOFTWARE_ASSURANCE_QUALITY_GATES.md`,
+  `SOFTWARE_ASSURANCE_VERSIONING.md` and
+  `SOFTWARE_ASSURANCE_IMPLEMENTATION.md`
 - Local responsibility: maintain platform-wide engineering quality governance,
   software assurance themes, capability IDs, implementation backlog, execution
   profile architecture, dependency graph, integration boundaries, rollout
-  governance, quality gate architecture, versioning, evidence taxonomy,
-  reporting boundaries and Platform Health definitions.
+  governance, quality gate architecture, versioning, implementation
+  registration, evidence taxonomy, reporting boundaries and Platform Health
+  definitions.
 - May this repository modify it: yes, through explicit Software Assurance
   architecture or implementation phases.
 

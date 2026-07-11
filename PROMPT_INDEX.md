@@ -65,6 +65,49 @@ the latest eligible simulator target and prepared XCTest healthcheck; App
 Store/TestFlight distribution signing remains a release-v1.0 readiness
 follow-up.
 
+## Deferred Implementation Epics
+
+### Software Assurance Platform
+
+Status:
+
+```text
+ARCHITECTURE_COMPLETE
+```
+
+Implementation:
+
+```text
+DEFERRED
+```
+
+Prerequisite:
+
+```text
+PLATFORM_BASELINE_V1_CERTIFIED
+```
+
+Implementation sequence:
+
+1. Prompt 1: CI Governance Foundation
+2. Prompt 2: Workflow Harmonization
+3. Prompt 3: Repository Governance & Trusted AI Delivery
+4. Prompt 4: CI Governance Certification & Freeze
+
+Current state:
+
+```text
+Waiting for Platform Baseline certification.
+```
+
+Canonical registration:
+
+- `SOFTWARE_ASSURANCE_IMPLEMENTATION.md`
+
+The existence of these prompts does not authorize implementation. Future AI
+agents must verify that Platform Baseline v1.0 is certified before beginning
+Prompt 1.
+
 Use this clean-session prompt:
 
 ```text

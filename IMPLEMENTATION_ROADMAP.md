@@ -24,8 +24,8 @@ Epic 7: Platform Quality Standard rollout
   -> phases to be defined after repository-specific quality gaps are prioritized
 
 Software Assurance Platform
-  -> architecture prompts before quality tooling rollout
-  -> implementation phases only after explicit approval
+  -> architecture complete
+  -> implementation deferred until Platform Baseline v1.0 certification
 
 Architecture Closure Review
   -> frozen on 2026-07-11
@@ -38,6 +38,11 @@ Platform Qualification
 Platform Baseline v1.0 Certification
   -> not certified
   -> rerun only after Platform Qualification evidence is complete
+
+Software Assurance Implementation
+  -> deferred
+  -> begins only after PLATFORM_BASELINE_V1_CERTIFIED
+  -> Prompt 1 through Prompt 4 in registered order
 
 Epic 8: Website and Product Story
   -> phases to be defined after Platform Baseline v1.0 certification and product-language audit
@@ -103,6 +108,19 @@ Canonical architecture:
 
 Implementation is intentionally deferred until an explicit post-baseline
 implementation prompt starts Software Assurance work.
+
+Canonical implementation registration:
+
+- `SOFTWARE_ASSURANCE_IMPLEMENTATION.md`
+
+The lifecycle transition is:
+
+```text
+Platform Qualification
+  -> Platform Baseline v1.0 Certification
+  -> Software Assurance Implementation
+  -> Business-first Engineering
+```
 
 ## Platform Baseline v1.0 Certification
 

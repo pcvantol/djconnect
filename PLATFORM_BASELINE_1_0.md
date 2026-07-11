@@ -61,6 +61,10 @@ Primary evidence:
 | Platform Health | WARNING | Measurement architecture exists; implementation is future Software Assurance work. |
 | CI/CD | WARNING | Exact-SHA CI and framework CI evidence exist; release operations and self-hosted runner execution remain follow-ups. |
 
+Software Assurance implementation is registered in
+`SOFTWARE_ASSURANCE_IMPLEMENTATION.md` and may begin only after
+`PLATFORM_BASELINE_V1_CERTIFIED`.
+
 ## Certification Boundary
 
 Baseline v1.0 requires all required criteria to pass. A warning may be accepted

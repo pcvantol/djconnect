@@ -179,6 +179,10 @@ Deferred work is not abandoned.
 
 It is postponed until the explicit post-baseline phase that owns the work.
 
+Software Assurance implementation is registered in
+`SOFTWARE_ASSURANCE_IMPLEMENTATION.md` and remains deferred until
+`PLATFORM_BASELINE_V1_CERTIFIED`.
+
 ## Platform Lifecycle
 
 The canonical platform lifecycle has four strategic stages.
@@ -189,6 +193,10 @@ Platform Architecture
   -> Platform Baseline
   -> Business-first Engineering
 ```
+
+Software Assurance implementation is a registered post-baseline transition
+between Platform Baseline certification and Business-first Engineering. It does
+not change the strategic lifecycle stages.
 
 ### Stage 1: Platform Architecture
 

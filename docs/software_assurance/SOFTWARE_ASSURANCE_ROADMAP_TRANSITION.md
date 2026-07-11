@@ -13,7 +13,8 @@ Software Assurance implementation prerequisites are complete:
 - primary adapter qualification;
 - cross-platform qualification;
 - stable Verification Runtime release;
-- Platform Baseline update.
+- Platform Baseline v1.0 certification.
 
-After those prerequisites, Software Assurance implementation may begin with the
-Wave 1 Static Quality rollout.
+After `PLATFORM_BASELINE_V1_CERTIFIED`, Software Assurance implementation may
+begin through the registered Prompt 1 through Prompt 4 sequence in
+`SOFTWARE_ASSURANCE_IMPLEMENTATION.md`.

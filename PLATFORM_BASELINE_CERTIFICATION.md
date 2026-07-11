@@ -60,8 +60,8 @@ The primary engineering objective now becomes:
 - complete platform qualification;
 - complete remaining platform adapters;
 - complete cross-platform qualification;
-- implement Software Assurance only after explicit qualification and
-  implementation prompts;
+- implement Software Assurance only after `PLATFORM_BASELINE_V1_CERTIFIED` and
+  explicit implementation prompts;
 - prepare for business-first engineering only after Platform Baseline v1.0 is
   certified.
 
@@ -116,6 +116,11 @@ The following work is intentionally deferred.
 These are not architectural gaps.
 
 They are planned future work.
+
+Software Assurance implementation is formally registered in
+`SOFTWARE_ASSURANCE_IMPLEMENTATION.md`. Registration does not start
+implementation and does not authorize workflow, CI/CD, repository governance or
+GitHub configuration changes.
 
 ## Certification Statement
 
