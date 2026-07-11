@@ -152,6 +152,33 @@ python -m tools.verification.cli runs list
 Filters are designed for scenario IDs, tags, platform, locale, automation
 level, build type and component.
 
+## Installation
+
+The local harness is source-based and runs from a checked-out repository:
+
+```bash
+cd /path/to/djconnect
+python3 -m venv .venv-verification
+source .venv-verification/bin/activate
+python -m pip install --upgrade pip
+python -m pip install PyYAML==6.0.2 pytest
+python -m tools.verification.cli config
+```
+
+`PyYAML` keeps local runs aligned with the generic Docker runtime dependency.
+`pytest` is required for framework dogfooding:
+
+```bash
+python -m pytest tests/verification
+```
+
+Additional host tools are capability-specific. Docker is required for Home
+Assistant lab work and runtime image releases. Xcode plus command-line tools
+are required for Apple simulator qualification. GitHub Actions hosted runners
+should use the Docker runtime for non-mutating verification jobs; labs,
+simulators, hardware, signing and destructive cleanup require self-hosted
+runners or approved local labs with explicit capabilities.
+
 Parallel scenario execution is enabled by default. The harness detects local
 CPU capacity dynamically, using Apple Silicon performance/efficiency core
 metadata when available and falling back to logical CPU count otherwise. The

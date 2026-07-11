@@ -68,6 +68,70 @@ environment:
 It implements the first Home Assistant runtime adapter and does not own product
 assertions.
 
+## Installation
+
+### Local Checkout
+
+Run the framework from a checked-out DJConnect repository. The current local
+runtime is source-based; no wheel or package install is required.
+
+```bash
+cd /path/to/djconnect
+python3 -m venv .venv-verification
+source .venv-verification/bin/activate
+python -m pip install --upgrade pip
+python -m pip install PyYAML==6.0.2 pytest
+python -m tools.verification.cli config
+```
+
+`PyYAML` matches the generic Docker runtime dependency. `pytest` is needed only
+for dogfooding the framework tests:
+
+```bash
+python -m pytest tests/verification
+```
+
+For local Home Assistant lab or Docker release work, Docker Desktop must be
+installed and available to the shell:
+
+```bash
+docker version
+```
+
+For Apple runtime qualification, install Xcode and command-line tools first and
+make sure `xcodebuild` and `xcrun simctl` are available. Stable verification
+uses the latest eligible stable iOS simulator runtime; beta runtimes belong in
+`DJCONNECT_VERIFICATION_TEST_MODE=future_beta`.
+
+### Docker Runtime
+
+The generic runtime image can be built locally or pulled from a registry once a
+tagged image has been published:
+
+```bash
+python -m tools.verification.cli docker release \
+  --image ghcr.io/pcvantol/djconnect-verification-platform \
+  --release-sha "$(git rev-parse HEAD)"
+
+docker run --rm ghcr.io/pcvantol/djconnect-verification-platform:0.2.0 config
+```
+
+When using Docker, mount the repository and artifacts from outside the image.
+The image is engine-only and must not contain product scenarios, secrets or run
+evidence.
+
+### GitHub Runner
+
+For hosted GitHub runners, use the Docker runtime for non-mutating jobs such as
+engine smoke tests, scenario validation, planning and report/schema checks. The
+workflow should provide the checkout and upload `artifacts/verification/` as a
+workflow artifact.
+
+Use a self-hosted runner or approved local lab for jobs that need Home
+Assistant Docker labs, Apple simulators, hardware, SSH/serial, signing material
+or destructive cleanup. Those jobs must advertise and gate on their required
+capabilities before execution.
+
 ## CLI
 
 Run with Python while the command is a local scaffold:
