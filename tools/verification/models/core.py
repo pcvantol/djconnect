@@ -120,7 +120,7 @@ class HarnessConfig:
     ci: bool = False
     dry_run: bool = False
     test_mode: str = "stable"
-    parallel_execution: bool = False
+    parallel_execution: bool = True
     parallel_workers: int = 1
     overrides: dict[str, str] = field(default_factory=dict)
 

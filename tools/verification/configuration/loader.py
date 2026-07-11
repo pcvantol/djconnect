@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -45,8 +46,11 @@ def load_config(
         ci=ci or _truthy(merged.get("ci")),
         dry_run=dry_run,
         test_mode=str(merged.get("test_mode") or "stable"),
-        parallel_execution=_truthy(merged.get("parallel_execution")),
-        parallel_workers=_bounded_workers(merged.get("parallel_workers"), parallel_enabled=_truthy(merged.get("parallel_execution"))),
+        parallel_execution=_parallel_enabled(merged.get("parallel_execution")),
+        parallel_workers=_bounded_workers(
+            merged.get("parallel_workers"),
+            parallel_enabled=_parallel_enabled(merged.get("parallel_execution")),
+        ),
         overrides=overrides or {},
     )
 
@@ -85,9 +89,45 @@ def _truthy(value: Any) -> bool:
     return str(value).lower() in {"1", "true", "yes", "on"}
 
 
+def _parallel_enabled(value: Any) -> bool:
+    if value is None:
+        return True
+    return _truthy(value)
+
+
 def _bounded_workers(value: Any, *, parallel_enabled: bool = False) -> int:
     try:
         workers = int(value)
     except (TypeError, ValueError):
-        return min(max((os.cpu_count() or 8) - 2, 2), 16) if parallel_enabled else 1
+        return _dynamic_worker_count() if parallel_enabled else 1
     return max(1, min(workers, 32))
+
+
+def _dynamic_worker_count() -> int:
+    logical = os.cpu_count() or 8
+    performance_cores = _sysctl_int("hw.perflevel0.physicalcpu")
+    efficiency_cores = _sysctl_int("hw.perflevel1.physicalcpu")
+    if performance_cores or efficiency_cores:
+        workers = (performance_cores * 2) + efficiency_cores
+    else:
+        workers = max(logical - 2, 2)
+    return max(2, min(workers, max(logical, 2), 32))
+
+
+def _sysctl_int(name: str) -> int:
+    try:
+        result = subprocess.run(
+            ("sysctl", "-n", name),
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=2,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return 0
+    if result.returncode != 0:
+        return 0
+    try:
+        return max(0, int(result.stdout.strip()))
+    except ValueError:
+        return 0

@@ -123,6 +123,9 @@ class VerificationCoreImplementationTests(unittest.TestCase):
         self.assertTrue(args.parallel)
         self.assertEqual(12, args.workers)
 
+        disabled = parser.parse_args(["--no-parallel", "execute"])
+        self.assertTrue(disabled.no_parallel)
+
     def test_cli_validate_catalog_and_report_json(self) -> None:
         root = Path(__file__).resolve().parents[2]
 

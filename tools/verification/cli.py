@@ -25,7 +25,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--ci", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--test-mode", choices=("stable", "future_beta"), default=None)
-    parser.add_argument("--parallel", action="store_true")
+    parallel_group = parser.add_mutually_exclusive_group()
+    parallel_group.add_argument("--parallel", action="store_true")
+    parallel_group.add_argument("--no-parallel", action="store_true")
     parser.add_argument("--workers", type=int, default=None)
     parser.add_argument("--ha-adapter", action="store_true")
 
@@ -316,6 +318,8 @@ def _cli_overrides(args: argparse.Namespace) -> dict[str, str] | None:
         overrides["test_mode"] = args.test_mode
     if args.parallel:
         overrides["parallel_execution"] = "true"
+    if args.no_parallel:
+        overrides["parallel_execution"] = "false"
     if args.workers is not None:
         overrides["parallel_workers"] = str(args.workers)
     return overrides or None

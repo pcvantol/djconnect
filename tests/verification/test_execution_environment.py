@@ -6,6 +6,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import Mock, patch
 
 from tools.verification.cli import main
 from tools.verification.config import load_config
@@ -163,6 +164,30 @@ class ExecutionEnvironmentTests(unittest.TestCase):
             config = load_config(Path(temp_dir), overrides={"test_mode": "future_beta"})
 
         self.assertEqual("future_beta", config.test_mode)
+
+    def test_config_enables_parallel_by_default_with_dynamic_cpu_workers(self) -> None:
+        def fake_run(command, **kwargs):
+            values = {
+                ("sysctl", "-n", "hw.perflevel0.physicalcpu"): "10\n",
+                ("sysctl", "-n", "hw.perflevel1.physicalcpu"): "4\n",
+            }
+            return Mock(returncode=0, stdout=values[tuple(command)])
+
+        with tempfile.TemporaryDirectory() as temp_dir, patch(
+            "tools.verification.configuration.loader.os.cpu_count",
+            return_value=16,
+        ), patch("tools.verification.configuration.loader.subprocess.run", side_effect=fake_run):
+            config = load_config(Path(temp_dir))
+
+        self.assertTrue(config.parallel_execution)
+        self.assertEqual(16, config.parallel_workers)
+
+    def test_config_can_disable_parallel_execution(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config = load_config(Path(temp_dir), overrides={"parallel_execution": "false"})
+
+        self.assertFalse(config.parallel_execution)
+        self.assertEqual(1, config.parallel_workers)
 
 
 if __name__ == "__main__":
