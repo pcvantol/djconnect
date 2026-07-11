@@ -10,7 +10,7 @@ from pathlib import Path
 from tools.verification.cli import build_parser, main
 from tools.verification.config import load_config
 from tools.verification.models import ResultState, ScenarioResult
-from tools.verification.reporters import JSONReporter, MarkdownReporter
+from tools.verification.reporters import JSONReporter, MarkdownReporter, SummaryReporter
 from tools.verification.results import ResultManager
 from tools.verification.scenarios import ScenarioLoader, ScenarioValidator
 
@@ -85,7 +85,10 @@ class VerificationHarnessTests(unittest.TestCase):
 
         self.assertEqual(ResultState.WARNING, result.state)
         self.assertIn("PROFILE-001", MarkdownReporter().render(result))
-        self.assertEqual("WARNING", json.loads(JSONReporter().render(result))["state"])
+        rendered = json.loads(JSONReporter().render(result))
+        self.assertEqual("WARNING", rendered["state"])
+        self.assertEqual(2, rendered["execution_summary"]["executed_scenarios"])
+        self.assertIn("2 of 2 tests executed, status WARNING", SummaryReporter().render(result))
 
     def test_cli_validate_catalog(self) -> None:
         root = Path(__file__).resolve().parents[2]

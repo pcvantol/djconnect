@@ -94,5 +94,12 @@ class VerificationCore:
                 f"scenarios/{scenario_result.scenario_id}/{case_id}/result.json",
                 asdict(scenario_result),
             )
-        self.run_store.finalize(run_id, state=result.state.value, summary={"result_state": result.state.value})
+        self.run_store.finalize(
+            run_id,
+            state=result.state.value,
+            summary={
+                "result_state": result.state.value,
+                "execution_summary": result.metadata.get("execution_summary", {}),
+            },
+        )
         return result

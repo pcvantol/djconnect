@@ -18,6 +18,7 @@ class MarkdownReporter:
             f"Overall result: {result.state.value}",
             f"Readiness: {readiness['status']} ({readiness['score']}%)",
             f"Verification runtime: {_runtime_label(result)}",
+            f"Execution summary: {_execution_summary_label(result)}",
             "",
             "## Summary",
             "",
@@ -44,6 +45,7 @@ class JSONReporter:
                 "run_id": result.run_id,
                 "state": result.state.value,
                 "readiness": PlatformReadinessCalculator().calculate(result),
+                "execution_summary": _execution_summary(result),
                 "scenarios": [
                     {
                         "scenario_id": item.scenario_id,
@@ -69,6 +71,7 @@ class JUnitReporter:
     def render(self, result: RunResult) -> str:
         suite = ET.Element("testsuite", name="djconnect-verification")
         suite.set("tests", str(len(result.scenario_results)))
+        suite.set("time", str(_execution_summary(result)["total_execution_seconds"]))
         failures = 0
         skipped = 0
         for item in result.scenario_results:
@@ -87,7 +90,7 @@ class JUnitReporter:
 
 class SummaryReporter:
     def render(self, result: RunResult) -> str:
-        return f"{result.run_id}: {result.state.value} ({len(result.scenario_results)} scenarios)"
+        return f"{result.run_id}: {_execution_summary_label(result)}"
 
 
 def _runtime_label(result: RunResult) -> str:
@@ -97,3 +100,36 @@ def _runtime_label(result: RunResult) -> str:
     name = runtime.get("name") or "unknown"
     version = runtime.get("version") or "unknown"
     return f"{name} {version}"
+
+
+def _execution_summary(result: RunResult) -> dict:
+    summary = result.metadata.get("execution_summary")
+    if isinstance(summary, dict):
+        return summary
+    total = len(result.scenario_results)
+    total_seconds = sum(float(item.duration_seconds or 0.0) for item in result.scenario_results)
+    by_status: dict[str, int] = {}
+    for item in result.scenario_results:
+        by_status[item.state.value] = by_status.get(item.state.value, 0) + 1
+    executed = sum(count for status, count in by_status.items() if status not in {"SKIPPED", "NOT TESTED"})
+    return {
+        "total_scenarios": total,
+        "executed_scenarios": executed,
+        "status": result.state.value,
+        "by_status": by_status,
+        "total_execution_seconds": total_seconds,
+    }
+
+
+def _execution_summary_label(result: RunResult) -> str:
+    summary = _execution_summary(result)
+    total = int(summary.get("total_scenarios") or 0)
+    executed = int(summary.get("executed_scenarios") or 0)
+    status = str(summary.get("status") or result.state.value)
+    total_seconds = float(summary.get("total_execution_seconds") or 0.0)
+    by_status = summary.get("by_status") if isinstance(summary.get("by_status"), dict) else {}
+    status_parts = ", ".join(f"{count} {state}" for state, count in sorted(by_status.items()) if count)
+    return (
+        f"{executed} of {total} tests executed, status {status}"
+        f"{f' ({status_parts})' if status_parts else ''}, total {total_seconds:.2f}s"
+    )

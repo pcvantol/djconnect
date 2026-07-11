@@ -273,6 +273,11 @@ verification_runtime.schema_version
 The same metadata is persisted in run summaries and report metadata so test
 results can be traced back to the runtime implementation that produced them.
 
+Run result metadata also includes `execution_summary.total_execution_seconds`.
+Reporters surface the same summary in JSON, Markdown, JUnit suite time and the
+short CLI summary output, alongside executed/total scenario counts and
+per-status counts.
+
 ## Run Identity
 
 Every prepared run receives `run_id`, `environment_id`, `correlation_id`,

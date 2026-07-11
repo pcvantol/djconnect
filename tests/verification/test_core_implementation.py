@@ -101,8 +101,8 @@ class VerificationCoreImplementationTests(unittest.TestCase):
         result = ResultManager().aggregate(
             "unit",
             [
-                ScenarioResult("A-001", ResultState.PASS, "ok"),
-                ScenarioResult("B-001", ResultState.FAIL, "bad"),
+                ScenarioResult("A-001", ResultState.PASS, "ok", duration_seconds=1.25),
+                ScenarioResult("B-001", ResultState.FAIL, "bad", duration_seconds=2.75),
             ],
         )
 
@@ -110,8 +110,14 @@ class VerificationCoreImplementationTests(unittest.TestCase):
         rendered = json.loads(JSONReporter().render(result))
         self.assertEqual("FAIL", rendered["state"])
         self.assertEqual("djconnect-verification-platform", rendered["metadata"]["verification_runtime"]["name"])
-        self.assertIn("Verification runtime:", MarkdownReporter().render(result))
-        self.assertIn("failure", JUnitReporter().render(result))
+        self.assertEqual(4.0, rendered["execution_summary"]["total_execution_seconds"])
+        self.assertEqual(2, rendered["execution_summary"]["executed_scenarios"])
+        markdown = MarkdownReporter().render(result)
+        self.assertIn("Verification runtime:", markdown)
+        self.assertIn("2 of 2 tests executed, status FAIL", markdown)
+        junit = JUnitReporter().render(result)
+        self.assertIn('time="4.0"', junit)
+        self.assertIn("failure", junit)
 
     def test_cli_parses_phase_five_commands(self) -> None:
         parser = build_parser()

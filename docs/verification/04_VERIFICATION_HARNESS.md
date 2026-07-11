@@ -97,6 +97,11 @@ environment snapshot, summary and machine-readable report records the
 `djconnect-verification-platform` runtime name, runtime version and runtime
 schema version.
 
+Run summaries include a canonical `execution_summary` with total scenario
+count, executed scenario count, aggregate status, per-status counts and total
+execution time in seconds. Human summaries must report this in the form
+`x of y tests executed, status z (...), total g.s`.
+
 ## Adapter Targets
 
 The interface is designed for these adapters:

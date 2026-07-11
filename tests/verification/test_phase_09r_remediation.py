@@ -137,11 +137,16 @@ class Phase09RRemediationTests(unittest.TestCase):
             store.create("run-1")
             store.write_json("run-1", "summary.json", {"run_id": "run-1", "scenario_results": [{"scenario_id": "A-001"}]})
 
-            store.finalize("run-1", state="FAIL", summary={"result_state": "FAIL"})
+            store.finalize(
+                "run-1",
+                state="FAIL",
+                summary={"result_state": "FAIL", "execution_summary": {"total_execution_seconds": 12.5}},
+            )
 
             summary = store.show("run-1")
             self.assertEqual([{"scenario_id": "A-001"}], summary["scenario_results"])
             self.assertEqual("FAIL", summary["state"])
+            self.assertEqual(12.5, summary["execution_summary"]["total_execution_seconds"])
             self.assertEqual("djconnect-verification-platform", summary["verification_runtime"]["name"])
 
     def test_github_ci_decision_states_from_gh_payloads(self) -> None:
