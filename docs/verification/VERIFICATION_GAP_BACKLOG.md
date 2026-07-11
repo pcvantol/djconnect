@@ -27,6 +27,7 @@ Do not automatically create GitHub issues from this file.
 | VG-018 | P2 | Unknown | Complete release repo artifact inventory. | Release | `djconnect-firmware`, `djconnect-app-releases`, `djconnect-pi-releases` | Blocks release adapter scope | S | Phase 11 |
 | VG-019 | P3 | Documentation Gap | Keep technical design docs updated as adapter evidence finds drift. | Platform Docs | `djconnect` | Non-blocking | S ongoing | Phase 8+ |
 | VG-020 | P3 | Foundation Gap | Consider ADR for central push/install-token trust boundary if APNs relay becomes long-term platform contract. | Platform Architecture | `djconnect` | Non-blocking | M | Future ADR phase |
+| VG-021 | P0 | Verification Gap | Map canonical scenarios to Apple adapter executable cases after Phase 10E runtime qualification. | Verification Platform | `djconnect` | Blocks broad Apple scenario coverage | M | Phase 10E-R3 |
 
 ## Phase 8 Progress
 

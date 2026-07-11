@@ -234,6 +234,10 @@ class AppleVerificationAdapter(VerificationAdapter):
     def collect_logs(self) -> tuple:
         logs = list(self._logs)
         if self.config.target and self.config.target.runtime == "simulator" and self.config.target.udid:
+            boot = self._ensure_simulator_booted()
+            if not boot.ok:
+                logs.append({"source": "simulator_boot", "ok": False, "data": boot.data})
+                return tuple(_redact(logs))
             result = self._run(("xcrun", "simctl", "spawn", self.config.target.udid, "log", "show", "--style", "json", "--last", "2m"), "collect_system_logs", timeout=15)
             logs.append({"source": "simulator_system_log", "ok": result.ok, "data": result.data})
         return tuple(_redact(logs))
@@ -250,6 +254,9 @@ class AppleVerificationAdapter(VerificationAdapter):
             return PrimitiveResult("capture_screenshot", False, {"error": "EvidenceDirectoryUnavailable"})
         evidence_dir.mkdir(parents=True, exist_ok=True)
         path = evidence_dir / f"{_safe_name(name or target.target_id or 'apple-target')}.png"
+        boot = self._ensure_simulator_booted()
+        if not boot.ok:
+            return PrimitiveResult("capture_screenshot", False, boot.data, message=boot.message)
         result = self._run(("xcrun", "simctl", "io", target.udid, "screenshot", str(path)), "capture_screenshot")
         evidence = (EvidenceItem("screenshot", path, {"target_id": target.target_id, "client_variant": target.variant}),) if result.ok else ()
         return PrimitiveResult("capture_screenshot", result.ok, {**result.data, "path": str(path)}, evidence=evidence, message=result.message)
@@ -333,6 +340,9 @@ class AppleVerificationAdapter(VerificationAdapter):
             return PrimitiveResult("install_app", False, {"error": "AppArtifactUnavailable"})
         if target.runtime != "simulator":
             return PrimitiveResult("install_app", False, {"error": "UnsupportedTarget", "runtime": target.runtime})
+        boot = self._ensure_simulator_booted()
+        if not boot.ok:
+            return PrimitiveResult("install_app", False, boot.data, message=boot.message)
         return self._run(("xcrun", "simctl", "install", target.udid, str(path)), "install_app")
 
     def uninstall_app(self, bundle_id: str = "") -> PrimitiveResult:
@@ -351,6 +361,9 @@ class AppleVerificationAdapter(VerificationAdapter):
             return PrimitiveResult("launch_app", False, {"error": "AppleTargetUnavailable" if target is None else "BundleIdUnavailable"})
         if target.runtime != "simulator":
             return PrimitiveResult("launch_app", False, {"error": "UnsupportedTarget", "runtime": target.runtime})
+        boot = self._ensure_simulator_booted()
+        if not boot.ok:
+            return PrimitiveResult("launch_app", False, boot.data, message=boot.message)
         return self._run(("xcrun", "simctl", "launch", target.udid, bundle_id), "launch_app")
 
     def terminate_app(self, bundle_id: str | None = None) -> PrimitiveResult:
@@ -406,6 +419,20 @@ class AppleVerificationAdapter(VerificationAdapter):
         }
         self._record(operation, ok, data, started=started)
         return PrimitiveResult(operation, ok, _redact(data), message="" if ok else "CommandFailed")
+
+    def _ensure_simulator_booted(self) -> PrimitiveResult:
+        target = self.config.target
+        if target is None or target.runtime != "simulator" or not target.udid:
+            return PrimitiveResult("boot_simulator", False, {"error": "UnsupportedTarget", "target": self._target_dict()})
+        boot = self._run(("xcrun", "simctl", "boot", target.udid), "boot_simulator", timeout=60)
+        status = self._run(("xcrun", "simctl", "bootstatus", target.udid, "-b"), "bootstatus_simulator", timeout=120)
+        ok = status.ok
+        return PrimitiveResult(
+            "boot_simulator",
+            ok,
+            {"boot": boot.data, "bootstatus": status.data},
+            message="" if ok else status.message or boot.message,
+        )
 
     def _record(self, operation: str, ok: bool, data: dict[str, Any], *, started: float | None = None) -> None:
         self._logs.append(

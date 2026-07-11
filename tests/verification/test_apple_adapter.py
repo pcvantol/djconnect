@@ -270,6 +270,8 @@ class AppleAdapterTests(unittest.TestCase):
         self.assertTrue(install.ok)
         self.assertTrue(launch.ok)
         self.assertTrue(terminate.ok)
+        self.assertIn(("xcrun", "simctl", "boot", "SIM-IPHONE"), runner.commands)
+        self.assertIn(("xcrun", "simctl", "bootstatus", "SIM-IPHONE", "-b"), runner.commands)
         self.assertIn(("xcrun", "simctl", "install", "SIM-IPHONE", "/tmp/DJConnect.app"), runner.commands)
         self.assertIn(("xcrun", "simctl", "launch", "SIM-IPHONE", "dev.djconnect.ios"), runner.commands)
         self.assertIn(("xcrun", "simctl", "terminate", "SIM-IPHONE", "dev.djconnect.ios"), runner.commands)

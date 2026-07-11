@@ -60,8 +60,12 @@ explicitly deferred until release v1.0 readiness and is non-blocking for current
 platform verification.
 
 Phase 10E-R2 is closed in this branch with the Xcode account/development-signing
-path available for current platform verification. Continue Phase 10E retry with
-the latest eligible simulator target and prepared XCTest healthcheck; App
+path available for current platform verification. The Phase 10E retry then
+qualified the latest eligible iOS 26.5 simulator runtime and XCTest primary-tab
+healthcheck, returning
+`APPLE_RUNTIME_QUALIFIED_SCENARIO_SELECTION_BLOCKED`. Broad Apple scenario
+execution did not start because the canonical smoke planner still selected only
+HA cases and exposed no Apple adapter executable scenario set. App
 Store/TestFlight distribution signing remains a release-v1.0 readiness
 follow-up.
 
@@ -148,7 +152,8 @@ Read BOOTSTRAP_CODEX_VERIFICATION.md and execute the Phase 10E retry from PROMPT
 | 10E | Apple Scenario Coverage Expansion | Blocked - runtime qualification missing local configuration | `prompts/verification/PHASE_10E_APPLE_SCENARIO_COVERAGE_EXPANSION.md` | Phase 10 returned `APPLE_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_SKIPPED` | `docs/verification/reports/PHASE_10E_APPLE_SCENARIO_COVERAGE.md`; evidence `artifacts/verification/evidence/apple10e-20260711T114536Z-417af0454b/` | New PR; do not merge as Apple coverage qualified | Phase 10E-R |
 | 10E-R | Apple Runtime Qualification Remediation | Qualified on older selected runtime | `prompts/verification/PHASE_10E_R_APPLE_RUNTIME_QUALIFICATION_REMEDIATION.md` | Phase 10E returned `APPLE_RUNTIME_QUALIFICATION_BLOCKED` | `docs/verification/reports/PHASE_10E_R_APPLE_RUNTIME_QUALIFICATION_REMEDIATION.md`; evidence `artifacts/verification/evidence/apple10e-20260711T115656Z-4cea94c38f/` | Continue Phase 10E PR if still open | Phase 10E-R2 |
 | 10E-R2 | Apple Latest Runtime Qualification Remediation | Closed - App Store distribution deferred | `prompts/verification/PHASE_10E_R2_APPLE_LATEST_RUNTIME_QUALIFICATION_REMEDIATION.md` | Latest-runtime rule requires Xcode/iOS simulator maintenance and stable iOS 26.5 qualification | `docs/verification/reports/PHASE_10E_R2_APPLE_LATEST_RUNTIME_QUALIFICATION.md`; evidence `artifacts/verification/evidence/appletoolchain-20260711T183955Z-d4d3276dc7/`; blocked historical evidence `artifacts/verification/evidence/apple10e-20260711T184303Z-61c57ca54d/`; VPB-037 resolved for current platform verification | Continue Phase 10E PR if still open; App Store/TestFlight signing deferred to release v1.0 readiness | Phase 10E retry |
-| 10E retry | Apple Scenario Coverage Expansion After Runtime Qualification | Ready for development-signed platform verification retry | `prompts/verification/PHASE_10E_APPLE_SCENARIO_COVERAGE_EXPANSION.md` | Phase 10E-R2 provides Xcode account/development signing, latest simulator target and XCTest healthcheck configuration | Future updated Phase 10E coverage report | Continue Phase 10E PR if still open | Phase 11 |
+| 10E retry | Apple Scenario Coverage Expansion After Runtime Qualification | Runtime qualified - scenario selection blocked | `prompts/verification/PHASE_10E_APPLE_SCENARIO_COVERAGE_EXPANSION.md` | Phase 10E-R2 provides Xcode account/development signing, latest simulator target and XCTest healthcheck configuration | `docs/verification/reports/PHASE_10E_APPLE_SCENARIO_COVERAGE.md`; evidence `artifacts/verification/evidence/apple10e-20260711T215124Z-d64d7aa157/` | Continue Phase 10E PR if still open; do not merge as Apple coverage qualified | Phase 10E-R3 |
+| 10E-R3 | Apple Scenario Planner Mapping Remediation | Future | To be generated from Phase 10E retry completion | Phase 10E retry returned `APPLE_RUNTIME_QUALIFIED_SCENARIO_SELECTION_BLOCKED` | Future report | New remediation branch or continue Phase 10E PR if still open | Phase 11 |
 | 11+ | Additional Platform Adapters | Future | To be generated after Apple coverage work | Phase 10E and roadmap review | Future adapter reports | Future PRs | Future adapter qualification |
 
 ## Status Rules

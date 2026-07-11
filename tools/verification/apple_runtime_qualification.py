@@ -124,6 +124,8 @@ class AppleRuntimeQualification:
         checks.append(self._primitive("launch", launch))
         checks.append(self._primitive("screenshot", adapter.capture_screenshot("phase-10e-runtime-qualification")))
         checks.append(self._logs(adapter))
+        if launch.ok:
+            adapter.terminate_app()
         checks.append(self._ui_healthcheck())
 
         return self._finish_result(
@@ -143,8 +145,13 @@ class AppleRuntimeQualification:
         store: RunStore,
         checks: list[AppleQualificationCheck],
     ) -> AppleQualificationResult:
+        policy_skipped_checks = {
+            "cross_device_simulator_targets",
+            "distribution_signing_assets",
+            "physical_device_target",
+        }
         state = "PASS" if all(
-            check.state == "PASS" or (check.name in {"physical_device_target", "cross_device_simulator_targets"} and check.state == "SKIPPED")
+            check.state == "PASS" or (check.name in policy_skipped_checks and check.state == "SKIPPED")
             for check in checks
         ) else "BLOCKED"
         result = AppleQualificationResult(
