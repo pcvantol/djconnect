@@ -42,6 +42,15 @@ The default profile is `ha-profile`. Override it locally with:
 DJCONNECT_VERIFICATION_LAB_PROFILE=ha-minimal python3 -m tools.verification.cli lab ha start
 ```
 
+The default Home Assistant image is pinned to the current stable lab baseline:
+
+```text
+ghcr.io/home-assistant/home-assistant:2026.7.2
+```
+
+Override it locally with `DJCONNECT_VERIFICATION_HA_IMAGE` only when a phase
+explicitly asks to qualify a different Home Assistant version.
+
 ## Commands
 
 Use the Verification CLI:

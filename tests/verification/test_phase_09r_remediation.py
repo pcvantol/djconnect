@@ -130,7 +130,7 @@ def _inspect_payload(root: Path) -> dict:
         "Created": "2026-07-10T00:00:00Z",
         "Image": "sha256:image",
         "Config": {
-            "Image": "ghcr.io/home-assistant/home-assistant:stable",
+            "Image": "ghcr.io/home-assistant/home-assistant:2026.7.2",
             "Labels": {"djconnect.verification": "true", "djconnect.source_sha": _git_sha(root)},
             "Env": ["TOKEN=secret", "SAFE=value"],
         },

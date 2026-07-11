@@ -106,7 +106,7 @@ class HALabConfig:
         return cls(
             name=os.getenv("DJCONNECT_VERIFICATION_HA_CONTAINER", "djconnect-verification-ha"),
             port=int(os.getenv("DJCONNECT_VERIFICATION_HA_PORT", "18123")),
-            image=os.getenv("DJCONNECT_VERIFICATION_HA_IMAGE", "ghcr.io/home-assistant/home-assistant:stable"),
+            image=os.getenv("DJCONNECT_VERIFICATION_HA_IMAGE", "ghcr.io/home-assistant/home-assistant:2026.7.2"),
             compose_file=compose_files[0],
             compose_files=compose_files,
             profile=profile,

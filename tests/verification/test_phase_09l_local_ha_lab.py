@@ -81,7 +81,7 @@ class Phase09LLocalHALabTests(unittest.TestCase):
                         {
                             "ID": "abc",
                             "Names": "djconnect-verification-ha",
-                            "Image": "ghcr.io/home-assistant/home-assistant:stable",
+                            "Image": "ghcr.io/home-assistant/home-assistant:2026.7.2",
                             "State": "created",
                         }
                     ),
@@ -211,7 +211,7 @@ def _lab_config(root: Path) -> HALabConfig:
     return HALabConfig(
         name="djconnect-verification-ha",
         port=18123,
-        image="ghcr.io/home-assistant/home-assistant:stable",
+        image="ghcr.io/home-assistant/home-assistant:2026.7.2",
         compose_file=root / "verification/lab/home_assistant/compose.yaml",
         compose_files=(root / "verification/lab/home_assistant/compose.yaml",),
         profile="ha-profile",
@@ -247,7 +247,7 @@ def _inspect_payload(root: Path, *, labels: dict[str, str] | None = None, mount_
         "Created": "2026-07-10T00:00:00Z",
         "Image": "sha256:image",
         "Config": {
-            "Image": "ghcr.io/home-assistant/home-assistant:stable",
+            "Image": "ghcr.io/home-assistant/home-assistant:2026.7.2",
             "Labels": labels or {"djconnect.verification": "true", "djconnect.source_sha": _git_sha(root)},
             "Env": ["TOKEN=secret", "SAFE=value"],
         },
