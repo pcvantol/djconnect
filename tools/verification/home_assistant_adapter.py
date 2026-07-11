@@ -2,15 +2,21 @@
 
 from __future__ import annotations
 
+import base64
+import hashlib
 import json
 import os
 import platform
+import socket
+import ssl
+import struct
 import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 from tools.verification.adapters import VerificationAdapter
 from tools.verification.evidence import LogManager
@@ -434,7 +440,128 @@ class UrllibHomeAssistantTransport:
             raise ConnectionFailed(str(exc)) from exc
 
     def websocket(self, message: dict[str, Any]) -> dict[str, Any]:
-        raise CapabilityUnavailable("native websocket transport is not available without a websocket client")
+        if not self.config.token:
+            raise AuthenticationFailed("missing Home Assistant token")
+        with _WebSocketConnection(self.config.base_url, self.config.timeout_seconds) as ws:
+            auth_required = ws.receive_json()
+            if auth_required.get("type") != "auth_required":
+                raise ConnectionFailed(f"unexpected websocket greeting: {auth_required.get('type')}")
+            ws.send_json({"type": "auth", "access_token": self.config.token})
+            auth = ws.receive_json()
+            if auth.get("type") != "auth_ok":
+                raise AuthenticationFailed(str(auth.get("message") or auth.get("type") or "auth failed"))
+            ws.send_json(message)
+            response = ws.receive_json()
+            if response.get("type") == "result" and response.get("success") is False:
+                error = response.get("error") or {}
+                raise CapabilityUnavailable(str(error.get("code") or error.get("message") or "websocket command failed"))
+            return response
+
+
+class _WebSocketConnection:
+    def __init__(self, base_url: str, timeout_seconds: float) -> None:
+        parsed = urlsplit(base_url)
+        self.secure = parsed.scheme == "https"
+        self.host = parsed.hostname or "localhost"
+        self.port = parsed.port or (443 if self.secure else 80)
+        self.path = "/api/websocket"
+        self.timeout_seconds = timeout_seconds
+        self.sock: socket.socket | ssl.SSLSocket | None = None
+
+    def __enter__(self) -> "_WebSocketConnection":
+        raw = socket.create_connection((self.host, self.port), timeout=self.timeout_seconds)
+        raw.settimeout(self.timeout_seconds)
+        self.sock = ssl.create_default_context().wrap_socket(raw, server_hostname=self.host) if self.secure else raw
+        key = base64.b64encode(os.urandom(16)).decode("ascii")
+        request = (
+            f"GET {self.path} HTTP/1.1\r\n"
+            f"Host: {self.host}:{self.port}\r\n"
+            "Upgrade: websocket\r\n"
+            "Connection: Upgrade\r\n"
+            f"Sec-WebSocket-Key: {key}\r\n"
+            "Sec-WebSocket-Version: 13\r\n\r\n"
+        )
+        self.sock.sendall(request.encode("ascii"))
+        response = self._read_http_response()
+        if " 101 " not in response.split("\r\n", 1)[0]:
+            raise ConnectionFailed(response.split("\r\n", 1)[0])
+        accept = base64.b64encode(hashlib.sha1((key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11").encode("ascii")).digest()).decode("ascii")
+        if f"sec-websocket-accept: {accept.lower()}" not in response.lower():
+            raise ConnectionFailed("websocket accept header mismatch")
+        return self
+
+    def __exit__(self, *_args: object) -> None:
+        if self.sock is not None:
+            try:
+                self.sock.close()
+            finally:
+                self.sock = None
+
+    def send_json(self, payload: dict[str, Any]) -> None:
+        self._send_text(json.dumps(payload, separators=(",", ":")))
+
+    def receive_json(self) -> dict[str, Any]:
+        text = self._receive_text()
+        data = json.loads(text)
+        return data if isinstance(data, dict) else {"value": data}
+
+    def _read_http_response(self) -> str:
+        assert self.sock is not None
+        data = b""
+        while b"\r\n\r\n" not in data:
+            chunk = self.sock.recv(4096)
+            if not chunk:
+                break
+            data += chunk
+        return data.decode("iso-8859-1", errors="replace")
+
+    def _send_text(self, text: str) -> None:
+        assert self.sock is not None
+        payload = text.encode("utf-8")
+        mask = os.urandom(4)
+        header = bytearray([0x81])
+        length = len(payload)
+        if length < 126:
+            header.append(0x80 | length)
+        elif length < 65536:
+            header.extend((0x80 | 126, *struct.pack("!H", length)))
+        else:
+            header.extend((0x80 | 127, *struct.pack("!Q", length)))
+        masked = bytes(byte ^ mask[index % 4] for index, byte in enumerate(payload))
+        self.sock.sendall(bytes(header) + mask + masked)
+
+    def _receive_text(self) -> str:
+        assert self.sock is not None
+        chunks: list[bytes] = []
+        while True:
+            first = self._recv_exact(2)
+            opcode = first[0] & 0x0F
+            masked = bool(first[1] & 0x80)
+            length = first[1] & 0x7F
+            if length == 126:
+                length = struct.unpack("!H", self._recv_exact(2))[0]
+            elif length == 127:
+                length = struct.unpack("!Q", self._recv_exact(8))[0]
+            mask = self._recv_exact(4) if masked else b""
+            payload = self._recv_exact(length) if length else b""
+            if masked:
+                payload = bytes(byte ^ mask[index % 4] for index, byte in enumerate(payload))
+            if opcode == 0x8:
+                raise ConnectionFailed("websocket closed")
+            if opcode in {0x1, 0x0}:
+                chunks.append(payload)
+                if first[0] & 0x80:
+                    return b"".join(chunks).decode("utf-8")
+
+    def _recv_exact(self, size: int) -> bytes:
+        assert self.sock is not None
+        data = b""
+        while len(data) < size:
+            chunk = self.sock.recv(size - len(data))
+            if not chunk:
+                raise ConnectionFailed("websocket connection closed")
+            data += chunk
+        return data
 
 
 def _decode_body(body: bytes) -> Any:

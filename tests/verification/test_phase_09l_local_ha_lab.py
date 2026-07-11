@@ -176,6 +176,8 @@ class Phase09LLocalHALabTests(unittest.TestCase):
         responses = [
             _HTTPResponse([{"step": "user", "done": False}]),
             _HTTPResponse({}),
+            _HTTPResponse({"flow_id": "flow-1"}),
+            _HTTPResponse({"result": "authorization-code"}),
             _HTTPResponse({"access_token": "generated-secret-token", "token_type": "Bearer", "expires_in": 1800}),
         ]
 
@@ -187,6 +189,21 @@ class Phase09LLocalHALabTests(unittest.TestCase):
         self.assertNotIn("generated-secret-token", rendered)
         self.assertIn("<redacted>", rendered)
         self.assertTrue((config.lab_root / ".secrets" / "ha_lab_auth.json").exists())
+
+    def test_lab_layout_creates_djconnect_config_entry(self) -> None:
+        config = _lab_config(self.root)
+        HALocalVerificationLab(self.root, FakeDocker({}), config)._ensure_layout()
+
+        entries = json.loads((config.config_dir / ".storage/core.config_entries").read_text(encoding="utf-8"))
+        djconnect = [
+            entry
+            for entry in entries["data"]["entries"]
+            if entry.get("domain") == "djconnect"
+        ]
+
+        self.assertEqual(1, len(djconnect))
+        self.assertEqual("conversation_agent", djconnect[0]["data"]["client_type"])
+        self.assertEqual("djconnect-conversation-agent", djconnect[0]["unique_id"])
 
 
 def _lab_config(root: Path) -> HALabConfig:

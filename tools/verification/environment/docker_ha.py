@@ -11,7 +11,9 @@ import socket
 import shutil
 import subprocess
 import struct
+import uuid
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlencode
@@ -371,6 +373,51 @@ class HALocalVerificationLab:
         target = self.config.config_dir / "configuration.yaml"
         if template.exists() and not target.exists():
             shutil.copy2(template, target)
+        self._ensure_djconnect_config_entry()
+
+    def _ensure_djconnect_config_entry(self) -> None:
+        storage = self.config.config_dir / ".storage"
+        storage.mkdir(parents=True, exist_ok=True)
+        path = storage / "core.config_entries"
+        if path.exists():
+            try:
+                payload = json.loads(path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                return
+        else:
+            payload = {"version": 1, "minor_version": 5, "key": "core.config_entries", "data": {"entries": []}}
+        data = payload.setdefault("data", {})
+        entries = data.setdefault("entries", [])
+        if not isinstance(entries, list):
+            return
+        if any(isinstance(entry, dict) and entry.get("domain") == "djconnect" for entry in entries):
+            return
+        now = datetime.now(timezone.utc).isoformat()
+        entries.append(
+            {
+                "created_at": now,
+                "data": {
+                    "device_id": "djconnect-conversation-agent",
+                    "device_name": "DJConnect Verification Lab",
+                    "client_type": "conversation_agent",
+                },
+                "disabled_by": None,
+                "discovery_keys": {},
+                "domain": "djconnect",
+                "entry_id": uuid.uuid4().hex,
+                "minor_version": 1,
+                "modified_at": now,
+                "options": {},
+                "pref_disable_new_entities": False,
+                "pref_disable_polling": False,
+                "source": "user",
+                "subentries": [],
+                "title": "DJConnect Verification Lab",
+                "unique_id": "djconnect-conversation-agent",
+                "version": 1,
+            }
+        )
+        path.write_text(json.dumps(payload, separators=(",", ":")), encoding="utf-8")
 
     def _clean(self) -> GateResult:
         removed: list[str] = []
@@ -486,12 +533,20 @@ class HALocalVerificationLab:
             return {"ok": False, "source": "bootstrap", "reason": "onboarding_user_create_failed", "error": str(exc)}
 
     def _request_auth_token(self, username: str, password: str) -> dict[str, Any]:
+        client_id = f"http://127.0.0.1:{self.config.port}/"
+        login_flow = self._create_login_flow(client_id)
+        if not login_flow.get("ok"):
+            return login_flow
+        flow_id = str(login_flow.get("flow_id") or "")
+        authorization = self._complete_login_flow(client_id, flow_id, username, password)
+        if not authorization.get("ok"):
+            return authorization
+        code = str(authorization.get("code") or "")
         body = urlencode(
             {
-                "grant_type": "password",
-                "client_id": f"http://127.0.0.1:{self.config.port}/",
-                "username": username,
-                "password": password,
+                "grant_type": "authorization_code",
+                "client_id": client_id,
+                "code": code,
             }
         ).encode("utf-8")
         request = Request(
@@ -512,6 +567,49 @@ class HALocalVerificationLab:
                 }
         except (OSError, URLError, HTTPError, json.JSONDecodeError) as exc:
             return {"ok": False, "reason": "auth_token_request_failed", "error": str(exc)}
+
+    def _create_login_flow(self, client_id: str) -> dict[str, Any]:
+        payload = {
+            "client_id": client_id,
+            "handler": ["homeassistant", None],
+            "redirect_uri": client_id,
+            "type": "authorize",
+        }
+        request = Request(
+            f"http://127.0.0.1:{self.config.port}/auth/login_flow",
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urlopen(request, timeout=10) as response:
+                data = json.loads(response.read().decode("utf-8"))
+                flow_id = str(data.get("flow_id") or "")
+                return {"ok": bool(flow_id), "flow_id": flow_id}
+        except (OSError, URLError, HTTPError, json.JSONDecodeError) as exc:
+            return {"ok": False, "reason": "auth_login_flow_create_failed", "error": str(exc)}
+
+    def _complete_login_flow(self, client_id: str, flow_id: str, username: str, password: str) -> dict[str, Any]:
+        if not flow_id:
+            return {"ok": False, "reason": "auth_login_flow_missing_id"}
+        payload = {
+            "client_id": client_id,
+            "username": username,
+            "password": password,
+        }
+        request = Request(
+            f"http://127.0.0.1:{self.config.port}/auth/login_flow/{flow_id}",
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urlopen(request, timeout=10) as response:
+                data = json.loads(response.read().decode("utf-8"))
+                code = str(data.get("result") or "")
+                return {"ok": bool(code), "code": code}
+        except (OSError, URLError, HTTPError, json.JSONDecodeError) as exc:
+            return {"ok": False, "reason": "auth_login_flow_complete_failed", "error": str(exc)}
 
     def _recover_stale_container(self) -> dict[str, Any]:
         summary = self._container_summary()
