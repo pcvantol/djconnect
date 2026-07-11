@@ -1,11 +1,11 @@
 # DJConnect Platform Baseline v1.0 Assessment
 
-Status: superseded assessment
+Status: active baseline assessment
 Date: 2026-07-11  
 Repository: `pcvantol/djconnect`  
-Certification: `PLATFORM_BASELINE_V1_CERTIFIED`
+Certification: `PLATFORM_BASELINE_V1_NOT_CERTIFIED`
 
-Superseded by: `PLATFORM_BASELINE_CERTIFICATION.md`
+Current certification record: `PLATFORM_BASELINE_CERTIFICATION.md`
 
 ## Purpose
 
@@ -16,10 +16,10 @@ It does not introduce product functionality.
 
 ## Result
 
-This assessment originally concluded that Platform Baseline v1.0 was not
-achieved. It is retained as historical evidence and has been superseded by the
-certified Architecture Baseline v1.0 decision in
-`PLATFORM_BASELINE_CERTIFICATION.md`.
+This assessment concludes that Platform Baseline v1.0 has not yet been
+achieved. The architecture is frozen, but the Platform itself still requires
+adapter qualification and cross-platform qualification before baseline
+certification can succeed.
 
 The foundation, verification platform, meta engineering model, repository
 bootstrap, cross-repository governance and Software Assurance architecture are
@@ -71,16 +71,10 @@ Current fails:
 - primary adapters are not qualified;
 - cross-platform qualification is not complete.
 
-Historical result:
+Current result:
 
 ```text
 PLATFORM_BASELINE_V1_NOT_CERTIFIED
-```
-
-Current certification:
-
-```text
-PLATFORM_BASELINE_V1_CERTIFIED
 ```
 
 ## Follow-Up Documents

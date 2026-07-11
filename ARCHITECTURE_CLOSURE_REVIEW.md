@@ -20,9 +20,8 @@ The DJConnect platform architecture is complete enough to freeze.
 No additional foundational platform architecture is required before the next
 engineering work.
 
-This review initially separated architecture freeze from Platform Baseline
-certification. It has since been superseded by the Architecture Baseline v1.0
-certification in `PLATFORM_BASELINE_CERTIFICATION.md`.
+This review separates architecture freeze from Platform Baseline
+certification. Platform Baseline v1.0 has not yet been certified.
 
 Final architecture decision:
 
@@ -34,7 +33,7 @@ Final business recommendation:
 
 ```text
 Continue Platform Architecture: no
-Transition to Business-first Engineering: transition may begin inside baseline
+Transition to Business-first Engineering: no
 ```
 
 The platform should continue with verification, adapter qualification,
@@ -84,7 +83,7 @@ Primary evidence:
 | Repository-native Engineering | Complete | Bootstrap, canonical references, status, prompt index and ownership map exist. | Current branch must be reviewed and merged. | No | PASS |
 | Product Strategy | Foundation established | Product strategy docs define validated direction and preserve Innovation Lab boundaries. | Formal Product Roadmap and Product Backlog are future post-baseline stages. | No | PASS |
 | Cross-Repository Governance | Complete | Repository ownership and canonical references define boundaries. | Sibling adapter execution remains unqualified. | No | PASS |
-| Platform Baseline | Certified | Architecture Baseline v1.0 certification returned `PLATFORM_BASELINE_V1_CERTIFIED`. | Primary adapter and cross-platform qualification follow-up remains. | No | PASS |
+| Platform Baseline | Not certified | Platform Baseline v1.0 requires adapter and cross-platform qualification evidence that is still incomplete. | Primary adapter and cross-platform qualification remain. | No | FAIL |
 
 ## Architectural Overlap Review
 
@@ -156,7 +155,7 @@ new foundational architecture.
 
 ## Platform Baseline
 
-Architecture Baseline v1.0 is the certified engineering baseline.
+The architecture is frozen, but Platform Baseline v1.0 is not yet certified.
 
 Remaining follow-up work:
 
@@ -164,7 +163,7 @@ Remaining follow-up work:
 - cross-platform qualification is incomplete;
 - Verification Runtime release operations have warning-level maturity gaps.
 
-These follow-ups should proceed inside the certified architecture.
+These follow-ups should proceed inside the frozen architecture.
 
 ## Completion Assessment
 

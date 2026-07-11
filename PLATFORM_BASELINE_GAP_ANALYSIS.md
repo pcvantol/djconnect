@@ -1,15 +1,15 @@
 # DJConnect Platform Baseline v1.0 Gap Analysis
 
-Status: historical certification follow-up
+Status: active qualification gap analysis
 Date: 2026-07-11  
-Certification decision: `PLATFORM_BASELINE_V1_CERTIFIED`
+Certification decision: `PLATFORM_BASELINE_V1_NOT_CERTIFIED`
 
 Superseded by: `PLATFORM_BASELINE_CERTIFICATION.md`
 
 ## Summary
 
-This gap analysis was created before Architecture Baseline v1.0 certification.
-It is retained as follow-up evidence for adapter and qualification work.
+This gap analysis records the remaining qualification evidence required before
+Platform Baseline v1.0 can be certified.
 
 The largest remaining follow-up area is evidence: primary adapter
 qualification and cross-platform qualification are incomplete.
@@ -45,7 +45,7 @@ qualification and cross-platform qualification are incomplete.
 
 ## Out Of Scope
 
-The following are not required to preserve the current certification:
+The following are not required to proceed with platform qualification:
 
 - Software Assurance implementation;
 - new product functionality;

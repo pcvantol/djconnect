@@ -2,28 +2,29 @@
 
 # Architecture Baseline v1.0
 
-Status: CERTIFIED
+Status: NOT CERTIFIED
 
-Certification Date: 2026-07-11
+Assessment Date: 2026-07-11
 
 Platform Version: 1.0
 
-Decision: `PLATFORM_BASELINE_V1_CERTIFIED`
+Decision: `PLATFORM_BASELINE_V1_NOT_CERTIFIED`
 
 ## Purpose
 
-This document certifies that the foundational platform architecture of
-DJConnect has reached a level of maturity that allows engineering effort to
-transition primarily from platform construction to product evolution.
+This document records that the foundational platform architecture of
+DJConnect has reached closure, but that the Platform itself has not yet reached
+Platform Baseline v1.0 certification.
 
 This certification is intentionally conservative.
 
 It does not state that the platform is complete.
 
-It states that the foundational architecture is sufficiently complete to become
-the engineering baseline.
+It states that the foundational architecture is sufficiently complete to
+freeze, and that remaining work is implementation, verification and
+qualification inside that frozen architecture.
 
-## Certified Platform Areas
+## Architecture Areas Accepted For Freeze
 
 - Platform Strategy
 - Platform Foundation
@@ -35,6 +36,9 @@ the engineering baseline.
 - Cross-Repository Governance
 - Repository Ownership
 - Product Strategy Foundation
+
+These areas are architecture-complete. Their completion does not certify the
+Platform Baseline v1.0 operationally.
 
 ## Frozen Architecture
 
@@ -55,10 +59,13 @@ Changes require Architecture Review.
 
 The primary engineering objective now becomes:
 
+- complete platform qualification;
 - complete remaining platform adapters;
 - complete cross-platform qualification;
-- implement Software Assurance after Platform Baseline;
-- transition toward business-first engineering.
+- implement Software Assurance only after explicit qualification and
+  implementation prompts;
+- prepare for business-first engineering only after Platform Baseline v1.0 is
+  certified.
 
 ## Architecture Principles
 
@@ -92,12 +99,15 @@ They are planned future work.
 The architecture review concludes that no additional foundational architecture
 is currently required.
 
+Platform Baseline v1.0 is not yet certified.
+
 Future platform evolution should primarily occur through:
 
 - feature implementation;
 - verification;
 - quality improvements;
-- product evolution;
+- platform qualification;
+- product evolution after baseline certification;
 
 rather than foundational redesign.
 
@@ -112,12 +122,13 @@ Platform-first Engineering
 towards:
 
 ```text
-Business-first Engineering
+Platform Qualification and Product Engineering
 ```
 
 Platform engineering continues.
 
-However, it is no longer expected to dominate engineering effort.
+However, it should now focus on proving, qualifying and using the frozen
+architecture rather than expanding foundational architecture.
 
 ## Architecture Governance
 
@@ -129,14 +140,48 @@ Future architectural modifications require:
 
 Routine engineering work must not modify foundational architecture.
 
+Routine implementation work must not reopen architecture.
+
+New architectural work requires:
+
+- Architecture Review;
+- objective evidence;
+- explicit approval.
+
+Future engineering should prefer:
+
+- implementation;
+- verification;
+- qualification;
+- platform maturity;
+- business value after Platform Baseline v1.0 certification;
+
+over:
+
+- new platform architecture;
+- new foundational abstractions;
+- new governance layers.
+
+## Final Engineering Statement
+
+The platform architecture is intentionally frozen.
+
+Future effort should focus on proving, qualifying and using the platform.
+
+Business-first engineering begins only after Platform Baseline v1.0 has been
+certified.
+
 ## Closing Statement
 
-Architecture Baseline v1.0 represents the first stable engineering baseline of
-the DJConnect Platform.
+Architecture closure represents the first stable architecture boundary of the
+DJConnect Platform.
 
-The purpose of future engineering is no longer to construct the platform.
+The purpose of future engineering is no longer to construct foundational
+architecture.
 
-The purpose is to create exceptional user value on top of that platform.
+The purpose is to qualify the platform, complete adapters, prove
+cross-platform behavior and then create exceptional user value on top of that
+certified platform.
 
-Platform engineering is now considered an enabling capability rather than the
-primary engineering objective.
+Platform engineering is now a qualification and maturity discipline until
+Platform Baseline v1.0 is certified.

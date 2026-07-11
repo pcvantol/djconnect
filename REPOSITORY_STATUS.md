@@ -17,24 +17,23 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Architecture Baseline v1.0 transition after the Software Assurance Platform
-Architecture Sprint, Product Strategy Foundation setup and Architecture
-Closure Review.
+Platform Qualification after the Software Assurance Platform Architecture
+Sprint, Product Strategy Foundation setup and Architecture Closure Review.
 
-This phase is architecture and documentation only. It is not a product
-implementation phase, not a verification execution phase and not a CI/tooling
-enablement phase.
+This phase is governance transition documentation only. It is not a product
+implementation phase, not a verification execution phase, not a CI/tooling
+enablement phase and not a new architecture phase.
 
 The active verification prompt index still records Phase 10E-R2 follow-up work
 as the next verification gate. That verification work continues inside the
-certified architecture.
+frozen architecture.
 
 ## Status
 
 Active.
 
-The Architecture Baseline v1.0 certification completed on 2026-07-11 with
-decision `PLATFORM_BASELINE_V1_CERTIFIED`.
+Platform Baseline v1.0 has not yet been certified. The current platform
+decision is `PLATFORM_BASELINE_V1_NOT_CERTIFIED`.
 
 The Product Strategy Foundation has also been added as documentation-only
 scope under `docs/product/`. It establishes validated product direction without
@@ -50,17 +49,17 @@ Prompt 4 Software Assurance governance and rollout strategy are complete. The
 architecture decision is `SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE`,
 and implementation is intentionally deferred.
 
-The baseline certification found that foundation, verification platform, meta
-engineering, repository bootstrap, cross-repository governance, repository
-ownership, product strategy foundation and Software Assurance architecture are
-stable enough to become the engineering baseline.
+The architecture closure review found that foundation, verification platform,
+meta engineering, repository bootstrap, cross-repository governance,
+repository ownership, product strategy foundation and Software Assurance
+architecture are stable enough to freeze.
 
 ## Blocking Dependencies
 
 - Software Assurance implementation must not begin until later explicit
   implementation prompts.
 - Remaining platform adapters and cross-platform qualification must continue
-  inside the certified architecture.
+  inside the frozen architecture.
 - CI workflow changes, scanner enablement and release gates are out of scope
   for Prompt 1.
 - Apple scenario coverage remains blocked by the Phase 10E-R2 follow-up backlog
@@ -71,7 +70,7 @@ stable enough to become the engineering baseline.
 
 Attached request:
 
-`DJConnect Platform - Architecture Baseline v1.0 Certification`
+`DJConnect Platform - Architecture Transition`
 
 Additional attached request:
 
@@ -145,5 +144,6 @@ Return to the active Verification roadmap follow-up work before any Software
 Assurance implementation or business-first engineering begins. Resolve the
 Apple latest runtime follow-ups, complete remaining adapter qualification and
 cross-platform qualification, then rerun Platform Baseline certification.
-Do not start additional foundational architecture work unless new evidence
-demonstrates a genuine architecture gap.
+Do not start additional foundational architecture work unless a future
+Architecture Review with objective evidence demonstrates a genuine
+architecture gap.

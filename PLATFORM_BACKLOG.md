@@ -242,10 +242,10 @@ Guardrails:
 - no GitHub Actions workflows are modified;
 - no release gates are enabled;
 
-## Platform Baseline v1.0 Certification
+## Platform Baseline v1.0 Qualification
 
-**Status:** ✅ Certified
-**Decision:** `PLATFORM_BASELINE_V1_CERTIFIED`
+**Status:** ⏳ Not certified
+**Decision:** `PLATFORM_BASELINE_V1_NOT_CERTIFIED`
 **Evidence:** `PLATFORM_BASELINE_CERTIFICATION.md`,
 `PLATFORM_BASELINE_1_0.md`,
 `PLATFORM_BASELINE_GAP_ANALYSIS.md`
@@ -266,8 +266,8 @@ Next:
 - resolve the Apple latest-runtime prerequisites;
 - complete Apple and remaining adapter qualification;
 - run cross-platform qualification;
-- preserve Architecture Baseline v1.0 certification unless a future
-  Architecture Review supersedes it.
+- preserve the architecture freeze unless a future Architecture Review with
+  objective evidence supersedes it.
 - Verification remains owner of behavioural correctness.
 
 ## Architecture Closure Review
@@ -283,8 +283,8 @@ Result:
   Assurance Architecture, Meta Engineering, Repository Bootstrap,
   Cross-Repository Governance, Repository Metadata and Product Strategy
   Foundation may be treated as frozen.
-- ✅ Business-first engineering may begin where it fits inside the certified
-  architecture and explicit implementation prompts.
+- ✅ Business-first engineering remains blocked until Platform Baseline v1.0 is
+  certified.
 
 Next:
 

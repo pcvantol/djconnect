@@ -13,11 +13,13 @@ The Software Assurance Platform architecture sprint has completed with decision
 implementation is intentionally deferred until an explicit post-baseline
 implementation prompt starts that work.
 
-The Architecture Baseline v1.0 certification completed on 2026-07-11 with
-decision `PLATFORM_BASELINE_V1_CERTIFIED`. The certification artifact is
-`PLATFORM_BASELINE_CERTIFICATION.md`; `PLATFORM_BASELINE_1_0.md` and
-`PLATFORM_BASELINE_GAP_ANALYSIS.md` remain historical and follow-up evidence.
-The active next verification work remains the Phase 10E-R2 follow-up backlog.
+The Architecture Closure Review completed on 2026-07-11 with decision
+`ARCHITECTURE_FROZEN`.
+
+Platform Baseline v1.0 has not yet been certified. The current platform
+decision is `PLATFORM_BASELINE_V1_NOT_CERTIFIED`. The active engineering
+objective is Platform Qualification, and the active next verification work
+remains the Phase 10E-R2 follow-up backlog.
 
 Phase 9V rerun has qualified the Verification Platform using the dedicated
 local Home Assistant verification lab. The canonical planner selected the

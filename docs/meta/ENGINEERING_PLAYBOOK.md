@@ -275,6 +275,28 @@ Avoid:
 - hidden assumptions;
 - architecture drift.
 
+## Architecture Freeze Operating Rule
+
+The DJConnect platform architecture is intentionally frozen with decision
+`ARCHITECTURE_FROZEN`.
+
+Until Platform Baseline v1.0 is certified, future engineering should prefer:
+
+- implementation;
+- verification;
+- qualification;
+- platform maturity;
+- business value that fits within the frozen architecture;
+
+over:
+
+- new platform architecture;
+- new foundational abstractions;
+- new governance layers.
+
+New architectural work requires Architecture Review with objective evidence.
+Routine implementation work must not reopen architecture.
+
 ---
 
 # AI-assisted Engineering
