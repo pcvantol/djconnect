@@ -41,6 +41,8 @@ Runtime schema version: `1`
   Home Assistant beta verification evidence.
 - Installation documentation for local checkout, Docker runtime and GitHub
   runner usage.
+- Functional help documentation for common operator workflows, result
+  interpretation and failure handling.
 
 ### Changed
 

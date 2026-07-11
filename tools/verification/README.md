@@ -71,6 +71,46 @@ environment:
 It implements the first Home Assistant runtime adapter and does not own product
 assertions.
 
+## Functional Help
+
+Use the Verification Harness when you need reproducible proof of DJConnect
+platform behavior. The framework answers four practical questions:
+
+- Which scenarios are in scope for this run?
+- Is the repository, host, CI state and runtime safe enough to execute them?
+- Which adapter actions were executed, with which evidence?
+- Is the resulting platform status ready, blocked or warning-only?
+
+Common workflows:
+
+| Goal | Start with | Then use |
+| --- | --- | --- |
+| See available scenarios | `list` | Add `--tag`, `--component` or scenario IDs to narrow scope. |
+| Check scenario shape | `validate` | Fix catalog/schema issues before planning or execution. |
+| Preview a run | `dry-run` | Confirm selected scenarios without mutating lab state. |
+| Build an execution plan | `plan --strategy smoke --format json` | Inspect matrix, policy, data profile and batch expansion. |
+| Capture environment state | `prepare` | Review run identity, toolchain, dependencies, cleanup and host readiness. |
+| Execute HA scenarios | `--ha-adapter execute --scenario-id <id>` | Use only after qualification gates pass. |
+| Inspect a run | `runs list`, `runs verify <run-id>` | Confirm evidence files and result metadata. |
+| Investigate failures | `investigate <run-id>` | Classify owner, confidence, blocking status and rerun scope. |
+| Check local lab readiness | `doctor --environment ha-docker` | Use before starting or mutating a Home Assistant lab. |
+| Build/publish runtime | `docker release` | Build the generic engine image, then smoke-test before publish. |
+
+Result summaries always report the total scenario count, executed count,
+aggregate status, per-status buckets and total execution time. Machine-readable
+metadata records `verification_runtime`, parallel worker settings and
+`execution_summary`.
+
+Failure handling:
+
+- A failed gate means the run must stop before mutation.
+- Product bugs, scenario defects, environment issues and framework defects must
+  be classified separately.
+- Scenarios define expected behavior; adapters only execute and collect
+  evidence.
+- Secrets are loaded by name and must never appear in logs, reports or
+  diagnostics.
+
 ## Installation
 
 ### Local Checkout

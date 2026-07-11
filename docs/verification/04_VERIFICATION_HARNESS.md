@@ -152,6 +152,24 @@ python -m tools.verification.cli runs list
 Filters are designed for scenario IDs, tags, platform, locale, automation
 level, build type and component.
 
+## Functional Help
+
+The harness supports a fixed operator flow:
+
+1. Discover scenario scope with `list`.
+2. Validate scenario structure with `validate`.
+3. Preview selection with `dry-run`.
+4. Expand policy, matrix and data into batches with `plan`.
+5. Capture environment and cleanup boundaries with `prepare`.
+6. Execute only through adapters.
+7. Persist and inspect evidence with `runs list` and `runs verify`.
+8. Classify failures with `investigate`.
+
+Use `doctor` for local environment readiness and `docker release` for the
+generic engine runtime image. A gate failure stops the run before mutation.
+Scenario expectations remain in canonical scenarios and foundation documents;
+adapters execute actions and collect evidence only.
+
 ## Installation
 
 The local harness is source-based and runs from a checked-out repository:
