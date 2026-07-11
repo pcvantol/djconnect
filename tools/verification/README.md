@@ -23,6 +23,23 @@ The generic runtime can also be released as a Docker image. That image contains
 only the reusable verification engine, not DJConnect product scenarios,
 artifacts, secrets or lab state.
 
+## Software Assurance Integration
+
+The Verification Runtime is a versioned product consumed by the Software
+Assurance Platform.
+
+Software Assurance may validate runtime quality signals, runtime provenance,
+runtime metadata, evidence references and report compatibility. It does not
+become the runtime and does not redefine scenario behaviour, adapter ownership
+or behavioural qualification.
+
+Canonical integration documents:
+
+- `SOFTWARE_ASSURANCE_INTEGRATION.md`
+- `SOFTWARE_ASSURANCE_EXECUTION_MODEL.md`
+- `SOFTWARE_ASSURANCE_PLATFORM_HEALTH.md`
+- `SOFTWARE_ASSURANCE_REPOSITORY_MODEL.md`
+
 The Docker image is the portability layer for GitHub Actions runners. Hosted
 GitHub runners should use it for engine smoke tests, scenario validation,
 planning, schema/report checks and non-mutating dry-runs. Live labs, Apple

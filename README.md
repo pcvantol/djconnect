@@ -225,6 +225,34 @@ Start from [`BOOTSTRAP_CODEX_VERIFICATION.md`](BOOTSTRAP_CODEX_VERIFICATION.md)
 and [`tools/verification/README.md`](tools/verification/README.md) for
 verification work.
 
+## Software Assurance Platform
+
+This repository also owns the canonical Software Assurance Platform
+architecture. Software Assurance governs engineering quality, supply chain
+posture, execution strategy, release assurance and platform health while
+Verification remains responsible for behavioural correctness.
+
+Start from [`SOFTWARE_ASSURANCE_PLATFORM.md`](SOFTWARE_ASSURANCE_PLATFORM.md),
+[`SOFTWARE_ASSURANCE_ARCHITECTURE.md`](SOFTWARE_ASSURANCE_ARCHITECTURE.md) and
+[`SOFTWARE_ASSURANCE_THEMES.md`](SOFTWARE_ASSURANCE_THEMES.md), then continue
+with [`SOFTWARE_ASSURANCE_CAPABILITY_MODEL.md`](SOFTWARE_ASSURANCE_CAPABILITY_MODEL.md),
+[`SOFTWARE_ASSURANCE_BACKLOG.md`](SOFTWARE_ASSURANCE_BACKLOG.md),
+[`SOFTWARE_ASSURANCE_DEPENDENCIES.md`](SOFTWARE_ASSURANCE_DEPENDENCIES.md) and
+[`SOFTWARE_ASSURANCE_IMPLEMENTATION_ORDER.md`](SOFTWARE_ASSURANCE_IMPLEMENTATION_ORDER.md)
+for Software Assurance roadmap work. Use
+[`SOFTWARE_ASSURANCE_INTEGRATION.md`](SOFTWARE_ASSURANCE_INTEGRATION.md),
+[`SOFTWARE_ASSURANCE_EXECUTION_MODEL.md`](SOFTWARE_ASSURANCE_EXECUTION_MODEL.md),
+[`SOFTWARE_ASSURANCE_PLATFORM_HEALTH.md`](SOFTWARE_ASSURANCE_PLATFORM_HEALTH.md)
+and [`SOFTWARE_ASSURANCE_REPOSITORY_MODEL.md`](SOFTWARE_ASSURANCE_REPOSITORY_MODEL.md)
+for integration and execution architecture.
+The architecture is frozen by
+[`SOFTWARE_ASSURANCE_GOVERNANCE.md`](SOFTWARE_ASSURANCE_GOVERNANCE.md), with
+rollout and future implementation governed by
+[`SOFTWARE_ASSURANCE_ROLLOUT.md`](SOFTWARE_ASSURANCE_ROLLOUT.md),
+[`SOFTWARE_ASSURANCE_IMPLEMENTATION_STRATEGY.md`](SOFTWARE_ASSURANCE_IMPLEMENTATION_STRATEGY.md),
+[`SOFTWARE_ASSURANCE_QUALITY_GATES.md`](SOFTWARE_ASSURANCE_QUALITY_GATES.md)
+and [`SOFTWARE_ASSURANCE_VERSIONING.md`](SOFTWARE_ASSURANCE_VERSIONING.md).
+
 ## Documentation
 
 - Client/API contract: [`API_CONTRACT.md`](API_CONTRACT.md)
@@ -235,6 +263,8 @@ verification work.
   [`BOOTSTRAP_CODEX_VERIFICATION.md`](BOOTSTRAP_CODEX_VERIFICATION.md)
 - Verification harness:
   [`tools/verification/README.md`](tools/verification/README.md)
+- Software Assurance:
+  [`SOFTWARE_ASSURANCE_PLATFORM.md`](SOFTWARE_ASSURANCE_PLATFORM.md)
 - Changelog: [`CHANGELOG.md`](CHANGELOG.md)
 - Known issues: [`ISSUES.md`](ISSUES.md)
 - Roadmap: [`PRODUCT_ROADMAP.md`](PRODUCT_ROADMAP.md)

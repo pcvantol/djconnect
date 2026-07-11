@@ -201,6 +201,45 @@ Next:
 - ⛔ Phase 10 Apple Verification Adapter, blocked pending successful Phase 9E.
 - ⏳ Phase 10E Apple Scenario Coverage Expansion, future after Phase 10.
 
+## Software Assurance Platform
+
+**Status:** 🟡 Architecture sprint
+**Goal:** Establish the canonical platform-wide software quality governance
+layer that extends Verification without replacing behavioural verification.
+
+Completed:
+
+- ✅ Prompt 1: Foundation and Architecture.
+- ✅ Canonical ownership and boundary model.
+- ✅ Canonical Software Assurance themes.
+- ✅ Cost-aware execution profile architecture.
+- ✅ Platform Health trend model.
+- ✅ Prompt 2: Capability Model, Epic Decomposition and Backlog.
+- ✅ Complete capability model with IDs, owners, dependencies and priorities.
+- ✅ Theme-to-epic-to-feature-to-story decomposition.
+- ✅ Dependency graph and implementation milestones.
+- ✅ Prompt 3: Platform Integration and Execution Architecture.
+- ✅ Verification Runtime, Execution Environment, execution target, Platform
+  Health, release and repository integration model.
+- ✅ Prompt 4: Governance, Rollout and Implementation Strategy.
+- ✅ Architecture freeze, prerequisites, rollout waves, quality gates,
+  versioning and final architecture decision.
+
+Next:
+
+- ⛔ Software Assurance implementation deferred until all primary adapters,
+  cross-platform qualification, stable Verification Runtime and Platform
+  Baseline update are complete.
+- ⏳ Resume active Verification roadmap follow-up work before Software
+  Assurance implementation.
+
+Guardrails:
+
+- no scanners are introduced during architecture prompts;
+- no GitHub Actions workflows are modified;
+- no release gates are enabled;
+- Verification remains owner of behavioural correctness.
+
 ## Epic 4 — Intelligence Platform
 
 **Status:** 🟡 Current  

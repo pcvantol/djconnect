@@ -52,6 +52,12 @@ The Planning Engine owns:
 - risk and priority ordering;
 - execution plan generation.
 
+For Software Assurance integration, the Planning Engine also consumes
+Software Assurance execution profiles, evidence expectations, retention
+posture, runner capability requirements and cost constraints once future
+implementation phases add those inputs. The engine still owns planning only;
+it does not execute assurance work or own quality policy.
+
 The Planning Engine never:
 
 - executes tests;

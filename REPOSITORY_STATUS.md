@@ -17,43 +17,66 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Platform Governance Phase: Cross-Repository Bootstrap Alignment.
+Software Assurance Platform Architecture Sprint: Prompt 4 of 4 - Governance,
+Rollout and Implementation Strategy.
 
-This phase is documentation and governance only. It is not a product
-implementation phase and not a verification execution phase.
+This phase is architecture and documentation only. It is not a product
+implementation phase, not a verification execution phase and not a CI/tooling
+enablement phase.
 
-The active verification prompt index currently records Phase 10E-R2 follow-up
-work as the next verification gate, but that verification gate is not executed
-as part of this governance phase.
+The active verification prompt index still records Phase 10E-R2 follow-up work
+as the next verification gate. That verification gate is intentionally paused
+while the Software Assurance architecture sprint runs, and resumes after the
+four architecture prompts are complete.
 
 ## Status
 
 Active.
 
-Repository-local bootstrap alignment is in progress until the cross-repository
-alignment report is complete and reviewed.
+Prompt 4 Software Assurance governance and rollout strategy are complete in the
+working tree. The architecture decision is
+`SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE`, and implementation is
+intentionally deferred until all primary adapters, cross-platform
+qualification, stable Verification Runtime and Platform Baseline update are
+complete.
 
 ## Blocking Dependencies
 
-- Cross-repository validation requires each sibling repository to be inspected
-  in its own working tree.
-- Pull request creation requires network/GitHub access and maintainer approval
-  when performed from a restricted local session.
+- Software Assurance implementation must not begin until later explicit
+  implementation prompts.
+- CI workflow changes, scanner enablement and release gates are out of scope
+  for Prompt 1.
 - Apple scenario coverage remains blocked by the Phase 10E-R2 follow-up backlog
   recorded in the Verification Platform backlog; this does not block this
-  documentation-only governance phase.
+  architecture-only Software Assurance phase.
 
 ## Current Prompt
 
 Attached request:
 
-`Platform Governance Phase - Cross-Repository Bootstrap Alignment`
+`Software Assurance Platform - Prompt 4 of 4 - Governance, Rollout and
+Implementation Strategy`
 
 ## Completion Report
 
-Repository-local report:
+Repository-local architecture outputs:
 
-`docs/meta/CROSS_REPOSITORY_BOOTSTRAP_ALIGNMENT_REPORT.md`
+- `SOFTWARE_ASSURANCE_PLATFORM.md`
+- `SOFTWARE_ASSURANCE_ARCHITECTURE.md`
+- `SOFTWARE_ASSURANCE_THEMES.md`
+- `SOFTWARE_ASSURANCE_CAPABILITY_MODEL.md`
+- `SOFTWARE_ASSURANCE_BACKLOG.md`
+- `SOFTWARE_ASSURANCE_DEPENDENCIES.md`
+- `SOFTWARE_ASSURANCE_IMPLEMENTATION_ORDER.md`
+- `SOFTWARE_ASSURANCE_INTEGRATION.md`
+- `SOFTWARE_ASSURANCE_EXECUTION_MODEL.md`
+- `SOFTWARE_ASSURANCE_PLATFORM_HEALTH.md`
+- `SOFTWARE_ASSURANCE_REPOSITORY_MODEL.md`
+- `SOFTWARE_ASSURANCE_GOVERNANCE.md`
+- `SOFTWARE_ASSURANCE_ROLLOUT.md`
+- `SOFTWARE_ASSURANCE_IMPLEMENTATION_STRATEGY.md`
+- `SOFTWARE_ASSURANCE_QUALITY_GATES.md`
+- `SOFTWARE_ASSURANCE_VERSIONING.md`
 
 ## Last Qualification
 
@@ -78,5 +101,5 @@ contain the SHA of the commit that includes its own content.
 
 ## Repository-Local Next Action
 
-Complete bootstrap alignment documentation, validate repository navigation and
-open a reviewable pull request for the documentation-only changes.
+Return to the active Verification roadmap follow-up work before any Software
+Assurance implementation begins.

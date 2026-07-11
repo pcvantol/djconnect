@@ -53,6 +53,37 @@ Authoritative foundation documents include:
 Sibling repositories may own local verification targets or artifacts, but they
 must not redefine the canonical Verification Foundation.
 
+## Software Assurance Foundation
+
+- Canonical repository: `pcvantol/djconnect`
+- Canonical documents: `SOFTWARE_ASSURANCE_PLATFORM.md`,
+  `SOFTWARE_ASSURANCE_ARCHITECTURE.md`,
+  `SOFTWARE_ASSURANCE_THEMES.md`,
+  `SOFTWARE_ASSURANCE_CAPABILITY_MODEL.md`,
+  `SOFTWARE_ASSURANCE_BACKLOG.md`,
+  `SOFTWARE_ASSURANCE_DEPENDENCIES.md`,
+  `SOFTWARE_ASSURANCE_IMPLEMENTATION_ORDER.md`,
+  `SOFTWARE_ASSURANCE_INTEGRATION.md`,
+  `SOFTWARE_ASSURANCE_EXECUTION_MODEL.md`,
+  `SOFTWARE_ASSURANCE_PLATFORM_HEALTH.md` and
+  `SOFTWARE_ASSURANCE_REPOSITORY_MODEL.md`,
+  `SOFTWARE_ASSURANCE_GOVERNANCE.md`,
+  `SOFTWARE_ASSURANCE_ROLLOUT.md`,
+  `SOFTWARE_ASSURANCE_IMPLEMENTATION_STRATEGY.md`,
+  `SOFTWARE_ASSURANCE_QUALITY_GATES.md` and
+  `SOFTWARE_ASSURANCE_VERSIONING.md`
+- Local responsibility: maintain platform-wide engineering quality governance,
+  software assurance themes, capability IDs, implementation backlog, execution
+  profile architecture, dependency graph, integration boundaries, rollout
+  governance, quality gate architecture, versioning, evidence taxonomy,
+  reporting boundaries and Platform Health definitions.
+- May this repository modify it: yes, through explicit Software Assurance
+  architecture or implementation phases.
+
+Software Assurance extends the Verification Platform. It must not redefine
+verification scenarios, behavioural expected results, adapter ownership or
+release gates.
+
 ## Meta Engineering Foundation
 
 - Canonical repository: `pcvantol/djconnect`
@@ -119,6 +150,9 @@ explicitly checks out and scopes that repository.
 - General work: read `BOOTSTRAP_CODEX_SESSION.md`.
 - Verification work: read `BOOTSTRAP_CODEX_SESSION.md`, then
   `BOOTSTRAP_CODEX_VERIFICATION.md`.
+- Software Assurance work: read `BOOTSTRAP_CODEX_SESSION.md`, the Software
+  Assurance foundation documents and the relevant Verification and Meta
+  Engineering documents.
 - Repository state: read `REPOSITORY_STATUS.md`.
 - Platform roadmap: read `PROMPT_INDEX.md`.
 

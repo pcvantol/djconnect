@@ -8,6 +8,12 @@ not required.
 
 ## Active Next Phase
 
+The Software Assurance Platform architecture sprint has completed with decision
+`SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE`. Software Assurance
+implementation is intentionally deferred until all primary adapters are
+qualified, cross-platform qualification has completed, the Verification Runtime
+is released as stable and the Platform Baseline is updated.
+
 Phase 9V rerun has qualified the Verification Platform using the dedicated
 local Home Assistant verification lab. The canonical planner selected the
 approved first Profile scenario set, exact-SHA CI passed, the `ha-profile` lab

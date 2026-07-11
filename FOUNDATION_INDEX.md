@@ -28,7 +28,23 @@ The files below define the platform foundation itself.
 16. `CI_CD_RELEASE_GOVERNANCE.md`
 17. `docs/verification/00_VERIFICATION_VISION.md`
 18. `docs/verification/01_VERIFICATION_ARCHITECTURE.md`
-19. `docs/meta/META_ENGINEERING_INDEX.md`
+19. `SOFTWARE_ASSURANCE_PLATFORM.md`
+20. `SOFTWARE_ASSURANCE_ARCHITECTURE.md`
+21. `SOFTWARE_ASSURANCE_THEMES.md`
+22. `SOFTWARE_ASSURANCE_CAPABILITY_MODEL.md`
+23. `SOFTWARE_ASSURANCE_BACKLOG.md`
+24. `SOFTWARE_ASSURANCE_DEPENDENCIES.md`
+25. `SOFTWARE_ASSURANCE_IMPLEMENTATION_ORDER.md`
+26. `SOFTWARE_ASSURANCE_INTEGRATION.md`
+27. `SOFTWARE_ASSURANCE_EXECUTION_MODEL.md`
+28. `SOFTWARE_ASSURANCE_PLATFORM_HEALTH.md`
+29. `SOFTWARE_ASSURANCE_REPOSITORY_MODEL.md`
+30. `SOFTWARE_ASSURANCE_GOVERNANCE.md`
+31. `SOFTWARE_ASSURANCE_ROLLOUT.md`
+32. `SOFTWARE_ASSURANCE_IMPLEMENTATION_STRATEGY.md`
+33. `SOFTWARE_ASSURANCE_QUALITY_GATES.md`
+34. `SOFTWARE_ASSURANCE_VERSIONING.md`
+35. `docs/meta/META_ENGINEERING_INDEX.md`
 
 ## Conflict-resolution order
 
@@ -119,6 +135,50 @@ true in practice.
 - `docs/verification/01_VERIFICATION_ARCHITECTURE.md` defines the permanent
   verification subsystem architecture: scenario catalog, orchestrator,
   adapters, evidence, reports and readiness.
+
+### Software Assurance docs
+
+Software Assurance docs define the platform-wide engineering quality
+governance layer that extends Verification without replacing it.
+
+- `SOFTWARE_ASSURANCE_PLATFORM.md` defines scope, ownership, boundaries,
+  execution model, governance principles, Platform Health and roadmap position.
+- `SOFTWARE_ASSURANCE_ARCHITECTURE.md` defines the assurance layer,
+  responsibility boundaries, evidence flow, reporting model and integration
+  with Verification, Release Qualification and Meta Engineering.
+- `SOFTWARE_ASSURANCE_THEMES.md` defines the six canonical assurance themes:
+  Static Quality, Supply Chain Assurance, Dynamic Runtime Assurance, Execution
+  Strategy and Cost Governance, Release Assurance and Platform Health.
+- `SOFTWARE_ASSURANCE_CAPABILITY_MODEL.md` defines reusable capability IDs,
+  ownership, execution targets, evidence, verification method, dependencies,
+  completion criteria and priority.
+- `SOFTWARE_ASSURANCE_BACKLOG.md` decomposes themes into epics, features,
+  stories, acceptance criteria and definitions of done.
+- `SOFTWARE_ASSURANCE_DEPENDENCIES.md` defines the acyclic capability
+  dependency graph and critical paths.
+- `SOFTWARE_ASSURANCE_IMPLEMENTATION_ORDER.md` groups capabilities into future
+  implementation milestones without enabling tooling.
+- `SOFTWARE_ASSURANCE_INTEGRATION.md` defines interfaces between Foundation,
+  Verification, Software Assurance, Verification Runtime, Execution
+  Environment, Evidence, Platform Health and Release Qualification.
+- `SOFTWARE_ASSURANCE_EXECUTION_MODEL.md` defines execution targets,
+  cost-aware profiles, self-hosted runner architecture, hybrid execution and
+  the GitHub Actions boundary.
+- `SOFTWARE_ASSURANCE_PLATFORM_HEALTH.md` defines Platform Health data flow,
+  health categories and non-gating trend semantics.
+- `SOFTWARE_ASSURANCE_REPOSITORY_MODEL.md` defines how sibling repositories
+  consume Software Assurance without redefining it.
+- `SOFTWARE_ASSURANCE_GOVERNANCE.md` defines the architecture freeze,
+  implementation prerequisites, ownership, backlog governance and final
+  architecture decision.
+- `SOFTWARE_ASSURANCE_ROLLOUT.md` defines the canonical wave rollout and
+  repository rollout governance.
+- `SOFTWARE_ASSURANCE_IMPLEMENTATION_STRATEGY.md` defines deferred
+  implementation strategy, CI/CD placement and roadmap transition.
+- `SOFTWARE_ASSURANCE_QUALITY_GATES.md` defines future gate architecture
+  without enabling gates.
+- `SOFTWARE_ASSURANCE_VERSIONING.md` defines lifecycle, semantic versioning
+  and compatibility expectations.
 
 ## Sibling repositories
 

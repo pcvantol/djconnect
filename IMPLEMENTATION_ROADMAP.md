@@ -23,6 +23,10 @@ Epic 6: Distribution and Release Strategy
 Epic 7: Platform Quality Standard rollout
   -> phases to be defined after repository-specific quality gaps are prioritized
 
+Software Assurance Platform
+  -> architecture prompts before quality tooling rollout
+  -> implementation phases only after explicit approval
+
 Epic 8: Website and Product Story
   -> phases to be defined after product-language audit
 
@@ -57,7 +61,37 @@ Epic 6 should formalize release channels, public release repositories, store rea
 
 ## Epic 7
 
-Epic 7 should roll out the platform quality standard across repositories using Epic 2 discovery scores and registers.
+Epic 7 should roll out the platform quality standard across repositories using Epic 2 discovery scores, registers and the canonical Software Assurance Platform architecture.
+
+## Software Assurance Platform
+
+The Software Assurance Platform defines engineering quality governance above
+the Verification Platform. Its architecture phase must complete before any
+new scanners, CI gates, release gates or repository health tooling are
+introduced.
+
+Canonical architecture:
+
+- `SOFTWARE_ASSURANCE_PLATFORM.md`
+- `SOFTWARE_ASSURANCE_ARCHITECTURE.md`
+- `SOFTWARE_ASSURANCE_THEMES.md`
+- `SOFTWARE_ASSURANCE_CAPABILITY_MODEL.md`
+- `SOFTWARE_ASSURANCE_BACKLOG.md`
+- `SOFTWARE_ASSURANCE_DEPENDENCIES.md`
+- `SOFTWARE_ASSURANCE_IMPLEMENTATION_ORDER.md`
+- `SOFTWARE_ASSURANCE_INTEGRATION.md`
+- `SOFTWARE_ASSURANCE_EXECUTION_MODEL.md`
+- `SOFTWARE_ASSURANCE_PLATFORM_HEALTH.md`
+- `SOFTWARE_ASSURANCE_REPOSITORY_MODEL.md`
+- `SOFTWARE_ASSURANCE_GOVERNANCE.md`
+- `SOFTWARE_ASSURANCE_ROLLOUT.md`
+- `SOFTWARE_ASSURANCE_IMPLEMENTATION_STRATEGY.md`
+- `SOFTWARE_ASSURANCE_QUALITY_GATES.md`
+- `SOFTWARE_ASSURANCE_VERSIONING.md`
+
+Implementation is intentionally deferred until all primary adapters are
+complete, cross-platform qualification has completed, the Verification Runtime
+is stable and the Platform Baseline is updated.
 
 ## Epic 8
 

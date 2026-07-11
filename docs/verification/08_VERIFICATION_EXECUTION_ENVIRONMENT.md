@@ -34,6 +34,12 @@ adapters. It owns repository state, toolchains, build qualification, cleanup,
 evidence directories, run identity, secrets names, CI inspection and
 environment snapshots.
 
+Software Assurance may specify quality policy, execution profiles, evidence
+expectations, retention posture and runner qualification requirements. The
+Execution Environment remains responsible for resolving how that work can run:
+toolchains, runners, Docker/lab setup, artifacts, cleanup, snapshots and
+environment metadata.
+
 ## Responsibility Boundary
 
 The execution environment owns repository hygiene, build qualification,
@@ -236,6 +242,12 @@ metadata extraction, read-only GitHub Actions status inspection through
 
 The execution environment never replaces GitHub CI and never writes GitHub
 state.
+
+GitHub Actions is an execution target for future Software Assurance work. It is
+not the owner of quality policy, Verification, planning or release
+qualification. Software Assurance determines policy; the Planning Engine and
+Execution Environment determine how the work maps to available execution
+targets.
 
 ## Platform Environment Control
 
