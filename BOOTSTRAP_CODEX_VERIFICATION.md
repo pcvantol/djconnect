@@ -33,7 +33,14 @@ Phase 9V rerun concluded:
 VERIFICATION PLATFORM QUALIFIED
 ```
 
-The platform is ready for Phase 10: Apple Verification Adapter.
+Phase 9V qualifies the Verification Platform. It does not qualify broad
+DJConnect Home Assistant backend scenario coverage.
+
+The platform is ready for Phase 9E: Home Assistant Scenario Coverage
+Expansion. Phase 10 Apple Verification Adapter remains blocked until Phase 9E
+returns `HOME_ASSISTANT_BACKEND_QUALIFIED` or
+`HOME_ASSISTANT_BACKEND_QUALIFIED_WITH_WARNINGS` with all warnings explicitly
+non-blocking for Apple client work.
 
 The active next phase is listed in `PROMPT_INDEX.md`.
 

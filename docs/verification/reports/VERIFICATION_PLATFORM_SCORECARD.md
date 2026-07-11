@@ -30,7 +30,8 @@ Scoring scale:
 
 VERIFICATION PLATFORM QUALIFIED
 
-The platform can be used for Phase 10 Apple Verification Adapter work. The
-qualification is scoped to the first approved Profile scenario set and the
-dedicated Home Assistant lab; future adapters still require their own
+The platform can be used for Phase 9E Home Assistant Scenario Coverage
+Expansion. The qualification is scoped to the first approved Profile scenario
+set and the dedicated Home Assistant lab; it does not prove full Home
+Assistant backend coverage. Future adapters still require their own
 qualification before trust expands to those runtimes.

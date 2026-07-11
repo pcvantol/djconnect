@@ -13,6 +13,12 @@ Context:
 
 The Verification Platform has been qualified by Phase 9V rerun.
 
+Home Assistant backend scenario coverage must first be qualified by Phase 9E.
+Do not execute this Phase 10 prompt until Phase 9E returns
+`HOME_ASSISTANT_BACKEND_QUALIFIED` or
+`HOME_ASSISTANT_BACKEND_QUALIFIED_WITH_WARNINGS` with every warning explicitly
+non-blocking for Apple client work.
+
 Completed:
 
 - Verification Vision
@@ -33,6 +39,7 @@ Completed:
 - Home Assistant Verification Adapter
 - Local Home Assistant Verification Lab
 - Verification Platform Qualification Rerun
+- Home Assistant Scenario Coverage Expansion
 
 No new verification architecture subsystem may be introduced.
 

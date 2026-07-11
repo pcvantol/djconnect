@@ -192,10 +192,14 @@ Completed:
 - ✅ Phase 8B Verification Modes and Verification Policies.
 - ✅ Phase 8C Verification Planning Engine.
 - ✅ Phase 9 Home Assistant Verification Adapter.
+- ✅ Phase 9L Local Home Assistant Verification Lab Qualification.
+- ✅ Phase 9V Verification Platform Qualification Rerun.
 
 Next:
 
-- ⏳ Home Assistant live validation and next scenario-driven adapter primitives.
+- ⏳ Phase 9E Home Assistant Scenario Coverage Expansion.
+- ⛔ Phase 10 Apple Verification Adapter, blocked pending successful Phase 9E.
+- ⏳ Phase 10E Apple Scenario Coverage Expansion, future after Phase 10.
 
 ## Epic 4 — Intelligence Platform
 

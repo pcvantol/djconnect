@@ -305,7 +305,7 @@ this qualification rerun.
 
 ## Recommendations
 
-- Start Phase 10: Apple Verification Adapter.
+- Start Phase 9E: Home Assistant Scenario Coverage Expansion.
 - Keep the first Apple adapter scope scenario-driven and thin.
 - Do not introduce new verification architecture layers.
 - Improve Investigator failure extraction for missing token, sandbox and
@@ -313,12 +313,18 @@ this qualification rerun.
 - Preserve exact-SHA CI and dedicated lab qualification as mandatory gates for
   live verification runs.
 
-## Readiness For Apple Verification Adapter
+## Readiness For Home Assistant Scenario Coverage Expansion
 
-The Verification Platform is qualified for the next adapter phase.
+The Verification Platform is qualified for broad Home Assistant backend
+scenario coverage expansion.
 
-Phase 10 may start after this report, scorecard, backlog and prompt index are
+Phase 9E may start after this report, scorecard, backlog and prompt index are
 merged.
+
+Phase 10 Apple Verification Adapter remains blocked until Phase 9E qualifies
+broad Home Assistant backend scenario coverage. The first five Profile
+scenarios prove the Verification Platform pipeline, not full HA backend
+coverage.
 
 Final decision:
 
