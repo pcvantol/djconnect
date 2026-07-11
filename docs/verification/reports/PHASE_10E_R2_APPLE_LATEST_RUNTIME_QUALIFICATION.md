@@ -111,7 +111,7 @@ dev.djconnect.ios
 | Launch app | PASS | `xcrun simctl launch dev.djconnect.ios` returned pid `38568`. |
 | Screenshot | PASS | Simulator screenshot was captured and persisted. |
 | Scoped log collection | PASS | Adapter operation logs and simulator log excerpt were persisted and redacted. |
-| UI automation healthcheck | FAIL | Integrated XCTest healthcheck timed out after 600 seconds. |
+| UI automation healthcheck | FAIL | Integrated XCTest healthcheck timed out after 600 seconds in the original blocked run; the active default timeout is now 180 seconds and remains overrideable with `DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_TIMEOUT`. |
 
 ## Implementation Changes
 

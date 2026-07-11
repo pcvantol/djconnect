@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import json
+import os
 import plistlib
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from tools.verification import apple_runtime_qualification as apple_runtime_module
 from tools.verification.adapters import AdapterRegistry
 from tools.verification.apple_adapter import (
     AppleAdapterConfig,
@@ -124,6 +126,29 @@ class AppleAdapterTests(unittest.TestCase):
         self.assertEqual("ios", devices[0]["variant"])
         self.assertTrue(devices[0]["booted"])
         self.assertEqual("watchos", devices[1]["variant"])
+
+    def test_phase_10e_ui_healthcheck_default_timeout_is_180_seconds(self) -> None:
+        captured: dict[str, int] = {}
+
+        def fake_run_shell(command: str, cwd: Path, *, timeout: int) -> tuple[int, str]:
+            captured["timeout"] = timeout
+            return 0, "ok"
+
+        with tempfile.TemporaryDirectory() as tmp, patch.dict(
+            "os.environ",
+            {
+                "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
+                "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
+            },
+            clear=False,
+        ), patch.object(apple_runtime_module, "_run_shell", fake_run_shell):
+            os_timeout = "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_TIMEOUT"
+            with patch.dict("os.environ", {os_timeout: ""}, clear=False):
+                del os.environ[os_timeout]
+                check = AppleRuntimeQualification(Path(tmp), apple_repo=Path(tmp))._ui_healthcheck()
+
+        self.assertEqual("PASS", check.state)
+        self.assertEqual(180, captured["timeout"])
 
     def test_adapter_discovers_simulators_with_mocked_runner(self) -> None:
         runner = FakeRunner({("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_JSON)})

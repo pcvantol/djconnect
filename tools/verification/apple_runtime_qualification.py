@@ -353,7 +353,7 @@ class AppleRuntimeQualification:
         code, output = _run_shell(
             command,
             self.apple_repo,
-            timeout=int(os.getenv("DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_TIMEOUT", "600")),
+            timeout=int(os.getenv("DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_TIMEOUT", "180")),
         )
         return _check("ui_automation_healthcheck", "PASS" if code == 0 else "FAIL", "UI automation healthcheck executed." if code == 0 else "UI automation healthcheck failed.", {"driver": driver, "returncode": code, "output_tail": output[-4000:]})
 
