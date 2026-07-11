@@ -27,6 +27,14 @@ The Verification Foundation, Core, Execution Environment, Data Framework,
 Modes, Policies, Planning Engine, Home Assistant Verification Adapter and
 dedicated local Home Assistant verification lab exist.
 
+The Verification Platform runtime is versioned and releaseable as a generic
+Docker image. Current runtime version: `0.2.0`. Runtime identity is captured in
+environment snapshots, run metadata and reports under `verification_runtime`.
+Execution summaries include total execution time and scenario status counts.
+The Docker runtime image contains only reusable engine components; scenario
+catalogs, product repositories, Home Assistant lab state, Apple artifacts,
+secrets and run evidence stay outside the image.
+
 Phase 9V rerun concluded:
 
 ```text
@@ -110,6 +118,8 @@ verification behavior.
   executable plans.
 - Execution Environment owns tooling, builds, Docker, CI, SSH, serial,
   simulators, VMs, artifacts, secrets loading by name and cleanup.
+- Runtime release packaging owns only the generic Verification Platform engine;
+  product scenarios, client artifacts and lab state remain external inputs.
 - Platform adapters remain thin execution layers.
 - Scenarios define expected behavior.
 - Matrix, Data, Modes and Policies define test variation and scope.
@@ -154,6 +164,8 @@ Live verification may run only when mandatory gates pass:
 - repository branch, SHA and working tree are known;
 - exact-SHA CI status is qualified or explicitly blocked;
 - Docker/HA runtime identity is proven safe;
+- generic Verification Platform Docker images are treated as engine releases,
+  not as scenario or product artifact bundles;
 - no production HA volumes, tokens or config are used;
 - approved storage and log paths are configured;
 - secrets are loaded externally and never logged;

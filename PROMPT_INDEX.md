@@ -17,6 +17,12 @@ through the Home Assistant adapter with persisted evidence.
 Phase 9V qualifies the Verification Platform. It does not qualify broad
 DJConnect Home Assistant backend scenario coverage.
 
+The Verification Platform runtime is versioned as `0.2.0` and can be released
+as a generic Docker image containing only reusable engine components. Runtime
+identity and total execution time are recorded in run metadata and summaries;
+scenario catalogs, product source, lab state, secrets and evidence remain
+external to the image.
+
 Phase 10 implemented and qualified the thin Apple Verification Adapter with
 mock/unit evidence. Live Apple simulator/device execution was explicitly
 skipped because no prepared Apple target JSON and app artifact were configured.

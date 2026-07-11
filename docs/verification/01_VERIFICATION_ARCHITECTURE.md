@@ -87,6 +87,12 @@ It owns:
 - reporting;
 - platform readiness.
 
+The generic Verification Platform runtime may be packaged as a Docker image,
+but that image is an engine release only. Scenario catalogs, product
+repositories, Home Assistant lab config, Apple app artifacts, hardware state,
+secrets and evidence remain explicit inputs to a run. This keeps runtime
+reproducibility separate from DJConnect product coverage.
+
 Scenario scheduling means selecting which scenarios apply to the current
 verification goal, baseline, release candidate, repository change or platform
 scope.

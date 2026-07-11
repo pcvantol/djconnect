@@ -14,14 +14,14 @@ Scoring scale:
 | Area | Score | Deduction |
 | --- | ---: | --- |
 | Planning Engine | 4 | Correctly generated the five-case smoke plan and selected `ha-profile`; minor deduction because `PROFILE-002` still carries future rich-client resources into an HA-only plan as external requirements. |
-| Execution Environment | 4 | Exact-SHA CI, Docker runtime discovery, dependency inspection, cleanup planning, lab qualification and default sandboxed parallel scenario waves are implemented; minor deduction because live runs still require approved local Docker access. |
+| Execution Environment | 4 | Exact-SHA CI, Docker runtime discovery, dependency inspection, cleanup planning, lab qualification, default sandboxed parallel scenario waves and the generic runtime Docker release path are implemented; minor deduction because live runs still require approved local Docker access. |
 | Home Assistant Adapter | 4 | Live REST/WebSocket/runtime/storage/log primitives executed across 195 Home Assistant backend and backend assertion-path scenarios; deeper product assertions remain scenario-driven future work. |
 | Verification Core | 4 | Aggregated qualified runs, expanded HA backend mappings and preserved primitive diagnostics in summaries; minor deduction because successful primitive timing is still coarse. |
 | Evidence Pipeline | 4 | Persisted immutable run evidence with environment, qualification, plan, scenario result files and summary-level diagnostics; richer request/response transcripts remain future adapter evidence work. |
 | Verification Investigator | 4 | Primitive failures are extracted from run summaries and the Phase 9E-R websocket timeout rerun was classified without manual relabeling. |
-| Reporting | 4 | Qualification report, scorecard and backlog are current; future reports can become more generated. |
+| Reporting | 4 | Qualification report, scorecard and backlog are current, and execution summaries include total runtime plus scenario status counts; future reports can become more generated. |
 | Repository Hygiene | 5 | Branch, SHA and working tree state were known before execution. |
-| Build Qualification | 4 | Runtime/build metadata and lab image identity were captured; no production artifact signing was in Phase 9V scope. |
+| Build Qualification | 4 | Runtime/build metadata, Verification Platform runtime identity and lab image identity were captured; no production artifact signing was in Phase 9V scope. |
 | GitHub CI | 5 | Exact-SHA CI inspected two successful GitHub Actions runs for the tested SHA. |
 | Dogfooding Coverage | 4 | `tests/verification` passed 115 tests and catalog validation covered 231 scenarios; live Docker tests remain opt-in. |
 | Home Assistant Backend Coverage | 4 | Phase 9E-R executed and qualified 195 HA backend or separable HA backend assertion-path scenarios; 28 client/hardware/release/voice-localization scenarios remain correctly deferred. |
@@ -66,3 +66,9 @@ stability. Operators can tune with `DJCONNECT_VERIFICATION_PARALLEL_WORKERS` or
 `DJCONNECT_VERIFICATION_PARALLEL=0` or `--no-parallel`. Dependencies and
 declared exclusive resources remain fail-closed gates before scenarios share a
 wave.
+
+Verification Platform runtime release packaging is now available as a generic
+Docker image path for runtime version `0.2.0`. The image is intentionally
+engine-only: DJConnect scenario catalogs, product checkouts, Home Assistant lab
+state, Apple artifacts, secrets and evidence are supplied externally at run
+time.

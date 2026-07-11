@@ -208,12 +208,33 @@ DJConnect recommendations when those compact positive signals are available.
   Assistant. Diagnostics redact token, password, secret, proof, authorization,
   prompt, history, memory and raw audio fields.
 
+## Verification Platform
+
+This repository also owns the generic DJConnect Verification Platform runtime.
+The runtime is versioned separately from product scenarios and records its
+version in verification metadata, reports and execution summaries. The current
+runtime is `0.2.0`.
+
+Generic engine releases can be built as Docker images from
+`docker/verification-platform/Dockerfile`. The image contains only reusable
+verification engine components; scenario catalogs, product repositories, Home
+Assistant lab state, Apple artifacts, secrets and run evidence stay outside the
+image and are mounted or supplied at execution time.
+
+Start from [`BOOTSTRAP_CODEX_VERIFICATION.md`](BOOTSTRAP_CODEX_VERIFICATION.md)
+and [`tools/verification/README.md`](tools/verification/README.md) for
+verification work.
+
 ## Documentation
 
 - Client/API contract: [`API_CONTRACT.md`](API_CONTRACT.md)
 - Technical design decisions: [`TECHNICAL_DESIGN_DECISIONS.md`](TECHNICAL_DESIGN_DECISIONS.md)
 - Voice intent examples: [`VOICE_INTENT_DATA.md`](VOICE_INTENT_DATA.md)
 - Development environment: [`DEVELOPMENT_ENVIRONMENT.md`](DEVELOPMENT_ENVIRONMENT.md)
+- Verification bootstrap:
+  [`BOOTSTRAP_CODEX_VERIFICATION.md`](BOOTSTRAP_CODEX_VERIFICATION.md)
+- Verification harness:
+  [`tools/verification/README.md`](tools/verification/README.md)
 - Changelog: [`CHANGELOG.md`](CHANGELOG.md)
 - Known issues: [`ISSUES.md`](ISSUES.md)
 - Roadmap: [`PRODUCT_ROADMAP.md`](PRODUCT_ROADMAP.md)

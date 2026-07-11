@@ -1,10 +1,11 @@
 # DJConnect Verification Harness
 
-Status: core plus execution environment and planning engine
+Status: core plus execution environment, planning engine and runtime release
 Scope owner: `pcvantol/djconnect`  
 Builds on: `docs/verification/00_VERIFICATION_VISION.md`,
 `docs/verification/01_VERIFICATION_ARCHITECTURE.md` and
 `docs/verification/02_SCENARIO_SCHEMA.md`
+Runtime version: `0.2.0`
 
 Clean verification sessions should start with
 `BOOTSTRAP_CODEX_VERIFICATION.md` and `PROMPT_INDEX.md`.
@@ -14,6 +15,10 @@ platform scenarios. Scenarios describe platform behavior. The harness loads,
 validates, schedules, qualifies, executes through adapters, collects evidence
 and reports readiness. Future phases extend this scaffold instead of running
 verification scenarios directly.
+
+The generic runtime can also be released as a Docker image. That image contains
+only the reusable verification engine, not DJConnect product scenarios,
+artifacts, secrets or lab state.
 
 ## Pipeline
 
@@ -29,6 +34,11 @@ Scenario Loader
   -> Report Generator
   -> Platform Readiness
 ```
+
+Runtime metadata is recorded in environment snapshots, run metadata and summary
+reports under `verification_runtime`. Execution summaries also include
+`execution_summary.total_execution_seconds` plus total, executed and status
+bucket counts.
 
 ## Current Scope
 
@@ -75,6 +85,7 @@ python -m tools.verification.cli investigate <run-id>
 python -m tools.verification.cli lab ha metadata
 python -m tools.verification.cli lab ha start
 python -m tools.verification.cli lab ha doctor
+python -m tools.verification.cli docker release
 ```
 
 Reserved commands:
@@ -93,6 +104,7 @@ Reserved commands:
 - `evidence`
 - `build`
 - `ci`
+- `docker`
 
 Supported filters include scenario IDs, tags, components, platforms, locales,
 automation level and build type. Only ID, tag and component filtering is active
@@ -114,6 +126,46 @@ supports:
 
 Secrets files are referenced only. They must not be committed.
 
+## Runtime Docker Release
+
+Build the generic Verification Platform runtime image from the repository root:
+
+```bash
+python -m tools.verification.cli docker release \
+  --image ghcr.io/pcvantol/djconnect-verification-platform \
+  --release-sha "$(git rev-parse HEAD)"
+```
+
+The release helper builds `docker/verification-platform/Dockerfile` and tags
+the image with:
+
+- `<runtime-version>`
+- `<runtime-version>-<short-release-sha>`
+- `sha-<short-release-sha>`
+
+For the current runtime this means tags such as `0.2.0`,
+`0.2.0-<short-sha>` and `sha-<short-sha>`.
+
+Smoke test an image with:
+
+```bash
+docker run --rm ghcr.io/pcvantol/djconnect-verification-platform:0.2.0 config
+```
+
+Run repository scenarios by mounting a checkout and invoking the runtime from
+that checkout. Keep scenarios, product source, secrets and artifacts outside the
+released image:
+
+```bash
+docker run --rm \
+  -v "$PWD:/workspace:ro" \
+  -v "$PWD/artifacts/verification:/artifacts/verification" \
+  ghcr.io/pcvantol/djconnect-verification-platform:0.2.0 \
+  --config /workspace/verification-config.json validate
+```
+
+Use `--dry-run` when preparing release metadata without building locally.
+
 ## Extension Rules
 
 - Adapters execute; they never define expected behavior.
@@ -129,3 +181,6 @@ Secrets files are referenced only. They must not be committed.
   SHA mismatches are blocking qualification states.
 - Run evidence is persisted under the configured evidence directory and can be
   listed, shown, verified and investigated through the CLI.
+- Runtime Docker images must stay generic: no DJConnect scenario catalog,
+  product repository checkout, Home Assistant config, Apple artifacts, secrets
+  or test results are baked into the image.
