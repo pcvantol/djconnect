@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import contextlib
+import io
 import json
 import tempfile
 import unittest
@@ -188,6 +190,46 @@ class ExecutionEnvironmentTests(unittest.TestCase):
 
         self.assertFalse(config.parallel_execution)
         self.assertEqual(1, config.parallel_workers)
+
+    def test_config_uses_logical_cpu_fallback_when_perflevel_metadata_is_unavailable(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir, patch(
+            "tools.verification.configuration.loader.os.cpu_count",
+            return_value=12,
+        ), patch("tools.verification.configuration.loader.subprocess.run", return_value=Mock(returncode=1, stdout="")):
+            config = load_config(Path(temp_dir))
+
+        self.assertTrue(config.parallel_execution)
+        self.assertEqual(10, config.parallel_workers)
+
+    def test_cli_config_reports_parallel_defaults_and_no_parallel_override(self) -> None:
+        root = Path(__file__).resolve().parents[2]
+
+        def fake_run(command, **kwargs):
+            values = {
+                ("sysctl", "-n", "hw.perflevel0.physicalcpu"): "8\n",
+                ("sysctl", "-n", "hw.perflevel1.physicalcpu"): "4\n",
+            }
+            return Mock(returncode=0, stdout=values[tuple(command)])
+
+        with patch("tools.verification.configuration.loader.os.cpu_count", return_value=12), patch(
+            "tools.verification.configuration.loader.subprocess.run",
+            side_effect=fake_run,
+        ), contextlib.redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(0, main(["--root", str(root), "config"]))
+
+        data = json.loads(output.getvalue())
+        self.assertTrue(data["parallel_execution"])
+        self.assertEqual(12, data["parallel_workers"])
+
+        with patch("tools.verification.configuration.loader.os.cpu_count", return_value=12), patch(
+            "tools.verification.configuration.loader.subprocess.run",
+            side_effect=fake_run,
+        ), contextlib.redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(0, main(["--root", str(root), "--no-parallel", "config"]))
+
+        disabled = json.loads(output.getvalue())
+        self.assertFalse(disabled["parallel_execution"])
+        self.assertEqual(1, disabled["parallel_workers"])
 
 
 if __name__ == "__main__":
