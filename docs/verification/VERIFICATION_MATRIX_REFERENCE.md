@@ -2,6 +2,8 @@
 
 Status: Canonical reference for adapter authors
 Date: 2026-07-10
+Runtime default: versioned Verification Platform engine with parallel execution
+enabled unless an operator or policy disables it.
 
 This reference is the compact lookup table for the canonical matrix dimensions
 defined in `03A_VERIFICATION_MATRIX.md`.
@@ -27,6 +29,11 @@ defined in `03A_VERIFICATION_MATRIX.md`.
 | Lifecycle | Cold Start, Warm Start, Resume, Background, Foreground, Restart, Killed, Crash Recovery, Not Applicable |
 | Build Qualification | Instrumented, Release-equivalent, Production Package, Store Build, Not Applicable |
 | CI State | Local, CI, Nightly, Release Candidate, Production Qualification |
+
+`Latest` means the latest eligible stable runtime for the active verification
+mode. Beta operating systems, Xcode beta and Home Assistant beta are not
+selected by default stable qualification; they require the isolated
+`future_beta` test mode and produce advisory evidence.
 
 ## Coverage State Reference
 
@@ -103,3 +110,16 @@ reduction_rule: critical-path
 
 Adapters may choose a different machine-readable ID shape, but reports must
 preserve the same semantic fields.
+
+## Execution Metadata
+
+Every generated case and run summary should preserve:
+
+- `verification_runtime.name`
+- `verification_runtime.version`
+- `verification_runtime.schema_version`
+- parallel execution mode and worker count;
+- total scenario count, executed scenario count and status buckets;
+- `execution_summary.total_execution_seconds`;
+- host preflight outcome for local lab runs;
+- runtime channel, where applicable: `stable` or `future_beta`.

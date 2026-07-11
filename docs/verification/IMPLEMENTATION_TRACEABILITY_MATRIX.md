@@ -1,6 +1,6 @@
 # Implementation Traceability Matrix
 
-Status: Phase 7 traceability baseline
+Status: Phase 7 traceability baseline with Phase 10E runtime updates
 Date: 2026-07-10
 
 This matrix links important platform capabilities across foundation, ADRs,
@@ -27,7 +27,7 @@ technical design, scenarios, implementation, tests and verification readiness.
 | Voice/PTT | Client matrix, Voice Endpoint model | ADR-0011 | `VOICE_TRANSPORT.md` | `VOICE-*`, `ESP-*`, `APPLE-*` | HA `http.py`, `assist_stt.py`, ESP voice code, Apple PTT source | `tests/test_http_voice_helpers.py`, ESP native tests | HA helper partial | Real STT/audio/hardware evidence |
 | ESP OTA/update | Device law, release governance | None accepted | `UPDATE_MODEL.md`, `BUILD_VARIANTS.md` | `HARDWARE-*`, `RELEASE-*`, `SETUP-007` | HA `github.py`/`update.py`, ESP OTA code | ESP native tests, HA update tests partial | Needs ESP/release adapter | Real OTA hardware evidence |
 | Pi updater | Ambient client ownership | None accepted | `UPDATE_MODEL.md`, `CLIENT_STORAGE.md` | `RELEASE-*`, Pi implied | Pi `updater.py`, update UI | Pi tests | Needs Pi adapter | Release artifact evidence |
-| Verification harness | Verification Vision/Architecture | None | Phase 6 technical docs | All scenarios | `tools/verification/*` scaffold | harness validation tests if present | Phase 8 can implement HA adapter | Actual adapters/evidence execution |
+| Verification harness | Verification Vision/Architecture | None | Phase 6 technical docs, `04_VERIFICATION_HARNESS.md`, `08_VERIFICATION_EXECUTION_ENVIRONMENT.md` | All scenarios | `tools/verification/*`, `docker/verification-platform/*` | `tests/verification` | Versioned runtime `0.2.0`, default parallel execution, host preflight, execution summaries and generic Docker engine release implemented | Broader adapter live evidence and generated report ingestion |
 
 ## Missing Traceability Links
 
@@ -39,5 +39,6 @@ technical design, scenarios, implementation, tests and verification readiness.
   tests to scenario links.
 - Client-specific scenario families are implied by examples and adapter names,
   but not surfaced as dedicated scenario groups in the catalog summary.
-- Verification reports do not yet ingest technical design coverage or adapter
-  readiness automatically.
+- Verification reports preserve runtime metadata and execution summaries, but
+  do not yet ingest technical design coverage or adapter readiness
+  automatically.

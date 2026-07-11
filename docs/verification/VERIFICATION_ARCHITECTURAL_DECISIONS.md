@@ -335,3 +335,31 @@ Consequences: Prompt files and indices must be kept current with phase status.
 Status: accepted.
 
 Related documents: `BOOTSTRAP_CODEX_VERIFICATION.md`, `PROMPT_INDEX.md`.
+
+## VAD-017 - Runtime Docker Images Are Engine-Only
+
+Context: The Verification Platform runtime can now be released as a Docker
+image, while DJConnect scenario catalogs and product repositories continue to
+evolve independently.
+
+Decision: Docker releases of the Verification Platform contain only generic
+engine components. Product scenarios, repository checkouts, Home Assistant lab
+state, client artifacts, secrets and evidence are supplied externally at run
+time.
+
+Rationale: Runtime reproducibility should not bake in a specific DJConnect
+product state or leak environment-specific artifacts into a reusable engine
+image.
+
+Rejected alternatives: publishing a monolithic image that includes the current
+scenario catalog, local lab config or product repository source.
+
+Consequences: Release tags identify the verification runtime version and
+release SHA. Scenario and product coverage remain versioned by the repository
+checkout, mounted artifacts and recorded run metadata.
+
+Status: accepted.
+
+Related documents: `docs/verification/04_VERIFICATION_HARNESS.md`,
+`docs/verification/08_VERIFICATION_EXECUTION_ENVIRONMENT.md`,
+`tools/verification/README.md`.

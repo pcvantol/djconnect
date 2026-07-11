@@ -4,6 +4,8 @@ Status: NOT TESTED
 Date opened: 2026-07-10  
 Overall result: NO-GO pending live validation  
 Final decision: NO-GO
+Report scope: Profile Platform V1 live validation, not the current
+Verification Platform qualification scorecard.
 
 ## Summary
 
@@ -15,6 +17,12 @@ No live scenario evidence has been recorded in this repository yet. Therefore
 this report cannot conclude GO. The current decision is NO-GO until the required
 scenarios in `LIVE_SCENARIOS.md` and `PROFILE_PLATFORM_VERIFICATION.md` are
 executed and recorded.
+
+Current Verification Platform qualification evidence is tracked separately in
+`docs/verification/reports/VERIFICATION_PLATFORM_SCORECARD.md` and phase
+reports under `docs/verification/reports/`. New runs should be executed through
+the versioned Verification Platform runtime and should record runtime metadata
+plus execution-summary timing.
 
 ## Pass Rate
 
@@ -29,6 +37,20 @@ Pass rate: 0% of listed scenarios with evidence.
 
 Scope count: 99 live scenarios plus 25 Profile Platform resolver/state/privacy
 checks.
+
+## Runtime Metadata
+
+Future updates to this report must include:
+
+| Field | Value |
+| --- | --- |
+| Verification runtime | `djconnect-verification-platform` |
+| Runtime version | `0.2.0` or newer |
+| Runtime schema version | Recorded from run metadata |
+| Parallel execution | Recorded from run metadata |
+| Worker count | Recorded from run metadata |
+| Total execution time | Recorded from `execution_summary.total_execution_seconds` |
+| Host preflight | Required for local lab runner starts |
 
 ## Category Status
 
@@ -73,6 +95,8 @@ has not started.
 
 1. Stand up a fresh Home Assistant test instance with DJConnect from the current
    repository state.
+   Local lab startup must pass host preflight for conflicting processes/ports
+   and disk space before mutation.
 2. Stand up or snapshot an existing DJConnect Home Assistant installation.
 3. Pair Apple, Windows, Pi and ESP32 clients.
 4. Configure Spotify Direct and Music Assistant in separate runs.

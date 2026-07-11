@@ -5,6 +5,7 @@ Date opened: 2026-07-10
 Scope owner: `pcvantol/djconnect`  
 Platform baseline: `PLATFORM_BASELINE_v1.md`  
 Epic gate: Epic 4 must not begin until `VERIFICATION_REPORT.md` reaches GO.
+Verification runtime: `djconnect-verification-platform` `0.2.0`
 
 ## Purpose
 
@@ -15,6 +16,13 @@ privacy and capability discovery.
 This is not an implementation sprint. New features are out of scope unless a
 verification failure requires the smallest practical fix. Architecture changes
 require an ADR proposal.
+
+This program predates the Phase 9/10 Verification Platform qualification
+reports. Its scenario gate remains valid for Profile Platform V1, but current
+runtime execution uses the versioned Verification Platform engine documented in
+`04_VERIFICATION_HARNESS.md` and `08_VERIFICATION_EXECUTION_ENVIRONMENT.md`.
+Use the phase reports under `docs/verification/reports/` for current platform
+qualification status.
 
 ## Source Documents
 
@@ -60,6 +68,8 @@ Verification starts from these accepted documents:
 Each executed scenario records:
 
 - date, tester and environment;
+- verification runtime name, version and schema version;
+- total execution time plus executed/total scenario status counts;
 - Home Assistant version and DJConnect integration version;
 - client app/firmware/runtime version and commit when available;
 - music backend and account state;
@@ -90,7 +100,7 @@ issues update the canonical docs or repository-local docs according to
 | Area | Minimum environment |
 | --- | --- |
 | Backend | Fresh HA test instance plus upgraded existing HA instance with DJConnect `3.2.50` or current branch build. |
-| Apple | iOS/iPadOS, macOS and watchOS builds that implement Profile Adoption Contract v1. |
+| Apple | iOS/iPadOS, macOS and watchOS builds that implement Profile Adoption Contract v1. Stable qualification uses the latest eligible stable simulator runtime; Xcode beta/iOS beta routes are advisory future-beta evidence only. |
 | Windows | Windows build that implements the same Profile Adoption Contract v1 fixtures as Apple. |
 | Raspberry Pi | Pi Ambient Client connected to the same HA instance. |
 | ESP32 | DJConnect ESP32 firmware with `client_type:"esp32"`, PTT, status and OTA support. |
@@ -146,6 +156,20 @@ Platform-specific targets:
 - `LIVE_SCENARIOS.md`
 - `KNOWN_LIMITATIONS.md`
 - `VERIFICATION_REPORT.md`
+- Phase qualification reports under `docs/verification/reports/`
+
+## Runtime Execution Rules
+
+- Parallel scenario execution is enabled by default and uses dynamic worker
+  detection. Declared dependencies and exclusive resources still gate batches
+  fail-closed.
+- Local lab runners must pass host preflight before startup, including
+  conflicting DJConnect/Home Assistant processes, occupied required ports and
+  available disk space.
+- The generic Docker runtime release is engine-only. Product scenarios, client
+  artifacts, lab state, secrets and evidence are external run inputs.
+- Reports must include `verification_runtime` metadata and
+  `execution_summary.total_execution_seconds`.
 
 ## Completion Gate
 
