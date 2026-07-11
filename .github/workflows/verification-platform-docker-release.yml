@@ -6,7 +6,7 @@ on:
       image:
         description: Docker image repository to publish.
         required: true
-        default: pcvantol/djconnect
+        default: pcvantol/djconnect-verification-platform
       release_sha:
         description: Release SHA to record in image labels and immutable tags. Defaults to the checked-out SHA.
         required: false
@@ -28,7 +28,7 @@ jobs:
     name: Build and publish verification runtime
     runs-on: ubuntu-latest
     env:
-      DEFAULT_IMAGE: pcvantol/djconnect
+      DEFAULT_IMAGE: pcvantol/djconnect-verification-platform
     steps:
       - uses: actions/checkout@v7
 

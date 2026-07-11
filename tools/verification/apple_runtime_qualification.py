@@ -22,6 +22,7 @@ from tools.verification.runtime_channels import future_beta_enabled, verificatio
 
 MANDATORY_CHECKS = (
     "apns_entitlements",
+    "xcode_account",
     "distribution_signing_assets",
     "release_equivalent_build",
     "simulator_target",
@@ -75,22 +76,37 @@ class AppleRuntimeQualification:
         derived_data = self._derived_data_isolation()
         checks.append(derived_data)
         checks.append(self._apns_entitlements())
+        xcode_account = self._xcode_account()
+        checks.append(xcode_account)
         signing_assets = self._distribution_signing_assets()
         checks.append(signing_assets)
-        if derived_data.state == "PASS" and signing_assets.state == "PASS":
+        if derived_data.state == "PASS" and xcode_account.state == "PASS" and signing_assets.state in {"PASS", "SKIPPED"}:
             checks.append(self._release_equivalent_build())
         else:
             checks.append(
                 _check(
                     "release_equivalent_build",
                     "BLOCKED",
-                    "Release-equivalent build skipped because clean DerivedData isolation or distribution signing assets are not available.",
+                    "Release-equivalent build skipped because clean DerivedData isolation, Xcode account access or required distribution signing assets are not available.",
                     {},
                 )
             )
         checks.append(self._simulator_target())
         checks.append(self._cross_device_simulator_targets())
         checks.append(self._physical_device_target())
+
+        if not _prerequisites_passed(checks):
+            checks.extend(
+                _blocked_live_primitive(name)
+                for name in ("install", "launch", "screenshot", "log_collection", "ui_automation_healthcheck")
+            )
+            return self._finish_result(
+                run_id=run_id,
+                started=started,
+                run_dir=run_dir,
+                store=store,
+                checks=checks,
+            )
 
         adapter_config = AppleAdapterConfig.from_environment(self.root)
         if adapter_config.evidence_dir is None:
@@ -110,6 +126,23 @@ class AppleRuntimeQualification:
         checks.append(self._logs(adapter))
         checks.append(self._ui_healthcheck())
 
+        return self._finish_result(
+            run_id=run_id,
+            started=started,
+            run_dir=run_dir,
+            store=store,
+            checks=checks,
+        )
+
+    def _finish_result(
+        self,
+        *,
+        run_id: str,
+        started: float,
+        run_dir: Path,
+        store: RunStore,
+        checks: list[AppleQualificationCheck],
+    ) -> AppleQualificationResult:
         state = "PASS" if all(
             check.state == "PASS" or (check.name in {"physical_device_target", "cross_device_simulator_targets"} and check.state == "SKIPPED")
             for check in checks
@@ -164,6 +197,41 @@ class AppleRuntimeQualification:
         state = "PASS" if entitlements else "BLOCKED"
         return _check("apns_entitlements", state, "Entitlement files discovered." if entitlements else "No Apple entitlement files found for APNs/signing verification.", {"entitlement_files": entitlements})
 
+    def _xcode_account(self) -> AppleQualificationCheck:
+        project = self.apple_repo / "DJConnectApp.xcodeproj"
+        if not self.apple_repo.exists() or not project.exists():
+            return _check("xcode_account", "BLOCKED", "Apple source repository or Xcode project is unavailable.", {"apple_repo": str(self.apple_repo)})
+
+        runner = CommandRunner()
+        command = (
+            "xcodebuild",
+            "-project",
+            str(project),
+            "-scheme",
+            os.getenv("DJCONNECT_VERIFICATION_APPLE_SCHEME", "DJConnectIOS"),
+            "-showBuildSettings",
+            "-json",
+            "-allowProvisioningUpdates",
+        )
+        code, output = runner.run(command, cwd=self.apple_repo, timeout=120)
+        settings = _extract_xcode_signing_settings(output) if code == 0 else {}
+        state = "PASS" if code == 0 else "BLOCKED"
+        return _check(
+            "xcode_account",
+            state,
+            "Xcode accepted automatic provisioning access for the Apple project."
+            if state == "PASS"
+            else "Xcode automatic provisioning is unavailable; sign in to Xcode with an Apple developer account and refresh credentials/profiles.",
+            {
+                "returncode": code,
+                "project": str(project),
+                "scheme": command[4],
+                "allow_provisioning_updates": True,
+                "settings": settings,
+                "output_tail": _redacted_output_tail(output),
+            },
+        )
+
     def _distribution_signing_assets(self) -> AppleQualificationCheck:
         expected = {
             "DJCONNECT_VERIFICATION_APPLE_DISTRIBUTION_IDENTITY": os.getenv("DJCONNECT_VERIFICATION_APPLE_DISTRIBUTION_IDENTITY", "").strip(),
@@ -173,6 +241,17 @@ class AppleRuntimeQualification:
         }
         missing = [key for key, value in expected.items() if not value]
         if missing:
+            if not _distribution_signing_required():
+                return _check(
+                    "distribution_signing_assets",
+                    "SKIPPED",
+                    "App Store/TestFlight distribution signing is deferred for current platform verification.",
+                    {
+                        "missing": missing,
+                        "required_for_current_run": False,
+                        "enable_with": "DJCONNECT_VERIFICATION_APPLE_REQUIRE_DISTRIBUTION_SIGNING=1",
+                    },
+                )
             return _check(
                 "distribution_signing_assets",
                 "BLOCKED",
@@ -369,6 +448,75 @@ def _check(name: str, state: str, message: str, data: dict[str, Any]) -> AppleQu
     return AppleQualificationCheck(name=name, state=state, message=message, data=data)
 
 
+def _extract_xcode_signing_settings(output: str) -> dict[str, Any]:
+    json_start = output.find("\n[")
+    if json_start >= 0:
+        json_text = output[json_start + 1 :]
+    else:
+        json_text = output[output.find("[") :]
+    try:
+        payload = json.loads(json_text)
+    except (json.JSONDecodeError, ValueError):
+        return {}
+    if not isinstance(payload, list):
+        return {}
+    settings_by_target: dict[str, dict[str, str]] = {}
+    interesting_keys = (
+        "PRODUCT_BUNDLE_IDENTIFIER",
+        "DEVELOPMENT_TEAM",
+        "CODE_SIGN_STYLE",
+        "CODE_SIGN_IDENTITY",
+        "PROVISIONING_PROFILE_SPECIFIER",
+    )
+    for entry in payload:
+        if not isinstance(entry, dict):
+            continue
+        target = str(entry.get("target") or "unknown")
+        build_settings = entry.get("buildSettings")
+        if not isinstance(build_settings, dict):
+            continue
+        settings_by_target[target] = {
+            key: str(build_settings.get(key, ""))
+            for key in interesting_keys
+            if build_settings.get(key) is not None
+        }
+    return settings_by_target
+
+
+def _redacted_output_tail(output: str) -> str:
+    sensitive_markers = ("token", "password", "secret", "authorization")
+    lines = []
+    for line in output.splitlines()[-40:]:
+        lowered = line.lower()
+        if any(marker in lowered for marker in sensitive_markers):
+            lines.append("[redacted]")
+        else:
+            lines.append(line)
+    return "\n".join(lines)[-4000:]
+
+
+def _prerequisites_passed(checks: list[AppleQualificationCheck]) -> bool:
+    for check in checks:
+        if check.name in {"physical_device_target", "cross_device_simulator_targets", "distribution_signing_assets"} and check.state == "SKIPPED":
+            continue
+        if check.state != "PASS":
+            return False
+    return True
+
+
+def _distribution_signing_required() -> bool:
+    return os.getenv("DJCONNECT_VERIFICATION_APPLE_REQUIRE_DISTRIBUTION_SIGNING", "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _blocked_live_primitive(name: str) -> AppleQualificationCheck:
+    return _check(
+        name,
+        "BLOCKED",
+        "Live Apple runtime primitive skipped because prerequisite qualification checks did not pass.",
+        {},
+    )
+
+
 def _run_shell(command: str, cwd: Path, *, timeout: int) -> tuple[int, str]:
     try:
         output = subprocess.check_output(command, cwd=cwd, shell=True, text=True, stderr=subprocess.STDOUT, timeout=timeout)
@@ -412,36 +560,47 @@ def _find_distribution_profile(
     expected_bundle_id: str,
     runner: CommandRunner,
 ) -> dict[str, Any] | None:
-    profiles_dir = Path(os.getenv("DJCONNECT_VERIFICATION_APPLE_PROFILES_DIR", "~/Library/MobileDevice/Provisioning Profiles")).expanduser()
-    if not profiles_dir.exists():
-        return None
-    for path in sorted(profiles_dir.glob("*")):
-        if path.suffix not in {".mobileprovision", ".provisionprofile", ".plist"}:
+    for profiles_dir in _profile_search_dirs():
+        if not profiles_dir.exists():
             continue
-        profile = _read_profile(path, runner)
-        if not profile:
-            continue
-        name = str(profile.get("Name", ""))
-        uuid = str(profile.get("UUID", ""))
-        team_ids = tuple(str(item) for item in profile.get("TeamIdentifier", []) if item)
-        entitlements = profile.get("Entitlements", {})
-        application_identifier = str(entitlements.get("application-identifier", "")) if isinstance(entitlements, dict) else ""
-        aps_environment = str(entitlements.get("aps-environment", "")) if isinstance(entitlements, dict) else ""
-        profile_type = _profile_type(profile)
-        profile_matches = expected_profile in {name, uuid}
-        team_matches = expected_team_id in team_ids or application_identifier.startswith(f"{expected_team_id}.")
-        bundle_matches = application_identifier == f"{expected_team_id}.{expected_bundle_id}"
-        if profile_matches and team_matches and bundle_matches:
-            return {
-                "name": name,
-                "uuid": uuid,
-                "team_ids": list(team_ids),
-                "application_identifier": application_identifier,
-                "profile_type": profile_type,
-                "aps_environment": aps_environment,
-                "path_name": path.name,
-            }
+        for path in sorted(profiles_dir.glob("*")):
+            if path.suffix not in {".mobileprovision", ".provisionprofile", ".plist"}:
+                continue
+            profile = _read_profile(path, runner)
+            if not profile:
+                continue
+            name = str(profile.get("Name", ""))
+            uuid = str(profile.get("UUID", ""))
+            team_ids = tuple(str(item) for item in profile.get("TeamIdentifier", []) if item)
+            entitlements = profile.get("Entitlements", {})
+            application_identifier = str(entitlements.get("application-identifier", "")) if isinstance(entitlements, dict) else ""
+            aps_environment = str(entitlements.get("aps-environment", "")) if isinstance(entitlements, dict) else ""
+            profile_type = _profile_type(profile)
+            profile_matches = expected_profile in {name, uuid}
+            team_matches = expected_team_id in team_ids or application_identifier.startswith(f"{expected_team_id}.")
+            bundle_matches = application_identifier == f"{expected_team_id}.{expected_bundle_id}"
+            if profile_matches and team_matches and bundle_matches:
+                return {
+                    "name": name,
+                    "uuid": uuid,
+                    "team_ids": list(team_ids),
+                    "application_identifier": application_identifier,
+                    "profile_type": profile_type,
+                    "aps_environment": aps_environment,
+                    "path_name": path.name,
+                    "profiles_dir": str(profiles_dir),
+                }
     return None
+
+
+def _profile_search_dirs() -> tuple[Path, ...]:
+    configured = os.getenv("DJCONNECT_VERIFICATION_APPLE_PROFILES_DIR", "").strip()
+    if configured:
+        return (Path(configured).expanduser(),)
+    return (
+        Path("~/Library/MobileDevice/Provisioning Profiles").expanduser(),
+        Path("~/Library/Developer/Xcode/UserData/Provisioning Profiles").expanduser(),
+    )
 
 
 def _read_profile(path: Path, runner: CommandRunner) -> dict[str, Any] | None:

@@ -8,13 +8,7 @@ import os
 from dataclasses import asdict
 from pathlib import Path
 
-from .artifacts import ArtifactManager
 from .config import load_config
-from .configuration import SecretLoader
-from .orchestrator import VerificationOrchestrator
-from .reporters import JSONReporter, JUnitReporter, MarkdownReporter, SummaryReporter
-from .runtime import runtime_metadata
-from .scenarios import ScenarioLoader, ScenarioScheduler, ScenarioValidator
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -75,6 +69,8 @@ def build_parser() -> argparse.ArgumentParser:
     apple_subparsers = apple.add_subparsers(dest="apple_command", required=True)
     apple_subparsers.add_parser("qualify-runtime")
     apple_subparsers.add_parser("ensure-ios-runtime")
+    apple_prepare = apple_subparsers.add_parser("prepare-qualification-config")
+    apple_prepare.add_argument("--apple-repo", type=Path, default=None)
     docker = subparsers.add_parser("docker")
     docker_subparsers = docker.add_subparsers(dest="docker_command", required=True)
     docker_release = docker_subparsers.add_parser("release")
@@ -92,6 +88,29 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
+
+    if args.command == "apple":
+        _load_env_file(args.env_file)
+        root = args.root
+        if args.apple_command == "qualify-runtime":
+            from .apple_runtime_qualification import AppleRuntimeQualification, result_to_json
+
+            result = AppleRuntimeQualification(root).run()
+            print(result_to_json(result))
+            return 0 if result.state == "PASS" else 1
+        if args.apple_command == "ensure-ios-runtime":
+            from .apple_toolchain import AppleToolchainMaintenance, result_to_json
+
+            result = AppleToolchainMaintenance(root).ensure_ios_runtime()
+            print(result_to_json(result))
+            return 0 if result.state == "PASS" else 1
+        if args.apple_command == "prepare-qualification-config":
+            from .apple_operator_config import AppleQualificationConfigPreparer, result_to_json
+
+            result = AppleQualificationConfigPreparer(root, apple_repo=args.apple_repo).prepare()
+            print(result_to_json(result))
+            return 0 if result.state == "READY" else 1
+
     config = load_config(
         args.root,
         args.config,
@@ -101,6 +120,8 @@ def main(argv: list[str] | None = None) -> int:
         dry_run=args.dry_run,
         overrides=_cli_overrides(args),
     )
+    from .scenarios import ScenarioLoader
+
     loader = ScenarioLoader(config)
     scenarios = loader.load()
     adapters = None
@@ -110,6 +131,8 @@ def main(argv: list[str] | None = None) -> int:
 
         adapters = AdapterRegistry()
         adapters.register(HomeAssistantVerificationAdapter(_home_assistant_adapter_config(config.root)))
+    from .orchestrator import VerificationOrchestrator
+
     orchestrator = VerificationOrchestrator(config, adapters=adapters)
 
     if args.command == "list":
@@ -119,6 +142,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "validate":
+        from .scenarios import ScenarioValidator
+
         validator = ScenarioValidator(config.root)
         issues = [issue for scenario in _select(args, scenarios) for issue in validator.validate(scenario)]
         for issue in issues:
@@ -128,16 +153,22 @@ def main(argv: list[str] | None = None) -> int:
         return 1 if any(issue.severity == "error" for issue in issues) else 0
 
     if args.command == "dry-run":
+        from .reporters import SummaryReporter
+
         result = orchestrator.dry_run(_select(args, scenarios))
         print(SummaryReporter().render(result))
         return 0
 
     if args.command == "execute":
+        from .reporters import SummaryReporter
+
         result = orchestrator.execute(_select(args, scenarios))
         print(SummaryReporter().render(result))
         return 0
 
     if args.command == "report":
+        from .reporters import JSONReporter, JUnitReporter, MarkdownReporter
+
         result = orchestrator.dry_run(_select(args, scenarios))
         reporter = {
             "markdown": MarkdownReporter(),
@@ -245,20 +276,6 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(gate.__dict__, indent=2, sort_keys=True, default=str))
             return 0 if gate.passed else 1
 
-    if args.command == "apple":
-        if args.apple_command == "qualify-runtime":
-            from .apple_runtime_qualification import AppleRuntimeQualification, result_to_json
-
-            result = AppleRuntimeQualification(config.root).run()
-            print(result_to_json(result))
-            return 0 if result.state == "PASS" else 1
-        if args.apple_command == "ensure-ios-runtime":
-            from .apple_toolchain import AppleToolchainMaintenance, result_to_json
-
-            result = AppleToolchainMaintenance(config.root).ensure_ios_runtime()
-            print(result_to_json(result))
-            return 0 if result.state == "PASS" else 1
-
     if args.command == "docker":
         if args.docker_command == "release":
             from .docker_release import main as docker_release_main
@@ -281,6 +298,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "clean":
+        from .artifacts import ArtifactManager
+
         paths = ArtifactManager(config.evidence_dir).clean(dry_run=not args.apply)
         mode = "would remove" if not args.apply else "removed"
         print(f"{mode} {len(paths)} evidence entries")
@@ -304,6 +323,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "config":
+        from .configuration import SecretLoader
+        from .runtime import runtime_metadata
+
         secrets = SecretLoader().load(config.secrets_file)
         print(
             json.dumps(
@@ -353,6 +375,8 @@ def _cli_overrides(args: argparse.Namespace) -> dict[str, str] | None:
 
 
 def _select(args: argparse.Namespace, scenarios):
+    from .scenarios import ScenarioScheduler
+
     return ScenarioScheduler().select(
         scenarios,
         ids=set(args.scenario_id or ()),
@@ -378,6 +402,26 @@ def _home_assistant_adapter_config(root: Path) -> "HomeAssistantAdapterConfig":
         allow_destructive=explicit.allow_destructive,
         fixture_namespace=explicit.fixture_namespace,
     )
+
+
+def _load_env_file(path: Path | None) -> None:
+    if path is None or not path.exists():
+        return
+    for line in path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or "=" not in stripped:
+            continue
+        key, value = stripped.split("=", 1)
+        key = key.strip()
+        if not key or key in os.environ:
+            continue
+        os.environ[key] = _unquote_env_value(value.strip())
+
+
+def _unquote_env_value(value: str) -> str:
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+        return value[1:-1]
+    return value
 
 
 if __name__ == "__main__":

@@ -7,17 +7,32 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from unittest.mock import Mock, patch
 
 from tools.verification.adapters import AdapterRegistry, VerificationAdapter
 from tools.verification.build import BuildQualification
 from tools.verification.cli import build_parser, main
 from tools.verification.config import load_config
 from tools.verification.configuration import SecretLoader
+from tools.verification.core.orchestrator import VerificationCore
 from tools.verification.environment import EnvironmentSnapshotter
 from tools.verification.evidence import EvidenceCollector, LogManager
 from tools.verification.execution import ParallelExecutionOptions, ScenarioExecutor
 from tools.verification.hygiene import RepositoryHygiene
-from tools.verification.models import ArtifactMetadata, EvidenceKind, GateState, PrimitiveResult, ResultState, Scenario, ScenarioResult
+from tools.verification.models import (
+    ArtifactMetadata,
+    CoverageReport,
+    EnvironmentPlan,
+    EvidenceKind,
+    ExecutionPlan,
+    GateState,
+    PlanGraph,
+    PrimitiveResult,
+    ResourcePlan,
+    ResultState,
+    Scenario,
+    ScenarioResult,
+)
 from tools.verification.reporting import JSONReporter, JUnitReporter, MarkdownReporter, PlatformReadinessCalculator
 from tools.verification.results import ResultManager
 from tools.verification.scenario import ScenarioEngine
@@ -118,6 +133,58 @@ class VerificationCoreImplementationTests(unittest.TestCase):
         junit = JUnitReporter().render(result)
         self.assertIn('time="4.0"', junit)
         self.assertIn("failure", junit)
+
+    def test_execute_stops_before_scenarios_when_environment_gate_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            config = load_config(root)
+            core = VerificationCore(config)
+            scenario = Scenario(
+                id="PROFILE-001",
+                title="Profile",
+                description="Profile",
+                category="Profiles",
+                priority="P0",
+                verification_level="V2",
+                automation_level="FULL",
+                required_components=("HA",),
+                raw={},
+            )
+            core.prepare_environment = Mock(
+                return_value={
+                    "run_identity": {"run_id": "run-blocked"},
+                    "gates": [
+                        {
+                            "name": "verification_runtime_image_pull",
+                            "state": "FAIL",
+                            "message": "pull failed",
+                            "metadata": {"reference": "pcvantol/djconnect-verification-platform:1.0.0"},
+                        }
+                    ],
+                }
+            )
+            core.executor.execute = Mock(side_effect=AssertionError("scenarios must not execute"))
+            plan = ExecutionPlan(
+                plan_id="plan",
+                strategy="smoke",
+                policy="smoke",
+                cases=(),
+                batches=(),
+                graph=PlanGraph(nodes=(), edges=()),
+                resource_plan=ResourcePlan(),
+                environment_plan=EnvironmentPlan(environments=(), capabilities=()),
+                coverage=CoverageReport(scenario_count=1, case_count=1),
+                estimated_seconds=0,
+            )
+
+            with patch("tools.verification.core.orchestrator.VerificationPlanningEngine") as planner:
+                planner.return_value.plan.return_value = plan
+                result = core.execute([scenario])
+
+            self.assertEqual(ResultState.FAIL, result.state)
+            self.assertEqual("ENVIRONMENT-GATES", result.scenario_results[0].scenario_id)
+            self.assertFalse(result.metadata["scenario_execution_started"])
+            self.assertEqual("verification_runtime_image_pull", result.metadata["blocking_gates"][0]["name"])
 
     def test_cli_parses_phase_five_commands(self) -> None:
         parser = build_parser()

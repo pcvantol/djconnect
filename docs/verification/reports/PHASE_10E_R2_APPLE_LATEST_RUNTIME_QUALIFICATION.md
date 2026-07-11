@@ -29,10 +29,11 @@ healthcheck timed out.
 After follow-up review, the gate was tightened further so
 `DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA` is cleaned before every
 release-equivalent build and only approved verification scratch roots may be
-used for that cleanup. A second follow-up tightened release signing: the gate
-now requires the configured Apple Distribution identity to be present in the
-keychain and a matching provisioning profile to be available before the
-release-equivalent build command can run. A third follow-up added an explicit
+used for that cleanup. A second follow-up added explicit signing gates:
+`xcode_account` must prove Xcode automatic provisioning access before live
+runtime work, while App Store/TestFlight distribution signing is tracked as a
+release-v1.0 readiness concern rather than a blocker for current platform
+verification. A third follow-up added an explicit
 cross-device target-set gate for multi-device or multi-iOS scenario batches.
 A fourth follow-up added explicit future/beta runtime channels for Xcode beta
 and Home Assistant beta, separated from stable qualification evidence.
@@ -43,9 +44,11 @@ Decision:
 APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED
 ```
 
-Broad Apple scenario coverage remains blocked until the stable latest-eligible
-runtime qualification passes. iOS 27.0 remains available only for the
-`future_beta` route until it is the official stable iOS runtime.
+This is historical evidence from before the VPB-037 rescope. Broad Apple
+scenario coverage can continue with the Xcode account/development-signing gate,
+latest eligible simulator target and prepared XCTest healthcheck. iOS 27.0
+remains available only for the `future_beta` route until it is the official
+stable iOS runtime.
 
 The latest rerun on 2026-07-11 refreshed the stable toolchain gate. Xcode 26.6
 remained selected, `softwareupdate --list` reported no Xcode update, and
@@ -53,8 +56,9 @@ remained selected, `softwareupdate --list` reported no Xcode update, and
 stable simulator runtime. Runtime qualification then failed closed before live
 mutation because this shell did not provide the required operator configuration:
 isolated DerivedData, prepared Apple target JSON, distribution signing
-expectations and UI healthcheck command/driver. This supersedes the earlier
-future-beta iOS 27.0 healthcheck timeout as the active blocker in this branch.
+expectations and UI healthcheck command/driver. Later follow-up work prepared
+the Xcode account/development-signing path and rescoped App Store/TestFlight
+distribution signing to release-v1.0 readiness.
 
 ## Evidence
 
@@ -312,18 +316,55 @@ following decision:
 APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED
 ```
 
-This is not an Apple coverage qualification. Continue only by resolving the
-recorded follow-up backlog items, then rerun Phase 10E-R2 and require
-`APPLE_LATEST_RUNTIME_QUALIFIED` before starting Phase 10E retry or Phase 11.
+This historical run is not an Apple coverage qualification. Later follow-up work
+resolved the current platform-verification blocker by proving the Xcode
+account/development-signing path and preparing the simulator/XCTest
+configuration. Continue with Phase 10E retry; App Store/TestFlight distribution
+signing remains deferred to release-v1.0 readiness.
 
 ## Follow-Up Backlog
 
 The close-out follow-ups are tracked in
 `docs/verification/reports/VERIFICATION_PLATFORM_BACKLOG.md`:
 
-- `VPB-031`: commit the cross-repo `djconnect-app` clean-clone build fix.
-- `VPB-036`: provide the stable Apple DerivedData path and latest-stable target
-  JSON.
-- `VPB-037`: provide release signing identity, team, bundle and provisioning
-  profile metadata.
-- `VPB-038`: provide the XCTest/accessibility UI healthcheck driver and command.
+- `VPB-031`: resolved by `djconnect-app` commit `9d305764` on `main` and
+  `origin/main`.
+- `VPB-036`: resolved for the local stable runtime path by
+  `apple prepare-qualification-config`, which selected iOS 26.5 simulator
+  `D1DDCACC-2651-4EB9-A55E-2315C9314AA6` and the approved DerivedData path
+  under `artifacts/verification/apple/DerivedData`.
+- `VPB-037`: resolved for current platform verification. Follow-up evidence on
+  July 11, 2026 proved the Xcode account/development-signing path with Xcode 27
+  beta, team `ZEML4LPXH4`, bundle `dev.djconnect.ios`, signing identity
+  `Apple Development: Peter van Tol (4R93ZR43D5)` and provisioning profile
+  `iOS Team Provisioning Profile: dev.djconnect.ios`
+  (`00d91f4f-5a9e-4f13-8790-2393253068e7`). App Store/TestFlight distribution
+  signing is deferred until release v1.0 readiness and is non-blocking for this
+  platform verification phase.
+- `VPB-038`: resolved by `apple prepare-qualification-config`, which emits an
+  XCTest UI healthcheck command for the latest-stable simulator. The runtime
+  gate now skips live UI healthcheck when prerequisite signing/build/target
+  gates are blocked.
+
+## Follow-Up Rerun
+
+The follow-up rerun on July 11, 2026 produced:
+
+```text
+APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED
+```
+
+Evidence:
+
+- toolchain gate passed with Xcode 26.6, no Software Update Xcode update, and
+  iOS 26.5 resolved by `xcodebuild -downloadPlatform iOS`;
+- config preparation resolved `VPB-036` and `VPB-038`;
+- runtime qualification evidence
+  `artifacts/verification/evidence/apple10e-20260711T184303Z-61c57ca54d/`
+  passed DerivedData isolation, APNs entitlement discovery and latest-stable
+  simulator target freshness;
+- the historical runtime qualification blocked on missing distribution signing
+  expectations, but that App Store/TestFlight path has since been rescoped to
+  release-v1.0 readiness. Continue current platform verification with the
+  Xcode account/development-signing gate and prepared simulator/XCTest
+  configuration.

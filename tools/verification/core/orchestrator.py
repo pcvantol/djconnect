@@ -10,7 +10,7 @@ from tools.verification.environment import EnvironmentSnapshotter, VerificationE
 from tools.verification.execution import ParallelExecutionOptions, ResultAggregator, ScenarioExecutor
 from tools.verification.evidence import RunStore
 from tools.verification.hygiene import RepositoryHygiene
-from tools.verification.models import HarnessConfig, Scenario
+from tools.verification.models import GateState, HarnessConfig, ResultState, Scenario, ScenarioResult
 from tools.verification.planning import VerificationPlanningEngine
 
 
@@ -63,6 +63,46 @@ class VerificationCore:
         self.run_store.write_json(run_id, "environment.json", asdict(snapshot))
         self.run_store.write_json(run_id, "qualification.json", environment)
         self.run_store.write_json(run_id, "execution-plan.json", asdict(plan))
+        failed_gates = [gate for gate in environment.get("gates", []) if gate.get("state") == GateState.FAIL]
+        if failed_gates:
+            gate_names = ", ".join(str(gate.get("name")) for gate in failed_gates)
+            result = self.results.aggregate(
+                "execute",
+                [
+                    ScenarioResult(
+                        "ENVIRONMENT-GATES",
+                        ResultState.FAIL,
+                        f"Verification stopped before scenario execution because required environment gates failed: {gate_names}",
+                        diagnostics={"blocking_gates": failed_gates},
+                    )
+                ],
+                {
+                    "environment": asdict(snapshot),
+                    "execution_environment": environment,
+                    "adapters": list(self.adapters.names()),
+                    "execution_plan": {
+                        "plan_id": plan.plan_id,
+                        "strategy": plan.strategy,
+                        "policy": plan.policy,
+                        "case_count": plan.coverage.case_count,
+                        "batches": len(plan.batches),
+                        "estimated_seconds": plan.estimated_seconds,
+                    },
+                    "blocking_gates": failed_gates,
+                    "scenario_execution_started": False,
+                },
+            )
+            self.run_store.write_json(run_id, "summary.json", asdict(result))
+            self.run_store.finalize(
+                run_id,
+                state=result.state.value,
+                summary={
+                    "result_state": result.state.value,
+                    "blocking_gates": [gate.get("name") for gate in failed_gates],
+                    "execution_summary": result.metadata.get("execution_summary", {}),
+                },
+            )
+            return result
         scenario_results = self.executor.execute(scenarios)
         result = self.results.aggregate(
             "execute",

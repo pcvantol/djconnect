@@ -72,17 +72,21 @@ qualification targets to use the latest locally available iOS simulator
 runtime.
 
 Phase 10E-R2 Apple Latest Runtime Qualification returned
-`APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED`. The latest rerun on July 11,
-2026 passed the Apple toolchain maintenance gate with Xcode 26.6 and resolved
-iOS 26.5 as the latest eligible stable simulator runtime. Runtime qualification
-then failed closed before live mutation because isolated DerivedData, prepared
-Apple target JSON, distribution signing expectations and UI healthcheck
-configuration were not provided in the session. Broad Apple scenario coverage
-must not resume until the Phase 10E-R2 follow-up backlog items are satisfied
-and a rerun returns `APPLE_LATEST_RUNTIME_QUALIFIED`.
+`APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED`. The latest follow-up rerun on
+July 11, 2026 passed the Apple toolchain maintenance gate with Xcode 26.6 and
+resolved iOS 26.5 as the latest eligible stable simulator runtime. It resolved
+the committed `djconnect-app` clean-clone fix, prepared latest-stable
+DerivedData/target JSON and XCTest UI healthcheck configuration. Runtime
+qualification historically failed closed before live mutation because App
+Store/TestFlight release signing expectations were not available. That
+distribution-signing path is now explicitly deferred until release v1.0
+readiness and is non-blocking for current platform verification. Continue Apple
+scenario coverage with the Xcode account gate, development-signing path, latest
+eligible simulator target and prepared XCTest healthcheck.
 
-Phase 10E-R2 is closed in this branch as blocked, with follow-up backlog items
-recorded in `docs/verification/reports/VERIFICATION_PLATFORM_BACKLOG.md`.
+Phase 10E-R2 is closed in this branch with App Store/TestFlight distribution
+signing rescoped to release-v1.0 readiness. Follow-up backlog items are recorded
+in `docs/verification/reports/VERIFICATION_PLATFORM_BACKLOG.md`.
 
 ## Required Reading Order
 

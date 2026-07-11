@@ -163,6 +163,17 @@ make sure `xcodebuild` and `xcrun simctl` are available. Stable verification
 uses the latest eligible stable iOS simulator runtime; beta runtimes belong in
 `DJCONNECT_VERIFICATION_TEST_MODE=future_beta`.
 
+The Apple runtime qualification includes an explicit `xcode_account` gate. It
+uses `xcodebuild -allowProvisioningUpdates` to verify that Xcode is signed in to
+an Apple developer account before release-equivalent build or live runtime
+primitives can run. VPB-037 inventory on July 11, 2026 resolved the Xcode 27 beta
+development signing path to team `ZEML4LPXH4`, bundle `dev.djconnect.ios`,
+identity `Apple Development: Peter van Tol (4R93ZR43D5)` and profile
+`iOS Team Provisioning Profile: dev.djconnect.ios`
+(`00d91f4f-5a9e-4f13-8790-2393253068e7`). App Store/TestFlight distribution
+signing is intentionally deferred until release v1.0 readiness and is
+non-blocking for current platform verification.
+
 ### Docker Runtime
 
 The generic runtime image can be built locally or pulled from a registry once a
@@ -170,10 +181,10 @@ tagged image has been published:
 
 ```bash
 python -m tools.verification.cli docker release \
-  --image ghcr.io/pcvantol/djconnect-verification-platform \
+  --image pcvantol/djconnect-verification-platform \
   --release-sha "$(git rev-parse HEAD)"
 
-docker run --rm ghcr.io/pcvantol/djconnect-verification-platform:1.0.0 config
+docker run --rm pcvantol/djconnect-verification-platform:1.0.0 config
 ```
 
 Published Verification Platform releases are authoritative. When verification
@@ -181,6 +192,13 @@ framework code changes, cut a new stable runtime release through the GitHub CI
 Docker release workflow, let that workflow build, verify and push the image to
 Docker Hub, and then consume the newly published Docker Hub tag. Do not treat a
 local build as a release substitute.
+
+Every live verification run starts by pulling the configured Verification
+Platform runtime image from Docker Hub. The default reference is
+`pcvantol/djconnect-verification-platform:1.0.0`; override only with
+`DJCONNECT_VERIFICATION_PLATFORM_IMAGE` and `DJCONNECT_VERIFICATION_PLATFORM_TAG`
+when intentionally qualifying another published image. If the pull fails, the
+run stops before scenario execution.
 
 When using Docker, mount the repository and artifacts from outside the image.
 The image is engine-only and must not contain product scenarios, secrets or run
@@ -281,7 +299,7 @@ Build the generic Verification Platform runtime image from the repository root:
 
 ```bash
 python -m tools.verification.cli docker release \
-  --image ghcr.io/pcvantol/djconnect-verification-platform \
+  --image pcvantol/djconnect-verification-platform \
   --release-sha "$(git rev-parse HEAD)"
 ```
 
@@ -298,7 +316,7 @@ For the current runtime this means tags such as `1.0.0`,
 Smoke test an image with:
 
 ```bash
-docker run --rm ghcr.io/pcvantol/djconnect-verification-platform:1.0.0 config
+docker run --rm pcvantol/djconnect-verification-platform:1.0.0 config
 ```
 
 Run repository scenarios by mounting a checkout and invoking the runtime from
@@ -309,7 +327,7 @@ released image:
 docker run --rm \
   -v "$PWD:/workspace:ro" \
   -v "$PWD/artifacts/verification:/artifacts/verification" \
-  ghcr.io/pcvantol/djconnect-verification-platform:1.0.0 \
+  pcvantol/djconnect-verification-platform:1.0.0 \
   --config /workspace/verification-config.json validate
 ```
 
@@ -323,8 +341,8 @@ Consumers must pull the latest published stable Verification Platform image
 from Docker Hub before running Docker-based verification:
 
 ```bash
-docker pull pcvantol/djconnect:1.0.0
-docker run --rm pcvantol/djconnect:1.0.0 config
+docker pull pcvantol/djconnect-verification-platform:1.0.0
+docker run --rm pcvantol/djconnect-verification-platform:1.0.0 config
 ```
 
 Do not silently fall back to a stale local image or ad hoc local build. If the

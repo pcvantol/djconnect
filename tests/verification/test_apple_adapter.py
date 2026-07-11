@@ -18,6 +18,7 @@ from tools.verification.apple_adapter import (
     AppleVerificationAdapter,
     parse_simctl_devices,
 )
+from tools.verification.apple_operator_config import AppleQualificationConfigPreparer
 from tools.verification.environment.platforms import AppleDevelopmentEnvironment
 from tools.verification.apple_toolchain import AppleToolchainMaintenance
 from tools.verification.apple_runtime_qualification import AppleRuntimeQualification
@@ -149,6 +150,79 @@ class AppleAdapterTests(unittest.TestCase):
 
         self.assertEqual("PASS", check.state)
         self.assertEqual(180, captured["timeout"])
+
+    def test_phase_10e_prepare_qualification_config_resolves_latest_stable_target_and_ui_driver(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            apple_repo = root / "djconnect-app"
+            (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
+            runner = FakeRunner({
+                ("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON),
+                ("security", "find-identity", "-v", "-p", "codesigning"): (0, "0 valid identities found"),
+            })
+
+            result = AppleQualificationConfigPreparer(root, apple_repo=apple_repo, runner=runner).prepare()
+
+            self.assertEqual("READY", result.state)
+            self.assertIn("VPB-036", result.followups_resolved)
+            self.assertIn("VPB-037", result.followups_resolved)
+            self.assertIn("VPB-038", result.followups_resolved)
+            target = json.loads(result.exports["DJCONNECT_VERIFICATION_APPLE_TARGET_JSON"])
+            self.assertEqual("SIM-IOS-26-5", target["udid"])
+            self.assertEqual("26.5", target["metadata"]["ios_version"])
+            self.assertIn("DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA", result.exports)
+            self.assertEqual("xctest", result.exports["DJCONNECT_VERIFICATION_APPLE_UI_DRIVER"])
+            self.assertIn("id=SIM-IOS-26-5", result.exports["DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND"])
+
+    def test_phase_10e_prepare_qualification_config_marks_signing_ready_when_assets_match(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            apple_repo = root / "djconnect-app"
+            profiles_dir = root / "profiles"
+            _write_distribution_profile(profiles_dir)
+            (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
+            runner = FakeRunner({
+                ("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON),
+                ("security", "find-identity", "-v", "-p", "codesigning"): (0, SIGNING_IDENTITY_OUTPUT),
+            })
+
+            with patch.dict(os.environ, _signing_env(profiles_dir), clear=False):
+                result = AppleQualificationConfigPreparer(root, apple_repo=apple_repo, runner=runner).prepare()
+
+            self.assertEqual("READY", result.state)
+            self.assertIn("VPB-037", result.followups_resolved)
+            self.assertEqual((), result.followups_blocked)
+
+    def test_phase_10e_prepare_qualification_config_keeps_vpb037_blocked_without_xcode_account(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            apple_repo = root / "djconnect-app"
+            profiles_dir = root / "profiles"
+            _write_distribution_profile(profiles_dir)
+            (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
+            runner = FakeRunner({
+                ("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON),
+                ("security", "find-identity", "-v", "-p", "codesigning"): (0, SIGNING_IDENTITY_OUTPUT),
+                (
+                    "xcodebuild",
+                    "-project",
+                    str(apple_repo / "DJConnectApp.xcodeproj"),
+                    "-scheme",
+                    "DJConnectIOS",
+                    "-showBuildSettings",
+                    "-json",
+                    "-allowProvisioningUpdates",
+                ): (1, "No Accounts: Add a developer account in Xcode Accounts settings."),
+            })
+
+            with patch.dict(os.environ, _signing_env(profiles_dir), clear=False):
+                result = AppleQualificationConfigPreparer(root, apple_repo=apple_repo, runner=runner).prepare()
+
+            checks = {check["name"]: check for check in result.checks}
+            self.assertEqual("BLOCKED", result.state)
+            self.assertEqual("BLOCKED", checks["xcode_account"]["state"])
+            self.assertEqual("PASS", checks["distribution_signing_assets"]["state"])
+            self.assertIn("VPB-037", result.followups_blocked)
 
     def test_adapter_discovers_simulators_with_mocked_runner(self) -> None:
         runner = FakeRunner({("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_JSON)})
@@ -507,19 +581,81 @@ class AppleAdapterTests(unittest.TestCase):
                     "DJCONNECT_VERIFICATION_APPLE_BUNDLE_ID": "",
                     "DJCONNECT_VERIFICATION_APPLE_PROVISIONING_PROFILE": "",
                     "DJCONNECT_VERIFICATION_APPLE_PROFILES_DIR": "",
+                    "DJCONNECT_VERIFICATION_APPLE_REQUIRE_DISTRIBUTION_SIGNING": "1",
                     **_no_cross_device_targets_env(),
                 },
                 clear=False,
             ), patch("tools.verification.apple_runtime_qualification.CommandRunner", lambda: FakeRunner({
                 ("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON),
-            })):
+            })), patch.object(apple_runtime_module, "_run_shell", side_effect=AssertionError("live shell command should not run when signing is blocked")):
                 result = AppleRuntimeQualification(root, apple_repo=apple_repo).run()
 
             states = {check.name: check.state for check in result.checks}
             signing_check = next(check for check in result.checks if check.name == "distribution_signing_assets")
             self.assertEqual("BLOCKED", states["distribution_signing_assets"])
             self.assertEqual("BLOCKED", states["release_equivalent_build"])
+            self.assertEqual("BLOCKED", states["install"])
+            self.assertEqual("BLOCKED", states["ui_automation_healthcheck"])
             self.assertIn("DJCONNECT_VERIFICATION_APPLE_DISTRIBUTION_IDENTITY", signing_check.data["missing"])
+
+    def test_phase_10e_runtime_qualification_blocks_without_xcode_account(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "djconnect"
+            apple_repo = Path(tmp) / "djconnect-app"
+            app_path = Path(tmp) / "DJConnect.app"
+            profiles_dir = Path(tmp) / "profiles"
+            _write_distribution_profile(profiles_dir)
+            (root / "artifacts" / "verification" / "evidence").mkdir(parents=True)
+            (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
+            (apple_repo / "App.entitlements").write_text("<plist/>", encoding="utf-8")
+            app_path.write_text("fixture", encoding="utf-8")
+            target_json = json.dumps(
+                {
+                    "target_id": "ios-target",
+                    "variant": "ios",
+                    "runtime": "simulator",
+                    "name": "iPhone 17 Pro",
+                    "udid": "SIM-IOS-27-0",
+                    "bundle_id": "dev.djconnect.ios",
+                    "app_path": str(app_path),
+                }
+            )
+            xcode_account_command = (
+                "xcodebuild",
+                "-project",
+                str(apple_repo / "DJConnectApp.xcodeproj"),
+                "-scheme",
+                "DJConnectIOS",
+                "-showBuildSettings",
+                "-json",
+                "-allowProvisioningUpdates",
+            )
+            with patch.dict(
+                "os.environ",
+                {
+                    "DJCONNECT_VERIFICATION_APPLE_TARGET_JSON": target_json,
+                    "DJCONNECT_VERIFICATION_APPLE_BUILD_COMMAND": "false",
+                    "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(root / "artifacts" / "verification" / "DerivedData"),
+                    "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
+                    "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
+                    "DJCONNECT_VERIFICATION_TEST_MODE": "future_beta",
+                    **_signing_env(profiles_dir),
+                    **_no_cross_device_targets_env(),
+                },
+                clear=False,
+            ), patch("tools.verification.apple_runtime_qualification.CommandRunner", lambda: FakeRunner({
+                ("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON),
+                ("security", "find-identity", "-v", "-p", "codesigning"): (0, SIGNING_IDENTITY_OUTPUT),
+                xcode_account_command: (1, "Invalid credentials in keychain, missing Xcode-Username"),
+            })), patch.object(apple_runtime_module, "_run_shell", side_effect=AssertionError("build command should not run when Xcode account is blocked")):
+                result = AppleRuntimeQualification(root, apple_repo=apple_repo).run()
+
+            states = {check.name: check.state for check in result.checks}
+            xcode_account = next(check for check in result.checks if check.name == "xcode_account")
+            self.assertEqual("BLOCKED", states["xcode_account"])
+            self.assertEqual("PASS", states["distribution_signing_assets"])
+            self.assertEqual("BLOCKED", states["release_equivalent_build"])
+            self.assertIn("Xcode-Username", xcode_account.data["output_tail"])
 
     def test_phase_10e_runtime_qualification_passes_configured_cross_device_targets(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

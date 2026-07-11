@@ -24,6 +24,7 @@ from tools.verification.environment import (
 from tools.verification.environment.cleanup import CleanupTarget
 from tools.verification.environment.host_preflight import HostPreflight, HostPreflightConfig
 from tools.verification.environment.platforms import CommandRunner
+from tools.verification.environment.runtime_image import RuntimeImagePuller
 from tools.verification.hygiene import RepositoryHygiene
 from tools.verification.models import CleanupMode, GateState, ResourceState, Scenario
 
@@ -37,6 +38,23 @@ class FakeRunner(CommandRunner):
     def run(self, command: tuple[str, ...], *, cwd: Path | None = None, timeout: int = 30) -> tuple[int, str]:
         self.commands.append(command)
         return self.code, self.output
+
+
+class FakeDocker:
+    def __init__(self, *, ok: bool = True) -> None:
+        self.ok = ok
+        self.commands: list[tuple[str, ...]] = []
+
+    def run(self, *args: str, env: dict[str, str] | None = None, timeout: int = 30):
+        from tools.verification.environment.docker_ha import DockerCommandResult
+
+        self.commands.append(tuple(args))
+        return DockerCommandResult(
+            self.ok,
+            stdout="pulled" if self.ok else "",
+            stderr="" if self.ok else "pull failed",
+            returncode=0 if self.ok else 1,
+        )
 
 
 class ExecutionEnvironmentTests(unittest.TestCase):
@@ -81,6 +99,15 @@ class ExecutionEnvironmentTests(unittest.TestCase):
             self.assertEqual("npm", inspections[0].ecosystem)
             self.assertEqual(2, inspections[0].package_count)
             self.assertEqual(root / "package-lock.json", inspections[0].lockfile)
+
+    def test_runtime_image_puller_downloads_published_docker_hub_image(self) -> None:
+        docker = FakeDocker()
+
+        gate = RuntimeImagePuller(docker).pull()
+
+        self.assertEqual(GateState.PASS, gate.state)
+        self.assertEqual(("pull", "pcvantol/djconnect-verification-platform:1.0.0"), docker.commands[0])
+        self.assertEqual("pcvantol/djconnect-verification-platform:1.0.0", gate.metadata["reference"])
 
     def test_github_workflow_discovery_is_local_and_read_only(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

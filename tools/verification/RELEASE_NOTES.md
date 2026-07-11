@@ -33,10 +33,13 @@ Runtime schema version: `1`
 - GitHub Actions workflow for publishing the generic runtime image to Docker
   Hub using repository Docker Hub secrets, with pre-publication image label
   inspection and container smoke testing.
+- Verification runs now fail closed unless the configured published runtime
+  image can be pulled from Docker Hub at run start.
 - Regular repository CI now runs the Verification Platform unit test suite
   `tests/verification` as its own check.
-- Default Docker Hub publish target documented as `pcvantol/djconnect` with
-  runtime tags `1.0.0`, `1.0.0-<short-sha>` and `sha-<short-sha>`.
+- Default Docker Hub publish target documented as
+  `pcvantol/djconnect-verification-platform` with runtime tags `1.0.0`,
+  `1.0.0-<short-sha>` and `sha-<short-sha>`.
 - Stable versus `future_beta` runtime channel separation for Apple/Xcode and
   Home Assistant beta verification evidence.
 - Installation documentation for local checkout, Docker runtime and GitHub
@@ -77,9 +80,9 @@ Runtime schema version: `1`
 
 - Docker Hub publication requires GitHub repository secrets
   `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` with push scope for
-  `pcvantol/djconnect`; the operator will configure those outside this branch.
-- Docker repository naming may be improved later; the current published
-  `pcvantol/djconnect` runtime tags remain valid for this branch.
+  `pcvantol/djconnect-verification-platform`.
+- Docker repository naming is now dedicated to the generic verification runtime:
+  `pcvantol/djconnect-verification-platform`.
 - Live Home Assistant labs, Apple simulator runs, hardware, SSH/serial, signing
   material and destructive cleanup require capability-gated self-hosted runners
   or approved local labs; self-hosted runner support is deferred to a separate

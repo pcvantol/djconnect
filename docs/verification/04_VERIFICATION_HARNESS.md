@@ -256,7 +256,7 @@ Build command:
 
 ```bash
 python -m tools.verification.cli docker release \
-  --image ghcr.io/pcvantol/djconnect-verification-platform \
+  --image pcvantol/djconnect-verification-platform \
   --base-image python:3.12-slim \
   --release-sha "$(git rev-parse HEAD)"
 ```
@@ -276,12 +276,18 @@ base image and MIT license. The image entrypoint is:
 python -m tools.verification.cli
 ```
 
+At the start of every live verification run, the Execution Environment pulls
+the configured published runtime image from Docker Hub. The default reference
+is `pcvantol/djconnect-verification-platform:1.0.0`. A pull failure is a
+fail-closed environment gate and stops the run before scenario execution, so a
+stale local image is never used silently.
+
 Typical use with a checked-out project mounted as `/workspace`:
 
 ```bash
 docker run --rm \
   -v "$PWD:/workspace" \
-  ghcr.io/pcvantol/djconnect-verification-platform:1.0.0 \
+  pcvantol/djconnect-verification-platform:1.0.0 \
   --root /workspace config
 ```
 

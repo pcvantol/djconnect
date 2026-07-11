@@ -10,7 +10,7 @@ from pathlib import Path
 
 from tools.verification.runtime import RUNTIME_VERSION
 
-DEFAULT_IMAGE = "ghcr.io/pcvantol/djconnect-verification-platform"
+DEFAULT_IMAGE = "pcvantol/djconnect-verification-platform"
 DEFAULT_BASE_IMAGE = "python:3.12-slim"
 
 

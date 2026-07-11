@@ -18,6 +18,7 @@ from tools.verification.environment.platforms import (
     RaspberryPiEnvironment,
     WindowsDevelopmentEnvironment,
 )
+from tools.verification.environment.runtime_image import RuntimeImagePuller
 from tools.verification.environment.snapshot import EnvironmentSnapshotter
 from tools.verification.environment.toolchain import ToolchainInspector
 from tools.verification.models import GateResult, GateState, HarnessConfig, Scenario
@@ -36,12 +37,14 @@ class VerificationExecutionEnvironment:
         self.cleanup = CleanupManager(config.root)
         self.secrets = SecretLoader()
         self.ha_docker = HADockerDiscovery(config.root)
+        self.runtime_image = RuntimeImagePuller()
 
     def prepare(self, scenarios: list[Scenario] | None = None) -> dict:
         run_identity = self.identity.create(scenarios or [])
         snapshot = self.snapshotter.collect(self.config)
         ha_lab_config = HALabConfig.from_root(self.config.root)
         gates = [
+            self.runtime_image.pull(),
             HostPreflight(
                 self.config.root,
                 HostPreflightConfig(ports=(ha_lab_config.port,), lab_root=ha_lab_config.lab_root),
