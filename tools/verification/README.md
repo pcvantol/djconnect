@@ -10,6 +10,9 @@ Runtime version: `0.2.0`
 Clean verification sessions should start with
 `BOOTSTRAP_CODEX_VERIFICATION.md` and `PROMPT_INDEX.md`.
 
+Verification Platform release notes live in
+`tools/verification/RELEASE_NOTES.md`.
+
 The Verification Harness is the reusable execution framework for DJConnect
 platform scenarios. Scenarios describe platform behavior. The harness loads,
 validates, schedules, qualifies, executes through adapters, collects evidence
@@ -239,6 +242,10 @@ Use `--dry-run` when preparing release metadata without building locally.
 In GitHub Actions, the workflow should provide the checkout, mount or pass the
 workspace to the container, upload `artifacts/verification/`, and record GitHub
 run/job metadata beside `verification_runtime` and `execution_summary`.
+
+Update `tools/verification/RELEASE_NOTES.md` for every runtime release. Keep
+those notes scoped to the generic engine and leave DJConnect product changes in
+their owning changelogs.
 
 ## Extension Rules
 
