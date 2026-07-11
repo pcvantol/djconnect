@@ -250,6 +250,26 @@
       }
     },
     {
+      "id": "future_beta",
+      "purpose": "Validate forward compatibility against explicitly selected beta runtimes",
+      "scope": ["xcode_beta", "ios_future_runtime", "home_assistant_beta", "forward_compatibility", "early_warning"],
+      "assertions": ["beta_runtime_selected_explicitly", "stable_baseline_not_overwritten", "future_values_degrade_safely"],
+      "evidence": ["environment", "toolchain_metadata", "runtime_channel_metadata", "logs"],
+      "metrics": ["beta_blockers", "compatibility_warnings", "runtime_versions"],
+      "exit_criteria": ["beta_results_reported_separately"],
+      "recommended_data_profiles": ["compatibility", "regression"],
+      "applicable_scenario_categories": ["Setup", "Capabilities", "Backend", "Release", "Import", "Export", "Localization"],
+      "required_matrix_dimensions": ["Operating System", "Runtime", "Build Qualification"],
+      "typical_runtime": "medium_long",
+      "typical_cost": "medium_high",
+      "release_blocking": false,
+      "traceability": {
+        "quality_attributes": ["forward_compatibility", "early_warning"],
+        "platform_principles": ["fail_closed", "capability_discovery"],
+        "risk_categories": ["future_runtime_drift", "beta_api_change"]
+      }
+    },
+    {
       "id": "ai_evaluation",
       "purpose": "Reserved future mode for AI quality evaluation",
       "scope": ["prompt_quality_future", "llm_behavior_future", "recommendation_quality_future", "insight_quality_future"],

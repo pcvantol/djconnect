@@ -24,6 +24,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--secrets-file", type=Path)
     parser.add_argument("--ci", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--test-mode", choices=("stable", "future_beta"), default=None)
     parser.add_argument("--ha-adapter", action="store_true")
 
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -85,6 +86,7 @@ def main(argv: list[str] | None = None) -> int:
         secrets_file=args.secrets_file,
         ci=args.ci,
         dry_run=args.dry_run,
+        overrides={"test_mode": args.test_mode} if args.test_mode else None,
     )
     loader = ScenarioLoader(config)
     scenarios = loader.load()
@@ -281,6 +283,7 @@ def main(argv: list[str] | None = None) -> int:
                     "evidence_dir": str(config.evidence_dir),
                     "report_dir": str(config.report_dir),
                     "ci": config.ci,
+                    "test_mode": config.test_mode,
                     "secrets": {"source": secrets.source, "names": list(secrets.names)},
                 },
                 indent=2,

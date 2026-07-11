@@ -119,6 +119,7 @@ class HarnessConfig:
     secrets_file: Path | None = None
     ci: bool = False
     dry_run: bool = False
+    test_mode: str = "stable"
     overrides: dict[str, str] = field(default_factory=dict)
 
 

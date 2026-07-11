@@ -22,6 +22,7 @@ class EnvironmentSnapshotter:
         fingerprint_payload = {
             "scenario_paths": [str(path) for path in config.scenario_paths],
             "ci": config.ci,
+            "test_mode": config.test_mode,
             "overrides": sorted(config.overrides),
         }
         fingerprint = hashlib.sha256(

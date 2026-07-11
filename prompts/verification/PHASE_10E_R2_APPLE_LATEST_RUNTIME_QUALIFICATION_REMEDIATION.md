@@ -24,6 +24,27 @@ Run the Apple toolchain maintenance gate before runtime qualification:
 python3 -m tools.verification.cli apple ensure-ios-runtime
 ```
 
+Stable runtime qualification is the default. Future/beta runtime verification
+must run in a separate mode:
+
+```bash
+DJCONNECT_VERIFICATION_TEST_MODE=future_beta \
+DJCONNECT_VERIFICATION_XCODE_CHANNEL=beta \
+DJCONNECT_VERIFICATION_XCODE_BETA_DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer \
+python3 -m tools.verification.cli apple ensure-ios-runtime
+```
+
+Home Assistant beta verification must also be explicitly isolated:
+
+```bash
+DJCONNECT_VERIFICATION_TEST_MODE=future_beta \
+DJCONNECT_VERIFICATION_HA_CHANNEL=beta \
+python3 -m tools.verification.cli lab ha fresh
+```
+
+Beta/future results are advisory early-warning evidence and must not replace
+stable release qualification evidence.
+
 Then rerun Apple Runtime Qualification against a simulator from the latest
 locally available iOS runtime:
 

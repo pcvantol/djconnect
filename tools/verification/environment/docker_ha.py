@@ -22,11 +22,13 @@ from urllib.request import Request, urlopen
 
 from tools.verification.models import GateResult, GateState
 from tools.verification.lab import LabCatalog
+from tools.verification.runtime_channels import beta_channel_allowed, verification_test_mode
 
 
 SECRET_KEY_PARTS = ("token", "password", "secret", "proof", "authorization", "key")
 DEFAULT_HA_STABLE_IMAGE = "ghcr.io/home-assistant/home-assistant:stable"
 DEFAULT_HA_BASELINE_IMAGE = "ghcr.io/home-assistant/home-assistant:2026.7.2"
+DEFAULT_HA_BETA_IMAGE = "ghcr.io/home-assistant/home-assistant:beta"
 
 
 @dataclass(frozen=True)
@@ -97,21 +99,34 @@ class HALabConfig:
     source_sha: str
     source_fingerprint: str
     auto_update_image: bool = False
+    channel: str = "stable"
+    test_mode: str = "stable"
 
     @classmethod
     def from_root(cls, root: Path) -> "HALabConfig":
-        lab_root = Path(os.getenv("DJCONNECT_VERIFICATION_LAB_ROOT", str(root / "artifacts/verification/lab/home_assistant")))
+        test_mode = verification_test_mode()
+        channel = os.getenv("DJCONNECT_VERIFICATION_HA_CHANNEL", "stable").strip().lower() or "stable"
+        beta = channel == "beta"
+        default_lab_name = "home_assistant_beta" if beta else "home_assistant"
+        default_container = "djconnect-verification-ha-beta" if beta else "djconnect-verification-ha"
+        default_port = "18124" if beta else "18123"
+        default_image = DEFAULT_HA_BETA_IMAGE if beta else DEFAULT_HA_BASELINE_IMAGE
+        lab_root = Path(os.getenv("DJCONNECT_VERIFICATION_LAB_ROOT", str(root / f"artifacts/verification/lab/{default_lab_name}")))
         source_sha = _git_sha(root) or "unknown"
         profile = os.getenv("DJCONNECT_VERIFICATION_LAB_PROFILE", "ha-profile")
         catalog = LabCatalog(root)
         fragments = catalog.profile_compose_fragments(profile)
         compose_files = tuple(root / fragment for fragment in fragments) or (root / "verification/lab/home_assistant/compose.yaml",)
         configured_image = os.getenv("DJCONNECT_VERIFICATION_HA_IMAGE")
-        auto_update_image = configured_image is None and os.getenv("DJCONNECT_VERIFICATION_HA_AUTO_UPDATE", "1").lower() not in {"0", "false", "no", "off"}
+        auto_update_image = (
+            configured_image is None
+            and not beta
+            and os.getenv("DJCONNECT_VERIFICATION_HA_AUTO_UPDATE", "1").lower() not in {"0", "false", "no", "off"}
+        )
         return cls(
-            name=os.getenv("DJCONNECT_VERIFICATION_HA_CONTAINER", "djconnect-verification-ha"),
-            port=int(os.getenv("DJCONNECT_VERIFICATION_HA_PORT", "18123")),
-            image=configured_image or DEFAULT_HA_BASELINE_IMAGE,
+            name=os.getenv("DJCONNECT_VERIFICATION_HA_CONTAINER", default_container),
+            port=int(os.getenv("DJCONNECT_VERIFICATION_HA_PORT", default_port)),
+            image=configured_image or default_image,
             compose_file=compose_files[0],
             compose_files=compose_files,
             profile=profile,
@@ -122,6 +137,8 @@ class HALabConfig:
             source_sha=source_sha,
             source_fingerprint=_source_fingerprint(root),
             auto_update_image=auto_update_image,
+            channel=channel,
+            test_mode=test_mode,
         )
 
 
@@ -257,6 +274,9 @@ class HALocalVerificationLab:
     def lifecycle(self, action: str, *, allow_destructive: bool = False) -> GateResult:
         if action not in {"build", "start", "stop", "restart", "recreate", "fresh", "clean", "destroy", "bootstrap-auth"}:
             return GateResult("ha_lab_lifecycle", GateState.FAIL, f"Unsupported lab action: {action}")
+        channel_gate = self._channel_gate()
+        if not channel_gate["ok"]:
+            return GateResult("ha_lab_lifecycle", GateState.FAIL, "Home Assistant beta channel requires explicit future beta test mode", channel_gate)
         if action == "destroy" and not allow_destructive:
             return GateResult("ha_lab_lifecycle", GateState.FAIL, "Destructive lab destroy requires explicit opt-in")
         if action == "clean":
@@ -286,6 +306,13 @@ class HALocalVerificationLab:
         else:
             desktop_update = {"mode": "skipped", "reason": "action_does_not_start_lab"}
         image_resolution = self._resolve_default_image(action)
+        if image_resolution.get("ok") is False:
+            return GateResult(
+                "ha_lab_lifecycle",
+                GateState.FAIL,
+                "Home Assistant image resolution failed",
+                {"action": action, "image_resolution": image_resolution},
+            )
         env = self._compose_env()
         compose = self._compose_args()
         commands = {
@@ -322,6 +349,7 @@ class HALocalVerificationLab:
         docker_version = self.docker.run("version", "--format", "{{json .}}")
         compose_version = self.docker.run("compose", "version", "--format", "json")
         checks: dict[str, dict[str, Any]] = {}
+        checks["channel"] = self._channel_gate()
         checks["docker"] = _check(docker_version.ok, "Docker daemon reachable", docker_version.stderr)
         checks["compose"] = _check(compose_version.ok, "Docker Compose reachable", compose_version.stderr)
         checks["definition"] = _check(self.config.compose_file.exists(), "Lab compose definition exists", str(self.config.compose_file))
@@ -384,6 +412,9 @@ class HALocalVerificationLab:
             "log_path": str(self.config.log_path.relative_to(self.root)) if _is_relative_to(self.config.log_path, self.root) else "<external-log-path>",
             "source_sha": self.config.source_sha,
             "source_fingerprint": self.config.source_fingerprint,
+            "channel": self.config.channel,
+            "test_mode": self.config.test_mode,
+            "auto_update_image": self.config.auto_update_image,
         }
 
     def adapter_config(self) -> dict[str, Any]:
@@ -412,6 +443,14 @@ class HALocalVerificationLab:
     def _resolve_default_image(self, action: str) -> dict[str, Any]:
         if action not in {"build", "start", "recreate", "fresh"}:
             return {"mode": "skipped", "reason": "action_does_not_start_image"}
+        if self.config.channel == "beta":
+            pull = self.docker.run("pull", self.config.image, timeout=300)
+            return {
+                "mode": "beta",
+                "image": self.config.image,
+                "ok": pull.ok,
+                "stderr": pull.stderr[-1000:],
+            }
         if not self.config.auto_update_image:
             return {"mode": "fixed", "image": self.config.image}
         pull = self.docker.run("pull", DEFAULT_HA_STABLE_IMAGE, timeout=300)
@@ -447,6 +486,20 @@ class HALocalVerificationLab:
                     "stderr": version_pull.stderr[-1000:],
                 }
         return {"mode": "latest_stable", "stable_image": DEFAULT_HA_STABLE_IMAGE, "image": self.config.image, "version": version}
+
+    def _channel_gate(self) -> dict[str, Any]:
+        ok = beta_channel_allowed(self.config.channel)
+        return _check(
+            ok,
+            "Runtime channel allowed for selected test mode",
+            {
+                "channel": self.config.channel,
+                "test_mode": self.config.test_mode,
+                "image": self.config.image,
+                "container": self.config.name,
+                "port": self.config.port,
+            },
+        )
 
     def _docker_desktop_update_check(self) -> dict[str, Any]:
         result = self.docker.run("desktop", "update", "--check-only", timeout=120)
@@ -759,6 +812,8 @@ class HALocalVerificationLab:
             "DJCONNECT_VERIFICATION_SOURCE_SHA": self.config.source_sha,
             "DJCONNECT_VERIFICATION_SOURCE_FINGERPRINT": self.config.source_fingerprint,
             "DJCONNECT_VERIFICATION_LAB_PROFILE": self.config.profile,
+            "DJCONNECT_VERIFICATION_HA_CHANNEL": self.config.channel,
+            "DJCONNECT_VERIFICATION_TEST_MODE": self.config.test_mode,
         }
 
     def _rest_check(self, path: str, token: str, runtime: HADockerRuntime | None) -> dict[str, Any]:

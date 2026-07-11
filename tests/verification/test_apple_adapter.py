@@ -17,6 +17,7 @@ from tools.verification.apple_adapter import (
     parse_simctl_devices,
 )
 from tools.verification.environment.platforms import AppleDevelopmentEnvironment
+from tools.verification.apple_toolchain import AppleToolchainMaintenance
 from tools.verification.apple_runtime_qualification import AppleRuntimeQualification
 from tools.verification.apple_runtime_qualification import latest_ios_simulator_runtime
 from tools.verification.models import PrimitiveAction, Scenario
@@ -590,6 +591,50 @@ class AppleAdapterTests(unittest.TestCase):
             cross_check = next(check for check in result.checks if check.name == "cross_device_simulator_targets")
             self.assertEqual("BLOCKED", cross_check.state)
             self.assertEqual("SIM-MISSING", cross_check.data["missing"][0]["target"]["udid"])
+
+    def test_apple_toolchain_blocks_xcode_beta_outside_future_beta_mode(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp, patch.dict(
+            "os.environ",
+            {
+                "DJCONNECT_VERIFICATION_TEST_MODE": "stable",
+                "DJCONNECT_VERIFICATION_XCODE_CHANNEL": "beta",
+                "DJCONNECT_VERIFICATION_XCODE_BETA_DEVELOPER_DIR": str(Path(tmp) / "Xcode-beta.app/Contents/Developer"),
+            },
+            clear=False,
+        ):
+            result = AppleToolchainMaintenance(Path(tmp), runner=FakeRunner()).ensure_ios_runtime()
+
+        self.assertEqual("BLOCKED", result.state)
+        self.assertEqual("xcode_beta_requires_future_beta_test_mode", result.xcode_selection["reason"])
+
+    def test_apple_toolchain_uses_xcode_beta_tools_in_future_beta_mode(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            developer_dir = Path(tmp) / "Xcode-beta.app/Contents/Developer"
+            xcodebuild = str(developer_dir / "usr/bin/xcodebuild")
+            xcrun = str(developer_dir / "usr/bin/xcrun")
+            runner = FakeRunner(
+                {
+                    (xcodebuild, "-version"): (0, "Xcode 27.0 beta\nBuild version 18A1"),
+                    ("softwareupdate", "--list"): (0, "No new software available."),
+                    (xcodebuild, "-downloadPlatform", "iOS"): (0, "downloaded"),
+                    (xcrun, "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON),
+                }
+            )
+            with patch.dict(
+                "os.environ",
+                {
+                    "DJCONNECT_VERIFICATION_TEST_MODE": "future_beta",
+                    "DJCONNECT_VERIFICATION_XCODE_CHANNEL": "beta",
+                    "DJCONNECT_VERIFICATION_XCODE_BETA_DEVELOPER_DIR": str(developer_dir),
+                },
+                clear=False,
+            ):
+                result = AppleToolchainMaintenance(Path(tmp), runner=runner).ensure_ios_runtime()
+
+        self.assertEqual("PASS", result.state)
+        self.assertEqual("beta", result.xcode_selection["channel"])
+        self.assertIn((xcodebuild, "-downloadPlatform", "iOS"), runner.commands)
+        self.assertIn((xcrun, "simctl", "list", "devices", "available", "--json"), runner.commands)
 
 
 if __name__ == "__main__":

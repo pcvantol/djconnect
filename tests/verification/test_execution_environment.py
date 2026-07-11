@@ -158,6 +158,12 @@ class ExecutionEnvironmentTests(unittest.TestCase):
         self.assertEqual(0, main(["--root", str(root), "prepare", "--scenario-id", "PROFILE-001"]))
         self.assertEqual(0, main(["--root", str(root), "restore"]))
 
+    def test_config_accepts_future_beta_test_mode(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config = load_config(Path(temp_dir), overrides={"test_mode": "future_beta"})
+
+        self.assertEqual("future_beta", config.test_mode)
+
 
 if __name__ == "__main__":
     unittest.main()

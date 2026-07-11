@@ -44,6 +44,7 @@ def load_config(
         secrets_file=secrets_file or _optional_path(root, merged.get("secrets_file")),
         ci=ci or _truthy(merged.get("ci")),
         dry_run=dry_run,
+        test_mode=str(merged.get("test_mode") or "stable"),
         overrides=overrides or {},
     )
 
@@ -59,6 +60,8 @@ def _env_config() -> dict[str, Any]:
         data["report_dir"] = value
     if value := os.getenv(prefix + "CI"):
         data["ci"] = value
+    if value := os.getenv(prefix + "TEST_MODE"):
+        data["test_mode"] = value
     return data
 
 

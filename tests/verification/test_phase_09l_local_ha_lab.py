@@ -206,6 +206,41 @@ class Phase09LLocalHALabTests(unittest.TestCase):
         self.assertEqual({"mode": "fixed", "image": "example/ha:test"}, gate.metadata["image_resolution"])
         self.assertNotIn(("pull", "ghcr.io/home-assistant/home-assistant:stable"), fake.calls)
 
+    def test_beta_ha_channel_requires_future_beta_mode(self) -> None:
+        config = _lab_config(self.root, image="ghcr.io/home-assistant/home-assistant:beta", channel="beta", test_mode="stable")
+        gate = HALocalVerificationLab(self.root, FakeDocker({}), config).lifecycle("start")
+
+        self.assertEqual(GateState.FAIL, gate.state)
+        self.assertIn("future beta", gate.message.lower())
+
+    def test_beta_ha_channel_uses_separate_image_and_lab_identity(self) -> None:
+        fake = FakeDocker(
+            {
+                ("ps", "-a", "--filter", "name=djconnect-verification-ha-beta", "--format", "{{json .}}"): DockerCommandResult(True, stdout=""),
+                ("desktop", "update", "--check-only"): DockerCommandResult(True, stdout="Docker Desktop 4.81.0 is already the latest version"),
+                ("pull", "ghcr.io/home-assistant/home-assistant:beta"): DockerCommandResult(True, stdout="beta pulled"),
+                ("compose", "-f", str(self.root / "docker/verification/compose.base.yaml"), "up", "-d"): DockerCommandResult(True, stdout="started"),
+                ("logs", "--tail", "80", "--timestamps", "djconnect-verification-ha-beta"): DockerCommandResult(True, stdout=""),
+            }
+        )
+        with patch.dict(
+            "os.environ",
+            {
+                "DJCONNECT_VERIFICATION_TEST_MODE": "future_beta",
+                "DJCONNECT_VERIFICATION_HA_CHANNEL": "beta",
+            },
+            clear=False,
+        ):
+            lab = HALocalVerificationLab(self.root, fake)
+            gate = lab.lifecycle("start")
+
+        self.assertEqual(GateState.PASS, gate.state)
+        self.assertEqual("djconnect-verification-ha-beta", lab.config.name)
+        self.assertEqual(18124, lab.config.port)
+        self.assertEqual("ghcr.io/home-assistant/home-assistant:beta", lab.config.image)
+        self.assertEqual("beta", gate.metadata["image_resolution"]["mode"])
+        self.assertIn(("pull", "ghcr.io/home-assistant/home-assistant:beta"), fake.calls)
+
     def test_github_auth_accepts_gh_token_noninteractive_as_warning(self) -> None:
         inspector = GitHubInspector(self.root)
         with patch("tools.verification.environment.github._gh_status") as status, patch.dict("os.environ", {"GH_TOKEN": "redacted"}):
@@ -268,7 +303,14 @@ class Phase09LLocalHALabTests(unittest.TestCase):
         self.assertEqual("djconnect-conversation-agent", djconnect[0]["unique_id"])
 
 
-def _lab_config(root: Path, *, image: str = "ghcr.io/home-assistant/home-assistant:2026.7.2", auto_update_image: bool = False) -> HALabConfig:
+def _lab_config(
+    root: Path,
+    *,
+    image: str = "ghcr.io/home-assistant/home-assistant:2026.7.2",
+    auto_update_image: bool = False,
+    channel: str = "stable",
+    test_mode: str = "stable",
+) -> HALabConfig:
     temp_root = Path(tempfile.mkdtemp()) / "lab"
     return HALabConfig(
         name="djconnect-verification-ha",
@@ -284,6 +326,8 @@ def _lab_config(root: Path, *, image: str = "ghcr.io/home-assistant/home-assista
         source_sha=_git_sha(root),
         source_fingerprint="fingerprint",
         auto_update_image=auto_update_image,
+        channel=channel,
+        test_mode=test_mode,
     )
 
 

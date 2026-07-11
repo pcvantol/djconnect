@@ -472,9 +472,9 @@ def _profile_type(profile: dict[str, Any]) -> str:
     return "app_store"
 
 
-def latest_ios_simulator_runtime(runner: CommandRunner | None = None) -> dict[str, Any] | None:
+def latest_ios_simulator_runtime(runner: CommandRunner | None = None, *, xcrun: str = "xcrun") -> dict[str, Any] | None:
     runner = runner or CommandRunner()
-    code, output = runner.run(("xcrun", "simctl", "list", "devices", "available", "--json"), timeout=20)
+    code, output = runner.run((xcrun, "simctl", "list", "devices", "available", "--json"), timeout=20)
     if code != 0:
         return None
     try:
@@ -515,9 +515,9 @@ def latest_ios_simulator_runtime(runner: CommandRunner | None = None) -> dict[st
     return {key: value for key, value in latest.items() if key != "version_key"}
 
 
-def available_ios_simulator_devices(runner: CommandRunner | None = None) -> list[dict[str, Any]]:
+def available_ios_simulator_devices(runner: CommandRunner | None = None, *, xcrun: str = "xcrun") -> list[dict[str, Any]]:
     runner = runner or CommandRunner()
-    code, output = runner.run(("xcrun", "simctl", "list", "devices", "available", "--json"), timeout=20)
+    code, output = runner.run((xcrun, "simctl", "list", "devices", "available", "--json"), timeout=20)
     if code != 0:
         return []
     try:

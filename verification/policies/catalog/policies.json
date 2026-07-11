@@ -231,6 +231,25 @@
       "traceability": {"workflow": ["nightly"], "release_gate": false}
     },
     {
+      "id": "future_beta",
+      "purpose": "Non-release-blocking verification against future Apple and Home Assistant beta runtimes",
+      "included_modes": ["future_beta", "compatibility", "functional"],
+      "excluded_modes": ["production_qualification", "release_qualification"],
+      "included_platforms": ["Home Assistant", "Apple"],
+      "excluded_platforms": ["production"],
+      "required_matrix_profiles": ["Regression Profile"],
+      "required_data_profiles": ["compatibility", "regression"],
+      "required_build_types": ["Release-equivalent", "Instrumented"],
+      "required_environment": ["future_beta_environment"],
+      "timeout_budget": "2h",
+      "parallelization": "bounded_parallel",
+      "evidence_level": "structured",
+      "approval_requirement": "explicit_future_beta_opt_in",
+      "blocking_severity": "advisory",
+      "exit_criteria": ["beta_results_reported_separately"],
+      "traceability": {"workflow": ["future_beta", "local_lab"], "release_gate": false}
+    },
+    {
       "id": "research",
       "purpose": "Experimental non-blocking verification",
       "included_modes": ["functional", "boundary", "chaos", "ai_evaluation"],

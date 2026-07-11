@@ -32,6 +32,8 @@ now requires the configured Apple Distribution identity to be present in the
 keychain and a matching provisioning profile to be available before the
 release-equivalent build command can run. A third follow-up added an explicit
 cross-device target-set gate for multi-device or multi-iOS scenario batches.
+A fourth follow-up added explicit future/beta runtime channels for Xcode beta
+and Home Assistant beta, separated from stable qualification evidence.
 
 Decision:
 
@@ -96,6 +98,7 @@ dev.djconnect.ios
 | Check | Result | Notes |
 | --- | --- | --- |
 | Toolchain maintenance | PASS | Xcode 26.6 was present, Software Update advertised no Xcode update, and `xcodebuild -downloadPlatform iOS` completed. |
+| Future/beta channel isolation | Tightened after run | Xcode beta and Home Assistant beta now require `DJCONNECT_VERIFICATION_TEST_MODE=future_beta` and produce separate advisory evidence. |
 | Latest iOS runtime discovery | PASS | Latest local runtime resolved to `com.apple.CoreSimulator.SimRuntime.iOS-27-0`. |
 | APNs entitlements/signing metadata | PASS | Entitlement files were discovered. |
 | Distribution signing assets | Tightened after run | Future runs require matching Apple Distribution identity, team id, bundle id and provisioning profile metadata before release build. |
@@ -168,6 +171,29 @@ UDID, and may include `ios_version` or `runtime_version`. When configured, the
 gate verifies every listed simulator is present in
 `xcrun simctl list devices available --json` and that declared runtime versions
 match the discovered CoreSimulator runtime.
+
+Future/beta runtime verification is available only with explicit opt-in:
+
+```text
+DJCONNECT_VERIFICATION_TEST_MODE=future_beta
+```
+
+Xcode beta additionally requires:
+
+```text
+DJCONNECT_VERIFICATION_XCODE_CHANNEL=beta
+DJCONNECT_VERIFICATION_XCODE_BETA_DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer
+```
+
+Home Assistant beta additionally requires:
+
+```text
+DJCONNECT_VERIFICATION_HA_CHANNEL=beta
+```
+
+The HA beta lab uses a separate default container, port and lab root from the
+stable lab. Beta/future evidence is advisory early-warning evidence and must
+not replace stable release qualification.
 
 ## Tests And Commands Run
 
