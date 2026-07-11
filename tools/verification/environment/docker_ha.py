@@ -22,6 +22,7 @@ from urllib.request import Request, urlopen
 
 from tools.verification.models import GateResult, GateState
 from tools.verification.lab import LabCatalog
+from tools.verification.environment.host_preflight import HostPreflight, HostPreflightConfig
 from tools.verification.runtime_channels import beta_channel_allowed, verification_test_mode
 
 
@@ -292,6 +293,14 @@ class HALocalVerificationLab:
                 _redact_mapping(result),
             )
         if action in {"start", "recreate", "fresh"}:
+            host_preflight = self._host_preflight()
+            if host_preflight.state != GateState.PASS:
+                return GateResult(
+                    "ha_lab_lifecycle",
+                    GateState.FAIL,
+                    "Host preflight blocked lab runner startup",
+                    {"action": action, "host_preflight": host_preflight.metadata},
+                )
             desktop_update = self._docker_desktop_update_check()
             if not desktop_update["ok"]:
                 return GateResult(
@@ -304,6 +313,7 @@ class HALocalVerificationLab:
             if not recovery["ok"]:
                 return GateResult("ha_lab_lifecycle", GateState.FAIL, "Lab recovery failed before lifecycle action", recovery)
         else:
+            host_preflight = GateResult("host_preflight", GateState.SKIPPED, "Action does not start lab runners")
             desktop_update = {"mode": "skipped", "reason": "action_does_not_start_lab"}
         image_resolution = self._resolve_default_image(action)
         if image_resolution.get("ok") is False:
@@ -336,6 +346,7 @@ class HALocalVerificationLab:
             f"Lab {action} {'completed' if result.ok else 'failed'}",
             {
                 "action": action,
+                "host_preflight": host_preflight.metadata,
                 "docker_desktop_update": desktop_update,
                 "image_resolution": image_resolution,
                 "stdout": result.stdout[-4000:],
@@ -439,6 +450,12 @@ class HALocalVerificationLab:
         for path in self.config.compose_files:
             args.extend(["-f", str(path)])
         return tuple(args)
+
+    def _host_preflight(self) -> GateResult:
+        return HostPreflight(
+            self.root,
+            HostPreflightConfig(ports=(self.config.port,), lab_root=self.config.lab_root),
+        ).check()
 
     def _resolve_default_image(self, action: str) -> dict[str, Any]:
         if action not in {"build", "start", "recreate", "fresh"}:

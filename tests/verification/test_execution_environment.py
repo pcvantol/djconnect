@@ -22,6 +22,7 @@ from tools.verification.environment import (
     VerificationExecutionEnvironment,
 )
 from tools.verification.environment.cleanup import CleanupTarget
+from tools.verification.environment.host_preflight import HostPreflight, HostPreflightConfig
 from tools.verification.environment.platforms import CommandRunner
 from tools.verification.hygiene import RepositoryHygiene
 from tools.verification.models import CleanupMode, GateState, ResourceState, Scenario
@@ -147,6 +148,38 @@ class ExecutionEnvironmentTests(unittest.TestCase):
             self.assertIn("toolchains", prepared)
             self.assertEqual(["ha_token"], prepared["gates"][-1]["metadata"]["names"])
             self.assertNotIn("super-secret", repr(prepared))
+
+    def test_host_preflight_passes_with_free_port_and_disk(self) -> None:
+        usage = Mock(free=30 * 1024 * 1024 * 1024, total=100 * 1024 * 1024 * 1024)
+        with tempfile.TemporaryDirectory() as temp_dir, patch(
+            "tools.verification.environment.host_preflight.shutil.disk_usage",
+            return_value=usage,
+        ), patch("tools.verification.environment.host_preflight._port_bind_available", return_value=True), patch(
+            "tools.verification.environment.host_preflight._lsof",
+            return_value=[],
+        ), patch("tools.verification.environment.host_preflight._process_check", return_value=[]):
+            gate = HostPreflight(Path(temp_dir), HostPreflightConfig(ports=(18123,), lab_root=Path(temp_dir))).check()
+
+        self.assertEqual(GateState.PASS, gate.state)
+
+    def test_host_preflight_blocks_port_process_and_disk_conflicts(self) -> None:
+        usage = Mock(free=1 * 1024 * 1024 * 1024, total=100 * 1024 * 1024 * 1024)
+        with tempfile.TemporaryDirectory() as temp_dir, patch(
+            "tools.verification.environment.host_preflight.shutil.disk_usage",
+            return_value=usage,
+        ), patch("tools.verification.environment.host_preflight._port_bind_available", return_value=False), patch(
+            "tools.verification.environment.host_preflight._lsof",
+            return_value=[{"command": "Python", "pid": "123", "name": "127.0.0.1:18123"}],
+        ), patch(
+            "tools.verification.environment.host_preflight._process_check",
+            return_value=[{"pid": "456", "command": "hass --config ./config", "blocking": True}],
+        ):
+            gate = HostPreflight(Path(temp_dir), HostPreflightConfig(ports=(18123,), lab_root=Path(temp_dir))).check()
+
+        self.assertEqual(GateState.FAIL, gate.state)
+        self.assertFalse(gate.metadata["disk"]["ok"])
+        self.assertTrue(gate.metadata["ports"][0]["blocked"])
+        self.assertTrue(gate.metadata["processes"][0]["blocking"])
 
     def test_repository_hygiene_exposes_fetch_and_prune_dry_runs(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

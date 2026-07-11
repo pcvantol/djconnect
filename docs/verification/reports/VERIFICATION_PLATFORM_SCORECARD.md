@@ -23,7 +23,7 @@ Scoring scale:
 | Repository Hygiene | 5 | Branch, SHA and working tree state were known before execution. |
 | Build Qualification | 4 | Runtime/build metadata and lab image identity were captured; no production artifact signing was in Phase 9V scope. |
 | GitHub CI | 5 | Exact-SHA CI inspected two successful GitHub Actions runs for the tested SHA. |
-| Dogfooding Coverage | 4 | `tests/verification` passed 110 tests and catalog validation covered 231 scenarios; live Docker tests remain opt-in. |
+| Dogfooding Coverage | 4 | `tests/verification` passed 113 tests and catalog validation covered 231 scenarios; live Docker tests remain opt-in. |
 | Home Assistant Backend Coverage | 4 | Phase 9E-R executed and qualified 195 HA backend or separable HA backend assertion-path scenarios; 28 client/hardware/release/voice-localization scenarios remain correctly deferred. |
 | Apple Adapter | 3 | Thin Apple adapter primitives, Scenario Engine selection and Execution Environment simulator metadata are implemented and mock-tested; Phase 10E-R qualified an older selected iOS simulator runtime, and stable latest-runtime qualification remains blocked until rerun against the latest eligible stable iOS runtime. iOS 27.0 evidence is future-beta only. |
 | Overall | 4 | The platform is qualified for the next adapter phase with non-blocking framework improvements tracked. |

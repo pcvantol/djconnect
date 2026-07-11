@@ -8,7 +8,8 @@ from tools.verification.configuration import SecretLoader
 from tools.verification.environment.cleanup import CleanupManager
 from tools.verification.environment.dependencies import DependencyInspector
 from tools.verification.environment.github import GitHubInspector
-from tools.verification.environment.docker_ha import HADockerDiscovery
+from tools.verification.environment.docker_ha import HADockerDiscovery, HALabConfig
+from tools.verification.environment.host_preflight import HostPreflight, HostPreflightConfig
 from tools.verification.environment.identity import RunIdentityManager
 from tools.verification.environment.platforms import (
     AppleDevelopmentEnvironment,
@@ -39,10 +40,15 @@ class VerificationExecutionEnvironment:
     def prepare(self, scenarios: list[Scenario] | None = None) -> dict:
         run_identity = self.identity.create(scenarios or [])
         snapshot = self.snapshotter.collect(self.config)
+        ha_lab_config = HALabConfig.from_root(self.config.root)
         gates = [
+            HostPreflight(
+                self.config.root,
+                HostPreflightConfig(ports=(ha_lab_config.port,), lab_root=ha_lab_config.lab_root),
+            ).check(),
             self.github.validate_workflows(),
             self.github.commit_status(snapshot.git_sha),
-            self.ha_docker.qualify(),
+            self.ha_docker.qualify(expected_port=ha_lab_config.port, expected_name=ha_lab_config.name),
             *self.dependencies.validate(self.config.root),
             self.cleanup.clean(dry_run=True),
             self._secret_gate(),

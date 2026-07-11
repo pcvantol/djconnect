@@ -59,6 +59,7 @@ The implementation lives under `tools/verification/environment/`.
 | `toolchain.py` | Discovers Python, Git, Node, Xcode, Swift, .NET, PlatformIO, ESP-IDF, Docker, Parallels, OS and architecture. |
 | `dependencies.py` | Inspects Python, Swift, NuGet, npm, PlatformIO and ESP-IDF manifests/lockfiles without upgrading anything. |
 | `github.py` | Discovers workflows and inspects GitHub Actions status through `gh` when available. |
+| `host_preflight.py` | Blocks lab runner startup when host ports, processes or disk space are unsafe. |
 | `cleanup.py` | Plans and executes soft/destructive cleanup with explicit destructive opt-in. |
 | `platforms.py` | Provides environment-control scaffolding for HA, Apple, Windows, Pi and ESP32 without adapter assertions. |
 | `snapshot.py` | Captures reusable environment metadata and capability states. |
@@ -132,6 +133,21 @@ Scenario execution is parallel by default. The execution engine groups ready
 scenarios into sandboxed waves, preserves result order, records wave/sandbox
 diagnostics and blocks unsafe concurrency when dependencies or exclusive
 resources require sequencing.
+
+Before local lab runners start, the host preflight checks for conditions that
+can invalidate or destabilize a run:
+
+- the intended lab port must not already have a listener;
+- likely conflicting `home-assistant`, `hass` or `djconnect` processes are
+  reported and block startup unless they are known harness/Codex commands;
+- the lab root filesystem must have at least the configured minimum free disk
+  space, currently 15 GiB by default;
+- existing Docker Home Assistant lab containers are still qualified separately
+  by the Docker HA discovery gate.
+
+The HA lab lifecycle runs this preflight before `start`, `recreate` and
+`fresh`. If it fails, Docker image updates and `docker compose up` are not
+attempted.
 
 Default worker count is derived dynamically from host CPU capacity. On Apple
 Silicon, the loader reads performance and efficiency core counts through
@@ -313,9 +329,10 @@ Security rules:
 
 Unit and mock tests cover run identity, toolchain discovery, dependency
 inspection, GitHub workflow discovery, cleanup safeguards, platform controller
-boundaries, execution environment preparation, fetch/prune dry-runs, CLI
-`prepare`/`restore`/`config`, dynamic parallel worker detection, parallel
-disable overrides and Apple stable/future-beta runtime channel separation.
+boundaries, execution environment preparation, host preflight checks,
+fetch/prune dry-runs, CLI `prepare`/`restore`/`config`, dynamic parallel worker
+detection, parallel disable overrides and Apple stable/future-beta runtime
+channel separation.
 
 ## Future Extensions
 

@@ -12,7 +12,7 @@ from tools.verification.environment import docker_ha as docker_ha_module
 from tools.verification.config import load_config
 from tools.verification.environment.docker_ha import DockerCommandResult, HADockerDiscovery, HALabConfig, HALocalVerificationLab
 from tools.verification.environment.github import GitHubInspector
-from tools.verification.models import GateState
+from tools.verification.models import GateResult, GateState
 from tools.verification.scenarios import ScenarioLoader
 
 
@@ -31,6 +31,13 @@ class FakeDocker:
 class Phase09LLocalHALabTests(unittest.TestCase):
     def setUp(self) -> None:
         self.root = Path(__file__).resolve().parents[2]
+        self.host_preflight = patch.object(
+            HALocalVerificationLab,
+            "_host_preflight",
+            return_value=GateResult("host_preflight", GateState.PASS, "ok", {"ports": [], "disk": {"ok": True}}),
+        )
+        self.host_preflight.start()
+        self.addCleanup(self.host_preflight.stop)
 
     def test_default_config_uses_canonical_scenario_catalog(self) -> None:
         config = load_config(self.root)
@@ -163,6 +170,22 @@ class Phase09LLocalHALabTests(unittest.TestCase):
         self.assertEqual(GateState.FAIL, gate.state)
         self.assertIn("Docker Desktop must be updated", gate.message)
         self.assertNotIn(("compose", "-f", str(config.compose_file), "up", "-d"), fake.calls)
+
+    def test_start_blocks_when_host_preflight_fails(self) -> None:
+        config = _lab_config(self.root)
+        fake = FakeDocker({})
+        HALocalVerificationLab._host_preflight.return_value = GateResult(
+            "host_preflight",
+            GateState.FAIL,
+            "Host preflight blocked lab runner startup",
+            {"ports": [{"port": config.port, "blocked": True}], "disk": {"ok": True}},
+        )
+
+        gate = HALocalVerificationLab(self.root, fake, config).lifecycle("start")
+
+        self.assertEqual(GateState.FAIL, gate.state)
+        self.assertIn("Host preflight", gate.message)
+        self.assertNotIn(("desktop", "update", "--check-only"), fake.calls)
 
     def test_start_auto_resolves_latest_stable_ha_image(self) -> None:
         config = _lab_config(self.root, auto_update_image=True)

@@ -60,9 +60,9 @@ machine-readable execution plans without executing anything.
 
 `environment/` owns the Verification Execution Environment: repository
 hygiene, toolchain discovery, dependency inspection, GitHub CI inspection,
-run identity, platform environment discovery, cleanup planning, environment
-snapshots and restore operations. It prepares the world around execution but
-does not own scenario behavior or adapter assertions.
+run identity, platform environment discovery, host preflight checks, cleanup
+planning, environment snapshots and restore operations. It prepares the world
+around execution but does not own scenario behavior or adapter assertions.
 
 `orchestrator.py` owns the run lifecycle. It prepares the execution
 environment, records run evidence, delegates scenario execution, aggregates
@@ -167,6 +167,11 @@ DJCONNECT_VERIFICATION_PARALLEL_WORKERS=12
 Parallel waves remain dependency-aware and resource-aware. Scenarios with
 `depends_on` or `dependencies` wait for their prerequisites. Scenarios sharing
 `requires.exclusive_resources` are never placed in the same wave.
+
+Before local lab runners start, host preflight blocks unsafe runs when the
+target lab port is already occupied, conflicting Home Assistant/DJConnect
+processes are detected, or the lab filesystem does not have enough free disk
+space.
 
 Stable verification is the default test mode. Future/beta runtime evidence is
 explicitly separated:
