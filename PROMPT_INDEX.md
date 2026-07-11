@@ -8,17 +8,21 @@ not required.
 
 ## Active Next Phase
 
-Phase 9L-R6 has qualified the local Home Assistant verification lab. Docker
-Desktop access to macOS `Documents` restored repository bind mounts, the
-canonical `ha-profile` lab started, lab-only HA auth was bootstrapped, REST and
-WebSocket probes passed, and `PROFILE-001` through `PROFILE-005` executed
-successfully through the Home Assistant adapter. The active next step is Phase
-9V rerun: Verification Platform Qualification Rerun.
+Phase 9V rerun has qualified the Verification Platform using the dedicated
+local Home Assistant verification lab. The canonical planner selected the
+approved first Profile scenario set, exact-SHA CI passed, the `ha-profile` lab
+was qualified, and `PROFILE-001` through `PROFILE-005` executed successfully
+through the Home Assistant adapter with persisted evidence.
+
+Phase 9V qualifies the Verification Platform. It does not qualify broad
+DJConnect Home Assistant backend scenario coverage.
+
+The active next step is Phase 9E: Home Assistant Scenario Coverage Expansion.
 
 Use this clean-session prompt:
 
 ```text
-Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 9V rerun from PROMPT_INDEX.md.
+Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 9E from PROMPT_INDEX.md.
 ```
 
 ## Prompt Table
@@ -43,12 +47,15 @@ Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 9V rerun from PROMPT_INDE
 | 9L | Local HA Verification Lab | Not qualified | `prompts/verification/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md` | Phase 9R | `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md`; evidence `artifacts/verification/evidence/phase-09l-local-ha-lab-20260710T1450Z/` | Merge Phase 9L implementation before remediation or continue same PR if still open | Phase 9L-R |
 | 9L-R | Local HA Lab Remediation | Not qualified - external Docker prerequisite | `prompts/verification/PHASE_09L_R_LOCAL_HA_LAB_REMEDIATION.md` | Phase 9L not qualified | Updated `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md`; evidence `artifacts/verification/evidence/phase-09l-r-local-ha-lab-20260710T153557Z/`; `docs/verification/reports/PHASE_09L_LAB_REQUIREMENT_COVERAGE.md` | PR #67 branch `codex/phase-09l-r-local-ha-lab-remediation` | Phase 9L-R2 |
 | 9L-R2 | Docker Runtime Remediation And Local HA Lab Qualification | Not qualified - Docker Desktop container-start blocker | `prompts/verification/PHASE_09L_R2_DOCKER_RUNTIME_REMEDIATION.md` | Phase 9L-R not qualified, modular lab validation complete | Updated `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md` | New remediation branch | Phase 9L-R3 |
-| 9L-R3 | Docker Desktop Repair And Local HA Lab Qualification | Not qualified - unstable Docker Desktop container-start behavior | `prompts/verification/PHASE_09L_R3_DOCKER_DESKTOP_REPAIR.md` | Phase 9L-R2 not qualified; no-mount Docker probe cannot start | Updated `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md` | PR #68 branch `phase-09l-r2-docker-runtime-remediation` | Phase 9L-R4 |
+| 9L-R3 | Docker Desktop Repair And Local HA Lab Qualification | Not qualified - unstable Docker Desktop container-start behavior | Historical chat prompt; superseded by `prompts/verification/PHASE_09L_R4_DOCKER_DESKTOP_CLEAN_RUNTIME_REPAIR.md` | Phase 9L-R2 not qualified; no-mount Docker probe cannot start | Updated `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md` | PR #68 branch `phase-09l-r2-docker-runtime-remediation` | Phase 9L-R4 |
 | 9L-R4 | Docker Desktop Clean Runtime Repair And Local HA Lab Qualification | Not qualified - stable Docker gate failed on probe 1 | `prompts/verification/PHASE_09L_R4_DOCKER_DESKTOP_CLEAN_RUNTIME_REPAIR.md` | Phase 9L-R3 not qualified; repeated container starts are unstable | Updated `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md` | New remediation branch | Phase 9L-R5 |
 | 9L-R5 | Docker Desktop Operator Reset And Local HA Lab Qualification | Not qualified - bind-mount probe remains in Created | `prompts/verification/PHASE_09L_R5_DOCKER_DESKTOP_OPERATOR_RESET.md` | Phase 9L-R4 not qualified; no-mount probe remains in Created | Updated `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md` | PR #69 branch `phase-09l-r4-docker-desktop-clean-runtime-repair` | Phase 9L-R6 |
 | 9L-R6 | Docker Desktop Documents Permission And Local HA Lab Qualification | Qualified | `prompts/verification/PHASE_09L_R6_DOCKER_DESKTOP_DOCUMENTS_PERMISSION.md` | Phase 9L-R5 not qualified; Docker Desktop bind mounts blocked by macOS Documents permission | `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md`; evidence `artifacts/verification/evidence/djv-20260711T080007Z-69941deb88/` | PR #69 branch `phase-09l-r4-docker-desktop-clean-runtime-repair` | Phase 9V rerun |
-| 9V rerun | Verification Platform Qualification Rerun | Active | `prompts/verification/PHASE_09V_VERIFICATION_PLATFORM_QUALIFICATION_RERUN.md` | Phase 9L-R6 qualified the local HA lab | `docs/verification/reports/PHASE_09V_VERIFICATION_PLATFORM_QUALIFICATION_RERUN.md` | Must merge before Phase 10 | Phase 10 |
-| 10 | Apple Verification Adapter | Blocked | To be created after Phase 9V rerun qualifies the platform | Phase 9V rerun qualified | Future Phase 10 report | New PR after approval | Future adapter qualification |
+| 9V rerun | Verification Platform Qualification Rerun | Qualified | `prompts/verification/PHASE_09V_VERIFICATION_PLATFORM_QUALIFICATION_RERUN.md` | Phase 9L-R6 qualified the local HA lab | `docs/verification/reports/PHASE_09V_VERIFICATION_PLATFORM_QUALIFICATION_RERUN.md`; evidence `artifacts/verification/evidence/djv-20260711T091949Z-a0c9568562/` | Must merge before Phase 9E | Phase 9E |
+| 9E | Home Assistant Scenario Coverage Expansion | Active | `prompts/verification/PHASE_09E_HOME_ASSISTANT_SCENARIO_COVERAGE_EXPANSION.md` | Phase 9V rerun qualified the Verification Platform | `docs/verification/reports/PHASE_09E_HOME_ASSISTANT_SCENARIO_COVERAGE.md`; `docs/verification/reports/PHASE_09E_HOME_ASSISTANT_SCENARIO_COVERAGE.json` | New PR; merge only after Phase 9E completion protocol | Phase 10 if qualified, Phase 9E remediation if not qualified |
+| 10 | Apple Verification Adapter | Blocked pending Phase 9E | `prompts/verification/PHASE_10_APPLE_VERIFICATION_ADAPTER.md` | Phase 9E returns `HOME_ASSISTANT_BACKEND_QUALIFIED` or `HOME_ASSISTANT_BACKEND_QUALIFIED_WITH_WARNINGS` with warnings explicitly non-blocking for Apple work | `docs/verification/reports/PHASE_10_APPLE_ADAPTER_COMPLETION.md` | New PR; merge only after Phase 10 completion protocol | Phase 10E |
+| 10E | Apple Scenario Coverage Expansion | Future | To be generated after Phase 10 adapter completion | Phase 10 qualified | Future Phase 10E coverage report | Future PR | Phase 11 |
+| 11+ | Additional Platform Adapters | Future | To be generated after Apple coverage work | Phase 10E and roadmap review | Future adapter reports | Future PRs | Future adapter qualification |
 
 ## Status Rules
 
@@ -58,6 +65,8 @@ Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 9V rerun from PROMPT_INDE
 - `Remediated with external prerequisites` means blockers were converted into
   checks or explicit prerequisites, but the platform is not yet qualified.
 - `Active next phase` means a clean session should execute that prompt.
+- `Qualified` means repository evidence exists and the phase decision permits
+  the next phase to start after merge.
 - `Not qualified - external Docker prerequisite` means remediation code
   improved framework behavior, including lab-only HA auth bootstrap and modular
   lab composition, but live lab qualification is blocked by local Docker runtime
@@ -72,5 +81,5 @@ qualification report and the final result line.
 Exact clean-session command for the active phase:
 
 ```text
-Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 9V rerun from PROMPT_INDEX.md.
+Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 9E from PROMPT_INDEX.md.
 ```
