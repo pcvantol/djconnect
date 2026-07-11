@@ -1,0 +1,17 @@
+.git
+.github
+.pytest_cache
+artifacts
+custom_components
+docs
+prompts
+tests
+verification/scenarios
+verification/data
+verification/modes
+verification/planning
+verification/policies
+verification/lab
+**/__pycache__
+**/*.pyc
+**/.DS_Store

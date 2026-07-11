@@ -265,6 +265,47 @@ class ExecutionEnvironmentTests(unittest.TestCase):
         self.assertFalse(disabled["parallel_execution"])
         self.assertEqual(1, disabled["parallel_workers"])
 
+    def test_docker_release_dry_run_tags_runtime_and_release_sha(self) -> None:
+        root = Path(__file__).resolve().parents[2]
+
+        with contextlib.redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(
+                0,
+                main(
+                    [
+                        "--root",
+                        str(root),
+                        "docker",
+                        "release",
+                        "--image",
+                        "example/verification-platform",
+                        "--release-sha",
+                        "abcdef1234567890",
+                        "--dry-run",
+                    ]
+                ),
+            )
+
+        text = output.getvalue()
+        self.assertIn("docker build", text)
+        self.assertIn("VERIFICATION_RUNTIME_VERSION=0.2.0", text)
+        self.assertIn("RELEASE_SHA=abcdef1234567890", text)
+        self.assertIn("example/verification-platform:0.2.0", text)
+        self.assertIn("example/verification-platform:0.2.0-abcdef123456", text)
+
+    def test_verification_platform_dockerfile_excludes_repository_scenarios(self) -> None:
+        root = Path(__file__).resolve().parents[2]
+        dockerfile = root / "docker/verification-platform/Dockerfile"
+        dockerignore = root / "docker/verification-platform/Dockerfile.dockerignore"
+
+        dockerfile_text = dockerfile.read_text(encoding="utf-8")
+        dockerignore_text = dockerignore.read_text(encoding="utf-8")
+
+        self.assertIn("COPY tools/verification", dockerfile_text)
+        self.assertNotIn("COPY verification", dockerfile_text)
+        self.assertIn("verification/scenarios", dockerignore_text)
+        self.assertIn("custom_components", dockerignore_text)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -75,6 +75,14 @@ def build_parser() -> argparse.ArgumentParser:
     apple_subparsers = apple.add_subparsers(dest="apple_command", required=True)
     apple_subparsers.add_parser("qualify-runtime")
     apple_subparsers.add_parser("ensure-ios-runtime")
+    docker = subparsers.add_parser("docker")
+    docker_subparsers = docker.add_subparsers(dest="docker_command", required=True)
+    docker_release = docker_subparsers.add_parser("release")
+    docker_release.add_argument("--image", default=None)
+    docker_release.add_argument("--base-image", default=None)
+    docker_release.add_argument("--release-sha", default=None)
+    docker_release.add_argument("--push", action="store_true")
+    docker_release.add_argument("--dry-run", action="store_true")
     subparsers.add_parser("env")
     subparsers.add_parser("schema")
     subparsers.add_parser("config")
@@ -250,6 +258,23 @@ def main(argv: list[str] | None = None) -> int:
             result = AppleToolchainMaintenance(config.root).ensure_ios_runtime()
             print(result_to_json(result))
             return 0 if result.state == "PASS" else 1
+
+    if args.command == "docker":
+        if args.docker_command == "release":
+            from .docker_release import main as docker_release_main
+
+            release_args = ["--root", str(config.root)]
+            if args.image:
+                release_args.extend(["--image", args.image])
+            if args.base_image:
+                release_args.extend(["--base-image", args.base_image])
+            if args.release_sha:
+                release_args.extend(["--release-sha", args.release_sha])
+            if args.push:
+                release_args.append("--push")
+            if args.dry_run:
+                release_args.append("--dry-run")
+            return docker_release_main(release_args)
 
     if args.command == "env":
         print(json.dumps(orchestrator.snapshot().__dict__, indent=2, sort_keys=True))

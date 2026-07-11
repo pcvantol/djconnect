@@ -278,6 +278,13 @@ Reporters surface the same summary in JSON, Markdown, JUnit suite time and the
 short CLI summary output, alongside executed/total scenario counts and
 per-status counts.
 
+The generic Verification Platform Docker runtime is built from
+`docker/verification-platform/Dockerfile`. It copies only `tools/verification`
+into the image and uses Dockerfile-specific ignore rules to exclude repository
+scenarios, lab definitions, prompts, docs, tests, product source and evidence
+artifacts. The image is therefore a reusable engine runtime; repositories mount
+their own scenarios and assets at execution time.
+
 ## Run Identity
 
 Every prepared run receives `run_id`, `environment_id`, `correlation_id`,

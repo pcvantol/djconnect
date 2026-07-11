@@ -198,6 +198,48 @@ python -m tools.verification.cli config
 
 Reports and summaries expose it under `verification_runtime`.
 
+## Docker Runtime Release
+
+The Verification Platform runtime can be released as a generic Docker image.
+The image contains only the engine components under `tools/verification`; it
+does not include DJConnect repository scenarios, scenario data profiles, lab
+profiles, prompts, product code or integration source. Scenario catalogs and
+project-specific assets must be mounted or supplied by the repository under
+test.
+
+Build command:
+
+```bash
+python -m tools.verification.cli docker release \
+  --image ghcr.io/pcvantol/djconnect-verification-platform \
+  --base-image python:3.12-slim \
+  --release-sha "$(git rev-parse HEAD)"
+```
+
+The release command tags the image with:
+
+```text
+<image>:<runtime-version>
+<image>:<runtime-version>-<release-sha-12>
+<image>:sha-<release-sha-12>
+```
+
+The Dockerfile records OCI labels for runtime version, release SHA, build date,
+base image and MIT license. The image entrypoint is:
+
+```bash
+python -m tools.verification.cli
+```
+
+Typical use with a checked-out project mounted as `/workspace`:
+
+```bash
+docker run --rm \
+  -v "$PWD:/workspace" \
+  ghcr.io/pcvantol/djconnect-verification-platform:0.2.0 \
+  --root /workspace config
+```
+
 ## Developer Workflow
 
 1. Add or update scenarios in the canonical scenario catalog.
