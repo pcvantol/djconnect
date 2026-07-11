@@ -17,12 +17,16 @@ through the Home Assistant adapter with persisted evidence.
 Phase 9V qualifies the Verification Platform. It does not qualify broad
 DJConnect Home Assistant backend scenario coverage.
 
-The active next step is Phase 10: Apple Verification Adapter.
+Phase 10 implemented and qualified the thin Apple Verification Adapter with
+mock/unit evidence. Live Apple simulator/device execution was explicitly
+skipped because no prepared Apple target JSON and app artifact were configured.
+
+The active next step is Phase 10E: Apple Scenario Coverage Expansion.
 
 Use this clean-session prompt:
 
 ```text
-Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 10 from PROMPT_INDEX.md.
+Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 10E from PROMPT_INDEX.md.
 ```
 
 ## Prompt Table
@@ -54,8 +58,8 @@ Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 10 from PROMPT_INDEX.md.
 | 9V rerun | Verification Platform Qualification Rerun | Qualified | `prompts/verification/PHASE_09V_VERIFICATION_PLATFORM_QUALIFICATION_RERUN.md` | Phase 9L-R6 qualified the local HA lab | `docs/verification/reports/PHASE_09V_VERIFICATION_PLATFORM_QUALIFICATION_RERUN.md`; evidence `artifacts/verification/evidence/djv-20260711T091949Z-a0c9568562/` | Must merge before Phase 9E | Phase 9E |
 | 9E | Home Assistant Scenario Coverage Expansion | Not qualified | `prompts/verification/PHASE_09E_HOME_ASSISTANT_SCENARIO_COVERAGE_EXPANSION.md` | Phase 9V rerun qualified the Verification Platform | `docs/verification/reports/PHASE_09E_HOME_ASSISTANT_SCENARIO_COVERAGE.md`; `docs/verification/reports/PHASE_09E_HOME_ASSISTANT_SCENARIO_COVERAGE.json` | New PR; merge only after Phase 9E completion protocol | Phase 9E-R |
 | 9E-R | Home Assistant Scenario Coverage Remediation | Qualified with non-blocking warnings | `prompts/verification/PHASE_09E_R_HOME_ASSISTANT_SCENARIO_COVERAGE_REMEDIATION.md` | Phase 9E returned `HOME_ASSISTANT_BACKEND_NOT_QUALIFIED` | Updated `docs/verification/reports/PHASE_09E_HOME_ASSISTANT_SCENARIO_COVERAGE.md`; updated JSON report | New PR or continue Phase 9E PR if still open | Phase 10 |
-| 10 | Apple Verification Adapter | Active | `prompts/verification/PHASE_10_APPLE_VERIFICATION_ADAPTER.md` | Phase 9E-R returned `HOME_ASSISTANT_BACKEND_QUALIFIED_WITH_WARNINGS` with warnings explicitly non-blocking for Apple work | `docs/verification/reports/PHASE_10_APPLE_ADAPTER_COMPLETION.md` | New PR; merge only after Phase 10 completion protocol | Phase 10E |
-| 10E | Apple Scenario Coverage Expansion | Future | To be generated after Phase 10 adapter completion | Phase 10 qualified | Future Phase 10E coverage report | Future PR | Phase 11 |
+| 10 | Apple Verification Adapter | Qualified with live runtime skipped | `prompts/verification/PHASE_10_APPLE_VERIFICATION_ADAPTER.md` | Phase 9E-R returned `HOME_ASSISTANT_BACKEND_QUALIFIED_WITH_WARNINGS` with warnings explicitly non-blocking for Apple work | `docs/verification/reports/PHASE_10_APPLE_ADAPTER_COMPLETION.md` | New PR; merge only after Phase 10 completion protocol | Phase 10E |
+| 10E | Apple Scenario Coverage Expansion | Active | `prompts/verification/PHASE_10E_APPLE_SCENARIO_COVERAGE_EXPANSION.md` | Phase 10 returned `APPLE_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_SKIPPED` | Future Phase 10E coverage report | Future PR | Phase 11 |
 | 11+ | Additional Platform Adapters | Future | To be generated after Apple coverage work | Phase 10E and roadmap review | Future adapter reports | Future PRs | Future adapter qualification |
 
 ## Status Rules
@@ -82,5 +86,5 @@ qualification report and the final result line.
 Exact clean-session command for the active phase:
 
 ```text
-Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 10 from PROMPT_INDEX.md.
+Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 10E from PROMPT_INDEX.md.
 ```

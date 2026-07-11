@@ -2,7 +2,6 @@
 
 from .cleanup import CleanupManager, CleanupTarget
 from .dependencies import DependencyInspector
-from .execution import VerificationExecutionEnvironment
 from .github import GitHubInspector
 from .identity import RunIdentityManager
 from .platforms import (
@@ -15,6 +14,14 @@ from .platforms import (
 )
 from .snapshot import EnvironmentSnapshotter
 from .toolchain import ToolchainInspector
+
+
+def __getattr__(name: str):
+    if name == "VerificationExecutionEnvironment":
+        from .execution import VerificationExecutionEnvironment
+
+        return VerificationExecutionEnvironment
+    raise AttributeError(name)
 
 __all__ = [
     "AppleDevelopmentEnvironment",
