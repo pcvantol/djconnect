@@ -9,20 +9,22 @@ not required.
 ## Active Next Phase
 
 Phase 9L-R5 has run and is not yet qualified. The active next step is the
-narrow Phase 9L-R6 Docker Desktop purge or reinstall. The modular local HA
+narrow Phase 9L-R6 Docker Desktop Documents permission remediation. The modular local HA
 lab model is implemented and validated: scenarios declare logical requirements,
 the planner selects the smallest canonical profile, and `PROFILE-001` through
 `PROFILE-005` select `ha-profile`. Phase 9L-R5 passed repeated no-mount probes
 after `docker desktop restart`, but the canonical HA lab and direct bind-mount
 probe remained in `Created`. The remaining blocker is Docker Desktop
-file-sharing/bind-mount startup for the repository paths used by the lab. The
+file-sharing/bind-mount startup for the repository paths used by the lab. A
+blocking macOS permission popup for Docker Desktop access to `Documents` was
+identified after R5, matching the observed bind-mount failure. The
 blockers are recorded in
 `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md`.
 
 Use this clean-session prompt:
 
 ```text
-Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 9L-R6 from PROMPT_INDEX.md after explicitly approving Docker Desktop purge/factory reset or reinstall.
+Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 9L-R6 from PROMPT_INDEX.md after approving Docker Desktop access to Documents.
 ```
 
 ## Prompt Table
@@ -50,7 +52,7 @@ Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 9L-R6 from PROMPT_INDEX.m
 | 9L-R3 | Docker Desktop Repair And Local HA Lab Qualification | Not qualified - unstable Docker Desktop container-start behavior | `prompts/verification/PHASE_09L_R3_DOCKER_DESKTOP_REPAIR.md` | Phase 9L-R2 not qualified; no-mount Docker probe cannot start | Updated `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md` | PR #68 branch `phase-09l-r2-docker-runtime-remediation` | Phase 9L-R4 |
 | 9L-R4 | Docker Desktop Clean Runtime Repair And Local HA Lab Qualification | Not qualified - stable Docker gate failed on probe 1 | `prompts/verification/PHASE_09L_R4_DOCKER_DESKTOP_CLEAN_RUNTIME_REPAIR.md` | Phase 9L-R3 not qualified; repeated container starts are unstable | Updated `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md` | New remediation branch | Phase 9L-R5 |
 | 9L-R5 | Docker Desktop Operator Reset And Local HA Lab Qualification | Not qualified - bind-mount probe remains in Created | `prompts/verification/PHASE_09L_R5_DOCKER_DESKTOP_OPERATOR_RESET.md` | Phase 9L-R4 not qualified; no-mount probe remains in Created | Updated `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md` | PR #69 branch `phase-09l-r4-docker-desktop-clean-runtime-repair` | Phase 9L-R6 |
-| 9L-R6 | Docker Desktop Purge Or Reinstall And Local HA Lab Qualification | Active | `prompts/verification/PHASE_09L_R6_DOCKER_DESKTOP_PURGE_OR_REINSTALL.md` | Phase 9L-R5 not qualified; bind-mount startup remains broken | Update `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md`; evidence under `artifacts/verification/evidence/` | New or continued remediation PR | Phase 9V rerun only after lab qualification |
+| 9L-R6 | Docker Desktop Documents Permission And Local HA Lab Qualification | Active | `prompts/verification/PHASE_09L_R6_DOCKER_DESKTOP_DOCUMENTS_PERMISSION.md` | Phase 9L-R5 not qualified; Docker Desktop bind mounts blocked by macOS Documents permission | Update `docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md`; evidence under `artifacts/verification/evidence/` | New or continued remediation PR | Phase 9V rerun only after lab qualification |
 | 9V rerun | Verification Platform Qualification Rerun | Blocked pending Phase 9L-R | To be created only after Phase 9L-R qualifies the lab | Phase 9L-R qualified | `docs/verification/reports/PHASE_09V_VERIFICATION_PLATFORM_QUALIFICATION_RERUN.md` | Must merge before Phase 10 | Phase 10 |
 | 10 | Apple Verification Adapter | Blocked | To be created after Phase 9V rerun qualifies the platform | Phase 9V rerun qualified | Future Phase 10 report | New PR after approval | Future adapter qualification |
 
@@ -76,5 +78,5 @@ qualification report and the final result line.
 Exact clean-session command for the active phase:
 
 ```text
-Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 9L-R6 from PROMPT_INDEX.md after explicitly approving Docker Desktop purge/factory reset or reinstall.
+Read BOOTSTRAP_CODEX_VERIFICATION.md and execute Phase 9L-R6 from PROMPT_INDEX.md after approving Docker Desktop access to Documents.
 ```

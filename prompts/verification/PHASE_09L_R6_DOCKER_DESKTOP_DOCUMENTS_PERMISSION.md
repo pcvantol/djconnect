@@ -1,5 +1,5 @@
 # Verification Program V1
-## Phase 9L-R6 - Docker Desktop Purge Or Reinstall And Local HA Lab Qualification
+## Phase 9L-R6 - Docker Desktop Documents Permission And Local HA Lab Qualification
 
 Repository:
 
@@ -19,8 +19,11 @@ After the restart:
 - after the bind-mount failure, a temporary dedicated-network probe also
   returned to the `Created` failure mode.
 
-The remaining blocker is Docker Desktop file-sharing/bind-mount startup for the
-repository paths used by the lab.
+After R5, the operator identified a blocking macOS permission popup requiring
+Docker Desktop access to `Documents`. The repository lives under
+`/Users/pcvantol/Documents/GitHub/djconnect`, so this matches the observed
+failure: no-mount probes passed, while containers with repository bind mounts
+remained in `Created`.
 
 Do not introduce a new verification subsystem.
 Do not change scenario expectations.
@@ -31,9 +34,13 @@ Do not start Phase 10.
 
 # Goal
 
-Perform an explicit operator-approved Docker Desktop Clean/Purge data, factory
-reset or reinstall outside repository state, then qualify the existing
-canonical Local Home Assistant Verification Lab.
+Approve Docker Desktop access to the macOS `Documents` folder, prove repository
+bind mounts work, then qualify the existing canonical Local Home Assistant
+Verification Lab.
+
+Do not perform Docker Desktop Clean/Purge data, factory reset or reinstall as
+the first action. Those remain fallback actions only if Documents permission is
+approved and bind-mount probes still fail.
 
 The final result must be exactly one of:
 
@@ -68,29 +75,24 @@ Inspect actual runtime state before mutating anything.
 
 ---
 
-# Operator Confirmation
+# Operator Action
 
-This phase may remove existing Docker containers, images, networks and volumes,
-including the old local Home Assistant development environment.
+Approve Docker Desktop access to `Documents`.
 
-Do not perform purge, factory reset or reinstall unless the operator explicitly
-confirms that this Docker Desktop data loss is acceptable.
+Acceptable mechanisms include:
+
+- accepting the macOS permission popup shown by Docker Desktop;
+- granting Docker Desktop access under macOS System Settings -> Privacy &
+  Security -> Files and Folders;
+- granting Docker Desktop Full Disk Access if Files and Folders does not expose
+  the required `Documents` permission.
+
+Record exactly which permission action was performed.
 
 Repository files must not be deleted.
 
----
-
-# Required Reset Action
-
-Perform one operator-approved action:
-
-1. Docker Desktop Troubleshoot -> Clean / Purge data.
-2. Docker Desktop Troubleshoot -> Reset to factory defaults.
-3. Reinstall Docker Desktop.
-
-Record exactly which action was performed.
-
-After reset, start Docker Desktop and wait for Docker server metadata.
+Do not remove existing non-verification Docker containers, images, networks or
+volumes during this permission remediation.
 
 ---
 
@@ -126,6 +128,10 @@ container behind.
 
 If any probe remains in `Created`, stop, collect Docker/container logs, update
 the report and return `LOCAL_VERIFICATION_LAB_NOT_QUALIFIED`.
+
+If Docker Desktop Documents permission has been approved and the bind-mount
+probe still remains in `Created`, create the next remediation prompt for
+operator-approved Docker Desktop Clean/Purge data, factory reset or reinstall.
 
 ---
 
@@ -200,7 +206,7 @@ Phase 9V rerun prompt if the lab is qualified.
 
 This remediation is complete when:
 
-- the destructive operator reset action is recorded;
+- the operator Documents permission action is recorded;
 - no-mount and bind-mount probes start and exit cleanly, or Docker Desktop is
   documented as still blocking;
 - the canonical `ha-profile` lab starts, or the start failure is documented;

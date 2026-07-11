@@ -266,6 +266,14 @@ destructive Docker Desktop Clean/Purge data, factory reset or reinstall may be
 required, but it must be performed explicitly by the operator because existing
 non-verification Docker state is present.
 
+Post-run operator finding on 2026-07-11: the blocking bind-mount behavior
+matched a macOS permission popup requiring Docker Desktop access to the
+`Documents` folder. This explains why no-mount probes passed while containers
+that mounted repository paths under `/Users/pcvantol/Documents/...` remained in
+`Created`. Phase 9L-R6 should first remediate and prove Docker Desktop
+Documents access before considering destructive Docker Desktop purge, factory
+reset or reinstall actions.
+
 ## Lab Definition
 
 Path:
@@ -482,7 +490,7 @@ The modular lab refinement validates:
 | Docker Desktop logs show `no route to host` to `192.168.65.7:2376` and guest-service connection refusals | Environment issue | Local Docker / Docker Desktop VM | Yes | Treat as Docker Desktop VM/engine connectivity failure before attempting more lab changes. |
 | Phase 9L-R3 Docker restart allowed one no-mount probe to start, but subsequent HA image starts returned to `Created` without `start` events | Environment issue | Local Docker / Docker Desktop VM | Yes | Perform a stronger Docker Desktop runtime reset or reinstall outside repository state, then rerun Phase 9L-R4. |
 | Phase 9L-R4 stable Docker gate failed on probe 1 with the no-mount HA image stuck in `Created` | Environment issue | Local Docker / Operator | Yes | Run an operator-approved Docker Desktop runtime reset or reinstall, then rerun the stable gate before starting HA lab. |
-| Phase 9L-R5 stable Docker gate passed, but the HA lab and a bind-mount probe remained in `Created` | Environment issue | Local Docker / Docker Desktop file sharing | Yes | Perform an operator-approved Docker Desktop Clean/Purge data, factory reset or reinstall, then rerun lab qualification. |
+| Phase 9L-R5 stable Docker gate passed, but the HA lab and a bind-mount probe remained in `Created` | Environment issue | Local Docker / Docker Desktop file sharing | Yes | Approve Docker Desktop access to `Documents`, prove the bind-mount gate, then rerun lab qualification. Use Docker Desktop purge/factory reset/reinstall only if permission remediation does not restore bind mounts. |
 | Runtime source identity is stale/unproven | Environment issue | Verification Environment | Yes | After stale-container removal, recreate the dedicated lab so labels match the tested SHA. |
 | HA auth could not be qualified live | Environment issue | Verification Environment | Yes | After Docker recovery, run `lab ha bootstrap-auth` or provide `DJCONNECT_VERIFICATION_HA_TOKEN`, then rerun `lab ha doctor`. |
 | REST/WebSocket not qualified | Environment issue / HA Adapter live prerequisite | Yes | Rerun `lab ha doctor` after the lab is running and the token is available. |
@@ -491,8 +499,8 @@ The modular lab refinement validates:
 
 Smallest remaining prerequisites:
 
-1. Perform an operator-approved Docker Desktop Clean/Purge data, factory reset
-   or reinstall outside repository state.
+1. Approve Docker Desktop access to the macOS `Documents` folder, because the
+   repository lives under `/Users/pcvantol/Documents/GitHub/djconnect`.
 
 2. Restore Docker Desktop file-sharing/bind-mount behavior so the repository
    paths used by the lab can be mounted into a container that starts.
@@ -500,7 +508,11 @@ Smallest remaining prerequisites:
 3. Verify Docker runtime health with repeated no-mount probes and at least one
    bind-mount probe before starting the lab.
 
-4. Rerun:
+4. Consider Docker Desktop Clean/Purge data, factory reset or reinstall only if
+   Docker Desktop Documents permission is approved and bind-mount probes still
+   remain in `Created`.
+
+5. Rerun:
 
    ```bash
    python3 -m tools.verification.cli lab ha start
