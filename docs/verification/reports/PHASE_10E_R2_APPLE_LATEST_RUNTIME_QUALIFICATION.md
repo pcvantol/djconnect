@@ -27,7 +27,10 @@ scoped log evidence passed, but the integrated XCTest UI healthcheck timed out.
 After follow-up review, the gate was tightened further so
 `DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA` is cleaned before every
 release-equivalent build and only approved verification scratch roots may be
-used for that cleanup.
+used for that cleanup. A second follow-up tightened release signing: the gate
+now requires the configured Apple Distribution identity to be present in the
+keychain and a matching provisioning profile to be available before the
+release-equivalent build command can run.
 
 Decision:
 
@@ -93,8 +96,9 @@ dev.djconnect.ios
 | --- | --- | --- |
 | Toolchain maintenance | PASS | Xcode 26.6 was present, Software Update advertised no Xcode update, and `xcodebuild -downloadPlatform iOS` completed. |
 | Latest iOS runtime discovery | PASS | Latest local runtime resolved to `com.apple.CoreSimulator.SimRuntime.iOS-27-0`. |
-| Release-equivalent build | PASS | Release simulator build completed for the iOS 27.0 target. |
 | APNs entitlements/signing metadata | PASS | Entitlement files were discovered. |
+| Distribution signing assets | Tightened after run | Future runs require matching Apple Distribution identity, team id, bundle id and provisioning profile metadata before release build. |
+| Release-equivalent build | PASS | Release simulator build completed for the iOS 27.0 target. |
 | Simulator target | PASS | Prepared target JSON used the latest locally available iOS runtime. |
 | Physical-device target | SKIPPED | Physical-device execution remains explicit opt-in. |
 | DerivedData isolation | PASS | Latest-runtime rerun used isolated DerivedData paths; the gate now cleans the configured DerivedData path before each release-equivalent build. |
@@ -128,6 +132,28 @@ The gate also fails closed unless `DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA`
 is an absolute path under `/private/tmp`, `/tmp` or this repository's
 `artifacts/verification` scratch tree. Approved DerivedData paths are removed
 and recreated before the release-equivalent build command runs.
+
+The gate now requires these release signing expectations before the build can
+run:
+
+```text
+DJCONNECT_VERIFICATION_APPLE_DISTRIBUTION_IDENTITY
+DJCONNECT_VERIFICATION_APPLE_TEAM_ID
+DJCONNECT_VERIFICATION_APPLE_BUNDLE_ID
+DJCONNECT_VERIFICATION_APPLE_PROVISIONING_PROFILE
+```
+
+It verifies the signing identity with:
+
+```bash
+security find-identity -v -p codesigning
+```
+
+and scans provisioning profiles from
+`~/Library/MobileDevice/Provisioning Profiles` unless
+`DJCONNECT_VERIFICATION_APPLE_PROFILES_DIR` is set. Evidence records only
+metadata needed to prove the match; it does not persist private keys,
+certificate material or full profile payloads.
 
 ## Tests And Commands Run
 

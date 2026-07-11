@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import plistlib
 import tempfile
 import unittest
 from pathlib import Path
@@ -77,6 +78,36 @@ SIMCTL_MULTI_IOS_JSON = json.dumps(
         }
     }
 )
+
+SIGNING_IDENTITY_OUTPUT = '  1) ABCDEF1234567890 "Apple Distribution: DJConnect Test (TEAM123456)"\n     1 valid identities found'
+
+
+def _write_distribution_profile(profiles_dir: Path) -> None:
+    profiles_dir.mkdir(parents=True, exist_ok=True)
+    (profiles_dir / "DJConnectRelease.plist").write_bytes(
+        plistlib.dumps(
+            {
+                "Name": "DJConnect Release",
+                "UUID": "PROFILE-UUID-123",
+                "TeamIdentifier": ["TEAM123456"],
+                "Entitlements": {
+                    "application-identifier": "TEAM123456.dev.djconnect.ios",
+                    "aps-environment": "production",
+                    "get-task-allow": False,
+                },
+            }
+        )
+    )
+
+
+def _signing_env(profiles_dir: Path) -> dict[str, str]:
+    return {
+        "DJCONNECT_VERIFICATION_APPLE_DISTRIBUTION_IDENTITY": "Apple Distribution: DJConnect Test",
+        "DJCONNECT_VERIFICATION_APPLE_TEAM_ID": "TEAM123456",
+        "DJCONNECT_VERIFICATION_APPLE_BUNDLE_ID": "dev.djconnect.ios",
+        "DJCONNECT_VERIFICATION_APPLE_PROVISIONING_PROFILE": "DJConnect Release",
+        "DJCONNECT_VERIFICATION_APPLE_PROFILES_DIR": str(profiles_dir),
+    }
 
 
 class AppleAdapterTests(unittest.TestCase):
@@ -263,6 +294,8 @@ class AppleAdapterTests(unittest.TestCase):
             root = Path(tmp) / "djconnect"
             apple_repo = Path(tmp) / "djconnect-app"
             app_path = Path(tmp) / "DJConnect.app"
+            profiles_dir = Path(tmp) / "profiles"
+            _write_distribution_profile(profiles_dir)
             (root / "artifacts" / "verification" / "evidence").mkdir(parents=True)
             (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
             (apple_repo / "App.entitlements").write_text("<plist/>", encoding="utf-8")
@@ -286,10 +319,12 @@ class AppleAdapterTests(unittest.TestCase):
                     "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(root / "artifacts" / "verification" / "DerivedData"),
                     "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
                     "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
+                    **_signing_env(profiles_dir),
                 },
                 clear=False,
             ), patch("tools.verification.apple_runtime_qualification.CommandRunner", lambda: FakeRunner({
                 ("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON),
+                ("security", "find-identity", "-v", "-p", "codesigning"): (0, SIGNING_IDENTITY_OUTPUT),
             })):
                 result = AppleRuntimeQualification(root, apple_repo=apple_repo).run()
 
@@ -302,6 +337,8 @@ class AppleAdapterTests(unittest.TestCase):
             root = Path(tmp) / "djconnect"
             apple_repo = Path(tmp) / "djconnect-app"
             app_path = Path(tmp) / "DJConnect.app"
+            profiles_dir = Path(tmp) / "profiles"
+            _write_distribution_profile(profiles_dir)
             (root / "artifacts" / "verification" / "evidence").mkdir(parents=True)
             (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
             (apple_repo / "App.entitlements").write_text("<plist/>", encoding="utf-8")
@@ -325,10 +362,12 @@ class AppleAdapterTests(unittest.TestCase):
                     "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(root / "artifacts" / "verification" / "DerivedData"),
                     "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
                     "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
+                    **_signing_env(profiles_dir),
                 },
                 clear=False,
             ), patch("tools.verification.apple_runtime_qualification.CommandRunner", lambda: FakeRunner({
                 ("xcrun", "simctl", "list", "devices", "available", "--json"): (1, "simctl failed"),
+                ("security", "find-identity", "-v", "-p", "codesigning"): (0, SIGNING_IDENTITY_OUTPUT),
             })):
                 result = AppleRuntimeQualification(root, apple_repo=apple_repo).run()
 
@@ -343,6 +382,8 @@ class AppleAdapterTests(unittest.TestCase):
             app_path = Path(tmp) / "DJConnect.app"
             derived_data = root / "artifacts" / "verification" / "DerivedData"
             stale_file = derived_data / "stale-build-output"
+            profiles_dir = Path(tmp) / "profiles"
+            _write_distribution_profile(profiles_dir)
             (root / "artifacts" / "verification" / "evidence").mkdir(parents=True)
             derived_data.mkdir(parents=True)
             stale_file.write_text("old", encoding="utf-8")
@@ -368,6 +409,56 @@ class AppleAdapterTests(unittest.TestCase):
                     "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(derived_data),
                     "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
                     "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
+                    **_signing_env(profiles_dir),
+                },
+                clear=False,
+            ), patch("tools.verification.apple_runtime_qualification.CommandRunner", lambda: FakeRunner({
+                ("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON),
+                ("security", "find-identity", "-v", "-p", "codesigning"): (0, SIGNING_IDENTITY_OUTPUT),
+            })):
+                result = AppleRuntimeQualification(root, apple_repo=apple_repo).run()
+
+            states = {check.name: check.state for check in result.checks}
+            derived_check = next(check for check in result.checks if check.name == "derived_data_isolation")
+            self.assertEqual("PASS", states["derived_data_isolation"])
+            self.assertEqual("PASS", states["distribution_signing_assets"])
+            self.assertEqual("PASS", states["release_equivalent_build"])
+            self.assertTrue(derived_check.data["cleaned_before_build"])
+            self.assertFalse(stale_file.exists())
+
+    def test_phase_10e_runtime_qualification_blocks_without_distribution_signing_assets(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "djconnect"
+            apple_repo = Path(tmp) / "djconnect-app"
+            app_path = Path(tmp) / "DJConnect.app"
+            (root / "artifacts" / "verification" / "evidence").mkdir(parents=True)
+            (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
+            (apple_repo / "App.entitlements").write_text("<plist/>", encoding="utf-8")
+            app_path.write_text("fixture", encoding="utf-8")
+            target_json = json.dumps(
+                {
+                    "target_id": "ios-target",
+                    "variant": "ios",
+                    "runtime": "simulator",
+                    "name": "iPhone 17 Pro",
+                    "udid": "SIM-IOS-27-0",
+                    "bundle_id": "dev.djconnect.ios",
+                    "app_path": str(app_path),
+                }
+            )
+            with patch.dict(
+                "os.environ",
+                {
+                    "DJCONNECT_VERIFICATION_APPLE_TARGET_JSON": target_json,
+                    "DJCONNECT_VERIFICATION_APPLE_BUILD_COMMAND": "false",
+                    "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(root / "artifacts" / "verification" / "DerivedData"),
+                    "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
+                    "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
+                    "DJCONNECT_VERIFICATION_APPLE_DISTRIBUTION_IDENTITY": "",
+                    "DJCONNECT_VERIFICATION_APPLE_TEAM_ID": "",
+                    "DJCONNECT_VERIFICATION_APPLE_BUNDLE_ID": "",
+                    "DJCONNECT_VERIFICATION_APPLE_PROVISIONING_PROFILE": "",
+                    "DJCONNECT_VERIFICATION_APPLE_PROFILES_DIR": "",
                 },
                 clear=False,
             ), patch("tools.verification.apple_runtime_qualification.CommandRunner", lambda: FakeRunner({
@@ -376,11 +467,10 @@ class AppleAdapterTests(unittest.TestCase):
                 result = AppleRuntimeQualification(root, apple_repo=apple_repo).run()
 
             states = {check.name: check.state for check in result.checks}
-            derived_check = next(check for check in result.checks if check.name == "derived_data_isolation")
-            self.assertEqual("PASS", states["derived_data_isolation"])
-            self.assertEqual("PASS", states["release_equivalent_build"])
-            self.assertTrue(derived_check.data["cleaned_before_build"])
-            self.assertFalse(stale_file.exists())
+            signing_check = next(check for check in result.checks if check.name == "distribution_signing_assets")
+            self.assertEqual("BLOCKED", states["distribution_signing_assets"])
+            self.assertEqual("BLOCKED", states["release_equivalent_build"])
+            self.assertIn("DJCONNECT_VERIFICATION_APPLE_DISTRIBUTION_IDENTITY", signing_check.data["missing"])
 
 
 if __name__ == "__main__":

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import plistlib
 import platform
 import shutil
 import subprocess
@@ -19,8 +20,9 @@ from tools.verification.environment.platforms import CommandRunner
 
 
 MANDATORY_CHECKS = (
-    "release_equivalent_build",
     "apns_entitlements",
+    "distribution_signing_assets",
+    "release_equivalent_build",
     "simulator_target",
     "physical_device_target",
     "derived_data_isolation",
@@ -70,18 +72,20 @@ class AppleRuntimeQualification:
         checks: list[AppleQualificationCheck] = []
         derived_data = self._derived_data_isolation()
         checks.append(derived_data)
-        if derived_data.state == "PASS":
+        checks.append(self._apns_entitlements())
+        signing_assets = self._distribution_signing_assets()
+        checks.append(signing_assets)
+        if derived_data.state == "PASS" and signing_assets.state == "PASS":
             checks.append(self._release_equivalent_build())
         else:
             checks.append(
                 _check(
                     "release_equivalent_build",
                     "BLOCKED",
-                    "Release-equivalent build skipped because clean DerivedData isolation is not available.",
+                    "Release-equivalent build skipped because clean DerivedData isolation or distribution signing assets are not available.",
                     {},
                 )
             )
-        checks.append(self._apns_entitlements())
         checks.append(self._simulator_target())
         checks.append(self._physical_device_target())
 
@@ -156,6 +160,60 @@ class AppleRuntimeQualification:
         entitlements = sorted(str(path.relative_to(self.apple_repo)) for path in self.apple_repo.rglob("*.entitlements")) if self.apple_repo.exists() else []
         state = "PASS" if entitlements else "BLOCKED"
         return _check("apns_entitlements", state, "Entitlement files discovered." if entitlements else "No Apple entitlement files found for APNs/signing verification.", {"entitlement_files": entitlements})
+
+    def _distribution_signing_assets(self) -> AppleQualificationCheck:
+        expected = {
+            "DJCONNECT_VERIFICATION_APPLE_DISTRIBUTION_IDENTITY": os.getenv("DJCONNECT_VERIFICATION_APPLE_DISTRIBUTION_IDENTITY", "").strip(),
+            "DJCONNECT_VERIFICATION_APPLE_TEAM_ID": os.getenv("DJCONNECT_VERIFICATION_APPLE_TEAM_ID", "").strip(),
+            "DJCONNECT_VERIFICATION_APPLE_BUNDLE_ID": os.getenv("DJCONNECT_VERIFICATION_APPLE_BUNDLE_ID", "").strip(),
+            "DJCONNECT_VERIFICATION_APPLE_PROVISIONING_PROFILE": os.getenv("DJCONNECT_VERIFICATION_APPLE_PROVISIONING_PROFILE", "").strip(),
+        }
+        missing = [key for key, value in expected.items() if not value]
+        if missing:
+            return _check(
+                "distribution_signing_assets",
+                "BLOCKED",
+                "Distribution signing expectations are not fully configured.",
+                {
+                    "required_env": [
+                        "DJCONNECT_VERIFICATION_APPLE_DISTRIBUTION_IDENTITY",
+                        "DJCONNECT_VERIFICATION_APPLE_TEAM_ID",
+                        "DJCONNECT_VERIFICATION_APPLE_BUNDLE_ID",
+                        "DJCONNECT_VERIFICATION_APPLE_PROVISIONING_PROFILE",
+                    ],
+                    "missing": missing,
+                },
+            )
+
+        runner = CommandRunner()
+        identity = expected["DJCONNECT_VERIFICATION_APPLE_DISTRIBUTION_IDENTITY"]
+        team_id = expected["DJCONNECT_VERIFICATION_APPLE_TEAM_ID"]
+        bundle_id = expected["DJCONNECT_VERIFICATION_APPLE_BUNDLE_ID"]
+        profile_name = expected["DJCONNECT_VERIFICATION_APPLE_PROVISIONING_PROFILE"]
+        identity_code, identities = runner.run(("security", "find-identity", "-v", "-p", "codesigning"), timeout=20)
+        identity_ok = identity_code == 0 and identity in identities and team_id in identities
+        profile = _find_distribution_profile(
+            expected_profile=profile_name,
+            expected_team_id=team_id,
+            expected_bundle_id=bundle_id,
+            runner=runner,
+        )
+        profile_ok = profile is not None
+        state = "PASS" if identity_ok and profile_ok else "BLOCKED"
+        return _check(
+            "distribution_signing_assets",
+            state,
+            "Distribution signing identity and provisioning profile matched configured release expectations." if state == "PASS" else "Distribution signing identity or provisioning profile did not match configured release expectations.",
+            {
+                "identity_expected": identity,
+                "team_id_expected": team_id,
+                "bundle_id_expected": bundle_id,
+                "profile_expected": profile_name,
+                "identity_found": identity_ok,
+                "profile_found": profile_ok,
+                "matched_profile": profile or {},
+            },
+        )
 
     def _simulator_target(self) -> AppleQualificationCheck:
         target = AppleAdapterConfig.from_environment(self.root).target
@@ -291,6 +349,76 @@ def _safe_clean_path(path: Path, root: Path) -> bool:
         if approved_path in resolved.parents:
             return True
     return False
+
+
+def _find_distribution_profile(
+    *,
+    expected_profile: str,
+    expected_team_id: str,
+    expected_bundle_id: str,
+    runner: CommandRunner,
+) -> dict[str, Any] | None:
+    profiles_dir = Path(os.getenv("DJCONNECT_VERIFICATION_APPLE_PROFILES_DIR", "~/Library/MobileDevice/Provisioning Profiles")).expanduser()
+    if not profiles_dir.exists():
+        return None
+    for path in sorted(profiles_dir.glob("*")):
+        if path.suffix not in {".mobileprovision", ".provisionprofile", ".plist"}:
+            continue
+        profile = _read_profile(path, runner)
+        if not profile:
+            continue
+        name = str(profile.get("Name", ""))
+        uuid = str(profile.get("UUID", ""))
+        team_ids = tuple(str(item) for item in profile.get("TeamIdentifier", []) if item)
+        entitlements = profile.get("Entitlements", {})
+        application_identifier = str(entitlements.get("application-identifier", "")) if isinstance(entitlements, dict) else ""
+        aps_environment = str(entitlements.get("aps-environment", "")) if isinstance(entitlements, dict) else ""
+        profile_type = _profile_type(profile)
+        profile_matches = expected_profile in {name, uuid}
+        team_matches = expected_team_id in team_ids or application_identifier.startswith(f"{expected_team_id}.")
+        bundle_matches = application_identifier == f"{expected_team_id}.{expected_bundle_id}"
+        if profile_matches and team_matches and bundle_matches:
+            return {
+                "name": name,
+                "uuid": uuid,
+                "team_ids": list(team_ids),
+                "application_identifier": application_identifier,
+                "profile_type": profile_type,
+                "aps_environment": aps_environment,
+                "path_name": path.name,
+            }
+    return None
+
+
+def _read_profile(path: Path, runner: CommandRunner) -> dict[str, Any] | None:
+    if path.suffix == ".plist":
+        try:
+            data = plistlib.loads(path.read_bytes())
+            return data if isinstance(data, dict) else None
+        except (OSError, plistlib.InvalidFileException):
+            return None
+    code, output = runner.run(("security", "cms", "-D", "-i", str(path)), timeout=20)
+    if code != 0:
+        return None
+    try:
+        data = plistlib.loads(output.encode("utf-8"))
+    except plistlib.InvalidFileException:
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def _profile_type(profile: dict[str, Any]) -> str:
+    entitlements = profile.get("Entitlements", {})
+    get_task_allow = bool(entitlements.get("get-task-allow")) if isinstance(entitlements, dict) else False
+    provisions_all_devices = bool(profile.get("ProvisionsAllDevices"))
+    provisioned_devices = profile.get("ProvisionedDevices")
+    if get_task_allow:
+        return "development"
+    if provisions_all_devices:
+        return "enterprise"
+    if provisioned_devices:
+        return "ad_hoc"
+    return "app_store"
 
 
 def latest_ios_simulator_runtime(runner: CommandRunner | None = None) -> dict[str, Any] | None:

@@ -39,6 +39,22 @@ before every release-equivalent build. Use only an absolute DerivedData path
 under `/private/tmp`, `/tmp` or `artifacts/verification`; any other cleanup
 target must fail closed.
 
+The runtime gate must verify release signing assets before the
+release-equivalent build command runs. Configure the expected Apple
+Distribution identity, team id, bundle id and provisioning profile with:
+
+```text
+DJCONNECT_VERIFICATION_APPLE_DISTRIBUTION_IDENTITY
+DJCONNECT_VERIFICATION_APPLE_TEAM_ID
+DJCONNECT_VERIFICATION_APPLE_BUNDLE_ID
+DJCONNECT_VERIFICATION_APPLE_PROVISIONING_PROFILE
+```
+
+Profiles are discovered in `~/Library/MobileDevice/Provisioning Profiles` by
+default, or in `DJCONNECT_VERIFICATION_APPLE_PROFILES_DIR` when set. Persist
+only metadata proving the match; do not persist private keys, certificate
+material or full profile payloads.
+
 ## Stop Conditions
 
 Stop and report blocked if:
@@ -50,6 +66,9 @@ Stop and report blocked if:
 - No available iOS simulator runtime exists.
 - The DerivedData path is missing, relative or outside the approved verification
   scratch roots.
+- The expected Apple Distribution identity is missing from the keychain.
+- No provisioning profile matches the configured profile name/UUID, team id and
+  bundle id.
 - The latest-runtime XCTest healthcheck still times out after remediation.
 
 ## Completion Criteria
@@ -61,9 +80,9 @@ APPLE_LATEST_RUNTIME_QUALIFIED
 ```
 
 only when the latest-runtime qualification passes release-equivalent build,
-entitlements metadata, simulator target freshness, isolated DerivedData,
-install, launch, screenshot, scoped log collection and UI automation
-healthcheck.
+entitlements metadata, distribution signing assets, simulator target freshness,
+isolated DerivedData, install, launch, screenshot, scoped log collection and UI
+automation healthcheck.
 
 Do not begin Phase 10E retry or Phase 11 until this phase returns
 `APPLE_LATEST_RUNTIME_QUALIFIED`.
