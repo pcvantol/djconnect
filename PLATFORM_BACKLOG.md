@@ -231,9 +231,8 @@ Completed:
 
 Next:
 
-- ⛔ Software Assurance implementation deferred until all primary adapters,
-  cross-platform qualification, stable Verification Runtime and Platform
-  Baseline update are complete.
+- ⏳ Software Assurance implementation deferred until an explicit post-baseline
+  implementation prompt starts that work.
 - ⏳ Resume active Verification roadmap follow-up work before Software
   Assurance implementation.
 
@@ -245,21 +244,21 @@ Guardrails:
 
 ## Platform Baseline v1.0 Certification
 
-**Status:** ⛔ Not certified
-**Decision:** `PLATFORM_BASELINE_V1_NOT_CERTIFIED`
-**Evidence:** `PLATFORM_BASELINE_1_0.md`,
-`PLATFORM_BASELINE_CERTIFICATION.md`,
+**Status:** ✅ Certified
+**Decision:** `PLATFORM_BASELINE_V1_CERTIFIED`
+**Evidence:** `PLATFORM_BASELINE_CERTIFICATION.md`,
+`PLATFORM_BASELINE_1_0.md`,
 `PLATFORM_BASELINE_GAP_ANALYSIS.md`
 
-Blocking gaps:
+Remaining qualification follow-up:
 
-- ⛔ Apple latest runtime qualification remains blocked by VPB-031, VPB-036,
+- ⏳ Apple latest runtime qualification remains blocked by VPB-031, VPB-036,
   VPB-037 and VPB-038.
-- ⛔ Apple scenario coverage is blocked until latest-stable runtime
+- ⏳ Apple scenario coverage is blocked until latest-stable runtime
   qualification passes.
-- ⛔ Raspberry Pi, ESP32, Voice and Windows primary adapter qualification
+- ⏳ Raspberry Pi, ESP32, Voice and Windows primary adapter qualification
   remains future work.
-- ⛔ Cross-platform qualification has not completed.
+- ⏳ Cross-platform qualification has not completed.
 
 Next:
 
@@ -267,7 +266,8 @@ Next:
 - resolve the Apple latest-runtime prerequisites;
 - complete Apple and remaining adapter qualification;
 - run cross-platform qualification;
-- rerun Platform Baseline v1.0 certification.
+- preserve Architecture Baseline v1.0 certification unless a future
+  Architecture Review supersedes it.
 - Verification remains owner of behavioural correctness.
 
 ## Architecture Closure Review
@@ -283,8 +283,8 @@ Result:
   Assurance Architecture, Meta Engineering, Repository Bootstrap,
   Cross-Repository Governance, Repository Metadata and Product Strategy
   Foundation may be treated as frozen.
-- ⛔ Business-first engineering remains blocked by Platform Baseline
-  certification gaps.
+- ✅ Business-first engineering may begin where it fits inside the certified
+  architecture and explicit implementation prompts.
 
 Next:
 

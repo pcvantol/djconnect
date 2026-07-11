@@ -20,9 +20,9 @@ The DJConnect platform architecture is complete enough to freeze.
 No additional foundational platform architecture is required before the next
 engineering work.
 
-This does not certify Platform Baseline v1.0 and does not approve immediate
-Business-first Engineering. The remaining blockers are qualification and
-execution blockers, not architectural blockers.
+This review initially separated architecture freeze from Platform Baseline
+certification. It has since been superseded by the Architecture Baseline v1.0
+certification in `PLATFORM_BASELINE_CERTIFICATION.md`.
 
 Final architecture decision:
 
@@ -34,7 +34,7 @@ Final business recommendation:
 
 ```text
 Continue Platform Architecture: no
-Transition to Business-first Engineering: not yet
+Transition to Business-first Engineering: transition may begin inside baseline
 ```
 
 The platform should continue with verification, adapter qualification,
@@ -84,7 +84,7 @@ Primary evidence:
 | Repository-native Engineering | Complete | Bootstrap, canonical references, status, prompt index and ownership map exist. | Current branch must be reviewed and merged. | No | PASS |
 | Product Strategy | Foundation established | Product strategy docs define validated direction and preserve Innovation Lab boundaries. | Formal Product Roadmap and Product Backlog are future post-baseline stages. | No | PASS |
 | Cross-Repository Governance | Complete | Repository ownership and canonical references define boundaries. | Sibling adapter execution remains unqualified. | No | PASS |
-| Platform Baseline | Not certified | Baseline assessment returned `PLATFORM_BASELINE_V1_NOT_CERTIFIED`. | Primary adapters and cross-platform qualification are incomplete. | No | FAIL for baseline, not architecture |
+| Platform Baseline | Certified | Architecture Baseline v1.0 certification returned `PLATFORM_BASELINE_V1_CERTIFIED`. | Primary adapter and cross-platform qualification follow-up remains. | No | PASS |
 
 ## Architectural Overlap Review
 
@@ -156,16 +156,15 @@ new foundational architecture.
 
 ## Platform Baseline
 
-Platform Baseline v1.0 may not become the certified engineering baseline yet.
+Architecture Baseline v1.0 is the certified engineering baseline.
 
-Objective blockers:
+Remaining follow-up work:
 
 - primary adapter qualification is incomplete;
 - cross-platform qualification is incomplete;
 - Verification Runtime release operations have warning-level maturity gaps.
 
-The canonical architecture may be frozen while the certified baseline remains
-blocked.
+These follow-ups should proceed inside the certified architecture.
 
 ## Completion Assessment
 

@@ -109,15 +109,16 @@ approval.
 
 ## Current Platform Focus
 
-The platform currently operates in the Platform Buildout strategy.
+The platform now operates in the Architecture Baseline v1.0 transition state.
 
-The Platform Baseline v1.0 certification assessment dated 2026-07-11 returned:
+The Architecture Baseline v1.0 certification dated 2026-07-11 returned:
 
 ```text
-PLATFORM_BASELINE_V1_NOT_CERTIFIED
+PLATFORM_BASELINE_V1_CERTIFIED
 ```
 
-Therefore the platform has not transitioned to Business Evolution.
+Therefore the platform may transition primarily from platform construction
+toward product evolution and business-first engineering.
 
 The Architecture Closure Review dated 2026-07-11 returned:
 
@@ -125,18 +126,20 @@ The Architecture Closure Review dated 2026-07-11 returned:
 ARCHITECTURE_FROZEN
 ```
 
-The remaining blockers are qualification, runtime operations and
-cross-platform readiness blockers. They are not reasons to create additional
-foundational architecture.
+Remaining adapter, runtime operations and cross-platform qualification work
+continues inside the certified architecture. These are not reasons to create
+additional foundational architecture.
 
 This means engineering effort should primarily improve:
 
-- platform completeness;
+- remaining platform adapters;
 - verification;
 - cross-platform consistency;
-- platform maturity.
+- Software Assurance implementation after baseline;
+- product and user value.
 
-Business features are intentionally secondary.
+Platform engineering remains important, but it is now an enabling capability
+rather than the dominant engineering objective.
 
 ## Deferred Investments
 
@@ -151,7 +154,7 @@ Deferral is intentional.
 
 Deferred work is not abandoned.
 
-It is postponed until the platform reaches the required maturity.
+It is postponed until the explicit post-baseline phase that owns the work.
 
 ## Platform Evolution
 
@@ -210,14 +213,12 @@ These transition criteria should remain objective and evidence-based.
 
 ## Strategy Success
 
-The current strategy is considered successful when:
+The current platform construction strategy is considered successful because:
 
-The platform reaches Platform Baseline v1.0.
+The platform reached Architecture Baseline v1.0.
 
-Platform Baseline is achieved when:
+Architecture Baseline v1.0 certifies that:
 
-- primary platform adapters are complete;
-- cross-platform qualification is complete;
 - the Verification Platform is stable;
 - the Software Assurance architecture is complete;
 - the platform can sustainably deliver new features without introducing new
@@ -245,11 +246,9 @@ Examples include:
 Future business initiatives should normally fit within the existing platform
 architecture.
 
-The current certification blockers are adapter and cross-platform
-qualification gaps, not foundation redesign gaps. Business-first work remains
-deferred until the blockers recorded in `PLATFORM_BASELINE_GAP_ANALYSIS.md`
-are resolved and a later certification returns
-`PLATFORM_BASELINE_V1_CERTIFIED`.
+Remaining adapter and cross-platform qualification work is post-baseline
+platform work. It should improve evidence and quality without reopening the
+foundation.
 
 Architecture-first work is now closed unless a future evidence-backed
 Architecture Review demonstrates a genuine foundational gap.

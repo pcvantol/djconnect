@@ -28,8 +28,8 @@ Software Assurance Platform
   -> implementation phases only after explicit approval
 
 Platform Baseline v1.0 Certification
-  -> not certified on 2026-07-11
-  -> resume adapter and cross-platform qualification before business-first epics
+  -> certified on 2026-07-11
+  -> resume adapter and cross-platform qualification inside the baseline
 
 Architecture Closure Review
   -> frozen on 2026-07-11
@@ -97,14 +97,13 @@ Canonical architecture:
 - `SOFTWARE_ASSURANCE_QUALITY_GATES.md`
 - `SOFTWARE_ASSURANCE_VERSIONING.md`
 
-Implementation is intentionally deferred until all primary adapters are
-complete, cross-platform qualification has completed, the Verification Runtime
-is stable and the Platform Baseline is updated.
+Implementation is intentionally deferred until an explicit post-baseline
+implementation prompt starts Software Assurance work.
 
 ## Platform Baseline v1.0 Certification
 
-The 2026-07-11 certification assessment returned
-`PLATFORM_BASELINE_V1_NOT_CERTIFIED`.
+The 2026-07-11 Architecture Baseline certification returned
+`PLATFORM_BASELINE_V1_CERTIFIED`.
 
 Canonical assessment artifacts:
 
@@ -112,9 +111,9 @@ Canonical assessment artifacts:
 - `PLATFORM_BASELINE_CERTIFICATION.md`
 - `PLATFORM_BASELINE_GAP_ANALYSIS.md`
 
-Business-first engineering remains deferred until adapter qualification,
-cross-platform qualification and runtime maturity gaps are closed and a later
-certification returns `PLATFORM_BASELINE_V1_CERTIFIED`.
+Business-first engineering may now proceed where it fits inside the certified
+architecture. Adapter qualification, cross-platform qualification and runtime
+maturity remain platform follow-up work.
 
 ## Architecture Closure Review
 

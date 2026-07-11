@@ -17,25 +17,24 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Platform Baseline v1.0 Certification follow-up after the Software Assurance
-Platform Architecture Sprint, Product Strategy Foundation setup and
-Architecture Closure Review.
+Architecture Baseline v1.0 transition after the Software Assurance Platform
+Architecture Sprint, Product Strategy Foundation setup and Architecture
+Closure Review.
 
 This phase is architecture and documentation only. It is not a product
 implementation phase, not a verification execution phase and not a CI/tooling
 enablement phase.
 
 The active verification prompt index still records Phase 10E-R2 follow-up work
-as the next verification gate. That verification gate is intentionally paused
-while the Software Assurance architecture sprint runs, and resumes after the
-four architecture prompts are complete.
+as the next verification gate. That verification work continues inside the
+certified architecture.
 
 ## Status
 
 Active.
 
-The Platform Baseline v1.0 certification assessment completed on 2026-07-11
-with decision `PLATFORM_BASELINE_V1_NOT_CERTIFIED`.
+The Architecture Baseline v1.0 certification completed on 2026-07-11 with
+decision `PLATFORM_BASELINE_V1_CERTIFIED`.
 
 The Product Strategy Foundation has also been added as documentation-only
 scope under `docs/product/`. It establishes validated product direction without
@@ -51,18 +50,17 @@ Prompt 4 Software Assurance governance and rollout strategy are complete. The
 architecture decision is `SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE`,
 and implementation is intentionally deferred.
 
-The baseline assessment found that foundation, verification platform, meta
-engineering, repository bootstrap, cross-repository governance and Software
-Assurance architecture are stable enough to freeze. Platform Baseline v1.0 is
-not certified because primary adapter qualification and cross-platform
-qualification are incomplete.
+The baseline certification found that foundation, verification platform, meta
+engineering, repository bootstrap, cross-repository governance, repository
+ownership, product strategy foundation and Software Assurance architecture are
+stable enough to become the engineering baseline.
 
 ## Blocking Dependencies
 
 - Software Assurance implementation must not begin until later explicit
   implementation prompts.
-- Platform Baseline v1.0 must not be marked certified until all primary
-  adapters and cross-platform qualification have completed.
+- Remaining platform adapters and cross-platform qualification must continue
+  inside the certified architecture.
 - CI workflow changes, scanner enablement and release gates are out of scope
   for Prompt 1.
 - Apple scenario coverage remains blocked by the Phase 10E-R2 follow-up backlog
@@ -73,7 +71,7 @@ qualification are incomplete.
 
 Attached request:
 
-`DJConnect Platform - Platform Baseline v1.0 Certification`
+`DJConnect Platform - Architecture Baseline v1.0 Certification`
 
 Additional attached request:
 

@@ -89,9 +89,8 @@ features, epics, stories, roadmap sequencing or backlog work.
 ### Platform strategy
 
 `PLATFORM_STRATEGY.md` defines stable long-term platform intent. It explains
-why current engineering priorities emphasize platform buildout, verification,
-cross-platform consistency and Platform Baseline v1.0 before business-first
-feature velocity.
+why engineering priorities now shift from platform construction toward
+product evolution after Architecture Baseline v1.0 certification.
 
 ### Architecture closure
 
@@ -107,10 +106,12 @@ implementation epics.
 
 Foundation describes principles. Baseline describes accepted implementation.
 
-`PLATFORM_BASELINE_1_0.md`, `PLATFORM_BASELINE_CERTIFICATION.md` and
-`PLATFORM_BASELINE_GAP_ANALYSIS.md` capture the Platform Baseline v1.0
-certification assessment. The current certification result is
-`PLATFORM_BASELINE_V1_NOT_CERTIFIED`.
+`PLATFORM_BASELINE_CERTIFICATION.md` captures the Architecture Baseline v1.0
+certification. The current certification result is
+`PLATFORM_BASELINE_V1_CERTIFIED`.
+
+`PLATFORM_BASELINE_1_0.md` and `PLATFORM_BASELINE_GAP_ANALYSIS.md` remain as
+historical assessment and follow-up evidence.
 
 ### AI-agent bootstrap
 

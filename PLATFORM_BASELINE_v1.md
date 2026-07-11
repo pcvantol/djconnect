@@ -5,9 +5,8 @@ Date: 2026-07-10
 Version: Profile Platform v1
 Baseline owner: `pcvantol/djconnect`
 
-Architecture closure: `ARCHITECTURE_FROZEN` on 2026-07-11. Platform Baseline
-v1.0 certification remains `PLATFORM_BASELINE_V1_NOT_CERTIFIED` until primary
-adapter and cross-platform qualification complete.
+Architecture closure: `ARCHITECTURE_FROZEN` on 2026-07-11. Architecture
+Baseline v1.0 certification is `PLATFORM_BASELINE_V1_CERTIFIED`.
 
 ## Purpose
 

@@ -10,16 +10,14 @@ not required.
 
 The Software Assurance Platform architecture sprint has completed with decision
 `SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE`. Software Assurance
-implementation is intentionally deferred until all primary adapters are
-qualified, cross-platform qualification has completed, the Verification Runtime
-is released as stable and the Platform Baseline is updated.
+implementation is intentionally deferred until an explicit post-baseline
+implementation prompt starts that work.
 
-The Platform Baseline v1.0 certification assessment completed on 2026-07-11
-with decision `PLATFORM_BASELINE_V1_NOT_CERTIFIED`. The assessment artifacts
-are `PLATFORM_BASELINE_1_0.md`, `PLATFORM_BASELINE_CERTIFICATION.md` and
-`PLATFORM_BASELINE_GAP_ANALYSIS.md`. The active next work remains the
-Phase 10E-R2 follow-up backlog; business-first engineering must not begin from
-this certification state.
+The Architecture Baseline v1.0 certification completed on 2026-07-11 with
+decision `PLATFORM_BASELINE_V1_CERTIFIED`. The certification artifact is
+`PLATFORM_BASELINE_CERTIFICATION.md`; `PLATFORM_BASELINE_1_0.md` and
+`PLATFORM_BASELINE_GAP_ANALYSIS.md` remain historical and follow-up evidence.
+The active next verification work remains the Phase 10E-R2 follow-up backlog.
 
 Phase 9V rerun has qualified the Verification Platform using the dedicated
 local Home Assistant verification lab. The canonical planner selected the
