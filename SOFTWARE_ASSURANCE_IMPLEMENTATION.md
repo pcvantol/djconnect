@@ -71,12 +71,12 @@ This deferred state is a platform lifecycle decision, not an architecture gap.
 
 The canonical implementation order is:
 
-| Prompt | Scope |
-| --- | --- |
-| Prompt 1 | CI Governance Foundation |
-| Prompt 2 | Workflow Harmonization |
-| Prompt 3 | Repository Governance & Trusted AI Delivery |
-| Prompt 4 | CI Governance Certification & Freeze |
+| Prompt | Scope | Deferred prompt |
+| --- | --- | --- |
+| Prompt 1 | CI Governance Foundation | `prompts/deferred/software_assurance/PROMPT_01_CI_GOVERNANCE_FOUNDATION.md` |
+| Prompt 2 | Cross-Repository Workflow Harmonization | `prompts/deferred/software_assurance/PROMPT_02_CROSS_REPOSITORY_WORKFLOW_HARMONIZATION.md` |
+| Prompt 3 | Trusted Delivery Platform | `prompts/deferred/software_assurance/PROMPT_03_TRUSTED_DELIVERY_PLATFORM.md` |
+| Prompt 4 | Trusted Delivery Certification | `prompts/deferred/software_assurance/PROMPT_04_TRUSTED_DELIVERY_CERTIFICATION.md` |
 
 These prompts define the complete Software Assurance implementation sequence.
 They must not be executed until the mandatory prerequisite is satisfied.

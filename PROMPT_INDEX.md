@@ -89,10 +89,10 @@ PLATFORM_BASELINE_V1_CERTIFIED
 
 Implementation sequence:
 
-1. Prompt 1: CI Governance Foundation
-2. Prompt 2: Workflow Harmonization
-3. Prompt 3: Repository Governance & Trusted AI Delivery
-4. Prompt 4: CI Governance Certification & Freeze
+1. [Prompt 1: CI Governance Foundation](prompts/deferred/software_assurance/PROMPT_01_CI_GOVERNANCE_FOUNDATION.md)
+2. [Prompt 2: Cross-Repository Workflow Harmonization](prompts/deferred/software_assurance/PROMPT_02_CROSS_REPOSITORY_WORKFLOW_HARMONIZATION.md)
+3. [Prompt 3: Trusted Delivery Platform](prompts/deferred/software_assurance/PROMPT_03_TRUSTED_DELIVERY_PLATFORM.md)
+4. [Prompt 4: Trusted Delivery Certification](prompts/deferred/software_assurance/PROMPT_04_TRUSTED_DELIVERY_CERTIFICATION.md)
 
 Current state:
 
@@ -103,6 +103,7 @@ Waiting for Platform Baseline certification.
 Canonical registration:
 
 - `SOFTWARE_ASSURANCE_IMPLEMENTATION.md`
+- `prompts/deferred/software_assurance/`
 
 The existence of these prompts does not authorize implementation. Future AI
 agents must verify that Platform Baseline v1.0 is certified before beginning
