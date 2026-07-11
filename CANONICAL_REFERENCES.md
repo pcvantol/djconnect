@@ -10,6 +10,18 @@ Assistant integration implementation.
 Sibling repositories must reference these canonical documents instead of
 copying or redefining them.
 
+## Platform Strategy
+
+- Canonical repository: `pcvantol/djconnect`
+- Canonical document: `PLATFORM_STRATEGY.md`
+- Local responsibility: maintain the long-term strategic intent that explains
+  why the platform is evolving toward a production-ready, fully verified
+  cross-platform baseline before business-first feature velocity.
+- May this repository modify it: yes, through Architecture Review.
+
+Sibling repositories may reference Platform Strategy, but they must not copy,
+reinterpret or redefine it in repository-local prompt indexes or roadmaps.
+
 ## Platform Foundation
 
 - Canonical repository: `pcvantol/djconnect`

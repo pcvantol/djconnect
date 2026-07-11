@@ -35,10 +35,16 @@ implementation details.
 
 This repository is the canonical source of truth for the entire DJConnect platform.
 
+`PLATFORM_STRATEGY.md` defines the stable long-term strategy above the
+foundation. It explains why current work prioritizes platform buildout,
+verification, cross-platform consistency and Platform Baseline v1.0 before
+business-first feature velocity.
+
 Before implementing new product features, architecture changes, API contracts, cross-repository changes, release processes or platform decisions, consult and update the canonical foundation documents in this repository.
 
 Treat the following documents as the authoritative platform guidance:
 
+- `PLATFORM_STRATEGY.md`
 - `DJCONNECT_CONSTITUTION.md`
 - `PRODUCT_VISION.md`
 - `DESIGN_PRINCIPLES.md`

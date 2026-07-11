@@ -4,61 +4,68 @@ This repository, `pcvantol/djconnect`, is the canonical source of truth for the 
 
 The foundation defines the shared product direction, design principles, architecture rules, domain language, governance and cross-repository alignment for all DJConnect repositories. Sibling repositories extend this foundation with implementation-specific guidance, but they do not redefine it.
 
+`PLATFORM_STRATEGY.md` sits above the foundation. It defines long-term
+strategic intent and explains why the platform is currently evolving in its
+present direction. The foundation owns architecture, governance and durable
+platform rules.
+
 ## Recommended reading order
 
 For clean Codex or AI-agent sessions, start with
 `BOOTSTRAP_CODEX_SESSION.md`. That file defines the session startup procedure.
-The files below define the platform foundation itself.
+The files below define Platform Strategy, then the platform foundation itself.
 
-1. `DJCONNECT_CONSTITUTION.md`
-2. `PRODUCT_VISION.md`
-3. `DESIGN_PRINCIPLES.md`
-4. `ARCHITECTURE_PRINCIPLES.md`
-5. `DOMAIN_MODEL.md`
-6. `PLATFORM_BASELINE_v1.md`
-7. `CLIENT_CAPABILITY_MATRIX.md`
-8. `LOCALIZATION_STANDARD.md`
-9. `PRODUCT_LANGUAGE.md`
-10. `PLATFORM_GOVERNANCE.md`
-11. `PLATFORM_QUALITY_STANDARD.md`
-12. `PLATFORM_BACKLOG.md`
-13. `INNOVATION_LAB.md`
-14. `docs/research/R0_RUNTIME_INDEPENDENCE.md` where runtime evolution is relevant
-15. `ADR_INDEX.md`
-16. `CI_CD_RELEASE_GOVERNANCE.md`
-17. `docs/verification/00_VERIFICATION_VISION.md`
-18. `docs/verification/01_VERIFICATION_ARCHITECTURE.md`
-19. `SOFTWARE_ASSURANCE_PLATFORM.md`
-20. `SOFTWARE_ASSURANCE_ARCHITECTURE.md`
-21. `SOFTWARE_ASSURANCE_THEMES.md`
-22. `SOFTWARE_ASSURANCE_CAPABILITY_MODEL.md`
-23. `SOFTWARE_ASSURANCE_BACKLOG.md`
-24. `SOFTWARE_ASSURANCE_DEPENDENCIES.md`
-25. `SOFTWARE_ASSURANCE_IMPLEMENTATION_ORDER.md`
-26. `SOFTWARE_ASSURANCE_INTEGRATION.md`
-27. `SOFTWARE_ASSURANCE_EXECUTION_MODEL.md`
-28. `SOFTWARE_ASSURANCE_PLATFORM_HEALTH.md`
-29. `SOFTWARE_ASSURANCE_REPOSITORY_MODEL.md`
-30. `SOFTWARE_ASSURANCE_GOVERNANCE.md`
-31. `SOFTWARE_ASSURANCE_ROLLOUT.md`
-32. `SOFTWARE_ASSURANCE_IMPLEMENTATION_STRATEGY.md`
-33. `SOFTWARE_ASSURANCE_QUALITY_GATES.md`
-34. `SOFTWARE_ASSURANCE_VERSIONING.md`
-35. `docs/meta/META_ENGINEERING_INDEX.md`
+1. `PLATFORM_STRATEGY.md`
+2. `DJCONNECT_CONSTITUTION.md`
+3. `PRODUCT_VISION.md`
+4. `DESIGN_PRINCIPLES.md`
+5. `ARCHITECTURE_PRINCIPLES.md`
+6. `DOMAIN_MODEL.md`
+7. `PLATFORM_BASELINE_v1.md`
+8. `CLIENT_CAPABILITY_MATRIX.md`
+9. `LOCALIZATION_STANDARD.md`
+10. `PRODUCT_LANGUAGE.md`
+11. `PLATFORM_GOVERNANCE.md`
+12. `PLATFORM_QUALITY_STANDARD.md`
+13. `PLATFORM_BACKLOG.md`
+14. `INNOVATION_LAB.md`
+15. `docs/research/R0_RUNTIME_INDEPENDENCE.md` where runtime evolution is relevant
+16. `ADR_INDEX.md`
+17. `CI_CD_RELEASE_GOVERNANCE.md`
+18. `docs/verification/00_VERIFICATION_VISION.md`
+19. `docs/verification/01_VERIFICATION_ARCHITECTURE.md`
+20. `SOFTWARE_ASSURANCE_PLATFORM.md`
+21. `SOFTWARE_ASSURANCE_ARCHITECTURE.md`
+22. `SOFTWARE_ASSURANCE_THEMES.md`
+23. `SOFTWARE_ASSURANCE_CAPABILITY_MODEL.md`
+24. `SOFTWARE_ASSURANCE_BACKLOG.md`
+25. `SOFTWARE_ASSURANCE_DEPENDENCIES.md`
+26. `SOFTWARE_ASSURANCE_IMPLEMENTATION_ORDER.md`
+27. `SOFTWARE_ASSURANCE_INTEGRATION.md`
+28. `SOFTWARE_ASSURANCE_EXECUTION_MODEL.md`
+29. `SOFTWARE_ASSURANCE_PLATFORM_HEALTH.md`
+30. `SOFTWARE_ASSURANCE_REPOSITORY_MODEL.md`
+31. `SOFTWARE_ASSURANCE_GOVERNANCE.md`
+32. `SOFTWARE_ASSURANCE_ROLLOUT.md`
+33. `SOFTWARE_ASSURANCE_IMPLEMENTATION_STRATEGY.md`
+34. `SOFTWARE_ASSURANCE_QUALITY_GATES.md`
+35. `SOFTWARE_ASSURANCE_VERSIONING.md`
+36. `docs/meta/META_ENGINEERING_INDEX.md`
 
 ## Conflict-resolution order
 
 When documents appear to conflict, resolve them in this order:
 
-1. `DJCONNECT_CONSTITUTION.md`
-2. `PRODUCT_VISION.md`
-3. `DESIGN_PRINCIPLES.md`
-4. `ARCHITECTURE_PRINCIPLES.md`
-5. `DOMAIN_MODEL.md`
-6. `PLATFORM_GOVERNANCE.md`
-7. Accepted ADRs in `ADR_INDEX.md` and `docs/adr/`
-8. Roadmap and backlog documents
-9. Repository-local implementation docs
+1. `PLATFORM_STRATEGY.md` for long-term strategic intent
+2. `DJCONNECT_CONSTITUTION.md`
+3. `PRODUCT_VISION.md`
+4. `DESIGN_PRINCIPLES.md`
+5. `ARCHITECTURE_PRINCIPLES.md`
+6. `DOMAIN_MODEL.md`
+7. `PLATFORM_GOVERNANCE.md`
+8. Accepted ADRs in `ADR_INDEX.md` and `docs/adr/`
+9. Roadmap and backlog documents
+10. Repository-local implementation docs
 
 Repository-specific AGENTS guidance, API contracts, operational procedures and release instructions remain authoritative for local implementation details. They must still conform to the platform foundation for product and platform direction.
 
@@ -67,6 +74,13 @@ Repository-specific AGENTS guidance, API contracts, operational procedures and r
 ### Foundation docs
 
 Foundation docs define stable cross-repository intent and rules. They include the constitution, product vision, design principles, architecture principles, domain model, client capability model, localization standard, product language, governance, quality standard, backlog, innovation model, ADR index and release governance.
+
+### Platform strategy
+
+`PLATFORM_STRATEGY.md` defines stable long-term platform intent. It explains
+why current engineering priorities emphasize platform buildout, verification,
+cross-platform consistency and Platform Baseline v1.0 before business-first
+feature velocity.
 
 ### Platform baseline
 
