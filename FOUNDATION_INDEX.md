@@ -21,36 +21,41 @@ The files below define Platform Strategy, then the platform foundation itself.
 4. `DESIGN_PRINCIPLES.md`
 5. `ARCHITECTURE_PRINCIPLES.md`
 6. `DOMAIN_MODEL.md`
-7. `PLATFORM_BASELINE_v1.md`
-8. `CLIENT_CAPABILITY_MATRIX.md`
-9. `LOCALIZATION_STANDARD.md`
-10. `PRODUCT_LANGUAGE.md`
-11. `PLATFORM_GOVERNANCE.md`
-12. `PLATFORM_QUALITY_STANDARD.md`
-13. `PLATFORM_BACKLOG.md`
-14. `INNOVATION_LAB.md`
-15. `docs/research/R0_RUNTIME_INDEPENDENCE.md` where runtime evolution is relevant
-16. `ADR_INDEX.md`
-17. `CI_CD_RELEASE_GOVERNANCE.md`
-18. `docs/verification/00_VERIFICATION_VISION.md`
-19. `docs/verification/01_VERIFICATION_ARCHITECTURE.md`
-20. `SOFTWARE_ASSURANCE_PLATFORM.md`
-21. `SOFTWARE_ASSURANCE_ARCHITECTURE.md`
-22. `SOFTWARE_ASSURANCE_THEMES.md`
-23. `SOFTWARE_ASSURANCE_CAPABILITY_MODEL.md`
-24. `SOFTWARE_ASSURANCE_BACKLOG.md`
-25. `SOFTWARE_ASSURANCE_DEPENDENCIES.md`
-26. `SOFTWARE_ASSURANCE_IMPLEMENTATION_ORDER.md`
-27. `SOFTWARE_ASSURANCE_INTEGRATION.md`
-28. `SOFTWARE_ASSURANCE_EXECUTION_MODEL.md`
-29. `SOFTWARE_ASSURANCE_PLATFORM_HEALTH.md`
-30. `SOFTWARE_ASSURANCE_REPOSITORY_MODEL.md`
-31. `SOFTWARE_ASSURANCE_GOVERNANCE.md`
-32. `SOFTWARE_ASSURANCE_ROLLOUT.md`
-33. `SOFTWARE_ASSURANCE_IMPLEMENTATION_STRATEGY.md`
-34. `SOFTWARE_ASSURANCE_QUALITY_GATES.md`
-35. `SOFTWARE_ASSURANCE_VERSIONING.md`
-36. `docs/meta/META_ENGINEERING_INDEX.md`
+7. `docs/product/README.md`
+8. `docs/product/PRODUCT_STRATEGY.md`
+9. `PLATFORM_BASELINE_v1.md`
+10. `PLATFORM_BASELINE_1_0.md`
+11. `PLATFORM_BASELINE_CERTIFICATION.md`
+12. `PLATFORM_BASELINE_GAP_ANALYSIS.md`
+13. `CLIENT_CAPABILITY_MATRIX.md`
+14. `LOCALIZATION_STANDARD.md`
+15. `PRODUCT_LANGUAGE.md`
+16. `PLATFORM_GOVERNANCE.md`
+17. `PLATFORM_QUALITY_STANDARD.md`
+18. `PLATFORM_BACKLOG.md`
+19. `INNOVATION_LAB.md`
+20. `docs/research/R0_RUNTIME_INDEPENDENCE.md` where runtime evolution is relevant
+21. `ADR_INDEX.md`
+22. `CI_CD_RELEASE_GOVERNANCE.md`
+23. `docs/verification/00_VERIFICATION_VISION.md`
+24. `docs/verification/01_VERIFICATION_ARCHITECTURE.md`
+25. `SOFTWARE_ASSURANCE_PLATFORM.md`
+26. `SOFTWARE_ASSURANCE_ARCHITECTURE.md`
+27. `SOFTWARE_ASSURANCE_THEMES.md`
+28. `SOFTWARE_ASSURANCE_CAPABILITY_MODEL.md`
+29. `SOFTWARE_ASSURANCE_BACKLOG.md`
+30. `SOFTWARE_ASSURANCE_DEPENDENCIES.md`
+31. `SOFTWARE_ASSURANCE_IMPLEMENTATION_ORDER.md`
+32. `SOFTWARE_ASSURANCE_INTEGRATION.md`
+33. `SOFTWARE_ASSURANCE_EXECUTION_MODEL.md`
+34. `SOFTWARE_ASSURANCE_PLATFORM_HEALTH.md`
+35. `SOFTWARE_ASSURANCE_REPOSITORY_MODEL.md`
+36. `SOFTWARE_ASSURANCE_GOVERNANCE.md`
+37. `SOFTWARE_ASSURANCE_ROLLOUT.md`
+38. `SOFTWARE_ASSURANCE_IMPLEMENTATION_STRATEGY.md`
+39. `SOFTWARE_ASSURANCE_QUALITY_GATES.md`
+40. `SOFTWARE_ASSURANCE_VERSIONING.md`
+41. `docs/meta/META_ENGINEERING_INDEX.md`
 
 ## Conflict-resolution order
 
@@ -75,6 +80,12 @@ Repository-specific AGENTS guidance, API contracts, operational procedures and r
 
 Foundation docs define stable cross-repository intent and rules. They include the constitution, product vision, design principles, architecture principles, domain model, client capability model, localization standard, product language, governance, quality standard, backlog, innovation model, ADR index and release governance.
 
+### Product strategy
+
+`docs/product/PRODUCT_STRATEGY.md` defines validated product direction. It
+begins where `INNOVATION_LAB.md` ends and intentionally does not define
+features, epics, stories, roadmap sequencing or backlog work.
+
 ### Platform strategy
 
 `PLATFORM_STRATEGY.md` defines stable long-term platform intent. It explains
@@ -82,12 +93,24 @@ why current engineering priorities emphasize platform buildout, verification,
 cross-platform consistency and Platform Baseline v1.0 before business-first
 feature velocity.
 
+### Architecture closure
+
+`ARCHITECTURE_CLOSURE_REVIEW.md` and `ARCHITECTURE_DECISION.md` record the
+2026-07-11 closure decision `ARCHITECTURE_FROZEN`. Future work should proceed
+inside the frozen architecture unless a later evidence-backed Architecture
+Review demonstrates a genuine foundational gap.
+
 ### Platform baseline
 
 `PLATFORM_BASELINE_v1.md` captures accepted platform architecture after major
 implementation epics.
 
 Foundation describes principles. Baseline describes accepted implementation.
+
+`PLATFORM_BASELINE_1_0.md`, `PLATFORM_BASELINE_CERTIFICATION.md` and
+`PLATFORM_BASELINE_GAP_ANALYSIS.md` capture the Platform Baseline v1.0
+certification assessment. The current certification result is
+`PLATFORM_BASELINE_V1_NOT_CERTIFIED`.
 
 ### AI-agent bootstrap
 

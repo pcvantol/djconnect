@@ -56,6 +56,11 @@ Meta Engineering owns engineering methodology.
 
 Prompt Index owns execution order.
 
+Product Strategy is a separate product-direction layer under
+`docs/product/`. It owns validated product direction only. It does not redefine
+Platform Strategy and it does not own platform architecture, verification,
+governance or execution order.
+
 ## Platform Mission
 
 The mission of the DJConnect Platform is:
@@ -105,6 +110,24 @@ approval.
 ## Current Platform Focus
 
 The platform currently operates in the Platform Buildout strategy.
+
+The Platform Baseline v1.0 certification assessment dated 2026-07-11 returned:
+
+```text
+PLATFORM_BASELINE_V1_NOT_CERTIFIED
+```
+
+Therefore the platform has not transitioned to Business Evolution.
+
+The Architecture Closure Review dated 2026-07-11 returned:
+
+```text
+ARCHITECTURE_FROZEN
+```
+
+The remaining blockers are qualification, runtime operations and
+cross-platform readiness blockers. They are not reasons to create additional
+foundational architecture.
 
 This means engineering effort should primarily improve:
 
@@ -221,6 +244,15 @@ Examples include:
 
 Future business initiatives should normally fit within the existing platform
 architecture.
+
+The current certification blockers are adapter and cross-platform
+qualification gaps, not foundation redesign gaps. Business-first work remains
+deferred until the blockers recorded in `PLATFORM_BASELINE_GAP_ANALYSIS.md`
+are resolved and a later certification returns
+`PLATFORM_BASELINE_V1_CERTIFIED`.
+
+Architecture-first work is now closed unless a future evidence-backed
+Architecture Review demonstrates a genuine foundational gap.
 
 ## Strategic Decision Rule
 

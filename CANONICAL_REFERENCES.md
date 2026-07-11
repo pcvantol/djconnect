@@ -49,6 +49,22 @@ Authoritative foundation documents include:
 - `REPOSITORY_OWNERSHIP.md`
 - `PLATFORM_DISCOVERY_REPORT.md`
 - `ADR_INDEX.md`
+
+## Product Strategy Foundation
+
+- Canonical repository: `pcvantol/djconnect`
+- Canonical documents: `docs/product/README.md` and
+  `docs/product/PRODUCT_STRATEGY.md`
+- Local responsibility: maintain validated product direction after concepts
+  graduate from `INNOVATION_LAB.md`, without duplicating Platform Strategy,
+  the Innovation Lab, roadmap sequencing or engineering backlog work.
+- May this repository modify it: yes, through explicit product strategy
+  foundation updates.
+
+Innovation Labs remain the canonical source for product ideas. Product
+Strategy accepts only validated product direction. A formal post-baseline
+Product Roadmap and Product Backlog do not yet exist under this product
+strategy lifecycle.
 - `CI_CD_RELEASE_GOVERNANCE.md`
 
 ## Verification Foundation

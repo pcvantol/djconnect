@@ -16,6 +16,11 @@ This roadmap is broader than `TODO.md`: not every idea here is committed scope.
 Use it to shape releases, validate demand and decide what belongs in the free
 local/Home Assistant product versus optional premium features.
 
+Product Strategy now lives in `docs/product/PRODUCT_STRATEGY.md`. This
+top-level roadmap remains pre-baseline product and release memory until a
+future post-baseline product-roadmap phase explicitly formalizes or replaces
+it. Innovation Labs remain the canonical home for unvalidated product ideas.
+
 ## Product Proposition
 
 DJConnect. Muziekbediening met karakter.

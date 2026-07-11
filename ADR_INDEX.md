@@ -69,6 +69,14 @@ placeholder parity where practical.
 
 ## ADR backlog
 
+### ADR-0013 — Platform Baseline v1.0 certification boundary
+
+**Status:** Planned
+
+Decision to formalize how Platform Baseline certification decisions are made,
+which evidence is mandatory, and how non-certification affects the transition
+from Platform-first Engineering to Business-first Engineering.
+
 ### ADR-0004 — Community and Personal tier model
 
 **Status:** Planned

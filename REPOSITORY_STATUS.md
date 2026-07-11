@@ -17,8 +17,9 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Software Assurance Platform Architecture Sprint: Prompt 4 of 4 - Governance,
-Rollout and Implementation Strategy.
+Platform Baseline v1.0 Certification follow-up after the Software Assurance
+Platform Architecture Sprint, Product Strategy Foundation setup and
+Architecture Closure Review.
 
 This phase is architecture and documentation only. It is not a product
 implementation phase, not a verification execution phase and not a CI/tooling
@@ -33,17 +34,35 @@ four architecture prompts are complete.
 
 Active.
 
-Prompt 4 Software Assurance governance and rollout strategy are complete in the
-working tree. The architecture decision is
-`SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE`, and implementation is
-intentionally deferred until all primary adapters, cross-platform
-qualification, stable Verification Runtime and Platform Baseline update are
-complete.
+The Platform Baseline v1.0 certification assessment completed on 2026-07-11
+with decision `PLATFORM_BASELINE_V1_NOT_CERTIFIED`.
+
+The Product Strategy Foundation has also been added as documentation-only
+scope under `docs/product/`. It establishes validated product direction without
+creating a product roadmap, product backlog, product capability model or
+implementation plan.
+
+The Architecture Closure Review completed with decision
+`ARCHITECTURE_FROZEN`. Architecture-first platform work should now stop unless
+a future evidence-backed Architecture Review demonstrates a genuine
+foundational gap.
+
+Prompt 4 Software Assurance governance and rollout strategy are complete. The
+architecture decision is `SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE`,
+and implementation is intentionally deferred.
+
+The baseline assessment found that foundation, verification platform, meta
+engineering, repository bootstrap, cross-repository governance and Software
+Assurance architecture are stable enough to freeze. Platform Baseline v1.0 is
+not certified because primary adapter qualification and cross-platform
+qualification are incomplete.
 
 ## Blocking Dependencies
 
 - Software Assurance implementation must not begin until later explicit
   implementation prompts.
+- Platform Baseline v1.0 must not be marked certified until all primary
+  adapters and cross-platform qualification have completed.
 - CI workflow changes, scanner enablement and release gates are out of scope
   for Prompt 1.
 - Apple scenario coverage remains blocked by the Phase 10E-R2 follow-up backlog
@@ -54,8 +73,15 @@ complete.
 
 Attached request:
 
-`Software Assurance Platform - Prompt 4 of 4 - Governance, Rollout and
-Implementation Strategy`
+`DJConnect Platform - Platform Baseline v1.0 Certification`
+
+Additional attached request:
+
+`DJConnect Platform - Product Strategy Foundation`
+
+Final attached request:
+
+`DJConnect Platform - Architecture Closure Review`
 
 ## Completion Report
 
@@ -77,6 +103,22 @@ Repository-local architecture outputs:
 - `SOFTWARE_ASSURANCE_IMPLEMENTATION_STRATEGY.md`
 - `SOFTWARE_ASSURANCE_QUALITY_GATES.md`
 - `SOFTWARE_ASSURANCE_VERSIONING.md`
+
+Baseline certification outputs:
+
+- `PLATFORM_BASELINE_1_0.md`
+- `PLATFORM_BASELINE_CERTIFICATION.md`
+- `PLATFORM_BASELINE_GAP_ANALYSIS.md`
+
+Product Strategy Foundation outputs:
+
+- `docs/product/README.md`
+- `docs/product/PRODUCT_STRATEGY.md`
+
+Architecture Closure outputs:
+
+- `ARCHITECTURE_CLOSURE_REVIEW.md`
+- `ARCHITECTURE_DECISION.md`
 
 ## Last Qualification
 
@@ -102,4 +144,8 @@ contain the SHA of the commit that includes its own content.
 ## Repository-Local Next Action
 
 Return to the active Verification roadmap follow-up work before any Software
-Assurance implementation begins.
+Assurance implementation or business-first engineering begins. Resolve the
+Apple latest runtime follow-ups, complete remaining adapter qualification and
+cross-platform qualification, then rerun Platform Baseline certification.
+Do not start additional foundational architecture work unless new evidence
+demonstrates a genuine architecture gap.

@@ -5,6 +5,10 @@ Date: 2026-07-10
 Version: Profile Platform v1
 Baseline owner: `pcvantol/djconnect`
 
+Architecture closure: `ARCHITECTURE_FROZEN` on 2026-07-11. Platform Baseline
+v1.0 certification remains `PLATFORM_BASELINE_V1_NOT_CERTIFIED` until primary
+adapter and cross-platform qualification complete.
+
 ## Purpose
 
 This document captures the officially accepted DJConnect platform baseline
@@ -15,6 +19,11 @@ accepted implementation architecture those principles produced for the Profile
 Platform.
 
 Future platform work starts from this baseline.
+
+The architecture closure review freezes the foundational architecture around
+this baseline. Future work should qualify, implement, verify and evolve product
+value inside this architecture unless a later evidence-backed Architecture
+Review demonstrates a real foundational gap.
 
 ## Version Baseline
 

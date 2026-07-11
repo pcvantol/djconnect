@@ -197,9 +197,13 @@ Completed:
 
 Next:
 
-- ⏳ Phase 9E Home Assistant Scenario Coverage Expansion.
-- ⛔ Phase 10 Apple Verification Adapter, blocked pending successful Phase 9E.
-- ⏳ Phase 10E Apple Scenario Coverage Expansion, future after Phase 10.
+- ✅ Phase 9E-R Home Assistant Scenario Coverage Remediation qualified with
+  non-blocking warnings.
+- ✅ Phase 10 Apple Verification Adapter qualified with live runtime skipped.
+- ⛔ Phase 10E retry is blocked until Phase 10E-R2 latest-runtime follow-ups
+  are resolved and `APPLE_LATEST_RUNTIME_QUALIFIED` is recorded.
+- ⏳ Phase 11+ additional primary adapters remain future work after Apple
+  scenario coverage.
 
 ## Software Assurance Platform
 
@@ -238,7 +242,56 @@ Guardrails:
 - no scanners are introduced during architecture prompts;
 - no GitHub Actions workflows are modified;
 - no release gates are enabled;
+
+## Platform Baseline v1.0 Certification
+
+**Status:** ⛔ Not certified
+**Decision:** `PLATFORM_BASELINE_V1_NOT_CERTIFIED`
+**Evidence:** `PLATFORM_BASELINE_1_0.md`,
+`PLATFORM_BASELINE_CERTIFICATION.md`,
+`PLATFORM_BASELINE_GAP_ANALYSIS.md`
+
+Blocking gaps:
+
+- ⛔ Apple latest runtime qualification remains blocked by VPB-031, VPB-036,
+  VPB-037 and VPB-038.
+- ⛔ Apple scenario coverage is blocked until latest-stable runtime
+  qualification passes.
+- ⛔ Raspberry Pi, ESP32, Voice and Windows primary adapter qualification
+  remains future work.
+- ⛔ Cross-platform qualification has not completed.
+
+Next:
+
+- resume the active Verification roadmap follow-up work;
+- resolve the Apple latest-runtime prerequisites;
+- complete Apple and remaining adapter qualification;
+- run cross-platform qualification;
+- rerun Platform Baseline v1.0 certification.
 - Verification remains owner of behavioural correctness.
+
+## Architecture Closure Review
+
+**Status:** ✅ Frozen
+**Decision:** `ARCHITECTURE_FROZEN`
+**Evidence:** `ARCHITECTURE_CLOSURE_REVIEW.md`, `ARCHITECTURE_DECISION.md`
+
+Result:
+
+- ✅ No additional foundational architecture required.
+- ✅ Platform Strategy, Platform Foundation, Verification Platform, Software
+  Assurance Architecture, Meta Engineering, Repository Bootstrap,
+  Cross-Repository Governance, Repository Metadata and Product Strategy
+  Foundation may be treated as frozen.
+- ⛔ Business-first engineering remains blocked by Platform Baseline
+  certification gaps.
+
+Next:
+
+- resolve adapter and cross-platform qualification blockers inside the frozen
+  architecture;
+- do not create new foundational architecture unless future evidence proves a
+  genuine gap.
 
 ## Epic 4 — Intelligence Platform
 

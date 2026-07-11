@@ -27,6 +27,14 @@ Software Assurance Platform
   -> architecture prompts before quality tooling rollout
   -> implementation phases only after explicit approval
 
+Platform Baseline v1.0 Certification
+  -> not certified on 2026-07-11
+  -> resume adapter and cross-platform qualification before business-first epics
+
+Architecture Closure Review
+  -> frozen on 2026-07-11
+  -> do not create more foundational architecture without evidence-backed review
+
 Epic 8: Website and Product Story
   -> phases to be defined after product-language audit
 
@@ -92,6 +100,35 @@ Canonical architecture:
 Implementation is intentionally deferred until all primary adapters are
 complete, cross-platform qualification has completed, the Verification Runtime
 is stable and the Platform Baseline is updated.
+
+## Platform Baseline v1.0 Certification
+
+The 2026-07-11 certification assessment returned
+`PLATFORM_BASELINE_V1_NOT_CERTIFIED`.
+
+Canonical assessment artifacts:
+
+- `PLATFORM_BASELINE_1_0.md`
+- `PLATFORM_BASELINE_CERTIFICATION.md`
+- `PLATFORM_BASELINE_GAP_ANALYSIS.md`
+
+Business-first engineering remains deferred until adapter qualification,
+cross-platform qualification and runtime maturity gaps are closed and a later
+certification returns `PLATFORM_BASELINE_V1_CERTIFIED`.
+
+## Architecture Closure Review
+
+The Architecture Closure Review returned `ARCHITECTURE_FROZEN` on 2026-07-11.
+
+Canonical closure artifacts:
+
+- `ARCHITECTURE_CLOSURE_REVIEW.md`
+- `ARCHITECTURE_DECISION.md`
+
+Future work should proceed through implementation, verification, quality and
+product evolution inside the frozen architecture. Additional foundational
+architecture should be created only after a future evidence-backed Architecture
+Review demonstrates a genuine gap.
 
 ## Epic 8
 
