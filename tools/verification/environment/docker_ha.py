@@ -12,7 +12,7 @@ import shutil
 import subprocess
 import struct
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -25,6 +25,8 @@ from tools.verification.lab import LabCatalog
 
 
 SECRET_KEY_PARTS = ("token", "password", "secret", "proof", "authorization", "key")
+DEFAULT_HA_STABLE_IMAGE = "ghcr.io/home-assistant/home-assistant:stable"
+DEFAULT_HA_BASELINE_IMAGE = "ghcr.io/home-assistant/home-assistant:2026.7.2"
 
 
 @dataclass(frozen=True)
@@ -94,6 +96,7 @@ class HALabConfig:
     repo_root: Path
     source_sha: str
     source_fingerprint: str
+    auto_update_image: bool = False
 
     @classmethod
     def from_root(cls, root: Path) -> "HALabConfig":
@@ -103,10 +106,12 @@ class HALabConfig:
         catalog = LabCatalog(root)
         fragments = catalog.profile_compose_fragments(profile)
         compose_files = tuple(root / fragment for fragment in fragments) or (root / "verification/lab/home_assistant/compose.yaml",)
+        configured_image = os.getenv("DJCONNECT_VERIFICATION_HA_IMAGE")
+        auto_update_image = configured_image is None and os.getenv("DJCONNECT_VERIFICATION_HA_AUTO_UPDATE", "1").lower() not in {"0", "false", "no", "off"}
         return cls(
             name=os.getenv("DJCONNECT_VERIFICATION_HA_CONTAINER", "djconnect-verification-ha"),
             port=int(os.getenv("DJCONNECT_VERIFICATION_HA_PORT", "18123")),
-            image=os.getenv("DJCONNECT_VERIFICATION_HA_IMAGE", "ghcr.io/home-assistant/home-assistant:2026.7.2"),
+            image=configured_image or DEFAULT_HA_BASELINE_IMAGE,
             compose_file=compose_files[0],
             compose_files=compose_files,
             profile=profile,
@@ -116,6 +121,7 @@ class HALabConfig:
             repo_root=root,
             source_sha=source_sha,
             source_fingerprint=_source_fingerprint(root),
+            auto_update_image=auto_update_image,
         )
 
 
@@ -269,6 +275,7 @@ class HALocalVerificationLab:
             recovery = self._recover_stale_container()
             if not recovery["ok"]:
                 return GateResult("ha_lab_lifecycle", GateState.FAIL, "Lab recovery failed before lifecycle action", recovery)
+        image_resolution = self._resolve_default_image(action)
         env = self._compose_env()
         compose = self._compose_args()
         commands = {
@@ -290,7 +297,14 @@ class HALocalVerificationLab:
             "ha_lab_lifecycle",
             state,
             f"Lab {action} {'completed' if result.ok else 'failed'}",
-            {"action": action, "stdout": result.stdout[-4000:], "stderr": result.stderr[-4000:], "returncode": result.returncode, "diagnostics": diagnostics},
+            {
+                "action": action,
+                "image_resolution": image_resolution,
+                "stdout": result.stdout[-4000:],
+                "stderr": result.stderr[-4000:],
+                "returncode": result.returncode,
+                "diagnostics": diagnostics,
+            },
         )
 
     def qualify(self) -> GateResult:
@@ -366,6 +380,45 @@ class HALocalVerificationLab:
         for path in self.config.compose_files:
             args.extend(["-f", str(path)])
         return tuple(args)
+
+    def _resolve_default_image(self, action: str) -> dict[str, Any]:
+        if action not in {"build", "start", "recreate", "fresh"}:
+            return {"mode": "skipped", "reason": "action_does_not_start_image"}
+        if not self.config.auto_update_image:
+            return {"mode": "fixed", "image": self.config.image}
+        pull = self.docker.run("pull", DEFAULT_HA_STABLE_IMAGE, timeout=300)
+        if not pull.ok:
+            return {
+                "mode": "fallback",
+                "reason": "stable_pull_failed",
+                "image": self.config.image,
+                "stderr": pull.stderr[-1000:],
+            }
+        inspect = self.docker.run("image", "inspect", DEFAULT_HA_STABLE_IMAGE, timeout=30)
+        if not inspect.ok:
+            return {
+                "mode": "fallback",
+                "reason": "stable_inspect_failed",
+                "image": self.config.image,
+                "stderr": inspect.stderr[-1000:],
+            }
+        version = _home_assistant_image_version(inspect.stdout)
+        if not version:
+            return {"mode": "fallback", "reason": "stable_version_label_missing", "image": self.config.image}
+        resolved = f"ghcr.io/home-assistant/home-assistant:{version}"
+        if resolved != self.config.image:
+            self.config = replace(self.config, image=resolved)
+            version_pull = self.docker.run("pull", resolved, timeout=300)
+            if not version_pull.ok:
+                self.config = replace(self.config, image=DEFAULT_HA_BASELINE_IMAGE)
+                return {
+                    "mode": "fallback",
+                    "reason": "version_pull_failed",
+                    "resolved_image": resolved,
+                    "image": self.config.image,
+                    "stderr": version_pull.stderr[-1000:],
+                }
+        return {"mode": "latest_stable", "stable_image": DEFAULT_HA_STABLE_IMAGE, "image": self.config.image, "version": version}
 
     def _ensure_layout(self) -> None:
         self.config.config_dir.mkdir(parents=True, exist_ok=True)
@@ -914,6 +967,21 @@ def _safe_json(text: str) -> dict[str, Any]:
         return json.loads(text)
     except json.JSONDecodeError:
         return {}
+
+
+def _home_assistant_image_version(text: str) -> str:
+    try:
+        payload = json.loads(text)
+    except json.JSONDecodeError:
+        return ""
+    image = payload[0] if isinstance(payload, list) and payload else payload
+    if not isinstance(image, dict):
+        return ""
+    labels = (image.get("Config") or {}).get("Labels") or {}
+    if not isinstance(labels, dict):
+        return ""
+    version = str(labels.get("io.hass.version") or labels.get("org.opencontainers.image.version") or "")
+    return version if version and version[0].isdigit() else ""
 
 
 def _source_fingerprint(root: Path) -> str:

@@ -144,6 +144,46 @@ class Phase09LLocalHALabTests(unittest.TestCase):
         self.assertIn(("rm", "-f", "djconnect-verification-ha"), fake.calls)
         self.assertIn(("compose", "-f", str(config.compose_file), "up", "-d"), fake.calls)
 
+    def test_start_auto_resolves_latest_stable_ha_image(self) -> None:
+        config = _lab_config(self.root, auto_update_image=True)
+        fake = FakeDocker(
+            {
+                ("ps", "-a", "--filter", "name=djconnect-verification-ha", "--format", "{{json .}}"): DockerCommandResult(True, stdout=""),
+                ("pull", "ghcr.io/home-assistant/home-assistant:stable"): DockerCommandResult(True, stdout="stable pulled"),
+                ("image", "inspect", "ghcr.io/home-assistant/home-assistant:stable"): DockerCommandResult(
+                    True,
+                    stdout=json.dumps([{"Config": {"Labels": {"io.hass.version": "2026.8.1"}}}]),
+                ),
+                ("pull", "ghcr.io/home-assistant/home-assistant:2026.8.1"): DockerCommandResult(True, stdout="version pulled"),
+                ("compose", "-f", str(config.compose_file), "up", "-d"): DockerCommandResult(True, stdout="started"),
+                ("logs", "--tail", "80", "--timestamps", "djconnect-verification-ha"): DockerCommandResult(True, stdout=""),
+            }
+        )
+
+        gate = HALocalVerificationLab(self.root, fake, config).lifecycle("start")
+
+        self.assertEqual(GateState.PASS, gate.state)
+        self.assertEqual("latest_stable", gate.metadata["image_resolution"]["mode"])
+        self.assertEqual("ghcr.io/home-assistant/home-assistant:2026.8.1", gate.metadata["image_resolution"]["image"])
+        self.assertIn(("pull", "ghcr.io/home-assistant/home-assistant:stable"), fake.calls)
+        self.assertIn(("pull", "ghcr.io/home-assistant/home-assistant:2026.8.1"), fake.calls)
+
+    def test_start_keeps_explicit_ha_image_without_auto_update(self) -> None:
+        config = _lab_config(self.root, image="example/ha:test", auto_update_image=False)
+        fake = FakeDocker(
+            {
+                ("ps", "-a", "--filter", "name=djconnect-verification-ha", "--format", "{{json .}}"): DockerCommandResult(True, stdout=""),
+                ("compose", "-f", str(config.compose_file), "up", "-d"): DockerCommandResult(True, stdout="started"),
+                ("logs", "--tail", "80", "--timestamps", "djconnect-verification-ha"): DockerCommandResult(True, stdout=""),
+            }
+        )
+
+        gate = HALocalVerificationLab(self.root, fake, config).lifecycle("start")
+
+        self.assertEqual(GateState.PASS, gate.state)
+        self.assertEqual({"mode": "fixed", "image": "example/ha:test"}, gate.metadata["image_resolution"])
+        self.assertNotIn(("pull", "ghcr.io/home-assistant/home-assistant:stable"), fake.calls)
+
     def test_github_auth_accepts_gh_token_noninteractive_as_warning(self) -> None:
         inspector = GitHubInspector(self.root)
         with patch("tools.verification.environment.github._gh_status") as status, patch.dict("os.environ", {"GH_TOKEN": "redacted"}):
@@ -206,12 +246,12 @@ class Phase09LLocalHALabTests(unittest.TestCase):
         self.assertEqual("djconnect-conversation-agent", djconnect[0]["unique_id"])
 
 
-def _lab_config(root: Path) -> HALabConfig:
+def _lab_config(root: Path, *, image: str = "ghcr.io/home-assistant/home-assistant:2026.7.2", auto_update_image: bool = False) -> HALabConfig:
     temp_root = Path(tempfile.mkdtemp()) / "lab"
     return HALabConfig(
         name="djconnect-verification-ha",
         port=18123,
-        image="ghcr.io/home-assistant/home-assistant:2026.7.2",
+        image=image,
         compose_file=root / "verification/lab/home_assistant/compose.yaml",
         compose_files=(root / "verification/lab/home_assistant/compose.yaml",),
         profile="ha-profile",
@@ -221,6 +261,7 @@ def _lab_config(root: Path) -> HALabConfig:
         repo_root=root,
         source_sha=_git_sha(root),
         source_fingerprint="fingerprint",
+        auto_update_image=auto_update_image,
     )
 
 
