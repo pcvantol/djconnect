@@ -63,7 +63,7 @@ Runtime schema version: `1`
 
 ### Verified
 
-- `python3 -m pytest tests/verification` passed with 115 tests.
+- `python3 -m pytest tests/verification` passed with 116 tests.
 - Docker release dry-runs produced the expected runtime tags:
   `1.0.0`, `1.0.0-<short-sha>` and `sha-<short-sha>`.
 - Runtime config reports `parallel_execution: true`, stable test mode and
@@ -73,16 +73,20 @@ Runtime schema version: `1`
 - The repository validation workflow includes a dedicated Verification
   framework test job.
 
-### Known Limitations
+### Deferred Follow-Ups
 
-- Hosted GitHub runners are intended for non-mutating verification work until
-  workflow jobs and artifact upload are implemented.
 - Docker Hub publication requires GitHub repository secrets
   `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` with push scope for
-  `pcvantol/djconnect`.
+  `pcvantol/djconnect`; the operator will configure those outside this branch.
+- Docker repository naming may be improved later; the current published
+  `pcvantol/djconnect` runtime tags remain valid for this branch.
 - Live Home Assistant labs, Apple simulator runs, hardware, SSH/serial, signing
   material and destructive cleanup require capability-gated self-hosted runners
-  or approved local labs.
+  or approved local labs; self-hosted runner support is deferred to a separate
+  epic.
+
+### Known Limitations
+
 - Phase 10E-R2 remains blocked until latest eligible stable Apple runtime
   qualification passes.
 

@@ -14,7 +14,7 @@ Do not create GitHub issues automatically from this backlog.
 | VPB-006 | P0 | Environment issue | Approved HA storage path is provided by the dedicated verification lab root and was live-proven in Phase 9L-R6. | Verification Environment / Operator | `djconnect` | No | Done | Phase 9L-R6 |
 | VPB-007 | P1 | Verification Data Framework gap | Run evidence should make deterministic seed and generator versions easier to inspect for generated datasets. Smoke data was sufficient for Phase 9V rerun, but richer data-driven phases need stronger evidence. | Data Framework / Planning Engine | `djconnect` | No | S | Phase 9E |
 | VPB-008 | P1 | Planning Engine gap | Canonical planning selected the real scenario catalog in Phase 9V rerun. Keep CLI fail-closed behavior covered so examples/defaults are never treated as canonical execution scope. | Planning Engine / CLI | `djconnect` | No | S | Phase 9E regression |
-| VPB-009 | P1 | Verification Gap | Exact-SHA CI qualification implemented; CI still requires valid local auth or approved token. | Execution Environment / Operator | `djconnect` | Blocks CI qualification | S | Phase 9R |
+| VPB-009 | P1 | Verification Gap | Exact-SHA CI qualification is implemented and regular repository CI now runs the Verification Platform unit suite. Local `gh` auth remains useful for workstation-side CI inspection, but it no longer blocks framework CI qualification. | Execution Environment / Operator | `djconnect` | No | Done | Phase 10E-R2 framework hardening |
 | VPB-010 | P1 | Dogfooding Gap | Investigator unit tests added to the verification regression subset. | Verification Core | `djconnect` | No | Done | Phase 9R |
 | VPB-011 | P2 | Documentation issue | Qualification commands now use the canonical local HA lab profile. Continue improving concise operator docs as live coverage phases add more scenario batches. | Verification Docs | `djconnect` | No | S | Phase 9E follow-up |
 | VPB-012 | P0 | Environment issue | Stale dedicated lab container cleanup was previously blocked by Docker Desktop/containerd. Phase 9L-R6 started a fresh dedicated lab successfully after Docker Desktop stabilization and Documents permission approval. | Verification Environment / Local Docker | `djconnect` | No | Done | Phase 9L-R6 |
@@ -38,6 +38,9 @@ Do not create GitHub issues automatically from this backlog.
 | VPB-030 | P0 | Environment issue | Phase 10E added and executed `python3 -m tools.verification.cli apple qualify-runtime`; the gate correctly returned `APPLE_RUNTIME_QUALIFICATION_BLOCKED` because release-equivalent build command, prepared simulator target JSON, isolated DerivedData, install/launch artifact, screenshot/log evidence and UI automation healthcheck were not configured. | Verification Execution Environment / Apple Adapter / Operator | `djconnect`, `djconnect-app` | Blocks broad Apple scenario execution | M | Phase 10E-R |
 | VPB-031 | P0 | Product implementation defect | Phase 10E-R found the iOS Release simulator build failed because `DJConnectError.profile` was not handled in the Apple watch-proxy error-code mapper. A local `djconnect-app` fix maps it to `profile_error`; commit that cross-repo fix before treating Phase 10E retry as clean-clone reproducible. | Apple Client | `djconnect-app` | Blocks clean reproducibility until committed | S | Phase 10E retry prerequisite |
 | VPB-032 | P0 | Execution Environment / operator configuration issue | Apple verification now has to keep the Xcode/iOS simulator platform current and qualify only the latest eligible stable iOS simulator runtime for the active mode. The latest rerun passed toolchain maintenance with Xcode 26.6 and stable iOS 26.5, then failed closed before live mutation because isolated DerivedData, prepared Apple target JSON, distribution signing expectations and UI healthcheck command/driver were not configured. iOS 27.0 remains available only through the `future_beta` route. | Verification Execution Environment / Operator / Apple Adapter | `djconnect`, `djconnect-app` | Blocks Phase 10E retry and broad Apple scenario execution | M | Phase 10E-R2 |
+| VPB-033 | P2 | Release operations follow-up | Docker Hub secret provisioning for the publish workflow is intentionally operator-owned and will be configured outside this branch. Missing GitHub `DOCKERHUB_USERNAME`/`DOCKERHUB_TOKEN` does not block the framework code or documentation in this branch. | Operator / Release Operations | `djconnect` | No | S | Release operations follow-up |
+| VPB-034 | P2 | Release operations follow-up | Docker repository naming may be improved later, for example by moving the generic runtime to a clearer verification-platform-specific Docker repository. The current published `pcvantol/djconnect` tags remain valid for this branch. | Operator / Release Operations | Docker Hub | No | S | Release naming follow-up |
+| VPB-035 | P1 | Runner infrastructure epic | Self-hosted runner support for labs, Apple simulators, hardware, SSH/serial and signing is deferred to a separate epic. Hosted GitHub runner support for non-mutating framework tests and Docker release publishing is implemented. | Platform Infrastructure | `djconnect` | No | L | Future self-hosted runner epic |
 
 ## Regression Subset Required After Fixes
 
@@ -74,6 +77,9 @@ Phase 10E-R2 reports:
 
 APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED
 
-Phase 10E retry remains blocked until latest stable-runtime qualification returns
+Framework runtime, Docker release workflow and regular CI are not blocked by
+Docker Hub secret provisioning, Docker repository naming or self-hosted runner
+availability; those are tracked as follow-ups above. Phase 10E retry remains
+blocked only by Apple latest stable-runtime qualification returning
 `APPLE_LATEST_RUNTIME_QUALIFIED`. Phase 11 remains blocked until Apple scenario
 coverage itself has reported.
