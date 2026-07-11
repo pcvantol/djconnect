@@ -1,6 +1,6 @@
 # Verification Platform Scorecard
 
-Status: PLATFORM QUALIFIED; HOME ASSISTANT BACKEND COVERAGE QUALIFIED WITH WARNINGS; APPLE RUNTIME QUALIFIED
+Status: PLATFORM QUALIFIED; HOME ASSISTANT BACKEND COVERAGE QUALIFIED WITH WARNINGS; APPLE LATEST RUNTIME QUALIFICATION BLOCKED
 
 Scoring scale:
 
@@ -25,7 +25,7 @@ Scoring scale:
 | GitHub CI | 5 | Exact-SHA CI inspected two successful GitHub Actions runs for the tested SHA. |
 | Dogfooding Coverage | 4 | `tests/verification` passed 69 tests and catalog validation covered 231 scenarios; live Docker tests remain opt-in. |
 | Home Assistant Backend Coverage | 4 | Phase 9E-R executed and qualified 195 HA backend or separable HA backend assertion-path scenarios; 28 client/hardware/release/voice-localization scenarios remain correctly deferred. |
-| Apple Adapter | 4 | Thin Apple adapter primitives, Scenario Engine selection and Execution Environment simulator metadata are implemented and mock-tested; Phase 10E-R qualified the live iOS simulator runtime path with build, install, launch, screenshot, logs and XCTest healthcheck evidence. |
+| Apple Adapter | 3 | Thin Apple adapter primitives, Scenario Engine selection and Execution Environment simulator metadata are implemented and mock-tested; Phase 10E-R qualified an older selected iOS simulator runtime, but the stricter latest-runtime gate is blocked by the iOS 27.0 integrated XCTest healthcheck timeout. |
 | Overall | 4 | The platform is qualified for the next adapter phase with non-blocking framework improvements tracked. |
 
 ## Decision
@@ -40,6 +40,8 @@ APPLE_RUNTIME_QUALIFICATION_BLOCKED
 
 APPLE_RUNTIME_QUALIFIED
 
+APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED
+
 The Verification Platform itself remains qualified, and Phase 9E-R qualifies
 broad Home Assistant backend coverage with one non-blocking warning. The
 warning was a transient local HA websocket timeout affecting two scenarios in a
@@ -48,7 +50,9 @@ the affected-scenario rerun passed.
 
 Phase 10 completed the thin Apple adapter with mock/unit evidence. Phase 10E
 executed the mandatory Apple Runtime Qualification gate first and correctly
-failed closed. Phase 10E-R then qualified the local iOS simulator runtime path
-with release-equivalent simulator build, prepared target JSON, isolated
-DerivedData, install, launch, screenshot, scoped log collection and XCTest UI
-healthcheck evidence. Continue with Phase 10E retry before Phase 11.
+failed closed. Phase 10E-R then qualified the originally selected local iOS
+simulator runtime path. The later latest-runtime requirement added toolchain
+maintenance and target freshness enforcement; Phase 10E-R2 passed toolchain
+maintenance with Xcode 26.6 and iOS 27.0 available, but the full latest-runtime
+gate is blocked by the integrated XCTest UI healthcheck timeout. Continue
+Phase 10E-R2 before Phase 10E retry or Phase 11.

@@ -10,7 +10,14 @@
     "report": "docs/verification/reports/PHASE_10E_R_APPLE_RUNTIME_QUALIFICATION_REMEDIATION.md",
     "run_id": "apple10e-20260711T115656Z-4cea94c38f"
   },
-  "status": "blocked_then_remediated",
+  "latest_runtime_gate": {
+    "decision": "APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED",
+    "phase": "10E-R2",
+    "report": "docs/verification/reports/PHASE_10E_R2_APPLE_LATEST_RUNTIME_QUALIFICATION.md",
+    "toolchain_run_id": "appletoolchain-20260711T120519Z-d8c912c54e",
+    "runtime_run_id": "apple10e-20260711T121537Z-9c692b98a7"
+  },
+  "status": "blocked_then_selected_runtime_remediated_then_latest_runtime_blocked",
   "summary": "Mandatory Apple Runtime Qualification failed closed before broad Apple scenario execution.",
   "checks": {
     "release_equivalent_build": "BLOCKED",

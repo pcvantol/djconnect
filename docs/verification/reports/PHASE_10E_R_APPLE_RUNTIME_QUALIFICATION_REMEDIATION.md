@@ -1,6 +1,6 @@
 # Phase 10E-R Apple Runtime Qualification Remediation
 
-Status: APPLE_RUNTIME_QUALIFIED
+Status: APPLE_RUNTIME_QUALIFIED_ON_SELECTED_RUNTIME; SUPERSEDED_BY_LATEST_RUNTIME_GATE
 Date: 2026-07-11
 
 ## Executive Summary
@@ -18,9 +18,19 @@ Decision:
 APPLE_RUNTIME_QUALIFIED
 ```
 
+Later in the same branch, the operator tightened the Apple prerequisite:
+verification must always check the current Xcode/iOS simulator platform and use
+the latest locally available iOS simulator runtime. That stricter requirement
+supersedes this report as the active Apple runtime gate. See:
+
+```text
+docs/verification/reports/PHASE_10E_R2_APPLE_LATEST_RUNTIME_QUALIFICATION.md
+```
+
 Broad Apple scenario execution may now be selected by the Planning Engine in a
-Phase 10E retry. Phase 11 must not start until Apple scenario coverage itself
-has run and reported.
+Phase 10E retry only after Phase 10E-R2 returns
+`APPLE_LATEST_RUNTIME_QUALIFIED`. Phase 11 must not start until Apple scenario
+coverage itself has run and reported.
 
 ## Evidence
 
@@ -162,11 +172,11 @@ committed.
 
 ## Completion Decision
 
-Phase 10E-R is complete:
+Phase 10E-R is complete for the originally selected runtime:
 
 ```text
 APPLE_RUNTIME_QUALIFIED
 ```
 
-Continue with Phase 10E retry to select and execute the first Apple scenario
-coverage set. Do not begin Phase 11 yet.
+The active prerequisite is now Phase 10E-R2 latest-runtime qualification.
+Continue there before Phase 10E retry. Do not begin Phase 11 yet.

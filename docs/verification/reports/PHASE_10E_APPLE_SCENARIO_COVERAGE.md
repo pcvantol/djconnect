@@ -126,11 +126,18 @@ Phase 10E-R later remediated this runtime blocker and returned:
 APPLE_RUNTIME_QUALIFIED
 ```
 
+That selected-runtime qualification was later superseded by the stricter
+latest-runtime requirement. Phase 10E-R2 returned:
+
+```text
+APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED
+```
+
 Phase 10E remains complete as a fail-closed qualification run:
 
 ```text
 APPLE_RUNTIME_QUALIFICATION_BLOCKED
 ```
 
-Do not start Phase 11. Continue with Phase 10E-R Apple Runtime Qualification
-Remediation.
+Do not start Phase 11. Continue with Phase 10E-R2 Apple Latest Runtime
+Qualification Remediation.

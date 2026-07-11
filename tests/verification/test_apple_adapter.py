@@ -17,6 +17,7 @@ from tools.verification.apple_adapter import (
 )
 from tools.verification.environment.platforms import AppleDevelopmentEnvironment
 from tools.verification.apple_runtime_qualification import AppleRuntimeQualification
+from tools.verification.apple_runtime_qualification import latest_ios_simulator_runtime
 from tools.verification.models import PrimitiveAction, Scenario
 from tools.verification.scenario.engine import ScenarioEngine
 
@@ -47,6 +48,29 @@ SIMCTL_JSON = json.dumps(
                     "name": "Apple Watch",
                     "udid": "SIM-WATCH",
                     "state": "Shutdown",
+                    "isAvailable": True,
+                }
+            ],
+        }
+    }
+)
+
+SIMCTL_MULTI_IOS_JSON = json.dumps(
+    {
+        "devices": {
+            "com.apple.CoreSimulator.SimRuntime.iOS-26-5": [
+                {
+                    "name": "iPhone 17",
+                    "udid": "SIM-IOS-26-5",
+                    "state": "Shutdown",
+                    "isAvailable": True,
+                }
+            ],
+            "com.apple.CoreSimulator.SimRuntime.iOS-27-0": [
+                {
+                    "name": "iPhone 17 Pro",
+                    "udid": "SIM-IOS-27-0",
+                    "state": "Booted",
                     "isAvailable": True,
                 }
             ],
@@ -224,6 +248,93 @@ class AppleAdapterTests(unittest.TestCase):
             self.assertEqual("BLOCKED", states["simulator_target"])
             self.assertEqual("SKIPPED", states["physical_device_target"])
             self.assertTrue((Path(result.evidence_dir) / "summary.json").exists())
+
+    def test_latest_ios_simulator_runtime_selects_highest_available_ios_runtime(self) -> None:
+        runner = FakeRunner({("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON)})
+
+        runtime = latest_ios_simulator_runtime(runner)
+
+        self.assertIsNotNone(runtime)
+        self.assertEqual("27.0", runtime["version"])
+        self.assertEqual(["SIM-IOS-27-0"], runtime["udids"])
+
+    def test_phase_10e_runtime_qualification_blocks_non_latest_ios_target(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "djconnect"
+            apple_repo = Path(tmp) / "djconnect-app"
+            app_path = Path(tmp) / "DJConnect.app"
+            (root / "artifacts" / "verification" / "evidence").mkdir(parents=True)
+            (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
+            (apple_repo / "App.entitlements").write_text("<plist/>", encoding="utf-8")
+            app_path.write_text("fixture", encoding="utf-8")
+            target_json = json.dumps(
+                {
+                    "target_id": "old-ios",
+                    "variant": "ios",
+                    "runtime": "simulator",
+                    "name": "iPhone 17",
+                    "udid": "SIM-IOS-26-5",
+                    "bundle_id": "dev.djconnect.ios",
+                    "app_path": str(app_path),
+                }
+            )
+            with patch.dict(
+                "os.environ",
+                {
+                    "DJCONNECT_VERIFICATION_APPLE_TARGET_JSON": target_json,
+                    "DJCONNECT_VERIFICATION_APPLE_BUILD_COMMAND": "true",
+                    "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(Path(tmp) / "DerivedData"),
+                    "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
+                    "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
+                },
+                clear=False,
+            ), patch("tools.verification.apple_runtime_qualification.CommandRunner", lambda: FakeRunner({
+                ("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON),
+            })):
+                result = AppleRuntimeQualification(root, apple_repo=apple_repo).run()
+
+            simulator = next(check for check in result.checks if check.name == "simulator_target")
+            self.assertEqual("BLOCKED", simulator.state)
+            self.assertIn("latest locally available iOS runtime", simulator.message)
+
+    def test_phase_10e_runtime_qualification_blocks_when_latest_ios_runtime_unknown(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "djconnect"
+            apple_repo = Path(tmp) / "djconnect-app"
+            app_path = Path(tmp) / "DJConnect.app"
+            (root / "artifacts" / "verification" / "evidence").mkdir(parents=True)
+            (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
+            (apple_repo / "App.entitlements").write_text("<plist/>", encoding="utf-8")
+            app_path.write_text("fixture", encoding="utf-8")
+            target_json = json.dumps(
+                {
+                    "target_id": "ios-target",
+                    "variant": "ios",
+                    "runtime": "simulator",
+                    "name": "iPhone 17",
+                    "udid": "SIM-IOS-27-0",
+                    "bundle_id": "dev.djconnect.ios",
+                    "app_path": str(app_path),
+                }
+            )
+            with patch.dict(
+                "os.environ",
+                {
+                    "DJCONNECT_VERIFICATION_APPLE_TARGET_JSON": target_json,
+                    "DJCONNECT_VERIFICATION_APPLE_BUILD_COMMAND": "true",
+                    "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(Path(tmp) / "DerivedData"),
+                    "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
+                    "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
+                },
+                clear=False,
+            ), patch("tools.verification.apple_runtime_qualification.CommandRunner", lambda: FakeRunner({
+                ("xcrun", "simctl", "list", "devices", "available", "--json"): (1, "simctl failed"),
+            })):
+                result = AppleRuntimeQualification(root, apple_repo=apple_repo).run()
+
+            simulator = next(check for check in result.checks if check.name == "simulator_target")
+            self.assertEqual("BLOCKED", simulator.state)
+            self.assertIn("could not be determined", simulator.message)
 
 
 if __name__ == "__main__":

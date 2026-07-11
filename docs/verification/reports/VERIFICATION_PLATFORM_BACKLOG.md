@@ -1,6 +1,6 @@
 # Verification Platform Backlog
 
-Status: active after Phase 10E-R
+Status: active after Phase 10E-R2 latest-runtime gate
 
 Do not create GitHub issues automatically from this backlog.
 
@@ -37,6 +37,7 @@ Do not create GitHub issues automatically from this backlog.
 | VPB-029 | P2 | Apple Adapter gap | watchOS paired simulator orchestration and physical Apple Watch execution are not implemented in Phase 10. Physical devices must remain explicit opt-in. | Apple Adapter / Execution Environment / Operator | `djconnect`, `djconnect-app` | Blocks watchOS live coverage | L | Future Apple coverage phase |
 | VPB-030 | P0 | Environment issue | Phase 10E added and executed `python3 -m tools.verification.cli apple qualify-runtime`; the gate correctly returned `APPLE_RUNTIME_QUALIFICATION_BLOCKED` because release-equivalent build command, prepared simulator target JSON, isolated DerivedData, install/launch artifact, screenshot/log evidence and UI automation healthcheck were not configured. | Verification Execution Environment / Apple Adapter / Operator | `djconnect`, `djconnect-app` | Blocks broad Apple scenario execution | M | Phase 10E-R |
 | VPB-031 | P0 | Product implementation defect | Phase 10E-R found the iOS Release simulator build failed because `DJConnectError.profile` was not handled in the Apple watch-proxy error-code mapper. A local `djconnect-app` fix maps it to `profile_error`; commit that cross-repo fix before treating Phase 10E retry as clean-clone reproducible. | Apple Client | `djconnect-app` | Blocks clean reproducibility until committed | S | Phase 10E retry prerequisite |
+| VPB-032 | P0 | Execution Environment issue | Apple verification now has to keep the Xcode/iOS simulator platform current and qualify only the latest locally available iOS simulator runtime. The toolchain gate passed with Xcode 26.6 and iOS 27.0 available, but the integrated latest-runtime qualification timed out in the XCTest UI healthcheck after build, install, launch, screenshot and logs passed. | Verification Execution Environment / Apple Adapter / XCTest runner | `djconnect`, `djconnect-app` | Blocks Phase 10E retry and broad Apple scenario execution | M | Phase 10E-R2 |
 
 ## Regression Subset Required After Fixes
 
@@ -69,5 +70,10 @@ Phase 10E-R reports:
 
 APPLE_RUNTIME_QUALIFIED
 
-Phase 10E retry may select and execute the first Apple scenario coverage set.
-Phase 11 remains blocked until Apple scenario coverage itself has reported.
+Phase 10E-R2 reports:
+
+APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED
+
+Phase 10E retry remains blocked until latest-runtime qualification returns
+`APPLE_LATEST_RUNTIME_QUALIFIED`. Phase 11 remains blocked until Apple scenario
+coverage itself has reported.

@@ -68,6 +68,7 @@ def build_parser() -> argparse.ArgumentParser:
     apple = subparsers.add_parser("apple")
     apple_subparsers = apple.add_subparsers(dest="apple_command", required=True)
     apple_subparsers.add_parser("qualify-runtime")
+    apple_subparsers.add_parser("ensure-ios-runtime")
     subparsers.add_parser("env")
     subparsers.add_parser("schema")
     subparsers.add_parser("config")
@@ -230,10 +231,16 @@ def main(argv: list[str] | None = None) -> int:
             return 0 if gate.passed else 1
 
     if args.command == "apple":
-        from .apple_runtime_qualification import AppleRuntimeQualification, result_to_json
-
         if args.apple_command == "qualify-runtime":
+            from .apple_runtime_qualification import AppleRuntimeQualification, result_to_json
+
             result = AppleRuntimeQualification(config.root).run()
+            print(result_to_json(result))
+            return 0 if result.state == "PASS" else 1
+        if args.apple_command == "ensure-ios-runtime":
+            from .apple_toolchain import AppleToolchainMaintenance, result_to_json
+
+            result = AppleToolchainMaintenance(config.root).ensure_ios_runtime()
             print(result_to_json(result))
             return 0 if result.state == "PASS" else 1
 

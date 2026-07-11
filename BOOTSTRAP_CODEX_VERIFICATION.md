@@ -55,12 +55,22 @@ start because release-equivalent build command, prepared Apple target JSON,
 isolated DerivedData, install/launch target, screenshot/log evidence and UI
 automation healthcheck configuration were missing.
 
-Phase 10E-R Apple Runtime Qualification Remediation returned
-`APPLE_RUNTIME_QUALIFIED`. The local iOS simulator runtime path is qualified
-with release-equivalent simulator build, prepared iPhone target JSON, isolated
-DerivedData, install, launch, screenshot, scoped logs and XCTest healthcheck
-evidence. Broad Apple scenario coverage can resume in a Phase 10E retry, but
-Phase 11 must not start until Apple scenario coverage itself has reported.
+Phase 10E-R Apple Runtime Qualification Remediation first returned
+`APPLE_RUNTIME_QUALIFIED` on the then-selected local iOS simulator. A later
+operator requirement tightened Apple qualification: verification must first
+ensure the local Xcode/iOS simulator toolchain is current, download the latest
+iOS simulator platform through Xcode when available, and require Phase 10E
+qualification targets to use the latest locally available iOS simulator
+runtime.
+
+Phase 10E-R2 Apple Latest Runtime Qualification returned
+`APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED`. The toolchain maintenance gate
+passed with Xcode 26.6, no macOS Software Update Xcode update advertised, and
+latest local iOS runtime 27.0 available. The full runtime qualification on iOS
+27.0 passed build, install, launch, screenshot and log collection, but the
+integrated XCTest UI healthcheck timed out. Broad Apple scenario coverage must
+not resume until Phase 10E-R2 remediates or classifies that latest-runtime
+healthcheck blocker.
 
 The active next phase is listed in `PROMPT_INDEX.md`.
 

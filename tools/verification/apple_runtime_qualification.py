@@ -14,6 +14,7 @@ from typing import Any
 from tools.verification.apple_adapter import AppleAdapterConfig, AppleVerificationAdapter
 from tools.verification.evidence import RunStore
 from tools.verification.environment.identity import RunIdentityManager
+from tools.verification.environment.platforms import CommandRunner
 
 
 MANDATORY_CHECKS = (
@@ -150,7 +151,34 @@ class AppleRuntimeQualification:
             return _check("simulator_target", "BLOCKED", "No prepared Apple target JSON configured.", {"required_env": "DJCONNECT_VERIFICATION_APPLE_TARGET_JSON"})
         if target.runtime != "simulator":
             return _check("simulator_target", "BLOCKED", "Configured target is not a simulator.", {"target": target.to_dict()})
-        return _check("simulator_target", "PASS", "Prepared simulator target configured.", {"target": target.to_dict()})
+        ios_runtime = latest_ios_simulator_runtime()
+        if not ios_runtime:
+            return _check(
+                "simulator_target",
+                "BLOCKED",
+                "Latest locally available iOS simulator runtime could not be determined.",
+                {
+                    "target": target.to_dict(),
+                    "recommended_action": "Run `python3 -m tools.verification.cli apple ensure-ios-runtime`, then retry Apple Runtime Qualification.",
+                },
+            )
+        if target.udid not in ios_runtime.get("udids", ()):
+            return _check(
+                "simulator_target",
+                "BLOCKED",
+                "Configured simulator target is not on the latest locally available iOS runtime.",
+                {
+                    "target": target.to_dict(),
+                    "latest_ios_runtime": ios_runtime,
+                    "recommended_action": "Run `python3 -m tools.verification.cli apple ensure-ios-runtime`, then regenerate DJCONNECT_VERIFICATION_APPLE_TARGET_JSON from the latest iOS simulator runtime.",
+                },
+            )
+        return _check(
+            "simulator_target",
+            "PASS",
+            "Prepared simulator target configured on the latest locally available iOS runtime.",
+            {"target": target.to_dict(), "latest_ios_runtime": ios_runtime},
+        )
 
     def _physical_device_target(self) -> AppleQualificationCheck:
         if os.getenv("DJCONNECT_VERIFICATION_APPLE_ALLOW_PHYSICAL", "").lower() not in {"1", "true", "yes", "on"}:
@@ -183,7 +211,11 @@ class AppleRuntimeQualification:
                     ]
                 },
             )
-        code, output = _run_shell(command, self.apple_repo, timeout=300)
+        code, output = _run_shell(
+            command,
+            self.apple_repo,
+            timeout=int(os.getenv("DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_TIMEOUT", "600")),
+        )
         return _check("ui_automation_healthcheck", "PASS" if code == 0 else "FAIL", "UI automation healthcheck executed." if code == 0 else "UI automation healthcheck failed.", {"driver": driver, "returncode": code, "output_tail": output[-4000:]})
 
     @staticmethod
@@ -207,3 +239,63 @@ def _run_shell(command: str, cwd: Path, *, timeout: int) -> tuple[int, str]:
 
 def result_to_json(result: AppleQualificationResult) -> str:
     return json.dumps(asdict(result), indent=2, sort_keys=True)
+
+
+def latest_ios_simulator_runtime(runner: CommandRunner | None = None) -> dict[str, Any] | None:
+    runner = runner or CommandRunner()
+    code, output = runner.run(("xcrun", "simctl", "list", "devices", "available", "--json"), timeout=20)
+    if code != 0:
+        return None
+    try:
+        data = json.loads(output)
+    except json.JSONDecodeError:
+        return None
+    devices_by_runtime = data.get("devices")
+    if not isinstance(devices_by_runtime, dict):
+        return None
+    ios_runtimes: list[dict[str, Any]] = []
+    for runtime, devices in devices_by_runtime.items():
+        runtime_text = str(runtime)
+        if "SimRuntime.iOS-" not in runtime_text or not isinstance(devices, list):
+            continue
+        available_devices = [device for device in devices if isinstance(device, dict) and device.get("isAvailable", device.get("is_available"))]
+        if not available_devices:
+            continue
+        version = _runtime_version(runtime_text)
+        ios_runtimes.append(
+            {
+                "runtime": runtime_text,
+                "version": version,
+                "version_key": _version_key(version),
+                "devices": [
+                    {
+                        "name": device.get("name"),
+                        "udid": device.get("udid"),
+                        "state": device.get("state"),
+                    }
+                    for device in available_devices
+                ],
+                "udids": [str(device.get("udid")) for device in available_devices if device.get("udid")],
+            }
+        )
+    if not ios_runtimes:
+        return None
+    latest = sorted(ios_runtimes, key=lambda item: item["version_key"])[-1]
+    return {key: value for key, value in latest.items() if key != "version_key"}
+
+
+def _runtime_version(runtime: str) -> str:
+    marker = "SimRuntime.iOS-"
+    if marker not in runtime:
+        return ""
+    return runtime.split(marker, 1)[1].replace("-", ".")
+
+
+def _version_key(version: str) -> tuple[int, ...]:
+    parts: list[int] = []
+    for item in version.split("."):
+        try:
+            parts.append(int(item))
+        except ValueError:
+            parts.append(0)
+    return tuple(parts)
