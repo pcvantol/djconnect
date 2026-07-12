@@ -205,6 +205,95 @@ Next:
 - ✅ Phase 13 Windows Verification Adapter qualified with live runtime pending.
 - ⏳ Windows live runtime qualification remains pending prepared Parallels
   target JSON and real `djconnect-windows` artifact/runtime commands.
+- ⏳ Phase 14 Cross-Platform Qualification remains future work after Windows
+  live qualification.
+- ⏳ Phase 15 Platform Test Coverage Improvement is inserted after Coverage
+  Baseline 1 and cross-platform qualification, before Platform Baseline v1.0
+  Certification.
+
+## Coverage Baseline 1
+
+**Status:** ✅ Established
+**Decision:** `CROSS_PLATFORM_COVERAGE_BASELINE_ESTABLISHED`
+**Runtime:** Verification Runtime `1.1.0`
+
+Baseline repositories:
+
+- Home Assistant: 16.43% line, 10.19% branch.
+- Apple: 9.39% line.
+- Raspberry Pi: 75.09% line, 61.99% branch.
+
+Coverage Baseline 1 is immutable historical evidence. Future coverage
+improvement must compare against it, not replace it.
+
+Windows is intentionally excluded from Coverage Baseline 1 until Phase 13E has
+completed and an initial validated Windows coverage baseline exists.
+
+## Phase 15 — Platform Test Coverage Improvement
+
+**Status:** ⏳ Not started
+**Position:** After Coverage Baseline 1, Phase 13E Windows Live Qualification
+and Phase 14 Cross-Platform Qualification; before Platform Baseline v1.0
+Certification.
+**Goal:** Increase meaningful automated test coverage across all platform
+repositories without changing coverage scope to inflate percentages.
+
+Purpose:
+
+- improve native test suites;
+- deepen verification evidence;
+- improve testability where justified by risk;
+- preserve Coverage Baseline 1 as immutable comparison evidence.
+
+Allowed coverage improvement sources:
+
+- better tests;
+- deeper verification;
+- improved testability.
+
+Forbidden coverage improvement sources:
+
+- excluding valid production code;
+- manipulating coverage scope;
+- removing difficult code from measurement.
+
+Objectives:
+
+- Home Assistant: validate coverage scope and improve unit, integration and
+  runtime verification coverage.
+- Apple: expand simulator tests, runtime tests and domain/service coverage.
+- Raspberry Pi: preserve existing quality and improve only where justified by
+  risk analysis.
+- Windows: after Phase 13E, establish the first validated Windows coverage
+  baseline, expand adapter/runtime tests and include Windows in future coverage
+  baselines.
+
+Deliverables:
+
+- improved native test suites;
+- updated normalized coverage evidence;
+- updated coverage qualification reports;
+- trend analysis versus Coverage Baseline 1;
+- documented platform-specific coverage improvements.
+
+Acceptance criteria:
+
+- coverage scope validated;
+- production source roots verified;
+- critical uncovered paths identified;
+- meaningful automated tests added;
+- `COVERAGE_VALID` maintained;
+- measurable improvement versus Coverage Baseline 1;
+- Raspberry Pi coverage does not regress;
+- Windows is added only after live Windows qualification;
+- no qualification regressions introduced.
+
+Dependencies:
+
+- Phase 13E Windows Live Qualification;
+- Phase 14 Cross-Platform Qualification;
+- Coverage Baseline 1 remains immutable;
+- Verification Runtime `1.1.0` coverage capability remains stable.
 
 ## Software Assurance Platform
 
