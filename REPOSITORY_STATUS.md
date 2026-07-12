@@ -68,8 +68,9 @@ foundational gap.
 Prompt 4 Software Assurance governance and rollout strategy are complete. The
 architecture decision is `SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE`.
 The historical `PLATFORM_BASELINE_V1_CERTIFIED` prerequisite is satisfied, and
-Software Assurance Generation 1 is active with Prompt 1 as the only active
-implementation prompt. No implementation has started.
+Software Assurance Generation 1 is active. Prompt 1 completed the reusable CI
+Governance Foundation without workflow rollout; Prompt 2 is the only active
+implementation prompt.
 
 The architecture closure review found that foundation, verification platform,
 meta engineering, repository bootstrap, cross-repository governance,
@@ -78,7 +79,7 @@ architecture are stable enough to freeze.
 
 ## Blocking Dependencies
 
-- Prompt 1 may begin only through an explicit execution request. Prompts 2–4
+- Prompt 2 may begin only through an explicit execution request. Prompts 3–4
   remain blocked by their immediate predecessor.
 - ESP native coverage follow-up returned `ESP_COVERAGE_QUALIFIED`; it does not
   reopen the completed Phase 17 decision.
@@ -89,8 +90,8 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-Software Assurance Generation 1 activation (complete; Prompt 1 active;
-implementation not started).
+Software Assurance Generation 1 Prompt 1 — CI Governance Foundation
+(complete; Prompt 2 active; no rollout started).
 
 ## Completion Report
 
@@ -133,6 +134,8 @@ Active Software Assurance implementation navigation:
 
 - `SOFTWARE_ASSURANCE_IMPLEMENTATION.md`
 - `prompts/deferred/software_assurance/`
+- `software_assurance/`
+- `docs/software_assurance/PROMPT_01_CI_GOVERNANCE_FOUNDATION_COMPLETION.md`
 
 ## Last Qualification
 
@@ -227,7 +230,8 @@ contain the SHA of the commit that includes its own content.
 
 ## Repository-Local Next Action
 
-Software Assurance Generation 1 is the active engineering program. Begin only
-through explicitly authorized Prompt 1. Prompts 2–4 remain blocked in
-sequence; do not start additional foundational architecture work unless a
-future Architecture Review with objective evidence demonstrates a genuine gap.
+Software Assurance Generation 1 is the active engineering program. Prompt 2
+may begin only through an explicit execution request. Prompts 3–4 remain
+blocked in sequence; do not start additional foundational architecture work
+unless a future Architecture Review with objective evidence demonstrates a
+genuine gap.

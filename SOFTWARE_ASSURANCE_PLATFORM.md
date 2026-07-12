@@ -2,7 +2,7 @@
 
 Status: canonical architecture foundation  
 Scope owner: `pcvantol/djconnect`  
-Phase: architecture only; no tooling enabled
+Phase: architecture frozen; CI Governance Foundation implemented; no workflow rollout enabled
 
 ## Purpose
 

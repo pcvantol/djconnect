@@ -21,7 +21,8 @@ SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE
 
 The Software Assurance Platform architecture is now frozen.
 
-Implementation is intentionally deferred until:
+The following historical prerequisites had to be satisfied before
+implementation:
 
 - all primary adapters are complete;
 - cross-platform qualification has completed.
@@ -42,6 +43,9 @@ Software Assurance implementation may begin only after all of these are true:
 
 These prerequisites must not be weakened by repository-local prompts,
 workflow changes or partial milestone pressure.
+
+They are satisfied. Prompt 1 completed the reusable CI Governance Foundation;
+Prompt 2 is active and remains subject to explicit authorization.
 
 ## Ownership
 

@@ -175,8 +175,9 @@ Deferred work is not abandoned.
 It is postponed until the explicit post-baseline phase that owns the work.
 
 Software Assurance implementation is registered in
-`SOFTWARE_ASSURANCE_IMPLEMENTATION.md` and remains deferred until
-`PLATFORM_BASELINE_V1_CERTIFIED`.
+`SOFTWARE_ASSURANCE_IMPLEMENTATION.md`. Its historical
+`PLATFORM_BASELINE_V1_CERTIFIED` prerequisite is satisfied; Prompt 1 is
+complete and Prompt 2 is active pending explicit authorization.
 
 ## Platform Lifecycle
 

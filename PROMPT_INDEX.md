@@ -37,7 +37,8 @@ historical matrix added Home Assistant, ESP32 firmware and Voice Assistant
 coverage responsibility. The subsequent ESP native coverage follow-up returned
 `ESP_COVERAGE_QUALIFIED`. Platform Baseline v1.0 Certification accepted the
 completed evidence. The next platform-program activity is Software Assurance
-implementation through its explicit registered Prompt 1.
+implementation through its explicit registered Prompt 2. Prompt 1 completed
+the reusable CI Governance Foundation without repository rollout.
 
 Generation 1 Platform Engineering is formally closed and frozen. Platform
 Evolution is the current lifecycle, and Software Assurance Generation 1 is the
@@ -238,15 +239,15 @@ SATISFIED
 
 Implementation sequence:
 
-1. [Prompt 1: CI Governance Foundation](prompts/deferred/software_assurance/PROMPT_01_CI_GOVERNANCE_FOUNDATION.md) — `ACTIVE`
-2. [Prompt 2: Cross-Repository Workflow Harmonization](prompts/deferred/software_assurance/PROMPT_02_CROSS_REPOSITORY_WORKFLOW_HARMONIZATION.md) — `BLOCKED_BY_PROMPT_1`
+1. [Prompt 1: CI Governance Foundation](prompts/deferred/software_assurance/PROMPT_01_CI_GOVERNANCE_FOUNDATION.md) — `COMPLETE`
+2. [Prompt 2: Cross-Repository Workflow Harmonization](prompts/deferred/software_assurance/PROMPT_02_CROSS_REPOSITORY_WORKFLOW_HARMONIZATION.md) — `ACTIVE`
 3. [Prompt 3: Trusted Delivery Platform](prompts/deferred/software_assurance/PROMPT_03_TRUSTED_DELIVERY_PLATFORM.md) — `BLOCKED_BY_PROMPT_2`
 4. [Prompt 4: Trusted Delivery Certification](prompts/deferred/software_assurance/PROMPT_04_TRUSTED_DELIVERY_CERTIFICATION.md) — `BLOCKED_BY_PROMPT_3`
 
 Current state:
 
 ```text
-Platform Baseline v1.0 certified; historical prerequisite satisfied; Prompt 1 active; implementation not started.
+Platform Baseline v1.0 certified; historical prerequisite satisfied; Prompt 1 complete; Prompt 2 active; no rollout has started.
 ```
 
 Canonical registration:
@@ -254,15 +255,15 @@ Canonical registration:
 - `SOFTWARE_ASSURANCE_IMPLEMENTATION.md`
 - `prompts/deferred/software_assurance/`
 
-Only Prompt 1 is active and remains subject to an explicit execution request.
-Prompts 2 through 4 remain blocked in sequence. This activation does not mean
-that any Software Assurance implementation work has begun.
+Only Prompt 2 is active and remains subject to an explicit execution request.
+Prompts 3 and 4 remain blocked in sequence. Prompt 1 implementation completed
+without changing repository workflows, GitHub settings or repository rollout.
 
 Use this clean-session prompt for future operator-directed work:
 
 ```text
-Read `SOFTWARE_ASSURANCE_IMPLEMENTATION.md` and execute Prompt 1 only when it
-is explicitly authorized. Do not execute Prompts 2 through 4.
+Read `SOFTWARE_ASSURANCE_IMPLEMENTATION.md` and execute Prompt 2 only when it
+is explicitly authorized. Do not execute Prompts 3 or 4.
 ```
 
 ## Prompt Table

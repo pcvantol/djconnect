@@ -289,5 +289,5 @@ SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE
 ```
 
 The historical prerequisites in `SOFTWARE_ASSURANCE_GOVERNANCE.md` are
-satisfied. Software Assurance Generation 1 is active with Prompt 1 ready for
-explicit execution; this activation does not change the frozen architecture.
+satisfied. Prompt 1 is complete and Prompt 2 is active pending explicit
+execution; this implementation does not change the frozen architecture.

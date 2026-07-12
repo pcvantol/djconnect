@@ -19,9 +19,9 @@ capabilities.
 | Area | Status |
 | --- | --- |
 | Architecture Status | `COMPLETE` |
-| Implementation Status | `PROMPT_1_ACTIVE` |
+| Implementation Status | `PROMPT_1_COMPLETE; PROMPT_2_ACTIVE` |
 | Platform State | `Platform Evolution; Software Assurance Generation 1 active program` |
-| Implementation Start | `NOT_STARTED` |
+| Implementation Start | `PROMPT_1_COMPLETE` |
 | Architecture Freeze | `YES` |
 
 The Software Assurance Platform architecture has completed with decision:
@@ -50,13 +50,14 @@ This prerequisite was mandatory. It was satisfied by Platform Baseline v1.0
 Certification on 2026-07-12 and remains recorded as historical governance
 evidence; it must not be deleted or weakened.
 
-Prompt 1 is now active. The existence of later prompts does not authorize
-their execution, and activation does not itself constitute implementation.
+Prompt 1 completed the reusable CI Governance Foundation. Prompt 2 is now
+active; the existence of later prompts does not authorize their execution.
 
 ## Activation Scope
 
 Implementation begins only through the registered Prompt 1 through Prompt 4
-sequence. Prompt 1 is active; Prompts 2 through 4 remain blocked in order.
+sequence. Prompt 1 is complete; Prompt 2 is active; Prompts 3 and 4 remain
+blocked in order.
 Certification does not authorize unscoped CI, workflow, repository-setting or
 governance changes.
 
@@ -68,14 +69,27 @@ The canonical implementation order is:
 
 | Prompt | Scope | Status | Canonical prompt |
 | --- | --- | --- | --- |
-| Prompt 1 | CI Governance Foundation | `ACTIVE` | `prompts/deferred/software_assurance/PROMPT_01_CI_GOVERNANCE_FOUNDATION.md` |
-| Prompt 2 | Cross-Repository Workflow Harmonization | `BLOCKED_BY_PROMPT_1` | `prompts/deferred/software_assurance/PROMPT_02_CROSS_REPOSITORY_WORKFLOW_HARMONIZATION.md` |
+| Prompt 1 | CI Governance Foundation | `COMPLETE` | `prompts/deferred/software_assurance/PROMPT_01_CI_GOVERNANCE_FOUNDATION.md` |
+| Prompt 2 | Cross-Repository Workflow Harmonization | `ACTIVE` | `prompts/deferred/software_assurance/PROMPT_02_CROSS_REPOSITORY_WORKFLOW_HARMONIZATION.md` |
 | Prompt 3 | Trusted Delivery Platform | `BLOCKED_BY_PROMPT_2` | `prompts/deferred/software_assurance/PROMPT_03_TRUSTED_DELIVERY_PLATFORM.md` |
 | Prompt 4 | Trusted Delivery Certification | `BLOCKED_BY_PROMPT_3` | `prompts/deferred/software_assurance/PROMPT_04_TRUSTED_DELIVERY_CERTIFICATION.md` |
 
 These prompts define the complete Software Assurance implementation sequence.
-Only Prompt 1 may be executed when explicitly authorized. The remaining prompts
-must not be executed until their predecessor has completed successfully.
+Only Prompt 2 may be executed when explicitly authorized. Prompts 3 and 4 must
+not be executed until their predecessor has completed successfully.
+
+## Prompt 1 Implementation Assets
+
+- `software_assurance/policy/governance-policy.json` — sole canonical,
+  machine-readable CI governance policy source.
+- `software_assurance/schema/governance-policy.schema.json` — portable policy
+  schema.
+- `software_assurance/templates/workflow-governance.json` — non-mutating
+  shared template for Prompt 2 consumption.
+- `tools/software_assurance/` — reusable policy and rollout-candidate
+  validation framework.
+- `docs/software_assurance/PROMPT_01_CI_GOVERNANCE_FOUNDATION_COMPLETION.md`
+  — completion evidence and qualification decision.
 
 ## Platform Lifecycle
 
@@ -89,7 +103,7 @@ Platform Qualification
 Platform Baseline
   -> CERTIFIED
 Software Assurance Implementation
-  -> PROMPT_1_ACTIVE
+  -> PROMPT_1_COMPLETE; PROMPT_2_ACTIVE
 Business-first Engineering
   -> FUTURE
 ```
@@ -109,7 +123,7 @@ Software Assurance Architecture:
 
 ```text
 Status: FROZEN
-Implementation: PROMPT_1_ACTIVE
+Implementation: PROMPT_1_COMPLETE; PROMPT_2_ACTIVE
 ```
 
 Architecture changes require an Architecture Review. Routine implementation
@@ -123,7 +137,7 @@ Future AI agents must:
 - preserve the satisfied historical `PLATFORM_BASELINE_V1_CERTIFIED`
   prerequisite;
 - preserve the Prompt 1 through Prompt 4 order;
-- execute only the explicitly authorized active prompt.
+- execute only the explicitly authorized active prompt, and stop after it.
 
 ## Canonical References
 
@@ -157,5 +171,5 @@ SOFTWARE_ASSURANCE_IMPLEMENTATION_REGISTERED
 Current implementation status:
 
 ```text
-PROMPT_1_ACTIVE; IMPLEMENTATION_NOT_STARTED
+PROMPT_1_COMPLETE; PROMPT_2_ACTIVE
 ```

@@ -31,5 +31,6 @@ These prerequisites were mandatory and must not be weakened, deleted or
 rewritten by repository-local prompts, workflow edits or partial implementation
 milestones.
 
-All listed prerequisites are satisfied. Prompt 1 is active; Prompts 2 through 4
-remain blocked in sequence. Activation does not start implementation.
+All listed prerequisites are satisfied. Prompt 1 is complete; Prompt 2 is
+active; Prompts 3 and 4 remain blocked in sequence. Prompt 1 did not perform
+repository rollout.

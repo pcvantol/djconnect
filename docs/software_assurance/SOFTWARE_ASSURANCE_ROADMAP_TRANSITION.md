@@ -13,6 +13,6 @@ mandatory Software Assurance implementation prerequisites were completed:
 - stable Verification Runtime release;
 - Platform Baseline v1.0 certification.
 
-`PLATFORM_BASELINE_V1_CERTIFIED` is satisfied. Prompt 1 is `ACTIVE`; Prompt 2
-is `BLOCKED_BY_PROMPT_1`; Prompt 3 is `BLOCKED_BY_PROMPT_2`; and Prompt 4 is
-`BLOCKED_BY_PROMPT_3`. No implementation has started.
+`PLATFORM_BASELINE_V1_CERTIFIED` is satisfied. Prompt 1 is `COMPLETE`; Prompt
+2 is `ACTIVE`; Prompt 3 is `BLOCKED_BY_PROMPT_2`; and Prompt 4 is
+`BLOCKED_BY_PROMPT_3`. Prompt 1 completed without workflow rollout.

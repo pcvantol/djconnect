@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "policy_id": "djconnect.software_assurance.ci_governance",
+  "policy_version": "1.0.0",
+  "ownership": {
+    "canonical_repository": "pcvantol/djconnect",
+    "rollout_owner_prompt": "PROMPT_02_CROSS_REPOSITORY_WORKFLOW_HARMONIZATION",
+    "workflow_rollout_enabled": false
+  },
+  "workflow_governance": {
+    "required_metadata": ["name", "execution_profile", "policy_version"],
+    "permissions": {
+      "default": "read-only",
+      "allowed_write_scopes": ["attestations", "checks", "contents", "id-token", "packages", "pull-requests", "security-events"],
+      "require_explicit_declaration": true
+    },
+    "timeout_minutes": {
+      "minimum": 1,
+      "maximum": 120,
+      "default": 30
+    },
+    "concurrency": {
+      "required": true,
+      "group_template": "software-assurance-${repository}-${workflow}-${ref}",
+      "cancel_in_progress_for_pull_requests": true,
+      "cancel_in_progress_for_release": false
+    },
+    "action_pinning": "full_length_commit_sha",
+    "logging": "structured_redacted",
+    "summaries": "required",
+    "retry": {
+      "maximum_attempts": 2,
+      "preserve_failed_evidence": true,
+      "require_classification_before_repeat": true
+    }
+  },
+  "execution_profiles": {
+    "economy": {
+      "execution_targets": ["developer_workstation", "github_hosted"],
+      "parallelism": "low_to_moderate",
+      "artifact_retention_class": "routine",
+      "evidence_level": "structured_summary",
+      "hardware_usage": "none",
+      "retry_policy": "minimal"
+    },
+    "balanced": {
+      "execution_targets": ["github_hosted", "self_hosted", "lab"],
+      "parallelism": "moderate_resource_aware",
+      "artifact_retention_class": "qualification",
+      "evidence_level": "structured",
+      "hardware_usage": "capability_required_only",
+      "retry_policy": "limited_classified"
+    },
+    "release": {
+      "execution_targets": ["github_hosted", "self_hosted", "lab", "release"],
+      "parallelism": "resource_aware_exclusive_when_required",
+      "artifact_retention_class": "release",
+      "evidence_level": "full_redacted",
+      "hardware_usage": "release_policy_required_only",
+      "retry_policy": "explicit_evidence_preserving"
+    }
+  },
+  "runner_governance": {
+    "github_hosted": {
+      "allowed_for": ["non_mutating", "reproducible", "public_dependency"],
+      "forbidden_for": ["hardware", "private_lab_state", "unqualified_signing"]
+    },
+    "self_hosted": {
+      "required_capabilities": ["labels", "qualification", "health", "cleanup"],
+      "capability_labels": ["docker", "hardware", "local_network", "serial", "signing", "simulator", "ssh", "xcode"]
+    },
+    "hybrid": {
+      "requires_execution_plan": true,
+      "requires_single_evidence_producer": true
+    }
+  },
+  "retention_governance": {
+    "routine": {"minimum_days": 7, "default_days": 14, "maximum_days": 30},
+    "failure": {"minimum_days": 30, "default_days": 45, "maximum_days": 90},
+    "qualification": {"minimum_days": 90, "default_days": 180, "maximum_days": 365},
+    "release": {"minimum_days": 365, "default_days": 730, "maximum_days": 2555},
+    "preservation_exceptions": {
+      "allowed": true,
+      "requires_reason": true,
+      "requires_owner": true,
+      "requires_review_date": true
+    },
+    "dry_run": {"supported": true, "mutates_artifacts": false},
+    "manual_cleanup": {"supported": true, "requires_confirmation": true}
+  },
+  "artifact_governance": {
+    "categories": {
+      "build": "build outputs and package metadata",
+      "verification": "scenario and runtime evidence references",
+      "quality": "static and supply-chain findings",
+      "release": "provenance, checksums and release evidence",
+      "diagnostic": "redacted failure diagnostics"
+    },
+    "compression": "prefer_zstd_or_zip",
+    "upload_policy": "policy_selected_only",
+    "redaction_required": true,
+    "release_evidence_required": true,
+    "verification_evidence_referenced_not_duplicated": true
+  },
+  "pull_request_governance": {
+    "default_posture": "advisory",
+    "required_inputs": ["changed_scope", "execution_profile", "policy_version"],
+    "blocking_requires_explicit_policy_promotion": true,
+    "summary_required": true
+  },
+  "repository_governance": {
+    "overrides": {
+      "allowed": true,
+      "must_be_explicit": true,
+      "may_not_relax": ["permissions", "required_metadata", "retry_bounds", "retention_minima"]
+    },
+    "validation": ["policy", "workflow", "permissions", "runner", "retention", "artifact", "repository_rollout"]
+  }
+}

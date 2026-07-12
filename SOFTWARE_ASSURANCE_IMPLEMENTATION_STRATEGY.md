@@ -2,7 +2,7 @@
 
 Status: canonical implementation strategy  
 Scope owner: `pcvantol/djconnect`  
-Phase: architecture frozen; Software Assurance Generation 1 active; Prompt 1 ready for explicit execution
+Phase: architecture frozen; Prompt 1 complete; Prompt 2 active pending explicit execution
 
 ## Purpose
 
@@ -114,5 +114,6 @@ After the architecture sprint, the platform returns to the active Verification
 roadmap.
 
 The prerequisites in this document are satisfied. Software Assurance
-Generation 1 is active with Prompt 1 ready for explicit execution; Prompts 2
-through 4 remain blocked in sequence. No implementation has started.
+Generation 1 is active. Prompt 1 completed the reusable CI Governance
+Foundation; Prompt 2 is active pending explicit execution, and Prompts 3
+through 4 remain blocked in sequence.
