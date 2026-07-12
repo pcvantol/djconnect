@@ -74,10 +74,10 @@ Runtime schema version: `1`
 - Published to Docker Hub repository
   `pcvantol/djconnect-verification-platform`.
 - Published stable tags: `1.1.0`, `1.1`, `latest`.
-- Published immutable tags: `1.1.0-6f875b51e9de`,
-  `sha-6f875b51e9de`.
+- Published immutable tags: `1.1.0-f05773616a1a`,
+  `sha-f05773616a1a`.
 - Published digest:
-  `sha256:e37b71bf6f85bd7ac38654f156f59e20c71d858e948f277c0c70b77becad1e23`.
+  `sha256:3f0b8d3ba5f07afa5c8f05cd305dd92c43806e0fed24395be96d832e7ef72619`.
 - Pull-back qualification from Docker Hub passed for `1.1.0`.
 - Clean-container config smoke confirmed Runtime `1.1.0` metadata and the
   `coverage` capability.
