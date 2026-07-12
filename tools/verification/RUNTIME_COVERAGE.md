@@ -194,3 +194,20 @@ Runtime `1.1.0` ingested the Windows Cobertura report as `COVERAGE_VALID`.
 Coverage Baseline 1 remains immutable historical evidence for Home Assistant,
 Apple and Raspberry Pi; Windows may be included in a later coordinated
 four-platform coverage snapshot or baseline.
+
+## ESP Native Coverage Qualification
+
+The ESP firmware coverage capability was added after Phase 17 as a separate
+follow-up increment. The firmware's host-testable production logic uses
+compiler `--coverage` instrumentation and `gcovr` to emit Cobertura XML; the
+existing Runtime `1.1.0` Cobertura parser ingests it without a second pipeline.
+
+The first qualified report is recorded in
+`docs/verification/reports/ESP_COVERAGE_QUALIFICATION.md` with decision
+`ESP_COVERAGE_QUALIFIED`. It measured firmware commit
+`85f2aca71dbdbefb1344d890cccc4af493a8ca42` at 90.28% line and 72.71% branch
+coverage and produced `COVERAGE_VALID` evidence under
+`artifacts/verification/evidence/esp-coverage-followup/`.
+
+This is additional post-baseline evidence. It does not alter Coverage Baseline
+1 or Windows Coverage Baseline 1.

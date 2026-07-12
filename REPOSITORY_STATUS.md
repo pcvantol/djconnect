@@ -36,8 +36,9 @@ The current repository status task is roadmap/backlog synchronization only. It
 is not a product implementation phase, not a verification execution phase, not
 a CI/tooling enablement phase and not a new architecture phase.
 
-The active verification prompt index records Platform Test Coverage
-Improvement as the next verification gate. Phase 15
+Phase 17 Platform Test Coverage Improvement is complete. Its matrix records
+the ESP32 native coverage export as `NOT_YET_SUPPORTED`. Platform Baseline v1.0
+Certification is unblocked but requires its own explicit prompt. Phase 15
 qualified the thin Voice Assistant adapter with live runtime pending. Phase
 15E attempted live qualification and blocked safely before mutation because the
 local Home Assistant Assist lab was stale for the active repository SHA and
@@ -80,8 +81,8 @@ architecture are stable enough to freeze.
 
 - Software Assurance implementation must not begin until
   `PLATFORM_BASELINE_V1_CERTIFIED` and later explicit implementation prompts.
-- Platform Test Coverage Improvement must continue inside the frozen
-  architecture after cross-platform qualification.
+- ESP native coverage follow-up returned `ESP_COVERAGE_QUALIFIED`; it does not
+  reopen the completed Phase 17 decision.
 - CI workflow changes, scanner enablement, trusted delivery and release gates
   are deferred Software Assurance implementation work.
 - Platform Baseline v1.0 remains uncertified until DJConnect Voice Assistant
@@ -91,7 +92,7 @@ architecture are stable enough to freeze.
 
 Attached request:
 
-`Platform Test Coverage Improvement`
+`ESP Native Coverage Qualification follow-up (complete; do not start Platform Baseline certification automatically)`
 
 ## Completion Report
 

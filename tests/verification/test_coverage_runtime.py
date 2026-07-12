@@ -154,6 +154,25 @@ class CoverageRuntimeTests(unittest.TestCase):
         self.assertEqual("COVERAGE_VALID", payload["coverage_qualification"])
         self.assertEqual("coverage_valid", investigation.classification)
 
+    def test_investigator_classifies_non_happy_path_coverage_results(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            empty = root / "empty.info"
+            empty.write_text("", encoding="utf-8")
+            empty_result = CoveragePipeline().ingest(
+                empty, coverage_format="lcov", repository="repo", commit_sha="abc"
+            )
+
+            invalid = root / "invalid.info"
+            invalid.write_text("SF:a.py\nDA:1,-1\nend_of_record\n", encoding="utf-8")
+            invalid_result = CoveragePipeline().ingest(
+                invalid, coverage_format="lcov", repository="repo", commit_sha="abc"
+            )
+
+        investigator = CoverageInvestigator()
+        self.assertEqual("coverage_anomaly", investigator.investigate(empty_result).classification)
+        self.assertEqual("coverage_corruption", investigator.investigate(invalid_result).classification)
+
     def test_cli_coverage_ingest_and_docker_tags(self) -> None:
         parser = build_parser()
         args = parser.parse_args(["coverage", "ingest", "coverage.xml", "--format", "cobertura"])

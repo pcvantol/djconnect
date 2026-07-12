@@ -97,15 +97,33 @@ class LCOVParser(CoverageParser):
             elif current is None:
                 continue
             elif raw.startswith("DA:"):
-                line_no, hits = raw[3:].split(",", 1)
-                current["lines"][line_no] = int(hits)
+                try:
+                    line_no, hits = raw[3:].split(",", 1)
+                    hit_count = int(hits)
+                except ValueError:
+                    return CoverageParseResult(False, error="malformed_report", diagnostics={"line": raw})
+                if hit_count < 0:
+                    return CoverageParseResult(False, error="invalid_coverage_metric", diagnostics={"line": raw})
+                current["lines"][line_no] = hit_count
             elif raw.startswith("FNDA:"):
-                hits, name = raw[5:].split(",", 1)
-                current["functions"][name] = int(hits)
+                try:
+                    hits, name = raw[5:].split(",", 1)
+                    hit_count = int(hits)
+                except ValueError:
+                    return CoverageParseResult(False, error="malformed_report", diagnostics={"line": raw})
+                if hit_count < 0:
+                    return CoverageParseResult(False, error="invalid_coverage_metric", diagnostics={"line": raw})
+                current["functions"][name] = hit_count
             elif raw.startswith("BRDA:"):
                 parts = raw[5:].split(",")
                 taken = parts[3] if len(parts) > 3 else "-"
-                current["branches"].append(0 if taken == "-" else int(taken))
+                try:
+                    hit_count = 0 if taken == "-" else int(taken)
+                except ValueError:
+                    return CoverageParseResult(False, error="malformed_report", diagnostics={"line": raw})
+                if hit_count < 0:
+                    return CoverageParseResult(False, error="invalid_coverage_metric", diagnostics={"line": raw})
+                current["branches"].append(hit_count)
             elif raw == "end_of_record":
                 files.append(_lcov_file(current))
                 current = None

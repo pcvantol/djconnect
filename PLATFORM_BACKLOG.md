@@ -213,7 +213,10 @@ Next:
 - ✅ Phase 13 Windows Verification Adapter qualified with live runtime pending.
 - ✅ Phase 13E-R2 Windows Client Build Remediation and Live Qualification
   returned `WINDOWS_LIVE_QUALIFIED`.
-- 🟡 Phase 14 ESP Verification Adapter is the active phase.
+- ✅ Phase 17 Platform Test Coverage Improvement completed with fresh
+  exact-SHA evidence for Home Assistant, Apple, Raspberry Pi and Windows.
+  ESP32 native coverage export is explicitly `NOT_YET_SUPPORTED` and tracked
+  as a future coverage capability gap.
 - ⏳ Phase 14E ESP Live Qualification follows Phase 14.
 - ⏳ Phase 15 DJConnect Voice Assistant Verification Adapter follows ESP live
   qualification.
@@ -400,6 +403,18 @@ Dependencies:
 - Phase 16 Cross-Platform Qualification;
 - Coverage Baseline 1 remains immutable;
 - Verification Runtime `1.1.0` coverage capability remains stable.
+
+## ESP Native Coverage Follow-up
+
+**Status:** ✅ Complete
+**Decision:** `ESP_COVERAGE_QUALIFIED`
+
+The ESP32 firmware now uses its host-native C++ logic suite with compiler
+coverage instrumentation and `gcovr` to emit Cobertura XML. Runtime `1.1.0`
+ingested fresh firmware commit `85f2aca71dbdbefb1344d890cccc4af493a8ca42` as
+`COVERAGE_VALID` (90.28% line, 72.71% branch). This strengthens the evidence
+available before Platform Baseline certification without changing Phase 17 or
+either historical coverage baseline.
 
 ## Software Assurance Platform
 
