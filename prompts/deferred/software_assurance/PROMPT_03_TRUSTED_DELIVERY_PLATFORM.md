@@ -4,7 +4,7 @@ SOFTWARE ASSURANCE IMPLEMENTATION PROMPT
 
 Status
 
-BLOCKED_BY_PROMPT_2
+ACTIVE
 
 Architecture
 
@@ -30,8 +30,8 @@ SATISFIED
 
 Activation metadata: Platform Baseline v1.0 Certification satisfied the
 historical mandatory prerequisite `PLATFORM_BASELINE_V1_CERTIFIED` on
-2026-07-12. This prompt remains blocked until Prompt 2 has completed
-successfully; implementation has not started.
+2026-07-12. Prompt 2 completed successfully on 2026-07-12. This prompt is now
+active, but must not execute without a separate explicit execution request.
 
 ------------------------------------------------------------------------------
 

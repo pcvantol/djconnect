@@ -47,8 +47,8 @@ Software Assurance Implementation
   -> Software Assurance Generation 1 is the active program
   -> historical prerequisite PLATFORM_BASELINE_V1_CERTIFIED satisfied
   -> Prompt 1 COMPLETE: reusable CI Governance Foundation
-  -> Prompt 2 ACTIVE and ready for explicit execution
-  -> Prompt 3 BLOCKED_BY_PROMPT_2
+  -> Prompt 2 COMPLETE: cross-repository workflow harmonization
+  -> Prompt 3 ACTIVE and ready for explicit execution
   -> Prompt 4 BLOCKED_BY_PROMPT_3
 
 Epic 8: Website and Product Story
@@ -114,8 +114,8 @@ Canonical architecture:
 - `SOFTWARE_ASSURANCE_VERSIONING.md`
 
 Software Assurance Generation 1 is active. Prompt 1 completed the reusable CI
-Governance Foundation without rollout. Prompt 2 is ready only for an explicit
-execution request.
+Governance Foundation and Prompt 2 completed cross-repository workflow
+harmonization. Prompt 3 is ready only for an explicit execution request.
 
 Canonical implementation registration:
 

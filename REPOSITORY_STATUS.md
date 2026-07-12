@@ -69,8 +69,8 @@ Prompt 4 Software Assurance governance and rollout strategy are complete. The
 architecture decision is `SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE`.
 The historical `PLATFORM_BASELINE_V1_CERTIFIED` prerequisite is satisfied, and
 Software Assurance Generation 1 is active. Prompt 1 completed the reusable CI
-Governance Foundation without workflow rollout; Prompt 2 is the only active
-implementation prompt.
+Governance Foundation and Prompt 2 completed cross-repository workflow rollout;
+Prompt 3 is the only active implementation prompt.
 
 The architecture closure review found that foundation, verification platform,
 meta engineering, repository bootstrap, cross-repository governance,
@@ -79,8 +79,8 @@ architecture are stable enough to freeze.
 
 ## Blocking Dependencies
 
-- Prompt 2 may begin only through an explicit execution request. Prompts 3–4
-  remain blocked by their immediate predecessor.
+- Prompt 3 may begin only through an explicit execution request. Prompt 4
+  remains blocked by its immediate predecessor.
 - ESP native coverage follow-up returned `ESP_COVERAGE_QUALIFIED`; it does not
   reopen the completed Phase 17 decision.
 - CI workflow changes, scanner enablement, trusted delivery and release gates
@@ -90,8 +90,8 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-Software Assurance Generation 1 Prompt 1 — CI Governance Foundation
-(complete; Prompt 2 active; no rollout started).
+Software Assurance Generation 1 Prompt 2 — Cross-Repository Workflow
+Harmonization (complete; Prompt 3 active).
 
 ## Completion Report
 
