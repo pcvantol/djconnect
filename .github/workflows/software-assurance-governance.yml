@@ -1,0 +1,71 @@
+name: Software Assurance governance
+
+on:
+  workflow_call:
+    inputs:
+      execution_profile:
+        description: Canonical Software Assurance execution profile.
+        required: true
+        type: string
+      owner:
+        description: Owning repository or platform surface.
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  validate-governance:
+    name: Validate canonical governance policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out pinned canonical policy source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          repository: pcvantol/djconnect
+          ref: 3fc4f0835fe4068b73a30c7fb2db3318600a3f6f
+          path: canonical-governance
+
+      - name: Validate policy and selected execution profile
+        working-directory: canonical-governance
+        env:
+          EXECUTION_PROFILE: ${{ inputs.execution_profile }}
+          OWNER: ${{ inputs.owner }}
+        run: |
+          set -euo pipefail
+          python -m tools.software_assurance.validate
+          python - <<'PY'
+          import os
+
+          from tools.software_assurance.policy import validate_rollout_candidate
+
+          findings = validate_rollout_candidate(
+              {
+                  "name": os.environ["OWNER"],
+                  "execution_profile": os.environ["EXECUTION_PROFILE"],
+                  "policy_version": "1.0.0",
+                  "timeout_minutes": 10,
+                  "permissions": {"contents": "read"},
+                  "concurrency_group": "software-assurance-governance",
+                  "action_pinning": "full_length_commit_sha",
+              }
+          )
+          if findings:
+              raise SystemExit("; ".join(findings))
+          PY
+
+      - name: Publish governance summary
+        env:
+          EXECUTION_PROFILE: ${{ inputs.execution_profile }}
+          OWNER: ${{ inputs.owner }}
+        run: |
+          {
+            echo "## Software Assurance governance"
+            echo
+            echo "- Policy: \`djconnect.software_assurance.ci_governance@1.0.0\`"
+            echo "- Execution profile: \`${EXECUTION_PROFILE}\`"
+            echo "- Owner: \`${OWNER}\`"
+            echo "- Policy source: \`pcvantol/djconnect@3fc4f0835fe4068b73a30c7fb2db3318600a3f6f\`"
+          } >> "$GITHUB_STEP_SUMMARY"
