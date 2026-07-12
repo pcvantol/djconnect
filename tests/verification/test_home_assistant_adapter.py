@@ -156,10 +156,10 @@ class HomeAssistantAdapterTests(unittest.TestCase):
         self.assertIn("snapshot_storage", action_names)
         self.assertIn("collect_logs", action_names)
 
-    def test_cross_runtime_capability_scenario_maps_separable_ha_backend_path(self) -> None:
+    def test_backend_scenario_maps_to_ha_backend_path(self) -> None:
         root = Path(__file__).resolve().parents[2]
-        config = load_config(root, overrides={"scenario_paths": ["verification/scenarios/capabilities"]})
-        scenario = next(scenario for scenario in ScenarioLoader(config).load() if scenario.id == "CAPABILITIES-001")
+        config = load_config(root, overrides={"scenario_paths": ["verification/scenarios/backend"]})
+        scenario = next(scenario for scenario in ScenarioLoader(config).load() if scenario.id == "BACKEND-001")
 
         plan = ScenarioEngine(AdapterRegistry()).plan(scenario)
 
@@ -186,8 +186,8 @@ class HomeAssistantAdapterTests(unittest.TestCase):
 
     def test_controlled_retry_reruns_transient_websocket_timeout(self) -> None:
         root = Path(__file__).resolve().parents[2]
-        config = load_config(root, overrides={"scenario_paths": ["verification/scenarios/capabilities"]})
-        scenario = next(scenario for scenario in ScenarioLoader(config).load() if scenario.id == "CAPABILITIES-001")
+        config = load_config(root, overrides={"scenario_paths": ["verification/scenarios/backend"]})
+        scenario = next(scenario for scenario in ScenarioLoader(config).load() if scenario.id == "BACKEND-001")
         transport = FlakyWebSocketTransport()
         registry = AdapterRegistry()
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -214,8 +214,8 @@ class HomeAssistantAdapterTests(unittest.TestCase):
 
     def test_controlled_retry_does_not_retry_non_transient_auth_failure(self) -> None:
         root = Path(__file__).resolve().parents[2]
-        config = load_config(root, overrides={"scenario_paths": ["verification/scenarios/capabilities"]})
-        scenario = next(scenario for scenario in ScenarioLoader(config).load() if scenario.id == "CAPABILITIES-001")
+        config = load_config(root, overrides={"scenario_paths": ["verification/scenarios/backend"]})
+        scenario = next(scenario for scenario in ScenarioLoader(config).load() if scenario.id == "BACKEND-001")
         transport = AuthenticationFailureTransport()
         registry = AdapterRegistry()
         with tempfile.TemporaryDirectory() as temp_dir:

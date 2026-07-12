@@ -157,3 +157,24 @@ The coverage model is prepared for future capabilities:
 - repository coverage;
 - platform coverage;
 - quality budgets.
+
+## Coverage Baseline 1
+
+Coverage Baseline 1 was produced on 2026-07-12 using Runtime `1.1.0` and
+Docker image digest:
+
+```text
+sha256:3f0b8d3ba5f07afa5c8f05cd305dd92c43806e0fed24395be96d832e7ef72619
+```
+
+Baseline reports:
+
+- `CODE_COVERAGE_BASELINE_1.md`
+- `CODE_COVERAGE_BASELINE_1.json`
+- `COVERAGE_BASELINE_REPORT.md`
+
+The baseline is recorded as `CROSS_PLATFORM_COVERAGE_BASELINE_ESTABLISHED`.
+Home Assistant, Apple and Raspberry Pi coverage provenance and Runtime
+ingestion are valid. The Raspberry Pi coverage environment root cause was fixed
+before finalizing the baseline, so Pi coverage is produced from the repository
+`.venv` without external coverage tooling.
