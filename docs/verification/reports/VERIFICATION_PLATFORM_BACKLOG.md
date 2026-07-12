@@ -1,6 +1,6 @@
 # Verification Platform Backlog
 
-Status: active after Phase 12 Raspberry Pi adapter qualification
+Status: active after Phase 12E Raspberry Pi scenario coverage qualification
 
 Do not create GitHub issues automatically from this backlog.
 
@@ -47,7 +47,8 @@ Do not create GitHub issues automatically from this backlog.
 | VPB-039 | P0 | Planning Engine / Scenario Engine mapping blocker | Resolved in Phase 10E-R3: smoke planning now selects `APPLE-001` as an Apple adapter executable case, the CLI can register the Apple adapter for scenario execution, env-file target JSON is loaded for execute commands, and Apple-only runs skip unrelated HA/Docker gates. `APPLE-001` passed through the Scenario Engine and Apple adapter. | Planning Engine / Scenario Engine / Apple Adapter | `djconnect` | No | Done | Phase 10E-R3 |
 | VPB-040 | P0 | Raspberry Pi Adapter gap | Resolved in Phase 12: thin Raspberry Pi adapter, CLI registration, Scenario Engine routing, `PI-001` runtime smoke scenario and mock/unit primitive tests are implemented. Live runtime proof is skipped until a prepared Pi target and exact-SHA environment gates are available. | Raspberry Pi Adapter / Execution Environment / Planning Engine | `djconnect`, `djconnect-pi` | No for adapter implementation; live coverage remains future scope | Done | Phase 12 |
 | VPB-041 | P1 | Scenario Catalog cleanup | Some Pi-relevant shared scenarios mention Pi in title or platform intent but still declare Apple/Windows runtime requirements. Phase 12 added a Pi-specific runtime smoke scenario instead of rewriting shared expectations. Broader Pi scenario coverage should only adjust shared scenario requirements when backed by canonical behavior. | Scenario Catalog / Planning Engine | `djconnect` | No | S | Phase 12E |
-| VPB-042 | P0 | Raspberry Pi runtime environment issue | Phase 12 CLI execution against a safe local fixture target stopped before scenario mutation because `github_ci_status` failed with unauthenticated GitHub CLI. Phase 12E must qualify exact-SHA CI or report a blocked live runtime gate before broad Pi scenario execution. | Execution Environment / Operator | `djconnect` | Blocks live Pi scenario execution | S | Phase 12E |
+| VPB-042 | P0 | Raspberry Pi runtime environment issue | Resolved in Phase 12E: approved host-keychain `gh auth status` passed, exact-SHA CI inspected two successful runs for `d3813c275e910c9723f91d8f294a622d46fda206`, SSH to `rbpi-djconnect.local` passed, narrow sudoers restart passed and `PI-001` executed through the Scenario Engine and Raspberry Pi adapter with PASS evidence. | Execution Environment / Operator | `djconnect` | No | Done | Phase 12E |
+| VPB-043 | P1 | Planning Engine / Scenario Catalog coverage gap | Phase 12E qualified the live Pi runtime smoke path, but canonical smoke planning still exposes only `PI-001` as Pi-adapter executable. Pi-relevant shared profile, Ask DJ, capability, localization and Track Insight scenarios need explicit canonical execution-surface mapping before they can run through the Pi adapter without moving expected behavior into adapter code. | Planning Engine / Scenario Catalog / Raspberry Pi Adapter | `djconnect`, `djconnect-pi` | No for Phase 12E; blocks broader Pi product coverage | M | Raspberry Pi product-scenario mapping remediation |
 
 ## Regression Subset Required After Fixes
 
@@ -96,6 +97,10 @@ Phase 12 reports:
 
 RASPBERRY_PI_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_SKIPPED
 
+Phase 12E reports:
+
+RASPBERRY_PI_SCENARIO_COVERAGE_QUALIFIED_WITH_WARNINGS
+
 Framework runtime, Docker release workflow and regular CI are not blocked by
 Docker Hub secret provisioning, Docker repository naming or self-hosted runner
 availability; those are tracked as follow-ups above. Phase 10E-R2's App
@@ -105,5 +110,6 @@ current platform verification phase and moves to release-v1.0 readiness. Phase
 after R3 qualified the first Apple executable scenario set with non-blocking
 warnings. Phase 11 selected Raspberry Pi as the next adapter. Phase 12
 implemented and mock-qualified the thin Raspberry Pi adapter with live runtime
-skipped. Phase 12E is unblocked as the next gate, but it must qualify live Pi
-runtime inputs before broad Raspberry Pi scenario coverage.
+skipped. Phase 12E qualified the live Raspberry Pi runtime smoke path with
+non-blocking warnings because broader Pi product scenario mapping remains
+future work.
