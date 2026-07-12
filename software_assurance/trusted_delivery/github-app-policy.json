@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "app_name": "DJConnect Trusted Delivery",
+  "owner": "pcvantol",
+  "visibility": "private_account_only",
+  "homepage_url": "https://github.com/pcvantol/djconnect",
+  "user_authorization": false,
+  "oauth_callback_required": false,
+  "device_flow": false,
+  "webhooks": {"enabled": false, "events": []},
+  "repository_selection": "selected",
+  "repositories": ["djconnect", "djconnect-api", "djconnect-app", "djconnect-app-releases", "djconnect-esp32", "djconnect-firmware", "djconnect-pi", "djconnect-pi-releases", "djconnect-website", "djconnect-windows"],
+  "permissions": {"metadata": "read", "contents": "write", "pull_requests": "write", "checks": "read", "statuses": "read", "actions": "read"},
+  "prohibited_permissions": ["administration", "members", "secrets", "environments", "repository_hooks", "packages", "deployments", "security_events", "actions_write", "workflows"]
+}
