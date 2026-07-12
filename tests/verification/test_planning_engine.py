@@ -106,6 +106,17 @@ class VerificationPlanningEngineTests(unittest.TestCase):
             self.assertEqual("esp32", case.adapter)
         self.assertIn("esp32", plan.resource_plan.required_hardware)
 
+    def test_smoke_plan_selects_voice_endpoint_scenarios(self) -> None:
+        scenarios = [scenario for scenario in self.scenarios if scenario.id in {"VOICE-001", "VOICE-002"}]
+
+        plan = VerificationPlanningEngine(self.config).plan(scenarios, strategy_id="smoke", policy_id="smoke")
+
+        self.assertEqual({"VOICE-001", "VOICE-002"}, {case.scenario_id for case in plan.cases})
+        for case in plan.cases:
+            self.assertEqual("Voice Endpoint", case.platform)
+            self.assertEqual("voice_endpoint", case.adapter)
+        self.assertIn("voice_endpoint", plan.resource_plan.required_hardware)
+
     def test_release_policy_includes_release_qualification_mode_for_release_scenario(self) -> None:
         scenario = [scenario for scenario in self.scenarios if scenario.id == "RELEASE-001"]
 

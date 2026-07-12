@@ -36,8 +36,9 @@ The current repository status task is roadmap/backlog synchronization only. It
 is not a product implementation phase, not a verification execution phase, not
 a CI/tooling enablement phase and not a new architecture phase.
 
-The active verification prompt index records Phase 15 DJConnect Voice
-Assistant Verification Adapter as the next verification gate. That
+The active verification prompt index records Phase 15E DJConnect Voice
+Assistant Live Qualification as the next verification gate. Phase 15
+qualified the thin Voice Assistant adapter with live runtime pending. That
 verification work continues inside the frozen architecture.
 
 ## Status
@@ -82,7 +83,7 @@ architecture are stable enough to freeze.
 
 Attached request:
 
-`Repository Synchronization Task - RST-001 Canonical Platform Status Synchronization`
+`Phase 15 DJConnect Voice Assistant Verification Adapter`
 
 ## Completion Report
 
@@ -130,6 +131,14 @@ Deferred Software Assurance implementation outputs:
 
 Most recent recorded verification qualification:
 
+Phase 15 DJConnect Voice Assistant Verification Adapter returned
+`VOICE_ASSISTANT_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_PENDING`. The
+`voice_endpoint` adapter, CLI registration, Scenario Engine routing and
+planner metadata are mock/local qualified. Live Voice Assistant runtime
+qualification remains Phase 15E scope.
+
+Previous recorded live verification qualification:
+
 Phase 14E ESP Live Qualification returned `ESP_LIVE_QUALIFIED`.
 `HARDWARE-001` through `HARDWARE-010` passed live through the Scenario Engine
 and `esp32` adapter against a flashed LilyGO ESP32-S3 in runs
@@ -174,10 +183,9 @@ contain the SHA of the commit that includes its own content.
 ## Repository-Local Next Action
 
 Return to the active Verification roadmap before any Software Assurance
-implementation or business-first engineering begins. Execute Phase 15
-DJConnect Voice Assistant Verification Adapter, Phase 15E DJConnect Voice
-Assistant Live Qualification and Phase 16 Cross-Platform Qualification, then
-run the platform coverage improvement increment and rerun Platform Baseline
-certification. Do not start additional foundational architecture work unless a
-future Architecture Review with objective evidence demonstrates a genuine
-architecture gap.
+implementation or business-first engineering begins. Execute Phase 15E
+DJConnect Voice Assistant Live Qualification and Phase 16 Cross-Platform
+Qualification, then run the platform coverage improvement increment and rerun
+Platform Baseline certification. Do not start additional foundational
+architecture work unless a future Architecture Review with objective evidence
+demonstrates a genuine architecture gap.

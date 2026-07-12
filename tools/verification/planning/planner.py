@@ -316,6 +316,11 @@ def _reduce_scenarios(scenarios: list[Scenario], max_cases: int | None) -> list[
 
 def _mode_applies(mode: dict[str, Any], scenario: Scenario) -> bool:
     categories = {str(item) for item in mode.get("applicable_scenario_categories") or []}
+    if str(mode.get("id") or "") == "functional" and any(
+        capability.startswith(("voice_endpoint.", "voice_assistant."))
+        for capability in _required_capabilities(scenario)
+    ):
+        return True
     return not categories or scenario.category in categories
 
 
@@ -345,6 +350,8 @@ def _platform_for_runtime_capability(scenario: Scenario) -> str | None:
         return "ESP32"
     if any(capability.startswith(("pi.", "raspberry_pi.")) for capability in required):
         return "Raspberry Pi"
+    if any(capability.startswith(("voice_endpoint.", "voice_assistant.")) for capability in required):
+        return "Voice Endpoint"
     components = set(scenario.required_components)
     platforms = {str(item) for item in scenario.raw.get("supported_platforms") or ()}
     targets_windows_only = (

@@ -29,6 +29,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--raspberry-pi-adapter", action="store_true")
     parser.add_argument("--windows-adapter", action="store_true")
     parser.add_argument("--esp32-adapter", action="store_true")
+    parser.add_argument("--voice-assistant-adapter", action="store_true")
 
     subparsers = parser.add_subparsers(dest="command", required=True)
     for command in ("list", "validate", "dry-run", "execute", "report"):
@@ -141,7 +142,7 @@ def main(argv: list[str] | None = None) -> int:
     loader = ScenarioLoader(config)
     scenarios = loader.load()
     adapters = None
-    if args.ha_adapter or args.apple_adapter or args.raspberry_pi_adapter or args.windows_adapter or args.esp32_adapter:
+    if args.ha_adapter or args.apple_adapter or args.raspberry_pi_adapter or args.windows_adapter or args.esp32_adapter or args.voice_assistant_adapter:
         from .adapters import AdapterRegistry
 
         adapters = AdapterRegistry()
@@ -165,6 +166,10 @@ def main(argv: list[str] | None = None) -> int:
             from .esp32_adapter import ESP32AdapterConfig, ESP32VerificationAdapter
 
             adapters.register(ESP32VerificationAdapter(ESP32AdapterConfig.from_environment(config.root)))
+        if args.voice_assistant_adapter:
+            from .voice_assistant_adapter import VoiceAssistantAdapterConfig, VoiceAssistantVerificationAdapter
+
+            adapters.register(VoiceAssistantVerificationAdapter(VoiceAssistantAdapterConfig.from_environment(config.root)))
     from .orchestrator import VerificationOrchestrator
 
     orchestrator = VerificationOrchestrator(config, adapters=adapters)
