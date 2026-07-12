@@ -17,9 +17,9 @@ The Architecture Closure Review completed on 2026-07-11 with decision
 `ARCHITECTURE_FROZEN`.
 
 Platform Baseline v1.0 has not yet been certified. The current platform
-decision is `PLATFORM_BASELINE_V1_NOT_CERTIFIED`. The active engineering
-objective is Platform Qualification. Home Assistant, Apple, Raspberry Pi,
-Windows and ESP qualification are complete for the current verification
+decision is `PLATFORM_BASELINE_V1_NOT_CERTIFIED`. Platform Qualification is
+complete. Home Assistant, Apple, Raspberry Pi, Windows, ESP and DJConnect
+Voice Assistant qualification are complete for the current verification
 roadmap. Phase 13E-R2 returned `WINDOWS_LIVE_QUALIFIED`. Phase 14 returned
 `ESP_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_PENDING`. Phase 14E returned
 `ESP_LIVE_QUALIFIED`. Phase 15 returned
@@ -33,10 +33,11 @@ canonical cross-platform smoke plan but returned
 was stale for the active repository SHA and the prepared Windows VM was not
 running. Phase 16-R remediated the environment blockers and returned
 `CROSS_PLATFORM_QUALIFIED`. Phase 17 Platform Test Coverage Improvement
-returned `PLATFORM_TEST_COVERAGE_IMPROVEMENT_COMPLETE`: its full matrix added
-Home Assistant, ESP32 firmware and Voice Assistant coverage responsibility;
-the ESP32 export is explicitly `NOT_YET_SUPPORTED`. Platform Baseline v1.0
-Certification is unblocked but requires its own explicit prompt.
+returned `PLATFORM_TEST_COVERAGE_IMPROVEMENT_COMPLETE`: its immutable
+historical matrix added Home Assistant, ESP32 firmware and Voice Assistant
+coverage responsibility. The subsequent ESP native coverage follow-up returned
+`ESP_COVERAGE_QUALIFIED`. The next activity is a Platform Baseline Readiness
+Review rerun; certification remains separately authorized and is not started.
 
 Phase 9V rerun has qualified the Verification Platform using the dedicated
 local Home Assistant verification lab. The canonical planner selected the
@@ -197,11 +198,11 @@ the required `ha-full` profile for SHA
 `07178bad48d3bb8ad977e6b9070abfdf444889b4`, and returned
 `CROSS_PLATFORM_QUALIFIED`.
 
-After Phase 16 Cross-Platform Qualification, the next platform increment
-before Platform Baseline v1.0 Certification is Platform Test Coverage
-Improvement. It must increase meaningful automated coverage through tests,
-deeper verification and improved testability, never by excluding valid
-production code or manipulating coverage scope.
+After Phase 16 Cross-Platform Qualification, Phase 17 completed Platform Test
+Coverage Improvement. The subsequent ESP native coverage follow-up qualified
+the remaining ESP coverage capability. The next platform activity is the
+Platform Baseline Readiness Review rerun; certification remains a separate,
+explicit activity.
 
 ## Deferred Implementation Epics
 

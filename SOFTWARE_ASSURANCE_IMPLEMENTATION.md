@@ -2,7 +2,7 @@
 
 Status: canonical implementation registration  
 Repository: `pcvantol/djconnect`  
-Platform state: `Platform Qualification`
+Platform state: `Platform Qualification complete; Platform Baseline readiness review pending`
 
 ## Purpose
 
@@ -20,7 +20,7 @@ capabilities.
 | --- | --- |
 | Architecture Status | `COMPLETE` |
 | Implementation Status | `DEFERRED` |
-| Platform State | `Platform Qualification` |
+| Platform State | `Platform Qualification complete; Platform Baseline readiness review pending` |
 | Implementation Start | `NOT_STARTED` |
 | Architecture Freeze | `YES` |
 
@@ -57,9 +57,9 @@ implementation.
 
 Implementation is intentionally postponed because:
 
-- Platform Qualification remains active;
-- primary adapters remain unfinished;
-- cross-platform qualification remains incomplete;
+- Platform Baseline v1.0 remains uncertified;
+- an explicit readiness-review rerun and certification decision remain
+  required before implementation may begin;
 - CI governance should stabilize only after every runtime exists;
 - repeated governance changes during Platform Qualification would create churn;
 - the Software Assurance architecture is complete, and only implementation
@@ -89,9 +89,9 @@ Current lifecycle:
 Platform Architecture
   -> COMPLETE
 Platform Qualification
-  -> CURRENT
+  -> COMPLETE
 Platform Baseline
-  -> FUTURE
+  -> READINESS REVIEW PENDING
 Software Assurance Implementation
   -> DEFERRED
 Business-first Engineering

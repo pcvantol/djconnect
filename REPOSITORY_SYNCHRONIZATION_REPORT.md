@@ -1,15 +1,14 @@
 # Repository Synchronization Report
 
 Status: completed  
-Date: 2026-07-11  
+Date: 2026-07-12
 Repository: `pcvantol/djconnect`  
 Task: `RST-001 Canonical Platform Status Synchronization`
 
 ## Purpose
 
 This report records the canonical status synchronization performed after
-Software Assurance deferred implementation registration and the Phase 10E-R2
-follow-up closure for current platform verification.
+the completed qualification, coverage and ESP native coverage follow-up work.
 
 This task did not implement functionality, modify architecture, redesign
 governance, reorder the roadmap or execute verification.
@@ -20,14 +19,14 @@ governance, reorder the roadmap or execute verification.
 | --- | --- | --- |
 | Platform Lifecycle State | `Platform Qualification` | `PLATFORM_STRATEGY.md`, `PLATFORM_BASELINE_CERTIFICATION.md` |
 | Architecture Status | `ARCHITECTURE_FROZEN` | `ARCHITECTURE_CLOSURE_REVIEW.md`, `ARCHITECTURE_DECISION.md` |
-| Platform Qualification Status | `IN_PROGRESS` | `PROMPT_INDEX.md`, verification reports |
+| Platform Qualification Status | `COMPLETE` | Phase 16-R returned `CROSS_PLATFORM_QUALIFIED` |
 | Platform Baseline Status | `PLATFORM_BASELINE_V1_NOT_CERTIFIED` | `PLATFORM_BASELINE_CERTIFICATION.md`, `PLATFORM_BASELINE_1_0.md` |
 | Verification Framework Status | `COMPLETE` | Phase 9V rerun returned `VERIFICATION PLATFORM QUALIFIED` |
-| Verification Runtime Status | `STABLE` | Runtime is versioned as `1.0.0` for current platform verification |
+| Verification Runtime Status | `STABLE` | Runtime `1.1.0` is the canonical coverage ingestion engine |
 | Software Assurance Architecture Status | `COMPLETE` | `SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE` |
 | Software Assurance Implementation Status | `DEFERRED` | `SOFTWARE_ASSURANCE_IMPLEMENTATION.md` |
 | Product Strategy Status | Foundation established | `docs/product/README.md`, `docs/product/PRODUCT_STRATEGY.md` |
-| Current Active Platform Phase | Phase 10E retry | `PROMPT_INDEX.md` |
+| Current Active Platform Phase | Platform Baseline Readiness Review rerun | Completed qualification and coverage evidence |
 
 ## Documents Updated
 
@@ -38,15 +37,13 @@ governance, reorder the roadmap or execute verification.
 
 ## Status Changes
 
-- Updated active verification status from Phase 10E-R2 follow-up work to Phase
-  10E retry.
-- Recorded that Phase 10E-R2 remains historical blocked evidence, while its
-  follow-up items are resolved for current platform verification.
-- Clarified that Apple scenario coverage remains incomplete even though the
-  development-signing/latest-runtime/XCTest healthcheck path is prepared.
-- Clarified that the Verification Framework is complete and the Verification
-  Runtime is stable for current platform verification, while Platform
-  Qualification remains in progress.
+- Recorded completion of ESP live, Voice Assistant live and cross-platform
+  qualification.
+- Recorded Phase 17 coverage completion and the ESP native coverage decision
+  `ESP_COVERAGE_QUALIFIED`.
+- Updated the canonical Runtime reference from `1.0.0` to `1.1.0`.
+- Clarified that Platform Qualification is complete while Platform Baseline
+  remains not certified pending its explicit readiness and certification work.
 - Clarified that Software Assurance implementation remains deferred until
   `PLATFORM_BASELINE_V1_CERTIFIED`.
 
@@ -62,21 +59,14 @@ governance, reorder the roadmap or execute verification.
 
 ## Remaining Qualification Scope
 
-Remaining Platform Qualification work includes:
-
-- Apple scenario coverage retry;
-- Raspberry Pi adapter qualification;
-- ESP32 adapter qualification;
-- Voice Endpoint adapter qualification;
-- Windows adapter qualification;
-- cross-platform qualification;
-- Platform Baseline v1.0 certification rerun after qualification evidence is
-  complete.
+No Platform Qualification work remains. The remaining sequence is a readiness
+review rerun and, only if ready, the explicitly authorized Platform Baseline
+v1.0 Certification activity.
 
 Release operations, App Store/TestFlight distribution signing and self-hosted
 runner maturity remain follow-ups. They do not change the current repository
-status: Platform Qualification remains active and Platform Baseline v1.0
-remains not certified.
+status: Platform Qualification is complete and Platform Baseline v1.0 remains
+not certified.
 
 ## Architecture Assessment
 
@@ -113,7 +103,7 @@ The repository status is synchronized with current evidence.
 Final state:
 
 ```text
-Platform Qualification: IN_PROGRESS
+Platform Qualification: COMPLETE
 Platform Baseline v1.0: NOT CERTIFIED
 Verification Framework: COMPLETE
 Verification Runtime: STABLE

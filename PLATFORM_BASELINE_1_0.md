@@ -1,7 +1,7 @@
 # DJConnect Platform Baseline v1.0 Assessment
 
 Status: active baseline assessment
-Date: 2026-07-11  
+Date: 2026-07-12
 Repository: `pcvantol/djconnect`  
 Certification: `PLATFORM_BASELINE_V1_NOT_CERTIFIED`
 
@@ -17,15 +17,15 @@ It does not introduce product functionality.
 
 ## Result
 
-This assessment concludes that Platform Baseline v1.0 has not yet been
-achieved. The architecture is frozen, but the Platform itself still requires
-adapter qualification and cross-platform qualification before baseline
-certification can succeed.
+Platform Baseline v1.0 has not yet been certified. The architecture is frozen,
+and all required adapter, cross-platform and coverage qualification evidence
+has been completed. Certification remains a separate, explicit activity after
+the Platform Baseline Readiness Review confirms that the synchronized
+governance record is internally consistent.
 
 The foundation, verification platform, meta engineering model, repository
 bootstrap, cross-repository governance and Software Assurance architecture are
-strong enough to freeze. The required adapter and cross-platform qualification
-evidence is incomplete.
+frozen. Software Assurance implementation remains deferred until certification.
 
 ## Evidence Read
 
@@ -52,11 +52,12 @@ Primary evidence:
 | --- | --- | --- |
 | Platform Foundation | PASS | Canonical foundation is complete and navigable. |
 | Verification Platform | PASS | Phase 9V rerun qualified the platform. |
-| Verification Runtime | WARNING | Versioned runtime exists; release operations/self-hosted execution remain follow-ups. |
+| Verification Runtime | PASS | Runtime `1.1.0` provides the canonical planner, execution, evidence, investigator, qualification, reporting and coverage capabilities. |
 | Meta Engineering | PASS | Process foundation is complete and indexed. |
 | Repository Bootstrap | PASS | Clean-session and canonical reference flow exists. |
-| Platform Adapters | FAIL | Home Assistant, Apple, Raspberry Pi and Windows are qualified for the current roadmap state; ESP and DJConnect Voice Assistant adapter/live qualification remain incomplete. |
-| Cross-platform | FAIL | Shared contracts exist, but cross-platform qualification is not complete. |
+| Platform Adapters | PASS | Home Assistant, Apple, Raspberry Pi, Windows, ESP and DJConnect Voice Assistant are qualified; ESP live qualification is `ESP_LIVE_QUALIFIED` and Voice Assistant live qualification is `VOICE_ASSISTANT_LIVE_QUALIFIED`. |
+| Cross-platform | PASS | Phase 16-R returned `CROSS_PLATFORM_QUALIFIED` for the selected 47-case smoke scope. |
+| Coverage | PASS | Phase 17 returned `PLATFORM_TEST_COVERAGE_IMPROVEMENT_COMPLETE`; the ESP follow-up returned `ESP_COVERAGE_QUALIFIED`. |
 | Software Assurance | PASS | Architecture is complete; implementation correctly deferred. |
 | Platform Health | WARNING | Measurement architecture exists; implementation is future Software Assurance work. |
 | CI/CD | WARNING | Exact-SHA CI and framework CI evidence exist; release operations and self-hosted runner execution remain follow-ups. |
@@ -71,10 +72,9 @@ Baseline v1.0 requires all required criteria to pass. A warning may be accepted
 only when it does not block sustainable platform evolution. A fail blocks the
 baseline.
 
-Current fails:
-
-- ESP and DJConnect Voice Assistant primary adapters are not fully qualified;
-- cross-platform qualification is not complete.
+There are no remaining adapter, verification or coverage qualification fails.
+The remaining pre-certification activity is an explicit readiness-review rerun,
+followed only by the separately authorized certification activity.
 
 Current result:
 

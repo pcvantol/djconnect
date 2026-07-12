@@ -171,7 +171,7 @@ Suggested subphases:
 
 ## Verification Program V1
 
-**Status:** 🟡 In progress
+**Status:** ✅ Complete
 **Goal:** Build durable platform verification before expanding adapter
 coverage.
 
@@ -213,20 +213,18 @@ Next:
 - ✅ Phase 13 Windows Verification Adapter qualified with live runtime pending.
 - ✅ Phase 13E-R2 Windows Client Build Remediation and Live Qualification
   returned `WINDOWS_LIVE_QUALIFIED`.
+- ✅ Phase 14E ESP Live Qualification returned `ESP_LIVE_QUALIFIED`.
+- ✅ Phase 15E-R DJConnect Voice Assistant Live Qualification Remediation
+  returned `VOICE_ASSISTANT_LIVE_QUALIFIED`.
+- ✅ Phase 16-R returned `CROSS_PLATFORM_QUALIFIED`.
 - ✅ Phase 17 Platform Test Coverage Improvement completed with fresh
   exact-SHA evidence for Home Assistant, Apple, Raspberry Pi and Windows.
-  ESP32 native coverage export is explicitly `NOT_YET_SUPPORTED` and tracked
-  as a future coverage capability gap.
-- ⏳ Phase 14E ESP Live Qualification follows Phase 14.
-- ⏳ Phase 15 DJConnect Voice Assistant Verification Adapter follows ESP live
-  qualification.
-- ⏳ Phase 15E DJConnect Voice Assistant Live Qualification follows Phase 15.
-- ⏳ Phase 16 Cross-Platform Qualification remains future work after Home
-  Assistant, Apple, Raspberry Pi, Windows, ESP and DJConnect Voice Assistant
-  qualification.
-- ⏳ Platform Test Coverage Improvement is inserted after Coverage Baseline 1
-  and cross-platform qualification, before Platform Baseline v1.0
-  Certification.
+- ✅ ESP Native Coverage Follow-up returned `ESP_COVERAGE_QUALIFIED`.
+
+Remaining:
+
+- ⏳ Rerun the Platform Baseline Readiness Review, then run certification only
+  if the readiness decision permits it.
 
 ## Coverage Baseline 1
 
@@ -251,8 +249,8 @@ with decision `WINDOWS_COVERAGE_BASELINE_ESTABLISHED`: 72.45% line coverage and
 
 ## Phase 14 — ESP Verification Adapter
 
-**Status:** 🟡 In progress
-**Target:** `ESP_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_PENDING`
+**Status:** ✅ Complete
+**Decision:** `ESP_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_PENDING`
 **Goal:** Implement and qualify the thin ESP verification adapter without
 changing the frozen platform architecture.
 
@@ -269,8 +267,8 @@ Objectives:
 
 ## Phase 14E — ESP Live Qualification
 
-**Status:** ⏳ Not started
-**Target:** `ESP_LIVE_QUALIFIED`
+**Status:** ✅ Complete
+**Decision:** `ESP_LIVE_QUALIFIED`
 **Goal:** Qualify the ESP adapter against real ESP hardware.
 
 Objectives:
@@ -283,8 +281,8 @@ Objectives:
 
 ## Phase 15 — DJConnect Voice Assistant Verification Adapter
 
-**Status:** ⏳ Not started
-**Target:** `VOICE_ASSISTANT_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_PENDING`
+**Status:** ✅ Complete
+**Decision:** `VOICE_ASSISTANT_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_PENDING`
 **Goal:** Treat the DJConnect Voice Assistant Conversation Agent as its own
 verification platform, distinct from the ESP adapter.
 
@@ -299,8 +297,8 @@ Objectives:
 
 ## Phase 15E — DJConnect Voice Assistant Live Qualification
 
-**Status:** ⏳ Not started
-**Target:** `VOICE_ASSISTANT_LIVE_QUALIFIED`
+**Status:** ✅ Complete
+**Decision:** `VOICE_ASSISTANT_LIVE_QUALIFIED`
 **Goal:** Qualify the Voice Assistant adapter against the real Conversation
 Agent.
 
@@ -314,8 +312,8 @@ Objectives:
 
 ## Phase 16 — Cross-Platform Qualification
 
-**Status:** ⏳ Not started
-**Target:** `CROSS_PLATFORM_QUALIFIED`
+**Status:** ✅ Complete
+**Decision:** `CROSS_PLATFORM_QUALIFIED`
 **Goal:** Prove the frozen verification platform across all primary
 qualification platforms.
 
@@ -341,8 +339,9 @@ Objectives:
 
 ## Platform Test Coverage Improvement
 
-**Status:** ⏳ Not started
-**Position:** After Coverage Baseline 1 and Phase 16 Cross-Platform
+**Status:** ✅ Complete
+**Decision:** `PLATFORM_TEST_COVERAGE_IMPROVEMENT_COMPLETE`
+**Position:** Completed after Coverage Baseline 1 and Phase 16 Cross-Platform
 Qualification; before Platform Baseline v1.0 Certification.
 **Goal:** Increase meaningful automated test coverage across all platform
 repositories without changing coverage scope to inflate percentages.
@@ -418,7 +417,7 @@ either historical coverage baseline.
 
 ## Software Assurance Platform
 
-**Status:** 🟡 Architecture sprint
+**Status:** ✅ Architecture complete
 **Goal:** Establish the canonical platform-wide software quality governance
 layer that extends Verification without replacing behavioural verification.
 
@@ -444,8 +443,8 @@ Next:
 
 - ⏳ Software Assurance implementation deferred until an explicit post-baseline
   implementation prompt starts that work.
-- ⏳ Resume active Verification roadmap follow-up work before Software
-  Assurance implementation.
+- ⏳ Rerun Platform Baseline Readiness Review before Software Assurance
+  implementation.
 
 Guardrails:
 
@@ -464,16 +463,18 @@ Guardrails:
 Remaining qualification follow-up:
 
 - ✅ Windows live runtime qualification returned `WINDOWS_LIVE_QUALIFIED`.
-- ⏳ ESP and DJConnect Voice Assistant primary adapter qualification remains
-  future work.
-- ⏳ Cross-platform qualification has not completed.
+- ✅ ESP live qualification returned `ESP_LIVE_QUALIFIED`.
+- ✅ Voice Assistant live qualification returned
+  `VOICE_ASSISTANT_LIVE_QUALIFIED`.
+- ✅ Cross-platform qualification returned `CROSS_PLATFORM_QUALIFIED`.
+- ✅ Coverage improvement returned
+  `PLATFORM_TEST_COVERAGE_IMPROVEMENT_COMPLETE`; ESP native coverage returned
+  `ESP_COVERAGE_QUALIFIED`.
 
 Next:
 
-- resume the active Verification roadmap follow-up work;
-- complete ESP adapter and ESP live qualification;
-- complete DJConnect Voice Assistant adapter and live qualification;
-- run cross-platform qualification;
+- rerun the Platform Baseline Readiness Review;
+- execute certification only if the readiness review returns ready;
 - preserve the architecture freeze unless a future Architecture Review with
   objective evidence supersedes it.
 - Verification remains owner of behavioural correctness.
@@ -496,8 +497,8 @@ Result:
 
 Next:
 
-- resolve adapter and cross-platform qualification blockers inside the frozen
-  architecture;
+- preserve the completed adapter, cross-platform and coverage qualification
+  evidence inside the frozen architecture;
 - do not create new foundational architecture unless future evidence proves a
   genuine gap.
 

@@ -213,7 +213,7 @@ DJConnect recommendations when those compact positive signals are available.
 This repository also owns the generic DJConnect Verification Platform runtime.
 The runtime is versioned separately from product scenarios and records its
 version in verification metadata, reports and execution summaries. The current
-runtime is `1.0.0`.
+runtime is `1.1.0`.
 
 Generic engine releases can be built as Docker images from
 `docker/verification-platform/Dockerfile`. The image contains only reusable

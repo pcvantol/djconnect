@@ -33,11 +33,11 @@ Architecture Closure Review
 
 Platform Qualification
   -> current platform stage
-  -> complete adapter and cross-platform qualification inside the frozen architecture
+  -> complete: adapter, cross-platform and coverage qualification evidence recorded
 
 Platform Baseline v1.0 Certification
   -> not certified
-  -> rerun only after Platform Qualification evidence is complete
+  -> begins only after an explicit readiness-review rerun returns ready
 
 Software Assurance Implementation
   -> deferred
@@ -138,9 +138,9 @@ Canonical assessment artifacts:
 - `PLATFORM_BASELINE_CERTIFICATION.md`
 - `PLATFORM_BASELINE_GAP_ANALYSIS.md`
 
-Business-first engineering has not yet started. Adapter qualification,
-cross-platform qualification and runtime maturity remain current Platform
-Qualification work.
+Business-first engineering has not yet started. Platform Qualification is
+complete; the remaining sequence is the readiness-review rerun and, if ready,
+the separately authorized Platform Baseline certification activity.
 
 ## Architecture Closure Review
 

@@ -36,9 +36,10 @@ The current repository status task is roadmap/backlog synchronization only. It
 is not a product implementation phase, not a verification execution phase, not
 a CI/tooling enablement phase and not a new architecture phase.
 
-Phase 17 Platform Test Coverage Improvement is complete. Its matrix records
-the ESP32 native coverage export as `NOT_YET_SUPPORTED`. Platform Baseline v1.0
-Certification is unblocked but requires its own explicit prompt. Phase 15
+Phase 17 Platform Test Coverage Improvement is complete. The subsequent ESP
+native coverage follow-up returned `ESP_COVERAGE_QUALIFIED`; it does not alter
+the immutable Phase 17 report. Platform Baseline v1.0 Certification remains a
+separate explicit activity. Phase 15
 qualified the thin Voice Assistant adapter with live runtime pending. Phase
 15E attempted live qualification and blocked safely before mutation because the
 local Home Assistant Assist lab was stale for the active repository SHA and
@@ -85,14 +86,14 @@ architecture are stable enough to freeze.
   reopen the completed Phase 17 decision.
 - CI workflow changes, scanner enablement, trusted delivery and release gates
   are deferred Software Assurance implementation work.
-- Platform Baseline v1.0 remains uncertified until DJConnect Voice Assistant
-  live qualification and cross-platform qualification complete.
+- Platform Baseline v1.0 remains uncertified pending the explicit readiness
+  review rerun and, if ready, the separate certification activity.
 
 ## Current Prompt
 
 Attached request:
 
-`ESP Native Coverage Qualification follow-up (complete; do not start Platform Baseline certification automatically)`
+`Platform governance synchronization (complete; do not start Platform Baseline certification automatically)`
 
 ## Completion Report
 
@@ -229,9 +230,8 @@ contain the SHA of the commit that includes its own content.
 
 ## Repository-Local Next Action
 
-Return to the active Verification roadmap before any Software Assurance
-implementation or business-first engineering begins. Execute Platform Test
-Coverage Improvement next, then rerun Platform Baseline certification only
-after that increment completes. Do not start additional foundational
-architecture work unless a future Architecture Review with objective evidence
-demonstrates a genuine architecture gap.
+Rerun the Platform Baseline Readiness Review before any Software Assurance
+implementation or business-first engineering begins. Only if that review
+returns ready may a separate, explicit Platform Baseline certification prompt
+be executed. Do not start additional foundational architecture work unless a
+future Architecture Review with objective evidence demonstrates a genuine gap.
