@@ -221,6 +221,48 @@ class ScenarioEngine:
                     )
                 )
                 continue
+            adapter = self.adapters.get("esp32")
+            if adapter is not None and _targets_esp32(scenario):
+                attempts = _execute_with_controlled_retry(adapter, plan)
+                primitive_results = attempts[-1]
+                state = ResultState.PASS if all(result.ok for result in primitive_results) else ResultState.FAIL
+                failed = [result for result in primitive_results if not result.ok]
+                message = (
+                    "Runtime primitives executed through ESP32 adapter; "
+                    "scenario assertions remain owned by the Scenario Engine."
+                )
+                if failed:
+                    message = f"{message} Failed primitives: {', '.join(result.action for result in failed)}."
+                results.append(
+                    ScenarioResult(
+                        scenario_id=scenario.id,
+                        state=state,
+                        message=message,
+                        evidence=tuple(
+                            evidence
+                            for result in primitive_results
+                            for evidence in result.evidence
+                        ),
+                        diagnostics={
+                            "primitive_results": _primitive_result_dicts(primitive_results),
+                            "attempts": [
+                                {
+                                    "attempt": index,
+                                    "primitive_results": _primitive_result_dicts(attempt),
+                                }
+                                for index, attempt in enumerate(attempts, start=1)
+                            ],
+                            "retry": _retry_diagnostics(plan, attempts),
+                        },
+                        duration_seconds=sum(
+                            float(result.data.get("duration_seconds", 0.0))
+                            for attempt in attempts
+                            for result in attempt
+                            if isinstance(result.data, dict)
+                        ),
+                    )
+                )
+                continue
             results.append(
                 ScenarioResult(
                     scenario_id=scenario.id,
@@ -240,6 +282,8 @@ class ScenarioEngine:
             return _raspberry_pi_runtime_actions(scenario)
         if _targets_windows(scenario) and not _targets_home_assistant(scenario):
             return _windows_runtime_actions(scenario)
+        if _targets_esp32(scenario):
+            return _esp32_runtime_actions(scenario)
         if _is_first_profile_adapter_scenario(scenario):
             return _home_assistant_backend_actions(scenario)
         if _is_home_assistant_backend_scenario(scenario):
@@ -375,6 +419,17 @@ def _targets_windows(scenario: Scenario) -> bool:
     )
 
 
+def _targets_esp32(scenario: Scenario) -> bool:
+    platforms = {str(item) for item in scenario.raw.get("supported_platforms") or ()}
+    components = set(scenario.required_components)
+    required = _required_capabilities(scenario)
+    return (
+        "ESP32" in platforms
+        or "ESP32" in components
+        or any(capability.startswith(("esp32.", "firmware.", "hardware.")) for capability in required)
+    )
+
+
 def _is_home_assistant_backend_scenario(scenario: Scenario) -> bool:
     if not _targets_home_assistant(scenario):
         return False
@@ -460,6 +515,24 @@ def _windows_runtime_actions(scenario: Scenario) -> list[PrimitiveAction]:
         actions.append(PrimitiveAction("collect_logs"))
     if "windows.runtime" in required or "windows_native_arm64.runtime" in required or "windows.stop" in required:
         actions.append(PrimitiveAction("stop_app"))
+    return actions
+
+
+def _esp32_runtime_actions(scenario: Scenario) -> list[PrimitiveAction]:
+    required = _required_capabilities(scenario)
+    actions = [
+        PrimitiveAction("collect_environment"),
+        PrimitiveAction("validate_target_identity"),
+        PrimitiveAction("collect_firmware_metadata"),
+    ]
+    if "esp32.build" in required or "firmware.build" in required:
+        actions.append(PrimitiveAction("build_firmware"))
+    if "esp32.flash" in required or "firmware.flash" in required:
+        actions.append(PrimitiveAction("flash_firmware"))
+    if "esp32.runtime" in required or "esp32.reset" in required or "hardware.esp32" in required:
+        actions.append(PrimitiveAction("reset_device"))
+    if "esp32.serial" in required or "esp32.logs" in required or "evidence.logs" in required or "esp32.runtime" in required:
+        actions.append(PrimitiveAction("collect_logs"))
     return actions
 
 

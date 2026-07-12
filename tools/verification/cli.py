@@ -28,6 +28,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--apple-adapter", action="store_true")
     parser.add_argument("--raspberry-pi-adapter", action="store_true")
     parser.add_argument("--windows-adapter", action="store_true")
+    parser.add_argument("--esp32-adapter", action="store_true")
 
     subparsers = parser.add_subparsers(dest="command", required=True)
     for command in ("list", "validate", "dry-run", "execute", "report"):
@@ -140,7 +141,7 @@ def main(argv: list[str] | None = None) -> int:
     loader = ScenarioLoader(config)
     scenarios = loader.load()
     adapters = None
-    if args.ha_adapter or args.apple_adapter or args.raspberry_pi_adapter or args.windows_adapter:
+    if args.ha_adapter or args.apple_adapter or args.raspberry_pi_adapter or args.windows_adapter or args.esp32_adapter:
         from .adapters import AdapterRegistry
 
         adapters = AdapterRegistry()
@@ -160,6 +161,10 @@ def main(argv: list[str] | None = None) -> int:
             from .windows_adapter import WindowsAdapterConfig, WindowsVerificationAdapter
 
             adapters.register(WindowsVerificationAdapter(WindowsAdapterConfig.from_environment(config.root)))
+        if args.esp32_adapter:
+            from .esp32_adapter import ESP32AdapterConfig, ESP32VerificationAdapter
+
+            adapters.register(ESP32VerificationAdapter(ESP32AdapterConfig.from_environment(config.root)))
     from .orchestrator import VerificationOrchestrator
 
     orchestrator = VerificationOrchestrator(config, adapters=adapters)

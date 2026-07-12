@@ -341,6 +341,8 @@ def _platform_for(scenario: Scenario, policy: dict[str, Any]) -> str:
 
 def _platform_for_runtime_capability(scenario: Scenario) -> str | None:
     required = _required_capabilities(scenario)
+    if any(capability.startswith(("esp32.", "firmware.", "hardware.")) for capability in required):
+        return "ESP32"
     if any(capability.startswith(("pi.", "raspberry_pi.")) for capability in required):
         return "Raspberry Pi"
     components = set(scenario.required_components)

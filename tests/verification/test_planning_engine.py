@@ -95,6 +95,17 @@ class VerificationPlanningEngineTests(unittest.TestCase):
         self.assertIn("windows_vm", plan.resource_plan.required_hardware)
         self.assertEqual(1, plan.coverage.by_platform["Windows"])
 
+    def test_hardware_plan_selects_esp32_adapter_cases(self) -> None:
+        scenarios = [scenario for scenario in self.scenarios if scenario.id in {"HARDWARE-001", "HARDWARE-002"}]
+
+        plan = VerificationPlanningEngine(self.config).plan(scenarios, strategy_id="hardware", policy_id="hardware")
+
+        self.assertEqual({"HARDWARE-001", "HARDWARE-002"}, {case.scenario_id for case in plan.cases})
+        for case in plan.cases:
+            self.assertEqual("ESP32", case.platform)
+            self.assertEqual("esp32", case.adapter)
+        self.assertIn("esp32", plan.resource_plan.required_hardware)
+
     def test_release_policy_includes_release_qualification_mode_for_release_scenario(self) -> None:
         scenario = [scenario for scenario in self.scenarios if scenario.id == "RELEASE-001"]
 
