@@ -1,1 +1,89 @@
-{"batch":"1","reviewed_at":"2026-07-12","decision":"ACTION_PINNING_BATCH_1_COMPLETE","pins":[{"repository":"actions/checkout","type":"official GitHub action","original_refs":["v5","v7"],"release":"v5/v7","sha":"93cb6efe18208431cddfb8368fd83d5badbf9bfd / 9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0","approved":true},{"repository":"actions/setup-python","type":"official GitHub action","original_refs":["v5","v6"],"release":"v5/v6","sha":"a26af69be951a213d495a4c3e4e4022e16d87065 / ece7cb06caefa5fff74198d8649806c4678c61a1","approved":true},{"repository":"actions/setup-node","type":"official GitHub action","original_refs":["v5","v6"],"release":"v5/v6","sha":"a0853c24544627f65ddf259abe73b1d18a591444 / 48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e","approved":true},{"repository":"actions/setup-dotnet","type":"official GitHub action","original_refs":["v5"],"release":"v5","sha":"26b0ec14cb23fa6904739307f278c14f94c95bf1","approved":true},{"repository":"actions/upload-artifact","type":"official GitHub action","original_refs":["v4","v5","v7"],"release":"v4/v5/v7","sha":"ea165f8d65b6e75b540449e92b4886f43607fa02 / 330a01c490aca151604b8cf639adc76d48f6c5d4 / 043fb46d1a93c77aae656e7c1c64a875d1fc6a0a","approved":true},{"repository":"actions/download-artifact","type":"official GitHub action","original_refs":["v4","v8"],"release":"v4/v8","sha":"d3f86a106a0bac45b974a628896c90dbdf5c8093 / 3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c","approved":true},{"repository":"pcvantol/djconnect","type":"internal reusable workflow","original_refs":["main"],"producer_commit":"b02217ab54ff5a93e9ba5ae406ac608f43ff8792","paths":["djconnect-codeql-ci.yml","djconnect-python-ci.yml","djconnect-semgrep-ci.yml"],"approved":true}]}
+{
+  "batches": [
+    {
+      "decision": "ACTION_PINNING_BATCH_1_COMPLETE",
+      "pins": [
+        {"approved": true, "original_refs": ["v5", "v7"], "release": "v5/v7", "repository": "actions/checkout", "sha": "93cb6efe18208431cddfb8368fd83d5badbf9bfd / 9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0", "type": "official GitHub action"},
+        {"approved": true, "original_refs": ["v4", "v8"], "release": "v4/v8", "repository": "actions/download-artifact", "sha": "d3f86a106a0bac45b974a628896c90dbdf5c8093 / 3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c", "type": "official GitHub action"},
+        {"approved": true, "original_refs": ["v5"], "release": "v5", "repository": "actions/setup-dotnet", "sha": "26b0ec14cb23fa6904739307f278c14f94c95bf1", "type": "official GitHub action"},
+        {"approved": true, "original_refs": ["v5", "v6"], "release": "v5/v6", "repository": "actions/setup-node", "sha": "a0853c24544627f65ddf259abe73b1d18a591444 / 48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e", "type": "official GitHub action"},
+        {"approved": true, "original_refs": ["v5", "v6"], "release": "v5/v6", "repository": "actions/setup-python", "sha": "a26af69be951a213d495a4c3e4e4022e16d87065 / ece7cb06caefa5fff74198d8649806c4678c61a1", "type": "official GitHub action"},
+        {"approved": true, "original_refs": ["v4", "v5", "v7"], "release": "v4/v5/v7", "repository": "actions/upload-artifact", "sha": "ea165f8d65b6e75b540449e92b4886f43607fa02 / 330a01c490aca151604b8cf639adc76d48f6c5d4 / 043fb46d1a93c77aae656e7c1c64a875d1fc6a0a", "type": "official GitHub action"},
+        {"approved": true, "original_refs": ["main"], "paths": ["djconnect-codeql-ci.yml", "djconnect-python-ci.yml", "djconnect-semgrep-ci.yml"], "producer_commit": "b02217ab54ff5a93e9ba5ae406ac608f43ff8792", "repository": "pcvantol/djconnect", "type": "internal reusable workflow"}
+      ],
+      "reviewed_at": "2026-07-12"
+    },
+    {
+      "decision": "ACTION_PINNING_BATCH_2_COMPLETE",
+      "pins": [
+        {
+          "approval_status": "approved",
+          "category": "security scanner",
+          "compatibility_status": "validated: existing v3 inputs (languages, autobuild) and security-events upload behavior preserved",
+          "consumers": ["djconnect-app/.github/workflows/firmware-codeql.yml"],
+          "current_ref": "v3",
+          "dependency_repository": "github/codeql-action",
+          "fork_behavior": "Fork pull requests receive no repository secrets or write token; CodeQL handles fork result upload under GitHub's code-scanning model.",
+          "immutable_sha": "02c5e83432fe5497fd85b873b6c9f16a8578e1d9",
+          "intended_major_line": "v3",
+          "release": "v3.37.0",
+          "required_permissions": {"contents": "read", "security-events": "write"},
+          "required_secrets": [],
+          "reviewed_at": "2026-07-12",
+          "validation_evidence": ["GitHub release and annotated-tag dereference", "action.yml input review", "workflow YAML parse", "immutable-reference scan", "permission review", "git diff --check"]
+        },
+        {
+          "approval_status": "approved",
+          "category": "security scanner",
+          "compatibility_status": "validated: existing v4 language, manual-build and none-build-mode behavior preserved",
+          "consumers": ["djconnect/.github/workflows/djconnect-codeql-ci.yml", "djconnect-api/.github/workflows/codeql.yml via pinned reusable workflow", "djconnect-esp32/.github/workflows/codeql.yml", "djconnect-pi/.github/workflows/codeql.yml", "djconnect-website/.github/workflows/codeql.yml via pinned reusable workflow", "djconnect-windows/.github/workflows/codeql.yml"],
+          "current_ref": "v4 and prior v4 SHA",
+          "dependency_repository": "github/codeql-action",
+          "fork_behavior": "Fork pull requests receive no repository secrets or write token; CodeQL handles fork result upload under GitHub's code-scanning model.",
+          "immutable_sha": "99df26d4f13ea111d4ec1a7dddef6063f76b97e9",
+          "intended_major_line": "v4",
+          "release": "v4.37.0",
+          "required_permissions": {"contents": "read", "security-events": "write"},
+          "required_secrets": [],
+          "reviewed_at": "2026-07-12",
+          "validation_evidence": ["GitHub release and annotated-tag dereference", "init/autobuild/analyze action.yml review", "workflow YAML parse", "immutable-reference scan", "permission review", "git diff --check"]
+        },
+        {
+          "approval_status": "approved",
+          "category": "security scanner",
+          "compatibility_status": "validated: full-history checkout, default detection semantics and existing GITHUB_TOKEN use preserved",
+          "consumers": ["djconnect-esp32/.github/workflows/secret-scan.yml"],
+          "current_ref": "v2",
+          "dependency_repository": "gitleaks/gitleaks-action",
+          "fork_behavior": "Fork pull requests receive no repository secrets, no self-hosted runner, and no write token; the workflow uses only the GitHub-provided token.",
+          "immutable_sha": "ff98106e4c7b2bc287b24eaf42907196329070c7",
+          "intended_major_line": "v2",
+          "release": "v2.3.9",
+          "required_permissions": {"contents": "read", "security-events": "write"},
+          "required_secrets": [],
+          "reviewed_at": "2026-07-12",
+          "validation_evidence": ["GitHub release and tag resolution", "action.yml review", "fetch-depth and workflow configuration review", "workflow YAML parse", "immutable-reference scan", "git diff --check"]
+        },
+        {
+          "approval_status": "approved",
+          "category": "security scanner",
+          "compatibility_status": "validated: OSS config mode and existing continue-on-error behavior preserved; no publishToken is supplied",
+          "consumers": ["djconnect/.github/workflows/djconnect-semgrep-ci.yml", "djconnect-api/.github/workflows/semgrep.yml via pinned reusable workflow", "djconnect-app/.github/workflows/firmware-security.yml via pinned reusable workflow", "djconnect-website/.github/workflows/semgrep.yml via pinned reusable workflow", "djconnect-windows/.github/workflows/semgrep.yml via pinned reusable workflow"],
+          "current_ref": "v1",
+          "dependency_repository": "semgrep/semgrep-action",
+          "fork_behavior": "Fork pull requests receive no repository secrets or Trusted AI credentials; GitHub-hosted runners are used and no artifacts or releases are published.",
+          "immutable_sha": "713efdd345f3035192eaa63f56867b88e63e4e5d",
+          "intended_major_line": "v1",
+          "release": "v1",
+          "required_permissions": {"contents": "read", "security-events": "write"},
+          "required_secrets": [],
+          "reviewed_at": "2026-07-12",
+          "validation_evidence": ["GitHub tag resolution", "action.yml input review", "canonical Semgrep config review", "workflow YAML parse", "immutable-reference scan", "git diff --check"]
+        }
+      ],
+      "reviewed_at": "2026-07-12"
+    }
+  ],
+  "canonical_action_inventory": "complete through Action Pinning Migration Batch 2",
+  "updated_at": "2026-07-12"
+}
