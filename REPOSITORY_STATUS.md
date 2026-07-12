@@ -19,8 +19,9 @@ cross-repository governance and Home Assistant integration implementation.
 
 Platform Qualification after the Software Assurance Platform Architecture
 Sprint, Product Strategy Foundation setup, Architecture Closure Review,
-Software Assurance deferred implementation registration and Phase 10E-R2
-follow-up closure for current platform verification.
+Software Assurance deferred implementation registration, Home Assistant
+qualification, Apple qualification, Raspberry Pi qualification and Windows
+live qualification.
 
 Canonical lifecycle:
 
@@ -31,13 +32,13 @@ Platform Architecture
   -> Business-first Engineering
 ```
 
-The current repository status task is documentation synchronization only. It
+The current repository status task is roadmap/backlog synchronization only. It
 is not a product implementation phase, not a verification execution phase, not
 a CI/tooling enablement phase and not a new architecture phase.
 
-The active verification prompt index records Phase 10E retry as the next
-verification gate. That verification work continues inside the frozen
-architecture.
+The active verification prompt index records Phase 14 ESP Verification Adapter
+as the next verification gate. That verification work continues inside the
+frozen architecture.
 
 ## Status
 
@@ -70,13 +71,13 @@ architecture are stable enough to freeze.
 
 - Software Assurance implementation must not begin until
   `PLATFORM_BASELINE_V1_CERTIFIED` and later explicit implementation prompts.
-- Remaining platform adapters and cross-platform qualification must continue
+- ESP, DJConnect Voice Assistant and cross-platform qualification must continue
   inside the frozen architecture.
 - CI workflow changes, scanner enablement, trusted delivery and release gates
   are deferred Software Assurance implementation work.
-- Apple scenario coverage remains incomplete. Phase 10E retry can proceed with
-  the Xcode account/development-signing gate, latest eligible simulator target
-  and prepared XCTest healthcheck recorded by Phase 10E-R2 follow-up work.
+- Platform Baseline v1.0 remains uncertified until ESP live qualification,
+  DJConnect Voice Assistant live qualification and cross-platform qualification
+  complete.
 
 ## Current Prompt
 
@@ -130,12 +131,9 @@ Deferred Software Assurance implementation outputs:
 
 Most recent recorded verification qualification:
 
-Phase 10E-R2 Apple Latest Runtime Qualification remains historical blocked
-evidence, but its follow-up backlog items `VPB-031`, `VPB-036`, `VPB-037` and
-`VPB-038` are resolved for current platform verification. Phase 10E retry can
-proceed with development signing, the latest eligible simulator target and the
-prepared XCTest healthcheck. App Store/TestFlight distribution signing is
-deferred to release v1.0 readiness.
+Phase 13E-R2 Windows Client Build Remediation and Live Qualification returned
+`WINDOWS_LIVE_QUALIFIED`. `WIN-001` passed live through the Scenario Engine and
+`windows_native_arm64` adapter in run `djv-20260712T135722Z-d09b6ec5ba`.
 
 Most recent Verification Framework qualification:
 
@@ -143,13 +141,21 @@ Phase 9V rerun returned `VERIFICATION PLATFORM QUALIFIED`.
 
 Verification Runtime status:
 
-The runtime is versioned as `1.0.0` and stable for current platform
+The runtime is versioned as `1.1.0` and stable for current platform
 verification. Release operations and self-hosted runner maturity remain
 follow-ups; they do not make the framework incomplete.
 
 Most recent Home Assistant backend qualification:
 
 Phase 9E-R returned `HOME_ASSISTANT_BACKEND_QUALIFIED_WITH_WARNINGS`.
+
+Most recent Apple qualification:
+
+Phase 10E-R3 returned `APPLE_SCENARIO_COVERAGE_QUALIFIED_WITH_WARNINGS`.
+
+Most recent Raspberry Pi qualification:
+
+Phase 12E-R returned `RASPBERRY_PI_PRODUCT_SCENARIO_MAPPING_QUALIFIED`.
 
 ## Validated Base SHA
 
@@ -163,9 +169,11 @@ contain the SHA of the commit that includes its own content.
 ## Repository-Local Next Action
 
 Return to the active Verification roadmap before any Software Assurance
-implementation or business-first engineering begins. Execute the Phase 10E
-Apple scenario coverage retry, complete remaining adapter qualification and
-cross-platform qualification, then rerun Platform Baseline certification. Do
+implementation or business-first engineering begins. Execute Phase 14 ESP
+Verification Adapter, Phase 14E ESP Live Qualification, Phase 15 DJConnect
+Voice Assistant Verification Adapter, Phase 15E DJConnect Voice Assistant Live
+Qualification and Phase 16 Cross-Platform Qualification, then run the platform
+coverage improvement increment and rerun Platform Baseline certification. Do
 not start additional foundational architecture work unless a future
 Architecture Review with objective evidence demonstrates a genuine
 architecture gap.

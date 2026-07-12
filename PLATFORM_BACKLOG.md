@@ -194,6 +194,11 @@ Completed:
 - ✅ Phase 9 Home Assistant Verification Adapter.
 - ✅ Phase 9L Local Home Assistant Verification Lab Qualification.
 - ✅ Phase 9V Verification Platform Qualification Rerun.
+- ✅ Home Assistant Qualification.
+- ✅ Apple Qualification.
+- ✅ Verification Framework Completion.
+- ✅ Raspberry Pi Qualification.
+- ✅ Windows Qualification.
 
 Next:
 
@@ -201,14 +206,23 @@ Next:
   non-blocking warnings.
 - ✅ Phase 10 Apple Verification Adapter qualified with live runtime skipped.
 - ✅ Phase 10E-R3 Apple Scenario Coverage qualified with non-blocking warnings.
+- ✅ Verification Framework Completion stabilized the runtime
+  primitives, planner, execution, evidence, investigator, qualification,
+  reporting and coverage capabilities.
 - ✅ Phase 12E-R Raspberry Pi product scenario mapping qualified.
 - ✅ Phase 13 Windows Verification Adapter qualified with live runtime pending.
-- ⏳ Windows live runtime qualification remains pending prepared Parallels
-  target JSON and real `djconnect-windows` artifact/runtime commands.
-- ⏳ Phase 14 Cross-Platform Qualification remains future work after Windows
-  live qualification.
-- ⏳ Phase 15 Platform Test Coverage Improvement is inserted after Coverage
-  Baseline 1 and cross-platform qualification, before Platform Baseline v1.0
+- ✅ Phase 13E-R2 Windows Client Build Remediation and Live Qualification
+  returned `WINDOWS_LIVE_QUALIFIED`.
+- 🟡 Phase 14 ESP Verification Adapter is the active phase.
+- ⏳ Phase 14E ESP Live Qualification follows Phase 14.
+- ⏳ Phase 15 DJConnect Voice Assistant Verification Adapter follows ESP live
+  qualification.
+- ⏳ Phase 15E DJConnect Voice Assistant Live Qualification follows Phase 15.
+- ⏳ Phase 16 Cross-Platform Qualification remains future work after Home
+  Assistant, Apple, Raspberry Pi, Windows, ESP and DJConnect Voice Assistant
+  qualification.
+- ⏳ Platform Test Coverage Improvement is inserted after Coverage Baseline 1
+  and cross-platform qualification, before Platform Baseline v1.0
   Certification.
 
 ## Coverage Baseline 1
@@ -232,12 +246,101 @@ with decision `WINDOWS_COVERAGE_BASELINE_ESTABLISHED`: 72.45% line coverage and
 50.85% branch coverage for `pcvantol/djconnect-windows` commit
 `b205f087214eb5fe90c4129c2afa9dee7f836a82`.
 
-## Phase 15 — Platform Test Coverage Improvement
+## Phase 14 — ESP Verification Adapter
+
+**Status:** 🟡 In progress
+**Target:** `ESP_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_PENDING`
+**Goal:** Implement and qualify the thin ESP verification adapter without
+changing the frozen platform architecture.
+
+Objectives:
+
+- implement thin ESP verification adapter;
+- adapter registration;
+- runtime primitives;
+- planner integration;
+- Scenario Engine routing;
+- capability mapping;
+- CLI execution where applicable;
+- mock qualification.
+
+## Phase 14E — ESP Live Qualification
 
 **Status:** ⏳ Not started
-**Position:** After Coverage Baseline 1, Phase 13E Windows Live Qualification
-and Phase 14 Cross-Platform Qualification; before Platform Baseline v1.0
-Certification.
+**Target:** `ESP_LIVE_QUALIFIED`
+**Goal:** Qualify the ESP adapter against real ESP hardware.
+
+Objectives:
+
+- qualify against real ESP hardware;
+- execute canonical ESP smoke scenarios;
+- collect qualification evidence;
+- validate planner integration;
+- validate adapter behaviour.
+
+## Phase 15 — DJConnect Voice Assistant Verification Adapter
+
+**Status:** ⏳ Not started
+**Target:** `VOICE_ASSISTANT_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_PENDING`
+**Goal:** Treat the DJConnect Voice Assistant Conversation Agent as its own
+verification platform, distinct from the ESP adapter.
+
+Objectives:
+
+- verification adapter;
+- planner integration;
+- conversation routing;
+- Scenario Engine integration;
+- capability mapping;
+- mock qualification.
+
+## Phase 15E — DJConnect Voice Assistant Live Qualification
+
+**Status:** ⏳ Not started
+**Target:** `VOICE_ASSISTANT_LIVE_QUALIFIED`
+**Goal:** Qualify the Voice Assistant adapter against the real Conversation
+Agent.
+
+Objectives:
+
+- qualify against the real Conversation Agent;
+- execute canonical voice scenarios;
+- validate conversation flow;
+- validate evidence;
+- validate reporting.
+
+## Phase 16 — Cross-Platform Qualification
+
+**Status:** ⏳ Not started
+**Target:** `CROSS_PLATFORM_QUALIFIED`
+**Goal:** Prove the frozen verification platform across all primary
+qualification platforms.
+
+Platforms:
+
+- Home Assistant;
+- Apple;
+- Raspberry Pi;
+- Windows;
+- ESP;
+- DJConnect Voice Assistant.
+
+Objectives:
+
+- verify planner independence;
+- verify Scenario Engine portability;
+- verify adapter symmetry;
+- verify capability abstraction;
+- verify evidence consistency;
+- verify qualification consistency;
+- verify reporting consistency;
+- verify platform-independent behaviour.
+
+## Platform Test Coverage Improvement
+
+**Status:** ⏳ Not started
+**Position:** After Coverage Baseline 1 and Phase 16 Cross-Platform
+Qualification; before Platform Baseline v1.0 Certification.
 **Goal:** Increase meaningful automated test coverage across all platform
 repositories without changing coverage scope to inflate percentages.
 
@@ -293,8 +396,8 @@ Acceptance criteria:
 
 Dependencies:
 
-- Phase 13E Windows Live Qualification;
-- Phase 14 Cross-Platform Qualification;
+- Phase 13E-R2 Windows Live Qualification;
+- Phase 16 Cross-Platform Qualification;
 - Coverage Baseline 1 remains immutable;
 - Verification Runtime `1.1.0` coverage capability remains stable.
 
@@ -345,16 +448,16 @@ Guardrails:
 
 Remaining qualification follow-up:
 
-- ⏳ Windows live runtime qualification remains pending prepared Parallels VM
-  target configuration.
-- ⏳ ESP32 and Voice primary adapter qualification remains future work.
+- ✅ Windows live runtime qualification returned `WINDOWS_LIVE_QUALIFIED`.
+- ⏳ ESP and DJConnect Voice Assistant primary adapter qualification remains
+  future work.
 - ⏳ Cross-platform qualification has not completed.
 
 Next:
 
 - resume the active Verification roadmap follow-up work;
-- complete Windows live runtime qualification;
-- complete remaining adapter qualification;
+- complete ESP adapter and ESP live qualification;
+- complete DJConnect Voice Assistant adapter and live qualification;
 - run cross-platform qualification;
 - preserve the architecture freeze unless a future Architecture Review with
   objective evidence supersedes it.
