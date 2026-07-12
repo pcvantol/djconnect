@@ -1,6 +1,6 @@
 # DJConnect Repository Status
 
-Status: active engineering repository
+Status: active platform-evolution repository
 
 ## Repository
 
@@ -17,8 +17,9 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Platform Baseline v1.0 certified; Generation 1 complete; Software Assurance
-implementation is ready only through its explicit registered prompt sequence.
+Platform Evolution after Platform Baseline v1.0 certification. Software
+Assurance Generation 1 is the active engineering program; implementation
+begins only through its explicit registered prompt sequence.
 
 Canonical lifecycle:
 
@@ -29,9 +30,8 @@ Platform Architecture
   -> Business-first Engineering
 ```
 
-The current repository status records completed Platform construction. Future
-work proceeds under Platform Baseline v1.0, not through continued Platform
-construction.
+Generation 1 Platform Engineering is closed and frozen. Future work proceeds
+under Platform Baseline v1.0, not through continued Platform construction.
 
 Phase 17 Platform Test Coverage Improvement is complete. The subsequent ESP
 native coverage follow-up returned `ESP_COVERAGE_QUALIFIED`; it does not alter
@@ -90,7 +90,7 @@ architecture are stable enough to freeze.
 
 Attached request:
 
-`Platform Baseline v1.0 Certification (complete)`
+`Generation 1 repository closure (complete; Software Assurance implementation not started)`
 
 ## Completion Report
 
@@ -227,7 +227,7 @@ contain the SHA of the commit that includes its own content.
 
 ## Repository-Local Next Action
 
-Proceed only through normal platform evolution under Platform Baseline v1.0.
-Software Assurance implementation requires its explicit registered Prompt 1.
-Do not start additional foundational architecture work unless a future
-Architecture Review with objective evidence demonstrates a genuine gap.
+Software Assurance Generation 1 is the active engineering program. Begin only
+through its explicit registered Prompt 1; do not start additional foundational
+architecture work unless a future Architecture Review with objective evidence
+demonstrates a genuine gap.

@@ -77,6 +77,10 @@ The current strategic objective is:
 
 Evolve the certified Platform Baseline v1.0 through normal platform evolution.
 
+Generation 1 Platform Engineering is complete and frozen. Software Assurance
+Generation 1 is the next engineering program; its implementation begins only
+through an explicit authorized prompt.
+
 Examples include:
 
 - Apple;

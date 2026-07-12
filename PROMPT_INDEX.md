@@ -39,6 +39,10 @@ coverage responsibility. The subsequent ESP native coverage follow-up returned
 completed evidence. The next platform-program activity is Software Assurance
 implementation through its explicit registered Prompt 1.
 
+Generation 1 Platform Engineering is formally closed and frozen. Platform
+Evolution is the current lifecycle, and Software Assurance Generation 1 is the
+active engineering program. Do not reopen Platform Engineering.
+
 Phase 9V rerun has qualified the Verification Platform using the dedicated
 local Home Assistant verification lab. The canonical planner selected the
 approved first Profile scenario set, exact-SHA CI passed, the `ha-profile` lab

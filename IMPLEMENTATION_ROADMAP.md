@@ -32,14 +32,20 @@ Architecture Closure Review
   -> do not create more foundational architecture without evidence-backed review
 
 Platform Qualification
-  -> current platform stage
-  -> complete: adapter, cross-platform and coverage qualification evidence recorded
+  -> complete
 
 Platform Baseline v1.0 Certification
   -> certified on 2026-07-12
 
+Generation 1 Platform Engineering
+  -> complete and frozen
+
+Platform Evolution
+  -> current lifecycle
+
 Software Assurance Implementation
-  -> ready for its explicit Prompt 1
+  -> Software Assurance Generation 1 is the active program
+  -> begins only through its explicit Prompt 1
   -> Prompt 1 through Prompt 4 in registered order
 
 Epic 8: Website and Product Story

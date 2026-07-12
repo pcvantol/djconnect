@@ -17,7 +17,7 @@ governance, reorder the roadmap or execute verification.
 
 | Area | Current status | Evidence |
 | --- | --- | --- |
-| Platform Lifecycle State | `Platform Baseline v1.0 certified` | `PLATFORM_STRATEGY.md`, `PLATFORM_BASELINE_CERTIFICATION.md` |
+| Platform Lifecycle State | `Platform Evolution` | `PLATFORM_STRATEGY.md`, `GENERATION_1_CLOSURE_REPORT.md` |
 | Architecture Status | `ARCHITECTURE_FROZEN` | `ARCHITECTURE_CLOSURE_REVIEW.md`, `ARCHITECTURE_DECISION.md` |
 | Platform Qualification Status | `COMPLETE` | Phase 16-R returned `CROSS_PLATFORM_QUALIFIED` |
 | Platform Baseline Status | `PLATFORM_BASELINE_V1_CERTIFIED` | `PLATFORM_BASELINE_CERTIFICATION.md`, `PLATFORM_BASELINE_1_0.md` |
@@ -26,7 +26,7 @@ governance, reorder the roadmap or execute verification.
 | Software Assurance Architecture Status | `COMPLETE` | `SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE` |
 | Software Assurance Implementation Status | `READY_FOR_EXPLICIT_PROMPT` | `SOFTWARE_ASSURANCE_IMPLEMENTATION.md` |
 | Product Strategy Status | Foundation established | `docs/product/README.md`, `docs/product/PRODUCT_STRATEGY.md` |
-| Current Active Platform Phase | Software Assurance Prompt 1 when explicitly authorized | Certified baseline |
+| Current Active Platform Phase | Software Assurance Generation 1; Prompt 1 only when explicitly authorized | Certified baseline |
 
 ## Documents Updated
 

@@ -2,7 +2,7 @@
 
 Status: canonical implementation registration  
 Repository: `pcvantol/djconnect`  
-Platform state: `Platform Baseline v1.0 certified; Software Assurance implementation ready`
+Platform state: `Platform Evolution; Software Assurance Generation 1 active program`
 
 ## Purpose
 
@@ -20,7 +20,7 @@ capabilities.
 | --- | --- |
 | Architecture Status | `COMPLETE` |
 | Implementation Status | `READY_FOR_EXPLICIT_PROMPT` |
-| Platform State | `Platform Baseline v1.0 certified; Software Assurance implementation ready` |
+| Platform State | `Platform Evolution; Software Assurance Generation 1 active program` |
 | Implementation Start | `NOT_STARTED` |
 | Architecture Freeze | `YES` |
 

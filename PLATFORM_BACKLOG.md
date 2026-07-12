@@ -224,6 +224,8 @@ Next:
 Remaining:
 
 - ✅ Platform Baseline v1.0 certified; Generation 1 complete.
+- ✅ Generation 1 Platform Engineering closed and frozen; Software Assurance
+  Generation 1 is the next active program.
 
 ## Coverage Baseline 1
 
