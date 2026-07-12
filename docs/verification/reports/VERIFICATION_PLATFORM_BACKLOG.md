@@ -1,6 +1,6 @@
 # Verification Platform Backlog
 
-Status: active after Phase 10E-R3 Apple scenario coverage qualification
+Status: active after Phase 12 Raspberry Pi adapter qualification
 
 Do not create GitHub issues automatically from this backlog.
 
@@ -45,6 +45,9 @@ Do not create GitHub issues automatically from this backlog.
 | VPB-037 | P0 | Apple Xcode account and signing follow-up | Resolved for current platform verification: the verifier now has an explicit `xcode_account` gate using `xcodebuild -allowProvisioningUpdates`, and local Xcode 27 beta build evidence resolved team `ZEML4LPXH4`, bundle `dev.djconnect.ios`, signing identity `Apple Development: Peter van Tol (4R93ZR43D5)` and profile `iOS Team Provisioning Profile: dev.djconnect.ios` / `00d91f4f-5a9e-4f13-8790-2393253068e7`. App Store/TestFlight distribution signing is intentionally deferred until release v1.0 readiness and is non-blocking for this platform verification phase. | Operator / Apple Release Engineering | `djconnect-app` | No for current platform verification; release-v1.0 readiness follow-up for App Store/TestFlight | Done for Phase 10E-R2 | Release v1.0 readiness |
 | VPB-038 | P0 | Apple UI automation follow-up | Resolved as a prepared XCTest healthcheck path: `apple prepare-qualification-config` emits `DJCONNECT_VERIFICATION_APPLE_UI_DRIVER=xctest` and a latest-stable simulator `xcodebuild test` command for `DJConnectIOSUITests/DJConnectIOSUITests/testPrimaryTabsAreAvailable`. The runtime gate now skips UI healthcheck before mutation whenever prerequisite signing/build/target gates are blocked. | Apple Adapter / Apple Client / Operator | `djconnect`, `djconnect-app` | No | Done | Phase 10E-R2 follow-up |
 | VPB-039 | P0 | Planning Engine / Scenario Engine mapping blocker | Resolved in Phase 10E-R3: smoke planning now selects `APPLE-001` as an Apple adapter executable case, the CLI can register the Apple adapter for scenario execution, env-file target JSON is loaded for execute commands, and Apple-only runs skip unrelated HA/Docker gates. `APPLE-001` passed through the Scenario Engine and Apple adapter. | Planning Engine / Scenario Engine / Apple Adapter | `djconnect` | No | Done | Phase 10E-R3 |
+| VPB-040 | P0 | Raspberry Pi Adapter gap | Resolved in Phase 12: thin Raspberry Pi adapter, CLI registration, Scenario Engine routing, `PI-001` runtime smoke scenario and mock/unit primitive tests are implemented. Live runtime proof is skipped until a prepared Pi target and exact-SHA environment gates are available. | Raspberry Pi Adapter / Execution Environment / Planning Engine | `djconnect`, `djconnect-pi` | No for adapter implementation; live coverage remains future scope | Done | Phase 12 |
+| VPB-041 | P1 | Scenario Catalog cleanup | Some Pi-relevant shared scenarios mention Pi in title or platform intent but still declare Apple/Windows runtime requirements. Phase 12 added a Pi-specific runtime smoke scenario instead of rewriting shared expectations. Broader Pi scenario coverage should only adjust shared scenario requirements when backed by canonical behavior. | Scenario Catalog / Planning Engine | `djconnect` | No | S | Phase 12E |
+| VPB-042 | P0 | Raspberry Pi runtime environment issue | Phase 12 CLI execution against a safe local fixture target stopped before scenario mutation because `github_ci_status` failed with unauthenticated GitHub CLI. Phase 12E must qualify exact-SHA CI or report a blocked live runtime gate before broad Pi scenario execution. | Execution Environment / Operator | `djconnect` | Blocks live Pi scenario execution | S | Phase 12E |
 
 ## Regression Subset Required After Fixes
 
@@ -85,6 +88,14 @@ Phase 10E-R3 reports:
 
 APPLE_SCENARIO_COVERAGE_QUALIFIED_WITH_WARNINGS
 
+Phase 11 reports:
+
+RASPBERRY_PI_ADAPTER_SELECTED
+
+Phase 12 reports:
+
+RASPBERRY_PI_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_SKIPPED
+
 Framework runtime, Docker release workflow and regular CI are not blocked by
 Docker Hub secret provisioning, Docker repository naming or self-hosted runner
 availability; those are tracked as follow-ups above. Phase 10E-R2's App
@@ -92,5 +103,7 @@ Store/TestFlight distribution-signing gap is explicitly non-blocking for the
 current platform verification phase and moves to release-v1.0 readiness. Phase
 10E-R3 resolved the planner/scenario mapping blocker, and the Phase 10E retry
 after R3 qualified the first Apple executable scenario set with non-blocking
-warnings. Phase 11 adapter selection is unblocked, but adapter implementation
-must not begin automatically.
+warnings. Phase 11 selected Raspberry Pi as the next adapter. Phase 12
+implemented and mock-qualified the thin Raspberry Pi adapter with live runtime
+skipped. Phase 12E is unblocked as the next gate, but it must qualify live Pi
+runtime inputs before broad Raspberry Pi scenario coverage.

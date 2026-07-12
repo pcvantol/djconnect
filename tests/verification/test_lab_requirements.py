@@ -27,7 +27,7 @@ class LabRequirementTests(unittest.TestCase):
         issues = [issue for scenario in self.scenarios for issue in validator.validate(scenario)]
 
         self.assertEqual([], [issue.message for issue in issues])
-        self.assertEqual(231, len(self.scenarios))
+        self.assertEqual(233, len(self.scenarios))
 
     def test_profile_001_through_005_select_ha_profile(self) -> None:
         scenarios = [scenario for scenario in self.scenarios if scenario.id in {f"PROFILE-00{index}" for index in range(1, 6)}]

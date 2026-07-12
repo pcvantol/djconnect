@@ -98,8 +98,17 @@ Phase 10E-R3 returned `APPLE_SCENARIO_COVERAGE_QUALIFIED_WITH_WARNINGS`. The
 Phase 10E retry after R3 found no remaining blocking R3 issues: the planner now
 selects `APPLE-001`, the Apple runtime gate passed again on iOS 26.5 and
 `APPLE-001` executed through the Scenario Engine and Apple adapter with PASS
-evidence. Continue with Phase 11 Additional Platform Adapter Selection; do not
-begin the selected adapter implementation automatically.
+evidence.
+
+Phase 11 selected the Raspberry Pi Verification Adapter as the next platform
+adapter phase and returned `RASPBERRY_PI_ADAPTER_SELECTED`. Continue with
+Phase 12 Raspberry Pi Verification Adapter only when explicitly prompted.
+
+Phase 12 implemented the thin Raspberry Pi Verification Adapter and returned
+`RASPBERRY_PI_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_SKIPPED`. Continue with
+Phase 12E Raspberry Pi Scenario Coverage Expansion only when explicitly
+prompted. Do not begin ESP32, Windows, Voice, Website, Release or any later
+phase automatically.
 
 ## Required Reading Order
 

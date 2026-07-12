@@ -44,6 +44,8 @@ resource requirements and are not silently mapped to a larger HA lab profile.
 ## Summary
 | Group | Scenario files | Directory |
 | --- | ---: | --- |
+| APPLE | 1 | `verification/scenarios/apple/` |
+| PI | 1 | `verification/scenarios/pi/` |
 | SETUP | 25 | `verification/scenarios/setup/` |
 | PROFILE | 24 | `verification/scenarios/profile/` |
 | RESOLVER | 20 | `verification/scenarios/resolver/` |
@@ -62,9 +64,15 @@ resource requirements and are not silently mapped to a larger HA lab profile.
 | RELEASE | 8 | `verification/scenarios/release/` |
 | EXPORT | 6 | `verification/scenarios/export/` |
 | IMPORT | 6 | `verification/scenarios/import/` |
-| Total | 231 | `verification/scenarios/` |
+| Total | 233 | `verification/scenarios/` |
 
 ## Scenario Groups
+
+### APPLE
+- `APPLE-001` Apple runtime smoke installs launches and collects evidence
+
+### PI
+- `PI-001` Raspberry Pi runtime smoke launches collects evidence and stops
 
 ### SETUP
 - `SETUP-001` Fresh installation creates baseline platform state

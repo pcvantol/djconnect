@@ -1,6 +1,6 @@
 # Verification Platform Scorecard
 
-Status: PLATFORM QUALIFIED; HOME ASSISTANT BACKEND COVERAGE QUALIFIED WITH WARNINGS; APPLE SCENARIO COVERAGE QUALIFIED WITH WARNINGS
+Status: PLATFORM QUALIFIED; HOME ASSISTANT BACKEND COVERAGE QUALIFIED WITH WARNINGS; APPLE SCENARIO COVERAGE QUALIFIED WITH WARNINGS; RASPBERRY PI ADAPTER QUALIFIED WITH LIVE RUNTIME SKIPPED
 
 Scoring scale:
 
@@ -26,6 +26,8 @@ Scoring scale:
 | Dogfooding Coverage | 4 | Focused verification tests passed 52 tests and catalog validation covered 232 scenarios; live Docker tests remain opt-in. |
 | Home Assistant Backend Coverage | 4 | Phase 9E-R executed and qualified 195 HA backend or separable HA backend assertion-path scenarios; 28 client/hardware/release/voice-localization scenarios remain correctly deferred. |
 | Apple Adapter | 4 | Thin Apple adapter primitives, Scenario Engine selection and Execution Environment simulator metadata are implemented, mock-tested and live-proven for `APPLE-001`; broader Apple product/UI scenarios remain future coverage. iOS 27.0 evidence is future-beta only, and App Store/TestFlight signing is deferred to release v1.0 readiness. |
+| Raspberry Pi Adapter | 3 | Thin Raspberry Pi adapter primitives, CLI registration, Scenario Engine routing, `PI-001` planning and mock/unit tests are implemented; live Pi runtime proof is skipped until prepared target and exact-SHA gates are available. |
+| Adapter Roadmap | 4 | Phase 12E has been generated for Raspberry Pi scenario coverage with a mandatory live runtime gate; no later adapter phase has started. |
 | Overall | 4 | The platform is qualified for the next adapter phase with non-blocking framework improvements tracked. |
 
 ## Decision
@@ -45,6 +47,10 @@ APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED
 APPLE_RUNTIME_QUALIFIED_SCENARIO_SELECTION_BLOCKED
 
 APPLE_SCENARIO_COVERAGE_QUALIFIED_WITH_WARNINGS
+
+RASPBERRY_PI_ADAPTER_SELECTED
+
+RASPBERRY_PI_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_SKIPPED
 
 The Verification Platform itself remains qualified, and Phase 9E-R qualifies
 broad Home Assistant backend coverage with one non-blocking warning. The
@@ -71,6 +77,17 @@ Phase 10E retry after R3 confirmed the result: smoke planning selects
 `APPLE-001`, runtime qualification passed again on iOS 26.5, and `APPLE-001`
 executed through the Scenario Engine and Apple adapter with PASS evidence.
 Remaining Apple warnings are non-blocking for Phase 11 adapter selection.
+
+Phase 11 selected Raspberry Pi as the next adapter because it provides the
+first non-Apple rich client runtime path and covers ambient/shared-room
+evidence that is important for Platform Baseline v1.0. The selection phase did
+not implement adapter code. The generated Phase 12 prompt owns Raspberry Pi
+adapter implementation and must be executed only when explicitly started.
+
+Phase 12 implemented the thin Raspberry Pi adapter and qualified it with mock
+and Scenario Engine evidence. Live Pi runtime proof is skipped because a
+prepared target and exact-SHA environment gates were not available in this
+session. Phase 12E owns the live runtime gate and broader Pi scenario coverage.
 
 Parallel execution is now the default for workstation runs. The harness detects
 available CPU capacity dynamically, using Apple Silicon performance/efficiency

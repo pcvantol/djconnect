@@ -1,0 +1,104 @@
+id: PI-001
+title: Raspberry Pi runtime smoke launches collects evidence and stops
+description: Verify that the prepared Raspberry Pi runtime can validate target identity, launch, collect sanitized evidence and stop.
+purpose: Protect the Raspberry Pi verification adapter runtime path before broader Pi client assertions depend on it.
+owner: DJConnect Verification
+category: Capabilities
+subcategory: raspberry_pi_runtime_smoke
+priority: P0
+risk: high
+verification_level: V4
+automation_level: ENVIRONMENT_DEPENDENT
+required_components: [Raspberry Pi]
+supported_platforms: [Raspberry Pi]
+required_locales: [not_applicable]
+required_build_types: [Instrumented]
+required_capabilities: [pi_runtime]
+required_profiles: []
+required_backends: []
+required_devices: [raspberry_pi]
+required_environment: [prepared_raspberry_pi_runtime]
+requires:
+  capabilities:
+    - pi.runtime
+    - evidence.storage
+  services: []
+  integrations: []
+  bootstrap:
+    - pi.prepared_target
+    - pi.client_artifact
+  resources:
+    network: local
+    persistent_storage: false
+  hardware:
+    - raspberry_pi
+  secrets: []
+  persistence: ephemeral
+preconditions:
+  - A prepared Raspberry Pi target JSON or local process target is configured.
+  - Evidence storage is configured outside production user data.
+  - Scenario fixture data is isolated from real user data or explicitly approved for test use.
+setup:
+  - Load the prepared Raspberry Pi target JSON from the verification environment.
+  - Record selected target, command and artifact metadata without secrets.
+steps:
+  - number: 1
+    action: collect_environment
+  - number: 2
+    action: validate_target_identity
+  - number: 3
+    action: collect_app_metadata
+  - number: 4
+    action: launch_app
+  - number: 5
+    action: collect_logs
+  - number: 6
+    action: stop_app
+assertions:
+  runtime:
+    - The selected Raspberry Pi target is configured and safe for the selected runtime mode.
+    - The runtime launch and stop primitives execute only through the thin Raspberry Pi adapter.
+    - Log evidence is collected without exposing secrets.
+  privacy:
+    - Evidence excludes OAuth tokens, bearer tokens, raw prompts, raw audio, Ask DJ history dumps and Music DNA contents.
+expected_results:
+  machine:
+    - code: raspberry_pi_runtime_target_validated
+      expected: true
+    - code: raspberry_pi_runtime_launch_stop_executed
+      expected: true
+    - code: raspberry_pi_runtime_evidence_collected
+      expected: true
+    - code: privacy_redaction_complete
+      expected: true
+  human:
+    - The prepared Raspberry Pi runtime path is proven before broader Pi client scenario assertions run.
+cleanup:
+  - Stop the runtime after evidence collection.
+  - Retain only sanitized evidence needed for reporting.
+timeouts:
+  setup_seconds: 120
+  execution_seconds: 180
+  cleanup_seconds: 60
+retry_policy:
+  mode: CONTROLLED_RETRY
+  max_attempts: 2
+  reason: SSH, process launch or local runtime behavior may be transient.
+  delay_seconds: 5
+artifacts:
+  - type: logs
+    required: true
+    description: Scoped Raspberry Pi runtime log excerpt for the qualified launch.
+    redaction: Remove secrets, raw prompts, raw audio, private history and Music DNA contents.
+  - type: environment_snapshot
+    required: true
+    description: Target, command, artifact and adapter metadata.
+privacy_classification: [Internal, Requires redaction]
+destructive: false
+tags: [raspberry_pi, pi, runtime, smoke]
+estimated_duration: 3m
+manual_actions: []
+future_notes:
+  - This scenario proves only Raspberry Pi runtime primitives; product behavior remains owned by later canonical Pi client scenarios.
+version: 1
+schema_version: "1.0"
