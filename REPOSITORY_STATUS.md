@@ -20,8 +20,8 @@ cross-repository governance and Home Assistant integration implementation.
 Platform Qualification after the Software Assurance Platform Architecture
 Sprint, Product Strategy Foundation setup, Architecture Closure Review,
 Software Assurance deferred implementation registration, Home Assistant
-qualification, Apple qualification, Raspberry Pi qualification and Windows
-live qualification.
+qualification, Apple qualification, Raspberry Pi qualification, Windows live
+qualification and ESP live qualification.
 
 Canonical lifecycle:
 
@@ -36,9 +36,9 @@ The current repository status task is roadmap/backlog synchronization only. It
 is not a product implementation phase, not a verification execution phase, not
 a CI/tooling enablement phase and not a new architecture phase.
 
-The active verification prompt index records Phase 14 ESP Verification Adapter
-as the next verification gate. That verification work continues inside the
-frozen architecture.
+The active verification prompt index records Phase 15 DJConnect Voice
+Assistant Verification Adapter as the next verification gate. That
+verification work continues inside the frozen architecture.
 
 ## Status
 
@@ -71,13 +71,12 @@ architecture are stable enough to freeze.
 
 - Software Assurance implementation must not begin until
   `PLATFORM_BASELINE_V1_CERTIFIED` and later explicit implementation prompts.
-- ESP, DJConnect Voice Assistant and cross-platform qualification must continue
+- DJConnect Voice Assistant and cross-platform qualification must continue
   inside the frozen architecture.
 - CI workflow changes, scanner enablement, trusted delivery and release gates
   are deferred Software Assurance implementation work.
-- Platform Baseline v1.0 remains uncertified until ESP live qualification,
-  DJConnect Voice Assistant live qualification and cross-platform qualification
-  complete.
+- Platform Baseline v1.0 remains uncertified until DJConnect Voice Assistant
+  live qualification and cross-platform qualification complete.
 
 ## Current Prompt
 
@@ -131,6 +130,12 @@ Deferred Software Assurance implementation outputs:
 
 Most recent recorded verification qualification:
 
+Phase 14E ESP Live Qualification returned `ESP_LIVE_QUALIFIED`.
+`HARDWARE-001` through `HARDWARE-010` passed live through the Scenario Engine
+and `esp32` adapter against a flashed LilyGO ESP32-S3 in runs
+`djv-20260712T151519Z-81422a10e9` through
+`djv-20260712T151756Z-d4dc9fc4f8`.
+
 Phase 13E-R2 Windows Client Build Remediation and Live Qualification returned
 `WINDOWS_LIVE_QUALIFIED`. `WIN-001` passed live through the Scenario Engine and
 `windows_native_arm64` adapter in run `djv-20260712T135722Z-d09b6ec5ba`.
@@ -169,11 +174,10 @@ contain the SHA of the commit that includes its own content.
 ## Repository-Local Next Action
 
 Return to the active Verification roadmap before any Software Assurance
-implementation or business-first engineering begins. Execute Phase 14 ESP
-Verification Adapter, Phase 14E ESP Live Qualification, Phase 15 DJConnect
-Voice Assistant Verification Adapter, Phase 15E DJConnect Voice Assistant Live
-Qualification and Phase 16 Cross-Platform Qualification, then run the platform
-coverage improvement increment and rerun Platform Baseline certification. Do
-not start additional foundational architecture work unless a future
-Architecture Review with objective evidence demonstrates a genuine
+implementation or business-first engineering begins. Execute Phase 15
+DJConnect Voice Assistant Verification Adapter, Phase 15E DJConnect Voice
+Assistant Live Qualification and Phase 16 Cross-Platform Qualification, then
+run the platform coverage improvement increment and rerun Platform Baseline
+certification. Do not start additional foundational architecture work unless a
+future Architecture Review with objective evidence demonstrates a genuine
 architecture gap.
