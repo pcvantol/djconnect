@@ -8,6 +8,7 @@ required_capabilities:
 image: rhasspy/wyoming-piper:latest
 configuration_inputs:
   - DJCONNECT_VERIFICATION_PIPER_PORT
+  - DJCONNECT_VERIFICATION_PIPER_VOICE
 secrets: []
 networks:
   - djconnect-verification

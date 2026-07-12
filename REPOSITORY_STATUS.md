@@ -36,10 +36,15 @@ The current repository status task is roadmap/backlog synchronization only. It
 is not a product implementation phase, not a verification execution phase, not
 a CI/tooling enablement phase and not a new architecture phase.
 
-The active verification prompt index records Phase 15E DJConnect Voice
-Assistant Live Qualification as the next verification gate. Phase 15
-qualified the thin Voice Assistant adapter with live runtime pending. That
-verification work continues inside the frozen architecture.
+The active verification prompt index records Phase 16 Cross-Platform
+Qualification as the next verification gate. Phase 15 qualified the thin Voice
+Assistant adapter with live runtime pending. Phase 15E attempted live
+qualification and blocked safely before mutation because the local Home
+Assistant Assist lab was stale for the active repository SHA and live Voice
+Assistant target/opt-in configuration was absent. Phase 15E-R remediated those
+blockers from a clean `ha-assist` lab and returned
+`VOICE_ASSISTANT_LIVE_QUALIFIED`. Cross-platform verification now continues
+inside the frozen architecture.
 
 ## Status
 
@@ -83,7 +88,7 @@ architecture are stable enough to freeze.
 
 Attached request:
 
-`Phase 15 DJConnect Voice Assistant Verification Adapter`
+`Phase 16 Cross-Platform Qualification`
 
 ## Completion Report
 
@@ -131,11 +136,26 @@ Deferred Software Assurance implementation outputs:
 
 Most recent recorded verification qualification:
 
+Phase 15E-R DJConnect Voice Assistant Live Qualification Remediation returned
+`VOICE_ASSISTANT_LIVE_QUALIFIED`. It used a clean `ha-assist` lab for SHA
+`af8228bc7c933df61cab47d4105002839ba65fb3`, fixed the Piper sidecar
+verification compose configuration and passed `VOICE-001` through the
+`voice_endpoint` adapter in run
+`artifacts/verification/evidence/djv-20260712T155553Z-fbdeaf590f/`.
+
+Previous recorded verification attempt:
+
+Phase 15E DJConnect Voice Assistant Live Qualification returned
+`VOICE_ASSISTANT_LIVE_QUALIFICATION_BLOCKED`. The live execution attempt
+failed closed before mutation because the local Home Assistant Assist lab was
+not proven safe for the current repository SHA and the Voice Assistant target
+JSON/live opt-in environment was absent. Evidence is recorded under
+`artifacts/verification/evidence/djv-20260712T154526Z-1d6103fdd3/`.
 Phase 15 DJConnect Voice Assistant Verification Adapter returned
 `VOICE_ASSISTANT_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_PENDING`. The
 `voice_endpoint` adapter, CLI registration, Scenario Engine routing and
 planner metadata are mock/local qualified. Live Voice Assistant runtime
-qualification remains Phase 15E scope.
+qualification is complete in Phase 15E-R.
 
 Previous recorded live verification qualification:
 
@@ -183,9 +203,8 @@ contain the SHA of the commit that includes its own content.
 ## Repository-Local Next Action
 
 Return to the active Verification roadmap before any Software Assurance
-implementation or business-first engineering begins. Execute Phase 15E
-DJConnect Voice Assistant Live Qualification and Phase 16 Cross-Platform
-Qualification, then run the platform coverage improvement increment and rerun
-Platform Baseline certification. Do not start additional foundational
-architecture work unless a future Architecture Review with objective evidence
-demonstrates a genuine architecture gap.
+implementation or business-first engineering begins. Execute Phase 16
+Cross-Platform Qualification next. Then run the platform coverage improvement
+increment and rerun Platform Baseline certification. Do not start additional
+foundational architecture work unless a future Architecture Review with
+objective evidence demonstrates a genuine architecture gap.

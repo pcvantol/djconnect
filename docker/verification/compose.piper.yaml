@@ -2,6 +2,13 @@ services:
   piper:
     image: ${DJCONNECT_VERIFICATION_PIPER_IMAGE:-rhasspy/wyoming-piper:latest}
     container_name: ${DJCONNECT_VERIFICATION_PIPER_CONTAINER:-djconnect-verification-piper}
+    command:
+      - --voice
+      - ${DJCONNECT_VERIFICATION_PIPER_VOICE:-en_US-lessac-medium}
+      - --uri
+      - tcp://0.0.0.0:10200
+      - --data-dir
+      - /data
     labels:
       djconnect.verification: "true"
       djconnect.lab.service: "piper"
