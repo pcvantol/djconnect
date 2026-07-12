@@ -1,14 +1,13 @@
 # Trusted AI Actor Report
 
-Status: awaiting manual GitHub App registration
-Decision: `AWAITING_GITHUB_APP_REGISTRATION`
+Status: qualified for bounded canonical-repository delivery validation
+Decision: `TRUSTED_AI_ACTOR_QUALIFIED`
 
 ## Evidence
 
-The available GitHub CLI identity is the personal user `pcvantol`. GitHub App
-installation discovery returned HTTP 403 because the available token is not an
-App-authorized token. No programmatic App-registration capability or existing
-canonical App installation was available through this session.
+The GitHub App was manually registered and installed. The personal CLI token
+remains unsuitable for App discovery, so objective validation used a short-
+lived installation token generated in GitHub Actions.
 
 ## Prepared Configuration
 
@@ -21,13 +20,20 @@ canonical App installation was available through this session.
 - Permission contract: `software_assurance/trusted_delivery/github-app-policy.json`
 - Manual procedure: `DJCONNECT_TRUSTED_DELIVERY_APP_SETUP.md`
 
-No App ID, installation ID, private key, installation token, webhook secret or
-repository secret has been created, stored or exposed.
+No private key, installation token, webhook secret or repository secret was
+created, stored in Git, or exposed.
 
-## Required Return Values
+## Validation Evidence
 
-1. Confirmation that the private key was securely provisioned
+- GitHub Actions secret presence was confirmed without reading its content.
+- The App ID and Installation ID were supplied as non-secret configuration.
+- Run `29206706003` passed using SHA-pinned
+  `actions/create-github-app-token`.
+- The App token read checks, pushed an app-owned harmless validation branch,
+  created a pull request, then closed the pull request and deleted the branch.
+- No production change was merged and no token value appeared in logs.
 
-After those values and explicit authorization are provided, perform GitHub
-read-back, bounded short-lived-token authentication, a harmless app-owned
-branch/PR capability test, and cleanup before considering qualification.
+The test proves bounded contents, pull-request and checks access for
+`pcvantol/djconnect`. Prompt 3 must still read back installation selection and
+effective permissions across every active repository before platform-wide
+Trusted Delivery rollout.
