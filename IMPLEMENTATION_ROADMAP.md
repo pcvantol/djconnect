@@ -25,7 +25,7 @@ Epic 7: Platform Quality Standard rollout
 
 Software Assurance Platform
   -> architecture complete
-  -> implementation deferred until Platform Baseline v1.0 certification
+  -> implementation ready through registered explicit prompts
 
 Architecture Closure Review
   -> frozen on 2026-07-11
@@ -36,12 +36,10 @@ Platform Qualification
   -> complete: adapter, cross-platform and coverage qualification evidence recorded
 
 Platform Baseline v1.0 Certification
-  -> not certified
-  -> begins only after an explicit readiness-review rerun returns ready
+  -> certified on 2026-07-12
 
 Software Assurance Implementation
-  -> deferred
-  -> begins only after PLATFORM_BASELINE_V1_CERTIFIED
+  -> ready for its explicit Prompt 1
   -> Prompt 1 through Prompt 4 in registered order
 
 Epic 8: Website and Product Story
@@ -125,7 +123,7 @@ Platform Qualification
 ## Platform Baseline v1.0 Certification
 
 The current Platform Baseline v1.0 certification result is
-`PLATFORM_BASELINE_V1_NOT_CERTIFIED`.
+`PLATFORM_BASELINE_V1_CERTIFIED`.
 
 Platform Baseline is not the completion of architecture. Architecture is
 already frozen by the Architecture Closure Review. Platform Baseline certifies
@@ -138,9 +136,9 @@ Canonical assessment artifacts:
 - `PLATFORM_BASELINE_CERTIFICATION.md`
 - `PLATFORM_BASELINE_GAP_ANALYSIS.md`
 
-Business-first engineering has not yet started. Platform Qualification is
-complete; the remaining sequence is the readiness-review rerun and, if ready,
-the separately authorized Platform Baseline certification activity.
+Generation 1 is complete. Future work proceeds under Platform Baseline v1.0
+through normal platform evolution and the separately registered Software
+Assurance implementation sequence.
 
 ## Architecture Closure Review
 

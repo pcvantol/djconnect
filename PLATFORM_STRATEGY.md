@@ -75,7 +75,7 @@ Every strategic decision should contribute to this objective.
 
 The current strategic objective is:
 
-Complete qualification of all primary platform runtimes.
+Evolve the certified Platform Baseline v1.0 through normal platform evolution.
 
 Examples include:
 
@@ -94,11 +94,9 @@ been certified.
 
 The current platform priorities are:
 
-1. Complete remaining platform adapters.
-2. Complete cross-platform qualification.
-3. Mature the Verification Runtime and platform evidence model.
-4. Establish Platform Baseline v1.0.
-5. Transition to business-first engineering.
+1. Preserve the certified Platform Baseline v1.0.
+2. Execute the registered Software Assurance implementation sequence.
+3. Deliver business value through normal platform evolution.
 
 These priorities should change only through Architecture Review.
 
@@ -119,7 +117,8 @@ approval.
 
 ## Current Platform Focus
 
-The platform now operates in the Platform Qualification stage.
+The platform has completed Platform Qualification and Platform Baseline v1.0
+Certification.
 
 The Architecture Closure Review dated 2026-07-11 returned:
 
@@ -127,31 +126,23 @@ The Architecture Closure Review dated 2026-07-11 returned:
 ARCHITECTURE_FROZEN
 ```
 
-The architecture is frozen. Platform Baseline v1.0 has not yet been
-certified.
+The architecture and Platform Baseline v1.0 are frozen and certified.
 
 The current platform decision remains:
 
 ```text
-PLATFORM_BASELINE_V1_NOT_CERTIFIED
+PLATFORM_BASELINE_V1_CERTIFIED
 ```
 
-The current engineering objective is proving the platform. Remaining adapter,
-runtime operations and cross-platform qualification work continues inside the
-frozen architecture. These are not reasons to create additional foundational
+The current engineering objective is normal platform evolution inside the
+frozen architecture. It does not authorize additional foundational
 architecture.
 
 This means engineering effort should primarily improve:
 
-- implementation;
-- remaining platform adapters;
-- verification;
-- cross-platform consistency;
-- documentation;
-- evidence;
-- coverage;
-- operator readiness;
-- platform maturity.
+- Software Assurance implementation through its registered prompts;
+- product implementation, verification and quality work;
+- documentation, evidence and operator readiness.
 
 Platform Qualification is not architecture work. Findings during routine
 engineering should normally be classified as:
@@ -225,7 +216,7 @@ Prove the platform.
 Status:
 
 ```text
-CURRENT
+COMPLETE
 ```
 
 Activities include:
@@ -251,6 +242,12 @@ Decision:
 
 ```text
 PLATFORM_BASELINE_V1_CERTIFIED
+```
+
+Status:
+
+```text
+CERTIFIED
 ```
 
 This stage ends platform-first engineering. Platform Baseline is not the
@@ -302,8 +299,8 @@ The platform strategy is considered successful when:
 The Architecture Closure Review completed the Platform Architecture stage. It
 did not certify Platform Baseline v1.0.
 
-The current Platform Qualification stage exists to produce the evidence needed
-for Platform Baseline certification.
+The completed Platform Qualification stage produced the evidence accepted by
+Platform Baseline v1.0 certification.
 
 ## Business Transition
 
@@ -327,9 +324,8 @@ Examples include:
 Future business initiatives should normally fit within the existing frozen
 platform architecture.
 
-Remaining adapter and cross-platform qualification work is pre-baseline
-Platform Qualification work. It should improve evidence and quality without
-reopening the foundation.
+Future verification and quality work proceeds under the certified baseline
+without reopening the foundation.
 
 Architecture-first work is now closed unless a future evidence-backed
 Architecture Review demonstrates a genuine foundational gap.

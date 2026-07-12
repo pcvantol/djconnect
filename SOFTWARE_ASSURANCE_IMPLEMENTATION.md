@@ -2,7 +2,7 @@
 
 Status: canonical implementation registration  
 Repository: `pcvantol/djconnect`  
-Platform state: `Platform Qualification complete; Platform Baseline readiness review pending`
+Platform state: `Platform Baseline v1.0 certified; Software Assurance implementation ready`
 
 ## Purpose
 
@@ -19,8 +19,8 @@ capabilities.
 | Area | Status |
 | --- | --- |
 | Architecture Status | `COMPLETE` |
-| Implementation Status | `DEFERRED` |
-| Platform State | `Platform Qualification complete; Platform Baseline readiness review pending` |
+| Implementation Status | `READY_FOR_EXPLICIT_PROMPT` |
+| Platform State | `Platform Baseline v1.0 certified; Software Assurance implementation ready` |
 | Implementation Start | `NOT_STARTED` |
 | Architecture Freeze | `YES` |
 
@@ -36,7 +36,7 @@ The overall platform architecture has completed with decision:
 ARCHITECTURE_FROZEN
 ```
 
-Platform Baseline v1.0 has not yet been certified.
+Platform Baseline v1.0 is certified.
 
 ## Implementation Prerequisite
 
@@ -55,15 +55,9 @@ implementation.
 
 ## Deferred Reason
 
-Implementation is intentionally postponed because:
-
-- Platform Baseline v1.0 remains uncertified;
-- an explicit readiness-review rerun and certification decision remain
-  required before implementation may begin;
-- CI governance should stabilize only after every runtime exists;
-- repeated governance changes during Platform Qualification would create churn;
-- the Software Assurance architecture is complete, and only implementation
-  remains.
+Implementation is ready, but begins only through the registered Prompt 1
+through Prompt 4 sequence. Certification does not authorize unscoped CI,
+workflow, repository-setting or governance changes.
 
 This deferred state is a platform lifecycle decision, not an architecture gap.
 
@@ -91,9 +85,9 @@ Platform Architecture
 Platform Qualification
   -> COMPLETE
 Platform Baseline
-  -> READINESS REVIEW PENDING
+  -> CERTIFIED
 Software Assurance Implementation
-  -> DEFERRED
+  -> READY_FOR_EXPLICIT_PROMPT
 Business-first Engineering
   -> FUTURE
 ```
@@ -124,7 +118,6 @@ must not modify Software Assurance architecture.
 Future AI agents must:
 
 - treat this document as the Software Assurance implementation entry point;
-- keep implementation deferred while Platform Baseline v1.0 is not certified;
 - verify `PLATFORM_BASELINE_V1_CERTIFIED` before beginning Prompt 1;
 - preserve the Prompt 1 through Prompt 4 order;
 - avoid modifying GitHub Actions, CI/CD, repository settings or governance as

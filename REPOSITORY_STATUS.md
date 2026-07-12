@@ -17,11 +17,8 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Platform Qualification after the Software Assurance Platform Architecture
-Sprint, Product Strategy Foundation setup, Architecture Closure Review,
-Software Assurance deferred implementation registration, Home Assistant
-qualification, Apple qualification, Raspberry Pi qualification, Windows live
-qualification and ESP live qualification.
+Platform Baseline v1.0 certified; Generation 1 complete; Software Assurance
+implementation is ready only through its explicit registered prompt sequence.
 
 Canonical lifecycle:
 
@@ -32,14 +29,14 @@ Platform Architecture
   -> Business-first Engineering
 ```
 
-The current repository status task is roadmap/backlog synchronization only. It
-is not a product implementation phase, not a verification execution phase, not
-a CI/tooling enablement phase and not a new architecture phase.
+The current repository status records completed Platform construction. Future
+work proceeds under Platform Baseline v1.0, not through continued Platform
+construction.
 
 Phase 17 Platform Test Coverage Improvement is complete. The subsequent ESP
 native coverage follow-up returned `ESP_COVERAGE_QUALIFIED`; it does not alter
-the immutable Phase 17 report. Platform Baseline v1.0 Certification remains a
-separate explicit activity. Phase 15
+the immutable Phase 17 report. Platform Baseline v1.0 Certification accepted
+this evidence. Phase 15
 qualified the thin Voice Assistant adapter with live runtime pending. Phase
 15E attempted live qualification and blocked safely before mutation because the
 local Home Assistant Assist lab was stale for the active repository SHA and
@@ -55,8 +52,8 @@ environment blockers and returned `CROSS_PLATFORM_QUALIFIED`.
 
 Active.
 
-Platform Baseline v1.0 has not yet been certified. The current platform
-decision is `PLATFORM_BASELINE_V1_NOT_CERTIFIED`.
+Platform Baseline v1.0 is certified. The current platform decision is
+`PLATFORM_BASELINE_V1_CERTIFIED`.
 
 The Product Strategy Foundation has also been added as documentation-only
 scope under `docs/product/`. It establishes validated product direction without
@@ -70,8 +67,8 @@ foundational gap.
 
 Prompt 4 Software Assurance governance and rollout strategy are complete. The
 architecture decision is `SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE`,
-deferred implementation has been registered, and implementation remains
-deferred until `PLATFORM_BASELINE_V1_CERTIFIED`.
+deferred implementation has been registered, and implementation is ready only
+through its explicit prompts.
 
 The architecture closure review found that foundation, verification platform,
 meta engineering, repository bootstrap, cross-repository governance,
@@ -80,20 +77,20 @@ architecture are stable enough to freeze.
 
 ## Blocking Dependencies
 
-- Software Assurance implementation must not begin until
-  `PLATFORM_BASELINE_V1_CERTIFIED` and later explicit implementation prompts.
+- Software Assurance implementation must begin only through its explicit
+  registered prompts.
 - ESP native coverage follow-up returned `ESP_COVERAGE_QUALIFIED`; it does not
   reopen the completed Phase 17 decision.
 - CI workflow changes, scanner enablement, trusted delivery and release gates
   are deferred Software Assurance implementation work.
-- Platform Baseline v1.0 remains uncertified pending the explicit readiness
-  review rerun and, if ready, the separate certification activity.
+- Platform Baseline v1.0 is certified; no Platform-construction blockers
+  remain.
 
 ## Current Prompt
 
 Attached request:
 
-`Platform governance synchronization (complete; do not start Platform Baseline certification automatically)`
+`Platform Baseline v1.0 Certification (complete)`
 
 ## Completion Report
 
@@ -230,8 +227,7 @@ contain the SHA of the commit that includes its own content.
 
 ## Repository-Local Next Action
 
-Rerun the Platform Baseline Readiness Review before any Software Assurance
-implementation or business-first engineering begins. Only if that review
-returns ready may a separate, explicit Platform Baseline certification prompt
-be executed. Do not start additional foundational architecture work unless a
-future Architecture Review with objective evidence demonstrates a genuine gap.
+Proceed only through normal platform evolution under Platform Baseline v1.0.
+Software Assurance implementation requires its explicit registered Prompt 1.
+Do not start additional foundational architecture work unless a future
+Architecture Review with objective evidence demonstrates a genuine gap.

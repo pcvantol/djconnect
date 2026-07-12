@@ -45,15 +45,10 @@ This decision does not freeze:
 The closure review found no demonstrated architectural gap requiring new
 foundational documents or redesign.
 
-The remaining blockers are:
-
-- primary adapter qualification;
-- cross-platform qualification;
-- Apple latest-runtime operator/configuration prerequisites;
-- runtime release operations maturity warnings.
-
-Those blockers must be resolved through verification, implementation,
-operations and quality work inside the existing architecture.
+The qualification, cross-platform and coverage prerequisites identified by the
+closure review are resolved and accepted by Platform Baseline v1.0
+certification. Historical warnings remain evidence records and do not reopen
+the frozen architecture.
 
 ## Consequences
 
@@ -66,8 +61,9 @@ Future platform evolution should occur primarily through:
 
 rather than foundational architecture.
 
-Business-first engineering is not approved by this decision. It remains blocked
-until Platform Baseline v1.0 certification succeeds.
+Business-first engineering and Software Assurance implementation now proceed
+only under Platform Baseline v1.0 governance and their explicit follow-up
+prompts.
 
 ## Related Documents
 

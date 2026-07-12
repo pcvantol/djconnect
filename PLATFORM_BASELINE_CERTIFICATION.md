@@ -1,227 +1,60 @@
 # DJConnect Platform Baseline v1.0 Certification
 
-Status: NOT CERTIFIED
-
-Assessment Date: 2026-07-11
-
+Status: CERTIFIED
+Assessment Date: 2026-07-12
 Platform Version: 1.0
-
-Decision: `PLATFORM_BASELINE_V1_NOT_CERTIFIED`
-
-## Purpose
-
-This document records that the foundational platform architecture of
-DJConnect has reached closure, but that the Platform itself has not yet reached
-Platform Baseline v1.0 certification.
-
-This certification is intentionally conservative.
-
-It does not state that the platform is complete.
-
-It states that the foundational architecture is sufficiently complete to
-freeze, and that remaining work is implementation, verification and
-qualification inside that frozen architecture.
-
-## Architecture Areas Accepted For Freeze
-
-- Platform Strategy
-- Platform Foundation
-- Verification Platform
-- Verification Runtime
-- Meta Engineering Foundation
-- Software Assurance Architecture
-- Repository-native Bootstrap
-- Cross-Repository Governance
-- Repository Ownership
-- Product Strategy Foundation
-
-These areas are architecture-complete. Their completion does not certify the
-Platform Baseline v1.0 operationally.
-
-## Frozen Architecture
-
-The following architectural domains are now considered stable.
-
-- Platform Strategy
-- Platform Foundation
-- Verification Platform
-- Meta Engineering
-- Software Assurance Architecture
-- Repository Bootstrap
-- Cross-Repository Governance
-- Repository Metadata
-
-Changes require Architecture Review.
-
-## Current Engineering Focus
-
-The primary engineering objective now becomes:
-
-- complete platform qualification;
-- complete remaining platform adapters;
-- complete cross-platform qualification;
-- implement Software Assurance only after `PLATFORM_BASELINE_V1_CERTIFIED` and
-  explicit implementation prompts;
-- prepare for business-first engineering only after Platform Baseline v1.0 is
-  certified.
-
-## Platform Lifecycle
-
-The canonical lifecycle is:
-
-```text
-Platform Architecture
-  -> Platform Qualification
-  -> Platform Baseline
-  -> Business-first Engineering
-```
-
-Current state:
-
-```text
-Platform Qualification
-```
-
-Architecture is frozen. Platform Baseline v1.0 remains uncertified.
-Business-first engineering has not yet started.
-
-Platform Baseline is not the completion of architecture. Architecture precedes
-Platform Baseline. Qualification produces Platform Baseline by proving the
-implemented platform across primary adapters, runtime maturity and
-cross-platform behavior.
-
-## Architecture Principles
-
-The following principles are now considered canonical.
-
-- Repository over Prompt.
-- Evidence over Opinion.
-- Verification before Trust.
-- Architecture before Implementation.
-- Cloud where possible.
-- Local where necessary.
-- One Canonical Home.
-- Repository as Memory.
-- Business Value after Platform Baseline.
-
-## Deferred Investments
-
-The following work is intentionally deferred.
-
-- Software Assurance implementation.
-- Future platform optimisations.
-- Product Roadmap.
-- Product Backlog.
-
-These are not architectural gaps.
-
-They are planned future work.
-
-Software Assurance implementation is formally registered in
-`SOFTWARE_ASSURANCE_IMPLEMENTATION.md`. Registration does not start
-implementation and does not authorize workflow, CI/CD, repository governance or
-GitHub configuration changes.
+Decision: `PLATFORM_BASELINE_V1_CERTIFIED`
 
 ## Certification Statement
 
-The architecture review concludes that no additional foundational architecture
-is currently required.
+DJConnect Platform Generation 1 is certified as Platform Baseline v1.0.
+The Platform Architecture, Platform Baseline and Verification Runtime 1.1.0
+are frozen. Future work proceeds through normal platform evolution, beginning
+with the separately planned Software Assurance implementation sequence; it does
+not continue Platform construction or reopen the certified architecture.
 
-Platform Baseline v1.0 is not yet certified.
+## Certified Evidence
 
-Future platform evolution should primarily occur through:
+| Certification area | Decision / result | Canonical evidence |
+| --- | --- | --- |
+| Architecture | `ARCHITECTURE_FROZEN` | `ARCHITECTURE_DECISION.md`, `ARCHITECTURE_CLOSURE_REVIEW.md` |
+| Verification Framework | `VERIFICATION PLATFORM QUALIFIED` | Phase 9V rerun report |
+| Verification Runtime | `1.1.0`, planner, execution, evidence, investigator, qualification, reporting and coverage capabilities | `tools/verification/RUNTIME_CAPABILITIES.md`, `RUNTIME_METADATA.md` |
+| Home Assistant | `HOME_ASSISTANT_BACKEND_QUALIFIED_WITH_WARNINGS` | `docs/verification/reports/PHASE_09E_HOME_ASSISTANT_SCENARIO_COVERAGE.md` |
+| Apple | `APPLE_SCENARIO_COVERAGE_QUALIFIED_WITH_WARNINGS` | `docs/verification/reports/PHASE_10E_APPLE_SCENARIO_COVERAGE.md` |
+| Raspberry Pi | `RASPBERRY_PI_PRODUCT_SCENARIO_MAPPING_QUALIFIED` | `docs/verification/reports/PHASE_12E_R_RASPBERRY_PI_PRODUCT_SCENARIO_MAPPING.md` |
+| Windows | `WINDOWS_LIVE_QUALIFIED` | `docs/verification/reports/PHASE_13E_R2_WINDOWS_CLIENT_BUILD_REMEDIATION.md` |
+| ESP | `ESP_LIVE_QUALIFIED`; `ESP_COVERAGE_QUALIFIED` | `PHASE_14E_ESP_LIVE_QUALIFICATION.md`, `ESP_COVERAGE_QUALIFICATION.md` |
+| Voice Assistant | `VOICE_ASSISTANT_LIVE_QUALIFIED` | `PHASE_15E_R_DJCONNECT_VOICE_ASSISTANT_LIVE_QUALIFICATION_REMEDIATION.md` |
+| Cross-platform | `CROSS_PLATFORM_QUALIFIED` | `docs/verification/reports/PHASE_16_CROSS_PLATFORM_QUALIFICATION.md` |
+| Coverage improvement | `PLATFORM_TEST_COVERAGE_IMPROVEMENT_COMPLETE` | `docs/verification/reports/PHASE_17_PLATFORM_TEST_COVERAGE_IMPROVEMENT.md` |
 
-- feature implementation;
-- verification;
-- quality improvements;
-- platform qualification;
-- product evolution after baseline certification;
+## Coverage Certification
 
-rather than foundational redesign.
+Verification Runtime, Home Assistant, Apple, Raspberry Pi and Windows are
+`COVERAGE_VALID`. ESP is `ESP_COVERAGE_QUALIFIED`; Voice Assistant and
+VibeCast are `COVERED_BY_PARENT_REPOSITORY`; Central API is
+`NOT_YET_SUPPORTED`; Firmware Distribution is `NO_EXECUTABLE_PRODUCT_CODE`.
+The ESP qualification is a post-Phase-17 amendment and does not alter the
+immutable Phase 17 report or either historical coverage baseline.
 
-## Qualification State
+## Governance and Repository Certification
 
-The platform has completed:
+The readiness review found current governance, roadmap, prompt index,
+repository status, backlog, management summaries and coverage/qualification
+records internally consistent. Historical Coverage Baseline 1, Windows
+Coverage Baseline 1, Phase 16, Phase 17 and ESP coverage evidence remain
+unchanged. No blocking or non-blocking certification findings remain.
+
+## Management Decision
 
 ```text
-Platform Architecture
+PLATFORM_BASELINE_V1_CERTIFIED
+PLATFORM_ARCHITECTURE_FROZEN
+GENERATION_1_COMPLETE
+READY_FOR_SOFTWARE_ASSURANCE_IMPLEMENTATION
 ```
 
-The platform now operates in:
-
-```text
-Platform Qualification
-```
-
-Platform engineering continues.
-
-However, it should now focus on proving, qualifying and using the frozen
-architecture rather than expanding foundational architecture.
-
-## Architecture Governance
-
-Future architectural modifications require:
-
-- Architecture Review;
-- Evidence;
-- Explicit approval.
-
-Routine engineering work must not modify foundational architecture.
-
-Routine implementation work must not reopen architecture.
-
-Routine findings should be classified as:
-
-- implementation;
-- verification;
-- documentation;
-- operator configuration;
-- backlog.
-
-New architectural work requires:
-
-- Architecture Review;
-- objective evidence;
-- explicit approval.
-
-Future engineering should prefer:
-
-- implementation;
-- verification;
-- qualification;
-- documentation;
-- evidence;
-- coverage;
-- operator readiness;
-- platform maturity;
-- business value after Platform Baseline v1.0 certification;
-
-over:
-
-- new platform architecture;
-- new foundational abstractions;
-- new governance layers.
-
-## Final Engineering Statement
-
-The platform architecture is intentionally frozen.
-
-Future effort should focus on proving, qualifying and using the platform.
-
-Business-first engineering begins only after Platform Baseline v1.0 has been
-certified.
-
-## Closing Statement
-
-Architecture closure represents the first stable architecture boundary of the
-DJConnect Platform.
-
-The purpose of future engineering is no longer to construct foundational
-architecture.
-
-The purpose is to qualify the platform, complete adapters, prove
-cross-platform behavior and then create exceptional user value on top of that
-certified platform.
-
-Platform engineering is now a qualification and maturity discipline until
-Platform Baseline v1.0 is certified.
+Software Assurance implementation is authorized only through its registered,
+explicit implementation prompts. Business-first engineering remains governed
+by the certified baseline and normal platform evolution.

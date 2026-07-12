@@ -10,14 +10,13 @@ not required.
 
 The Software Assurance Platform architecture sprint has completed with decision
 `SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE`. Software Assurance
-implementation is intentionally deferred until an explicit post-baseline
-implementation prompt starts that work.
+implementation is ready only through its explicit registered prompt sequence.
 
 The Architecture Closure Review completed on 2026-07-11 with decision
 `ARCHITECTURE_FROZEN`.
 
-Platform Baseline v1.0 has not yet been certified. The current platform
-decision is `PLATFORM_BASELINE_V1_NOT_CERTIFIED`. Platform Qualification is
+Platform Baseline v1.0 is certified. The current platform decision is
+`PLATFORM_BASELINE_V1_CERTIFIED`. Platform Qualification is
 complete. Home Assistant, Apple, Raspberry Pi, Windows, ESP and DJConnect
 Voice Assistant qualification are complete for the current verification
 roadmap. Phase 13E-R2 returned `WINDOWS_LIVE_QUALIFIED`. Phase 14 returned
@@ -36,8 +35,9 @@ running. Phase 16-R remediated the environment blockers and returned
 returned `PLATFORM_TEST_COVERAGE_IMPROVEMENT_COMPLETE`: its immutable
 historical matrix added Home Assistant, ESP32 firmware and Voice Assistant
 coverage responsibility. The subsequent ESP native coverage follow-up returned
-`ESP_COVERAGE_QUALIFIED`. The next activity is a Platform Baseline Readiness
-Review rerun; certification remains separately authorized and is not started.
+`ESP_COVERAGE_QUALIFIED`. Platform Baseline v1.0 Certification accepted the
+completed evidence. The next platform-program activity is Software Assurance
+implementation through its explicit registered Prompt 1.
 
 Phase 9V rerun has qualified the Verification Platform using the dedicated
 local Home Assistant verification lab. The canonical planner selected the
@@ -236,7 +236,7 @@ Implementation sequence:
 Current state:
 
 ```text
-Waiting for Platform Baseline certification.
+Platform Baseline v1.0 certified; ready for explicit Software Assurance Prompt 1.
 ```
 
 Canonical registration:
@@ -251,7 +251,8 @@ Prompt 1.
 Use this clean-session prompt for future operator-directed work:
 
 ```text
-Read BOOTSTRAP_CODEX_VERIFICATION.md and select the next Platform Qualification verification phase from PROMPT_INDEX.md.
+Read `SOFTWARE_ASSURANCE_IMPLEMENTATION.md` and execute only the explicitly
+authorized next Software Assurance implementation prompt.
 ```
 
 ## Prompt Table
@@ -333,5 +334,6 @@ qualification report and the final result line.
 Exact clean-session command for the next operator-directed gate:
 
 ```text
-Read BOOTSTRAP_CODEX_VERIFICATION.md and select the next Platform Qualification verification phase from PROMPT_INDEX.md.
+Read SOFTWARE_ASSURANCE_IMPLEMENTATION.md and execute only the explicitly
+authorized next Software Assurance implementation prompt.
 ```

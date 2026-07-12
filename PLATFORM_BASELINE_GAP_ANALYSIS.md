@@ -1,8 +1,8 @@
 # DJConnect Platform Baseline v1.0 Gap Analysis
 
-Status: active qualification gap analysis
+Status: closed by Platform Baseline certification
 Date: 2026-07-12
-Certification decision: `PLATFORM_BASELINE_V1_NOT_CERTIFIED`
+Certification decision: `PLATFORM_BASELINE_V1_CERTIFIED`
 
 Superseded by: `PLATFORM_BASELINE_CERTIFICATION.md`
 
@@ -11,15 +11,14 @@ Superseded by: `PLATFORM_BASELINE_CERTIFICATION.md`
 All required qualification and coverage evidence is complete: `ESP_LIVE_QUALIFIED`,
 `VOICE_ASSISTANT_LIVE_QUALIFIED`, `CROSS_PLATFORM_QUALIFIED`,
 `PLATFORM_TEST_COVERAGE_IMPROVEMENT_COMPLETE` and
-`ESP_COVERAGE_QUALIFIED`. This document records only the remaining governance
-sequence before a certification decision.
+`ESP_COVERAGE_QUALIFIED`. Formal certification accepted that evidence on
+2026-07-12.
 
 ## Remaining Follow-Up Gaps
 
 | Gap | Evidence | Impact | Recommended action |
 | --- | --- | --- | --- |
-| Readiness review rerun | This synchronization increment and the completed qualification/coverage reports. | Must confirm there are no remaining governance contradictions before certification is considered. | Run the explicit Platform Baseline Readiness Review. |
-| Certification decision | A successful readiness review. | Platform Baseline remains `PLATFORM_BASELINE_V1_NOT_CERTIFIED` until an explicit certification prompt makes a decision. | Run Platform Baseline v1.0 Certification only after the readiness review returns ready. |
+| None | All certification criteria passed. | No remaining baseline gap. | Continue only through normal platform evolution under Platform Baseline v1.0. |
 
 ## Non-Blocking Warnings
 
@@ -32,11 +31,10 @@ sequence before a certification decision.
 
 ## Recommended Follow-Up Path
 
-1. Rerun the explicit Platform Baseline Readiness Review.
-2. If and only if that review returns ready, execute the separately authorized
-   Platform Baseline v1.0 Certification activity.
-3. Preserve the frozen Platform Architecture unless a future Architecture
+1. Preserve the frozen Platform Architecture unless a future Architecture
    Review supersedes it.
+2. Start Software Assurance implementation only through its registered prompt
+   sequence.
 
 ## Out Of Scope
 

@@ -1,9 +1,9 @@
 # DJConnect Platform Baseline v1.0 Assessment
 
-Status: active baseline assessment
+Status: certified baseline assessment
 Date: 2026-07-12
 Repository: `pcvantol/djconnect`  
-Certification: `PLATFORM_BASELINE_V1_NOT_CERTIFIED`
+Certification: `PLATFORM_BASELINE_V1_CERTIFIED`
 
 Current certification record: `PLATFORM_BASELINE_CERTIFICATION.md`
 
@@ -17,15 +17,14 @@ It does not introduce product functionality.
 
 ## Result
 
-Platform Baseline v1.0 has not yet been certified. The architecture is frozen,
-and all required adapter, cross-platform and coverage qualification evidence
-has been completed. Certification remains a separate, explicit activity after
-the Platform Baseline Readiness Review confirms that the synchronized
-governance record is internally consistent.
+Platform Baseline v1.0 is certified. The architecture is frozen and all
+required adapter, cross-platform and coverage qualification evidence is
+accepted as the Generation 1 Platform Baseline.
 
 The foundation, verification platform, meta engineering model, repository
 bootstrap, cross-repository governance and Software Assurance architecture are
-frozen. Software Assurance implementation remains deferred until certification.
+frozen. Software Assurance implementation is now available through its
+separately registered, explicit implementation prompts.
 
 ## Evidence Read
 
@@ -63,8 +62,8 @@ Primary evidence:
 | CI/CD | WARNING | Exact-SHA CI and framework CI evidence exist; release operations and self-hosted runner execution remain follow-ups. |
 
 Software Assurance implementation is registered in
-`SOFTWARE_ASSURANCE_IMPLEMENTATION.md` and may begin only after
-`PLATFORM_BASELINE_V1_CERTIFIED`.
+`SOFTWARE_ASSURANCE_IMPLEMENTATION.md` and proceeds only through its explicit
+implementation prompts.
 
 ## Certification Boundary
 
@@ -72,14 +71,12 @@ Baseline v1.0 requires all required criteria to pass. A warning may be accepted
 only when it does not block sustainable platform evolution. A fail blocks the
 baseline.
 
-There are no remaining adapter, verification or coverage qualification fails.
-The remaining pre-certification activity is an explicit readiness-review rerun,
-followed only by the separately authorized certification activity.
+There are no remaining certification blockers.
 
 Current result:
 
 ```text
-PLATFORM_BASELINE_V1_NOT_CERTIFIED
+PLATFORM_BASELINE_V1_CERTIFIED
 ```
 
 ## Follow-Up Documents

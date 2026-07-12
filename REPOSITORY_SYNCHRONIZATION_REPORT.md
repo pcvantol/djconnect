@@ -17,16 +17,16 @@ governance, reorder the roadmap or execute verification.
 
 | Area | Current status | Evidence |
 | --- | --- | --- |
-| Platform Lifecycle State | `Platform Qualification` | `PLATFORM_STRATEGY.md`, `PLATFORM_BASELINE_CERTIFICATION.md` |
+| Platform Lifecycle State | `Platform Baseline v1.0 certified` | `PLATFORM_STRATEGY.md`, `PLATFORM_BASELINE_CERTIFICATION.md` |
 | Architecture Status | `ARCHITECTURE_FROZEN` | `ARCHITECTURE_CLOSURE_REVIEW.md`, `ARCHITECTURE_DECISION.md` |
 | Platform Qualification Status | `COMPLETE` | Phase 16-R returned `CROSS_PLATFORM_QUALIFIED` |
-| Platform Baseline Status | `PLATFORM_BASELINE_V1_NOT_CERTIFIED` | `PLATFORM_BASELINE_CERTIFICATION.md`, `PLATFORM_BASELINE_1_0.md` |
+| Platform Baseline Status | `PLATFORM_BASELINE_V1_CERTIFIED` | `PLATFORM_BASELINE_CERTIFICATION.md`, `PLATFORM_BASELINE_1_0.md` |
 | Verification Framework Status | `COMPLETE` | Phase 9V rerun returned `VERIFICATION PLATFORM QUALIFIED` |
 | Verification Runtime Status | `STABLE` | Runtime `1.1.0` is the canonical coverage ingestion engine |
 | Software Assurance Architecture Status | `COMPLETE` | `SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE` |
-| Software Assurance Implementation Status | `DEFERRED` | `SOFTWARE_ASSURANCE_IMPLEMENTATION.md` |
+| Software Assurance Implementation Status | `READY_FOR_EXPLICIT_PROMPT` | `SOFTWARE_ASSURANCE_IMPLEMENTATION.md` |
 | Product Strategy Status | Foundation established | `docs/product/README.md`, `docs/product/PRODUCT_STRATEGY.md` |
-| Current Active Platform Phase | Platform Baseline Readiness Review rerun | Completed qualification and coverage evidence |
+| Current Active Platform Phase | Software Assurance Prompt 1 when explicitly authorized | Certified baseline |
 
 ## Documents Updated
 
@@ -42,10 +42,10 @@ governance, reorder the roadmap or execute verification.
 - Recorded Phase 17 coverage completion and the ESP native coverage decision
   `ESP_COVERAGE_QUALIFIED`.
 - Updated the canonical Runtime reference from `1.0.0` to `1.1.0`.
-- Clarified that Platform Qualification is complete while Platform Baseline
-  remains not certified pending its explicit readiness and certification work.
-- Clarified that Software Assurance implementation remains deferred until
-  `PLATFORM_BASELINE_V1_CERTIFIED`.
+- Recorded formal Platform Baseline v1.0 certification and Generation 1
+  completion.
+- Recorded that Software Assurance implementation is ready only through its
+  explicit registered prompt sequence.
 
 ## Consistency Issues Corrected
 
@@ -59,14 +59,13 @@ governance, reorder the roadmap or execute verification.
 
 ## Remaining Qualification Scope
 
-No Platform Qualification work remains. The remaining sequence is a readiness
-review rerun and, only if ready, the explicitly authorized Platform Baseline
-v1.0 Certification activity.
+No Platform Qualification work remains. Platform Baseline v1.0 is certified;
+future work proceeds through normal platform evolution.
 
 Release operations, App Store/TestFlight distribution signing and self-hosted
 runner maturity remain follow-ups. They do not change the current repository
-status: Platform Qualification is complete and Platform Baseline v1.0 remains
-not certified.
+status: Platform Qualification is complete and Platform Baseline v1.0 is
+certified.
 
 ## Architecture Assessment
 
@@ -104,8 +103,8 @@ Final state:
 
 ```text
 Platform Qualification: COMPLETE
-Platform Baseline v1.0: NOT CERTIFIED
+Platform Baseline v1.0: CERTIFIED
 Verification Framework: COMPLETE
 Verification Runtime: STABLE
-Software Assurance Implementation: DEFERRED
+Software Assurance Implementation: READY_FOR_EXPLICIT_PROMPT
 ```

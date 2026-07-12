@@ -223,8 +223,7 @@ Next:
 
 Remaining:
 
-- ⏳ Rerun the Platform Baseline Readiness Review, then run certification only
-  if the readiness decision permits it.
+- ✅ Platform Baseline v1.0 certified; Generation 1 complete.
 
 ## Coverage Baseline 1
 
@@ -441,10 +440,8 @@ Completed:
 
 Next:
 
-- ⏳ Software Assurance implementation deferred until an explicit post-baseline
-  implementation prompt starts that work.
-- ⏳ Rerun Platform Baseline Readiness Review before Software Assurance
-  implementation.
+- ⏳ Software Assurance implementation is ready only through its explicit
+  registered prompt sequence.
 
 Guardrails:
 
@@ -454,8 +451,8 @@ Guardrails:
 
 ## Platform Baseline v1.0 Qualification
 
-**Status:** ⏳ Not certified
-**Decision:** `PLATFORM_BASELINE_V1_NOT_CERTIFIED`
+**Status:** ✅ Certified
+**Decision:** `PLATFORM_BASELINE_V1_CERTIFIED`
 **Evidence:** `PLATFORM_BASELINE_CERTIFICATION.md`,
 `PLATFORM_BASELINE_1_0.md`,
 `PLATFORM_BASELINE_GAP_ANALYSIS.md`
@@ -473,11 +470,10 @@ Remaining qualification follow-up:
 
 Next:
 
-- rerun the Platform Baseline Readiness Review;
-- execute certification only if the readiness review returns ready;
 - preserve the architecture freeze unless a future Architecture Review with
-  objective evidence supersedes it.
-- Verification remains owner of behavioural correctness.
+  objective evidence supersedes it;
+- begin Software Assurance only through its explicit registered Prompt 1;
+- keep Verification as owner of behavioural correctness.
 
 ## Architecture Closure Review
 
