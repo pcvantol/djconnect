@@ -1,6 +1,6 @@
 # Verification Platform Scorecard
 
-Status: PLATFORM QUALIFIED; HOME ASSISTANT BACKEND COVERAGE QUALIFIED WITH WARNINGS; APPLE SCENARIO COVERAGE QUALIFIED WITH WARNINGS; RASPBERRY PI SCENARIO COVERAGE QUALIFIED WITH WARNINGS; WINDOWS ADAPTER QUALIFIED WITH LIVE RUNTIME PENDING
+Status: PLATFORM QUALIFIED; HOME ASSISTANT BACKEND COVERAGE QUALIFIED WITH WARNINGS; APPLE SCENARIO COVERAGE QUALIFIED WITH WARNINGS; RASPBERRY PI SCENARIO COVERAGE QUALIFIED WITH WARNINGS; WINDOWS LIVE QUALIFIED; WINDOWS COVERAGE BASELINE ESTABLISHED
 
 Scoring scale:
 
@@ -18,7 +18,7 @@ Scoring scale:
 | Home Assistant Adapter | 4 | Live REST/WebSocket/runtime/storage/log primitives executed across 195 Home Assistant backend and backend assertion-path scenarios; deeper product assertions remain scenario-driven future work. |
 | Verification Core | 4 | Aggregated qualified runs, expanded HA backend mappings and preserved primitive diagnostics in summaries; minor deduction because successful primitive timing is still coarse. |
 | Evidence Pipeline | 4 | Persisted immutable run evidence with environment, qualification, plan, scenario result files and summary-level diagnostics; richer request/response transcripts remain future adapter evidence work. |
-| Coverage Baseline | 4 | Runtime 1.1.0 ingested Home Assistant, Apple and Raspberry Pi native coverage as `COVERAGE_VALID`; the Pi coverage environment root cause was fixed before finalizing the established baseline. |
+| Coverage Baseline | 4 | Runtime 1.1.0 ingested Home Assistant, Apple and Raspberry Pi native coverage as immutable Coverage Baseline 1; Windows Coverage Baseline 1 is now separately established as a post-Baseline-1 record. |
 | Verification Investigator | 4 | Primitive failures are extracted from run summaries and the Phase 9E-R websocket timeout rerun was classified without manual relabeling. |
 | Reporting | 4 | Qualification report, scorecard and backlog are current, and execution summaries include total runtime plus scenario status counts; future reports can become more generated. |
 | Repository Hygiene | 5 | Branch, SHA and working tree state were known before execution. |
@@ -28,8 +28,8 @@ Scoring scale:
 | Home Assistant Backend Coverage | 4 | Phase 9E-R executed and qualified 195 HA backend or separable HA backend assertion-path scenarios; 28 client/hardware/release/voice-localization scenarios remain correctly deferred. |
 | Apple Adapter | 4 | Thin Apple adapter primitives, Scenario Engine selection and Execution Environment simulator metadata are implemented, mock-tested and live-proven for `APPLE-001`; broader Apple product/UI scenarios remain future coverage. iOS 27.0 evidence is future-beta only, and App Store/TestFlight signing is deferred to release v1.0 readiness. |
 | Raspberry Pi Adapter | 4 | Thin Raspberry Pi adapter primitives, CLI registration, Scenario Engine routing and live `PI-001` execution are qualified; broader Pi product scenarios need canonical execution-surface mapping. |
-| Windows Adapter | 3 | Thin Windows adapter primitives, canonical `pcvantol/djconnect-windows` ownership metadata, CLI registration, Scenario Engine routing and `WIN-001` mock/local execution are qualified; live Parallels Windows execution is pending prepared target JSON and real Windows client artifact commands. |
-| Adapter Roadmap | 4 | Phase 13 implemented the first Windows adapter after Raspberry Pi qualification; Windows live scenario coverage is the next adapter follow-up. |
+| Windows Adapter | 4 | Thin Windows adapter primitives, canonical `pcvantol/djconnect-windows` ownership metadata, CLI registration, Scenario Engine routing, `WIN-001` mock/local execution and live Parallels Windows execution are qualified. |
+| Adapter Roadmap | 4 | Phase 13E-R2 qualified Windows live execution, and Windows Coverage Baseline 1 establishes the first validated Windows coverage starting point for later four-platform reporting. |
 | Overall | 4 | The platform is qualified for the next adapter phase with non-blocking framework improvements tracked. |
 
 ## Decision
@@ -57,6 +57,10 @@ RASPBERRY_PI_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_SKIPPED
 RASPBERRY_PI_SCENARIO_COVERAGE_QUALIFIED_WITH_WARNINGS
 
 WINDOWS_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_PENDING
+
+WINDOWS_LIVE_QUALIFIED
+
+WINDOWS_COVERAGE_BASELINE_ESTABLISHED
 
 The Verification Platform itself remains qualified, and Phase 9E-R qualifies
 broad Home Assistant backend coverage with one non-blocking warning. The

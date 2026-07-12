@@ -1,0 +1,23 @@
+{
+  "run_id": "windows-coverage-baseline-1",
+  "schema_version": 1,
+  "state": "PARTIAL",
+  "verification_runtime": {
+    "capabilities": [
+      "planner",
+      "execution",
+      "evidence",
+      "investigator",
+      "qualification",
+      "reporting",
+      "coverage"
+    ],
+    "compatibility": "capability-driven",
+    "docker_repository": "pcvantol/djconnect-verification-platform",
+    "name": "djconnect-verification-platform",
+    "product": "Verification Runtime",
+    "repository": "pcvantol/djconnect",
+    "schema_version": 1,
+    "version": "1.1.0"
+  }
+}

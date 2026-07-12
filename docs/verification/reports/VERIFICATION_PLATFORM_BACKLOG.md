@@ -53,7 +53,7 @@ Do not create GitHub issues automatically from this backlog.
 | VPB-045 | P1 | Windows runtime environment follow-up | Resolved in Phase 13E-R: the Parallels `Windows 11 Home` target JSON was prepared, `windows_dotnet_maintenance` passed and `WIN-001` reached the real `pcvantol/djconnect-windows` checkout in run `djv-20260712T123021Z-ccda65836f`. The phase is now blocked by a sibling Windows client build failure, not by missing target configuration. | Windows Adapter / Execution Environment / Operator | `djconnect`, `djconnect-windows` | No | Done | Phase 13E-R |
 | VPB-049 | P0 | Windows client build blocker | Resolved in Phase 13E-R2: `StatusResponse` in `pcvantol/djconnect-windows` now deserializes backend-owned Profile / Music DNA metadata consumed by the ViewModel, Windows repo tests pass, the Parallels Windows build for `net10.0-windows10.0.19041.0` succeeds and `WIN-001` passed live in run `djv-20260712T135722Z-d09b6ec5ba`. | Windows Client / Windows Adapter / Execution Environment | `djconnect-windows`, `djconnect` | No | Done | Phase 13E-R2 |
 | VPB-046 | P1 | Coverage improvement increment | Phase 15 Platform Test Coverage Improvement is inserted after Coverage Baseline 1, Phase 13E Windows live qualification and Phase 14 Cross-Platform Qualification, before Platform Baseline v1.0 Certification. Coverage must improve through meaningful tests, deeper verification and improved testability, not by excluding production code or manipulating scope. | Verification Coverage / Platform Repositories | `djconnect`, `djconnect-app`, `djconnect-pi`, `djconnect-windows` | No | L | Phase 15 Platform Test Coverage Improvement |
-| VPB-047 | P1 | Windows coverage baseline dependency | Windows remains intentionally excluded from Coverage Baseline 1. After Phase 13E qualifies live Windows execution, establish the first validated Windows coverage baseline before including Windows in future cross-platform coverage baselines. | Windows Adapter / Coverage Runtime / Windows Client | `djconnect`, `djconnect-windows` | Blocks Windows inclusion in future coverage baselines | M | Phase 13E then Phase 15 |
+| VPB-047 | P1 | Windows coverage baseline dependency | Resolved by Windows Coverage Baseline 1: Runtime 1.1.0 ingested native Coverlet Cobertura for `pcvantol/djconnect-windows` commit `b205f087214eb5fe90c4129c2afa9dee7f836a82` as `COVERAGE_VALID`, with 72.45% line and 50.85% branch coverage. Coverage Baseline 1 remains unchanged and Windows can be included in a future coordinated four-platform coverage snapshot. | Windows Adapter / Coverage Runtime / Windows Client | `djconnect`, `djconnect-windows` | No | Done | Windows Coverage Baseline 1 |
 | VPB-048 | P1 | Coverage scope guardrail | Before adding tests in Phase 15, verify production source roots and coverage scope for Home Assistant, Apple, Raspberry Pi and Windows. Coverage improvement must preserve `COVERAGE_VALID`, avoid production-code exclusions used only to improve percentages and track trends against immutable Coverage Baseline 1. | Coverage Runtime / Repository Maintainers | All platform repositories | No | M | Phase 15 Platform Test Coverage Improvement |
 
 ## Regression Subset Required After Fixes
@@ -115,10 +115,15 @@ Coverage Baseline 1 reports:
 
 CROSS_PLATFORM_COVERAGE_BASELINE_ESTABLISHED
 
+Windows Coverage Baseline 1 reports:
+
+WINDOWS_COVERAGE_BASELINE_ESTABLISHED
+
 Phase 15 is now registered as the Platform Test Coverage Improvement increment
-after Coverage Baseline 1, Phase 13E Windows live qualification and Phase 14
-Cross-Platform Qualification, before Platform Baseline v1.0 Certification.
-Coverage Baseline 1 remains immutable historical evidence.
+after Coverage Baseline 1, Windows Coverage Baseline 1, Phase 13E Windows live
+qualification and Phase 14 Cross-Platform Qualification, before Platform
+Baseline v1.0 Certification. Coverage Baseline 1 remains immutable historical
+evidence.
 
 Framework runtime, Docker release workflow and regular CI are not blocked by
 Docker Hub secret provisioning, Docker repository naming or self-hosted runner

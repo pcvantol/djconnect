@@ -1,0 +1,15 @@
+{
+  "items": [
+    {
+      "bytes": 95482,
+      "path": "coverage/coverage-summary.json",
+      "sha256": "e542513edebf6e7cc0a9b8e89f5b2c885f205df0fe2a25c1c2a345305381a96f"
+    },
+    {
+      "bytes": 572,
+      "path": "summary.json",
+      "sha256": "298a5b56921d9e1f34854ed34a60f47a150826c4517b66827d45b8897e0c088a"
+    }
+  ],
+  "run_id": "windows-coverage-baseline-1"
+}

@@ -226,8 +226,11 @@ Baseline repositories:
 Coverage Baseline 1 is immutable historical evidence. Future coverage
 improvement must compare against it, not replace it.
 
-Windows is intentionally excluded from Coverage Baseline 1 until Phase 13E has
-completed and an initial validated Windows coverage baseline exists.
+Windows is intentionally excluded from Coverage Baseline 1. Its first
+validated measurement is recorded separately as Windows Coverage Baseline 1
+with decision `WINDOWS_COVERAGE_BASELINE_ESTABLISHED`: 72.45% line coverage and
+50.85% branch coverage for `pcvantol/djconnect-windows` commit
+`b205f087214eb5fe90c4129c2afa9dee7f836a82`.
 
 ## Phase 15 — Platform Test Coverage Improvement
 
@@ -264,8 +267,8 @@ Objectives:
 - Apple: expand simulator tests, runtime tests and domain/service coverage.
 - Raspberry Pi: preserve existing quality and improve only where justified by
   risk analysis.
-- Windows: after Phase 13E, establish the first validated Windows coverage
-  baseline, expand adapter/runtime tests and include Windows in future coverage
+- Windows: use Windows Coverage Baseline 1 as the starting point, expand
+  adapter/runtime tests and include Windows in future coordinated coverage
   baselines.
 
 Deliverables:

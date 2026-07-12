@@ -178,3 +178,19 @@ Home Assistant, Apple and Raspberry Pi coverage provenance and Runtime
 ingestion are valid. The Raspberry Pi coverage environment root cause was fixed
 before finalizing the baseline, so Pi coverage is produced from the repository
 `.venv` without external coverage tooling.
+
+## Windows Coverage Baseline 1
+
+Windows Coverage Baseline 1 was produced on 2026-07-12 as an explicit
+post-Baseline-1 record after Phase 13E-R2 returned `WINDOWS_LIVE_QUALIFIED`.
+
+Record files:
+
+- `CODE_COVERAGE_WINDOWS_BASELINE_1.md`
+- `CODE_COVERAGE_WINDOWS_BASELINE_1.json`
+
+The Windows record is recorded as `WINDOWS_COVERAGE_BASELINE_ESTABLISHED`.
+Runtime `1.1.0` ingested the Windows Cobertura report as `COVERAGE_VALID`.
+Coverage Baseline 1 remains immutable historical evidence for Home Assistant,
+Apple and Raspberry Pi; Windows may be included in a later coordinated
+four-platform coverage snapshot or baseline.
