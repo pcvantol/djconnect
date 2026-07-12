@@ -208,7 +208,7 @@ the remaining ESP coverage capability. The next platform activity is the
 Platform Baseline Readiness Review rerun; certification remains a separate,
 explicit activity.
 
-## Deferred Implementation Epics
+## Active Implementation Program
 
 ### Software Assurance Platform
 
@@ -218,10 +218,10 @@ Status:
 ARCHITECTURE_COMPLETE
 ```
 
-Implementation:
+Implementation program:
 
 ```text
-DEFERRED
+SOFTWARE_ASSURANCE_GENERATION_1_ACTIVE
 ```
 
 Prerequisite:
@@ -230,17 +230,23 @@ Prerequisite:
 PLATFORM_BASELINE_V1_CERTIFIED
 ```
 
+Prerequisite status:
+
+```text
+SATISFIED
+```
+
 Implementation sequence:
 
-1. [Prompt 1: CI Governance Foundation](prompts/deferred/software_assurance/PROMPT_01_CI_GOVERNANCE_FOUNDATION.md)
-2. [Prompt 2: Cross-Repository Workflow Harmonization](prompts/deferred/software_assurance/PROMPT_02_CROSS_REPOSITORY_WORKFLOW_HARMONIZATION.md)
-3. [Prompt 3: Trusted Delivery Platform](prompts/deferred/software_assurance/PROMPT_03_TRUSTED_DELIVERY_PLATFORM.md)
-4. [Prompt 4: Trusted Delivery Certification](prompts/deferred/software_assurance/PROMPT_04_TRUSTED_DELIVERY_CERTIFICATION.md)
+1. [Prompt 1: CI Governance Foundation](prompts/deferred/software_assurance/PROMPT_01_CI_GOVERNANCE_FOUNDATION.md) — `ACTIVE`
+2. [Prompt 2: Cross-Repository Workflow Harmonization](prompts/deferred/software_assurance/PROMPT_02_CROSS_REPOSITORY_WORKFLOW_HARMONIZATION.md) — `BLOCKED_BY_PROMPT_1`
+3. [Prompt 3: Trusted Delivery Platform](prompts/deferred/software_assurance/PROMPT_03_TRUSTED_DELIVERY_PLATFORM.md) — `BLOCKED_BY_PROMPT_2`
+4. [Prompt 4: Trusted Delivery Certification](prompts/deferred/software_assurance/PROMPT_04_TRUSTED_DELIVERY_CERTIFICATION.md) — `BLOCKED_BY_PROMPT_3`
 
 Current state:
 
 ```text
-Platform Baseline v1.0 certified; ready for explicit Software Assurance Prompt 1.
+Platform Baseline v1.0 certified; historical prerequisite satisfied; Prompt 1 active; implementation not started.
 ```
 
 Canonical registration:
@@ -248,15 +254,15 @@ Canonical registration:
 - `SOFTWARE_ASSURANCE_IMPLEMENTATION.md`
 - `prompts/deferred/software_assurance/`
 
-The existence of these prompts does not authorize implementation. Future AI
-agents must verify that Platform Baseline v1.0 is certified before beginning
-Prompt 1.
+Only Prompt 1 is active and remains subject to an explicit execution request.
+Prompts 2 through 4 remain blocked in sequence. This activation does not mean
+that any Software Assurance implementation work has begun.
 
 Use this clean-session prompt for future operator-directed work:
 
 ```text
-Read `SOFTWARE_ASSURANCE_IMPLEMENTATION.md` and execute only the explicitly
-authorized next Software Assurance implementation prompt.
+Read `SOFTWARE_ASSURANCE_IMPLEMENTATION.md` and execute Prompt 1 only when it
+is explicitly authorized. Do not execute Prompts 2 through 4.
 ```
 
 ## Prompt Table

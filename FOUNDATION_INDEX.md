@@ -127,7 +127,7 @@ Foundation describes principles. Baseline describes accepted implementation.
 
 `PLATFORM_BASELINE_CERTIFICATION.md` captures the Platform Baseline v1.0
 certification status. The current certification result is
-`PLATFORM_BASELINE_V1_NOT_CERTIFIED`.
+`PLATFORM_BASELINE_V1_CERTIFIED`.
 
 `PLATFORM_BASELINE_1_0.md` and `PLATFORM_BASELINE_GAP_ANALYSIS.md` remain as
 baseline assessment and qualification follow-up evidence.
@@ -252,15 +252,16 @@ governance layer that extends Verification without replacing it.
   architecture decision.
 - `SOFTWARE_ASSURANCE_ROLLOUT.md` defines the canonical wave rollout and
   repository rollout governance.
-- `SOFTWARE_ASSURANCE_IMPLEMENTATION_STRATEGY.md` defines deferred
-  implementation strategy, CI/CD placement and roadmap transition.
+- `SOFTWARE_ASSURANCE_IMPLEMENTATION_STRATEGY.md` defines implementation
+  strategy, CI/CD placement and roadmap transition.
 - `SOFTWARE_ASSURANCE_QUALITY_GATES.md` defines future gate architecture
   without enabling gates.
 - `SOFTWARE_ASSURANCE_VERSIONING.md` defines lifecycle, semantic versioning
   and compatibility expectations.
-- `SOFTWARE_ASSURANCE_IMPLEMENTATION.md` registers the future implementation
-  epic, records its deferred state and requires
-  `PLATFORM_BASELINE_V1_CERTIFIED` before Prompt 1 may begin.
+- `SOFTWARE_ASSURANCE_IMPLEMENTATION.md` registers the active implementation
+  epic, preserves the satisfied historical
+  `PLATFORM_BASELINE_V1_CERTIFIED` prerequisite, and records Prompt 1 as
+  active.
 
 ## Sibling repositories
 

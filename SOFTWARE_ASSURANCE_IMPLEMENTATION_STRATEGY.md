@@ -2,7 +2,7 @@
 
 Status: canonical implementation strategy  
 Scope owner: `pcvantol/djconnect`  
-Phase: architecture frozen; implementation deferred
+Phase: architecture frozen; Software Assurance Generation 1 active; Prompt 1 ready for explicit execution
 
 ## Purpose
 
@@ -113,7 +113,6 @@ Each wave is complete only when:
 After the architecture sprint, the platform returns to the active Verification
 roadmap.
 
-Software Assurance implementation is deferred until the prerequisites in this
-document are satisfied. Phase 10E follow-up work remains the next Verification
-anchor unless the maintainer explicitly chooses another verified prerequisite
-path.
+The prerequisites in this document are satisfied. Software Assurance
+Generation 1 is active with Prompt 1 ready for explicit execution; Prompts 2
+through 4 remain blocked in sequence. No implementation has started.

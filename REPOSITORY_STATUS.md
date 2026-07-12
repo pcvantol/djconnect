@@ -66,9 +66,10 @@ a future evidence-backed Architecture Review demonstrates a genuine
 foundational gap.
 
 Prompt 4 Software Assurance governance and rollout strategy are complete. The
-architecture decision is `SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE`,
-deferred implementation has been registered, and implementation is ready only
-through its explicit prompts.
+architecture decision is `SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE`.
+The historical `PLATFORM_BASELINE_V1_CERTIFIED` prerequisite is satisfied, and
+Software Assurance Generation 1 is active with Prompt 1 as the only active
+implementation prompt. No implementation has started.
 
 The architecture closure review found that foundation, verification platform,
 meta engineering, repository bootstrap, cross-repository governance,
@@ -77,8 +78,8 @@ architecture are stable enough to freeze.
 
 ## Blocking Dependencies
 
-- Software Assurance implementation must begin only through its explicit
-  registered prompts.
+- Prompt 1 may begin only through an explicit execution request. Prompts 2–4
+  remain blocked by their immediate predecessor.
 - ESP native coverage follow-up returned `ESP_COVERAGE_QUALIFIED`; it does not
   reopen the completed Phase 17 decision.
 - CI workflow changes, scanner enablement, trusted delivery and release gates
@@ -88,9 +89,8 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-Attached request:
-
-`Generation 1 repository closure (complete; Software Assurance implementation not started)`
+Software Assurance Generation 1 activation (complete; Prompt 1 active;
+implementation not started).
 
 ## Completion Report
 
@@ -129,7 +129,7 @@ Architecture Closure outputs:
 - `ARCHITECTURE_CLOSURE_REVIEW.md`
 - `ARCHITECTURE_DECISION.md`
 
-Deferred Software Assurance implementation outputs:
+Active Software Assurance implementation navigation:
 
 - `SOFTWARE_ASSURANCE_IMPLEMENTATION.md`
 - `prompts/deferred/software_assurance/`
@@ -228,6 +228,6 @@ contain the SHA of the commit that includes its own content.
 ## Repository-Local Next Action
 
 Software Assurance Generation 1 is the active engineering program. Begin only
-through its explicit registered Prompt 1; do not start additional foundational
-architecture work unless a future Architecture Review with objective evidence
-demonstrates a genuine gap.
+through explicitly authorized Prompt 1. Prompts 2–4 remain blocked in
+sequence; do not start additional foundational architecture work unless a
+future Architecture Review with objective evidence demonstrates a genuine gap.

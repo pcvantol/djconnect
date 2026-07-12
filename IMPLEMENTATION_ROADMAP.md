@@ -45,8 +45,11 @@ Platform Evolution
 
 Software Assurance Implementation
   -> Software Assurance Generation 1 is the active program
-  -> begins only through its explicit Prompt 1
-  -> Prompt 1 through Prompt 4 in registered order
+  -> historical prerequisite PLATFORM_BASELINE_V1_CERTIFIED satisfied
+  -> Prompt 1 ACTIVE and ready for explicit execution
+  -> Prompt 2 BLOCKED_BY_PROMPT_1
+  -> Prompt 3 BLOCKED_BY_PROMPT_2
+  -> Prompt 4 BLOCKED_BY_PROMPT_3
 
 Epic 8: Website and Product Story
   -> phases to be defined after Platform Baseline v1.0 certification and product-language audit
@@ -110,8 +113,8 @@ Canonical architecture:
 - `SOFTWARE_ASSURANCE_QUALITY_GATES.md`
 - `SOFTWARE_ASSURANCE_VERSIONING.md`
 
-Implementation is intentionally deferred until an explicit post-baseline
-implementation prompt starts Software Assurance work.
+Software Assurance Generation 1 is active. Prompt 1 is ready only for an
+explicit execution request; no implementation work has started.
 
 Canonical implementation registration:
 

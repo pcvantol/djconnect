@@ -288,5 +288,6 @@ The final architecture decision is:
 SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE
 ```
 
-Future implementation is deferred until the prerequisites in
-`SOFTWARE_ASSURANCE_GOVERNANCE.md` are satisfied.
+The historical prerequisites in `SOFTWARE_ASSURANCE_GOVERNANCE.md` are
+satisfied. Software Assurance Generation 1 is active with Prompt 1 ready for
+explicit execution; this activation does not change the frozen architecture.
