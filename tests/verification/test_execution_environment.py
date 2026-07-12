@@ -22,7 +22,7 @@ from tools.verification.environment import (
     VerificationExecutionEnvironment,
 )
 from tools.verification.environment.cleanup import CleanupTarget
-from tools.verification.environment.execution import _requires_docker_runtime, _requires_home_assistant
+from tools.verification.environment.execution import _requires_docker_runtime, _requires_home_assistant, _requires_windows_runtime
 from tools.verification.environment.host_preflight import HostPreflight, HostPreflightConfig
 from tools.verification.environment.platforms import CommandRunner
 from tools.verification.environment.runtime_image import RuntimeImagePuller
@@ -214,6 +214,57 @@ class ExecutionEnvironmentTests(unittest.TestCase):
 
         self.assertTrue(_requires_home_assistant([scenario]))
         self.assertFalse(_requires_docker_runtime([scenario]))
+        self.assertFalse(_requires_windows_runtime([scenario]))
+
+    def test_windows_scenario_requires_dotnet_maintenance_gate(self) -> None:
+        scenario = Scenario(
+            id="WIN-001",
+            title="Windows",
+            description="Windows",
+            category="Capabilities",
+            priority="P0",
+            verification_level="V4",
+            automation_level="ENVIRONMENT_DEPENDENT",
+            required_components=("Windows Native ARM64",),
+            raw={
+                "supported_platforms": ["Windows ARM64"],
+                "requires": {"capabilities": ["windows.runtime", "evidence.storage"]},
+            },
+        )
+
+        self.assertTrue(_requires_windows_runtime([scenario]))
+
+    def test_prepare_runs_windows_dotnet_maintenance_for_windows_scenarios(self) -> None:
+        scenario = Scenario(
+            id="WIN-001",
+            title="Windows",
+            description="Windows",
+            category="Capabilities",
+            priority="P0",
+            verification_level="V4",
+            automation_level="ENVIRONMENT_DEPENDENT",
+            required_components=("Windows Native ARM64",),
+            raw={
+                "supported_platforms": ["Windows ARM64"],
+                "requires": {"capabilities": ["windows.runtime", "evidence.storage"]},
+            },
+        )
+        gate = GateResult("windows_dotnet_maintenance", GateState.PASS, "ok", {"vm_name": "Windows 11 Home"})
+
+        with tempfile.TemporaryDirectory() as temp_dir, patch(
+            "tools.verification.environment.execution.WindowsDotnetMaintenance.ensure_current",
+            return_value=gate,
+        ), patch(
+            "tools.verification.environment.github.GitHubInspector.commit_status",
+            return_value=GateResult("github_ci_status", GateState.PASS, "ok", {}),
+        ):
+            root = Path(temp_dir)
+            (root / "pyproject.toml").write_text("[project]\nname='demo'\n", encoding="utf-8")
+            config = load_config(root)
+            prepared = VerificationExecutionEnvironment(config).prepare([scenario])
+
+        gates = {item["name"]: item for item in prepared["gates"]}
+        self.assertEqual("PASS", gates["windows_dotnet_maintenance"]["state"])
 
     def test_prepare_skips_startup_preflight_when_existing_ha_lab_is_qualified(self) -> None:
         scenario = Scenario(

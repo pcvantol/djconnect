@@ -16,6 +16,7 @@ from tools.verification.environment.platforms import (
     ESP32Environment,
     HomeAssistantEnvironment,
     RaspberryPiEnvironment,
+    WindowsDotnetMaintenance,
     WindowsDevelopmentEnvironment,
 )
 from tools.verification.environment.runtime_image import RuntimeImagePuller
@@ -46,6 +47,7 @@ class VerificationExecutionEnvironment:
         ha_lab_config = HALabConfig.from_root(self.config.root)
         requires_ha = _requires_home_assistant(selected_scenarios)
         requires_docker_runtime = _requires_docker_runtime(selected_scenarios)
+        requires_windows_runtime = _requires_windows_runtime(selected_scenarios)
         ha_docker_gate = (
             self.ha_docker.qualify(expected_port=ha_lab_config.port, expected_name=ha_lab_config.name)
             if requires_ha
@@ -82,6 +84,14 @@ class VerificationExecutionEnvironment:
             self.github.validate_workflows(),
             self.github.commit_status(snapshot.git_sha),
             ha_docker_gate,
+            (
+                WindowsDotnetMaintenance().ensure_current(root=self.config.root)
+                if requires_windows_runtime
+                else _skipped_gate(
+                    "windows_dotnet_maintenance",
+                    "Windows .NET maintenance skipped; selected scenarios do not require Windows runtime.",
+                )
+            ),
             *self.dependencies.validate(self.config.root),
             self.cleanup.clean(dry_run=True),
             self._secret_gate(),
@@ -132,6 +142,20 @@ def _requires_home_assistant(scenarios: list[Scenario]) -> bool:
 
 def _requires_docker_runtime(scenarios: list[Scenario]) -> bool:
     return any("docker.runtime" in _required_capabilities(scenario) for scenario in scenarios)
+
+
+def _requires_windows_runtime(scenarios: list[Scenario]) -> bool:
+    for scenario in scenarios:
+        platforms = {str(item) for item in scenario.raw.get("supported_platforms") or ()}
+        components = set(scenario.required_components)
+        capabilities = _required_capabilities(scenario)
+        if any(platform in {"Windows", "Windows ARM64", "Windows Native ARM64"} for platform in platforms):
+            return True
+        if "Windows Native ARM64" in components:
+            return True
+        if any(capability.startswith(("windows.", "windows_native_arm64.")) for capability in capabilities):
+            return True
+    return False
 
 
 def _required_capabilities(scenario: Scenario) -> set[str]:

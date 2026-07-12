@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 from pathlib import Path
 
-from tools.verification.models import ManagedPlatform, ResourceState
+from tools.verification.models import GateResult, GateState, ManagedPlatform, ResourceState
 
 
 class CommandRunner:
@@ -131,6 +132,58 @@ class WindowsDevelopmentEnvironment:
             "windows_development",
             ResourceState.AVAILABLE if prlctl else ResourceState.MISSING,
             {"parallels": prlctl},
+        )
+
+
+class WindowsDotnetMaintenance:
+    """Keep Windows .NET/MAUI workloads current before Windows lab execution."""
+
+    def __init__(self, runner: CommandRunner | None = None) -> None:
+        self.runner = runner or CommandRunner()
+
+    def ensure_current(self, *, root: Path) -> GateResult:
+        prlctl = shutil.which("prlctl")
+        if not prlctl:
+            return GateResult(
+                "windows_dotnet_maintenance",
+                GateState.FAIL,
+                "Parallels CLI is required for Windows .NET maintenance.",
+                {"parallels": None},
+            )
+
+        vm_name = os.getenv("DJCONNECT_VERIFICATION_WINDOWS_VM_NAME", "Windows 11 Home")
+        windows_repo = os.getenv(
+            "DJCONNECT_VERIFICATION_WINDOWS_REPO_PATH",
+            r"C:\Mac\Home\Documents\GitHub\djconnect-windows",
+        )
+        command = (
+            prlctl,
+            "exec",
+            vm_name,
+            "powershell",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-Command",
+            (
+                f"Set-Location -LiteralPath '{windows_repo}'; "
+                "$PSNativeCommandUseErrorActionPreference = $true; "
+                "dotnet --info; "
+                "dotnet workload update; "
+                "dotnet workload restore 'DJConnect.Windows.sln'"
+            ),
+        )
+        code, output = self.runner.run(command, cwd=root, timeout=900)
+        return GateResult(
+            "windows_dotnet_maintenance",
+            GateState.PASS if code == 0 else GateState.FAIL,
+            "Windows .NET workload maintenance completed." if code == 0 else "Windows .NET workload maintenance failed.",
+            {
+                "vm_name": vm_name,
+                "windows_repo": windows_repo,
+                "returncode": code,
+                "stdout_excerpt": output[-4000:],
+            },
         )
 
 

@@ -11,6 +11,7 @@ from .platforms import (
     HomeAssistantEnvironment,
     RaspberryPiEnvironment,
     WindowsDevelopmentEnvironment,
+    WindowsDotnetMaintenance,
 )
 from .snapshot import EnvironmentSnapshotter
 from .toolchain import ToolchainInspector
@@ -22,6 +23,7 @@ def __getattr__(name: str):
 
         return VerificationExecutionEnvironment
     raise AttributeError(name)
+
 
 __all__ = [
     "AppleDevelopmentEnvironment",
@@ -38,4 +40,5 @@ __all__ = [
     "VerificationExecutionEnvironment",
     "EnvironmentSnapshotter",
     "WindowsDevelopmentEnvironment",
+    "WindowsDotnetMaintenance",
 ]

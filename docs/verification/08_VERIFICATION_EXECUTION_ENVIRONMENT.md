@@ -67,7 +67,7 @@ The implementation lives under `tools/verification/environment/`.
 | `github.py` | Discovers workflows and inspects GitHub Actions status through `gh` when available. |
 | `host_preflight.py` | Blocks lab runner startup when host ports, processes or disk space are unsafe. |
 | `cleanup.py` | Plans and executes soft/destructive cleanup with explicit destructive opt-in. |
-| `platforms.py` | Provides environment-control scaffolding for HA, Apple, Windows, Pi and ESP32 without adapter assertions. |
+| `platforms.py` | Provides environment-control scaffolding for HA, Apple, Windows, Pi and ESP32 without adapter assertions, including Windows .NET workload maintenance for Windows runtime lab runs. |
 | `snapshot.py` | Captures reusable environment metadata and capability states. |
 
 The Verification Core exposes `prepare_environment(scenarios)` and
@@ -169,6 +169,15 @@ can invalidate or destabilize a run:
 The HA lab lifecycle runs this preflight before `start`, `recreate` and
 `fresh`. If it fails, Docker image updates and `docker compose up` are not
 attempted.
+
+Windows runtime lab runs have an additional scenario-aware maintenance gate.
+When selected scenarios require Windows runtime capabilities, the execution
+environment runs `windows_dotnet_maintenance` before scenario execution. The
+gate uses Parallels guest execution against the configured Windows VM, runs
+`dotnet --info`, `dotnet workload update` and `dotnet workload restore
+DJConnect.Windows.sln` in the Windows client repository, and fails closed if
+the VM, .NET SDK, MAUI workloads or repository path are not ready. Non-Windows
+scenario sets skip this gate.
 
 Default worker count is derived dynamically from host CPU capacity. On Apple
 Silicon, the loader reads performance and efficiency core counts through
