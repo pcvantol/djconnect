@@ -1,0 +1,73 @@
+{
+  "baseline": "Coverage Baseline 1",
+  "date": "2026-07-12",
+  "decision": "CROSS_PLATFORM_COVERAGE_BASELINE_PARTIAL",
+  "runtime": {
+    "version": "1.1.0",
+    "image": "pcvantol/djconnect-verification-platform:1.1.0",
+    "digest": "sha256:3f0b8d3ba5f07afa5c8f05cd305dd92c43806e0fed24395be96d832e7ef72619",
+    "capabilities": ["planner", "execution", "evidence", "investigator", "qualification", "reporting", "coverage"],
+    "parser_formats": ["cobertura", "lcov", "apple-xccov"]
+  },
+  "repositories": [
+    {
+      "platform": "Home Assistant",
+      "repository": "pcvantol/djconnect",
+      "commit_sha": "9bedd037f87ac4c359da5dee5f63bddacf37cd74",
+      "coverage_producer": "coverage.py",
+      "coverage_format": "cobertura",
+      "runtime_qualification": "COVERAGE_VALID",
+      "line_coverage": 16.43,
+      "branch_coverage": 10.19,
+      "function_coverage": null,
+      "method_coverage": null,
+      "native_test_result": "143 passed",
+      "evidence": "artifacts/verification/evidence/coverage-baseline-1-ha/coverage/coverage-summary.json"
+    },
+    {
+      "platform": "Apple",
+      "repository": "pcvantol/djconnect-app",
+      "commit_sha": "6062ddd8e1367bf52c1666b3e2c95514d189a9cf",
+      "coverage_producer": "xccov",
+      "coverage_format": "apple-xccov",
+      "runtime_qualification": "COVERAGE_VALID",
+      "line_coverage": 9.39,
+      "branch_coverage": null,
+      "function_coverage": null,
+      "method_coverage": null,
+      "native_test_result": "1 passed",
+      "simulator": {
+        "name": "DJConnect Monkey iPhone 13 mini iOS 26.5",
+        "udid": "D1DDCACC-2651-4EB9-A55E-2315C9314AA6",
+        "runtime": "iOS 26.5"
+      },
+      "xcode": {
+        "version": "26.6",
+        "build": "17F113"
+      },
+      "evidence": "artifacts/verification/evidence/coverage-baseline-1-apple/coverage/coverage-summary.json"
+    },
+    {
+      "platform": "Raspberry Pi",
+      "repository": "pcvantol/djconnect-pi",
+      "commit_sha": "3d2853305041ea1d649faba00e9ccab1169816d7",
+      "coverage_producer": "coverage.py",
+      "coverage_format": "cobertura",
+      "runtime_qualification": "COVERAGE_VALID",
+      "line_coverage": 75.09,
+      "branch_coverage": 61.99,
+      "function_coverage": null,
+      "method_coverage": null,
+      "native_test_result": "386 passed, 1 failed",
+      "warnings": [
+        "tests/test_config.py::test_load_config_ignores_unknown_legacy_keys failed during native coverage production"
+      ],
+      "evidence": "artifacts/verification/evidence/coverage-baseline-1-pi/coverage/coverage-summary.json"
+    }
+  ],
+  "validation": {
+    "scenario_catalog": "validated 233 scenarios",
+    "verification_regression_suite": "143 passed",
+    "git_diff_check": "passed"
+  }
+}
