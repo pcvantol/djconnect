@@ -1,19 +1,92 @@
 # DJConnect Verification Platform Release Notes
 
-This file tracks releases of the generic DJConnect Verification Platform
-runtime. It is separate from the DJConnect Home Assistant integration
-`CHANGELOG.md`.
+This file tracks releases of the Verification Runtime. It is separate from the
+DJConnect Home Assistant integration `CHANGELOG.md`.
 
-The Verification Platform release notes cover only reusable engine components:
-runtime identity, execution engine behavior, planning, evidence/reporting,
-Docker runtime packaging, GitHub runner readiness and adapter-framework
-capabilities. Product scenarios, DJConnect feature changes, Home Assistant
-integration changes and client/firmware changes belong in their owning release
-notes.
+The Verification Runtime release notes cover only reusable engine components:
+runtime identity, capabilities, compatibility, execution engine behavior,
+planning, evidence/reporting, Docker runtime packaging, GitHub runner readiness
+and adapter-framework capabilities. Product scenarios, DJConnect feature
+changes, Home Assistant integration changes and client/firmware changes belong
+in their owning release notes.
+
+Canonical runtime product documents:
+
+- `tools/verification/RUNTIME_CAPABILITIES.md`
+- `tools/verification/RUNTIME_COMPATIBILITY.md`
+- `tools/verification/RUNTIME_COVERAGE.md`
+- `tools/verification/RUNTIME_METADATA.md`
+- `tools/verification/RUNTIME_ROADMAP.md`
+- `tools/verification/RUNTIME_RELEASES.md`
+
+## 1.1.0 - 2026-07-12
+
+Runtime name: `djconnect-verification-platform`
+Product name: `Verification Runtime`
+Runtime schema version: `1`
+
+### Added
+
+- Stable `coverage` runtime capability.
+- Parser plugin framework for native coverage ingestion.
+- Initial parser plugins for Cobertura XML, LCOV and Apple `xccov` JSON
+  coverage exports.
+- Canonical normalized coverage model with repository, commit SHA, runtime
+  version, producer, format, scope, timestamp, parser version, line coverage,
+  branch coverage, function coverage, method coverage, covered files, excluded
+  files, metadata, evidence and qualification.
+- Coverage validator that fails closed for missing reports, empty reports,
+  malformed reports, unsupported formats, invalid totals, duplicate reports,
+  broken provenance, parser failures and commit SHA mismatches.
+- Coverage qualification states: `COVERAGE_VALID`, `COVERAGE_INVALID`,
+  `COVERAGE_NOT_AVAILABLE`, `COVERAGE_STALE`, `COVERAGE_SHA_MISMATCH`,
+  `COVERAGE_UNSUPPORTED_FORMAT` and `COVERAGE_EMPTY`.
+- Coverage evidence writer that persists `coverage/coverage-summary.json` and
+  indexes it as verification evidence.
+- Coverage investigator classifications for missing reports, SHA mismatches,
+  anomalies, unexpected exclusions, unsupported formats and corruption.
+- Coverage JSON and Markdown reports.
+- CLI command `coverage ingest` for runtime coverage ingestion.
+- Runtime metadata now advertises `coverage` automatically.
+- Docker release tags now include `1.1.0`, `1.1` and `latest` for stable
+  releases, in addition to SHA-specific tags.
+
+### Compatibility Notes
+
+- Runtime `1.1.0` is backward-compatible with Runtime `1.0.0` consumers that
+  require only planner, execution, evidence, investigator, qualification and
+  reporting.
+- Consumers that require coverage must declare minimum runtime version `1.1.0`
+  and required capability `coverage`.
+- Missing coverage metrics normalize to `NOT_REPORTED`, never zero.
+- The runtime consumes native coverage reports but does not generate coverage.
+
+### Migration Notes
+
+- Repositories should continue producing coverage with their native toolchains.
+- Repositories can opt into runtime coverage by passing native reports to
+  `python -m tools.verification.cli coverage ingest`.
+- Bootstrap must validate the `coverage` capability before selecting Runtime
+  `1.1.0` for coverage workflows.
+
+### Docker Publication
+
+- Published to Docker Hub repository
+  `pcvantol/djconnect-verification-platform`.
+- Published stable tags: `1.1.0`, `1.1`, `latest`.
+- Published immutable tags: `1.1.0-6f875b51e9de`,
+  `sha-6f875b51e9de`.
+- Published digest:
+  `sha256:e37b71bf6f85bd7ac38654f156f59e20c71d858e948f277c0c70b77becad1e23`.
+- Pull-back qualification from Docker Hub passed for `1.1.0`.
+- Clean-container config smoke confirmed Runtime `1.1.0` metadata and the
+  `coverage` capability.
+- Clean-container LCOV ingestion smoke returned `COVERAGE_VALID`.
 
 ## 1.0.0 - 2026-07-11
 
-Runtime name: `djconnect-verification-platform`  
+Runtime name: `djconnect-verification-platform`
+Product name: `Verification Runtime`
 Runtime schema version: `1`
 
 ### Added
@@ -40,13 +113,17 @@ Runtime schema version: `1`
 - Default Docker Hub publish target documented as
   `pcvantol/djconnect-verification-platform` with runtime tags `1.0.0`,
   `1.0.0-<short-sha>` and `sha-<short-sha>`.
+- Runtime capability model introduced with initial capabilities `planner`,
+  `execution`, `evidence`, `investigator`, `qualification` and `reporting`.
+- Capability-driven compatibility, runtime metadata and independent runtime
+  release model documented as the public runtime contract.
 - Stable versus `future_beta` runtime channel separation for Apple/Xcode and
   Home Assistant beta verification evidence.
 - Installation documentation for local checkout, Docker runtime and GitHub
   runner usage.
 - Functional help documentation for common operator workflows, result
   interpretation and failure handling.
-- Release governance requiring changed Verification Platform runtime behavior
+- Release governance requiring changed Verification Runtime behavior
   to be published through the CI Docker release workflow before Docker-based
   consumers use it.
 
@@ -95,7 +172,7 @@ Runtime schema version: `1`
 
 ## Release Note Maintenance
 
-- Add a new section for every Verification Platform runtime release.
+- Add a new section for every Verification Runtime release.
 - Keep entries scoped to the generic verification engine.
 - Record the runtime version, schema version, validation commands and known
   limitations.

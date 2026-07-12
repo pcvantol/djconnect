@@ -39,24 +39,31 @@ The files below define Platform Strategy, then the platform foundation itself.
 22. `CI_CD_RELEASE_GOVERNANCE.md`
 23. `docs/verification/00_VERIFICATION_VISION.md`
 24. `docs/verification/01_VERIFICATION_ARCHITECTURE.md`
-25. `SOFTWARE_ASSURANCE_PLATFORM.md`
-26. `SOFTWARE_ASSURANCE_ARCHITECTURE.md`
-27. `SOFTWARE_ASSURANCE_THEMES.md`
-28. `SOFTWARE_ASSURANCE_CAPABILITY_MODEL.md`
-29. `SOFTWARE_ASSURANCE_BACKLOG.md`
-30. `SOFTWARE_ASSURANCE_DEPENDENCIES.md`
-31. `SOFTWARE_ASSURANCE_IMPLEMENTATION_ORDER.md`
-32. `SOFTWARE_ASSURANCE_INTEGRATION.md`
-33. `SOFTWARE_ASSURANCE_EXECUTION_MODEL.md`
-34. `SOFTWARE_ASSURANCE_PLATFORM_HEALTH.md`
-35. `SOFTWARE_ASSURANCE_REPOSITORY_MODEL.md`
-36. `SOFTWARE_ASSURANCE_GOVERNANCE.md`
-37. `SOFTWARE_ASSURANCE_ROLLOUT.md`
-38. `SOFTWARE_ASSURANCE_IMPLEMENTATION_STRATEGY.md`
-39. `SOFTWARE_ASSURANCE_QUALITY_GATES.md`
-40. `SOFTWARE_ASSURANCE_VERSIONING.md`
-41. `SOFTWARE_ASSURANCE_IMPLEMENTATION.md`
-42. `docs/meta/META_ENGINEERING_INDEX.md`
+25. `tools/verification/README.md`
+26. `tools/verification/RUNTIME_CAPABILITIES.md`
+27. `tools/verification/RUNTIME_COMPATIBILITY.md`
+28. `tools/verification/RUNTIME_COVERAGE.md`
+29. `tools/verification/RUNTIME_METADATA.md`
+30. `tools/verification/RUNTIME_ROADMAP.md`
+31. `tools/verification/RUNTIME_RELEASES.md`
+32. `SOFTWARE_ASSURANCE_PLATFORM.md`
+33. `SOFTWARE_ASSURANCE_ARCHITECTURE.md`
+34. `SOFTWARE_ASSURANCE_THEMES.md`
+35. `SOFTWARE_ASSURANCE_CAPABILITY_MODEL.md`
+36. `SOFTWARE_ASSURANCE_BACKLOG.md`
+37. `SOFTWARE_ASSURANCE_DEPENDENCIES.md`
+38. `SOFTWARE_ASSURANCE_IMPLEMENTATION_ORDER.md`
+39. `SOFTWARE_ASSURANCE_INTEGRATION.md`
+40. `SOFTWARE_ASSURANCE_EXECUTION_MODEL.md`
+41. `SOFTWARE_ASSURANCE_PLATFORM_HEALTH.md`
+42. `SOFTWARE_ASSURANCE_REPOSITORY_MODEL.md`
+43. `SOFTWARE_ASSURANCE_GOVERNANCE.md`
+44. `SOFTWARE_ASSURANCE_ROLLOUT.md`
+45. `SOFTWARE_ASSURANCE_IMPLEMENTATION_STRATEGY.md`
+46. `SOFTWARE_ASSURANCE_QUALITY_GATES.md`
+47. `SOFTWARE_ASSURANCE_VERSIONING.md`
+48. `SOFTWARE_ASSURANCE_IMPLEMENTATION.md`
+49. `docs/meta/META_ENGINEERING_INDEX.md`
 
 ## Conflict-resolution order
 
@@ -157,6 +164,28 @@ collaborate while evolving the platform.
   operate within the DJConnect engineering process.
 
 ### Operational docs
+
+### Verification Runtime
+
+The Verification Runtime is a first-class engineering product physically
+located in this repository and distributed through Docker Hub at
+`pcvantol/djconnect-verification-platform`.
+
+Runtime product truth lives in:
+
+- `tools/verification/README.md`;
+- `tools/verification/RUNTIME_CAPABILITIES.md`;
+- `tools/verification/RUNTIME_COMPATIBILITY.md`;
+- `tools/verification/RUNTIME_COVERAGE.md`;
+- `tools/verification/RUNTIME_METADATA.md`;
+- `tools/verification/RUNTIME_ROADMAP.md`;
+- `tools/verification/RUNTIME_RELEASES.md`;
+- `tools/verification/RELEASE_NOTES.md`.
+
+The runtime release cycle is independent from DJConnect platform releases.
+Runtime compatibility is capability-driven. Bootstrap should resolve the latest
+compatible runtime and validate metadata, capabilities, Docker digest and
+stable release status instead of assuming `latest` is compatible.
 
 Operational docs describe how work is performed, reviewed, released, secured or handed off. Examples include `CONTRIBUTING.md`, `SECURITY.md`, `DEVELOPMENT_ENVIRONMENT.md`, `HANDOFF.md`, release scripts and CI/CD guidance.
 

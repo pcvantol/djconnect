@@ -63,14 +63,18 @@ jobs:
           fi
 
           short_sha="${release_sha:0:12}"
+          major_minor="${runtime_version%.*}"
 
           echo "image=${image}" >> "${GITHUB_OUTPUT}"
           echo "release_sha=${release_sha}" >> "${GITHUB_OUTPUT}"
           echo "short_sha=${short_sha}" >> "${GITHUB_OUTPUT}"
           echo "runtime_version=${runtime_version}" >> "${GITHUB_OUTPUT}"
+          echo "major_minor=${major_minor}" >> "${GITHUB_OUTPUT}"
           echo "tag_version=${image}:${runtime_version}" >> "${GITHUB_OUTPUT}"
+          echo "tag_major_minor=${image}:${major_minor}" >> "${GITHUB_OUTPUT}"
           echo "tag_version_sha=${image}:${runtime_version}-${short_sha}" >> "${GITHUB_OUTPUT}"
           echo "tag_sha=${image}:sha-${short_sha}" >> "${GITHUB_OUTPUT}"
+          echo "tag_latest=${image}:latest" >> "${GITHUB_OUTPUT}"
 
       - name: Verify Docker release command
         run: |
@@ -150,5 +154,7 @@ jobs:
         if: ${{ github.event_name == 'push' || inputs.push }}
         run: |
           docker push "${{ steps.release.outputs.tag_version }}"
+          docker push "${{ steps.release.outputs.tag_major_minor }}"
           docker push "${{ steps.release.outputs.tag_version_sha }}"
           docker push "${{ steps.release.outputs.tag_sha }}"
+          docker push "${{ steps.release.outputs.tag_latest }}"

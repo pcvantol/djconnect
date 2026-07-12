@@ -59,10 +59,13 @@ def main(argv: list[str] | None = None) -> int:
 
 def _tags(image: str, release_sha: str) -> list[str]:
     short_sha = release_sha[:12] if release_sha and release_sha != "unknown" else "unknown"
+    major, minor, *_ = RUNTIME_VERSION.split(".")
     return [
         f"{image}:{RUNTIME_VERSION}",
+        f"{image}:{major}.{minor}",
         f"{image}:{RUNTIME_VERSION}-{short_sha}",
         f"{image}:sha-{short_sha}",
+        f"{image}:latest",
     ]
 
 

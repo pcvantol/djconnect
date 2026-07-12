@@ -12,6 +12,12 @@ targets without duplicating the Verification Runtime or Execution Environment.
 Software Assurance specifies what quality work should execute. The Verification
 Planning Engine and Execution Environment determine how execution happens.
 
+The Verification Runtime is the independently versioned runtime product that
+provides planning, execution, evidence, investigator, qualification and
+reporting capabilities. Software Assurance consumes those capabilities through
+runtime metadata and compatibility decisions; it does not own the runtime
+release lifecycle or redefine runtime capability semantics.
+
 ## Execution Ownership
 
 ```text
@@ -120,6 +126,12 @@ Default posture:
 
 The Planning Engine consumes these profiles. Workflow files must not invent
 profile semantics.
+
+Execution plans should declare a minimum Verification Runtime version,
+required capabilities and optional capabilities. The selected runtime must be
+the latest compatible stable runtime, validated through runtime metadata,
+Docker image metadata and digest when Docker is used. A moving `latest` tag is
+not sufficient compatibility evidence.
 
 ## Self-hosted Runner Architecture
 

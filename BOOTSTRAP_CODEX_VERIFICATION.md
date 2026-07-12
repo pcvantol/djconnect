@@ -27,13 +27,26 @@ The Verification Foundation, Core, Execution Environment, Data Framework,
 Modes, Policies, Planning Engine, Home Assistant Verification Adapter and
 dedicated local Home Assistant verification lab exist.
 
-The Verification Platform runtime is versioned and releaseable as a generic
-Docker image. Current runtime version: `1.0.0`. Runtime identity is captured in
-environment snapshots, run metadata and reports under `verification_runtime`.
-Execution summaries include total execution time and scenario status counts.
-The Docker runtime image contains only reusable engine components; scenario
-catalogs, product repositories, Home Assistant lab state, Apple artifacts,
-secrets and run evidence stay outside the image.
+The Verification Runtime is an independently versioned engineering product
+inside this repository. Current runtime version: `1.1.0`. The canonical Docker
+distribution is `pcvantol/djconnect-verification-platform`. Runtime identity is
+captured in environment snapshots, run metadata and reports under
+`verification_runtime`. Execution summaries include total execution time and
+scenario status counts. The Docker runtime image contains only reusable engine
+components; scenario catalogs, product repositories, Home Assistant lab state,
+Apple artifacts, secrets and run evidence stay outside the image.
+
+Runtime consumers should resolve the latest compatible runtime from metadata
+and capabilities, not blindly download `latest`. Canonical runtime product
+documents live under `tools/verification/`:
+
+- `RUNTIME_CAPABILITIES.md`;
+- `RUNTIME_COMPATIBILITY.md`;
+- `RUNTIME_COVERAGE.md`;
+- `RUNTIME_METADATA.md`;
+- `RUNTIME_ROADMAP.md`;
+- `RUNTIME_RELEASES.md`;
+- `RELEASE_NOTES.md`.
 
 Phase 9V rerun concluded:
 
@@ -129,8 +142,10 @@ phase automatically.
 15. `docs/verification/08B_VERIFICATION_POLICIES.md`
 16. `docs/verification/08C_VERIFICATION_PLANNING_ENGINE.md`
 17. `docs/verification/09_HOME_ASSISTANT_VERIFICATION_ADAPTER.md`
-18. Current reports under `docs/verification/reports/`
-19. Current backlog and scorecards under `docs/verification/`
+18. `tools/verification/README.md`
+19. Runtime product docs under `tools/verification/RUNTIME_*.md`
+20. Current reports under `docs/verification/reports/`
+21. Current backlog and scorecards under `docs/verification/`
 
 Read implementation files only after the canonical documents establish the
 responsibility boundary.

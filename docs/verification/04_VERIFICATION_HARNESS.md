@@ -92,7 +92,7 @@ checksums, timing, performance and future audio/video evidence.
 results while allowing independent scenarios to run in sandboxed parallel
 waves.
 
-`runtime.py` owns the Verification Platform runtime identity. Every run,
+`runtime.py` owns the Verification Runtime identity. Every run,
 environment snapshot, summary and machine-readable report records the
 `djconnect-verification-platform` runtime name, runtime version and runtime
 schema version.
@@ -245,12 +245,17 @@ Reports and summaries expose it under `verification_runtime`.
 
 ## Docker Runtime Release
 
-The Verification Platform runtime can be released as a generic Docker image.
+The Verification Runtime can be released as a generic Docker image.
 The image contains only the engine components under `tools/verification`; it
 does not include DJConnect repository scenarios, scenario data profiles, lab
 profiles, prompts, product code or integration source. Scenario catalogs and
 project-specific assets must be mounted or supplied by the repository under
 test.
+
+Runtime product positioning, capabilities, compatibility, metadata, roadmap
+and releases are canonical under `tools/verification/RUNTIME_*.md`. The Docker
+Hub repository remains `pcvantol/djconnect-verification-platform`; it is the
+distribution channel, not a separate product name.
 
 Build command:
 
@@ -278,7 +283,7 @@ python -m tools.verification.cli
 
 At the start of every live verification run, the Execution Environment pulls
 the configured published runtime image from Docker Hub. The default reference
-is `pcvantol/djconnect-verification-platform:1.0.0`. A pull failure is a
+is `pcvantol/djconnect-verification-platform:1.1.0`. A pull failure is a
 fail-closed environment gate and stops the run before scenario execution, so a
 stale local image is never used silently.
 
@@ -287,7 +292,7 @@ Typical use with a checked-out project mounted as `/workspace`:
 ```bash
 docker run --rm \
   -v "$PWD:/workspace" \
-  pcvantol/djconnect-verification-platform:1.0.0 \
+  pcvantol/djconnect-verification-platform:1.1.0 \
   --root /workspace config
 ```
 
@@ -300,17 +305,18 @@ belong on explicitly prepared self-hosted runners or local labs with the
 required host capabilities.
 
 Published stable Docker Hub images are the authoritative runtime distribution
-for Docker-based verification. When the Verification Platform engine changes,
-create a new stable runtime release through the GitHub CI Docker release
-workflow. That workflow must build, verify and push the image before any
-Docker-based verification consumers use the new framework behavior. Consumers
-must pull the latest published stable Docker Hub tag and must not fall back to
-stale local images or ad hoc local builds.
+for Docker-based verification. When the Verification Runtime changes, create a
+new stable runtime release through the GitHub CI Docker release workflow. That
+workflow must build, verify and push the image before any Docker-based
+verification consumers use the new framework behavior. Consumers must resolve
+the latest compatible stable runtime from metadata and capabilities. They must
+not assume `latest` is compatible and must not fall back to stale local images
+or ad hoc local builds.
 
 Runtime release notes are maintained separately from the DJConnect product
 changelog in `tools/verification/RELEASE_NOTES.md`. They record engine-level
 changes, validation commands, known limitations and runner/release notes for
-each Verification Platform runtime version.
+each Verification Runtime version.
 
 ## Developer Workflow
 

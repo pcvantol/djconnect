@@ -158,7 +158,7 @@ class VerificationCoreImplementationTests(unittest.TestCase):
                             "name": "verification_runtime_image_pull",
                             "state": "FAIL",
                             "message": "pull failed",
-                            "metadata": {"reference": "pcvantol/djconnect-verification-platform:1.0.0"},
+                            "metadata": {"reference": "pcvantol/djconnect-verification-platform:1.1.0"},
                         }
                     ],
                 }

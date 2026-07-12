@@ -81,6 +81,18 @@ def build_parser() -> argparse.ArgumentParser:
     docker_release.add_argument("--release-sha", default=None)
     docker_release.add_argument("--push", action="store_true")
     docker_release.add_argument("--dry-run", action="store_true")
+    coverage = subparsers.add_parser("coverage")
+    coverage_subparsers = coverage.add_subparsers(dest="coverage_command", required=True)
+    coverage_ingest = coverage_subparsers.add_parser("ingest")
+    coverage_ingest.add_argument("report", type=Path)
+    coverage_ingest.add_argument("--format", required=True, choices=("cobertura", "lcov", "apple-xccov"))
+    coverage_ingest.add_argument("--repository", default="pcvantol/djconnect")
+    coverage_ingest.add_argument("--commit-sha", default=None)
+    coverage_ingest.add_argument("--expected-commit-sha", default=None)
+    coverage_ingest.add_argument("--scope", default="repository")
+    coverage_ingest.add_argument("--run-id", default="coverage")
+    coverage_ingest.add_argument("--write-evidence", action="store_true")
+    coverage_ingest.add_argument("--output", choices=("json", "markdown"), default="json")
     subparsers.add_parser("env")
     subparsers.add_parser("schema")
     subparsers.add_parser("config")
@@ -305,6 +317,27 @@ def main(argv: list[str] | None = None) -> int:
                 release_args.append("--dry-run")
             return docker_release_main(release_args)
 
+    if args.command == "coverage":
+        if args.coverage_command == "ingest":
+            from .coverage import CoveragePipeline
+            from .coverage.reporting import CoverageJSONReporter, CoverageMarkdownReporter
+
+            commit_sha = args.commit_sha or _git_sha(config.root)
+            qualification = CoveragePipeline().ingest(
+                args.report,
+                coverage_format=args.format,
+                repository=args.repository,
+                commit_sha=commit_sha,
+                scope=args.scope,
+                expected_commit_sha=args.expected_commit_sha,
+            )
+            investigation = CoveragePipeline().investigator.investigate(qualification)
+            if args.write_evidence:
+                CoveragePipeline().write_evidence(config.evidence_dir, args.run_id, qualification)
+            reporter = CoverageJSONReporter() if args.output == "json" else CoverageMarkdownReporter()
+            print(reporter.render(qualification, investigation))
+            return 0 if qualification.validation.ok else 1
+
     if args.command == "env":
         print(json.dumps(orchestrator.snapshot().__dict__, indent=2, sort_keys=True))
         return 0
@@ -434,6 +467,15 @@ def _unquote_env_value(value: str) -> str:
     if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
         return value[1:-1]
     return value
+
+
+def _git_sha(root: Path) -> str:
+    import subprocess
+
+    try:
+        return subprocess.check_output(("git", "rev-parse", "HEAD"), cwd=root, text=True).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return "unknown"
 
 
 if __name__ == "__main__":

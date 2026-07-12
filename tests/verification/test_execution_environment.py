@@ -107,8 +107,8 @@ class ExecutionEnvironmentTests(unittest.TestCase):
         gate = RuntimeImagePuller(docker).pull()
 
         self.assertEqual(GateState.PASS, gate.state)
-        self.assertEqual(("pull", "pcvantol/djconnect-verification-platform:1.0.0"), docker.commands[0])
-        self.assertEqual("pcvantol/djconnect-verification-platform:1.0.0", gate.metadata["reference"])
+        self.assertEqual(("pull", "pcvantol/djconnect-verification-platform:1.1.0"), docker.commands[0])
+        self.assertEqual("pcvantol/djconnect-verification-platform:1.1.0", gate.metadata["reference"])
 
     def test_github_workflow_discovery_is_local_and_read_only(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -354,10 +354,12 @@ class ExecutionEnvironmentTests(unittest.TestCase):
 
         text = output.getvalue()
         self.assertIn("docker build", text)
-        self.assertIn("VERIFICATION_RUNTIME_VERSION=1.0.0", text)
+        self.assertIn("VERIFICATION_RUNTIME_VERSION=1.1.0", text)
         self.assertIn("RELEASE_SHA=abcdef1234567890", text)
-        self.assertIn("example/verification-platform:1.0.0", text)
-        self.assertIn("example/verification-platform:1.0.0-abcdef123456", text)
+        self.assertIn("example/verification-platform:1.1.0", text)
+        self.assertIn("example/verification-platform:1.1", text)
+        self.assertIn("example/verification-platform:1.1.0-abcdef123456", text)
+        self.assertIn("example/verification-platform:latest", text)
 
     def test_verification_platform_dockerfile_excludes_repository_scenarios(self) -> None:
         root = Path(__file__).resolve().parents[2]

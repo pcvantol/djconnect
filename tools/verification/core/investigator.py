@@ -25,6 +25,12 @@ CLASSIFICATIONS = {
     "environment_issue",
     "ci_qualification_issue",
     "documentation_issue",
+    "coverage_regression",
+    "coverage_anomaly",
+    "unexpected_exclusions",
+    "missing_coverage_report",
+    "broken_coverage_provenance",
+    "coverage_corruption",
     "unknown",
 }
 
@@ -105,6 +111,14 @@ class VerificationInvestigator:
         evidence_refs = tuple(str(ref) for ref in item.get("evidence_references") or ("summary",))
         if "github" in text or "ci_" in text or "ci auth" in text or "gh auth" in text:
             return _result(run_id, failure_id, scenario_id, test_case_id, "ci_qualification_issue", 0.9, evidence_refs, "Verification Execution Environment", "Re-authenticate GitHub CLI or configure an approved token source.", "qualification")
+        if "coverage_sha_mismatch" in text or "coverage generated for another commit" in text:
+            return _result(run_id, failure_id, scenario_id, test_case_id, "coverage_anomaly", 0.9, evidence_refs, "Verification Runtime", "Regenerate coverage for the exact commit under verification.", "coverage")
+        if "missing_report" in text or "coverage_not_available" in text:
+            return _result(run_id, failure_id, scenario_id, test_case_id, "missing_coverage_report", 0.9, evidence_refs, "Verification Runtime", "Configure the repository to produce a native coverage report before ingestion.", "coverage")
+        if "unexpected_exclusions" in text:
+            return _result(run_id, failure_id, scenario_id, test_case_id, "unexpected_exclusions", 0.75, evidence_refs, "Verification Runtime", "Review coverage exclusions and confirm they are policy-approved.", "coverage", human_review=True)
+        if "invalid_" in text and "coverage" in text:
+            return _result(run_id, failure_id, scenario_id, test_case_id, "coverage_corruption", 0.85, evidence_refs, "Verification Runtime", "Inspect native coverage producer output and parser normalization.", "coverage")
         if "docker" in text or "home assistant runtime" in text or "ha runtime" in text or "storage_dir" in text:
             return _result(run_id, failure_id, scenario_id, test_case_id, "environment_issue", 0.85, evidence_refs, "Verification Execution Environment", "Start and qualify the intended Docker Home Assistant development runtime.", "affected_scenario")
         if "authenticationfailed" in text or "missing home assistant token" in text or "missing token" in text:

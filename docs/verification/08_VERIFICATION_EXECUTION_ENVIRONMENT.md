@@ -73,6 +73,21 @@ The implementation lives under `tools/verification/environment/`.
 The Verification Core exposes `prepare_environment(scenarios)` and
 `restore_environment(dry_run=True, allow_destructive=False)`.
 
+The Verification Runtime is now treated as an independently versioned product
+inside this repository. Runtime capabilities, compatibility, metadata,
+roadmap and release policy are canonical in `tools/verification/`:
+
+- `RUNTIME_CAPABILITIES.md`;
+- `RUNTIME_COMPATIBILITY.md`;
+- `RUNTIME_METADATA.md`;
+- `RUNTIME_ROADMAP.md`;
+- `RUNTIME_RELEASES.md`.
+
+Execution environment bootstrap should resolve the latest compatible runtime
+from runtime metadata and required capabilities. It must validate runtime
+version, metadata, capabilities, Docker digest, Docker image metadata and
+stable release status instead of assuming that a `latest` tag is compatible.
+
 The existing CLI namespace now includes:
 
 ```bash
@@ -274,7 +289,7 @@ configuration fingerprint.
 
 The snapshot model is reusable by every adapter.
 
-Snapshots include Verification Platform runtime metadata:
+Snapshots include Verification Runtime metadata:
 
 ```text
 verification_runtime.name

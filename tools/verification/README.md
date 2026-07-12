@@ -1,19 +1,26 @@
-# DJConnect Verification Harness
+# DJConnect Verification Runtime
 
 Status: core plus execution environment, planning engine and runtime release
 Scope owner: `pcvantol/djconnect`  
 Builds on: `docs/verification/00_VERIFICATION_VISION.md`,
 `docs/verification/01_VERIFICATION_ARCHITECTURE.md` and
 `docs/verification/02_SCENARIO_SCHEMA.md`
-Runtime version: `1.0.0`
+Runtime version: `1.1.0`
 
 Clean verification sessions should start with
 `BOOTSTRAP_CODEX_VERIFICATION.md` and `PROMPT_INDEX.md`.
 
-Verification Platform release notes live in
-`tools/verification/RELEASE_NOTES.md`.
+Canonical runtime product documents:
 
-The Verification Harness is the reusable execution framework for DJConnect
+- `tools/verification/RUNTIME_CAPABILITIES.md`
+- `tools/verification/RUNTIME_COMPATIBILITY.md`
+- `tools/verification/RUNTIME_COVERAGE.md`
+- `tools/verification/RUNTIME_METADATA.md`
+- `tools/verification/RUNTIME_ROADMAP.md`
+- `tools/verification/RUNTIME_RELEASES.md`
+- `tools/verification/RELEASE_NOTES.md`
+
+The Verification Runtime is the reusable execution framework for DJConnect
 platform scenarios. Scenarios describe platform behavior. The harness loads,
 validates, schedules, qualifies, executes through adapters, collects evidence
 and reports readiness. Future phases extend this scaffold instead of running
@@ -46,6 +53,40 @@ planning, schema/report checks and non-mutating dry-runs. Live labs, Apple
 simulators, hardware, SSH, serial devices, signing and destructive cleanup need
 self-hosted runners or approved local labs with explicit capabilities.
 
+## Product Positioning
+
+| Field | Value |
+| --- | --- |
+| Product name | Verification Runtime |
+| Source repository | `pcvantol/djconnect` |
+| Docker distribution | `pcvantol/djconnect-verification-platform` |
+| Repository role | Source of implementation |
+| Docker role | Canonical runtime distribution |
+| Release cycle | Independent from DJConnect platform releases |
+| Versioning | Semantic Versioning |
+| Compatibility | Capability-driven |
+| Architecture | Frozen |
+
+Capabilities are the public API of the runtime. Runtime consumers should
+declare a minimum runtime version, required capabilities and optional
+capabilities. Bootstrap resolves the latest compatible runtime and validates
+runtime metadata, Docker identity, digest and compatibility. It must not assume
+that `latest` is compatible.
+
+Runtime `1.1.0` advertises these capabilities:
+
+- `planner`;
+- `execution`;
+- `evidence`;
+- `investigator`;
+- `qualification`;
+- `reporting`;
+- `coverage`.
+
+Coverage is platform-independent. Repositories produce native coverage reports;
+the runtime consumes, validates, normalizes, qualifies and reports them as
+Verification Evidence.
+
 ## Pipeline
 
 ```text
@@ -61,10 +102,10 @@ Scenario Loader
   -> Platform Readiness
 ```
 
-Runtime metadata is recorded in environment snapshots, run metadata and summary
-reports under `verification_runtime`. Execution summaries also include
-`execution_summary.total_execution_seconds` plus total, executed and status
-bucket counts.
+Runtime metadata is the runtime contract. It is recorded in environment
+snapshots, run metadata and summary reports under `verification_runtime`.
+Execution summaries also include `execution_summary.total_execution_seconds`
+plus total, executed and status bucket counts.
 
 ## Current Scope
 
@@ -184,7 +225,7 @@ python -m tools.verification.cli docker release \
   --image pcvantol/djconnect-verification-platform \
   --release-sha "$(git rev-parse HEAD)"
 
-docker run --rm pcvantol/djconnect-verification-platform:1.0.0 config
+docker run --rm pcvantol/djconnect-verification-platform:1.1.0 config
 ```
 
 Published Verification Platform releases are authoritative. When verification
@@ -195,7 +236,7 @@ local build as a release substitute.
 
 Every live verification run starts by pulling the configured Verification
 Platform runtime image from Docker Hub. The default reference is
-`pcvantol/djconnect-verification-platform:1.0.0`; override only with
+`pcvantol/djconnect-verification-platform:1.1.0`; override only with
 `DJCONNECT_VERIFICATION_PLATFORM_IMAGE` and `DJCONNECT_VERIFICATION_PLATFORM_TAG`
 when intentionally qualifying another published image. If the pull fails, the
 run stops before scenario execution.
@@ -295,7 +336,7 @@ Secrets files are referenced only. They must not be committed.
 
 ## Runtime Docker Release
 
-Build the generic Verification Platform runtime image from the repository root:
+Build the generic Verification Runtime image from the repository root:
 
 ```bash
 python -m tools.verification.cli docker release \
@@ -307,16 +348,18 @@ The release helper builds `docker/verification-platform/Dockerfile` and tags
 the image with:
 
 - `<runtime-version>`
+- `<runtime-major-minor>`
 - `<runtime-version>-<short-release-sha>`
 - `sha-<short-release-sha>`
+- `latest` for stable releases only
 
-For the current runtime this means tags such as `1.0.0`,
-`1.0.0-<short-sha>` and `sha-<short-sha>`.
+For the current stable runtime this means tags such as `1.1.0`, `1.1`,
+`1.1.0-<short-sha>`, `sha-<short-sha>` and `latest`.
 
 Smoke test an image with:
 
 ```bash
-docker run --rm pcvantol/djconnect-verification-platform:1.0.0 config
+docker run --rm pcvantol/djconnect-verification-platform:1.1.0 config
 ```
 
 Run repository scenarios by mounting a checkout and invoking the runtime from
@@ -327,7 +370,7 @@ released image:
 docker run --rm \
   -v "$PWD:/workspace:ro" \
   -v "$PWD/artifacts/verification:/artifacts/verification" \
-  pcvantol/djconnect-verification-platform:1.0.0 \
+  pcvantol/djconnect-verification-platform:1.1.0 \
   --config /workspace/verification-config.json validate
 ```
 
@@ -337,17 +380,34 @@ In GitHub Actions, the workflow should provide the checkout, mount or pass the
 workspace to the container, upload `artifacts/verification/`, and record GitHub
 run/job metadata beside `verification_runtime` and `execution_summary`.
 
-Consumers must pull the latest published stable Verification Platform image
-from Docker Hub before running Docker-based verification:
+Consumers must pull the latest compatible published stable Verification
+Runtime image from Docker Hub before running Docker-based verification:
 
 ```bash
-docker pull pcvantol/djconnect-verification-platform:1.0.0
-docker run --rm pcvantol/djconnect-verification-platform:1.0.0 config
+docker pull pcvantol/djconnect-verification-platform:1.1.0
+docker run --rm pcvantol/djconnect-verification-platform:1.1.0 config
 ```
 
 Do not silently fall back to a stale local image or ad hoc local build. If the
 Docker Hub pull fails, block the Docker-based verification run and fix
 publishing, authentication or network access first.
+
+### Coverage Runtime
+
+Runtime `1.1.0` adds platform-independent coverage ingestion:
+
+```bash
+python -m tools.verification.cli coverage ingest coverage.xml --format cobertura
+python -m tools.verification.cli coverage ingest lcov.info --format lcov
+python -m tools.verification.cli coverage ingest xccov.json --format apple-xccov
+```
+
+The runtime does not generate coverage. It consumes native reports from
+repositories, validates that they are present, non-empty, parseable and
+associated with the expected commit, normalizes missing metrics as
+`NOT_REPORTED`, writes coverage evidence and returns fail-closed qualification
+states such as `COVERAGE_VALID`, `COVERAGE_NOT_AVAILABLE`,
+`COVERAGE_SHA_MISMATCH`, `COVERAGE_UNSUPPORTED_FORMAT` and `COVERAGE_EMPTY`.
 
 Update `tools/verification/RELEASE_NOTES.md` for every runtime release. Keep
 those notes scoped to the generic engine and leave DJConnect product changes in
