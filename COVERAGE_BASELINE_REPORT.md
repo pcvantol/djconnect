@@ -14,12 +14,13 @@ sha256:3f0b8d3ba5f07afa5c8f05cd305dd92c43806e0fed24395be96d832e7ef72619
 
 ## Qualification
 
-All three native coverage reports were ingested by Runtime `1.1.0` and
-qualified as `COVERAGE_VALID`.
+Home Assistant and Apple native coverage reports were ingested by Runtime
+`1.1.0` and qualified as `COVERAGE_VALID`.
 
-The cross-platform baseline decision is `PARTIAL`, not because of coverage
-integrity, but because Raspberry Pi native tests did not pass completely while
-producing coverage.
+The cross-platform baseline decision is `PARTIAL` because Raspberry Pi coverage
+could not be reliably produced in the available Python environment. The
+attempted Pi run required a hybrid repository virtualenv plus external coverage
+tooling `PYTHONPATH`, so its metrics are excluded from Baseline 1.
 
 ## Validation Results
 
@@ -28,7 +29,8 @@ producing coverage.
 - Runtime image inspection recorded the immutable digest.
 - Home Assistant native coverage run passed: `143 passed`.
 - Apple XCTest coverage run passed: `1 passed`.
-- Raspberry Pi native coverage run completed with `386 passed, 1 failed`.
+- Raspberry Pi native coverage was not reliably produced; attempted run:
+  `386 passed, 1 failed`.
 - Scenario catalog validation passed: `validated 233 scenarios`.
 - Verification regression suite passed: `143 passed`.
 
@@ -49,10 +51,11 @@ Apple included the Xcode coverage targets emitted by the `DJConnectIOS`
 XCTest run. Apple frameworks are not repository source and are not represented
 as repository coverage entries in the normalized report.
 
-Raspberry Pi included `src` via coverage.py `--source=src`. No Runtime-level
-excluded files were reported.
+Raspberry Pi was in scope, but its coverage metrics are excluded from Baseline
+1 because the available Python environment could not produce reliable native
+coverage.
 
 ## Follow-up
 
-Resolve the Raspberry Pi native test failure before promoting Coverage Baseline
-1 from partial to fully established.
+Provide a reliable Raspberry Pi coverage environment before promoting Coverage
+Baseline 1 from partial to fully established.

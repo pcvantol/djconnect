@@ -6,7 +6,10 @@ Date: 2026-07-12
 ## Summary
 
 Coverage Baseline 1 records the first cross-platform native code coverage
-measurement ingested by Verification Runtime `1.1.0`.
+measurement ingested by Verification Runtime `1.1.0`. Home Assistant and Apple
+coverage were produced reliably. Raspberry Pi coverage is explicitly excluded
+from the measured baseline because coverage could not be reliably produced in
+the available Python environment.
 
 Runtime image:
 
@@ -30,7 +33,7 @@ Runtime validation confirmed version `1.1.0`, the capability registry, the
 | --- | --- | --- | --- | --- | ---: | ---: | ---: | --- |
 | Home Assistant | `pcvantol/djconnect` | `9bedd037f87ac4c359da5dee5f63bddacf37cd74` | coverage.py | Cobertura XML | 16.43% | 10.19% | Not reported | COVERAGE_VALID |
 | Apple | `pcvantol/djconnect-app` | `6062ddd8e1367bf52c1666b3e2c95514d189a9cf` | xccov | Apple xccov JSON | 9.39% | Not reported | Not reported | COVERAGE_VALID |
-| Raspberry Pi | `pcvantol/djconnect-pi` | `3d2853305041ea1d649faba00e9ccab1169816d7` | coverage.py | Cobertura XML | 75.09% | 61.99% | Not reported | COVERAGE_VALID |
+| Raspberry Pi | `pcvantol/djconnect-pi` | `3d2853305041ea1d649faba00e9ccab1169816d7` | coverage.py attempt | Cobertura XML attempt | Not reliably produced | Not reliably produced | Not reliably produced | NOT_RELIABLY_PRODUCED |
 
 ## Evidence
 
@@ -38,13 +41,11 @@ Runtime evidence:
 
 - `artifacts/verification/evidence/coverage-baseline-1-ha/coverage/coverage-summary.json`
 - `artifacts/verification/evidence/coverage-baseline-1-apple/coverage/coverage-summary.json`
-- `artifacts/verification/evidence/coverage-baseline-1-pi/coverage/coverage-summary.json`
 
 Native reports:
 
 - `artifacts/verification/reports/coverage-baseline-1/djconnect-ha-coverage.xml`
 - `artifacts/verification/reports/coverage-baseline-1/apple/djconnect-apple-xccov.json`
-- `artifacts/verification/reports/coverage-baseline-1/djconnect-pi-coverage.xml`
 
 Apple XCTest result bundle:
 
@@ -68,13 +69,17 @@ xcrun xccov view --report --json /Users/pcvantol/Documents/GitHub/djconnect/arti
 python -m tools.verification.cli coverage ingest artifacts/verification/reports/coverage-baseline-1/apple/djconnect-apple-xccov.json --format apple-xccov --repository pcvantol/djconnect-app --commit-sha 6062ddd8e1367bf52c1666b3e2c95514d189a9cf --expected-commit-sha 6062ddd8e1367bf52c1666b3e2c95514d189a9cf --scope apple-ios-ui-healthcheck --run-id coverage-baseline-1-apple --write-evidence --output markdown
 ```
 
-Raspberry Pi:
+Raspberry Pi attempt:
 
 ```bash
 PYTHONPATH=/private/tmp/djconnect-phase9e-venv/lib/python3.14/site-packages:src COVERAGE_FILE=/private/tmp/djconnect-pi-coverage-baseline-1.coverage /Users/pcvantol/Documents/GitHub/djconnect-pi/.venv/bin/python -m coverage run --branch --source=src -m pytest
-PYTHONPATH=/private/tmp/djconnect-phase9e-venv/lib/python3.14/site-packages:src COVERAGE_FILE=/private/tmp/djconnect-pi-coverage-baseline-1.coverage /Users/pcvantol/Documents/GitHub/djconnect-pi/.venv/bin/python -m coverage xml -o /Users/pcvantol/Documents/GitHub/djconnect/artifacts/verification/reports/coverage-baseline-1/djconnect-pi-coverage.xml
-python -m tools.verification.cli coverage ingest artifacts/verification/reports/coverage-baseline-1/djconnect-pi-coverage.xml --format cobertura --repository pcvantol/djconnect-pi --commit-sha 3d2853305041ea1d649faba00e9ccab1169816d7 --expected-commit-sha 3d2853305041ea1d649faba00e9ccab1169816d7 --scope raspberry-pi-client --run-id coverage-baseline-1-pi --write-evidence --output markdown
 ```
+
+The available environment had to mix the Raspberry Pi repository virtualenv
+with coverage tooling from `/private/tmp/djconnect-phase9e-venv` and Python
+3.14 site packages. That hybrid environment is not an authoritative Pi coverage
+producer, so the resulting Pi coverage report and ingest are not used as
+baseline evidence.
 
 ## Limitations
 
@@ -85,9 +90,10 @@ python -m tools.verification.cli coverage ingest artifacts/verification/reports/
 - Apple coverage uses the already qualified stable iOS 26.5 simulator target
   and the existing XCTest primary-tab healthcheck. Branch and function metrics
   are not reported by the Runtime `1.1.0` Apple parser.
-- Raspberry Pi coverage was ingested and qualified, but the native test command
-  reported `386 passed, 1 failed`. The failing test was
-  `tests/test_config.py::test_load_config_ignores_unknown_legacy_keys`.
+- Raspberry Pi coverage could not be reliably produced in the available Python
+  environment. The attempted run required a hybrid virtualenv/PYTHONPATH setup
+  and reported `386 passed, 1 failed`, so Pi coverage metrics are excluded from
+  Baseline 1.
 
 ## Final Decision
 
@@ -95,6 +101,6 @@ python -m tools.verification.cli coverage ingest artifacts/verification/reports/
 CROSS_PLATFORM_COVERAGE_BASELINE_PARTIAL
 ```
 
-Coverage provenance and Runtime `1.1.0` ingestion are valid for all three
-repositories. The baseline is partial because the Raspberry Pi native unit-test
-suite did not pass completely during coverage production.
+Coverage provenance and Runtime `1.1.0` ingestion are valid for the Home
+Assistant and Apple inputs. The baseline is partial because Raspberry Pi
+coverage could not be reliably produced in the available Python environment.

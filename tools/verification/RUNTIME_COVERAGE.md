@@ -174,5 +174,6 @@ Baseline reports:
 - `COVERAGE_BASELINE_REPORT.md`
 
 The baseline is recorded as `CROSS_PLATFORM_COVERAGE_BASELINE_PARTIAL` because
-Raspberry Pi native tests produced one failure while coverage provenance and
-Runtime ingestion remained valid.
+Raspberry Pi coverage could not be reliably produced in the available Python
+environment. Home Assistant and Apple coverage provenance and Runtime ingestion
+remained valid.

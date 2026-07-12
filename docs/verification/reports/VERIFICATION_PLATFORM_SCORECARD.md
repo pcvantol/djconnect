@@ -18,7 +18,7 @@ Scoring scale:
 | Home Assistant Adapter | 4 | Live REST/WebSocket/runtime/storage/log primitives executed across 195 Home Assistant backend and backend assertion-path scenarios; deeper product assertions remain scenario-driven future work. |
 | Verification Core | 4 | Aggregated qualified runs, expanded HA backend mappings and preserved primitive diagnostics in summaries; minor deduction because successful primitive timing is still coarse. |
 | Evidence Pipeline | 4 | Persisted immutable run evidence with environment, qualification, plan, scenario result files and summary-level diagnostics; richer request/response transcripts remain future adapter evidence work. |
-| Coverage Baseline | 3 | Runtime 1.1.0 ingested Home Assistant, Apple and Raspberry Pi native coverage as `COVERAGE_VALID`; baseline remains partial because the Raspberry Pi native suite had one failing test during coverage production. |
+| Coverage Baseline | 3 | Runtime 1.1.0 ingested Home Assistant and Apple native coverage as `COVERAGE_VALID`; baseline remains partial because Raspberry Pi coverage could not be reliably produced in the available Python environment. |
 | Verification Investigator | 4 | Primitive failures are extracted from run summaries and the Phase 9E-R websocket timeout rerun was classified without manual relabeling. |
 | Reporting | 4 | Qualification report, scorecard and backlog are current, and execution summaries include total runtime plus scenario status counts; future reports can become more generated. |
 | Repository Hygiene | 5 | Branch, SHA and working tree state were known before execution. |
