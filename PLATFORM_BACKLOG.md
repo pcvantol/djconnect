@@ -200,10 +200,11 @@ Next:
 - ✅ Phase 9E-R Home Assistant Scenario Coverage Remediation qualified with
   non-blocking warnings.
 - ✅ Phase 10 Apple Verification Adapter qualified with live runtime skipped.
-- ⛔ Phase 10E retry is blocked until Phase 10E-R2 latest-runtime follow-ups
-  are resolved and `APPLE_LATEST_RUNTIME_QUALIFIED` is recorded.
-- ⏳ Phase 11+ additional primary adapters remain future work after Apple
-  scenario coverage.
+- ✅ Phase 10E-R3 Apple Scenario Coverage qualified with non-blocking warnings.
+- ✅ Phase 12E-R Raspberry Pi product scenario mapping qualified.
+- ✅ Phase 13 Windows Verification Adapter qualified with live runtime pending.
+- ⏳ Windows live runtime qualification remains pending prepared Parallels
+  target JSON and real `djconnect-windows` artifact/runtime commands.
 
 ## Software Assurance Platform
 
@@ -252,19 +253,16 @@ Guardrails:
 
 Remaining qualification follow-up:
 
-- ⏳ Apple latest runtime qualification remains blocked by VPB-031, VPB-036,
-  VPB-037 and VPB-038.
-- ⏳ Apple scenario coverage is blocked until latest-stable runtime
-  qualification passes.
-- ⏳ Raspberry Pi, ESP32, Voice and Windows primary adapter qualification
-  remains future work.
+- ⏳ Windows live runtime qualification remains pending prepared Parallels VM
+  target configuration.
+- ⏳ ESP32 and Voice primary adapter qualification remains future work.
 - ⏳ Cross-platform qualification has not completed.
 
 Next:
 
 - resume the active Verification roadmap follow-up work;
-- resolve the Apple latest-runtime prerequisites;
-- complete Apple and remaining adapter qualification;
+- complete Windows live runtime qualification;
+- complete remaining adapter qualification;
 - run cross-platform qualification;
 - preserve the architecture freeze unless a future Architecture Review with
   objective evidence supersedes it.

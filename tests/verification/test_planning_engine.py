@@ -84,6 +84,17 @@ class VerificationPlanningEngineTests(unittest.TestCase):
         self.assertIn("pi", plan.resource_plan.required_hardware)
         self.assertEqual(4, plan.coverage.by_platform["Raspberry Pi"])
 
+    def test_smoke_plan_selects_first_windows_runtime_scenario(self) -> None:
+        plan = VerificationPlanningEngine(self.config).plan(self.scenarios, strategy_id="smoke", policy_id="smoke")
+
+        windows_cases = [case for case in plan.cases if case.adapter == "windows_native_arm64"]
+
+        self.assertEqual(1, len(windows_cases))
+        self.assertEqual("WIN-001", windows_cases[0].scenario_id)
+        self.assertEqual("Windows", windows_cases[0].platform)
+        self.assertIn("windows_vm", plan.resource_plan.required_hardware)
+        self.assertEqual(1, plan.coverage.by_platform["Windows"])
+
     def test_release_policy_includes_release_qualification_mode_for_release_scenario(self) -> None:
         scenario = [scenario for scenario in self.scenarios if scenario.id == "RELEASE-001"]
 

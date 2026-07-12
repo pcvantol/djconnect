@@ -1,6 +1,6 @@
 # Verification Platform Scorecard
 
-Status: PLATFORM QUALIFIED; HOME ASSISTANT BACKEND COVERAGE QUALIFIED WITH WARNINGS; APPLE SCENARIO COVERAGE QUALIFIED WITH WARNINGS; RASPBERRY PI SCENARIO COVERAGE QUALIFIED WITH WARNINGS
+Status: PLATFORM QUALIFIED; HOME ASSISTANT BACKEND COVERAGE QUALIFIED WITH WARNINGS; APPLE SCENARIO COVERAGE QUALIFIED WITH WARNINGS; RASPBERRY PI SCENARIO COVERAGE QUALIFIED WITH WARNINGS; WINDOWS ADAPTER QUALIFIED WITH LIVE RUNTIME PENDING
 
 Scoring scale:
 
@@ -13,7 +13,7 @@ Scoring scale:
 
 | Area | Score | Deduction |
 | --- | ---: | --- |
-| Planning Engine | 4 | Smoke planning now selects the first Apple adapter executable case while preserving the HA smoke set; broader cross-runtime selection remains future work. |
+| Planning Engine | 4 | Smoke planning now selects first Apple, Raspberry Pi and Windows adapter executable cases while preserving the HA smoke set; broader cross-runtime selection remains future work. |
 | Execution Environment | 4 | Exact-SHA CI, Docker runtime discovery, dependency inspection, cleanup planning, lab qualification, scenario-aware Apple-only gates, default sandboxed parallel scenario waves and the generic runtime Docker release path are implemented; minor deduction because some live runs still require approved local Docker or simulator access. |
 | Home Assistant Adapter | 4 | Live REST/WebSocket/runtime/storage/log primitives executed across 195 Home Assistant backend and backend assertion-path scenarios; deeper product assertions remain scenario-driven future work. |
 | Verification Core | 4 | Aggregated qualified runs, expanded HA backend mappings and preserved primitive diagnostics in summaries; minor deduction because successful primitive timing is still coarse. |
@@ -28,7 +28,8 @@ Scoring scale:
 | Home Assistant Backend Coverage | 4 | Phase 9E-R executed and qualified 195 HA backend or separable HA backend assertion-path scenarios; 28 client/hardware/release/voice-localization scenarios remain correctly deferred. |
 | Apple Adapter | 4 | Thin Apple adapter primitives, Scenario Engine selection and Execution Environment simulator metadata are implemented, mock-tested and live-proven for `APPLE-001`; broader Apple product/UI scenarios remain future coverage. iOS 27.0 evidence is future-beta only, and App Store/TestFlight signing is deferred to release v1.0 readiness. |
 | Raspberry Pi Adapter | 4 | Thin Raspberry Pi adapter primitives, CLI registration, Scenario Engine routing and live `PI-001` execution are qualified; broader Pi product scenarios need canonical execution-surface mapping. |
-| Adapter Roadmap | 4 | Phase 12E qualified the first live Raspberry Pi executable scenario with warnings; no later adapter phase has started. |
+| Windows Adapter | 3 | Thin Windows adapter primitives, canonical `pcvantol/djconnect-windows` ownership metadata, CLI registration, Scenario Engine routing and `WIN-001` mock/local execution are qualified; live Parallels Windows execution is pending prepared target JSON and real Windows client artifact commands. |
+| Adapter Roadmap | 4 | Phase 13 implemented the first Windows adapter after Raspberry Pi qualification; Windows live scenario coverage is the next adapter follow-up. |
 | Overall | 4 | The platform is qualified for the next adapter phase with non-blocking framework improvements tracked. |
 
 ## Decision
@@ -54,6 +55,8 @@ RASPBERRY_PI_ADAPTER_SELECTED
 RASPBERRY_PI_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_SKIPPED
 
 RASPBERRY_PI_SCENARIO_COVERAGE_QUALIFIED_WITH_WARNINGS
+
+WINDOWS_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_PENDING
 
 The Verification Platform itself remains qualified, and Phase 9E-R qualifies
 broad Home Assistant backend coverage with one non-blocking warning. The
@@ -102,6 +105,15 @@ Insight coverage, without moving expected behavior into adapter code.
 `PROFILE-010`, `CAPABILITIES-005`, `ASKDJ-010` and `TRACKINSIGHT-005` passed in
 run `djv-20260712T093801Z-b5be5b3197`, followed by all 9 Pi smoke cases passing
 in run `djv-20260712T094155Z-cf11275694`.
+
+Phase 13 implemented the first thin Windows adapter. Smoke planning now selects
+`WIN-001` as a Windows adapter case with adapter `windows_native_arm64` and
+resource `windows_vm`. `WIN-001` passed through the Scenario Engine and Windows
+adapter in mock/local mode in run `djv-20260712T115323Z-0e7b518464`, recording
+canonical Windows client ownership as `pcvantol/djconnect-windows`. The local
+workstation has Parallels available and the operator confirmed Windows is
+available there; live Windows qualification remains pending only a prepared
+Windows target JSON and real client artifact/runtime commands.
 
 Parallel execution is now the default for workstation runs. The harness detects
 available CPU capacity dynamically, using Apple Silicon performance/efficiency

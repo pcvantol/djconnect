@@ -1,6 +1,6 @@
 # Verification Platform Backlog
 
-Status: active after Phase 12E Raspberry Pi scenario coverage qualification
+Status: active after Phase 13 Windows adapter qualification
 
 Do not create GitHub issues automatically from this backlog.
 
@@ -49,6 +49,8 @@ Do not create GitHub issues automatically from this backlog.
 | VPB-041 | P1 | Scenario Catalog cleanup | Some Pi-relevant shared scenarios mention Pi in title or platform intent but still declare Apple/Windows runtime requirements. Phase 12 added a Pi-specific runtime smoke scenario instead of rewriting shared expectations. Broader Pi scenario coverage should only adjust shared scenario requirements when backed by canonical behavior. | Scenario Catalog / Planning Engine | `djconnect` | No | S | Phase 12E |
 | VPB-042 | P0 | Raspberry Pi runtime environment issue | Resolved in Phase 12E: approved host-keychain `gh auth status` passed, exact-SHA CI inspected two successful runs for `d3813c275e910c9723f91d8f294a622d46fda206`, SSH to `rbpi-djconnect.local` passed, narrow sudoers restart passed and `PI-001` executed through the Scenario Engine and Raspberry Pi adapter with PASS evidence. | Execution Environment / Operator | `djconnect` | No | Done | Phase 12E |
 | VPB-043 | P1 | Planning Engine / Scenario Catalog coverage gap | Resolved and qualified in Phase 12E-R: Pi runtime capability metadata now maps shared Pi product scenarios to the Raspberry Pi adapter, `PROFILE-010` and `ASKDJ-010` declare their Pi execution surface, full smoke planning exposes 9 Raspberry Pi cases instead of only `PI-001`, the focused remediation set passed in run `djv-20260712T093801Z-b5be5b3197`, and the full 9-case Pi smoke set passed in run `djv-20260712T094155Z-cf11275694`. | Planning Engine / Scenario Catalog / Raspberry Pi Adapter | `djconnect`, `djconnect-pi` | No | Done | Phase 12E-R |
+| VPB-044 | P0 | Windows Adapter gap | Resolved in Phase 13: thin Windows adapter, CLI registration, Scenario Engine routing, `WIN-001` runtime smoke scenario, canonical `pcvantol/djconnect-windows` ownership metadata and mock/local primitive execution are implemented. `WIN-001` passed in run `djv-20260712T115323Z-0e7b518464`. | Windows Adapter / Execution Environment / Planning Engine | `djconnect`, `djconnect-windows` | No | Done | Phase 13 |
+| VPB-045 | P1 | Windows runtime environment follow-up | Windows is available in Parallels on the local workstation, but Phase 13 did not execute the real Windows client artifact. Provide `DJCONNECT_VERIFICATION_WINDOWS_TARGET_JSON` with commands against the Parallels Windows VM and the real `pcvantol/djconnect-windows` artifact, then rerun `WIN-001` with persisted evidence. | Windows Adapter / Execution Environment / Operator | `djconnect`, `djconnect-windows` | Blocks live Windows scenario pass | M | Phase 13E Windows runtime qualification |
 
 ## Regression Subset Required After Fixes
 
@@ -100,6 +102,10 @@ RASPBERRY_PI_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_SKIPPED
 Phase 12E reports:
 
 RASPBERRY_PI_SCENARIO_COVERAGE_QUALIFIED_WITH_WARNINGS
+
+Phase 13 reports:
+
+WINDOWS_ADAPTER_QUALIFIED_WITH_LIVE_RUNTIME_PENDING
 
 Framework runtime, Docker release workflow and regular CI are not blocked by
 Docker Hub secret provisioning, Docker repository naming or self-hosted runner

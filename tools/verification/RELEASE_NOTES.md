@@ -60,6 +60,9 @@ Runtime schema version: `1`
   and required capability `coverage`.
 - Missing coverage metrics normalize to `NOT_REPORTED`, never zero.
 - The runtime consumes native coverage reports but does not generate coverage.
+- Phase 13 adds the first Windows adapter surface as an additive
+  `execution`-capability consumer. This does not change the Runtime `1.1.0`
+  capability contract or Docker image version.
 
 ### Migration Notes
 

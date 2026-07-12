@@ -27,6 +27,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--ha-adapter", action="store_true")
     parser.add_argument("--apple-adapter", action="store_true")
     parser.add_argument("--raspberry-pi-adapter", action="store_true")
+    parser.add_argument("--windows-adapter", action="store_true")
 
     subparsers = parser.add_subparsers(dest="command", required=True)
     for command in ("list", "validate", "dry-run", "execute", "report"):
@@ -139,7 +140,7 @@ def main(argv: list[str] | None = None) -> int:
     loader = ScenarioLoader(config)
     scenarios = loader.load()
     adapters = None
-    if args.ha_adapter or args.apple_adapter or args.raspberry_pi_adapter:
+    if args.ha_adapter or args.apple_adapter or args.raspberry_pi_adapter or args.windows_adapter:
         from .adapters import AdapterRegistry
 
         adapters = AdapterRegistry()
@@ -155,6 +156,10 @@ def main(argv: list[str] | None = None) -> int:
             from .raspberry_pi_adapter import RaspberryPiAdapterConfig, RaspberryPiVerificationAdapter
 
             adapters.register(RaspberryPiVerificationAdapter(RaspberryPiAdapterConfig.from_environment(config.root)))
+        if args.windows_adapter:
+            from .windows_adapter import WindowsAdapterConfig, WindowsVerificationAdapter
+
+            adapters.register(WindowsVerificationAdapter(WindowsAdapterConfig.from_environment(config.root)))
     from .orchestrator import VerificationOrchestrator
 
     orchestrator = VerificationOrchestrator(config, adapters=adapters)

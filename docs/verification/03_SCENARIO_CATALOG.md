@@ -64,7 +64,7 @@ resource requirements and are not silently mapped to a larger HA lab profile.
 | RELEASE | 8 | `verification/scenarios/release/` |
 | EXPORT | 6 | `verification/scenarios/export/` |
 | IMPORT | 6 | `verification/scenarios/import/` |
-| Total | 233 | `verification/scenarios/` |
+| Total | 234 | `verification/scenarios/` |
 
 ## Scenario Groups
 
@@ -73,6 +73,9 @@ resource requirements and are not silently mapped to a larger HA lab profile.
 
 ### PI
 - `PI-001` Raspberry Pi runtime smoke launches collects evidence and stops
+
+### WINDOWS
+- `WIN-001` Windows runtime smoke launches collects evidence and stops
 
 ### SETUP
 - `SETUP-001` Fresh installation creates baseline platform state

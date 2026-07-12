@@ -116,6 +116,23 @@ Runtime `1.1.0` includes parser plugins for:
 Repositories still produce native coverage. The runtime consumes native
 reports, validates them and normalizes them into coverage evidence.
 
+## Adapter Execution Surfaces
+
+Runtime `1.1.0` supports thin platform adapter execution through the stable
+`execution`, `evidence`, `qualification` and `reporting` capabilities.
+
+Current adapter surfaces:
+
+- Home Assistant: live backend REST/WebSocket/runtime/storage/log primitives.
+- Apple: simulator/runtime primitives for Apple-only adapter scenarios.
+- Raspberry Pi: local/SSH runtime primitives for Pi adapter scenarios.
+- Windows: local/remote runtime primitives for Windows adapter scenarios,
+  registered as `windows_native_arm64` and mapped to canonical client
+  repository `pcvantol/djconnect-windows`.
+
+Adapters execute primitives only. Scenario assertions and expected behavior
+remain owned by the Scenario Engine and scenario catalog.
+
 ## Extensibility Rule
 
 Runtime growth should happen through explicit capabilities rather than

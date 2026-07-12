@@ -248,8 +248,8 @@ class VerificationPlanningEngine:
 
     def _resource_plan(self, policy: dict[str, Any], cases: tuple[PlannedCase, ...]) -> ResourcePlan:
         resources = tuple(_unique(_resource_for_case(case) for case in cases))
-        hardware = tuple(item for item in resources if item in {"apple_device", "pi", "esp32", "voice_endpoint"})
-        exclusive = tuple(item for item in resources if item in {"serial_port", "pi", "esp32", "physical_watch"})
+        hardware = tuple(item for item in resources if item in {"apple_device", "windows_vm", "pi", "esp32", "voice_endpoint"})
+        exclusive = tuple(item for item in resources if item in {"serial_port", "windows_vm", "pi", "esp32", "physical_watch"})
         return ResourcePlan(
             required_hardware=hardware,
             required_builds=tuple(_unique(_policy_list(policy, "required_build_types"))),
@@ -343,6 +343,15 @@ def _platform_for_runtime_capability(scenario: Scenario) -> str | None:
     required = _required_capabilities(scenario)
     if any(capability.startswith(("pi.", "raspberry_pi.")) for capability in required):
         return "Raspberry Pi"
+    components = set(scenario.required_components)
+    platforms = {str(item) for item in scenario.raw.get("supported_platforms") or ()}
+    targets_windows_only = (
+        any(capability.startswith(("windows.", "windows_native_arm64.")) for capability in required)
+        and not ({"HA", "Home Assistant"} & components)
+        and not ("Home Assistant" in platforms)
+    )
+    if targets_windows_only:
+        return "Windows"
     return None
 
 
