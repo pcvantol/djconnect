@@ -46,6 +46,7 @@ def build_parser() -> argparse.ArgumentParser:
     clean.add_argument("--apply", action="store_true")
     prepare = subparsers.add_parser("prepare")
     _add_filters(prepare)
+    prepare.add_argument("--refresh-ha-lab", action="store_true")
     restore = subparsers.add_parser("restore")
     restore.add_argument("--apply", action="store_true")
     restore.add_argument("--allow-destructive", action="store_true")
@@ -431,6 +432,8 @@ def _cli_overrides(args: argparse.Namespace) -> dict[str, str] | None:
         overrides["parallel_execution"] = "false"
     if args.workers is not None:
         overrides["parallel_workers"] = str(args.workers)
+    if getattr(args, "refresh_ha_lab", False):
+        overrides["ha_lab_refresh"] = "true"
     return overrides or None
 
 

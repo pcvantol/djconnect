@@ -22,9 +22,14 @@ from tools.verification.environment import (
     VerificationExecutionEnvironment,
 )
 from tools.verification.environment.cleanup import CleanupTarget
-from tools.verification.environment.execution import _requires_docker_runtime, _requires_home_assistant, _requires_windows_runtime
+from tools.verification.environment.execution import (
+    _ha_lab_config_for_scenarios,
+    _requires_docker_runtime,
+    _requires_home_assistant,
+    _requires_windows_runtime,
+)
 from tools.verification.environment.host_preflight import HostPreflight, HostPreflightConfig
-from tools.verification.environment.platforms import CommandRunner
+from tools.verification.environment.platforms import CommandRunner, WindowsDotnetMaintenance
 from tools.verification.environment.runtime_image import RuntimeImagePuller
 from tools.verification.hygiene import RepositoryHygiene
 from tools.verification.models import CleanupMode, GateResult, GateState, ResourceState, Scenario
@@ -39,6 +44,18 @@ class FakeRunner(CommandRunner):
     def run(self, command: tuple[str, ...], *, cwd: Path | None = None, timeout: int = 30) -> tuple[int, str]:
         self.commands.append(command)
         return self.code, self.output
+
+
+class SequenceRunner(CommandRunner):
+    def __init__(self, responses: list[tuple[int, str]]) -> None:
+        self.responses = responses
+        self.commands: list[tuple[str, ...]] = []
+
+    def run(self, command: tuple[str, ...], *, cwd: Path | None = None, timeout: int = 30) -> tuple[int, str]:
+        self.commands.append(command)
+        if not self.responses:
+            return 1, "missing fake response"
+        return self.responses.pop(0)
 
 
 class FakeDocker:
@@ -313,6 +330,112 @@ class ExecutionEnvironmentTests(unittest.TestCase):
         self.assertEqual("SKIPPED", gates["host_preflight"]["state"])
         self.assertIn("already qualified", gates["host_preflight"]["message"])
         self.assertEqual("PASS", gates["ha_docker_discovery"]["state"])
+
+    def test_prepare_can_refresh_ha_lab_before_discovery(self) -> None:
+        scenario = Scenario(
+            id="PROFILE-001",
+            title="Profile",
+            description="Profile",
+            category="Profiles",
+            priority="P0",
+            verification_level="V2",
+            automation_level="FULL",
+            required_components=("HA",),
+            raw={
+                "supported_platforms": ["Home Assistant"],
+                "requires": {"capabilities": ["ha.runtime", "djconnect.loaded"]},
+            },
+        )
+        refresh_gate = GateResult("ha_lab_refresh", GateState.PASS, "refreshed", {"action": "fresh"})
+        qualified_lab = GateResult(
+            "ha_docker_discovery",
+            GateState.PASS,
+            "Docker Home Assistant runtime qualified",
+            {"runtime": {"safe_for_verification": True, "source_matches_sha": True}},
+        )
+
+        with tempfile.TemporaryDirectory() as temp_dir, patch(
+            "tools.verification.environment.execution.HALocalVerificationLab.refresh_for_run",
+            return_value=refresh_gate,
+        ) as refresh, patch(
+            "tools.verification.environment.execution.HADockerDiscovery.qualify",
+            return_value=qualified_lab,
+        ), patch(
+            "tools.verification.environment.github.GitHubInspector.commit_status",
+            return_value=GateResult("github_ci_status", GateState.PASS, "ok", {}),
+        ):
+            root = Path(temp_dir)
+            (root / "pyproject.toml").write_text("[project]\nname='demo'\n", encoding="utf-8")
+            config = load_config(root, overrides={"ha_lab_refresh": "true"})
+            prepared = VerificationExecutionEnvironment(config).prepare([scenario])
+
+        gates = {gate["name"]: gate for gate in prepared["gates"]}
+        refresh.assert_called_once()
+        self.assertEqual("PASS", gates["ha_lab_refresh"]["state"])
+        self.assertEqual("PASS", gates["ha_docker_discovery"]["state"])
+
+    def test_prepare_selects_ha_full_profile_for_cross_platform_requirements(self) -> None:
+        scenario = Scenario(
+            id="VOICE-001",
+            title="Voice",
+            description="Voice",
+            category="Identity",
+            priority="P0",
+            verification_level="V3",
+            automation_level="ENVIRONMENT_DEPENDENT",
+            required_components=("HA",),
+            raw={
+                "supported_platforms": ["Voice Endpoint"],
+                "requires": {
+                    "capabilities": [
+                        "assist.conversation",
+                        "assist.stt",
+                        "assist.tts",
+                        "music.music_assistant",
+                        "evidence.storage",
+                    ]
+                },
+            },
+        )
+
+        with tempfile.TemporaryDirectory() as temp_dir, patch.dict("os.environ", {}, clear=True):
+            root = Path(temp_dir)
+            (root / "verification/lab/profiles").mkdir(parents=True)
+            (root / "verification/lab/services").mkdir(parents=True)
+            (root / "verification/lab/capabilities.yaml").write_text(
+                (Path(__file__).resolve().parents[2] / "verification/lab/capabilities.yaml").read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
+            for source in (Path(__file__).resolve().parents[2] / "verification/lab/profiles").glob("*.yaml"):
+                target = root / "verification/lab/profiles" / source.name
+                target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+            for source in (Path(__file__).resolve().parents[2] / "verification/lab/services").glob("*.yaml"):
+                target = root / "verification/lab/services" / source.name
+                target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+
+            config = _ha_lab_config_for_scenarios(root, [scenario])
+
+        self.assertEqual("ha-full", config.profile)
+        self.assertIn("compose.music-assistant.yaml", " ".join(str(path) for path in config.compose_files))
+
+    def test_windows_maintenance_starts_stopped_vm_before_exec(self) -> None:
+        runner = SequenceRunner(
+            [
+                (0, "Stopped"),
+                (0, "Starting"),
+                (0, "Running"),
+                (0, "dotnet ok"),
+            ]
+        )
+
+        with tempfile.TemporaryDirectory() as temp_dir, patch("tools.verification.environment.platforms.shutil.which", return_value="/usr/local/bin/prlctl"):
+            gate = WindowsDotnetMaintenance(runner).ensure_current(root=Path(temp_dir))
+
+        self.assertEqual(GateState.PASS, gate.state)
+        self.assertEqual(("/usr/local/bin/prlctl", "status", "Windows 11 Home"), runner.commands[0])
+        self.assertEqual(("/usr/local/bin/prlctl", "start", "Windows 11 Home"), runner.commands[1])
+        self.assertEqual(("/usr/local/bin/prlctl", "status", "Windows 11 Home"), runner.commands[2])
+        self.assertEqual("start", gate.metadata["vm_start"]["action"])
 
     def test_host_preflight_passes_with_free_port_and_disk(self) -> None:
         usage = Mock(free=30 * 1024 * 1024 * 1024, total=100 * 1024 * 1024 * 1024)

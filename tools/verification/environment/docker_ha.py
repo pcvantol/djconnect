@@ -356,6 +356,89 @@ class HALocalVerificationLab:
             },
         )
 
+    def refresh_for_run(self) -> GateResult:
+        """Refresh stale dedicated HA lab state before a verification run.
+
+        This helper is intentionally narrower than ``destroy``. It may replace
+        only the configured DJConnect verification container, and only when the
+        selected container is absent, stale for the current source SHA, or
+        configured for a different lab profile.
+        """
+        runtimes = self.discovery.discover(expected_port=self.config.port, expected_name=self.config.name)
+        if len(runtimes) > 1:
+            return GateResult(
+                "ha_lab_refresh",
+                GateState.FAIL,
+                "Multiple intended HA lab containers found; refusing automatic refresh",
+                {"containers": [runtime.name for runtime in runtimes]},
+            )
+        runtime = runtimes[0] if runtimes else None
+        runtime_profile = (runtime.labels.get("djconnect.lab.profile") if runtime else None) or ""
+        needs_refresh = (
+            runtime is None
+            or not runtime.safe_for_verification
+            or runtime_profile != self.config.profile
+        )
+        if not needs_refresh:
+            return GateResult(
+                "ha_lab_refresh",
+                GateState.PASS,
+                "Home Assistant lab already matches the current run",
+                {"action": "none", "runtime": _runtime_metadata(runtime)},
+            )
+        removal: dict[str, Any] = {"action": "none", "reason": "container_absent"}
+        if runtime is not None:
+            if runtime.name != self.config.name:
+                return GateResult(
+                    "ha_lab_refresh",
+                    GateState.FAIL,
+                    "Refusing to refresh unexpected HA container",
+                    {"expected": self.config.name, "actual": runtime.name},
+                )
+            if not (_safe_label(runtime.labels) or _safe_name(runtime.name)) or _has_production_mount(runtime):
+                return GateResult(
+                    "ha_lab_refresh",
+                    GateState.FAIL,
+                    "Refusing to refresh HA container that is not proven to be the dedicated verification lab",
+                    {"runtime": _runtime_metadata(runtime)},
+                )
+            result = self.docker.run("rm", "-f", self.config.name, timeout=60)
+            removal = {
+                "action": "rm_dedicated_lab_container",
+                "ok": result.ok,
+                "stdout": result.stdout[-1000:],
+                "stderr": result.stderr[-1000:],
+                "returncode": result.returncode,
+                "previous_runtime": _runtime_metadata(runtime),
+            }
+            if not result.ok:
+                return GateResult("ha_lab_refresh", GateState.FAIL, "Failed to remove stale HA lab container", removal)
+        auth_file = self._auth_file()
+        auth_removed = False
+        if auth_file.exists():
+            auth_file.unlink()
+            auth_removed = True
+        self._clean_runtime_state()
+        fresh = self.lifecycle("fresh")
+        state = GateState.PASS if fresh.state == GateState.PASS else GateState.FAIL
+        return GateResult(
+            "ha_lab_refresh",
+            state,
+            "Home Assistant lab refreshed for current run" if state == GateState.PASS else "Home Assistant lab refresh failed",
+            {
+                "refresh_reason": {
+                    "runtime_absent": runtime is None,
+                    "source_matches_sha": runtime.source_matches_sha if runtime else None,
+                    "safe_for_verification": runtime.safe_for_verification if runtime else None,
+                    "runtime_profile": runtime_profile or None,
+                    "expected_profile": self.config.profile,
+                },
+                "removal": removal,
+                "auth_removed": auth_removed,
+                "fresh": fresh.metadata,
+            },
+        )
+
     def qualify(self) -> GateResult:
         docker_version = self.docker.run("version", "--format", "{{json .}}")
         compose_version = self.docker.run("compose", "version", "--format", "json")

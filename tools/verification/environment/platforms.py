@@ -156,6 +156,18 @@ class WindowsDotnetMaintenance:
             "DJCONNECT_VERIFICATION_WINDOWS_REPO_PATH",
             r"C:\Mac\Home\Documents\GitHub\djconnect-windows",
         )
+        start = self._ensure_vm_running(prlctl, vm_name, root=root)
+        if not start["ok"]:
+            return GateResult(
+                "windows_dotnet_maintenance",
+                GateState.FAIL,
+                "Windows VM could not be started for .NET maintenance.",
+                {
+                    "vm_name": vm_name,
+                    "windows_repo": windows_repo,
+                    "vm_start": start,
+                },
+            )
         command = (
             prlctl,
             "exec",
@@ -181,10 +193,37 @@ class WindowsDotnetMaintenance:
             {
                 "vm_name": vm_name,
                 "windows_repo": windows_repo,
+                "vm_start": start,
                 "returncode": code,
                 "stdout_excerpt": output[-4000:],
             },
         )
+
+    def _ensure_vm_running(self, prlctl: str, vm_name: str, *, root: Path) -> dict[str, object]:
+        status_code, status_output = self.runner.run((prlctl, "status", vm_name), cwd=root, timeout=60)
+        if status_code == 0 and "running" in status_output.lower():
+            return {"ok": True, "action": "already_running", "status": status_output[-1000:]}
+        start_code, start_output = self.runner.run((prlctl, "start", vm_name), cwd=root, timeout=300)
+        if start_code != 0:
+            return {
+                "ok": False,
+                "action": "start",
+                "status_returncode": status_code,
+                "status_output": status_output[-1000:],
+                "start_returncode": start_code,
+                "start_output": start_output[-1000:],
+            }
+        post_code, post_output = self.runner.run((prlctl, "status", vm_name), cwd=root, timeout=60)
+        return {
+            "ok": post_code == 0 and "running" in post_output.lower(),
+            "action": "start",
+            "status_returncode": status_code,
+            "status_output": status_output[-1000:],
+            "start_returncode": start_code,
+            "start_output": start_output[-1000:],
+            "post_status_returncode": post_code,
+            "post_status_output": post_output[-1000:],
+        }
 
 
 class RaspberryPiEnvironment:

@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict
+import os
+from dataclasses import asdict, replace
 
 from tools.verification.configuration import SecretLoader
 from tools.verification.environment.cleanup import CleanupManager
 from tools.verification.environment.dependencies import DependencyInspector
 from tools.verification.environment.github import GitHubInspector
-from tools.verification.environment.docker_ha import HADockerDiscovery, HALabConfig
+from tools.verification.environment.docker_ha import HADockerDiscovery, HALabConfig, HALocalVerificationLab
 from tools.verification.environment.host_preflight import HostPreflight, HostPreflightConfig
 from tools.verification.environment.identity import RunIdentityManager
 from tools.verification.environment.platforms import (
@@ -20,6 +21,7 @@ from tools.verification.environment.platforms import (
     WindowsDevelopmentEnvironment,
 )
 from tools.verification.environment.runtime_image import RuntimeImagePuller
+from tools.verification.lab import LabCatalog
 from tools.verification.environment.snapshot import EnvironmentSnapshotter
 from tools.verification.environment.toolchain import ToolchainInspector
 from tools.verification.models import GateResult, GateState, HarnessConfig, Scenario
@@ -44,10 +46,22 @@ class VerificationExecutionEnvironment:
         selected_scenarios = scenarios or []
         run_identity = self.identity.create(selected_scenarios)
         snapshot = self.snapshotter.collect(self.config)
-        ha_lab_config = HALabConfig.from_root(self.config.root)
+        ha_lab_config = _ha_lab_config_for_scenarios(self.config.root, selected_scenarios)
         requires_ha = _requires_home_assistant(selected_scenarios)
         requires_docker_runtime = _requires_docker_runtime(selected_scenarios)
         requires_windows_runtime = _requires_windows_runtime(selected_scenarios)
+        ha_lab_refresh_gate = (
+            HALocalVerificationLab(self.config.root, config=ha_lab_config).refresh_for_run()
+            if requires_ha and _ha_lab_refresh_enabled(self.config)
+            else _skipped_gate(
+                "ha_lab_refresh",
+                (
+                    "Home Assistant lab refresh skipped; selected scenarios do not require the HA lab."
+                    if not requires_ha
+                    else "Home Assistant lab refresh skipped; enable with prepare --refresh-ha-lab or DJCONNECT_VERIFICATION_HA_REFRESH=1."
+                ),
+            )
+        )
         ha_docker_gate = (
             self.ha_docker.qualify(expected_port=ha_lab_config.port, expected_name=ha_lab_config.name)
             if requires_ha
@@ -80,6 +94,7 @@ class VerificationExecutionEnvironment:
                 "verification_runtime_image_pull",
                 "Docker runtime image pull skipped; selected scenarios do not require Docker runtime.",
             ),
+            ha_lab_refresh_gate,
             host_preflight_gate,
             self.github.validate_workflows(),
             self.github.commit_status(snapshot.git_sha),
@@ -167,3 +182,31 @@ def _required_capabilities(scenario: Scenario) -> set[str]:
 
 def _skipped_gate(name: str, message: str, metadata: dict | None = None) -> GateResult:
     return GateResult(name, GateState.SKIPPED, message, metadata or {})
+
+
+def _ha_lab_refresh_enabled(config: HarnessConfig) -> bool:
+    value = config.overrides.get("ha_lab_refresh")
+    if value is None:
+        value = os.getenv("DJCONNECT_VERIFICATION_HA_REFRESH")
+    return str(value).lower() in {"1", "true", "yes", "on"}
+
+
+def _ha_lab_config_for_scenarios(root, scenarios: list[Scenario]) -> HALabConfig:
+    config = HALabConfig.from_root(root)
+    if os.getenv("DJCONNECT_VERIFICATION_LAB_PROFILE"):
+        return config
+    if not scenarios:
+        return config
+    selected_profile = LabCatalog(root).plan_for_scenarios(scenarios).selected_profile
+    if not selected_profile or selected_profile == config.profile:
+        return config
+    catalog = LabCatalog(root)
+    compose_files = tuple(root / fragment for fragment in catalog.profile_compose_fragments(selected_profile))
+    if not compose_files:
+        return config
+    return replace(
+        config,
+        profile=selected_profile,
+        compose_file=compose_files[0],
+        compose_files=compose_files,
+    )

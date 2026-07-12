@@ -36,15 +36,18 @@ The current repository status task is roadmap/backlog synchronization only. It
 is not a product implementation phase, not a verification execution phase, not
 a CI/tooling enablement phase and not a new architecture phase.
 
-The active verification prompt index records Phase 16 Cross-Platform
-Qualification as the next verification gate. Phase 15 qualified the thin Voice
-Assistant adapter with live runtime pending. Phase 15E attempted live
-qualification and blocked safely before mutation because the local Home
-Assistant Assist lab was stale for the active repository SHA and live Voice
-Assistant target/opt-in configuration was absent. Phase 15E-R remediated those
-blockers from a clean `ha-assist` lab and returned
-`VOICE_ASSISTANT_LIVE_QUALIFIED`. Cross-platform verification now continues
-inside the frozen architecture.
+The active verification prompt index records Platform Test Coverage
+Improvement as the next verification gate. Phase 15
+qualified the thin Voice Assistant adapter with live runtime pending. Phase
+15E attempted live qualification and blocked safely before mutation because the
+local Home Assistant Assist lab was stale for the active repository SHA and
+live Voice Assistant target/opt-in configuration was absent. Phase 15E-R
+remediated those blockers from a clean `ha-assist` lab and returned
+`VOICE_ASSISTANT_LIVE_QUALIFIED`. Phase 16 selected the canonical
+cross-platform smoke plan and verified exact-SHA CI, then blocked before live
+mutation because the local HA verification lab was stale for the active SHA
+and the prepared Windows VM was not running. Phase 16-R remediated those
+environment blockers and returned `CROSS_PLATFORM_QUALIFIED`.
 
 ## Status
 
@@ -77,8 +80,8 @@ architecture are stable enough to freeze.
 
 - Software Assurance implementation must not begin until
   `PLATFORM_BASELINE_V1_CERTIFIED` and later explicit implementation prompts.
-- DJConnect Voice Assistant and cross-platform qualification must continue
-  inside the frozen architecture.
+- Platform Test Coverage Improvement must continue inside the frozen
+  architecture after cross-platform qualification.
 - CI workflow changes, scanner enablement, trusted delivery and release gates
   are deferred Software Assurance implementation work.
 - Platform Baseline v1.0 remains uncertified until DJConnect Voice Assistant
@@ -88,7 +91,7 @@ architecture are stable enough to freeze.
 
 Attached request:
 
-`Phase 16 Cross-Platform Qualification`
+`Platform Test Coverage Improvement`
 
 ## Completion Report
 
@@ -135,6 +138,29 @@ Deferred Software Assurance implementation outputs:
 ## Last Qualification
 
 Most recent recorded verification qualification:
+
+Phase 16-R Cross-Platform Qualification Environment Remediation returned
+`CROSS_PLATFORM_QUALIFIED`. It refreshed the local Home Assistant lab to
+`ha-full` for SHA `07178bad48d3bb8ad977e6b9070abfdf444889b4`, restored local
+lab authentication, verified the Windows Parallels runtime and executed the
+selected 47-case cross-platform smoke scope through configured Home Assistant,
+Apple, Raspberry Pi, Windows and Voice Assistant adapters. The configured full
+run `artifacts/verification/evidence/djv-20260712T174727Z-77dee61aa9/`
+produced 42 PASS and 5 remediated failures; targeted reruns
+`artifacts/verification/evidence/djv-20260712T175431Z-e49257d9dc/` and
+`artifacts/verification/evidence/djv-20260712T175532Z-311df26a8c/` passed the
+remaining five cases.
+
+Previous recorded verification attempt:
+
+Phase 16 Cross-Platform Qualification returned
+`CROSS_PLATFORM_QUALIFICATION_BLOCKED`. It selected the canonical
+cross-platform smoke plan for 47 executable cases, verified exact-SHA CI for
+SHA `07178bad48d3bb8ad977e6b9070abfdf444889b4`, and stopped before mutation
+because host preflight and HA Docker discovery found a stale `ha-assist` lab
+on port `18123` for SHA `af8228bc7c933df61cab47d4105002839ba65fb3`, while the
+Windows `.NET` maintenance gate failed because Parallels VM `Windows 11 Home`
+was not running.
 
 Phase 15E-R DJConnect Voice Assistant Live Qualification Remediation returned
 `VOICE_ASSISTANT_LIVE_QUALIFIED`. It used a clean `ha-assist` lab for SHA
@@ -203,8 +229,8 @@ contain the SHA of the commit that includes its own content.
 ## Repository-Local Next Action
 
 Return to the active Verification roadmap before any Software Assurance
-implementation or business-first engineering begins. Execute Phase 16
-Cross-Platform Qualification next. Then run the platform coverage improvement
-increment and rerun Platform Baseline certification. Do not start additional
-foundational architecture work unless a future Architecture Review with
-objective evidence demonstrates a genuine architecture gap.
+implementation or business-first engineering begins. Execute Platform Test
+Coverage Improvement next, then rerun Platform Baseline certification only
+after that increment completes. Do not start additional foundational
+architecture work unless a future Architecture Review with objective evidence
+demonstrates a genuine architecture gap.

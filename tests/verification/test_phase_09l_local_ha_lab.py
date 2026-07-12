@@ -56,7 +56,12 @@ class Phase09LLocalHALabTests(unittest.TestCase):
     def test_lab_accepts_labelled_source_mount_as_safe_before_live_auth(self) -> None:
         fake = _fake_lab_runtime(self.root)
 
-        gate = HALocalVerificationLab(self.root, fake, _lab_config(self.root)).qualify()
+        with patch.object(
+            HALocalVerificationLab,
+            "_resolve_token",
+            return_value={"ok": False, "source": "none", "reason": "test_no_token"},
+        ):
+            gate = HALocalVerificationLab(self.root, fake, _lab_config(self.root)).qualify()
 
         self.assertEqual(GateState.FAIL, gate.state)
         self.assertTrue(gate.metadata["checks"]["labels"]["ok"])
@@ -152,6 +157,38 @@ class Phase09LLocalHALabTests(unittest.TestCase):
         self.assertIn(("rm", "-f", "djconnect-verification-ha"), fake.calls)
         self.assertIn(("compose", "-f", str(config.compose_file), "up", "-d"), fake.calls)
         self.assertEqual("latest", gate.metadata["docker_desktop_update"]["mode"])
+
+    def test_refresh_for_run_replaces_stale_dedicated_lab_container(self) -> None:
+        config = _lab_config(self.root)
+        stale = _inspect_payload(
+            self.root,
+            labels={
+                "djconnect.verification": "true",
+                "djconnect.source_sha": "old-sha",
+                "djconnect.lab.profile": "ha-assist",
+            },
+        )
+        (config.lab_root / ".secrets").mkdir(parents=True, exist_ok=True)
+        (config.lab_root / ".secrets" / "ha_lab_auth.json").write_text("{}", encoding="utf-8")
+        fake = FakeDocker(
+            {
+                ("ps", "-a", "--format", "{{json .}}"): DockerCommandResult(True, stdout=json.dumps({"ID": "abc"})),
+                ("inspect", "abc"): DockerCommandResult(True, stdout=json.dumps([stale])),
+                ("rm", "-f", "djconnect-verification-ha"): DockerCommandResult(True, stdout="removed"),
+                ("ps", "-a", "--filter", "name=djconnect-verification-ha", "--format", "{{json .}}"): DockerCommandResult(True, stdout=""),
+                ("desktop", "update", "--check-only"): DockerCommandResult(True, stdout="Docker Desktop 4.81.0 is already the latest version"),
+                ("compose", "-f", str(config.compose_file), "up", "-d", "--force-recreate"): DockerCommandResult(True, stdout="started"),
+                ("logs", "--tail", "80", "--timestamps", "djconnect-verification-ha"): DockerCommandResult(True, stdout=""),
+            }
+        )
+
+        gate = HALocalVerificationLab(self.root, fake, config).refresh_for_run()
+
+        self.assertEqual(GateState.PASS, gate.state)
+        self.assertIn(("rm", "-f", "djconnect-verification-ha"), fake.calls)
+        self.assertIn(("compose", "-f", str(config.compose_file), "up", "-d", "--force-recreate"), fake.calls)
+        self.assertTrue(gate.metadata["auth_removed"])
+        self.assertEqual("ha-assist", gate.metadata["refresh_reason"]["runtime_profile"])
 
     def test_start_blocks_when_docker_desktop_update_is_available_or_unknown(self) -> None:
         config = _lab_config(self.root)
