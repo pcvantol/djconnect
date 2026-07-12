@@ -194,7 +194,7 @@ class ScenarioEngine:
     def _actions(self, scenario: Scenario) -> list[PrimitiveAction]:
         if _targets_apple(scenario) and not _targets_home_assistant(scenario):
             return _apple_runtime_actions(scenario)
-        if _targets_raspberry_pi(scenario) and not _targets_home_assistant(scenario):
+        if _targets_raspberry_pi(scenario):
             return _raspberry_pi_runtime_actions(scenario)
         if _is_first_profile_adapter_scenario(scenario):
             return _home_assistant_backend_actions(scenario)

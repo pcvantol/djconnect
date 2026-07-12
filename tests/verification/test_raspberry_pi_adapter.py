@@ -148,6 +148,53 @@ class RaspberryPiAdapterTests(unittest.TestCase):
             self.assertEqual("PASS", result.state)
             self.assertIn("Raspberry Pi adapter", result.message)
 
+    def test_scenario_engine_uses_pi_primitives_for_shared_ha_pi_scenario(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            app_path = Path(tmp) / "djconnect-pi"
+            app_path.write_text("fixture", encoding="utf-8")
+            registry = AdapterRegistry()
+            target = RaspberryPiRuntimeTarget(
+                target_id="pi-local",
+                runtime="local",
+                app_path=app_path,
+                launch_command="true",
+                stop_command="true",
+                log_command="printf ok",
+            )
+            registry.register(RaspberryPiVerificationAdapter(RaspberryPiAdapterConfig(target=target), runner=FakeRunner()))
+            scenario = Scenario(
+                id="PI-SHARED-001",
+                title="Shared Pi product scenario",
+                description="Shared backend/client scenario with explicit Pi runtime surface.",
+                category="Profiles",
+                priority="P0",
+                verification_level="V3",
+                automation_level="environment_dependent",
+                required_components=("HA", "Pi"),
+                raw={
+                    "supported_platforms": ["Home Assistant", "Raspberry Pi"],
+                    "requires": {
+                        "capabilities": [
+                            "djconnect.profile_platform",
+                            "ha.runtime",
+                            "pi.runtime",
+                            "evidence.storage",
+                        ]
+                    },
+                },
+            )
+
+            plan = ScenarioEngine(registry).plan(scenario)
+            action_names = [action.name for action in plan.actions]
+            result = ScenarioEngine(registry).execute([scenario])[0]
+
+            self.assertEqual(
+                ["collect_environment", "validate_target_identity", "collect_app_metadata", "launch_app", "collect_logs", "stop_app"],
+                action_names,
+            )
+            self.assertEqual("PASS", result.state)
+            self.assertIn("Raspberry Pi adapter", result.message)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -67,6 +67,23 @@ class VerificationPlanningEngineTests(unittest.TestCase):
         self.assertIn("apple_device", plan.resource_plan.required_hardware)
         self.assertEqual(1, plan.coverage.by_platform["Apple"])
 
+    def test_pi_runtime_capability_selects_raspberry_pi_adapter_for_shared_scenario(self) -> None:
+        scenarios = [
+            scenario
+            for scenario in self.scenarios
+            if scenario.id in {"CAPABILITIES-005", "PROFILE-010", "ASKDJ-010", "TRACKINSIGHT-005"}
+        ]
+
+        plan = VerificationPlanningEngine(self.config).plan(scenarios, strategy_id="smoke", policy_id="smoke")
+
+        pi_cases = {case.scenario_id: case for case in plan.cases}
+        self.assertEqual(set(pi_cases), {"CAPABILITIES-005", "PROFILE-010", "ASKDJ-010", "TRACKINSIGHT-005"})
+        for case in pi_cases.values():
+            self.assertEqual("Raspberry Pi", case.platform)
+            self.assertEqual("raspberry_pi", case.adapter)
+        self.assertIn("pi", plan.resource_plan.required_hardware)
+        self.assertEqual(4, plan.coverage.by_platform["Raspberry Pi"])
+
     def test_release_policy_includes_release_qualification_mode_for_release_scenario(self) -> None:
         scenario = [scenario for scenario in self.scenarios if scenario.id == "RELEASE-001"]
 

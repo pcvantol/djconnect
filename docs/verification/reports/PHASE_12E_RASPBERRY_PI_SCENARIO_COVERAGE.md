@@ -148,6 +148,12 @@ coverage beyond `PI-001`.
 
 ## Next Phase
 
-The next platform step is additional adapter selection or a focused Raspberry
-Pi product-scenario mapping remediation. Do not begin ESP32, Windows, Voice,
-Website, Release or any later phase automatically.
+The Phase 12E warning was later remediated by
+`PHASE_12E_R_RASPBERRY_PI_PRODUCT_SCENARIO_MAPPING.md`, which added canonical
+Pi execution-surface mapping for shared Pi product scenarios. The remediation
+qualified `PROFILE-010`, `CAPABILITIES-005`, `ASKDJ-010` and
+`TRACKINSIGHT-005` in run `djv-20260712T093801Z-b5be5b3197`, followed by the
+full 9-case Pi smoke set in run `djv-20260712T094155Z-cf11275694`.
+
+The next platform step is additional adapter selection. Do not begin ESP32,
+Windows, Voice, Website, Release or any later phase automatically.

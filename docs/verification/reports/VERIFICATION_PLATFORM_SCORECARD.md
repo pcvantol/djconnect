@@ -94,9 +94,13 @@ passed, `djconnect-client` and `djconnect-api` were active after restart, and
 `PI-001` executed through the Scenario Engine and Raspberry Pi adapter with
 PASS evidence in
 `artifacts/verification/evidence/djv-20260712T065051Z-7468abf4dd/`.
-Warnings remain because the canonical smoke planner exposes only `PI-001` as a
-Pi-adapter executable scenario; broader Pi-relevant product scenarios require
-future canonical execution-surface mapping before adapter execution.
+Phase 12E-R resolved and qualified the remaining Pi product scenario mapping
+warning: canonical smoke planning now exposes 9 Raspberry Pi adapter cases,
+including shared-room Profile, Ask DJ shared context, capabilities and Track
+Insight coverage, without moving expected behavior into adapter code.
+`PROFILE-010`, `CAPABILITIES-005`, `ASKDJ-010` and `TRACKINSIGHT-005` passed in
+run `djv-20260712T093801Z-b5be5b3197`, followed by all 9 Pi smoke cases passing
+in run `djv-20260712T094155Z-cf11275694`.
 
 Parallel execution is now the default for workstation runs. The harness detects
 available CPU capacity dynamically, using Apple Silicon performance/efficiency

@@ -46,12 +46,22 @@ class VerificationExecutionEnvironment:
         ha_lab_config = HALabConfig.from_root(self.config.root)
         requires_ha = _requires_home_assistant(selected_scenarios)
         requires_docker_runtime = _requires_docker_runtime(selected_scenarios)
-        gates = [
-            self.runtime_image.pull() if requires_docker_runtime else _skipped_gate(
-                "verification_runtime_image_pull",
-                "Docker runtime image pull skipped; selected scenarios do not require Docker runtime.",
-            ),
-            (
+        ha_docker_gate = (
+            self.ha_docker.qualify(expected_port=ha_lab_config.port, expected_name=ha_lab_config.name)
+            if requires_ha
+            else _skipped_gate(
+                "ha_docker_discovery",
+                "Home Assistant Docker discovery skipped; selected scenarios do not require the HA lab.",
+            )
+        )
+        host_preflight_gate = (
+            _skipped_gate(
+                "host_preflight",
+                "Existing Home Assistant lab runtime is already qualified; startup preflight skipped.",
+                {"qualified_runtime": ha_docker_gate.metadata.get("runtime", {})},
+            )
+            if requires_ha and ha_docker_gate.state == GateState.PASS
+            else (
                 HostPreflight(
                     self.config.root,
                     HostPreflightConfig(ports=(ha_lab_config.port,), lab_root=ha_lab_config.lab_root),
@@ -61,17 +71,17 @@ class VerificationExecutionEnvironment:
                     "host_preflight",
                     "Home Assistant lab host preflight skipped; selected scenarios do not require the HA lab.",
                 )
+            )
+        )
+        gates = [
+            self.runtime_image.pull() if requires_docker_runtime else _skipped_gate(
+                "verification_runtime_image_pull",
+                "Docker runtime image pull skipped; selected scenarios do not require Docker runtime.",
             ),
+            host_preflight_gate,
             self.github.validate_workflows(),
             self.github.commit_status(snapshot.git_sha),
-            (
-                self.ha_docker.qualify(expected_port=ha_lab_config.port, expected_name=ha_lab_config.name)
-                if requires_ha
-                else _skipped_gate(
-                    "ha_docker_discovery",
-                    "Home Assistant Docker discovery skipped; selected scenarios do not require the HA lab.",
-                )
-            ),
+            ha_docker_gate,
             *self.dependencies.validate(self.config.root),
             self.cleanup.clean(dry_run=True),
             self._secret_gate(),
@@ -131,5 +141,5 @@ def _required_capabilities(scenario: Scenario) -> set[str]:
     return {str(item) for item in requires.get("capabilities") or ()}
 
 
-def _skipped_gate(name: str, message: str) -> GateResult:
-    return GateResult(name, GateState.SKIPPED, message, {})
+def _skipped_gate(name: str, message: str, metadata: dict | None = None) -> GateResult:
+    return GateResult(name, GateState.SKIPPED, message, metadata or {})

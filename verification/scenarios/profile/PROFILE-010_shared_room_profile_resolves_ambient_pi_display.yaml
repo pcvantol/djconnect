@@ -9,8 +9,8 @@ priority: P0
 risk: high
 verification_level: V2
 automation_level: ENVIRONMENT_DEPENDENT
-required_components: [HA, Apple, Windows Native ARM64]
-supported_platforms: [Home Assistant, iOS, Windows ARM64]
+required_components: [HA, Apple, Windows Native ARM64, Pi]
+supported_platforms: [Home Assistant, iOS, Windows ARM64, Raspberry Pi]
 required_locales: [not_applicable]
 required_build_types: [Debug, Instrumented]
 required_capabilities: [profiles, request_context]
@@ -33,6 +33,7 @@ requires:
     - ha.services
     - ha.storage
     - ha.websocket
+    - pi.runtime
     - windows.runtime
   services:
     - homeassistant
@@ -44,6 +45,8 @@ requires:
   resources:
     network: local
     persistent_storage: true
+  hardware:
+    - raspberry_pi
   secrets:
     - ha.access_token
   persistence: persistent

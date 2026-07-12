@@ -48,7 +48,7 @@ Do not create GitHub issues automatically from this backlog.
 | VPB-040 | P0 | Raspberry Pi Adapter gap | Resolved in Phase 12: thin Raspberry Pi adapter, CLI registration, Scenario Engine routing, `PI-001` runtime smoke scenario and mock/unit primitive tests are implemented. Live runtime proof is skipped until a prepared Pi target and exact-SHA environment gates are available. | Raspberry Pi Adapter / Execution Environment / Planning Engine | `djconnect`, `djconnect-pi` | No for adapter implementation; live coverage remains future scope | Done | Phase 12 |
 | VPB-041 | P1 | Scenario Catalog cleanup | Some Pi-relevant shared scenarios mention Pi in title or platform intent but still declare Apple/Windows runtime requirements. Phase 12 added a Pi-specific runtime smoke scenario instead of rewriting shared expectations. Broader Pi scenario coverage should only adjust shared scenario requirements when backed by canonical behavior. | Scenario Catalog / Planning Engine | `djconnect` | No | S | Phase 12E |
 | VPB-042 | P0 | Raspberry Pi runtime environment issue | Resolved in Phase 12E: approved host-keychain `gh auth status` passed, exact-SHA CI inspected two successful runs for `d3813c275e910c9723f91d8f294a622d46fda206`, SSH to `rbpi-djconnect.local` passed, narrow sudoers restart passed and `PI-001` executed through the Scenario Engine and Raspberry Pi adapter with PASS evidence. | Execution Environment / Operator | `djconnect` | No | Done | Phase 12E |
-| VPB-043 | P1 | Planning Engine / Scenario Catalog coverage gap | Phase 12E qualified the live Pi runtime smoke path, but canonical smoke planning still exposes only `PI-001` as Pi-adapter executable. Pi-relevant shared profile, Ask DJ, capability, localization and Track Insight scenarios need explicit canonical execution-surface mapping before they can run through the Pi adapter without moving expected behavior into adapter code. | Planning Engine / Scenario Catalog / Raspberry Pi Adapter | `djconnect`, `djconnect-pi` | No for Phase 12E; blocks broader Pi product coverage | M | Raspberry Pi product-scenario mapping remediation |
+| VPB-043 | P1 | Planning Engine / Scenario Catalog coverage gap | Resolved and qualified in Phase 12E-R: Pi runtime capability metadata now maps shared Pi product scenarios to the Raspberry Pi adapter, `PROFILE-010` and `ASKDJ-010` declare their Pi execution surface, full smoke planning exposes 9 Raspberry Pi cases instead of only `PI-001`, the focused remediation set passed in run `djv-20260712T093801Z-b5be5b3197`, and the full 9-case Pi smoke set passed in run `djv-20260712T094155Z-cf11275694`. | Planning Engine / Scenario Catalog / Raspberry Pi Adapter | `djconnect`, `djconnect-pi` | No | Done | Phase 12E-R |
 
 ## Regression Subset Required After Fixes
 
@@ -111,5 +111,6 @@ after R3 qualified the first Apple executable scenario set with non-blocking
 warnings. Phase 11 selected Raspberry Pi as the next adapter. Phase 12
 implemented and mock-qualified the thin Raspberry Pi adapter with live runtime
 skipped. Phase 12E qualified the live Raspberry Pi runtime smoke path with
-non-blocking warnings because broader Pi product scenario mapping remains
-future work.
+non-blocking warnings. Phase 12E-R resolved and qualified the Pi product
+scenario mapping warning; smoke planning now exposes multiple Raspberry Pi
+adapter cases and the first broader Pi product batch passed.

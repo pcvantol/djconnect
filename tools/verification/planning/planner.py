@@ -326,6 +326,9 @@ def _data_profiles_for(mode: dict[str, Any], policy_profiles: list[str]) -> tupl
 
 
 def _platform_for(scenario: Scenario, policy: dict[str, Any]) -> str:
+    runtime_platform = _platform_for_runtime_capability(scenario)
+    if runtime_platform is not None:
+        return runtime_platform
     components = list(scenario.required_components) + _policy_list(policy, "included_platforms")
     for component in components:
         for token in PLATFORM_ADAPTERS:
@@ -334,6 +337,20 @@ def _platform_for(scenario: Scenario, policy: dict[str, Any]) -> str:
     if scenario.category == "Release":
         return "Release"
     return "Home Assistant"
+
+
+def _platform_for_runtime_capability(scenario: Scenario) -> str | None:
+    required = _required_capabilities(scenario)
+    if any(capability.startswith(("pi.", "raspberry_pi.")) for capability in required):
+        return "Raspberry Pi"
+    return None
+
+
+def _required_capabilities(scenario: Scenario) -> set[str]:
+    requires = scenario.raw.get("requires")
+    if not isinstance(requires, dict):
+        return set()
+    return {str(item) for item in requires.get("capabilities") or ()}
 
 
 def _adapter_for(scenario: Scenario) -> str:

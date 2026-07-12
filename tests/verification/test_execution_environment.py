@@ -27,7 +27,7 @@ from tools.verification.environment.host_preflight import HostPreflight, HostPre
 from tools.verification.environment.platforms import CommandRunner
 from tools.verification.environment.runtime_image import RuntimeImagePuller
 from tools.verification.hygiene import RepositoryHygiene
-from tools.verification.models import CleanupMode, GateState, ResourceState, Scenario
+from tools.verification.models import CleanupMode, GateResult, GateState, ResourceState, Scenario
 
 
 class FakeRunner(CommandRunner):
@@ -214,6 +214,54 @@ class ExecutionEnvironmentTests(unittest.TestCase):
 
         self.assertTrue(_requires_home_assistant([scenario]))
         self.assertFalse(_requires_docker_runtime([scenario]))
+
+    def test_prepare_skips_startup_preflight_when_existing_ha_lab_is_qualified(self) -> None:
+        scenario = Scenario(
+            id="PROFILE-001",
+            title="Profile",
+            description="Profile",
+            category="Profiles",
+            priority="P0",
+            verification_level="V2",
+            automation_level="FULL",
+            required_components=("HA",),
+            raw={
+                "supported_platforms": ["Home Assistant"],
+                "requires": {"capabilities": ["ha.runtime", "djconnect.loaded"]},
+            },
+        )
+        qualified_lab = GateResult(
+            "ha_docker_discovery",
+            GateState.PASS,
+            "Docker Home Assistant runtime qualified",
+            {"runtime": {"safe_for_verification": True, "source_matches_sha": True}},
+        )
+        blocked_preflight = GateResult(
+            "host_preflight",
+            GateState.FAIL,
+            "Host preflight blocked lab runner startup",
+            {"ports": [{"port": 18123, "blocked": True}]},
+        )
+
+        with tempfile.TemporaryDirectory() as temp_dir, patch(
+            "tools.verification.environment.execution.HADockerDiscovery.qualify",
+            return_value=qualified_lab,
+        ), patch(
+            "tools.verification.environment.execution.HostPreflight.check",
+            return_value=blocked_preflight,
+        ), patch(
+            "tools.verification.environment.github.GitHubInspector.commit_status",
+            return_value=GateResult("github_ci_status", GateState.PASS, "ok", {}),
+        ):
+            root = Path(temp_dir)
+            (root / "pyproject.toml").write_text("[project]\nname='demo'\n", encoding="utf-8")
+            config = load_config(root)
+            prepared = VerificationExecutionEnvironment(config).prepare([scenario])
+
+        gates = {gate["name"]: gate for gate in prepared["gates"]}
+        self.assertEqual("SKIPPED", gates["host_preflight"]["state"])
+        self.assertIn("already qualified", gates["host_preflight"]["message"])
+        self.assertEqual("PASS", gates["ha_docker_discovery"]["state"])
 
     def test_host_preflight_passes_with_free_port_and_disk(self) -> None:
         usage = Mock(free=30 * 1024 * 1024 * 1024, total=100 * 1024 * 1024 * 1024)
