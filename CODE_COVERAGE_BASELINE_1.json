@@ -1,7 +1,7 @@
 {
   "baseline": "Coverage Baseline 1",
   "date": "2026-07-12",
-  "decision": "CROSS_PLATFORM_COVERAGE_BASELINE_PARTIAL",
+  "decision": "CROSS_PLATFORM_COVERAGE_BASELINE_ESTABLISHED",
   "runtime": {
     "version": "1.1.0",
     "image": "pcvantol/djconnect-verification-platform:1.1.0",
@@ -50,22 +50,19 @@
     {
       "platform": "Raspberry Pi",
       "repository": "pcvantol/djconnect-pi",
-      "commit_sha": "3d2853305041ea1d649faba00e9ccab1169816d7",
-      "coverage_producer": "coverage.py attempt",
-      "coverage_format": "cobertura attempt",
-      "runtime_qualification": "NOT_RELIABLY_PRODUCED",
-      "line_coverage": null,
-      "branch_coverage": null,
+      "commit_sha": "ef9300e6b3a1d3c23311b52beaff0872d023a32b",
+      "coverage_producer": "coverage.py",
+      "coverage_format": "cobertura",
+      "runtime_qualification": "COVERAGE_VALID",
+      "line_coverage": 75.09,
+      "branch_coverage": 61.99,
       "function_coverage": null,
       "method_coverage": null,
-      "native_test_result": "386 passed, 1 failed",
+      "native_test_result": "387 passed",
       "warnings": [
-        "Raspberry Pi coverage could not be reliably produced in the available Python environment",
-        "The attempted run required a hybrid repository virtualenv plus external coverage tooling PYTHONPATH",
-        "tests/test_config.py::test_load_config_ignores_unknown_legacy_keys failed during native coverage production"
+        "Pi coverage root cause fixed in pcvantol/djconnect-pi commit ef9300e6b3a1d3c23311b52beaff0872d023a32b by adding coverage to dev dependencies and updating the stale config test"
       ],
-      "evidence": null,
-      "excluded_from_measured_baseline": true
+      "evidence": "artifacts/verification/evidence/coverage-baseline-1-pi/coverage/coverage-summary.json"
     }
   ],
   "validation": {

@@ -173,7 +173,8 @@ Baseline reports:
 - `CODE_COVERAGE_BASELINE_1.json`
 - `COVERAGE_BASELINE_REPORT.md`
 
-The baseline is recorded as `CROSS_PLATFORM_COVERAGE_BASELINE_PARTIAL` because
-Raspberry Pi coverage could not be reliably produced in the available Python
-environment. Home Assistant and Apple coverage provenance and Runtime ingestion
-remained valid.
+The baseline is recorded as `CROSS_PLATFORM_COVERAGE_BASELINE_ESTABLISHED`.
+Home Assistant, Apple and Raspberry Pi coverage provenance and Runtime
+ingestion are valid. The Raspberry Pi coverage environment root cause was fixed
+before finalizing the baseline, so Pi coverage is produced from the repository
+`.venv` without external coverage tooling.

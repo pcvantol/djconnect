@@ -81,10 +81,10 @@ Coverage Baseline 1 was established as the first Runtime `1.1.0`
 cross-platform coverage measurement. The baseline uses the Docker Hub image
 `pcvantol/djconnect-verification-platform:1.1.0` with digest
 `sha256:3f0b8d3ba5f07afa5c8f05cd305dd92c43806e0fed24395be96d832e7ef72619`.
-The baseline decision is `CROSS_PLATFORM_COVERAGE_BASELINE_PARTIAL` because
-Raspberry Pi coverage could not be reliably produced in the available Python
-environment. Home Assistant and Apple Runtime coverage ingests returned
-`COVERAGE_VALID`.
+The baseline decision is `CROSS_PLATFORM_COVERAGE_BASELINE_ESTABLISHED`.
+Home Assistant, Apple and Raspberry Pi Runtime coverage ingests returned
+`COVERAGE_VALID`. The Raspberry Pi coverage environment root cause was fixed
+before finalizing the baseline.
 
 Docker tags for the stable release are:
 
