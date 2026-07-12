@@ -299,7 +299,19 @@ def _policy_list(policy: dict[str, Any], key: str) -> list[str]:
 
 def _reduce_scenarios(scenarios: list[Scenario], max_cases: int | None) -> list[Scenario]:
     ordered = sorted(scenarios, key=lambda scenario: (scenario.priority, scenario.id))
-    return ordered if max_cases is None else ordered[:max_cases]
+    if max_cases is None or len(ordered) <= max_cases:
+        return ordered
+    selected = ordered[:max_cases]
+    selected_adapters = {_adapter_for(scenario) for scenario in selected}
+    for scenario in ordered[max_cases:]:
+        adapter = _adapter_for(scenario)
+        if adapter in selected_adapters:
+            continue
+        selected.append(scenario)
+        selected_adapters.add(adapter)
+        if len(selected) >= max_cases + len(PLATFORM_ADAPTERS):
+            break
+    return selected
 
 
 def _mode_applies(mode: dict[str, Any], scenario: Scenario) -> bool:
@@ -322,6 +334,10 @@ def _platform_for(scenario: Scenario, policy: dict[str, Any]) -> str:
     if scenario.category == "Release":
         return "Release"
     return "Home Assistant"
+
+
+def _adapter_for(scenario: Scenario) -> str:
+    return PLATFORM_ADAPTERS.get(_platform_for(scenario, {}), "unassigned")
 
 
 def _estimated_seconds(mode: dict[str, Any]) -> int:

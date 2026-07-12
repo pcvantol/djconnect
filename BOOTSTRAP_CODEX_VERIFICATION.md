@@ -88,6 +88,19 @@ Phase 10E-R2 is closed in this branch with App Store/TestFlight distribution
 signing rescoped to release-v1.0 readiness. Follow-up backlog items are recorded
 in `docs/verification/reports/VERIFICATION_PLATFORM_BACKLOG.md`.
 
+Phase 10E retry then qualified the latest eligible iOS 26.5 simulator runtime
+and XCTest healthcheck, but broad Apple scenario execution did not start
+because the canonical smoke planner selected no Apple adapter executable
+scenario set. Phase 10E-R3 was opened as the Apple Scenario Planner Mapping
+Remediation follow-up.
+
+Phase 10E-R3 returned `APPLE_SCENARIO_COVERAGE_QUALIFIED_WITH_WARNINGS`. The
+Phase 10E retry after R3 found no remaining blocking R3 issues: the planner now
+selects `APPLE-001`, the Apple runtime gate passed again on iOS 26.5 and
+`APPLE-001` executed through the Scenario Engine and Apple adapter with PASS
+evidence. Continue with Phase 11 Additional Platform Adapter Selection; do not
+begin the selected adapter implementation automatically.
+
 ## Required Reading Order
 
 1. `BOOTSTRAP_CODEX_SESSION.md`

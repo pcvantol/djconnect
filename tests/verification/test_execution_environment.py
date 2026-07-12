@@ -22,6 +22,7 @@ from tools.verification.environment import (
     VerificationExecutionEnvironment,
 )
 from tools.verification.environment.cleanup import CleanupTarget
+from tools.verification.environment.execution import _requires_docker_runtime, _requires_home_assistant
 from tools.verification.environment.host_preflight import HostPreflight, HostPreflightConfig
 from tools.verification.environment.platforms import CommandRunner
 from tools.verification.environment.runtime_image import RuntimeImagePuller
@@ -175,6 +176,44 @@ class ExecutionEnvironmentTests(unittest.TestCase):
             self.assertIn("toolchains", prepared)
             self.assertEqual(["ha_token"], prepared["gates"][-1]["metadata"]["names"])
             self.assertNotIn("super-secret", repr(prepared))
+
+    def test_apple_only_scenario_does_not_require_ha_or_docker_gates(self) -> None:
+        scenario = Scenario(
+            id="APPLE-001",
+            title="Apple",
+            description="Apple",
+            category="Capabilities",
+            priority="P0",
+            verification_level="V4",
+            automation_level="ENVIRONMENT_DEPENDENT",
+            required_components=("Apple",),
+            raw={
+                "supported_platforms": ["iOS"],
+                "requires": {"capabilities": ["apple.runtime", "evidence.storage"]},
+            },
+        )
+
+        self.assertFalse(_requires_home_assistant([scenario]))
+        self.assertFalse(_requires_docker_runtime([scenario]))
+
+    def test_home_assistant_scenario_requires_ha_gates(self) -> None:
+        scenario = Scenario(
+            id="PROFILE-001",
+            title="Profile",
+            description="Profile",
+            category="Profiles",
+            priority="P0",
+            verification_level="V2",
+            automation_level="FULL",
+            required_components=("HA",),
+            raw={
+                "supported_platforms": ["Home Assistant"],
+                "requires": {"capabilities": ["ha.runtime", "djconnect.loaded"]},
+            },
+        )
+
+        self.assertTrue(_requires_home_assistant([scenario]))
+        self.assertFalse(_requires_docker_runtime([scenario]))
 
     def test_host_preflight_passes_with_free_port_and_disk(self) -> None:
         usage = Mock(free=30 * 1024 * 1024 * 1024, total=100 * 1024 * 1024 * 1024)

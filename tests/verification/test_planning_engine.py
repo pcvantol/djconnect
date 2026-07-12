@@ -56,6 +56,17 @@ class VerificationPlanningEngineTests(unittest.TestCase):
         self.assertFalse(plan.metadata["executes"])
         self.assertFalse(plan.metadata["calls_adapters"])
 
+    def test_smoke_plan_selects_first_apple_runtime_scenario(self) -> None:
+        plan = VerificationPlanningEngine(self.config).plan(self.scenarios, strategy_id="smoke", policy_id="smoke")
+
+        apple_cases = [case for case in plan.cases if case.adapter == "apple"]
+
+        self.assertEqual(1, len(apple_cases))
+        self.assertEqual("APPLE-001", apple_cases[0].scenario_id)
+        self.assertEqual("Apple", apple_cases[0].platform)
+        self.assertIn("apple_device", plan.resource_plan.required_hardware)
+        self.assertEqual(1, plan.coverage.by_platform["Apple"])
+
     def test_release_policy_includes_release_qualification_mode_for_release_scenario(self) -> None:
         scenario = [scenario for scenario in self.scenarios if scenario.id == "RELEASE-001"]
 

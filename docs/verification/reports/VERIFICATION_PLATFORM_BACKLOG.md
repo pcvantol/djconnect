@@ -1,6 +1,6 @@
 # Verification Platform Backlog
 
-Status: active after Phase 10E-R2 latest-runtime gate
+Status: active after Phase 10E-R3 Apple scenario coverage qualification
 
 Do not create GitHub issues automatically from this backlog.
 
@@ -44,6 +44,7 @@ Do not create GitHub issues automatically from this backlog.
 | VPB-036 | P0 | Apple operator configuration follow-up | Resolved for the local stable runtime path: `apple prepare-qualification-config` now emits an approved `DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA` path under `artifacts/verification/apple/DerivedData` and a prepared `DJCONNECT_VERIFICATION_APPLE_TARGET_JSON` for latest stable iOS 26.5. The July 11, 2026 rerun selected `D1DDCACC-2651-4EB9-A55E-2315C9314AA6` on `com.apple.CoreSimulator.SimRuntime.iOS-26-5`. | Operator / Apple Adapter / `djconnect-app` | `djconnect`, `djconnect-app` | No | Done | Phase 10E-R2 follow-up |
 | VPB-037 | P0 | Apple Xcode account and signing follow-up | Resolved for current platform verification: the verifier now has an explicit `xcode_account` gate using `xcodebuild -allowProvisioningUpdates`, and local Xcode 27 beta build evidence resolved team `ZEML4LPXH4`, bundle `dev.djconnect.ios`, signing identity `Apple Development: Peter van Tol (4R93ZR43D5)` and profile `iOS Team Provisioning Profile: dev.djconnect.ios` / `00d91f4f-5a9e-4f13-8790-2393253068e7`. App Store/TestFlight distribution signing is intentionally deferred until release v1.0 readiness and is non-blocking for this platform verification phase. | Operator / Apple Release Engineering | `djconnect-app` | No for current platform verification; release-v1.0 readiness follow-up for App Store/TestFlight | Done for Phase 10E-R2 | Release v1.0 readiness |
 | VPB-038 | P0 | Apple UI automation follow-up | Resolved as a prepared XCTest healthcheck path: `apple prepare-qualification-config` emits `DJCONNECT_VERIFICATION_APPLE_UI_DRIVER=xctest` and a latest-stable simulator `xcodebuild test` command for `DJConnectIOSUITests/DJConnectIOSUITests/testPrimaryTabsAreAvailable`. The runtime gate now skips UI healthcheck before mutation whenever prerequisite signing/build/target gates are blocked. | Apple Adapter / Apple Client / Operator | `djconnect`, `djconnect-app` | No | Done | Phase 10E-R2 follow-up |
+| VPB-039 | P0 | Planning Engine / Scenario Engine mapping blocker | Resolved in Phase 10E-R3: smoke planning now selects `APPLE-001` as an Apple adapter executable case, the CLI can register the Apple adapter for scenario execution, env-file target JSON is loaded for execute commands, and Apple-only runs skip unrelated HA/Docker gates. `APPLE-001` passed through the Scenario Engine and Apple adapter. | Planning Engine / Scenario Engine / Apple Adapter | `djconnect` | No | Done | Phase 10E-R3 |
 
 ## Regression Subset Required After Fixes
 
@@ -80,11 +81,16 @@ Phase 10E-R2 reports:
 
 APPLE_LATEST_RUNTIME_QUALIFICATION_BLOCKED
 
+Phase 10E-R3 reports:
+
+APPLE_SCENARIO_COVERAGE_QUALIFIED_WITH_WARNINGS
+
 Framework runtime, Docker release workflow and regular CI are not blocked by
 Docker Hub secret provisioning, Docker repository naming or self-hosted runner
 availability; those are tracked as follow-ups above. Phase 10E-R2's App
 Store/TestFlight distribution-signing gap is explicitly non-blocking for the
 current platform verification phase and moves to release-v1.0 readiness. Phase
-10E retry can proceed with the Xcode account gate, development signing path,
-latest eligible simulator target and prepared XCTest healthcheck.
-Phase 11 remains blocked until Apple scenario coverage itself has reported.
+10E-R3 resolved the planner/scenario mapping blocker, and the Phase 10E retry
+after R3 qualified the first Apple executable scenario set with non-blocking
+warnings. Phase 11 adapter selection is unblocked, but adapter implementation
+must not begin automatically.

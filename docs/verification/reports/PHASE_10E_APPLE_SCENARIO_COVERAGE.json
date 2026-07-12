@@ -1,12 +1,36 @@
 {
-  "phase": "10E",
-  "decision": "APPLE_RUNTIME_QUALIFIED_SCENARIO_SELECTION_BLOCKED",
-  "status": "runtime_qualified_scenario_selection_blocked",
-  "run_id": "apple10e-20260711T215124Z-d64d7aa157",
-  "evidence_dir": "artifacts/verification/evidence/apple10e-20260711T215124Z-d64d7aa157/",
+  "phase": "10E retry after 10E-R3",
+  "decision": "APPLE_SCENARIO_COVERAGE_QUALIFIED_WITH_WARNINGS",
+  "status": "qualified_with_warnings",
+  "runtime_run_id": "apple10e-20260711T222229Z-657e8945b1",
+  "runtime_evidence_dir": "artifacts/verification/evidence/apple10e-20260711T222229Z-657e8945b1/",
+  "scenario_run_id": "djv-20260711T222533Z-fe2a0bcda5",
+  "scenario_evidence_dir": "artifacts/verification/evidence/djv-20260711T222533Z-fe2a0bcda5/",
+  "toolchain_run_id": "appletoolchain-20260711T221128Z-914cdf77e6",
+  "toolchain_evidence_dir": "artifacts/verification/evidence/appletoolchain-20260711T221128Z-914cdf77e6/",
   "broad_scenario_execution_allowed": true,
-  "summary": "Phase 10E retry qualified the latest eligible iOS simulator runtime and XCTest healthcheck. Broad Apple scenario execution did not start because the canonical smoke planner still selected only HA cases and exposed no Apple adapter executable scenario set.",
-  "checks": {
+  "summary": "Phase 10E was retried after Phase 10E-R3 remediated Apple scenario planner mapping. The smoke planner selects APPLE-001 as an Apple adapter executable case, Apple runtime qualification passed on iOS 26.5, and APPLE-001 executed through the Scenario Engine and Apple adapter with PASS evidence.",
+  "planner_result": {
+    "command": "/private/tmp/djconnect-phase9e-venv/bin/python -m tools.verification.cli plan --strategy smoke --policy smoke --format json",
+    "case_count": 45,
+    "scenario_count": 51,
+    "by_platform": {
+      "Apple": 1,
+      "HA": 44
+    },
+    "apple_adapter_cases": 1,
+    "apple_scenarios": [
+      "APPLE-001"
+    ]
+  },
+  "scenario_execution": {
+    "command": "/private/tmp/djconnect-phase9e-venv/bin/python -m tools.verification.cli --env-file artifacts/verification/apple/phase10e.env --apple-adapter execute --scenario-id APPLE-001",
+    "scenario_id": "APPLE-001",
+    "state": "PASS",
+    "executed_scenarios": 1,
+    "total_execution_seconds": 2.0113266659900546
+  },
+  "runtime_checks": {
     "toolchain_maintenance": "PASS",
     "derived_data_isolation": "PASS",
     "apns_entitlements": "PASS",
@@ -22,35 +46,17 @@
     "log_collection": "PASS",
     "ui_automation_healthcheck": "PASS"
   },
-  "remediations": {
-    "apple_adapter": [
-      "Boot the configured simulator and wait for bootstatus before simulator install, launch, screenshot and log collection primitives.",
-      "Terminate the primitive launch before running XCTest so UI tests start from their configured launch arguments."
-    ],
-    "apple_client": [
-      "Clear stale crash prompt state during --uitesting launches while preserving production crash detection.",
-      "Narrow the primary-tab healthcheck to primary tab availability; deeper More navigation remains separate UI coverage."
-    ],
-    "verification_gate": [
-      "Treat policy-deferred distribution signing, cross-device simulators and physical-device targets as non-blocking SKIPPED checks for current platform verification."
-    ]
-  },
-  "crash_log_analysis": {
-    "performed": true,
-    "result": "No simulator CrashReporter crash file was found for DJConnect. The app persistent log showed normal launch/demo messages. Stale UserDefaults crash prompt state, not a fresh crash stack, blocked the earlier UI healthcheck."
-  },
-  "planner_result": {
-    "command": "/private/tmp/djconnect-phase9e-venv/bin/python -m tools.verification.cli plan --strategy smoke --policy smoke --format json",
-    "case_count": 44,
-    "by_platform": {
-      "HA": 44
-    },
-    "apple_adapter_cases": 0
-  },
+  "warnings": [
+    "Apple coverage is limited to the first runtime-smoke scenario set.",
+    "Broader Apple product and UI journey scenarios remain future coverage work.",
+    "watchOS paired simulator orchestration remains deferred.",
+    "Physical-device execution remains explicit opt-in and was skipped.",
+    "App Store/TestFlight distribution signing remains deferred to release v1.0 readiness."
+  ],
   "classification": {
-    "primary": "Verification planning/adapter mapping blocker",
+    "primary": "Qualified with warnings",
     "owner": "Verification Platform",
-    "blocking": true,
-    "notes": "The Apple runtime is qualified, but Phase 10E cannot execute broad Apple scenario coverage until canonical scenarios can be planned as Apple adapter cases."
+    "blocking": false,
+    "notes": "Warnings are non-blocking for the next adapter phase because the first Apple executable scenario set now plans and passes through the Apple adapter."
   }
 }

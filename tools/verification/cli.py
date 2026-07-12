@@ -25,6 +25,7 @@ def build_parser() -> argparse.ArgumentParser:
     parallel_group.add_argument("--no-parallel", action="store_true")
     parser.add_argument("--workers", type=int, default=None)
     parser.add_argument("--ha-adapter", action="store_true")
+    parser.add_argument("--apple-adapter", action="store_true")
 
     subparsers = parser.add_subparsers(dest="command", required=True)
     for command in ("list", "validate", "dry-run", "execute", "report"):
@@ -88,9 +89,9 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
+    _load_env_file(args.env_file)
 
     if args.command == "apple":
-        _load_env_file(args.env_file)
         root = args.root
         if args.apple_command == "qualify-runtime":
             from .apple_runtime_qualification import AppleRuntimeQualification, result_to_json
@@ -125,12 +126,18 @@ def main(argv: list[str] | None = None) -> int:
     loader = ScenarioLoader(config)
     scenarios = loader.load()
     adapters = None
-    if args.ha_adapter:
+    if args.ha_adapter or args.apple_adapter:
         from .adapters import AdapterRegistry
-        from .home_assistant_adapter import HomeAssistantAdapterConfig, HomeAssistantVerificationAdapter
 
         adapters = AdapterRegistry()
-        adapters.register(HomeAssistantVerificationAdapter(_home_assistant_adapter_config(config.root)))
+        if args.ha_adapter:
+            from .home_assistant_adapter import HomeAssistantVerificationAdapter
+
+            adapters.register(HomeAssistantVerificationAdapter(_home_assistant_adapter_config(config.root)))
+        if args.apple_adapter:
+            from .apple_adapter import AppleAdapterConfig, AppleVerificationAdapter
+
+            adapters.register(AppleVerificationAdapter(AppleAdapterConfig.from_environment(config.root)))
     from .orchestrator import VerificationOrchestrator
 
     orchestrator = VerificationOrchestrator(config, adapters=adapters)
