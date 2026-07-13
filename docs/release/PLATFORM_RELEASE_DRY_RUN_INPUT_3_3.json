@@ -1,0 +1,35 @@
+{
+  "platform_version": "3.3",
+  "release_mode": "dry_run",
+  "repository_versions": {
+    "pcvantol/djconnect": "3.3.0",
+    "pcvantol/djconnect-api": "3.3.0",
+    "pcvantol/djconnect-app": "3.3.0",
+    "pcvantol/djconnect-windows": "3.3.0",
+    "pcvantol/djconnect-pi": "3.3.0",
+    "pcvantol/djconnect-esp32": "3.3.0",
+    "pcvantol/djconnect-website": "3.3.0",
+    "pcvantol/djconnect-firmware": "3.3.0",
+    "pcvantol/djconnect-app-releases": "3.3.0",
+    "pcvantol/djconnect-pi-releases": "3.3.0"
+  },
+  "repository_shas": {
+    "pcvantol/djconnect": "8d3e77149d7ae1c6299b338eaff791f945636b78",
+    "pcvantol/djconnect-api": "d1b5e31",
+    "pcvantol/djconnect-app": "bb2c0a3f",
+    "pcvantol/djconnect-windows": "16d3b51",
+    "pcvantol/djconnect-pi": "357a59d",
+    "pcvantol/djconnect-esp32": "81d3678",
+    "pcvantol/djconnect-website": "f465bea",
+    "pcvantol/djconnect-firmware": "b46a834",
+    "pcvantol/djconnect-app-releases": "5f35194",
+    "pcvantol/djconnect-pi-releases": "68aaa4e"
+  },
+  "evidence": {
+    "verification": "PENDING",
+    "software_assurance": "PASS",
+    "trusted_delivery": "PASS",
+    "coverage": "PENDING",
+    "platform_qualification": "PASS"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "pcvantol/djconnect": "8d3e77149d7ae1c6299b338eaff791f945636b78",
+  "pcvantol/djconnect-api": "d1b5e31",
+  "pcvantol/djconnect-app": "bb2c0a3f",
+  "pcvantol/djconnect-windows": "16d3b51",
+  "pcvantol/djconnect-pi": "357a59d",
+  "pcvantol/djconnect-esp32": "81d3678",
+  "pcvantol/djconnect-website": "f465bea",
+  "pcvantol/djconnect-firmware": "b46a834",
+  "pcvantol/djconnect-app-releases": "5f35194",
+  "pcvantol/djconnect-pi-releases": "68aaa4e"
+}
