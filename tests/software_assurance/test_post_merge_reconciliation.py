@@ -100,3 +100,13 @@ class PostMergeReconciliationTest(unittest.TestCase):
 
     def test_reconciliation_is_idempotent_for_same_read_back(self) -> None:
         self.assertEqual(reconcile(request()), reconcile(request()))
+
+    def test_distribution_repository_requires_integrity_not_source_coverage(self) -> None:
+        data = request()
+        data["repository_role"] = "distribution"
+        data["post_merge"].pop("coverage")  # type: ignore[index]
+        data["post_merge"].pop("coverage_report_sha")  # type: ignore[index]
+        data["post_merge"].pop("coverage_artifact_sha")  # type: ignore[index]
+        data["post_merge"]["distribution_integrity"] = "PASS"  # type: ignore[index]
+        data["post_merge"]["metadata_validation"] = "PASS"  # type: ignore[index]
+        self.assertEqual(reconcile(data)["decision"], "POST_MERGE_RELEASE_EVIDENCE_QUALIFIED")

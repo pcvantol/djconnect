@@ -34,6 +34,9 @@ def reconcile(request: dict[str, Any]) -> dict[str, Any]:
 
     repository = _required_text(request, "repository")
     main_sha = _required_sha(request, "main_sha")
+    repository_role = str(request.get("repository_role") or "active_source")
+    if repository_role not in {"active_source", "release_source", "distribution"}:
+        raise ReconciliationError("repository_role is invalid")
     timestamp = str(request.get("timestamp") or _now())
     findings: list[str] = []
 
@@ -49,13 +52,14 @@ def reconcile(request: dict[str, Any]) -> dict[str, Any]:
         _validate_provenance(pr, main_sha, parents, findings)
 
     _validate_pre_merge(request.get("pre_merge"), pr, findings)
-    _validate_post_merge(request.get("post_merge"), main_sha, findings)
+    _validate_post_merge(request.get("post_merge"), main_sha, repository_role, findings)
 
     decision = _QUALIFIED if not findings else _NOT_QUALIFIED
     evidence = {
         "schema_version": 1,
         "kind": "post_merge_release_evidence",
         "repository": repository,
+        "repository_role": repository_role,
         "main_sha": main_sha,
         "main_parents": parents if isinstance(parents, list) else [],
         "originating_pr": _public_pr(pr),
@@ -130,16 +134,19 @@ def _validate_pre_merge(value: object, pr: dict[str, Any], findings: list[str]) 
         findings.append("pre-merge risk classification is invalid")
 
 
-def _validate_post_merge(value: object, main_sha: str, findings: list[str]) -> None:
+def _validate_post_merge(value: object, main_sha: str, repository_role: str, findings: list[str]) -> None:
     if not isinstance(value, dict):
         findings.append("post-merge evidence is missing")
         return
     if value.get("sha") != main_sha:
         findings.append("post-merge evidence SHA does not match main SHA")
-    for key in ("ci", "tests", "lint", "static_analysis", "build_validation", "governance", "coverage"):
+    required = ("ci", "tests", "lint", "static_analysis", "build_validation", "governance", "coverage")
+    if repository_role == "distribution":
+        required = ("ci", "distribution_integrity", "metadata_validation", "governance")
+    for key in required:
         if value.get(key) != _PASS:
             findings.append(f"post-merge {key} is not PASS")
-    if not value.get("coverage_artifact_sha") or value.get("coverage_report_sha") != main_sha:
+    if repository_role != "distribution" and (not value.get("coverage_artifact_sha") or value.get("coverage_report_sha") != main_sha):
         findings.append("coverage is not bound to the exact main SHA")
     if not value.get("workflow_run_ids"):
         findings.append("post-merge workflow run IDs are missing")
