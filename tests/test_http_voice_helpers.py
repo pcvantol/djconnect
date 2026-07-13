@@ -400,7 +400,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
             device_status = {
                 "device_id": "djconnect-watchos-68B74487726D",
                 "client_type": "watchos",
-                "firmware": "3.2.34",
+                "firmware": "3.3.34",
             }
             device_token = "device-token"
 
@@ -2140,8 +2140,8 @@ class VoiceHttpHelperTest(unittest.TestCase):
                     "client_type": "watchos",
                     "platform": "watchos",
                     "device_name": "Peter Apple Watch",
-                    "firmware": "3.2.34",
-                    "app_version": "3.2.34",
+                    "firmware": "3.3.34",
+                    "app_version": "3.3.34",
                 }
 
         response = asyncio.run(self.http.DJConnectStatusView(None).post(Request()))
@@ -2156,7 +2156,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertEqual(runtime.device_status["client_type"], "watchos")
         self.assertEqual(runtime.device_status["platform"], "watchos")
         self.assertEqual(runtime.device_status["device_name"], "Peter Apple Watch")
-        self.assertEqual(runtime.device_status["app_version"], "3.2.34")
+        self.assertEqual(runtime.device_status["app_version"], "3.3.34")
 
     def test_status_view_watchos_returns_live_playback_snapshot(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
@@ -2824,7 +2824,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
                     "device_id": "djconnect-lilygo-90B70990A994",
                     "client_type": "ios",
                     "update_state": "idle",
-                    "firmware": "3.2.6",
+                    "firmware": "3.3.6",
                     "wake_word_enabled": False,
                     "settings": {
                         "screen_brightness_percent": 91,
@@ -2869,7 +2869,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 "client_type": "esp32",
                 "battery_percent": 85,
                 "wifi_rssi": -55,
-                "firmware": "3.2.11",
+                "firmware": "3.3.11",
                 "screen_state": "on",
                 "led_state": "idle",
                 "sound_output": "Living room",
@@ -2916,7 +2916,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertEqual(response["status_code"], 200)
         self.assertEqual(runtime.device_status["battery_percent"], 85)
         self.assertEqual(runtime.device_status["wifi_rssi"], -55)
-        self.assertEqual(runtime.device_status["firmware"], "3.2.11")
+        self.assertEqual(runtime.device_status["firmware"], "3.3.11")
         self.assertEqual(runtime.device_status["screen_state"], "on")
         self.assertEqual(runtime.device_status["led_state"], "idle")
         self.assertEqual(runtime.device_status["sound_output"], "Living room")
@@ -3084,13 +3084,13 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 return {
                     "device_id": "djconnect-lilygo-90B70990A994",
                     "client_type": "esp32",
-                    "firmware": "v3.2.99",
+                    "firmware": "v3.3.99",
                 }
 
         response = asyncio.run(self.http.DJConnectStatusView(None).post(Request()))
 
         self.assertEqual(response["status_code"], 200)
-        self.assertEqual(runtime.device_status["firmware"], "v3.2.99")
+        self.assertEqual(runtime.device_status["firmware"], "v3.3.99")
 
     def test_status_view_rejects_different_major_minor_firmware(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
@@ -3131,7 +3131,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         self.assertEqual(response["status_code"], 426)
         self.assertEqual(response["payload"]["error"], "version_mismatch")
-        self.assertEqual(response["payload"]["ha_major_minor"], "3.2")
+        self.assertEqual(response["payload"]["ha_major_minor"], "3.3")
         self.assertEqual(response["payload"]["firmware_major_minor"], "3.0")
 
     def test_command_view_rejects_known_different_major_minor_firmware(self) -> None:
@@ -3511,7 +3511,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertEqual(response["status_code"], 200)
         self.assertTrue(response["payload"]["backend_available"])
         self.assertEqual(response["payload"]["ha_version"], const.VERSION)
-        self.assertEqual(response["payload"]["ha_major_minor"], "3.2")
+        self.assertEqual(response["payload"]["ha_major_minor"], "3.3")
         self.assertIn("playback", response["payload"])
         self.assertNotIn("refresh_token", response["payload"])
         self.assertNotIn("spotify_refresh_token", response["payload"])
@@ -5252,7 +5252,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertTrue(response["payload"]["success"])
         self.assertTrue(response["payload"]["backend_available"])
         self.assertEqual(response["payload"]["ha_version"], const.VERSION)
-        self.assertEqual(response["payload"]["ha_major_minor"], "3.2")
+        self.assertEqual(response["payload"]["ha_major_minor"], "3.3")
         self.assertEqual(response["payload"]["playback"]["has_playback"], False)
 
     def test_command_view_returns_backend_unavailable_json(self) -> None:
@@ -5393,7 +5393,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 "client_type": "esp32",
                 "ha_pairing_status": "paired",
                 "battery_percent": 85,
-                "firmware": "3.2.15",
+                "firmware": "3.3.15",
                 "wifi_rssi": -55,
                 "screen_state": "on",
                 "led_state": "idle",
@@ -5437,7 +5437,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertIn("Ignoring command payload for device sensor update", "\n".join(captured.output))
         self.assertEqual(runtime.device_status["ha_pairing_status"], "paired")
         self.assertEqual(runtime.device_status["battery_percent"], 85)
-        self.assertEqual(runtime.device_status["firmware"], "3.2.15")
+        self.assertEqual(runtime.device_status["firmware"], "3.3.15")
         self.assertEqual(runtime.device_status["wifi_rssi"], -55)
         self.assertEqual(runtime.device_status["screen_state"], "on")
         self.assertEqual(runtime.device_status["led_state"], "idle")
@@ -5454,7 +5454,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 "client_type": "esp32",
                 "ha_pairing_status": "paired",
                 "battery_percent": 85,
-                "firmware": "3.2.15",
+                "firmware": "3.3.15",
                 "wifi_rssi": -55,
                 "screen_state": "on",
                 "led_state": "idle",
@@ -5495,7 +5495,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertIn("Ignoring voice-only payload for device sensor update", "\n".join(captured.output))
         self.assertEqual(runtime.device_status["ha_pairing_status"], "paired")
         self.assertEqual(runtime.device_status["battery_percent"], 85)
-        self.assertEqual(runtime.device_status["firmware"], "3.2.15")
+        self.assertEqual(runtime.device_status["firmware"], "3.3.15")
         self.assertEqual(runtime.device_status["wifi_rssi"], -55)
         self.assertEqual(runtime.device_status["screen_state"], "on")
         self.assertEqual(runtime.device_status["led_state"], "idle")
