@@ -31,7 +31,46 @@ updated; focused PRs were created for `djconnect-firmware`,
 
 ## Completion boundary
 
-No PR was merged by this task. Consequently the consumer workflow and
-CODEOWNERS are not yet present on the default branches, so Prompt 3 cannot be
-truthfully marked PASS or activate Prompt 4. The deployed branch configuration
-will require the qualification check when these PRs are integrated.
+The initial deployment report was written before rollout PR integration. All
+ten rollout PRs are now merged; the consumer workflow and CODEOWNERS are
+present on default branches. Prompt 3 nevertheless cannot be truthfully marked
+PASS or activate Prompt 4 because the post-merge SHA-enforcement audit found a
+recursive reusable-workflow pin defect.
+
+## Bootstrap and Transition Exceptions
+
+### TD-BOOTSTRAP-001
+
+| Field | Record |
+| --- | --- |
+| Repository / PR | `djconnect` / #78 |
+| Head / merge SHA | `5eaa0f7f7c051f67a6c120b6d603c52a3b03b7dc` / `1ff14bcccce3921410c2d84dfb784d21a766edf7` |
+| Classification | `TRUSTED_DELIVERY_BOOTSTRAP_EXCEPTION` |
+| Gate | `Trusted Delivery qualification / Qualify trusted delivery` failed during bootstrap because the gate and CODEOWNERS were introduced by the same PR. |
+| Technical checks | Canonical validation, CodeQL, Semgrep, HACS, hassfest, verification and action-pinning evidence were recorded as successful before merge. |
+| Authorization and rationale | Explicitly accepted by the repository owner as the initial canonical rollout transition. |
+| Accepted risk | The bootstrap merge did not prove a live owner-approval gate on its own head SHA. |
+| Recurrence | `PROHIBITED`; future HIGH_RISK changes must pass the live owner-approval gate for the current head SHA. |
+| Remediation state | Bootstrap content is merged; Prompt 3 remains blocked by recursive reusable-workflow pin validation before SHA enforcement can be re-enabled. |
+
+## Post-merge enforcement audit
+
+The initial default-branch scan found 49 workflows and 175 direct remote
+`uses:` references, all full-length SHAs. Enforcement was enabled and read
+back as true in all ten repositories. Representative Pi run `29230909878`
+then failed because a caller pinned an older canonical reusable workflow commit
+whose own action references were movable tags. Enforcement was immediately
+rolled back and read back as false in all ten repositories.
+
+Decision: `SHA_PINNING_ENFORCEMENT_NOT_READY` and
+`TRUSTED_DELIVERY_IMPLEMENTATION_BLOCKED`.
+
+## Recursive closure remediation
+
+`docs/software_assurance/WORKFLOW_CLOSURE_REPORT.md` records the corrective
+control. The closure validator resolves reusable workflows recursively at
+their requested immutable commits, preserves duplicate caller evidence,
+detects cycles safely, reports missing sources, and verifies terminal actions
+against the approved pin registry. The canonical remediation pointer is ready
+for review; SHA enforcement remains disabled until this and all corresponding
+consumer pointers have merged and passed platform-wide read-back validation.
