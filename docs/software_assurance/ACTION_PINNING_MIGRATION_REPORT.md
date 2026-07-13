@@ -359,7 +359,7 @@ protection, enforcement settings or Prompt 4 scope.
 | --- | --- | --- | --- |
 | `djconnect-pi` | [#34](https://github.com/pcvantol/djconnect-pi/pull/34) | `6bb3e30` | Removed the byte-identical duplicate Ask DJ revision test; focused pytest and Ruff pass. |
 | `djconnect-website` | [#15](https://github.com/pcvantol/djconnect-website/pull/15) | `9a1d8a4` | Updated the action-pinning assertion to the approved checkout and setup-node SHAs; targeted test passes. |
-| `djconnect-windows` | [#8](https://github.com/pcvantol/djconnect-windows/pull/8) | `9dadab5` | Replaced the broad prose scan with immutable workflow-reference validation and executable regressions for prose, a mutable tag and a SHA pin. |
+| `djconnect-windows` | [#8](https://github.com/pcvantol/djconnect-windows/pull/8) | `9dadab5`, `5d8f173` | Replaced the broad prose scan with immutable workflow-reference validation and executable regressions for prose, a mutable tag and a SHA pin; corrected its matcher after local reproduction exposed an escaping defect. |
 
 The complete website suite now isolates one remaining failure:
 `SYNC_PROMPTS.md` is present despite the existing test and release hygiene
