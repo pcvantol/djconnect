@@ -244,10 +244,10 @@ Implementation sequence:
 3. [Prompt 3: Trusted Delivery Platform](prompts/deferred/software_assurance/PROMPT_03_TRUSTED_DELIVERY_PLATFORM.md) — `PASS`
 4. [Prompt 4: Trusted Delivery Certification](prompts/deferred/software_assurance/PROMPT_04_TRUSTED_DELIVERY_CERTIFICATION.md) — `COMPLETE`
 
-Current state:
+Historical implementation state:
 
 ```text
-Platform Baseline v1.0 certified; historical prerequisite satisfied; Prompts 1 and 2 complete; Prompt 3 active.
+Platform Baseline v1.0 certified; all four Software Assurance Generation 1 prompts complete; Trusted Delivery certified.
 ```
 
 Canonical registration:
@@ -255,9 +255,8 @@ Canonical registration:
 - `SOFTWARE_ASSURANCE_IMPLEMENTATION.md`
 - `prompts/deferred/software_assurance/`
 
-Only Prompt 3 is active and remains subject to an explicit execution request.
-Prompt 4 remains blocked. Prompt 2 completed the cross-repository rollout
-without changing repository settings, rulesets, branch protection or CODEOWNERS.
+No Software Assurance Generation 1 prompt is active. Future work proceeds
+through Product Development, Platform Evolution or Platform Release Engineering.
 
 Use this clean-session prompt for future operator-directed work:
 

@@ -43,13 +43,17 @@ Generation 1 Platform Engineering
 Platform Evolution
   -> current lifecycle
 
-Software Assurance Implementation
-  -> Software Assurance Generation 1 is the active program
-  -> historical prerequisite PLATFORM_BASELINE_V1_CERTIFIED satisfied
-  -> Prompt 1 COMPLETE: reusable CI Governance Foundation
-  -> Prompt 2 COMPLETE: cross-repository workflow harmonization
-  -> Prompt 3 ACTIVE and ready for explicit execution
-  -> Prompt 4 BLOCKED_BY_PROMPT_3
+Software Assurance Generation 1
+  -> COMPLETE; Trusted Delivery certified and operationally frozen
+
+DJConnect Product Development
+  -> primary engineering program
+
+Platform Evolution
+  -> available for future platform work
+
+Platform Release Engineering
+  -> owns future release work
 
 Epic 8: Website and Product Story
   -> phases to be defined after Platform Baseline v1.0 certification and product-language audit

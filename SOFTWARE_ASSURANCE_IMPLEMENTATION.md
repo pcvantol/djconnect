@@ -2,7 +2,7 @@
 
 Status: canonical implementation registration  
 Repository: `pcvantol/djconnect`  
-Platform state: `Platform Evolution; Software Assurance Generation 1 active program`
+Platform state: `Engineering Platform operational; Software Assurance Generation 1 complete`
 
 ## Purpose
 
@@ -20,7 +20,7 @@ capabilities.
 | --- | --- |
 | Architecture Status | `COMPLETE` |
 | Implementation Status | `PROMPT_1_COMPLETE; PROMPT_2_COMPLETE; PROMPT_3_PASS; PROMPT_4_COMPLETE` |
-| Platform State | `Platform Evolution; Software Assurance Generation 1 active program` |
+| Platform State | `Engineering Platform operational; Product Development primary program` |
 | Implementation Start | `PROMPT_1_COMPLETE` |
 | Architecture Freeze | `YES` |
 
@@ -50,15 +50,13 @@ This prerequisite was mandatory. It was satisfied by Platform Baseline v1.0
 Certification on 2026-07-12 and remains recorded as historical governance
 evidence; it must not be deleted or weakened.
 
-Prompt 1 completed the reusable CI Governance Foundation. Prompt 2 completed
-the cross-repository workflow rollout. Prompt 3 is now active; the existence
-of later prompts does not authorize their execution.
+Prompt 1 completed the reusable CI Governance Foundation, Prompt 2 completed
+workflow harmonization, Prompt 3 implemented Trusted Delivery and Prompt 4
+certified it. Generation 1 is complete.
 
 ## Activation Scope
 
-Implementation begins only through the registered Prompt 1 through Prompt 4
-sequence. Prompts 1 and 2 are complete; Prompt 3 is active; Prompt 4 remains
-blocked.
+The registered Prompt 1 through Prompt 4 sequence is complete.
 Certification does not authorize unscoped CI, workflow, repository-setting or
 governance changes.
 
@@ -104,9 +102,9 @@ Platform Qualification
 Platform Baseline
   -> CERTIFIED
 Software Assurance Implementation
-  -> PROMPT_1_COMPLETE; PROMPT_2_COMPLETE; PROMPT_3_ACTIVE
-Business-first Engineering
-  -> FUTURE
+  -> COMPLETE; CERTIFIED; OPERATIONAL
+Product Development
+  -> ACTIVE
 ```
 
 The implementation transition sequence is:
@@ -124,7 +122,7 @@ Software Assurance Architecture:
 
 ```text
 Status: FROZEN
-Implementation: PROMPT_1_COMPLETE; PROMPT_2_COMPLETE; PROMPT_3_ACTIVE
+Implementation: COMPLETE; TRUSTED_DELIVERY_CERTIFIED
 ```
 
 Architecture changes require an Architecture Review. Routine implementation

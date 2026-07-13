@@ -17,9 +17,9 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Platform Evolution after Platform Baseline v1.0 certification. Software
-Assurance Generation 1 is the active engineering program; implementation
-begins only through its explicit registered prompt sequence.
+Engineering Platform operational after Platform Baseline v1.0 certification
+and Software Assurance Generation 1 closure. DJConnect Product Development is
+the primary engineering program.
 
 Canonical lifecycle:
 
@@ -95,6 +95,12 @@ Prompt 4 has certified the completed Trusted Delivery platform with decision
 `SOFTWARE_ASSURANCE_TRUSTED_DELIVERY_CERTIFIED`. Software Assurance Generation
 1 is complete and operationally frozen; future work proceeds through Platform
 Evolution rather than Trusted Delivery redesign.
+
+Formal closure confirms `GENERATION_1_COMPLETE`. Platform Engineering,
+Verification Runtime 1.1.0, Software Assurance, Trusted Delivery, Repository
+Governance, Workflow Governance, Risk Classification, Recursive Workflow
+Closure and Immutable Workflow Governance are operationally frozen. Product
+Development is the primary engineering program.
 
 The corrective recursive workflow-closure validator and canonical pointer
 remediation are now prepared for review. This does not re-enable enforcement:
