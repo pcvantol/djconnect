@@ -62,8 +62,8 @@ then failed because a caller pinned an older canonical reusable workflow commit
 whose own action references were movable tags. Enforcement was immediately
 rolled back and read back as false in all ten repositories.
 
-Decision: `SHA_PINNING_ENFORCEMENT_NOT_READY` and
-`TRUSTED_DELIVERY_IMPLEMENTATION_BLOCKED`.
+Decision: `TRUSTED_DELIVERY_IMPLEMENTED`; `ACTION_PINNING_COMPLETE`;
+`WORKFLOW_CLOSURE_COMPLETE`; `PROMPT_3_PASS`.
 
 ## Final validation attempt — 2026-07-13
 
@@ -76,8 +76,11 @@ Website `29232163457`, and Firmware `29232165212` all concluded
 failure and therefore a Prompt 3 blocker.
 
 SHA enforcement was immediately rolled back and live read back as `false` in
-all ten repositories. Final decision remains
-`TRUSTED_DELIVERY_IMPLEMENTATION_BLOCKED`; Prompt 4 remains blocked.
+all ten repositories. The bounded reproducer then established the native
+GitHub compatibility boundary. `TD-GITHUB-001` accepts that setting as a
+platform compatibility exception; immutable workflow governance remains the
+enforceable control. Prompt 3 passes and Prompt 4 is active, but is not
+executed by this completion.
 
 ## Recursive closure remediation
 

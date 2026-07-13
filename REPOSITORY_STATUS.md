@@ -85,7 +85,11 @@ Post-merge audit found that direct default-branch action references are pinned,
 but a recursive reusable-workflow source at a historical immutable commit still
 contains movable action tags. SHA enforcement was enabled for validation and
 immediately rolled back after the Pi representative run proved the defect.
-Prompt 3 remains blocked pending recursive reusable-workflow pin remediation.
+Prompt 3 completed Trusted Delivery implementation. Native GitHub SHA
+enforcement is an accepted compatibility exception (`TD-GITHUB-001`), because
+the isolated reproducer proved pre-job failure for valid cross-repository
+reusable workflows. Recursive immutable workflow governance is the active
+compensating control; Prompt 4 is active but has not been executed.
 
 The corrective recursive workflow-closure validator and canonical pointer
 remediation are now prepared for review. This does not re-enable enforcement:
