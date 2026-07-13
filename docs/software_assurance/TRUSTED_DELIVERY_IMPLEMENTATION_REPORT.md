@@ -65,6 +65,20 @@ rolled back and read back as false in all ten repositories.
 Decision: `SHA_PINNING_ENFORCEMENT_NOT_READY` and
 `TRUSTED_DELIVERY_IMPLEMENTATION_BLOCKED`.
 
+## Final validation attempt — 2026-07-13
+
+Recursive closure validation passed for all ten default branches before live
+enforcement was enabled. GitHub Actions then rejected representative dispatched
+workflows during startup under SHA enforcement: API `29232155802`, Apple
+`29232157161`, Pi `29232158794`, Windows `29232160264`, ESP32 `29232161943`,
+Website `29232163457`, and Firmware `29232165212` all concluded
+`startup_failure` before a job log was created. This is an enforcement-caused
+failure and therefore a Prompt 3 blocker.
+
+SHA enforcement was immediately rolled back and live read back as `false` in
+all ten repositories. Final decision remains
+`TRUSTED_DELIVERY_IMPLEMENTATION_BLOCKED`; Prompt 4 remains blocked.
+
 ## Recursive closure remediation
 
 `docs/software_assurance/WORKFLOW_CLOSURE_REPORT.md` records the corrective
