@@ -11,7 +11,7 @@ Marketplace and do not make it installable by arbitrary accounts.
 4. Homepage URL: `https://github.com/pcvantol/djconnect`.
 5. Disable user authorization. Do not supply an OAuth callback URL. Disable device flow.
 6. Disable webhooks; no initial webhook event is required.
-7. Set repository permissions exactly: Metadata **Read-only**; Contents **Read and write**; Pull requests **Read and write**; Checks **Read-only**; Commit statuses **Read-only**; Actions **Read-only**.
+7. Set repository permissions exactly: Metadata **Read-only**; Contents **Read and write**; Pull requests **Read and write**; Checks **Read-only**; Commit statuses **Read and write**; Actions **Read-only**. Commit-status write access is used only by the central Owner Authorization workflow to publish the exact-SHA `Owner Authorization` decision after technical Trusted Delivery qualification has passed.
 8. Do not grant Administration, Members, Secrets, Environments, Repository hooks, Packages, Deployments, Security events, Actions write or Workflows write.
 9. Create the app and record its non-secret App ID.
 10. Generate one private key and provision it only through the approved secret-management path. Never paste, commit or report the PEM.

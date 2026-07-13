@@ -10,6 +10,6 @@
   "webhooks": {"enabled": false, "events": []},
   "repository_selection": "selected",
   "repositories": ["djconnect", "djconnect-api", "djconnect-app", "djconnect-app-releases", "djconnect-esp32", "djconnect-firmware", "djconnect-pi", "djconnect-pi-releases", "djconnect-website", "djconnect-windows"],
-  "permissions": {"metadata": "read", "contents": "write", "pull_requests": "write", "checks": "read", "statuses": "read", "actions": "read"},
+  "permissions": {"metadata": "read", "contents": "write", "pull_requests": "write", "checks": "read", "statuses": "write", "actions": "read"},
   "prohibited_permissions": ["administration", "members", "secrets", "environments", "repository_hooks", "packages", "deployments", "security_events", "actions_write", "workflows"]
 }
