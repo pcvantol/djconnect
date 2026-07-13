@@ -10,6 +10,14 @@ not required.
 
 ### Platform Release Engineering Generation 1
 
+The 2026-07-13 Internal Release architecture correction returned
+`RELEASE_ARCHITECTURE_CORRECTED`. Codex is the release control plane only;
+Apple and Windows use qualified self-hosted native build runners, while HA,
+API, Website, ESP32 and Pi source builds use GitHub-hosted Linux. ESP32 and Pi
+remain artifact-consuming deployment targets. The next release activity, if
+explicitly authorized, is the operational Internal Release using this corrected
+architecture; it must not reopen or redesign Release Architecture.
+
 Prompt 1 froze the Platform Release Architecture and Prompt 2 qualified the
 simulation-only Platform Release Orchestrator. Prompt 3 remediation
 re-executed the platform-wide release dry run for platform version `3.3` and
