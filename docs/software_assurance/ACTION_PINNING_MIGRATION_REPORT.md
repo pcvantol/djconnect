@@ -245,3 +245,73 @@ in the registry. SHA enforcement remains disabled. Batch 5 was not started.
 | `djconnect-esp32` | `codex/action-pinning-batch-4` | `e6db66184ecdab78e914adbb21efe0f010064385` |
 
 The final central coordination commit records this registry and report update.
+
+## Batch 5 — Platform-Wide Enforcement and Validation
+
+Decision: `ACTION_PINNING_BATCH_5_BLOCKED`
+Readiness decision: `SHA_PINNING_ENFORCEMENT_NOT_READY`
+Date: 2026-07-13
+
+Batch 5 performed a live read-back of the ten active repositories discovered
+from `REPOSITORY_OWNERSHIP.md`. All Batch 1–4 migration branches and recorded
+commits are durable on `origin`, and all local worktrees are clean. However,
+none of those migration branches is merged into its repository default branch.
+Repository-level SHA enforcement would therefore evaluate still-unpinned
+default-branch workflows and block normal CI.
+
+### Default-branch compliance matrix
+
+| Repository | Active workflows | Remote refs | Immutable refs | Non-immutable refs | Enforcement supported | Enforcement enabled | Compliance |
+| --- | ---: | ---: | ---: | ---: | --- | --- | --- |
+| `djconnect` | 10 | 41 | 11 | 30 | yes | no | blocked: canonical Batch 1–4 branch not merged |
+| `djconnect-api` | 3 | 11 | 3 | 8 | yes | no | blocked: Batch 2 branch not merged |
+| `djconnect-app` | 6 | 23 | 6 | 17 | yes | no | blocked: Batch 2 branch not merged |
+| `djconnect-app-releases` | 1 | 1 | 1 | 0 | yes | no | compliant |
+| `djconnect-esp32` | 4 | 29 | 4 | 25 | yes | no | blocked: Batch 4 branch not merged |
+| `djconnect-firmware` | 1 | 1 | 1 | 0 | yes | no | compliant |
+| `djconnect-pi` | 4 | 15 | 14 | 1 | yes | no | blocked: Batch 2 branch not merged |
+| `djconnect-pi-releases` | 1 | 1 | 1 | 0 | yes | no | compliant |
+| `djconnect-website` | 4 | 12 | 4 | 8 | yes | no | blocked: Batch 2 branch not merged |
+| `djconnect-windows` | 4 | 30 | 4 | 26 | yes | no | blocked: Batch 2 branch not merged |
+| **Platform total** | **38** | **164** | **49** | **115** | **10/10** | **0/10** | **not ready** |
+
+The scan distinguishes three local reusable-workflow calls in `djconnect`;
+those are not remote pinning violations. All 115 violations are movable tags
+or branch refs on `main`, including `@main`, `@master`, broad action tags and
+mutable reusable-workflow refs. The Batch 1–4 target branches were previously
+validated as immutable. Registry-to-workflow consistency therefore passes for
+the migration branches but cannot pass for the active default branches until
+the approved branches are integrated.
+
+### Remote durability and required coordination
+
+The following remote branches contain their recorded commits and are not
+ancestors of `main`: canonical `codex/trusted-delivery-platform`; API, Apple,
+Pi, website and Windows `codex/action-pinning-batch-2`; and ESP32
+`codex/action-pinning-batch-4`. Earlier Batch 1–3 evidence branches also
+remain durable remotely. The Batch 2 branches contain their respective Batch
+1 changes; the ESP32 Batch 4 branch contains its earlier Batch 1 and Batch 2
+changes.
+
+Required coordination sequence before enforcement:
+
+1. Review and merge `codex/trusted-delivery-platform` into `djconnect/main`.
+2. Review and merge the API, Apple, Pi, website and Windows Batch 2 branches
+   into their respective `main` branches.
+3. Review and merge ESP32 `codex/action-pinning-batch-4` into `main`.
+4. Re-run the live default-branch scan and registry consistency check.
+5. Only if the scan reports zero remote non-immutable refs, enable and
+   read back `sha_pinning_required` for all ten repositories.
+6. Run representative non-production CI after enforcement.
+
+No merge, policy mutation or post-enforcement CI was performed in Batch 5,
+because the prerequisite branch integration is outside this authorization.
+All repository Actions policies currently retain `allowed_actions: all`,
+read-only default workflow tokens, disabled PR-review approval and
+`sha_pinning_required: false`.
+
+The governed HACS and hassfest upstream-container exceptions remain compatible
+with GitHub Action SHA enforcement: their `uses:` references are full immutable
+SHAs, while the separately documented container-image risk requires periodic
+upstream review. No registry pin changed in Batch 5. Other Prompt 3 Trusted
+Delivery work remains outside action pinning.
