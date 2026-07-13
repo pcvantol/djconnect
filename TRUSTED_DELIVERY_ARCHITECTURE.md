@@ -21,4 +21,9 @@ status and is therefore automatically unauthorized.
 Technical checks remain independent required checks. Owner Authorization cannot
 change Verification, Software Assurance or Trusted Delivery results.
 
+After merge, `Post-Merge Release Evidence` reconciles the qualified PR head
+with the distinct exact `main` SHA. It validates GitHub merge provenance and
+fresh main-SHA CI/coverage before publishing a separate immutable status. This
+does not claim squash-merge SHA equality and does not weaken pre-merge gates.
+
 Canonical policy: `TRUSTED_DELIVERY_SINGLE_MAINTAINER_GOVERNANCE.md`.

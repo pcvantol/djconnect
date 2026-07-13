@@ -5,6 +5,7 @@ from __future__ import annotations
 from .discovery import RepositoryNode
 from .planner import mode_policy
 from .versioning import PlatformVersion, RepositoryVersion, VersionError
+from tools.trusted_delivery.post_merge_reconciliation import validate_release_evidence
 
 
 def evaluate_readiness(
@@ -15,6 +16,7 @@ def evaluate_readiness(
     evidence: dict[str, str],
     mode: str,
     profile: str | None = None,
+    reconciliations: dict[str, object] | None = None,
 ) -> dict[str, object]:
     """Return READY, NOT_READY or BLOCKED and every contributing condition."""
 
@@ -36,6 +38,13 @@ def evaluate_readiness(
                 conditions.append(_condition("BLOCKED", "version_invalid", node.name, str(error)))
         if not shas.get(node.name):
             conditions.append(_condition("NOT_READY", "sha_missing", node.name, "repository SHA is required"))
+        else:
+            reconciliation = (reconciliations or {}).get(node.name)
+            if not isinstance(reconciliation, dict):
+                conditions.append(_condition("NOT_READY", "post_merge_evidence_missing", node.name, "exact-main-SHA reconciliation evidence is required"))
+            else:
+                for error in validate_release_evidence(reconciliation, node.name, shas[node.name]):
+                    conditions.append(_condition("BLOCKED", "post_merge_evidence_invalid", node.name, error))
 
     for evidence_name in mode_policy(mode, profile)["required_evidence"]:
         value = evidence.get(str(evidence_name), "MISSING")

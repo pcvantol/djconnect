@@ -144,6 +144,11 @@ Evidence should be referenced once and reused. Software Assurance may aggregate
 or summarize evidence, but it must not duplicate the canonical raw evidence
 owned by Verification or execution systems.
 
+Post-merge release evidence is the canonical bridge between pre-merge Trusted
+Delivery and the distinct, releaseable main SHA created by squash merge. It
+records derivation rather than claiming SHA equality, then binds main CI and
+coverage to the exact main SHA.
+
 ## Reporting Architecture
 
 Reports are layered:

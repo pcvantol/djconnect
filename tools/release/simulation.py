@@ -28,17 +28,19 @@ class ReleaseSimulation:
         shas: dict[str, str] | None = None,
         evidence: dict[str, str] | None = None,
         role_overrides: dict[str, str] | None = None,
+        reconciliations: dict[str, object] | None = None,
     ) -> dict[str, object]:
         platform = PlatformVersion.parse(platform_version)
         nodes = discover_repositories(self.ownership_path, role_overrides)
         stages = execution_plan(nodes, mode, profile)
-        readiness = evaluate_readiness(nodes, platform, versions or {}, shas or {}, evidence or {}, mode, profile)
+        readiness = evaluate_readiness(nodes, platform, versions or {}, shas or {}, evidence or {}, mode, profile, reconciliations)
         policy = mode_policy(mode, profile)
         repository_records = [
             {
                 **asdict(node),
                 "version": (versions or {}).get(node.name),
                 "sha": (shas or {}).get(node.name),
+                "post_merge_evidence": (reconciliations or {}).get(node.name),
                 "dependencies": _dependencies(node, stages),
                 "included": node.mandatory,
                 "scope_reason": "mandatory release role" if node.mandatory else "not in scope by default",

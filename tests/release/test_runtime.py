@@ -13,6 +13,7 @@ from tools.release.execution import ExecutionAction, ExecutionError, ExecutionRe
 from tools.release.manifest import validate_manifest
 from tools.release.simulation import ReleaseSimulation
 from tools.release.versioning import PlatformVersion, RepositoryVersion, VersionError, read_repository_version
+from tools.trusted_delivery.post_merge_reconciliation import reconcile
 
 
 OWNERSHIP = """# Ownership
@@ -61,7 +62,10 @@ class ReleaseRuntimeTest(unittest.TestCase):
         self.tempdir.cleanup()
 
     def _manifest(self) -> dict[str, object]:
-        return ReleaseSimulation(self.ownership).run("3.3", mode="production", versions={"example/source": "3.3.1", "example/distribution": "3.3.2"}, shas={"example/source": "a" * 40, "example/distribution": "b" * 40}, evidence={"verification": "PASS", "software_assurance": "PASS", "trusted_delivery": "PASS", "coverage": "PASS", "platform_qualification": "PASS"})
+        shas = {"example/source": "a" * 40, "example/distribution": "b" * 40}
+        def reconciliation(repository: str, main_sha: str, pr_sha: str) -> dict[str, object]:
+            return reconcile({"repository": repository, "main_sha": main_sha, "main_parents": ["c" * 40], "timestamp": "2026-01-01T00:00:00Z", "originating_pr": {"number": 1, "state": "MERGED", "base_ref": "main", "head_sha": pr_sha, "merge_commit_sha": main_sha, "merge_strategy": "SQUASH", "merge_actor": "maintainer", "merged_at": "2026-01-01T00:00:00Z", "changed_files": ["x"], "main_changed_files": ["x"]}, "pre_merge": {"candidate_sha": pr_sha, "risk_classification": "NORMAL_RISK", "owner_authorization": "PASS", "verification": "PASS", "software_assurance": "PASS", "trusted_delivery": "PASS", "workflow_integrity": "PASS", "required_checks": "PASS"}, "post_merge": {"sha": main_sha, "ci": "PASS", "tests": "PASS", "lint": "PASS", "static_analysis": "PASS", "build_validation": "PASS", "governance": "PASS", "coverage": "PASS", "coverage_report_sha": main_sha, "coverage_artifact_sha": "d" * 64, "workflow_run_ids": ["1"]}})
+        return ReleaseSimulation(self.ownership).run("3.3", mode="production", versions={"example/source": "3.3.1", "example/distribution": "3.3.2"}, shas=shas, evidence={"verification": "PASS", "software_assurance": "PASS", "trusted_delivery": "PASS", "coverage": "PASS", "platform_qualification": "PASS"}, reconciliations={"example/source": reconciliation("example/source", shas["example/source"], "d" * 40), "example/distribution": reconciliation("example/distribution", shas["example/distribution"], "e" * 40)})
 
     def _action(self, manifest: dict[str, object], repository: str, category: str = "build", mode: str = "execute") -> dict[str, object]:
         sha = "a" * 40 if repository == "example/source" else "b" * 40
@@ -95,6 +99,11 @@ class ReleaseRuntimeTest(unittest.TestCase):
             (self.root / name).write_text(json.dumps(data), encoding="utf-8")
         with redirect_stdout(StringIO()):
             self.assertEqual(main(["--ownership", str(self.ownership), "--platform-version", "3.3", "--mode", "dry_run", "--versions-file", str(self.root / "versions.json"), "--shas-file", str(self.root / "shas.json"), "--evidence-file", str(self.root / "evidence.json"), "simulate"]), 0)
+
+    def test_runtime_rejects_pr_only_or_missing_post_merge_evidence(self) -> None:
+        manifest = ReleaseSimulation(self.ownership).run("3.3", mode="production", versions={"example/source": "3.3.1", "example/distribution": "3.3.2"}, shas={"example/source": "a" * 40, "example/distribution": "b" * 40}, evidence={"verification": "PASS", "software_assurance": "PASS", "trusted_delivery": "PASS", "coverage": "PASS", "platform_qualification": "PASS"})
+        self.assertEqual(manifest["readiness"]["state"], "NOT_READY")
+        self.assertTrue(any(item["code"] == "post_merge_evidence_missing" for item in manifest["readiness"]["conditions"]))
 
     def test_runtime_has_no_direct_mutation_operations(self) -> None:
         self.assertFalse(hasattr(RecordingClient(), "create_tag"))
