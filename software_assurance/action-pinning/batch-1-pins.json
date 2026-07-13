@@ -82,8 +82,32 @@
         }
       ],
       "reviewed_at": "2026-07-12"
+    },
+    {
+      "decision": "ACTION_PINNING_BATCH_3_COMPLETE",
+      "pins": [
+        {
+          "approval_status": "approved",
+          "cache_behavior": "No Buildx, QEMU, metadata-action or remote cache is present; the workflow builds locally and validates labels and a smoke test before the guarded push step.",
+          "category": "docker registry",
+          "compatibility_status": "validated: Docker Hub default registry, username/password inputs, default logout behavior and existing push guard are unchanged",
+          "consumers": ["djconnect/.github/workflows/verification-platform-docker-release.yml"],
+          "current_ref": "v4",
+          "dependency_repository": "docker/login-action",
+          "immutable_sha": "af1e73f918a031802d376d3c8bbc3fe56130a9b0",
+          "intended_major_line": "v4",
+          "registry_behavior": "Docker Hub is selected by omission of the registry input. Authentication occurs only for push events or workflow-dispatch input push=true; all five existing image tag pushes remain unchanged.",
+          "required_permissions": {"contents": "read"},
+          "required_secrets": ["DOCKERHUB_USERNAME", "DOCKERHUB_TOKEN"],
+          "residual_risk": "The authenticated Docker Hub login/push path is not exercised by the non-publishing branch dry-run; it retains its existing production-only trigger guard.",
+          "reviewed_at": "2026-07-13",
+          "runner_compatibility": "ubuntu-latest; upstream action metadata declares node24 and a post step for default logout.",
+          "validation_evidence": ["GitHub release and tag resolution", "action.yml input and logout review", "workflow YAML parse", "Docker release CLI dry-run", "immutable-reference and guarded-secret validation", "branch workflow dispatch with push=false", "canonical governance policy validation", "git diff --check"]
+        }
+      ],
+      "reviewed_at": "2026-07-13"
     }
   ],
-  "canonical_action_inventory": "complete through Action Pinning Migration Batch 2",
-  "updated_at": "2026-07-12"
+  "canonical_action_inventory": "complete through Action Pinning Migration Batch 3",
+  "updated_at": "2026-07-13"
 }

@@ -109,11 +109,10 @@ Representative branch runs were dispatched without merging: Semgrep completed
 successfully at [run 29207926270](https://github.com/pcvantol/djconnect/actions/runs/29207926270)
 and Gitleaks completed successfully at [run 29207928443](https://github.com/pcvantol/djconnect-esp32/actions/runs/29207928443).
 ESP32 CodeQL was also dispatched at [run 29207927305](https://github.com/pcvantol/djconnect-esp32/actions/runs/29207927305);
-its governance job and pinned-action initialization succeeded, while the
-firmware build and analysis remain GitHub-runner work in progress at this
-recording. Residual risk is limited to that still-running end-to-end CodeQL
-execution and Semgrep action v1's upstream container-image reference, which
-is not migrated because Docker/image migration is explicitly outside Batch 2.
+it subsequently completed successfully, including the firmware build, pinned
+CodeQL analysis and cleanup job. Residual risk is limited to Semgrep action
+v1's upstream container-image reference, which is not migrated because
+Docker/image migration is explicitly outside Batch 2.
 No Batch 2 scanner reference remains unresolved. Docker, packaging, release,
 HACS, hassfest and all other third-party action migrations remain out of scope.
 
@@ -130,3 +129,49 @@ HACS, hassfest and all other third-party action migrations remain out of scope.
 
 All listed sibling branches are pushed to `origin`; none was merged. The final
 central coordination commit records the registry and this report.
+
+## Batch 3 — Docker, Registry and Packaging
+
+Decision: `ACTION_PINNING_BATCH_3_COMPLETE`
+Central branch: `codex/trusted-delivery-platform`
+Date: 2026-07-13
+
+Batch 3 found one in-scope action in the canonical inventory and active
+workflows: `docker/login-action` in the verification-runtime Docker release
+workflow. No Buildx, QEMU, metadata, build-push, signing, provenance, SBOM,
+container-packaging or other Docker/registry action is present. Generic
+artifact actions were completed by Batch 1 and firmware/Apple/domain-specific
+release actions remain out of scope.
+
+| Dependency | Intended line | Approved release | Immutable SHA |
+| --- | --- | --- | --- |
+| `docker/login-action` | v4 | `v4.4.0` | `af1e73f918a031802d376d3c8bbc3fe56130a9b0` |
+
+The pin changes only the action reference in
+`.github/workflows/verification-platform-docker-release.yml`; all inputs,
+outputs, image tags, push conditions, cache behavior and artifact behavior are
+unchanged. The workflow continues to target Docker Hub by omitting `registry`,
+uses only `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN`, and retains the action's
+default logout post-step. It has `contents: read` only.
+
+Authentication and every image push remain guarded by
+`github.event_name == 'push' || inputs.push`. The workflow has no pull-request
+trigger, uses `ubuntu-latest`, has no self-hosted runner or Trusted AI
+credential, and cannot supply registry credentials or publish images for an
+untrusted fork pull request. It builds and validates five existing tags before
+that guarded authentication/push path; no Buildx/QEMU matrix, remote cache or
+packaging artifact is configured.
+
+Validation passed: GitHub release/tag and `action.yml` review, YAML parsing,
+immutable-reference and guarded-secret validation, canonical policy
+validation, Docker release CLI dry-run, secret-safe diff review and
+`git diff --check`. Branch dry-run
+[29225503583](https://github.com/pcvantol/djconnect/actions/runs/29225503583)
+was dispatched with `push=false`; it validates the existing build/label/smoke
+path without logging in or publishing. The authenticated Docker Hub path is
+intentionally not exercised because production publication is prohibited for
+this validation. No Batch 3 reference remains unresolved.
+
+No sibling repository contains an in-scope Batch 3 dependency, so no sibling
+branch or commit is required. SHA enforcement remains disabled; Batch 4 and
+all excluded action classes were not started.
