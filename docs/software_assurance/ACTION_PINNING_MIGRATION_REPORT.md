@@ -167,8 +167,8 @@ immutable-reference and guarded-secret validation, canonical policy
 validation, Docker release CLI dry-run, secret-safe diff review and
 `git diff --check`. Branch dry-run
 [29225503583](https://github.com/pcvantol/djconnect/actions/runs/29225503583)
-was dispatched with `push=false`; it validates the existing build/label/smoke
-path without logging in or publishing. The authenticated Docker Hub path is
+completed successfully with `push=false`, validating the existing
+build/label/smoke path without logging in or publishing. The authenticated Docker Hub path is
 intentionally not exercised because production publication is prohibited for
 this validation. No Batch 3 reference remains unresolved.
 
