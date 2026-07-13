@@ -55,7 +55,9 @@ Platform Evolution
 Platform Release Engineering
   -> Generation 1 release architecture complete
   -> simulation-only release orchestrator qualified
-  -> first complete Platform Release Dry Run generated but not started
+  -> Platform Release Dry Run passed
+  -> Platform Release Engineering Generation 1 qualified
+  -> Platform Release Certification generated but not started
   -> future implementation proceeds through `docs/release/`
   -> no publication-capable automation or repository rollout has started
 

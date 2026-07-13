@@ -18,6 +18,14 @@ release process the source of truth.
 - `RUNTIME.md` documents the simulation-only Release Orchestrator runtime.
 - `PROMPT_02_RELEASE_ORCHESTRATOR_COMPLETION.md` records the implementation
   outcome and qualification evidence.
+- `PLATFORM_RELEASE_QUALIFICATION.md` records the completed Generation 1
+  capability qualification and its objective decision.
+- `PLATFORM_RELEASE_COMPLIANCE_REPORT.md`,
+  `PLATFORM_RELEASE_OPERATIONAL_READINESS.md` and
+  `PLATFORM_RELEASE_GAP_ANALYSIS.md` record the supporting compliance,
+  operational and future-work evidence.
+- `PROMPT_04_PLATFORM_RELEASE_QUALIFICATION_COMPLETION.md` records the
+  formal Generation 1 qualification decision.
 
 The architecture consumes repository membership from
 [`REPOSITORY_OWNERSHIP.md`](../../REPOSITORY_OWNERSHIP.md). It consumes
