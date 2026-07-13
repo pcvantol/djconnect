@@ -315,3 +315,35 @@ with GitHub Action SHA enforcement: their `uses:` references are full immutable
 SHAs, while the separately documented container-image risk requires periodic
 upstream review. No registry pin changed in Batch 5. Other Prompt 3 Trusted
 Delivery work remains outside action pinning.
+
+### Default-branch integration attempt
+
+On 2026-07-13 the cumulative migration branches were read back before opening
+governed PRs. Each selected source is ahead of `main`, has no merge conflict,
+and contains all earlier action-pinning changes required for that repository.
+No direct push or governance bypass was used.
+
+| Repository | Source branch | Source commit | PR | Current integration state |
+| --- | --- | --- | --- | --- |
+| `djconnect` | `codex/trusted-delivery-platform` | `30d60a0d149374294b320f6c32e913970a3f9831` | [#78](https://github.com/pcvantol/djconnect/pull/78) | required review; checks running |
+| `djconnect-api` | `codex/action-pinning-batch-2` | `bf6d41fa1991c2f80817c9940fb36b487d08a105` | [#34](https://github.com/pcvantol/djconnect-api/pull/34) | required review; checks running |
+| `djconnect-app` | `codex/action-pinning-batch-2` | `d1cfaf4032fc2f1cb54954df89edd0da7847dc2c` | [#12](https://github.com/pcvantol/djconnect-app/pull/12) | required review; checks running |
+| `djconnect-pi` | `codex/action-pinning-batch-2` | `fb96aa8e095256574bb62a92fef565d387382cb8` | [#34](https://github.com/pcvantol/djconnect-pi/pull/34) | required review; existing Ruff failure |
+| `djconnect-website` | `codex/action-pinning-batch-2` | `dc160215b153921f0831b803ebc40109f88aacdb` | [#15](https://github.com/pcvantol/djconnect-website/pull/15) | CI failures require remediation |
+| `djconnect-windows` | `codex/action-pinning-batch-2` | `eae824465986f07909528882e9c9735fd102521d` | [#8](https://github.com/pcvantol/djconnect-windows/pull/8) | workflow-hygiene failure requires remediation |
+| `djconnect-esp32` | `codex/action-pinning-batch-4` | `e6db66184ecdab78e914adbb21efe0f010064385` | [#15](https://github.com/pcvantol/djconnect-esp32/pull/15) | required review; checks running |
+
+Pre-merge YAML parsing, immutable-reference scans and `git diff --check`
+passed for all seven proposed results. Integration remains incomplete and
+`SHA_PINNING_ENFORCEMENT_NOT_READY` remains in force for two independent
+reasons: required PR approvals are absent, and three repositories have CI
+failures.
+
+The inspected failures are not enforcement failures. Pi Ruff reports a
+pre-existing duplicate test function in `tests/test_app_backend.py`. Website
+tests report an action-pinning-related expectation that still requires
+`actions/checkout@v5`, plus the unrelated presence of `SYNC_PROMPTS.md`.
+Windows workflow hygiene flags the ordinary word `refresh` in
+`WINDOWS_PROFILE_ADOPTION_REPORT.md` as a secret-like string. These issues
+require focused, separately approved remediation; no product or unrelated test
+content was changed during integration.
