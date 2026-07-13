@@ -24,6 +24,13 @@ inside the existing Trusted Delivery architecture.
 - The authorization workflow validates repository, branch, PR number, current
   SHA, risk class, technical Trusted Delivery PASS and actor identity. It
   produces an immutable evidence artifact.
+- The canonical root workflow provides a bootstrap-safe central dispatch path
+  for the selected DJConnect repositories. It mints a short-lived GitHub App
+  installation token scoped to exactly one validated target repository and
+  writes only the exact-SHA `Owner Authorization` commit status.
+- Technical Trusted Delivery is read from GitHub's status-check rollup, which
+  is the canonical source that GitHub exposes to PR protection. This avoids
+  treating an incomplete REST check-run listing as qualification evidence.
 - The root caller invokes its local reusable Trusted Delivery workflow, so this
   implementation is exercised by its own pull request rather than an earlier
   shared-workflow revision.
@@ -38,21 +45,22 @@ inside the existing Trusted Delivery architecture.
 
 ## Known Limitations and Follow-up
 
-This change introduces the canonical capability in `djconnect`. Consumer
-repositories must consume the merged shared workflow before their branch
-protection requires `Owner Authorization`; otherwise a required status would
-be unavailable. That controlled rollout is the next phase and must not remove
-or weaken any existing required technical check.
+Consumer repositories must consume the merged thin dispatcher before they can
+perform local self-authorization. Until then, the canonical root dispatcher
+can authorize a qualified consumer candidate without changing branch
+protection or weakening a technical check. It accepts only the explicit,
+selected platform repositories and remains exact-SHA bound.
 
 ## Readiness
 
 The governance model is operational in the canonical implementation: it is
-fail-closed, exact-SHA bound and preserves all technical delivery gates. It is
-ready for merge and then a sequenced consumer/workflow and branch-protection
-rollout.
+fail-closed, exact-SHA bound, uses a single-repository installation token and
+preserves all technical delivery gates. A live root candidate completed the
+central authorization flow successfully before this documentation update.
 
 ## Next Phase
 
-Execute only the generated cross-repository Trusted Delivery governance rollout
-prompt. It must pin the merged shared workflow in each participating repository,
-verify its published contexts, then migrate branch protection without a gap.
+Merge the canonical central authorizer, authorize the nine qualified consumer
+candidates through that root workflow, and then re-run their required checks.
+Do not migrate any branch protection until each repository publishes the
+expected required contexts without a gap.
