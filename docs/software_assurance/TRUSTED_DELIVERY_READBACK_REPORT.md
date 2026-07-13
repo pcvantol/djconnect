@@ -15,8 +15,9 @@ Date: 2026-07-13
 | Auto merge / merged-branch deletion | Enabled on all ten repositories |
 | Workflow permissions | Default `read`; PR-review approval disabled |
 | Trusted App contract | Least-privilege contents, pull-request, checks/status read contract retained; no administration/secrets permission |
-| SHA enforcement | Disabled on all ten repositories because default-branch pinning remains incomplete |
-| CODEOWNERS / qualification consumer | Present on governed PR branches; pending merge to default branches |
+| SHA enforcement | Enabled briefly after direct scan, then rolled back to disabled on all ten after recursive reusable-workflow validation failed |
+| CODEOWNERS / qualification consumer | Present on all merged default branches |
 
-The Website `SYNC_PROMPTS.md` failure remains unrelated pre-existing CI debt.
-It blocks Website PR #15 only and was not remediated.
+The Website `SYNC_PROMPTS.md` inconsistency was remediated before Website PR
+#15 merged. The post-merge blocker is recursive reusable-workflow pin closure,
+not Website content validation.

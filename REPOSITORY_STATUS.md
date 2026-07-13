@@ -81,6 +81,12 @@ protection, rulesets and workflow permissions are deployed, while the
 qualification consumer and CODEOWNERS remain pending on governed pull requests.
 Prompt 3 is not complete and Prompt 4 remains blocked.
 
+Post-merge audit found that direct default-branch action references are pinned,
+but a recursive reusable-workflow source at a historical immutable commit still
+contains movable action tags. SHA enforcement was enabled for validation and
+immediately rolled back after the Pi representative run proved the defect.
+Prompt 3 remains blocked pending recursive reusable-workflow pin remediation.
+
 The architecture closure review found that foundation, verification platform,
 meta engineering, repository bootstrap, cross-repository governance,
 repository ownership, product strategy foundation and Software Assurance
