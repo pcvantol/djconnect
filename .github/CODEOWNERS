@@ -1,0 +1,3 @@
+# Single-maintainer ownership is explicit; HIGH_RISK approval is enforced by
+# Trusted Delivery qualification rather than a universal CODEOWNERS review rule.
+* @pcvantol
