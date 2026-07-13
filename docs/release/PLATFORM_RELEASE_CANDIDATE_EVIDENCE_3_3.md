@@ -34,3 +34,11 @@ The Verification Runtime ingested a fresh Cobertura report for candidate
 
 The artifact paths are intentionally untracked runtime evidence. This document
 is the durable release-evidence index; it does not represent publication.
+
+## Reproducibility correction
+
+The original coverage attempt exposed a missing-tooling root cause: the active
+Python environment and CI test setup installed `pytest` but did not declare or
+install `coverage`. `requirements-dev.txt` now pins the verification tooling,
+and the reusable Python CI paths install it before tests. A fresh local install
+and the 15 coverage/release-runtime tests passed with `coverage 7.15.1`.

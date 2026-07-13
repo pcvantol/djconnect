@@ -108,7 +108,11 @@ jobs:
         with:
           python-version: ${{ inputs.python-version }}
       - name: Run tests
-        run: ${{ inputs.test-command }}
+        run: |
+          if [ -f requirements-dev.txt ]; then
+            python -m pip install -r requirements-dev.txt
+          fi
+          ${{ inputs.test-command }}
 
   ruff:
     if: inputs.run-ruff
