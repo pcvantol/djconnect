@@ -4,8 +4,11 @@ Status: `ARCHITECTURE_CORRECTED`
 
 Codex orchestrates discovery, planning, version alignment, workflow dispatch,
 evidence collection, Software Assurance, Trusted Delivery, qualification and
-release decisions. GitHub Actions performs source builds; distribution
-repositories publish qualified artifacts; deployment targets consume them.
+release decisions. GitHub Actions is the exclusive execution engine: it
+performs source builds and owns tagging, releases, artifact publication,
+deployment and supported rollback. Distribution repositories publish qualified
+artifacts; deployment targets consume them. The Runtime has no direct mutation
+path.
 
 ```text
 Codex control plane

@@ -15,7 +15,12 @@ release process the source of truth.
 - `PLATFORM_RELEASE_ROADMAP.md` sequences the later implementation prompts.
 - `PROMPT_01_RELEASE_ARCHITECTURE_COMPLETION.md` records the architecture-phase
   outcome.
-- `RUNTIME.md` documents the simulation-only Release Orchestrator runtime.
+- `RUNTIME.md` documents the planner, fail-closed workflow-orchestration gate
+  and non-production rehearsal path.
+- `PLATFORM_RELEASE_RUNTIME_ARCHITECTURE.md` freezes the separation between the
+  Platform Release Runtime (orchestration) and GitHub Actions (execution).
+- `APPLE_RELEASE_ARCHITECTURE.md` defines the canonical two-artifact Apple
+  model for iPhone, iPad, Apple Watch and macOS.
 - `PROMPT_02_RELEASE_ORCHESTRATOR_COMPLETION.md` records the implementation
   outcome and qualification evidence.
 - `PLATFORM_RELEASE_QUALIFICATION.md` records the completed Generation 1
@@ -38,6 +43,11 @@ release process the source of truth.
 - `RUNNER_QUALIFICATION_REPORT.md`, `RUNNER_DEPLOYMENT_MATRIX.md` and
   `NATIVE_RUNNER_ALIGNMENT_COMPLETION.md` record the final Apple/Windows
   native runner alignment evidence.
+- `PLATFORM_RELEASE_RUNTIME_EXECUTION.md`,
+  `PLATFORM_RELEASE_OPERATIONAL_RUNTIME.md`,
+  `PLATFORM_RELEASE_EXECUTION_REPORT.md` and
+  `PLATFORM_RELEASE_DEPLOYMENT_EVIDENCE.md` record the controlled operational
+  runtime and its representative non-production qualification.
 
 The architecture consumes repository membership from
 [`REPOSITORY_OWNERSHIP.md`](../../REPOSITORY_OWNERSHIP.md). It consumes
@@ -46,9 +56,8 @@ from the Software Assurance Platform. It does not replace either system.
 
 ## Boundaries
 
-This directory defines release architecture and future release-engineering
-work. It does not contain release automation, repository version files,
-release tags, publication configuration, credentials or product artifacts.
+This directory defines release architecture and controlled runtime contracts.
+It does not contain repository version files, credentials or product artifacts.
 
 The Verification Runtime has its own independent product lifecycle. Its
 compatibility evidence may be consumed by a platform release, but a runtime

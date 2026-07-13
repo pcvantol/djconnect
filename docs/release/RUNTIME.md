@@ -1,6 +1,6 @@
 # Platform Release Orchestrator Runtime
 
-Status: simulation-only implementation  
+Status: controlled internal-execution implementation
 Scope owner: `pcvantol/djconnect`
 
 ## Purpose
@@ -8,10 +8,13 @@ Scope owner: `pcvantol/djconnect`
 `tools.release` implements the reusable Platform Release Orchestrator control
 plane. It consumes an ownership document and caller-supplied candidate facts to
 compose a canonical Release Manifest, execution plan, readiness result,
-qualification plan, artifact plan and rollback plan.
+qualification plan, artifact plan and rollback plan. It also provides a
+fail-closed `INTERNAL_RELEASE` executor over that approved plan.
 
-It does not access sibling repositories by name, update versions, create tags,
-publish artifacts, deploy, execute verification, or execute rollback.
+It never builds software directly or selects sibling repositories by name.
+Build, tagging, release creation, artifact publication, deployment and rollback
+remain explicit GitHub Actions workflow responsibilities. The runtime has no
+direct mutation capability.
 
 ## Inputs
 
@@ -46,10 +49,9 @@ python -m tools.release --platform-version 3.3 simulate
 python -m tools.release --platform-version 3.3 explain
 ```
 
-All commands are simulations. They return JSON to standard output and do not
-write a Release Manifest to the repository. With missing candidate facts, the
-simulation succeeds but correctly reports `NOT_READY` or `BLOCKED` with every
-condition explained.
+Planning commands are simulations and return JSON without writing a Release
+Manifest to the repository. With missing candidate facts, the simulation
+correctly reports `NOT_READY` or `BLOCKED` with every condition explained.
 
 Candidate facts can be passed with JSON maps:
 
@@ -76,10 +78,14 @@ common `manifest.json`, `package.json`, `pyproject.toml` and `VERSION` files.
 - `tools.release.manifest.validate_manifest()` validates required simulation
   fields without requiring an optional JSON Schema package.
 - Supported modes are `development`, `nightly`, `candidate`, `dry_run`,
-  `qualification`, `production`, `hotfix` and `maintenance`. Even modes that
-  conceptually permit publication remain simulation-only in this runtime.
+  `qualification`, `production`, `hotfix` and `maintenance`. Operational
+  execution is additionally constrained to `production` or `hotfix` mode with
+  the `INTERNAL_RELEASE` profile.
 - Profiles are `fast`, `balanced`, `full_qualification` and `production` and
   select required evidence classes.
+- Apple artifact planning uses exactly two Generation 1 artifacts: a universal
+  iOS IPA (iPhone, iPad and embedded Watch companion) and a native macOS
+  application. See [Apple Release Architecture](APPLE_RELEASE_ARCHITECTURE.md).
 
 ## Readiness states
 
@@ -94,8 +100,52 @@ Verification, Software Assurance, Trusted Delivery, coverage and platform
 qualification are consumed as supplied evidence references/states; this runtime
 does not reimplement their systems.
 
+## Controlled execution
+
+`rehearse` exercises the complete action ordering through an evidence-only
+client. It never contacts GitHub, creates a tag, publishes an artifact or
+deploys a target. It is the required representative non-production validation.
+
+```bash
+python -m tools.release \
+  --ownership tests/release/fixtures/operational-ownership.md \
+  --platform-version 3.3 --mode production \
+  --versions-file tests/release/fixtures/operational-versions.json \
+  --shas-file tests/release/fixtures/operational-shas.json \
+  --evidence-file tests/release/fixtures/operational-evidence.json \
+  --execution-file tests/release/fixtures/operational-request.json \
+  --output-dir /tmp/djconnect-release-rehearsal rehearse
+```
+
+`execute` requires the additional `--execute` acknowledgement plus an approved
+execution request and evidence output directory. It dispatches and monitors
+only the workflows named by that request through the authenticated GitHub CLI,
+then reads their canonical evidence artifact. Each request action is generic
+and must identify a discovered repository, category, workflow/ref and the
+bounded immutable candidate inputs. This preserves dynamic repository discovery
+while keeping every mutation inside GitHub Actions.
+
+Execution fails closed unless all of the following are true:
+
+- release mode is `production` or `hotfix`;
+- readiness is `READY` with aligned versions and candidate SHAs;
+- the production/hotfix manifest marks the candidate `QUALIFIED`;
+- Verification, Software Assurance, Trusted Delivery, coverage and platform
+  qualification evidence are all `PASS`;
+- every action belongs to the immutable discovered release scope; and
+- the request is explicitly `INTERNAL_RELEASE`.
+
+On the first action failure the executor stops, preserves already completed
+operation receipts and writes rollback-preparation evidence. It never
+continues downstream actions or silently falls back to another channel.
+
+The executor emits `release-execution-report.json`, deployment evidence and
+publication evidence. Their machine-readable contract is
+`schemas/release-execution.schema.json`.
+
 ## Safety boundary
 
-The release runtime is intentionally not an executor. Prompt 3 owns the first
-complete Platform Release Dry Run. Production publication, tags, deployments
-and rollback execution remain unavailable from this CLI.
+The runtime does not compile software, create tags or releases, upload
+artifacts itself, publish, deploy, or execute rollback. Apple and Windows builds remain
+on their qualified native runners; all other source builds remain on
+GitHub-hosted Linux according to the frozen runner policy.
