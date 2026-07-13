@@ -94,7 +94,7 @@ jobs:
               .sort((left, right) => right.id - left.id)[0];
             if (!ownerStatus || ownerStatus.state !== "failure" || !ownerStatus.description?.startsWith("HIGH_RISK")) throw new Error("Trusted Delivery does not require Owner Authorization for this exact HIGH_RISK SHA");
             const rollup = await github.graphql(`
-              query($owner: String!, $repo: String!, $sha: GitObjectID!) {
+              query($owner: String!, $repo: String!, $sha: String!) {
                 repository(owner: $owner, name: $repo) {
                   object(expression: $sha) {
                     ... on Commit {
