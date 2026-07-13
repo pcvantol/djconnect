@@ -1,6 +1,6 @@
 # Platform Release 3.3 — Management Summary
 
-Decision: `PLATFORM_RELEASE_DRY_RUN_PASSED`
+Historical decision: `PLATFORM_RELEASE_DRY_RUN_PASSED`
 
 The 3.3 release-candidate dry run is ready for the next explicitly authorized
 phase. The remediation resolved exactly the three recorded findings:
@@ -24,3 +24,14 @@ GitHub-hosted Linux work. The resulting decision is
 `NATIVE_RUNNER_ALIGNMENT_COMPLETE` and the release platform is
 `PLATFORM_RELEASE_3_3_INTERNAL_READY` for the next explicitly authorized
 operational Internal Release phase.
+
+## Current candidate reconstruction
+
+The historical dry-run candidates are no longer current `main` commits and
+cannot authorize an operational release. Fresh 3.3 candidate branches have
+been reconstructed from current main, with the discovered Home Assistant,
+Apple and Windows runtime metadata corrections applied. Their current
+readiness decision is `PLATFORM_RELEASE_3_3_CANDIDATE_BLOCKED`: no fresh
+candidate has yet qualified evidence, and the new per-repository workflow
+contracts intentionally fail closed for `execute` until native build,
+publication, deployment and rollback actions are qualified.
