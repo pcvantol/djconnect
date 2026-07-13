@@ -7,8 +7,10 @@ already technically qualified HIGH_RISK candidate.
 
 For a HIGH_RISK pull request, run `Owner Authorization` in the target
 repository with the exact `repository`, `pr_number`, `candidate_sha` and
-target `branch`. The workflow accepts only owner `pcvantol`, validates the
-current PR state and a passing Trusted Delivery technical check, and uploads
+target `branch`. Target repositories use a thin `workflow_dispatch` wrapper
+that calls this canonical reusable workflow at an immutable DJConnect SHA. The
+workflow accepts only owner `pcvantol`, validates the current PR state and a
+passing Trusted Delivery technical check, and uploads
 `trusted-delivery-owner-authorization-evidence`.
 
 The evidence artifact includes repository, branch, PR number, candidate SHA,
