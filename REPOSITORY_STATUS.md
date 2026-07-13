@@ -74,8 +74,12 @@ Prompt 3 is the only active implementation prompt.
 
 Prompt 3 governance preparation selected the proposed
 `SINGLE_MAINTAINER_GOVERNANCE_READY` model. It resolves the documented
-single-maintainer approval deadlock through risk-based qualification; GitHub
-settings remain unchanged pending separate explicit authorization.
+single-maintainer approval deadlock through risk-based qualification.
+
+Final Prompt 3 rollout authorization is now in progress. GitHub `main`
+protection, rulesets and workflow permissions are deployed, while the
+qualification consumer and CODEOWNERS remain pending on governed pull requests.
+Prompt 3 is not complete and Prompt 4 remains blocked.
 
 The architecture closure review found that foundation, verification platform,
 meta engineering, repository bootstrap, cross-repository governance,
