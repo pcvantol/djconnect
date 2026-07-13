@@ -11,12 +11,12 @@ not required.
 ### Platform Release Engineering Generation 1
 
 Prompt 1 froze the Platform Release Architecture and Prompt 2 qualified the
-simulation-only Platform Release Orchestrator. Prompt 3 executed the first
-platform-wide release dry run for platform version `3.3` and returned
-`PLATFORM_RELEASE_DRY_RUN_BLOCKED`: coverage evidence is pending and the
-website candidate has incomplete 3.3.0 generated-page version propagation.
-Prompt 4 Platform Release Qualification is blocked until those conditions are
-remediated and the dry run passes. Canonical evidence is under `docs/release/`.
+simulation-only Platform Release Orchestrator. Prompt 3 remediation
+re-executed the platform-wide release dry run for platform version `3.3` and
+returned `PLATFORM_RELEASE_DRY_RUN_PASSED`. Exact candidate SHA qualification,
+fresh `COVERAGE_VALID` evidence and website version propagation are complete.
+Prompt 4 Platform Release Qualification is awaiting a separate explicit
+authorization. Canonical evidence is under `docs/release/`.
 
 The Software Assurance Platform architecture sprint has completed with decision
 `SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE`. Software Assurance

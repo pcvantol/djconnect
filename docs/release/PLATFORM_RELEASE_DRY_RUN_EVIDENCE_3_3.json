@@ -2,6 +2,6 @@
   "verification": "PASS",
   "software_assurance": "PASS",
   "trusted_delivery": "PASS",
-  "coverage": "PENDING",
+  "coverage": "PASS",
   "platform_qualification": "PASS"
 }

@@ -3,7 +3,7 @@
 Date: 2026-07-13  
 Mode: `dry_run`  
 Execution profile: `full_qualification`  
-Decision: `PLATFORM_RELEASE_DRY_RUN_BLOCKED`
+Decision: `PLATFORM_RELEASE_DRY_RUN_PASSED`
 
 ## Scope and safety boundary
 
@@ -19,12 +19,11 @@ rollout or public announcement was made.
 
 ## Execution result
 
-The simulation completed with manifest
-`release-sim-2eb87d0b76d061a4`. Its canonical readiness state is `BLOCKED`:
-the coverage evidence is `PENDING`. The website candidate additionally fails
-its release test because the 3.3.0 version has not been propagated to every
-generated, localized HTML page. This is a release-candidate defect, not a
-reason to weaken the gate.
+The remediated simulation completed with manifest
+`release-sim-36737aed5b01cceb` and canonical readiness `READY`. All ten
+participating repositories contribute one exact candidate SHA, and fresh
+candidate coverage was ingested by the Verification Runtime as
+`COVERAGE_VALID` with an expected-SHA match.
 
 Positive evidence recorded during the dry run:
 
@@ -35,11 +34,12 @@ Positive evidence recorded during the dry run:
 - Raspberry Pi focused tests: 46 passed.
 - ESP release simulation and native release test suite: passed.
 - Windows Release test invocation: passed.
-- Website i18n validation: passed; 65 of 66 tests passed.
+- Website i18n validation, 66 website tests and release build: passed.
+- Candidate coverage: 15 tests passed; Verification Runtime returned
+  `COVERAGE_VALID`.
 
-The blocked decision is therefore intentional and fail-closed. Prompt 4 must
-not begin until the website version propagation, candidate-SHA qualification
-and coverage evidence have been remediated and re-run.
+The earlier blockers have been remediated without weakening any release gate.
+Prompt 4 remains out of scope for this remediation and has not begun.
 
 ## Explicit non-actions
 

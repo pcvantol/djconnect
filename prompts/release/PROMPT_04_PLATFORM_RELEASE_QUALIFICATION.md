@@ -2,8 +2,9 @@
 
 ## Status
 
-`BLOCKED_BY_PROMPT_03`
+`AWAITING_EXPLICIT_AUTHORIZATION`
 
-Prompt 4 owns Platform Release Qualification. It must not begin until Prompt
-3 has a `PLATFORM_RELEASE_DRY_RUN_PASSED` decision with exact candidate-SHA
-verification and coverage evidence. It must not publish a production release.
+Prompt 4 owns Platform Release Qualification. Prompt 3 now has a
+`PLATFORM_RELEASE_DRY_RUN_PASSED` decision with exact candidate-SHA
+verification and coverage evidence. Prompt 4 must still receive an explicit
+authorization and must not publish a production release.

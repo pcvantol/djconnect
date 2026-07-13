@@ -3,19 +3,16 @@
 ## Canonical result
 
 ```text
-BLOCKED
+READY
 ```
 
 The release orchestrator evaluated the complete dry-run input bundle and
-returned the following blocking condition:
+returned `READY` with no blocking conditions. The remediated simulation is
+`release-sim-36737aed5b01cceb`.
 
-| Subject | State | Reason |
-| --- | --- | --- |
-| Coverage | `BLOCKED` | `coverage` evidence state is `PENDING`. |
+Coverage is `PASS` because the Verification Runtime recorded
+`COVERAGE_VALID` for candidate `7411a82e5534d512969e70d32bcbc35fadbd4f74`.
+Website version propagation is validated by the full 66-test website suite and
+release build. Every discovered repository now has one supplied candidate SHA.
 
-The independent website candidate test also fails: `65/66` tests pass, but
-the release renderer detects `3.2.16` asset references across generated,
-localized source pages while the candidate version is `3.3.0`.
-
-Certification remains `NOT_CERTIFIED`. The readiness outcome is objective;
-there is no manual approval override.
+Certification is still `PLANNED`; Prompt 4 remains deliberately unstarted.
