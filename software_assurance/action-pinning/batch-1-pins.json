@@ -106,8 +106,74 @@
         }
       ],
       "reviewed_at": "2026-07-13"
+    },
+    {
+      "decision": "ACTION_PINNING_BATCH_4_COMPLETE",
+      "pins": [
+        {
+          "approval_status": "approved",
+          "category": "Home Assistant validation",
+          "compatibility_status": "validated: category=integration and the existing default GitHub token/comment behavior are unchanged",
+          "consumers": ["djconnect/.github/workflows/djconnect-ha-integration-ci.yml"],
+          "current_ref": "main",
+          "dependency_repository": "hacs/action",
+          "exception_status": "governed exception: latest stable tag 22.5.0 is from 2022 and the action itself still references ghcr.io/hacs/action:main; pin the maintained main commit and review it when the action changes or a current stable release becomes available",
+          "fork_behavior": "The workflow uses GitHub-hosted runners and the default GitHub token only; untrusted forks receive no repository secret or Trusted AI credential.",
+          "immutable_sha": "1ebf01c408f29afcb6406bd431bc98fd8cbb15aa",
+          "intended_major_line": "main maintenance line",
+          "publication_impact": "Validation only; no package, release or deployment publication.",
+          "release_or_selected_commit": "main at reviewed commit 1ebf01c408f29afcb6406bd431bc98fd8cbb15aa",
+          "required_permissions": {"contents": "read"},
+          "required_secrets": [],
+          "residual_risk": "The upstream Docker image ghcr.io/hacs/action:main remains mutable inside the action implementation; container-image pinning is an upstream limitation and requires periodic review.",
+          "reviewed_at": "2026-07-13",
+          "runner_requirements": "ubuntu-latest; Docker-container action.",
+          "validation_evidence": ["GitHub release/tag and commit history review", "action.yml input review", "workflow YAML parse", "HACS job success in runs 29226226728 and 29226226825", "canonical governance policy validation", "immutable-reference scan", "git diff --check"]
+        },
+        {
+          "approval_status": "approved",
+          "category": "Home Assistant validation",
+          "compatibility_status": "validated: existing composite hassfest invocation and failure semantics are unchanged",
+          "consumers": ["djconnect/.github/workflows/djconnect-ha-integration-ci.yml"],
+          "current_ref": "master",
+          "dependency_repository": "home-assistant/actions/hassfest",
+          "exception_status": "governed exception: the only repository release tag (1.0.0, 2020) has no hassfest action path; pin the maintained master commit and review it when a suitable stable release becomes available",
+          "fork_behavior": "The workflow uses GitHub-hosted runners, has no secrets and cannot publish artifacts or releases from an untrusted fork.",
+          "immutable_sha": "f4ca6f671bd429efb108c0f2fa0ae8af0215986c",
+          "intended_major_line": "master maintenance line",
+          "publication_impact": "Validation only; no package, release or deployment publication.",
+          "release_or_selected_commit": "master at reviewed commit f4ca6f671bd429efb108c0f2fa0ae8af0215986c",
+          "required_permissions": {"contents": "read"},
+          "required_secrets": [],
+          "residual_risk": "The composite action invokes ghcr.io/home-assistant/hassfest without a digest; this upstream container-image reference remains a governed exception requiring periodic review.",
+          "reviewed_at": "2026-07-13",
+          "runner_requirements": "ubuntu-latest with Docker available.",
+          "validation_evidence": ["GitHub release/tag and commit history review", "action.yml comparison", "workflow YAML parse", "hassfest job success in runs 29226226728 and 29226226825", "canonical governance policy validation", "immutable-reference scan", "git diff --check"]
+        },
+        {
+          "approval_status": "approved",
+          "category": "firmware release publication",
+          "compatibility_status": "validated: target repository, tag naming, prerelease expression, release notes and asset file inputs are unchanged",
+          "consumers": ["djconnect-esp32/.github/workflows/release-firmware.yml"],
+          "current_ref": "v2",
+          "dependency_repository": "softprops/action-gh-release",
+          "exception_status": "none",
+          "fork_behavior": "The workflow is triggered only by trusted repository tag pushes. It has no pull-request trigger; untrusted forks cannot obtain FIRMWARE_RELEASE_TOKEN or publish a release.",
+          "immutable_sha": "3bb12739c298aeb8a4eeaf626c5b8d85266b0e65",
+          "intended_major_line": "v2",
+          "publication_impact": "Creates/updates the existing public firmware release and uploads the unchanged firmware, checksum and manifest assets only on a trusted tag event.",
+          "release_or_selected_commit": "v2.6.2",
+          "required_permissions": {"contents": "write in target repository via FIRMWARE_RELEASE_TOKEN"},
+          "required_secrets": ["FIRMWARE_RELEASE_TOKEN"],
+          "residual_risk": "The production publication path is intentionally not dispatched for pin validation; tag-trigger and token scope remain unchanged.",
+          "reviewed_at": "2026-07-13",
+          "runner_requirements": "ubuntu-latest; upstream action runs on node20.",
+          "validation_evidence": ["GitHub v2.6.2 release/tag resolution", "action.yml input/output review", "workflow YAML parse", "release trigger, secret and asset review", "immutable-reference scan", "git diff --check"]
+        }
+      ],
+      "reviewed_at": "2026-07-13"
     }
   ],
-  "canonical_action_inventory": "complete through Action Pinning Migration Batch 3",
+  "canonical_action_inventory": "complete through Action Pinning Migration Batch 4",
   "updated_at": "2026-07-13"
 }

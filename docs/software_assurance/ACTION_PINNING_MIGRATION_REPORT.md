@@ -175,3 +175,73 @@ this validation. No Batch 3 reference remains unresolved.
 No sibling repository contains an in-scope Batch 3 dependency, so no sibling
 branch or commit is required. SHA enforcement remains disabled; Batch 4 and
 all excluded action classes were not started.
+
+## Batch 4 — Domain-Specific and Release Actions
+
+Decision: `ACTION_PINNING_BATCH_4_COMPLETE`
+Central branch: `codex/trusted-delivery-platform`
+Date: 2026-07-13
+
+Batch 4 eliminates every remaining non-immutable external `uses:` reference in
+the active workflow inventory. Three references across two repositories were
+migrated: HACS validation, hassfest validation and firmware-release
+publication. Local reusable-workflow paths remain local by design; all remote
+reusable workflows were already pinned in Batch 1 or Batch 2.
+
+| Dependency | Previous ref | Approved release/commit | Immutable SHA | Status |
+| --- | --- | --- | --- | --- |
+| `hacs/action` | `main` | reviewed `main` commit | `1ebf01c408f29afcb6406bd431bc98fd8cbb15aa` | governed exception |
+| `home-assistant/actions/hassfest` | `master` | reviewed `master` commit | `f4ca6f671bd429efb108c0f2fa0ae8af0215986c` | governed exception |
+| `softprops/action-gh-release` | `v2` | `v2.6.2` | `3bb12739c298aeb8a4eeaf626c5b8d85266b0e65` | approved |
+
+### Compatibility and exceptions
+
+HACS' latest stable tag is 22.5.0 (2022) and its implementation still invokes
+`ghcr.io/hacs/action:main`; hassfest's only release tag is 1.0.0 (2020) and
+does not contain the current `hassfest/action.yml` path. Pinning their
+maintained branch commits preserves the existing current behavior while making
+the GitHub Action reference immutable. Both are governed exceptions for the
+upstream mutable container-image reference and must be reviewed when upstream
+publishes a suitable current release or changes the action/container.
+
+`softprops/action-gh-release` remains on its existing v2 line, now at v2.6.2.
+Its target repository, beta prerelease expression, notes, asset set and
+`FIRMWARE_RELEASE_TOKEN` use are unchanged. The tag-only trigger remains the
+production release guard; no production release was published for validation.
+PlatformIO and Apple/TestFlight workflows contain commands rather than
+external actions, so no action reference exists to migrate.
+
+### Secret and fork safety
+
+HACS and hassfest retain `contents: read`, use GitHub-hosted Ubuntu runners,
+and receive no repository secret or Trusted AI credential on fork PRs. The
+firmware release workflow has no pull-request trigger; only trusted tag pushes
+can access `FIRMWARE_RELEASE_TOKEN` to publish to `djconnect-firmware`.
+No permissions, inputs, outputs, release assets or publication semantics were
+broadened or changed.
+
+### Validation
+
+Workflow YAML parsing, immutable-reference scanning, registry validation,
+canonical governance policy validation, permissions/secret review,
+fork-safety review, secret-safe diff review and `git diff --check` passed.
+HACS and hassfest both succeeded in the canonical validation runs
+[29226226728](https://github.com/pcvantol/djconnect/actions/runs/29226226728)
+and [29226226825](https://github.com/pcvantol/djconnect/actions/runs/29226226825).
+The ESP32 publication workflow cannot be safely dispatched without a release
+tag and production token, so its compatibility validation is static and
+non-publishing by design.
+
+Affected repositories: `djconnect` and `djconnect-esp32`. Total references
+migrated: 3. Unique dependencies pinned: 3. Floating references eliminated:
+`@main`, `@master` and broad `@v2`. There are no unresolved Batch 4 action
+references; the two governed upstream container-image exceptions are recorded
+in the registry. SHA enforcement remains disabled. Batch 5 was not started.
+
+### Coordinated branches
+
+| Repository | Branch | Commit |
+| --- | --- | --- |
+| `djconnect-esp32` | `codex/action-pinning-batch-4` | `e6db66184ecdab78e914adbb21efe0f010064385` |
+
+The final central coordination commit records this registry and report update.
