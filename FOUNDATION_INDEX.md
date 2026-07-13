@@ -165,6 +165,24 @@ collaborate while evolving the platform.
 
 ### Operational docs
 
+### Platform Release Engineering
+
+Platform Release Engineering defines the reusable, platform-wide release
+control model. It coordinates release-relevant repositories discovered from
+`REPOSITORY_OWNERSHIP.md`, while repositories retain their own implementation,
+build and distribution responsibility.
+
+- `docs/release/README.md` is the navigation page.
+- `docs/release/PLATFORM_RELEASE_ARCHITECTURE.md` defines the canonical
+  version model, discovery rules, lifecycle, qualification, certification,
+  dry run, evidence, orchestration and rollback architecture.
+- `docs/release/PLATFORM_RELEASE_ROADMAP.md` sequences future implementation
+  work without authorizing it.
+
+Platform Release consumes Verification and Software Assurance evidence. It
+does not replace their ownership, and it does not change the Verification
+Runtime's independent release lifecycle.
+
 ### Verification Runtime
 
 The Verification Runtime is a first-class engineering product physically

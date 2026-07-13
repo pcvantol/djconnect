@@ -258,6 +258,43 @@ Canonical registration:
 No Software Assurance Generation 1 prompt is active. Future work proceeds
 through Product Development, Platform Evolution or Platform Release Engineering.
 
+### Platform Release Engineering
+
+Status:
+
+```text
+GENERATION_1_PROMPT_2_COMPLETE
+```
+
+Prompt 1 froze the reusable Platform Release Architecture with decision
+`PLATFORM_RELEASE_ARCHITECTURE_COMPLETE`. Prompt 2 implemented and qualified
+the simulation-only Platform Release Orchestrator with decision
+`PLATFORM_RELEASE_ORCHESTRATOR_QUALIFIED`. No repository versions changed and
+no release was executed. The canonical architecture, runtime and completion
+reports are:
+
+- `docs/release/PLATFORM_RELEASE_ARCHITECTURE.md`
+- `docs/release/RUNTIME.md`
+- `docs/release/PLATFORM_RELEASE_ROADMAP.md`
+- `docs/release/PROMPT_01_RELEASE_ARCHITECTURE_COMPLETION.md`
+- `docs/release/PROMPT_02_RELEASE_ORCHESTRATOR_COMPLETION.md`
+
+The next release-engineering action is generated but inactive:
+
+1. [Prompt 3: Platform Release Dry Run](prompts/release/PROMPT_03_PLATFORM_RELEASE_DRY_RUN.md)
+
+Prompt 3 may start only after explicit authorization. It owns the first
+complete non-publishing dry run and must not create tags, publish a release or
+mutate a distribution channel.
+
+Release-engineering clean-session command:
+
+```text
+Read docs/release/PLATFORM_RELEASE_ARCHITECTURE.md, docs/release/RUNTIME.md
+and prompts/release/PROMPT_03_PLATFORM_RELEASE_DRY_RUN.md. Execute Prompt 3
+only when explicitly authorized.
+```
+
 Use this clean-session prompt for future operator-directed work:
 
 ```text

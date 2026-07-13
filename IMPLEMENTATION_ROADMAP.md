@@ -53,7 +53,11 @@ Platform Evolution
   -> available for future platform work
 
 Platform Release Engineering
-  -> owns future release work
+  -> Generation 1 release architecture complete
+  -> simulation-only release orchestrator qualified
+  -> first complete Platform Release Dry Run generated but not started
+  -> future implementation proceeds through `docs/release/`
+  -> no publication-capable automation or repository rollout has started
 
 Epic 8: Website and Product Story
   -> phases to be defined after Platform Baseline v1.0 certification and product-language audit

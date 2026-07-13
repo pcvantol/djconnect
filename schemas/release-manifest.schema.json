@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DJConnect Platform Release Simulation Manifest",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "manifest_kind",
+    "manifest_id",
+    "platform_version",
+    "release_mode",
+    "simulation_only",
+    "repositories",
+    "dependency_graph",
+    "execution_plan",
+    "qualification_plan",
+    "readiness",
+    "artifact_inventory",
+    "rollback_plan",
+    "certification_state"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "manifest_kind": {"const": "platform_release_simulation"},
+    "manifest_id": {"type": "string", "pattern": "^release-sim-"},
+    "platform_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+$"},
+    "release_mode": {"enum": ["development", "nightly", "candidate", "dry_run", "qualification", "production", "hotfix", "maintenance"]},
+    "simulation_only": {"const": true},
+    "repositories": {"type": "array"},
+    "dependency_graph": {"type": "array"},
+    "execution_plan": {"type": "array"},
+    "qualification_plan": {"type": "object"},
+    "readiness": {"type": "object", "required": ["state", "conditions"]},
+    "artifact_inventory": {"type": "array"},
+    "rollback_plan": {"type": "object"},
+    "certification_state": {"enum": ["NOT_CERTIFIED", "PLANNED"]}
+  },
+  "additionalProperties": true
+}
