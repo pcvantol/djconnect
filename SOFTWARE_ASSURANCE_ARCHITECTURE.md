@@ -273,6 +273,11 @@ ownership.
 
 ## Governance References
 
+Trusted Delivery is the single governance engine. Its Owner Authorization
+capability supplies SHA-bound authorization for HIGH_RISK single-maintainer
+changes without replacing Verification, Software Assurance or technical
+qualification gates.
+
 The architecture freeze, rollout and future implementation governance are
 defined in:
 
