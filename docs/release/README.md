@@ -35,6 +35,9 @@ release process the source of truth.
   GitHub Actions build execution.
 - `RELEASE_ARCHITECTURE_CORRECTIONS_COMPLETION.md` records the 2026-07-13
   correction decision and its evidence.
+- `RUNNER_QUALIFICATION_REPORT.md`, `RUNNER_DEPLOYMENT_MATRIX.md` and
+  `NATIVE_RUNNER_ALIGNMENT_COMPLETION.md` record the final Apple/Windows
+  native runner alignment evidence.
 
 The architecture consumes repository membership from
 [`REPOSITORY_OWNERSHIP.md`](../../REPOSITORY_OWNERSHIP.md). It consumes

@@ -13,3 +13,14 @@ phase. The remediation resolved exactly the three recorded findings:
 
 No production release action occurred. Tags, GitHub Releases, deployments,
 uploads, firmware rollout and publication remain absent.
+
+## Native runner alignment
+
+Apple and Windows native build paths are now qualified through successful
+GitHub Actions runner workflows with uploaded unsigned artifacts and exact
+SHA evidence. The architecture assigns Apple to the self-hosted macOS runner
+and Windows to the self-hosted Windows runner; other source builds remain
+GitHub-hosted Linux work. The resulting decision is
+`NATIVE_RUNNER_ALIGNMENT_COMPLETE` and the release platform is
+`PLATFORM_RELEASE_3_3_INTERNAL_READY` for the next explicitly authorized
+operational Internal Release phase.
