@@ -10,12 +10,12 @@ Verification, Software Assurance, Trusted Delivery, coverage and platform
 qualification. The rehearsal used the evidence-only client and therefore made
 no GitHub, release, tag, artifact or deployment mutation.
 
-The rehearsal executed and recorded, in order:
+The rehearsal dispatched and recorded representative workflow-owned actions:
 
 1. source-build workflow dispatch;
 2. deployment workflow dispatch;
-3. artifact-publication tag creation; and
-4. draft prerelease creation.
+3. artifact-publication workflow dispatch; and
+4. post-release workflow dispatch.
 
 Evidence output includes an execution report, deployment evidence and
 publication evidence. Unit validation also proves that a failed action stops

@@ -3,7 +3,9 @@
 Status: `IMPLEMENTED`
 
 The existing Release Planner, version validator, discovery model and readiness
-engine remain the sole source of release scope and eligibility. The operational
+engine remain the sole source of release scope and eligibility. The runtime is
+an orchestration layer only; GitHub Actions is the exclusive execution engine.
+The operational
 executor consumes their immutable manifest; it does not recalculate scope or
 embed repository-specific release behaviour.
 
@@ -12,11 +14,10 @@ embed repository-specific release behaviour.
 | Operation | Runtime action | Safety boundary |
 | --- | --- | --- |
 | Build, artifact publication or deployment | Dispatch an existing GitHub Actions workflow | Workflow/ref must be explicit and the repository must be discovered in scope. |
-| Tag creation | Create an explicit lightweight tag at a full candidate SHA | Only after all release gates pass. |
-| GitHub Release | Create a draft prerelease only | Public releases are not representable. |
+| Tag, draft release, artifact publication, deployment, rollback | Dispatch an approved repository workflow | The workflow owns all mutation and publishes canonical evidence. |
 | Rollback | Preserve completed-operation and source rollback-plan evidence | No automatic rollback mutation. |
 
-Build execution is delegated to the frozen runner model. Codex and this Python
+Build and release execution are delegated to the frozen runner model. Codex and this Python
 runtime never compile platform software.
 
 ## Fail-closed execution gate

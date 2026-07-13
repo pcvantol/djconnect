@@ -12,9 +12,9 @@ qualification plan, artifact plan and rollback plan. It also provides a
 fail-closed `INTERNAL_RELEASE` executor over that approved plan.
 
 It never builds software directly or selects sibling repositories by name.
-Build, artifact publication and deployment remain explicit existing GitHub
-Actions workflows. The runtime can create only an explicitly planned
-lightweight tag and draft prerelease; it cannot create a public release.
+Build, tagging, release creation, artifact publication, deployment and rollback
+remain explicit GitHub Actions workflow responsibilities. The runtime has no
+direct mutation capability.
 
 ## Inputs
 
@@ -115,11 +115,12 @@ python -m tools.release \
 ```
 
 `execute` requires the additional `--execute` acknowledgement plus an approved
-execution request and evidence output directory. It dispatches only the
-workflows named by that request through the authenticated GitHub CLI. Each
-request action is generic and must identify a discovered repository, category,
-workflow/ref or tag/release fields as appropriate. This preserves dynamic
-repository discovery while making publication intent auditable.
+execution request and evidence output directory. It dispatches and monitors
+only the workflows named by that request through the authenticated GitHub CLI,
+then reads their canonical evidence artifact. Each request action is generic
+and must identify a discovered repository, category, workflow/ref and the
+bounded immutable candidate inputs. This preserves dynamic repository discovery
+while keeping every mutation inside GitHub Actions.
 
 Execution fails closed unless all of the following are true:
 
@@ -141,8 +142,7 @@ publication evidence. Their machine-readable contract is
 
 ## Safety boundary
 
-The runtime does not compile software, upload artifacts itself, perform public
-publication, deploy a product outside of an explicitly dispatched existing
-workflow, or execute rollback automatically. Apple and Windows builds remain
+The runtime does not compile software, create tags or releases, upload
+artifacts itself, publish, deploy, or execute rollback. Apple and Windows builds remain
 on their qualified native runners; all other source builds remain on
 GitHub-hosted Linux according to the frozen runner policy.

@@ -15,8 +15,10 @@ release process the source of truth.
 - `PLATFORM_RELEASE_ROADMAP.md` sequences the later implementation prompts.
 - `PROMPT_01_RELEASE_ARCHITECTURE_COMPLETION.md` records the architecture-phase
   outcome.
-- `RUNTIME.md` documents the planner, fail-closed internal execution gate and
-  non-production rehearsal path.
+- `RUNTIME.md` documents the planner, fail-closed workflow-orchestration gate
+  and non-production rehearsal path.
+- `PLATFORM_RELEASE_RUNTIME_ARCHITECTURE.md` freezes the separation between the
+  Platform Release Runtime (orchestration) and GitHub Actions (execution).
 - `PROMPT_02_RELEASE_ORCHESTRATOR_COMPLETION.md` records the implementation
   outcome and qualification evidence.
 - `PLATFORM_RELEASE_QUALIFICATION.md` records the completed Generation 1

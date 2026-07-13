@@ -23,7 +23,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--roles-file", type=Path)
     parser.add_argument("--execution-file", type=Path, help="approved INTERNAL_RELEASE execution request JSON")
     parser.add_argument("--output-dir", type=Path, help="directory for execution evidence JSON")
-    parser.add_argument("--execute", action="store_true", help="explicitly permit external internal-release actions")
+    parser.add_argument("--execute", action="store_true", help="explicitly permit external internal-release workflow dispatch")
     subparsers = parser.add_subparsers(dest="command", required=True)
     for command in ("plan", "readiness", "simulate", "manifest", "graph", "explain", "rehearse", "execute"):
         subparsers.add_parser(command)
