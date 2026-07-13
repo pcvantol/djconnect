@@ -5,7 +5,8 @@ Status: `MIGRATION_IN_PROGRESS`
 ## Ordered migration
 
 1. Register repository-scoped runners with the canonical labels and prove
-   online/trusted/toolchain/workspace/evidence controls.
+   online/trusted/toolchain/workspace/evidence controls. **In progress:** all
+   required runners are online; Apple and firmware isolated probes passed.
 2. Migrate Apple, Windows, firmware, Pi, Home Assistant, API and website
    platform jobs to explicit qualified runner selectors.
 3. Add one runner-evidence artifact to each migrated build/deployment workflow.

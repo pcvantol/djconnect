@@ -56,7 +56,9 @@ intentionally not assigned until a distinct staging channel exists.
 
 ## Current state
 
-The GitHub Actions repository runner endpoints returned zero registered
-self-hosted runners for every DJConnect repository on 2026-07-13. No workflow
-may be migrated to a self-hosted selector until its selected runner is online
-and qualified.
+All required repository-scoped runners are registered and online as of
+2026-07-13. Apple and firmware passed isolated workflow qualification. The
+remaining role qualifications and full workflow migration are still required;
+see `RUNNER_QUALIFICATION_REPORT.md`. A runner may not be selected by an
+internal release until that report records a passing qualification for its
+role.

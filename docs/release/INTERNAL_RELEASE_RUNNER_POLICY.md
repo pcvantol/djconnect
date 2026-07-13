@@ -32,6 +32,10 @@ Any missing, stale, failed or label-mismatched item returns
 
 ## Current decision
 
-`INTERNAL_RELEASE_BLOCKED`: no qualified self-hosted runners are registered.
-The block does not permit Codex or GitHub-hosted runners to substitute for a
-platform build.
+`INTERNAL_RELEASE_BLOCKED`: all required runners are registered and online,
+and Apple/firmware isolated runner probes passed, but the complete workflow
+migration and qualification set is incomplete. In particular, the ordinary
+Apple and firmware CI workflow dispatches ended in no-job `startup_failure`;
+Windows, Pi, Home Assistant, API and website workflow evidence is still
+pending. The block does not permit Codex or GitHub-hosted runners to
+substitute for a platform build.
