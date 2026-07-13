@@ -64,3 +64,13 @@ rolled back and read back as false in all ten repositories.
 
 Decision: `SHA_PINNING_ENFORCEMENT_NOT_READY` and
 `TRUSTED_DELIVERY_IMPLEMENTATION_BLOCKED`.
+
+## Recursive closure remediation
+
+`docs/software_assurance/WORKFLOW_CLOSURE_REPORT.md` records the corrective
+control. The closure validator resolves reusable workflows recursively at
+their requested immutable commits, preserves duplicate caller evidence,
+detects cycles safely, reports missing sources, and verifies terminal actions
+against the approved pin registry. The canonical remediation pointer is ready
+for review; SHA enforcement remains disabled until this and all corresponding
+consumer pointers have merged and passed platform-wide read-back validation.

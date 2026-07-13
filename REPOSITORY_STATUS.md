@@ -87,6 +87,11 @@ contains movable action tags. SHA enforcement was enabled for validation and
 immediately rolled back after the Pi representative run proved the defect.
 Prompt 3 remains blocked pending recursive reusable-workflow pin remediation.
 
+The corrective recursive workflow-closure validator and canonical pointer
+remediation are now prepared for review. This does not re-enable enforcement:
+all consumer pointers must merge, then platform-wide closure and live GitHub
+read-back checks must pass before Prompt 3 can complete.
+
 The architecture closure review found that foundation, verification platform,
 meta engineering, repository bootstrap, cross-repository governance,
 repository ownership, product strategy foundation and Software Assurance

@@ -172,8 +172,36 @@
         }
       ],
       "reviewed_at": "2026-07-13"
+    },
+    {
+      "decision": "ACTION_PINNING_BATCH_5_COMPLETE",
+      "pins": [
+        {
+          "approval_status": "approved",
+          "category": "trusted delivery credential minting",
+          "consumers": ["djconnect/.github/workflows/trusted-ai-actor-validation.yml"],
+          "dependency_repository": "actions/create-github-app-token",
+          "immutable_sha": "fee1f7d63c2ff003460e3d139729b119787bc349",
+          "required_permissions": {"contents": "read"},
+          "required_secrets": ["DJCONNECT_TRUSTED_DELIVERY_APP_ID", "DJCONNECT_TRUSTED_DELIVERY_PRIVATE_KEY"],
+          "reviewed_at": "2026-07-13",
+          "validation_evidence": ["immutable-reference scan", "trusted actor workflow review", "recursive workflow closure validation"]
+        },
+        {
+          "approval_status": "approved",
+          "category": "trusted delivery qualification",
+          "consumers": ["djconnect/.github/workflows/trusted-delivery-qualification.yml"],
+          "dependency_repository": "actions/github-script",
+          "immutable_sha": "ed597411d8f924073f98dfc5c65a23a2325f34cd",
+          "required_permissions": {"contents": "read", "pull-requests": "read"},
+          "required_secrets": [],
+          "reviewed_at": "2026-07-13",
+          "validation_evidence": ["immutable-reference scan", "qualification workflow review", "recursive workflow closure validation"]
+        }
+      ],
+      "reviewed_at": "2026-07-13"
     }
   ],
-  "canonical_action_inventory": "complete through Action Pinning Migration Batch 4",
+  "canonical_action_inventory": "complete through Action Pinning Migration Batch 5",
   "updated_at": "2026-07-13"
 }
