@@ -20,3 +20,16 @@ The internal gate is candidate SHA qualified, Verification evidence valid,
 Software Assurance and Trusted Delivery `PASS`, coverage valid, version
 alignment `PASS` and artifacts generated. Target availability is only required
 when that release profile performs deployment.
+
+## Native runner alignment
+
+Apple and Windows native source-build paths are qualified as of 2026-07-13.
+Apple run `29246454969` built and uploaded an unsigned macOS artifact on
+`djconnect-apple-macos`; Windows run `29246684022` built and uploaded an
+unsigned Windows artifact on `djconnect-windows11-parallels`. The corresponding
+runner evidence is recorded in `RUNNER_QUALIFICATION_REPORT.md`.
+
+```text
+NATIVE_RUNNER_ALIGNMENT_COMPLETE
+PLATFORM_RELEASE_3_3_INTERNAL_READY
+```

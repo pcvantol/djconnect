@@ -18,6 +18,14 @@ remain artifact-consuming deployment targets. The next release activity, if
 explicitly authorized, is the operational Internal Release using this corrected
 architecture; it must not reopen or redesign Release Architecture.
 
+The final native runner alignment returned
+`NATIVE_RUNNER_ALIGNMENT_COMPLETE`: representative Apple and Windows native
+GitHub Actions workflows built and uploaded artifacts on the qualified
+self-hosted runners without `startup_failure`. The operational readiness
+result is `PLATFORM_RELEASE_3_3_INTERNAL_READY`. The next explicit phase may
+execute the first operational Internal Release; it must not reopen runner
+alignment or Release Architecture.
+
 Prompt 1 froze the Platform Release Architecture and Prompt 2 qualified the
 simulation-only Platform Release Orchestrator. Prompt 3 remediation
 re-executed the platform-wide release dry run for platform version `3.3` and
