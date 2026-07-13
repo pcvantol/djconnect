@@ -21,6 +21,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--shas-file", type=Path)
     parser.add_argument("--evidence-file", type=Path)
     parser.add_argument("--roles-file", type=Path)
+    parser.add_argument("--reconciliation-file", type=Path, help="exact-main-SHA post-merge evidence map")
     parser.add_argument("--execution-file", type=Path, help="approved INTERNAL_RELEASE execution request JSON")
     parser.add_argument("--output-dir", type=Path, help="directory for execution evidence JSON")
     parser.add_argument("--execute", action="store_true", help="explicitly permit external internal-release workflow dispatch")
@@ -41,6 +42,7 @@ def main(argv: list[str] | None = None) -> int:
         shas=_load_mapping(args.shas_file),
         evidence=_load_mapping(args.evidence_file),
         role_overrides=_load_mapping(args.roles_file),
+        reconciliations=_load_json_object(args.reconciliation_file) if args.reconciliation_file else {},
     )
     result: object
     if args.command in {"rehearse", "execute"}:

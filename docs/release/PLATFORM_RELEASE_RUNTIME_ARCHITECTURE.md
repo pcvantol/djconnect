@@ -8,6 +8,10 @@ repositories, constructs the release graph, qualifies candidate evidence,
 validates gates, dispatches approved workflows, monitors runs, reads their
 evidence, and makes fail-closed readiness decisions.
 
+Release manifests consume only exact-main-SHA post-merge reconciliation
+evidence. Qualified PR-head evidence is provenance input, never a substitute
+for releaseable `main`-SHA evidence.
+
 It is not a build or execution engine. It cannot create tags or GitHub
 Releases, upload artifacts, publish artifacts, deploy targets, or perform
 rollback. Those actions are exclusively owned by GitHub Actions workflows and
