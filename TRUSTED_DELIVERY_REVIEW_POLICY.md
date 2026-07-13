@@ -10,7 +10,7 @@ Applies to: active repositories discovered in `REPOSITORY_OWNERSHIP.md`
 | --- | --- | --- | --- |
 | `LOW_RISK` | None | PR, current branch, required checks, risk classification, qualification, resolved conversations and no blocking finding. | Trusted Delivery App may enable auto-merge. |
 | `NORMAL_RISK` | None | LOW_RISK conditions plus Balanced qualification evidence and a completion/report reference when the scoped policy requires one. | Trusted Delivery App may enable auto-merge. |
-| `HIGH_RISK` | Explicit repository-owner approval | NORMAL_RISK conditions plus protected-path finding, owner approval recorded against the current head SHA and no emergency exception. | App cannot approve; merge remains disabled until qualification passes. |
+| `HIGH_RISK` | Trusted Delivery Owner Authorization | NORMAL_RISK conditions plus protected-path finding, technical Trusted Delivery PASS, SHA-bound Owner Authorization evidence and no emergency exception. | Merge remains disabled until both required statuses pass. |
 
 ## Protected-path policy
 
@@ -54,10 +54,10 @@ conversation-resolution result, blocking-finding result, completion-evidence
 reference and, for HIGH_RISK, the owner-review identity and reviewed SHA.
 
 The check fails closed if risk classification or any required evidence is
-missing. It may not infer approval from the Trusted Delivery App, a bot, a
-stale review, or the PR author. The App may enable auto-merge only for a
-passing LOW_RISK or NORMAL_RISK PR. It may not approve or bypass HIGH_RISK
-approval.
+missing. HIGH_RISK authorization is performed by the internal Trusted Delivery
+Owner Authorization workflow, not a GitHub review. It may not infer success
+from a bot, stale SHA, or prior authorization. The App may enable auto-merge
+only after every required technical and governance status passes.
 
 ## Emergency override
 

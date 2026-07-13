@@ -285,6 +285,23 @@ Canonical registration:
 No Software Assurance Generation 1 prompt is active. Future work proceeds
 through Product Development, Platform Evolution or Platform Release Engineering.
 
+### Trusted Delivery Single-Maintainer Governance
+
+Status: `TRUSTED_DELIVERY_GOVERNANCE_OPERATIONAL`
+
+The canonical Trusted Delivery implementation now separates technical
+qualification from SHA-bound Owner Authorization. Fixed approving-review counts
+are not a valid single-maintainer control. LOW/NORMAL candidates receive
+automatic `NOT_REQUIRED` status; HIGH_RISK candidates remain blocked until the
+configured owner authorizes the exact current SHA after technical qualification
+passes. The implementation is recorded in
+`TRUSTED_DELIVERY_SINGLE_MAINTAINER_GOVERNANCE.md` and its completion report.
+
+The next explicit phase is [Prompt 5: Single-Maintainer Governance
+Rollout](prompts/deferred/software_assurance/PROMPT_05_SINGLE_MAINTAINER_GOVERNANCE_ROLLOUT.md).
+It must first roll out the merged shared workflow to consumers and then migrate
+branch protection; it must not execute automatically.
+
 ### Platform Release Engineering
 
 Status:

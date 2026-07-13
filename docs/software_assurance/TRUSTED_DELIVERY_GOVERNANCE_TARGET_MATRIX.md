@@ -9,8 +9,10 @@ All ten active repositories require a PR, strict/current-branch required
 checks, conversation resolution, force-push prohibition, protected-branch
 deletion prohibition, automatic source-branch deletion after merge, and
 auto-merge enabled. The required approving-review count becomes `0`; the
-required `Trusted Delivery qualification` check conditionally enforces explicit
-owner approval for HIGH_RISK work. No routine direct push is permitted.
+required `Trusted Delivery qualification` and `Owner Authorization` statuses.
+Owner Authorization is automatically `NOT_REQUIRED` for LOW/NORMAL work and
+requires exact-SHA owner evidence for HIGH_RISK work. No routine direct push is
+permitted.
 
 The owner emergency override must be auditable and must not be configured as a
 silent standing bypass. The Trusted Delivery App retains least privilege and
