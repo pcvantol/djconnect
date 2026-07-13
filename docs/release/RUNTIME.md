@@ -83,6 +83,9 @@ common `manifest.json`, `package.json`, `pyproject.toml` and `VERSION` files.
   the `INTERNAL_RELEASE` profile.
 - Profiles are `fast`, `balanced`, `full_qualification` and `production` and
   select required evidence classes.
+- Apple artifact planning uses exactly two Generation 1 artifacts: a universal
+  iOS IPA (iPhone, iPad and embedded Watch companion) and a native macOS
+  application. See [Apple Release Architecture](APPLE_RELEASE_ARCHITECTURE.md).
 
 ## Readiness states
 

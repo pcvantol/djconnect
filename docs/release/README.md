@@ -19,6 +19,8 @@ release process the source of truth.
   and non-production rehearsal path.
 - `PLATFORM_RELEASE_RUNTIME_ARCHITECTURE.md` freezes the separation between the
   Platform Release Runtime (orchestration) and GitHub Actions (execution).
+- `APPLE_RELEASE_ARCHITECTURE.md` defines the canonical two-artifact Apple
+  model for iPhone, iPad, Apple Watch and macOS.
 - `PROMPT_02_RELEASE_ORCHESTRATOR_COMPLETION.md` records the implementation
   outcome and qualification evidence.
 - `PLATFORM_RELEASE_QUALIFICATION.md` records the completed Generation 1

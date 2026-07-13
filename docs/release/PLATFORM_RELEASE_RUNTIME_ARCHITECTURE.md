@@ -21,6 +21,14 @@ Linux builds run on GitHub-hosted runners. Apple and Windows builds run only on
 their qualified self-hosted native runners. Raspberry Pi and ESP32 remain
 deployment/runtime-validation targets, never source-build runners.
 
+## Apple artifact model
+
+Generation 1 has two Apple artifacts: one universal iOS IPA for iPhone, iPad
+and its embedded Apple Watch companion app, and one native macOS application.
+visionOS is deferred. The Runtime must not create separate iPad or Watch
+artifact nodes. See [Apple Release Architecture](APPLE_RELEASE_ARCHITECTURE.md)
+for the target and workflow evidence.
+
 Every operational repository workflow must accept the bounded dispatch inputs
 `action`, `candidate_sha`, `execution_mode`, `manifest_id`,
 `platform_version`, and `release_profile`; validate them; fail closed; and
