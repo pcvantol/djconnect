@@ -1,0 +1,41 @@
+{
+  "release_profile": "INTERNAL_RELEASE",
+  "requested_by": "representative-validation",
+  "non_production": true,
+  "actions": [
+    {
+      "operation": "workflow_dispatch",
+      "repository": "example/source",
+      "category": "build",
+      "workflow": "build.yml",
+      "ref": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "artifact_hashes": {
+        "example-source.tar.gz": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "operation": "workflow_dispatch",
+      "repository": "example/distribution",
+      "category": "deployment",
+      "workflow": "deploy.yml",
+      "ref": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "artifact_hashes": {
+        "example-distribution.tar.gz": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    },
+    {
+      "operation": "create_tag",
+      "repository": "example/distribution",
+      "category": "artifact_publication",
+      "tag": "v3.3.2-internal-rehearsal",
+      "target_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    {
+      "operation": "draft_release",
+      "repository": "example/distribution",
+      "category": "post_release",
+      "tag": "v3.3.2-internal-rehearsal",
+      "release_name": "Internal rehearsal"
+    }
+  ]
+}

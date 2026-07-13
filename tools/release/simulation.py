@@ -63,7 +63,7 @@ class ReleaseSimulation:
             "artifact_inventory": artifact_plan(nodes),
             "rollback_plan": rollback_plan(stages),
             "certification_state": "NOT_CERTIFIED" if readiness["state"] != "READY" else "PLANNED",
-            "qualification_status": "NOT_QUALIFIED" if readiness["state"] != "READY" else "PLANNED",
+            "qualification_status": _qualification_status(readiness, mode),
         }
         manifest["manifest_id"] = _manifest_id(manifest)
         return manifest
@@ -79,3 +79,13 @@ def _dependencies(node: RepositoryNode, stages: list[object]) -> list[str]:
 def _manifest_id(manifest: dict[str, object]) -> str:
     stable = json.dumps(manifest, sort_keys=True, separators=(",", ":"), default=str)
     return f"release-sim-{hashlib.sha256(stable.encode()).hexdigest()[:16]}"
+
+
+def _qualification_status(readiness: dict[str, object], mode: str) -> str:
+    """Mark only an evidence-complete production candidate as executable."""
+
+    if readiness["state"] != "READY":
+        return "NOT_QUALIFIED"
+    if mode in {"production", "hotfix"}:
+        return "QUALIFIED"
+    return "PLANNED"

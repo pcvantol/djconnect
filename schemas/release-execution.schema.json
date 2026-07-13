@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DJConnect Platform Release Execution Evidence",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "manifest_kind",
+    "execution_id",
+    "source_manifest_id",
+    "platform_version",
+    "release_profile",
+    "status",
+    "operations",
+    "rollback_evidence"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "manifest_kind": {"const": "platform_release_execution"},
+    "execution_id": {"type": "string", "pattern": "^release-exec-"},
+    "source_manifest_id": {"type": "string", "pattern": "^release-sim-"},
+    "platform_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+$"},
+    "release_profile": {"const": "INTERNAL_RELEASE"},
+    "status": {"enum": ["PASS", "FAILED"]},
+    "operations": {"type": "array"},
+    "rollback_evidence": {"type": "object"}
+  },
+  "additionalProperties": true
+}
