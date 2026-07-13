@@ -396,3 +396,36 @@ Decision:
 ```text
 PLATFORM_RELEASE_ARCHITECTURE_COMPLETE
 ```
+
+## Internal release architecture correction — 2026-07-13
+
+Codex is exclusively the Platform Release Orchestrator. It discovers
+repositories, plans and aligns versions, calculates the graph, dispatches
+GitHub Actions workflows, collects evidence, evaluates Software Assurance and
+Trusted Delivery, qualifies candidates and makes release decisions. Codex does
+not compile, sign, publish or deploy platform artifacts directly.
+
+All source builds run in GitHub Actions. The canonical build locations are:
+
+| Surface | Canonical build location |
+| --- | --- |
+| Apple | qualified self-hosted macOS runner |
+| Windows | qualified self-hosted Windows runner |
+| Home Assistant, API, Website, ESP32 firmware, Pi client | GitHub-hosted Linux runner |
+
+Self-hosted runners are required only for Apple and Windows native toolchains.
+Pi and ESP32 are deployment targets, never source-build runners. Firmware is
+distributed only through `pcvantol/djconnect-firmware`; Pi artifacts only
+through `pcvantol/djconnect-pi-releases`.
+
+An internal release requires an exact qualified candidate SHA, valid
+Verification evidence, Software Assurance `PASS`, Trusted Delivery `PASS`,
+valid coverage, version alignment `PASS`, generated artifacts and available
+targets only where the selected profile actually deploys. Physical device
+validation is Verification Platform work and is not an implicit build gate.
+
+Decision:
+
+```text
+RELEASE_ARCHITECTURE_CORRECTED
+```

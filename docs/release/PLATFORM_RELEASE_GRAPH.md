@@ -3,8 +3,8 @@
 ```mermaid
 flowchart TD
   control["Release control\nmanifest + version matrix"]
-  source["Parallel source candidates\nHA · API · Apple · Windows · Pi · ESP32 · Website\nApp/Pi distribution metadata"]
-  distribution["Firmware distribution candidate"]
+  source["Parallel GitHub Actions source builds\nApple/macOS · Windows/Windows\nHA · API · Website · Pi · ESP32/Linux"]
+  distribution["Qualified artifact distribution\nfirmware repo · Pi releases repo · app channels"]
   qualify["Qualification and certification\nblocked"]
   control --> source --> distribution --> qualify
 ```
@@ -19,6 +19,8 @@ Ownership. The mandatory repositories are:
 - `pcvantol/djconnect-firmware`, `pcvantol/djconnect-app-releases`, and
   `pcvantol/djconnect-pi-releases` participate as distribution surfaces.
 
-The source stage can run concurrently after release control. Distribution is
-ordered after source qualification. No future/optional repository was
-invented or excluded by name.
+The source stage can run concurrently after release control. Apple and Windows
+use qualified self-hosted native runners; all other source builds use
+GitHub-hosted Linux. Distribution is ordered after source qualification. Pi and
+ESP32 are artifact-consuming deployment targets, never source-build nodes. No
+future/optional repository was invented or excluded by name.

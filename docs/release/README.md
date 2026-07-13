@@ -26,6 +26,15 @@ release process the source of truth.
   operational and future-work evidence.
 - `PROMPT_04_PLATFORM_RELEASE_QUALIFICATION_COMPLETION.md` records the
   formal Generation 1 qualification decision.
+- `RUNNER_ARCHITECTURE.md` and `RUNNER_POLICY.md` define the corrected
+  GitHub Actions build locations and the narrow self-hosted runner boundary.
+- `DEPLOYMENT_ARCHITECTURE.md` defines artifact-only deployment targets.
+- `VERIFICATION_VS_RELEASE.md` defines the boundary between runtime/hardware
+  proof and release production.
+- `PLATFORM_RELEASE_OPERATIONAL_MODEL.md` defines Codex orchestration and
+  GitHub Actions build execution.
+- `RELEASE_ARCHITECTURE_CORRECTIONS_COMPLETION.md` records the 2026-07-13
+  correction decision and its evidence.
 
 The architecture consumes repository membership from
 [`REPOSITORY_OWNERSHIP.md`](../../REPOSITORY_OWNERSHIP.md). It consumes
