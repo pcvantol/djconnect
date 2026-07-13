@@ -65,10 +65,11 @@ The Architecture Closure Review completed with decision
 a future evidence-backed Architecture Review demonstrates a genuine
 foundational gap.
 
-Platform Release Engineering Generation 1 has completed formal qualification
-with decision `PLATFORM_RELEASE_QUALIFIED`. Its architecture remains frozen,
-the orchestrator remains simulation-only, and Prompt 5 certification is
-generated but inactive pending explicit authorization.
+Platform Release Engineering Generation 1 completed formal qualification with
+decision `PLATFORM_RELEASE_QUALIFIED` and Prompt 5 certification with decision
+`PLATFORM_RELEASE_ENGINEERING_NOT_CERTIFIED`. Its architecture remains frozen
+and the orchestrator remains simulation-only; controlled internal release
+execution remains future Platform Evolution work.
 
 Prompt 4 Software Assurance governance and rollout strategy are complete. The
 architecture decision is `SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE`.

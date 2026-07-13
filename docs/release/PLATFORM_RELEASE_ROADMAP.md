@@ -1,7 +1,7 @@
 # Platform Release Engineering Roadmap
 
-Status: architecture-approved roadmap  
-Scope: future implementation only
+Status: Generation 1 complete; certification not granted for internal-release execution
+Scope: historical Generation 1 record and future authorized evolution
 
 ## Purpose
 
@@ -16,25 +16,25 @@ repository rollout, version changes, tags or publication.
 | 1 | Freeze Platform Release Architecture. | Platform Baseline v1.0 and Trusted Delivery certification. | Automation, rollout, releases. |
 | 2 | Implement the simulation-only release orchestrator and planning/discovery contract. | Prompt 1 completion. | Change ownership records, hardcode repositories or execute a platform release. |
 | 3 | Execute and qualify the first complete non-publishing Platform Release Dry Run. | Prompt 2 qualification and explicit authorization. | Tags, releases, deployments or public announcements. |
-| 4 | Implement evidence-bundle persistence and qualification-report contracts from the qualified dry run. | Prompt 3 qualification and explicit authorization. | Enable production publication. |
-| 5 | Implement publication-capable orchestration, recovery control and staged repository rollout. | Prompt 4 qualification and explicit authorization. | Unqualified platform-wide production release. |
+| 4 | Formally qualify the implemented simulation-only release capability. | Prompt 3 passed and explicit authorization. | Publication, deployment or architecture redesign. |
+| 5 | Formally certify readiness for controlled internal release. | Prompt 4 qualified and explicit authorization. | Implementation, publication or public distribution. |
 
 ## Delivery waves
 
 ```text
-Architecture
+Architecture — complete
   -> Discovery contract
-  -> Simulation-only planner + readiness runtime
-  -> Complete Dry Run
-  -> Evidence and qualification persistence
-  -> Orchestrator + recovery
-  -> Staged repository/channel adoption
-  -> First production Platform Release
+  -> Simulation-only planner + readiness runtime — complete
+  -> Complete Dry Run — passed
+  -> Formal qualification — passed
+  -> Certification — not certified for controlled internal execution
+  -> Future: orchestrator execution + recovery
+  -> Future: staged repository/channel adoption
+  -> Future: first controlled internal Platform Release
 ```
 
-The first production Platform Release is a separate, explicitly authorized
-release operation after the implementation waves qualify. It is not an output
-of this roadmap.
+Controlled internal release execution remains a separate, explicitly
+authorized Platform Evolution effort. It is not an output of Generation 1.
 
 ## Guardrails
 

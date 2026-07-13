@@ -57,7 +57,7 @@ Platform Release Engineering
   -> simulation-only release orchestrator qualified
   -> Platform Release Dry Run passed
   -> Platform Release Engineering Generation 1 qualified
-  -> Platform Release Certification generated but not started
+  -> Prompt 5 certification completed: not certified for controlled internal release execution
   -> future implementation proceeds through `docs/release/`
   -> no publication-capable automation or repository rollout has started
 

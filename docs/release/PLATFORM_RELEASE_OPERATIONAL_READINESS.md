@@ -1,6 +1,6 @@
 # Platform Release Engineering Generation 1 — Operational Readiness
 
-Status: `QUALIFIED_FOR_SIMULATION_ONLY`
+Status: `NOT_READY_FOR_INTERNAL_RELEASE_EXECUTION`
 
 ## Ready capabilities
 
@@ -26,7 +26,9 @@ Status: `QUALIFIED_FOR_SIMULATION_ONLY`
 
 ## Readiness conclusion
 
-The release capability is operationally mature for planning, dry-run and
-evidence-based qualification. Production operation requires the separate
-certification and automation work owned by Prompt 5 and later Platform
-Evolution work.
+Prompt 5 certification confirmed that the release capability is operationally
+mature for planning, dry-run and evidence-based qualification, but not for
+controlled internal-release execution. The final certification decision is
+`PLATFORM_RELEASE_ENGINEERING_NOT_CERTIFIED`. Controlled execution requires
+separate authorized Platform Evolution work; no architecture redesign is
+recommended.

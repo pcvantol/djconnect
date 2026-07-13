@@ -26,6 +26,12 @@ release process the source of truth.
   operational and future-work evidence.
 - `PROMPT_04_PLATFORM_RELEASE_QUALIFICATION_COMPLETION.md` records the
   formal Generation 1 qualification decision.
+- `PLATFORM_RELEASE_CERTIFICATION.md` records the formal Generation 1
+  certification decision.
+- `PLATFORM_RELEASE_ENGINEERING_COMPLIANCE_REPORT.md`,
+  `PLATFORM_RELEASE_ENGINEERING_OPERATIONAL_READINESS.md` and
+  `PLATFORM_RELEASE_ENGINEERING_GENERATION_1_COMPLETION_REPORT.md` record
+  final compliance, internal-release readiness and phase closure.
 
 The architecture consumes repository membership from
 [`REPOSITORY_OWNERSHIP.md`](../../REPOSITORY_OWNERSHIP.md). It consumes

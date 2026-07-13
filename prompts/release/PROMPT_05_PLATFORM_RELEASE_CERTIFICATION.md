@@ -2,7 +2,7 @@
 
 ## Status
 
-`AWAITING_EXPLICIT_AUTHORIZATION`
+`COMPLETED_NOT_CERTIFIED`
 
 ## Mission
 
@@ -16,17 +16,13 @@ create GitHub Releases, deploy, upload or announce a release.
 
 ## Required decision
 
-Return exactly one decision:
+The authoritative certification decision was:
 
 ```text
-PLATFORM_RELEASE_CERTIFIED
+PLATFORM_RELEASE_ENGINEERING_NOT_CERTIFIED
 ```
 
-or
-
-```text
-PLATFORM_RELEASE_NOT_CERTIFIED
-```
-
-Certification must fail closed when required evidence is missing, stale,
-misaligned or not bound to the exact candidate.
+Certification failed closed because Generation 1 implements a simulation-only
+runtime and has no controlled internal publication, deployment, artifact
+preservation or rollback execution. See
+`docs/release/PLATFORM_RELEASE_CERTIFICATION.md` for the objective evidence.

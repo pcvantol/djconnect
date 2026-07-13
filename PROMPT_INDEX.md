@@ -16,8 +16,10 @@ re-executed the platform-wide release dry run for platform version `3.3` and
 returned `PLATFORM_RELEASE_DRY_RUN_PASSED`. Prompt 4 formally qualified the
 Generation 1 release capability with decision
 `PLATFORM_RELEASE_QUALIFIED`. The Platform Release Architecture remains frozen
-and no redesign is recommended. Prompt 5 Platform Release Certification is
-generated but inactive. Canonical evidence is under `docs/release/`.
+and no redesign is recommended. Prompt 5 certification completed with decision
+`PLATFORM_RELEASE_ENGINEERING_NOT_CERTIFIED`: the implemented capability is
+simulation-only and has no controlled internal-release executor. Canonical
+evidence is under `docs/release/`.
 
 The Software Assurance Platform architecture sprint has completed with decision
 `SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE`. Software Assurance
@@ -274,7 +276,7 @@ through Product Development, Platform Evolution or Platform Release Engineering.
 Status:
 
 ```text
-PLATFORM_RELEASE_QUALIFIED
+PLATFORM_RELEASE_ENGINEERING_NOT_CERTIFIED
 ```
 
 Prompt 1 froze the reusable Platform Release Architecture with decision
@@ -290,27 +292,33 @@ reports are:
 - `docs/release/PROMPT_01_RELEASE_ARCHITECTURE_COMPLETION.md`
 - `docs/release/PROMPT_02_RELEASE_ORCHESTRATOR_COMPLETION.md`
 
-The next release-engineering action is generated but inactive:
+Prompt 5 completed the certification review. The architecture is frozen and
+the runtime remains complete for simulation, but certification fail-closed
+because internal publication, deployment, artifact preservation and rollback
+execution are not implemented. The final evidence is:
 
-1. [Prompt 5: Platform Release Certification](prompts/release/PROMPT_05_PLATFORM_RELEASE_CERTIFICATION.md)
+- `docs/release/PLATFORM_RELEASE_CERTIFICATION.md`
+- `docs/release/PLATFORM_RELEASE_ENGINEERING_COMPLIANCE_REPORT.md`
+- `docs/release/PLATFORM_RELEASE_ENGINEERING_OPERATIONAL_READINESS.md`
+- `docs/release/PLATFORM_RELEASE_ENGINEERING_GENERATION_1_COMPLETION_REPORT.md`
 
-Prompt 5 may start only after explicit authorization. It owns objective
-release certification and must not publish, tag or mutate a distribution
-channel.
+There is no Prompt 6 in Generation 1. Any controlled internal-release
+execution capability requires a separately authorized Platform Evolution
+effort and must preserve the frozen architecture and fail-closed gates.
 
 Release-engineering clean-session command:
 
 ```text
-Read docs/release/PLATFORM_RELEASE_ARCHITECTURE.md, docs/release/RUNTIME.md
-and prompts/release/PROMPT_05_PLATFORM_RELEASE_CERTIFICATION.md. Execute
-Prompt 5 only when explicitly authorized.
+Read docs/release/PLATFORM_RELEASE_CERTIFICATION.md and
+docs/release/PLATFORM_RELEASE_ENGINEERING_GENERATION_1_COMPLETION_REPORT.md
+before proposing any Platform Evolution work.
 ```
 
 Use this clean-session prompt for future operator-directed work:
 
 ```text
-Read `docs/release/PLATFORM_RELEASE_QUALIFICATION.md` and execute Prompt 5
-only when it is explicitly authorized. Do not execute it implicitly.
+Read `docs/release/PLATFORM_RELEASE_CERTIFICATION.md`. Do not infer
+authorization to implement the documented future execution capability.
 ```
 
 ## Prompt Table
