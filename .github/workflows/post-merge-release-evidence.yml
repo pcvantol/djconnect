@@ -11,6 +11,10 @@ on:
         description: Main workflow whose successful run supplies post-merge evidence.
         required: true
         type: string
+      repository_role:
+        description: Repository Ownership release role.
+        required: true
+        type: string
 
 permissions:
   actions: read
@@ -39,6 +43,7 @@ jobs:
         env:
           COVERAGE_ARTIFACT: ${{ inputs.coverage_artifact_name }}
           REQUIRED_MAIN_WORKFLOW: ${{ inputs.required_main_workflow }}
+          REPOSITORY_ROLE: ${{ inputs.repository_role }}
         with:
           script: |
             const fs = require("fs");
@@ -61,7 +66,7 @@ jobs:
             const coverage = artifacts.find(item => item.name === process.env.COVERAGE_ARTIFACT);
             const okMain = Boolean(mainRun);
             const request = {
-              repository: `${owner}/${repo}`, main_sha: mainSha, main_parents: commit.data.parents.map(parent => parent.sha), timestamp: new Date().toISOString(),
+              repository: `${owner}/${repo}`, repository_role: process.env.REPOSITORY_ROLE, main_sha: mainSha, main_parents: commit.data.parents.map(parent => parent.sha), timestamp: new Date().toISOString(),
               originating_pr: pr ? {number: pr.data.number, state: pr.data.merged ? "MERGED" : "OPEN", base_ref: pr.data.base.ref, head_sha: pr.data.head.sha, merge_commit_sha: pr.data.merge_commit_sha, merge_strategy: pr.data.merge_commit_sha === mainSha && commit.data.parents.length === 1 ? "SQUASH" : "MERGE", merge_actor: pr.data.merged_by?.login, merged_at: pr.data.merged_at, changed_files: prFiles.map(file => file.filename), main_changed_files: (commit.data.files || []).map(file => file.filename)} : null,
               pre_merge: pr ? {candidate_sha: pr.data.head.sha, risk_classification: risk, owner_authorization: risk === "HIGH_RISK" ? (ownerStatus?.state === "SUCCESS" ? "PASS" : "FAIL") : "PASS", verification: checkPass("Trusted Delivery qualification / Qualify trusted delivery") ? "PASS" : "FAIL", software_assurance: checkPass("Software Assurance governance / Validate canonical governance policy") ? "PASS" : "FAIL", trusted_delivery: checkPass("Trusted Delivery qualification / Qualify trusted delivery") ? "PASS" : "FAIL", workflow_integrity: checkPass("Trusted Delivery qualification / Qualify trusted delivery") ? "PASS" : "FAIL", required_checks: contextNodes.every(item => item.__typename === "CheckRun" ? item.conclusion === "SUCCESS" || item.conclusion === "SKIPPED" : item.state === "SUCCESS") ? "PASS" : "FAIL"} : null,
               post_merge: {sha: mainSha, ci: okMain ? "PASS" : "FAIL", tests: okMain ? "PASS" : "FAIL", lint: okMain ? "PASS" : "FAIL", static_analysis: okMain ? "PASS" : "FAIL", build_validation: okMain ? "PASS" : "FAIL", governance: okMain ? "PASS" : "FAIL", coverage: coverage ? "PASS" : "FAIL", coverage_report_sha: coverage ? mainSha : null, coverage_artifact_sha: coverage?.digest || null, workflow_run_ids: mainRun ? [String(mainRun.id)] : []}
