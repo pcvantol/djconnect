@@ -13,10 +13,11 @@ not required.
 Prompt 1 froze the Platform Release Architecture and Prompt 2 qualified the
 simulation-only Platform Release Orchestrator. Prompt 3 remediation
 re-executed the platform-wide release dry run for platform version `3.3` and
-returned `PLATFORM_RELEASE_DRY_RUN_PASSED`. Exact candidate SHA qualification,
-fresh `COVERAGE_VALID` evidence and website version propagation are complete.
-Prompt 4 Platform Release Qualification is awaiting a separate explicit
-authorization. Canonical evidence is under `docs/release/`.
+returned `PLATFORM_RELEASE_DRY_RUN_PASSED`. Prompt 4 formally qualified the
+Generation 1 release capability with decision
+`PLATFORM_RELEASE_QUALIFIED`. The Platform Release Architecture remains frozen
+and no redesign is recommended. Prompt 5 Platform Release Certification is
+generated but inactive. Canonical evidence is under `docs/release/`.
 
 The Software Assurance Platform architecture sprint has completed with decision
 `SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE`. Software Assurance
@@ -273,7 +274,7 @@ through Product Development, Platform Evolution or Platform Release Engineering.
 Status:
 
 ```text
-GENERATION_1_PROMPT_2_COMPLETE
+PLATFORM_RELEASE_QUALIFIED
 ```
 
 Prompt 1 froze the reusable Platform Release Architecture with decision
@@ -291,25 +292,25 @@ reports are:
 
 The next release-engineering action is generated but inactive:
 
-1. [Prompt 3: Platform Release Dry Run](prompts/release/PROMPT_03_PLATFORM_RELEASE_DRY_RUN.md)
+1. [Prompt 5: Platform Release Certification](prompts/release/PROMPT_05_PLATFORM_RELEASE_CERTIFICATION.md)
 
-Prompt 3 may start only after explicit authorization. It owns the first
-complete non-publishing dry run and must not create tags, publish a release or
-mutate a distribution channel.
+Prompt 5 may start only after explicit authorization. It owns objective
+release certification and must not publish, tag or mutate a distribution
+channel.
 
 Release-engineering clean-session command:
 
 ```text
 Read docs/release/PLATFORM_RELEASE_ARCHITECTURE.md, docs/release/RUNTIME.md
-and prompts/release/PROMPT_03_PLATFORM_RELEASE_DRY_RUN.md. Execute Prompt 3
-only when explicitly authorized.
+and prompts/release/PROMPT_05_PLATFORM_RELEASE_CERTIFICATION.md. Execute
+Prompt 5 only when explicitly authorized.
 ```
 
 Use this clean-session prompt for future operator-directed work:
 
 ```text
-Read `SOFTWARE_ASSURANCE_IMPLEMENTATION.md` and execute Prompt 3 only when it
-is explicitly authorized. Do not execute Prompt 4.
+Read `docs/release/PLATFORM_RELEASE_QUALIFICATION.md` and execute Prompt 5
+only when it is explicitly authorized. Do not execute it implicitly.
 ```
 
 ## Prompt Table
