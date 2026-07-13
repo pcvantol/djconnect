@@ -152,6 +152,9 @@ Architecture and governance:
 - `SOFTWARE_ASSURANCE_ROLLOUT.md`
 - `SOFTWARE_ASSURANCE_QUALITY_GATES.md`
 - `SOFTWARE_ASSURANCE_VERSIONING.md`
+- `SINGLE_MAINTAINER_GOVERNANCE_DECISION.md`
+- `TRUSTED_DELIVERY_REVIEW_POLICY.md`
+- `docs/software_assurance/TRUSTED_DELIVERY_GOVERNANCE_TARGET_MATRIX.md`
 
 Lifecycle and navigation:
 
@@ -174,3 +177,8 @@ Current implementation status:
 ```text
 PROMPT_1_COMPLETE; PROMPT_2_COMPLETE; PROMPT_3_ACTIVE
 ```
+
+Prompt 3 governance preparation has selected
+`SINGLE_MAINTAINER_GOVERNANCE_READY`. It is a documented target only: no
+repository settings, rulesets, branch protection, approval rule, auto-merge
+behavior or SHA enforcement has been changed without separate authorization.
