@@ -19,7 +19,7 @@ capabilities.
 | Area | Status |
 | --- | --- |
 | Architecture Status | `COMPLETE` |
-| Implementation Status | `PROMPT_1_COMPLETE; PROMPT_2_COMPLETE; PROMPT_3_PASS; PROMPT_4_ACTIVE` |
+| Implementation Status | `PROMPT_1_COMPLETE; PROMPT_2_COMPLETE; PROMPT_3_PASS; PROMPT_4_COMPLETE` |
 | Platform State | `Platform Evolution; Software Assurance Generation 1 active program` |
 | Implementation Start | `PROMPT_1_COMPLETE` |
 | Architecture Freeze | `YES` |
@@ -73,7 +73,7 @@ The canonical implementation order is:
 | Prompt 1 | CI Governance Foundation | `COMPLETE` | `prompts/deferred/software_assurance/PROMPT_01_CI_GOVERNANCE_FOUNDATION.md` |
 | Prompt 2 | Cross-Repository Workflow Harmonization | `COMPLETE` | `prompts/deferred/software_assurance/PROMPT_02_CROSS_REPOSITORY_WORKFLOW_HARMONIZATION.md` |
 | Prompt 3 | Trusted Delivery Platform | `PASS` | `prompts/deferred/software_assurance/PROMPT_03_TRUSTED_DELIVERY_PLATFORM.md` |
-| Prompt 4 | Trusted Delivery Certification | `ACTIVE` | `prompts/deferred/software_assurance/PROMPT_04_TRUSTED_DELIVERY_CERTIFICATION.md` |
+| Prompt 4 | Trusted Delivery Certification | `COMPLETE` | `prompts/deferred/software_assurance/PROMPT_04_TRUSTED_DELIVERY_CERTIFICATION.md` |
 
 These prompts define the complete Software Assurance implementation sequence.
 Only Prompt 3 may be executed when explicitly authorized. Prompt 4 must not be

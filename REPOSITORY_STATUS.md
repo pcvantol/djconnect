@@ -91,6 +91,11 @@ the isolated reproducer proved pre-job failure for valid cross-repository
 reusable workflows. Recursive immutable workflow governance is the active
 compensating control; Prompt 4 is active but has not been executed.
 
+Prompt 4 has certified the completed Trusted Delivery platform with decision
+`SOFTWARE_ASSURANCE_TRUSTED_DELIVERY_CERTIFIED`. Software Assurance Generation
+1 is complete and operationally frozen; future work proceeds through Platform
+Evolution rather than Trusted Delivery redesign.
+
 The corrective recursive workflow-closure validator and canonical pointer
 remediation are now prepared for review. This does not re-enable enforcement:
 all consumer pointers must merge, then platform-wide closure and live GitHub

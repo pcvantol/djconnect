@@ -242,7 +242,7 @@ Implementation sequence:
 1. [Prompt 1: CI Governance Foundation](prompts/deferred/software_assurance/PROMPT_01_CI_GOVERNANCE_FOUNDATION.md) — `COMPLETE`
 2. [Prompt 2: Cross-Repository Workflow Harmonization](prompts/deferred/software_assurance/PROMPT_02_CROSS_REPOSITORY_WORKFLOW_HARMONIZATION.md) — `COMPLETE`
 3. [Prompt 3: Trusted Delivery Platform](prompts/deferred/software_assurance/PROMPT_03_TRUSTED_DELIVERY_PLATFORM.md) — `PASS`
-4. [Prompt 4: Trusted Delivery Certification](prompts/deferred/software_assurance/PROMPT_04_TRUSTED_DELIVERY_CERTIFICATION.md) — `ACTIVE`
+4. [Prompt 4: Trusted Delivery Certification](prompts/deferred/software_assurance/PROMPT_04_TRUSTED_DELIVERY_CERTIFICATION.md) — `COMPLETE`
 
 Current state:
 
