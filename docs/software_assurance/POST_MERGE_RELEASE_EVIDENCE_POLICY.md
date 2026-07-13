@@ -11,5 +11,9 @@
   governance for the exact main SHA;
 - coverage artifact and coverage report bound to that same SHA.
 
+Distribution-only repositories do not build source and therefore require
+post-merge CI, governance, distribution-integrity and metadata-validation
+evidence instead of coverage. This role is determined by Repository Ownership.
+
 Any missing, stale, ambiguous, fork-originated or direct-push evidence yields
 `POST_MERGE_RELEASE_EVIDENCE_NOT_QUALIFIED`.
