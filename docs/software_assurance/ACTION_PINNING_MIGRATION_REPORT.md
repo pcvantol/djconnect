@@ -383,3 +383,22 @@ successfully, the website canonical-content inconsistency requires separately
 authorized resolution, and an independent reviewer must become available
 before protected repositories can be merged. `SHA_PINNING_ENFORCEMENT_NOT_READY`
 remains in force.
+
+### Single-maintainer governance resolution
+
+On 2026-07-13, the required-review deadlock was classified as a governance
+operability issue rather than an action-pinning failure. The proposed canonical
+decision is `SINGLE_MAINTAINER_GOVERNANCE_READY`: LOW_RISK and NORMAL_RISK work
+uses required objective checks and qualification without an impossible
+independent approval; HIGH_RISK work requires an explicit owner approval.
+
+The governing documents are:
+
+- [`SINGLE_MAINTAINER_GOVERNANCE_DECISION.md`](../../SINGLE_MAINTAINER_GOVERNANCE_DECISION.md)
+- [`TRUSTED_DELIVERY_REVIEW_POLICY.md`](../../TRUSTED_DELIVERY_REVIEW_POLICY.md)
+- [`TRUSTED_DELIVERY_GOVERNANCE_TARGET_MATRIX.md`](TRUSTED_DELIVERY_GOVERNANCE_TARGET_MATRIX.md)
+- [`ACTION_PINNING_PR_RISK_MATRIX.md`](ACTION_PINNING_PR_RISK_MATRIX.md)
+
+This decision does not modify GitHub settings, merge any pull request, change
+SHA enforcement or remediate the unrelated Website debt. Applying the target
+requires a separate explicit authorization.

@@ -72,6 +72,11 @@ Software Assurance Generation 1 is active. Prompt 1 completed the reusable CI
 Governance Foundation and Prompt 2 completed cross-repository workflow rollout;
 Prompt 3 is the only active implementation prompt.
 
+Prompt 3 governance preparation selected the proposed
+`SINGLE_MAINTAINER_GOVERNANCE_READY` model. It resolves the documented
+single-maintainer approval deadlock through risk-based qualification; GitHub
+settings remain unchanged pending separate explicit authorization.
+
 The architecture closure review found that foundation, verification platform,
 meta engineering, repository bootstrap, cross-repository governance,
 repository ownership, product strategy foundation and Software Assurance
@@ -90,8 +95,8 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-Software Assurance Generation 1 Prompt 2 — Cross-Repository Workflow
-Harmonization (complete; Prompt 3 active).
+Software Assurance Generation 1 Prompt 3 — Trusted Delivery Platform
+(active; GitHub governance target documented but not applied).
 
 ## Completion Report
 
@@ -230,8 +235,8 @@ contain the SHA of the commit that includes its own content.
 
 ## Repository-Local Next Action
 
-Software Assurance Generation 1 is the active engineering program. Prompt 2
-may begin only through an explicit execution request. Prompts 3–4 remain
-blocked in sequence; do not start additional foundational architecture work
-unless a future Architecture Review with objective evidence demonstrates a
-genuine gap.
+Software Assurance Generation 1 Prompt 3 is active. Its single-maintainer
+review policy is documented but GitHub settings remain unchanged pending
+explicit authorization. Prompt 4 remains blocked; do not start additional
+foundational architecture work unless a future Architecture Review with
+objective evidence demonstrates a genuine gap.
