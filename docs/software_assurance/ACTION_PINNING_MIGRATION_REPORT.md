@@ -344,6 +344,42 @@ pre-existing duplicate test function in `tests/test_app_backend.py`. Website
 tests report an action-pinning-related expectation that still requires
 `actions/checkout@v5`, plus the unrelated presence of `SYNC_PROMPTS.md`.
 Windows workflow hygiene flags the ordinary word `refresh` in
-`WINDOWS_PROFILE_ADOPTION_REPORT.md` as a secret-like string. These issues
-require focused, separately approved remediation; no product or unrelated test
-content was changed during integration.
+`WINDOWS_PROFILE_ADOPTION_REPORT.md` as a secret-like string.
+
+### Integration remediation and review coordination
+
+Decision: `INTEGRATION_BLOCKED_PENDING_INDEPENDENT_REVIEW`
+Date: 2026-07-13
+
+The focused, explicitly authorized CI remediation completed without changing
+platform architecture, Verification Runtime, workflow permissions, branch
+protection, enforcement settings or Prompt 4 scope.
+
+| Repository | PR | Remediation commit | Result |
+| --- | --- | --- | --- |
+| `djconnect-pi` | [#34](https://github.com/pcvantol/djconnect-pi/pull/34) | `6bb3e30` | Removed the byte-identical duplicate Ask DJ revision test; focused pytest and Ruff pass. |
+| `djconnect-website` | [#15](https://github.com/pcvantol/djconnect-website/pull/15) | `9a1d8a4` | Updated the action-pinning assertion to the approved checkout and setup-node SHAs; targeted test passes. |
+| `djconnect-windows` | [#8](https://github.com/pcvantol/djconnect-windows/pull/8) | `9dadab5` | Replaced the broad prose scan with immutable workflow-reference validation and executable regressions for prose, a mutable tag and a SHA pin. |
+
+The complete website suite now isolates one remaining failure:
+`SYNC_PROMPTS.md` is present despite the existing test and release hygiene
+requiring canonical prompt material to remain external. Git history attributes
+the file to `5fef283` (`docs: align website repo with DJConnect foundation`),
+which predates this action-pinning integration branch. It is unrelated to
+action pinning and has deliberately not been deleted, rewritten or otherwise
+changed. Explicit approval is required before any remediation of that file or
+its canonical-content test.
+
+Live collaborator read-back for `djconnect`, `djconnect-api`, `djconnect-app`,
+`djconnect-pi`, `djconnect-website`, `djconnect-windows` and
+`djconnect-esp32` lists only `pcvantol` as a direct collaborator. Each PR that
+requires review remains unapproved. The configured Trusted Delivery GitHub App
+is a least-privilege automation actor, not an independent reviewer, and was
+not asked to approve or merge any PR. No self-approval, administrator bypass,
+protection change or direct push to `main` was used.
+
+Accordingly, all seven integration PRs remain open. Their checks must finish
+successfully, the website canonical-content inconsistency requires separately
+authorized resolution, and an independent reviewer must become available
+before protected repositories can be merged. `SHA_PINNING_ENFORCEMENT_NOT_READY`
+remains in force.
