@@ -93,9 +93,28 @@ jobs:
               .filter(status => status.context === "Owner Authorization")
               .sort((left, right) => right.id - left.id)[0];
             if (!ownerStatus || ownerStatus.state !== "failure" || !ownerStatus.description?.startsWith("HIGH_RISK")) throw new Error("Trusted Delivery does not require Owner Authorization for this exact HIGH_RISK SHA");
-            const checks = await github.rest.checks.listForRef({owner: targetOwner, repo: targetRepo, ref: process.env.TARGET_SHA});
-            const trustedDelivery = checks.data.check_runs.find(check => check.name === "Trusted Delivery qualification / Qualify trusted delivery");
-            if (!trustedDelivery || trustedDelivery.status !== "completed" || trustedDelivery.conclusion !== "success") throw new Error("Trusted Delivery technical qualification is not PASS");
+            const rollup = await github.graphql(`
+              query($owner: String!, $repo: String!, $sha: GitObjectID!) {
+                repository(owner: $owner, name: $repo) {
+                  object(expression: $sha) {
+                    ... on Commit {
+                      statusCheckRollup {
+                        contexts(first: 100) {
+                          nodes {
+                            __typename
+                            ... on CheckRun { name status conclusion }
+                            ... on StatusContext { context state }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `, {owner: targetOwner, repo: targetRepo, sha: process.env.TARGET_SHA});
+            const contexts = rollup.repository.object?.statusCheckRollup?.contexts?.nodes || [];
+            const trustedDelivery = contexts.find(context => context.__typename === "CheckRun" && context.name === "Trusted Delivery qualification / Qualify trusted delivery");
+            if (!trustedDelivery || trustedDelivery.status !== "COMPLETED" || trustedDelivery.conclusion !== "SUCCESS") throw new Error("Trusted Delivery technical qualification is not PASS");
             fs.writeFileSync("owner-authorization-evidence.json", JSON.stringify({schema_version: 1, kind: "trusted_delivery_owner_authorization", repository: process.env.TARGET_REPOSITORY, branch: process.env.TARGET_BRANCH, pr_number: Number(process.env.TARGET_PR), candidate_sha: process.env.TARGET_SHA, classification: "HIGH_RISK", owner: process.env.OWNER_LOGIN, github_actor: context.actor, workflow_run_id: String(context.runId), timestamp: new Date().toISOString(), result: "PASS"}, null, 2));
       - name: Publish Owner Authorization status
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
