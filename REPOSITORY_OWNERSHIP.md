@@ -117,16 +117,19 @@ Update canonical docs when: firmware distribution format or release governance n
 
 ## `pcvantol/djconnect-app-releases`
 
-Owns: public app release artifacts only.
+Owns: internal unsigned Apple build-artifact handoff and non-secret release
+metadata only.
 
-Also owns: localization consistency for end-user release/install copy stored in
-the repository or attached to releases.
+It is not a public signed Apple distribution channel. Public signed iOS,
+iPadOS and macOS distribution belongs directly in the App Store Connect / App
+Store / TestFlight process after a separate public-release decision.
 
 Does not own: Apple client source, backend contracts, entitlement model or foundation docs.
 
 Must follow: release governance, product language, privacy and distribution rules.
 
-Update canonical docs when: app release distribution strategy changes platform release governance or public product promises.
+Update canonical docs when: Apple internal-artifact handoff or public App Store
+Connect distribution strategy changes platform release governance.
 
 ## `pcvantol/djconnect-pi-releases`
 

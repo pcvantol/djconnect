@@ -19,9 +19,11 @@ All ten current `main` SHAs have a non-expired artifact named
 they are not deployable release artifacts and contain no approved
 manifest-bound artifact ID/checksum pair.
 
-The source branches holding the new static consumers are local and have not
-been pushed or merged. They therefore cannot supply current-main release
-artifacts.
+The static-consumer branches have subsequently been merged. Their current-main
+CI and artifact evidence must still be reconciled before a candidate can bind
+them. For Apple, the internal unsigned build artifact is consumed by the Apple
+Secure Distribution Relay; `djconnect-app-releases` is not a signed public
+publication target for this `INTERNAL_RELEASE`.
 
 | Gate | Result |
 | --- | --- |
@@ -43,8 +45,10 @@ of the ten components.
 
 1. Review, merge and publish the static consumer branches where they are
    intended to be part of current `main`.
-2. Provide an explicit approved manifest that declares the required target set
-   for `3.3.0`, including whether distribution repositories are required.
+2. Provide an explicit approved manifest that declares the required internal
+   target set for `3.3.0`. It must use the Apple Secure Distribution Relay for
+   private devices and must not treat `djconnect-app-releases` as a public
+   publication target.
 3. Produce qualified deployable artifacts and exact SHA-256 bindings for each
    required target, then bind current-main verification and delivery evidence.
 4. Explicitly authorize only the resulting manifest-bound deployment and
