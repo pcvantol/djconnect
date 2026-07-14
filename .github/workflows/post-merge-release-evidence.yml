@@ -36,7 +36,11 @@ permissions:
 jobs:
   reconcile:
     name: Reconcile release evidence
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -58,12 +62,13 @@ jobs:
           DISTRIBUTION_EVIDENCE_ARTIFACT: ${{ inputs.distribution_evidence_artifact_name }}
           REQUIRED_MAIN_WORKFLOW: ${{ inputs.required_main_workflow }}
           REPOSITORY_ROLE: ${{ inputs.repository_role }}
+          MAIN_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
         with:
           script: |
             const fs = require("fs");
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const mainSha = context.sha;
+            const mainSha = process.env.MAIN_SHA;
             const repositoryRole = process.env.REPOSITORY_ROLE;
             if (!["active_source", "release_source", "distribution"].includes(repositoryRole)) {
               throw new Error("repository_role is invalid");

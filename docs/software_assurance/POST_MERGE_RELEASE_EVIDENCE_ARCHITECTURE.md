@@ -26,6 +26,10 @@ identifiers. Distribution repositories instead provide their required
 distribution-integrity workflow and its
 `platform-release-distribution-integrity` artifact. They are qualified on
 artifact integrity and metadata validation, never on source-code coverage. The
-workflow does not hardcode a partial repository list. It publishes the single
-canonical context `Post-Merge Release Evidence / Reconcile release evidence`
-on the exact main SHA and uploads `post-merge-release-evidence`.
+distribution integrity workflow runs on `push` to `main`; its reconciliation
+wrapper invokes the reusable workflow only after that workflow has completed
+successfully through `workflow_run`. This guarantees the evidence artifact is
+available before it is read. Source wrappers remain direct `push` callers.
+The workflow does not hardcode a partial repository list. It publishes the
+single canonical context `Post-Merge Release Evidence / Reconcile release
+evidence` on the exact main SHA and uploads `post-merge-release-evidence`.
