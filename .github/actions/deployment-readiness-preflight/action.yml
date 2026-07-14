@@ -1,0 +1,63 @@
+name: Deployment readiness preflight
+description: Fail closed before a manifest-bound deployment when runner, configuration or smoke readiness is incomplete.
+
+inputs:
+  target:
+    required: true
+  manifest_id:
+    required: true
+  candidate_sha:
+    required: true
+  artifact_id:
+    required: true
+  artifact_sha256:
+    required: true
+  expected_runner_os:
+    required: true
+  expected_runner_arch:
+    required: true
+  required_configuration:
+    description: Comma-separated environment variable names whose values must be non-empty.
+    required: false
+    default: ""
+  smoke_contract:
+    description: Concrete target smoke contract identifier; placeholders are rejected.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Validate deployment readiness
+      shell: bash
+      env:
+        TARGET: ${{ inputs.target }}
+        MANIFEST_ID: ${{ inputs.manifest_id }}
+        CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        ARTIFACT_ID: ${{ inputs.artifact_id }}
+        ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
+        EXPECTED_RUNNER_OS: ${{ inputs.expected_runner_os }}
+        EXPECTED_RUNNER_ARCH: ${{ inputs.expected_runner_arch }}
+        REQUIRED_CONFIGURATION: ${{ inputs.required_configuration }}
+        SMOKE_CONTRACT: ${{ inputs.smoke_contract }}
+      run: |
+        set -euo pipefail
+        test -n "$TARGET"
+        printf '%s' "$MANIFEST_ID" | grep -Eq '^release-[A-Za-z0-9._-]+$'
+        printf '%s' "$CANDIDATE_SHA" | grep -Eq '^[0-9a-f]{40}$'
+        test -n "$ARTIFACT_ID"
+        printf '%s' "$ARTIFACT_SHA256" | grep -Eq '^[0-9a-f]{64}$'
+        test "$RUNNER_OS" = "$EXPECTED_RUNNER_OS"
+        test "$RUNNER_ARCH" = "$EXPECTED_RUNNER_ARCH"
+        test -n "$SMOKE_CONTRACT"
+        test "$SMOKE_CONTRACT" != NOT_IMPLEMENTED
+
+        IFS=',' read -r -a required <<< "$REQUIRED_CONFIGURATION"
+        for name in "${required[@]}"; do
+          name="${name//[[:space:]]/}"
+          test -z "$name" && continue
+          case "$name" in
+            *[!A-Za-z0-9_]*) exit 1 ;;
+          esac
+          value="${!name-}"
+          test -n "$value"
+        done
