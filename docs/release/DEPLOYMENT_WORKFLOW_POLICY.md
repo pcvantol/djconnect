@@ -19,4 +19,6 @@ release-evidence status.
 When a local target is reachable only from the maintainer's private network,
 the qualified macOS runner is the approved deployment relay. Its deployment
 job may initiate only the already-authorized target action and read back target
-health; it may not build source, create artifacts or publish release material.
+health. This includes installation of the qualified HA integration artifact on
+the maintainer's production Home Assistant Pi 5. It may not build source,
+create artifacts or publish release material.

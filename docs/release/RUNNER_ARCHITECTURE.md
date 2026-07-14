@@ -23,9 +23,10 @@ Pi or ESP32 is a deployment/Verification target, not a source build runner.
 The qualified macOS runner is also the single approved deployment relay for
 the maintainer's private Pi/ESP32 network. This is a narrow deployment-only
 exception: it consumes qualified artifacts, can initiate a Home Assistant
-Update-entity OTA request and can read back a Pi SSH or ESP32 web-runtime
-health result. It never compiles Pi/ESP32 source, generates artifacts or
-publishes a release.
+Update-entity OTA request, install the qualified Home Assistant integration on
+the maintainer's production Home Assistant Pi 5, and read back Pi SSH, Home
+Assistant runtime or ESP32 web-runtime health. It never compiles Pi/ESP32/HA
+source, generates artifacts or publishes a release.
 
 ## Canonical workflow mapping
 
