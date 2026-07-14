@@ -12,5 +12,15 @@ already produced. It never compiles source on the destination.
 | Apple / Windows | qualified native build artifact | Internal deployment records exact artifact SHA. |
 | HA / API / Website | qualified GitHub Actions artifact | Deployment is an explicit graph node only if the selected profile deploys. |
 
+For the maintainer's private network, the qualified self-hosted macOS runner
+is the controlled deployment relay. It may use target-scoped credentials only
+in an explicit deployment job to start a Pi exact-artifact install or request
+an ESP32 OTA through the Home Assistant Update entity, or install the qualified
+HA integration artifact on the maintainer's production Home Assistant Pi 5. It
+then reads back Pi runtime, Home Assistant integration runtime or ESP32
+internal-IP web-server health. The relay never builds source, generates
+artifacts or publishes a release; Pi and ESP32 remain artifact consumers and
+Verification targets.
+
 Deployment evidence records artifact and target identity, timestamp, outcome
 and recovery reference; it is distinct from build provenance.

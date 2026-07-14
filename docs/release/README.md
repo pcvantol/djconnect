@@ -34,6 +34,10 @@ release process the source of truth.
 - `RUNNER_ARCHITECTURE.md` and `RUNNER_POLICY.md` define the corrected
   GitHub Actions build locations and the narrow self-hosted runner boundary.
 - `DEPLOYMENT_ARCHITECTURE.md` defines artifact-only deployment targets.
+- `POST_DEPLOYMENT_SMOKE_TEST_POLICY.md` and
+  `POST_DEPLOYMENT_SMOKE_EVIDENCE_SCHEMA.md` define the bounded,
+  non-destructive post-deployment operational smoke decision and its redacted
+  evidence contract.
 - `VERIFICATION_VS_RELEASE.md` defines the boundary between runtime/hardware
   proof and release production.
 - `PLATFORM_RELEASE_OPERATIONAL_MODEL.md` defines Codex orchestration and

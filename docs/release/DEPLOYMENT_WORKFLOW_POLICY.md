@@ -12,6 +12,98 @@ Software Assurance, Trusted Delivery, valid coverage and required artifact
 hashes. A missing condition returns `DEPLOYMENT_NOT_AUTHORIZED` without a
 partial mutation.
 
+For a private-network relay deployment the fail-closed result is
+`PRIVATE_NETWORK_DEPLOYMENT_NOT_AUTHORIZED`. The relay verifies the full
+[Deployment Input Contract](DEPLOYMENT_INPUT_CONTRACT.md), including manifest
+binding, artifact ID, artifact SHA-256 and allowlisted target. It rejects a
+mutable `latest` selector, arbitrary local file path, unqualified artifact,
+candidate-SHA mismatch, checksum mismatch, target mismatch, stale evidence or
+release-profile mismatch before contacting a target.
+
 Target credentials are scoped to the deployment job only. Deployment failure
 means the release is incomplete and fail-closed; it never rewrites CI or
 release-evidence status.
+
+When a local target is reachable only from the maintainer's private network,
+the qualified macOS runner is the approved deployment relay. Its deployment
+job may initiate only the already-authorized target action and read back target
+health. This includes installation of the qualified HA integration artifact on
+the maintainer's production Home Assistant Pi 5. It may not build source,
+create artifacts or publish release material.
+
+The macOS runner has two separate deployment capabilities: Private-Network
+Deployment Relay for HA, Pi and ESP32 targets, and Apple Secure Distribution
+Relay for private Apple devices. They never share jobs, permissions, secrets,
+workspaces, target allowlists or evidence records.
+
+## Bounded relay actions
+
+The relay retrieves only the manifest-bound qualified artifact, verifies its
+identity and SHA-256, initiates one authorized target action and performs
+bounded post-deployment read-back. It may not compile HA, Pi or ESP32 source;
+create tags or GitHub Releases; publish artifacts; alter qualification,
+Software Assurance, Trusted Delivery or readiness evidence; select another
+artifact; or perform unrelated private-network administration.
+
+Pi deployment uses the canonical updater or deployment procedure and reads
+installed version, build/artifact identity, allowlisted service and local API
+health, plus restart persistence. ESP32 deployment goes only through the
+approved Home Assistant Update entity, verifies the offered manifest-bound
+version, waits for reconnect and reads firmware version, entity/device health
+and internal web-server health. HA deployment verifies and installs the exact
+qualified integration artifact, performs only the canonical restart or reload,
+then reads integration version, setup and entity/platform health.
+
+## Credential and evidence boundary
+
+Each target has separate least-privilege credentials: Pi SSH, Home Assistant
+deployment/API and artifact-download access where required. They exist only in
+the target's explicit deployment job; they are unavailable to CI, PR,
+artifact/evidence and unrelated deployment jobs, never logged or added to
+evidence, and are removed from the runner workspace after the job. The relay
+does not retain standing plaintext target credentials. Private-Network
+Deployment Relay never receives Apple signing credentials; Apple Secure
+Distribution Relay never receives Pi SSH, Home Assistant or ESP32 deployment
+credentials; Apple Native Build never receives deployment credentials.
+
+Every relay execution uploads redacted deployment evidence with repository,
+workflow/run and runner identity/labels, candidate SHA, platform version,
+manifest and artifact identifiers/checksum, target, profile, authorized action,
+start/end timestamps, precondition results, result, post-deployment version,
+health read-back, recovery/rollback reference and final status. A failure
+stops the target-specific flow, preserves qualification evidence, marks release
+execution incomplete and does not automatically continue to another target.
+
+## Post-deployment smoke validation
+
+A production deployment is complete only after its bounded, non-destructive
+post-deployment smoke validation succeeds. Smoke is a deployment-evidence job,
+never CI, qualification or full Verification. It runs only after successful
+deployment mutation, consumes the same manifest-bound candidate/artifact/target
+identity, and checks only manifest-allowlisted canonical routes and bounded
+runtime sources. It uses read-only health, version, authenticated API,
+WebSocket or pairing handshakes; ping alone is never a pass condition.
+
+Required smoke targets fail closed for `SMOKE_FAIL` or `SMOKE_INCONCLUSIVE`.
+`DEPLOYMENT_OPERATIONAL` requires every required target to pass; otherwise the
+decision is `DEPLOYMENT_SMOKE_FAILED`, qualification evidence is preserved and
+automatic rollback is prohibited. The detailed contract and redacted schema
+are [Post-Deployment Smoke Test Policy](POST_DEPLOYMENT_SMOKE_TEST_POLICY.md)
+and [Post-Deployment Smoke Evidence Schema](POST_DEPLOYMENT_SMOKE_EVIDENCE_SCHEMA.md).
+
+## Apple Secure Distribution Relay
+
+Apple internal deployment is a deployment-class job on the qualified macOS
+runner, separate from the qualified Apple build job. It accepts only the
+manifest-bound qualified unsigned artifact generated by the Apple build
+workflow and additionally validates an explicitly allowlisted `target_device`
+before local signing. Local signing credentials remain in the runner-local
+signing environment; GitHub never receives certificates, private keys or
+provisioning profiles. The relay may directly deploy only to the maintainer's
+MacBook, iPhone or iPad using Developer provisioning. The Apple Watch is an
+embedded companion of the universal iOS application, not a direct target,
+separate artifact or manifest node. The manifest binds a typed
+`paired_watch_validation` value `required`, `optional` or `disabled`; the
+relay may read back paired-Watch companion availability, install state, bundle
+version and compatibility. TestFlight, App Store and public distribution are
+prohibited. Signing or deployment failure is fail-closed.
