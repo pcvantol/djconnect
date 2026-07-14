@@ -19,6 +19,13 @@ Target-specific inputs are permitted only when schema-bound, allowlisted,
 validated, documented and necessary for the canonical target. They cannot
 replace or weaken any required input.
 
+## Canonical target identifiers
+
+The canonical Raspberry Pi runtime deployment target is exactly
+`rbpi-djconnect`. Any Raspberry Pi deployment or post-deployment smoke
+consumer and any approved manifest must use this value; aliases and inferred
+hostnames are not valid target identifiers.
+
 ## Manifest-bound artifact selection
 
 The deployment workflow does not select an artifact or version. It consumes an
