@@ -6,8 +6,10 @@ Decision: `PLATFORM_RELEASE_3_3_CANDIDATE_BLOCKED`
 ## Scope and method
 
 This is a read-only gate check for the requested `3.3.0` release across the
-ten repositories in `REPOSITORY_OWNERSHIP.md`. It queried each repository's
-current remote `main` SHA and its most recent GitHub Actions artifact.
+ten repositories in `REPOSITORY_OWNERSHIP.md`. The operator has subsequently
+authorized preparation of a proposal with a private target scope. The fresh
+source snapshot and proposed targets are recorded in
+[`PLATFORM_3_3_OPERATIONAL_MANIFEST_PREPARATION.md`](PLATFORM_3_3_OPERATIONAL_MANIFEST_PREPARATION.md).
 
 No workflow was dispatched, no artifact was created, and no external target
 was changed.
@@ -27,8 +29,8 @@ publication target for this `INTERNAL_RELEASE`.
 
 | Gate | Result |
 | --- | --- |
-| Exact current-main SHA inventory | Present |
-| Required target set | Unresolved |
+| Exact current-main SHA inventory | Present; refreshed in preparation record |
+| Required target set | Proposed, pending final approval |
 | Deployable artifact IDs and SHA-256 bindings | Missing |
 | Verification, coverage, Software Assurance and Trusted Delivery evidence bound to a candidate | Missing |
 | Explicit operational-manifest approval | Missing |
@@ -45,11 +47,10 @@ of the ten components.
 
 1. Review, merge and publish the static consumer branches where they are
    intended to be part of current `main`.
-2. Provide an explicit approved manifest that declares the required internal
-   target set for `3.3.0`. It must use the Apple Secure Distribution Relay for
-   private devices and must not treat `djconnect-app-releases` as a public
-   publication target.
-3. Produce qualified deployable artifacts and exact SHA-256 bindings for each
+2. Produce qualified deployable artifacts and exact SHA-256 bindings for each
    required target, then bind current-main verification and delivery evidence.
+3. Explicitly approve the resulting complete manifest. It must use the Apple
+   Secure Distribution Relay for private devices and must not treat
+   `djconnect-app-releases` as a public publication target.
 4. Explicitly authorize only the resulting manifest-bound deployment and
    smoke dispatches.
