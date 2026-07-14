@@ -29,6 +29,12 @@ class HomeAssistantPrivateRelayWorkflowTest(unittest.TestCase):
             "Verify immutable artifact provenance",
             "Require approved central operational manifest source",
             "home-assistant-private-relay-smoke-v1",
+            "Configure restricted Home Assistant OS SSH transport",
+            "DJCONNECT_HA_OS_DEPLOY_HOST",
+            "StrictHostKeyChecking=yes",
+            "sha256sum",
+            "ha core check",
+            "ha core restart",
             "shasum -a 256",
             "DEPLOYED_PENDING_SMOKE",
         ):
@@ -45,10 +51,18 @@ class HomeAssistantPrivateRelayWorkflowTest(unittest.TestCase):
             "Verify authenticated Home Assistant WebSocket handshake",
             "auth_required",
             "auth_ok",
-            "Verify bounded Home Assistant container startup and crash health",
+            "Configure restricted Home Assistant OS SSH transport",
+            "DJCONNECT_HA_OS_DEPLOY_HOST",
+            "Verify bounded Home Assistant OS Core startup and crash health",
+            "ha core info --raw",
+            "ha core logs --raw | tail -n 500",
+            "StrictHostKeyChecking=yes",
             '"websocket_result": "PASS"',
             '"startup_marker_result": "PASS"',
             '"crash_log_result": "PASS"',
             '"final_result": "SMOKE_PASSED"',
         ):
             self.assertIn(token, workflow)
+
+        self.assertNotIn("DJCONNECT_HA_DEPLOY_CONTAINER", workflow)
+        self.assertNotIn("docker inspect", workflow)
