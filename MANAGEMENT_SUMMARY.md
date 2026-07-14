@@ -45,7 +45,7 @@ and reviewable in PR [#107](https://github.com/pcvantol/djconnect/pull/107).
 
 **Decision:** `ENGINEERING_METHOD_V2_ESTABLISHED`
 **Branch:** `codex/engineering-method-v2`
-**Commit SHA:** recorded in the immutable Prompt History and Git commit
+**Commit SHA:** `99a6f763812bb6b98b33fb1636fdb48da6c20af9`
 **Pull Request:** [#114](https://github.com/pcvantol/djconnect/pull/114)
 **Validation:** governance-document contract review and `git diff --check`
 **Updated governance documents:** repository bootstrap, method, status,

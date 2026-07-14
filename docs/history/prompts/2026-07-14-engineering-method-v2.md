@@ -5,7 +5,7 @@
 **Generation:** 2
 **Engineering Program:** Platform Evolution — engineering governance
 **Branch:** `codex/engineering-method-v2`
-**Commit:** Recorded by the governing Git commit for this archive
+**Commit:** `99a6f763812bb6b98b33fb1636fdb48da6c20af9`
 **Pull Request:** [#114](https://github.com/pcvantol/djconnect/pull/114)
 **Decision:** `ENGINEERING_METHOD_V2_ESTABLISHED`
 **Execution Date:** 2026-07-14
