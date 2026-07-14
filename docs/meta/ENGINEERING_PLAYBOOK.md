@@ -37,6 +37,11 @@ Every canonical prompt represents exactly one engineering increment. Every
 engineering increment terminates with exactly one reviewable pull request.
 Merge is a separate, explicit governance decision.
 
+Before this workflow begins, synchronize and verify current main, read the
+canonical repository state and perform the implementation-reality check. The
+mandatory sequence is defined in `PROMPT_INITIALIZATION.md`; planning must not
+start earlier.
+
 ```text
 Prompt
 

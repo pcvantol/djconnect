@@ -56,17 +56,19 @@ Always read the repository before making decisions.
 
 # Required Bootstrap
 
-Every clean AI session should begin by reading:
+Every clean AI session begins by synchronizing `main` with `git switch main`
+and `git pull --ff-only`, then verifying branch, `HEAD`, upstream,
+fast-forward status and cleanliness. Stop if either synchronization or
+verification fails. Only then read:
 
-1. AGENTS.md
-2. BOOTSTRAP_CODEX_SESSION.md
-3. BOOTSTRAP_CODEX_VERIFICATION.md (when applicable)
-4. Foundation documents
-5. Meta Engineering documents
-6. Prompt Index
-7. Active phase documentation
+1. `BOOTSTRAP.md`
+2. `ENGINEERING_STATUS.md`, repository status, management summary and roadmap
+3. current active roadmap and backlog
+4. `PROMPT_INDEX.md` and Prompt History only when needed
+5. repository-local instructions, foundation and Meta Engineering guidance
 
-Never start implementation without repository context.
+Do not plan before this read and the implementation-reality check. Never start
+implementation without repository context.
 
 ---
 

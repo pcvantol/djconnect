@@ -74,14 +74,16 @@ Its completion evidence is
 [#107](https://github.com/pcvantol/djconnect/pull/107). No implementation
 scope was included.
 
-## Engineering Method V2
+## Engineering Method V2.3
 
-Decision: `ENGINEERING_METHOD_V2_ESTABLISHED`
+Decision: `ENGINEERING_METHOD_V2_3_ESTABLISHED`
 
 The repository-state operating model is established in `ENGINEERING_METHOD.md`
-and starts from `BOOTSTRAP.md`. `ENGINEERING_STATUS.md` is the operational
-handoff; `docs/history/prompts/` is immutable history only. Current `main`,
-status records, active roadmap/backlog and verified implementation reality take
+and starts with `git switch main`, `git pull --ff-only` and current-main
+verification before `BOOTSTRAP.md` is read. `ENGINEERING_STATUS.md` is the
+operational handoff and must reflect synchronized current main;
+`docs/history/prompts/` is immutable history only. Current main, status
+records, active roadmap/backlog and verified implementation reality take
 precedence over historical prompts and conversations. This governance-only
 increment introduces no implementation, Platform Architecture or Product
 Architecture change.
@@ -177,10 +179,11 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-Engineering Method V2 Governance Alignment is complete with decision
-`ENGINEERING_METHOD_V2_ESTABLISHED`; its reviewable PR is #114. No subsequent
-prompt is active. Future work must be selected from verified current roadmap
-and backlog evidence; it must not be inferred from historical prompt order.
+Engineering Method V2.3 Repository Synchronization is complete with decision
+`ENGINEERING_METHOD_V2_3_ESTABLISHED`; its reviewable pull request is the
+completion evidence recorded in `PROMPT_INDEX.md`. No subsequent prompt is
+active. Future work must be selected from verified current roadmap and backlog
+evidence; it must not be inferred from historical prompt order.
 
 ## Completion Report
 

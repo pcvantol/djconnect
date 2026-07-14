@@ -9,6 +9,13 @@ Prompt ID:
 Title:
 Generation and engineering program:
 
+Initialization (mandatory, before planning):
+- Repository Synchronization: `git switch main`, then `git pull --ff-only`; stop on failure.
+- Current Main Verification: branch, HEAD, upstream, fast-forward status, working tree and repository cleanliness; stop on failure.
+- Canonical Repository Read: follow `BOOTSTRAP.md` through active roadmap/backlog and `PROMPT_INDEX.md`.
+- Implementation Reality Check: inspect existing functionality, validation, qualification and documentation; do not reimplement an existing outcome.
+- Engineering Planning: determine the current increment, program, repository truth, backlog, deferred work and recommended next prompt from current main.
+
 Objective:
 Repository truth verified:
 Current roadmap and backlog evidence:
@@ -22,9 +29,10 @@ Required documentation updates:
 Deferred-work handling:
 
 Initialization checks:
+- do not assume predecessor, current increment or repository status from chat
 - preceding PR merged and remote branch removed
 - prior Prompt History archived
-- current main and status records verified
+- synchronized current main and status records verified
 - repository clean
 
 Finalization:

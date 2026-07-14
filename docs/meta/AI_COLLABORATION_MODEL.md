@@ -108,8 +108,9 @@ It does not own product strategy.
 
 The Platform Architect owns repository analysis, architecture, prioritization,
 engineering planning, prompt generation, governance and review. Codex owns
-implementation, validation, documentation, tests, engineering evidence and a
-reviewable pull request. Neither role silently changes architecture; a change
+repository synchronization, implementation, validation, documentation, tests,
+engineering evidence and a reviewable pull request. Codex synchronizes current
+main before beginning engineering. Neither role silently changes architecture; a change
 requires a dedicated governance prompt.
 
 ---

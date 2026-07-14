@@ -2,7 +2,19 @@
 
 **Status:** Canonical repository onboarding
 
-Start every clean engineering session from current `main`, then read the
+Every engineering prompt starts with repository synchronization. Run these
+commands from the intended repository and stop if either fails:
+
+```sh
+git switch main
+git pull --ff-only
+```
+
+`REPOSITORY_SYNCHRONIZATION.md` defines the canonical verification contract.
+
+Immediately verify the checked-out branch, `HEAD`, upstream tracking branch,
+fast-forward state, working-tree cleanliness and repository cleanliness. Do
+not continue if any check fails. Only then read the current repository in the
 following order. Do not use prior conversations as a substitute.
 
 ```text
@@ -29,10 +41,10 @@ The records have distinct responsibilities:
 | `PROMPT_INDEX.md` | Prompt lifecycle and navigation. |
 | `docs/history/prompts/` | Immutable engineering history, never current-state authority. |
 
-After reading, verify repository reality as required by
-`AI_SESSION_INITIALIZATION.md`. If it differs from planning, stop and update
-planning first. Continue with local `AGENTS.md`, applicable foundation and Meta
-Engineering guidance only as required by the selected increment.
+After reading, perform the implementation-reality check required by
+`AI_SESSION_INITIALIZATION.md`. If reality differs from planning, stop and
+update planning first. Continue with local `AGENTS.md`, applicable foundation
+and Meta Engineering guidance only as required by the selected increment.
 
 `BOOTSTRAP_CODEX_SESSION.md` remains the platform-wide supplemental bootstrap;
 this file is the canonical repository-state entry point.
