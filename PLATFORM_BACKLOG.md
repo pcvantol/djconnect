@@ -548,6 +548,42 @@ Scope:
 **Status:** ⏳ Not started  
 **Goal:** Define and harden distribution channels.
 
+### Release deployment-consumer qualification
+
+**Status:** ⛔ Blocked
+**Owner:** Platform Release Engineering / owning repositories
+**Priority:** Release prerequisite
+**Blocking status:** No approved current-main Internal Release manifest exists;
+no complete manifest-bound deployment and separate smoke consumer is qualified.
+The Home Assistant private relay and static deployment/smoke workflows are
+implemented; operational qualification remains blocked because no approved
+operational manifest, HA deployment/API credential scope, installation
+contract or complete HA smoke contract exists.
+
+Required work:
+
+- preserve the implemented reusable bounded deployment-consumer and
+  smoke-evidence pattern without changing frozen release architecture;
+- operationally qualify the implemented Website consumer only with a current
+  approved manifest and explicit authorization;
+- supply and validate the API operational manifest, implement observable API
+  version/runtime-health smoke evidence and qualify its static consumer if the
+  API is required by that manifest;
+- supply and validate the HA operational-manifest and target
+  credential/installation scope, complete the HA smoke contract and qualify
+  it explicitly; complete the ESP32 manifest/HA Update scope, deployment
+  evidence and hardware smoke contract, then qualify the private-network
+  consumers;
+- supply manifest-bound artifact provenance and typed signing/install/health
+  scope, then qualify the static Apple Secure Distribution Relay and Windows
+  internal-deployment consumers;
+- add distribution consumers only where a future approved manifest makes them
+  required; and
+- reconstruct a current-main candidate only after the required consumers are
+  qualified.
+
+Evidence: `docs/release/PLATFORM_3_3_DEPLOYMENT_CONSUMER_INVENTORY.md`.
+
 Scope:
 
 - HACS release strategy;
