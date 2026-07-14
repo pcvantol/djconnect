@@ -25,8 +25,8 @@ approved distribution repositories. HA, API and Website artifacts remain
 immutable GitHub Actions artifacts consumed by their manifest-bound workflows.
 The separate Windows x64 asset is intentionally not a required target binding.
 
-The Pi target is already deployment-operational with separately recorded
-deployment and smoke evidence. The API binding was later replaced with an
-artifact that exposes exact runtime release identity. The rebound exact
-manifest was explicitly reapproved at `2026-07-14T20:03:33Z`; each deployment
-and its subsequent smoke still requires separate target-scoped authorization.
+The Pi target and API Worker target are already deployment-operational with
+separately recorded deployment and smoke evidence. The rebound API artifact
+exposes exact runtime release identity. The rebound exact manifest was
+explicitly reapproved at `2026-07-14T20:03:33Z`; each remaining deployment and
+its subsequent smoke still requires separate target-scoped authorization.
