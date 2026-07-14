@@ -9,9 +9,27 @@ Every operational deployment workflow accepts and validates these required
 | `candidate_sha` | full lowercase 40-character Git SHA on approved `main` lineage |
 | `execution_mode` | exactly `execute` |
 | `manifest_id` | canonical manifest identifier bound to the candidate SHA |
+| `artifact_id` | immutable qualified artifact identifier referenced by the manifest |
+| `artifact_sha256` | lowercase SHA-256 digest referenced by the manifest |
+| `target` | allowlisted manifest deployment target identifier |
 | `platform_version` | `Major.Minor` platform version matching the manifest |
 | `release_profile` | an allowlisted supported profile, currently `INTERNAL_RELEASE` |
 
 Target-specific inputs are permitted only when schema-bound, allowlisted,
 validated, documented and necessary for the canonical target. They cannot
 replace or weaken any required input.
+
+## Manifest-bound artifact selection
+
+The deployment workflow does not select an artifact or version. It consumes an
+approved release manifest and rejects `PRIVATE_NETWORK_DEPLOYMENT_NOT_AUTHORIZED`
+before mutation when the manifest is missing, unknown, not qualified, stale or
+superseded; when candidate SHA, platform version or release profile differs;
+when the artifact ID or SHA-256 is not referenced; or when the target is not
+allowlisted by that manifest. Arbitrary local paths and mutable selectors such
+as `latest` are never valid deployment inputs.
+
+The manifest binds `candidate_sha`, `platform_version`, `manifest_id`,
+`artifact_id`, `artifact_sha256`, `target`, `release_profile`, `action` and
+`execution_mode`. The only mutation values are `action=deployment` and
+`execution_mode=execute`.

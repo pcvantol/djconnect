@@ -12,6 +12,14 @@ Software Assurance, Trusted Delivery, valid coverage and required artifact
 hashes. A missing condition returns `DEPLOYMENT_NOT_AUTHORIZED` without a
 partial mutation.
 
+For a private-network relay deployment the fail-closed result is
+`PRIVATE_NETWORK_DEPLOYMENT_NOT_AUTHORIZED`. The relay verifies the full
+[Deployment Input Contract](DEPLOYMENT_INPUT_CONTRACT.md), including manifest
+binding, artifact ID, artifact SHA-256 and allowlisted target. It rejects a
+mutable `latest` selector, arbitrary local file path, unqualified artifact,
+candidate-SHA mismatch, checksum mismatch, target mismatch, stale evidence or
+release-profile mismatch before contacting a target.
+
 Target credentials are scoped to the deployment job only. Deployment failure
 means the release is incomplete and fail-closed; it never rewrites CI or
 release-evidence status.
@@ -22,3 +30,38 @@ job may initiate only the already-authorized target action and read back target
 health. This includes installation of the qualified HA integration artifact on
 the maintainer's production Home Assistant Pi 5. It may not build source,
 create artifacts or publish release material.
+
+## Bounded relay actions
+
+The relay retrieves only the manifest-bound qualified artifact, verifies its
+identity and SHA-256, initiates one authorized target action and performs
+bounded post-deployment read-back. It may not compile HA, Pi or ESP32 source;
+create tags or GitHub Releases; publish artifacts; alter qualification,
+Software Assurance, Trusted Delivery or readiness evidence; select another
+artifact; or perform unrelated private-network administration.
+
+Pi deployment uses the canonical updater or deployment procedure and reads
+installed version, build/artifact identity, allowlisted service and local API
+health, plus restart persistence. ESP32 deployment goes only through the
+approved Home Assistant Update entity, verifies the offered manifest-bound
+version, waits for reconnect and reads firmware version, entity/device health
+and internal web-server health. HA deployment verifies and installs the exact
+qualified integration artifact, performs only the canonical restart or reload,
+then reads integration version, setup and entity/platform health.
+
+## Credential and evidence boundary
+
+Each target has separate least-privilege credentials: Pi SSH, Home Assistant
+deployment/API and artifact-download access where required. They exist only in
+the target's explicit deployment job; they are unavailable to CI, PR,
+artifact/evidence and unrelated deployment jobs, never logged or added to
+evidence, and are removed from the runner workspace after the job. The relay
+does not retain standing plaintext target credentials.
+
+Every relay execution uploads redacted deployment evidence with repository,
+workflow/run and runner identity/labels, candidate SHA, platform version,
+manifest and artifact identifiers/checksum, target, profile, authorized action,
+start/end timestamps, precondition results, result, post-deployment version,
+health read-back, recovery/rollback reference and final status. A failure
+stops the target-specific flow, preserves qualification evidence, marks release
+execution incomplete and does not automatically continue to another target.
