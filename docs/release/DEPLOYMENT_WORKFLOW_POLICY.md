@@ -15,3 +15,8 @@ partial mutation.
 Target credentials are scoped to the deployment job only. Deployment failure
 means the release is incomplete and fail-closed; it never rewrites CI or
 release-evidence status.
+
+When a local target is reachable only from the maintainer's private network,
+the qualified macOS runner is the approved deployment relay. Its deployment
+job may initiate only the already-authorized target action and read back target
+health; it may not build source, create artifacts or publish release material.
