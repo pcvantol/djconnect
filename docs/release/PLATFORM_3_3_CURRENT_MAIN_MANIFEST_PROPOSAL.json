@@ -10,7 +10,7 @@
   "preparation_record": "docs/release/PLATFORM_3_3_OPERATIONAL_MANIFEST_PREPARATION.md",
   "approval": {
     "state": "MISSING",
-    "reason": "The maintainer authorized preparation, not approval, publication, deployment or smoke execution."
+    "reason": "The maintainer approved the distribution destinations, but has not approved a complete artifact-bound manifest, artifact-specific publication, deployment or smoke execution."
   },
   "repositories": [
     {"repository": "pcvantol/djconnect", "source_sha": "ed057cceefccfe982d698da415eb9eae9da4b3ed", "version": "3.3.0", "version_state": "REQUESTED_NOT_VERIFIED"},
@@ -50,10 +50,8 @@
       {"owner": "pcvantol/djconnect-app", "target": "apple_private_device", "artifact_id": null, "artifact_sha256": null, "artifact_class": "universal_ios_ipa_or_native_macos_application"},
       {"owner": "pcvantol/djconnect-windows", "target": "windows_internal_arm64", "artifact_id": null, "artifact_sha256": null},
       {"owner": "pcvantol/djconnect-firmware", "target": "esp32_lilygo_t_embed_s3", "artifact_id": null, "artifact_sha256": null, "artifact_class": "public_firmware_distribution"},
-      {"owner": "pcvantol/djconnect-pi-releases", "target": "rbpi-djconnect", "artifact_id": null, "artifact_sha256": null, "artifact_class": "pi_distribution"}
-    ],
-    "excluded": [
-      {"repository": "pcvantol/djconnect-app-releases", "reason": "Internal unsigned Apple handoff metadata only; not a signed public publication target for INTERNAL_RELEASE."}
+      {"owner": "pcvantol/djconnect-pi-releases", "target": "rbpi-djconnect", "artifact_id": null, "artifact_sha256": null, "artifact_class": "pi_distribution"},
+      {"owner": "pcvantol/djconnect-app-releases", "target": "apple_private_device", "artifact_id": null, "artifact_sha256": null, "artifact_class": "internal_unsigned_apple_handoff"}
     ],
     "reason": "No current 3.3.0 immutable deployable artifact and SHA-256 binding was found for the exact source snapshot."
   },

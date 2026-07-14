@@ -6,10 +6,10 @@ Decision: `PLATFORM_RELEASE_3_3_MANIFEST_PREPARATION_BLOCKED`
 ## Scope
 
 This is the operator-authorized preparation record for the requested `3.3.0`
-`INTERNAL_RELEASE`. It records a fresh remote-`main` source snapshot and the
-private target scope supplied by the maintainer. It is not an approved
-operational manifest, artifact publication request, deployment authorization
-or smoke authorization.
+`INTERNAL_RELEASE`. It records a fresh remote-`main` source snapshot, the
+private target scope and the approved distribution destinations supplied by
+the maintainer. It is not an approved operational manifest, artifact-specific
+publication request, deployment authorization or smoke authorization.
 
 No workflow was dispatched, no artifact was built or published, no credential
 was read and no target was contacted.
@@ -61,8 +61,26 @@ artifact, Windows package, API/website build artifact or Home Assistant
 artifact with a SHA-256 digest that can be placed in an operational manifest.
 
 `djconnect-app-releases` is deliberately excluded from signed public
-publication for this Internal Release. It may carry non-secret handoff
-metadata only after the `djconnect-app` artifact identity is available.
+publication for this Internal Release. It must publish only the exact unsigned
+Apple handoff artifact and non-secret integrity metadata after the
+`djconnect-app` artifact identity is available.
+
+## Distribution decision
+
+The maintainer decided that the 3.3 artifacts must be published through all
+three existing distribution repositories:
+
+- `pcvantol/djconnect-firmware` for the ESP32 binary, checksum and firmware
+  manifest;
+- `pcvantol/djconnect-pi-releases` for the Pi tarball, checksum and release
+  manifest; and
+- `pcvantol/djconnect-app-releases` for unsigned Apple handoff artifacts and
+  non-secret checksums only.
+
+The repositories were cleared of their pre-3.3 GitHub Release records and
+release-assets on 2026-07-14. Source history and tags were retained. This
+decision does not authorize publishing a placeholder, a mutable `latest`
+artifact, any signed Apple artifact or a deployment.
 
 ## Required completion conditions
 
