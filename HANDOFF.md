@@ -293,7 +293,12 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
   audio, prompts, transcript history, generated audio or TTS voice ids.
 - DJConnect exposes a Home Assistant conversation agent named `DJConnect DJ` for Assist satellites such as Voice Preview Edition. Initial setup can create an Assist Conversation Agent-only entry without a DJConnect client pairing code, device token or Client adres. Its options flow must stay compact and must not show device pairing, Client adres, Assist pipeline, firmware channel, DJ announcement playback toggle or OTA/audio advanced fields.
 - The initial config flow chooses setup method only once. The pairing step must not repeat `setup_method`; it only collects discovery/client details. Client type choices are ordered iOS, macOS, Apple Watch, Linux/Raspberry Pi, Windows and ESP32.
-- Firmware channel is ESP32-only. iOS/macOS/watchOS update through app distribution/TestFlight, and Linux/Raspberry Pi and Windows clients update from their own GitHub source/install flow, so those client types must not show or store `firmware_channel`.
+- Firmware channel is ESP32-only. For an Internal Release, iOS/macOS/watchOS
+  are delivered only through the Apple Secure Distribution Relay with local
+  Developer signing; public Apple distribution uses a separately approved App
+  Store Connect path. Linux/Raspberry Pi and Windows clients update from their
+  own GitHub source/install flow, so those client types must not show or store
+  `firmware_channel`.
 - DJ response tone is controlled by realtime client `mood` first and the
   configured `voice_profile` only as fallback. Valid mood maps directly to the
   four controlled profiles: chill/late-night, groove/classic radio,

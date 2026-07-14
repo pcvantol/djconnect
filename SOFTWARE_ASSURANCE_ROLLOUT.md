@@ -206,7 +206,7 @@ Exit posture:
 | `pcvantol/djconnect-api` | API owner | Static quality, security, dependency, deployment evidence | API ownership review and cross-platform qualification | After canonical contracts | API verification/security references | Dependency, auth, relay and deployment evidence |
 | `pcvantol/djconnect-website` | Website owner | Static quality, docs, localization, link/build evidence | Website ownership review | After canonical contracts | Website checks and docs review | Build, link, metadata and localization evidence |
 | `pcvantol/djconnect-firmware` | Firmware release owner | Release metadata, checksums, provenance | Firmware artifact model | After source firmware evidence | Release artifact validation | Manifest, checksum and release notes evidence |
-| `pcvantol/djconnect-app-releases` | App release owner | Release metadata, signing/provenance references | Apple release model | After Apple release evidence | Release artifact validation | Release notes, artifact metadata and provenance refs |
+| `pcvantol/djconnect-app-releases` | Internal Apple artifact-handoff owner | Unsigned artifact metadata and provenance references | Apple Internal Distribution model | After Apple build evidence | Internal artifact validation | Artifact metadata and provenance refs |
 | `pcvantol/djconnect-pi-releases` | Pi release owner | Release metadata, checksums, provenance | Pi release model | After Pi release evidence | Release artifact validation | Package metadata, checksums and release notes |
 
 No dates are assigned. Rollout sequencing is governance, not scheduling.

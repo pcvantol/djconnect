@@ -81,6 +81,13 @@ it cannot compile source, build an IPA or macOS binary, archive source,
 generate unsigned artifacts, choose an artifact, create a GitHub Release,
 publish TestFlight or publish to the App Store.
 
+`pcvantol/djconnect-app-releases` is an internal unsigned artifact-handoff and
+metadata surface. It is not a signed Apple distribution channel and is not a
+required publication target for an `INTERNAL_RELEASE`. A future public signed
+Apple release is a separate, explicitly approved App Store Connect process for
+TestFlight, the App Store and the Mac App Store; it does not reuse the internal
+relay or its Developer provisioning credentials.
+
 Before local signing, the relay validates the candidate SHA, manifest ID,
 artifact ID, SHA-256 checksum, platform version, `INTERNAL_RELEASE` profile
 and explicitly allowlisted `target_device`. Generation 1 direct targets are
