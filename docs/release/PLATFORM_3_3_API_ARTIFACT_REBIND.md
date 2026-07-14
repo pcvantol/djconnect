@@ -1,7 +1,7 @@
 # Platform Release 3.3 — API Artifact Rebind
 
 Date: 2026-07-14
-Decision: `PLATFORM_RELEASE_3_3_API_ARTIFACT_REBIND_REAPPROVAL_REQUIRED`
+Decision: `PLATFORM_RELEASE_3_3_API_ARTIFACT_REBIND_APPROVED`
 
 ## Exact replacement binding
 
@@ -29,7 +29,7 @@ Raspberry Pi deployment evidence.
 
 ## Authorization boundary
 
-The prior operational-manifest approval is superseded by this exact API
-artifact change. A fresh explicit manifest approval is required before a
-separate authorization can dispatch any remaining target deployment. No
-deployment or smoke is started by this record.
+The rebound exact manifest received fresh explicit approval at
+`2026-07-14T20:03:33Z`. A separate authorization is still required before a
+remaining target deployment can be dispatched. No deployment or smoke is
+started by this record.
