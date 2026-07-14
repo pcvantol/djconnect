@@ -64,6 +64,13 @@ The files below define Platform Strategy, then the platform foundation itself.
 47. `SOFTWARE_ASSURANCE_VERSIONING.md`
 48. `SOFTWARE_ASSURANCE_IMPLEMENTATION.md`
 49. `docs/meta/META_ENGINEERING_INDEX.md`
+50. `ENGINEERING_PROGRAM_MODEL.md`
+51. `ROADMAP_INDEX.md`
+52. `PRODUCT_ROADMAP.md`
+53. `PLATFORM_EVOLUTION_BACKLOG.md`
+54. `INNOVATION_BACKLOG.md`
+55. `INNOVATION_PROMOTION_POLICY.md`
+56. `MANAGEMENT_SUMMARY.md`
 
 ## Conflict-resolution order
 
@@ -109,7 +116,9 @@ Platform Architecture
   -> Business-first Engineering
 ```
 
-The current platform state is Platform Qualification.
+Generation 2 is active: Product Development is the primary program, Platform
+Evolution supports it, and Innovation Lab owns research. The current program
+registers and their single-source rules are indexed by `ROADMAP_INDEX.md`.
 
 ### Architecture closure
 

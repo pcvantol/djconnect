@@ -70,8 +70,9 @@ The product should grow around:
 Platform Strategy owns the current engineering transition toward a verified
 Platform Baseline v1.0.
 
-Product Strategy is subordinate to that platform state. Business-first product
-engineering must not begin until Platform Baseline v1.0 is certified.
+Product Strategy is subordinate to that platform state. Platform Baseline v1.0
+is certified; Generation 2 Product Development is now the primary engineering
+program inside the frozen platform architecture.
 
 ## Relationship With Innovation Labs
 
@@ -80,23 +81,15 @@ Innovation Labs are the canonical source for product ideas.
 Product Strategy accepts only validated concepts. It must not duplicate the
 Innovation Lab, and it must not convert unvalidated ideas into commitments.
 
-## Relationship With Future Product Roadmap
+## Relationship With Product Roadmap
 
-The formal Product Roadmap stage does not yet exist under this Product Strategy
-foundation.
+`PRODUCT_ROADMAP.md` is the canonical Generation 2 Product Development
+roadmap. It owns strategic sequencing, not raw ideas or implementation tasks.
+Its retained pre-Generation 2 material is historical memory only.
 
-It will be introduced after Platform Baseline v1.0 has been certified and real
-product learning begins. The future Product Roadmap will own strategic
-sequencing, not raw ideas or implementation tasks.
+## Relationship With Product Backlog
 
-The existing top-level `PRODUCT_ROADMAP.md` remains pre-baseline product and
-release memory until a future product-roadmap phase explicitly formalizes or
-replaces it.
-
-## Relationship With Future Product Backlog
-
-The Product Backlog does not yet exist.
-
-It will be introduced only after the Product Roadmap has selected direction and
-engineering work is ready to enter discovery, architecture, implementation,
-verification and release.
+Product work enters an implementation backlog only after roadmap selection and
+the applicable discovery/architecture phase. `PRODUCT_ROADMAP.md` remains the
+single product-direction record until a later approved decomposition creates a
+separate product backlog.

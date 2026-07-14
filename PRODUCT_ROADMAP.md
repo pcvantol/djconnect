@@ -1,5 +1,32 @@
 # DJConnect Product Roadmap
 
+**Status:** Canonical Generation 2 product roadmap
+
+## Active roadmap
+
+This is the single active roadmap for DJConnect Product Development. Every
+active item below has this program as owner and uses one of the canonical
+statuses: Completed, Operational, In Progress, Planned, Backlog, Innovation
+Lab or Deferred. `ROADMAP_INDEX.md` owns cross-program navigation.
+
+| Initiative | Status | Dependencies | Delivery order |
+| --- | --- | --- | --- |
+| Product Definition and Community/Personal proposition | Planned | product research and five-language product copy | 1 |
+| Website redesign | Backlog | Product Definition | 2 |
+| Multi-user Profiles | Planned | existing Profile foundation and privacy validation | 2 |
+| Music DNA | Planned | Multi-user Profiles | 3 |
+| Ask DJ | Planned | Multi-user Profiles and Music DNA boundaries | 3 |
+| Playback Experience | Planned | Music Backend capability contract | 2 |
+| Dedicated Music Search UX | Innovation Lab | `INNOVATION_BACKLOG.md` promotion | 4 |
+| Discover | Backlog | Music DNA and recommendation evidence | 5 |
+| Track Insight | Backlog | Insight provider contract | 4 |
+| Voice | Backlog | Ask DJ and Assist capability validation | 5 |
+| VibeCast | Backlog | Insight Feed and shared-profile privacy | 5 |
+
+The retained material after this section is pre-Generation 2 product and
+release memory. It is not an active roadmap, does not establish current
+ownership or priority, and must not be used to bypass the table above.
+
 Canonical product roadmap for all DJConnect repositories. This file lives only
 in the Home Assistant integration repo `pcvantol/djconnect` and is the leading
 product roadmap for:

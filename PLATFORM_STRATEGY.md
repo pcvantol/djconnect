@@ -1,10 +1,10 @@
 # DJConnect Platform Strategy
 
-Status: Stable
+Status: Generation 2 strategy established
 
 Expected update frequency: Low
 
-Changes require an Architecture Review.
+Changes require an Architecture Review when they alter the frozen architecture.
 
 ## Purpose
 
@@ -27,6 +27,23 @@ Those are owned elsewhere.
 This document answers only one question:
 
 Why is the platform currently evolving in this direction?
+
+## Generation 2 operating model
+
+Generation 2 organizes all forward-looking engineering work into exactly three
+programs:
+
+1. **DJConnect Product Development** owns user-facing production value and is
+   the primary engineering program.
+2. **Platform Evolution** owns bounded improvements to the frozen Engineering
+   Platform that directly support Product Development.
+3. **Innovation Lab** owns research and evaluation; it never owns production
+   delivery.
+
+Each initiative has one owning program, one status and one canonical record.
+The operating records are indexed by `ROADMAP_INDEX.md`. This strategy does not
+replace the frozen Platform Foundation, Verification Runtime, Software
+Assurance, Trusted Delivery or Platform Release Engineering architecture.
 
 ## Strategy vs Planning
 
@@ -73,14 +90,14 @@ Every strategic decision should contribute to this objective.
 
 ## Current Strategic Objective
 
-The current strategic objective is:
+The current strategic objective is to deliver product value through DJConnect
+Product Development while using Platform Evolution only to remove a proven
+product-delivery constraint.
 
-Evolve the certified Platform Baseline v1.0 through normal platform evolution.
-
-Generation 1 Platform Engineering and Software Assurance Generation 1 are
-complete and frozen. The current primary engineering program is DJConnect
-Product Development; Platform Evolution remains available for future platform
-work.
+Generation 1 Platform Engineering, Verification Runtime, Software Assurance,
+Trusted Delivery and Platform Release Engineering architecture are complete and
+frozen. Platform Release 3.3 Internal remains operational work, not a fourth
+engineering program.
 
 Examples include:
 
@@ -99,9 +116,10 @@ been certified.
 
 The current platform priorities are:
 
-1. Preserve the certified Platform Baseline v1.0.
-2. Execute the registered Software Assurance implementation sequence.
-3. Deliver business value through normal platform evolution.
+1. Preserve the certified Platform Baseline v1.0 and its operational freezes.
+2. Deliver the highest-value validated product work.
+3. Evolve the Engineering Platform only where product delivery has objective
+   evidence of a constraint.
 
 These priorities should change only through Architecture Review.
 
@@ -145,9 +163,9 @@ architecture.
 
 This means engineering effort should primarily improve:
 
-- Software Assurance implementation through its registered prompts;
-- product implementation, verification and quality work;
-- documentation, evidence and operator readiness.
+- validated product implementation, verification and quality work;
+- operational readiness required for an explicitly authorized release; and
+- bounded Platform Evolution work with objective product-delivery evidence.
 
 Platform Qualification is not architecture work. Findings during routine
 engineering should normally be classified as:
@@ -162,23 +180,10 @@ Architecture changes require objective evidence and an Architecture Review.
 
 ## Deferred Investments
 
-The following investments are intentionally deferred:
-
-- Software Assurance implementation
-- Platform optimisation
-- Experimental platform capabilities
-- Future platform evolution
-
-Deferral is intentional.
-
-Deferred work is not abandoned.
-
-It is postponed until the explicit post-baseline phase that owns the work.
-
-Software Assurance implementation is registered in
-`SOFTWARE_ASSURANCE_IMPLEMENTATION.md`. Its historical
-`PLATFORM_BASELINE_V1_CERTIFIED` prerequisite is satisfied; Prompt 1 is
-complete and Prompt 2 is active pending explicit authorization.
+Experimental work remains in the Innovation Lab until the promotion criteria
+are met. Platform Evolution items stay deferred unless they demonstrate a
+product-delivery, safety or governed-operations constraint. Neither condition
+reopens the completed Generation 1 Engineering Platform.
 
 ## Platform Lifecycle
 

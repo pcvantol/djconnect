@@ -2,6 +2,15 @@
 
 Status: active platform-evolution repository
 
+## Generation 2 strategy
+
+Decision: `DJCONNECT_GENERATION_2_STRATEGY_ESTABLISHED`
+
+The canonical current work model is exactly three programs: DJConnect Product
+Development, Platform Evolution and Innovation Lab. Product Development is the
+primary program. `ROADMAP_INDEX.md` is the canonical navigation; Platform
+Release 3.3 Internal remains temporary operational work and is not a program.
+
 ## Repository
 
 `pcvantol/djconnect`

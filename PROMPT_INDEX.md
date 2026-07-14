@@ -2,6 +2,12 @@
 
 Status: canonical prompt navigation
 
+## Generation 2 navigation
+
+`ROADMAP_INDEX.md` is the canonical navigation for the three Generation 2
+engineering programs. This Prompt Index remains the source only for approved
+execution prompts; it does not own product or Platform Evolution prioritization.
+
 This index tells clean Codex and AI-agent sessions which verification prompt is
 active, what came before it and which evidence proves status. Chat history is
 not required.
