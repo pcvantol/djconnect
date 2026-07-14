@@ -79,13 +79,14 @@ jobs:
           artifact_sha256: ${{ inputs.artifact_sha256 }}
           expected_runner_os: macOS
           expected_runner_arch: ARM64
-          required_configuration: HA_CONFIG_PATH,HA_COMPOSE_PATH,HA_SERVICE,HA_CONTAINER
+          required_configuration: HAOS_HOST,HAOS_PORT,HAOS_USER,HAOS_SSH_PRIVATE_KEY,HAOS_SSH_KNOWN_HOSTS
           smoke_contract: home-assistant-private-relay-smoke-v1
         env:
-          HA_CONFIG_PATH: ${{ secrets.DJCONNECT_HA_DEPLOY_CONFIG_PATH }}
-          HA_COMPOSE_PATH: ${{ secrets.DJCONNECT_HA_DEPLOY_COMPOSE_PATH }}
-          HA_SERVICE: ${{ secrets.DJCONNECT_HA_DEPLOY_SERVICE }}
-          HA_CONTAINER: ${{ secrets.DJCONNECT_HA_DEPLOY_CONTAINER }}
+          HAOS_HOST: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_HOST }}
+          HAOS_PORT: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_PORT }}
+          HAOS_USER: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_USER }}
+          HAOS_SSH_PRIVATE_KEY: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_SSH_PRIVATE_KEY }}
+          HAOS_SSH_KNOWN_HOSTS: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_SSH_KNOWN_HOSTS }}
       - name: Require approved central operational manifest source
         shell: bash
         env:
@@ -112,16 +113,38 @@ jobs:
           jq -e --arg target "$TARGET" --arg artifact "$ARTIFACT_ID" --arg sha "$ARTIFACT_SHA256" \
             '.artifact_bindings[] | select(.target == $target and (.artifact_id | tostring) == $artifact and .artifact_sha256 == $sha)' \
             "$manifest" >/dev/null
-      - name: Validate target installation scope after authorization
+      - id: haos-transport
+        name: Configure restricted Home Assistant OS SSH transport
         env:
-          HA_CONFIG_PATH: ${{ secrets.DJCONNECT_HA_DEPLOY_CONFIG_PATH }}
-          HA_COMPOSE_PATH: ${{ secrets.DJCONNECT_HA_DEPLOY_COMPOSE_PATH }}
+          HAOS_HOST: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_HOST }}
+          HAOS_PORT: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_PORT }}
+          HAOS_USER: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_USER }}
+          HAOS_SSH_PRIVATE_KEY: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_SSH_PRIVATE_KEY }}
+          HAOS_SSH_KNOWN_HOSTS: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_SSH_KNOWN_HOSTS }}
         run: |
           set -euo pipefail
-          test -n "$HA_CONFIG_PATH"
-          test -n "$HA_COMPOSE_PATH"
-          test -d "$HA_CONFIG_PATH"
-          test -f "$HA_COMPOSE_PATH"
+          printf '%s' "$HAOS_HOST" | grep -Eq '^[A-Za-z0-9][A-Za-z0-9.-]*$'
+          printf '%s' "$HAOS_PORT" | grep -Eq '^[0-9]{1,5}$'
+          printf '%s' "$HAOS_USER" | grep -Eq '^[A-Za-z_][A-Za-z0-9_-]*$'
+          test -n "$HAOS_SSH_PRIVATE_KEY"
+          test -n "$HAOS_SSH_KNOWN_HOSTS"
+          transport_dir="$RUNNER_TEMP/djconnect-haos-ssh-${GITHUB_RUN_ID}"
+          umask 077
+          mkdir -p "$transport_dir"
+          printf '%s\n' "$HAOS_SSH_PRIVATE_KEY" >"$transport_dir/id_ed25519"
+          printf '%s\n' "$HAOS_SSH_KNOWN_HOSTS" >"$transport_dir/known_hosts"
+          chmod 600 "$transport_dir/id_ed25519" "$transport_dir/known_hosts"
+          printf 'path=%s\n' "$transport_dir" >> "$GITHUB_OUTPUT"
+      - name: Validate Home Assistant OS target scope after authorization
+        env:
+          HAOS_HOST: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_HOST }}
+          HAOS_PORT: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_PORT }}
+          HAOS_USER: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_USER }}
+          SSH_TRANSPORT_PATH: ${{ steps.haos-transport.outputs.path }}
+        run: |
+          set -euo pipefail
+          ssh=(ssh -i "$SSH_TRANSPORT_PATH/id_ed25519" -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$SSH_TRANSPORT_PATH/known_hosts" -p "$HAOS_PORT" "$HAOS_USER@$HAOS_HOST")
+          "${ssh[@]}" 'set -eu; test -d /config; test -d /config/custom_components; command -v ha >/dev/null; ha core info --raw >/dev/null'
       - id: artifact
         name: Verify immutable artifact provenance
         env:
@@ -146,28 +169,45 @@ jobs:
           github-token: ${{ github.token }}
           run-id: ${{ steps.artifact.outputs.run_id }}
           path: artifact
-      - name: Install exact integration artifact and restart Home Assistant
+      - name: Install exact integration artifact and restart Home Assistant OS Core
         env:
           ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
-          HA_CONFIG_PATH: ${{ secrets.DJCONNECT_HA_DEPLOY_CONFIG_PATH }}
-          HA_COMPOSE_PATH: ${{ secrets.DJCONNECT_HA_DEPLOY_COMPOSE_PATH }}
-          HA_SERVICE: ${{ secrets.DJCONNECT_HA_DEPLOY_SERVICE }}
-          HA_CONTAINER: ${{ secrets.DJCONNECT_HA_DEPLOY_CONTAINER }}
+          HAOS_HOST: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_HOST }}
+          HAOS_PORT: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_PORT }}
+          HAOS_USER: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_USER }}
+          SSH_TRANSPORT_PATH: ${{ steps.haos-transport.outputs.path }}
         run: |
           set -euo pipefail
-          test -n "$HA_SERVICE"
-          test -n "$HA_CONTAINER"
           mapfile -t release_artifacts < <(find artifact -type f -name djconnect-home-assistant-integration.tar.gz -print)
           test "${#release_artifacts[@]}" -eq 1
           release_artifact="${release_artifacts[0]}"
           test "$(shasum -a 256 "$release_artifact" | awk '{print $1}')" = "$ARTIFACT_SHA256"
-          staging="$(mktemp -d)"
-          trap 'rm -rf "$staging"' EXIT
-          tar -xzf "$release_artifact" -C "$staging"
-          python3 -m json.tool "$staging/djconnect/manifest.json" >/dev/null
-          rsync -a --delete --exclude __pycache__ --exclude '*.pyc' "$staging/djconnect/" "$HA_CONFIG_PATH/custom_components/djconnect/"
-          docker compose -f "$HA_COMPOSE_PATH" up -d "$HA_SERVICE"
-          docker restart "$HA_CONTAINER"
+          local_staging="$(mktemp -d)"
+          trap 'rm -rf "$local_staging"' EXIT
+          tar -xzf "$release_artifact" -C "$local_staging"
+          python3 -m json.tool "$local_staging/djconnect/manifest.json" >/dev/null
+          remote_artifact="/config/.djconnect-release-${GITHUB_RUN_ID}.tar.gz"
+          ssh=(ssh -i "$SSH_TRANSPORT_PATH/id_ed25519" -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$SSH_TRANSPORT_PATH/known_hosts" -p "$HAOS_PORT" "$HAOS_USER@$HAOS_HOST")
+          "${ssh[@]}" "cat > '$remote_artifact'" <"$release_artifact"
+          "${ssh[@]}" "set -euf
+          archive='$remote_artifact'
+          expected_sha='$ARTIFACT_SHA256'
+          workdir=\"/config/.djconnect-release-${GITHUB_RUN_ID}\"
+          staging=\"/config/custom_components/.djconnect-staging-${GITHUB_RUN_ID}\"
+          target=/config/custom_components/djconnect
+          backup=\"/config/custom_components/.djconnect-pre-${GITHUB_RUN_ID}\"
+          trap 'rm -rf \"\$workdir\" \"\$staging\"; rm -f \"\$archive\"' EXIT
+          test \"\$(sha256sum \"\$archive\" | awk '{print \$1}')\" = \"\$expected_sha\"
+          rm -rf \"\$workdir\" \"\$staging\"
+          mkdir -p \"\$workdir\" /config/custom_components
+          tar -xzf \"\$archive\" -C \"\$workdir\"
+          test -f \"\$workdir/djconnect/manifest.json\"
+          mv \"\$workdir/djconnect\" \"\$staging\"
+          test ! -e \"\$backup\"
+          if test -e \"\$target\"; then mv \"\$target\" \"\$backup\"; fi
+          mv \"\$staging\" \"\$target\"
+          ha core check
+          ha core restart"
       - name: Publish redacted deployment evidence
         env:
           CANDIDATE_SHA: ${{ inputs.candidate_sha }}
@@ -190,3 +230,10 @@ jobs:
           name: ha-private-deployment-evidence
           path: ha-private-deployment-evidence.json
           if-no-files-found: error
+      - name: Remove Home Assistant OS SSH transport material
+        if: always()
+        env:
+          SSH_TRANSPORT_PATH: ${{ steps.haos-transport.outputs.path }}
+        run: |
+          set -euo pipefail
+          test -z "$SSH_TRANSPORT_PATH" || rm -rf "$SSH_TRANSPORT_PATH"
