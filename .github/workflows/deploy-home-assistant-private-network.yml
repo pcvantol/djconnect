@@ -80,17 +80,38 @@ jobs:
           expected_runner_os: macOS
           expected_runner_arch: ARM64
           required_configuration: HA_CONFIG_PATH,HA_COMPOSE_PATH,HA_SERVICE,HA_CONTAINER
-          smoke_contract: NOT_IMPLEMENTED
+          smoke_contract: home-assistant-private-relay-smoke-v1
         env:
           HA_CONFIG_PATH: ${{ secrets.DJCONNECT_HA_DEPLOY_CONFIG_PATH }}
           HA_COMPOSE_PATH: ${{ secrets.DJCONNECT_HA_DEPLOY_COMPOSE_PATH }}
           HA_SERVICE: ${{ secrets.DJCONNECT_HA_DEPLOY_SERVICE }}
           HA_CONTAINER: ${{ secrets.DJCONNECT_HA_DEPLOY_CONTAINER }}
-      - name: Refuse dispatch without an approved operational manifest source
+      - name: Require approved central operational manifest source
+        shell: bash
+        env:
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          MANIFEST_ID: ${{ inputs.manifest_id }}
+          ARTIFACT_ID: ${{ inputs.artifact_id }}
+          ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
+          TARGET: ${{ inputs.target }}
+          RELEASE_PROFILE: ${{ inputs.release_profile }}
         run: |
           set -euo pipefail
-          echo "PRIVATE_NETWORK_DEPLOYMENT_NOT_AUTHORIZED: no approved current-main operational release manifest is available for this target."
-          exit 1
+          manifest="$(mktemp)"
+          trap 'rm -f "$manifest"' EXIT
+          curl --fail --silent --show-error --location \
+            https://raw.githubusercontent.com/pcvantol/djconnect/main/docs/release/PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json \
+            --output "$manifest"
+          test "$(jq -r '.status' "$manifest")" = APPROVED_DEPLOYMENT_DISPATCH_PENDING
+          test "$(jq -r '.approval.state' "$manifest")" = APPROVED
+          test "$(jq -r '.manifest_id' "$manifest")" = "$MANIFEST_ID"
+          test "$(jq -r '.release_profile' "$manifest")" = "$RELEASE_PROFILE"
+          jq -e --arg sha "$CANDIDATE_SHA" \
+            '.repositories[] | select(.repository == "pcvantol/djconnect" and .source_sha == $sha)' \
+            "$manifest" >/dev/null
+          jq -e --arg target "$TARGET" --arg artifact "$ARTIFACT_ID" --arg sha "$ARTIFACT_SHA256" \
+            '.artifact_bindings[] | select(.target == $target and (.artifact_id | tostring) == $artifact and .artifact_sha256 == $sha)' \
+            "$manifest" >/dev/null
       - name: Validate target installation scope after authorization
         env:
           HA_CONFIG_PATH: ${{ secrets.DJCONNECT_HA_DEPLOY_CONFIG_PATH }}
@@ -136,10 +157,13 @@ jobs:
           set -euo pipefail
           test -n "$HA_SERVICE"
           test -n "$HA_CONTAINER"
-          test "$(shasum -a 256 artifact/djconnect-home-assistant-integration.tar.gz | awk '{print $1}')" = "$ARTIFACT_SHA256"
+          mapfile -t release_artifacts < <(find artifact -type f -name djconnect-home-assistant-integration.tar.gz -print)
+          test "${#release_artifacts[@]}" -eq 1
+          release_artifact="${release_artifacts[0]}"
+          test "$(shasum -a 256 "$release_artifact" | awk '{print $1}')" = "$ARTIFACT_SHA256"
           staging="$(mktemp -d)"
           trap 'rm -rf "$staging"' EXIT
-          tar -xzf artifact/djconnect-home-assistant-integration.tar.gz -C "$staging"
+          tar -xzf "$release_artifact" -C "$staging"
           python3 -m json.tool "$staging/djconnect/manifest.json" >/dev/null
           rsync -a --delete --exclude __pycache__ --exclude '*.pyc' "$staging/djconnect/" "$HA_CONFIG_PATH/custom_components/djconnect/"
           docker compose -f "$HA_COMPOSE_PATH" up -d "$HA_SERVICE"
