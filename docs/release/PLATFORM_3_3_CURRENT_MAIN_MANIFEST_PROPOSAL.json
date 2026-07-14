@@ -1,35 +1,61 @@
 {
   "schema_version": 1,
   "kind": "platform_release_operational_manifest_proposal",
-  "status": "NOT_APPROVED",
+  "status": "NOT_APPROVED_ARTIFACT_BINDINGS_MISSING",
   "platform_version": "3.3",
   "release_version": "3.3.0",
   "candidate_basis": "remote_main",
   "generated_at": "2026-07-14",
   "manifest_gate_checked_at": "2026-07-14",
+  "preparation_record": "docs/release/PLATFORM_3_3_OPERATIONAL_MANIFEST_PREPARATION.md",
   "approval": {
     "state": "MISSING",
-    "reason": "No current-main candidate has qualified evidence or explicit release authorization."
+    "reason": "The maintainer authorized preparation, not approval, publication, deployment or smoke execution."
   },
   "repositories": [
-    {"repository": "pcvantol/djconnect", "source_sha": "fd4e3016078ae0c6e598daebbfce081ba662f3a8", "version": "3.3.0", "version_state": "REQUESTED_NOT_VERIFIED"},
-    {"repository": "pcvantol/djconnect-app", "source_sha": "d9bca9a54960277434ba2bf440bd11fd51ab0f89", "version": "3.3.0", "version_state": "REQUESTED_NOT_VERIFIED"},
-    {"repository": "pcvantol/djconnect-windows", "source_sha": "d395fbe7e624b6f86a355f4c2756321a6c85cb9f", "version": "3.3.0", "version_state": "REQUESTED_NOT_VERIFIED"},
-    {"repository": "pcvantol/djconnect-pi", "source_sha": "d8c604672abeb62c0b295a848bbd06c6d186cdb3", "version": "3.3.0", "version_state": "REQUESTED_NOT_VERIFIED"},
-    {"repository": "pcvantol/djconnect-esp32", "source_sha": "8eac85835fee4bd713a042538cbb68fee67fea11", "version": "3.3.0", "version_state": "REQUESTED_NOT_VERIFIED"},
-    {"repository": "pcvantol/djconnect-api", "source_sha": "f2810156a1aea4944bfb8fa7299791dd94fe85e9", "version": "3.3.0", "version_state": "REQUESTED_NOT_VERIFIED"},
+    {"repository": "pcvantol/djconnect", "source_sha": "ed057cceefccfe982d698da415eb9eae9da4b3ed", "version": "3.3.0", "version_state": "REQUESTED_NOT_VERIFIED"},
+    {"repository": "pcvantol/djconnect-api", "source_sha": "835f682709556c18fbe702ffef358732f8173525", "version": "3.3.0", "version_state": "REQUESTED_NOT_VERIFIED"},
+    {"repository": "pcvantol/djconnect-app", "source_sha": "a2a65f34c3d17403f7b766511ccd80043f486454", "version": "3.3.0", "version_state": "REQUESTED_NOT_VERIFIED"},
+    {"repository": "pcvantol/djconnect-windows", "source_sha": "6c0c3c3478c81472e479184dc03e51fd095dc4b2", "version": "3.3.0", "version_state": "REQUESTED_NOT_VERIFIED"},
+    {"repository": "pcvantol/djconnect-pi", "source_sha": "c300a7514daedbffdcc1e21185eca52290954a0c", "version": "3.3.0", "version_state": "REQUESTED_NOT_VERIFIED"},
+    {"repository": "pcvantol/djconnect-esp32", "source_sha": "fe4a1dd591c50f1734a37d86e8b8b915f384dc64", "version": "3.3.0", "version_state": "REQUESTED_NOT_VERIFIED"},
     {"repository": "pcvantol/djconnect-website", "source_sha": "5630f0cf8497b16428aa62ec4d63a48ee57e8ff3", "version": "3.3.0", "version_state": "REQUESTED_NOT_VERIFIED"},
     {"repository": "pcvantol/djconnect-firmware", "source_sha": "f3a6af6eaa9bb7dbfa553201eac971b811b5b9ff", "version": "3.3.0", "version_state": "REQUESTED_NOT_VERIFIED"},
-    {"repository": "pcvantol/djconnect-app-releases", "source_sha": "f0c61fabc192fb21a8eb16da91470c46ce1fa5e3", "version": "3.3.0", "version_state": "REQUESTED_NOT_VERIFIED"},
+    {"repository": "pcvantol/djconnect-app-releases", "source_sha": "938c8aa73b28e67984301d0943ce4af1a7bd72ac", "version": "3.3.0", "version_state": "REQUESTED_NOT_VERIFIED"},
     {"repository": "pcvantol/djconnect-pi-releases", "source_sha": "c8c1f7fa470ab8de00457d6b201a6563d6eee2d2", "version": "3.3.0", "version_state": "REQUESTED_NOT_VERIFIED"}
   ],
   "required_targets": {
-    "state": "UNRESOLVED",
-    "reason": "Required targets may be declared only by an approved operational manifest."
+    "state": "PROPOSED_PENDING_APPROVAL",
+    "targets": [
+      {"target": "home_assistant_pi5", "required": true},
+      {"target": "cloudflare_workers_production", "required": true},
+      {"target": "cloudflare_pages_production", "required": true},
+      {"target": "esp32_lilygo_t_embed_s3", "required": true},
+      {"target": "rbpi-djconnect", "required": true},
+      {"target": "apple_private_device", "target_device": "macbook", "required": true},
+      {"target": "apple_private_device", "target_device": "iphone", "paired_watch_validation": "required", "required": true},
+      {"target": "apple_private_device", "target_device": "ipad", "required": true},
+      {"target": "windows_internal_arm64", "required": true}
+    ],
+    "reason": "Maintainer-supplied Internal Release scope; it cannot authorize a workflow until final manifest approval."
   },
   "artifact_bindings": {
     "state": "MISSING",
-    "reason": "The 2026-07-14 manifest gate found only post-merge release-evidence artifacts for the current main SHAs; no current qualified deployable artifact or SHA-256 binding exists."
+    "required": [
+      {"owner": "pcvantol/djconnect", "target": "home_assistant_pi5", "artifact_id": null, "artifact_sha256": null},
+      {"owner": "pcvantol/djconnect-api", "target": "cloudflare_workers_production", "artifact_id": null, "artifact_sha256": null},
+      {"owner": "pcvantol/djconnect-website", "target": "cloudflare_pages_production", "artifact_id": null, "artifact_sha256": null},
+      {"owner": "pcvantol/djconnect-esp32", "target": "esp32_lilygo_t_embed_s3", "artifact_id": null, "artifact_sha256": null},
+      {"owner": "pcvantol/djconnect-pi", "target": "rbpi-djconnect", "artifact_id": null, "artifact_sha256": null},
+      {"owner": "pcvantol/djconnect-app", "target": "apple_private_device", "artifact_id": null, "artifact_sha256": null, "artifact_class": "universal_ios_ipa_or_native_macos_application"},
+      {"owner": "pcvantol/djconnect-windows", "target": "windows_internal_arm64", "artifact_id": null, "artifact_sha256": null},
+      {"owner": "pcvantol/djconnect-firmware", "target": "esp32_lilygo_t_embed_s3", "artifact_id": null, "artifact_sha256": null, "artifact_class": "public_firmware_distribution"},
+      {"owner": "pcvantol/djconnect-pi-releases", "target": "rbpi-djconnect", "artifact_id": null, "artifact_sha256": null, "artifact_class": "pi_distribution"}
+    ],
+    "excluded": [
+      {"repository": "pcvantol/djconnect-app-releases", "reason": "Internal unsigned Apple handoff metadata only; not a signed public publication target for INTERNAL_RELEASE."}
+    ],
+    "reason": "No current 3.3.0 immutable deployable artifact and SHA-256 binding was found for the exact source snapshot."
   },
   "required_evidence": {
     "verification": "MISSING",
@@ -38,5 +64,5 @@
     "coverage": "MISSING",
     "platform_qualification": "MISSING"
   },
-  "next_authorized_action": "Resolve versions, artifact bindings and candidate evidence; obtain explicit approval before converting this proposal into an operational manifest."
+  "next_authorized_action": "Produce exact-SHA artifacts and evidence, replace every null artifact binding, then request explicit approval of the complete operational manifest."
 }
