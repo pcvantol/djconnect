@@ -121,6 +121,12 @@ The Canonical Engineering Workflow and its templates are the Engineering
 Method. Only a dedicated Engineering Governance prompt may change this method.
 Implementation prompts must follow it and must not modify it incidentally.
 
+The operational V2 method is canonical in `ENGINEERING_METHOD.md`. It requires
+current-main and implementation-reality verification before planning, a
+repository-state bootstrap, immutable Prompt History and fail-closed branch
+hygiene. `PROMPT_GOVERNANCE.md`, `PROMPT_FINALIZATION.md` and
+`AI_SESSION_INITIALIZATION.md` define the non-duplicated execution contracts.
+
 ---
 
 # Engineering Lifecycle
