@@ -2,6 +2,16 @@
 
 Use this template for every phase inside an implementation epic.
 
+## Prompt governance
+
+- Lifecycle state: `Draft` (change to `Active` only when explicitly
+  authorized).
+- Engineering increment: state the one coherent objective.
+- Dedicated branch: name the branch for this increment.
+- Pull request contract: exactly one independently reviewable pull request;
+  merging is a separate explicit decision.
+- Scope protection: identify adjacent work that this prompt must not overlap.
+
 ## Phase goal
 
 State the goal of this phase.
@@ -50,6 +60,22 @@ The phase is done when:
 - privacy/security constraints are checked;
 - no out-of-scope runtime changes are included;
 - the PR is independently mergeable.
+
+## Completion
+
+Work only on the dedicated branch. Keep the scope focused. Produce exactly one
+reviewable pull request. Update canonical documentation where required.
+
+Before stopping, update:
+
+- Repository Status;
+- Management Summary;
+- Prompt Index.
+
+Validate completely, leave the working tree clean and stop. The completion
+report must state the decision, branch, commit SHA, pull request, validation
+performed, created documents, updated documents, outstanding blockers and
+recommended next prompt.
 
 ## Acceptance Criteria
 

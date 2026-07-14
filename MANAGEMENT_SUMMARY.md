@@ -1,7 +1,8 @@
 # DJConnect Generation 2 Management Summary
 
 **Decisions:** `DJCONNECT_GENERATION_1_COMPLETED`,
-`DJCONNECT_GENERATION_2_ESTABLISHED`
+`DJCONNECT_GENERATION_2_ESTABLISHED`,
+`ENGINEERING_WORKFLOW_ALIGNMENT_PENDING`
 **Basis:** Objective repository evidence recorded in the linked documents.
 
 ## Current position
@@ -14,6 +15,7 @@
 | Trusted Delivery | Completed and frozen | `docs/software_assurance/TRUSTED_DELIVERY_CERTIFICATION.md` |
 | Platform Release Engineering | Architecture qualified and frozen | `docs/release/PLATFORM_RELEASE_QUALIFICATION.md` |
 | Platform Release 3.3 Internal | Operational, blocked | `docs/release/PLATFORM_RELEASE_MANAGEMENT_SUMMARY.md` |
+| Engineering Workflow | Alignment in progress; no implementation changed | `docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md` |
 
 ## Generation 2 decision
 
@@ -29,6 +31,14 @@ The Generation 1 historical closing record is
 
 No implementation, release execution or Engineering Platform redesign was
 performed for this strategy refresh.
+
+## Engineering workflow alignment
+
+The active Engineering Governance increment defines one mandatory workflow for
+future work: one prompt, one engineering increment and one reviewable pull
+request. Merge remains an explicit governance decision. The resulting
+evidence will be recorded in
+`docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md`.
 
 ## Documentation outcome
 
