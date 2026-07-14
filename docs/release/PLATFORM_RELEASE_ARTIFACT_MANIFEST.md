@@ -1,12 +1,12 @@
 # Platform Release 3.3 — Artifact Manifest
 
-Execution state: `PREPARED_PENDING_EXPLICIT_MANIFEST_APPROVAL`.
+Execution state: `MANIFEST_APPROVED_DEPLOYMENT_DISPATCH_PENDING`.
 
 The requested `3.3.0` `INTERNAL_RELEASE` now has immutable, checksum-bound
 artifacts for every required deployment target. The canonical, machine-readable
 binding is
 [`PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json`](PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json).
-It is prepared evidence, not deployment authorization.
+It is approved release evidence, not a deployment dispatch authorization.
 
 | Surface | Exact candidate SHA | Artifact ID | SHA-256 |
 | --- | --- | --- | --- |
@@ -25,6 +25,6 @@ immutable GitHub Actions artifacts consumed by their manifest-bound workflows.
 The separate Windows x64 asset is intentionally not a required target binding.
 
 No target has been contacted. No artifact has been installed, signed, deployed
-or smoke-tested. The next action is explicit approval of manifest
-`release-3.3.0-internal-20260714`; approval itself must not dispatch a
-workflow.
+or smoke-tested. Manifest `release-3.3.0-internal-20260714` was explicitly
+approved at `2026-07-14T15:28:33Z`; each deployment and its subsequent smoke
+still requires a separate target-scoped authorization.
