@@ -29,11 +29,16 @@ request.
 The Engineering Method is defined in `docs/meta/ENGINEERING_PLAYBOOK.md` and
 may be changed only by a dedicated Engineering Governance prompt.
 
+The operational repository-driven method is `ENGINEERING_METHOD.md`.
+`BOOTSTRAP.md` defines the current-state reading order and
+`docs/history/prompts/` retains immutable historical records only.
+
 ## Prompt Registry
 
 | Prompt | Lifecycle | Coherent objective | Branch | Completion evidence |
 | --- | --- | --- | --- | --- |
 | Engineering Workflow Alignment | Completed | Establish the mandatory canonical AI-native engineering workflow without implementation changes. | `codex/engineering-workflow-alignment` | `docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md`; PR [#107](https://github.com/pcvantol/djconnect/pull/107) |
+| Engineering Method V2 Governance Alignment | Completed | Establish repository-driven V2 onboarding, reality verification, prompt archival and hygiene without implementation or architecture changes. | `codex/engineering-method-v2` | `docs/history/prompts/2026-07-14-engineering-method-v2.md`; PR [#114](https://github.com/pcvantol/djconnect/pull/114) |
 
 No subsequent canonical prompt is active or authorized. A future prompt may be
 drafted only after this increment's reviewable pull request exists.

@@ -2,7 +2,7 @@
 
 **Decisions:** `DJCONNECT_GENERATION_1_COMPLETED`,
 `DJCONNECT_GENERATION_2_ESTABLISHED`,
-`ENGINEERING_WORKFLOW_ALIGNED`
+`ENGINEERING_WORKFLOW_ALIGNED`, `ENGINEERING_METHOD_V2_ESTABLISHED`
 **Basis:** Objective repository evidence recorded in the linked documents.
 
 ## Current position
@@ -16,6 +16,7 @@
 | Platform Release Engineering | Architecture qualified and frozen | `docs/release/PLATFORM_RELEASE_QUALIFICATION.md` |
 | Platform Release 3.3 Internal | Operational, blocked | `docs/release/PLATFORM_RELEASE_MANAGEMENT_SUMMARY.md` |
 | Engineering Workflow | Aligned; no implementation changed | `docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md` |
+| Engineering Method V2 | Established; no implementation or architecture changed | `ENGINEERING_METHOD.md` |
 
 ## Generation 2 decision
 
@@ -39,6 +40,26 @@ future work: one prompt, one engineering increment and one reviewable pull
 request. Merge remains an explicit governance decision. The resulting
 evidence is recorded in `docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md`
 and reviewable in PR [#107](https://github.com/pcvantol/djconnect/pull/107).
+
+## Engineering Method V2
+
+**Decision:** `ENGINEERING_METHOD_V2_ESTABLISHED`
+**Branch:** `codex/engineering-method-v2`
+**Commit SHA:** recorded in the immutable Prompt History and Git commit
+**Pull Request:** [#114](https://github.com/pcvantol/djconnect/pull/114)
+**Validation:** governance-document contract review and `git diff --check`
+**Updated governance documents:** repository bootstrap, method, status,
+prompt governance/finalization, initialization, hygiene, template and history
+structure
+**Repository hygiene:** predecessor PR #113 merged, predecessor remote branch
+removed and starting worktree clean
+**Recommended next prompt:** none; select only evidence-backed active roadmap
+or backlog work after this PR is merged.
+
+This dedicated governance increment makes current `main` and verified
+repository reality the operational authority. Prompt History is immutable
+context, never current-state authority. No implementation, Platform
+Architecture or Product Architecture changed.
 
 ## Documentation outcome
 

@@ -15,6 +15,7 @@ Use this index to find the one canonical record for current work.
 | Innovation promotion rules | `INNOVATION_PROMOTION_POLICY.md` | Innovation Lab |
 | Current operational release position | `docs/release/PLATFORM_RELEASE_MANAGEMENT_SUMMARY.md` | Platform Release operations |
 | Consolidated state | `MANAGEMENT_SUMMARY.md` | Platform governance |
+| Engineering-method operating rules | `ENGINEERING_METHOD.md` | Engineering governance |
 | Execution prompt navigation | `PROMPT_INDEX.md` | Prompt governance |
 
 `PLATFORM_BACKLOG.md` is a Generation 1 archive, not an active source of
