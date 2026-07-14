@@ -16,6 +16,28 @@ This index tells clean Codex and AI-agent sessions which verification prompt is
 active, what came before it and which evidence proves status. Chat history is
 not required.
 
+## Canonical Prompt Governance
+
+Every canonical prompt is exactly one engineering increment and every
+increment terminates with exactly one reviewable pull request. Merge is a
+separate explicit decision. Prompts progress through `Draft`, `Active`,
+`Completed`, `Deprecated` and `Archived` states. During execution, exactly one
+prompt may be `Active`; no prompt may overlap or compete with it. A following
+prompt stays `Draft` until the preceding increment has its reviewable pull
+request.
+
+The Engineering Method is defined in `docs/meta/ENGINEERING_PLAYBOOK.md` and
+may be changed only by a dedicated Engineering Governance prompt.
+
+## Prompt Registry
+
+| Prompt | Lifecycle | Coherent objective | Branch | Completion evidence |
+| --- | --- | --- | --- | --- |
+| Engineering Workflow Alignment | Completed | Establish the mandatory canonical AI-native engineering workflow without implementation changes. | `codex/engineering-workflow-alignment` | `docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md`; PR [#107](https://github.com/pcvantol/djconnect/pull/107) |
+
+No subsequent canonical prompt is active or authorized. A future prompt may be
+drafted only after this increment's reviewable pull request exists.
+
 ## Active Next Phase
 
 ### Platform Release Engineering Generation 1

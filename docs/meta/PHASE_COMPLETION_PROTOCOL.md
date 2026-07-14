@@ -326,29 +326,28 @@ recommended phase
 
 Create or update the canonical Completion Report.
 
-Every report should include:
+Every report must include:
 
-Executive Summary
+Decision
 
-Scope
+Branch
 
-Implementation
+Commit SHA
 
-Verification
+Pull Request
 
-Evidence
+Validation performed
 
-Known Issues
+Created documents
 
-Technical Debt
+Updated documents
 
-Product Debt
+Outstanding blockers
 
-Recommendations
+Recommended next prompt
 
-Readiness
-
-Next Phase
+The report may add implementation, evidence, scope and readiness detail, but
+must not omit the completion contract above.
 
 Completion Reports document what actually happened.
 
@@ -378,9 +377,9 @@ Not opinion-based.
 
 Determine the next engineering action.
 
-If the phase is qualified:
+If the phase is qualified and a next increment is authorized:
 
-Generate the next phase prompt.
+Generate it as `Draft`.
 
 If the phase is not qualified:
 
@@ -392,7 +391,8 @@ Update:
 
 PROMPT_INDEX.md
 
-Do not execute the next phase.
+Do not activate or execute the next phase until this increment has exactly one
+reviewable pull request.
 
 ---
 
@@ -418,7 +418,31 @@ Avoid unnecessary churn.
 
 ---
 
-# Step 15 — Pull Request Review
+# Step 15 — Pull Request Creation
+
+Before merging, create exactly one reviewable pull request for the completed
+engineering increment. Confirm that it has one coherent objective and can be
+reviewed independently. Merge remains a separate explicit governance decision.
+
+Verify:
+
+documentation
+
+reports
+
+verification
+
+repository navigation
+
+prompt library
+
+completion report
+
+No phase should merge incomplete documentation.
+
+---
+
+# Step 16 — Pull Request Review
 
 Before merging:
 
@@ -440,7 +464,7 @@ No phase should merge incomplete documentation.
 
 ---
 
-# Step 16 — AI Memory Check
+# Step 17 — AI Memory Check
 
 Ask one final question.
 
@@ -454,7 +478,7 @@ The repository should become progressively more complete.
 
 ---
 
-# Step 17 — Final Output
+# Step 18 — Final Output
 
 Every completed phase should produce:
 
@@ -463,6 +487,10 @@ Completion Report
 Qualification Decision
 
 Updated Documentation
+
+Repository Status Update
+
+Management Summary Update
 
 Updated Prompt Library
 
@@ -513,6 +541,8 @@ A phase is complete only when:
 ✓ Next prompt exists
 
 ✓ Prompt Index is updated
+
+✓ Exactly one reviewable pull request exists
 
 ✓ Repository bootstrap remains valid
 

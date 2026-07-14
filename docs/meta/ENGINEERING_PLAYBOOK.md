@@ -12,7 +12,8 @@
 
 This playbook describes how engineering work is performed within the DJConnect platform.
 
-It defines the preferred engineering workflow from idea to production.
+It defines the mandatory engineering workflow from prompt to reviewable pull
+request, and the preferred lifecycle from idea to production.
 
 The objective is consistency.
 
@@ -27,6 +28,98 @@ Every feature, refactor, architectural change and verification activity should f
 Large, risky, difficult-to-review changes are intentionally avoided.
 
 Every completed phase should leave the platform in a better state than before.
+
+---
+
+# Canonical Engineering Workflow
+
+Every canonical prompt represents exactly one engineering increment. Every
+engineering increment terminates with exactly one reviewable pull request.
+Merge is a separate, explicit governance decision.
+
+```text
+Prompt
+
+↓
+
+Dedicated Branch
+
+↓
+
+Focused Implementation
+
+↓
+
+Validation
+
+↓
+
+Documentation Update
+
+↓
+
+Repository Status Update
+
+↓
+
+Management Summary Update
+
+↓
+
+Prompt Index Update
+
+↓
+
+Commit(s)
+
+↓
+
+Exactly One Reviewable Pull Request
+
+↓
+
+Stop
+```
+
+## Mandatory Rules
+
+1. One prompt equals one engineering increment.
+2. One engineering increment equals one reviewable pull request.
+3. Every pull request has exactly one coherent objective and is independently
+   reviewable.
+4. Every increment leaves the repository in a valid state.
+5. Merge remains an explicit governance decision; opening a pull request does
+   not authorize its merge.
+6. The next canonical prompt must not begin until the preceding prompt has a
+   reviewable pull request.
+7. Canonical prompts must not compete for, or overlap on, implementation
+   scope.
+
+## Prompt Lifecycle And Governance
+
+Canonical prompts use this lifecycle:
+
+```text
+Draft → Active → Completed → Deprecated → Archived
+```
+
+`Draft` is approved planning that is not yet executable. `Active` is the one
+authorized engineering increment currently being executed. `Completed` means
+the increment has a reviewable pull request and its completion contract is
+recorded. `Deprecated` retains a superseded prompt for traceability.
+`Archived` retains historical prompts outside active navigation.
+
+The Prompt Index records the lifecycle state, owning branch, coherent
+objective and resulting pull request. It permits exactly one `Active` prompt
+while work is being executed. A completed prompt is never reactivated; later
+work requires a new draft and a new explicit activation after the previous
+reviewable pull request exists.
+
+## Engineering Method Protection
+
+The Canonical Engineering Workflow and its templates are the Engineering
+Method. Only a dedicated Engineering Governance prompt may change this method.
+Implementation prompts must follow it and must not modify it incidentally.
 
 ---
 
