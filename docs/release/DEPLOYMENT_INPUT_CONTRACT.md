@@ -19,6 +19,24 @@ Target-specific inputs are permitted only when schema-bound, allowlisted,
 validated, documented and necessary for the canonical target. They cannot
 replace or weaken any required input.
 
+## Mandatory deployment-readiness preflight
+
+Before any target mutation, every deployment consumer must run the canonical
+`deployment-readiness-preflight` action. The preflight is a separate,
+fail-closed workflow step and records no secrets. It validates:
+
+- the manifest-bound identity and artifact checksum;
+- the actual runner OS and architecture against the target requirement;
+- non-empty presence of every target-specific configuration value required by
+  the consumer, without printing a value;
+- a concrete smoke-contract identifier, rejecting `NOT_IMPLEMENTED` and other
+  placeholders.
+
+Artifact publication and manifest approval never satisfy this preflight. A
+failed preflight blocks only its target, produces `TARGET_NOT_READY`, and does
+not block deployment or smoke of other independently authorized targets. A
+retry uses the same manifest-bound artifact and reruns the preflight first.
+
 ## Canonical target identifiers
 
 The canonical Raspberry Pi runtime deployment target is exactly

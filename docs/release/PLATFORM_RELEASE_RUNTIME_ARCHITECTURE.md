@@ -21,6 +21,12 @@ Canonical flow:
 
 `Runtime → CI / Qualification → Artifact / Release Evidence → explicit Deployment → targets → deployment evidence → decision`
 
+Each explicit deployment begins with a target-scoped deployment-readiness
+preflight. Manifest approval proves artifact/target selection only; it does
+not prove that runner architecture, environment configuration, installation
+scope or smoke capability exists. A preflight failure is `TARGET_NOT_READY`
+for that target and leaves every other target independently dispatchable.
+
 Linux builds run on GitHub-hosted runners. Apple and Windows builds run only on
 their qualified self-hosted native runners. Raspberry Pi (`rbpi-djconnect`) and
 ESP32 remain deployment/runtime-validation targets, never source-build runners.
