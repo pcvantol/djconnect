@@ -1,6 +1,6 @@
 # Prompt 2 Completion Report — Cross-Repository Workflow Harmonization
 
-Status: complete with documented follow-up
+Status: historical completion record
 Date: 2026-07-12
 Decision: `PASS_WITH_WARNINGS`
 
@@ -27,6 +27,7 @@ governance consumer itself is pinned to a full commit SHA. This warning does
 not change policy consumption, execution profile assignment or runner
 ownership.
 
-## Next Phase
+## Historical next phase
 
-Prompt 3 is active but has not been executed.
+At the time of this report, Prompt 3 was the next phase. Prompts 3 and 4 later
+completed; Software Assurance Generation 1 is now operationally frozen.

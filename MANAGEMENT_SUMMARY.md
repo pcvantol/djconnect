@@ -1,6 +1,7 @@
 # DJConnect Generation 2 Management Summary
 
-**Decision:** `DJCONNECT_GENERATION_2_STRATEGY_ESTABLISHED`
+**Decisions:** `DJCONNECT_GENERATION_1_COMPLETED`,
+`DJCONNECT_GENERATION_2_ESTABLISHED`
 **Basis:** Objective repository evidence recorded in the linked documents.
 
 ## Current position
@@ -21,6 +22,10 @@ the three-program Generation 2 operating model: DJConnect Product Development,
 Platform Evolution and Innovation Lab. Product Development is primary;
 Platform Evolution supports it; Innovation Lab researches without owning
 production delivery.
+
+The Generation 1 historical closing record is
+`ENGINEERING_PLATFORM_GENERATION_1_COMPLETION_REPORT.md`. Its remaining Release
+3.3 work is operational and does not reopen Platform Engineering.
 
 No implementation, release execution or Engineering Platform redesign was
 performed for this strategy refresh.

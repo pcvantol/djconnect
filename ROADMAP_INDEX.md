@@ -7,6 +7,7 @@ Use this index to find the one canonical record for current work.
 | Need | Canonical document | Owner |
 | --- | --- | --- |
 | Long-term engineering intent | `PLATFORM_STRATEGY.md` | Platform strategy |
+| Generation 1 historical closure | `ENGINEERING_PLATFORM_GENERATION_1_COMPLETION_REPORT.md` | Platform governance |
 | Program boundaries | `ENGINEERING_PROGRAM_MODEL.md` | Engineering governance |
 | User-facing product priorities and sequence | `PRODUCT_ROADMAP.md` | DJConnect Product Development |
 | Engineering-platform improvements | `PLATFORM_EVOLUTION_BACKLOG.md` | Platform Evolution |
