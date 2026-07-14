@@ -22,8 +22,8 @@ Canonical flow:
 `Runtime → CI / Qualification → Artifact / Release Evidence → explicit Deployment → targets → deployment evidence → decision`
 
 Linux builds run on GitHub-hosted runners. Apple and Windows builds run only on
-their qualified self-hosted native runners. Raspberry Pi and ESP32 remain
-deployment/runtime-validation targets, never source-build runners.
+their qualified self-hosted native runners. Raspberry Pi (`rbpi-djconnect`) and
+ESP32 remain deployment/runtime-validation targets, never source-build runners.
 
 The qualified macOS runner has exactly three isolated capabilities: Apple
 Native Build (CI / Qualification or Artifact Build), Private-Network Deployment

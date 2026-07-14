@@ -48,7 +48,7 @@ sensitive complete URL.
 
 | Target | Required bounded checks where applicable |
 | --- | --- |
-| Raspberry Pi runtime | Name/IP resolution, HTTP(S) or local API response, expected version/build identity, allowlisted service active, startup marker, no restart loop or new fatal marker in bounded recent logs. |
+| Raspberry Pi runtime (`rbpi-djconnect`) | Name/IP resolution, HTTP(S) or local API response, expected version/build identity, allowlisted service active, startup marker, no restart loop or new fatal marker in bounded recent logs. |
 | ESP32 runtime | Name/IP resolution, web/status endpoint, expected firmware version, post-OTA reconnect, Home Assistant entity availability, no observed reboot loop or exposed crash/reset indicator. |
 | Home Assistant and DJConnect integration | Local route, configured remote route, authenticated HTTP API, authenticated WebSocket handshake, core status, integration version/load result, required entities/platforms and read-only local pairing route. |
 | Apple private deployment | Installed bundle identifier and version, accepted signing/install state, safe launch/read-back where supported, and paired-Watch companion validation when required by the manifest. |
