@@ -7,7 +7,8 @@ publishes fresh evidence for the real release SHA.
 
 ```text
 qualified PR head SHA -> GitHub squash merge -> exact main SHA
-  -> reconciliation -> immutable evidence -> release manifest
+  -> successful main CI -> evidence artifact -> reconciliation
+  -> immutable evidence -> release manifest
 ```
 
 For squash merges the two SHAs are deliberately different. Provenance requires
@@ -15,11 +16,11 @@ the GitHub merge record, target branch, final PR head, merge actor, timestamp,
 changed-file equivalence and exact recorded merge commit. Direct pushes and
 ambiguous provenance fail closed.
 
-The reusable workflow is `post-merge-release-evidence.yml`. Consumer wrappers
-only invoke it on `push` to `main` through an immutable reference and pass that
-same central commit SHA as `policy_source_ref`. The explicit input prevents a
-caller SHA from being mistaken for a central policy SHA inside a reusable
-workflow context.
+The reusable workflow is `post-merge-release-evidence.yml`. Every consumer
+wrapper invokes it only from the successful `workflow_run` of its required
+main CI through an immutable reference, and passes that same central commit
+SHA as `policy_source_ref`. The explicit input prevents a caller SHA from
+being mistaken for a central policy SHA inside a reusable workflow context.
 
 Source repositories provide their required CI and coverage-artifact
 identifiers. Distribution repositories instead provide their required
@@ -28,8 +29,10 @@ distribution-integrity workflow and its
 artifact integrity and metadata validation, never on source-code coverage. The
 distribution integrity workflow runs on `push` to `main`; its reconciliation
 wrapper invokes the reusable workflow only after that workflow has completed
-successfully through `workflow_run`. This guarantees the evidence artifact is
-available before it is read. Source wrappers remain direct `push` callers.
-The workflow does not hardcode a partial repository list. It publishes the
-single canonical context `Post-Merge Release Evidence / Reconcile release
-evidence` on the exact main SHA and uploads `post-merge-release-evidence`.
+successfully through `workflow_run`. Source wrappers follow the same sequence
+after their required CI has produced coverage. This guarantees the evidence
+artifact is available before it is read. The reusable workflow rejects direct
+`push` callers and publishes the single canonical context
+`Post-Merge Release Evidence / Reconcile release evidence` on the exact
+workflow-run head SHA, even if a later commit reaches `main` while
+reconciliation is running. It uploads `post-merge-release-evidence`.
