@@ -514,12 +514,15 @@ Requirements:
   should label the platform route as `Home` and avoid cross-link clutter in
   their top menus.
 - Keep `macos-download` retired. The canonical macOS page is `/macos`.
-- Render macOS downloads from `pcvantol/djconnect-app-releases`, ESP32 firmware
-  downloads from `pcvantol/djconnect-firmware`, and Raspberry Pi/Linux downloads
-  from `pcvantol/djconnect-pi-releases`.
+- Do not render `pcvantol/djconnect-app-releases` as a public Apple download.
+  It is an internal unsigned artifact-handoff surface. Render public Apple
+  distribution only from an explicitly approved App Store Connect destination;
+  until then, show no public Apple download. Render ESP32 firmware downloads
+  from `pcvantol/djconnect-firmware` and Raspberry Pi/Linux downloads from
+  `pcvantol/djconnect-pi-releases`.
 - Show only the latest GitHub release in ESP32 firmware and Raspberry Pi/Linux
-  download blocks. Keep macOS aligned with the same latest-version download
-  pattern unless an App Store link replaces it.
+  download blocks. Apple download UI uses only an explicitly approved App
+  Store Connect link; it never falls back to an internal unsigned artifact.
 - Render GitHub release body text as an expandable changelog in client
   latest-version download blocks where public release data is embedded.
 - Route website-originated download clicks through `/go/download` so aggregate

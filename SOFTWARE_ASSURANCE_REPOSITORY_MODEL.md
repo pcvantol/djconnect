@@ -41,7 +41,7 @@ for their source, artifacts and release surfaces.
 | `pcvantol/djconnect-api` | Capability, evidence, execution and health models. | API security, relay, token and deployment evidence. | Local-first HA runtime behaviour. |
 | `pcvantol/djconnect-website` | Capability, evidence, execution and health models. | Website build, link, SEO, docs and localization evidence. | Runtime contracts or release artifact truth. |
 | `pcvantol/djconnect-firmware` | Release assurance and supply-chain models. | Public firmware artifact metadata and distribution evidence. | ESP32 source implementation. |
-| `pcvantol/djconnect-app-releases` | Release assurance and supply-chain models. | App release artifact metadata and distribution evidence. | Apple client source or entitlement policy. |
+| `pcvantol/djconnect-app-releases` | Release assurance and supply-chain models. | Internal unsigned Apple artifact metadata and handoff provenance. | Apple client source, local signing material or App Store Connect entitlement policy. |
 | `pcvantol/djconnect-pi-releases` | Release assurance and supply-chain models. | Pi release artifact metadata and distribution evidence. | Pi source implementation. |
 
 ## Repository Consumption Rules

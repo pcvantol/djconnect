@@ -42,7 +42,7 @@ Repositories inspected and aligned:
 | `pcvantol/djconnect-website` | Public website and docs presentation | `8f87fbd7dad5d9a8c0306b985952b99169247677` |
 | `pcvantol/djconnect-windows` | Windows Intelligence Client UX | `5aec04dbd4f8ed0331a8b5bf0a8062a133760dc0` |
 | `pcvantol/djconnect-firmware` | Public firmware release artifacts | `3f0e85837f07f490d7df079e7e74b07d00af714a` |
-| `pcvantol/djconnect-app-releases` | Public app release artifacts | `c1147ef7a85d4dd0792ba5fffe8856cc1f640b18` |
+| `pcvantol/djconnect-app-releases` | Internal unsigned Apple artifact handoff | `c1147ef7a85d4dd0792ba5fffe8856cc1f640b18` |
 | `pcvantol/djconnect-pi-releases` | Public Raspberry Pi release artifacts | `b40f2c7a3ac82a46c13657d40b4c315618ad4498` |
 
 ## Validation

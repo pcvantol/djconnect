@@ -16,8 +16,10 @@ Ownership. The mandatory repositories are:
   `pcvantol/djconnect-app`, `pcvantol/djconnect-windows`,
   `pcvantol/djconnect-pi`, `pcvantol/djconnect-esp32`, and
   `pcvantol/djconnect-website`.
-- `pcvantol/djconnect-firmware`, `pcvantol/djconnect-app-releases`, and
-  `pcvantol/djconnect-pi-releases` participate as distribution surfaces.
+- `pcvantol/djconnect-firmware` and `pcvantol/djconnect-pi-releases`
+  participate as distribution surfaces. `pcvantol/djconnect-app-releases` is
+  an internal unsigned Apple artifact-handoff surface; it is not a public
+  distribution node for an `INTERNAL_RELEASE`.
 
 The source stage can run concurrently after release control. Apple and Windows
 use qualified self-hosted native runners; all other source builds use
