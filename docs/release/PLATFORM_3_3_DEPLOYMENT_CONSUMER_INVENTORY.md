@@ -19,11 +19,12 @@ access credentials.
 
 ## Implementation and review
 
-No runtime or workflow implementation was performed. The reviewed scope was
-limited to checked-in release documentation and the current local workflow
-files of the ten ownership participants. The inventory corrected the false
-rollout claim in `PLATFORM_3_3_EXECUTION_WORKFLOW_MATRIX.md`; it does not
-change release architecture, target ownership or deployment policy.
+The initial reviewed scope was limited to checked-in release documentation and
+the current local workflow files of the ten ownership participants. The
+inventory corrected the false rollout claim in
+`PLATFORM_3_3_EXECUTION_WORKFLOW_MATRIX.md`. Follow-up work implemented the
+Website and Home Assistant artifact/deployment/smoke workflow separation
+without changing release architecture, target ownership or deployment policy.
 
 ## Basis and method
 
@@ -42,7 +43,7 @@ change release architecture, target ownership or deployment policy.
 
 | Surface / owner | Observed local state | Required consumer gap | Status |
 | --- | --- | --- | --- |
-| Home Assistant (`djconnect`, `bea53ae7`) | Exact-main integration artifact producer is implemented. The required macOS Private-Network Deployment Relay is absent from the repository runner inventory. | Provision/qualify the relay, then implement manifest-bound deployment and separate HA smoke evidence. | Blocked |
+| Home Assistant (`djconnect`, `bea53ae7`) | Exact-main artifact producer plus separate private-relay deployment and smoke workflows are implemented; relay/environment are provisioned. Both workflows are fail-closed because no operational manifest source or HA credentials/install/smoke scope exists. | Supply the approved manifest source and target scope; complete HA WebSocket/startup/crash smoke checks; then explicitly qualify. | Implemented; operational qualification blocked |
 | API (`djconnect-api`, `b333484`) | CI/CD workflow includes deployment behaviour, but no platform-release execution or manifest-bound deployment/smoke contract was found. | Separate bounded API deployment and post-deployment smoke consumer if API is included by the manifest. | Missing |
 | Apple (`djconnect-app`, `465efc73`) | Qualified native builds and legacy/public release workflows exist. | Apple Secure Distribution Relay consuming a qualified artifact, typed allowlisted device and separate smoke evidence. | Missing |
 | Windows (`djconnect-windows`, `fb7757e`) | Qualified native Windows artifact build and legacy/public release workflow exist. | Manifest-bound internal deployment plus bounded installed-version/launch smoke evidence. | Missing |
@@ -61,8 +62,9 @@ change release architecture, target ownership or deployment policy.
 2. Existing release-oriented workflows generally combine source build or
    publication with other responsibilities. They cannot substitute for a
    separate deployment consumer under the frozen workflow-separation policy.
-3. The Home Assistant artifact producer is implemented, but its private relay
-   consumer is blocked by the absent required runner capability.
+3. The Home Assistant artifact producer, relay and static deployment/smoke
+   consumers are implemented, but operational execution is blocked by the
+   absent operational-manifest, target credential and installation scopes.
 4. The Website consumer now implements the canonical artifact, deployment and
    smoke separation, but it has no operational evidence and is not qualified.
 5. The historical execution-workflow matrix overstated rollout coverage. It
@@ -81,7 +83,7 @@ change release architecture, target ownership or deployment policy.
 | Area | Result |
 | --- | --- |
 | Architecture | No impact. The frozen execution/deployment architecture remains the governing contract. |
-| Technical design | No implementation reality changed; the matrix correction records the existing rollout reality. |
+| Technical design | Website and Home Assistant now have static artifact/deployment/smoke workflow separation; both remain operationally unqualified. |
 | Verification Platform | No impact. Deployment smoke remains distinct from Verification scenarios. |
 | Meta Engineering | No process change. The inventory follows evidence-first and repository-as-memory practice. |
 | Technical debt | Manifest-bound deployment and smoke consumers are missing or incomplete. |
@@ -95,9 +97,10 @@ change release architecture, target ownership or deployment policy.
    architecture.
 2. Qualify the Website consumer only when a current approved manifest and
    explicit deployment authorization exist.
-3. Provision and qualify the macOS Private-Network Deployment Relay before
-   implementing the Home Assistant deployment/smoke consumer; then implement
-   the Raspberry Pi and ESP32 consumers with the same boundary.
+3. Supply and validate the Home Assistant operational-manifest and target
+   credential/installation scope, then complete its bounded smoke contract and
+   qualify it explicitly; then implement the Raspberry Pi and ESP32 consumers
+   with the same boundary.
 4. Implement and qualify the Apple Secure Distribution Relay and the Windows
    internal deployment consumer using their already-qualified native artifacts.
 5. Add only the distribution/API consumers that the explicitly approved
@@ -119,10 +122,10 @@ change release architecture, target ownership or deployment policy.
 
 ## Readiness and next phase
 
-This Website implementation step is complete. The release remains not ready.
-The next phase is not started: it requires an explicit implementation prompt
-for the private-network consumers or an explicitly authorized Website
-operational qualification.
+The Website and Home Assistant static implementation steps are complete. The
+release remains not ready. The next phase is not started: it requires an
+explicit implementation prompt for another consumer or an explicitly
+authorized operational qualification with a current approved manifest.
 
 The Website implementation evidence is recorded in
 `PLATFORM_3_3_WEBSITE_DEPLOYMENT_CONSUMER_COMPLETION.md`. Any operational

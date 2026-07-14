@@ -555,9 +555,10 @@ Scope:
 **Priority:** Release prerequisite
 **Blocking status:** No approved current-main Internal Release manifest exists;
 no complete manifest-bound deployment and separate smoke consumer is qualified.
-The Home Assistant private relay additionally requires a qualified macOS relay
-capability; the repository currently exposes only a Linux qualification runner
-and has no deployment environment or HA deployment/API credential scope.
+The Home Assistant private relay and static deployment/smoke workflows are
+implemented; operational qualification remains blocked because no approved
+operational manifest, HA deployment/API credential scope, installation
+contract or complete HA smoke contract exists.
 
 Required work:
 
@@ -565,8 +566,10 @@ Required work:
   smoke-evidence pattern without changing frozen release architecture;
 - operationally qualify the implemented Website consumer only with a current
   approved manifest and explicit authorization;
-- provision and qualify the macOS Private-Network Deployment Relay, then
-  implement and qualify the private-network HA, Pi and ESP32 consumers;
+- supply and validate the HA operational-manifest and target
+  credential/installation scope, complete the HA smoke contract and qualify
+  it explicitly; then implement and qualify the private-network Pi and ESP32
+  consumers;
 - qualify Apple Secure Distribution Relay and Windows internal-deployment
   consumers;
 - add API and distribution consumers only where a future approved manifest

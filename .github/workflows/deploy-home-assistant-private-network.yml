@@ -1,0 +1,151 @@
+name: Deploy Home Assistant integration through private relay
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        required: true
+        type: choice
+        options: [deployment]
+      candidate_sha:
+        required: true
+        type: string
+      execution_mode:
+        required: true
+        type: choice
+        options: [execute]
+      manifest_id:
+        required: true
+        type: string
+      artifact_id:
+        required: true
+        type: string
+      artifact_sha256:
+        required: true
+        type: string
+      target:
+        required: true
+        type: choice
+        options: [home_assistant_pi5]
+      platform_version:
+        required: true
+        type: string
+      release_profile:
+        required: true
+        type: choice
+        options: [INTERNAL_RELEASE]
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, macOS, ARM64, internal-release, private-network-deployment]
+    environment: private-network-deployment
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Validate manifest-bound deployment request
+        env:
+          ACTION: ${{ inputs.action }}
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          EXECUTION_MODE: ${{ inputs.execution_mode }}
+          MANIFEST_ID: ${{ inputs.manifest_id }}
+          ARTIFACT_ID: ${{ inputs.artifact_id }}
+          ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
+          TARGET: ${{ inputs.target }}
+          PLATFORM_VERSION: ${{ inputs.platform_version }}
+          RELEASE_PROFILE: ${{ inputs.release_profile }}
+        run: |
+          set -euo pipefail
+          test "$ACTION" = deployment
+          test "$EXECUTION_MODE" = execute
+          test "$TARGET" = home_assistant_pi5
+          test "$RELEASE_PROFILE" = INTERNAL_RELEASE
+          printf '%s' "$CANDIDATE_SHA" | grep -Eq '^[0-9a-f]{40}$'
+          printf '%s' "$MANIFEST_ID" | grep -Eq '^release-[A-Za-z0-9._-]+$'
+          printf '%s' "$ARTIFACT_ID" | grep -Eq '^[0-9]+$'
+          printf '%s' "$ARTIFACT_SHA256" | grep -Eq '^[0-9a-f]{64}$'
+          printf '%s' "$PLATFORM_VERSION" | grep -Eq '^[0-9]+\.[0-9]+$'
+      - name: Refuse dispatch without an approved operational manifest source
+        run: |
+          set -euo pipefail
+          echo "PRIVATE_NETWORK_DEPLOYMENT_NOT_AUTHORIZED: no approved current-main operational release manifest is available for this target."
+          exit 1
+      - name: Validate target installation scope after authorization
+        env:
+          HA_CONFIG_PATH: ${{ secrets.DJCONNECT_HA_DEPLOY_CONFIG_PATH }}
+          HA_COMPOSE_PATH: ${{ secrets.DJCONNECT_HA_DEPLOY_COMPOSE_PATH }}
+        run: |
+          set -euo pipefail
+          test -n "$HA_CONFIG_PATH"
+          test -n "$HA_COMPOSE_PATH"
+          test -d "$HA_CONFIG_PATH"
+          test -f "$HA_COMPOSE_PATH"
+      - id: artifact
+        name: Verify immutable artifact provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_ID: ${{ inputs.artifact_id }}
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        run: |
+          set -euo pipefail
+          metadata="$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}")"
+          test "$(jq -r '.expired' <<<"$metadata")" = false
+          run_id="$(jq -r '.workflow_run.id' <<<"$metadata")"
+          run="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}")"
+          test "$(jq -r '.conclusion' <<<"$run")" = success
+          test "$(jq -r '.head_branch' <<<"$run")" = main
+          test "$(jq -r '.head_sha' <<<"$run")" = "$CANDIDATE_SHA"
+          test "$(jq -r '.name' <<<"$run")" = 'Home Assistant release artifact'
+          printf 'run_id=%s\n' "$run_id" >> "$GITHUB_OUTPUT"
+      - name: Download manifest-bound artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          artifact-ids: ${{ inputs.artifact_id }}
+          github-token: ${{ github.token }}
+          run-id: ${{ steps.artifact.outputs.run_id }}
+          path: artifact
+      - name: Install exact integration artifact and restart Home Assistant
+        env:
+          ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
+          HA_CONFIG_PATH: ${{ secrets.DJCONNECT_HA_DEPLOY_CONFIG_PATH }}
+          HA_COMPOSE_PATH: ${{ secrets.DJCONNECT_HA_DEPLOY_COMPOSE_PATH }}
+          HA_SERVICE: ${{ secrets.DJCONNECT_HA_DEPLOY_SERVICE }}
+          HA_CONTAINER: ${{ secrets.DJCONNECT_HA_DEPLOY_CONTAINER }}
+        run: |
+          set -euo pipefail
+          test -n "$HA_SERVICE"
+          test -n "$HA_CONTAINER"
+          test "$(shasum -a 256 artifact/djconnect-home-assistant-integration.tar.gz | awk '{print $1}')" = "$ARTIFACT_SHA256"
+          staging="$(mktemp -d)"
+          trap 'rm -rf "$staging"' EXIT
+          tar -xzf artifact/djconnect-home-assistant-integration.tar.gz -C "$staging"
+          python3 -m json.tool "$staging/djconnect/manifest.json" >/dev/null
+          rsync -a --delete --exclude __pycache__ --exclude '*.pyc' "$staging/djconnect/" "$HA_CONFIG_PATH/custom_components/djconnect/"
+          docker compose -f "$HA_COMPOSE_PATH" up -d "$HA_SERVICE"
+          docker restart "$HA_CONTAINER"
+      - name: Publish redacted deployment evidence
+        env:
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          MANIFEST_ID: ${{ inputs.manifest_id }}
+          ARTIFACT_ID: ${{ inputs.artifact_id }}
+          ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
+          TARGET: ${{ inputs.target }}
+          PLATFORM_VERSION: ${{ inputs.platform_version }}
+          RELEASE_PROFILE: ${{ inputs.release_profile }}
+          DEPLOYMENT_WORKFLOW_RUN: ${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          from datetime import UTC, datetime
+          import json, os
+          with open("ha-private-deployment-evidence.json", "w", encoding="utf-8") as file:
+              json.dump({"schema_version": 1, "kind": "home_assistant_private_deployment", "repository": os.environ["GITHUB_REPOSITORY"], "candidate_sha": os.environ["CANDIDATE_SHA"], "manifest_id": os.environ["MANIFEST_ID"], "artifact_id": os.environ["ARTIFACT_ID"], "artifact_sha256": os.environ["ARTIFACT_SHA256"], "target": os.environ["TARGET"], "platform_version": os.environ["PLATFORM_VERSION"], "release_profile": os.environ["RELEASE_PROFILE"], "deployment_workflow_run": os.environ["DEPLOYMENT_WORKFLOW_RUN"], "deployment_result": "DEPLOYED_PENDING_SMOKE", "timestamp": datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")}, file, sort_keys=True)
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ha-private-deployment-evidence
+          path: ha-private-deployment-evidence.json
+          if-no-files-found: error

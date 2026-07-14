@@ -13,34 +13,40 @@ artifact evidence. It has no target credentials and cannot deploy.
 
 ## Blocker
 
-Read-only GitHub runner inventory for `pcvantol/djconnect` reports only the
-online self-hosted runner `djconnect-home-assistant-linux` with labels
-`self-hosted`, `Linux`, `ARM64`, `internal-release`, `qualification` and
-`home-assistant`.
+The distinct macOS runner `djconnect-private-network-relay` is registered and
+online for `pcvantol/djconnect` with labels `self-hosted`, `macOS`, `ARM64`,
+`internal-release` and `private-network-deployment`. The dedicated
+`private-network-deployment` environment is also present. This capability is
+separate from the existing Linux Home Assistant qualification runner and the
+Apple native-build runner.
 
-The frozen release architecture requires a distinct qualified macOS
-Private-Network Deployment Relay for Home Assistant private-network deployment
-and separate smoke evidence. No matching repository runner/capability is
-currently configured. Using the Linux qualification runner or inventing runner
-labels, target credentials or deployment commands would violate the frozen
-deployment boundary.
-
-The repository has no deployment environment and its configured secret names
-contain only Trusted Delivery and Docker credentials. No Home Assistant
-deployment/API or artifact-download credential scope is configured. Secret
-values were not read.
+The environment has no deployment protection configuration and the repository
+has no Home Assistant deployment/API or artifact-download credential scope;
+the existing secret names contain only Trusted Delivery and Docker credentials.
+Secret values were not read. The required target-specific credential and
+installation scope is still absent. Using the Linux qualification runner,
+reusing Apple build credentials or inventing target credentials/commands would
+violate the frozen deployment boundary.
 
 ## Result
 
-No Home Assistant deployment or smoke workflow was created, no credentials
-were accessed and no target was mutated. The deployment consumer remains
-fail-closed pending a qualified macOS Private-Network Deployment Relay with
-its separate deployment and smoke credential scopes.
+The checked-in deployment consumer and separate smoke workflow now exist in
+`.github/workflows/deploy-home-assistant-private-network.yml` and
+`.github/workflows/smoke-home-assistant-private-network.yml`. They are
+intentionally fail-closed: the deployment workflow rejects every dispatch with
+`PRIVATE_NETWORK_DEPLOYMENT_NOT_AUTHORIZED` until a canonical approved
+operational manifest source exists. The smoke workflow records an inconclusive
+result and fails after evidence publication until its required authenticated
+WebSocket, startup-marker and bounded crash-log checks are implemented.
+
+No credentials were accessed and no target was mutated. This is a static
+consumer implementation, not operational qualification.
 
 ## Next authorized action
 
-Provision and qualify a distinct macOS relay registered for `pcvantol/djconnect`,
-with an explicit private-network deployment label and isolated HA
-deployment/API and artifact-download credential scopes. Then implement the
-manifest-bound HA deployment and separate smoke workflows. Do not dispatch the
-artifact workflow as release authorization.
+Provide an approved operational manifest source, then configure isolated HA
+deployment/API and artifact-download credential scopes in
+`private-network-deployment`, including the explicit target installation and
+read-only smoke contract. Complete the required WebSocket, startup-marker and
+bounded crash-log checks, then explicitly authorize a manifest-bound
+operational qualification. Do not dispatch a workflow as release authorization.
