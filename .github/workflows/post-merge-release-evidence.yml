@@ -37,10 +37,9 @@ jobs:
   reconcile:
     name: Reconcile release evidence
     if: >-
-      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-      (github.event_name == 'workflow_run' &&
-       github.event.workflow_run.conclusion == 'success' &&
-       github.event.workflow_run.head_branch == 'main')
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -62,7 +61,7 @@ jobs:
           DISTRIBUTION_EVIDENCE_ARTIFACT: ${{ inputs.distribution_evidence_artifact_name }}
           REQUIRED_MAIN_WORKFLOW: ${{ inputs.required_main_workflow }}
           REPOSITORY_ROLE: ${{ inputs.repository_role }}
-          MAIN_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          MAIN_SHA: ${{ github.event.workflow_run.head_sha }}
         with:
           script: |
             const fs = require("fs");
@@ -117,7 +116,7 @@ jobs:
         with:
           script: |
             const evidence = require(`${process.env.GITHUB_WORKSPACE}/post-merge-release-evidence.json`);
-            await github.rest.repos.createCommitStatus({owner: context.repo.owner, repo: context.repo.repo, sha: context.sha, context: "Post-Merge Release Evidence / Reconcile release evidence", state: evidence.decision === "POST_MERGE_RELEASE_EVIDENCE_QUALIFIED" ? "success" : "failure", description: evidence.decision, target_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`});
+            await github.rest.repos.createCommitStatus({owner: context.repo.owner, repo: context.repo.repo, sha: evidence.main_sha, context: "Post-Merge Release Evidence / Reconcile release evidence", state: evidence.decision === "POST_MERGE_RELEASE_EVIDENCE_QUALIFIED" ? "success" : "failure", description: evidence.decision, target_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`});
 
       - name: Upload immutable reconciliation evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
