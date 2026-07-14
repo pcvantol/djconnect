@@ -548,6 +548,34 @@ Scope:
 **Status:** ⏳ Not started  
 **Goal:** Define and harden distribution channels.
 
+### Release deployment-consumer qualification
+
+**Status:** ⛔ Blocked
+**Owner:** Platform Release Engineering / owning repositories
+**Priority:** Release prerequisite
+**Blocking status:** No approved current-main Internal Release manifest exists;
+no complete manifest-bound deployment and separate smoke consumer is qualified.
+The Home Assistant private relay additionally requires a qualified macOS relay
+capability; the repository currently exposes only a Linux qualification runner
+and has no deployment environment or HA deployment/API credential scope.
+
+Required work:
+
+- preserve the implemented reusable bounded deployment-consumer and
+  smoke-evidence pattern without changing frozen release architecture;
+- operationally qualify the implemented Website consumer only with a current
+  approved manifest and explicit authorization;
+- provision and qualify the macOS Private-Network Deployment Relay, then
+  implement and qualify the private-network HA, Pi and ESP32 consumers;
+- qualify Apple Secure Distribution Relay and Windows internal-deployment
+  consumers;
+- add API and distribution consumers only where a future approved manifest
+  makes them required; and
+- reconstruct a current-main candidate only after the required consumers are
+  qualified.
+
+Evidence: `docs/release/PLATFORM_3_3_DEPLOYMENT_CONSUMER_INVENTORY.md`.
+
 Scope:
 
 - HACS release strategy;
