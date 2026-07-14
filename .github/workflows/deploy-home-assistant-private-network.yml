@@ -69,6 +69,23 @@ jobs:
           printf '%s' "$ARTIFACT_ID" | grep -Eq '^[0-9]+$'
           printf '%s' "$ARTIFACT_SHA256" | grep -Eq '^[0-9a-f]{64}$'
           printf '%s' "$PLATFORM_VERSION" | grep -Eq '^[0-9]+\.[0-9]+$'
+      - name: Verify target deployment readiness
+        uses: pcvantol/djconnect/.github/actions/deployment-readiness-preflight@962609ad77668c615b00c88b22167ed6b20bffc3
+        with:
+          target: ${{ inputs.target }}
+          manifest_id: ${{ inputs.manifest_id }}
+          candidate_sha: ${{ inputs.candidate_sha }}
+          artifact_id: ${{ inputs.artifact_id }}
+          artifact_sha256: ${{ inputs.artifact_sha256 }}
+          expected_runner_os: macOS
+          expected_runner_arch: ARM64
+          required_configuration: HA_CONFIG_PATH,HA_COMPOSE_PATH,HA_SERVICE,HA_CONTAINER
+          smoke_contract: NOT_IMPLEMENTED
+        env:
+          HA_CONFIG_PATH: ${{ secrets.DJCONNECT_HA_DEPLOY_CONFIG_PATH }}
+          HA_COMPOSE_PATH: ${{ secrets.DJCONNECT_HA_DEPLOY_COMPOSE_PATH }}
+          HA_SERVICE: ${{ secrets.DJCONNECT_HA_DEPLOY_SERVICE }}
+          HA_CONTAINER: ${{ secrets.DJCONNECT_HA_DEPLOY_CONTAINER }}
       - name: Refuse dispatch without an approved operational manifest source
         run: |
           set -euo pipefail
