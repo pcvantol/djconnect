@@ -1,28 +1,31 @@
 {
   "schema_version": 1,
   "kind": "platform_release_operational_manifest",
-  "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
+  "status": "REAPPROVAL_REQUIRED",
   "manifest_id": "release-3.3.0-internal-20260714",
   "platform_version": "3.3",
   "release_version": "3.3.0",
   "release_profile": "INTERNAL_RELEASE",
   "generated_at": "2026-07-14",
   "approval": {
-    "state": "APPROVED",
-    "approved_at": "2026-07-14T19:00:45Z",
-    "approved_statement": "I explicitly approve updated operational manifest release-3.3.0-internal-20260714 for the listed targets and exact artifacts, including the rebound Raspberry Pi artifact.",
-    "supersedes": {
-      "previous_approval": {
-        "approved_at": "2026-07-14T15:28:33Z",
-        "approved_statement": "I explicitly approve operational manifest release-3.3.0-internal-20260714 for the listed targets and exact artifacts."
-      },
-      "reason": "The Raspberry Pi artifact binding changed to qualified source candidate 661e26e78b45acb2bade57a63c0f68effc3652be and SHA-256 6fa3f2f3de6062b8d69c48886bf04374592bbbe404a2856b89450e1acbe1422a."
+    "state": "REAPPROVAL_REQUIRED",
+    "reason": "The API binding changed to source candidate 6f6dee8a6edf72b8a48fa347ef587ede2976badd and artifact SHA-256 f9d8c29787297a939d16e6f3fab3f9cd4455518def4565830b5ca57f76a80819 after the API deployment and smoke contract became operational.",
+    "superseded_approval": {
+      "approved_at": "2026-07-14T19:00:45Z",
+      "approved_statement": "I explicitly approve updated operational manifest release-3.3.0-internal-20260714 for the listed targets and exact artifacts, including the rebound Raspberry Pi artifact.",
+      "supersedes": {
+        "previous_approval": {
+          "approved_at": "2026-07-14T15:28:33Z",
+          "approved_statement": "I explicitly approve operational manifest release-3.3.0-internal-20260714 for the listed targets and exact artifacts."
+        },
+        "reason": "The Raspberry Pi artifact binding changed to qualified source candidate 661e26e78b45acb2bade57a63c0f68effc3652be and SHA-256 6fa3f2f3de6062b8d69c48886bf04374592bbbe404a2856b89450e1acbe1422a."
+      }
     },
-    "effect": "Deployment and post-deployment smoke remain separately dispatched, target-scoped operations; approval does not dispatch them automatically."
+    "effect": "The prior manifest approval does not authorize the rebound API target. A new exact manifest approval is required before any further target-scoped deployment dispatch."
   },
   "repositories": [
     {"repository": "pcvantol/djconnect", "source_sha": "77d28dcf1f19f1a4faed72746e11686375358c86", "version": "3.3.0", "artifact_run": "29334531145"},
-    {"repository": "pcvantol/djconnect-api", "source_sha": "835f682709556c18fbe702ffef358732f8173525", "version": "3.3.0", "artifact_run": "29330481465"},
+    {"repository": "pcvantol/djconnect-api", "source_sha": "6f6dee8a6edf72b8a48fa347ef587ede2976badd", "version": "3.3.0", "artifact_run": "29363742261"},
     {"repository": "pcvantol/djconnect-app", "source_sha": "8eaf56f64c5bf080eb09f02f25384128db0538cb", "version": "3.3.0", "artifact_run": "29337964248"},
     {"repository": "pcvantol/djconnect-windows", "source_sha": "6c0c3c3478c81472e479184dc03e51fd095dc4b2", "version": "3.3.0", "artifact_run": "29338767948"},
     {"repository": "pcvantol/djconnect-pi", "source_sha": "661e26e78b45acb2bade57a63c0f68effc3652be", "version": "3.3.0", "artifact_run": "29359466200"},
@@ -42,7 +45,7 @@
   ],
   "artifact_bindings": [
     {"owner": "pcvantol/djconnect", "target": "home_assistant_pi5", "artifact_id": "8311372180", "artifact_sha256": "b1115fb2d41abd1acf6ad42197751c63961826924fa47e9dc1d94ac1c1056de5", "artifact_url": "https://github.com/pcvantol/djconnect/actions/runs/29334531145"},
-    {"owner": "pcvantol/djconnect-api", "target": "cloudflare_workers_production", "artifact_id": "8309742606", "artifact_sha256": "bdc02ce45b5f1fdee0e1a71b940e01ee3993b82830214c3cc280839081b027b1", "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/29330481465"},
+    {"owner": "pcvantol/djconnect-api", "target": "cloudflare_workers_production", "artifact_id": "8323208436", "artifact_sha256": "f9d8c29787297a939d16e6f3fab3f9cd4455518def4565830b5ca57f76a80819", "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/29363742261"},
     {"owner": "pcvantol/djconnect-website", "target": "cloudflare_pages_production", "artifact_id": "8315080769", "artifact_sha256": "1cfa1b47d077e913526b2696a0748f5ecce933e0cf35f22580168b0e3742362d", "artifact_url": "https://github.com/pcvantol/djconnect-website/actions/runs/29343585969"},
     {"owner": "pcvantol/djconnect-esp32", "target": "esp32_lilygo_t_embed_s3", "artifact_id": "release-asset:pcvantol/djconnect-firmware:v3.3.0:djconnect-lilygo-t-embed-s3-v3.3.0.bin", "artifact_sha256": "c25444d3ef414489848fd2d8de624785c82eb90195cc861bcb63085e0df3ceeb", "artifact_url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.3.0/djconnect-lilygo-t-embed-s3-v3.3.0.bin"},
     {"owner": "pcvantol/djconnect-pi", "target": "rbpi-djconnect", "artifact_id": "release-asset:pcvantol/djconnect-pi-releases:v3.3.0:djconnect-pi-3.3.0.tar.gz", "artifact_sha256": "6fa3f2f3de6062b8d69c48886bf04374592bbbe404a2856b89450e1acbe1422a", "artifact_url": "https://github.com/pcvantol/djconnect-pi-releases/releases/download/v3.3.0/djconnect-pi-3.3.0.tar.gz"},
@@ -52,7 +55,7 @@
     {"owner": "pcvantol/djconnect-windows", "target": "windows_internal_arm64", "artifact_id": "release-asset:pcvantol/djconnect-app-releases:windows/v3.3.0:DJConnect-Windows-arm64-3.3.0-unsigned.zip", "artifact_sha256": "cbe379826731deb1d16c8af5510b4190a4f4949b1bf6589925de5d1eb66c5b47", "artifact_url": "https://github.com/pcvantol/djconnect-app-releases/releases/download/windows/v3.3.0/DJConnect-Windows-arm64-3.3.0-unsigned.zip"}
   ],
   "evidence": {
-    "artifact_integrity": "VERIFIED",
+    "artifact_integrity": "VERIFIED: rebound API artifact 8323208436",
     "deployment_evidence": "PARTIAL: rbpi-djconnect deployment evidence verified",
     "post_deployment_smoke": "PARTIAL: rbpi-djconnect smoke evidence verified",
     "operational_credential_scope": "NOT_DISCLOSED; each deployment workflow must validate its own least-privilege scope."
@@ -75,5 +78,5 @@
     "Apple Watch is a required paired-iPhone companion validation, not a direct deployment target.",
     "Windows x64 is published but is not bound to this ARM64-only Internal Release."
   ],
-  "next_authorized_action": "Obtain separate authorization for one remaining target-scoped, manifest-bound deployment; run its corresponding smoke only after that target's successful deployment."
+  "next_authorized_action": "Obtain a fresh explicit approval for this rebound exact manifest. After approval, obtain separate target-scoped authorization before any deployment and run that target's smoke only after its successful deployment."
 }

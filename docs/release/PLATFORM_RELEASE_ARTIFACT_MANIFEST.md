@@ -1,6 +1,6 @@
 # Platform Release 3.3 — Artifact Manifest
 
-Execution state: `MANIFEST_APPROVED_DEPLOYMENT_DISPATCH_PENDING`.
+Execution state: `MANIFEST_REAPPROVAL_REQUIRED`.
 
 The requested `3.3.0` `INTERNAL_RELEASE` now has immutable, checksum-bound
 artifacts for every required deployment target. The Raspberry Pi artifact was
@@ -12,7 +12,7 @@ It is checksum-verified release evidence, not a deployment dispatch authorizatio
 | Surface | Exact candidate SHA | Artifact ID | SHA-256 |
 | --- | --- | --- | --- |
 | Home Assistant | `77d28dcf` | `8311372180` | `b1115fb2d41abd1acf6ad42197751c63961826924fa47e9dc1d94ac1c1056de5` |
-| API | `835f6827` | `8309742606` | `bdc02ce45b5f1fdee0e1a71b940e01ee3993b82830214c3cc280839081b027b1` |
+| API | `6f6dee8a` | `8323208436` | `f9d8c29787297a939d16e6f3fab3f9cd4455518def4565830b5ca57f76a80819` |
 | Website | `370619fb` | `8315080769` | `1cfa1b47d077e913526b2696a0748f5ecce933e0cf35f22580168b0e3742362d` |
 | ESP32 LilyGO T-Embed S3 | `9f8a3248` | `djconnect-lilygo-t-embed-s3-v3.3.0.bin` | `c25444d3ef414489848fd2d8de624785c82eb90195cc861bcb63085e0df3ceeb` |
 | Raspberry Pi | `661e26e7` | `djconnect-pi-3.3.0.tar.gz` | `6fa3f2f3de6062b8d69c48886bf04374592bbbe404a2856b89450e1acbe1422a` |
@@ -25,8 +25,9 @@ approved distribution repositories. HA, API and Website artifacts remain
 immutable GitHub Actions artifacts consumed by their manifest-bound workflows.
 The separate Windows x64 asset is intentionally not a required target binding.
 
-The Pi target was contacted only by its read-only readiness verification. No
-release artifact has been installed, signed, deployed or smoke-tested. The
-updated manifest `release-3.3.0-internal-20260714` was explicitly approved at
-`2026-07-14T19:00:45Z`; each deployment and its subsequent smoke still
-requires a separate target-scoped authorization.
+The Pi target is already deployment-operational with separately recorded
+deployment and smoke evidence. The API binding was later replaced with an
+artifact that exposes exact runtime release identity, so the prior manifest
+approval is superseded. A fresh approval is required before any new target
+deployment; each deployment and its subsequent smoke still requires separate
+target-scoped authorization.
