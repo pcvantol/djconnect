@@ -10,7 +10,7 @@ or governed operations are constrained.
 | Initiative | Priority | Status | Dependencies | Promotion path |
 | --- | --- | --- | --- | --- |
 | Component Release Mode | P2 | Backlog | release evidence and current manifest model | bounded architecture review if contracts change |
-| GitHub Actions retention policy | P1 | Backlog | Repository Ownership integration, explicit protected-evidence metadata and governance review | governed workflow change after approved design |
+| GitHub Actions retention and evidence preservation (`TD-GITHUB-001`) | P1 | Open / Backlog | governance approval, Repository Ownership integration and a future approved retention design | governed implementation only after design and qualification |
 | Public distribution: Apple | P1 | Backlog | qualified Internal Release consumers and explicit authorization | release-operational work |
 | Public distribution: Windows | P1 | Backlog | qualified Internal Release consumers and explicit authorization | release-operational work |
 | Public HACS distribution | P1 | Backlog | fresh candidate and release authorization | release-operational work |
@@ -31,22 +31,42 @@ smoke consumers for every required target, and explicit dispatch authorization.
 It is documented in `docs/release/PLATFORM_RELEASE_MANAGEMENT_SUMMARY.md`; it
 does not become a fourth program.
 
-## Backlog detail: GitHub Actions retention policy
+## Backlog detail: GitHub Actions retention and evidence preservation
 
-Design one centrally governed, fail-closed retention capability for workflow
-runs, artifacts, safe orphan caches and historical branch reconciliation. It
-must use configurable `FEATURE_BRANCH` (2), `RELEASE_BRANCH` (5), `MAIN` (20)
-and non-deleting `PROTECTED_EVIDENCE` profiles; discover participating
-repositories through `REPOSITORY_OWNERSHIP.md`; and preserve release, dry-run,
-qualification, certification, Software Assurance, Trusted Delivery, incident,
-rollback and explicitly protected audit evidence through machine-readable
-metadata rather than names.
+**Risk ID:** `TD-GITHUB-001`
 
-Future design and implementation must cover push, closed pull request, branch
-deletion, scheduled and manual reconciliation, idempotence, fork-safe
-least-privilege execution, objective cleanup evidence and a fail-closed retain
-state whenever protection cannot be determined. This is a Platform Evolution
-backlog item only; it authorizes neither workflow changes nor deletion.
+**Owner:** Platform Evolution
+
+**Priority:** P1
+**Status:** Open / Backlog
+
+Generation 1 accepted the narrow GitHub native SHA-enforcement compatibility
+exception. The active compensating controls are recursive workflow-closure
+validation, terminal immutable-action validation and registry consistency
+checks. They preserve the accepted Generation 1 exception but do not resolve
+the broader risk that governed release and assurance evidence may not be
+retained or protected consistently across repositories.
+
+This risk remains open because a retention and evidence-preservation design has
+not been approved or qualified. The future work must answer, without assuming
+a solution, how protected release, qualification, certification, assurance,
+incident, rollback and audit evidence is classified, preserved and governed;
+how uncertain classification fails closed; and how the policy remains
+compatible with repository ownership and governance boundaries.
+
+Required acceptance evidence and closure criteria are:
+
+- an approved retention and evidence-preservation design;
+- evidence that protected release, qualification, certification, assurance,
+  incident, rollback and audit evidence is retained;
+- demonstrated fail-closed behaviour when classification or protection cannot
+  be reliably established;
+- qualified implementation evidence; and
+- governance approval before any cleanup or deletion becomes operational.
+
+This backlog record authorizes no retention design, workflow change,
+deletion-policy decision or implementation. It records an open Platform
+Evolution risk only.
 
 ## Backlog detail: Component Release Mode
 

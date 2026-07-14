@@ -49,12 +49,19 @@ Review.
 
 ## Accepted exception
 
-`TD-GITHUB-001` is accepted, compensated and non-recurring. Native GitHub SHA
-enforcement is not enabled because GitHub’s behavior pre-fails valid recursive
-reusable-workflow use. Recursive closure validation, terminal immutable-action
-validation and registry consistency are the compensating controls. Review is
-required only after a GitHub platform change, a GitHub Support response or an
-approved Platform Evolution initiative.
+Generation 1 accepted and compensated the narrow `TD-GITHUB-001` native GitHub
+SHA-enforcement compatibility exception. Native GitHub SHA enforcement is not
+enabled because GitHub’s behavior pre-fails valid recursive reusable-workflow
+use. Recursive closure validation, terminal immutable-action validation and
+registry consistency remain the active compensating controls.
+
+This accepted Generation 1 exception does not close the broader Platform
+Evolution risk around GitHub Actions retention and evidence preservation.
+`TD-GITHUB-001` therefore remains Open / Backlog under Platform Evolution until
+the acceptance evidence and objective closure criteria in
+`PLATFORM_EVOLUTION_BACKLOG.md` have been met. A GitHub platform change, GitHub
+Support response or approved Platform Evolution initiative may trigger review;
+none by itself closes the risk.
 
 ## Remaining operational work
 
