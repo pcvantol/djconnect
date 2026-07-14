@@ -74,6 +74,18 @@ Its completion evidence is
 [#107](https://github.com/pcvantol/djconnect/pull/107). No implementation
 scope was included.
 
+## Engineering Method V2
+
+Decision: `ENGINEERING_METHOD_V2_ESTABLISHED`
+
+The repository-state operating model is established in `ENGINEERING_METHOD.md`
+and starts from `BOOTSTRAP.md`. `ENGINEERING_STATUS.md` is the operational
+handoff; `docs/history/prompts/` is immutable history only. Current `main`,
+status records, active roadmap/backlog and verified implementation reality take
+precedence over historical prompts and conversations. This governance-only
+increment introduces no implementation, Platform Architecture or Product
+Architecture change.
+
 Platform Baseline v1.0 is certified. The current platform decision is
 `PLATFORM_BASELINE_V1_CERTIFIED`.
 
@@ -165,10 +177,10 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-No Platform Release execution prompt is active. The next explicit work is
-Platform Release 3.3 deployment-consumer qualification, followed by current
-`main` candidate reconstruction. Do not dispatch a release without explicit
-authorization.
+Engineering Method V2 Governance Alignment is complete with decision
+`ENGINEERING_METHOD_V2_ESTABLISHED`; its reviewable PR is #114. No subsequent
+prompt is active. Future work must be selected from verified current roadmap
+and backlog evidence; it must not be inferred from historical prompt order.
 
 ## Completion Report
 

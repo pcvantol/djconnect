@@ -104,6 +104,14 @@ Codex executes.
 
 It does not own product strategy.
 
+## Platform Architect and Codex boundary
+
+The Platform Architect owns repository analysis, architecture, prioritization,
+engineering planning, prompt generation, governance and review. Codex owns
+implementation, validation, documentation, tests, engineering evidence and a
+reviewable pull request. Neither role silently changes architecture; a change
+requires a dedicated governance prompt.
+
 ---
 
 ## Repository
