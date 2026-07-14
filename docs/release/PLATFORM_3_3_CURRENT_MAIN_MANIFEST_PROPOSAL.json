@@ -1,16 +1,17 @@
 {
   "schema_version": 1,
   "kind": "platform_release_operational_manifest",
-  "status": "PREPARED_PENDING_EXPLICIT_APPROVAL",
+  "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
   "manifest_id": "release-3.3.0-internal-20260714",
   "platform_version": "3.3",
   "release_version": "3.3.0",
   "release_profile": "INTERNAL_RELEASE",
   "generated_at": "2026-07-14",
   "approval": {
-    "state": "MISSING",
-    "required_statement": "I explicitly approve operational manifest release-3.3.0-internal-20260714 for the listed targets and exact artifacts.",
-    "effect_when_approved": "Deployment and post-deployment smoke remain separately dispatched, target-scoped operations; approval does not dispatch them automatically."
+    "state": "APPROVED",
+    "approved_at": "2026-07-14T15:28:33Z",
+    "approved_statement": "I explicitly approve operational manifest release-3.3.0-internal-20260714 for the listed targets and exact artifacts.",
+    "effect": "Deployment and post-deployment smoke remain separately dispatched, target-scoped operations; this approval does not dispatch them automatically."
   },
   "repositories": [
     {"repository": "pcvantol/djconnect", "source_sha": "77d28dcf1f19f1a4faed72746e11686375358c86", "version": "3.3.0", "artifact_run": "29334531145"},
@@ -50,10 +51,10 @@
     "operational_credential_scope": "NOT_DISCLOSED; each deployment workflow must validate its own least-privilege scope."
   },
   "constraints": [
-    "No deployment or smoke workflow may be dispatched until approval.state is APPROVED.",
+    "Each deployment and smoke workflow still requires separate target-scoped authorization.",
     "Apple artifacts are unsigned handoff artifacts only; local Developer provisioning occurs only in the Apple Secure Distribution Relay.",
     "Apple Watch is a required paired-iPhone companion validation, not a direct deployment target.",
     "Windows x64 is published but is not bound to this ARM64-only Internal Release."
   ],
-  "next_authorized_action": "Obtain explicit approval of this exact manifest; after approval, dispatch only the separately authorized, manifest-bound deployment and smoke workflows."
+  "next_authorized_action": "Obtain separate authorization for one or more target-scoped, manifest-bound deployments; run the corresponding smoke only after each successful deployment."
 }

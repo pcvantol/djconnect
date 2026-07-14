@@ -1,13 +1,13 @@
 # Platform Release 3.3 — Operational Manifest Preparation
 
 Date: 2026-07-14  
-Decision: `PLATFORM_RELEASE_3_3_MANIFEST_PREPARED_PENDING_EXPLICIT_APPROVAL`
+Decision: `PLATFORM_RELEASE_3_3_MANIFEST_APPROVED_DEPLOYMENT_DISPATCH_PENDING`
 
 ## Scope
 
-This record prepares the exact, artifact-bound manifest for the requested
-`3.3.0` `INTERNAL_RELEASE`. It does not approve that manifest and does not
-authorize or dispatch deployment, signing, installation, OTA or smoke work.
+This record contains the approved exact, artifact-bound manifest for the
+requested `3.3.0` `INTERNAL_RELEASE`. It does not authorize or dispatch a
+deployment, signing, installation, OTA or smoke workflow.
 
 ## Prepared manifest
 
@@ -23,12 +23,12 @@ All target artifacts have an exact source SHA, immutable artifact identifier,
 download location and SHA-256. The consolidated ledger is in
 [`PLATFORM_RELEASE_ARTIFACT_MANIFEST.md`](PLATFORM_RELEASE_ARTIFACT_MANIFEST.md).
 
-## Approval gate
+## Approval record
 
-The manifest remains unapproved until the maintainer explicitly approves this
-exact manifest ID and its listed target/artifact bindings. Approval does not
-run a workflow. It merely permits separately authorized, manifest-bound
-deployment and post-deployment smoke dispatches.
+The maintainer explicitly approved this exact manifest ID and its listed
+target/artifact bindings at `2026-07-14T15:28:33Z`. The approval does not run
+a workflow. Every deployment and smoke remains a separately authorized,
+manifest-bound operation.
 
 ## Known operational gates
 
@@ -44,5 +44,5 @@ deployment and post-deployment smoke dispatches.
 
 ## Next action
 
-Request explicit approval of `release-3.3.0-internal-20260714`. Do not begin
-deployment or smoke automatically.
+Obtain separate authorization for the first target-scoped deployment. Do not
+begin deployment or smoke automatically.
