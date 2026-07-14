@@ -2,7 +2,8 @@
 
 **Decisions:** `DJCONNECT_GENERATION_1_COMPLETED`,
 `DJCONNECT_GENERATION_2_ESTABLISHED`,
-`ENGINEERING_WORKFLOW_ALIGNED`, `ENGINEERING_METHOD_V2_ESTABLISHED`
+`ENGINEERING_WORKFLOW_ALIGNED`, `ENGINEERING_METHOD_V2_ESTABLISHED`,
+`ENGINEERING_METHOD_V2_3_ESTABLISHED`
 **Basis:** Objective repository evidence recorded in the linked documents.
 
 ## Current position
@@ -16,7 +17,7 @@
 | Platform Release Engineering | Architecture qualified and frozen | `docs/release/PLATFORM_RELEASE_QUALIFICATION.md` |
 | Platform Release 3.3 Internal | Operational, blocked | `docs/release/PLATFORM_RELEASE_MANAGEMENT_SUMMARY.md` |
 | Engineering Workflow | Aligned; no implementation changed | `docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md` |
-| Engineering Method V2 | Established; no implementation or architecture changed | `ENGINEERING_METHOD.md` |
+| Engineering Method V2.3 | Established; no implementation or architecture changed | `ENGINEERING_METHOD.md` |
 
 ## Generation 2 decision
 
@@ -60,6 +61,24 @@ This dedicated governance increment makes current `main` and verified
 repository reality the operational authority. Prompt History is immutable
 context, never current-state authority. No implementation, Platform
 Architecture or Product Architecture changed.
+
+## Engineering Method V2.3
+
+**Decision:** `ENGINEERING_METHOD_V2_3_ESTABLISHED`
+**Branch:** `codex/engineering-method-v2-3`
+**Commit SHA:** `2f2e3db399f14386fd9eb4091637056d76eb9256`
+**Pull Request:** [#118](https://github.com/pcvantol/djconnect/pull/118)
+**Validation:** synchronization/current-main verification, governance-document
+contract review and `git diff --check`
+**Updated governance documents:** bootstrap, engineering method, prompt
+initialization, session initialization, prompt governance/template, Meta
+Engineering collaboration and status/history records
+**Known limitations:** this change establishes process controls only; it does
+not authorize a product, architecture, release or implementation increment.
+**Deferred work:** select future work solely from synchronized current-main
+roadmap and backlog evidence.
+**Recommended next prompt:** none; after merge, synchronize current main and
+determine the next increment from repository evidence.
 
 ## Documentation outcome
 
