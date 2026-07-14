@@ -571,10 +571,12 @@ Required work:
   API is required by that manifest;
 - supply and validate the HA operational-manifest and target
   credential/installation scope, complete the HA smoke contract and qualify
-  it explicitly; then implement and qualify the private-network Pi and ESP32
+  it explicitly; complete the ESP32 manifest/HA Update scope, deployment
+  evidence and hardware smoke contract, then qualify the private-network
   consumers;
-- qualify Apple Secure Distribution Relay and Windows internal-deployment
-  consumers;
+- supply manifest-bound artifact provenance and typed signing/install/health
+  scope, then qualify the static Apple Secure Distribution Relay and Windows
+  internal-deployment consumers;
 - add distribution consumers only where a future approved manifest makes them
   required; and
 - reconstruct a current-main candidate only after the required consumers are
