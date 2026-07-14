@@ -19,3 +19,16 @@ Status: post-merge read-back
 All repositories retain read-only default workflow tokens, disabled workflow
 PR-review approval, active `Trusted Delivery main integrity` rulesets and
 strict `Trusted Delivery / Qualify trusted delivery` branch checks.
+
+## Workflow-class migration matrix
+
+| Repository | CI / Qualification | Artifact / Release Evidence | Deployment | Migration state |
+| --- | --- | --- | --- | --- |
+| `djconnect` | Validate, CodeQL, Semgrep, Trusted Delivery | Owner authorization, post-merge reconciliation | Verification-runtime Docker publication | Docker publication must be split from build/test and made dispatch-only. |
+| `djconnect-app` | CI, firmware CI/security | Post-merge reconciliation | Unsigned public release, TestFlight | Tag-triggered/publication and build-publication coupling require remediation. |
+| `djconnect-windows` | CI, CodeQL, Semgrep | Post-merge reconciliation | Unsigned public release | Publication must consume a qualified artifact rather than build-and-publish. |
+| `djconnect-pi` | Validate, CodeQL, Semgrep | Post-merge reconciliation | Pi publication/target deployment | Publication and target deployment require dispatch-only separation. |
+| `djconnect-esp32` | Firmware CI, CodeQL, secret scan | Post-merge reconciliation | Firmware publication | Tag-triggered build-and-publication requires separation. |
+| `djconnect-api` | Validate, CodeQL, Semgrep | Post-merge reconciliation | `Deploy API production` | Dispatch-only isolation implemented; readiness/artifact preconditions remain under qualification. |
+| `djconnect-website` | Validate, CodeQL, Semgrep | Post-merge reconciliation | `Deploy Cloudflare Pages` | Dispatch-only isolation implemented; readiness/artifact preconditions remain under qualification. |
+| Distribution repositories | Governance/integrity CI | Distribution integrity and post-merge reconciliation | Artifact distribution only | Evidence separation implemented; publication remains explicit deployment work. |

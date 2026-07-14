@@ -10,3 +10,6 @@ Status: `ARCHITECTURE_CORRECTED`
    published artifacts only.
 5. Build evidence records source SHA, workflow identity, artifact hash and
    required Software Assurance and Trusted Delivery status.
+6. Runner selection is a CI/artifact concern. Deployment uses only qualified
+   published artifacts and target-scoped credentials; it never turns a Pi or
+   ESP32 deployment target into a source-build runner.
