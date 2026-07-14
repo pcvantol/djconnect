@@ -3,10 +3,20 @@ name: Post-Merge Release Evidence
 on:
   workflow_call:
     inputs:
-      coverage_artifact_name:
-        description: Exact coverage artifact name emitted by the caller's main CI.
+      policy_source_ref:
+        description: Immutable pcvantol/djconnect commit SHA containing this reconciliation policy.
         required: true
         type: string
+      coverage_artifact_name:
+        description: Exact coverage artifact name emitted by the caller's main CI.
+        required: false
+        type: string
+        default: ""
+      distribution_evidence_artifact_name:
+        description: Exact distribution-integrity artifact emitted by a distribution repository main workflow.
+        required: false
+        type: string
+        default: platform-release-distribution-integrity
       required_main_workflow:
         description: Main workflow whose successful run supplies post-merge evidence.
         required: true
@@ -34,7 +44,10 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           repository: pcvantol/djconnect
-          ref: ${{ github.workflow_sha }}
+          # github.workflow_sha resolves to the caller in a reusable workflow.
+          # The caller therefore supplies the same immutable central SHA it
+          # pins in `uses:`; never infer a central ref from caller context.
+          ref: ${{ inputs.policy_source_ref }}
           path: reconciliation-policy
 
       - id: collect
@@ -42,6 +55,7 @@ jobs:
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd
         env:
           COVERAGE_ARTIFACT: ${{ inputs.coverage_artifact_name }}
+          DISTRIBUTION_EVIDENCE_ARTIFACT: ${{ inputs.distribution_evidence_artifact_name }}
           REQUIRED_MAIN_WORKFLOW: ${{ inputs.required_main_workflow }}
           REPOSITORY_ROLE: ${{ inputs.repository_role }}
         with:
@@ -50,6 +64,10 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const mainSha = context.sha;
+            const repositoryRole = process.env.REPOSITORY_ROLE;
+            if (!["active_source", "release_source", "distribution"].includes(repositoryRole)) {
+              throw new Error("repository_role is invalid");
+            }
             const commit = await github.rest.repos.getCommit({owner, repo, ref: mainSha});
             const associated = await github.rest.repos.listPullRequestsAssociatedWithCommit({owner, repo, commit_sha: mainSha});
             const candidates = associated.data.filter(pr => pr.merged_at && pr.base.ref === "main" && pr.merge_commit_sha === mainSha);
@@ -64,12 +82,16 @@ jobs:
             const mainRun = runs.find(run => run.name === process.env.REQUIRED_MAIN_WORKFLOW && run.conclusion === "success");
             const artifacts = mainRun ? await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {owner, repo, run_id: mainRun.id, per_page: 100}) : [];
             const coverage = artifacts.find(item => item.name === process.env.COVERAGE_ARTIFACT);
+            const distributionEvidence = artifacts.find(item => item.name === process.env.DISTRIBUTION_EVIDENCE_ARTIFACT);
             const okMain = Boolean(mainRun);
+            const postMerge = repositoryRole === "distribution"
+              ? {sha: mainSha, ci: okMain ? "PASS" : "FAIL", distribution_integrity: distributionEvidence ? "PASS" : "FAIL", metadata_validation: distributionEvidence ? "PASS" : "FAIL", governance: okMain ? "PASS" : "FAIL", distribution_artifact_sha: distributionEvidence?.digest || null, workflow_run_ids: mainRun ? [String(mainRun.id)] : []}
+              : {sha: mainSha, ci: okMain ? "PASS" : "FAIL", tests: okMain ? "PASS" : "FAIL", lint: okMain ? "PASS" : "FAIL", static_analysis: okMain ? "PASS" : "FAIL", build_validation: okMain ? "PASS" : "FAIL", governance: okMain ? "PASS" : "FAIL", coverage: coverage ? "PASS" : "FAIL", coverage_report_sha: coverage ? mainSha : null, coverage_artifact_sha: coverage?.digest || null, workflow_run_ids: mainRun ? [String(mainRun.id)] : []};
             const request = {
               repository: `${owner}/${repo}`, repository_role: process.env.REPOSITORY_ROLE, main_sha: mainSha, main_parents: commit.data.parents.map(parent => parent.sha), timestamp: new Date().toISOString(),
               originating_pr: pr ? {number: pr.data.number, state: pr.data.merged ? "MERGED" : "OPEN", base_ref: pr.data.base.ref, head_sha: pr.data.head.sha, merge_commit_sha: pr.data.merge_commit_sha, merge_strategy: pr.data.merge_commit_sha === mainSha && commit.data.parents.length === 1 ? "SQUASH" : "MERGE", merge_actor: pr.data.merged_by?.login, merged_at: pr.data.merged_at, changed_files: prFiles.map(file => file.filename), main_changed_files: (commit.data.files || []).map(file => file.filename)} : null,
               pre_merge: pr ? {candidate_sha: pr.data.head.sha, risk_classification: risk, owner_authorization: risk === "HIGH_RISK" ? (ownerStatus?.state === "SUCCESS" ? "PASS" : "FAIL") : "PASS", verification: checkPass("Trusted Delivery qualification / Qualify trusted delivery") ? "PASS" : "FAIL", software_assurance: checkPass("Software Assurance governance / Validate canonical governance policy") ? "PASS" : "FAIL", trusted_delivery: checkPass("Trusted Delivery qualification / Qualify trusted delivery") ? "PASS" : "FAIL", workflow_integrity: checkPass("Trusted Delivery qualification / Qualify trusted delivery") ? "PASS" : "FAIL", required_checks: contextNodes.every(item => item.__typename === "CheckRun" ? item.conclusion === "SUCCESS" || item.conclusion === "SKIPPED" : item.state === "SUCCESS") ? "PASS" : "FAIL"} : null,
-              post_merge: {sha: mainSha, ci: okMain ? "PASS" : "FAIL", tests: okMain ? "PASS" : "FAIL", lint: okMain ? "PASS" : "FAIL", static_analysis: okMain ? "PASS" : "FAIL", build_validation: okMain ? "PASS" : "FAIL", governance: okMain ? "PASS" : "FAIL", coverage: coverage ? "PASS" : "FAIL", coverage_report_sha: coverage ? mainSha : null, coverage_artifact_sha: coverage?.digest || null, workflow_run_ids: mainRun ? [String(mainRun.id)] : []}
+              post_merge: postMerge
             };
             fs.writeFileSync("reconciliation-request.json", JSON.stringify(request));
 
