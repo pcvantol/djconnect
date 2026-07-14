@@ -69,6 +69,12 @@ qualified Apple build -> immutable unsigned artifact + checksum
   -> local signing -> approved private device -> evidence
 ```
 
+This is the Apple-specific application of the canonical macOS capability
+model: Apple Native Build is CI / Qualification or Artifact Build, while Apple
+Secure Distribution Relay is Deployment. Private-Network Deployment Relay is a
+separate Deployment capability and never shares its credentials or workspace
+with Apple signing.
+
 The qualified Apple build workflow is the sole source of unsigned artifacts.
 The secure distribution relay consumes only the exact manifest-bound artifact;
 it cannot compile source, build an IPA or macOS binary, archive source,
@@ -77,10 +83,19 @@ publish TestFlight or publish to the App Store.
 
 Before local signing, the relay validates the candidate SHA, manifest ID,
 artifact ID, SHA-256 checksum, platform version, `INTERNAL_RELEASE` profile
-and explicitly allowlisted `target_device`. Generation 1 targets are the
-maintainer's MacBook, iPhone, iPad and Apple Watch. They are private Developer
-provisioning targets only; TestFlight, App Store and public distribution remain
-deferred.
+and explicitly allowlisted `target_device`. Generation 1 direct targets are
+the maintainer's MacBook, iPhone and iPad, represented by the typed values
+`macbook`, `iphone` and `ipad`. They are private Developer provisioning targets
+only; TestFlight, App Store and public distribution remain deferred.
+
+Apple Watch is an embedded companion of the universal iOS IPA, not a direct
+deployment target, separate artifact, release candidate, signing flow or
+manifest node. The manifest binds `paired_watch_validation=required|optional|disabled`
+for an iPhone or iPad target. The relay may validate paired-Watch availability,
+companion bundle presence/install state, companion bundle version and iOS-app
+compatibility. A future standalone watchOS product requires an explicit Apple
+architecture decision before direct Watch deployment or an independent Watch
+artifact/manifest/signing flow is introduced.
 
 Apple certificates, private signing keys and provisioning profiles remain only
 in the qualified macOS runner's local signing environment. They are never

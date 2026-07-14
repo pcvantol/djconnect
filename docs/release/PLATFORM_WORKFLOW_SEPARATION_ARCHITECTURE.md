@@ -47,13 +47,16 @@ and artifact permissions needed to record immutable evidence. Deployment jobs
 receive target credentials only in the job that mutates that target; they are
 unavailable to PR and evidence jobs.
 
-The qualified macOS runner has two isolated roles: Apple native build runner
-and private-network deployment relay. They use separate workflow jobs,
-permissions, secrets and workspaces. A relay job never inherits Apple signing
-credentials; an Apple build job never inherits private-network deployment
-credentials. The relay accepts only an approved manifest-bound qualified
-artifact and may perform only its allowlisted target deployment and health
-read-back.
+The qualified macOS runner has exactly three isolated capabilities: Apple
+Native Build Runner (CI / Qualification or Artifact Build), Private-Network
+Deployment Relay (Deployment), and Apple Secure Distribution Relay
+(Deployment). They use separate workflow jobs, permissions, secrets,
+workspaces, target allowlists and evidence records. Apple build jobs never
+inherit deployment credentials; the private-network relay never inherits Apple
+signing credentials; and the Apple secure-distribution relay never inherits Pi
+SSH, Home Assistant or ESP32 deployment credentials. Both relays accept only
+approved manifest-bound qualified artifacts and may perform only their own
+allowlisted target deployment and health read-back.
 
 See [CI Qualification Workflow Policy](CI_QUALIFICATION_WORKFLOW_POLICY.md),
 [Artifact / Release Evidence Policy](ARTIFACT_RELEASE_EVIDENCE_POLICY.md),

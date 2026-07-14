@@ -20,13 +20,17 @@ target-device builds.
 The Apple and Windows exceptions are native-toolchain requirements. A physical
 Pi or ESP32 is a deployment/Verification target, not a source build runner.
 
-The qualified macOS runner is also the single approved deployment relay for
-the maintainer's private Pi/ESP32 network. This is a narrow deployment-only
-exception: it consumes qualified artifacts, can initiate a Home Assistant
-Update-entity OTA request, install the qualified Home Assistant integration on
-the maintainer's production Home Assistant Pi 5, and read back Pi SSH, Home
-Assistant runtime or ESP32 web-runtime health. It never compiles Pi/ESP32/HA
-source, generates artifacts or publishes a release.
+The qualified macOS runner has exactly three bounded capabilities: Apple Native
+Build, Private-Network Deployment Relay and Apple Secure Distribution Relay.
+The first is a native build capability. The latter two are distinct
+deployment-only capabilities with separate jobs, permissions, secrets,
+workspaces, target allowlists and evidence. Private-Network Deployment Relay
+consumes qualified artifacts, can initiate a Home Assistant Update-entity OTA,
+install the qualified Home Assistant integration on the maintainer's production
+Home Assistant Pi 5, and read back Pi SSH, Home Assistant runtime or ESP32 web
+health. Apple Secure Distribution Relay locally signs only qualified unsigned
+Apple artifacts and deploys them to allowlisted private Apple devices. Neither
+relay compiles Pi/ESP32/HA source, generates artifacts or publishes a release.
 
 ## Canonical workflow mapping
 

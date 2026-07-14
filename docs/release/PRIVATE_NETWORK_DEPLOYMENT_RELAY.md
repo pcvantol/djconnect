@@ -3,15 +3,25 @@
 Status: `ARCHITECTURE_ALIGNED`  
 Scope: Platform Release Engineering Generation 1
 
-The qualified self-hosted macOS runner has three independent, bounded roles:
+The qualified self-hosted macOS runner has exactly three independent, bounded
+capabilities:
 
 1. Apple Native Build Runner
 2. Private Network Deployment Relay
 3. Apple Secure Distribution Relay
 
-All roles execute only through separate GitHub Actions jobs. They have distinct
+All capabilities execute only through separate GitHub Actions jobs. They have distinct
 permissions, secrets and workspaces. The Platform Release Runtime remains
 orchestration-only and never receives deployment or signing authority.
+
+| Capability | Workflow class | Purpose | Credential boundary |
+| --- | --- | --- | --- |
+| Apple Native Build Runner | CI / Qualification or Artifact Build | Build native Apple source, create qualified unsigned artifacts and build/artifact evidence. | Apple build toolchain only; no private-network deployment credentials and no Apple distribution-signing credentials unless an approved build contract requires them. |
+| Private-Network Deployment Relay | Deployment | Deploy manifest-bound HA and Pi artifacts, initiate manifest-bound ESP32 OTA through Home Assistant and perform bounded read-back. | Pi SSH, Home Assistant deployment/API and artifact-download access only; no Apple signing credentials. |
+| Apple Secure Distribution Relay | Deployment | Validate, locally sign and deploy qualified unsigned Apple artifacts to approved private devices. | Local Apple signing identity and provisioning only; no Pi SSH, Home Assistant credentials or ESP32 authority. |
+
+The two relay capabilities are never collapsed into one generic job: each has
+its own permissions, secrets, workspace, target allowlist and evidence record.
 
 ## Relay contract
 
@@ -44,6 +54,21 @@ source. Pi and ESP32 artifacts use their canonical distribution repositories.
 The HA integration uses an immutable checksum-bound qualified artifact; a
 GitHub Release is required only if its approved internal distribution policy
 requires publication.
+
+## Apple direct-target and companion contract
+
+Generation 1 permits only typed direct Apple `target_device` values `macbook`,
+`iphone` and `ipad`. The release manifest binds the direct target and the typed
+`paired_watch_validation` value `required`, `optional` or `disabled`.
+
+Apple Watch is not a direct deployment target, separate artifact, separate
+manifest node, release candidate or signing flow. The universal iOS IPA embeds
+the Watch companion. After iPhone or iPad installation, the relay may validate
+paired-Watch availability, companion bundle presence/install state, companion
+bundle version and compatibility with the installed iOS application. A future
+standalone watchOS product requires an explicit Apple architecture decision
+before it can introduce a Watch artifact, manifest node, direct deployment or
+independent signing/qualification.
 
 ## Apple signing boundary
 

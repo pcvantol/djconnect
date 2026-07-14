@@ -18,13 +18,19 @@ Status: `ARCHITECTURE_CORRECTED`
    ESP32 deployment target into a source-build runner. The local-network relay
    is a GitHub Actions execution path, not a deployment target or artifact
    producer.
-7. The macOS runner has three independent roles: Apple Native Build Runner,
+7. The macOS runner has exactly three independent capabilities: Apple Native Build Runner,
    Private Network Deployment Relay and Apple Secure Distribution Relay. They
-   have distinct jobs, permissions, secrets and workspaces. A relay may consume
-   only an approved manifest-bound qualified artifact, perform one allowlisted
-   target mutation and record redacted evidence; it is not a general-purpose
+   have distinct jobs, permissions, secrets, workspaces, target allowlists and
+   evidence records. Apple Native Build is CI / Qualification or Artifact Build;
+   the two relay capabilities are Deployment-only. A relay may consume only an
+   approved manifest-bound qualified artifact, perform one allowlisted target
+   mutation and record redacted evidence; it is not a general-purpose
    private-network automation runner.
 8. Apple Secure Distribution Relay signing uses only the runner-local signing
    environment. Apple certificates, private keys and provisioning profiles are
    never GitHub secrets, workflow artifacts or deployment evidence. The relay
    never compiles source or generates unsigned Apple artifacts.
+9. Apple Native Build has no private-network deployment credentials. Private-
+   Network Deployment Relay has no Apple signing credentials. Apple Secure
+   Distribution Relay has no Pi SSH, Home Assistant or ESP32 deployment
+   credentials.

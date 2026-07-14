@@ -25,6 +25,13 @@ Linux builds run on GitHub-hosted runners. Apple and Windows builds run only on
 their qualified self-hosted native runners. Raspberry Pi and ESP32 remain
 deployment/runtime-validation targets, never source-build runners.
 
+The qualified macOS runner has exactly three isolated capabilities: Apple
+Native Build (CI / Qualification or Artifact Build), Private-Network Deployment
+Relay (Deployment), and Apple Secure Distribution Relay (Deployment). They use
+separate jobs, permissions, credentials, workspaces, target allowlists and
+deployment evidence. The Runtime dispatches their bounded workflows and reads
+their evidence only.
+
 ## Apple artifact model
 
 Generation 1 has two Apple artifacts: one universal iOS IPA for iPhone, iPad
@@ -32,6 +39,12 @@ and its embedded Apple Watch companion app, and one native macOS application.
 visionOS is deferred. The Runtime must not create separate iPad or Watch
 artifact nodes. See [Apple Release Architecture](APPLE_RELEASE_ARCHITECTURE.md)
 for the target and workflow evidence.
+
+Apple direct deployment targets are the typed values `macbook`, `iphone` and
+`ipad`. The manifest binds the direct target and typed companion relation
+`paired_watch_validation=required|optional|disabled`. Apple Watch remains
+embedded-companion validation, never a direct deployment target or a separate
+release-manifest node in Generation 1.
 
 Every operational deployment workflow must accept the bounded dispatch inputs
 `action`, `candidate_sha`, `execution_mode`, `manifest_id`, `artifact_id`,
