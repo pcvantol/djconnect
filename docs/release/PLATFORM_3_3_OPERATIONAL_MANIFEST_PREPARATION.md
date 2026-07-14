@@ -1,14 +1,13 @@
 # Platform Release 3.3 — Operational Manifest Preparation
 
 Date: 2026-07-14  
-Decision: `PLATFORM_RELEASE_3_3_MANIFEST_REAPPROVAL_REQUIRED_AFTER_PI_ARTIFACT_REBINDING`
+Decision: `PLATFORM_RELEASE_3_3_MANIFEST_APPROVED_DEPLOYMENT_DISPATCH_PENDING`
 
 ## Scope
 
-This record contains the exact, artifact-bound manifest for the requested
-`3.3.0` `INTERNAL_RELEASE`. A qualified Raspberry Pi artifact rebinding
-superseded the earlier approval, so it does not authorize or dispatch a
-deployment, signing, installation, OTA or smoke workflow until reapproved.
+This record contains the approved exact, artifact-bound manifest for the
+requested `3.3.0` `INTERNAL_RELEASE`. It does not authorize or dispatch a
+deployment, signing, installation, OTA or smoke workflow.
 
 ## Prepared manifest
 
@@ -26,12 +25,12 @@ download location and SHA-256. The consolidated ledger is in
 
 ## Approval record and Pi rebinding
 
-The maintainer explicitly approved the previous exact manifest bindings at
-`2026-07-14T15:28:33Z`. The Pi `v3.3.0` artifact was subsequently republished
-from qualified source SHA `661e26e78b45acb2bade57a63c0f68effc3652be` with
-SHA-256 `6fa3f2f3de6062b8d69c48886bf04374592bbbe404a2856b89450e1acbe1422a`.
-That changes an exact binding, so fresh approval is required. Approval never
-runs a workflow; every deployment and smoke remains a separately authorized,
+The maintainer explicitly approved the updated exact manifest bindings at
+`2026-07-14T19:00:45Z`, including the Pi `v3.3.0` artifact republished from
+qualified source SHA `661e26e78b45acb2bade57a63c0f68effc3652be` with SHA-256
+`6fa3f2f3de6062b8d69c48886bf04374592bbbe404a2856b89450e1acbe1422a`.
+This approval supersedes the earlier binding approval. Approval never runs a
+workflow; every deployment and smoke remains a separately authorized,
 manifest-bound operation.
 
 ## Known operational gates
@@ -48,6 +47,5 @@ manifest-bound operation.
 
 ## Next action
 
-Obtain fresh approval of the rebound exact manifest, then separate
-authorization for the first target-scoped deployment. Do not begin deployment
-or smoke automatically.
+Obtain separate authorization for the first target-scoped deployment. Do not
+begin deployment or smoke automatically.
