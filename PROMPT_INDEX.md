@@ -33,10 +33,10 @@ may be changed only by a dedicated Engineering Governance prompt.
 
 | Prompt | Lifecycle | Coherent objective | Branch | Completion evidence |
 | --- | --- | --- | --- | --- |
-| Engineering Workflow Alignment | Active | Establish the mandatory canonical AI-native engineering workflow without implementation changes. | `codex/engineering-workflow-alignment` | `docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md` |
+| Engineering Workflow Alignment | Completed | Establish the mandatory canonical AI-native engineering workflow without implementation changes. | `codex/engineering-workflow-alignment` | `docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md`; PR [#107](https://github.com/pcvantol/djconnect/pull/107) |
 
-No subsequent canonical prompt is active or authorized. It may be drafted only
-after this increment has produced its one reviewable pull request.
+No subsequent canonical prompt is active or authorized. A future prompt may be
+drafted only after this increment's reviewable pull request exists.
 
 ## Active Next Phase
 
