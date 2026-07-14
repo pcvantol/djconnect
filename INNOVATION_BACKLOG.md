@@ -9,7 +9,7 @@ it follows `INNOVATION_PROMOTION_POLICY.md`.
 
 | Initiative | Category | Priority | Status | Dependencies | Promotion path |
 | --- | --- | --- | --- | --- | --- |
-| Dedicated Now Playing Music Search | Product Innovation | P1 | Innovation Lab | structured Ask DJ music-search capability, profile/privacy contract | Product Development after capability-boundary review |
+| Dedicated Music Search UX | Product Innovation | P1 | Innovation Lab | structured Ask DJ music-search capability, profile/privacy contract | Product Development only after explicit GO and promotion; then create a new owner and `Planned` or `Backlog` record |
 | Lyrics Explain and Live Lyrics | AI Innovation | P2 | Innovation Lab | licensing, provider coverage and shared-display privacy | Product Development after research GO |
 | VibeCast Guest Companion | Product Innovation | P2 | Innovation Lab | guest-session security and privacy review | Product Development after prototype evaluation |
 | Ambient Client capability budget | Product Innovation | P2 | Innovation Lab | shared-profile and display privacy analysis | Product Development after architecture review |
@@ -19,9 +19,10 @@ it follows `INNOVATION_PROMOTION_POLICY.md`.
 | Contract Fixture Compatibility Dashboard | Platform Innovation | P3 | Innovation Lab | verification and client conformance evidence | Platform Evolution after research GO |
 | Foundation language lint | Platform Innovation | P3 | Innovation Lab | terminology policy and false-positive assessment | Platform Evolution after research GO |
 
-## Dedicated Now Playing Music Search boundary
+## Dedicated Music Search UX boundary
 
-The candidate reuses the backend-owned Ask DJ music-search capability and the
+This Innovation Lab candidate is not a delivery commitment. It reuses the
+backend-owned Ask DJ music-search capability and the
 existing music-backend and playback abstractions for Windows, iPhone/iPad and
 macOS. Its dedicated request scope is limited to `music.search`,
 `playback.play_selected` and eligible `music_dna.record_selection` events.
@@ -31,6 +32,8 @@ out-of-scope actions. Typed and editable speech input use the same contract.
 
 An explicit, successful selection may be recorded only for the active profile
 when Music DNA is enabled. Unsubmitted input, speech audio, unselected results
-and failed searches are not preference signals. This candidate is not a second
-search backend, general Ask DJ UI, search history or provider-specific client
-implementation.
+and failed searches are not preference signals. It becomes Product Development
+work only after an explicit GO and promotion decision; that promotion creates a
+new owner and a new `Planned` or `Backlog` status. This candidate is not a
+second search backend, general Ask DJ UI, search history or provider-specific
+client implementation.

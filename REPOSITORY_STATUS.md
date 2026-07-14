@@ -82,10 +82,11 @@ remains frozen. The historical 3.3 dry run passed, but its candidate branches
 and evidence are historical and cannot authorize the current `main` SHAs.
 The current release decision is `PLATFORM_RELEASE_3_3_CANDIDATE_BLOCKED` until
 fresh candidate, verification, coverage and Trusted Delivery evidence is
-bound to a current-main manifest. The merged deployment architecture includes
-bounded private-network and Apple distribution relays plus post-deployment
-smoke policy; the Pi manifest-bound deployment/smoke workflow is merged but
-has not been dispatched. No operational Internal Release has occurred.
+bound to a current-main manifest. The Generation 1 deployment architecture and
+smoke policy are qualified and frozen, but Release 3.3 deployment consumers
+and smoke capability must still be operationally implemented and qualified
+against an approved current-main manifest. No operational Internal Release or
+production deployment has occurred, and no operational burn-in exists.
 
 Prompt 5 certification remains generated but inactive. It requires completed
 operational release and burn-in evidence; it is not the next automatic action.
@@ -102,10 +103,10 @@ Prompt 3 governance preparation selected the proposed
 `SINGLE_MAINTAINER_GOVERNANCE_READY` model. It resolves the documented
 single-maintainer approval deadlock through risk-based qualification.
 
-Final Prompt 3 rollout authorization is now in progress. GitHub `main`
-protection, rulesets and workflow permissions are deployed, while the
-qualification consumer and CODEOWNERS remain pending on governed pull requests.
-Prompt 3 is not complete and Prompt 4 remains blocked.
+Historical intermediate record: at that point, Prompt 3 rollout authorization
+was in progress; GitHub `main` protection, rulesets and workflow permissions
+were deployed while the qualification consumer and CODEOWNERS remained pending
+on governed pull requests. This is not an active state.
 
 Post-merge audit found that direct default-branch action references are pinned,
 but a recursive reusable-workflow source at a historical immutable commit still
@@ -114,8 +115,9 @@ immediately rolled back after the Pi representative run proved the defect.
 Prompt 3 completed Trusted Delivery implementation. Native GitHub SHA
 enforcement is an accepted compatibility exception (`TD-GITHUB-001`), because
 the isolated reproducer proved pre-job failure for valid cross-repository
-reusable workflows. Recursive immutable workflow governance is the active
-compensating control; Prompt 4 is active but has not been executed.
+reusable workflows. Recursive immutable workflow governance was the
+compensating control recorded at that point; this is historical context, not
+an active prompt state.
 
 Prompt 4 has certified the completed Trusted Delivery platform with decision
 `SOFTWARE_ASSURANCE_TRUSTED_DELIVERY_CERTIFIED`. Software Assurance Generation
@@ -128,10 +130,9 @@ Governance, Workflow Governance, Risk Classification, Recursive Workflow
 Closure and Immutable Workflow Governance are operationally frozen. Product
 Development is the primary engineering program.
 
-The corrective recursive workflow-closure validator and canonical pointer
-remediation are now prepared for review. This does not re-enable enforcement:
-all consumer pointers must merge, then platform-wide closure and live GitHub
-read-back checks must pass before Prompt 3 can complete.
+Historical intermediate record: a corrective recursive workflow-closure
+validator and canonical pointer remediation were prepared for review. This
+does not supersede the current authoritative closure state above.
 
 The architecture closure review found that foundation, verification platform,
 meta engineering, repository bootstrap, cross-repository governance,
