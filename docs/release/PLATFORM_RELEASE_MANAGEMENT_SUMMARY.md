@@ -1,9 +1,41 @@
 # Platform Release 3.3 — Management Summary
 
+Current decision: `PLATFORM_RELEASE_3_3_CANDIDATE_BLOCKED`
+
 Historical decision: `PLATFORM_RELEASE_DRY_RUN_PASSED`
 
-The 3.3 release-candidate dry run is ready for the next explicitly authorized
-phase. The remediation resolved exactly the three recorded findings:
+## Current release position
+
+Platform Release Engineering is qualified as a reusable Generation 1
+capability, but Platform Release 3.3 is not authorized for operational
+execution. The prior candidate branches and their exact-SHA evidence were
+merged and removed; they are historical evidence and cannot qualify the
+current `main` commits.
+
+The architecture and policy contracts for the bounded private-network relay,
+Apple Secure Distribution Relay and post-deployment smoke validation are
+merged on `main`. The Pi repository also has a merged manifest-bound
+deployment and smoke workflow. It has not been dispatched. No production
+target has been mutated, no tag or GitHub Release has been created, and no
+operational deployment or burn-in evidence exists.
+
+Before an Internal Release can be authorized, the platform must:
+
+1. complete and qualify the manifest-bound deployment and smoke consumers for
+   every required target in the approved release manifest;
+2. reconstruct a fresh 3.3 candidate manifest from the exact current `main`
+   SHAs;
+3. bind new verification, coverage, Software Assurance and Trusted Delivery
+   evidence to that candidate; and
+4. obtain explicit authorization for the bounded manifest-bound deployment
+   dispatches.
+
+Platform Release Certification is deferred until after a successful
+operational release and sufficient burn-in evidence. It cannot substitute for
+any of the prerequisites above.
+
+The historical 3.3 release-candidate dry run resolved exactly the three
+recorded findings:
 
 1. Website release metadata now synchronizes versioned references and the
    displayed release version through all generated localized source pages.

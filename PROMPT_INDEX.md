@@ -10,30 +10,38 @@ not required.
 
 ### Platform Release Engineering Generation 1
 
-The 2026-07-13 Internal Release architecture correction returned
-`RELEASE_ARCHITECTURE_CORRECTED`. Codex is the release control plane only;
-Apple and Windows use qualified self-hosted native build runners, while HA,
-API, Website, ESP32 and Pi source builds use GitHub-hosted Linux. ESP32 and Pi
-remain artifact-consuming deployment targets. The next release activity, if
-explicitly authorized, is the operational Internal Release using this corrected
-architecture; it must not reopen or redesign Release Architecture.
+The reusable Release Architecture is frozen and the Release Orchestrator is
+complete for its planning, simulation and evidence-binding contract. The
+historical Platform Release 3.3 dry run returned
+`PLATFORM_RELEASE_DRY_RUN_PASSED`; formal Generation 1 capability
+qualification returned `PLATFORM_RELEASE_QUALIFIED`.
 
-The final native runner alignment returned
-`NATIVE_RUNNER_ALIGNMENT_COMPLETE`: representative Apple and Windows native
-GitHub Actions workflows built and uploaded artifacts on the qualified
-self-hosted runners without `startup_failure`. The operational readiness
-result is `PLATFORM_RELEASE_3_3_INTERNAL_READY`. The next explicit phase may
-execute the first operational Internal Release; it must not reopen runner
-alignment or Release Architecture.
+The corrected execution model is now recorded on `main`: Codex is the release
+control plane, GitHub Actions is the exclusive execution engine, Apple and
+Windows native builds use their qualified self-hosted runners, and Home
+Assistant, API, Website, ESP32 and Pi source builds use GitHub-hosted Linux.
+Pi and ESP32 remain artifact-consuming deployment and Verification targets.
+The qualified macOS runner has the three separately bounded capabilities
+defined in `docs/release/`: Apple Native Build, Private-Network Deployment
+Relay and Apple Secure Distribution Relay.
 
-Prompt 1 froze the Platform Release Architecture and Prompt 2 qualified the
-simulation-only Platform Release Orchestrator. Prompt 3 remediation
-re-executed the platform-wide release dry run for platform version `3.3` and
-returned `PLATFORM_RELEASE_DRY_RUN_PASSED`. Prompt 4 formally qualified the
-Generation 1 release capability with decision
-`PLATFORM_RELEASE_QUALIFIED`. The Platform Release Architecture remains frozen
-and no redesign is recommended. Prompt 5 Platform Release Certification is
-generated but inactive. Canonical evidence is under `docs/release/`.
+No operational Platform Release 3.3 has been executed. The former candidate
+branches are historical and have been removed after merge; they cannot
+authorize the current `main` SHAs. The current decision is therefore
+`PLATFORM_RELEASE_3_3_CANDIDATE_BLOCKED` until a fresh exact-SHA candidate
+manifest, qualification/coverage evidence and approved release manifest are
+created. The Pi manifest-bound deployment and post-deployment smoke workflow
+has been merged but has not been dispatched. Equivalent operational deployment
+consumers must be completed and qualified for every required target in the
+approved Internal Release manifest before deployment may be authorized.
+
+The next release-engineering activity is not certification or an automatic
+release. It is explicit, scoped preparation of the remaining deployment
+consumers and their non-destructive smoke evidence, followed by fresh
+candidate reconstruction from current `main`. Only then may an explicitly
+authorized Internal Release execute. Platform Release Certification remains a
+separate later decision that requires real operational and burn-in evidence.
+Canonical evidence and contracts are under `docs/release/`.
 
 The Software Assurance Platform architecture sprint has completed with decision
 `SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE`. Software Assurance
@@ -307,15 +315,16 @@ branch protection; it must not execute automatically.
 Status:
 
 ```text
-PLATFORM_RELEASE_QUALIFIED
+PLATFORM_RELEASE_3_3_CANDIDATE_BLOCKED
 ```
 
 Prompt 1 froze the reusable Platform Release Architecture with decision
 `PLATFORM_RELEASE_ARCHITECTURE_COMPLETE`. Prompt 2 implemented and qualified
 the simulation-only Platform Release Orchestrator with decision
-`PLATFORM_RELEASE_ORCHESTRATOR_QUALIFIED`. No repository versions changed and
-no release was executed. The canonical architecture, runtime and completion
-reports are:
+`PLATFORM_RELEASE_ORCHESTRATOR_QUALIFIED`. Prompt 3 returned
+`PLATFORM_RELEASE_DRY_RUN_PASSED` and Prompt 4 returned
+`PLATFORM_RELEASE_QUALIFIED`. No operational platform release has been
+executed. The canonical architecture, runtime and completion reports are:
 
 - `docs/release/PLATFORM_RELEASE_ARCHITECTURE.md`
 - `docs/release/RUNTIME.md`
@@ -323,27 +332,48 @@ reports are:
 - `docs/release/PROMPT_01_RELEASE_ARCHITECTURE_COMPLETION.md`
 - `docs/release/PROMPT_02_RELEASE_ORCHESTRATOR_COMPLETION.md`
 
-The next release-engineering action is generated but inactive:
+The `main` branch also contains the corrected runner/deployment architecture,
+the private-network and Apple distribution relay contracts, and the bounded
+post-deployment smoke policy. Pi has a merged manifest-bound deployment and
+smoke workflow; it has not been dispatched. No fresh candidate manifest or
+exact-SHA evidence bundle exists for the current set of `main` commits, and
+the remaining required deployment consumers have not yet been completed and
+qualified. Consequently no deployment, tag, GitHub Release or publication is
+authorized.
 
-1. [Prompt 5: Platform Release Certification](prompts/release/PROMPT_05_PLATFORM_RELEASE_CERTIFICATION.md)
+The next explicit release-engineering sequence is:
 
-Prompt 5 may start only after explicit authorization. It owns objective
-release certification and must not publish, tag or mutate a distribution
-channel.
+1. Complete and qualify the manifest-bound deployment and bounded smoke
+   consumers required by the approved Internal Release target set.
+2. Reconstruct a Platform 3.3 candidate manifest from the then-current
+   `main` SHAs and bind new verification, coverage and Trusted Delivery
+   evidence to those SHAs.
+3. Obtain explicit authorization for the Internal Release and execute only
+   the approved manifest-bound workflow dispatches.
+4. Collect operational and burn-in evidence before considering
+   [Prompt 5: Platform Release Certification](prompts/release/PROMPT_05_PLATFORM_RELEASE_CERTIFICATION.md).
+
+Prompt 5 is generated but inactive. It must not start automatically and must
+not be used to waive missing candidate, deployment or operational evidence.
 
 Release-engineering clean-session command:
 
 ```text
-Read docs/release/PLATFORM_RELEASE_ARCHITECTURE.md, docs/release/RUNTIME.md
-and prompts/release/PROMPT_05_PLATFORM_RELEASE_CERTIFICATION.md. Execute
-Prompt 5 only when explicitly authorized.
+Read docs/release/PLATFORM_RELEASE_ARCHITECTURE.md,
+docs/release/PLATFORM_RELEASE_RUNTIME_ARCHITECTURE.md,
+docs/release/DEPLOYMENT_WORKFLOW_POLICY.md and
+docs/release/PLATFORM_RELEASE_MANAGEMENT_SUMMARY.md. Do not dispatch a
+release until the current-main candidate and required deployment consumers are
+qualified and explicit authorization is supplied.
 ```
 
 Use this clean-session prompt for future operator-directed work:
 
 ```text
-Read `docs/release/PLATFORM_RELEASE_QUALIFICATION.md` and execute Prompt 5
-only when it is explicitly authorized. Do not execute it implicitly.
+Read `docs/release/PLATFORM_RELEASE_MANAGEMENT_SUMMARY.md` and the canonical
+deployment contracts. Reconstruct evidence for current `main` only after the
+required deployment consumers are qualified; do not execute an Internal
+Release or Prompt 5 implicitly.
 ```
 
 ## Prompt Table

@@ -25,6 +25,9 @@ release process the source of truth.
   outcome and qualification evidence.
 - `PLATFORM_RELEASE_QUALIFICATION.md` records the completed Generation 1
   capability qualification and its objective decision.
+- `PLATFORM_RELEASE_MANAGEMENT_SUMMARY.md` records the current Platform 3.3
+  release position, including the distinction between historical dry-run
+  evidence and the exact-SHA evidence required for the current `main` commits.
 - `PLATFORM_RELEASE_COMPLIANCE_REPORT.md`,
   `PLATFORM_RELEASE_OPERATIONAL_READINESS.md` and
   `PLATFORM_RELEASE_GAP_ANALYSIS.md` record the supporting compliance,
