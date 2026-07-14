@@ -6,12 +6,13 @@
   "release_version": "3.3.0",
   "candidate_basis": "remote_main",
   "generated_at": "2026-07-14",
+  "manifest_gate_checked_at": "2026-07-14",
   "approval": {
     "state": "MISSING",
     "reason": "No current-main candidate has qualified evidence or explicit release authorization."
   },
   "repositories": [
-    {"repository": "pcvantol/djconnect", "source_sha": "a3ebb17c74367bd7cf8e5db24bb3f7f0baf89364", "version": "3.3.0", "version_state": "REQUESTED_NOT_VERIFIED"},
+    {"repository": "pcvantol/djconnect", "source_sha": "fd4e3016078ae0c6e598daebbfce081ba662f3a8", "version": "3.3.0", "version_state": "REQUESTED_NOT_VERIFIED"},
     {"repository": "pcvantol/djconnect-app", "source_sha": "d9bca9a54960277434ba2bf440bd11fd51ab0f89", "version": "3.3.0", "version_state": "REQUESTED_NOT_VERIFIED"},
     {"repository": "pcvantol/djconnect-windows", "source_sha": "d395fbe7e624b6f86a355f4c2756321a6c85cb9f", "version": "3.3.0", "version_state": "REQUESTED_NOT_VERIFIED"},
     {"repository": "pcvantol/djconnect-pi", "source_sha": "d8c604672abeb62c0b295a848bbd06c6d186cdb3", "version": "3.3.0", "version_state": "REQUESTED_NOT_VERIFIED"},
@@ -28,7 +29,7 @@
   },
   "artifact_bindings": {
     "state": "MISSING",
-    "reason": "No current qualified artifacts or SHA-256 bindings exist."
+    "reason": "The 2026-07-14 manifest gate found only post-merge release-evidence artifacts for the current main SHAs; no current qualified deployable artifact or SHA-256 binding exists."
   },
   "required_evidence": {
     "verification": "MISSING",
