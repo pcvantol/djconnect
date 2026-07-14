@@ -66,8 +66,8 @@ Architecture or Product Architecture changed.
 
 **Decision:** `ENGINEERING_METHOD_V2_3_ESTABLISHED`
 **Branch:** `codex/engineering-method-v2-3`
-**Commit SHA:** reviewable branch `HEAD` (recorded by the pull request)
-**Pull Request:** reviewable pull request for this increment
+**Commit SHA:** `2f2e3db399f14386fd9eb4091637056d76eb9256`
+**Pull Request:** [#118](https://github.com/pcvantol/djconnect/pull/118)
 **Validation:** synchronization/current-main verification, governance-document
 contract review and `git diff --check`
 **Updated governance documents:** bootstrap, engineering method, prompt

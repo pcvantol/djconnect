@@ -180,10 +180,10 @@ architecture are stable enough to freeze.
 ## Current Prompt
 
 Engineering Method V2.3 Repository Synchronization is complete with decision
-`ENGINEERING_METHOD_V2_3_ESTABLISHED`; its reviewable pull request is the
-completion evidence recorded in `PROMPT_INDEX.md`. No subsequent prompt is
-active. Future work must be selected from verified current roadmap and backlog
-evidence; it must not be inferred from historical prompt order.
+`ENGINEERING_METHOD_V2_3_ESTABLISHED`; its reviewable pull request is
+[#118](https://github.com/pcvantol/djconnect/pull/118). No subsequent prompt
+is active. Future work must be selected from verified current roadmap and
+backlog evidence; it must not be inferred from historical prompt order.
 
 ## Completion Report
 

@@ -42,7 +42,7 @@ verification before this index, repository state or planning is read.
 | --- | --- | --- | --- | --- |
 | Engineering Workflow Alignment | Completed | Establish the mandatory canonical AI-native engineering workflow without implementation changes. | `codex/engineering-workflow-alignment` | `docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md`; PR [#107](https://github.com/pcvantol/djconnect/pull/107) |
 | Engineering Method V2 Governance Alignment | Completed | Establish repository-driven V2 onboarding, reality verification, prompt archival and hygiene without implementation or architecture changes. | `codex/engineering-method-v2` | `docs/history/prompts/2026-07-14-engineering-method-v2.md`; PR [#114](https://github.com/pcvantol/djconnect/pull/114) |
-| Engineering Method V2.3 Repository Synchronization | Completed | Make synchronized current main and current-main verification mandatory before repository reading and planning; no implementation or architecture changes. | `codex/engineering-method-v2-3` | `docs/history/prompts/2026-07-14-engineering-method-v2-3.md`; reviewable pull request for this increment |
+| Engineering Method V2.3 Repository Synchronization | Completed | Make synchronized current main and current-main verification mandatory before repository reading and planning; no implementation or architecture changes. | `codex/engineering-method-v2-3` | `docs/history/prompts/2026-07-14-engineering-method-v2-3.md`; PR [#118](https://github.com/pcvantol/djconnect/pull/118) |
 
 No subsequent canonical prompt is active or authorized. A future prompt may be
 drafted only after this increment's reviewable pull request exists.
