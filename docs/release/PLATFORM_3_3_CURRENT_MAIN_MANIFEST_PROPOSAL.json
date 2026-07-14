@@ -53,15 +53,27 @@
   ],
   "evidence": {
     "artifact_integrity": "VERIFIED",
-    "deployment_evidence": "NOT_STARTED",
-    "post_deployment_smoke": "NOT_STARTED",
+    "deployment_evidence": "PARTIAL: rbpi-djconnect deployment evidence verified",
+    "post_deployment_smoke": "PARTIAL: rbpi-djconnect smoke evidence verified",
     "operational_credential_scope": "NOT_DISCLOSED; each deployment workflow must validate its own least-privilege scope."
   },
+  "target_execution_evidence": [
+    {
+      "target": "rbpi-djconnect",
+      "candidate_sha": "661e26e78b45acb2bade57a63c0f68effc3652be",
+      "artifact_id": "release-asset:pcvantol/djconnect-pi-releases:v3.3.0:djconnect-pi-3.3.0.tar.gz",
+      "artifact_sha256": "6fa3f2f3de6062b8d69c48886bf04374592bbbe404a2856b89450e1acbe1422a",
+      "deployment_workflow_run": "29361051673",
+      "smoke_workflow_run": "29361739009",
+      "result": "DEPLOYMENT_OPERATIONAL",
+      "verified_at": "2026-07-14T19:25:31Z"
+    }
+  ],
   "constraints": [
     "Each deployment and smoke workflow still requires separate target-scoped authorization.",
     "Apple artifacts are unsigned handoff artifacts only; local Developer provisioning occurs only in the Apple Secure Distribution Relay.",
     "Apple Watch is a required paired-iPhone companion validation, not a direct deployment target.",
     "Windows x64 is published but is not bound to this ARM64-only Internal Release."
   ],
-  "next_authorized_action": "Obtain fresh explicit approval of this rebound manifest. Afterwards obtain separate authorization for one or more target-scoped, manifest-bound deployments; run the corresponding smoke only after each successful deployment."
+  "next_authorized_action": "Obtain separate authorization for one remaining target-scoped, manifest-bound deployment; run its corresponding smoke only after that target's successful deployment."
 }
