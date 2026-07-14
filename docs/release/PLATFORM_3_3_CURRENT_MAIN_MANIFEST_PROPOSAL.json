@@ -1,22 +1,24 @@
 {
   "schema_version": 1,
   "kind": "platform_release_operational_manifest",
-  "status": "ARTIFACT_REBINDING_APPROVAL_REQUIRED",
+  "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
   "manifest_id": "release-3.3.0-internal-20260714",
   "platform_version": "3.3",
   "release_version": "3.3.0",
   "release_profile": "INTERNAL_RELEASE",
   "generated_at": "2026-07-14",
   "approval": {
-    "state": "SUPERSEDED_BY_PI_ARTIFACT_REBINDING",
-    "previous_approval": {
-      "approved_at": "2026-07-14T15:28:33Z",
-      "approved_statement": "I explicitly approve operational manifest release-3.3.0-internal-20260714 for the listed targets and exact artifacts."
+    "state": "APPROVED",
+    "approved_at": "2026-07-14T19:00:45Z",
+    "approved_statement": "I explicitly approve updated operational manifest release-3.3.0-internal-20260714 for the listed targets and exact artifacts, including the rebound Raspberry Pi artifact.",
+    "supersedes": {
+      "previous_approval": {
+        "approved_at": "2026-07-14T15:28:33Z",
+        "approved_statement": "I explicitly approve operational manifest release-3.3.0-internal-20260714 for the listed targets and exact artifacts."
+      },
+      "reason": "The Raspberry Pi artifact binding changed to qualified source candidate 661e26e78b45acb2bade57a63c0f68effc3652be and SHA-256 6fa3f2f3de6062b8d69c48886bf04374592bbbe404a2856b89450e1acbe1422a."
     },
-    "superseded_at": "2026-07-14T18:52:14Z",
-    "superseded_reason": "The qualified Raspberry Pi source candidate and published v3.3.0 checksum changed. The updated exact artifact binding requires fresh manifest approval before any deployment dispatch.",
-    "required_approval": "I explicitly approve updated operational manifest release-3.3.0-internal-20260714 for the listed targets and exact artifacts, including the rebound Raspberry Pi artifact.",
-    "effect": "After fresh approval, deployment and post-deployment smoke remain separately dispatched, target-scoped operations; approval does not dispatch them automatically."
+    "effect": "Deployment and post-deployment smoke remain separately dispatched, target-scoped operations; approval does not dispatch them automatically."
   },
   "repositories": [
     {"repository": "pcvantol/djconnect", "source_sha": "77d28dcf1f19f1a4faed72746e11686375358c86", "version": "3.3.0", "artifact_run": "29334531145"},

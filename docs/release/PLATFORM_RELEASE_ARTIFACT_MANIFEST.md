@@ -1,11 +1,11 @@
 # Platform Release 3.3 — Artifact Manifest
 
-Execution state: `MANIFEST_REAPPROVAL_REQUIRED_AFTER_PI_ARTIFACT_REBINDING`.
+Execution state: `MANIFEST_APPROVED_DEPLOYMENT_DISPATCH_PENDING`.
 
 The requested `3.3.0` `INTERNAL_RELEASE` now has immutable, checksum-bound
 artifacts for every required deployment target. The Raspberry Pi artifact was
-republished from a newly qualified source candidate, so the canonical,
-machine-readable binding is pending fresh approval before deployment:
+republished from a newly qualified source candidate and the canonical,
+machine-readable binding has been explicitly reapproved:
 [`PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json`](PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json).
 It is checksum-verified release evidence, not a deployment dispatch authorization.
 
@@ -27,7 +27,6 @@ The separate Windows x64 asset is intentionally not a required target binding.
 
 The Pi target was contacted only by its read-only readiness verification. No
 release artifact has been installed, signed, deployed or smoke-tested. The
-previous manifest approval at `2026-07-14T15:28:33Z` is superseded because the
-Pi artifact binding changed. Fresh approval of
-`release-3.3.0-internal-20260714` is required; each deployment and its
-subsequent smoke still requires a separate target-scoped authorization.
+updated manifest `release-3.3.0-internal-20260714` was explicitly approved at
+`2026-07-14T19:00:45Z`; each deployment and its subsequent smoke still
+requires a separate target-scoped authorization.
