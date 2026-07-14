@@ -47,14 +47,43 @@ jobs:
       - name: Validate authorized smoke scope before network access
         env:
           HA_CONFIG_PATH: ${{ secrets.DJCONNECT_HA_DEPLOY_CONFIG_PATH }}
+          HA_CONTAINER: ${{ secrets.DJCONNECT_HA_DEPLOY_CONTAINER }}
           HA_API_URL: ${{ secrets.DJCONNECT_HA_SMOKE_API_URL }}
           HA_API_TOKEN: ${{ secrets.DJCONNECT_HA_SMOKE_API_TOKEN }}
         run: |
           set -euo pipefail
           test -n "$HA_CONFIG_PATH"
           test -d "$HA_CONFIG_PATH"
+          test -n "$HA_CONTAINER"
           test -n "$HA_API_URL"
           test -n "$HA_API_TOKEN"
+      - id: manifest
+        name: Require approved central operational manifest source
+        shell: bash
+        env:
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          MANIFEST_ID: ${{ inputs.manifest_id }}
+          ARTIFACT_ID: ${{ inputs.artifact_id }}
+          ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
+          TARGET: ${{ inputs.target }}
+          RELEASE_PROFILE: ${{ inputs.release_profile }}
+        run: |
+          set -euo pipefail
+          manifest="$(mktemp)"
+          trap 'rm -f "$manifest"' EXIT
+          curl --fail --silent --show-error --location \
+            https://raw.githubusercontent.com/pcvantol/djconnect/main/docs/release/PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json \
+            --output "$manifest"
+          test "$(jq -r '.status' "$manifest")" = APPROVED_DEPLOYMENT_DISPATCH_PENDING
+          test "$(jq -r '.approval.state' "$manifest")" = APPROVED
+          test "$(jq -r '.manifest_id' "$manifest")" = "$MANIFEST_ID"
+          test "$(jq -r '.release_profile' "$manifest")" = "$RELEASE_PROFILE"
+          release_version="$(jq -r --arg sha "$CANDIDATE_SHA" '.repositories[] | select(.repository == "pcvantol/djconnect" and .source_sha == $sha) | .version' "$manifest")"
+          printf '%s' "$release_version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'
+          jq -e --arg target "$TARGET" --arg artifact "$ARTIFACT_ID" --arg sha "$ARTIFACT_SHA256" \
+            '.artifact_bindings[] | select(.target == $target and (.artifact_id | tostring) == $artifact and .artifact_sha256 == $sha)' \
+            "$manifest" >/dev/null
+          printf 'release_version=%s\n' "$release_version" >> "$GITHUB_OUTPUT"
       - name: Download deployment evidence
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
@@ -78,14 +107,116 @@ jobs:
           test "$(jq -r '.artifact_sha256' "$evidence")" = "$ARTIFACT_SHA256"
           test "$(jq -r '.target' "$evidence")" = "$TARGET"
           test "$(jq -r '.deployment_result' "$evidence")" = DEPLOYED_PENDING_SMOKE
-      - name: Read bounded Home Assistant health
+      - name: Read bounded Home Assistant health and installed integration version
+        env:
+          HA_API_URL: ${{ secrets.DJCONNECT_HA_SMOKE_API_URL }}
+          HA_API_TOKEN: ${{ secrets.DJCONNECT_HA_SMOKE_API_TOKEN }}
+          HA_CONFIG_PATH: ${{ secrets.DJCONNECT_HA_DEPLOY_CONFIG_PATH }}
+          RELEASE_VERSION: ${{ steps.manifest.outputs.release_version }}
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --retry 3 --retry-delay 5 --max-time 10 --header "Authorization: Bearer $HA_API_TOKEN" "$HA_API_URL/api/" > /tmp/ha-health.json
+          jq -e '.message == "API running."' /tmp/ha-health.json >/dev/null
+          test "$(jq -r '.version' "$HA_CONFIG_PATH/custom_components/djconnect/manifest.json")" = "$RELEASE_VERSION"
+      - name: Verify authenticated Home Assistant WebSocket handshake
         env:
           HA_API_URL: ${{ secrets.DJCONNECT_HA_SMOKE_API_URL }}
           HA_API_TOKEN: ${{ secrets.DJCONNECT_HA_SMOKE_API_TOKEN }}
         run: |
           set -euo pipefail
-          curl --fail --silent --show-error --retry 3 --retry-delay 5 --max-time 10 --header "Authorization: Bearer $HA_API_TOKEN" "$HA_API_URL/api/" > /tmp/ha-health.json
-          jq -e '.message == "API running."' /tmp/ha-health.json >/dev/null
+          python3 - <<'PY'
+          import base64
+          import json
+          import os
+          import secrets
+          import socket
+          import ssl
+          from urllib.parse import urlparse
+
+          api_url = urlparse(os.environ["HA_API_URL"])
+          if api_url.scheme not in {"http", "https"} or not api_url.hostname:
+              raise SystemExit("invalid Home Assistant API URL")
+          scheme = "wss" if api_url.scheme == "https" else "ws"
+          port = api_url.port or (443 if scheme == "wss" else 80)
+          connection = socket.create_connection((api_url.hostname, port), timeout=10)
+          if scheme == "wss":
+              connection = ssl.create_default_context().wrap_socket(connection, server_hostname=api_url.hostname)
+          connection.settimeout(10)
+          key = base64.b64encode(secrets.token_bytes(16)).decode("ascii")
+          host = api_url.hostname if api_url.port is None else f"{api_url.hostname}:{api_url.port}"
+          request = "\\r\\n".join((
+              "GET /api/websocket HTTP/1.1",
+              f"Host: {host}",
+              "Upgrade: websocket",
+              "Connection: Upgrade",
+              f"Sec-WebSocket-Key: {key}",
+              "Sec-WebSocket-Version: 13",
+              "\\r\\n",
+          )).encode("ascii")
+          connection.sendall(request)
+          response = b""
+          while b"\\r\\n\\r\\n" not in response:
+              response += connection.recv(4096)
+          if not response.startswith(b"HTTP/1.1 101"):
+              raise SystemExit("Home Assistant WebSocket upgrade failed")
+
+          def receive_exact(size: int) -> bytes:
+              payload = b""
+              while len(payload) < size:
+                  chunk = connection.recv(size - len(payload))
+                  if not chunk:
+                      raise SystemExit("Home Assistant WebSocket closed unexpectedly")
+                  payload += chunk
+              return payload
+
+          def receive_text() -> str:
+              first, second = receive_exact(2)
+              length = second & 0x7f
+              if length == 126:
+                  length = int.from_bytes(receive_exact(2), "big")
+              elif length == 127:
+                  length = int.from_bytes(receive_exact(8), "big")
+              if second & 0x80:
+                  mask = receive_exact(4)
+              else:
+                  mask = None
+              payload = receive_exact(length)
+              if mask:
+                  payload = bytes(value ^ mask[index % 4] for index, value in enumerate(payload))
+              if first & 0x0f != 1:
+                  raise SystemExit("Home Assistant WebSocket did not return a text frame")
+              return payload.decode("utf-8")
+
+          def send_text(payload: dict[str, str]) -> None:
+              encoded = json.dumps(payload, separators=(",", ":")).encode("utf-8")
+              mask = secrets.token_bytes(4)
+              header = bytearray((0x81, 0x80 | len(encoded)))
+              if len(encoded) >= 126:
+                  header = bytearray((0x81, 0x80 | 126)) + len(encoded).to_bytes(2, "big")
+              masked = bytes(value ^ mask[index % 4] for index, value in enumerate(encoded))
+              connection.sendall(bytes(header) + mask + masked)
+
+          if json.loads(receive_text()).get("type") != "auth_required":
+              raise SystemExit("Home Assistant WebSocket auth challenge missing")
+          send_text({"type": "auth", "access_token": os.environ["HA_API_TOKEN"]})
+          if json.loads(receive_text()).get("type") != "auth_ok":
+              raise SystemExit("Home Assistant WebSocket authentication failed")
+          connection.close()
+          PY
+      - name: Verify bounded Home Assistant container startup and crash health
+        env:
+          HA_CONTAINER: ${{ secrets.DJCONNECT_HA_DEPLOY_CONTAINER }}
+        run: |
+          set -euo pipefail
+          test "$(docker inspect -f '{{.State.Running}}' "$HA_CONTAINER")" = true
+          test "$(docker inspect -f '{{.State.StartedAt}}' "$HA_CONTAINER")" != "0001-01-01T00:00:00Z"
+          restart_count="$(docker inspect -f '{{.RestartCount}}' "$HA_CONTAINER")"
+          [[ "$restart_count" =~ ^[0-9]+$ ]]
+          test "$restart_count" -lt 2
+          recent_logs="$(mktemp)"
+          trap 'rm -f "$recent_logs"' EXIT
+          docker logs --since 5m "$HA_CONTAINER" >"$recent_logs" 2>&1 || true
+          ! grep -Eiq 'Error setting up entry .* for djconnect|Failed setup, will retry.*djconnect|Exception.*custom_components\.djconnect' "$recent_logs"
       - name: Publish redacted smoke evidence
         env:
           CANDIDATE_SHA: ${{ inputs.candidate_sha }}
@@ -97,20 +228,17 @@ jobs:
           RELEASE_PROFILE: ${{ inputs.release_profile }}
           DEPLOYMENT_WORKFLOW_RUN: ${{ inputs.deployment_workflow_run }}
           SMOKE_WORKFLOW_RUN: ${{ github.run_id }}
+          RELEASE_VERSION: ${{ steps.manifest.outputs.release_version }}
         run: |
           python - <<'PY'
           from datetime import UTC, datetime
           import json, os
           with open("ha-private-smoke-evidence.json", "w", encoding="utf-8") as file:
               timestamp = datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
-              json.dump({"schema_version": 1, "kind": "post_deployment_smoke", "repository": os.environ["GITHUB_REPOSITORY"], "candidate_sha": os.environ["CANDIDATE_SHA"], "manifest_id": os.environ["MANIFEST_ID"], "artifact_id": os.environ["ARTIFACT_ID"], "artifact_sha256": os.environ["ARTIFACT_SHA256"], "target": os.environ["TARGET"], "platform_version": os.environ["PLATFORM_VERSION"], "release_profile": os.environ["RELEASE_PROFILE"], "deployment_workflow_run": os.environ["DEPLOYMENT_WORKFLOW_RUN"], "smoke_workflow_run": os.environ["SMOKE_WORKFLOW_RUN"], "runner_identity": "self-hosted-macos-private-network-deployment", "route_type": "authenticated_http_api", "protocol": "https", "endpoint_class": "home_assistant_api", "authentication_mode": "bearer_token", "expected_version": "NOT_IMPLEMENTED", "observed_version": "NOT_IMPLEMENTED", "health_result": "PASS", "websocket_result": "NOT_IMPLEMENTED", "startup_marker_result": "NOT_IMPLEMENTED", "crash_log_result": "NOT_IMPLEMENTED", "retry_count": 3, "stabilization_window": "not_implemented", "timestamps": {"completed_at": timestamp}, "final_result": "SMOKE_INCONCLUSIVE", "failure_classification": "smoke_contract_incomplete", "recovery_reference": "PLATFORM_3_3_HOME_ASSISTANT_PRIVATE_RELAY_BLOCKED.md", "timestamp": timestamp}, file, sort_keys=True)
+              json.dump({"schema_version": 1, "kind": "post_deployment_smoke", "repository": os.environ["GITHUB_REPOSITORY"], "candidate_sha": os.environ["CANDIDATE_SHA"], "manifest_id": os.environ["MANIFEST_ID"], "artifact_id": os.environ["ARTIFACT_ID"], "artifact_sha256": os.environ["ARTIFACT_SHA256"], "target": os.environ["TARGET"], "platform_version": os.environ["PLATFORM_VERSION"], "release_version": os.environ["RELEASE_VERSION"], "release_profile": os.environ["RELEASE_PROFILE"], "deployment_workflow_run": os.environ["DEPLOYMENT_WORKFLOW_RUN"], "smoke_workflow_run": os.environ["SMOKE_WORKFLOW_RUN"], "runner_identity": "self-hosted-macos-private-network-deployment", "route_type": "authenticated_http_api_and_websocket", "protocol": "https_wss", "endpoint_class": "home_assistant_api", "authentication_mode": "bearer_token", "expected_version": os.environ["RELEASE_VERSION"], "observed_version": os.environ["RELEASE_VERSION"], "health_result": "PASS", "websocket_result": "PASS", "startup_marker_result": "PASS", "crash_log_result": "PASS", "retry_count": 3, "stabilization_window": "up_to_20_seconds", "timestamps": {"completed_at": timestamp}, "final_result": "SMOKE_PASSED", "timestamp": timestamp}, file, sort_keys=True)
           PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: ha-private-smoke-evidence
           path: ha-private-smoke-evidence.json
           if-no-files-found: error
-      - name: Fail closed until the complete Home Assistant smoke contract exists
-        run: |
-          echo "SMOKE_INCONCLUSIVE: WebSocket, startup-marker and bounded crash-log checks are not implemented."
-          exit 1
