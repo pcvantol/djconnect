@@ -88,34 +88,41 @@ Avoid speculative implementation.
 # Preferred Workflow
 
 ```
-Understand
+Prompt
 
 ↓
 
-Plan
+Dedicated Branch
 
 ↓
 
-Implement
+Focused Implementation
 
 ↓
 
-Verify
+Validation
 
 ↓
 
-Document
+Documentation, Repository Status, Management Summary and Prompt Index Updates
 
 ↓
 
-Report
+Commit(s)
+
+↓
+
+Exactly One Reviewable Pull Request
 
 ↓
 
 Stop
 ```
 
-Do not continue into the next phase automatically.
+Treat one canonical prompt as one engineering increment and deliver it through
+one independently reviewable pull request. Work on a dedicated branch; merge
+is a separate explicit decision. Do not begin a subsequent canonical prompt
+until the preceding increment has its reviewable pull request.
 
 ---
 
@@ -241,13 +248,9 @@ Avoid changes that increase ambiguity.
 
 # Pull Requests
 
-Prefer:
-
-small,
-
-focused,
-
-reviewable pull requests.
+Every engineering increment must produce exactly one small, focused and
+reviewable pull request with one coherent objective. Do not combine unrelated
+work or create competing prompt scopes.
 
 One architectural concern per pull request whenever practical.
 
@@ -264,6 +267,11 @@ They should become smaller over time.
 Repository knowledge should become larger.
 
 The long-term goal is minimal prompts.
+
+Prompt lifecycle and ownership are canonical in `PROMPT_INDEX.md`: `Draft`,
+`Active`, `Completed`, `Deprecated` and `Archived`. Only one prompt may be
+`Active` during execution. Changing this Engineering Method requires a
+dedicated Engineering Governance prompt, never an implementation prompt.
 
 ---
 
@@ -289,7 +297,8 @@ Produce:
 - lessons learned where applicable;
 - next phase recommendation.
 
-Then stop.
+Update Repository Status, Management Summary and Prompt Index; commit the
+increment and open exactly one reviewable pull request. Then stop.
 
 Do not automatically continue into the next implementation phase.
 

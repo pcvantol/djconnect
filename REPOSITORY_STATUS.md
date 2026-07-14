@@ -63,6 +63,17 @@ environment blockers and returned `CROSS_PLATFORM_QUALIFIED`.
 
 Active.
 
+## Engineering Workflow
+
+Decision: `ENGINEERING_WORKFLOW_ALIGNED`
+
+The completed Engineering Governance increment establishes the canonical
+one-prompt/one-engineering-increment/one-reviewable-pull-request workflow.
+Its completion evidence is
+`docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md`, with reviewable PR
+[#107](https://github.com/pcvantol/djconnect/pull/107). No implementation
+scope was included.
+
 Platform Baseline v1.0 is certified. The current platform decision is
 `PLATFORM_BASELINE_V1_CERTIFIED`.
 
