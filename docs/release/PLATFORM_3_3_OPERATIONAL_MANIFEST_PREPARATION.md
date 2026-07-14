@@ -33,10 +33,10 @@ That approval superseded the earlier binding approval. The API release
 artifact was subsequently rebound to source
 `6f6dee8a6edf72b8a48fa347ef587ede2976badd`, artifact `8323208436` and
 SHA-256 `f9d8c29787297a939d16e6f3fab3f9cd4455518def4565830b5ca57f76a80819`
-after its deployment and smoke contracts became operational. The old approval
-is therefore superseded and a fresh exact-manifest approval is required.
-Approval never runs a workflow; every deployment and smoke remains a
-separately authorized, manifest-bound operation.
+after its deployment and smoke contracts became operational. The rebound exact
+manifest was explicitly reapproved at `2026-07-14T20:03:33Z`. Approval never
+runs a workflow; every deployment and smoke remains a separately authorized,
+manifest-bound operation.
 
 ## Known operational gates
 
@@ -52,5 +52,5 @@ separately authorized, manifest-bound operation.
 
 ## Next action
 
-Obtain a fresh exact-manifest approval, then separate authorization for one
-target-scoped deployment. Do not begin deployment or smoke automatically.
+Obtain separate authorization for one target-scoped deployment. Do not begin
+deployment or smoke automatically.

@@ -1,6 +1,6 @@
 # Platform Release 3.3 — Artifact Manifest
 
-Execution state: `MANIFEST_REAPPROVAL_REQUIRED`.
+Execution state: `MANIFEST_APPROVED_DEPLOYMENT_DISPATCH_PENDING`.
 
 The requested `3.3.0` `INTERNAL_RELEASE` now has immutable, checksum-bound
 artifacts for every required deployment target. The Raspberry Pi artifact was
@@ -27,7 +27,6 @@ The separate Windows x64 asset is intentionally not a required target binding.
 
 The Pi target is already deployment-operational with separately recorded
 deployment and smoke evidence. The API binding was later replaced with an
-artifact that exposes exact runtime release identity, so the prior manifest
-approval is superseded. A fresh approval is required before any new target
-deployment; each deployment and its subsequent smoke still requires separate
-target-scoped authorization.
+artifact that exposes exact runtime release identity. The rebound exact
+manifest was explicitly reapproved at `2026-07-14T20:03:33Z`; each deployment
+and its subsequent smoke still requires separate target-scoped authorization.
