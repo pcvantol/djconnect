@@ -44,7 +44,7 @@ without changing release architecture, target ownership or deployment policy.
 | Surface / owner | Observed local state | Required consumer gap | Status |
 | --- | --- | --- | --- |
 | Home Assistant (`djconnect`, `bea53ae7`) | Exact-main artifact producer plus separate private-relay deployment and smoke workflows are implemented; relay/environment are provisioned. Both workflows are fail-closed because no operational manifest source or HA credentials/install/smoke scope exists. | Supply the approved manifest source and target scope; complete HA WebSocket/startup/crash smoke checks; then explicitly qualify. | Implemented; operational qualification blocked |
-| API (`djconnect-api`, `b333484`) | CI/CD workflow includes deployment behaviour, but no platform-release execution or manifest-bound deployment/smoke contract was found. | Separate bounded API deployment and post-deployment smoke consumer if API is included by the manifest. | Missing |
+| API (`djconnect-api`, `b333484`) | Exact-main Worker artifact, manifest-input deployment and separate public-health smoke workflows are implemented. Deployment and smoke fail closed pending an approved operational manifest; smoke also lacks version/runtime-health read-back. | Supply the approved manifest and complete observable version/runtime-health checks, then explicitly qualify. | Implemented; operational qualification blocked |
 | Apple (`djconnect-app`, `465efc73`) | Qualified native builds and legacy/public release workflows exist. | Apple Secure Distribution Relay consuming a qualified artifact, typed allowlisted device and separate smoke evidence. | Missing |
 | Windows (`djconnect-windows`, `fb7757e`) | Qualified native Windows artifact build and legacy/public release workflow exist. | Manifest-bound internal deployment plus bounded installed-version/launch smoke evidence. | Missing |
 | Raspberry Pi (`djconnect-pi`, `b09b65d`) | CI and public-release workflow exist; Pi distribution repository is separate. | Private-network relay consumer that installs the manifest-bound Pi artifact, followed by separate runtime smoke evidence. | Missing |
@@ -65,9 +65,12 @@ without changing release architecture, target ownership or deployment policy.
 3. The Home Assistant artifact producer, relay and static deployment/smoke
    consumers are implemented, but operational execution is blocked by the
    absent operational-manifest, target credential and installation scopes.
-4. The Website consumer now implements the canonical artifact, deployment and
+4. The API consumer now implements canonical artifact, deployment and smoke
+   separation, but it has no operational evidence and its health route lacks
+   candidate-version/runtime-health read-back.
+5. The Website consumer now implements the canonical artifact, deployment and
    smoke separation, but it has no operational evidence and is not qualified.
-5. The historical execution-workflow matrix overstated rollout coverage. It
+6. The historical execution-workflow matrix overstated rollout coverage. It
    has been corrected and this inventory is its current evidence source.
 
 ## Verification and evidence
@@ -97,15 +100,18 @@ without changing release architecture, target ownership or deployment policy.
    architecture.
 2. Qualify the Website consumer only when a current approved manifest and
    explicit deployment authorization exist.
-3. Supply and validate the Home Assistant operational-manifest and target
+3. Supply and validate the API operational manifest, implement observable
+   version/runtime-health read-back and qualify it explicitly if the API is
+   required by the manifest.
+4. Supply and validate the Home Assistant operational-manifest and target
    credential/installation scope, then complete its bounded smoke contract and
    qualify it explicitly; then implement the Raspberry Pi and ESP32 consumers
    with the same boundary.
-4. Implement and qualify the Apple Secure Distribution Relay and the Windows
+5. Implement and qualify the Apple Secure Distribution Relay and the Windows
    internal deployment consumer using their already-qualified native artifacts.
-5. Add only the distribution/API consumers that the explicitly approved
-   manifest makes required. Then reconstruct the candidate from exact current
-   `main` SHAs and collect fresh evidence.
+6. Add only the distribution consumers that the explicitly approved manifest
+   makes required. Then reconstruct the candidate from exact current `main`
+   SHAs and collect fresh evidence.
 
 ## Known blockers
 
@@ -122,12 +128,13 @@ without changing release architecture, target ownership or deployment policy.
 
 ## Readiness and next phase
 
-The Website and Home Assistant static implementation steps are complete. The
-release remains not ready. The next phase is not started: it requires an
+The Website, Home Assistant and API static implementation steps are complete.
+The release remains not ready. The next phase is not started: it requires an
 explicit implementation prompt for another consumer or an explicitly
 authorized operational qualification with a current approved manifest.
 
-The Website implementation evidence is recorded in
-`PLATFORM_3_3_WEBSITE_DEPLOYMENT_CONSUMER_COMPLETION.md`. Any operational
+The Website and API implementation evidence is recorded in
+`PLATFORM_3_3_WEBSITE_DEPLOYMENT_CONSUMER_COMPLETION.md` and
+`PLATFORM_3_3_API_DEPLOYMENT_CONSUMER_COMPLETION.md`. Any operational
 qualification requires an explicit prompt and must not dispatch deployment or
 release workflows implicitly.

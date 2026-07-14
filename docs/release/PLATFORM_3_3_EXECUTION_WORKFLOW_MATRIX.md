@@ -17,7 +17,8 @@ current local checkouts. It must not be used as qualification evidence.
 | --- | --- | --- |
 | Home Assistant | GitHub-hosted Linux build; dedicated macOS private relay provisioned for deployment | Artifact, deployment and smoke workflows are implemented but fail closed pending an approved operational manifest, target credentials, installation contract and complete HA smoke checks. |
 | Website | GitHub-hosted Linux | Artifact, deployment and smoke consumers are implemented; operational qualification remains blocked pending a manifest-bound authorized run. |
-| API, Pi, ESP32 and distribution repositories | GitHub-hosted Linux | No platform-release execution contract found in the inspected checkout. |
+| API | GitHub-hosted Linux | Artifact, deployment and smoke workflows are implemented but fail closed pending an approved operational manifest and observable candidate-version/runtime-health smoke evidence. |
+| Pi, ESP32 and distribution repositories | GitHub-hosted Linux | No platform-release execution contract found in the inspected checkout. |
 | Apple | Qualified self-hosted macOS | Native build qualified; no inspected manifest-bound Apple Secure Distribution Relay consumer. |
 | Windows | Qualified self-hosted Windows | Native build qualified; no inspected manifest-bound internal deployment consumer. |
 
