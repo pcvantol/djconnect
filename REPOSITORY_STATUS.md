@@ -65,10 +65,19 @@ The Architecture Closure Review completed with decision
 a future evidence-backed Architecture Review demonstrates a genuine
 foundational gap.
 
-Platform Release Engineering Generation 1 has completed formal qualification
-with decision `PLATFORM_RELEASE_QUALIFIED`. Its architecture remains frozen,
-the orchestrator remains simulation-only, and Prompt 5 certification is
-generated but inactive pending explicit authorization.
+Platform Release Engineering Generation 1 has completed formal capability
+qualification with decision `PLATFORM_RELEASE_QUALIFIED`. Its architecture
+remains frozen. The historical 3.3 dry run passed, but its candidate branches
+and evidence are historical and cannot authorize the current `main` SHAs.
+The current release decision is `PLATFORM_RELEASE_3_3_CANDIDATE_BLOCKED` until
+fresh candidate, verification, coverage and Trusted Delivery evidence is
+bound to a current-main manifest. The merged deployment architecture includes
+bounded private-network and Apple distribution relays plus post-deployment
+smoke policy; the Pi manifest-bound deployment/smoke workflow is merged but
+has not been dispatched. No operational Internal Release has occurred.
+
+Prompt 5 certification remains generated but inactive. It requires completed
+operational release and burn-in evidence; it is not the next automatic action.
 
 Prompt 4 Software Assurance governance and rollout strategy are complete. The
 architecture decision is `SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE`.
@@ -119,19 +128,23 @@ architecture are stable enough to freeze.
 
 ## Blocking Dependencies
 
-- Prompt 3 may begin only through an explicit execution request. Prompt 4
-  remains blocked by its immediate predecessor.
-- ESP native coverage follow-up returned `ESP_COVERAGE_QUALIFIED`; it does not
-  reopen the completed Phase 17 decision.
-- CI workflow changes, scanner enablement, trusted delivery and release gates
-  are deferred Software Assurance implementation work.
-- Platform Baseline v1.0 is certified; no Platform-construction blockers
-  remain.
+- Platform Release 3.3 requires a fresh exact-SHA candidate manifest and new
+  verification, coverage, Software Assurance and Trusted Delivery evidence
+  for current `main` commits.
+- Every target required by the approved Internal Release manifest needs a
+  qualified, manifest-bound deployment consumer and bounded smoke evidence
+  before operational execution can be authorized.
+- Platform Release Certification requires a successful Internal Release and
+  sufficient burn-in evidence; it must not be started automatically.
+- Platform Baseline v1.0, Software Assurance Generation 1 and Trusted
+  Delivery are certified; no Platform-construction blocker remains.
 
 ## Current Prompt
 
-Software Assurance Generation 1 Prompt 3 — Trusted Delivery Platform
-(active; GitHub governance target documented but not applied).
+No Platform Release execution prompt is active. The next explicit work is
+Platform Release 3.3 deployment-consumer qualification, followed by current
+`main` candidate reconstruction. Do not dispatch a release without explicit
+authorization.
 
 ## Completion Report
 
