@@ -74,6 +74,23 @@ health read-back, recovery/rollback reference and final status. A failure
 stops the target-specific flow, preserves qualification evidence, marks release
 execution incomplete and does not automatically continue to another target.
 
+## Post-deployment smoke validation
+
+A production deployment is complete only after its bounded, non-destructive
+post-deployment smoke validation succeeds. Smoke is a deployment-evidence job,
+never CI, qualification or full Verification. It runs only after successful
+deployment mutation, consumes the same manifest-bound candidate/artifact/target
+identity, and checks only manifest-allowlisted canonical routes and bounded
+runtime sources. It uses read-only health, version, authenticated API,
+WebSocket or pairing handshakes; ping alone is never a pass condition.
+
+Required smoke targets fail closed for `SMOKE_FAIL` or `SMOKE_INCONCLUSIVE`.
+`DEPLOYMENT_OPERATIONAL` requires every required target to pass; otherwise the
+decision is `DEPLOYMENT_SMOKE_FAILED`, qualification evidence is preserved and
+automatic rollback is prohibited. The detailed contract and redacted schema
+are [Post-Deployment Smoke Test Policy](POST_DEPLOYMENT_SMOKE_TEST_POLICY.md)
+and [Post-Deployment Smoke Evidence Schema](POST_DEPLOYMENT_SMOKE_EVIDENCE_SCHEMA.md).
+
 ## Apple Secure Distribution Relay
 
 Apple internal deployment is a deployment-class job on the qualified macOS

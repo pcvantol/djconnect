@@ -106,3 +106,36 @@ class PrivateNetworkDeploymentRelayPolicyTest(unittest.TestCase):
         self.assertIn("paired_watch_validation=required|optional|disabled", apple)
         self.assertIn("not a direct deployment target, separate artifact, release candidate, signing flow or manifest node", apple)
         self.assertIn("not a direct deployment target, separate artifact, separate manifest node", relay)
+
+    def test_post_deployment_smoke_is_bounded_and_fail_closed(self) -> None:
+        policy = self._contract_text(RELEASE_DOCS / "POST_DEPLOYMENT_SMOKE_TEST_POLICY.md")
+        evidence = self._contract_text(RELEASE_DOCS / "POST_DEPLOYMENT_SMOKE_EVIDENCE_SCHEMA.md")
+
+        for token in (
+            "ICMP ping is diagnostic context only and is never a pass condition",
+            "HTTP and WebSocket are independent checks",
+            "`SMOKE_INCONCLUSIVE` fails closed",
+            "manifest-allowlisted private-target checks",
+            "may not create or revoke pairing credentials",
+            "must not invoke full Verification",
+            "DEPLOYMENT_OPERATIONAL",
+            "DEPLOYMENT_SMOKE_FAILED",
+        ):
+            self.assertIn(token, policy)
+        for token in (
+            "candidate_sha",
+            "artifact_sha256",
+            "deployment_workflow_run",
+            "smoke_workflow_run",
+            "websocket_result",
+            "crash_log_result",
+            "must not include credentials, tokens",
+        ):
+            self.assertIn(token, evidence)
+
+    def test_smoke_preserves_the_verification_boundary(self) -> None:
+        boundary = self._contract_text(RELEASE_DOCS / "VERIFICATION_VS_RELEASE.md")
+        runner_policy = self._contract_text(RELEASE_DOCS / "RUNNER_POLICY.md")
+
+        self.assertIn("does not invoke functional scenarios, hardware qualification, destructive testing or burn-in", boundary)
+        self.assertIn("Smoke is read-only, cannot scan the network or mutate a target", runner_policy)

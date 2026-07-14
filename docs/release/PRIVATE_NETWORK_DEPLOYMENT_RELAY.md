@@ -93,3 +93,20 @@ deployment result, post-deployment version, health read-back and recovery or
 rollback reference. Apple evidence may identify the signing identity but never
 contains signing material. Failure stops the target flow, preserves
 qualification evidence and marks release execution incomplete.
+
+## Post-deployment smoke relay capability
+
+After an authorized private-network deployment completes, the Private-Network
+Deployment Relay may run a separate, read-only smoke-evidence job for only the
+manifest-allowlisted targets and canonical routes. It validates bounded
+reachability, protocol handshake, expected version, startup health and absence
+of immediate crash behaviour; it never scans the network, runs broad shell
+diagnostics, mutates pairing, reboots/flashes a target, or invokes full
+Verification. The Apple Secure Distribution Relay performs the same bounded
+read-back only for its manifest-bound Apple deployment targets, with no
+private-network credentials.
+
+Smoke evidence is a separate redacted record. Required targets must emit
+`SMOKE_PASS`; a `SMOKE_FAIL` or `SMOKE_INCONCLUSIVE` makes the deployment
+`DEPLOYMENT_SMOKE_FAILED` and preserves qualification evidence. See
+[Post-Deployment Smoke Test Policy](POST_DEPLOYMENT_SMOKE_TEST_POLICY.md).

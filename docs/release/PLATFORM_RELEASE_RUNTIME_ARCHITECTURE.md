@@ -32,6 +32,13 @@ separate jobs, permissions, credentials, workspaces, target allowlists and
 deployment evidence. The Runtime dispatches their bounded workflows and reads
 their evidence only.
 
+An authorized deployment is operational only after a separate bounded,
+non-destructive smoke-evidence workflow validates its manifest-allowlisted
+routes and runtime health. The Runtime consumes its redacted result; it does
+not perform smoke requests itself or replace Verification Platform evidence.
+The final deployment decision is `DEPLOYMENT_OPERATIONAL` only when all
+required smoke targets pass, otherwise `DEPLOYMENT_SMOKE_FAILED`.
+
 ## Apple artifact model
 
 Generation 1 has two Apple artifacts: one universal iOS IPA for iPhone, iPad

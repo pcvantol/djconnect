@@ -34,3 +34,9 @@ Status: `ARCHITECTURE_CORRECTED`
    Network Deployment Relay has no Apple signing credentials. Apple Secure
    Distribution Relay has no Pi SSH, Home Assistant or ESP32 deployment
    credentials.
+10. The qualified macOS relay may run bounded post-deployment smoke checks only
+    in a separate deployment-evidence job and only against manifest-allowlisted
+    private targets/routes. Smoke is read-only, cannot scan the network or
+    mutate a target, and is not a Verification Platform job. Its credentials,
+    workspace and evidence remain target-scoped and isolated from Apple build
+    and Apple secure-distribution jobs.
