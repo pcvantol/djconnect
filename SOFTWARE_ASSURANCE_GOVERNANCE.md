@@ -2,11 +2,13 @@
 
 Status: canonical governance  
 Scope owner: `pcvantol/djconnect`  
-Phase: architecture frozen; Software Assurance Generation 1 active; Prompt 1 ready for explicit execution
+Phase: Generation 1 complete and operationally frozen; future improvements use Platform Evolution
 
 ## Purpose
 
-This document defines governance for future Software Assurance implementation.
+This document preserves the governance model established for Software
+Assurance Generation 1 and governs only future approved Platform Evolution
+extensions.
 
 It freezes architecture ownership and defines how Software Assurance backlog
 items, findings, gates and future implementation work are governed.
@@ -44,8 +46,9 @@ Software Assurance implementation may begin only after all of these are true:
 These prerequisites must not be weakened by repository-local prompts,
 workflow changes or partial milestone pressure.
 
-They are satisfied. Prompt 1 completed the reusable CI Governance Foundation;
-Prompt 2 is active and remains subject to explicit authorization.
+They were satisfied. Prompts 1 through 4 completed; Software Assurance and
+Trusted Delivery are certified and operationally frozen. No Generation 1 prompt
+remains active.
 
 ## Ownership
 

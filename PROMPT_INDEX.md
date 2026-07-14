@@ -2,6 +2,16 @@
 
 Status: canonical prompt navigation
 
+## Generation 2 navigation
+
+`ROADMAP_INDEX.md` is the canonical navigation for the three Generation 2
+engineering programs. This Prompt Index remains the source only for approved
+execution prompts; it does not own product or Platform Evolution prioritization.
+Historical Software Assurance and release prompts remain evidence records; they
+do not become active without a new explicitly approved prompt.
+`ENGINEERING_PLATFORM_GENERATION_1_COMPLETION_REPORT.md` records the completed
+Generation 1 program and the transition to Generation 2.
+
 This index tells clean Codex and AI-agent sessions which verification prompt is
 active, what came before it and which evidence proves status. Chat history is
 not required.
@@ -71,13 +81,13 @@ returned `PLATFORM_TEST_COVERAGE_IMPROVEMENT_COMPLETE`: its immutable
 historical matrix added Home Assistant, ESP32 firmware and Voice Assistant
 coverage responsibility. The subsequent ESP native coverage follow-up returned
 `ESP_COVERAGE_QUALIFIED`. Platform Baseline v1.0 Certification accepted the
-completed evidence. The next platform-program activity is Software Assurance
-implementation through its explicit registered Prompt 3. Prompts 1 and 2
-completed the reusable foundation and cross-repository rollout.
+completed evidence. Software Assurance Prompts 1 through 4 subsequently
+completed; their resulting capabilities are operationally frozen and no
+Software Assurance prompt is currently active.
 
 Generation 1 Platform Engineering is formally closed and frozen. Platform
-Evolution is the current lifecycle, and Software Assurance Generation 1 is the
-active engineering program. Do not reopen Platform Engineering.
+Evolution is the current lifecycle; Software Assurance Generation 1 is complete
+and operationally frozen. Do not reopen Platform Engineering.
 
 Phase 9V rerun has qualified the Verification Platform using the dedicated
 local Home Assistant verification lab. The canonical planner selected the

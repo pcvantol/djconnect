@@ -1,5 +1,36 @@
 # DJConnect Product Roadmap
 
+**Status:** Canonical Generation 2 product roadmap
+
+## Active roadmap
+
+This is the single active roadmap for DJConnect Product Development. Every
+active item below has this program as owner and uses one of the canonical
+statuses: Completed, Operational, In Progress, Planned, Backlog, Innovation
+Lab or Deferred. `ROADMAP_INDEX.md` owns cross-program navigation.
+
+| Initiative | Status | Dependencies | Delivery order |
+| --- | --- | --- | --- |
+| Product Definition and Community/Personal proposition | Planned | product research and five-language product copy | 1 |
+| Website redesign | Backlog | Product Definition | 2 |
+| Multi-user Profiles | Planned | existing Profile foundation and privacy validation | 2 |
+| Music DNA | Planned | Multi-user Profiles | 3 |
+| Ask DJ | Planned | Multi-user Profiles and Music DNA boundaries | 3 |
+| Playback Experience | Planned | Music Backend capability contract | 2 |
+| Discover | Backlog | Music DNA and recommendation evidence | 5 |
+| Track Insight | Backlog | Insight provider contract | 4 |
+| Voice | Backlog | Ask DJ and Assist capability validation | 5 |
+| VibeCast | Backlog | Insight Feed and shared-profile privacy | 5 |
+
+The retained material after this section is pre-Generation 2 product and
+release memory. It is not an active roadmap, does not establish current
+ownership or priority, and must not be used to bypass the table above.
+
+Innovation Lab is the source of potential future product candidates. A
+candidate appears in this roadmap only after an explicit GO and promotion
+decision; its receiving Product Development record then has a new owner and a
+new `Planned` or `Backlog` status.
+
 Canonical product roadmap for all DJConnect repositories. This file lives only
 in the Home Assistant integration repo `pcvantol/djconnect` and is the leading
 product roadmap for:
@@ -16,10 +47,10 @@ This roadmap is broader than `TODO.md`: not every idea here is committed scope.
 Use it to shape releases, validate demand and decide what belongs in the free
 local/Home Assistant product versus optional premium features.
 
-Product Strategy now lives in `docs/product/PRODUCT_STRATEGY.md`. This
-top-level roadmap remains pre-baseline product and release memory until a
-future post-baseline product-roadmap phase explicitly formalizes or replaces
-it. Innovation Labs remain the canonical home for unvalidated product ideas.
+Product Strategy lives in `docs/product/PRODUCT_STRATEGY.md`. The Generation 2
+table above is the active Product Development roadmap; the retained sections
+below are pre-Generation 2 product and release memory only. Innovation Labs
+remain the canonical home for unvalidated product ideas.
 
 ## Product Proposition
 

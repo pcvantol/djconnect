@@ -6,6 +6,10 @@ It is **not** a roadmap. Inclusion here does not imply commitment, priority, or 
 
 Ideas should be promoted to `PRODUCT_ROADMAP.md` only after they align with the Constitution, Product Vision, Design Principles, Architecture Principles, and implementation capacity.
 
+The active Innovation Lab work register is `INNOVATION_BACKLOG.md`; promotion
+rules are owned by `INNOVATION_PROMOTION_POLICY.md`. The labels below describe
+idea maturity, not an additional roadmap-status system.
+
 Runtime evolution research belongs in `docs/research/`, not in the Innovation
 Lab. Product ideas remain here; strategic runtime questions such as Home
 Assistant-only, standalone runtime, hosted runtime or cloud runtime belong to

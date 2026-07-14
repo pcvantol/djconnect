@@ -1,8 +1,11 @@
-# DJConnect Platform Backlog
+# DJConnect Platform Backlog — Generation 1 archive
 
-This is the canonical high-level platform backlog for DJConnect.
+This document preserves Generation 1 platform-program history and completion
+evidence. It is not an active roadmap or backlog.
 
-It is not a sprint board and not a replacement for GitHub issues. It defines the main epics and their intended order.
+The canonical active Platform Evolution backlog is
+`PLATFORM_EVOLUTION_BACKLOG.md`. Active product work is in
+`PRODUCT_ROADMAP.md`; Innovation Lab work is in `INNOVATION_BACKLOG.md`.
 
 ## Status legend
 

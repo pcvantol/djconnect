@@ -1,6 +1,6 @@
 # Software Assurance Activation Report
 
-Status: complete
+Status: historical activation record
 Repository: `pcvantol/djconnect`
 Activation timestamp: 2026-07-12T19:09:55Z
 
@@ -10,9 +10,11 @@ Activation timestamp: 2026-07-12T19:09:55Z
 SOFTWARE_ASSURANCE_GENERATION_1_ACTIVE
 ```
 
-Software Assurance Generation 1 is the active engineering program. This is a
-governance activation only; it does not implement Software Assurance, alter
-Platform Architecture, or alter the Verification Runtime.
+This record captured the initial Software Assurance Generation 1 activation.
+It is superseded as current status by
+`docs/software_assurance/SOFTWARE_ASSURANCE_GENERATION_1_CLOSURE_REPORT.md`:
+Generation 1 is complete and operationally frozen. The activation did not
+alter Platform Architecture or the Verification Runtime.
 
 ## Satisfied Historical Prerequisite
 
@@ -54,7 +56,7 @@ foundation navigation, prerequisite and roadmap-transition navigation, and the
 four canonical prompt headers. Historical completion reports and implementation
 specification content remain unchanged.
 
-## Stop Condition
+## Historical stop condition
 
-Prompt 1 is ready for explicit execution. This activation does not execute it,
-and no later prompt may execute until its immediate predecessor completes.
+At the time of activation, Prompt 1 was ready for explicit execution. This is
+historical context only; no Software Assurance prompt is currently active.

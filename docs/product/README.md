@@ -60,25 +60,17 @@ experiments.
 Ideas do not move into Product Strategy just because they are interesting.
 They move only after validation shows they represent durable product direction.
 
-## Relationship With Future Product Roadmap
+## Relationship With Product Roadmap
 
-A formal Product Roadmap stage under this Product Strategy does not yet exist.
+`PRODUCT_ROADMAP.md` is the formal Generation 2 Product Development roadmap.
+It owns strategic sequencing and must not become an idea dump or engineering
+backlog. Retained pre-Generation 2 roadmap content is historical memory only.
 
-The existing top-level `PRODUCT_ROADMAP.md` remains pre-baseline product and
-release memory until a future post-baseline product-roadmap phase explicitly
-formalizes or replaces it.
+## Relationship With Product Backlog
 
-The future Product Roadmap will own strategic sequencing. It should not become
-an idea dump or engineering backlog.
-
-## Relationship With Future Product Backlog
-
-The Product Backlog does not yet exist.
-
-It should be introduced only after Platform Baseline v1.0 has been certified,
-real product learning begins and the Product Roadmap has selected strategic
-direction. The Product Backlog will own selected engineering work, not product
-strategy.
+The Product Backlog is introduced only after Product Roadmap selection and
+approved discovery/architecture work. It owns selected engineering work, not
+product strategy.
 
 ## Current Documents
 

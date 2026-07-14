@@ -12,12 +12,12 @@ execution. The prior candidate branches and their exact-SHA evidence were
 merged and removed; they are historical evidence and cannot qualify the
 current `main` commits.
 
-The architecture and policy contracts for the bounded private-network relay,
-Apple Secure Distribution Relay and post-deployment smoke validation are
-merged on `main`. The Pi repository also has a merged manifest-bound
-deployment and smoke workflow. It has not been dispatched. No production
-target has been mutated, no tag or GitHub Release has been created, and no
-operational deployment or burn-in evidence exists.
+The Generation 1 release architecture and policy contracts are qualified and
+frozen. They do not constitute operational deployment consumers or smoke
+capability for Release 3.3. Those consumers must still be implemented and
+qualified for the approved manifest before an operational release can be
+authorized. No production target has been mutated, no tag or GitHub Release
+has been created, and no operational deployment or burn-in evidence exists.
 
 Before an Internal Release can be authorized, the platform must:
 
@@ -52,10 +52,11 @@ Apple and Windows native build paths are now qualified through successful
 GitHub Actions runner workflows with uploaded unsigned artifacts and exact
 SHA evidence. The architecture assigns Apple to the self-hosted macOS runner
 and Windows to the self-hosted Windows runner; other source builds remain
-GitHub-hosted Linux work. The resulting decision is
-`NATIVE_RUNNER_ALIGNMENT_COMPLETE` and the release platform is
-`PLATFORM_RELEASE_3_3_INTERNAL_READY` for the next explicitly authorized
-operational Internal Release phase.
+GitHub-hosted Linux work. The resulting historical capability decision is
+`NATIVE_RUNNER_ALIGNMENT_COMPLETE`. It does not make Release 3.3 operationally
+ready: the current Release 3.3 decision remains
+`PLATFORM_RELEASE_3_3_CANDIDATE_BLOCKED` pending qualified deployment consumers,
+smoke capability and current-main candidate evidence.
 
 ## Current candidate reconstruction
 
