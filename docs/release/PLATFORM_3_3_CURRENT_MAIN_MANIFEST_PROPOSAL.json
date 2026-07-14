@@ -1,24 +1,29 @@
 {
   "schema_version": 1,
   "kind": "platform_release_operational_manifest",
-  "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
+  "status": "ARTIFACT_REBINDING_APPROVAL_REQUIRED",
   "manifest_id": "release-3.3.0-internal-20260714",
   "platform_version": "3.3",
   "release_version": "3.3.0",
   "release_profile": "INTERNAL_RELEASE",
   "generated_at": "2026-07-14",
   "approval": {
-    "state": "APPROVED",
-    "approved_at": "2026-07-14T15:28:33Z",
-    "approved_statement": "I explicitly approve operational manifest release-3.3.0-internal-20260714 for the listed targets and exact artifacts.",
-    "effect": "Deployment and post-deployment smoke remain separately dispatched, target-scoped operations; this approval does not dispatch them automatically."
+    "state": "SUPERSEDED_BY_PI_ARTIFACT_REBINDING",
+    "previous_approval": {
+      "approved_at": "2026-07-14T15:28:33Z",
+      "approved_statement": "I explicitly approve operational manifest release-3.3.0-internal-20260714 for the listed targets and exact artifacts."
+    },
+    "superseded_at": "2026-07-14T18:52:14Z",
+    "superseded_reason": "The qualified Raspberry Pi source candidate and published v3.3.0 checksum changed. The updated exact artifact binding requires fresh manifest approval before any deployment dispatch.",
+    "required_approval": "I explicitly approve updated operational manifest release-3.3.0-internal-20260714 for the listed targets and exact artifacts, including the rebound Raspberry Pi artifact.",
+    "effect": "After fresh approval, deployment and post-deployment smoke remain separately dispatched, target-scoped operations; approval does not dispatch them automatically."
   },
   "repositories": [
     {"repository": "pcvantol/djconnect", "source_sha": "77d28dcf1f19f1a4faed72746e11686375358c86", "version": "3.3.0", "artifact_run": "29334531145"},
     {"repository": "pcvantol/djconnect-api", "source_sha": "835f682709556c18fbe702ffef358732f8173525", "version": "3.3.0", "artifact_run": "29330481465"},
     {"repository": "pcvantol/djconnect-app", "source_sha": "8eaf56f64c5bf080eb09f02f25384128db0538cb", "version": "3.3.0", "artifact_run": "29337964248"},
     {"repository": "pcvantol/djconnect-windows", "source_sha": "6c0c3c3478c81472e479184dc03e51fd095dc4b2", "version": "3.3.0", "artifact_run": "29338767948"},
-    {"repository": "pcvantol/djconnect-pi", "source_sha": "c300a7514daedbffdcc1e21185eca52290954a0c", "version": "3.3.0", "artifact_run": "29338767600"},
+    {"repository": "pcvantol/djconnect-pi", "source_sha": "661e26e78b45acb2bade57a63c0f68effc3652be", "version": "3.3.0", "artifact_run": "29359466200"},
     {"repository": "pcvantol/djconnect-esp32", "source_sha": "9f8a32482b8ea9fb322a29688955f5a4f26b001d", "version": "3.3.0", "artifact_run": "29341765254"},
     {"repository": "pcvantol/djconnect-website", "source_sha": "370619fb65abaa25a21f5459dfec01056660b445", "version": "3.3.0", "artifact_run": "29343585969"}
   ],
@@ -38,7 +43,7 @@
     {"owner": "pcvantol/djconnect-api", "target": "cloudflare_workers_production", "artifact_id": "8309742606", "artifact_sha256": "bdc02ce45b5f1fdee0e1a71b940e01ee3993b82830214c3cc280839081b027b1", "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/29330481465"},
     {"owner": "pcvantol/djconnect-website", "target": "cloudflare_pages_production", "artifact_id": "8315080769", "artifact_sha256": "1cfa1b47d077e913526b2696a0748f5ecce933e0cf35f22580168b0e3742362d", "artifact_url": "https://github.com/pcvantol/djconnect-website/actions/runs/29343585969"},
     {"owner": "pcvantol/djconnect-esp32", "target": "esp32_lilygo_t_embed_s3", "artifact_id": "release-asset:pcvantol/djconnect-firmware:v3.3.0:djconnect-lilygo-t-embed-s3-v3.3.0.bin", "artifact_sha256": "c25444d3ef414489848fd2d8de624785c82eb90195cc861bcb63085e0df3ceeb", "artifact_url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.3.0/djconnect-lilygo-t-embed-s3-v3.3.0.bin"},
-    {"owner": "pcvantol/djconnect-pi", "target": "rbpi-djconnect", "artifact_id": "release-asset:pcvantol/djconnect-pi-releases:v3.3.0:djconnect-pi-3.3.0.tar.gz", "artifact_sha256": "26b66e7a24b353f4b4c38ee1a59076e5dff14b9e089981bb44c3f7e29a453963", "artifact_url": "https://github.com/pcvantol/djconnect-pi-releases/releases/download/v3.3.0/djconnect-pi-3.3.0.tar.gz"},
+    {"owner": "pcvantol/djconnect-pi", "target": "rbpi-djconnect", "artifact_id": "release-asset:pcvantol/djconnect-pi-releases:v3.3.0:djconnect-pi-3.3.0.tar.gz", "artifact_sha256": "6fa3f2f3de6062b8d69c48886bf04374592bbbe404a2856b89450e1acbe1422a", "artifact_url": "https://github.com/pcvantol/djconnect-pi-releases/releases/download/v3.3.0/djconnect-pi-3.3.0.tar.gz"},
     {"owner": "pcvantol/djconnect-app", "target": "apple_private_device", "target_device": "macbook", "artifact_id": "release-asset:pcvantol/djconnect-app-releases:macos/v3.3.0:DJConnect-macOS-3.3.0-unsigned.zip", "artifact_sha256": "aa132359298be649cbd28a4a26c98a74ecc8e84e8720901295d8b2817e7147da", "artifact_url": "https://github.com/pcvantol/djconnect-app-releases/releases/download/macos/v3.3.0/DJConnect-macOS-3.3.0-unsigned.zip", "signing": "local_developer_provisioning_required"},
     {"owner": "pcvantol/djconnect-app", "target": "apple_private_device", "target_device": "iphone", "paired_watch_validation": "required", "artifact_id": "release-asset:pcvantol/djconnect-app-releases:ios/v3.3.0:DJConnect-iOS-3.3.0-unsigned.zip", "artifact_sha256": "2ae314da969928ff4698e130d547e6862e97615696b1ba8b142bbd59ad9532c1", "artifact_url": "https://github.com/pcvantol/djconnect-app-releases/releases/download/ios/v3.3.0/DJConnect-iOS-3.3.0-unsigned.zip", "signing": "local_developer_provisioning_required"},
     {"owner": "pcvantol/djconnect-app", "target": "apple_private_device", "target_device": "ipad", "artifact_id": "release-asset:pcvantol/djconnect-app-releases:ios/v3.3.0:DJConnect-iOS-3.3.0-unsigned.zip", "artifact_sha256": "2ae314da969928ff4698e130d547e6862e97615696b1ba8b142bbd59ad9532c1", "artifact_url": "https://github.com/pcvantol/djconnect-app-releases/releases/download/ios/v3.3.0/DJConnect-iOS-3.3.0-unsigned.zip", "signing": "local_developer_provisioning_required"},
@@ -56,5 +61,5 @@
     "Apple Watch is a required paired-iPhone companion validation, not a direct deployment target.",
     "Windows x64 is published but is not bound to this ARM64-only Internal Release."
   ],
-  "next_authorized_action": "Obtain separate authorization for one or more target-scoped, manifest-bound deployments; run the corresponding smoke only after each successful deployment."
+  "next_authorized_action": "Obtain fresh explicit approval of this rebound manifest. Afterwards obtain separate authorization for one or more target-scoped, manifest-bound deployments; run the corresponding smoke only after each successful deployment."
 }

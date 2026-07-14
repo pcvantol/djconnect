@@ -1,12 +1,13 @@
 # Platform Release 3.3 — Artifact Manifest
 
-Execution state: `MANIFEST_APPROVED_DEPLOYMENT_DISPATCH_PENDING`.
+Execution state: `MANIFEST_REAPPROVAL_REQUIRED_AFTER_PI_ARTIFACT_REBINDING`.
 
 The requested `3.3.0` `INTERNAL_RELEASE` now has immutable, checksum-bound
-artifacts for every required deployment target. The canonical, machine-readable
-binding is
+artifacts for every required deployment target. The Raspberry Pi artifact was
+republished from a newly qualified source candidate, so the canonical,
+machine-readable binding is pending fresh approval before deployment:
 [`PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json`](PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json).
-It is approved release evidence, not a deployment dispatch authorization.
+It is checksum-verified release evidence, not a deployment dispatch authorization.
 
 | Surface | Exact candidate SHA | Artifact ID | SHA-256 |
 | --- | --- | --- | --- |
@@ -14,7 +15,7 @@ It is approved release evidence, not a deployment dispatch authorization.
 | API | `835f6827` | `8309742606` | `bdc02ce45b5f1fdee0e1a71b940e01ee3993b82830214c3cc280839081b027b1` |
 | Website | `370619fb` | `8315080769` | `1cfa1b47d077e913526b2696a0748f5ecce933e0cf35f22580168b0e3742362d` |
 | ESP32 LilyGO T-Embed S3 | `9f8a3248` | `djconnect-lilygo-t-embed-s3-v3.3.0.bin` | `c25444d3ef414489848fd2d8de624785c82eb90195cc861bcb63085e0df3ceeb` |
-| Raspberry Pi | `c300a751` | `djconnect-pi-3.3.0.tar.gz` | `26b66e7a24b353f4b4c38ee1a59076e5dff14b9e089981bb44c3f7e29a453963` |
+| Raspberry Pi | `661e26e7` | `djconnect-pi-3.3.0.tar.gz` | `6fa3f2f3de6062b8d69c48886bf04374592bbbe404a2856b89450e1acbe1422a` |
 | macOS | `8eaf56f6` | `DJConnect-macOS-3.3.0-unsigned.zip` | `aa132359298be649cbd28a4a26c98a74ecc8e84e8720901295d8b2817e7147da` |
 | iPhone/iPad + paired Watch validation | `8eaf56f6` | `DJConnect-iOS-3.3.0-unsigned.zip` | `2ae314da969928ff4698e130d547e6862e97615696b1ba8b142bbd59ad9532c1` |
 | Windows ARM64 | `6c0c3c34` | `DJConnect-Windows-arm64-3.3.0-unsigned.zip` | `cbe379826731deb1d16c8af5510b4190a4f4949b1bf6589925de5d1eb66c5b47` |
@@ -24,7 +25,9 @@ approved distribution repositories. HA, API and Website artifacts remain
 immutable GitHub Actions artifacts consumed by their manifest-bound workflows.
 The separate Windows x64 asset is intentionally not a required target binding.
 
-No target has been contacted. No artifact has been installed, signed, deployed
-or smoke-tested. Manifest `release-3.3.0-internal-20260714` was explicitly
-approved at `2026-07-14T15:28:33Z`; each deployment and its subsequent smoke
-still requires a separate target-scoped authorization.
+The Pi target was contacted only by its read-only readiness verification. No
+release artifact has been installed, signed, deployed or smoke-tested. The
+previous manifest approval at `2026-07-14T15:28:33Z` is superseded because the
+Pi artifact binding changed. Fresh approval of
+`release-3.3.0-internal-20260714` is required; each deployment and its
+subsequent smoke still requires a separate target-scoped authorization.
