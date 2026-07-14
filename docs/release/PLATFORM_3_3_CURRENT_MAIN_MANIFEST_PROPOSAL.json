@@ -61,8 +61,8 @@
   ],
   "evidence": {
     "artifact_integrity": "VERIFIED: rebound API artifact 8323208436",
-    "deployment_evidence": "PARTIAL: rbpi-djconnect deployment evidence verified",
-    "post_deployment_smoke": "PARTIAL: rbpi-djconnect smoke evidence verified",
+    "deployment_evidence": "PARTIAL: rbpi-djconnect and cloudflare_workers_production deployment evidence verified",
+    "post_deployment_smoke": "PARTIAL: rbpi-djconnect and cloudflare_workers_production smoke evidence verified",
     "operational_credential_scope": "NOT_DISCLOSED; each deployment workflow must validate its own least-privilege scope."
   },
   "target_execution_evidence": [
@@ -75,6 +75,16 @@
       "smoke_workflow_run": "29361739009",
       "result": "DEPLOYMENT_OPERATIONAL",
       "verified_at": "2026-07-14T19:25:31Z"
+    },
+    {
+      "target": "cloudflare_workers_production",
+      "candidate_sha": "6f6dee8a6edf72b8a48fa347ef587ede2976badd",
+      "artifact_id": "8323208436",
+      "artifact_sha256": "f9d8c29787297a939d16e6f3fab3f9cd4455518def4565830b5ca57f76a80819",
+      "deployment_workflow_run": "29364714166",
+      "smoke_workflow_run": "29364851135",
+      "result": "DEPLOYMENT_OPERATIONAL",
+      "verified_at": "2026-07-14T20:13:17Z"
     }
   ],
   "constraints": [
