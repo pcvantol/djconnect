@@ -58,3 +58,31 @@ class PrivateNetworkDeploymentRelayPolicyTest(unittest.TestCase):
 
         self.assertIn("HA integration may use an immutable,", evidence_policy)
         self.assertIn("without a separate GitHub Release", evidence_policy)
+
+    def test_apple_distribution_relay_is_manifest_bound_and_local_only(self) -> None:
+        apple = (RELEASE_DOCS / "APPLE_RELEASE_ARCHITECTURE.md").read_text(encoding="utf-8")
+        relay = (RELEASE_DOCS / "PRIVATE_NETWORK_DEPLOYMENT_RELAY.md").read_text(encoding="utf-8")
+
+        for token in (
+            "qualified Apple build workflow is the sole source of unsigned artifacts",
+            "candidate SHA, manifest ID",
+            "SHA-256 checksum",
+            "explicitly allowlisted `target_device`",
+            "never\nstored in GitHub secrets, exported, uploaded or included in evidence",
+            "TestFlight, App Store and public distribution remain\ndeferred",
+        ):
+            self.assertIn(token, apple)
+        for token in (
+            "Apple Native Build Runner",
+            "Private Network Deployment Relay",
+            "Apple Secure Distribution Relay",
+            "never placed in GitHub secrets, exported, uploaded or included in evidence",
+            "cannot compile source, build an IPA or macOS binary",
+        ):
+            self.assertIn(token, relay)
+
+    def test_runtime_dispatch_contract_contains_artifact_and_target_binding(self) -> None:
+        runtime = (RELEASE_DOCS / "PLATFORM_RELEASE_RUNTIME_ARCHITECTURE.md").read_text(encoding="utf-8")
+
+        for token in ("artifact_id", "artifact_sha256", "target", "cannot create tags", "publish GitHub Releases"):
+            self.assertIn(token, runtime)

@@ -44,7 +44,7 @@ registered-device distribution guidance describes a single exported iOS App
 [Apple: iOS Keys](https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/iPhoneOSKeys.html) and
 [Apple: Distributing your app to registered devices](https://developer.apple.com/documentation/xcode/distributing-your-app-to-registered-devices?changes=_1).
 
-## Runtime contract
+## Runtime and secure distribution contract
 
 The Platform Release Runtime models the Apple repository artifact inventory as:
 
@@ -58,9 +58,43 @@ apple/native-macos-application
 
 It must not request a separate iPad IPA or a separate Apple Watch release
 artifact unless a future Apple platform decision objectively changes the target
-or packaging model. The Runtime dispatches the approved Apple workflow and
-consumes its evidence only; GitHub Actions on the qualified macOS runner owns
-archive, signing, export and artifact upload.
+or packaging model.
+
+Apple Internal Distribution is a separate deployment capability:
+
+```text
+qualified Apple build -> immutable unsigned artifact + checksum
+  -> approved manifest / draft internal release record
+  -> Apple Secure Distribution Relay
+  -> local signing -> approved private device -> evidence
+```
+
+The qualified Apple build workflow is the sole source of unsigned artifacts.
+The secure distribution relay consumes only the exact manifest-bound artifact;
+it cannot compile source, build an IPA or macOS binary, archive source,
+generate unsigned artifacts, choose an artifact, create a GitHub Release,
+publish TestFlight or publish to the App Store.
+
+Before local signing, the relay validates the candidate SHA, manifest ID,
+artifact ID, SHA-256 checksum, platform version, `INTERNAL_RELEASE` profile
+and explicitly allowlisted `target_device`. Generation 1 targets are the
+maintainer's MacBook, iPhone, iPad and Apple Watch. They are private Developer
+provisioning targets only; TestFlight, App Store and public distribution remain
+deferred.
+
+Apple certificates, private signing keys and provisioning profiles remain only
+in the qualified macOS runner's local signing environment. They are never
+stored in GitHub secrets, exported, uploaded or included in evidence. The
+Apple signing job is separate from Apple build, Pi SSH, Home Assistant and ESP
+OTA credential scopes.
+
+After installation, the relay reads installed bundle version and identifier,
+candidate identity where available, device availability and application launch
+where supported. It uploads redacted evidence with the candidate SHA, manifest
+and artifact checksum, non-secret signing identity, target device, bundle
+version, timestamps, runner/workflow identity, deployment result and health
+validation. A failure is fail-closed and never alters build or qualification
+evidence.
 
 ## Decision
 
