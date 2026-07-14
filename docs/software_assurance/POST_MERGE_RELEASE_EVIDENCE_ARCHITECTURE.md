@@ -16,8 +16,16 @@ changed-file equivalence and exact recorded merge commit. Direct pushes and
 ambiguous provenance fail closed.
 
 The reusable workflow is `post-merge-release-evidence.yml`. Consumer wrappers
-only invoke it on `push` to `main` through an immutable reference. It receives
-repository-local required CI and coverage-artifact identifiers; it does not
-hardcode a partial repository list. It publishes the single canonical context
-`Post-Merge Release Evidence / Reconcile release evidence` on the exact main
-SHA and uploads `post-merge-release-evidence`.
+only invoke it on `push` to `main` through an immutable reference and pass that
+same central commit SHA as `policy_source_ref`. The explicit input prevents a
+caller SHA from being mistaken for a central policy SHA inside a reusable
+workflow context.
+
+Source repositories provide their required CI and coverage-artifact
+identifiers. Distribution repositories instead provide their required
+distribution-integrity workflow and its
+`platform-release-distribution-integrity` artifact. They are qualified on
+artifact integrity and metadata validation, never on source-code coverage. The
+workflow does not hardcode a partial repository list. It publishes the single
+canonical context `Post-Merge Release Evidence / Reconcile release evidence`
+on the exact main SHA and uploads `post-merge-release-evidence`.
