@@ -299,5 +299,6 @@ SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE
 ```
 
 The historical prerequisites in `SOFTWARE_ASSURANCE_GOVERNANCE.md` are
-satisfied. Prompt 1 is complete and Prompt 2 is active pending explicit
-execution; this implementation does not change the frozen architecture.
+satisfied. Prompts 1 through 4 completed and the resulting Software Assurance
+and Trusted Delivery capability is operationally frozen; this does not change
+the frozen architecture.

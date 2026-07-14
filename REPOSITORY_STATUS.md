@@ -10,6 +10,8 @@ The canonical current work model is exactly three programs: DJConnect Product
 Development, Platform Evolution and Innovation Lab. Product Development is the
 primary program. `ROADMAP_INDEX.md` is the canonical navigation; Platform
 Release 3.3 Internal remains temporary operational work and is not a program.
+The formal Generation 1 closure record is
+`ENGINEERING_PLATFORM_GENERATION_1_COMPLETION_REPORT.md`.
 
 ## Repository
 
@@ -88,12 +90,13 @@ has not been dispatched. No operational Internal Release has occurred.
 Prompt 5 certification remains generated but inactive. It requires completed
 operational release and burn-in evidence; it is not the next automatic action.
 
-Prompt 4 Software Assurance governance and rollout strategy are complete. The
-architecture decision is `SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE`.
-The historical `PLATFORM_BASELINE_V1_CERTIFIED` prerequisite is satisfied, and
-Software Assurance Generation 1 is active. Prompt 1 completed the reusable CI
-Governance Foundation and Prompt 2 completed cross-repository workflow rollout;
-Prompt 3 is the only active implementation prompt.
+## Historical Software Assurance implementation record
+
+The following paragraphs preserve the intermediate Generation 1 rollout
+history. They are not current execution instructions. The current authoritative
+state is `GENERATION_1_COMPLETE`: Software Assurance and Trusted Delivery are
+certified and operationally frozen; future improvements belong to Platform
+Evolution.
 
 Prompt 3 governance preparation selected the proposed
 `SINGLE_MAINTAINER_GOVERNANCE_READY` model. It resolves the documented
@@ -292,8 +295,7 @@ contain the SHA of the commit that includes its own content.
 
 ## Repository-Local Next Action
 
-Software Assurance Generation 1 Prompt 3 is active. Its single-maintainer
-review policy is documented but GitHub settings remain unchanged pending
-explicit authorization. Prompt 4 remains blocked; do not start additional
-foundational architecture work unless a future Architecture Review with
-objective evidence demonstrates a genuine gap.
+Use `ROADMAP_INDEX.md` and the three Generation 2 program registers for new
+work. Do not resume historical Software Assurance prompts. Do not start
+additional foundational architecture work unless a future Architecture Review
+with objective evidence demonstrates a genuine gap.

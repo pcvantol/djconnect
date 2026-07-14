@@ -114,6 +114,6 @@ After the architecture sprint, the platform returns to the active Verification
 roadmap.
 
 The prerequisites in this document are satisfied. Software Assurance
-Generation 1 is active. Prompt 1 completed the reusable CI Governance
-Foundation; Prompt 2 is active pending explicit execution, and Prompts 3
-through 4 remain blocked in sequence.
+Generation 1 is complete and operationally frozen. Prompts 1 through 4 are
+historical evidence; future quality-platform work enters through Platform
+Evolution.

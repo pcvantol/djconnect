@@ -6,8 +6,8 @@ Platform state: `Engineering Platform operational; Software Assurance Generation
 
 ## Purpose
 
-This document is the canonical entry point for the active Software Assurance
-Platform implementation epic.
+This document is the canonical historical registration for the completed
+Software Assurance Platform implementation epic.
 
 It registers the epic, its activation state, prerequisites and implementation
 ordering. It does not itself begin implementation, modify workflows, change GitHub
@@ -73,9 +73,8 @@ The canonical implementation order is:
 | Prompt 3 | Trusted Delivery Platform | `PASS` | `prompts/deferred/software_assurance/PROMPT_03_TRUSTED_DELIVERY_PLATFORM.md` |
 | Prompt 4 | Trusted Delivery Certification | `COMPLETE` | `prompts/deferred/software_assurance/PROMPT_04_TRUSTED_DELIVERY_CERTIFICATION.md` |
 
-These prompts define the complete Software Assurance implementation sequence.
-Only Prompt 3 may be executed when explicitly authorized. Prompt 4 must not be
-executed until its predecessor has completed successfully.
+These prompts define the completed Software Assurance Generation 1 sequence.
+They are historical evidence and must not be resumed as active work.
 
 ## Prompt 1 Implementation Assets
 

@@ -123,9 +123,9 @@ Canonical architecture:
 - `SOFTWARE_ASSURANCE_QUALITY_GATES.md`
 - `SOFTWARE_ASSURANCE_VERSIONING.md`
 
-Software Assurance Generation 1 is active. Prompt 1 completed the reusable CI
-Governance Foundation and Prompt 2 completed cross-repository workflow
-harmonization. Prompt 3 is ready only for an explicit execution request.
+Software Assurance Generation 1 is complete and operationally frozen. Its
+historical prompts remain evidence; future quality-platform work enters through
+Platform Evolution rather than resuming a Generation 1 prompt.
 
 Canonical implementation registration:
 

@@ -17,6 +17,7 @@ or governed operations are constrained.
 | Firmware OTA publication and staged rollback | P1 | Backlog | manifest-bound consumer qualification | release-operational work |
 | Website production deployment and announcements | P1 | Backlog | approved manifest and consumer qualification | release-operational work |
 | Technical Debt Engine integration | P1 | Backlog | released standalone TDE CLI, stable evidence schema, trusted distribution and Software Assurance compatibility | Platform Evolution integration after external product initialization |
+| Privacy Assessment | P2 | Backlog | privacy inventory, profile/shared-device review and Software Assurance compatibility | Platform Evolution assessment; possible future standalone engine |
 | SBOM generation | P2 | Backlog | Trusted Delivery compatibility assessment | scoped Platform Evolution proposal |
 | Release Health and observability | P2 | Backlog | operational release evidence | scoped Platform Evolution proposal |
 | Platform diagnostics | P3 | Backlog | privacy and redaction review | scoped Platform Evolution proposal |
@@ -100,3 +101,13 @@ unsupported-schema or untrusted-version evidence. Optional regression-aware
 release gates require a separate future governance and qualification decision.
 This is a Platform Evolution backlog item only; it authorizes neither creation
 of the TDE repository nor any TDE/DJConnect implementation.
+
+## Backlog detail: Privacy Assessment
+
+Establish a Generation 2 Platform Evolution privacy assessment capability for
+DJConnect’s profile, Music DNA, Ask DJ history, shared-device, diagnostics,
+release and evidence surfaces. The initial capability remains DJConnect-owned:
+it inventories data flows, checks documented privacy boundaries, records
+findings as informational evidence and feeds Software Assurance without
+creating release gates. A future standalone assessment engine is a separate
+product decision and is not authorized by this backlog item.

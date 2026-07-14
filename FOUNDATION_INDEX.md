@@ -71,6 +71,7 @@ The files below define Platform Strategy, then the platform foundation itself.
 54. `INNOVATION_BACKLOG.md`
 55. `INNOVATION_PROMOTION_POLICY.md`
 56. `MANAGEMENT_SUMMARY.md`
+57. `ENGINEERING_PLATFORM_GENERATION_1_COMPLETION_REPORT.md`
 
 ## Conflict-resolution order
 
