@@ -71,8 +71,8 @@
   ],
   "evidence": {
     "artifact_integrity": "VERIFIED: current-main Home Assistant artifact 8347737416, current-main Website artifact 8346470431 and rebound API artifact 8323208436",
-    "deployment_evidence": "PARTIAL: rbpi-djconnect and cloudflare_workers_production deployment evidence verified",
-    "post_deployment_smoke": "PARTIAL: rbpi-djconnect and cloudflare_workers_production smoke evidence verified",
+    "deployment_evidence": "PARTIAL: rbpi-djconnect, cloudflare_workers_production and cloudflare_pages_production deployment evidence verified",
+    "post_deployment_smoke": "PARTIAL: rbpi-djconnect, cloudflare_workers_production and cloudflare_pages_production smoke evidence verified",
     "operational_credential_scope": "NOT_DISCLOSED; each deployment workflow must validate its own least-privilege scope."
   },
   "target_execution_evidence": [
@@ -95,6 +95,16 @@
       "smoke_workflow_run": "29364851135",
       "result": "DEPLOYMENT_OPERATIONAL",
       "verified_at": "2026-07-14T20:13:17Z"
+    },
+    {
+      "target": "cloudflare_pages_production",
+      "candidate_sha": "64f95dcb8a2cf2da523c46f08ed5b07fdcdf6daa",
+      "artifact_id": "8346470431",
+      "artifact_sha256": "dff7ba59c2cf3cd299670487d09ba6e98d845659736dfd0e9770e884e8127027",
+      "deployment_workflow_run": "29441732130",
+      "smoke_workflow_run": "29441809581",
+      "result": "DEPLOYMENT_OPERATIONAL",
+      "verified_at": "2026-07-15T18:45:07Z"
     }
   ],
   "constraints": [
@@ -103,5 +113,5 @@
     "Apple Watch is a required paired-iPhone companion validation, not a direct deployment target.",
     "Windows x64 is published but is not bound to this ARM64-only Internal Release."
   ],
-  "next_authorized_action": "Dispatch either authorized manifest-bound target after this manifest binding is merged to main; run the corresponding smoke only after that target's successful deployment."
+  "next_authorized_action": "Remediate the missing home_assistant_pi5 private-network environment secrets before retrying its already authorized deployment; authorize every remaining required target separately."
 }
