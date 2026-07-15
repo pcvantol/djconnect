@@ -100,7 +100,10 @@ Prompt History remains immutable. A verified merged predecessor whose rolling
 records still describe its freeze point is an expected
 `MERGED_UNRECONCILED` transition, not an inconsistency. The next increment
 reconciles `ENGINEERING_STATUS.md`, `REPOSITORY_STATUS.md`,
-`MANAGEMENT_SUMMARY.md` and `PROMPT_INDEX.md` before substantive work.
+`MANAGEMENT_SUMMARY.md` and `PROMPT_INDEX.md` before substantive work. PR
+[#125](https://github.com/pcvantol/djconnect/pull/125) is now merged into
+current main; its rolling records are reconciled by the Repository Governance
+Rollout Planning increment.
 
 This governance increment changes no implementation, Platform Architecture or
 Product Architecture.
@@ -196,13 +199,16 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-Engineering Method V2.3 Repository Synchronization was merged through
-[#118](https://github.com/pcvantol/djconnect/pull/118); its immutable Prompt
-History remains the freeze-point record. Post-Merge Engineering State
-Reconciliation is [#125](https://github.com/pcvantol/djconnect/pull/125),
-`REVIEWABLE_FROZEN` pending human review and merge. No subsequent prompt is
-active. After merge, the next prompt must verify and reconcile that state before
-selecting work from verified current roadmap and backlog evidence.
+Post-Merge Engineering State Reconciliation merged through
+[#125](https://github.com/pcvantol/djconnect/pull/125); its immutable Prompt
+History remains the freeze-point record and the rolling state is reconciled.
+The current central-governance planning increment is Repository Governance
+Rollout Planning, reviewable in
+[#126](https://github.com/pcvantol/djconnect/pull/126). It records
+`DJCONNECT_REPOSITORY_GOVERNANCE_ROLLOUT_BLOCKED`: the canonical Platform
+Architect instructions are aligned to maintainer-selected Version 2.2 in this
+reviewable PR, so no repository adoption prompt is authorized until that change
+is merged and reconciled on current main.
 
 ## Completion Report
 

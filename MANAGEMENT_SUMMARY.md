@@ -105,6 +105,25 @@ makes current main the authority over conversations, prompt text and historical
 assumptions. No implementation, Platform Architecture or Product Architecture
 changed.
 
+## Repository Governance Rollout Planning
+
+**Decision:** `DJCONNECT_REPOSITORY_GOVERNANCE_ROLLOUT_BLOCKED`
+**Branch:** `codex/repository-governance-rollout`
+**Implementation Commit:** `ea7f0ada186a6742d11d5bef6a90302719611b10`
+**Pull Request:** [#126](https://github.com/pcvantol/djconnect/pull/126)
+**Basis:** The maintainer selected Version 2.2; this review update aligns the
+Platform Architect decision values. The current-main adoption contract remains
+blocked only until PR #126 merges and is reconciled.
+**Scope:** Central documentation only; no sibling repository or product
+implementation was modified.
+**Outcome:** The repository inventory and Apple verification are recorded in
+`docs/governance/REPOSITORY_GOVERNANCE_ROLLOUT.md`. Apple is
+`APPLE_GOVERNANCE_ADOPTION_PARTIAL`; its merged bootstrap PR still has stale
+rolling records and lacks the yet-unavailable explicit adoption version.
+**Recommended next prompt:** Governance: establish a single AI-Native
+Repository Governance Rollout Planning continuation after PR #126 merges:
+verify Version 2.2 on current main, reconcile, then start the queue.
+
 ## Documentation outcome
 
 `ROADMAP_INDEX.md` provides one navigation source. `PRODUCT_ROADMAP.md`,
