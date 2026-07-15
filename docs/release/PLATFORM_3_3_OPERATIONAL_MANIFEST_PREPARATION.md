@@ -44,6 +44,15 @@ maintainer explicitly approved this exact `home_assistant_pi5` binding and
 authorized its manifest-bound deployment followed by separate post-deployment
 smoke. No other target is authorized by that approval.
 
+The website source/artifact binding was then renewed to current
+`pcvantol/djconnect-website` source
+`64f95dcb8a2cf2da523c46f08ed5b07fdcdf6daa`, successful artifact workflow run
+`29424048694`, artifact `8346470431` and SHA-256
+`dff7ba59c2cf3cd299670487d09ba6e98d845659736dfd0e9770e884e8127027`. The
+maintainer explicitly approved this exact `cloudflare_pages_production`
+binding and its manifest-bound deployment followed by separate post-deployment
+smoke.
+
 ## Known operational gates
 
 - Each deployment consumer must independently validate its least-privilege
@@ -58,6 +67,6 @@ smoke. No other target is authorized by that approval.
 
 ## Next action
 
-After this manifest binding is merged to `main`, dispatch the authorized
-`home_assistant_pi5` deployment. Dispatch its separate smoke workflow only
-after deployment succeeds.
+After this manifest binding is merged to `main`, dispatch either authorized
+target. Dispatch its separate smoke workflow only after that target's
+deployment succeeds.

@@ -11,9 +11,9 @@ It is checksum-verified release evidence, not a deployment dispatch authorizatio
 
 | Surface | Exact candidate SHA | Artifact ID | SHA-256 |
 | --- | --- | --- | --- |
-| Home Assistant | `77d28dcf` | `8311372180` | `b1115fb2d41abd1acf6ad42197751c63961826924fa47e9dc1d94ac1c1056de5` |
+| Home Assistant | `0227e95b` | `8347737416` | `88c065ca672e7ba7155a30aa7b4737075d41e629cc748c8a60385ae1a3464aa9` |
 | API | `6f6dee8a` | `8323208436` | `f9d8c29787297a939d16e6f3fab3f9cd4455518def4565830b5ca57f76a80819` |
-| Website | `370619fb` | `8315080769` | `1cfa1b47d077e913526b2696a0748f5ecce933e0cf35f22580168b0e3742362d` |
+| Website | `64f95dcb` | `8346470431` | `dff7ba59c2cf3cd299670487d09ba6e98d845659736dfd0e9770e884e8127027` |
 | ESP32 LilyGO T-Embed S3 | `9f8a3248` | `djconnect-lilygo-t-embed-s3-v3.3.0.bin` | `c25444d3ef414489848fd2d8de624785c82eb90195cc861bcb63085e0df3ceeb` |
 | Raspberry Pi | `661e26e7` | `djconnect-pi-3.3.0.tar.gz` | `6fa3f2f3de6062b8d69c48886bf04374592bbbe404a2856b89450e1acbe1422a` |
 | macOS | `8eaf56f6` | `DJConnect-macOS-3.3.0-unsigned.zip` | `aa132359298be649cbd28a4a26c98a74ecc8e84e8720901295d8b2817e7147da` |
