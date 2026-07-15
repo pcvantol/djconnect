@@ -109,6 +109,7 @@ jobs:
           python-version: ${{ inputs.python-version }}
       - name: Run tests
         run: |
+          python -m pip install --upgrade pip
           if [ -f requirements-dev.txt ]; then
             python -m pip install -r requirements-dev.txt
           fi
@@ -124,7 +125,9 @@ jobs:
         with:
           python-version: ${{ inputs.python-version }}
       - name: Install Ruff
-        run: python -m pip install ruff
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install ruff
       - name: Run Ruff
         run: ruff check custom_components/djconnect tests
 
@@ -138,7 +141,9 @@ jobs:
         with:
           python-version: ${{ inputs.python-version }}
       - name: Install Bandit
-        run: python -m pip install bandit[toml]
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install bandit[toml]
       - name: Run Bandit
         run: bandit -c pyproject.toml -r custom_components/djconnect --severity-level medium
 
