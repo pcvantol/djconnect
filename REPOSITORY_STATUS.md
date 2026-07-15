@@ -199,15 +199,20 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-Post-Merge Engineering State Reconciliation merged through
-[#125](https://github.com/pcvantol/djconnect/pull/125); its immutable Prompt
-History remains the freeze-point record and the rolling state is reconciled.
-Repository Governance Rollout Planning PR #126 is merged and reconciled. The
-current central-governance planning completion increment records
-`DJCONNECT_REPOSITORY_GOVERNANCE_ROLLOUT_PLANNED` in
-`docs/governance/REPOSITORY_GOVERNANCE_ROLLOUT_PLAN_V2_2.md`; it authorizes
-only the next separately scoped Apple adoption prompt, not implementation in
-this central repository.
+Platform Governance: reconcile rolling engineering records after governance
+rollout. Governance rollout planning PR [#127](https://github.com/pcvantol/djconnect/pull/127)
+and central audit PR [#128](https://github.com/pcvantol/djconnect/pull/128)
+are merged. The audit decision is
+`DJCONNECT_REPOSITORY_GOVERNANCE_AUDIT_PASSED`; all nine adoption head branches
+are absent and the rollout is archived as `MERGED_RECONCILED` evidence.
+
+The next increment is draft only: prepare an approved fresh exact-SHA Internal
+Release 3.3 manifest and exact Home Assistant target credential/installation
+scope. It must not activate until this reconciliation increment has its single
+reviewable pull request.
+
+Review: [#129](https://github.com/pcvantol/djconnect/pull/129) on
+`codex/reconcile-governance-rolling-records`.
 
 ## Completion Report
 

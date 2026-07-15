@@ -47,10 +47,21 @@ planning is read.
 | Engineering Method V2.3 Repository Synchronization | Completed | Make synchronized current main and current-main verification mandatory before repository reading and planning; no implementation or architecture changes. | `codex/engineering-method-v2-3` | `docs/history/prompts/2026-07-14-engineering-method-v2-3.md`; PR [#118](https://github.com/pcvantol/djconnect/pull/118) |
 | Post-Merge Engineering State Reconciliation | Completed / merged reconciled | Establish explicit post-merge lifecycle and reconcile the merged V2.3 rolling-state transition; no implementation or architecture changes. | `codex/post-merge-engineering-state-reconciliation` | `docs/history/prompts/2026-07-15-post-merge-engineering-state-reconciliation.md`; PR [#125](https://github.com/pcvantol/djconnect/pull/125) |
 | Repository Governance Rollout Planning | Completed / merged reconciled | Verify canonical governance and repository maturity; align the maintainer-selected Version 2.2 decision value. | `codex/repository-governance-rollout` | `docs/governance/REPOSITORY_GOVERNANCE_ROLLOUT.md`; PR [#126](https://github.com/pcvantol/djconnect/pull/126) |
-| Repository Governance Rollout Planning Completion | Reviewable pending | Reconcile PR #126 and establish deterministic Version 2.2 repository adoption prompts. | `codex/repository-governance-rollout-completion` | `docs/governance/REPOSITORY_GOVERNANCE_ROLLOUT_PLAN_V2_2.md` |
+| Repository Governance Rollout Planning Completion | Completed / merged reconciled / archived | Establish the Version 2.2 adoption queue. | `codex/repository-governance-rollout-completion` | `docs/history/prompts/2026-07-15-repository-governance-rollout-completion.md`; PR [#127](https://github.com/pcvantol/djconnect/pull/127) |
+| Repository Governance Audit | Completed / merged reconciled / archived | Audit all nine merged Version 2.2 repository adoptions. | `codex/repository-governance-audit` | `docs/governance/REPOSITORY_GOVERNANCE_AUDIT_V2_2.md`; PR [#128](https://github.com/pcvantol/djconnect/pull/128) |
+| Rolling Records Reconciliation | Reviewable pending | Reconcile central rolling records after the completed governance rollout. | `codex/reconcile-governance-rolling-records` | `docs/history/prompts/2026-07-15-platform-governance-rolling-records-reconciliation.md`; PR [#129](https://github.com/pcvantol/djconnect/pull/129) |
 
-The predecessor is `MERGED_RECONCILED`. This planning increment creates no
-sibling changes; it makes `RG-APPLE-001` the sole next repository prompt.
+All governance rollout work is completed, merged, reconciled and archived.
+No `RG-*` adoption prompt remains active.
+
+## Next Engineering Increment
+
+Draft only — Platform Release Engineering: prepare an approved fresh
+current-main Internal Release 3.3 manifest with exact Home Assistant target,
+credential and installation scope. This is derived from the current release
+backlog and remains blocked until those prerequisites exist. Do not activate or
+execute it until the Rolling Records Reconciliation increment has its one
+reviewable pull request.
 
 ## Active Next Phase
 

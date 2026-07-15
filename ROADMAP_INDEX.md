@@ -17,8 +17,8 @@ Use this index to find the one canonical record for current work.
 | Consolidated state | `MANAGEMENT_SUMMARY.md` | Platform governance |
 | Engineering-method operating rules | `ENGINEERING_METHOD.md` | Engineering governance |
 | Repository-governance rollout decision | `docs/governance/REPOSITORY_GOVERNANCE_ROLLOUT.md` | Platform governance |
-| Repository-governance rollout plan | `docs/governance/REPOSITORY_GOVERNANCE_ROLLOUT_PLAN_V2_2.md` | Platform governance |
-| Repository-governance audit | `docs/governance/REPOSITORY_GOVERNANCE_AUDIT_V2_2.md` | Platform governance |
+| Repository-governance rollout plan | `docs/governance/REPOSITORY_GOVERNANCE_ROLLOUT_PLAN_V2_2.md` | Completed and archived governance evidence |
+| Repository-governance audit | `docs/governance/REPOSITORY_GOVERNANCE_AUDIT_V2_2.md` | Completed and archived governance evidence |
 | Execution prompt navigation | `PROMPT_INDEX.md` | Prompt governance |
 
 `PLATFORM_BACKLOG.md` is a Generation 1 archive, not an active source of

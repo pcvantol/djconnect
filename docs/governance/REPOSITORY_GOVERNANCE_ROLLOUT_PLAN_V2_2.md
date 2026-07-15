@@ -1,7 +1,8 @@
 # DJConnect Repository Governance Rollout Plan — Version 2.2
 
-**Status:** executable planning record
-**Decision:** `DJCONNECT_REPOSITORY_GOVERNANCE_ROLLOUT_PLANNED`
+**Status:** completed, merged, reconciled and archived planning record
+**Planning decision:** `DJCONNECT_REPOSITORY_GOVERNANCE_ROLLOUT_PLANNED`
+**Completion decision:** `DJCONNECT_REPOSITORY_GOVERNANCE_AUDIT_PASSED`
 **Canonical governance:** `pcvantol/djconnect`,
 `docs/governance/PLATFORM_ARCHITECT_SYSTEM_INSTRUCTIONS.md`, AI-Native
 Engineering Operating System **2.2**
@@ -11,38 +12,41 @@ Engineering Operating System **2.2**
 Central PR #126 merged as `a7e0c055b0c747e32de6e689a78cd07b407cb3a6`.
 Current main therefore has matching Version 2.2 label and decision values.
 The predecessor history is archived and its remote branch is absent. The
-earlier blocked report remains immutable evidence of the pre-merge stop; this
-document is the authoritative post-reconciliation plan.
+earlier blocked report remains immutable evidence of the pre-merge stop. All
+nine adoption PRs subsequently merged and the final audit merged as
+`a6ee55f8af192d27b6c8a6ae3dcf0c4f36765bba`. This document is archived planning
+evidence; `REPOSITORY_GOVERNANCE_AUDIT_V2_2.md` is the completion authority.
 
-## Active scope and release profiles
+## Completed scope and release profiles
 
 | Repository | Classification | Local release/deployment profile | Primary gap |
 | --- | --- | --- | --- |
-| `djconnect-app` | Active engineering | Signed macOS/iOS/watchOS artifacts; internal relay/TestFlight/App Store when approved | Partial adoption: stale merged records and incomplete 2.2 adoption contract. |
-| `djconnect-windows` | Active engineering | Signed Windows package/installer, GitHub Release, later winget when approved | Missing discovered canonical local governance record set. |
-| `djconnect-pi` | Active engineering | Linux package/deployment bundle, service/display validation, GitHub Release | Same governance-record gap. |
-| `djconnect-esp32` | Active engineering | Firmware binaries, target metadata/checksums, OTA/GitHub Release | Same governance-record gap. |
-| `djconnect-firmware` | Active distribution | Firmware manifest, checksums, release notes/assets | Same governance-record gap; no source-runtime DoD. |
-| `djconnect-api` | Active engineering | Cloudflare Worker, D1 migrations, Wrangler deployment evidence | Same governance-record gap. |
-| `djconnect-website` | Active engineering | Actual static/web hosting build artifact and route smoke evidence | Same governance-record gap. |
-| `djconnect-app-releases` | Active distribution | Apple artifact handoff/provenance metadata | Same governance-record gap; no local signing ownership. |
-| `djconnect-pi-releases` | Active distribution | Pi artifact/checksum/release-note provenance | Same governance-record gap. |
+| `djconnect-app` | Active engineering | Signed macOS/iOS/watchOS artifacts; internal relay/TestFlight/App Store when approved | None — adoption merged and audited. |
+| `djconnect-windows` | Active engineering | Signed Windows package/installer, GitHub Release, later winget when approved | None — adoption merged and audited. |
+| `djconnect-pi` | Active engineering | Linux package/deployment bundle, service/display validation, GitHub Release | None — adoption merged and audited. |
+| `djconnect-esp32` | Active engineering | Firmware binaries, target metadata/checksums, OTA/GitHub Release | None — adoption merged and audited. |
+| `djconnect-firmware` | Active distribution | Firmware manifest, checksums, release notes/assets | None — adoption merged and audited. |
+| `djconnect-api` | Active engineering | Cloudflare Worker, D1 migrations, Wrangler deployment evidence | None — adoption merged and audited. |
+| `djconnect-website` | Active engineering | Actual static/web hosting build artifact and route smoke evidence | None — adoption merged and audited. |
+| `djconnect-app-releases` | Active distribution | Apple artifact handoff/provenance metadata | None — adoption merged and audited. |
+| `djconnect-pi-releases` | Active distribution | Pi artifact/checksum/release-note provenance | None — adoption merged and audited. |
 
 `djconnect-verification-platform` and `djconnect-releases` are `NOT_FOUND` on
 GitHub; `djconnect-sha-enforcement-reproducer` is `OUT_OF_SCOPE`. They receive
 no adoption PR. Docker is only a verification-runtime distribution, never a
 default repository release profile.
 
-## Apple verification
+## Adoption verification
 
-`APPLE_GOVERNANCE_ADOPTION_PARTIAL`. Apple references central governance and
-has a bootstrap, rolling records, roadmap/prompt indexes and immutable history.
-PR #23 is merged but local rolling records still show review pending and a
-non-canonical lifecycle label. Its dedicated prompt corrects only those gaps,
-adds the 2.2 declaration and defines Apple-native validation, release and
-hygiene rules.
+All nine repository adoption PRs, including Apple PR #26, are merged. The
+central audit confirms their Version 2.2 references, rolling records,
+immutable history, lifecycle/reconciliation, native Definition of Done and
+release profiles. No adoption gap remains active.
 
-## Deterministic queue
+## Completed execution record
+
+The table below is historical execution order only. Every entry is completed,
+merged, reconciled and audited; it is not an active prompt queue.
 
 | Order | Prompt ID | Repository | Objective | Priority | Depends on |
 | --- | --- | --- | --- | --- | --- |
@@ -62,7 +66,10 @@ its distribution repository and placing the API after primary device/client
 repositories. This reflects source-before-distribution dependency and the API's
 optional relay role; it is the only deviation.
 
-## Shared prompt contract
+## Archived shared prompt contract
+
+This contract and the specifications below describe the completed rollout; they
+are retained as audit evidence and do not activate a prompt.
 
 Every prompt below is complete only with this mandatory contract:
 
@@ -74,7 +81,7 @@ Every prompt below is complete only with this mandatory contract:
 6. Model `LOCAL_IN_PROGRESS`, `REVIEWABLE_FROZEN`, `MERGED_UNRECONCILED` and `MERGED_RECONCILED`; require post-merge reconciliation without rewriting immutable history.
 7. Validate references, the local profile, `git diff --check` and the repository's native documentation/configuration checks. Update rolling records and create one immutable history record. Open exactly one reviewable, mergeable PR, do not merge, and report decision, branch, SHA, PR, validation, limitations, deferred work and exactly one next prompt.
 
-## Repository prompt specifications
+## Archived prompt specifications
 
 | Prompt | Mission and scoped local profile | Expected decision and completion criteria |
 | --- | --- | --- |

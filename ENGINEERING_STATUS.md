@@ -5,38 +5,46 @@
 
 ## Current engineering increment
 
-Repository Governance Rollout Planning Completion. Objective GitHub evidence
-confirms [#126](https://github.com/pcvantol/djconnect/pull/126) merged into
-current `main` at `a7e0c055b0c747e32de6e689a78cd07b407cb3a6`; its prior
-`REVIEWABLE_FROZEN` record is reconciled. This increment converts the verified
-Version 2.2 basis into the deterministic repository-by-repository plan.
+Platform Governance: reconcile rolling engineering records after the completed
+Version 2.2 governance rollout. Planning PR [#127](https://github.com/pcvantol/djconnect/pull/127)
+merged as `55b797a17f9115a3baae1d3a81441664c7e02e96`; audit PR
+[#128](https://github.com/pcvantol/djconnect/pull/128) merged as
+`a6ee55f8af192d27b6c8a6ae3dcf0c4f36765bba` with decision
+`DJCONNECT_REPOSITORY_GOVERNANCE_AUDIT_PASSED`.
+
+Reconciliation branch: `codex/reconcile-governance-rolling-records`.
+Reconciliation commit: `1b341da38c339915c627757aed0da7ff41e81a18`.
+Review: [#129](https://github.com/pcvantol/djconnect/pull/129).
 
 ## Current engineering program
 
-Platform Evolution — bounded engineering-governance alignment. DJConnect
-Product Development remains the primary program.
+Platform Governance reconciliation. DJConnect Product Development remains the
+primary program; Platform Release 3.3 is separate temporary operational work.
 
 ## Current repository truth
 
 At initialization, `main` was synchronized to
-`a7e0c055b0c747e32de6e689a78cd07b407cb3a6`, tracks `origin/main`, had zero
-divergence and a clean worktree. GitHub records predecessor PR #126 as merged
-at current main; its immutable Prompt History is archived and its remote branch
-is absent. The stale rolling records are therefore the expected
-`MERGED_UNRECONCILED` transition and are reconciled here.
+`a6ee55f8af192d27b6c8a6ae3dcf0c4f36765bba`, tracks `origin/main`, had zero
+divergence and a clean worktree. GitHub evidence confirms all nine repository
+adoption PRs are merged and each head branch is absent. The rollout and audit
+are `MERGED_RECONCILED`; their immutable Prompt History records remain
+archived evidence.
 
 ## Known blockers and limitations
 
-- Each repository adoption must still wait for its predecessor queue item to
-  merge and reconcile; this plan authorizes no sibling implementation itself.
-- Platform Release 3.3 remains operationally blocked as documented in
-  `REPOSITORY_STATUS.md`; this planning increment does not change it.
+- Platform Release 3.3 remains operationally blocked until a fresh exact-SHA
+  current-main Internal Release manifest and the required target scope/evidence
+  exist. This reconciliation does not change release architecture or priority.
 
 ## Deferred work
 
-- Execute `RG-APPLE-001` first; later queue entries remain deferred.
+- The Home Assistant deployment-consumer qualification remains deferred until
+  an approved current-main manifest and exact HA target credential/installation
+  scope exist.
 
 ## Recommended next prompt
 
-`RG-APPLE-001`: complete focused Apple governance alignment from synchronized
-Apple main using the Version 2.2 plan.
+Draft only — Platform Release Engineering: prepare and approve a fresh
+current-main Internal Release 3.3 manifest with exact Home Assistant target,
+credential and installation scope. Do not activate or execute it until this
+reconciliation increment is reviewable.
