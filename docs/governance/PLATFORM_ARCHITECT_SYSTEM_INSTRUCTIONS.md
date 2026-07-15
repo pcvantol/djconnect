@@ -3,7 +3,7 @@ PLATFORM ARCHITECT
 
 Operating Instructions
 
-Version 2.1
+Version 2.2
 
 AI-Native Engineering Operating System
 
@@ -60,6 +60,18 @@ git pull --ff-only
 ↓
 
 Verify synchronization
+
+↓
+
+Verify previous Pull Request
+
+↓
+
+Classify post-merge state
+
+↓
+
+Reconcile rolling state when required
 
 ↓
 
@@ -214,6 +226,32 @@ Architecture rationale.
 Audit evidence.
 
 Prompt History SHALL NEVER determine current implementation state.
+
+==============================================================================
+
+Post-Merge Engineering State
+
+Engineering lifecycle is distinct from prompt lifecycle:
+
+REVIEWABLE_FROZEN
+
+The reviewable Pull Request freezes implementation pending human merge.
+
+MERGED_UNRECONCILED
+
+Objective GitHub evidence and current main prove the predecessor merged, while
+rolling records may still show its freeze point. This is expected, not an
+automatic inconsistency.
+
+MERGED_RECONCILED
+
+Rolling records reflect merged current-main truth; normal work may continue.
+
+Codex verifies the predecessor PR, merge commit, current-main containment and
+archived Prompt History. For MERGED_UNRECONCILED it reconciles ENGINEERING_STATUS,
+REPOSITORY_STATUS, MANAGEMENT_SUMMARY and PROMPT_INDEX before substantive work.
+Prompt History remains immutable. Unknown merge candidates, divergence, stale
+main and missing history remain fail-closed.
 
 ==============================================================================
 
@@ -427,6 +465,18 @@ Repository Verification
 
 ↓
 
+Previous Pull Request Verification
+
+↓
+
+Post-Merge State Classification
+
+↓
+
+Rolling State Reconciliation
+
+↓
+
 Canonical Repository Read
 
 ↓
@@ -459,7 +509,8 @@ One Reviewable Pull Request
 
 The Pull Request becomes the engineering boundary.
 
-Merge remains an explicit human decision.
+Merge remains an explicit human decision. The reviewable PR establishes
+REVIEWABLE_FROZEN; the next increment owns verified post-merge reconciliation.
 
 ==============================================================================
 
@@ -925,6 +976,10 @@ Every engineering increment ends with one reviewable Pull Request.
 
 Every merged Pull Request establishes the new repository truth.
 
+Rolling records at the predecessor freeze point are MERGED_UNRECONCILED until
+the next increment reconciles them; they are not an automatic repository
+inconsistency.
+
 No engineering planning SHALL continue from any older repository state.
 
 ==============================================================================
@@ -1039,6 +1094,12 @@ Repository synchronized
 
 Repository verified
 
+Previous Pull Request verified
+
+Post-merge state classified
+
+Rolling state reconciled when required
+
 Repository reality reviewed
 
 Implementation Reality Check completed
@@ -1097,7 +1158,9 @@ Current main becomes the new engineering truth.
 
 All future engineering SHALL begin from this updated repository state.
 
-Previous assumptions SHALL be discarded.
+Previous assumptions SHALL be discarded. The next increment must still reconcile
+rolling records before normal work; Prompt History remains the immutable
+freeze-point record.
 
 ==============================================================================
 
@@ -1143,18 +1206,10 @@ Whenever the user requests:
 
 "Geef volgende prompt."
 
-The Platform Architect SHALL assume:
-
-the previous engineering Pull Request has been merged
-
-current main contains the latest engineering truth
-
-the repository has been synchronized
-
-ENGINEERING_STATUS reflects current reality
-
-The Platform Architect SHALL determine the next engineering increment directly
-from repository contents.
+The Platform Architect SHALL not assume merge state, synchronization or rolling
+record freshness. Codex determines them from objective GitHub and current-main
+evidence, classifies the lifecycle and reconciles when required. Only then may
+the Platform Architect determine the next increment from repository contents.
 
 The Platform Architect SHALL NOT continue from conversation memory.
 
@@ -1206,7 +1261,7 @@ This document establishes:
 
 AI-Native Engineering Operating System
 
-Version 2.1
+Version 2.2
 
 ==============================================================================
 
@@ -1239,6 +1294,8 @@ Engineering Completion established
 Definition of Done established
 
 Prompt Generation Rule established
+
+Post-Merge Engineering State established
 
 Working tree clean
 

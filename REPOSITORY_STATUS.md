@@ -88,6 +88,23 @@ precedence over historical prompts and conversations. This governance-only
 increment introduces no implementation, Platform Architecture or Product
 Architecture change.
 
+## Post-Merge Engineering State Reconciliation
+
+Decision: `POST_MERGE_ENGINEERING_STATE_RECONCILIATION_ESTABLISHED`
+
+The Engineering Method defines three explicit engineering lifecycle states:
+`REVIEWABLE_FROZEN`, `MERGED_UNRECONCILED` and `MERGED_RECONCILED`. GitHub merge
+evidence and synchronized current main determine the state; current main always
+overrides conversations, prompts, historical assumptions and Prompt History.
+Prompt History remains immutable. A verified merged predecessor whose rolling
+records still describe its freeze point is an expected
+`MERGED_UNRECONCILED` transition, not an inconsistency. The next increment
+reconciles `ENGINEERING_STATUS.md`, `REPOSITORY_STATUS.md`,
+`MANAGEMENT_SUMMARY.md` and `PROMPT_INDEX.md` before substantive work.
+
+This governance increment changes no implementation, Platform Architecture or
+Product Architecture.
+
 Platform Baseline v1.0 is certified. The current platform decision is
 `PLATFORM_BASELINE_V1_CERTIFIED`.
 
@@ -179,11 +196,13 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-Engineering Method V2.3 Repository Synchronization is complete with decision
-`ENGINEERING_METHOD_V2_3_ESTABLISHED`; its reviewable pull request is
-[#118](https://github.com/pcvantol/djconnect/pull/118). No subsequent prompt
-is active. Future work must be selected from verified current roadmap and
-backlog evidence; it must not be inferred from historical prompt order.
+Engineering Method V2.3 Repository Synchronization was merged through
+[#118](https://github.com/pcvantol/djconnect/pull/118); its immutable Prompt
+History remains the freeze-point record. Post-Merge Engineering State
+Reconciliation is now `REVIEWABLE_FROZEN` pending human review and merge. No
+subsequent prompt is active. After merge, the next prompt must verify and
+reconcile that state before selecting work from verified current roadmap and
+backlog evidence.
 
 ## Completion Report
 

@@ -3,7 +3,8 @@
 **Decisions:** `DJCONNECT_GENERATION_1_COMPLETED`,
 `DJCONNECT_GENERATION_2_ESTABLISHED`,
 `ENGINEERING_WORKFLOW_ALIGNED`, `ENGINEERING_METHOD_V2_ESTABLISHED`,
-`ENGINEERING_METHOD_V2_3_ESTABLISHED`
+`ENGINEERING_METHOD_V2_3_ESTABLISHED`,
+`POST_MERGE_ENGINEERING_STATE_RECONCILIATION_ESTABLISHED`
 **Basis:** Objective repository evidence recorded in the linked documents.
 
 ## Current position
@@ -18,6 +19,7 @@
 | Platform Release 3.3 Internal | Operational, blocked | `docs/release/PLATFORM_RELEASE_MANAGEMENT_SUMMARY.md` |
 | Engineering Workflow | Aligned; no implementation changed | `docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md` |
 | Engineering Method V2.3 | Established; no implementation or architecture changed | `ENGINEERING_METHOD.md` |
+| Post-Merge Engineering State | Reviewable frozen; no implementation or architecture changed | `ENGINEERING_METHOD.md` |
 
 ## Generation 2 decision
 
@@ -79,6 +81,29 @@ not authorize a product, architecture, release or implementation increment.
 roadmap and backlog evidence.
 **Recommended next prompt:** none; after merge, synchronize current main and
 determine the next increment from repository evidence.
+
+## Post-Merge Engineering State Reconciliation
+
+**Decision:** `POST_MERGE_ENGINEERING_STATE_RECONCILIATION_ESTABLISHED`
+**Branch:** `codex/post-merge-engineering-state-reconciliation`
+**Commit SHA:** recorded at finalization
+**Pull Request:** recorded at finalization
+**Validation:** objective predecessor merge verification, governance-document
+contract review and `git diff --check`
+**Updated governance documents:** method, bootstrap, synchronization,
+initialization, finalization, prompt governance/template, Platform Architect
+instructions and rolling state records
+**Repository hygiene:** PR #118 is merged, its remote branch is absent, current
+main contains its merge commit and its Prompt History is archived
+**Recommended next prompt:** after this PR is merged, synchronize current main,
+verify its merge and reconcile its `REVIEWABLE_FROZEN` rolling state before any
+new engineering planning.
+
+This increment establishes the expected `MERGED_UNRECONCILED` transition and
+the resulting `MERGED_RECONCILED` state. It keeps Prompt History immutable and
+makes current main the authority over conversations, prompt text and historical
+assumptions. No implementation, Platform Architecture or Product Architecture
+changed.
 
 ## Documentation outcome
 

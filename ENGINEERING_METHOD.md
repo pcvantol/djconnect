@@ -1,7 +1,7 @@
 # DJConnect Engineering Method
 
 **Status:** Canonical operational governance
-**Version:** 2.3
+**Version:** 2.4
 **Scope:** Entire DJConnect platform
 
 ## Purpose
@@ -20,7 +20,11 @@ establish the current state and safely continue from repository contents.
 Switch to main
   -> Fast-forward synchronize
   -> Verify synchronization
-  -> Current main
+  -> Verify current main
+  -> Verify previous pull request
+  -> Classify post-merge engineering state
+  -> Reconcile rolling state when required
+  -> Canonical repository read
   -> ENGINEERING_STATUS
   -> REPOSITORY_STATUS
   -> Management Summary
@@ -34,7 +38,8 @@ Switch to main
 operational contracts are `AI_SESSION_INITIALIZATION.md`,
 `PROMPT_GOVERNANCE.md`, `PROMPT_FINALIZATION.md` and
 `REPOSITORY_HYGIENE.md`. `REPOSITORY_SYNCHRONIZATION.md` defines the required
-first phase.
+first phase. `PROMPT_INITIALIZATION.md` owns the exact prompt sequence so this
+method does not duplicate operational detail.
 
 Every engineering prompt must execute `git switch main` followed by
 `git pull --ff-only` before repository reading or planning. It must then verify
@@ -43,12 +48,28 @@ working tree and repository cleanliness. Synchronization or verification
 failure is terminal for that prompt: stop and resolve repository state before
 engineering begins.
 
+## Engineering lifecycle state
+
+Every increment has one explicit engineering lifecycle state:
+
+| State | Meaning |
+| --- | --- |
+| `REVIEWABLE_FROZEN` | The scoped pull request exists; implementation is frozen pending human review and merge. |
+| `MERGED_UNRECONCILED` | Objective GitHub evidence proves the predecessor merged and current `main` contains it, while rolling records may still describe its freeze point. This is expected, not automatically inconsistent. |
+| `MERGED_RECONCILED` | Rolling engineering records reflect the merged repository truth; normal planning and implementation may continue. |
+
+The reviewable pull request is the freeze point. Human merge is external. The
+next increment owns reconciliation after an objectively verified merge; it
+never rewrites immutable Prompt History.
+
 ## Reality before planning
 
-Before every engineering prompt, verify synchronized repository state,
-`ENGINEERING_STATUS`, the active roadmap, the active backlog and implementation
-reality. `ENGINEERING_STATUS.md` must reflect current `main`; if it does not,
-stop and resolve repository state before proposing or starting implementation.
+Before every engineering prompt, verify synchronized repository state, the
+previous pull request, merge evidence, `ENGINEERING_STATUS`, the active
+roadmap, the active backlog and implementation reality. A verified merged
+predecessor whose rolling records remain at its freeze point is
+`MERGED_UNRECONCILED`; reconcile it before substantive engineering. Other
+unexplained divergence remains fail-closed.
 
 Before proposing implementation, establish whether the requested capability
 already exists, is validated, is qualified, or is already supported by
@@ -63,9 +84,10 @@ memory, example prompts and historical planning. Historical prompt order is
 informational only; engineering work is never invented from chat context.
 
 Every increment begins from synchronized current main, verifies repository
-truth, and plans only after synchronization and the implementation-reality
-check. If requested functionality already exists, is validated or is
-qualified, do not reimplement it; close only the remaining evidenced gaps.
+truth, classifies and reconciles post-merge state when needed, and plans only
+after the implementation-reality check. If requested functionality already
+exists, is validated or is qualified, do not reimplement it; close only the
+remaining evidenced gaps.
 
 ## Ownership and protection
 

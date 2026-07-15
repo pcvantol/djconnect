@@ -14,8 +14,19 @@ git pull --ff-only
 
 Immediately verify the checked-out branch, `HEAD`, upstream tracking branch,
 fast-forward state, working-tree cleanliness and repository cleanliness. Do
-not continue if any check fails. Only then read the current repository in the
-following order. Do not use prior conversations as a substitute.
+not continue if any check fails. Then verify the predecessor pull request from
+objective GitHub and Git evidence: merge state and commit, containment in
+current `main`, and archived Prompt History. Do not use prior conversations as
+a substitute.
+
+Classify the engineering lifecycle using `ENGINEERING_METHOD.md`. If a verified
+merged predecessor has rolling records still at its reviewable freeze point,
+the expected state is `MERGED_UNRECONCILED`: reconcile the four rolling records
+named below before substantive engineering. Never rewrite Prompt History.
+Other unresolved merge or repository inconsistencies are terminal.
+
+Only after required reconciliation, read the current repository in the
+following order:
 
 ```text
 BOOTSTRAP.md
@@ -39,7 +50,7 @@ The records have distinct responsibilities:
 | `MANAGEMENT_SUMMARY.md` | Executive engineering summary. |
 | `ROADMAP_INDEX.md` | Canonical roadmap navigation. |
 | `PROMPT_INDEX.md` | Prompt lifecycle and navigation. |
-| `docs/history/prompts/` | Immutable engineering history, never current-state authority. |
+| `docs/history/prompts/` | Immutable engineering history, never current-state authority or rewritten after merge. |
 
 After reading, perform the implementation-reality check required by
 `AI_SESSION_INITIALIZATION.md`. If reality differs from planning, stop and
