@@ -1,6 +1,6 @@
 # Platform Release 3.3 — Operational Manifest Preparation
 
-Date: 2026-07-14  
+Date: 2026-07-15
 Decision: `PLATFORM_RELEASE_3_3_MANIFEST_APPROVED_DEPLOYMENT_DISPATCH_PENDING`
 
 ## Scope
@@ -53,6 +53,22 @@ maintainer explicitly approved this exact `cloudflare_pages_production`
 binding and its manifest-bound deployment followed by separate post-deployment
 smoke.
 
+## Operational execution evidence
+
+The authorized website deployment completed successfully through the bounded
+Cloudflare Pages consumer. Deployment run
+[`29441732130`](https://github.com/pcvantol/djconnect-website/actions/runs/29441732130)
+validated the exact artifact checksum before publishing; post-deployment smoke
+run [`29441809581`](https://github.com/pcvantol/djconnect-website/actions/runs/29441809581)
+then verified deployment-evidence identity and the read-only production route.
+The website target decision is `DEPLOYMENT_OPERATIONAL`.
+
+The first dispatch failed safely before Cloudflare contact because the workflow
+assumed an artifact root path that `download-artifact` does not provide. Website
+PR [#25](https://github.com/pcvantol/djconnect-website/pull/25) remediated the
+path handling by locating exactly one archive before checksum verification and
+unpacking. The successful retry is the operational evidence above.
+
 ## Known operational gates
 
 - Each deployment consumer must independently validate its least-privilege
@@ -67,6 +83,6 @@ smoke.
 
 ## Next action
 
-After this manifest binding is merged to `main`, dispatch either authorized
-target. Dispatch its separate smoke workflow only after that target's
-deployment succeeds.
+Remediate the missing `private-network-deployment` environment secrets before
+retrying the already authorized `home_assistant_pi5` deployment. Every other
+required target still needs its own explicit authorization.
