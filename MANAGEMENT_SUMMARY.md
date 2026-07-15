@@ -4,7 +4,8 @@
 `DJCONNECT_GENERATION_2_ESTABLISHED`,
 `ENGINEERING_WORKFLOW_ALIGNED`, `ENGINEERING_METHOD_V2_ESTABLISHED`,
 `ENGINEERING_METHOD_V2_3_ESTABLISHED`,
-`POST_MERGE_ENGINEERING_STATE_RECONCILIATION_ESTABLISHED`
+`POST_MERGE_ENGINEERING_STATE_RECONCILIATION_ESTABLISHED`,
+`DJCONNECT_REPOSITORY_GOVERNANCE_AUDIT_PASSED`
 **Basis:** Objective repository evidence recorded in the linked documents.
 
 ## Current position
@@ -19,7 +20,8 @@
 | Platform Release 3.3 Internal | Operational, blocked | `docs/release/PLATFORM_RELEASE_MANAGEMENT_SUMMARY.md` |
 | Engineering Workflow | Aligned; no implementation changed | `docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md` |
 | Engineering Method V2.3 | Established; no implementation or architecture changed | `ENGINEERING_METHOD.md` |
-| Post-Merge Engineering State | Reviewable frozen; no implementation or architecture changed | `ENGINEERING_METHOD.md` |
+| Post-Merge Engineering State | Reconciled | `ENGINEERING_METHOD.md` |
+| Repository Governance Rollout | Completed, merged, reconciled and archived | `docs/governance/REPOSITORY_GOVERNANCE_AUDIT_V2_2.md` |
 
 ## Generation 2 decision
 
@@ -105,37 +107,20 @@ makes current main the authority over conversations, prompt text and historical
 assumptions. No implementation, Platform Architecture or Product Architecture
 changed.
 
-## Repository Governance Rollout Planning
+## Repository Governance Rollout
 
-**Decision:** `DJCONNECT_REPOSITORY_GOVERNANCE_ROLLOUT_BLOCKED`
-**Branch:** `codex/repository-governance-rollout`
-**Implementation Commit:** `ea7f0ada186a6742d11d5bef6a90302719611b10`
-**Pull Request:** [#126](https://github.com/pcvantol/djconnect/pull/126)
-**Basis:** The maintainer selected Version 2.2; this review update aligns the
-Platform Architect decision values. The current-main adoption contract remains
-blocked only until PR #126 merges and is reconciled.
-**Scope:** Central documentation only; no sibling repository or product
-implementation was modified.
-**Outcome:** The repository inventory and Apple verification are recorded in
-`docs/governance/REPOSITORY_GOVERNANCE_ROLLOUT.md`. Apple is
-`APPLE_GOVERNANCE_ADOPTION_PARTIAL`; its merged bootstrap PR still has stale
-rolling records and lacks the yet-unavailable explicit adoption version.
-**Recommended next prompt:** Governance: establish a single AI-Native
-Repository Governance Rollout Planning continuation after PR #126 merges:
-verify Version 2.2 on current main, reconcile, then start the queue.
-
-## Documentation outcome
-
-## Repository Governance Rollout Planning Completion
-
-**Decision:** `DJCONNECT_REPOSITORY_GOVERNANCE_ROLLOUT_PLANNED`
-**Basis:** PR #126 is merged in current main; AI-Native Engineering Operating
-System Version 2.2 is aligned and the predecessor state is reconciled.
-**Outcome:** The deterministic nine-repository adoption queue and final central
-audit specification are recorded in
-`docs/governance/REPOSITORY_GOVERNANCE_ROLLOUT_PLAN_V2_2.md`.
-**Recommended next prompt:** `RG-APPLE-001`, focused Apple governance
-alignment.
+**Decision:** `DJCONNECT_REPOSITORY_GOVERNANCE_AUDIT_PASSED`
+**Planning completion:** [#127](https://github.com/pcvantol/djconnect/pull/127),
+merged as `55b797a17f9115a3baae1d3a81441664c7e02e96`.
+**Final audit:** [#128](https://github.com/pcvantol/djconnect/pull/128), merged
+as `a6ee55f8af192d27b6c8a6ae3dcf0c4f36765bba`.
+**Outcome:** All nine Version 2.2 repository adoption PRs are merged; their
+head branches are absent. The rollout plan and audit are completed, reconciled
+and archived evidence, not active governance work.
+**Recommended next prompt:** Draft only — Platform Release Engineering:
+prepare an approved fresh current-main Internal Release 3.3 manifest and exact
+Home Assistant target credential/installation scope. Do not activate it until
+this reconciliation increment is reviewable.
 
 `ROADMAP_INDEX.md` provides one navigation source. `PRODUCT_ROADMAP.md`,
 `PLATFORM_EVOLUTION_BACKLOG.md` and `INNOVATION_BACKLOG.md` are the only active
