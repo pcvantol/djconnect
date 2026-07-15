@@ -17,13 +17,26 @@
 | Software Assurance | Completed and frozen | `docs/software_assurance/SOFTWARE_ASSURANCE_GENERATION_1_CLOSURE_REPORT.md` |
 | Trusted Delivery | Completed and frozen | `docs/software_assurance/TRUSTED_DELIVERY_CERTIFICATION.md` |
 | Platform Release Engineering | Architecture qualified and frozen | `docs/release/PLATFORM_RELEASE_QUALIFICATION.md` |
-| Platform Release 3.3 Internal | Operational, blocked | `docs/release/PLATFORM_RELEASE_MANAGEMENT_SUMMARY.md` |
+| Platform Release 3.3 Internal | Partially deployed; four targets qualified | `docs/release/PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json` |
 | Engineering Workflow | Aligned; no implementation changed | `docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md` |
 | Engineering Method V2.3 | Established; no implementation or architecture changed | `ENGINEERING_METHOD.md` |
 | Post-Merge Engineering State | Reconciled | `ENGINEERING_METHOD.md` |
 | Repository Governance Rollout | Completed, merged, reconciled and archived | `docs/governance/REPOSITORY_GOVERNANCE_AUDIT_V2_2.md` |
 
 ## Generation 2 decision
+
+## Platform Release 3.3 operational position
+
+The approved Internal Release manifest has four completed target-scoped
+operations: API Workers, Website Pages, Raspberry Pi and ESP32. Each has
+objective GitHub Actions evidence for a successful manifest-bound deployment
+and separate post-deployment smoke. Home Assistant, Apple private devices and
+Windows ARM64 are not included in that completion claim. The release remains
+incomplete and is not eligible for release certification or burn-in closure.
+
+The authoritative execution ledger is
+`docs/release/PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json` with decision
+`APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL`.
 
 The evidence supports a transition from Generation 1 platform construction to
 the three-program Generation 2 operating model: DJConnect Product Development,

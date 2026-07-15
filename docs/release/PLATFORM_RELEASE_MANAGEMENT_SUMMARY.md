@@ -1,34 +1,33 @@
 # Platform Release 3.3 — Management Summary
 
-Current decision: `PLATFORM_RELEASE_3_3_CANDIDATE_BLOCKED`
+Current decision: `PLATFORM_RELEASE_3_3_MANIFEST_APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL`
 
 Historical decision: `PLATFORM_RELEASE_DRY_RUN_PASSED`
 
 ## Current release position
 
 Platform Release Engineering is qualified as a reusable Generation 1
-capability, but Platform Release 3.3 is not authorized for operational
-execution. The prior candidate branches and their exact-SHA evidence were
-merged and removed; they are historical evidence and cannot qualify the
-current `main` commits.
+capability. Platform Release 3.3 has an approved exact-artifact Internal
+Release manifest and four successfully completed target-scoped operations. The
+prior candidate branches remain historical evidence and do not replace the
+approved manifest binding.
 
 The Generation 1 release architecture and policy contracts are qualified and
-frozen. They do not constitute operational deployment consumers or smoke
-capability for Release 3.3. Those consumers must still be implemented and
-qualified for the approved manifest before an operational release can be
-authorized. No production target has been mutated, no tag or GitHub Release
-has been created, and no operational deployment or burn-in evidence exists.
+frozen. The current manifest records successful manifest-bound deployment and
+separate post-deployment smoke for `cloudflare_workers_production`,
+`cloudflare_pages_production`, `rbpi-djconnect` and
+`esp32_lilygo_t_embed_s3`. Their exact workflow evidence is recorded in
+`PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json` and the target completion
+records. Home Assistant, Apple private-device and Windows ARM64 targets remain
+open. No complete release or operational burn-in evidence exists.
 
-Before an Internal Release can be authorized, the platform must:
+Before the Internal Release can be closed, the platform must:
 
-1. complete and qualify the manifest-bound deployment and smoke consumers for
-   every required target in the approved release manifest;
-2. reconstruct a fresh 3.3 candidate manifest from the exact current `main`
-   SHAs;
-3. bind new verification, coverage, Software Assurance and Trusted Delivery
-   evidence to that candidate; and
-4. obtain explicit authorization for the bounded manifest-bound deployment
-   dispatches.
+1. obtain exact, target-scoped authorization and complete manifest-bound
+   deployment plus smoke for Home Assistant;
+2. complete the equivalent separately authorized Apple private-device and
+   Windows ARM64 operations; and
+3. reconcile all target evidence before considering release burn-in.
 
 Platform Release Certification is deferred until after a successful
 operational release and sufficient burn-in evidence. It cannot substitute for
@@ -43,8 +42,8 @@ recorded findings:
    Repository Ownership participant.
 3. Fresh candidate coverage passed runtime ingestion as `COVERAGE_VALID`.
 
-No production release action occurred. Tags, GitHub Releases, deployments,
-uploads, firmware rollout and publication remain absent.
+This historical dry-run paragraph is not a statement about the current
+manifest-bound operations above.
 
 ## Native runner alignment
 
@@ -60,11 +59,9 @@ smoke capability and current-main candidate evidence.
 
 ## Current candidate reconstruction
 
-The historical dry-run candidates are no longer current `main` commits and
-cannot authorize an operational release. Fresh 3.3 candidate branches have
-been reconstructed from current main, with the discovered Home Assistant,
-Apple and Windows runtime metadata corrections applied. Their current
-readiness decision is `PLATFORM_RELEASE_3_3_CANDIDATE_BLOCKED`: no fresh
-candidate has yet qualified evidence, and the new per-repository workflow
-contracts intentionally fail closed for `execute` until native build,
-publication, deployment and rollback actions are qualified.
+The approved current manifest is
+`release-3.3.0-internal-20260714`, status
+`APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL`. Its four completed target operations
+do not waive the remaining target-specific prerequisites. Release certification
+is still blocked until every required target is qualified and burn-in evidence
+has been collected.

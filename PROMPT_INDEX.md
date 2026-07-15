@@ -49,19 +49,17 @@ planning is read.
 | Repository Governance Rollout Planning | Completed / merged reconciled | Verify canonical governance and repository maturity; align the maintainer-selected Version 2.2 decision value. | `codex/repository-governance-rollout` | `docs/governance/REPOSITORY_GOVERNANCE_ROLLOUT.md`; PR [#126](https://github.com/pcvantol/djconnect/pull/126) |
 | Repository Governance Rollout Planning Completion | Completed / merged reconciled / archived | Establish the Version 2.2 adoption queue. | `codex/repository-governance-rollout-completion` | `docs/history/prompts/2026-07-15-repository-governance-rollout-completion.md`; PR [#127](https://github.com/pcvantol/djconnect/pull/127) |
 | Repository Governance Audit | Completed / merged reconciled / archived | Audit all nine merged Version 2.2 repository adoptions. | `codex/repository-governance-audit` | `docs/governance/REPOSITORY_GOVERNANCE_AUDIT_V2_2.md`; PR [#128](https://github.com/pcvantol/djconnect/pull/128) |
-| Rolling Records Reconciliation | Reviewable pending | Reconcile central rolling records after the completed governance rollout. | `codex/reconcile-governance-rolling-records` | `docs/history/prompts/2026-07-15-platform-governance-rolling-records-reconciliation.md`; PR [#129](https://github.com/pcvantol/djconnect/pull/129) |
+| Rolling Records Reconciliation | Completed / merged reconciled / archived | Reconciled central rolling records after the completed governance rollout. | `codex/reconcile-governance-rolling-records` | `docs/history/prompts/2026-07-15-platform-governance-rolling-records-reconciliation.md`; PR [#129](https://github.com/pcvantol/djconnect/pull/129) |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
 
 ## Next Engineering Increment
 
-Draft only — Platform Release Engineering: prepare an approved fresh
-current-main Internal Release 3.3 manifest with exact Home Assistant target,
-credential and installation scope. This is derived from the current release
-backlog and remains blocked until those prerequisites exist. Do not activate or
-execute it until the Rolling Records Reconciliation increment has its one
-reviewable pull request.
+Draft only — Platform Release Engineering: qualify the remaining Home
+Assistant target against the already approved exact manifest binding and record
+its target-scoped deployment and smoke evidence. Do not activate or execute it
+without explicit target authorization.
 
 ## Active Next Phase
 
@@ -82,15 +80,12 @@ The qualified macOS runner has the three separately bounded capabilities
 defined in `docs/release/`: Apple Native Build, Private-Network Deployment
 Relay and Apple Secure Distribution Relay.
 
-No operational Platform Release 3.3 has been executed. The former candidate
-branches are historical and have been removed after merge; they cannot
-authorize the current `main` SHAs. The current decision is therefore
-`PLATFORM_RELEASE_3_3_CANDIDATE_BLOCKED` until a fresh exact-SHA candidate
-manifest, qualification/coverage evidence and approved release manifest are
-created. The Pi manifest-bound deployment and post-deployment smoke workflow
-has been merged but has not been dispatched. Equivalent operational deployment
-consumers must be completed and qualified for every required target in the
-approved Internal Release manifest before deployment may be authorized.
+The approved manifest
+`release-3.3.0-internal-20260714` is partially operational. API, Website,
+Raspberry Pi and ESP32 have each completed an exact manifest-bound deployment
+and separately dispatched post-deployment smoke. Home Assistant, Apple and
+Windows remain independent, unqualified targets. This is not a complete
+Internal Release and does not authorize release certification or burn-in.
 
 The next release-engineering activity is not certification or an automatic
 release. It is explicit, scoped preparation of the remaining deployment

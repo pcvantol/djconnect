@@ -1,7 +1,7 @@
 # Platform Release 3.3 — Operational Manifest Preparation
 
 Date: 2026-07-15
-Decision: `PLATFORM_RELEASE_3_3_MANIFEST_APPROVED_DEPLOYMENT_DISPATCH_PENDING`
+Decision: `PLATFORM_RELEASE_3_3_MANIFEST_APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL`
 
 ## Scope
 
@@ -77,6 +77,16 @@ PR [#25](https://github.com/pcvantol/djconnect-website/pull/25) remediated the
 path handling by locating exactly one archive before checksum verification and
 unpacking. The successful retry is the operational evidence above.
 
+The authorized ESP32 OTA deployment then completed successfully through the
+Home Assistant Update-entity consumer. Deployment run
+[`29446964025`](https://github.com/pcvantol/djconnect-esp32/actions/runs/29446964025)
+validated the approved manifest binding and requested the exact firmware
+artifact. Its separately dispatched smoke run
+[`29447045601`](https://github.com/pcvantol/djconnect-esp32/actions/runs/29447045601)
+passed after bounded polling for the OTA restart. The smoke verified the
+expected `3.3.0` version through Home Assistant and by direct local-device
+read-back. The ESP32 target decision is `DEPLOYMENT_OPERATIONAL`.
+
 ## Known operational gates
 
 - Each deployment consumer must independently validate its least-privilege
@@ -91,6 +101,7 @@ unpacking. The successful retry is the operational evidence above.
 
 ## Next action
 
-After this authorization record is merged to `main`, dispatch the authorized
-`esp32_lilygo_t_embed_s3` deployment. Dispatch its separate smoke workflow
-only after deployment succeeds.
+Do not dispatch a target automatically. The recorded `home_assistant_pi5`
+authorization remains pending environment-readiness verification. Apple and
+Windows each require their own exact target-scoped authorization, followed by
+successful deployment and separately dispatched post-deployment smoke.

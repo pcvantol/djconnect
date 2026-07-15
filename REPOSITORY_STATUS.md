@@ -125,13 +125,12 @@ Platform Release Engineering Generation 1 has completed formal capability
 qualification with decision `PLATFORM_RELEASE_QUALIFIED`. Its architecture
 remains frozen. The historical 3.3 dry run passed, but its candidate branches
 and evidence are historical and cannot authorize the current `main` SHAs.
-The current release decision is `PLATFORM_RELEASE_3_3_CANDIDATE_BLOCKED` until
-fresh candidate, verification, coverage and Trusted Delivery evidence is
-bound to a current-main manifest. The Generation 1 deployment architecture and
-smoke policy are qualified and frozen, but Release 3.3 deployment consumers
-and smoke capability must still be operationally implemented and qualified
-against an approved current-main manifest. No operational Internal Release or
-production deployment has occurred, and no operational burn-in exists.
+The current release decision is
+`PLATFORM_RELEASE_3_3_MANIFEST_APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL`.
+The Generation 1 deployment architecture and smoke policy remain frozen. The
+approved current-main manifest has operational evidence for API, Website,
+Raspberry Pi and ESP32; Home Assistant, Apple and Windows remain unqualified.
+No complete Internal Release or operational burn-in exists.
 
 Prompt 5 certification remains generated but inactive. It requires completed
 operational release and burn-in evidence; it is not the next automatic action.
@@ -186,12 +185,10 @@ architecture are stable enough to freeze.
 
 ## Blocking Dependencies
 
-- Platform Release 3.3 requires a fresh exact-SHA candidate manifest and new
-  verification, coverage, Software Assurance and Trusted Delivery evidence
-  for current `main` commits.
-- Every target required by the approved Internal Release manifest needs a
-  qualified, manifest-bound deployment consumer and bounded smoke evidence
-  before operational execution can be authorized.
+- Platform Release 3.3 requires final deployment and bounded smoke evidence
+  for Home Assistant, Apple and Windows before the Internal Release can close.
+- Each remaining target requires its own exact authorization and
+  manifest-bound operation; completed targets do not authorize another target.
 - Platform Release Certification requires a successful Internal Release and
   sufficient burn-in evidence; it must not be started automatically.
 - Platform Baseline v1.0, Software Assurance Generation 1 and Trusted

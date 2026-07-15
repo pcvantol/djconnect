@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "kind": "platform_release_operational_manifest",
-  "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
+  "status": "APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL",
   "manifest_id": "release-3.3.0-internal-20260714",
   "platform_version": "3.3",
   "release_version": "3.3.0",
@@ -79,8 +79,8 @@
   ],
   "evidence": {
     "artifact_integrity": "VERIFIED: current-main Home Assistant artifact 8347737416, current-main Website artifact 8346470431 and rebound API artifact 8323208436",
-    "deployment_evidence": "PARTIAL: rbpi-djconnect, cloudflare_workers_production and cloudflare_pages_production deployment evidence verified",
-    "post_deployment_smoke": "PARTIAL: rbpi-djconnect, cloudflare_workers_production and cloudflare_pages_production smoke evidence verified",
+    "deployment_evidence": "PARTIAL: rbpi-djconnect, cloudflare_workers_production, cloudflare_pages_production and esp32_lilygo_t_embed_s3 deployment evidence verified",
+    "post_deployment_smoke": "PARTIAL: rbpi-djconnect, cloudflare_workers_production, cloudflare_pages_production and esp32_lilygo_t_embed_s3 smoke evidence verified",
     "operational_credential_scope": "NOT_DISCLOSED; each deployment workflow must validate its own least-privilege scope."
   },
   "target_execution_evidence": [
@@ -113,6 +113,16 @@
       "smoke_workflow_run": "29441809581",
       "result": "DEPLOYMENT_OPERATIONAL",
       "verified_at": "2026-07-15T18:45:07Z"
+    },
+    {
+      "target": "esp32_lilygo_t_embed_s3",
+      "candidate_sha": "9f8a32482b8ea9fb322a29688955f5a4f26b001d",
+      "artifact_id": "release-asset:pcvantol/djconnect-firmware:v3.3.0:djconnect-lilygo-t-embed-s3-v3.3.0.bin",
+      "artifact_sha256": "c25444d3ef414489848fd2d8de624785c82eb90195cc861bcb63085e0df3ceeb",
+      "deployment_workflow_run": "29446964025",
+      "smoke_workflow_run": "29447045601",
+      "result": "DEPLOYMENT_OPERATIONAL",
+      "verified_at": "2026-07-15T20:06:57Z"
     }
   ],
   "constraints": [
@@ -121,5 +131,5 @@
     "Apple Watch is a required paired-iPhone companion validation, not a direct deployment target.",
     "Windows x64 is published but is not bound to this ARM64-only Internal Release."
   ],
-  "next_authorized_action": "Dispatch the authorized esp32_lilygo_t_embed_s3 deployment after this authorization record is merged to main; run its corresponding smoke only after successful deployment."
+  "next_authorized_action": "Do not dispatch a target automatically. The recorded home_assistant_pi5 authorization remains pending environment-readiness verification; Apple and Windows require their own exact target-scoped authorization, successful manifest-bound deployment and separate post-deployment smoke."
 }
