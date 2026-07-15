@@ -1,24 +1,22 @@
 # DJConnect Repository Governance Rollout
 
-**Status:** blocked pending canonical-governance correction  
+**Status:** blocked pending merge and reconciliation of the selected canonical version  
 **Decision:** `DJCONNECT_REPOSITORY_GOVERNANCE_ROLLOUT_BLOCKED`  
 **Assessment date:** 2026-07-15
 
 ## Decision and blocker
 
-Repository adoption cannot be planned safely yet. The canonical Platform
-Architect instructions identify themselves as **AI-Native Engineering Operating
-System Version 2.2**, while their required decision value remains
-`AI_NATIVE_ENGINEERING_OPERATING_SYSTEM_V2_1_ESTABLISHED`. This is an internal
-version contradiction in the source that every repository would otherwise
-adopt. No separate adoption version can be assigned objectively.
+Repository adoption cannot be planned safely from current `main` yet. The
+maintainer selected **AI-Native Engineering Operating System Version 2.2**.
+This review update aligns the required decision value with that selection in PR
+#126, but `main` remains the canonical source until the pull request merges and
+the next increment reconciles its rolling state.
 
 The canonical source is centralized in `pcvantol/djconnect`, not duplicated in
 the assessed repositories. `ENGINEERING_METHOD.md` is version 2.4 and is an
-operational contract within that source; it does not resolve the contradictory
-Operating System version above. Per the requested fail-closed rule, no
-repository-adoption prompt, queue, or implementation PR is generated until one
-central correction establishes a single adoption contract.
+operational contract within that source. Per the requested fail-closed rule, no
+repository-adoption prompt, queue, or implementation PR is generated until the
+selected Version 2.2 source is merged and reconciled on current `main`.
 
 ## Evidence
 
@@ -28,8 +26,9 @@ central correction establishes a single adoption contract.
 - GitHub records central PR [#125](https://github.com/pcvantol/djconnect/pull/125)
   as merged on 2026-07-15. Its squash merge is current `main`; the next
   increment reconciles the expected `MERGED_UNRECONCILED` records.
-- `docs/governance/PLATFORM_ARCHITECT_SYSTEM_INSTRUCTIONS.md` names Version 2.2
-  and later prescribes the V2.1 decision value.
+- Before maintainer direction, `docs/governance/PLATFORM_ARCHITECT_SYSTEM_INSTRUCTIONS.md`
+  named Version 2.2 and later prescribed the V2.1 decision value. This branch
+  aligns both required decision values to Version 2.2.
 - The canonical source also contains the required Platform Architect
   instructions, Engineering Method, prompt governance, initialization,
   finalization, synchronization and post-merge rules. The problem is version

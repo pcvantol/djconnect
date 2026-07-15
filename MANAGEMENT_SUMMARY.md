@@ -111,9 +111,9 @@ changed.
 **Branch:** `codex/repository-governance-rollout`
 **Implementation Commit:** `ea7f0ada186a6742d11d5bef6a90302719611b10`
 **Pull Request:** [#126](https://github.com/pcvantol/djconnect/pull/126)
-**Basis:** Current central governance inspection found a Version 2.2 label in
-the Platform Architect instructions alongside a required V2.1 decision value.
-The requested repository adoption contract cannot truthfully name one version.
+**Basis:** The maintainer selected Version 2.2; this review update aligns the
+Platform Architect decision values. The current-main adoption contract remains
+blocked only until PR #126 merges and is reconciled.
 **Scope:** Central documentation only; no sibling repository or product
 implementation was modified.
 **Outcome:** The repository inventory and Apple verification are recorded in
@@ -121,8 +121,8 @@ implementation was modified.
 `APPLE_GOVERNANCE_ADOPTION_PARTIAL`; its merged bootstrap PR still has stale
 rolling records and lacks the yet-unavailable explicit adoption version.
 **Recommended next prompt:** Governance: establish a single AI-Native
-Engineering Operating System adoption contract, then reconcile its merge before
-starting the first repository-specific adoption prompt.
+Repository Governance Rollout Planning continuation after PR #126 merges:
+verify Version 2.2 on current main, reconcile, then start the queue.
 
 ## Documentation outcome
 

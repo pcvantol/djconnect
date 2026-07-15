@@ -206,9 +206,9 @@ The current central-governance planning increment is Repository Governance
 Rollout Planning, reviewable in
 [#126](https://github.com/pcvantol/djconnect/pull/126). It records
 `DJCONNECT_REPOSITORY_GOVERNANCE_ROLLOUT_BLOCKED`: the canonical Platform
-Architect instructions contain a Version 2.2 / V2.1 decision contradiction, so
-no repository adoption prompt is authorized until one central correction
-establishes an unambiguous adoption contract.
+Architect instructions are aligned to maintainer-selected Version 2.2 in this
+reviewable PR, so no repository adoption prompt is authorized until that change
+is merged and reconciled on current main.
 
 ## Completion Report
 

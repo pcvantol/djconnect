@@ -9,10 +9,10 @@ Repository Governance Rollout Planning. Objective GitHub evidence confirms
 that [#125](https://github.com/pcvantol/djconnect/pull/125) merged into current
 `main`; its rolling records have been reconciled from the expected
 `MERGED_UNRECONCILED` transition. This dedicated central-governance planning
-increment found an internal canonical-version contradiction and is limited to
-recording the fail-closed outcome and one central correction prompt. Its scoped
-pull request is [#126](https://github.com/pcvantol/djconnect/pull/126),
-`REVIEWABLE_FROZEN` pending human review and merge.
+increment records the maintainer-selected canonical Version 2.2 and is limited
+to the fail-closed planning outcome. Its scoped pull request is
+[#126](https://github.com/pcvantol/djconnect/pull/126), `REVIEWABLE_FROZEN`
+pending human review and merge.
 
 ## Current engineering program
 
@@ -30,19 +30,18 @@ archived. The stale rolling records were therefore the expected
 
 ## Known blockers and limitations
 
-- Canonical Platform Architect instructions declare Operating System Version
-  2.2 while prescribing a V2.1 decision value. Repository adoption must remain
-  blocked until one central correction establishes an unambiguous contract.
+- Version 2.2 is selected and aligned in PR #126, but repository adoption must
+  remain blocked until that PR merges and its rolling state is reconciled.
 - Platform Release 3.3 remains operationally blocked as documented in
   `REPOSITORY_STATUS.md`; this planning increment does not change it.
 
 ## Deferred work
 
-- Repository-specific adoption is deferred until the central adoption contract
-  correction is merged and reconciled.
+- Repository-specific adoption is deferred until the Version 2.2 alignment is
+  merged and reconciled.
 
 ## Recommended next prompt
 
-Governance: establish a single AI-Native Engineering Operating System adoption
-contract. It must begin with synchronization and post-merge verification, then
-correct the canonical version contradiction before any repository adoption.
+Continue Repository Governance Rollout Planning after PR #126 merges: verify
+Version 2.2 on current main, reconcile its rolling state, then generate the
+deterministic repository adoption queue.
