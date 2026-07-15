@@ -19,6 +19,14 @@
         "artifact_id": "8346470431",
         "artifact_sha256": "dff7ba59c2cf3cd299670487d09ba6e98d845659736dfd0e9770e884e8127027",
         "approved_statement": "I explicitly approve updated operational manifest release-3.3.0-internal-20260714 for target cloudflare_pages_production, candidate 64f95dcb8a2cf2da523c46f08ed5b07fdcdf6daa, artifact 8346470431, SHA-256 dff7ba59c2cf3cd299670487d09ba6e98d845659736dfd0e9770e884e8127027, and authorize its manifest-bound deployment followed by post-deployment smoke."
+      },
+      {
+        "approved_at": "2026-07-15",
+        "target": "esp32_lilygo_t_embed_s3",
+        "candidate_sha": "9f8a32482b8ea9fb322a29688955f5a4f26b001d",
+        "artifact_id": "release-asset:pcvantol/djconnect-firmware:v3.3.0:djconnect-lilygo-t-embed-s3-v3.3.0.bin",
+        "artifact_sha256": "c25444d3ef414489848fd2d8de624785c82eb90195cc861bcb63085e0df3ceeb",
+        "approved_statement": "I authorize deployment of manifest release-3.3.0-internal-20260714 to target esp32_lilygo_t_embed_s3 using artifact release-asset:pcvantol/djconnect-firmware:v3.3.0:djconnect-lilygo-t-embed-s3-v3.3.0.bin with SHA-256 c25444d3ef414489848fd2d8de624785c82eb90195cc861bcb63085e0df3ceeb, followed by post-deployment smoke."
       }
     ],
     "supersedes": {
@@ -36,7 +44,7 @@
         }
       }
     },
-    "effect": "Deployment and post-deployment smoke remain separately dispatched, target-scoped operations. The maintainer authorized the home_assistant_pi5 and cloudflare_pages_production deployments with their exact bindings and corresponding post-deployment smoke; no other target is authorized by these approvals."
+    "effect": "Deployment and post-deployment smoke remain separately dispatched, target-scoped operations. The maintainer authorized the home_assistant_pi5, cloudflare_pages_production and esp32_lilygo_t_embed_s3 deployments with their exact bindings and corresponding post-deployment smoke; no other target is authorized by these approvals."
   },
   "repositories": [
     {"repository": "pcvantol/djconnect", "source_sha": "0227e95ba10e8cc9256185a3bec6d22f86e286d4", "version": "3.3.0", "artifact_run": "29427139585"},
@@ -113,5 +121,5 @@
     "Apple Watch is a required paired-iPhone companion validation, not a direct deployment target.",
     "Windows x64 is published but is not bound to this ARM64-only Internal Release."
   ],
-  "next_authorized_action": "Remediate the missing home_assistant_pi5 private-network environment secrets before retrying its already authorized deployment; authorize every remaining required target separately."
+  "next_authorized_action": "Dispatch the authorized esp32_lilygo_t_embed_s3 deployment after this authorization record is merged to main; run its corresponding smoke only after successful deployment."
 }
