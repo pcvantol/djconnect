@@ -105,6 +105,22 @@ makes current main the authority over conversations, prompt text and historical
 assumptions. No implementation, Platform Architecture or Product Architecture
 changed.
 
+## Repository Governance Rollout Planning
+
+**Decision:** `DJCONNECT_REPOSITORY_GOVERNANCE_ROLLOUT_BLOCKED`
+**Basis:** Current central governance inspection found a Version 2.2 label in
+the Platform Architect instructions alongside a required V2.1 decision value.
+The requested repository adoption contract cannot truthfully name one version.
+**Scope:** Central documentation only; no sibling repository or product
+implementation was modified.
+**Outcome:** The repository inventory and Apple verification are recorded in
+`docs/governance/REPOSITORY_GOVERNANCE_ROLLOUT.md`. Apple is
+`APPLE_GOVERNANCE_ADOPTION_PARTIAL`; its merged bootstrap PR still has stale
+rolling records and lacks the yet-unavailable explicit adoption version.
+**Recommended next prompt:** Governance: establish a single AI-Native
+Engineering Operating System adoption contract, then reconcile its merge before
+starting the first repository-specific adoption prompt.
+
 ## Documentation outcome
 
 `ROADMAP_INDEX.md` provides one navigation source. `PRODUCT_ROADMAP.md`,

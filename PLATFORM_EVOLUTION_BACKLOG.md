@@ -9,6 +9,7 @@ or governed operations are constrained.
 
 | Initiative | Priority | Status | Dependencies | Promotion path |
 | --- | --- | --- | --- | --- |
+| Canonical governance adoption-contract correction | P0 | Blocked / next governance increment | resolve the Operating System Version 2.2 / V2.1 decision contradiction | one central governance PR, then repository-by-repository adoption |
 | Component Release Mode | P2 | Backlog | release evidence and current manifest model | bounded architecture review if contracts change |
 | GitHub Actions retention and evidence preservation (`TD-GITHUB-001`) | P1 | Open / Backlog | governance approval, Repository Ownership integration and a future approved retention design | governed implementation only after design and qualification |
 | Public distribution: Apple | P1 | Backlog | qualified Internal Release consumers and explicit authorization | release-operational work |
