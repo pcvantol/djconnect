@@ -202,13 +202,12 @@ architecture are stable enough to freeze.
 Post-Merge Engineering State Reconciliation merged through
 [#125](https://github.com/pcvantol/djconnect/pull/125); its immutable Prompt
 History remains the freeze-point record and the rolling state is reconciled.
-The current central-governance planning increment is Repository Governance
-Rollout Planning, reviewable in
-[#126](https://github.com/pcvantol/djconnect/pull/126). It records
-`DJCONNECT_REPOSITORY_GOVERNANCE_ROLLOUT_BLOCKED`: the canonical Platform
-Architect instructions are aligned to maintainer-selected Version 2.2 in this
-reviewable PR, so no repository adoption prompt is authorized until that change
-is merged and reconciled on current main.
+Repository Governance Rollout Planning PR #126 is merged and reconciled. The
+current central-governance planning completion increment records
+`DJCONNECT_REPOSITORY_GOVERNANCE_ROLLOUT_PLANNED` in
+`docs/governance/REPOSITORY_GOVERNANCE_ROLLOUT_PLAN_V2_2.md`; it authorizes
+only the next separately scoped Apple adoption prompt, not implementation in
+this central repository.
 
 ## Completion Report
 

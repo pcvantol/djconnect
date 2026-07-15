@@ -1,16 +1,16 @@
 # DJConnect Repository Governance Rollout
 
-**Status:** blocked pending merge and reconciliation of the selected canonical version
-**Decision:** `DJCONNECT_REPOSITORY_GOVERNANCE_ROLLOUT_BLOCKED`  
+**Status:** superseded by Version 2.2 completion plan
+**Decision:** historical `DJCONNECT_REPOSITORY_GOVERNANCE_ROLLOUT_BLOCKED`
 **Assessment date:** 2026-07-15
 
-## Decision and blocker
+## Historical decision and blocker
 
-Repository adoption cannot be planned safely from current `main` yet. The
+Repository adoption could not be planned safely from then-current `main`. The
 maintainer selected **AI-Native Engineering Operating System Version 2.2**.
 This review update aligns the required decision value with that selection in PR
-#126, but `main` remains the canonical source until the pull request merges and
-the next increment reconciles its rolling state.
+#126. The completed post-merge plan is now
+`REPOSITORY_GOVERNANCE_ROLLOUT_PLAN_V2_2.md`.
 
 The canonical source is centralized in `pcvantol/djconnect`, not duplicated in
 the assessed repositories. `ENGINEERING_METHOD.md` is version 2.4 and is an

@@ -5,14 +5,11 @@
 
 ## Current engineering increment
 
-Repository Governance Rollout Planning. Objective GitHub evidence confirms
-that [#125](https://github.com/pcvantol/djconnect/pull/125) merged into current
-`main`; its rolling records have been reconciled from the expected
-`MERGED_UNRECONCILED` transition. This dedicated central-governance planning
-increment records the maintainer-selected canonical Version 2.2 and is limited
-to the fail-closed planning outcome. Its scoped pull request is
-[#126](https://github.com/pcvantol/djconnect/pull/126), `REVIEWABLE_FROZEN`
-pending human review and merge.
+Repository Governance Rollout Planning Completion. Objective GitHub evidence
+confirms [#126](https://github.com/pcvantol/djconnect/pull/126) merged into
+current `main` at `a7e0c055b0c747e32de6e689a78cd07b407cb3a6`; its prior
+`REVIEWABLE_FROZEN` record is reconciled. This increment converts the verified
+Version 2.2 basis into the deterministic repository-by-repository plan.
 
 ## Current engineering program
 
@@ -22,26 +19,24 @@ Product Development remains the primary program.
 ## Current repository truth
 
 At initialization, `main` was synchronized to
-`d26a6068cd9d0a6ae01e633eba82606b18e30606`, tracks `origin/main`, had zero
-divergence and a clean worktree. GitHub records predecessor PR [#125](https://github.com/pcvantol/djconnect/pull/125)
-as merged at the current-main squash commit; its immutable Prompt History is
-archived. The stale rolling records were therefore the expected
+`a7e0c055b0c747e32de6e689a78cd07b407cb3a6`, tracks `origin/main`, had zero
+divergence and a clean worktree. GitHub records predecessor PR #126 as merged
+at current main; its immutable Prompt History is archived and its remote branch
+is absent. The stale rolling records are therefore the expected
 `MERGED_UNRECONCILED` transition and are reconciled here.
 
 ## Known blockers and limitations
 
-- Version 2.2 is selected and aligned in PR #126, but repository adoption must
-  remain blocked until that PR merges and its rolling state is reconciled.
+- Each repository adoption must still wait for its predecessor queue item to
+  merge and reconcile; this plan authorizes no sibling implementation itself.
 - Platform Release 3.3 remains operationally blocked as documented in
   `REPOSITORY_STATUS.md`; this planning increment does not change it.
 
 ## Deferred work
 
-- Repository-specific adoption is deferred until the Version 2.2 alignment is
-  merged and reconciled.
+- Execute `RG-APPLE-001` first; later queue entries remain deferred.
 
 ## Recommended next prompt
 
-Continue Repository Governance Rollout Planning after PR #126 merges: verify
-Version 2.2 on current main, reconcile its rolling state, then generate the
-deterministic repository adoption queue.
+`RG-APPLE-001`: complete focused Apple governance alignment from synchronized
+Apple main using the Version 2.2 plan.
