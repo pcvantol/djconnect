@@ -10,7 +10,9 @@ that [#125](https://github.com/pcvantol/djconnect/pull/125) merged into current
 `main`; its rolling records have been reconciled from the expected
 `MERGED_UNRECONCILED` transition. This dedicated central-governance planning
 increment found an internal canonical-version contradiction and is limited to
-recording the fail-closed outcome and one central correction prompt.
+recording the fail-closed outcome and one central correction prompt. Its scoped
+pull request is [#126](https://github.com/pcvantol/djconnect/pull/126),
+`REVIEWABLE_FROZEN` pending human review and merge.
 
 ## Current engineering program
 

@@ -203,7 +203,8 @@ Post-Merge Engineering State Reconciliation merged through
 [#125](https://github.com/pcvantol/djconnect/pull/125); its immutable Prompt
 History remains the freeze-point record and the rolling state is reconciled.
 The current central-governance planning increment is Repository Governance
-Rollout Planning. It records
+Rollout Planning, reviewable in
+[#126](https://github.com/pcvantol/djconnect/pull/126). It records
 `DJCONNECT_REPOSITORY_GOVERNANCE_ROLLOUT_BLOCKED`: the canonical Platform
 Architect instructions contain a Version 2.2 / V2.1 decision contradiction, so
 no repository adoption prompt is authorized until one central correction

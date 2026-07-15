@@ -108,6 +108,9 @@ changed.
 ## Repository Governance Rollout Planning
 
 **Decision:** `DJCONNECT_REPOSITORY_GOVERNANCE_ROLLOUT_BLOCKED`
+**Branch:** `codex/repository-governance-rollout`
+**Implementation Commit:** `ea7f0ada186a6742d11d5bef6a90302719611b10`
+**Pull Request:** [#126](https://github.com/pcvantol/djconnect/pull/126)
 **Basis:** Current central governance inspection found a Version 2.2 label in
 the Platform Architect instructions alongside a required V2.1 decision value.
 The requested repository adoption contract cannot truthfully name one version.
