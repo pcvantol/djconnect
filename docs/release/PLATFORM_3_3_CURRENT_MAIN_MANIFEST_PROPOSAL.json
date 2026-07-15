@@ -108,8 +108,8 @@
   ],
   "evidence": {
     "artifact_integrity": "VERIFIED: current-main Home Assistant artifact 8347737416, current-main Website artifact 8346470431, rebound API artifact 8323208436 and Apple artifacts from current-main run 29451514840",
-    "deployment_evidence": "PARTIAL: rbpi-djconnect, cloudflare_workers_production, cloudflare_pages_production and esp32_lilygo_t_embed_s3 deployment evidence verified",
-    "post_deployment_smoke": "PARTIAL: rbpi-djconnect, cloudflare_workers_production, cloudflare_pages_production and esp32_lilygo_t_embed_s3 smoke evidence verified",
+    "deployment_evidence": "PARTIAL: rbpi-djconnect, cloudflare_workers_production, cloudflare_pages_production, esp32_lilygo_t_embed_s3, apple_private_device/macbook and apple_private_device/iphone (with paired Watch) deployment evidence verified",
+    "post_deployment_smoke": "PARTIAL: rbpi-djconnect, cloudflare_workers_production, cloudflare_pages_production, esp32_lilygo_t_embed_s3, apple_private_device/macbook and apple_private_device/iphone (with paired Watch) smoke evidence verified",
     "operational_credential_scope": "NOT_DISCLOSED; each deployment workflow must validate its own least-privilege scope."
   },
   "target_execution_evidence": [
@@ -152,6 +152,29 @@
       "smoke_workflow_run": "29447045601",
       "result": "DEPLOYMENT_OPERATIONAL",
       "verified_at": "2026-07-15T20:06:57Z"
+    },
+    {
+      "target": "apple_private_device",
+      "target_device": "macbook",
+      "candidate_sha": "dffdeb1755f4fe4ee8309ff56582640110dc176a",
+      "artifact_id": "release-asset:pcvantol/djconnect-app-releases:macos/v3.3.0:DJConnect-macOS-3.3.0-unsigned.zip",
+      "artifact_sha256": "41137dfd346372a73ef0789394015fd94bfa6d7f416821dec65d58ab461b519a",
+      "deployment_workflow_run": "29452344685",
+      "smoke_workflow_run": "29452385823",
+      "result": "DEPLOYMENT_OPERATIONAL",
+      "verified_at": "2026-07-15T21:34:37Z"
+    },
+    {
+      "target": "apple_private_device",
+      "target_device": "iphone",
+      "paired_watch_validation": "required",
+      "candidate_sha": "dffdeb1755f4fe4ee8309ff56582640110dc176a",
+      "artifact_id": "release-asset:pcvantol/djconnect-app-releases:ios/v3.3.0:DJConnect-iOS-3.3.0-unsigned.zip",
+      "artifact_sha256": "f007fa2d5c95fc79a0c87ac51664365dd4ca059371eb57c0e84a7838ca695959",
+      "deployment_workflow_run": "29453894383",
+      "smoke_workflow_run": "29455024770",
+      "result": "DEPLOYMENT_OPERATIONAL",
+      "verified_at": "2026-07-15T22:20:04Z"
     }
   ],
   "constraints": [

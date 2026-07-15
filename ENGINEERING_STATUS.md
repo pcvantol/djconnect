@@ -6,10 +6,10 @@
 ## Current engineering increment
 
 Platform Release 3.3 operational evidence reconciliation. The approved
-manifest is partially operational: API, Website, Raspberry Pi and ESP32 each
-have a successful manifest-bound deployment and separately successful
-post-deployment smoke. This record does not qualify Home Assistant, Apple or
-Windows.
+manifest is partially operational: API, Website, Raspberry Pi, ESP32 and the
+authorized Apple MacBook plus iPhone/paired-Watch targets each have a
+successful manifest-bound deployment and separately successful post-deployment
+smoke. This record does not qualify Home Assistant or Windows.
 
 ## Current engineering program
 
@@ -22,14 +22,16 @@ The current manifest is
 `release-3.3.0-internal-20260714`, status
 `APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL`. Objective GitHub Actions evidence
 confirms successful deployment and smoke for `cloudflare_workers_production`,
-`cloudflare_pages_production`, `rbpi-djconnect` and
-`esp32_lilygo_t_embed_s3`. The canonical execution ledger is
+`cloudflare_pages_production`, `rbpi-djconnect`,
+`esp32_lilygo_t_embed_s3`, `apple_private_device/macbook` and
+`apple_private_device/iphone` with required paired-Watch validation. The
+canonical execution ledger is
 `docs/release/PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json`.
 
 ## Known blockers and limitations
 
-- Home Assistant, Apple and Windows lack final target-specific deployment and
-  smoke qualification evidence. The Internal Release is therefore incomplete.
+- Home Assistant and Windows lack final target-specific deployment and smoke
+  qualification evidence. The Internal Release is therefore incomplete.
 
 ## Deferred work
 

@@ -129,7 +129,8 @@ The current release decision is
 `PLATFORM_RELEASE_3_3_MANIFEST_APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL`.
 The Generation 1 deployment architecture and smoke policy remain frozen. The
 approved current-main manifest has operational evidence for API, Website,
-Raspberry Pi and ESP32; Home Assistant, Apple and Windows remain unqualified.
+Raspberry Pi, ESP32, Apple MacBook and Apple iPhone with required paired-Watch
+validation; Home Assistant and Windows remain unqualified.
 No complete Internal Release or operational burn-in exists.
 
 Prompt 5 certification remains generated but inactive. It requires completed
@@ -186,7 +187,7 @@ architecture are stable enough to freeze.
 ## Blocking Dependencies
 
 - Platform Release 3.3 requires final deployment and bounded smoke evidence
-  for Home Assistant, Apple and Windows before the Internal Release can close.
+  for Home Assistant and Windows before the Internal Release can close.
 - Each remaining target requires its own exact authorization and
   manifest-bound operation; completed targets do not authorize another target.
 - Platform Release Certification requires a successful Internal Release and

@@ -82,10 +82,11 @@ Relay and Apple Secure Distribution Relay.
 
 The approved manifest
 `release-3.3.0-internal-20260714` is partially operational. API, Website,
-Raspberry Pi and ESP32 have each completed an exact manifest-bound deployment
-and separately dispatched post-deployment smoke. Home Assistant, Apple and
-Windows remain independent, unqualified targets. This is not a complete
-Internal Release and does not authorize release certification or burn-in.
+Raspberry Pi, ESP32, Apple MacBook and Apple iPhone with required paired-Watch
+validation have each completed an exact manifest-bound deployment and
+separately dispatched post-deployment smoke. Home Assistant and Windows remain
+independent, unqualified targets. This is not a complete Internal Release and
+does not authorize release certification or burn-in.
 
 The next release-engineering activity is not certification or an automatic
 release. It is explicit, scoped preparation of the remaining deployment

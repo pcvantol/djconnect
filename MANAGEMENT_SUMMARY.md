@@ -27,12 +27,13 @@
 
 ## Platform Release 3.3 operational position
 
-The approved Internal Release manifest has four completed target-scoped
-operations: API Workers, Website Pages, Raspberry Pi and ESP32. Each has
-objective GitHub Actions evidence for a successful manifest-bound deployment
-and separate post-deployment smoke. Home Assistant, Apple private devices and
-Windows ARM64 are not included in that completion claim. The release remains
-incomplete and is not eligible for release certification or burn-in closure.
+The approved Internal Release manifest has six completed target-scoped
+operations: API Workers, Website Pages, Raspberry Pi, ESP32, Apple MacBook and
+Apple iPhone with required paired-Watch validation. Each has objective GitHub
+Actions evidence for a successful manifest-bound deployment and separate
+post-deployment smoke. Home Assistant and Windows ARM64 are not included in
+that completion claim. The release remains incomplete and is not eligible for
+release certification or burn-in closure.
 
 The authoritative execution ledger is
 `docs/release/PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json` with decision
