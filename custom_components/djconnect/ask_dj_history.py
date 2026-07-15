@@ -552,6 +552,8 @@ def _apply_history_limit(state: dict[str, Any]) -> bool:
     cutoff = _trim_cutoff_timestamp(kept, removed)
     if add_notice:
         kept.append(_retention_system_message())
+    else:
+        _move_retention_message_to_end(kept)
     state["messages"] = kept[-MAX_MESSAGES_PER_USER:]
     state["history_trimmed_before"] = cutoff
     previous_count = int(state.get("history_trimmed_count") or 0)
@@ -596,6 +598,18 @@ def _retention_system_message() -> dict[str, Any]:
             "action": "none",
         }
     )
+
+
+def _move_retention_message_to_end(messages: list[dict[str, Any]]) -> None:
+    """Keep the single existing retention notice visible after a later trim."""
+    for index, message in enumerate(messages):
+        if (
+            message.get("role") == "assistant"
+            and message.get("message_kind") == "system"
+            and message.get("origin") == "history_retention"
+        ):
+            messages.append(messages.pop(index))
+            return
 
 
 def _trim_cutoff_timestamp(kept: list[dict[str, Any]], removed: list[dict[str, Any]]) -> str:
