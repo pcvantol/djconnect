@@ -34,9 +34,15 @@ artifact was subsequently rebound to source
 `6f6dee8a6edf72b8a48fa347ef587ede2976badd`, artifact `8323208436` and
 SHA-256 `f9d8c29787297a939d16e6f3fab3f9cd4455518def4565830b5ca57f76a80819`
 after its deployment and smoke contracts became operational. The rebound exact
-manifest was explicitly reapproved at `2026-07-14T20:03:33Z`. Approval never
-runs a workflow; every deployment and smoke remains a separately authorized,
-manifest-bound operation.
+manifest was explicitly reapproved at `2026-07-14T20:03:33Z`. The prior Home
+Assistant artifact later became unavailable from GitHub Actions; its binding is
+therefore superseded by the verified current-main source
+`0227e95ba10e8cc9256185a3bec6d22f86e286d4`, successful artifact workflow run
+`29427139585`, artifact `8347737416` and SHA-256
+`88c065ca672e7ba7155a30aa7b4737075d41e629cc748c8a60385ae1a3464aa9`. The
+maintainer explicitly approved this exact `home_assistant_pi5` binding and
+authorized its manifest-bound deployment followed by separate post-deployment
+smoke. No other target is authorized by that approval.
 
 ## Known operational gates
 
@@ -52,5 +58,6 @@ manifest-bound operation.
 
 ## Next action
 
-Obtain separate authorization for one target-scoped deployment. Do not begin
-deployment or smoke automatically.
+After this manifest binding is merged to `main`, dispatch the authorized
+`home_assistant_pi5` deployment. Dispatch its separate smoke workflow only
+after deployment succeeds.
