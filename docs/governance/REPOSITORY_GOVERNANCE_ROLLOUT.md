@@ -1,6 +1,6 @@
 # DJConnect Repository Governance Rollout
 
-**Status:** blocked pending merge and reconciliation of the selected canonical version  
+**Status:** blocked pending merge and reconciliation of the selected canonical version
 **Decision:** `DJCONNECT_REPOSITORY_GOVERNANCE_ROLLOUT_BLOCKED`  
 **Assessment date:** 2026-07-15
 
