@@ -46,12 +46,11 @@ planning is read.
 | Engineering Method V2 Governance Alignment | Completed | Establish repository-driven V2 onboarding, reality verification, prompt archival and hygiene without implementation or architecture changes. | `codex/engineering-method-v2` | `docs/history/prompts/2026-07-14-engineering-method-v2.md`; PR [#114](https://github.com/pcvantol/djconnect/pull/114) |
 | Engineering Method V2.3 Repository Synchronization | Completed | Make synchronized current main and current-main verification mandatory before repository reading and planning; no implementation or architecture changes. | `codex/engineering-method-v2-3` | `docs/history/prompts/2026-07-14-engineering-method-v2-3.md`; PR [#118](https://github.com/pcvantol/djconnect/pull/118) |
 | Post-Merge Engineering State Reconciliation | Completed / merged reconciled | Establish explicit post-merge lifecycle and reconcile the merged V2.3 rolling-state transition; no implementation or architecture changes. | `codex/post-merge-engineering-state-reconciliation` | `docs/history/prompts/2026-07-15-post-merge-engineering-state-reconciliation.md`; PR [#125](https://github.com/pcvantol/djconnect/pull/125) |
-| Repository Governance Rollout Planning | Completed / reviewable frozen | Verify canonical governance and repository maturity; align the maintainer-selected Version 2.2 decision value and preserve a fail-closed rollout boundary until merge. | `codex/repository-governance-rollout` | `docs/governance/REPOSITORY_GOVERNANCE_ROLLOUT.md`; PR [#126](https://github.com/pcvantol/djconnect/pull/126) |
+| Repository Governance Rollout Planning | Completed / merged reconciled | Verify canonical governance and repository maturity; align the maintainer-selected Version 2.2 decision value. | `codex/repository-governance-rollout` | `docs/governance/REPOSITORY_GOVERNANCE_ROLLOUT.md`; PR [#126](https://github.com/pcvantol/djconnect/pull/126) |
+| Repository Governance Rollout Planning Completion | Reviewable pending | Reconcile PR #126 and establish deterministic Version 2.2 repository adoption prompts. | `codex/repository-governance-rollout-completion` | `docs/governance/REPOSITORY_GOVERNANCE_ROLLOUT_PLAN_V2_2.md` |
 
-The predecessor is `MERGED_RECONCILED`. This planning increment is the only
-current reviewable scope. It blocks repository adoption until the Version 2.2
-alignment is merged and reconciled, and authorizes no sibling-repository
-changes.
+The predecessor is `MERGED_RECONCILED`. This planning increment creates no
+sibling changes; it makes `RG-APPLE-001` the sole next repository prompt.
 
 ## Active Next Phase
 

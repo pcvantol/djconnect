@@ -126,6 +126,17 @@ verify Version 2.2 on current main, reconcile, then start the queue.
 
 ## Documentation outcome
 
+## Repository Governance Rollout Planning Completion
+
+**Decision:** `DJCONNECT_REPOSITORY_GOVERNANCE_ROLLOUT_PLANNED`
+**Basis:** PR #126 is merged in current main; AI-Native Engineering Operating
+System Version 2.2 is aligned and the predecessor state is reconciled.
+**Outcome:** The deterministic nine-repository adoption queue and final central
+audit specification are recorded in
+`docs/governance/REPOSITORY_GOVERNANCE_ROLLOUT_PLAN_V2_2.md`.
+**Recommended next prompt:** `RG-APPLE-001`, focused Apple governance
+alignment.
+
 `ROADMAP_INDEX.md` provides one navigation source. `PRODUCT_ROADMAP.md`,
 `PLATFORM_EVOLUTION_BACKLOG.md` and `INNOVATION_BACKLOG.md` are the only active
 program registers. `PLATFORM_BACKLOG.md` remains a clearly marked Generation 1
