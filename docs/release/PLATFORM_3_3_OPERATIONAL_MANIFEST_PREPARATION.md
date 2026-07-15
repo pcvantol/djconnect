@@ -53,6 +53,14 @@ maintainer explicitly approved this exact `cloudflare_pages_production`
 binding and its manifest-bound deployment followed by separate post-deployment
 smoke.
 
+The maintainer authorized the exact ESP32 firmware binding for
+`esp32_lilygo_t_embed_s3`: source
+`9f8a32482b8ea9fb322a29688955f5a4f26b001d`, public firmware artifact
+`release-asset:pcvantol/djconnect-firmware:v3.3.0:djconnect-lilygo-t-embed-s3-v3.3.0.bin`
+and SHA-256 `c25444d3ef414489848fd2d8de624785c82eb90195cc861bcb63085e0df3ceeb`.
+Its separately merged consumer accepts only this manifest-bound operation and
+performs read-back smoke after deployment.
+
 ## Operational execution evidence
 
 The authorized website deployment completed successfully through the bounded
@@ -83,6 +91,6 @@ unpacking. The successful retry is the operational evidence above.
 
 ## Next action
 
-Remediate the missing `private-network-deployment` environment secrets before
-retrying the already authorized `home_assistant_pi5` deployment. Every other
-required target still needs its own explicit authorization.
+After this authorization record is merged to `main`, dispatch the authorized
+`esp32_lilygo_t_embed_s3` deployment. Dispatch its separate smoke workflow
+only after deployment succeeds.
