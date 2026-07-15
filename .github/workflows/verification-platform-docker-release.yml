@@ -28,7 +28,7 @@ jobs:
     name: Software Assurance governance
     permissions:
       contents: read
-    uses: pcvantol/djconnect/.github/workflows/software-assurance-governance.yml@211be39392768b24d2e67f442583c885763422c0
+    uses: pcvantol/djconnect/.github/workflows/software-assurance-governance.yml@a73237f907554b2fba16e0e168d5fde22ce75455
     with:
       execution_profile: release
       owner: pcvantol/djconnect
@@ -39,7 +39,7 @@ jobs:
     env:
       DEFAULT_IMAGE: pcvantol/djconnect-verification-platform
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:

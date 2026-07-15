@@ -13,7 +13,7 @@ jobs:
     name: Software Assurance governance
     permissions:
       contents: read
-    uses: pcvantol/djconnect/.github/workflows/software-assurance-governance.yml@211be39392768b24d2e67f442583c885763422c0
+    uses: pcvantol/djconnect/.github/workflows/software-assurance-governance.yml@a73237f907554b2fba16e0e168d5fde22ce75455
     with:
       execution_profile: balanced
       owner: pcvantol/djconnect
@@ -27,7 +27,7 @@ jobs:
     name: Verification framework unit tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: "3.11"
@@ -43,7 +43,7 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: "3.11"
@@ -54,7 +54,7 @@ jobs:
           coverage xml -o coverage.xml
           printf '%s\n' "$GITHUB_SHA" > coverage-main-sha.txt
       - name: Upload post-merge coverage evidence
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: ha-cobertura-coverage
           path: |

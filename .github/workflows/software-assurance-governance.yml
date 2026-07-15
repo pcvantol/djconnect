@@ -22,11 +22,16 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Check out pinned canonical policy source
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           repository: pcvantol/djconnect
-          ref: 3fc4f0835fe4068b73a30c7fb2db3318600a3f6f
+          ref: c5bd44a670612d85b0e5a24e41721ad43cd6d0e7
           path: canonical-governance
+
+      - name: Check out caller workflow source
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          path: caller-workflow-source
 
       - name: Validate policy and selected execution profile
         working-directory: canonical-governance
@@ -55,6 +60,12 @@ jobs:
           if findings:
               raise SystemExit("; ".join(findings))
           PY
+
+      - name: Require Node 24 or newer for pinned JavaScript actions
+        working-directory: canonical-governance
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python -m tools.software_assurance.validate_action_runtimes ../caller-workflow-source
 
       - name: Publish governance summary
         env:
