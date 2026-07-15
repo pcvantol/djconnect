@@ -8,8 +8,8 @@
 Post-Merge Engineering State Reconciliation. This dedicated governance
 increment reconciled the merged Engineering Method V2.3 predecessor from
 objective repository evidence and establishes explicit engineering lifecycle
-states. Its scoped pull request is `REVIEWABLE_FROZEN`; implementation is
-frozen pending human review and merge.
+states. Its scoped pull request is [#125](https://github.com/pcvantol/djconnect/pull/125),
+`REVIEWABLE_FROZEN`; implementation is frozen pending human review and merge.
 
 ## Current engineering program
 

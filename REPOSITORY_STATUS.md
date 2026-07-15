@@ -199,10 +199,10 @@ architecture are stable enough to freeze.
 Engineering Method V2.3 Repository Synchronization was merged through
 [#118](https://github.com/pcvantol/djconnect/pull/118); its immutable Prompt
 History remains the freeze-point record. Post-Merge Engineering State
-Reconciliation is now `REVIEWABLE_FROZEN` pending human review and merge. No
-subsequent prompt is active. After merge, the next prompt must verify and
-reconcile that state before selecting work from verified current roadmap and
-backlog evidence.
+Reconciliation is [#125](https://github.com/pcvantol/djconnect/pull/125),
+`REVIEWABLE_FROZEN` pending human review and merge. No subsequent prompt is
+active. After merge, the next prompt must verify and reconcile that state before
+selecting work from verified current roadmap and backlog evidence.
 
 ## Completion Report
 

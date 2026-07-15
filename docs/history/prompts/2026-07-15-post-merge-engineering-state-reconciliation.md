@@ -5,10 +5,12 @@
 **Generation:** 2
 **Engineering Program:** Platform Evolution — engineering governance
 **Branch:** `codex/post-merge-engineering-state-reconciliation`
-**Commit:** recorded at finalization
-**Pull Request:** recorded at finalization
+**Commit:** `825edcfbc721e34a46f8ae5c92812236d334c345`
+**Pull Request:** [#125](https://github.com/pcvantol/djconnect/pull/125)
 **Decision:** `POST_MERGE_ENGINEERING_STATE_RECONCILIATION_ESTABLISHED`
 **Execution Date:** 2026-07-15
+**Created:** 2026-07-15
+**Updated:** 2026-07-15
 
 ## Objective
 

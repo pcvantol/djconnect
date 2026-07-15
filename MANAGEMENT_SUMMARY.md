@@ -86,8 +86,8 @@ determine the next increment from repository evidence.
 
 **Decision:** `POST_MERGE_ENGINEERING_STATE_RECONCILIATION_ESTABLISHED`
 **Branch:** `codex/post-merge-engineering-state-reconciliation`
-**Commit SHA:** recorded at finalization
-**Pull Request:** recorded at finalization
+**Commit SHA:** `825edcfbc721e34a46f8ae5c92812236d334c345`
+**Pull Request:** [#125](https://github.com/pcvantol/djconnect/pull/125)
 **Validation:** objective predecessor merge verification, governance-document
 contract review and `git diff --check`
 **Updated governance documents:** method, bootstrap, synchronization,
