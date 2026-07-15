@@ -27,6 +27,16 @@
         "artifact_id": "release-asset:pcvantol/djconnect-firmware:v3.3.0:djconnect-lilygo-t-embed-s3-v3.3.0.bin",
         "artifact_sha256": "c25444d3ef414489848fd2d8de624785c82eb90195cc861bcb63085e0df3ceeb",
         "approved_statement": "I authorize deployment of manifest release-3.3.0-internal-20260714 to target esp32_lilygo_t_embed_s3 using artifact release-asset:pcvantol/djconnect-firmware:v3.3.0:djconnect-lilygo-t-embed-s3-v3.3.0.bin with SHA-256 c25444d3ef414489848fd2d8de624785c82eb90195cc861bcb63085e0df3ceeb, followed by post-deployment smoke."
+      },
+      {
+        "approved_at": "2026-07-15",
+        "target": "apple_private_device",
+        "target_device": "iphone",
+        "paired_watch_validation": "required",
+        "candidate_sha": "8eaf56f64c5bf080eb09f02f25384128db0538cb",
+        "artifact_id": "release-asset:pcvantol/djconnect-app-releases:ios/v3.3.0:DJConnect-iOS-3.3.0-unsigned.zip",
+        "artifact_sha256": "2ae314da969928ff4698e130d547e6862e97615696b1ba8b142bbd59ad9532c1",
+        "approved_statement": "I authorize deployment of manifest release-3.3.0-internal-20260714 to target apple_private_device / iphone, including required paired Watch validation, using artifact DJConnect-iOS-3.3.0-unsigned.zip and SHA-256 2ae314da969928ff4698e130d547e6862e97615696b1ba8b142bbd59ad9532c1, followed by post-deployment smoke."
       }
     ],
     "supersedes": {
@@ -44,7 +54,7 @@
         }
       }
     },
-    "effect": "Deployment and post-deployment smoke remain separately dispatched, target-scoped operations. The maintainer authorized the home_assistant_pi5, cloudflare_pages_production and esp32_lilygo_t_embed_s3 deployments with their exact bindings and corresponding post-deployment smoke; no other target is authorized by these approvals."
+    "effect": "Deployment and post-deployment smoke remain separately dispatched, target-scoped operations. The maintainer authorized the home_assistant_pi5, cloudflare_pages_production, esp32_lilygo_t_embed_s3 and apple_private_device/iphone (with required paired Watch validation) deployments with their exact bindings and corresponding post-deployment smoke; no other target is authorized by these approvals."
   },
   "repositories": [
     {"repository": "pcvantol/djconnect", "source_sha": "0227e95ba10e8cc9256185a3bec6d22f86e286d4", "version": "3.3.0", "artifact_run": "29427139585"},

@@ -102,6 +102,8 @@ read-back. The ESP32 target decision is `DEPLOYMENT_OPERATIONAL`.
 ## Next action
 
 Do not dispatch a target automatically. The recorded `home_assistant_pi5`
-authorization remains pending environment-readiness verification. Apple and
-Windows each require their own exact target-scoped authorization, followed by
-successful deployment and separately dispatched post-deployment smoke.
+authorization remains pending environment-readiness verification. The iPhone
+operation, with required paired Watch validation, has an exact target-scoped
+authorization. Windows still requires its own exact target-scoped
+authorization. Every operation requires successful deployment and separately
+dispatched post-deployment smoke.
