@@ -33,8 +33,10 @@ The operational repository-driven method is `ENGINEERING_METHOD.md`.
 `BOOTSTRAP.md` defines the current-state reading order and
 `docs/history/prompts/` retains immutable historical records only.
 
-Every prompt begins with repository synchronization and current-main
-verification before this index, repository state or planning is read.
+Every prompt begins with repository synchronization, current-main verification,
+previous-pull-request verification, post-merge state classification and rolling
+state reconciliation when required before this index, repository state or
+planning is read.
 
 ## Prompt Registry
 
@@ -43,9 +45,11 @@ verification before this index, repository state or planning is read.
 | Engineering Workflow Alignment | Completed | Establish the mandatory canonical AI-native engineering workflow without implementation changes. | `codex/engineering-workflow-alignment` | `docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md`; PR [#107](https://github.com/pcvantol/djconnect/pull/107) |
 | Engineering Method V2 Governance Alignment | Completed | Establish repository-driven V2 onboarding, reality verification, prompt archival and hygiene without implementation or architecture changes. | `codex/engineering-method-v2` | `docs/history/prompts/2026-07-14-engineering-method-v2.md`; PR [#114](https://github.com/pcvantol/djconnect/pull/114) |
 | Engineering Method V2.3 Repository Synchronization | Completed | Make synchronized current main and current-main verification mandatory before repository reading and planning; no implementation or architecture changes. | `codex/engineering-method-v2-3` | `docs/history/prompts/2026-07-14-engineering-method-v2-3.md`; PR [#118](https://github.com/pcvantol/djconnect/pull/118) |
+| Post-Merge Engineering State Reconciliation | Completed / reviewable frozen | Establish explicit post-merge lifecycle and reconcile the merged V2.3 rolling-state transition; no implementation or architecture changes. | `codex/post-merge-engineering-state-reconciliation` | `docs/history/prompts/2026-07-15-post-merge-engineering-state-reconciliation.md`; PR [#125](https://github.com/pcvantol/djconnect/pull/125) |
 
 No subsequent canonical prompt is active or authorized. A future prompt may be
-drafted only after this increment's reviewable pull request exists.
+drafted only after this increment has merged and its next increment reconciles
+the resulting rolling state.
 
 ## Active Next Phase
 
