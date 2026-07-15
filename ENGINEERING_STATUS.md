@@ -12,6 +12,10 @@ merged as `55b797a17f9115a3baae1d3a81441664c7e02e96`; audit PR
 `a6ee55f8af192d27b6c8a6ae3dcf0c4f36765bba` with decision
 `DJCONNECT_REPOSITORY_GOVERNANCE_AUDIT_PASSED`.
 
+Reconciliation branch: `codex/reconcile-governance-rolling-records`.
+Reconciliation commit: `1b341da38c339915c627757aed0da7ff41e81a18`.
+Review: [#129](https://github.com/pcvantol/djconnect/pull/129).
+
 ## Current engineering program
 
 Platform Governance reconciliation. DJConnect Product Development remains the

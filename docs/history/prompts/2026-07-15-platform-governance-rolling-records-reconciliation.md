@@ -5,8 +5,8 @@
 **Generation:** 2
 **Engineering Program:** Platform Governance
 **Branch:** `codex/reconcile-governance-rolling-records`
-**Commit SHA:** recorded after the scoped reconciliation commit.
-**Pull Request:** created before review; recorded in the final branch update.
+**Commit SHA:** `1b341da38c339915c627757aed0da7ff41e81a18`
+**Pull Request:** [#129](https://github.com/pcvantol/djconnect/pull/129)
 **Decision:** `REPOSITORY_ROLLING_RECORDS_RECONCILED`
 
 ## Validation summary

@@ -49,7 +49,7 @@ planning is read.
 | Repository Governance Rollout Planning | Completed / merged reconciled | Verify canonical governance and repository maturity; align the maintainer-selected Version 2.2 decision value. | `codex/repository-governance-rollout` | `docs/governance/REPOSITORY_GOVERNANCE_ROLLOUT.md`; PR [#126](https://github.com/pcvantol/djconnect/pull/126) |
 | Repository Governance Rollout Planning Completion | Completed / merged reconciled / archived | Establish the Version 2.2 adoption queue. | `codex/repository-governance-rollout-completion` | `docs/history/prompts/2026-07-15-repository-governance-rollout-completion.md`; PR [#127](https://github.com/pcvantol/djconnect/pull/127) |
 | Repository Governance Audit | Completed / merged reconciled / archived | Audit all nine merged Version 2.2 repository adoptions. | `codex/repository-governance-audit` | `docs/governance/REPOSITORY_GOVERNANCE_AUDIT_V2_2.md`; PR [#128](https://github.com/pcvantol/djconnect/pull/128) |
-| Rolling Records Reconciliation | Reviewable pending | Reconcile central rolling records after the completed governance rollout. | `codex/reconcile-governance-rolling-records` | This increment's immutable Prompt History record |
+| Rolling Records Reconciliation | Reviewable pending | Reconcile central rolling records after the completed governance rollout. | `codex/reconcile-governance-rolling-records` | `docs/history/prompts/2026-07-15-platform-governance-rolling-records-reconciliation.md`; PR [#129](https://github.com/pcvantol/djconnect/pull/129) |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.

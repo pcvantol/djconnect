@@ -114,6 +114,9 @@ changed.
 merged as `55b797a17f9115a3baae1d3a81441664c7e02e96`.
 **Final audit:** [#128](https://github.com/pcvantol/djconnect/pull/128), merged
 as `a6ee55f8af192d27b6c8a6ae3dcf0c4f36765bba`.
+**Reconciliation:** [#129](https://github.com/pcvantol/djconnect/pull/129) on
+`codex/reconcile-governance-rolling-records`, commit
+`1b341da38c339915c627757aed0da7ff41e81a18`.
 **Outcome:** All nine Version 2.2 repository adoption PRs are merged; their
 head branches are absent. The rollout plan and audit are completed, reconciled
 and archived evidence, not active governance work.

@@ -211,6 +211,9 @@ Release 3.3 manifest and exact Home Assistant target credential/installation
 scope. It must not activate until this reconciliation increment has its single
 reviewable pull request.
 
+Review: [#129](https://github.com/pcvantol/djconnect/pull/129) on
+`codex/reconcile-governance-rolling-records`.
+
 ## Completion Report
 
 Repository-local architecture outputs:
