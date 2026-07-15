@@ -11,6 +11,16 @@
     "state": "APPROVED",
     "approved_at": "2026-07-15",
     "approved_statement": "I explicitly approve updated operational manifest release-3.3.0-internal-20260714 for target home_assistant_pi5, candidate 0227e95ba10e8cc9256185a3bec6d22f86e286d4, artifact 8347737416, SHA-256 88c065ca672e7ba7155a30aa7b4737075d41e629cc748c8a60385ae1a3464aa9, and authorize its manifest-bound deployment followed by post-deployment smoke.",
+    "additional_target_authorizations": [
+      {
+        "approved_at": "2026-07-15",
+        "target": "cloudflare_pages_production",
+        "candidate_sha": "64f95dcb8a2cf2da523c46f08ed5b07fdcdf6daa",
+        "artifact_id": "8346470431",
+        "artifact_sha256": "dff7ba59c2cf3cd299670487d09ba6e98d845659736dfd0e9770e884e8127027",
+        "approved_statement": "I explicitly approve updated operational manifest release-3.3.0-internal-20260714 for target cloudflare_pages_production, candidate 64f95dcb8a2cf2da523c46f08ed5b07fdcdf6daa, artifact 8346470431, SHA-256 dff7ba59c2cf3cd299670487d09ba6e98d845659736dfd0e9770e884e8127027, and authorize its manifest-bound deployment followed by post-deployment smoke."
+      }
+    ],
     "supersedes": {
       "previous_state": "APPROVED",
       "reason": "The prior Home Assistant artifact binding 8311372180 is no longer available from GitHub Actions. The maintainer approved the verified current-main artifact binding and target-scoped deployment/smoke operation.",
@@ -26,7 +36,7 @@
         }
       }
     },
-    "effect": "Deployment and post-deployment smoke remain separately dispatched, target-scoped operations. The maintainer authorized the home_assistant_pi5 deployment with this exact binding and its post-deployment smoke; no other target is authorized by this approval."
+    "effect": "Deployment and post-deployment smoke remain separately dispatched, target-scoped operations. The maintainer authorized the home_assistant_pi5 and cloudflare_pages_production deployments with their exact bindings and corresponding post-deployment smoke; no other target is authorized by these approvals."
   },
   "repositories": [
     {"repository": "pcvantol/djconnect", "source_sha": "0227e95ba10e8cc9256185a3bec6d22f86e286d4", "version": "3.3.0", "artifact_run": "29427139585"},
@@ -35,7 +45,7 @@
     {"repository": "pcvantol/djconnect-windows", "source_sha": "6c0c3c3478c81472e479184dc03e51fd095dc4b2", "version": "3.3.0", "artifact_run": "29338767948"},
     {"repository": "pcvantol/djconnect-pi", "source_sha": "661e26e78b45acb2bade57a63c0f68effc3652be", "version": "3.3.0", "artifact_run": "29359466200"},
     {"repository": "pcvantol/djconnect-esp32", "source_sha": "9f8a32482b8ea9fb322a29688955f5a4f26b001d", "version": "3.3.0", "artifact_run": "29341765254"},
-    {"repository": "pcvantol/djconnect-website", "source_sha": "370619fb65abaa25a21f5459dfec01056660b445", "version": "3.3.0", "artifact_run": "29343585969"}
+    {"repository": "pcvantol/djconnect-website", "source_sha": "64f95dcb8a2cf2da523c46f08ed5b07fdcdf6daa", "version": "3.3.0", "artifact_run": "29424048694"}
   ],
   "required_targets": [
     {"target": "home_assistant_pi5", "required": true},
@@ -51,7 +61,7 @@
   "artifact_bindings": [
     {"owner": "pcvantol/djconnect", "target": "home_assistant_pi5", "artifact_id": "8347737416", "artifact_sha256": "88c065ca672e7ba7155a30aa7b4737075d41e629cc748c8a60385ae1a3464aa9", "artifact_url": "https://github.com/pcvantol/djconnect/actions/runs/29427139585"},
     {"owner": "pcvantol/djconnect-api", "target": "cloudflare_workers_production", "artifact_id": "8323208436", "artifact_sha256": "f9d8c29787297a939d16e6f3fab3f9cd4455518def4565830b5ca57f76a80819", "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/29363742261"},
-    {"owner": "pcvantol/djconnect-website", "target": "cloudflare_pages_production", "artifact_id": "8315080769", "artifact_sha256": "1cfa1b47d077e913526b2696a0748f5ecce933e0cf35f22580168b0e3742362d", "artifact_url": "https://github.com/pcvantol/djconnect-website/actions/runs/29343585969"},
+    {"owner": "pcvantol/djconnect-website", "target": "cloudflare_pages_production", "artifact_id": "8346470431", "artifact_sha256": "dff7ba59c2cf3cd299670487d09ba6e98d845659736dfd0e9770e884e8127027", "artifact_url": "https://github.com/pcvantol/djconnect-website/actions/runs/29424048694"},
     {"owner": "pcvantol/djconnect-esp32", "target": "esp32_lilygo_t_embed_s3", "artifact_id": "release-asset:pcvantol/djconnect-firmware:v3.3.0:djconnect-lilygo-t-embed-s3-v3.3.0.bin", "artifact_sha256": "c25444d3ef414489848fd2d8de624785c82eb90195cc861bcb63085e0df3ceeb", "artifact_url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.3.0/djconnect-lilygo-t-embed-s3-v3.3.0.bin"},
     {"owner": "pcvantol/djconnect-pi", "target": "rbpi-djconnect", "artifact_id": "release-asset:pcvantol/djconnect-pi-releases:v3.3.0:djconnect-pi-3.3.0.tar.gz", "artifact_sha256": "6fa3f2f3de6062b8d69c48886bf04374592bbbe404a2856b89450e1acbe1422a", "artifact_url": "https://github.com/pcvantol/djconnect-pi-releases/releases/download/v3.3.0/djconnect-pi-3.3.0.tar.gz"},
     {"owner": "pcvantol/djconnect-app", "target": "apple_private_device", "target_device": "macbook", "artifact_id": "release-asset:pcvantol/djconnect-app-releases:macos/v3.3.0:DJConnect-macOS-3.3.0-unsigned.zip", "artifact_sha256": "aa132359298be649cbd28a4a26c98a74ecc8e84e8720901295d8b2817e7147da", "artifact_url": "https://github.com/pcvantol/djconnect-app-releases/releases/download/macos/v3.3.0/DJConnect-macOS-3.3.0-unsigned.zip", "signing": "local_developer_provisioning_required"},
@@ -60,7 +70,7 @@
     {"owner": "pcvantol/djconnect-windows", "target": "windows_internal_arm64", "artifact_id": "release-asset:pcvantol/djconnect-app-releases:windows/v3.3.0:DJConnect-Windows-arm64-3.3.0-unsigned.zip", "artifact_sha256": "cbe379826731deb1d16c8af5510b4190a4f4949b1bf6589925de5d1eb66c5b47", "artifact_url": "https://github.com/pcvantol/djconnect-app-releases/releases/download/windows/v3.3.0/DJConnect-Windows-arm64-3.3.0-unsigned.zip"}
   ],
   "evidence": {
-    "artifact_integrity": "VERIFIED: current-main Home Assistant artifact 8347737416 and rebound API artifact 8323208436",
+    "artifact_integrity": "VERIFIED: current-main Home Assistant artifact 8347737416, current-main Website artifact 8346470431 and rebound API artifact 8323208436",
     "deployment_evidence": "PARTIAL: rbpi-djconnect and cloudflare_workers_production deployment evidence verified",
     "post_deployment_smoke": "PARTIAL: rbpi-djconnect and cloudflare_workers_production smoke evidence verified",
     "operational_credential_scope": "NOT_DISCLOSED; each deployment workflow must validate its own least-privilege scope."
@@ -93,5 +103,5 @@
     "Apple Watch is a required paired-iPhone companion validation, not a direct deployment target.",
     "Windows x64 is published but is not bound to this ARM64-only Internal Release."
   ],
-  "next_authorized_action": "Dispatch the authorized home_assistant_pi5 manifest-bound deployment after this manifest binding is merged to main; run its corresponding smoke only after successful deployment."
+  "next_authorized_action": "Dispatch either authorized manifest-bound target after this manifest binding is merged to main; run the corresponding smoke only after that target's successful deployment."
 }
