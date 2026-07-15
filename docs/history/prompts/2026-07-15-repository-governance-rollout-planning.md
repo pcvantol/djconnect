@@ -5,8 +5,8 @@
 **Generation:** 2  
 **Engineering Program:** Platform Evolution — engineering governance  
 **Branch:** `codex/repository-governance-rollout`  
-**Implementation Commit:** `ea7f0ada186a6742d11d5bef6a90302719611b10`  
-**Pull Request:** [#126](https://github.com/pcvantol/djconnect/pull/126)  
+**Implementation Commit:** `ea7f0ada186a6742d11d5bef6a90302719611b10`
+**Pull Request:** [#126](https://github.com/pcvantol/djconnect/pull/126)
 **Decision:** `DJCONNECT_REPOSITORY_GOVERNANCE_ROLLOUT_BLOCKED`  
 **Execution Date:** 2026-07-15  
 **Created:** 2026-07-15  
