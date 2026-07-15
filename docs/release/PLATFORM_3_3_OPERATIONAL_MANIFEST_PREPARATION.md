@@ -87,6 +87,20 @@ passed after bounded polling for the OTA restart. The smoke verified the
 expected `3.3.0` version through Home Assistant and by direct local-device
 read-back. The ESP32 target decision is `DEPLOYMENT_OPERATIONAL`.
 
+The authorized Apple MacBook deployment completed through the Secure
+Distribution Relay in run
+[`29452344685`](https://github.com/pcvantol/djconnect-app/actions/runs/29452344685),
+followed by successful post-deployment smoke in run
+[`29452385823`](https://github.com/pcvantol/djconnect-app/actions/runs/29452385823).
+The authorized iPhone deployment with required paired-Watch validation
+completed in run
+[`29453894383`](https://github.com/pcvantol/djconnect-app/actions/runs/29453894383).
+That relay explicitly installed the embedded Watch companion. Its successful
+post-deployment smoke run
+[`29455024770`](https://github.com/pcvantol/djconnect-app/actions/runs/29455024770)
+verified the installed iPhone and Watch applications against manifest version
+`3.3.0`. Both Apple target decisions are `DEPLOYMENT_OPERATIONAL`.
+
 ## Known operational gates
 
 - Each deployment consumer must independently validate its least-privilege
@@ -102,8 +116,6 @@ read-back. The ESP32 target decision is `DEPLOYMENT_OPERATIONAL`.
 ## Next action
 
 Do not dispatch a target automatically. The recorded `home_assistant_pi5`
-authorization remains pending environment-readiness verification. The iPhone
-operation, with required paired Watch validation, has an exact target-scoped
-authorization. Windows still requires its own exact target-scoped
-authorization. Every operation requires successful deployment and separately
-dispatched post-deployment smoke.
+authorization remains pending environment-readiness verification. Windows
+still requires its own exact target-scoped authorization. Every operation
+requires successful deployment and separately dispatched post-deployment smoke.
