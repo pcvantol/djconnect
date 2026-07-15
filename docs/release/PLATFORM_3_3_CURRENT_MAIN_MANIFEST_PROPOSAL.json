@@ -37,6 +37,25 @@
         "artifact_id": "release-asset:pcvantol/djconnect-app-releases:ios/v3.3.0:DJConnect-iOS-3.3.0-unsigned.zip",
         "artifact_sha256": "2ae314da969928ff4698e130d547e6862e97615696b1ba8b142bbd59ad9532c1",
         "approved_statement": "I authorize deployment of manifest release-3.3.0-internal-20260714 to target apple_private_device / iphone, including required paired Watch validation, using artifact DJConnect-iOS-3.3.0-unsigned.zip and SHA-256 2ae314da969928ff4698e130d547e6862e97615696b1ba8b142bbd59ad9532c1, followed by post-deployment smoke."
+      },
+      {
+        "approved_at": "2026-07-15",
+        "target": "apple_private_device",
+        "target_device": "iphone",
+        "paired_watch_validation": "required",
+        "candidate_sha": "dffdeb1755f4fe4ee8309ff56582640110dc176a",
+        "artifact_id": "release-asset:pcvantol/djconnect-app-releases:ios/v3.3.0:DJConnect-iOS-3.3.0-unsigned.zip",
+        "artifact_sha256": "f007fa2d5c95fc79a0c87ac51664365dd4ca059371eb57c0e84a7838ca695959",
+        "approved_statement": "I explicitly approve updated operational manifest release-3.3.0-internal-20260714 for target apple_private_device / iphone, including required paired Watch validation, candidate dffdeb1755f4fe4ee8309ff56582640110dc176a, artifact DJConnect-iOS-3.3.0-unsigned.zip, SHA-256 f007fa2d5c95fc79a0c87ac51664365dd4ca059371eb57c0e84a7838ca695959, and authorize its manifest-bound deployment followed by post-deployment smoke."
+      },
+      {
+        "approved_at": "2026-07-15",
+        "target": "apple_private_device",
+        "target_device": "macbook",
+        "candidate_sha": "dffdeb1755f4fe4ee8309ff56582640110dc176a",
+        "artifact_id": "release-asset:pcvantol/djconnect-app-releases:macos/v3.3.0:DJConnect-macOS-3.3.0-unsigned.zip",
+        "artifact_sha256": "41137dfd346372a73ef0789394015fd94bfa6d7f416821dec65d58ab461b519a",
+        "approved_statement": "I explicitly approve updated operational manifest release-3.3.0-internal-20260714 for target apple_private_device / macbook, candidate dffdeb1755f4fe4ee8309ff56582640110dc176a, artifact DJConnect-macOS-3.3.0-unsigned.zip, SHA-256 41137dfd346372a73ef0789394015fd94bfa6d7f416821dec65d58ab461b519a, and authorize its manifest-bound deployment followed by post-deployment smoke."
       }
     ],
     "supersedes": {
@@ -54,12 +73,12 @@
         }
       }
     },
-    "effect": "Deployment and post-deployment smoke remain separately dispatched, target-scoped operations. The maintainer authorized the home_assistant_pi5, cloudflare_pages_production, esp32_lilygo_t_embed_s3 and apple_private_device/iphone (with required paired Watch validation) deployments with their exact bindings and corresponding post-deployment smoke; no other target is authorized by these approvals."
+    "effect": "Deployment and post-deployment smoke remain separately dispatched, target-scoped operations. The maintainer authorized the home_assistant_pi5, cloudflare_pages_production, esp32_lilygo_t_embed_s3, apple_private_device/iphone (with required paired Watch validation) and apple_private_device/macbook deployments with their exact bindings and corresponding post-deployment smoke; the latest Apple authorizations supersede the prior Apple 3.3.0 artifact bindings. No other target is authorized by these approvals."
   },
   "repositories": [
     {"repository": "pcvantol/djconnect", "source_sha": "0227e95ba10e8cc9256185a3bec6d22f86e286d4", "version": "3.3.0", "artifact_run": "29427139585"},
     {"repository": "pcvantol/djconnect-api", "source_sha": "6f6dee8a6edf72b8a48fa347ef587ede2976badd", "version": "3.3.0", "artifact_run": "29363742261"},
-    {"repository": "pcvantol/djconnect-app", "source_sha": "8eaf56f64c5bf080eb09f02f25384128db0538cb", "version": "3.3.0", "artifact_run": "29337964248"},
+    {"repository": "pcvantol/djconnect-app", "source_sha": "dffdeb1755f4fe4ee8309ff56582640110dc176a", "version": "3.3.0", "artifact_run": "29451514840"},
     {"repository": "pcvantol/djconnect-windows", "source_sha": "6c0c3c3478c81472e479184dc03e51fd095dc4b2", "version": "3.3.0", "artifact_run": "29338767948"},
     {"repository": "pcvantol/djconnect-pi", "source_sha": "661e26e78b45acb2bade57a63c0f68effc3652be", "version": "3.3.0", "artifact_run": "29359466200"},
     {"repository": "pcvantol/djconnect-esp32", "source_sha": "9f8a32482b8ea9fb322a29688955f5a4f26b001d", "version": "3.3.0", "artifact_run": "29341765254"},
@@ -82,13 +101,13 @@
     {"owner": "pcvantol/djconnect-website", "target": "cloudflare_pages_production", "artifact_id": "8346470431", "artifact_sha256": "dff7ba59c2cf3cd299670487d09ba6e98d845659736dfd0e9770e884e8127027", "artifact_url": "https://github.com/pcvantol/djconnect-website/actions/runs/29424048694"},
     {"owner": "pcvantol/djconnect-esp32", "target": "esp32_lilygo_t_embed_s3", "artifact_id": "release-asset:pcvantol/djconnect-firmware:v3.3.0:djconnect-lilygo-t-embed-s3-v3.3.0.bin", "artifact_sha256": "c25444d3ef414489848fd2d8de624785c82eb90195cc861bcb63085e0df3ceeb", "artifact_url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.3.0/djconnect-lilygo-t-embed-s3-v3.3.0.bin"},
     {"owner": "pcvantol/djconnect-pi", "target": "rbpi-djconnect", "artifact_id": "release-asset:pcvantol/djconnect-pi-releases:v3.3.0:djconnect-pi-3.3.0.tar.gz", "artifact_sha256": "6fa3f2f3de6062b8d69c48886bf04374592bbbe404a2856b89450e1acbe1422a", "artifact_url": "https://github.com/pcvantol/djconnect-pi-releases/releases/download/v3.3.0/djconnect-pi-3.3.0.tar.gz"},
-    {"owner": "pcvantol/djconnect-app", "target": "apple_private_device", "target_device": "macbook", "artifact_id": "release-asset:pcvantol/djconnect-app-releases:macos/v3.3.0:DJConnect-macOS-3.3.0-unsigned.zip", "artifact_sha256": "aa132359298be649cbd28a4a26c98a74ecc8e84e8720901295d8b2817e7147da", "artifact_url": "https://github.com/pcvantol/djconnect-app-releases/releases/download/macos/v3.3.0/DJConnect-macOS-3.3.0-unsigned.zip", "signing": "local_developer_provisioning_required"},
-    {"owner": "pcvantol/djconnect-app", "target": "apple_private_device", "target_device": "iphone", "paired_watch_validation": "required", "artifact_id": "release-asset:pcvantol/djconnect-app-releases:ios/v3.3.0:DJConnect-iOS-3.3.0-unsigned.zip", "artifact_sha256": "2ae314da969928ff4698e130d547e6862e97615696b1ba8b142bbd59ad9532c1", "artifact_url": "https://github.com/pcvantol/djconnect-app-releases/releases/download/ios/v3.3.0/DJConnect-iOS-3.3.0-unsigned.zip", "signing": "local_developer_provisioning_required"},
-    {"owner": "pcvantol/djconnect-app", "target": "apple_private_device", "target_device": "ipad", "artifact_id": "release-asset:pcvantol/djconnect-app-releases:ios/v3.3.0:DJConnect-iOS-3.3.0-unsigned.zip", "artifact_sha256": "2ae314da969928ff4698e130d547e6862e97615696b1ba8b142bbd59ad9532c1", "artifact_url": "https://github.com/pcvantol/djconnect-app-releases/releases/download/ios/v3.3.0/DJConnect-iOS-3.3.0-unsigned.zip", "signing": "local_developer_provisioning_required"},
+    {"owner": "pcvantol/djconnect-app", "target": "apple_private_device", "target_device": "macbook", "artifact_id": "release-asset:pcvantol/djconnect-app-releases:macos/v3.3.0:DJConnect-macOS-3.3.0-unsigned.zip", "artifact_sha256": "41137dfd346372a73ef0789394015fd94bfa6d7f416821dec65d58ab461b519a", "artifact_url": "https://github.com/pcvantol/djconnect-app-releases/releases/download/macos/v3.3.0/DJConnect-macOS-3.3.0-unsigned.zip", "signing": "local_developer_provisioning_required"},
+    {"owner": "pcvantol/djconnect-app", "target": "apple_private_device", "target_device": "iphone", "paired_watch_validation": "required", "artifact_id": "release-asset:pcvantol/djconnect-app-releases:ios/v3.3.0:DJConnect-iOS-3.3.0-unsigned.zip", "artifact_sha256": "f007fa2d5c95fc79a0c87ac51664365dd4ca059371eb57c0e84a7838ca695959", "artifact_url": "https://github.com/pcvantol/djconnect-app-releases/releases/download/ios/v3.3.0/DJConnect-iOS-3.3.0-unsigned.zip", "signing": "local_developer_provisioning_required"},
+    {"owner": "pcvantol/djconnect-app", "target": "apple_private_device", "target_device": "ipad", "artifact_id": "release-asset:pcvantol/djconnect-app-releases:ios/v3.3.0:DJConnect-iOS-3.3.0-unsigned.zip", "artifact_sha256": "f007fa2d5c95fc79a0c87ac51664365dd4ca059371eb57c0e84a7838ca695959", "artifact_url": "https://github.com/pcvantol/djconnect-app-releases/download/ios/v3.3.0/DJConnect-iOS-3.3.0-unsigned.zip", "signing": "local_developer_provisioning_required"},
     {"owner": "pcvantol/djconnect-windows", "target": "windows_internal_arm64", "artifact_id": "release-asset:pcvantol/djconnect-app-releases:windows/v3.3.0:DJConnect-Windows-arm64-3.3.0-unsigned.zip", "artifact_sha256": "cbe379826731deb1d16c8af5510b4190a4f4949b1bf6589925de5d1eb66c5b47", "artifact_url": "https://github.com/pcvantol/djconnect-app-releases/releases/download/windows/v3.3.0/DJConnect-Windows-arm64-3.3.0-unsigned.zip"}
   ],
   "evidence": {
-    "artifact_integrity": "VERIFIED: current-main Home Assistant artifact 8347737416, current-main Website artifact 8346470431 and rebound API artifact 8323208436",
+    "artifact_integrity": "VERIFIED: current-main Home Assistant artifact 8347737416, current-main Website artifact 8346470431, rebound API artifact 8323208436 and Apple artifacts from current-main run 29451514840",
     "deployment_evidence": "PARTIAL: rbpi-djconnect, cloudflare_workers_production, cloudflare_pages_production and esp32_lilygo_t_embed_s3 deployment evidence verified",
     "post_deployment_smoke": "PARTIAL: rbpi-djconnect, cloudflare_workers_production, cloudflare_pages_production and esp32_lilygo_t_embed_s3 smoke evidence verified",
     "operational_credential_scope": "NOT_DISCLOSED; each deployment workflow must validate its own least-privilege scope."
@@ -141,5 +160,5 @@
     "Apple Watch is a required paired-iPhone companion validation, not a direct deployment target.",
     "Windows x64 is published but is not bound to this ARM64-only Internal Release."
   ],
-  "next_authorized_action": "Do not dispatch a target automatically. The recorded home_assistant_pi5 authorization remains pending environment-readiness verification; Apple and Windows require their own exact target-scoped authorization, successful manifest-bound deployment and separate post-deployment smoke."
+  "next_authorized_action": "After this manifest binding is merged to main, dispatch either separately authorized Apple target (macbook or iphone with required paired Watch validation) or another authorized manifest-bound target; run that target's corresponding smoke only after successful deployment."
 }

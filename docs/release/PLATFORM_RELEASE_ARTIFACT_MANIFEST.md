@@ -16,8 +16,8 @@ It is checksum-verified release evidence, not a deployment dispatch authorizatio
 | Website | `64f95dcb` | `8346470431` | `dff7ba59c2cf3cd299670487d09ba6e98d845659736dfd0e9770e884e8127027` |
 | ESP32 LilyGO T-Embed S3 | `9f8a3248` | `djconnect-lilygo-t-embed-s3-v3.3.0.bin` | `c25444d3ef414489848fd2d8de624785c82eb90195cc861bcb63085e0df3ceeb` |
 | Raspberry Pi | `661e26e7` | `djconnect-pi-3.3.0.tar.gz` | `6fa3f2f3de6062b8d69c48886bf04374592bbbe404a2856b89450e1acbe1422a` |
-| macOS | `8eaf56f6` | `DJConnect-macOS-3.3.0-unsigned.zip` | `aa132359298be649cbd28a4a26c98a74ecc8e84e8720901295d8b2817e7147da` |
-| iPhone/iPad + paired Watch validation | `8eaf56f6` | `DJConnect-iOS-3.3.0-unsigned.zip` | `2ae314da969928ff4698e130d547e6862e97615696b1ba8b142bbd59ad9532c1` |
+| macOS | `dffdeb17` | `DJConnect-macOS-3.3.0-unsigned.zip` | `41137dfd346372a73ef0789394015fd94bfa6d7f416821dec65d58ab461b519a` |
+| iPhone/iPad + paired Watch validation | `dffdeb17` | `DJConnect-iOS-3.3.0-unsigned.zip` | `f007fa2d5c95fc79a0c87ac51664365dd4ca059371eb57c0e84a7838ca695959` |
 | Windows ARM64 | `6c0c3c34` | `DJConnect-Windows-arm64-3.3.0-unsigned.zip` | `cbe379826731deb1d16c8af5510b4190a4f4949b1bf6589925de5d1eb66c5b47` |
 
 The ESP32, Pi and unsigned Apple/Windows artifacts are published through their
