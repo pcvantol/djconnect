@@ -6,6 +6,9 @@
   encrypted transfer of selected DJConnect developer assets.
 - Exclude Keychain, browser and CLI credential stores; require interactive
   service reauthentication on the replacement machine.
+- Add a read-only macOS network and firewall assessment for known outbound
+  dependencies, active TCP endpoints, local listeners and Docker-published
+  ports.
 
 - Align the package release version with DJConnect Platform Release 3.3.0 for
   operator clarity.

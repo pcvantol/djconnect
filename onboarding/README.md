@@ -52,6 +52,21 @@ licenses/SSH keys with owner-only permissions. It never exports the whole
 Keychain, browser profiles, Docker/GitHub credential stores or Apple/GitHub/
 Docker sessions. Reauthenticate those services interactively on the new Mac.
 
+## Network checks and firewall recommendations
+
+Run the read-only network assessment to document required outbound DJConnect
+development dependencies, active TCP endpoint sessions, listening services,
+Docker-published ports and the macOS firewall/PF posture:
+
+```sh
+./onboarding/network_checks_macos.sh
+```
+
+It writes an owner-only Markdown report outside the repository by default. It
+does not capture all system traffic and does not mutate services or firewall
+rules; it assesses the known DJConnect dependency endpoints and produces
+conditional least-privilege recommendations.
+
 Its mandatory macOS preflight requires macOS 14 or later and verifies that no
 patch update is available within the installed macOS major version. It does not
 force a major-version upgrade. If a patch is available, install it through

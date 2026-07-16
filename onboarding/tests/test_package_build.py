@@ -21,6 +21,7 @@ class OnboardingPackageBuildTests(unittest.TestCase):
         self.assertEqual(build_package.manifest_value("component.tests.path"), "tests/test_onboarding_scripts.py")
         self.assertEqual(build_package.manifest_value("component.changelog.path"), "CHANGELOG.md")
         self.assertEqual(build_package.manifest_value("component.machine_transfer.script"), "machine_transfer_macos.sh")
+        self.assertEqual(build_package.manifest_value("component.network_checks.script"), "network_checks_macos.sh")
         self.assertEqual(build_package.manifest_value("desired_state.versioning"), "independent_of_onboarding_package")
         self.assertEqual(build_package.manifest_value("desired_state.minimum_tool_version.key"), "minimum_tool_version")
 
@@ -28,6 +29,7 @@ class OnboardingPackageBuildTests(unittest.TestCase):
         names = {path.relative_to(build_package.PACKAGE_ROOT).as_posix() for path in build_package.package_files()}
         self.assertIn("dev_onboarding_macos.sh", names)
         self.assertIn("machine_transfer_macos.sh", names)
+        self.assertIn("network_checks_macos.sh", names)
         self.assertIn("tests/test_package_build.py", names)
         self.assertFalse(any(name.startswith("dist/") or "__pycache__" in name for name in names))
 
@@ -43,6 +45,7 @@ class OnboardingPackageBuildTests(unittest.TestCase):
             with zipfile.ZipFile(first_artifacts[0]) as archive:
                 self.assertIn("onboarding/dev_onboarding_macos.sh", archive.namelist())
                 self.assertIn("onboarding/machine_transfer_macos.sh", archive.namelist())
+                self.assertIn("onboarding/network_checks_macos.sh", archive.namelist())
                 self.assertIn("onboarding/dev_onboarding_windows.ps1", archive.namelist())
                 self.assertIn("onboarding/tests/test_onboarding_scripts.py", archive.namelist())
                 self.assertIn("onboarding/CHANGELOG.md", archive.namelist())
@@ -139,3 +142,17 @@ class OnboardingPackageBuildTests(unittest.TestCase):
         self.assertIn("MANIFEST.sha256", source)
         self.assertNotIn("security dump-keychain", source)
         self.assertNotIn("gh auth token", source)
+
+    def test_network_checks_are_read_only_and_cover_known_boundaries(self) -> None:
+        source = (build_package.PACKAGE_ROOT / "network_checks_macos.sh").read_text(encoding="utf-8")
+
+        self.assertIn("api.github.com", source)
+        self.assertIn("registry-1.docker.io", source)
+        self.assertIn("lsof -nP -iTCP -sTCP:LISTEN", source)
+        self.assertIn("lsof -nP -iTCP -sTCP:ESTABLISHED", source)
+        self.assertIn("socketfilterfw --getglobalstate", source)
+        self.assertIn("pfctl -s info", source)
+        self.assertIn("docker ps --format", source)
+        self.assertIn("read-only", source)
+        self.assertNotIn("socketfilterfw --setglobalstate", source)
+        self.assertNotIn("pfctl -f", source)
