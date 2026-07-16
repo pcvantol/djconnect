@@ -162,6 +162,14 @@ not retained. The daily maintenance LaunchAgent retains its separately required
 non-secret status evidence; that is operational evidence, not a second recovery
 transcript.
 
+Alongside the transcript, an actual recovery creates one owner-only final
+Markdown report at `~/Library/Logs/DJConnect/macos-runner-recovery-<UTC>.md`.
+It lists every recovery stage, its `PASSED` or `FAILED` result, the final
+outcome, and the path of the detailed transcript. Use `--report-file` to choose
+another report path or `--no-report-file` only when another authoritative
+operational report is being produced. A dry-run prints the intended report path
+but creates neither the transcript nor the Markdown report.
+
 ## Optional Parallels Desktop recovery
 
 If this Mac hosts the Windows ARM64 build or deployment VM, include

@@ -33,6 +33,9 @@ CLR_MAGENTA=''
 LOG_FILE="${LOG_FILE:-}"
 LOGGING_STARTED=0
 ORIGINAL_STDOUT_IS_TTY=0
+REPORT_FILE="${REPORT_FILE:-}"
+REPORTING_STARTED=0
+CURRENT_STEP=''
 
 usage() {
   cat <<'EOF'
@@ -92,6 +95,10 @@ Options:
                         single file. Default:
                         ~/Library/Logs/DJConnect/macos-runner-recovery-<UTC>.log
   --no-log-file         Do not create a recovery log file.
+  --report-file FILE    Write the final Markdown recovery report to this file.
+                        Default:
+                        ~/Library/Logs/DJConnect/macos-runner-recovery-<UTC>.md
+  --no-report-file      Do not create the Markdown recovery report.
   --no-color            Disable ANSI color output.
   --help                Show this help.
 
@@ -142,6 +149,70 @@ start_logging() {
   log "Capturing complete non-sensitive recovery output in $LOG_FILE."
 }
 
+report_append() {
+  local step="$1"
+  local status="$2"
+  local result="$3"
+  [[ "$REPORTING_STARTED" == '1' ]] || return 0
+  result="${result//|/\\|}"
+  printf '| %s | %s | %s |\n' "$step" "$status" "$result" >>"$REPORT_FILE"
+}
+
+start_report() {
+  if [[ "$REPORT_FILE" == 'none' ]]; then
+    return
+  fi
+  if [[ -z "$REPORT_FILE" ]]; then
+    REPORT_FILE="$HOME/Library/Logs/DJConnect/macos-runner-recovery-$(date -u '+%Y%m%dT%H%M%SZ').md"
+  fi
+  if [[ "$DRY_RUN" == '1' ]]; then
+    printf 'DRY: write final Markdown recovery report to %s\n' "$REPORT_FILE"
+    return
+  fi
+  umask 077
+  mkdir -p "$(dirname "$REPORT_FILE")"
+  {
+    printf '# DJConnect macOS Runner Recovery Report\n\n'
+    printf 'Started (UTC): %s\n\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+    printf '%s\n' '- Mode: recovery execution'
+    printf '%s\n' "- Selected runner profiles: $PROFILE_SELECTION"
+    printf '%s\n\n' "- Transcript log: ${LOG_FILE:-not configured}"
+    printf '%s\n' '| Step | Status | Result |'
+    printf '%s\n' '| --- | --- | --- |'
+  } >"$REPORT_FILE"
+  chmod 600 "$REPORT_FILE"
+  REPORTING_STARTED=1
+}
+
+complete_report() {
+  local exit_code="$1"
+  [[ "$REPORTING_STARTED" == '1' ]] || return 0
+  if [[ -n "$CURRENT_STEP" ]]; then
+    report_append "$CURRENT_STEP" 'FAILED' 'Stopped before this step completed; inspect the transcript log for the exact error.'
+    CURRENT_STEP=''
+  fi
+  {
+    printf '\n## Final status\n\n'
+    if [[ "$exit_code" == '0' ]]; then
+      printf '%s\n' '**PASSED** — all requested recovery stages completed successfully.'
+    else
+      printf '%s\n' '**FAILED** — recovery stopped before completion; inspect the transcript log and the failed step above.'
+    fi
+    printf '\nCompleted (UTC): %s\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+  } >>"$REPORT_FILE"
+}
+
+run_phase() {
+  local step="$1"
+  shift
+  CURRENT_STEP="$step"
+  log "$step"
+  "$@"
+  report_append "$step" 'PASSED' 'Completed successfully; see the central transcript for detailed command output.'
+  ok "$step"
+  CURRENT_STEP=''
+}
+
 run_interactive() {
   if [[ "$DRY_RUN" == '1' ]]; then
     run "$@"
@@ -152,9 +223,12 @@ run_interactive() {
 }
 
 cleanup() {
+  local exit_code=$?
   if [[ -n "$SUDO_KEEPALIVE_PID" ]]; then
     kill "$SUDO_KEEPALIVE_PID" >/dev/null 2>&1 || true
   fi
+  complete_report "$exit_code"
+  return "$exit_code"
 }
 
 warm_sudo() {
@@ -705,6 +779,8 @@ while [[ "$#" -gt 0 ]]; do
     --dry-run) DRY_RUN=1; shift ;;
     --log-file) LOG_FILE="${2:?--log-file requires a value}"; shift 2 ;;
     --no-log-file) LOG_FILE='none'; shift ;;
+    --report-file) REPORT_FILE="${2:?--report-file requires a value}"; shift 2 ;;
+    --no-report-file) REPORT_FILE='none'; shift ;;
     --no-color) NO_COLOR=1; shift ;;
     --help|-h) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
@@ -716,29 +792,30 @@ if [[ -t 1 ]]; then
 fi
 init_style
 start_logging
-ensure_macos_arm64
+start_report
 trap cleanup EXIT
-warm_sudo
-ensure_tooling
-ensure_xcode
-ensure_parallels
-ensure_github_auth
-prepare_repositories
-bootstrap_developer_workstation
-ensure_docker_hub_auth
+run_phase 'macOS host preflight' ensure_macos_arm64
+run_phase 'Administrator sudo gate' warm_sudo
+run_phase 'Host tooling setup' ensure_tooling
+run_phase 'Xcode qualification' ensure_xcode
+run_phase 'Parallels Desktop availability' ensure_parallels
+run_phase 'GitHub CLI authentication' ensure_github_auth
+run_phase 'Repository preparation' prepare_repositories
+run_phase 'Developer workstation recovery' bootstrap_developer_workstation
+run_phase 'Docker Hub authentication' ensure_docker_hub_auth
 
 for profile in apple private-network esp32 pi; do
   if profile_enabled "$profile"; then
-    install_runner_profile "$profile"
+    run_phase "GitHub Actions runner profile: $profile" install_runner_profile "$profile"
   fi
 done
 
-install_maintenance
-refresh_host_tooling
-check_reboot_required
-verify_launchd_services
-configure_signing_keychain
-configure_apple_internal_release
-audit_apple_github_configuration
-run_initial_verification
+run_phase 'Daily macOS tooling maintenance' install_maintenance
+run_phase 'Tooling currency refresh' refresh_host_tooling
+run_phase 'Reboot requirement check' check_reboot_required
+run_phase 'Runner services and launchd validation' verify_launchd_services
+run_phase 'Apple signing recovery' configure_signing_keychain
+run_phase 'Apple internal-release readiness' configure_apple_internal_release
+run_phase 'GitHub Apple configuration audit' audit_apple_github_configuration
+run_phase 'Initial post-recovery verification' run_initial_verification
 report_signing_recovery

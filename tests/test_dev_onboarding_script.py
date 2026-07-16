@@ -138,6 +138,12 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("verification_args+=(--dry-run)", source)
         self.assertIn("onboarding_args=(tools/dev_onboarding_macos.sh --all --yes --warm-sudo --no-log-file)", source)
         self.assertIn("start_logging", source)
+        self.assertIn("start_report", source)
+        self.assertIn("complete_report", source)
+        self.assertIn("run_phase", source)
+        self.assertIn("--report-file", source)
+        self.assertIn("--no-report-file", source)
+        self.assertIn("Final status", source)
         self.assertIn("run_interactive", source)
         self.assertIn("install_macos_ci_tooling_maintenance.sh --run-now", source)
 
