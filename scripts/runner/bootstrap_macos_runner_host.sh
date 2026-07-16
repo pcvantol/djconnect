@@ -8,6 +8,7 @@ set -euo pipefail
 readonly ORG='pcvantol'
 readonly SCRIPT_VERSION='1.0.0'
 readonly SCRIPT_DIRECTORY="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly REPOSITORY_ROOT="$(cd "$SCRIPT_DIRECTORY/../.." && pwd -P)"
 readonly REDACTION_RULES="$SCRIPT_DIRECTORY/redact_recovery_output.sed"
 DESIRED_STATE_FILE="${DESIRED_STATE_FILE:-$SCRIPT_DIRECTORY/macos_runner_host_desired_state.yml}"
 DESIRED_STATE_SCHEMA_VERSION=''
@@ -376,6 +377,17 @@ ok() { emit_log info 'OK' "$CLR_GREEN" "$@"; }
 warn() { emit_log warning 'WARNING' "$CLR_YELLOW" "$@"; }
 die() { emit_log error 'ERROR' "$CLR_RED" "$@"; exit 1; }
 
+require_external_output_path() {
+  local output_kind="$1"
+  local output_path="$2"
+  [[ "$output_path" == /* ]] || die "$output_kind must use an absolute path outside the repository; relative output paths are refused."
+  case "$output_path" in
+    "$REPOSITORY_ROOT"|"$REPOSITORY_ROOT"/*)
+      die "$output_kind must be outside the repository; recovery output is never written into Git working tree $REPOSITORY_ROOT."
+      ;;
+  esac
+}
+
 start_logging() {
   if [[ "$LOG_FILE" == 'none' ]]; then
     return
@@ -383,6 +395,7 @@ start_logging() {
   if [[ -z "$LOG_FILE" ]]; then
     LOG_FILE="$HOME/Library/Logs/DJConnect/macos-runner-recovery-$(date -u '+%Y%m%dT%H%M%SZ').log"
   fi
+  require_external_output_path 'Recovery transcript log' "$LOG_FILE"
   if [[ "$DRY_RUN" == '1' ]]; then
     printf 'DRY: capture complete non-sensitive recovery output in %s\n' "$LOG_FILE"
     return
@@ -418,6 +431,7 @@ start_report() {
   if [[ -z "$REPORT_FILE" ]]; then
     REPORT_FILE="$HOME/Library/Logs/DJConnect/macos-runner-recovery-$(date -u '+%Y%m%dT%H%M%SZ').md"
   fi
+  require_external_output_path 'Recovery Markdown report' "$REPORT_FILE"
   if [[ "$DRY_RUN" == '1' ]]; then
     printf 'DRY: write final Markdown recovery report to %s\n' "$REPORT_FILE"
     return
@@ -593,6 +607,7 @@ print_phase_catalog() {
 write_resume_checkpoint() {
   local next_phase="$1"
   local phase_id phase_state
+  require_external_output_path 'Recovery resume checkpoint' "$RESUME_STATE_FILE"
   umask 077
   mkdir -p "$(dirname "$RESUME_STATE_FILE")"
   {
@@ -1797,6 +1812,7 @@ if [[ "$LIST_PHASES" == '1' ]]; then
   print_phase_catalog
   exit 0
 fi
+require_external_output_path 'Recovery resume checkpoint' "$RESUME_STATE_FILE"
 
 if [[ "$VERIFY_MODE" == '1' && "$DRY_RUN" == '1' ]]; then
   die '--verify and --dry-run cannot be combined.'

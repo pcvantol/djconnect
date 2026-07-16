@@ -159,6 +159,12 @@ Markdown report. Override their paths with `--log-file` and `--report-file`,
 or suppress them with `--no-log-file` and `--no-report-file` when an external
 recorder is authoritative.
 
+Recovery transcript, Markdown report and reboot-resume checkpoint paths must
+be absolute paths outside this repository. The bootstrap refuses a relative
+path or a path under the Git working tree before creating output. The root
+`.gitignore` also ignores the recovery filename patterns as defence in depth;
+recovery evidence and local resume state must never enter Git.
+
 ## Repository mutation governance
 
 This bootstrap reconciles host state and may clone, fetch or fast-forward its

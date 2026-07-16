@@ -5,6 +5,11 @@ __pycache__/
 .pytest_cache/
 .env*.local
 
+# Local macOS recovery-bootstrap evidence and reboot state must never be committed.
+macos-runner-recovery-*.log
+macos-runner-recovery-*.md
+macos-runner-recovery-resume.env
+
 # DJConnect shared local metadata
 .DS_Store
 **/.DS_Store

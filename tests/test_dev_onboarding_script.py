@@ -361,6 +361,25 @@ class DevOnboardingScriptTests(unittest.TestCase):
         session_bootstrap = (ROOT / "BOOTSTRAP_CODEX_SESSION.md").read_text(encoding="utf-8")
         self.assertIn("prompt-free desired-state repair pass", session_bootstrap)
 
+    def test_macos_runner_recovery_bootstrap_refuses_repository_output_paths(self) -> None:
+        result = subprocess.run(
+            [str(RUNNER_RECOVERY_SCRIPT), "--verify", "--log-file", "recovery.log"],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        self.assertIn("absolute path outside the repository", result.stdout)
+        source = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+        self.assertIn("require_external_output_path", source)
+        self.assertIn("recovery output is never written into Git working tree", source)
+        gitignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
+        self.assertIn("macos-runner-recovery-*.log", gitignore)
+        self.assertIn("macos-runner-recovery-*.md", gitignore)
+
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:
         source = WINDOWS_RUNNER_RECOVERY_SCRIPT.read_text()
 

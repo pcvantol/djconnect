@@ -18,6 +18,8 @@ the DJConnect product release.
   hard minimum but is below the recommended recovery capacity.
 - Add `--repair`: one unattended desired-state repair pass with baseline and
   post-repair verification plus explicit remaining manual requirements.
+- Refuse recovery output and resume checkpoint paths inside the Git working
+  tree, with `.gitignore` patterns as a second line of defence.
 
 ## [1.0.0] - 2026-07-16
 
