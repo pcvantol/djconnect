@@ -8,9 +8,10 @@ the DJConnect product release.
 
 ## [1.3.0] - 2026-07-16
 
-- Version the declarative macOS desired-state manifest independently as `1.0.0`
-  and enforce its declared minimum compatible bootstrap version for recovery
-  execution; verification reports incompatibility without mutating the host.
+- Version the declarative macOS desired-state manifest as `3.3.0`, aligned to
+  the active DJConnect platform release major/minor line, and enforce its
+  declared minimum compatible bootstrap version for recovery execution;
+  verification reports incompatibility without mutating the host.
 - Record the desired-state version, bootstrap version and compatibility verdict
   in verification output and recovery reports.
 - Make Parallels Desktop a required desired-state cask rather than an optional

@@ -226,7 +226,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         desired_state = MACOS_RUNNER_DESIRED_STATE.read_text()
         self.assertIn("schema_version: 1", desired_state)
         self.assertIn("host.minimum_free_disk_gb: 80", desired_state)
-        self.assertIn("version: 1.0.0", desired_state)
+        self.assertIn("version: 3.3.0", desired_state)
         self.assertIn("minimum_tool_version: 1.3.0", desired_state)
         self.assertIn("runner.profiles: apple,private-network,esp32,pi,windows", desired_state)
         self.assertIn("tooling.required_casks: docker,dotnet-sdk,parallels", desired_state)

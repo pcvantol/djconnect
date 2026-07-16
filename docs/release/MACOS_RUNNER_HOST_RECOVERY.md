@@ -62,7 +62,12 @@ It declares the host qualification thresholds, required Homebrew tooling,
 refreshable casks and repository-scoped runner profiles (repository, runner
 name and labels). The bootstrap validates this manifest before it changes the
 machine, then reconciles the declared state idempotently. The final report
-records the manifest path and schema version used as evidence.
+records the manifest path and schema version used as evidence. Its manifest
+version always uses the active DJConnect platform release's major/minor line
+(currently `3.3.0` for Platform Release 3.3). The manifest patch version may
+advance for desired-state changes within that platform line; the bootstrap tool
+keeps its own independent semantic version and declares compatibility through
+`minimum_tool_version`.
 
 The file intentionally uses a bootstrap-safe flat YAML key/value subset. This
 lets a fresh Mac parse it with native macOS shell tooling before Homebrew,
@@ -144,12 +149,12 @@ does not create a recovery transcript or final report unless those paths are
 explicitly requested. Parallels Desktop is a required desired-state component;
 its absence is reported as drift.
 
-The desired-state manifest has its own semantic version and declares the
-minimum compatible recovery-bootstrap version. Startup logs, verification
-output and recovery reports show the manifest version, tool version and
-compatibility verdict. Apply/recovery fails closed when the tool is older than
-the manifest minimum; `--verify` reports that incompatibility without mutating
-the machine.
+The desired-state manifest version stays aligned to the active platform
+release's major/minor line and declares the minimum compatible
+recovery-bootstrap version. Startup logs, verification output and recovery
+reports show the manifest version, tool version and compatibility verdict.
+Apply/recovery fails closed when the tool is older than the manifest minimum;
+`--verify` reports that incompatibility without mutating the machine.
 
 ### Unattended desired-state repair
 
