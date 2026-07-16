@@ -19,6 +19,12 @@ Assistant Compose environment. The Home Assistant service is available at
 uses the macOS-hosted Home Assistant environment rather than Docker Desktop in
 the Windows ARM VM.
 
+Its mandatory macOS preflight requires macOS 14 or later and verifies that no
+patch update is available within the installed macOS major version. It does not
+force a major-version upgrade. If a patch is available, install it through
+**System Settings → General → Software Update**, restart when requested, and
+run preflight again.
+
 ## Tests
 
 Run the package contract tests from the repository root:
@@ -52,5 +58,5 @@ ngrok redaction, interactive selection and guarded mutating steps.
 ## Package manifest
 
 `manifest.yml` records the package version, its canonical components and the
-compatibility wrappers. Update it together with any relocation or package
-surface change.
+compatibility wrappers. `CHANGELOG.md` records package releases. Update both
+together with any package-surface change.

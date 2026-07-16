@@ -410,6 +410,31 @@ preflight_music_assistant_port() {
   return 1
 }
 
+preflight_macos_security_patches() {
+  local macos_version="$1"
+  local macos_major="${macos_version%%.*}"
+  local update_listing
+
+  if [[ ! "$macos_major" =~ ^[0-9]+$ ]]; then
+    warn "Cannot determine the installed macOS major version from: ${macos_version:-unknown}."
+    return 1
+  fi
+  if ! have softwareupdate; then
+    warn "macOS Software Update tooling is unavailable; cannot verify security patch currency."
+    return 1
+  fi
+  if ! update_listing="$(softwareupdate --list 2>&1)"; then
+    warn "macOS Software Update scan failed; cannot verify security patch currency."
+    return 1
+  fi
+  if printf '%s\n' "$update_listing" | LC_ALL=C grep -Eiq "macOS[^0-9]*${macos_major}\\.[0-9]+"; then
+    warn "A macOS ${macos_major}.x patch update is available. Install it in System Settings > General > Software Update, restart if requested, then rerun preflight."
+    return 1
+  fi
+
+  status_ok "macOS ${macos_version}: no available patch update for major ${macos_major}"
+}
+
 step_0_preflight() {
   need_macos
   log "Running machine, VM, hardware, filesystem and network preflight."
@@ -430,6 +455,7 @@ step_0_preflight() {
     1[4-9].*|2[0-9].*) status_ok "macOS version $macos_version" ;;
     *) warn "macOS $macos_version may be too old. Use macOS 14 or newer for the full DJConnect toolchain."; failed=1 ;;
   esac
+  preflight_macos_security_patches "$macos_version" || failed=1
 
   mem_bytes="$(sysctl -n hw.memsize 2>/dev/null || echo 0)"
   mem_gb=$((mem_bytes / 1024 / 1024 / 1024))
