@@ -147,6 +147,9 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("Retry this phase?", source)
         self.assertIn("--no-step-retry", source)
         self.assertIn("RETRYING", source)
+        self.assertIn("--skip-phases", source)
+        self.assertIn("COMPLETED WITH SKIPPED PHASES", source)
+        self.assertIn("phase_is_skipped", source)
         self.assertIn("run_interactive", source)
         self.assertIn("install_macos_ci_tooling_maintenance.sh --run-now", source)
 

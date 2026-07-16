@@ -37,6 +37,8 @@ REPORT_FILE="${REPORT_FILE:-}"
 REPORTING_STARTED=0
 CURRENT_STEP=''
 ALLOW_STEP_RETRY=1
+SKIP_PHASES="${SKIP_PHASES:-}"
+SKIPPED_PHASE_COUNT=0
 
 usage() {
   cat <<'EOF'
@@ -102,6 +104,9 @@ Options:
   --no-report-file      Do not create the Markdown recovery report.
   --no-step-retry       Abort immediately when a recovery phase fails instead
                         of offering an interactive retry for that same phase.
+  --skip-phases LIST    Comma-separated phase IDs to skip intentionally.
+                        See the recovery guide for valid IDs. Skipped phases
+                        are recorded and prevent a fully-qualified PASS.
   --no-color            Disable ANSI color output.
   --help                Show this help.
 
@@ -196,20 +201,55 @@ complete_report() {
   fi
   {
     printf '\n## Final status\n\n'
-    if [[ "$exit_code" == '0' ]]; then
-      printf '%s\n' '**PASSED** — all requested recovery stages completed successfully.'
-    else
+    if [[ "$exit_code" != '0' ]]; then
       printf '%s\n' '**FAILED** — recovery stopped before completion; inspect the transcript log and the failed step above.'
+    elif [[ "$SKIPPED_PHASE_COUNT" != '0' ]]; then
+      printf '%s\n' "**COMPLETED WITH SKIPPED PHASES** — $SKIPPED_PHASE_COUNT phase(s) were intentionally skipped and require separate qualification."
+    else
+      printf '%s\n' '**PASSED** — all requested recovery stages completed successfully.'
     fi
     printf '\nCompleted (UTC): %s\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
   } >>"$REPORT_FILE"
 }
 
+phase_is_skipped() {
+  local phase_id="$1"
+  [[ -n "$SKIP_PHASES" && ",$SKIP_PHASES," == *",$phase_id,"* ]]
+}
+
+validate_skip_phases() {
+  local phase_id
+  [[ -z "$SKIP_PHASES" ]] && return 0
+  IFS=',' read -r -a requested_phase_ids <<<"$SKIP_PHASES"
+  for phase_id in "${requested_phase_ids[@]}"; do
+    case "$phase_id" in
+      macos-preflight|sudo|tooling|xcode|parallels|github-auth|repositories|developer-workstation|docker-auth|runner-apple|runner-private-network|runner-esp32|runner-pi|maintenance|tooling-refresh|reboot-check|services|apple-signing|apple-readiness|apple-github-audit|initial-verification) ;;
+      '') ;;
+      *) die "Unknown --skip-phases ID: $phase_id" ;;
+    esac
+  done
+}
+
+skip_phase() {
+  local phase_id="$1"
+  local step="$2"
+  local reason="$3"
+  SKIPPED_PHASE_COUNT=$((SKIPPED_PHASE_COUNT + 1))
+  report_append "$step" 'SKIPPED' "$reason (phase ID: $phase_id)."
+  warn "$step was skipped: $reason"
+  CURRENT_STEP=''
+}
+
 run_phase() {
-  local step="$1"
-  shift
+  local phase_id="$1"
+  local step="$2"
+  shift 2
   local attempt=1
   local phase_status
+  if phase_is_skipped "$phase_id"; then
+    skip_phase "$phase_id" "$step" 'Operator requested skip through --skip-phases'
+    return 0
+  fi
   CURRENT_STEP="$step"
   while true; do
     log "$step (attempt $attempt)"
@@ -229,7 +269,7 @@ run_phase() {
     if [[ "$ALLOW_STEP_RETRY" != '1' || "$DRY_RUN" == '1' || ! -r /dev/tty || ! -w /dev/tty ]]; then
       die "Recovery phase failed: $step"
     fi
-    printf 'Retry this phase? [r]etry / [a]bort: ' >/dev/tty
+    printf 'Retry this phase? [r]etry / [s]kip / [a]bort: ' >/dev/tty
     local response=''
     read -r response </dev/tty
     case "$response" in
@@ -237,8 +277,12 @@ run_phase() {
         report_append "$step" 'RETRYING' "Operator requested retry after attempt $attempt."
         attempt=$((attempt + 1))
         ;;
+      s|S|skip|Skip|SKIP)
+        skip_phase "$phase_id" "$step" "Operator skipped failed attempt $attempt"
+        return 0
+        ;;
       a|abort|'') die "Recovery phase aborted by operator: $step" ;;
-      *) warn 'Enter r to retry the same phase or a to abort recovery.' ;;
+      *) warn 'Enter r to retry, s to skip this phase, or a to abort recovery.' ;;
     esac
   done
 }
@@ -812,6 +856,7 @@ while [[ "$#" -gt 0 ]]; do
     --report-file) REPORT_FILE="${2:?--report-file requires a value}"; shift 2 ;;
     --no-report-file) REPORT_FILE='none'; shift ;;
     --no-step-retry) ALLOW_STEP_RETRY=0; shift ;;
+    --skip-phases) SKIP_PHASES="${2:?--skip-phases requires a value}"; shift 2 ;;
     --no-color) NO_COLOR=1; shift ;;
     --help|-h) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
@@ -825,28 +870,29 @@ init_style
 start_logging
 start_report
 trap cleanup EXIT
-run_phase 'macOS host preflight' ensure_macos_arm64
-run_phase 'Administrator sudo gate' warm_sudo
-run_phase 'Host tooling setup' ensure_tooling
-run_phase 'Xcode qualification' ensure_xcode
-run_phase 'Parallels Desktop availability' ensure_parallels
-run_phase 'GitHub CLI authentication' ensure_github_auth
-run_phase 'Repository preparation' prepare_repositories
-run_phase 'Developer workstation recovery' bootstrap_developer_workstation
-run_phase 'Docker Hub authentication' ensure_docker_hub_auth
+validate_skip_phases
+run_phase macos-preflight 'macOS host preflight' ensure_macos_arm64
+run_phase sudo 'Administrator sudo gate' warm_sudo
+run_phase tooling 'Host tooling setup' ensure_tooling
+run_phase xcode 'Xcode qualification' ensure_xcode
+run_phase parallels 'Parallels Desktop availability' ensure_parallels
+run_phase github-auth 'GitHub CLI authentication' ensure_github_auth
+run_phase repositories 'Repository preparation' prepare_repositories
+run_phase developer-workstation 'Developer workstation recovery' bootstrap_developer_workstation
+run_phase docker-auth 'Docker Hub authentication' ensure_docker_hub_auth
 
 for profile in apple private-network esp32 pi; do
   if profile_enabled "$profile"; then
-    run_phase "GitHub Actions runner profile: $profile" install_runner_profile "$profile"
+    run_phase "runner-$profile" "GitHub Actions runner profile: $profile" install_runner_profile "$profile"
   fi
 done
 
-run_phase 'Daily macOS tooling maintenance' install_maintenance
-run_phase 'Tooling currency refresh' refresh_host_tooling
-run_phase 'Reboot requirement check' check_reboot_required
-run_phase 'Runner services and launchd validation' verify_launchd_services
-run_phase 'Apple signing recovery' configure_signing_keychain
-run_phase 'Apple internal-release readiness' configure_apple_internal_release
-run_phase 'GitHub Apple configuration audit' audit_apple_github_configuration
-run_phase 'Initial post-recovery verification' run_initial_verification
+run_phase maintenance 'Daily macOS tooling maintenance' install_maintenance
+run_phase tooling-refresh 'Tooling currency refresh' refresh_host_tooling
+run_phase reboot-check 'Reboot requirement check' check_reboot_required
+run_phase services 'Runner services and launchd validation' verify_launchd_services
+run_phase apple-signing 'Apple signing recovery' configure_signing_keychain
+run_phase apple-readiness 'Apple internal-release readiness' configure_apple_internal_release
+run_phase apple-github-audit 'GitHub Apple configuration audit' audit_apple_github_configuration
+run_phase initial-verification 'Initial post-recovery verification' run_initial_verification
 report_signing_recovery

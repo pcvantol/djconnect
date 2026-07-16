@@ -171,12 +171,31 @@ operational report is being produced. A dry-run prints the intended report path
 but creates neither the transcript nor the Markdown report.
 
 If an actual recovery phase fails, the operator is offered `retry` or `abort`
-on the controlling terminal. `retry` repeats only that same failed phase; it
-does not rerun already successful phases or continue into later phases first.
-The report records every failed attempt, the operator-requested retry and the
-eventual outcome. Select `--no-step-retry` for an unattended fail-closed run.
-If no interactive terminal is available, recovery also fails closed rather than
-attempting an unsafe automatic retry.
+or `skip` on the controlling terminal. `retry` repeats only that same failed
+phase; it does not rerun already successful phases or continue into later
+phases first. `skip` is an explicit operator decision and is never reported as
+a qualified pass. The report records every failed attempt, retry and skip.
+Select `--no-step-retry` for an unattended fail-closed run. If no interactive
+terminal is available, recovery also fails closed rather than attempting an
+unsafe automatic retry or skip.
+
+To intentionally omit known phases before execution, use `--skip-phases` with
+one or more comma-separated IDs, for example:
+
+```sh
+./scripts/runner/bootstrap_macos_runner_host.sh \
+  --xcode-version <qualified-version> \
+  --skip-phases parallels,apple-signing
+```
+
+Valid IDs are `macos-preflight`, `sudo`, `tooling`, `xcode`, `parallels`,
+`github-auth`, `repositories`, `developer-workstation`, `docker-auth`,
+`runner-apple`, `runner-private-network`, `runner-esp32`, `runner-pi`,
+`maintenance`, `tooling-refresh`, `reboot-check`, `services`,
+`apple-signing`, `apple-readiness`, `apple-github-audit` and
+`initial-verification`. Unknown IDs fail before recovery continues. Any skip
+results in **COMPLETED WITH SKIPPED PHASES**, not **PASSED**; separately rerun
+and qualify the skipped phases before treating the host as release-capable.
 
 ## Optional Parallels Desktop recovery
 
