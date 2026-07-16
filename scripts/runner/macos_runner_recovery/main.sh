@@ -1,4 +1,4 @@
-# Version: 1.1.0
+# Version: 1.2.0
 # CLI parsing and top-level recovery orchestration.
 djconnect_macos_runner_recovery_main() {
 while [[ "$#" -gt 0 ]]; do

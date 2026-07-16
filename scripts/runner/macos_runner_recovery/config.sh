@@ -1,4 +1,4 @@
-# Version: 1.1.0
+# Version: 1.2.0
 # Shared recovery state, constants and desired-state parsing.
 # Recovers a DJConnect macOS Actions-runner host after a laptop replacement.
 # Authentication is interactive through gh; GitHub registration tokens are
@@ -68,6 +68,9 @@ readonly REPOSITORY_ROOT="$(cd "$SCRIPT_DIRECTORY/../.." && pwd -P)"
 readonly REDACTION_RULES="$SCRIPT_DIRECTORY/redact_recovery_output.sed"
 DESIRED_STATE_FILE="${DESIRED_STATE_FILE:-$SCRIPT_DIRECTORY/macos_runner_host_desired_state.yml}"
 DESIRED_STATE_SCHEMA_VERSION=''
+DESIRED_STATE_VERSION=''
+DESIRED_MINIMUM_TOOL_VERSION=''
+MANIFEST_TOOL_COMPATIBILITY_VERDICT=''
 DESIRED_HOST_PLATFORM=''
 DESIRED_HOST_ARCHITECTURE=''
 DESIRED_HOST_APPLE_SILICON=''

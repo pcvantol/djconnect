@@ -1,4 +1,4 @@
-# Version: 1.2.0
+# Version: 1.3.0
 # Phase lifecycle, progress reporting, reboot continuation and repair flow.
 phase_section_id() {
   local phase_id="$1"
@@ -32,7 +32,7 @@ section_title() {
 section_description() {
   case "$1" in
     host-qualification) printf '%s' 'Validate physical Apple-Silicon host capacity before any mutation.' ;;
-    host-provisioning) printf '%s' 'Install or qualify shared macOS tooling and optional platform components.' ;;
+    host-provisioning) printf '%s' 'Install or qualify required shared macOS tooling and platform components.' ;;
     repository-access) printf '%s' 'Authenticate and synchronize the managed DJConnect repositories.' ;;
     developer-workstation) printf '%s' 'Restore local development services and authenticated Docker access.' ;;
     runner-provisioning) printf '%s' 'Register selected self-hosted runners; eligible profiles run CPU-bounded in parallel.' ;;
@@ -169,7 +169,9 @@ start_report() {
     else
       printf '%s\n' '- Mode: recovery execution'
     fi
-    printf '%s\n' "- Desired state: $DESIRED_STATE_FILE (schema $DESIRED_STATE_SCHEMA_VERSION)"
+    printf '%s\n' "- Desired state: $DESIRED_STATE_FILE (version $DESIRED_STATE_VERSION, schema $DESIRED_STATE_SCHEMA_VERSION)"
+    printf '%s\n' "- Manifest minimum bootstrap version: $DESIRED_MINIMUM_TOOL_VERSION"
+    printf '%s\n' "- Manifest/bootstrap compatibility: $MANIFEST_TOOL_COMPATIBILITY_VERDICT"
     printf '%s\n' "- Selected runner profiles: $PROFILE_SELECTION"
     printf '%s\n\n' "- Transcript log: ${LOG_FILE:-not configured}"
     printf '%s\n' '| Step | Status | Result |'
@@ -291,6 +293,7 @@ all_phase_ids() {
   local profile
   printf '%s\n' macos-preflight sudo tooling xcode parallels github-auth permissions-audit repositories developer-workstation docker-auth home-assistant-lab
   for profile in "${DESIRED_PROFILES[@]}"; do
+    profile_is_local_macos "$profile" || continue
     printf 'runner-%s\n' "$profile"
   done
   printf '%s\n' maintenance tooling-refresh reboot-check services apple-signing apple-readiness credential-expiry-audit apple-github-audit initial-verification
@@ -494,6 +497,7 @@ phase_dependencies() {
       local profile
       for profile in "${DESIRED_PROFILES[@]}"; do
         if profile_enabled "$profile"; then
+          profile_is_local_macos "$profile" || continue
           printf ' runner-%s' "$profile"
         fi
       done
@@ -772,6 +776,7 @@ run_parallel_runner_profiles() {
   local profile phase_id step worker_limit index batch_end pid status failures=0
   for profile in "${DESIRED_PROFILES[@]}"; do
     profile_enabled "$profile" || continue
+    profile_is_local_macos "$profile" || continue
     phase_id="runner-$profile"
     [[ "$(phase_execution_capability "$phase_id")" == 'HEADLESS + PARALLEL SAFE' ]] || die "Runner phase $phase_id is not declared parallel-safe."
     profiles+=("$profile")
@@ -878,6 +883,7 @@ run_unattended_repair_runners() {
   fi
   for profile in "${DESIRED_PROFILES[@]}"; do
     profile_enabled "$profile" || continue
+    profile_is_local_macos "$profile" || continue
     if [[ "$profile" == 'apple' ]] && ! command -v xcodebuild >/dev/null 2>&1; then
       record_repair_manual_requirement 'Full Xcode is required before the Apple runner can be repaired. Install/select the qualified Xcode version, then rerun --repair.'
       continue

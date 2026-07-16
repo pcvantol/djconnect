@@ -141,8 +141,15 @@ central transcript, so concurrent output cannot interleave or expose tokens.
 `--verify` emits a Markdown delta to standard output and exits `0` only when
 all required desired-state rows match. It exits `1` when it finds drift. It
 does not create a recovery transcript or final report unless those paths are
-explicitly requested. Optional entries, such as Parallels Desktop, are shown
-as `OPTIONAL` rather than drift when absent.
+explicitly requested. Parallels Desktop is a required desired-state component;
+its absence is reported as drift.
+
+The desired-state manifest has its own semantic version and declares the
+minimum compatible recovery-bootstrap version. Startup logs, verification
+output and recovery reports show the manifest version, tool version and
+compatibility verdict. Apply/recovery fails closed when the tool is older than
+the manifest minimum; `--verify` reports that incompatibility without mutating
+the machine.
 
 ### Unattended desired-state repair
 
@@ -430,7 +437,6 @@ Use `--dry-run` to inspect the complete recovery plan without changes:
   --ngrok-domain <reserved-domain> \
   --prompt-ngrok-auth \
   --configure-apple-internal-release \
-  --install-parallels \
   --dry-run
 ```
 
@@ -523,22 +529,25 @@ Forced phases remain subject to the same prechecks and dependencies. They are
 idempotent: force means validate/reconcile, never destructive recreation.
 A phase cannot be both skipped and forced.
 
-## Optional Parallels Desktop recovery
+## Required Parallels Desktop and external Windows ARM64 runner
 
-If this Mac hosts the Windows ARM64 build or deployment VM, include
-`--install-parallels`. The bootstrap checks for the Parallels Desktop app and
-`prlctl`, then installs Parallels with Homebrew only when it is absent:
+Parallels Desktop is required by the macOS desired state. The bootstrap checks
+for the app and `prlctl`, then installs it with Homebrew when absent. The
+legacy `--install-parallels` flag remains accepted for compatibility but is no
+longer required:
 
 ```sh
 ./scripts/runner/bootstrap_macos_runner_host.sh \
-  --xcode-version <qualified-version> \
-  --install-parallels
+  --xcode-version <qualified-version>
 ```
 
 The first Parallels launch still requires license activation. Windows ARM VM
-creation/recovery and registration of its Windows self-hosted runner are a
-separate explicit operation. Parallels downloads the supported Windows 11 ARM
-image through **Get Windows 11 from Microsoft**; Microsoft EULA acceptance and
+creation/recovery and registration of its Windows self-hosted runner remain a
+separate native Windows operation. The macOS bootstrap never registers a
+Windows runner as a macOS runner. Its desired-state verification instead checks
+GitHub for the configured external runner, requiring it to be online with the
+configured labels. Parallels downloads the supported Windows 11 ARM image
+through **Get Windows 11 from Microsoft**; Microsoft EULA acceptance and
 Windows first-run account setup cannot be bypassed by repository automation.
 
 After the Windows 11 ARM desktop is available, clone `pcvantol/djconnect` in

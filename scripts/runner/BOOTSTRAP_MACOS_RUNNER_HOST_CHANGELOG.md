@@ -6,6 +6,19 @@ This changelog covers only
 compatibility and security changes to the recovery bootstrap independently of
 the DJConnect product release.
 
+## [1.3.0] - 2026-07-16
+
+- Version the declarative macOS desired-state manifest independently as `1.0.0`
+  and enforce its declared minimum compatible bootstrap version for recovery
+  execution; verification reports incompatibility without mutating the host.
+- Record the desired-state version, bootstrap version and compatibility verdict
+  in verification output and recovery reports.
+- Make Parallels Desktop a required desired-state cask rather than an optional
+  platform component.
+- Declare the Windows ARM64 runner as an external Windows profile and verify it
+  through GitHub as online with its required labels. The macOS bootstrap never
+  attempts to install or register that Windows runner.
+
 ## [1.2.0] - 2026-07-16
 
 - Use the canonical `onboarding/` package for macOS developer-workstation,

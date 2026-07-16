@@ -1,4 +1,4 @@
-# Version: 1.2.0
+# Version: 1.3.0
 # macOS host provisioning, developer-workstation and service operations.
 warm_sudo() {
   if [[ "$DRY_RUN" == '1' ]]; then
@@ -140,9 +140,6 @@ ensure_tooling() {
 }
 
 ensure_parallels() {
-  if [[ "$INSTALL_PARALLELS" == '0' ]]; then
-    return
-  fi
   if [[ -d '/Applications/Parallels Desktop.app' ]] && command -v prlctl >/dev/null 2>&1; then
     log "Parallels Desktop is available: $(prlctl --version 2>/dev/null || printf 'version unavailable')."
     return
@@ -382,6 +379,11 @@ verify_runner_online() {
       printf 'DRY: wait for GitHub runner %s in %s to report online with its registered labels\n' "$runner_name" "$repository"
       continue
     fi
+    if [[ "$PROFILE_PROVISIONING" == 'external_windows_arm64' ]]; then
+      external_runner_profile_registered "$profile" || die "External Windows runner $runner_name is not online with its required labels."
+      log "External Windows runner $runner_name is online with its required labels."
+      continue
+    fi
     deadline=$((SECONDS + 90))
     state=''
     while (( SECONDS < deadline )); do
@@ -417,6 +419,7 @@ verify_launchd_services() {
   local profile install_dir
   for profile in "${DESIRED_PROFILES[@]}"; do
     if profile_enabled "$profile"; then
+      profile_is_local_macos "$profile" || continue
       profile_values "$profile"
       install_dir="$RUNNER_ROOT/$PROFILE_RUNNER_NAME"
       if [[ "$DRY_RUN" == '1' ]]; then

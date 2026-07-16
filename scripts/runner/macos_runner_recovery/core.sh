@@ -1,4 +1,4 @@
-# Version: 1.1.0
+# Version: 1.2.0
 # CLI help, desired-state verification and console/report primitives.
 usage() {
   cat <<'EOF'
@@ -32,9 +32,9 @@ Options:
                         Grant the standard Apple build tools unattended access
                         to existing local signing keys. The login-keychain
                         password is prompted invisibly.
-  --install-parallels   Check for Parallels Desktop and install it through
-                        Homebrew when absent. It does not activate a license or
-                        create a Windows VM.
+  --install-parallels   Compatibility option. Parallels Desktop is required by
+                        the desired state and is always reconciled; this option
+                        does not activate a license or create a Windows VM.
   --skip-developer-workstation
                         Do not run the complete existing macOS developer
                         onboarding. By default the recovery restores the full
@@ -145,11 +145,33 @@ require_desired_state_value() {
   printf '%s' "$value"
 }
 
+semantic_version_at_least() {
+  local actual="$1" minimum="$2" index
+  local -a actual_parts minimum_parts
+  IFS='.' read -r -a actual_parts <<<"$actual"
+  IFS='.' read -r -a minimum_parts <<<"$minimum"
+  for index in 0 1 2; do
+    (( 10#${actual_parts[$index]:-0} > 10#${minimum_parts[$index]:-0} )) && return 0
+    (( 10#${actual_parts[$index]:-0} < 10#${minimum_parts[$index]:-0} )) && return 1
+  done
+  return 0
+}
+
 load_desired_state() {
   local profile
   [[ -f "$DESIRED_STATE_FILE" ]] || die "Desired-state manifest is unavailable: $DESIRED_STATE_FILE"
   DESIRED_STATE_SCHEMA_VERSION="$(require_desired_state_value schema_version)"
   [[ "$DESIRED_STATE_SCHEMA_VERSION" == '1' ]] || die "Unsupported desired-state schema version: $DESIRED_STATE_SCHEMA_VERSION"
+  DESIRED_STATE_VERSION="$(require_desired_state_value version)"
+  DESIRED_MINIMUM_TOOL_VERSION="$(require_desired_state_value minimum_tool_version)"
+  [[ "$DESIRED_STATE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "Invalid desired-state manifest version: $DESIRED_STATE_VERSION"
+  [[ "$DESIRED_MINIMUM_TOOL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "Invalid desired-state minimum_tool_version: $DESIRED_MINIMUM_TOOL_VERSION"
+  if semantic_version_at_least "$SCRIPT_VERSION" "$DESIRED_MINIMUM_TOOL_VERSION"; then
+    MANIFEST_TOOL_COMPATIBILITY_VERDICT='MANIFEST_TOOL_COMPATIBLE'
+  else
+    MANIFEST_TOOL_COMPATIBILITY_VERDICT='MANIFEST_TOOL_TOO_OLD'
+    [[ "$VERIFY_MODE" == '1' ]] || die "Desired-state manifest $DESIRED_STATE_VERSION requires bootstrap >=$DESIRED_MINIMUM_TOOL_VERSION; installed bootstrap is $SCRIPT_VERSION."
+  fi
   DESIRED_HOST_PLATFORM="$(require_desired_state_value host.platform)"
   DESIRED_HOST_ARCHITECTURE="$(require_desired_state_value host.architecture)"
   DESIRED_HOST_APPLE_SILICON="$(require_desired_state_value host.apple_silicon)"
@@ -161,7 +183,9 @@ load_desired_state() {
   DESIRED_RECOMMENDED_FREE_DISK_GB="$(require_desired_state_value host.recommended_free_disk_gb)"
   IFS=',' read -r -a DESIRED_TOOL_FORMULAS <<<"$(require_desired_state_value tooling.formulas)"
   IFS=',' read -r -a DESIRED_REQUIRED_CASKS <<<"$(require_desired_state_value tooling.required_casks)"
-  IFS=',' read -r -a DESIRED_OPTIONAL_CASKS <<<"$(require_desired_state_value tooling.optional_casks)"
+  local optional_casks
+  optional_casks="$(desired_state_value tooling.optional_casks)"
+  if [[ -n "$optional_casks" ]]; then IFS=',' read -r -a DESIRED_OPTIONAL_CASKS <<<"$optional_casks"; else DESIRED_OPTIONAL_CASKS=(); fi
   IFS=',' read -r -a DESIRED_REFRESH_CASKS <<<"$(require_desired_state_value tooling.refresh_casks)"
   DESIRED_HA_SERVICE="$(require_desired_state_value lab.home_assistant.service)"
   DESIRED_HA_CONTAINER_NAME="$(require_desired_state_value lab.home_assistant.container_name)"
@@ -172,14 +196,15 @@ load_desired_state() {
   IFS=',' read -r -a DESIRED_PROFILES <<<"$(require_desired_state_value runner.profiles)"
   for profile in "${DESIRED_PROFILES[@]}"; do
     case "$profile" in
-      apple|private-network|esp32|pi) ;;
+      apple|private-network|esp32|pi|windows) ;;
       *) die "Unsupported desired-state runner profile: $profile" ;;
     esac
     require_desired_state_value "profile.$profile.repository" >/dev/null
     require_desired_state_value "profile.$profile.runner_name" >/dev/null
     require_desired_state_value "profile.$profile.labels" >/dev/null
+    require_desired_state_value "profile.$profile.provisioning" >/dev/null
   done
-  [[ "$VERIFY_MODE" == '1' ]] || log "Loaded desired-state manifest $DESIRED_STATE_FILE (schema $DESIRED_STATE_SCHEMA_VERSION)."
+  [[ "$VERIFY_MODE" == '1' ]] || log "Loaded desired-state manifest $DESIRED_STATE_FILE (version $DESIRED_STATE_VERSION, schema $DESIRED_STATE_SCHEMA_VERSION); bootstrap $SCRIPT_VERSION requires >=$DESIRED_MINIMUM_TOOL_VERSION: $MANIFEST_TOOL_COMPATIBILITY_VERDICT."
 }
 
 verify_delta_row() {
@@ -195,7 +220,7 @@ verify_delta_row() {
 run_desired_state_verification() {
   local hardware_profile macos_version macos_major cpu_brand mem_bytes mem_gb cpu_count disk_probe_path disk_kb disk_gb formula cask profile install_dir uid_value ha_running
   printf '# DJConnect macOS Runner Host Desired-State Delta\n\n'
-  printf '%s\n\n' "Manifest: \`$DESIRED_STATE_FILE\` (schema $DESIRED_STATE_SCHEMA_VERSION)"
+  printf '%s\n\n' "Manifest: \`$DESIRED_STATE_FILE\` (version $DESIRED_STATE_VERSION, schema $DESIRED_STATE_SCHEMA_VERSION; bootstrap $SCRIPT_VERSION, minimum tool $DESIRED_MINIMUM_TOOL_VERSION, $MANIFEST_TOOL_COMPATIBILITY_VERDICT)"
   printf '%s\n' '| Component | Desired | Actual | Delta |'
   printf '%s\n' '| --- | --- | --- | --- |'
 
@@ -203,6 +228,7 @@ run_desired_state_verification() {
   macos_major="${macos_version%%.*}"
   verify_delta_row 'host.platform' "$DESIRED_HOST_PLATFORM/$DESIRED_HOST_ARCHITECTURE" "$(uname -s)/$(uname -m)" "$([[ "$(uname -s)" == Darwin && "$(uname -m)" == "$DESIRED_HOST_ARCHITECTURE" ]] && printf MATCH || printf DRIFT)"
   verify_delta_row 'host.macos_minimum_major' ">=$DESIRED_MINIMUM_MACOS_MAJOR" "$macos_version" "$([[ "$macos_major" =~ ^[0-9]+$ ]] && (( macos_major >= DESIRED_MINIMUM_MACOS_MAJOR )) && printf MATCH || printf DRIFT)"
+  verify_delta_row 'manifest.tool_compatibility' ">=$DESIRED_MINIMUM_TOOL_VERSION" "$SCRIPT_VERSION" "$([[ "$MANIFEST_TOOL_COMPATIBILITY_VERDICT" == MANIFEST_TOOL_COMPATIBLE ]] && printf MATCH || printf DRIFT)"
   hardware_profile="$(system_profiler SPHardwareDataType 2>/dev/null || true)"
   cpu_brand="$(sysctl -n machdep.cpu.brand_string 2>/dev/null || true)"
   [[ -n "$cpu_brand" ]] || cpu_brand="$(awk -F': ' '/Chip:/{print $2; exit}' <<<"$hardware_profile")"
@@ -243,8 +269,13 @@ run_desired_state_verification() {
   fi
   for profile in "${DESIRED_PROFILES[@]}"; do
     profile_enabled "$profile" || continue
-    profile_values "$profile"; install_dir="$RUNNER_ROOT/$PROFILE_RUNNER_NAME"
-    if [[ -f "$install_dir/.runner" ]]; then verify_delta_row "runner.$profile" "$PROFILE_REPOSITORY ($PROFILE_LABELS)" registered MATCH; else verify_delta_row "runner.$profile" "$PROFILE_REPOSITORY ($PROFILE_LABELS)" absent DRIFT; fi
+    profile_values "$profile"
+    if [[ "$PROFILE_PROVISIONING" == 'external_windows_arm64' ]]; then
+      if external_runner_profile_registered "$profile"; then verify_delta_row "runner.$profile" "$PROFILE_REPOSITORY ($PROFILE_LABELS)" registered MATCH; else verify_delta_row "runner.$profile" "$PROFILE_REPOSITORY ($PROFILE_LABELS)" absent DRIFT; fi
+    else
+      install_dir="$RUNNER_ROOT/$PROFILE_RUNNER_NAME"
+      if [[ -f "$install_dir/.runner" ]]; then verify_delta_row "runner.$profile" "$PROFILE_REPOSITORY ($PROFILE_LABELS)" registered MATCH; else verify_delta_row "runner.$profile" "$PROFILE_REPOSITORY ($PROFILE_LABELS)" absent DRIFT; fi
+    fi
   done
   uid_value="$(id -u)"
   if launchctl print "gui/$uid_value/com.djconnect.ci-tooling-maintenance" >/dev/null 2>&1; then verify_delta_row 'maintenance.launch_agent' loaded loaded MATCH; else verify_delta_row 'maintenance.launch_agent' loaded absent DRIFT; fi

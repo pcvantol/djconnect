@@ -5,6 +5,8 @@
 # Homebrew, Python or another YAML runtime is available.
 
 schema_version: 1
+version: 1.0.0
+minimum_tool_version: 1.3.0
 host.platform: macos
 host.architecture: arm64
 host.apple_silicon: required
@@ -16,24 +18,32 @@ host.minimum_free_disk_gb: 80
 host.recommended_free_disk_gb: 120
 
 tooling.formulas: git,gh,jq,node,python@3.12,xcodegen,swiftlint,xcbeautify,create-dmg,mas,xcodes,platformio
-tooling.required_casks: docker,dotnet-sdk
-tooling.optional_casks: parallels
+tooling.required_casks: docker,dotnet-sdk,parallels
+tooling.optional_casks:
 tooling.refresh_casks: docker,dotnet-sdk,parallels
 
 lab.home_assistant.service: homeassistant
 lab.home_assistant.container_name: homeassistant
 lab.home_assistant.url: http://localhost:8123
 
-runner.profiles: apple,private-network,esp32,pi
+runner.profiles: apple,private-network,esp32,pi,windows
 profile.apple.repository: djconnect-app
 profile.apple.runner_name: djconnect-apple-macos
 profile.apple.labels: internal-release,qualification,apple
+profile.apple.provisioning: local_macos
 profile.private-network.repository: djconnect
 profile.private-network.runner_name: djconnect-private-network-relay
 profile.private-network.labels: internal-release,private-network-deployment
+profile.private-network.provisioning: local_macos
 profile.esp32.repository: djconnect-esp32
 profile.esp32.runner_name: djconnect-esp32-firmware
 profile.esp32.labels: internal-release,qualification,firmware,esp32,private-network-deployment
+profile.esp32.provisioning: local_macos
 profile.pi.repository: djconnect-pi
 profile.pi.runner_name: djconnect-pi-readiness
 profile.pi.labels: internal-release,private-network-deployment
+profile.pi.provisioning: local_macos
+profile.windows.repository: djconnect-windows
+profile.windows.runner_name: djconnect-windows11-parallels-arm64
+profile.windows.labels: internal-release,qualification,windows11,parallels,arm64
+profile.windows.provisioning: external_windows_arm64

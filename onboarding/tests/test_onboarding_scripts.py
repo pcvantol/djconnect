@@ -226,7 +226,11 @@ class DevOnboardingScriptTests(unittest.TestCase):
         desired_state = MACOS_RUNNER_DESIRED_STATE.read_text()
         self.assertIn("schema_version: 1", desired_state)
         self.assertIn("host.minimum_free_disk_gb: 80", desired_state)
-        self.assertIn("runner.profiles: apple,private-network,esp32,pi", desired_state)
+        self.assertIn("version: 1.0.0", desired_state)
+        self.assertIn("minimum_tool_version: 1.3.0", desired_state)
+        self.assertIn("runner.profiles: apple,private-network,esp32,pi,windows", desired_state)
+        self.assertIn("tooling.required_casks: docker,dotnet-sdk,parallels", desired_state)
+        self.assertIn("profile.windows.provisioning: external_windows_arm64", desired_state)
         self.assertTrue(RECOVERY_REDACTION_RULES.is_file())
         self.assertIn("[REDACTED]", RECOVERY_REDACTION_RULES.read_text())
         self.assertIn("/dev/tty", source)
@@ -246,13 +250,45 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertEqual(
             result.stdout,
-            "DJConnect macOS Runner Host Recovery Bootstrap 1.2.0\n",
+            "DJConnect macOS Runner Host Recovery Bootstrap 1.3.0\n",
         )
         self.assertTrue(MACOS_RUNNER_RECOVERY_CHANGELOG.is_file())
         changelog = MACOS_RUNNER_RECOVERY_CHANGELOG.read_text(encoding="utf-8")
         self.assertIn("Semantic Versioning", changelog)
-        self.assertIn("## [1.2.0] - 2026-07-16", changelog)
+        self.assertIn("## [1.3.0] - 2026-07-16", changelog)
         self.assertIn("--version", changelog)
+
+    def test_macos_runner_recovery_manifest_version_gate_fails_closed_for_apply(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            incompatible_manifest = Path(temporary_directory) / "desired-state.yml"
+            incompatible_manifest.write_text(
+                MACOS_RUNNER_DESIRED_STATE.read_text(encoding="utf-8").replace(
+                    "minimum_tool_version: 1.3.0",
+                    "minimum_tool_version: 9.0.0",
+                ),
+                encoding="utf-8",
+            )
+            verify = subprocess.run(
+                [str(RUNNER_RECOVERY_SCRIPT), "--verify", "--desired-state", str(incompatible_manifest)],
+                cwd=ROOT,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                check=False,
+            )
+            apply = subprocess.run(
+                [str(RUNNER_RECOVERY_SCRIPT), "--dry-run", "--desired-state", str(incompatible_manifest)],
+                cwd=ROOT,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                check=False,
+            )
+
+        self.assertNotEqual(verify.returncode, 0, verify.stdout)
+        self.assertIn("MANIFEST_TOOL_TOO_OLD", verify.stdout)
+        self.assertNotEqual(apply.returncode, 0, apply.stdout)
+        self.assertIn("requires bootstrap >=9.0.0", apply.stdout)
 
     def test_macos_runner_recovery_bootstrap_accepts_help_subcommand(self) -> None:
         result = subprocess.run(
@@ -499,10 +535,10 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertTrue((RUNNER_RECOVERY_PACKAGE / "apple.sh").is_file())
         self.assertTrue(RUNNER_RECOVERY_MANIFEST.is_file())
         manifest = RUNNER_RECOVERY_MANIFEST.read_text(encoding="utf-8")
-        self.assertIn("package.version: 1.2.0", manifest)
+        self.assertIn("package.version: 1.3.0", manifest)
         self.assertIn("package.aggregate_sha256:", manifest)
         self.assertIn("component.entry.sha256:", manifest)
-        self.assertIn("component.workflow.version: 1.2.0", manifest)
+        self.assertIn("component.workflow.version: 1.3.0", manifest)
         self.assertIn("component.apple.version: 1.0.0", manifest)
         source = read_runner_recovery_source()
         self.assertIn("verify_recovery_package_manifest", source)
@@ -518,7 +554,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
             manifest = temporary_runner_directory / "macos_runner_recovery" / "manifest.yml"
             manifest.write_text(
                 manifest.read_text(encoding="utf-8").replace(
-                    "component.core.version: 1.1.0",
+                    "component.core.version: 1.2.0",
                     "component.core.version: 9.9.9",
                 ),
                 encoding="utf-8",
@@ -544,7 +580,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
             manifest = temporary_runner_directory / "macos_runner_recovery" / "manifest.yml"
             manifest.write_text(
                 manifest.read_text(encoding="utf-8").replace(
-                    "component.core.sha256: 8182301d6575d90ec93a4668675310eec80de0495e83c2a1dd8e6450cd67fcaf",
+                    "component.core.sha256: ad114a2bb6d22b8ff674e40d3fd109a45daad2f6c7759906bfb3f2d2c2c677bd",
                     "component.core.sha256: 0000000000000000000000000000000000000000000000000000000000000000",
                 ),
                 encoding="utf-8",

@@ -1,4 +1,4 @@
-# Version: 1.0.0
+# Version: 1.1.0
 # Self-hosted runner profile registration and lifecycle operations.
 profile_enabled() {
   local profile="$1"
@@ -32,6 +32,27 @@ profile_values() {
   PROFILE_REPOSITORY="$(require_desired_state_value "profile.$profile.repository")"
   PROFILE_RUNNER_NAME="$(require_desired_state_value "profile.$profile.runner_name")"
   PROFILE_LABELS="$(require_desired_state_value "profile.$profile.labels")"
+  PROFILE_PROVISIONING="$(require_desired_state_value "profile.$profile.provisioning")"
+}
+
+profile_is_local_macos() {
+  profile_values "$1"
+  [[ "$PROFILE_PROVISIONING" == 'local_macos' ]]
+}
+
+external_runner_profile_registered() {
+  local profile="$1"
+  profile_values "$profile"
+  [[ "$PROFILE_PROVISIONING" == 'external_windows_arm64' ]] || return 1
+  command -v gh >/dev/null 2>&1 || return 1
+  gh api "repos/$ORG/$PROFILE_REPOSITORY/actions/runners" --paginate 2>/dev/null |
+    jq -e --arg runner_name "$PROFILE_RUNNER_NAME" --arg required_labels "$PROFILE_LABELS" '
+      .runners[]?
+      | select(.name == $runner_name and .status == "online")
+      | ([.labels[].name] // []) as $actual_labels
+      | ($required_labels | split(",")) as $expected_labels
+      | (($expected_labels - $actual_labels) | length == 0)
+    ' >/dev/null
 }
 
 runner_release_metadata() {
