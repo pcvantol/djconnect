@@ -170,6 +170,13 @@ another report path or `--no-report-file` only when another authoritative
 operational report is being produced. A dry-run prints the intended report path
 but creates neither the transcript nor the Markdown report.
 
+The report ends with a **Verification-run verdict** and **Conclusion**. It
+states `HOST QUALIFIED FOR THE REQUESTED DJCONNECT RECOVERY SCOPE` only when
+the initial post-recovery verification run has passed and no phase was skipped.
+A passed verification run with skips is explicitly `NOT FULLY QUALIFIED`; a
+failed or absent verification run is `NOT QUALIFIED`. Thus the conclusion is
+based on the verification evidence, not merely on the shell process exit code.
+
 If an actual recovery phase fails, the operator is offered `retry` or `abort`
 or `skip` on the controlling terminal. `retry` repeats only that same failed
 phase; it does not rerun already successful phases or continue into later

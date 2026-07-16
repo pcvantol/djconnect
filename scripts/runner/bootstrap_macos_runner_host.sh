@@ -39,6 +39,7 @@ CURRENT_STEP=''
 ALLOW_STEP_RETRY=1
 SKIP_PHASES="${SKIP_PHASES:-}"
 SKIPPED_PHASE_COUNT=0
+INITIAL_VERIFICATION_PASSED=0
 
 usage() {
   cat <<'EOF'
@@ -200,13 +201,32 @@ complete_report() {
     CURRENT_STEP=''
   fi
   {
+    printf '\n## Verification-run verdict\n\n'
+    printf '%s\n' '- Verification phase: Initial post-recovery verification'
+    if [[ "$INITIAL_VERIFICATION_PASSED" == '1' ]]; then
+      printf '%s\n' '- Result: **PASSED**'
+    elif [[ "$exit_code" != '0' ]]; then
+      printf '%s\n' '- Result: **FAILED OR INCOMPLETE**'
+    else
+      printf '%s\n' '- Result: **NOT RUN**'
+    fi
     printf '\n## Final status\n\n'
     if [[ "$exit_code" != '0' ]]; then
       printf '%s\n' '**FAILED** — recovery stopped before completion; inspect the transcript log and the failed step above.'
     elif [[ "$SKIPPED_PHASE_COUNT" != '0' ]]; then
       printf '%s\n' "**COMPLETED WITH SKIPPED PHASES** — $SKIPPED_PHASE_COUNT phase(s) were intentionally skipped and require separate qualification."
+    elif [[ "$INITIAL_VERIFICATION_PASSED" != '1' ]]; then
+      printf '%s\n' '**INCOMPLETE** — the required initial post-recovery verification did not run.'
     else
       printf '%s\n' '**PASSED** — all requested recovery stages completed successfully.'
+    fi
+    printf '\n## Conclusion\n\n'
+    if [[ "$exit_code" == '0' && "$SKIPPED_PHASE_COUNT" == '0' && "$INITIAL_VERIFICATION_PASSED" == '1' ]]; then
+      printf '%s\n' '**HOST QUALIFIED FOR THE REQUESTED DJCONNECT RECOVERY SCOPE.** This conclusion is based on the successful initial post-recovery verification run.'
+    elif [[ "$INITIAL_VERIFICATION_PASSED" == '1' ]]; then
+      printf '%s\n' '**NOT FULLY QUALIFIED.** The verification run passed, but intentionally skipped phases require separate execution and qualification before the host is treated as release-capable.'
+    else
+      printf '%s\n' '**NOT QUALIFIED.** No positive release-capability conclusion may be drawn until the initial post-recovery verification run succeeds without unresolved skipped phases.'
     fi
     printf '\nCompleted (UTC): %s\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
   } >>"$REPORT_FILE"
@@ -258,6 +278,9 @@ run_phase() {
     phase_status=$?
     set -e
     if [[ "$phase_status" == '0' ]]; then
+      if [[ "$phase_id" == 'initial-verification' ]]; then
+        INITIAL_VERIFICATION_PASSED=1
+      fi
       report_append "$step" "PASSED (attempt $attempt)" 'Completed successfully; see the central transcript for detailed command output.'
       ok "$step"
       CURRENT_STEP=''
