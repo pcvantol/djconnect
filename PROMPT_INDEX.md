@@ -50,16 +50,17 @@ planning is read.
 | Repository Governance Rollout Planning Completion | Completed / merged reconciled / archived | Establish the Version 2.2 adoption queue. | `codex/repository-governance-rollout-completion` | `docs/history/prompts/2026-07-15-repository-governance-rollout-completion.md`; PR [#127](https://github.com/pcvantol/djconnect/pull/127) |
 | Repository Governance Audit | Completed / merged reconciled / archived | Audit all nine merged Version 2.2 repository adoptions. | `codex/repository-governance-audit` | `docs/governance/REPOSITORY_GOVERNANCE_AUDIT_V2_2.md`; PR [#128](https://github.com/pcvantol/djconnect/pull/128) |
 | Rolling Records Reconciliation | Completed / merged reconciled / archived | Reconciled central rolling records after the completed governance rollout. | `codex/reconcile-governance-rolling-records` | `docs/history/prompts/2026-07-15-platform-governance-rolling-records-reconciliation.md`; PR [#129](https://github.com/pcvantol/djconnect/pull/129) |
+| macOS Runner-Host Bootstrap Pre-Merge Preparation | Reviewable / merge pending | Correct PR #144 scope description; identify its temporary candidate workflow references; record the post-merge repin sequence without changing behaviour. | `codex/prepare-macos-runner-bootstrap-merge` | `docs/release/MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS.md` |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
 
 ## Next Engineering Increment
 
-Draft only — Platform Release Engineering: qualify the remaining Home
-Assistant target against the already approved exact manifest binding and record
-its target-scoped deployment and smoke evidence. Do not activate or execute it
-without explicit target authorization.
+Draft only — after PR #144 merges, repin the documented temporary bootstrap
+workflow references to immutable `main` SHAs, validate the callers and only
+then delete the feature branch. Do not activate or execute it before the merge
+commit exists on `main`.
 
 ## Active Next Phase
 

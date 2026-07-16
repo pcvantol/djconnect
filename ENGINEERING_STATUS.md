@@ -1,15 +1,15 @@
 # DJConnect Engineering Status
 
 **Status:** Operational handoff
-**Updated:** 2026-07-15
+**Updated:** 2026-07-16
 
 ## Current engineering increment
 
-Platform Release 3.3 operational evidence reconciliation. The approved
-manifest is partially operational: API, Website, Raspberry Pi, ESP32 and the
-authorized Apple MacBook plus iPhone/paired-Watch targets each have a
-successful manifest-bound deployment and separately successful post-deployment
-smoke. This record does not qualify Home Assistant or Windows.
+Platform Evolution — pre-merge preparation for PR #144, the macOS runner-host
+bootstrap. This increment is documentation and merge-readiness only: it
+corrects the PR description, identifies temporary candidate workflow pins and
+records the mandatory post-merge repin sequence. It does not change bootstrap,
+runner, CI, governance, release or deployment behaviour.
 
 ## Current engineering program
 
@@ -17,6 +17,14 @@ DJConnect Product Development remains the primary program; Platform Release
 3.3 is separate temporary operational work.
 
 ## Current repository truth
+
+PR [#144](https://github.com/pcvantol/djconnect/pull/144) is open and
+mergeable for candidate `aee1687876c279d758f1404f9ca9e1563e310276`; its
+required checks and Owner Authorization are successful. Its complete
+pre-merge evidence and the nine temporary branch references are recorded in
+`docs/release/MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS.md`.
+
+Platform Release 3.3 remains separately operational and partially deployed.
 
 The current manifest is
 `release-3.3.0-internal-20260714`, status
@@ -32,14 +40,18 @@ canonical execution ledger is
 
 - Home Assistant and Windows lack final target-specific deployment and smoke
   qualification evidence. The Internal Release is therefore incomplete.
+- PR #144 must retain its feature branch until all nine documented temporary
+  references are repinned to an immutable SHA on merged `main`.
 
 ## Deferred work
 
 - Qualify the remaining required targets only through separately authorized,
   manifest-bound deployment and immediate target-scoped smoke.
+- Repin the PR #144 bootstrap references only after its merge commit exists on
+  `main`.
 
 ## Recommended next prompt
 
-Draft only — Platform Release Engineering: qualify the Home Assistant target
-with the approved exact manifest binding, then record its deployment and smoke
-evidence. Do not begin any other target automatically.
+Draft only — after PR #144 merges, repin its nine temporary bootstrap workflow
+references to an immutable `main` SHA and validate them before deleting the
+feature branch. Do not begin that post-merge increment automatically.
