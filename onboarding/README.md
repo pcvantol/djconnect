@@ -52,6 +52,20 @@ licenses/SSH keys with owner-only permissions. It never exports the whole
 Keychain, browser profiles, Docker/GitHub credential stores or Apple/GitHub/
 Docker sessions. Reauthenticate those services interactively on the new Mac.
 
+## Home Assistant development lab baseline
+
+`home_assistant_lab/configuration.yaml` and
+`home_assistant_lab/compose.yaml` capture the portable baseline of the active
+local development lab: Home Assistant, Whisper, Piper and Music Assistant,
+the ngrok proxy trust boundary and DJConnect debug logging. The onboarding
+seeds these files only when the target `configuration.yaml` or Compose file is
+absent; existing local files are preserved. It renders the selected container
+names, images, voice settings and local Music Assistant data path into a new
+Compose file. External URLs are added later by the ngrok step.
+
+The templates intentionally contain no access tokens, passwords, private keys,
+tailnet identity, host-specific absolute paths or Home Assistant runtime state.
+
 ## Network checks and firewall recommendations
 
 Run the read-only network assessment to document required outbound DJConnect

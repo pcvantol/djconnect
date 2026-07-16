@@ -22,6 +22,7 @@ class OnboardingPackageBuildTests(unittest.TestCase):
         self.assertEqual(build_package.manifest_value("component.changelog.path"), "CHANGELOG.md")
         self.assertEqual(build_package.manifest_value("component.machine_transfer.script"), "machine_transfer_macos.sh")
         self.assertEqual(build_package.manifest_value("component.network_checks.script"), "network_checks_macos.sh")
+        self.assertEqual(build_package.manifest_value("component.home_assistant_lab.path"), "home_assistant_lab")
         self.assertEqual(build_package.manifest_value("desired_state.versioning"), "independent_of_onboarding_package")
         self.assertEqual(build_package.manifest_value("desired_state.minimum_tool_version.key"), "minimum_tool_version")
 
@@ -30,6 +31,8 @@ class OnboardingPackageBuildTests(unittest.TestCase):
         self.assertIn("dev_onboarding_macos.sh", names)
         self.assertIn("machine_transfer_macos.sh", names)
         self.assertIn("network_checks_macos.sh", names)
+        self.assertIn("home_assistant_lab/configuration.yaml", names)
+        self.assertIn("home_assistant_lab/compose.yaml", names)
         self.assertIn("tests/test_package_build.py", names)
         self.assertFalse(any(name.startswith("dist/") or "__pycache__" in name for name in names))
 
@@ -46,6 +49,8 @@ class OnboardingPackageBuildTests(unittest.TestCase):
                 self.assertIn("onboarding/dev_onboarding_macos.sh", archive.namelist())
                 self.assertIn("onboarding/machine_transfer_macos.sh", archive.namelist())
                 self.assertIn("onboarding/network_checks_macos.sh", archive.namelist())
+                self.assertIn("onboarding/home_assistant_lab/configuration.yaml", archive.namelist())
+                self.assertIn("onboarding/home_assistant_lab/compose.yaml", archive.namelist())
                 self.assertIn("onboarding/dev_onboarding_windows.ps1", archive.namelist())
                 self.assertIn("onboarding/tests/test_onboarding_scripts.py", archive.namelist())
                 self.assertIn("onboarding/CHANGELOG.md", archive.namelist())

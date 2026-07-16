@@ -9,6 +9,7 @@ component.macos.script: dev_onboarding_macos.sh
 component.windows.script: dev_onboarding_windows.ps1
 component.machine_transfer.script: machine_transfer_macos.sh
 component.network_checks.script: network_checks_macos.sh
+component.home_assistant_lab.path: home_assistant_lab
 component.tests.path: tests/test_onboarding_scripts.py
 component.documentation.path: README.md
 component.changelog.path: CHANGELOG.md

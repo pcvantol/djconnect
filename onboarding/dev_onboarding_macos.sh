@@ -843,6 +843,7 @@ step_7_home_assistant_container() {
   step_3_docker
   local compose_file
   compose_file="$(resolve_ha_compose_file)"
+  seed_home_assistant_lab_baselines "$compose_file"
   if [[ "$DRY_RUN" == "1" ]]; then
     log "Dry-run: printing Home Assistant Docker Compose commands without requiring Docker to be running."
     log "Using Docker Compose file: $compose_file"
@@ -1422,6 +1423,58 @@ resolve_ha_compose_file() {
   fi
 }
 
+seed_home_assistant_lab_baselines() {
+  local compose_file="$1"
+  local config_template="$PACKAGE_ROOT/home_assistant_lab/configuration.yaml"
+  local compose_template="$PACKAGE_ROOT/home_assistant_lab/compose.yaml"
+  [[ -f "$config_template" && -f "$compose_template" ]] || die 'Home Assistant lab baseline templates are missing from the onboarding package.'
+  if [[ "$DRY_RUN" == "1" ]]; then
+    [[ -f "$HA_CONFIG_DIR/configuration.yaml" ]] || printf '%s seed Home Assistant configuration baseline at %s\n' "$(style "$CLR_CYAN$CLR_BOLD" "DRY")" "$HA_CONFIG_DIR/configuration.yaml"
+    [[ -f "$compose_file" ]] || printf '%s render Home Assistant Compose baseline at %s\n' "$(style "$CLR_CYAN$CLR_BOLD" "DRY")" "$compose_file"
+    return
+  fi
+  mkdir -p "$HA_CONFIG_DIR" "$(dirname "$compose_file")" "$MA_DATA_DIR"
+  if [[ ! -f "$HA_CONFIG_DIR/configuration.yaml" ]]; then
+    install -m 600 "$config_template" "$HA_CONFIG_DIR/configuration.yaml"
+    log "Seeded Home Assistant configuration baseline at $HA_CONFIG_DIR/configuration.yaml."
+  else
+    log "Preserving existing Home Assistant configuration: $HA_CONFIG_DIR/configuration.yaml"
+  fi
+  if [[ -f "$compose_file" ]]; then
+    log "Preserving existing Home Assistant Compose configuration: $compose_file"
+    return
+  fi
+  python3 - "$compose_template" "$compose_file" "$HA_CONTAINER_NAME" "$HA_IMAGE" "$MA_CONTAINER_NAME" "$MA_IMAGE" "$MA_DATA_DIR" "$WHISPER_CONTAINER_NAME" "$WHISPER_IMAGE" "$WHISPER_COMMAND" "$PIPER_CONTAINER_NAME" "$PIPER_IMAGE" "$PIPER_COMMAND" <<'PY'
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+template = Path(sys.argv[1]).read_text(encoding="utf-8")
+output = Path(sys.argv[2])
+values = {
+    "__DJCONNECT_HA_CONTAINER_NAME__": sys.argv[3],
+    "__DJCONNECT_HA_IMAGE__": sys.argv[4],
+    "__DJCONNECT_MA_CONTAINER_NAME__": sys.argv[5],
+    "__DJCONNECT_MA_IMAGE__": sys.argv[6],
+    "__DJCONNECT_MA_DATA_DIR__": sys.argv[7],
+    "__DJCONNECT_WHISPER_CONTAINER_NAME__": sys.argv[8],
+    "__DJCONNECT_WHISPER_IMAGE__": sys.argv[9],
+    "__DJCONNECT_WHISPER_COMMAND__": sys.argv[10],
+    "__DJCONNECT_PIPER_CONTAINER_NAME__": sys.argv[11],
+    "__DJCONNECT_PIPER_IMAGE__": sys.argv[12],
+    "__DJCONNECT_PIPER_COMMAND__": sys.argv[13],
+}
+for marker, value in values.items():
+    template = template.replace(marker, value)
+if "__DJCONNECT_" in template:
+    raise SystemExit("Home Assistant Compose template contains an unresolved placeholder")
+output.write_text(template, encoding="utf-8")
+PY
+  chmod 600 "$compose_file"
+  log "Rendered Home Assistant Compose baseline at $compose_file."
+}
+
 ensure_home_assistant_compose_service() {
   local compose_file="$1"
   local compose_dir
@@ -1810,6 +1863,7 @@ step_26_music_assistant_server() {
   warn "The Home Assistant Music Assistant integration is part of HA; this step adds the separate MA server to the local HA compose stack."
   local compose_file
   compose_file="$(resolve_ha_compose_file)"
+  seed_home_assistant_lab_baselines "$compose_file"
   log "Using Docker Compose file: $compose_file"
   log "Music Assistant image: $MA_IMAGE"
   log "Whisper image: $WHISPER_IMAGE"

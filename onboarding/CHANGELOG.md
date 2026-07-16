@@ -9,6 +9,9 @@
 - Add a read-only macOS network and firewall assessment for known outbound
   dependencies, active TCP endpoints, local listeners and Docker-published
   ports.
+- Add portable Home Assistant development-lab configuration and Compose
+  baselines, rendered only for missing local files without overwriting existing
+  runtime configuration.
 
 - Align the package release version with DJConnect Platform Release 3.3.0 for
   operator clarity.
