@@ -203,7 +203,8 @@ that candidate `aee1687876c279d758f1404f9ca9e1563e310276` is open, `CLEAN` and
 has successful required checks and Owner Authorization. The increment records
 the complete implementation scope, the nine temporary candidate workflow pins
 and the required post-merge repin sequence in
-`docs/release/MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS.md`.
+`docs/release/MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS.md`. The preparation is
+reviewable in PR [#146](https://github.com/pcvantol/djconnect/pull/146).
 
 The post-merge repin is deferred until the merge commit exists on `main`; the
 PR #144 feature branch must not be deleted before that separately reviewed

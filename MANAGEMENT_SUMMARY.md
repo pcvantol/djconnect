@@ -36,7 +36,8 @@ pre-merge record corrects the PR description and identifies nine temporary
 immutable pins that are reachable only through the PR branch. Eight callers
 pin the reusable governance workflow to `beb68dc935ce8422e7c6c1a1e7eadd61760f289c`;
 the reusable workflow itself checks out
-`631f0b893a537807dfc59a6e69e413703a2eebdd`.
+`631f0b893a537807dfc59a6e69e413703a2eebdd`. The preparation is reviewable in
+PR [#146](https://github.com/pcvantol/djconnect/pull/146).
 
 Immediately after PR #144 merges, a separate reviewed increment must repin
 all nine references to an immutable SHA on `main`, validate the callers, and

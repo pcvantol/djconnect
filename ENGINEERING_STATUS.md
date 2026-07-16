@@ -22,7 +22,8 @@ PR [#144](https://github.com/pcvantol/djconnect/pull/144) is open and
 mergeable for candidate `aee1687876c279d758f1404f9ca9e1563e310276`; its
 required checks and Owner Authorization are successful. Its complete
 pre-merge evidence and the nine temporary branch references are recorded in
-`docs/release/MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS.md`.
+`docs/release/MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS.md`. The preparation is
+reviewable in PR [#146](https://github.com/pcvantol/djconnect/pull/146).
 
 Platform Release 3.3 remains separately operational and partially deployed.
 
