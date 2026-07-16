@@ -1,5 +1,16 @@
 # macOS Runner Host Recovery
 
+## Package layout
+
+`scripts/runner/bootstrap_macos_runner_host.sh` is intentionally a thin,
+stable CLI entry point. It loads the `scripts/runner/macos_runner_recovery/`
+package, whose modules separate desired-state/configuration, console/reporting
+core, recovery workflow, security audits, host operations, runner management,
+Apple signing and CLI orchestration. They execute in one Bash process so the
+existing phase state and security boundaries stay unchanged. Invoke only the
+stable entry point; package modules are implementation details and are not
+standalone commands.
+
 Use this procedure after replacing or rebuilding the maintainer MacBook. It
 recovers the development-tooling baseline and all DJConnect macOS GitHub
 Actions runner registrations without copying a runner directory, a registration

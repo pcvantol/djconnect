@@ -14,10 +14,17 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "tools" / "dev_onboarding_macos.sh"
 WINDOWS_SCRIPT = ROOT / "tools" / "dev_onboarding_windows.ps1"
 RUNNER_RECOVERY_SCRIPT = ROOT / "scripts" / "runner" / "bootstrap_macos_runner_host.sh"
+RUNNER_RECOVERY_PACKAGE = ROOT / "scripts" / "runner" / "macos_runner_recovery"
 RECOVERY_REDACTION_RULES = ROOT / "scripts" / "runner" / "redact_recovery_output.sed"
 MACOS_RUNNER_DESIRED_STATE = ROOT / "scripts" / "runner" / "macos_runner_host_desired_state.yml"
 MACOS_RUNNER_RECOVERY_CHANGELOG = ROOT / "scripts" / "runner" / "BOOTSTRAP_MACOS_RUNNER_HOST_CHANGELOG.md"
 WINDOWS_RUNNER_RECOVERY_SCRIPT = ROOT / "scripts" / "runner" / "bootstrap_windows_arm64_runner.ps1"
+
+
+def read_runner_recovery_source() -> str:
+    """Return the entry point and all sourced recovery-package modules."""
+    paths = [RUNNER_RECOVERY_SCRIPT, *sorted(RUNNER_RECOVERY_PACKAGE.glob("*.sh"))]
+    return "\n".join(path.read_text(encoding="utf-8") for path in paths)
 
 
 def run_script(*args: str, stdin: str | None = None) -> subprocess.CompletedProcess[str]:
@@ -106,7 +113,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertIn("short-lived token per repository", result.stdout)
         self.assertNotIn("--token", result.stdout)
-        source = RUNNER_RECOVERY_SCRIPT.read_text()
+        source = read_runner_recovery_source()
         self.assertIn("registration-token", source)
         self.assertIn("profile.$profile.runner_name", source)
         self.assertIn("RUNNER_ARCHIVE_DIGEST", source)
@@ -251,7 +258,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("warning or error", help_result.stdout)
         self.assertEqual(invalid_level.returncode, 2, invalid_level.stdout)
         self.assertIn("Invalid log level", invalid_level.stdout)
-        source = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+        source = read_runner_recovery_source()
         self.assertIn('LOG_LEVEL="${LOG_LEVEL:-info}"', source)
         self.assertIn("log_level_rank", source)
         self.assertIn("VERBOSE", source)
@@ -274,7 +281,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("runner-pi", result.stdout)
         self.assertIn("apple-github-audit", result.stdout)
         self.assertIn("HEADLESS + PARALLEL SAFE", result.stdout)
-        source = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+        source = read_runner_recovery_source()
         self.assertIn("phase_execution_capability", source)
         self.assertIn("Execution capability: $step", source)
 
@@ -300,7 +307,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("--parallel-jobs COUNT", help_result.stdout)
         self.assertEqual(invalid_jobs.returncode, 2, invalid_jobs.stdout)
         self.assertIn("Parallel job count must be a non-negative integer", invalid_jobs.stdout)
-        source = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+        source = read_runner_recovery_source()
         self.assertIn("run_parallel_runner_profiles", source)
         self.assertIn("parallel_worker_limit", source)
         self.assertIn("worker_limit <= cpu_count", source)
@@ -318,7 +325,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertIn("--confirm-memory-override", result.stdout)
-        source = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+        source = read_runner_recovery_source()
         self.assertIn("confirm_recommended_memory_override", source)
         self.assertIn("DESIRED_MINIMUM_RAM_GB", source)
         self.assertIn("DESIRED_RECOMMENDED_RAM_GB", source)
@@ -349,7 +356,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("baseline verify, then run verify again", result.stdout)
         self.assertNotEqual(incompatible_result.returncode, 0, incompatible_result.stdout)
         self.assertIn("--repair and --verify cannot be combined", incompatible_result.stdout)
-        source = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+        source = read_runner_recovery_source()
         self.assertIn("run_unattended_repair", source)
         self.assertIn("run_unattended_repair_runners", source)
         self.assertIn("record_repair_manual_requirement", source)
@@ -373,7 +380,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
 
         self.assertNotEqual(result.returncode, 0, result.stdout)
         self.assertIn("absolute path outside the repository", result.stdout)
-        source = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+        source = read_runner_recovery_source()
         self.assertIn("require_external_output_path", source)
         self.assertIn("recovery output is never written into Git working tree", source)
         gitignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
@@ -381,7 +388,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("macos-runner-recovery-*.md", gitignore)
 
     def test_macos_runner_recovery_bootstrap_groups_installation_sections(self) -> None:
-        source = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+        source = read_runner_recovery_source()
 
         self.assertIn("phase_section_id", source)
         self.assertIn("begin_report_section", source)
@@ -392,7 +399,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("GitHub Actions runner provisioning", source)
 
     def test_macos_runner_recovery_bootstrap_reports_indicative_progress(self) -> None:
-        source = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+        source = read_runner_recovery_source()
 
         self.assertIn("phase_progress_snapshot", source)
         self.assertIn("emit_phase_progress", source)
@@ -402,7 +409,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("REPAIR_PROGRESS_TOTAL=6", source)
 
     def test_macos_runner_recovery_bootstrap_audits_least_privilege(self) -> None:
-        source = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+        source = read_runner_recovery_source()
 
         self.assertIn("permissions-audit", source)
         self.assertIn("audit_least_privilege", source)
@@ -424,7 +431,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertIn("--expiry-warning-days DAYS", result.stdout)
-        source = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+        source = read_runner_recovery_source()
         self.assertIn("credential-expiry-audit", source)
         self.assertIn("audit_credential_expiry", source)
         self.assertIn("Apple Development", source)
@@ -433,7 +440,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("CREDENTIAL EXPIRY WARNING", source)
 
     def test_macos_runner_recovery_bootstrap_opens_terminal_after_reboot(self) -> None:
-        source = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+        source = read_runner_recovery_source()
 
         self.assertIn("install_resume_terminal_continuation", source)
         self.assertIn("com.djconnect.macos-runner-recovery-resume", source)
@@ -442,6 +449,19 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("RunAtLoad", source)
         self.assertIn("RESUME_CONTINUATION_COMMAND", source)
         self.assertIn("Sensitive passwords and token values remain outside the checkpoint", source)
+
+    def test_macos_runner_recovery_bootstrap_uses_a_thin_packaged_entry_point(self) -> None:
+        entry = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+
+        self.assertIn("macos_runner_recovery/bootstrap.sh", entry)
+        self.assertIn("djconnect_macos_runner_recovery_main \"$@\"", entry)
+        self.assertLess(len(entry.splitlines()), 12)
+        self.assertTrue((RUNNER_RECOVERY_PACKAGE / "config.sh").is_file())
+        self.assertTrue((RUNNER_RECOVERY_PACKAGE / "workflow.sh").is_file())
+        self.assertTrue((RUNNER_RECOVERY_PACKAGE / "operations.sh").is_file())
+        self.assertTrue((RUNNER_RECOVERY_PACKAGE / "runners.sh").is_file())
+        self.assertTrue((RUNNER_RECOVERY_PACKAGE / "security.sh").is_file())
+        self.assertTrue((RUNNER_RECOVERY_PACKAGE / "apple.sh").is_file())
 
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:
         source = WINDOWS_RUNNER_RECOVERY_SCRIPT.read_text()
