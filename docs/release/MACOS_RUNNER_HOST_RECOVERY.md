@@ -232,6 +232,20 @@ Unknown IDs fail before recovery continues. Any skip results in **COMPLETED
 WITH SKIPPED PHASES**, not **PASSED**; separately rerun and qualify the
 skipped phases before treating the host as release-capable.
 
+Use `--force-phases` when a phase must be deliberately run again although its
+desired state is already present. For example, this reconciles the existing
+Apple runner service without removing or registering the runner again:
+
+```sh
+./scripts/runner/bootstrap_macos_runner_host.sh \
+  --xcode-version <qualified-version> \
+  --force-phases runner-apple
+```
+
+Forced phases remain subject to the same prechecks and dependencies. They are
+idempotent: force means validate/reconcile, never destructive recreation.
+A phase cannot be both skipped and forced.
+
 ## Optional Parallels Desktop recovery
 
 If this Mac hosts the Windows ARM64 build or deployment VM, include

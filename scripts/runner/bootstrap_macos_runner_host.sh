@@ -46,6 +46,8 @@ SKIP_PHASES="${SKIP_PHASES:-}"
 SKIPPED_PHASE_COUNT=0
 INITIAL_VERIFICATION_PASSED=0
 PHASE_PRECHECK_RESULT=''
+FORCE_PHASES="${FORCE_PHASES:-}"
+CURRENT_PHASE_ID=''
 
 usage() {
   cat <<'EOF'
@@ -114,6 +116,9 @@ Options:
   --skip-phases LIST    Comma-separated phase IDs to skip intentionally.
                         See the recovery guide for valid IDs. Skipped phases
                         are recorded and prevent a fully-qualified PASS.
+  --force-phases LIST   Comma-separated phase IDs to reconcile again even
+                        when their desired state already exists. This is
+                        idempotent and does not recreate existing runners.
   --no-color            Disable ANSI color output.
   --help                Show this help.
 
@@ -249,6 +254,11 @@ phase_is_skipped() {
   [[ -n "$SKIP_PHASES" && ",$SKIP_PHASES," == *",$phase_id,"* ]]
 }
 
+phase_is_forced() {
+  local phase_id="$1"
+  [[ -n "$FORCE_PHASES" && ",$FORCE_PHASES," == *",$phase_id,"* ]]
+}
+
 phase_state_variable() {
   local phase_id="$1"
   printf 'PHASE_STATE_%s' "${phase_id//-/_}"
@@ -362,6 +372,22 @@ validate_skip_phases() {
   done
 }
 
+validate_force_phases() {
+  local phase_id
+  [[ -z "$FORCE_PHASES" ]] && return 0
+  IFS=',' read -r -a requested_phase_ids <<<"$FORCE_PHASES"
+  for phase_id in "${requested_phase_ids[@]}"; do
+    case "$phase_id" in
+      macos-preflight|sudo|tooling|xcode|parallels|github-auth|repositories|developer-workstation|docker-auth|runner-apple|runner-private-network|runner-esp32|runner-pi|maintenance|tooling-refresh|reboot-check|services|apple-signing|apple-readiness|apple-github-audit|initial-verification) ;;
+      '') ;;
+      *) die "Unknown --force-phases ID: $phase_id" ;;
+    esac
+    if phase_is_skipped "$phase_id"; then
+      die "A phase cannot be both skipped and forced: $phase_id"
+    fi
+  done
+}
+
 skip_phase() {
   local phase_id="$1"
   local step="$2"
@@ -384,12 +410,16 @@ run_phase() {
     return 0
   fi
   CURRENT_STEP="$step"
+  CURRENT_PHASE_ID="$phase_id"
   if ! precheck_phase "$phase_id"; then
     set_phase_state "$phase_id" 'BLOCKED'
     report_append "Precheck: $step" 'FAILED' "$PHASE_PRECHECK_RESULT"
     die "Precheck failed for $step: $PHASE_PRECHECK_RESULT"
   fi
   report_append "Precheck: $step" 'PASSED' "$PHASE_PRECHECK_RESULT"
+  if phase_is_forced "$phase_id"; then
+    log "Force reconciliation requested for $step; existing desired state will be verified without destructive recreation."
+  fi
   while true; do
     log "$step (attempt $attempt)"
     set +e
@@ -404,13 +434,14 @@ run_phase() {
       report_append "$step" "PASSED (attempt $attempt)" 'Completed successfully; see the central transcript for detailed command output.'
       ok "$step"
       CURRENT_STEP=''
+      CURRENT_PHASE_ID=''
       return 0
     fi
 
     report_append "$step" "FAILED (attempt $attempt)" "Exited with status $phase_status."
     warn "$step failed with status $phase_status."
     if [[ "$ALLOW_STEP_RETRY" != '1' || "$DRY_RUN" == '1' || ! -r /dev/tty || ! -w /dev/tty ]]; then
-      set_phase_state "$phase_id" 'FAILED'
+    set_phase_state "$phase_id" 'FAILED'
       die "Recovery phase failed: $step"
     fi
     printf 'Retry this phase? [r]etry / [s]kip / [a]bort: ' >/dev/tty
@@ -816,7 +847,13 @@ install_runner_profile() {
 
   log "Configuring $PROFILE_RUNNER_NAME for $ORG/$PROFILE_REPOSITORY."
   if [[ -e "$install_dir/.runner" ]]; then
-    warn "$PROFILE_RUNNER_NAME is already configured in $install_dir; preserving the existing registration."
+    if phase_is_forced "$CURRENT_PHASE_ID"; then
+      log "$PROFILE_RUNNER_NAME already has the desired registration; reconciling its installed service without re-registering it."
+      [[ -x "$install_dir/svc.sh" ]] || die "Configured runner $PROFILE_RUNNER_NAME is missing svc.sh."
+      run_in_dir "$install_dir" sudo ./svc.sh status
+    else
+      warn "$PROFILE_RUNNER_NAME is already configured in $install_dir; preserving the existing registration. Use --force-phases $CURRENT_PHASE_ID to reconcile it."
+    fi
     return
   fi
   [[ ! -e "$install_dir" ]] || die "$install_dir exists but is not a configured runner. Move it aside or choose a new --runner-root."
@@ -1054,6 +1091,7 @@ while [[ "$#" -gt 0 ]]; do
     --no-report-file) REPORT_FILE='none'; shift ;;
     --no-step-retry) ALLOW_STEP_RETRY=0; shift ;;
     --skip-phases) SKIP_PHASES="${2:?--skip-phases requires a value}"; shift 2 ;;
+    --force-phases) FORCE_PHASES="${2:?--force-phases requires a value}"; shift 2 ;;
     --no-color) NO_COLOR=1; shift ;;
     --help|-h) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
@@ -1068,6 +1106,7 @@ start_logging
 start_report
 trap cleanup EXIT
 validate_skip_phases
+validate_force_phases
 run_phase macos-preflight 'macOS host preflight' ensure_macos_arm64
 run_phase sudo 'Administrator sudo gate' warm_sudo
 run_phase tooling 'Host tooling setup' ensure_tooling
