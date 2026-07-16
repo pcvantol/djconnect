@@ -117,6 +117,10 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("NGROK_AUTHTOKEN", source)
         self.assertIn("docker login", source)
         self.assertIn("gh auth login --hostname github.com --git-protocol https --web", source)
+        self.assertIn("--configure-apple-internal-release", source)
+        self.assertIn("DJCONNECT_APPLE_MACBOOK_HARDWARE_UUID", source)
+        self.assertIn("DJCONNECT_APPLE_DEVELOPMENT_SIGNING_IDENTITY", source)
+        self.assertIn("verify_apple_internal_release_readiness.py", source)
         self.assertIn("install_macos_ci_tooling_maintenance.sh --run-now", source)
 
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:

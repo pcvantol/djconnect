@@ -141,6 +141,32 @@ Apple build tools (`codesign`, `xcodebuild` and `productbuild`) unattended
 private-key access through the key partition list. It then lists available
 code-signing identities without revealing secret material.
 
+For the current internal Apple release scope, run the Apple-registration and
+readiness check after restoring those local materials:
+
+```sh
+./scripts/runner/bootstrap_macos_runner_host.sh \
+  --xcode-version <qualified-version> \
+  --signing-p12 /secure/path/DJConnect-signing.p12 \
+  --provisioning-profiles-dir /secure/path/profiles \
+  --configure-keychain-access \
+  --configure-apple-internal-release
+```
+
+This opens Xcode so the operator can interactively register/sign in with the
+DJConnect Apple Developer account and refresh managed profiles. It then
+fail-closes unless Xcode accepts provisioning updates, the selected local
+`Apple Development` identity matches the project Team ID, and unexpired
+development profiles cover the iOS app, Watch app, complication and widget
+bundle IDs. On success it updates only the new MacBook hardware UUID and the
+non-secret signing-identity name in the `apple-secure-distribution` GitHub
+Environment. The actual certificate, private key and profiles remain local.
+
+This is intentionally **not** App Store/TestFlight distribution provisioning:
+the approved 3.3 internal-release flow uses local Developer provisioning only.
+App Store Connect, TestFlight and public distribution require a separate,
+explicitly approved process.
+
 ## Security boundary
 
 The bootstrap never downloads Apple certificates, private keys, provisioning

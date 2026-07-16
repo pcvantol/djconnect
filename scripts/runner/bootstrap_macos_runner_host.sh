@@ -19,6 +19,9 @@ INSTALL_PARALLELS=0
 SKIP_DEVELOPER_WORKSTATION=0
 NGROK_DOMAIN="${NGROK_DOMAIN:-}"
 PROMPT_NGROK_AUTH=0
+CONFIGURE_APPLE_INTERNAL_RELEASE=0
+APPLE_TEAM_ID="${APPLE_TEAM_ID:-}"
+APPLE_DEVELOPMENT_IDENTITY="${APPLE_DEVELOPMENT_IDENTITY:-}"
 
 usage() {
   cat <<'EOF'
@@ -62,6 +65,17 @@ Options:
                         external URL.
   --prompt-ngrok-auth   Prompt invisibly for the ngrok authtoken when it is
                         not already set in NGROK_AUTHTOKEN.
+  --configure-apple-internal-release
+                        Open Xcode for interactive Apple Developer sign-in,
+                        validate local Apple Development identity and iPhone/
+                        Watch development profiles, then update the exact
+                        MacBook UUID and identity in the GitHub Environment.
+  --apple-team-id ID    Apple Developer Team ID for the internal-release
+                        readiness check. Defaults to the unique Team ID in
+                        the checked-out Apple project.
+  --apple-development-identity NAME
+                        Exact local Apple Development signing identity. If
+                        omitted, the script prompts after listing candidates.
   --dry-run             Print changes without executing them.
   --help                Show this help.
 
@@ -192,6 +206,52 @@ ensure_docker_hub_auth() {
   log 'Authenticating Docker CLI with Docker Hub using its interactive device-login flow.'
   log 'Complete the browser/device-code flow if Docker asks. No Docker credential is passed as an argument or written by this script.'
   run docker login
+}
+
+configure_apple_internal_release() {
+  if [[ "$CONFIGURE_APPLE_INTERNAL_RELEASE" == '0' ]]; then
+    return
+  fi
+  local apple_repository="$GITHUB_ROOT/djconnect-app"
+  local verifier="${GITHUB_ROOT}/djconnect/scripts/runner/verify_apple_internal_release_readiness.py"
+  [[ -d "$apple_repository/DJConnectApp.xcodeproj" ]] || die "Apple project is unavailable at $apple_repository."
+  [[ -f "$verifier" ]] || die "Apple internal-release verifier is unavailable at $verifier."
+
+  if [[ -z "$APPLE_TEAM_ID" ]]; then
+    APPLE_TEAM_ID="$(sed -nE 's/.*DEVELOPMENT_TEAM = ([A-Z0-9]{10});.*/\1/p' "$apple_repository/DJConnectApp.xcodeproj/project.pbxproj" | sort -u | head -n 1)"
+  fi
+  [[ "$APPLE_TEAM_ID" =~ ^[A-Z0-9]{10}$ ]] || die 'No Apple Developer Team ID was supplied or discovered from the Apple project.'
+
+  log 'Opening Xcode for Apple Developer account registration and provisioning refresh.'
+  run open -a Xcode
+  if [[ "$DRY_RUN" == '0' ]]; then
+    printf 'In Xcode, sign in with the DJConnect Apple Developer account and refresh/download managed profiles. Press Return when complete. ' >&2
+    read -r
+  fi
+
+  if [[ -z "$APPLE_DEVELOPMENT_IDENTITY" ]]; then
+    local candidates
+    candidates="$(security find-identity -v -p codesigning 2>/dev/null | awk -F'"' '/Apple Development:/{print $2}')"
+    if [[ "$DRY_RUN" == '1' ]]; then
+      APPLE_DEVELOPMENT_IDENTITY="Apple Development: <account> ($APPLE_TEAM_ID)"
+    else
+      printf 'Available Apple Development identities:\n%s\n' "$candidates" >&2
+      read -r -p 'Paste the exact Apple Development identity to use: ' APPLE_DEVELOPMENT_IDENTITY
+    fi
+  fi
+  [[ -n "$APPLE_DEVELOPMENT_IDENTITY" ]] || die 'An Apple Development signing identity is required.'
+
+  run python3 "$verifier" --apple-repo "$apple_repository" --team-id "$APPLE_TEAM_ID" --signing-identity "$APPLE_DEVELOPMENT_IDENTITY"
+  local macbook_uuid
+  macbook_uuid="$(ioreg -rd1 -c IOPlatformExpertDevice | awk -F'"' '/IOPlatformUUID/{print $4; exit}')"
+  [[ "$macbook_uuid" =~ ^[0-9A-Fa-f-]{36}$ ]] || die 'Could not determine this MacBook hardware UUID.'
+  if [[ "$DRY_RUN" == '1' ]]; then
+    printf 'DRY: update GitHub environment apple-secure-distribution with this MacBook UUID and Apple Development identity\n'
+    return
+  fi
+  printf '%s' "$macbook_uuid" | gh secret set DJCONNECT_APPLE_MACBOOK_HARDWARE_UUID --repo "$ORG/djconnect-app" --env apple-secure-distribution
+  printf '%s' "$APPLE_DEVELOPMENT_IDENTITY" | gh secret set DJCONNECT_APPLE_DEVELOPMENT_SIGNING_IDENTITY --repo "$ORG/djconnect-app" --env apple-secure-distribution
+  log 'Apple internal-release readiness passed and the new MacBook relay environment binding was updated.'
 }
 
 clone_or_update() {
@@ -422,6 +482,9 @@ while [[ "$#" -gt 0 ]]; do
     --skip-developer-workstation) SKIP_DEVELOPER_WORKSTATION=1; shift ;;
     --ngrok-domain) NGROK_DOMAIN="${2:?--ngrok-domain requires a value}"; shift 2 ;;
     --prompt-ngrok-auth) PROMPT_NGROK_AUTH=1; shift ;;
+    --configure-apple-internal-release) CONFIGURE_APPLE_INTERNAL_RELEASE=1; shift ;;
+    --apple-team-id) APPLE_TEAM_ID="${2:?--apple-team-id requires a value}"; shift 2 ;;
+    --apple-development-identity) APPLE_DEVELOPMENT_IDENTITY="${2:?--apple-development-identity requires a value}"; shift 2 ;;
     --dry-run) DRY_RUN=1; shift ;;
     --help|-h) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
@@ -445,4 +508,5 @@ done
 
 install_maintenance
 configure_signing_keychain
+configure_apple_internal_release
 report_signing_recovery
