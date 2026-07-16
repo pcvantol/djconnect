@@ -52,6 +52,13 @@ are:
 | Recover all declared runner profiles | `./scripts/runner/bootstrap_macos_runner_host.sh --xcode-version <qualified-version>` | Yes, after preflight |
 | Recover selected profiles | `./scripts/runner/bootstrap_macos_runner_host.sh --profiles apple,esp32 --xcode-version <qualified-version>` | Yes, after preflight |
 | Verify another compatible desired state | `./scripts/runner/bootstrap_macos_runner_host.sh --desired-state /secure/path/host.yml --verify` | None |
+| Show the installed bootstrap version | `./scripts/runner/bootstrap_macos_runner_host.sh --version` | None |
+
+The recovery bootstrap is independently versioned from DJConnect releases.
+The initial stable version is `1.0.0`; its release history is maintained in
+[`BOOTSTRAP_MACOS_RUNNER_HOST_CHANGELOG.md`](../../scripts/runner/BOOTSTRAP_MACOS_RUNNER_HOST_CHANGELOG.md).
+Include the `--version` output in support or recovery evidence when the script
+itself is relevant to a result.
 
 `--verify` emits a Markdown delta to standard output and exits `0` only when
 all required desired-state rows match. It exits `1` when it finds drift. It

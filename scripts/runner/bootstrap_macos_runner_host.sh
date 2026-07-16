@@ -6,6 +6,7 @@ set -euo pipefail
 # fetched just-in-time and are never accepted as arguments or written to disk.
 
 readonly ORG='pcvantol'
+readonly SCRIPT_VERSION='1.0.0'
 readonly SCRIPT_DIRECTORY="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly REDACTION_RULES="$SCRIPT_DIRECTORY/redact_recovery_output.sed"
 DESIRED_STATE_FILE="${DESIRED_STATE_FILE:-$SCRIPT_DIRECTORY/macos_runner_host_desired_state.yml}"
@@ -150,6 +151,7 @@ Options:
                         never stored in the resume checkpoint.
   --resume-state FILE    Owner-only reboot-resume checkpoint path. Default:
                         ~/Library/Application Support/DJConnect/macos-runner-recovery-resume.env
+  --version              Show the bootstrap version and exit.
   --no-color            Disable ANSI color output.
   --help                Show this help.
 
@@ -160,6 +162,10 @@ authenticated GitHub API and gives it directly to the runner configurator.
 Signing material must be supplied from a local secure backup. It is never
 downloaded from GitHub, written to this repository or emitted to a log.
 EOF
+}
+
+print_version() {
+  printf 'DJConnect macOS Runner Host Recovery Bootstrap %s\n' "$SCRIPT_VERSION"
 }
 
 desired_state_value() {
@@ -1322,6 +1328,7 @@ while [[ "$#" -gt 0 ]]; do
     --verify) VERIFY_MODE=1; shift ;;
     --resume) RESUME_MODE=1; shift ;;
     --resume-state) RESUME_STATE_FILE="${2:?--resume-state requires a value}"; shift 2 ;;
+    --version) print_version; exit 0 ;;
     --no-color) NO_COLOR=1; shift ;;
     --help|-h) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;

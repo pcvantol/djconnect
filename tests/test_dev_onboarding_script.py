@@ -16,6 +16,7 @@ WINDOWS_SCRIPT = ROOT / "tools" / "dev_onboarding_windows.ps1"
 RUNNER_RECOVERY_SCRIPT = ROOT / "scripts" / "runner" / "bootstrap_macos_runner_host.sh"
 RECOVERY_REDACTION_RULES = ROOT / "scripts" / "runner" / "redact_recovery_output.sed"
 MACOS_RUNNER_DESIRED_STATE = ROOT / "scripts" / "runner" / "macos_runner_host_desired_state.yml"
+MACOS_RUNNER_RECOVERY_CHANGELOG = ROOT / "scripts" / "runner" / "BOOTSTRAP_MACOS_RUNNER_HOST_CHANGELOG.md"
 WINDOWS_RUNNER_RECOVERY_SCRIPT = ROOT / "scripts" / "runner" / "bootstrap_windows_arm64_runner.ps1"
 
 
@@ -189,6 +190,27 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("/dev/tty", source)
         self.assertIn("run_interactive", source)
         self.assertIn("install_macos_ci_tooling_maintenance.sh --run-now", source)
+
+    def test_macos_runner_recovery_bootstrap_reports_its_semantic_version(self) -> None:
+        result = subprocess.run(
+            [str(RUNNER_RECOVERY_SCRIPT), "--version"],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertEqual(
+            result.stdout,
+            "DJConnect macOS Runner Host Recovery Bootstrap 1.0.0\n",
+        )
+        self.assertTrue(MACOS_RUNNER_RECOVERY_CHANGELOG.is_file())
+        changelog = MACOS_RUNNER_RECOVERY_CHANGELOG.read_text(encoding="utf-8")
+        self.assertIn("Semantic Versioning", changelog)
+        self.assertIn("## [1.0.0] - 2026-07-16", changelog)
+        self.assertIn("--version", changelog)
 
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:
         source = WINDOWS_RUNNER_RECOVERY_SCRIPT.read_text()
