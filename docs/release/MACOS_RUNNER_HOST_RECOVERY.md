@@ -40,17 +40,41 @@ Python or a general YAML runtime exists. Use `--desired-state <file>` to test
 or apply another compatible desired-state manifest; unsupported schema versions
 or missing required keys fail closed.
 
-Use verify mode to print the actual delta without changing the machine:
+## Script reference
 
-```sh
-./scripts/runner/bootstrap_macos_runner_host.sh --verify
-```
+Run the script from the central `djconnect` checkout. The most useful modes
+are:
 
-It emits a Markdown table for host qualification, required formulas and casks,
-optional casks, selected runner registrations and the maintenance LaunchAgent.
-Each row is `MATCH`, `DRIFT` or `OPTIONAL`; verify exits non-zero when a
-required desired-state item differs. By default verify mode creates no recovery
-log or report file, so its standard output is directly usable as evidence.
+| Goal | Command | Machine changes |
+| --- | --- | --- |
+| Compare the current Mac with desired state | `./scripts/runner/bootstrap_macos_runner_host.sh --verify` | None |
+| Inspect the full recovery plan | `./scripts/runner/bootstrap_macos_runner_host.sh --xcode-version <qualified-version> --dry-run` | None |
+| Recover all declared runner profiles | `./scripts/runner/bootstrap_macos_runner_host.sh --xcode-version <qualified-version>` | Yes, after preflight |
+| Recover selected profiles | `./scripts/runner/bootstrap_macos_runner_host.sh --profiles apple,esp32 --xcode-version <qualified-version>` | Yes, after preflight |
+| Verify another compatible desired state | `./scripts/runner/bootstrap_macos_runner_host.sh --desired-state /secure/path/host.yml --verify` | None |
+
+`--verify` emits a Markdown delta to standard output and exits `0` only when
+all required desired-state rows match. It exits `1` when it finds drift. It
+does not create a recovery transcript or final report unless those paths are
+explicitly requested. Optional entries, such as Parallels Desktop, are shown
+as `OPTIONAL` rather than drift when absent.
+
+During a recovery, a failed phase offers `retry`, `skip` or `abort` on an
+interactive terminal. `retry` repeats just that phase. `skip` is recorded and
+prevents a qualified conclusion; dependent phases fail closed until the skipped
+phase is recovered. Use `--no-step-retry` for an unattended fail-closed run.
+
+Use `--force-phases <ids>` to re-run idempotent reconciliation even when a
+phase already has its desired state. For example,
+`--force-phases runner-apple` validates and reconciles an existing Apple
+runner service without deleting or re-registering it. A phase cannot be both
+skipped and forced.
+
+For a real recovery, default outputs are an owner-only transcript
+`~/Library/Logs/DJConnect/macos-runner-recovery-<UTC>.log` and a matching
+Markdown report. Override their paths with `--log-file` and `--report-file`,
+or suppress them with `--no-log-file` and `--no-report-file` when an external
+recorder is authoritative.
 
 Every subsequent recovery phase starts with a recorded precheck. The precheck
 requires each declared upstream dependency to be `PASSED` (a skipped, failed or
