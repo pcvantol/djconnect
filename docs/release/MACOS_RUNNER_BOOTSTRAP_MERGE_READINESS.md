@@ -1,6 +1,6 @@
 # macOS Runner-Host Bootstrap Merge Readiness
 
-**Status:** Pre-merge preparation completed; post-merge repin pending
+**Status:** Post-merge repin reviewable
 **Candidate branch:** `codex/macos-runner-recovery-bootstrap`  
 **Candidate SHA:** `aee1687876c279d758f1404f9ca9e1563e310276`  
 **Decision:** `MACOS_RUNNER_BOOTSTRAP_MERGE_READY`
@@ -9,8 +9,10 @@
 
 PR #144 was squash-merged into `main` as
 `452bed7655e579d3fb12b7b379f8fc0b70a8c342` on 2026-07-16. The documented
-post-merge repin has not been executed. The original candidate branch is
-retained until that separately reviewed increment is complete.
+post-merge repin now targets immutable current-`main` SHA
+`3d7d24a84b3aaacb8f2fb229e09c33da85e0545d`, which contains the merge and the
+governance fallback. The original candidate branch remains retained until this
+separately reviewed increment is merged and its checks are green.
 
 ## Scope and evidence
 
@@ -46,17 +48,17 @@ their target commits are reachable from PR #144 and are not yet contained in
 governance runtime-validation fallback before the implementation exists on
 `main`.
 
-| Workflow file | Current temporary SHA | Reason | Required post-merge replacement |
+| Workflow file | Repinned immutable `main` SHA | Reason | Review obligation |
 | --- | --- | --- | --- |
-| `.github/workflows/codeql.yml` | `beb68dc935ce8422e7c6c1a1e7eadd61760f289c` | Calls the candidate reusable governance workflow containing the fallback. | Repin to the immutable `main` SHA that contains the merged reusable workflow. |
-| `.github/workflows/djconnect-codeql-ci.yml` | `beb68dc935ce8422e7c6c1a1e7eadd61760f289c` | Calls the candidate reusable governance workflow containing the fallback. | Repin to the immutable `main` SHA that contains the merged reusable workflow. |
-| `.github/workflows/djconnect-ha-integration-ci.yml` | `beb68dc935ce8422e7c6c1a1e7eadd61760f289c` | Calls the candidate reusable governance workflow containing the fallback. | Repin to the immutable `main` SHA that contains the merged reusable workflow. |
-| `.github/workflows/djconnect-python-ci.yml` | `beb68dc935ce8422e7c6c1a1e7eadd61760f289c` | Calls the candidate reusable governance workflow containing the fallback. | Repin to the immutable `main` SHA that contains the merged reusable workflow. |
-| `.github/workflows/djconnect-semgrep-ci.yml` | `beb68dc935ce8422e7c6c1a1e7eadd61760f289c` | Calls the candidate reusable governance workflow containing the fallback. | Repin to the immutable `main` SHA that contains the merged reusable workflow. |
-| `.github/workflows/semgrep.yml` | `beb68dc935ce8422e7c6c1a1e7eadd61760f289c` | Calls the candidate reusable governance workflow containing the fallback. | Repin to the immutable `main` SHA that contains the merged reusable workflow. |
-| `.github/workflows/validate.yaml` | `beb68dc935ce8422e7c6c1a1e7eadd61760f289c` | Calls the candidate reusable governance workflow containing the fallback. | Repin to the immutable `main` SHA that contains the merged reusable workflow. |
-| `.github/workflows/verification-platform-docker-release.yml` | `beb68dc935ce8422e7c6c1a1e7eadd61760f289c` | Calls the candidate reusable governance workflow containing the fallback. | Repin to the immutable `main` SHA that contains the merged reusable workflow. |
-| `.github/workflows/software-assurance-governance.yml` | `631f0b893a537807dfc59a6e69e413703a2eebdd` | Checks out the candidate canonical policy source containing the raw GitHub API fallback. | Repin the checkout `ref` to the immutable `main` SHA that contains the merged fallback. |
+| `.github/workflows/codeql.yml` | `3d7d24a84b3aaacb8f2fb229e09c33da85e0545d` | Calls the reusable governance workflow on merged `main`. | Repinned; validate this caller. |
+| `.github/workflows/djconnect-codeql-ci.yml` | `3d7d24a84b3aaacb8f2fb229e09c33da85e0545d` | Calls the reusable governance workflow on merged `main`. | Repinned; validate this caller. |
+| `.github/workflows/djconnect-ha-integration-ci.yml` | `3d7d24a84b3aaacb8f2fb229e09c33da85e0545d` | Calls the reusable governance workflow on merged `main`. | Repinned; validate this caller. |
+| `.github/workflows/djconnect-python-ci.yml` | `3d7d24a84b3aaacb8f2fb229e09c33da85e0545d` | Calls the reusable governance workflow on merged `main`. | Repinned; validate this caller. |
+| `.github/workflows/djconnect-semgrep-ci.yml` | `3d7d24a84b3aaacb8f2fb229e09c33da85e0545d` | Calls the reusable governance workflow on merged `main`. | Repinned; validate this caller. |
+| `.github/workflows/semgrep.yml` | `3d7d24a84b3aaacb8f2fb229e09c33da85e0545d` | Calls the reusable governance workflow on merged `main`. | Repinned; validate this caller. |
+| `.github/workflows/validate.yaml` | `3d7d24a84b3aaacb8f2fb229e09c33da85e0545d` | Calls the reusable governance workflow on merged `main`. | Repinned; validate this caller. |
+| `.github/workflows/verification-platform-docker-release.yml` | `3d7d24a84b3aaacb8f2fb229e09c33da85e0545d` | Calls the reusable governance workflow on merged `main`. | Repinned; validate this caller. |
+| `.github/workflows/software-assurance-governance.yml` | `3d7d24a84b3aaacb8f2fb229e09c33da85e0545d` | Checks out the canonical policy source from merged `main`. | Repinned; validate reusable workflow. |
 
 The existing reference in
 `.github/workflows/post-merge-release-evidence-dispatch.yml` to
@@ -65,15 +67,14 @@ commit is already contained in `main` and was not introduced by PR #144.
 
 ## Required post-merge sequence
 
-1. Merge the approved PR #144 and synchronize `main`.
-2. Resolve the immutable `main` SHA that contains the merged fallback and
-   verify that it contains both the reusable governance workflow and its
-   canonical policy checkout source.
-3. In one separately reviewed post-merge increment, replace all nine
-   temporary references in the table with that SHA.
-4. Validate the changed callers and reusable workflow from the new `main`
+1. PR #144 is merged and `main` is synchronized.
+2. `3d7d24a84b3aaacb8f2fb229e09c33da85e0545d` is verified to contain the
+   merge and the reusable governance workflow.
+3. This separately reviewed post-merge increment replaces all nine temporary
+   references with that SHA.
+4. Validate the changed callers and reusable workflow from the new immutable
    reference.
-5. Delete the PR #144 feature branch only after the repin pull request is
+5. Delete the PR #144 feature branch only after this repin pull request is
    merged and its validation is green.
 
 This sequence prevents a reusable workflow from depending on a feature-branch
@@ -81,13 +82,10 @@ commit after that branch is removed.
 
 ## Deferred work
 
-- Execute the post-merge repin only after PR #144 has a merge commit on
-  `main`.
 - Resume separately authorized Platform Release 3.3 target qualification only
   through its own prompt and authorization.
 
 ## Recommended next prompt
 
-Draft only — after PR #144 is merged, repin the documented temporary bootstrap
-workflow references to the immutable merged `main` SHA, validate them, then
-remove the feature branch.
+After this reviewable repin merges and its checks are green, delete the
+retained PR #144 feature branch. Do not start another release operation here.

@@ -32,10 +32,10 @@ Engineering Platform operational after Platform Baseline v1.0 certification
 and Software Assurance Generation 1 closure. DJConnect Product Development is
 the primary engineering program.
 
-The bounded Platform Release 3.3 operational remediation in progress is the
-shared deployment-readiness preflight's native-runtime selection: PowerShell 7
-on Windows and Bash on non-Windows. It does not reopen the frozen release
-architecture or authorize a deployment.
+The bounded post-merge remediation in progress repins PR #144's nine temporary
+workflow references to immutable merged-`main` SHA
+`3d7d24a84b3aaacb8f2fb229e09c33da85e0545d`. It does not reopen the frozen
+release architecture or authorize a deployment.
 
 Canonical lifecycle:
 
@@ -138,11 +138,9 @@ Raspberry Pi, ESP32, Apple MacBook and Apple iPhone with required paired-Watch
 validation; Home Assistant and Windows remain unqualified.
 No complete Internal Release or operational burn-in exists.
 
-Windows deployment remediation is in review: the prior shared Bash preflight
-resolved to WSL on the Windows service runner. The native-runtime remediation
-removes that WSL dependency; its consumer must subsequently pin the merged
-immutable action SHA and require machine-level PowerShell 7 for the service
-account.
+Windows native-preflight consumer adoption is reviewed separately. It removes
+the former consumer-level Bash/WSL prerequisite without changing the approved
+manifest or deployment authorization.
 
 Prompt 5 certification remains generated but inactive. It requires completed
 operational release and burn-in evidence; it is not the next automatic action.
@@ -208,19 +206,15 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-Platform Evolution: PR [#144](https://github.com/pcvantol/djconnect/pull/144)
-was squash-merged into `main` as `452bed7655e579d3fb12b7b379f8fc0b70a8c342`.
-Its candidate `aee1687876c279d758f1404f9ca9e1563e310276` was `CLEAN` with
-successful required checks and Owner Authorization. The reviewable preparation
-records the complete implementation scope, the nine temporary candidate
-workflow pins and the required post-merge repin sequence in
-`docs/release/MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS.md`. The preparation is
-reviewable in PR [#146](https://github.com/pcvantol/djconnect/pull/146).
-
-The post-merge repin is now a separate deferred increment; the PR #144 feature
-branch is retained until that repin succeeds. This preparation changes no
+Platform Evolution: post-merge repin of PR #144's nine temporary workflow
+references. PR [#144](https://github.com/pcvantol/djconnect/pull/144) was
+squash-merged into `main` as `452bed7655e579d3fb12b7b379f8fc0b70a8c342`.
+This reviewable increment replaces all temporary references with immutable
+merged-`main` SHA `3d7d24a84b3aaacb8f2fb229e09c33da85e0545d`, validated as
+containing both the merge and the reusable governance fallback. The PR #144
+feature branch remains retained until this increment merges and is green. No
 Platform Architecture, Product Architecture, release execution or deployment
-behaviour.
+behaviour changes.
 
 ## Completion Report
 

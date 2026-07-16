@@ -50,7 +50,8 @@ planning is read.
 | Repository Governance Rollout Planning Completion | Completed / merged reconciled / archived | Establish the Version 2.2 adoption queue. | `codex/repository-governance-rollout-completion` | `docs/history/prompts/2026-07-15-repository-governance-rollout-completion.md`; PR [#127](https://github.com/pcvantol/djconnect/pull/127) |
 | Repository Governance Audit | Completed / merged reconciled / archived | Audit all nine merged Version 2.2 repository adoptions. | `codex/repository-governance-audit` | `docs/governance/REPOSITORY_GOVERNANCE_AUDIT_V2_2.md`; PR [#128](https://github.com/pcvantol/djconnect/pull/128) |
 | Rolling Records Reconciliation | Completed / merged reconciled / archived | Reconciled central rolling records after the completed governance rollout. | `codex/reconcile-governance-rolling-records` | `docs/history/prompts/2026-07-15-platform-governance-rolling-records-reconciliation.md`; PR [#129](https://github.com/pcvantol/djconnect/pull/129) |
-| macOS Runner-Host Bootstrap Pre-Merge Preparation | Reviewable / reconciliation pending | Corrected PR #144 scope description, identified its temporary candidate workflow references and recorded the post-merge repin sequence without changing behaviour. PR #144 is merged. | `codex/prepare-macos-runner-bootstrap-merge` | `docs/release/MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS.md`; PR [#146](https://github.com/pcvantol/djconnect/pull/146) |
+| macOS Runner-Host Bootstrap Pre-Merge Preparation | Completed / merged reconciled / archived | Corrected PR #144 scope description, identified its temporary candidate workflow references and recorded the post-merge repin sequence without changing behaviour. | `codex/prepare-macos-runner-bootstrap-merge` | `docs/release/MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS.md`; PR [#146](https://github.com/pcvantol/djconnect/pull/146) |
+| macOS Runner-Host Bootstrap Post-Merge Repin | Reviewable | Repin the eight governance callers and reusable workflow policy checkout from temporary feature-branch commits to immutable merged-`main` SHA `3d7d24a84b3aaacb8f2fb229e09c33da85e0545d`. | `codex/repin-macos-bootstrap-main` | `docs/release/MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS.md`; reviewable pull request from this branch |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
@@ -67,9 +68,9 @@ authorized Windows deployment followed by smoke on success.
 
 ## Next Engineering Increment
 
-Draft only — repin the documented temporary bootstrap workflow references to
-immutable `main` SHAs, validate the callers and only then delete the retained
-feature branch. Do not activate or execute it automatically.
+After the reviewable post-merge repin is merged and checks are green, delete
+the retained PR #144 feature branch. Do not begin a release operation as part
+of this increment.
 
 ## Active Next Phase
 
