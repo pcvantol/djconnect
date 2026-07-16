@@ -32,6 +32,18 @@ baseline. Docker Desktop may show its own first-run acceptance screen; once
 accepted, the onboarding creates or reconciles the Compose file and starts the
 containers. Use `docker compose -f ~/docker/homeassistant/docker-compose.yml
 ps` to inspect their state.
+
+The recovery keeps authentication interactive and scoped to the local user:
+
+- GitHub CLI opens the browser-based `gh auth login` flow before repositories
+  and runners are accessed.
+- Docker Desktop presents any first-run dialogs; the recovery waits for its
+  daemon, then invokes Docker Hub's device-login flow with `docker login`.
+- `xcodes` asks for Apple Developer authentication when an Xcode download is
+  requested, and ngrok can prompt invisibly for its auth token when configured.
+
+No GitHub, Docker, Apple or ngrok credential is accepted as a command-line
+argument, added to repository files or printed in recovery logs.
 Use `--skip-developer-workstation` only for a deliberately minimal runner-only
 host.
 

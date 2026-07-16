@@ -115,6 +115,8 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("--ngrok-domain", source)
         self.assertIn("--prompt-ngrok-auth", source)
         self.assertIn("NGROK_AUTHTOKEN", source)
+        self.assertIn("docker login", source)
+        self.assertIn("gh auth login --hostname github.com --git-protocol https --web", source)
         self.assertIn("install_macos_ci_tooling_maintenance.sh --run-now", source)
 
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:
@@ -149,6 +151,8 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("NGROK_AUTHTOKEN", result.stdout)
         self.assertIn("@openai/codex", SCRIPT.read_text())
         self.assertIn("npm bin -g", SCRIPT.read_text())
+        self.assertIn("Waiting for Docker Desktop", SCRIPT.read_text())
+        self.assertIn("Docker Desktop daemon is ready.", SCRIPT.read_text())
 
     def test_all_plan_includes_preflight_and_excludes_apply_upgrades(self) -> None:
         result = run_script("--all", "--plan", "--no-color")

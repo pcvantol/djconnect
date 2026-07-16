@@ -585,8 +585,22 @@ step_3_docker() {
   fi
   if ! docker info >/dev/null 2>&1; then
     run open -a Docker || true
-    warn "Docker Desktop is installed/opened. Finish first-run setup, then rerun step 4 or 8."
+    if [[ "$DRY_RUN" == "1" ]]; then
+      warn "Docker Desktop is installed/opened. Finish first-run setup before running the Compose services."
+      return
+    fi
+    log "Waiting for Docker Desktop. Complete any first-run Docker Desktop dialogs now."
+    local elapsed=0
+    local timeout=300
+    until docker info >/dev/null 2>&1; do
+      if (( elapsed >= timeout )); then
+        die "Docker Desktop did not become ready within ${timeout}s. Complete its first-run setup, then rerun the onboarding."
+      fi
+      sleep 5
+      elapsed=$((elapsed + 5))
+    done
   fi
+  status_ok "Docker Desktop daemon is ready."
 }
 
 step_4_codex() {

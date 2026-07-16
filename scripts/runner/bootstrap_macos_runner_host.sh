@@ -179,6 +179,21 @@ ensure_github_auth() {
   [[ "$DRY_RUN" == '1' ]] || gh auth status --hostname github.com >/dev/null 2>&1 || die 'GitHub CLI authentication did not complete.'
 }
 
+ensure_docker_hub_auth() {
+  if [[ "$SKIP_DEVELOPER_WORKSTATION" == '1' ]]; then
+    return
+  fi
+  if [[ "$DRY_RUN" == '1' ]]; then
+    run docker login
+    return
+  fi
+  command -v docker >/dev/null 2>&1 || die 'Docker CLI is unavailable after developer workstation recovery.'
+  docker info >/dev/null 2>&1 || die 'Docker Desktop is not ready after developer workstation recovery.'
+  log 'Authenticating Docker CLI with Docker Hub using its interactive device-login flow.'
+  log 'Complete the browser/device-code flow if Docker asks. No Docker credential is passed as an argument or written by this script.'
+  run docker login
+}
+
 clone_or_update() {
   local repository="$1"
   local directory="$GITHUB_ROOT/$repository"
@@ -420,6 +435,7 @@ ensure_parallels
 ensure_github_auth
 prepare_repositories
 bootstrap_developer_workstation
+ensure_docker_hub_auth
 
 for profile in apple private-network esp32 pi; do
   if profile_enabled "$profile"; then
