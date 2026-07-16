@@ -16,11 +16,13 @@ A desired-state manifest consumed by an onboarding or runner tool must contain:
 
 ```yaml
 version: 1.0.0
-minimum_tool_version: 1.1.3
+minimum_tool_version: 1.2.0
 ```
 
 `minimum_tool_version` is the oldest semantic tool version that understands
 the manifest safely. It is an apply-safety boundary, not advisory metadata.
+It refers to the consuming tool only; it does not refer to the onboarding
+package version or the DJConnect platform-release version.
 
 ## Consumer behaviour
 

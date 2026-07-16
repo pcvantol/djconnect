@@ -1,5 +1,12 @@
 # DJConnect Developer Onboarding Changelog
 
+## 3.3.0 — 2026-07-16
+
+- Align the package release version with DJConnect Platform Release 3.3.0 for
+  operator clarity.
+- Record that the alignment is descriptive only: no platform runtime,
+  artifact, desired-state or compatibility dependency is introduced.
+
 ## 1.1.4 — 2026-07-16
 
 - Add executable package-contract coverage for independent desired-state

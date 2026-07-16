@@ -4,6 +4,13 @@ This directory is the canonical, versioned onboarding package for a DJConnect
 developer workstation. It owns the macOS and Windows onboarding scripts, their
 contract tests and package documentation.
 
+## Release alignment
+
+The current onboarding package is released as `3.3.0`, aligned with the current
+DJConnect platform release for operator clarity. This is version alignment only:
+the package remains independently versioned, does not consume platform release
+artifacts, and does not require a matching platform version to run or verify.
+
 ## Entry points
 
 - macOS: `./onboarding/dev_onboarding_macos.sh`
@@ -78,5 +85,7 @@ ngrok redaction, interactive selection and guarded mutating steps.
 ## Package manifest
 
 `manifest.yml` records the package version, its canonical components and the
-compatibility wrappers. `CHANGELOG.md` records package releases. Update both
-together with any package-surface change.
+compatibility wrappers. Its `package.platform_release_alignment` is descriptive
+only; `package.platform_release_dependency: none` is the explicit no-coupling
+contract. `CHANGELOG.md` records package releases. Update both together with
+any package-surface change.
