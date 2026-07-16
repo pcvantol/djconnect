@@ -23,6 +23,13 @@ CONFIGURE_APPLE_INTERNAL_RELEASE=0
 APPLE_TEAM_ID="${APPLE_TEAM_ID:-}"
 APPLE_DEVELOPMENT_IDENTITY="${APPLE_DEVELOPMENT_IDENTITY:-}"
 SUDO_KEEPALIVE_PID=''
+CLR_RESET=''
+CLR_BOLD=''
+CLR_CYAN=''
+CLR_GREEN=''
+CLR_YELLOW=''
+CLR_RED=''
+CLR_MAGENTA=''
 
 usage() {
   cat <<'EOF'
@@ -78,6 +85,7 @@ Options:
                         Exact local Apple Development signing identity. If
                         omitted, the script prompts after listing candidates.
   --dry-run             Print changes without executing them.
+  --no-color            Disable ANSI color output.
   --help                Show this help.
 
 No GitHub registration token is passed on the command line. After `gh auth
@@ -89,9 +97,23 @@ downloaded from GitHub, written to this repository or emitted to a log.
 EOF
 }
 
-log() { printf '\n==> %s\n' "$*"; }
-warn() { printf 'WARN: %s\n' "$*" >&2; }
-die() { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
+init_style() {
+  if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+    CLR_RESET=$'\033[0m'
+    CLR_BOLD=$'\033[1m'
+    CLR_CYAN=$'\033[36m'
+    CLR_GREEN=$'\033[32m'
+    CLR_YELLOW=$'\033[33m'
+    CLR_RED=$'\033[31m'
+    CLR_MAGENTA=$'\033[35m'
+  fi
+}
+
+style() { printf '%s%s%s' "$1" "$2" "$CLR_RESET"; }
+log() { printf '\n%s %s\n' "$(style "$CLR_CYAN$CLR_BOLD" '==>')" "$*"; }
+ok() { printf '%s %s\n' "$(style "$CLR_GREEN$CLR_BOLD" 'OK')" "$*"; }
+warn() { printf '%s %s\n' "$(style "$CLR_YELLOW$CLR_BOLD" 'WARN')" "$*" >&2; }
+die() { printf '%s %s\n' "$(style "$CLR_RED$CLR_BOLD" 'ERROR')" "$*" >&2; exit 1; }
 
 cleanup() {
   if [[ -n "$SUDO_KEEPALIVE_PID" ]]; then
@@ -101,7 +123,7 @@ cleanup() {
 
 warm_sudo() {
   if [[ "$DRY_RUN" == '1' ]]; then
-    printf 'DRY: verify administrator membership and refresh sudo credentials\n'
+    printf '%s verify administrator membership and refresh sudo credentials\n' "$(style "$CLR_MAGENTA$CLR_BOLD" 'DRY:')"
     return
   fi
   dseditgroup -o checkmember -m "$(id -un)" admin | grep -Fq 'yes' || die 'The recovery user must be a local macOS administrator for runner services and Xcode setup.'
@@ -116,7 +138,7 @@ warm_sudo() {
 
 run() {
   if [[ "$DRY_RUN" == '1' ]]; then
-    printf 'DRY:'
+    printf '%s' "$(style "$CLR_MAGENTA$CLR_BOLD" 'DRY:')"
     printf ' %q' "$@"
     printf '\n'
     return 0
@@ -128,7 +150,7 @@ run_in_dir() {
   local directory="$1"
   shift
   if [[ "$DRY_RUN" == '1' ]]; then
-    printf 'DRY: (cd %q &&' "$directory"
+    printf '%s (cd %q &&' "$(style "$CLR_MAGENTA$CLR_BOLD" 'DRY:')" "$directory"
     printf ' %q' "$@"
     printf ')\n'
     return 0
@@ -645,12 +667,14 @@ while [[ "$#" -gt 0 ]]; do
     --apple-team-id) APPLE_TEAM_ID="${2:?--apple-team-id requires a value}"; shift 2 ;;
     --apple-development-identity) APPLE_DEVELOPMENT_IDENTITY="${2:?--apple-development-identity requires a value}"; shift 2 ;;
     --dry-run) DRY_RUN=1; shift ;;
+    --no-color) NO_COLOR=1; shift ;;
     --help|-h) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
   esac
 done
 
 ensure_macos_arm64
+init_style
 trap cleanup EXIT
 warm_sudo
 ensure_tooling

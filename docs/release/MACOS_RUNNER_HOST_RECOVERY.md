@@ -145,6 +145,10 @@ configuration. It includes the subordinate developer-onboarding and final
 verification commands with their own `--dry-run` flag so the printed plan
 covers the complete recovery chain.
 
+Interactive terminal output uses cyan section markers, green success markers,
+yellow warnings, red errors and magenta dry-run commands. Set `NO_COLOR=1`
+or pass `--no-color` for plain logs and CI capture.
+
 ## Optional Parallels Desktop recovery
 
 If this Mac hosts the Windows ARM64 build or deployment VM, include
