@@ -1,9 +1,16 @@
 # macOS Runner-Host Bootstrap Merge Readiness
 
-**Status:** Pre-merge preparation for PR [#144](https://github.com/pcvantol/djconnect/pull/144)  
+**Status:** Pre-merge preparation completed; post-merge repin pending
 **Candidate branch:** `codex/macos-runner-recovery-bootstrap`  
 **Candidate SHA:** `aee1687876c279d758f1404f9ca9e1563e310276`  
 **Decision:** `MACOS_RUNNER_BOOTSTRAP_MERGE_READY`
+
+## Subsequent merge outcome
+
+PR #144 was squash-merged into `main` as
+`452bed7655e579d3fb12b7b379f8fc0b70a8c342` on 2026-07-16. The documented
+post-merge repin has not been executed. The original candidate branch is
+retained until that separately reviewed increment is complete.
 
 ## Scope and evidence
 

@@ -5,11 +5,11 @@
 
 ## Current engineering increment
 
-Platform Evolution — pre-merge preparation for PR #144, the macOS runner-host
-bootstrap. This increment is documentation and merge-readiness only: it
-corrects the PR description, identifies temporary candidate workflow pins and
-records the mandatory post-merge repin sequence. It does not change bootstrap,
-runner, CI, governance, release or deployment behaviour.
+Platform Evolution — the pre-merge preparation for PR #144, the macOS
+runner-host bootstrap, is reviewable in PR #146. PR #144 is now merged; its
+mandatory post-merge SHA repin remains deferred to a separate increment. No
+bootstrap, runner, CI, governance, release or deployment behaviour changed in
+the preparation increment.
 
 ## Current engineering program
 
@@ -18,10 +18,11 @@ DJConnect Product Development remains the primary program; Platform Release
 
 ## Current repository truth
 
-PR [#144](https://github.com/pcvantol/djconnect/pull/144) is open and
-mergeable for candidate `aee1687876c279d758f1404f9ca9e1563e310276`; its
-required checks and Owner Authorization are successful. Its complete
-pre-merge evidence and the nine temporary branch references are recorded in
+PR [#144](https://github.com/pcvantol/djconnect/pull/144) was squash-merged
+into `main` as `452bed7655e579d3fb12b7b379f8fc0b70a8c342`. Its pre-merge
+candidate was `aee1687876c279d758f1404f9ca9e1563e310276`, with successful
+required checks and Owner Authorization. Its complete evidence and the nine
+temporary branch references are recorded in
 `docs/release/MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS.md`. The preparation is
 reviewable in PR [#146](https://github.com/pcvantol/djconnect/pull/146).
 
@@ -48,11 +49,11 @@ canonical execution ledger is
 
 - Qualify the remaining required targets only through separately authorized,
   manifest-bound deployment and immediate target-scoped smoke.
-- Repin the PR #144 bootstrap references only after its merge commit exists on
-  `main`.
+- Repin the PR #144 bootstrap references to immutable current-`main` SHAs in a
+  separately reviewed increment.
 
 ## Recommended next prompt
 
-Draft only — after PR #144 merges, repin its nine temporary bootstrap workflow
-references to an immutable `main` SHA and validate them before deleting the
-feature branch. Do not begin that post-merge increment automatically.
+Draft only — repin PR #144's nine temporary bootstrap workflow references to
+immutable `main` SHAs and validate them before deleting the retained feature
+branch. Do not begin that post-merge increment automatically.

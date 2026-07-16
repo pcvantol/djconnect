@@ -197,20 +197,19 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-Platform Evolution: prepare PR [#144](https://github.com/pcvantol/djconnect/pull/144)
-for merge without changing its engineering scope. Current GitHub evidence is
-that candidate `aee1687876c279d758f1404f9ca9e1563e310276` is open, `CLEAN` and
-has successful required checks and Owner Authorization. The increment records
-the complete implementation scope, the nine temporary candidate workflow pins
-and the required post-merge repin sequence in
+Platform Evolution: PR [#144](https://github.com/pcvantol/djconnect/pull/144)
+was squash-merged into `main` as `452bed7655e579d3fb12b7b379f8fc0b70a8c342`.
+Its candidate `aee1687876c279d758f1404f9ca9e1563e310276` was `CLEAN` with
+successful required checks and Owner Authorization. The reviewable preparation
+records the complete implementation scope, the nine temporary candidate
+workflow pins and the required post-merge repin sequence in
 `docs/release/MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS.md`. The preparation is
 reviewable in PR [#146](https://github.com/pcvantol/djconnect/pull/146).
 
-The post-merge repin is deferred until the merge commit exists on `main`; the
-PR #144 feature branch must not be deleted before that separately reviewed
-repin succeeds. This is merge-preparation documentation only and does not
-change Platform Architecture, Product Architecture, release execution or
-deployment behaviour.
+The post-merge repin is now a separate deferred increment; the PR #144 feature
+branch is retained until that repin succeeds. This preparation changes no
+Platform Architecture, Product Architecture, release execution or deployment
+behaviour.
 
 ## Completion Report
 
