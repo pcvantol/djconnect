@@ -123,6 +123,8 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("--runasservice", source)
         self.assertIn("NT AUTHORITY\\NETWORK SERVICE", source)
         self.assertIn("Git.Git", source)
+        self.assertIn("Python.Python.3.12", source)
+        self.assertIn("OpenJS.NodeJS.LTS", source)
         self.assertIn("workload restore", source)
         self.assertNotIn("[string] $RegistrationToken", source)
 

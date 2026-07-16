@@ -25,7 +25,8 @@ By default, the recovery then invokes the established
 `tools/dev_onboarding_macos.sh --all --yes --warm-sudo` flow. This restores the
 complete macOS developer workstation: all DJConnect repositories, Codex CLI,
 Docker/Home Assistant and voice backend, HACS/integration sync, Apple/ESP32/
-Pi/API/website tooling, .NET/MAUI tooling and the local validation baseline.
+Pi/API/website tooling, Python 3.12, Node, .NET/MAUI tooling and the local
+validation baseline.
 Use `--skip-developer-workstation` only for a deliberately minimal runner-only
 host.
 
@@ -79,8 +80,9 @@ The Windows bootstrap authenticates GitHub CLI interactively if required,
 downloads the current `win-arm64` Actions runner and checks it against GitHub's
 release SHA-256, registers `djconnect-windows11-parallels-arm64` as a
 `NETWORK SERVICE` Windows service, prepares service-readable runner/install
-paths, restores the checked-out Windows MAUI workload and installs the daily
-PowerShell 7/.NET 10/workload maintenance task.
+paths, installs Git, Python 3.12 and Node LTS, restores the checked-out Windows
+MAUI workload and installs the daily PowerShell 7/.NET 10/workload maintenance
+task.
 No registration token is supplied on the command line or retained on disk.
 
 ## Xcode and non-interactive signing recovery

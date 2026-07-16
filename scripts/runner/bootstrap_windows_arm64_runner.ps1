@@ -66,6 +66,8 @@ function Ensure-WingetPackage([string] $PackageId, [string] $Description) {
 Ensure-WingetPackage 'Microsoft.PowerShell' 'PowerShell 7'
 Ensure-WingetPackage 'GitHub.cli' 'GitHub CLI'
 Ensure-WingetPackage 'Git.Git' 'Git for Windows'
+Ensure-WingetPackage 'Python.Python.3.12' 'Python 3.12'
+Ensure-WingetPackage 'OpenJS.NodeJS.LTS' 'Node.js LTS'
 
 $ghPath = Join-Path $env:ProgramFiles 'GitHub CLI\gh.exe'
 if (-not $DryRun -and -not (Test-Path $ghPath)) {
