@@ -345,11 +345,14 @@ bootstrap_developer_workstation() {
     die 'An ngrok domain requires NGROK_AUTHTOKEN or --prompt-ngrok-auth.'
   fi
   log 'Restoring the complete DJConnect macOS developer workstation.'
-  if [[ -n "$NGROK_DOMAIN" ]]; then
-    run_in_dir "$central_repository" bash tools/dev_onboarding_macos.sh --all --yes --warm-sudo --ngrok-domain "$NGROK_DOMAIN"
-  else
-    run_in_dir "$central_repository" bash tools/dev_onboarding_macos.sh --all --yes --warm-sudo
+  local -a onboarding_args=(tools/dev_onboarding_macos.sh --all --yes --warm-sudo)
+  if [[ "$DRY_RUN" == '1' ]]; then
+    onboarding_args+=(--dry-run)
   fi
+  if [[ -n "$NGROK_DOMAIN" ]]; then
+    onboarding_args+=(--ngrok-domain "$NGROK_DOMAIN")
+  fi
+  run_in_dir "$central_repository" bash "${onboarding_args[@]}"
 }
 
 profile_enabled() {
@@ -514,7 +517,11 @@ run_initial_verification() {
   fi
   local central_repository="$GITHUB_ROOT/djconnect"
   log 'Running initial post-recovery verification for the complete local developer and runner host.'
-  run_in_dir "$central_repository" bash tools/dev_onboarding_macos.sh --steps 21,22 --yes --no-log-file
+  local -a verification_args=(tools/dev_onboarding_macos.sh --steps 21,22 --yes --no-log-file)
+  if [[ "$DRY_RUN" == '1' ]]; then
+    verification_args+=(--dry-run)
+  fi
+  run_in_dir "$central_repository" bash "${verification_args[@]}"
   verify_launchd_services
   verify_runner_online
   log 'Initial post-recovery verification passed.'

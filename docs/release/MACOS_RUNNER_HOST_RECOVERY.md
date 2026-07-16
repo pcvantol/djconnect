@@ -126,7 +126,24 @@ Use a bounded recovery when a host needs only one capability:
 ./scripts/runner/bootstrap_macos_runner_host.sh --profiles apple
 ```
 
-Use `--dry-run` to inspect the complete recovery plan without changes.
+Use `--dry-run` to inspect the complete recovery plan without changes:
+
+```sh
+./scripts/runner/bootstrap_macos_runner_host.sh \
+  --xcode-version <qualified-version> \
+  --ngrok-domain <reserved-domain> \
+  --prompt-ngrok-auth \
+  --configure-apple-internal-release \
+  --install-parallels \
+  --dry-run
+```
+
+Dry-run never downloads or installs tooling, authenticates a service, prompts
+for a secret, changes a keychain, registers a runner, creates a GitHub secret
+or variable, changes launchd, starts Docker, updates macOS or writes local
+configuration. It includes the subordinate developer-onboarding and final
+verification commands with their own `--dry-run` flag so the printed plan
+covers the complete recovery chain.
 
 ## Optional Parallels Desktop recovery
 

@@ -134,6 +134,8 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("softwareupdate --list", source)
         self.assertIn("tools/dev_onboarding_macos.sh --steps 21,22", source)
         self.assertIn("actions/runners", source)
+        self.assertIn("onboarding_args+=(--dry-run)", source)
+        self.assertIn("verification_args+=(--dry-run)", source)
         self.assertIn("install_macos_ci_tooling_maintenance.sh --run-now", source)
 
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:
