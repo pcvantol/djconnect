@@ -20,6 +20,8 @@ DESIRED_MINIMUM_CPU_CORES=''
 DESIRED_MINIMUM_FREE_DISK_GB=''
 DESIRED_RECOMMENDED_FREE_DISK_GB=''
 DESIRED_TOOL_FORMULAS=()
+DESIRED_REQUIRED_CASKS=()
+DESIRED_OPTIONAL_CASKS=()
 DESIRED_REFRESH_CASKS=()
 DESIRED_PROFILES=()
 GITHUB_ROOT="${GITHUB_ROOT:-$HOME/Documents/GitHub}"
@@ -62,6 +64,9 @@ INITIAL_VERIFICATION_PASSED=0
 PHASE_PRECHECK_RESULT=''
 FORCE_PHASES="${FORCE_PHASES:-}"
 CURRENT_PHASE_ID=''
+VERIFY_MODE=0
+VERIFY_DRIFT_COUNT=0
+VERIFY_UNVERIFIED_COUNT=0
 
 usage() {
   cat <<'EOF'
@@ -135,6 +140,8 @@ Options:
   --force-phases LIST   Comma-separated phase IDs to reconcile again even
                         when their desired state already exists. This is
                         idempotent and does not recreate existing runners.
+  --verify              Read the desired state and print a Markdown delta
+                        against this machine without recovery mutations.
   --no-color            Disable ANSI color output.
   --help                Show this help.
 
@@ -189,6 +196,8 @@ load_desired_state() {
   DESIRED_MINIMUM_FREE_DISK_GB="$(require_desired_state_value host.minimum_free_disk_gb)"
   DESIRED_RECOMMENDED_FREE_DISK_GB="$(require_desired_state_value host.recommended_free_disk_gb)"
   IFS=',' read -r -a DESIRED_TOOL_FORMULAS <<<"$(require_desired_state_value tooling.formulas)"
+  IFS=',' read -r -a DESIRED_REQUIRED_CASKS <<<"$(require_desired_state_value tooling.required_casks)"
+  IFS=',' read -r -a DESIRED_OPTIONAL_CASKS <<<"$(require_desired_state_value tooling.optional_casks)"
   IFS=',' read -r -a DESIRED_REFRESH_CASKS <<<"$(require_desired_state_value tooling.refresh_casks)"
   IFS=',' read -r -a DESIRED_PROFILES <<<"$(require_desired_state_value runner.profiles)"
   for profile in "${DESIRED_PROFILES[@]}"; do
@@ -200,7 +209,68 @@ load_desired_state() {
     require_desired_state_value "profile.$profile.runner_name" >/dev/null
     require_desired_state_value "profile.$profile.labels" >/dev/null
   done
-  log "Loaded desired-state manifest $DESIRED_STATE_FILE (schema $DESIRED_STATE_SCHEMA_VERSION)."
+  [[ "$VERIFY_MODE" == '1' ]] || log "Loaded desired-state manifest $DESIRED_STATE_FILE (schema $DESIRED_STATE_SCHEMA_VERSION)."
+}
+
+verify_delta_row() {
+  local component="$1" desired="$2" actual="$3" state="$4"
+  actual="${actual//|/\\|}"
+  printf '| %s | %s | %s | %s |\n' "$component" "$desired" "$actual" "$state"
+  case "$state" in
+    DRIFT) VERIFY_DRIFT_COUNT=$((VERIFY_DRIFT_COUNT + 1)) ;;
+    UNVERIFIED) VERIFY_UNVERIFIED_COUNT=$((VERIFY_UNVERIFIED_COUNT + 1)) ;;
+  esac
+}
+
+run_desired_state_verification() {
+  local hardware_profile macos_version macos_major cpu_brand mem_bytes mem_gb cpu_count disk_probe_path disk_kb disk_gb formula cask profile install_dir uid_value
+  printf '# DJConnect macOS Runner Host Desired-State Delta\n\n'
+  printf '%s\n\n' "Manifest: \`$DESIRED_STATE_FILE\` (schema $DESIRED_STATE_SCHEMA_VERSION)"
+  printf '%s\n' '| Component | Desired | Actual | Delta |'
+  printf '%s\n' '| --- | --- | --- | --- |'
+
+  macos_version="$(sw_vers -productVersion 2>/dev/null || printf unknown)"
+  macos_major="${macos_version%%.*}"
+  verify_delta_row 'host.platform' "$DESIRED_HOST_PLATFORM/$DESIRED_HOST_ARCHITECTURE" "$(uname -s)/$(uname -m)" "$([[ "$(uname -s)" == Darwin && "$(uname -m)" == "$DESIRED_HOST_ARCHITECTURE" ]] && printf MATCH || printf DRIFT)"
+  verify_delta_row 'host.macos_minimum_major' ">=$DESIRED_MINIMUM_MACOS_MAJOR" "$macos_version" "$([[ "$macos_major" =~ ^[0-9]+$ ]] && (( macos_major >= DESIRED_MINIMUM_MACOS_MAJOR )) && printf MATCH || printf DRIFT)"
+  hardware_profile="$(system_profiler SPHardwareDataType 2>/dev/null || true)"
+  cpu_brand="$(sysctl -n machdep.cpu.brand_string 2>/dev/null || true)"
+  [[ -n "$cpu_brand" ]] || cpu_brand="$(awk -F': ' '/Chip:/{print $2; exit}' <<<"$hardware_profile")"
+  verify_delta_row 'host.apple_silicon' "$DESIRED_HOST_APPLE_SILICON" "${cpu_brand:-unknown}" "$([[ "$cpu_brand" == Apple* ]] && printf MATCH || printf DRIFT)"
+  mem_bytes="$(sysctl -n hw.memsize 2>/dev/null || echo 0)"
+  if [[ "$mem_bytes" =~ ^[0-9]+$ && "$mem_bytes" != 0 ]]; then mem_gb=$((mem_bytes / 1024 / 1024 / 1024)); else mem_gb="$(awk -F': ' '/Memory:/{print $2; exit}' <<<"$hardware_profile" | awk '{print $1}')"; fi
+  verify_delta_row 'host.minimum_ram_gb' ">=$DESIRED_MINIMUM_RAM_GB" "${mem_gb:-unknown}GB" "$([[ "$mem_gb" =~ ^[0-9]+$ ]] && (( mem_gb >= DESIRED_MINIMUM_RAM_GB )) && printf MATCH || printf DRIFT)"
+  cpu_count="$(sysctl -n hw.ncpu 2>/dev/null || echo 0)"
+  if [[ ! "$cpu_count" =~ ^[0-9]+$ || "$cpu_count" == 0 ]]; then cpu_count="$(awk -F': ' '/Total Number of Cores:/{print $2; exit}' <<<"$hardware_profile" | awk '{print $1}')"; fi
+  verify_delta_row 'host.minimum_cpu_cores' ">=$DESIRED_MINIMUM_CPU_CORES" "${cpu_count:-unknown}" "$([[ "$cpu_count" =~ ^[0-9]+$ ]] && (( cpu_count >= DESIRED_MINIMUM_CPU_CORES )) && printf MATCH || printf DRIFT)"
+  disk_probe_path="$GITHUB_ROOT"; while [[ ! -e "$disk_probe_path" && "$disk_probe_path" != / ]]; do disk_probe_path="$(dirname "$disk_probe_path")"; done
+  disk_kb="$(df -Pk "$disk_probe_path" | awk 'NR == 2 {print $4}')"; disk_gb=$((disk_kb / 1024 / 1024))
+  if (( disk_gb >= DESIRED_MINIMUM_FREE_DISK_GB )); then
+    verify_delta_row 'host.minimum_free_disk_gb' ">=$DESIRED_MINIMUM_FREE_DISK_GB" "${disk_gb}GB at $disk_probe_path" MATCH
+  else
+    verify_delta_row 'host.minimum_free_disk_gb' ">=$DESIRED_MINIMUM_FREE_DISK_GB" "${disk_gb}GB at $disk_probe_path" DRIFT
+  fi
+
+  for formula in "${DESIRED_TOOL_FORMULAS[@]}"; do
+    if command -v brew >/dev/null 2>&1 && brew list --versions "$formula" >/dev/null 2>&1; then verify_delta_row "tooling.formula.$formula" installed installed MATCH; else verify_delta_row "tooling.formula.$formula" installed absent DRIFT; fi
+  done
+  for cask in "${DESIRED_REQUIRED_CASKS[@]}"; do
+    if command -v brew >/dev/null 2>&1 && brew list --cask "$cask" >/dev/null 2>&1; then verify_delta_row "tooling.cask.$cask" installed installed MATCH; else verify_delta_row "tooling.cask.$cask" installed absent DRIFT; fi
+  done
+  for cask in "${DESIRED_OPTIONAL_CASKS[@]}"; do
+    if command -v brew >/dev/null 2>&1 && brew list --cask "$cask" >/dev/null 2>&1; then verify_delta_row "tooling.optional_cask.$cask" installed installed MATCH; else verify_delta_row "tooling.optional_cask.$cask" optional absent OPTIONAL; fi
+  done
+  for profile in "${DESIRED_PROFILES[@]}"; do
+    profile_enabled "$profile" || continue
+    profile_values "$profile"; install_dir="$RUNNER_ROOT/$PROFILE_RUNNER_NAME"
+    if [[ -f "$install_dir/.runner" ]]; then verify_delta_row "runner.$profile" "$PROFILE_REPOSITORY ($PROFILE_LABELS)" registered MATCH; else verify_delta_row "runner.$profile" "$PROFILE_REPOSITORY ($PROFILE_LABELS)" absent DRIFT; fi
+  done
+  uid_value="$(id -u)"
+  if launchctl print "gui/$uid_value/com.djconnect.ci-tooling-maintenance" >/dev/null 2>&1; then verify_delta_row 'maintenance.launch_agent' loaded loaded MATCH; else verify_delta_row 'maintenance.launch_agent' loaded absent DRIFT; fi
+  printf '\n## Verdict\n\n'
+  if (( VERIFY_DRIFT_COUNT == 0 && VERIFY_UNVERIFIED_COUNT == 0 )); then printf '%s\n' '**MATCH** — this machine matches the required desired state.'; return 0; fi
+  printf '%s\n' "**DRIFT DETECTED** — $VERIFY_DRIFT_COUNT required difference(s), $VERIFY_UNVERIFIED_COUNT unverified item(s)."
+  return 1
 }
 
 init_style() {
@@ -1171,11 +1241,20 @@ while [[ "$#" -gt 0 ]]; do
     --no-step-retry) ALLOW_STEP_RETRY=0; shift ;;
     --skip-phases) SKIP_PHASES="${2:?--skip-phases requires a value}"; shift 2 ;;
     --force-phases) FORCE_PHASES="${2:?--force-phases requires a value}"; shift 2 ;;
+    --verify) VERIFY_MODE=1; shift ;;
     --no-color) NO_COLOR=1; shift ;;
     --help|-h) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
   esac
 done
+
+if [[ "$VERIFY_MODE" == '1' && "$DRY_RUN" == '1' ]]; then
+  die '--verify and --dry-run cannot be combined.'
+fi
+if [[ "$VERIFY_MODE" == '1' ]]; then
+  [[ -n "$LOG_FILE" ]] || LOG_FILE='none'
+  [[ -n "$REPORT_FILE" ]] || REPORT_FILE='none'
+fi
 
 if [[ -t 1 ]]; then
   ORIGINAL_STDOUT_IS_TTY=1
@@ -1183,6 +1262,10 @@ fi
 init_style
 start_logging
 load_desired_state
+if [[ "$VERIFY_MODE" == '1' ]]; then
+  run_desired_state_verification
+  exit $?
+fi
 start_report
 trap cleanup EXIT
 validate_profile_selection

@@ -16,6 +16,8 @@ host.minimum_free_disk_gb: 80
 host.recommended_free_disk_gb: 120
 
 tooling.formulas: git,gh,jq,node,python@3.12,xcodegen,swiftlint,xcbeautify,create-dmg,mas,xcodes,platformio
+tooling.required_casks: docker,dotnet-sdk
+tooling.optional_casks: parallels
 tooling.refresh_casks: docker,dotnet-sdk,parallels
 
 runner.profiles: apple,private-network,esp32,pi

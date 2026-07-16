@@ -40,6 +40,18 @@ Python or a general YAML runtime exists. Use `--desired-state <file>` to test
 or apply another compatible desired-state manifest; unsupported schema versions
 or missing required keys fail closed.
 
+Use verify mode to print the actual delta without changing the machine:
+
+```sh
+./scripts/runner/bootstrap_macos_runner_host.sh --verify
+```
+
+It emits a Markdown table for host qualification, required formulas and casks,
+optional casks, selected runner registrations and the maintenance LaunchAgent.
+Each row is `MATCH`, `DRIFT` or `OPTIONAL`; verify exits non-zero when a
+required desired-state item differs. By default verify mode creates no recovery
+log or report file, so its standard output is directly usable as evidence.
+
 Every subsequent recovery phase starts with a recorded precheck. The precheck
 requires each declared upstream dependency to be `PASSED` (a skipped, failed or
 blocked dependency stops the dependent phase) and checks its relevant local
