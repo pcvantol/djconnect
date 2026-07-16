@@ -34,6 +34,17 @@ path and decision without recording secrets. Use `ONBOARDING_DIST_DIR` to point
 an extracted package at a different local catalog, or `--report-file` to choose
 the report path.
 
+## Desired-state manifest compatibility
+
+The desired-state manifest is versioned independently from this onboarding
+package. Its normative contract is in
+[`MANIFEST_COMPATIBILITY.md`](MANIFEST_COMPATIBILITY.md): it declares both its
+own `version` and the `minimum_tool_version` required to apply it. A consuming
+tool must check compatibility at startup, block apply when it is too old, and
+log and report both versions and the compatibility decision. The separate
+runner desired-state manifest and its consumer are deliberately not changed by
+this onboarding-package documentation update.
+
 ## Tests
 
 Run the package contract tests from the repository root:

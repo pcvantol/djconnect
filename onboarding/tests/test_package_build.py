@@ -15,9 +15,11 @@ from onboarding import build_package
 class OnboardingPackageBuildTests(unittest.TestCase):
     def test_manifest_declares_versioned_runtime_and_test_components(self) -> None:
         self.assertEqual(build_package.manifest_value("package.name"), "djconnect-developer-onboarding")
-        self.assertEqual(build_package.manifest_value("package.version"), "1.1.2")
+        self.assertEqual(build_package.manifest_value("package.version"), "1.1.3")
         self.assertEqual(build_package.manifest_value("component.tests.path"), "tests/test_onboarding_scripts.py")
         self.assertEqual(build_package.manifest_value("component.changelog.path"), "CHANGELOG.md")
+        self.assertEqual(build_package.manifest_value("desired_state.versioning"), "independent_of_onboarding_package")
+        self.assertEqual(build_package.manifest_value("desired_state.minimum_tool_version.key"), "minimum_tool_version")
 
     def test_package_file_selection_excludes_generated_output(self) -> None:
         names = {path.relative_to(build_package.PACKAGE_ROOT).as_posix() for path in build_package.package_files()}
@@ -32,13 +34,14 @@ class OnboardingPackageBuildTests(unittest.TestCase):
             self.assertEqual([item.name for item in first_artifacts], [item.name for item in second_artifacts])
             self.assertEqual(first_artifacts[0].read_bytes(), second_artifacts[0].read_bytes())
             metadata = json.loads(first_artifacts[2].read_text(encoding="utf-8"))
-            self.assertEqual(metadata["version"], "1.1.2")
+            self.assertEqual(metadata["version"], "1.1.3")
             self.assertEqual(metadata["sha256"], hashlib.sha256(first_artifacts[0].read_bytes()).hexdigest())
             with zipfile.ZipFile(first_artifacts[0]) as archive:
                 self.assertIn("onboarding/dev_onboarding_macos.sh", archive.namelist())
                 self.assertIn("onboarding/dev_onboarding_windows.ps1", archive.namelist())
                 self.assertIn("onboarding/tests/test_onboarding_scripts.py", archive.namelist())
                 self.assertIn("onboarding/CHANGELOG.md", archive.namelist())
+                self.assertIn("onboarding/MANIFEST_COMPATIBILITY.md", archive.namelist())
 
     def test_macos_preflight_requires_current_major_security_patches(self) -> None:
         source = (build_package.PACKAGE_ROOT / "dev_onboarding_macos.sh").read_text(encoding="utf-8")
@@ -71,7 +74,7 @@ class OnboardingPackageBuildTests(unittest.TestCase):
                 [
                     "bash",
                     "-lc",
-                    'source "$1"; PACKAGE_VERSION=1.1.2; REPORT_FILE="$2"; start_report; PLAN_ONLY=1; record_distribution_version_decision "$3"; cat "$2"',
+                    'source "$1"; PACKAGE_VERSION=1.1.3; REPORT_FILE="$2"; start_report; PLAN_ONLY=1; record_distribution_version_decision "$3"; cat "$2"',
                     "bash",
                     str(build_package.PACKAGE_ROOT / "dev_onboarding_macos.sh"),
                     str(report),

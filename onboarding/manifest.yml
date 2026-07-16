@@ -1,13 +1,17 @@
 # Canonical manifest for the DJConnect developer onboarding package.
 schema_version: 1
 package.name: djconnect-developer-onboarding
-package.version: 1.1.2
+package.version: 1.1.3
 package.root: onboarding
 component.macos.script: dev_onboarding_macos.sh
 component.windows.script: dev_onboarding_windows.ps1
 component.tests.path: tests/test_onboarding_scripts.py
 component.documentation.path: README.md
 component.changelog.path: CHANGELOG.md
+component.desired_state_compatibility.path: MANIFEST_COMPATIBILITY.md
+desired_state.versioning: independent_of_onboarding_package
+desired_state.minimum_tool_version.key: minimum_tool_version
+desired_state.apply_compatibility: required_before_apply
 compatibility.macos_wrapper: tools/dev_onboarding_macos.sh
 compatibility.windows_wrapper: tools/dev_onboarding_windows.ps1
 test.command: python3 -m unittest onboarding.tests.test_onboarding_scripts
