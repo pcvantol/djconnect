@@ -24,9 +24,14 @@ SHA-256 digest GitHub publishes in its release metadata before it is unpacked.
 By default, the recovery then invokes the established
 `tools/dev_onboarding_macos.sh --all --yes --warm-sudo` flow. This restores the
 complete macOS developer workstation: all DJConnect repositories, Codex CLI,
-Docker/Home Assistant and voice backend, HACS/integration sync, Apple/ESP32/
-Pi/API/website tooling, Python 3.12, Node, .NET/MAUI tooling and the local
-validation baseline.
+Docker Desktop, the persistent local Home Assistant Docker Compose service
+(`homeassistant` on `http://localhost:8123`), Whisper, Piper and Music
+Assistant voice/backend services, HACS/integration sync, Apple/ESP32/Pi/API/
+website tooling, Python 3.12, Node, .NET/MAUI tooling and the local validation
+baseline. Docker Desktop may show its own first-run acceptance screen; once
+accepted, the onboarding creates or reconciles the Compose file and starts the
+containers. Use `docker compose -f ~/docker/homeassistant/docker-compose.yml
+ps` to inspect their state.
 Use `--skip-developer-workstation` only for a deliberately minimal runner-only
 host.
 
