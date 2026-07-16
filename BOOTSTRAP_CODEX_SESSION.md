@@ -17,13 +17,14 @@ The intended startup order is:
 
 1. repository-state bootstrap (`BOOTSTRAP.md`);
 2. platform bootstrap;
-3. repository-local `AGENTS.md`;
-4. Platform Strategy;
-5. Meta Engineering guidance;
-6. canonical references;
-7. repository status and prompt index;
-8. current Epic or Phase context;
-9. implementation prompt.
+3. development-machine desired-state verification;
+4. repository-local `AGENTS.md`;
+5. Platform Strategy;
+6. Meta Engineering guidance;
+7. canonical references;
+8. repository status and prompt index;
+9. current Epic or Phase context;
+10. implementation prompt.
 
 For Verification Program work, continue from this general bootstrap to:
 
@@ -36,20 +37,50 @@ A new Codex session must:
 
 1. Read `BOOTSTRAP.md` and verify its repository-state reading order.
 2. Read this document.
-3. Read the local repository `AGENTS.md`.
-4. Read `PLATFORM_STRATEGY.md`.
-5. Read `docs/meta/README.md`.
-6. Read `CANONICAL_REFERENCES.md`.
-7. Identify the current repository role.
-8. Identify what the repository owns and does not own.
-9. Read `REPOSITORY_STATUS.md`.
-10. Read `PROMPT_INDEX.md` when the work is phase-driven.
-11. Read the canonical DJConnect Foundation in `pcvantol/djconnect` only as
+3. Run the non-mutating development-machine desired-state verification from
+   the canonical `pcvantol/djconnect` checkout:
+
+   ```sh
+   ./scripts/runner/bootstrap_macos_runner_host.sh --verify
+   ```
+
+   Capture its Markdown delta and exit code. Do not run recovery, force,
+   skip, retry or any mutating bootstrap action during clean-session startup.
+   If the canonical checkout or script is unavailable, record the machine as
+   `UNVERIFIED`; do not infer readiness from conversation history.
+4. Read the local repository `AGENTS.md`.
+5. Read `PLATFORM_STRATEGY.md`.
+6. Read `docs/meta/README.md`.
+7. Read `CANONICAL_REFERENCES.md`.
+8. Identify the current repository role.
+9. Identify what the repository owns and does not own.
+10. Read `REPOSITORY_STATUS.md`.
+11. Read `PROMPT_INDEX.md` when the work is phase-driven.
+12. Read the canonical DJConnect Foundation in `pcvantol/djconnect` only as
    needed for the current task, following `CANONICAL_REFERENCES.md`.
-12. Identify the current Epic or Phase if applicable.
-13. Read relevant local docs.
-14. Return a readiness summary.
-15. Wait for the next implementation prompt.
+13. Identify the current Epic or Phase if applicable.
+14. Read relevant local docs.
+15. Return a readiness summary.
+16. Wait for the next implementation prompt.
+
+## Development Machine Readiness
+
+The clean-session readiness summary must include the result of the desired-state
+verification:
+
+- `READY FOR DJCONNECT DEVELOPMENT`: verify exits `0`; all required machine
+  desired-state rows match.
+- `NOT READY FOR DJCONNECT DEVELOPMENT`: verify exits non-zero because required
+  drift exists. List every required `DRIFT` item from the Markdown delta and
+  recommend the recovery command, but do not run recovery without explicit
+  user authorization.
+- `UNVERIFIED`: the verification command could not be run. State why and do
+  not claim that the host is ready.
+
+Host minimum qualification and full desired-state readiness are distinct. A
+machine can satisfy Apple-Silicon, macOS, RAM and disk requirements while still
+being `NOT READY` because tooling, runners or maintenance tasks drift from the
+declared machine state.
 
 ## Meta Engineering
 
@@ -150,6 +181,8 @@ a pointer back to this bootstrap.
 After bootstrap, Codex should return a readiness summary in this shape:
 
 - Repository:
+- Development machine readiness: `READY FOR DJCONNECT DEVELOPMENT` / `NOT READY FOR DJCONNECT DEVELOPMENT` / `UNVERIFIED`
+- Machine verification evidence: manifest path, exit code and required drift (if any)
 - Repo role:
 - Canonical foundation read:
 - Local docs read:
