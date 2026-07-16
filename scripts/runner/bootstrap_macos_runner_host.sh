@@ -138,6 +138,19 @@ ok() { printf '%s %s\n' "$(style "$CLR_GREEN$CLR_BOLD" 'OK')" "$*"; }
 warn() { printf '%s %s\n' "$(style "$CLR_YELLOW$CLR_BOLD" 'WARN')" "$*" >&2; }
 die() { printf '%s %s\n' "$(style "$CLR_RED$CLR_BOLD" 'ERROR')" "$*" >&2; exit 1; }
 
+redact_sensitive_output() {
+  # Defence in depth for non-interactive command output captured in the central
+  # transcript. Interactive authentication and password prompts use /dev/tty
+  # and never enter this stream at all.
+  sed -E \
+    -e 's/((Authorization|authorization)[[:space:]]*:[[:space:]]*).*/\1[REDACTED]/g' \
+    -e 's/(--(token|secret|password|authorization)[[:space:]]+)[^[:space:]]+/\1[REDACTED]/g' \
+    -e 's/("[^"]*(token|Token|TOKEN|secret|Secret|SECRET|password|Password|PASSWORD|authorization|Authorization|AUTHORIZATION|credential|Credential|CREDENTIAL|private_key|PRIVATE_KEY)[^"]*"[[:space:]]*:[[:space:]]*")[^"]*/\1[REDACTED]/g' \
+    -e 's/(([A-Za-z0-9_.-]*(token|Token|TOKEN|secret|Secret|SECRET|password|Password|PASSWORD|authorization|Authorization|AUTHORIZATION|credential|Credential|CREDENTIAL|private_key|PRIVATE_KEY)[A-Za-z0-9_.-]*)[[:space:]]*[:=][[:space:]]*)[^[:space:],;]+/\1[REDACTED]/g' \
+    -e 's#(https?://[^/:[:space:]]+:)[^@[:space:]]+@#\1[REDACTED]@#g' \
+    -e 's/(gh[pousr]_[A-Za-z0-9_]+|github_pat_[A-Za-z0-9_]+)/[REDACTED]/g'
+}
+
 start_logging() {
   if [[ "$LOG_FILE" == 'none' ]]; then
     return
@@ -153,7 +166,7 @@ start_logging() {
   mkdir -p "$(dirname "$LOG_FILE")"
   touch "$LOG_FILE"
   chmod 600 "$LOG_FILE"
-  exec > >(tee -a "$LOG_FILE") 2>&1
+  exec > >(redact_sensitive_output | tee -a "$LOG_FILE") 2>&1
   LOGGING_STARTED=1
   log "Capturing complete non-sensitive recovery output in $LOG_FILE."
 }

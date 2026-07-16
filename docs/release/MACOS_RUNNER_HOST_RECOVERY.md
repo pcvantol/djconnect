@@ -162,6 +162,13 @@ not retained. The daily maintenance LaunchAgent retains its separately required
 non-secret status evidence; that is operational evidence, not a second recovery
 transcript.
 
+As defence in depth, every non-interactive output line is redacted before it
+reaches the transcript. The filter removes authorization bearer values,
+token/secret/password/credential/private-key key-value values, matching JSON
+fields, inline CLI secret values, embedded HTTP credentials and recognizable
+GitHub token strings. Recovery never enables shell tracing. The transcript and
+final Markdown report are created with owner-only (`0600`) permissions.
+
 Alongside the transcript, an actual recovery creates one owner-only final
 Markdown report at `~/Library/Logs/DJConnect/macos-runner-recovery-<UTC>.md`.
 It lists every recovery stage, its `PASSED` or `FAILED` result, the final
