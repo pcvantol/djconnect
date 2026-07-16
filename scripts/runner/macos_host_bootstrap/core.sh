@@ -1,4 +1,4 @@
-# Version: 1.3.0
+# Version: 1.3.1
 # CLI help, desired-state verification and console/report primitives.
 usage() {
   cat <<'EOF'
@@ -190,9 +190,25 @@ load_desired_state() {
   DESIRED_HA_SERVICE="$(require_desired_state_value lab.home_assistant.service)"
   DESIRED_HA_CONTAINER_NAME="$(require_desired_state_value lab.home_assistant.container_name)"
   DESIRED_HA_URL="$(require_desired_state_value lab.home_assistant.url)"
+  DESIRED_NGROK_CONFIG_RELATIVE_PATH="$(require_desired_state_value network.ngrok.config_relative_path)"
+  DESIRED_NGROK_CONFIG_VERSION="$(require_desired_state_value network.ngrok.config_version)"
+  DESIRED_NGROK_CONFIG_PERMISSIONS="$(require_desired_state_value network.ngrok.config_permissions)"
+  DESIRED_NGROK_AUTHTOKEN="$(require_desired_state_value network.ngrok.authtoken)"
+  DESIRED_NGROK_LAUNCH_AGENT_LABEL="$(require_desired_state_value network.ngrok.launch_agent_label)"
+  DESIRED_NGROK_TUNNEL_DOMAIN="$(require_desired_state_value network.ngrok.tunnel.domain)"
+  DESIRED_NGROK_TUNNEL_TARGET="$(require_desired_state_value network.ngrok.tunnel.target)"
+  DESIRED_NGROK_INSPECTOR_URL="$(require_desired_state_value network.ngrok.inspector_url)"
   [[ "$DESIRED_HA_SERVICE" == 'homeassistant' ]] || die "Unsupported Home Assistant lab service: $DESIRED_HA_SERVICE"
   [[ "$DESIRED_HA_CONTAINER_NAME" =~ ^[A-Za-z0-9][A-Za-z0-9_.-]*$ ]] || die "Invalid Home Assistant lab container name: $DESIRED_HA_CONTAINER_NAME"
   [[ "$DESIRED_HA_URL" =~ ^http://localhost:[0-9]+$ ]] || die "Invalid Home Assistant lab URL: $DESIRED_HA_URL"
+  [[ "$DESIRED_NGROK_CONFIG_RELATIVE_PATH" =~ ^[A-Za-z0-9_./[:space:]-]+$ && "$DESIRED_NGROK_CONFIG_RELATIVE_PATH" != /* && "$DESIRED_NGROK_CONFIG_RELATIVE_PATH" != *'..'* ]] || die 'Invalid ngrok config relative path.'
+  [[ "$DESIRED_NGROK_CONFIG_VERSION" == '3' ]] || die "Unsupported ngrok config version: $DESIRED_NGROK_CONFIG_VERSION"
+  [[ "$DESIRED_NGROK_CONFIG_PERMISSIONS" == '600' ]] || die "ngrok config permissions must be 600, got: $DESIRED_NGROK_CONFIG_PERMISSIONS"
+  [[ "$DESIRED_NGROK_AUTHTOKEN" == 'required_local_secret' ]] || die 'ngrok authtoken policy must be required_local_secret.'
+  [[ "$DESIRED_NGROK_LAUNCH_AGENT_LABEL" =~ ^[A-Za-z0-9_.-]+$ ]] || die 'Invalid ngrok LaunchAgent label.'
+  [[ "$DESIRED_NGROK_TUNNEL_DOMAIN" =~ ^[A-Za-z0-9.-]+\.ngrok-free\.dev$ ]] || die 'Invalid ngrok static domain.'
+  [[ "$DESIRED_NGROK_TUNNEL_TARGET" =~ ^http://127\.0\.0\.1:[0-9]+$ ]] || die 'ngrok tunnel target must bind to loopback HTTP.'
+  [[ "$DESIRED_NGROK_INSPECTOR_URL" =~ ^http://127\.0\.0\.1:[0-9]+$ ]] || die 'ngrok inspector must bind to loopback HTTP.'
   IFS=',' read -r -a DESIRED_PROFILES <<<"$(require_desired_state_value runner.profiles)"
   for profile in "${DESIRED_PROFILES[@]}"; do
     case "$profile" in
@@ -218,7 +234,7 @@ verify_delta_row() {
 }
 
 run_desired_state_verification() {
-  local hardware_profile macos_version macos_major cpu_brand mem_bytes mem_gb cpu_count disk_probe_path disk_kb disk_gb formula cask profile install_dir uid_value ha_running
+  local hardware_profile macos_version macos_major cpu_brand mem_bytes mem_gb cpu_count disk_probe_path disk_kb disk_gb formula cask profile install_dir uid_value ha_running ngrok_config ngrok_permissions ngrok_config_version ngrok_authtoken_status ngrok_authtoken_state ngrok_tunnel
   printf '# DJConnect macOS Development Host Desired-State Delta\n\n'
   printf '%s\n\n' "Manifest: \`$DESIRED_STATE_FILE\` (version $DESIRED_STATE_VERSION, schema $DESIRED_STATE_SCHEMA_VERSION; bootstrap $SCRIPT_VERSION, minimum tool $DESIRED_MINIMUM_TOOL_VERSION, $MANIFEST_TOOL_COMPATIBILITY_VERDICT)"
   printf '%s\n' '| Component | Desired | Actual | Delta |'
@@ -267,6 +283,22 @@ run_desired_state_verification() {
   else
     verify_delta_row 'lab.home_assistant.url' "$DESIRED_HA_URL reachable" unavailable DRIFT
   fi
+  ngrok_config="$HOME/$DESIRED_NGROK_CONFIG_RELATIVE_PATH"
+  if [[ -f "$ngrok_config" ]]; then
+    ngrok_permissions="$(stat -f '%Lp' "$ngrok_config" 2>/dev/null || printf unknown)"
+    verify_delta_row 'network.ngrok.config_permissions' "$DESIRED_NGROK_CONFIG_PERMISSIONS" "$ngrok_permissions" "$([[ "$ngrok_permissions" == "$DESIRED_NGROK_CONFIG_PERMISSIONS" ]] && printf MATCH || printf DRIFT)"
+    ngrok_config_version="$(awk -F: '/^[[:space:]]*version:[[:space:]]*/ {gsub(/[[:space:]\"]/, "", $2); print $2; exit}' "$ngrok_config")"
+    verify_delta_row 'network.ngrok.config_version' "$DESIRED_NGROK_CONFIG_VERSION" "${ngrok_config_version:-missing}" "$([[ "$ngrok_config_version" == "$DESIRED_NGROK_CONFIG_VERSION" ]] && printf MATCH || printf DRIFT)"
+    if awk -F: '/^[[:space:]]*authtoken:[[:space:]]*[^[:space:]]/ {found=1} END {exit !found}' "$ngrok_config"; then ngrok_authtoken_status='configured (value redacted)'; ngrok_authtoken_state=MATCH; else ngrok_authtoken_status='missing'; ngrok_authtoken_state=DRIFT; fi
+    verify_delta_row 'network.ngrok.authtoken' "$DESIRED_NGROK_AUTHTOKEN" "$ngrok_authtoken_status" "$ngrok_authtoken_state"
+  else
+    verify_delta_row 'network.ngrok.config_permissions' "$DESIRED_NGROK_CONFIG_PERMISSIONS" absent DRIFT
+    verify_delta_row 'network.ngrok.config_version' "$DESIRED_NGROK_CONFIG_VERSION" absent DRIFT
+    verify_delta_row 'network.ngrok.authtoken' "$DESIRED_NGROK_AUTHTOKEN" absent DRIFT
+  fi
+  if launchctl print "gui/$(id -u)/$DESIRED_NGROK_LAUNCH_AGENT_LABEL" >/dev/null 2>&1; then verify_delta_row 'network.ngrok.launch_agent' "$DESIRED_NGROK_LAUNCH_AGENT_LABEL loaded" loaded MATCH; else verify_delta_row 'network.ngrok.launch_agent' "$DESIRED_NGROK_LAUNCH_AGENT_LABEL loaded" absent DRIFT; fi
+  ngrok_tunnel="$(curl -fsS --max-time 5 "$DESIRED_NGROK_INSPECTOR_URL/api/tunnels" 2>/dev/null | jq -r --arg url "https://$DESIRED_NGROK_TUNNEL_DOMAIN" --arg target "$DESIRED_NGROK_TUNNEL_TARGET" '.tunnels[]? | select(.public_url == $url and .config.addr == $target) | .public_url' 2>/dev/null | head -n 1 || true)"
+  if [[ "$ngrok_tunnel" == "https://$DESIRED_NGROK_TUNNEL_DOMAIN" ]]; then verify_delta_row 'network.ngrok.tunnel' "https://$DESIRED_NGROK_TUNNEL_DOMAIN -> $DESIRED_NGROK_TUNNEL_TARGET" "$ngrok_tunnel" MATCH; else verify_delta_row 'network.ngrok.tunnel' "https://$DESIRED_NGROK_TUNNEL_DOMAIN -> $DESIRED_NGROK_TUNNEL_TARGET" unavailable DRIFT; fi
   for profile in "${DESIRED_PROFILES[@]}"; do
     profile_enabled "$profile" || continue
     profile_values "$profile"

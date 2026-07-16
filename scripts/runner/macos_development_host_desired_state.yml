@@ -7,7 +7,7 @@
 schema_version: 1
 # The manifest major/minor must match the active DJConnect platform release.
 version: 3.3.0
-minimum_tool_version: 2.0.0
+minimum_tool_version: 2.0.1
 host.platform: macos
 host.architecture: arm64
 host.apple_silicon: required
@@ -19,13 +19,24 @@ host.minimum_free_disk_gb: 80
 host.recommended_free_disk_gb: 120
 
 tooling.formulas: git,gh,jq,node,python@3.12,xcodegen,swiftlint,xcbeautify,create-dmg,mas,xcodes,platformio
-tooling.required_casks: docker,dotnet-sdk,parallels
+tooling.required_casks: docker,dotnet-sdk,parallels,ngrok
 tooling.optional_casks:
 tooling.refresh_casks: docker,dotnet-sdk,parallels
 
 lab.home_assistant.service: homeassistant
 lab.home_assistant.container_name: homeassistant
 lab.home_assistant.url: http://localhost:8123
+
+# ngrok material is deliberately declarative only: the authtoken remains in the
+# owner-only local configuration file and is never represented in this manifest.
+network.ngrok.config_relative_path: Library/Application Support/ngrok/ngrok.yml
+network.ngrok.config_version: 3
+network.ngrok.config_permissions: 600
+network.ngrok.authtoken: required_local_secret
+network.ngrok.launch_agent_label: com.pcvantol.homeassistant.ngrok
+network.ngrok.tunnel.domain: victory-curvy-refold.ngrok-free.dev
+network.ngrok.tunnel.target: http://127.0.0.1:8123
+network.ngrok.inspector_url: http://127.0.0.1:4040
 
 runner.profiles: apple,private-network,esp32,pi,windows
 profile.apple.repository: djconnect-app

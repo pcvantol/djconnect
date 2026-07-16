@@ -6,6 +6,14 @@ This changelog covers only
 compatibility and security changes to the development-host bootstrap independently of
 the DJConnect product release.
 
+## [2.0.1] - 2026-07-16
+
+- Add the qualified persistent ngrok Home Assistant tunnel to the macOS
+  desired-state manifest and verify its owner-only configuration permissions,
+  non-empty locally held authtoken, LaunchAgent and loopback tunnel binding.
+- Keep the authtoken outside Git and redact its value from all verification
+  output.
+
 ## [2.0.0] - 2026-07-16
 
 - Rename the public CLI, package, desired-state manifest and documentation to

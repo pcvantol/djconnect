@@ -227,9 +227,11 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("schema_version: 1", desired_state)
         self.assertIn("host.minimum_free_disk_gb: 80", desired_state)
         self.assertIn("version: 3.3.0", desired_state)
-        self.assertIn("minimum_tool_version: 2.0.0", desired_state)
+        self.assertIn("minimum_tool_version: 2.0.1", desired_state)
         self.assertIn("runner.profiles: apple,private-network,esp32,pi,windows", desired_state)
-        self.assertIn("tooling.required_casks: docker,dotnet-sdk,parallels", desired_state)
+        self.assertIn("tooling.required_casks: docker,dotnet-sdk,parallels,ngrok", desired_state)
+        self.assertIn("network.ngrok.tunnel.domain: victory-curvy-refold.ngrok-free.dev", desired_state)
+        self.assertIn("network.ngrok.authtoken: required_local_secret", desired_state)
         self.assertIn("profile.windows.provisioning: external_windows_arm64", desired_state)
         self.assertTrue(RECOVERY_REDACTION_RULES.is_file())
         self.assertIn("[REDACTED]", RECOVERY_REDACTION_RULES.read_text())
@@ -250,12 +252,12 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertEqual(
             result.stdout,
-            "DJConnect macOS Development Host Bootstrap 2.0.0\n",
+            "DJConnect macOS Development Host Bootstrap 2.0.1\n",
         )
         self.assertTrue(MACOS_HOST_BOOTSTRAP_CHANGELOG.is_file())
         changelog = MACOS_HOST_BOOTSTRAP_CHANGELOG.read_text(encoding="utf-8")
         self.assertIn("Semantic Versioning", changelog)
-        self.assertIn("## [2.0.0] - 2026-07-16", changelog)
+        self.assertIn("## [2.0.1] - 2026-07-16", changelog)
         self.assertIn("--version", changelog)
 
     def test_macos_host_bootstrap_manifest_version_gate_fails_closed_for_apply(self) -> None:
@@ -263,7 +265,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
             incompatible_manifest = Path(temporary_directory) / "desired-state.yml"
             incompatible_manifest.write_text(
                 MACOS_DEVELOPMENT_HOST_DESIRED_STATE.read_text(encoding="utf-8").replace(
-                    "minimum_tool_version: 2.0.0",
+                    "minimum_tool_version: 2.0.1",
                     "minimum_tool_version: 9.0.0",
                 ),
                 encoding="utf-8",
@@ -535,7 +537,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertTrue((HOST_BOOTSTRAP_PACKAGE / "apple.sh").is_file())
         self.assertTrue(HOST_BOOTSTRAP_MANIFEST.is_file())
         manifest = HOST_BOOTSTRAP_MANIFEST.read_text(encoding="utf-8")
-        self.assertIn("package.version: 2.0.0", manifest)
+        self.assertIn("package.version: 2.0.1", manifest)
         self.assertIn("package.aggregate_sha256:", manifest)
         self.assertIn("component.entry.sha256:", manifest)
         self.assertIn("component.workflow.version: 1.3.0", manifest)
@@ -554,7 +556,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
             manifest = temporary_runner_directory / "macos_host_bootstrap" / "manifest.yml"
             manifest.write_text(
                 manifest.read_text(encoding="utf-8").replace(
-                    "component.core.version: 1.3.0",
+                    "component.core.version: 1.3.1",
                     "component.core.version: 9.9.9",
                 ),
                 encoding="utf-8",
@@ -580,7 +582,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
             manifest = temporary_runner_directory / "macos_host_bootstrap" / "manifest.yml"
             manifest.write_text(
                 manifest.read_text(encoding="utf-8").replace(
-                    "component.core.sha256: b8e259095904d7507800f78381892ffdc40ff882b99e8e7be22993ac098a7748",
+                    "component.core.sha256: d626616cf0ec50718fdc046417c0ca9353262a715c99d02f669868d142ef6f58",
                     "component.core.sha256: 0000000000000000000000000000000000000000000000000000000000000000",
                 ),
                 encoding="utf-8",

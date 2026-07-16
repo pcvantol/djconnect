@@ -75,6 +75,13 @@ Python or a general YAML runtime exists. Use `--desired-state <file>` to test
 or apply another compatible desired-state manifest; unsupported schema versions
 or missing required keys fail closed.
 
+The desired state also declares the persistent Home Assistant ngrok tunnel:
+the `ngrok` cask, configuration-file location and `600` permissions, local
+authtoken requirement, LaunchAgent label, reserved HTTPS domain, loopback
+target and local inspector. Verification confirms only that an authtoken is
+present; it never reads, prints or stores its value. The selected domain is
+public tunnel routing metadata, not a credential.
+
 ## Script reference
 
 Run the script from the central `djconnect` checkout. The most useful modes
