@@ -187,6 +187,28 @@ failed and blocked phases; it measures execution progress, not success. The
 report records the same snapshots. `--repair` shows an equivalent six-stage
 indicator for baseline verification, repair areas and post-repair verification.
 
+## Least-privilege permission audit
+
+After GitHub CLI authentication and before managed repositories are changed,
+the `permissions-audit` phase verifies the rights needed for selected runner
+administration. Recovery must never run as `root`: runner services are
+installed for the dedicated logged-in maintainer account.
+
+The audit checks that the configured GitHub identity can verify administrator
+access for every selected runner repository, the minimum needed to administer
+repository-scoped Actions runners. It reports the verification without showing
+token values. It also warns when a classic broad `repo` scope or high-risk
+administrative GitHub scopes are detected; prefer a fine-grained token limited
+to the selected repositories and required Actions administration.
+
+Locally it warns about unrestricted or passwordless sudo rules, group/world
+writable bootstrap inputs or repository paths, and runner directories not
+owned by the dedicated maintainer user. Warnings do not print sudo rules,
+token values or secret configuration. They are evidence for remediation, not a
+claim that broader rights are required. The normal bootstrap uses administrator
+rights only to install or validate runner services; it does not make runners
+root processes.
+
 ## Repository mutation governance
 
 This bootstrap reconciles host state and may clone, fetch or fast-forward its
@@ -418,7 +440,7 @@ one or more comma-separated IDs, for example:
 ```
 
 Valid IDs are `sudo`, `tooling`, `xcode`, `parallels`, `github-auth`,
-`repositories`, `developer-workstation`, `docker-auth`,
+`permissions-audit`, `repositories`, `developer-workstation`, `docker-auth`,
 `runner-apple`, `runner-private-network`, `runner-esp32`, `runner-pi`,
 `maintenance`, `tooling-refresh`, `reboot-check`, `services`,
 `apple-signing`, `apple-readiness`, `apple-github-audit` and

@@ -66,6 +66,8 @@ ALLOW_STEP_RETRY=1
 SKIP_PHASES="${SKIP_PHASES:-}"
 SKIPPED_PHASE_COUNT=0
 INITIAL_VERIFICATION_PASSED=0
+LEAST_PRIVILEGE_WARNING_COUNT=0
+PERMISSIONS_AUDIT_HAS_WARNINGS=0
 PHASE_PRECHECK_RESULT=''
 FORCE_PHASES="${FORCE_PHASES:-}"
 CURRENT_PHASE_ID=''
@@ -433,7 +435,7 @@ phase_section_id() {
   case "$phase_id" in
     macos-preflight) printf '%s' 'host-qualification' ;;
     sudo|tooling|xcode|parallels) printf '%s' 'host-provisioning' ;;
-    github-auth|repositories) printf '%s' 'repository-access' ;;
+    github-auth|permissions-audit|repositories) printf '%s' 'repository-access' ;;
     developer-workstation|docker-auth) printf '%s' 'developer-workstation' ;;
     runner-apple|runner-private-network|runner-esp32|runner-pi) printf '%s' 'runner-provisioning' ;;
     maintenance|tooling-refresh|reboot-check) printf '%s' 'host-maintenance' ;;
@@ -491,7 +493,7 @@ section_phase_ids() {
   case "$1" in
     host-qualification) printf '%s\n' macos-preflight ;;
     host-provisioning) printf '%s\n' sudo tooling xcode parallels ;;
-    repository-access) printf '%s\n' github-auth repositories ;;
+    repository-access) printf '%s\n' github-auth permissions-audit repositories ;;
     developer-workstation) printf '%s\n' developer-workstation docker-auth ;;
     runner-provisioning) printf '%s\n' runner-apple runner-private-network runner-esp32 runner-pi ;;
     host-maintenance) printf '%s\n' maintenance tooling-refresh reboot-check ;;
@@ -557,7 +559,9 @@ append_section_summary() {
         *) pending=$((pending + 1)) ;;
       esac
     done
-    if (( failed > 0 )); then
+    if [[ "$section_id" == 'repository-access' && "$PERMISSIONS_AUDIT_HAS_WARNINGS" == '1' ]]; then
+      printf '| %s | **ATTENTION REQUIRED** | %s passed; least-privilege warnings require review |\n' "$(section_title "$section_id")" "$passed"
+    elif (( failed > 0 )); then
       printf '| %s | **ATTENTION REQUIRED** | %s passed, %s failed or blocked, %s skipped, %s pending |\n' "$(section_title "$section_id")" "$passed" "$failed" "$skipped" "$pending"
     elif (( skipped > 0 )); then
       printf '| %s | **FOLLOW-UP REQUIRED** | %s passed, %s skipped, %s pending |\n' "$(section_title "$section_id")" "$passed" "$skipped" "$pending"
@@ -713,7 +717,7 @@ get_phase_state() {
 
 all_phase_ids() {
   local profile
-  printf '%s\n' macos-preflight sudo tooling xcode parallels github-auth repositories developer-workstation docker-auth
+  printf '%s\n' macos-preflight sudo tooling xcode parallels github-auth permissions-audit repositories developer-workstation docker-auth
   for profile in "${DESIRED_PROFILES[@]}"; do
     printf 'runner-%s\n' "$profile"
   done
@@ -812,7 +816,8 @@ phase_dependencies() {
     xcode) printf '%s' 'tooling' ;;
     parallels) printf '%s' 'tooling' ;;
     github-auth) printf '%s' 'tooling' ;;
-    repositories) printf '%s' 'github-auth' ;;
+    permissions-audit) printf '%s' 'github-auth' ;;
+    repositories) printf '%s' 'permissions-audit' ;;
     developer-workstation) printf '%s' 'repositories sudo tooling' ;;
     docker-auth) printf '%s' 'developer-workstation' ;;
     runner-apple) printf '%s' 'repositories github-auth sudo xcode' ;;
@@ -848,7 +853,7 @@ phase_runtime_conditions() {
     sudo) dseditgroup -o checkmember -m "$(id -un)" admin | grep -Fq 'yes' || return 1; PHASE_PRECHECK_RESULT='Current user is a local macOS administrator.' ;;
     tooling) command -v curl >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='curl is available for supported tooling bootstrap.' ;;
     xcode|parallels|tooling-refresh) command -v brew >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='Homebrew is available.' ;;
-    github-auth|repositories|apple-github-audit) command -v gh >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='GitHub CLI is available.' ;;
+    github-auth|permissions-audit|repositories|apple-github-audit) command -v gh >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='GitHub CLI is available.' ;;
     developer-workstation|initial-verification) [[ -f "$GITHUB_ROOT/djconnect/tools/dev_onboarding_macos.sh" ]] || return 1; PHASE_PRECHECK_RESULT='Central developer-onboarding script is available.' ;;
     docker-auth) command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='Docker Desktop daemon is ready.' ;;
     runner-apple|runner-private-network|runner-esp32|runner-pi) command -v gh >/dev/null 2>&1 && sudo -n true >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='GitHub CLI and non-interactive administrator access are available for runner registration.' ;;
@@ -889,7 +894,7 @@ validate_skip_phases() {
   IFS=',' read -r -a requested_phase_ids <<<"$SKIP_PHASES"
   for phase_id in "${requested_phase_ids[@]}"; do
     case "$phase_id" in
-      sudo|tooling|xcode|parallels|github-auth|repositories|developer-workstation|docker-auth|runner-apple|runner-private-network|runner-esp32|runner-pi|maintenance|tooling-refresh|reboot-check|services|apple-signing|apple-readiness|apple-github-audit|initial-verification) ;;
+      sudo|tooling|xcode|parallels|github-auth|permissions-audit|repositories|developer-workstation|docker-auth|runner-apple|runner-private-network|runner-esp32|runner-pi|maintenance|tooling-refresh|reboot-check|services|apple-signing|apple-readiness|apple-github-audit|initial-verification) ;;
       macos-preflight) die 'macos-preflight is mandatory and cannot be skipped.' ;;
       '') ;;
       *) die "Unknown --skip-phases ID: $phase_id" ;;
@@ -903,7 +908,7 @@ validate_force_phases() {
   IFS=',' read -r -a requested_phase_ids <<<"$FORCE_PHASES"
   for phase_id in "${requested_phase_ids[@]}"; do
     case "$phase_id" in
-      macos-preflight|sudo|tooling|xcode|parallels|github-auth|repositories|developer-workstation|docker-auth|runner-apple|runner-private-network|runner-esp32|runner-pi|maintenance|tooling-refresh|reboot-check|services|apple-signing|apple-readiness|apple-github-audit|initial-verification) ;;
+      macos-preflight|sudo|tooling|xcode|parallels|github-auth|permissions-audit|repositories|developer-workstation|docker-auth|runner-apple|runner-private-network|runner-esp32|runner-pi|maintenance|tooling-refresh|reboot-check|services|apple-signing|apple-readiness|apple-github-audit|initial-verification) ;;
       '') ;;
       *) die "Unknown --force-phases ID: $phase_id" ;;
     esac
@@ -966,6 +971,16 @@ run_phase() {
       report_append "$step" 'PAUSED FOR REBOOT' "Required reboot detected; resume state stored at $RESUME_STATE_FILE."
       CURRENT_STEP=''
       exit 75
+    fi
+    if [[ "$phase_status" == '42' && "$phase_id" == 'permissions-audit' ]]; then
+      PERMISSIONS_AUDIT_HAS_WARNINGS=1
+      set_phase_state "$phase_id" 'PASSED'
+      report_append "$step" "PASSED WITH WARNINGS (attempt $attempt)" 'Completed with one or more least-privilege warnings; review the audit evidence.'
+      emit_phase_progress "Completed with warnings: $step."
+      warn "$step completed with least-privilege warnings; review before treating the host as appropriately scoped."
+      CURRENT_STEP=''
+      CURRENT_PHASE_ID=''
+      return 0
     fi
     if [[ "$phase_status" == '0' ]]; then
       set_phase_state "$phase_id" 'PASSED'
@@ -1149,6 +1164,12 @@ repair_attempt() {
   (trap - EXIT; set -e; "$@")
   status=$?
   set -e
+  if [[ "$status" == '42' && "$step" == 'least-privilege permissions audit' ]]; then
+    PERMISSIONS_AUDIT_HAS_WARNINGS=1
+    report_append "Unattended repair: $step" 'COMPLETED WITH WARNINGS' 'Least-privilege warnings were detected; review the audit evidence before treating the host as appropriately scoped.'
+    record_repair_manual_requirement 'Least-privilege audit warnings require review and remediation before treating the host as appropriately scoped.'
+    return 0
+  fi
   if [[ "$status" == '0' ]]; then
     report_append "Unattended repair: $step" 'COMPLETED' 'Completed without interactive input.'
     return 0
@@ -1266,6 +1287,7 @@ run_unattended_repair() {
     record_repair_manual_requirement 'GitHub CLI login is required for repository and runner repair. Run gh auth login interactively, then rerun --repair.'
   fi
   if (( preflight_ready == 1 && github_ready == 1 )); then
+    repair_attempt 'least-privilege permissions audit' audit_least_privilege || true
     repair_attempt 'managed repository synchronization' prepare_repositories || true
     begin_report_section runner-provisioning
     run_unattended_repair_runners
@@ -1358,6 +1380,82 @@ run_in_dir() {
   (cd "$directory" && "$@")
 }
 
+least_privilege_warning() {
+  local message="$1"
+  LEAST_PRIVILEGE_WARNING_COUNT=$((LEAST_PRIVILEGE_WARNING_COUNT + 1))
+  warn "LEAST-PRIVILEGE WARNING: $message"
+  report_append 'Least-privilege audit' 'WARNING' "$message"
+}
+
+path_is_group_or_world_writable() {
+  local path="$1"
+  local mode
+  mode="$(stat -f '%Lp' "$path" 2>/dev/null || printf '')"
+  [[ "$mode" =~ ^[0-7]{3,4}$ ]] || return 1
+  (( (8#$mode & 0022) != 0 ))
+}
+
+audit_path_least_privilege() {
+  local path="$1"
+  local purpose="$2"
+  [[ -e "$path" ]] || return 0
+  if path_is_group_or_world_writable "$path"; then
+    least_privilege_warning "$purpose is group- or world-writable: $path. Restrict it to the owning maintainer before relying on this host."
+  fi
+}
+
+audit_least_privilege() {
+  local auth_status profile permission install_dir owner current_user
+  current_user="$(id -un)"
+  [[ "$(id -u)" != '0' ]] || die 'Do not run DJConnect recovery as root. Runner services must execute as the dedicated maintainer user.'
+  audit_path_least_privilege "$REPOSITORY_ROOT" 'Canonical repository root'
+  audit_path_least_privilege "$SCRIPT_DIRECTORY/bootstrap_macos_runner_host.sh" 'Recovery bootstrap script'
+  audit_path_least_privilege "$DESIRED_STATE_FILE" 'Desired-state manifest'
+  audit_path_least_privilege "$REDACTION_RULES" 'Transcript redaction rules'
+
+  if sudo -n -l 2>/dev/null | grep -Eq 'NOPASSWD:.*\bALL\b|\bALL\b.*NOPASSWD'; then
+    least_privilege_warning 'The current account has passwordless sudo for ALL commands. Recovery needs administrator access only while installing or validating runner services; use a narrowly scoped temporary authorization where feasible.'
+  fi
+  if sudo -n -l 2>/dev/null | grep -Eq '\(ALL(:ALL)?\)[[:space:]]+ALL'; then
+    least_privilege_warning 'The current account has unrestricted sudo rules. This is broader than the runner-service setup requirement; review local sudoers policy after bootstrap.'
+  fi
+
+  if ! gh auth status --hostname github.com >/dev/null 2>&1; then
+    least_privilege_warning 'GitHub CLI is not authenticated, so repository-specific least-privilege access could not be verified.'
+    return 42
+  fi
+  auth_status="$(gh auth status --hostname github.com 2>&1 || true)"
+  if grep -Eq '(^|[,[:space:]])(admin:org|delete_repo|admin:public_key|admin:gpg_key)([,[:space:]]|$)' <<<"$auth_status"; then
+    least_privilege_warning 'The GitHub CLI token advertises an administrative scope beyond runner registration. Prefer a fine-grained token limited to the selected DJConnect repositories and required Actions administration.'
+  fi
+  if grep -Eq '(^|[,[:space:]])repo([,[:space:]]|$)' <<<"$auth_status"; then
+    least_privilege_warning 'The GitHub CLI token uses the classic repo scope, which grants broad private-repository access. Prefer a fine-grained, repository-limited token where supported.'
+  fi
+  for profile in "${DESIRED_PROFILES[@]}"; do
+    profile_enabled "$profile" || continue
+    profile_values "$profile"
+    permission="$(gh api "repos/$ORG/$PROFILE_REPOSITORY" --jq '.permissions.admin // false' 2>/dev/null || printf false)"
+    if [[ "$permission" == 'true' ]]; then
+      report_append 'Least-privilege audit' 'REQUIRED ACCESS VERIFIED' "GitHub administrator access is available for $ORG/$PROFILE_REPOSITORY, required for selected runner administration."
+    else
+      least_privilege_warning "GitHub administrator access for $ORG/$PROFILE_REPOSITORY could not be verified. Selected runner administration requires repository Actions administration; grant only that repository access."
+    fi
+    install_dir="$RUNNER_ROOT/$PROFILE_RUNNER_NAME"
+    if [[ -e "$install_dir" ]]; then
+      owner="$(stat -f '%Su' "$install_dir" 2>/dev/null || printf unknown)"
+      [[ "$owner" == "$current_user" ]] || least_privilege_warning "Runner directory $install_dir is owned by $owner, not dedicated maintainer user $current_user."
+      audit_path_least_privilege "$install_dir" "Runner directory for $PROFILE_RUNNER_NAME"
+    fi
+  done
+  if (( LEAST_PRIVILEGE_WARNING_COUNT == 0 )); then
+    report_append 'Least-privilege audit' 'PASSED' 'Required local and selected GitHub runner permissions were verified without detected broad-write exposure.'
+    ok 'Least-privilege audit: required rights verified; no broad local permission exposure detected.'
+  else
+    warn "Least-privilege audit completed with $LEAST_PRIVILEGE_WARNING_COUNT warning(s)."
+    return 42
+  fi
+}
+
 confirm_recommended_memory_override() {
   local mem_gb="$1"
   (( mem_gb >= DESIRED_RECOMMENDED_RAM_GB )) && return 0
@@ -1393,6 +1491,7 @@ confirm_recommended_memory_override() {
 ensure_macos_arm64() {
   local macos_version macos_major cpu_brand hardware_profile mem_bytes mem_gb cpu_count disk_probe_path disk_kb disk_gb
   [[ "$DESIRED_HOST_PLATFORM" == 'macos' ]] || die "Desired state requires unsupported host platform: $DESIRED_HOST_PLATFORM"
+  [[ "$(id -u)" != '0' ]] || die 'Do not run DJConnect recovery as root. Use the dedicated maintainer account so runner services do not inherit root privileges.'
   [[ "$(uname -s)" == 'Darwin' ]] || die 'This recovery bootstrap runs only on macOS.'
   [[ "$(uname -m)" == "$DESIRED_HOST_ARCHITECTURE" ]] || die "DJConnect macOS runners require a $DESIRED_HOST_ARCHITECTURE host."
   cpu_brand="$(sysctl -n machdep.cpu.brand_string 2>/dev/null || true)"
@@ -2035,6 +2134,7 @@ run_phase tooling 'Host tooling setup' ensure_tooling
 run_phase xcode 'Xcode qualification' ensure_xcode
 run_phase parallels 'Parallels Desktop availability' ensure_parallels
 run_phase github-auth 'GitHub CLI authentication' ensure_github_auth
+run_phase permissions-audit 'Least-privilege permissions audit' audit_least_privilege
 run_phase repositories 'Repository preparation' prepare_repositories
 run_phase developer-workstation 'Developer workstation recovery' bootstrap_developer_workstation
 run_phase docker-auth 'Docker Hub authentication' ensure_docker_hub_auth

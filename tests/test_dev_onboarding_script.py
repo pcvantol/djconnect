@@ -401,6 +401,17 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("emit_repair_progress", source)
         self.assertIn("REPAIR_PROGRESS_TOTAL=6", source)
 
+    def test_macos_runner_recovery_bootstrap_audits_least_privilege(self) -> None:
+        source = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+
+        self.assertIn("permissions-audit", source)
+        self.assertIn("audit_least_privilege", source)
+        self.assertIn("LEAST-PRIVILEGE WARNING", source)
+        self.assertIn("Do not run DJConnect recovery as root", source)
+        self.assertIn("path_is_group_or_world_writable", source)
+        self.assertIn(".permissions.admin", source)
+        self.assertIn("classic repo scope", source)
+
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:
         source = WINDOWS_RUNNER_RECOVERY_SCRIPT.read_text()
 

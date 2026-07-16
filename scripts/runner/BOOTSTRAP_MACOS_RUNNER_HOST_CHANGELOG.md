@@ -25,6 +25,8 @@ the DJConnect product release.
   areas.
 - Add indicative console and report progress percentages for recovery phases
   and the unattended repair lifecycle.
+- Add a least-privilege audit for local write exposure, runner ownership,
+  sudo breadth and selected GitHub runner-administration access.
 
 ## [1.0.0] - 2026-07-16
 
