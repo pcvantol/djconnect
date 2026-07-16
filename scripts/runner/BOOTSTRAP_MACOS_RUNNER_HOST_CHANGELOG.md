@@ -30,6 +30,9 @@ the DJConnect product release.
 - Audit local Apple certificate and provisioning-profile expiry, while
   explicitly reporting opaque client-token expiry as unverified without
   reading token values.
+- After a reboot gate, install a one-shot user LaunchAgent that opens Terminal
+  and starts the protected, non-secret recovery continuation after the next
+  graphical login.
 
 ## [1.0.0] - 2026-07-16
 

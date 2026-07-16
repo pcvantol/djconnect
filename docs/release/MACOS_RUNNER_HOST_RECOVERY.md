@@ -246,17 +246,26 @@ The checkpoint contains only phase completion state and non-secret recovery
 context; it never contains passwords, tokens, signing passwords, key material
 or interactive authentication data.
 
-Restart macOS, then rerun the same non-secret recovery options with:
+It also installs one owner-only, single-use LaunchAgent and continuation
+command. After the next macOS graphical login, the LaunchAgent opens Terminal
+and automatically starts the exact recovery continuation. The terminal remains
+open when recovery finishes or fails, so its status remains visible. The
+continuation preserves non-secret options and local file paths, but never P12
+contents, private keys, passwords, token values or interactive login state.
+Any required password or device-login flow is prompted again in Terminal.
+
+If the automatic Terminal continuation was removed or needs to be rerun, use:
 
 ```sh
 ./scripts/runner/bootstrap_macos_runner_host.sh --resume --xcode-version <qualified-version>
 ```
 
-Supply any signing P12/profile paths again if later phases require them. Resume
-re-runs the mandatory host preflight and reboot gate, preserves earlier phases
-that completed successfully, and continues with the remaining phases. A
-successful resumed recovery removes its checkpoint. Use `--resume-state <file>`
-only when an explicitly managed, owner-only checkpoint location is required.
+For a manual resume, supply any signing P12/profile paths again if later phases
+require them. Resume re-runs the mandatory host preflight and reboot gate,
+preserves earlier phases that completed successfully, and continues with the
+remaining phases. A successful resumed recovery removes its checkpoint, the
+one-shot LaunchAgent and its command. Use `--resume-state <file>` only when an
+explicitly managed, owner-only checkpoint location is required.
 
 Every subsequent recovery phase starts with a recorded precheck. The precheck
 requires each declared upstream dependency to be `PASSED` (a skipped, failed or

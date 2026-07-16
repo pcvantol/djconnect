@@ -87,6 +87,9 @@ REPAIR_MANUAL_REQUIREMENTS=()
 RESUME_MODE=0
 RESUME_STATE_FILE="${RESUME_STATE_FILE:-$HOME/Library/Application Support/DJConnect/macos-runner-recovery-resume.env}"
 RESUME_NEXT_PHASE=''
+readonly RESUME_AUTOSTART_LABEL='com.djconnect.macos-runner-recovery-resume'
+RESUME_AUTOSTART_PLIST="$HOME/Library/LaunchAgents/$RESUME_AUTOSTART_LABEL.plist"
+RESUME_CONTINUATION_COMMAND="$HOME/Library/Application Support/DJConnect/macos-runner-recovery-resume.command"
 
 usage() {
   cat <<'EOF'
@@ -794,7 +797,99 @@ write_resume_checkpoint() {
     done
   } >"$RESUME_STATE_FILE"
   chmod 600 "$RESUME_STATE_FILE"
-  log "Recovery paused for reboot. Resume after restart with: $0 --resume"
+  install_resume_terminal_continuation
+  log 'Recovery paused for reboot. After the next macOS login, Terminal opens and starts the protected recovery continuation.'
+}
+
+xml_escape() {
+  local value="$1"
+  value="${value//&/&amp;}"
+  value="${value//</&lt;}"
+  value="${value//>/&gt;}"
+  value="${value//\"/&quot;}"
+  value="${value//\'/&apos;}"
+  printf '%s' "$value"
+}
+
+install_resume_terminal_continuation() {
+  local -a resume_args
+  local plist_command
+  resume_args=(
+    "$0" --resume --resume-state "$RESUME_STATE_FILE"
+    --profiles "$PROFILE_SELECTION"
+    --desired-state "$DESIRED_STATE_FILE"
+    --github-root "$GITHUB_ROOT"
+    --runner-root "$RUNNER_ROOT"
+    --log-level "$LOG_LEVEL"
+    --parallel-jobs "$PARALLEL_JOBS"
+    --expiry-warning-days "$EXPIRY_WARNING_DAYS"
+  )
+  [[ "$SKIP_CODEX" == '1' ]] && resume_args+=(--skip-codex)
+  [[ -n "$XCODE_VERSION" ]] && resume_args+=(--xcode-version "$XCODE_VERSION")
+  [[ -n "$SIGNING_P12" ]] && resume_args+=(--signing-p12 "$SIGNING_P12")
+  [[ -n "$PROVISIONING_PROFILES_DIR" ]] && resume_args+=(--provisioning-profiles-dir "$PROVISIONING_PROFILES_DIR")
+  [[ "$CONFIGURE_KEYCHAIN_ACCESS" == '1' ]] && resume_args+=(--configure-keychain-access)
+  [[ "$INSTALL_PARALLELS" == '1' ]] && resume_args+=(--install-parallels)
+  [[ "$SKIP_DEVELOPER_WORKSTATION" == '1' ]] && resume_args+=(--skip-developer-workstation)
+  [[ -n "$NGROK_DOMAIN" ]] && resume_args+=(--ngrok-domain "$NGROK_DOMAIN")
+  [[ "$PROMPT_NGROK_AUTH" == '1' ]] && resume_args+=(--prompt-ngrok-auth)
+  [[ "$CONFIGURE_APPLE_INTERNAL_RELEASE" == '1' ]] && resume_args+=(--configure-apple-internal-release)
+  [[ -n "$APPLE_TEAM_ID" ]] && resume_args+=(--apple-team-id "$APPLE_TEAM_ID")
+  [[ -n "$APPLE_DEVELOPMENT_IDENTITY" ]] && resume_args+=(--apple-development-identity "$APPLE_DEVELOPMENT_IDENTITY")
+  [[ "$ALLOW_STEP_RETRY" != '1' ]] && resume_args+=(--no-step-retry)
+  [[ -n "$SKIP_PHASES" ]] && resume_args+=(--skip-phases "$SKIP_PHASES")
+  [[ -n "$FORCE_PHASES" ]] && resume_args+=(--force-phases "$FORCE_PHASES")
+  [[ "$MEMORY_OVERRIDE_CONFIRMED" == '1' ]] && resume_args+=(--confirm-memory-override)
+  [[ -n "${NO_COLOR:-}" ]] && resume_args+=(--no-color)
+  case "$LOG_FILE" in
+    none) resume_args+=(--no-log-file) ;;
+    '') ;;
+    *) resume_args+=(--log-file "$LOG_FILE") ;;
+  esac
+  case "$REPORT_FILE" in
+    none) resume_args+=(--no-report-file) ;;
+    '') ;;
+    *) resume_args+=(--report-file "$REPORT_FILE") ;;
+  esac
+
+  require_external_output_path 'Recovery Terminal continuation' "$RESUME_CONTINUATION_COMMAND"
+  umask 077
+  mkdir -p "$(dirname "$RESUME_CONTINUATION_COMMAND")" "$(dirname "$RESUME_AUTOSTART_PLIST")"
+  {
+    printf '%s\n' '#!/usr/bin/env bash' 'set -uo pipefail'
+    printf 'rm -f %q\n' "$RESUME_AUTOSTART_PLIST"
+    printf '%s\n' "printf '%s\\n' 'DJConnect recovery continuation started after reboot. Sensitive passwords and token values remain outside the checkpoint.'"
+    printf '%q ' "${resume_args[@]}"
+    printf '%s\n' '' 'continuation_status=$?' "printf '%s\\n' \"DJConnect recovery continuation finished with status \$continuation_status. Press Return to close this Terminal window.\"" "read -r _" 'exit "$continuation_status"'
+  } >"$RESUME_CONTINUATION_COMMAND"
+  chmod 700 "$RESUME_CONTINUATION_COMMAND"
+  plist_command="$(xml_escape "$RESUME_CONTINUATION_COMMAND")"
+  {
+    cat <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>$RESUME_AUTOSTART_LABEL</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/open</string>
+    <string>-a</string>
+    <string>Terminal</string>
+    <string>$plist_command</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>ProcessType</key>
+  <string>Interactive</string>
+  <key>LimitLoadToSessionType</key>
+  <array><string>Aqua</string></array>
+</dict>
+</plist>
+EOF
+  } >"$RESUME_AUTOSTART_PLIST"
+  chmod 600 "$RESUME_AUTOSTART_PLIST"
 }
 
 load_resume_checkpoint() {
@@ -819,8 +914,7 @@ load_resume_checkpoint() {
 }
 
 clear_resume_checkpoint() {
-  [[ -f "$RESUME_STATE_FILE" ]] || return 0
-  rm -f "$RESUME_STATE_FILE"
+  rm -f "$RESUME_STATE_FILE" "$RESUME_CONTINUATION_COMMAND" "$RESUME_AUTOSTART_PLIST"
 }
 
 phase_dependencies() {

@@ -432,6 +432,17 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("TOKEN EXPIRY UNVERIFIED", source)
         self.assertIn("CREDENTIAL EXPIRY WARNING", source)
 
+    def test_macos_runner_recovery_bootstrap_opens_terminal_after_reboot(self) -> None:
+        source = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+
+        self.assertIn("install_resume_terminal_continuation", source)
+        self.assertIn("com.djconnect.macos-runner-recovery-resume", source)
+        self.assertIn("/usr/bin/open", source)
+        self.assertIn("Terminal", source)
+        self.assertIn("RunAtLoad", source)
+        self.assertIn("RESUME_CONTINUATION_COMMAND", source)
+        self.assertIn("Sensitive passwords and token values remain outside the checkpoint", source)
+
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:
         source = WINDOWS_RUNNER_RECOVERY_SCRIPT.read_text()
 
