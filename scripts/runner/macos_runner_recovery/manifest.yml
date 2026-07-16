@@ -1,9 +1,9 @@
 # Canonical version manifest for the macOS runner-host recovery package.
 schema_version: 1
 package.name: djconnect-macos-runner-recovery
-package.version: 1.1.0
+package.version: 1.2.0
 package.entry_point: scripts/runner/bootstrap_macos_runner_host.sh
-package.aggregate_sha256: 3031ffe4919e5001eb146389e74de192ed5cc2c6a659a41107ef886ea91bdbe3
+package.aggregate_sha256: cfd6b514911b6c05d06f8fed449b44208c3110ac2819100c29ee38432b829950
 component.entry.file: ../bootstrap_macos_runner_host.sh
 component.entry.version: 1.0.0
 component.entry.sha256: 0a5eb4e0ff54aab74bcace9f9ff18fbe43fc9df37aeeadab900cc6a36f07f3ee
@@ -14,14 +14,14 @@ component.core.file: core.sh
 component.core.version: 1.1.0
 component.core.sha256: 8182301d6575d90ec93a4668675310eec80de0495e83c2a1dd8e6450cd67fcaf
 component.workflow.file: workflow.sh
-component.workflow.version: 1.1.0
-component.workflow.sha256: bec4c77858a15739b9ed87fdfac462db06af3b35c108aabb426d284f6fb2b7d7
+component.workflow.version: 1.2.0
+component.workflow.sha256: b806a6846c790ba6b0599d8f69efca233ce6838b1ffbfd64aef4fef0d9ff2271
 component.security.file: security.sh
 component.security.version: 1.0.0
 component.security.sha256: 5ce633333245a3cf906654934fa497f3b296e4c9424ae78d90ef18c2deed9e87
 component.operations.file: operations.sh
-component.operations.version: 1.1.0
-component.operations.sha256: 9430ef07c6e229d6cb0791150a79e006c7c53bad85a827d1b2c07d7480b64a07
+component.operations.version: 1.2.0
+component.operations.sha256: 36824125b0e268db7ea66d9dd677c5683c5e8c6d56e68742d960ab3c9be54c88
 component.runners.file: runners.sh
 component.runners.version: 1.0.0
 component.runners.sha256: 487bd39e9e72783c04e5eb5fca53a5ad153731568180f9882b3c998106bd220f

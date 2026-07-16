@@ -57,14 +57,14 @@ For a fresh macOS developer machine, use the onboarding helper from the
 repository root:
 
 ```bash
-./tools/dev_onboarding_macos.sh
+./onboarding/dev_onboarding_macos.sh
 ```
 
 For a fresh Windows 11 developer machine, use the PowerShell onboarding helper
 from the repository root:
 
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\dev_onboarding_windows.ps1
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\onboarding\dev_onboarding_windows.ps1
 ```
 
 It offers Windows-native steps for preflight checks, winget-based tooling,
@@ -101,9 +101,9 @@ locking issues.
 Useful Windows dry-run and planning commands:
 
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\dev_onboarding_windows.ps1 -Core -Plan
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\dev_onboarding_windows.ps1 -Steps 8,9,11 -DryRun -Yes
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\dev_onboarding_windows.ps1 -Steps 12 -NgrokDomain your-domain.ngrok-free.app -DryRun -Yes
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\onboarding\dev_onboarding_windows.ps1 -Core -Plan
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\onboarding\dev_onboarding_windows.ps1 -Steps 8,9,11 -DryRun -Yes
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\onboarding\dev_onboarding_windows.ps1 -Steps 12 -NgrokDomain your-domain.ngrok-free.app -DryRun -Yes
 ```
 
 The Windows helper is intentionally current-user only: do not run it from an
@@ -142,10 +142,10 @@ client.
 For a supervised full bootstrap run, use this sequence:
 
 ```bash
-./tools/dev_onboarding_macos.sh --steps 0,3,4,5,6,7,8,9,10,11,12,21 --plan
-./tools/dev_onboarding_macos.sh --steps 0
-./tools/dev_onboarding_macos.sh --steps 3,4,5,6,7,8,9,10,11,12,21 --warm-sudo --prompt-secrets
-./tools/dev_onboarding_macos.sh --steps 13,14,15,16,17,18,19,22 --warm-sudo --prompt-secrets
+./onboarding/dev_onboarding_macos.sh --steps 0,3,4,5,6,7,8,9,10,11,12,21 --plan
+./onboarding/dev_onboarding_macos.sh --steps 0
+./onboarding/dev_onboarding_macos.sh --steps 3,4,5,6,7,8,9,10,11,12,21 --warm-sudo --prompt-secrets
+./onboarding/dev_onboarding_macos.sh --steps 13,14,15,16,17,18,19,22 --warm-sudo --prompt-secrets
 ```
 
 Preflight checks include macOS version, architecture, RAM, CPU cores, free disk
@@ -171,7 +171,7 @@ Use `--dry-run` to print mutating install/bootstrap commands without executing
 them. The helper's CLI contract is covered by:
 
 ```bash
-python3 -m unittest tests.test_dev_onboarding_script
+python3 -m unittest onboarding.tests.test_onboarding_scripts
 ```
 
 Package manager upgrade checks are explicit. Step `23` reports available
@@ -179,8 +179,8 @@ Homebrew, npm, pip, PlatformIO and .NET workload updates without applying them.
 Step `24` applies upgrades only when `--apply-upgrades` is present:
 
 ```bash
-./tools/dev_onboarding_macos.sh --steps 23
-./tools/dev_onboarding_macos.sh --steps 24 --apply-upgrades
+./onboarding/dev_onboarding_macos.sh --steps 23
+./onboarding/dev_onboarding_macos.sh --steps 24 --apply-upgrades
 ```
 
 Review lockfiles, manifests and dependency documentation after running step
@@ -197,8 +197,8 @@ create a dedicated CI smoke-test branch with an empty commit, push it and watch
 the GitHub Actions result, but only when `--run-ci-push` is explicitly present:
 
 ```bash
-./tools/dev_onboarding_macos.sh --steps 25 --e2e-version 3.1.999
-./tools/dev_onboarding_macos.sh --steps 26 --run-ci-push --ci-branch codex/onboarding-ci-smoke
+./onboarding/dev_onboarding_macos.sh --steps 25 --e2e-version 3.1.999
+./onboarding/dev_onboarding_macos.sh --steps 26 --run-ci-push --ci-branch codex/onboarding-ci-smoke
 ```
 
 Use `--dry-run` first to inspect the local release or GitHub CI commands.
@@ -207,7 +207,7 @@ To bootstrap the Music Assistant server used by the DJConnect `Music Assistant`
 backend option:
 
 ```bash
-./tools/dev_onboarding_macos.sh --steps 27
+./onboarding/dev_onboarding_macos.sh --steps 27
 ```
 
 The script adds any missing `homeassistant`, `whisper`, `piper` and
@@ -235,14 +235,14 @@ inside Home Assistant before testing the DJConnect `Music Assistant` backend.
 Override the data path with:
 
 ```bash
-./tools/dev_onboarding_macos.sh --steps 27 --ma-data-dir /path/to/music-assistant-data
+./onboarding/dev_onboarding_macos.sh --steps 27 --ma-data-dir /path/to/music-assistant-data
 ```
 
 If your compose file is not next to the Home Assistant `config` directory, pass
 it explicitly:
 
 ```bash
-./tools/dev_onboarding_macos.sh --steps 27 --ha-compose-file /path/to/docker-compose.yml
+./onboarding/dev_onboarding_macos.sh --steps 27 --ha-compose-file /path/to/docker-compose.yml
 ```
 
 To expose the local Home Assistant dev instance for iPhone, Spotify OAuth and
@@ -251,7 +251,7 @@ static ngrok domain if you want the URL to survive reboot, then run:
 
 ```bash
 export NGROK_AUTHTOKEN="<token from ngrok>"
-./tools/dev_onboarding_macos.sh --steps 28 --ngrok-domain your-domain.ngrok-free.app
+./onboarding/dev_onboarding_macos.sh --steps 28 --ngrok-domain your-domain.ngrok-free.app
 ```
 
 Step `28` installs ngrok with Homebrew, stores the auth token in ngrok's own
@@ -281,19 +281,19 @@ is not possible.
 For unattended setup of only this Home Assistant integration:
 
 ```bash
-./tools/dev_onboarding_macos.sh --core --yes
+./onboarding/dev_onboarding_macos.sh --core --yes
 ```
 
 For unattended setup with cross-repo tooling:
 
 ```bash
-./tools/dev_onboarding_macos.sh --all --yes
+./onboarding/dev_onboarding_macos.sh --all --yes
 ```
 
 For selected cross-repo setup:
 
 ```bash
-./tools/dev_onboarding_macos.sh --steps 13,14,15,16,17,18
+./onboarding/dev_onboarding_macos.sh --steps 13,14,15,16,17,18
 ```
 
 The local Home Assistant development instance runs in Docker and is available at:

@@ -6,6 +6,11 @@ This changelog covers only
 compatibility and security changes to the recovery bootstrap independently of
 the DJConnect product release.
 
+## [1.2.0] - 2026-07-16
+
+- Use the canonical `onboarding/` package for macOS developer-workstation,
+  internal Home Assistant test-environment and post-recovery verification work.
+
 ## [1.1.0] - 2026-07-16
 
 - Refactor the recovery bootstrap into a package of bounded Bash modules behind

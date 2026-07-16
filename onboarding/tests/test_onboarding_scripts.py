@@ -11,9 +11,9 @@ import unittest
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = ROOT / "tools" / "dev_onboarding_macos.sh"
-WINDOWS_SCRIPT = ROOT / "tools" / "dev_onboarding_windows.ps1"
+ROOT = Path(__file__).resolve().parents[2]
+SCRIPT = ROOT / "onboarding" / "dev_onboarding_macos.sh"
+WINDOWS_SCRIPT = ROOT / "onboarding" / "dev_onboarding_windows.ps1"
 RUNNER_RECOVERY_SCRIPT = ROOT / "scripts" / "runner" / "bootstrap_macos_runner_host.sh"
 RUNNER_RECOVERY_PACKAGE = ROOT / "scripts" / "runner" / "macos_runner_recovery"
 RUNNER_RECOVERY_MANIFEST = RUNNER_RECOVERY_PACKAGE / "manifest.yml"
@@ -144,11 +144,11 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("check_reboot_required", source)
         self.assertIn("run_initial_verification", source)
         self.assertIn("softwareupdate --list", source)
-        self.assertIn("tools/dev_onboarding_macos.sh --steps 21,22", source)
+        self.assertIn("onboarding/dev_onboarding_macos.sh --steps 21,22", source)
         self.assertIn("actions/runners", source)
         self.assertIn("onboarding_args+=(--dry-run)", source)
         self.assertIn("verification_args+=(--dry-run)", source)
-        self.assertIn("onboarding_args=(tools/dev_onboarding_macos.sh --all --yes --warm-sudo --no-log-file)", source)
+        self.assertIn("onboarding_args=(onboarding/dev_onboarding_macos.sh --all --yes --warm-sudo --no-log-file)", source)
         self.assertIn("start_logging", source)
         self.assertIn("start_report", source)
         self.assertIn("complete_report", source)
@@ -213,12 +213,12 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertEqual(
             result.stdout,
-            "DJConnect macOS Runner Host Recovery Bootstrap 1.1.0\n",
+            "DJConnect macOS Runner Host Recovery Bootstrap 1.2.0\n",
         )
         self.assertTrue(MACOS_RUNNER_RECOVERY_CHANGELOG.is_file())
         changelog = MACOS_RUNNER_RECOVERY_CHANGELOG.read_text(encoding="utf-8")
         self.assertIn("Semantic Versioning", changelog)
-        self.assertIn("## [1.1.0] - 2026-07-16", changelog)
+        self.assertIn("## [1.2.0] - 2026-07-16", changelog)
         self.assertIn("--version", changelog)
 
     def test_macos_runner_recovery_bootstrap_accepts_help_subcommand(self) -> None:
@@ -466,10 +466,10 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertTrue((RUNNER_RECOVERY_PACKAGE / "apple.sh").is_file())
         self.assertTrue(RUNNER_RECOVERY_MANIFEST.is_file())
         manifest = RUNNER_RECOVERY_MANIFEST.read_text(encoding="utf-8")
-        self.assertIn("package.version: 1.1.0", manifest)
+        self.assertIn("package.version: 1.2.0", manifest)
         self.assertIn("package.aggregate_sha256:", manifest)
         self.assertIn("component.entry.sha256:", manifest)
-        self.assertIn("component.workflow.version: 1.1.0", manifest)
+        self.assertIn("component.workflow.version: 1.2.0", manifest)
         self.assertIn("component.apple.version: 1.0.0", manifest)
         source = read_runner_recovery_source()
         self.assertIn("verify_recovery_package_manifest", source)

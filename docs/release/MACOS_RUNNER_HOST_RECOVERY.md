@@ -311,7 +311,7 @@ The downloaded Apple-Silicon Actions-runner archive is verified against the
 SHA-256 digest GitHub publishes in its release metadata before it is unpacked.
 
 By default, the recovery then invokes the established
-`tools/dev_onboarding_macos.sh --all --yes --warm-sudo` flow. This restores the
+`onboarding/dev_onboarding_macos.sh --all --yes --warm-sudo` flow. This restores the
 complete macOS developer workstation: all DJConnect repositories, Codex CLI,
 Docker Desktop, the persistent local Home Assistant Docker Compose service
 (`homeassistant` on `http://localhost:8123`), Whisper, Piper and Music

@@ -1,4 +1,4 @@
-# Version: 1.1.0
+# Version: 1.2.0
 # macOS host provisioning, developer-workstation and service operations.
 warm_sudo() {
   if [[ "$DRY_RUN" == '1' ]]; then
@@ -284,7 +284,7 @@ bootstrap_developer_workstation() {
     return
   fi
   local central_repository="$GITHUB_ROOT/djconnect"
-  local onboarding="$central_repository/tools/dev_onboarding_macos.sh"
+  local onboarding="$central_repository/onboarding/dev_onboarding_macos.sh"
   [[ -f "$onboarding" ]] || die "The full developer onboarding script is unavailable at $onboarding."
   if [[ -n "$NGROK_DOMAIN" && -z "${NGROK_AUTHTOKEN:-}" && "$PROMPT_NGROK_AUTH" == '1' ]]; then
     prompt_secret 'ngrok authtoken'
@@ -297,7 +297,7 @@ bootstrap_developer_workstation() {
     die 'An ngrok domain requires NGROK_AUTHTOKEN or --prompt-ngrok-auth.'
   fi
   log 'Restoring the complete DJConnect macOS developer workstation.'
-  local -a onboarding_args=(tools/dev_onboarding_macos.sh --all --yes --warm-sudo --no-log-file)
+  local -a onboarding_args=(onboarding/dev_onboarding_macos.sh --all --yes --warm-sudo --no-log-file)
   if [[ "$DRY_RUN" == '1' ]]; then
     onboarding_args+=(--dry-run)
   fi
@@ -309,10 +309,10 @@ bootstrap_developer_workstation() {
 
 ensure_home_assistant_internal_test_environment() {
   local central_repository="$GITHUB_ROOT/djconnect"
-  local onboarding="$central_repository/tools/dev_onboarding_macos.sh"
+  local onboarding="$central_repository/onboarding/dev_onboarding_macos.sh"
   [[ -f "$onboarding" ]] || die "The Home Assistant internal-test-environment bootstrap is unavailable at $onboarding."
   log "Reconciling the internal Home Assistant Docker test environment ($DESIRED_HA_CONTAINER_NAME at $DESIRED_HA_URL)."
-  local -a onboarding_args=(tools/dev_onboarding_macos.sh --steps 9 --yes --warm-sudo --no-log-file)
+  local -a onboarding_args=(onboarding/dev_onboarding_macos.sh --steps 9 --yes --warm-sudo --no-log-file)
   [[ "$DRY_RUN" == '1' ]] && onboarding_args+=(--dry-run)
   run_in_dir "$central_repository" bash "${onboarding_args[@]}"
   if [[ "$DRY_RUN" == '1' ]]; then
@@ -402,7 +402,7 @@ run_initial_verification() {
   fi
   local central_repository="$GITHUB_ROOT/djconnect"
   log 'Running initial post-recovery verification for the complete local developer and runner host.'
-  local -a verification_args=(tools/dev_onboarding_macos.sh --steps 21,22 --yes --no-log-file)
+  local -a verification_args=(onboarding/dev_onboarding_macos.sh --steps 21,22 --yes --no-log-file)
   if [[ "$DRY_RUN" == '1' ]]; then
     verification_args+=(--dry-run)
   fi
