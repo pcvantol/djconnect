@@ -56,6 +56,14 @@
         "artifact_id": "release-asset:pcvantol/djconnect-app-releases:macos/v3.3.0:DJConnect-macOS-3.3.0-unsigned.zip",
         "artifact_sha256": "41137dfd346372a73ef0789394015fd94bfa6d7f416821dec65d58ab461b519a",
         "approved_statement": "I explicitly approve updated operational manifest release-3.3.0-internal-20260714 for target apple_private_device / macbook, candidate dffdeb1755f4fe4ee8309ff56582640110dc176a, artifact DJConnect-macOS-3.3.0-unsigned.zip, SHA-256 41137dfd346372a73ef0789394015fd94bfa6d7f416821dec65d58ab461b519a, and authorize its manifest-bound deployment followed by post-deployment smoke."
+      },
+      {
+        "approved_at": "2026-07-16",
+        "target": "windows_internal_arm64",
+        "candidate_sha": "6c0c3c3478c81472e479184dc03e51fd095dc4b2",
+        "artifact_id": "release-asset:pcvantol/djconnect-app-releases:windows/v3.3.0:DJConnect-Windows-arm64-3.3.0-unsigned.zip",
+        "artifact_sha256": "cbe379826731deb1d16c8af5510b4190a4f4949b1bf6589925de5d1eb66c5b47",
+        "approved_statement": "I authorize deployment of manifest release-3.3.0-internal-20260714 to target windows_internal_arm64, candidate 6c0c3c3478c81472e479184dc03e51fd095dc4b2, artifact release-asset:pcvantol/djconnect-app-releases:windows/v3.3.0:DJConnect-Windows-arm64-3.3.0-unsigned.zip, SHA-256 cbe379826731deb1d16c8af5510b4190a4f4949b1bf6589925de5d1eb66c5b47, followed by post-deployment smoke."
       }
     ],
     "supersedes": {
@@ -73,7 +81,7 @@
         }
       }
     },
-    "effect": "Deployment and post-deployment smoke remain separately dispatched, target-scoped operations. The maintainer authorized the home_assistant_pi5, cloudflare_pages_production, esp32_lilygo_t_embed_s3, apple_private_device/iphone (with required paired Watch validation) and apple_private_device/macbook deployments with their exact bindings and corresponding post-deployment smoke; the latest Apple authorizations supersede the prior Apple 3.3.0 artifact bindings. No other target is authorized by these approvals."
+    "effect": "Deployment and post-deployment smoke remain separately dispatched, target-scoped operations. The maintainer authorized the home_assistant_pi5, cloudflare_pages_production, esp32_lilygo_t_embed_s3, apple_private_device/iphone (with required paired Watch validation), apple_private_device/macbook and windows_internal_arm64 deployments with their exact bindings and corresponding post-deployment smoke; the latest Apple authorizations supersede the prior Apple 3.3.0 artifact bindings. No other target is authorized by these approvals."
   },
   "repositories": [
     {"repository": "pcvantol/djconnect", "source_sha": "0227e95ba10e8cc9256185a3bec6d22f86e286d4", "version": "3.3.0", "artifact_run": "29427139585"},
@@ -183,5 +191,5 @@
     "Apple Watch is a required paired-iPhone companion validation, not a direct deployment target.",
     "Windows x64 is published but is not bound to this ARM64-only Internal Release."
   ],
-  "next_authorized_action": "After this manifest binding is merged to main, dispatch either separately authorized Apple target (macbook or iphone with required paired Watch validation) or another authorized manifest-bound target; run that target's corresponding smoke only after successful deployment."
+  "next_authorized_action": "After this Windows authorization record is merged to main, dispatch the separately authorized windows_internal_arm64 deployment with its exact manifest binding; run its corresponding smoke only after successful deployment."
 }
