@@ -27,6 +27,17 @@ Run the package contract tests from the repository root:
 python3 -m unittest onboarding.tests.test_onboarding_scripts
 ```
 
+Build the deterministic, versioned distribution bundle into `onboarding/dist`:
+
+```sh
+python3 onboarding/build_package.py --output onboarding/dist
+python3 onboarding/build_package.py --output onboarding/dist --check
+```
+
+The Linux GitHub Actions workflow runs the cross-platform build unit tests,
+verifies that `onboarding/dist` is current, and uploads that directory as its
+build artifact.
+
 The root `tests/test_onboarding_package.py` is deliberately only a discovery
 bridge for repository-wide `unittest discover`; the canonical tests remain in
 this package.
