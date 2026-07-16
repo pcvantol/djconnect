@@ -144,6 +144,9 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("--report-file", source)
         self.assertIn("--no-report-file", source)
         self.assertIn("Final status", source)
+        self.assertIn("Retry this phase?", source)
+        self.assertIn("--no-step-retry", source)
+        self.assertIn("RETRYING", source)
         self.assertIn("run_interactive", source)
         self.assertIn("install_macos_ci_tooling_maintenance.sh --run-now", source)
 

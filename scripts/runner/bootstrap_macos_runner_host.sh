@@ -36,6 +36,7 @@ ORIGINAL_STDOUT_IS_TTY=0
 REPORT_FILE="${REPORT_FILE:-}"
 REPORTING_STARTED=0
 CURRENT_STEP=''
+ALLOW_STEP_RETRY=1
 
 usage() {
   cat <<'EOF'
@@ -99,6 +100,8 @@ Options:
                         Default:
                         ~/Library/Logs/DJConnect/macos-runner-recovery-<UTC>.md
   --no-report-file      Do not create the Markdown recovery report.
+  --no-step-retry       Abort immediately when a recovery phase fails instead
+                        of offering an interactive retry for that same phase.
   --no-color            Disable ANSI color output.
   --help                Show this help.
 
@@ -205,12 +208,39 @@ complete_report() {
 run_phase() {
   local step="$1"
   shift
+  local attempt=1
+  local phase_status
   CURRENT_STEP="$step"
-  log "$step"
-  "$@"
-  report_append "$step" 'PASSED' 'Completed successfully; see the central transcript for detailed command output.'
-  ok "$step"
-  CURRENT_STEP=''
+  while true; do
+    log "$step (attempt $attempt)"
+    set +e
+    (set -e; "$@")
+    phase_status=$?
+    set -e
+    if [[ "$phase_status" == '0' ]]; then
+      report_append "$step" "PASSED (attempt $attempt)" 'Completed successfully; see the central transcript for detailed command output.'
+      ok "$step"
+      CURRENT_STEP=''
+      return 0
+    fi
+
+    report_append "$step" "FAILED (attempt $attempt)" "Exited with status $phase_status."
+    warn "$step failed with status $phase_status."
+    if [[ "$ALLOW_STEP_RETRY" != '1' || "$DRY_RUN" == '1' || ! -r /dev/tty || ! -w /dev/tty ]]; then
+      die "Recovery phase failed: $step"
+    fi
+    printf 'Retry this phase? [r]etry / [a]bort: ' >/dev/tty
+    local response=''
+    read -r response </dev/tty
+    case "$response" in
+      r|R|retry|Retry|RETRY)
+        report_append "$step" 'RETRYING' "Operator requested retry after attempt $attempt."
+        attempt=$((attempt + 1))
+        ;;
+      a|abort|'') die "Recovery phase aborted by operator: $step" ;;
+      *) warn 'Enter r to retry the same phase or a to abort recovery.' ;;
+    esac
+  done
 }
 
 run_interactive() {
@@ -781,6 +811,7 @@ while [[ "$#" -gt 0 ]]; do
     --no-log-file) LOG_FILE='none'; shift ;;
     --report-file) REPORT_FILE="${2:?--report-file requires a value}"; shift 2 ;;
     --no-report-file) REPORT_FILE='none'; shift ;;
+    --no-step-retry) ALLOW_STEP_RETRY=0; shift ;;
     --no-color) NO_COLOR=1; shift ;;
     --help|-h) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;

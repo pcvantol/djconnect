@@ -170,6 +170,14 @@ another report path or `--no-report-file` only when another authoritative
 operational report is being produced. A dry-run prints the intended report path
 but creates neither the transcript nor the Markdown report.
 
+If an actual recovery phase fails, the operator is offered `retry` or `abort`
+on the controlling terminal. `retry` repeats only that same failed phase; it
+does not rerun already successful phases or continue into later phases first.
+The report records every failed attempt, the operator-requested retry and the
+eventual outcome. Select `--no-step-retry` for an unattended fail-closed run.
+If no interactive terminal is available, recovery also fails closed rather than
+attempting an unsafe automatic retry.
+
 ## Optional Parallels Desktop recovery
 
 If this Mac hosts the Windows ARM64 build or deployment VM, include
