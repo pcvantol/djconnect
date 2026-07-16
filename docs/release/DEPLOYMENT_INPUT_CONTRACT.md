@@ -32,6 +32,12 @@ fail-closed workflow step and records no secrets. It validates:
 - a concrete smoke-contract identifier, rejecting `NOT_IMPLEMENTED` and other
   placeholders.
 
+The preflight always uses the runner's native scripting runtime: PowerShell 7
+(`pwsh`) on Windows and Bash on non-Windows runners. A Windows self-hosted
+runner must therefore expose a machine-level PowerShell 7 installation to its
+service account. Windows deployment consumers must not depend on WSL or a
+user-profile-only shell merely to execute this preflight.
+
 Artifact publication and manifest approval never satisfy this preflight. A
 failed preflight blocks only its target, produces `TARGET_NOT_READY`, and does
 not block deployment or smoke of other independently authorized targets. A
