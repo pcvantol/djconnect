@@ -2,6 +2,11 @@
 
 ## 3.3.0 — 2026-07-16
 
+- Add a macOS-only, explicit machine-transfer export/import utility for
+  encrypted transfer of selected DJConnect developer assets.
+- Exclude Keychain, browser and CLI credential stores; require interactive
+  service reauthentication on the replacement machine.
+
 - Align the package release version with DJConnect Platform Release 3.3.0 for
   operator clarity.
 - Record that the alignment is descriptive only: no platform runtime,

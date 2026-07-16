@@ -20,12 +20,14 @@ class OnboardingPackageBuildTests(unittest.TestCase):
         self.assertEqual(build_package.manifest_value("package.platform_release_dependency"), "none")
         self.assertEqual(build_package.manifest_value("component.tests.path"), "tests/test_onboarding_scripts.py")
         self.assertEqual(build_package.manifest_value("component.changelog.path"), "CHANGELOG.md")
+        self.assertEqual(build_package.manifest_value("component.machine_transfer.script"), "machine_transfer_macos.sh")
         self.assertEqual(build_package.manifest_value("desired_state.versioning"), "independent_of_onboarding_package")
         self.assertEqual(build_package.manifest_value("desired_state.minimum_tool_version.key"), "minimum_tool_version")
 
     def test_package_file_selection_excludes_generated_output(self) -> None:
         names = {path.relative_to(build_package.PACKAGE_ROOT).as_posix() for path in build_package.package_files()}
         self.assertIn("dev_onboarding_macos.sh", names)
+        self.assertIn("machine_transfer_macos.sh", names)
         self.assertIn("tests/test_package_build.py", names)
         self.assertFalse(any(name.startswith("dist/") or "__pycache__" in name for name in names))
 
@@ -40,6 +42,7 @@ class OnboardingPackageBuildTests(unittest.TestCase):
             self.assertEqual(metadata["sha256"], hashlib.sha256(first_artifacts[0].read_bytes()).hexdigest())
             with zipfile.ZipFile(first_artifacts[0]) as archive:
                 self.assertIn("onboarding/dev_onboarding_macos.sh", archive.namelist())
+                self.assertIn("onboarding/machine_transfer_macos.sh", archive.namelist())
                 self.assertIn("onboarding/dev_onboarding_windows.ps1", archive.namelist())
                 self.assertIn("onboarding/tests/test_onboarding_scripts.py", archive.namelist())
                 self.assertIn("onboarding/CHANGELOG.md", archive.namelist())
@@ -121,3 +124,18 @@ class OnboardingPackageBuildTests(unittest.TestCase):
             )
         self.assertNotEqual(result.returncode, 0, result.stdout)
         self.assertIn("missing or stale", result.stdout)
+
+    def test_machine_transfer_uses_explicit_assets_and_encrypted_archive(self) -> None:
+        source = (build_package.PACKAGE_ROOT / "machine_transfer_macos.sh").read_text(encoding="utf-8")
+
+        self.assertIn("-aes-256-cbc", source)
+        self.assertIn("-pbkdf2", source)
+        self.assertIn("600000", source)
+        self.assertIn("machine-transfer", source)
+        self.assertIn("--signing-p12", source)
+        self.assertIn("--ssh-key", source)
+        self.assertIn("--license-file", source)
+        self.assertIn("--install-ssh-keys", source)
+        self.assertIn("MANIFEST.sha256", source)
+        self.assertNotIn("security dump-keychain", source)
+        self.assertNotIn("gh auth token", source)

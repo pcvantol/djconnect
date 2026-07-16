@@ -7,6 +7,7 @@ package.platform_release_alignment: 3.3.0
 package.platform_release_dependency: none
 component.macos.script: dev_onboarding_macos.sh
 component.windows.script: dev_onboarding_windows.ps1
+component.machine_transfer.script: machine_transfer_macos.sh
 component.tests.path: tests/test_onboarding_scripts.py
 component.documentation.path: README.md
 component.changelog.path: CHANGELOG.md

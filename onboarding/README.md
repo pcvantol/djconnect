@@ -15,6 +15,7 @@ artifacts, and does not require a matching platform version to run or verify.
 
 - macOS: `./onboarding/dev_onboarding_macos.sh`
 - Windows: `pwsh -File .\onboarding\dev_onboarding_windows.ps1`
+- macOS machine transfer: `./onboarding/machine_transfer_macos.sh`
 
 The former `tools/dev_onboarding_macos.sh` and
 `tools/dev_onboarding_windows.ps1` paths remain minimal compatibility wrappers.
@@ -25,6 +26,31 @@ Assistant Compose environment. The Home Assistant service is available at
 `http://localhost:8123` after its container is healthy. The Windows package
 uses the macOS-hosted Home Assistant environment rather than Docker Desktop in
 the Windows ARM VM.
+
+## Secure machine transfer
+
+Use the dedicated macOS tool to transfer explicitly selected DJConnect
+developer assets between Macs. It writes its AES-256 encrypted archive outside
+the repository, by default under
+`~/Library/Application Support/DJConnect/machine-transfer/`, and prints a
+generated recovery passphrase once. Store that passphrase separately.
+
+```sh
+./onboarding/machine_transfer_macos.sh --export \
+  --signing-p12 /secure/Apple-signing.p12 \
+  --ssh-key ~/.ssh/id_ed25519 \
+  --license-file /secure/license-file
+
+./onboarding/machine_transfer_macos.sh --import --archive <archive>.tar.enc
+```
+
+The archive can include the explicit Apple P12, provisioning profiles, the
+DJConnect onboarding token environment, explicitly selected SSH keys and
+explicit license files. Import verifies a SHA-256 manifest, imports profiles,
+offers a hidden P12-password prompt for login-keychain import, and stages
+licenses/SSH keys with owner-only permissions. It never exports the whole
+Keychain, browser profiles, Docker/GitHub credential stores or Apple/GitHub/
+Docker sessions. Reauthenticate those services interactively on the new Mac.
 
 Its mandatory macOS preflight requires macOS 14 or later and verifies that no
 patch update is available within the installed macOS major version. It does not
