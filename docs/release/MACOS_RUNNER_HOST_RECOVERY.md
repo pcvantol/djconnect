@@ -3,16 +3,15 @@
 Use this procedure after replacing or rebuilding the maintainer MacBook. It
 recovers the development-tooling baseline and all DJConnect macOS GitHub
 Actions runner registrations without copying a runner directory, a registration
-token, signing material or other machine state from the old host.
+token or other runner state from the old host.
 
 ## One-command recovery after cloning the central repository
 
-On the fresh Apple-Silicon Mac, install the current qualified full Xcode line,
-complete its first-run license prompt, install Codex, and clone this repository.
-Then run:
+On the fresh Apple-Silicon Mac, install Codex and clone this repository. Then
+run the bootstrap with the explicit, currently qualified Xcode line:
 
 ```sh
-./scripts/runner/bootstrap_macos_runner_host.sh
+./scripts/runner/bootstrap_macos_runner_host.sh --xcode-version <qualified-version>
 ```
 
 The bootstrap asks GitHub CLI to authenticate if needed. The signed-in account
@@ -43,13 +42,38 @@ Use a bounded recovery when a host needs only one capability:
 
 Use `--dry-run` to inspect the complete recovery plan without changes.
 
-## Intentional manual boundary
+## Xcode and non-interactive signing recovery
 
-The bootstrap never restores Apple certificates, private keys, provisioning
-profiles, Apple-account sessions or GitHub Environment secrets. Signing
-material must be restored locally to the runner user's login keychain, then a
-fresh Apple runner-qualification workflow must pass before private
-distribution resumes.
+`--xcode-version` installs and selects the requested qualified Xcode line with
+the `xcodes` CLI. It can require interactive Apple Developer authentication and
+MFA, but it downloads, installs, selects the developer directory, accepts the
+license and runs the first-launch setup automatically. Do not substitute an
+unqualified “latest” version for the explicit qualified version.
+
+To restore release-capable signing, copy the P12 and provisioning profiles from
+your secure local backup to the new Mac, then run:
+
+```sh
+./scripts/runner/bootstrap_macos_runner_host.sh \
+  --xcode-version <qualified-version> \
+  --signing-p12 /secure/path/DJConnect-signing.p12 \
+  --provisioning-profiles-dir /secure/path/profiles \
+  --configure-keychain-access
+```
+
+The P12 and login-keychain passwords are prompted invisibly. The script imports
+the identity into the current user's login keychain and grants the standard
+Apple build tools (`codesign`, `xcodebuild` and `productbuild`) unattended
+private-key access through the key partition list. It then lists available
+code-signing identities without revealing secret material.
+
+## Security boundary
+
+The bootstrap never downloads Apple certificates, private keys, provisioning
+profiles, Apple-account sessions or GitHub Environment secrets. It uses only
+locally supplied signing material, never logs passwords or token values, and a
+fresh Apple runner-qualification workflow must pass before private distribution
+resumes.
 
 This boundary keeps a lost or replaced laptop from becoming a secret-export
 mechanism while still making host and runner recovery repeatable.

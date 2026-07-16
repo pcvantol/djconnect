@@ -11,6 +11,10 @@ RUNNER_ROOT="${RUNNER_ROOT:-$HOME/actions-runners}"
 PROFILE_SELECTION='all'
 DRY_RUN=0
 SKIP_CODEX=0
+XCODE_VERSION=''
+SIGNING_P12=''
+PROVISIONING_PROFILES_DIR=''
+CONFIGURE_KEYCHAIN_ACCESS=0
 
 usage() {
   cat <<'EOF'
@@ -30,6 +34,18 @@ Options:
   --runner-root DIR     Parent directory for Actions runner installations.
                         Default: ~/actions-runners
   --skip-codex          Do not install/update the Codex CLI.
+  --xcode-version VER   Download, install and select this qualified Xcode line
+                        through xcodes. Apple Developer authentication may
+                        prompt interactively.
+  --signing-p12 FILE    Import this locally supplied signing identity into the
+                        login keychain. Its password is prompted invisibly.
+  --provisioning-profiles-dir DIR
+                        Copy local *.mobileprovision files into the current
+                        user's provisioning-profile directory.
+  --configure-keychain-access
+                        Grant the standard Apple build tools unattended access
+                        to existing local signing keys. The login-keychain
+                        password is prompted invisibly.
   --dry-run             Print changes without executing them.
   --help                Show this help.
 
@@ -37,9 +53,8 @@ No GitHub registration token is passed on the command line. After `gh auth
 login`, the script obtains one short-lived token per repository through the
 authenticated GitHub API and gives it directly to the runner configurator.
 
-The Apple Developer signing certificate, private key and provisioning profiles
-are intentionally not restored by this script. Import them locally after the
-host bootstrap; they must never be copied into GitHub secrets or this repo.
+Signing material must be supplied from a local secure backup. It is never
+downloaded from GitHub, written to this repository or emitted to a log.
 EOF
 }
 
@@ -75,18 +90,23 @@ ensure_macos_arm64() {
 }
 
 ensure_xcode() {
-  if xcodebuild -version >/dev/null 2>&1; then
-    log "Using $(xcodebuild -version | tr '\n' ' ' | sed 's/ $//')."
-    return
+  if [[ -n "$XCODE_VERSION" ]]; then
+    ensure_homebrew
+    run brew install xcodes
+    if [[ "$DRY_RUN" == '1' ]]; then
+      printf 'DRY: xcodes install %q --select\n' "$XCODE_VERSION"
+      return
+    fi
+    if ! xcodebuild -version 2>/dev/null | head -n 1 | grep -Fq "Xcode $XCODE_VERSION"; then
+      log "Installing and selecting qualified Xcode $XCODE_VERSION through xcodes."
+      xcodes install "$XCODE_VERSION" --select
+    fi
   fi
 
-  if xcode-select -p >/dev/null 2>&1; then
-    die 'Xcode Command Line Tools are present, but full Xcode is required for Apple builds. Install the approved Xcode line, select it with xcode-select, then rerun.'
-  fi
-
-  log 'Requesting Apple Command Line Tools installation.'
-  run xcode-select --install || true
-  die 'Finish the Apple Command Line Tools and full Xcode installation, accept its license, select it with xcode-select, then rerun this script.'
+  xcodebuild -version >/dev/null 2>&1 || die 'Full Xcode is absent. Rerun with --xcode-version <qualified-version>; xcodes will authenticate with Apple interactively and install it.'
+  log "Using $(xcodebuild -version | tr '\n' ' ' | sed 's/ $//')."
+  [[ "$DRY_RUN" == '1' ]] || sudo xcodebuild -license accept
+  [[ "$DRY_RUN" == '1' ]] || sudo xcodebuild -runFirstLaunch
 }
 
 ensure_homebrew() {
@@ -111,7 +131,7 @@ ensure_tooling() {
   ensure_homebrew
   log 'Installing or updating macOS runner tooling.'
   run brew update
-  run brew install git gh jq node python@3.12 xcodegen swiftlint xcbeautify create-dmg mas
+  run brew install git gh jq node python@3.12 xcodegen swiftlint xcbeautify create-dmg mas xcodes
   if [[ "$SKIP_CODEX" == '0' ]]; then
     run npm install -g @openai/codex
   fi
@@ -244,18 +264,73 @@ install_maintenance() {
   run_in_dir "$app_root" bash scripts/runner/install_macos_ci_tooling_maintenance.sh --run-now
 }
 
+prompt_secret() {
+  local prompt="$1"
+  local value
+  if [[ "$DRY_RUN" == '1' ]]; then
+    printf 'DRY: prompt invisibly for %s\n' "$prompt"
+    return
+  fi
+  read -r -s -p "$prompt: " value
+  printf '\n' >&2
+  REPLY="$value"
+}
+
+configure_signing_keychain() {
+  local login_keychain keychain_password p12_password profiles_target
+  if [[ -z "$SIGNING_P12" && "$CONFIGURE_KEYCHAIN_ACCESS" == '0' && -z "$PROVISIONING_PROFILES_DIR" ]]; then
+    return
+  fi
+  login_keychain="$(security login-keychain | tr -d '\"')"
+
+  if [[ -n "$SIGNING_P12" ]]; then
+    [[ -f "$SIGNING_P12" ]] || die "Signing identity does not exist: $SIGNING_P12"
+    prompt_secret 'P12 password'
+    p12_password="$REPLY"
+    if [[ "$DRY_RUN" == '1' ]]; then
+      printf 'DRY: security import %q into %q with non-interactive Apple tool ACL\n' "$SIGNING_P12" "$login_keychain"
+    else
+      security import "$SIGNING_P12" -k "$login_keychain" -P "$p12_password" -T /usr/bin/codesign -T /usr/bin/xcodebuild -T /usr/bin/productbuild -T /usr/bin/security
+    fi
+    unset p12_password REPLY
+    CONFIGURE_KEYCHAIN_ACCESS=1
+  fi
+
+  if [[ -n "$PROVISIONING_PROFILES_DIR" ]]; then
+    [[ -d "$PROVISIONING_PROFILES_DIR" ]] || die "Provisioning-profile directory does not exist: $PROVISIONING_PROFILES_DIR"
+    profiles_target="$HOME/Library/MobileDevice/Provisioning Profiles"
+    run mkdir -p "$profiles_target"
+    local profile
+    local found=0
+    while IFS= read -r -d '' profile; do
+      found=1
+      run cp "$profile" "$profiles_target/"
+    done < <(find "$PROVISIONING_PROFILES_DIR" -type f -name '*.mobileprovision' -print0)
+    (( found == 1 )) || die "No .mobileprovision files found in $PROVISIONING_PROFILES_DIR"
+  fi
+
+  if [[ "$CONFIGURE_KEYCHAIN_ACCESS" == '1' ]]; then
+    prompt_secret 'Login keychain password'
+    keychain_password="$REPLY"
+    if [[ "$DRY_RUN" == '1' ]]; then
+      printf 'DRY: security unlock-keychain and set Apple tool partition list on %q\n' "$login_keychain"
+    else
+      security unlock-keychain -p "$keychain_password" "$login_keychain"
+      security set-key-partition-list -S apple-tool:,apple:,codesign:,productbuild:,xcodebuild: -s -k "$keychain_password" "$login_keychain"
+      security find-identity -v -p codesigning "$login_keychain"
+    fi
+    unset keychain_password REPLY
+  fi
+}
+
 report_signing_recovery() {
   cat <<'EOF'
 
-Apple signing recovery remains intentionally manual:
-  1. Install/select the latest qualified Xcode line and accept its license.
-  2. Import the Apple Development/Developer ID certificate and private key into
-     this runner user's login keychain.
-  3. Restore the required provisioning profiles locally.
-  4. Run the Apple runner-qualification workflow before private distribution.
-
-No certificate, private key, provisioning profile or Apple account credential
-is fetched, logged or stored by this bootstrap.
+Apple signing recovery is local-only. When supplied with --signing-p12,
+--provisioning-profiles-dir and --configure-keychain-access, this bootstrap
+imports local material and grants Apple build tools non-interactive key access.
+It never fetches, logs or stores certificates, private keys, profiles or Apple
+account credentials. Run Apple runner qualification before private distribution.
 EOF
 }
 
@@ -265,6 +340,10 @@ while [[ "$#" -gt 0 ]]; do
     --github-root) GITHUB_ROOT="${2:?--github-root requires a value}"; shift 2 ;;
     --runner-root) RUNNER_ROOT="${2:?--runner-root requires a value}"; shift 2 ;;
     --skip-codex) SKIP_CODEX=1; shift ;;
+    --xcode-version) XCODE_VERSION="${2:?--xcode-version requires a value}"; shift 2 ;;
+    --signing-p12) SIGNING_P12="${2:?--signing-p12 requires a value}"; shift 2 ;;
+    --provisioning-profiles-dir) PROVISIONING_PROFILES_DIR="${2:?--provisioning-profiles-dir requires a value}"; shift 2 ;;
+    --configure-keychain-access) CONFIGURE_KEYCHAIN_ACCESS=1; shift ;;
     --dry-run) DRY_RUN=1; shift ;;
     --help|-h) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
@@ -272,8 +351,8 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 ensure_macos_arm64
-ensure_xcode
 ensure_tooling
+ensure_xcode
 ensure_github_auth
 prepare_repositories
 
@@ -284,4 +363,5 @@ for profile in apple private-network esp32 pi; do
 done
 
 install_maintenance
+configure_signing_keychain
 report_signing_recovery
