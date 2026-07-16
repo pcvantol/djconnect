@@ -40,3 +40,9 @@ Status: `ARCHITECTURE_CORRECTED`
     mutate a target, and is not a Verification Platform job. Its credentials,
     workspace and evidence remain target-scoped and isolated from Apple build
     and Apple secure-distribution jobs.
+11. Every GitHub Actions execution host follows
+    `RUNNER_TOOLING_CURRENCY_STANDARD.md`: GitHub-hosted jobs use current
+    hosted-image labels, self-hosted runner listeners retain automatic updates,
+    and native platform tooling is maintained by a host-native scheduled task
+    with non-secret version evidence. A new Xcode line is qualified before it
+    becomes the active Apple platform toolchain.
