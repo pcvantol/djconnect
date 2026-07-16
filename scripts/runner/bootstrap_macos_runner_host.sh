@@ -17,6 +17,8 @@ PROVISIONING_PROFILES_DIR=''
 CONFIGURE_KEYCHAIN_ACCESS=0
 INSTALL_PARALLELS=0
 SKIP_DEVELOPER_WORKSTATION=0
+NGROK_DOMAIN="${NGROK_DOMAIN:-}"
+PROMPT_NGROK_AUTH=0
 
 usage() {
   cat <<'EOF'
@@ -56,6 +58,10 @@ Options:
                         onboarding. By default the recovery restores the full
                         local DJConnect development workstation as well as the
                         runner host.
+  --ngrok-domain DOMAIN Reserved ngrok static domain for the Home Assistant
+                        external URL.
+  --prompt-ngrok-auth   Prompt invisibly for the ngrok authtoken when it is
+                        not already set in NGROK_AUTHTOKEN.
   --dry-run             Print changes without executing them.
   --help                Show this help.
 
@@ -205,8 +211,22 @@ bootstrap_developer_workstation() {
   local central_repository="$GITHUB_ROOT/djconnect"
   local onboarding="$central_repository/tools/dev_onboarding_macos.sh"
   [[ -f "$onboarding" ]] || die "The full developer onboarding script is unavailable at $onboarding."
+  if [[ -n "$NGROK_DOMAIN" && -z "${NGROK_AUTHTOKEN:-}" && "$PROMPT_NGROK_AUTH" == '1' ]]; then
+    prompt_secret 'ngrok authtoken'
+    export NGROK_AUTHTOKEN="$REPLY"
+    unset REPLY
+  fi
+  if [[ -z "$NGROK_DOMAIN" ]]; then
+    warn 'No ngrok domain supplied; the developer onboarding will leave the optional persistent tunnel unconfigured.'
+  elif [[ -z "${NGROK_AUTHTOKEN:-}" ]]; then
+    die 'An ngrok domain requires NGROK_AUTHTOKEN or --prompt-ngrok-auth.'
+  fi
   log 'Restoring the complete DJConnect macOS developer workstation.'
-  run_in_dir "$central_repository" bash tools/dev_onboarding_macos.sh --all --yes --warm-sudo
+  if [[ -n "$NGROK_DOMAIN" ]]; then
+    run_in_dir "$central_repository" bash tools/dev_onboarding_macos.sh --all --yes --warm-sudo --ngrok-domain "$NGROK_DOMAIN"
+  else
+    run_in_dir "$central_repository" bash tools/dev_onboarding_macos.sh --all --yes --warm-sudo
+  fi
 }
 
 profile_enabled() {
@@ -307,6 +327,7 @@ prompt_secret() {
   local value
   if [[ "$DRY_RUN" == '1' ]]; then
     printf 'DRY: prompt invisibly for %s\n' "$prompt"
+    REPLY='dry-run-secret-placeholder'
     return
   fi
   read -r -s -p "$prompt: " value
@@ -384,6 +405,8 @@ while [[ "$#" -gt 0 ]]; do
     --configure-keychain-access) CONFIGURE_KEYCHAIN_ACCESS=1; shift ;;
     --install-parallels) INSTALL_PARALLELS=1; shift ;;
     --skip-developer-workstation) SKIP_DEVELOPER_WORKSTATION=1; shift ;;
+    --ngrok-domain) NGROK_DOMAIN="${2:?--ngrok-domain requires a value}"; shift 2 ;;
+    --prompt-ngrok-auth) PROMPT_NGROK_AUTH=1; shift ;;
     --dry-run) DRY_RUN=1; shift ;;
     --help|-h) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;

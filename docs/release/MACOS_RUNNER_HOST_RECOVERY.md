@@ -30,6 +30,20 @@ validation baseline.
 Use `--skip-developer-workstation` only for a deliberately minimal runner-only
 host.
 
+To recover the persistent Home Assistant tunnel too, supply the existing
+reserved domain and let the bootstrap prompt invisibly for the token:
+
+```sh
+./scripts/runner/bootstrap_macos_runner_host.sh \
+  --xcode-version <qualified-version> \
+  --ngrok-domain <reserved-domain> \
+  --prompt-ngrok-auth
+```
+
+The token is passed only in memory to the existing onboarding flow, which
+creates the runner-user LaunchAgent. It is never a command-line value or
+written to a recovery log.
+
 By default it prepares these repository-scoped macOS ARM64 runners:
 
 | Profile | Repository | Runner name | Additional labels |

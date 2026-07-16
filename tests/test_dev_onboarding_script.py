@@ -112,6 +112,9 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("--install-parallels", source)
         self.assertIn("brew install --cask parallels", source)
         self.assertIn("dev_onboarding_macos.sh --all --yes --warm-sudo", source)
+        self.assertIn("--ngrok-domain", source)
+        self.assertIn("--prompt-ngrok-auth", source)
+        self.assertIn("NGROK_AUTHTOKEN", source)
         self.assertIn("install_macos_ci_tooling_maintenance.sh --run-now", source)
 
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:
