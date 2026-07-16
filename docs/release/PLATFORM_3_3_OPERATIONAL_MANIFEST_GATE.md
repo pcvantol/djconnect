@@ -33,6 +33,8 @@ Release.
 ## Next action
 
 Verify the Home Assistant environment readiness before using its already
-recorded exact target authorization. Windows requires its own exact
-target-scoped authorization. Its post-deployment smoke may run only after that
-target's successful deployment; all remaining targets remain independent.
+recorded exact target authorization. Windows now has an exact target-scoped
+authorization and a qualified Windows ARM64 service runner; its deployment may
+be dispatched only after this authorization record is merged. Its
+post-deployment smoke may run only after that target's successful deployment;
+all remaining targets remain independent.

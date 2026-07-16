@@ -61,6 +61,16 @@ and SHA-256 `c25444d3ef414489848fd2d8de624785c82eb90195cc861bcb63085e0df3ceeb`.
 Its separately merged consumer accepts only this manifest-bound operation and
 performs read-back smoke after deployment.
 
+The maintainer authorized the exact Windows ARM64 binding for
+`windows_internal_arm64`: source
+`6c0c3c3478c81472e479184dc03e51fd095dc4b2`, public artifact
+`release-asset:pcvantol/djconnect-app-releases:windows/v3.3.0:DJConnect-Windows-arm64-3.3.0-unsigned.zip`
+and SHA-256 `cbe379826731deb1d16c8af5510b4190a4f4949b1bf6589925de5d1eb66c5b47`.
+The Windows ARM64 service runner was qualified successfully in run
+[`29481814760`](https://github.com/pcvantol/djconnect-windows/actions/runs/29481814760).
+This authorization record does not dispatch deployment; the manifest-bound
+deployment and separate smoke remain required after its merge.
+
 ## Operational execution evidence
 
 The authorized website deployment completed successfully through the bounded
@@ -116,6 +126,8 @@ verified the installed iPhone and Watch applications against manifest version
 ## Next action
 
 Do not dispatch a target automatically. The recorded `home_assistant_pi5`
-authorization remains pending environment-readiness verification. Windows
-still requires its own exact target-scoped authorization. Every operation
-requires successful deployment and separately dispatched post-deployment smoke.
+authorization remains pending environment-readiness verification. Windows now
+has its own exact target-scoped authorization and qualified service-runner
+evidence, pending only the manifest-bound deployment and separately dispatched
+post-deployment smoke after this record is merged. Every operation requires
+successful deployment and separately dispatched post-deployment smoke.

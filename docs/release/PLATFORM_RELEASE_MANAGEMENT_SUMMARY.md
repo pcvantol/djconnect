@@ -27,7 +27,7 @@ Before the Internal Release can be closed, the platform must:
 
 1. obtain exact, target-scoped authorization and complete manifest-bound
    deployment plus smoke for Home Assistant;
-2. complete the equivalent separately authorized Windows ARM64 operation; and
+2. complete the now separately authorized Windows ARM64 operation; and
 3. reconcile all target evidence before considering release burn-in.
 
 Platform Release Certification is deferred until after a successful
