@@ -12,6 +12,8 @@ the DJConnect product release.
   the unchanged thin `bootstrap_macos_runner_host.sh` CLI entry point.
 - Add a canonical package manifest with semantic versions for the full package
   and each module, validated before recovery actions begin.
+- Bind the stable entry point and every package module to SHA-256 values and a
+  deterministic aggregate package checksum, verified before recovery actions.
 - Add configurable `--log-level` output filtering with `debug`, `verbose`,
   `info`, `warning` and `error` levels.
 - Mark headless, parallel-safe runner-registration and read-only Apple audit

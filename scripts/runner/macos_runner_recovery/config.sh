@@ -38,15 +38,29 @@ load_recovery_package_manifest() {
 }
 
 verify_recovery_package_manifest() {
-  local component expected_file expected_version actual_version
-  for component in config core workflow security operations runners apple cli bootstrap; do
+  local component expected_file expected_version expected_sha256 actual_version actual_sha256 aggregate_input aggregate_sha256
+  aggregate_input=''
+  for component in entry config core workflow security operations runners apple cli bootstrap; do
     expected_file="$(package_manifest_value "component.$component.file")"
     expected_version="$(package_manifest_value "component.$component.version")"
-    [[ "$expected_file" =~ ^[A-Za-z0-9_-]+\.sh$ ]] || die "Recovery package manifest has an invalid file for component $component."
+    expected_sha256="$(package_manifest_value "component.$component.sha256")"
+    if [[ "$component" == 'entry' ]]; then
+      [[ "$expected_file" == '../bootstrap_macos_runner_host.sh' ]] || die 'Recovery package manifest has an invalid entry-point file binding.'
+      expected_file="$SCRIPT_DIRECTORY/bootstrap_macos_runner_host.sh"
+    else
+      [[ "$expected_file" =~ ^[A-Za-z0-9_-]+\.sh$ ]] || die "Recovery package manifest has an invalid file for component $component."
+      expected_file="$RECOVERY_PACKAGE_DIRECTORY/$expected_file"
+    fi
     [[ "$expected_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "Recovery package manifest has an invalid version for component $component."
-    actual_version="$(sed -nE 's/^# Version: ([0-9]+\.[0-9]+\.[0-9]+)$/\1/p' "$RECOVERY_PACKAGE_DIRECTORY/$expected_file" | head -n 1)"
+    [[ "$expected_sha256" =~ ^[0-9a-f]{64}$ ]] || die "Recovery package manifest has an invalid SHA-256 for component $component."
+    actual_version="$(sed -nE 's/^# Version: ([0-9]+\.[0-9]+\.[0-9]+)$/\1/p' "$expected_file" | head -n 1)"
     [[ "$actual_version" == "$expected_version" ]] || die "Recovery package component $component version mismatch: manifest=$expected_version module=${actual_version:-missing}."
+    actual_sha256="$(shasum -a 256 "$expected_file" | awk '{print $1}')"
+    [[ "$actual_sha256" == "$expected_sha256" ]] || die "Recovery package component $component SHA-256 mismatch: manifest=$expected_sha256 module=$actual_sha256."
+    aggregate_input+="$component:$actual_sha256"$'\n'
   done
+  aggregate_sha256="$(printf '%s' "$aggregate_input" | shasum -a 256 | awk '{print $1}')"
+  [[ "$aggregate_sha256" == "$(package_manifest_value 'package.aggregate_sha256')" ]] || die 'Recovery package aggregate SHA-256 mismatch.'
 }
 
 load_recovery_package_manifest
