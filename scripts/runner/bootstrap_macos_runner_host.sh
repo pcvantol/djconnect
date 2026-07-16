@@ -45,6 +45,7 @@ ALLOW_STEP_RETRY=1
 SKIP_PHASES="${SKIP_PHASES:-}"
 SKIPPED_PHASE_COUNT=0
 INITIAL_VERIFICATION_PASSED=0
+PHASE_PRECHECK_RESULT=''
 
 usage() {
   cat <<'EOF'
@@ -248,6 +249,105 @@ phase_is_skipped() {
   [[ -n "$SKIP_PHASES" && ",$SKIP_PHASES," == *",$phase_id,"* ]]
 }
 
+phase_state_variable() {
+  local phase_id="$1"
+  printf 'PHASE_STATE_%s' "${phase_id//-/_}"
+}
+
+set_phase_state() {
+  local phase_id="$1"
+  local phase_state="$2"
+  local variable_name
+  variable_name="$(phase_state_variable "$phase_id")"
+  printf -v "$variable_name" '%s' "$phase_state"
+}
+
+get_phase_state() {
+  local phase_id="$1"
+  local variable_name
+  variable_name="$(phase_state_variable "$phase_id")"
+  printf '%s' "${!variable_name:-PENDING}"
+}
+
+phase_dependencies() {
+  local phase_id="$1"
+  case "$phase_id" in
+    macos-preflight) ;;
+    sudo|tooling) printf '%s' 'macos-preflight' ;;
+    xcode) printf '%s' 'tooling' ;;
+    parallels) printf '%s' 'tooling' ;;
+    github-auth) printf '%s' 'tooling' ;;
+    repositories) printf '%s' 'github-auth' ;;
+    developer-workstation) printf '%s' 'repositories sudo tooling' ;;
+    docker-auth) printf '%s' 'developer-workstation' ;;
+    runner-apple) printf '%s' 'repositories github-auth sudo xcode' ;;
+    runner-private-network|runner-esp32|runner-pi) printf '%s' 'repositories github-auth sudo' ;;
+    maintenance) printf '%s' 'repositories' ;;
+    tooling-refresh) printf '%s' 'tooling sudo' ;;
+    reboot-check) printf '%s' 'tooling-refresh' ;;
+    services)
+      printf '%s' 'maintenance'
+      local profile
+      for profile in apple private-network esp32 pi; do
+        if profile_enabled "$profile"; then
+          printf ' runner-%s' "$profile"
+        fi
+      done
+      ;;
+    apple-signing) printf '%s' 'xcode' ;;
+    apple-readiness) printf '%s' 'repositories github-auth xcode' ;;
+    apple-github-audit) printf '%s' 'github-auth' ;;
+    initial-verification) printf '%s' 'repositories developer-workstation docker-auth services reboot-check' ;;
+    *) die "No dependency definition exists for phase: $phase_id" ;;
+  esac
+}
+
+phase_runtime_conditions() {
+  local phase_id="$1"
+  if [[ "$DRY_RUN" == '1' ]]; then
+    PHASE_PRECHECK_RESULT='Declared dependencies satisfied in the dry-run plan; runtime conditions will be checked during execution.'
+    return 0
+  fi
+  case "$phase_id" in
+    macos-preflight) PHASE_PRECHECK_RESULT='Host qualification will verify macOS, Apple Silicon, RAM, cores and free disk space.' ;;
+    sudo) dseditgroup -o checkmember -m "$(id -un)" admin | grep -Fq 'yes' || return 1; PHASE_PRECHECK_RESULT='Current user is a local macOS administrator.' ;;
+    tooling) command -v curl >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='curl is available for supported tooling bootstrap.' ;;
+    xcode|parallels|tooling-refresh) command -v brew >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='Homebrew is available.' ;;
+    github-auth|repositories|apple-github-audit) command -v gh >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='GitHub CLI is available.' ;;
+    developer-workstation|initial-verification) [[ -f "$GITHUB_ROOT/djconnect/tools/dev_onboarding_macos.sh" ]] || return 1; PHASE_PRECHECK_RESULT='Central developer-onboarding script is available.' ;;
+    docker-auth) command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='Docker Desktop daemon is ready.' ;;
+    runner-apple|runner-private-network|runner-esp32|runner-pi) command -v gh >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='GitHub CLI is available for runner registration.' ;;
+    maintenance) [[ -f "$GITHUB_ROOT/djconnect-app/scripts/runner/install_macos_ci_tooling_maintenance.sh" ]] || return 1; PHASE_PRECHECK_RESULT='macOS maintenance installer is available.' ;;
+    reboot-check) command -v softwareupdate >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='macOS Software Update utility is available.' ;;
+    services) PHASE_PRECHECK_RESULT='Runner and LaunchAgent validation will use the completed installation state.' ;;
+    apple-signing) command -v security >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='macOS keychain tooling is available.' ;;
+    apple-readiness) command -v xcodebuild >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='Xcode command-line tooling is available.' ;;
+    *) die "No runtime-condition definition exists for phase: $phase_id" ;;
+  esac
+}
+
+precheck_phase() {
+  local phase_id="$1"
+  local dependency dependency_state dependencies
+  dependencies="$(phase_dependencies "$phase_id")"
+  for dependency in $dependencies; do
+    dependency_state="$(get_phase_state "$dependency")"
+    if [[ "$dependency_state" != 'PASSED' ]]; then
+      PHASE_PRECHECK_RESULT="Dependency $dependency is $dependency_state; PASSED is required."
+      return 1
+    fi
+  done
+  if ! phase_runtime_conditions "$phase_id"; then
+    PHASE_PRECHECK_RESULT="Runtime conditions are not met for phase $phase_id."
+    return 1
+  fi
+  if [[ -n "$dependencies" ]]; then
+    PHASE_PRECHECK_RESULT="Dependencies passed: $dependencies. $PHASE_PRECHECK_RESULT"
+  else
+    PHASE_PRECHECK_RESULT="No phase dependencies. $PHASE_PRECHECK_RESULT"
+  fi
+}
+
 validate_skip_phases() {
   local phase_id
   [[ -z "$SKIP_PHASES" ]] && return 0
@@ -267,6 +367,7 @@ skip_phase() {
   local step="$2"
   local reason="$3"
   SKIPPED_PHASE_COUNT=$((SKIPPED_PHASE_COUNT + 1))
+  set_phase_state "$phase_id" 'SKIPPED'
   report_append "$step" 'SKIPPED' "$reason (phase ID: $phase_id)."
   warn "$step was skipped: $reason"
   CURRENT_STEP=''
@@ -283,6 +384,12 @@ run_phase() {
     return 0
   fi
   CURRENT_STEP="$step"
+  if ! precheck_phase "$phase_id"; then
+    set_phase_state "$phase_id" 'BLOCKED'
+    report_append "Precheck: $step" 'FAILED' "$PHASE_PRECHECK_RESULT"
+    die "Precheck failed for $step: $PHASE_PRECHECK_RESULT"
+  fi
+  report_append "Precheck: $step" 'PASSED' "$PHASE_PRECHECK_RESULT"
   while true; do
     log "$step (attempt $attempt)"
     set +e
@@ -290,6 +397,7 @@ run_phase() {
     phase_status=$?
     set -e
     if [[ "$phase_status" == '0' ]]; then
+      set_phase_state "$phase_id" 'PASSED'
       if [[ "$phase_id" == 'initial-verification' ]]; then
         INITIAL_VERIFICATION_PASSED=1
       fi
@@ -302,6 +410,7 @@ run_phase() {
     report_append "$step" "FAILED (attempt $attempt)" "Exited with status $phase_status."
     warn "$step failed with status $phase_status."
     if [[ "$ALLOW_STEP_RETRY" != '1' || "$DRY_RUN" == '1' || ! -r /dev/tty || ! -w /dev/tty ]]; then
+      set_phase_state "$phase_id" 'FAILED'
       die "Recovery phase failed: $step"
     fi
     printf 'Retry this phase? [r]etry / [s]kip / [a]bort: ' >/dev/tty

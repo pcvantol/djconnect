@@ -24,6 +24,16 @@ free disk space in the transcript and final report. 16 GB RAM and 120 GB free
 space are recommended for Docker, Xcode and Windows-VM workloads. This gate is
 deliberately non-skippable.
 
+Every subsequent recovery phase starts with a recorded precheck. The precheck
+requires each declared upstream dependency to be `PASSED` (a skipped, failed or
+blocked dependency stops the dependent phase) and checks its relevant local
+condition, such as Homebrew availability, GitHub CLI availability, repository
+presence, Docker readiness, the maintenance installer, keychain tooling or
+Xcode. The Markdown report includes a separate `Precheck: <phase>` row with
+the dependency and condition evidence before that phase can run. Dry-run
+records the dependency order and plans runtime condition checks without
+claiming that post-installation tools already exist.
+
 The bootstrap asks GitHub CLI to authenticate if needed. The signed-in account
 must be able to administer the DJConnect repositories. It then obtains a fresh,
 short-lived registration token through the GitHub API for each profile; no
