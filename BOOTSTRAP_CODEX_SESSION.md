@@ -86,6 +86,44 @@ machine can satisfy Apple-Silicon, macOS, RAM and disk requirements while still
 being `NOT READY` because tooling, runners or maintenance tasks drift from the
 declared machine state.
 
+## Qualified Development Machine Gate for Repository Mutation
+
+Codex may accept and perform a contentful tracked-repository mutation only
+from a qualified development machine. Before the developer gives such a prompt,
+they must run the local `--verify` command above on the machine that will do the
+work and provide Codex its resulting readiness summary.
+
+The submitted evidence must identify the verification command and manifest,
+its exit code, the resulting readiness verdict, and every required `DRIFT` item
+when the exit code is non-zero. A machine is qualified only when the evidence
+states `READY FOR DJCONNECT DEVELOPMENT` and the command exited `0`.
+
+Codex must evaluate this gate in the current session. It must not infer a
+qualified machine from conversation history, a result from another machine,
+copied partial output, or a previous session. If the evidence is absent,
+`NOT READY`, or `UNVERIFIED`, Codex must not make contentful repository
+changes. It may perform read-only inspection and explain the exact local
+verification command and evidence still required.
+
+This gate applies to changes such as product code, tests, workflows, CI/CD,
+deployment or release configuration, architecture documents, and operational
+documentation. It is deliberately not a way to bypass the normal repository
+bootstrap, engineering protocol, review, or authorization requirements.
+
+The only exceptions are the following narrowly scoped changes:
+
+- governance or backlog documentation: `docs/governance/**`,
+  `BOOTSTRAP_CODEX_SESSION.md`, `PLATFORM_GOVERNANCE.md`, and
+  `PLATFORM_BACKLOG.md`;
+- the developer-onboarding package and its compatibility/test entry points:
+  `onboarding/**`, `tools/dev_onboarding_macos.sh`,
+  `tools/dev_onboarding_windows.ps1`, and `tests/test_onboarding_package.py`.
+
+An exception bypasses only this qualified-machine gate. Codex must state that
+the request is an exception and must still follow every applicable engineering
+and security rule. A mixed change is not excepted: all non-excepted files remain
+blocked until qualified-machine evidence is supplied.
+
 ## Repository Mutation Rule for Machine Recovery
 
 The machine-recovery bootstrap may clone, fetch, fast-forward and validate
@@ -206,6 +244,8 @@ After bootstrap, Codex should return a readiness summary in this shape:
 - Repository:
 - Development machine readiness: `READY FOR DJCONNECT DEVELOPMENT` / `NOT READY FOR DJCONNECT DEVELOPMENT` / `UNVERIFIED`
 - Machine verification evidence: manifest path, exit code and required drift (if any)
+- Repository mutation gate: `SATISFIED` / `NOT SATISFIED` / `EXEMPT` (with the
+  exact exception path scope, if applicable)
 - Repo role:
 - Canonical foundation read:
 - Local docs read:
@@ -221,3 +261,6 @@ A clean Codex session must not start implementation immediately after
 bootstrap.
 
 It must first return the readiness summary and wait for the next user prompt.
+For any later contentful repository-mutation prompt, it must enforce the
+Qualified Development Machine Gate before changing files, except for its
+explicitly listed narrow exceptions.
