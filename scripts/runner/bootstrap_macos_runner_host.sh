@@ -71,6 +71,7 @@ VERIFY_UNVERIFIED_COUNT=0
 LOG_LEVEL="${LOG_LEVEL:-info}"
 LIST_PHASES=0
 PARALLEL_JOBS="${DJCONNECT_PARALLEL_JOBS:-0}"
+MEMORY_OVERRIDE_CONFIRMED=0
 RESUME_MODE=0
 RESUME_STATE_FILE="${RESUME_STATE_FILE:-$HOME/Library/Application Support/DJConnect/macos-runner-recovery-resume.env}"
 RESUME_NEXT_PHASE=''
@@ -165,6 +166,10 @@ Options:
                         Default: half of available CPU cores, minimum one.
                         Cannot exceed available CPU cores. May also be set by
                         DJCONNECT_PARALLEL_JOBS.
+  --confirm-memory-override
+                        Explicitly approve recovery on a host that meets the
+                        hard RAM minimum but is below the recommended RAM.
+                        Otherwise an interactive confirmation is required.
   --no-color            Disable ANSI color output.
   --help                Show this help.
 
@@ -976,6 +981,35 @@ run_in_dir() {
   (cd "$directory" && "$@")
 }
 
+confirm_recommended_memory_override() {
+  local mem_gb="$1"
+  (( mem_gb >= DESIRED_RECOMMENDED_RAM_GB )) && return 0
+  warn "${mem_gb}GB RAM meets the hard ${DESIRED_MINIMUM_RAM_GB}GB minimum, but is below the ${DESIRED_RECOMMENDED_RAM_GB}GB recommendation for Docker, Xcode and parallel runners."
+  if [[ "$DRY_RUN" == '1' ]]; then
+    printf 'DRY: require explicit operator confirmation before continuing below the recommended %sGB RAM\n' "$DESIRED_RECOMMENDED_RAM_GB"
+    report_append 'Memory capacity override' 'CONFIRMATION REQUIRED' "${mem_gb}GB is below the recommended ${DESIRED_RECOMMENDED_RAM_GB}GB; dry-run did not request confirmation."
+    return 0
+  fi
+  if [[ "$MEMORY_OVERRIDE_CONFIRMED" == '1' ]]; then
+    report_append 'Memory capacity override' 'EXPLICITLY APPROVED' "Operator supplied --confirm-memory-override for ${mem_gb}GB RAM."
+    return 0
+  fi
+  if [[ ! -r /dev/tty || ! -w /dev/tty ]]; then
+    die "${mem_gb}GB RAM is below the recommended ${DESIRED_RECOMMENDED_RAM_GB}GB. Run interactively to confirm, or explicitly supply --confirm-memory-override."
+  fi
+  local response=''
+  printf 'Continue recovery with %sGB RAM (below recommended %sGB)? [y/N]: ' "$mem_gb" "$DESIRED_RECOMMENDED_RAM_GB" >/dev/tty
+  read -r response </dev/tty
+  case "$response" in
+    y|Y|yes|YES)
+      report_append 'Memory capacity override' 'INTERACTIVELY APPROVED' "Operator approved recovery with ${mem_gb}GB RAM."
+      ;;
+    *)
+      die "Recovery stopped: ${mem_gb}GB RAM is below the recommended ${DESIRED_RECOMMENDED_RAM_GB}GB and was not approved."
+      ;;
+  esac
+}
+
 ensure_macos_arm64() {
   local macos_version macos_major cpu_brand hardware_profile mem_bytes mem_gb cpu_count disk_probe_path disk_kb disk_gb
   [[ "$DESIRED_HOST_PLATFORM" == 'macos' ]] || die "Desired state requires unsupported host platform: $DESIRED_HOST_PLATFORM"
@@ -1021,11 +1055,9 @@ ensure_macos_arm64() {
   disk_gb=$((disk_kb / 1024 / 1024))
   (( disk_gb >= DESIRED_MINIMUM_FREE_DISK_GB )) || die "DJConnect development requires at least ${DESIRED_MINIMUM_FREE_DISK_GB}GB free at $GITHUB_ROOT; detected ${disk_gb}GB."
 
+  confirm_recommended_memory_override "$mem_gb"
   log "Qualified development host: macOS $macos_version, $cpu_brand, ${mem_gb}GB RAM, $cpu_count cores, ${disk_gb}GB free at $disk_probe_path."
   report_append 'Development host qualification' 'QUALIFIED' "macOS $macos_version; $cpu_brand; ${mem_gb}GB RAM; $cpu_count cores; ${disk_gb}GB free at $disk_probe_path."
-  if (( mem_gb < DESIRED_RECOMMENDED_RAM_GB )); then
-    warn "${mem_gb}GB RAM meets the minimum; ${DESIRED_RECOMMENDED_RAM_GB}GB+ is recommended for Docker and Xcode."
-  fi
   if (( disk_gb < DESIRED_RECOMMENDED_FREE_DISK_GB )); then
     warn "${disk_gb}GB free meets the minimum; ${DESIRED_RECOMMENDED_FREE_DISK_GB}GB+ is recommended for VM, Xcode and Docker workloads."
   fi
@@ -1561,6 +1593,7 @@ while [[ "$#" -gt 0 ]]; do
     --log-level) LOG_LEVEL="${2:?--log-level requires a value}"; validate_log_level; shift 2 ;;
     --list-phases) LIST_PHASES=1; shift ;;
     --parallel-jobs) PARALLEL_JOBS="${2:?--parallel-jobs requires a value}"; validate_parallel_jobs; shift 2 ;;
+    --confirm-memory-override) MEMORY_OVERRIDE_CONFIRMED=1; shift ;;
     --no-color) NO_COLOR=1; shift ;;
     --help|-h|help) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;

@@ -14,6 +14,8 @@ the DJConnect product release.
   phases; expose the metadata through `--list-phases` and recovery reports.
 - Execute those marked phases in CPU-bounded batches; default to half of the
   detected CPU cores and retain per-phase transcript/report evidence.
+- Require an interactive or explicit recorded confirmation when RAM meets the
+  hard minimum but is below the recommended recovery capacity.
 
 ## [1.0.0] - 2026-07-16
 

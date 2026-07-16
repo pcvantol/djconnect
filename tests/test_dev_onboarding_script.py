@@ -306,6 +306,26 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("worker_limit <= cpu_count", source)
         self.assertIn("run_apple_audit_alongside_services", source)
 
+    def test_macos_runner_recovery_bootstrap_gates_low_recommended_memory(self) -> None:
+        result = subprocess.run(
+            [str(RUNNER_RECOVERY_SCRIPT), "--help"],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("--confirm-memory-override", result.stdout)
+        source = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+        self.assertIn("confirm_recommended_memory_override", source)
+        self.assertIn("DESIRED_MINIMUM_RAM_GB", source)
+        self.assertIn("DESIRED_RECOMMENDED_RAM_GB", source)
+        self.assertIn("INTERACTIVELY APPROVED", source)
+        self.assertIn("EXPLICITLY APPROVED", source)
+        self.assertIn("CONFIRMATION REQUIRED", source)
+
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:
         source = WINDOWS_RUNNER_RECOVERY_SCRIPT.read_text()
 

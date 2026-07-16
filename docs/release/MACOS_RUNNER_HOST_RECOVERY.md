@@ -22,7 +22,11 @@ least 80 GB free on the filesystem that will contain `~/Documents/GitHub`.
 It records the detected macOS version, Apple CPU model, RAM, core count and
 free disk space in the transcript and final report. 16 GB RAM and 120 GB free
 space are recommended for Docker, Xcode and Windows-VM workloads. This gate is
-deliberately non-skippable.
+deliberately non-skippable. A machine below the hard RAM minimum is blocked.
+One that meets the minimum but is below the recommendation emits a warning and
+requires an explicit interactive confirmation before recovery continues. For
+an unattended, deliberately approved exception, add
+`--confirm-memory-override`; the evidence report records that override.
 
 ## Declarative machine desired state
 
