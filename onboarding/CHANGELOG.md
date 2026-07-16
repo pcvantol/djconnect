@@ -1,5 +1,12 @@
 # DJConnect Developer Onboarding Changelog
 
+## 1.1.2 — 2026-07-16
+
+- Compare the running macOS onboarding package with the local versioned
+  distribution catalog before execution.
+- Require explicit confirmation before continuing with an older package and
+  record the decision in the Markdown onboarding report.
+
 ## 1.1.1 — 2026-07-16
 
 - Require the macOS preflight to verify that no patch update is available for

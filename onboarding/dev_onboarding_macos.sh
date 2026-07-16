@@ -3,7 +3,8 @@ set -euo pipefail
 
 SCRIPT_NAME="$(basename "$0")"
 ORIGINAL_ARGS="$*"
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PACKAGE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$PACKAGE_ROOT/.." && pwd)"
 GITHUB_ROOT="$(dirname "$REPO_ROOT")"
 DEFAULT_HA_CONFIG_DIR="${HOME}/docker/homeassistant/config"
 HA_CONFIG_DIR="${HA_CONFIG_DIR:-$DEFAULT_HA_CONFIG_DIR}"
@@ -24,6 +25,7 @@ NGROK_LAUNCH_AGENT_LABEL="${NGROK_LAUNCH_AGENT_LABEL:-dev.djconnect.homeassistan
 ONBOARDING_ENV_FILE="${ONBOARDING_ENV_FILE:-$REPO_ROOT/.djconnect-onboarding.env}"
 LOG_DIR="${LOG_DIR:-$REPO_ROOT/logs}"
 LOG_FILE="${LOG_FILE:-}"
+REPORT_FILE="${REPORT_FILE:-}"
 ASSUME_YES=0
 WARM_SUDO=0
 PROMPT_SECRETS=0
@@ -35,6 +37,7 @@ NO_COLOR_MODE="${NO_COLOR_MODE:-0}"
 SELECTED_STEPS=""
 SUDO_KEEPALIVE_PID=""
 LOGGING_STARTED=0
+REPORTING_STARTED=0
 STEP_TOTAL=0
 STEP_INDEX=0
 E2E_VERSION="${E2E_VERSION:-3.1.999}"
@@ -47,6 +50,9 @@ CLR_GREEN=""
 CLR_YELLOW=""
 CLR_RED=""
 CLR_CYAN=""
+PACKAGE_VERSION="unknown"
+VERSION_CURRENCY_DECISION="NOT_CHECKED"
+VERSION_CURRENCY_DETAIL=""
 
 init_style() {
   if [[ "$NO_COLOR_MODE" == "1" || -n "${NO_COLOR:-}" || ! -t 1 ]]; then
@@ -168,6 +174,8 @@ Options:
                        Free-tier accounts can use a static domain from ngrok.
   --log-file FILE       Write a persistent run log. Default is timestamped.
   --no-log-file         Disable persistent run logging.
+  --report-file FILE    Write the Markdown onboarding report to FILE.
+  --no-report-file      Disable the Markdown onboarding report.
   --no-color            Disable ANSI colors and styled terminal output.
   --env-file FILE       Local onboarding env file for optional tokens.
                        Default: $ONBOARDING_ENV_FILE
@@ -195,6 +203,7 @@ Environment overrides:
   ONBOARDING_ENV_FILE   Same as --env-file.
   LOG_DIR               Directory for default timestamped logs.
   LOG_FILE              Explicit persistent run log path.
+  REPORT_FILE           Explicit Markdown onboarding report path.
   NO_COLOR              Standard way to disable colored output.
   E2E_VERSION           Same as --e2e-version.
   CI_BRANCH             Same as --ci-branch.
@@ -256,6 +265,44 @@ start_logging() {
   LOGGING_STARTED=1
   log "Persistent log: $LOG_FILE"
   log "Command: $SCRIPT_NAME ${ORIGINAL_ARGS:-}"
+}
+
+start_report() {
+  if [[ "$REPORT_FILE" == "none" || "$REPORTING_STARTED" == "1" ]]; then
+    return
+  fi
+  if [[ -z "$REPORT_FILE" ]]; then
+    mkdir -p "$LOG_DIR"
+    REPORT_FILE="$LOG_DIR/dev_onboarding_$(date '+%Y%m%d_%H%M%S').md"
+  else
+    mkdir -p "$(dirname "$REPORT_FILE")"
+  fi
+  touch "$REPORT_FILE"
+  chmod 600 "$REPORT_FILE"
+  {
+    printf '# DJConnect Developer Onboarding Report\n\n'
+    printf -- '- Started: `%s`\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+    printf -- '- Package version: `%s`\n' "$PACKAGE_VERSION"
+  } >> "$REPORT_FILE"
+  REPORTING_STARTED=1
+  log "Markdown report: $REPORT_FILE"
+}
+
+append_report_version_currency() {
+  [[ "$REPORTING_STARTED" == "1" ]] || return
+  {
+    printf '\n## Distribution version check\n\n'
+    printf -- '- Decision: `%s`\n' "$VERSION_CURRENCY_DECISION"
+    printf -- '- Detail: %s\n' "$VERSION_CURRENCY_DETAIL"
+  } >> "$REPORT_FILE"
+}
+
+complete_report() {
+  [[ "$REPORTING_STARTED" == "1" ]] || return
+  {
+    printf '\n## Conclusion\n\n'
+    printf -- '- Result: onboarding command completed.\n'
+  } >> "$REPORT_FILE"
 }
 
 load_onboarding_env() {
@@ -433,6 +480,118 @@ preflight_macos_security_patches() {
   fi
 
   status_ok "macOS ${macos_version}: no available patch update for major ${macos_major}"
+}
+
+read_package_version() {
+  local manifest="$PACKAGE_ROOT/manifest.yml"
+  if [[ -f "$manifest" ]]; then
+    PACKAGE_VERSION="$(awk -F': ' '$1 == "package.version" { print $2; exit }' "$manifest")"
+  fi
+  [[ "$PACKAGE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || PACKAGE_VERSION="unknown"
+}
+
+version_is_greater() {
+  local candidate="$1"
+  local current="$2"
+  local -a candidate_parts current_parts
+  local index candidate_part current_part
+
+  IFS='.' read -r -a candidate_parts <<< "$candidate"
+  IFS='.' read -r -a current_parts <<< "$current"
+  for index in 0 1 2; do
+    candidate_part="${candidate_parts[$index]:-0}"
+    current_part="${current_parts[$index]:-0}"
+    [[ "$candidate_part" =~ ^[0-9]+$ && "$current_part" =~ ^[0-9]+$ ]] || return 1
+    if (( 10#$candidate_part > 10#$current_part )); then
+      return 0
+    fi
+    if (( 10#$candidate_part < 10#$current_part )); then
+      return 1
+    fi
+  done
+  return 1
+}
+
+find_distribution_directory() {
+  local directory="$PACKAGE_ROOT"
+  if [[ -n "${ONBOARDING_DIST_DIR:-}" ]]; then
+    printf '%s' "$ONBOARDING_DIST_DIR"
+    return
+  fi
+  while [[ "$directory" != "/" ]]; do
+    if [[ "$(basename "$directory")" == "dist" ]]; then
+      printf '%s' "$directory"
+      return
+    fi
+    if [[ -d "$directory/onboarding/dist" ]]; then
+      printf '%s' "$directory/onboarding/dist"
+      return
+    fi
+    directory="$(dirname "$directory")"
+  done
+}
+
+record_distribution_version_decision() {
+  local distribution_directory="$1"
+  local candidate highest=""
+  local metadata manifest
+
+  if [[ "$PACKAGE_VERSION" == "unknown" ]]; then
+    VERSION_CURRENCY_DECISION="NOT_CHECKED_UNKNOWN_PACKAGE_VERSION"
+    VERSION_CURRENCY_DETAIL="The package manifest does not declare a valid semantic version."
+    warn "$VERSION_CURRENCY_DETAIL"
+    append_report_version_currency
+    return
+  fi
+  if [[ -z "$distribution_directory" || ! -d "$distribution_directory" ]]; then
+    VERSION_CURRENCY_DECISION="NOT_CHECKED_DIST_CATALOG_UNAVAILABLE"
+    VERSION_CURRENCY_DETAIL="No local onboarding dist catalog was found; version currency could not be compared."
+    warn "$VERSION_CURRENCY_DETAIL"
+    append_report_version_currency
+    return
+  fi
+
+  while IFS= read -r metadata; do
+    candidate="$(sed -n 's/.*"version"[[:space:]]*:[[:space:]]*"\([0-9][0-9.]*\)".*/\1/p' "$metadata" | head -n 1)"
+    if [[ "$candidate" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && { [[ -z "$highest" ]] || version_is_greater "$candidate" "$highest"; }; then
+      highest="$candidate"
+    fi
+  done < <(find "$distribution_directory" -mindepth 1 -maxdepth 3 -type f -name 'djconnect-developer-onboarding-*.json' -print 2>/dev/null)
+  while IFS= read -r manifest; do
+    candidate="$(awk -F': ' '$1 == "package.version" { print $2; exit }' "$manifest")"
+    if [[ "$candidate" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && { [[ -z "$highest" ]] || version_is_greater "$candidate" "$highest"; }; then
+      highest="$candidate"
+    fi
+  done < <(find "$distribution_directory" -mindepth 2 -maxdepth 4 -type f -name manifest.yml -print 2>/dev/null)
+
+  if [[ -n "$highest" ]] && version_is_greater "$highest" "$PACKAGE_VERSION"; then
+    VERSION_CURRENCY_DETAIL="Installed package $PACKAGE_VERSION; newer package $highest found in $distribution_directory."
+    warn "A newer DJConnect onboarding package ($highest) is available in $distribution_directory; this run uses $PACKAGE_VERSION."
+    if [[ "$PLAN_ONLY" == "1" ]]; then
+      VERSION_CURRENCY_DECISION="OUTDATED_VERSION_PLAN_ONLY"
+    elif [[ "$ASSUME_YES" == "1" ]]; then
+      VERSION_CURRENCY_DECISION="CONTINUED_WITH_OUTDATED_VERSION_BY_YES"
+    elif [[ ! -t 0 ]]; then
+      VERSION_CURRENCY_DECISION="BLOCKED_OUTDATED_VERSION_NO_CONFIRMATION"
+      append_report_version_currency
+      die "A newer onboarding package is available. Re-run with it, or use --yes to explicitly continue non-interactively."
+    else
+      local reply
+      read -r -p "Continue with older onboarding package $PACKAGE_VERSION? [y/N] " reply
+      case "${reply:-}" in
+        y|Y|yes|YES) VERSION_CURRENCY_DECISION="CONTINUED_WITH_OUTDATED_VERSION_BY_CONFIRMATION" ;;
+        *)
+          VERSION_CURRENCY_DECISION="BLOCKED_OUTDATED_VERSION_BY_USER"
+          append_report_version_currency
+          die "Onboarding stopped. Run the newer package $highest instead."
+          ;;
+      esac
+    fi
+  else
+    VERSION_CURRENCY_DECISION="CURRENT_OR_NEWEST_LOCAL_VERSION"
+    VERSION_CURRENCY_DETAIL="Package $PACKAGE_VERSION is current against local dist catalog $distribution_directory."
+  fi
+  append_report_version_currency
 }
 
 step_0_preflight() {
@@ -2064,6 +2223,14 @@ while [[ $# -gt 0 ]]; do
       LOG_FILE="none"
       shift
       ;;
+    --report-file)
+      REPORT_FILE="${2:-}"
+      shift 2
+      ;;
+    --no-report-file)
+      REPORT_FILE="none"
+      shift
+      ;;
     --no-color)
       NO_COLOR_MODE=1
       shift
@@ -2081,8 +2248,11 @@ done
 init_style
 trap cleanup EXIT
 need_macos
+read_package_version
 load_onboarding_env
 start_logging
+start_report
+record_distribution_version_decision "$(find_distribution_directory)"
 
 if [[ "$WARM_SUDO" == "1" ]]; then
   warm_sudo
@@ -2094,10 +2264,12 @@ fi
 
 if [[ -z "$SELECTED_STEPS" ]]; then
   interactive_menu
+  complete_report
   exit 0
 fi
 
 parse_steps "$SELECTED_STEPS"
+complete_report
 }
 
 # Sourcing this file exposes its helpers for unit tests without running setup.

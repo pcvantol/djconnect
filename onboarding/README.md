@@ -25,6 +25,15 @@ force a major-version upgrade. If a patch is available, install it through
 **System Settings → General → Software Update**, restart when requested, and
 run preflight again.
 
+At startup the macOS entry point reads its package version and compares it with
+the local `onboarding/dist` catalog, including versioned subdirectories. It
+warns before execution when a newer package is found. An interactive user must
+explicitly confirm continuing with the older package; `--yes` is the explicit
+non-interactive confirmation. The Markdown run report records the comparison
+path and decision without recording secrets. Use `ONBOARDING_DIST_DIR` to point
+an extracted package at a different local catalog, or `--report-file` to choose
+the report path.
+
 ## Tests
 
 Run the package contract tests from the repository root:

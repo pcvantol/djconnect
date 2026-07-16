@@ -15,7 +15,7 @@ from onboarding import build_package
 class OnboardingPackageBuildTests(unittest.TestCase):
     def test_manifest_declares_versioned_runtime_and_test_components(self) -> None:
         self.assertEqual(build_package.manifest_value("package.name"), "djconnect-developer-onboarding")
-        self.assertEqual(build_package.manifest_value("package.version"), "1.1.1")
+        self.assertEqual(build_package.manifest_value("package.version"), "1.1.2")
         self.assertEqual(build_package.manifest_value("component.tests.path"), "tests/test_onboarding_scripts.py")
         self.assertEqual(build_package.manifest_value("component.changelog.path"), "CHANGELOG.md")
 
@@ -32,7 +32,7 @@ class OnboardingPackageBuildTests(unittest.TestCase):
             self.assertEqual([item.name for item in first_artifacts], [item.name for item in second_artifacts])
             self.assertEqual(first_artifacts[0].read_bytes(), second_artifacts[0].read_bytes())
             metadata = json.loads(first_artifacts[2].read_text(encoding="utf-8"))
-            self.assertEqual(metadata["version"], "1.1.1")
+            self.assertEqual(metadata["version"], "1.1.2")
             self.assertEqual(metadata["sha256"], hashlib.sha256(first_artifacts[0].read_bytes()).hexdigest())
             with zipfile.ZipFile(first_artifacts[0]) as archive:
                 self.assertIn("onboarding/dev_onboarding_macos.sh", archive.namelist())
@@ -47,6 +47,45 @@ class OnboardingPackageBuildTests(unittest.TestCase):
         self.assertIn("softwareupdate --list", source)
         self.assertIn("macOS[^0-9]*${macos_major}", source)
         self.assertIn("System Settings > General > Software Update", source)
+
+    def test_macos_entrypoint_checks_dist_package_currency_and_records_decision(self) -> None:
+        source = (build_package.PACKAGE_ROOT / "dev_onboarding_macos.sh").read_text(encoding="utf-8")
+
+        self.assertIn("record_distribution_version_decision", source)
+        self.assertIn("find_distribution_directory", source)
+        self.assertIn("CONTINUED_WITH_OUTDATED_VERSION_BY_CONFIRMATION", source)
+        self.assertIn("Distribution version check", source)
+        self.assertIn("--report-file", source)
+
+    def test_macos_dist_subdirectory_version_check_records_outdated_plan_decision(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            dist = root / "dist"
+            newer = dist / "1.2.0"
+            newer.mkdir(parents=True)
+            (newer / "djconnect-developer-onboarding-1.2.0.json").write_text(
+                '{"version":"1.2.0"}\n', encoding="utf-8"
+            )
+            report = root / "report.md"
+            result = subprocess.run(
+                [
+                    "bash",
+                    "-lc",
+                    'source "$1"; PACKAGE_VERSION=1.1.2; REPORT_FILE="$2"; start_report; PLAN_ONLY=1; record_distribution_version_decision "$3"; cat "$2"',
+                    "bash",
+                    str(build_package.PACKAGE_ROOT / "dev_onboarding_macos.sh"),
+                    str(report),
+                    str(dist),
+                ],
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                check=False,
+            )
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("OUTDATED_VERSION_PLAN_ONLY", result.stdout)
+        self.assertIn("newer package 1.2.0", result.stdout)
 
     def test_check_mode_rejects_stale_distribution_artifact(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
