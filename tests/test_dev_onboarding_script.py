@@ -213,12 +213,12 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertEqual(
             result.stdout,
-            "DJConnect macOS Runner Host Recovery Bootstrap 1.0.0\n",
+            "DJConnect macOS Runner Host Recovery Bootstrap 1.1.0\n",
         )
         self.assertTrue(MACOS_RUNNER_RECOVERY_CHANGELOG.is_file())
         changelog = MACOS_RUNNER_RECOVERY_CHANGELOG.read_text(encoding="utf-8")
         self.assertIn("Semantic Versioning", changelog)
-        self.assertIn("## [1.0.0] - 2026-07-16", changelog)
+        self.assertIn("## [1.1.0] - 2026-07-16", changelog)
         self.assertIn("--version", changelog)
 
     def test_macos_runner_recovery_bootstrap_accepts_help_subcommand(self) -> None:
@@ -466,10 +466,10 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertTrue((RUNNER_RECOVERY_PACKAGE / "apple.sh").is_file())
         self.assertTrue(RUNNER_RECOVERY_MANIFEST.is_file())
         manifest = RUNNER_RECOVERY_MANIFEST.read_text(encoding="utf-8")
-        self.assertIn("package.version: 1.0.0", manifest)
+        self.assertIn("package.version: 1.1.0", manifest)
         self.assertIn("package.aggregate_sha256:", manifest)
         self.assertIn("component.entry.sha256:", manifest)
-        self.assertIn("component.workflow.version: 1.0.0", manifest)
+        self.assertIn("component.workflow.version: 1.1.0", manifest)
         self.assertIn("component.apple.version: 1.0.0", manifest)
         source = read_runner_recovery_source()
         self.assertIn("verify_recovery_package_manifest", source)
@@ -485,7 +485,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
             manifest = temporary_runner_directory / "macos_runner_recovery" / "manifest.yml"
             manifest.write_text(
                 manifest.read_text(encoding="utf-8").replace(
-                    "component.core.version: 1.0.0",
+                    "component.core.version: 1.1.0",
                     "component.core.version: 9.9.9",
                 ),
                 encoding="utf-8",
@@ -511,7 +511,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
             manifest = temporary_runner_directory / "macos_runner_recovery" / "manifest.yml"
             manifest.write_text(
                 manifest.read_text(encoding="utf-8").replace(
-                    "component.core.sha256: 27861485ea196bf634114e8bb8865d41e31e139f48a44ca88ccefac77c0b7b8e",
+                    "component.core.sha256: 8182301d6575d90ec93a4668675310eec80de0495e83c2a1dd8e6450cd67fcaf",
                     "component.core.sha256: 0000000000000000000000000000000000000000000000000000000000000000",
                 ),
                 encoding="utf-8",
@@ -527,6 +527,18 @@ class DevOnboardingScriptTests(unittest.TestCase):
 
         self.assertNotEqual(result.returncode, 0, result.stdout)
         self.assertIn("component core SHA-256 mismatch", result.stdout)
+
+    def test_macos_runner_recovery_bootstrap_declares_home_assistant_test_environment(self) -> None:
+        source = read_runner_recovery_source()
+        desired_state = MACOS_RUNNER_DESIRED_STATE.read_text(encoding="utf-8")
+
+        self.assertIn("home-assistant-lab", source)
+        self.assertIn("ensure_home_assistant_internal_test_environment", source)
+        self.assertIn("--steps 9 --yes --warm-sudo --no-log-file", source)
+        self.assertIn("lab.home_assistant.container", source)
+        self.assertIn("lab.home_assistant.url", source)
+        self.assertIn("lab.home_assistant.container_name: homeassistant", desired_state)
+        self.assertIn("lab.home_assistant.url: http://localhost:8123", desired_state)
 
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:
         source = WINDOWS_RUNNER_RECOVERY_SCRIPT.read_text()

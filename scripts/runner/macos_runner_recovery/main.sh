@@ -1,4 +1,4 @@
-# Version: 1.0.0
+# Version: 1.1.0
 # CLI parsing and top-level recovery orchestration.
 djconnect_macos_runner_recovery_main() {
 while [[ "$#" -gt 0 ]]; do
@@ -102,6 +102,7 @@ run_phase permissions-audit 'Least-privilege permissions audit' audit_least_priv
 run_phase repositories 'Repository preparation' prepare_repositories
 run_phase developer-workstation 'Developer workstation recovery' bootstrap_developer_workstation
 run_phase docker-auth 'Docker Hub authentication' ensure_docker_hub_auth
+run_phase home-assistant-lab 'Internal Home Assistant Docker test environment' ensure_home_assistant_internal_test_environment
 run_parallel_runner_profiles
 
 run_phase maintenance 'Daily macOS tooling maintenance' install_maintenance

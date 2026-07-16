@@ -20,6 +20,10 @@ tooling.required_casks: docker,dotnet-sdk
 tooling.optional_casks: parallels
 tooling.refresh_casks: docker,dotnet-sdk,parallels
 
+lab.home_assistant.service: homeassistant
+lab.home_assistant.container_name: homeassistant
+lab.home_assistant.url: http://localhost:8123
+
 runner.profiles: apple,private-network,esp32,pi
 profile.apple.repository: djconnect-app
 profile.apple.runner_name: djconnect-apple-macos

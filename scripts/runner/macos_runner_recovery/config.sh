@@ -1,4 +1,4 @@
-# Version: 1.0.0
+# Version: 1.1.0
 # Shared recovery state, constants and desired-state parsing.
 # Recovers a DJConnect macOS Actions-runner host after a laptop replacement.
 # Authentication is interactive through gh; GitHub registration tokens are
@@ -81,6 +81,9 @@ DESIRED_TOOL_FORMULAS=()
 DESIRED_REQUIRED_CASKS=()
 DESIRED_OPTIONAL_CASKS=()
 DESIRED_REFRESH_CASKS=()
+DESIRED_HA_SERVICE=''
+DESIRED_HA_CONTAINER_NAME=''
+DESIRED_HA_URL=''
 DESIRED_PROFILES=()
 GITHUB_ROOT="${GITHUB_ROOT:-$HOME/Documents/GitHub}"
 RUNNER_ROOT="${RUNNER_ROOT:-$HOME/actions-runners}"

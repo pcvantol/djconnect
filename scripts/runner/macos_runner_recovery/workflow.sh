@@ -1,4 +1,4 @@
-# Version: 1.0.0
+# Version: 1.1.0
 # Phase lifecycle, progress reporting, reboot continuation and repair flow.
 phase_section_id() {
   local phase_id="$1"
@@ -6,7 +6,7 @@ phase_section_id() {
     macos-preflight) printf '%s' 'host-qualification' ;;
     sudo|tooling|xcode|parallels) printf '%s' 'host-provisioning' ;;
     github-auth|permissions-audit|repositories) printf '%s' 'repository-access' ;;
-    developer-workstation|docker-auth) printf '%s' 'developer-workstation' ;;
+    developer-workstation|docker-auth|home-assistant-lab) printf '%s' 'developer-workstation' ;;
     runner-apple|runner-private-network|runner-esp32|runner-pi) printf '%s' 'runner-provisioning' ;;
     maintenance|tooling-refresh|reboot-check) printf '%s' 'host-maintenance' ;;
     apple-signing|apple-readiness|credential-expiry-audit|apple-github-audit) printf '%s' 'apple-readiness' ;;
@@ -64,7 +64,7 @@ section_phase_ids() {
     host-qualification) printf '%s\n' macos-preflight ;;
     host-provisioning) printf '%s\n' sudo tooling xcode parallels ;;
     repository-access) printf '%s\n' github-auth permissions-audit repositories ;;
-    developer-workstation) printf '%s\n' developer-workstation docker-auth ;;
+    developer-workstation) printf '%s\n' developer-workstation docker-auth home-assistant-lab ;;
     runner-provisioning) printf '%s\n' runner-apple runner-private-network runner-esp32 runner-pi ;;
     host-maintenance) printf '%s\n' maintenance tooling-refresh reboot-check ;;
     apple-readiness) printf '%s\n' apple-signing apple-readiness credential-expiry-audit apple-github-audit ;;
@@ -289,7 +289,7 @@ get_phase_state() {
 
 all_phase_ids() {
   local profile
-  printf '%s\n' macos-preflight sudo tooling xcode parallels github-auth permissions-audit repositories developer-workstation docker-auth
+  printf '%s\n' macos-preflight sudo tooling xcode parallels github-auth permissions-audit repositories developer-workstation docker-auth home-assistant-lab
   for profile in "${DESIRED_PROFILES[@]}"; do
     printf 'runner-%s\n' "$profile"
   done
@@ -327,7 +327,7 @@ print_phase_catalog() {
   local phase_id
   printf '%-26s | %-31s | %s\n' 'PHASE ID' 'EXECUTION CAPABILITY' 'NOTES'
   printf '%-26s-+-%-31s-+-%s\n' "$(printf '%*s' 26 '' | tr ' ' '-')" "$(printf '%*s' 31 '' | tr ' ' '-')" "$(printf '%*s' 65 '' | tr ' ' '-')"
-  for phase_id in macos-preflight sudo tooling xcode parallels github-auth repositories developer-workstation docker-auth runner-apple runner-private-network runner-esp32 runner-pi maintenance tooling-refresh reboot-check services apple-signing apple-readiness apple-github-audit initial-verification; do
+  for phase_id in macos-preflight sudo tooling xcode parallels github-auth repositories developer-workstation docker-auth home-assistant-lab runner-apple runner-private-network runner-esp32 runner-pi maintenance tooling-refresh reboot-check services apple-signing apple-readiness credential-expiry-audit apple-github-audit initial-verification; do
     printf '%-26s | %-31s | %s\n' "$phase_id" "$(phase_execution_capability "$phase_id")" "$(phase_execution_note "$phase_id")"
   done
 }
@@ -483,6 +483,7 @@ phase_dependencies() {
     repositories) printf '%s' 'permissions-audit' ;;
     developer-workstation) printf '%s' 'repositories sudo tooling' ;;
     docker-auth) printf '%s' 'developer-workstation' ;;
+    home-assistant-lab) printf '%s' 'developer-workstation docker-auth' ;;
     runner-apple) printf '%s' 'repositories github-auth sudo xcode' ;;
     runner-private-network|runner-esp32|runner-pi) printf '%s' 'repositories github-auth sudo' ;;
     maintenance) printf '%s' 'repositories' ;;
@@ -501,7 +502,7 @@ phase_dependencies() {
     apple-readiness) printf '%s' 'repositories github-auth xcode' ;;
     credential-expiry-audit) printf '%s' 'apple-readiness' ;;
     apple-github-audit) printf '%s' 'credential-expiry-audit' ;;
-    initial-verification) printf '%s' 'repositories developer-workstation docker-auth services reboot-check' ;;
+    initial-verification) printf '%s' 'repositories developer-workstation docker-auth home-assistant-lab services reboot-check' ;;
     *) die "No dependency definition exists for phase: $phase_id" ;;
   esac
 }
@@ -520,6 +521,7 @@ phase_runtime_conditions() {
     github-auth|permissions-audit|repositories|apple-github-audit) command -v gh >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='GitHub CLI is available.' ;;
     developer-workstation|initial-verification) [[ -f "$GITHUB_ROOT/djconnect/tools/dev_onboarding_macos.sh" ]] || return 1; PHASE_PRECHECK_RESULT='Central developer-onboarding script is available.' ;;
     docker-auth) command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='Docker Desktop daemon is ready.' ;;
+    home-assistant-lab) command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='Docker Desktop daemon is ready for the Home Assistant internal test environment.' ;;
     runner-apple|runner-private-network|runner-esp32|runner-pi) command -v gh >/dev/null 2>&1 && sudo -n true >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='GitHub CLI and non-interactive administrator access are available for runner registration.' ;;
     maintenance) [[ -f "$GITHUB_ROOT/djconnect-app/scripts/runner/install_macos_ci_tooling_maintenance.sh" ]] || return 1; PHASE_PRECHECK_RESULT='macOS maintenance installer is available.' ;;
     reboot-check) command -v softwareupdate >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='macOS Software Update utility is available.' ;;
@@ -559,7 +561,7 @@ validate_skip_phases() {
   IFS=',' read -r -a requested_phase_ids <<<"$SKIP_PHASES"
   for phase_id in "${requested_phase_ids[@]}"; do
     case "$phase_id" in
-      sudo|tooling|xcode|parallels|github-auth|permissions-audit|repositories|developer-workstation|docker-auth|runner-apple|runner-private-network|runner-esp32|runner-pi|maintenance|tooling-refresh|reboot-check|services|apple-signing|apple-readiness|credential-expiry-audit|apple-github-audit|initial-verification) ;;
+      sudo|tooling|xcode|parallels|github-auth|permissions-audit|repositories|developer-workstation|docker-auth|home-assistant-lab|runner-apple|runner-private-network|runner-esp32|runner-pi|maintenance|tooling-refresh|reboot-check|services|apple-signing|apple-readiness|credential-expiry-audit|apple-github-audit|initial-verification) ;;
       macos-preflight) die 'macos-preflight is mandatory and cannot be skipped.' ;;
       '') ;;
       *) die "Unknown --skip-phases ID: $phase_id" ;;
@@ -573,7 +575,7 @@ validate_force_phases() {
   IFS=',' read -r -a requested_phase_ids <<<"$FORCE_PHASES"
   for phase_id in "${requested_phase_ids[@]}"; do
     case "$phase_id" in
-      macos-preflight|sudo|tooling|xcode|parallels|github-auth|permissions-audit|repositories|developer-workstation|docker-auth|runner-apple|runner-private-network|runner-esp32|runner-pi|maintenance|tooling-refresh|reboot-check|services|apple-signing|apple-readiness|credential-expiry-audit|apple-github-audit|initial-verification) ;;
+      macos-preflight|sudo|tooling|xcode|parallels|github-auth|permissions-audit|repositories|developer-workstation|docker-auth|home-assistant-lab|runner-apple|runner-private-network|runner-esp32|runner-pi|maintenance|tooling-refresh|reboot-check|services|apple-signing|apple-readiness|credential-expiry-audit|apple-github-audit|initial-verification) ;;
       '') ;;
       *) die "Unknown --force-phases ID: $phase_id" ;;
     esac

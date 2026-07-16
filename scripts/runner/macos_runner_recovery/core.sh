@@ -1,4 +1,4 @@
-# Version: 1.0.0
+# Version: 1.1.0
 # CLI help, desired-state verification and console/report primitives.
 usage() {
   cat <<'EOF'
@@ -163,6 +163,12 @@ load_desired_state() {
   IFS=',' read -r -a DESIRED_REQUIRED_CASKS <<<"$(require_desired_state_value tooling.required_casks)"
   IFS=',' read -r -a DESIRED_OPTIONAL_CASKS <<<"$(require_desired_state_value tooling.optional_casks)"
   IFS=',' read -r -a DESIRED_REFRESH_CASKS <<<"$(require_desired_state_value tooling.refresh_casks)"
+  DESIRED_HA_SERVICE="$(require_desired_state_value lab.home_assistant.service)"
+  DESIRED_HA_CONTAINER_NAME="$(require_desired_state_value lab.home_assistant.container_name)"
+  DESIRED_HA_URL="$(require_desired_state_value lab.home_assistant.url)"
+  [[ "$DESIRED_HA_SERVICE" == 'homeassistant' ]] || die "Unsupported Home Assistant lab service: $DESIRED_HA_SERVICE"
+  [[ "$DESIRED_HA_CONTAINER_NAME" =~ ^[A-Za-z0-9][A-Za-z0-9_.-]*$ ]] || die "Invalid Home Assistant lab container name: $DESIRED_HA_CONTAINER_NAME"
+  [[ "$DESIRED_HA_URL" =~ ^http://localhost:[0-9]+$ ]] || die "Invalid Home Assistant lab URL: $DESIRED_HA_URL"
   IFS=',' read -r -a DESIRED_PROFILES <<<"$(require_desired_state_value runner.profiles)"
   for profile in "${DESIRED_PROFILES[@]}"; do
     case "$profile" in
@@ -187,7 +193,7 @@ verify_delta_row() {
 }
 
 run_desired_state_verification() {
-  local hardware_profile macos_version macos_major cpu_brand mem_bytes mem_gb cpu_count disk_probe_path disk_kb disk_gb formula cask profile install_dir uid_value
+  local hardware_profile macos_version macos_major cpu_brand mem_bytes mem_gb cpu_count disk_probe_path disk_kb disk_gb formula cask profile install_dir uid_value ha_running
   printf '# DJConnect macOS Runner Host Desired-State Delta\n\n'
   printf '%s\n\n' "Manifest: \`$DESIRED_STATE_FILE\` (schema $DESIRED_STATE_SCHEMA_VERSION)"
   printf '%s\n' '| Component | Desired | Actual | Delta |'
@@ -224,6 +230,17 @@ run_desired_state_verification() {
   for cask in "${DESIRED_OPTIONAL_CASKS[@]}"; do
     if command -v brew >/dev/null 2>&1 && brew list --cask "$cask" >/dev/null 2>&1; then verify_delta_row "tooling.optional_cask.$cask" installed installed MATCH; else verify_delta_row "tooling.optional_cask.$cask" optional absent OPTIONAL; fi
   done
+  if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
+    ha_running="$(docker inspect --format '{{.State.Running}}' "$DESIRED_HA_CONTAINER_NAME" 2>/dev/null || true)"
+    verify_delta_row 'lab.home_assistant.container' "$DESIRED_HA_CONTAINER_NAME running" "${ha_running:-absent}" "$([[ "$ha_running" == 'true' ]] && printf MATCH || printf DRIFT)"
+  else
+    verify_delta_row 'lab.home_assistant.container' "$DESIRED_HA_CONTAINER_NAME running" 'Docker unavailable' UNVERIFIED
+  fi
+  if curl -fsS --max-time 5 "$DESIRED_HA_URL" >/dev/null 2>&1; then
+    verify_delta_row 'lab.home_assistant.url' "$DESIRED_HA_URL reachable" reachable MATCH
+  else
+    verify_delta_row 'lab.home_assistant.url' "$DESIRED_HA_URL reachable" unavailable DRIFT
+  fi
   for profile in "${DESIRED_PROFILES[@]}"; do
     profile_enabled "$profile" || continue
     profile_values "$profile"; install_dir="$RUNNER_ROOT/$PROFILE_RUNNER_NAME"

@@ -322,6 +322,13 @@ accepted, the onboarding creates or reconciles the Compose file and starts the
 containers. Use `docker compose -f ~/docker/homeassistant/docker-compose.yml
 ps` to inspect their state.
 
+After Docker authentication, recovery also executes a dedicated, idempotent
+**Internal Home Assistant Docker test environment** phase. It reconciles the
+`homeassistant` Compose service through the existing onboarding step, requires
+the `homeassistant` container to be running and verifies
+`http://localhost:8123` responds. These requirements are part of the declared
+desired state and therefore also appear as deltas during `--verify`.
+
 The recovery keeps authentication interactive and scoped to the local user:
 
 - GitHub CLI opens the browser-based `gh auth login` flow before repositories

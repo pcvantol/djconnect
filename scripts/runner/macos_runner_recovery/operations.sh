@@ -1,4 +1,4 @@
-# Version: 1.0.0
+# Version: 1.1.0
 # macOS host provisioning, developer-workstation and service operations.
 warm_sudo() {
   if [[ "$DRY_RUN" == '1' ]]; then
@@ -305,6 +305,23 @@ bootstrap_developer_workstation() {
     onboarding_args+=(--ngrok-domain "$NGROK_DOMAIN")
   fi
   run_in_dir "$central_repository" bash "${onboarding_args[@]}"
+}
+
+ensure_home_assistant_internal_test_environment() {
+  local central_repository="$GITHUB_ROOT/djconnect"
+  local onboarding="$central_repository/tools/dev_onboarding_macos.sh"
+  [[ -f "$onboarding" ]] || die "The Home Assistant internal-test-environment bootstrap is unavailable at $onboarding."
+  log "Reconciling the internal Home Assistant Docker test environment ($DESIRED_HA_CONTAINER_NAME at $DESIRED_HA_URL)."
+  local -a onboarding_args=(tools/dev_onboarding_macos.sh --steps 9 --yes --warm-sudo --no-log-file)
+  [[ "$DRY_RUN" == '1' ]] && onboarding_args+=(--dry-run)
+  run_in_dir "$central_repository" bash "${onboarding_args[@]}"
+  if [[ "$DRY_RUN" == '1' ]]; then
+    printf 'DRY: verify Home Assistant container %s is running and %s responds\n' "$DESIRED_HA_CONTAINER_NAME" "$DESIRED_HA_URL"
+    return
+  fi
+  [[ "$(docker inspect --format '{{.State.Running}}' "$DESIRED_HA_CONTAINER_NAME" 2>/dev/null || true)" == 'true' ]] || die "Home Assistant internal-test container is not running: $DESIRED_HA_CONTAINER_NAME"
+  curl -fsS --max-time 15 "$DESIRED_HA_URL" >/dev/null || die "Home Assistant internal-test environment is not reachable: $DESIRED_HA_URL"
+  ok "Home Assistant internal test environment is ready at $DESIRED_HA_URL."
 }
 
 install_maintenance() {

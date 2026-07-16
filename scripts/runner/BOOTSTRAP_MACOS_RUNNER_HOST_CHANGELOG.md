@@ -6,7 +6,7 @@ This changelog covers only
 compatibility and security changes to the recovery bootstrap independently of
 the DJConnect product release.
 
-## [Unreleased]
+## [1.1.0] - 2026-07-16
 
 - Refactor the recovery bootstrap into a package of bounded Bash modules behind
   the unchanged thin `bootstrap_macos_runner_host.sh` CLI entry point.
@@ -14,6 +14,8 @@ the DJConnect product release.
   and each module, validated before recovery actions begin.
 - Bind the stable entry point and every package module to SHA-256 values and a
   deterministic aggregate package checksum, verified before recovery actions.
+- Add a dedicated desired-state phase for the internal Home Assistant Docker
+  test environment, including container-running and local-URL verification.
 - Add configurable `--log-level` output filtering with `debug`, `verbose`,
   `info`, `warning` and `error` levels.
 - Mark headless, parallel-safe runner-registration and read-only Apple audit
