@@ -197,20 +197,19 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-Platform Governance: reconcile rolling engineering records after governance
-rollout. Governance rollout planning PR [#127](https://github.com/pcvantol/djconnect/pull/127)
-and central audit PR [#128](https://github.com/pcvantol/djconnect/pull/128)
-are merged. The audit decision is
-`DJCONNECT_REPOSITORY_GOVERNANCE_AUDIT_PASSED`; all nine adoption head branches
-are absent and the rollout is archived as `MERGED_RECONCILED` evidence.
+Platform Evolution: PR [#144](https://github.com/pcvantol/djconnect/pull/144)
+was squash-merged into `main` as `452bed7655e579d3fb12b7b379f8fc0b70a8c342`.
+Its candidate `aee1687876c279d758f1404f9ca9e1563e310276` was `CLEAN` with
+successful required checks and Owner Authorization. The reviewable preparation
+records the complete implementation scope, the nine temporary candidate
+workflow pins and the required post-merge repin sequence in
+`docs/release/MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS.md`. The preparation is
+reviewable in PR [#146](https://github.com/pcvantol/djconnect/pull/146).
 
-The next increment is draft only: prepare an approved fresh exact-SHA Internal
-Release 3.3 manifest and exact Home Assistant target credential/installation
-scope. It must not activate until this reconciliation increment has its single
-reviewable pull request.
-
-Review: [#129](https://github.com/pcvantol/djconnect/pull/129) on
-`codex/reconcile-governance-rolling-records`.
+The post-merge repin is now a separate deferred increment; the PR #144 feature
+branch is retained until that repin succeeds. This preparation changes no
+Platform Architecture, Product Architecture, release execution or deployment
+behaviour.
 
 ## Completion Report
 

@@ -22,8 +22,27 @@
 | Engineering Method V2.3 | Established; no implementation or architecture changed | `ENGINEERING_METHOD.md` |
 | Post-Merge Engineering State | Reconciled | `ENGINEERING_METHOD.md` |
 | Repository Governance Rollout | Completed, merged, reconciled and archived | `docs/governance/REPOSITORY_GOVERNANCE_AUDIT_V2_2.md` |
+| macOS runner-host bootstrap | PR #144 merged; post-merge SHA repin pending | `docs/release/MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS.md` |
 
 ## Generation 2 decision
+
+## macOS runner-host bootstrap merge preparation
+
+**Decision:** `MACOS_RUNNER_BOOTSTRAP_MERGE_READY`
+
+PR [#144](https://github.com/pcvantol/djconnect/pull/144) was squash-merged
+into `main` as `452bed7655e579d3fb12b7b379f8fc0b70a8c342`, after candidate
+`aee1687876c279d758f1404f9ca9e1563e310276` was validated. The pre-merge
+record corrected its description and identified nine temporary immutable pins.
+Eight callers pin the reusable governance workflow to
+`beb68dc935ce8422e7c6c1a1e7eadd61760f289c`; the reusable workflow itself checks out
+`631f0b893a537807dfc59a6e69e413703a2eebdd`. The preparation is reviewable in
+PR [#146](https://github.com/pcvantol/djconnect/pull/146).
+
+A separate reviewed increment must now repin all nine references to immutable
+SHAs on `main`, validate the callers, and only then delete the retained feature
+branch. No implementation or operational release behaviour changed in this
+preparation increment.
 
 ## Platform Release 3.3 operational position
 
