@@ -1,5 +1,10 @@
 # DJConnect Developer Onboarding Changelog
 
+## 1.1.4 — 2026-07-16
+
+- Add executable package-contract coverage for independent desired-state
+  manifest versioning and fail-closed compatibility outcomes.
+
 ## 1.1.3 — 2026-07-16
 
 - Document independent desired-state manifest versioning and the required

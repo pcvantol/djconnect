@@ -15,7 +15,7 @@ from onboarding import build_package
 class OnboardingPackageBuildTests(unittest.TestCase):
     def test_manifest_declares_versioned_runtime_and_test_components(self) -> None:
         self.assertEqual(build_package.manifest_value("package.name"), "djconnect-developer-onboarding")
-        self.assertEqual(build_package.manifest_value("package.version"), "1.1.3")
+        self.assertEqual(build_package.manifest_value("package.version"), "1.1.4")
         self.assertEqual(build_package.manifest_value("component.tests.path"), "tests/test_onboarding_scripts.py")
         self.assertEqual(build_package.manifest_value("component.changelog.path"), "CHANGELOG.md")
         self.assertEqual(build_package.manifest_value("desired_state.versioning"), "independent_of_onboarding_package")
@@ -34,7 +34,7 @@ class OnboardingPackageBuildTests(unittest.TestCase):
             self.assertEqual([item.name for item in first_artifacts], [item.name for item in second_artifacts])
             self.assertEqual(first_artifacts[0].read_bytes(), second_artifacts[0].read_bytes())
             metadata = json.loads(first_artifacts[2].read_text(encoding="utf-8"))
-            self.assertEqual(metadata["version"], "1.1.3")
+            self.assertEqual(metadata["version"], "1.1.4")
             self.assertEqual(metadata["sha256"], hashlib.sha256(first_artifacts[0].read_bytes()).hexdigest())
             with zipfile.ZipFile(first_artifacts[0]) as archive:
                 self.assertIn("onboarding/dev_onboarding_macos.sh", archive.namelist())
@@ -74,7 +74,7 @@ class OnboardingPackageBuildTests(unittest.TestCase):
                 [
                     "bash",
                     "-lc",
-                    'source "$1"; PACKAGE_VERSION=1.1.3; REPORT_FILE="$2"; start_report; PLAN_ONLY=1; record_distribution_version_decision "$3"; cat "$2"',
+                    'source "$1"; PACKAGE_VERSION=1.1.4; REPORT_FILE="$2"; start_report; PLAN_ONLY=1; record_distribution_version_decision "$3"; cat "$2"',
                     "bash",
                     str(build_package.PACKAGE_ROOT / "dev_onboarding_macos.sh"),
                     str(report),
@@ -89,6 +89,19 @@ class OnboardingPackageBuildTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertIn("OUTDATED_VERSION_PLAN_ONLY", result.stdout)
         self.assertIn("newer package 1.2.0", result.stdout)
+
+    def test_desired_state_manifest_compatibility_contract_is_independent_and_fail_closed(self) -> None:
+        contract = (build_package.PACKAGE_ROOT / "MANIFEST_COMPATIBILITY.md").read_text(encoding="utf-8")
+
+        self.assertIn("independently versioned artifacts", contract)
+        self.assertIn("version: 1.0.0", contract)
+        self.assertIn("minimum_tool_version", contract)
+        self.assertIn("must refuse to\napply", contract)
+        self.assertIn("incompatible by default", contract)
+        self.assertIn("MANIFEST_TOOL_COMPATIBLE", contract)
+        self.assertIn("MANIFEST_TOOL_TOO_OLD", contract)
+        self.assertIn("MANIFEST_COMPATIBILITY_UNVERIFIABLE", contract)
+        self.assertIn("log and Markdown report", contract)
 
     def test_check_mode_rejects_stale_distribution_artifact(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
