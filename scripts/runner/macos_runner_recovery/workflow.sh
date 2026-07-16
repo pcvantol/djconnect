@@ -1,3 +1,4 @@
+# Version: 1.0.0
 # Phase lifecycle, progress reporting, reboot continuation and repair flow.
 phase_section_id() {
   local phase_id="$1"

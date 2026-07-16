@@ -1,3 +1,4 @@
+# Version: 1.0.0
 # macOS host provisioning, developer-workstation and service operations.
 warm_sudo() {
   if [[ "$DRY_RUN" == '1' ]]; then

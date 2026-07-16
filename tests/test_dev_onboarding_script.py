@@ -6,6 +6,7 @@ import os
 import shutil
 import sys
 import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -15,6 +16,7 @@ SCRIPT = ROOT / "tools" / "dev_onboarding_macos.sh"
 WINDOWS_SCRIPT = ROOT / "tools" / "dev_onboarding_windows.ps1"
 RUNNER_RECOVERY_SCRIPT = ROOT / "scripts" / "runner" / "bootstrap_macos_runner_host.sh"
 RUNNER_RECOVERY_PACKAGE = ROOT / "scripts" / "runner" / "macos_runner_recovery"
+RUNNER_RECOVERY_MANIFEST = RUNNER_RECOVERY_PACKAGE / "manifest.yml"
 RECOVERY_REDACTION_RULES = ROOT / "scripts" / "runner" / "redact_recovery_output.sed"
 MACOS_RUNNER_DESIRED_STATE = ROOT / "scripts" / "runner" / "macos_runner_host_desired_state.yml"
 MACOS_RUNNER_RECOVERY_CHANGELOG = ROOT / "scripts" / "runner" / "BOOTSTRAP_MACOS_RUNNER_HOST_CHANGELOG.md"
@@ -462,6 +464,40 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertTrue((RUNNER_RECOVERY_PACKAGE / "runners.sh").is_file())
         self.assertTrue((RUNNER_RECOVERY_PACKAGE / "security.sh").is_file())
         self.assertTrue((RUNNER_RECOVERY_PACKAGE / "apple.sh").is_file())
+        self.assertTrue(RUNNER_RECOVERY_MANIFEST.is_file())
+        manifest = RUNNER_RECOVERY_MANIFEST.read_text(encoding="utf-8")
+        self.assertIn("package.version: 1.0.0", manifest)
+        self.assertIn("component.workflow.version: 1.0.0", manifest)
+        self.assertIn("component.apple.version: 1.0.0", manifest)
+        source = read_runner_recovery_source()
+        self.assertIn("verify_recovery_package_manifest", source)
+        self.assertIn("Recovery package component", source)
+
+    def test_macos_runner_recovery_bootstrap_rejects_manifest_component_mismatch(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            temporary_runner_directory = Path(temporary_directory) / "runner"
+            shutil.copytree(RUNNER_RECOVERY_PACKAGE, temporary_runner_directory / "macos_runner_recovery")
+            temporary_entry = temporary_runner_directory / "bootstrap_macos_runner_host.sh"
+            shutil.copy2(RUNNER_RECOVERY_SCRIPT, temporary_entry)
+            manifest = temporary_runner_directory / "macos_runner_recovery" / "manifest.yml"
+            manifest.write_text(
+                manifest.read_text(encoding="utf-8").replace(
+                    "component.core.version: 1.0.0",
+                    "component.core.version: 9.9.9",
+                ),
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [str(temporary_entry), "--version"],
+                cwd=ROOT,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                check=False,
+            )
+
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        self.assertIn("component core version mismatch", result.stdout)
 
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:
         source = WINDOWS_RUNNER_RECOVERY_SCRIPT.read_text()

@@ -1,3 +1,4 @@
+# Version: 1.0.0
 # Local Apple signing-material recovery and keychain access.
 prompt_secret() {
   local prompt="$1"

@@ -1,3 +1,4 @@
+# Version: 1.0.0
 # CLI help, desired-state verification and console/report primitives.
 usage() {
   cat <<'EOF'

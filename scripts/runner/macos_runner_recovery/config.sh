@@ -1,10 +1,55 @@
+# Version: 1.0.0
 # Shared recovery state, constants and desired-state parsing.
 # Recovers a DJConnect macOS Actions-runner host after a laptop replacement.
 # Authentication is interactive through gh; GitHub registration tokens are
 # fetched just-in-time and are never accepted as arguments or written to disk.
 
 readonly ORG='pcvantol'
-readonly SCRIPT_VERSION='1.0.0'
+readonly RECOVERY_PACKAGE_MANIFEST="$RECOVERY_PACKAGE_DIRECTORY/manifest.yml"
+
+package_manifest_value() {
+  local requested_key="$1"
+  awk -v requested_key="$requested_key" '
+    /^[[:space:]]*($|#)/ { next }
+    {
+      separator = index($0, ":")
+      if (separator == 0) next
+      key = substr($0, 1, separator - 1)
+      value = substr($0, separator + 1)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", key)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+      if (key == requested_key) { print value; exit }
+    }
+  ' "$RECOVERY_PACKAGE_MANIFEST"
+}
+
+load_recovery_package_manifest() {
+  local version
+  [[ -f "$RECOVERY_PACKAGE_MANIFEST" ]] || {
+    printf 'ERROR Recovery package manifest is missing: %s\n' "$RECOVERY_PACKAGE_MANIFEST" >&2
+    exit 1
+  }
+  version="$(package_manifest_value 'package.version')"
+  [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
+    printf 'ERROR Recovery package manifest has an invalid package version: %s\n' "$version" >&2
+    exit 1
+  }
+  readonly SCRIPT_VERSION="$version"
+}
+
+verify_recovery_package_manifest() {
+  local component expected_file expected_version actual_version
+  for component in config core workflow security operations runners apple cli bootstrap; do
+    expected_file="$(package_manifest_value "component.$component.file")"
+    expected_version="$(package_manifest_value "component.$component.version")"
+    [[ "$expected_file" =~ ^[A-Za-z0-9_-]+\.sh$ ]] || die "Recovery package manifest has an invalid file for component $component."
+    [[ "$expected_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "Recovery package manifest has an invalid version for component $component."
+    actual_version="$(sed -nE 's/^# Version: ([0-9]+\.[0-9]+\.[0-9]+)$/\1/p' "$RECOVERY_PACKAGE_DIRECTORY/$expected_file" | head -n 1)"
+    [[ "$actual_version" == "$expected_version" ]] || die "Recovery package component $component version mismatch: manifest=$expected_version module=${actual_version:-missing}."
+  done
+}
+
+load_recovery_package_manifest
 readonly REPOSITORY_ROOT="$(cd "$SCRIPT_DIRECTORY/../.." && pwd -P)"
 readonly REDACTION_RULES="$SCRIPT_DIRECTORY/redact_recovery_output.sed"
 DESIRED_STATE_FILE="${DESIRED_STATE_FILE:-$SCRIPT_DIRECTORY/macos_runner_host_desired_state.yml}"

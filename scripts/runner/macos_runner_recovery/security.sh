@@ -1,3 +1,4 @@
+# Version: 1.0.0
 # Least-privilege and local credential-expiry audits.
 least_privilege_warning() {
   local message="$1"

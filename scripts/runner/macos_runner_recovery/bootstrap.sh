@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Version: 1.0.0
 # DJConnect macOS runner-host recovery package. Modules share one Bash process
 # and its deliberately explicit recovery state; this file owns load order.
 
@@ -12,3 +13,5 @@ source "$RECOVERY_PACKAGE_DIRECTORY/operations.sh"
 source "$RECOVERY_PACKAGE_DIRECTORY/runners.sh"
 source "$RECOVERY_PACKAGE_DIRECTORY/apple.sh"
 source "$RECOVERY_PACKAGE_DIRECTORY/main.sh"
+
+verify_recovery_package_manifest

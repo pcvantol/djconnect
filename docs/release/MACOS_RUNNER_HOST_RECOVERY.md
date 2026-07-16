@@ -11,6 +11,14 @@ existing phase state and security boundaries stay unchanged. Invoke only the
 stable entry point; package modules are implementation details and are not
 standalone commands.
 
+`scripts/runner/macos_runner_recovery/manifest.yml` is the canonical package
+manifest. It has a semantic version for the complete recovery package and an
+independent semantic version plus file binding for every module. On startup,
+the bootstrap validates every module's local version header against that
+manifest and stops before any recovery action when they differ. Update the
+affected component version and package version deliberately when changing a
+module; do not edit a module version in isolation.
+
 Use this procedure after replacing or rebuilding the maintainer MacBook. It
 recovers the development-tooling baseline and all DJConnect macOS GitHub
 Actions runner registrations without copying a runner directory, a registration

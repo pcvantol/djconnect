@@ -10,6 +10,8 @@ the DJConnect product release.
 
 - Refactor the recovery bootstrap into a package of bounded Bash modules behind
   the unchanged thin `bootstrap_macos_runner_host.sh` CLI entry point.
+- Add a canonical package manifest with semantic versions for the full package
+  and each module, validated before recovery actions begin.
 - Add configurable `--log-level` output filtering with `debug`, `verbose`,
   `info`, `warning` and `error` levels.
 - Mark headless, parallel-safe runner-registration and read-only Apple audit

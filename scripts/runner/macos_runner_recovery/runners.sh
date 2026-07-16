@@ -1,3 +1,4 @@
+# Version: 1.0.0
 # Self-hosted runner profile registration and lifecycle operations.
 profile_enabled() {
   local profile="$1"

@@ -1,0 +1,23 @@
+# Canonical version manifest for the macOS runner-host recovery package.
+schema_version: 1
+package.name: djconnect-macos-runner-recovery
+package.version: 1.0.0
+package.entry_point: scripts/runner/bootstrap_macos_runner_host.sh
+component.config.file: config.sh
+component.config.version: 1.0.0
+component.core.file: core.sh
+component.core.version: 1.0.0
+component.workflow.file: workflow.sh
+component.workflow.version: 1.0.0
+component.security.file: security.sh
+component.security.version: 1.0.0
+component.operations.file: operations.sh
+component.operations.version: 1.0.0
+component.runners.file: runners.sh
+component.runners.version: 1.0.0
+component.apple.file: apple.sh
+component.apple.version: 1.0.0
+component.cli.file: main.sh
+component.cli.version: 1.0.0
+component.bootstrap.file: bootstrap.sh
+component.bootstrap.version: 1.0.0
