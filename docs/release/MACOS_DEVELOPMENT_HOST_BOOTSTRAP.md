@@ -82,6 +82,14 @@ target and local inspector. Verification confirms only that an authtoken is
 present; it never reads, prints or stores its value. The selected domain is
 public tunnel routing metadata, not a credential.
 
+Tailscale is also a required private-network development dependency. The
+onboarding installs it when the client application is absent, then requires a
+manual sign-in to the approved tailnet. Verification checks only the installed
+client/application, authenticated running state, MagicDNS, route acceptance,
+no selected exit node, disabled Tailscale SSH, disabled Shields Up and enabled
+automatic updates. It never records the tailnet name, node name, Tailscale IPs
+or any authentication material.
+
 ## Script reference
 
 Run the script from the central `djconnect` checkout. The most useful modes

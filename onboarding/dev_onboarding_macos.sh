@@ -758,6 +758,20 @@ step_2_cli_tooling() {
   log "Installing CLI tooling."
   run brew update
   run brew install git gh jq python@3.12 node rsync coreutils curl wget
+  ensure_tailscale
+}
+
+ensure_tailscale() {
+  ensure_homebrew
+  if have tailscale && [[ -d /Applications/Tailscale.app ]]; then
+    log "Tailscale client and app already available."
+  else
+    log "Installing Tailscale for private-network development access."
+    run brew install --cask tailscale
+  fi
+  if [[ "$DRY_RUN" == "0" ]] && (! tailscale status --json 2>/dev/null | jq -e '.BackendState == "Running" and .Self.Online == true' >/dev/null); then
+    warn "Tailscale is installed but not authenticated and online. Open Tailscale and sign in to the approved DJConnect tailnet, then rerun verification."
+  fi
 }
 
 step_3_docker() {

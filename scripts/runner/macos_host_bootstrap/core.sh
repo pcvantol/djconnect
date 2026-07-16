@@ -1,4 +1,4 @@
-# Version: 1.3.1
+# Version: 1.3.2
 # CLI help, desired-state verification and console/report primitives.
 usage() {
   cat <<'EOF'
@@ -198,6 +198,14 @@ load_desired_state() {
   DESIRED_NGROK_TUNNEL_DOMAIN="$(require_desired_state_value network.ngrok.tunnel.domain)"
   DESIRED_NGROK_TUNNEL_TARGET="$(require_desired_state_value network.ngrok.tunnel.target)"
   DESIRED_NGROK_INSPECTOR_URL="$(require_desired_state_value network.ngrok.inspector_url)"
+  DESIRED_TAILSCALE_INSTALLATION="$(require_desired_state_value network.tailscale.installation)"
+  DESIRED_TAILSCALE_STATE="$(require_desired_state_value network.tailscale.state)"
+  DESIRED_TAILSCALE_MAGIC_DNS="$(require_desired_state_value network.tailscale.magic_dns)"
+  DESIRED_TAILSCALE_ACCEPT_ROUTES="$(require_desired_state_value network.tailscale.accept_routes)"
+  DESIRED_TAILSCALE_EXIT_NODE="$(require_desired_state_value network.tailscale.exit_node)"
+  DESIRED_TAILSCALE_SSH="$(require_desired_state_value network.tailscale.ssh)"
+  DESIRED_TAILSCALE_SHIELDS_UP="$(require_desired_state_value network.tailscale.shields_up)"
+  DESIRED_TAILSCALE_AUTO_UPDATE="$(require_desired_state_value network.tailscale.auto_update)"
   [[ "$DESIRED_HA_SERVICE" == 'homeassistant' ]] || die "Unsupported Home Assistant lab service: $DESIRED_HA_SERVICE"
   [[ "$DESIRED_HA_CONTAINER_NAME" =~ ^[A-Za-z0-9][A-Za-z0-9_.-]*$ ]] || die "Invalid Home Assistant lab container name: $DESIRED_HA_CONTAINER_NAME"
   [[ "$DESIRED_HA_URL" =~ ^http://localhost:[0-9]+$ ]] || die "Invalid Home Assistant lab URL: $DESIRED_HA_URL"
@@ -209,6 +217,10 @@ load_desired_state() {
   [[ "$DESIRED_NGROK_TUNNEL_DOMAIN" =~ ^[A-Za-z0-9.-]+\.ngrok-free\.dev$ ]] || die 'Invalid ngrok static domain.'
   [[ "$DESIRED_NGROK_TUNNEL_TARGET" =~ ^http://127\.0\.0\.1:[0-9]+$ ]] || die 'ngrok tunnel target must bind to loopback HTTP.'
   [[ "$DESIRED_NGROK_INSPECTOR_URL" =~ ^http://127\.0\.0\.1:[0-9]+$ ]] || die 'ngrok inspector must bind to loopback HTTP.'
+  [[ "$DESIRED_TAILSCALE_INSTALLATION" == 'app_or_homebrew_cask' ]] || die 'Unsupported Tailscale installation policy.'
+  [[ "$DESIRED_TAILSCALE_STATE" == 'running_authenticated' ]] || die 'Unsupported Tailscale state policy.'
+  [[ "$DESIRED_TAILSCALE_MAGIC_DNS" == 'enabled' && "$DESIRED_TAILSCALE_ACCEPT_ROUTES" == 'enabled' && "$DESIRED_TAILSCALE_AUTO_UPDATE" == 'enabled' ]] || die 'Tailscale enabled policy is invalid.'
+  [[ "$DESIRED_TAILSCALE_EXIT_NODE" == 'disabled' && "$DESIRED_TAILSCALE_SSH" == 'disabled' && "$DESIRED_TAILSCALE_SHIELDS_UP" == 'disabled' ]] || die 'Tailscale disabled policy is invalid.'
   IFS=',' read -r -a DESIRED_PROFILES <<<"$(require_desired_state_value runner.profiles)"
   for profile in "${DESIRED_PROFILES[@]}"; do
     case "$profile" in
@@ -233,8 +245,14 @@ verify_delta_row() {
   esac
 }
 
+tailscale_pref_matches() {
+  local filter="$1"
+  command -v tailscale >/dev/null 2>&1 || return 1
+  tailscale debug prefs 2>/dev/null | jq -e "$filter" >/dev/null 2>&1
+}
+
 run_desired_state_verification() {
-  local hardware_profile macos_version macos_major cpu_brand mem_bytes mem_gb cpu_count disk_probe_path disk_kb disk_gb formula cask profile install_dir uid_value ha_running ngrok_config ngrok_permissions ngrok_config_version ngrok_authtoken_status ngrok_authtoken_state ngrok_tunnel
+  local hardware_profile macos_version macos_major cpu_brand mem_bytes mem_gb cpu_count disk_probe_path disk_kb disk_gb formula cask profile install_dir uid_value ha_running ngrok_config ngrok_permissions ngrok_config_version ngrok_authtoken_status ngrok_authtoken_state ngrok_tunnel tailscale_installation tailscale_state
   printf '# DJConnect macOS Development Host Desired-State Delta\n\n'
   printf '%s\n\n' "Manifest: \`$DESIRED_STATE_FILE\` (version $DESIRED_STATE_VERSION, schema $DESIRED_STATE_SCHEMA_VERSION; bootstrap $SCRIPT_VERSION, minimum tool $DESIRED_MINIMUM_TOOL_VERSION, $MANIFEST_TOOL_COMPATIBILITY_VERDICT)"
   printf '%s\n' '| Component | Desired | Actual | Delta |'
@@ -299,6 +317,16 @@ run_desired_state_verification() {
   if launchctl print "gui/$(id -u)/$DESIRED_NGROK_LAUNCH_AGENT_LABEL" >/dev/null 2>&1; then verify_delta_row 'network.ngrok.launch_agent' "$DESIRED_NGROK_LAUNCH_AGENT_LABEL loaded" loaded MATCH; else verify_delta_row 'network.ngrok.launch_agent' "$DESIRED_NGROK_LAUNCH_AGENT_LABEL loaded" absent DRIFT; fi
   ngrok_tunnel="$(curl -fsS --max-time 5 "$DESIRED_NGROK_INSPECTOR_URL/api/tunnels" 2>/dev/null | jq -r --arg url "https://$DESIRED_NGROK_TUNNEL_DOMAIN" --arg target "$DESIRED_NGROK_TUNNEL_TARGET" '.tunnels[]? | select(.public_url == $url and .config.addr == $target) | .public_url' 2>/dev/null | head -n 1 || true)"
   if [[ "$ngrok_tunnel" == "https://$DESIRED_NGROK_TUNNEL_DOMAIN" ]]; then verify_delta_row 'network.ngrok.tunnel' "https://$DESIRED_NGROK_TUNNEL_DOMAIN -> $DESIRED_NGROK_TUNNEL_TARGET" "$ngrok_tunnel" MATCH; else verify_delta_row 'network.ngrok.tunnel' "https://$DESIRED_NGROK_TUNNEL_DOMAIN -> $DESIRED_NGROK_TUNNEL_TARGET" unavailable DRIFT; fi
+  if command -v tailscale >/dev/null 2>&1 && [[ -d /Applications/Tailscale.app ]]; then tailscale_installation='available'; tailscale_installation_state=MATCH; else tailscale_installation='missing client or application'; tailscale_installation_state=DRIFT; fi
+  verify_delta_row 'network.tailscale.installation' "$DESIRED_TAILSCALE_INSTALLATION" "$tailscale_installation" "$tailscale_installation_state"
+  tailscale_state="$(tailscale status --json 2>/dev/null | jq -r 'if .BackendState == "Running" and .Self.Online == true then "running_authenticated" else "not running or authenticated" end' 2>/dev/null || true)"
+  verify_delta_row 'network.tailscale.state' "$DESIRED_TAILSCALE_STATE" "${tailscale_state:-unavailable}" "$([[ "$tailscale_state" == "$DESIRED_TAILSCALE_STATE" ]] && printf MATCH || printf DRIFT)"
+  if tailscale_pref_matches '.CorpDNS == true'; then verify_delta_row 'network.tailscale.magic_dns' "$DESIRED_TAILSCALE_MAGIC_DNS" enabled MATCH; else verify_delta_row 'network.tailscale.magic_dns' "$DESIRED_TAILSCALE_MAGIC_DNS" not_enabled DRIFT; fi
+  if tailscale_pref_matches '.RouteAll == true'; then verify_delta_row 'network.tailscale.accept_routes' "$DESIRED_TAILSCALE_ACCEPT_ROUTES" enabled MATCH; else verify_delta_row 'network.tailscale.accept_routes' "$DESIRED_TAILSCALE_ACCEPT_ROUTES" not_enabled DRIFT; fi
+  if tailscale_pref_matches '.ExitNodeID == ""'; then verify_delta_row 'network.tailscale.exit_node' "$DESIRED_TAILSCALE_EXIT_NODE" disabled MATCH; else verify_delta_row 'network.tailscale.exit_node' "$DESIRED_TAILSCALE_EXIT_NODE" enabled DRIFT; fi
+  if tailscale_pref_matches '.RunSSH == false'; then verify_delta_row 'network.tailscale.ssh' "$DESIRED_TAILSCALE_SSH" disabled MATCH; else verify_delta_row 'network.tailscale.ssh' "$DESIRED_TAILSCALE_SSH" enabled DRIFT; fi
+  if tailscale_pref_matches '.ShieldsUp == false'; then verify_delta_row 'network.tailscale.shields_up' "$DESIRED_TAILSCALE_SHIELDS_UP" disabled MATCH; else verify_delta_row 'network.tailscale.shields_up' "$DESIRED_TAILSCALE_SHIELDS_UP" enabled DRIFT; fi
+  if tailscale_pref_matches '.AutoUpdate.Check == true and .AutoUpdate.Apply == true'; then verify_delta_row 'network.tailscale.auto_update' "$DESIRED_TAILSCALE_AUTO_UPDATE" enabled MATCH; else verify_delta_row 'network.tailscale.auto_update' "$DESIRED_TAILSCALE_AUTO_UPDATE" not_enabled DRIFT; fi
   for profile in "${DESIRED_PROFILES[@]}"; do
     profile_enabled "$profile" || continue
     profile_values "$profile"

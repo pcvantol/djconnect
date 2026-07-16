@@ -6,6 +6,14 @@ This changelog covers only
 compatibility and security changes to the development-host bootstrap independently of
 the DJConnect product release.
 
+## [2.0.2] - 2026-07-16
+
+- Add Tailscale installation and qualified private-network configuration to
+  the macOS developer-onboarding and desired-state verification flow.
+- Verify only installation, authenticated runtime state and non-secret network
+  preferences; tailnet identity, node addresses and all authentication keys
+  remain machine-local and are never emitted.
+
 ## [2.0.1] - 2026-07-16
 
 - Add the qualified persistent ngrok Home Assistant tunnel to the macOS

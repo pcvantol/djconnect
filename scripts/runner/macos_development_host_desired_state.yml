@@ -7,7 +7,7 @@
 schema_version: 1
 # The manifest major/minor must match the active DJConnect platform release.
 version: 3.3.0
-minimum_tool_version: 2.0.1
+minimum_tool_version: 2.0.2
 host.platform: macos
 host.architecture: arm64
 host.apple_silicon: required
@@ -37,6 +37,18 @@ network.ngrok.launch_agent_label: com.pcvantol.homeassistant.ngrok
 network.ngrok.tunnel.domain: victory-curvy-refold.ngrok-free.dev
 network.ngrok.tunnel.target: http://127.0.0.1:8123
 network.ngrok.inspector_url: http://127.0.0.1:4040
+
+# Tailscale identity, tailnet name, node addresses and auth keys remain local.
+# The bootstrap installs the macOS client when missing, but the Tailscale login
+# remains an explicit interactive boundary on a replacement Mac.
+network.tailscale.installation: app_or_homebrew_cask
+network.tailscale.state: running_authenticated
+network.tailscale.magic_dns: enabled
+network.tailscale.accept_routes: enabled
+network.tailscale.exit_node: disabled
+network.tailscale.ssh: disabled
+network.tailscale.shields_up: disabled
+network.tailscale.auto_update: enabled
 
 runner.profiles: apple,private-network,esp32,pi,windows
 profile.apple.repository: djconnect-app

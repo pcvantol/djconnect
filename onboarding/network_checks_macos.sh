@@ -50,6 +50,7 @@ endpoints=(
   'PyPI|https://pypi.org'
   'npm registry|https://registry.npmjs.org'
   'Apple software updates|https://swscan.apple.com'
+  'Tailscale control plane|https://controlplane.tailscale.com'
   'Cloudflare API|https://api.cloudflare.com/client/v4'
   'ngrok API|https://api.ngrok.com'
 )

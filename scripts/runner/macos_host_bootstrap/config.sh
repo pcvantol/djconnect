@@ -1,4 +1,4 @@
-# Version: 1.3.1
+# Version: 1.3.2
 # Shared recovery state, constants and desired-state parsing.
 # Bootstraps a DJConnect macOS development host after a laptop replacement.
 # Authentication is interactive through gh; GitHub registration tokens are
@@ -95,6 +95,14 @@ DESIRED_NGROK_LAUNCH_AGENT_LABEL=''
 DESIRED_NGROK_TUNNEL_DOMAIN=''
 DESIRED_NGROK_TUNNEL_TARGET=''
 DESIRED_NGROK_INSPECTOR_URL=''
+DESIRED_TAILSCALE_INSTALLATION=''
+DESIRED_TAILSCALE_STATE=''
+DESIRED_TAILSCALE_MAGIC_DNS=''
+DESIRED_TAILSCALE_ACCEPT_ROUTES=''
+DESIRED_TAILSCALE_EXIT_NODE=''
+DESIRED_TAILSCALE_SSH=''
+DESIRED_TAILSCALE_SHIELDS_UP=''
+DESIRED_TAILSCALE_AUTO_UPDATE=''
 DESIRED_PROFILES=()
 GITHUB_ROOT="${GITHUB_ROOT:-$HOME/Documents/GitHub}"
 RUNNER_ROOT="${RUNNER_ROOT:-$HOME/actions-runners}"
