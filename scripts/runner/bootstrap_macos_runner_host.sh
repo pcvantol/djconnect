@@ -445,6 +445,81 @@ install_maintenance() {
   run_in_dir "$app_root" bash scripts/runner/install_macos_ci_tooling_maintenance.sh --run-now
 }
 
+refresh_host_tooling() {
+  local formula cask
+  log 'Updating all Homebrew-managed DJConnect host tooling.'
+  ensure_homebrew
+  run brew update
+  for formula in git gh jq node python@3.12 xcodegen swiftlint xcbeautify create-dmg mas xcodes platformio; do
+    run brew install "$formula"
+    run brew upgrade "$formula"
+  done
+  for cask in docker dotnet-sdk parallels; do
+    if [[ "$DRY_RUN" == '1' ]]; then
+      printf 'DRY: upgrade Homebrew cask %s when already installed\n' "$cask"
+    elif brew list --cask "$cask" >/dev/null 2>&1; then
+      run brew upgrade --cask "$cask"
+    fi
+  done
+  if [[ "$SKIP_CODEX" == '0' ]]; then
+    run npm install -g @openai/codex
+  fi
+  # Xcode itself is deliberately not upgraded here. The qualified line supplied
+  # to --xcode-version remains the release-capable Xcode selection.
+  run sudo xcodebuild -runFirstLaunch
+}
+
+check_reboot_required() {
+  if [[ "$DRY_RUN" == '1' ]]; then
+    printf 'DRY: inspect macOS Software Update for pending restart/reboot requirements\n'
+    return
+  fi
+  local updates
+  updates="$(softwareupdate --list 2>&1 || true)"
+  if [[ -e /var/run/reboot-required ]] || grep -Eqi '\[(restart|reboot)\]|restart required|reboot required' <<<"$updates"; then
+    printf '%s\n' "$updates" >&2
+    die 'macOS reports a pending restart/reboot requirement. Restart the MacBook, then rerun the recovery bootstrap for final verification.'
+  fi
+  log 'macOS Software Update reports no pending restart/reboot requirement.'
+}
+
+verify_runner_online() {
+  local profile repository runner_name deadline state
+  for profile in apple private-network esp32 pi; do
+    profile_enabled "$profile" || continue
+    profile_values "$profile"
+    repository="$PROFILE_REPOSITORY"
+    runner_name="$PROFILE_RUNNER_NAME"
+    if [[ "$DRY_RUN" == '1' ]]; then
+      printf 'DRY: wait for GitHub runner %s in %s to report online with its registered labels\n' "$runner_name" "$repository"
+      continue
+    fi
+    deadline=$((SECONDS + 90))
+    state=''
+    while (( SECONDS < deadline )); do
+      state="$(gh api "repos/$ORG/$repository/actions/runners" | jq -r --arg name "$runner_name" '.runners[] | select(.name == $name) | .status' | head -n 1)"
+      [[ "$state" == 'online' ]] && break
+      sleep 3
+    done
+    [[ "$state" == 'online' ]] || die "GitHub runner $runner_name did not report online within 90 seconds."
+    log "GitHub runner $runner_name is online."
+  done
+}
+
+run_initial_verification() {
+  if [[ "$SKIP_DEVELOPER_WORKSTATION" == '1' ]]; then
+    warn 'Skipping developer-workstation verification because --skip-developer-workstation was selected.'
+    verify_runner_online
+    return
+  fi
+  local central_repository="$GITHUB_ROOT/djconnect"
+  log 'Running initial post-recovery verification for the complete local developer and runner host.'
+  run_in_dir "$central_repository" bash tools/dev_onboarding_macos.sh --steps 21,22 --yes --no-log-file
+  verify_launchd_services
+  verify_runner_online
+  log 'Initial post-recovery verification passed.'
+}
+
 verify_launchd_services() {
   local uid_value="$(id -u)"
   local profile install_dir
@@ -586,8 +661,11 @@ for profile in apple private-network esp32 pi; do
 done
 
 install_maintenance
+refresh_host_tooling
+check_reboot_required
 verify_launchd_services
 configure_signing_keychain
 configure_apple_internal_release
 audit_apple_github_configuration
+run_initial_verification
 report_signing_recovery

@@ -95,6 +95,31 @@ It stops if a selected runner is not registered, a runner service is not
 running, or a required user LaunchAgent is not loaded. The runner services need
 sudo; the two user LaunchAgents deliberately do not.
 
+## Completion: tooling currency, reboot gate and initial verification
+
+Before reporting recovery complete, the bootstrap refreshes every
+Homebrew-managed tool used by the recovered workstation: Git, GitHub CLI, jq,
+Node, Python 3.12, XcodeGen, SwiftLint, xcbeautify, create-dmg, mas, xcodes and
+PlatformIO. It refreshes installed Docker, .NET SDK and Parallels casks, and
+updates the Codex CLI when it is in scope. Local repository dependencies,
+Python environments, .NET workloads and PlatformIO packages are restored by
+the complete developer onboarding.
+
+Xcode is the intentional exception: the bootstrap uses only the explicitly
+supplied qualified Xcode line and runs its first-launch setup. It does not
+silently switch to a newer Xcode line, because that requires Apple runner
+qualification.
+
+The bootstrap queries macOS Software Update for a pending restart/reboot
+requirement. If one is reported, recovery stops without rebooting the machine;
+restart macOS and rerun the bootstrap so qualification evidence belongs to the
+post-reboot host.
+
+Finally, the bootstrap runs the developer-environment validation steps, checks
+Docker/Home Assistant, all selected system runner services and user
+LaunchAgents, and waits for every selected runner to report online to GitHub.
+Only then does it report the recovery as passed.
+
 Use a bounded recovery when a host needs only one capability:
 
 ```sh

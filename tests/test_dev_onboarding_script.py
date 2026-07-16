@@ -128,6 +128,12 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("audit_apple_github_configuration", source)
         self.assertIn("gh secret list --repo", source)
         self.assertIn("gh variable list --repo", source)
+        self.assertIn("refresh_host_tooling", source)
+        self.assertIn("check_reboot_required", source)
+        self.assertIn("run_initial_verification", source)
+        self.assertIn("softwareupdate --list", source)
+        self.assertIn("tools/dev_onboarding_macos.sh --steps 21,22", source)
+        self.assertIn("actions/runners", source)
         self.assertIn("install_macos_ci_tooling_maintenance.sh --run-now", source)
 
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:
