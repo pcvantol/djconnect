@@ -30,6 +30,9 @@ CLR_GREEN=''
 CLR_YELLOW=''
 CLR_RED=''
 CLR_MAGENTA=''
+LOG_FILE="${LOG_FILE:-}"
+LOGGING_STARTED=0
+ORIGINAL_STDOUT_IS_TTY=0
 
 usage() {
   cat <<'EOF'
@@ -85,6 +88,10 @@ Options:
                         Exact local Apple Development signing identity. If
                         omitted, the script prompts after listing candidates.
   --dry-run             Print changes without executing them.
+  --log-file FILE       Capture all non-sensitive recovery output in this
+                        single file. Default:
+                        ~/Library/Logs/DJConnect/macos-runner-recovery-<UTC>.log
+  --no-log-file         Do not create a recovery log file.
   --no-color            Disable ANSI color output.
   --help                Show this help.
 
@@ -98,7 +105,7 @@ EOF
 }
 
 init_style() {
-  if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+  if [[ "$ORIGINAL_STDOUT_IS_TTY" == '1' && -z "${NO_COLOR:-}" ]]; then
     CLR_RESET=$'\033[0m'
     CLR_BOLD=$'\033[1m'
     CLR_CYAN=$'\033[36m'
@@ -114,6 +121,35 @@ log() { printf '\n%s %s\n' "$(style "$CLR_CYAN$CLR_BOLD" '==>')" "$*"; }
 ok() { printf '%s %s\n' "$(style "$CLR_GREEN$CLR_BOLD" 'OK')" "$*"; }
 warn() { printf '%s %s\n' "$(style "$CLR_YELLOW$CLR_BOLD" 'WARN')" "$*" >&2; }
 die() { printf '%s %s\n' "$(style "$CLR_RED$CLR_BOLD" 'ERROR')" "$*" >&2; exit 1; }
+
+start_logging() {
+  if [[ "$LOG_FILE" == 'none' ]]; then
+    return
+  fi
+  if [[ -z "$LOG_FILE" ]]; then
+    LOG_FILE="$HOME/Library/Logs/DJConnect/macos-runner-recovery-$(date -u '+%Y%m%dT%H%M%SZ').log"
+  fi
+  if [[ "$DRY_RUN" == '1' ]]; then
+    printf 'DRY: capture complete non-sensitive recovery output in %s\n' "$LOG_FILE"
+    return
+  fi
+  umask 077
+  mkdir -p "$(dirname "$LOG_FILE")"
+  touch "$LOG_FILE"
+  chmod 600 "$LOG_FILE"
+  exec > >(tee -a "$LOG_FILE") 2>&1
+  LOGGING_STARTED=1
+  log "Capturing complete non-sensitive recovery output in $LOG_FILE."
+}
+
+run_interactive() {
+  if [[ "$DRY_RUN" == '1' ]]; then
+    run "$@"
+    return
+  fi
+  [[ -r /dev/tty && -w /dev/tty ]] || die 'An interactive terminal is required for this authentication step.'
+  "$@" </dev/tty >/dev/tty 2>/dev/tty
+}
 
 cleanup() {
   if [[ -n "$SUDO_KEEPALIVE_PID" ]]; then
@@ -233,7 +269,7 @@ ensure_github_auth() {
     return
   fi
   log 'Authenticating GitHub CLI. Sign in with the account that administers the DJConnect repositories.'
-  run gh auth login --hostname github.com --git-protocol https --web
+  run_interactive gh auth login --hostname github.com --git-protocol https --web
   [[ "$DRY_RUN" == '1' ]] || gh auth status --hostname github.com >/dev/null 2>&1 || die 'GitHub CLI authentication did not complete.'
 }
 
@@ -249,7 +285,7 @@ ensure_docker_hub_auth() {
   docker info >/dev/null 2>&1 || die 'Docker Desktop is not ready after developer workstation recovery.'
   log 'Authenticating Docker CLI with Docker Hub using its interactive device-login flow.'
   log 'Complete the browser/device-code flow if Docker asks. No Docker credential is passed as an argument or written by this script.'
-  run docker login
+  run_interactive docker login
 }
 
 configure_apple_internal_release() {
@@ -367,7 +403,7 @@ bootstrap_developer_workstation() {
     die 'An ngrok domain requires NGROK_AUTHTOKEN or --prompt-ngrok-auth.'
   fi
   log 'Restoring the complete DJConnect macOS developer workstation.'
-  local -a onboarding_args=(tools/dev_onboarding_macos.sh --all --yes --warm-sudo)
+  local -a onboarding_args=(tools/dev_onboarding_macos.sh --all --yes --warm-sudo --no-log-file)
   if [[ "$DRY_RUN" == '1' ]]; then
     onboarding_args+=(--dry-run)
   fi
@@ -667,14 +703,20 @@ while [[ "$#" -gt 0 ]]; do
     --apple-team-id) APPLE_TEAM_ID="${2:?--apple-team-id requires a value}"; shift 2 ;;
     --apple-development-identity) APPLE_DEVELOPMENT_IDENTITY="${2:?--apple-development-identity requires a value}"; shift 2 ;;
     --dry-run) DRY_RUN=1; shift ;;
+    --log-file) LOG_FILE="${2:?--log-file requires a value}"; shift 2 ;;
+    --no-log-file) LOG_FILE='none'; shift ;;
     --no-color) NO_COLOR=1; shift ;;
     --help|-h) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
   esac
 done
 
-ensure_macos_arm64
+if [[ -t 1 ]]; then
+  ORIGINAL_STDOUT_IS_TTY=1
+fi
 init_style
+start_logging
+ensure_macos_arm64
 trap cleanup EXIT
 warm_sudo
 ensure_tooling

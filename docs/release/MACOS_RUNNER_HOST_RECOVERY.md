@@ -149,6 +149,19 @@ Interactive terminal output uses cyan section markers, green success markers,
 yellow warnings, red errors and magenta dry-run commands. Set `NO_COLOR=1`
 or pass `--no-color` for plain logs and CI capture.
 
+For an actual recovery, the bootstrap creates one owner-only transcript at
+`~/Library/Logs/DJConnect/macos-runner-recovery-<UTC>.log`, or at the path
+given through `--log-file`. Its subordinate onboarding writes through that
+same transcript and does not create a second onboarding log. Use
+`--no-log-file` only when an external terminal/session recorder is already
+the authoritative capture.
+
+The transcript excludes interactive GitHub/Docker authentication output and
+secret prompts so temporary device codes, account prompts and credentials are
+not retained. The daily maintenance LaunchAgent retains its separately required
+non-secret status evidence; that is operational evidence, not a second recovery
+transcript.
+
 ## Optional Parallels Desktop recovery
 
 If this Mac hosts the Windows ARM64 build or deployment VM, include
