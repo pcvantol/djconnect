@@ -412,6 +412,26 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn(".permissions.admin", source)
         self.assertIn("classic repo scope", source)
 
+    def test_macos_runner_recovery_bootstrap_audits_credential_expiry(self) -> None:
+        result = subprocess.run(
+            [str(RUNNER_RECOVERY_SCRIPT), "--help"],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("--expiry-warning-days DAYS", result.stdout)
+        source = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+        self.assertIn("credential-expiry-audit", source)
+        self.assertIn("audit_credential_expiry", source)
+        self.assertIn("Apple Development", source)
+        self.assertIn("Developer ID Application", source)
+        self.assertIn("TOKEN EXPIRY UNVERIFIED", source)
+        self.assertIn("CREDENTIAL EXPIRY WARNING", source)
+
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:
         source = WINDOWS_RUNNER_RECOVERY_SCRIPT.read_text()
 

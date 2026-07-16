@@ -27,6 +27,9 @@ the DJConnect product release.
   and the unattended repair lifecycle.
 - Add a least-privilege audit for local write exposure, runner ownership,
   sudo breadth and selected GitHub runner-administration access.
+- Audit local Apple certificate and provisioning-profile expiry, while
+  explicitly reporting opaque client-token expiry as unverified without
+  reading token values.
 
 ## [1.0.0] - 2026-07-16
 

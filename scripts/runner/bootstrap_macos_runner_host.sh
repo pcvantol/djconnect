@@ -68,6 +68,8 @@ SKIPPED_PHASE_COUNT=0
 INITIAL_VERIFICATION_PASSED=0
 LEAST_PRIVILEGE_WARNING_COUNT=0
 PERMISSIONS_AUDIT_HAS_WARNINGS=0
+CREDENTIAL_EXPIRY_HAS_WARNINGS=0
+EXPIRY_WARNING_DAYS="${DJCONNECT_EXPIRY_WARNING_DAYS:-30}"
 PHASE_PRECHECK_RESULT=''
 FORCE_PHASES="${FORCE_PHASES:-}"
 CURRENT_PHASE_ID=''
@@ -184,6 +186,10 @@ Options:
                         Explicitly approve recovery on a host that meets the
                         hard RAM minimum but is below the recommended RAM.
                         Otherwise an interactive confirmation is required.
+  --expiry-warning-days DAYS
+                        Warn when a local Apple certificate or provisioning
+                        profile expires within this many days. Default: 30
+                        (or DJCONNECT_EXPIRY_WARNING_DAYS).
   --no-color            Disable ANSI color output.
   --help                Show this help.
 
@@ -357,6 +363,13 @@ validate_parallel_jobs() {
   }
 }
 
+validate_expiry_warning_days() {
+  [[ "$EXPIRY_WARNING_DAYS" =~ ^[0-9]+$ ]] || {
+    printf 'ERROR Expiry warning days must be a non-negative integer: %q\n' "$EXPIRY_WARNING_DAYS" >&2
+    exit 2
+  }
+}
+
 should_log() {
   local message_level="$1"
   (( $(log_level_rank "$message_level") >= $(log_level_rank "$LOG_LEVEL") ))
@@ -439,7 +452,7 @@ phase_section_id() {
     developer-workstation|docker-auth) printf '%s' 'developer-workstation' ;;
     runner-apple|runner-private-network|runner-esp32|runner-pi) printf '%s' 'runner-provisioning' ;;
     maintenance|tooling-refresh|reboot-check) printf '%s' 'host-maintenance' ;;
-    apple-signing|apple-readiness|apple-github-audit) printf '%s' 'apple-readiness' ;;
+    apple-signing|apple-readiness|credential-expiry-audit|apple-github-audit) printf '%s' 'apple-readiness' ;;
     services|initial-verification) printf '%s' 'final-qualification' ;;
     *) die "No installation section is defined for phase: $phase_id" ;;
   esac
@@ -497,7 +510,7 @@ section_phase_ids() {
     developer-workstation) printf '%s\n' developer-workstation docker-auth ;;
     runner-provisioning) printf '%s\n' runner-apple runner-private-network runner-esp32 runner-pi ;;
     host-maintenance) printf '%s\n' maintenance tooling-refresh reboot-check ;;
-    apple-readiness) printf '%s\n' apple-signing apple-readiness apple-github-audit ;;
+    apple-readiness) printf '%s\n' apple-signing apple-readiness credential-expiry-audit apple-github-audit ;;
     final-qualification) printf '%s\n' services initial-verification ;;
     *) die "Unknown installation section: $1" ;;
   esac
@@ -561,6 +574,8 @@ append_section_summary() {
     done
     if [[ "$section_id" == 'repository-access' && "$PERMISSIONS_AUDIT_HAS_WARNINGS" == '1' ]]; then
       printf '| %s | **ATTENTION REQUIRED** | %s passed; least-privilege warnings require review |\n' "$(section_title "$section_id")" "$passed"
+    elif [[ "$section_id" == 'apple-readiness' && "$CREDENTIAL_EXPIRY_HAS_WARNINGS" == '1' ]]; then
+      printf '| %s | **ATTENTION REQUIRED** | %s passed; certificate or provisioning-profile expiry warnings require renewal |\n' "$(section_title "$section_id")" "$passed"
     elif (( failed > 0 )); then
       printf '| %s | **ATTENTION REQUIRED** | %s passed, %s failed or blocked, %s skipped, %s pending |\n' "$(section_title "$section_id")" "$passed" "$failed" "$skipped" "$pending"
     elif (( skipped > 0 )); then
@@ -721,7 +736,7 @@ all_phase_ids() {
   for profile in "${DESIRED_PROFILES[@]}"; do
     printf 'runner-%s\n' "$profile"
   done
-  printf '%s\n' maintenance tooling-refresh reboot-check services apple-signing apple-readiness apple-github-audit initial-verification
+  printf '%s\n' maintenance tooling-refresh reboot-check services apple-signing apple-readiness credential-expiry-audit apple-github-audit initial-verification
 }
 
 phase_execution_capability() {
@@ -836,7 +851,8 @@ phase_dependencies() {
       ;;
     apple-signing) printf '%s' 'xcode' ;;
     apple-readiness) printf '%s' 'repositories github-auth xcode' ;;
-    apple-github-audit) printf '%s' 'apple-readiness' ;;
+    credential-expiry-audit) printf '%s' 'apple-readiness' ;;
+    apple-github-audit) printf '%s' 'credential-expiry-audit' ;;
     initial-verification) printf '%s' 'repositories developer-workstation docker-auth services reboot-check' ;;
     *) die "No dependency definition exists for phase: $phase_id" ;;
   esac
@@ -862,6 +878,7 @@ phase_runtime_conditions() {
     services) PHASE_PRECHECK_RESULT='Runner and LaunchAgent validation will use the completed installation state.' ;;
     apple-signing) command -v security >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='macOS keychain tooling is available.' ;;
     apple-readiness) command -v xcodebuild >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='Xcode command-line tooling is available.' ;;
+    credential-expiry-audit) command -v security >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='macOS keychain tooling is available for non-secret expiry checks.' ;;
     *) die "No runtime-condition definition exists for phase: $phase_id" ;;
   esac
 }
@@ -894,7 +911,7 @@ validate_skip_phases() {
   IFS=',' read -r -a requested_phase_ids <<<"$SKIP_PHASES"
   for phase_id in "${requested_phase_ids[@]}"; do
     case "$phase_id" in
-      sudo|tooling|xcode|parallels|github-auth|permissions-audit|repositories|developer-workstation|docker-auth|runner-apple|runner-private-network|runner-esp32|runner-pi|maintenance|tooling-refresh|reboot-check|services|apple-signing|apple-readiness|apple-github-audit|initial-verification) ;;
+      sudo|tooling|xcode|parallels|github-auth|permissions-audit|repositories|developer-workstation|docker-auth|runner-apple|runner-private-network|runner-esp32|runner-pi|maintenance|tooling-refresh|reboot-check|services|apple-signing|apple-readiness|credential-expiry-audit|apple-github-audit|initial-verification) ;;
       macos-preflight) die 'macos-preflight is mandatory and cannot be skipped.' ;;
       '') ;;
       *) die "Unknown --skip-phases ID: $phase_id" ;;
@@ -908,7 +925,7 @@ validate_force_phases() {
   IFS=',' read -r -a requested_phase_ids <<<"$FORCE_PHASES"
   for phase_id in "${requested_phase_ids[@]}"; do
     case "$phase_id" in
-      macos-preflight|sudo|tooling|xcode|parallels|github-auth|permissions-audit|repositories|developer-workstation|docker-auth|runner-apple|runner-private-network|runner-esp32|runner-pi|maintenance|tooling-refresh|reboot-check|services|apple-signing|apple-readiness|apple-github-audit|initial-verification) ;;
+      macos-preflight|sudo|tooling|xcode|parallels|github-auth|permissions-audit|repositories|developer-workstation|docker-auth|runner-apple|runner-private-network|runner-esp32|runner-pi|maintenance|tooling-refresh|reboot-check|services|apple-signing|apple-readiness|credential-expiry-audit|apple-github-audit|initial-verification) ;;
       '') ;;
       *) die "Unknown --force-phases ID: $phase_id" ;;
     esac
@@ -978,6 +995,16 @@ run_phase() {
       report_append "$step" "PASSED WITH WARNINGS (attempt $attempt)" 'Completed with one or more least-privilege warnings; review the audit evidence.'
       emit_phase_progress "Completed with warnings: $step."
       warn "$step completed with least-privilege warnings; review before treating the host as appropriately scoped."
+      CURRENT_STEP=''
+      CURRENT_PHASE_ID=''
+      return 0
+    fi
+    if [[ "$phase_status" == '43' && "$phase_id" == 'credential-expiry-audit' ]]; then
+      CREDENTIAL_EXPIRY_HAS_WARNINGS=1
+      set_phase_state "$phase_id" 'PASSED'
+      report_append "$step" "PASSED WITH WARNINGS (attempt $attempt)" 'Certificate or provisioning-profile expiry requires attention; review the expiry evidence.'
+      emit_phase_progress "Completed with expiry warnings: $step."
+      warn "$step completed with certificate or provisioning-profile expiry warnings; renew affected credentials before release work."
       CURRENT_STEP=''
       CURRENT_PHASE_ID=''
       return 0
@@ -1454,6 +1481,82 @@ audit_least_privilege() {
     warn "Least-privilege audit completed with $LEAST_PRIVILEGE_WARNING_COUNT warning(s)."
     return 42
   fi
+}
+
+credential_expiry_warning() {
+  local message="$1"
+  warn "CREDENTIAL EXPIRY WARNING: $message"
+  report_append 'Credential expiry audit' 'ATTENTION REQUIRED' "$message"
+}
+
+audit_certificate_expiry() {
+  local common_name="$1"
+  local temporary_directory certificate_file expiry subject found=0 warning_seconds
+  command -v openssl >/dev/null 2>&1 || {
+    report_append 'Credential expiry audit' 'UNVERIFIED' "openssl is unavailable; local $common_name certificate expiry could not be checked."
+    return 0
+  }
+  temporary_directory="$(mktemp -d "${TMPDIR:-/tmp}/djconnect-certificate-expiry.XXXXXX")"
+  { security find-certificate -a -p -c "$common_name" 2>/dev/null || true; } | awk -v output="$temporary_directory" '
+    /BEGIN CERTIFICATE/ { count++; file = output "/certificate-" count ".pem" }
+    count > 0 { print > file }
+  '
+  for certificate_file in "$temporary_directory"/*.pem; do
+    [[ -f "$certificate_file" ]] || continue
+    found=1
+    subject="$(openssl x509 -in "$certificate_file" -noout -subject -nameopt RFC2253 2>/dev/null | sed 's/^subject=//')"
+    expiry="$(openssl x509 -in "$certificate_file" -noout -enddate 2>/dev/null | sed 's/^notAfter=//')"
+    if ! openssl x509 -in "$certificate_file" -checkend 0 -noout >/dev/null 2>&1; then
+      credential_expiry_warning "$common_name certificate is expired (${subject:-identity unavailable}; expired $expiry)."
+      CREDENTIAL_EXPIRY_HAS_WARNINGS=1
+    elif ! openssl x509 -in "$certificate_file" -checkend "$(( EXPIRY_WARNING_DAYS * 86400 ))" -noout >/dev/null 2>&1; then
+      credential_expiry_warning "$common_name certificate expires within $EXPIRY_WARNING_DAYS days (${subject:-identity unavailable}; expires $expiry)."
+      CREDENTIAL_EXPIRY_HAS_WARNINGS=1
+    else
+      report_append 'Credential expiry audit' 'VALID' "$common_name certificate is valid beyond $EXPIRY_WARNING_DAYS days (${subject:-identity unavailable}; expires $expiry)."
+    fi
+  done
+  (( found == 1 )) || report_append 'Credential expiry audit' 'UNVERIFIED' "No local $common_name certificate was found in the current keychain."
+  rm -rf "$temporary_directory"
+}
+
+audit_provisioning_profile_expiry() {
+  local profiles_directory="$HOME/Library/MobileDevice/Provisioning Profiles"
+  local profile raw_expiry expiry_epoch now_epoch found=0
+  [[ -d "$profiles_directory" ]] || {
+    report_append 'Credential expiry audit' 'UNVERIFIED' 'No local provisioning-profile directory is present.'
+    return 0
+  }
+  now_epoch="$(date +%s)"
+  while IFS= read -r -d '' profile; do
+    found=1
+    raw_expiry="$(security cms -D -i "$profile" 2>/dev/null | plutil -extract ExpirationDate raw -o - - 2>/dev/null || true)"
+    expiry_epoch="$(date -j -f '%Y-%m-%dT%H:%M:%SZ' "$raw_expiry" +%s 2>/dev/null || date -j -f '%Y-%m-%d %H:%M:%S %z' "$raw_expiry" +%s 2>/dev/null || true)"
+    if [[ ! "$expiry_epoch" =~ ^[0-9]+$ ]]; then
+      report_append 'Credential expiry audit' 'UNVERIFIED' "Provisioning-profile expiry could not be parsed for $(basename "$profile")."
+    elif (( expiry_epoch <= now_epoch )); then
+      credential_expiry_warning "Provisioning profile $(basename "$profile") is expired ($raw_expiry)."
+      CREDENTIAL_EXPIRY_HAS_WARNINGS=1
+    elif (( expiry_epoch - now_epoch <= EXPIRY_WARNING_DAYS * 86400 )); then
+      credential_expiry_warning "Provisioning profile $(basename "$profile") expires within $EXPIRY_WARNING_DAYS days ($raw_expiry)."
+      CREDENTIAL_EXPIRY_HAS_WARNINGS=1
+    else
+      report_append 'Credential expiry audit' 'VALID' "Provisioning profile $(basename "$profile") is valid beyond $EXPIRY_WARNING_DAYS days (expires $raw_expiry)."
+    fi
+  done < <(find "$profiles_directory" -type f -name '*.mobileprovision' -print0)
+  (( found == 1 )) || report_append 'Credential expiry audit' 'UNVERIFIED' 'No local provisioning profiles were found.'
+}
+
+audit_credential_expiry() {
+  CREDENTIAL_EXPIRY_HAS_WARNINGS=0
+  report_append 'Credential expiry audit' 'TOKEN EXPIRY UNVERIFIED' 'GitHub, Docker and ngrok clients do not safely disclose local token expiry through this bootstrap; no token values were read.'
+  audit_certificate_expiry 'Apple Development'
+  audit_certificate_expiry 'Developer ID Application'
+  audit_provisioning_profile_expiry
+  if [[ "$CREDENTIAL_EXPIRY_HAS_WARNINGS" == '1' ]]; then
+    return 43
+  fi
+  report_append 'Credential expiry audit' 'PASSED' "No discovered local Apple certificate or provisioning profile expires within $EXPIRY_WARNING_DAYS days."
 }
 
 confirm_recommended_memory_override() {
@@ -2074,6 +2177,7 @@ while [[ "$#" -gt 0 ]]; do
     --list-phases) LIST_PHASES=1; shift ;;
     --parallel-jobs) PARALLEL_JOBS="${2:?--parallel-jobs requires a value}"; validate_parallel_jobs; shift 2 ;;
     --confirm-memory-override) MEMORY_OVERRIDE_CONFIRMED=1; shift ;;
+    --expiry-warning-days) EXPIRY_WARNING_DAYS="${2:?--expiry-warning-days requires a value}"; validate_expiry_warning_days; shift 2 ;;
     --no-color) NO_COLOR=1; shift ;;
     --help|-h|help) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
@@ -2082,6 +2186,7 @@ done
 
 validate_log_level
 validate_parallel_jobs
+validate_expiry_warning_days
 if [[ "$LIST_PHASES" == '1' ]]; then
   print_phase_catalog
   exit 0
@@ -2145,6 +2250,7 @@ run_phase tooling-refresh 'Tooling currency refresh' refresh_host_tooling
 run_phase reboot-check 'Reboot requirement check' check_reboot_required
 run_phase apple-signing 'Apple signing recovery' configure_signing_keychain
 run_phase apple-readiness 'Apple internal-release readiness' configure_apple_internal_release
+run_phase credential-expiry-audit 'Credential and certificate expiry audit' audit_credential_expiry
 run_apple_audit_alongside_services
 run_phase initial-verification 'Initial post-recovery verification' run_initial_verification
 report_signing_recovery

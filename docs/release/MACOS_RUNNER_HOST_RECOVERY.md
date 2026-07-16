@@ -209,6 +209,23 @@ claim that broader rights are required. The normal bootstrap uses administrator
 rights only to install or validate runner services; it does not make runners
 root processes.
 
+## Token and certificate expiry audit
+
+The `credential-expiry-audit` phase checks locally available `Apple
+Development` and `Developer ID Application` certificates and local
+`.mobileprovision` profiles. It warns when an item is expired or expires within
+30 days; use `--expiry-warning-days <days>` (or
+`DJCONNECT_EXPIRY_WARNING_DAYS`) to set a different non-negative threshold.
+The report records only identity subject/name and expiry date, never PEM,
+private-key or profile contents.
+
+GitHub CLI, Docker and ngrok token expiry is reported as `TOKEN EXPIRY
+UNVERIFIED` when their local clients do not safely disclose an expiry timestamp.
+The bootstrap does not read, print or submit token values merely to infer
+expiry. Review those credentials in their issuing service when expiry evidence
+is required. An expired or soon-expiring Apple item marks the Apple readiness
+section as `ATTENTION REQUIRED` while preserving the rest of the recovery flow.
+
 ## Repository mutation governance
 
 This bootstrap reconciles host state and may clone, fetch or fast-forward its
@@ -443,7 +460,8 @@ Valid IDs are `sudo`, `tooling`, `xcode`, `parallels`, `github-auth`,
 `permissions-audit`, `repositories`, `developer-workstation`, `docker-auth`,
 `runner-apple`, `runner-private-network`, `runner-esp32`, `runner-pi`,
 `maintenance`, `tooling-refresh`, `reboot-check`, `services`,
-`apple-signing`, `apple-readiness`, `apple-github-audit` and
+`apple-signing`, `apple-readiness`, `credential-expiry-audit`,
+`apple-github-audit` and
 `initial-verification`. `macos-preflight` is mandatory and cannot be skipped.
 Unknown IDs fail before recovery continues. Any skip results in **COMPLETED
 WITH SKIPPED PHASES**, not **PASSED**; separately rerun and qualify the
