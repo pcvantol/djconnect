@@ -31,6 +31,13 @@ The root `tests/test_onboarding_package.py` is deliberately only a discovery
 bridge for repository-wide `unittest discover`; the canonical tests remain in
 this package.
 
+The macOS script is sourceable as a function library: sourcing it loads helpers
+without running onboarding. The Windows script supports `-Library` for the
+same purpose. Unit tests directly exercise pure step selection, labels,
+Compose-path resolution, command quoting and Windows selection behavior.
+CLI contract tests retain coverage of dry-run plans, Docker Compose setup,
+ngrok redaction, interactive selection and guarded mutating steps.
+
 ## Package manifest
 
 `manifest.yml` records the package version, its canonical components and the

@@ -25,6 +25,7 @@ param(
     [string]$EnvFile = "",
     [string]$LogFile = "",
     [switch]$NoLogFile,
+    [switch]$Library,
     [switch]$Help
 )
 
@@ -40,7 +41,7 @@ function Test-IsAdministrator {
     return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
-if (Test-IsAdministrator) {
+if (-not $Library -and (Test-IsAdministrator)) {
     throw "Do not run this onboarding script as Administrator. Open a normal PowerShell terminal as your current user and run it again."
 }
 
@@ -1244,6 +1245,10 @@ function Invoke-StepByNumber([int]$Step) {
         14 { Step-14-CiSmoke }
         default { throw "Unknown step: $Step" }
     }
+}
+
+if ($Library) {
+    return
 }
 
 if ($Help) {

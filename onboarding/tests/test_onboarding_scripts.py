@@ -100,8 +100,41 @@ def run_windows_script_with_env(
     )
 
 
+def run_macos_unit(function_call: str, *arguments: str) -> subprocess.CompletedProcess[str]:
+    """Source the macOS package without executing its CLI entry point."""
+    return subprocess.run(
+        ["bash", "-lc", 'source "$1"; eval "$2"', "bash", str(SCRIPT), function_call],
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=False,
+    )
+
+
 @unittest.skipUnless(sys.platform == "darwin", "macOS onboarding script tests require Darwin")
 class DevOnboardingScriptTests(unittest.TestCase):
+    def test_macos_library_mode_exposes_pure_step_selection_helpers(self) -> None:
+        all_steps = run_macos_unit("resolve_step_selection all")
+        core_steps = run_macos_unit("resolve_step_selection core")
+        label = run_macos_unit("step_label 9")
+
+        self.assertEqual(all_steps.returncode, 0, all_steps.stdout)
+        self.assertEqual(
+            all_steps.stdout,
+            "0,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25,26,27,28",
+        )
+        self.assertEqual(core_steps.stdout, "3,4,5,6,7,8,9,10,11,12")
+        self.assertEqual(label.stdout, "Create/start Home Assistant with Docker Compose")
+
+    def test_macos_library_mode_resolves_compose_path_and_quotes_commands(self) -> None:
+        compose_path = run_macos_unit('HA_COMPOSE_FILE="/tmp/djconnect compose.yml"; resolve_ha_compose_file')
+        quoted = run_macos_unit('quote_cmd docker compose -f "two words.yml"')
+
+        self.assertEqual(compose_path.returncode, 0, compose_path.stdout)
+        self.assertEqual(compose_path.stdout, "/tmp/djconnect compose.yml")
+        self.assertEqual(quoted.stdout, "docker compose -f two\\ words.yml")
+
     def test_macos_runner_recovery_bootstrap_has_no_token_argument(self) -> None:
         result = subprocess.run(
             [str(RUNNER_RECOVERY_SCRIPT), "--help"],
@@ -763,6 +796,20 @@ class DevOnboardingScriptTests(unittest.TestCase):
 
 
 class WindowsDevOnboardingScriptTests(unittest.TestCase):
+    @unittest.skipUnless(shutil.which("pwsh"), "PowerShell 7 is required for Windows onboarding unit tests")
+    def test_windows_library_mode_exposes_step_selection_helper(self) -> None:
+        command = f". '{WINDOWS_SCRIPT}' -Library; (Resolve-StepSelection 'core') -join ','"
+        result = subprocess.run(
+            ["pwsh", "-NoProfile", "-Command", command],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertEqual(result.stdout.strip(), "0,1,2,3,4,5,8,9,10,11")
     def test_windows_script_exists_and_documents_core_flags(self) -> None:
         text = WINDOWS_SCRIPT.read_text()
 

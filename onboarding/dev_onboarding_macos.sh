@@ -1959,6 +1959,7 @@ interactive_menu() {
   done
 }
 
+onboarding_main() {
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --all)
@@ -2071,3 +2072,9 @@ if [[ -z "$SELECTED_STEPS" ]]; then
 fi
 
 parse_steps "$SELECTED_STEPS"
+}
+
+# Sourcing this file exposes its helpers for unit tests without running setup.
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+  onboarding_main "$@"
+fi
