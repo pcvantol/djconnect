@@ -278,6 +278,34 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("phase_execution_capability", source)
         self.assertIn("Execution capability: $step", source)
 
+    def test_macos_runner_recovery_bootstrap_cpu_bounds_parallel_work(self) -> None:
+        help_result = subprocess.run(
+            [str(RUNNER_RECOVERY_SCRIPT), "--help"],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        invalid_jobs = subprocess.run(
+            [str(RUNNER_RECOVERY_SCRIPT), "--parallel-jobs", "invalid", "--version"],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+
+        self.assertEqual(help_result.returncode, 0, help_result.stdout)
+        self.assertIn("--parallel-jobs COUNT", help_result.stdout)
+        self.assertEqual(invalid_jobs.returncode, 2, invalid_jobs.stdout)
+        self.assertIn("Parallel job count must be a non-negative integer", invalid_jobs.stdout)
+        source = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+        self.assertIn("run_parallel_runner_profiles", source)
+        self.assertIn("parallel_worker_limit", source)
+        self.assertIn("worker_limit <= cpu_count", source)
+        self.assertIn("run_apple_audit_alongside_services", source)
+
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:
         source = WINDOWS_RUNNER_RECOVERY_SCRIPT.read_text()
 

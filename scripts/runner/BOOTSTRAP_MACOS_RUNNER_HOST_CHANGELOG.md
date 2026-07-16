@@ -12,6 +12,8 @@ the DJConnect product release.
   `info`, `warning` and `error` levels.
 - Mark headless, parallel-safe runner-registration and read-only Apple audit
   phases; expose the metadata through `--list-phases` and recovery reports.
+- Execute those marked phases in CPU-bounded batches; default to half of the
+  detected CPU cores and retain per-phase transcript/report evidence.
 
 ## [1.0.0] - 2026-07-16
 

@@ -78,8 +78,9 @@ phase marked `HEADLESS + PARALLEL SAFE` requires no operator prompt after its
 declared prerequisites have succeeded, and does not share a mutable working
 directory or runner registration with another marked phase. The current
 bootstrap deliberately still executes phases in its deterministic serial
-order; the mark is an explicit safety contract for a future scheduler or
-reviewed external orchestration, not implicit background concurrency.
+order except for explicitly marked phases. It schedules those phases in
+CPU-bounded batches after their prerequisites have completed; other phases
+remain deterministic and serial.
 
 | Marked phase | Required completed prerequisites | Why it is safe to run headlessly and in parallel |
 | --- | --- | --- |
@@ -92,6 +93,19 @@ shared host tooling, establish prerequisites, access protected local material,
 perform a GUI/login boundary, or validate global post-recovery state. A
 parallel executor must still honor the dependency graph and must not run a
 marked phase until every listed prerequisite is `PASSED`.
+
+The scheduler uses half of the detected CPU cores by default (at least one
+worker), caps the worker count at the detected core count, and never launches
+more workers than marked candidates. Override the default only when needed:
+
+```sh
+./scripts/runner/bootstrap_macos_runner_host.sh --parallel-jobs 4
+```
+
+`DJCONNECT_PARALLEL_JOBS` provides the same setting for unattended execution.
+An invalid value or a value above the detected CPU count fails closed. Runner
+registration output is captured per phase then replayed into the redacted
+central transcript, so concurrent output cannot interleave or expose tokens.
 
 `--verify` emits a Markdown delta to standard output and exits `0` only when
 all required desired-state rows match. It exits `1` when it finds drift. It

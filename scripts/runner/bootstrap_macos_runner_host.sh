@@ -70,6 +70,7 @@ VERIFY_DRIFT_COUNT=0
 VERIFY_UNVERIFIED_COUNT=0
 LOG_LEVEL="${LOG_LEVEL:-info}"
 LIST_PHASES=0
+PARALLEL_JOBS="${DJCONNECT_PARALLEL_JOBS:-0}"
 RESUME_MODE=0
 RESUME_STATE_FILE="${RESUME_STATE_FILE:-$HOME/Library/Application Support/DJConnect/macos-runner-recovery-resume.env}"
 RESUME_NEXT_PHASE=''
@@ -160,6 +161,10 @@ Options:
   --list-phases          List phase execution capabilities and exit. Phases
                         marked HEADLESS + PARALLEL SAFE may run concurrently
                         after all listed prerequisites have completed.
+  --parallel-jobs COUNT  Maximum concurrent HEADLESS + PARALLEL SAFE phases.
+                        Default: half of available CPU cores, minimum one.
+                        Cannot exceed available CPU cores. May also be set by
+                        DJCONNECT_PARALLEL_JOBS.
   --no-color            Disable ANSI color output.
   --help                Show this help.
 
@@ -322,6 +327,13 @@ log_level_rank() {
 validate_log_level() {
   log_level_rank "$LOG_LEVEL" >/dev/null || {
     printf 'ERROR Invalid log level %q. Use debug, verbose, info, warning or error.\n' "$LOG_LEVEL" >&2
+    exit 2
+  }
+}
+
+validate_parallel_jobs() {
+  [[ "$PARALLEL_JOBS" =~ ^[0-9]+$ ]] || {
+    printf 'ERROR Parallel job count must be a non-negative integer: %q\n' "$PARALLEL_JOBS" >&2
     exit 2
   }
 }
@@ -603,7 +615,7 @@ phase_dependencies() {
       ;;
     apple-signing) printf '%s' 'xcode' ;;
     apple-readiness) printf '%s' 'repositories github-auth xcode' ;;
-    apple-github-audit) printf '%s' 'github-auth' ;;
+    apple-github-audit) printf '%s' 'apple-readiness' ;;
     initial-verification) printf '%s' 'repositories developer-workstation docker-auth services reboot-check' ;;
     *) die "No dependency definition exists for phase: $phase_id" ;;
   esac
@@ -623,7 +635,7 @@ phase_runtime_conditions() {
     github-auth|repositories|apple-github-audit) command -v gh >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='GitHub CLI is available.' ;;
     developer-workstation|initial-verification) [[ -f "$GITHUB_ROOT/djconnect/tools/dev_onboarding_macos.sh" ]] || return 1; PHASE_PRECHECK_RESULT='Central developer-onboarding script is available.' ;;
     docker-auth) command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='Docker Desktop daemon is ready.' ;;
-    runner-apple|runner-private-network|runner-esp32|runner-pi) command -v gh >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='GitHub CLI is available for runner registration.' ;;
+    runner-apple|runner-private-network|runner-esp32|runner-pi) command -v gh >/dev/null 2>&1 && sudo -n true >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='GitHub CLI and non-interactive administrator access are available for runner registration.' ;;
     maintenance) [[ -f "$GITHUB_ROOT/djconnect-app/scripts/runner/install_macos_ci_tooling_maintenance.sh" ]] || return 1; PHASE_PRECHECK_RESULT='macOS maintenance installer is available.' ;;
     reboot-check) command -v softwareupdate >/dev/null 2>&1 || return 1; PHASE_PRECHECK_RESULT='macOS Software Update utility is available.' ;;
     services) PHASE_PRECHECK_RESULT='Runner and LaunchAgent validation will use the completed installation state.' ;;
@@ -768,6 +780,137 @@ run_phase() {
       *) warn 'Enter r to retry, s to skip this phase, or a to abort recovery.' ;;
     esac
   done
+}
+
+available_cpu_cores() {
+  local cpu_count
+  cpu_count="$(sysctl -n hw.ncpu 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || printf '1')"
+  [[ "$cpu_count" =~ ^[0-9]+$ ]] && (( cpu_count > 0 )) || cpu_count=1
+  printf '%s' "$cpu_count"
+}
+
+parallel_worker_limit() {
+  local candidate_count="$1"
+  local cpu_count worker_limit
+  cpu_count="$(available_cpu_cores)"
+  if (( PARALLEL_JOBS == 0 )); then
+    worker_limit=$(( cpu_count / 2 ))
+    (( worker_limit > 0 )) || worker_limit=1
+  else
+    worker_limit="$PARALLEL_JOBS"
+  fi
+  (( worker_limit <= cpu_count )) || die "Parallel job count $worker_limit exceeds the $cpu_count available CPU cores."
+  (( worker_limit <= candidate_count )) || worker_limit="$candidate_count"
+  printf '%s' "$worker_limit"
+}
+
+parallel_phase_worker() {
+  local phase_id="$1"
+  shift
+  trap - EXIT
+  CURRENT_PHASE_ID="$phase_id"
+  CURRENT_STEP=''
+  "$@"
+}
+
+prepare_parallel_phase() {
+  local phase_id="$1"
+  local step="$2"
+  CURRENT_PHASE_ID="$phase_id"
+  if ! precheck_phase "$phase_id"; then
+    set_phase_state "$phase_id" 'BLOCKED'
+    report_append "Precheck: $step" 'FAILED' "$PHASE_PRECHECK_RESULT"
+    die "Precheck failed for $step: $PHASE_PRECHECK_RESULT"
+  fi
+  report_append "Execution capability: $step" "$(phase_execution_capability "$phase_id")" "$(phase_execution_note "$phase_id")"
+  report_append "Precheck: $step" 'PASSED' "$PHASE_PRECHECK_RESULT"
+  set_phase_state "$phase_id" 'RUNNING'
+}
+
+complete_parallel_phase() {
+  local phase_id="$1"
+  local step="$2"
+  local status="$3"
+  local output_file="$4"
+  if [[ -s "$output_file" ]]; then
+    cat "$output_file"
+  fi
+  rm -f "$output_file"
+  if [[ "$status" == '0' ]]; then
+    set_phase_state "$phase_id" 'PASSED'
+    report_append "$step" 'PASSED (parallel)' 'Completed headlessly in a CPU-bounded parallel batch; see the central transcript for detailed command output.'
+    ok "$step (parallel)"
+    return 0
+  fi
+  set_phase_state "$phase_id" 'FAILED'
+  report_append "$step" 'FAILED (parallel)' "Exited with status $status."
+  warn "$step failed with status $status in the parallel batch."
+  return "$status"
+}
+
+run_parallel_runner_profiles() {
+  local -a profiles=() phase_ids=() steps=() output_files=() pids=()
+  local profile phase_id step worker_limit index batch_end pid status failures=0
+  for profile in "${DESIRED_PROFILES[@]}"; do
+    profile_enabled "$profile" || continue
+    phase_id="runner-$profile"
+    [[ "$(phase_execution_capability "$phase_id")" == 'HEADLESS + PARALLEL SAFE' ]] || die "Runner phase $phase_id is not declared parallel-safe."
+    profiles+=("$profile")
+    phase_ids+=("$phase_id")
+    steps+=("GitHub Actions runner profile: $profile")
+  done
+  (( ${#profiles[@]} > 0 )) || return 0
+  worker_limit="$(parallel_worker_limit "${#profiles[@]}")"
+  log "Scheduling ${#profiles[@]} headless runner profile(s) with a maximum of $worker_limit concurrent job(s) across $(available_cpu_cores) CPU core(s)."
+  report_append 'Parallel execution plan' 'CPU-BOUNDED' "${#profiles[@]} runner phase(s); maximum $worker_limit concurrent job(s) across $(available_cpu_cores) CPU core(s)."
+
+  index=0
+  while (( index < ${#profiles[@]} )); do
+    batch_end=$(( index + worker_limit ))
+    (( batch_end <= ${#profiles[@]} )) || batch_end="${#profiles[@]}"
+    output_files=()
+    pids=()
+    while (( index < batch_end )); do
+      phase_id="${phase_ids[$index]}"
+      step="${steps[$index]}"
+      prepare_parallel_phase "$phase_id" "$step"
+      output_file="$(mktemp "${TMPDIR:-/tmp}/djconnect-${phase_id}.XXXXXX")"
+      parallel_phase_worker "$phase_id" install_runner_profile "${profiles[$index]}" >"$output_file" 2>&1 &
+      pids+=("$!")
+      output_files+=("$output_file")
+      index=$((index + 1))
+    done
+    local batch_index
+    for batch_index in "${!pids[@]}"; do
+      pid="${pids[$batch_index]}"
+      set +e
+      wait "$pid"
+      status=$?
+      set -e
+      if ! complete_parallel_phase "${phase_ids[$((index - ${#pids[@]} + batch_index))]}" "${steps[$((index - ${#pids[@]} + batch_index))]}" "$status" "${output_files[$batch_index]}"; then
+        failures=$((failures + 1))
+      fi
+    done
+    (( failures == 0 )) || die "$failures runner profile phase(s) failed in the CPU-bounded parallel batch."
+  done
+}
+
+run_apple_audit_alongside_services() {
+  local audit_output audit_pid audit_status
+  if ! profile_enabled apple; then
+    run_phase services 'Runner services and launchd validation' verify_launchd_services
+    return
+  fi
+  prepare_parallel_phase apple-github-audit 'GitHub Apple configuration audit'
+  audit_output="$(mktemp "${TMPDIR:-/tmp}/djconnect-apple-github-audit.XXXXXX")"
+  parallel_phase_worker apple-github-audit audit_apple_github_configuration >"$audit_output" 2>&1 &
+  audit_pid="$!"
+  run_phase services 'Runner services and launchd validation' verify_launchd_services
+  set +e
+  wait "$audit_pid"
+  audit_status=$?
+  set -e
+  complete_parallel_phase apple-github-audit 'GitHub Apple configuration audit' "$audit_status" "$audit_output" || die 'GitHub Apple configuration audit failed alongside service validation.'
 }
 
 run_interactive() {
@@ -1417,6 +1560,7 @@ while [[ "$#" -gt 0 ]]; do
     --version) print_version; exit 0 ;;
     --log-level) LOG_LEVEL="${2:?--log-level requires a value}"; validate_log_level; shift 2 ;;
     --list-phases) LIST_PHASES=1; shift ;;
+    --parallel-jobs) PARALLEL_JOBS="${2:?--parallel-jobs requires a value}"; validate_parallel_jobs; shift 2 ;;
     --no-color) NO_COLOR=1; shift ;;
     --help|-h|help) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
@@ -1424,6 +1568,7 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 validate_log_level
+validate_parallel_jobs
 if [[ "$LIST_PHASES" == '1' ]]; then
   print_phase_catalog
   exit 0
@@ -1467,19 +1612,13 @@ run_phase github-auth 'GitHub CLI authentication' ensure_github_auth
 run_phase repositories 'Repository preparation' prepare_repositories
 run_phase developer-workstation 'Developer workstation recovery' bootstrap_developer_workstation
 run_phase docker-auth 'Docker Hub authentication' ensure_docker_hub_auth
-
-for profile in "${DESIRED_PROFILES[@]}"; do
-  if profile_enabled "$profile"; then
-    run_phase "runner-$profile" "GitHub Actions runner profile: $profile" install_runner_profile "$profile"
-  fi
-done
+run_parallel_runner_profiles
 
 run_phase maintenance 'Daily macOS tooling maintenance' install_maintenance
 run_phase tooling-refresh 'Tooling currency refresh' refresh_host_tooling
 run_phase reboot-check 'Reboot requirement check' check_reboot_required
-run_phase services 'Runner services and launchd validation' verify_launchd_services
 run_phase apple-signing 'Apple signing recovery' configure_signing_keychain
 run_phase apple-readiness 'Apple internal-release readiness' configure_apple_internal_release
-run_phase apple-github-audit 'GitHub Apple configuration audit' audit_apple_github_configuration
+run_apple_audit_alongside_services
 run_phase initial-verification 'Initial post-recovery verification' run_initial_verification
 report_signing_recovery
