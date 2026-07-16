@@ -227,6 +227,35 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("--version", result.stdout)
         self.assertIn("help                   Show this help and exit.", result.stdout)
 
+    def test_macos_runner_recovery_bootstrap_validates_log_levels(self) -> None:
+        help_result = subprocess.run(
+            [str(RUNNER_RECOVERY_SCRIPT), "--help"],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        invalid_level = subprocess.run(
+            [str(RUNNER_RECOVERY_SCRIPT), "--log-level", "invalid", "--version"],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+
+        self.assertEqual(help_result.returncode, 0, help_result.stdout)
+        self.assertIn("--log-level LEVEL", help_result.stdout)
+        self.assertIn("debug, verbose, info,", help_result.stdout)
+        self.assertIn("warning or error", help_result.stdout)
+        self.assertEqual(invalid_level.returncode, 2, invalid_level.stdout)
+        self.assertIn("Invalid log level", invalid_level.stdout)
+        source = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+        self.assertIn('LOG_LEVEL="${LOG_LEVEL:-info}"', source)
+        self.assertIn("log_level_rank", source)
+        self.assertIn("VERBOSE", source)
+
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:
         source = WINDOWS_RUNNER_RECOVERY_SCRIPT.read_text()
 

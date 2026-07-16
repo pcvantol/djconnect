@@ -68,6 +68,7 @@ CURRENT_PHASE_ID=''
 VERIFY_MODE=0
 VERIFY_DRIFT_COUNT=0
 VERIFY_UNVERIFIED_COUNT=0
+LOG_LEVEL="${LOG_LEVEL:-info}"
 RESUME_MODE=0
 RESUME_STATE_FILE="${RESUME_STATE_FILE:-$HOME/Library/Application Support/DJConnect/macos-runner-recovery-resume.env}"
 RESUME_NEXT_PHASE=''
@@ -153,6 +154,8 @@ Options:
                         ~/Library/Application Support/DJConnect/macos-runner-recovery-resume.env
   --version              Show the bootstrap version and exit.
   help                   Show this help and exit.
+  --log-level LEVEL      Minimum message level: debug, verbose, info,
+                        warning or error. Default: info (or $LOG_LEVEL).
   --no-color            Disable ANSI color output.
   --help                Show this help.
 
@@ -301,10 +304,48 @@ init_style() {
 }
 
 style() { printf '%s%s%s' "$1" "$2" "$CLR_RESET"; }
-log() { printf '\n%s %s\n' "$(style "$CLR_CYAN$CLR_BOLD" '==>')" "$*"; }
-ok() { printf '%s %s\n' "$(style "$CLR_GREEN$CLR_BOLD" 'OK')" "$*"; }
-warn() { printf '%s %s\n' "$(style "$CLR_YELLOW$CLR_BOLD" 'WARN')" "$*" >&2; }
-die() { printf '%s %s\n' "$(style "$CLR_RED$CLR_BOLD" 'ERROR')" "$*" >&2; exit 1; }
+log_level_rank() {
+  case "$1" in
+    debug) printf '10' ;;
+    verbose) printf '20' ;;
+    info) printf '30' ;;
+    warning) printf '40' ;;
+    error) printf '50' ;;
+    *) return 1 ;;
+  esac
+}
+
+validate_log_level() {
+  log_level_rank "$LOG_LEVEL" >/dev/null || {
+    printf 'ERROR Invalid log level %q. Use debug, verbose, info, warning or error.\n' "$LOG_LEVEL" >&2
+    exit 2
+  }
+}
+
+should_log() {
+  local message_level="$1"
+  (( $(log_level_rank "$message_level") >= $(log_level_rank "$LOG_LEVEL") ))
+}
+
+emit_log() {
+  local message_level="$1"
+  local label="$2"
+  local colour="$3"
+  shift 3
+  should_log "$message_level" || return 0
+  if [[ "$message_level" == 'info' ]]; then
+    printf '\n'
+  fi
+  printf '%s %s\n' "$(style "$colour$CLR_BOLD" "$label")" "$*"
+}
+
+debug() { emit_log debug 'DEBUG' "$CLR_MAGENTA" "$@"; }
+verbose() { emit_log verbose 'VERBOSE' "$CLR_CYAN" "$@"; }
+info() { emit_log info 'INFO' "$CLR_CYAN" "$@"; }
+log() { info "$@"; }
+ok() { emit_log info 'OK' "$CLR_GREEN" "$@"; }
+warn() { emit_log warning 'WARNING' "$CLR_YELLOW" "$@"; }
+die() { emit_log error 'ERROR' "$CLR_RED" "$@"; exit 1; }
 
 start_logging() {
   if [[ "$LOG_FILE" == 'none' ]]; then
@@ -356,6 +397,8 @@ start_report() {
   mkdir -p "$(dirname "$REPORT_FILE")"
   {
     printf '# DJConnect macOS Runner Recovery Report\n\n'
+    printf '%s\n' "- Bootstrap version: $SCRIPT_VERSION"
+    printf '%s\n' "- Log level: $LOG_LEVEL"
     printf 'Started (UTC): %s\n\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
     printf '%s\n' '- Mode: recovery execution'
     printf '%s\n' "- Desired state: $DESIRED_STATE_FILE (schema $DESIRED_STATE_SCHEMA_VERSION)"
@@ -1330,11 +1373,14 @@ while [[ "$#" -gt 0 ]]; do
     --resume) RESUME_MODE=1; shift ;;
     --resume-state) RESUME_STATE_FILE="${2:?--resume-state requires a value}"; shift 2 ;;
     --version) print_version; exit 0 ;;
+    --log-level) LOG_LEVEL="${2:?--log-level requires a value}"; validate_log_level; shift 2 ;;
     --no-color) NO_COLOR=1; shift ;;
     --help|-h|help) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
   esac
 done
+
+validate_log_level
 
 if [[ "$VERIFY_MODE" == '1' && "$DRY_RUN" == '1' ]]; then
   die '--verify and --dry-run cannot be combined.'

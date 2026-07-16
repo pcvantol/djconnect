@@ -61,6 +61,16 @@ The initial stable version is `1.0.0`; its release history is maintained in
 Include the `--version` output in support or recovery evidence when the script
 itself is relevant to a result.
 
+### Log levels
+
+Use `--log-level` (or the `LOG_LEVEL` environment variable) to select the
+minimum severity emitted to the terminal and redacted transcript. Supported
+levels, from most to least detailed, are `debug`, `verbose`, `info` (default),
+`warning` and `error`. The Markdown recovery report records the selected level.
+For example, use `--log-level debug` while diagnosing a failed recovery, or
+`--log-level warning` for a quieter routine execution. Errors always retain a
+non-zero exit status; log filtering never changes recovery behaviour.
+
 `--verify` emits a Markdown delta to standard output and exits `0` only when
 all required desired-state rows match. It exits `1` when it finds drift. It
 does not create a recovery transcript or final report unless those paths are

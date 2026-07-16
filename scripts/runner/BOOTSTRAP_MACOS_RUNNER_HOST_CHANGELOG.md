@@ -8,7 +8,8 @@ the DJConnect product release.
 
 ## [Unreleased]
 
-No unreleased changes.
+- Add configurable `--log-level` output filtering with `debug`, `verbose`,
+  `info`, `warning` and `error` levels.
 
 ## [1.0.0] - 2026-07-16
 
