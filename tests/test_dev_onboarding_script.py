@@ -15,6 +15,7 @@ SCRIPT = ROOT / "tools" / "dev_onboarding_macos.sh"
 WINDOWS_SCRIPT = ROOT / "tools" / "dev_onboarding_windows.ps1"
 RUNNER_RECOVERY_SCRIPT = ROOT / "scripts" / "runner" / "bootstrap_macos_runner_host.sh"
 RECOVERY_REDACTION_RULES = ROOT / "scripts" / "runner" / "redact_recovery_output.sed"
+MACOS_RUNNER_DESIRED_STATE = ROOT / "scripts" / "runner" / "macos_runner_host_desired_state.yml"
 WINDOWS_RUNNER_RECOVERY_SCRIPT = ROOT / "scripts" / "runner" / "bootstrap_windows_arm64_runner.ps1"
 
 
@@ -106,7 +107,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertNotIn("--token", result.stdout)
         source = RUNNER_RECOVERY_SCRIPT.read_text()
         self.assertIn("registration-token", source)
-        self.assertIn("djconnect-apple-macos", source)
+        self.assertIn("profile.$profile.runner_name", source)
         self.assertIn("RUNNER_ARCHIVE_DIGEST", source)
         self.assertIn("--xcode-version", source)
         self.assertIn("set-key-partition-list", source)
@@ -155,7 +156,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("HOST QUALIFIED FOR THE REQUESTED DJCONNECT RECOVERY SCOPE", source)
         self.assertIn("INITIAL_VERIFICATION_PASSED", source)
         self.assertIn("machdep.cpu.brand_string", source)
-        self.assertIn("DJConnect development requires at least 80GB free", source)
+        self.assertIn("DESIRED_MINIMUM_FREE_DISK_GB", source)
         self.assertIn("Development host qualification", source)
         self.assertIn("macos-preflight is mandatory and cannot be skipped", source)
         self.assertIn("Precheck: $step", source)
@@ -166,6 +167,15 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("phase_is_forced", source)
         self.assertIn("without destructive recreation", source)
         self.assertIn("redact_recovery_output.sed", source)
+        self.assertIn("--desired-state", source)
+        self.assertIn("load_desired_state", source)
+        self.assertIn("validate_profile_selection", source)
+        self.assertIn("macos_runner_host_desired_state.yml", source)
+        self.assertTrue(MACOS_RUNNER_DESIRED_STATE.is_file())
+        desired_state = MACOS_RUNNER_DESIRED_STATE.read_text()
+        self.assertIn("schema_version: 1", desired_state)
+        self.assertIn("host.minimum_free_disk_gb: 80", desired_state)
+        self.assertIn("runner.profiles: apple,private-network,esp32,pi", desired_state)
         self.assertTrue(RECOVERY_REDACTION_RULES.is_file())
         self.assertIn("[REDACTED]", RECOVERY_REDACTION_RULES.read_text())
         self.assertIn("/dev/tty", source)

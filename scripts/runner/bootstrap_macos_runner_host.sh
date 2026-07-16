@@ -8,6 +8,20 @@ set -euo pipefail
 readonly ORG='pcvantol'
 readonly SCRIPT_DIRECTORY="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly REDACTION_RULES="$SCRIPT_DIRECTORY/redact_recovery_output.sed"
+DESIRED_STATE_FILE="${DESIRED_STATE_FILE:-$SCRIPT_DIRECTORY/macos_runner_host_desired_state.yml}"
+DESIRED_STATE_SCHEMA_VERSION=''
+DESIRED_HOST_PLATFORM=''
+DESIRED_HOST_ARCHITECTURE=''
+DESIRED_HOST_APPLE_SILICON=''
+DESIRED_MINIMUM_MACOS_MAJOR=''
+DESIRED_MINIMUM_RAM_GB=''
+DESIRED_RECOMMENDED_RAM_GB=''
+DESIRED_MINIMUM_CPU_CORES=''
+DESIRED_MINIMUM_FREE_DISK_GB=''
+DESIRED_RECOMMENDED_FREE_DISK_GB=''
+DESIRED_TOOL_FORMULAS=()
+DESIRED_REFRESH_CASKS=()
+DESIRED_PROFILES=()
 GITHUB_ROOT="${GITHUB_ROOT:-$HOME/Documents/GitHub}"
 RUNNER_ROOT="${RUNNER_ROOT:-$HOME/actions-runners}"
 PROFILE_SELECTION='all'
@@ -62,6 +76,8 @@ macOS CI-tooling maintenance LaunchAgent.
 Options:
   --profiles LIST       Comma-separated: apple,private-network,esp32,pi.
                         Default: all.
+  --desired-state FILE  YAML desired-state manifest to reconcile. Default:
+                        scripts/runner/macos_runner_host_desired_state.yml
   --github-root DIR     Parent directory for DJConnect repositories.
                         Default: ~/Documents/GitHub
   --runner-root DIR     Parent directory for Actions runner installations.
@@ -129,6 +145,62 @@ authenticated GitHub API and gives it directly to the runner configurator.
 Signing material must be supplied from a local secure backup. It is never
 downloaded from GitHub, written to this repository or emitted to a log.
 EOF
+}
+
+desired_state_value() {
+  local requested_key="$1"
+  awk -v requested_key="$requested_key" '
+    /^[[:space:]]*($|#)/ { next }
+    {
+      separator = index($0, ":")
+      if (separator == 0) next
+      key = substr($0, 1, separator - 1)
+      value = substr($0, separator + 1)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", key)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+      if (key == requested_key) {
+        print value
+        exit
+      }
+    }
+  ' "$DESIRED_STATE_FILE"
+}
+
+require_desired_state_value() {
+  local requested_key="$1"
+  local value
+  value="$(desired_state_value "$requested_key")"
+  [[ -n "$value" ]] || die "Desired-state manifest is missing required key: $requested_key"
+  printf '%s' "$value"
+}
+
+load_desired_state() {
+  local profile
+  [[ -f "$DESIRED_STATE_FILE" ]] || die "Desired-state manifest is unavailable: $DESIRED_STATE_FILE"
+  DESIRED_STATE_SCHEMA_VERSION="$(require_desired_state_value schema_version)"
+  [[ "$DESIRED_STATE_SCHEMA_VERSION" == '1' ]] || die "Unsupported desired-state schema version: $DESIRED_STATE_SCHEMA_VERSION"
+  DESIRED_HOST_PLATFORM="$(require_desired_state_value host.platform)"
+  DESIRED_HOST_ARCHITECTURE="$(require_desired_state_value host.architecture)"
+  DESIRED_HOST_APPLE_SILICON="$(require_desired_state_value host.apple_silicon)"
+  DESIRED_MINIMUM_MACOS_MAJOR="$(require_desired_state_value host.macos_minimum_major)"
+  DESIRED_MINIMUM_RAM_GB="$(require_desired_state_value host.minimum_ram_gb)"
+  DESIRED_RECOMMENDED_RAM_GB="$(require_desired_state_value host.recommended_ram_gb)"
+  DESIRED_MINIMUM_CPU_CORES="$(require_desired_state_value host.minimum_cpu_cores)"
+  DESIRED_MINIMUM_FREE_DISK_GB="$(require_desired_state_value host.minimum_free_disk_gb)"
+  DESIRED_RECOMMENDED_FREE_DISK_GB="$(require_desired_state_value host.recommended_free_disk_gb)"
+  IFS=',' read -r -a DESIRED_TOOL_FORMULAS <<<"$(require_desired_state_value tooling.formulas)"
+  IFS=',' read -r -a DESIRED_REFRESH_CASKS <<<"$(require_desired_state_value tooling.refresh_casks)"
+  IFS=',' read -r -a DESIRED_PROFILES <<<"$(require_desired_state_value runner.profiles)"
+  for profile in "${DESIRED_PROFILES[@]}"; do
+    case "$profile" in
+      apple|private-network|esp32|pi) ;;
+      *) die "Unsupported desired-state runner profile: $profile" ;;
+    esac
+    require_desired_state_value "profile.$profile.repository" >/dev/null
+    require_desired_state_value "profile.$profile.runner_name" >/dev/null
+    require_desired_state_value "profile.$profile.labels" >/dev/null
+  done
+  log "Loaded desired-state manifest $DESIRED_STATE_FILE (schema $DESIRED_STATE_SCHEMA_VERSION)."
 }
 
 init_style() {
@@ -201,6 +273,7 @@ start_report() {
     printf '# DJConnect macOS Runner Recovery Report\n\n'
     printf 'Started (UTC): %s\n\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
     printf '%s\n' '- Mode: recovery execution'
+    printf '%s\n' "- Desired state: $DESIRED_STATE_FILE (schema $DESIRED_STATE_SCHEMA_VERSION)"
     printf '%s\n' "- Selected runner profiles: $PROFILE_SELECTION"
     printf '%s\n\n' "- Transcript log: ${LOG_FILE:-not configured}"
     printf '%s\n' '| Step | Status | Result |'
@@ -298,7 +371,7 @@ phase_dependencies() {
     services)
       printf '%s' 'maintenance'
       local profile
-      for profile in apple private-network esp32 pi; do
+      for profile in "${DESIRED_PROFILES[@]}"; do
         if profile_enabled "$profile"; then
           printf ' runner-%s' "$profile"
         fi
@@ -524,19 +597,21 @@ run_in_dir() {
 
 ensure_macos_arm64() {
   local macos_version macos_major cpu_brand hardware_profile mem_bytes mem_gb cpu_count disk_probe_path disk_kb disk_gb
+  [[ "$DESIRED_HOST_PLATFORM" == 'macos' ]] || die "Desired state requires unsupported host platform: $DESIRED_HOST_PLATFORM"
   [[ "$(uname -s)" == 'Darwin' ]] || die 'This recovery bootstrap runs only on macOS.'
-  [[ "$(uname -m)" == 'arm64' ]] || die 'DJConnect macOS runners require an Apple-Silicon (arm64) host.'
+  [[ "$(uname -m)" == "$DESIRED_HOST_ARCHITECTURE" ]] || die "DJConnect macOS runners require a $DESIRED_HOST_ARCHITECTURE host."
   cpu_brand="$(sysctl -n machdep.cpu.brand_string 2>/dev/null || true)"
   hardware_profile=''
   if [[ -z "$cpu_brand" ]]; then
     hardware_profile="$(system_profiler SPHardwareDataType 2>/dev/null || true)"
     cpu_brand="$(awk -F': ' '/Chip:/{print $2; exit}' <<<"$hardware_profile")"
   fi
+  [[ "$DESIRED_HOST_APPLE_SILICON" == 'required' ]] || die "Desired state requires unsupported Apple-Silicon policy: $DESIRED_HOST_APPLE_SILICON"
   [[ "$cpu_brand" == Apple* ]] || die 'DJConnect development requires a physical Apple-Silicon Mac, not another arm64 runtime.'
 
   macos_version="$(sw_vers -productVersion 2>/dev/null || true)"
   macos_major="${macos_version%%.*}"
-  [[ "$macos_major" =~ ^[0-9]+$ ]] && (( macos_major >= 14 )) || die "DJConnect development requires macOS 14 or newer; detected ${macos_version:-unknown}."
+  [[ "$macos_major" =~ ^[0-9]+$ ]] && (( macos_major >= DESIRED_MINIMUM_MACOS_MAJOR )) || die "DJConnect development requires macOS $DESIRED_MINIMUM_MACOS_MAJOR or newer; detected ${macos_version:-unknown}."
 
   mem_bytes="$(sysctl -n hw.memsize 2>/dev/null || echo 0)"
   if [[ "$mem_bytes" =~ ^[0-9]+$ && "$mem_bytes" != '0' ]]; then
@@ -546,7 +621,7 @@ ensure_macos_arm64() {
     mem_gb="$(awk -F': ' '/Memory:/{print $2; exit}' <<<"$hardware_profile" | awk '{print $1}')"
   fi
   [[ "$mem_gb" =~ ^[0-9]+$ ]] || die 'Could not determine installed memory.'
-  (( mem_gb >= 8 )) || die "DJConnect development requires at least 8GB RAM; detected ${mem_gb}GB."
+  (( mem_gb >= DESIRED_MINIMUM_RAM_GB )) || die "DJConnect development requires at least ${DESIRED_MINIMUM_RAM_GB}GB RAM; detected ${mem_gb}GB."
 
   cpu_count="$(sysctl -n hw.ncpu 2>/dev/null || echo 0)"
   if [[ ! "$cpu_count" =~ ^[0-9]+$ || "$cpu_count" == '0' ]]; then
@@ -554,7 +629,7 @@ ensure_macos_arm64() {
     cpu_count="$(awk -F': ' '/Total Number of Cores:/{print $2; exit}' <<<"$hardware_profile" | awk '{print $1}')"
   fi
   [[ "$cpu_count" =~ ^[0-9]+$ ]] || die 'Could not determine available CPU cores.'
-  (( cpu_count >= 4 )) || die "DJConnect development requires at least 4 CPU cores; detected $cpu_count."
+  (( cpu_count >= DESIRED_MINIMUM_CPU_CORES )) || die "DJConnect development requires at least $DESIRED_MINIMUM_CPU_CORES CPU cores; detected $cpu_count."
 
   disk_probe_path="$GITHUB_ROOT"
   while [[ ! -e "$disk_probe_path" && "$disk_probe_path" != '/' ]]; do
@@ -563,15 +638,15 @@ ensure_macos_arm64() {
   disk_kb="$(df -Pk "$disk_probe_path" | awk 'NR == 2 {print $4}')"
   [[ "$disk_kb" =~ ^[0-9]+$ ]] || die "Could not determine free disk space for $GITHUB_ROOT."
   disk_gb=$((disk_kb / 1024 / 1024))
-  (( disk_gb >= 80 )) || die "DJConnect development requires at least 80GB free at $GITHUB_ROOT; detected ${disk_gb}GB."
+  (( disk_gb >= DESIRED_MINIMUM_FREE_DISK_GB )) || die "DJConnect development requires at least ${DESIRED_MINIMUM_FREE_DISK_GB}GB free at $GITHUB_ROOT; detected ${disk_gb}GB."
 
   log "Qualified development host: macOS $macos_version, $cpu_brand, ${mem_gb}GB RAM, $cpu_count cores, ${disk_gb}GB free at $disk_probe_path."
   report_append 'Development host qualification' 'QUALIFIED' "macOS $macos_version; $cpu_brand; ${mem_gb}GB RAM; $cpu_count cores; ${disk_gb}GB free at $disk_probe_path."
-  if (( mem_gb < 16 )); then
-    warn "${mem_gb}GB RAM meets the minimum; 16GB+ is recommended for Docker and Xcode."
+  if (( mem_gb < DESIRED_RECOMMENDED_RAM_GB )); then
+    warn "${mem_gb}GB RAM meets the minimum; ${DESIRED_RECOMMENDED_RAM_GB}GB+ is recommended for Docker and Xcode."
   fi
-  if (( disk_gb < 120 )); then
-    warn "${disk_gb}GB free meets the minimum; 120GB+ is recommended for VM, Xcode and Docker workloads."
+  if (( disk_gb < DESIRED_RECOMMENDED_FREE_DISK_GB )); then
+    warn "${disk_gb}GB free meets the minimum; ${DESIRED_RECOMMENDED_FREE_DISK_GB}GB+ is recommended for VM, Xcode and Docker workloads."
   fi
 }
 
@@ -617,7 +692,7 @@ ensure_tooling() {
   ensure_homebrew
   log 'Installing or updating macOS runner tooling.'
   run brew update
-  run brew install git gh jq node python@3.12 xcodegen swiftlint xcbeautify create-dmg mas xcodes
+  run brew install "${DESIRED_TOOL_FORMULAS[@]}"
   if [[ "$SKIP_CODEX" == '0' ]]; then
     run npm install -g @openai/codex
   fi
@@ -754,11 +829,13 @@ clone_or_update() {
 }
 
 prepare_repositories() {
+  local profile
   log 'Preparing repositories required by the macOS runner profiles.'
   clone_or_update djconnect
-  clone_or_update djconnect-app
-  clone_or_update djconnect-esp32
-  clone_or_update djconnect-pi
+  for profile in "${DESIRED_PROFILES[@]}"; do
+    profile_values "$profile"
+    [[ "$PROFILE_REPOSITORY" == 'djconnect' ]] || clone_or_update "$PROFILE_REPOSITORY"
+  done
 }
 
 bootstrap_developer_workstation() {
@@ -795,31 +872,32 @@ profile_enabled() {
   [[ ",$PROFILE_SELECTION," == *",$profile,"* ]]
 }
 
+profile_declared() {
+  local profile="$1"
+  local declared_profile
+  for declared_profile in "${DESIRED_PROFILES[@]}"; do
+    if [[ "$declared_profile" == "$profile" ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+validate_profile_selection() {
+  local profile
+  [[ "$PROFILE_SELECTION" == 'all' ]] && return 0
+  IFS=',' read -r -a selected_profiles <<<"$PROFILE_SELECTION"
+  for profile in "${selected_profiles[@]}"; do
+    profile_declared "$profile" || die "Selected runner profile is not declared by desired state: $profile"
+  done
+}
+
 profile_values() {
   local profile="$1"
-  case "$profile" in
-    apple)
-      PROFILE_REPOSITORY='djconnect-app'
-      PROFILE_RUNNER_NAME='djconnect-apple-macos'
-      PROFILE_LABELS='internal-release,qualification,apple'
-      ;;
-    private-network)
-      PROFILE_REPOSITORY='djconnect'
-      PROFILE_RUNNER_NAME='djconnect-private-network-relay'
-      PROFILE_LABELS='internal-release,private-network-deployment'
-      ;;
-    esp32)
-      PROFILE_REPOSITORY='djconnect-esp32'
-      PROFILE_RUNNER_NAME='djconnect-esp32-firmware'
-      PROFILE_LABELS='internal-release,qualification,firmware,esp32,private-network-deployment'
-      ;;
-    pi)
-      PROFILE_REPOSITORY='djconnect-pi'
-      PROFILE_RUNNER_NAME='djconnect-pi-readiness'
-      PROFILE_LABELS='internal-release,private-network-deployment'
-      ;;
-    *) die "Unknown runner profile: $profile" ;;
-  esac
+  profile_declared "$profile" || die "Runner profile $profile is not declared by desired state."
+  PROFILE_REPOSITORY="$(require_desired_state_value "profile.$profile.repository")"
+  PROFILE_RUNNER_NAME="$(require_desired_state_value "profile.$profile.runner_name")"
+  PROFILE_LABELS="$(require_desired_state_value "profile.$profile.labels")"
 }
 
 runner_release_metadata() {
@@ -893,11 +971,11 @@ refresh_host_tooling() {
   log 'Updating all Homebrew-managed DJConnect host tooling.'
   ensure_homebrew
   run brew update
-  for formula in git gh jq node python@3.12 xcodegen swiftlint xcbeautify create-dmg mas xcodes platformio; do
+  for formula in "${DESIRED_TOOL_FORMULAS[@]}"; do
     run brew install "$formula"
     run brew upgrade "$formula"
   done
-  for cask in docker dotnet-sdk parallels; do
+  for cask in "${DESIRED_REFRESH_CASKS[@]}"; do
     if [[ "$DRY_RUN" == '1' ]]; then
       printf 'DRY: upgrade Homebrew cask %s when already installed\n' "$cask"
     elif brew list --cask "$cask" >/dev/null 2>&1; then
@@ -928,7 +1006,7 @@ check_reboot_required() {
 
 verify_runner_online() {
   local profile repository runner_name deadline state
-  for profile in apple private-network esp32 pi; do
+  for profile in "${DESIRED_PROFILES[@]}"; do
     profile_enabled "$profile" || continue
     profile_values "$profile"
     repository="$PROFILE_REPOSITORY"
@@ -970,7 +1048,7 @@ run_initial_verification() {
 verify_launchd_services() {
   local uid_value="$(id -u)"
   local profile install_dir
-  for profile in apple private-network esp32 pi; do
+  for profile in "${DESIRED_PROFILES[@]}"; do
     if profile_enabled "$profile"; then
       profile_values "$profile"
       install_dir="$RUNNER_ROOT/$PROFILE_RUNNER_NAME"
@@ -1070,6 +1148,7 @@ EOF
 while [[ "$#" -gt 0 ]]; do
   case "$1" in
     --profiles) PROFILE_SELECTION="${2:?--profiles requires a value}"; shift 2 ;;
+    --desired-state) DESIRED_STATE_FILE="${2:?--desired-state requires a value}"; shift 2 ;;
     --github-root) GITHUB_ROOT="${2:?--github-root requires a value}"; shift 2 ;;
     --runner-root) RUNNER_ROOT="${2:?--runner-root requires a value}"; shift 2 ;;
     --skip-codex) SKIP_CODEX=1; shift ;;
@@ -1103,8 +1182,10 @@ if [[ -t 1 ]]; then
 fi
 init_style
 start_logging
+load_desired_state
 start_report
 trap cleanup EXIT
+validate_profile_selection
 validate_skip_phases
 validate_force_phases
 run_phase macos-preflight 'macOS host preflight' ensure_macos_arm64
@@ -1117,7 +1198,7 @@ run_phase repositories 'Repository preparation' prepare_repositories
 run_phase developer-workstation 'Developer workstation recovery' bootstrap_developer_workstation
 run_phase docker-auth 'Docker Hub authentication' ensure_docker_hub_auth
 
-for profile in apple private-network esp32 pi; do
+for profile in "${DESIRED_PROFILES[@]}"; do
   if profile_enabled "$profile"; then
     run_phase "runner-$profile" "GitHub Actions runner profile: $profile" install_runner_profile "$profile"
   fi

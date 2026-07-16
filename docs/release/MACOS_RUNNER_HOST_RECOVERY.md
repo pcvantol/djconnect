@@ -24,6 +24,22 @@ free disk space in the transcript and final report. 16 GB RAM and 120 GB free
 space are recommended for Docker, Xcode and Windows-VM workloads. This gate is
 deliberately non-skippable.
 
+## Declarative machine desired state
+
+The canonical desired state is
+[`macos_runner_host_desired_state.yml`](../../scripts/runner/macos_runner_host_desired_state.yml).
+It declares the host qualification thresholds, required Homebrew tooling,
+refreshable casks and repository-scoped runner profiles (repository, runner
+name and labels). The bootstrap validates this manifest before it changes the
+machine, then reconciles the declared state idempotently. The final report
+records the manifest path and schema version used as evidence.
+
+The file intentionally uses a bootstrap-safe flat YAML key/value subset. This
+lets a fresh Mac parse it with native macOS shell tooling before Homebrew,
+Python or a general YAML runtime exists. Use `--desired-state <file>` to test
+or apply another compatible desired-state manifest; unsupported schema versions
+or missing required keys fail closed.
+
 Every subsequent recovery phase starts with a recorded precheck. The precheck
 requires each declared upstream dependency to be `PASSED` (a skipped, failed or
 blocked dependency stops the dependent phase) and checks its relevant local
