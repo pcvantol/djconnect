@@ -152,6 +152,7 @@ Options:
   --resume-state FILE    Owner-only reboot-resume checkpoint path. Default:
                         ~/Library/Application Support/DJConnect/macos-runner-recovery-resume.env
   --version              Show the bootstrap version and exit.
+  help                   Show this help and exit.
   --no-color            Disable ANSI color output.
   --help                Show this help.
 
@@ -1330,7 +1331,7 @@ while [[ "$#" -gt 0 ]]; do
     --resume-state) RESUME_STATE_FILE="${2:?--resume-state requires a value}"; shift 2 ;;
     --version) print_version; exit 0 ;;
     --no-color) NO_COLOR=1; shift ;;
-    --help|-h) usage; exit 0 ;;
+    --help|-h|help) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
   esac
 done

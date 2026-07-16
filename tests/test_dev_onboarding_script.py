@@ -212,6 +212,21 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("## [1.0.0] - 2026-07-16", changelog)
         self.assertIn("--version", changelog)
 
+    def test_macos_runner_recovery_bootstrap_accepts_help_subcommand(self) -> None:
+        result = subprocess.run(
+            [str(RUNNER_RECOVERY_SCRIPT), "help"],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("Usage: bootstrap_macos_runner_host.sh [options]", result.stdout)
+        self.assertIn("--version", result.stdout)
+        self.assertIn("help                   Show this help and exit.", result.stdout)
+
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:
         source = WINDOWS_RUNNER_RECOVERY_SCRIPT.read_text()
 

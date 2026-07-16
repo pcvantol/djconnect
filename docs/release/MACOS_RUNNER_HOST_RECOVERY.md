@@ -53,6 +53,7 @@ are:
 | Recover selected profiles | `./scripts/runner/bootstrap_macos_runner_host.sh --profiles apple,esp32 --xcode-version <qualified-version>` | Yes, after preflight |
 | Verify another compatible desired state | `./scripts/runner/bootstrap_macos_runner_host.sh --desired-state /secure/path/host.yml --verify` | None |
 | Show the installed bootstrap version | `./scripts/runner/bootstrap_macos_runner_host.sh --version` | None |
+| Show built-in help | `./scripts/runner/bootstrap_macos_runner_host.sh help` | None |
 
 The recovery bootstrap is independently versioned from DJConnect releases.
 The initial stable version is `1.0.0`; its release history is maintained in
