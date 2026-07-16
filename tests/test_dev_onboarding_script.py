@@ -13,6 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "tools" / "dev_onboarding_macos.sh"
 WINDOWS_SCRIPT = ROOT / "tools" / "dev_onboarding_windows.ps1"
+RUNNER_RECOVERY_SCRIPT = ROOT / "scripts" / "runner" / "bootstrap_macos_runner_host.sh"
 
 
 def run_script(*args: str, stdin: str | None = None) -> subprocess.CompletedProcess[str]:
@@ -88,6 +89,25 @@ def run_windows_script_with_env(
 
 @unittest.skipUnless(sys.platform == "darwin", "macOS onboarding script tests require Darwin")
 class DevOnboardingScriptTests(unittest.TestCase):
+    def test_macos_runner_recovery_bootstrap_has_no_token_argument(self) -> None:
+        result = subprocess.run(
+            [str(RUNNER_RECOVERY_SCRIPT), "--help"],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("short-lived token per repository", result.stdout)
+        self.assertNotIn("--token", result.stdout)
+        source = RUNNER_RECOVERY_SCRIPT.read_text()
+        self.assertIn("registration-token", source)
+        self.assertIn("djconnect-apple-macos", source)
+        self.assertIn("RUNNER_ARCHIVE_DIGEST", source)
+        self.assertIn("install_macos_ci_tooling_maintenance.sh --run-now", source)
+
     def test_help_documents_testability_flags(self) -> None:
         result = run_script("--help")
 
