@@ -6,6 +6,8 @@ set -euo pipefail
 # fetched just-in-time and are never accepted as arguments or written to disk.
 
 readonly ORG='pcvantol'
+readonly SCRIPT_DIRECTORY="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly REDACTION_RULES="$SCRIPT_DIRECTORY/redact_recovery_output.sed"
 GITHUB_ROOT="${GITHUB_ROOT:-$HOME/Documents/GitHub}"
 RUNNER_ROOT="${RUNNER_ROOT:-$HOME/actions-runners}"
 PROFILE_SELECTION='all'
@@ -32,6 +34,9 @@ CLR_RED=''
 CLR_MAGENTA=''
 LOG_FILE="${LOG_FILE:-}"
 LOGGING_STARTED=0
+LOG_CAPTURE_DIRECTORY=''
+LOG_CAPTURE_PIPE=''
+LOG_CAPTURE_PID=''
 ORIGINAL_STDOUT_IS_TTY=0
 REPORT_FILE="${REPORT_FILE:-}"
 REPORTING_STARTED=0
@@ -138,19 +143,6 @@ ok() { printf '%s %s\n' "$(style "$CLR_GREEN$CLR_BOLD" 'OK')" "$*"; }
 warn() { printf '%s %s\n' "$(style "$CLR_YELLOW$CLR_BOLD" 'WARN')" "$*" >&2; }
 die() { printf '%s %s\n' "$(style "$CLR_RED$CLR_BOLD" 'ERROR')" "$*" >&2; exit 1; }
 
-redact_sensitive_output() {
-  # Defence in depth for non-interactive command output captured in the central
-  # transcript. Interactive authentication and password prompts use /dev/tty
-  # and never enter this stream at all.
-  sed -E \
-    -e 's/((Authorization|authorization)[[:space:]]*:[[:space:]]*).*/\1[REDACTED]/g' \
-    -e 's/(--(token|secret|password|authorization)[[:space:]]+)[^[:space:]]+/\1[REDACTED]/g' \
-    -e 's/("[^"]*(token|Token|TOKEN|secret|Secret|SECRET|password|Password|PASSWORD|authorization|Authorization|AUTHORIZATION|credential|Credential|CREDENTIAL|private_key|PRIVATE_KEY)[^"]*"[[:space:]]*:[[:space:]]*")[^"]*/\1[REDACTED]/g' \
-    -e 's/(([A-Za-z0-9_.-]*(token|Token|TOKEN|secret|Secret|SECRET|password|Password|PASSWORD|authorization|Authorization|AUTHORIZATION|credential|Credential|CREDENTIAL|private_key|PRIVATE_KEY)[A-Za-z0-9_.-]*)[[:space:]]*[:=][[:space:]]*)[^[:space:],;]+/\1[REDACTED]/g' \
-    -e 's#(https?://[^/:[:space:]]+:)[^@[:space:]]+@#\1[REDACTED]@#g' \
-    -e 's/(gh[pousr]_[A-Za-z0-9_]+|github_pat_[A-Za-z0-9_]+)/[REDACTED]/g'
-}
-
 start_logging() {
   if [[ "$LOG_FILE" == 'none' ]]; then
     return
@@ -166,7 +158,13 @@ start_logging() {
   mkdir -p "$(dirname "$LOG_FILE")"
   touch "$LOG_FILE"
   chmod 600 "$LOG_FILE"
-  exec > >(redact_sensitive_output | tee -a "$LOG_FILE") 2>&1
+  [[ -f "$REDACTION_RULES" ]] || die "Recovery transcript redaction rules are unavailable: $REDACTION_RULES"
+  LOG_CAPTURE_DIRECTORY="$(mktemp -d "${TMPDIR:-/tmp}/djconnect-recovery-log.XXXXXX")"
+  LOG_CAPTURE_PIPE="$LOG_CAPTURE_DIRECTORY/output"
+  mkfifo "$LOG_CAPTURE_PIPE"
+  sed -E -f "$REDACTION_RULES" <"$LOG_CAPTURE_PIPE" | tee -a "$LOG_FILE" &
+  LOG_CAPTURE_PID="$!"
+  exec >"$LOG_CAPTURE_PIPE" 2>&1
   LOGGING_STARTED=1
   log "Capturing complete non-sensitive recovery output in $LOG_FILE."
 }
@@ -256,7 +254,8 @@ validate_skip_phases() {
   IFS=',' read -r -a requested_phase_ids <<<"$SKIP_PHASES"
   for phase_id in "${requested_phase_ids[@]}"; do
     case "$phase_id" in
-      macos-preflight|sudo|tooling|xcode|parallels|github-auth|repositories|developer-workstation|docker-auth|runner-apple|runner-private-network|runner-esp32|runner-pi|maintenance|tooling-refresh|reboot-check|services|apple-signing|apple-readiness|apple-github-audit|initial-verification) ;;
+      sudo|tooling|xcode|parallels|github-auth|repositories|developer-workstation|docker-auth|runner-apple|runner-private-network|runner-esp32|runner-pi|maintenance|tooling-refresh|reboot-check|services|apple-signing|apple-readiness|apple-github-audit|initial-verification) ;;
+      macos-preflight) die 'macos-preflight is mandatory and cannot be skipped.' ;;
       '') ;;
       *) die "Unknown --skip-phases ID: $phase_id" ;;
     esac
@@ -338,6 +337,11 @@ cleanup() {
     kill "$SUDO_KEEPALIVE_PID" >/dev/null 2>&1 || true
   fi
   complete_report "$exit_code"
+  if [[ "$LOGGING_STARTED" == '1' ]]; then
+    exec 1>&- 2>&-
+    wait "$LOG_CAPTURE_PID" || true
+    rm -rf "$LOG_CAPTURE_DIRECTORY"
+  fi
   return "$exit_code"
 }
 
@@ -379,8 +383,56 @@ run_in_dir() {
 }
 
 ensure_macos_arm64() {
+  local macos_version macos_major cpu_brand hardware_profile mem_bytes mem_gb cpu_count disk_probe_path disk_kb disk_gb
   [[ "$(uname -s)" == 'Darwin' ]] || die 'This recovery bootstrap runs only on macOS.'
   [[ "$(uname -m)" == 'arm64' ]] || die 'DJConnect macOS runners require an Apple-Silicon (arm64) host.'
+  cpu_brand="$(sysctl -n machdep.cpu.brand_string 2>/dev/null || true)"
+  hardware_profile=''
+  if [[ -z "$cpu_brand" ]]; then
+    hardware_profile="$(system_profiler SPHardwareDataType 2>/dev/null || true)"
+    cpu_brand="$(awk -F': ' '/Chip:/{print $2; exit}' <<<"$hardware_profile")"
+  fi
+  [[ "$cpu_brand" == Apple* ]] || die 'DJConnect development requires a physical Apple-Silicon Mac, not another arm64 runtime.'
+
+  macos_version="$(sw_vers -productVersion 2>/dev/null || true)"
+  macos_major="${macos_version%%.*}"
+  [[ "$macos_major" =~ ^[0-9]+$ ]] && (( macos_major >= 14 )) || die "DJConnect development requires macOS 14 or newer; detected ${macos_version:-unknown}."
+
+  mem_bytes="$(sysctl -n hw.memsize 2>/dev/null || echo 0)"
+  if [[ "$mem_bytes" =~ ^[0-9]+$ && "$mem_bytes" != '0' ]]; then
+    mem_gb=$((mem_bytes / 1024 / 1024 / 1024))
+  else
+    [[ -n "$hardware_profile" ]] || hardware_profile="$(system_profiler SPHardwareDataType 2>/dev/null || true)"
+    mem_gb="$(awk -F': ' '/Memory:/{print $2; exit}' <<<"$hardware_profile" | awk '{print $1}')"
+  fi
+  [[ "$mem_gb" =~ ^[0-9]+$ ]] || die 'Could not determine installed memory.'
+  (( mem_gb >= 8 )) || die "DJConnect development requires at least 8GB RAM; detected ${mem_gb}GB."
+
+  cpu_count="$(sysctl -n hw.ncpu 2>/dev/null || echo 0)"
+  if [[ ! "$cpu_count" =~ ^[0-9]+$ || "$cpu_count" == '0' ]]; then
+    [[ -n "$hardware_profile" ]] || hardware_profile="$(system_profiler SPHardwareDataType 2>/dev/null || true)"
+    cpu_count="$(awk -F': ' '/Total Number of Cores:/{print $2; exit}' <<<"$hardware_profile" | awk '{print $1}')"
+  fi
+  [[ "$cpu_count" =~ ^[0-9]+$ ]] || die 'Could not determine available CPU cores.'
+  (( cpu_count >= 4 )) || die "DJConnect development requires at least 4 CPU cores; detected $cpu_count."
+
+  disk_probe_path="$GITHUB_ROOT"
+  while [[ ! -e "$disk_probe_path" && "$disk_probe_path" != '/' ]]; do
+    disk_probe_path="$(dirname "$disk_probe_path")"
+  done
+  disk_kb="$(df -Pk "$disk_probe_path" | awk 'NR == 2 {print $4}')"
+  [[ "$disk_kb" =~ ^[0-9]+$ ]] || die "Could not determine free disk space for $GITHUB_ROOT."
+  disk_gb=$((disk_kb / 1024 / 1024))
+  (( disk_gb >= 80 )) || die "DJConnect development requires at least 80GB free at $GITHUB_ROOT; detected ${disk_gb}GB."
+
+  log "Qualified development host: macOS $macos_version, $cpu_brand, ${mem_gb}GB RAM, $cpu_count cores, ${disk_gb}GB free at $disk_probe_path."
+  report_append 'Development host qualification' 'QUALIFIED' "macOS $macos_version; $cpu_brand; ${mem_gb}GB RAM; $cpu_count cores; ${disk_gb}GB free at $disk_probe_path."
+  if (( mem_gb < 16 )); then
+    warn "${mem_gb}GB RAM meets the minimum; 16GB+ is recommended for Docker and Xcode."
+  fi
+  if (( disk_gb < 120 )); then
+    warn "${disk_gb}GB free meets the minimum; 120GB+ is recommended for VM, Xcode and Docker workloads."
+  fi
 }
 
 ensure_xcode() {

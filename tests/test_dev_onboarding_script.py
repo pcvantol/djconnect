@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "tools" / "dev_onboarding_macos.sh"
 WINDOWS_SCRIPT = ROOT / "tools" / "dev_onboarding_windows.ps1"
 RUNNER_RECOVERY_SCRIPT = ROOT / "scripts" / "runner" / "bootstrap_macos_runner_host.sh"
+RECOVERY_REDACTION_RULES = ROOT / "scripts" / "runner" / "redact_recovery_output.sed"
 WINDOWS_RUNNER_RECOVERY_SCRIPT = ROOT / "scripts" / "runner" / "bootstrap_windows_arm64_runner.ps1"
 
 
@@ -153,8 +154,13 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("Verification-run verdict", source)
         self.assertIn("HOST QUALIFIED FOR THE REQUESTED DJCONNECT RECOVERY SCOPE", source)
         self.assertIn("INITIAL_VERIFICATION_PASSED", source)
-        self.assertIn("redact_sensitive_output", source)
-        self.assertIn("[REDACTED]", source)
+        self.assertIn("machdep.cpu.brand_string", source)
+        self.assertIn("DJConnect development requires at least 80GB free", source)
+        self.assertIn("Development host qualification", source)
+        self.assertIn("macos-preflight is mandatory and cannot be skipped", source)
+        self.assertIn("redact_recovery_output.sed", source)
+        self.assertTrue(RECOVERY_REDACTION_RULES.is_file())
+        self.assertIn("[REDACTED]", RECOVERY_REDACTION_RULES.read_text())
         self.assertIn("/dev/tty", source)
         self.assertIn("run_interactive", source)
         self.assertIn("install_macos_ci_tooling_maintenance.sh --run-now", source)

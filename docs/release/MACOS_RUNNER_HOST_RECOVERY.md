@@ -14,6 +14,16 @@ run the bootstrap with the explicit, currently qualified Xcode line:
 ./scripts/runner/bootstrap_macos_runner_host.sh --xcode-version <qualified-version>
 ```
 
+Before the bootstrap downloads, installs or authenticates anything, its
+mandatory host preflight determines whether the Mac is suitable for DJConnect
+development. It requires macOS 14 or newer, a physical Apple-Silicon Mac
+(`arm64` with an Apple CPU), at least 8 GB RAM, at least four CPU cores and at
+least 80 GB free on the filesystem that will contain `~/Documents/GitHub`.
+It records the detected macOS version, Apple CPU model, RAM, core count and
+free disk space in the transcript and final report. 16 GB RAM and 120 GB free
+space are recommended for Docker, Xcode and Windows-VM workloads. This gate is
+deliberately non-skippable.
+
 The bootstrap asks GitHub CLI to authenticate if needed. The signed-in account
 must be able to administer the DJConnect repositories. It then obtains a fresh,
 short-lived registration token through the GitHub API for each profile; no
@@ -202,14 +212,15 @@ one or more comma-separated IDs, for example:
   --skip-phases parallels,apple-signing
 ```
 
-Valid IDs are `macos-preflight`, `sudo`, `tooling`, `xcode`, `parallels`,
-`github-auth`, `repositories`, `developer-workstation`, `docker-auth`,
+Valid IDs are `sudo`, `tooling`, `xcode`, `parallels`, `github-auth`,
+`repositories`, `developer-workstation`, `docker-auth`,
 `runner-apple`, `runner-private-network`, `runner-esp32`, `runner-pi`,
 `maintenance`, `tooling-refresh`, `reboot-check`, `services`,
 `apple-signing`, `apple-readiness`, `apple-github-audit` and
-`initial-verification`. Unknown IDs fail before recovery continues. Any skip
-results in **COMPLETED WITH SKIPPED PHASES**, not **PASSED**; separately rerun
-and qualify the skipped phases before treating the host as release-capable.
+`initial-verification`. `macos-preflight` is mandatory and cannot be skipped.
+Unknown IDs fail before recovery continues. Any skip results in **COMPLETED
+WITH SKIPPED PHASES**, not **PASSED**; separately rerun and qualify the
+skipped phases before treating the host as release-capable.
 
 ## Optional Parallels Desktop recovery
 
