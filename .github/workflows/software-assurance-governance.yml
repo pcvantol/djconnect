@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           repository: pcvantol/djconnect
-          ref: c5bd44a670612d85b0e5a24e41721ad43cd6d0e7
+          ref: 631f0b893a537807dfc59a6e69e413703a2eebdd
           path: canonical-governance
 
       - name: Check out caller workflow source
