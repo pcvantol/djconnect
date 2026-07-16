@@ -6,6 +6,14 @@ This changelog covers only
 compatibility and security changes to the development-host bootstrap independently of
 the DJConnect product release.
 
+## [2.0.3] - 2026-07-16
+
+- Treat a functional user-local PlatformIO Core installation at
+  `~/.platformio/penv/bin/pio` as conformant firmware tooling during
+  desired-state verification. Homebrew remains a supported installation path
+  but is no longer incorrectly required when PlatformIO is installed by the
+  VS Code extension or PlatformIO's own Python environment.
+
 ## [2.0.2] - 2026-07-16
 
 - Add Tailscale installation and qualified private-network configuration to

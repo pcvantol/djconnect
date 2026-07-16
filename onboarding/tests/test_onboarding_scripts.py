@@ -263,13 +263,39 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertEqual(
             result.stdout,
-            "DJConnect macOS Development Host Bootstrap 2.0.2\n",
+            "DJConnect macOS Development Host Bootstrap 2.0.3\n",
         )
         self.assertTrue(MACOS_HOST_BOOTSTRAP_CHANGELOG.is_file())
         changelog = MACOS_HOST_BOOTSTRAP_CHANGELOG.read_text(encoding="utf-8")
         self.assertIn("Semantic Versioning", changelog)
-        self.assertIn("## [2.0.2] - 2026-07-16", changelog)
+        self.assertIn("## [2.0.3] - 2026-07-16", changelog)
         self.assertIn("--version", changelog)
+
+    def test_platformio_core_in_user_penv_satisfies_desired_state_verification(self) -> None:
+        core = HOST_BOOTSTRAP_PACKAGE / "core.sh"
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            pio = home / ".platformio" / "penv" / "bin" / "pio"
+            pio.parent.mkdir(parents=True)
+            pio.write_text("#!/bin/sh\nprintf 'PlatformIO Core, version 6.1.19\\n'\n", encoding="utf-8")
+            pio.chmod(0o755)
+            result = subprocess.run(
+                ["bash", "-lc", 'HOME="$2"; source "$1"; platformio_core_installation', "bash", str(core), str(home)],
+                cwd=ROOT,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                check=False,
+            )
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+
+    def test_platformio_core_verification_does_not_require_homebrew(self) -> None:
+        source = read_macos_host_bootstrap_source()
+
+        self.assertIn("platformio_core_installation()", source)
+        self.assertIn('"$HOME/.platformio/penv/bin/pio"', source)
+        self.assertIn("installed (PlatformIO Core ~/.platformio/penv)", source)
 
     def test_macos_host_bootstrap_manifest_version_gate_fails_closed_for_apply(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
@@ -548,7 +574,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertTrue((HOST_BOOTSTRAP_PACKAGE / "apple.sh").is_file())
         self.assertTrue(HOST_BOOTSTRAP_MANIFEST.is_file())
         manifest = HOST_BOOTSTRAP_MANIFEST.read_text(encoding="utf-8")
-        self.assertIn("package.version: 2.0.2", manifest)
+        self.assertIn("package.version: 2.0.3", manifest)
         self.assertIn("package.aggregate_sha256:", manifest)
         self.assertIn("component.entry.sha256:", manifest)
         self.assertIn("component.workflow.version: 1.3.0", manifest)
@@ -565,11 +591,12 @@ class DevOnboardingScriptTests(unittest.TestCase):
             temporary_entry = temporary_runner_directory / "bootstrap_djconnect_macos_host.sh"
             shutil.copy2(HOST_BOOTSTRAP_SCRIPT, temporary_entry)
             manifest = temporary_runner_directory / "macos_host_bootstrap" / "manifest.yml"
+            manifest_contents = manifest.read_text(encoding="utf-8")
+            core_version = next(
+                line for line in manifest_contents.splitlines() if line.startswith("component.core.version: ")
+            )
             manifest.write_text(
-                manifest.read_text(encoding="utf-8").replace(
-                    "component.core.version: 1.3.2",
-                    "component.core.version: 9.9.9",
-                ),
+                manifest_contents.replace(core_version, "component.core.version: 9.9.9"),
                 encoding="utf-8",
             )
             result = subprocess.run(
@@ -591,9 +618,13 @@ class DevOnboardingScriptTests(unittest.TestCase):
             temporary_entry = temporary_runner_directory / "bootstrap_djconnect_macos_host.sh"
             shutil.copy2(HOST_BOOTSTRAP_SCRIPT, temporary_entry)
             manifest = temporary_runner_directory / "macos_host_bootstrap" / "manifest.yml"
+            manifest_contents = manifest.read_text(encoding="utf-8")
+            core_checksum = next(
+                line for line in manifest_contents.splitlines() if line.startswith("component.core.sha256: ")
+            )
             manifest.write_text(
-                manifest.read_text(encoding="utf-8").replace(
-                    "component.core.sha256: 7d0956e2ad149ec0e199ad3423b1cb69dfa50b8b560cdfaf7f5d9c05d85f45f6",
+                manifest_contents.replace(
+                    core_checksum,
                     "component.core.sha256: 0000000000000000000000000000000000000000000000000000000000000000",
                 ),
                 encoding="utf-8",

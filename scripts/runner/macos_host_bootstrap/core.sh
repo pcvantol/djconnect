@@ -1,4 +1,4 @@
-# Version: 1.3.2
+# Version: 1.3.3
 # CLI help, desired-state verification and console/report primitives.
 usage() {
   cat <<'EOF'
@@ -251,6 +251,12 @@ tailscale_pref_matches() {
   tailscale debug prefs 2>/dev/null | jq -e "$filter" >/dev/null 2>&1
 }
 
+platformio_core_installation() {
+  local platformio_core="$HOME/.platformio/penv/bin/pio"
+  [[ -x "$platformio_core" ]] || return 1
+  "$platformio_core" --version 2>/dev/null | grep -Eq '^PlatformIO Core, version [0-9]+'
+}
+
 run_desired_state_verification() {
   local hardware_profile macos_version macos_major cpu_brand mem_bytes mem_gb cpu_count disk_probe_path disk_kb disk_gb formula cask profile install_dir uid_value ha_running ngrok_config ngrok_permissions ngrok_config_version ngrok_authtoken_status ngrok_authtoken_state ngrok_tunnel tailscale_installation tailscale_state
   printf '# DJConnect macOS Development Host Desired-State Delta\n\n'
@@ -282,7 +288,13 @@ run_desired_state_verification() {
   fi
 
   for formula in "${DESIRED_TOOL_FORMULAS[@]}"; do
-    if command -v brew >/dev/null 2>&1 && brew list --versions "$formula" >/dev/null 2>&1; then verify_delta_row "tooling.formula.$formula" installed installed MATCH; else verify_delta_row "tooling.formula.$formula" installed absent DRIFT; fi
+    if command -v brew >/dev/null 2>&1 && brew list --versions "$formula" >/dev/null 2>&1; then
+      verify_delta_row "tooling.formula.$formula" installed 'installed (Homebrew)' MATCH
+    elif [[ "$formula" == 'platformio' ]] && platformio_core_installation; then
+      verify_delta_row "tooling.formula.$formula" installed 'installed (PlatformIO Core ~/.platformio/penv)' MATCH
+    else
+      verify_delta_row "tooling.formula.$formula" installed absent DRIFT
+    fi
   done
   for cask in "${DESIRED_REQUIRED_CASKS[@]}"; do
     if command -v brew >/dev/null 2>&1 && brew list --cask "$cask" >/dev/null 2>&1; then verify_delta_row "tooling.cask.$cask" installed installed MATCH; else verify_delta_row "tooling.cask.$cask" installed absent DRIFT; fi
