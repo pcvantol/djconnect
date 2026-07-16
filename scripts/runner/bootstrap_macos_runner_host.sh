@@ -15,6 +15,7 @@ XCODE_VERSION=''
 SIGNING_P12=''
 PROVISIONING_PROFILES_DIR=''
 CONFIGURE_KEYCHAIN_ACCESS=0
+INSTALL_PARALLELS=0
 
 usage() {
   cat <<'EOF'
@@ -46,6 +47,9 @@ Options:
                         Grant the standard Apple build tools unattended access
                         to existing local signing keys. The login-keychain
                         password is prompted invisibly.
+  --install-parallels   Check for Parallels Desktop and install it through
+                        Homebrew when absent. It does not activate a license or
+                        create a Windows VM.
   --dry-run             Print changes without executing them.
   --help                Show this help.
 
@@ -134,6 +138,23 @@ ensure_tooling() {
   run brew install git gh jq node python@3.12 xcodegen swiftlint xcbeautify create-dmg mas xcodes
   if [[ "$SKIP_CODEX" == '0' ]]; then
     run npm install -g @openai/codex
+  fi
+}
+
+ensure_parallels() {
+  if [[ "$INSTALL_PARALLELS" == '0' ]]; then
+    return
+  fi
+  if [[ -d '/Applications/Parallels Desktop.app' ]] && command -v prlctl >/dev/null 2>&1; then
+    log "Parallels Desktop is available: $(prlctl --version 2>/dev/null || printf 'version unavailable')."
+    return
+  fi
+  ensure_homebrew
+  log 'Installing Parallels Desktop through Homebrew.'
+  run brew install --cask parallels
+  if [[ "$DRY_RUN" == '0' ]]; then
+    [[ -d '/Applications/Parallels Desktop.app' ]] || die 'Parallels Desktop installation did not create the expected application bundle.'
+    warn 'Open Parallels Desktop once to activate its license. Windows ARM VM recovery and its self-hosted runner remain a separate, explicit operation.'
   fi
 }
 
@@ -344,6 +365,7 @@ while [[ "$#" -gt 0 ]]; do
     --signing-p12) SIGNING_P12="${2:?--signing-p12 requires a value}"; shift 2 ;;
     --provisioning-profiles-dir) PROVISIONING_PROFILES_DIR="${2:?--provisioning-profiles-dir requires a value}"; shift 2 ;;
     --configure-keychain-access) CONFIGURE_KEYCHAIN_ACCESS=1; shift ;;
+    --install-parallels) INSTALL_PARALLELS=1; shift ;;
     --dry-run) DRY_RUN=1; shift ;;
     --help|-h) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
@@ -353,6 +375,7 @@ done
 ensure_macos_arm64
 ensure_tooling
 ensure_xcode
+ensure_parallels
 ensure_github_auth
 prepare_repositories
 

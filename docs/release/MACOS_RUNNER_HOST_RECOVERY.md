@@ -42,6 +42,23 @@ Use a bounded recovery when a host needs only one capability:
 
 Use `--dry-run` to inspect the complete recovery plan without changes.
 
+## Optional Parallels Desktop recovery
+
+If this Mac hosts the Windows ARM64 build or deployment VM, include
+`--install-parallels`. The bootstrap checks for the Parallels Desktop app and
+`prlctl`, then installs Parallels with Homebrew only when it is absent:
+
+```sh
+./scripts/runner/bootstrap_macos_runner_host.sh \
+  --xcode-version <qualified-version> \
+  --install-parallels
+```
+
+The first Parallels launch still requires license activation. Windows ARM VM
+creation/recovery and registration of its Windows self-hosted runner are a
+separate explicit operation; the macOS bootstrap does not create or modify a
+Windows VM.
+
 ## Xcode and non-interactive signing recovery
 
 `--xcode-version` installs and selects the requested qualified Xcode line with

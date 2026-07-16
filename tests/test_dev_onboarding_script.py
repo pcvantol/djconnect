@@ -108,6 +108,8 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("RUNNER_ARCHIVE_DIGEST", source)
         self.assertIn("--xcode-version", source)
         self.assertIn("set-key-partition-list", source)
+        self.assertIn("--install-parallels", source)
+        self.assertIn("brew install --cask parallels", source)
         self.assertIn("install_macos_ci_tooling_maintenance.sh --run-now", source)
 
     def test_help_documents_testability_flags(self) -> None:
