@@ -74,6 +74,27 @@ All profiles run as launchd services under the current runner user. The
 bootstrap also installs and executes the daily macOS tooling-maintenance
 LaunchAgent from `djconnect-app`.
 
+## Administrator rights and persistent tasks
+
+The recovery is run as the normal logged-in maintainer account, never as
+root. It verifies that account is a local macOS administrator and prompts once
+for sudo; a short-lived keepalive maintains that authorization only while the
+bootstrap is running. No passwordless sudo rule or persistent sudoers entry is
+created.
+
+The bootstrap installs and then verifies these persistent tasks:
+
+- every selected GitHub Actions runner as a system service through its checked
+  runner svc.sh script;
+- the runner-user com.djconnect.ci-tooling-maintenance LaunchAgent, including
+  one immediate maintenance execution;
+- when --ngrok-domain is supplied, the runner-user
+  dev.djconnect.homeassistant.ngrok LaunchAgent.
+
+It stops if a selected runner is not registered, a runner service is not
+running, or a required user LaunchAgent is not loaded. The runner services need
+sudo; the two user LaunchAgents deliberately do not.
+
 Use a bounded recovery when a host needs only one capability:
 
 ```sh

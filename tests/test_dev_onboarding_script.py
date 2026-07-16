@@ -121,6 +121,10 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("DJCONNECT_APPLE_MACBOOK_HARDWARE_UUID", source)
         self.assertIn("DJCONNECT_APPLE_DEVELOPMENT_SIGNING_IDENTITY", source)
         self.assertIn("verify_apple_internal_release_readiness.py", source)
+        self.assertIn("warm_sudo", source)
+        self.assertIn("dseditgroup -o checkmember", source)
+        self.assertIn("verify_launchd_services", source)
+        self.assertIn("run_in_dir \"$install_dir\" sudo ./svc.sh install", source)
         self.assertIn("install_macos_ci_tooling_maintenance.sh --run-now", source)
 
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:

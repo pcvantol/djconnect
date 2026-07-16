@@ -22,6 +22,7 @@ PROMPT_NGROK_AUTH=0
 CONFIGURE_APPLE_INTERNAL_RELEASE=0
 APPLE_TEAM_ID="${APPLE_TEAM_ID:-}"
 APPLE_DEVELOPMENT_IDENTITY="${APPLE_DEVELOPMENT_IDENTITY:-}"
+SUDO_KEEPALIVE_PID=''
 
 usage() {
   cat <<'EOF'
@@ -91,6 +92,27 @@ EOF
 log() { printf '\n==> %s\n' "$*"; }
 warn() { printf 'WARN: %s\n' "$*" >&2; }
 die() { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
+
+cleanup() {
+  if [[ -n "$SUDO_KEEPALIVE_PID" ]]; then
+    kill "$SUDO_KEEPALIVE_PID" >/dev/null 2>&1 || true
+  fi
+}
+
+warm_sudo() {
+  if [[ "$DRY_RUN" == '1' ]]; then
+    printf 'DRY: verify administrator membership and refresh sudo credentials\n'
+    return
+  fi
+  dseditgroup -o checkmember -m "$(id -un)" admin | grep -Fq 'yes' || die 'The recovery user must be a local macOS administrator for runner services and Xcode setup.'
+  log 'Verifying administrator access and refreshing sudo credentials.'
+  sudo -v
+  while true; do
+    sudo -n true 2>/dev/null || exit
+    sleep 60
+  done &
+  SUDO_KEEPALIVE_PID="$!"
+}
 
 run() {
   if [[ "$DRY_RUN" == '1' ]]; then
@@ -386,8 +408,8 @@ install_runner_profile() {
   rm -f "$archive_file"
   trap - RETURN
   run_in_dir "$install_dir" ./config.sh --unattended --replace --url "https://github.com/$ORG/$PROFILE_REPOSITORY" --token "$token" --name "$PROFILE_RUNNER_NAME" --labels "$PROFILE_LABELS" --work _work
-  run sudo ./svc.sh install "$(id -un)"
-  run sudo ./svc.sh start
+  run_in_dir "$install_dir" sudo ./svc.sh install "$(id -un)"
+  run_in_dir "$install_dir" sudo ./svc.sh start
 }
 
 install_maintenance() {
@@ -395,6 +417,35 @@ install_maintenance() {
   [[ -f "$app_root/scripts/runner/install_macos_ci_tooling_maintenance.sh" ]] || die 'The macOS maintenance installer is unavailable after repository preparation.'
   log 'Installing and verifying daily macOS runner tooling maintenance.'
   run_in_dir "$app_root" bash scripts/runner/install_macos_ci_tooling_maintenance.sh --run-now
+}
+
+verify_launchd_services() {
+  local uid_value="$(id -u)"
+  local profile install_dir
+  for profile in apple private-network esp32 pi; do
+    if profile_enabled "$profile"; then
+      profile_values "$profile"
+      install_dir="$RUNNER_ROOT/$PROFILE_RUNNER_NAME"
+      if [[ "$DRY_RUN" == '1' ]]; then
+        printf 'DRY: verify system launchd status for %s through svc.sh\n' "$PROFILE_RUNNER_NAME"
+      else
+        [[ -f "$install_dir/.runner" ]] || die "Runner $PROFILE_RUNNER_NAME is not registered."
+        run_in_dir "$install_dir" sudo ./svc.sh status
+      fi
+    fi
+  done
+  if [[ "$DRY_RUN" == '1' ]]; then
+    printf 'DRY: verify gui/%s/com.djconnect.ci-tooling-maintenance is loaded\n' "$uid_value"
+  else
+    launchctl print "gui/$uid_value/com.djconnect.ci-tooling-maintenance" >/dev/null || die 'macOS CI-tooling maintenance LaunchAgent is not loaded.'
+  fi
+  if [[ -n "$NGROK_DOMAIN" ]]; then
+    if [[ "$DRY_RUN" == '1' ]]; then
+      printf 'DRY: verify gui/%s/dev.djconnect.homeassistant.ngrok is loaded\n' "$uid_value"
+    else
+      launchctl print "gui/$uid_value/dev.djconnect.homeassistant.ngrok" >/dev/null || die 'Home Assistant ngrok LaunchAgent is not loaded.'
+    fi
+  fi
 }
 
 prompt_secret() {
@@ -492,6 +543,8 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 ensure_macos_arm64
+trap cleanup EXIT
+warm_sudo
 ensure_tooling
 ensure_xcode
 ensure_parallels
@@ -507,6 +560,7 @@ for profile in apple private-network esp32 pi; do
 done
 
 install_maintenance
+verify_launchd_services
 configure_signing_keychain
 configure_apple_internal_release
 report_signing_recovery
