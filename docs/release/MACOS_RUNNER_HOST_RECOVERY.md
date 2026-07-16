@@ -76,6 +76,17 @@ Markdown report. Override their paths with `--log-file` and `--report-file`,
 or suppress them with `--no-log-file` and `--no-report-file` when an external
 recorder is authoritative.
 
+## Repository mutation governance
+
+This bootstrap reconciles host state and may clone, fetch or fast-forward its
+managed checkouts. It must not silently edit tracked source files. If a
+desired-state gap can only be resolved by changing tracked repository content,
+stop that recovery subtask and open one dedicated engineering increment in the
+owning repository. Follow that repository's bootstrap, active engineering
+prompt and completion protocol, then create exactly one reviewable Pull Request
+for the scoped mutation. Do not mix generated output, credentials, unrelated
+changes or multiple repository owners into that Pull Request.
+
 ## Reboot continuation
 
 If macOS reports that a reboot is required, recovery stops at the reboot gate

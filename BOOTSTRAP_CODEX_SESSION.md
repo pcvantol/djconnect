@@ -82,6 +82,25 @@ machine can satisfy Apple-Silicon, macOS, RAM and disk requirements while still
 being `NOT READY` because tooling, runners or maintenance tasks drift from the
 declared machine state.
 
+## Repository Mutation Rule for Machine Recovery
+
+The machine-recovery bootstrap may clone, fetch, fast-forward and validate
+repositories, but it must not silently alter tracked product, workflow,
+documentation or configuration source files as a side effect of host recovery.
+
+If a verify or recovery result establishes that a tracked repository mutation
+is required to reach the declared machine state, Codex must stop that recovery
+subtask and treat the change as one dedicated engineering increment in the
+owning repository. It must follow the applicable repository bootstrap,
+engineering/phase protocol and completion protocol, then create exactly one
+reviewable Pull Request for that increment. The readiness response must state
+the owning repository, the objective mutation and the PR link once created.
+
+Do not bundle unrelated remediation, generated files, local credentials or
+changes from multiple repository owners into that PR. Do not auto-commit or
+auto-open a PR merely because a local working tree is dirty; first establish
+that the tracked mutation is necessary and belongs to the recovery objective.
+
 ## Meta Engineering
 
 Read `docs/meta/README.md`, then continue with repository-specific guidance.
