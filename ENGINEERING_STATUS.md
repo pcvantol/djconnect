@@ -5,11 +5,11 @@
 
 ## Current engineering increment
 
-Platform Evolution — the pre-merge preparation for PR #144, the macOS
-runner-host bootstrap, is reviewable in PR #146. PR #144 is now merged; its
-mandatory post-merge SHA repin remains deferred to a separate increment. No
-bootstrap, runner, CI, governance, release or deployment behaviour changed in
-the preparation increment.
+Native deployment-readiness preflight remediation. The shared preflight now
+uses PowerShell 7 on Windows and Bash on non-Windows runners, removing its
+implicit WSL dependency from Windows deployment consumers. This record does
+not qualify Home Assistant or Windows. The separate PR #144 bootstrap SHA
+repin remains deferred and is not changed by this remediation.
 
 ## Current engineering program
 
@@ -44,16 +44,22 @@ canonical execution ledger is
   qualification evidence. The Internal Release is therefore incomplete.
 - PR #144 must retain its feature branch until all nine documented temporary
   references are repinned to an immutable SHA on merged `main`.
+- Windows requires a machine-level PowerShell 7 installation visible to its
+  service account, followed by an immutable consumer pin update to the merged
+  shared preflight action. WSL is not a deployment prerequisite.
 
 ## Deferred work
 
-- Qualify the remaining required targets only through separately authorized,
+- Update the Windows consumer to the merged shared preflight SHA, remove its
+  Bash prerequisite and qualify the already authorized target through
   manifest-bound deployment and immediate target-scoped smoke.
 - Repin the PR #144 bootstrap references to immutable current-`main` SHAs in a
   separately reviewed increment.
 
 ## Recommended next prompt
 
-Draft only — repin PR #144's nine temporary bootstrap workflow references to
-immutable `main` SHAs and validate them before deleting the retained feature
-branch. Do not begin that post-merge increment automatically.
+Draft only — Platform Release Engineering: after this shared-preflight
+remediation merges, update the Windows consumer to its immutable SHA and
+qualify the already authorized Windows target. The separate #144 bootstrap
+repin remains required before its retained feature branch can be deleted. Do
+not begin either follow-up automatically.

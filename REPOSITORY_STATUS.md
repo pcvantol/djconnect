@@ -32,6 +32,11 @@ Engineering Platform operational after Platform Baseline v1.0 certification
 and Software Assurance Generation 1 closure. DJConnect Product Development is
 the primary engineering program.
 
+The bounded Platform Release 3.3 operational remediation in progress is the
+shared deployment-readiness preflight's native-runtime selection: PowerShell 7
+on Windows and Bash on non-Windows. It does not reopen the frozen release
+architecture or authorize a deployment.
+
 Canonical lifecycle:
 
 ```text
@@ -132,6 +137,12 @@ approved current-main manifest has operational evidence for API, Website,
 Raspberry Pi, ESP32, Apple MacBook and Apple iPhone with required paired-Watch
 validation; Home Assistant and Windows remain unqualified.
 No complete Internal Release or operational burn-in exists.
+
+Windows deployment remediation is in review: the prior shared Bash preflight
+resolved to WSL on the Windows service runner. The native-runtime remediation
+removes that WSL dependency; its consumer must subsequently pin the merged
+immutable action SHA and require machine-level PowerShell 7 for the service
+account.
 
 Prompt 5 certification remains generated but inactive. It requires completed
 operational release and burn-in evidence; it is not the next automatic action.

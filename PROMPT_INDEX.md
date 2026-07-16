@@ -55,6 +55,16 @@ planning is read.
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
 
+## Current bounded operational remediation
+
+The shared `deployment-readiness-preflight` action is being remediated to use
+PowerShell 7 on Windows and Bash on non-Windows runners. This removes the WSL
+dependency found on the Windows service runner without changing release
+architecture, manifests, authorizations or target deployment logic. Once the
+reviewable action change is merged, the Windows consumer must pin its immutable
+SHA, remove its consumer-level Bash prerequisite and then rerun the already
+authorized Windows deployment followed by smoke on success.
+
 ## Next Engineering Increment
 
 Draft only — repin the documented temporary bootstrap workflow references to

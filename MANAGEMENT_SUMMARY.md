@@ -54,6 +54,14 @@ post-deployment smoke. Home Assistant and Windows ARM64 are not included in
 that completion claim. The release remains incomplete and is not eligible for
 release certification or burn-in closure.
 
+The Windows remediation has isolated a platform automation dependency rather
+than a Windows application defect: its shared readiness preflight used Bash,
+which resolved to WSL on the service runner. The bounded remediation selects
+PowerShell 7 natively on Windows and Bash elsewhere. It changes neither the
+release manifest nor deployment authorization; Windows remains unqualified
+until its consumer pins the merged action and the authorized deployment and
+smoke pass.
+
 The authoritative execution ledger is
 `docs/release/PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json` with decision
 `APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL`.

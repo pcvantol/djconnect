@@ -27,7 +27,44 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Validate deployment readiness
+    - name: Validate deployment readiness on Windows
+      if: runner.os == 'Windows'
+      shell: pwsh
+      env:
+        TARGET: ${{ inputs.target }}
+        MANIFEST_ID: ${{ inputs.manifest_id }}
+        CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        ARTIFACT_ID: ${{ inputs.artifact_id }}
+        ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
+        EXPECTED_RUNNER_OS: ${{ inputs.expected_runner_os }}
+        EXPECTED_RUNNER_ARCH: ${{ inputs.expected_runner_arch }}
+        REQUIRED_CONFIGURATION: ${{ inputs.required_configuration }}
+        SMOKE_CONTRACT: ${{ inputs.smoke_contract }}
+      run: |
+        $ErrorActionPreference = 'Stop'
+
+        function Require-Value([string] $name, [string] $value) {
+          if ([string]::IsNullOrWhiteSpace($value)) {
+            throw "Deployment readiness requires non-empty $name."
+          }
+        }
+
+        Require-Value 'TARGET' $env:TARGET
+        if ($env:MANIFEST_ID -notmatch '^release-[A-Za-z0-9._-]+$') { throw 'Invalid manifest identifier.' }
+        if ($env:CANDIDATE_SHA -notmatch '^[0-9a-f]{40}$') { throw 'Invalid candidate SHA.' }
+        Require-Value 'ARTIFACT_ID' $env:ARTIFACT_ID
+        if ($env:ARTIFACT_SHA256 -notmatch '^[0-9a-f]{64}$') { throw 'Invalid artifact SHA-256.' }
+        if ($env:RUNNER_OS -ne $env:EXPECTED_RUNNER_OS) { throw 'Runner OS does not match the deployment target.' }
+        if ($env:RUNNER_ARCH -ne $env:EXPECTED_RUNNER_ARCH) { throw 'Runner architecture does not match the deployment target.' }
+        Require-Value 'SMOKE_CONTRACT' $env:SMOKE_CONTRACT
+        if ($env:SMOKE_CONTRACT -eq 'NOT_IMPLEMENTED') { throw 'Smoke contract is not implemented.' }
+
+        foreach ($name in ($env:REQUIRED_CONFIGURATION -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ })) {
+          if ($name -notmatch '^[A-Za-z0-9_]+$') { throw 'Required configuration name is invalid.' }
+          Require-Value $name ([Environment]::GetEnvironmentVariable($name))
+        }
+    - name: Validate deployment readiness on non-Windows
+      if: runner.os != 'Windows'
       shell: bash
       env:
         TARGET: ${{ inputs.target }}
