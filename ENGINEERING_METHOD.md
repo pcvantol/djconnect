@@ -1,7 +1,7 @@
 # DJConnect Engineering Method
 
 **Status:** Canonical operational governance
-**Version:** 2.4
+**Version:** 2.5
 **Scope:** Entire DJConnect platform
 
 ## Purpose
@@ -21,6 +21,7 @@ Switch to main
   -> Fast-forward synchronize
   -> Verify synchronization
   -> Verify current main
+  -> Qualify development machine for repository mutation
   -> Verify previous pull request
   -> Classify post-merge engineering state
   -> Reconcile rolling state when required
@@ -47,6 +48,24 @@ the current branch, `HEAD`, upstream tracking branch, fast-forward status,
 working tree and repository cleanliness. Synchronization or verification
 failure is terminal for that prompt: stop and resolve repository state before
 engineering begins.
+
+## Qualified development machine gate
+
+Before Codex accepts or performs an engineering increment that would make a
+contentful tracked-repository mutation, the development machine doing that work
+must be qualified. The developer must run the local desired-state verification
+and provide its current-session readiness summary to Codex. Only
+`READY FOR DJCONNECT DEVELOPMENT` with a zero verification exit code satisfies
+the gate.
+
+Codex must not infer this qualification from chat history, a previous session,
+another machine, or incomplete copied output. Without qualifying evidence it
+may inspect repository state read-only, but it must not alter content. The
+precise command, required evidence, verdicts and narrow exceptions for
+governance/backlog documentation and the onboarding package are canonical in
+`BOOTSTRAP_CODEX_SESSION.md`. An exception bypasses only this gate; it never
+bypasses synchronization, repository reality, authorization, review or the
+rest of this Engineering Method.
 
 ## Engineering lifecycle state
 
@@ -83,11 +102,12 @@ conversation history, historical prompts, prior assumptions, engineering
 memory, example prompts and historical planning. Historical prompt order is
 informational only; engineering work is never invented from chat context.
 
-Every increment begins from synchronized current main, verifies repository
-truth, classifies and reconciles post-merge state when needed, and plans only
-after the implementation-reality check. If requested functionality already
-exists, is validated or is qualified, do not reimplement it; close only the
-remaining evidenced gaps.
+Every increment begins from synchronized current main, qualifies the
+development machine before contentful mutation, verifies repository truth,
+classifies and reconciles post-merge state when needed, and plans only after
+the implementation-reality check. If requested functionality already exists,
+is validated or is qualified, do not reimplement it; close only the remaining
+evidenced gaps.
 
 ## Ownership and protection
 

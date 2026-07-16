@@ -7,6 +7,7 @@ Every engineering prompt must begin with this sequence, in order:
 ```text
 Repository Synchronization
   -> Current Main Verification
+  -> Development Machine Qualification
   -> Previous Pull Request Verification
   -> Post-Merge State Classification
   -> Rolling State Reconciliation
@@ -24,6 +25,19 @@ Run `git switch main` and then `git pull --ff-only`. If either fails, stop.
 Verify the checked-out branch, current `HEAD`, tracking branch, fast-forward
 status, working-tree cleanliness and repository cleanliness. If any check
 fails, stop.
+
+## Development Machine Qualification
+
+Before accepting or performing a contentful tracked-repository mutation, require
+the local current-session desired-state verification summary from the machine
+that will do the work. It must state `READY FOR DJCONNECT DEVELOPMENT` with a
+zero exit code. Do not infer qualification from chat history, a previous
+session, another machine or partial copied output.
+
+Without qualifying evidence, do read-only inspection only and report the
+required verification evidence. `BOOTSTRAP_CODEX_SESSION.md` owns the exact
+command, evidence format and narrow exceptions; an exception bypasses only
+this gate, not any other prompt-initialization requirement.
 
 ## Previous Pull Request Verification
 
