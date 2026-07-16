@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "tools" / "dev_onboarding_macos.sh"
 WINDOWS_SCRIPT = ROOT / "tools" / "dev_onboarding_windows.ps1"
 RUNNER_RECOVERY_SCRIPT = ROOT / "scripts" / "runner" / "bootstrap_macos_runner_host.sh"
+WINDOWS_RUNNER_RECOVERY_SCRIPT = ROOT / "scripts" / "runner" / "bootstrap_windows_arm64_runner.ps1"
 
 
 def run_script(*args: str, stdin: str | None = None) -> subprocess.CompletedProcess[str]:
@@ -111,6 +112,16 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("--install-parallels", source)
         self.assertIn("brew install --cask parallels", source)
         self.assertIn("install_macos_ci_tooling_maintenance.sh --run-now", source)
+
+    def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:
+        source = WINDOWS_RUNNER_RECOVERY_SCRIPT.read_text()
+
+        self.assertIn("actions-runner-win-arm64", source)
+        self.assertIn("registration-token", source)
+        self.assertIn("Get-FileHash -Algorithm SHA256", source)
+        self.assertIn("--runasservice", source)
+        self.assertIn("NT AUTHORITY\\NETWORK SERVICE", source)
+        self.assertNotIn("[string] $RegistrationToken", source)
 
     def test_help_documents_testability_flags(self) -> None:
         result = run_script("--help")

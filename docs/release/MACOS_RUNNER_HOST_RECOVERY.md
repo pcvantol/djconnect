@@ -56,8 +56,23 @@ If this Mac hosts the Windows ARM64 build or deployment VM, include
 
 The first Parallels launch still requires license activation. Windows ARM VM
 creation/recovery and registration of its Windows self-hosted runner are a
-separate explicit operation; the macOS bootstrap does not create or modify a
-Windows VM.
+separate explicit operation. Parallels downloads the supported Windows 11 ARM
+image through **Get Windows 11 from Microsoft**; Microsoft EULA acceptance and
+Windows first-run account setup cannot be bypassed by repository automation.
+
+After the Windows 11 ARM desktop is available, clone `pcvantol/djconnect` in
+the VM, open an elevated PowerShell 7 session and run:
+
+```powershell
+.\scripts\runner\bootstrap_windows_arm64_runner.ps1
+```
+
+The Windows bootstrap authenticates GitHub CLI interactively if required,
+downloads the current `win-arm64` Actions runner and checks it against GitHub's
+release SHA-256, registers `djconnect-windows11-parallels-arm64` as a
+`NETWORK SERVICE` Windows service, prepares service-readable runner/install
+paths and installs the daily PowerShell 7/.NET 10/workload maintenance task.
+No registration token is supplied on the command line or retained on disk.
 
 ## Xcode and non-interactive signing recovery
 
