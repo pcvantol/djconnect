@@ -1,0 +1,37 @@
+name: Build onboarding package
+
+on:
+  pull_request:
+    paths:
+      - onboarding/**
+      - tools/dev_onboarding_*
+      - .github/workflows/onboarding-package.yml
+  push:
+    branches: [main]
+    paths:
+      - onboarding/**
+      - tools/dev_onboarding_*
+      - .github/workflows/onboarding-package.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Run Linux unit tests
+        run: python3 -m unittest onboarding.tests.test_package_build
+      - name: Verify tracked distribution artifacts
+        run: python3 onboarding/build_package.py --output onboarding/dist --check
+      - name: Publish build artifact
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: onboarding-package-dist
+          path: onboarding/dist
+          if-no-files-found: error

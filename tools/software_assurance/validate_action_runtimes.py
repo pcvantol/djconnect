@@ -30,6 +30,28 @@ def _action_parts(target: str) -> tuple[str, str, str] | None:
     return owner, repository, path
 
 
+def _get_raw_manifest(owner: str, repository: str, sha: str, path: str) -> str | None:
+    """Fetch a public action manifest by its immutable commit SHA.
+
+    The GitHub Contents API can reject an otherwise valid public action SHA in
+    a reusable-workflow token context. Raw GitHub is used only as a fallback
+    for that API failure and retains the exact full-SHA binding.
+    """
+    request = Request(
+        f"https://raw.githubusercontent.com/{owner}/{repository}/{sha}/{path}",
+        headers={"Accept": "text/plain"},
+    )
+    try:
+        with urlopen(request, timeout=20) as response:
+            return response.read().decode("utf-8")
+    except HTTPError as error:
+        if error.code == 404:
+            return None
+        raise RuntimeError(f"cannot inspect {owner}/{repository}@{sha}: raw fallback HTTP {error.code}") from error
+    except URLError as error:
+        raise RuntimeError(f"cannot inspect {owner}/{repository}@{sha}: raw fallback {error.reason}") from error
+
+
 def _get_manifest(token: str, owner: str, repository: str, action_path: str, sha: str) -> str:
     for filename in ("action.yml", "action.yaml"):
         path = "/".join(part for part in (action_path, filename) if part)
@@ -47,6 +69,9 @@ def _get_manifest(token: str, owner: str, repository: str, action_path: str, sha
         except HTTPError as error:
             if error.code == 404:
                 continue
+            fallback = _get_raw_manifest(owner, repository, sha, path)
+            if fallback is not None:
+                return fallback
             raise RuntimeError(f"cannot inspect {owner}/{repository}@{sha}: HTTP {error.code}") from error
         except URLError as error:
             raise RuntimeError(f"cannot inspect {owner}/{repository}@{sha}: {error.reason}") from error

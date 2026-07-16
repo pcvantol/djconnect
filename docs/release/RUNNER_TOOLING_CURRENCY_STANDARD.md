@@ -80,6 +80,11 @@ It runs at login and daily as the runner user. This covers Apple build,
 Apple-distribution and private-network relay registrations hosted by the same
 machine. The log is kept under `~/Library/Logs/DJConnect/`.
 
+For a replacement MacBook, use `MACOS_DEVELOPMENT_HOST_BOOTSTRAP.md`. Its
+development-host bootstrap uses authenticated GitHub CLI to obtain short-lived registration
+tokens on demand and restores the approved runner profiles without preserving
+old runner directories or credentials.
+
 ### Linux runners
 
 Current platform source builds use GitHub-hosted Linux. A registered

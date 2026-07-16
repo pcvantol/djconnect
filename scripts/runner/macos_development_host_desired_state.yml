@@ -1,0 +1,73 @@
+# DJConnect macOS development-host desired state.
+#
+# This bootstrap-safe YAML profile deliberately uses a flat key/value subset so
+# the recovery script can validate it on a fresh macOS installation before
+# Homebrew, Python or another YAML runtime is available.
+
+schema_version: 1
+# The manifest major/minor must match the active DJConnect platform release.
+version: 3.3.0
+minimum_tool_version: 2.0.2
+host.platform: macos
+host.architecture: arm64
+host.apple_silicon: required
+host.macos_minimum_major: 14
+host.minimum_ram_gb: 8
+host.recommended_ram_gb: 16
+host.minimum_cpu_cores: 4
+host.minimum_free_disk_gb: 80
+host.recommended_free_disk_gb: 120
+
+tooling.formulas: git,gh,jq,node,python@3.12,xcodegen,swiftlint,xcbeautify,create-dmg,mas,xcodes,platformio
+tooling.required_casks: docker,dotnet-sdk,parallels,ngrok
+tooling.optional_casks:
+tooling.refresh_casks: docker,dotnet-sdk,parallels
+
+lab.home_assistant.service: homeassistant
+lab.home_assistant.container_name: homeassistant
+lab.home_assistant.url: http://localhost:8123
+
+# ngrok material is deliberately declarative only: the authtoken remains in the
+# owner-only local configuration file and is never represented in this manifest.
+network.ngrok.config_relative_path: Library/Application Support/ngrok/ngrok.yml
+network.ngrok.config_version: 3
+network.ngrok.config_permissions: 600
+network.ngrok.authtoken: required_local_secret
+network.ngrok.launch_agent_label: com.pcvantol.homeassistant.ngrok
+network.ngrok.tunnel.domain: victory-curvy-refold.ngrok-free.dev
+network.ngrok.tunnel.target: http://127.0.0.1:8123
+network.ngrok.inspector_url: http://127.0.0.1:4040
+
+# Tailscale identity, tailnet name, node addresses and auth keys remain local.
+# The bootstrap installs the macOS client when missing, but the Tailscale login
+# remains an explicit interactive boundary on a replacement Mac.
+network.tailscale.installation: app_or_homebrew_cask
+network.tailscale.state: running_authenticated
+network.tailscale.magic_dns: enabled
+network.tailscale.accept_routes: enabled
+network.tailscale.exit_node: disabled
+network.tailscale.ssh: disabled
+network.tailscale.shields_up: disabled
+network.tailscale.auto_update: enabled
+
+runner.profiles: apple,private-network,esp32,pi,windows
+profile.apple.repository: djconnect-app
+profile.apple.runner_name: djconnect-apple-macos
+profile.apple.labels: internal-release,qualification,apple
+profile.apple.provisioning: local_macos
+profile.private-network.repository: djconnect
+profile.private-network.runner_name: djconnect-private-network-relay
+profile.private-network.labels: internal-release,private-network-deployment
+profile.private-network.provisioning: local_macos
+profile.esp32.repository: djconnect-esp32
+profile.esp32.runner_name: djconnect-esp32-firmware
+profile.esp32.labels: internal-release,qualification,firmware,esp32,private-network-deployment
+profile.esp32.provisioning: local_macos
+profile.pi.repository: djconnect-pi
+profile.pi.runner_name: djconnect-pi-readiness
+profile.pi.labels: internal-release,private-network-deployment
+profile.pi.provisioning: local_macos
+profile.windows.repository: djconnect-windows
+profile.windows.runner_name: djconnect-windows11-parallels-arm64
+profile.windows.labels: internal-release,qualification,windows11,parallels,arm64
+profile.windows.provisioning: external_windows_arm64

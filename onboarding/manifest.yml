@@ -1,0 +1,22 @@
+# Canonical manifest for the DJConnect developer onboarding package.
+schema_version: 1
+package.name: djconnect-developer-onboarding
+package.version: 3.3.0
+package.root: onboarding
+package.platform_release_alignment: 3.3.0
+package.platform_release_dependency: none
+component.macos.script: dev_onboarding_macos.sh
+component.windows.script: dev_onboarding_windows.ps1
+component.machine_transfer.script: machine_transfer_macos.sh
+component.network_checks.script: network_checks_macos.sh
+component.home_assistant_lab.path: home_assistant_lab
+component.tests.path: tests/test_onboarding_scripts.py
+component.documentation.path: README.md
+component.changelog.path: CHANGELOG.md
+component.desired_state_compatibility.path: MANIFEST_COMPATIBILITY.md
+desired_state.versioning: independent_of_onboarding_package
+desired_state.minimum_tool_version.key: minimum_tool_version
+desired_state.apply_compatibility: required_before_apply
+compatibility.macos_wrapper: tools/dev_onboarding_macos.sh
+compatibility.windows_wrapper: tools/dev_onboarding_windows.ps1
+test.command: python3 -m unittest onboarding.tests.test_onboarding_scripts

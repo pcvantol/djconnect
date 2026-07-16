@@ -357,8 +357,8 @@ Do not use `/api/device/provision_spotify`; it is removed and should not be call
 - CI maintenance updated GitHub Actions runtime actions to `actions/checkout@v7`
   and `actions/setup-python@v6` to avoid Node 20 deprecation warnings.
 - On 2026-07-04, ran the local package-manager upgrade flow:
-  `./tools/dev_onboarding_macos.sh --steps 23` and
-  `./tools/dev_onboarding_macos.sh --steps 24 --apply-upgrades`. Homebrew
+  `./onboarding/dev_onboarding_macos.sh --steps 23` and
+  `./onboarding/dev_onboarding_macos.sh --steps 24 --apply-upgrades`. Homebrew
   upgraded `libevent` 2.1.12_1 -> 2.1.13, `tmux` 3.7 -> 3.7b, `ollama`
   0.30.11 -> 0.31.1, `ngrok` 3.39.8 -> 3.39.9 and `zed` 1.8.2 -> 1.9.0.
   npm reported no vulnerabilities and updated six packages in the checked
