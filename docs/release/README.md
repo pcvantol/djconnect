@@ -36,6 +36,8 @@ release process the source of truth.
   formal Generation 1 qualification decision.
 - `RUNNER_ARCHITECTURE.md` and `RUNNER_POLICY.md` define the corrected
   GitHub Actions build locations and the narrow self-hosted runner boundary.
+  `RUNNER_TOOLING_CURRENCY_STANDARD.md` defines how hosted and self-hosted
+  execution tooling remains current.
 - `DEPLOYMENT_ARCHITECTURE.md` defines artifact-only deployment targets.
 - `POST_DEPLOYMENT_SMOKE_TEST_POLICY.md` and
   `POST_DEPLOYMENT_SMOKE_EVIDENCE_SCHEMA.md` define the bounded,
