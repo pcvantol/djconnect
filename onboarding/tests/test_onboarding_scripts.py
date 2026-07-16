@@ -263,12 +263,12 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertEqual(
             result.stdout,
-            "DJConnect macOS Development Host Bootstrap 2.0.4\n",
+            "DJConnect macOS Development Host Bootstrap 2.0.5\n",
         )
         self.assertTrue(MACOS_HOST_BOOTSTRAP_CHANGELOG.is_file())
         changelog = MACOS_HOST_BOOTSTRAP_CHANGELOG.read_text(encoding="utf-8")
         self.assertIn("Semantic Versioning", changelog)
-        self.assertIn("## [2.0.4] - 2026-07-16", changelog)
+        self.assertIn("## [2.0.5] - 2026-07-16", changelog)
         self.assertIn("--version", changelog)
 
     def test_platformio_core_in_user_penv_satisfies_desired_state_verification(self) -> None:
@@ -617,15 +617,26 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertTrue((HOST_BOOTSTRAP_PACKAGE / "apple.sh").is_file())
         self.assertTrue(HOST_BOOTSTRAP_MANIFEST.is_file())
         manifest = HOST_BOOTSTRAP_MANIFEST.read_text(encoding="utf-8")
-        self.assertIn("package.version: 2.0.4", manifest)
+        self.assertIn("package.version: 2.0.5", manifest)
         self.assertIn("package.aggregate_sha256:", manifest)
         self.assertIn("component.entry.sha256:", manifest)
         self.assertIn("component.workflow.version: 1.3.1", manifest)
+        self.assertIn("component.operations.version: 1.3.1", manifest)
         self.assertIn("component.apple.version: 1.0.0", manifest)
         source = read_macos_host_bootstrap_source()
         self.assertIn("verify_recovery_package_manifest", source)
         self.assertIn("Host-bootstrap package component", source)
         self.assertIn("aggregate SHA-256 mismatch", source)
+
+    def test_macos_host_bootstrap_preserves_its_active_source_checkout_during_repair(self) -> None:
+        source = (HOST_BOOTSTRAP_PACKAGE / "operations.sh").read_text(encoding="utf-8")
+
+        self.assertIn('"$(cd "$directory" && pwd -P)" == "$REPOSITORY_ROOT"', source)
+        self.assertIn("Preserving active host-bootstrap checkout", source)
+        self.assertLess(
+            source.index("Preserving active host-bootstrap checkout"),
+            source.index('run_in_dir "$directory" git switch main'),
+        )
 
     def test_macos_host_bootstrap_rejects_manifest_component_mismatch(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:

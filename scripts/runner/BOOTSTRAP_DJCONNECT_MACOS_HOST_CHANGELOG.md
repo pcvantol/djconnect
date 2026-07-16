@@ -6,6 +6,12 @@ This changelog covers only
 compatibility and security changes to the development-host bootstrap independently of
 the DJConnect product release.
 
+## [2.0.5] - 2026-07-16
+
+- An unattended repair no longer synchronizes the active host-bootstrap source
+  checkout to `main` while it is executing. This preserves the loaded
+  desired-state manifest and package modules through final verification.
+
 ## [2.0.4] - 2026-07-16
 
 - Recognize a valid `/Applications/Parallels Desktop.app` bundle as the

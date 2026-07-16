@@ -1,4 +1,4 @@
-# Version: 1.3.0
+# Version: 1.3.1
 # macOS host provisioning, developer-workstation and service operations.
 warm_sudo() {
   if [[ "$DRY_RUN" == '1' ]]; then
@@ -254,6 +254,13 @@ clone_or_update() {
   local directory="$GITHUB_ROOT/$repository"
   run mkdir -p "$GITHUB_ROOT"
   if [[ -d "$directory/.git" ]]; then
+    # The bootstrap sources its modules and desired-state manifest from this
+    # checkout. Switching that checkout to main while a repair is in progress
+    # can remove the currently running package before final verification.
+    if [[ "$(cd "$directory" && pwd -P)" == "$REPOSITORY_ROOT" ]]; then
+      log "Preserving active host-bootstrap checkout $directory; it is not synchronized during this run."
+      return
+    fi
     if [[ "$DRY_RUN" == '0' ]] && [[ -n "$(git -C "$directory" status --porcelain)" ]]; then
       warn "$repository has local changes; preserving it without update."
       return
