@@ -23,6 +23,8 @@ the DJConnect product release.
 - Group execution and evidence into stable installation sections, with visual
   console boundaries and a report summary of completed and attention-needed
   areas.
+- Add indicative console and report progress percentages for recovery phases
+  and the unattended repair lifecycle.
 
 ## [1.0.0] - 2026-07-16
 

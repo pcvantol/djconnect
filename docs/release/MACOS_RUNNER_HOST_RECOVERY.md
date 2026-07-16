@@ -180,6 +180,13 @@ final **Installation section summary** classifies each section as
 from phase evidence. The unattended `--repair` mode uses the same section
 boundaries and identifies the owning section for every remaining manual input.
 
+At each phase boundary the console also shows an indicative green
+`PROGRESS <percent>% [completed/total phases]` marker. The percentage counts
+in-scope phases that reached a terminal state, including completed, skipped,
+failed and blocked phases; it measures execution progress, not success. The
+report records the same snapshots. `--repair` shows an equivalent six-stage
+indicator for baseline verification, repair areas and post-repair verification.
+
 ## Repository mutation governance
 
 This bootstrap reconciles host state and may clone, fetch or fast-forward its

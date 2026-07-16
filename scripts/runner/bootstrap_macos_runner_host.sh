@@ -60,6 +60,8 @@ REPORT_FILE="${REPORT_FILE:-}"
 REPORTING_STARTED=0
 CURRENT_STEP=''
 CURRENT_REPORT_SECTION=''
+REPAIR_PROGRESS_COMPLETED=0
+readonly REPAIR_PROGRESS_TOTAL=6
 ALLOW_STEP_RETRY=1
 SKIP_PHASES="${SKIP_PHASES:-}"
 SKIPPED_PHASE_COUNT=0
@@ -373,6 +375,7 @@ emit_log() {
 debug() { emit_log debug 'DEBUG' "$CLR_MAGENTA" "$@"; }
 verbose() { emit_log verbose 'VERBOSE' "$CLR_CYAN" "$@"; }
 info() { emit_log info 'INFO' "$CLR_CYAN" "$@"; }
+progress() { emit_log info 'PROGRESS' "$CLR_GREEN" "$@"; }
 log() { info "$@"; }
 ok() { emit_log info 'OK' "$CLR_GREEN" "$@"; }
 warn() { emit_log warning 'WARNING' "$CLR_YELLOW" "$@"; }
@@ -504,6 +507,36 @@ phase_is_in_scope() {
     runner-*) profile_enabled "${phase_id#runner-}" ;;
     *) return 0 ;;
   esac
+}
+
+phase_progress_snapshot() {
+  local phase_id phase_state total=0 completed=0
+  for phase_id in $(all_phase_ids); do
+    phase_is_in_scope "$phase_id" || continue
+    total=$((total + 1))
+    phase_state="$(get_phase_state "$phase_id")"
+    case "$phase_state" in
+      PASSED|SKIPPED|FAILED|BLOCKED) completed=$((completed + 1)) ;;
+    esac
+  done
+  (( total > 0 )) || total=1
+  printf '%s %s %s' "$(( completed * 100 / total ))" "$completed" "$total"
+}
+
+emit_phase_progress() {
+  local event="$1"
+  local percent completed total
+  read -r percent completed total <<<"$(phase_progress_snapshot)"
+  progress "${percent}% [${completed}/${total} phases] $event"
+  report_append 'Progress' "${percent}%" "${completed}/${total} in-scope phases reached a terminal state. $event"
+}
+
+emit_repair_progress() {
+  local event="$1"
+  REPAIR_PROGRESS_COMPLETED=$((REPAIR_PROGRESS_COMPLETED + 1))
+  local percent=$(( REPAIR_PROGRESS_COMPLETED * 100 / REPAIR_PROGRESS_TOTAL ))
+  progress "${percent}% [${REPAIR_PROGRESS_COMPLETED}/${REPAIR_PROGRESS_TOTAL} repair stages] $event"
+  report_append 'Repair progress' "${percent}%" "${REPAIR_PROGRESS_COMPLETED}/${REPAIR_PROGRESS_TOTAL} repair stages completed. $event"
 }
 
 append_section_summary() {
@@ -887,6 +920,7 @@ skip_phase() {
   SKIPPED_PHASE_COUNT=$((SKIPPED_PHASE_COUNT + 1))
   set_phase_state "$phase_id" 'SKIPPED'
   report_append "$step" 'SKIPPED' "$reason (phase ID: $phase_id)."
+  emit_phase_progress "Skipped: $step."
   warn "$step was skipped: $reason"
   CURRENT_STEP=''
 }
@@ -900,6 +934,7 @@ run_phase() {
   begin_phase_section "$phase_id"
   if [[ "$RESUME_MODE" == '1' && "$phase_id" != 'macos-preflight' && "$(get_phase_state "$phase_id")" == 'PASSED' ]]; then
     report_append "$step" 'RESUMED' 'Previously completed before the required reboot; preserved by the owner-only resume checkpoint.'
+    emit_phase_progress "Resumed: $step."
     return 0
   fi
   if phase_is_skipped "$phase_id"; then
@@ -908,11 +943,13 @@ run_phase() {
   fi
   CURRENT_STEP="$step"
   CURRENT_PHASE_ID="$phase_id"
+  emit_phase_progress "Starting: $step."
   report_append "Execution capability: $step" "$(phase_execution_capability "$phase_id")" "$(phase_execution_note "$phase_id")"
   verbose "$step execution capability: $(phase_execution_capability "$phase_id")."
   if ! precheck_phase "$phase_id"; then
     set_phase_state "$phase_id" 'BLOCKED'
     report_append "Precheck: $step" 'FAILED' "$PHASE_PRECHECK_RESULT"
+    emit_phase_progress "Blocked: $step."
     die "Precheck failed for $step: $PHASE_PRECHECK_RESULT"
   fi
   report_append "Precheck: $step" 'PASSED' "$PHASE_PRECHECK_RESULT"
@@ -936,6 +973,7 @@ run_phase() {
         INITIAL_VERIFICATION_PASSED=1
       fi
       report_append "$step" "PASSED (attempt $attempt)" 'Completed successfully; see the central transcript for detailed command output.'
+      emit_phase_progress "Completed: $step."
       ok "$step"
       CURRENT_STEP=''
       CURRENT_PHASE_ID=''
@@ -946,6 +984,7 @@ run_phase() {
     warn "$step failed with status $phase_status."
     if [[ "$ALLOW_STEP_RETRY" != '1' || "$DRY_RUN" == '1' || ! -r /dev/tty || ! -w /dev/tty ]]; then
     set_phase_state "$phase_id" 'FAILED'
+      emit_phase_progress "Failed: $step."
       die "Recovery phase failed: $step"
     fi
     printf 'Retry this phase? [r]etry / [s]kip / [a]bort: ' >/dev/tty
@@ -1010,6 +1049,7 @@ prepare_parallel_phase() {
   report_append "Execution capability: $step" "$(phase_execution_capability "$phase_id")" "$(phase_execution_note "$phase_id")"
   report_append "Precheck: $step" 'PASSED' "$PHASE_PRECHECK_RESULT"
   set_phase_state "$phase_id" 'RUNNING'
+  emit_phase_progress "Starting parallel phase: $step."
 }
 
 complete_parallel_phase() {
@@ -1024,11 +1064,13 @@ complete_parallel_phase() {
   if [[ "$status" == '0' ]]; then
     set_phase_state "$phase_id" 'PASSED'
     report_append "$step" 'PASSED (parallel)' 'Completed headlessly in a CPU-bounded parallel batch; see the central transcript for detailed command output.'
+    emit_phase_progress "Completed parallel phase: $step."
     ok "$step (parallel)"
     return 0
   fi
   set_phase_state "$phase_id" 'FAILED'
   report_append "$step" 'FAILED (parallel)' "Exited with status $status."
+  emit_phase_progress "Failed parallel phase: $step."
   warn "$step failed with status $status in the parallel batch."
   return "$status"
 }
@@ -1198,11 +1240,13 @@ run_unattended_repair() {
   REPAIR_INITIAL_VERIFY_STATUS=$?
   set -e
   report_append 'Desired-state verification before repair' "EXIT $REPAIR_INITIAL_VERIFY_STATUS" 'Baseline captured before one unattended repair pass.'
+  emit_repair_progress 'Baseline desired-state verification captured.'
 
   begin_report_section host-qualification
   if ! repair_attempt 'mandatory host preflight' ensure_macos_arm64; then
     preflight_ready=0
   fi
+  emit_repair_progress 'Mandatory host preflight attempted.'
   if (( preflight_ready == 1 )); then
     begin_report_section host-provisioning
     if ! command -v brew >/dev/null 2>&1; then
@@ -1214,6 +1258,7 @@ run_unattended_repair() {
   else
     record_repair_manual_requirement 'No host mutations were attempted because mandatory host preflight did not pass unattended.'
   fi
+  emit_repair_progress 'Host tooling remediation attempted or recorded for manual follow-up.'
 
   begin_report_section repository-access
   if ! command -v gh >/dev/null 2>&1 || ! gh auth status --hostname github.com >/dev/null 2>&1; then
@@ -1225,12 +1270,14 @@ run_unattended_repair() {
     begin_report_section runner-provisioning
     run_unattended_repair_runners
   fi
+  emit_repair_progress 'Repository and runner remediation attempted or recorded for manual follow-up.'
   begin_report_section host-maintenance
   if [[ -f "$GITHUB_ROOT/djconnect-app/scripts/runner/install_macos_ci_tooling_maintenance.sh" ]]; then
     repair_attempt 'macOS CI-tooling maintenance LaunchAgent' install_maintenance || true
   else
     record_repair_manual_requirement 'The djconnect-app maintenance installer is unavailable locally; complete GitHub authentication/repository synchronization, then rerun --repair.'
   fi
+  emit_repair_progress 'Maintenance remediation attempted or recorded for manual follow-up.'
 
   begin_report_section final-qualification
   printf '\n## Post-repair desired-state verification\n\n'
@@ -1239,6 +1286,7 @@ run_unattended_repair() {
   REPAIR_FINAL_VERIFY_STATUS=$?
   set -e
   report_append 'Desired-state verification after repair' "EXIT $REPAIR_FINAL_VERIFY_STATUS" 'Post-repair verification captured after one unattended repair pass.'
+  emit_repair_progress 'Post-repair desired-state verification captured.'
   if [[ "$REPAIR_FINAL_VERIFY_STATUS" == '0' ]]; then
     ok 'Unattended repair completed: desired state now matches.'
   else

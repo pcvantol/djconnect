@@ -391,6 +391,16 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("ATTENTION REQUIRED", source)
         self.assertIn("GitHub Actions runner provisioning", source)
 
+    def test_macos_runner_recovery_bootstrap_reports_indicative_progress(self) -> None:
+        source = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+
+        self.assertIn("phase_progress_snapshot", source)
+        self.assertIn("emit_phase_progress", source)
+        self.assertIn("PROGRESS", source)
+        self.assertIn("completed * 100 / total", source)
+        self.assertIn("emit_repair_progress", source)
+        self.assertIn("REPAIR_PROGRESS_TOTAL=6", source)
+
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:
         source = WINDOWS_RUNNER_RECOVERY_SCRIPT.read_text()
 
