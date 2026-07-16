@@ -69,6 +69,7 @@ VERIFY_MODE=0
 VERIFY_DRIFT_COUNT=0
 VERIFY_UNVERIFIED_COUNT=0
 LOG_LEVEL="${LOG_LEVEL:-info}"
+LIST_PHASES=0
 RESUME_MODE=0
 RESUME_STATE_FILE="${RESUME_STATE_FILE:-$HOME/Library/Application Support/DJConnect/macos-runner-recovery-resume.env}"
 RESUME_NEXT_PHASE=''
@@ -156,6 +157,9 @@ Options:
   help                   Show this help and exit.
   --log-level LEVEL      Minimum message level: debug, verbose, info,
                         warning or error. Default: info (or $LOG_LEVEL).
+  --list-phases          List phase execution capabilities and exit. Phases
+                        marked HEADLESS + PARALLEL SAFE may run concurrently
+                        after all listed prerequisites have completed.
   --no-color            Disable ANSI color output.
   --help                Show this help.
 
@@ -489,6 +493,42 @@ all_phase_ids() {
   printf '%s\n' maintenance tooling-refresh reboot-check services apple-signing apple-readiness apple-github-audit initial-verification
 }
 
+phase_execution_capability() {
+  local phase_id="$1"
+  case "$phase_id" in
+    runner-apple|runner-private-network|runner-esp32|runner-pi|apple-github-audit)
+      printf '%s' 'HEADLESS + PARALLEL SAFE'
+      ;;
+    *)
+      printf '%s' 'SERIAL OR OPERATOR-INTERACTIVE'
+      ;;
+  esac
+}
+
+phase_execution_note() {
+  local phase_id="$1"
+  case "$phase_id" in
+    runner-apple|runner-private-network|runner-esp32|runner-pi)
+      printf '%s' 'Unattended after prerequisites; each profile uses a separate runner directory and repository registration.'
+      ;;
+    apple-github-audit)
+      printf '%s' 'Read-only GitHub Environment inventory after GitHub CLI authentication.'
+      ;;
+    *)
+      printf '%s' 'Keep in declared order because it establishes host state, has an interactive boundary, or validates shared state.'
+      ;;
+  esac
+}
+
+print_phase_catalog() {
+  local phase_id
+  printf '%-26s | %-31s | %s\n' 'PHASE ID' 'EXECUTION CAPABILITY' 'NOTES'
+  printf '%-26s-+-%-31s-+-%s\n' "$(printf '%*s' 26 '' | tr ' ' '-')" "$(printf '%*s' 31 '' | tr ' ' '-')" "$(printf '%*s' 65 '' | tr ' ' '-')"
+  for phase_id in macos-preflight sudo tooling xcode parallels github-auth repositories developer-workstation docker-auth runner-apple runner-private-network runner-esp32 runner-pi maintenance tooling-refresh reboot-check services apple-signing apple-readiness apple-github-audit initial-verification; do
+    printf '%-26s | %-31s | %s\n' "$phase_id" "$(phase_execution_capability "$phase_id")" "$(phase_execution_note "$phase_id")"
+  done
+}
+
 write_resume_checkpoint() {
   local next_phase="$1"
   local phase_id phase_state
@@ -672,6 +712,8 @@ run_phase() {
   fi
   CURRENT_STEP="$step"
   CURRENT_PHASE_ID="$phase_id"
+  report_append "Execution capability: $step" "$(phase_execution_capability "$phase_id")" "$(phase_execution_note "$phase_id")"
+  verbose "$step execution capability: $(phase_execution_capability "$phase_id")."
   if ! precheck_phase "$phase_id"; then
     set_phase_state "$phase_id" 'BLOCKED'
     report_append "Precheck: $step" 'FAILED' "$PHASE_PRECHECK_RESULT"
@@ -1374,6 +1416,7 @@ while [[ "$#" -gt 0 ]]; do
     --resume-state) RESUME_STATE_FILE="${2:?--resume-state requires a value}"; shift 2 ;;
     --version) print_version; exit 0 ;;
     --log-level) LOG_LEVEL="${2:?--log-level requires a value}"; validate_log_level; shift 2 ;;
+    --list-phases) LIST_PHASES=1; shift ;;
     --no-color) NO_COLOR=1; shift ;;
     --help|-h|help) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
@@ -1381,6 +1424,10 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 validate_log_level
+if [[ "$LIST_PHASES" == '1' ]]; then
+  print_phase_catalog
+  exit 0
+fi
 
 if [[ "$VERIFY_MODE" == '1' && "$DRY_RUN" == '1' ]]; then
   die '--verify and --dry-run cannot be combined.'

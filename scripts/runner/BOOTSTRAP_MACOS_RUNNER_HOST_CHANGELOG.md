@@ -10,6 +10,8 @@ the DJConnect product release.
 
 - Add configurable `--log-level` output filtering with `debug`, `verbose`,
   `info`, `warning` and `error` levels.
+- Mark headless, parallel-safe runner-registration and read-only Apple audit
+  phases; expose the metadata through `--list-phases` and recovery reports.
 
 ## [1.0.0] - 2026-07-16
 

@@ -256,6 +256,28 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("log_level_rank", source)
         self.assertIn("VERBOSE", source)
 
+    def test_macos_runner_recovery_bootstrap_marks_parallel_safe_phases(self) -> None:
+        result = subprocess.run(
+            [str(RUNNER_RECOVERY_SCRIPT), "--list-phases"],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("EXECUTION CAPABILITY", result.stdout)
+        self.assertIn("runner-apple", result.stdout)
+        self.assertIn("runner-private-network", result.stdout)
+        self.assertIn("runner-esp32", result.stdout)
+        self.assertIn("runner-pi", result.stdout)
+        self.assertIn("apple-github-audit", result.stdout)
+        self.assertIn("HEADLESS + PARALLEL SAFE", result.stdout)
+        source = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+        self.assertIn("phase_execution_capability", source)
+        self.assertIn("Execution capability: $step", source)
+
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:
         source = WINDOWS_RUNNER_RECOVERY_SCRIPT.read_text()
 

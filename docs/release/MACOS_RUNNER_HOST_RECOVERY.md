@@ -71,6 +71,28 @@ For example, use `--log-level debug` while diagnosing a failed recovery, or
 `--log-level warning` for a quieter routine execution. Errors always retain a
 non-zero exit status; log filtering never changes recovery behaviour.
 
+### Headless and parallel-safe phases
+
+Use `--list-phases` to inspect execution metadata embedded in the script. A
+phase marked `HEADLESS + PARALLEL SAFE` requires no operator prompt after its
+declared prerequisites have succeeded, and does not share a mutable working
+directory or runner registration with another marked phase. The current
+bootstrap deliberately still executes phases in its deterministic serial
+order; the mark is an explicit safety contract for a future scheduler or
+reviewed external orchestration, not implicit background concurrency.
+
+| Marked phase | Required completed prerequisites | Why it is safe to run headlessly and in parallel |
+| --- | --- | --- |
+| `runner-apple` | `repositories`, `github-auth`, `sudo`, `xcode` | Uses its own runner directory and `--unattended` registration. |
+| `runner-private-network`, `runner-esp32`, `runner-pi` | `repositories`, `github-auth`, `sudo` | Each profile has its own repository registration and runner directory. |
+| `apple-github-audit` | `github-auth` | Read-only GitHub Environment inventory. |
+
+All other phases remain serial or operator-interactive because they alter
+shared host tooling, establish prerequisites, access protected local material,
+perform a GUI/login boundary, or validate global post-recovery state. A
+parallel executor must still honor the dependency graph and must not run a
+marked phase until every listed prerequisite is `PASSED`.
+
 `--verify` emits a Markdown delta to standard output and exits `0` only when
 all required desired-state rows match. It exits `1` when it finds drift. It
 does not create a recovery transcript or final report unless those paths are
