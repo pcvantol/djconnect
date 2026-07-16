@@ -6,6 +6,13 @@ This changelog covers only
 compatibility and security changes to the development-host bootstrap independently of
 the DJConnect product release.
 
+## [2.0.4] - 2026-07-16
+
+- Recognize a valid `/Applications/Parallels Desktop.app` bundle as the
+  required Parallels Desktop installation, regardless of whether it was
+  installed directly or through Homebrew. Verification and unattended repair
+  no longer confuse the package-manager receipt with the application itself.
+
 ## [2.0.3] - 2026-07-16
 
 - Treat a functional user-local PlatformIO Core installation at

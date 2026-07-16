@@ -1,4 +1,4 @@
-# Version: 1.3.0
+# Version: 1.3.1
 # Phase lifecycle, progress reporting, reboot continuation and repair flow.
 phase_section_id() {
   local phase_id="$1"
@@ -861,9 +861,10 @@ repair_attempt() {
 }
 
 repair_required_casks() {
-  local cask
+  local cask cask_installation
   for cask in "${DESIRED_REQUIRED_CASKS[@]}"; do
-    if brew list --cask "$cask" >/dev/null 2>&1; then
+    if cask_installation="$(required_cask_installation "$cask")"; then
+      log "Required cask $cask is already satisfied by $cask_installation."
       continue
     fi
     run brew install --cask "$cask"

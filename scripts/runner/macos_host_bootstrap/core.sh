@@ -1,4 +1,4 @@
-# Version: 1.3.3
+# Version: 1.3.4
 # CLI help, desired-state verification and console/report primitives.
 usage() {
   cat <<'EOF'
@@ -257,6 +257,29 @@ platformio_core_installation() {
   "$platformio_core" --version 2>/dev/null | grep -Eq '^PlatformIO Core, version [0-9]+'
 }
 
+parallels_desktop_version() {
+  local application_path="${1:-/Applications/Parallels Desktop.app}" bundle_id version
+  [[ -f "$application_path/Contents/Info.plist" ]] || return 1
+  bundle_id="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$application_path/Contents/Info.plist" 2>/dev/null || true)"
+  [[ "$bundle_id" == 'com.parallels.desktop.console' ]] || return 1
+  version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$application_path/Contents/Info.plist" 2>/dev/null || true)"
+  [[ "$version" =~ ^[0-9]+(\.[0-9]+)+$ ]] || return 1
+  printf '%s' "$version"
+}
+
+required_cask_installation() {
+  local cask="$1" parallels_version
+  if command -v brew >/dev/null 2>&1 && brew list --cask "$cask" >/dev/null 2>&1; then
+    printf '%s' 'Homebrew'
+    return 0
+  fi
+  if [[ "$cask" == 'parallels' ]] && parallels_version="$(parallels_desktop_version)"; then
+    printf 'application bundle (Parallels Desktop %s)' "$parallels_version"
+    return 0
+  fi
+  return 1
+}
+
 run_desired_state_verification() {
   local hardware_profile macos_version macos_major cpu_brand mem_bytes mem_gb cpu_count disk_probe_path disk_kb disk_gb formula cask profile install_dir uid_value ha_running ngrok_config ngrok_permissions ngrok_config_version ngrok_authtoken_status ngrok_authtoken_state ngrok_tunnel tailscale_installation tailscale_state
   printf '# DJConnect macOS Development Host Desired-State Delta\n\n'
@@ -297,7 +320,11 @@ run_desired_state_verification() {
     fi
   done
   for cask in "${DESIRED_REQUIRED_CASKS[@]}"; do
-    if command -v brew >/dev/null 2>&1 && brew list --cask "$cask" >/dev/null 2>&1; then verify_delta_row "tooling.cask.$cask" installed installed MATCH; else verify_delta_row "tooling.cask.$cask" installed absent DRIFT; fi
+    if cask_installation="$(required_cask_installation "$cask")"; then
+      verify_delta_row "tooling.cask.$cask" installed "installed ($cask_installation)" MATCH
+    else
+      verify_delta_row "tooling.cask.$cask" installed absent DRIFT
+    fi
   done
   for cask in "${DESIRED_OPTIONAL_CASKS[@]}"; do
     if command -v brew >/dev/null 2>&1 && brew list --cask "$cask" >/dev/null 2>&1; then verify_delta_row "tooling.optional_cask.$cask" installed installed MATCH; else verify_delta_row "tooling.optional_cask.$cask" optional absent OPTIONAL; fi
