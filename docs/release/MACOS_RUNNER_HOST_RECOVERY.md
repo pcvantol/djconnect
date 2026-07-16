@@ -76,6 +76,27 @@ Markdown report. Override their paths with `--log-file` and `--report-file`,
 or suppress them with `--no-log-file` and `--no-report-file` when an external
 recorder is authoritative.
 
+## Reboot continuation
+
+If macOS reports that a reboot is required, recovery stops at the reboot gate
+and writes an owner-only (`0600`) resume checkpoint at
+`~/Library/Application Support/DJConnect/macos-runner-recovery-resume.env`.
+The checkpoint contains only phase completion state and non-secret recovery
+context; it never contains passwords, tokens, signing passwords, key material
+or interactive authentication data.
+
+Restart macOS, then rerun the same non-secret recovery options with:
+
+```sh
+./scripts/runner/bootstrap_macos_runner_host.sh --resume --xcode-version <qualified-version>
+```
+
+Supply any signing P12/profile paths again if later phases require them. Resume
+re-runs the mandatory host preflight and reboot gate, preserves earlier phases
+that completed successfully, and continues with the remaining phases. A
+successful resumed recovery removes its checkpoint. Use `--resume-state <file>`
+only when an explicitly managed, owner-only checkpoint location is required.
+
 Every subsequent recovery phase starts with a recorded precheck. The precheck
 requires each declared upstream dependency to be `PASSED` (a skipped, failed or
 blocked dependency stops the dependent phase) and checks its relevant local

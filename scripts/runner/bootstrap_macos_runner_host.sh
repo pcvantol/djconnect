@@ -67,6 +67,9 @@ CURRENT_PHASE_ID=''
 VERIFY_MODE=0
 VERIFY_DRIFT_COUNT=0
 VERIFY_UNVERIFIED_COUNT=0
+RESUME_MODE=0
+RESUME_STATE_FILE="${RESUME_STATE_FILE:-$HOME/Library/Application Support/DJConnect/macos-runner-recovery-resume.env}"
+RESUME_NEXT_PHASE=''
 
 usage() {
   cat <<'EOF'
@@ -142,6 +145,11 @@ Options:
                         idempotent and does not recreate existing runners.
   --verify              Read the desired state and print a Markdown delta
                         against this machine without recovery mutations.
+  --resume              Continue a recovery paused for a required macOS reboot.
+                        Re-supply any sensitive local signing inputs; they are
+                        never stored in the resume checkpoint.
+  --resume-state FILE    Owner-only reboot-resume checkpoint path. Default:
+                        ~/Library/Application Support/DJConnect/macos-runner-recovery-resume.env
   --no-color            Disable ANSI color output.
   --help                Show this help.
 
@@ -422,6 +430,62 @@ get_phase_state() {
   printf '%s' "${!variable_name:-PENDING}"
 }
 
+all_phase_ids() {
+  local profile
+  printf '%s\n' macos-preflight sudo tooling xcode parallels github-auth repositories developer-workstation docker-auth
+  for profile in "${DESIRED_PROFILES[@]}"; do
+    printf 'runner-%s\n' "$profile"
+  done
+  printf '%s\n' maintenance tooling-refresh reboot-check services apple-signing apple-readiness apple-github-audit initial-verification
+}
+
+write_resume_checkpoint() {
+  local next_phase="$1"
+  local phase_id phase_state
+  umask 077
+  mkdir -p "$(dirname "$RESUME_STATE_FILE")"
+  {
+    printf 'schema_version=1\n'
+    printf 'next_phase=%s\n' "$next_phase"
+    printf 'desired_state_file=%s\n' "$DESIRED_STATE_FILE"
+    printf 'profile_selection=%s\n' "$PROFILE_SELECTION"
+    printf 'github_root=%s\n' "$GITHUB_ROOT"
+    printf 'runner_root=%s\n' "$RUNNER_ROOT"
+    for phase_id in $(all_phase_ids); do
+      phase_state="$(get_phase_state "$phase_id")"
+      [[ "$phase_state" == 'PASSED' ]] && printf 'phase.%s=%s\n' "$phase_id" "$phase_state"
+    done
+  } >"$RESUME_STATE_FILE"
+  chmod 600 "$RESUME_STATE_FILE"
+  log "Recovery paused for reboot. Resume after restart with: $0 --resume"
+}
+
+load_resume_checkpoint() {
+  local key value phase_id
+  [[ -f "$RESUME_STATE_FILE" ]] || die "No reboot-resume checkpoint exists: $RESUME_STATE_FILE"
+  [[ "$(stat -f '%Lp' "$RESUME_STATE_FILE")" == '600' ]] || die "Resume checkpoint must have owner-only 0600 permissions: $RESUME_STATE_FILE"
+  while IFS='=' read -r key value; do
+    case "$key" in
+      schema_version) [[ "$value" == '1' ]] || die "Unsupported resume checkpoint schema: $value" ;;
+      next_phase) RESUME_NEXT_PHASE="$value" ;;
+      desired_state_file) [[ "$value" == "$DESIRED_STATE_FILE" ]] || die 'Resume checkpoint desired-state manifest differs from this invocation.' ;;
+      profile_selection) [[ "$value" == "$PROFILE_SELECTION" ]] || die 'Resume checkpoint profile selection differs from this invocation.' ;;
+      github_root) [[ "$value" == "$GITHUB_ROOT" ]] || die 'Resume checkpoint GitHub root differs from this invocation.' ;;
+      runner_root) [[ "$value" == "$RUNNER_ROOT" ]] || die 'Resume checkpoint runner root differs from this invocation.' ;;
+      phase.*) phase_id="${key#phase.}"; [[ "$value" == 'PASSED' ]] || die "Invalid resume phase state for $phase_id"; set_phase_state "$phase_id" PASSED ;;
+      '') ;;
+      *) die "Unknown resume checkpoint field: $key" ;;
+    esac
+  done <"$RESUME_STATE_FILE"
+  [[ "$RESUME_NEXT_PHASE" == 'reboot-check' ]] || die "Unsupported resume point: ${RESUME_NEXT_PHASE:-missing}"
+  log "Loaded reboot-resume checkpoint; continuing with $RESUME_NEXT_PHASE."
+}
+
+clear_resume_checkpoint() {
+  [[ -f "$RESUME_STATE_FILE" ]] || return 0
+  rm -f "$RESUME_STATE_FILE"
+}
+
 phase_dependencies() {
   local phase_id="$1"
   case "$phase_id" in
@@ -548,6 +612,10 @@ run_phase() {
   shift 2
   local attempt=1
   local phase_status
+  if [[ "$RESUME_MODE" == '1' && "$phase_id" != 'macos-preflight' && "$(get_phase_state "$phase_id")" == 'PASSED' ]]; then
+    report_append "$step" 'RESUMED' 'Previously completed before the required reboot; preserved by the owner-only resume checkpoint.'
+    return 0
+  fi
   if phase_is_skipped "$phase_id"; then
     skip_phase "$phase_id" "$step" 'Operator requested skip through --skip-phases'
     return 0
@@ -569,6 +637,11 @@ run_phase() {
     (set -e; "$@")
     phase_status=$?
     set -e
+    if [[ "$phase_status" == '75' && "$phase_id" == 'reboot-check' ]]; then
+      report_append "$step" 'PAUSED FOR REBOOT' "Required reboot detected; resume state stored at $RESUME_STATE_FILE."
+      CURRENT_STEP=''
+      exit 75
+    fi
     if [[ "$phase_status" == '0' ]]; then
       set_phase_state "$phase_id" 'PASSED'
       if [[ "$phase_id" == 'initial-verification' ]]; then
@@ -620,6 +693,9 @@ cleanup() {
     kill "$SUDO_KEEPALIVE_PID" >/dev/null 2>&1 || true
   fi
   complete_report "$exit_code"
+  if [[ "$exit_code" == '0' && "$RESUME_MODE" == '1' ]]; then
+    clear_resume_checkpoint
+  fi
   if [[ "$LOGGING_STARTED" == '1' ]]; then
     exec 1>&- 2>&-
     wait "$LOG_CAPTURE_PID" || true
@@ -1069,7 +1145,9 @@ check_reboot_required() {
   updates="$(softwareupdate --list 2>&1 || true)"
   if [[ -e /var/run/reboot-required ]] || grep -Eqi '\[(restart|reboot)\]|restart required|reboot required' <<<"$updates"; then
     printf '%s\n' "$updates" >&2
-    die 'macOS reports a pending restart/reboot requirement. Restart the MacBook, then rerun the recovery bootstrap for final verification.'
+    write_resume_checkpoint reboot-check
+    warn 'macOS reports a pending restart/reboot requirement. Restart the MacBook, then run the same recovery command with --resume.'
+    return 75
   fi
   log 'macOS Software Update reports no pending restart/reboot requirement.'
 }
@@ -1242,6 +1320,8 @@ while [[ "$#" -gt 0 ]]; do
     --skip-phases) SKIP_PHASES="${2:?--skip-phases requires a value}"; shift 2 ;;
     --force-phases) FORCE_PHASES="${2:?--force-phases requires a value}"; shift 2 ;;
     --verify) VERIFY_MODE=1; shift ;;
+    --resume) RESUME_MODE=1; shift ;;
+    --resume-state) RESUME_STATE_FILE="${2:?--resume-state requires a value}"; shift 2 ;;
     --no-color) NO_COLOR=1; shift ;;
     --help|-h) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
@@ -1250,6 +1330,9 @@ done
 
 if [[ "$VERIFY_MODE" == '1' && "$DRY_RUN" == '1' ]]; then
   die '--verify and --dry-run cannot be combined.'
+fi
+if [[ "$VERIFY_MODE" == '1' && "$RESUME_MODE" == '1' ]]; then
+  die '--verify and --resume cannot be combined.'
 fi
 if [[ "$VERIFY_MODE" == '1' ]]; then
   [[ -n "$LOG_FILE" ]] || LOG_FILE='none'
@@ -1262,6 +1345,9 @@ fi
 init_style
 start_logging
 load_desired_state
+if [[ "$RESUME_MODE" == '1' ]]; then
+  load_resume_checkpoint
+fi
 if [[ "$VERIFY_MODE" == '1' ]]; then
   run_desired_state_verification
   exit $?
