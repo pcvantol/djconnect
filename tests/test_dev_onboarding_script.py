@@ -125,6 +125,9 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("dseditgroup -o checkmember", source)
         self.assertIn("verify_launchd_services", source)
         self.assertIn("run_in_dir \"$install_dir\" sudo ./svc.sh install", source)
+        self.assertIn("audit_apple_github_configuration", source)
+        self.assertIn("gh secret list --repo", source)
+        self.assertIn("gh variable list --repo", source)
         self.assertIn("install_macos_ci_tooling_maintenance.sh --run-now", source)
 
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:

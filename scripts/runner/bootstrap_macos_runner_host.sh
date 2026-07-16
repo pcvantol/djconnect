@@ -276,6 +276,32 @@ configure_apple_internal_release() {
   log 'Apple internal-release readiness passed and the new MacBook relay environment binding was updated.'
 }
 
+audit_apple_github_configuration() {
+  if ! profile_enabled apple; then
+    return
+  fi
+  log 'Auditing Apple Secure Distribution GitHub Environment configuration by name only.'
+  run gh secret list --repo "$ORG/djconnect-app" --env apple-secure-distribution
+  run gh variable list --repo "$ORG/djconnect-app" --env apple-secure-distribution
+  cat <<'EOF'
+
+Apple Secure Distribution recovery inventory:
+  DJCONNECT_APPLE_MACBOOK_HARDWARE_UUID
+    New Mac-specific value. Updated automatically by
+    --configure-apple-internal-release after local readiness passes.
+  DJCONNECT_APPLE_DEVELOPMENT_SIGNING_IDENTITY
+    Update when the restored/local Apple Development identity name differs.
+    Updated automatically by --configure-apple-internal-release.
+  DJCONNECT_APPLE_IPHONE_UDID and DJCONNECT_APPLE_WATCH_UDID
+    Physical-device values, not Mac-specific. Keep them unchanged unless the
+    iPhone or Watch was replaced; then update each in the same Environment.
+  Host-local paths
+    None are stored as Apple GitHub Environment secrets or variables. Runner,
+    keychain, profile and Docker paths are discovered locally by recovery and
+    must never be copied into GitHub configuration.
+EOF
+}
+
 clone_or_update() {
   local repository="$1"
   local directory="$GITHUB_ROOT/$repository"
@@ -563,4 +589,5 @@ install_maintenance
 verify_launchd_services
 configure_signing_keychain
 configure_apple_internal_release
+audit_apple_github_configuration
 report_signing_recovery

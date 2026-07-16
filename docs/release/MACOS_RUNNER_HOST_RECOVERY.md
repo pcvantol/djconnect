@@ -188,6 +188,25 @@ the approved 3.3 internal-release flow uses local Developer provisioning only.
 App Store Connect, TestFlight and public distribution require a separate,
 explicitly approved process.
 
+## GitHub configuration values after a Mac replacement
+
+The recovery runs a name-only audit of secrets and variables in
+`pcvantol/djconnect-app` / Environment `apple-secure-distribution`. GitHub
+does not disclose secret values, so the audit never attempts to read or print
+them. Update each item as follows:
+
+| GitHub Environment item | New Mac action |
+| --- | --- |
+| `DJCONNECT_APPLE_MACBOOK_HARDWARE_UUID` | Required. It identifies the old host, so it must change. `--configure-apple-internal-release` derives the new hardware UUID and updates it automatically after readiness validation. |
+| `DJCONNECT_APPLE_DEVELOPMENT_SIGNING_IDENTITY` | Required. Reconcile it if the identity name shown by the restored/new keychain differs. The same configure option updates it automatically. |
+| `DJCONNECT_APPLE_IPHONE_UDID` | Do not change for a Mac-only replacement. Update it only if the iPhone itself was replaced, in the `apple-secure-distribution` Environment. |
+| `DJCONNECT_APPLE_WATCH_UDID` | Do not change for a Mac-only replacement. Update it only if the paired Watch itself was replaced, in the same Environment. |
+
+There are no Mac-local paths held in GitHub secrets or variables for the Apple
+relay. Runner roots, keychain paths, provisioning-profile directories, Docker
+paths and launchd plist locations are deliberately discovered and configured
+locally. They must not be copied into GitHub configuration.
+
 ## Security boundary
 
 The bootstrap never downloads Apple certificates, private keys, provisioning
