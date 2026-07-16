@@ -72,8 +72,12 @@ verification:
   desired-state rows match.
 - `NOT READY FOR DJCONNECT DEVELOPMENT`: verify exits non-zero because required
   drift exists. List every required `DRIFT` item from the Markdown delta and
-  recommend the recovery command, but do not run recovery without explicit
-  user authorization.
+  recommend the recovery command. After explicit user authorization, Codex may
+  run exactly one prompt-free desired-state repair pass with
+  `./scripts/runner/bootstrap_macos_runner_host.sh --repair`; it must report
+  the post-repair verification delta and every remaining manual requirement.
+  Do not run full recovery or unattended repair without explicit user
+  authorization.
 - `UNVERIFIED`: the verification command could not be run. State why and do
   not claim that the host is ready.
 

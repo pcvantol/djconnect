@@ -326,6 +326,41 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("EXPLICITLY APPROVED", source)
         self.assertIn("CONFIRMATION REQUIRED", source)
 
+    def test_macos_runner_recovery_bootstrap_has_unattended_repair_mode(self) -> None:
+        result = subprocess.run(
+            [str(RUNNER_RECOVERY_SCRIPT), "--help"],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        incompatible_result = subprocess.run(
+            [str(RUNNER_RECOVERY_SCRIPT), "--repair", "--verify"],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("--repair", result.stdout)
+        self.assertIn("baseline verify, then run verify again", result.stdout)
+        self.assertNotEqual(incompatible_result.returncode, 0, incompatible_result.stdout)
+        self.assertIn("--repair and --verify cannot be combined", incompatible_result.stdout)
+        source = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+        self.assertIn("run_unattended_repair", source)
+        self.assertIn("run_unattended_repair_runners", source)
+        self.assertIn("record_repair_manual_requirement", source)
+        self.assertIn("Post-repair desired-state verification", source)
+        self.assertIn("--repair and --verify cannot be combined", source)
+        self.assertIn("Desired-state repair verdict", source)
+        recovery_guide = (ROOT / "docs" / "release" / "MACOS_RUNNER_HOST_RECOVERY.md").read_text(encoding="utf-8")
+        self.assertIn("never opens a browser, GUI, `sudo` password prompt", recovery_guide)
+        session_bootstrap = (ROOT / "BOOTSTRAP_CODEX_SESSION.md").read_text(encoding="utf-8")
+        self.assertIn("prompt-free desired-state repair pass", session_bootstrap)
+
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:
         source = WINDOWS_RUNNER_RECOVERY_SCRIPT.read_text()
 

@@ -16,6 +16,8 @@ the DJConnect product release.
   detected CPU cores and retain per-phase transcript/report evidence.
 - Require an interactive or explicit recorded confirmation when RAM meets the
   hard minimum but is below the recommended recovery capacity.
+- Add `--repair`: one unattended desired-state repair pass with baseline and
+  post-repair verification plus explicit remaining manual requirements.
 
 ## [1.0.0] - 2026-07-16
 

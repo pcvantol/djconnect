@@ -72,6 +72,10 @@ LOG_LEVEL="${LOG_LEVEL:-info}"
 LIST_PHASES=0
 PARALLEL_JOBS="${DJCONNECT_PARALLEL_JOBS:-0}"
 MEMORY_OVERRIDE_CONFIRMED=0
+REPAIR_MODE=0
+REPAIR_INITIAL_VERIFY_STATUS=''
+REPAIR_FINAL_VERIFY_STATUS=''
+REPAIR_MANUAL_REQUIREMENTS=()
 RESUME_MODE=0
 RESUME_STATE_FILE="${RESUME_STATE_FILE:-$HOME/Library/Application Support/DJConnect/macos-runner-recovery-resume.env}"
 RESUME_NEXT_PHASE=''
@@ -150,6 +154,10 @@ Options:
                         idempotent and does not recreate existing runners.
   --verify              Read the desired state and print a Markdown delta
                         against this machine without recovery mutations.
+  --repair              Run one unattended desired-state repair pass after a
+                        baseline verify, then run verify again. Never opens a
+                        login, GUI, sudo or confirmation prompt; records
+                        remaining manual requirements in the final report.
   --resume              Continue a recovery paused for a required macOS reboot.
                         Re-supply any sensitive local signing inputs; they are
                         never stored in the resume checkpoint.
@@ -421,7 +429,11 @@ start_report() {
     printf '%s\n' "- Bootstrap version: $SCRIPT_VERSION"
     printf '%s\n' "- Log level: $LOG_LEVEL"
     printf 'Started (UTC): %s\n\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
-    printf '%s\n' '- Mode: recovery execution'
+    if [[ "$REPAIR_MODE" == '1' ]]; then
+      printf '%s\n' '- Mode: unattended desired-state repair'
+    else
+      printf '%s\n' '- Mode: recovery execution'
+    fi
     printf '%s\n' "- Desired state: $DESIRED_STATE_FILE (schema $DESIRED_STATE_SCHEMA_VERSION)"
     printf '%s\n' "- Selected runner profiles: $PROFILE_SELECTION"
     printf '%s\n\n' "- Transcript log: ${LOG_FILE:-not configured}"
@@ -433,11 +445,36 @@ start_report() {
 }
 
 complete_report() {
-  local exit_code="$1"
+  local exit_code="$1" requirement
   [[ "$REPORTING_STARTED" == '1' ]] || return 0
   if [[ -n "$CURRENT_STEP" ]]; then
     report_append "$CURRENT_STEP" 'FAILED' 'Stopped before this step completed; inspect the transcript log for the exact error.'
     CURRENT_STEP=''
+  fi
+  if [[ "$REPAIR_MODE" == '1' ]]; then
+    {
+      printf '\n## Unattended repair outcome\n\n'
+      printf '%s\n' "- Baseline verify exit code: ${REPAIR_INITIAL_VERIFY_STATUS:-not run}"
+      printf '%s\n' "- Post-repair verify exit code: ${REPAIR_FINAL_VERIFY_STATUS:-not run}"
+      if (( ${#REPAIR_MANUAL_REQUIREMENTS[@]} == 0 )); then
+        printf '%s\n' '- Remaining manual input: none recorded.'
+      else
+        printf '%s\n' '- Remaining manual input:'
+        for requirement in "${REPAIR_MANUAL_REQUIREMENTS[@]}"; do
+          printf '%s\n' "  - $requirement"
+        done
+      fi
+      printf '\n## Desired-state repair verdict\n\n'
+      if [[ "$REPAIR_FINAL_VERIFY_STATUS" == '0' ]]; then
+        printf '%s\n' '**MATCH** — the post-repair verification confirms that all required desired-state rows match.'
+        printf '%s\n' '**REPAIR COMPLETE** — no further desired-state remediation is required.'
+      else
+        printf '%s\n' '**DRIFT REMAINS** — the post-repair verification found required differences.'
+        printf '%s\n' '**MANUAL FOLLOW-UP REQUIRED** — complete the listed actions, then run one new `--repair` pass or use the full interactive recovery flow.'
+      fi
+      printf '\nCompleted (UTC): %s\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+    } >>"$REPORT_FILE"
+    return 0
   fi
   {
     printf '\n## Verification-run verdict\n\n'
@@ -469,6 +506,13 @@ complete_report() {
     fi
     printf '\nCompleted (UTC): %s\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
   } >>"$REPORT_FILE"
+}
+
+record_repair_manual_requirement() {
+  local requirement="$1"
+  REPAIR_MANUAL_REQUIREMENTS+=("$requirement")
+  warn "MANUAL INPUT REQUIRED: $requirement"
+  report_append 'Unattended repair' 'MANUAL INPUT REQUIRED' "$requirement"
 }
 
 phase_is_skipped() {
@@ -918,6 +962,149 @@ run_apple_audit_alongside_services() {
   complete_parallel_phase apple-github-audit 'GitHub Apple configuration audit' "$audit_status" "$audit_output" || die 'GitHub Apple configuration audit failed alongside service validation.'
 }
 
+repair_attempt() {
+  local step="$1"
+  shift
+  local status
+  log "Unattended repair attempt: $step."
+  set +e
+  (trap - EXIT; set -e; "$@")
+  status=$?
+  set -e
+  if [[ "$status" == '0' ]]; then
+    report_append "Unattended repair: $step" 'COMPLETED' 'Completed without interactive input.'
+    return 0
+  fi
+  record_repair_manual_requirement "$step did not complete unattended (exit $status); inspect the transcript and complete the required local or account action."
+  return 1
+}
+
+repair_required_casks() {
+  local cask
+  for cask in "${DESIRED_REQUIRED_CASKS[@]}"; do
+    if brew list --cask "$cask" >/dev/null 2>&1; then
+      continue
+    fi
+    run brew install --cask "$cask"
+  done
+}
+
+run_unattended_repair_runners() {
+  local -a profiles=() phase_ids=() steps=() output_files=() pids=()
+  local profile phase_id step worker_limit index batch_end pid status batch_index failures
+  if ! command -v gh >/dev/null 2>&1 || ! gh auth status --hostname github.com >/dev/null 2>&1; then
+    record_repair_manual_requirement 'GitHub CLI authentication is required before missing runner registrations can be repaired. Run gh auth login interactively.'
+    return 0
+  fi
+  if ! sudo -n true >/dev/null 2>&1; then
+    record_repair_manual_requirement 'A cached non-interactive sudo authorization is required before missing runner services can be installed. Run sudo -v interactively, then rerun --repair.'
+    return 0
+  fi
+  for profile in "${DESIRED_PROFILES[@]}"; do
+    profile_enabled "$profile" || continue
+    if [[ "$profile" == 'apple' ]] && ! command -v xcodebuild >/dev/null 2>&1; then
+      record_repair_manual_requirement 'Full Xcode is required before the Apple runner can be repaired. Install/select the qualified Xcode version, then rerun --repair.'
+      continue
+    fi
+    profile_values "$profile"
+    [[ -f "$RUNNER_ROOT/$PROFILE_RUNNER_NAME/.runner" ]] && continue
+    profiles+=("$profile")
+    phase_ids+=("runner-$profile")
+    steps+=("GitHub Actions runner profile: $profile")
+  done
+  (( ${#profiles[@]} > 0 )) || return 0
+  worker_limit="$(parallel_worker_limit "${#profiles[@]}")"
+  log "Unattended repair schedules ${#profiles[@]} missing runner profile(s) with $worker_limit CPU-bounded worker(s)."
+  report_append 'Unattended repair: runner registrations' 'CPU-BOUNDED' "${#profiles[@]} missing runner profile(s); maximum $worker_limit concurrent job(s)."
+  index=0
+  while (( index < ${#profiles[@]} )); do
+    batch_end=$(( index + worker_limit ))
+    (( batch_end <= ${#profiles[@]} )) || batch_end="${#profiles[@]}"
+    output_files=()
+    pids=()
+    while (( index < batch_end )); do
+      phase_id="${phase_ids[$index]}"
+      output_file="$(mktemp "${TMPDIR:-/tmp}/djconnect-repair-${phase_id}.XXXXXX")"
+      parallel_phase_worker "$phase_id" install_runner_profile "${profiles[$index]}" >"$output_file" 2>&1 &
+      pids+=("$!")
+      output_files+=("$output_file")
+      index=$((index + 1))
+    done
+    failures=0
+    for batch_index in "${!pids[@]}"; do
+      pid="${pids[$batch_index]}"
+      set +e
+      wait "$pid"
+      status=$?
+      set -e
+      phase_id="${phase_ids[$((index - ${#pids[@]} + batch_index))]}"
+      step="${steps[$((index - ${#pids[@]} + batch_index))]}"
+      [[ -s "${output_files[$batch_index]}" ]] && cat "${output_files[$batch_index]}"
+      rm -f "${output_files[$batch_index]}"
+      if [[ "$status" == '0' ]]; then
+        report_append "Unattended repair: $step" 'COMPLETED (parallel)' 'Runner registration completed without interactive input.'
+        ok "$step (unattended repair)"
+      else
+        failures=$((failures + 1))
+        record_repair_manual_requirement "$step could not be repaired unattended (exit $status); inspect its transcript output."
+      fi
+    done
+    (( failures == 0 )) || warn "$failures runner registration repair(s) require manual follow-up."
+  done
+}
+
+run_unattended_repair() {
+  local status preflight_ready=1 github_ready=1
+  printf '# DJConnect macOS Runner Host Unattended Repair\n\n'
+  printf '%s\n\n' '## Baseline desired-state verification'
+  set +e
+  run_desired_state_verification
+  REPAIR_INITIAL_VERIFY_STATUS=$?
+  set -e
+  report_append 'Desired-state verification before repair' "EXIT $REPAIR_INITIAL_VERIFY_STATUS" 'Baseline captured before one unattended repair pass.'
+
+  if ! repair_attempt 'mandatory host preflight' ensure_macos_arm64; then
+    preflight_ready=0
+  fi
+  if (( preflight_ready == 1 )); then
+    if ! command -v brew >/dev/null 2>&1; then
+      record_repair_manual_requirement 'Homebrew is absent. Install it interactively, then rerun --repair; unattended repair will not run the interactive Homebrew installer.'
+    else
+      repair_attempt 'required Homebrew formulas and Codex CLI' ensure_tooling || true
+      repair_attempt 'required Homebrew casks' repair_required_casks || true
+    fi
+  else
+    record_repair_manual_requirement 'No host mutations were attempted because mandatory host preflight did not pass unattended.'
+  fi
+
+  if ! command -v gh >/dev/null 2>&1 || ! gh auth status --hostname github.com >/dev/null 2>&1; then
+    github_ready=0
+    record_repair_manual_requirement 'GitHub CLI login is required for repository and runner repair. Run gh auth login interactively, then rerun --repair.'
+  fi
+  if (( preflight_ready == 1 && github_ready == 1 )); then
+    repair_attempt 'managed repository synchronization' prepare_repositories || true
+    run_unattended_repair_runners
+  fi
+  if [[ -f "$GITHUB_ROOT/djconnect-app/scripts/runner/install_macos_ci_tooling_maintenance.sh" ]]; then
+    repair_attempt 'macOS CI-tooling maintenance LaunchAgent' install_maintenance || true
+  else
+    record_repair_manual_requirement 'The djconnect-app maintenance installer is unavailable locally; complete GitHub authentication/repository synchronization, then rerun --repair.'
+  fi
+
+  printf '\n## Post-repair desired-state verification\n\n'
+  set +e
+  run_desired_state_verification
+  REPAIR_FINAL_VERIFY_STATUS=$?
+  set -e
+  report_append 'Desired-state verification after repair' "EXIT $REPAIR_FINAL_VERIFY_STATUS" 'Post-repair verification captured after one unattended repair pass.'
+  if [[ "$REPAIR_FINAL_VERIFY_STATUS" == '0' ]]; then
+    ok 'Unattended repair completed: desired state now matches.'
+  else
+    warn 'Unattended repair completed with remaining desired-state drift; review the post-repair delta and recorded manual requirements.'
+  fi
+  return "$REPAIR_FINAL_VERIFY_STATUS"
+}
+
 run_interactive() {
   if [[ "$DRY_RUN" == '1' ]]; then
     run "$@"
@@ -993,6 +1180,9 @@ confirm_recommended_memory_override() {
   if [[ "$MEMORY_OVERRIDE_CONFIRMED" == '1' ]]; then
     report_append 'Memory capacity override' 'EXPLICITLY APPROVED' "Operator supplied --confirm-memory-override for ${mem_gb}GB RAM."
     return 0
+  fi
+  if [[ "$REPAIR_MODE" == '1' ]]; then
+    die "MANUAL INPUT REQUIRED: ${mem_gb}GB RAM is below the recommended ${DESIRED_RECOMMENDED_RAM_GB}GB; rerun interactively to confirm or supply --confirm-memory-override."
   fi
   if [[ ! -r /dev/tty || ! -w /dev/tty ]]; then
     die "${mem_gb}GB RAM is below the recommended ${DESIRED_RECOMMENDED_RAM_GB}GB. Run interactively to confirm, or explicitly supply --confirm-memory-override."
@@ -1587,6 +1777,7 @@ while [[ "$#" -gt 0 ]]; do
     --skip-phases) SKIP_PHASES="${2:?--skip-phases requires a value}"; shift 2 ;;
     --force-phases) FORCE_PHASES="${2:?--force-phases requires a value}"; shift 2 ;;
     --verify) VERIFY_MODE=1; shift ;;
+    --repair) REPAIR_MODE=1; shift ;;
     --resume) RESUME_MODE=1; shift ;;
     --resume-state) RESUME_STATE_FILE="${2:?--resume-state requires a value}"; shift 2 ;;
     --version) print_version; exit 0 ;;
@@ -1613,6 +1804,12 @@ fi
 if [[ "$VERIFY_MODE" == '1' && "$RESUME_MODE" == '1' ]]; then
   die '--verify and --resume cannot be combined.'
 fi
+if [[ "$REPAIR_MODE" == '1' && "$VERIFY_MODE" == '1' ]]; then
+  die '--repair and --verify cannot be combined; --repair performs baseline and post-repair verification itself.'
+fi
+if [[ "$REPAIR_MODE" == '1' && "$RESUME_MODE" == '1' ]]; then
+  die '--repair and --resume cannot be combined.'
+fi
 if [[ "$VERIFY_MODE" == '1' ]]; then
   [[ -n "$LOG_FILE" ]] || LOG_FILE='none'
   [[ -n "$REPORT_FILE" ]] || REPORT_FILE='none'
@@ -1633,6 +1830,11 @@ if [[ "$VERIFY_MODE" == '1' ]]; then
 fi
 start_report
 trap cleanup EXIT
+if [[ "$REPAIR_MODE" == '1' ]]; then
+  validate_profile_selection
+  run_unattended_repair
+  exit $?
+fi
 validate_profile_selection
 validate_skip_phases
 validate_force_phases

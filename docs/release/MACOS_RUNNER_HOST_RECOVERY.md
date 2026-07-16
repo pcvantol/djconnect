@@ -52,6 +52,7 @@ are:
 | Goal | Command | Machine changes |
 | --- | --- | --- |
 | Compare the current Mac with desired state | `./scripts/runner/bootstrap_macos_runner_host.sh --verify` | None |
+| Attempt one unattended repair, then verify again | `./scripts/runner/bootstrap_macos_runner_host.sh --repair` | Only non-interactive desired-state fixes |
 | Inspect the full recovery plan | `./scripts/runner/bootstrap_macos_runner_host.sh --xcode-version <qualified-version> --dry-run` | None |
 | Recover all declared runner profiles | `./scripts/runner/bootstrap_macos_runner_host.sh --xcode-version <qualified-version>` | Yes, after preflight |
 | Recover selected profiles | `./scripts/runner/bootstrap_macos_runner_host.sh --profiles apple,esp32 --xcode-version <qualified-version>` | Yes, after preflight |
@@ -116,6 +117,30 @@ all required desired-state rows match. It exits `1` when it finds drift. It
 does not create a recovery transcript or final report unless those paths are
 explicitly requested. Optional entries, such as Parallels Desktop, are shown
 as `OPTIONAL` rather than drift when absent.
+
+### Unattended desired-state repair
+
+After a Codex session records desired-state drift, it may run exactly one
+non-interactive repair pass after the developer explicitly authorizes that
+machine mutation:
+
+```sh
+./scripts/runner/bootstrap_macos_runner_host.sh --repair
+```
+
+The mode prints a baseline verification, repairs only prerequisites that can
+be completed without a prompt (installed Homebrew tooling and casks, managed
+repository synchronization, missing runner registrations with existing GitHub
+login and cached sudo authorization, and the maintenance LaunchAgent), then
+prints a second verification. Its exit code is the second verification result:
+`0` only when required desired-state rows match after that one pass.
+
+It never opens a browser, GUI, `sudo` password prompt, GitHub/Docker login or
+Apple-signing prompt. Those conditions become explicit `MANUAL INPUT REQUIRED`
+records in the Markdown report. Typical follow-up actions are `gh auth login`,
+`sudo -v`, installing Homebrew or a qualified Xcode version, Apple Developer
+login, or approving a below-recommended-RAM host. After completing such an
+action, run `--repair` again; it does not loop or retry autonomously.
 
 During a recovery, a failed phase offers `retry`, `skip` or `abort` on an
 interactive terminal. `retry` repeats just that phase. `skip` is recorded and
