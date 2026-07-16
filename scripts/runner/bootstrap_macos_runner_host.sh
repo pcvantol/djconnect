@@ -16,6 +16,7 @@ SIGNING_P12=''
 PROVISIONING_PROFILES_DIR=''
 CONFIGURE_KEYCHAIN_ACCESS=0
 INSTALL_PARALLELS=0
+SKIP_DEVELOPER_WORKSTATION=0
 
 usage() {
   cat <<'EOF'
@@ -50,6 +51,11 @@ Options:
   --install-parallels   Check for Parallels Desktop and install it through
                         Homebrew when absent. It does not activate a license or
                         create a Windows VM.
+  --skip-developer-workstation
+                        Do not run the complete existing macOS developer
+                        onboarding. By default the recovery restores the full
+                        local DJConnect development workstation as well as the
+                        runner host.
   --dry-run             Print changes without executing them.
   --help                Show this help.
 
@@ -190,6 +196,17 @@ prepare_repositories() {
   clone_or_update djconnect-app
   clone_or_update djconnect-esp32
   clone_or_update djconnect-pi
+}
+
+bootstrap_developer_workstation() {
+  if [[ "$SKIP_DEVELOPER_WORKSTATION" == '1' ]]; then
+    return
+  fi
+  local central_repository="$GITHUB_ROOT/djconnect"
+  local onboarding="$central_repository/tools/dev_onboarding_macos.sh"
+  [[ -f "$onboarding" ]] || die "The full developer onboarding script is unavailable at $onboarding."
+  log 'Restoring the complete DJConnect macOS developer workstation.'
+  run_in_dir "$central_repository" bash tools/dev_onboarding_macos.sh --all --yes --warm-sudo
 }
 
 profile_enabled() {
@@ -366,6 +383,7 @@ while [[ "$#" -gt 0 ]]; do
     --provisioning-profiles-dir) PROVISIONING_PROFILES_DIR="${2:?--provisioning-profiles-dir requires a value}"; shift 2 ;;
     --configure-keychain-access) CONFIGURE_KEYCHAIN_ACCESS=1; shift ;;
     --install-parallels) INSTALL_PARALLELS=1; shift ;;
+    --skip-developer-workstation) SKIP_DEVELOPER_WORKSTATION=1; shift ;;
     --dry-run) DRY_RUN=1; shift ;;
     --help|-h) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
@@ -378,6 +396,7 @@ ensure_xcode
 ensure_parallels
 ensure_github_auth
 prepare_repositories
+bootstrap_developer_workstation
 
 for profile in apple private-network esp32 pi; do
   if profile_enabled "$profile"; then

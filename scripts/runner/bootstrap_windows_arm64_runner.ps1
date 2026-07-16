@@ -65,6 +65,7 @@ function Ensure-WingetPackage([string] $PackageId, [string] $Description) {
 
 Ensure-WingetPackage 'Microsoft.PowerShell' 'PowerShell 7'
 Ensure-WingetPackage 'GitHub.cli' 'GitHub CLI'
+Ensure-WingetPackage 'Git.Git' 'Git for Windows'
 
 $ghPath = Join-Path $env:ProgramFiles 'GitHub CLI\gh.exe'
 if (-not $DryRun -and -not (Test-Path $ghPath)) {
@@ -153,6 +154,16 @@ if (-not (Test-Path (Join-Path $windowsRepository '.git'))) {
     }
 }
 & (Join-Path $windowsRepository 'scripts\runner\Install-DJConnectPowerShell7Maintenance.ps1') -RunNow
+
+Write-Info 'Restoring the Windows MAUI workload for the checked-out source.'
+$dotnetPath = Join-Path $env:ProgramFiles 'dotnet\dotnet.exe'
+if (-not (Test-Path $dotnetPath)) {
+    throw 'The machine .NET SDK is unavailable after maintenance.'
+}
+& $dotnetPath workload restore (Join-Path $windowsRepository 'src\DJConnect.Windows\DJConnect.Windows.csproj') '-p:TargetFramework=net10.0-windows10.0.19041.0'
+if ($LASTEXITCODE -ne 0) {
+    throw "Windows MAUI workload restore failed with exit code $LASTEXITCODE."
+}
 
 $serviceName = (Get-Content (Join-Path $RunnerRoot '.service')).Trim()
 $service = Get-Service -Name $serviceName

@@ -21,6 +21,14 @@ token is entered on the command line, written to a file or retained in a log.
 The downloaded Apple-Silicon Actions-runner archive is verified against the
 SHA-256 digest GitHub publishes in its release metadata before it is unpacked.
 
+By default, the recovery then invokes the established
+`tools/dev_onboarding_macos.sh --all --yes --warm-sudo` flow. This restores the
+complete macOS developer workstation: all DJConnect repositories, Codex CLI,
+Docker/Home Assistant and voice backend, HACS/integration sync, Apple/ESP32/
+Pi/API/website tooling, .NET/MAUI tooling and the local validation baseline.
+Use `--skip-developer-workstation` only for a deliberately minimal runner-only
+host.
+
 By default it prepares these repository-scoped macOS ARM64 runners:
 
 | Profile | Repository | Runner name | Additional labels |
@@ -71,7 +79,8 @@ The Windows bootstrap authenticates GitHub CLI interactively if required,
 downloads the current `win-arm64` Actions runner and checks it against GitHub's
 release SHA-256, registers `djconnect-windows11-parallels-arm64` as a
 `NETWORK SERVICE` Windows service, prepares service-readable runner/install
-paths and installs the daily PowerShell 7/.NET 10/workload maintenance task.
+paths, restores the checked-out Windows MAUI workload and installs the daily
+PowerShell 7/.NET 10/workload maintenance task.
 No registration token is supplied on the command line or retained on disk.
 
 ## Xcode and non-interactive signing recovery

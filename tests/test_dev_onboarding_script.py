@@ -111,6 +111,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("set-key-partition-list", source)
         self.assertIn("--install-parallels", source)
         self.assertIn("brew install --cask parallels", source)
+        self.assertIn("dev_onboarding_macos.sh --all --yes --warm-sudo", source)
         self.assertIn("install_macos_ci_tooling_maintenance.sh --run-now", source)
 
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:
@@ -121,6 +122,8 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("Get-FileHash -Algorithm SHA256", source)
         self.assertIn("--runasservice", source)
         self.assertIn("NT AUTHORITY\\NETWORK SERVICE", source)
+        self.assertIn("Git.Git", source)
+        self.assertIn("workload restore", source)
         self.assertNotIn("[string] $RegistrationToken", source)
 
     def test_help_documents_testability_flags(self) -> None:
