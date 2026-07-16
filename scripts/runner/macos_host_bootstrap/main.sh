@@ -1,6 +1,6 @@
-# Version: 1.2.0
+# Version: 1.3.0
 # CLI parsing and top-level recovery orchestration.
-djconnect_macos_runner_recovery_main() {
+djconnect_macos_host_bootstrap_main() {
 while [[ "$#" -gt 0 ]]; do
   case "$1" in
     --profiles) PROFILE_SELECTION="${2:?--profiles requires a value}"; shift 2 ;;

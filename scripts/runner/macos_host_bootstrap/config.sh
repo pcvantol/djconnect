@@ -1,11 +1,11 @@
-# Version: 1.2.0
+# Version: 1.3.0
 # Shared recovery state, constants and desired-state parsing.
-# Recovers a DJConnect macOS Actions-runner host after a laptop replacement.
+# Bootstraps a DJConnect macOS development host after a laptop replacement.
 # Authentication is interactive through gh; GitHub registration tokens are
 # fetched just-in-time and are never accepted as arguments or written to disk.
 
 readonly ORG='pcvantol'
-readonly RECOVERY_PACKAGE_MANIFEST="$RECOVERY_PACKAGE_DIRECTORY/manifest.yml"
+readonly HOST_BOOTSTRAP_PACKAGE_MANIFEST="$HOST_BOOTSTRAP_PACKAGE_DIRECTORY/manifest.yml"
 
 package_manifest_value() {
   local requested_key="$1"
@@ -20,18 +20,18 @@ package_manifest_value() {
       gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
       if (key == requested_key) { print value; exit }
     }
-  ' "$RECOVERY_PACKAGE_MANIFEST"
+  ' "$HOST_BOOTSTRAP_PACKAGE_MANIFEST"
 }
 
 load_recovery_package_manifest() {
   local version
-  [[ -f "$RECOVERY_PACKAGE_MANIFEST" ]] || {
-    printf 'ERROR Recovery package manifest is missing: %s\n' "$RECOVERY_PACKAGE_MANIFEST" >&2
+  [[ -f "$HOST_BOOTSTRAP_PACKAGE_MANIFEST" ]] || {
+    printf 'ERROR Host-bootstrap package manifest is missing: %s\n' "$HOST_BOOTSTRAP_PACKAGE_MANIFEST" >&2
     exit 1
   }
   version="$(package_manifest_value 'package.version')"
   [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
-    printf 'ERROR Recovery package manifest has an invalid package version: %s\n' "$version" >&2
+    printf 'ERROR Host-bootstrap package manifest has an invalid package version: %s\n' "$version" >&2
     exit 1
   }
   readonly SCRIPT_VERSION="$version"
@@ -45,28 +45,28 @@ verify_recovery_package_manifest() {
     expected_version="$(package_manifest_value "component.$component.version")"
     expected_sha256="$(package_manifest_value "component.$component.sha256")"
     if [[ "$component" == 'entry' ]]; then
-      [[ "$expected_file" == '../bootstrap_macos_runner_host.sh' ]] || die 'Recovery package manifest has an invalid entry-point file binding.'
-      expected_file="$SCRIPT_DIRECTORY/bootstrap_macos_runner_host.sh"
+      [[ "$expected_file" == '../bootstrap_djconnect_macos_host.sh' ]] || die 'Host-bootstrap package manifest has an invalid entry-point file binding.'
+      expected_file="$SCRIPT_DIRECTORY/bootstrap_djconnect_macos_host.sh"
     else
-      [[ "$expected_file" =~ ^[A-Za-z0-9_-]+\.sh$ ]] || die "Recovery package manifest has an invalid file for component $component."
-      expected_file="$RECOVERY_PACKAGE_DIRECTORY/$expected_file"
+      [[ "$expected_file" =~ ^[A-Za-z0-9_-]+\.sh$ ]] || die "Host-bootstrap package manifest has an invalid file for component $component."
+      expected_file="$HOST_BOOTSTRAP_PACKAGE_DIRECTORY/$expected_file"
     fi
-    [[ "$expected_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "Recovery package manifest has an invalid version for component $component."
-    [[ "$expected_sha256" =~ ^[0-9a-f]{64}$ ]] || die "Recovery package manifest has an invalid SHA-256 for component $component."
+    [[ "$expected_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "Host-bootstrap package manifest has an invalid version for component $component."
+    [[ "$expected_sha256" =~ ^[0-9a-f]{64}$ ]] || die "Host-bootstrap package manifest has an invalid SHA-256 for component $component."
     actual_version="$(sed -nE 's/^# Version: ([0-9]+\.[0-9]+\.[0-9]+)$/\1/p' "$expected_file" | head -n 1)"
-    [[ "$actual_version" == "$expected_version" ]] || die "Recovery package component $component version mismatch: manifest=$expected_version module=${actual_version:-missing}."
+    [[ "$actual_version" == "$expected_version" ]] || die "Host-bootstrap package component $component version mismatch: manifest=$expected_version module=${actual_version:-missing}."
     actual_sha256="$(shasum -a 256 "$expected_file" | awk '{print $1}')"
-    [[ "$actual_sha256" == "$expected_sha256" ]] || die "Recovery package component $component SHA-256 mismatch: manifest=$expected_sha256 module=$actual_sha256."
+    [[ "$actual_sha256" == "$expected_sha256" ]] || die "Host-bootstrap package component $component SHA-256 mismatch: manifest=$expected_sha256 module=$actual_sha256."
     aggregate_input+="$component:$actual_sha256"$'\n'
   done
   aggregate_sha256="$(printf '%s' "$aggregate_input" | shasum -a 256 | awk '{print $1}')"
-  [[ "$aggregate_sha256" == "$(package_manifest_value 'package.aggregate_sha256')" ]] || die 'Recovery package aggregate SHA-256 mismatch.'
+  [[ "$aggregate_sha256" == "$(package_manifest_value 'package.aggregate_sha256')" ]] || die 'Host-bootstrap package aggregate SHA-256 mismatch.'
 }
 
 load_recovery_package_manifest
 readonly REPOSITORY_ROOT="$(cd "$SCRIPT_DIRECTORY/../.." && pwd -P)"
 readonly REDACTION_RULES="$SCRIPT_DIRECTORY/redact_recovery_output.sed"
-DESIRED_STATE_FILE="${DESIRED_STATE_FILE:-$SCRIPT_DIRECTORY/macos_runner_host_desired_state.yml}"
+DESIRED_STATE_FILE="${DESIRED_STATE_FILE:-$SCRIPT_DIRECTORY/macos_development_host_desired_state.yml}"
 DESIRED_STATE_SCHEMA_VERSION=''
 DESIRED_STATE_VERSION=''
 DESIRED_MINIMUM_TOOL_VERSION=''

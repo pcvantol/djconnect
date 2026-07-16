@@ -1,4 +1,4 @@
-# Version: 1.0.0
+# Version: 1.1.0
 # Least-privilege and local credential-expiry audits.
 least_privilege_warning() {
   local message="$1"
@@ -29,7 +29,7 @@ audit_least_privilege() {
   current_user="$(id -un)"
   [[ "$(id -u)" != '0' ]] || die 'Do not run DJConnect recovery as root. Runner services must execute as the dedicated maintainer user.'
   audit_path_least_privilege "$REPOSITORY_ROOT" 'Canonical repository root'
-  audit_path_least_privilege "$SCRIPT_DIRECTORY/bootstrap_macos_runner_host.sh" 'Recovery bootstrap script'
+  audit_path_least_privilege "$SCRIPT_DIRECTORY/bootstrap_djconnect_macos_host.sh" 'Development-host bootstrap script'
   audit_path_least_privilege "$DESIRED_STATE_FILE" 'Desired-state manifest'
   audit_path_least_privilege "$REDACTION_RULES" 'Transcript redaction rules'
 

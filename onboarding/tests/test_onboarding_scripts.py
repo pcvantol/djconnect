@@ -14,18 +14,18 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "onboarding" / "dev_onboarding_macos.sh"
 WINDOWS_SCRIPT = ROOT / "onboarding" / "dev_onboarding_windows.ps1"
-RUNNER_RECOVERY_SCRIPT = ROOT / "scripts" / "runner" / "bootstrap_macos_runner_host.sh"
-RUNNER_RECOVERY_PACKAGE = ROOT / "scripts" / "runner" / "macos_runner_recovery"
-RUNNER_RECOVERY_MANIFEST = RUNNER_RECOVERY_PACKAGE / "manifest.yml"
+HOST_BOOTSTRAP_SCRIPT = ROOT / "scripts" / "runner" / "bootstrap_djconnect_macos_host.sh"
+HOST_BOOTSTRAP_PACKAGE = ROOT / "scripts" / "runner" / "macos_host_bootstrap"
+HOST_BOOTSTRAP_MANIFEST = HOST_BOOTSTRAP_PACKAGE / "manifest.yml"
 RECOVERY_REDACTION_RULES = ROOT / "scripts" / "runner" / "redact_recovery_output.sed"
-MACOS_RUNNER_DESIRED_STATE = ROOT / "scripts" / "runner" / "macos_runner_host_desired_state.yml"
-MACOS_RUNNER_RECOVERY_CHANGELOG = ROOT / "scripts" / "runner" / "BOOTSTRAP_MACOS_RUNNER_HOST_CHANGELOG.md"
+MACOS_DEVELOPMENT_HOST_DESIRED_STATE = ROOT / "scripts" / "runner" / "macos_development_host_desired_state.yml"
+MACOS_HOST_BOOTSTRAP_CHANGELOG = ROOT / "scripts" / "runner" / "BOOTSTRAP_DJCONNECT_MACOS_HOST_CHANGELOG.md"
 WINDOWS_RUNNER_RECOVERY_SCRIPT = ROOT / "scripts" / "runner" / "bootstrap_windows_arm64_runner.ps1"
 
 
-def read_runner_recovery_source() -> str:
+def read_macos_host_bootstrap_source() -> str:
     """Return the entry point and all sourced recovery-package modules."""
-    paths = [RUNNER_RECOVERY_SCRIPT, *sorted(RUNNER_RECOVERY_PACKAGE.glob("*.sh"))]
+    paths = [HOST_BOOTSTRAP_SCRIPT, *sorted(HOST_BOOTSTRAP_PACKAGE.glob("*.sh"))]
     return "\n".join(path.read_text(encoding="utf-8") for path in paths)
 
 
@@ -135,9 +135,9 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(compose_path.stdout, "/tmp/djconnect compose.yml")
         self.assertEqual(quoted.stdout, "docker compose -f two\\ words.yml")
 
-    def test_macos_runner_recovery_bootstrap_has_no_token_argument(self) -> None:
+    def test_macos_host_bootstrap_has_no_token_argument(self) -> None:
         result = subprocess.run(
-            [str(RUNNER_RECOVERY_SCRIPT), "--help"],
+            [str(HOST_BOOTSTRAP_SCRIPT), "--help"],
             cwd=ROOT,
             text=True,
             stdout=subprocess.PIPE,
@@ -148,7 +148,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertIn("short-lived token per repository", result.stdout)
         self.assertNotIn("--token", result.stdout)
-        source = read_runner_recovery_source()
+        source = read_macos_host_bootstrap_source()
         self.assertIn("registration-token", source)
         self.assertIn("profile.$profile.runner_name", source)
         self.assertIn("RUNNER_ARCHIVE_DIGEST", source)
@@ -221,13 +221,13 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("write_resume_checkpoint", source)
         self.assertIn("load_resume_checkpoint", source)
         self.assertIn("PAUSED FOR REBOOT", source)
-        self.assertIn("macos_runner_host_desired_state.yml", source)
-        self.assertTrue(MACOS_RUNNER_DESIRED_STATE.is_file())
-        desired_state = MACOS_RUNNER_DESIRED_STATE.read_text()
+        self.assertIn("macos_development_host_desired_state.yml", source)
+        self.assertTrue(MACOS_DEVELOPMENT_HOST_DESIRED_STATE.is_file())
+        desired_state = MACOS_DEVELOPMENT_HOST_DESIRED_STATE.read_text()
         self.assertIn("schema_version: 1", desired_state)
         self.assertIn("host.minimum_free_disk_gb: 80", desired_state)
         self.assertIn("version: 3.3.0", desired_state)
-        self.assertIn("minimum_tool_version: 1.3.0", desired_state)
+        self.assertIn("minimum_tool_version: 2.0.0", desired_state)
         self.assertIn("runner.profiles: apple,private-network,esp32,pi,windows", desired_state)
         self.assertIn("tooling.required_casks: docker,dotnet-sdk,parallels", desired_state)
         self.assertIn("profile.windows.provisioning: external_windows_arm64", desired_state)
@@ -237,9 +237,9 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("run_interactive", source)
         self.assertIn("install_macos_ci_tooling_maintenance.sh --run-now", source)
 
-    def test_macos_runner_recovery_bootstrap_reports_its_semantic_version(self) -> None:
+    def test_macos_host_bootstrap_reports_its_semantic_version(self) -> None:
         result = subprocess.run(
-            [str(RUNNER_RECOVERY_SCRIPT), "--version"],
+            [str(HOST_BOOTSTRAP_SCRIPT), "--version"],
             cwd=ROOT,
             text=True,
             stdout=subprocess.PIPE,
@@ -250,26 +250,26 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertEqual(
             result.stdout,
-            "DJConnect macOS Runner Host Recovery Bootstrap 1.3.0\n",
+            "DJConnect macOS Development Host Bootstrap 2.0.0\n",
         )
-        self.assertTrue(MACOS_RUNNER_RECOVERY_CHANGELOG.is_file())
-        changelog = MACOS_RUNNER_RECOVERY_CHANGELOG.read_text(encoding="utf-8")
+        self.assertTrue(MACOS_HOST_BOOTSTRAP_CHANGELOG.is_file())
+        changelog = MACOS_HOST_BOOTSTRAP_CHANGELOG.read_text(encoding="utf-8")
         self.assertIn("Semantic Versioning", changelog)
-        self.assertIn("## [1.3.0] - 2026-07-16", changelog)
+        self.assertIn("## [2.0.0] - 2026-07-16", changelog)
         self.assertIn("--version", changelog)
 
-    def test_macos_runner_recovery_manifest_version_gate_fails_closed_for_apply(self) -> None:
+    def test_macos_host_bootstrap_manifest_version_gate_fails_closed_for_apply(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             incompatible_manifest = Path(temporary_directory) / "desired-state.yml"
             incompatible_manifest.write_text(
-                MACOS_RUNNER_DESIRED_STATE.read_text(encoding="utf-8").replace(
-                    "minimum_tool_version: 1.3.0",
+                MACOS_DEVELOPMENT_HOST_DESIRED_STATE.read_text(encoding="utf-8").replace(
+                    "minimum_tool_version: 2.0.0",
                     "minimum_tool_version: 9.0.0",
                 ),
                 encoding="utf-8",
             )
             verify = subprocess.run(
-                [str(RUNNER_RECOVERY_SCRIPT), "--verify", "--desired-state", str(incompatible_manifest)],
+                [str(HOST_BOOTSTRAP_SCRIPT), "--verify", "--desired-state", str(incompatible_manifest)],
                 cwd=ROOT,
                 text=True,
                 stdout=subprocess.PIPE,
@@ -277,7 +277,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
                 check=False,
             )
             apply = subprocess.run(
-                [str(RUNNER_RECOVERY_SCRIPT), "--dry-run", "--desired-state", str(incompatible_manifest)],
+                [str(HOST_BOOTSTRAP_SCRIPT), "--dry-run", "--desired-state", str(incompatible_manifest)],
                 cwd=ROOT,
                 text=True,
                 stdout=subprocess.PIPE,
@@ -290,9 +290,9 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertNotEqual(apply.returncode, 0, apply.stdout)
         self.assertIn("requires bootstrap >=9.0.0", apply.stdout)
 
-    def test_macos_runner_recovery_bootstrap_accepts_help_subcommand(self) -> None:
+    def test_macos_host_bootstrap_accepts_help_subcommand(self) -> None:
         result = subprocess.run(
-            [str(RUNNER_RECOVERY_SCRIPT), "help"],
+            [str(HOST_BOOTSTRAP_SCRIPT), "help"],
             cwd=ROOT,
             text=True,
             stdout=subprocess.PIPE,
@@ -301,13 +301,13 @@ class DevOnboardingScriptTests(unittest.TestCase):
         )
 
         self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertIn("Usage: bootstrap_macos_runner_host.sh [options]", result.stdout)
+        self.assertIn("Usage: bootstrap_djconnect_macos_host.sh [options]", result.stdout)
         self.assertIn("--version", result.stdout)
         self.assertIn("help                   Show this help and exit.", result.stdout)
 
-    def test_macos_runner_recovery_bootstrap_validates_log_levels(self) -> None:
+    def test_macos_host_bootstrap_validates_log_levels(self) -> None:
         help_result = subprocess.run(
-            [str(RUNNER_RECOVERY_SCRIPT), "--help"],
+            [str(HOST_BOOTSTRAP_SCRIPT), "--help"],
             cwd=ROOT,
             text=True,
             stdout=subprocess.PIPE,
@@ -315,7 +315,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
             check=False,
         )
         invalid_level = subprocess.run(
-            [str(RUNNER_RECOVERY_SCRIPT), "--log-level", "invalid", "--version"],
+            [str(HOST_BOOTSTRAP_SCRIPT), "--log-level", "invalid", "--version"],
             cwd=ROOT,
             text=True,
             stdout=subprocess.PIPE,
@@ -329,14 +329,14 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("warning or error", help_result.stdout)
         self.assertEqual(invalid_level.returncode, 2, invalid_level.stdout)
         self.assertIn("Invalid log level", invalid_level.stdout)
-        source = read_runner_recovery_source()
+        source = read_macos_host_bootstrap_source()
         self.assertIn('LOG_LEVEL="${LOG_LEVEL:-info}"', source)
         self.assertIn("log_level_rank", source)
         self.assertIn("VERBOSE", source)
 
-    def test_macos_runner_recovery_bootstrap_marks_parallel_safe_phases(self) -> None:
+    def test_macos_host_bootstrap_marks_parallel_safe_phases(self) -> None:
         result = subprocess.run(
-            [str(RUNNER_RECOVERY_SCRIPT), "--list-phases"],
+            [str(HOST_BOOTSTRAP_SCRIPT), "--list-phases"],
             cwd=ROOT,
             text=True,
             stdout=subprocess.PIPE,
@@ -352,13 +352,13 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("runner-pi", result.stdout)
         self.assertIn("apple-github-audit", result.stdout)
         self.assertIn("HEADLESS + PARALLEL SAFE", result.stdout)
-        source = read_runner_recovery_source()
+        source = read_macos_host_bootstrap_source()
         self.assertIn("phase_execution_capability", source)
         self.assertIn("Execution capability: $step", source)
 
-    def test_macos_runner_recovery_bootstrap_cpu_bounds_parallel_work(self) -> None:
+    def test_macos_host_bootstrap_cpu_bounds_parallel_work(self) -> None:
         help_result = subprocess.run(
-            [str(RUNNER_RECOVERY_SCRIPT), "--help"],
+            [str(HOST_BOOTSTRAP_SCRIPT), "--help"],
             cwd=ROOT,
             text=True,
             stdout=subprocess.PIPE,
@@ -366,7 +366,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
             check=False,
         )
         invalid_jobs = subprocess.run(
-            [str(RUNNER_RECOVERY_SCRIPT), "--parallel-jobs", "invalid", "--version"],
+            [str(HOST_BOOTSTRAP_SCRIPT), "--parallel-jobs", "invalid", "--version"],
             cwd=ROOT,
             text=True,
             stdout=subprocess.PIPE,
@@ -378,15 +378,15 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("--parallel-jobs COUNT", help_result.stdout)
         self.assertEqual(invalid_jobs.returncode, 2, invalid_jobs.stdout)
         self.assertIn("Parallel job count must be a non-negative integer", invalid_jobs.stdout)
-        source = read_runner_recovery_source()
+        source = read_macos_host_bootstrap_source()
         self.assertIn("run_parallel_runner_profiles", source)
         self.assertIn("parallel_worker_limit", source)
         self.assertIn("worker_limit <= cpu_count", source)
         self.assertIn("run_apple_audit_alongside_services", source)
 
-    def test_macos_runner_recovery_bootstrap_gates_low_recommended_memory(self) -> None:
+    def test_macos_host_bootstrap_gates_low_recommended_memory(self) -> None:
         result = subprocess.run(
-            [str(RUNNER_RECOVERY_SCRIPT), "--help"],
+            [str(HOST_BOOTSTRAP_SCRIPT), "--help"],
             cwd=ROOT,
             text=True,
             stdout=subprocess.PIPE,
@@ -396,7 +396,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertIn("--confirm-memory-override", result.stdout)
-        source = read_runner_recovery_source()
+        source = read_macos_host_bootstrap_source()
         self.assertIn("confirm_recommended_memory_override", source)
         self.assertIn("DESIRED_MINIMUM_RAM_GB", source)
         self.assertIn("DESIRED_RECOMMENDED_RAM_GB", source)
@@ -404,9 +404,9 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("EXPLICITLY APPROVED", source)
         self.assertIn("CONFIRMATION REQUIRED", source)
 
-    def test_macos_runner_recovery_bootstrap_has_unattended_repair_mode(self) -> None:
+    def test_macos_host_bootstrap_has_unattended_repair_mode(self) -> None:
         result = subprocess.run(
-            [str(RUNNER_RECOVERY_SCRIPT), "--help"],
+            [str(HOST_BOOTSTRAP_SCRIPT), "--help"],
             cwd=ROOT,
             text=True,
             stdout=subprocess.PIPE,
@@ -414,7 +414,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
             check=False,
         )
         incompatible_result = subprocess.run(
-            [str(RUNNER_RECOVERY_SCRIPT), "--repair", "--verify"],
+            [str(HOST_BOOTSTRAP_SCRIPT), "--repair", "--verify"],
             cwd=ROOT,
             text=True,
             stdout=subprocess.PIPE,
@@ -427,21 +427,21 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("baseline verify, then run verify again", result.stdout)
         self.assertNotEqual(incompatible_result.returncode, 0, incompatible_result.stdout)
         self.assertIn("--repair and --verify cannot be combined", incompatible_result.stdout)
-        source = read_runner_recovery_source()
+        source = read_macos_host_bootstrap_source()
         self.assertIn("run_unattended_repair", source)
         self.assertIn("run_unattended_repair_runners", source)
         self.assertIn("record_repair_manual_requirement", source)
         self.assertIn("Post-repair desired-state verification", source)
         self.assertIn("--repair and --verify cannot be combined", source)
         self.assertIn("Desired-state repair verdict", source)
-        recovery_guide = (ROOT / "docs" / "release" / "MACOS_RUNNER_HOST_RECOVERY.md").read_text(encoding="utf-8")
+        recovery_guide = (ROOT / "docs" / "release" / "MACOS_DEVELOPMENT_HOST_BOOTSTRAP.md").read_text(encoding="utf-8")
         self.assertIn("never opens a browser, GUI, `sudo` password prompt", recovery_guide)
         session_bootstrap = (ROOT / "BOOTSTRAP_CODEX_SESSION.md").read_text(encoding="utf-8")
         self.assertIn("prompt-free desired-state repair pass", session_bootstrap)
 
-    def test_macos_runner_recovery_bootstrap_refuses_repository_output_paths(self) -> None:
+    def test_macos_host_bootstrap_refuses_repository_output_paths(self) -> None:
         result = subprocess.run(
-            [str(RUNNER_RECOVERY_SCRIPT), "--verify", "--log-file", "recovery.log"],
+            [str(HOST_BOOTSTRAP_SCRIPT), "--verify", "--log-file", "recovery.log"],
             cwd=ROOT,
             text=True,
             stdout=subprocess.PIPE,
@@ -451,15 +451,15 @@ class DevOnboardingScriptTests(unittest.TestCase):
 
         self.assertNotEqual(result.returncode, 0, result.stdout)
         self.assertIn("absolute path outside the repository", result.stdout)
-        source = read_runner_recovery_source()
+        source = read_macos_host_bootstrap_source()
         self.assertIn("require_external_output_path", source)
         self.assertIn("recovery output is never written into Git working tree", source)
         gitignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
         self.assertIn("macos-runner-recovery-*.log", gitignore)
         self.assertIn("macos-runner-recovery-*.md", gitignore)
 
-    def test_macos_runner_recovery_bootstrap_groups_installation_sections(self) -> None:
-        source = read_runner_recovery_source()
+    def test_macos_host_bootstrap_groups_installation_sections(self) -> None:
+        source = read_macos_host_bootstrap_source()
 
         self.assertIn("phase_section_id", source)
         self.assertIn("begin_report_section", source)
@@ -469,8 +469,8 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("ATTENTION REQUIRED", source)
         self.assertIn("GitHub Actions runner provisioning", source)
 
-    def test_macos_runner_recovery_bootstrap_reports_indicative_progress(self) -> None:
-        source = read_runner_recovery_source()
+    def test_macos_host_bootstrap_reports_indicative_progress(self) -> None:
+        source = read_macos_host_bootstrap_source()
 
         self.assertIn("phase_progress_snapshot", source)
         self.assertIn("emit_phase_progress", source)
@@ -479,8 +479,8 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("emit_repair_progress", source)
         self.assertIn("REPAIR_PROGRESS_TOTAL=6", source)
 
-    def test_macos_runner_recovery_bootstrap_audits_least_privilege(self) -> None:
-        source = read_runner_recovery_source()
+    def test_macos_host_bootstrap_audits_least_privilege(self) -> None:
+        source = read_macos_host_bootstrap_source()
 
         self.assertIn("permissions-audit", source)
         self.assertIn("audit_least_privilege", source)
@@ -490,9 +490,9 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn(".permissions.admin", source)
         self.assertIn("classic repo scope", source)
 
-    def test_macos_runner_recovery_bootstrap_audits_credential_expiry(self) -> None:
+    def test_macos_host_bootstrap_audits_credential_expiry(self) -> None:
         result = subprocess.run(
-            [str(RUNNER_RECOVERY_SCRIPT), "--help"],
+            [str(HOST_BOOTSTRAP_SCRIPT), "--help"],
             cwd=ROOT,
             text=True,
             stdout=subprocess.PIPE,
@@ -502,7 +502,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertIn("--expiry-warning-days DAYS", result.stdout)
-        source = read_runner_recovery_source()
+        source = read_macos_host_bootstrap_source()
         self.assertIn("credential-expiry-audit", source)
         self.assertIn("audit_credential_expiry", source)
         self.assertIn("Apple Development", source)
@@ -510,8 +510,8 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("TOKEN EXPIRY UNVERIFIED", source)
         self.assertIn("CREDENTIAL EXPIRY WARNING", source)
 
-    def test_macos_runner_recovery_bootstrap_opens_terminal_after_reboot(self) -> None:
-        source = read_runner_recovery_source()
+    def test_macos_host_bootstrap_opens_terminal_after_reboot(self) -> None:
+        source = read_macos_host_bootstrap_source()
 
         self.assertIn("install_resume_terminal_continuation", source)
         self.assertIn("com.djconnect.macos-runner-recovery-resume", source)
@@ -521,40 +521,40 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("RESUME_CONTINUATION_COMMAND", source)
         self.assertIn("Sensitive passwords and token values remain outside the checkpoint", source)
 
-    def test_macos_runner_recovery_bootstrap_uses_a_thin_packaged_entry_point(self) -> None:
-        entry = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+    def test_macos_host_bootstrap_uses_a_thin_packaged_entry_point(self) -> None:
+        entry = HOST_BOOTSTRAP_SCRIPT.read_text(encoding="utf-8")
 
-        self.assertIn("macos_runner_recovery/bootstrap.sh", entry)
-        self.assertIn("djconnect_macos_runner_recovery_main \"$@\"", entry)
+        self.assertIn("macos_host_bootstrap/bootstrap.sh", entry)
+        self.assertIn("djconnect_macos_host_bootstrap_main \"$@\"", entry)
         self.assertLess(len(entry.splitlines()), 12)
-        self.assertTrue((RUNNER_RECOVERY_PACKAGE / "config.sh").is_file())
-        self.assertTrue((RUNNER_RECOVERY_PACKAGE / "workflow.sh").is_file())
-        self.assertTrue((RUNNER_RECOVERY_PACKAGE / "operations.sh").is_file())
-        self.assertTrue((RUNNER_RECOVERY_PACKAGE / "runners.sh").is_file())
-        self.assertTrue((RUNNER_RECOVERY_PACKAGE / "security.sh").is_file())
-        self.assertTrue((RUNNER_RECOVERY_PACKAGE / "apple.sh").is_file())
-        self.assertTrue(RUNNER_RECOVERY_MANIFEST.is_file())
-        manifest = RUNNER_RECOVERY_MANIFEST.read_text(encoding="utf-8")
-        self.assertIn("package.version: 1.3.0", manifest)
+        self.assertTrue((HOST_BOOTSTRAP_PACKAGE / "config.sh").is_file())
+        self.assertTrue((HOST_BOOTSTRAP_PACKAGE / "workflow.sh").is_file())
+        self.assertTrue((HOST_BOOTSTRAP_PACKAGE / "operations.sh").is_file())
+        self.assertTrue((HOST_BOOTSTRAP_PACKAGE / "runners.sh").is_file())
+        self.assertTrue((HOST_BOOTSTRAP_PACKAGE / "security.sh").is_file())
+        self.assertTrue((HOST_BOOTSTRAP_PACKAGE / "apple.sh").is_file())
+        self.assertTrue(HOST_BOOTSTRAP_MANIFEST.is_file())
+        manifest = HOST_BOOTSTRAP_MANIFEST.read_text(encoding="utf-8")
+        self.assertIn("package.version: 2.0.0", manifest)
         self.assertIn("package.aggregate_sha256:", manifest)
         self.assertIn("component.entry.sha256:", manifest)
         self.assertIn("component.workflow.version: 1.3.0", manifest)
         self.assertIn("component.apple.version: 1.0.0", manifest)
-        source = read_runner_recovery_source()
+        source = read_macos_host_bootstrap_source()
         self.assertIn("verify_recovery_package_manifest", source)
-        self.assertIn("Recovery package component", source)
+        self.assertIn("Host-bootstrap package component", source)
         self.assertIn("aggregate SHA-256 mismatch", source)
 
-    def test_macos_runner_recovery_bootstrap_rejects_manifest_component_mismatch(self) -> None:
+    def test_macos_host_bootstrap_rejects_manifest_component_mismatch(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             temporary_runner_directory = Path(temporary_directory) / "runner"
-            shutil.copytree(RUNNER_RECOVERY_PACKAGE, temporary_runner_directory / "macos_runner_recovery")
-            temporary_entry = temporary_runner_directory / "bootstrap_macos_runner_host.sh"
-            shutil.copy2(RUNNER_RECOVERY_SCRIPT, temporary_entry)
-            manifest = temporary_runner_directory / "macos_runner_recovery" / "manifest.yml"
+            shutil.copytree(HOST_BOOTSTRAP_PACKAGE, temporary_runner_directory / "macos_host_bootstrap")
+            temporary_entry = temporary_runner_directory / "bootstrap_djconnect_macos_host.sh"
+            shutil.copy2(HOST_BOOTSTRAP_SCRIPT, temporary_entry)
+            manifest = temporary_runner_directory / "macos_host_bootstrap" / "manifest.yml"
             manifest.write_text(
                 manifest.read_text(encoding="utf-8").replace(
-                    "component.core.version: 1.2.0",
+                    "component.core.version: 1.3.0",
                     "component.core.version: 9.9.9",
                 ),
                 encoding="utf-8",
@@ -571,16 +571,16 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0, result.stdout)
         self.assertIn("component core version mismatch", result.stdout)
 
-    def test_macos_runner_recovery_bootstrap_rejects_manifest_checksum_mismatch(self) -> None:
+    def test_macos_host_bootstrap_rejects_manifest_checksum_mismatch(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             temporary_runner_directory = Path(temporary_directory) / "runner"
-            shutil.copytree(RUNNER_RECOVERY_PACKAGE, temporary_runner_directory / "macos_runner_recovery")
-            temporary_entry = temporary_runner_directory / "bootstrap_macos_runner_host.sh"
-            shutil.copy2(RUNNER_RECOVERY_SCRIPT, temporary_entry)
-            manifest = temporary_runner_directory / "macos_runner_recovery" / "manifest.yml"
+            shutil.copytree(HOST_BOOTSTRAP_PACKAGE, temporary_runner_directory / "macos_host_bootstrap")
+            temporary_entry = temporary_runner_directory / "bootstrap_djconnect_macos_host.sh"
+            shutil.copy2(HOST_BOOTSTRAP_SCRIPT, temporary_entry)
+            manifest = temporary_runner_directory / "macos_host_bootstrap" / "manifest.yml"
             manifest.write_text(
                 manifest.read_text(encoding="utf-8").replace(
-                    "component.core.sha256: ad114a2bb6d22b8ff674e40d3fd109a45daad2f6c7759906bfb3f2d2c2c677bd",
+                    "component.core.sha256: b8e259095904d7507800f78381892ffdc40ff882b99e8e7be22993ac098a7748",
                     "component.core.sha256: 0000000000000000000000000000000000000000000000000000000000000000",
                 ),
                 encoding="utf-8",
@@ -597,9 +597,9 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0, result.stdout)
         self.assertIn("component core SHA-256 mismatch", result.stdout)
 
-    def test_macos_runner_recovery_bootstrap_declares_home_assistant_test_environment(self) -> None:
-        source = read_runner_recovery_source()
-        desired_state = MACOS_RUNNER_DESIRED_STATE.read_text(encoding="utf-8")
+    def test_macos_host_bootstrap_declares_home_assistant_test_environment(self) -> None:
+        source = read_macos_host_bootstrap_source()
+        desired_state = MACOS_DEVELOPMENT_HOST_DESIRED_STATE.read_text(encoding="utf-8")
 
         self.assertIn("home-assistant-lab", source)
         self.assertIn("ensure_home_assistant_internal_test_environment", source)

@@ -1,4 +1,4 @@
-# DJConnect macOS runner-host desired state.
+# DJConnect macOS development-host desired state.
 #
 # This bootstrap-safe YAML profile deliberately uses a flat key/value subset so
 # the recovery script can validate it on a fresh macOS installation before
@@ -7,7 +7,7 @@
 schema_version: 1
 # The manifest major/minor must match the active DJConnect platform release.
 version: 3.3.0
-minimum_tool_version: 1.3.0
+minimum_tool_version: 2.0.0
 host.platform: macos
 host.architecture: arm64
 host.apple_silicon: required

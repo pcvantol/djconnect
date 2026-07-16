@@ -41,7 +41,7 @@ ensure_macos_arm64() {
   local macos_version macos_major cpu_brand hardware_profile mem_bytes mem_gb cpu_count disk_probe_path disk_kb disk_gb
   [[ "$DESIRED_HOST_PLATFORM" == 'macos' ]] || die "Desired state requires unsupported host platform: $DESIRED_HOST_PLATFORM"
   [[ "$(id -u)" != '0' ]] || die 'Do not run DJConnect recovery as root. Use the dedicated maintainer account so runner services do not inherit root privileges.'
-  [[ "$(uname -s)" == 'Darwin' ]] || die 'This recovery bootstrap runs only on macOS.'
+  [[ "$(uname -s)" == 'Darwin' ]] || die 'This development-host bootstrap runs only on macOS.'
   [[ "$(uname -m)" == "$DESIRED_HOST_ARCHITECTURE" ]] || die "DJConnect macOS runners require a $DESIRED_HOST_ARCHITECTURE host."
   cpu_brand="$(sysctl -n machdep.cpu.brand_string 2>/dev/null || true)"
   hardware_profile=''
@@ -403,7 +403,7 @@ run_initial_verification() {
     return
   fi
   local central_repository="$GITHUB_ROOT/djconnect"
-  log 'Running initial post-recovery verification for the complete local developer and runner host.'
+  log 'Running initial post-bootstrap verification for the complete local development host.'
   local -a verification_args=(onboarding/dev_onboarding_macos.sh --steps 21,22 --yes --no-log-file)
   if [[ "$DRY_RUN" == '1' ]]; then
     verification_args+=(--dry-run)

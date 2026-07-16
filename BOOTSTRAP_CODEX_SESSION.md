@@ -41,7 +41,7 @@ A new Codex session must:
    the canonical `pcvantol/djconnect` checkout:
 
    ```sh
-   ./scripts/runner/bootstrap_macos_runner_host.sh --verify
+   ./scripts/runner/bootstrap_djconnect_macos_host.sh --verify
    ```
 
    Capture its Markdown delta and exit code. Do not run recovery, force,
@@ -74,7 +74,7 @@ verification:
   drift exists. List every required `DRIFT` item from the Markdown delta and
   recommend the recovery command. After explicit user authorization, Codex may
   run exactly one prompt-free desired-state repair pass with
-  `./scripts/runner/bootstrap_macos_runner_host.sh --repair`; it must report
+  `./scripts/runner/bootstrap_djconnect_macos_host.sh --repair`; it must report
   the post-repair verification delta and every remaining manual requirement.
   Do not run full recovery or unattended repair without explicit user
   authorization.

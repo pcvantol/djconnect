@@ -37,8 +37,8 @@ release process the source of truth.
 - `RUNNER_ARCHITECTURE.md` and `RUNNER_POLICY.md` define the corrected
   GitHub Actions build locations and the narrow self-hosted runner boundary.
   `RUNNER_TOOLING_CURRENCY_STANDARD.md` defines how hosted and self-hosted
-  execution tooling remains current. `MACOS_RUNNER_HOST_RECOVERY.md` defines
-  repeatable recovery of a replacement macOS runner host.
+  execution tooling remains current. `MACOS_DEVELOPMENT_HOST_BOOTSTRAP.md`
+  defines repeatable bootstrap of a replacement macOS development host.
 - `DEPLOYMENT_ARCHITECTURE.md` defines artifact-only deployment targets.
 - `POST_DEPLOYMENT_SMOKE_TEST_POLICY.md` and
   `POST_DEPLOYMENT_SMOKE_EVIDENCE_SCHEMA.md` define the bounded,

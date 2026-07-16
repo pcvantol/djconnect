@@ -937,7 +937,7 @@ run_unattended_repair_runners() {
 
 run_unattended_repair() {
   local status preflight_ready=1 github_ready=1
-  printf '# DJConnect macOS Runner Host Unattended Repair\n\n'
+  printf '# DJConnect macOS Development Host Unattended Repair\n\n'
   printf '%s\n\n' '## Baseline desired-state verification'
   set +e
   run_desired_state_verification

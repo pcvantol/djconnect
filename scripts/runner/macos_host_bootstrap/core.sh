@@ -1,11 +1,11 @@
-# Version: 1.2.0
+# Version: 1.3.0
 # CLI help, desired-state verification and console/report primitives.
 usage() {
   cat <<'EOF'
-Usage: bootstrap_macos_runner_host.sh [options]
+Usage: bootstrap_djconnect_macos_host.sh [options]
 
 Recover a fresh Apple-Silicon MacBook as a DJConnect developer and GitHub
-Actions runner host. The script installs supported host tooling, clones the
+development host. The script installs supported host tooling, clones the
 required repositories, authenticates GitHub CLI interactively if necessary,
 registers the selected runners as launchd services, and installs the daily
 macOS CI-tooling maintenance LaunchAgent.
@@ -14,7 +14,7 @@ Options:
   --profiles LIST       Comma-separated: apple,private-network,esp32,pi.
                         Default: all.
   --desired-state FILE  YAML desired-state manifest to reconcile. Default:
-                        scripts/runner/macos_runner_host_desired_state.yml
+                        scripts/runner/macos_development_host_desired_state.yml
   --github-root DIR     Parent directory for DJConnect repositories.
                         Default: ~/Documents/GitHub
   --runner-root DIR     Parent directory for Actions runner installations.
@@ -39,7 +39,7 @@ Options:
                         Do not run the complete existing macOS developer
                         onboarding. By default the recovery restores the full
                         local DJConnect development workstation as well as the
-                        runner host.
+                        development host.
   --ngrok-domain DOMAIN Reserved ngrok static domain for the Home Assistant
                         external URL.
   --prompt-ngrok-auth   Prompt invisibly for the ngrok authtoken when it is
@@ -115,7 +115,7 @@ EOF
 }
 
 print_version() {
-  printf 'DJConnect macOS Runner Host Recovery Bootstrap %s\n' "$SCRIPT_VERSION"
+  printf 'DJConnect macOS Development Host Bootstrap %s\n' "$SCRIPT_VERSION"
 }
 
 desired_state_value() {
@@ -219,7 +219,7 @@ verify_delta_row() {
 
 run_desired_state_verification() {
   local hardware_profile macos_version macos_major cpu_brand mem_bytes mem_gb cpu_count disk_probe_path disk_kb disk_gb formula cask profile install_dir uid_value ha_running
-  printf '# DJConnect macOS Runner Host Desired-State Delta\n\n'
+  printf '# DJConnect macOS Development Host Desired-State Delta\n\n'
   printf '%s\n\n' "Manifest: \`$DESIRED_STATE_FILE\` (version $DESIRED_STATE_VERSION, schema $DESIRED_STATE_SCHEMA_VERSION; bootstrap $SCRIPT_VERSION, minimum tool $DESIRED_MINIMUM_TOOL_VERSION, $MANIFEST_TOOL_COMPATIBILITY_VERDICT)"
   printf '%s\n' '| Component | Desired | Actual | Delta |'
   printf '%s\n' '| --- | --- | --- | --- |'

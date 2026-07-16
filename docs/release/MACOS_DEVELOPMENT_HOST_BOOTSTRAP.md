@@ -1,27 +1,27 @@
-# macOS Runner Host Recovery
+# macOS Development Host Bootstrap
 
 ## Package layout
 
-`scripts/runner/bootstrap_macos_runner_host.sh` is intentionally a thin,
-stable CLI entry point. It loads the `scripts/runner/macos_runner_recovery/`
+`scripts/runner/bootstrap_djconnect_macos_host.sh` is intentionally a thin,
+stable CLI entry point. It loads the `scripts/runner/macos_host_bootstrap/`
 package, whose modules separate desired-state/configuration, console/reporting
-core, recovery workflow, security audits, host operations, runner management,
+core, bootstrap workflow, security audits, host operations, runner management,
 Apple signing and CLI orchestration. They execute in one Bash process so the
 existing phase state and security boundaries stay unchanged. Invoke only the
 stable entry point; package modules are implementation details and are not
 standalone commands.
 
-`scripts/runner/macos_runner_recovery/manifest.yml` is the canonical package
-manifest. It has a semantic version for the complete recovery package and an
+`scripts/runner/macos_host_bootstrap/manifest.yml` is the canonical package
+manifest. It has a semantic version for the complete host-bootstrap package and an
 independent semantic version plus file binding for every module. On startup,
 the bootstrap validates every module's local version header against that
-manifest and stops before any recovery action when they differ. Update the
+manifest and stops before any bootstrap action when they differ. Update the
 affected component version and package version deliberately when changing a
 module; do not edit a module version in isolation.
 
 The same manifest records a SHA-256 for the stable entry point and every
 package module, plus a deterministic aggregate SHA-256 over those ordered
-component hashes. Startup verifies all hashes before executing recovery. The
+component hashes. Startup verifies all hashes before executing bootstrap. The
 manifest is the Git-reviewed trust root and therefore does not hash itself;
 its integrity is supplied by the checked-out commit SHA and repository review
 controls.
@@ -37,7 +37,7 @@ On the fresh Apple-Silicon Mac, install Codex and clone this repository. Then
 run the bootstrap with the explicit, currently qualified Xcode line:
 
 ```sh
-./scripts/runner/bootstrap_macos_runner_host.sh --xcode-version <qualified-version>
+./scripts/runner/bootstrap_djconnect_macos_host.sh --xcode-version <qualified-version>
 ```
 
 Before the bootstrap downloads, installs or authenticates anything, its
@@ -57,7 +57,7 @@ an unattended, deliberately approved exception, add
 ## Declarative machine desired state
 
 The canonical desired state is
-[`macos_runner_host_desired_state.yml`](../../scripts/runner/macos_runner_host_desired_state.yml).
+[`macos_development_host_desired_state.yml`](../../scripts/runner/macos_development_host_desired_state.yml).
 It declares the host qualification thresholds, required Homebrew tooling,
 refreshable casks and repository-scoped runner profiles (repository, runner
 name and labels). The bootstrap validates this manifest before it changes the
@@ -82,18 +82,18 @@ are:
 
 | Goal | Command | Machine changes |
 | --- | --- | --- |
-| Compare the current Mac with desired state | `./scripts/runner/bootstrap_macos_runner_host.sh --verify` | None |
-| Attempt one unattended repair, then verify again | `./scripts/runner/bootstrap_macos_runner_host.sh --repair` | Only non-interactive desired-state fixes |
-| Inspect the full recovery plan | `./scripts/runner/bootstrap_macos_runner_host.sh --xcode-version <qualified-version> --dry-run` | None |
-| Recover all declared runner profiles | `./scripts/runner/bootstrap_macos_runner_host.sh --xcode-version <qualified-version>` | Yes, after preflight |
-| Recover selected profiles | `./scripts/runner/bootstrap_macos_runner_host.sh --profiles apple,esp32 --xcode-version <qualified-version>` | Yes, after preflight |
-| Verify another compatible desired state | `./scripts/runner/bootstrap_macos_runner_host.sh --desired-state /secure/path/host.yml --verify` | None |
-| Show the installed bootstrap version | `./scripts/runner/bootstrap_macos_runner_host.sh --version` | None |
-| Show built-in help | `./scripts/runner/bootstrap_macos_runner_host.sh help` | None |
+| Compare the current Mac with desired state | `./scripts/runner/bootstrap_djconnect_macos_host.sh --verify` | None |
+| Attempt one unattended repair, then verify again | `./scripts/runner/bootstrap_djconnect_macos_host.sh --repair` | Only non-interactive desired-state fixes |
+| Inspect the full recovery plan | `./scripts/runner/bootstrap_djconnect_macos_host.sh --xcode-version <qualified-version> --dry-run` | None |
+| Bootstrap all declared runner profiles | `./scripts/runner/bootstrap_djconnect_macos_host.sh --xcode-version <qualified-version>` | Yes, after preflight |
+| Bootstrap selected profiles | `./scripts/runner/bootstrap_djconnect_macos_host.sh --profiles apple,esp32 --xcode-version <qualified-version>` | Yes, after preflight |
+| Verify another compatible desired state | `./scripts/runner/bootstrap_djconnect_macos_host.sh --desired-state /secure/path/host.yml --verify` | None |
+| Show the installed bootstrap version | `./scripts/runner/bootstrap_djconnect_macos_host.sh --version` | None |
+| Show built-in help | `./scripts/runner/bootstrap_djconnect_macos_host.sh help` | None |
 
-The recovery bootstrap is independently versioned from DJConnect releases.
-The initial stable version is `1.0.0`; its release history is maintained in
-[`BOOTSTRAP_MACOS_RUNNER_HOST_CHANGELOG.md`](../../scripts/runner/BOOTSTRAP_MACOS_RUNNER_HOST_CHANGELOG.md).
+The development-host bootstrap is independently versioned from DJConnect releases.
+Its release history is maintained in
+[`BOOTSTRAP_DJCONNECT_MACOS_HOST_CHANGELOG.md`](../../scripts/runner/BOOTSTRAP_DJCONNECT_MACOS_HOST_CHANGELOG.md).
 Include the `--version` output in support or recovery evidence when the script
 itself is relevant to a result.
 
@@ -135,7 +135,7 @@ worker), caps the worker count at the detected core count, and never launches
 more workers than marked candidates. Override the default only when needed:
 
 ```sh
-./scripts/runner/bootstrap_macos_runner_host.sh --parallel-jobs 4
+./scripts/runner/bootstrap_djconnect_macos_host.sh --parallel-jobs 4
 ```
 
 `DJCONNECT_PARALLEL_JOBS` provides the same setting for unattended execution.
@@ -163,7 +163,7 @@ non-interactive repair pass after the developer explicitly authorizes that
 machine mutation:
 
 ```sh
-./scripts/runner/bootstrap_macos_runner_host.sh --repair
+./scripts/runner/bootstrap_djconnect_macos_host.sh --repair
 ```
 
 The mode prints a baseline verification, repairs only prerequisites that can
@@ -295,7 +295,7 @@ Any required password or device-login flow is prompted again in Terminal.
 If the automatic Terminal continuation was removed or needs to be rerun, use:
 
 ```sh
-./scripts/runner/bootstrap_macos_runner_host.sh --resume --xcode-version <qualified-version>
+./scripts/runner/bootstrap_djconnect_macos_host.sh --resume --xcode-version <qualified-version>
 ```
 
 For a manual resume, supply any signing P12/profile paths again if later phases
@@ -359,7 +359,7 @@ To recover the persistent Home Assistant tunnel too, supply the existing
 reserved domain and let the bootstrap prompt invisibly for the token:
 
 ```sh
-./scripts/runner/bootstrap_macos_runner_host.sh \
+./scripts/runner/bootstrap_djconnect_macos_host.sh \
   --xcode-version <qualified-version> \
   --ngrok-domain <reserved-domain> \
   --prompt-ngrok-auth
@@ -431,13 +431,13 @@ Only then does it report the recovery as passed.
 Use a bounded recovery when a host needs only one capability:
 
 ```sh
-./scripts/runner/bootstrap_macos_runner_host.sh --profiles apple
+./scripts/runner/bootstrap_djconnect_macos_host.sh --profiles apple
 ```
 
 Use `--dry-run` to inspect the complete recovery plan without changes:
 
 ```sh
-./scripts/runner/bootstrap_macos_runner_host.sh \
+./scripts/runner/bootstrap_djconnect_macos_host.sh \
   --xcode-version <qualified-version> \
   --ngrok-domain <reserved-domain> \
   --prompt-ngrok-auth \
@@ -504,7 +504,7 @@ To intentionally omit known phases before execution, use `--skip-phases` with
 one or more comma-separated IDs, for example:
 
 ```sh
-./scripts/runner/bootstrap_macos_runner_host.sh \
+./scripts/runner/bootstrap_djconnect_macos_host.sh \
   --xcode-version <qualified-version> \
   --skip-phases parallels,apple-signing
 ```
@@ -525,7 +525,7 @@ desired state is already present. For example, this reconciles the existing
 Apple runner service without removing or registering the runner again:
 
 ```sh
-./scripts/runner/bootstrap_macos_runner_host.sh \
+./scripts/runner/bootstrap_djconnect_macos_host.sh \
   --xcode-version <qualified-version> \
   --force-phases runner-apple
 ```
@@ -542,7 +542,7 @@ legacy `--install-parallels` flag remains accepted for compatibility but is no
 longer required:
 
 ```sh
-./scripts/runner/bootstrap_macos_runner_host.sh \
+./scripts/runner/bootstrap_djconnect_macos_host.sh \
   --xcode-version <qualified-version>
 ```
 
@@ -583,7 +583,7 @@ To restore release-capable signing, copy the P12 and provisioning profiles from
 your secure local backup to the new Mac, then run:
 
 ```sh
-./scripts/runner/bootstrap_macos_runner_host.sh \
+./scripts/runner/bootstrap_djconnect_macos_host.sh \
   --xcode-version <qualified-version> \
   --signing-p12 /secure/path/DJConnect-signing.p12 \
   --provisioning-profiles-dir /secure/path/profiles \
@@ -600,7 +600,7 @@ For the current internal Apple release scope, run the Apple-registration and
 readiness check after restoring those local materials:
 
 ```sh
-./scripts/runner/bootstrap_macos_runner_host.sh \
+./scripts/runner/bootstrap_djconnect_macos_host.sh \
   --xcode-version <qualified-version> \
   --signing-p12 /secure/path/DJConnect-signing.p12 \
   --provisioning-profiles-dir /secure/path/profiles \

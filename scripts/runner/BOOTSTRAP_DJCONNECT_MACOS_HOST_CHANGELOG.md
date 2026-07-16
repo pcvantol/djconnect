@@ -1,10 +1,18 @@
-# macOS Runner Host Recovery Bootstrap changelog
+# macOS Development Host Bootstrap changelog
 
 This changelog covers only
-`scripts/runner/bootstrap_macos_runner_host.sh`. It uses
+`scripts/runner/bootstrap_djconnect_macos_host.sh`. It uses
 [Semantic Versioning](https://semver.org/) and records user-visible behaviour,
-compatibility and security changes to the recovery bootstrap independently of
+compatibility and security changes to the development-host bootstrap independently of
 the DJConnect product release.
+
+## [2.0.0] - 2026-07-16
+
+- Rename the public CLI, package, desired-state manifest and documentation to
+  describe the full macOS development-host bootstrap scope rather than only
+  runner recovery.
+- Retain the tool's independent semantic-version track; this breaking public
+  CLI rename advances that tool to version `2.0.0`.
 
 ## [1.3.0] - 2026-07-16
 
@@ -27,8 +35,8 @@ the DJConnect product release.
 
 ## [1.1.0] - 2026-07-16
 
-- Refactor the recovery bootstrap into a package of bounded Bash modules behind
-  the unchanged thin `bootstrap_macos_runner_host.sh` CLI entry point.
+- Refactor the development-host bootstrap into a package of bounded Bash modules behind
+  the then-stable thin CLI entry point.
 - Add a canonical package manifest with semantic versions for the full package
   and each module, validated before recovery actions begin.
 - Bind the stable entry point and every package module to SHA-256 values and a
@@ -63,9 +71,9 @@ the DJConnect product release.
 
 ## [1.0.0] - 2026-07-16
 
-Initial stable release of the declarative macOS recovery bootstrap.
+Initial stable release of the declarative macOS development-host bootstrap.
 
-- Declares and verifies the Apple-Silicon development and runner-host desired
+- Declares and verifies the Apple-Silicon development-host desired
   state.
 - Reconciles developer tooling, runner profiles, maintenance, optional
   Parallels and locally supplied Apple signing material.
