@@ -59,6 +59,7 @@ ORIGINAL_STDOUT_IS_TTY=0
 REPORT_FILE="${REPORT_FILE:-}"
 REPORTING_STARTED=0
 CURRENT_STEP=''
+CURRENT_REPORT_SECTION=''
 ALLOW_STEP_RETRY=1
 SKIP_PHASES="${SKIP_PHASES:-}"
 SKIPPED_PHASE_COUNT=0
@@ -424,6 +425,117 @@ report_append() {
   printf '| %s | %s | %s |\n' "$step" "$status" "$result" >>"$REPORT_FILE"
 }
 
+phase_section_id() {
+  local phase_id="$1"
+  case "$phase_id" in
+    macos-preflight) printf '%s' 'host-qualification' ;;
+    sudo|tooling|xcode|parallels) printf '%s' 'host-provisioning' ;;
+    github-auth|repositories) printf '%s' 'repository-access' ;;
+    developer-workstation|docker-auth) printf '%s' 'developer-workstation' ;;
+    runner-apple|runner-private-network|runner-esp32|runner-pi) printf '%s' 'runner-provisioning' ;;
+    maintenance|tooling-refresh|reboot-check) printf '%s' 'host-maintenance' ;;
+    apple-signing|apple-readiness|apple-github-audit) printf '%s' 'apple-readiness' ;;
+    services|initial-verification) printf '%s' 'final-qualification' ;;
+    *) die "No installation section is defined for phase: $phase_id" ;;
+  esac
+}
+
+section_title() {
+  case "$1" in
+    host-qualification) printf '%s' 'Host qualification' ;;
+    host-provisioning) printf '%s' 'Host tooling and platform provisioning' ;;
+    repository-access) printf '%s' 'Repository access and synchronization' ;;
+    developer-workstation) printf '%s' 'Developer workstation services' ;;
+    runner-provisioning) printf '%s' 'GitHub Actions runner provisioning' ;;
+    host-maintenance) printf '%s' 'Host maintenance and reboot readiness' ;;
+    apple-readiness) printf '%s' 'Apple internal-release readiness' ;;
+    final-qualification) printf '%s' 'Final runner and host qualification' ;;
+    *) die "Unknown installation section: $1" ;;
+  esac
+}
+
+section_description() {
+  case "$1" in
+    host-qualification) printf '%s' 'Validate physical Apple-Silicon host capacity before any mutation.' ;;
+    host-provisioning) printf '%s' 'Install or qualify shared macOS tooling and optional platform components.' ;;
+    repository-access) printf '%s' 'Authenticate and synchronize the managed DJConnect repositories.' ;;
+    developer-workstation) printf '%s' 'Restore local development services and authenticated Docker access.' ;;
+    runner-provisioning) printf '%s' 'Register selected self-hosted runners; eligible profiles run CPU-bounded in parallel.' ;;
+    host-maintenance) printf '%s' 'Install maintenance, refresh tooling and check for a required reboot.' ;;
+    apple-readiness) printf '%s' 'Restore local signing readiness and audit Apple GitHub Environment configuration.' ;;
+    final-qualification) printf '%s' 'Validate runner services and execute final post-recovery verification.' ;;
+    *) die "Unknown installation section: $1" ;;
+  esac
+}
+
+begin_report_section() {
+  local section_id="$1"
+  [[ "$CURRENT_REPORT_SECTION" == "$section_id" ]] && return 0
+  CURRENT_REPORT_SECTION="$section_id"
+  printf '\n%s %s\n' "$(style "$CLR_CYAN$CLR_BOLD" 'SECTION')" "$(section_title "$section_id")"
+  report_append "Section: $(section_title "$section_id")" 'IN PROGRESS' "$(section_description "$section_id")"
+}
+
+begin_phase_section() {
+  begin_report_section "$(phase_section_id "$1")"
+}
+
+all_section_ids() {
+  printf '%s\n' host-qualification host-provisioning repository-access developer-workstation runner-provisioning host-maintenance apple-readiness final-qualification
+}
+
+section_phase_ids() {
+  case "$1" in
+    host-qualification) printf '%s\n' macos-preflight ;;
+    host-provisioning) printf '%s\n' sudo tooling xcode parallels ;;
+    repository-access) printf '%s\n' github-auth repositories ;;
+    developer-workstation) printf '%s\n' developer-workstation docker-auth ;;
+    runner-provisioning) printf '%s\n' runner-apple runner-private-network runner-esp32 runner-pi ;;
+    host-maintenance) printf '%s\n' maintenance tooling-refresh reboot-check ;;
+    apple-readiness) printf '%s\n' apple-signing apple-readiness apple-github-audit ;;
+    final-qualification) printf '%s\n' services initial-verification ;;
+    *) die "Unknown installation section: $1" ;;
+  esac
+}
+
+phase_is_in_scope() {
+  local phase_id="$1"
+  case "$phase_id" in
+    runner-*) profile_enabled "${phase_id#runner-}" ;;
+    *) return 0 ;;
+  esac
+}
+
+append_section_summary() {
+  local section_id phase_id phase_state total passed failed skipped pending
+  printf '\n## Installation section summary\n\n'
+  printf '%s\n' '| Section | Status | Phase evidence |'
+  printf '%s\n' '| --- | --- | --- |'
+  for section_id in $(all_section_ids); do
+    total=0; passed=0; failed=0; skipped=0; pending=0
+    for phase_id in $(section_phase_ids "$section_id"); do
+      phase_is_in_scope "$phase_id" || continue
+      total=$((total + 1))
+      phase_state="$(get_phase_state "$phase_id")"
+      case "$phase_state" in
+        PASSED) passed=$((passed + 1)) ;;
+        SKIPPED) skipped=$((skipped + 1)) ;;
+        FAILED|BLOCKED) failed=$((failed + 1)) ;;
+        *) pending=$((pending + 1)) ;;
+      esac
+    done
+    if (( failed > 0 )); then
+      printf '| %s | **ATTENTION REQUIRED** | %s passed, %s failed or blocked, %s skipped, %s pending |\n' "$(section_title "$section_id")" "$passed" "$failed" "$skipped" "$pending"
+    elif (( skipped > 0 )); then
+      printf '| %s | **FOLLOW-UP REQUIRED** | %s passed, %s skipped, %s pending |\n' "$(section_title "$section_id")" "$passed" "$skipped" "$pending"
+    elif (( pending > 0 )); then
+      printf '| %s | **NOT COMPLETED** | %s passed, %s pending |\n' "$(section_title "$section_id")" "$passed" "$pending"
+    else
+      printf '| %s | **COMPLETED** | %s/%s phases passed |\n' "$(section_title "$section_id")" "$passed" "$total"
+    fi
+  done
+}
+
 start_report() {
   if [[ "$REPORT_FILE" == 'none' ]]; then
     return
@@ -478,6 +590,12 @@ complete_report() {
           printf '%s\n' "  - $requirement"
         done
       fi
+      printf '\n## Installation section summary\n\n'
+      if (( ${#REPAIR_MANUAL_REQUIREMENTS[@]} == 0 )); then
+        printf '%s\n' '- All unattended repair sections completed without a recorded manual boundary; use the post-repair verification result below as the desired-state decision.'
+      else
+        printf '%s\n' "- **ATTENTION REQUIRED** — ${#REPAIR_MANUAL_REQUIREMENTS[@]} manual requirement(s) remain; the section rows above identify their owning installation area."
+      fi
       printf '\n## Desired-state repair verdict\n\n'
       if [[ "$REPAIR_FINAL_VERIFY_STATUS" == '0' ]]; then
         printf '%s\n' '**MATCH** — the post-repair verification confirms that all required desired-state rows match.'
@@ -491,6 +609,7 @@ complete_report() {
     return 0
   fi
   {
+    append_section_summary
     printf '\n## Verification-run verdict\n\n'
     printf '%s\n' '- Verification phase: Initial post-recovery verification'
     if [[ "$INITIAL_VERIFICATION_PASSED" == '1' ]]; then
@@ -778,6 +897,7 @@ run_phase() {
   shift 2
   local attempt=1
   local phase_status
+  begin_phase_section "$phase_id"
   if [[ "$RESUME_MODE" == '1' && "$phase_id" != 'macos-preflight' && "$(get_phase_state "$phase_id")" == 'PASSED' ]]; then
     report_append "$step" 'RESUMED' 'Previously completed before the required reboot; preserved by the owner-only resume checkpoint.'
     return 0
@@ -881,6 +1001,7 @@ prepare_parallel_phase() {
   local phase_id="$1"
   local step="$2"
   CURRENT_PHASE_ID="$phase_id"
+  begin_phase_section "$phase_id"
   if ! precheck_phase "$phase_id"; then
     set_phase_state "$phase_id" 'BLOCKED'
     report_append "Precheck: $step" 'FAILED' "$PHASE_PRECHECK_RESULT"
@@ -1078,10 +1199,12 @@ run_unattended_repair() {
   set -e
   report_append 'Desired-state verification before repair' "EXIT $REPAIR_INITIAL_VERIFY_STATUS" 'Baseline captured before one unattended repair pass.'
 
+  begin_report_section host-qualification
   if ! repair_attempt 'mandatory host preflight' ensure_macos_arm64; then
     preflight_ready=0
   fi
   if (( preflight_ready == 1 )); then
+    begin_report_section host-provisioning
     if ! command -v brew >/dev/null 2>&1; then
       record_repair_manual_requirement 'Homebrew is absent. Install it interactively, then rerun --repair; unattended repair will not run the interactive Homebrew installer.'
     else
@@ -1092,20 +1215,24 @@ run_unattended_repair() {
     record_repair_manual_requirement 'No host mutations were attempted because mandatory host preflight did not pass unattended.'
   fi
 
+  begin_report_section repository-access
   if ! command -v gh >/dev/null 2>&1 || ! gh auth status --hostname github.com >/dev/null 2>&1; then
     github_ready=0
     record_repair_manual_requirement 'GitHub CLI login is required for repository and runner repair. Run gh auth login interactively, then rerun --repair.'
   fi
   if (( preflight_ready == 1 && github_ready == 1 )); then
     repair_attempt 'managed repository synchronization' prepare_repositories || true
+    begin_report_section runner-provisioning
     run_unattended_repair_runners
   fi
+  begin_report_section host-maintenance
   if [[ -f "$GITHUB_ROOT/djconnect-app/scripts/runner/install_macos_ci_tooling_maintenance.sh" ]]; then
     repair_attempt 'macOS CI-tooling maintenance LaunchAgent' install_maintenance || true
   else
     record_repair_manual_requirement 'The djconnect-app maintenance installer is unavailable locally; complete GitHub authentication/repository synchronization, then rerun --repair.'
   fi
 
+  begin_report_section final-qualification
   printf '\n## Post-repair desired-state verification\n\n'
   set +e
   run_desired_state_verification

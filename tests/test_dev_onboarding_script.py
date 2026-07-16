@@ -380,6 +380,17 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("macos-runner-recovery-*.log", gitignore)
         self.assertIn("macos-runner-recovery-*.md", gitignore)
 
+    def test_macos_runner_recovery_bootstrap_groups_installation_sections(self) -> None:
+        source = RUNNER_RECOVERY_SCRIPT.read_text(encoding="utf-8")
+
+        self.assertIn("phase_section_id", source)
+        self.assertIn("begin_report_section", source)
+        self.assertIn("SECTION", source)
+        self.assertIn("append_section_summary", source)
+        self.assertIn("Installation section summary", source)
+        self.assertIn("ATTENTION REQUIRED", source)
+        self.assertIn("GitHub Actions runner provisioning", source)
+
     def test_windows_runner_recovery_bootstrap_keeps_tokens_off_the_cli(self) -> None:
         source = WINDOWS_RUNNER_RECOVERY_SCRIPT.read_text()
 

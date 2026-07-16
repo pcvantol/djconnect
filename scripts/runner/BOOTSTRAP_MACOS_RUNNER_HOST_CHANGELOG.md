@@ -20,6 +20,9 @@ the DJConnect product release.
   post-repair verification plus explicit remaining manual requirements.
 - Refuse recovery output and resume checkpoint paths inside the Git working
   tree, with `.gitignore` patterns as a second line of defence.
+- Group execution and evidence into stable installation sections, with visual
+  console boundaries and a report summary of completed and attention-needed
+  areas.
 
 ## [1.0.0] - 2026-07-16
 

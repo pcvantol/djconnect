@@ -165,6 +165,21 @@ path or a path under the Git working tree before creating output. The root
 `.gitignore` also ignores the recovery filename patterns as defence in depth;
 recovery evidence and local resume state must never enter Git.
 
+## Installation sections and progress reporting
+
+The bootstrap groups execution into stable visual sections: host
+qualification; host tooling and platform provisioning; repository access and
+synchronization; developer workstation services; GitHub Actions runner
+provisioning; host maintenance and reboot readiness; Apple internal-release
+readiness; and final runner and host qualification. A cyan `SECTION` marker is
+printed whenever execution enters a new area.
+
+The Markdown report adds an `IN PROGRESS` row at every section boundary. Its
+final **Installation section summary** classifies each section as
+`COMPLETED`, `ATTENTION REQUIRED`, `FOLLOW-UP REQUIRED` or `NOT COMPLETED`
+from phase evidence. The unattended `--repair` mode uses the same section
+boundaries and identifies the owning section for every remaining manual input.
+
 ## Repository mutation governance
 
 This bootstrap reconciles host state and may clone, fetch or fast-forward its
