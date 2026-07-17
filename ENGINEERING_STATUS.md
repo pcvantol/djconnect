@@ -1,62 +1,54 @@
 # DJConnect Engineering Status
 
 **Status:** Operational handoff
-**Updated:** 2026-07-16
+**Updated:** 2026-07-17
 
 ## Current engineering increment
 
-Post-merge repin of the macOS runner-host bootstrap workflow references. This
-increment replaces the nine temporary PR #144 candidate references with the
-immutable merged-`main` SHA `3d7d24a84b3aaacb8f2fb229e09c33da85e0545d`.
-It changes no bootstrap behaviour, deployment logic, release manifest or
-target authorization.
+Platform Evolution: define the canonical, local-only Platform Release
+Observatory design and register its implementation backlog. This is design and
+backlog registration only. It creates no collector, database, dashboard,
+workflow instrumentation, distribution integration, release operation or
+release-architecture change.
 
 ## Current engineering program
 
-DJConnect Product Development remains the primary program; Platform Release
-3.3 is separate temporary operational work.
+DJConnect Product Development remains the primary program. Platform Evolution
+owns this P2 design; Platform Release 3.3 remains separate temporary
+operational work.
 
 ## Current repository truth
 
-PR [#144](https://github.com/pcvantol/djconnect/pull/144) was squash-merged
-into `main` as `452bed7655e579d3fb12b7b379f8fc0b70a8c342`. Its pre-merge
-candidate was `aee1687876c279d758f1404f9ca9e1563e310276`, with successful
-required checks and Owner Authorization. The verified current-`main` repin
-target contains that merge and the reusable governance fallback. The complete
-evidence and repin inventory are recorded in
-`docs/release/MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS.md`.
+PR [#147](https://github.com/pcvantol/djconnect/pull/147) merged into `main`
+at `a5f4cef5d1ff66c760105e8709cf16660655084f` on 2026-07-17. Its merged
+commit is contained in current `main`; its archived Prompt History record is
+present. The prior rolling records are reconciled by this increment without
+rewriting that immutable history.
 
-Platform Release 3.3 remains separately operational and partially deployed.
-
-The current manifest is
+Platform Release 3.3 remains partially operational under manifest
 `release-3.3.0-internal-20260714`, status
-`APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL`. Objective GitHub Actions evidence
-confirms successful deployment and smoke for `cloudflare_workers_production`,
-`cloudflare_pages_production`, `rbpi-djconnect`,
-`esp32_lilygo_t_embed_s3`, `apple_private_device/macbook` and
-`apple_private_device/iphone` with required paired-Watch validation. The
-canonical execution ledger is
-`docs/release/PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json`.
+`APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL`. Existing manifest, GitHub workflow,
+deployment and smoke evidence are factual Observatory inputs, not an
+authorization to implement or operate the Observatory.
 
 ## Known blockers and limitations
 
-- Home Assistant and Windows lack final target-specific deployment and smoke
-  qualification evidence. The Internal Release is therefore incomplete.
-- PR #144 must retain its feature branch until this reviewable repin is merged
-  and its checks are green.
-- Home Assistant and Windows remain independently unqualified Release 3.3
-  targets; the Windows consumer adoption is reviewed separately.
+- Home Assistant and Windows still lack final target-specific Release 3.3
+  deployment and smoke evidence; the Internal Release is incomplete.
+- The proposed Observatory has no implementation. Its future evidence timing
+  contract, collector/persistence and dashboard are independent increments.
 
 ## Deferred work
 
-- Delete the retained PR #144 feature branch after this repin PR merges with
-  green validation.
+- Perform the three separately authorized Observatory delivery increments in
+  their documented order when priority and authorization permit.
+- Delete the retained PR #144 feature branch through a dedicated repository
+  hygiene increment.
 - Qualify the already authorized Windows target through manifest-bound
-  deployment and immediate target-scoped smoke after its consumer update
-  merges.
+  deployment and immediate target-scoped smoke after its consumer update.
 
 ## Recommended next prompt
 
-After this repin PR merges and its checks are green, delete the retained PR
-#144 feature branch. Treat Windows deployment qualification as a separate
-authorized Platform Release Engineering operation.
+Repository hygiene: verify this Observatory-design PR is merged, reconcile its
+rolling records, and remove the retained PR #144 feature branch. Do not begin
+Observatory implementation or a release operation in that prompt.

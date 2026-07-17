@@ -32,10 +32,12 @@ Engineering Platform operational after Platform Baseline v1.0 certification
 and Software Assurance Generation 1 closure. DJConnect Product Development is
 the primary engineering program.
 
-The bounded post-merge remediation in progress repins PR #144's nine temporary
-workflow references to immutable merged-`main` SHA
-`3d7d24a84b3aaacb8f2fb229e09c33da85e0545d`. It does not reopen the frozen
-release architecture or authorize a deployment.
+PR [#147](https://github.com/pcvantol/djconnect/pull/147) merged the bounded
+post-merge remediation that repinned PR #144's temporary workflow references
+to immutable current-main evidence. The current Platform Evolution increment
+defines the local-only Platform Release Observatory and registers only its
+future implementation backlog; it does not reopen frozen release architecture
+or authorize deployment.
 
 Canonical lifecycle:
 
@@ -206,15 +208,12 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-Platform Evolution: post-merge repin of PR #144's nine temporary workflow
-references. PR [#144](https://github.com/pcvantol/djconnect/pull/144) was
-squash-merged into `main` as `452bed7655e579d3fb12b7b379f8fc0b70a8c342`.
-This reviewable increment replaces all temporary references with immutable
-merged-`main` SHA `3d7d24a84b3aaacb8f2fb229e09c33da85e0545d`, validated as
-containing both the merge and the reusable governance fallback. The PR #144
-feature branch remains retained until this increment merges and is green. No
-Platform Architecture, Product Architecture, release execution or deployment
-behaviour changes.
+Platform Evolution: define the canonical local-only Platform Release
+Observatory design and register the existing Release Health and observability
+initiative as Design Complete / Implementation Backlog. The design consumes
+factual manifest, repository, workflow, deployment, smoke, artifact and
+supported publication evidence, but creates no collector, SQLite store,
+dashboard, instrumentation, release execution or deployment behavior.
 
 ## Completion Report
 
