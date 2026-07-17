@@ -68,8 +68,6 @@ The maintainer authorized the exact Windows ARM64 binding for
 and SHA-256 `cbe379826731deb1d16c8af5510b4190a4f4949b1bf6589925de5d1eb66c5b47`.
 The Windows ARM64 service runner was qualified successfully in run
 [`29481814760`](https://github.com/pcvantol/djconnect-windows/actions/runs/29481814760).
-This authorization record does not dispatch deployment; the manifest-bound
-deployment and separate smoke remain required after its merge.
 
 ## Operational execution evidence
 
@@ -111,6 +109,17 @@ post-deployment smoke run
 verified the installed iPhone and Watch applications against manifest version
 `3.3.0`. Both Apple target decisions are `DEPLOYMENT_OPERATIONAL`.
 
+The authorized Windows ARM64 deployment completed in run
+[`29583151393`](https://github.com/pcvantol/djconnect-windows/actions/runs/29583151393).
+The consumer validated the approved manifest and exact artifact binding before
+installation. Its separately dispatched smoke run
+[`29588039127`](https://github.com/pcvantol/djconnect-windows/actions/runs/29588039127)
+passed with artifact SHA-256
+`cbe379826731deb1d16c8af5510b4190a4f4949b1bf6589925de5d1eb66c5b47`, observed
+version `3.3.0+6c0c3c3478c81472e479184dc03e51fd095dc4b2`, process-alive startup
+evidence and an interactive relay result of `PASS`. The Windows target decision
+is `DEPLOYMENT_OPERATIONAL`.
+
 ## Known operational gates
 
 - Each deployment consumer must independently validate its least-privilege
@@ -126,8 +135,7 @@ verified the installed iPhone and Watch applications against manifest version
 ## Next action
 
 Do not dispatch a target automatically. The recorded `home_assistant_pi5`
-authorization remains pending environment-readiness verification. Windows now
-has its own exact target-scoped authorization and qualified service-runner
-evidence, pending only the manifest-bound deployment and separately dispatched
-post-deployment smoke after this record is merged. Every operation requires
+authorization remains pending environment-readiness verification. The required
+`apple_private_device/ipad` artifact binding has no target-specific operational
+authorization or deployment/smoke evidence record. Every operation requires
 successful deployment and separately dispatched post-deployment smoke.

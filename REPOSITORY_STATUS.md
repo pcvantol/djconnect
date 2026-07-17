@@ -136,13 +136,16 @@ The current release decision is
 `PLATFORM_RELEASE_3_3_MANIFEST_APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL`.
 The Generation 1 deployment architecture and smoke policy remain frozen. The
 approved current-main manifest has operational evidence for API, Website,
-Raspberry Pi, ESP32, Apple MacBook and Apple iPhone with required paired-Watch
-validation; Home Assistant and Windows remain unqualified.
+Raspberry Pi, ESP32, Apple MacBook, Apple iPhone with required paired-Watch
+validation, and Windows ARM64. Windows deployment run `29583151393` and its
+post-deployment smoke run `29588039127` both succeeded against the approved
+artifact binding. Home Assistant and the required iPad target remain
+unqualified.
 No complete Internal Release or operational burn-in exists.
 
-Windows native-preflight consumer adoption is reviewed separately. It removes
-the former consumer-level Bash/WSL prerequisite without changing the approved
-manifest or deployment authorization.
+Windows native-preflight consumer adoption removed the former consumer-level
+Bash/WSL prerequisite without changing the approved manifest or deployment
+authorization. The subsequent authorized operation is now complete.
 
 Prompt 5 certification remains generated but inactive. It requires completed
 operational release and burn-in evidence; it is not the next automatic action.
@@ -198,7 +201,8 @@ architecture are stable enough to freeze.
 ## Blocking Dependencies
 
 - Platform Release 3.3 requires final deployment and bounded smoke evidence
-  for Home Assistant and Windows before the Internal Release can close.
+  for Home Assistant and the required iPad target before the Internal Release
+  can close.
 - Each remaining target requires its own exact authorization and
   manifest-bound operation; completed targets do not authorize another target.
 - Platform Release Certification requires a successful Internal Release and
@@ -208,11 +212,10 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-Repository hygiene: reconcile rolling records after merged PR #155. The
-historical PR #144 branch was already absent from origin; the separately
-reviewed obsolete Windows-runner branch has been deleted from origin and local
-inventory. This is a documentation/hygiene increment only; it does not
-implement the Observatory, alter release architecture or execute a deployment.
+Platform Release 3.3 Windows ARM64 evidence reconciliation. This documentation
+increment records the already completed manifest-bound deployment and smoke;
+it does not implement the Observatory, alter release architecture or execute a
+new deployment.
 
 ## Completion Report
 
