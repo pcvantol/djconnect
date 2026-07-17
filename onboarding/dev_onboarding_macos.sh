@@ -769,6 +769,13 @@ ensure_tailscale() {
     log "Installing Tailscale for private-network development access."
     run brew install --cask tailscale
   fi
+  if [[ "$DRY_RUN" == "1" ]]; then
+    printf 'DRY: tailscale set --auto-update\n'
+  elif tailscale set --auto-update; then
+    log "Tailscale signed-app auto-update is enabled."
+  else
+    warn "Tailscale auto-update could not be enabled. Authenticate Tailscale, then rerun this step or onboarding repair."
+  fi
   if [[ "$DRY_RUN" == "0" ]] && (! tailscale status --json 2>/dev/null | jq -e '.BackendState == "Running" and .Self.Online == true' >/dev/null); then
     warn "Tailscale is installed but not authenticated and online. Open Tailscale and sign in to the approved DJConnect tailnet, then rerun verification."
   fi

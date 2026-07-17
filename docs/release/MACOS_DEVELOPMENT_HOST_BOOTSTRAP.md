@@ -397,6 +397,12 @@ All profiles run as launchd services under the current runner user. The
 bootstrap also installs and executes the daily macOS tooling-maintenance
 LaunchAgent from `djconnect-app`.
 
+The maintenance boundary is deliberate: the Homebrew-managed `ngrok` cask is
+refreshed by runner-user maintenance, while the signed Tailscale application
+stays on its own verified auto-update channel. Bootstrap does not replace an
+independently installed Tailscale application with a Homebrew cask merely to
+update it.
+
 ## Administrator rights and persistent tasks
 
 The recovery is run as the normal logged-in maintainer account, never as
