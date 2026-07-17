@@ -719,6 +719,8 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("NT SERVICE\\$ServiceName", source)
         self.assertIn("Set-RunnerServiceVirtualAccount", source)
         self.assertIn("-MigrateExistingService", source)
+        self.assertIn("[AllowEmptyString()][string[]] $Arguments", source)
+        self.assertIn("'password=', ''", source)
         self.assertIn("/remove:g 'NT AUTHORITY\\NETWORK SERVICE'", source)
         self.assertIn("Git.Git", source)
         self.assertIn("Python.Python.3.12", source)
@@ -735,6 +737,9 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("Start-Process -FilePath $machinePwsh", source)
         self.assertIn("-Verb RunAs", source)
         self.assertIn("session 0", source)
+        onboarding_readme = (ROOT / "onboarding" / "README.md").read_text(encoding="utf-8")
+        self.assertIn("-MigrateExistingService", onboarding_readme)
+        self.assertIn("Get-CimInstance Win32_Service", onboarding_readme)
 
     def test_help_documents_testability_flags(self) -> None:
         result = run_script("--help")

@@ -45,6 +45,28 @@ service migration:
 pwsh -File .\onboarding\dev_onboarding_windows.ps1 -Steps 15
 ```
 
+If the UAC child process reports a non-zero exit code, open PowerShell 7 **as
+Administrator** and run the same bounded migration directly. This preserves
+the detailed native `sc.exe`/ACL error in the visible terminal instead of only
+reporting the wrapper exit code:
+
+```powershell
+Set-Location C:\DJConnect\source\djconnect
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\runner\bootstrap_windows_arm64_runner.ps1 -MigrateExistingService
+```
+
+After a successful migration, verify the account and service state:
+
+```powershell
+$service = Get-Service 'actions.runner.*'
+Get-CimInstance Win32_Service -Filter "Name='$($service.Name)'" |
+  Select-Object Name, StartName, State
+```
+
+`StartName` must be `NT SERVICE\<runner-service-name>` and `State` must be
+`Running`. Do not change the service to a developer or administrator account,
+or create a broad elevated allowlist, as a workaround.
+
 For first-time runner setup, use the same repository's
 `scripts\runner\bootstrap_windows_arm64_runner.ps1`; it registers the runner,
 then immediately replaces the temporary bootstrap identity with its dedicated
