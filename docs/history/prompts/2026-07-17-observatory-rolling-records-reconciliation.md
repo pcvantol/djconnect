@@ -6,8 +6,8 @@
 **Generation:** 2
 **Engineering Program:** Platform Governance
 **Branch:** `codex/reconcile-observatory-rolling-records`
-**Commit SHA:** Pending reviewable branch commit
-**Pull Request:** Pending reviewable pull request
+**Commit SHA:** `8ec701350239d402d4806f5126c7c6da0fa43fe8`
+**Pull Request:** [#154](https://github.com/pcvantol/djconnect/pull/154)
 **Decision:** `REPOSITORY_ROLLING_RECORDS_RECONCILED`
 **Execution Date:** 2026-07-17
 **Created:** 2026-07-17
