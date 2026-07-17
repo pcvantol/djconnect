@@ -21,7 +21,6 @@ host.recommended_free_disk_gb: 120
 tooling.formulas: git,gh,jq,node,python@3.12,xcodegen,swiftlint,xcbeautify,create-dmg,mas,xcodes,platformio
 tooling.required_casks: docker,dotnet-sdk,parallels,ngrok
 tooling.optional_casks:
-tooling.refresh_casks: docker,dotnet-sdk,parallels
 
 lab.home_assistant.service: homeassistant
 lab.home_assistant.container_name: homeassistant
@@ -48,6 +47,8 @@ network.tailscale.accept_routes: enabled
 network.tailscale.exit_node: disabled
 network.tailscale.ssh: disabled
 network.tailscale.shields_up: disabled
+# Tailscale owns its signed-app update path; do not replace it with an
+# unattended Homebrew cask upgrade when the app was installed independently.
 network.tailscale.auto_update: enabled
 
 runner.profiles: apple,private-network,esp32,pi,windows

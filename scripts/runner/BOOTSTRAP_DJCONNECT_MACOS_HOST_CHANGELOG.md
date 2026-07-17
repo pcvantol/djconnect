@@ -6,6 +6,13 @@ This changelog covers only
 compatibility and security changes to the development-host bootstrap independently of
 the DJConnect product release.
 
+## [2.0.6] - 2026-07-17
+
+- Make scheduled maintenance the single Homebrew tooling-currency owner:
+  refresh every installed formula and cask, including ngrok.
+- Keep Tailscale on its signed-app auto-update channel and enable that setting
+  idempotently from macOS onboarding.
+
 ## [2.0.5] - 2026-07-16
 
 - An unattended repair no longer synchronizes the active host-bootstrap source

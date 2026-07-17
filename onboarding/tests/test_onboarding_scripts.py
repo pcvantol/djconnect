@@ -230,11 +230,13 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("minimum_tool_version: 2.0.2", desired_state)
         self.assertIn("runner.profiles: apple,private-network,esp32,pi,windows", desired_state)
         self.assertIn("tooling.required_casks: docker,dotnet-sdk,parallels,ngrok", desired_state)
+        self.assertNotIn("tooling.refresh_casks:", desired_state)
         self.assertIn("network.ngrok.tunnel.domain: victory-curvy-refold.ngrok-free.dev", desired_state)
         self.assertIn("network.ngrok.authtoken: required_local_secret", desired_state)
         self.assertIn("network.tailscale.installation: app_or_homebrew_cask", desired_state)
         self.assertIn("network.tailscale.magic_dns: enabled", desired_state)
         self.assertIn("tailscale debug prefs", source)
+        self.assertIn("tailscale set --auto-update", SCRIPT.read_text(encoding="utf-8"))
         self.assertNotIn("PrivateNodeKey", source)
         self.assertNotIn("NetworkLockKey", source)
         self.assertNotIn("TailscaleIPs", source)
@@ -263,7 +265,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertEqual(
             result.stdout,
-            "DJConnect macOS Development Host Bootstrap 2.0.5\n",
+            "DJConnect macOS Development Host Bootstrap 2.0.6\n",
         )
         self.assertTrue(MACOS_HOST_BOOTSTRAP_CHANGELOG.is_file())
         changelog = MACOS_HOST_BOOTSTRAP_CHANGELOG.read_text(encoding="utf-8")
@@ -617,11 +619,11 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertTrue((HOST_BOOTSTRAP_PACKAGE / "apple.sh").is_file())
         self.assertTrue(HOST_BOOTSTRAP_MANIFEST.is_file())
         manifest = HOST_BOOTSTRAP_MANIFEST.read_text(encoding="utf-8")
-        self.assertIn("package.version: 2.0.5", manifest)
+        self.assertIn("package.version: 2.0.6", manifest)
         self.assertIn("package.aggregate_sha256:", manifest)
         self.assertIn("component.entry.sha256:", manifest)
         self.assertIn("component.workflow.version: 1.3.1", manifest)
-        self.assertIn("component.operations.version: 1.3.1", manifest)
+        self.assertIn("component.operations.version: 1.3.2", manifest)
         self.assertIn("component.apple.version: 1.0.0", manifest)
         source = read_macos_host_bootstrap_source()
         self.assertIn("verify_recovery_package_manifest", source)
