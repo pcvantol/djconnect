@@ -32,12 +32,13 @@ Engineering Platform operational after Platform Baseline v1.0 certification
 and Software Assurance Generation 1 closure. DJConnect Product Development is
 the primary engineering program.
 
-PR [#148](https://github.com/pcvantol/djconnect/pull/148) merged the bounded
-Platform Release Observatory design. Its merge commit `c10bd0dc` is contained
-in current `main` (`f91d5005a501d94956effcdfa6eb607d0433481f`); the design is
-therefore completed, merged, reconciled and archived as an execution prompt.
-The Observatory remains implementation backlog only. It does not reopen the
-frozen release architecture or authorize deployment.
+PR [#154](https://github.com/pcvantol/djconnect/pull/154) merged the bounded
+post-Observatory rolling-record reconciliation. Its merge commit
+`be2a7fe84b267e0612d6c15dbbdb81c8a5cf142e` is current `main`; the Observatory
+design and its first hygiene follow-up are therefore completed, merged,
+reconciled and archived as execution prompts. The Observatory remains
+implementation backlog only. It does not reopen the frozen release
+architecture or authorize deployment.
 
 Canonical lifecycle:
 
@@ -208,13 +209,11 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-Repository hygiene: reconcile rolling records after the merged Platform
-Release Observatory design. The PR #144 source branch is already absent from
-origin. The remaining remote branch
-`codex/windows-runner-least-privilege-bootstrap` is deliberately retained:
-its tip `004899a0` is not contained in current `main` and has no pull request.
-This is a documentation/hygiene increment only; it does not implement the
-Observatory, alter release architecture or execute a deployment.
+Repository hygiene: reconcile rolling records after merged PR #154. The
+historical PR #144 branch was already absent from origin; the separately
+reviewed obsolete Windows-runner branch has been deleted from origin and local
+inventory. This is a documentation/hygiene increment only; it does not
+implement the Observatory, alter release architecture or execute a deployment.
 
 ## Completion Report
 

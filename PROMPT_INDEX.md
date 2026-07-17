@@ -53,7 +53,8 @@ planning is read.
 | macOS Runner-Host Bootstrap Pre-Merge Preparation | Completed / merged reconciled / archived | Corrected PR #144 scope description, identified its temporary candidate workflow references and recorded the post-merge repin sequence without changing behaviour. | `codex/prepare-macos-runner-bootstrap-merge` | `docs/release/MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS.md`; PR [#146](https://github.com/pcvantol/djconnect/pull/146) |
 | macOS Runner-Host Bootstrap Post-Merge Repin | Completed / merged reconciled / archived | Repinned the eight governance callers and reusable-workflow policy checkout to immutable merged-main evidence. | `codex/repin-macos-bootstrap-main` | `docs/history/prompts/2026-07-16-macos-runner-bootstrap-postmerge-repin.md`; PR [#147](https://github.com/pcvantol/djconnect/pull/147) |
 | Platform Release Observatory Design | Completed / merged reconciled / archived | Define the canonical local-only, read-only Observatory and register its bounded Platform Evolution delivery backlog. | `codex/platform-release-observatory-design` | `docs/history/prompts/2026-07-17-platform-release-observatory-design.md`; PR [#148](https://github.com/pcvantol/djconnect/pull/148) |
-| Observatory Post-Merge Rolling-Records Reconciliation | Reviewable | Reconcile current rolling records after PR #148; record that the PR #144 branch is already removed and preserve the unrelated non-main Windows-runner branch for separate review. | `codex/reconcile-observatory-rolling-records` | `docs/history/prompts/2026-07-17-observatory-rolling-records-reconciliation.md`; PR [#154](https://github.com/pcvantol/djconnect/pull/154) |
+| Observatory Post-Merge Rolling-Records Reconciliation | Completed / merged reconciled / archived | Reconcile current rolling records after PR #148; record that the PR #144 branch is already removed and preserve the unrelated non-main Windows-runner branch for separate review. | `codex/reconcile-observatory-rolling-records` | `docs/history/prompts/2026-07-17-observatory-rolling-records-reconciliation.md`; PR [#154](https://github.com/pcvantol/djconnect/pull/154) |
+| Observatory Hygiene Merge Reconciliation | Reviewable | Reconcile rolling records after merged PR #154 and record deletion of the reviewed obsolete Windows-runner branch. | `codex/reconcile-observatory-hygiene-merge` | This immutable Prompt History record; PR pending |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
@@ -70,7 +71,7 @@ authorized Windows deployment followed by smoke on success.
 
 ## Next Engineering Increment
 
-The merged Observatory-design records have been reconciled by the reviewable
+The merged PR #154 records are being reconciled by the reviewable
 repository-hygiene increment. No following increment is activated
 automatically. The Platform Architect must select an evidence-backed item from
 the Product Roadmap, Platform Evolution backlog or separately authorized
