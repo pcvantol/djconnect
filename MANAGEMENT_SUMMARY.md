@@ -44,6 +44,16 @@ evidence/timing contract, collector plus local SQLite persistence, and local
 dashboard. Platform Release 3.3 remains independently operational and its
 sequence is unchanged. Product Development does not depend on this work.
 
+**Branch:** `codex/platform-release-observatory-design`
+**Commit SHA:** `9a61c3786fdd8cece621a44780b8f570f2110b6d`
+**Pull Request:** [#148](https://github.com/pcvantol/djconnect/pull/148)
+**Validation:** qualified-host verification (`MATCH`), required design/status
+contract checks, documentation-reference checks and `git diff --check`
+**Repository hygiene:** synchronized `main`; PR #147 merge verified and
+rolling state reconciled; branch clean before reviewable freeze
+**Recommended next prompt:** repository hygiene after this PR merges:
+reconcile rolling records and delete the retained PR #144 feature branch.
+
 ## Platform Release 3.3 operational position
 
 The approved Internal Release manifest has six completed target-scoped

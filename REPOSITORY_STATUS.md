@@ -213,7 +213,8 @@ Observatory design and register the existing Release Health and observability
 initiative as Design Complete / Implementation Backlog. The design consumes
 factual manifest, repository, workflow, deployment, smoke, artifact and
 supported publication evidence, but creates no collector, SQLite store,
-dashboard, instrumentation, release execution or deployment behavior.
+dashboard, instrumentation, release execution or deployment behavior. It is
+reviewable as PR [#148](https://github.com/pcvantol/djconnect/pull/148).
 
 ## Completion Report
 

@@ -9,7 +9,10 @@ Platform Evolution: define the canonical, local-only Platform Release
 Observatory design and register its implementation backlog. This is design and
 backlog registration only. It creates no collector, database, dashboard,
 workflow instrumentation, distribution integration, release operation or
-release-architecture change.
+release-architecture change. It is reviewable as PR
+[#148](https://github.com/pcvantol/djconnect/pull/148) from
+`codex/platform-release-observatory-design` at
+`9a61c3786fdd8cece621a44780b8f570f2110b6d`.
 
 ## Current engineering program
 
