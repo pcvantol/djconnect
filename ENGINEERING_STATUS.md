@@ -5,9 +5,10 @@
 
 ## Current engineering increment
 
-Platform Release 3.3 evidence reconciliation: record the completed,
-manifest-bound Windows ARM64 deployment and separately dispatched smoke without
-changing release implementation, authorization, architecture or workflows.
+Repository-state reconciliation after merged Platform Release 3.3 Windows ARM64
+evidence PR [#157](https://github.com/pcvantol/djconnect/pull/157). This
+increment changes rolling records only; it does not operate the iPad or alter
+release implementation, authorization, architecture or workflows.
 
 ## Current engineering program
 
@@ -18,11 +19,11 @@ operational work.
 
 ## Current repository truth
 
-PR [#156](https://github.com/pcvantol/djconnect/pull/156) is merged and its
-immutable Prompt History record is present. Its rolling records are reconciled
-to current `main` `30657adbd2c9320f841b8a1d9c5345bcb9be6975`. This does not
-change Observatory priority, its read-only design boundary or the Release 3.3
-authorization model.
+PR [#157](https://github.com/pcvantol/djconnect/pull/157) is merged and its
+immutable Prompt History record is present. Its reviewable records are now
+being reconciled to current `main`
+`7bcbbbc36100f93992f514b24313b0a45c3b1630`. This does not change Observatory
+priority, its read-only design boundary or the Release 3.3 authorization model.
 
 Platform Release 3.3 remains partially operational under manifest
 `release-3.3.0-internal-20260714`, status

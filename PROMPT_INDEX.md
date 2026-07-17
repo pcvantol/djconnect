@@ -56,27 +56,27 @@ planning is read.
 | Observatory Post-Merge Rolling-Records Reconciliation | Completed / merged reconciled / archived | Reconcile current rolling records after PR #148; record that the PR #144 branch is already removed and preserve the unrelated non-main Windows-runner branch for separate review. | `codex/reconcile-observatory-rolling-records` | `docs/history/prompts/2026-07-17-observatory-rolling-records-reconciliation.md`; PR [#154](https://github.com/pcvantol/djconnect/pull/154) |
 | Observatory Hygiene Merge Reconciliation | Completed / merged reconciled / archived | Reconcile rolling records after merged PR #154 and record deletion of the reviewed obsolete Windows-runner branch. | `codex/reconcile-observatory-hygiene-merge` | `docs/history/prompts/2026-07-17-observatory-hygiene-merge-reconciliation.md`; PR [#155](https://github.com/pcvantol/djconnect/pull/155) |
 | Observatory Hygiene Post-Merge Reconciliation | Completed / merged reconciled / archived | Reconcile rolling records after merged PR #155. | `codex/reconcile-observatory-hygiene-merge-postmerge` | `docs/history/prompts/2026-07-17-observatory-hygiene-postmerge-reconciliation.md`; PR [#156](https://github.com/pcvantol/djconnect/pull/156) |
-| Platform Release 3.3 Windows ARM64 Evidence Reconciliation | Reviewable | Reconcile the completed manifest-bound Windows ARM64 deployment and post-deployment smoke evidence into the canonical release records. | `codex/reconcile-windows-release-evidence` | `docs/release/PLATFORM_3_3_WINDOWS_DEPLOYMENT_COMPLETION.md`; PR [#157](https://github.com/pcvantol/djconnect/pull/157) |
+| Platform Release 3.3 Windows ARM64 Evidence Reconciliation | Completed / merged reconciled / archived | Reconcile the completed manifest-bound Windows ARM64 deployment and post-deployment smoke evidence into the canonical release records. | `codex/reconcile-windows-release-evidence` | `docs/release/PLATFORM_3_3_WINDOWS_DEPLOYMENT_COMPLETION.md`; PR [#157](https://github.com/pcvantol/djconnect/pull/157) |
+| Windows Evidence Post-Merge Reconciliation | Reviewable | Reconcile rolling records after merged PR #157; no release operation or implementation change. | `codex/reconcile-windows-evidence-postmerge` | PR [#158](https://github.com/pcvantol/djconnect/pull/158) |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
 
-## Current bounded operational reconciliation
+## Current post-merge reconciliation
 
-The already authorized Windows ARM64 deployment and separately dispatched smoke
-have both succeeded. The current reviewable increment only reconciles their
-exact evidence into the canonical release records; it does not operate another
-target or change release architecture, manifests, authorization or workflow
-logic.
+PR #157 recorded the already successful Windows ARM64 deployment and separately
+dispatched smoke. The current reviewable increment only reconciles its merged
+state into rolling records; it does not operate another target or change release
+architecture, manifests, authorization or workflow logic.
 
 ## Next Engineering Increment
 
-The completed Windows ARM64 operation is being reconciled by the reviewable
-release-evidence increment. No following increment is activated automatically.
-The Platform Architect must select an evidence-backed item from the Product
-Roadmap, Platform Evolution backlog or separately authorized Release 3.3
-operational work. Do not begin Observatory implementation or a release
-operation as a consequence of this reconciliation.
+The merged Windows ARM64 evidence records are being reconciled by the
+reviewable post-merge increment. No following increment is activated
+automatically. The Platform Architect must select an evidence-backed item from
+the Product Roadmap, Platform Evolution backlog or separately authorized
+Release 3.3 operational work. Do not begin Observatory implementation or a
+release operation as a consequence of this reconciliation.
 
 ## Active Next Phase
 
