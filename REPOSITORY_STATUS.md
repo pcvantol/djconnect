@@ -212,8 +212,8 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-Platform Release 3.3 Windows ARM64 evidence reconciliation. This documentation
-increment records the already completed manifest-bound deployment and smoke;
+Repository-state reconciliation after merged PR #157. This documentation
+increment reconciles rolling records for the completed Windows ARM64 evidence;
 it does not implement the Observatory, alter release architecture or execute a
 new deployment.
 
