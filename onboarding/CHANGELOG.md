@@ -2,9 +2,10 @@
 
 ## 3.3.1 — 2026-07-17
 
-- Fix the Windows virtual-service-account migration's intentional empty
-  `password=` argument and document direct elevated recovery/verification when
-  the UAC wrapper reports a failure.
+- Fix the Windows virtual-service-account migration's native command-line
+  rendering of the intentional empty `password= ""` argument, and document
+  direct elevated recovery/verification when the UAC wrapper reports a
+  failure.
 - Make the scheduled macOS maintenance task the single tooling-currency owner:
   it upgrades every installed Homebrew formula and cask, including ngrok,
   while retaining Tailscale's verified signed-app auto-update path.
