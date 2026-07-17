@@ -38,10 +38,7 @@ function Test-IsAdministrator {
 }
 
 function Invoke-Sc {
-    # `sc.exe config ... password= ""` needs a deliberate empty trailing
-    # argument. Permit it here so PowerShell does not reject the service
-    # configuration before sc.exe receives it.
-    param([Parameter(Mandatory)][AllowEmptyString()][string[]] $Arguments)
+    param([Parameter(Mandatory)][string[]] $Arguments)
     if ($DryRun) {
         Write-Host "DRY: sc.exe $($Arguments -join ' ')" -ForegroundColor Yellow
         return
@@ -49,6 +46,29 @@ function Invoke-Sc {
     & sc.exe @Arguments | Out-Host
     if ($LASTEXITCODE -ne 0) {
         throw "sc.exe $($Arguments[0]) failed with exit code $LASTEXITCODE."
+    }
+}
+
+function Set-ServiceVirtualAccountLogon {
+    param(
+        [Parameter(Mandatory)][string] $ServiceName,
+        [Parameter(Mandatory)][string] $ServiceIdentity
+    )
+
+    # The Service Control Manager requires the literal native command-line
+    # form `password= ""` for a passwordless virtual service account. Passing
+    # an empty PowerShell array item either fails parameter binding or omits the
+    # required quotes before sc.exe parses its arguments.
+    $scExe = Join-Path $env:SystemRoot 'System32\sc.exe'
+    $configArguments = "config `"$ServiceName`" obj= `"$ServiceIdentity`" password= `"`""
+    if ($DryRun) {
+        Write-Host "DRY: $scExe $configArguments" -ForegroundColor Yellow
+        return
+    }
+
+    $process = Start-Process -FilePath $scExe -ArgumentList $configArguments -NoNewWindow -Wait -PassThru
+    if ($process.ExitCode -ne 0) {
+        throw "sc.exe config failed with exit code $($process.ExitCode)."
     }
 }
 
@@ -84,7 +104,7 @@ function Set-RunnerServiceVirtualAccount {
     # A service SID is a passwordless, per-service identity. It is intentionally
     # not a local administrator or an interactive user account.
     Invoke-Sc -Arguments @('sidtype', $ServiceName, 'unrestricted')
-    Invoke-Sc -Arguments @('config', $ServiceName, 'obj=', $serviceIdentity, 'password=', '')
+    Set-ServiceVirtualAccountLogon -ServiceName $ServiceName -ServiceIdentity $serviceIdentity
 
     foreach ($path in @($RunnerRoot, $InstallRoot)) {
         New-Item -ItemType Directory -Force -Path $path | Out-Null
