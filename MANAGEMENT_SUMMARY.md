@@ -51,9 +51,10 @@ sequence is unchanged. Product Development does not depend on this work.
 **Validation:** qualified-host verification (`MATCH`), required design/status
 contract checks, documentation-reference checks and `git diff --check`
 **Repository hygiene:** synchronized `main`; PR #148 merge verified; its
-historical PR #144 branch is absent from origin. A different retained branch,
-`codex/windows-runner-least-privilege-bootstrap` at `004899a0`, is not
-contained in `main` and has no PR, so it is preserved pending separate review.
+historical PR #144 branch is absent from origin. The separately reviewed
+`codex/windows-runner-least-privilege-bootstrap` branch was found to regress
+current runner/onboarding fixes and has been deleted from origin and local
+inventory.
 **Recommended next prompt:** none automatically. Select a separately
 authorized, evidence-backed Product Development, Platform Evolution or
 Release 3.3 operational increment.
