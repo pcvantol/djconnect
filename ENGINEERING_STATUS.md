@@ -6,14 +6,11 @@
 ## Current engineering increment
 
 Repository hygiene: reconcile the rolling records after merged PR
-[#154](https://github.com/pcvantol/djconnect/pull/154). Objective GitHub
+[#155](https://github.com/pcvantol/djconnect/pull/155). Objective GitHub
 evidence confirms that its merge commit
-`be2a7fe84b267e0612d6c15dbbdb81c8a5cf142e` is current `main`. The historical
-PR #144 source branch was already absent from origin; the separately reviewed
-and obsolete `codex/windows-runner-least-privilege-bootstrap` branch has now
-also been removed from origin and local branch inventory. This increment
-changes rolling records and repository-hygiene evidence only; it does not
-implement the Observatory or operate a release.
+`157c16f67421b5fd3933b0374a529992752e29ff` is current `main`. PR #155 completed
+the Observatory hygiene merge reconciliation; no Observatory or release work
+was performed.
 
 ## Current engineering program
 
@@ -24,12 +21,10 @@ operational work.
 
 ## Current repository truth
 
-PR #154 is merged and its immutable Prompt History record is present. Its
-rolling records remained at the reviewable freeze point, the expected
-`MERGED_UNRECONCILED` transition. Current `main` is
-`be2a7fe84b267e0612d6c15dbbdb81c8a5cf142e`. The completed reconciliation and
-branch cleanup do not change Observatory priority, its read-only design
-boundary or the Release 3.3 authorization model.
+PR #155 is merged and its immutable Prompt History record is present. Its
+reviewable rolling records are reconciled to current `main`
+`157c16f67421b5fd3933b0374a529992752e29ff`. This does not change Observatory
+priority, its read-only design boundary or the Release 3.3 authorization model.
 
 Platform Release 3.3 remains partially operational under manifest
 `release-3.3.0-internal-20260714`, status
