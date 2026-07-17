@@ -32,12 +32,12 @@ Engineering Platform operational after Platform Baseline v1.0 certification
 and Software Assurance Generation 1 closure. DJConnect Product Development is
 the primary engineering program.
 
-PR [#147](https://github.com/pcvantol/djconnect/pull/147) merged the bounded
-post-merge remediation that repinned PR #144's temporary workflow references
-to immutable current-main evidence. The current Platform Evolution increment
-defines the local-only Platform Release Observatory and registers only its
-future implementation backlog; it does not reopen frozen release architecture
-or authorize deployment.
+PR [#148](https://github.com/pcvantol/djconnect/pull/148) merged the bounded
+Platform Release Observatory design. Its merge commit `c10bd0dc` is contained
+in current `main` (`f91d5005a501d94956effcdfa6eb607d0433481f`); the design is
+therefore completed, merged, reconciled and archived as an execution prompt.
+The Observatory remains implementation backlog only. It does not reopen the
+frozen release architecture or authorize deployment.
 
 Canonical lifecycle:
 
@@ -208,13 +208,13 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-Platform Evolution: define the canonical local-only Platform Release
-Observatory design and register the existing Release Health and observability
-initiative as Design Complete / Implementation Backlog. The design consumes
-factual manifest, repository, workflow, deployment, smoke, artifact and
-supported publication evidence, but creates no collector, SQLite store,
-dashboard, instrumentation, release execution or deployment behavior. It is
-reviewable as PR [#148](https://github.com/pcvantol/djconnect/pull/148).
+Repository hygiene: reconcile rolling records after the merged Platform
+Release Observatory design. The PR #144 source branch is already absent from
+origin. The remaining remote branch
+`codex/windows-runner-least-privilege-bootstrap` is deliberately retained:
+its tip `004899a0` is not contained in current `main` and has no pull request.
+This is a documentation/hygiene increment only; it does not implement the
+Observatory, alter release architecture or execute a deployment.
 
 ## Completion Report
 
