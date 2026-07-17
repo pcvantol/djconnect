@@ -32,13 +32,12 @@ Engineering Platform operational after Platform Baseline v1.0 certification
 and Software Assurance Generation 1 closure. DJConnect Product Development is
 the primary engineering program.
 
-PR [#154](https://github.com/pcvantol/djconnect/pull/154) merged the bounded
-post-Observatory rolling-record reconciliation. Its merge commit
-`be2a7fe84b267e0612d6c15dbbdb81c8a5cf142e` is current `main`; the Observatory
-design and its first hygiene follow-up are therefore completed, merged,
-reconciled and archived as execution prompts. The Observatory remains
-implementation backlog only. It does not reopen the frozen release
-architecture or authorize deployment.
+PR [#155](https://github.com/pcvantol/djconnect/pull/155) merged the bounded
+Observatory hygiene reconciliation. Its merge commit
+`157c16f67421b5fd3933b0374a529992752e29ff` is current `main`; the Observatory
+design and hygiene follow-ups are completed, merged, reconciled and archived
+as execution prompts. The Observatory remains implementation backlog only.
+It does not reopen the frozen release architecture or authorize deployment.
 
 Canonical lifecycle:
 
@@ -209,7 +208,7 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-Repository hygiene: reconcile rolling records after merged PR #154. The
+Repository hygiene: reconcile rolling records after merged PR #155. The
 historical PR #144 branch was already absent from origin; the separately
 reviewed obsolete Windows-runner branch has been deleted from origin and local
 inventory. This is a documentation/hygiene increment only; it does not
