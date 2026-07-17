@@ -124,6 +124,7 @@ $Script:StepCatalog = [ordered]@{
     12 = "Install/start persistent ngrok tunnel for local Home Assistant"
     13 = "Local E2E release/build smoke checks"
     14 = "CI smoke push"
+    15 = "Harden the Windows Actions runner service identity"
 }
 
 $Script:UseColor = -not $NoColor -and -not $env:NO_COLOR
@@ -1213,6 +1214,37 @@ function Step-14-CiSmoke {
     Invoke-InDirectory $repoRoot "$gitCmd push -u origin $CiBranch"
 }
 
+function Step-15-RunnerServiceIdentity {
+    $bootstrap = Join-Path $RepoRoot "scripts\runner\bootstrap_windows_arm64_runner.ps1"
+    if (-not (Test-Path $bootstrap)) {
+        throw "Windows runner bootstrap is absent: $bootstrap"
+    }
+
+    Write-Info "Migrating the existing Windows Actions runner to its dedicated virtual service identity."
+    Write-Host "This uses a passwordless per-service account, removes the obsolete NETWORK SERVICE write grant and does not make GUI smoke interactive." -ForegroundColor Yellow
+    Write-Host "Interactive GUI smoke remains a separate, explicitly configured relay because every Windows service runs in session 0." -ForegroundColor Yellow
+
+    if ($DryRun) {
+        Write-Dry "Start-Process pwsh -Verb RunAs -Wait -File `"$bootstrap`" -ArgumentList '-MigrateExistingService'"
+        return
+    }
+
+    $machinePwsh = Join-Path $env:ProgramFiles "PowerShell\7\pwsh.exe"
+    if (-not (Test-Path $machinePwsh)) {
+        $pwsh = Get-Command pwsh.exe -ErrorAction SilentlyContinue
+        if ($null -eq $pwsh) {
+            throw "PowerShell 7 is unavailable. Install the machine-wide PowerShell 7 prerequisite before runner hardening."
+        }
+        $machinePwsh = $pwsh.Source
+    }
+    $arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$bootstrap`" -MigrateExistingService"
+    $process = Start-Process -FilePath $machinePwsh -ArgumentList $arguments -Verb RunAs -Wait -PassThru
+    if ($process.ExitCode -ne 0) {
+        throw "Least-privilege Windows runner migration failed with exit code $($process.ExitCode)."
+    }
+    Write-StatusOk "Windows Actions runner service identity hardened"
+}
+
 function Get-SelectedSteps {
     if ($Steps) {
         return @($Steps.Split(",") | ForEach-Object { [int]$_.Trim() })
@@ -1243,6 +1275,7 @@ function Invoke-StepByNumber([int]$Step) {
         12 { Step-12-Ngrok }
         13 { Step-13-E2E }
         14 { Step-14-CiSmoke }
+        15 { Step-15-RunnerServiceIdentity }
         default { throw "Unknown step: $Step" }
     }
 }

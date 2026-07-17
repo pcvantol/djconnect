@@ -6,6 +6,7 @@ param(
     [string] $GitHubRoot = 'C:\DJConnect\source',
     [string] $RunnerRoot = 'C:\actions-runner-arm64',
     [string] $InstallRoot = 'C:\DJConnect\internal-release',
+    [switch] $MigrateExistingService,
     [switch] $DryRun
 )
 
@@ -36,6 +37,78 @@ function Test-IsAdministrator {
     return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
+function Invoke-Sc {
+    param([Parameter(Mandatory)][string[]] $Arguments)
+    if ($DryRun) {
+        Write-Host "DRY: sc.exe $($Arguments -join ' ')" -ForegroundColor Yellow
+        return
+    }
+    & sc.exe @Arguments | Out-Host
+    if ($LASTEXITCODE -ne 0) {
+        throw "sc.exe $($Arguments[0]) failed with exit code $LASTEXITCODE."
+    }
+}
+
+function Get-RunnerServiceName {
+    $serviceFile = Join-Path $RunnerRoot '.service'
+    if (-not (Test-Path $serviceFile)) {
+        throw "Runner service metadata is absent at $serviceFile."
+    }
+    $name = (Get-Content -Raw $serviceFile).Trim()
+    if ([string]::IsNullOrWhiteSpace($name)) {
+        throw "Runner service metadata at $serviceFile is empty."
+    }
+    return $name
+}
+
+function Set-RunnerServiceVirtualAccount {
+    param([Parameter(Mandatory)][string] $ServiceName)
+
+    $serviceIdentity = "NT SERVICE\$ServiceName"
+    Write-Info "Hardening $ServiceName with dedicated virtual account $serviceIdentity."
+
+    if ($DryRun) {
+        Write-Host "DRY: stop $ServiceName; set its service SID to unrestricted; run it as $serviceIdentity; grant only that identity Modify on $RunnerRoot and $InstallRoot; remove explicit NETWORK SERVICE grants; restart and verify." -ForegroundColor Yellow
+        return
+    }
+
+    $service = Get-Service -Name $ServiceName -ErrorAction Stop
+    if ($service.Status -ne 'Stopped') {
+        Stop-Service -Name $ServiceName -Force -ErrorAction Stop
+        $service.WaitForStatus('Stopped', [TimeSpan]::FromSeconds(30))
+    }
+
+    # A service SID is a passwordless, per-service identity. It is intentionally
+    # not a local administrator or an interactive user account.
+    Invoke-Sc -Arguments @('sidtype', $ServiceName, 'unrestricted')
+    Invoke-Sc -Arguments @('config', $ServiceName, 'obj=', $serviceIdentity, 'password=', '')
+
+    foreach ($path in @($RunnerRoot, $InstallRoot)) {
+        New-Item -ItemType Directory -Force -Path $path | Out-Null
+        $grant = '{0}:(OI)(CI)M' -f $serviceIdentity
+        & icacls.exe $path /grant $grant | Out-Host
+        if ($LASTEXITCODE -ne 0) {
+            throw "Could not grant $serviceIdentity least-privilege access to $path."
+        }
+        # The bootstrap used NETWORK SERVICE only to start a newly registered
+        # service before its name was known. It must not retain write access.
+        & icacls.exe $path /remove:g 'NT AUTHORITY\NETWORK SERVICE' | Out-Host
+        if ($LASTEXITCODE -ne 0) {
+            throw "Could not remove the obsolete NETWORK SERVICE grant from $path."
+        }
+    }
+
+    Start-Service -Name $ServiceName -ErrorAction Stop
+    $service = Get-CimInstance Win32_Service -Filter "Name='$ServiceName'" -ErrorAction Stop
+    if ($service.StartName -ne $serviceIdentity) {
+        throw "Service account verification failed: expected $serviceIdentity, observed $($service.StartName)."
+    }
+    if ((Get-Service -Name $ServiceName).Status -ne 'Running') {
+        throw "Runner service $ServiceName did not reach Running state after virtual-account migration."
+    }
+    Write-Host "Runner service $ServiceName now runs as $serviceIdentity with scoped filesystem access." -ForegroundColor Green
+}
+
 if (-not $IsWindows) {
     throw 'This bootstrap runs only on Windows.'
 }
@@ -44,6 +117,14 @@ if (-not (Test-IsAdministrator)) {
 }
 if ($env:PROCESSOR_ARCHITECTURE -ne 'ARM64') {
     throw "This runner must be native Windows ARM64; observed PROCESSOR_ARCHITECTURE=$($env:PROCESSOR_ARCHITECTURE)."
+}
+
+if ($MigrateExistingService) {
+    if (-not (Test-Path (Join-Path $RunnerRoot '.runner'))) {
+        throw "No configured runner exists at $RunnerRoot. Omit -MigrateExistingService for first-time registration."
+    }
+    Set-RunnerServiceVirtualAccount -ServiceName (Get-RunnerServiceName)
+    exit 0
 }
 
 function Ensure-WingetPackage([string] $PackageId, [string] $Description) {
@@ -99,13 +180,15 @@ if ((Test-Path $RunnerRoot) -and -not $DryRun) {
 Write-Info 'Creating service-readable runner and internal-release directories.'
 Invoke-Action {
     New-Item -ItemType Directory -Force -Path $RunnerRoot, $InstallRoot | Out-Null
+    # Temporary bootstrap access is removed immediately after the runner's
+    # service name is available and its dedicated virtual identity is applied.
     & icacls.exe $RunnerRoot /grant 'NT AUTHORITY\NETWORK SERVICE:(OI)(CI)M' | Out-Null
     & icacls.exe $InstallRoot /grant 'NT AUTHORITY\NETWORK SERVICE:(OI)(CI)M' | Out-Null
 }
 
 if ($DryRun) {
     Write-Host 'DRY: fetch the latest actions/runner win-arm64 release and registration token through authenticated GitHub CLI.' -ForegroundColor Yellow
-    Write-Host "DRY: configure $runnerName as a NETWORK SERVICE Windows service with labels $runnerLabels." -ForegroundColor Yellow
+    Write-Host "DRY: temporarily register $runnerName as a service, then migrate it to a dedicated passwordless virtual service account with labels $runnerLabels." -ForegroundColor Yellow
     Write-Host 'DRY: clone pcvantol/djconnect-windows and run its Windows tooling-maintenance installer.' -ForegroundColor Yellow
     exit 0
 }
@@ -134,10 +217,10 @@ try {
     Remove-Item -Force -ErrorAction SilentlyContinue $archivePath
 }
 
-Write-Info 'Registering the Windows ARM64 Actions runner as NETWORK SERVICE.'
+Write-Info 'Registering the Windows ARM64 Actions runner service.'
 Push-Location $RunnerRoot
 try {
-    & .\config.cmd --unattended --replace --url "https://github.com/$organization/$repository" --token $registrationToken --name $runnerName --labels $runnerLabels --work _work --runasservice --windowslogonaccount 'NT AUTHORITY\NETWORK SERVICE'
+    & .\config.cmd --unattended --replace --url "https://github.com/$organization/$repository" --token $registrationToken --name $runnerName --labels $runnerLabels --work _work --runasservice
     if ($LASTEXITCODE -ne 0) {
         throw "Runner configuration failed with exit code $LASTEXITCODE."
     }
@@ -145,6 +228,8 @@ try {
     Remove-Variable registrationToken -ErrorAction SilentlyContinue
     Pop-Location
 }
+
+Set-RunnerServiceVirtualAccount -ServiceName (Get-RunnerServiceName)
 
 Write-Info 'Cloning the Windows consumer repository and installing machine tooling maintenance.'
 $windowsRepository = Join-Path $GitHubRoot $repository
@@ -167,9 +252,9 @@ if ($LASTEXITCODE -ne 0) {
     throw "Windows MAUI workload restore failed with exit code $LASTEXITCODE."
 }
 
-$serviceName = (Get-Content (Join-Path $RunnerRoot '.service')).Trim()
+$serviceName = Get-RunnerServiceName
 $service = Get-Service -Name $serviceName
 if ($service.Status -ne 'Running') {
     throw "Runner service $serviceName is not running."
 }
-Write-Host "Windows runner $runnerName is online as service $serviceName." -ForegroundColor Green
+Write-Host "Windows runner $runnerName is online as least-privilege virtual-account service $serviceName." -ForegroundColor Green

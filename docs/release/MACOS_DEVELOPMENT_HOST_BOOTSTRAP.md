@@ -579,11 +579,14 @@ the VM, open an elevated PowerShell 7 session and run:
 
 The Windows bootstrap authenticates GitHub CLI interactively if required,
 downloads the current `win-arm64` Actions runner and checks it against GitHub's
-release SHA-256, registers `djconnect-windows11-parallels-arm64` as a
-`NETWORK SERVICE` Windows service, prepares service-readable runner/install
-paths, installs Git, Python 3.12 and Node LTS, restores the checked-out Windows
-MAUI workload and installs the daily PowerShell 7/.NET 10/workload maintenance
-task.
+release SHA-256, registers `djconnect-windows11-parallels-arm64`, then migrates
+it to a dedicated passwordless `NT SERVICE/<runner-service-name>` virtual
+account. That identity receives Modify access only to runner and
+internal-release paths; the temporary `NETWORK SERVICE` bootstrap grant is
+removed. The bootstrap also installs Git, Python 3.12 and Node LTS, restores
+the checked-out Windows MAUI workload and installs the daily PowerShell
+7/.NET 10/workload maintenance task. A service account remains session 0, so
+interactive Windows GUI smoke is intentionally a separate relay concern.
 No registration token is supplied on the command line or retained on disk.
 
 ## Xcode and non-interactive signing recovery

@@ -11,7 +11,7 @@ architecture change.
 | Runner class | Currency owner | Required approach |
 | --- | --- | --- |
 | GitHub-hosted `*-latest` | GitHub | Workflows select the current hosted image; each job starts on a freshly provisioned image. |
-| Self-hosted Windows | DJConnect runner owner | Daily native Windows maintenance, run as `SYSTEM`. |
+| Self-hosted Windows | DJConnect runner owner | Daily native Windows maintenance, run as the designated interactive administrator; the Actions runner itself runs as a per-service virtual account. |
 | Self-hosted macOS | DJConnect runner owner | Daily native macOS maintenance, run as the runner user. |
 | Self-hosted Linux | DJConnect runner owner | A documented native package-maintenance task before the runner is eligible for a new workflow. |
 
@@ -65,6 +65,14 @@ Set-Location <djconnect-windows-clone>
 It creates the daily `\DJConnect\Update-RunnerTooling` task and writes its
 result to `C:\ProgramData\DJConnect\runner-maintenance\`. The task owns
 PowerShell 7, .NET 10 and installed .NET workload updates.
+
+The maintenance task is deliberately not `SYSTEM`: WinGet/App Installer is
+available in the signed-in administrator context. Separately, the GitHub
+Actions runner service uses `NT SERVICE\<runner-service-name>`, a passwordless
+per-service virtual account with Modify access only to its runner work root and
+internal-release install root. Do not substitute Local System, `NETWORK
+SERVICE`, a local administrator or a developer account. The virtual service
+identity still runs in session 0 and must not be used to validate GUI startup.
 
 ### macOS runners and private-network relays
 
