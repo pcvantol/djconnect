@@ -6,8 +6,8 @@
 **Generation:** 2
 **Engineering Program:** Platform Governance
 **Branch:** `codex/reconcile-observatory-hygiene-merge`
-**Commit SHA:** Pending reviewable branch commit
-**Pull Request:** Pending reviewable pull request
+**Commit SHA:** `4844ef8013a7828122a156da0cda62a24702a9c8`
+**Pull Request:** [#155](https://github.com/pcvantol/djconnect/pull/155)
 **Decision:** `REPOSITORY_ROLLING_RECORDS_RECONCILED`
 **Execution Date:** 2026-07-17
 **Created:** 2026-07-17
