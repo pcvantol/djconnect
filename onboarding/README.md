@@ -6,7 +6,7 @@ contract tests and package documentation.
 
 ## Release alignment
 
-The current onboarding package is released as `3.3.0`, aligned with the current
+The current onboarding package is released as `3.3.1`, aligned with the current
 DJConnect platform release for operator clarity. This is version alignment only:
 the package remains independently versioned, does not consume platform release
 artifacts, and does not require a matching platform version to run or verify.
@@ -26,6 +26,34 @@ Assistant Compose environment. The Home Assistant service is available at
 `http://localhost:8123` after its container is healthy. The Windows package
 uses the macOS-hosted Home Assistant environment rather than Docker Desktop in
 the Windows ARM VM.
+
+## Windows Actions runner service identity
+
+The Windows ARM64 Actions runner is a persistent service for native builds and
+deployment. It must run as its own passwordless Windows virtual service account
+(`NT SERVICE\<runner-service-name>`), not as `NETWORK SERVICE`, Local System,
+an administrator or a developer's interactive account. The account receives
+Modify rights only to the runner work root and the internal-release install
+root; it has no interactive sign-in, no reusable password and no membership in
+local administrator groups.
+
+For an existing Windows runner, run this explicit onboarding step from a
+normal PowerShell 7 terminal. It requests UAC only for the narrowly scoped
+service migration:
+
+```powershell
+pwsh -File .\onboarding\dev_onboarding_windows.ps1 -Steps 15
+```
+
+For first-time runner setup, use the same repository's
+`scripts\runner\bootstrap_windows_arm64_runner.ps1`; it registers the runner,
+then immediately replaces the temporary bootstrap identity with its dedicated
+virtual account. No service or GitHub token is written to the repository.
+
+A Windows service always runs in session 0. This identity hardening therefore
+does not make a MAUI/WinUI GUI smoke interactive. GUI smoke must use a separate
+least-privilege interactive relay and remains unavailable while no user is
+logged on.
 
 ## Secure machine transfer
 

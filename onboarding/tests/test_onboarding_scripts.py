@@ -714,12 +714,25 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("registration-token", source)
         self.assertIn("Get-FileHash -Algorithm SHA256", source)
         self.assertIn("--runasservice", source)
-        self.assertIn("NT AUTHORITY\\NETWORK SERVICE", source)
+        self.assertIn("NT SERVICE\\$ServiceName", source)
+        self.assertIn("Set-RunnerServiceVirtualAccount", source)
+        self.assertIn("-MigrateExistingService", source)
+        self.assertIn("/remove:g 'NT AUTHORITY\\NETWORK SERVICE'", source)
         self.assertIn("Git.Git", source)
         self.assertIn("Python.Python.3.12", source)
         self.assertIn("OpenJS.NodeJS.LTS", source)
         self.assertIn("workload restore", source)
         self.assertNotIn("[string] $RegistrationToken", source)
+
+    def test_windows_onboarding_exposes_least_privilege_runner_migration(self) -> None:
+        source = WINDOWS_SCRIPT.read_text(encoding="utf-8")
+
+        self.assertIn('15 = "Harden the Windows Actions runner service identity"', source)
+        self.assertIn("function Step-15-RunnerServiceIdentity", source)
+        self.assertIn("-MigrateExistingService", source)
+        self.assertIn("Start-Process -FilePath $machinePwsh", source)
+        self.assertIn("-Verb RunAs", source)
+        self.assertIn("session 0", source)
 
     def test_help_documents_testability_flags(self) -> None:
         result = run_script("--help")

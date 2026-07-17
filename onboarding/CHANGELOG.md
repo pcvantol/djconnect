@@ -1,5 +1,15 @@
 # DJConnect Developer Onboarding Changelog
 
+## 3.3.1 — 2026-07-17
+
+- Add the explicit Windows onboarding step that elevates only the migration of
+  an existing GitHub Actions runner to its dedicated passwordless virtual
+  service identity.
+- Make the Windows runner bootstrap use a per-service `NT SERVICE` account,
+  scoped filesystem ACLs and removal of the temporary `NETWORK SERVICE` grant.
+- Document that service-account hardening does not create an interactive GUI
+  session; MAUI/WinUI smoke remains a separate interactive-relay concern.
+
 ## 3.3.0 — 2026-07-16
 
 - Add a macOS-only, explicit machine-transfer export/import utility for
