@@ -116,8 +116,8 @@
   ],
   "evidence": {
     "artifact_integrity": "VERIFIED: current-main Home Assistant artifact 8347737416, current-main Website artifact 8346470431, rebound API artifact 8323208436 and Apple artifacts from current-main run 29451514840",
-    "deployment_evidence": "PARTIAL: rbpi-djconnect, cloudflare_workers_production, cloudflare_pages_production, esp32_lilygo_t_embed_s3, apple_private_device/macbook and apple_private_device/iphone (with paired Watch) deployment evidence verified",
-    "post_deployment_smoke": "PARTIAL: rbpi-djconnect, cloudflare_workers_production, cloudflare_pages_production, esp32_lilygo_t_embed_s3, apple_private_device/macbook and apple_private_device/iphone (with paired Watch) smoke evidence verified",
+    "deployment_evidence": "PARTIAL: rbpi-djconnect, cloudflare_workers_production, cloudflare_pages_production, esp32_lilygo_t_embed_s3, apple_private_device/macbook, apple_private_device/iphone (with paired Watch) and windows_internal_arm64 deployment evidence verified",
+    "post_deployment_smoke": "PARTIAL: rbpi-djconnect, cloudflare_workers_production, cloudflare_pages_production, esp32_lilygo_t_embed_s3, apple_private_device/macbook, apple_private_device/iphone (with paired Watch) and windows_internal_arm64 smoke evidence verified",
     "operational_credential_scope": "NOT_DISCLOSED; each deployment workflow must validate its own least-privilege scope."
   },
   "target_execution_evidence": [
@@ -183,6 +183,16 @@
       "smoke_workflow_run": "29455024770",
       "result": "DEPLOYMENT_OPERATIONAL",
       "verified_at": "2026-07-15T22:20:04Z"
+    },
+    {
+      "target": "windows_internal_arm64",
+      "candidate_sha": "6c0c3c3478c81472e479184dc03e51fd095dc4b2",
+      "artifact_id": "release-asset:pcvantol/djconnect-app-releases:windows/v3.3.0:DJConnect-Windows-arm64-3.3.0-unsigned.zip",
+      "artifact_sha256": "cbe379826731deb1d16c8af5510b4190a4f4949b1bf6589925de5d1eb66c5b47",
+      "deployment_workflow_run": "29583151393",
+      "smoke_workflow_run": "29588039127",
+      "result": "DEPLOYMENT_OPERATIONAL",
+      "verified_at": "2026-07-17T14:28:19Z"
     }
   ],
   "constraints": [
@@ -191,5 +201,5 @@
     "Apple Watch is a required paired-iPhone companion validation, not a direct deployment target.",
     "Windows x64 is published but is not bound to this ARM64-only Internal Release."
   ],
-  "next_authorized_action": "After this Windows authorization record is merged to main, dispatch the separately authorized windows_internal_arm64 deployment with its exact manifest binding; run its corresponding smoke only after successful deployment."
+  "next_authorized_action": "Do not dispatch a target automatically. The home_assistant_pi5 authorization remains pending environment-readiness verification. The required apple_private_device/ipad target has an artifact binding but no target-specific operational authorization or deployment/smoke evidence record; it requires separate authorization before any operation."
 }

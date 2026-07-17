@@ -55,27 +55,28 @@ planning is read.
 | Platform Release Observatory Design | Completed / merged reconciled / archived | Define the canonical local-only, read-only Observatory and register its bounded Platform Evolution delivery backlog. | `codex/platform-release-observatory-design` | `docs/history/prompts/2026-07-17-platform-release-observatory-design.md`; PR [#148](https://github.com/pcvantol/djconnect/pull/148) |
 | Observatory Post-Merge Rolling-Records Reconciliation | Completed / merged reconciled / archived | Reconcile current rolling records after PR #148; record that the PR #144 branch is already removed and preserve the unrelated non-main Windows-runner branch for separate review. | `codex/reconcile-observatory-rolling-records` | `docs/history/prompts/2026-07-17-observatory-rolling-records-reconciliation.md`; PR [#154](https://github.com/pcvantol/djconnect/pull/154) |
 | Observatory Hygiene Merge Reconciliation | Completed / merged reconciled / archived | Reconcile rolling records after merged PR #154 and record deletion of the reviewed obsolete Windows-runner branch. | `codex/reconcile-observatory-hygiene-merge` | `docs/history/prompts/2026-07-17-observatory-hygiene-merge-reconciliation.md`; PR [#155](https://github.com/pcvantol/djconnect/pull/155) |
+| Observatory Hygiene Post-Merge Reconciliation | Completed / merged reconciled / archived | Reconcile rolling records after merged PR #155. | `codex/reconcile-observatory-hygiene-merge-postmerge` | `docs/history/prompts/2026-07-17-observatory-hygiene-postmerge-reconciliation.md`; PR [#156](https://github.com/pcvantol/djconnect/pull/156) |
+| Platform Release 3.3 Windows ARM64 Evidence Reconciliation | Reviewable | Reconcile the completed manifest-bound Windows ARM64 deployment and post-deployment smoke evidence into the canonical release records. | `codex/reconcile-windows-release-evidence` | `docs/release/PLATFORM_3_3_WINDOWS_DEPLOYMENT_COMPLETION.md`; reviewable Pull Request from this branch |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
 
-## Current bounded operational remediation
+## Current bounded operational reconciliation
 
-The shared `deployment-readiness-preflight` action is being remediated to use
-PowerShell 7 on Windows and Bash on non-Windows runners. This removes the WSL
-dependency found on the Windows service runner without changing release
-architecture, manifests, authorizations or target deployment logic. Once the
-reviewable action change is merged, the Windows consumer must pin its immutable
-SHA, remove its consumer-level Bash prerequisite and then rerun the already
-authorized Windows deployment followed by smoke on success.
+The already authorized Windows ARM64 deployment and separately dispatched smoke
+have both succeeded. The current reviewable increment only reconciles their
+exact evidence into the canonical release records; it does not operate another
+target or change release architecture, manifests, authorization or workflow
+logic.
 
 ## Next Engineering Increment
 
-PR #155 is merged and its rolling records are reconciled. No following
-increment is activated automatically. The Platform Architect must select an evidence-backed item from
-the Product Roadmap, Platform Evolution backlog or separately authorized
-Release 3.3 operational work. Do not begin Observatory implementation or a
-release operation as a consequence of this reconciliation.
+The completed Windows ARM64 operation is being reconciled by the reviewable
+release-evidence increment. No following increment is activated automatically.
+The Platform Architect must select an evidence-backed item from the Product
+Roadmap, Platform Evolution backlog or separately authorized Release 3.3
+operational work. Do not begin Observatory implementation or a release
+operation as a consequence of this reconciliation.
 
 ## Active Next Phase
 
@@ -98,11 +99,12 @@ Relay and Apple Secure Distribution Relay.
 
 The approved manifest
 `release-3.3.0-internal-20260714` is partially operational. API, Website,
-Raspberry Pi, ESP32, Apple MacBook and Apple iPhone with required paired-Watch
-validation have each completed an exact manifest-bound deployment and
-separately dispatched post-deployment smoke. Home Assistant and Windows remain
-independent, unqualified targets. This is not a complete Internal Release and
-does not authorize release certification or burn-in.
+Raspberry Pi, ESP32, Apple MacBook, Apple iPhone with required paired-Watch
+validation, and Windows ARM64 have each completed an exact manifest-bound
+deployment and separately dispatched post-deployment smoke. Home Assistant and
+the required iPad target remain independent, unqualified targets. This is not
+a complete Internal Release and does not authorize release certification or
+burn-in.
 
 The next release-engineering activity is not certification or an automatic
 release. It is explicit, scoped preparation of the remaining deployment

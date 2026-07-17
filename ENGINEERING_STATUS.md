@@ -5,12 +5,9 @@
 
 ## Current engineering increment
 
-Repository hygiene: reconcile the rolling records after merged PR
-[#155](https://github.com/pcvantol/djconnect/pull/155). Objective GitHub
-evidence confirms that its merge commit
-`157c16f67421b5fd3933b0374a529992752e29ff` is current `main`. PR #155 completed
-the Observatory hygiene merge reconciliation; no Observatory or release work
-was performed.
+Platform Release 3.3 evidence reconciliation: record the completed,
+manifest-bound Windows ARM64 deployment and separately dispatched smoke without
+changing release implementation, authorization, architecture or workflows.
 
 ## Current engineering program
 
@@ -21,21 +18,26 @@ operational work.
 
 ## Current repository truth
 
-PR #155 is merged and its immutable Prompt History record is present. Its
-reviewable rolling records are reconciled to current `main`
-`157c16f67421b5fd3933b0374a529992752e29ff`. This does not change Observatory
-priority, its read-only design boundary or the Release 3.3 authorization model.
+PR [#156](https://github.com/pcvantol/djconnect/pull/156) is merged and its
+immutable Prompt History record is present. Its rolling records are reconciled
+to current `main` `30657adbd2c9320f841b8a1d9c5345bcb9be6975`. This does not
+change Observatory priority, its read-only design boundary or the Release 3.3
+authorization model.
 
 Platform Release 3.3 remains partially operational under manifest
 `release-3.3.0-internal-20260714`, status
-`APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL`. Existing manifest, GitHub workflow,
+`APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL`. Seven target-scoped operations are
+complete, including `windows_internal_arm64`: deployment run `29583151393` and
+its separately dispatched smoke run `29588039127` both succeeded against the
+approved candidate and checksum. Existing manifest, GitHub workflow,
 deployment and smoke evidence are factual Observatory inputs, not an
 authorization to implement or operate the Observatory.
 
 ## Known blockers and limitations
 
-- Home Assistant and Windows still lack final target-specific Release 3.3
-  deployment and smoke evidence; the Internal Release is incomplete.
+- Home Assistant and the required iPad target still lack final target-specific
+  Release 3.3 deployment and smoke evidence; the Internal Release is
+  incomplete.
 - The proposed Observatory has no implementation. Its future evidence timing
   contract, collector/persistence and dashboard are independent increments.
 
@@ -43,8 +45,8 @@ authorization to implement or operate the Observatory.
 
 - Perform the three separately authorized Observatory delivery increments in
   their documented order when priority and authorization permit.
-- Qualify the already authorized Windows target through manifest-bound
-  deployment and immediate target-scoped smoke after its consumer update.
+- Verify the recorded Home Assistant authorization against environment
+  readiness, and separately authorize and qualify the required iPad target.
 
 ## Recommended next prompt
 
