@@ -73,6 +73,13 @@ per-service virtual account with Modify access only to its runner work root and
 internal-release install root. Do not substitute Local System, `NETWORK
 SERVICE`, a local administrator or a developer account. The virtual service
 identity still runs in session 0 and must not be used to validate GUI startup.
+For an existing service, the canonical one-time migration is onboarding step
+15 from the `djconnect` checkout. If its UAC wrapper fails, rerun
+`scripts\runner\bootstrap_windows_arm64_runner.ps1 -MigrateExistingService`
+from an elevated PowerShell 7 terminal so the native service-configuration
+error remains visible. Verify the resulting `Win32_Service.StartName` is the
+expected `NT SERVICE\<runner-service-name>` before treating the runner as
+least-privilege qualified.
 
 ### macOS runners and private-network relays
 
