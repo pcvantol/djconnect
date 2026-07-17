@@ -38,7 +38,10 @@ function Test-IsAdministrator {
 }
 
 function Invoke-Sc {
-    param([Parameter(Mandatory)][string[]] $Arguments)
+    # `sc.exe config ... password= ""` needs a deliberate empty trailing
+    # argument. Permit it here so PowerShell does not reject the service
+    # configuration before sc.exe receives it.
+    param([Parameter(Mandatory)][AllowEmptyString()][string[]] $Arguments)
     if ($DryRun) {
         Write-Host "DRY: sc.exe $($Arguments -join ' ')" -ForegroundColor Yellow
         return

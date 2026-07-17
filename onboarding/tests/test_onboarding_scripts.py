@@ -719,6 +719,8 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("NT SERVICE\\$ServiceName", source)
         self.assertIn("Set-RunnerServiceVirtualAccount", source)
         self.assertIn("-MigrateExistingService", source)
+        self.assertIn("[AllowEmptyString()][string[]] $Arguments", source)
+        self.assertIn("'password=', ''", source)
         self.assertIn("/remove:g 'NT AUTHORITY\\NETWORK SERVICE'", source)
         self.assertIn("Git.Git", source)
         self.assertIn("Python.Python.3.12", source)
