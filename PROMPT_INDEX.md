@@ -52,7 +52,8 @@ planning is read.
 | Rolling Records Reconciliation | Completed / merged reconciled / archived | Reconciled central rolling records after the completed governance rollout. | `codex/reconcile-governance-rolling-records` | `docs/history/prompts/2026-07-15-platform-governance-rolling-records-reconciliation.md`; PR [#129](https://github.com/pcvantol/djconnect/pull/129) |
 | macOS Runner-Host Bootstrap Pre-Merge Preparation | Completed / merged reconciled / archived | Corrected PR #144 scope description, identified its temporary candidate workflow references and recorded the post-merge repin sequence without changing behaviour. | `codex/prepare-macos-runner-bootstrap-merge` | `docs/release/MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS.md`; PR [#146](https://github.com/pcvantol/djconnect/pull/146) |
 | macOS Runner-Host Bootstrap Post-Merge Repin | Completed / merged reconciled / archived | Repinned the eight governance callers and reusable-workflow policy checkout to immutable merged-main evidence. | `codex/repin-macos-bootstrap-main` | `docs/history/prompts/2026-07-16-macos-runner-bootstrap-postmerge-repin.md`; PR [#147](https://github.com/pcvantol/djconnect/pull/147) |
-| Platform Release Observatory Design | Completed / reviewable | Define the canonical local-only, read-only Observatory and register its bounded Platform Evolution delivery backlog. | `codex/platform-release-observatory-design` | `docs/platform_evolution/PLATFORM_RELEASE_OBSERVATORY_DESIGN.md`; PR [#148](https://github.com/pcvantol/djconnect/pull/148) |
+| Platform Release Observatory Design | Completed / merged reconciled / archived | Define the canonical local-only, read-only Observatory and register its bounded Platform Evolution delivery backlog. | `codex/platform-release-observatory-design` | `docs/history/prompts/2026-07-17-platform-release-observatory-design.md`; PR [#148](https://github.com/pcvantol/djconnect/pull/148) |
+| Observatory Post-Merge Rolling-Records Reconciliation | Reviewable | Reconcile current rolling records after PR #148; record that the PR #144 branch is already removed and preserve the unrelated non-main Windows-runner branch for separate review. | `codex/reconcile-observatory-rolling-records` | `docs/history/prompts/2026-07-17-observatory-rolling-records-reconciliation.md`; PR [#154](https://github.com/pcvantol/djconnect/pull/154) |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
@@ -69,10 +70,12 @@ authorized Windows deployment followed by smoke on success.
 
 ## Next Engineering Increment
 
-After the reviewable Observatory design increment is merged, reconcile its
-rolling records and delete the retained PR #144 feature branch through one
-repository-hygiene prompt. Do not begin Observatory implementation or a release
-operation as part of that prompt.
+The merged Observatory-design records have been reconciled by the reviewable
+repository-hygiene increment. No following increment is activated
+automatically. The Platform Architect must select an evidence-backed item from
+the Product Roadmap, Platform Evolution backlog or separately authorized
+Release 3.3 operational work. Do not begin Observatory implementation or a
+release operation as a consequence of this reconciliation.
 
 ## Active Next Phase
 

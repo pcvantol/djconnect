@@ -17,7 +17,7 @@
 | Software Assurance | Completed and frozen | `docs/software_assurance/SOFTWARE_ASSURANCE_GENERATION_1_CLOSURE_REPORT.md` |
 | Trusted Delivery | Completed and frozen | `docs/software_assurance/TRUSTED_DELIVERY_CERTIFICATION.md` |
 | Platform Release Engineering | Architecture qualified and frozen | `docs/release/PLATFORM_RELEASE_QUALIFICATION.md` |
-| Platform Release 3.3 Internal | Partially deployed; four targets qualified | `docs/release/PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json` |
+| Platform Release 3.3 Internal | Partially deployed; six targets qualified | `docs/release/PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json` |
 | Engineering Workflow | Aligned; no implementation changed | `docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md` |
 | Engineering Method V2.3 | Established; no implementation or architecture changed | `ENGINEERING_METHOD.md` |
 | Post-Merge Engineering State | Reconciled | `ENGINEERING_METHOD.md` |
@@ -31,8 +31,9 @@
 
 **Decision:** `PLATFORM_RELEASE_OBSERVATORY_DESIGN_ESTABLISHED`
 
-PR [#147](https://github.com/pcvantol/djconnect/pull/147) is merged and its
-rolling state is reconciled. This increment establishes the canonical design
+PR [#148](https://github.com/pcvantol/djconnect/pull/148) is merged at
+`c10bd0dc` and its rolling state is reconciled. The design establishes the
+canonical design
 for a local-only, read-only Platform Release Observatory and records the
 existing Release Health and observability initiative as P2 design-complete
 implementation backlog. The design gives the Platform Executive and Release
@@ -49,10 +50,13 @@ sequence is unchanged. Product Development does not depend on this work.
 **Pull Request:** [#148](https://github.com/pcvantol/djconnect/pull/148)
 **Validation:** qualified-host verification (`MATCH`), required design/status
 contract checks, documentation-reference checks and `git diff --check`
-**Repository hygiene:** synchronized `main`; PR #147 merge verified and
-rolling state reconciled; branch clean before reviewable freeze
-**Recommended next prompt:** repository hygiene after this PR merges:
-reconcile rolling records and delete the retained PR #144 feature branch.
+**Repository hygiene:** synchronized `main`; PR #148 merge verified; its
+historical PR #144 branch is absent from origin. A different retained branch,
+`codex/windows-runner-least-privilege-bootstrap` at `004899a0`, is not
+contained in `main` and has no PR, so it is preserved pending separate review.
+**Recommended next prompt:** none automatically. Select a separately
+authorized, evidence-backed Product Development, Platform Evolution or
+Release 3.3 operational increment.
 
 ## Platform Release 3.3 operational position
 
