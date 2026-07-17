@@ -22,25 +22,37 @@
 | Engineering Method V2.3 | Established; no implementation or architecture changed | `ENGINEERING_METHOD.md` |
 | Post-Merge Engineering State | Reconciled | `ENGINEERING_METHOD.md` |
 | Repository Governance Rollout | Completed, merged, reconciled and archived | `docs/governance/REPOSITORY_GOVERNANCE_AUDIT_V2_2.md` |
-| macOS runner-host bootstrap | PR #144 merged; post-merge SHA repin reviewable | `docs/release/MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS.md` |
+| macOS runner-host bootstrap | PR #147 merged; repin recorded | `docs/release/MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS.md` |
+| Platform Release Observatory | Design complete; implementation backlog only | `docs/platform_evolution/PLATFORM_RELEASE_OBSERVATORY_DESIGN.md` |
 
 ## Generation 2 decision
 
-## macOS runner-host bootstrap post-merge repin
+## Platform Release Observatory design
 
-**Decision:** `MACOS_RUNNER_BOOTSTRAP_MAIN_REPIN_REVIEWABLE`
+**Decision:** `PLATFORM_RELEASE_OBSERVATORY_DESIGN_ESTABLISHED`
 
-PR [#144](https://github.com/pcvantol/djconnect/pull/144) was squash-merged
-into `main` as `452bed7655e579d3fb12b7b379f8fc0b70a8c342`, after candidate
-`aee1687876c279d758f1404f9ca9e1563e310276` was validated. This reviewable
-increment repins all eight reusable-workflow callers and the reusable
-workflow's canonical-policy checkout to immutable merged-`main` SHA
-`3d7d24a84b3aaacb8f2fb229e09c33da85e0545d`. That SHA contains the PR #144
-merge and the fallback required by the governance validator.
+PR [#147](https://github.com/pcvantol/djconnect/pull/147) is merged and its
+rolling state is reconciled. This increment establishes the canonical design
+for a local-only, read-only Platform Release Observatory and records the
+existing Release Health and observability initiative as P2 design-complete
+implementation backlog. The design gives the Platform Executive and Release
+Train Engineer traceable inventory and historical rollout investigation from
+existing evidence; it does not execute, approve, gate or replace releases.
 
-The retained feature branch may be deleted only after this repin PR merges and
-its checks are green. No bootstrap implementation or operational release
-behaviour changes in this increment.
+Three future, separately reviewable increments remain: machine-readable
+evidence/timing contract, collector plus local SQLite persistence, and local
+dashboard. Platform Release 3.3 remains independently operational and its
+sequence is unchanged. Product Development does not depend on this work.
+
+**Branch:** `codex/platform-release-observatory-design`
+**Commit SHA:** `9a61c3786fdd8cece621a44780b8f570f2110b6d`
+**Pull Request:** [#148](https://github.com/pcvantol/djconnect/pull/148)
+**Validation:** qualified-host verification (`MATCH`), required design/status
+contract checks, documentation-reference checks and `git diff --check`
+**Repository hygiene:** synchronized `main`; PR #147 merge verified and
+rolling state reconciled; branch clean before reviewable freeze
+**Recommended next prompt:** repository hygiene after this PR merges:
+reconcile rolling records and delete the retained PR #144 feature branch.
 
 ## Platform Release 3.3 operational position
 

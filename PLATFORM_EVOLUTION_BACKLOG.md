@@ -20,7 +20,7 @@ or governed operations are constrained.
 | Technical Debt Engine integration | P1 | Backlog | released standalone TDE CLI, stable evidence schema, trusted distribution and Software Assurance compatibility | Platform Evolution integration after external product initialization |
 | Privacy Assessment | P2 | Backlog | privacy inventory, profile/shared-device review and Software Assurance compatibility | Platform Evolution assessment; possible future standalone engine |
 | SBOM generation | P2 | Backlog | Trusted Delivery compatibility assessment | scoped Platform Evolution proposal |
-| Release Health and observability | P2 | Backlog | operational release evidence | scoped Platform Evolution proposal |
+| Release Health and observability | P2 | Design Complete / Implementation Backlog | operational release evidence and [`PLATFORM_RELEASE_OBSERVATORY_DESIGN.md`](docs/platform_evolution/PLATFORM_RELEASE_OBSERVATORY_DESIGN.md) | three bounded delivery increments; no implementation authorization |
 | Platform diagnostics | P3 | Backlog | privacy and redaction review | scoped Platform Evolution proposal |
 | Future governance improvements | P3 | Backlog | governance evidence | governance review |
 
@@ -68,6 +68,32 @@ Required acceptance evidence and closure criteria are:
 This backlog record authorizes no retention design, workflow change,
 deletion-policy decision or implementation. It records an open Platform
 Evolution risk only.
+
+## Backlog detail: Release Health and observability
+
+**Detailed capability:** [Platform Release Observatory](docs/platform_evolution/PLATFORM_RELEASE_OBSERVATORY_DESIGN.md)
+**Owner:** Platform Evolution
+**Priority:** P2
+**Status:** Design Complete / Implementation Backlog
+
+The Observatory is a local-only, read-only capability for factual current and
+historical release inventory and rollout investigation. It consumes existing
+approved manifests, repository/GitHub evidence, deployment and smoke evidence,
+artifact/distribution evidence, and supported factual publication state. It
+does not execute, approve or gate releases; it does not replace Platform
+Release Runtime, GitHub Actions, or the current Platform Release 3.3
+operational sequence. Product Development does not depend on this initiative.
+
+Future delivery remains three separately reviewable increments:
+
+1. Evidence and timing contract in the owning CI, deployment, smoke and
+   publication flows.
+2. Collector and local SQLite persistence.
+3. Local dashboard and evidence investigation UI.
+
+This backlog registration authorizes no implementation. Its P2 priority is
+supported by the existing operational evidence records, which remain the
+authoritative release source until a future delivery increment is authorized.
 
 ## Backlog detail: Component Release Mode
 
