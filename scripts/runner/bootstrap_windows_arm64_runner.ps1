@@ -55,12 +55,11 @@ function Set-ServiceVirtualAccountLogon {
         [Parameter(Mandatory)][string] $ServiceIdentity
     )
 
-    # The Service Control Manager requires the literal native command-line
-    # form `password= ""` for a passwordless virtual service account. Passing
-    # an empty PowerShell array item either fails parameter binding or omits the
-    # required quotes before sc.exe parses its arguments.
+    # A virtual service account is not a password-bearing user account. The
+    # Service Control Manager accepts its explicit `obj=` identity only; adding
+    # any `password=` argument causes it to reject the account with error 1057.
     $scExe = Join-Path $env:SystemRoot 'System32\sc.exe'
-    $configArguments = "config `"$ServiceName`" obj= `"$ServiceIdentity`" password= `"`""
+    $configArguments = "config `"$ServiceName`" obj= `"$ServiceIdentity`""
     if ($DryRun) {
         Write-Host "DRY: $scExe $configArguments" -ForegroundColor Yellow
         return
