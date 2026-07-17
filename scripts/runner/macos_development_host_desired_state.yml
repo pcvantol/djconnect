@@ -21,9 +21,6 @@ host.recommended_free_disk_gb: 120
 tooling.formulas: git,gh,jq,node,python@3.12,xcodegen,swiftlint,xcbeautify,create-dmg,mas,xcodes,platformio
 tooling.required_casks: docker,dotnet-sdk,parallels,ngrok
 tooling.optional_casks:
-# Homebrew refreshes the casks it owns. Tailscale is intentionally absent here:
-# the signed app manages its own updates, which is verified below.
-tooling.refresh_casks: docker,dotnet-sdk,parallels,ngrok
 
 lab.home_assistant.service: homeassistant
 lab.home_assistant.container_name: homeassistant

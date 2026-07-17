@@ -1,4 +1,4 @@
-# Version: 1.3.4
+# Version: 1.3.5
 # CLI help, desired-state verification and console/report primitives.
 usage() {
   cat <<'EOF'
@@ -186,7 +186,6 @@ load_desired_state() {
   local optional_casks
   optional_casks="$(desired_state_value tooling.optional_casks)"
   if [[ -n "$optional_casks" ]]; then IFS=',' read -r -a DESIRED_OPTIONAL_CASKS <<<"$optional_casks"; else DESIRED_OPTIONAL_CASKS=(); fi
-  IFS=',' read -r -a DESIRED_REFRESH_CASKS <<<"$(require_desired_state_value tooling.refresh_casks)"
   DESIRED_HA_SERVICE="$(require_desired_state_value lab.home_assistant.service)"
   DESIRED_HA_CONTAINER_NAME="$(require_desired_state_value lab.home_assistant.container_name)"
   DESIRED_HA_URL="$(require_desired_state_value lab.home_assistant.url)"

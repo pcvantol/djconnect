@@ -1,4 +1,4 @@
-# Version: 1.3.1
+# Version: 1.3.2
 # macOS host provisioning, developer-workstation and service operations.
 warm_sudo() {
   if [[ "$DRY_RUN" == '1' ]]; then
@@ -336,21 +336,11 @@ install_maintenance() {
 }
 
 refresh_host_tooling() {
-  local formula cask
   log 'Updating all Homebrew-managed DJConnect host tooling.'
   ensure_homebrew
   run brew update
-  for formula in "${DESIRED_TOOL_FORMULAS[@]}"; do
-    run brew install "$formula"
-    run brew upgrade "$formula"
-  done
-  for cask in "${DESIRED_REFRESH_CASKS[@]}"; do
-    if [[ "$DRY_RUN" == '1' ]]; then
-      printf 'DRY: upgrade Homebrew cask %s when already installed\n' "$cask"
-    elif brew list --cask "$cask" >/dev/null 2>&1; then
-      run brew upgrade --cask "$cask"
-    fi
-  done
+  run brew upgrade
+  run brew upgrade --cask
   if [[ "$SKIP_CODEX" == '0' ]]; then
     run npm install -g @openai/codex
   fi

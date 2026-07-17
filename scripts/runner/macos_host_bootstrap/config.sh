@@ -1,4 +1,4 @@
-# Version: 1.3.2
+# Version: 1.3.3
 # Shared recovery state, constants and desired-state parsing.
 # Bootstraps a DJConnect macOS development host after a laptop replacement.
 # Authentication is interactive through gh; GitHub registration tokens are
@@ -83,7 +83,6 @@ DESIRED_RECOMMENDED_FREE_DISK_GB=''
 DESIRED_TOOL_FORMULAS=()
 DESIRED_REQUIRED_CASKS=()
 DESIRED_OPTIONAL_CASKS=()
-DESIRED_REFRESH_CASKS=()
 DESIRED_HA_SERVICE=''
 DESIRED_HA_CONTAINER_NAME=''
 DESIRED_HA_URL=''

@@ -2,8 +2,9 @@
 
 ## 3.3.1 — 2026-07-17
 
-- Keep the Homebrew-managed ngrok cask in the declared macOS host-refresh
-  set, while retaining Tailscale's verified signed-app auto-update path.
+- Make the scheduled macOS maintenance task the single tooling-currency owner:
+  it upgrades every installed Homebrew formula and cask, including ngrok,
+  while retaining Tailscale's verified signed-app auto-update path.
 - Add the explicit Windows onboarding step that elevates only the migration of
   an existing GitHub Actions runner to its dedicated passwordless virtual
   service identity.
