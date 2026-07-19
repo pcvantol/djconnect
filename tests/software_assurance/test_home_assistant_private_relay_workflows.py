@@ -57,6 +57,7 @@ class HomeAssistantPrivateRelayWorkflowTest(unittest.TestCase):
             "DJCONNECT_HA_OS_DEPLOY_HOST",
             "Verify bounded Home Assistant OS Core startup and crash health",
             "ha core info --raw",
+            '.result == "ok" and (.data.version | type == "string" and length > 0)',
             "ha core logs -n 500",
             "StrictHostKeyChecking=yes",
             '"websocket_result": "PASS"',
