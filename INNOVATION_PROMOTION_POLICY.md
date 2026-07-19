@@ -6,16 +6,23 @@
 ## Lifecycle
 
 ```text
-Idea -> Research -> Architecture Review -> Prototype (where justified)
-     -> Evaluation -> GO or DEFER -> Promotion
+Idea -> Innovation branch -> Rapid iteration -> Innovation Review
+     -> Abandon | Archive | Continue | Promote
 ```
 
-An Innovation Lab item has exactly one outcome:
+An Innovation Review has exactly one outcome:
 
-- **GO:** promote it to either DJConnect Product Development or Platform
-  Evolution with a new, single owner and a `Planned` or `Backlog` status.
-- **DEFER:** retain it only in the Innovation Lab with a documented reason and
-  re-entry condition.
+- **Abandon:** stop the experiment; record the reason when it is useful future
+  evidence.
+- **Archive:** retain a useful completed experiment without further active
+  work.
+- **Continue:** retain the Innovation Lab owner for another bounded learning
+  cycle.
+- **Promote:** promote it to DJConnect Product Development with a new, single
+  owner and a `Planned` or `Backlog` status.
+
+The detailed Innovation Engineering execution model is canonical in
+`docs/meta/INNOVATION_ENGINEERING.md`.
 
 ## Promotion criteria
 
@@ -31,6 +38,6 @@ Promotion requires objective evidence for all applicable criteria:
   record;
 - explicit funding/capacity decision where it affects a release.
 
-Product ideas promote to `PRODUCT_ROADMAP.md`. Engineering-platform improvements
-promote to `PLATFORM_EVOLUTION_BACKLOG.md`. A promotion never authorizes
-implementation by itself; the receiving program supplies the approved phase.
+Product ideas promote to `PRODUCT_ROADMAP.md`. A promotion starts the normal
+Product Engineering lifecycle; it does not itself authorize delivery
+implementation.

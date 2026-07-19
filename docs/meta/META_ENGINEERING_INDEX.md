@@ -27,9 +27,10 @@ or Completion Report documents.
 2. `REPOSITORY_AS_MEMORY.md`
 3. `AI_AGENT_GUIDELINES.md`
 4. `ENGINEERING_PLAYBOOK.md`
-5. `PHASE_COMPLETION_PROTOCOL.md`
-6. `ARCHITECTURAL_HEURISTICS.md`
-7. `DECISION_PATTERNS.md`
+5. `INNOVATION_ENGINEERING.md`
+6. `PHASE_COMPLETION_PROTOCOL.md`
+7. `ARCHITECTURAL_HEURISTICS.md`
+8. `DECISION_PATTERNS.md`
 
 Read this order for clean-session onboarding. Read individual documents when a
 task only needs one specific Meta Engineering concern.
@@ -57,6 +58,12 @@ the DJConnect engineering process.
 
 `ENGINEERING_PLAYBOOK.md` defines the preferred lifecycle from idea to
 production.
+
+## Innovation Engineering
+
+`INNOVATION_ENGINEERING.md` defines the official learning-oriented engineering
+mode for bounded experiments, including its lighter governance and promotion
+path.
 
 ## Phase Completion Protocol
 

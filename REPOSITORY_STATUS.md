@@ -39,13 +39,12 @@ design and hygiene follow-ups are completed, merged, reconciled and archived
 as execution prompts. The Observatory remains implementation backlog only.
 It does not reopen the frozen release architecture or authorize deployment.
 
-PR [#158](https://github.com/pcvantol/djconnect/pull/158) is merged as
-`fb595d801defb1de0728cb18f051d2975d987fd7`. Its Windows ARM64 evidence
-post-merge reconciliation is completed, merged, reconciled and archived.
-There is no `MERGED_UNRECONCILED` rolling-record state for that increment.
-The next proposed work is a separate, still-draft Engineering Governance
-increment for safe bounded Codex subagent parallelization; it does not change
-this repository state until explicitly selected.
+PR [#161](https://github.com/pcvantol/djconnect/pull/161) is merged as
+`b3024be3068fbb80498706045711d3e51132716f`. It established safe bounded Codex
+subagent parallelization; its remote branch is absent. The current dedicated
+Engineering Governance increment reconciles this merged predecessor and adds
+Innovation Engineering as a formal Engineering Method mode. It does not change
+product/runtime architecture, release authorization or production manifests.
 
 Canonical lifecycle:
 

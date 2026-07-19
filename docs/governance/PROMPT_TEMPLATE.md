@@ -8,6 +8,7 @@ evidence; do not infer scope from historical chat.
 Prompt ID:
 Title:
 Generation and engineering program:
+Engineering mode: Platform Engineering | Product Engineering | Innovation Engineering
 
 Initialization (mandatory, before planning):
 - Repository Synchronization: `git switch main`, then `git pull --ff-only`; stop on failure.
@@ -47,3 +48,13 @@ Finalization:
 - create exactly one reviewable pull request
 - record `REVIEWABLE_FROZEN` and stop at the freeze point; merge and later reconciliation belong to the next increment
 ```
+
+For Innovation Engineering, use `docs/meta/INNOVATION_ENGINEERING.md` in
+addition to this template. The prompt must name the bounded learning objective,
+use an `innovation/` branch by default, identify only explicitly requested
+deployment targets, retain successful-build and basic-smoke evidence, and end
+with an Innovation Review outcome of Abandon, Archive, Continue or Promote.
+Do not add roadmap, release, qualification or versioning work unless it is
+independently required outside the experiment. Promote starts a new normal
+Product Engineering increment; it does not silently extend the innovation
+scope.

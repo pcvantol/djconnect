@@ -1,7 +1,7 @@
 # DJConnect Engineering Method
 
 **Status:** Canonical operational governance
-**Version:** 2.5
+**Version:** 2.6
 **Scope:** Entire DJConnect platform
 
 ## Purpose
@@ -13,6 +13,20 @@ continue engineering work.
 
 The repository must remain self-describing: a new AI engineering session can
 establish the current state and safely continue from repository contents.
+
+## Engineering modes
+
+The official engineering modes are Platform Engineering, Product Engineering
+and Innovation Engineering. `docs/meta/INNOVATION_ENGINEERING.md` defines the
+mode boundaries, lightweight Innovation Engineering governance profile,
+innovation-branch conventions, deployment constraints, lifecycle, promotion
+path and AI operating model. Engineering modes describe execution; the
+Generation 2 program model describes portfolio ownership.
+
+Innovation Engineering is part of this method, not an exception to it. Its
+lighter governance never bypasses repository integrity, architectural
+ownership, security/privacy controls, successful build or basic smoke
+validation.
 
 ## Mandatory synchronization and operating sequence
 
