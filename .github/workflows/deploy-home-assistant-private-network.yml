@@ -53,7 +53,6 @@ jobs:
           CANDIDATE_SHA: ${{ inputs.candidate_sha }}
           EXECUTION_MODE: ${{ inputs.execution_mode }}
           MANIFEST_ID: ${{ inputs.manifest_id }}
-          MANIFEST_ID: ${{ inputs.manifest_id }}
           ARTIFACT_ID: ${{ inputs.artifact_id }}
           ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
           TARGET: ${{ inputs.target }}
