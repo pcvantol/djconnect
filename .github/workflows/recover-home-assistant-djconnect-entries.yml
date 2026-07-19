@@ -1,0 +1,55 @@
+name: Recover DJConnect Home Assistant configuration entries
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        required: true
+        type: choice
+        options: [reload_djconnect_entries]
+      target:
+        required: true
+        type: choice
+        options: [home_assistant_pi5]
+
+permissions:
+  contents: read
+
+jobs:
+  reload:
+    runs-on: [self-hosted, macOS, ARM64, internal-release, private-network-deployment]
+    environment: private-network-deployment
+    permissions:
+      contents: read
+    steps:
+      - name: Validate explicitly authorized recovery request
+        env:
+          ACTION: ${{ inputs.action }}
+          TARGET: ${{ inputs.target }}
+        run: |
+          set -euo pipefail
+          test "$ACTION" = reload_djconnect_entries
+          test "$TARGET" = home_assistant_pi5
+      - name: Reload enabled DJConnect configuration entries
+        env:
+          HA_API_URL: ${{ secrets.DJCONNECT_HA_SMOKE_API_URL }}
+          HA_API_TOKEN: ${{ secrets.DJCONNECT_HA_SMOKE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --retry 3 --retry-delay 5 --max-time 10 \
+            --header "Authorization: Bearer $HA_API_TOKEN" \
+            "$HA_API_URL/api/config/config_entries/entry" > /tmp/djconnect-entries-before.json
+          mapfile -t entry_ids < <(jq -r '.[] | select(.domain == "djconnect" and .source == "user" and .disabled_by == null) | .entry_id' /tmp/djconnect-entries-before.json)
+          test "${#entry_ids[@]}" -gt 0
+          for entry_id in "${entry_ids[@]}"; do
+            curl --fail --silent --show-error --retry 3 --retry-delay 5 --max-time 30 \
+              --header "Authorization: Bearer $HA_API_TOKEN" \
+              --request POST "$HA_API_URL/api/config/config_entries/entry/$entry_id/reload" \
+              | jq -e '.require_restart == false' >/dev/null
+          done
+          curl --fail --silent --show-error --retry 3 --retry-delay 5 --max-time 10 \
+            --header "Authorization: Bearer $HA_API_TOKEN" \
+            "$HA_API_URL/api/config/config_entries/entry" > /tmp/djconnect-entries-after.json
+          loaded_entry_count="$(jq '[.[] | select(.domain == "djconnect" and .source == "user" and .disabled_by == null and .state == "loaded")] | length' /tmp/djconnect-entries-after.json)"
+          test "$loaded_entry_count" -eq "${#entry_ids[@]}"
+          printf 'reloaded_djconnect_entries=%s\n' "$loaded_entry_count"
