@@ -53,6 +53,7 @@ jobs:
           CANDIDATE_SHA: ${{ inputs.candidate_sha }}
           EXECUTION_MODE: ${{ inputs.execution_mode }}
           MANIFEST_ID: ${{ inputs.manifest_id }}
+          MANIFEST_ID: ${{ inputs.manifest_id }}
           ARTIFACT_ID: ${{ inputs.artifact_id }}
           ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
           TARGET: ${{ inputs.target }}
@@ -157,9 +158,12 @@ jobs:
           CANDIDATE_SHA: ${{ inputs.candidate_sha }}
         run: |
           set -euo pipefail
-          metadata="$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}")"
-          test "$(jq -r '.expired' <<<"$metadata")" = false
-          run_id="$(jq -r '.workflow_run.id' <<<"$metadata")"
+          manifest="$(mktemp)"
+          trap 'rm -f "$manifest"' EXIT
+          curl --fail --silent --show-error --location "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/main/docs/release/PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json" --output "$manifest"
+          artifact_url="$(jq -r --arg artifact "$ARTIFACT_ID" '.artifact_bindings[] | select(.target == "home_assistant_pi5" and (.artifact_id | tostring) == $artifact) | .artifact_url' "$manifest")"
+          run_id="${artifact_url##*/}"
+          printf '%s' "$run_id" | grep -Eq '^[0-9]+$'
           run="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}")"
           test "$(jq -r '.conclusion' <<<"$run")" = success
           test "$(jq -r '.head_branch' <<<"$run")" = main
@@ -169,7 +173,7 @@ jobs:
       - name: Download manifest-bound artifact
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
-          artifact-ids: ${{ inputs.artifact_id }}
+          name: djconnect-home-assistant-integration-${{ inputs.candidate_sha }}
           github-token: ${{ github.token }}
           run-id: ${{ steps.artifact.outputs.run_id }}
           path: artifact
