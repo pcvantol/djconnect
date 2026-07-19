@@ -50,7 +50,9 @@ release process the source of truth.
 - `VERIFICATION_VS_RELEASE.md` defines the boundary between runtime/hardware
   proof and release production.
 - `PLATFORM_RELEASE_OPERATIONAL_MODEL.md` defines Codex orchestration and
-  GitHub Actions build execution.
+  GitHub Actions build execution, including the reusable operational burn-in
+  procedure between qualified Internal Release deployment and the separate
+  Release Certification decision.
 - `RELEASE_ARCHITECTURE_CORRECTIONS_COMPLETION.md` records the 2026-07-13
   correction decision and its evidence.
 - `RUNNER_QUALIFICATION_REPORT.md`, `RUNNER_DEPLOYMENT_MATRIX.md` and
