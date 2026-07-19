@@ -9,7 +9,8 @@
 `INNOVATION_ENGINEERING_MODE_ESTABLISHED`,
 `PLATFORM_RELEASE_3_3_TARGETS_MERGE_RECONCILED`,
 `DJCONNECT_HOME_ASSISTANT_HTTP_ROUTE_INCIDENT_MERGE_RECONCILED`,
-`PLATFORM_RELEASE_3_3_RELEASE_COMPLETION_MERGE_RECONCILED`
+`PLATFORM_RELEASE_3_3_RELEASE_COMPLETION_MERGE_RECONCILED`,
+`PLATFORM_RELEASE_3_3_RELEASE_COMPLETION_POSTMERGE_RECONCILED`
 **Basis:** Objective repository evidence recorded in the linked documents.
 
 ## Current position
@@ -21,11 +22,11 @@
 | Software Assurance | Completed and frozen | `docs/software_assurance/SOFTWARE_ASSURANCE_GENERATION_1_CLOSURE_REPORT.md` |
 | Trusted Delivery | Completed and frozen | `docs/software_assurance/TRUSTED_DELIVERY_CERTIFICATION.md` |
 | Platform Release Engineering | Architecture qualified and frozen | `docs/release/PLATFORM_RELEASE_QUALIFICATION.md` |
-| Platform Release 3.3 | Operationally complete; transitioned to Maintenance; Release Completion PR #202 merged and archived | `docs/release/PLATFORM_3_3_RELEASE_COMPLETION.md`; `docs/history/prompts/2026-07-19-platform-release-3-3-release-completion.md` |
+| Platform Release 3.3 | Operationally complete; transitioned to Maintenance; Release Completion and reconciliation merged and archived | `docs/release/PLATFORM_3_3_RELEASE_COMPLETION.md`; `docs/history/prompts/2026-07-19-platform-release-3-3-release-completion-postmerge-reconciliation.md` |
 | Home Assistant HTTP route incident | PR #185 merged; config-entry route registration restored and future smoke detects missing routes | PR [#185](https://github.com/pcvantol/djconnect/pull/185) |
 | Engineering Workflow | Aligned; no implementation changed | `docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md` |
 | Engineering Method V2.3 | Established; no implementation or architecture changed | `ENGINEERING_METHOD.md` |
-| Post-Merge Engineering State | PR #202 merged; Platform Release 3.3 Release Completion records reconciled and archived | `docs/history/prompts/2026-07-19-platform-release-3-3-release-completion.md` |
+| Post-Merge Engineering State | PR #203 merged; Platform Release 3.3 Release Completion reconciliation archived | `docs/history/prompts/2026-07-19-platform-release-3-3-release-completion-postmerge-reconciliation.md` |
 | Safe Codex subagent parallelization | Merged in PR #161 | `ENGINEERING_METHOD.md` |
 | Innovation Engineering | Established and merged in PR #162; lightweight experiment mode defined | `docs/meta/INNOVATION_ENGINEERING.md` |
 | Repository Governance Rollout | Completed, merged, reconciled and archived | `docs/governance/REPOSITORY_GOVERNANCE_AUDIT_V2_2.md` |

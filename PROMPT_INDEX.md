@@ -68,24 +68,22 @@ planning is read.
 | Platform Release 3.3 Operational Burn-in Procedure | Completed / merged reconciled | Establish the reusable seven-day operational burn-in evidence procedure without execution changes. | `agent/platform-3-3-operational-burn-in` | PR [#200](https://github.com/pcvantol/djconnect/pull/200) |
 | Platform Release 3.3 Release Certification Process | Completed / merged reconciled | Establish the mandatory evidence-based Release Certification process without execution changes. | `agent/platform-3-3-release-certification-process` | PR [#201](https://github.com/pcvantol/djconnect/pull/201) |
 | Platform Release 3.3 Release Completion | Completed / merged reconciled / archived | Formally close the completed 3.3 release and transition it to Maintenance. | `agent/platform-3-3-release-completion` | `docs/history/prompts/2026-07-19-platform-release-3-3-release-completion.md`; PR [#202](https://github.com/pcvantol/djconnect/pull/202), merged as `be5504ad39a2eb251cda066c4fced865477291a6` |
-| Platform Release 3.3 Release Completion Post-Merge Reconciliation | Reviewable | Reconcile the merged Release Completion prompt archive and stale rolling-record navigation; no product, runtime, deployment, release or governance behaviour changes. | `codex/reconcile-platform-3-3-release-completion` | This reviewable reconciliation pull request |
+| Platform Release 3.3 Release Completion Post-Merge Reconciliation | Completed / merged reconciled / archived | Reconcile the merged Release Completion prompt archive and stale rolling-record navigation; no product, runtime, deployment, release or governance behaviour changes. | `codex/reconcile-platform-3-3-release-completion` | `docs/history/prompts/2026-07-19-platform-release-3-3-release-completion-postmerge-reconciliation.md`; PR [#203](https://github.com/pcvantol/djconnect/pull/203), merged as `49f4c7396e5fc6ec6bfdbbb4a9e03f8d5a373484` |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
 
 ## Current post-merge reconciliation
 
-PR #202 is merged as `be5504ad39a2eb251cda066c4fced865477291a6`; its Release
-Completion record is archived and Platform Release 3.3 is in Maintenance. The
-current reviewable reconciliation corrects the predecessor's stale reviewable
-navigation state. No Product Definition increment has started.
+PR #203 is merged as `49f4c7396e5fc6ec6bfdbbb4a9e03f8d5a373484`; the Release
+Completion reconciliation is archived and Platform Release 3.3 is in
+Maintenance. No Product Definition increment has started.
 
 ## Next Engineering Increment
 
-No Platform Release 3.3 execution is active. After this reconciliation is
-merged, select the next active work from Product Engineering or Innovation
-Engineering; 3.3 remains in Maintenance unless its completion record is
-formally reopened.
+No Platform Release 3.3 execution is active. Select the next active work from
+Product Engineering or Innovation Engineering; 3.3 remains in Maintenance
+unless its completion record is formally reopened.
 
 ## Active Next Phase
 
