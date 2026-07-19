@@ -87,6 +87,18 @@ Avoid speculative implementation.
 
 ---
 
+# Innovation Engineering
+
+When a prompt explicitly selects Innovation Engineering, follow
+`INNOVATION_ENGINEERING.md`. Use an `innovation/` branch by default, keep the
+learning objective bounded, deploy only explicitly requested targets and avoid
+roadmap, release, qualification and versioning work that is not needed for the
+experiment. Preserve build, smoke-validation, ownership, security and
+repository-integrity requirements. End the work with an Innovation Review;
+only an explicit Promote outcome returns it to Product Engineering.
+
+---
+
 # Preferred Workflow
 
 ```

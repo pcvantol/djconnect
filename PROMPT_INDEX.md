@@ -58,26 +58,27 @@ planning is read.
 | Observatory Hygiene Post-Merge Reconciliation | Completed / merged reconciled / archived | Reconcile rolling records after merged PR #155. | `codex/reconcile-observatory-hygiene-merge-postmerge` | `docs/history/prompts/2026-07-17-observatory-hygiene-postmerge-reconciliation.md`; PR [#156](https://github.com/pcvantol/djconnect/pull/156) |
 | Platform Release 3.3 Windows ARM64 Evidence Reconciliation | Completed / merged reconciled / archived | Reconcile the completed manifest-bound Windows ARM64 deployment and post-deployment smoke evidence into the canonical release records. | `codex/reconcile-windows-release-evidence` | `docs/release/PLATFORM_3_3_WINDOWS_DEPLOYMENT_COMPLETION.md`; PR [#157](https://github.com/pcvantol/djconnect/pull/157) |
 | Windows Evidence Post-Merge Reconciliation | Completed / merged reconciled / archived | Reconciled rolling records after merged PR #157; no release operation or implementation change. | `codex/reconcile-windows-evidence-postmerge` | `docs/history/prompts/2026-07-17-windows-evidence-postmerge-reconciliation.md`; PR [#158](https://github.com/pcvantol/djconnect/pull/158) |
+| Safe Codex Subagent Parallelization | Completed / merged reconciled | Establish bounded parallel read-only subagent delegation without changing the one-prompt/one-PR contract. | `codex/govern-subagent-parallelization` | `ENGINEERING_METHOD.md`; PR [#161](https://github.com/pcvantol/djconnect/pull/161) |
+| Innovation Engineering Method Evolution | Completed / reviewable | Establish Innovation Engineering as the official lightweight learning mode with an explicit promotion path. | `innovation/engineering-method-evolution` | `docs/history/prompts/2026-07-19-innovation-engineering-method-evolution.md`; PR [#162](https://github.com/pcvantol/djconnect/pull/162) |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
 
 ## Current post-merge reconciliation
 
-PR #157 recorded the already successful Windows ARM64 deployment and separately
-dispatched smoke. PR #158 subsequently reconciled its merged state into rolling
-records. Both increments are completed, merged, reconciled and archived; no
-`MERGED_UNRECONCILED` state remains. Neither increment operated another target
-or changed release architecture, manifests, authorization or workflow logic.
+PR #161 is merged in synchronized current main and establishes bounded Codex
+subagent parallelization. This Innovation Engineering Method Evolution
+increment reconciles that predecessor while it is reviewable. It does not
+operate a target or change release architecture, manifests, authorization or
+workflow logic.
 
 ## Next Engineering Increment
 
-The Windows ARM64 evidence records are merged, reconciled and archived. No
-following increment is active automatically. The recommended draft is a
-dedicated Engineering Governance increment to establish safe bounded Codex
-subagent parallelization. It must be selected explicitly after this
-reconciliation is reviewable. Do not begin Observatory implementation or a
-release operation as a consequence of this reconciliation.
+No following increment is active automatically after the reviewable Innovation
+Engineering Method Evolution increment. Select only an evidence-backed Product
+Development, Platform Evolution or Innovation Lab objective from current main.
+Do not begin Observatory implementation or a release operation as a consequence
+of this governance work.
 
 ## Active Next Phase
 

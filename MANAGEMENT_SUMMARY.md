@@ -5,7 +5,8 @@
 `ENGINEERING_WORKFLOW_ALIGNED`, `ENGINEERING_METHOD_V2_ESTABLISHED`,
 `ENGINEERING_METHOD_V2_3_ESTABLISHED`,
 `POST_MERGE_ENGINEERING_STATE_RECONCILIATION_ESTABLISHED`,
-`DJCONNECT_REPOSITORY_GOVERNANCE_AUDIT_PASSED`
+`DJCONNECT_REPOSITORY_GOVERNANCE_AUDIT_PASSED`,
+`INNOVATION_ENGINEERING_MODE_ESTABLISHED`
 **Basis:** Objective repository evidence recorded in the linked documents.
 
 ## Current position
@@ -21,6 +22,8 @@
 | Engineering Workflow | Aligned; no implementation changed | `docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md` |
 | Engineering Method V2.3 | Established; no implementation or architecture changed | `ENGINEERING_METHOD.md` |
 | Post-Merge Engineering State | PR #158 merged; Windows ARM64 evidence records reconciled and archived | `docs/history/prompts/2026-07-17-windows-evidence-postmerge-reconciliation.md` |
+| Safe Codex subagent parallelization | Merged in PR #161 | `ENGINEERING_METHOD.md` |
+| Innovation Engineering | Reviewable governance increment in PR #162; lightweight experiment mode defined | `docs/meta/INNOVATION_ENGINEERING.md` |
 | Repository Governance Rollout | Completed, merged, reconciled and archived | `docs/governance/REPOSITORY_GOVERNANCE_AUDIT_V2_2.md` |
 | macOS runner-host bootstrap | PR #147 merged; repin recorded | `docs/release/MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS.md` |
 | Platform Release Observatory | Design complete; implementation backlog only | `docs/platform_evolution/PLATFORM_RELEASE_OBSERVATORY_DESIGN.md` |

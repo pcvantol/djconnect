@@ -132,6 +132,12 @@ repository-state bootstrap, immutable Prompt History and fail-closed branch
 hygiene. `PROMPT_GOVERNANCE.md`, `PROMPT_FINALIZATION.md` and
 `AI_SESSION_INITIALIZATION.md` define the non-duplicated execution contracts.
 
+Innovation Engineering is the explicit learning-oriented mode of this method.
+Its intentionally lighter governance, branch and deployment rules, and
+Innovation Review outcomes are defined in `INNOVATION_ENGINEERING.md`.
+Innovation work remains subject to the non-negotiable repository-integrity and
+safety controls in the canonical workflow.
+
 ---
 
 # Engineering Lifecycle
