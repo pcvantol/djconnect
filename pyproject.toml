@@ -7,6 +7,9 @@ extend-exclude = [
     ".github",
 ]
 
+[tool.coverage.run]
+branch = true
+
 [tool.ruff.lint]
 select = [
     "E4",
