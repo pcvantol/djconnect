@@ -105,7 +105,7 @@ jobs:
             --output "$manifest"
           manifest_status="$(jq -r '.status' "$manifest")"
           case "$manifest_status" in
-            APPROVED_DEPLOYMENT_DISPATCH_PENDING|APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL) ;;
+            APPROVED_DEPLOYMENT_DISPATCH_PENDING|APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL|APPROVED_TARGET_DEPLOYMENT_OPERATIONAL) ;;
             *) echo "Manifest is not open for an authorized target deployment: $manifest_status" >&2; exit 1 ;;
           esac
           test "$(jq -r '.approval.state' "$manifest")" = APPROVED
