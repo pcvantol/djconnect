@@ -32,7 +32,9 @@ If a report crosses repository boundaries, email `security@djconnect.dev` and in
 
 ## Supported Versions
 
-Security fixes for this Home Assistant custom integration are normally released in the latest `3.1.x` version through HACS. Users should upgrade to the latest release before reporting an issue that may already be fixed.
+Security fixes for this Home Assistant custom integration are released through
+the latest HACS version. Users should upgrade to the latest release before
+reporting an issue that may already be fixed.
 
 ## Security Scope
 
