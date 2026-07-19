@@ -1,0 +1,147 @@
+# DJ Session Domain Model
+
+**Status:** Canonical product domain vocabulary
+**Owner:** DJConnect Product Development
+**Scope:** Product concepts and relationships
+
+## Purpose
+
+This document defines the canonical product vocabulary for the DJ Session
+model. It gives Product Engineering, clients, backend components and
+Innovation Engineering one shared meaning for the concepts below.
+
+`PRODUCT_DEFINITION.md` remains authoritative for product direction. This
+document describes the product domain only. It does not prescribe storage,
+databases, persistence, synchronization, APIs, protocol contracts, event
+schemas, serialization or implementation.
+
+## Core concepts
+
+| Concept | Product meaning | Responsibility |
+| --- | --- | --- |
+| DJ Session | One coherent listening experience orchestrated by the AI DJ. | Brings relevant DJConnect capabilities together for a listening moment without owning playback. |
+| Playback Context | The current playback situation available to the DJ. | Is owned by the configured Music Backend; DJConnect consumes it to enrich the session. |
+| Session Memory | The objective chronological memory of one DJ Session. | Records what happened as events only; it performs no interpretation. |
+| Session Timeline | The user-facing chronological presentation of Session Memory. | Tells the story of one completed DJ Session; it is not a chat history. |
+| Music DNA | The evolving, opt-in understanding of a person's musical identity across many DJ Sessions. | Interprets patterns in Session Memory; it never replaces Session Memory. |
+
+## DJ Session
+
+A **DJ Session** is the primary DJConnect product experience. The user
+perceives one AI DJ experience rather than separately selecting capabilities.
+Ask DJ, Discover, Track Insight, announcements, Music DNA and VibeCast remain
+individual capabilities that may contribute to a session.
+
+A DJ Session is independent from any specific playback provider. It enriches a
+listening experience but never owns playback.
+
+## Playback Context
+
+**Playback Context** represents the playback situation available to the DJ. It
+may include the current track, recent tracks, queue, playback state, playback
+device and room context.
+
+Playback Context is owned by the configured **Music Backend**, such as Spotify
+Direct or Music Assistant. DJConnect consumes the available context; it does
+not take ownership of playback in order to operate.
+
+## Session Memory
+
+**Session Memory** is the objective, chronological record of one DJ Session.
+It records what happened during that session as events only. It does not
+interpret preference, identity or meaning.
+
+Session Memory is contextual source material for future DJ decisions and Ask
+DJ conversations within the session. It is distinct from both a Timeline and
+Music DNA.
+
+## Session Events
+
+The following event categories are canonical product vocabulary. They identify
+meaningful session events without prescribing event schemas, fields, transport
+or serialization.
+
+| Category | Examples |
+| --- | --- |
+| Session lifecycle | `SessionStarted`, `SessionEnded` |
+| Playback | `TrackStarted`, `TrackFinished`, `PlaybackPaused`, `PlaybackResumed`, `QueueChanged` |
+| DJ contribution | `Announcement`, `TrackInsight`, `Recommendation` |
+| Conversation | `AskDJQuestion`, `AskDJAnswer` |
+| Listener action | `UserLike`, `UserDislike`, `UserSkip` |
+| Context change | `ProfileChanged`, `RoomChanged` |
+
+These categories do not imply that every event is visible to every person,
+profile or client. Product privacy boundaries still apply.
+
+## Session Timeline
+
+The **Session Timeline** is the user-facing chronological presentation of
+Session Memory for one completed DJ Session. It is the historical story of a
+listening experience, not a chat history.
+
+A Timeline may include played tracks, announcements, Track Insights, Ask DJ
+conversations, Discover moments, recommendations and significant user
+interactions. It does not change what occurred; it presents the relevant story
+of the session under the active profile and privacy boundaries.
+
+## Music DNA
+
+**Music DNA** is the evolving, opt-in understanding of a person's musical
+identity derived from patterns across many DJ Sessions. It interprets Session
+Memory across sessions to help the same AI DJ understand the listener over
+time.
+
+Music DNA never replaces Session Memory. Session Memory records objective
+events in one session; Music DNA interprets patterns across many sessions.
+Music DNA remains profile-centric and must not be exposed to shared, guest or
+room contexts unless the active profile and request context explicitly allow
+it.
+
+## Playback ownership
+
+Playback ownership always remains with the configured Music Backend. Spotify
+Direct and Music Assistant are examples of Music Backends. A DJ Session
+observes Playback Context and enriches the listening experience; it never owns
+playback, a provider account or provider-specific playback state.
+
+## Conceptual relationship model
+
+```text
+DJ Session
+  -> Playback Context
+  -> Session Memory
+  -> Session Timeline
+  -> Music DNA
+  -> Future DJ decisions
+```
+
+The relationship is conceptual:
+
+1. A DJ Session uses available Playback Context to understand the listening
+   moment.
+2. Objective events from that session form its Session Memory.
+3. The Session Timeline presents the chronological story of the completed
+   Session Memory.
+4. Across many sessions, opt-in Music DNA interprets relevant patterns in
+   Session Memory.
+5. That understanding can inform future DJ decisions without replacing the
+   underlying Session Memory or Music Backend ownership.
+
+## Terminology rules
+
+- Use **DJ Session** for the coherent product experience, not a provider
+  playback session or a client-specific screen.
+- Use **Session Memory** for objective session events, never for personal
+  preference interpretation.
+- Use **Session Timeline** for the user-facing story of a completed DJ Session,
+  never as a synonym for Ask DJ chat history.
+- Use **Music DNA** for opt-in cross-session interpretation of personal musical
+  identity, never as the primary session-event record.
+- Use **Playback Context** for Music Backend-owned playback information that
+  DJConnect consumes, not owns.
+
+## Boundaries
+
+This domain model introduces no implementation, architecture, roadmap,
+pricing, API, synchronization or storage decision. Any future work that needs
+those decisions must use this vocabulary and obtain its own appropriate scope.
