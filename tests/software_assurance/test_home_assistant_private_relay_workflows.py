@@ -25,6 +25,7 @@ class HomeAssistantPrivateRelayWorkflowTest(unittest.TestCase):
             "artifact_sha256:",
             "target:",
             "home_assistant_pi5",
+            "APPROVED_TARGET_DEPLOYMENT_OPERATIONAL",
             "private-network-deployment",
             "Verify immutable artifact provenance",
             "Require approved central operational manifest source",
@@ -45,6 +46,7 @@ class HomeAssistantPrivateRelayWorkflowTest(unittest.TestCase):
 
         for token in (
             "deployment_workflow_run:",
+            "APPROVED_TARGET_DEPLOYMENT_OPERATIONAL",
             "Download deployment evidence",
             "Read bounded Home Assistant health and installed integration version",
             "Authorization: Bearer $HA_API_TOKEN",
