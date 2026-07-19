@@ -5,11 +5,11 @@
 
 ## Current engineering increment
 
-Post-merge reconciliation after PR
-[#162](https://github.com/pcvantol/djconnect/pull/162). The Innovation
-Engineering Method Evolution is merged; this increment reconciles its rolling
-records only. It does not change product runtime architecture, release
-authorization, production manifests or implementation behaviour.
+Platform Release Engineering: Home Assistant deployment-consumer
+qualification is complete. The exact manifest-bound deployment and separate
+post-deployment smoke were executed through the approved private-network
+relay. This increment did not change product runtime architecture, deployment
+architecture, release authorization or the operational manifest.
 
 ## Current engineering program
 
@@ -27,19 +27,22 @@ canonical Engineering Method now includes the lightweight Innovation
 Engineering mode. This does not change Observatory priority, its read-only
 design boundary or the Release 3.3 authorization model.
 
-Platform Release 3.3 remains partially operational under manifest
-`release-3.3.0-internal-20260714`, status
-`APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL`. Seven target-scoped operations are
-complete, including `windows_internal_arm64`: deployment run `29583151393` and
-its separately dispatched smoke run `29588039127` both succeeded against the
-approved candidate and checksum. Existing manifest, GitHub workflow,
-deployment and smoke evidence are factual Observatory inputs, not an
-authorization to implement or operate the Observatory.
+All nine required target-scoped operations for Internal Release 3.3 have
+deployment and separate smoke evidence. The final Home Assistant operation
+uses candidate `30978862a2889bbf35925914e9e2fdb1a707f8a6`, immutable artifact
+`internal-ha-30978862…tar.gz` and SHA-256
+`03231ba00c3e21188e70efa3ec332042a942ba118e9663c424545f62fbe4c224`.
+Deployment run [29683604435](https://github.com/pcvantol/djconnect/actions/runs/29683604435)
+and smoke run [29683901389](https://github.com/pcvantol/djconnect/actions/runs/29683901389)
+succeeded. The smoke proves installed integration version `3.3.0`, an
+authenticated Home Assistant WebSocket handshake and bounded Core health.
+See `docs/release/PLATFORM_3_3_HOME_ASSISTANT_DEPLOYMENT_COMPLETION.md`.
 
 ## Known blockers and limitations
 
-- Home Assistant still lacks final target-specific Release 3.3 deployment and
-  smoke evidence; the Internal Release is incomplete.
+- Internal Release target deployment qualification is complete, but Release
+  Certification and operational burn-in are separate, explicitly authorized
+  later decisions.
 - The proposed Observatory has no implementation. Its future evidence timing
   contract, collector/persistence and dashboard are independent increments.
 
@@ -47,12 +50,13 @@ authorization to implement or operate the Observatory.
 
 - Perform the three separately authorized Observatory delivery increments in
   their documented order when priority and authorization permit.
-- Verify the recorded Home Assistant authorization against environment
-  readiness, and separately authorize and qualify the required iPad target.
+- Do not begin release certification or burn-in automatically; select it only
+  through its own approved engineering increment.
 
 ## Recommended next prompt
 
 No implementation prompt starts automatically. Select an evidence-backed
 Product Development, Platform Evolution or Innovation Lab objective from
-current main. Do not begin Observatory implementation or a release operation
-merely because this governance reconciliation completes.
+current main. Do not begin Release Certification, burn-in, Observatory
+implementation or another release operation merely because this qualification
+completed.
