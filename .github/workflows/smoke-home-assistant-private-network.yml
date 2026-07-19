@@ -161,6 +161,16 @@ jobs:
           active_entry_count="$(jq '[.[] | select(.domain == "djconnect" and .disabled_by == null)] | length' /tmp/djconnect-config-entries.json)"
           printf 'active_djconnect_config_entries=%s\n' "$active_entry_count"
           test "$active_entry_count" -gt 0
+      - name: Verify DJConnect route-registration lifecycle marker
+        env:
+          HAOS_HOST: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_HOST }}
+          HAOS_PORT: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_PORT }}
+          HAOS_USER: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_USER }}
+          SSH_TRANSPORT_PATH: ${{ steps.haos-transport.outputs.path }}
+        run: |
+          set -euo pipefail
+          ssh=(ssh -i "$SSH_TRANSPORT_PATH/id_ed25519" -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$SSH_TRANSPORT_PATH/known_hosts" -p "$HAOS_PORT" "$HAOS_USER@$HAOS_HOST")
+          "${ssh[@]}" "ha core logs -n 500 | grep -F 'DJConnect HTTP endpoints registered' | tail -n 1"
       - name: Verify DJConnect HTTP routes are registered
         env:
           HA_API_URL: ${{ secrets.DJCONNECT_HA_SMOKE_API_URL }}

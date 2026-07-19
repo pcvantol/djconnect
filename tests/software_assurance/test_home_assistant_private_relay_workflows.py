@@ -53,6 +53,8 @@ class HomeAssistantPrivateRelayWorkflowTest(unittest.TestCase):
             "Verify an active DJConnect configuration entry",
             "/api/config/config_entries/entry",
             'active_djconnect_config_entries=%s',
+            "Verify DJConnect route-registration lifecycle marker",
+            "DJConnect HTTP endpoints registered",
             "Verify DJConnect HTTP routes are registered",
             "/api/djconnect/v1/status",
             "/api/djconnect/v1/command",
