@@ -109,6 +109,35 @@ the implementation-reality check. If requested functionality already exists,
 is validated or is qualified, do not reimplement it; close only the remaining
 evidenced gaps.
 
+## Safe bounded subagent parallelization
+
+Codex may use subagents only for independent, bounded subtasks that improve
+throughput without weakening the one-prompt/one-increment/one-reviewable-PR
+contract. The coordinator remains the sole owner of scope, branch selection,
+implementation integration, final validation, evidence, commit and pull
+request.
+
+Subagents may parallelize read-only discovery, log and evidence analysis,
+independent test preparation, documentation research and non-overlapping
+validation. They must not independently merge, deploy, authorize operations,
+change governance, create competing prompts, or make overlapping writes.
+There must be one writer for each file or bounded artifact set at a time; the
+coordinator integrates every accepted change and resolves all conflicts.
+
+Parallelization must respect real execution capacity. Independent GitHub-hosted
+checks may run concurrently, but a single self-hosted runner is a serial
+resource unless its registered runner capacity and resource isolation have been
+objectively verified. Do not create parallel jobs merely to queue behind one
+runner. Security-sensitive work, secrets, signing identities and operational
+deployments remain coordinator-controlled and require their existing explicit
+authorizations.
+
+Every delegated subtask must state its objective, owner, allowed files or
+read-only boundary, expected evidence and completion condition. The coordinator
+records material delegation decisions and consolidates validation in the one
+reviewable pull request. If independence, ownership or safety is uncertain, do
+not delegate the work.
+
 ## Ownership and protection
 
 One prompt equals one engineering increment equals one reviewable pull request.
