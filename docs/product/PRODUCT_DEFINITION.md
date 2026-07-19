@@ -14,7 +14,8 @@ implementation, architecture, release scope, pricing or a feature backlog.
 
 `PRODUCT_ROADMAP.md` owns sequencing. `INNOVATION_LAB.md` owns unvalidated
 ideas. Platform and client architecture remain owned by their existing
-foundation records.
+foundation records. `DJ_SESSION_DOMAIN_MODEL.md` defines the canonical product
+vocabulary for the DJ Session model.
 
 ## Product in one sentence
 
