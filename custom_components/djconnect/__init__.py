@@ -2951,6 +2951,10 @@ async def _music_dna_enabled_for_daily_push(
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
+    # Some Home Assistant startup paths load config entries without first
+    # retaining the integration-level setup state. Registering here as well
+    # keeps the public HA routes available for every configured runtime.
+    register_http_views(hass)
     option_updates = dict(entry.options)
     runtime_for_defaults = DJConnectRuntime(entry=entry)
     if not option_updates.get(CONF_API_BASE_URL):

@@ -21,7 +21,7 @@ mark them qualified.
 | `authentication_mode` | Redacted authentication class, never a credential. |
 | `artifact_id` / `artifact_sha256` | Artifact identity bound to the manifest. |
 | `expected_version` / `observed_version` | Version read-back comparison. |
-| `health_result` / `websocket_result` | Route-health results; WebSocket is separately recorded when applicable. |
+| `health_result` / `djconnect_http_routes_result` / `websocket_result` | Route-health results; DJConnect route registration and WebSocket are separately recorded when applicable. |
 | `startup_marker_result` / `crash_log_result` | Bounded startup and crash-finding result. |
 | `retry_count` / `stabilization_window` / `timestamps` | Finite execution timing. |
 | `final_result` / `failure_classification` / `recovery_reference` | Decision and safe recovery pointer. |
