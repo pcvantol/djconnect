@@ -3170,6 +3170,55 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertEqual(response["payload"]["error"], "version_mismatch")
         self.assertEqual(response["payload"]["firmware"], "4.0.0")
 
+    def test_command_view_accepts_authenticated_pi_upgrade_version(self) -> None:
+        const = importlib.import_module("custom_components.djconnect.const")
+
+        class Runtime:
+            device_token = "device-token"
+            device_status = {
+                "device_id": "djconnect-raspberry-pi-90B70990A994",
+                "app_version": "3.2.20",
+            }
+            config = {}
+
+            def authorize_device_request(self, headers, body_device_id=None, client_type=None):
+                return True
+
+            def update(self, **kwargs):
+                self.last_update = kwargs
+
+        runtime = Runtime()
+
+        async def command_handler(hass, runtime_arg, command, value=None, *, play=False):
+            self.assertIs(runtime_arg, runtime)
+            self.assertEqual(command, "status")
+            return {"success": True}
+
+        class Request:
+            headers = {
+                "Authorization": "Bearer device-token",
+                "X-DJConnect-Device-ID": "djconnect-raspberry-pi-90B70990A994",
+            }
+            app = {"hass": types.SimpleNamespace(data={const.DOMAIN: {"runtime": runtime}})}
+
+            async def json(self):
+                return {
+                    "device_id": "djconnect-raspberry-pi-90B70990A994",
+                    "client_type": "raspberry_pi",
+                    "command": "status",
+                    "app_version": "3.3.0",
+                }
+
+        original = self.http.run_music_command
+        self.http.run_music_command = command_handler
+        try:
+            response = asyncio.run(self.http.DJConnectCommandView(None).post(Request()))
+        finally:
+            self.http.run_music_command = original
+
+        self.assertEqual(response["status_code"], 200)
+        self.assertEqual(runtime.device_status["app_version"], "3.3.0")
+
     def test_dev_firmware_zero_version_skips_major_minor_check(self) -> None:
         self.assertTrue(self.http._versions_compatible("3.0.7", "0.0.0"))
         self.assertTrue(self.http._versions_compatible("3.0.7", " 0.0.0 "))
@@ -5055,8 +5104,8 @@ class VoiceHttpHelperTest(unittest.TestCase):
                     "client_type": "watchos",
                     "platform": "watchos",
                     "command": "status",
-                    "firmware": "3.2.34",
-                    "app_version": "3.2.34",
+                    "firmware": "3.3.0",
+                    "app_version": "3.3.0",
                 }
 
         original = self.http.run_music_command
