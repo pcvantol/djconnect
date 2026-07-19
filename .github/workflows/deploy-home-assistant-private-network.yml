@@ -66,7 +66,7 @@ jobs:
           test "$RELEASE_PROFILE" = INTERNAL_RELEASE
           printf '%s' "$CANDIDATE_SHA" | grep -Eq '^[0-9a-f]{40}$'
           printf '%s' "$MANIFEST_ID" | grep -Eq '^release-[A-Za-z0-9._-]+$'
-          printf '%s' "$ARTIFACT_ID" | grep -Eq '^[0-9]+$'
+          printf '%s' "$ARTIFACT_ID" | grep -Eq '^release-asset:pcvantol/djconnect:internal-ha-[0-9a-f]{40}:djconnect-home-assistant-integration-[0-9a-f]{40}\.tar\.gz$'
           printf '%s' "$ARTIFACT_SHA256" | grep -Eq '^[0-9a-f]{64}$'
           printf '%s' "$PLATFORM_VERSION" | grep -Eq '^[0-9]+\.[0-9]+$'
       - name: Verify target deployment readiness
@@ -161,16 +161,16 @@ jobs:
           trap 'rm -f "$manifest"' EXIT
           curl --fail --silent --show-error --location "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/main/docs/release/PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json" --output "$manifest"
           artifact_url="$(jq -r --arg artifact "$ARTIFACT_ID" '.artifact_bindings[] | select(.target == "home_assistant_pi5" and (.artifact_id | tostring) == $artifact) | .artifact_url' "$manifest")"
-          run_id="${artifact_url##*/}"
-          printf '%s' "$run_id" | grep -Eq '^[0-9]+$'
-          printf 'run_id=%s\n' "$run_id" >> "$GITHUB_OUTPUT"
+          expected_url="https://github.com/${GITHUB_REPOSITORY}/releases/download/internal-ha-${CANDIDATE_SHA}/djconnect-home-assistant-integration-${CANDIDATE_SHA}.tar.gz"
+          test "$artifact_url" = "$expected_url"
+          printf 'artifact_url=%s\n' "$artifact_url" >> "$GITHUB_OUTPUT"
       - name: Download manifest-bound artifact
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
-        with:
-          name: djconnect-home-assistant-integration-${{ inputs.candidate_sha }}
-          github-token: ${{ secrets.DJCONNECT_RELEASE_ARTIFACT_READ_TOKEN }}
-          run-id: ${{ steps.artifact.outputs.run_id }}
-          path: artifact
+        env:
+          ARTIFACT_URL: ${{ steps.artifact.outputs.artifact_url }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifact
+          curl --fail --silent --show-error --location "$ARTIFACT_URL" --output artifact/djconnect-home-assistant-integration.tar.gz
       - name: Install exact integration artifact and restart Home Assistant OS Core
         env:
           ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
