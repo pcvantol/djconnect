@@ -5,11 +5,18 @@
 
 ## Current engineering increment
 
-Platform Release 3.3 is operationally complete. Its completed lifecycle is
-recorded in `docs/release/PLATFORM_3_3_RELEASE_COMPLETION.md`; active release
-execution has transitioned to Maintenance. This documentation-only increment
-establishes the reusable Release Completion procedure and records the 3.3
-closure without changing runtime or deployment behaviour.
+Platform Release 3.3 is operationally complete and in Maintenance. PR
+[#202](https://github.com/pcvantol/djconnect/pull/202), **Platform Release 3.3
+Release Completion**, merged on 2026-07-19 as
+`be5504ad39a2eb251cda066c4fced865477291a6` with decision `RELEASE_COMPLETE`.
+Its exact prompt is archived at
+`docs/history/prompts/2026-07-19-platform-release-3-3-release-completion.md`.
+
+This documentation-only post-merge reconciliation corrects the predecessor's
+stale reviewable navigation state and records the archive. It changes no
+runtime, deployment or release behaviour. No Product Definition increment has
+started; select the next Product Engineering increment only after this
+reconciliation is merged.
 
 ## Current engineering program
 

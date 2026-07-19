@@ -65,6 +65,15 @@ PR [#201](https://github.com/pcvantol/djconnect/pull/201) is merged as
 Release Certification procedure and its decision record without changing
 runtime, deployment or release execution behaviour.
 
+PR [#202](https://github.com/pcvantol/djconnect/pull/202), **Platform Release
+3.3 Release Completion**, is merged as
+`be5504ad39a2eb251cda066c4fced865477291a6` on 2026-07-19. It records
+`RELEASE_COMPLETE`, transitions Platform Release 3.3 to Maintenance and is
+archived at
+`docs/history/prompts/2026-07-19-platform-release-3-3-release-completion.md`.
+This post-merge reconciliation corrects only the stale rolling-record and
+Prompt History administration; it does not start Product Definition work.
+
 Canonical lifecycle:
 
 ```text
@@ -238,11 +247,11 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-Platform Release 3.3 Release Completion and Maintenance transition. This
-documentation-only increment reconciles merged PR #201, records the 3.3
-closure, and returns active focus to Product Engineering and Innovation
-Engineering without altering runtime, deployment workflows, manifests or
-release architecture.
+Platform Release 3.3 Release Completion post-merge reconciliation. The
+predecessor PR #202 is merged and its release-completion prompt is archived;
+this reviewable documentation-only increment reconciles the stale Prompt Index
+and rolling records. No Product Definition increment has started. Select the
+next Product Engineering increment only after this reconciliation is merged.
 
 ## Completion Report
 
