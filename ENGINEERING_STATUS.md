@@ -5,14 +5,14 @@
 
 ## Current engineering increment
 
-Platform Release Engineering: the completed Home Assistant deployment-consumer
-qualification is merged and reconciled. PR
-[#183](https://github.com/pcvantol/djconnect/pull/183) merged as
-`f314717d2e56e2565bb9bcaf4fad0091e2cb39d2`; its post-merge main validation
-run [29684159871](https://github.com/pcvantol/djconnect/actions/runs/29684159871)
-passed, including HACS validation. This reconciliation does not change product
-runtime architecture, deployment architecture, release authorization or the
-operational manifest.
+Home Assistant runtime incident remediation is merged and reconciled. PR
+[#185](https://github.com/pcvantol/djconnect/pull/185) merged as
+`1e886715c5619bcfe28987f396c6fe8205c5681e`; its post-merge main validation
+run [29685455321](https://github.com/pcvantol/djconnect/actions/runs/29685455321)
+passed, including HACS validation. The change restores route registration from
+config-entry setup and extends future Home Assistant smoke evidence with the
+three DJConnect route probes. It does not invalidate the prior 3.3 target
+qualification evidence.
 
 ## Current engineering program
 
@@ -44,6 +44,13 @@ The failed pull-request-only HACS job was classified as a branch-cleanup race:
 it attempted to resolve the deleted review branch after the merge. The
 authoritative `main` run passed, so no workflow or integration remediation is
 required.
+
+PR [#185](https://github.com/pcvantol/djconnect/pull/185) remediates the
+separate active Home Assistant runtime incident: the configured-entry lifecycle
+now independently registers the existing HTTP views, and future smoke runs
+fail closed if `/status`, `/command` or `/voice` returns `404`. The merged main
+validation passed. A new exact artifact binding and target deployment remain a
+separate explicitly authorized operational action.
 
 ## Known blockers and limitations
 
