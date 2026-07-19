@@ -10,7 +10,7 @@
   "approval": {
     "state": "APPROVED",
     "approved_at": "2026-07-15",
-    "approved_statement": "I explicitly approve updated operational manifest release-3.3.0-internal-20260714 for target home_assistant_pi5, candidate 0227e95ba10e8cc9256185a3bec6d22f86e286d4, artifact 8347737416, SHA-256 88c065ca672e7ba7155a30aa7b4737075d41e629cc748c8a60385ae1a3464aa9, and authorize its manifest-bound deployment followed by post-deployment smoke.",
+    "approved_statement": "I explicitly approve updated operational manifest release-3.3.0-internal-20260714 for target home_assistant_pi5, candidate 1284582318a10ba83a8a8c9b9189650f43c4f5e7, artifact 8440382481, SHA-256 83368a8b43e799ebf59157eb83c8a4959b3a5a83bb2a4f8399d1b9d70138b27a, and authorize its manifest-bound deployment followed by post-deployment smoke.",
     "additional_target_authorizations": [
       {
         "approved_at": "2026-07-15",
@@ -84,7 +84,7 @@
     "effect": "Deployment and post-deployment smoke remain separately dispatched, target-scoped operations. The maintainer authorized the home_assistant_pi5, cloudflare_pages_production, esp32_lilygo_t_embed_s3, apple_private_device/iphone (with required paired Watch validation), apple_private_device/macbook and windows_internal_arm64 deployments with their exact bindings and corresponding post-deployment smoke; the latest Apple authorizations supersede the prior Apple 3.3.0 artifact bindings. No other target is authorized by these approvals."
   },
   "repositories": [
-    {"repository": "pcvantol/djconnect", "source_sha": "0227e95ba10e8cc9256185a3bec6d22f86e286d4", "version": "3.3.0", "artifact_run": "29427139585"},
+    {"repository": "pcvantol/djconnect", "source_sha": "1284582318a10ba83a8a8c9b9189650f43c4f5e7", "version": "3.3.0", "artifact_run": "29680464819"},
     {"repository": "pcvantol/djconnect-api", "source_sha": "6f6dee8a6edf72b8a48fa347ef587ede2976badd", "version": "3.3.0", "artifact_run": "29363742261"},
     {"repository": "pcvantol/djconnect-app", "source_sha": "dffdeb1755f4fe4ee8309ff56582640110dc176a", "version": "3.3.0", "artifact_run": "29451514840"},
     {"repository": "pcvantol/djconnect-windows", "source_sha": "6c0c3c3478c81472e479184dc03e51fd095dc4b2", "version": "3.3.0", "artifact_run": "29338767948"},
@@ -104,7 +104,7 @@
     {"target": "windows_internal_arm64", "required": true}
   ],
   "artifact_bindings": [
-    {"owner": "pcvantol/djconnect", "target": "home_assistant_pi5", "artifact_id": "8347737416", "artifact_sha256": "88c065ca672e7ba7155a30aa7b4737075d41e629cc748c8a60385ae1a3464aa9", "artifact_url": "https://github.com/pcvantol/djconnect/actions/runs/29427139585"},
+    {"owner": "pcvantol/djconnect", "target": "home_assistant_pi5", "artifact_id": "8440382481", "artifact_sha256": "83368a8b43e799ebf59157eb83c8a4959b3a5a83bb2a4f8399d1b9d70138b27a", "artifact_url": "https://github.com/pcvantol/djconnect/actions/runs/29680464819"},
     {"owner": "pcvantol/djconnect-api", "target": "cloudflare_workers_production", "artifact_id": "8323208436", "artifact_sha256": "f9d8c29787297a939d16e6f3fab3f9cd4455518def4565830b5ca57f76a80819", "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/29363742261"},
     {"owner": "pcvantol/djconnect-website", "target": "cloudflare_pages_production", "artifact_id": "8346470431", "artifact_sha256": "dff7ba59c2cf3cd299670487d09ba6e98d845659736dfd0e9770e884e8127027", "artifact_url": "https://github.com/pcvantol/djconnect-website/actions/runs/29424048694"},
     {"owner": "pcvantol/djconnect-esp32", "target": "esp32_lilygo_t_embed_s3", "artifact_id": "release-asset:pcvantol/djconnect-firmware:v3.3.0:djconnect-lilygo-t-embed-s3-v3.3.0.bin", "artifact_sha256": "c25444d3ef414489848fd2d8de624785c82eb90195cc861bcb63085e0df3ceeb", "artifact_url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.3.0/djconnect-lilygo-t-embed-s3-v3.3.0.bin"},
