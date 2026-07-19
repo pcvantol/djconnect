@@ -57,6 +57,8 @@ class HomeAssistantPrivateRelayWorkflowTest(unittest.TestCase):
             "/api/config/config_entries/entry",
             'djconnect_entry_states=%s',
             'loaded_djconnect_config_entries=%s',
+            "Error occurred loading flow for integration djconnect",
+            "ha core logs -n 5000",
             "Verify DJConnect route-registration lifecycle marker",
             "DJConnect HTTP endpoints registered",
             "Verify DJConnect HTTP routes are registered",
