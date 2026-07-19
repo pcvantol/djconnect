@@ -139,6 +139,96 @@ separate certification decision defined by Prompt 5. It neither certifies the
 release nor authorizes publication, deployment, rollback or a change to the
 release scope.
 
+## Release Certification procedure
+
+Release Certification is the mandatory, evidence-based lifecycle stage
+immediately after successful Operational Burn-in. It determines whether one
+exact immutable release candidate is eligible to proceed to Public
+Distribution where that channel is in scope, or to the declared Maintenance
+posture where it is not. Certification is a process decision only: it does not
+publish, deploy, retag, alter a manifest or change a runtime.
+
+### Objective and authority
+
+The certification objective is an objective, traceable decision on whether the
+declared candidate has complete and valid engineering, verification,
+deployment and burn-in evidence for its approved scope. The Platform Release
+certification authority is the accountable release authority already recorded
+for the release manifest. It verifies and records the decision from
+authoritative evidence; it cannot create an exception, change the candidate,
+waive missing evidence or authorize a release behaviour outside the existing
+release process.
+
+### Prerequisites and required evidence
+
+Certification may begin only when the following evidence is complete and bound
+to the same immutable manifest, artifact identities and target scope:
+
+- engineering evidence: scope and ownership, version and compatibility,
+  artifact provenance and integrity, Software Assurance and Trusted Delivery
+  status, recovery posture, and any applicable legal, localization or channel
+  readiness evidence;
+- verification evidence: the required candidate-bound Verification Platform
+  qualification and compatible runtime evidence;
+- deployment evidence: successful manifest-bound deployment and separate
+  post-deployment smoke evidence for every required target;
+- burn-in evidence: a `BURN_IN_COMPLETE` record with the declared observation
+  window, target ledger, incident/exception register and redacted evidence
+  references; and
+- an exception register that is empty or fully populated for every proposed
+  accepted exception.
+
+Evidence that is missing, stale, untraceable, unredacted, bound to a different
+candidate or contradicted by an unresolved release-blocking finding fails
+certification. Certification does not re-run Verification, deployment or
+burn-in; it consumes their existing authoritative evidence.
+
+### Decision outcomes and accepted exceptions
+
+The certification record uses exactly one of these outcomes:
+
+| Outcome | Meaning |
+| --- | --- |
+| `CERTIFIED` | Every prerequisite passes and no accepted exception is required. |
+| `CERTIFIED_WITH_ACCEPTED_EXCEPTIONS` | Every release-blocking prerequisite passes and each remaining exception is already approved as non-blocking by an engineering decision. This is a certified result with an explicit exception register, not a waiver created by certification. |
+| `NOT_CERTIFIED` | A prerequisite is missing, failed, stale, mismatched, release-blocking or lacks a valid accepted-exception record. |
+
+Each accepted exception must reference its approved engineering decision and
+record its owner, mitigation, review date and impact assessment. The
+certification authority must verify that the decision is applicable to the
+exact candidate and scope. An exception without all of these fields, an
+expired review date or an exception that masks a release-blocking condition
+requires `NOT_CERTIFIED`.
+
+### Certification record and post-certification lifecycle
+
+The certification record identifies the manifest, candidate and artifact
+identities, scope, certification authority, decision time, evidence
+references, decision outcome, exception register, residual risks and the next
+lifecycle action. It remains redacted and immutable after the decision.
+
+The reusable operational lifecycle is:
+
+```text
+Development
+  -> Verification
+  -> Qualification
+  -> Deployment
+  -> Operational Burn-in
+  -> Release Certification
+  -> Public Distribution (where applicable)
+  -> Maintenance
+```
+
+`CERTIFIED` and `CERTIFIED_WITH_ACCEPTED_EXCEPTIONS` permit the separately
+authorized next lifecycle action for the same candidate; they do not replace
+Publication Authorization or cause publication automatically. `NOT_CERTIFIED`
+preserves the evidence, blocks Public Distribution and returns the affected
+scope to the earliest lifecycle stage invalidated by the finding. Any change
+to candidate identity, artifact, scope or required evidence invalidates the
+certification record and requires a new decision after the applicable
+lifecycle stages complete.
+
 ## Native runner alignment
 
 Apple and Windows native source-build paths are qualified as of 2026-07-13.

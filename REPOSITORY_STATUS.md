@@ -54,6 +54,12 @@ smoke runs. The already qualified 3.3 target evidence remains historical and
 valid; a new artifact binding and target deployment are separate operational
 work.
 
+PR [#200](https://github.com/pcvantol/djconnect/pull/200) is merged as
+`8c1dcc40f6dd4ace8753bdb904b906ee1a0821ea`. It establishes the reusable
+Operational Burn-in procedure for a manifest-bound Internal Release; it does
+not start or complete the 3.3 observation window, certify a release, or alter
+release execution.
+
 Canonical lifecycle:
 
 ```text
@@ -156,15 +162,17 @@ validation, iPad, Windows ARM64 and Home Assistant Pi 5. Home Assistant
 deployment run `29683604435` and post-deployment smoke run `29683901389`
 succeeded against candidate `30978862a2889bbf35925914e9e2fdb1a707f8a6` and
 SHA-256 `03231ba00c3e21188e70efa3ec332042a942ba118e9663c424545f62fbe4c224`.
-All required Internal Release targets are qualified. Operational burn-in and
-Release Certification remain separate and unstarted.
+All required Internal Release targets are qualified. The Operational Burn-in
+process is established, while 3.3 burn-in evidence and the Release
+Certification decision remain separate and unstarted.
 
 Windows native-preflight consumer adoption removed the former consumer-level
 Bash/WSL prerequisite without changing the approved manifest or deployment
 authorization. The subsequent authorized operation is now complete.
 
-Prompt 5 certification remains generated but inactive. It requires completed
-operational release and burn-in evidence; it is not the next automatic action.
+Prompt 5 certification remains inactive pending completed operational burn-in
+evidence and explicit execution authorization; it is not the next automatic
+action.
 
 ## Historical Software Assurance implementation record
 
@@ -216,8 +224,9 @@ architecture are stable enough to freeze.
 
 ## Blocking Dependencies
 
-- Platform Release 3.3 target qualification is complete. Burn-in evidence and
-  the subsequent Release Certification decision remain explicitly separate.
+- Platform Release 3.3 target qualification is complete. The reusable
+  Operational Burn-in process is established; burn-in evidence and the
+  subsequent Release Certification decision remain explicitly separate.
 - Platform Release Certification requires a successful Internal Release and
   sufficient burn-in evidence; it must not be started automatically.
 - Platform Baseline v1.0, Software Assurance Generation 1 and Trusted
@@ -225,10 +234,11 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-Platform Release 3.3 target-qualification post-merge reconciliation. PR #183
-is merged and its exact deployment and smoke evidence is now archival release
-knowledge. This increment does not alter release architecture, authorization
-or the operational manifest.
+Platform Release 3.3 Release Certification process establishment. This
+documentation-only increment reconciles merged PR #200 and defines the
+mandatory evidence-based certification stage without altering release
+architecture, authorization, runtime, deployment workflows or the operational
+manifest.
 
 ## Completion Report
 

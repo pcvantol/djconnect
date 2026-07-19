@@ -51,8 +51,8 @@ release process the source of truth.
   proof and release production.
 - `PLATFORM_RELEASE_OPERATIONAL_MODEL.md` defines Codex orchestration and
   GitHub Actions build execution, including the reusable operational burn-in
-  procedure between qualified Internal Release deployment and the separate
-  Release Certification decision.
+  and Release Certification procedures between qualified Internal Release
+  deployment and any separately authorized Public Distribution.
 - `RELEASE_ARCHITECTURE_CORRECTIONS_COMPLETION.md` records the 2026-07-13
   correction decision and its evidence.
 - `RUNNER_QUALIFICATION_REPORT.md`, `RUNNER_DEPLOYMENT_MATRIX.md` and

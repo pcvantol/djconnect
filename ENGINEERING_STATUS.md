@@ -5,14 +5,13 @@
 
 ## Current engineering increment
 
-Home Assistant runtime incident remediation is merged and reconciled. PR
-[#185](https://github.com/pcvantol/djconnect/pull/185) merged as
-`1e886715c5619bcfe28987f396c6fe8205c5681e`; its post-merge main validation
-run [29685455321](https://github.com/pcvantol/djconnect/actions/runs/29685455321)
-passed, including HACS validation. The change restores route registration from
-config-entry setup and extends future Home Assistant smoke evidence with the
-three DJConnect route probes. It does not invalidate the prior 3.3 target
-qualification evidence.
+Operational burn-in process establishment is merged. PR
+[#200](https://github.com/pcvantol/djconnect/pull/200) merged as
+`8c1dcc40f6dd4ace8753bdb904b906ee1a0821ea`; it defines the reusable,
+seven-day evidence-only observation procedure for the exact Internal Release
+scope. It does not assert that burn-in evidence has been collected or that
+Platform Release 3.3 is certified. The current documentation-only increment
+establishes the mandatory Release Certification process that follows burn-in.
 
 ## Current engineering program
 
@@ -54,9 +53,9 @@ separate explicitly authorized operational action.
 
 ## Known blockers and limitations
 
-- Internal Release target deployment qualification is complete, but Release
-  Certification and operational burn-in are separate, explicitly authorized
-  later decisions.
+- Internal Release target deployment qualification is complete and the
+  Operational Burn-in process is established, but burn-in evidence and a
+  Release Certification decision remain separate operational actions.
 - The proposed Observatory has no implementation. Its future evidence timing
   contract, collector/persistence and dashboard are independent increments.
 
@@ -64,13 +63,13 @@ separate explicitly authorized operational action.
 
 - Perform the three separately authorized Observatory delivery increments in
   their documented order when priority and authorization permit.
-- Do not begin release certification or burn-in automatically; select it only
-  through its own approved engineering increment.
+- Do not execute burn-in, Release Certification or Public Distribution
+  automatically; each remains an evidence-backed, separately authorized
+  operational action.
 
 ## Recommended next prompt
 
-No implementation prompt starts automatically. Select an evidence-backed
-Product Development, Platform Evolution or Innovation Lab objective from
-current main. Do not begin Release Certification, burn-in, Observatory
-implementation or another release operation merely because this qualification
-completed.
+After this process increment, no release operation starts automatically. The
+next eligible Release 3.3 action is collection of the declared burn-in evidence
+for the exact bound Internal Release scope, followed by a separately authorized
+certification decision.
