@@ -76,4 +76,4 @@ product strategy.
 ## Current Documents
 
 - `PRODUCT_STRATEGY.md`
-- `PRODUCT_DEFINITION_2_0.md`
+- `PRODUCT_DEFINITION.md`
