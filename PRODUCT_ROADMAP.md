@@ -11,7 +11,7 @@ Lab or Deferred. `ROADMAP_INDEX.md` owns cross-program navigation.
 
 | Initiative | Status | Dependencies | Delivery order |
 | --- | --- | --- | --- |
-| Product Definition and Community/Personal proposition | Planned | product research and five-language product copy | 1 |
+| Product Definition and Community/Personal proposition | Completed | `docs/product/PRODUCT_DEFINITION_2_0.md` | 1 |
 | Website redesign | Backlog | Product Definition | 2 |
 | Multi-user Profiles | Planned | existing Profile foundation and privacy validation | 2 |
 | Music DNA | Planned | Multi-user Profiles | 3 |
