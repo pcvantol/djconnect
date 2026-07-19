@@ -148,7 +148,7 @@ jobs:
         run: |
           set -euo pipefail
           ssh=(ssh -i "$SSH_TRANSPORT_PATH/id_ed25519" -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$SSH_TRANSPORT_PATH/known_hosts" -p "$HAOS_PORT" "$HAOS_USER@$HAOS_HOST")
-          "${ssh[@]}" 'set -eu; test -d /config; test -d /config/custom_components; command -v ha >/dev/null; ha core info --raw >/dev/null'
+          "${ssh[@]}" 'set -eu; test -d /config; test -d /config/custom_components; command -v ha >/dev/null; ha core info --raw-json >/dev/null'
       - id: artifact
         name: Verify immutable artifact provenance
         env:
