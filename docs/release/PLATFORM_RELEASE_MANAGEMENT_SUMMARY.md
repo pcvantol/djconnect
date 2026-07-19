@@ -1,6 +1,6 @@
 # Platform Release 3.3 — Management Summary
 
-Current decision: `PLATFORM_RELEASE_3_3_INTERNAL_TARGETS_QUALIFIED`
+Current decision: `PLATFORM_RELEASE_3_3_COMPLETE`
 
 Historical decision: `PLATFORM_RELEASE_DRY_RUN_PASSED`
 
@@ -24,9 +24,10 @@ separate post-deployment smoke for `cloudflare_workers_production`,
 records. The final Home Assistant operation used deployment run `29683604435`
 and post-deployment smoke run `29683901389`.
 
-The Internal Release target-deployment scope is closed. The reusable
-Operational Burn-in procedure is established, but this does not establish
-burn-in evidence or a Release Certification decision.
+The Internal Release target-deployment scope, Operational Burn-in and Release
+Certification are complete. The formal closure record is
+`PLATFORM_3_3_RELEASE_COMPLETION.md`; active release execution has transitioned
+to Maintenance.
 
 The sole component patch within Platform Release 3.3.0 is the Home
 Assistant/HACS integration `3.3.1`. Its exact artifact, Pi5 deployment and
@@ -37,13 +38,11 @@ Platform Release Certification is deferred until after a successful
 operational release and sufficient burn-in evidence. It cannot substitute for
 any of the prerequisites above.
 
-The next operational evidence phase is the reusable burn-in procedure in
-`PLATFORM_RELEASE_OPERATIONAL_MODEL.md`: a seven-day continuous observation
-window for the exact, already-bound Internal Release target scope. Its evidence
-is required before the mandatory Release Certification stage. The same
-operational model defines the certification authority, evidence requirements,
-three decision outcomes and the transition to separately authorized Public
-Distribution or Maintenance. Neither procedure itself certifies, publishes or
+The reusable operational model now ends with Release Completion followed by
+Maintenance. Compatible component patches, including Home Assistant `3.3.1`,
+remain part of the certified Platform 3.3 train unless they introduce a
+platform-level architectural change. Neither completion nor maintenance
+delivery itself changes certification, publishes a new platform release or
 redeploys Platform Release 3.3.
 
 The historical 3.3 release-candidate dry run resolved exactly the three

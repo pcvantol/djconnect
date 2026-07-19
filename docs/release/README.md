@@ -31,6 +31,8 @@ release process the source of truth.
 - `PLATFORM_3_3_INTERNAL_RELEASE_TARGET_COMPLETION.md` records the completed
   target-deployment scope for the Internal Release; it is not a burn-in or
   Release Certification record.
+- `PLATFORM_3_3_RELEASE_COMPLETION.md` is the formal closure record for
+  Platform Release 3.3 and its transition to Maintenance.
 - `PLATFORM_RELEASE_COMPLIANCE_REPORT.md`,
   `PLATFORM_RELEASE_OPERATIONAL_READINESS.md` and
   `PLATFORM_RELEASE_GAP_ANALYSIS.md` record the supporting compliance,
@@ -51,8 +53,7 @@ release process the source of truth.
   proof and release production.
 - `PLATFORM_RELEASE_OPERATIONAL_MODEL.md` defines Codex orchestration and
   GitHub Actions build execution, including the reusable operational burn-in
-  and Release Certification procedures between qualified Internal Release
-  deployment and any separately authorized Public Distribution.
+  Release Certification and Release Completion procedures through Maintenance.
 - `RELEASE_ARCHITECTURE_CORRECTIONS_COMPLETION.md` records the 2026-07-13
   correction decision and its evidence.
 - `RUNNER_QUALIFICATION_REPORT.md`, `RUNNER_DEPLOYMENT_MATRIX.md` and

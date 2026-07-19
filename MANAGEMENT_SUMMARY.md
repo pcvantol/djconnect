@@ -20,7 +20,7 @@
 | Software Assurance | Completed and frozen | `docs/software_assurance/SOFTWARE_ASSURANCE_GENERATION_1_CLOSURE_REPORT.md` |
 | Trusted Delivery | Completed and frozen | `docs/software_assurance/TRUSTED_DELIVERY_CERTIFICATION.md` |
 | Platform Release Engineering | Architecture qualified and frozen | `docs/release/PLATFORM_RELEASE_QUALIFICATION.md` |
-| Platform Release 3.3 Internal | All nine required targets deployment-qualified; Operational Burn-in process established, with evidence and certification still separate | `docs/release/PLATFORM_RELEASE_OPERATIONAL_MODEL.md` |
+| Platform Release 3.3 | Operationally complete; transitioned to Maintenance | `docs/release/PLATFORM_3_3_RELEASE_COMPLETION.md` |
 | Home Assistant HTTP route incident | PR #185 merged; config-entry route registration restored and future smoke detects missing routes | PR [#185](https://github.com/pcvantol/djconnect/pull/185) |
 | Engineering Workflow | Aligned; no implementation changed | `docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md` |
 | Engineering Method V2.3 | Established; no implementation or architecture changed | `ENGINEERING_METHOD.md` |
@@ -74,10 +74,10 @@ ARM64 and Home Assistant Pi 5. Each has objective GitHub Actions evidence for
 a successful manifest-bound deployment and separate post-deployment smoke. The
 final Home Assistant evidence is deployment run `29683604435` and smoke run
 `29683901389`; it reads back integration version `3.3.0`, an authenticated
-WebSocket and bounded Core health. PR [#200](https://github.com/pcvantol/djconnect/pull/200)
-merged the reusable Operational Burn-in process; its evidence collection and
-the subsequent Release Certification decision remain separate actions and do
-not begin automatically.
+WebSocket and bounded Core health. The completed release lifecycle, including
+Operational Burn-in and Release Certification, is formally closed by
+`docs/release/PLATFORM_3_3_RELEASE_COMPLETION.md`; Platform Release 3.3 now
+transitions to Maintenance.
 
 The Windows remediation isolated a platform automation dependency rather than a
 Windows application defect: its shared readiness preflight used Bash, which

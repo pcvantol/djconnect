@@ -217,6 +217,7 @@ Development
   -> Operational Burn-in
   -> Release Certification
   -> Public Distribution (where applicable)
+  -> Release Completion
   -> Maintenance
 ```
 
@@ -228,6 +229,44 @@ scope to the earliest lifecycle stage invalidated by the finding. Any change
 to candidate identity, artifact, scope or required evidence invalidates the
 certification record and requires a new decision after the applicable
 lifecycle stages complete.
+
+## Release Completion procedure
+
+Release Completion is the final administrative lifecycle stage for an exact
+certified Platform Release. Its objective is to create one immutable closure
+record, transfer the release from active execution to Maintenance, and make
+clear which later work belongs to a new Platform Release instead of reopening
+the completed one. It does not change a runtime, deployment, manifest, version
+or certification result.
+
+### Completion record and decision
+
+The completion record must identify the release identifier, certification
+reference and outcome, completion decision and date, release owner, supported
+component versions, maintenance owner, post-release responsibilities and any
+residual support considerations. The release owner verifies that all in-scope
+Public Distribution actions are complete or explicitly not applicable before
+recording `RELEASE_COMPLETE`.
+
+After `RELEASE_COMPLETE`, Maintenance owns only defect fixes, security updates,
+component patch releases and operational support. The completion record is not
+a new release gate and does not authorize a new release execution.
+
+### Reopening and patch relationship
+
+A completed release may be reopened only when new evidence shows that its
+certification, supported-component set or completion decision is invalid, or
+when an in-scope release-blocking defect or security issue requires a
+coordinated release response. Reopening preserves the original record, states
+the reason and affected scope, and resumes at the earliest lifecycle stage
+invalidated by that evidence.
+
+Compatible component patch releases remain part of the completed certified
+Platform Release when they stay within its platform Major.Minor train and do
+not introduce platform-level architectural changes. They are recorded as
+maintenance deliveries against the completed release; a platform-level
+architectural change requires a new Platform Release lifecycle rather than a
+retroactive change to the completed one.
 
 ## Native runner alignment
 

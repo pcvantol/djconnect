@@ -60,6 +60,11 @@ Operational Burn-in procedure for a manifest-bound Internal Release; it does
 not start or complete the 3.3 observation window, certify a release, or alter
 release execution.
 
+PR [#201](https://github.com/pcvantol/djconnect/pull/201) is merged as
+`a97aca0542cd8fa079045880646cd3387ff8dbe0`. It establishes the reusable
+Release Certification procedure and its decision record without changing
+runtime, deployment or release execution behaviour.
+
 Canonical lifecycle:
 
 ```text
@@ -162,17 +167,17 @@ validation, iPad, Windows ARM64 and Home Assistant Pi 5. Home Assistant
 deployment run `29683604435` and post-deployment smoke run `29683901389`
 succeeded against candidate `30978862a2889bbf35925914e9e2fdb1a707f8a6` and
 SHA-256 `03231ba00c3e21188e70efa3ec332042a942ba118e9663c424545f62fbe4c224`.
-All required Internal Release targets are qualified. The Operational Burn-in
-process is established, while 3.3 burn-in evidence and the Release
-Certification decision remain separate and unstarted.
+Platform Release 3.3 is operationally complete. Its formal completion record
+transitions the certified release to Maintenance; release engineering no longer
+owns an active 3.3 execution stream.
 
 Windows native-preflight consumer adoption removed the former consumer-level
 Bash/WSL prerequisite without changing the approved manifest or deployment
 authorization. The subsequent authorized operation is now complete.
 
-Prompt 5 certification remains inactive pending completed operational burn-in
-evidence and explicit execution authorization; it is not the next automatic
-action.
+The completed Release Certification process remains reusable for future
+releases. A new certification decision requires a new candidate and its own
+evidence; it is not an automatic continuation of Platform Release 3.3.
 
 ## Historical Software Assurance implementation record
 
@@ -224,21 +229,20 @@ architecture are stable enough to freeze.
 
 ## Blocking Dependencies
 
-- Platform Release 3.3 target qualification is complete. The reusable
-  Operational Burn-in process is established; burn-in evidence and the
-  subsequent Release Certification decision remain explicitly separate.
-- Platform Release Certification requires a successful Internal Release and
-  sufficient burn-in evidence; it must not be started automatically.
+- Platform Release 3.3 is complete and in Maintenance. Reopening requires the
+  completion procedure's documented invalidation or release-blocking criteria.
+- The next active delivery focus is Product Engineering and Innovation
+  Engineering, not additional 3.3 release execution.
 - Platform Baseline v1.0, Software Assurance Generation 1 and Trusted
   Delivery are certified; no Platform-construction blocker remains.
 
 ## Current Prompt
 
-Platform Release 3.3 Release Certification process establishment. This
-documentation-only increment reconciles merged PR #200 and defines the
-mandatory evidence-based certification stage without altering release
-architecture, authorization, runtime, deployment workflows or the operational
-manifest.
+Platform Release 3.3 Release Completion and Maintenance transition. This
+documentation-only increment reconciles merged PR #201, records the 3.3
+closure, and returns active focus to Product Engineering and Innovation
+Engineering without altering runtime, deployment workflows, manifests or
+release architecture.
 
 ## Completion Report
 

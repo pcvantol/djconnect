@@ -5,20 +5,19 @@
 
 ## Current engineering increment
 
-Operational burn-in process establishment is merged. PR
-[#200](https://github.com/pcvantol/djconnect/pull/200) merged as
-`8c1dcc40f6dd4ace8753bdb904b906ee1a0821ea`; it defines the reusable,
-seven-day evidence-only observation procedure for the exact Internal Release
-scope. It does not assert that burn-in evidence has been collected or that
-Platform Release 3.3 is certified. The current documentation-only increment
-establishes the mandatory Release Certification process that follows burn-in.
+Platform Release 3.3 is operationally complete. Its completed lifecycle is
+recorded in `docs/release/PLATFORM_3_3_RELEASE_COMPLETION.md`; active release
+execution has transitioned to Maintenance. This documentation-only increment
+establishes the reusable Release Completion procedure and records the 3.3
+closure without changing runtime or deployment behaviour.
 
 ## Current engineering program
 
-DJConnect Product Development remains the primary program. The P2 Platform
-Release Observatory is design complete and retained in the Platform Evolution
-implementation backlog. Platform Release 3.3 remains separate temporary
-operational work.
+DJConnect Product Development is the active primary program and Innovation
+Engineering resumes its normal research focus. The P2 Platform Release
+Observatory remains design complete in the Platform Evolution implementation
+backlog. Platform Release 3.3 is now a Maintenance responsibility, not active
+release-engineering work.
 
 ## Current repository truth
 
@@ -53,9 +52,9 @@ separate explicitly authorized operational action.
 
 ## Known blockers and limitations
 
-- Internal Release target deployment qualification is complete and the
-  Operational Burn-in process is established, but burn-in evidence and a
-  Release Certification decision remain separate operational actions.
+- Platform Release 3.3 is complete and in Maintenance. New coordinated release
+  work requires a new Platform Release lifecycle or an evidence-based reopening
+  under the completion procedure.
 - The proposed Observatory has no implementation. Its future evidence timing
   contract, collector/persistence and dashboard are independent increments.
 
@@ -63,13 +62,13 @@ separate explicitly authorized operational action.
 
 - Perform the three separately authorized Observatory delivery increments in
   their documented order when priority and authorization permit.
-- Do not execute burn-in, Release Certification or Public Distribution
-  automatically; each remains an evidence-backed, separately authorized
-  operational action.
+- Do not reopen Platform Release 3.3 or start a new Platform Release
+  automatically; either requires separately explicit, evidence-backed
+  authorization.
 
 ## Recommended next prompt
 
-After this process increment, no release operation starts automatically. The
-next eligible Release 3.3 action is collection of the declared burn-in evidence
-for the exact bound Internal Release scope, followed by a separately authorized
-certification decision.
+Select the next Product Engineering increment from `PRODUCT_ROADMAP.md`, or an
+Innovation Engineering research increment from `INNOVATION_BACKLOG.md`. Handle
+Platform Release 3.3 only as Maintenance unless its completion record is
+formally reopened.
