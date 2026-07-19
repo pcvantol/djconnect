@@ -61,7 +61,8 @@ planning is read.
 | Safe Codex Subagent Parallelization | Completed / merged reconciled | Establish bounded parallel read-only subagent delegation without changing the one-prompt/one-PR contract. | `codex/govern-subagent-parallelization` | `ENGINEERING_METHOD.md`; PR [#161](https://github.com/pcvantol/djconnect/pull/161) |
 | Innovation Engineering Method Evolution | Completed / merged reconciled | Establish Innovation Engineering as the official lightweight learning mode with an explicit promotion path. | `innovation/engineering-method-evolution` | `docs/history/prompts/2026-07-19-innovation-engineering-method-evolution.md`; PR [#162](https://github.com/pcvantol/djconnect/pull/162) |
 | Innovation Engineering Post-Merge Reconciliation | Completed / merged reconciled / archived | Reconcile rolling records after merged PR #162; no implementation or release change. | `codex/reconcile-innovation-engineering-merge` | `docs/history/prompts/2026-07-19-innovation-engineering-postmerge-reconciliation.md`; PR [#163](https://github.com/pcvantol/djconnect/pull/163) |
-| Home Assistant Deployment Consumer Qualification | Completed / reviewable | Qualify the final required Internal Release 3.3 target with an exact artifact deployment and separate post-deployment smoke. | `codex/record-ha-deployment-qualification` | `docs/release/PLATFORM_3_3_HOME_ASSISTANT_DEPLOYMENT_COMPLETION.md` |
+| Home Assistant Deployment Consumer Qualification | Completed / merged reconciled / archived | Qualified the final required Internal Release 3.3 target with an exact artifact deployment and separate post-deployment smoke. | `codex/record-ha-deployment-qualification` | `docs/release/PLATFORM_3_3_HOME_ASSISTANT_DEPLOYMENT_COMPLETION.md`; PR [#183](https://github.com/pcvantol/djconnect/pull/183) |
+| Platform Release 3.3 Target Qualification Post-Merge Reconciliation | Reviewable | Reconcile rolling records after merged PR #183; no release operation or implementation change. | `codex/reconcile-release-3-3-target-qualification` | `docs/history/prompts/2026-07-19-platform-release-3-3-target-qualification-postmerge-reconciliation.md` |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
@@ -69,13 +70,13 @@ No `RG-*` adoption prompt remains active.
 ## Current post-merge reconciliation
 
 All prior governance rollout and reconciliation increments are merged and
-archived. The current reviewable increment records the completed Home Assistant
-target qualification for Internal Release 3.3.
+archived. PR #183 is merged and the current reviewable increment reconciles
+its completed Home Assistant target qualification into the rolling records.
 
 ## Next Engineering Increment
 
-No following increment is active automatically after this reviewable
-qualification. Select only an evidence-backed Product Development, Platform
+No following implementation increment is active automatically after this
+reconciliation. Select only an evidence-backed Product Development, Platform
 Evolution or Innovation Lab objective from current main. Do not begin Release
 Certification, burn-in, Observatory implementation or another release
 operation as a consequence of this evidence record.

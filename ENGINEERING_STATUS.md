@@ -5,11 +5,14 @@
 
 ## Current engineering increment
 
-Platform Release Engineering: Home Assistant deployment-consumer
-qualification is complete. The exact manifest-bound deployment and separate
-post-deployment smoke were executed through the approved private-network
-relay. This increment did not change product runtime architecture, deployment
-architecture, release authorization or the operational manifest.
+Platform Release Engineering: the completed Home Assistant deployment-consumer
+qualification is merged and reconciled. PR
+[#183](https://github.com/pcvantol/djconnect/pull/183) merged as
+`f314717d2e56e2565bb9bcaf4fad0091e2cb39d2`; its post-merge main validation
+run [29684159871](https://github.com/pcvantol/djconnect/actions/runs/29684159871)
+passed, including HACS validation. This reconciliation does not change product
+runtime architecture, deployment architecture, release authorization or the
+operational manifest.
 
 ## Current engineering program
 
@@ -37,6 +40,10 @@ and smoke run [29683901389](https://github.com/pcvantol/djconnect/actions/runs/2
 succeeded. The smoke proves installed integration version `3.3.0`, an
 authenticated Home Assistant WebSocket handshake and bounded Core health.
 See `docs/release/PLATFORM_3_3_HOME_ASSISTANT_DEPLOYMENT_COMPLETION.md`.
+The failed pull-request-only HACS job was classified as a branch-cleanup race:
+it attempted to resolve the deleted review branch after the merge. The
+authoritative `main` run passed, so no workflow or integration remediation is
+required.
 
 ## Known blockers and limitations
 
