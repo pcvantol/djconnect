@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.3.1
+
+- Fix Home Assistant config-entry startup so the DJConnect HTTP routes are
+  registered for configured integrations.
+- Prevent an obsolete hidden deployment backup from shadowing the active
+  DJConnect integration and blocking its config flow.
+- Publish the corrected Home Assistant integration as the HACS 3.3 patch
+  release. No firmware, client protocol, endpoint or public API changes.
+
 ## 3.2.50
 
 - Rename the source client-contract fixture manifest so Home Assistant hassfest

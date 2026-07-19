@@ -4,8 +4,8 @@
 
 - Repository: `pcvantol/djconnect`.
 - Integration domain: `djconnect`.
-- Current integration release: `3.2.50`.
-- Release status: DJConnect `3.2.50` keeps the `3.2.x` transport, pairing and
+- Current integration release: `3.3.1`.
+- Release status: DJConnect `3.3.1` keeps the `3.3.x` transport, pairing and
   backend abstraction model, including the premium-ready VibeCast feed endpoint
   for Apple clients and proxied artist shout-out images. Backend playback
   remains available through DJConnect commands, Ask DJ, VibeCast context and
