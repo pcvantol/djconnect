@@ -180,7 +180,7 @@ jobs:
           printf 'loaded_djconnect_config_entries=%s\n' "$loaded_entry_count"
           if test "$loaded_entry_count" -eq 0; then
             ssh=(ssh -i "$SSH_TRANSPORT_PATH/id_ed25519" -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$SSH_TRANSPORT_PATH/known_hosts" -p "$HAOS_PORT" "$HAOS_USER@$HAOS_HOST")
-            "${ssh[@]}" "ha core logs -n 500 | grep -Ei 'djconnect.*(error|fail)|((error|unable) .*djconnect)' | tail -n 20 | sed -E 's/([Bb]earer )[A-Za-z0-9._-]+/\\1[REDACTED]/g; s/([Tt]oken|[Pp]assword|[Ss]ecret|[Aa]uthorization)[=:][^[:space:],;]+/\\1=[REDACTED]/g' || true"
+            "${ssh[@]}" "ha core logs -n 5000 | grep -Ei 'Error occurred loading flow for integration djconnect|Error importing platform config_flow from integration djconnect|Cannot find integration djconnect|Unable to import component.*djconnect|djconnect.*(error|fail)|((error|unable) .*djconnect)' | tail -n 20 | sed -E 's/([Bb]earer )[A-Za-z0-9._-]+/\\1[REDACTED]/g; s/([Tt]oken|[Pp]assword|[Ss]ecret|[Aa]uthorization)[=:][^[:space:],;]+/\\1=[REDACTED]/g' || true"
             exit 1
           fi
       - name: Verify DJConnect route-registration lifecycle marker
