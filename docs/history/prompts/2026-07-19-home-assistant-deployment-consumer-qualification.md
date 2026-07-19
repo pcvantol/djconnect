@@ -25,6 +25,7 @@ WebSocket health and bounded Core startup/crash health.
 ## Created Artifacts
 
 - `docs/release/PLATFORM_3_3_HOME_ASSISTANT_DEPLOYMENT_COMPLETION.md`
+- `docs/release/PLATFORM_3_3_INTERNAL_RELEASE_TARGET_COMPLETION.md`
 - This immutable Prompt History record.
 
 ## Updated Artifacts
@@ -33,6 +34,9 @@ WebSocket health and bounded Core startup/crash health.
 - `REPOSITORY_STATUS.md`
 - `MANAGEMENT_SUMMARY.md`
 - `PROMPT_INDEX.md`
+- `docs/release/PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json`
+- `docs/release/PLATFORM_RELEASE_MANAGEMENT_SUMMARY.md`
+- `docs/release/README.md`
 
 ## Known Limitations
 
