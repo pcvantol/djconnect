@@ -27,6 +27,11 @@ and post-deployment smoke run `29683901389`.
 The Internal Release target-deployment scope is closed. This does not establish
 operational burn-in evidence or a Release Certification decision.
 
+The sole component patch within Platform Release 3.3.0 is the Home
+Assistant/HACS integration `3.3.1`. Its exact artifact, Pi5 deployment and
+smoke evidence are tracked through the same operational manifest; no other
+3.3.0 component version or target binding changes.
+
 Platform Release Certification is deferred until after a successful
 operational release and sufficient burn-in evidence. It cannot substitute for
 any of the prerequisites above.

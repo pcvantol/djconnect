@@ -6,11 +6,19 @@
   "platform_version": "3.3",
   "release_version": "3.3.0",
   "release_profile": "INTERNAL_RELEASE",
+  "component_release_overrides": [
+    {
+      "component": "home_assistant_hacs_integration",
+      "repository": "pcvantol/djconnect",
+      "version": "3.3.1",
+      "scope": "The sole 3.3.1 component patch within Platform Release 3.3.0; no other component version or target binding changes."
+    }
+  ],
   "generated_at": "2026-07-19",
   "approval": {
     "state": "APPROVED",
     "approved_at": "2026-07-19",
-    "approved_statement": "The maintainer explicitly authorized the HACS-only 3.3.1 binding for target home_assistant_pi5: candidate 0bd6d3024bcf9abc56b16dd31cbd1a0d24df8b87, artifact release-asset:pcvantol/djconnect:internal-ha-0bd6d3024bcf9abc56b16dd31cbd1a0d24df8b87:djconnect-home-assistant-integration-0bd6d3024bcf9abc56b16dd31cbd1a0d24df8b87.tar.gz, SHA-256 e6dc19c834d9c842a6f2bd746bb27e8356b5ab980232389b03a3268cf51d1892, followed by manifest-bound deployment and post-deployment smoke.",
+    "approved_statement": "The maintainer explicitly authorized the Home Assistant/HACS component 3.3.1 binding within Platform Release 3.3.0 for target home_assistant_pi5: candidate 0bd6d3024bcf9abc56b16dd31cbd1a0d24df8b87, artifact release-asset:pcvantol/djconnect:internal-ha-0bd6d3024bcf9abc56b16dd31cbd1a0d24df8b87:djconnect-home-assistant-integration-0bd6d3024bcf9abc56b16dd31cbd1a0d24df8b87.tar.gz, SHA-256 e6dc19c834d9c842a6f2bd746bb27e8356b5ab980232389b03a3268cf51d1892, followed by manifest-bound deployment and post-deployment smoke.",
     "additional_target_authorizations": [
       {
         "approved_at": "2026-07-15",
