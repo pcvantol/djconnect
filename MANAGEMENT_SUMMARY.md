@@ -6,7 +6,8 @@
 `ENGINEERING_METHOD_V2_3_ESTABLISHED`,
 `POST_MERGE_ENGINEERING_STATE_RECONCILIATION_ESTABLISHED`,
 `DJCONNECT_REPOSITORY_GOVERNANCE_AUDIT_PASSED`,
-`INNOVATION_ENGINEERING_MODE_ESTABLISHED`
+`INNOVATION_ENGINEERING_MODE_ESTABLISHED`,
+`PLATFORM_RELEASE_3_3_TARGETS_MERGE_RECONCILED`
 **Basis:** Objective repository evidence recorded in the linked documents.
 
 ## Current position
@@ -21,7 +22,7 @@
 | Platform Release 3.3 Internal | All nine required targets deployment-qualified; certification/burn-in remain separate | `docs/release/PLATFORM_3_3_HOME_ASSISTANT_DEPLOYMENT_COMPLETION.md` |
 | Engineering Workflow | Aligned; no implementation changed | `docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md` |
 | Engineering Method V2.3 | Established; no implementation or architecture changed | `ENGINEERING_METHOD.md` |
-| Post-Merge Engineering State | PR #158 merged; Windows ARM64 evidence records reconciled and archived | `docs/history/prompts/2026-07-17-windows-evidence-postmerge-reconciliation.md` |
+| Post-Merge Engineering State | PR #183 merged; all Internal Release 3.3 target evidence records reconciled and archived | `docs/history/prompts/2026-07-19-platform-release-3-3-target-qualification-postmerge-reconciliation.md` |
 | Safe Codex subagent parallelization | Merged in PR #161 | `ENGINEERING_METHOD.md` |
 | Innovation Engineering | Established and merged in PR #162; lightweight experiment mode defined | `docs/meta/INNOVATION_ENGINEERING.md` |
 | Repository Governance Rollout | Completed, merged, reconciled and archived | `docs/governance/REPOSITORY_GOVERNANCE_AUDIT_V2_2.md` |
@@ -85,6 +86,12 @@ The authoritative execution ledger remains
 `docs/release/PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json`; the final
 Home Assistant qualification is recorded separately in
 `docs/release/PLATFORM_3_3_HOME_ASSISTANT_DEPLOYMENT_COMPLETION.md`.
+PR [#183](https://github.com/pcvantol/djconnect/pull/183) is merged as
+`f314717d2e56e2565bb9bcaf4fad0091e2cb39d2` and its main validation run
+[29684159871](https://github.com/pcvantol/djconnect/actions/runs/29684159871)
+is green. A failed PR-only HACS job resolved the deleted review branch after
+merge; the successful main run confirms that this is not a release or
+integration defect.
 
 The evidence supports a transition from Generation 1 platform construction to
 the three-program Generation 2 operating model: DJConnect Product Development,
