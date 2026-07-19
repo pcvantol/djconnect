@@ -149,18 +149,28 @@ jobs:
           ssh=(ssh -i "$SSH_TRANSPORT_PATH/id_ed25519" -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$SSH_TRANSPORT_PATH/known_hosts" -p "$HAOS_PORT" "$HAOS_USER@$HAOS_HOST")
           "${ssh[@]}" 'cat /config/custom_components/djconnect/manifest.json' > /tmp/djconnect-haos-manifest.json
           test "$(jq -r '.version' /tmp/djconnect-haos-manifest.json)" = "$RELEASE_VERSION"
-      - name: Verify an active DJConnect configuration entry
+      - name: Verify a loaded DJConnect configuration entry
         env:
           HA_API_URL: ${{ secrets.DJCONNECT_HA_SMOKE_API_URL }}
           HA_API_TOKEN: ${{ secrets.DJCONNECT_HA_SMOKE_API_TOKEN }}
+          HAOS_HOST: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_HOST }}
+          HAOS_PORT: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_PORT }}
+          HAOS_USER: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_USER }}
+          SSH_TRANSPORT_PATH: ${{ steps.haos-transport.outputs.path }}
         run: |
           set -euo pipefail
           curl --fail --silent --show-error --retry 3 --retry-delay 5 --max-time 10 \
             --header "Authorization: Bearer $HA_API_TOKEN" \
             "$HA_API_URL/api/config/config_entries/entry" > /tmp/djconnect-config-entries.json
-          active_entry_count="$(jq '[.[] | select(.domain == "djconnect" and .disabled_by == null)] | length' /tmp/djconnect-config-entries.json)"
-          printf 'active_djconnect_config_entries=%s\n' "$active_entry_count"
-          test "$active_entry_count" -gt 0
+          entry_states="$(jq -c '[.[] | select(.domain == "djconnect") | {state, disabled_by}]' /tmp/djconnect-config-entries.json)"
+          loaded_entry_count="$(jq '[.[] | select(.domain == "djconnect" and .disabled_by == null and .state == "loaded")] | length' /tmp/djconnect-config-entries.json)"
+          printf 'djconnect_entry_states=%s\n' "$entry_states"
+          printf 'loaded_djconnect_config_entries=%s\n' "$loaded_entry_count"
+          if test "$loaded_entry_count" -eq 0; then
+            ssh=(ssh -i "$SSH_TRANSPORT_PATH/id_ed25519" -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$SSH_TRANSPORT_PATH/known_hosts" -p "$HAOS_PORT" "$HAOS_USER@$HAOS_HOST")
+            "${ssh[@]}" "ha core logs -n 500 | grep -Ei 'djconnect.*(error|fail)|((error|unable) .*djconnect)' | tail -n 20 | sed -E 's/([Bb]earer )[A-Za-z0-9._-]+/\\1[REDACTED]/g; s/([Tt]oken|[Pp]assword|[Ss]ecret|[Aa]uthorization)[=:][^[:space:],;]+/\\1=[REDACTED]/g' || true"
+            exit 1
+          fi
       - name: Verify DJConnect route-registration lifecycle marker
         env:
           HAOS_HOST: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_HOST }}
