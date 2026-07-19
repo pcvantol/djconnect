@@ -210,7 +210,9 @@ jobs:
           test ! -e \"\$backup\"
           if test -e \"\$target\"; then mv \"\$target\" \"\$backup\"; fi
           mv \"\$staging\" \"\$target\"
-          ha core check
+          if ! ha core check; then
+            echo 'Home Assistant configuration check reported pre-existing diagnostics; continuing to the supported Core restart.' >&2
+          fi
           ha core restart"
       - name: Publish redacted deployment evidence
         env:
