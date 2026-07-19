@@ -174,7 +174,7 @@ jobs:
           curl --fail --silent --show-error --retry 3 --retry-delay 5 --max-time 10 \
             --header "Authorization: Bearer $HA_API_TOKEN" \
             "$HA_API_URL/api/config/config_entries/entry" > /tmp/djconnect-config-entries.json
-          entry_states="$(jq -c '[.[] | select(.domain == "djconnect") | {state, disabled_by}]' /tmp/djconnect-config-entries.json)"
+          entry_states="$(jq -c '[.[] | select(.domain == "djconnect") | {source, state, disabled_by}]' /tmp/djconnect-config-entries.json)"
           loaded_entry_count="$(jq '[.[] | select(.domain == "djconnect" and .disabled_by == null and .state == "loaded")] | length' /tmp/djconnect-config-entries.json)"
           printf 'djconnect_entry_states=%s\n' "$entry_states"
           printf 'loaded_djconnect_config_entries=%s\n' "$loaded_entry_count"
