@@ -1,5 +1,6 @@
 artifacts/
 logs/
+.tde/
 __pycache__/
 *.py[cod]
 .pytest_cache/
