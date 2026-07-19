@@ -7,7 +7,8 @@
 `POST_MERGE_ENGINEERING_STATE_RECONCILIATION_ESTABLISHED`,
 `DJCONNECT_REPOSITORY_GOVERNANCE_AUDIT_PASSED`,
 `INNOVATION_ENGINEERING_MODE_ESTABLISHED`,
-`PLATFORM_RELEASE_3_3_TARGETS_MERGE_RECONCILED`
+`PLATFORM_RELEASE_3_3_TARGETS_MERGE_RECONCILED`,
+`DJCONNECT_HOME_ASSISTANT_HTTP_ROUTE_INCIDENT_MERGE_RECONCILED`
 **Basis:** Objective repository evidence recorded in the linked documents.
 
 ## Current position
@@ -20,6 +21,7 @@
 | Trusted Delivery | Completed and frozen | `docs/software_assurance/TRUSTED_DELIVERY_CERTIFICATION.md` |
 | Platform Release Engineering | Architecture qualified and frozen | `docs/release/PLATFORM_RELEASE_QUALIFICATION.md` |
 | Platform Release 3.3 Internal | All nine required targets deployment-qualified; certification/burn-in remain separate | `docs/release/PLATFORM_3_3_HOME_ASSISTANT_DEPLOYMENT_COMPLETION.md` |
+| Home Assistant HTTP route incident | PR #185 merged; config-entry route registration restored and future smoke detects missing routes | PR [#185](https://github.com/pcvantol/djconnect/pull/185) |
 | Engineering Workflow | Aligned; no implementation changed | `docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md` |
 | Engineering Method V2.3 | Established; no implementation or architecture changed | `ENGINEERING_METHOD.md` |
 | Post-Merge Engineering State | PR #183 merged; all Internal Release 3.3 target evidence records reconciled and archived | `docs/history/prompts/2026-07-19-platform-release-3-3-target-qualification-postmerge-reconciliation.md` |
@@ -92,6 +94,14 @@ PR [#183](https://github.com/pcvantol/djconnect/pull/183) is merged as
 is green. A failed PR-only HACS job resolved the deleted review branch after
 merge; the successful main run confirms that this is not a release or
 integration defect.
+
+PR [#185](https://github.com/pcvantol/djconnect/pull/185) is merged as
+`1e886715c5619bcfe28987f396c6fe8205c5681e`. Its successful main validation
+restores Home Assistant HTTP route registration from config-entry setup and
+adds non-mutating route probes to the future smoke contract. This is an
+operational runtime correction, not a reversal of the completed 3.3 target
+qualification. A replacement artifact binding and deployment are separate,
+explicitly authorized operations.
 
 The evidence supports a transition from Generation 1 platform construction to
 the three-program Generation 2 operating model: DJConnect Product Development,

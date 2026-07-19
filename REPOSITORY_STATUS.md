@@ -46,6 +46,14 @@ records the final Home Assistant target qualification for Internal Release
 not change product/runtime architecture, release authorization or production
 manifests.
 
+PR [#185](https://github.com/pcvantol/djconnect/pull/185) is merged as
+`1e886715c5619bcfe28987f396c6fe8205c5681e`; its post-merge validation run
+`29685455321` passed. It restores DJConnect HTTP-view registration during
+config-entry setup and adds fail-closed route probes to future Home Assistant
+smoke runs. The already qualified 3.3 target evidence remains historical and
+valid; a new artifact binding and target deployment are separate operational
+work.
+
 Canonical lifecycle:
 
 ```text
