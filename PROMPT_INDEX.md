@@ -66,6 +66,8 @@ planning is read.
 | Home Assistant HTTP Route Incident Remediation | Completed / merged reconciled | Restore config-entry route registration and add route probes to the future HA smoke contract. | `codex/restore-ha-route-registration` | PR [#185](https://github.com/pcvantol/djconnect/pull/185) |
 | Home Assistant HTTP Route Incident Post-Merge Reconciliation | Completed / merged reconciled | Reconciled rolling records after merged PR #185; no deployment or release binding change. | `codex/reconcile-ha-route-incident-merge` | PR [#186](https://github.com/pcvantol/djconnect/pull/186) |
 | Platform Release 3.3 Operational Burn-in Procedure | Completed / merged reconciled | Establish the reusable seven-day operational burn-in evidence procedure without execution changes. | `agent/platform-3-3-operational-burn-in` | PR [#200](https://github.com/pcvantol/djconnect/pull/200) |
+| Platform Release 3.3 Release Certification Process | Completed / merged reconciled | Establish the mandatory evidence-based Release Certification process without execution changes. | `agent/platform-3-3-release-certification-process` | PR [#201](https://github.com/pcvantol/djconnect/pull/201) |
+| Platform Release 3.3 Release Completion | Reviewable | Formally close the completed 3.3 release and transition it to Maintenance. | `agent/platform-3-3-release-completion` | Current completion increment |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
@@ -73,15 +75,15 @@ No `RG-*` adoption prompt remains active.
 ## Current post-merge reconciliation
 
 All prior governance rollout and reconciliation increments are merged and
-archived. PR #200 is merged, its burn-in procedure is reconciled into the
-rolling records by this increment, and no operational release action has been
-started.
+archived. PR #201 is merged and its certification procedure is reconciled into
+the rolling records by this increment. The current reviewable increment records
+the completed 3.3 lifecycle and Maintenance transition.
 
 ## Next Engineering Increment
 
-No operational release action is active automatically after this process
-increment. The exact 3.3 burn-in window and its later certification decision
-may proceed only through separately explicit operational authorization.
+No Platform Release 3.3 execution is active after this completion increment.
+Select the next active work from Product Engineering or Innovation Engineering;
+3.3 remains in Maintenance unless its completion record is formally reopened.
 
 ## Active Next Phase
 
@@ -110,10 +112,9 @@ final Home Assistant operation is deployment run `29683604435` with smoke run
 `29683901389`. This target qualification does not authorize Release
 Certification or burn-in.
 
-The reusable Operational Burn-in procedure is established, but no 3.3 burn-in
-evidence is asserted. The next release-engineering activity is collection of
-that evidence; Release Certification remains a separate later decision that
-consumes it. Canonical evidence and contracts are under `docs/release/`.
+Platform Release 3.3 is complete and transitions to Maintenance through its
+formal completion record. Future release engineering uses the reusable
+burn-in, certification and completion procedures under `docs/release/`.
 
 The Software Assurance Platform architecture sprint has completed with decision
 `SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE`. Software Assurance
