@@ -193,17 +193,23 @@ jobs:
               response += chunk
               if len(response) > 65536:
                   raise SystemExit("Home Assistant WebSocket HTTP upgrade response exceeded 64 KiB")
-          if not response.startswith(b"HTTP/1.1 101"):
+          http_response, buffered = response.split(b"\r\n\r\n", 1)
+          if not http_response.startswith(b"HTTP/1.1 101"):
               raise SystemExit("Home Assistant WebSocket upgrade failed")
+          received = bytearray(buffered)
 
           def receive_exact(size: int) -> bytes:
-              payload = b""
+              payload = bytearray()
+              if received:
+                  take = min(size, len(received))
+                  payload.extend(received[:take])
+                  del received[:take]
               while len(payload) < size:
                   chunk = connection.recv(size - len(payload))
                   if not chunk:
                       raise SystemExit("Home Assistant WebSocket closed unexpectedly")
                   payload += chunk
-              return payload
+              return bytes(payload)
 
           def receive_text() -> str:
               first, second = receive_exact(2)
