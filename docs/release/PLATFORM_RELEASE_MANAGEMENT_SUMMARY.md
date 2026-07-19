@@ -36,6 +36,12 @@ Platform Release Certification is deferred until after a successful
 operational release and sufficient burn-in evidence. It cannot substitute for
 any of the prerequisites above.
 
+The next operational phase is the reusable burn-in procedure in
+`PLATFORM_RELEASE_OPERATIONAL_MODEL.md`: a seven-day continuous observation
+window for the exact, already-bound Internal Release target scope. Its evidence
+is required before the separate Release Certification decision; it does not
+itself certify, publish or redeploy Platform Release 3.3.
+
 The historical 3.3 release-candidate dry run resolved exactly the three
 recorded findings:
 
