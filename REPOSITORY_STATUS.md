@@ -139,15 +139,16 @@ qualification with decision `PLATFORM_RELEASE_QUALIFIED`. Its architecture
 remains frozen. The historical 3.3 dry run passed, but its candidate branches
 and evidence are historical and cannot authorize the current `main` SHAs.
 The current release decision is
-`PLATFORM_RELEASE_3_3_MANIFEST_APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL`.
+`PLATFORM_RELEASE_3_3_INTERNAL_TARGETS_QUALIFIED`.
 The Generation 1 deployment architecture and smoke policy remain frozen. The
 approved current-main manifest has operational evidence for API, Website,
 Raspberry Pi, ESP32, Apple MacBook, Apple iPhone with required paired-Watch
-validation, and Windows ARM64. Windows deployment run `29583151393` and its
-post-deployment smoke run `29588039127` both succeeded against the approved
-artifact binding. Home Assistant and the required iPad target remain
-unqualified.
-No complete Internal Release or operational burn-in exists.
+validation, iPad, Windows ARM64 and Home Assistant Pi 5. Home Assistant
+deployment run `29683604435` and post-deployment smoke run `29683901389`
+succeeded against candidate `30978862a2889bbf35925914e9e2fdb1a707f8a6` and
+SHA-256 `03231ba00c3e21188e70efa3ec332042a942ba118e9663c424545f62fbe4c224`.
+All required Internal Release targets are qualified. Operational burn-in and
+Release Certification remain separate and unstarted.
 
 Windows native-preflight consumer adoption removed the former consumer-level
 Bash/WSL prerequisite without changing the approved manifest or deployment
@@ -206,11 +207,8 @@ architecture are stable enough to freeze.
 
 ## Blocking Dependencies
 
-- Platform Release 3.3 requires final deployment and bounded smoke evidence
-  for Home Assistant and the required iPad target before the Internal Release
-  can close.
-- Each remaining target requires its own exact authorization and
-  manifest-bound operation; completed targets do not authorize another target.
+- Platform Release 3.3 target qualification is complete. Burn-in evidence and
+  the subsequent Release Certification decision remain explicitly separate.
 - Platform Release Certification requires a successful Internal Release and
   sufficient burn-in evidence; it must not be started automatically.
 - Platform Baseline v1.0, Software Assurance Generation 1 and Trusted
@@ -218,10 +216,9 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-Repository-state reconciliation after merged PR #157. This documentation
-increment reconciles rolling records for the completed Windows ARM64 evidence;
-it does not implement the Observatory, alter release architecture or execute a
-new deployment.
+Home Assistant deployment-consumer qualification for Internal Release 3.3.
+This increment records objective deployment and smoke evidence only; it does
+not alter release architecture, authorization or the operational manifest.
 
 ## Completion Report
 

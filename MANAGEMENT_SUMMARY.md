@@ -18,7 +18,7 @@
 | Software Assurance | Completed and frozen | `docs/software_assurance/SOFTWARE_ASSURANCE_GENERATION_1_CLOSURE_REPORT.md` |
 | Trusted Delivery | Completed and frozen | `docs/software_assurance/TRUSTED_DELIVERY_CERTIFICATION.md` |
 | Platform Release Engineering | Architecture qualified and frozen | `docs/release/PLATFORM_RELEASE_QUALIFICATION.md` |
-| Platform Release 3.3 Internal | Partially deployed; eight targets qualified | `docs/release/PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json` |
+| Platform Release 3.3 Internal | All nine required targets deployment-qualified; certification/burn-in remain separate | `docs/release/PLATFORM_3_3_HOME_ASSISTANT_DEPLOYMENT_COMPLETION.md` |
 | Engineering Workflow | Aligned; no implementation changed | `docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md` |
 | Engineering Method V2.3 | Established; no implementation or architecture changed | `ENGINEERING_METHOD.md` |
 | Post-Merge Engineering State | PR #158 merged; Windows ARM64 evidence records reconciled and archived | `docs/history/prompts/2026-07-17-windows-evidence-postmerge-reconciliation.md` |
@@ -64,14 +64,15 @@ Release 3.3 operational increment.
 
 ## Platform Release 3.3 operational position
 
-The approved Internal Release manifest has seven completed target-scoped
-operations: API Workers, Website Pages, Raspberry Pi, ESP32, Apple MacBook and
-Apple iPhone with required paired-Watch validation, plus Windows ARM64. Each
-has objective GitHub Actions evidence for a successful manifest-bound
-deployment and separate post-deployment smoke. Windows evidence is deployment
-run `29583151393` and smoke run `29588039127`. Home Assistant and the required
-iPad target are not included in that completion claim. The release remains
-incomplete and is not eligible for release certification or burn-in closure.
+The approved Internal Release manifest has all nine required target-scoped
+operations qualified: API Workers, Website Pages, Raspberry Pi, ESP32, Apple
+MacBook, Apple iPhone with required paired-Watch validation, iPad, Windows
+ARM64 and Home Assistant Pi 5. Each has objective GitHub Actions evidence for
+a successful manifest-bound deployment and separate post-deployment smoke. The
+final Home Assistant evidence is deployment run `29683604435` and smoke run
+`29683901389`; it reads back integration version `3.3.0`, an authenticated
+WebSocket and bounded Core health. Release Certification and burn-in remain
+separate decisions and do not begin automatically.
 
 The Windows remediation isolated a platform automation dependency rather than a
 Windows application defect: its shared readiness preflight used Bash, which
@@ -80,9 +81,10 @@ PowerShell 7 natively on Windows and Bash elsewhere. The Windows consumer then
 completed the authorized deployment and smoke successfully; this does not
 waive any other target's requirements.
 
-The authoritative execution ledger is
-`docs/release/PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json` with decision
-`APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL`.
+The authoritative execution ledger remains
+`docs/release/PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json`; the final
+Home Assistant qualification is recorded separately in
+`docs/release/PLATFORM_3_3_HOME_ASSISTANT_DEPLOYMENT_COMPLETION.md`.
 
 The evidence supports a transition from Generation 1 platform construction to
 the three-program Generation 2 operating model: DJConnect Product Development,

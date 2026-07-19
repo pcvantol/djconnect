@@ -28,6 +28,9 @@ release process the source of truth.
 - `PLATFORM_RELEASE_MANAGEMENT_SUMMARY.md` records the current Platform 3.3
   release position, including the distinction between historical dry-run
   evidence and the exact-SHA evidence required for the current `main` commits.
+- `PLATFORM_3_3_INTERNAL_RELEASE_TARGET_COMPLETION.md` records the completed
+  target-deployment scope for the Internal Release; it is not a burn-in or
+  Release Certification record.
 - `PLATFORM_RELEASE_COMPLIANCE_REPORT.md`,
   `PLATFORM_RELEASE_OPERATIONAL_READINESS.md` and
   `PLATFORM_RELEASE_GAP_ANALYSIS.md` record the supporting compliance,

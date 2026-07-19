@@ -60,25 +60,25 @@ planning is read.
 | Windows Evidence Post-Merge Reconciliation | Completed / merged reconciled / archived | Reconciled rolling records after merged PR #157; no release operation or implementation change. | `codex/reconcile-windows-evidence-postmerge` | `docs/history/prompts/2026-07-17-windows-evidence-postmerge-reconciliation.md`; PR [#158](https://github.com/pcvantol/djconnect/pull/158) |
 | Safe Codex Subagent Parallelization | Completed / merged reconciled | Establish bounded parallel read-only subagent delegation without changing the one-prompt/one-PR contract. | `codex/govern-subagent-parallelization` | `ENGINEERING_METHOD.md`; PR [#161](https://github.com/pcvantol/djconnect/pull/161) |
 | Innovation Engineering Method Evolution | Completed / merged reconciled | Establish Innovation Engineering as the official lightweight learning mode with an explicit promotion path. | `innovation/engineering-method-evolution` | `docs/history/prompts/2026-07-19-innovation-engineering-method-evolution.md`; PR [#162](https://github.com/pcvantol/djconnect/pull/162) |
-| Innovation Engineering Post-Merge Reconciliation | Completed / reviewable | Reconcile rolling records after merged PR #162; no implementation or release change. | `codex/reconcile-innovation-engineering-merge` | `docs/history/prompts/2026-07-19-innovation-engineering-postmerge-reconciliation.md`; PR [#163](https://github.com/pcvantol/djconnect/pull/163) |
+| Innovation Engineering Post-Merge Reconciliation | Completed / merged reconciled / archived | Reconcile rolling records after merged PR #162; no implementation or release change. | `codex/reconcile-innovation-engineering-merge` | `docs/history/prompts/2026-07-19-innovation-engineering-postmerge-reconciliation.md`; PR [#163](https://github.com/pcvantol/djconnect/pull/163) |
+| Home Assistant Deployment Consumer Qualification | Completed / reviewable | Qualify the final required Internal Release 3.3 target with an exact artifact deployment and separate post-deployment smoke. | `codex/record-ha-deployment-qualification` | `docs/release/PLATFORM_3_3_HOME_ASSISTANT_DEPLOYMENT_COMPLETION.md` |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
 
 ## Current post-merge reconciliation
 
-PR #162 is merged in synchronized current main and establishes Innovation
-Engineering. This reconciliation increment aligns rolling records with that
-fact. It does not operate a target or change release architecture, manifests,
-authorization or workflow logic.
+All prior governance rollout and reconciliation increments are merged and
+archived. The current reviewable increment records the completed Home Assistant
+target qualification for Internal Release 3.3.
 
 ## Next Engineering Increment
 
 No following increment is active automatically after this reviewable
-reconciliation. Select only an evidence-backed Product Development, Platform
-Evolution or Innovation Lab objective from current main. Do not begin
-Observatory implementation or a release operation as a consequence of this
-governance work.
+qualification. Select only an evidence-backed Product Development, Platform
+Evolution or Innovation Lab objective from current main. Do not begin Release
+Certification, burn-in, Observatory implementation or another release
+operation as a consequence of this evidence record.
 
 ## Active Next Phase
 
@@ -99,22 +99,18 @@ The qualified macOS runner has the three separately bounded capabilities
 defined in `docs/release/`: Apple Native Build, Private-Network Deployment
 Relay and Apple Secure Distribution Relay.
 
-The approved manifest
-`release-3.3.0-internal-20260714` is partially operational. API, Website,
-Raspberry Pi, ESP32, Apple MacBook, Apple iPhone with required paired-Watch
-validation, and Windows ARM64 have each completed an exact manifest-bound
-deployment and separately dispatched post-deployment smoke. Home Assistant and
-the required iPad target remain independent, unqualified targets. This is not
-a complete Internal Release and does not authorize release certification or
-burn-in.
+The approved manifest `release-3.3.0-internal-20260714` has completed exact
+manifest-bound deployment and separate smoke for all required targets:
+Home Assistant, API, Website, Raspberry Pi, ESP32, Apple MacBook, Apple
+iPhone with required paired-Watch validation, iPad and Windows ARM64. The
+final Home Assistant operation is deployment run `29683604435` with smoke run
+`29683901389`. This target qualification does not authorize Release
+Certification or burn-in.
 
 The next release-engineering activity is not certification or an automatic
-release. It is explicit, scoped preparation of the remaining deployment
-consumers and their non-destructive smoke evidence, followed by fresh
-candidate reconstruction from current `main`. Only then may an explicitly
-authorized Internal Release execute. Platform Release Certification remains a
-separate later decision that requires real operational and burn-in evidence.
-Canonical evidence and contracts are under `docs/release/`.
+release. Platform Release Certification remains a separate later decision that
+requires real operational and burn-in evidence. Canonical evidence and
+contracts are under `docs/release/`.
 
 The Software Assurance Platform architecture sprint has completed with decision
 `SOFTWARE_ASSURANCE_PLATFORM_ARCHITECTURE_COMPLETE`. Software Assurance
