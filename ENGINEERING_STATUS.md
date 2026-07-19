@@ -12,11 +12,13 @@ Release Completion**, merged on 2026-07-19 as
 Its exact prompt is archived at
 `docs/history/prompts/2026-07-19-platform-release-3-3-release-completion.md`.
 
-This documentation-only post-merge reconciliation corrects the predecessor's
-stale reviewable navigation state and records the archive. It changes no
-runtime, deployment or release behaviour. No Product Definition increment has
-started; select the next Product Engineering increment only after this
-reconciliation is merged.
+PR [#203](https://github.com/pcvantol/djconnect/pull/203), **Release 3.3
+Completion Reconciliation**, merged on 2026-07-19 as
+`49f4c7396e5fc6ec6bfdbbb4a9e03f8d5a373484`. It reconciles the predecessor's
+stale reviewable navigation state and is archived at
+`docs/history/prompts/2026-07-19-platform-release-3-3-release-completion-postmerge-reconciliation.md`.
+No Product Definition increment has started; the next Product Engineering
+increment may now be selected independently from the active roadmap.
 
 ## Current engineering program
 
