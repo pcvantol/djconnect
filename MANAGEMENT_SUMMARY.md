@@ -18,7 +18,7 @@
 | Software Assurance | Completed and frozen | `docs/software_assurance/SOFTWARE_ASSURANCE_GENERATION_1_CLOSURE_REPORT.md` |
 | Trusted Delivery | Completed and frozen | `docs/software_assurance/TRUSTED_DELIVERY_CERTIFICATION.md` |
 | Platform Release Engineering | Architecture qualified and frozen | `docs/release/PLATFORM_RELEASE_QUALIFICATION.md` |
-| Platform Release 3.3 Internal | Partially deployed; seven targets qualified | `docs/release/PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json` |
+| Platform Release 3.3 Internal | Partially deployed; eight targets qualified | `docs/release/PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json` |
 | Engineering Workflow | Aligned; no implementation changed | `docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md` |
 | Engineering Method V2.3 | Established; no implementation or architecture changed | `ENGINEERING_METHOD.md` |
 | Post-Merge Engineering State | PR #158 merged; Windows ARM64 evidence records reconciled and archived | `docs/history/prompts/2026-07-17-windows-evidence-postmerge-reconciliation.md` |
