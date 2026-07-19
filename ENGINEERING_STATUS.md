@@ -5,11 +5,11 @@
 
 ## Current engineering increment
 
-Innovation Engineering Method Evolution on
-`innovation/engineering-method-evolution`. This dedicated governance increment
-establishes the learning-oriented Innovation Engineering mode. It does not
-change product runtime architecture, release authorization, production
-manifests or implementation behaviour.
+Post-merge reconciliation after PR
+[#162](https://github.com/pcvantol/djconnect/pull/162). The Innovation
+Engineering Method Evolution is merged; this increment reconciles its rolling
+records only. It does not change product runtime architecture, release
+authorization, production manifests or implementation behaviour.
 
 ## Current engineering program
 
@@ -20,12 +20,12 @@ operational work.
 
 ## Current repository truth
 
-PR [#161](https://github.com/pcvantol/djconnect/pull/161), safe bounded Codex
-subagent parallelization, is merged as
-`b3024be3068fbb80498706045711d3e51132716f`; its remote branch is absent. This
-increment reconciles that predecessor truth while establishing Innovation
-Engineering. It does not change Observatory priority, its read-only design
-boundary or the Release 3.3 authorization model.
+PR [#162](https://github.com/pcvantol/djconnect/pull/162), Innovation
+Engineering Method Evolution, is merged as
+`9ff42a572ae35586cf89d2febdcffab6fb835a58`; its remote branch is absent. The
+canonical Engineering Method now includes the lightweight Innovation
+Engineering mode. This does not change Observatory priority, its read-only
+design boundary or the Release 3.3 authorization model.
 
 Platform Release 3.3 remains partially operational under manifest
 `release-3.3.0-internal-20260714`, status
@@ -53,8 +53,7 @@ authorization to implement or operate the Observatory.
 
 ## Recommended next prompt
 
-No implementation prompt starts automatically. After this increment is merged
-and reconciled, select an evidence-backed Product Development, Platform
-Evolution or Innovation Lab objective from current main. Do not begin
-Observatory implementation or a release operation merely because this
-governance increment completes.
+No implementation prompt starts automatically. Select an evidence-backed
+Product Development, Platform Evolution or Innovation Lab objective from
+current main. Do not begin Observatory implementation or a release operation
+merely because this governance reconciliation completes.
