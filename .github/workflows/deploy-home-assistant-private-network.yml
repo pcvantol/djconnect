@@ -168,7 +168,7 @@ jobs:
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
           name: djconnect-home-assistant-integration-${{ inputs.candidate_sha }}
-          github-token: ${{ github.token }}
+          github-token: ${{ secrets.DJCONNECT_RELEASE_ARTIFACT_READ_TOKEN }}
           run-id: ${{ steps.artifact.outputs.run_id }}
           path: artifact
       - name: Install exact integration artifact and restart Home Assistant OS Core
