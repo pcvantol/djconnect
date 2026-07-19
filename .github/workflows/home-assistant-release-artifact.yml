@@ -6,7 +6,7 @@ on:
     types: [completed]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   package:
@@ -22,16 +22,32 @@ jobs:
           set -euo pipefail
           tar -C custom_components -czf djconnect-home-assistant-integration.tar.gz djconnect
           sha256sum djconnect-home-assistant-integration.tar.gz | awk '{print $1}' > djconnect-home-assistant-integration.sha256
+      - id: release
+        name: Publish immutable release asset
+        env:
+          CANDIDATE_SHA: ${{ github.event.workflow_run.head_sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="internal-ha-${CANDIDATE_SHA}"
+          asset="djconnect-home-assistant-integration-${CANDIDATE_SHA}.tar.gz"
+          mv djconnect-home-assistant-integration.tar.gz "$asset"
+          gh release view "$tag" >/dev/null 2>&1 || gh release create "$tag" --target "$CANDIDATE_SHA" --title "DJConnect Home Assistant artifact ${CANDIDATE_SHA}" --prerelease --notes "Immutable internal deployment artifact."
+          gh release upload "$tag" "$asset" --clobber
+          printf 'asset=%s\n' "$asset" >> "$GITHUB_OUTPUT"
+          printf 'artifact_id=release-asset:%s:%s:%s\n' "$GITHUB_REPOSITORY" "$tag" "$asset" >> "$GITHUB_OUTPUT"
+          printf 'artifact_url=https://github.com/%s/releases/download/%s/%s\n' "$GITHUB_REPOSITORY" "$tag" "$asset" >> "$GITHUB_OUTPUT"
       - id: upload
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: djconnect-home-assistant-integration-${{ github.event.workflow_run.head_sha }}
-          path: djconnect-home-assistant-integration.tar.gz
+          path: ${{ steps.release.outputs.asset }}
           if-no-files-found: error
       - name: Publish artifact evidence
         env:
           CANDIDATE_SHA: ${{ github.event.workflow_run.head_sha }}
-          ARTIFACT_ID: ${{ steps.upload.outputs.artifact-id }}
+          ARTIFACT_ID: ${{ steps.release.outputs.artifact_id }}
+          ARTIFACT_URL: ${{ steps.release.outputs.artifact_url }}
         run: |
           python - <<'PY'
           from datetime import UTC, datetime
@@ -43,6 +59,7 @@ jobs:
                   "repository": os.environ["GITHUB_REPOSITORY"],
                   "candidate_sha": os.environ["CANDIDATE_SHA"],
                   "artifact_id": os.environ["ARTIFACT_ID"],
+                  "artifact_url": os.environ["ARTIFACT_URL"],
                   "artifact_sha256": open("djconnect-home-assistant-integration.sha256", encoding="utf-8").read().strip(),
                   "timestamp": datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
               }, file, sort_keys=True)
