@@ -38,9 +38,8 @@ authorization to implement or operate the Observatory.
 
 ## Known blockers and limitations
 
-- Home Assistant and the required iPad target still lack final target-specific
-  Release 3.3 deployment and smoke evidence; the Internal Release is
-  incomplete.
+- Home Assistant still lacks final target-specific Release 3.3 deployment and
+  smoke evidence; the Internal Release is incomplete.
 - The proposed Observatory has no implementation. Its future evidence timing
   contract, collector/persistence and dashboard are independent increments.
 
