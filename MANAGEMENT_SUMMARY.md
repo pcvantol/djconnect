@@ -20,7 +20,7 @@
 | Platform Release 3.3 Internal | Partially deployed; seven targets qualified | `docs/release/PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json` |
 | Engineering Workflow | Aligned; no implementation changed | `docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md` |
 | Engineering Method V2.3 | Established; no implementation or architecture changed | `ENGINEERING_METHOD.md` |
-| Post-Merge Engineering State | PR #157 merged; rolling records being reconciled | `ENGINEERING_METHOD.md` |
+| Post-Merge Engineering State | PR #158 merged; Windows ARM64 evidence records reconciled and archived | `docs/history/prompts/2026-07-17-windows-evidence-postmerge-reconciliation.md` |
 | Repository Governance Rollout | Completed, merged, reconciled and archived | `docs/governance/REPOSITORY_GOVERNANCE_AUDIT_V2_2.md` |
 | macOS runner-host bootstrap | PR #147 merged; repin recorded | `docs/release/MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS.md` |
 | Platform Release Observatory | Design complete; implementation backlog only | `docs/platform_evolution/PLATFORM_RELEASE_OBSERVATORY_DESIGN.md` |
