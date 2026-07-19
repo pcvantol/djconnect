@@ -175,19 +175,24 @@ jobs:
           connection.settimeout(10)
           key = base64.b64encode(secrets.token_bytes(16)).decode("ascii")
           host = api_url.hostname if api_url.port is None else f"{api_url.hostname}:{api_url.port}"
-          request = "\\r\\n".join((
+          request = "\r\n".join((
               "GET /api/websocket HTTP/1.1",
               f"Host: {host}",
               "Upgrade: websocket",
               "Connection: Upgrade",
               f"Sec-WebSocket-Key: {key}",
               "Sec-WebSocket-Version: 13",
-              "\\r\\n",
+              "\r\n",
           )).encode("ascii")
           connection.sendall(request)
           response = b""
-          while b"\\r\\n\\r\\n" not in response:
-              response += connection.recv(4096)
+          while b"\r\n\r\n" not in response:
+              chunk = connection.recv(4096)
+              if not chunk:
+                  raise SystemExit("Home Assistant WebSocket closed before the HTTP upgrade response")
+              response += chunk
+              if len(response) > 65536:
+                  raise SystemExit("Home Assistant WebSocket HTTP upgrade response exceeded 64 KiB")
           if not response.startswith(b"HTTP/1.1 101"):
               raise SystemExit("Home Assistant WebSocket upgrade failed")
 
