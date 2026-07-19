@@ -100,6 +100,7 @@ class HomeAssistantPrivateRelayWorkflowTest(unittest.TestCase):
             '.domain == "djconnect" and .source == "user" and .disabled_by == null',
             "/reload",
             '.require_restart == false',
+            "djconnect_reload_entry=%s http_status=%s result=%s",
             '.state == "loaded"',
         ):
             self.assertIn(token, workflow)

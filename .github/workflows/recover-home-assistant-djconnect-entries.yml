@@ -41,11 +41,18 @@ jobs:
             "$HA_API_URL/api/config/config_entries/entry" > /tmp/djconnect-entries-before.json
           mapfile -t entry_ids < <(jq -r '.[] | select(.domain == "djconnect" and .source == "user" and .disabled_by == null) | .entry_id' /tmp/djconnect-entries-before.json)
           test "${#entry_ids[@]}" -gt 0
+          entry_number=0
           for entry_id in "${entry_ids[@]}"; do
-            curl --fail --silent --show-error --retry 3 --retry-delay 5 --max-time 30 \
+            entry_number=$((entry_number + 1))
+            response_file="$(mktemp)"
+            reload_status="$(curl --silent --show-error --retry 3 --retry-delay 5 --max-time 30 \
               --header "Authorization: Bearer $HA_API_TOKEN" \
-              --request POST "$HA_API_URL/api/config/config_entries/entry/$entry_id/reload" \
-              | jq -e '.require_restart == false' >/dev/null
+              --request POST --output "$response_file" --write-out '%{http_code}' \
+              "$HA_API_URL/api/config/config_entries/entry/$entry_id/reload" || true)"
+            reload_result="$(jq -r 'if .require_restart == false then "accepted" elif .message then "rejected" else "unexpected" end' "$response_file" 2>/dev/null || printf unexpected)"
+            printf 'djconnect_reload_entry=%s http_status=%s result=%s\n' "$entry_number" "$reload_status" "$reload_result"
+            test "$reload_status" = 200
+            test "$reload_result" = accepted
           done
           curl --fail --silent --show-error --retry 3 --retry-delay 5 --max-time 10 \
             --header "Authorization: Bearer $HA_API_TOKEN" \
