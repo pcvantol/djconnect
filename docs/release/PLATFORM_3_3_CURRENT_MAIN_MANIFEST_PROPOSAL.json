@@ -6,11 +6,11 @@
   "platform_version": "3.3",
   "release_version": "3.3.0",
   "release_profile": "INTERNAL_RELEASE",
-  "generated_at": "2026-07-15",
+  "generated_at": "2026-07-19",
   "approval": {
     "state": "APPROVED",
-    "approved_at": "2026-07-15",
-    "approved_statement": "I explicitly approve updated operational manifest release-3.3.0-internal-20260714 for target home_assistant_pi5, candidate 1284582318a10ba83a8a8c9b9189650f43c4f5e7, artifact 8440382481, SHA-256 83368a8b43e799ebf59157eb83c8a4959b3a5a83bb2a4f8399d1b9d70138b27a, and authorize its manifest-bound deployment followed by post-deployment smoke.",
+    "approved_at": "2026-07-19",
+    "approved_statement": "I give renewed explicit deployment and smoke authorization for this new exact binding: target home_assistant_pi5, candidate bdbad16d00d160c5e023f32d650a1de5a996430a, artifact release-asset:pcvantol/djconnect:internal-ha-bdbad16d00d160c5e023f32d650a1de5a996430a:djconnect-home-assistant-integration-bdbad16d00d160c5e023f32d650a1de5a996430a.tar.gz, SHA-256 f899573e026b742d55d341aaf96d2b65c3a79db45056a8e8bd54b0f3c216322a, followed by post-deployment smoke.",
     "additional_target_authorizations": [
       {
         "approved_at": "2026-07-15",
@@ -68,7 +68,7 @@
     ],
     "supersedes": {
       "previous_state": "APPROVED",
-      "reason": "The prior Home Assistant artifact binding 8311372180 is no longer available from GitHub Actions. The maintainer approved the verified current-main artifact binding and target-scoped deployment/smoke operation.",
+      "reason": "The prior Home Assistant Actions-artifact binding is not a durable cross-workflow deployment source. The maintainer approved the verified immutable prerelease-asset binding and target-scoped deployment/smoke operation.",
       "superseded_approval": {
         "approved_at": "2026-07-14T19:00:45Z",
         "approved_statement": "I explicitly approve updated operational manifest release-3.3.0-internal-20260714 for the listed targets and exact artifacts, including the rebound Raspberry Pi artifact.",
@@ -84,7 +84,7 @@
     "effect": "Deployment and post-deployment smoke remain separately dispatched, target-scoped operations. The maintainer authorized the home_assistant_pi5, cloudflare_pages_production, esp32_lilygo_t_embed_s3, apple_private_device/iphone (with required paired Watch validation), apple_private_device/macbook and windows_internal_arm64 deployments with their exact bindings and corresponding post-deployment smoke; the latest Apple authorizations supersede the prior Apple 3.3.0 artifact bindings. No other target is authorized by these approvals."
   },
   "repositories": [
-    {"repository": "pcvantol/djconnect", "source_sha": "1284582318a10ba83a8a8c9b9189650f43c4f5e7", "version": "3.3.0", "artifact_run": "29680464819"},
+    {"repository": "pcvantol/djconnect", "source_sha": "bdbad16d00d160c5e023f32d650a1de5a996430a", "version": "3.3.0", "artifact_run": "29681825507"},
     {"repository": "pcvantol/djconnect-api", "source_sha": "6f6dee8a6edf72b8a48fa347ef587ede2976badd", "version": "3.3.0", "artifact_run": "29363742261"},
     {"repository": "pcvantol/djconnect-app", "source_sha": "dffdeb1755f4fe4ee8309ff56582640110dc176a", "version": "3.3.0", "artifact_run": "29451514840"},
     {"repository": "pcvantol/djconnect-windows", "source_sha": "6c0c3c3478c81472e479184dc03e51fd095dc4b2", "version": "3.3.0", "artifact_run": "29338767948"},
@@ -104,7 +104,7 @@
     {"target": "windows_internal_arm64", "required": true}
   ],
   "artifact_bindings": [
-    {"owner": "pcvantol/djconnect", "target": "home_assistant_pi5", "artifact_id": "8440382481", "artifact_sha256": "83368a8b43e799ebf59157eb83c8a4959b3a5a83bb2a4f8399d1b9d70138b27a", "artifact_url": "https://github.com/pcvantol/djconnect/actions/runs/29680464819"},
+    {"owner": "pcvantol/djconnect", "target": "home_assistant_pi5", "artifact_id": "release-asset:pcvantol/djconnect:internal-ha-bdbad16d00d160c5e023f32d650a1de5a996430a:djconnect-home-assistant-integration-bdbad16d00d160c5e023f32d650a1de5a996430a.tar.gz", "artifact_sha256": "f899573e026b742d55d341aaf96d2b65c3a79db45056a8e8bd54b0f3c216322a", "artifact_url": "https://github.com/pcvantol/djconnect/releases/download/internal-ha-bdbad16d00d160c5e023f32d650a1de5a996430a/djconnect-home-assistant-integration-bdbad16d00d160c5e023f32d650a1de5a996430a.tar.gz"},
     {"owner": "pcvantol/djconnect-api", "target": "cloudflare_workers_production", "artifact_id": "8323208436", "artifact_sha256": "f9d8c29787297a939d16e6f3fab3f9cd4455518def4565830b5ca57f76a80819", "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/29363742261"},
     {"owner": "pcvantol/djconnect-website", "target": "cloudflare_pages_production", "artifact_id": "8346470431", "artifact_sha256": "dff7ba59c2cf3cd299670487d09ba6e98d845659736dfd0e9770e884e8127027", "artifact_url": "https://github.com/pcvantol/djconnect-website/actions/runs/29424048694"},
     {"owner": "pcvantol/djconnect-esp32", "target": "esp32_lilygo_t_embed_s3", "artifact_id": "release-asset:pcvantol/djconnect-firmware:v3.3.0:djconnect-lilygo-t-embed-s3-v3.3.0.bin", "artifact_sha256": "c25444d3ef414489848fd2d8de624785c82eb90195cc861bcb63085e0df3ceeb", "artifact_url": "https://github.com/pcvantol/djconnect-firmware/releases/download/v3.3.0/djconnect-lilygo-t-embed-s3-v3.3.0.bin"},
@@ -115,7 +115,7 @@
     {"owner": "pcvantol/djconnect-windows", "target": "windows_internal_arm64", "artifact_id": "release-asset:pcvantol/djconnect-app-releases:windows/v3.3.0:DJConnect-Windows-arm64-3.3.0-unsigned.zip", "artifact_sha256": "cbe379826731deb1d16c8af5510b4190a4f4949b1bf6589925de5d1eb66c5b47", "artifact_url": "https://github.com/pcvantol/djconnect-app-releases/releases/download/windows/v3.3.0/DJConnect-Windows-arm64-3.3.0-unsigned.zip"}
   ],
   "evidence": {
-    "artifact_integrity": "VERIFIED: current-main Home Assistant artifact 8347737416, current-main Website artifact 8346470431, rebound API artifact 8323208436 and Apple artifacts from current-main run 29451514840",
+    "artifact_integrity": "VERIFIED: immutable Home Assistant prerelease asset for candidate bdbad16d00d160c5e023f32d650a1de5a996430a (producer run 29681825507), current-main Website artifact 8346470431, rebound API artifact 8323208436 and Apple artifacts from current-main run 29451514840",
     "deployment_evidence": "PARTIAL: rbpi-djconnect, cloudflare_workers_production, cloudflare_pages_production, esp32_lilygo_t_embed_s3, apple_private_device/macbook, apple_private_device/iphone (with paired Watch), apple_private_device/ipad and windows_internal_arm64 deployment evidence verified",
     "post_deployment_smoke": "PARTIAL: rbpi-djconnect, cloudflare_workers_production, cloudflare_pages_production, esp32_lilygo_t_embed_s3, apple_private_device/macbook, apple_private_device/iphone (with paired Watch), apple_private_device/ipad and windows_internal_arm64 smoke evidence verified",
     "operational_credential_scope": "NOT_DISCLOSED; each deployment workflow must validate its own least-privilege scope."
@@ -212,5 +212,5 @@
     "Apple Watch is a required paired-iPhone companion validation, not a direct deployment target.",
     "Windows x64 is published but is not bound to this ARM64-only Internal Release."
   ],
-  "next_authorized_action": "Do not dispatch a target automatically. The required apple_private_device/ipad target is operationally qualified by deployment run 29627667215 and smoke run 29679738565. The home_assistant_pi5 authorization remains pending environment-readiness verification."
+  "next_authorized_action": "Do not dispatch a target automatically. The required apple_private_device/ipad target is operationally qualified by deployment run 29627667215 and smoke run 29679738565. The home_assistant_pi5 target is explicitly authorized with immutable candidate bdbad16d00d160c5e023f32d650a1de5a996430a release asset binding and requires its manifest-bound deployment followed by post-deployment smoke."
 }
