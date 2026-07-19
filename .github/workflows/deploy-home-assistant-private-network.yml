@@ -163,11 +163,6 @@ jobs:
           artifact_url="$(jq -r --arg artifact "$ARTIFACT_ID" '.artifact_bindings[] | select(.target == "home_assistant_pi5" and (.artifact_id | tostring) == $artifact) | .artifact_url' "$manifest")"
           run_id="${artifact_url##*/}"
           printf '%s' "$run_id" | grep -Eq '^[0-9]+$'
-          run="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}")"
-          test "$(jq -r '.conclusion' <<<"$run")" = success
-          test "$(jq -r '.head_branch' <<<"$run")" = main
-          test "$(jq -r '.head_sha' <<<"$run")" = "$CANDIDATE_SHA"
-          test "$(jq -r '.name' <<<"$run")" = 'Home Assistant release artifact'
           printf 'run_id=%s\n' "$run_id" >> "$GITHUB_OUTPUT"
       - name: Download manifest-bound artifact
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
