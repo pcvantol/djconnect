@@ -87,3 +87,19 @@ class HomeAssistantPrivateRelayWorkflowTest(unittest.TestCase):
 
         self.assertNotIn("DJCONNECT_HA_DEPLOY_CONTAINER", workflow)
         self.assertNotIn("docker inspect", workflow)
+
+    def test_recovery_reloads_only_enabled_djconnect_entries(self) -> None:
+        workflow = self._workflow("recover-home-assistant-djconnect-entries.yml")
+
+        for token in (
+            "reload_djconnect_entries",
+            "home_assistant_pi5",
+            "private-network-deployment",
+            "DJCONNECT_HA_SMOKE_API_URL",
+            "/api/config/config_entries/entry",
+            '.domain == "djconnect" and .source == "user" and .disabled_by == null',
+            "/reload",
+            '.require_restart == false',
+            '.state == "loaded"',
+        ):
+            self.assertIn(token, workflow)
