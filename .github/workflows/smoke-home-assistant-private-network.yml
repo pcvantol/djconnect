@@ -149,6 +149,20 @@ jobs:
           ssh=(ssh -i "$SSH_TRANSPORT_PATH/id_ed25519" -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$SSH_TRANSPORT_PATH/known_hosts" -p "$HAOS_PORT" "$HAOS_USER@$HAOS_HOST")
           "${ssh[@]}" 'cat /config/custom_components/djconnect/manifest.json' > /tmp/djconnect-haos-manifest.json
           test "$(jq -r '.version' /tmp/djconnect-haos-manifest.json)" = "$RELEASE_VERSION"
+      - name: Verify DJConnect HTTP routes are registered
+        env:
+          HA_API_URL: ${{ secrets.DJCONNECT_HA_SMOKE_API_URL }}
+        run: |
+          set -euo pipefail
+          response_body="$(mktemp)"
+          trap 'rm -f "$response_body"' EXIT
+          for route in /api/djconnect/v1/status /api/djconnect/v1/command /api/djconnect/v1/voice; do
+            status="$(curl --silent --show-error --retry 3 --retry-delay 5 --max-time 10 \
+              --output "$response_body" --write-out '%{http_code}' --request POST \
+              --header 'Content-Type: application/json' --data '{}' "$HA_API_URL$route")"
+            test "$status" = 401
+            jq -e '.success == false and .error == "unauthorized"' "$response_body" >/dev/null
+          done
       - name: Verify authenticated Home Assistant WebSocket handshake
         env:
           HA_API_URL: ${{ secrets.DJCONNECT_HA_SMOKE_API_URL }}
@@ -276,7 +290,7 @@ jobs:
           import json, os
           with open("ha-private-smoke-evidence.json", "w", encoding="utf-8") as file:
               timestamp = datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
-              json.dump({"schema_version": 1, "kind": "post_deployment_smoke", "repository": os.environ["GITHUB_REPOSITORY"], "candidate_sha": os.environ["CANDIDATE_SHA"], "manifest_id": os.environ["MANIFEST_ID"], "artifact_id": os.environ["ARTIFACT_ID"], "artifact_sha256": os.environ["ARTIFACT_SHA256"], "target": os.environ["TARGET"], "platform_version": os.environ["PLATFORM_VERSION"], "release_version": os.environ["RELEASE_VERSION"], "release_profile": os.environ["RELEASE_PROFILE"], "deployment_workflow_run": os.environ["DEPLOYMENT_WORKFLOW_RUN"], "smoke_workflow_run": os.environ["SMOKE_WORKFLOW_RUN"], "runner_identity": "self-hosted-macos-private-network-deployment", "route_type": "authenticated_http_api_websocket_and_haos_ssh", "protocol": "https_wss_ssh", "endpoint_class": "home_assistant_api_and_haos_cli", "authentication_mode": "bearer_token_and_pinned_ssh", "expected_version": os.environ["RELEASE_VERSION"], "observed_version": os.environ["RELEASE_VERSION"], "health_result": "PASS", "websocket_result": "PASS", "startup_marker_result": "PASS", "crash_log_result": "PASS", "retry_count": 3, "stabilization_window": "up_to_20_seconds", "timestamps": {"completed_at": timestamp}, "final_result": "SMOKE_PASSED", "timestamp": timestamp}, file, sort_keys=True)
+              json.dump({"schema_version": 1, "kind": "post_deployment_smoke", "repository": os.environ["GITHUB_REPOSITORY"], "candidate_sha": os.environ["CANDIDATE_SHA"], "manifest_id": os.environ["MANIFEST_ID"], "artifact_id": os.environ["ARTIFACT_ID"], "artifact_sha256": os.environ["ARTIFACT_SHA256"], "target": os.environ["TARGET"], "platform_version": os.environ["PLATFORM_VERSION"], "release_version": os.environ["RELEASE_VERSION"], "release_profile": os.environ["RELEASE_PROFILE"], "deployment_workflow_run": os.environ["DEPLOYMENT_WORKFLOW_RUN"], "smoke_workflow_run": os.environ["SMOKE_WORKFLOW_RUN"], "runner_identity": "self-hosted-macos-private-network-deployment", "route_type": "authenticated_http_api_websocket_and_haos_ssh", "protocol": "https_wss_ssh", "endpoint_class": "home_assistant_api_and_haos_cli", "authentication_mode": "bearer_token_and_pinned_ssh", "expected_version": os.environ["RELEASE_VERSION"], "observed_version": os.environ["RELEASE_VERSION"], "health_result": "PASS", "djconnect_http_routes_result": "PASS", "websocket_result": "PASS", "startup_marker_result": "PASS", "crash_log_result": "PASS", "retry_count": 3, "stabilization_window": "up_to_20_seconds", "timestamps": {"completed_at": timestamp}, "final_result": "SMOKE_PASSED", "timestamp": timestamp}, file, sort_keys=True)
           PY
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
