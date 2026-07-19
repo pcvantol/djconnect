@@ -8,6 +8,11 @@ The machine-readable route inventory is
 `CONFIRMED_CODE` HA route constants live in `custom_components/djconnect/const.py`.
 View classes live in `custom_components/djconnect/http.py`.
 
+`CONFIRMED_CODE` Route registration is idempotent and is performed during both
+integration setup and config-entry setup. The config-entry registration keeps
+the existing `/api/djconnect/v1/...` routes available when Home Assistant
+restores an entry through an entry-first startup path.
+
 `CONFIRMED_CODE` Most DJConnect HA views set `requires_auth = False` and perform
 DJConnect bearer/device validation inside the handler. Voice debug is the
 exception observed with `requires_auth = True`.
