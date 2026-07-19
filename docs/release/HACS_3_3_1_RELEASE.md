@@ -1,12 +1,13 @@
-# DJConnect HACS 3.3.1 Release
+# Platform Release 3.3.0 — HACS Component 3.3.1
 
 **Status:** Prepared for review; publication pending merge and target validation.
 
 ## Scope
 
-This is a Home Assistant/HACS-only patch release. It does not publish firmware,
-change the DJConnect client protocol, introduce endpoints or alter public API
-contracts.
+This is the sole component patch within Platform Release 3.3.0: the Home
+Assistant/HACS integration advances to `3.3.1`. It does not publish firmware,
+change any other component version, alter the DJConnect client protocol,
+introduce endpoints or change public API contracts.
 
 ## Included corrections
 
