@@ -5,7 +5,8 @@ Repository: `pcvantol/djconnect`
 
 ## Purpose
 
-This directory owns the canonical Product Strategy foundation for DJConnect.
+This directory owns the canonical Product Strategy and Product Definition
+foundation for DJConnect.
 
 Product Strategy begins where Innovation Labs end. Innovation Labs own ideas,
 experiments and open product questions. Product Strategy owns validated product
@@ -75,3 +76,4 @@ product strategy.
 ## Current Documents
 
 - `PRODUCT_STRATEGY.md`
+- `PRODUCT_DEFINITION_2_0.md`
