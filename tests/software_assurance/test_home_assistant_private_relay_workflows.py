@@ -41,6 +41,20 @@ class HomeAssistantPrivateRelayWorkflowTest(unittest.TestCase):
         ):
             self.assertIn(token, workflow)
 
+    def test_deployment_does_not_leave_manifest_bearing_backup_components(self) -> None:
+        workflow = self._workflow("deploy-home-assistant-private-network.yml")
+
+        stale_backup_cleanup = (
+            "find /config/custom_components -mindepth 1 -maxdepth 1 -type d "
+            "-name '.djconnect-pre-*' -exec rm -rf {} +"
+        )
+        self.assertIn(stale_backup_cleanup, workflow)
+        self.assertIn(r'rm -rf \"\$backup\"', workflow)
+        self.assertLess(
+            workflow.index(stale_backup_cleanup),
+            workflow.index(r'mv \"\$target\" \"\$backup\"'),
+        )
+
     def test_smoke_is_separate_read_only_operational_evidence(self) -> None:
         workflow = self._workflow("smoke-home-assistant-private-network.yml")
 

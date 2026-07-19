@@ -205,9 +205,15 @@ jobs:
           tar -xzf \"\$archive\" -C \"\$workdir\"
           test -f \"\$workdir/djconnect/manifest.json\"
           mv \"\$workdir/djconnect\" \"\$staging\"
+          # Home Assistant discovers every directory under custom_components,
+          # including dot-prefixed directories. A retained previous release
+          # therefore shadows the active djconnect package through its own
+          # manifest.json and produces an invalid module path.
+          find /config/custom_components -mindepth 1 -maxdepth 1 -type d -name '.djconnect-pre-*' -exec rm -rf {} +
           test ! -e \"\$backup\"
           if test -e \"\$target\"; then mv \"\$target\" \"\$backup\"; fi
           mv \"\$staging\" \"\$target\"
+          rm -rf \"\$backup\"
           if ! ha core check; then
             echo 'Home Assistant configuration check reported pre-existing diagnostics; continuing to the supported Core restart.' >&2
           fi
