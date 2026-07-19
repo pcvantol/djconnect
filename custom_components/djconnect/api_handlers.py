@@ -139,6 +139,7 @@ async def async_handle_command_payload(
     if _is_command_payload(data):
         _LOGGER.debug("Ignoring command payload for device sensor update")
     runtime.device_status[CONF_CLIENT_TYPE] = client_type
+    _refresh_authenticated_client_version(runtime, data)
     profile_error, profile_status = await _apply_profile_or_error(
         hass,
         runtime,
@@ -2217,6 +2218,19 @@ def _text_value(data: dict[str, Any], *keys: str) -> str:
         if value:
             return value
     return ""
+
+
+def _refresh_authenticated_client_version(runtime: Any, data: dict[str, Any]) -> None:
+    """Refresh version metadata before validating an authenticated command.
+
+    Clients issue a command-status request as their first request after an
+    upgrade.  Commands intentionally do not merge sensor data, but rejecting
+    that request against the cached pre-upgrade version prevents the client
+    from ever reaching its following full status update.
+    """
+    version = _text_value(data, "app_version", "version", "firmware", "firmware_version")
+    if version:
+        runtime.device_status["app_version"] = version
 
 
 def _error_payload(error: str, message: str | None = None) -> dict[str, Any]:

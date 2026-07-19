@@ -250,7 +250,7 @@ jobs:
           ssh=(ssh -i "$SSH_TRANSPORT_PATH/id_ed25519" -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$SSH_TRANSPORT_PATH/known_hosts" -p "$HAOS_PORT" "$HAOS_USER@$HAOS_HOST")
           core_info="$("${ssh[@]}" 'ha core info --raw-json')"
           printf '%s' "$core_info" | jq -e 'has("version") and (.version | type == "string" and length > 0)' >/dev/null
-          recent_logs="$("${ssh[@]}" 'ha core logs --raw | tail -n 500')"
+          recent_logs="$("${ssh[@]}" 'ha core logs -n 500')"
           ! grep -Eiq 'Error setting up entry .* for djconnect|Failed setup, will retry.*djconnect|Exception.*custom_components\.djconnect' <<<"$recent_logs"
       - name: Publish redacted smoke evidence
         env:
