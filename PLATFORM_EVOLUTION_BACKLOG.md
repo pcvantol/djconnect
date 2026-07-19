@@ -15,6 +15,8 @@ or governed operations are constrained.
 | Public distribution: Apple | P1 | Backlog | qualified Internal Release consumers and explicit authorization | release-operational work |
 | Public distribution: Windows | P1 | Backlog | qualified Internal Release consumers and explicit authorization | release-operational work |
 | Public HACS distribution | P1 | Backlog | fresh candidate and release authorization | release-operational work |
+| HACS 3.3.0 release visibility (`HACS-3.3.0-001`) | P1 | Open / Backlog | verify release/tag metadata, HACS cache/index discovery and update presentation | bounded distribution investigation; separate from the active HA HTTP-route runtime incident |
+| Home Assistant DJConnect HTTP-route registration (`HA-HTTP-ROUTE-3.3.0-001`) | P0 | Active incident | installed 3.3.0 artifact, active integration lifecycle and successful live route smoke | identify why the HA runtime still returns HTTP 404 for `/status`, `/command` and `/voice` after a successful target deployment; do not treat it as a Pi-client or HACS-distribution defect |
 | Firmware OTA publication and staged rollback | P1 | Backlog | manifest-bound consumer qualification | release-operational work |
 | Website production deployment and announcements | P1 | Backlog | approved manifest and consumer qualification | release-operational work |
 | Technical Debt Engine integration | P1 | Backlog | released standalone TDE CLI, stable evidence schema, trusted distribution and Software Assurance compatibility | Platform Evolution integration after external product initialization |
