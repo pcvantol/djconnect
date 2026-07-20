@@ -99,9 +99,11 @@ this reconciliation records the historical traceability gap without
 reconstructing a predecessor prompt.
 
 PR [#212](https://github.com/pcvantol/djconnect/pull/212), **DJConnect v4
-Architecture**, is reviewable. It establishes the accepted v4 product
-architecture without implementation, API, storage, synchronization, client UI,
-migration or v3 compatibility work.
+Architecture**, is merged as `677f3304f35c9386ef1f839c595e1478fd2fef7d` on
+2026-07-20. It establishes the accepted v4 product architecture without
+implementation, API, storage, synchronization, client UI, migration or v3
+compatibility work. Its Prompt History archive is absent; this reconciliation
+records the traceability gap without reconstructing immutable history.
 
 Canonical lifecycle:
 
@@ -276,9 +278,10 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-The merged DJ Session Vision is reconciled into current repository truth.
-DJConnect v4 Architecture is reviewable in PR #212. Platform Release 3.3
-remains in Maintenance.
+DJConnect v4 Architecture is merged and this reconciliation aligns the rolling
+records with current repository truth. Platform Release 3.3 remains in
+Maintenance. The next Product Engineering increment may be selected from
+`PRODUCT_ROADMAP.md`.
 
 ## Completion Report
 
