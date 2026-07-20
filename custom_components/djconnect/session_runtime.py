@@ -655,6 +655,7 @@ class DJSessionPlanner:
             current.moment_type != DJMomentType.RECOMMENDATION.value
             or previous.moment_type
             not in {
+                DJMomentType.TRACK.value,
                 DJMomentType.ARTIST.value,
                 DJMomentType.ALBUM.value,
                 DJMomentType.GENRE.value,
@@ -839,7 +840,12 @@ class DJMomentEngine:
             or source.session_id != session_id
             or target.session_id != session_id
             or source.moment_type
-            not in {DJMomentType.ARTIST, DJMomentType.ALBUM, DJMomentType.GENRE}
+            not in {
+                DJMomentType.TRACK,
+                DJMomentType.ARTIST,
+                DJMomentType.ALBUM,
+                DJMomentType.GENRE,
+            }
             or target.moment_type is not DJMomentType.RECOMMENDATION
         ):
             return self.create_silence(
