@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 import types
 import unittest
+from dataclasses import FrozenInstanceError
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -357,8 +358,119 @@ class SessionRuntimeManagerTest(unittest.TestCase):
                 "audience_updated",
                 "broadcast_started",
                 "broadcast_stopped",
+                "dj_moment_published",
             ],
         )
+
+    def test_track_context_moment_is_frozen_placed_and_broadcast(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(
+            manager.async_start(
+                owner_profile_id="profile-a",
+                selected_mood="deep",
+                dj_persona=self.runtime.DJPersona.RADIO_DJ,
+            )
+        )
+        events: list[dict] = []
+        asyncio.run(manager.async_subscribe(owner_profile_id="profile-a", session_id=created.session_id, callback=events.append))
+
+        async def insight() -> dict:
+            return {
+                "track": {"title": "Teardrop", "artist": "Massive Attack", "album": "Mezzanine"},
+                "analysis": {"summary": "A spacious trip-hop landmark.", "full_text": "The suspended beat and vocal leave room for the bass to breathe."},
+            }
+
+        moment = asyncio.run(manager.async_generate_track_context(owner_profile_id="profile-a", session_id=created.session_id, insight_provider=insight))
+
+        assert moment is not None
+        self.assertEqual(moment.moment_type, self.runtime.DJMomentType.TRACK)
+        self.assertEqual(moment.presentation_intent.source_session_mood, "deep")
+        self.assertEqual(moment.presentation_intent.dj_persona, self.runtime.DJPersona.RADIO_DJ)
+        self.assertEqual(created.broadcast.as_dict()["dj_moments"][0]["moment_id"], moment.moment_id)
+        self.assertIn(moment.moment_id, [item.moment_id for item in created.planner.output.session_flow.items])
+        self.assertEqual(events[-1]["event_type"], "dj_moment_published")
+        with self.assertRaises(FrozenInstanceError):
+            moment.summary = "mutated"  # type: ignore[misc]
+
+    def test_later_mood_and_persona_changes_do_not_mutate_existing_moment(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-a", selected_mood="deep"))
+
+        async def first() -> dict:
+            return {"track": {"title": "A", "artist": "B"}, "analysis": {"summary": "One.", "full_text": "One full context."}}
+
+        first_moment = asyncio.run(manager.async_generate_track_context(owner_profile_id="profile-a", session_id=created.session_id, insight_provider=first))
+        asyncio.run(manager.async_update_mood(owner_profile_id="profile-a", session_id=created.session_id, selected_mood="energy"))
+        asyncio.run(manager.async_update_persona(owner_profile_id="profile-a", session_id=created.session_id, dj_persona=self.runtime.DJPersona.CLUB_DJ))
+
+        async def second() -> dict:
+            return {"track": {"title": "C", "artist": "D"}, "analysis": {"summary": "Two.", "full_text": "Two full context."}}
+
+        second_moment = asyncio.run(manager.async_generate_track_context(owner_profile_id="profile-a", session_id=created.session_id, insight_provider=second))
+        assert first_moment is not None and second_moment is not None
+        self.assertEqual(first_moment.presentation_intent.source_session_mood, "deep")
+        self.assertEqual(second_moment.presentation_intent.source_session_mood, "energy")
+        self.assertEqual(first_moment.presentation_intent.dj_persona, self.runtime.DJPersona.HOME_DJ)
+        self.assertEqual(second_moment.presentation_intent.dj_persona, self.runtime.DJPersona.CLUB_DJ)
+
+    def test_invalid_or_duplicate_generation_becomes_intentional_silence(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-a"))
+
+        async def invalid() -> dict:
+            return {"track": {}, "analysis": {}}
+
+        silence = asyncio.run(manager.async_generate_track_context(owner_profile_id="profile-a", session_id=created.session_id, insight_provider=invalid))
+        assert silence is not None
+        self.assertEqual(silence.moment_type, self.runtime.DJMomentType.SILENCE)
+        self.assertEqual(created.broadcast.as_dict()["dj_moments"], [silence.as_dict()])
+
+    def test_ai_provider_failure_preserves_active_runtime_with_silence(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-a"))
+
+        async def unavailable() -> dict:
+            raise TimeoutError("provider timeout")
+
+        moment = asyncio.run(manager.async_generate_track_context(owner_profile_id="profile-a", session_id=created.session_id, insight_provider=unavailable))
+        assert moment is not None
+        self.assertEqual(moment.moment_type, self.runtime.DJMomentType.SILENCE)
+        self.assertEqual(asyncio.run(manager.async_get_active("profile-a")).runtime_state, self.runtime.SessionRuntimeState.ACTIVE)
+
+    def test_owner_only_moment_never_reaches_broadcast_token_viewer(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-a"))
+        token = asyncio.run(manager.async_broadcast_token_for_owner(owner_profile_id="profile-a", session_id=created.session_id))["broadcast_token"]
+        receiver_events: list[dict] = []
+        subscription = asyncio.run(manager.async_subscribe_with_broadcast_token(session_id=created.session_id, broadcast_token=token, callback=receiver_events.append))
+        assert subscription is not None
+        private = self.runtime.DJMoment(
+            moment_id="private-moment", session_id=created.session_id, created_at="now", moment_type=self.runtime.DJMomentType.TRACK,
+            knowledge_intent=self.runtime.KnowledgeIntent(self.runtime.KnowledgeIntentType.TRACK_CONTEXT, "private"),
+            presentation_intent=self.runtime.PresentationIntent("deep", self.runtime.DJPersona.HOME_DJ, "warm", "deep", "short", "guided", "music", "normal", 20, (self.runtime.DeliveryChannel.OWNER,), self.runtime.DJMomentVisibility.OWNER_ONLY),
+            title="Private", summary="Private", content="Private", artwork_url=None, actions=(), source_references=(), generation_metadata=(),
+        )
+        created.broadcast.publish_moment(private)
+        self.assertEqual(receiver_events, [])
+        self.assertEqual(subscription[1]["dj_moments"], [])
+
+    def test_generated_moments_remain_isolated_between_profile_runtimes(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        first = asyncio.run(manager.async_start(owner_profile_id="profile-a"))
+        second = asyncio.run(manager.async_start(owner_profile_id="profile-b"))
+
+        async def insight() -> dict:
+            return {
+                "track": {"title": "Private Track", "artist": "Artist"},
+                "analysis": {"summary": "Safe context.", "full_text": "Safe generated context."},
+                "music_dna": {"private": "must never project"},
+            }
+
+        moment = asyncio.run(manager.async_generate_track_context(owner_profile_id="profile-a", session_id=first.session_id, insight_provider=insight))
+        assert moment is not None
+        self.assertEqual(len(first.broadcast.as_dict()["dj_moments"]), 1)
+        self.assertEqual(second.broadcast.as_dict()["dj_moments"], [])
+        self.assertNotIn("music_dna", moment.as_dict())
 
     def test_rejects_second_active_runtime_for_same_profile(self) -> None:
         manager = self.runtime.SessionRuntimeManager()

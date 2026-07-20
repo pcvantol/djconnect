@@ -3,14 +3,17 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import secrets
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Any, Callable
+from typing import Any, Awaitable, Callable
 from uuid import uuid4
 
 from .const import DOMAIN
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class SessionRuntimeState(StrEnum):
@@ -48,6 +51,7 @@ class PlannerEventType(StrEnum):
     AUDIENCE_SIGNAL = "audience_signal"
     CONVERSATION = "conversation"
     PLANNER_TICK = "planner_tick"
+    TRACK_AVAILABLE = "track_available"
 
 
 class AudienceSignalType(StrEnum):
@@ -79,6 +83,153 @@ class BroadcastEventType(StrEnum):
     AUDIENCE_UPDATED = "audience_updated"
     BROADCAST_STARTED = "broadcast_started"
     BROADCAST_STOPPED = "broadcast_stopped"
+    DJ_MOMENT_PUBLISHED = "dj_moment_published"
+
+
+class KnowledgeIntentType(StrEnum):
+    """The semantic contribution requested by the Planner."""
+
+    TRACK_CONTEXT = "track_context"
+    SESSION_DIRECTION = "session_direction"
+    SILENCE = "silence"
+
+
+class DJMomentType(StrEnum):
+    """Bounded first-production catalogue of immutable Moments."""
+
+    TRACK = "track"
+    SESSION = "session"
+    SILENCE = "silence"
+
+
+class DJPersona(StrEnum):
+    """Behavioural DJ identities; never a Voice provider configuration."""
+
+    HOME_DJ = "home_dj"
+    RADIO_DJ = "radio_dj"
+    CLUB_DJ = "club_dj"
+    FESTIVAL_DJ = "festival_dj"
+
+
+class DJMomentVisibility(StrEnum):
+    """Server-owned projection boundary for a generated Moment."""
+
+    OWNER_ONLY = "owner_only"
+    SESSION_SHARED = "session_shared"
+    PUBLIC_BROADCAST = "public_broadcast"
+
+
+class DeliveryChannel(StrEnum):
+    """Semantic delivery targets, not renderer-specific instructions."""
+
+    BROADCAST = "broadcast"
+    OWNER = "owner"
+    SHARED = "shared"
+
+
+@dataclass(frozen=True)
+class KnowledgeIntent:
+    """Planner-owned statement of what the DJ should communicate."""
+
+    intent_type: KnowledgeIntentType
+    goal: str
+    track_key: str = ""
+
+    def as_dict(self) -> dict[str, str]:
+        return {"type": self.intent_type.value, "goal": self.goal}
+
+
+@dataclass(frozen=True)
+class PresentationIntent:
+    """Frozen semantic guidance for one Moment's delivery."""
+
+    source_session_mood: str
+    dj_persona: DJPersona
+    tone_of_voice: str
+    energy_level: str
+    delivery_style: str
+    voice_style: str
+    visual_theme: str
+    importance: str
+    maximum_duration_seconds: int
+    delivery_channels: tuple[DeliveryChannel, ...]
+    visibility: DJMomentVisibility
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "source_session_mood": self.source_session_mood,
+            "dj_persona": self.dj_persona.value,
+            "tone_of_voice": self.tone_of_voice,
+            "energy_level": self.energy_level,
+            "delivery_style": self.delivery_style,
+            "voice_style": self.voice_style,
+            "visual_theme": self.visual_theme,
+            "importance": self.importance,
+            "maximum_duration_seconds": self.maximum_duration_seconds,
+            "delivery_channels": [channel.value for channel in self.delivery_channels],
+            "visibility": self.visibility.value,
+        }
+
+
+@dataclass(frozen=True)
+class DJMomentAction:
+    """A safe semantic follow-up action supplied by the server."""
+
+    action_type: str
+    label: str
+    icon_hint: str
+    priority: int
+    required_capability: str
+    payload: tuple[tuple[str, str], ...] = ()
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "action_type": self.action_type,
+            "label": self.label,
+            "icon_hint": self.icon_hint,
+            "priority": self.priority,
+            "required_capability": self.required_capability,
+            "payload": dict(self.payload),
+        }
+
+
+@dataclass(frozen=True)
+class DJMoment:
+    """Universal immutable, validated presentation contribution."""
+
+    moment_id: str
+    session_id: str
+    created_at: str
+    moment_type: DJMomentType
+    knowledge_intent: KnowledgeIntent
+    presentation_intent: PresentationIntent
+    title: str
+    summary: str
+    content: str
+    artwork_url: str | None
+    actions: tuple[DJMomentAction, ...]
+    source_references: tuple[str, ...]
+    generation_metadata: tuple[tuple[str, str], ...]
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "moment_id": self.moment_id,
+            "session_id": self.session_id,
+            "created_at": self.created_at,
+            "type": self.moment_type.value,
+            "knowledge_intent": self.knowledge_intent.as_dict(),
+            "presentation_intent": self.presentation_intent.as_dict(),
+            "title": self.title,
+            "summary": self.summary,
+            "content": self.content,
+            "artwork": {"url": self.artwork_url} if self.artwork_url else None,
+            "actions": [action.as_dict() for action in self.actions],
+            "visibility": self.presentation_intent.visibility.value,
+            "delivery_channels": [channel.value for channel in self.presentation_intent.delivery_channels],
+            "importance": self.presentation_intent.importance,
+            "source_references": list(self.source_references),
+            "generation_metadata": dict(self.generation_metadata),
+        }
 
 
 class SessionFlowPosition(StrEnum):
@@ -97,6 +248,7 @@ class SessionFlowItemType(StrEnum):
     MAINTAIN_DIRECTION = "maintain_direction"
     FUTURE_DIRECTION = "future_direction"
     FUTURE_PLACEHOLDER = "future_placeholder"
+    DJ_MOMENT = "dj_moment"
 
 
 @dataclass(frozen=True)
@@ -107,15 +259,21 @@ class DJSessionFlowItem:
     item_type: SessionFlowItemType
     position: SessionFlowPosition
     label: str
+    moment_id: str = ""
+    moment_type: str = ""
 
     def as_dict(self) -> dict[str, str]:
         """Return the renderer-safe representation of this flow item."""
-        return {
+        result = {
             "item_id": self.item_id,
             "item_type": str(self.item_type),
             "position": str(self.position),
             "label": self.label,
         }
+        if self.moment_id:
+            result["moment_id"] = self.moment_id
+            result["moment_type"] = self.moment_type
+        return result
 
 
 @dataclass(frozen=True)
@@ -186,6 +344,35 @@ class DJSessionPlanner:
         self.last_replan_at = flow.created_at
         return flow
 
+    def request_track_context(self) -> KnowledgeIntent:
+        """Record the deterministic active-track trigger as a Planner decision."""
+        self.pending_events = (*self.pending_events, PlannerEventType.TRACK_AVAILABLE)
+        return KnowledgeIntent(
+            KnowledgeIntentType.TRACK_CONTEXT,
+            "Explain one relevant detail that improves appreciation of the current track.",
+        )
+
+    def append_moment(self, moment: DJMoment) -> DJSessionFlow:
+        """Place an Engine-produced Moment without giving it scheduling control."""
+        current = self.output.session_flow
+        item = DJSessionFlowItem(
+            item_id=f"moment-{moment.moment_id}",
+            item_type=SessionFlowItemType.DJ_MOMENT,
+            position=SessionFlowPosition.NEXT,
+            label=moment.title,
+            moment_id=moment.moment_id,
+            moment_type=moment.moment_type.value,
+        )
+        flow = DJSessionFlow(
+            flow_id=current.flow_id,
+            planning_horizon_minutes=current.planning_horizon_minutes,
+            created_at=_timestamp(),
+            items=(*current.items, item),
+        )
+        self.output = SessionPlannerOutput(session_flow=flow)
+        self.last_replan_at = flow.created_at
+        return flow
+
     def as_dict(self) -> dict[str, Any]:
         """Return the public Planner state and its owned Session Flow."""
         return {
@@ -198,6 +385,97 @@ class DJSessionPlanner:
             "pending_events": [str(event) for event in self.pending_events],
             "output": self.output.as_dict(),
         }
+
+
+@dataclass
+class DJMomentEngine:
+    """Runtime-owned creative execution for a bounded first Moment slice."""
+
+    moments: tuple[DJMoment, ...] = ()
+    _track_keys: set[str] = field(default_factory=set, repr=False)
+
+    def create_track_context(
+        self,
+        *,
+        session_id: str,
+        knowledge_intent: KnowledgeIntent,
+        selected_mood: str,
+        persona: DJPersona,
+        locale: str,
+        insight: dict[str, Any],
+    ) -> DJMoment:
+        """Validate a reusable Track Insight response into one frozen Moment."""
+        track = insight.get("track") if isinstance(insight.get("track"), dict) else {}
+        analysis = insight.get("analysis") if isinstance(insight.get("analysis"), dict) else {}
+        title = _bounded_text(track.get("title"), 160)
+        artist = _bounded_text(track.get("artist"), 160)
+        summary = _bounded_text(analysis.get("summary"), 320)
+        content = _bounded_text(analysis.get("full_text"), 1200)
+        track_key = _track_key(track)
+        if not title or not artist or not summary or not content or not track_key:
+            return self.create_silence(
+                session_id=session_id,
+                selected_mood=selected_mood,
+                persona=persona,
+                locale=locale,
+                reason="invalid_ai_output",
+            )
+        if track_key in self._track_keys:
+            return self.create_silence(
+                session_id=session_id,
+                selected_mood=selected_mood,
+                persona=persona,
+                locale=locale,
+                reason="duplicate_track_context",
+            )
+        self._track_keys.add(track_key)
+        moment = DJMoment(
+            moment_id=f"moment-{uuid4().hex}",
+            session_id=session_id,
+            created_at=_timestamp(),
+            moment_type=DJMomentType.TRACK,
+            knowledge_intent=KnowledgeIntent(
+                knowledge_intent.intent_type, knowledge_intent.goal, track_key
+            ),
+            presentation_intent=_presentation_intent(selected_mood, persona),
+            title=f"{title} — {artist}",
+            summary=summary,
+            content=content,
+            artwork_url=_bounded_text(track.get("artwork_url"), 2048) or None,
+            actions=_track_actions(track, locale),
+            source_references=("track_insight",),
+            generation_metadata=(("provider", "track_insight"), ("validated", "true")),
+        )
+        self.moments = (*self.moments, moment)
+        return moment
+
+    def create_silence(
+        self,
+        *,
+        session_id: str,
+        selected_mood: str,
+        persona: DJPersona,
+        locale: str,
+        reason: str,
+    ) -> DJMoment:
+        """Record intentional non-interruption without creating fake content."""
+        moment = DJMoment(
+            moment_id=f"moment-{uuid4().hex}",
+            session_id=session_id,
+            created_at=_timestamp(),
+            moment_type=DJMomentType.SILENCE,
+            knowledge_intent=KnowledgeIntent(KnowledgeIntentType.SILENCE, "Do not interrupt the music."),
+            presentation_intent=_presentation_intent(selected_mood, persona),
+            title=_moment_copy(locale, "silence_title"),
+            summary=_moment_copy(locale, "silence_summary"),
+            content="",
+            artwork_url=None,
+            actions=(),
+            source_references=(),
+            generation_metadata=(("reason", reason), ("validated", "true")),
+        )
+        self.moments = (*self.moments, moment)
+        return moment
 
 
 @dataclass(frozen=True)
@@ -214,8 +492,9 @@ class DJBroadcastState:
     session_flow: DJSessionFlow
     audience_totals: dict[str, int] = field(default_factory=dict)
     recent_audience_activity: tuple[str, ...] = ()
+    dj_moments: tuple[DJMoment, ...] = ()
 
-    def as_dict(self) -> dict[str, Any]:
+    def as_dict(self, *, include_owner_only: bool = True) -> dict[str, Any]:
         """Return canonical state with its Planner-produced Session Flow."""
         return {
             "session": {
@@ -231,6 +510,11 @@ class DJBroadcastState:
             },
             "session_flow": self.session_flow.as_dict(),
             "audience": {"signal_totals": self.audience_totals, "recent_activity": list(self.recent_audience_activity)},
+            "dj_moments": [
+                moment.as_dict()
+                for moment in self.dj_moments
+                if include_owner_only or moment.presentation_intent.visibility is not DJMomentVisibility.OWNER_ONLY
+            ],
             "broadcast": {"started_at": self.started_at},
         }
 
@@ -247,7 +531,7 @@ class DJSessionBroadcastEngine:
     state: DJBroadcastState
     pending_events: tuple[BroadcastEventType, ...] = ()
     broadcast_token: str = field(default_factory=lambda: secrets.token_urlsafe(32), repr=False)
-    _subscribers: dict[str, Callable[[dict[str, Any]], None]] = field(
+    _subscribers: dict[str, tuple[Callable[[dict[str, Any]], None], bool]] = field(
         default_factory=dict, init=False, repr=False
     )
 
@@ -256,7 +540,7 @@ class DJSessionBroadcastEngine:
     ) -> tuple[str, dict[str, Any]]:
         """Register one renderer and return its required initial snapshot."""
         subscription_id = f"broadcast-subscription-{uuid4().hex}"
-        self._subscribers[subscription_id] = callback
+        self._subscribers[subscription_id] = (callback, True)
         return subscription_id, self.as_dict()
 
     def subscribe_with_broadcast_token(
@@ -265,7 +549,9 @@ class DJSessionBroadcastEngine:
         """Attach a read-only Receiver only when its runtime token matches."""
         if not token or not secrets.compare_digest(self.broadcast_token, token):
             return None
-        return self.subscribe(callback)
+        subscription_id = f"broadcast-subscription-{uuid4().hex}"
+        self._subscribers[subscription_id] = (callback, False)
+        return subscription_id, self.as_dict(include_owner_only=False)
 
     def broadcast_token_contract(self) -> dict[str, Any]:
         """Return the safe, read-only Receiver capability contract."""
@@ -311,6 +597,12 @@ class DJSessionBroadcastEngine:
         self.state = DJBroadcastState(**{**self.state.__dict__, "audience_totals": dict(totals), "recent_audience_activity": recent_activity})
         self._publish(BroadcastEventType.AUDIENCE_UPDATED, {"audience": self.as_dict()["audience"]})
 
+    def publish_moment(self, moment: DJMoment) -> None:
+        """Project a validated Moment without exposing private projections."""
+        self.state = DJBroadcastState(**{**self.state.__dict__, "dj_moments": (*self.state.dj_moments, moment)})
+        if moment.moment_type is not DJMomentType.SILENCE:
+            self._publish(BroadcastEventType.DJ_MOMENT_PUBLISHED, {"dj_moment": moment.as_dict()})
+
     def close(self) -> None:
         """Notify renderers of Runtime termination, then release every subscription."""
         state = self.as_dict()
@@ -325,12 +617,14 @@ class DJSessionBroadcastEngine:
             "session_id": self.state.session_id,
             "payload": payload,
         }
-        for callback in tuple(self._subscribers.values()):
+        for callback, include_owner_only in tuple(self._subscribers.values()):
+            if not include_owner_only and _payload_contains_owner_only_moment(payload):
+                continue
             callback(event)
 
-    def as_dict(self) -> dict[str, Any]:
+    def as_dict(self, *, include_owner_only: bool = True) -> dict[str, Any]:
         """Expose only canonical Broadcast State to future renderers."""
-        return self.state.as_dict()
+        return self.state.as_dict(include_owner_only=include_owner_only)
 
 
 class ActiveSessionExistsError(RuntimeError):
@@ -349,11 +643,14 @@ class DJSessionRuntime:
     owner_profile_id: str
     room: str
     selected_mood: str
+    dj_persona: DJPersona
+    locale: str
     music_backend: str
     runtime_state: SessionRuntimeState
     created_at: str
     started_at: str
     planner: DJSessionPlanner
+    moment_engine: DJMomentEngine
     broadcast: DJSessionBroadcastEngine
 
     def as_dict(self) -> dict[str, Any]:
@@ -363,6 +660,8 @@ class DJSessionRuntime:
             "owner_profile_id": self.owner_profile_id,
             "room": self.room,
             "selected_mood": self.selected_mood,
+            "dj_persona": self.dj_persona.value,
+            "locale": self.locale,
             "music_backend": self.music_backend,
             "runtime_state": str(self.runtime_state),
             "created_at": self.created_at,
@@ -383,6 +682,11 @@ class DJSessionRuntime:
         self.planner.submit_audience_signal(signal, value)
         self.broadcast.publish_audience_state(self.planner.audience_totals, self.planner.recent_audience_activity)
 
+    def publish_moment(self, moment: DJMoment) -> None:
+        """Publish a Moment only after Planner placement has been established."""
+        self.broadcast.publish_session_flow(self.planner.append_moment(moment))
+        self.broadcast.publish_moment(moment)
+
 
 class SessionRuntimeManager:
     """Own active DJ Session Runtimes for this Home Assistant instance."""
@@ -398,6 +702,8 @@ class SessionRuntimeManager:
         room: str = "",
         selected_mood: str = "",
         music_backend: str = "",
+        dj_persona: DJPersona = DJPersona.HOME_DJ,
+        locale: str = "en",
     ) -> DJSessionRuntime:
         """Create the one active Runtime allowed for a Profile."""
         async with self._lock:
@@ -411,11 +717,14 @@ class SessionRuntimeManager:
                 owner_profile_id=owner_profile_id,
                 room=room,
                 selected_mood=selected_mood,
+                dj_persona=dj_persona,
+                locale=_locale_family(locale),
                 music_backend=music_backend,
                 runtime_state=SessionRuntimeState.CREATING,
                 created_at=now,
                 started_at="",
                 planner=planner,
+                moment_engine=DJMomentEngine(),
                 broadcast=_create_broadcast_engine(
                     session_id=session_id,
                     runtime_state=SessionRuntimeState.CREATING,
@@ -434,6 +743,65 @@ class SessionRuntimeManager:
             )
             self._active_by_profile[owner_profile_id] = active
             return active
+
+    async def async_generate_track_context(
+        self,
+        *,
+        owner_profile_id: str,
+        session_id: str,
+        insight_provider: Callable[[], Awaitable[dict[str, Any]]],
+    ) -> DJMoment | None:
+        """Run the one bounded active-track trigger through the Runtime only."""
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if active is None or active.session_id != session_id:
+                return None
+            intent = active.planner.request_track_context()
+        try:
+            insight = await insight_provider()
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.debug("DJConnect Moment Track Insight unavailable: %s", exc.__class__.__name__)
+            insight = {}
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if active is None or active.session_id != session_id:
+                return None
+            moment = active.moment_engine.create_track_context(
+                session_id=active.session_id,
+                knowledge_intent=intent,
+                selected_mood=active.selected_mood,
+                persona=active.dj_persona,
+                locale=active.locale,
+                insight=insight if isinstance(insight, dict) else {},
+            )
+            active.publish_moment(moment)
+            return moment
+
+    async def async_update_mood(
+        self, *, owner_profile_id: str, session_id: str, selected_mood: str
+    ) -> DJSessionRuntime | None:
+        """Update dynamic Runtime Mood; prior Moment snapshots remain frozen."""
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if active is None or active.session_id != session_id:
+                return None
+            active.broadcast.state = DJBroadcastState(**{**active.broadcast.state.__dict__, "selected_mood": selected_mood})
+            active.broadcast._publish(BroadcastEventType.MOOD_CHANGED, {"session": active.broadcast.as_dict()["session"]})
+            updated = DJSessionRuntime(**{**active.__dict__, "selected_mood": selected_mood})
+            self._active_by_profile[owner_profile_id] = updated
+            return updated
+
+    async def async_update_persona(
+        self, *, owner_profile_id: str, session_id: str, dj_persona: DJPersona
+    ) -> DJSessionRuntime | None:
+        """Change only future Moment behaviour for this active Runtime."""
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if active is None or active.session_id != session_id:
+                return None
+            updated = DJSessionRuntime(**{**active.__dict__, "dj_persona": dj_persona})
+            self._active_by_profile[owner_profile_id] = updated
+            return updated
 
     async def async_get_active(self, owner_profile_id: str) -> DJSessionRuntime | None:
         """Return the active Runtime for a Profile, if one exists."""
@@ -637,3 +1005,78 @@ def _create_session_flow(
             ),
         ),
     )
+
+
+def _presentation_intent(selected_mood: str, persona: DJPersona) -> PresentationIntent:
+    """Resolve compact semantic guidance without binding any renderer design."""
+    mood = selected_mood.strip() or "neutral"
+    tone = {
+        DJPersona.HOME_DJ: "warm and conversational",
+        DJPersona.RADIO_DJ: "polished and concise",
+        DJPersona.CLUB_DJ: "direct and rhythmic",
+        DJPersona.FESTIVAL_DJ: "celebratory and expansive",
+    }[persona]
+    return PresentationIntent(
+        source_session_mood=mood,
+        dj_persona=persona,
+        tone_of_voice=tone,
+        energy_level=mood,
+        delivery_style="short contextual music story",
+        voice_style="persona-guided",
+        visual_theme="music-context",
+        importance="normal",
+        maximum_duration_seconds=25,
+        delivery_channels=(DeliveryChannel.BROADCAST, DeliveryChannel.OWNER, DeliveryChannel.SHARED),
+        visibility=DJMomentVisibility.SESSION_SHARED,
+    )
+
+
+def _track_actions(track: dict[str, Any], locale: str) -> tuple[DJMomentAction, ...]:
+    """Expose only the safe first-slice semantic actions."""
+    payload = tuple(
+        (key, value)
+        for key, value in (("title", _bounded_text(track.get("title"), 160)), ("artist", _bounded_text(track.get("artist"), 160)), ("album", _bounded_text(track.get("album"), 160)))
+        if value
+    )
+    return (
+        DJMomentAction("ask_dj", _moment_copy(locale, "ask_dj"), "sparkles", 1, "ask_dj", payload),
+        DJMomentAction("tell_me_more", _moment_copy(locale, "tell_me_more"), "info", 2, "ask_dj", payload),
+        DJMomentAction("show_artist", _moment_copy(locale, "show_artist"), "person", 3, "music_context", payload),
+        DJMomentAction("show_album", _moment_copy(locale, "show_album"), "rectangle.stack", 4, "music_context", payload),
+        DJMomentAction("show_track", _moment_copy(locale, "show_track"), "music.note", 5, "music_context", payload),
+    )
+
+
+def _track_key(track: dict[str, Any]) -> str:
+    return "|".join(
+        _bounded_text(track.get(field), 160).lower()
+        for field in ("title", "artist", "album")
+    ).strip("|")
+
+
+def _bounded_text(value: Any, limit: int) -> str:
+    return str(value or "").strip()[:limit]
+
+
+def _locale_family(value: str) -> str:
+    family = str(value or "en").strip().lower().replace("_", "-").split("-", 1)[0]
+    return family if family in {"en", "nl", "de", "fr", "es"} else "en"
+
+
+def _moment_copy(locale: str, key: str) -> str:
+    """Return the small canonical five-language Moment copy set."""
+    messages = {
+        "en": {"silence_title": "Silence", "silence_summary": "The DJ intentionally chose not to interrupt the music.", "ask_dj": "Ask DJ", "tell_me_more": "Tell Me More", "show_artist": "Show Artist", "show_album": "Show Album", "show_track": "Show Track"},
+        "nl": {"silence_title": "Stilte", "silence_summary": "De dj kiest er bewust voor de muziek niet te onderbreken.", "ask_dj": "Vraag de dj", "tell_me_more": "Vertel me meer", "show_artist": "Toon artiest", "show_album": "Toon album", "show_track": "Toon nummer"},
+        "de": {"silence_title": "Stille", "silence_summary": "Der DJ hat bewusst entschieden, die Musik nicht zu unterbrechen.", "ask_dj": "DJ fragen", "tell_me_more": "Mehr erfahren", "show_artist": "Künstler anzeigen", "show_album": "Album anzeigen", "show_track": "Titel anzeigen"},
+        "fr": {"silence_title": "Silence", "silence_summary": "Le DJ a choisi de ne pas interrompre la musique.", "ask_dj": "Demander au DJ", "tell_me_more": "En savoir plus", "show_artist": "Voir l’artiste", "show_album": "Voir l’album", "show_track": "Voir le titre"},
+        "es": {"silence_title": "Silencio", "silence_summary": "El DJ ha decidido no interrumpir la música.", "ask_dj": "Preguntar al DJ", "tell_me_more": "Cuéntame más", "show_artist": "Ver artista", "show_album": "Ver álbum", "show_track": "Ver canción"},
+    }
+    return messages[_locale_family(locale)][key]
+
+
+def _payload_contains_owner_only_moment(payload: dict[str, Any]) -> bool:
+    moment = payload.get("dj_moment")
+    if not isinstance(moment, dict):
+        return False
+    return moment.get("visibility") == DJMomentVisibility.OWNER_ONLY.value

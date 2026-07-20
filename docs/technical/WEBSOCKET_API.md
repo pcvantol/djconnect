@@ -47,6 +47,12 @@ initial Broadcast State snapshot; later incremental events use
 [`BROADCAST_TRANSPORT.md`](BROADCAST_TRANSPORT.md) for the canonical renderer
 integration model and lifecycle.
 
+`CONFIRMED_CODE` the Broadcast snapshot may include frozen `dj_moments`; the
+incremental `dj_moment_published` event distributes a newly generated Moment.
+The server filters `owner_only` Moments from Broadcast Token subscriptions.
+See [`DJ_MOMENT_ENGINE.md`](DJ_MOMENT_ENGINE.md) for the bounded first
+production generation path.
+
 ## Verification Mapping
 
 `CAPABILITY-001..008`, `ASKDJ-*`, `MUSICDNA-*`, `DISCOVER-*`, `TRACK-*`,

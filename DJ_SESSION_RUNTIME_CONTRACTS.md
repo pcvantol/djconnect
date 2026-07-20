@@ -138,6 +138,15 @@ supplies them; a renderer may present those actions but never derive them.
 The detailed conceptual vocabulary is in
 [`docs/product/DJ_PRESENTATION_ARCHITECTURE.md`](docs/product/DJ_PRESENTATION_ARCHITECTURE.md).
 
+### First production Moment slice
+
+The first implementation is bounded to one active-track `track_context`
+request per track identity in a Runtime, with Silence as the safe failure and
+non-interruption outcome. It reuses the existing Track Insight pipeline for
+current-track resolution, safe music context, Home Assistant Conversation
+execution and structured response handling. It adds no autonomous planning,
+Voice, VibeCast, Ask DJ chat, action execution or renderer behaviour.
+
 ## Session Flow contract
 
 Session Flow is independent of the provider playback queue. It is an ordered,

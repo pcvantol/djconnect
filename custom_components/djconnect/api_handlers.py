@@ -59,7 +59,7 @@ from .request_auth import (
     validate_required_client_type,
 )
 from .spotify_backend import SpotifyBackendError
-from .session_runtime import ActiveSessionExistsError, session_runtime_manager
+from .session_runtime import ActiveSessionExistsError, DJPersona, session_runtime_manager
 from .track_insight import TrackInsightError, TrackInsightService
 from .use_cases import (
     MusicBackendCapabilityError,
@@ -122,11 +122,55 @@ async def async_handle_session_start_payload(
             room=str(data.get("room") or context.room_id or "").strip(),
             selected_mood=str(data.get("mood") or "").strip(),
             music_backend=context.backend_id,
+            dj_persona=_dj_persona(data.get("dj_persona")),
+            locale=str(data.get("language") or data.get("locale") or "en"),
         )
     except ActiveSessionExistsError:
         active = await session_runtime_manager(hass).async_get_active(context.profile_id)
         return {"success": False, "error": "active_session_exists", "active_session": active.as_dict() if active else None}, 409
-    return {"success": True, "session": session.as_dict()}, 201
+    await _async_generate_initial_session_moment(
+        hass=hass,
+        integration_runtime=runtime,
+        owner_profile_id=context.profile_id,
+        session=session,
+    )
+    active = await session_runtime_manager(hass).async_get_active(context.profile_id)
+    return {"success": True, "session": (active or session).as_dict()}, 201
+
+
+async def _async_generate_initial_session_moment(
+    *, hass: Any, integration_runtime: Any, owner_profile_id: str, session: Any
+) -> None:
+    """Use the established Track Insight pipeline through the Runtime trigger."""
+    async def insight_provider() -> dict[str, Any]:
+        return await TrackInsightService().async_analyze(
+            hass,
+            integration_runtime,
+            {
+                "source": "session_moment",
+                "music_backend": session.music_backend,
+                "include_visual_profile": False,
+                "presentation_style": (
+                    f"DJ Persona: {session.dj_persona.value}; "
+                    f"Session Mood: {session.selected_mood or 'neutral'}"
+                ),
+            },
+            source="session_moment",
+        )
+
+    await session_runtime_manager(hass).async_generate_track_context(
+        owner_profile_id=owner_profile_id,
+        session_id=session.session_id,
+        insight_provider=insight_provider,
+    )
+
+
+def _dj_persona(value: Any) -> DJPersona:
+    """Accept only the first canonical behavioural Persona set."""
+    try:
+        return DJPersona(str(value or DJPersona.HOME_DJ.value))
+    except ValueError:
+        return DJPersona.HOME_DJ
 
 
 async def async_handle_session_end_payload(
