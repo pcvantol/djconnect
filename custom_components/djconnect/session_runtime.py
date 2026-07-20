@@ -519,9 +519,11 @@ class DJSessionPlanner:
         knowledge_hints: dict[str, Any] | None = None,
         performance_memory: PerformanceMemory | None = None,
         discover_context: DiscoverContext | None = None,
+        record_track_available: bool = True,
     ) -> PlannerDecision:
         """Make the bounded first production decision without invoking services."""
-        self.pending_events = (*self.pending_events, PlannerEventType.TRACK_AVAILABLE)
+        if record_track_available:
+            self.pending_events = (*self.pending_events, PlannerEventType.TRACK_AVAILABLE)
         performance_memory = performance_memory or PerformanceMemory("")
         discover_context = discover_context or DiscoverContext()
         mood = selected_mood.strip().lower()
@@ -668,7 +670,18 @@ class DJMomentEngine:
                 reason="duplicate_track_context",
             )
         self._track_keys.add(track_key)
-        moment_type, title, summary, content = _specialize_track_moment(track, analysis, title, artist, summary, content)
+        specialized = _specialize_track_moment(
+            track, analysis, title, artist, summary, content, knowledge_intent.intent_type
+        )
+        if specialized is None:
+            return self.create_silence(
+                session_id=session_id,
+                selected_mood=selected_mood,
+                persona=persona,
+                locale=locale,
+                reason="invalid_knowledge_context",
+            )
+        moment_type, title, summary, content = specialized
         moment = DJMoment(
             moment_id=f"moment-{uuid4().hex}",
             session_id=session_id,
@@ -810,7 +823,7 @@ class DJKnowledgeEngine:
         self,
         *,
         intent: KnowledgeIntent,
-        resolver: Callable[[], Awaitable[dict[str, Any]]],
+        raw_insight: dict[str, Any],
         session_direction: SessionDirection | None = None,
         session_start_strategy: SessionStartStrategy | None = None,
         session_mood: str = "",
@@ -819,19 +832,8 @@ class DJKnowledgeEngine:
         personal_context_authorized: bool = False,
     ) -> KnowledgeContext:
         """Reuse Track Insight while excluding raw Profile and Music DNA data."""
-        if intent.intent_type is not KnowledgeIntentType.TRACK_CONTEXT:
-            return self._record(
-                KnowledgeContext(
-                    (), (), (), session_direction=session_direction,
-                    session_start_strategy=session_start_strategy,
-                    session_mood=session_mood,
-                    discover_context=discover_context,
-                    performance_memory=performance_memory,
-                )
-            )
-        raw = await resolver()
-        track = raw.get("track") if isinstance(raw, dict) and isinstance(raw.get("track"), dict) else {}
-        analysis = raw.get("analysis") if isinstance(raw, dict) and isinstance(raw.get("analysis"), dict) else {}
+        track = raw_insight.get("track") if isinstance(raw_insight.get("track"), dict) else {}
+        analysis = raw_insight.get("analysis") if isinstance(raw_insight.get("analysis"), dict) else {}
         context = KnowledgeContext(
             track=tuple(
                 (key, value)
@@ -1258,9 +1260,43 @@ class SessionRuntimeManager:
             if intent is None:
                 return None
         try:
+            raw_insight = await insight_provider()
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.debug("DJConnect Track Insight unavailable: %s", exc.__class__.__name__)
+            raw_insight = {}
+        hints = _planner_knowledge_hints(raw_insight)
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if active is None or active.session_id != session_id:
+                return None
+            decision = active.planner.evaluate_track_started(
+                session_start_strategy=active.session_start_strategy,
+                session_direction=active.session_direction,
+                selected_mood=active.selected_mood,
+                persona=active.dj_persona,
+                knowledge_hints=hints,
+                performance_memory=active.performance_memory,
+                discover_context=active.discover_context,
+                record_track_available=False,
+            )
+            if decision.decision_type is PlannerDecisionType.SILENCE:
+                moment = active.moment_engine.create_silence(
+                    session_id=active.session_id,
+                    selected_mood=active.selected_mood,
+                    persona=active.dj_persona,
+                    locale=active.locale,
+                    reason=decision.reason,
+                )
+                active.publish_moment(moment)
+                self._record_performance_memory(owner_profile_id, active)
+                return moment
+            intent = decision.knowledge_intent
+            if intent is None:
+                return None
+        try:
             knowledge = await active.knowledge_engine.async_assemble_track_context(
                 intent=intent,
-                resolver=insight_provider,
+                raw_insight=raw_insight,
                 session_direction=active.session_direction,
                 session_start_strategy=active.session_start_strategy,
                 session_mood=active.selected_mood,
@@ -1774,16 +1810,40 @@ def _moment_actions(moment_type: DJMomentType, track: dict[str, Any], locale: st
     return actions
 
 
-def _specialize_track_moment(track: dict[str, Any], analysis: dict[str, Any], title: str, artist: str, summary: str, content: str) -> tuple[DJMomentType, str, str, str]:
-    if _bounded_text(track.get("related_tracks"), 1200) or _bounded_text(analysis.get("similar_tracks"), 1200):
+def _specialize_track_moment(track: dict[str, Any], analysis: dict[str, Any], title: str, artist: str, summary: str, content: str, intent_type: KnowledgeIntentType) -> tuple[DJMomentType, str, str, str] | None:
+    if intent_type is KnowledgeIntentType.RECOMMENDATION:
+        if not (_bounded_text(track.get("related_tracks"), 1200) or _bounded_text(analysis.get("similar_tracks"), 1200)):
+            return None
         return DJMomentType.RECOMMENDATION, f"Explore beyond {artist}", summary, content
-    if _bounded_text(track.get("producer"), 160) or _bounded_text(track.get("recording_context"), 600):
+    if intent_type is KnowledgeIntentType.ARTIST_STORY:
+        if not (_bounded_text(track.get("producer"), 160) or _bounded_text(track.get("recording_context"), 600)):
+            return None
         return DJMomentType.ARTIST, artist, summary, content
-    if _bounded_text(track.get("album"), 160) and (_bounded_text(track.get("release_year"), 32) or _bounded_text(track.get("release_date"), 32)):
+    if intent_type is KnowledgeIntentType.ALBUM_STORY:
+        if not (_bounded_text(track.get("album"), 160) and (_bounded_text(track.get("release_year"), 32) or _bounded_text(track.get("release_date"), 32))):
+            return None
         return DJMomentType.ALBUM, _bounded_text(track.get("album"), 160), summary, content
-    if _bounded_text(analysis.get("genre"), 160) or _bounded_text(track.get("genres"), 160):
+    if intent_type is KnowledgeIntentType.GENRE_STORY:
+        if not (_bounded_text(analysis.get("genre"), 160) or _bounded_text(track.get("genres"), 160)):
+            return None
         return DJMomentType.GENRE, _bounded_text(analysis.get("genre"), 160) or _bounded_text(track.get("genres"), 160), summary, content
-    return DJMomentType.TRACK, f"{title} — {artist}", summary, content
+    if intent_type is KnowledgeIntentType.TRACK_CONTEXT:
+        return DJMomentType.TRACK, f"{title} — {artist}", summary, content
+    return None
+
+
+def _planner_knowledge_hints(raw_insight: dict[str, Any]) -> dict[str, str]:
+    """Project only bounded, renderer-safe Track Insight facts into Planner input."""
+    track = raw_insight.get("track") if isinstance(raw_insight.get("track"), dict) else {}
+    analysis = raw_insight.get("analysis") if isinstance(raw_insight.get("analysis"), dict) else {}
+    return {
+        "related_tracks": _bounded_text(track.get("related_tracks") or analysis.get("similar_tracks"), 1200),
+        "producer": _bounded_text(track.get("producer") or track.get("recording_context"), 600),
+        "release_year": _bounded_text(track.get("release_year") or track.get("release_date"), 32),
+        "genre": _bounded_text(analysis.get("genre") or track.get("genres"), 160),
+        "artist": _bounded_text(track.get("artist"), 160),
+        "album": _bounded_text(track.get("album"), 160),
+    }
 
 
 def _track_key(track: dict[str, Any]) -> str:

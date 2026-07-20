@@ -847,6 +847,113 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         with self.assertRaises(FrozenInstanceError):
             moment.summary = "mutated"  # type: ignore[misc]
 
+    def test_runtime_uses_one_insight_for_contextual_planner_intents(self) -> None:
+        cases = (
+            ("artist", self.runtime.SessionStartStrategy.MANUAL, {"producer": "Producer"}, self.runtime.DJMomentType.ARTIST),
+            ("album", self.runtime.SessionStartStrategy.MANUAL, {"release_year": "1998"}, self.runtime.DJMomentType.ALBUM),
+            ("genre", self.runtime.SessionStartStrategy.MANUAL, {}, self.runtime.DJMomentType.GENRE),
+            ("recommendation", self.runtime.SessionStartStrategy.DISCOVER, {"related_tracks": "Angel"}, self.runtime.DJMomentType.RECOMMENDATION),
+        )
+        for name, strategy, metadata, expected_type in cases:
+            with self.subTest(name=name):
+                manager = self.runtime.SessionRuntimeManager()
+                created = asyncio.run(
+                    manager.async_start(
+                        owner_profile_id=f"profile-{name}",
+                        session_start_strategy=strategy,
+                    )
+                )
+                calls = 0
+
+                async def insight() -> dict:
+                    nonlocal calls
+                    calls += 1
+                    return {
+                        "track": {
+                            "title": "Teardrop",
+                            "artist": "Massive Attack",
+                            "album": "Mezzanine",
+                            "genres": ["trip-hop"],
+                            **metadata,
+                        },
+                        "analysis": {
+                            "summary": "A spacious trip-hop landmark.",
+                            "full_text": "The suspended beat leaves room for the bass.",
+                            "genre": "trip-hop",
+                        },
+                    }
+
+                moment = asyncio.run(
+                    manager.async_process_track_started(
+                        owner_profile_id=created.owner_profile_id,
+                        session_id=created.session_id,
+                        insight_provider=insight,
+                    )
+                )
+
+                assert moment is not None
+                self.assertEqual(calls, 1)
+                self.assertEqual(moment.moment_type, expected_type)
+                self.assertEqual(
+                    moment.knowledge_intent.intent_type.value,
+                    expected_type.value + "_story" if expected_type is not self.runtime.DJMomentType.RECOMMENDATION else "recommendation",
+                )
+                self.assertIn(
+                    moment.moment_id,
+                    [item.moment_id for item in created.planner.output.session_flow.items],
+                )
+                self.assertEqual(
+                    created.broadcast.as_dict()["dj_moments"][-1]["moment_id"], moment.moment_id
+                )
+
+    def test_runtime_performance_memory_prevents_repeated_discover_recommendation(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(
+            manager.async_start(
+                owner_profile_id="profile-discover",
+                session_start_strategy=self.runtime.SessionStartStrategy.DISCOVER,
+            )
+        )
+
+        insight_calls = 0
+
+        async def insight() -> dict:
+            nonlocal insight_calls
+            insight_calls += 1
+            return {
+                "track": {
+                    "title": "Teardrop" if insight_calls == 1 else "Angel",
+                    "artist": "Massive Attack",
+                    "genres": ["trip-hop"],
+                    "related_tracks": "Angel",
+                },
+                "analysis": {
+                    "summary": "A spacious trip-hop landmark.",
+                    "full_text": "The suspended beat leaves room for the bass.",
+                    "genre": "trip-hop",
+                },
+            }
+
+        first = asyncio.run(
+            manager.async_process_track_started(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                insight_provider=insight,
+            )
+        )
+        created.planner.last_spoken_moment_at = 0.0
+        second = asyncio.run(
+            manager.async_process_track_started(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                insight_provider=insight,
+            )
+        )
+
+        assert first is not None and second is not None
+        self.assertEqual(first.moment_type, self.runtime.DJMomentType.RECOMMENDATION)
+        self.assertEqual(second.moment_type, self.runtime.DJMomentType.TRACK)
+
     def test_runtime_owns_knowledge_engine_and_assembles_safe_context(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
         created = asyncio.run(manager.async_start(owner_profile_id="profile-a"))
