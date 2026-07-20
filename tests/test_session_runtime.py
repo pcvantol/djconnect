@@ -954,6 +954,169 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertEqual(first.moment_type, self.runtime.DJMomentType.RECOMMENDATION)
         self.assertEqual(second.moment_type, self.runtime.DJMomentType.GENRE)
 
+    def test_track_started_publishes_one_planner_approved_transition(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(
+            manager.async_start(
+                owner_profile_id="profile-transition",
+                selected_mood="groove",
+                dj_persona=self.runtime.DJPersona.RADIO_DJ,
+                session_start_strategy=self.runtime.SessionStartStrategy.DISCOVER,
+            )
+        )
+        events: list[dict] = []
+        asyncio.run(
+            manager.async_subscribe(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                callback=events.append,
+            )
+        )
+        calls = 0
+
+        async def insight() -> dict:
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                return {
+                    "track": {"title": "Teardrop", "artist": "Massive Attack", "producer": "Neil Davidge"},
+                    "analysis": {"summary": "A landmark.", "full_text": "A detailed artist context."},
+                }
+            return {
+                "track": {"title": "Roads", "artist": "Portishead", "related_tracks": "Sour Times"},
+                "analysis": {"summary": "A related discovery.", "full_text": "A detailed recommendation context."},
+            }
+
+        first = asyncio.run(
+            manager.async_process_track_started(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                insight_provider=insight,
+            )
+        )
+        created.planner.last_spoken_moment_at = 0.0
+        second = asyncio.run(
+            manager.async_process_track_started(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                insight_provider=insight,
+            )
+        )
+
+        assert first is not None and second is not None
+        transition = created.moment_engine.moments[-1]
+        self.assertEqual(calls, 2)
+        self.assertEqual(first.moment_type, self.runtime.DJMomentType.ARTIST)
+        self.assertEqual(second.moment_type, self.runtime.DJMomentType.RECOMMENDATION)
+        self.assertEqual(transition.moment_type, self.runtime.DJMomentType.TRANSITION)
+        self.assertEqual(
+            created.planner.last_decision.decision_type,
+            self.runtime.PlannerDecisionType.CREATE_TRANSITION,
+        )
+        self.assertEqual(transition.presentation_intent.source_session_mood, "groove")
+        self.assertEqual(transition.presentation_intent.dj_persona, self.runtime.DJPersona.RADIO_DJ)
+        self.assertEqual(
+            dict(transition.generation_metadata)["transition_from_moment_id"], first.moment_id
+        )
+        self.assertEqual(
+            dict(transition.generation_metadata)["transition_to_moment_id"], second.moment_id
+        )
+        flow_moments = [
+            item for item in created.planner.output.session_flow.items
+            if item.item_type is self.runtime.SessionFlowItemType.DJ_MOMENT
+        ]
+        self.assertEqual([item.moment_id for item in flow_moments[-2:]], [second.moment_id, transition.moment_id])
+        self.assertEqual(flow_moments[-1].position, self.runtime.SessionFlowPosition.NEXT)
+        self.assertEqual(created.broadcast.as_dict()["dj_moments"][-1]["moment_id"], transition.moment_id)
+        self.assertEqual(
+            [
+                event["event_type"]
+                for event in events
+                if event["event_type"] in {"session_flow_updated", "dj_moment_published"}
+            ][-4:],
+            ["session_flow_updated", "dj_moment_published", "session_flow_updated", "dj_moment_published"],
+        )
+        with self.assertRaises(FrozenInstanceError):
+            transition.title = "Mutated"
+
+    def test_transition_no_approval_is_silent_and_repetition_is_prevented(self) -> None:
+        engine = self.runtime.DJMomentEngine()
+        rejected = engine.create_transition(
+            session_id="session-transition",
+            approval=None,
+            selected_mood="groove",
+            persona=self.runtime.DJPersona.HOME_DJ,
+            locale="en",
+        )
+        self.assertEqual(rejected.moment_type, self.runtime.DJMomentType.SILENCE)
+        invalid = engine.create_transition(
+            session_id="session-transition",
+            approval=self.runtime.PlannerDecision(
+                self.runtime.PlannerDecisionType.CREATE_TRANSITION,
+                "invalid",
+                self.runtime.KnowledgeIntent(
+                    self.runtime.KnowledgeIntentType.TRANSITION, "Invalid approval."
+                ),
+                transition_moment_ids=("missing-one", "missing-two"),
+                transition_placement="next",
+            ),
+            selected_mood="groove",
+            persona=self.runtime.DJPersona.HOME_DJ,
+            locale="en",
+        )
+        self.assertEqual(invalid.moment_type, self.runtime.DJMomentType.SILENCE)
+
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(
+            manager.async_start(
+                owner_profile_id="profile-transition-repeat",
+                session_start_strategy=self.runtime.SessionStartStrategy.DISCOVER,
+            )
+        )
+        responses = iter(
+            (
+                {
+                    "track": {"title": "First", "artist": "Artist One", "producer": "Producer"},
+                    "analysis": {"summary": "Artist context.", "full_text": "Artist full context."},
+                },
+                {
+                    "track": {"title": "Second", "artist": "Artist Two", "related_tracks": "Related"},
+                    "analysis": {"summary": "Recommendation.", "full_text": "Recommendation full context."},
+                },
+                {
+                    "track": {"title": "Third", "artist": "Artist Three", "related_tracks": "Related"},
+                    "analysis": {"summary": "Recommendation.", "full_text": "Recommendation full context."},
+                },
+            )
+        )
+
+        async def insight() -> dict:
+            return next(responses)
+
+        for _ in range(2):
+            asyncio.run(
+                manager.async_process_track_started(
+                    owner_profile_id=created.owner_profile_id,
+                    session_id=created.session_id,
+                    insight_provider=insight,
+                )
+            )
+            created.planner.last_spoken_moment_at = 0.0
+        moments_before = len(created.moment_engine.moments)
+        third = asyncio.run(
+            manager.async_process_track_started(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                insight_provider=insight,
+            )
+        )
+
+        assert third is not None
+        self.assertEqual(third.moment_type, self.runtime.DJMomentType.RECOMMENDATION)
+        self.assertEqual(len(created.moment_engine.moments), moments_before + 1)
+        self.assertEqual(created.planner.last_decision.decision_type, self.runtime.PlannerDecisionType.NO_TRANSITION)
+        self.assertEqual(created.moment_engine.moments[-1].moment_type, self.runtime.DJMomentType.RECOMMENDATION)
+
     def test_runtime_owns_knowledge_engine_and_assembles_safe_context(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
         created = asyncio.run(manager.async_start(owner_profile_id="profile-a"))

@@ -123,6 +123,7 @@ class KnowledgeIntentType(StrEnum):
     ALBUM_STORY = "album_story"
     GENRE_STORY = "genre_story"
     RECOMMENDATION = "recommendation"
+    TRANSITION = "transition"
     SESSION_DIRECTION = "session_direction"
     SILENCE = "silence"
 
@@ -134,7 +135,9 @@ class PlannerDecisionType(StrEnum):
     CREATE_GENRE_STORY = "create_genre_story"
     CREATE_SESSION_UPDATE = "create_session_update"
     CREATE_RECOMMENDATION = "create_recommendation"
+    CREATE_TRANSITION = "create_transition"
     CREATE_DISCOVERY = "create_discovery"
+    NO_TRANSITION = "no_transition"
     SILENCE = "silence"
 
 
@@ -144,6 +147,8 @@ class PlannerDecision:
     reason: str
     knowledge_intent: KnowledgeIntent | None = None
     proposed_session_direction: SessionDirectionType | None = None
+    transition_moment_ids: tuple[str, str] = ()
+    transition_placement: str = ""
 
 
 @dataclass(frozen=True)
@@ -202,6 +207,7 @@ class DJMomentType(StrEnum):
     ALBUM = "album"
     GENRE = "genre"
     RECOMMENDATION = "recommendation"
+    TRANSITION = "transition"
     SESSION = "session"
     SILENCE = "silence"
 
@@ -593,13 +599,15 @@ class DJSessionPlanner:
     def record_spoken_moment(self) -> None:
         self.last_spoken_moment_at = time.monotonic()
 
-    def append_moment(self, moment: DJMoment) -> DJSessionFlow:
+    def append_moment(
+        self, moment: DJMoment, placement: SessionFlowPosition = SessionFlowPosition.NEXT
+    ) -> DJSessionFlow:
         """Place an Engine-produced Moment without giving it scheduling control."""
         current = self.output.session_flow
         item = DJSessionFlowItem(
             item_id=f"moment-{moment.moment_id}",
             item_type=SessionFlowItemType.DJ_MOMENT,
-            position=SessionFlowPosition.NEXT,
+            position=placement,
             label=moment.title,
             moment_id=moment.moment_id,
             moment_type=moment.moment_type.value,
@@ -613,6 +621,55 @@ class DJSessionPlanner:
         self.output = SessionPlannerOutput(session_flow=flow)
         self.last_replan_at = flow.created_at
         return flow
+
+    def evaluate_transition_after_moment(
+        self,
+        *,
+        triggering_intent: KnowledgeIntent,
+        session_direction: SessionDirection,
+        performance_memory: PerformanceMemory,
+    ) -> PlannerDecision:
+        """Approve one bounded Transition only when existing Flow context warrants it."""
+        items = tuple(
+            item
+            for item in self.output.session_flow.items
+            if item.item_type is SessionFlowItemType.DJ_MOMENT and item.moment_id
+        )
+        if (
+            triggering_intent.intent_type is not KnowledgeIntentType.RECOMMENDATION
+            or session_direction.direction is not SessionDirectionType.EXPLORING
+            or len(items) < 2
+            or performance_memory.recent_moment_types[-1:] == (DJMomentType.TRANSITION,)
+        ):
+            return self._record_no_transition("transition_not_contextually_appropriate")
+        previous, current = items[-2:]
+        if (
+            current.moment_type != DJMomentType.RECOMMENDATION.value
+            or previous.moment_type
+            not in {
+                DJMomentType.ARTIST.value,
+                DJMomentType.ALBUM.value,
+                DJMomentType.GENRE.value,
+            }
+        ):
+            return self._record_no_transition("transition_not_contextually_appropriate")
+        intent = KnowledgeIntent(
+            KnowledgeIntentType.TRANSITION,
+            "Bridge the preceding music context into this exploration recommendation.",
+        )
+        self.last_decision = PlannerDecision(
+            PlannerDecisionType.CREATE_TRANSITION,
+            "exploring_recommendation_after_context",
+            intent,
+            transition_moment_ids=(previous.moment_id, current.moment_id),
+            transition_placement=SessionFlowPosition.NEXT.value,
+        )
+        return self.last_decision
+
+    def _record_no_transition(self, reason: str) -> PlannerDecision:
+        """Keep an ordinary no-transition decision silent and explicit."""
+        self.last_decision = PlannerDecision(PlannerDecisionType.NO_TRANSITION, reason)
+        return self.last_decision
 
     def as_dict(self) -> dict[str, Any]:
         """Return the public Planner state and its owned Session Flow."""
@@ -742,6 +799,67 @@ class DJMomentEngine:
             actions=(),
             source_references=(),
             generation_metadata=(("reason", reason), ("validated", "true")),
+        )
+        self.moments = (*self.moments, moment)
+        return moment
+
+    def create_transition(
+        self,
+        *,
+        session_id: str,
+        approval: PlannerDecision | None,
+        selected_mood: str,
+        persona: DJPersona,
+        locale: str,
+    ) -> DJMoment:
+        """Perform only one complete Planner-approved Transition decision."""
+        if not _valid_transition_approval(approval):
+            return self.create_silence(
+                session_id=session_id,
+                selected_mood=selected_mood,
+                persona=persona,
+                locale=locale,
+                reason="invalid_transition_approval",
+            )
+        source_id, target_id = approval.transition_moment_ids
+        moments = {moment.moment_id: moment for moment in self.moments}
+        source = moments.get(source_id)
+        target = moments.get(target_id)
+        if (
+            source is None
+            or target is None
+            or source.session_id != session_id
+            or target.session_id != session_id
+            or source.moment_type
+            not in {DJMomentType.ARTIST, DJMomentType.ALBUM, DJMomentType.GENRE}
+            or target.moment_type is not DJMomentType.RECOMMENDATION
+        ):
+            return self.create_silence(
+                session_id=session_id,
+                selected_mood=selected_mood,
+                persona=persona,
+                locale=locale,
+                reason="invalid_transition_context",
+            )
+        moment = DJMoment(
+            moment_id=f"moment-{uuid4().hex}",
+            session_id=session_id,
+            created_at=_timestamp(),
+            moment_type=DJMomentType.TRANSITION,
+            knowledge_intent=approval.knowledge_intent,
+            presentation_intent=_presentation_intent(selected_mood, persona),
+            title=_transition_copy(locale, "title", source.title, target.title),
+            summary=_transition_copy(locale, "summary", source.title, target.title),
+            content=_transition_copy(locale, "content", source.title, target.title),
+            artwork_url=None,
+            actions=(),
+            source_references=("session_flow",),
+            generation_metadata=(
+                ("transition_from_moment_id", source.moment_id),
+                ("transition_to_moment_id", target.moment_id),
+                ("placement", approval.transition_placement),
+                ("validated", "true"),
+            ),
         )
         self.moments = (*self.moments, moment)
         return moment
@@ -1135,9 +1253,11 @@ class DJSessionRuntime:
         self.planner.submit_audience_signal(signal, value)
         self.broadcast.publish_audience_state(self.planner.audience_totals, self.planner.recent_audience_activity)
 
-    def publish_moment(self, moment: DJMoment) -> None:
+    def publish_moment(
+        self, moment: DJMoment, placement: SessionFlowPosition = SessionFlowPosition.NEXT
+    ) -> None:
         """Publish a Moment only after Planner placement has been established."""
-        self.broadcast.publish_session_flow(self.planner.append_moment(moment))
+        self.broadcast.publish_session_flow(self.planner.append_moment(moment, placement))
         self.broadcast.publish_moment(moment)
 
 
@@ -1353,6 +1473,24 @@ class SessionRuntimeManager:
             if moment.moment_type is not DJMomentType.SILENCE:
                 active.planner.record_spoken_moment()
             active.publish_moment(moment)
+            transition_decision = active.planner.evaluate_transition_after_moment(
+                triggering_intent=intent,
+                session_direction=active.session_direction,
+                performance_memory=active.performance_memory,
+            )
+            if transition_decision.decision_type is PlannerDecisionType.CREATE_TRANSITION:
+                transition = active.moment_engine.create_transition(
+                    session_id=active.session_id,
+                    approval=transition_decision,
+                    selected_mood=active.selected_mood,
+                    persona=active.dj_persona,
+                    locale=active.locale,
+                )
+                if transition.moment_type is DJMomentType.TRANSITION:
+                    active.publish_moment(
+                        transition,
+                        SessionFlowPosition(transition_decision.transition_placement),
+                    )
             self._record_performance_memory(owner_profile_id, active)
             return moment
 
@@ -1870,6 +2008,20 @@ def _specialize_track_moment(track: dict[str, Any], analysis: dict[str, Any], ti
     return None
 
 
+def _valid_transition_approval(approval: PlannerDecision | None) -> bool:
+    """Require the exact Planner contract before performing a Transition."""
+    return bool(
+        approval
+        and approval.decision_type is PlannerDecisionType.CREATE_TRANSITION
+        and approval.knowledge_intent is not None
+        and approval.knowledge_intent.intent_type is KnowledgeIntentType.TRANSITION
+        and len(approval.transition_moment_ids) == 2
+        and all(approval.transition_moment_ids)
+        and approval.transition_moment_ids[0] != approval.transition_moment_ids[1]
+        and approval.transition_placement == SessionFlowPosition.NEXT.value
+    )
+
+
 def _planner_knowledge_hints(raw_insight: dict[str, Any]) -> dict[str, str]:
     """Project only bounded, renderer-safe Track Insight facts into Planner input."""
     track = raw_insight.get("track") if isinstance(raw_insight.get("track"), dict) else {}
@@ -1965,6 +2117,19 @@ def _session_direction_copy(
     }
     index = {"title": 0, "summary": 1, "content": 2}[part]
     return labels[_locale_family(locale)][direction][index]
+
+
+def _transition_copy(locale: str, part: str, source: str, target: str) -> str:
+    """Return compact localized copy for one Planner-approved Transition."""
+    copy = {
+        "en": ("From {source} to {target}", "A bridge into the next discovery.", "This connection carries the session from {source} into {target}."),
+        "nl": ("Van {source} naar {target}", "Een brug naar de volgende ontdekking.", "Deze verbinding brengt de sessie van {source} naar {target}."),
+        "de": ("Von {source} zu {target}", "Eine Brücke zur nächsten Entdeckung.", "Diese Verbindung führt die Session von {source} zu {target}."),
+        "fr": ("De {source} à {target}", "Un passage vers la prochaine découverte.", "Cette transition mène la session de {source} à {target}."),
+        "es": ("De {source} a {target}", "Un puente hacia el próximo descubrimiento.", "Esta transición lleva la sesión de {source} a {target}."),
+    }
+    index = {"title": 0, "summary": 1, "content": 2}[part]
+    return copy[_locale_family(locale)][index].format(source=source, target=target)
 
 
 def _payload_contains_owner_only_moment(payload: dict[str, Any]) -> bool:
