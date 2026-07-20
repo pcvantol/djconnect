@@ -157,6 +157,9 @@ Current Playback Projection contract in
 [`CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`](CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md).
 The Planner receives the adopted safe context only after Runtime startup; it
 does not decide bootstrap eligibility, inspect a queue or control playback.
+The Backend owns the opaque Playback Instance Identity that accompanies both
+projection and Track Started observation; Runtime only compares it to suppress
+duplicates within the active Session.
 
 **Session Mood** answers how the active Session should feel. The client may
 supply its initial Mood, and the Runtime may evolve the current Mood later.

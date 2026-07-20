@@ -38,13 +38,49 @@ An `ACTIVE` projection has these required fields:
 
 - `observed_at`: an observation timestamp;
 - `playback_state`: the bounded active state, initially `playing` only;
-- `playback_item_identity`: an opaque adapter-generated identity for this observed playback instance;
-- `track_identity`: an opaque adapter-generated identity when the provider can safely supply one; and
+- `playback_item_identity`: the required opaque, Backend-owned Playback Instance Identity for this concrete occurrence;
+- `track_identity`: an opaque adapter-generated track identity when the provider can safely supply one; and
 - `completeness`: an explicit bounded indication of which optional safe fields were observed.
 
 Optional fields are bounded, safe track display metadata (title, artist names, album title and existing safe artwork reference), playback position and duration. Adapters may omit them and declare that omission in `completeness`; Runtime must not infer identity from display text. An adapter may expose a capability flag for each optional field, but the first implementation requires neither output, account nor context identity.
 
 The projection never contains a queue, future item, playlist contents, context/queue URI, raw provider response, credentials, provider-specific metadata, Music DNA, Profile preferences, history or inferred identity. Its opaque identities are Runtime-internal: they never enter public DJ Moments, Broadcast payloads or persistent Profile state.
+
+### Playback Instance Identity
+
+Playback Instance Identity identifies exactly one concrete playback occurrence.
+It is opaque, immutable, ephemeral and provider-neutral at the Runtime
+boundary. The Music Backend owns it: its adapter observes provider behaviour,
+determines when an occurrence begins and exposes the same identity in both the
+Current Playback Projection and the corresponding Track Started event. It is
+replaced only for a genuinely new occurrence.
+
+Runtime only stores and compares this identity for bounded, runtime-scoped
+deduplication. It never derives, interprets or persists it, and must never infer
+it from URI, title, artist, album, artwork, timestamp, progress or other display
+metadata. A backend unable to satisfy this contract returns the typed unsupported
+or unavailable result; no Runtime-generated or heuristic identity is allowed.
+
+### Track Started observation contract
+
+A Track Started event is the canonical Runtime entry point for one normalized
+playback observation. It carries the exact Playback Instance Identity supplied
+by the Backend's Current Playback Projection and only safe canonical track
+context needed by the established intelligence pipeline. Provider notifications
+are normalized by adapters before they reach Runtime. They never expose raw
+provider payloads, credentials, queue contents, future tracks or history.
+
+The event path is:
+
+```text
+Backend observation → normalized Track Started(identity) → Runtime
+→ Planner → Knowledge Engine → DJ Moment Engine → Session Flow → Broadcast
+```
+
+Continue injects its adopted occurrence into this path once; it does not create
+a second intelligence pipeline. Existing Track Insight enrichment may be reused
+unchanged. Its normal safe failure behaviour remains sufficient: partial
+metadata is acceptable and Continue adds no provider retrieval or retry path.
 
 The tagged read result is exactly one of:
 
@@ -88,9 +124,13 @@ For `NO_ACTIVE_PLAYBACK`, orchestration returns the typed `continue_playback_una
 
 ## Identity, deduplication and races
 
-Deduplication is Runtime-scoped and non-persistent. The bootstrap key is the pair of `playback_item_identity` and, when available, `track_identity`; title, artist, album and artwork are never identity fallbacks. It suppresses only a duplicate Track Started delivery for the adopted active playback instance.
+Deduplication is Runtime-scoped and non-persistent. The bootstrap key is the
+Backend-owned `playback_item_identity` only; `track_identity`, title, artist,
+album, URI, artwork, timestamps and progress are never identity fallbacks. It
+suppresses only a duplicate Track Started delivery for the adopted active
+playback instance.
 
-- A later replay is eligible after the Backend reports a distinct playback item identity.
+- A later replay is eligible after the Backend reports a distinct Playback Instance Identity.
 - A real Track Started event for the same bootstrap identity is consumed by the established path without adding a second Flow contribution or Moment.
 - A changed identity during resolution invalidates the snapshot; orchestration does not reread, guess or adopt a replacement item in the same start attempt.
 - Duplicate start requests remain subject to the existing one-active-Runtime rule; only one request can adopt an item.
@@ -98,18 +138,19 @@ Deduplication is Runtime-scoped and non-persistent. The bootstrap key is the pai
 
 If playback stops, becomes stale or loses required active identity before Runtime activation, the result is `continue_playback_unavailable` and no Runtime is created. If Runtime creation succeeds but startup adoption cannot complete, orchestration rolls the new Runtime back before reporting failure. If adoption succeeds and later intelligence generation fails, existing safe Track Started failure behaviour applies; no fabricated Silence hides a bootstrap failure, and no adopted item is duplicated.
 
-Incomplete optional metadata does not invalidate an otherwise active, identified projection. It may lead the existing intelligence path to its existing safe result. Provider retries and output changes do not produce an additional adoption unless they carry a distinct active playback item identity.
+Incomplete optional metadata does not invalidate an otherwise active, identified projection. It may lead the existing intelligence path to its existing safe result. Provider retries, reconnects and output transfers do not produce an additional adoption unless they carry a distinct Playback Instance Identity.
 
 ## Authorized future implementation slice
 
 The next production PR may implement exactly:
 
-1. the tagged `CurrentPlaybackProjection` at the existing Music Backend use-case boundary;
-2. adapter mappings for one safe active item, without exposing raw payloads;
-3. one Continue startup read and validation;
-4. one adopted startup item using the existing Track Started path;
-5. Runtime-scoped bootstrap deduplication; and
-6. typed no-active-playback and unavailable outcomes with focused unit, integration and end-to-end tests.
+1. the tagged `CurrentPlaybackProjection` and Backend-owned Playback Instance Identity at the existing Music Backend use-case boundary;
+2. normalized Track Started events carrying the same identity;
+3. adapter mappings for one safe active item, without exposing raw payloads;
+4. one Continue startup read and validation;
+5. one adopted startup item using the existing Track Started path;
+6. Runtime-scoped bootstrap deduplication; and
+7. typed active, no-active-playback, unavailable and unsupported outcomes with focused unit, integration and end-to-end tests.
 
 It must update the authorized maturity step to current. It must not add queue access, future-track inspection, playback mutation, Session restoration, persistent state, a new DJMoment type, renderer behaviour or a second public playback abstraction.
 

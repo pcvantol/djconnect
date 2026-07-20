@@ -22,6 +22,7 @@ schemas, serialization or implementation.
 | DJ Session | One coherent listening experience orchestrated by the AI DJ. | Brings relevant DJConnect capabilities together for a listening moment without owning playback. |
 | Playback Context | The current playback situation available to the DJ. | Is owned by the configured Music Backend; DJConnect consumes it to enrich the session. |
 | Current Playback Projection | One immutable, safe observation of an active current item for Continue startup. | Is resolved by the Music Backend and consumed ephemerally by Session Start orchestration; it is not a queue, control contract or playback authority. |
+| Playback Instance Identity | One opaque identifier for one concrete playback occurrence. | Is generated and owned by the Music Backend, passed unchanged through Current Playback Projection and Track Started, and consumed only for Runtime-scoped deduplication. |
 | Session Memory | The objective chronological memory of one DJ Session. | Records what happened as events only; it performs no interpretation. |
 | Session Timeline | The user-facing chronological presentation of Session Memory. | Tells the story of one completed DJ Session; it is not a chat history. |
 | Music DNA | The evolving, opt-in understanding of a person's musical identity across many DJ Sessions. | Interprets patterns in Session Memory; it never replaces Session Memory. |
@@ -85,6 +86,11 @@ currently active item with safe identity, state and bounded optional metadata;
 it never includes a queue, future playback, raw provider payload or pre-session
 history. Its canonical contract is
 [`CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`](CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md).
+
+**Playback Instance Identity** is distinct from a track URI or display metadata.
+It is Backend-owned, opaque and valid only for one concrete occurrence. Runtime
+never derives or persists it; it receives the same identity in a future Continue
+projection and normalized Track Started event.
 
 ## Session Memory
 
