@@ -15,6 +15,22 @@ The DJConnect platform architecture is intentionally frozen.
 No additional foundational architecture is required before continuing platform
 qualification, quality enablement or product evolution.
 
+## DJConnect v4 Product Architecture Review
+
+On 2026-07-20, the Architecture Review accepted
+`DJCONNECT_V4_ARCHITECTURE_ACCEPTED`. It establishes the product-level v4
+convergence recorded in `DJCONNECT_V4_ARCHITECTURE.md`: persistent Profiles
+with exactly one Music Backend binding; server-owned ephemeral DJ Session
+Runtimes; Session Planner and Session Flow; Broadcast Engine and Broadcast
+Feed; and Personal, Shared and Room Experience renderers.
+
+This is a deliberately bounded exception to the frozen architecture. It does
+not reopen the Generation 1 Engineering Platform, Verification Platform,
+Software Assurance, Trusted Delivery, release architecture or Meta Engineering
+Foundation. It authorizes architecture documentation and future bounded Product
+Development increments only; it does not authorize implementation, protocols,
+storage, compatibility layers or migrations.
+
 ## Scope
 
 This decision freezes:

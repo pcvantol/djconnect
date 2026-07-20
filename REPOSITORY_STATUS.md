@@ -98,6 +98,11 @@ API or roadmap-sequencing decisions. Its Prompt History archive is absent;
 this reconciliation records the historical traceability gap without
 reconstructing a predecessor prompt.
 
+PR [#212](https://github.com/pcvantol/djconnect/pull/212), **DJConnect v4
+Architecture**, is reviewable. It establishes the accepted v4 product
+architecture without implementation, API, storage, synchronization, client UI,
+migration or v3 compatibility work.
+
 Canonical lifecycle:
 
 ```text
@@ -272,10 +277,8 @@ architecture are stable enough to freeze.
 ## Current Prompt
 
 The merged DJ Session Vision is reconciled into current repository truth.
-Platform Release 3.3 remains in Maintenance. The next Product Engineering
-increment may be selected from `PRODUCT_ROADMAP.md` using the Product
-Definition, DJ Session Domain Model and DJ Session Vision as canonical product
-direction.
+DJConnect v4 Architecture is reviewable in PR #212. Platform Release 3.3
+remains in Maintenance.
 
 ## Completion Report
 

@@ -67,6 +67,22 @@ language set, `en`, `nl`, `de`, `fr` and `es`, with English fallback,
 machine-readable values left untranslated and CI validation for key and
 placeholder parity where practical.
 
+### ADR-0014 — DJ Session Runtime is the v4 active-session boundary
+
+**Status:** Accepted
+**File:** `docs/adr/0014-dj-session-runtime-boundary.md`
+
+Decision to separate persistent Profile ownership from the server-owned,
+ephemeral DJ Session Runtime and to place active session orchestration there.
+
+### ADR-0015 — VibeCast is a Broadcast Capability
+
+**Status:** Accepted
+**File:** `docs/adr/0015-vibecast-broadcast-capability.md`
+
+Decision to define VibeCast as an event-driven broadcast capability of an
+active DJ Session, rendered locally by a Universal Session Receiver.
+
 ## ADR backlog
 
 ### ADR-0013 — Platform Baseline v1.0 certification boundary

@@ -41,6 +41,9 @@ Use these terms consistently:
 | Preferred term | Meaning |
 | --- | --- |
 | DJ Session | The primary coherent AI DJ listening experience, independent from any specific playback provider. |
+| DJ Session Runtime | Server-owned, ephemeral runtime for one active DJ Session. Developer-facing; do not use as consumer UI copy. |
+| Session Planner | The AI orchestration engine that continuously plans an active DJ Session. Developer-facing; do not use as consumer UI copy. |
+| Session Flow | What the DJ is planning next in an active DJ Session; it is the primary experience, not the provider queue. |
 | Session Memory | The objective chronological record of events in one DJ Session; it performs no interpretation. |
 | Session Timeline | The user-facing chronological story of one completed DJ Session; it is not a chat history. |
 | Playback Context | Music Backend-owned playback information available to DJConnect, such as the current track, queue, state, device or room context. |
@@ -48,7 +51,9 @@ Use these terms consistently:
 | Music DNA | Opt-in evolving understanding of a person's musical identity from patterns across many DJ Sessions; it does not replace Session Memory. |
 | Ask DJ | Conversational AI DJ experience |
 | Insights | User-facing umbrella for track, artist, album, lyrics and mood intelligence |
-| VibeCast | Shared visual presentation experience for TV/AirPlay/large screens |
+| Broadcast Feed | Event-driven feed from an active DJ Session for local renderer consumption. Developer-facing; it is not video. |
+| VibeCast | The Broadcast Capability of an active DJ Session, rendered by the Universal Session Receiver. |
+| Universal Session Receiver | Shared renderer for a VibeCast Broadcast Feed, with TV, Guest, Desktop, Browser, Pi and Chromecast modes. |
 | Discover | Recommendation and discovery experience |
 | Music Backend | Provider adapter such as Spotify Direct or Music Assistant; it owns playback and provides Playback Context to DJConnect. |
 | Music Account | Provider account binding used by a profile |
@@ -102,6 +107,8 @@ each locale, not direct word-for-word translation from English.
 | Cloud required | Optional cloud extension | Community remains local-first |
 | Free vs paid | Community vs Personal | More value-oriented |
 | Feature locked | Personal capability | Avoid negative framing |
+| Queue as the main experience | Session Flow | The backend queue remains an advanced playback view. |
+| VibeCast video stream | VibeCast Broadcast Capability | VibeCast is event-driven and rendered client-side. |
 
 ## Feature naming rules
 

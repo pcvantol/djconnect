@@ -19,7 +19,7 @@ vocabulary for the DJ Session model.
 
 ## Product in one sentence
 
-DJConnect is a local-first AI DJ that brings music to life across the
+DJConnect is a local-first AI DJ that hosts active DJ Sessions across the
 Home Assistant-powered devices already in a home.
 
 ## Product promise
@@ -44,17 +44,26 @@ device or a cloud account the product's identity.
 
 A **DJ Session** is the primary DJConnect product experience. It is one
 coherent AI DJ experience for a listening moment, not a menu of separate AI
-capabilities for the user to assemble.
+capabilities for the user to assemble. Playback is context; the DJ Session is
+the product.
 
 Ask DJ, Discover, Track Insight, announcements, Music DNA and VibeCast remain
 distinct capabilities. The DJ Session orchestrates them so that they appear as
 the right contribution at the right moment, on the right surface and for the
-right active profile or shared context.
+right active profile or shared context. VibeCast is the broadcast capability of
+an active session, rendered locally by a Universal Session Receiver rather than
+streamed as video.
 
 The DJ Session observes the listening context and enriches it. It does not own
-playback: playback remains owned by the configured Music Backend, such as
-Spotify Direct or Music Assistant. A DJ Session must remain valuable without
-requiring DJConnect to become a music provider or playback owner.
+playback: each Profile owns exactly one configured Music Backend, such as
+Spotify Direct or Music Assistant. A DJ Session consumes the resulting
+Playback Context and must remain valuable without requiring DJConnect to become
+a music provider or playback owner.
+
+During an active session, the server-owned Session Runtime continuously hosts
+the moment through a Session Planner and its Session Flow. The Flow—not the
+provider queue—is the primary expression of what the DJ plans next. A queue
+may remain available as an advanced playback view.
 
 ## Session Memory
 

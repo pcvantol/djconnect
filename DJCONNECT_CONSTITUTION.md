@@ -24,6 +24,9 @@ DJConnect should make music feel richer, more contextual, more personal, and mor
 
 Music DNA, mood, DJ personality, response style, recommendations, likes/dislikes, conversation memory, privacy preferences, and continuity belong to a Profile.
 
+A Profile owns exactly one Music Backend binding, its settings and preferences,
+conversation history and session history. Clients never store Profile state.
+
 A user should feel like they have one personal DJ available across all personal devices linked to the same profile.
 
 ### Law 2: Everything hardware-related belongs to a Device
@@ -35,6 +38,9 @@ Devices must not own persistent personal intelligence.
 ### Law 3: Everything playback/provider-specific belongs to the Music Backend
 
 Playback control, provider credentials, queues, players, zones, capabilities, library access, and provider-specific behavior belong behind Music Backend adapters.
+
+A Music Backend belongs to a Profile, never to a DJ Session. Playback is
+context for the DJ Session, not the product's primary ownership boundary.
 
 Spotify Direct, Music Assistant, Tidal Direct, Qobuz Direct, and future providers are adapters, not the platform.
 
@@ -101,6 +107,27 @@ No lyrics should fall back to Track Insight. No Music DNA should fall back to ge
 A feature should make listening richer, easier, more contextual, more personal, more social, more beautiful, or more reliable.
 
 If it does not improve the listening experience, it probably does not belong in DJConnect.
+
+### Law 14: The Session Runtime owns the active DJ Session
+
+Every active DJ Session has a server-owned, ephemeral Session Runtime. It owns
+the active Playback Context, Session Planner, Conversation Engine, Session
+Memory, Session Flow, Broadcast Engine, Audience Signals and Runtime State.
+When the session ends, the Runtime ends; only permitted durable outcomes may be
+written back to its Profile.
+
+### Law 15: Session Flow is primary
+
+The Session Planner continuously plans the next listening period and produces
+Session Flow: what the DJ intends to do next. A provider queue remains
+backend-owned and may be available as an advanced view, but is not the primary
+DJConnect experience.
+
+### Law 16: VibeCast is a Broadcast Capability
+
+The Broadcast Engine publishes an event-driven Broadcast Feed for an active DJ
+Session. VibeCast is rendered locally by a Universal Session Receiver; it is
+not video streaming or server-rendered video.
 
 ## Anti-goals
 

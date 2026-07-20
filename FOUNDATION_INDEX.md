@@ -20,9 +20,10 @@ The files below define Platform Strategy, then the platform foundation itself.
 3. `PRODUCT_VISION.md`
 4. `DESIGN_PRINCIPLES.md`
 5. `ARCHITECTURE_PRINCIPLES.md`
-6. `DOMAIN_MODEL.md`
-7. `docs/product/README.md`
-8. `docs/product/PRODUCT_STRATEGY.md`
+6. `DJCONNECT_V4_ARCHITECTURE.md`
+7. `DOMAIN_MODEL.md`
+8. `docs/product/README.md`
+9. `docs/product/PRODUCT_STRATEGY.md`
 9. `PLATFORM_BASELINE_v1.md`
 10. `PLATFORM_BASELINE_1_0.md`
 11. `PLATFORM_BASELINE_CERTIFICATION.md`

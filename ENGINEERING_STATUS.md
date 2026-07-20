@@ -36,6 +36,13 @@ future DJ Sessions and adds it to Product Foundation navigation. The
 predecessor Prompt History archive is absent; this reconciliation records that
 historical traceability gap without recreating a prompt.
 
+PR [#212](https://github.com/pcvantol/djconnect/pull/212), **DJConnect v4
+Architecture**, is reviewable. It is documentation-only Architecture Review
+work that converges the existing product around persistent Profiles, ephemeral
+server-owned DJ Session Runtimes, Session Planner and Session Flow, and the
+VibeCast Broadcast Capability. It does not implement runtime, API, storage,
+client UI, migration or v3 compatibility work.
+
 ## Current engineering program
 
 DJConnect Product Development is the active primary program and Innovation
@@ -93,7 +100,7 @@ separate explicitly authorized operational action.
 
 ## Recommended next prompt
 
-Select the next Product Engineering increment from `PRODUCT_ROADMAP.md`, using
-the Product Definition, DJ Session Domain Model and DJ Session Vision together
-as canonical product direction. Handle Platform Release 3.3 only as
-Maintenance unless its completion record is formally reopened.
+Review PR #212. Do not start the next Product Engineering increment until its
+merge is explicitly approved and its post-merge state is reconciled. Platform
+Release 3.3 remains Maintenance unless its completion record is formally
+reopened.

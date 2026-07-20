@@ -8,52 +8,45 @@ No client owns product features. Clients render or expose platform capabilities 
 
 | Class | Examples | Role |
 | --- | --- | --- |
-| Intelligence Client | iOS, iPadOS, macOS, Windows, future Android/web | Rich personal DJConnect experience |
-| Ambient Client | Raspberry Pi display, wall display, household screen | Shared room display/control experience |
-| Voice / Control Client | ESP32, Home Assistant Voice Satellite | Physical control, Assist/voice entrypoint, PTT, short TTS responses |
-| Presentation Client | VibeCast / AirPlay / TV | Shared visual rendering of Insight Feed |
-| Immersive Client | Future VR/MR | Spatial renderer and exploratory interface |
+| Personal Experience | iOS, iPadOS, macOS, Windows, Apple Watch | Native, Profile-bound DJ Session experience |
+| Shared Experience | Browser, TV, Chromecast, Raspberry Pi, desktop, guest phones | Universal Session Receiver for an active shared DJ Session |
+| Room Experience | ESP32, Home Assistant Voice Satellite | Voice/control rendering for the active room DJ Session |
 
 ## Capability matrix
 
-| Capability | Apple | Windows | Pi | ESP32 | VibeCast | VR/MR future |
-| --- | --- | --- | --- | --- | --- | --- |
-| Pairing | Full | Full | Full | Full | Controller-driven | Full / future |
-| Music control | Full | Full | Basic/shared | Physical controls | No / minimal | Contextual |
-| Ask DJ text | Full | Full | Readonly or light | No chat UI | No | Spatial/full |
-| Ask DJ voice | Full/PTT | Full/PTT future | Not default | PTT upload | No | Spatial |
-| Ask DJ history | Profile-bound | Profile-bound | Shared/readonly | None | None | Profile-bound |
-| Music DNA | Personal UI | Personal UI | Household/light | None | None | Personal/spatial |
-| Track Insights | Rich | Rich | Light | None | Rich visual | Spatial |
-| Lyrics Explain | Rich | Rich | Light/future | None | Rich visual | Spatial |
-| Live Lyrics | Rich/future | Rich/future | Light/future | None | Rich visual | Spatial |
-| Discover | Full | Full | Feed/light | None | No | Discovery Galaxy |
-| VibeCast control | Full | Full | Maybe launch only | No | N/A | Maybe |
-| VibeCast rendering | Controller only | Controller only | No | No | Primary | Spatial variant |
-| Guest Companion | QR/control | QR/control | Maybe display QR | No | QR source | Maybe |
-| Give Love | Control/guest web | Control/guest web | Maybe display | No | Hearts layer | Spatial effects |
-| Notifications | APNs | Windows notifications | Local UI | Local display/sound | No | Platform-dependent |
-| Background audio | iOS/macOS research | Windows feasible | No | Built-in speaker only | No | Platform-dependent |
-| OTA/update | App release | App release | App updater | Firmware OTA | N/A | Store/runtime |
-| Diagnostics | Full | Full | Full | Device logs | Minimal | Future |
-| Settings | Full | Full | Limited/shared | Device settings | No | Future |
-| Feature flags | Profile/client | Profile/client | Shared/device | Device/capability | Session/capability | Profile/client |
+| Capability | Personal Experience | Shared Experience | Room Experience |
+| --- | --- | --- | --- |
+| Profile state | Native profile-bound access | Never stored; rendered only when permitted | Never stored; room/profile resolution only |
+| Session Flow | Full control and rendering | Broadcast Feed rendering | Short voice/control contributions |
+| Music control | Full | Basic/shared when the receiver permits it | Physical or voice controls |
+| Ask DJ | Rich text and voice where available | Guest-safe/read-only where permitted | Voice and short TTS only |
+| Music DNA | Personal UI | Never exposed without explicit policy | Never exposed without explicit policy |
+| VibeCast | Control and handoff | Primary Universal Session Receiver rendering | No visual rendering |
+| Diagnostics and updates | Platform-specific | Platform-specific | Device-focused |
 
 ## Rules
 
-### Apple and Windows
+### Personal Experience
 
-Apple and Windows are Intelligence Clients. They should expose the richest personal DJConnect experience while staying backend-owned for intelligence, recommendations and profile state.
+Apple and Windows render the richest personal DJConnect experience while
+remaining backend-owned for intelligence, recommendations and Profile state.
+The Apple application is one shell with Owner, Guest and Demo runtimes, but its
+UI is capability-driven rather than mode-driven.
 
-### Raspberry Pi
+### Shared Experience
 
-Pi is an Ambient Client. It should be optimized for a shared wall-mounted or household screen: playback, now playing, light insights, readonly Ask DJ stream and Discover feed.
+Shared Experience uses one Universal Session Receiver for an active DJ Session.
+Browser, TV, Chromecast, Raspberry Pi, desktop and guest-phone modes consume
+the event-driven Broadcast Feed and render it locally. They never receive
+private Profile state without explicit policy.
 
 By default, Pi should resolve to a shared profile unless explicitly linked to a personal profile.
 
-### ESP32
+### Room Experience
 
-ESP32 is a Voice / Control Client. It should remain simple, robust and community-first.
+ESP32 and HA Voice are Room Experience renderers. They represent the active DJ
+Session through voice and control rather than a rich personal or shared visual
+surface. ESP32 remains simple, robust and community-first.
 
 It should not gain rich intelligence UI, Music DNA, persistent chat history or Discover. It may play short TTS DJ responses through its built-in speaker.
 
@@ -79,14 +72,6 @@ Future speaker recognition may become a resolver hint, but it is not a current
 client capability and must not override explicit profile selection. HA Voice
 Voice Endpoints have no persistent personal UI and no automatic access to personal
 Ask DJ history.
-
-### VibeCast
-
-VibeCast is a Presentation Client. It renders the Insight Feed as a shared visual experience. It should not become a complex playback controller.
-
-### VR/MR
-
-VR/MR is a future Immersive Client class. It should not become a separate music player. It should reuse Profile, Music Backend and Insight Feed concepts.
 
 ## Capability evolution
 

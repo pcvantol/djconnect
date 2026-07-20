@@ -9,12 +9,12 @@ When a feature needs persistent state, routing, identity, privacy, capabilities 
 ```text
 Household
   -> Profile
-    -> Device
     -> Music Backend / Music Account
-      -> Playback Zone
-        -> Intelligence Engine
-          -> Insight Feed
-            -> Renderer / Client
+      -> DJ Session Runtime
+        -> Playback Context
+        -> Session Planner
+        -> Session Flow / Broadcast Feed
+          -> Renderer
 ```
 
 A simpler request-time view:
@@ -25,9 +25,9 @@ Interaction / Request
   -> Profile Resolver
   -> DJConnect Profile
   -> Music Backend / Music Account
-  -> Playback Zone
-  -> Use Case / Intelligence
-  -> Client or Renderer
+  -> DJ Session Runtime
+  -> Session Planner / Broadcast Engine
+  -> Renderer
 ```
 
 ## Household
@@ -61,20 +61,24 @@ Profile types:
 
 A Profile owns:
 
+- exactly one Music Backend binding and its selected Music Account;
 - Music DNA;
+- settings and preferences;
 - mood state;
 - DJ voice tone and response style;
 - Ask DJ conversation history;
+- session history;
 - recommendation history;
 - likes/dislikes;
-- preferred music backend;
-- preferred music account;
 - fallback playback zone/player;
 - privacy mode;
 - feature flags and experimental settings;
 - Personal/Community/Cloud entitlement state where applicable.
 
 Multiple devices may link to the same Profile. When they do, personal state roams across those devices because it is profile-owned.
+
+A Music Backend belongs to the Profile and never to a DJ Session. Client
+devices may render or control an active session, but never store Profile state.
 
 ## Request Context
 
@@ -207,6 +211,35 @@ Examples:
 
 Playback Zone ownership belongs to backend integration and household configuration. A profile may have a preferred or fallback zone.
 
+## DJ Session Runtime
+
+A DJ Session Runtime is the server-owned, ephemeral runtime for one active DJ
+Session. It owns the active Playback Context, Session Planner, Conversation
+Engine, Session Memory, Session Flow, Broadcast Engine, Audience Signals and
+Runtime State.
+
+The Runtime exists only while its DJ Session is active. When it ends, it is
+discarded; only permitted durable information is written back to the owning
+Profile. It does not own a Music Backend, provider account, credentials or
+provider-specific playback state.
+
+## Session Planner
+
+The Session Planner is the central AI orchestration engine for a Session
+Runtime. It plans approximately the next fifteen minutes and continuously
+replans from playback, interaction, audience signals, conversation, mood,
+backend availability and permitted Music DNA.
+
+It creates Session Flow, not a static playlist. A provider queue remains
+backend-owned and may be exposed as an advanced view.
+
+## Session Flow
+
+Session Flow is the primary representation of what the DJ is planning next. It
+can contain the current track, announcements, Track Insights, Discover moments,
+musical direction and planned transitions. It is runtime state, not a provider
+queue and not persistent Profile state.
+
 ## Intelligence Engine
 
 The Intelligence Engine coordinates DJConnect intelligence.
@@ -243,6 +276,16 @@ Examples:
 
 Providers publish normalized output to the Insight Feed instead of becoming standalone product silos.
 
+## Broadcast Engine and Broadcast Feed
+
+The Broadcast Engine turns the active Session Flow and permitted session events
+into an event-driven Broadcast Feed. It does not stream video and does not
+server-render a visual experience. Receivers render the Feed locally.
+
+VibeCast is the Broadcast Capability of an active DJ Session. It uses the
+Broadcast Feed through a Universal Session Receiver rather than becoming an
+independent presentation product.
+
 ## Insight Feed
 
 The Insight Feed is the normalized stream of DJConnect intelligence.
@@ -260,21 +303,28 @@ It may contain:
 - Ask DJ facts;
 - guest-safe items.
 
-Renderers decide how much of the feed to show based on capabilities, privacy mode, profile type and user settings.
+The Session Runtime selects permitted items for Session Flow and the Broadcast
+Engine publishes the resulting Broadcast Feed. Renderers do not consume an
+unbounded intelligence stream; they receive an explicitly scoped session
+contract based on capabilities, privacy mode, profile type and user settings.
 
-## Renderer / Client
+## Renderer
 
-A Renderer or Client presents DJConnect capabilities.
+A Renderer presents an active DJ Session according to explicit capabilities and
+privacy scope. It does not own durable intelligence, Profile state, Planner
+state or Broadcast semantics.
 
-Client classes:
+Renderer categories:
 
-- Intelligence Client: Apple, Windows, future Android/web;
-- Ambient Client: Raspberry Pi / household display;
-- Voice/Control Client: ESP32, Voice Endpoints such as Home Assistant Voice Satellites;
-- Presentation Client: VibeCast / AirPlay / TV;
-- Immersive Client: future VR/MR.
+- Personal Experience: native, Profile-bound experience for iPhone, iPad,
+  macOS, Windows and Apple Watch;
+- Shared Experience: Universal Session Receiver for browser, TV, Chromecast,
+  Raspberry Pi, desktop and guest phones;
+- Room Experience: voice/control rendering for HA Voice and ESP32 Voice
+  Satellites.
 
-Clients render platform capabilities. They should not own durable intelligence or fork backend business logic.
+The native Apple application is one shell with Owner, Guest and Demo runtimes;
+its UI is capability-driven rather than mode-driven.
 
 ## Capability
 
@@ -314,18 +364,10 @@ Feature flags should be profile-aware where the experience is personal and devic
 
 ## Session
 
-A Session is a temporary activity context.
-
-Examples:
-
-- Ask DJ chat session;
-- VibeCast session;
-- guest companion session;
-- on-the-go listening session;
-- private session;
-- party session.
-
-Sessions may have tokens, TTLs, privacy rules and scoped state. They should expire predictably.
+A DJ Session is the product-level listening experience hosted by the AI DJ. Its
+Session Runtime is the temporary activity context. An active session may have
+scoped tokens, privacy rules and runtime state; it expires predictably when the
+session ends.
 
 ## Privacy modes
 
@@ -342,12 +384,13 @@ Private mode avoids persistence. Shared and guest-safe modes avoid personal Musi
 
 When adding a feature, ask:
 
-1. Is this personal? Put it on Profile.
-2. Is this hardware/client runtime? Put it on Device.
-3. Is this provider playback behavior? Put it behind Music Backend.
-4. Is this generated intelligence? Put it in the backend and publish through Insight Feed.
-5. Is this presentation? Put it in a Renderer.
-6. Is this temporary? Make it a Session with expiry.
+1. Is this persistent identity or preference? Put it on Profile.
+2. Is this active-session state or planning? Put it in the Session Runtime.
+3. Is this hardware/client runtime? Put it on Device.
+4. Is this provider playback behavior? Put it behind Music Backend.
+5. Is this generated intelligence? Put it in the backend and expose it through
+   Session Flow or Broadcast Feed.
+6. Is this presentation? Put it in a Renderer.
 7. Is this experimental? Put it behind Feature Flags.
 
 ## Implementation status
