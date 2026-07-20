@@ -225,6 +225,11 @@ provider-specific playback state.
 
 ## Session Planner
 
+The Planner's future presentation output is a Knowledge Intent. A DJ Moment
+Engine transforms it with a snapshot Presentation Intent (including Persona and
+current Session Mood) into an immutable DJ Moment for Broadcast. Renderers
+consume Moments without reinterpreting them.
+
 The Session Planner is the central AI orchestration engine for a Session
 Runtime. It plans approximately the next fifteen minutes and continuously
 replans from playback, interaction, audience signals, conversation, mood,

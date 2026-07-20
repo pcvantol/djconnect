@@ -65,6 +65,13 @@ the moment through a Session Planner and its Session Flow. The Flow—not the
 provider queue—is the primary expression of what the DJ plans next. A queue
 may remain available as an advanced playback view.
 
+The Planner plans what the DJ can contribute, while a future DJ Moment Engine
+turns that contribution into one immutable presentation for the appropriate
+surface. This keeps the DJ's personality and the current Session Mood coherent
+without making a renderer responsible for creative interpretation. The
+canonical presentation model is defined in
+[`DJ_PRESENTATION_ARCHITECTURE.md`](DJ_PRESENTATION_ARCHITECTURE.md).
+
 ## Session Memory
 
 **Session Memory** is the chronological record of what objectively happened

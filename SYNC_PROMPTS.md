@@ -129,6 +129,21 @@ This is owner-only. Do not implement guest transport, Universal Session
 Receiver, VibeCast, Voice or Audience Signals as part of this contract.
 ```
 
+## Client: Future DJ Moment presentation model
+
+```text
+Do not implement a new endpoint, WebSocket payload or renderer feature from
+this prompt. The canonical DJ Presentation Architecture defines the future
+server-owned path:
+
+Knowledge Intent → DJ Moment Engine → immutable DJ Moment → Broadcast → Renderer
+
+When DJ Moments become available in a later, explicitly scoped contract, treat
+each Moment and its Presentation Intent as immutable server-owned data. A
+renderer presents the supplied content and actions; it does not generate a
+Moment, claim a Persona, recalculate Session Mood or reinterpret delivery.
+```
+
 ## Client: VibeCast
 
 ```text
