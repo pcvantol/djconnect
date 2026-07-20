@@ -2,27 +2,26 @@
 
 ## Vision
 
-DJConnect transforms music playback into an intelligent, living experience.
+DJConnect is an AI DJ.
 
-People already have music services, speakers, Home Assistant, playlists, and devices. DJConnect adds the missing layer: an AI DJ that understands the music, understands the moment, and eventually understands the listener.
+It hosts a living **DJ Session**: a musical experience shaped by music,
+storytelling, recommendations, transitions, atmosphere, audience interaction
+and personality. Music playback is performed by the configured Music Backend.
+The DJ Session is the product.
 
 **Play your music. DJConnect brings it to life.**
 
 ## What DJConnect is
 
-DJConnect is an AI music companion.
+DJConnect is not an AI-enhanced music player or a collection of AI music
+features. It is one AI DJ, present across the devices in a home, that hosts a
+coherent musical occasion.
 
-It enriches whatever is playing with context, conversation, visuals, recommendations, discovery, mood, and personal continuity.
-
-DJConnect should feel like one DJ that is available through multiple surfaces:
-
-- Ask DJ;
-- Now Playing / Track Insight;
-- VibeCast;
-- Discover;
-- voice responses;
-- Apple, Windows, Pi, ESP32, and future clients;
-- future Android and web experiences.
+The AI DJ understands music, the current session and its audience. In the
+Personal experience it may also understand the listener through explicit,
+opt-in personal context. It chooses when a contribution will make the session
+better and when the music should be allowed to breathe. It guides a musical
+journey; it does not behave like a chatbot waiting for a command.
 
 ## What DJConnect is not
 
@@ -34,109 +33,134 @@ DJConnect is not primarily:
 - a Home Assistant dashboard;
 - a lyrics app;
 - a karaoke product;
-- a social network;
+- a social network; or
 - a cloud-only service.
 
-Those may provide inputs, renderers, or integrations. They are not the product identity.
+Those systems may provide playback, inputs, renderers or integrations. They
+are not the product identity.
 
-## User promise
+## The DJ Session
 
-The user should not think in modules.
+The primary user experience is the active DJ Session, not playback alone. A
+session combines music, AI, storytelling, recommendations, transitions,
+atmosphere, audience interaction and personality into one hosted experience.
 
-They should not need to manage separate concepts called Track Insight, Lyrics Explain, Artist Insight, Album Insight, Mood Engine, Discover, and Music DNA just to enjoy the product.
+Playback remains essential and immediately controllable, but it is one
+component of the experience. The configured Music Backend performs playback;
+DJConnect turns the listening moment into an evening with a DJ.
 
-The user starts music. DJConnect notices what is playing and brings it to life in the right place, at the right level of richness, for the active profile and device.
+## DJ Moments
 
-## Core experience
+A **DJ Moment** is the primary building block of a DJ Session. Everything the
+DJ intentionally does becomes a Moment: a Track Story, Artist Story, Album
+Story, Genre Story, Recommendation, Session Update, Transition, Concert
+Suggestion, Trivia or Silence.
 
-### Listen
+DJ Moments are not notifications. They are contributions to the performance.
+Track Insight, Discover, recommendations, artist stories and similar
+experiences are different presentations of Moments, not disconnected product
+features.
 
-The user plays music through their existing setup.
+Silence is a Moment too. A good DJ intentionally chooses not to interrupt the
+music when no contribution would improve it.
 
-### Understand
+## Session Flow
 
-DJConnect understands what is playing and can explain why it matters: the track, artist, album, lyrics, mood, production, era, genre, and context.
+The **Session Flow** is the narrative timeline of the DJ Session. Instead of
+experiencing a playlist or queue as the primary story, people experience a
+chronological flow of music and DJ Moments.
 
-### Feel
+It can include Session Started, Track Started, DJ Moment, Recommendation,
+Transition, Mood Change, Audience Signal, Silence and Session Finished. The
+Flow tells the story of the evening while playback queues remain useful
+infrastructure for people who need them.
 
-DJConnect adapts tone, visuals, and recommendations to the moment.
+## Current Session State
 
-### Continue
+The primary DJ Session experience should remain intentionally simple. It
+centres on current playback, playback controls, output device and one **Current
+Session State** card.
 
-On personal devices, the same DJConnect Profile carries Music DNA, Ask DJ history, mood, preferences, and recommendation memory across devices.
+That card represents the most relevant active Session item, most often a DJ
+Moment. People can continue from it into the complete Session Flow whenever
+they want to revisit or understand the wider story.
 
-### Share the room
+## DJ Persona and Session Mood
 
-On shared devices, DJConnect becomes a household or room-level experience: family-safe, guest-friendly, and designed for shared listening.
+A **DJ Persona** defines how the DJ behaves: its storytelling, pacing, humour,
+enthusiasm, interaction style and presentation style. Home DJ, Radio DJ, Club
+DJ and Festival DJ are examples. Persona is distinct from Session Mood and
+distinct from Voice.
 
-## Community and Personal
+**Session Mood** is the emotional direction of the active session. It changes
+over time through the owner, audience and future DJ decisions. It shapes future
+DJ Moments without rewriting the history of earlier Moments.
+
+Future Premium Cloud experiences may add expressive voices, premium Personas,
+richer storytelling, enhanced presentation and more advanced DJ behaviour.
+These are experience extensions, not a replacement for the local-first DJ
+Session.
+
+## One Session across devices
+
+Phone, Watch, Mac, Windows, television, Raspberry Pi, Voice and guest devices
+all participate in the same DJ Session. Each device presents that Session in a
+way appropriate to its capabilities and setting.
+
+Presentation adapts to the device. The meaning of the Session, its Moments and
+its Flow remains identical.
+
+## Community, Personal and Future Premium Cloud
 
 ### Community
 
 **Your AI DJ understands music.**
 
-Community should be useful, complete, and exciting. It should include strong local intelligence, music control, track insights, VibeCast, Discover-style experiences where feasible, community clients, and backend-agnostic integration.
-
-Community is not a crippled trial. It is the open-source foundation of DJConnect.
+Community is the complete local-first DJ Session: musical understanding,
+shared moments and a provider-neutral listening experience. It is never a
+crippled trial.
 
 ### Personal
 
 **Your AI DJ understands you.**
 
-Personal adds identity-level intelligence:
+Personal makes the same DJ more personal through opt-in Music DNA and eligible
+profile continuity. It remains profile-centric and must never expose private
+history or personal reasoning in a shared session.
 
-- Music DNA;
-- profile-based memory;
-- personalized recommendations;
-- mood and preference continuity;
-- Ask DJ continuity across personal devices;
-- personal response style and DJ personality;
-- portable profile export/import;
-- future premium personas and voices.
+### Future Premium Cloud
 
-Personal is profile-centric, not device-centric.
+**Your AI DJ has a recognizable personality.**
 
-### Future Cloud
-
-Future cloud capabilities may include premium voices, hosted AI, cloud sync, cross-home profile portability, entitlement checks, cloud DJ personas, and backup/sync.
-
-Cloud should enhance DJConnect, not replace the local-first Community foundation.
-
-## Product tiers
-
-Tiers should map to user value, not arbitrary feature blocking.
-
-- Community: DJConnect understands music and your local setup.
-- Personal: DJConnect understands music and you.
-- Future Cloud: DJConnect can optionally sync, host, and enhance experiences beyond one local Home Assistant instance.
+Future Premium Cloud may add expressive voices, premium DJ Personas, richer
+storytelling, enhanced presentation and advanced DJ behaviour. It centres on
+the quality of the hosted experience, not technical capability for its own
+sake.
 
 ## Product language
 
-Prefer language that sells the experience instead of implementation detail.
+Prefer language that describes a hosted DJ Session and its performance:
 
-Use:
+- AI DJ;
+- DJ Session;
+- DJ Moment;
+- Session Flow;
+- Current Session State;
+- Music DNA; and
+- shared or personal DJ experience.
 
-- AI music companion;
-- your AI DJ;
-- Music DNA;
-- Insights;
-- VibeCast;
-- Discover;
-- profile;
-- personal DJ;
-- household DJ.
+Avoid leading with providers, APIs, WebSocket payloads, device/backend
+mappings, AI modules or isolated feature names. The user is not assembling
+software. They are sharing an evening with an AI DJ.
 
-Avoid leading with:
+## Guiding principles
 
-- Spotify API;
-- Home Assistant services;
-- websocket payloads;
-- device/backend mappings;
-- AI modules;
-- implementation-specific provider names.
-
-## Long-term ambition
-
-DJConnect should become a platform where new clients, music backends, renderers, and intelligence providers can be added without changing the user's mental model.
-
-The more capabilities DJConnect gains, the simpler the product should feel.
+- The Session is the product.
+- Playback is infrastructure.
+- Everything the DJ intentionally does becomes a DJ Moment.
+- The Session Flow tells the story of the evening.
+- The AI DJ performs rather than reacts.
+- Every device experiences the same Session.
+- Presentation adapts to the device; meaning remains identical.
+- The user is not controlling software. The user is sharing an evening with an
+  AI DJ.
