@@ -93,3 +93,6 @@ Future implementation must first establish the runtime, event and privacy
 contracts needed by this model, then adopt the Session Planner, Session Flow,
 Broadcast Feed and renderers in bounded increments. No client may recreate the
 planner, persistent profile state or broadcast semantics locally.
+
+`DJ_SESSION_RUNTIME_CONTRACTS.md` is the canonical lifecycle, ownership and
+capability contract for this architecture.

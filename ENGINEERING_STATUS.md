@@ -45,6 +45,12 @@ Capability. It makes no runtime, API, storage, client UI, migration or v3
 compatibility change. Its Prompt History archive is absent; this reconciliation
 records the traceability gap without recreating immutable history.
 
+PR [#214](https://github.com/pcvantol/djconnect/pull/214), **DJ Session
+Runtime Contracts**, is reviewable. It defines the accepted lifecycle,
+ownership, Session Flow, Broadcast, Audience Signal, Room Voice, renderer and
+capability contracts without production behaviour, AI, playback, API, storage,
+migration or compatibility work.
+
 ## Current engineering program
 
 DJConnect Product Development is the active primary program and Innovation
@@ -102,6 +108,6 @@ separate explicitly authorized operational action.
 
 ## Recommended next prompt
 
-Complete this post-merge reconciliation, then select the next Product
-Engineering increment from `PRODUCT_ROADMAP.md`. Platform Release 3.3 remains
-Maintenance unless its completion record is formally reopened.
+Review PR #214. Do not start the first Runtime Production Slice until its merge
+is explicitly approved and its post-merge state is reconciled. Platform Release
+3.3 remains Maintenance unless its completion record is formally reopened.

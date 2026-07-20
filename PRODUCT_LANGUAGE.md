@@ -44,6 +44,8 @@ Use these terms consistently:
 | DJ Session Runtime | Server-owned, ephemeral runtime for one active DJ Session. Developer-facing; do not use as consumer UI copy. |
 | Session Planner | The AI orchestration engine that continuously plans an active DJ Session. Developer-facing; do not use as consumer UI copy. |
 | Session Flow | What the DJ is planning next in an active DJ Session; it is the primary experience, not the provider queue. |
+| Session Capability | Runtime-owned statement of what an active session permits a renderer to do. Developer-facing; do not use as consumer UI copy. |
+| Audience Signal | A listener contribution that the Session Planner may interpret; it is never a direct playback command. |
 | Session Memory | The objective chronological record of events in one DJ Session; it performs no interpretation. |
 | Session Timeline | The user-facing chronological story of one completed DJ Session; it is not a chat history. |
 | Playback Context | Music Backend-owned playback information available to DJConnect, such as the current track, queue, state, device or room context. |

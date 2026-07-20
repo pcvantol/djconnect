@@ -97,6 +97,10 @@ current track, announcements, Track Insights, Discover moments, musical
 direction and planned transitions. The backend queue remains provider-owned and
 can be shown only as an advanced playback view.
 
+The canonical Runtime lifecycle, state ownership, typed Session Flow, Broadcast
+Feed, Audience Signal, Room Voice, Renderer and Session Capability contracts
+are defined in `DJ_SESSION_RUNTIME_CONTRACTS.md`.
+
 ### Broadcast Engine and Broadcast Feed
 
 The Broadcast Engine publishes an event-driven Broadcast Feed for an active
