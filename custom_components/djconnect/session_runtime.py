@@ -91,12 +91,19 @@ class KnowledgeIntentType(StrEnum):
     """The semantic contribution requested by the Planner."""
 
     TRACK_CONTEXT = "track_context"
+    ARTIST_STORY = "artist_story"
+    ALBUM_STORY = "album_story"
+    GENRE_STORY = "genre_story"
+    RECOMMENDATION = "recommendation"
     SESSION_DIRECTION = "session_direction"
     SILENCE = "silence"
 
 
 class PlannerDecisionType(StrEnum):
     CREATE_TRACK_CONTEXT = "create_track_context"
+    CREATE_ARTIST_STORY = "create_artist_story"
+    CREATE_ALBUM_STORY = "create_album_story"
+    CREATE_GENRE_STORY = "create_genre_story"
     CREATE_SESSION_UPDATE = "create_session_update"
     CREATE_RECOMMENDATION = "create_recommendation"
     CREATE_DISCOVERY = "create_discovery"
@@ -374,7 +381,7 @@ class DJSessionPlanner:
         self.last_replan_at = flow.created_at
         return flow
 
-    def evaluate_track_started(self, *, selected_mood: str, persona: DJPersona) -> PlannerDecision:
+    def evaluate_track_started(self, *, selected_mood: str, persona: DJPersona, knowledge_hints: dict[str, Any] | None = None) -> PlannerDecision:
         """Make the bounded first production decision without invoking services."""
         self.pending_events = (*self.pending_events, PlannerEventType.TRACK_AVAILABLE)
         mood = selected_mood.strip().lower()
@@ -385,6 +392,18 @@ class DJSessionPlanner:
         if mood in {"deep", "focus", "chill"} or persona is DJPersona.CLUB_DJ:
             self.last_decision = PlannerDecision(PlannerDecisionType.SILENCE, "mood_or_persona_prefers_silence")
             return self.last_decision
+        hints = knowledge_hints or {}
+        choices = (
+            ("related_tracks", PlannerDecisionType.CREATE_RECOMMENDATION, KnowledgeIntentType.RECOMMENDATION, "Recommend one related work when it adds value."),
+            ("producer", PlannerDecisionType.CREATE_ARTIST_STORY, KnowledgeIntentType.ARTIST_STORY, "Share relevant artist or production context."),
+            ("release_year", PlannerDecisionType.CREATE_ALBUM_STORY, KnowledgeIntentType.ALBUM_STORY, "Share relevant album context."),
+            ("genre", PlannerDecisionType.CREATE_GENRE_STORY, KnowledgeIntentType.GENRE_STORY, "Explain relevant genre context."),
+        )
+        for key, decision_type, intent_type, goal in choices:
+            if _bounded_text(hints.get(key), 1200):
+                intent = KnowledgeIntent(intent_type, goal)
+                self.last_decision = PlannerDecision(decision_type, f"knowledge_hint:{key}", intent)
+                return self.last_decision
         intent = KnowledgeIntent(
             KnowledgeIntentType.TRACK_CONTEXT,
             "Explain one relevant detail that improves appreciation of the current track.",

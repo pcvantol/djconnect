@@ -18,7 +18,7 @@ behaviour rather than replace architecture or introduce speculative systems.
 | Stage | Maturity |
 | --- | --- |
 | 1 — current | Track Started trigger, Track Context, Silence and Runtime heuristics. |
-| 2 | Transition, Recommendation, Discover and Session Update decisions. |
+| 2 — partial | Deterministic Artist, Album, Genre and Recommendation intent selection from available knowledge hints. Transition, Discover and Session Update remain deferred. |
 | 3 | Audience Signals, dynamic Mood adaptation, Session Direction and context-aware transitions. |
 | 4 | Multi-track planning, narrative sequencing, dynamic replanning and pacing. |
 | 5 | Autonomous session strategy and long-term performance optimisation. |
