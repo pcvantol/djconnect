@@ -38,7 +38,7 @@ behaviour rather than replace architecture or introduce speculative systems.
 | --- | --- |
 | 1 — current | Track Context and Silence. |
 | 2 — current | Artist Story, Album Story, Genre Story and Recommendation deterministically translate their selected Knowledge Context into immutable Moments with frozen Presentation Intent and intent-specific semantic actions. Invalid, incomplete or empty selected context creates canonical Silence. |
-| 3 — partial | Session Update Moments expose Planner-approved Session Direction changes. The minimum Planner-owned Transition contract is defined for a future bounded production slice only; live Transition behaviour remains deferred. Concert Suggestion, Music History and Discovery remain deferred. |
+| 3 — partial | Session Update Moments expose Planner-approved Session Direction changes. The first live Transition slice supports one Planner-approved `NEXT` Transition after a current Exploring Recommendation follows an existing Artist, Album or Genre Flow contribution. The Planner owns approval and placement; the Moment Engine freezes the immutable Transition; the existing Flow and Broadcast path publish it. No-transition is silent and recent Transition memory prevents immediate repetition. Broader Transition timing, multiple Transitions, future-track or queue context, autonomous replanning, audience adaptation, Concert Suggestion, Music History and Discovery remain deferred. |
 | 4 | Narrative storytelling, linked Moments and multi-step experiences. |
 
 ## DJ Moment types
