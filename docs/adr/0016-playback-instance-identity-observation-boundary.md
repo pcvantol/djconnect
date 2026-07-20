@@ -51,6 +51,15 @@ It requires the same identity in an immutable CurrentPlaybackProjection and a
 canonical live TrackStartedObservation; the existing Session Start-internal
 Track Insight invocation is not a substitute for that producer.
 
+### Relationship to Live Playback Observation Stage 1
+
+The same Observation Boundary may provide the lower Stage 1 Media Identity
+change observation described in `docs/product/LIVE_PLAYBACK_OBSERVATION.md`.
+That capability reports ordinary changed media while an active Session exists;
+it does not supply or infer Playback Instance Identity, does not distinguish
+duplicate delivery from replay and does not qualify Continue Stage 2. This ADR
+continues to govern only the stricter occurrence-correct Stage 2 contract.
+
 ### Lifetime and privacy
 
 Playback Instance Identity exists only while its concrete playback occurrence

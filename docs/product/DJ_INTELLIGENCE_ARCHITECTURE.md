@@ -161,9 +161,12 @@ The Music Backend Observation Boundary owns the opaque Playback Instance
 Identity that accompanies both projection and Track Started observation;
 Runtime only compares it to suppress duplicates within the active Session. It
 does not depend on the separate Playback Control Boundary.
-The generic Session Start Track Insight invocation is not the future live Track
-Started producer. Continue remains unavailable until one Observation Boundary
-can provide the correlated canonical observation contract.
+The generic Session Start Track Insight invocation is not a live observation
+producer. Stage 1 may separately route an eligible safe Media Identity change
+through the established Track Started processing without claiming occurrence
+correctness. Continue remains unavailable until one Observation Boundary can
+provide the correlated canonical Stage 2 observation contract. The two levels
+are defined in [`LIVE_PLAYBACK_OBSERVATION.md`](LIVE_PLAYBACK_OBSERVATION.md).
 
 **Session Mood** answers how the active Session should feel. The client may
 supply its initial Mood, and the Runtime may evolve the current Mood later.

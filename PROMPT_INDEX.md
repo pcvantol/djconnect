@@ -4,11 +4,13 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#256](https://github.com/pcvantol/djconnect/pull/256), merged as
-`b0573fbfa8055075df1296701877f8207f0a010b`, accepts the Playback Observation
-Boundary decision in ADR-0016. Continue Stage 2 remains authorized and
-deferred. No immutable Prompt History source exists for that predecessor; do
-not recreate one retrospectively.
+PR [#257](https://github.com/pcvantol/djconnect/pull/257), merged as
+`278eb411f5747bbcd5407b492910dae25ef4ebf2`, reconciles the complete Continue
+Stage 2 observation contract after the Playback Observation Boundary decision
+in ADR-0016. Continue Stage 2 remains authorized and deferred because no
+current backend can satisfy occurrence-correct identity and correlated live
+observation. No immutable Prompt History source exists for that predecessor;
+do not recreate one retrospectively.
 
 ## Generation 2 navigation
 

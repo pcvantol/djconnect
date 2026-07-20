@@ -10,6 +10,20 @@ This contract defines the smallest safe way for a future `Continue` DJ Session t
 
 This is the canonical contract for Continue Current Playback Continuity. The Runtime and product documents link here rather than restating its detailed rules.
 
+## Separation from Live Playback Observation Stage 1
+
+[`LIVE_PLAYBACK_OBSERVATION.md`](LIVE_PLAYBACK_OBSERVATION.md) defines a
+separate, lower-maturity capability for an already active Manual, Discover or
+Continue Stage 1 fallback Session to notice an ordinary change of safe Media
+Identity. It is useful, but is not occurrence-correct: it cannot distinguish
+same-track replay from duplicate delivery and cannot bootstrap a Continue
+Session.
+
+Nothing in Stage 1 supplies, derives or substitutes the Playback Instance
+Identity, live-event correlation, projection validation or transactional
+bootstrap required below. Continue Stage 2 remains authorized and deferred
+until one Observation Boundary meets this complete strict contract.
+
 ## Continue semantics
 
 `Continue` is a Session Start Strategy: it explains why a new DJ Session starts. Under this contract it may join one item that is already actively playing. Mood and Persona remain independent Runtime inputs.
