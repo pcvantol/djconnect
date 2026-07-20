@@ -37,11 +37,13 @@ predecessor Prompt History archive is absent; this reconciliation records that
 historical traceability gap without recreating a prompt.
 
 PR [#212](https://github.com/pcvantol/djconnect/pull/212), **DJConnect v4
-Architecture**, is reviewable. It is documentation-only Architecture Review
-work that converges the existing product around persistent Profiles, ephemeral
-server-owned DJ Session Runtimes, Session Planner and Session Flow, and the
-VibeCast Broadcast Capability. It does not implement runtime, API, storage,
-client UI, migration or v3 compatibility work.
+Architecture**, merged on 2026-07-20 as
+`677f3304f35c9386ef1f839c595e1478fd2fef7d`. It establishes the accepted v4
+product architecture around persistent Profiles, ephemeral server-owned DJ
+Session Runtimes, Session Planner and Session Flow, and the VibeCast Broadcast
+Capability. It makes no runtime, API, storage, client UI, migration or v3
+compatibility change. Its Prompt History archive is absent; this reconciliation
+records the traceability gap without recreating immutable history.
 
 ## Current engineering program
 
@@ -100,7 +102,6 @@ separate explicitly authorized operational action.
 
 ## Recommended next prompt
 
-Review PR #212. Do not start the next Product Engineering increment until its
-merge is explicitly approved and its post-merge state is reconciled. Platform
-Release 3.3 remains Maintenance unless its completion record is formally
-reopened.
+Complete this post-merge reconciliation, then select the next Product
+Engineering increment from `PRODUCT_ROADMAP.md`. Platform Release 3.3 remains
+Maintenance unless its completion record is formally reopened.
