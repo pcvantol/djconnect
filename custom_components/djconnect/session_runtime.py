@@ -121,6 +121,10 @@ class DJMomentType(StrEnum):
     """Bounded first-production catalogue of immutable Moments."""
 
     TRACK = "track"
+    ARTIST = "artist"
+    ALBUM = "album"
+    GENRE = "genre"
+    RECOMMENDATION = "recommendation"
     SESSION = "session"
     SILENCE = "silence"
 
@@ -468,20 +472,21 @@ class DJMomentEngine:
                 reason="duplicate_track_context",
             )
         self._track_keys.add(track_key)
+        moment_type, title, summary, content = _specialize_track_moment(track, analysis, title, artist, summary, content)
         moment = DJMoment(
             moment_id=f"moment-{uuid4().hex}",
             session_id=session_id,
             created_at=_timestamp(),
-            moment_type=DJMomentType.TRACK,
+            moment_type=moment_type,
             knowledge_intent=KnowledgeIntent(
                 knowledge_intent.intent_type, knowledge_intent.goal, track_key
             ),
             presentation_intent=_presentation_intent(selected_mood, persona),
-            title=f"{title} — {artist}",
+            title=title,
             summary=summary,
             content=content,
             artwork_url=_bounded_text(track.get("artwork_url"), 2048) or None,
-            actions=_track_actions(track, locale),
+            actions=_moment_actions(moment_type, track, locale),
             source_references=("track_insight",),
             generation_metadata=(("provider", "track_insight"), ("validated", "true")),
         )
@@ -1184,6 +1189,31 @@ def _track_actions(track: dict[str, Any], locale: str) -> tuple[DJMomentAction, 
         DJMomentAction("show_album", _moment_copy(locale, "show_album"), "rectangle.stack", 4, "music_context", payload),
         DJMomentAction("show_track", _moment_copy(locale, "show_track"), "music.note", 5, "music_context", payload),
     )
+
+
+def _moment_actions(moment_type: DJMomentType, track: dict[str, Any], locale: str) -> tuple[DJMomentAction, ...]:
+    actions = _track_actions(track, locale)
+    if moment_type is DJMomentType.ARTIST:
+        return tuple(action for action in actions if action.action_type in {"ask_dj", "tell_me_more", "show_artist"})
+    if moment_type is DJMomentType.ALBUM:
+        return tuple(action for action in actions if action.action_type in {"ask_dj", "show_album"})
+    if moment_type is DJMomentType.GENRE:
+        return (DJMomentAction("explore_genre", "Explore Genre", "music.note.list", 1, "music_context"), *actions[:2])
+    if moment_type is DJMomentType.RECOMMENDATION:
+        return (DJMomentAction("play_recommendation", "Play Recommendation", "play", 1, "music_context"), DJMomentAction("save_recommendation", "Save Recommendation", "bookmark", 2, "music_context"))
+    return actions
+
+
+def _specialize_track_moment(track: dict[str, Any], analysis: dict[str, Any], title: str, artist: str, summary: str, content: str) -> tuple[DJMomentType, str, str, str]:
+    if _bounded_text(track.get("related_tracks"), 1200) or _bounded_text(analysis.get("similar_tracks"), 1200):
+        return DJMomentType.RECOMMENDATION, f"Explore beyond {artist}", summary, content
+    if _bounded_text(track.get("producer"), 160) or _bounded_text(track.get("recording_context"), 600):
+        return DJMomentType.ARTIST, artist, summary, content
+    if _bounded_text(track.get("album"), 160) and (_bounded_text(track.get("release_year"), 32) or _bounded_text(track.get("release_date"), 32)):
+        return DJMomentType.ALBUM, _bounded_text(track.get("album"), 160), summary, content
+    if _bounded_text(analysis.get("genre"), 160) or _bounded_text(track.get("genres"), 160):
+        return DJMomentType.GENRE, _bounded_text(analysis.get("genre"), 160) or _bounded_text(track.get("genres"), 160), summary, content
+    return DJMomentType.TRACK, f"{title} — {artist}", summary, content
 
 
 def _track_key(track: dict[str, Any]) -> str:

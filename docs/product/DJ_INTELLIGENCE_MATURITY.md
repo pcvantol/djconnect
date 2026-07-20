@@ -37,7 +37,7 @@ behaviour rather than replace architecture or introduce speculative systems.
 | Stage | Maturity |
 | --- | --- |
 | 1 — current | Track Context and Silence. |
-| 2 | Artist Story, Album Story, Genre Story and Recommendation. |
+| 2 — partial | Artist Story, Album Story, Genre Story and Recommendation specialise existing Track Context when reliable Knowledge Context supports them. |
 | 3 | Concert Suggestion, Music History, Discovery and Session Update. |
 | 4 | Narrative storytelling, linked Moments and multi-step experiences. |
 
