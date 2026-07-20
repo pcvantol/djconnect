@@ -279,6 +279,55 @@ class SessionRuntimeManagerTest(unittest.TestCase):
 
         self.assertIsNone(subscribed)
 
+    def test_broadcast_token_is_read_only_runtime_scoped_and_invalid_after_end(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        first = asyncio.run(manager.async_start(owner_profile_id="profile-a"))
+        second = asyncio.run(manager.async_start(owner_profile_id="profile-b"))
+        contract = asyncio.run(
+            manager.async_broadcast_token_for_owner(
+                owner_profile_id="profile-a", session_id=first.session_id
+            )
+        )
+        assert contract is not None
+        token = contract["broadcast_token"]
+        self.assertEqual(
+            contract["capabilities"],
+            {"view_broadcast": True, "like": False, "audience_signals": False, "ask_dj": False, "owner_controls": False},
+        )
+        self.assertNotIn("profile", contract)
+
+        received: list[dict] = []
+        self.assertIsNotNone(
+            asyncio.run(
+                manager.async_subscribe_with_broadcast_token(
+                    session_id=first.session_id, broadcast_token=token, callback=received.append
+                )
+            )
+        )
+        self.assertIsNone(
+            asyncio.run(
+                manager.async_subscribe_with_broadcast_token(
+                    session_id=second.session_id, broadcast_token=token, callback=received.append
+                )
+            )
+        )
+        self.assertIsNone(
+            asyncio.run(
+                manager.async_subscribe_with_broadcast_token(
+                    session_id=first.session_id, broadcast_token=f"{token}changed", callback=received.append
+                )
+            )
+        )
+
+        asyncio.run(manager.async_end(owner_profile_id="profile-a", session_id=first.session_id))
+        self.assertIsNone(
+            asyncio.run(
+                manager.async_subscribe_with_broadcast_token(
+                    session_id=first.session_id, broadcast_token=token, callback=received.append
+                )
+            )
+        )
+
     def test_broadcast_event_vocabulary_is_stable(self) -> None:
         self.assertEqual(
             [event.value for event in self.runtime.BroadcastEventType],

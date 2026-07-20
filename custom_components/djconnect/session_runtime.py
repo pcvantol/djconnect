@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import secrets
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
@@ -219,6 +220,7 @@ class DJSessionBroadcastEngine:
 
     state: DJBroadcastState
     pending_events: tuple[BroadcastEventType, ...] = ()
+    broadcast_token: str = field(default_factory=lambda: secrets.token_urlsafe(32), repr=False)
     _subscribers: dict[str, Callable[[dict[str, Any]], None]] = field(
         default_factory=dict, init=False, repr=False
     )
@@ -230,6 +232,28 @@ class DJSessionBroadcastEngine:
         subscription_id = f"broadcast-subscription-{uuid4().hex}"
         self._subscribers[subscription_id] = callback
         return subscription_id, self.as_dict()
+
+    def subscribe_with_broadcast_token(
+        self, token: str, callback: Callable[[dict[str, Any]], None]
+    ) -> tuple[str, dict[str, Any]] | None:
+        """Attach a read-only Receiver only when its runtime token matches."""
+        if not token or not secrets.compare_digest(self.broadcast_token, token):
+            return None
+        return self.subscribe(callback)
+
+    def broadcast_token_contract(self) -> dict[str, Any]:
+        """Return the safe, read-only Receiver capability contract."""
+        return {
+            "session_id": self.state.session_id,
+            "broadcast_token": self.broadcast_token,
+            "capabilities": {
+                "view_broadcast": True,
+                "like": False,
+                "audience_signals": False,
+                "ask_dj": False,
+                "owner_controls": False,
+            },
+        }
 
     def unsubscribe(self, subscription_id: str) -> None:
         """Remove a renderer subscription without changing Broadcast State."""
@@ -394,6 +418,40 @@ class SessionRuntimeManager:
             if active is None or active.session_id != session_id:
                 return None
             return active.broadcast.subscribe(callback)
+
+    async def async_subscribe_with_broadcast_token(
+        self,
+        *,
+        session_id: str,
+        broadcast_token: str,
+        callback: Callable[[dict[str, Any]], None],
+    ) -> tuple[str, dict[str, Any]] | None:
+        """Resolve one exact active Broadcast without exposing its Profile."""
+        async with self._lock:
+            for active in self._active_by_profile.values():
+                if active.session_id == session_id:
+                    return active.broadcast.subscribe_with_broadcast_token(broadcast_token, callback)
+            return None
+
+    async def async_broadcast_token_for_owner(
+        self, *, owner_profile_id: str, session_id: str
+    ) -> dict[str, Any] | None:
+        """Return an ephemeral token only to the Profile that owns the Runtime."""
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if active is None or active.session_id != session_id:
+                return None
+            return active.broadcast.broadcast_token_contract()
+
+    async def async_unsubscribe_broadcast_token(
+        self, *, session_id: str, subscription_id: str
+    ) -> None:
+        """Release a token Receiver without resolving or exposing its Profile."""
+        async with self._lock:
+            for active in self._active_by_profile.values():
+                if active.session_id == session_id:
+                    active.broadcast.unsubscribe(subscription_id)
+                    return
 
     async def async_unsubscribe(
         self, *, owner_profile_id: str, session_id: str, subscription_id: str
