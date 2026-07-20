@@ -10,9 +10,10 @@ Interaction / Request
   -> Profile Resolver
   -> DJConnect Profile
   -> Music Backend / Music Account
-  -> Intelligence Engine
-  -> Insight Feed
-  -> Renderer / Client
+  -> DJ Session Runtime
+  -> Session Planner / Broadcast Engine
+  -> Session Flow / Broadcast Feed
+  -> Renderer
 ```
 
 ## Primary domain concepts
@@ -21,20 +22,24 @@ Interaction / Request
 
 A Profile is the source of truth for personal DJConnect state:
 
+- exactly one Music Backend binding and selected Music Account;
 - Music DNA;
+- settings and preferences;
 - mood state;
 - DJ voice tone;
 - response style;
 - Ask DJ conversation history;
+- session history;
 - recommendation history;
 - likes/dislikes;
-- preferred music backend;
-- preferred music account;
 - fallback playback zone/player;
 - privacy mode;
 - tier/capabilities.
 
 Multiple devices may link to the same profile.
+
+A Profile is server-owned. Clients do not store Profile state. A Music Backend
+belongs to a Profile, never to a DJ Session.
 
 ### Device
 
@@ -72,11 +77,40 @@ Profiles may have one default music account, and multiple profiles may share the
 
 Do not require every profile to have a unique provider account.
 
+### DJ Session Runtime
+
+A DJ Session Runtime is server-owned and ephemeral. It exists only while a DJ
+Session is active and owns Playback Context, Session Planner, Conversation
+Engine, Session Memory, Session Flow, Broadcast Engine, Audience Signals and
+Runtime State. It may write only permitted durable outcomes back to its owning
+Profile when the session ends.
+
+### Session Planner and Session Flow
+
+The Session Planner is the central AI orchestration engine. It continuously
+plans approximately the next fifteen minutes and replans from playback,
+interaction, audience signals, conversation, mood, backend availability and
+permitted Music DNA. It produces Session Flow, not a static playlist.
+
+Session Flow is the primary DJConnect experience of what the DJ plans next:
+current track, announcements, Track Insights, Discover moments, musical
+direction and planned transitions. The backend queue remains provider-owned and
+can be shown only as an advanced playback view.
+
+### Broadcast Engine and Broadcast Feed
+
+The Broadcast Engine publishes an event-driven Broadcast Feed for an active
+session. It is neither video streaming nor server-rendered video. VibeCast is
+the session's Broadcast Capability; a Universal Session Receiver renders the
+feed locally.
+
 ### Insight Feed
 
-The Insight Feed is the normalized stream of DJConnect intelligence events and cards.
-
-Renderers consume this feed according to capabilities.
+The Insight Feed remains the normalized internal stream of DJConnect
+intelligence events and cards. The Session Runtime selects permitted items for
+Session Flow and the Broadcast Engine publishes the resulting event-driven
+Broadcast Feed. Renderers consume the Broadcast Feed or another explicitly
+scoped session contract, not an unbounded intelligence stream.
 
 ## Profile resolution
 
@@ -157,29 +191,23 @@ Clients should not:
 
 ## Client capability classes
 
-### Intelligence clients
+### Personal Experience renderers
 
-Examples: Apple apps, Windows client, future Android/web.
+Examples: iPhone, iPad, macOS, Windows and Apple Watch.
 
 Capabilities may include Ask DJ, Music DNA, Track Insight, Discover, VibeCast control, profile settings, notifications, and rich insight rendering.
 
-### Ambient clients
+### Shared Experience renderers
 
-Examples: Pi wall display, household screen.
+Examples: Browser, TV, Chromecast, Raspberry Pi, desktop and guest phones.
 
 Capabilities may include now playing, light insights, Discover feed, read-only Ask DJ stream, playback controls, and household context.
 
-### Voice/control clients
+### Room Experience renderers
 
-Examples: ESP32, firmware remotes, Home Assistant Voice Satellites.
+Examples: ESP32, firmware remotes and Home Assistant Voice Satellites.
 
 Capabilities may include intents, push-to-talk, playback controls, and short TTS DJ response playback.
-
-### Presentation clients
-
-Examples: VibeCast/AirPlay/TV renderers.
-
-Capabilities may include artwork, lyrics, insight layers, mood visuals, artist/album context, and guest-facing visuals.
 
 ## Repository responsibilities
 
@@ -193,11 +221,13 @@ Central API, APNs relay, install/device trust, future entitlement boundary, futu
 
 ### `pcvantol/djconnect-app`
 
-Apple first-party intelligence client and renderer.
+One native application shell with Owner, Guest and Demo runtimes; its UI is
+capability-driven rather than mode-driven.
 
 ### `pcvantol/djconnect-windows`
 
-Windows first-party intelligence client and renderer.
+Windows Personal Experience renderer and Universal Session Receiver host where
+its capabilities allow.
 
 ### `pcvantol/djconnect-pi`
 
