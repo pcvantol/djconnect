@@ -79,11 +79,14 @@ generation, playback execution or persistent broadcast state. Its Prompt
 History archive is absent; this reconciliation records the traceability gap
 without recreating immutable history.
 
-**V4-04 Canonical Session Flow** is the current authorized Product Development
-increment on `codex/v4-canonical-session-flow`. It gives each Planner one
+PR [#222](https://github.com/pcvantol/djconnect/pull/222), **V4-04 Canonical
+Session Flow**, merged on 2026-07-20 as
+`ffb6972179293ecc3e9283235ed2fdd6a8e93653`. It gives each Planner one
 deterministic current-horizon Session Flow and distributes it through Broadcast.
 It does not add AI, recommendations, backend queue behaviour, rendering,
-Voice, VibeCast, Track Insight, Discover or Audience Signals.
+Voice, VibeCast, Track Insight, Discover or Audience Signals. Its Prompt
+History archive is absent; this reconciliation records the traceability gap
+without recreating immutable history.
 
 ## Current engineering program
 
