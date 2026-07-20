@@ -399,8 +399,8 @@ class SessionRuntimeManagerTest(unittest.TestCase):
 
         async def insight() -> dict:
             return {
-                "track": {"title": "Track", "artist": "Artist", "album": "Album", "genres": ["electronic"]},
-                "analysis": {"summary": "Safe summary.", "full_text": "Safe full context."},
+                "track": {"title": "Track", "artist": "Artist", "album": "Album", "genres": ["electronic"], "producer": "Producer", "release_year": 1998},
+                "analysis": {"summary": "Safe summary.", "full_text": "Safe full context.", "instrumentation": ["bass", "drums"]},
                 "music_dna": {"private": "never included"},
             }
 
@@ -408,6 +408,9 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         assert moment is not None
         context = created.knowledge_engine.assembled_contexts[0]
         self.assertEqual(dict(context.track)["title"], "Track")
+        self.assertEqual(dict(context.track)["producer"], "Producer")
+        self.assertEqual(dict(context.track)["release_year"], "1998")
+        self.assertIn("instrumentation", dict(context.analysis))
         self.assertFalse(context.personal_context_used)
         self.assertNotIn("music_dna", context.as_insight())
         self.assertEqual(moment.source_references, ("track_insight",))

@@ -553,12 +553,20 @@ class DJKnowledgeEngine:
         context = KnowledgeContext(
             track=tuple(
                 (key, value)
-                for key, value in ((key, _bounded_text(track.get(key), 2048)) for key in ("title", "artist", "album", "artwork_url", "backend", "genres"))
+                for key, value in ((key, _bounded_text(track.get(key), 2048)) for key in (
+                    "title", "artist", "album", "artwork_url", "backend", "genres",
+                    "producer", "composer", "release_year", "release_date",
+                    "recording_context", "related_artists", "related_tracks",
+                ))
                 if value
             ),
             analysis=tuple(
                 (key, value)
-                for key, value in ((key, _bounded_text(analysis.get(key), 1200)) for key in ("summary", "full_text", "genre", "subgenre", "mood", "vibe"))
+                for key, value in ((key, _bounded_text(analysis.get(key), 1200)) for key in (
+                    "summary", "full_text", "genre", "subgenre", "mood", "vibe",
+                    "texture", "emotional_tone", "production_notes", "instrumentation",
+                    "arrangement_notes", "listening_cues", "similar_tracks",
+                ))
                 if value
             ),
             sources=("track_insight",),
