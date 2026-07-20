@@ -72,11 +72,14 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertEqual(planner.planning_horizon_minutes, 15)
         self.assertEqual(planner.current_direction, self.runtime.MusicalDirection.MAINTAIN)
         self.assertEqual(planner.pending_events, ())
-        self.assertIsNone(planner.output.session_flow)
+        self.assertEqual(planner.output.session_flow.planning_horizon_minutes, 15)
         public_planner = created.as_dict()["planner"]
         self.assertEqual(public_planner["planning_horizon_minutes"], 15)
         self.assertEqual(public_planner["current_direction"], "maintain")
-        self.assertEqual(public_planner["output"], {"session_flow": None})
+        self.assertEqual(
+            public_planner["output"]["session_flow"]["flow_id"],
+            f"flow-{created.session_id}",
+        )
 
     def test_planner_is_not_shared_between_runtimes_and_is_disposed_with_runtime(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
@@ -89,7 +92,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
 
         self.assertIsNot(first.planner, second.planner)
 
-    def test_runtime_creates_one_broadcast_engine_with_canonical_empty_state(self) -> None:
+    def test_runtime_creates_one_broadcast_engine_with_canonical_state(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
         created = asyncio.run(
             manager.async_start(owner_profile_id="profile-peter", selected_mood="groove")
@@ -113,10 +116,56 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         )
         self.assertEqual(state["planner"]["planning_horizon_minutes"], 15)
         self.assertEqual(state["planner"]["current_direction"], "maintain")
-        self.assertEqual(state["session_flow"], {})
+        self.assertEqual(
+            state["session_flow"],
+            created.planner.output.session_flow.as_dict(),
+        )
         self.assertEqual(state["audience"], {})
         self.assertTrue(state["broadcast"]["started_at"])
         self.assertEqual(created.as_dict()["broadcast"], state)
+
+    def test_planner_creates_and_republishes_its_canonical_session_flow(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))
+
+        flow = created.planner.output.session_flow
+        self.assertEqual(flow.flow_id, f"flow-{created.session_id}")
+        self.assertEqual(flow.planning_horizon_minutes, 15)
+        self.assertEqual(
+            [(item.position.value, item.item_type.value) for item in flow.items],
+            [
+                ("now", "current_track"),
+                ("next", "planning_horizon"),
+                ("next", "maintain_direction"),
+                ("later", "future_direction"),
+                ("later", "future_placeholder"),
+            ],
+        )
+
+        republished = created.republish_session_flow()
+
+        self.assertIs(created.planner.output.session_flow, republished)
+        self.assertEqual(created.broadcast.as_dict()["session_flow"], republished.as_dict())
+        self.assertTrue(created.planner.last_replan_at)
+
+    def test_session_flow_is_not_shared_and_is_removed_with_runtime(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        first = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))
+        ended = asyncio.run(
+            manager.async_end(owner_profile_id="profile-peter", session_id=first.session_id)
+        )
+        self.assertIsNone(asyncio.run(manager.async_get_active("profile-peter")))
+
+        second = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))
+
+        self.assertIsNot(
+            first.planner.output.session_flow,
+            second.planner.output.session_flow,
+        )
+        self.assertEqual(
+            ended.broadcast.as_dict()["session_flow"]["flow_id"],
+            first.planner.output.session_flow.flow_id,
+        )
 
     def test_broadcast_engine_is_not_shared_and_is_removed_with_runtime(self) -> None:
         manager = self.runtime.SessionRuntimeManager()

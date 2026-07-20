@@ -313,7 +313,10 @@ architecture are stable enough to freeze.
 ## Current Prompt
 
 DJConnect v4 Architecture, Runtime Contracts, V4-01, V4-02 and V4-03 are
-merged and reconciled. Platform Release 3.3 remains in Maintenance.
+merged and reconciled. V4-04 Canonical Session Flow is the active, explicitly
+authorized implementation increment on `codex/v4-canonical-session-flow`. It
+is limited to deterministic Planner-owned Session Flow and Broadcast
+distribution; Platform Release 3.3 remains in Maintenance.
 
 ## Completion Report
 
