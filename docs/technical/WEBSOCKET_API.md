@@ -40,7 +40,12 @@ tries websocket when enabled/capable.
 `CONFIRMED_CODE` Pairing, voice upload, TTS binary retrieval, image proxy and
 Spotify OAuth callback are HTTP-only in the observed implementation.
 
-`UNKNOWN` No dedicated persistent subscription/event stream was confirmed.
+`CONFIRMED_CODE` V4-06 adds one persistent Runtime-scoped subscription:
+`djconnect/session/broadcast/subscribe`. Its command result is the complete
+initial Broadcast State snapshot; later incremental events use
+`djconnect/session/broadcast`. See
+[`BROADCAST_TRANSPORT.md`](BROADCAST_TRANSPORT.md) for the canonical renderer
+integration model and lifecycle.
 
 ## Verification Mapping
 

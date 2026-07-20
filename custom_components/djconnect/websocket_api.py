@@ -28,6 +28,8 @@ WS_TYPE_MUSIC_DISCOVERY_FEED = "djconnect/music_discovery/feed"
 WS_TYPE_MUSIC_DISCOVERY_REFRESH = "djconnect/music_discovery/refresh"
 WS_TYPE_MUSIC_DISCOVERY_PLAY = "djconnect/music_discovery/play"
 WS_TYPE_MUSIC_DISCOVERY_FEEDBACK = "djconnect/music_discovery/feedback"
+WS_TYPE_SESSION_BROADCAST_SUBSCRIBE = "djconnect/session/broadcast/subscribe"
+WS_EVENT_SESSION_BROADCAST = "djconnect/session/broadcast"
 
 HTTP_FALLBACK_PATHS = {
     "ask_dj_message": "/api/djconnect/v1/ask_dj/message",
@@ -65,6 +67,7 @@ FEATURE_COMMANDS = {
         WS_TYPE_MUSIC_DISCOVERY_PLAY,
     ),
     "music_discovery_feedback": (WS_TYPE_MUSIC_DISCOVERY_FEEDBACK,),
+    "session_broadcast_transport": (WS_TYPE_SESSION_BROADCAST_SUBSCRIBE,),
 }
 
 PROFILE_CONTEXT_SCHEMA_FIELDS = {
@@ -172,6 +175,14 @@ async def async_handle_music_discovery_feedback_payload(*args: Any, **kwargs: An
     return await handler(*args, **kwargs)
 
 
+async def async_handle_session_broadcast_subscribe_payload(
+    *args: Any, **kwargs: Any
+) -> tuple[dict[str, Any], int, Any]:
+    from .api_handlers import async_handle_session_broadcast_subscribe_payload as handler
+
+    return await handler(*args, **kwargs)
+
+
 def _websocket_command(schema: dict[Any, Any]) -> Any:
     if websocket_api is None:
         return lambda func: func
@@ -208,6 +219,7 @@ def async_register(hass: Any) -> None:
     websocket_api.async_register_command(hass, websocket_music_discovery_refresh)
     websocket_api.async_register_command(hass, websocket_music_discovery_play)
     websocket_api.async_register_command(hass, websocket_music_discovery_feedback)
+    websocket_api.async_register_command(hass, websocket_session_broadcast_subscribe)
     domain_data["websocket_registered"] = True
 
 
@@ -264,6 +276,7 @@ def _supported_websocket_commands() -> list[str]:
         WS_TYPE_MUSIC_DISCOVERY_REFRESH,
         WS_TYPE_MUSIC_DISCOVERY_PLAY,
         WS_TYPE_MUSIC_DISCOVERY_FEEDBACK,
+        WS_TYPE_SESSION_BROADCAST_SUBSCRIBE,
     ]
 
 
@@ -401,6 +414,63 @@ async def websocket_command(hass: Any, connection: Any, msg: dict[str, Any]) -> 
         connection.send_result(msg["id"], result)
         return
     _send_error(connection, msg, result)
+
+
+@_websocket_command(
+    {
+        vol.Required("type"): WS_TYPE_SESSION_BROADCAST_SUBSCRIBE,
+        vol.Required("session_id"): str,
+        vol.Optional("payload", default={}): dict,
+        vol.Optional("device_id"): str,
+        vol.Optional("client_type"): str,
+        vol.Optional("client_id"): str,
+        vol.Optional("device_name"): str,
+        vol.Optional("device_token"): str,
+        vol.Optional("client_token"): str,
+        vol.Optional("authorization"): str,
+        vol.Optional("identity"): dict,
+        **PROFILE_CONTEXT_SCHEMA_FIELDS,
+    }
+)
+@_async_response
+async def websocket_session_broadcast_subscribe(
+    hass: Any, connection: Any, msg: dict[str, Any]
+) -> None:
+    """Attach one authenticated owner renderer to the active Broadcast Engine.
+
+    The command result is the required full snapshot. Later messages use the
+    one stable websocket event type and carry only incremental Broadcast
+    events. A closing connection always unregisters its subscription.
+    """
+    payload = _payload_from_message(
+        msg,
+        ("device_id", "client_type", "client_id", "device_name", "identity", "session_id"),
+    )
+    headers = _headers_from_message(payload, msg)
+
+    def publish(event: dict[str, Any]) -> None:
+        connection.send_event(WS_EVENT_SESSION_BROADCAST, event)
+
+    result, status_code, cleanup = await async_handle_session_broadcast_subscribe_payload(
+        hass,
+        payload,
+        callback=publish,
+        headers=headers,
+        user_id=_connection_user_id(connection),
+    )
+    if not 200 <= status_code < 300:
+        _send_error(connection, msg, result)
+        return
+    connection.send_result(msg["id"], result)
+    if cleanup is None:
+        return
+
+    def unsubscribe_on_close() -> None:
+        hass.async_create_task(cleanup())
+
+    on_close = getattr(connection, "async_on_close", None)
+    if callable(on_close):
+        on_close(unsubscribe_on_close)
 
 
 @_websocket_command(

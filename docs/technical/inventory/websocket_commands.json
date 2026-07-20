@@ -21,7 +21,8 @@
     {"type": "djconnect/music_discovery/feed", "http_fallback": "/api/djconnect/v1/music_discovery", "feature": "music_discovery"},
     {"type": "djconnect/music_discovery/refresh", "http_fallback": "/api/djconnect/v1/music_discovery/refresh", "feature": "music_discovery"},
     {"type": "djconnect/music_discovery/play", "http_fallback": "/api/djconnect/v1/music_discovery/play", "feature": "music_discovery"},
-    {"type": "djconnect/music_discovery/feedback", "http_fallback": "/api/djconnect/v1/music_discovery/feedback", "feature": "music_discovery_feedback"}
+    {"type": "djconnect/music_discovery/feedback", "http_fallback": "/api/djconnect/v1/music_discovery/feedback", "feature": "music_discovery_feedback"},
+    {"type": "djconnect/session/broadcast/subscribe", "http_fallback": null, "feature": "session_broadcast_transport", "event_type": "djconnect/session/broadcast", "initial_delivery": "complete_snapshot", "subsequent_delivery": "incremental_events"}
   ],
   "not_supported_over_websocket": [
     "pairing",

@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import asyncio
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Any
+from typing import Any, Callable
 from uuid import uuid4
 
 from .const import DOMAIN
@@ -219,14 +219,60 @@ class DJSessionBroadcastEngine:
 
     state: DJBroadcastState
     pending_events: tuple[BroadcastEventType, ...] = ()
+    _subscribers: dict[str, Callable[[dict[str, Any]], None]] = field(
+        default_factory=dict, init=False, repr=False
+    )
+
+    def subscribe(
+        self, callback: Callable[[dict[str, Any]], None]
+    ) -> tuple[str, dict[str, Any]]:
+        """Register one renderer and return its required initial snapshot."""
+        subscription_id = f"broadcast-subscription-{uuid4().hex}"
+        self._subscribers[subscription_id] = callback
+        return subscription_id, self.as_dict()
+
+    def unsubscribe(self, subscription_id: str) -> None:
+        """Remove a renderer subscription without changing Broadcast State."""
+        self._subscribers.pop(subscription_id, None)
+
+    @property
+    def subscriber_count(self) -> int:
+        """Expose bounded transport lifecycle state for verification only."""
+        return len(self._subscribers)
 
     def update_runtime_state(self, runtime_state: SessionRuntimeState) -> None:
         """Reflect the Runtime lifecycle in its canonical Broadcast State."""
         self.state = DJBroadcastState(**{**self.state.__dict__, "runtime_state": runtime_state})
+        if runtime_state is SessionRuntimeState.ACTIVE:
+            self._publish(BroadcastEventType.RUNTIME_CREATED, {"session": self.as_dict()["session"]})
+            self._publish(
+                BroadcastEventType.BROADCAST_STARTED,
+                {"broadcast": self.as_dict()["broadcast"]},
+            )
 
     def publish_session_flow(self, session_flow: DJSessionFlow) -> None:
         """Publish the Runtime-supplied Planner output to Broadcast State."""
         self.state = DJBroadcastState(**{**self.state.__dict__, "session_flow": session_flow})
+        state = self.as_dict()
+        self._publish(BroadcastEventType.PLANNER_UPDATED, {"planner": state["planner"]})
+        self._publish(BroadcastEventType.SESSION_FLOW_UPDATED, {"session_flow": state["session_flow"]})
+
+    def close(self) -> None:
+        """Notify renderers of Runtime termination, then release every subscription."""
+        state = self.as_dict()
+        self._publish(BroadcastEventType.RUNTIME_ENDED, {"session": state["session"]})
+        self._publish(BroadcastEventType.BROADCAST_STOPPED, {"broadcast": state["broadcast"]})
+        self._subscribers.clear()
+
+    def _publish(self, event_type: BroadcastEventType, payload: dict[str, Any]) -> None:
+        """Deliver one incremental, renderer-safe event to active subscribers."""
+        event = {
+            "event_type": str(event_type),
+            "session_id": self.state.session_id,
+            "payload": payload,
+        }
+        for callback in tuple(self._subscribers.values()):
+            callback(event)
 
     def as_dict(self) -> dict[str, Any]:
         """Expose only canonical Broadcast State to future renderers."""
@@ -335,6 +381,29 @@ class SessionRuntimeManager:
         async with self._lock:
             return self._active_by_profile.get(owner_profile_id)
 
+    async def async_subscribe(
+        self,
+        *,
+        owner_profile_id: str,
+        session_id: str,
+        callback: Callable[[dict[str, Any]], None],
+    ) -> tuple[str, dict[str, Any]] | None:
+        """Subscribe an authenticated owner renderer to its active Runtime only."""
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if active is None or active.session_id != session_id:
+                return None
+            return active.broadcast.subscribe(callback)
+
+    async def async_unsubscribe(
+        self, *, owner_profile_id: str, session_id: str, subscription_id: str
+    ) -> None:
+        """Release an owner renderer subscription when its connection closes."""
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if active is not None and active.session_id == session_id:
+                active.broadcast.unsubscribe(subscription_id)
+
     async def async_end(
         self,
         *,
@@ -356,6 +425,7 @@ class SessionRuntimeManager:
             ended = DJSessionRuntime(
                 **{**ending.__dict__, "runtime_state": SessionRuntimeState.ENDED}
             )
+            active.broadcast.close()
             self._active_by_profile.pop(owner_profile_id, None)
             return ended
 

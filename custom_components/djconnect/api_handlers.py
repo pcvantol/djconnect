@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, Awaitable, Callable
 
 from . import http as http_helpers
 from .const import CLIENT_TYPE_ESP32, CONF_CLIENT_TYPE, CONF_LOCAL_URL, VERSION
@@ -156,6 +156,53 @@ async def async_handle_active_session_payload(
         return error, int(status or 400)
     session = await session_runtime_manager(hass).async_get_active(context.profile_id)
     return {"success": True, "session": session.as_dict() if session else None}, 200
+
+
+async def async_handle_session_broadcast_subscribe_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    callback: Callable[[dict[str, Any]], None],
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int, Callable[[], Awaitable[None]] | None]:
+    """Subscribe an authenticated owner renderer to one active Broadcast Engine.
+
+    The returned snapshot is always sent before the engine emits incremental
+    events. The cleanup callback is deliberately transport-owned so a closed
+    websocket cannot retain a Runtime subscription.
+    """
+    _runtime, context, error, status = await _session_profile_context(
+        hass, data, headers=headers, user_id=user_id, source="session_broadcast_subscribe"
+    )
+    if error is not None:
+        return error, int(status or 400), None
+    session_id = str(data.get("session_id") or "").strip()
+    if not session_id:
+        return _error_payload("session_id_required"), 400, None
+    manager = session_runtime_manager(hass)
+    subscribed = await manager.async_subscribe(
+        owner_profile_id=context.profile_id,
+        session_id=session_id,
+        callback=callback,
+    )
+    if subscribed is None:
+        return _error_payload("active_session_not_found"), 404, None
+    subscription_id, snapshot = subscribed
+
+    async def cleanup() -> None:
+        await manager.async_unsubscribe(
+            owner_profile_id=context.profile_id,
+            session_id=session_id,
+            subscription_id=subscription_id,
+        )
+
+    return {
+        "success": True,
+        "subscription_id": subscription_id,
+        "session_id": session_id,
+        "snapshot": snapshot,
+    }, 200, cleanup
 
 
 async def _apply_profile_or_error(
