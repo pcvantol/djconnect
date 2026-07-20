@@ -137,5 +137,8 @@ class PrivateNetworkDeploymentRelayPolicyTest(unittest.TestCase):
         boundary = self._contract_text(RELEASE_DOCS / "VERIFICATION_VS_RELEASE.md")
         runner_policy = self._contract_text(RELEASE_DOCS / "RUNNER_POLICY.md")
 
-        self.assertIn("does not invoke functional scenarios, hardware qualification, destructive testing or burn-in", boundary)
+        self.assertIn(
+            "does not invoke functional scenarios, hardware qualification, destructive testing or behavioural burn-in",
+            boundary,
+        )
         self.assertIn("Smoke is read-only, cannot scan the network or mutate a target", runner_policy)

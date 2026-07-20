@@ -558,14 +558,13 @@ class DJSessionPlanner:
             self.last_decision = PlannerDecision(PlannerDecisionType.SILENCE, "mood_or_persona_prefers_silence")
             return self.last_decision
         hints = knowledge_hints or {}
-        choices = (
-            ("related_tracks", PlannerDecisionType.CREATE_RECOMMENDATION, KnowledgeIntentType.RECOMMENDATION, "Recommend one related work when it adds value."),
-            ("producer", PlannerDecisionType.CREATE_ARTIST_STORY, KnowledgeIntentType.ARTIST_STORY, "Share relevant artist or production context."),
-            ("release_year", PlannerDecisionType.CREATE_ALBUM_STORY, KnowledgeIntentType.ALBUM_STORY, "Share relevant album context."),
-            ("genre", PlannerDecisionType.CREATE_GENRE_STORY, KnowledgeIntentType.GENRE_STORY, "Explain relevant genre context."),
+        choices = _prioritized_knowledge_choices(
+            session_start_strategy=session_start_strategy,
+            selected_mood=mood,
+            persona=persona,
+            session_direction=session_direction.direction,
+            recommendation_preference=self.configuration.recommendation_preference,
         )
-        if self.configuration.recommendation_preference != "prefer":
-            choices = (*choices[1:], choices[0])
         for key, decision_type, intent_type, goal in choices:
             if _bounded_text(hints.get(key), 1200):
                 if _performance_memory_repeats(
@@ -1521,6 +1520,72 @@ def _planned_direction(
     if selected_mood in {"explore", "discovery"}:
         return SessionDirectionType.EXPLORING
     return current
+
+
+def _prioritized_knowledge_choices(
+    *,
+    session_start_strategy: SessionStartStrategy,
+    selected_mood: str,
+    persona: DJPersona,
+    session_direction: SessionDirectionType,
+    recommendation_preference: str,
+) -> tuple[tuple[str, PlannerDecisionType, KnowledgeIntentType, str], ...]:
+    """Combine bounded Runtime context into one deterministic Intent ordering."""
+    choices = (
+        ("related_tracks", PlannerDecisionType.CREATE_RECOMMENDATION, KnowledgeIntentType.RECOMMENDATION, "Recommend one related work when it adds value."),
+        ("producer", PlannerDecisionType.CREATE_ARTIST_STORY, KnowledgeIntentType.ARTIST_STORY, "Share relevant artist or production context."),
+        ("release_year", PlannerDecisionType.CREATE_ALBUM_STORY, KnowledgeIntentType.ALBUM_STORY, "Share relevant album context."),
+        ("genre", PlannerDecisionType.CREATE_GENRE_STORY, KnowledgeIntentType.GENRE_STORY, "Explain relevant genre context."),
+    )
+    priorities = {
+        KnowledgeIntentType.ARTIST_STORY: 0,
+        KnowledgeIntentType.ALBUM_STORY: 1,
+        KnowledgeIntentType.GENRE_STORY: 2,
+        KnowledgeIntentType.RECOMMENDATION: 3,
+    }
+
+    def promote(intent_type: KnowledgeIntentType, amount: int) -> None:
+        priorities[intent_type] -= amount
+
+    if session_start_strategy is SessionStartStrategy.DISCOVER:
+        promote(KnowledgeIntentType.RECOMMENDATION, 4)
+        promote(KnowledgeIntentType.ARTIST_STORY, 2)
+        promote(KnowledgeIntentType.GENRE_STORY, 1)
+    if recommendation_preference == "prefer":
+        promote(KnowledgeIntentType.RECOMMENDATION, 2)
+    elif recommendation_preference == "deprioritize":
+        priorities[KnowledgeIntentType.RECOMMENDATION] += 2
+
+    if selected_mood in {"deep", "focus", "chill"}:
+        promote(KnowledgeIntentType.ALBUM_STORY, 2)
+        promote(KnowledgeIntentType.GENRE_STORY, 1)
+    elif selected_mood in {"party", "energy", "high_energy"}:
+        promote(KnowledgeIntentType.RECOMMENDATION, 3)
+        promote(KnowledgeIntentType.ARTIST_STORY, 1)
+
+    if persona is DJPersona.RADIO_DJ:
+        promote(KnowledgeIntentType.ALBUM_STORY, 3)
+        promote(KnowledgeIntentType.ARTIST_STORY, 1)
+    elif persona is DJPersona.FESTIVAL_DJ:
+        promote(KnowledgeIntentType.RECOMMENDATION, 4)
+        promote(KnowledgeIntentType.ARTIST_STORY, 1)
+
+    if session_direction is SessionDirectionType.EXPLORING:
+        promote(KnowledgeIntentType.RECOMMENDATION, 2)
+        promote(KnowledgeIntentType.GENRE_STORY, 1)
+    elif session_direction is SessionDirectionType.DEEPENING:
+        promote(KnowledgeIntentType.ALBUM_STORY, 2)
+        promote(KnowledgeIntentType.GENRE_STORY, 1)
+    elif session_direction is SessionDirectionType.COOLING_DOWN:
+        promote(KnowledgeIntentType.GENRE_STORY, 2)
+        promote(KnowledgeIntentType.ALBUM_STORY, 1)
+    elif session_direction is SessionDirectionType.BUILDING_ENERGY:
+        promote(KnowledgeIntentType.RECOMMENDATION, 2)
+        promote(KnowledgeIntentType.ARTIST_STORY, 1)
+
+    return tuple(
+        sorted(choices, key=lambda choice: priorities[choice[2]])
+    )
 
 
 def _recent_metadata(
