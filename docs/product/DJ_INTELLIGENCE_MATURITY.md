@@ -19,7 +19,7 @@ behaviour rather than replace architecture or introduce speculative systems.
 | --- | --- |
 | 1 — current | Track Started trigger, Track Context, Silence and Runtime heuristics. |
 | 2 — partial | Deterministic Artist, Album, Genre and Recommendation intent selection from available knowledge hints. Transition, Discover and Session Update remain deferred. |
-| 3 | Audience Signals, dynamic Mood adaptation, Session Direction and context-aware transitions. |
+| 3 — partial | Runtime-owned, timestamped Session Direction with deterministic Session Start initialization, Planner proposals and Session Update Moments. Audience-driven adaptation, context-aware transitions, autonomous replanning and multi-track planning remain deferred. |
 | 4 | Multi-track planning, narrative sequencing, dynamic replanning and pacing. |
 | 5 | Autonomous session strategy and long-term performance optimisation. |
 
@@ -38,7 +38,7 @@ behaviour rather than replace architecture or introduce speculative systems.
 | --- | --- |
 | 1 — current | Track Context and Silence. |
 | 2 — partial | Artist Story, Album Story, Genre Story and Recommendation specialise existing Track Context when reliable Knowledge Context supports them. |
-| 3 | Concert Suggestion, Music History, Discovery and Session Update. |
+| 3 — partial | Session Update Moments expose Planner-approved Session Direction changes. Concert Suggestion, Music History and Discovery remain deferred. |
 | 4 | Narrative storytelling, linked Moments and multi-step experiences. |
 
 ## DJ Moment types

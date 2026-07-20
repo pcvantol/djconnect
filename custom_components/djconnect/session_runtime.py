@@ -33,14 +33,44 @@ class PlannerState(StrEnum):
     READY = "ready"
 
 
-class MusicalDirection(StrEnum):
-    """Canonical placeholder directions for future planner decisions."""
+class SessionDirectionType(StrEnum):
+    """Canonical, Runtime-owned directions for one active DJ Session."""
 
-    MAINTAIN = "maintain"
-    INCREASE_ENERGY = "increase_energy"
-    DECREASE_ENERGY = "decrease_energy"
-    EXPLORE = "explore"
-    RECOVER = "recover"
+    BUILDING_ENERGY = "building_energy"
+    MAINTAINING_ENERGY = "maintaining_energy"
+    COOLING_DOWN = "cooling_down"
+    EXPLORING = "exploring"
+    DEEPENING = "deepening"
+    RETURNING = "returning"
+    RESETTING = "resetting"
+
+
+class SessionStartStrategy(StrEnum):
+    """Bounded start intents that initialize, but never plan, a Session."""
+
+    DISCOVER = "discover"
+    PARTY = "party"
+    FOCUS = "focus"
+    CHILL = "chill"
+    MANUAL = "manual"
+
+
+@dataclass(frozen=True)
+class SessionDirection:
+    """Timestamped Runtime state describing where the active Session is heading."""
+
+    direction: SessionDirectionType
+    initialized_at: str
+    updated_at: str
+    start_strategy: SessionStartStrategy
+
+    def as_dict(self) -> dict[str, str]:
+        return {
+            "direction": self.direction.value,
+            "initialized_at": self.initialized_at,
+            "updated_at": self.updated_at,
+            "start_strategy": self.start_strategy.value,
+        }
 
 
 class PlannerEventType(StrEnum):
@@ -115,6 +145,7 @@ class PlannerDecision:
     decision_type: PlannerDecisionType
     reason: str
     knowledge_intent: KnowledgeIntent | None = None
+    proposed_session_direction: SessionDirectionType | None = None
 
 
 @dataclass(frozen=True)
@@ -353,7 +384,6 @@ class DJSessionPlanner:
     planning_horizon_minutes: int
     created_at: str
     last_replan_at: str
-    current_direction: MusicalDirection
     current_goal: str
     pending_events: tuple[PlannerEventType, ...]
     output: SessionPlannerOutput
@@ -381,13 +411,37 @@ class DJSessionPlanner:
         self.last_replan_at = flow.created_at
         return flow
 
-    def evaluate_track_started(self, *, selected_mood: str, persona: DJPersona, knowledge_hints: dict[str, Any] | None = None) -> PlannerDecision:
+    def evaluate_track_started(
+        self,
+        *,
+        session_direction: SessionDirection,
+        selected_mood: str,
+        persona: DJPersona,
+        knowledge_hints: dict[str, Any] | None = None,
+    ) -> PlannerDecision:
         """Make the bounded first production decision without invoking services."""
         self.pending_events = (*self.pending_events, PlannerEventType.TRACK_AVAILABLE)
         mood = selected_mood.strip().lower()
         now = time.monotonic()
         if self.last_spoken_moment_at and now - self.last_spoken_moment_at < self.configuration.minimum_time_between_moments_seconds:
             self.last_decision = PlannerDecision(PlannerDecisionType.SILENCE, "minimum_interval")
+            return self.last_decision
+        proposed_direction = _planned_direction(
+            current=session_direction.direction,
+            selected_mood=mood,
+            persona=persona,
+        )
+        if proposed_direction is not session_direction.direction:
+            intent = KnowledgeIntent(
+                KnowledgeIntentType.SESSION_DIRECTION,
+                "Communicate the updated direction of the active DJ Session.",
+            )
+            self.last_decision = PlannerDecision(
+                PlannerDecisionType.CREATE_SESSION_UPDATE,
+                "session_direction_changed",
+                intent,
+                proposed_direction,
+            )
             return self.last_decision
         if mood in {"deep", "focus", "chill"} or persona is DJPersona.CLUB_DJ:
             self.last_decision = PlannerDecision(PlannerDecisionType.SILENCE, "mood_or_persona_prefers_silence")
@@ -442,7 +496,6 @@ class DJSessionPlanner:
             "planning_horizon_minutes": self.planning_horizon_minutes,
             "created_at": self.created_at,
             "last_replan_at": self.last_replan_at,
-            "current_direction": str(self.current_direction),
             "current_goal": self.current_goal,
             "pending_events": [str(event) for event in self.pending_events],
             "output": self.output.as_dict(),
@@ -540,6 +593,42 @@ class DJMomentEngine:
         self.moments = (*self.moments, moment)
         return moment
 
+    def create_session_update(
+        self,
+        *,
+        session_id: str,
+        selected_mood: str,
+        persona: DJPersona,
+        locale: str,
+        session_direction: SessionDirection,
+    ) -> DJMoment:
+        """Expose one Planner-approved Direction change as a Session Moment."""
+        direction = session_direction.direction
+        moment = DJMoment(
+            moment_id=f"moment-{uuid4().hex}",
+            session_id=session_id,
+            created_at=_timestamp(),
+            moment_type=DJMomentType.SESSION,
+            knowledge_intent=KnowledgeIntent(
+                KnowledgeIntentType.SESSION_DIRECTION,
+                "Communicate the updated direction of the active DJ Session.",
+            ),
+            presentation_intent=_presentation_intent(selected_mood, persona),
+            title=_session_direction_copy(locale, direction, "title"),
+            summary=_session_direction_copy(locale, direction, "summary"),
+            content=_session_direction_copy(locale, direction, "content"),
+            artwork_url=None,
+            actions=(),
+            source_references=("session_direction",),
+            generation_metadata=(
+                ("direction", direction.value),
+                ("start_strategy", session_direction.start_strategy.value),
+                ("validated", "true"),
+            ),
+        )
+        self.moments = (*self.moments, moment)
+        return moment
+
 
 @dataclass(frozen=True)
 class KnowledgeContext:
@@ -549,10 +638,14 @@ class KnowledgeContext:
     analysis: tuple[tuple[str, str], ...]
     sources: tuple[str, ...]
     personal_context_used: bool = False
+    session_direction: SessionDirection | None = None
 
     def as_insight(self) -> dict[str, Any]:
         """Adapt the safe context to the existing Moment Engine contract."""
-        return {"track": dict(self.track), "analysis": dict(self.analysis)}
+        insight = {"track": dict(self.track), "analysis": dict(self.analysis)}
+        if self.session_direction is not None:
+            insight["session_direction"] = self.session_direction.as_dict()
+        return insight
 
 
 @dataclass
@@ -566,11 +659,12 @@ class DJKnowledgeEngine:
         *,
         intent: KnowledgeIntent,
         resolver: Callable[[], Awaitable[dict[str, Any]]],
+        session_direction: SessionDirection | None = None,
         personal_context_authorized: bool = False,
     ) -> KnowledgeContext:
         """Reuse Track Insight while excluding raw Profile and Music DNA data."""
         if intent.intent_type is not KnowledgeIntentType.TRACK_CONTEXT:
-            return self._record(KnowledgeContext((), (), ()))
+            return self._record(KnowledgeContext((), (), (), session_direction=session_direction))
         raw = await resolver()
         track = raw.get("track") if isinstance(raw, dict) and isinstance(raw.get("track"), dict) else {}
         analysis = raw.get("analysis") if isinstance(raw, dict) and isinstance(raw.get("analysis"), dict) else {}
@@ -595,8 +689,17 @@ class DJKnowledgeEngine:
             ),
             sources=("track_insight",),
             personal_context_used=personal_context_authorized,
+            session_direction=session_direction,
         )
         return self._record(context)
+
+    def assemble_session_direction_context(
+        self, session_direction: SessionDirection
+    ) -> KnowledgeContext:
+        """Record Runtime-owned Direction as safe context without provider access."""
+        return self._record(
+            KnowledgeContext((), (), ("session_direction",), session_direction=session_direction)
+        )
 
     def _record(self, context: KnowledgeContext) -> KnowledgeContext:
         self.assembled_contexts = (*self.assembled_contexts, context)
@@ -612,7 +715,7 @@ class DJBroadcastState:
     selected_mood: str
     planning_state: PlannerState
     planning_horizon_minutes: int
-    current_direction: MusicalDirection
+    session_direction: SessionDirection
     started_at: str
     session_flow: DJSessionFlow
     audience_totals: dict[str, int] = field(default_factory=dict)
@@ -631,7 +734,8 @@ class DJBroadcastState:
             "planner": {
                 "planning_state": str(self.planning_state),
                 "planning_horizon_minutes": self.planning_horizon_minutes,
-                "current_direction": str(self.current_direction),
+                "current_direction": self.session_direction.direction.value,
+                "session_direction": self.session_direction.as_dict(),
             },
             "session_flow": self.session_flow.as_dict(),
             "audience": {"signal_totals": self.audience_totals, "recent_activity": list(self.recent_audience_activity)},
@@ -718,6 +822,13 @@ class DJSessionBroadcastEngine:
         self._publish(BroadcastEventType.PLANNER_UPDATED, {"planner": state["planner"]})
         self._publish(BroadcastEventType.SESSION_FLOW_UPDATED, {"session_flow": state["session_flow"]})
 
+    def update_session_direction(self, session_direction: SessionDirection) -> None:
+        """Reflect a Planner-approved, Runtime-owned Direction change."""
+        self.state = DJBroadcastState(
+            **{**self.state.__dict__, "session_direction": session_direction}
+        )
+        self._publish(BroadcastEventType.PLANNER_UPDATED, {"planner": self.as_dict()["planner"]})
+
     def publish_audience_state(self, totals: dict[str, int], recent_activity: tuple[str, ...]) -> None:
         self.state = DJBroadcastState(**{**self.state.__dict__, "audience_totals": dict(totals), "recent_audience_activity": recent_activity})
         self._publish(BroadcastEventType.AUDIENCE_UPDATED, {"audience": self.as_dict()["audience"]})
@@ -774,6 +885,7 @@ class DJSessionRuntime:
     runtime_state: SessionRuntimeState
     created_at: str
     started_at: str
+    session_direction: SessionDirection
     planner: DJSessionPlanner
     knowledge_engine: DJKnowledgeEngine
     moment_engine: DJMomentEngine
@@ -792,6 +904,7 @@ class DJSessionRuntime:
             "runtime_state": str(self.runtime_state),
             "created_at": self.created_at,
             "started_at": self.started_at,
+            "session_direction": self.session_direction.as_dict(),
         }
         runtime["planner"] = self.planner.as_dict()
         runtime["broadcast"] = self.broadcast.as_dict()
@@ -830,6 +943,7 @@ class SessionRuntimeManager:
         music_backend: str = "",
         dj_persona: DJPersona = DJPersona.HOME_DJ,
         locale: str = "en",
+        session_start_strategy: SessionStartStrategy = SessionStartStrategy.MANUAL,
     ) -> DJSessionRuntime:
         """Create the one active Runtime allowed for a Profile."""
         async with self._lock:
@@ -837,6 +951,7 @@ class SessionRuntimeManager:
                 raise ActiveSessionExistsError(owner_profile_id)
             now = _timestamp()
             session_id = f"session-{uuid4().hex}"
+            session_direction = _initial_session_direction(session_start_strategy, now)
             planner = _create_session_planner(session_id=session_id, created_at=now)
             creating = DJSessionRuntime(
                 session_id=session_id,
@@ -849,6 +964,7 @@ class SessionRuntimeManager:
                 runtime_state=SessionRuntimeState.CREATING,
                 created_at=now,
                 started_at="",
+                session_direction=session_direction,
                 planner=planner,
                 knowledge_engine=DJKnowledgeEngine(),
                 moment_engine=DJMomentEngine(),
@@ -856,6 +972,7 @@ class SessionRuntimeManager:
                     session_id=session_id,
                     runtime_state=SessionRuntimeState.CREATING,
                     selected_mood=selected_mood,
+                    session_direction=session_direction,
                     planner=planner,
                     started_at=now,
                 ),
@@ -884,9 +1001,36 @@ class SessionRuntimeManager:
             if active is None or active.session_id != session_id:
                 return None
             decision = active.planner.evaluate_track_started(
+                session_direction=active.session_direction,
                 selected_mood=active.selected_mood,
                 persona=active.dj_persona,
             )
+            if decision.proposed_session_direction is not None:
+                updated_direction = SessionDirection(
+                    direction=decision.proposed_session_direction,
+                    initialized_at=active.session_direction.initialized_at,
+                    updated_at=_timestamp(),
+                    start_strategy=active.session_direction.start_strategy,
+                )
+                active = DJSessionRuntime(
+                    **{**active.__dict__, "session_direction": updated_direction}
+                )
+                self._active_by_profile[owner_profile_id] = active
+                active.broadcast.update_session_direction(updated_direction)
+            if decision.decision_type is PlannerDecisionType.CREATE_SESSION_UPDATE:
+                active.knowledge_engine.assemble_session_direction_context(
+                    active.session_direction
+                )
+                moment = active.moment_engine.create_session_update(
+                    session_id=active.session_id,
+                    selected_mood=active.selected_mood,
+                    persona=active.dj_persona,
+                    locale=active.locale,
+                    session_direction=active.session_direction,
+                )
+                active.planner.record_spoken_moment()
+                active.publish_moment(moment)
+                return moment
             if decision.decision_type is PlannerDecisionType.SILENCE:
                 moment = active.moment_engine.create_silence(
                     session_id=active.session_id,
@@ -904,11 +1048,12 @@ class SessionRuntimeManager:
             knowledge = await active.knowledge_engine.async_assemble_track_context(
                 intent=intent,
                 resolver=insight_provider,
+                session_direction=active.session_direction,
                 personal_context_authorized=False,
             )
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect Knowledge Engine unavailable: %s", exc.__class__.__name__)
-            knowledge = KnowledgeContext((), (), ())
+            knowledge = KnowledgeContext((), (), (), session_direction=active.session_direction)
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
             if active is None or active.session_id != session_id:
@@ -921,7 +1066,7 @@ class SessionRuntimeManager:
                 locale=active.locale,
                 insight=knowledge.as_insight(),
             )
-            if moment.moment_type is DJMomentType.TRACK:
+            if moment.moment_type is not DJMomentType.SILENCE:
                 active.planner.record_spoken_moment()
             active.publish_moment(moment)
             return moment
@@ -1081,6 +1226,38 @@ def _timestamp() -> str:
     return datetime.now(UTC).isoformat()
 
 
+def _initial_session_direction(
+    strategy: SessionStartStrategy, timestamp: str
+) -> SessionDirection:
+    """Map bounded Session Start intent to its first Runtime Direction."""
+    directions = {
+        SessionStartStrategy.DISCOVER: SessionDirectionType.EXPLORING,
+        SessionStartStrategy.PARTY: SessionDirectionType.BUILDING_ENERGY,
+        SessionStartStrategy.FOCUS: SessionDirectionType.DEEPENING,
+        SessionStartStrategy.CHILL: SessionDirectionType.COOLING_DOWN,
+        SessionStartStrategy.MANUAL: SessionDirectionType.MAINTAINING_ENERGY,
+    }
+    return SessionDirection(directions[strategy], timestamp, timestamp, strategy)
+
+
+def _planned_direction(
+    *,
+    current: SessionDirectionType,
+    selected_mood: str,
+    persona: DJPersona,
+) -> SessionDirectionType:
+    """Keep the first Direction adjustment deterministic and playback-neutral."""
+    if selected_mood in {"party", "energy", "high_energy"} or persona is DJPersona.FESTIVAL_DJ:
+        return SessionDirectionType.BUILDING_ENERGY
+    if selected_mood == "chill":
+        return SessionDirectionType.COOLING_DOWN
+    if selected_mood in {"deep", "focus"}:
+        return SessionDirectionType.DEEPENING
+    if selected_mood in {"explore", "discovery"}:
+        return SessionDirectionType.EXPLORING
+    return current
+
+
 def _create_session_planner(*, session_id: str, created_at: str) -> DJSessionPlanner:
     """Create the one non-persistent Planner for a newly created Runtime."""
     return DJSessionPlanner(
@@ -1088,7 +1265,6 @@ def _create_session_planner(*, session_id: str, created_at: str) -> DJSessionPla
         planning_horizon_minutes=15,
         created_at=created_at,
         last_replan_at="",
-        current_direction=MusicalDirection.MAINTAIN,
         current_goal="",
         pending_events=(),
         output=SessionPlannerOutput(
@@ -1106,6 +1282,7 @@ def _create_broadcast_engine(
     session_id: str,
     runtime_state: SessionRuntimeState,
     selected_mood: str,
+    session_direction: SessionDirection,
     planner: DJSessionPlanner,
     started_at: str,
 ) -> DJSessionBroadcastEngine:
@@ -1117,7 +1294,7 @@ def _create_broadcast_engine(
             selected_mood=selected_mood,
             planning_state=planner.planner_state,
             planning_horizon_minutes=planner.planning_horizon_minutes,
-            current_direction=planner.current_direction,
+            session_direction=session_direction,
             started_at=started_at,
             session_flow=planner.output.session_flow,
         )
@@ -1261,6 +1438,61 @@ def _moment_copy(locale: str, key: str) -> str:
         "es": {"silence_title": "Silencio", "silence_summary": "El DJ ha decidido no interrumpir la música.", "ask_dj": "Preguntar al DJ", "tell_me_more": "Cuéntame más", "show_artist": "Ver artista", "show_album": "Ver álbum", "show_track": "Ver canción"},
     }
     return messages[_locale_family(locale)][key]
+
+
+def _session_direction_copy(
+    locale: str, direction: SessionDirectionType, part: str
+) -> str:
+    """Return five-language, bounded copy for a Direction-driven Session update."""
+    labels = {
+        "en": {
+            SessionDirectionType.BUILDING_ENERGY: ("Building energy", "The session is building energy.", "We are gradually raising the energy."),
+            SessionDirectionType.MAINTAINING_ENERGY: ("Maintaining energy", "The session is holding its current energy.", "We are staying with the current musical direction."),
+            SessionDirectionType.COOLING_DOWN: ("Cooling down", "The session is easing into a calmer mood.", "We are slowing things down."),
+            SessionDirectionType.EXPLORING: ("Exploring", "The session is making room for discovery.", "We are exploring a fresh musical path."),
+            SessionDirectionType.DEEPENING: ("Deepening", "The session is moving into deeper focus.", "We are deepening the musical atmosphere."),
+            SessionDirectionType.RETURNING: ("Returning", "The session is returning to a familiar direction.", "We are returning to the session's established sound."),
+            SessionDirectionType.RESETTING: ("Resetting", "The session is resetting its musical direction.", "We are making space for a new direction."),
+        },
+        "nl": {
+            SessionDirectionType.BUILDING_ENERGY: ("Energie opbouwen", "De sessie bouwt energie op.", "We voeren de energie geleidelijk op."),
+            SessionDirectionType.MAINTAINING_ENERGY: ("Energie vasthouden", "De sessie houdt het huidige energieniveau vast.", "We blijven bij de huidige muzikale richting."),
+            SessionDirectionType.COOLING_DOWN: ("Rustiger worden", "De sessie beweegt naar een rustiger gevoel.", "We doen het wat rustiger aan."),
+            SessionDirectionType.EXPLORING: ("Verkennen", "De sessie maakt ruimte voor ontdekking.", "We verkennen een nieuw muzikaal pad."),
+            SessionDirectionType.DEEPENING: ("Verdiepen", "De sessie beweegt naar meer diepgang.", "We verdiepen de muzikale sfeer."),
+            SessionDirectionType.RETURNING: ("Terugkeren", "De sessie keert terug naar een vertrouwde richting.", "We keren terug naar het vertrouwde geluid van deze sessie."),
+            SessionDirectionType.RESETTING: ("Opnieuw afstemmen", "De sessie stelt de muzikale richting opnieuw af.", "We maken ruimte voor een nieuwe richting."),
+        },
+        "de": {
+            SessionDirectionType.BUILDING_ENERGY: ("Energie aufbauen", "Die Session baut Energie auf.", "Wir steigern die Energie schrittweise."),
+            SessionDirectionType.MAINTAINING_ENERGY: ("Energie halten", "Die Session hält ihr aktuelles Energieniveau.", "Wir bleiben bei der aktuellen musikalischen Richtung."),
+            SessionDirectionType.COOLING_DOWN: ("Herunterfahren", "Die Session wird ruhiger.", "Wir nehmen das Tempo etwas heraus."),
+            SessionDirectionType.EXPLORING: ("Entdecken", "Die Session schafft Raum für Entdeckungen.", "Wir erkunden einen neuen musikalischen Weg."),
+            SessionDirectionType.DEEPENING: ("Vertiefen", "Die Session geht in eine tiefere Stimmung über.", "Wir vertiefen die musikalische Atmosphäre."),
+            SessionDirectionType.RETURNING: ("Zurückkehren", "Die Session kehrt zu einer vertrauten Richtung zurück.", "Wir kehren zum etablierten Klang der Session zurück."),
+            SessionDirectionType.RESETTING: ("Neu ausrichten", "Die Session richtet ihre musikalische Richtung neu aus.", "Wir schaffen Raum für eine neue Richtung."),
+        },
+        "fr": {
+            SessionDirectionType.BUILDING_ENERGY: ("Monter en énergie", "La session monte en énergie.", "Nous augmentons progressivement l'énergie."),
+            SessionDirectionType.MAINTAINING_ENERGY: ("Maintenir l'énergie", "La session maintient son niveau d'énergie.", "Nous gardons la direction musicale actuelle."),
+            SessionDirectionType.COOLING_DOWN: ("Ralentir", "La session s'oriente vers une ambiance plus calme.", "Nous ralentissons le rythme."),
+            SessionDirectionType.EXPLORING: ("Explorer", "La session laisse de la place à la découverte.", "Nous explorons une nouvelle direction musicale."),
+            SessionDirectionType.DEEPENING: ("Approfondir", "La session entre dans une ambiance plus profonde.", "Nous approfondissons l'atmosphère musicale."),
+            SessionDirectionType.RETURNING: ("Revenir", "La session revient vers une direction familière.", "Nous revenons au son établi de la session."),
+            SessionDirectionType.RESETTING: ("Réinitialiser", "La session réinitialise sa direction musicale.", "Nous faisons de la place pour une nouvelle direction."),
+        },
+        "es": {
+            SessionDirectionType.BUILDING_ENERGY: ("Subiendo energía", "La sesión está subiendo energía.", "Estamos aumentando la energía poco a poco."),
+            SessionDirectionType.MAINTAINING_ENERGY: ("Manteniendo energía", "La sesión mantiene su nivel de energía.", "Seguimos con la dirección musical actual."),
+            SessionDirectionType.COOLING_DOWN: ("Bajando el ritmo", "La sesión se dirige a un ambiente más tranquilo.", "Estamos bajando el ritmo."),
+            SessionDirectionType.EXPLORING: ("Explorando", "La sesión abre espacio para descubrir.", "Estamos explorando un nuevo camino musical."),
+            SessionDirectionType.DEEPENING: ("Profundizando", "La sesión entra en un enfoque más profundo.", "Estamos profundizando la atmósfera musical."),
+            SessionDirectionType.RETURNING: ("Volviendo", "La sesión vuelve a una dirección familiar.", "Volvemos al sonido establecido de la sesión."),
+            SessionDirectionType.RESETTING: ("Reiniciando", "La sesión reinicia su dirección musical.", "Estamos dando espacio a una nueva dirección."),
+        },
+    }
+    index = {"title": 0, "summary": 1, "content": 2}[part]
+    return labels[_locale_family(locale)][direction][index]
 
 
 def _payload_contains_owner_only_moment(payload: dict[str, Any]) -> bool:
