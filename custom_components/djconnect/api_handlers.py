@@ -58,6 +58,7 @@ from .request_auth import (
     validate_required_client_type,
 )
 from .spotify_backend import SpotifyBackendError
+from .session_runtime import ActiveSessionExistsError, session_runtime_manager
 from .track_insight import TrackInsightError, TrackInsightService
 from .use_cases import (
     MusicBackendCapabilityError,
@@ -67,6 +68,94 @@ from .use_cases import (
 
 _LOGGER = http_helpers._LOGGER
 MUSIC_DNA_PROFILE_REFRESH_SECONDS = 60 * 60
+
+
+async def _session_profile_context(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None,
+    user_id: str | None,
+    source: str,
+) -> tuple[Any | None, Any | None, dict[str, Any] | None, int | None]:
+    """Authenticate a session request and resolve its owning Profile."""
+    headers = headers or {}
+    runtime = resolve_runtime(hass, data.get("device_id") or headers.get("X-DJConnect-Device-ID"), headers)
+    if runtime is None:
+        return None, None, _error_payload("not_configured"), 503
+    if not authorize_runtime_device_request(runtime, headers, data.get("device_id"), payload_client_type(data)):
+        return None, None, _error_payload("unauthorized"), 401
+    if validate_required_client_type(data) is None:
+        return None, None, _error_payload("invalid_client_type"), 400
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass, runtime, data, user_id=user_id, source=source
+    )
+    if profile_error is not None:
+        return None, None, profile_error, profile_status
+    from .profile_context import async_resolve_request_context
+
+    try:
+        context = await async_resolve_request_context(
+            hass, runtime, data, user_id=user_id, request_source=source
+        )
+    except Exception as exc:  # noqa: BLE001
+        result, status = profile_error_payload(exc)
+        return None, None, result, status
+    return runtime, context, None, None
+
+
+async def async_handle_session_start_payload(
+    hass: Any, data: dict[str, Any], *, headers: Any | None = None, user_id: str | None = None
+) -> tuple[dict[str, Any], int]:
+    """Create the one active server-owned Runtime for a resolved Profile."""
+    runtime, context, error, status = await _session_profile_context(
+        hass, data, headers=headers, user_id=user_id, source="session_start"
+    )
+    if error is not None:
+        return error, int(status or 400)
+    if not context.backend_id:
+        return _error_payload("profile_backend_missing"), 409
+    try:
+        session = await session_runtime_manager(hass).async_start(
+            owner_profile_id=context.profile_id,
+            room=str(data.get("room") or context.room_id or "").strip(),
+            selected_mood=str(data.get("mood") or "").strip(),
+            music_backend=context.backend_id,
+        )
+    except ActiveSessionExistsError:
+        active = await session_runtime_manager(hass).async_get_active(context.profile_id)
+        return {"success": False, "error": "active_session_exists", "active_session": active.as_dict() if active else None}, 409
+    return {"success": True, "session": session.as_dict()}, 201
+
+
+async def async_handle_session_end_payload(
+    hass: Any, data: dict[str, Any], *, headers: Any | None = None, user_id: str | None = None
+) -> tuple[dict[str, Any], int]:
+    """End and dispose of the active Runtime for a resolved Profile."""
+    _runtime, context, error, status = await _session_profile_context(
+        hass, data, headers=headers, user_id=user_id, source="session_end"
+    )
+    if error is not None:
+        return error, int(status or 400)
+    session = await session_runtime_manager(hass).async_end(
+        owner_profile_id=context.profile_id, session_id=str(data.get("session_id") or "").strip()
+    )
+    if session is None:
+        return _error_payload("active_session_not_found"), 404
+    return {"success": True, "session": session.as_dict()}, 200
+
+
+async def async_handle_active_session_payload(
+    hass: Any, data: dict[str, Any], *, headers: Any | None = None, user_id: str | None = None
+) -> tuple[dict[str, Any], int]:
+    """Return the active Runtime so a paired client can reconnect."""
+    _runtime, context, error, status = await _session_profile_context(
+        hass, data, headers=headers, user_id=user_id, source="active_session"
+    )
+    if error is not None:
+        return error, int(status or 400)
+    session = await session_runtime_manager(hass).async_get_active(context.profile_id)
+    return {"success": True, "session": session.as_dict() if session else None}, 200
 
 
 async def _apply_profile_or_error(

@@ -694,6 +694,26 @@ canonical `client_type` identity contract:
 - `POST /api/djconnect/v1/music_dna/export`
 - `POST /api/djconnect/v1/music_dna/import`
 
+### Active DJ Session Runtime (v4-01)
+
+The first v4 runtime slice exposes only the server-owned lifecycle below:
+
+- `POST /api/djconnect/v1/session/start`
+- `POST /api/djconnect/v1/session/end`
+- `GET /api/djconnect/v1/session/active`
+
+Requests use the paired client identity and bearer token, then resolve the
+owning DJConnect Profile. A Profile may have exactly one active Runtime. Start
+returns `201` with the active session; a duplicate start returns `409
+active_session_exists` with the existing session. Active lookup returns the
+same runtime for client reconnect, or `session: null` when idle. End returns an
+`ended` session and disposes it from the active registry. The contract exposes
+only `session_id`, `owner_profile_id`, `room`, `selected_mood`,
+`music_backend`, `runtime_state`, `created_at` and `started_at`.
+
+No planner, Broadcast, VibeCast, Voice, Audience Signal, Music DNA, Session
+Flow or queue capability is part of this slice.
+
 `/music_dna/settings` accepts:
 
 ```json

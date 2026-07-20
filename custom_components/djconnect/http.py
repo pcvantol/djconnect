@@ -44,6 +44,9 @@ from .const import (
     API_TTS,
     API_TRACK_INSIGHT,
     API_VIBECAST,
+    API_SESSION_START,
+    API_SESSION_END,
+    API_SESSION_ACTIVE,
     API_VOICE,
     CONF_ASSIST_PIPELINE_ID,
     CONF_CLIENT_TYPE,
@@ -2684,6 +2687,66 @@ class DJConnectCommandView(HomeAssistantView):
             user_id=_request_user_id(request),
         )
         return self.json(result, status_code=status_code)
+
+
+class _DJConnectSessionView(HomeAssistantView):
+    """Base authenticated HTTP transport for the v4 Runtime lifecycle."""
+
+    requires_auth = False
+
+    def __init__(self, hass):
+        self.hass = hass
+
+    async def _payload(self, request) -> dict[str, Any] | None:
+        try:
+            return await request.json()
+        except Exception:  # noqa: BLE001
+            return None
+
+
+class DJConnectSessionStartView(_DJConnectSessionView):
+    url = API_SESSION_START
+    name = "api:djconnect:session:start"
+
+    async def post(self, request):
+        data = await self._payload(request)
+        if data is None:
+            return _json_error(self, "invalid_json", 400)
+        from .api_handlers import async_handle_session_start_payload
+
+        result, status = await async_handle_session_start_payload(
+            request.app["hass"], data, headers=request.headers, user_id=_request_user_id(request)
+        )
+        return self.json(result, status_code=status)
+
+
+class DJConnectSessionEndView(_DJConnectSessionView):
+    url = API_SESSION_END
+    name = "api:djconnect:session:end"
+
+    async def post(self, request):
+        data = await self._payload(request)
+        if data is None:
+            return _json_error(self, "invalid_json", 400)
+        from .api_handlers import async_handle_session_end_payload
+
+        result, status = await async_handle_session_end_payload(
+            request.app["hass"], data, headers=request.headers, user_id=_request_user_id(request)
+        )
+        return self.json(result, status_code=status)
+
+
+class DJConnectActiveSessionView(_DJConnectSessionView):
+    url = API_SESSION_ACTIVE
+    name = "api:djconnect:session:active"
+
+    async def get(self, request):
+        from .api_handlers import async_handle_active_session_payload
+
+        result, status = await async_handle_active_session_payload(
+            request.app["hass"], dict(request.query), headers=request.headers, user_id=_request_user_id(request)
+        )
+        return self.json(result, status_code=status)
 
 
 class DJConnectEventView(HomeAssistantView):

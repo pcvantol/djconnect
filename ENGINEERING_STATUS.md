@@ -54,6 +54,11 @@ migration or compatibility work. Its Prompt History archive is absent; this
 reconciliation records the traceability gap without recreating immutable
 history.
 
+PR [#216](https://github.com/pcvantol/djconnect/pull/216), **V4-01
+Server-owned Active DJ Session Runtime**, is reviewable. It creates, looks up
+and destroys one ephemeral Runtime per resolved Profile, with only the
+paired-client session lifecycle in scope.
+
 ## Current engineering program
 
 DJConnect Product Development is the active primary program and Innovation
@@ -111,6 +116,5 @@ separate explicitly authorized operational action.
 
 ## Recommended next prompt
 
-Complete this post-merge reconciliation, then select the first Runtime
-Production Slice from `PRODUCT_ROADMAP.md`. Platform Release 3.3 remains
-Maintenance unless its completion record is formally reopened.
+Review PR #216. Do not start a follow-up until it is explicitly merged and its
+post-merge state is reconciled.

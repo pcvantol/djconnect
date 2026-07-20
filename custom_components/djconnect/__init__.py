@@ -36,6 +36,9 @@ from .const import (
     API_PUSH_UNREGISTER,
     API_SPOTIFY_CALLBACK,
     API_STATUS,
+    API_SESSION_START,
+    API_SESSION_END,
+    API_SESSION_ACTIVE,
     API_TRACK_INSIGHT,
     API_TTS,
     API_VIBECAST,
@@ -104,6 +107,9 @@ from .http import (
     DJConnectPushUnregisterView,
     DJConnectSpotifyCallbackView,
     DJConnectStatusView,
+    DJConnectSessionStartView,
+    DJConnectSessionEndView,
+    DJConnectActiveSessionView,
     DJConnectTrackInsightView,
     DJConnectTtsView,
     DJConnectVibeCastView,
@@ -1739,6 +1745,9 @@ def register_http_views(hass: HomeAssistant) -> None:
             DJConnectPushUnregisterView(hass),
             DJConnectPairView(hass),
             DJConnectStatusView(hass),
+            DJConnectSessionStartView(hass),
+            DJConnectSessionEndView(hass),
+            DJConnectActiveSessionView(hass),
             DJConnectTrackInsightView(hass),
             DJConnectVibeCastView(hass),
             DJConnectMusicDiscoveryView(hass),
@@ -1773,6 +1782,9 @@ def register_http_views(hass: HomeAssistant) -> None:
                     API_PUSH_UNREGISTER,
                     API_PAIR,
                     API_STATUS,
+                    API_SESSION_START,
+                    API_SESSION_END,
+                    API_SESSION_ACTIVE,
                     API_TRACK_INSIGHT,
                     API_VIBECAST,
                     API_EVENT,
@@ -2705,6 +2717,33 @@ def _register_developer_services(
         )
         return result
 
+    async def handle_start_session(call: ServiceCall) -> dict[str, Any]:
+        from .api_handlers import async_handle_session_start_payload
+
+        payload = ask_dj_service_payload(call)
+        result, _status = await async_handle_session_start_payload(
+            hass, payload, headers=ask_dj_service_headers(payload), user_id=ask_dj_service_user_id(call)
+        )
+        return result
+
+    async def handle_end_session(call: ServiceCall) -> dict[str, Any]:
+        from .api_handlers import async_handle_session_end_payload
+
+        payload = ask_dj_service_payload(call)
+        result, _status = await async_handle_session_end_payload(
+            hass, payload, headers=ask_dj_service_headers(payload), user_id=ask_dj_service_user_id(call)
+        )
+        return result
+
+    async def handle_active_session(call: ServiceCall) -> dict[str, Any]:
+        from .api_handlers import async_handle_active_session_payload
+
+        payload = ask_dj_service_payload(call)
+        result, _status = await async_handle_active_session_payload(
+            hass, payload, headers=ask_dj_service_headers(payload), user_id=ask_dj_service_user_id(call)
+        )
+        return result
+
     service_handlers = {
         "test_parse": (handle_test_parse, "optional"),
         "test_tts": (handle_test_tts, "optional"),
@@ -2747,6 +2786,9 @@ def _register_developer_services(
         "profile_import": (handle_profile_import, "optional"),
         "household_import": (handle_household_import, "optional"),
         "clear_profile_state": (handle_clear_profile_state, "optional"),
+        "start_session": (handle_start_session, "optional"),
+        "end_session": (handle_end_session, "optional"),
+        "active_session": (handle_active_session, "optional"),
     }
     for service_name, (handler, response_mode) in service_handlers.items():
         hass.services.async_register(

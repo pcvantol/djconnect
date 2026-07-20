@@ -45,6 +45,9 @@ class ServicesYamlTest(unittest.TestCase):
             "music_dna_import",
             "clear_ask_dj_history",
             "ask_dj_history_state",
+            "start_session",
+            "end_session",
+            "active_session",
         ):
             with self.subTest(service=service):
                 self.assertIn(f"{service}:", text)
@@ -95,6 +98,9 @@ class ServicesYamlTest(unittest.TestCase):
         self.assertNotIn("/api/djconnect/v1/spotify_callback", text)
         self.assertNotIn("stuur", text.lower())
         self.assertNotIn("zonder Spotify playback", text)
+        self.assertIn("Start DJ Session", text)
+        self.assertIn("End DJ Session", text)
+        self.assertIn("Get active DJ Session", text)
 
     def test_test_command_documents_play_flag(self) -> None:
         text = SERVICES.read_text()
