@@ -130,6 +130,15 @@ Broadcast, VibeCast, playback execution or persistent planner state. Its Prompt
 History archive is absent; this reconciliation records the traceability gap
 without reconstructing immutable history.
 
+PR [#220](https://github.com/pcvantol/djconnect/pull/220), **V4-03 Broadcast
+Engine Foundation**, is merged as `aececce3af39789596a72748455906acf1bb3122`
+on 2026-07-20. It creates one non-persistent Broadcast Engine per active
+Runtime with empty canonical Broadcast State and stable event vocabulary. It
+adds no renderer, VibeCast, Universal Session Receiver, Voice, Session Flow
+generation, playback execution or persistent broadcast state. Its Prompt
+History archive is absent; this reconciliation records the traceability gap
+without reconstructing immutable history.
+
 Canonical lifecycle:
 
 ```text
@@ -303,11 +312,8 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-DJConnect v4 Architecture, Runtime Contracts, V4-01 and V4-02 are merged and
-reconciled. V4-03 Broadcast Engine Foundation is the active, explicitly
-authorized implementation increment on `codex/v4-broadcast-engine-foundation`.
-It is limited to ephemeral Broadcast Engine ownership and empty canonical
-Broadcast State; Platform Release 3.3 remains in Maintenance.
+DJConnect v4 Architecture, Runtime Contracts, V4-01, V4-02 and V4-03 are
+merged and reconciled. Platform Release 3.3 remains in Maintenance.
 
 ## Completion Report
 

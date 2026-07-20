@@ -70,11 +70,14 @@ playback execution or persistent planner state. Its Prompt History archive is
 absent; this reconciliation records the traceability gap without recreating
 immutable history.
 
-**V4-03 Broadcast Engine Foundation** is the current authorized Product
-Development increment on `codex/v4-broadcast-engine-foundation`. It adds one
-ephemeral Broadcast Engine per active Runtime and its empty canonical Broadcast
-State. It does not add rendering, VibeCast, Universal Session Receiver, Voice,
-Session Flow generation, playback execution or persistent broadcast state.
+PR [#220](https://github.com/pcvantol/djconnect/pull/220), **V4-03 Broadcast
+Engine Foundation**, merged on 2026-07-20 as
+`aececce3af39789596a72748455906acf1bb3122`. It adds one ephemeral Broadcast
+Engine per active Runtime and its empty canonical Broadcast State. It does not
+add rendering, VibeCast, Universal Session Receiver, Voice, Session Flow
+generation, playback execution or persistent broadcast state. Its Prompt
+History archive is absent; this reconciliation records the traceability gap
+without recreating immutable history.
 
 ## Current engineering program
 
