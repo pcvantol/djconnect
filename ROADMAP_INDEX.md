@@ -11,7 +11,7 @@ Use this index to find the one canonical record for current work.
 | Program boundaries | `ENGINEERING_PROGRAM_MODEL.md` | Engineering governance |
 | User-facing product priorities and sequence | `PRODUCT_ROADMAP.md` | DJConnect Product Development |
 | Engineering-platform improvements | `PLATFORM_EVOLUTION_BACKLOG.md` | Platform Evolution |
-| Continue Current Playback Continuity and Observation Foundation contract | `docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`, `docs/adr/0016-playback-instance-identity-observation-boundary.md` | DJConnect Product Development |
+| Live Playback Observation maturity and Continue Current Playback Continuity | `docs/product/LIVE_PLAYBACK_OBSERVATION.md`, `docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`, `docs/adr/0016-playback-instance-identity-observation-boundary.md` | DJConnect Product Development |
 | Future ideas and research | `INNOVATION_LAB.md`, `INNOVATION_BACKLOG.md` | Innovation Lab |
 | Innovation promotion rules | `INNOVATION_PROMOTION_POLICY.md` | Innovation Lab |
 | Current operational release position | `docs/release/PLATFORM_RELEASE_MANAGEMENT_SUMMARY.md` | Platform Release operations |

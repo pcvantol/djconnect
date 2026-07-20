@@ -1,17 +1,18 @@
 # DJConnect Engineering Status
 
 **Status:** Operational handoff
-**Updated:** 2026-07-20
+**Updated:** 2026-07-21
 
 ## Current engineering increment
 
-PR [#256](https://github.com/pcvantol/djconnect/pull/256), **Define Playback
-Observation Boundary**, merged on 2026-07-20 as
-`b0573fbfa8055075df1296701877f8207f0a010b`. It accepts ADR-0016 and separates
-Playback Control from Playback Observation, placing Playback Instance Identity
-in the latter. It makes no production implementation or Continue maturity
-advance. Its predecessor prompt is absent from immutable Prompt History and is
-not recreated retrospectively.
+PR [#257](https://github.com/pcvantol/djconnect/pull/257), **Finalize Continue
+observation contract**, merged on 2026-07-20 as
+`278eb411f5747bbcd5407b492910dae25ef4ebf2`. It reconciles the authorized,
+deferred Continue Stage 2 observation contract across the Runtime, Domain,
+Intelligence and maturity records. Playback Instance Identity remains owned by
+the Observation Boundary; no production implementation, provider capability or
+Continue maturity advance was included. Its predecessor prompt is absent from
+immutable Prompt History and is not recreated retrospectively.
 
 Platform Release 3.3 is operationally complete and in Maintenance. PR
 [#202](https://github.com/pcvantol/djconnect/pull/202), **Platform Release 3.3

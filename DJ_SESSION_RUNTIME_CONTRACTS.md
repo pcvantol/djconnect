@@ -89,12 +89,19 @@ pre-session history. The detailed projection, identity and failure contract is
 Runtime communicates only with that Observation Boundary for this flow; it does
 not depend on the Playback Control Boundary.
 
-The future canonical ingress is one `TrackStartedObservation` produced by the
+The Stage 2 canonical ingress is one `TrackStartedObservation` produced by the
 Observation Boundary. It carries the same opaque Playback Instance Identity as
 the validated projection and only safe bounded context. The current
 Session-Start-internal Track Insight trigger is not a live observation producer.
 Runtime compares identity only; it never substitutes URI, title, metadata,
 timestamp or progress.
+
+Before Stage 2, a separate Stage 1 active-session observation capability may
+compare only safe Media Identity and invoke the existing Track Started
+processing for an eligible changed item. It is intentionally not
+occurrence-correct, cannot bootstrap Continue and must not use timestamp,
+progress or other replay heuristics. Its lifecycle, ownership and limits are
+defined in [`docs/product/LIVE_PLAYBACK_OBSERVATION.md`](docs/product/LIVE_PLAYBACK_OBSERVATION.md).
 
 Continue bootstrap is transactional: a Profile-scoped reservation and candidate
 Runtime remain non-public until one validated occurrence is atomically adopted.

@@ -15,12 +15,13 @@
 
 ## Current position
 
-PR [#256](https://github.com/pcvantol/djconnect/pull/256) merged as
-`b0573fbfa8055075df1296701877f8207f0a010b`. ADR-0016 separates Playback
-Control from Playback Observation and assigns Playback Instance Identity to the
-Observation Boundary. No runtime, provider, API or maturity implementation was
-included; Continue Stage 2 remains deferred pending a capable observation
-implementation.
+PR [#257](https://github.com/pcvantol/djconnect/pull/257) merged as
+`278eb411f5747bbcd5407b492910dae25ef4ebf2`. It reconciles the complete,
+authorized Continue Stage 2 observation contract after ADR-0016. Playback
+Control remains separate from Observation, Playback Instance Identity remains
+Boundary-owned and both current backends remain unsupported for
+occurrence-correct continuity. No runtime, provider, API or maturity
+implementation was included.
 
 | Area | Objectively supported status | Evidence |
 | --- | --- | --- |

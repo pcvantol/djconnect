@@ -98,6 +98,19 @@ inputs (Stage 1). Selected Discover behaviour is Stage 2;
 narrative and themed Session execution remain Stage 3. Autonomous evening
 experiences are Stage 4 and a continuous AI DJ is Stage 5.
 
+### Live Playback Observation
+
+| Stage | Maturity |
+| --- | --- |
+| 0 — current | No generic production path observes external playback changes while a DJ Session is active. |
+| 1 — planned | Active-session observation compares safe adapter-normalized Media Identity and can route ordinary external media changes through the existing Track Started intelligence pipeline. It deliberately does not distinguish duplicate delivery from same-track replay, and does not qualify Continue Stage 2. |
+| 2 — authorized, deferred | Observation Boundary-owned Playback Instance Identity and correlated live `TrackStartedObservation` provide occurrence-correct replay/deduplication behaviour and Continue Stage 2 bootstrap correlation. |
+
+The detailed Stage 1 contract, capability model, backend readiness and future
+implementation slice are in
+[`LIVE_PLAYBACK_OBSERVATION.md`](LIVE_PLAYBACK_OBSERVATION.md). Stage 1 never
+weakens the separate Continue contract.
+
 ### Continue Current Playback Continuity
 
 | Stage | Maturity |
