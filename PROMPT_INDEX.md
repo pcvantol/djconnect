@@ -72,7 +72,7 @@ planning is read.
 | DJ Session Domain Model | Completed / merged reconciled | Establish the canonical DJ Session product vocabulary and align Product Definition, Product Language and Product Foundation navigation without implementation, architecture, API, storage, synchronization, pricing or roadmap changes. | `codex/dj-session-domain-model` | PR [#207](https://github.com/pcvantol/djconnect/pull/207), merged as `1c7b57c88cb672ffa7f616c26148aa132ef4dc76`; predecessor Prompt History archive absent, recorded as a historical traceability gap rather than recreated retrospectively. |
 | DJ Session Vision | Completed / merged reconciled | Establish the canonical desired experience for every DJ Session and register it in Product Foundation navigation, without implementation, UI, storage, synchronization, architecture, API or roadmap-sequencing decisions. | `codex/dj-session-vision` | PR [#209](https://github.com/pcvantol/djconnect/pull/209), merged as `d66c6f0aa87936105aa406d959a8644ee9f56b56`; predecessor Prompt History archive absent, recorded as a historical traceability gap rather than recreated retrospectively. |
 | DJConnect v4 Architecture | Completed / merged reconciled | Establish the canonical v4 architecture around persistent Profiles, ephemeral server-owned DJ Session Runtimes, Session Planner/Flow, Broadcast Engine/Feed and capability-driven renderers; documentation and roadmap only, with no implementation, API, storage, migration or v3 compatibility layer. | `codex/djconnect-v4-architecture` | Architecture Review authorized 2026-07-20; PR [#212](https://github.com/pcvantol/djconnect/pull/212), merged as `677f3304f35c9386ef1f839c595e1478fd2fef7d`; Prompt History archive absent, recorded as a traceability gap without retrospective recreation. |
-| DJ Session Runtime Contracts | Completed / reviewable frozen | Establish the canonical lifecycle, ownership, Session Flow, Broadcast, Audience Signal, Room Voice, renderer and Session Capability contracts for the accepted v4 Runtime; documentation and roadmap only, with no production behaviour, AI, playback, API, storage, migration or compatibility layer. | `codex/dj-session-runtime-contracts` | Architecture documentation authorized 2026-07-20; PR [#214](https://github.com/pcvantol/djconnect/pull/214). |
+| DJ Session Runtime Contracts | Completed / merged reconciled | Establish the canonical lifecycle, ownership, Session Flow, Broadcast, Audience Signal, Room Voice, renderer and Session Capability contracts for the accepted v4 Runtime; documentation and roadmap only, with no production behaviour, AI, playback, API, storage, migration or compatibility layer. | `codex/dj-session-runtime-contracts` | Architecture documentation authorized 2026-07-20; PR [#214](https://github.com/pcvantol/djconnect/pull/214), merged as `d4f5d279c7823a7b674cd2b9744e4f9a8e5a4f06`; Prompt History archive absent, recorded as a traceability gap without retrospective recreation. |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
@@ -83,14 +83,16 @@ PR #209 is merged as `d66c6f0aa87936105aa406d959a8644ee9f56b56`; the DJ Session
 Vision is reconciled into the rolling records. Its predecessor Prompt History
 archive is absent and remains an explicit historical traceability gap. PR #212
 is merged as `677f3304f35c9386ef1f839c595e1478fd2fef7d`; its v4 Architecture
-records are reconciled. DJ Session Runtime Contracts is reviewable in PR #214.
-Platform Release 3.3 remains in Maintenance.
+records are reconciled. PR #214 is merged as
+`d4f5d279c7823a7b674cd2b9744e4f9a8e5a4f06`; its Runtime Contract records are
+reconciled. Platform Release 3.3 remains in Maintenance.
 
 ## Next Engineering Increment
 
-No Platform Release 3.3 execution is active. Review PR #214 before selecting
-the next Product Engineering or Innovation Engineering work; 3.3 remains in
-Maintenance unless its completion record is formally reopened.
+No Platform Release 3.3 execution is active. Select the first Runtime
+Production Slice or another Product Engineering/Innovation Engineering work
+from the active roadmap or backlog; 3.3 remains in Maintenance unless its
+completion record is formally reopened.
 
 ## Active Next Phase
 
