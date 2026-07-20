@@ -1,3 +1,54 @@
+start_session:
+  name: Start DJ Session
+  description: Create the one active server-owned DJ Session for a resolved Profile.
+  fields:
+    profile_id:
+      name: Profile
+      description: Optional DJConnect Profile identifier. If omitted, resolve the paired Profile.
+      required: false
+      selector:
+        text:
+    mood:
+      name: Mood
+      description: Optional session mood.
+      required: false
+      selector:
+        text:
+    room:
+      name: Room
+      description: Optional room label for the active session.
+      required: false
+      selector:
+        text:
+
+end_session:
+  name: End DJ Session
+  description: End and dispose of the active server-owned DJ Session for a resolved Profile.
+  fields:
+    profile_id:
+      name: Profile
+      description: Optional DJConnect Profile identifier. If omitted, resolve the paired Profile.
+      required: false
+      selector:
+        text:
+    session_id:
+      name: Session
+      description: Optional active session identifier to end.
+      required: false
+      selector:
+        text:
+
+active_session:
+  name: Get active DJ Session
+  description: Return the active server-owned DJ Session for a resolved Profile.
+  fields:
+    profile_id:
+      name: Profile
+      description: Optional DJConnect Profile identifier. If omitted, resolve the paired Profile.
+      required: false
+      selector:
+        text:
+
 test_parse:
   name: Test Assist parser
   description: >
