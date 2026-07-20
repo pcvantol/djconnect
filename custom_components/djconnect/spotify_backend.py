@@ -4,6 +4,7 @@ import asyncio
 import time
 import logging
 import re
+from dataclasses import dataclass
 from urllib.parse import urlencode
 from typing import Any
 
@@ -48,6 +49,14 @@ class SpotifyBackendError(RuntimeError):
 
 class SpotifyReauthRequiredError(SpotifyBackendError):
     """Raised when Spotify revoked the stored OAuth refresh token."""
+
+
+@dataclass(frozen=True)
+class SpotifyPlaybackObservation:
+    """Bounded Stage 1 playback observation with no provider payload."""
+
+    is_playing: bool = False
+    media_identity: str = ""
 
 
 async def handle_spotify_command(
@@ -476,6 +485,19 @@ class SpotifyBackend:
         await self._record_playback_in_music_dna(playback)
         await async_maybe_append_ambient_fact(self.hass, self.runtime, playback)
         return playback
+
+    async def async_observe_current_playback(self) -> SpotifyPlaybackObservation:
+        """Read only the safe Stage 1 playback observation contract.
+
+        This deliberately bypasses normal status enrichment and its Music DNA
+        side effects: observation polling must not create another enrichment
+        path or mutate profile-owned state.
+        """
+        playback = _normalize_playback(await self._request("GET", "/me/player"))
+        media_identity = str(playback.get("uri") or "").strip()
+        if not playback.get("is_playing") or not media_identity.startswith("spotify:track:"):
+            return SpotifyPlaybackObservation()
+        return SpotifyPlaybackObservation(is_playing=True, media_identity=media_identity)
 
     async def _enrich_playback_artist_genres(self, playback: dict[str, Any]) -> None:
         artist_ids = [

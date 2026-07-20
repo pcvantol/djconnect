@@ -3049,6 +3049,10 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     platforms = _platforms_for_runtime(runtime) if runtime is not None else list(PLATFORMS)
     unloaded = await hass.config_entries.async_unload_platforms(entry, platforms)
     if unloaded:
+        if runtime is not None:
+            from .playback_observation import playback_observation_manager
+
+            await playback_observation_manager(hass).async_stop_runtime(runtime)
         _clear_pending_app_pairings_for_entry(hass, entry, runtime)
         hass.data[DOMAIN].pop(entry.entry_id, None)
         runtime = hass.data[DOMAIN].get("runtime")

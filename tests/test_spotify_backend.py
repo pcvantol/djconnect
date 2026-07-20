@@ -69,6 +69,43 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertEqual(self.backend._spotify_search_type("playlist"), "playlist")
         self.assertEqual(self.backend._spotify_search_type("artist"), "artist")
 
+    def test_playback_observation_returns_only_safe_active_track_identity(self) -> None:
+        runtime = types.SimpleNamespace(config={})
+        backend = self.backend.SpotifyBackend(object(), runtime)
+        calls: list[tuple[str, str]] = []
+
+        async def request(method, path):
+            calls.append((method, path))
+            return {
+                "is_playing": True,
+                "item": {
+                    "uri": "spotify:track:observed",
+                    "name": "Never enters Runtime",
+                    "artists": [{"name": "Hidden metadata"}],
+                },
+            }
+
+        backend._request = request
+        observed = asyncio.run(backend.async_observe_current_playback())
+
+        self.assertEqual(calls, [("GET", "/me/player")])
+        self.assertTrue(observed.is_playing)
+        self.assertEqual(observed.media_identity, "spotify:track:observed")
+        self.assertFalse(hasattr(runtime, "last_playback"))
+
+    def test_playback_observation_rejects_non_track_or_inactive_media(self) -> None:
+        runtime = types.SimpleNamespace(config={})
+        backend = self.backend.SpotifyBackend(object(), runtime)
+
+        async def request(method, path):
+            return {"is_playing": True, "item": {"uri": "spotify:episode:podcast"}}
+
+        backend._request = request
+        observed = asyncio.run(backend.async_observe_current_playback())
+
+        self.assertFalse(observed.is_playing)
+        self.assertEqual(observed.media_identity, "")
+
     def test_search_albums_returns_normalized_album_list(self) -> None:
         class Response:
             status = 200

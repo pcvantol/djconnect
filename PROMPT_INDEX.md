@@ -4,13 +4,14 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#257](https://github.com/pcvantol/djconnect/pull/257), merged as
-`278eb411f5747bbcd5407b492910dae25ef4ebf2`, reconciles the complete Continue
-Stage 2 observation contract after the Playback Observation Boundary decision
-in ADR-0016. Continue Stage 2 remains authorized and deferred because no
-current backend can satisfy occurrence-correct identity and correlated live
-observation. No immutable Prompt History source exists for that predecessor;
-do not recreate one retrospectively.
+PR [#258](https://github.com/pcvantol/djconnect/pull/258), merged as
+`9c98ba796c28b589677af7370e68bf73c880f9f3`, establishes Live Playback
+Observation Stage 0 as current, Stage 1 as planned and Stage 2 as deferred.
+Spotify Direct is eligible for bounded Media Identity polling; Music Assistant
+is conditionally eligible. Continue Stage 2 remains authorized and deferred
+because no current backend can satisfy occurrence-correct identity and
+correlated live observation. No immutable Prompt History source exists for that
+predecessor; do not recreate one retrospectively.
 
 ## Generation 2 navigation
 

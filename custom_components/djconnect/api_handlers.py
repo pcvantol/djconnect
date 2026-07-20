@@ -50,6 +50,7 @@ from .profile_export import (
     async_import_profile,
     profile_export_error_payload,
 )
+from .playback_observation import playback_observation_manager
 from .request_auth import (
     authorize_runtime_device_request,
     identity_payload,
@@ -145,6 +146,14 @@ async def async_handle_session_start_payload(
         session=session,
     )
     active = await session_runtime_manager(hass).async_get_active(context.profile_id)
+    if active is not None:
+        await playback_observation_manager(hass).async_start_spotify(
+            integration_runtime=runtime,
+            session=active,
+            insight_provider=_session_track_insight_provider(
+                hass, runtime, active
+            ),
+        )
     return {"success": True, "session": (active or session).as_dict()}, 201
 
 
@@ -152,6 +161,20 @@ async def _async_generate_initial_session_moment(
     *, hass: Any, integration_runtime: Any, owner_profile_id: str, session: Any
 ) -> None:
     """Use the established Track Insight pipeline through the Runtime trigger."""
+    await session_runtime_manager(hass).async_process_track_started(
+        owner_profile_id=owner_profile_id,
+        session_id=session.session_id,
+        insight_provider=_session_track_insight_provider(
+            hass, integration_runtime, session
+        ),
+    )
+
+
+def _session_track_insight_provider(
+    hass: Any, integration_runtime: Any, session: Any
+) -> Callable[[], Awaitable[dict[str, Any]]]:
+    """Return the one existing Track Insight provider for a Session."""
+
     async def insight_provider() -> dict[str, Any]:
         return await TrackInsightService().async_analyze(
             hass,
@@ -168,11 +191,7 @@ async def _async_generate_initial_session_moment(
             source="session_moment",
         )
 
-    await session_runtime_manager(hass).async_process_track_started(
-        owner_profile_id=owner_profile_id,
-        session_id=session.session_id,
-        insight_provider=insight_provider,
-    )
+    return insight_provider
 
 
 def _dj_persona(value: Any) -> DJPersona:
@@ -231,11 +250,14 @@ async def async_handle_session_end_payload(
     hass: Any, data: dict[str, Any], *, headers: Any | None = None, user_id: str | None = None
 ) -> tuple[dict[str, Any], int]:
     """End and dispose of the active Runtime for a resolved Profile."""
-    _runtime, context, error, status = await _session_profile_context(
+    runtime, context, error, status = await _session_profile_context(
         hass, data, headers=headers, user_id=user_id, source="session_end"
     )
     if error is not None:
         return error, int(status or 400)
+    await playback_observation_manager(hass).async_stop(
+        context.profile_id, str(data.get("session_id") or "").strip()
+    )
     session = await session_runtime_manager(hass).async_end(
         owner_profile_id=context.profile_id, session_id=str(data.get("session_id") or "").strip()
     )

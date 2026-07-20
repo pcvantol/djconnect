@@ -1,8 +1,8 @@
 # Live Playback Observation
 
-**Status:** Authorized architecture amendment; Stage 1 implementation planned
+**Status:** Stage 1 current for Spotify Direct; Music Assistant implementation deferred
 **Owner:** DJConnect Product Development
-**Scope:** Provider-neutral observation of ordinary media changes while an active DJ Session exists. This document authorizes no production code, API, storage, renderer or Continue Stage 2 implementation.
+**Scope:** Provider-neutral observation of ordinary media changes while an active DJ Session exists. Spotify Direct Stage 1 is implemented; Music Assistant Stage 1, new endpoints, storage, renderer and Continue Stage 2 implementation remain out of scope.
 
 ## Purpose
 
@@ -14,8 +14,8 @@ This contract defines a deliberately limited Stage 1 before the strict occurrenc
 
 | Stage | Contract | Status |
 | --- | --- | --- |
-| 0 | No generic production path observes external playback changes during an active Session. | current |
-| 1 | An active Session observes a change from one safe Media Identity to another, then reuses the established Track Started intelligence pipeline. It is useful for ordinary skips, external selection and playlist/album progression, but has deliberately limited replay guarantees. | planned |
+| 0 | No generic production path observes external playback changes during an active Session. | complete |
+| 1 | Spotify Direct observes a change from one safe Media Identity to another through bounded adapter-owned polling, then reuses the established Track Started intelligence pipeline. It is useful for ordinary skips, external selection and playlist/album progression, but has deliberately limited replay guarantees. Music Assistant remains planned. | current for Spotify Direct |
 | 2 | The Observation Boundary supplies Playback Instance Identity and correlated live `TrackStartedObservation` events. Runtime distinguishes duplicate delivery from a legitimate replay and supports Continue Stage 2 bootstrap correlation. | authorized, deferred |
 
 Stage 1 is **not** occurrence-correct. Stage 2 remains separate and requires every strict prerequisite in the Continue contract.
@@ -96,7 +96,7 @@ An adapter may use existing provider events when they are available or bounded p
 
 | Backend observation implementation | Stage 1 readiness | Source and cadence owned by adapter | Safe Media Identity |
 | --- | --- | --- | --- |
-| Spotify Direct | eligible | Poll the existing normalized current-playback status at a bounded active-session cadence of no more than once every 15 seconds, with no overlapping requests. | Existing non-empty normalized Spotify playable URI. |
+| Spotify Direct | current | Poll the existing current-playback endpoint through a read-only adapter observation at a bounded active-session cadence of no more than once every 15 seconds, with no overlapping requests. | Existing non-empty normalized Spotify playable track URI. |
 | Music Assistant | conditionally eligible | Subscribe to the configured Home Assistant `media_player` state changes for the active Session; no Runtime polling loop. The adapter may use an adapter-owned bounded reconciliation only if a later contract defines it. | Existing non-empty `media_content_id`, normalized with its media type and selected player scope. |
 
 Music Assistant does not claim Stage 1 support when its configured player omits a safe media reference. In that state it reports observation unavailable rather than deriving an identity from display metadata. Neither backend qualifies for Stage 2 from these Stage 1 paths.
@@ -114,26 +114,32 @@ The Observation Boundary exposes only the following internal capability fields:
 
 A backend may support Stage 1 while reporting both Stage 2 fields as false. No field grants backend-wide support beyond its selected observation scope.
 
-## Smallest future production slice
+## Current Spotify Direct implementation
 
-One production increment may advance **Playback Observation Stage 1** from planned to current. It may implement Spotify Direct polling and the Music Assistant state-change adapter only where their readiness conditions above are met. It must contain:
+Spotify Direct now advances Stage 1 with an active-session-only observation
+lifecycle for Manual, Discover and Continue Stage 1. Its adapter reads the
+existing current-playback endpoint through a minimal read-only observation
+method, normalizes only a non-empty playable track URI, and polls no more than
+once every 15 seconds without overlap. The first successful observation is a
+baseline; only a later different Media Identity reuses the existing Track
+Insight and Track Started intelligence pipeline.
 
-1. an active-session Observation Boundary lifecycle for Manual, Discover and Continue Stage 1;
-2. adapter-owned safe Media Identity normalization and capability reporting;
-3. bounded, non-overlapping Spotify polling and Music Assistant event subscription with cancellation at Session end;
-4. one runtime-scoped last-accepted Media Identity and serialized baseline/change handling;
-5. one eligible-change invocation of the existing Track Insight and Track Started intelligence path;
-6. safe temporary-unavailability handling without playback mutation; and
-7. maturity evidence and focused tests.
+Runtime retains only the ephemeral last accepted Media Identity. It cancels
+future polling at Session end and integration unload, ignores late results,
+keeps the Session active during temporary provider failure and never mutates
+playback. Tests cover all eligible Strategies, external URI changes, repeated
+poll suppression, pause/absence/failure behaviour, cancellation, Session Flow,
+Broadcast and the intentionally unsupported same-track replay case.
 
-It must not add Continue Stage 2 adoption, Playback Instance Identity, queue or future-track awareness, a new Start Strategy, persistent observation history, cross-device continuity, autonomous replanning or a second pipeline.
-
-Required tests cover external skip, natural progression, external selection, repeated delivery, pause/resume, stop then a different track, temporary unavailability, Session-end cancellation, all three active Strategies, reuse of Track Insight/Planner/Knowledge/Moment/Flow/Broadcast, absence of playback mutation and the documented unsupported same-track replay case.
+Music Assistant Stage 1 remains a separate future implementation. It must not
+be treated as current until its safe `media_content_id` and state-change
+subscription path are implemented and tested.
 
 ## Deferred
 
 - occurrence-correct same-track replay and duplicate-delivery distinction;
 - Playback Instance Identity and Continue Stage 2 bootstrap correlation;
+- Music Assistant Stage 1 implementation;
 - complete queue observation, future-track awareness and queue mutation;
 - persistent observation history and cross-device continuity; and
 - autonomous replanning.
