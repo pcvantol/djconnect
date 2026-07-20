@@ -377,6 +377,35 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             decision.proposed_session_direction, self.runtime.SessionDirectionType.RESETTING
         )
 
+    def test_planner_returns_after_the_immediately_preceding_resetting_update(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-a"))
+        resetting = self.runtime.SessionDirection(
+            self.runtime.SessionDirectionType.RESETTING,
+            "then",
+            "now",
+            self.runtime.SessionStartStrategy.MANUAL,
+        )
+
+        decision = created.planner.evaluate_track_started(
+            session_direction=resetting,
+            selected_mood="groove",
+            persona=self.runtime.DJPersona.HOME_DJ,
+            performance_memory=self.runtime.PerformanceMemory(
+                "flow-test",
+                recent_moment_types=(self.runtime.DJMomentType.SESSION,),
+                recent_session_directions=(self.runtime.SessionDirectionType.RESETTING,),
+            ),
+        )
+
+        self.assertEqual(
+            decision.decision_type, self.runtime.PlannerDecisionType.CREATE_SESSION_UPDATE
+        )
+        self.assertEqual(decision.reason, "resetting_session_return")
+        self.assertEqual(
+            decision.proposed_session_direction, self.runtime.SessionDirectionType.RETURNING
+        )
+
     def test_planner_combines_all_orthogonal_runtime_dimensions(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
         manual = asyncio.run(manager.async_start(owner_profile_id="profile-manual"))
@@ -1705,6 +1734,95 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             ],
             ["session_flow_updated", "dj_moment_published"],
         )
+
+    def test_resetting_update_is_followed_once_by_a_returning_update(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-returning"))
+
+        async def invalid_insight() -> dict:
+            return {}
+
+        for _ in range(2):
+            silence = asyncio.run(
+                manager.async_process_track_started(
+                    owner_profile_id=created.owner_profile_id,
+                    session_id=created.session_id,
+                    insight_provider=invalid_insight,
+                )
+            )
+            assert silence is not None
+            self.assertEqual(silence.moment_type, self.runtime.DJMomentType.SILENCE)
+
+        resetting = asyncio.run(
+            manager.async_process_track_started(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                insight_provider=invalid_insight,
+            )
+        )
+        assert resetting is not None
+        self.assertEqual(
+            dict(resetting.generation_metadata)["direction"],
+            self.runtime.SessionDirectionType.RESETTING.value,
+        )
+        events: list[dict] = []
+        asyncio.run(
+            manager.async_subscribe(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                callback=events.append,
+            )
+        )
+        created.planner.last_spoken_moment_at = 0
+        calls = 0
+
+        async def provider() -> dict:
+            nonlocal calls
+            calls += 1
+            return {}
+
+        returning = asyncio.run(
+            manager.async_process_track_started(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                insight_provider=provider,
+            )
+        )
+        active = asyncio.run(manager.async_get_active(created.owner_profile_id))
+
+        assert returning is not None and active is not None
+        self.assertEqual(calls, 0)
+        self.assertEqual(returning.moment_type, self.runtime.DJMomentType.SESSION)
+        self.assertEqual(
+            dict(returning.generation_metadata)["direction"],
+            self.runtime.SessionDirectionType.RETURNING.value,
+        )
+        self.assertEqual(created.planner.last_decision.reason, "resetting_session_return")
+        self.assertEqual(active.session_direction.direction, self.runtime.SessionDirectionType.RETURNING)
+        self.assertEqual(active.planner.output.session_flow.items[-1].moment_id, returning.moment_id)
+        self.assertEqual(active.broadcast.as_dict()["dj_moments"][-1]["moment_id"], returning.moment_id)
+        self.assertEqual(
+            [
+                event["event_type"]
+                for event in events
+                if event["event_type"] in {"session_flow_updated", "dj_moment_published"}
+            ],
+            ["session_flow_updated", "dj_moment_published"],
+        )
+        with self.assertRaises(FrozenInstanceError):
+            returning.title = "Mutated"
+
+        created.planner.last_spoken_moment_at = 0
+        next_moment = asyncio.run(
+            manager.async_process_track_started(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                insight_provider=provider,
+            )
+        )
+        assert next_moment is not None
+        self.assertNotEqual(next_moment.moment_type, self.runtime.DJMomentType.SESSION)
+        self.assertEqual(calls, 1)
 
     def test_later_mood_and_persona_changes_do_not_mutate_existing_moment(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
