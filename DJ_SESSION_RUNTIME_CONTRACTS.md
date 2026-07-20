@@ -42,8 +42,9 @@ Profile
 | Owner | Owns | Never owns |
 | --- | --- | --- |
 | Profile | Identity, exactly one Music Backend binding, settings, preferences, Music DNA, Session History and Conversation History. | Active runtime state, planner state or renderer state. |
-| DJ Session Runtime | Active listening experience and the effective Session Capabilities. | Persistent Profile identity, backend credentials or durable playback state. |
+| DJ Session Runtime | Active listening experience, effective Session Capabilities and orchestration of Planner, Moment Engine and Broadcast. | Persistent Profile identity, backend credentials or durable playback state. |
 | Session Planner | The future: rolling planning horizon and Session Flow. | Direct provider playback execution or Profile persistence. |
+| DJ Moment Engine | Creative execution from Knowledge Intent to immutable DJ Moment. | Planner timing, direct playback execution or renderer-specific business logic. |
 | Broadcast Engine | Distribution of scoped active-session events through Broadcast Feed. | Video, pixels, renderer presentation or persistent profile data. |
 | Renderer | Local presentation and user input. | Business logic, planner state, Profile state or backend logic. |
 | Music Backend | Provider-specific playback execution, queues, credentials and availability. | DJ Session ownership, planning or audience interpretation. |
@@ -62,6 +63,7 @@ owns:
 
 - Playback Context;
 - Session Planner;
+- DJ Moment Engine;
 - Session Flow;
 - Conversation Engine;
 - Session Memory;
@@ -99,7 +101,9 @@ Planner Events are internal inputs, not client commands: `track_finished`,
 handle or schedule them.
 
 The Planner produces a Planner Output that will eventually contain Session
-Flow. The Session Runtime exposes that output; clients consume it. The v4-02
+Flow and Knowledge Intents. A Knowledge Intent states what should be
+communicated, not how it should be presented. The Session Runtime exposes the
+resulting Broadcast output; clients never consume planner internals. The v4-02
 foundation exposes `session_flow: null` and generates no flow.
 
 Mood belongs exclusively to the active Session Runtime. The Planner consumes
@@ -113,6 +117,26 @@ The Planner consumes available playback, aggregated Audience Signals, owner
 interaction, conversation, permitted Music DNA and backend availability. It
 does not issue direct playback commands, generate a static playlist or mutate
 Profile state.
+
+## DJ Moment Engine contract
+
+The DJ Moment Engine receives one Knowledge Intent with Runtime context, the
+current Session Mood and the active DJ Persona. It owns creative execution and
+creates one universal immutable DJ Moment. It does not decide Planner timing,
+control provider playback or ask renderers to invent presentation behaviour.
+
+Each Moment carries a snapshot Presentation Intent: Persona, Mood, tone,
+delivery and voice style, visual theme, energy, importance, maximum duration
+and permitted delivery channels such as Broadcast, Voice, Owner and Shared.
+A Mood or Persona change affects only future Moments; it never mutates an
+already-created Moment. Silence is a first-class Knowledge Intent and Moment
+type, allowing the DJ to intentionally make no contribution.
+
+Track Insight, Lyrics Insight, Artist Story, Discover and similar experiences
+are Moment specializations. Follow-up actions belong to the Moment that
+supplies them; a renderer may present those actions but never derive them.
+The detailed conceptual vocabulary is in
+[`docs/product/DJ_PRESENTATION_ARCHITECTURE.md`](docs/product/DJ_PRESENTATION_ARCHITECTURE.md).
 
 ## Session Flow contract
 
@@ -175,11 +199,11 @@ is `runtime_created`, `runtime_ended`, `playback_changed`, `playback_progress`,
 does not yet distribute events or generate state content.
 
 The Runtime is the sole orchestrator: inputs flow through Runtime to Planner,
-then Broadcast Engine, then renderers. Renderers consume only Broadcast State
-and Broadcast Events; they never access Planner or Runtime internals. Future
-Voice follows the same boundary. VibeCast and the Universal Session Receiver
-are future renderers that consume the Broadcast Feed; neither is a Broadcast
-Engine, Planner or Runtime.
+then Knowledge Intent, DJ Moment Engine, DJ Moment, Broadcast Engine and
+renderers. Renderers consume only Broadcast State and Broadcast Events; they
+never access Planner or Runtime internals. Future Voice follows the same
+boundary. VibeCast and the Universal Session Receiver are future renderers that
+consume the Broadcast Feed; neither is a Broadcast Engine, Planner or Runtime.
 
 ## Audience Signal contract
 

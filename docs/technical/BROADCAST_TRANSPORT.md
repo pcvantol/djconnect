@@ -27,6 +27,23 @@ Profile → Session Runtime → Session Planner → Broadcast Engine → Rendere
 
 Renderers do not poll Runtime internals and do not derive planner state.
 
+## Future DJ Moment projection
+
+The current transport remains the authoritative V4-06 Broadcast State
+contract. The canonical future presentation model adds immutable DJ Moments to
+that state rather than giving renderers creative responsibility:
+
+```text
+Session Planner → Knowledge Intent → DJ Moment Engine → DJ Moment → Broadcast → Renderer
+```
+
+A Moment is a renderer-safe snapshot with its Presentation Intent already
+resolved. A renderer may choose how to display the supplied content for its
+surface, but must not rewrite the Persona, Mood, delivery, importance or
+follow-up actions. This is architecture and domain modelling only; it does not
+add a Moment field, event or WebSocket payload to the current transport.
+See [`../product/DJ_PRESENTATION_ARCHITECTURE.md`](../product/DJ_PRESENTATION_ARCHITECTURE.md).
+
 ## Subscription contract
 
 After completing the normal Home Assistant WebSocket authentication, an owner

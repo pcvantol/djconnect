@@ -87,6 +87,10 @@ Profile when the session ends.
 
 ### Session Planner and Session Flow
 
+The Planner plans Knowledge Intents, not renderer features. The canonical
+presentation path is `Knowledge Intent → DJ Moment Engine → immutable DJ
+Moment → Broadcast → Renderer`; see `docs/product/DJ_PRESENTATION_ARCHITECTURE.md`.
+
 The Session Planner is the central AI orchestration engine. It continuously
 plans approximately the next fifteen minutes and replans from playback,
 interaction, audience signals, conversation, mood, backend availability and

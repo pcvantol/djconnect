@@ -27,6 +27,7 @@ Profile (persistent)
 DJ Session Runtime (ephemeral, server-owned)
   -> Playback Context
   -> Session Planner
+  -> DJ Moment Engine
   -> Conversation Engine
   -> Session Memory and Session Flow
   -> Broadcast Engine and Audience Signals
@@ -39,11 +40,12 @@ permitted durable outcomes are written back to the owning Profile. A Music
 Backend belongs to a Profile, never to a DJ Session.
 
 The v4 ownership chain is strict: Profile owns identity and history; Runtime
-owns the present; Planner owns the future; Broadcast owns distribution;
-Renderers own presentation; and the Music Backend owns playback execution.
-The Runtime is the only orchestrator: inputs enter the Runtime, which
-coordinates its Planner and then its Broadcast Engine. Renderers never read
-Planner state or other Runtime internals directly.
+owns the present; Planner owns the future; the DJ Moment Engine owns creative
+execution; Broadcast owns distribution; Renderers own local presentation; and
+the Music Backend owns playback execution. The Runtime is the only
+orchestrator: inputs enter the Runtime, which coordinates its Planner, DJ
+Moment Engine and then its Broadcast Engine. Renderers never read Planner state
+or other Runtime internals directly.
 
 ## Session Planner and Session Flow
 
@@ -58,6 +60,13 @@ next, including the current track, announcements, Track Insights, Discover
 moments, musical direction and planned transitions. A provider queue can
 remain available as an advanced view under More, but is no longer the primary
 DJConnect experience.
+
+The Planner's presentation output is a **Knowledge Intent**: what the DJ should
+communicate, never its wording, voice, visual treatment or delivery. A DJ
+Moment Engine combines the Knowledge Intent with Runtime context, current
+Session Mood and DJ Persona, then creates one immutable **DJ Moment** with its
+resolved Presentation Intent. The Planner remains responsible for timing; the
+Moment Engine is responsible for creative execution.
 
 ## Broadcast and rendering
 
@@ -88,7 +97,7 @@ empty except for safe session, planner and lifecycle placeholders. It is the
 only outward-facing representation of an active DJ Session.
 
 ```text
-Inputs -> Session Runtime -> Session Planner -> Broadcast Engine -> Renderers
+Inputs -> Session Runtime -> Session Planner -> Knowledge Intent -> DJ Moment Engine -> DJ Moment -> Broadcast Engine -> Renderers
 ```
 
 All renderers consume Broadcast State and Broadcast Events only: Native Owner,
@@ -112,7 +121,11 @@ querying the Planner directly.
 - Broadcast receivers render locally and do not infer private Profile data.
 - This document defines target architecture only. It creates no storage,
   protocol, API, synchronization, client UI, migration or implementation
-  commitment.
+ commitment.
+
+The detailed conceptual model, including Personas, Presentation Intents,
+immutable Moments and explicit Silence, is
+[`docs/product/DJ_PRESENTATION_ARCHITECTURE.md`](docs/product/DJ_PRESENTATION_ARCHITECTURE.md).
 
 ## Delivery consequences
 

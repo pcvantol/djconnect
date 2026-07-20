@@ -24,6 +24,11 @@ schemas, serialization or implementation.
 | Session Memory | The objective chronological memory of one DJ Session. | Records what happened as events only; it performs no interpretation. |
 | Session Timeline | The user-facing chronological presentation of Session Memory. | Tells the story of one completed DJ Session; it is not a chat history. |
 | Music DNA | The evolving, opt-in understanding of a person's musical identity across many DJ Sessions. | Interprets patterns in Session Memory; it never replaces Session Memory. |
+| DJ Persona | A behavioural DJ identity for a session. | Shapes how future contributions are presented; it is not a voice or mood. |
+| Session Mood | The dynamic emotional state of the active Session Runtime. | Informs future presentation only and never rewrites completed Moments. |
+| Knowledge Intent | A planned statement of what the DJ should communicate. | Contains no delivery, wording, voice or visual choice. |
+| Presentation Intent | The immutable snapshot of how a Knowledge Intent will be delivered. | Carries Persona, Mood, tone, delivery and channel choices into one Moment. |
+| DJ Moment | The immutable, renderer-safe presentation contribution. | Is the universal unit published to Broadcast and presented by renderers. |
 
 ## DJ Session
 
@@ -34,6 +39,26 @@ individual capabilities that may contribute to a session.
 
 A DJ Session is independent from any specific playback provider. It enriches a
 listening experience but never owns playback.
+
+## DJ presentation model
+
+The presentation path is conceptually:
+
+```text
+Session Planner → Knowledge Intent → DJ Moment Engine → DJ Moment → Broadcast → Renderers
+```
+
+A Knowledge Intent states what matters to the session, for example an Artist
+Story, Transition, Audience response or Silence. The DJ Moment Engine owns the
+creative execution and combines that intent with the current Session Mood,
+Persona and Runtime context. The resulting DJ Moment is immutable and may
+carry content, artwork, delivery, visibility and follow-up actions. Renderers
+present a Moment; they do not derive a competing presentation from the
+underlying session state.
+
+This document defines product vocabulary only. The canonical architecture and
+future implementation boundary are in
+[`DJ_PRESENTATION_ARCHITECTURE.md`](DJ_PRESENTATION_ARCHITECTURE.md).
 
 ## Playback Context
 
