@@ -93,6 +93,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
 
     def test_session_start_strategies_initialize_runtime_owned_direction(self) -> None:
         expected = {
+            self.runtime.SessionStartStrategy.CONTINUE: "maintaining_energy",
             self.runtime.SessionStartStrategy.DISCOVER: "exploring",
             self.runtime.SessionStartStrategy.PARTY: "building_energy",
             self.runtime.SessionStartStrategy.FOCUS: "deepening",
@@ -114,6 +115,65 @@ class SessionRuntimeManagerTest(unittest.TestCase):
                 created.session_direction.initialized_at,
                 created.session_direction.updated_at,
             )
+            self.assertEqual(created.session_start_strategy, strategy)
+
+    def test_start_strategies_initialize_deterministic_planner_configuration(self) -> None:
+        expected = {
+            self.runtime.SessionStartStrategy.DISCOVER: ("prefer", 60.0, "curious"),
+            self.runtime.SessionStartStrategy.PARTY: ("balanced", 30.0, "energetic"),
+            self.runtime.SessionStartStrategy.FOCUS: ("deprioritize", 120.0, "minimal"),
+            self.runtime.SessionStartStrategy.CHILL: ("deprioritize", 90.0, "reflective"),
+            self.runtime.SessionStartStrategy.MANUAL: ("balanced", 60.0, "balanced"),
+        }
+        for strategy, (recommendations, minimum_interval, profile) in expected.items():
+            manager = self.runtime.SessionRuntimeManager()
+            created = asyncio.run(
+                manager.async_start(
+                    owner_profile_id=f"profile-{strategy.value}",
+                    session_start_strategy=strategy,
+                )
+            )
+            self.assertEqual(
+                created.planner.configuration.recommendation_preference,
+                recommendations,
+            )
+            self.assertEqual(
+                created.planner.configuration.minimum_time_between_moments_seconds,
+                minimum_interval,
+            )
+            self.assertEqual(created.interaction_profile, profile)
+
+    def test_continue_strategy_is_explicit_and_uses_ephemeral_fallback(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        first = asyncio.run(manager.async_start(owner_profile_id="profile-a"))
+        asyncio.run(manager.async_end(owner_profile_id="profile-a", session_id=first.session_id))
+        continued = asyncio.run(
+            manager.async_start(
+                owner_profile_id="profile-a",
+                session_start_strategy=self.runtime.SessionStartStrategy.CONTINUE,
+            )
+        )
+
+        self.assertEqual(
+            continued.session_start_strategy, self.runtime.SessionStartStrategy.CONTINUE
+        )
+        self.assertEqual(
+            continued.session_direction.direction,
+            self.runtime.SessionDirectionType.MAINTAINING_ENERGY,
+        )
+        self.assertEqual(continued.performance_memory.recent_moment_ids, ())
+
+    def test_session_start_strategy_is_immutable_runtime_state(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(
+            manager.async_start(
+                owner_profile_id="profile-a",
+                session_start_strategy=self.runtime.SessionStartStrategy.PARTY,
+            )
+        )
+
+        with self.assertRaises(FrozenInstanceError):
+            created.session_start_strategy = self.runtime.SessionStartStrategy.CHILL  # type: ignore[misc]
 
     def test_planner_proposes_direction_change_without_owning_runtime_state(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
@@ -549,6 +609,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             context.as_insight()["performance_memory"]["source_flow_id"],
             f"flow-{created.session_id}",
         )
+        self.assertEqual(context.as_insight()["session_start_strategy"], "manual")
         self.assertEqual(moment.source_references, ("track_insight",))
 
     def test_performance_memory_projects_recent_runtime_moments_from_session_flow(self) -> None:
