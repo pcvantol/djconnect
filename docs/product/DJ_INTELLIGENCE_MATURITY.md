@@ -19,7 +19,7 @@ behaviour rather than replace architecture or introduce speculative systems.
 | --- | --- |
 | 1 — current | Track Started trigger, Track Context, Silence and Runtime heuristics. |
 | 2 — partial | Deterministic Artist, Album, Genre and Recommendation intent selection from available knowledge hints. Transition, Discover and Session Update remain deferred. |
-| 3 — partial | Runtime-owned, timestamped Session Direction with deterministic Session Start initialization, Planner proposals and Session Update Moments. Runtime-scoped Performance Memory projects recent Moment facts from Session Flow so deterministic choices avoid immediate Artist, Genre and Recommendation repetition. Immutable Session Start Strategies now select the initial Direction, Planner configuration and interaction profile. Audience-driven adaptation, context-aware transitions and autonomous replanning remain deferred. |
+| 3 — partial | Runtime-owned, timestamped Session Direction with deterministic Session Start initialization, Planner proposals and Session Update Moments. Runtime-scoped Performance Memory projects recent Moment facts from Session Flow so deterministic choices avoid immediate Artist, Genre and Recommendation repetition. Immutable Session Start Strategies now select the initial Direction, Planner configuration and interaction profile. Discover uses those existing controls to prefer exploration-oriented Moments and optional safe Music DNA context. Audience-driven adaptation, context-aware transitions and autonomous replanning remain deferred. |
 | 4 | Persistent cross-session performance learning, multi-track planning, narrative sequencing, dynamic replanning and pacing. |
 | 5 | Autonomous session strategy and long-term performance optimisation. |
 
@@ -54,9 +54,9 @@ than create a feature-specific execution path.
 
 | Stage | Maturity |
 | --- | --- |
-| 1 | Session Start Strategy and track recommendations. |
-| 2 | Personalised Discovery and permitted Music DNA influence. |
-| 3 | Narrative discovery sessions. |
+| 1 — complete | Immutable Discover Session Start Strategy initializes Exploring Direction and a high exploration preference. |
+| 2 — partial | Deterministic Discover Planner preference for Recommendation, Artist, Genre and Album context; Performance Memory diversity; optional, safe opt-in Music DNA familiarity avoidance. No dedicated Discover provider, search or playback behaviour. |
+| 3 | Narrative discovery sessions and richer DJ-guided transitions. |
 | 4 | Autonomous discovery journeys. |
 
 ## DJ Persona and Session Mood

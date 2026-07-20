@@ -61,6 +61,7 @@ from .request_auth import (
 from .spotify_backend import SpotifyBackendError
 from .session_runtime import (
     ActiveSessionExistsError,
+    DiscoverContext,
     DJPersona,
     SessionStartStrategy,
     session_runtime_manager,
@@ -121,6 +122,8 @@ async def async_handle_session_start_payload(
         return error, int(status or 400)
     if not context.backend_id:
         return _error_payload("profile_backend_missing"), 409
+    strategy = _session_start_strategy(data.get("session_start_strategy"))
+    discover_context = await _discover_context_for_session(runtime, context, strategy)
     try:
         session = await session_runtime_manager(hass).async_start(
             owner_profile_id=context.profile_id,
@@ -129,7 +132,8 @@ async def async_handle_session_start_payload(
             music_backend=context.backend_id,
             dj_persona=_dj_persona(data.get("dj_persona")),
             locale=str(data.get("language") or data.get("locale") or "en"),
-            session_start_strategy=_session_start_strategy(data.get("session_start_strategy")),
+            session_start_strategy=strategy,
+            discover_context=discover_context,
         )
     except ActiveSessionExistsError:
         active = await session_runtime_manager(hass).async_get_active(context.profile_id)
@@ -185,6 +189,42 @@ def _session_start_strategy(value: Any) -> SessionStartStrategy:
         return SessionStartStrategy(str(value or SessionStartStrategy.MANUAL.value))
     except ValueError:
         return SessionStartStrategy.MANUAL
+
+
+async def _discover_context_for_session(
+    runtime: Any, context: Any, strategy: SessionStartStrategy
+) -> DiscoverContext:
+    """Project opt-in Music DNA into safe Discover-only Runtime context."""
+    if strategy is not SessionStartStrategy.DISCOVER:
+        return DiscoverContext()
+    if not getattr(context.privacy_policy, "allow_personal_read", False):
+        return DiscoverContext()
+    memory = getattr(runtime, "memory", None)
+    if memory is None:
+        return DiscoverContext()
+    try:
+        result = await memory.async_profile(
+            runtime,
+            {"music_dna_key": context.music_dna_key},
+            user_id=context.ha_user_id or None,
+        )
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect Discover Music DNA unavailable: %s", exc.__class__.__name__)
+        return DiscoverContext()
+    if not result.get("enabled") or not isinstance(result.get("profile"), dict):
+        return DiscoverContext()
+    profile = result["profile"]
+    artists = tuple(
+        str(item.get("name") or "").strip()[:160]
+        for item in profile.get("favorite_artists", [])
+        if isinstance(item, dict) and str(item.get("name") or "").strip()
+    )[:20]
+    genres = tuple(
+        str(item.get("name") or "").strip()[:160]
+        for item in profile.get("favorite_genres", [])
+        if isinstance(item, dict) and str(item.get("name") or "").strip()
+    )[:20]
+    return DiscoverContext(True, artists, genres)
 
 
 async def async_handle_session_end_payload(
