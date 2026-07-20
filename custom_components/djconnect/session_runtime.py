@@ -542,6 +542,14 @@ class DJSessionPlanner:
             selected_mood=mood,
             persona=persona,
         )
+        direction_change_reason = "session_direction_changed"
+        if (
+            performance_memory.recent_moment_types[-2:]
+            == (DJMomentType.SILENCE, DJMomentType.SILENCE)
+            and session_direction.direction is not SessionDirectionType.RESETTING
+        ):
+            proposed_direction = SessionDirectionType.RESETTING
+            direction_change_reason = "recent_silence_recovery"
         if proposed_direction is not session_direction.direction:
             if performance_memory.recent_moment_types[-1:] == (DJMomentType.SESSION,):
                 self.last_decision = PlannerDecision(
@@ -554,7 +562,7 @@ class DJSessionPlanner:
             )
             self.last_decision = PlannerDecision(
                 PlannerDecisionType.CREATE_SESSION_UPDATE,
-                "session_direction_changed",
+                direction_change_reason,
                 intent,
                 proposed_direction,
             )
