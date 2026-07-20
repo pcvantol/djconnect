@@ -114,9 +114,12 @@ absent; this reconciliation records the traceability gap without reconstructing
 immutable history.
 
 PR [#216](https://github.com/pcvantol/djconnect/pull/216), **V4-01
-Server-owned Active DJ Session Runtime**, is reviewable. It is limited to one
-ephemeral Runtime per resolved Profile and the paired Apple-client start, active
-lookup and end lifecycle.
+Server-owned Active DJ Session Runtime**, is merged as
+`36d1e15da8b55fdccaac8b7ad777ccf6f462b6e5` on 2026-07-20. It is limited to
+one ephemeral Runtime per resolved Profile and the paired Apple-client start,
+active lookup and end lifecycle. Its Prompt History archive is absent; this
+reconciliation records the traceability gap without reconstructing immutable
+history.
 
 Canonical lifecycle:
 
@@ -291,8 +294,8 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-DJConnect v4 Architecture and DJ Session Runtime Contracts are merged and
-reconciled into current repository truth. V4-01 is reviewable in PR #216.
+DJConnect v4 Architecture, Runtime Contracts and V4-01 are merged; this
+reconciliation aligns the rolling records with current repository truth.
 Platform Release 3.3 remains in Maintenance.
 
 ## Completion Report
