@@ -443,6 +443,16 @@ class SessionRuntimeManager:
                 return None
             return active.broadcast.broadcast_token_contract()
 
+    async def async_unsubscribe_broadcast_token(
+        self, *, session_id: str, subscription_id: str
+    ) -> None:
+        """Release a token Receiver without resolving or exposing its Profile."""
+        async with self._lock:
+            for active in self._active_by_profile.values():
+                if active.session_id == session_id:
+                    active.broadcast.unsubscribe(subscription_id)
+                    return
+
     async def async_unsubscribe(
         self, *, owner_profile_id: str, session_id: str, subscription_id: str
     ) -> None:

@@ -48,6 +48,7 @@ from .const import (
     API_SESSION_END,
     API_SESSION_ACTIVE,
     API_SESSION_BROADCAST_TOKEN,
+    API_SESSION_BROADCAST_WS,
     API_VOICE,
     CONF_ASSIST_PIPELINE_ID,
     CONF_CLIENT_TYPE,
@@ -2766,6 +2767,61 @@ class DJConnectSessionBroadcastTokenView(_DJConnectSessionView):
             request.app["hass"], data, headers=request.headers, user_id=_request_user_id(request)
         )
         return self.json(result, status_code=status)
+
+
+class DJConnectSessionBroadcastWebSocketView(HomeAssistantView):
+    """Read-only Broadcast Token WebSocket for stateless Universal Receivers."""
+
+    url = API_SESSION_BROADCAST_WS
+    name = "api:djconnect:session:broadcast:websocket"
+    requires_auth = False
+
+    def __init__(self, hass):
+        self.hass = hass
+
+    async def get(self, request, session_id: str):
+        token = str(request.query.get("broadcast_token") or "").strip()
+        if not token:
+            return web.json_response({"success": False, "error": "broadcast_token_required"}, status=401)
+        websocket = web.WebSocketResponse(heartbeat=30)
+        await websocket.prepare(request)
+        from .session_runtime import session_runtime_manager
+
+        manager = session_runtime_manager(request.app["hass"])
+
+        def publish(event: dict[str, Any]) -> None:
+            if not websocket.closed:
+                request.app["hass"].async_create_task(
+                    websocket.send_json(
+                        {"type": "event", "event_type": "djconnect/session/broadcast", "data": event}
+                    )
+                )
+
+        subscribed = await manager.async_subscribe_with_broadcast_token(
+            session_id=session_id, broadcast_token=token, callback=publish
+        )
+        if subscribed is None:
+            await websocket.send_json({"type": "error", "error": "invalid_broadcast_token"})
+            await websocket.close(code=1008)
+            return websocket
+        subscription_id, snapshot = subscribed
+        await websocket.send_json(
+            {
+                "type": "snapshot",
+                "session_id": session_id,
+                "snapshot": snapshot,
+                "capabilities": {"view_broadcast": True, "like": False, "audience_signals": False, "ask_dj": False, "owner_controls": False},
+            }
+        )
+        try:
+            async for _message in websocket:
+                # V4-07 is intentionally read-only: client frames have no action semantics.
+                await websocket.send_json({"type": "error", "error": "broadcast_read_only"})
+        finally:
+            await manager.async_unsubscribe_broadcast_token(
+                session_id=session_id, subscription_id=subscription_id
+            )
+        return websocket
 
 
 class DJConnectEventView(HomeAssistantView):
