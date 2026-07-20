@@ -76,8 +76,10 @@ Backend information only under their applicable privacy and capability rules.
 
 For a future Continue Session Start, the Runtime may become active only after
 Session Start orchestration validates and adopts one backend-supplied Current
-Playback Projection. A missing or unavailable observation creates no Runtime;
-the Runtime never falls back to another Strategy, changes playback or imports
+Playback Projection. Its Backend-owned Playback Instance Identity must be
+unchanged when the corresponding normalized Track Started event reaches Runtime.
+A missing, unavailable or unsupported observation creates no Runtime; the
+Runtime never falls back to another Strategy, changes playback or imports
 pre-session history. The detailed projection, identity and failure contract is
 [`CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`](docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md).
 

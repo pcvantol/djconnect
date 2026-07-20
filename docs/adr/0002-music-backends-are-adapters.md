@@ -28,7 +28,8 @@ Provider-specific logic belongs inside backend adapters.
 - Music Assistant support should not become a full Music Assistant clone inside DJConnect.
 - Future providers can be added by implementing adapters and capability mappings.
 - For Continue Current Playback Continuity, adapters translate provider state
-  into the canonical safe projection and never expose raw payloads to Runtime;
+  into the canonical safe projection, own Playback Instance Identity and
+  normalize Track Started observations without exposing raw payloads to Runtime;
   see `docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`.
 
 ## Alternatives considered
