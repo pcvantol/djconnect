@@ -59,7 +59,12 @@ from .request_auth import (
     validate_required_client_type,
 )
 from .spotify_backend import SpotifyBackendError
-from .session_runtime import ActiveSessionExistsError, DJPersona, session_runtime_manager
+from .session_runtime import (
+    ActiveSessionExistsError,
+    DJPersona,
+    SessionStartStrategy,
+    session_runtime_manager,
+)
 from .track_insight import TrackInsightError, TrackInsightService
 from .use_cases import (
     MusicBackendCapabilityError,
@@ -124,6 +129,7 @@ async def async_handle_session_start_payload(
             music_backend=context.backend_id,
             dj_persona=_dj_persona(data.get("dj_persona")),
             locale=str(data.get("language") or data.get("locale") or "en"),
+            session_start_strategy=_session_start_strategy(data.get("session_start_strategy")),
         )
     except ActiveSessionExistsError:
         active = await session_runtime_manager(hass).async_get_active(context.profile_id)
@@ -171,6 +177,14 @@ def _dj_persona(value: Any) -> DJPersona:
         return DJPersona(str(value or DJPersona.HOME_DJ.value))
     except ValueError:
         return DJPersona.HOME_DJ
+
+
+def _session_start_strategy(value: Any) -> SessionStartStrategy:
+    """Accept only bounded, server-owned Session Start Strategy values."""
+    try:
+        return SessionStartStrategy(str(value or SessionStartStrategy.MANUAL.value))
+    except ValueError:
+        return SessionStartStrategy.MANUAL
 
 
 async def async_handle_session_end_payload(
