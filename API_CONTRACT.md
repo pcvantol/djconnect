@@ -716,6 +716,14 @@ timestamps, placeholder `current_direction` (`maintain` initially), optional
 `current_goal`, empty `pending_events` and a Planner Output placeholder with
 `session_flow: null`.
 
+The same runtime representation exposes a runtime-owned `broadcast` state.
+It contains only canonical placeholders: `session` (`session_id`,
+`runtime_state`, `selected_mood`), empty `playback` fields, Planner state and
+direction, empty `session_flow` and `audience` sections, and Broadcast
+`started_at`. It is the renderer-safe outward contract; clients must not read
+the nested Planner object or other Runtime internals as an alternative
+renderer interface.
+
 The Planner is created exactly once with its Runtime, is never shared between
 sessions and is discarded when the Runtime ends. It owns the future planning
 horizon and will later produce Session Flow. The Runtime owns the present,
@@ -724,7 +732,8 @@ persists it. Profiles never own mood.
 
 This foundation does not yet plan, replan, schedule Track Insight or Discover,
 generate announcements, make AI decisions, generate Session Flow, execute
-playback, publish Broadcast/VibeCast, or persist planner state.
+playback, distribute Broadcast Events, render Session Flow, implement VibeCast,
+Universal Session Receiver or Voice, or persist planner state.
 
 `/music_dna/settings` accepts:
 

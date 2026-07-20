@@ -304,7 +304,10 @@ architecture are stable enough to freeze.
 ## Current Prompt
 
 DJConnect v4 Architecture, Runtime Contracts, V4-01 and V4-02 are merged and
-reconciled. Platform Release 3.3 remains in Maintenance.
+reconciled. V4-03 Broadcast Engine Foundation is the active, explicitly
+authorized implementation increment on `codex/v4-broadcast-engine-foundation`.
+It is limited to ephemeral Broadcast Engine ownership and empty canonical
+Broadcast State; Platform Release 3.3 remains in Maintenance.
 
 ## Completion Report
 

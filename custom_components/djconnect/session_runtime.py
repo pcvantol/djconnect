@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import asyncio
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any
@@ -49,6 +49,22 @@ class PlannerEventType(StrEnum):
     PLANNER_TICK = "planner_tick"
 
 
+class BroadcastEventType(StrEnum):
+    """Stable event vocabulary for future Broadcast Engine distribution."""
+
+    RUNTIME_CREATED = "runtime_created"
+    RUNTIME_ENDED = "runtime_ended"
+    PLAYBACK_CHANGED = "playback_changed"
+    PLAYBACK_PROGRESS = "playback_progress"
+    PLANNER_UPDATED = "planner_updated"
+    MOOD_CHANGED = "mood_changed"
+    TRACK_CHANGED = "track_changed"
+    SESSION_FLOW_UPDATED = "session_flow_updated"
+    AUDIENCE_UPDATED = "audience_updated"
+    BROADCAST_STARTED = "broadcast_started"
+    BROADCAST_STOPPED = "broadcast_stopped"
+
+
 @dataclass(frozen=True)
 class SessionPlannerOutput:
     """Planner-owned placeholder for the future Session Flow output."""
@@ -92,6 +108,59 @@ class DJSessionPlanner:
         }
 
 
+@dataclass(frozen=True)
+class DJBroadcastState:
+    """Canonical, renderer-safe representation of the current DJ Session."""
+
+    session_id: str
+    runtime_state: SessionRuntimeState
+    selected_mood: str
+    planning_state: PlannerState
+    planning_horizon_minutes: int
+    current_direction: MusicalDirection
+    started_at: str
+
+    def as_dict(self) -> dict[str, Any]:
+        """Return the empty foundation state without generating session content."""
+        return {
+            "session": {
+                "session_id": self.session_id,
+                "runtime_state": str(self.runtime_state),
+                "selected_mood": self.selected_mood,
+            },
+            "playback": {"current_track": None, "playback_progress": None},
+            "planner": {
+                "planning_state": str(self.planning_state),
+                "planning_horizon_minutes": self.planning_horizon_minutes,
+                "current_direction": str(self.current_direction),
+            },
+            "session_flow": {},
+            "audience": {},
+            "broadcast": {"started_at": self.started_at},
+        }
+
+
+@dataclass
+class DJSessionBroadcastEngine:
+    """One ephemeral distribution owner for one active Session Runtime.
+
+    The Engine publishes only canonical Broadcast State. It never plans,
+    executes playback or renders a presentation; future renderers consume this
+    state and the stable Broadcast Event vocabulary through the Runtime.
+    """
+
+    state: DJBroadcastState
+    pending_events: tuple[BroadcastEventType, ...] = ()
+
+    def update_runtime_state(self, runtime_state: SessionRuntimeState) -> None:
+        """Reflect the Runtime lifecycle in its canonical Broadcast State."""
+        self.state = DJBroadcastState(**{**self.state.__dict__, "runtime_state": runtime_state})
+
+    def as_dict(self) -> dict[str, Any]:
+        """Expose only canonical Broadcast State to future renderers."""
+        return self.state.as_dict()
+
+
 class ActiveSessionExistsError(RuntimeError):
     """Raised when a Profile already owns an active DJ Session."""
 
@@ -113,15 +182,22 @@ class DJSessionRuntime:
     created_at: str
     started_at: str
     planner: DJSessionPlanner
+    broadcast: DJSessionBroadcastEngine
 
     def as_dict(self) -> dict[str, Any]:
         """Return the public, transport-neutral runtime representation."""
         runtime = {
-            key: str(value)
-            for key, value in asdict(self).items()
-            if key != "planner"
+            "session_id": self.session_id,
+            "owner_profile_id": self.owner_profile_id,
+            "room": self.room,
+            "selected_mood": self.selected_mood,
+            "music_backend": self.music_backend,
+            "runtime_state": str(self.runtime_state),
+            "created_at": self.created_at,
+            "started_at": self.started_at,
         }
         runtime["planner"] = self.planner.as_dict()
+        runtime["broadcast"] = self.broadcast.as_dict()
         return runtime
 
 
@@ -145,8 +221,10 @@ class SessionRuntimeManager:
             if owner_profile_id in self._active_by_profile:
                 raise ActiveSessionExistsError(owner_profile_id)
             now = _timestamp()
+            session_id = f"session-{uuid4().hex}"
+            planner = _create_session_planner(now)
             creating = DJSessionRuntime(
-                session_id=f"session-{uuid4().hex}",
+                session_id=session_id,
                 owner_profile_id=owner_profile_id,
                 room=room,
                 selected_mood=selected_mood,
@@ -154,8 +232,16 @@ class SessionRuntimeManager:
                 runtime_state=SessionRuntimeState.CREATING,
                 created_at=now,
                 started_at="",
-                planner=_create_session_planner(now),
+                planner=planner,
+                broadcast=_create_broadcast_engine(
+                    session_id=session_id,
+                    runtime_state=SessionRuntimeState.CREATING,
+                    selected_mood=selected_mood,
+                    planner=planner,
+                    started_at=now,
+                ),
             )
+            creating.broadcast.update_runtime_state(SessionRuntimeState.ACTIVE)
             active = DJSessionRuntime(
                 **{
                     **creating.__dict__,
@@ -184,9 +270,11 @@ class SessionRuntimeManager:
                 return None
             if session_id and active.session_id != session_id:
                 return None
+            active.broadcast.update_runtime_state(SessionRuntimeState.ENDING)
             ending = DJSessionRuntime(
                 **{**active.__dict__, "runtime_state": SessionRuntimeState.ENDING}
             )
+            active.broadcast.update_runtime_state(SessionRuntimeState.ENDED)
             ended = DJSessionRuntime(
                 **{**ending.__dict__, "runtime_state": SessionRuntimeState.ENDED}
             )
@@ -219,4 +307,26 @@ def _create_session_planner(created_at: str) -> DJSessionPlanner:
         current_goal="",
         pending_events=(),
         output=SessionPlannerOutput(),
+    )
+
+
+def _create_broadcast_engine(
+    *,
+    session_id: str,
+    runtime_state: SessionRuntimeState,
+    selected_mood: str,
+    planner: DJSessionPlanner,
+    started_at: str,
+) -> DJSessionBroadcastEngine:
+    """Create the one non-persistent Broadcast Engine for a new Runtime."""
+    return DJSessionBroadcastEngine(
+        state=DJBroadcastState(
+            session_id=session_id,
+            runtime_state=runtime_state,
+            selected_mood=selected_mood,
+            planning_state=planner.planner_state,
+            planning_horizon_minutes=planner.planning_horizon_minutes,
+            current_direction=planner.current_direction,
+            started_at=started_at,
+        )
     )
