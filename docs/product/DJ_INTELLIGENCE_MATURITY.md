@@ -38,7 +38,7 @@ behaviour rather than replace architecture or introduce speculative systems.
 | --- | --- |
 | 1 — current | Track Context and Silence. |
 | 2 — current | Artist Story, Album Story, Genre Story and Recommendation deterministically translate their selected Knowledge Context into immutable Moments with frozen Presentation Intent and intent-specific semantic actions. Invalid, incomplete or empty selected context creates canonical Silence. |
-| 3 — partial | Session Update Moments expose Planner-approved Session Direction changes. Concert Suggestion, Music History and Discovery remain deferred. |
+| 3 — partial | Session Update Moments expose Planner-approved Session Direction changes. The minimum Planner-owned Transition contract is defined for a future bounded production slice only; live Transition behaviour remains deferred. Concert Suggestion, Music History and Discovery remain deferred. |
 | 4 | Narrative storytelling, linked Moments and multi-step experiences. |
 
 ## DJ Moment types
@@ -55,7 +55,7 @@ than create a feature-specific execution path.
 | Stage | Maturity |
 | --- | --- |
 | 1 — complete | Immutable Discover Session Start Strategy initializes the Exploring Direction and a high exploration preference; it does not prescribe Mood or Persona. |
-| 2 — partial | Deterministic Discover Planner preference for Recommendation, Artist, Genre and Album context; Performance Memory diversity; optional, safe opt-in Music DNA familiarity avoidance. No dedicated Discover provider, search or playback behaviour. |
+| 2 — current | Repository-alignment of already implemented and tested behaviour: deterministic Discover Planner preference for Recommendation, Artist, Genre and Album context; Performance Memory diversity; optional, safe opt-in Music DNA familiarity avoidance. No dedicated Discover provider, search or playback behaviour. |
 | 3 | Narrative discovery sessions and richer DJ-guided transitions. |
 | 4 | Autonomous discovery journeys. |
 

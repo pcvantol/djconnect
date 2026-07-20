@@ -64,6 +64,25 @@ Intent**: a semantic statement of what the DJ may want to communicate and why.
 It may intentionally choose Silence. Silence is a successful performance
 decision, never an error.
 
+## Context-aware Transition contract
+
+A Transition is one intentional DJ performance act that connects two existing,
+consecutive Session Flow contributions. It is not a Music Backend playback
+transition and does not control playback, a provider queue or a future track.
+
+The Planner alone decides a Transition's necessity and timing from the current
+trigger, Planner Intent, Session Direction, Session Mood, DJ Persona,
+Performance Memory and already-recorded Session Flow. It may approve one
+Transition Intent that identifies the existing contributions and their
+relationship rationale, or choose no transition. It must not inspect a future
+track or queue, schedule multiple tracks, or perform autonomous replanning.
+
+The approved intent contains no wording, renderer instruction or provider
+playback command. When needed, the Knowledge Engine may assemble only already
+available, safe context for that approved intent. The DJ Moment Engine then
+performs the approval as an immutable Transition Moment with Presentation
+Intent frozen at creation. No Planner approval produces no Transition Moment.
+
 ## Knowledge Intent
 
 A Knowledge Intent describes **what** the DJ wants to communicate, not how it
@@ -106,6 +125,8 @@ and Visibility. Its output is validated and immutable. The Engine never
 generates UI and never knows platforms; presentation belongs to Renderer Hosts
 and DJ Moment Renderers as defined in
 [`DJ_PRESENTATION_ARCHITECTURE.md`](DJ_PRESENTATION_ARCHITECTURE.md).
+For a Transition, the Engine never infers timing or necessity; it only realizes
+Planner approval.
 
 ## Music DNA and privacy
 
