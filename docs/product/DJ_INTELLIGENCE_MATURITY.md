@@ -98,6 +98,16 @@ inputs (Stage 1). Selected Discover behaviour is Stage 2;
 narrative and themed Session execution remain Stage 3. Autonomous evening
 experiences are Stage 4 and a continuous AI DJ is Stage 5.
 
+### Continue Current Playback Continuity
+
+| Stage | Maturity |
+| --- | --- |
+| 1 — current | Continue is an explicit immutable Start Strategy with a continuity-oriented Planner profile, `MAINTAINING_ENERGY` Direction and an empty Runtime-only fallback. It adopts no current playback. |
+| 2 — authorized, deferred | A separately reviewable implementation may resolve one immutable provider-neutral Current Playback Projection, adopt one eligible active item exactly once at Continue start, reuse the existing Track Started path, keep Playback unchanged, use runtime-scoped deduplication and return a typed no-active-playback result. It must not read a queue or future track. |
+| 3 | Optional safe current-playback context refinement and richer playlist or album continuity. |
+| 4 | Multi-device continuity and cross-session restoration only under an explicitly authorized persistent contract. |
+| 5 | Autonomous continuity and long-running performance adaptation. |
+
 ## Implementation policy
 
 Every future implementation PR must state its current and target maturity
@@ -112,10 +122,11 @@ or conversation data, and is destroyed with the Runtime. Persistent memory,
 Audience Signals, autonomous planning and any cross-session learning remain
 future work.
 
-Session Start Strategies initialize Runtime state only: they do not execute
-playback, create queues or generate Moments. The Continue Strategy is explicit
-and uses an empty Runtime-only fallback until an authorized future continuity
-contract exists; it does not introduce persistence.
+Session Start Strategies do not execute playback, create queues or generate
+Moments. Continue currently uses its empty Runtime-only fallback. Its authorized
+but deferred Stage 2 continuity contract is
+[`CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`](CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md):
+one safe observed current item, never a queue, history or persistent Session.
 
 ## Principles
 
