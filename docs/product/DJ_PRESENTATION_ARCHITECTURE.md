@@ -71,6 +71,10 @@ Audience, Session, Recommendation, Discover, Concert, Producer, Trivia and
 Silence. Additional types may be added without changing Planner architecture.
 Silence is explicit: a DJ may intentionally decide not to speak.
 
+A Transition Moment is created only from Planner-approved timing and existing
+Session context. It neither represents nor controls a Music Backend playback
+transition, and Renderer Hosts may not infer or create it.
+
 A **Presentation Intent** is an immutable semantic snapshot of how a Moment
 should feel. It may include Session Mood, DJ Persona, Tone of Voice, Delivery
 Style, Importance, Energy, Voice Style, Visual Theme, maximum duration,

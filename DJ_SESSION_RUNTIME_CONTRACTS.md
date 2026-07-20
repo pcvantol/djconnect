@@ -118,6 +118,30 @@ interaction, conversation, permitted Music DNA and backend availability. It
 does not issue direct playback commands, generate a static playlist or mutate
 Profile state.
 
+### Bounded context-aware Transition
+
+A future production slice may consider a Transition only after the current
+contribution has been placed in Session Flow for an existing `track_started`
+Planner Event. The Planner may inspect only the triggering Planner Intent,
+Session Direction, Session Mood, DJ Persona, Performance Memory and the
+immediately preceding recorded Flow contribution. It may return one approved
+Transition Intent or no-transition; it must not inspect a future track, queue
+or planning horizon.
+
+For an approved Transition, the Runtime may pass the approved intent and only
+already-available safe context to the Knowledge Engine when needed, then to
+the DJ Moment Engine. The Engine creates one immutable Transition DJMoment
+with Presentation Intent frozen at creation, or canonical Silence when the
+approved input is invalid or incomplete. The Runtime publishes a non-Silence
+Transition only through the existing `publish_moment()` route: the Planner
+places its linked `DJ_MOMENT` Flow entry and Broadcast distributes that same
+immutable Moment. This introduces no second Flow or Broadcast pipeline.
+
+No-transition produces no Moment, Flow entry or Broadcast event. Performance
+Memory records an emitted Transition so the Planner can prevent direct
+repetition. A Transition is a DJ performance contribution, not a Music Backend
+playback transition.
+
 ## DJ Moment Engine contract
 
 The DJ Moment Engine receives one Knowledge Intent with Runtime context, the
@@ -131,6 +155,9 @@ and permitted delivery channels such as Broadcast, Voice, Owner and Shared.
 A Mood or Persona change affects only future Moments; it never mutates an
 already-created Moment. Silence is a first-class Knowledge Intent and Moment
 type, allowing the DJ to intentionally make no contribution.
+
+An approved Transition uses this same immutable Moment contract and frozen
+Presentation Intent; the Engine may not create one without Planner approval.
 
 Track Insight, Lyrics Insight, Artist Story, Discover and similar experiences
 are Moment specializations. Follow-up actions belong to the Moment that
