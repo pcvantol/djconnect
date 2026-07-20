@@ -1142,6 +1142,70 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertEqual(created.planner.last_decision.decision_type, self.runtime.PlannerDecisionType.NO_TRANSITION)
         self.assertEqual(created.moment_engine.moments[-1].moment_type, self.runtime.DJMomentType.RECOMMENDATION)
 
+    def test_track_context_can_precede_an_exploring_recommendation_transition(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(
+            manager.async_start(
+                owner_profile_id="profile-track-transition",
+                session_start_strategy=self.runtime.SessionStartStrategy.DISCOVER,
+            )
+        )
+        calls = 0
+
+        async def insight() -> dict:
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                return {
+                    "track": {"title": "First Track", "artist": "First Artist"},
+                    "analysis": {"summary": "Track context.", "full_text": "Track context detail."},
+                }
+            return {
+                "track": {"title": "Second Track", "artist": "Second Artist", "related_tracks": "Related"},
+                "analysis": {"summary": "Recommendation.", "full_text": "Recommendation detail."},
+            }
+
+        first = asyncio.run(
+            manager.async_process_track_started(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                insight_provider=insight,
+            )
+        )
+        created.planner.last_spoken_moment_at = 0.0
+        second = asyncio.run(
+            manager.async_process_track_started(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                insight_provider=insight,
+            )
+        )
+
+        assert first is not None and second is not None
+        transition = created.moment_engine.moments[-1]
+        self.assertEqual(calls, 2)
+        self.assertEqual(first.moment_type, self.runtime.DJMomentType.TRACK)
+        self.assertEqual(second.moment_type, self.runtime.DJMomentType.RECOMMENDATION)
+        self.assertEqual(transition.moment_type, self.runtime.DJMomentType.TRANSITION)
+        self.assertEqual(
+            dict(transition.generation_metadata)["transition_from_moment_id"], first.moment_id
+        )
+        self.assertEqual(
+            dict(transition.generation_metadata)["transition_to_moment_id"], second.moment_id
+        )
+        flow_moments = [
+            item
+            for item in created.planner.output.session_flow.items
+            if item.item_type is self.runtime.SessionFlowItemType.DJ_MOMENT
+        ]
+        self.assertEqual(
+            [item.moment_id for item in flow_moments[-2:]],
+            [second.moment_id, transition.moment_id],
+        )
+        self.assertEqual(created.broadcast.as_dict()["dj_moments"][-1]["moment_id"], transition.moment_id)
+        with self.assertRaises(FrozenInstanceError):
+            transition.content = "Mutated"
+
     def test_runtime_owns_knowledge_engine_and_assembles_safe_context(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
         created = asyncio.run(manager.async_start(owner_profile_id="profile-a"))
