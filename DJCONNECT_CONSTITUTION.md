@@ -37,7 +37,11 @@ Devices must not own persistent personal intelligence.
 
 ### Law 3: Everything playback/provider-specific belongs to the Music Backend
 
-Playback control, provider credentials, queues, players, zones, capabilities, library access, and provider-specific behavior belong behind Music Backend adapters.
+Playback control, provider credentials, queues, players, zones, capabilities,
+library access and provider-specific behavior belong behind Music Backend
+adapters. Their Playback Control Boundary owns control, queue and transport;
+their Playback Observation Boundary owns normalized current-playback observation
+and opaque Playback Instance Identity.
 
 A Music Backend belongs to a Profile, never to a DJ Session. Playback is
 context for the DJ Session, not the product's primary ownership boundary.
@@ -111,10 +115,12 @@ If it does not improve the listening experience, it probably does not belong in 
 ### Law 14: The Session Runtime owns the active DJ Session
 
 Every active DJ Session has a server-owned, ephemeral Session Runtime. It owns
-the active Playback Context, Session Planner, Conversation Engine, Session
-Memory, Session Flow, Broadcast Engine, Audience Signals and Runtime State.
-When the session ends, the Runtime ends; only permitted durable outcomes may be
-written back to its Profile.
+active Session orchestration, Session Planner, Conversation Engine, Session
+Memory, Session Flow, Broadcast Engine, Audience Signals and Runtime State. It
+may consume a validated bounded playback observation, but Playback Context and
+Playback Instance Identity remain owned by the Music Backend Observation
+Boundary. When the session ends, the Runtime ends; only permitted durable
+outcomes may be written back to its Profile.
 
 ### Law 15: Session Flow is primary
 

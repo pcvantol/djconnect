@@ -83,6 +83,16 @@ ephemeral DJ Session Runtime and to place active session orchestration there.
 Decision to define VibeCast as an event-driven broadcast capability of an
 active DJ Session, rendered locally by a Universal Session Receiver.
 
+### ADR-0016 — Playback Instance Identity belongs to the Music Backend Observation Boundary
+
+**Status:** Accepted
+**File:** `docs/adr/0016-playback-instance-identity-observation-boundary.md`
+
+Decision to separate Playback Control from Playback Observation and place
+Playback Instance Identity, Current Playback Projection and normalized Track
+Started observation in the Music Backend Observation Boundary. Runtime consumes
+only an opaque, ephemeral identity.
+
 ## ADR backlog
 
 ### ADR-0013 — Platform Baseline v1.0 certification boundary

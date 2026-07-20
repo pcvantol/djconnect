@@ -103,7 +103,7 @@ experiences are Stage 4 and a continuous AI DJ is Stage 5.
 | Stage | Maturity |
 | --- | --- |
 | 1 — current | Continue is an explicit immutable Start Strategy with a continuity-oriented Planner profile, `MAINTAINING_ENERGY` Direction and an empty Runtime-only fallback. It adopts no current playback. |
-| 2 — authorized, deferred | A separately reviewable implementation may resolve one immutable provider-neutral Current Playback Projection with a Backend-owned opaque Playback Instance Identity, normalize Track Started with that same identity, adopt one eligible active item exactly once at Continue start, reuse the existing Track Started path, keep Playback unchanged, use runtime-scoped identity-only deduplication and return typed active, no-active-playback, unavailable or unsupported outcomes. It must not read a queue or future track. |
+| 2 — authorized, deferred | A separately reviewable implementation may resolve one immutable provider-neutral Current Playback Projection with an opaque Playback Instance Identity owned by the Music Backend Observation Boundary, normalize Track Started with that same identity, adopt one eligible active item exactly once at Continue start, reuse the existing Track Started path, keep Playback unchanged, use runtime-scoped identity-only deduplication and return typed active, no-active-playback, unavailable or unsupported outcomes. It must not read a queue or future track. |
 | 3 | Optional safe current-playback context refinement and richer playlist or album continuity. |
 | 4 | Multi-device continuity and cross-session restoration only under an explicitly authorized persistent contract. |
 | 5 | Autonomous continuity and long-running performance adaptation. |

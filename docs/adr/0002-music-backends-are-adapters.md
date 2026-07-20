@@ -27,10 +27,13 @@ Provider-specific logic belongs inside backend adapters.
 - Backend capability flags are required for graceful degradation.
 - Music Assistant support should not become a full Music Assistant clone inside DJConnect.
 - Future providers can be added by implementing adapters and capability mappings.
-- For Continue Current Playback Continuity, adapters translate provider state
-  into the canonical safe projection, own Playback Instance Identity and
-  normalize Track Started observations without exposing raw payloads to Runtime;
-  see `docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`.
+- For Continue Current Playback Continuity, provider adapters implement the
+  Music Backend Observation Boundary. That boundary translates provider state
+  into the canonical safe projection, owns Playback Instance Identity and
+  normalizes Track Started observations without exposing raw payloads to
+  Runtime. Playback Control remains a separate boundary; see
+  `docs/adr/0016-playback-instance-identity-observation-boundary.md` and
+  `docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`.
 
 ## Alternatives considered
 

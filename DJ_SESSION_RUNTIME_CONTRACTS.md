@@ -30,7 +30,7 @@ Profile
 | Phase | Contract |
 | --- | --- |
 | Creation | The server resolves the Profile and its one Music Backend binding, then creates one ephemeral Runtime for the requested DJ Session. |
-| Activation | The Runtime resolves effective session capabilities, observes available Playback Context and begins its Session Flow. A future Continue bootstrap may consume exactly one validated Current Playback Projection under [`CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`](docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md); it does not observe or own a queue. |
+| Activation | The Runtime resolves effective session capabilities, consumes available bounded playback observations and begins its Session Flow. A future Continue bootstrap may consume exactly one validated Current Playback Projection under [`CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`](docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md); it does not observe or own a queue. |
 | Replanning | The Session Planner continuously maintains its rolling horizon as permitted inputs change. |
 | Broadcasting | The Broadcast Engine publishes the active session's scoped event-driven Broadcast Feed. |
 | Completion | A session ends through an explicit end, an applicable lifecycle condition or a future policy defined by an implementation contract. |
@@ -42,12 +42,13 @@ Profile
 | Owner | Owns | Never owns |
 | --- | --- | --- |
 | Profile | Identity, exactly one Music Backend binding, settings, preferences, Music DNA, Session History and Conversation History. | Active runtime state, planner state or renderer state. |
-| DJ Session Runtime | Active listening experience, effective Session Capabilities and orchestration of Planner, Moment Engine and Broadcast. | Persistent Profile identity, backend credentials or durable playback state. |
+| DJ Session Runtime | Active listening experience, effective Session Capabilities and orchestration of Planner, Moment Engine and Broadcast. | Persistent Profile identity, backend credentials, durable playback state, Playback Instance Identity derivation or Playback Control. |
 | Session Planner | The future: rolling planning horizon and Session Flow. | Direct provider playback execution or Profile persistence. |
 | DJ Moment Engine | Creative execution from Knowledge Intent to immutable DJ Moment. | Planner timing, direct playback execution or renderer-specific business logic. |
 | Broadcast Engine | Distribution of scoped active-session events through Broadcast Feed. | Video, pixels, renderer presentation or persistent profile data. |
 | Renderer | Local presentation and user input. | Business logic, planner state, Profile state or backend logic. |
-| Music Backend | Provider-specific playback execution, queues, credentials and availability. | DJ Session ownership, planning or audience interpretation. |
+| Music Backend Playback Control Boundary | Provider-specific playback execution, queues, transport, commands and credentials. | DJ Session ownership, planning or audience interpretation. |
+| Music Backend Observation Boundary | Normalized playback observation, Current Playback Projection, Track Started observation and opaque Playback Instance Identity. | Playback Control ownership, Session ownership or identity persistence. |
 
 ## Profile contract
 
@@ -61,7 +62,7 @@ owns its active Runtime state.
 A Runtime is server-owned and exists only while its DJ Session is active. It
 owns:
 
-- Playback Context;
+- bounded, validated playback observations consumed for Session orchestration;
 - Session Planner;
 - DJ Moment Engine;
 - Session Flow;
@@ -71,17 +72,22 @@ owns:
 - Audience Signals; and
 - Runtime State.
 
-All Runtime state is ephemeral. The Runtime may consume Profile and Music
-Backend information only under their applicable privacy and capability rules.
+All Runtime state is ephemeral. The authoritative Playback Context and Playback
+Instance Identity remain owned by the Music Backend Observation Boundary; the
+Runtime may only consume bounded, validated observations under their applicable
+privacy and capability rules.
 
 For a future Continue Session Start, the Runtime may become active only after
-Session Start orchestration validates and adopts one backend-supplied Current
-Playback Projection. Its Backend-owned Playback Instance Identity must be
-unchanged when the corresponding normalized Track Started event reaches Runtime.
+Session Start orchestration validates and adopts one Current Playback Projection
+supplied by the Music Backend Observation Boundary. Its opaque Playback Instance
+Identity must be unchanged when the corresponding normalized Track Started event
+reaches Runtime.
 A missing, unavailable or unsupported observation creates no Runtime; the
 Runtime never falls back to another Strategy, changes playback or imports
 pre-session history. The detailed projection, identity and failure contract is
 [`CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`](docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md).
+Runtime communicates only with that Observation Boundary for this flow; it does
+not depend on the Playback Control Boundary.
 
 ## Session Planner contract
 

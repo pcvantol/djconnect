@@ -19,9 +19,11 @@ mix durable identity with temporary orchestration.
 ## Decision
 
 DJConnect v4 introduces a server-owned, ephemeral DJ Session Runtime for every
-active DJ Session. A Runtime owns Playback Context, Session Planner,
+active DJ Session. A Runtime owns active Session orchestration, Session Planner,
 Conversation Engine, Session Memory, Session Flow, Broadcast Engine, Audience
-Signals and Runtime State.
+Signals and Runtime State. It may consume a bounded, validated playback
+observation, while the Music Backend Observation Boundary retains ownership of
+Playback Context and Playback Instance Identity.
 
 Profiles remain the only owner of persistent identity, exactly one Music
 Backend binding, Music DNA, settings, preferences, conversation history and

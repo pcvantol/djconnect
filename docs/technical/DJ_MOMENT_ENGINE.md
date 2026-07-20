@@ -23,11 +23,11 @@ The Runtime is the only entry point and owns its Planner, Knowledge Engine and
 Moment Engine for its lifetime. There is no client endpoint or generic AI
 endpoint for either intelligence service.
 
-A future normalized Track Started observation carries the Backend-owned opaque
-Playback Instance Identity. Runtime may compare that identity only for
-runtime-scoped deduplication; it never derives it from track metadata or exposes
-it in Moments or Broadcast. The Continue continuity contract defines this future
-production boundary in
+A future normalized Track Started observation carries the opaque Playback
+Instance Identity owned by the Music Backend Observation Boundary. Runtime may
+compare that identity only for runtime-scoped deduplication; it never derives it
+from track metadata or exposes it in Moments or Broadcast. The Continue
+continuity contract defines this future production boundary in
 [`../product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`](../product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md).
 
 ## Implemented slice
