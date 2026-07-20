@@ -55,8 +55,30 @@ DJConnect identity/token fields and the active `session_id`.
 - When a WebSocket closes, its subscription is unregistered without changing
   Broadcast State.
 
-There is deliberately no anonymous, guest, receiver, voice, audience or
-VibeCast transport in this contract.
+There is no anonymous transport: owner access requires its existing device
+authorization and Receiver access requires the constrained Broadcast Token.
+Voice, audience and VibeCast transports remain out of scope.
+
+## Universal Session Receiver access
+
+V4-07 adds a separate ephemeral **Broadcast Token** for the Universal Session
+Receiver. The token is cryptographically unpredictable, belongs to exactly one
+active Runtime and becomes invalid when that Runtime ends. It is not a device
+pairing credential, Profile credential or general DJConnect API token.
+
+An authenticated owner device may obtain its active Runtime's token through the
+existing owner authorization chain. A Receiver then uses only that token and
+the exact Session ID to open the read-only Broadcast WebSocket. It receives the
+same initial snapshot followed by the same incremental Broadcast events.
+
+The server supplies capabilities with every Receiver connection:
+
+```json
+{"view_broadcast": true, "like": false, "audience_signals": false, "ask_dj": false, "owner_controls": false}
+```
+
+Receiver frames cannot invoke commands or mutate Runtime, Planner, Playback or
+Profile state. Tokens cannot access owner endpoints or another Runtime.
 
 ## Renderer behavior
 
