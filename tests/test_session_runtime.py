@@ -1051,6 +1051,127 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertNotIn("producer", context.as_insight()["track"])
         self.assertEqual(moment.moment_type, self.runtime.DJMomentType.SILENCE)
 
+    def test_moment_engine_realizes_stage_two_knowledge_contexts_immutably(self) -> None:
+        engine = self.runtime.DJMomentEngine()
+        runtime = self.runtime.SessionRuntimeManager()
+        contexts = (
+            (
+                self.runtime.KnowledgeIntentType.ARTIST_STORY,
+                self.runtime.DJMomentType.ARTIST,
+                "Artist One",
+                {"composer": "Composer One"},
+                {},
+            ),
+            (
+                self.runtime.KnowledgeIntentType.ALBUM_STORY,
+                self.runtime.DJMomentType.ALBUM,
+                "Album Two",
+                {"album": "Album Two", "release_year": "1998"},
+                {},
+            ),
+            (
+                self.runtime.KnowledgeIntentType.GENRE_STORY,
+                self.runtime.DJMomentType.GENRE,
+                "trip-hop",
+                {"genres": "trip-hop"},
+                {"genre": "trip-hop"},
+            ),
+            (
+                self.runtime.KnowledgeIntentType.RECOMMENDATION,
+                self.runtime.DJMomentType.RECOMMENDATION,
+                "Explore beyond Artist Four",
+                {"related_artists": "Portishead"},
+                {},
+            ),
+        )
+
+        for index, (intent_type, expected_type, expected_title, track_context, analysis_context) in enumerate(contexts, start=1):
+            with self.subTest(intent_type=intent_type):
+                context = self.runtime.KnowledgeContext(
+                    track=tuple(
+                        {
+                            "title": f"Track {index}",
+                            "artist": f"Artist {['One', 'Two', 'Three', 'Four'][index - 1]}",
+                            **track_context,
+                        }.items()
+                    ),
+                    analysis=tuple(
+                        {
+                            "summary": "A safe selected summary.",
+                            "full_text": "A safe selected full context.",
+                            **analysis_context,
+                        }.items()
+                    ),
+                    sources=("track_insight",),
+                )
+                before_runtime = tuple(runtime._active_by_profile.items())
+                moment = engine.create_track_context(
+                    session_id="session-stage-two",
+                    knowledge_intent=self.runtime.KnowledgeIntent(intent_type, "Selected by Planner."),
+                    selected_mood="deep",
+                    persona=self.runtime.DJPersona.RADIO_DJ,
+                    locale="en",
+                    insight=context.as_insight(),
+                )
+
+                self.assertEqual(moment.moment_type, expected_type)
+                self.assertEqual(moment.title, expected_title)
+                self.assertEqual(moment.presentation_intent.source_session_mood, "deep")
+                self.assertEqual(moment.presentation_intent.dj_persona, self.runtime.DJPersona.RADIO_DJ)
+                self.assertEqual(moment.source_references, ("track_insight",))
+                self.assertEqual(tuple(runtime._active_by_profile.items()), before_runtime)
+                with self.assertRaises(FrozenInstanceError):
+                    moment.title = "Mutated"
+
+        recommendation = engine.moments[-1]
+        self.assertEqual(
+            tuple(action.action_type for action in recommendation.actions),
+            ("play_recommendation", "save_recommendation"),
+        )
+
+    def test_moment_engine_is_deterministic_and_silences_invalid_selected_context(self) -> None:
+        intent = self.runtime.KnowledgeIntent(
+            self.runtime.KnowledgeIntentType.ARTIST_STORY, "Selected by Planner."
+        )
+        valid_insight = {
+            "track": {"title": "Track", "artist": "Artist", "composer": "Composer"},
+            "analysis": {"summary": "Safe summary.", "full_text": "Safe full context."},
+        }
+        first = self.runtime.DJMomentEngine().create_track_context(
+            session_id="session-stage-two",
+            knowledge_intent=intent,
+            selected_mood="focus",
+            persona=self.runtime.DJPersona.HOME_DJ,
+            locale="en",
+            insight=valid_insight,
+        )
+        second = self.runtime.DJMomentEngine().create_track_context(
+            session_id="session-stage-two",
+            knowledge_intent=intent,
+            selected_mood="focus",
+            persona=self.runtime.DJPersona.HOME_DJ,
+            locale="en",
+            insight=valid_insight,
+        )
+        self.assertEqual(
+            (first.moment_type, first.title, first.summary, first.content, first.actions, first.presentation_intent),
+            (second.moment_type, second.title, second.summary, second.content, second.actions, second.presentation_intent),
+        )
+
+        silence = self.runtime.DJMomentEngine().create_track_context(
+            session_id="session-stage-two",
+            knowledge_intent=intent,
+            selected_mood="focus",
+            persona=self.runtime.DJPersona.HOME_DJ,
+            locale="en",
+            insight={
+                "track": {"title": "Track", "artist": "Artist"},
+                "analysis": {"summary": "Safe summary.", "full_text": "Safe full context."},
+            },
+        )
+        self.assertEqual(silence.moment_type, self.runtime.DJMomentType.SILENCE)
+        self.assertEqual(silence.presentation_intent, first.presentation_intent)
+
     def test_discover_knowledge_context_includes_only_safe_personal_projection(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
         created = asyncio.run(
