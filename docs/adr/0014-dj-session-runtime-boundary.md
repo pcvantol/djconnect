@@ -69,6 +69,7 @@ Rejected. It fragments orchestration, privacy policy and cross-renderer truth.
 ## Related documents
 
 - `DJCONNECT_V4_ARCHITECTURE.md`
+- `DJ_SESSION_RUNTIME_CONTRACTS.md`
 - `DOMAIN_MODEL.md`
 - `ARCHITECTURE_PRINCIPLES.md`
 - `docs/product/PRODUCT_DEFINITION.md`

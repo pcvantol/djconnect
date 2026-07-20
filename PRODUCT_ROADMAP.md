@@ -13,18 +13,19 @@ Lab or Deferred. `ROADMAP_INDEX.md` owns cross-program navigation.
 | --- | --- | --- | --- |
 | Product Definition and Community/Personal proposition | Completed | `docs/product/PRODUCT_DEFINITION.md` | 1 |
 | DJConnect v4 Architecture Definition | Completed | Architecture Review; `DJCONNECT_V4_ARCHITECTURE.md` | 2 |
-| DJ Session Runtime and privacy contracts | Planned | v4 Architecture Definition | 3 |
-| Profile convergence | Planned | DJ Session Runtime and privacy contracts | 4 |
-| Session Planner and Session Flow | Planned | DJ Session Runtime; Music Backend capability contract | 5 |
-| Playback Experience | Planned | Session Flow and Music Backend capability contract | 6 |
-| Music DNA | Planned | Profile convergence | 6 |
-| Ask DJ | Planned | Profile convergence, Music DNA boundaries and Session Runtime | 7 |
-| Shared Experience and Universal Session Receiver | Planned | Broadcast Feed and shared-profile privacy | 8 |
-| VibeCast Broadcast Capability | Planned | Session Flow, Broadcast Feed and Universal Session Receiver | 9 |
-| Website redesign | Backlog | Product Definition and v4 Architecture Definition | 9 |
-| Discover | Backlog | Session Planner, Music DNA and recommendation evidence | 10 |
-| Track Insight | Backlog | Session Flow and Insight provider contract | 10 |
-| Voice | Backlog | Ask DJ, Session Runtime and Assist capability validation | 10 |
+| DJ Session Runtime Contracts | Completed | v4 Architecture Definition; `DJ_SESSION_RUNTIME_CONTRACTS.md` | 3 |
+| First Runtime Production Slice | Planned | DJ Session Runtime Contracts | 4 |
+| Profile convergence | Planned | First Runtime Production Slice and privacy contracts | 5 |
+| Session Planner and Session Flow | Planned | First Runtime Production Slice; Music Backend capability contract | 6 |
+| Playback Experience | Planned | Session Flow and Music Backend capability contract | 7 |
+| Music DNA | Planned | Profile convergence | 7 |
+| Ask DJ | Planned | Profile convergence, Music DNA boundaries and Session Runtime | 8 |
+| Shared Experience and Universal Session Receiver | Planned | Broadcast Feed and shared-profile privacy | 9 |
+| VibeCast Broadcast Capability | Planned | Session Flow, Broadcast Feed and Universal Session Receiver | 10 |
+| Website redesign | Backlog | Product Definition and v4 Architecture Definition | 10 |
+| Discover | Backlog | Session Planner, Music DNA and recommendation evidence | 11 |
+| Track Insight | Backlog | Session Flow and Insight provider contract | 11 |
+| Voice | Backlog | Ask DJ, Session Runtime and Assist capability validation | 11 |
 
 The retained material after this section is pre-Generation 2 product and
 release memory. It is not an active roadmap, does not establish current
