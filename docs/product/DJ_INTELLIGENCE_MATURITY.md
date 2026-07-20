@@ -19,7 +19,7 @@ behaviour rather than replace architecture or introduce speculative systems.
 | --- | --- |
 | 1 — current | Track Started trigger, Track Context, Silence and Runtime heuristics. |
 | 2 — partial | Deterministic Artist, Album, Genre and Recommendation intent selection from available knowledge hints. Transition, Discover and Session Update remain deferred. |
-| 3 — partial | Runtime-owned, timestamped Session Direction with deterministic Session Start initialization, Planner proposals and Session Update Moments. Runtime-scoped Performance Memory projects recent Moment facts from Session Flow so deterministic choices avoid immediate Artist, Genre and Recommendation repetition. Audience-driven adaptation, context-aware transitions and autonomous replanning remain deferred. |
+| 3 — partial | Runtime-owned, timestamped Session Direction with deterministic Session Start initialization, Planner proposals and Session Update Moments. Runtime-scoped Performance Memory projects recent Moment facts from Session Flow so deterministic choices avoid immediate Artist, Genre and Recommendation repetition. Immutable Session Start Strategies now select the initial Direction, Planner configuration and interaction profile. Audience-driven adaptation, context-aware transitions and autonomous replanning remain deferred. |
 | 4 | Persistent cross-session performance learning, multi-track planning, narrative sequencing, dynamic replanning and pacing. |
 | 5 | Autonomous session strategy and long-term performance optimisation. |
 
@@ -85,9 +85,11 @@ Renderer (Stage 1); adds Timeline, Micro and TV (Stage 2); Voice, Ambient and
 Notification (Stage 3); platform refinements (Stage 4); and future modes
 (Stage 5).
 
-Session experience matures from one active Session (Stage 1), through Discover
-and themed Sessions (Stages 2–3), autonomous evening experiences (Stage 4) to
-a continuous AI DJ (Stage 5).
+Session experience begins with an explicit immutable Runtime Start Strategy
+(Continue, Discover, Party, Focus, Chill or Manual) and deterministic initial
+Direction/Planner configuration (Stage 1). Discover behaviour and themed
+Session execution remain deferred to Stages 2–3; autonomous evening
+experiences are Stage 4 and a continuous AI DJ is Stage 5.
 
 ## Implementation policy
 
@@ -102,6 +104,11 @@ active Session Flow and current Runtime Moments, contains no Profile, Music DNA
 or conversation data, and is destroyed with the Runtime. Persistent memory,
 Audience Signals, autonomous planning and any cross-session learning remain
 future work.
+
+Session Start Strategies initialize Runtime state only: they do not execute
+playback, create queues or generate Moments. The Continue Strategy is explicit
+and uses an empty Runtime-only fallback until an authorized future continuity
+contract exists; it does not introduce persistence.
 
 ## Principles
 

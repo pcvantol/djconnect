@@ -48,6 +48,7 @@ class SessionDirectionType(StrEnum):
 class SessionStartStrategy(StrEnum):
     """Bounded start intents that initialize, but never plan, a Session."""
 
+    CONTINUE = "continue"
     DISCOVER = "discover"
     PARTY = "party"
     FOCUS = "focus"
@@ -153,6 +154,31 @@ class PlannerConfiguration:
     minimum_time_between_moments_seconds: float = 60.0
     maximum_track_context_per_track: int = 1
     allow_consecutive_silence: bool = True
+    recommendation_preference: str = "balanced"
+    exploration_preference: str = "balanced"
+    energy_preference: str = "balanced"
+    interaction_profile: str = "balanced"
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "minimum_time_between_moments_seconds": self.minimum_time_between_moments_seconds,
+            "maximum_track_context_per_track": self.maximum_track_context_per_track,
+            "allow_consecutive_silence": self.allow_consecutive_silence,
+            "recommendation_preference": self.recommendation_preference,
+            "exploration_preference": self.exploration_preference,
+            "energy_preference": self.energy_preference,
+            "interaction_profile": self.interaction_profile,
+        }
+
+
+@dataclass(frozen=True)
+class SessionStartConfiguration:
+    """Immutable Runtime configuration selected when a Session begins."""
+
+    strategy: SessionStartStrategy
+    initial_direction: SessionDirectionType
+    planner_configuration: PlannerConfiguration
+    interaction_profile: str
 
 
 class DJMomentType(StrEnum):
@@ -522,6 +548,8 @@ class DJSessionPlanner:
             ("release_year", PlannerDecisionType.CREATE_ALBUM_STORY, KnowledgeIntentType.ALBUM_STORY, "Share relevant album context."),
             ("genre", PlannerDecisionType.CREATE_GENRE_STORY, KnowledgeIntentType.GENRE_STORY, "Explain relevant genre context."),
         )
+        if self.configuration.recommendation_preference == "deprioritize":
+            choices = (*choices[1:], choices[0])
         for key, decision_type, intent_type, goal in choices:
             if _bounded_text(hints.get(key), 1200):
                 if _performance_memory_repeats(
@@ -570,6 +598,7 @@ class DJSessionPlanner:
             "created_at": self.created_at,
             "last_replan_at": self.last_replan_at,
             "current_goal": self.current_goal,
+            "configuration": self.configuration.as_dict(),
             "pending_events": [str(event) for event in self.pending_events],
             "output": self.output.as_dict(),
         }
@@ -728,6 +757,7 @@ class KnowledgeContext:
     sources: tuple[str, ...]
     personal_context_used: bool = False
     session_direction: SessionDirection | None = None
+    session_start_strategy: SessionStartStrategy | None = None
     performance_memory: PerformanceMemory | None = None
 
     def as_insight(self) -> dict[str, Any]:
@@ -735,6 +765,8 @@ class KnowledgeContext:
         insight = {"track": dict(self.track), "analysis": dict(self.analysis)}
         if self.session_direction is not None:
             insight["session_direction"] = self.session_direction.as_dict()
+        if self.session_start_strategy is not None:
+            insight["session_start_strategy"] = self.session_start_strategy.value
         if self.performance_memory is not None:
             insight["performance_memory"] = self.performance_memory.as_dict()
         return insight
@@ -752,6 +784,7 @@ class DJKnowledgeEngine:
         intent: KnowledgeIntent,
         resolver: Callable[[], Awaitable[dict[str, Any]]],
         session_direction: SessionDirection | None = None,
+        session_start_strategy: SessionStartStrategy | None = None,
         performance_memory: PerformanceMemory | None = None,
         personal_context_authorized: bool = False,
     ) -> KnowledgeContext:
@@ -760,6 +793,7 @@ class DJKnowledgeEngine:
             return self._record(
                 KnowledgeContext(
                     (), (), (), session_direction=session_direction,
+                    session_start_strategy=session_start_strategy,
                     performance_memory=performance_memory,
                 )
             )
@@ -788,17 +822,22 @@ class DJKnowledgeEngine:
             sources=("track_insight",),
             personal_context_used=personal_context_authorized,
             session_direction=session_direction,
+            session_start_strategy=session_start_strategy,
             performance_memory=performance_memory,
         )
         return self._record(context)
 
     def assemble_session_direction_context(
-        self, session_direction: SessionDirection, performance_memory: PerformanceMemory
+        self,
+        session_direction: SessionDirection,
+        session_start_strategy: SessionStartStrategy,
+        performance_memory: PerformanceMemory,
     ) -> KnowledgeContext:
         """Record Runtime-owned Direction as safe context without provider access."""
         return self._record(
             KnowledgeContext(
                 (), (), ("session_direction",), session_direction=session_direction,
+                session_start_strategy=session_start_strategy,
                 performance_memory=performance_memory,
             )
         )
@@ -987,6 +1026,8 @@ class DJSessionRuntime:
     runtime_state: SessionRuntimeState
     created_at: str
     started_at: str
+    session_start_strategy: SessionStartStrategy
+    interaction_profile: str
     session_direction: SessionDirection
     performance_memory: PerformanceMemory
     planner: DJSessionPlanner
@@ -1007,6 +1048,8 @@ class DJSessionRuntime:
             "runtime_state": str(self.runtime_state),
             "created_at": self.created_at,
             "started_at": self.started_at,
+            "session_start_strategy": self.session_start_strategy.value,
+            "interaction_profile": self.interaction_profile,
             "session_direction": self.session_direction.as_dict(),
             "performance_memory": self.performance_memory.as_dict(),
         }
@@ -1055,8 +1098,13 @@ class SessionRuntimeManager:
                 raise ActiveSessionExistsError(owner_profile_id)
             now = _timestamp()
             session_id = f"session-{uuid4().hex}"
-            session_direction = _initial_session_direction(session_start_strategy, now)
-            planner = _create_session_planner(session_id=session_id, created_at=now)
+            start_configuration = _session_start_configuration(session_start_strategy)
+            session_direction = _initial_session_direction(start_configuration, now)
+            planner = _create_session_planner(
+                session_id=session_id,
+                created_at=now,
+                configuration=start_configuration.planner_configuration,
+            )
             performance_memory = PerformanceMemory(planner.output.session_flow.flow_id)
             creating = DJSessionRuntime(
                 session_id=session_id,
@@ -1069,6 +1117,8 @@ class SessionRuntimeManager:
                 runtime_state=SessionRuntimeState.CREATING,
                 created_at=now,
                 started_at="",
+                session_start_strategy=start_configuration.strategy,
+                interaction_profile=start_configuration.interaction_profile,
                 session_direction=session_direction,
                 performance_memory=performance_memory,
                 planner=planner,
@@ -1126,7 +1176,9 @@ class SessionRuntimeManager:
                 active.broadcast.update_session_direction(updated_direction)
             if decision.decision_type is PlannerDecisionType.CREATE_SESSION_UPDATE:
                 active.knowledge_engine.assemble_session_direction_context(
-                    active.session_direction, active.performance_memory
+                    active.session_direction,
+                    active.session_start_strategy,
+                    active.performance_memory,
                 )
                 moment = active.moment_engine.create_session_update(
                     session_id=active.session_id,
@@ -1158,6 +1210,7 @@ class SessionRuntimeManager:
                 intent=intent,
                 resolver=insight_provider,
                 session_direction=active.session_direction,
+                session_start_strategy=active.session_start_strategy,
                 performance_memory=active.performance_memory,
                 personal_context_authorized=False,
             )
@@ -1165,6 +1218,7 @@ class SessionRuntimeManager:
             _LOGGER.debug("DJConnect Knowledge Engine unavailable: %s", exc.__class__.__name__)
             knowledge = KnowledgeContext(
                 (), (), (), session_direction=active.session_direction,
+                session_start_strategy=active.session_start_strategy,
                 performance_memory=active.performance_memory,
             )
         async with self._lock:
@@ -1357,18 +1411,66 @@ def _timestamp() -> str:
     return datetime.now(UTC).isoformat()
 
 
+def _session_start_configuration(
+    strategy: SessionStartStrategy,
+) -> SessionStartConfiguration:
+    """Resolve the bounded, deterministic Runtime initialization contract."""
+    configurations = {
+        SessionStartStrategy.CONTINUE: SessionStartConfiguration(
+            strategy, SessionDirectionType.MAINTAINING_ENERGY,
+            PlannerConfiguration(interaction_profile="continuity"), "continuity",
+        ),
+        SessionStartStrategy.DISCOVER: SessionStartConfiguration(
+            strategy, SessionDirectionType.EXPLORING,
+            PlannerConfiguration(
+                recommendation_preference="prefer",
+                exploration_preference="high",
+                interaction_profile="curious",
+            ), "curious",
+        ),
+        SessionStartStrategy.PARTY: SessionStartConfiguration(
+            strategy, SessionDirectionType.BUILDING_ENERGY,
+            PlannerConfiguration(
+                minimum_time_between_moments_seconds=30.0,
+                energy_preference="high",
+                interaction_profile="energetic",
+            ), "energetic",
+        ),
+        SessionStartStrategy.FOCUS: SessionStartConfiguration(
+            strategy, SessionDirectionType.DEEPENING,
+            PlannerConfiguration(
+                minimum_time_between_moments_seconds=120.0,
+                recommendation_preference="deprioritize",
+                interaction_profile="minimal",
+            ), "minimal",
+        ),
+        SessionStartStrategy.CHILL: SessionStartConfiguration(
+            strategy, SessionDirectionType.COOLING_DOWN,
+            PlannerConfiguration(
+                minimum_time_between_moments_seconds=90.0,
+                recommendation_preference="deprioritize",
+                energy_preference="low",
+                interaction_profile="reflective",
+            ), "reflective",
+        ),
+        SessionStartStrategy.MANUAL: SessionStartConfiguration(
+            strategy, SessionDirectionType.MAINTAINING_ENERGY,
+            PlannerConfiguration(), "balanced",
+        ),
+    }
+    return configurations[strategy]
+
+
 def _initial_session_direction(
-    strategy: SessionStartStrategy, timestamp: str
+    configuration: SessionStartConfiguration, timestamp: str
 ) -> SessionDirection:
     """Map bounded Session Start intent to its first Runtime Direction."""
-    directions = {
-        SessionStartStrategy.DISCOVER: SessionDirectionType.EXPLORING,
-        SessionStartStrategy.PARTY: SessionDirectionType.BUILDING_ENERGY,
-        SessionStartStrategy.FOCUS: SessionDirectionType.DEEPENING,
-        SessionStartStrategy.CHILL: SessionDirectionType.COOLING_DOWN,
-        SessionStartStrategy.MANUAL: SessionDirectionType.MAINTAINING_ENERGY,
-    }
-    return SessionDirection(directions[strategy], timestamp, timestamp, strategy)
+    return SessionDirection(
+        configuration.initial_direction,
+        timestamp,
+        timestamp,
+        configuration.strategy,
+    )
 
 
 def _planned_direction(
@@ -1415,7 +1517,9 @@ def _performance_memory_repeats(
     return False
 
 
-def _create_session_planner(*, session_id: str, created_at: str) -> DJSessionPlanner:
+def _create_session_planner(
+    *, session_id: str, created_at: str, configuration: PlannerConfiguration
+) -> DJSessionPlanner:
     """Create the one non-persistent Planner for a newly created Runtime."""
     return DJSessionPlanner(
         planner_state=PlannerState.READY,
@@ -1424,6 +1528,7 @@ def _create_session_planner(*, session_id: str, created_at: str) -> DJSessionPla
         last_replan_at="",
         current_goal="",
         pending_events=(),
+        configuration=configuration,
         output=SessionPlannerOutput(
             session_flow=_create_session_flow(
                 session_id=session_id,
