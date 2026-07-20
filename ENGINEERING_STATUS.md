@@ -61,11 +61,14 @@ one ephemeral Runtime per resolved Profile, with only the paired-client session
 lifecycle in scope. Its Prompt History archive is absent; this reconciliation
 records the traceability gap without recreating immutable history.
 
-**V4-02 Session Planner Foundation** is the current authorized Product
-Development increment on `codex/v4-session-planner-foundation`. It adds one
-ephemeral Planner to each active Runtime, with a 15-minute rolling horizon and
-placeholder musical direction only. It does not add AI planning, Session Flow,
-Broadcast, VibeCast, playback execution or persistent planner state.
+PR [#218](https://github.com/pcvantol/djconnect/pull/218), **V4-02 Session
+Planner Foundation**, merged on 2026-07-20 as
+`0b5d1cda266ff2b47a6ce00d8df71d1870f99fc5`. It adds one ephemeral Planner to
+each active Runtime, with a 15-minute rolling horizon and placeholder musical
+direction only. It does not add AI planning, Session Flow, Broadcast, VibeCast,
+playback execution or persistent planner state. Its Prompt History archive is
+absent; this reconciliation records the traceability gap without recreating
+immutable history.
 
 ## Current engineering program
 
