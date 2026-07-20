@@ -1254,6 +1254,7 @@ class DJSessionRuntime:
     knowledge_engine: DJKnowledgeEngine
     moment_engine: DJMomentEngine
     broadcast: DJSessionBroadcastEngine
+    last_accepted_media_identity: str = ""
 
     def as_dict(self) -> dict[str, Any]:
         """Return the public, transport-neutral runtime representation."""
@@ -1383,12 +1384,25 @@ class SessionRuntimeManager:
         owner_profile_id: str,
         session_id: str,
         insight_provider: Callable[[], Awaitable[dict[str, Any]]],
+        media_identity: str = "",
     ) -> DJMoment | None:
         """Orchestrate Planner → Knowledge → Moment → Flow → Broadcast."""
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
             if active is None or active.session_id != session_id:
                 return None
+            if media_identity:
+                if active.last_accepted_media_identity == media_identity:
+                    return None
+                if not active.last_accepted_media_identity:
+                    self._active_by_profile[owner_profile_id] = DJSessionRuntime(
+                        **{**active.__dict__, "last_accepted_media_identity": media_identity}
+                    )
+                    return None
+                active = DJSessionRuntime(
+                    **{**active.__dict__, "last_accepted_media_identity": media_identity}
+                )
+                self._active_by_profile[owner_profile_id] = active
             decision = active.planner.evaluate_track_started(
                 session_start_strategy=active.session_start_strategy,
                 session_direction=active.session_direction,

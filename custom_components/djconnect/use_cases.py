@@ -191,11 +191,24 @@ class MusicBackendCapabilities:
     supports_transfer_or_output_selection: bool = False
 
 
+@dataclass(frozen=True)
+class MusicBackendObservationCapabilities:
+    """Bounded Playback Observation Boundary capability report."""
+
+    supports_current_playback_status: bool = False
+    supports_media_change_observation: bool = False
+    observation_mode_event: bool = False
+    observation_mode_polling: bool = False
+    supports_playback_instance_identity: bool = False
+    supports_continue_stage2: bool = False
+
+
 class MusicBackend(Protocol):
     """Protocol implemented by DJConnect music backend adapters."""
 
     provider: str
     capabilities: MusicBackendCapabilities
+    observation_capabilities: MusicBackendObservationCapabilities
 
     async def handle_command(
         self,
@@ -244,6 +257,11 @@ class SpotifyDirectBackend:
         supports_seek=True,
         supports_transfer_or_output_selection=True,
     )
+    observation_capabilities = MusicBackendObservationCapabilities(
+        supports_current_playback_status=True,
+        supports_media_change_observation=True,
+        observation_mode_polling=True,
+    )
 
     def __init__(self, hass: HomeAssistant, runtime: Any) -> None:
         self.hass = hass
@@ -287,6 +305,7 @@ class MusicAssistantBackend:
         supports_seek=False,
         supports_transfer_or_output_selection=False,
     )
+    observation_capabilities = MusicBackendObservationCapabilities()
 
     def __init__(self, hass: HomeAssistant, runtime: Any) -> None:
         self.hass = hass
@@ -592,6 +611,9 @@ def music_backend_metadata(hass: HomeAssistant, runtime: Any) -> dict[str, Any]:
             getattr(runtime, "config", {}).get(CONF_MUSIC_BACKEND_REVISION)
         ),
         "music_backend_capabilities": dict(adapter.capabilities.__dict__),
+        "music_backend_observation_capabilities": dict(
+            adapter.observation_capabilities.__dict__
+        ),
         "music_target_player": target_player,
         "music_backend_error": error,
     }

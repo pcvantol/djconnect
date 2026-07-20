@@ -15,13 +15,13 @@
 
 ## Current position
 
-PR [#257](https://github.com/pcvantol/djconnect/pull/257) merged as
-`278eb411f5747bbcd5407b492910dae25ef4ebf2`. It reconciles the complete,
-authorized Continue Stage 2 observation contract after ADR-0016. Playback
-Control remains separate from Observation, Playback Instance Identity remains
-Boundary-owned and both current backends remain unsupported for
-occurrence-correct continuity. No runtime, provider, API or maturity
-implementation was included.
+PR [#258](https://github.com/pcvantol/djconnect/pull/258) merged as
+`9c98ba796c28b589677af7370e68bf73c880f9f3`. It establishes the Live Playback
+Observation progression: Stage 0 current, Stage 1 planned and Stage 2 deferred.
+Spotify Direct is eligible for bounded Media Identity polling, while Music
+Assistant remains conditionally eligible. Playback Instance Identity stays
+Boundary-owned and Continue Stage 2 remains strict, authorized and deferred.
+No runtime, provider, API or maturity implementation was included.
 
 | Area | Objectively supported status | Evidence |
 | --- | --- | --- |

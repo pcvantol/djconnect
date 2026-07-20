@@ -5,13 +5,14 @@
 
 ## Current engineering increment
 
-PR [#257](https://github.com/pcvantol/djconnect/pull/257), **Finalize Continue
-observation contract**, merged on 2026-07-20 as
-`278eb411f5747bbcd5407b492910dae25ef4ebf2`. It reconciles the authorized,
-deferred Continue Stage 2 observation contract across the Runtime, Domain,
-Intelligence and maturity records. Playback Instance Identity remains owned by
-the Observation Boundary; no production implementation, provider capability or
-Continue maturity advance was included. Its predecessor prompt is absent from
+PR [#258](https://github.com/pcvantol/djconnect/pull/258), **Define Live
+Playback Observation Stage 1**, merged on 2026-07-20 as
+`9c98ba796c28b589677af7370e68bf73c880f9f3`. It establishes Live Playback
+Observation Stage 0 as current, Stage 1 as planned and Stage 2 as deferred.
+Spotify Direct is eligible for bounded Media Identity polling; Music Assistant
+is conditionally eligible when it exposes a safe media reference. Continue
+Stage 2 remains strict, authorized and deferred. No production implementation
+or maturity advance was included. Its predecessor prompt is absent from
 immutable Prompt History and is not recreated retrospectively.
 
 Platform Release 3.3 is operationally complete and in Maintenance. PR
