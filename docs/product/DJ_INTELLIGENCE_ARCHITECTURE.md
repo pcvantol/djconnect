@@ -152,6 +152,12 @@ strategies are Continue, Manual and Discover. Discover is not a standalone
 feature: it sets a discovery-oriented Session objective whose results appear
 as DJ Moments.
 
+Continue may eventually join one already-active item only through the validated
+Current Playback Projection contract in
+[`CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`](CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md).
+The Planner receives the adopted safe context only after Runtime startup; it
+does not decide bootstrap eligibility, inspect a queue or control playback.
+
 **Session Mood** answers how the active Session should feel. The client may
 supply its initial Mood, and the Runtime may evolve the current Mood later.
 Mood influences future DJ Moments and never rewrites history.

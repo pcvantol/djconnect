@@ -21,6 +21,7 @@ schemas, serialization or implementation.
 | --- | --- | --- |
 | DJ Session | One coherent listening experience orchestrated by the AI DJ. | Brings relevant DJConnect capabilities together for a listening moment without owning playback. |
 | Playback Context | The current playback situation available to the DJ. | Is owned by the configured Music Backend; DJConnect consumes it to enrich the session. |
+| Current Playback Projection | One immutable, safe observation of an active current item for Continue startup. | Is resolved by the Music Backend and consumed ephemerally by Session Start orchestration; it is not a queue, control contract or playback authority. |
 | Session Memory | The objective chronological memory of one DJ Session. | Records what happened as events only; it performs no interpretation. |
 | Session Timeline | The user-facing chronological presentation of Session Memory. | Tells the story of one completed DJ Session; it is not a chat history. |
 | Music DNA | The evolving, opt-in understanding of a person's musical identity across many DJ Sessions. | Interprets patterns in Session Memory; it never replaces Session Memory. |
@@ -75,6 +76,15 @@ device and room context.
 Playback Context is owned by the configured **Music Backend**, such as Spotify
 Direct or Music Assistant. DJConnect consumes the available context; it does
 not take ownership of playback in order to operate.
+
+### Current Playback Projection
+
+A **Current Playback Projection** is the deliberately narrow, immutable subset
+of Playback Context that a future Continue start may consume. It describes one
+currently active item with safe identity, state and bounded optional metadata;
+it never includes a queue, future playback, raw provider payload or pre-session
+history. Its canonical contract is
+[`CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`](CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md).
 
 ## Session Memory
 
@@ -170,6 +180,9 @@ The relationship is conceptual:
   identity, never as the primary session-event record.
 - Use **Playback Context** for Music Backend-owned playback information that
   DJConnect consumes, not owns.
+- Use **Current Playback Projection** only for the one safe observed item that
+  may bootstrap a future Continue Session; never as a synonym for queue or
+  playback control.
 
 ## Boundaries
 

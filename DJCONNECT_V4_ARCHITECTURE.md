@@ -117,7 +117,9 @@ querying the Planner directly.
 - Music Backend adapters retain provider credentials, playback control, queues
   and provider-specific behaviour.
 - Session Runtimes consume Playback Context; they do not own a backend,
-  provider account or playback state.
+  provider account or playback state. A future Continue bootstrap may consume
+  one safe Current Playback Projection only as defined in
+  [`docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`](docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md).
 - Broadcast receivers render locally and do not infer private Profile data.
 - This document defines target architecture only. It creates no storage,
   protocol, API, synchronization, client UI, migration or implementation

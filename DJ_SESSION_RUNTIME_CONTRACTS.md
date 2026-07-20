@@ -30,7 +30,7 @@ Profile
 | Phase | Contract |
 | --- | --- |
 | Creation | The server resolves the Profile and its one Music Backend binding, then creates one ephemeral Runtime for the requested DJ Session. |
-| Activation | The Runtime resolves effective session capabilities, observes available Playback Context and begins its Session Flow. |
+| Activation | The Runtime resolves effective session capabilities, observes available Playback Context and begins its Session Flow. A future Continue bootstrap may consume exactly one validated Current Playback Projection under [`CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`](docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md); it does not observe or own a queue. |
 | Replanning | The Session Planner continuously maintains its rolling horizon as permitted inputs change. |
 | Broadcasting | The Broadcast Engine publishes the active session's scoped event-driven Broadcast Feed. |
 | Completion | A session ends through an explicit end, an applicable lifecycle condition or a future policy defined by an implementation contract. |
@@ -73,6 +73,13 @@ owns:
 
 All Runtime state is ephemeral. The Runtime may consume Profile and Music
 Backend information only under their applicable privacy and capability rules.
+
+For a future Continue Session Start, the Runtime may become active only after
+Session Start orchestration validates and adopts one backend-supplied Current
+Playback Projection. A missing or unavailable observation creates no Runtime;
+the Runtime never falls back to another Strategy, changes playback or imports
+pre-session history. The detailed projection, identity and failure contract is
+[`CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`](docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md).
 
 ## Session Planner contract
 
@@ -190,6 +197,9 @@ catalogue is:
 
 The selected Music Backend owns its Playback Queue. Queue behaviour is a
 backend implementation detail and may appear only as an advanced playback view.
+A future Continue bootstrap may record only its one adopted current item after
+Session Start; it must use the existing `track_started` path for later real
+events and may not synthesize earlier history.
 
 ### Canonical Session Flow Foundation
 
