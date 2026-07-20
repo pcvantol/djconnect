@@ -47,6 +47,7 @@ from .const import (
     API_SESSION_START,
     API_SESSION_END,
     API_SESSION_ACTIVE,
+    API_SESSION_BROADCAST_TOKEN,
     API_VOICE,
     CONF_ASSIST_PIPELINE_ID,
     CONF_CLIENT_TYPE,
@@ -2745,6 +2746,24 @@ class DJConnectActiveSessionView(_DJConnectSessionView):
 
         result, status = await async_handle_active_session_payload(
             request.app["hass"], dict(request.query), headers=request.headers, user_id=_request_user_id(request)
+        )
+        return self.json(result, status_code=status)
+
+
+class DJConnectSessionBroadcastTokenView(_DJConnectSessionView):
+    """Owner-only route that returns an active Runtime's ephemeral Broadcast Token."""
+
+    url = API_SESSION_BROADCAST_TOKEN
+    name = "api:djconnect:session:broadcast:token"
+
+    async def post(self, request):
+        data = await self._payload(request)
+        if data is None:
+            return _json_error(self, "invalid_json", 400)
+        from .api_handlers import async_handle_session_broadcast_token_payload
+
+        result, status = await async_handle_session_broadcast_token_payload(
+            request.app["hass"], data, headers=request.headers, user_id=_request_user_id(request)
         )
         return self.json(result, status_code=status)
 
