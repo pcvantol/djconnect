@@ -19,8 +19,8 @@ behaviour rather than replace architecture or introduce speculative systems.
 | --- | --- |
 | 1 — current | Track Started trigger, Track Context, Silence and Runtime heuristics. |
 | 2 — partial | Deterministic Artist, Album, Genre and Recommendation intent selection from available knowledge hints. Transition, Discover and Session Update remain deferred. |
-| 3 — partial | Runtime-owned, timestamped Session Direction with deterministic Session Start initialization, Planner proposals and Session Update Moments. Audience-driven adaptation, context-aware transitions, autonomous replanning and multi-track planning remain deferred. |
-| 4 | Multi-track planning, narrative sequencing, dynamic replanning and pacing. |
+| 3 — partial | Runtime-owned, timestamped Session Direction with deterministic Session Start initialization, Planner proposals and Session Update Moments. Runtime-scoped Performance Memory projects recent Moment facts from Session Flow so deterministic choices avoid immediate Artist, Genre and Recommendation repetition. Audience-driven adaptation, context-aware transitions and autonomous replanning remain deferred. |
+| 4 | Persistent cross-session performance learning, multi-track planning, narrative sequencing, dynamic replanning and pacing. |
 | 5 | Autonomous session strategy and long-term performance optimisation. |
 
 ## Knowledge Engine
@@ -94,6 +94,14 @@ a continuous AI DJ (Stage 5).
 Every future implementation PR must state its current and target maturity
 stage, capabilities introduced, reused, intentionally deferred and explicitly
 excluded. No stage may be skipped without explicit architectural justification.
+
+## Current Stage 3 boundary
+
+Performance Memory is ephemeral Runtime state only. It is derived from the
+active Session Flow and current Runtime Moments, contains no Profile, Music DNA
+or conversation data, and is destroyed with the Runtime. Persistent memory,
+Audience Signals, autonomous planning and any cross-session learning remain
+future work.
 
 ## Principles
 

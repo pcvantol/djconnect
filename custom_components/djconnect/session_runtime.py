@@ -371,6 +371,65 @@ class SessionPlannerOutput:
         return {"session_flow": self.session_flow.as_dict()}
 
 
+@dataclass(frozen=True)
+class PerformanceMemory:
+    """Bounded Planner projection derived from the Runtime's Session Flow."""
+
+    source_flow_id: str
+    recent_moment_ids: tuple[str, ...] = ()
+    recent_moment_types: tuple[DJMomentType, ...] = ()
+    recent_artists: tuple[str, ...] = ()
+    recent_albums: tuple[str, ...] = ()
+    recent_genres: tuple[str, ...] = ()
+    recent_recommendations: tuple[str, ...] = ()
+    recent_session_directions: tuple[SessionDirectionType, ...] = ()
+    recent_silence_count: int = 0
+
+    @classmethod
+    def from_session_flow(
+        cls, flow: DJSessionFlow, moments: tuple[DJMoment, ...], *, window: int = 8
+    ) -> "PerformanceMemory":
+        """Project only recent Moment facts from the canonical Flow chronology."""
+        by_id = {moment.moment_id: moment for moment in moments}
+        ordered = tuple(
+            by_id[item.moment_id]
+            for item in flow.items
+            if item.item_type is SessionFlowItemType.DJ_MOMENT and item.moment_id in by_id
+        )[-window:]
+        metadata = tuple(dict(moment.generation_metadata) for moment in ordered)
+        return cls(
+            source_flow_id=flow.flow_id,
+            recent_moment_ids=tuple(moment.moment_id for moment in ordered),
+            recent_moment_types=tuple(moment.moment_type for moment in ordered),
+            recent_artists=_recent_metadata(metadata, "artist"),
+            recent_albums=_recent_metadata(metadata, "album"),
+            recent_genres=_recent_metadata(metadata, "genre"),
+            recent_recommendations=_recent_metadata(metadata, "recommendation"),
+            recent_session_directions=tuple(
+                SessionDirectionType(value)
+                for value in _recent_metadata(metadata, "direction")
+                if value in SessionDirectionType._value2member_map_
+            ),
+            recent_silence_count=sum(
+                moment.moment_type is DJMomentType.SILENCE for moment in ordered
+            ),
+        )
+
+    def as_dict(self) -> dict[str, Any]:
+        """Expose safe, Runtime-scoped Planner context without personal data."""
+        return {
+            "source_flow_id": self.source_flow_id,
+            "recent_moment_ids": list(self.recent_moment_ids),
+            "recent_moment_types": [value.value for value in self.recent_moment_types],
+            "recent_artists": list(self.recent_artists),
+            "recent_albums": list(self.recent_albums),
+            "recent_genres": list(self.recent_genres),
+            "recent_recommendations": list(self.recent_recommendations),
+            "recent_session_directions": [value.value for value in self.recent_session_directions],
+            "recent_silence_count": self.recent_silence_count,
+        }
+
+
 @dataclass
 class DJSessionPlanner:
     """One ephemeral Planner, owned exclusively by one active Runtime.
@@ -418,9 +477,11 @@ class DJSessionPlanner:
         selected_mood: str,
         persona: DJPersona,
         knowledge_hints: dict[str, Any] | None = None,
+        performance_memory: PerformanceMemory | None = None,
     ) -> PlannerDecision:
         """Make the bounded first production decision without invoking services."""
         self.pending_events = (*self.pending_events, PlannerEventType.TRACK_AVAILABLE)
+        performance_memory = performance_memory or PerformanceMemory("")
         mood = selected_mood.strip().lower()
         now = time.monotonic()
         if self.last_spoken_moment_at and now - self.last_spoken_moment_at < self.configuration.minimum_time_between_moments_seconds:
@@ -432,6 +493,11 @@ class DJSessionPlanner:
             persona=persona,
         )
         if proposed_direction is not session_direction.direction:
+            if performance_memory.recent_moment_types[-1:] == (DJMomentType.SESSION,):
+                self.last_decision = PlannerDecision(
+                    PlannerDecisionType.SILENCE, "recent_session_update"
+                )
+                return self.last_decision
             intent = KnowledgeIntent(
                 KnowledgeIntentType.SESSION_DIRECTION,
                 "Communicate the updated direction of the active DJ Session.",
@@ -443,7 +509,10 @@ class DJSessionPlanner:
                 proposed_direction,
             )
             return self.last_decision
-        if mood in {"deep", "focus", "chill"} or persona is DJPersona.CLUB_DJ:
+        if (
+            (mood in {"deep", "focus", "chill"} or persona is DJPersona.CLUB_DJ)
+            and performance_memory.recent_silence_count < 2
+        ):
             self.last_decision = PlannerDecision(PlannerDecisionType.SILENCE, "mood_or_persona_prefers_silence")
             return self.last_decision
         hints = knowledge_hints or {}
@@ -455,6 +524,10 @@ class DJSessionPlanner:
         )
         for key, decision_type, intent_type, goal in choices:
             if _bounded_text(hints.get(key), 1200):
+                if _performance_memory_repeats(
+                    performance_memory, intent_type, hints
+                ):
+                    continue
                 intent = KnowledgeIntent(intent_type, goal)
                 self.last_decision = PlannerDecision(decision_type, f"knowledge_hint:{key}", intent)
                 return self.last_decision
@@ -560,7 +633,23 @@ class DJMomentEngine:
             artwork_url=_bounded_text(track.get("artwork_url"), 2048) or None,
             actions=_moment_actions(moment_type, track, locale),
             source_references=("track_insight",),
-            generation_metadata=(("provider", "track_insight"), ("validated", "true")),
+            generation_metadata=(
+                ("provider", "track_insight"),
+                ("artist", _bounded_text(track.get("artist"), 160)),
+                ("album", _bounded_text(track.get("album"), 160)),
+                (
+                    "genre",
+                    _bounded_text(analysis.get("genre"), 160)
+                    or _bounded_text(track.get("genres"), 160),
+                ),
+                (
+                    "recommendation",
+                    _bounded_text(track.get("artist"), 160)
+                    if moment_type is DJMomentType.RECOMMENDATION
+                    else "",
+                ),
+                ("validated", "true"),
+            ),
         )
         self.moments = (*self.moments, moment)
         return moment
@@ -639,12 +728,15 @@ class KnowledgeContext:
     sources: tuple[str, ...]
     personal_context_used: bool = False
     session_direction: SessionDirection | None = None
+    performance_memory: PerformanceMemory | None = None
 
     def as_insight(self) -> dict[str, Any]:
         """Adapt the safe context to the existing Moment Engine contract."""
         insight = {"track": dict(self.track), "analysis": dict(self.analysis)}
         if self.session_direction is not None:
             insight["session_direction"] = self.session_direction.as_dict()
+        if self.performance_memory is not None:
+            insight["performance_memory"] = self.performance_memory.as_dict()
         return insight
 
 
@@ -660,11 +752,17 @@ class DJKnowledgeEngine:
         intent: KnowledgeIntent,
         resolver: Callable[[], Awaitable[dict[str, Any]]],
         session_direction: SessionDirection | None = None,
+        performance_memory: PerformanceMemory | None = None,
         personal_context_authorized: bool = False,
     ) -> KnowledgeContext:
         """Reuse Track Insight while excluding raw Profile and Music DNA data."""
         if intent.intent_type is not KnowledgeIntentType.TRACK_CONTEXT:
-            return self._record(KnowledgeContext((), (), (), session_direction=session_direction))
+            return self._record(
+                KnowledgeContext(
+                    (), (), (), session_direction=session_direction,
+                    performance_memory=performance_memory,
+                )
+            )
         raw = await resolver()
         track = raw.get("track") if isinstance(raw, dict) and isinstance(raw.get("track"), dict) else {}
         analysis = raw.get("analysis") if isinstance(raw, dict) and isinstance(raw.get("analysis"), dict) else {}
@@ -690,15 +788,19 @@ class DJKnowledgeEngine:
             sources=("track_insight",),
             personal_context_used=personal_context_authorized,
             session_direction=session_direction,
+            performance_memory=performance_memory,
         )
         return self._record(context)
 
     def assemble_session_direction_context(
-        self, session_direction: SessionDirection
+        self, session_direction: SessionDirection, performance_memory: PerformanceMemory
     ) -> KnowledgeContext:
         """Record Runtime-owned Direction as safe context without provider access."""
         return self._record(
-            KnowledgeContext((), (), ("session_direction",), session_direction=session_direction)
+            KnowledgeContext(
+                (), (), ("session_direction",), session_direction=session_direction,
+                performance_memory=performance_memory,
+            )
         )
 
     def _record(self, context: KnowledgeContext) -> KnowledgeContext:
@@ -886,6 +988,7 @@ class DJSessionRuntime:
     created_at: str
     started_at: str
     session_direction: SessionDirection
+    performance_memory: PerformanceMemory
     planner: DJSessionPlanner
     knowledge_engine: DJKnowledgeEngine
     moment_engine: DJMomentEngine
@@ -905,6 +1008,7 @@ class DJSessionRuntime:
             "created_at": self.created_at,
             "started_at": self.started_at,
             "session_direction": self.session_direction.as_dict(),
+            "performance_memory": self.performance_memory.as_dict(),
         }
         runtime["planner"] = self.planner.as_dict()
         runtime["broadcast"] = self.broadcast.as_dict()
@@ -953,6 +1057,7 @@ class SessionRuntimeManager:
             session_id = f"session-{uuid4().hex}"
             session_direction = _initial_session_direction(session_start_strategy, now)
             planner = _create_session_planner(session_id=session_id, created_at=now)
+            performance_memory = PerformanceMemory(planner.output.session_flow.flow_id)
             creating = DJSessionRuntime(
                 session_id=session_id,
                 owner_profile_id=owner_profile_id,
@@ -965,6 +1070,7 @@ class SessionRuntimeManager:
                 created_at=now,
                 started_at="",
                 session_direction=session_direction,
+                performance_memory=performance_memory,
                 planner=planner,
                 knowledge_engine=DJKnowledgeEngine(),
                 moment_engine=DJMomentEngine(),
@@ -1004,6 +1110,7 @@ class SessionRuntimeManager:
                 session_direction=active.session_direction,
                 selected_mood=active.selected_mood,
                 persona=active.dj_persona,
+                performance_memory=active.performance_memory,
             )
             if decision.proposed_session_direction is not None:
                 updated_direction = SessionDirection(
@@ -1019,7 +1126,7 @@ class SessionRuntimeManager:
                 active.broadcast.update_session_direction(updated_direction)
             if decision.decision_type is PlannerDecisionType.CREATE_SESSION_UPDATE:
                 active.knowledge_engine.assemble_session_direction_context(
-                    active.session_direction
+                    active.session_direction, active.performance_memory
                 )
                 moment = active.moment_engine.create_session_update(
                     session_id=active.session_id,
@@ -1030,6 +1137,7 @@ class SessionRuntimeManager:
                 )
                 active.planner.record_spoken_moment()
                 active.publish_moment(moment)
+                self._record_performance_memory(owner_profile_id, active)
                 return moment
             if decision.decision_type is PlannerDecisionType.SILENCE:
                 moment = active.moment_engine.create_silence(
@@ -1040,6 +1148,7 @@ class SessionRuntimeManager:
                     reason=decision.reason,
                 )
                 active.publish_moment(moment)
+                self._record_performance_memory(owner_profile_id, active)
                 return moment
             intent = decision.knowledge_intent
             if intent is None:
@@ -1049,11 +1158,15 @@ class SessionRuntimeManager:
                 intent=intent,
                 resolver=insight_provider,
                 session_direction=active.session_direction,
+                performance_memory=active.performance_memory,
                 personal_context_authorized=False,
             )
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect Knowledge Engine unavailable: %s", exc.__class__.__name__)
-            knowledge = KnowledgeContext((), (), (), session_direction=active.session_direction)
+            knowledge = KnowledgeContext(
+                (), (), (), session_direction=active.session_direction,
+                performance_memory=active.performance_memory,
+            )
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
             if active is None or active.session_id != session_id:
@@ -1069,7 +1182,19 @@ class SessionRuntimeManager:
             if moment.moment_type is not DJMomentType.SILENCE:
                 active.planner.record_spoken_moment()
             active.publish_moment(moment)
+            self._record_performance_memory(owner_profile_id, active)
             return moment
+
+    def _record_performance_memory(
+        self, owner_profile_id: str, active: DJSessionRuntime
+    ) -> DJSessionRuntime:
+        """Refresh the Runtime-owned projection after its Flow receives a Moment."""
+        memory = PerformanceMemory.from_session_flow(
+            active.planner.output.session_flow, active.moment_engine.moments
+        )
+        updated = DJSessionRuntime(**{**active.__dict__, "performance_memory": memory})
+        self._active_by_profile[owner_profile_id] = updated
+        return updated
 
     async def async_generate_track_context(
         self,
@@ -1205,7 +1330,13 @@ class SessionRuntimeManager:
             )
             active.broadcast.update_runtime_state(SessionRuntimeState.ENDED)
             ended = DJSessionRuntime(
-                **{**ending.__dict__, "runtime_state": SessionRuntimeState.ENDED}
+                **{
+                    **ending.__dict__,
+                    "runtime_state": SessionRuntimeState.ENDED,
+                    "performance_memory": PerformanceMemory(
+                        active.performance_memory.source_flow_id
+                    ),
+                }
             )
             active.broadcast.close()
             self._active_by_profile.pop(owner_profile_id, None)
@@ -1256,6 +1387,32 @@ def _planned_direction(
     if selected_mood in {"explore", "discovery"}:
         return SessionDirectionType.EXPLORING
     return current
+
+
+def _recent_metadata(
+    metadata: tuple[dict[str, str], ...], key: str
+) -> tuple[str, ...]:
+    """Return unique, non-empty metadata values in chronological order."""
+    return tuple(dict.fromkeys(value for item in metadata if (value := item.get(key, ""))))
+
+
+def _performance_memory_repeats(
+    memory: PerformanceMemory, intent_type: KnowledgeIntentType, hints: dict[str, Any]
+) -> bool:
+    """Reject only deterministic repeats from the bounded Runtime projection."""
+    if intent_type is KnowledgeIntentType.ARTIST_STORY:
+        candidate = _bounded_text(hints.get("artist") or hints.get("producer"), 160)
+        return candidate in memory.recent_artists
+    if intent_type is KnowledgeIntentType.ALBUM_STORY:
+        candidate = _bounded_text(hints.get("album") or hints.get("release_year"), 160)
+        return candidate in memory.recent_albums
+    if intent_type is KnowledgeIntentType.GENRE_STORY:
+        candidate = _bounded_text(hints.get("genre"), 160)
+        return candidate in memory.recent_genres
+    if intent_type is KnowledgeIntentType.RECOMMENDATION:
+        candidate = _bounded_text(hints.get("artist") or hints.get("related_tracks"), 160)
+        return candidate in memory.recent_recommendations
+    return False
 
 
 def _create_session_planner(*, session_id: str, created_at: str) -> DJSessionPlanner:

@@ -137,6 +137,80 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             self.runtime.SessionDirectionType.MAINTAINING_ENERGY,
         )
 
+    def test_performance_memory_is_runtime_scoped_and_starts_empty(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-a"))
+
+        memory = created.performance_memory
+        self.assertEqual(memory.source_flow_id, f"flow-{created.session_id}")
+        self.assertEqual(memory.recent_moment_ids, ())
+        self.assertEqual(memory.recent_moment_types, ())
+        self.assertEqual(memory.recent_silence_count, 0)
+        self.assertNotIn("profile", memory.as_dict())
+
+    def test_planner_uses_performance_memory_to_prevent_duplicate_artist_story(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-a"))
+        memory = self.runtime.PerformanceMemory(
+            "flow-test", recent_artists=("Daft Punk",)
+        )
+
+        decision = created.planner.evaluate_track_started(
+            session_direction=created.session_direction,
+            selected_mood="groove",
+            persona=self.runtime.DJPersona.HOME_DJ,
+            knowledge_hints={
+                "producer": "Daft Punk",
+                "artist": "Daft Punk",
+                "genre": "electronic",
+            },
+            performance_memory=memory,
+        )
+
+        self.assertEqual(
+            decision.decision_type, self.runtime.PlannerDecisionType.CREATE_GENRE_STORY
+        )
+
+    def test_planner_uses_performance_memory_to_prevent_duplicate_recommendation(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-a"))
+        memory = self.runtime.PerformanceMemory(
+            "flow-test", recent_recommendations=("Massive Attack",)
+        )
+
+        decision = created.planner.evaluate_track_started(
+            session_direction=created.session_direction,
+            selected_mood="groove",
+            persona=self.runtime.DJPersona.HOME_DJ,
+            knowledge_hints={
+                "related_tracks": "Angel",
+                "artist": "Massive Attack",
+                "genre": "trip-hop",
+            },
+            performance_memory=memory,
+        )
+
+        self.assertEqual(
+            decision.decision_type, self.runtime.PlannerDecisionType.CREATE_GENRE_STORY
+        )
+
+    def test_planner_prefers_an_unused_moment_type_when_genre_repeats(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-a"))
+        memory = self.runtime.PerformanceMemory("flow-test", recent_genres=("house",))
+
+        decision = created.planner.evaluate_track_started(
+            session_direction=created.session_direction,
+            selected_mood="groove",
+            persona=self.runtime.DJPersona.HOME_DJ,
+            knowledge_hints={"genre": "house", "producer": "Nile Rodgers", "artist": "Chic"},
+            performance_memory=memory,
+        )
+
+        self.assertEqual(
+            decision.decision_type, self.runtime.PlannerDecisionType.CREATE_ARTIST_STORY
+        )
+
     def test_planner_is_not_shared_between_runtimes_and_is_disposed_with_runtime(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
         first = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))
@@ -471,7 +545,66 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertIn("instrumentation", dict(context.analysis))
         self.assertFalse(context.personal_context_used)
         self.assertNotIn("music_dna", context.as_insight())
+        self.assertEqual(
+            context.as_insight()["performance_memory"]["source_flow_id"],
+            f"flow-{created.session_id}",
+        )
         self.assertEqual(moment.source_references, ("track_insight",))
+
+    def test_performance_memory_projects_recent_runtime_moments_from_session_flow(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-a"))
+
+        async def insight() -> dict:
+            return {
+                "track": {
+                    "title": "Teardrop",
+                    "artist": "Massive Attack",
+                    "album": "Mezzanine",
+                    "genres": ["trip-hop"],
+                },
+                "analysis": {
+                    "summary": "A spacious trip-hop landmark.",
+                    "full_text": "The suspended beat leaves room for the bass.",
+                    "genre": "trip-hop",
+                },
+            }
+
+        moment = asyncio.run(
+            manager.async_process_track_started(
+                owner_profile_id="profile-a",
+                session_id=created.session_id,
+                insight_provider=insight,
+            )
+        )
+        active = asyncio.run(manager.async_get_active("profile-a"))
+
+        assert moment is not None and active is not None
+        memory = active.performance_memory
+        self.assertEqual(memory.recent_moment_ids, (moment.moment_id,))
+        self.assertEqual(memory.recent_moment_types, (self.runtime.DJMomentType.GENRE,))
+        self.assertEqual(memory.recent_artists, ("Massive Attack",))
+        self.assertEqual(memory.recent_albums, ("Mezzanine",))
+        self.assertEqual(memory.recent_genres, ("trip-hop",))
+        self.assertEqual(
+            memory.source_flow_id, active.planner.output.session_flow.flow_id
+        )
+
+    def test_performance_memory_is_disposed_with_ended_runtime(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        first = asyncio.run(manager.async_start(owner_profile_id="profile-a"))
+        ended = asyncio.run(
+            manager.async_end(owner_profile_id="profile-a", session_id=first.session_id)
+        )
+        second = asyncio.run(manager.async_start(owner_profile_id="profile-a"))
+
+        assert ended is not None
+        self.assertEqual(ended.performance_memory.recent_moment_ids, ())
+        self.assertNotEqual(
+            first.performance_memory.source_flow_id,
+            second.performance_memory.source_flow_id,
+        )
+        self.assertEqual(second.performance_memory.recent_moment_ids, ())
 
     def test_direction_change_is_runtime_owned_and_generates_session_update(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
