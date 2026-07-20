@@ -48,6 +48,11 @@ DJConnect enriches playback; it never owns playback. The DJ Session uses the
 listening moment to host a better experience without making the listener think
 about providers, accounts or playback machinery.
 
+A future Continue Session may join one observed playback occurrence only through
+the Music Backend Observation Boundary and the deferred contract in
+[`CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`](CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md).
+It never turns the DJ Session into a playback owner.
+
 ## DJ Session Lifecycle
 
 The conceptual shape of a DJ Session is:

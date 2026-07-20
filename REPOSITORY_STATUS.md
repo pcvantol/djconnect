@@ -28,6 +28,13 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+PR [#256](https://github.com/pcvantol/djconnect/pull/256) is merged as
+`b0573fbfa8055075df1296701877f8207f0a010b`. It establishes ADR-0016:
+Playback Instance Identity belongs to the Music Backend Observation Boundary.
+It is architecture documentation only; Continue Stage 2 remains authorized and
+deferred. The immutable predecessor Prompt History entry is absent and is not
+recreated retrospectively.
+
 Engineering Platform operational after Platform Baseline v1.0 certification
 and Software Assurance Generation 1 closure. DJConnect Product Development is
 the primary engineering program.

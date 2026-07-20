@@ -2,6 +2,14 @@
 
 Status: canonical prompt navigation
 
+## Current product architecture note
+
+PR [#256](https://github.com/pcvantol/djconnect/pull/256), merged as
+`b0573fbfa8055075df1296701877f8207f0a010b`, accepts the Playback Observation
+Boundary decision in ADR-0016. Continue Stage 2 remains authorized and
+deferred. No immutable Prompt History source exists for that predecessor; do
+not recreate one retrospectively.
+
 ## Generation 2 navigation
 
 `ROADMAP_INDEX.md` is the canonical navigation for the three Generation 2

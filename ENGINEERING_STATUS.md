@@ -5,6 +5,14 @@
 
 ## Current engineering increment
 
+PR [#256](https://github.com/pcvantol/djconnect/pull/256), **Define Playback
+Observation Boundary**, merged on 2026-07-20 as
+`b0573fbfa8055075df1296701877f8207f0a010b`. It accepts ADR-0016 and separates
+Playback Control from Playback Observation, placing Playback Instance Identity
+in the latter. It makes no production implementation or Continue maturity
+advance. Its predecessor prompt is absent from immutable Prompt History and is
+not recreated retrospectively.
+
 Platform Release 3.3 is operationally complete and in Maintenance. PR
 [#202](https://github.com/pcvantol/djconnect/pull/202), **Platform Release 3.3
 Release Completion**, merged on 2026-07-19 as

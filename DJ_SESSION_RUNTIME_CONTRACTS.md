@@ -89,6 +89,19 @@ pre-session history. The detailed projection, identity and failure contract is
 Runtime communicates only with that Observation Boundary for this flow; it does
 not depend on the Playback Control Boundary.
 
+The future canonical ingress is one `TrackStartedObservation` produced by the
+Observation Boundary. It carries the same opaque Playback Instance Identity as
+the validated projection and only safe bounded context. The current
+Session-Start-internal Track Insight trigger is not a live observation producer.
+Runtime compares identity only; it never substitutes URI, title, metadata,
+timestamp or progress.
+
+Continue bootstrap is transactional: a Profile-scoped reservation and candidate
+Runtime remain non-public until one validated occurrence is atomically adopted.
+Failure before commitment silently discards them rather than calling the normal
+end lifecycle, which would publish state. The detailed race, rollback and
+outcome rules are in `docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`.
+
 ## Session Planner contract
 
 The Planner owns the future: a rolling planning horizon of approximately
@@ -205,9 +218,12 @@ catalogue is:
 
 The selected Music Backend owns its Playback Queue. Queue behaviour is a
 backend implementation detail and may appear only as an advanced playback view.
-A future Continue bootstrap may record only its one adopted current item after
-Session Start; it must use the existing `track_started` path for later real
-events and may not synthesize earlier history.
+A future Continue bootstrap may record only its Session Start and one adopted
+current item after commitment. This is an internal post-start contribution with
+no identity, provider payload or pre-session history; it is not a new public
+DJMoment type or renderer payload. It must use one canonical normalized
+`TrackStartedObservation` for later real events and may not synthesize earlier
+history.
 
 ### Canonical Session Flow Foundation
 

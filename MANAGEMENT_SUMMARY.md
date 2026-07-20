@@ -15,6 +15,13 @@
 
 ## Current position
 
+PR [#256](https://github.com/pcvantol/djconnect/pull/256) merged as
+`b0573fbfa8055075df1296701877f8207f0a010b`. ADR-0016 separates Playback
+Control from Playback Observation and assigns Playback Instance Identity to the
+Observation Boundary. No runtime, provider, API or maturity implementation was
+included; Continue Stage 2 remains deferred pending a capable observation
+implementation.
+
 | Area | Objectively supported status | Evidence |
 | --- | --- | --- |
 | Platform Engineering | Completed and frozen | `ARCHITECTURE_DECISION.md` |

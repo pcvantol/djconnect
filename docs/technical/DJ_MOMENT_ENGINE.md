@@ -39,6 +39,11 @@ its Moment Engine to create one Track Moment or record explicit Silence. A
 Track Moment cannot be generated twice for the same title/artist/album identity
 within one Runtime.
 
+That current metadata-based Moment guard is not Playback Instance Identity and
+must not be used for Continue occurrence correlation. A future Continue Stage
+2 slice uses only the opaque identity supplied in a canonical live observation;
+it must preserve legitimate replay semantics even when media metadata matches.
+
 Every published Moment is a frozen dataclass containing its Knowledge Intent,
 Presentation Intent, semantic actions and safe source references. Mood and
 Persona are copied into Presentation Intent at creation. Later Runtime Mood or
