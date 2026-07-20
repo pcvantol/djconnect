@@ -114,8 +114,12 @@ querying the Planner directly.
 
 - Clients never store Profile state or become sources of persistent session
   truth.
-- Music Backend adapters retain provider credentials, playback control, queues
-  and provider-specific behaviour.
+- Music Backend adapters retain provider credentials and provider-specific
+  behaviour. Their Playback Control Boundary owns playback, queues and
+  transport; their Playback Observation Boundary owns normalized playback
+  observation. The latter may provide a future Continue bootstrap only through
+  the opaque Playback Instance Identity contract in
+  [`CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`](docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md).
 - Session Runtimes consume Playback Context; they do not own a backend,
   provider account or playback state. A future Continue bootstrap may consume
   one safe Current Playback Projection only as defined in

@@ -67,7 +67,13 @@ A Music Backend adapter owns playback/provider-specific behavior:
 - future Qobuz Direct;
 - future local or cloud providers.
 
-A backend exposes normalized capabilities and provider-specific operations through an adapter boundary.
+A backend exposes normalized capabilities and provider-specific operations through
+an adapter boundary. Its Playback Control Boundary owns playback, queue,
+transport and commands. Its Playback Observation Boundary owns normalized
+playback observation, Current Playback Projection, Track Started observation
+and opaque Playback Instance Identity; provider adapters implement that
+Observation Boundary. Runtime consumes only validated bounded observations and
+never derives identity or depends directly on Playback Control.
 
 ### Music Account
 
@@ -80,10 +86,12 @@ Do not require every profile to have a unique provider account.
 ### DJ Session Runtime
 
 A DJ Session Runtime is server-owned and ephemeral. It exists only while a DJ
-Session is active and owns Playback Context, Session Planner, Conversation
-Engine, Session Memory, Session Flow, Broadcast Engine, Audience Signals and
-Runtime State. It may write only permitted durable outcomes back to its owning
-Profile when the session ends.
+Session is active and owns active Session orchestration, Session Planner,
+Conversation Engine, Session Memory, Session Flow, Broadcast Engine, Audience
+Signals and Runtime State. It consumes bounded validated playback observations;
+Playback Context and Playback Instance Identity remain Music Backend Observation
+Boundary responsibilities. It may write only permitted durable outcomes back to
+its owning Profile when the session ends.
 
 ### Session Planner and Session Flow
 
