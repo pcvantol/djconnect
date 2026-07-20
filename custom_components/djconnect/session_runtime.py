@@ -834,23 +834,16 @@ class DJKnowledgeEngine:
         """Reuse Track Insight while excluding raw Profile and Music DNA data."""
         track = raw_insight.get("track") if isinstance(raw_insight.get("track"), dict) else {}
         analysis = raw_insight.get("analysis") if isinstance(raw_insight.get("analysis"), dict) else {}
+        track_fields, analysis_fields = _knowledge_fields_for_intent(intent.intent_type)
         context = KnowledgeContext(
             track=tuple(
                 (key, value)
-                for key, value in ((key, _bounded_text(track.get(key), 2048)) for key in (
-                    "title", "artist", "album", "artwork_url", "backend", "genres",
-                    "producer", "composer", "release_year", "release_date",
-                    "recording_context", "related_artists", "related_tracks",
-                ))
+                for key, value in ((key, _bounded_text(track.get(key), 2048)) for key in track_fields)
                 if value
             ),
             analysis=tuple(
                 (key, value)
-                for key, value in ((key, _bounded_text(analysis.get(key), 1200)) for key in (
-                    "summary", "full_text", "genre", "subgenre", "mood", "vibe",
-                    "texture", "emotional_tone", "production_notes", "instrumentation",
-                    "arrangement_notes", "listening_cues", "similar_tracks",
-                ))
+                for key, value in ((key, _bounded_text(analysis.get(key), 1200)) for key in analysis_fields)
                 if value
             ),
             sources=("track_insight",),
@@ -883,6 +876,38 @@ class DJKnowledgeEngine:
     def _record(self, context: KnowledgeContext) -> KnowledgeContext:
         self.assembled_contexts = (*self.assembled_contexts, context)
         return context
+
+
+def _knowledge_fields_for_intent(
+    intent_type: KnowledgeIntentType,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """Select only existing metadata relevant to one Planner-owned intent."""
+    track_fields = ("title", "artist", "album", "artwork_url", "backend")
+    analysis_fields = ("summary", "full_text")
+    if intent_type is KnowledgeIntentType.ARTIST_STORY:
+        return (
+            (*track_fields, "producer", "composer", "recording_context", "related_artists"),
+            (*analysis_fields, "production_notes", "instrumentation", "arrangement_notes"),
+        )
+    if intent_type is KnowledgeIntentType.ALBUM_STORY:
+        return (
+            (*track_fields, "release_year", "release_date"),
+            (*analysis_fields, "mood", "vibe", "texture"),
+        )
+    if intent_type is KnowledgeIntentType.GENRE_STORY:
+        return (
+            (*track_fields, "genres"),
+            (*analysis_fields, "genre", "subgenre", "mood", "vibe"),
+        )
+    if intent_type is KnowledgeIntentType.RECOMMENDATION:
+        return (
+            (*track_fields, "related_tracks", "related_artists"),
+            (*analysis_fields, "similar_tracks", "listening_cues"),
+        )
+    return (
+        (*track_fields, "genres"),
+        (*analysis_fields, "genre", "subgenre", "mood", "vibe", "texture", "emotional_tone", "production_notes", "instrumentation", "arrangement_notes", "listening_cues", "similar_tracks"),
+    )
 
 
 @dataclass(frozen=True)

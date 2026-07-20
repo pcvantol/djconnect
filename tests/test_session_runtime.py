@@ -952,7 +952,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
 
         assert first is not None and second is not None
         self.assertEqual(first.moment_type, self.runtime.DJMomentType.RECOMMENDATION)
-        self.assertEqual(second.moment_type, self.runtime.DJMomentType.TRACK)
+        self.assertEqual(second.moment_type, self.runtime.DJMomentType.GENRE)
 
     def test_runtime_owns_knowledge_engine_and_assembles_safe_context(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
@@ -971,7 +971,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         context = created.knowledge_engine.assembled_contexts[0]
         self.assertEqual(dict(context.track)["title"], "Track")
         self.assertEqual(dict(context.track)["producer"], "Producer")
-        self.assertEqual(dict(context.track)["release_year"], "1998")
+        self.assertNotIn("release_year", dict(context.track))
         self.assertIn("instrumentation", dict(context.analysis))
         self.assertFalse(context.personal_context_used)
         self.assertNotIn("music_dna", context.as_insight())
@@ -982,6 +982,74 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertEqual(context.as_insight()["session_start_strategy"], "manual")
         self.assertNotIn("session_mood", context.as_insight())
         self.assertEqual(moment.source_references, ("track_insight",))
+
+    def test_knowledge_engine_selects_metadata_by_planner_intent(self) -> None:
+        engine = self.runtime.DJKnowledgeEngine()
+        raw_insight = {
+            "track": {
+                "title": "Teardrop",
+                "artist": "Massive Attack",
+                "album": "Mezzanine",
+                "genres": ["trip-hop"],
+                "producer": "Neil Davidge",
+                "composer": "Massive Attack",
+                "release_year": "1998",
+                "recording_context": "Recorded in London.",
+                "related_artists": "Portishead",
+                "related_tracks": "Angel",
+            },
+            "analysis": {
+                "summary": "A spacious trip-hop landmark.",
+                "full_text": "The suspended beat leaves room for the bass.",
+                "genre": "trip-hop",
+                "subgenre": "downtempo",
+                "production_notes": "Layered drums.",
+                "similar_tracks": "Glory Box",
+            },
+        }
+        cases = (
+            (self.runtime.KnowledgeIntentType.ARTIST_STORY, "producer", "release_year"),
+            (self.runtime.KnowledgeIntentType.ALBUM_STORY, "release_year", "producer"),
+            (self.runtime.KnowledgeIntentType.GENRE_STORY, "genres", "producer"),
+            (self.runtime.KnowledgeIntentType.RECOMMENDATION, "related_tracks", "release_year"),
+        )
+
+        for intent_type, selected_key, excluded_key in cases:
+            with self.subTest(intent_type=intent_type):
+                context = asyncio.run(
+                    engine.async_assemble_track_context(
+                        intent=self.runtime.KnowledgeIntent(intent_type, "test"),
+                        raw_insight=raw_insight,
+                    )
+                )
+                self.assertIn(selected_key, context.as_insight()["track"])
+                self.assertNotIn(excluded_key, context.as_insight()["track"])
+
+    def test_knowledge_engine_missing_intent_metadata_preserves_safe_silence(self) -> None:
+        engine = self.runtime.DJKnowledgeEngine()
+        intent = self.runtime.KnowledgeIntent(
+            self.runtime.KnowledgeIntentType.ARTIST_STORY, "Share artist context."
+        )
+        context = asyncio.run(
+            engine.async_assemble_track_context(
+                intent=intent,
+                raw_insight={
+                    "track": {"title": "Teardrop", "artist": "Massive Attack"},
+                    "analysis": {"summary": "Safe.", "full_text": "Safe context."},
+                },
+            )
+        )
+        moment = self.runtime.DJMomentEngine().create_track_context(
+            session_id="session-test",
+            knowledge_intent=intent,
+            selected_mood="groove",
+            persona=self.runtime.DJPersona.HOME_DJ,
+            locale="en",
+            insight=context.as_insight(),
+        )
+
+        self.assertNotIn("producer", context.as_insight()["track"])
+        self.assertEqual(moment.moment_type, self.runtime.DJMomentType.SILENCE)
 
     def test_discover_knowledge_context_includes_only_safe_personal_projection(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
