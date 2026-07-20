@@ -106,9 +106,12 @@ compatibility work. Its Prompt History archive is absent; this reconciliation
 records the traceability gap without reconstructing immutable history.
 
 PR [#214](https://github.com/pcvantol/djconnect/pull/214), **DJ Session Runtime
-Contracts**, is reviewable. It defines the canonical runtime lifecycle,
-ownership and capability contracts without implementation, API, storage,
-synchronization, client UI, migration or compatibility work.
+Contracts**, is merged as `d4f5d279c7823a7b674cd2b9744e4f9a8e5a4f06` on
+2026-07-20. It defines the canonical runtime lifecycle, ownership and
+capability contracts without implementation, API, storage, synchronization,
+client UI, migration or compatibility work. Its Prompt History archive is
+absent; this reconciliation records the traceability gap without reconstructing
+immutable history.
 
 Canonical lifecycle:
 
@@ -283,9 +286,10 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-DJConnect v4 Architecture is merged and reconciled into current repository
-truth. DJ Session Runtime Contracts is reviewable in PR #214. Platform Release
-3.3 remains in Maintenance.
+DJConnect v4 Architecture and DJ Session Runtime Contracts are merged; this
+reconciliation aligns the rolling records with current repository truth.
+Platform Release 3.3 remains in Maintenance. The first Runtime Production Slice
+may now be selected from `PRODUCT_ROADMAP.md`.
 
 ## Completion Report
 
