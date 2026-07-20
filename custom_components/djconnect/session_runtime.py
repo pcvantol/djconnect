@@ -50,6 +50,21 @@ class PlannerEventType(StrEnum):
     PLANNER_TICK = "planner_tick"
 
 
+class AudienceSignalType(StrEnum):
+    MORE_ENERGY = "more_energy"
+    LESS_ENERGY = "less_energy"
+    CHILL = "chill"
+    DANCE = "dance"
+    SURPRISE_US = "surprise_us"
+    MORE_GUITARS = "more_guitars"
+    MORE_VOCALS = "more_vocals"
+    MORE_INSTRUMENTAL = "more_instrumental"
+    GENRE_SUGGESTION = "genre_suggestion"
+    ARTIST_SUGGESTION = "artist_suggestion"
+    ARTIST_EXCLUSION = "artist_exclusion"
+    MORE_LIKE_THIS = "more_like_this"
+
+
 class BroadcastEventType(StrEnum):
     """Stable event vocabulary for future Broadcast Engine distribution."""
 
@@ -150,6 +165,15 @@ class DJSessionPlanner:
     current_goal: str
     pending_events: tuple[PlannerEventType, ...]
     output: SessionPlannerOutput
+    audience_totals: dict[str, int] = field(default_factory=dict)
+    recent_audience_activity: tuple[str, ...] = ()
+
+    def submit_audience_signal(self, signal: AudienceSignalType, value: str = "") -> None:
+        """Aggregate one suggestion without interpreting it or changing playback."""
+        key = f"{signal.value}:{value.strip()}" if value.strip() else signal.value
+        self.audience_totals[key] = self.audience_totals.get(key, 0) + 1
+        self.recent_audience_activity = (key, *self.recent_audience_activity)[:20]
+        self.pending_events = (*self.pending_events, PlannerEventType.AUDIENCE_SIGNAL)
 
     def republish_session_flow(self) -> DJSessionFlow:
         """Rebuild the deterministic flow when Planner state later changes."""
@@ -188,6 +212,8 @@ class DJBroadcastState:
     current_direction: MusicalDirection
     started_at: str
     session_flow: DJSessionFlow
+    audience_totals: dict[str, int] = field(default_factory=dict)
+    recent_audience_activity: tuple[str, ...] = ()
 
     def as_dict(self) -> dict[str, Any]:
         """Return canonical state with its Planner-produced Session Flow."""
@@ -204,7 +230,7 @@ class DJBroadcastState:
                 "current_direction": str(self.current_direction),
             },
             "session_flow": self.session_flow.as_dict(),
-            "audience": {},
+            "audience": {"signal_totals": self.audience_totals, "recent_activity": list(self.recent_audience_activity)},
             "broadcast": {"started_at": self.started_at},
         }
 
@@ -249,7 +275,7 @@ class DJSessionBroadcastEngine:
             "capabilities": {
                 "view_broadcast": True,
                 "like": False,
-                "audience_signals": False,
+                "audience_signals": True,
                 "ask_dj": False,
                 "owner_controls": False,
             },
@@ -280,6 +306,10 @@ class DJSessionBroadcastEngine:
         state = self.as_dict()
         self._publish(BroadcastEventType.PLANNER_UPDATED, {"planner": state["planner"]})
         self._publish(BroadcastEventType.SESSION_FLOW_UPDATED, {"session_flow": state["session_flow"]})
+
+    def publish_audience_state(self, totals: dict[str, int], recent_activity: tuple[str, ...]) -> None:
+        self.state = DJBroadcastState(**{**self.state.__dict__, "audience_totals": dict(totals), "recent_audience_activity": recent_activity})
+        self._publish(BroadcastEventType.AUDIENCE_UPDATED, {"audience": self.as_dict()["audience"]})
 
     def close(self) -> None:
         """Notify renderers of Runtime termination, then release every subscription."""
@@ -347,6 +377,11 @@ class DJSessionRuntime:
         flow = self.planner.republish_session_flow()
         self.broadcast.publish_session_flow(flow)
         return flow
+
+    def submit_audience_signal(self, signal: AudienceSignalType, value: str = "") -> None:
+        """Route shared-renderer suggestions through Runtime to its Planner."""
+        self.planner.submit_audience_signal(signal, value)
+        self.broadcast.publish_audience_state(self.planner.audience_totals, self.planner.recent_audience_activity)
 
 
 class SessionRuntimeManager:
@@ -452,6 +487,19 @@ class SessionRuntimeManager:
                 if active.session_id == session_id:
                     active.broadcast.unsubscribe(subscription_id)
                     return
+
+    async def async_submit_audience_signal_with_broadcast_token(self, *, session_id: str, broadcast_token: str, signal: str, value: str = "") -> dict[str, Any] | None:
+        """Accept an allowed Receiver suggestion; never execute playback."""
+        try:
+            signal_type = AudienceSignalType(signal)
+        except ValueError:
+            return None
+        async with self._lock:
+            for active in self._active_by_profile.values():
+                if active.session_id == session_id and secrets.compare_digest(active.broadcast.broadcast_token, broadcast_token):
+                    active.submit_audience_signal(signal_type, value)
+                    return active.broadcast.as_dict()["audience"]
+            return None
 
     async def async_unsubscribe(
         self, *, owner_profile_id: str, session_id: str, subscription_id: str

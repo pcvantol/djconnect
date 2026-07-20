@@ -2810,12 +2810,23 @@ class DJConnectSessionBroadcastWebSocketView(HomeAssistantView):
                 "type": "snapshot",
                 "session_id": session_id,
                 "snapshot": snapshot,
-                "capabilities": {"view_broadcast": True, "like": False, "audience_signals": False, "ask_dj": False, "owner_controls": False},
+                "capabilities": {"view_broadcast": True, "like": False, "audience_signals": True, "ask_dj": False, "owner_controls": False},
             }
         )
         try:
-            async for _message in websocket:
-                # V4-07 is intentionally read-only: client frames have no action semantics.
+            async for message in websocket:
+                if message.type is web.WSMsgType.TEXT:
+                    try:
+                        payload = message.json()
+                    except ValueError:
+                        payload = {}
+                    if payload.get("type") == "audience_signal":
+                        audience = await manager.async_submit_audience_signal_with_broadcast_token(
+                            session_id=session_id, broadcast_token=token,
+                            signal=str(payload.get("signal") or ""), value=str(payload.get("value") or ""),
+                        )
+                        if audience is not None:
+                            continue
                 await websocket.send_json({"type": "error", "error": "broadcast_read_only"})
         finally:
             await manager.async_unsubscribe_broadcast_token(
