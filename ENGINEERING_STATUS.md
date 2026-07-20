@@ -28,6 +28,14 @@ that immutable historical traceability gap rather than recreating a prompt.
 The next Product Engineering increment may now build on the established
 Product Definition and DJ Session Domain Model.
 
+PR [#209](https://github.com/pcvantol/djconnect/pull/209), **DJ Session
+Vision**, merged on 2026-07-20 as
+`d66c6f0aa87936105aa406d959a8644ee9f56b56`. It establishes
+`docs/product/DJ_SESSION_VISION.md` as the canonical experience reference for
+future DJ Sessions and adds it to Product Foundation navigation. The
+predecessor Prompt History archive is absent; this reconciliation records that
+historical traceability gap without recreating a prompt.
+
 ## Current engineering program
 
 DJConnect Product Development is the active primary program and Innovation
@@ -85,8 +93,7 @@ separate explicitly authorized operational action.
 
 ## Recommended next prompt
 
-Select the canonical DJ Session Vision increment, using
-`docs/product/PRODUCT_DEFINITION.md` and
-`docs/product/DJ_SESSION_DOMAIN_MODEL.md` as its product-direction and
-vocabulary sources. Handle Platform Release 3.3 only as Maintenance unless its
-completion record is formally reopened.
+Select the next Product Engineering increment from `PRODUCT_ROADMAP.md`, using
+the Product Definition, DJ Session Domain Model and DJ Session Vision together
+as canonical product direction. Handle Platform Release 3.3 only as
+Maintenance unless its completion record is formally reopened.

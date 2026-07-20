@@ -70,22 +70,23 @@ planning is read.
 | Platform Release 3.3 Release Completion | Completed / merged reconciled / archived | Formally close the completed 3.3 release and transition it to Maintenance. | `agent/platform-3-3-release-completion` | `docs/history/prompts/2026-07-19-platform-release-3-3-release-completion.md`; PR [#202](https://github.com/pcvantol/djconnect/pull/202), merged as `be5504ad39a2eb251cda066c4fced865477291a6` |
 | Platform Release 3.3 Release Completion Post-Merge Reconciliation | Completed / merged reconciled / archived | Reconcile the merged Release Completion prompt archive and stale rolling-record navigation; no product, runtime, deployment, release or governance behaviour changes. | `codex/reconcile-platform-3-3-release-completion` | `docs/history/prompts/2026-07-19-platform-release-3-3-release-completion-postmerge-reconciliation.md`; PR [#203](https://github.com/pcvantol/djconnect/pull/203), merged as `49f4c7396e5fc6ec6bfdbbb4a9e03f8d5a373484` |
 | DJ Session Domain Model | Completed / merged reconciled | Establish the canonical DJ Session product vocabulary and align Product Definition, Product Language and Product Foundation navigation without implementation, architecture, API, storage, synchronization, pricing or roadmap changes. | `codex/dj-session-domain-model` | PR [#207](https://github.com/pcvantol/djconnect/pull/207), merged as `1c7b57c88cb672ffa7f616c26148aa132ef4dc76`; predecessor Prompt History archive absent, recorded as a historical traceability gap rather than recreated retrospectively. |
+| DJ Session Vision | Completed / merged reconciled | Establish the canonical desired experience for every DJ Session and register it in Product Foundation navigation, without implementation, UI, storage, synchronization, architecture, API or roadmap-sequencing decisions. | `codex/dj-session-vision` | PR [#209](https://github.com/pcvantol/djconnect/pull/209), merged as `d66c6f0aa87936105aa406d959a8644ee9f56b56`; predecessor Prompt History archive absent, recorded as a historical traceability gap rather than recreated retrospectively. |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
 
 ## Current post-merge reconciliation
 
-PR #207 is merged as `1c7b57c88cb672ffa7f616c26148aa132ef4dc76`; the DJ Session
-Domain Model is reconciled into the rolling records. Its predecessor Prompt
-History archive is absent and remains an explicit historical traceability gap.
-Platform Release 3.3 remains in Maintenance.
+PR #209 is merged as `d66c6f0aa87936105aa406d959a8644ee9f56b56`; the DJ Session
+Vision is reconciled into the rolling records. Its predecessor Prompt History
+archive is absent and remains an explicit historical traceability gap. Platform
+Release 3.3 remains in Maintenance.
 
 ## Next Engineering Increment
 
-No Platform Release 3.3 execution is active. The next selected Product
-Engineering work is the canonical DJ Session Vision; 3.3 remains in
-Maintenance unless its completion record is formally reopened.
+No Platform Release 3.3 execution is active. Select the next Product
+Engineering or Innovation Engineering work from the active roadmap or backlog;
+3.3 remains in Maintenance unless its completion record is formally reopened.
 
 ## Active Next Phase
 

@@ -90,6 +90,14 @@ roadmap change. Its Prompt History archive is absent. This reconciliation
 records the historical traceability gap without creating or altering an
 immutable predecessor prompt.
 
+PR [#209](https://github.com/pcvantol/djconnect/pull/209), **DJ Session
+Vision**, is merged as `d66c6f0aa87936105aa406d959a8644ee9f56b56` on
+2026-07-20. It establishes the canonical desired experience of every DJ
+Session without implementation, UI, storage, synchronization, architecture,
+API or roadmap-sequencing decisions. Its Prompt History archive is absent;
+this reconciliation records the historical traceability gap without
+reconstructing a predecessor prompt.
+
 Canonical lifecycle:
 
 ```text
@@ -263,10 +271,11 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-The merged DJ Session Domain Model is reconciled into current repository
-truth. Platform Release 3.3 remains in Maintenance. The next Product
-Engineering increment is the canonical DJ Session Vision, using the Product
-Definition and Domain Model without changing product sequencing.
+The merged DJ Session Vision is reconciled into current repository truth.
+Platform Release 3.3 remains in Maintenance. The next Product Engineering
+increment may be selected from `PRODUCT_ROADMAP.md` using the Product
+Definition, DJ Session Domain Model and DJ Session Vision as canonical product
+direction.
 
 ## Completion Report
 
