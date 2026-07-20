@@ -175,6 +175,135 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         with self.assertRaises(FrozenInstanceError):
             created.session_start_strategy = self.runtime.SessionStartStrategy.CHILL  # type: ignore[misc]
 
+    def test_discover_strategy_prefers_recommendation_over_manual_track_context(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        discover = asyncio.run(
+            manager.async_start(
+                owner_profile_id="profile-discover",
+                session_start_strategy=self.runtime.SessionStartStrategy.DISCOVER,
+            )
+        )
+        manual = asyncio.run(manager.async_start(owner_profile_id="profile-manual"))
+        hints = {
+            "related_tracks": "Angel",
+            "artist": "Massive Attack",
+            "producer": "Neil Davidge",
+            "genre": "trip-hop",
+        }
+
+        discover_decision = discover.planner.evaluate_track_started(
+            session_direction=discover.session_direction,
+            selected_mood="groove",
+            persona=self.runtime.DJPersona.HOME_DJ,
+            knowledge_hints=hints,
+            performance_memory=discover.performance_memory,
+            discover_context=discover.discover_context,
+        )
+        manual_decision = manual.planner.evaluate_track_started(
+            session_direction=manual.session_direction,
+            selected_mood="groove",
+            persona=self.runtime.DJPersona.HOME_DJ,
+            knowledge_hints=hints,
+            performance_memory=manual.performance_memory,
+            discover_context=manual.discover_context,
+        )
+
+        self.assertEqual(
+            discover_decision.decision_type,
+            self.runtime.PlannerDecisionType.CREATE_RECOMMENDATION,
+        )
+        self.assertEqual(discover_decision.reason, "discover_knowledge_hint:related_tracks")
+        self.assertEqual(
+            manual_decision.decision_type,
+            self.runtime.PlannerDecisionType.CREATE_ARTIST_STORY,
+        )
+
+    def test_personal_discover_context_avoids_familiar_artist(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        context = self.runtime.DiscoverContext(
+            personal_context_authorized=True,
+            familiar_artists=("Massive Attack",),
+        )
+        created = asyncio.run(
+            manager.async_start(
+                owner_profile_id="profile-a",
+                session_start_strategy=self.runtime.SessionStartStrategy.DISCOVER,
+                discover_context=context,
+            )
+        )
+
+        decision = created.planner.evaluate_track_started(
+            session_direction=created.session_direction,
+            selected_mood="groove",
+            persona=self.runtime.DJPersona.HOME_DJ,
+            knowledge_hints={
+                "related_tracks": "Angel",
+                "artist": "Massive Attack",
+                "genre": "trip-hop",
+            },
+            performance_memory=created.performance_memory,
+            discover_context=created.discover_context,
+        )
+
+        self.assertEqual(
+            decision.decision_type, self.runtime.PlannerDecisionType.CREATE_GENRE_STORY
+        )
+        self.assertTrue(created.discover_context.personal_context_authorized)
+
+    def test_community_discover_session_uses_no_personal_context(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(
+            manager.async_start(
+                owner_profile_id="profile-a",
+                session_start_strategy=self.runtime.SessionStartStrategy.DISCOVER,
+            )
+        )
+
+        decision = created.planner.evaluate_track_started(
+            session_direction=created.session_direction,
+            selected_mood="groove",
+            persona=self.runtime.DJPersona.HOME_DJ,
+            knowledge_hints={"related_tracks": "Angel", "artist": "Massive Attack"},
+            performance_memory=created.performance_memory,
+            discover_context=created.discover_context,
+        )
+
+        self.assertFalse(created.discover_context.personal_context_authorized)
+        self.assertEqual(
+            decision.decision_type,
+            self.runtime.PlannerDecisionType.CREATE_RECOMMENDATION,
+        )
+
+    def test_discover_combines_performance_memory_with_recommendation_diversity(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(
+            manager.async_start(
+                owner_profile_id="profile-a",
+                session_start_strategy=self.runtime.SessionStartStrategy.DISCOVER,
+            )
+        )
+        memory = self.runtime.PerformanceMemory(
+            "flow-test", recent_recommendations=("Massive Attack",)
+        )
+
+        decision = created.planner.evaluate_track_started(
+            session_direction=created.session_direction,
+            selected_mood="groove",
+            persona=self.runtime.DJPersona.HOME_DJ,
+            knowledge_hints={
+                "related_tracks": "Angel",
+                "artist": "Massive Attack",
+                "producer": "Neil Davidge",
+                "genre": "trip-hop",
+            },
+            performance_memory=memory,
+            discover_context=created.discover_context,
+        )
+
+        self.assertEqual(
+            decision.decision_type, self.runtime.PlannerDecisionType.CREATE_ARTIST_STORY
+        )
+
     def test_planner_proposes_direction_change_without_owning_runtime_state(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
         created = asyncio.run(manager.async_start(owner_profile_id="profile-a"))
@@ -611,6 +740,46 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         )
         self.assertEqual(context.as_insight()["session_start_strategy"], "manual")
         self.assertEqual(moment.source_references, ("track_insight",))
+
+    def test_discover_knowledge_context_includes_only_safe_personal_projection(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(
+            manager.async_start(
+                owner_profile_id="profile-a",
+                session_start_strategy=self.runtime.SessionStartStrategy.DISCOVER,
+                discover_context=self.runtime.DiscoverContext(
+                    personal_context_authorized=True,
+                    familiar_artists=("Massive Attack",),
+                    familiar_genres=("trip-hop",),
+                ),
+            )
+        )
+
+        async def insight() -> dict:
+            return {
+                "track": {"title": "Roads", "artist": "Portishead"},
+                "analysis": {"summary": "A quiet classic.", "full_text": "Sparse and intimate."},
+            }
+
+        asyncio.run(
+            manager.async_process_track_started(
+                owner_profile_id="profile-a",
+                session_id=created.session_id,
+                insight_provider=insight,
+            )
+        )
+        context = created.knowledge_engine.assembled_contexts[-1]
+
+        self.assertEqual(context.as_insight()["session_start_strategy"], "discover")
+        self.assertEqual(
+            context.as_insight()["discover_context"],
+            {
+                "personal_context_authorized": True,
+                "familiar_artists": ["Massive Attack"],
+                "familiar_genres": ["trip-hop"],
+            },
+        )
+        self.assertNotIn("music_dna", context.as_insight())
 
     def test_performance_memory_projects_recent_runtime_moments_from_session_flow(self) -> None:
         manager = self.runtime.SessionRuntimeManager()

@@ -181,6 +181,22 @@ class SessionStartConfiguration:
     interaction_profile: str
 
 
+@dataclass(frozen=True)
+class DiscoverContext:
+    """Safe, optional Music DNA projection for one active Discover Runtime."""
+
+    personal_context_authorized: bool = False
+    familiar_artists: tuple[str, ...] = ()
+    familiar_genres: tuple[str, ...] = ()
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "personal_context_authorized": self.personal_context_authorized,
+            "familiar_artists": list(self.familiar_artists),
+            "familiar_genres": list(self.familiar_genres),
+        }
+
+
 class DJMomentType(StrEnum):
     """Bounded first-production catalogue of immutable Moments."""
 
@@ -504,10 +520,12 @@ class DJSessionPlanner:
         persona: DJPersona,
         knowledge_hints: dict[str, Any] | None = None,
         performance_memory: PerformanceMemory | None = None,
+        discover_context: DiscoverContext | None = None,
     ) -> PlannerDecision:
         """Make the bounded first production decision without invoking services."""
         self.pending_events = (*self.pending_events, PlannerEventType.TRACK_AVAILABLE)
         performance_memory = performance_memory or PerformanceMemory("")
+        discover_context = discover_context or DiscoverContext()
         mood = selected_mood.strip().lower()
         now = time.monotonic()
         if self.last_spoken_moment_at and now - self.last_spoken_moment_at < self.configuration.minimum_time_between_moments_seconds:
@@ -548,7 +566,7 @@ class DJSessionPlanner:
             ("release_year", PlannerDecisionType.CREATE_ALBUM_STORY, KnowledgeIntentType.ALBUM_STORY, "Share relevant album context."),
             ("genre", PlannerDecisionType.CREATE_GENRE_STORY, KnowledgeIntentType.GENRE_STORY, "Explain relevant genre context."),
         )
-        if self.configuration.recommendation_preference == "deprioritize":
+        if self.configuration.recommendation_preference != "prefer":
             choices = (*choices[1:], choices[0])
         for key, decision_type, intent_type, goal in choices:
             if _bounded_text(hints.get(key), 1200):
@@ -556,8 +574,15 @@ class DJSessionPlanner:
                     performance_memory, intent_type, hints
                 ):
                     continue
+                if _discover_context_repeats(discover_context, intent_type, hints):
+                    continue
                 intent = KnowledgeIntent(intent_type, goal)
-                self.last_decision = PlannerDecision(decision_type, f"knowledge_hint:{key}", intent)
+                reason = (
+                    f"discover_knowledge_hint:{key}"
+                    if self.configuration.exploration_preference == "high"
+                    else f"knowledge_hint:{key}"
+                )
+                self.last_decision = PlannerDecision(decision_type, reason, intent)
                 return self.last_decision
         intent = KnowledgeIntent(
             KnowledgeIntentType.TRACK_CONTEXT,
@@ -758,6 +783,7 @@ class KnowledgeContext:
     personal_context_used: bool = False
     session_direction: SessionDirection | None = None
     session_start_strategy: SessionStartStrategy | None = None
+    discover_context: DiscoverContext | None = None
     performance_memory: PerformanceMemory | None = None
 
     def as_insight(self) -> dict[str, Any]:
@@ -767,6 +793,8 @@ class KnowledgeContext:
             insight["session_direction"] = self.session_direction.as_dict()
         if self.session_start_strategy is not None:
             insight["session_start_strategy"] = self.session_start_strategy.value
+        if self.discover_context is not None:
+            insight["discover_context"] = self.discover_context.as_dict()
         if self.performance_memory is not None:
             insight["performance_memory"] = self.performance_memory.as_dict()
         return insight
@@ -785,6 +813,7 @@ class DJKnowledgeEngine:
         resolver: Callable[[], Awaitable[dict[str, Any]]],
         session_direction: SessionDirection | None = None,
         session_start_strategy: SessionStartStrategy | None = None,
+        discover_context: DiscoverContext | None = None,
         performance_memory: PerformanceMemory | None = None,
         personal_context_authorized: bool = False,
     ) -> KnowledgeContext:
@@ -794,6 +823,7 @@ class DJKnowledgeEngine:
                 KnowledgeContext(
                     (), (), (), session_direction=session_direction,
                     session_start_strategy=session_start_strategy,
+                    discover_context=discover_context,
                     performance_memory=performance_memory,
                 )
             )
@@ -823,6 +853,7 @@ class DJKnowledgeEngine:
             personal_context_used=personal_context_authorized,
             session_direction=session_direction,
             session_start_strategy=session_start_strategy,
+            discover_context=discover_context,
             performance_memory=performance_memory,
         )
         return self._record(context)
@@ -1029,6 +1060,7 @@ class DJSessionRuntime:
     session_start_strategy: SessionStartStrategy
     interaction_profile: str
     session_direction: SessionDirection
+    discover_context: DiscoverContext
     performance_memory: PerformanceMemory
     planner: DJSessionPlanner
     knowledge_engine: DJKnowledgeEngine
@@ -1051,6 +1083,7 @@ class DJSessionRuntime:
             "session_start_strategy": self.session_start_strategy.value,
             "interaction_profile": self.interaction_profile,
             "session_direction": self.session_direction.as_dict(),
+            "discover_personalization_available": self.discover_context.personal_context_authorized,
             "performance_memory": self.performance_memory.as_dict(),
         }
         runtime["planner"] = self.planner.as_dict()
@@ -1091,6 +1124,7 @@ class SessionRuntimeManager:
         dj_persona: DJPersona = DJPersona.HOME_DJ,
         locale: str = "en",
         session_start_strategy: SessionStartStrategy = SessionStartStrategy.MANUAL,
+        discover_context: DiscoverContext | None = None,
     ) -> DJSessionRuntime:
         """Create the one active Runtime allowed for a Profile."""
         async with self._lock:
@@ -1099,6 +1133,11 @@ class SessionRuntimeManager:
             now = _timestamp()
             session_id = f"session-{uuid4().hex}"
             start_configuration = _session_start_configuration(session_start_strategy)
+            resolved_discover_context = (
+                discover_context or DiscoverContext()
+                if session_start_strategy is SessionStartStrategy.DISCOVER
+                else DiscoverContext()
+            )
             session_direction = _initial_session_direction(start_configuration, now)
             planner = _create_session_planner(
                 session_id=session_id,
@@ -1120,6 +1159,7 @@ class SessionRuntimeManager:
                 session_start_strategy=start_configuration.strategy,
                 interaction_profile=start_configuration.interaction_profile,
                 session_direction=session_direction,
+                discover_context=resolved_discover_context,
                 performance_memory=performance_memory,
                 planner=planner,
                 knowledge_engine=DJKnowledgeEngine(),
@@ -1161,6 +1201,7 @@ class SessionRuntimeManager:
                 selected_mood=active.selected_mood,
                 persona=active.dj_persona,
                 performance_memory=active.performance_memory,
+                discover_context=active.discover_context,
             )
             if decision.proposed_session_direction is not None:
                 updated_direction = SessionDirection(
@@ -1211,6 +1252,7 @@ class SessionRuntimeManager:
                 resolver=insight_provider,
                 session_direction=active.session_direction,
                 session_start_strategy=active.session_start_strategy,
+                discover_context=active.discover_context,
                 performance_memory=active.performance_memory,
                 personal_context_authorized=False,
             )
@@ -1219,6 +1261,7 @@ class SessionRuntimeManager:
             knowledge = KnowledgeContext(
                 (), (), (), session_direction=active.session_direction,
                 session_start_strategy=active.session_start_strategy,
+                discover_context=active.discover_context,
                 performance_memory=active.performance_memory,
             )
         async with self._lock:
@@ -1514,6 +1557,21 @@ def _performance_memory_repeats(
     if intent_type is KnowledgeIntentType.RECOMMENDATION:
         candidate = _bounded_text(hints.get("artist") or hints.get("related_tracks"), 160)
         return candidate in memory.recent_recommendations
+    return False
+
+
+def _discover_context_repeats(
+    context: DiscoverContext, intent_type: KnowledgeIntentType, hints: dict[str, Any]
+) -> bool:
+    """Keep personal Discover guidance opt-in and avoid familiar material."""
+    if not context.personal_context_authorized:
+        return False
+    artist = _bounded_text(hints.get("artist") or hints.get("producer"), 160)
+    genre = _bounded_text(hints.get("genre"), 160)
+    if intent_type in {KnowledgeIntentType.ARTIST_STORY, KnowledgeIntentType.RECOMMENDATION}:
+        return artist in context.familiar_artists
+    if intent_type is KnowledgeIntentType.GENRE_STORY:
+        return genre in context.familiar_genres
     return False
 
 
