@@ -55,9 +55,11 @@ reconciliation records the traceability gap without recreating immutable
 history.
 
 PR [#216](https://github.com/pcvantol/djconnect/pull/216), **V4-01
-Server-owned Active DJ Session Runtime**, is reviewable. It creates, looks up
-and destroys one ephemeral Runtime per resolved Profile, with only the
-paired-client session lifecycle in scope.
+Server-owned Active DJ Session Runtime**, merged on 2026-07-20 as
+`36d1e15da8b55fdccaac8b7ad777ccf6f462b6e5`. It creates, looks up and destroys
+one ephemeral Runtime per resolved Profile, with only the paired-client session
+lifecycle in scope. Its Prompt History archive is absent; this reconciliation
+records the traceability gap without recreating immutable history.
 
 ## Current engineering program
 
@@ -116,5 +118,5 @@ separate explicitly authorized operational action.
 
 ## Recommended next prompt
 
-Review PR #216. Do not start a follow-up until it is explicitly merged and its
-post-merge state is reconciled.
+Complete this post-merge reconciliation, then select the next bounded Product
+Engineering increment from `PRODUCT_ROADMAP.md`.
