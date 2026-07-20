@@ -74,6 +74,7 @@ planning is read.
 | DJConnect v4 Architecture | Completed / merged reconciled | Establish the canonical v4 architecture around persistent Profiles, ephemeral server-owned DJ Session Runtimes, Session Planner/Flow, Broadcast Engine/Feed and capability-driven renderers; documentation and roadmap only, with no implementation, API, storage, migration or v3 compatibility layer. | `codex/djconnect-v4-architecture` | Architecture Review authorized 2026-07-20; PR [#212](https://github.com/pcvantol/djconnect/pull/212), merged as `677f3304f35c9386ef1f839c595e1478fd2fef7d`; Prompt History archive absent, recorded as a traceability gap without retrospective recreation. |
 | DJ Session Runtime Contracts | Completed / merged reconciled | Establish the canonical lifecycle, ownership, Session Flow, Broadcast, Audience Signal, Room Voice, renderer and Session Capability contracts for the accepted v4 Runtime; documentation and roadmap only, with no production behaviour, AI, playback, API, storage, migration or compatibility layer. | `codex/dj-session-runtime-contracts` | Architecture documentation authorized 2026-07-20; PR [#214](https://github.com/pcvantol/djconnect/pull/214), merged as `d4f5d279c7823a7b674cd2b9744e4f9a8e5a4f06`; Prompt History archive absent, recorded as a traceability gap without retrospective recreation. |
 | V4-01 Server-owned Active DJ Session Runtime | Completed / merged reconciled | Create, look up and destroy one ephemeral Runtime per resolved Profile, exposing only the paired Apple-client start, active lookup and end lifecycle. | `codex/v4-active-session-runtime` | Explicit implementation prompt authorized 2026-07-20; PR [#216](https://github.com/pcvantol/djconnect/pull/216), merged as `36d1e15da8b55fdccaac8b7ad777ccf6f462b6e5`; Prompt History archive absent, recorded as a traceability gap without retrospective recreation. |
+| V4-02 Session Planner Foundation | Active | Create one non-persistent, Runtime-owned Session Planner per active session with a fixed 15-minute horizon, placeholder direction and future Session Flow output contract; no AI planning, Session Flow generation, Broadcast or VibeCast. | `codex/v4-session-planner-foundation` | Explicit implementation prompt authorized 2026-07-20. |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
@@ -86,14 +87,14 @@ archive is absent and remains an explicit historical traceability gap. PR #212
 is merged as `677f3304f35c9386ef1f839c595e1478fd2fef7d`; its v4 Architecture
 records are reconciled. PR #214 is merged as
 `d4f5d279c7823a7b674cd2b9744e4f9a8e5a4f06`; its Runtime Contract records are
-reconciled. Platform Release 3.3 remains in Maintenance.
+reconciled. PR #216 is merged as `36d1e15da8b55fdccaac8b7ad777ccf6f462b6e5`;
+its V4-01 records are reconciled. Platform Release 3.3 remains in Maintenance.
 
 ## Next Engineering Increment
 
-No Platform Release 3.3 execution is active. Select the first Runtime
-Production Slice or another Product Engineering/Innovation Engineering work
-from the active roadmap or backlog; 3.3 remains in Maintenance unless its
-completion record is formally reopened.
+V4-02 Session Planner Foundation is active. No Platform Release 3.3 execution
+is active; it remains in Maintenance unless its completion record is formally
+reopened.
 
 ## Active Next Phase
 

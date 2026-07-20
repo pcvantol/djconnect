@@ -22,6 +22,76 @@ class SessionRuntimeState(StrEnum):
     ENDED = "ended"
 
 
+class PlannerState(StrEnum):
+    """Lifecycle state for the ephemeral Session Planner foundation."""
+
+    READY = "ready"
+
+
+class MusicalDirection(StrEnum):
+    """Canonical placeholder directions for future planner decisions."""
+
+    MAINTAIN = "maintain"
+    INCREASE_ENERGY = "increase_energy"
+    DECREASE_ENERGY = "decrease_energy"
+    EXPLORE = "explore"
+    RECOVER = "recover"
+
+
+class PlannerEventType(StrEnum):
+    """Planner inputs that future runtime capabilities may submit."""
+
+    TRACK_FINISHED = "track_finished"
+    PLAYBACK_CHANGED = "playback_changed"
+    MOOD_CHANGED = "mood_changed"
+    AUDIENCE_SIGNAL = "audience_signal"
+    CONVERSATION = "conversation"
+    PLANNER_TICK = "planner_tick"
+
+
+@dataclass(frozen=True)
+class SessionPlannerOutput:
+    """Planner-owned placeholder for the future Session Flow output."""
+
+    session_flow: None = None
+
+    def as_dict(self) -> dict[str, None]:
+        """Return the transport-neutral placeholder without generating flow."""
+        return {"session_flow": self.session_flow}
+
+
+@dataclass(frozen=True)
+class DJSessionPlanner:
+    """One ephemeral Planner, owned exclusively by one active Runtime.
+
+    The Planner owns the future: its rolling horizon, future Session Flow and
+    future Broadcast generation. The Runtime owns the present, including mood;
+    the Planner only consumes that runtime-owned context in later slices.
+    """
+
+    planner_state: PlannerState
+    planning_horizon_minutes: int
+    created_at: str
+    last_replan_at: str
+    current_direction: MusicalDirection
+    current_goal: str
+    pending_events: tuple[PlannerEventType, ...]
+    output: SessionPlannerOutput
+
+    def as_dict(self) -> dict[str, Any]:
+        """Return the public planner foundation without planning a flow."""
+        return {
+            "planner_state": str(self.planner_state),
+            "planning_horizon_minutes": self.planning_horizon_minutes,
+            "created_at": self.created_at,
+            "last_replan_at": self.last_replan_at,
+            "current_direction": str(self.current_direction),
+            "current_goal": self.current_goal,
+            "pending_events": [str(event) for event in self.pending_events],
+            "output": self.output.as_dict(),
+        }
+
+
 class ActiveSessionExistsError(RuntimeError):
     """Raised when a Profile already owns an active DJ Session."""
 
@@ -42,10 +112,17 @@ class DJSessionRuntime:
     runtime_state: SessionRuntimeState
     created_at: str
     started_at: str
+    planner: DJSessionPlanner
 
-    def as_dict(self) -> dict[str, str]:
+    def as_dict(self) -> dict[str, Any]:
         """Return the public, transport-neutral runtime representation."""
-        return {key: str(value) for key, value in asdict(self).items()}
+        runtime = {
+            key: str(value)
+            for key, value in asdict(self).items()
+            if key != "planner"
+        }
+        runtime["planner"] = self.planner.as_dict()
+        return runtime
 
 
 class SessionRuntimeManager:
@@ -77,6 +154,7 @@ class SessionRuntimeManager:
                 runtime_state=SessionRuntimeState.CREATING,
                 created_at=now,
                 started_at="",
+                planner=_create_session_planner(now),
             )
             active = DJSessionRuntime(
                 **{
@@ -128,3 +206,17 @@ def session_runtime_manager(hass: Any) -> SessionRuntimeManager:
 
 def _timestamp() -> str:
     return datetime.now(UTC).isoformat()
+
+
+def _create_session_planner(created_at: str) -> DJSessionPlanner:
+    """Create the one non-persistent Planner for a newly created Runtime."""
+    return DJSessionPlanner(
+        planner_state=PlannerState.READY,
+        planning_horizon_minutes=15,
+        created_at=created_at,
+        last_replan_at="",
+        current_direction=MusicalDirection.MAINTAIN,
+        current_goal="",
+        pending_events=(),
+        output=SessionPlannerOutput(),
+    )
