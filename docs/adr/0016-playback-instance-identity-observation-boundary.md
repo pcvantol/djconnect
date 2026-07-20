@@ -45,6 +45,12 @@ bootstrap. It consumes the identity only as an opaque Runtime input; it never
 derives, interprets, generates or persists one. Runtime does not depend
 directly on Playback Control.
 
+The detailed canonical observation, startup, privacy, race and implementation
+sequence contract is `docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`.
+It requires the same identity in an immutable CurrentPlaybackProjection and a
+canonical live TrackStartedObservation; the existing Session Start-internal
+Track Insight invocation is not a substitute for that producer.
+
 ### Lifetime and privacy
 
 Playback Instance Identity exists only while its concrete playback occurrence
@@ -55,6 +61,12 @@ It must never be written to Session Flow, Performance Memory, Music DNA,
 Profile state, persistence, Broadcast, public APIs, immutable DJ Moments or
 reconstruction logs. It crosses an ownership boundary only as the opaque input
 from the Observation Boundary to Runtime.
+
+It is distinct from Safe Media Identity. A Boundary keeps it across
+pause/resume, seek, temporary buffering and reconnect only when those normalize
+to the same occurrence; it issues a new identity for a replay. Transfer,
+account and backend changes retain it only when the Boundary can prove the same
+authorized occurrence, otherwise they are new occurrences or unsupported.
 
 ### Capability model
 
@@ -71,6 +83,10 @@ Continue Stage 2 is enabled only when all required observation capabilities
 are available. `supports_continue_stage2` represents that complete capability
 set for the selected observation implementation; it does not grant control,
 queue or persistence capabilities.
+
+Capability scope is the selected backend observation implementation plus its
+authorized account and, where relevant, output/player. It is not a global
+backend claim and is separate from public playback-control capability maps.
 
 ### Unsupported observations
 

@@ -34,6 +34,9 @@ Provider-specific logic belongs inside backend adapters.
   Runtime. Playback Control remains a separate boundary; see
   `docs/adr/0016-playback-instance-identity-observation-boundary.md` and
   `docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`.
+- Observation capability support is scoped to the selected adapter observation
+  implementation and its authorized account/output context. It is separate
+  from public control capabilities and cannot be inferred for an entire backend.
 
 ## Alternatives considered
 

@@ -23,6 +23,7 @@ schemas, serialization or implementation.
 | Playback Context | The current playback situation available to the DJ. | Is owned by the configured Music Backend; DJConnect consumes it to enrich the session. |
 | Current Playback Projection | One immutable, safe observation of an active current item for Continue startup. | Is resolved by the Music Backend Observation Boundary and consumed ephemerally by Session Start orchestration; it is not a queue, control contract or playback authority. |
 | Playback Instance Identity | One opaque identifier for one concrete playback occurrence. | Is generated and owned by the Music Backend Observation Boundary, passed unchanged through Current Playback Projection and Track Started, and consumed only for Runtime-scoped deduplication. |
+| Track Started Observation | One normalized live observation that a playback occurrence has started. | Is produced by the Music Backend Observation Boundary with the matching opaque Playback Instance Identity and consumed by Runtime; it is not a provider callback or renderer event. |
 | Session Memory | The objective chronological memory of one DJ Session. | Records what happened as events only; it performs no interpretation. |
 | Session Timeline | The user-facing chronological presentation of Session Memory. | Tells the story of one completed DJ Session; it is not a chat history. |
 | Music DNA | The evolving, opt-in understanding of a person's musical identity across many DJ Sessions. | Interprets patterns in Session Memory; it never replaces Session Memory. |
@@ -93,6 +94,13 @@ for one concrete occurrence. Runtime never derives or persists it; it receives
 the same identity in a future Continue projection and normalized Track Started
 event. Playback Control remains separate and owns playback, queue and
 transport.
+
+A **Track Started Observation** is the canonical live Runtime entry point for
+one normalized occurrence. It carries the matching opaque identity and only
+safe bounded playback context. The Session Start-internal Track Insight trigger
+is not a Track Started Observation. The detailed lifetime, scope, capability
+and privacy contract is in
+[`CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`](CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md).
 
 ## Session Memory
 
