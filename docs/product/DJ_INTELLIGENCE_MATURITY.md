@@ -28,7 +28,7 @@ behaviour rather than replace architecture or introduce speculative systems.
 | Stage | Maturity |
 | --- | --- |
 | 1 — current | Track metadata, artist, album, genre and existing metadata enrichment. |
-| 2 | Lyrics, producer, recording history and musical analysis. |
+| 2 — partial | Producer/composer, release and recording context, related works and richer musical characteristics when existing metadata supplies them. Lyrics and dedicated recording-history retrieval remain deferred. |
 | 3 | Concert information, external music knowledge, historical context and related artists. |
 | 4 | Cross-session learning and narrative knowledge chains. |
 
