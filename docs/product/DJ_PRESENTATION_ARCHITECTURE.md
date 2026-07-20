@@ -3,23 +3,48 @@
 ## Status
 
 Canonical conceptual architecture. This document introduces no production
-implementation, AI generation, voice, VibeCast, Ask DJ or renderer behaviour.
+implementation, runtime behaviour, client implementation, Voice, VibeCast or
+Ask DJ behaviour.
 
-## Canonical performance pipeline
+## Purpose
+
+This architecture is the canonical bridge between the server-owned DJ Session
+and every future client experience. It separates what the AI decides from how
+a platform presents it.
 
 ```text
-Profile → Session Runtime → Session Planner → Knowledge Intent → DJ Moment Engine → DJ Moment → Broadcast → Renderers
+Profile → Session Runtime → Session Planner → Knowledge Intent → DJ Moment Engine → DJ Moment → Broadcast → Renderer Host → DJ Moment Renderer → Presentation Mode
 ```
 
-The Planner plans a performance, not individual product features. It owns
-timing and emits **Knowledge Intents**: what the DJ should communicate, such as
-an Artist Story, Transition, Audience Response, Recommendation or Silence.
-Knowledge Intents contain no presentation choices.
+## Canonical layers
 
-The **DJ Moment Engine** receives a Knowledge Intent plus the current Runtime
-context, Session Mood and DJ Persona. It creates exactly one immutable **DJ
-Moment**. The Engine owns creative execution; the Planner continues to own
-timing.
+### Intelligence Layer
+
+The Intelligence Layer owns Session Planner timing, Knowledge Intent
+generation and Runtime decision making. It decides **what** the AI DJ should
+communicate or intentionally not communicate.
+
+Knowledge Intents may describe Track Context, Artist Story, Album Story, Genre
+Story, Music History, Concert Information, Audience Response, Transition,
+Recommendation, Session Direction or Silence. They contain no UI layout,
+colour, button, platform, voice-provider or renderer instruction. The
+Intelligence Layer never knows anything about UI.
+
+### Domain Layer
+
+The Domain Layer owns the platform-independent semantic output: DJ Moment,
+Presentation Intent, contextual Actions, Visibility and Delivery Channels.
+
+The DJ Moment Engine turns a Knowledge Intent and current Runtime context into
+exactly one immutable DJ Moment. The Planner owns timing; the Moment Engine
+owns creative execution. The Domain Layer contains no platform-specific
+presentation logic.
+
+### Presentation Layer
+
+The Presentation Layer turns DJ Moments into user experiences. It owns Renderer
+Hosts, Presentation Modes and DJ Moment Renderers. It never generates a Moment
+or changes the semantic meaning already decided by the server.
 
 ## DJ Persona and Session Mood
 
@@ -32,21 +57,96 @@ voices implement Personas; they are not Personas themselves.
 **Session Mood** remains a dynamic Runtime property. A change affects only
 future Presentation Intents and Moments. It never mutates an existing Moment.
 
-## Presentation Intent and DJ Moment
+## DJ Moment and Presentation Intent
 
-A **Presentation Intent** is an immutable snapshot of how a Knowledge Intent
-is delivered: Session Mood, DJ Persona, tone, delivery and voice style, visual
-theme, energy, importance, maximum duration and channels such as Broadcast,
-Voice, Owner and Shared.
+A **DJ Moment** is the universal presentation object. Everything intentionally
+performed by the AI DJ becomes a Moment: Track Story, Artist Story, Genre
+Story, Recommendation, Session Update, Concert Suggestion, Trivia,
+Transition or Silence.
 
-A **DJ Moment** is the universal immutable presentation object. It contains
-type, title, summary, content, artwork, Knowledge Intent, Presentation Intent,
-actions, visibility, delivery and importance. Canonical types include Track,
-Transition, Lyric, Artist, Album, Genre, Music History, Audience, Session,
-Recommendation, Discover, Concert, Producer, Trivia and Silence. Silence is
-explicit: a DJ may intentionally decide not to speak.
+A Moment contains type, title, summary, content, artwork, Knowledge Intent,
+Presentation Intent, actions, visibility, delivery and importance. Canonical
+types include Track, Transition, Lyric, Artist, Album, Genre, Music History,
+Audience, Session, Recommendation, Discover, Concert, Producer, Trivia and
+Silence. Additional types may be added without changing Planner architecture.
+Silence is explicit: a DJ may intentionally decide not to speak.
 
-Follow-up actions belong to a Moment; renderers only present them. Renderers
-never generate Moments or reinterpret Presentation Intent. Track Insight,
-Lyrics Insight, Artist Story and Discover items are specializations of DJ
-Moments, not Planner-owned presentation features.
+A **Presentation Intent** is an immutable semantic snapshot of how a Moment
+should feel. It may include Session Mood, DJ Persona, Tone of Voice, Delivery
+Style, Importance, Energy, Voice Style, Visual Theme, maximum duration,
+Visibility and Delivery Channels. It never contains platform-specific styling,
+literal colours, fonts, CSS, Swift, layout or voice-provider configuration.
+
+Follow-up Actions belong to the Moment. They are semantic capabilities with
+safe payloads; renderers only present them and never invent additional actions.
+
+Track Insight is an expanded presentation of a Track DJ Moment. Artist Story,
+Genre Story, Recommendation, Discover and Concert are likewise expanded
+presentations of specific Moment types, not independent feature concepts.
+
+## Renderer Hosts
+
+A **Renderer Host** renders DJ Moments on one technology stack. Apple Renderer
+Host, Windows Renderer Host, Web Renderer Host and Voice Renderer Host are
+examples.
+
+A Renderer Host owns its renderer registry, renderer discovery, renderer
+lifecycle and navigation integration. It selects an appropriate Presentation
+Mode for its current context. It does not own server meaning, Moment creation,
+Session Flow or cross-platform semantics.
+
+## Presentation Modes
+
+Presentation Modes describe user experiences, not platforms. The initial
+canonical modes are:
+
+| Mode | Purpose | Typical contexts |
+| --- | --- | --- |
+| Compact | The primary current-session contribution. | iPhone Session, small desktop surfaces. |
+| Expanded | Richer detail for a selected Moment. | iPhone detail, macOS, Windows. |
+| Timeline | A chronological Session Flow entry. | Session Flow on any visual client. |
+| Micro | A glanceable contribution. | Apple Watch. |
+| TV | Shared, room-scale presentation. | Television. |
+| Voice | Spoken or conversational presentation. | Voice surfaces. |
+| Notification | Brief out-of-app awareness. | Live Activity or equivalent. |
+| Ambient | Passive room presentation. | Raspberry Pi or ambient displays. |
+
+A platform chooses the mode appropriate to its capability and current context:
+Apple Watch commonly selects Micro; an iPhone Session selects Compact; an
+iPhone detail, macOS or Windows may select Expanded; TV selects TV; Voice
+selects Voice; Raspberry Pi may select Ambient or TV; a Live Activity may
+select Notification. The modes themselves remain platform independent.
+
+## DJ Moment Renderers
+
+A **DJ Moment Renderer** understands one Moment type and may support multiple
+Presentation Modes. Track Renderer, Artist Renderer, Genre Renderer,
+Recommendation Renderer, Concert Renderer and Session Renderer are examples.
+
+For example, a Track Renderer can support Compact, Expanded, Timeline, TV,
+Voice and Notification. Its wording and visuals may adapt to the selected
+mode, but the Moment's semantic meaning, Presentation Intent, actions,
+visibility and delivery remain identical.
+
+## Current Session State and Session Flow
+
+The DJ Session screen presents exactly one primary **Current Session State**
+card. It represents the currently active Session item, most commonly the latest
+DJ Moment. Users may continue from that card into the complete Session Flow.
+
+**Session Flow** is the canonical chronological narrative of the Session. Its
+items may include Session Started, Track Started, DJ Moment, Transition,
+Recommendation, Audience Signal, Mood Change, Silence and Session Finished.
+It tells the story of the session; it is not a provider queue or a collection
+of unrelated feature pages.
+
+## Canonical principles
+
+- Everything the AI intentionally performs becomes a DJ Moment.
+- Every device presents the same DJ Moment.
+- Presentation adapts to context; meaning remains identical.
+- Renderer Hosts own platforms.
+- Presentation Modes own experiences.
+- Renderers own visualization.
+- The server owns meaning.
+- Clients own presentation.
