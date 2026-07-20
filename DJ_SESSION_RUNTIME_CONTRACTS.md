@@ -141,6 +141,29 @@ AI Lyric Moments, Track Insight, Session Flow, mood, audience state, planner
 events and reactions. Each publication remains capability- and privacy-scoped;
 the Feed never exposes private Profile information by default.
 
+### Broadcast Engine Foundation
+
+Each active Runtime creates exactly one non-persistent Broadcast Engine and
+destroys it with the Runtime. The Engine owns distribution only: it publishes
+the canonical Broadcast State, but never owns planning, playback execution or
+renderer presentation. No broadcast state or event survives a session.
+
+Its initial Broadcast State has empty playback, Session Flow and audience
+sections, plus safe placeholders for session (`session_id`, `runtime_state`,
+`selected_mood`), Planner (`planning_state`, 15-minute planning horizon,
+`current_direction`) and Broadcast (`started_at`). Its stable event vocabulary
+is `runtime_created`, `runtime_ended`, `playback_changed`, `playback_progress`,
+`planner_updated`, `mood_changed`, `track_changed`, `session_flow_updated`,
+`audience_updated`, `broadcast_started` and `broadcast_stopped`. The foundation
+does not yet distribute events or generate state content.
+
+The Runtime is the sole orchestrator: inputs flow through Runtime to Planner,
+then Broadcast Engine, then renderers. Renderers consume only Broadcast State
+and Broadcast Events; they never access Planner or Runtime internals. Future
+Voice follows the same boundary. VibeCast and the Universal Session Receiver
+are future renderers that consume the Broadcast Feed; neither is a Broadcast
+Engine, Planner or Runtime.
+
 ## Audience Signal contract
 
 Audience Signals are planner inputs, never direct playback commands. The
