@@ -479,6 +479,60 @@ class DJMomentEngine:
 
 
 @dataclass(frozen=True)
+class KnowledgeContext:
+    """Validated, renderer-safe knowledge assembled for one Intent."""
+
+    track: tuple[tuple[str, str], ...]
+    analysis: tuple[tuple[str, str], ...]
+    sources: tuple[str, ...]
+    personal_context_used: bool = False
+
+    def as_insight(self) -> dict[str, Any]:
+        """Adapt the safe context to the existing Moment Engine contract."""
+        return {"track": dict(self.track), "analysis": dict(self.analysis)}
+
+
+@dataclass
+class DJKnowledgeEngine:
+    """Runtime-scoped assembly of relevant knowledge; never presentation."""
+
+    assembled_contexts: tuple[KnowledgeContext, ...] = ()
+
+    async def async_assemble_track_context(
+        self,
+        *,
+        intent: KnowledgeIntent,
+        resolver: Callable[[], Awaitable[dict[str, Any]]],
+        personal_context_authorized: bool = False,
+    ) -> KnowledgeContext:
+        """Reuse Track Insight while excluding raw Profile and Music DNA data."""
+        if intent.intent_type is not KnowledgeIntentType.TRACK_CONTEXT:
+            return self._record(KnowledgeContext((), (), ()))
+        raw = await resolver()
+        track = raw.get("track") if isinstance(raw, dict) and isinstance(raw.get("track"), dict) else {}
+        analysis = raw.get("analysis") if isinstance(raw, dict) and isinstance(raw.get("analysis"), dict) else {}
+        context = KnowledgeContext(
+            track=tuple(
+                (key, value)
+                for key, value in ((key, _bounded_text(track.get(key), 2048)) for key in ("title", "artist", "album", "artwork_url", "backend", "genres"))
+                if value
+            ),
+            analysis=tuple(
+                (key, value)
+                for key, value in ((key, _bounded_text(analysis.get(key), 1200)) for key in ("summary", "full_text", "genre", "subgenre", "mood", "vibe"))
+                if value
+            ),
+            sources=("track_insight",),
+            personal_context_used=personal_context_authorized,
+        )
+        return self._record(context)
+
+    def _record(self, context: KnowledgeContext) -> KnowledgeContext:
+        self.assembled_contexts = (*self.assembled_contexts, context)
+        return context
+
+
+@dataclass(frozen=True)
 class DJBroadcastState:
     """Canonical, renderer-safe representation of the current DJ Session."""
 
@@ -650,6 +704,7 @@ class DJSessionRuntime:
     created_at: str
     started_at: str
     planner: DJSessionPlanner
+    knowledge_engine: DJKnowledgeEngine
     moment_engine: DJMomentEngine
     broadcast: DJSessionBroadcastEngine
 
@@ -724,6 +779,7 @@ class SessionRuntimeManager:
                 created_at=now,
                 started_at="",
                 planner=planner,
+                knowledge_engine=DJKnowledgeEngine(),
                 moment_engine=DJMomentEngine(),
                 broadcast=_create_broadcast_engine(
                     session_id=session_id,
@@ -744,24 +800,28 @@ class SessionRuntimeManager:
             self._active_by_profile[owner_profile_id] = active
             return active
 
-    async def async_generate_track_context(
+    async def async_process_track_started(
         self,
         *,
         owner_profile_id: str,
         session_id: str,
         insight_provider: Callable[[], Awaitable[dict[str, Any]]],
     ) -> DJMoment | None:
-        """Run the one bounded active-track trigger through the Runtime only."""
+        """Orchestrate Planner → Knowledge → Moment → Flow → Broadcast."""
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
             if active is None or active.session_id != session_id:
                 return None
             intent = active.planner.request_track_context()
         try:
-            insight = await insight_provider()
+            knowledge = await active.knowledge_engine.async_assemble_track_context(
+                intent=intent,
+                resolver=insight_provider,
+                personal_context_authorized=False,
+            )
         except Exception as exc:  # noqa: BLE001
-            _LOGGER.debug("DJConnect Moment Track Insight unavailable: %s", exc.__class__.__name__)
-            insight = {}
+            _LOGGER.debug("DJConnect Knowledge Engine unavailable: %s", exc.__class__.__name__)
+            knowledge = KnowledgeContext((), (), ())
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
             if active is None or active.session_id != session_id:
@@ -772,10 +832,24 @@ class SessionRuntimeManager:
                 selected_mood=active.selected_mood,
                 persona=active.dj_persona,
                 locale=active.locale,
-                insight=insight if isinstance(insight, dict) else {},
+                insight=knowledge.as_insight(),
             )
             active.publish_moment(moment)
             return moment
+
+    async def async_generate_track_context(
+        self,
+        *,
+        owner_profile_id: str,
+        session_id: str,
+        insight_provider: Callable[[], Awaitable[dict[str, Any]]],
+    ) -> DJMoment | None:
+        """Compatibility wrapper for the canonical Track Started orchestration."""
+        return await self.async_process_track_started(
+            owner_profile_id=owner_profile_id,
+            session_id=session_id,
+            insight_provider=insight_provider,
+        )
 
     async def async_update_mood(
         self, *, owner_profile_id: str, session_id: str, selected_mood: str

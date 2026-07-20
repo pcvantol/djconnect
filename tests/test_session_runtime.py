@@ -392,6 +392,26 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         with self.assertRaises(FrozenInstanceError):
             moment.summary = "mutated"  # type: ignore[misc]
 
+    def test_runtime_owns_knowledge_engine_and_assembles_safe_context(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-a"))
+        self.assertIsInstance(created.knowledge_engine, self.runtime.DJKnowledgeEngine)
+
+        async def insight() -> dict:
+            return {
+                "track": {"title": "Track", "artist": "Artist", "album": "Album", "genres": ["electronic"]},
+                "analysis": {"summary": "Safe summary.", "full_text": "Safe full context."},
+                "music_dna": {"private": "never included"},
+            }
+
+        moment = asyncio.run(manager.async_process_track_started(owner_profile_id="profile-a", session_id=created.session_id, insight_provider=insight))
+        assert moment is not None
+        context = created.knowledge_engine.assembled_contexts[0]
+        self.assertEqual(dict(context.track)["title"], "Track")
+        self.assertFalse(context.personal_context_used)
+        self.assertNotIn("music_dna", context.as_insight())
+        self.assertEqual(moment.source_references, ("track_insight",))
+
     def test_later_mood_and_persona_changes_do_not_mutate_existing_moment(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
         created = asyncio.run(manager.async_start(owner_profile_id="profile-a", selected_mood="deep"))

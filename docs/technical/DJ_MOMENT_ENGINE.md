@@ -10,6 +10,8 @@
 Active Session Runtime
   → Planner Event (track_available)
   → Knowledge Intent (track_context)
+  → runtime-scoped Knowledge Engine
+  → validated Knowledge Context
   → DJ Moment Engine
   → frozen DJ Moment
   → Session Flow
@@ -17,16 +19,18 @@ Active Session Runtime
   → authenticated owner and constrained Broadcast Token consumers
 ```
 
-The Runtime is the only entry point. There is no client endpoint or generic
-AI endpoint for the Moment Engine.
+The Runtime is the only entry point and owns its Planner, Knowledge Engine and
+Moment Engine for its lifetime. There is no client endpoint or generic AI
+endpoint for either intelligence service.
 
 ## Implemented slice
 
 At session start, the Runtime submits one deterministic `track_available`
-Planner Event. The Planner requests `track_context`; the Engine either creates
-one Track Moment for the resolved current track or records an explicit Silence
-Moment. A Track Moment cannot be generated twice for the same title/artist/
-album identity within one Runtime.
+Planner Event. The Planner requests `track_context`; the Runtime asks its
+Knowledge Engine to assemble validated track and analysis context, then asks
+its Moment Engine to create one Track Moment or record explicit Silence. A
+Track Moment cannot be generated twice for the same title/artist/album identity
+within one Runtime.
 
 Every published Moment is a frozen dataclass containing its Knowledge Intent,
 Presentation Intent, semantic actions and safe source references. Mood and
@@ -41,6 +45,8 @@ They are behavioural prompt guidance, never voice-provider settings.
 | Classification | Existing building block | Use in this slice |
 | --- | --- | --- |
 | KEEP | `TrackInsightService` | Current-track resolution, artist/genre enrichment, HA Conversation execution, response parsing and fallback. |
+| REFACTOR | Runtime orchestration | The Runtime now owns the Planner → Knowledge Engine → Moment Engine transition; API handlers only begin the active Session trigger. |
+| KEEP | Knowledge privacy filtering | Knowledge Context contains only validated music context and excludes raw Music DNA, Profile preferences and conversation data. |
 | KEEP | Track Insight cache and validation | The provider returns the existing normalized track/analysis contract. |
 | REFACTOR | `TrackInsightPromptBuilder` | Accepts optional semantic presentation guidance for Persona and Mood; no renderer instruction is added. |
 | KEEP | Broadcast authorization | Owner device/Profile authorization and Broadcast Token runtime isolation remain unchanged. |
