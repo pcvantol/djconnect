@@ -139,6 +139,14 @@ generation, playback execution or persistent broadcast state. Its Prompt
 History archive is absent; this reconciliation records the traceability gap
 without reconstructing immutable history.
 
+PR [#222](https://github.com/pcvantol/djconnect/pull/222), **V4-04 Canonical
+Session Flow**, is merged as `ffb6972179293ecc3e9283235ed2fdd6a8e93653` on
+2026-07-20. It creates one deterministic Planner-owned Session Flow per active
+Runtime and distributes it through Broadcast. It adds no AI, recommendations,
+backend queue behaviour, renderer, Voice, VibeCast, Track Insight, Discover or
+Audience Signals. Its Prompt History archive is absent; this reconciliation
+records the traceability gap without reconstructing immutable history.
+
 Canonical lifecycle:
 
 ```text
@@ -312,11 +320,8 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-DJConnect v4 Architecture, Runtime Contracts, V4-01, V4-02 and V4-03 are
-merged and reconciled. V4-04 Canonical Session Flow is the active, explicitly
-authorized implementation increment on `codex/v4-canonical-session-flow`. It
-is limited to deterministic Planner-owned Session Flow and Broadcast
-distribution; Platform Release 3.3 remains in Maintenance.
+DJConnect v4 Architecture, Runtime Contracts, V4-01, V4-02, V4-03 and V4-04
+are merged and reconciled. Platform Release 3.3 remains in Maintenance.
 
 ## Completion Report
 
