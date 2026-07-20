@@ -18,7 +18,8 @@
     "djconnect/music_discovery/feed",
     "djconnect/music_discovery/refresh",
     "djconnect/music_discovery/play",
-    "djconnect/music_discovery/feedback"
+        "djconnect/music_discovery/feedback",
+        "djconnect/session/broadcast/subscribe"
   ],
   "features": {
     "ask_dj_chat": true,
@@ -28,7 +29,8 @@
     "track_insight": true,
     "music_dna": true,
     "music_discovery": true,
-    "music_discovery_feedback": true
+        "music_discovery_feedback": true,
+        "session_broadcast_transport": true
   },
   "fallbacks": {
     "music_dna": {
