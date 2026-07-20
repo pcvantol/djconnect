@@ -24,8 +24,9 @@ schemas, serialization or implementation.
 | Session Memory | The objective chronological memory of one DJ Session. | Records what happened as events only; it performs no interpretation. |
 | Session Timeline | The user-facing chronological presentation of Session Memory. | Tells the story of one completed DJ Session; it is not a chat history. |
 | Music DNA | The evolving, opt-in understanding of a person's musical identity across many DJ Sessions. | Interprets patterns in Session Memory; it never replaces Session Memory. |
+| Session Start Strategy | The listener's objective for starting a Session. | Continue, Manual and Discover define why the Session exists; it is independent from Mood and Persona. |
 | DJ Persona | A behavioural DJ identity for a session. | Shapes how future contributions are presented; it is not a voice or mood. |
-| Session Mood | The dynamic emotional state of the active Session Runtime. | Informs future presentation only and never rewrites completed Moments. |
+| Session Mood | The dynamic emotional atmosphere of the active Session Runtime. | Is initialized independently from Strategy and Persona, informs future presentation and never rewrites completed Moments. |
 | Knowledge Intent | A planned statement of what the DJ should communicate. | Contains no delivery, wording, voice or visual choice. |
 | Presentation Intent | The immutable snapshot of how a Knowledge Intent will be delivered. | Carries Persona, Mood, tone, delivery and channel choices into one Moment. |
 | DJ Moment | The immutable, renderer-safe presentation contribution. | Is the universal unit published to Broadcast and presented by renderers. |
@@ -39,6 +40,11 @@ individual capabilities that may contribute to a session.
 
 A DJ Session is independent from any specific playback provider. It enriches a
 listening experience but never owns playback.
+
+Session Start Strategy, Session Mood and DJ Persona are orthogonal dimensions
+of a Runtime: Strategy answers why the Session exists, Mood answers how it
+should feel, and Persona answers how the DJ performs. Their combinations do
+not create competing Session types.
 
 ## DJ presentation model
 

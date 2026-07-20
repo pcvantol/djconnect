@@ -120,18 +120,24 @@ use permitted Music DNA, conversation memory, preferences and listening
 history. Personal context never leaks outside owner visibility or into shared
 Session output.
 
-## Discover, Persona and Mood
+## Session Start Strategy, Mood and Persona
 
-**Discover** is a Session Start Strategy, not a standalone feature. The
-Planner can adopt a discovery-oriented strategy; its results appear as DJ
-Moments during the Session.
+The Runtime receives three independent dimensions: **Session Start Strategy**,
+**Session Mood** and **DJ Persona**. The Planner combines them with Session
+Direction and Performance Memory; no dimension owns or derives another.
 
-**DJ Persona** guides verbosity, humour, storytelling, enthusiasm, interaction
-frequency and delivery style. It does not own voices; voices are future
-presentation implementations.
+**Session Start Strategy** answers why the Session exists. The production
+strategies are Continue, Manual and Discover. Discover is not a standalone
+feature: it sets a discovery-oriented Session objective whose results appear
+as DJ Moments.
 
-**Session Mood** is the active emotional direction of a Session. It influences
-future DJ Moments and never rewrites history.
+**Session Mood** answers how the active Session should feel. The client may
+supply its initial Mood, and the Runtime may evolve the current Mood later.
+Mood influences future DJ Moments and never rewrites history.
+
+**DJ Persona** answers how the DJ performs. It guides verbosity, humour,
+storytelling, enthusiasm, interaction frequency and delivery style. Persona
+does not own voices; voices are future presentation implementations.
 
 ## Reuse and convergence
 

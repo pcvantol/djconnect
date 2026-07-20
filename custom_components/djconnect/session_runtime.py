@@ -46,13 +46,10 @@ class SessionDirectionType(StrEnum):
 
 
 class SessionStartStrategy(StrEnum):
-    """Bounded start intents that initialize, but never plan, a Session."""
+    """Production Session objectives; Mood and Persona are separate dimensions."""
 
     CONTINUE = "continue"
     DISCOVER = "discover"
-    PARTY = "party"
-    FOCUS = "focus"
-    CHILL = "chill"
     MANUAL = "manual"
 
 
@@ -515,6 +512,7 @@ class DJSessionPlanner:
     def evaluate_track_started(
         self,
         *,
+        session_start_strategy: SessionStartStrategy = SessionStartStrategy.MANUAL,
         session_direction: SessionDirection,
         selected_mood: str,
         persona: DJPersona,
@@ -579,7 +577,7 @@ class DJSessionPlanner:
                 intent = KnowledgeIntent(intent_type, goal)
                 reason = (
                     f"discover_knowledge_hint:{key}"
-                    if self.configuration.exploration_preference == "high"
+                    if session_start_strategy is SessionStartStrategy.DISCOVER
                     else f"knowledge_hint:{key}"
                 )
                 self.last_decision = PlannerDecision(decision_type, reason, intent)
@@ -783,6 +781,7 @@ class KnowledgeContext:
     personal_context_used: bool = False
     session_direction: SessionDirection | None = None
     session_start_strategy: SessionStartStrategy | None = None
+    session_mood: str = ""
     discover_context: DiscoverContext | None = None
     performance_memory: PerformanceMemory | None = None
 
@@ -793,6 +792,8 @@ class KnowledgeContext:
             insight["session_direction"] = self.session_direction.as_dict()
         if self.session_start_strategy is not None:
             insight["session_start_strategy"] = self.session_start_strategy.value
+        if self.session_mood:
+            insight["session_mood"] = self.session_mood
         if self.discover_context is not None:
             insight["discover_context"] = self.discover_context.as_dict()
         if self.performance_memory is not None:
@@ -813,6 +814,7 @@ class DJKnowledgeEngine:
         resolver: Callable[[], Awaitable[dict[str, Any]]],
         session_direction: SessionDirection | None = None,
         session_start_strategy: SessionStartStrategy | None = None,
+        session_mood: str = "",
         discover_context: DiscoverContext | None = None,
         performance_memory: PerformanceMemory | None = None,
         personal_context_authorized: bool = False,
@@ -823,6 +825,7 @@ class DJKnowledgeEngine:
                 KnowledgeContext(
                     (), (), (), session_direction=session_direction,
                     session_start_strategy=session_start_strategy,
+                    session_mood=session_mood,
                     discover_context=discover_context,
                     performance_memory=performance_memory,
                 )
@@ -853,6 +856,7 @@ class DJKnowledgeEngine:
             personal_context_used=personal_context_authorized,
             session_direction=session_direction,
             session_start_strategy=session_start_strategy,
+            session_mood=session_mood,
             discover_context=discover_context,
             performance_memory=performance_memory,
         )
@@ -862,6 +866,7 @@ class DJKnowledgeEngine:
         self,
         session_direction: SessionDirection,
         session_start_strategy: SessionStartStrategy,
+        session_mood: str,
         performance_memory: PerformanceMemory,
     ) -> KnowledgeContext:
         """Record Runtime-owned Direction as safe context without provider access."""
@@ -869,6 +874,7 @@ class DJKnowledgeEngine:
             KnowledgeContext(
                 (), (), ("session_direction",), session_direction=session_direction,
                 session_start_strategy=session_start_strategy,
+                session_mood=session_mood,
                 performance_memory=performance_memory,
             )
         )
@@ -1058,6 +1064,7 @@ class DJSessionRuntime:
     created_at: str
     started_at: str
     session_start_strategy: SessionStartStrategy
+    initial_session_mood: str
     interaction_profile: str
     session_direction: SessionDirection
     discover_context: DiscoverContext
@@ -1081,6 +1088,7 @@ class DJSessionRuntime:
             "created_at": self.created_at,
             "started_at": self.started_at,
             "session_start_strategy": self.session_start_strategy.value,
+            "initial_session_mood": self.initial_session_mood,
             "interaction_profile": self.interaction_profile,
             "session_direction": self.session_direction.as_dict(),
             "discover_personalization_available": self.discover_context.personal_context_authorized,
@@ -1133,6 +1141,7 @@ class SessionRuntimeManager:
             now = _timestamp()
             session_id = f"session-{uuid4().hex}"
             start_configuration = _session_start_configuration(session_start_strategy)
+            initial_session_mood = selected_mood.strip()
             resolved_discover_context = (
                 discover_context or DiscoverContext()
                 if session_start_strategy is SessionStartStrategy.DISCOVER
@@ -1157,6 +1166,7 @@ class SessionRuntimeManager:
                 created_at=now,
                 started_at="",
                 session_start_strategy=start_configuration.strategy,
+                initial_session_mood=initial_session_mood,
                 interaction_profile=start_configuration.interaction_profile,
                 session_direction=session_direction,
                 discover_context=resolved_discover_context,
@@ -1197,6 +1207,7 @@ class SessionRuntimeManager:
             if active is None or active.session_id != session_id:
                 return None
             decision = active.planner.evaluate_track_started(
+                session_start_strategy=active.session_start_strategy,
                 session_direction=active.session_direction,
                 selected_mood=active.selected_mood,
                 persona=active.dj_persona,
@@ -1219,6 +1230,7 @@ class SessionRuntimeManager:
                 active.knowledge_engine.assemble_session_direction_context(
                     active.session_direction,
                     active.session_start_strategy,
+                    active.selected_mood,
                     active.performance_memory,
                 )
                 moment = active.moment_engine.create_session_update(
@@ -1252,6 +1264,7 @@ class SessionRuntimeManager:
                 resolver=insight_provider,
                 session_direction=active.session_direction,
                 session_start_strategy=active.session_start_strategy,
+                session_mood=active.selected_mood,
                 discover_context=active.discover_context,
                 performance_memory=active.performance_memory,
                 personal_context_authorized=False,
@@ -1261,6 +1274,7 @@ class SessionRuntimeManager:
             knowledge = KnowledgeContext(
                 (), (), (), session_direction=active.session_direction,
                 session_start_strategy=active.session_start_strategy,
+                session_mood=active.selected_mood,
                 discover_context=active.discover_context,
                 performance_memory=active.performance_memory,
             )
@@ -1470,31 +1484,6 @@ def _session_start_configuration(
                 exploration_preference="high",
                 interaction_profile="curious",
             ), "curious",
-        ),
-        SessionStartStrategy.PARTY: SessionStartConfiguration(
-            strategy, SessionDirectionType.BUILDING_ENERGY,
-            PlannerConfiguration(
-                minimum_time_between_moments_seconds=30.0,
-                energy_preference="high",
-                interaction_profile="energetic",
-            ), "energetic",
-        ),
-        SessionStartStrategy.FOCUS: SessionStartConfiguration(
-            strategy, SessionDirectionType.DEEPENING,
-            PlannerConfiguration(
-                minimum_time_between_moments_seconds=120.0,
-                recommendation_preference="deprioritize",
-                interaction_profile="minimal",
-            ), "minimal",
-        ),
-        SessionStartStrategy.CHILL: SessionStartConfiguration(
-            strategy, SessionDirectionType.COOLING_DOWN,
-            PlannerConfiguration(
-                minimum_time_between_moments_seconds=90.0,
-                recommendation_preference="deprioritize",
-                energy_preference="low",
-                interaction_profile="reflective",
-            ), "reflective",
         ),
         SessionStartStrategy.MANUAL: SessionStartConfiguration(
             strategy, SessionDirectionType.MAINTAINING_ENERGY,
