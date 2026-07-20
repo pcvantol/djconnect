@@ -233,6 +233,38 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         )
         self.assertEqual(created.broadcast.subscriber_count, 0)
 
+    def test_profile_owned_runtime_terminates_every_bound_device_subscription(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))
+        first_events: list[dict] = []
+        second_events: list[dict] = []
+        asyncio.run(
+            manager.async_subscribe(
+                owner_profile_id="profile-peter",
+                session_id=created.session_id,
+                callback=first_events.append,
+            )
+        )
+        asyncio.run(
+            manager.async_subscribe(
+                owner_profile_id="profile-peter",
+                session_id=created.session_id,
+                callback=second_events.append,
+            )
+        )
+
+        asyncio.run(manager.async_end(owner_profile_id="profile-peter", session_id=created.session_id))
+
+        self.assertEqual(created.broadcast.subscriber_count, 0)
+        self.assertEqual(
+            [event["event_type"] for event in first_events],
+            ["runtime_ended", "broadcast_stopped"],
+        )
+        self.assertEqual(
+            [event["event_type"] for event in second_events],
+            ["runtime_ended", "broadcast_stopped"],
+        )
+
     def test_broadcast_event_vocabulary_is_stable(self) -> None:
         self.assertEqual(
             [event.value for event in self.runtime.BroadcastEventType],

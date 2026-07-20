@@ -110,6 +110,13 @@ device token fields plus the active session_id. The command result contains the
 complete Broadcast State snapshot. Apply that snapshot before applying later
 djconnect/session/broadcast events.
 
+The client never sends, chooses or claims a Profile for this subscription. The
+server authorizes through the existing authenticated device binding and permits
+only the bound Profile's active Runtime. Multiple devices bound to the same
+Profile may subscribe; devices bound elsewhere, unknown devices and unbound
+devices are rejected. Do not present Profile lists or use Profile identifiers
+to retry a rejected subscription.
+
 Each later event has event_type, session_id and an incremental payload. Render
 only the server-owned Session metadata, Planner state and Session Flow; do not
 poll Runtime internals or recreate planning locally. On a temporary network

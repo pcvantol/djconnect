@@ -229,6 +229,59 @@ async def async_resolve_request_context(
     )
 
 
+async def async_resolve_device_bound_request_context(
+    hass: Any,
+    runtime: Any,
+    payload: dict[str, Any] | None = None,
+    *,
+    request_source: str = "",
+) -> DJConnectRequestContext:
+    """Resolve a Profile exclusively through an authenticated device binding.
+
+    This is intentionally narrower than normal request-context resolution. It
+    is for owner-only session transports, where a client must never choose a
+    Profile through a payload field, HA user, room, area or fallback Profile.
+    """
+    payload = payload or {}
+    context = profile_resolution_context_from_payload(
+        runtime, payload, request_source=request_source
+    )
+    manager = _profile_storage(hass)
+    household = await manager.async_load()
+    profile = manager.resolver().resolve_bound_device(context.device_id)
+    privacy_policy = resolve_profile_privacy_policy(profile, {})
+    preferences = profile.preferences
+    backend_id = preferences.default_backend_id
+    music_account_id = preferences.default_music_account_id
+    if backend_id and backend_id not in household.music_backends:
+        raise ProfileBackendMissing(profile.profile_id)
+    if music_account_id:
+        account = household.music_accounts.get(music_account_id)
+        if account is None:
+            raise ProfileMusicAccountMissing(profile.profile_id, music_account_id)
+        if backend_id and account.backend_id != backend_id:
+            raise ProfileBackendAccountMismatch(profile.profile_id, backend_id, music_account_id)
+    return DJConnectRequestContext(
+        profile=profile,
+        profile_id=profile.profile_id,
+        device_id=context.device_id,
+        client_type=context.client_type,
+        assist_pipeline_id=context.assist_pipeline_id,
+        room_id=context.room_id,
+        player_id=context.player_id,
+        playback_zone_id=context.playback_zone_id,
+        session_id=context.session_id,
+        backend_id=backend_id,
+        music_account_id=music_account_id,
+        profile_playback_zone_id=preferences.fallback_playback_zone_id,
+        privacy_mode=privacy_policy.mode,
+        privacy_policy=privacy_policy,
+        request_source=request_source,
+        resolution_reason=ProfileResolutionReason.DEVICE_MAPPING,
+        resolution_signal=context.device_id,
+    )
+
+
 async def async_apply_profile_context(
     hass: Any,
     runtime: Any,

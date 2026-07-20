@@ -37,6 +37,7 @@ from .push import EVENT_ASK_DJ_CONFIRM, EVENT_ASK_DJ_RESPONSE
 from .profile_context import (
     ProfilePlatformNotConfigured,
     async_apply_profile_context,
+    async_resolve_device_bound_request_context,
     profile_error_payload,
     profile_storage,
 )
@@ -172,11 +173,25 @@ async def async_handle_session_broadcast_subscribe_payload(
     events. The cleanup callback is deliberately transport-owned so a closed
     websocket cannot retain a Runtime subscription.
     """
-    _runtime, context, error, status = await _session_profile_context(
-        hass, data, headers=headers, user_id=user_id, source="session_broadcast_subscribe"
+    headers = headers or {}
+    runtime = resolve_runtime(
+        hass, data.get("device_id") or headers.get("X-DJConnect-Device-ID"), headers
     )
-    if error is not None:
-        return error, int(status or 400), None
+    if runtime is None:
+        return _error_payload("not_configured"), 503, None
+    if not authorize_runtime_device_request(
+        runtime, headers, data.get("device_id"), payload_client_type(data)
+    ):
+        return _error_payload("unauthorized"), 401, None
+    if validate_required_client_type(data) is None:
+        return _error_payload("invalid_client_type"), 400, None
+    try:
+        context = await async_resolve_device_bound_request_context(
+            hass, runtime, data, request_source="session_broadcast_subscribe"
+        )
+    except Exception as exc:  # noqa: BLE001
+        result, resolved_status = profile_error_payload(exc)
+        return result, resolved_status, None
     session_id = str(data.get("session_id") or "").strip()
     if not session_id:
         return _error_payload("session_id_required"), 400, None

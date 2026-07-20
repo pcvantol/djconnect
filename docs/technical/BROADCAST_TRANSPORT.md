@@ -33,7 +33,14 @@ After completing the normal Home Assistant WebSocket authentication, an owner
 renderer sends `djconnect/session/broadcast/subscribe` with its existing
 DJConnect identity/token fields and the active `session_id`.
 
-- Only the resolved owner Profile's active Runtime may be subscribed to.
+- The server resolves `authenticated device → server-owned device binding →
+  bound Profile → requested active Session → Session owner_profile_id`.
+- Only the bound Profile's active Runtime may be subscribed to. A supplied
+  `profile_id`, HA-user hint, room, area or fallback Profile never selects a
+  Broadcast owner.
+- Multiple devices bound to that same Profile may subscribe. Devices bound to
+  another Profile, unknown devices and explicitly unbound devices are rejected.
+- The transport never exposes a list of Profiles.
 - The command result contains a full `snapshot` of the current canonical
   Broadcast State.
 - The initial snapshot is always delivered before later incremental events.
@@ -62,6 +69,9 @@ Runtime remains means the renderer returns to its idle Session state.
 ## Security
 
 The transport reuses both existing Home Assistant WebSocket authentication and
-DJConnect Runtime device authorization/Profile resolution. It does not expose
-an anonymous subscription endpoint and does not broaden the established owner
-privacy boundary.
+DJConnect Runtime device authorization. Its Profile authorization uses only
+the existing server-side device binding. It does not expose an anonymous
+subscription endpoint and does not broaden the established owner privacy
+boundary. Broadcast State exposes only renderer-safe Session, Planner, Flow
+and safe backend context metadata; it excludes Music DNA, preferences, session
+history and conversation history.
