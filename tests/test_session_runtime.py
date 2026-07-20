@@ -367,7 +367,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         created = asyncio.run(
             manager.async_start(
                 owner_profile_id="profile-a",
-                selected_mood="deep",
+                selected_mood="groove",
                 dj_persona=self.runtime.DJPersona.RADIO_DJ,
             )
         )
@@ -384,7 +384,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
 
         assert moment is not None
         self.assertEqual(moment.moment_type, self.runtime.DJMomentType.TRACK)
-        self.assertEqual(moment.presentation_intent.source_session_mood, "deep")
+        self.assertEqual(moment.presentation_intent.source_session_mood, "groove")
         self.assertEqual(moment.presentation_intent.dj_persona, self.runtime.DJPersona.RADIO_DJ)
         self.assertEqual(created.broadcast.as_dict()["dj_moments"][0]["moment_id"], moment.moment_id)
         self.assertIn(moment.moment_id, [item.moment_id for item in created.planner.output.session_flow.items])
@@ -456,6 +456,22 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         assert moment is not None
         self.assertEqual(moment.moment_type, self.runtime.DJMomentType.SILENCE)
         self.assertEqual(asyncio.run(manager.async_get_active("profile-a")).runtime_state, self.runtime.SessionRuntimeState.ACTIVE)
+
+    def test_planner_decides_silence_before_knowledge_for_deep_or_club_session(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-a", selected_mood="deep"))
+        invoked = False
+
+        async def insight() -> dict:
+            nonlocal invoked
+            invoked = True
+            return {}
+
+        moment = asyncio.run(manager.async_process_track_started(owner_profile_id="profile-a", session_id=created.session_id, insight_provider=insight))
+        assert moment is not None
+        self.assertEqual(moment.moment_type, self.runtime.DJMomentType.SILENCE)
+        self.assertFalse(invoked)
+        self.assertEqual(created.planner.last_decision.decision_type, self.runtime.PlannerDecisionType.SILENCE)
 
     def test_owner_only_moment_never_reaches_broadcast_token_viewer(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
