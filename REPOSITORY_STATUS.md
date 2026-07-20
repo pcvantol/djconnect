@@ -121,6 +121,15 @@ active lookup and end lifecycle. Its Prompt History archive is absent; this
 reconciliation records the traceability gap without reconstructing immutable
 history.
 
+PR [#218](https://github.com/pcvantol/djconnect/pull/218), **V4-02 Session
+Planner Foundation**, is merged as `0b5d1cda266ff2b47a6ce00d8df71d1870f99fc5`
+on 2026-07-20. It creates one non-persistent Planner per active Runtime with a
+fixed 15-minute planning horizon, a placeholder musical direction and an empty
+future Session Flow output. It adds no AI planning, generated Session Flow,
+Broadcast, VibeCast, playback execution or persistent planner state. Its Prompt
+History archive is absent; this reconciliation records the traceability gap
+without reconstructing immutable history.
+
 Canonical lifecycle:
 
 ```text
@@ -294,11 +303,8 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-DJConnect v4 Architecture, Runtime Contracts and V4-01 are merged and
-reconciled. V4-02 Session Planner Foundation is the active, explicitly
-authorized implementation increment on `codex/v4-session-planner-foundation`.
-It is limited to ephemeral planner ownership and planner-state foundations;
-Platform Release 3.3 remains in Maintenance.
+DJConnect v4 Architecture, Runtime Contracts, V4-01 and V4-02 are merged and
+reconciled. Platform Release 3.3 remains in Maintenance.
 
 ## Completion Report
 
