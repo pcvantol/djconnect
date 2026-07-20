@@ -265,6 +265,20 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             ["runtime_ended", "broadcast_stopped"],
         )
 
+    def test_subscription_is_rejected_when_requested_runtime_belongs_to_another_profile(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-owner"))
+
+        subscribed = asyncio.run(
+            manager.async_subscribe(
+                owner_profile_id="profile-other",
+                session_id=created.session_id,
+                callback=lambda event: None,
+            )
+        )
+
+        self.assertIsNone(subscribed)
+
     def test_broadcast_event_vocabulary_is_stable(self) -> None:
         self.assertEqual(
             [event.value for event in self.runtime.BroadcastEventType],

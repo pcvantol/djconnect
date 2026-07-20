@@ -137,6 +137,20 @@ class ProfileContextTest(unittest.TestCase):
             self.assertEqual(status, 409)
             self.assertEqual(payload["error"], "device_not_mapped")
 
+    def test_multiple_bound_devices_resolve_the_same_profile(self) -> None:
+        owner = asyncio.run(self.manager.async_create_profile("Owner"))
+        for device_id in ("djconnect-ios-ABCDEFGHIJKL", "djconnect-macos-ABCDEFGHIJK"):
+            asyncio.run(self.manager.async_upsert_device(device_id, "ios", linked_profile_id=owner.profile_id))
+            context = asyncio.run(
+                async_resolve_device_bound_request_context(
+                    self.hass,
+                    _runtime(device_id),
+                    {"device_id": device_id},
+                    request_source="session_broadcast_subscribe",
+                )
+            )
+            self.assertEqual(context.profile_id, owner.profile_id)
+
     def test_fallback_profile_resolves_when_allowed(self) -> None:
         profile = asyncio.run(self.manager.async_create_profile("Fallback"))
 
