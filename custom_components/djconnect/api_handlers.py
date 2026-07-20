@@ -158,7 +158,7 @@ async def _async_generate_initial_session_moment(
             source="session_moment",
         )
 
-    await session_runtime_manager(hass).async_generate_track_context(
+    await session_runtime_manager(hass).async_process_track_started(
         owner_profile_id=owner_profile_id,
         session_id=session.session_id,
         insight_provider=insight_provider,
