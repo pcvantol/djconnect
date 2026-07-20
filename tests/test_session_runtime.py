@@ -375,6 +375,12 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             "now",
             self.runtime.SessionStartStrategy.MANUAL,
         )
+        building = self.runtime.SessionDirection(
+            self.runtime.SessionDirectionType.BUILDING_ENERGY,
+            "now",
+            "now",
+            self.runtime.SessionStartStrategy.MANUAL,
+        )
 
         manual_decision = manual.planner.evaluate_track_started(
             session_start_strategy=manual.session_start_strategy,
@@ -404,17 +410,35 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             session_start_strategy=manual.session_start_strategy,
             session_direction=manual.session_direction,
             selected_mood="groove",
-            persona=self.runtime.DJPersona.CLUB_DJ,
+            persona=self.runtime.DJPersona.RADIO_DJ,
+            knowledge_hints=hints,
+            performance_memory=manual.performance_memory,
+        )
+        festival_decision = manual.planner.evaluate_track_started(
+            session_start_strategy=manual.session_start_strategy,
+            session_direction=building,
+            selected_mood="groove",
+            persona=self.runtime.DJPersona.FESTIVAL_DJ,
             knowledge_hints=hints,
             performance_memory=manual.performance_memory,
         )
         mood_decision = manual.planner.evaluate_track_started(
             session_start_strategy=manual.session_start_strategy,
-            session_direction=manual.session_direction,
-            selected_mood="energy",
+            session_direction=building,
+            selected_mood="party",
             persona=self.runtime.DJPersona.HOME_DJ,
             knowledge_hints=hints,
             performance_memory=manual.performance_memory,
+        )
+        deep_mood_decision = manual.planner.evaluate_track_started(
+            session_start_strategy=manual.session_start_strategy,
+            session_direction=deepening,
+            selected_mood="deep",
+            persona=self.runtime.DJPersona.HOME_DJ,
+            knowledge_hints=hints,
+            performance_memory=self.runtime.PerformanceMemory(
+                "flow-test", recent_silence_count=2
+            ),
         )
         memory_decision = manual.planner.evaluate_track_started(
             session_start_strategy=manual.session_start_strategy,
@@ -430,8 +454,10 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertEqual(manual_decision.decision_type, self.runtime.PlannerDecisionType.CREATE_ARTIST_STORY)
         self.assertEqual(discover_decision.decision_type, self.runtime.PlannerDecisionType.CREATE_RECOMMENDATION)
         self.assertEqual(direction_decision.decision_type, self.runtime.PlannerDecisionType.CREATE_ALBUM_STORY)
-        self.assertEqual(persona_decision.decision_type, self.runtime.PlannerDecisionType.SILENCE)
-        self.assertEqual(mood_decision.decision_type, self.runtime.PlannerDecisionType.CREATE_SESSION_UPDATE)
+        self.assertEqual(persona_decision.decision_type, self.runtime.PlannerDecisionType.CREATE_ALBUM_STORY)
+        self.assertEqual(festival_decision.decision_type, self.runtime.PlannerDecisionType.CREATE_RECOMMENDATION)
+        self.assertEqual(mood_decision.decision_type, self.runtime.PlannerDecisionType.CREATE_RECOMMENDATION)
+        self.assertEqual(deep_mood_decision.decision_type, self.runtime.PlannerDecisionType.CREATE_ALBUM_STORY)
         self.assertEqual(memory_decision.decision_type, self.runtime.PlannerDecisionType.CREATE_ARTIST_STORY)
 
     def test_performance_memory_is_runtime_scoped_and_starts_empty(self) -> None:

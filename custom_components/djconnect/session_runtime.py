@@ -1560,14 +1560,14 @@ def _prioritized_knowledge_choices(
         promote(KnowledgeIntentType.ALBUM_STORY, 2)
         promote(KnowledgeIntentType.GENRE_STORY, 1)
     elif selected_mood in {"party", "energy", "high_energy"}:
-        promote(KnowledgeIntentType.RECOMMENDATION, 2)
+        promote(KnowledgeIntentType.RECOMMENDATION, 3)
         promote(KnowledgeIntentType.ARTIST_STORY, 1)
 
     if persona is DJPersona.RADIO_DJ:
         promote(KnowledgeIntentType.ALBUM_STORY, 3)
         promote(KnowledgeIntentType.ARTIST_STORY, 1)
     elif persona is DJPersona.FESTIVAL_DJ:
-        promote(KnowledgeIntentType.RECOMMENDATION, 2)
+        promote(KnowledgeIntentType.RECOMMENDATION, 4)
         promote(KnowledgeIntentType.ARTIST_STORY, 1)
 
     if session_direction is SessionDirectionType.EXPLORING:
