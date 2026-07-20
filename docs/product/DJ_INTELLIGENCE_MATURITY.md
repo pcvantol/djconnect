@@ -37,7 +37,7 @@ behaviour rather than replace architecture or introduce speculative systems.
 | Stage | Maturity |
 | --- | --- |
 | 1 — current | Track Context and Silence. |
-| 2 — partial | Artist Story, Album Story, Genre Story and Recommendation specialise existing Track Context when reliable Knowledge Context supports them. |
+| 2 — current | Artist Story, Album Story, Genre Story and Recommendation deterministically translate their selected Knowledge Context into immutable Moments with frozen Presentation Intent and intent-specific semantic actions. Invalid, incomplete or empty selected context creates canonical Silence. |
 | 3 — partial | Session Update Moments expose Planner-approved Session Direction changes. Concert Suggestion, Music History and Discovery remain deferred. |
 | 4 | Narrative storytelling, linked Moments and multi-step experiences. |
 

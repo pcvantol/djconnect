@@ -645,7 +645,7 @@ class DJMomentEngine:
         locale: str,
         insight: dict[str, Any],
     ) -> DJMoment:
-        """Validate a reusable Track Insight response into one frozen Moment."""
+        """Translate one selected Knowledge Context into one frozen Moment."""
         track = insight.get("track") if isinstance(insight.get("track"), dict) else {}
         analysis = insight.get("analysis") if isinstance(insight.get("analysis"), dict) else {}
         title = _bounded_text(track.get("title"), 160)
@@ -1837,11 +1837,24 @@ def _moment_actions(moment_type: DJMomentType, track: dict[str, Any], locale: st
 
 def _specialize_track_moment(track: dict[str, Any], analysis: dict[str, Any], title: str, artist: str, summary: str, content: str, intent_type: KnowledgeIntentType) -> tuple[DJMomentType, str, str, str] | None:
     if intent_type is KnowledgeIntentType.RECOMMENDATION:
-        if not (_bounded_text(track.get("related_tracks"), 1200) or _bounded_text(analysis.get("similar_tracks"), 1200)):
+        if not (
+            _bounded_text(track.get("related_tracks"), 1200)
+            or _bounded_text(track.get("related_artists"), 1200)
+            or _bounded_text(analysis.get("similar_tracks"), 1200)
+            or _bounded_text(analysis.get("listening_cues"), 1200)
+        ):
             return None
         return DJMomentType.RECOMMENDATION, f"Explore beyond {artist}", summary, content
     if intent_type is KnowledgeIntentType.ARTIST_STORY:
-        if not (_bounded_text(track.get("producer"), 160) or _bounded_text(track.get("recording_context"), 600)):
+        if not (
+            _bounded_text(track.get("producer"), 160)
+            or _bounded_text(track.get("composer"), 160)
+            or _bounded_text(track.get("recording_context"), 600)
+            or _bounded_text(track.get("related_artists"), 1200)
+            or _bounded_text(analysis.get("production_notes"), 1200)
+            or _bounded_text(analysis.get("instrumentation"), 1200)
+            or _bounded_text(analysis.get("arrangement_notes"), 1200)
+        ):
             return None
         return DJMomentType.ARTIST, artist, summary, content
     if intent_type is KnowledgeIntentType.ALBUM_STORY:
