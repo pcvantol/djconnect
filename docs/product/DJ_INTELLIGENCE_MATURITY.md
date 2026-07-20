@@ -18,8 +18,8 @@ behaviour rather than replace architecture or introduce speculative systems.
 | Stage | Maturity |
 | --- | --- |
 | 1 — current | Track Started trigger, Track Context, Silence and Runtime heuristics. |
-| 2 — partial | Deterministic Artist, Album, Genre and Recommendation intent selection from available knowledge hints. Transition, Discover and Session Update remain deferred. |
-| 3 — partial | Runtime-owned, timestamped Session Direction with deterministic Session Start initialization, Planner proposals and Session Update Moments. Runtime-scoped Performance Memory projects recent Moment facts from Session Flow so deterministic choices avoid immediate Artist, Genre and Recommendation repetition. Immutable Session Start Strategies now select the initial Direction, Planner configuration and interaction profile. Discover uses those existing controls to prefer exploration-oriented Moments and optional safe Music DNA context. Audience-driven adaptation, context-aware transitions and autonomous replanning remain deferred. |
+| 2 — partial | Deterministic Artist, Album, Genre and Recommendation intent selection from available knowledge hints. Discover has selected Stage 2 behaviour; Transition and broader Session Update refinement remain deferred. |
+| 3 — partial | Runtime-owned, timestamped Session Direction with deterministic Session Start initialization, Planner proposals and Session Update Moments. Runtime-scoped Performance Memory projects recent Moment facts from Session Flow so deterministic choices avoid immediate Artist, Genre and Recommendation repetition. Immutable Session Start Strategies express the Session objective and initialize the initial Direction and Planner configuration; Session Mood and DJ Persona remain independent Runtime dimensions. Discover uses those existing controls to prefer exploration-oriented Moments and optional safe Music DNA context. Audience-driven adaptation, context-aware transitions and autonomous replanning remain deferred. |
 | 4 | Persistent cross-session performance learning, multi-track planning, narrative sequencing, dynamic replanning and pacing. |
 | 5 | Autonomous session strategy and long-term performance optimisation. |
 
@@ -59,7 +59,12 @@ than create a feature-specific execution path.
 | 3 | Narrative discovery sessions and richer DJ-guided transitions. |
 | 4 | Autonomous discovery journeys. |
 
-## DJ Persona and Session Mood
+## Session Start Strategy, Session Mood and DJ Persona
+
+Session Start Strategy answers why the Session exists, Session Mood answers how
+it should feel, and DJ Persona answers how the DJ should perform. These are
+orthogonal Runtime dimensions: a Strategy sets the Session objective, not its
+emotional atmosphere or DJ behaviour.
 
 Persona evolves from Stage 1 speaking-frequency heuristics to Stage 2
 storytelling and interaction differences, Stage 3 consistency and Stage 4
@@ -86,9 +91,10 @@ Notification (Stage 3); platform refinements (Stage 4); and future modes
 (Stage 5).
 
 Session experience begins with an explicit immutable Runtime Start Strategy
-(Continue, Discover, Party, Focus, Chill or Manual) and deterministic initial
-Direction/Planner configuration (Stage 1). Discover behaviour and themed
-Session execution remain deferred to Stages 2–3; autonomous evening
+(Continue, Discover, Party, Focus, Chill or Manual) that defines the Session
+objective, independently from Mood and Persona, and initializes Direction and
+Planner configuration (Stage 1). Selected Discover behaviour is Stage 2;
+narrative and themed Session execution remain Stage 3. Autonomous evening
 experiences are Stage 4 and a continuous AI DJ is Stage 5.
 
 ## Implementation policy

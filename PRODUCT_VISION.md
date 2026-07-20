@@ -85,16 +85,61 @@ That card represents the most relevant active Session item, most often a DJ
 Moment. People can continue from it into the complete Session Flow whenever
 they want to revisit or understand the wider story.
 
-## DJ Persona and Session Mood
+## The three dimensions of a DJ Session
 
-A **DJ Persona** defines how the DJ behaves: its storytelling, pacing, humour,
-enthusiasm, interaction style and presentation style. Home DJ, Radio DJ, Club
-DJ and Festival DJ are examples. Persona is distinct from Session Mood and
-distinct from Voice.
+Every DJ Session is defined by three independent runtime dimensions. Together
+they describe the purpose of the occasion, its atmosphere and the way the DJ
+performs. None is a shorthand for either of the others.
 
-**Session Mood** is the emotional direction of the active session. It changes
-over time through the owner, audience and future DJ decisions. It shapes future
-DJ Moments without rewriting the history of earlier Moments.
+### Session Start Strategy — why does the Session exist?
+
+A **Session Start Strategy** represents the listener's intent and defines the
+objective with which the Session begins. It does not define the emotional
+atmosphere.
+
+- **Continue** resumes an existing DJ Session where continuity is available.
+- **Manual** keeps the listener in control of the musical direction.
+- **Discover** asks the AI DJ to actively help the listener discover music.
+
+The Strategy initializes Runtime state and the initial planning approach. It
+does not itself execute playback, define a queue or generate a DJ Moment.
+
+### Session Mood — how should the Session feel?
+
+**Session Mood** is selected independently from Session Start Strategy. It is
+the emotional atmosphere of the active Session: for example Focus, Chill,
+Party, Deep or Energy within the product's canonical mood model. A client may
+choose the initial Mood when the Session starts, and the Planner may gradually
+evolve it during the Session.
+
+Mood influences Planner behaviour, Presentation Intent and the presentation of
+future DJ Moments. It does not change the objective established by the Session
+Start Strategy, and it never rewrites earlier Moments.
+
+### DJ Persona — how should the DJ perform?
+
+A **DJ Persona** defines how the DJ behaves: storytelling, interaction
+frequency, tone of voice, humour and presentation style. Home DJ, Radio DJ,
+Club DJ and Festival DJ are examples. Persona is independent from both Session
+Start Strategy and Session Mood, and remains distinct from Voice.
+
+Future Premium Cloud voices are implementations of Personas, not an
+additional Session dimension.
+
+### Independent combinations
+
+The three dimensions deliberately compose without changing each other's
+meaning:
+
+| Session Start Strategy | Session Mood | DJ Persona |
+| --- | --- | --- |
+| Discover | Focus | Home DJ |
+| Manual | Party | Festival DJ |
+| Continue | Deep | Radio DJ |
+
+These combinations describe different Sessions: a focused exploration led by a
+warm Home DJ; a listener-directed party hosted by a Festival DJ; or a deep,
+continuous session performed by a Radio DJ.
 
 Future Premium Cloud experiences may add expressive voices, premium Personas,
 richer storytelling, enhanced presentation and more advanced DJ behaviour.
@@ -160,6 +205,10 @@ software. They are sharing an evening with an AI DJ.
 - Everything the DJ intentionally does becomes a DJ Moment.
 - The Session Flow tells the story of the evening.
 - The AI DJ performs rather than reacts.
+- Session Start Strategy answers why the Session exists.
+- Session Mood answers how the Session should feel.
+- DJ Persona answers how the DJ should perform.
+- Session objective, atmosphere and DJ behaviour remain independent.
 - Every device experiences the same Session.
 - Presentation adapts to the device; meaning remains identical.
 - The user is not controlling software. The user is sharing an evening with an
