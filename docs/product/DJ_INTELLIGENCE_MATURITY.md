@@ -28,7 +28,7 @@ behaviour rather than replace architecture or introduce speculative systems.
 | Stage | Maturity |
 | --- | --- |
 | 1 — current | Track metadata, artist, album, genre and existing metadata enrichment. |
-| 2 — partial | Producer/composer, release and recording context, related works and richer musical characteristics when existing metadata supplies them. Lyrics and dedicated recording-history retrieval remain deferred. |
+| 2 — current | The Knowledge Engine selects a bounded, intent-relevant subset of existing Track Insight metadata: artist/production context for Artist Story, release context for Album Story, genre characteristics for Genre Story and related works for Recommendation. Missing intent-specific metadata remains empty so the existing safe Silence fallback applies. Lyrics and dedicated recording-history retrieval remain deferred; external music knowledge, historical context and related-artist retrieval remain future Stage 3 work. |
 | 3 | Concert information, external music knowledge, historical context and related artists. |
 | 4 | Cross-session learning and narrative knowledge chains. |
 
