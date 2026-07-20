@@ -76,6 +76,7 @@ planning is read.
 | V4-01 Server-owned Active DJ Session Runtime | Completed / merged reconciled | Create, look up and destroy one ephemeral Runtime per resolved Profile, exposing only the paired Apple-client start, active lookup and end lifecycle. | `codex/v4-active-session-runtime` | Explicit implementation prompt authorized 2026-07-20; PR [#216](https://github.com/pcvantol/djconnect/pull/216), merged as `36d1e15da8b55fdccaac8b7ad777ccf6f462b6e5`; Prompt History archive absent, recorded as a traceability gap without retrospective recreation. |
 | V4-02 Session Planner Foundation | Completed / merged reconciled | Create one non-persistent, Runtime-owned Session Planner per active session with a fixed 15-minute horizon, placeholder direction and future Session Flow output contract; no AI planning, Session Flow generation, Broadcast or VibeCast. | `codex/v4-session-planner-foundation` | Explicit implementation prompt authorized 2026-07-20; PR [#218](https://github.com/pcvantol/djconnect/pull/218), merged as `0b5d1cda266ff2b47a6ce00d8df71d1870f99fc5`; Prompt History archive absent, recorded as a traceability gap without retrospective recreation. |
 | V4-03 Broadcast Engine Foundation | Completed / merged reconciled | Create one non-persistent, Runtime-owned Broadcast Engine per active session with an empty canonical Broadcast State and stable event vocabulary; no renderer, VibeCast, Universal Session Receiver, Voice or Session Flow generation. | `codex/v4-broadcast-engine-foundation` | Explicit implementation prompt authorized 2026-07-20; PR [#220](https://github.com/pcvantol/djconnect/pull/220), merged as `aececce3af39789596a72748455906acf1bb3122`; Prompt History archive absent, recorded as a traceability gap without retrospective recreation. |
+| V4-04 Canonical Session Flow | Active | Create one non-persistent, Planner-owned deterministic Session Flow per active Runtime and distribute it through Broadcast; no AI, recommendations, queue behaviour, renderer, Voice, VibeCast, Track Insight, Discover or Audience Signals. | `codex/v4-canonical-session-flow` | Explicit implementation prompt authorized 2026-07-20. |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
@@ -96,10 +97,9 @@ records are reconciled. Platform Release 3.3 remains in Maintenance.
 
 ## Next Engineering Increment
 
-No Platform Release 3.3 execution is active. Select the next separately
-authorized Product Engineering or Innovation Engineering increment from the
-active roadmap or backlog; Platform Release 3.3 remains in Maintenance unless
-its completion record is formally reopened.
+V4-04 Canonical Session Flow is active. No Platform Release 3.3 execution is
+active; it remains in Maintenance unless its completion record is formally
+reopened.
 
 ## Active Next Phase
 

@@ -131,6 +131,22 @@ catalogue is:
 The selected Music Backend owns its Playback Queue. Queue behaviour is a
 backend implementation detail and may appear only as an advanced playback view.
 
+### Canonical Session Flow Foundation
+
+The Planner creates exactly one non-persistent Session Flow with each active
+Runtime and republishes its Flow through the Runtime whenever Planner state
+changes. The Flow belongs to the Planner, is distributed only by the Broadcast
+Engine and is presented by renderers; no renderer may create or infer its own
+Flow. It is destroyed with the Runtime and is never a playlist, queue or
+backend playback instruction.
+
+V4-04 defines a deterministic 15-minute current horizon using only `now`,
+`next` and `later` positions. Its typed placeholder items are `current_track`,
+`planning_horizon`, `maintain_direction`, `future_direction` and
+`future_placeholder`. It contains no AI content, recommendations, Track
+Insight, Discover or announcements. Queue remains Music Backend playback
+context; Session Flow expresses DJ intent for the coming horizon.
+
 ## Broadcast contract
 
 Broadcast Feed is an event-driven, scoped representation of an active Runtime.
@@ -148,10 +164,11 @@ destroys it with the Runtime. The Engine owns distribution only: it publishes
 the canonical Broadcast State, but never owns planning, playback execution or
 renderer presentation. No broadcast state or event survives a session.
 
-Its initial Broadcast State has empty playback, Session Flow and audience
-sections, plus safe placeholders for session (`session_id`, `runtime_state`,
+Its initial Broadcast State has empty playback and audience sections, plus
+safe placeholders for session (`session_id`, `runtime_state`,
 `selected_mood`), Planner (`planning_state`, 15-minute planning horizon,
-`current_direction`) and Broadcast (`started_at`). Its stable event vocabulary
+`current_direction`), the Planner-produced Session Flow and Broadcast
+(`started_at`). Its stable event vocabulary
 is `runtime_created`, `runtime_ended`, `playback_changed`, `playback_progress`,
 `planner_updated`, `mood_changed`, `track_changed`, `session_flow_updated`,
 `audience_updated`, `broadcast_started` and `broadcast_stopped`. The foundation

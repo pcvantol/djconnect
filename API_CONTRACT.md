@@ -714,15 +714,17 @@ runtime-owned `planner` foundation. The Planner representation exposes a
 non-persistent `planner_state`, fixed `planning_horizon_minutes` of `15`,
 timestamps, placeholder `current_direction` (`maintain` initially), optional
 `current_goal`, empty `pending_events` and a Planner Output placeholder with
-`session_flow: null`.
+its typed, deterministic `session_flow`. The initial flow is scoped to the
+15-minute horizon and contains only `now`, `next` and `later` placeholder
+items; it is neither a playlist nor a Music Backend playback queue.
 
 The same runtime representation exposes a runtime-owned `broadcast` state.
 It contains only canonical placeholders: `session` (`session_id`,
 `runtime_state`, `selected_mood`), empty `playback` fields, Planner state and
-direction, empty `session_flow` and `audience` sections, and Broadcast
+direction, Planner-produced `session_flow`, empty `audience` and Broadcast
 `started_at`. It is the renderer-safe outward contract; clients must not read
-the nested Planner object or other Runtime internals as an alternative
-renderer interface.
+the nested Planner object or other Runtime internals as an alternative renderer
+interface.
 
 The Planner is created exactly once with its Runtime, is never shared between
 sessions and is discarded when the Runtime ends. It owns the future planning
@@ -730,10 +732,11 @@ horizon and will later produce Session Flow. The Runtime owns the present,
 including active-session mood; the Planner may consume mood but never owns or
 persists it. Profiles never own mood.
 
-This foundation does not yet plan, replan, schedule Track Insight or Discover,
-generate announcements, make AI decisions, generate Session Flow, execute
-playback, distribute Broadcast Events, render Session Flow, implement VibeCast,
-Universal Session Receiver or Voice, or persist planner state.
+This foundation does not yet perform intelligent planning or non-placeholder
+flow generation, schedule Track Insight or Discover, generate announcements,
+make AI decisions, execute playback, distribute Broadcast Events, render
+Session Flow, implement VibeCast, Universal Session Receiver or Voice, or
+persist planner state.
 
 `/music_dna/settings` accepts:
 
