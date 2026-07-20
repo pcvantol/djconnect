@@ -78,3 +78,4 @@ product strategy.
 - `PRODUCT_STRATEGY.md`
 - `PRODUCT_DEFINITION.md`
 - `DJ_SESSION_DOMAIN_MODEL.md`
+- `DJ_SESSION_VISION.md`
