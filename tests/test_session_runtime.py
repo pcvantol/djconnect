@@ -120,7 +120,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             state["session_flow"],
             created.planner.output.session_flow.as_dict(),
         )
-        self.assertEqual(state["audience"], {})
+        self.assertEqual(state["audience"], {"signal_totals": {}, "recent_activity": []})
         self.assertTrue(state["broadcast"]["started_at"])
         self.assertEqual(created.as_dict()["broadcast"], state)
 
@@ -292,7 +292,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         token = contract["broadcast_token"]
         self.assertEqual(
             contract["capabilities"],
-            {"view_broadcast": True, "like": False, "audience_signals": False, "ask_dj": False, "owner_controls": False},
+            {"view_broadcast": True, "like": False, "audience_signals": True, "ask_dj": False, "owner_controls": False},
         )
         self.assertNotIn("profile", contract)
 
@@ -318,7 +318,6 @@ class SessionRuntimeManagerTest(unittest.TestCase):
                 )
             )
         )
-
         asyncio.run(manager.async_end(owner_profile_id="profile-a", session_id=first.session_id))
         self.assertIsNone(
             asyncio.run(
@@ -327,6 +326,21 @@ class SessionRuntimeManagerTest(unittest.TestCase):
                 )
             )
         )
+
+    def test_audience_signals_aggregate_in_planner_and_republish_broadcast_state(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-a"))
+        token = asyncio.run(manager.async_broadcast_token_for_owner(owner_profile_id="profile-a", session_id=created.session_id))["broadcast_token"]
+        events: list[dict] = []
+        asyncio.run(manager.async_subscribe(owner_profile_id="profile-a", session_id=created.session_id, callback=events.append))
+
+        for _ in range(2):
+            audience = asyncio.run(manager.async_submit_audience_signal_with_broadcast_token(session_id=created.session_id, broadcast_token=token, signal="more_energy"))
+        audience = asyncio.run(manager.async_submit_audience_signal_with_broadcast_token(session_id=created.session_id, broadcast_token=token, signal="genre_suggestion", value="techno"))
+
+        self.assertEqual(audience["signal_totals"], {"more_energy": 2, "genre_suggestion:techno": 1})
+        self.assertEqual([event["event_type"] for event in events], ["audience_updated", "audience_updated", "audience_updated"])
+        self.assertIsNone(asyncio.run(manager.async_submit_audience_signal_with_broadcast_token(session_id=created.session_id, broadcast_token="invalid", signal="more_energy")))
 
     def test_broadcast_event_vocabulary_is_stable(self) -> None:
         self.assertEqual(
