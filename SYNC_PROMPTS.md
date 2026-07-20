@@ -98,6 +98,37 @@ and `<3.3.0`.
   `sections[]` such as `new_for_you` and `accepted_recommendations` and must not
   reconstruct cards from raw recent tracks.
 
+## Client: DJ Session Broadcast Transport (V4-06)
+
+```text
+Sync an authenticated owner renderer with the DJ Session Broadcast Transport.
+
+Use Home Assistant's authenticated /api/websocket as the one canonical live
+transport. After normal Home Assistant websocket authentication, send
+djconnect/session/broadcast/subscribe with the existing DJConnect identity and
+device token fields plus the active session_id. The command result contains the
+complete Broadcast State snapshot. Apply that snapshot before applying later
+djconnect/session/broadcast events.
+
+The client never sends, chooses or claims a Profile for this subscription. The
+server authorizes through the existing authenticated device binding and permits
+only the bound Profile's active Runtime. Multiple devices bound to the same
+Profile may subscribe; devices bound elsewhere, unknown devices and unbound
+devices are rejected. Do not present Profile lists or use Profile identifiers
+to retry a rejected subscription.
+
+Each later event has event_type, session_id and an incremental payload. Render
+only the server-owned Session metadata, Planner state and Session Flow; do not
+poll Runtime internals or recreate planning locally. On a temporary network
+interruption, reconnect and subscribe again, treating the new snapshot as
+authoritative. When runtime_ended or broadcast_stopped arrives, or the server
+rejects a reconnect because no active Runtime remains, stop the subscription
+and return the renderer to its Idle Session state.
+
+This is owner-only. Do not implement guest transport, Universal Session
+Receiver, VibeCast, Voice or Audience Signals as part of this contract.
+```
+
 ## Client: VibeCast
 
 ```text

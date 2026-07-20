@@ -179,6 +179,106 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         second = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))
         self.assertIsNot(first.broadcast, second.broadcast)
 
+    def test_broadcast_subscription_receives_snapshot_incremental_events_and_cleanup(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))
+        received: list[dict] = []
+
+        subscribed = asyncio.run(
+            manager.async_subscribe(
+                owner_profile_id="profile-peter",
+                session_id=created.session_id,
+                callback=received.append,
+            )
+        )
+
+        self.assertIsNotNone(subscribed)
+        subscription_id, snapshot = subscribed
+        self.assertEqual(snapshot, created.broadcast.as_dict())
+        self.assertEqual(created.broadcast.subscriber_count, 1)
+
+        created.republish_session_flow()
+        self.assertEqual(
+            [event["event_type"] for event in received],
+            ["planner_updated", "session_flow_updated"],
+        )
+        self.assertEqual(received[-1]["payload"]["session_flow"], created.broadcast.as_dict()["session_flow"])
+
+        asyncio.run(
+            manager.async_unsubscribe(
+                owner_profile_id="profile-peter",
+                session_id=created.session_id,
+                subscription_id=subscription_id,
+            )
+        )
+        self.assertEqual(created.broadcast.subscriber_count, 0)
+
+    def test_broadcast_runtime_termination_notifies_and_releases_subscriptions(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))
+        received: list[dict] = []
+        asyncio.run(
+            manager.async_subscribe(
+                owner_profile_id="profile-peter",
+                session_id=created.session_id,
+                callback=received.append,
+            )
+        )
+
+        asyncio.run(manager.async_end(owner_profile_id="profile-peter", session_id=created.session_id))
+
+        self.assertEqual(
+            [event["event_type"] for event in received],
+            ["runtime_ended", "broadcast_stopped"],
+        )
+        self.assertEqual(created.broadcast.subscriber_count, 0)
+
+    def test_profile_owned_runtime_terminates_every_bound_device_subscription(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))
+        first_events: list[dict] = []
+        second_events: list[dict] = []
+        asyncio.run(
+            manager.async_subscribe(
+                owner_profile_id="profile-peter",
+                session_id=created.session_id,
+                callback=first_events.append,
+            )
+        )
+        asyncio.run(
+            manager.async_subscribe(
+                owner_profile_id="profile-peter",
+                session_id=created.session_id,
+                callback=second_events.append,
+            )
+        )
+
+        asyncio.run(manager.async_end(owner_profile_id="profile-peter", session_id=created.session_id))
+
+        self.assertEqual(created.broadcast.subscriber_count, 0)
+        self.assertEqual(
+            [event["event_type"] for event in first_events],
+            ["runtime_ended", "broadcast_stopped"],
+        )
+        self.assertEqual(
+            [event["event_type"] for event in second_events],
+            ["runtime_ended", "broadcast_stopped"],
+        )
+
+    def test_subscription_is_rejected_when_requested_runtime_belongs_to_another_profile(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-owner"))
+
+        subscribed = asyncio.run(
+            manager.async_subscribe(
+                owner_profile_id="profile-other",
+                session_id=created.session_id,
+                callback=lambda event: None,
+            )
+        )
+
+        self.assertIsNone(subscribed)
+
     def test_broadcast_event_vocabulary_is_stable(self) -> None:
         self.assertEqual(
             [event.value for event in self.runtime.BroadcastEventType],

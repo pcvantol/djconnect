@@ -99,6 +99,7 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
                 "websocket_music_discovery_refresh",
                 "websocket_music_discovery_play",
                 "websocket_music_discovery_feedback",
+                "websocket_session_broadcast_subscribe",
             ],
         )
         self.assertTrue(hass.data["djconnect"]["websocket_registered"])
@@ -166,6 +167,62 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
             "hide_negative_feedback_controls",
         )
         self.assertEqual(result["transports"], {"http": True, "websocket": True})
+
+    def test_session_broadcast_subscription_sends_snapshot_then_incremental_events(self) -> None:
+        calls = []
+        cleanup_called = []
+
+        async def subscribe_handler(hass, payload, *, callback, headers=None, user_id=None):
+            calls.append((payload, headers, user_id))
+            callback(
+                {
+                    "event_type": "session_flow_updated",
+                    "session_id": "session-1",
+                    "payload": {"session_flow": {"flow_id": "flow-session-1"}},
+                }
+            )
+
+            async def cleanup():
+                cleanup_called.append(True)
+
+            return {
+                "success": True,
+                "subscription_id": "subscription-1",
+                "session_id": "session-1",
+                "snapshot": {"session": {"session_id": "session-1"}},
+            }, 200, cleanup
+
+        original = self.websocket_api.async_handle_session_broadcast_subscribe_payload
+        self.websocket_api.async_handle_session_broadcast_subscribe_payload = subscribe_handler
+        try:
+            connection = _Connection(user_id="ha-owner")
+            asyncio.run(
+                self.websocket_api.websocket_session_broadcast_subscribe(
+                    types.SimpleNamespace(data={}, async_create_task=lambda task: task.close()),
+                    connection,
+                    {
+                        "id": 48,
+                        "type": self.websocket_api.WS_TYPE_SESSION_BROADCAST_SUBSCRIBE,
+                        "session_id": "session-1",
+                        "device_id": "djconnect-ios-ABCDEF123456",
+                        "client_type": "ios",
+                        "device_token": "device-secret",
+                    },
+                )
+            )
+        finally:
+            self.websocket_api.async_handle_session_broadcast_subscribe_payload = original
+
+        self.assertEqual(connection.errors, [])
+        self.assertEqual(connection.results[0][1]["snapshot"]["session"]["session_id"], "session-1")
+        self.assertEqual(
+            connection.events,
+            [("djconnect/session/broadcast", {"event_type": "session_flow_updated", "session_id": "session-1", "payload": {"session_flow": {"flow_id": "flow-session-1"}}})],
+        )
+        self.assertEqual(calls[0][0]["session_id"], "session-1")
+        self.assertEqual(calls[0][2], "ha-owner")
+        self.assertEqual(len(connection.close_callbacks), 1)
+        self.assertEqual(cleanup_called, [])
 
     def test_backend_capability_fallbacks_degrade_when_command_is_missing(self) -> None:
         commands = [
@@ -1455,12 +1512,20 @@ class _Connection:
         self.user = types.SimpleNamespace(id=user_id) if user_id else None
         self.results = []
         self.errors = []
+        self.events = []
+        self.close_callbacks = []
 
     def send_result(self, msg_id, result) -> None:
         self.results.append((msg_id, result))
 
     def send_error(self, msg_id, code, message) -> None:
         self.errors.append((msg_id, code, message))
+
+    def send_event(self, event_type, data) -> None:
+        self.events.append((event_type, data))
+
+    def async_on_close(self, callback) -> None:
+        self.close_callbacks.append(callback)
 
 
 if __name__ == "__main__":

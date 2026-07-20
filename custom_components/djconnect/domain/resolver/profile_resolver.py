@@ -159,6 +159,21 @@ class ProfileResolver:
         """Resolve a Profile using the canonical priority order."""
         return self.resolve_with_result(context).profile
 
+    def resolve_bound_device(self, device_id: str) -> Profile:
+        """Resolve only the server-owned Profile binding for one device.
+
+        This deliberately skips explicit Profile, HA-user, area and fallback
+        resolution. Security-sensitive owner subscriptions must not let any
+        client supplied routing hint select a different Profile.
+        """
+        device_id = clean_identifier(device_id)
+        if not device_id:
+            raise DeviceNotMapped(device_id)
+        profile_id = self._profile_id_for_device(device_id)
+        if not profile_id:
+            raise DeviceNotMapped(device_id)
+        return self._require_profile(profile_id)
+
     def resolve_with_result(self, context: ProfileResolutionContext) -> ProfileResolutionResult:
         """Resolve a Profile and return safe resolution diagnostics."""
         explicit_profile_id = context.explicit_profile_id
