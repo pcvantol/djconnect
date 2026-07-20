@@ -550,8 +550,19 @@ class DJSessionPlanner:
         ):
             proposed_direction = SessionDirectionType.RESETTING
             direction_change_reason = "recent_silence_recovery"
+        elif (
+            session_direction.direction is SessionDirectionType.RESETTING
+            and performance_memory.recent_moment_types[-1:] == (DJMomentType.SESSION,)
+            and performance_memory.recent_session_directions[-1:]
+            == (SessionDirectionType.RESETTING,)
+        ):
+            proposed_direction = SessionDirectionType.RETURNING
+            direction_change_reason = "resetting_session_return"
         if proposed_direction is not session_direction.direction:
-            if performance_memory.recent_moment_types[-1:] == (DJMomentType.SESSION,):
+            if (
+                performance_memory.recent_moment_types[-1:] == (DJMomentType.SESSION,)
+                and direction_change_reason != "resetting_session_return"
+            ):
                 self.last_decision = PlannerDecision(
                     PlannerDecisionType.SILENCE, "recent_session_update"
                 )
