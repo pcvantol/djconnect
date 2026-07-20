@@ -53,9 +53,34 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         reconnected = asyncio.run(manager.async_get_active("profile-peter"))
 
         self.assertEqual(created, reconnected)
+        self.assertIs(created.planner, reconnected.planner)
         self.assertEqual(created.runtime_state, self.runtime.SessionRuntimeState.ACTIVE)
         self.assertEqual(created.owner_profile_id, "profile-peter")
         self.assertTrue(created.started_at)
+
+    def test_runtime_creates_one_ephemeral_planner_with_foundation_defaults(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))
+
+        planner = created.planner
+        self.assertEqual(planner.planner_state, self.runtime.PlannerState.READY)
+        self.assertEqual(planner.planning_horizon_minutes, 15)
+        self.assertEqual(planner.current_direction, self.runtime.MusicalDirection.MAINTAIN)
+        self.assertEqual(planner.pending_events, ())
+        self.assertIsNone(planner.output.session_flow)
+        public_planner = created.as_dict()["planner"]
+        self.assertEqual(public_planner["planning_horizon_minutes"], 15)
+        self.assertEqual(public_planner["current_direction"], "maintain")
+        self.assertEqual(public_planner["output"], {"session_flow": None})
+
+    def test_planner_is_not_shared_between_runtimes_and_is_disposed_with_runtime(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        first = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))
+        asyncio.run(manager.async_end(owner_profile_id="profile-peter", session_id=first.session_id))
+        self.assertIsNone(asyncio.run(manager.async_get_active("profile-peter")))
+        second = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))
+
+        self.assertIsNot(first.planner, second.planner)
 
     def test_rejects_second_active_runtime_for_same_profile(self) -> None:
         manager = self.runtime.SessionRuntimeManager()

@@ -694,7 +694,7 @@ canonical `client_type` identity contract:
 - `POST /api/djconnect/v1/music_dna/export`
 - `POST /api/djconnect/v1/music_dna/import`
 
-### Active DJ Session Runtime (v4-01)
+### Active DJ Session Runtime and Planner Foundation (v4-01 / v4-02)
 
 The first v4 runtime slice exposes only the server-owned lifecycle below:
 
@@ -709,10 +709,22 @@ active_session_exists` with the existing session. Active lookup returns the
 same runtime for client reconnect, or `session: null` when idle. End returns an
 `ended` session and disposes it from the active registry. The contract exposes
 only `session_id`, `owner_profile_id`, `room`, `selected_mood`,
-`music_backend`, `runtime_state`, `created_at` and `started_at`.
+`music_backend`, `runtime_state`, `created_at`, `started_at` and the
+runtime-owned `planner` foundation. The Planner representation exposes a
+non-persistent `planner_state`, fixed `planning_horizon_minutes` of `15`,
+timestamps, placeholder `current_direction` (`maintain` initially), optional
+`current_goal`, empty `pending_events` and a Planner Output placeholder with
+`session_flow: null`.
 
-No planner, Broadcast, VibeCast, Voice, Audience Signal, Music DNA, Session
-Flow or queue capability is part of this slice.
+The Planner is created exactly once with its Runtime, is never shared between
+sessions and is discarded when the Runtime ends. It owns the future planning
+horizon and will later produce Session Flow. The Runtime owns the present,
+including active-session mood; the Planner may consume mood but never owns or
+persists it. Profiles never own mood.
+
+This foundation does not yet plan, replan, schedule Track Insight or Discover,
+generate announcements, make AI decisions, generate Session Flow, execute
+playback, publish Broadcast/VibeCast, or persist planner state.
 
 `/music_dna/settings` accepts:
 

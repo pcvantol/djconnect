@@ -294,8 +294,10 @@ architecture are stable enough to freeze.
 
 ## Current Prompt
 
-DJConnect v4 Architecture, Runtime Contracts and V4-01 are merged; this
-reconciliation aligns the rolling records with current repository truth.
+DJConnect v4 Architecture, Runtime Contracts and V4-01 are merged and
+reconciled. V4-02 Session Planner Foundation is the active, explicitly
+authorized implementation increment on `codex/v4-session-planner-foundation`.
+It is limited to ephemeral planner ownership and planner-state foundations;
 Platform Release 3.3 remains in Maintenance.
 
 ## Completion Report

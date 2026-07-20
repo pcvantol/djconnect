@@ -74,9 +74,39 @@ Backend information only under their applicable privacy and capability rules.
 
 ## Session Planner contract
 
-The Planner owns a rolling planning horizon of approximately fifteen minutes
-and produces Session Flow. It is responsible for replanning, announcements,
-Track Insight scheduling, Discover scheduling, mood progression and transition
+The Planner owns the future: a rolling planning horizon of approximately
+fifteen minutes, planning state, current musical direction, pending Planner
+Events and the future production of Session Flow and Broadcast generation. The
+Runtime owns the present; the Profile owns the past.
+
+The horizon is intentionally rolling rather than a static playlist:
+
+| Horizon | Meaning |
+| --- | --- |
+| Near future | The next moments requiring immediate planning attention. |
+| Medium future | The remainder of the active fifteen-minute planning horizon. |
+| Longer future | Intent beyond the current horizon, refreshed only as the rolling window advances. |
+
+The foundation creates one Planner together with its Runtime and destroys it
+with that Runtime. It is never persistent and never shared between sessions.
+Its initial state is `ready`, a 15-minute horizon, `maintain` direction and no
+current goal or pending events. Initial direction placeholders are `maintain`,
+`increase_energy`, `decrease_energy`, `explore` and `recover`.
+
+Planner Events are internal inputs, not client commands: `track_finished`,
+`playback_changed`, `mood_changed`, `audience_signal`, `conversation` and
+`planner_tick`. The foundation recognises their vocabulary but does not yet
+handle or schedule them.
+
+The Planner produces a Planner Output that will eventually contain Session
+Flow. The Session Runtime exposes that output; clients consume it. The v4-02
+foundation exposes `session_flow: null` and generates no flow.
+
+Mood belongs exclusively to the active Session Runtime. The Planner consumes
+runtime mood as an input and never owns it; a Profile never owns mood.
+
+Future Planner implementations will add replanning, announcements, Track
+Insight scheduling, Discover scheduling, mood progression and transition
 planning.
 
 The Planner consumes available playback, aggregated Audience Signals, owner
