@@ -95,9 +95,6 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         expected = {
             self.runtime.SessionStartStrategy.CONTINUE: "maintaining_energy",
             self.runtime.SessionStartStrategy.DISCOVER: "exploring",
-            self.runtime.SessionStartStrategy.PARTY: "building_energy",
-            self.runtime.SessionStartStrategy.FOCUS: "deepening",
-            self.runtime.SessionStartStrategy.CHILL: "cooling_down",
             self.runtime.SessionStartStrategy.MANUAL: "maintaining_energy",
         }
         for strategy, direction in expected.items():
@@ -119,10 +116,8 @@ class SessionRuntimeManagerTest(unittest.TestCase):
 
     def test_start_strategies_initialize_deterministic_planner_configuration(self) -> None:
         expected = {
+            self.runtime.SessionStartStrategy.CONTINUE: ("balanced", 60.0, "continuity"),
             self.runtime.SessionStartStrategy.DISCOVER: ("prefer", 60.0, "curious"),
-            self.runtime.SessionStartStrategy.PARTY: ("balanced", 30.0, "energetic"),
-            self.runtime.SessionStartStrategy.FOCUS: ("deprioritize", 120.0, "minimal"),
-            self.runtime.SessionStartStrategy.CHILL: ("deprioritize", 90.0, "reflective"),
             self.runtime.SessionStartStrategy.MANUAL: ("balanced", 60.0, "balanced"),
         }
         for strategy, (recommendations, minimum_interval, profile) in expected.items():
@@ -142,6 +137,35 @@ class SessionRuntimeManagerTest(unittest.TestCase):
                 minimum_interval,
             )
             self.assertEqual(created.interaction_profile, profile)
+
+    def test_initial_session_mood_is_independent_from_strategy_and_persona(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(
+            manager.async_start(
+                owner_profile_id="profile-a",
+                selected_mood="focus",
+                dj_persona=self.runtime.DJPersona.FESTIVAL_DJ,
+                session_start_strategy=self.runtime.SessionStartStrategy.DISCOVER,
+            )
+        )
+
+        self.assertEqual(created.session_start_strategy, self.runtime.SessionStartStrategy.DISCOVER)
+        self.assertEqual(created.initial_session_mood, "focus")
+        self.assertEqual(created.selected_mood, "focus")
+        self.assertEqual(created.dj_persona, self.runtime.DJPersona.FESTIVAL_DJ)
+        self.assertEqual(created.session_direction.direction, self.runtime.SessionDirectionType.EXPLORING)
+        self.assertEqual(created.as_dict()["initial_session_mood"], "focus")
+
+        updated = asyncio.run(
+            manager.async_update_mood(
+                owner_profile_id="profile-a",
+                session_id=created.session_id,
+                selected_mood="party",
+            )
+        )
+        assert updated is not None
+        self.assertEqual(updated.initial_session_mood, "focus")
+        self.assertEqual(updated.selected_mood, "party")
 
     def test_continue_strategy_is_explicit_and_uses_ephemeral_fallback(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
@@ -168,12 +192,13 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         created = asyncio.run(
             manager.async_start(
                 owner_profile_id="profile-a",
-                session_start_strategy=self.runtime.SessionStartStrategy.PARTY,
+                selected_mood="ambient",
+                session_start_strategy=self.runtime.SessionStartStrategy.DISCOVER,
             )
         )
 
         with self.assertRaises(FrozenInstanceError):
-            created.session_start_strategy = self.runtime.SessionStartStrategy.CHILL  # type: ignore[misc]
+            created.session_start_strategy = self.runtime.SessionStartStrategy.MANUAL  # type: ignore[misc]
 
     def test_discover_strategy_prefers_recommendation_over_manual_track_context(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
@@ -192,6 +217,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         }
 
         discover_decision = discover.planner.evaluate_track_started(
+            session_start_strategy=discover.session_start_strategy,
             session_direction=discover.session_direction,
             selected_mood="groove",
             persona=self.runtime.DJPersona.HOME_DJ,
@@ -739,6 +765,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             f"flow-{created.session_id}",
         )
         self.assertEqual(context.as_insight()["session_start_strategy"], "manual")
+        self.assertNotIn("session_mood", context.as_insight())
         self.assertEqual(moment.source_references, ("track_insight",))
 
     def test_discover_knowledge_context_includes_only_safe_personal_projection(self) -> None:
@@ -746,6 +773,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         created = asyncio.run(
             manager.async_start(
                 owner_profile_id="profile-a",
+                selected_mood="ambient",
                 session_start_strategy=self.runtime.SessionStartStrategy.DISCOVER,
                 discover_context=self.runtime.DiscoverContext(
                     personal_context_authorized=True,
@@ -771,6 +799,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         context = created.knowledge_engine.assembled_contexts[-1]
 
         self.assertEqual(context.as_insight()["session_start_strategy"], "discover")
+        self.assertEqual(context.as_insight()["session_mood"], "ambient")
         self.assertEqual(
             context.as_insight()["discover_context"],
             {
@@ -896,7 +925,6 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             manager.async_start(
                 owner_profile_id="profile-a",
                 selected_mood="deep",
-                session_start_strategy=self.runtime.SessionStartStrategy.FOCUS,
             )
         )
 
@@ -941,13 +969,12 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertEqual(moment.moment_type, self.runtime.DJMomentType.SILENCE)
         self.assertEqual(asyncio.run(manager.async_get_active("profile-a")).runtime_state, self.runtime.SessionRuntimeState.ACTIVE)
 
-    def test_planner_decides_silence_before_knowledge_for_deep_or_club_session(self) -> None:
+    def test_planner_updates_direction_before_knowledge_for_deep_session(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
         created = asyncio.run(
             manager.async_start(
                 owner_profile_id="profile-a",
                 selected_mood="deep",
-                session_start_strategy=self.runtime.SessionStartStrategy.FOCUS,
             )
         )
         invoked = False
@@ -959,9 +986,12 @@ class SessionRuntimeManagerTest(unittest.TestCase):
 
         moment = asyncio.run(manager.async_process_track_started(owner_profile_id="profile-a", session_id=created.session_id, insight_provider=insight))
         assert moment is not None
-        self.assertEqual(moment.moment_type, self.runtime.DJMomentType.SILENCE)
+        self.assertEqual(moment.moment_type, self.runtime.DJMomentType.SESSION)
         self.assertFalse(invoked)
-        self.assertEqual(created.planner.last_decision.decision_type, self.runtime.PlannerDecisionType.SILENCE)
+        self.assertEqual(
+            created.planner.last_decision.decision_type,
+            self.runtime.PlannerDecisionType.CREATE_SESSION_UPDATE,
+        )
 
     def test_owner_only_moment_never_reaches_broadcast_token_viewer(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
