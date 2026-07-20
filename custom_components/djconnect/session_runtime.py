@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import secrets
+import time
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
@@ -92,6 +93,28 @@ class KnowledgeIntentType(StrEnum):
     TRACK_CONTEXT = "track_context"
     SESSION_DIRECTION = "session_direction"
     SILENCE = "silence"
+
+
+class PlannerDecisionType(StrEnum):
+    CREATE_TRACK_CONTEXT = "create_track_context"
+    CREATE_SESSION_UPDATE = "create_session_update"
+    CREATE_RECOMMENDATION = "create_recommendation"
+    CREATE_DISCOVERY = "create_discovery"
+    SILENCE = "silence"
+
+
+@dataclass(frozen=True)
+class PlannerDecision:
+    decision_type: PlannerDecisionType
+    reason: str
+    knowledge_intent: KnowledgeIntent | None = None
+
+
+@dataclass(frozen=True)
+class PlannerConfiguration:
+    minimum_time_between_moments_seconds: float = 60.0
+    maximum_track_context_per_track: int = 1
+    allow_consecutive_silence: bool = True
 
 
 class DJMomentType(StrEnum):
@@ -325,6 +348,9 @@ class DJSessionPlanner:
     output: SessionPlannerOutput
     audience_totals: dict[str, int] = field(default_factory=dict)
     recent_audience_activity: tuple[str, ...] = ()
+    configuration: PlannerConfiguration = field(default_factory=PlannerConfiguration)
+    last_spoken_moment_at: float = 0.0
+    last_decision: PlannerDecision | None = None
 
     def submit_audience_signal(self, signal: AudienceSignalType, value: str = "") -> None:
         """Aggregate one suggestion without interpreting it or changing playback."""
@@ -344,13 +370,26 @@ class DJSessionPlanner:
         self.last_replan_at = flow.created_at
         return flow
 
-    def request_track_context(self) -> KnowledgeIntent:
-        """Record the deterministic active-track trigger as a Planner decision."""
+    def evaluate_track_started(self, *, selected_mood: str, persona: DJPersona) -> PlannerDecision:
+        """Make the bounded first production decision without invoking services."""
         self.pending_events = (*self.pending_events, PlannerEventType.TRACK_AVAILABLE)
-        return KnowledgeIntent(
+        mood = selected_mood.strip().lower()
+        now = time.monotonic()
+        if self.last_spoken_moment_at and now - self.last_spoken_moment_at < self.configuration.minimum_time_between_moments_seconds:
+            self.last_decision = PlannerDecision(PlannerDecisionType.SILENCE, "minimum_interval")
+            return self.last_decision
+        if mood in {"deep", "focus", "chill"} or persona is DJPersona.CLUB_DJ:
+            self.last_decision = PlannerDecision(PlannerDecisionType.SILENCE, "mood_or_persona_prefers_silence")
+            return self.last_decision
+        intent = KnowledgeIntent(
             KnowledgeIntentType.TRACK_CONTEXT,
             "Explain one relevant detail that improves appreciation of the current track.",
         )
+        self.last_decision = PlannerDecision(PlannerDecisionType.CREATE_TRACK_CONTEXT, "track_context_appropriate", intent)
+        return self.last_decision
+
+    def record_spoken_moment(self) -> None:
+        self.last_spoken_moment_at = time.monotonic()
 
     def append_moment(self, moment: DJMoment) -> DJSessionFlow:
         """Place an Engine-produced Moment without giving it scheduling control."""
@@ -812,7 +851,23 @@ class SessionRuntimeManager:
             active = self._active_by_profile.get(owner_profile_id)
             if active is None or active.session_id != session_id:
                 return None
-            intent = active.planner.request_track_context()
+            decision = active.planner.evaluate_track_started(
+                selected_mood=active.selected_mood,
+                persona=active.dj_persona,
+            )
+            if decision.decision_type is PlannerDecisionType.SILENCE:
+                moment = active.moment_engine.create_silence(
+                    session_id=active.session_id,
+                    selected_mood=active.selected_mood,
+                    persona=active.dj_persona,
+                    locale=active.locale,
+                    reason=decision.reason,
+                )
+                active.publish_moment(moment)
+                return moment
+            intent = decision.knowledge_intent
+            if intent is None:
+                return None
         try:
             knowledge = await active.knowledge_engine.async_assemble_track_context(
                 intent=intent,
@@ -834,6 +889,8 @@ class SessionRuntimeManager:
                 locale=active.locale,
                 insight=knowledge.as_insight(),
             )
+            if moment.moment_type is DJMomentType.TRACK:
+                active.planner.record_spoken_moment()
             active.publish_moment(moment)
             return moment
 
