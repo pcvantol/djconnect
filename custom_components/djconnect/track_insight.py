@@ -61,12 +61,19 @@ class TrackInsightRequest:
     mood_zone_prompt: str | None = None
     include_visual_profile: bool = True
     include_raw_response: bool = False
+    presentation_style: str | None = None
 
 
 class TrackInsightPromptBuilder:
     """Build the strict JSON prompt sent to the configured conversation stack."""
 
-    def build(self, track: dict[str, Any], locale: str, mood_context: str | None = None) -> str:
+    def build(
+        self,
+        track: dict[str, Any],
+        locale: str,
+        mood_context: str | None = None,
+        presentation_style: str | None = None,
+    ) -> str:
         title = track.get("title") or "Unknown title"
         artist = track.get("artist") or "Unknown artist"
         album = track.get("album") or "Unknown album"
@@ -78,6 +85,12 @@ class TrackInsightPromptBuilder:
             if mood_context
             else ""
         )
+        presentation_line = (
+            f"Presentation guidance: {presentation_style}. Adapt wording and verbosity to this guidance, "
+            "but do not invent facts or mention the guidance itself.\n"
+            if presentation_style
+            else ""
+        )
         return (
             "You are DJConnect Track Insight. Analyze the music track below. "
             "Return JSON only, with no markdown and no surrounding explanation. "
@@ -87,6 +100,7 @@ class TrackInsightPromptBuilder:
             f"Album: {album}\n"
             f"{genre_line}"
             f"{mood_line}"
+            f"{presentation_line}"
             "Return this object shape exactly: "
             "{\"summary\": string, \"full_text\": string, \"genre\": string|null, "
             "\"subgenre\": string|null, \"mood\": string|null, \"vibe\": string|null, "
@@ -153,7 +167,12 @@ class TrackInsightAnalyzer:
         locale = request.locale or _runtime_locale(runtime)
         if _demo_enabled(runtime):
             return _demo_analysis(track, locale), None
-        prompt = self.prompt_builder.build(track, locale, _request_mood_context(request))
+        prompt = self.prompt_builder.build(
+            track,
+            locale,
+            _request_mood_context(request),
+            request.presentation_style,
+        )
         raw_response: str | None = None
         try:
             raw_response = await self._ask_conversation(hass, runtime, prompt, request)
@@ -497,6 +516,7 @@ def _request_from_payload(payload: dict[str, Any], source: str) -> TrackInsightR
         mood_zone_prompt=_optional_text(payload.get("mood_zone_prompt")),
         include_visual_profile=_bool(payload.get("include_visual_profile"), True),
         include_raw_response=_bool(payload.get("include_raw_response")),
+        presentation_style=_optional_text(payload.get("presentation_style")),
     )
 
 

@@ -27,11 +27,11 @@ Profile → Session Runtime → Session Planner → Broadcast Engine → Rendere
 
 Renderers do not poll Runtime internals and do not derive planner state.
 
-## Future DJ Moment projection
+## DJ Moment projection
 
 The current transport remains the authoritative V4-06 Broadcast State
-contract. The canonical future presentation model adds immutable DJ Moments to
-that state rather than giving renderers creative responsibility:
+contract. The canonical presentation model adds immutable DJ Moments to that
+state rather than giving renderers creative responsibility:
 
 ```text
 Session Planner → Knowledge Intent → DJ Moment Engine → DJ Moment → Broadcast → Renderer
@@ -43,6 +43,19 @@ surface, but must not rewrite the Persona, Mood, delivery, importance or
 follow-up actions. This is architecture and domain modelling only; it does not
 add a Moment field, event or WebSocket payload to the current transport.
 See [`../product/DJ_PRESENTATION_ARCHITECTURE.md`](../product/DJ_PRESENTATION_ARCHITECTURE.md).
+
+### First production Moment projection
+
+The first bounded Moment slice adds `dj_moments` to Broadcast State and the
+incremental `dj_moment_published` event. Each payload is a frozen,
+renderer-safe DJ Moment. Owner subscriptions receive their Profile Runtime's
+authorized Moment projection. Broadcast Token subscriptions receive only
+`session_shared` and `public_broadcast` Moments; `owner_only` Moment snapshots
+and events are filtered server-side. Silence remains a Session Flow decision
+and is intentionally not emitted as a visual Moment event.
+
+See [`DJ_MOMENT_ENGINE.md`](DJ_MOMENT_ENGINE.md) for the current production
+scope and reuse boundary.
 
 ## Subscription contract
 

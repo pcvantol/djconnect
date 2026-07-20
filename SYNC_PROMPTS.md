@@ -117,9 +117,11 @@ Profile may subscribe; devices bound elsewhere, unknown devices and unbound
 devices are rejected. Do not present Profile lists or use Profile identifiers
 to retry a rejected subscription.
 
-Each later event has event_type, session_id and an incremental payload. Render
-only the server-owned Session metadata, Planner state and Session Flow; do not
-poll Runtime internals or recreate planning locally. On a temporary network
+Each later event has event_type, session_id and an incremental payload. A
+snapshot may include immutable `dj_moments`; new non-silent Moments use the
+`dj_moment_published` event. Render only the server-owned Session metadata,
+Planner state, Session Flow and Moment projection; do not poll Runtime internals
+or recreate planning locally. On a temporary network
 interruption, reconnect and subscribe again, treating the new snapshot as
 authoritative. When runtime_ended or broadcast_stopped arrives, or the server
 rejects a reconnect because no active Runtime remains, stop the subscription
@@ -129,17 +131,16 @@ This is owner-only. Do not implement guest transport, Universal Session
 Receiver, VibeCast, Voice or Audience Signals as part of this contract.
 ```
 
-## Client: Future DJ Moment presentation model
+## Client: DJ Moment presentation model
 
 ```text
-Do not implement a new endpoint, WebSocket payload or renderer feature from
-this prompt. The canonical DJ Presentation Architecture defines the future
-server-owned path:
+Do not implement a new endpoint or renderer feature from this prompt. The
+canonical DJ Presentation Architecture defines the server-owned path:
 
 Knowledge Intent → DJ Moment Engine → immutable DJ Moment → Broadcast → Renderer
 
-When DJ Moments become available in a later, explicitly scoped contract, treat
-each Moment and its Presentation Intent as immutable server-owned data. A
+Treat each supplied Moment and its Presentation Intent as immutable
+server-owned data. A
 renderer presents the supplied content and actions; it does not generate a
 Moment, claim a Persona, recalculate Session Mood or reinterpret delivery.
 ```

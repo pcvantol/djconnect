@@ -33,6 +33,8 @@ Do not treat this directory as a new platform design.
 ## Documents
 
 - [TECHNICAL_OVERVIEW.md](TECHNICAL_OVERVIEW.md)
+- [BROADCAST_TRANSPORT.md](BROADCAST_TRANSPORT.md)
+- [DJ_MOMENT_ENGINE.md](DJ_MOMENT_ENGINE.md)
 - [PAIRING.md](PAIRING.md)
 - [CLIENT_SERVER_TRANSPORT.md](CLIENT_SERVER_TRANSPORT.md)
 - [HTTP_API.md](HTTP_API.md)
