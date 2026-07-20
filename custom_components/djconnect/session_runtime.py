@@ -872,9 +872,20 @@ class DJMomentEngine:
         persona: DJPersona,
         locale: str,
         session_direction: SessionDirection,
+        knowledge_context: "KnowledgeContext | None",
     ) -> DJMoment:
-        """Expose one Planner-approved Direction change as a Session Moment."""
-        direction = session_direction.direction
+        """Realize one Planner-approved Direction change from safe Session context."""
+        if not _valid_session_update_context(
+            knowledge_context, session_direction, selected_mood
+        ):
+            return self.create_silence(
+                session_id=session_id,
+                selected_mood=selected_mood,
+                persona=persona,
+                locale=locale,
+                reason="invalid_session_update_context",
+            )
+        direction = knowledge_context.session_direction.direction
         moment = DJMoment(
             moment_id=f"moment-{uuid4().hex}",
             session_id=session_id,
@@ -893,7 +904,8 @@ class DJMomentEngine:
             source_references=("session_direction",),
             generation_metadata=(
                 ("direction", direction.value),
-                ("start_strategy", session_direction.start_strategy.value),
+                ("start_strategy", knowledge_context.session_start_strategy.value),
+                ("context_source", "session_direction"),
                 ("validated", "true"),
             ),
         )
@@ -1373,7 +1385,7 @@ class SessionRuntimeManager:
                 self._active_by_profile[owner_profile_id] = active
                 active.broadcast.update_session_direction(updated_direction)
             if decision.decision_type is PlannerDecisionType.CREATE_SESSION_UPDATE:
-                active.knowledge_engine.assemble_session_direction_context(
+                knowledge = active.knowledge_engine.assemble_session_direction_context(
                     active.session_direction,
                     active.session_start_strategy,
                     active.selected_mood,
@@ -1385,9 +1397,11 @@ class SessionRuntimeManager:
                     persona=active.dj_persona,
                     locale=active.locale,
                     session_direction=active.session_direction,
+                    knowledge_context=knowledge,
                 )
-                active.planner.record_spoken_moment()
-                active.publish_moment(moment)
+                if moment.moment_type is not DJMomentType.SILENCE:
+                    active.planner.record_spoken_moment()
+                    active.publish_moment(moment)
                 self._record_performance_memory(owner_profile_id, active)
                 return moment
             if decision.decision_type is PlannerDecisionType.SILENCE:
@@ -2019,6 +2033,22 @@ def _valid_transition_approval(approval: PlannerDecision | None) -> bool:
         and all(approval.transition_moment_ids)
         and approval.transition_moment_ids[0] != approval.transition_moment_ids[1]
         and approval.transition_placement == SessionFlowPosition.NEXT.value
+    )
+
+
+def _valid_session_update_context(
+    context: "KnowledgeContext | None",
+    session_direction: SessionDirection,
+    selected_mood: str,
+) -> bool:
+    """Accept only the existing safe Session Direction context assembled by Knowledge."""
+    return bool(
+        context
+        and context.sources == ("session_direction",)
+        and context.session_direction == session_direction
+        and context.session_start_strategy == session_direction.start_strategy
+        and context.session_mood == selected_mood
+        and context.performance_memory is not None
     )
 
 

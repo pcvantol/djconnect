@@ -1485,6 +1485,76 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             active.session_direction,
         )
         self.assertEqual(moment.source_references, ("session_direction",))
+        self.assertEqual(dict(moment.generation_metadata)["context_source"], "session_direction")
+        self.assertEqual(
+            dict(moment.generation_metadata)["start_strategy"],
+            active.session_start_strategy.value,
+        )
+        self.assertEqual(
+            active.planner.output.session_flow.items[-1].moment_id, moment.moment_id
+        )
+        self.assertEqual(active.broadcast.as_dict()["dj_moments"][-1]["moment_id"], moment.moment_id)
+        self.assertEqual(
+            [
+                event["event_type"]
+                for event in events
+                if event["event_type"] in {"session_flow_updated", "dj_moment_published"}
+            ][-2:],
+            ["session_flow_updated", "dj_moment_published"],
+        )
+        with self.assertRaises(FrozenInstanceError):
+            moment.summary = "Mutated"
+
+    def test_session_update_requires_safe_knowledge_context(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        engine = self.runtime.DJMomentEngine()
+        direction = self.runtime.SessionDirection(
+            self.runtime.SessionDirectionType.BUILDING_ENERGY,
+            "now",
+            "now",
+            self.runtime.SessionStartStrategy.MANUAL,
+        )
+        before_runtime = tuple(manager._active_by_profile.items())
+        moment = engine.create_session_update(
+            session_id="session-test",
+            selected_mood="energy",
+            persona=self.runtime.DJPersona.HOME_DJ,
+            locale="en",
+            session_direction=direction,
+            knowledge_context=None,
+        )
+
+        self.assertEqual(moment.moment_type, self.runtime.DJMomentType.SILENCE)
+        self.assertEqual(tuple(manager._active_by_profile.items()), before_runtime)
+
+    def test_no_direction_change_emits_no_session_update(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-no-update"))
+        calls = 0
+
+        async def insight() -> dict:
+            nonlocal calls
+            calls += 1
+            return {
+                "track": {"title": "Track", "artist": "Artist"},
+                "analysis": {"summary": "Safe summary.", "full_text": "Safe full context."},
+            }
+
+        moment = asyncio.run(
+            manager.async_process_track_started(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                insight_provider=insight,
+            )
+        )
+
+        assert moment is not None
+        self.assertEqual(calls, 1)
+        self.assertNotEqual(moment.moment_type, self.runtime.DJMomentType.SESSION)
+        self.assertNotIn(
+            self.runtime.DJMomentType.SESSION,
+            tuple(item.moment_type for item in created.planner.output.session_flow.items if item.moment_id),
+        )
 
     def test_later_mood_and_persona_changes_do_not_mutate_existing_moment(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
