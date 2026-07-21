@@ -382,6 +382,80 @@ class SessionRuntimeManagerTest(unittest.TestCase):
 
         self.assertIsNone(asyncio.run(manager.async_get_active("profile-prefetch")))
 
+    def test_prefetch_execution_request_is_immutable_and_bounded(self) -> None:
+        window = self._artist_prefetch_window()
+        prefetch = window.knowledge_prefetches[0]
+
+        request = self.runtime.KnowledgePrefetchRequest.from_prefetch(
+            prefetch,
+            subject_projection=(
+                ("artist", "Artist"),
+                ("ignored", "must not cross the boundary"),
+            ),
+        )
+
+        self.assertEqual(request.target_category, "artist_story")
+        self.assertEqual(request.planning_slot, ("artist_story", 0, 60))
+        self.assertEqual(request.planning_generation, 2)
+        self.assertEqual(request.knowledge_category, "artist")
+        self.assertEqual(request.subject_projection, (("artist", "Artist"),))
+        self.assertEqual(request.invalidation_generation, 4)
+
+    def test_prefetch_execution_boundary_prepares_valid_available_knowledge(self) -> None:
+        window = self._artist_prefetch_window()
+        boundary = self.runtime.KnowledgePrefetchExecutionBoundary()
+
+        prepared = boundary.submit(
+            prefetch=window.knowledge_prefetches[0],
+            subject_projection=(("artist", "Artist"),),
+            window=window,
+            invalidation_generation=4,
+            knowledge_engine=self.runtime.DJKnowledgeEngine(),
+        )
+
+        self.assertEqual(prepared.status, self.runtime.PreparedKnowledgeStatus.PREPARED)
+        self.assertEqual(prepared.projection, (("artist", "Artist"),))
+        self.assertTrue(prepared.is_valid)
+        self.assertEqual(prepared.planning_generation, 2)
+
+    def test_prefetch_execution_rejects_superseded_or_unavailable_requirements(self) -> None:
+        window = self._artist_prefetch_window()
+        boundary = self.runtime.KnowledgePrefetchExecutionBoundary()
+        engine = self.runtime.DJKnowledgeEngine()
+
+        superseded = boundary.submit(
+            prefetch=window.knowledge_prefetches[0],
+            subject_projection=(("artist", "Artist"),),
+            window=window,
+            invalidation_generation=5,
+            knowledge_engine=engine,
+        )
+        unavailable = boundary.submit(
+            prefetch=window.knowledge_prefetches[0],
+            subject_projection=(),
+            window=window,
+            invalidation_generation=4,
+            knowledge_engine=engine,
+        )
+
+        self.assertEqual(superseded.status, self.runtime.PreparedKnowledgeStatus.SUPERSEDED)
+        self.assertEqual(unavailable.status, self.runtime.PreparedKnowledgeStatus.UNAVAILABLE)
+        self.assertEqual(engine.assembled_contexts, ())
+
+    def _artist_prefetch_window(self):
+        window = self.runtime.PlanningWindow(
+            starts_at="now",
+            ends_at="later",
+            planning_coverage_seconds=60,
+            generation=2,
+            confidence=0.8,
+            influence=self.runtime.PlannerInfluence.normalize(confidence=0.7, freshness=0.9),
+            candidate_slots=(self.runtime.CandidatePlanningSlot("artist_story", 0, 60),),
+        )
+        window.plan_intents()
+        window.plan_knowledge_prefetches(invalidation_generation=4)
+        return window
+
     def test_horizon_replanning_is_a_no_op_for_unchanged_inputs(self) -> None:
         horizon = self.runtime.RollingSessionHorizon(
             window_minutes=15,

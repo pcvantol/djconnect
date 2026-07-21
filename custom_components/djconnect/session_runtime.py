@@ -610,6 +610,79 @@ class KnowledgePrefetch:
 
 
 @dataclass(frozen=True)
+class KnowledgePrefetchRequest:
+    """Immutable Planner-to-Knowledge Engine request with no Runtime object graph."""
+
+    request_id: str
+    target_category: str
+    planning_slot: tuple[str, int, int]
+    planning_generation: int
+    knowledge_category: str
+    subject_projection: tuple[tuple[str, str], ...]
+    required_confidence: float
+    freshness_constraint: float
+    invalidation_generation: int
+
+    @classmethod
+    def from_prefetch(
+        cls,
+        prefetch: KnowledgePrefetch,
+        *,
+        subject_projection: tuple[tuple[str, str], ...],
+    ) -> "KnowledgePrefetchRequest":
+        """Bind a bounded observable subject projection to one planned requirement."""
+        intent = prefetch.target_intent
+        slot = intent.slot
+        allowed = {"track", "artist", "album", "genre", "recommendation"}
+        subject = tuple(
+            (key, _bounded_text(value, 256))
+            for key, value in subject_projection
+            if key in allowed and _bounded_text(value, 256)
+        )[:5]
+        slot_identity = (slot.category, slot.starts_at_seconds, slot.ends_at_seconds)
+        return cls(
+            request_id=(
+                f"prefetch-{prefetch.knowledge_category}-{intent.generation}-"
+                f"{slot.starts_at_seconds}-{slot.ends_at_seconds}"
+            ),
+            target_category=intent.category,
+            planning_slot=slot_identity,
+            planning_generation=prefetch.planning_generation,
+            knowledge_category=prefetch.knowledge_category,
+            subject_projection=subject,
+            required_confidence=prefetch.knowledge_confidence,
+            freshness_constraint=prefetch.freshness,
+            invalidation_generation=prefetch.invalidation_generation,
+        )
+
+
+class PreparedKnowledgeStatus(StrEnum):
+    """Bounded typed outcomes of a Knowledge Prefetch execution."""
+
+    PREPARED = "prepared"
+    UNAVAILABLE = "unavailable"
+    UNSUPPORTED = "unsupported"
+    INVALID = "invalid"
+    STALE = "stale"
+    CANCELLED = "cancelled"
+    SUPERSEDED = "superseded"
+
+
+@dataclass(frozen=True)
+class PreparedKnowledge:
+    """Validated, non-narrative knowledge projection for one prefetch request."""
+
+    request_id: str
+    planning_generation: int
+    knowledge_category: str
+    status: PreparedKnowledgeStatus
+    projection: tuple[tuple[str, str], ...] = ()
+    confidence: float = 0.0
+    freshness: float = 0.0
+    is_valid: bool = False
+
+
+@dataclass(frozen=True)
 class PlannerInfluence:
     """Normalized, bounded Runtime context consumed by Planner Intent Selection."""
 
@@ -1650,9 +1723,100 @@ class DJKnowledgeEngine:
             )
         )
 
+    def execute_prefetch(self, request: KnowledgePrefetchRequest) -> PreparedKnowledge:
+        """Validate a bounded request using only already-observable subject context."""
+        required_subject = {
+            "artist": "artist",
+            "album": "album",
+            "genre": "genre",
+            "recommendation": "recommendation",
+        }
+        subject_key = required_subject.get(request.knowledge_category)
+        if subject_key is None:
+            return PreparedKnowledge(
+                request.request_id,
+                request.planning_generation,
+                request.knowledge_category,
+                PreparedKnowledgeStatus.UNSUPPORTED,
+            )
+        if request.required_confidence <= 0:
+            return PreparedKnowledge(
+                request.request_id,
+                request.planning_generation,
+                request.knowledge_category,
+                PreparedKnowledgeStatus.INVALID,
+            )
+        if request.freshness_constraint <= 0:
+            return PreparedKnowledge(
+                request.request_id,
+                request.planning_generation,
+                request.knowledge_category,
+                PreparedKnowledgeStatus.STALE,
+            )
+        subject = dict(request.subject_projection)
+        value = subject.get(subject_key, "")
+        if not value:
+            return PreparedKnowledge(
+                request.request_id,
+                request.planning_generation,
+                request.knowledge_category,
+                PreparedKnowledgeStatus.UNAVAILABLE,
+            )
+        return PreparedKnowledge(
+            request.request_id,
+            request.planning_generation,
+            request.knowledge_category,
+            PreparedKnowledgeStatus.PREPARED,
+            projection=((subject_key, value),),
+            confidence=min(1.0, request.required_confidence),
+            freshness=min(1.0, request.freshness_constraint),
+            is_valid=True,
+        )
+
     def _record(self, context: KnowledgeContext) -> KnowledgeContext:
         self.assembled_contexts = (*self.assembled_contexts, context)
         return context
+
+
+@dataclass
+class KnowledgePrefetchExecutionBoundary:
+    """Runtime-only boundary separating Planner eligibility from knowledge validation."""
+
+    def submit(
+        self,
+        *,
+        prefetch: KnowledgePrefetch,
+        subject_projection: tuple[tuple[str, str], ...],
+        window: PlanningWindow,
+        invalidation_generation: int,
+        knowledge_engine: DJKnowledgeEngine,
+    ) -> PreparedKnowledge:
+        """Submit one eligible requirement without retrieval, queuing or caching."""
+        request = KnowledgePrefetchRequest.from_prefetch(
+            prefetch, subject_projection=subject_projection
+        )
+        active = any(
+            candidate == prefetch
+            and candidate.status is KnowledgePrefetchStatus.PLANNED
+            and candidate.planning_generation == window.generation
+            and candidate.invalidation_generation == invalidation_generation
+            for candidate in window.knowledge_prefetches
+        )
+        if not active:
+            return PreparedKnowledge(
+                request.request_id,
+                request.planning_generation,
+                request.knowledge_category,
+                PreparedKnowledgeStatus.SUPERSEDED,
+            )
+        if prefetch.target_intent.status is not PlannedIntentStatus.PLANNED:
+            return PreparedKnowledge(
+                request.request_id,
+                request.planning_generation,
+                request.knowledge_category,
+                PreparedKnowledgeStatus.CANCELLED,
+            )
+        return knowledge_engine.execute_prefetch(request)
 
 
 def _knowledge_fields_for_intent(
