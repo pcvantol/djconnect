@@ -4,8 +4,8 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#298](https://github.com/pcvantol/djconnect/pull/298), merged as
-`dca7c85b61a3e001c3b642bd33536b9f4ca35455`, is reconciled by this dedicated
+PR [#300](https://github.com/pcvantol/djconnect/pull/300), merged as
+`822468e10527aa07895a802c99fbcde7eeccd98c`, is reconciled by this dedicated
 Finalization. Recovery Cells 1–4 remain complete.
 Planner-owned Flow Revision/Change Journal and Broadcast-owned Delivery
 Sequence, snapshot watermark, bounded internal Replay Log and immutable
@@ -15,9 +15,9 @@ replay cannot be completed, Broadcast returns a fresh authorized snapshot.
 HTTP Flow delta, public replay/query APIs, persistence, cross-Session replay
 and renderer-specific recovery remain deferred.
 
-PR #298 establishes the **Persistent Session Lifecycle Store** with only
-Profile-owned aggregate identity and lifecycle transitions. It adds no
-historical projections, startup recovery, Flow or Broadcast persistence.
+PR #300 establishes **Persistent Session Startup Reconciliation** with
+deterministic interruption only. It adds no Runtime resume, provider validation,
+historical projection, Flow or Broadcast persistence.
 
 Spotify Direct Live Playback Observation Stage 1, Knowledge Engine `KE-2.2`
 and Planner `PL-4.1` are current. Music Assistant Stage 1, Continue Stage 2,
@@ -64,6 +64,7 @@ planning is read.
 
 | Prompt | Lifecycle | Coherent objective | Branch | Completion evidence |
 | --- | --- | --- | --- | --- |
+| Persistent Session Startup Reconciliation | Completed / merged reconciled / archived | Deterministically interrupt non-terminal durable Sessions on startup without Runtime or provider recovery. | `codex/persistent-session-startup-reconciliation` | `docs/history/prompts/2026-07-21-persistent-session-startup-reconciliation.md`; PR [#300](https://github.com/pcvantol/djconnect/pull/300), merged as `822468e10527aa07895a802c99fbcde7eeccd98c`. |
 | Persistent Session Lifecycle Store | Completed / merged reconciled / archived | Persist Profile-owned Session identity and bounded lifecycle transitions without historical projection or restart recovery. | `codex/persistent-session-lifecycle-resume` | `docs/history/prompts/2026-07-21-persistent-session-lifecycle-store.md`; PR [#298](https://github.com/pcvantol/djconnect/pull/298), merged as `dca7c85b61a3e001c3b642bd33536b9f4ca35455`. |
 | Persistence Foundation Validation Hardening | Completed / merged reconciled / archived | Complete the applicable Persistence Foundation evidence matrix, reject incomplete metadata safely and serialize bootstrap without product persistence. | `codex/persistence-foundation-test-hardening` | `docs/history/prompts/2026-07-21-persistence-foundation-validation-hardening.md`; PR [#296](https://github.com/pcvantol/djconnect/pull/296), merged as `5e0d1c1ba550afb57e2d8da5b40c0d2a7dcfb741`. |
 | Persistence Schema Lifecycle Hardening | Completed / merged reconciled / archived | Harden immutable migration identity, ordered history validation, supported upgrade paths and safe SQLite schema validation without product tables. | `codex/persistence-schema-lifecycle-hardening` | `docs/history/prompts/2026-07-21-persistence-schema-lifecycle-hardening.md`; PR [#294](https://github.com/pcvantol/djconnect/pull/294), merged as `9996f04c5ac13e35dc4930abb74f746e55bc167d`. |

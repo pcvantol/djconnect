@@ -15,8 +15,8 @@
 
 ## Current position
 
-PR [#298](https://github.com/pcvantol/djconnect/pull/298) merged as
-`dca7c85b61a3e001c3b642bd33536b9f4ca35455`. This dedicated governance-only
+PR [#300](https://github.com/pcvantol/djconnect/pull/300) merged as
+`822468e10527aa07895a802c99fbcde7eeccd98c`. This dedicated governance-only
 Finalization reconciles its status to `MERGED_RECONCILED`: every implementation
 capability must pass
 Pre-Flight, Implementation, Validation, Merge and Finalization. Only `GO`
