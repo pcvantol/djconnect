@@ -28,13 +28,15 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current main contains PR [#342](https://github.com/pcvantol/djconnect/pull/342),
-**Planning Runtime Coordinator**, merged as
-`dac3ab0abf5b0d7cd047c035619fb72fc462861b`. This bounded runtime-only
-coordinator invokes the existing planning, prefetch, readiness and approval
-lifecycle while preserving the established Track Started path as fallback. It
-adds no Planner, Knowledge, Moment, provider, persistence, transport or
-renderer capability. Its dedicated Finalization is current. Repository State:
+Current main contains PR [#344](https://github.com/pcvantol/djconnect/pull/344),
+**Primary Planning Pipeline Activation**, merged as
+`c3f3bada3d3a0692a8d2562eb68295331e76c1f3`. The bounded Runtime coordinator
+now makes the existing planning, prefetch, readiness, approval, Prepared
+Knowledge resolution and Moment-realization lifecycle authoritative whenever a
+valid planning result exists. The established Track Started route remains its
+explicit deterministic fallback. No Planner, Knowledge, Moment, provider,
+persistence, transport or renderer capability was added. Its dedicated
+Finalization is current. Repository State:
 `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 The preceding PR #313,

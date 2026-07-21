@@ -15,12 +15,13 @@
 
 ## Current position
 
-PR [#342](https://github.com/pcvantol/djconnect/pull/342) merged as
-`dac3ab0abf5b0d7cd047c035619fb72fc462861b`. It adds a bounded, ephemeral
-Runtime coordinator that drives the existing planning lifecycle while retaining
-the current Track Started orchestration as the explicit fallback. No Planner,
-Knowledge, Moment, provider, persistence, transport or renderer scope was
-added. This is its dedicated governance-only Finalization. Repository State:
+PR [#344](https://github.com/pcvantol/djconnect/pull/344) merged as
+`c3f3bada3d3a0692a8d2562eb68295331e76c1f3`. It activates the existing bounded,
+ephemeral Planning lifecycle as the primary Track Started path: Planner approval,
+Prepared Knowledge resolution and existing Moment realization now precede the
+established deterministic fallback. No Planner, Knowledge, Moment, provider,
+persistence, transport or renderer scope was added. This is its dedicated
+governance-only Finalization. Repository State:
 `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 PR #315 merged as
