@@ -14,7 +14,9 @@ Lab or Deferred. `ROADMAP_INDEX.md` owns cross-program navigation.
 | Product Definition and Community/Personal proposition | Completed | `docs/product/PRODUCT_DEFINITION.md` | 1 |
 | DJConnect v4 Architecture Definition | Completed | Architecture Review; `DJCONNECT_V4_ARCHITECTURE.md` | 2 |
 | DJ Session Runtime Contracts | Completed | v4 Architecture Definition; `DJ_SESSION_RUNTIME_CONTRACTS.md` | 3 |
-| First Runtime Production Slice | Planned | DJ Session Runtime Contracts | 4 |
+| Persistent Session Architecture | Completed | DJ Session Runtime Contracts; `PERSISTENT_SESSION_ARCHITECTURE.md` | 4 |
+| Persistent Session Foundation | Planned | Persistent Session Architecture | 5 |
+| First Runtime Production Slice | Planned | DJ Session Runtime Contracts | 5 |
 | Profile convergence | Planned | First Runtime Production Slice and privacy contracts | 5 |
 | Session Planner and Session Flow | Planned | First Runtime Production Slice; Music Backend capability contract | 6 |
 | Playback Experience | Planned | Session Flow and Music Backend capability contract | 7 |

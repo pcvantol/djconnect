@@ -13,6 +13,7 @@ Use this index to find the one canonical record for current work.
 | Engineering-platform improvements | `PLATFORM_EVOLUTION_BACKLOG.md` | Platform Evolution |
 | Live Playback Observation, Continue Current Playback Continuity and external capability dependencies | `docs/product/DJ_INTELLIGENCE_MATURITY.md` (canonical maturity, blocked status and planning policy), `docs/product/LIVE_PLAYBACK_OBSERVATION.md`, `docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`, `docs/adr/0016-playback-instance-identity-observation-boundary.md` | DJConnect Product Development |
 | DJ Session transport independence, HTTP recovery and transport-neutral Broadcast delivery | `DJ_SESSION_TRANSPORT_ARCHITECTURE.md` | DJConnect Product Development |
+| Durable Session lifecycle, historical DJMoment projections and future local persistence sequencing | `PERSISTENT_SESSION_ARCHITECTURE.md` | DJConnect Product Development |
 | Future ideas and research | `INNOVATION_LAB.md`, `INNOVATION_BACKLOG.md` | Innovation Lab |
 | Innovation promotion rules | `INNOVATION_PROMOTION_POLICY.md` | Innovation Lab |
 | Current operational release position | `docs/release/PLATFORM_RELEASE_MANAGEMENT_SUMMARY.md` | Platform Release operations |

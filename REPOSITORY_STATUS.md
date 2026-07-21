@@ -28,13 +28,13 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current main contains PR [#284](https://github.com/pcvantol/djconnect/pull/284),
-**Add authorized WebSocket recovery**, merged on 2026-07-21 as
-`01e0756c3745a57b63857d71ece57cbeabfbbaf4`. This dedicated Finalization
-reconciles its merged implementation to `MERGED_RECONCILED`. PR #284 passed
-host qualification, focused Runtime/Broadcast/WebSocket regression, the full
-unit suite, Ruff, diff validation and all required GitHub checks after its
-capability-contract correction.
+Current main contains PR [#285](https://github.com/pcvantol/djconnect/pull/285),
+**Finalize authorized WebSocket recovery**, merged on 2026-07-21 as
+`150d270f2448f88bf7a3baae6e00af5221e06ae5`. It reconciles PR #284 to
+`MERGED_RECONCILED`. PR #284 passed host qualification, focused
+Runtime/Broadcast/WebSocket regression, the full unit suite, Ruff, diff
+validation and all required GitHub checks after its capability-contract
+correction.
 
 The preceding Broadcast baseline remains PR [#280](https://github.com/pcvantol/djconnect/pull/280),
 **Add Broadcast recovery cursor**, merged as
@@ -71,8 +71,10 @@ in `docs/product/DJ_INTELLIGENCE_MATURITY.md`.
 HTTP Flow delta, public replay/query APIs, reconnect continuation,
 acknowledgements, duplicate/out-of-order correction, persistence,
 cross-Session replay, Universal Receiver recovery and standalone Session
-resources remain separately deferred. Any next production capability requires
-a new Pre-Flight from the reconciled baseline.
+resources remain separately deferred. PR [#286](https://github.com/pcvantol/djconnect/pull/286)
+is the `REVIEWABLE_FROZEN` Persistent Session Architecture amendment; it does
+not authorize a storage or Runtime change. Any future production capability
+requires a new Pre-Flight from its reconciled baseline.
 
 Engineering Platform operational after Platform Baseline v1.0 certification
 and Software Assurance Generation 1 closure. DJConnect Product Development is

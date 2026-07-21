@@ -21,23 +21,28 @@ layer, migration path, or transitional architecture solely for v3 support.
 ```text
 Profile (persistent)
   -> exactly one Music Backend binding
-  -> Music DNA, settings, preferences and conversation/session history
-  -> starts or joins DJ Sessions
+  -> Music DNA, settings, preferences and conversation history
+  -> persistent DJ Sessions and Session History
+
+DJ Session (persistent lifecycle aggregate)
+  -> one immutable owner Profile and durable historical projections
+  -> may have one ephemeral execution
 
 DJ Session Runtime (ephemeral, server-owned)
   -> Playback Context
   -> Session Planner
   -> DJ Moment Engine
   -> Conversation Engine
-  -> Session Memory and Session Flow
+  -> live Session Memory and Session Flow
   -> Broadcast Engine and Audience Signals
   -> active Runtime State
 ```
 
-A Profile owns persistent identity and long-term state. A Session Runtime owns
-only the active listening experience. The Runtime ends with the session; only
-permitted durable outcomes are written back to the owning Profile. A Music
-Backend belongs to a Profile, never to a DJ Session.
+A Profile owns persistent identity and long-term state. A persistent DJ Session
+owns its lifecycle and permitted historical renderer-safe outcomes. A Session
+Runtime owns only the active listening experience and ends with its execution;
+it is never restored as an object. A Music Backend belongs to a Profile, never
+to a DJ Session.
 
 The v4 ownership chain is strict: Profile owns identity and history; Runtime
 owns the present; Planner owns the future; the DJ Moment Engine owns creative
@@ -144,3 +149,5 @@ planner, persistent profile state or broadcast semantics locally.
 capability contract for this architecture.
 `SESSION_FLOW_RECOVERY_ARCHITECTURE.md` is the canonical recovery-identity
 amendment for future Flow delta and Broadcast replay capabilities.
+`PERSISTENT_SESSION_ARCHITECTURE.md` is the canonical durable Session boundary,
+lifecycle, historical projection and future persistence roadmap.

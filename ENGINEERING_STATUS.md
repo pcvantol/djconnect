@@ -5,15 +5,19 @@
 
 ## Current engineering increment
 
-PR [#284](https://github.com/pcvantol/djconnect/pull/284), **Add authorized
-WebSocket recovery**, merged on 2026-07-21 as
-`01e0756c3745a57b63857d71ece57cbeabfbbaf4`. It is now
-`MERGED_UNRECONCILED`; this Finalization reconciles its rolling records,
-immutable Prompt History and recovery architecture evidence. Every
-implementation capability uses the mandatory Pre-Flight → Implementation →
-Validation → Merge → Finalization lifecycle. Pre-Flight ends in `GO` or
-`NO-GO`; `MERGED_UNRECONCILED` permits only this governance-only Finalization
-increment.
+PR [#285](https://github.com/pcvantol/djconnect/pull/285), **Finalize
+authorized WebSocket recovery**, merged on 2026-07-21 as
+`150d270f2448f88bf7a3baae6e00af5221e06ae5`. It reconciles PR #284 and restores
+`MERGED_RECONCILED`. PR [#286](https://github.com/pcvantol/djconnect/pull/286),
+**Define Persistent Session Architecture**, is `REVIEWABLE_FROZEN` on
+`codex/persistent-session-architecture`. It defines durable Profile-owned
+Session truth while preserving the ephemeral Runtime and Broadcast contracts;
+it authorizes no storage or Runtime implementation.
+
+Every implementation capability uses the mandatory Pre-Flight → Implementation
+→ Validation → Merge → Finalization lifecycle. Pre-Flight ends in `GO` or
+`NO-GO`; a merged implementation remains `MERGED_UNRECONCILED` until its
+separate governance-only Finalization is merged.
 
 Transport Cells 1–4 and Recovery Cells 1–4 are current. The Planner owns
 semantic Flow Revision and its immutable Runtime-scoped Change Journal.
@@ -190,5 +194,6 @@ separate explicitly authorized operational action.
 
 ## Recommended next prompt
 
-After this reconciliation is merged, synchronize current main and select one
-explicitly bounded next cell; do not infer a Transport Cell 4 or PL-4.2.
+After the Persistent Session Architecture and its Finalization have merged,
+start only its first bounded roadmap item: Persistence Foundation. Do not infer
+SQLite schema, Session writes, recovery, projection storage or voice work.

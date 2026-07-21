@@ -4,8 +4,9 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#284](https://github.com/pcvantol/djconnect/pull/284), merged as
-`01e0756c3745a57b63857d71ece57cbeabfbbaf4`, completes Recovery Cell 4.
+PR [#285](https://github.com/pcvantol/djconnect/pull/285), merged as
+`150d270f2448f88bf7a3baae6e00af5221e06ae5`, finalizes PR #284 and restores
+`MERGED_RECONCILED`. Recovery Cell 4 is complete.
 Planner-owned Flow Revision/Change Journal and Broadcast-owned Delivery
 Sequence, snapshot watermark, bounded internal Replay Log and immutable
 owner-scoped Recovery Cursor are current. An authorized owner WebSocket may
@@ -13,6 +14,13 @@ use the existing opaque cursor to replay the bounded active Runtime log; when
 replay cannot be completed, Broadcast returns a fresh authorized snapshot.
 HTTP Flow delta, public replay/query APIs, persistence, cross-Session replay
 and renderer-specific recovery remain deferred.
+
+PR [#286](https://github.com/pcvantol/djconnect/pull/286), **Persistent Session
+Architecture**, is `REVIEWABLE_FROZEN`. It is a bounded architecture and
+roadmap amendment only: it defines the Profile-owned durable Session boundary
+while preserving ephemeral Runtime and Broadcast ownership. It does not
+authorize SQLite, persistence, migrations, restart recovery, historical
+storage, backup/restore, TTS replay or renderer work.
 
 Spotify Direct Live Playback Observation Stage 1, Knowledge Engine `KE-2.2`
 and Planner `PL-4.1` are current. Music Assistant Stage 1, Continue Stage 2,
@@ -59,6 +67,7 @@ planning is read.
 
 | Prompt | Lifecycle | Coherent objective | Branch | Completion evidence |
 | --- | --- | --- | --- | --- |
+| Persistent Session Architecture | Completed / reviewable frozen | Define the durable Profile-owned DJ Session lifecycle, renderer-safe historical projection boundary, persistence/backup/export ownership and bounded implementation sequence without production changes. | `codex/persistent-session-architecture` | PR [#286](https://github.com/pcvantol/djconnect/pull/286); full unit suite, Ruff, diff check and host qualification passed. |
 | Engineering Workflow Alignment | Completed | Establish the mandatory canonical AI-native engineering workflow without implementation changes. | `codex/engineering-workflow-alignment` | `docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md`; PR [#107](https://github.com/pcvantol/djconnect/pull/107) |
 | Engineering Method V2 Governance Alignment | Completed | Establish repository-driven V2 onboarding, reality verification, prompt archival and hygiene without implementation or architecture changes. | `codex/engineering-method-v2` | `docs/history/prompts/2026-07-14-engineering-method-v2.md`; PR [#114](https://github.com/pcvantol/djconnect/pull/114) |
 | Engineering Method V2.3 Repository Synchronization | Completed | Make synchronized current main and current-main verification mandatory before repository reading and planning; no implementation or architecture changes. | `codex/engineering-method-v2-3` | `docs/history/prompts/2026-07-14-engineering-method-v2-3.md`; PR [#118](https://github.com/pcvantol/djconnect/pull/118) |
