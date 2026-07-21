@@ -182,11 +182,13 @@ Perform this procedure in order:
    is contained in current `main`.
 5. Verify its corresponding remote implementation branch has already been
    removed when repository policy requires automatic remote cleanup.
-6. Verify the local implementation branch belongs to that completed
-   capability, is fully merged, has no unpublished commits and is not checked
-   out; only then delete that one local branch without force.
-7. Prune obsolete remote-tracking references.
-8. Verify `WORKSPACE_READY`.
+6. Verify the local implementation branch belongs to that completed capability,
+   has no unpublished commits and is not checked out. A topologically merged
+   branch may then be deleted without force.
+7. For a squash-merged branch that is not a Git ancestor of canonical `main`,
+   apply the Squash-Merge Cleanup Exception below before deletion.
+8. Prune obsolete remote-tracking references.
+9. Verify `WORKSPACE_READY`.
 
 If any verification fails, do not delete the branch. Report the blocking
 condition and leave Workspace State `NOT_READY` until it is resolved.
@@ -195,6 +197,28 @@ The cleanup report is deterministic and records: current branch, working tree,
 repository synchronization, completed capability branch, remote branch status,
 local branch deletion, remote prune, Repository State, Workspace State and the
 final `READY` or `NOT READY` decision.
+
+### Squash-Merge Cleanup Exception
+
+A completed implementation branch may be removed after a squash merge even
+when it is not topologically merged. This exception applies only to the branch
+unambiguously associated with the completed capability and requires a merged
+PR, absent remote branch, clean working tree, non-checked-out branch and no
+unpublished work.
+
+Patch equivalence is determined only with:
+
+```sh
+git cherry -v <canonical-main> <implementation-branch>
+```
+
+Every branch-only commit must have a leading `-`, meaning Git found an
+equivalent patch on canonical main. A `+`, failed comparison, ambiguous PR
+association or failed verification blocks deletion. When all checks pass,
+deletion is authorized despite non-ancestry; this is evidence-based cleanup,
+not forced deletion. Report PR merge, remote absence, patch equivalence,
+unpublished work, deletion result and Workspace State; otherwise preserve the
+branch and require manual attention.
 
 ## Reality before planning
 

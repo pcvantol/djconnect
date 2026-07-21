@@ -77,6 +77,8 @@ Before production implementation, independently verify Repository State
 `ENGINEERING_METHOD.md`. `WORKSPACE_READY` requires canonical `main`,
 synchronized `origin/main`, a clean working tree, removal of the just-completed
 local implementation branch and pruned obsolete remote-tracking references.
+The completed branch may be topologically merged or satisfy the Squash-Merge
+Cleanup Exception in `ENGINEERING_METHOD.md`.
 Workspace cleanup is not repository reconciliation. If either required state
 is absent or cannot be verified, the decision is `NO-GO`.
 

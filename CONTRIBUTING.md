@@ -44,6 +44,8 @@ python3 -m unittest tests.test_config_flow_helpers tests.test_translations
 ## Contribution Guidelines
 
 - Keep changes focused and scoped to the requested behavior.
+- After a completed capability, use canonical Workspace Cleanup; squash merges
+  require its recorded patch-equivalence verification.
 - Preserve the architecture split: Home Assistant owns OAuth, backend playback, Assist/TTS/STT orchestration and OTA; clients and firmware should not receive Spotify credentials.
 - Keep active voice routes on Home Assistant Assist/TTS. Do not add direct external AI/STT/TTS APIs to active runtime paths.
 - Redact secrets in diagnostics and avoid logging full token/password payloads.
