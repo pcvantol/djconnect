@@ -5,7 +5,11 @@
 
 ## Current engineering increment
 
-PR [#321](https://github.com/pcvantol/djconnect/pull/321), **Planner Intent
+PR [#323](https://github.com/pcvantol/djconnect/pull/323), **Mood and Direction
+Intent Selection**, merged as `a2e394bc92beb42de596eb613327678615d5abbf`.
+This dedicated Finalization reconciles its bounded internal selection rules.
+
+PR #321, **Planner Intent
 Selection**, merged as `65802d48720474c53a02a57535e3edb303a91630`. This
 dedicated Finalization reconciles the bounded internal selector.
 
