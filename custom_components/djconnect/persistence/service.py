@@ -47,6 +47,14 @@ class PersistenceTransaction:
         """Run one repository-owned statement inside the platform transaction."""
         self._transaction.execute(statement, parameters)
 
+    def fetchone(self, statement: str, parameters: tuple[object, ...] = ()) -> tuple[object, ...] | None:
+        """Read one repository row without exposing a provider connection."""
+        return self._transaction.fetchone(statement, parameters)
+
+    def fetchall(self, statement: str, parameters: tuple[object, ...] = ()) -> list[tuple[object, ...]]:
+        """Read bounded repository rows without exposing a provider connection."""
+        return self._transaction.fetchall(statement, parameters)
+
 
 class PersistenceRepository:
     """Base infrastructure for future domain repositories.
