@@ -248,6 +248,7 @@ class PlaybackObservationTest(unittest.TestCase):
         current_pr = current_increment.group("number")
         current_commit = current_increment.group("commit")
         for name in (
+            "ENGINEERING_STATUS.md",
             "REPOSITORY_STATUS.md",
             "MANAGEMENT_SUMMARY.md",
             "PROMPT_INDEX.md",
@@ -255,7 +256,12 @@ class PlaybackObservationTest(unittest.TestCase):
             contents = (ROOT / name).read_text()
             self.assertIn(f"PR [#{current_pr}]", contents)
             self.assertIn(current_commit, contents)
-            self.assertIn("MERGED_UNRECONCILED", contents)
+            self.assertRegex(
+                contents, r"Repository\s+State:\s*`MERGED_RECONCILED`"
+            )
+            self.assertRegex(
+                contents, r"Workspace\s+State:\s*`WORKSPACE_READY`"
+            )
 
     def test_media_identity_never_enters_public_runtime_representation(self) -> None:
         session = self._start()

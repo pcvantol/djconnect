@@ -6,8 +6,8 @@ Status: canonical prompt navigation
 
 PR [#325](https://github.com/pcvantol/djconnect/pull/325), merged as
 `1d71c34d14773e3a0abdc467034dc06ac713c009`, is the current merged
-implementation. Repository State is `MERGED_UNRECONCILED` until its dedicated
-Finalization merges. Its Prompt History is
+implementation. Its dedicated Finalization, PR #326, is merged. Repository
+State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`. Its Prompt History is
 `docs/history/prompts/2026-07-21-performance-memory-intent-selection.md`.
 
 PR #315, merged as
