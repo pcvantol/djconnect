@@ -5,9 +5,9 @@
 
 ## Current engineering increment
 
-PR [#340](https://github.com/pcvantol/djconnect/pull/340), **Prepared Knowledge
-Consumption**, merged as `4c2ad40141a9a094c68d8c955837f0371a0135be`. Its
-dedicated Finalization reconciles the bounded Knowledge Engine consumption path.
+PR [#342](https://github.com/pcvantol/djconnect/pull/342), **Planning Runtime
+Coordinator**, merged as `dac3ab0abf5b0d7cd047c035619fb72fc462861b`. Its
+dedicated Finalization reconciles the bounded Runtime orchestration boundary.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 PR #323, **Mood and Direction
