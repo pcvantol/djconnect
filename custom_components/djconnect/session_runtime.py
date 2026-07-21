@@ -2173,7 +2173,11 @@ def session_runtime_manager(hass: Any) -> SessionRuntimeManager:
     domain_data = hass.data.setdefault(DOMAIN, {})
     manager = domain_data.get("session_runtime_manager")
     if manager is None:
-        manager = SessionRuntimeManager(PersistentSessionRepository(persistence_service(hass)))
+        try:
+            sessions = PersistentSessionRepository(persistence_service(hass))
+        except RuntimeError:
+            sessions = None
+        manager = SessionRuntimeManager(sessions)
         domain_data["session_runtime_manager"] = manager
     return manager
 
