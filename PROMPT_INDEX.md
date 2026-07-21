@@ -4,12 +4,12 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#336](https://github.com/pcvantol/djconnect/pull/336), merged as
-`a2934f3ae035f4424756b05bfde21d9bd6a0e383`, is the current merged
+PR [#338](https://github.com/pcvantol/djconnect/pull/338), merged as
+`f34f6a40cf36758f29fe181c8a8e871343336ba7`, is the current merged
 implementation. Its dedicated Finalization reconciles the rolling records.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 Its Prompt History is
-`docs/history/prompts/2026-07-21-knowledge-prefetch-execution-boundary.md`.
+`docs/history/prompts/2026-07-21-planning-readiness-evaluation.md`.
 
 PR #315, merged as
 `6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`, is the current merged
