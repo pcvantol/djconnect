@@ -85,6 +85,7 @@ from .const import (
 from .central_api import async_ensure_install_token, ensure_ha_install_id
 from .http import (
     DJConnectCommandView,
+    DJConnectTransportCapabilitiesView,
     DJConnectAskDjHistoryClearView,
     DJConnectAskDjHistoryExportView,
     DJConnectAskDjHistoryView,
@@ -1749,6 +1750,7 @@ def register_http_views(hass: HomeAssistant) -> None:
             DJConnectPushUnregisterView(hass),
             DJConnectPairView(hass),
             DJConnectStatusView(hass),
+            DJConnectTransportCapabilitiesView(hass),
             DJConnectSessionStartView(hass),
             DJConnectSessionEndView(hass),
             DJConnectActiveSessionView(hass),

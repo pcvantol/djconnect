@@ -13,6 +13,13 @@ integration setup and config-entry setup. The config-entry registration keeps
 the existing `/api/djconnect/v1/...` routes available when Home Assistant
 restores an entry through an entry-first startup path.
 
+`CONFIRMED_CODE` `GET /api/djconnect/v1/capabilities` exposes the implemented
+DJ Session Broadcast transport contract. It is discovery only: it reports the
+owner HTTP snapshot and authenticated WebSocket subscription as available,
+snapshot recovery as supported, and replay, cursor, Flow delta and sequence as
+unsupported. It shares its declaration with the WebSocket capability response;
+it neither grants owner access nor changes transport behaviour.
+
 `CONFIRMED_CODE` Most DJConnect HA views set `requires_auth = False` and perform
 DJConnect bearer/device validation inside the handler. Voice debug is the
 exception observed with `requires_auth = True`.

@@ -7,6 +7,7 @@ VERSION = "3.3.1"
 CONF_LAST_PUSH_STATUS = "last_push_status"
 
 API_BASE = "/api/djconnect/v1"
+API_CAPABILITIES = f"{API_BASE}/capabilities"
 API_PAIR = f"{API_BASE}/pair"
 API_VOICE = f"{API_BASE}/voice"
 API_COMMAND = f"{API_BASE}/command"

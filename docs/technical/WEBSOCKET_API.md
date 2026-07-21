@@ -19,6 +19,11 @@ The machine-readable command inventory is
 - contract versions
 - `transports: {http: true, websocket: true}`
 
+Its Session Broadcast fallback metadata and HTTP
+`GET /api/djconnect/v1/capabilities` derive from the same transport-independent
+declaration. Current discovery explicitly reports snapshot recovery only;
+replay, cursor, Flow delta and sequence remain unsupported.
+
 `CONFIRMED_CODE` Websocket command handlers call the same payload handlers as
 the HTTP routes for command, Ask DJ, Music DNA, Music Discovery and Track
 Insight.
