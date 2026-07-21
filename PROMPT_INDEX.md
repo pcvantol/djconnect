@@ -4,10 +4,9 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#356](https://github.com/pcvantol/djconnect/pull/356), **Fix Home Assistant
-HTTP View Registration**, merged as `d62fd2d41b8a2896cc1b6fe4f12cf3fdaacec8f7`.
-This dedicated Finalization reconciles its repair record and immutable Prompt
-History.
+PR [#358](https://github.com/pcvantol/djconnect/pull/358), **Universal Receiver
+V1 — Session Flow Timeline Rendering**, merged as `25be97ae7bf79c1026cec6a5c29096b2a852276a`. This dedicated Finalization
+reconciles its completed capability record and immutable Prompt History.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:
@@ -16,9 +15,11 @@ intelligence prompts must extend that lifecycle rather than introduce another
 Runtime pipeline. Audience Intelligence remains intentionally deferred.
 
 PR #350 established Universal Receiver V1 as the primary active architectural
-Epic. PR #354 now provides its first operational browser renderer: a passive,
-stateless view of existing Broadcast snapshots and incremental events. Further
-browser experience capability remains separately authorized.
+Epic. Capability 1 (PR #354) and Capability 2 (PR #358) are complete. The
+passive, stateless Receiver renders existing renderer-safe Broadcast snapshots
+and incremental Session Flow updates in server-defined order, reconstructing
+only from snapshots on reconnect or reset. Further browser experience
+capability remains separately authorized.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 Its Prompt History is
 `docs/history/prompts/2026-07-21-universal-receiver-server-architecture.md`.

@@ -5,10 +5,9 @@
 
 ## Current engineering increment
 
-PR [#356](https://github.com/pcvantol/djconnect/pull/356), **Fix Home Assistant
-HTTP View Registration**, merged as `d62fd2d41b8a2896cc1b6fe4f12cf3fdaacec8f7`.
-This dedicated Finalization reconciles its repair record and immutable Prompt
-History.
+PR [#358](https://github.com/pcvantol/djconnect/pull/358), **Universal Receiver
+V1 — Session Flow Timeline Rendering**, merged as `25be97ae7bf79c1026cec6a5c29096b2a852276a`. This dedicated Finalization
+reconciles its completed capability record and immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
 is now the canonical execution engine for all supported Track Started decisions:
@@ -18,11 +17,13 @@ bounded runtime protection for lifecycle failure only. Ownership is stable;
 future intelligence work must extend these existing abstractions rather than
 introduce another Runtime pipeline.
 
-Universal Receiver V1 is the primary active architectural Epic. Its first
-operational, stateless Web Renderer Host now consumes existing renderer-safe
-Broadcast snapshots and incremental events. It has no browser Runtime
-ownership, controls, polling, persistence, authentication redesign or second
-transport.
+Universal Receiver V1 remains the primary active architectural Epic.
+Capability 1, **Broadcast Connection and Session Rendering**, is complete.
+Capability 2, **Session Flow Timeline Rendering**, is complete: the passive
+Receiver renders only renderer-safe Broadcast projections and replaces the
+server-owned Session Flow from snapshots, live updates, resets and reconnects.
+No Runtime, Planner, Knowledge, Session Flow or Broadcast ownership changed;
+no polling, browser authority, HTTP endpoint or WebSocket channel was added.
 Experience delivery is next; Audience Intelligence remains intentionally
 deferred.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
