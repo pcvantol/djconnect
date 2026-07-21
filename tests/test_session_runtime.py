@@ -137,7 +137,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertIn(
             ("silence", 0, 60), created.planner.horizon.consumed_slot_keys
         )
-        self.assertIsNone(created.planner.last_decision)
+        self.assertEqual(created.planning_coordinator.last_approval_source, "planned_intent")
         self.assertEqual(created.planner.output.session_flow.items[-1].moment_id, moment.moment_id)
         self.assertEqual(created.broadcast.state.dj_moments[-1], moment)
 
@@ -179,7 +179,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertEqual(created.planning_coordinator.last_approval_source, "planned_intent")
         self.assertEqual(created.planner.horizon.consumed_slot_keys, (("artist_story", 0, 60),))
         self.assertEqual(created.knowledge_engine.assembled_contexts[-1].sources, ("prepared_knowledge",))
-        self.assertIsNone(created.planner.last_decision)
+        self.assertEqual(created.planning_coordinator.last_approval_source, "planned_intent")
         self.assertEqual(created.planner.output.session_flow.items[-1].moment_id, moment.moment_id)
         self.assertEqual(created.broadcast.state.dj_moments[-1], moment)
 
@@ -2016,12 +2016,12 @@ class SessionRuntimeManagerTest(unittest.TestCase):
 
     def test_runtime_uses_one_insight_for_contextual_planner_intents(self) -> None:
         cases = (
-            ("artist", self.runtime.SessionStartStrategy.MANUAL, {"producer": "Producer"}, self.runtime.DJMomentType.ARTIST, "track", "producer"),
-            ("album", self.runtime.SessionStartStrategy.MANUAL, {"release_year": "1998"}, self.runtime.DJMomentType.ALBUM, "track", "release_year"),
-            ("genre", self.runtime.SessionStartStrategy.MANUAL, {}, self.runtime.DJMomentType.GENRE, "analysis", "genre"),
-            ("recommendation", self.runtime.SessionStartStrategy.DISCOVER, {"related_tracks": "Angel"}, self.runtime.DJMomentType.RECOMMENDATION, "track", "related_tracks"),
+            ("artist", self.runtime.SessionStartStrategy.MANUAL, {"producer": "Producer"}, self.runtime.DJMomentType.ARTIST, "track", "artist", "Massive Attack"),
+            ("album", self.runtime.SessionStartStrategy.MANUAL, {"release_year": "1998"}, self.runtime.DJMomentType.ALBUM, "track", "album", "Mezzanine"),
+            ("genre", self.runtime.SessionStartStrategy.MANUAL, {}, self.runtime.DJMomentType.GENRE, "analysis", "genre", "trip-hop"),
+            ("recommendation", self.runtime.SessionStartStrategy.DISCOVER, {"related_tracks": "Angel"}, self.runtime.DJMomentType.RECOMMENDATION, "track", "related_tracks", "Angel"),
         )
-        for name, strategy, metadata, expected_type, evidence_source, evidence_key in cases:
+        for name, strategy, metadata, expected_type, evidence_source, evidence_key, evidence_value in cases:
             with self.subTest(name=name):
                 manager = self.runtime.SessionRuntimeManager()
                 created = asyncio.run(
@@ -2061,8 +2061,15 @@ class SessionRuntimeManagerTest(unittest.TestCase):
                 assert moment is not None
                 self.assertEqual(calls, 1)
                 self.assertEqual(moment.moment_type, expected_type)
+                window = created.planner.horizon.planning_window
+                assert window is not None
+                self.assertEqual(created.planning_coordinator.last_lifecycle_state, "completed")
+                self.assertEqual(created.planning_coordinator.last_approval_source, "planned_intent")
+                self.assertEqual(window.observable_coverage_seconds, 0)
+                self.assertEqual(window.planning_coverage_seconds, 0)
+                self.assertTrue(any(slot.is_current_track for slot in window.candidate_slots))
                 context = created.knowledge_engine.assembled_contexts[-1].as_insight()
-                self.assertIn(evidence_key, context[evidence_source])
+                self.assertEqual(context[evidence_source][evidence_key], evidence_value)
                 self.assertEqual(
                     moment.knowledge_intent.intent_type.value,
                     expected_type.value + "_story" if expected_type is not self.runtime.DJMomentType.RECOMMENDATION else "recommendation",
@@ -2074,6 +2081,38 @@ class SessionRuntimeManagerTest(unittest.TestCase):
                 self.assertEqual(
                     created.broadcast.as_dict()["dj_moments"][-1]["moment_id"], moment.moment_id
                 )
+
+    def test_current_track_candidate_is_not_consumed_until_publication_succeeds(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-publication"))
+
+        async def insight() -> dict:
+            return {
+                "track": {"title": "Track", "artist": "Artist", "producer": "Producer"},
+                "analysis": {"summary": "Safe summary.", "full_text": "Safe content."},
+            }
+
+        def fail_publication(*_args, **_kwargs) -> None:
+            raise RuntimeError("publication failed")
+
+        object.__setattr__(created, "publish_moment", fail_publication)
+        with self.assertRaisesRegex(RuntimeError, "publication failed"):
+            asyncio.run(
+                manager.async_process_track_started(
+                    owner_profile_id=created.owner_profile_id,
+                    session_id=created.session_id,
+                    insight_provider=insight,
+                )
+            )
+
+        horizon = created.planner.horizon
+        assert horizon is not None and horizon.planning_window is not None
+        self.assertEqual(horizon.consumed_slot_keys, ())
+        self.assertEqual(
+            horizon.planning_window.planned_intents[0].status,
+            self.runtime.PlannedIntentStatus.APPROVED,
+        )
+        self.assertIsNotNone(created.planning_coordinator.last_realized_intent)
 
     def test_runtime_performance_memory_prevents_repeated_discover_recommendation(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
@@ -2429,8 +2468,9 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         moment = asyncio.run(manager.async_process_track_started(owner_profile_id="profile-a", session_id=created.session_id, insight_provider=insight))
         assert moment is not None
         context = created.knowledge_engine.assembled_contexts[0]
-        self.assertEqual(dict(context.track)["title"], "Track")
-        self.assertEqual(dict(context.track)["producer"], "Producer")
+        self.assertEqual(dict(context.track)["artist"], "Artist")
+        self.assertNotIn("title", dict(context.track))
+        self.assertNotIn("producer", dict(context.track))
         self.assertNotIn("release_year", dict(context.track))
         self.assertNotIn("instrumentation", dict(context.analysis))
         self.assertFalse(context.personal_context_used)
@@ -2966,7 +3006,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         active = asyncio.run(manager.async_get_active("profile-a"))
 
         assert moment is not None and active is not None
-        self.assertFalse(provider_called)
+        self.assertTrue(provider_called)
         self.assertEqual(moment.moment_type, self.runtime.DJMomentType.SESSION)
         self.assertEqual(
             moment.knowledge_intent.intent_type,
@@ -3102,7 +3142,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         )
 
         assert update is not None
-        self.assertEqual(calls, 0)
+        self.assertEqual(calls, 1)
         self.assertEqual(update.moment_type, self.runtime.DJMomentType.SESSION)
         self.assertEqual(
             update.generation_metadata[0], ("direction", self.runtime.SessionDirectionType.RESETTING.value)
@@ -3177,7 +3217,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         active = asyncio.run(manager.async_get_active(created.owner_profile_id))
 
         assert returning is not None and active is not None
-        self.assertEqual(calls, 0)
+        self.assertEqual(calls, 1)
         self.assertEqual(returning.moment_type, self.runtime.DJMomentType.SESSION)
         self.assertEqual(
             dict(returning.generation_metadata)["direction"],
@@ -3208,7 +3248,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         )
         assert next_moment is not None
         self.assertNotEqual(next_moment.moment_type, self.runtime.DJMomentType.SESSION)
-        self.assertEqual(calls, 1)
+        self.assertEqual(calls, 2)
 
     def test_later_mood_and_persona_changes_do_not_mutate_existing_moment(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
@@ -3278,7 +3318,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         moment = asyncio.run(manager.async_process_track_started(owner_profile_id="profile-a", session_id=created.session_id, insight_provider=insight))
         assert moment is not None
         self.assertEqual(moment.moment_type, self.runtime.DJMomentType.SESSION)
-        self.assertFalse(invoked)
+        self.assertTrue(invoked)
         self.assertEqual(
             created.planner.last_decision.decision_type,
             self.runtime.PlannerDecisionType.CREATE_SESSION_UPDATE,
