@@ -577,6 +577,7 @@ class PlannerIntentSelector:
         *,
         mood: str = "",
         direction: SessionDirectionType | None = None,
+        performance_memory: PerformanceMemory | None = None,
     ) -> PlannerIntent | None:
         """Use bounded Runtime context only to rank one future candidate."""
         priorities = cls._SUPPORTED
@@ -585,9 +586,22 @@ class PlannerIntentSelector:
         elif direction is SessionDirectionType.EXPLORING:
             priorities = ("recommendation", "artist_story", "album_story", "genre_story", "silence")
         for category in priorities:
+            if performance_memory is not None and cls._recently_used(category, performance_memory):
+                continue
             if any(slot.category == category for slot in window.candidate_slots):
                 return PlannerIntent(category, window.generation)
         return None
+
+    @staticmethod
+    def _recently_used(category: str, memory: PerformanceMemory) -> bool:
+        return {
+            "artist_story": bool(memory.recent_artists),
+            "album_story": bool(memory.recent_albums),
+            "genre_story": bool(memory.recent_genres),
+            "recommendation": bool(memory.recent_recommendations),
+            "session_update": bool(memory.recent_session_directions),
+            "transition": bool(memory.recent_moment_ids),
+        }.get(category, False)
 
 
 @dataclass
