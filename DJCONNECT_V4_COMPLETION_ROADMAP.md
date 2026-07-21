@@ -66,15 +66,15 @@ contracts. Playback and queue execution always remain Music Backend-owned.
 ## Track A — Persistent Session Platform
 
 1. **CURRENT — Persistence foundation:** DJConnect-owned SQLite service,
-   schema/version metadata, migration runner, integrity checks and test harness;
-   no Session writes.
-2. **NEXT — Lifecycle store:** Profile-owned Session identity and
+   schema/version metadata, migration runner, integrity checks and test harness.
+2. **CURRENT — Lifecycle store:** Profile-owned Session identity and
    `OPENING`/`ACTIVE`/`INTERRUPTED`/`ENDED` transitions.
-3. **PLANNED — Startup reconciliation:** deterministic technical closure of open
-   Sessions; re-bootstrap only when the separately gated observation evidence
-   exists.
-4. **PLANNED — Historical projections:** authorized immutable historical Session
-   and DJMoment projections, pagination and query boundaries.
+3. **CURRENT — Startup reconciliation:** deterministic technical closure of open
+   Sessions; re-bootstrap remains separately gated.
+4. **CURRENT — Historical projections and query service:** immutable,
+   renderer-safe historical Session and DJMoment projections plus one
+   owner-authorized, transport-independent query boundary; no pagination or
+   client/transport feature.
 5. **PLANNED — Retention:** expiry, cleanup, favorites/preservation only when
    approved, visibility and audit-safe policy.
 6. **PLANNED — Backup and export:** HA backup/restore validation plus versioned

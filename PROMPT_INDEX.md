@@ -4,10 +4,15 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#307](https://github.com/pcvantol/djconnect/pull/307), merged as
-`03a55fccc2f44e2646d813bb0bf6e4ab49e02b3d`, is reconciled by this dedicated
-Finalization. Recovery Cells 1–4 remain complete. Workspace Cleanup is
-`WORKSPACE_READY` for the completed cleanup-governance chain.
+PR [#309](https://github.com/pcvantol/djconnect/pull/309), merged as
+`11ba4f76411f04aaba4bdb6f8e55988c7c14eb04`, is the current merged
+implementation and is being reconciled only by its dedicated Finalization.
+Repository State is `MERGED_UNRECONCILED` until that Finalization merges.
+It establishes the owner-authorized, transport-independent historical
+projection query boundary; its Prompt History is
+`docs/history/prompts/2026-07-21-historical-projection-query-service.md`.
+Recovery Cells 1–4 remain complete. No next implementation starts until this
+Finalization merges and Workspace Cleanup restores `WORKSPACE_READY`.
 Planner-owned Flow Revision/Change Journal and Broadcast-owned Delivery
 Sequence, snapshot watermark, bounded internal Replay Log and immutable
 owner-scoped Recovery Cursor are current. An authorized owner WebSocket may
@@ -66,6 +71,7 @@ planning is read.
 | Prompt | Lifecycle | Coherent objective | Branch | Completion evidence |
 | --- | --- | --- | --- | --- |
 | Persistent Session Startup Reconciliation | Completed / merged reconciled / archived | Deterministically interrupt non-terminal durable Sessions on startup without Runtime or provider recovery. | `codex/persistent-session-startup-reconciliation` | `docs/history/prompts/2026-07-21-persistent-session-startup-reconciliation.md`; PR [#300](https://github.com/pcvantol/djconnect/pull/300), merged as `822468e10527aa07895a802c99fbcde7eeccd98c`. |
+| Historical Projection Query Service | Completed / merged unreconciled / archived | Add the canonical, owner-authorized, transport-independent historical Session and DJMoment query layer without client or transport features. | `codex/historical-projection-query-service` | `docs/history/prompts/2026-07-21-historical-projection-query-service.md`; PR [#309](https://github.com/pcvantol/djconnect/pull/309), merged as `11ba4f76411f04aaba4bdb6f8e55988c7c14eb04`; dedicated Finalization is active. |
 | Persistent Session Lifecycle Store | Completed / merged reconciled / archived | Persist Profile-owned Session identity and bounded lifecycle transitions without historical projection or restart recovery. | `codex/persistent-session-lifecycle-resume` | `docs/history/prompts/2026-07-21-persistent-session-lifecycle-store.md`; PR [#298](https://github.com/pcvantol/djconnect/pull/298), merged as `dca7c85b61a3e001c3b642bd33536b9f4ca35455`. |
 | Persistence Foundation Validation Hardening | Completed / merged reconciled / archived | Complete the applicable Persistence Foundation evidence matrix, reject incomplete metadata safely and serialize bootstrap without product persistence. | `codex/persistence-foundation-test-hardening` | `docs/history/prompts/2026-07-21-persistence-foundation-validation-hardening.md`; PR [#296](https://github.com/pcvantol/djconnect/pull/296), merged as `5e0d1c1ba550afb57e2d8da5b40c0d2a7dcfb741`. |
 | Persistence Schema Lifecycle Hardening | Completed / merged reconciled / archived | Harden immutable migration identity, ordered history validation, supported upgrade paths and safe SQLite schema validation without product tables. | `codex/persistence-schema-lifecycle-hardening` | `docs/history/prompts/2026-07-21-persistence-schema-lifecycle-hardening.md`; PR [#294](https://github.com/pcvantol/djconnect/pull/294), merged as `9996f04c5ac13e35dc4930abb74f746e55bc167d`. |

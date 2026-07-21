@@ -250,8 +250,9 @@ validation, merge and finalization.
 3. **Startup reconciliation:** deterministic interrupted closure for open
    Sessions; re-bootstrap remains unavailable until its strict prerequisites
    exist.
-4. **Historical Session and DJMoment projections:** immutable renderer-safe
-   projections and owner/visibility authorization reads.
+4. **Historical Session and DJMoment projections and query service:** immutable
+   renderer-safe projections with one owner-authorized, transport-independent
+   application query boundary; no pagination, replay or client transport.
 5. **Retention and cleanup:** bounded policy, favorite protection and
    auditable cleanup.
 6. **Backup/restore integration:** integrity and compatibility validation for
