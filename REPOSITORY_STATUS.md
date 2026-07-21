@@ -28,18 +28,18 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current main contains PR [#346](https://github.com/pcvantol/djconnect/pull/346),
-**Canonical Planning Input and Candidate Projection Activation**, merged as
-`eddf1034272a5665e02881906f7df7722b5fbc4c`. The bounded Runtime coordinator is
-now the entry path for every ordinary Track Started event, including when no
-Upcoming Playback Projection exists. In that case the Planner projects only
-the current observed track into its existing ephemeral Planning Window; it does
-not fabricate future playback. Existing planned-intent approval, Prepared
-Knowledge consumption or safe Knowledge fallback, and Moment realization remain
-authoritative. Consumption follows successful Flow/Broadcast publication. The
-legacy path remains an explicit deterministic fallback. No provider queue,
-new intent, persistence, transport or renderer capability was added. This
-merged implementation is in its dedicated governance-only Finalization.
+Current main contains PR [#348](https://github.com/pcvantol/djconnect/pull/348),
+**Canonical Non-Knowledge Track Started Projection**, merged as
+`326947222b70338785d446c518b5e8fc55c74654`. Silence and Session Update now use
+the same bounded current-track Planning Window, Planned Intent, readiness and
+approval lifecycle as knowledge-driven decisions. Silence realizes without
+knowledge preparation; Session Runtime applies the Planner-approved Session
+Direction before the existing Session Update realization. Existing Flow and
+Broadcast publication remain authoritative, and planned state is consumed only
+after publication. The legacy Track Started route is bounded to lifecycle
+failure. No new intelligence, provider, persistence, transport or renderer
+capability was added. This completed implementation is in its dedicated
+governance-only Finalization.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 The preceding PR #313,
