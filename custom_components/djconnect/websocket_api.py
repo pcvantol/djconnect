@@ -292,6 +292,7 @@ def _supported_websocket_commands() -> list[str]:
         WS_TYPE_MUSIC_DISCOVERY_PLAY,
         WS_TYPE_MUSIC_DISCOVERY_FEEDBACK,
         WS_TYPE_SESSION_BROADCAST_SUBSCRIBE,
+        WS_TYPE_SESSION_BROADCAST_RECOVER,
     ]
 
 
