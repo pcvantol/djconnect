@@ -511,10 +511,41 @@ class PerformanceMemory:
 
 
 @dataclass(frozen=True)
+class UpcomingPlaybackEntry:
+    """One normalized, provider-neutral future playback observation."""
+
+    media_id: str
+    duration_seconds: int = 0
+    position: int = 0
+
+
+@dataclass(frozen=True)
 class UpcomingPlaybackProjection:
     """Provider-neutral future playback context; empty is a valid projection."""
 
-    items: tuple[str, ...] = ()
+    entries: tuple[UpcomingPlaybackEntry, ...] = ()
+    observed_at: str = ""
+    confidence: float = 0.0
+    provider_supports_upcoming: bool = False
+    max_entries: int = 20
+
+    @property
+    def observable_duration_seconds(self) -> int:
+        return sum(max(0, entry.duration_seconds) for entry in self.entries)
+
+    @classmethod
+    def from_entries(
+        cls,
+        entries: tuple[UpcomingPlaybackEntry, ...],
+        *,
+        observed_at: str = "",
+        confidence: float = 0.0,
+        provider_supports_upcoming: bool = True,
+        max_entries: int = 20,
+    ) -> "UpcomingPlaybackProjection":
+        """Bound observations without retaining provider queue structures."""
+        ordered = tuple(sorted(entries, key=lambda entry: entry.position))[:max_entries]
+        return cls(ordered, observed_at, max(0.0, min(1.0, confidence)), provider_supports_upcoming, max_entries)
 
 
 @dataclass
