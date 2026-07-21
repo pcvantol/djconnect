@@ -15,6 +15,7 @@ Use this index to find the one canonical record for current work.
 | DJ Session transport independence, HTTP recovery and transport-neutral Broadcast delivery | `DJ_SESSION_TRANSPORT_ARCHITECTURE.md` | DJConnect Product Development |
 | Durable Session lifecycle, historical DJMoment projections and future local persistence sequencing | `PERSISTENT_SESSION_ARCHITECTURE.md` | DJConnect Product Development |
 | Rolling approximately twenty-minute Session experience planning, safe future-context degradation and bounded replanning sequence | `ROLLING_SESSION_HORIZON_ARCHITECTURE.md` | DJConnect Product Development |
+| Coordinated V4 server-to-iOS completion sequencing, gates and deferred work | `DJCONNECT_V4_COMPLETION_ROADMAP.md` | DJConnect Product Development |
 | Future ideas and research | `INNOVATION_LAB.md`, `INNOVATION_BACKLOG.md` | Innovation Lab |
 | Innovation promotion rules | `INNOVATION_PROMOTION_POLICY.md` | Innovation Lab |
 | Current operational release position | `docs/release/PLATFORM_RELEASE_MANAGEMENT_SUMMARY.md` | Platform Release operations |
