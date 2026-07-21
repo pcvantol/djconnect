@@ -5,12 +5,12 @@
 
 ## Current engineering increment
 
-PR [#292](https://github.com/pcvantol/djconnect/pull/292), **Add DJConnect
-Persistence Foundation**, merged on 2026-07-21 as
-`3abc24e4b2f77f160b4b8adbc47e14e48dbc9c78`. It is
+PR [#294](https://github.com/pcvantol/djconnect/pull/294), **Harden Persistence
+Schema Lifecycle**, merged on 2026-07-21 as
+`9996f04c5ac13e35dc4930abb74f746e55bc167d`. It is
 `MERGED_UNRECONCILED`; this governance-only Finalization archives immutable
-Prompt History and reconciles rolling records. It establishes one
-DJConnect-owned persistence platform only; it adds no Session writes, Runtime
+Prompt History and reconciles rolling records. It hardens only migration,
+schema validation and safe concurrency; it adds no Session writes, Runtime
 persistence or recovery behaviour.
 
 Every implementation capability uses the mandatory Pre-Flight → Implementation
