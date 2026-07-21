@@ -28,12 +28,17 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current main contains PR [#307](https://github.com/pcvantol/djconnect/pull/307),
-**Support Finalization Branch Cleanup**, merged on 2026-07-21 as
-`03a55fccc2f44e2646d813bb0bf6e4ab49e02b3d`. This governance-only Finalization
-reconciles the cleanup-governance chain. Verified completed branches are
-removed under the canonical exceptions; `WORKSPACE_READY` is restored. No
-Runtime or provider behaviour changes.
+Current main contains PR [#309](https://github.com/pcvantol/djconnect/pull/309),
+**Historical Projection Query Service**, merged on 2026-07-21 as
+`11ba4f76411f04aaba4bdb6f8e55988c7c14eb04`. It adds the canonical,
+transport-independent application query boundary for immutable historical
+Session and DJMoment projections. Repository reads remain storage-only; the
+query service applies owner authorization, owner-only Moment visibility,
+projection-version compatibility and canonical ordering. No transport, client,
+replay, search, pagination, analytics or renderer behaviour changed. This
+merged implementation is in its dedicated governance-only Finalization;
+`MERGED_RECONCILED` and `WORKSPACE_READY` are restored only after that
+Finalization merges and cleanup completes.
 
 The preceding Broadcast baseline remains PR [#280](https://github.com/pcvantol/djconnect/pull/280),
 **Add Broadcast recovery cursor**, merged as

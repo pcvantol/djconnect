@@ -5,11 +5,17 @@
 
 ## Current engineering increment
 
-PR [#307](https://github.com/pcvantol/djconnect/pull/307), **Support
-Finalization Branch Cleanup**, merged on 2026-07-21 as
-`03a55fccc2f44e2646d813bb0bf6e4ab49e02b3d`. This Finalization reconciles the
-Workspace Cleanup governance chain and its immutable Prompt History. The
-verified completed branches are removed; `WORKSPACE_READY` is restored.
+PR [#309](https://github.com/pcvantol/djconnect/pull/309), **Historical
+Projection Query Service**, merged on 2026-07-21 as
+`11ba4f76411f04aaba4bdb6f8e55988c7c14eb04`. It establishes the canonical,
+transport-independent application query boundary for immutable historical
+Session and DJMoment projections. The service is owner-authorized,
+owner-visibility-only and projection-version compatible; storage remains in
+the repository. It adds no transport, client, replay, search, pagination,
+analytics or renderer capability. Its immutable Prompt History is
+`docs/history/prompts/2026-07-21-historical-projection-query-service.md`.
+This dedicated Finalization reconciles the merged evidence; Workspace Cleanup
+follows only after this Finalization merges.
 
 Every implementation capability uses the mandatory Pre-Flight → Implementation
 → Validation → Merge → Finalization → Workspace Cleanup lifecycle.
