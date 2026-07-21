@@ -28,11 +28,11 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current `main` is `97b748b6858b021b08423e6d661e02904e55a4b1`, the merge commit
-for PR [#272](https://github.com/pcvantol/djconnect/pull/272), **Add HTTP
-transport capability discovery**, merged on 2026-07-21. The worktree was clean
-and synchronized when this baseline was reconciled; PR #272 validation passed
-focused transport tests, full pytest, Ruff and diff checks.
+Current `main` is `2e359f218dc590fa418224dec78d201a2941f158`, the merge commit
+for PR [#274](https://github.com/pcvantol/djconnect/pull/274), **Define Session
+Flow recovery architecture**, merged on 2026-07-21. The worktree was clean and
+synchronized when this baseline was reconciled; PR #274 validation passed host
+qualification, focused regression, Ruff and diff checks.
 
 Transport Cell 1 is current: an owner-authorized HTTP snapshot is a
 side-effect-free renderer-safe fallback. Transport Cell 2 is current: its pure
@@ -41,10 +41,11 @@ callback registration creates no redundant snapshot. Transport Cell 3 is
 current: setup-time events are buffered until after the successful initial
 snapshot result. Transport Cell 4 is current: HTTP capability discovery and
 WebSocket fallback metadata use the same declarative Broadcast transport source.
-It reports snapshot recovery only; replay, cursor, Flow delta and sequence are
-explicitly unavailable. Existing snapshot-returning subscriptions, authorization
-and transport behaviour are unchanged. No delta, sequence, replay, cursor or
-Universal Receiver HTTP behaviour exists.
+The approved recovery architecture preserves that implementation state while
+defining Planner-owned Flow revision/delta and Broadcast-owned delivery
+identity/replay for later bounded work. Existing snapshot-returning
+subscriptions, authorization and transport behaviour are unchanged. No delta,
+sequence, replay, cursor or Universal Receiver HTTP behaviour exists.
 
 PR #267 reconciled PRs #260 through #266. Those intermediate records cover external
 dependency documentation (#260), validation-only baseline correction (#261),
@@ -55,10 +56,10 @@ Stage 1, Continue Stage 2, Playback Instance Identity and occurrence-correct
 observation remain intentionally blocked by the external capability conditions
 in `docs/product/DJ_INTELLIGENCE_MATURITY.md`.
 
-No next transport cell is selected. Session Flow sequence/cursor/watermark,
-HTTP delta, replay, ordering, duplicate handling, reconnect, Universal Receiver
-HTTP, receiver audience-signal resolution and standalone Session resources
-remain separately deferred.
+Recovery Cell 1—Session Flow revision and change journal—is the next bounded
+candidate. Delivery sequence, watermark, cursor, replay, Flow delta, HTTP
+delta, reconnect, Universal Receiver HTTP, receiver audience-signal resolution
+and standalone Session resources remain separately deferred.
 
 Engineering Platform operational after Platform Baseline v1.0 certification
 and Software Assurance Generation 1 closure. DJConnect Product Development is

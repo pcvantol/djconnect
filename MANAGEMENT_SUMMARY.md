@@ -15,15 +15,13 @@
 
 ## Current position
 
-PR [#272](https://github.com/pcvantol/djconnect/pull/272) merged as
-`97b748b6858b021b08423e6d661e02904e55a4b1`. Transport Cells 1–4 are current.
-Authorized owners have a renderer-safe HTTP Broadcast snapshot fallback;
-WebSocket uses that same pure query for exactly one initial snapshot, registers
-live delivery without a redundant snapshot, and buffers setup-time events until
-the snapshot is sent. HTTP capability discovery now shares the existing
-transport declaration with WebSocket fallback metadata and accurately reports
-snapshot recovery only. Existing subscriptions, authorization, schemas, events
-and Runtime behaviour are unchanged.
+PR [#274](https://github.com/pcvantol/djconnect/pull/274) merged as
+`2e359f218dc590fa418224dec78d201a2941f158`. Transport Cells 1–4 are current.
+The approved Session Flow Recovery Architecture separates semantic Flow identity
+from delivery identity: Planner-owned Flow revision/delta versus Broadcast-owned
+sequence, watermark, cursor and bounded replay. Snapshots remain the mandatory
+fallback. Existing subscriptions, authorization, schemas, events and Runtime
+behaviour are unchanged.
 
 The reconciled chain also records PR #260 external dependency evidence, #261
 validation-only baseline correction, #262 maturity-cell documentation, #263
@@ -33,11 +31,11 @@ Stage 1, Knowledge Engine Stage 2 and Performance Memory remain current within
 their documented scopes. Continue Stage 2 and Music Assistant observation
 remain deferred by their external conditions.
 
-No additional transport cell is selected. Sequence/cursor/watermark, HTTP
-delta, replay, ordering, duplicate/out-of-order handling, reconnect, Universal
-Receiver HTTP, receiver audience signals and granular Session resources remain
-deferred. No Intelligence, Runtime, Flow, renderer or maturity capability
-changed.
+Recovery Cell 1—Flow revision and a semantic change journal—is the next
+bounded candidate. Delivery sequence/cursor/watermark, HTTP delta, replay,
+ordering, duplicate/out-of-order handling, reconnect, Universal Receiver HTTP,
+receiver audience signals and granular Session resources remain deferred. No
+Intelligence, Runtime, Flow, renderer or maturity capability changed.
 
 | Area | Objectively supported status | Evidence |
 | --- | --- | --- |

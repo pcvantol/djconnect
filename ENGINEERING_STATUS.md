@@ -5,15 +5,15 @@
 
 ## Current engineering increment
 
-The reconciled baseline is PR [#272](https://github.com/pcvantol/djconnect/pull/272),
-**Add HTTP transport capability discovery**, merged on 2026-07-21 as
-`97b748b6858b021b08423e6d661e02904e55a4b1`. Transport Cells 1–4 are current.
-Cell 4 exposes the existing Broadcast transport truth over HTTP from the same
-transport-independent declaration used by WebSocket fallback metadata: owner
-HTTP snapshot and WebSocket subscription are available, snapshot recovery is
-supported, and replay, cursor, Flow delta and sequence are explicitly
-unsupported. It adds no Runtime, DJ Intelligence, Session Flow, Broadcast,
-playback or renderer behaviour.
+The reconciled baseline is PR [#274](https://github.com/pcvantol/djconnect/pull/274),
+**Define Session Flow recovery architecture**, merged on 2026-07-21 as
+`2e359f218dc590fa418224dec78d201a2941f158`. Transport Cells 1–4 remain
+current. The approved recovery architecture now assigns Flow revision and Flow
+delta to the Planner-owned Session Flow, and delivery sequence, watermark,
+cursor and bounded replay to Broadcast. All recovery identity remains
+Runtime-scoped; fresh snapshots remain mandatory fallback. No production,
+Runtime, DJ Intelligence, Session Flow, Broadcast, playback or renderer
+behaviour changed.
 
 The preceding reconciled increments are: PR #260 external dependency
 documentation; PR #261 rolling-status validation only; PR #262 maturity-cell
@@ -26,9 +26,9 @@ observation, Continue Stage 2, Playback Instance Identity and
 occurrence-correct observation remain deferred under their recorded external
 backend conditions.
 
-No further transport cell is automatically authorized. The next increment must
-start with current-main synchronization and select one bounded cell from the
-canonical transport or maturity roadmap.
+Recovery Cell 1 is now the next bounded implementation candidate: Session Flow
+revision and its Runtime-scoped semantic change journal. It must not implement
+delivery sequence, cursor, watermark, replay, Flow delta or transport recovery.
 
 Platform Release 3.3 is operationally complete and in Maintenance. PR
 [#202](https://github.com/pcvantol/djconnect/pull/202), **Platform Release 3.3
