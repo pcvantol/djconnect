@@ -5,17 +5,15 @@
 
 ## Current engineering increment
 
-PR [#346](https://github.com/pcvantol/djconnect/pull/346), **Canonical Planning
-Input and Candidate Projection Activation**, merged as `eddf1034272a5665e02881906f7df7722b5fbc4c`.
-Every ordinary Track Started event
-now enters the existing Planning Runtime Coordinator without requiring an
-Upcoming Playback Projection. The Planner projects only the observed current
-track as a bounded ephemeral candidate when future playback is unavailable;
-approval, Knowledge resolution and realization remain on the existing planned
-intent lifecycle. Planned state is consumed only after successful publication.
-The legacy route remains the bounded safe fallback. No provider queue, new
-intent, persistence, transport or renderer capability was added. This dedicated
-Finalization reconciles its immutable Prompt History and validation evidence.
+PR [#348](https://github.com/pcvantol/djconnect/pull/348), **Canonical
+Non-Knowledge Track Started Projection**, merged as `326947222b70338785d446c518b5e8fc55c74654`.
+Silence and Session Update now join the existing Planner-owned current-track
+candidate lifecycle: Planning Window, Planned Intent, readiness, approval,
+DJ Moment Engine, Session Flow and Broadcast. Session Runtime retains Session
+Direction ownership; the legacy route is now bounded to true planning lifecycle
+failure. No intelligence, provider, persistence, transport or renderer
+capability was added. This dedicated Finalization reconciles the completed
+Session Intelligence Runtime Integration Epic and its immutable Prompt History.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 PR #323, **Mood and Direction

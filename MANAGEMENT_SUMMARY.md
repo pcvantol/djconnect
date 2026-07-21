@@ -15,14 +15,15 @@
 
 ## Current position
 
-PR [#346](https://github.com/pcvantol/djconnect/pull/346) merged as
-`eddf1034272a5665e02881906f7df7722b5fbc4c`. It activates the existing bounded,
-ephemeral Planning lifecycle for ordinary Track Started traffic even without an
-Upcoming Playback Projection. The Planner uses one current-track-only candidate
-projection, keeps the established approval/Knowledge/realization ownership, and
-consumes planned state only after successful Flow/Broadcast publication. It
-does not fabricate future playback or add providers, intents, persistence,
-transport or renderers. This is its dedicated governance-only Finalization.
+PR [#348](https://github.com/pcvantol/djconnect/pull/348) merged as
+`326947222b70338785d446c518b5e8fc55c74654`. It completes the Session
+Intelligence Runtime Integration Epic: Silence and Session Update now use the
+same bounded Planner candidate, Planned Intent, readiness, approval,
+realization, Flow and Broadcast lifecycle as normal knowledge-driven Track
+Started decisions. Session Direction remains Runtime-owned and the legacy
+route is only lifecycle-failure protection. No intelligence, provider,
+persistence, transport or renderer scope was added. This is its dedicated
+governance-only Finalization.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 PR #315 merged as
