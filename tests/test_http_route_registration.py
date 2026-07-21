@@ -33,3 +33,24 @@ class HttpRouteRegistrationTest(unittest.TestCase):
         ]
 
         self.assertEqual(len(calls), 1)
+
+    def test_parameterless_http_views_are_not_constructed_with_hass(self) -> None:
+        """Startup registration must match each view's constructor contract."""
+        module = ast.parse(
+            (ROOT / "custom_components" / "djconnect" / "__init__.py").read_text(
+                encoding="utf-8"
+            )
+        )
+        register = next(
+            node
+            for node in module.body
+            if isinstance(node, ast.FunctionDef) and node.name == "register_http_views"
+        )
+        constructors = {
+            node.func.id: node
+            for node in ast.walk(register)
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+        }
+
+        self.assertEqual(constructors["DJConnectTransportCapabilitiesView"].args, [])
+        self.assertEqual(constructors["DJConnectUniversalReceiverView"].args, [])

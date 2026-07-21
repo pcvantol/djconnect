@@ -1759,7 +1759,7 @@ def register_http_views(hass: HomeAssistant) -> None:
             DJConnectPushUnregisterView(hass),
             DJConnectPairView(hass),
             DJConnectStatusView(hass),
-            DJConnectTransportCapabilitiesView(hass),
+            DJConnectTransportCapabilitiesView(),
             DJConnectSessionStartView(hass),
             DJConnectSessionEndView(hass),
             DJConnectActiveSessionView(hass),
