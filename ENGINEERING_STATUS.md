@@ -5,13 +5,16 @@
 
 ## Current engineering increment
 
-The reconciled baseline is PR [#266](https://github.com/pcvantol/djconnect/pull/266),
-**Add owner HTTP Broadcast snapshot**, merged on 2026-07-21 as
-`610be0ba7c776b9c581e7be90237ca6addfe5266`. It completes Transport Cell 1:
-an owner-authorized, renderer-safe HTTP snapshot fallback returns the same
-canonical initial owner Broadcast projection as WebSocket. It adds no delta,
-cursor, replay, Receiver HTTP access or interaction behaviour, and does not
-change Runtime or DJ Intelligence semantics.
+The reconciled baseline is PR [#268](https://github.com/pcvantol/djconnect/pull/268),
+**Align owner WebSocket snapshot registration**, merged on 2026-07-21 as
+`00f71025bbbea5ca9171bb70f65b54c3ed894ce5`. Transport Cell 1 remains current:
+an owner-authorized, renderer-safe HTTP snapshot fallback returns the canonical
+initial owner Broadcast projection. Transport Cell 2 is now current: the same
+pure owner query is the only initial WebSocket snapshot source, live callback
+registration does not build another snapshot, existing snapshot-returning
+subscription consumers remain compatible, and a failed initial response cleans
+up its callback. No client-visible schema, event, Runtime or DJ Intelligence
+behaviour changed.
 
 The preceding reconciled increments are: PR #260 external dependency
 documentation; PR #261 rolling-status validation only; PR #262 maturity-cell
@@ -24,9 +27,9 @@ observation, Continue Stage 2, Playback Instance Identity and
 occurrence-correct observation remain deferred under their recorded external
 backend conditions.
 
-The next authorized implementation cell is Transport Cell 2 only: retain the
-pure owner snapshot query as the single initial WebSocket snapshot source and
-register live delivery without constructing an unused second snapshot.
+No further transport cell is automatically authorized. The next increment must
+start with current-main synchronization and select one bounded cell from the
+canonical transport or maturity roadmap.
 
 Platform Release 3.3 is operationally complete and in Maintenance. PR
 [#202](https://github.com/pcvantol/djconnect/pull/202), **Platform Release 3.3
@@ -160,9 +163,12 @@ separate explicitly authorized operational action.
 
 ## Deferred work
 
-- Transport Cell 2: remove duplicate initial owner WebSocket snapshot
-  construction without changing transport schema, ordering, replay or
-  reconnect semantics.
+- Session Flow sequence, cursor/watermark, HTTP delta, replay, WebSocket
+  ordering, duplicate/out-of-order handling and reconnect contracts remain
+  separate transport work.
+- Universal Receiver HTTP access, receiver audience-signal resolution, Session
+  Detail resources, standalone HTTP current-Moment/Flow resources and full
+  HTTP capability-discovery alignment remain deferred.
 - Perform the three separately authorized Observatory delivery increments in
   their documented order when priority and authorization permit.
 - Do not reopen Platform Release 3.3 or start a new Platform Release
@@ -171,6 +177,5 @@ separate explicitly authorized operational action.
 
 ## Recommended next prompt
 
-After this reconciliation is merged, implement Transport Cell 2 as one
-separate, transport-internal increment; do not combine it with capability,
-Runtime or DJ Intelligence work.
+After this reconciliation is merged, synchronize current main and select one
+explicitly bounded next cell; do not infer a Transport Cell 3 or PL-4.2.
