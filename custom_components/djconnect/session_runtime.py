@@ -557,6 +557,27 @@ class CandidatePlanningSlot:
     ends_at_seconds: int
 
 
+@dataclass(frozen=True)
+class PlannerIntent:
+    """One approved internal planning intent; it is not a DJMoment."""
+
+    category: str
+    generation: int
+
+
+class PlannerIntentSelector:
+    """Select at most one supported candidate deterministically."""
+
+    _SUPPORTED = ("silence", "artist_story", "album_story", "genre_story", "recommendation")
+
+    @classmethod
+    def select(cls, window: "PlanningWindow") -> PlannerIntent | None:
+        for category in cls._SUPPORTED:
+            if any(slot.category == category for slot in window.candidate_slots):
+                return PlannerIntent(category, window.generation)
+        return None
+
+
 @dataclass
 class PlanningWindow:
     """Planner-owned bounded future planning space derived from Horizon input."""
@@ -568,6 +589,12 @@ class PlanningWindow:
     generation: int = 0
     confidence: float = 0.0
     candidate_slots: tuple[CandidatePlanningSlot, ...] = ()
+    approved_intent: PlannerIntent | None = None
+
+    def select_intent(self) -> PlannerIntent | None:
+        """Approve one deterministic candidate without realizing it."""
+        self.approved_intent = PlannerIntentSelector.select(self)
+        return self.approved_intent
 
 
 @dataclass
