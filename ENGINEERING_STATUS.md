@@ -5,10 +5,9 @@
 
 ## Current engineering increment
 
-PR [#338](https://github.com/pcvantol/djconnect/pull/338), **Planning
-Readiness Evaluation**, merged as `f34f6a40cf36758f29fe181c8a8e871343336ba7`.
-Its dedicated Finalization reconciles the bounded Planner-only approval
-eligibility evaluation.
+PR [#340](https://github.com/pcvantol/djconnect/pull/340), **Prepared Knowledge
+Consumption**, merged as `4c2ad40141a9a094c68d8c955837f0371a0135be`. Its
+dedicated Finalization reconciles the bounded Knowledge Engine consumption path.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 PR #323, **Mood and Direction

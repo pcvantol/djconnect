@@ -15,12 +15,13 @@
 
 ## Current position
 
-PR [#338](https://github.com/pcvantol/djconnect/pull/338) merged as
-`f34f6a40cf36758f29fe181c8a8e871343336ba7`. It adds a bounded, ephemeral
-Planner-owned Readiness Evaluation that is the sole approval input, with typed
-eligibility states and no provider, cache, persistence, transport or DJMoment
-scope. This is its dedicated governance-only Finalization. Repository State:
-`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
+PR [#340](https://github.com/pcvantol/djconnect/pull/340) merged as
+`4c2ad40141a9a094c68d8c955837f0371a0135be`. It completes the bounded,
+ephemeral Prepared Knowledge pipeline: Knowledge Engine resolution consumes an
+exact valid prepared result for an Approved Planner Intent and otherwise uses
+the existing fallback. No provider, cache, persistence, transport or narrative
+scope was added. This is its dedicated governance-only Finalization. Repository
+State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 PR #315 merged as
 `6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`. It adds only the ephemeral,
