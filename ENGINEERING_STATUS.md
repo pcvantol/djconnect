@@ -5,9 +5,10 @@
 
 ## Current engineering increment
 
-PR [#334](https://github.com/pcvantol/djconnect/pull/334), **Knowledge Prefetch
-Planning**, merged as `cc44e992e168d1f66dd971944bf19e077c786ae7`. Its dedicated
-Finalization reconciles bounded Planner-owned future knowledge requirements.
+PR [#336](https://github.com/pcvantol/djconnect/pull/336), **Knowledge Prefetch
+Execution Boundary**, merged as `a2934f3ae035f4424756b05bfde21d9bd6a0e383`.
+Its dedicated Finalization reconciles the bounded Planner-to-Knowledge Engine
+preparation boundary.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 PR #323, **Mood and Direction

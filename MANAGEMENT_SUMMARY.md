@@ -15,11 +15,12 @@
 
 ## Current position
 
-PR [#334](https://github.com/pcvantol/djconnect/pull/334) merged as
-`cc44e992e168d1f66dd971944bf19e077c786ae7`. It adds bounded, ephemeral
-Planner-owned future knowledge requirements for Planned Intents. This is its
-dedicated governance-only Finalization. Repository State: `MERGED_RECONCILED`;
-Workspace State: `WORKSPACE_READY`.
+PR [#336](https://github.com/pcvantol/djconnect/pull/336) merged as
+`a2934f3ae035f4424756b05bfde21d9bd6a0e383`. It adds a bounded, ephemeral
+Planner-to-Knowledge Engine preparation boundary with typed Prepared Knowledge
+outcomes, without provider, cache, persistence, transport or DJMoment scope.
+This is its dedicated governance-only Finalization. Repository State:
+`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 PR #315 merged as
 `6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`. It adds only the ephemeral,
