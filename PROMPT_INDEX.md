@@ -4,13 +4,13 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#348](https://github.com/pcvantol/djconnect/pull/348), merged as
-`326947222b70338785d446c518b5e8fc55c74654`, is the current merged
-implementation. Its dedicated Finalization reconciles the completed canonical
-Track Started lifecycle, including Silence and Session Update, and rolling records.
+PR [#350](https://github.com/pcvantol/djconnect/pull/350), merged as
+`03cd470fc11d7f36c78434b0ea8cd4199a4bd1fc`, is the current merged
+architecture increment. Its dedicated Finalization reconciles the canonical
+Universal Receiver Server Architecture and rolling records.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 Its Prompt History is
-`docs/history/prompts/2026-07-21-canonical-non-knowledge-track-started-projection.md`.
+`docs/history/prompts/2026-07-21-universal-receiver-server-architecture.md`.
 
 PR #315, merged as
 `6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`, is the current merged
