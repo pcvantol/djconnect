@@ -172,6 +172,9 @@ The HA repository owns:
 - shared validation requirements;
 - cross-repository parity policy.
 
+`LOCALIZATION_NARRATIVE_ARCHITECTURE.md` owns the V4 language-resolution,
+immutable DJMoment narrative and renderer/voice realization boundaries.
+
 ## Adding Or Changing A String
 
 Required workflow:
