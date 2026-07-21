@@ -701,6 +701,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         )
         self.assertEqual(state["audience"], {"signal_totals": {}, "recent_activity": []})
         self.assertTrue(state["broadcast"]["started_at"])
+        self.assertEqual(state["broadcast"]["snapshot_watermark"], 2)
         self.assertEqual(created.as_dict()["broadcast"], state)
 
     def test_planner_creates_and_republishes_its_canonical_session_flow(self) -> None:
@@ -788,6 +789,62 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertEqual(
             [entry.revision for entry in second.planner.flow_change_journal], [0]
         )
+
+    def test_broadcast_delivery_identity_is_independent_and_runtime_scoped(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))
+        broadcast = created.broadcast
+
+        self.assertEqual(broadcast.delivery_sequence, 2)
+        self.assertEqual(
+            [entry.delivery_sequence for entry in broadcast.replay_log], [1, 2]
+        )
+        self.assertEqual(broadcast.as_dict()["broadcast"]["snapshot_watermark"], 2)
+
+        created.planner.republish_session_flow()
+        self.assertEqual(created.planner.output.session_flow.flow_revision, 1)
+        self.assertEqual(broadcast.delivery_sequence, 2)
+
+        broadcast.as_dict()
+        broadcast.as_dict()
+        broadcast.subscribe(lambda _event: None)
+        self.assertEqual(broadcast.delivery_sequence, 2)
+
+        created.republish_session_flow()
+        self.assertEqual(created.planner.output.session_flow.flow_revision, 2)
+        self.assertEqual(broadcast.delivery_sequence, 4)
+        self.assertEqual(
+            [entry.delivery_sequence for entry in broadcast.replay_log], [1, 2, 3, 4]
+        )
+        self.assertEqual(broadcast.as_dict()["broadcast"]["snapshot_watermark"], 4)
+
+        ended = asyncio.run(
+            manager.async_end(owner_profile_id="profile-peter", session_id=created.session_id)
+        )
+        assert ended is not None
+        self.assertEqual(ended.broadcast.delivery_sequence, 0)
+        self.assertEqual(ended.broadcast.replay_log, ())
+        self.assertEqual(ended.broadcast.as_dict()["broadcast"]["snapshot_watermark"], 0)
+
+    def test_broadcast_replay_log_is_bounded_and_entries_are_immutable(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))
+        broadcast = self.runtime.DJSessionBroadcastEngine(
+            state=created.broadcast.state, replay_log_limit=2
+        )
+
+        self.assertEqual(broadcast.delivery_sequence, 0)
+        self.assertEqual(broadcast.as_dict()["broadcast"]["snapshot_watermark"], 0)
+        broadcast._publish(self.runtime.BroadcastEventType.PLANNER_UPDATED, {"planner": {"value": 1}})
+        broadcast._publish(self.runtime.BroadcastEventType.AUDIENCE_UPDATED, {"audience": {"value": 2}})
+        broadcast._publish(self.runtime.BroadcastEventType.MOOD_CHANGED, {"session": {"value": 3}})
+
+        self.assertEqual(broadcast.delivery_sequence, 3)
+        self.assertEqual(
+            [entry.delivery_sequence for entry in broadcast.replay_log], [2, 3]
+        )
+        with self.assertRaises(FrozenInstanceError):
+            broadcast.replay_log[0].delivery_sequence = 9  # type: ignore[misc]
 
     def test_session_flow_is_not_shared_and_is_removed_with_runtime(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
