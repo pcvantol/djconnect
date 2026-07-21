@@ -5,14 +5,12 @@
 
 ## Current engineering increment
 
-PR [#288](https://github.com/pcvantol/djconnect/pull/288), **Define Rolling
-Session Horizon Architecture**, merged on 2026-07-21 as
-`ec9fbb3eff183cf380e9dc1ca8d630f465f1ad3f`. It is
+PR [#290](https://github.com/pcvantol/djconnect/pull/290), **Add DJConnect V4
+Completion Roadmap**, merged on 2026-07-21 as
+`f2fbd26819c53286afec1453cca34ce28e7bc126`. It is
 `MERGED_UNRECONCILED`; this governance-only Finalization archives immutable
-Prompt History and reconciles rolling records. It establishes a future
-approximately twenty-minute, Planner-owned, Runtime-scoped horizon while
-preserving current 15-minute implementation behaviour and all ownership
-boundaries.
+Prompt History and reconciles rolling records. It establishes sequencing and
+completion gates only; it changes no architecture or production behaviour.
 
 Every implementation capability uses the mandatory Pre-Flight → Implementation
 → Validation → Merge → Finalization lifecycle. Pre-Flight ends in `GO` or
