@@ -242,8 +242,8 @@ class PlaybackObservationTest(unittest.TestCase):
             "PROMPT_INDEX.md",
         ):
             contents = (ROOT / name).read_text()
-            self.assertIn("PR [#304]", contents)
-            self.assertIn("3e46ed605f45a25d3c861456aade6d124bd0d89f", contents)
+            self.assertIn("PR [#307]", contents)
+            self.assertIn("03a55fccc2f44e2646d813bb0bf6e4ab49e02b3d", contents)
             self.assertIn("WORKSPACE_READY", contents)
 
     def test_media_identity_never_enters_public_runtime_representation(self) -> None:
