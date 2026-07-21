@@ -5,16 +5,28 @@
 
 ## Current engineering increment
 
-PR [#259](https://github.com/pcvantol/djconnect/pull/259), **Implement Spotify
-Live Playback Observation Stage 1**, merged on 2026-07-20 as
-`f3f0621d1b313f96d472af2da49f13487cc49edc`. Spotify Direct now performs
-bounded, read-only active-session Media Identity observation; a changed safe
-track URI uses the existing Track Started intelligence pipeline. Music
-Assistant remains conditionally eligible and deferred. Continue Stage 2,
-Playback Instance Identity and occurrence-correct observation remain blocked
-by the external backend capabilities documented canonically in
-`docs/product/DJ_INTELLIGENCE_MATURITY.md`. No further playback-observation
-implementation is active until those unblock conditions are met.
+The reconciled baseline is PR [#266](https://github.com/pcvantol/djconnect/pull/266),
+**Add owner HTTP Broadcast snapshot**, merged on 2026-07-21 as
+`610be0ba7c776b9c581e7be90237ca6addfe5266`. It completes Transport Cell 1:
+an owner-authorized, renderer-safe HTTP snapshot fallback returns the same
+canonical initial owner Broadcast projection as WebSocket. It adds no delta,
+cursor, replay, Receiver HTTP access or interaction behaviour, and does not
+change Runtime or DJ Intelligence semantics.
+
+The preceding reconciled increments are: PR #260 external dependency
+documentation; PR #261 rolling-status validation only; PR #262 maturity-cell
+documentation; PR #263 Knowledge Engine `KE-2.2` primary existing-metadata
+evidence; PR #264 DJ Session Transport Architecture documentation; and PR
+#265 Planner `PL-4.1` recommendation spacing. Spotify Direct Live Playback
+Observation Stage 1, Knowledge Engine Stage 2 (including `KE-2.2`), and
+Performance Memory within its intended scope remain current. Music Assistant
+observation, Continue Stage 2, Playback Instance Identity and
+occurrence-correct observation remain deferred under their recorded external
+backend conditions.
+
+The next authorized implementation cell is Transport Cell 2 only: retain the
+pure owner snapshot query as the single initial WebSocket snapshot source and
+register live delivery without constructing an unused second snapshot.
 
 Platform Release 3.3 is operationally complete and in Maintenance. PR
 [#202](https://github.com/pcvantol/djconnect/pull/202), **Platform Release 3.3
@@ -148,6 +160,9 @@ separate explicitly authorized operational action.
 
 ## Deferred work
 
+- Transport Cell 2: remove duplicate initial owner WebSocket snapshot
+  construction without changing transport schema, ordering, replay or
+  reconnect semantics.
 - Perform the three separately authorized Observatory delivery increments in
   their documented order when priority and authorization permit.
 - Do not reopen Platform Release 3.3 or start a new Platform Release
@@ -156,5 +171,6 @@ separate explicitly authorized operational action.
 
 ## Recommended next prompt
 
-Complete this post-merge reconciliation, then select the next bounded Product
-Engineering increment from `PRODUCT_ROADMAP.md`.
+After this reconciliation is merged, implement Transport Cell 2 as one
+separate, transport-internal increment; do not combine it with capability,
+Runtime or DJ Intelligence work.

@@ -4,13 +4,17 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#259](https://github.com/pcvantol/djconnect/pull/259), merged as
-`f3f0621d1b313f96d472af2da49f13487cc49edc`, makes Spotify Direct Live
-Playback Observation Stage 1 current. Music Assistant Stage 1 remains
-conditionally eligible and deferred. Continue Stage 2, Playback Instance
-Identity and occurrence-correct observation are blocked pending the explicit
-backend capability conditions in `docs/product/DJ_INTELLIGENCE_MATURITY.md`;
-do not select them for an implementation prompt until that evidence exists.
+PR [#266](https://github.com/pcvantol/djconnect/pull/266), merged as
+`610be0ba7c776b9c581e7be90237ca6addfe5266`, completes Transport Cell 1 with
+an owner-authorized, renderer-safe HTTP Broadcast snapshot fallback equivalent
+to the initial owner WebSocket projection. Transport Cell 2 remains pending:
+register owner WebSocket live delivery without constructing a second unused
+initial snapshot. It must remain a separate increment.
+
+Spotify Direct Live Playback Observation Stage 1, Knowledge Engine `KE-2.2`
+and Planner `PL-4.1` are current. Music Assistant Stage 1, Continue Stage 2,
+Playback Instance Identity and occurrence-correct observation remain blocked
+by the external capability conditions in `docs/product/DJ_INTELLIGENCE_MATURITY.md`.
 
 ## Generation 2 navigation
 
@@ -87,32 +91,33 @@ planning is read.
 | V4-02 Session Planner Foundation | Completed / merged reconciled | Create one non-persistent, Runtime-owned Session Planner per active session with a fixed 15-minute horizon, placeholder direction and future Session Flow output contract; no AI planning, Session Flow generation, Broadcast or VibeCast. | `codex/v4-session-planner-foundation` | Explicit implementation prompt authorized 2026-07-20; PR [#218](https://github.com/pcvantol/djconnect/pull/218), merged as `0b5d1cda266ff2b47a6ce00d8df71d1870f99fc5`; Prompt History archive absent, recorded as a traceability gap without retrospective recreation. |
 | V4-03 Broadcast Engine Foundation | Completed / merged reconciled | Create one non-persistent, Runtime-owned Broadcast Engine per active session with an empty canonical Broadcast State and stable event vocabulary; no renderer, VibeCast, Universal Session Receiver, Voice or Session Flow generation. | `codex/v4-broadcast-engine-foundation` | Explicit implementation prompt authorized 2026-07-20; PR [#220](https://github.com/pcvantol/djconnect/pull/220), merged as `aececce3af39789596a72748455906acf1bb3122`; Prompt History archive absent, recorded as a traceability gap without retrospective recreation. |
 | V4-04 Canonical Session Flow | Completed / merged reconciled | Create one non-persistent, Planner-owned deterministic Session Flow per active Runtime and distribute it through Broadcast; no AI, recommendations, queue behaviour, renderer, Voice, VibeCast, Track Insight, Discover or Audience Signals. | `codex/v4-canonical-session-flow` | Explicit implementation prompt authorized 2026-07-20; PR [#222](https://github.com/pcvantol/djconnect/pull/222), merged as `ffb6972179293ecc3e9283235ed2fdd6a8e93653`; Prompt History archive absent, recorded as a traceability gap without retrospective recreation. |
+| External Capability Dependencies | Completed / merged reconciled / archived | Record the explicit external prerequisite gates for Playback Observation and Continue work; documentation only. | `codex/record-external-capability-dependencies` | `docs/history/prompts/2026-07-21-record-external-capability-dependencies.md`; PR [#260](https://github.com/pcvantol/djconnect/pull/260), merged as `2cfacb8163c9f86b444ac1035b7e7c4249696539`. |
+| Rolling Status Validation Baseline | Completed / merged reconciled / archived | Correct the rolling-record validation baseline from PR #258 to merged PR #259; test only. | `codex/fix-rolling-status-validation` | `docs/history/prompts/2026-07-21-fix-rolling-status-validation-baseline.md`; PR [#261](https://github.com/pcvantol/djconnect/pull/261), merged as `5109d77ba7398aeed809c7d163b3e257f03c3177`. |
+| DJ Intelligence Maturity Cells | Completed / merged reconciled / archived | Refine bounded future maturity cells and prerequisite gates without capability advancement. | `codex/refine-dj-intelligence-maturity` | `docs/history/prompts/2026-07-21-refine-dj-intelligence-maturity-cells.md`; PR [#262](https://github.com/pcvantol/djconnect/pull/262), merged as `239820602afa22b300e32fa5c49dbefd7917f96a`. |
+| Knowledge Engine Primary Evidence | Completed / merged reconciled / archived | Advance `KE-2.2` with deterministic primary existing-metadata evidence selection. | `codex/select-primary-knowledge-evidence` | `docs/history/prompts/2026-07-21-select-primary-knowledge-evidence.md`; PR [#263](https://github.com/pcvantol/djconnect/pull/263), merged as `32acb63a7a6277bd1e0d891852af61e7a91194c2`. |
+| DJ Session Transport Architecture | Completed / merged reconciled / archived | Establish transport-independent HTTP/WebSocket architecture documentation only. | `codex/session-transport-architecture` | `docs/history/prompts/2026-07-21-document-dj-session-transport-architecture.md`; PR [#264](https://github.com/pcvantol/djconnect/pull/264), merged as `f741cc30f3aa6189de3d236d2ac034d9ec7069e5`. |
+| Planner Recommendation Spacing | Completed / merged reconciled / archived | Advance `PL-4.1` by spacing consecutive Recommendation intents. | `codex/space-recommendation-intents` | `docs/history/prompts/2026-07-21-space-consecutive-recommendation-intents.md`; PR [#265](https://github.com/pcvantol/djconnect/pull/265), merged as `c4d848f81dd1167e39c0f8576ad8c6f0d285c42f`. |
+| Owner HTTP Broadcast Snapshot | Completed / merged reconciled / archived | Complete Transport Cell 1 with an owner-authorized, renderer-safe HTTP snapshot fallback; no live transport redesign. | `codex/http-broadcast-snapshot` | `docs/history/prompts/2026-07-21-owner-http-broadcast-snapshot.md`; PR [#266](https://github.com/pcvantol/djconnect/pull/266), merged as `610be0ba7c776b9c581e7be90237ca6addfe5266`. |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
 
 ## Current post-merge reconciliation
 
-PR #209 is merged as `d66c6f0aa87936105aa406d959a8644ee9f56b56`; the DJ Session
-Vision is reconciled into the rolling records. Its predecessor Prompt History
-archive is absent and remains an explicit historical traceability gap. PR #212
-is merged as `677f3304f35c9386ef1f839c595e1478fd2fef7d`; its v4 Architecture
-records are reconciled. PR #214 is merged as
-`d4f5d279c7823a7b674cd2b9744e4f9a8e5a4f06`; its Runtime Contract records are
-reconciled. PR #216 is merged as `36d1e15da8b55fdccaac8b7ad777ccf6f462b6e5`;
-its V4-01 records are reconciled. PR #218 is merged as
-`0b5d1cda266ff2b47a6ce00d8df71d1870f99fc5`; its V4-02 records are reconciled.
-PR #220 is merged as `aececce3af39789596a72748455906acf1bb3122`; its V4-03
-records are reconciled. PR #222 is merged as
-`ffb6972179293ecc3e9283235ed2fdd6a8e93653`; its V4-04 records are reconciled.
+PRs #260 through #266 are merged and reconciled through current `main`
+`610be0ba7c776b9c581e7be90237ca6addfe5266`. Their immutable Prompt History
+records preserve the external dependency, validation-only, maturity-document,
+Knowledge Engine, transport architecture, Planner spacing and owner HTTP
+snapshot scopes without retroactively changing their intent. Transport Cell 1
+is current; Transport Cell 2 is the next separate transport-internal work.
 Platform Release 3.3 remains in Maintenance.
 
 ## Next Engineering Increment
 
-No Platform Release 3.3 execution is active. Select the next separately
-authorized Product Engineering or Innovation Engineering increment from the
-active roadmap or backlog; Platform Release 3.3 remains in Maintenance unless
-its completion record is formally reopened.
+No Platform Release 3.3 execution is active. The next separately authorized
+Product Engineering increment is Transport Cell 2: register an owner WebSocket
+callback without a second initial snapshot construction. Platform Release 3.3
+remains in Maintenance unless its completion record is formally reopened.
 
 ## Active Next Phase
 
