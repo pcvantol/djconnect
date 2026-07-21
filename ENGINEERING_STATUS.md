@@ -5,10 +5,12 @@
 
 ## Current engineering increment
 
-PR [#302](https://github.com/pcvantol/djconnect/pull/302), **Add Historical
-Session Projections**, merged on 2026-07-21 as
-`0a224834aa685a3d57788e9aaf70d515a502cc0c`. This Finalization reconciles its
-immutable Prompt History and rolling records to `MERGED_RECONCILED`.
+PR [#304](https://github.com/pcvantol/djconnect/pull/304), **Add Workspace
+Cleanup Governance**, merged on 2026-07-21 as
+`3e46ed605f45a25d3c861456aade6d124bd0d89f`. This Finalization reconciles its
+immutable Prompt History and rolling records. Workspace Cleanup remains
+`NOT_READY`: the squash merge does not make the local implementation commit a
+Git ancestor, so the new no-force-deletion rule retains that one branch.
 
 Every implementation capability uses the mandatory Pre-Flight → Implementation
 → Validation → Merge → Finalization → Workspace Cleanup lifecycle.

@@ -28,11 +28,12 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current main contains PR [#302](https://github.com/pcvantol/djconnect/pull/302),
-**Add Historical Session Projections**, merged on 2026-07-21 as
-`0a224834aa685a3d57788e9aaf70d515a502cc0c`. This governance-only Finalization
-reconciles it to `MERGED_RECONCILED`. The increment interrupts only durable
-non-terminal Sessions; it adds no Runtime or provider recovery.
+Current main contains PR [#304](https://github.com/pcvantol/djconnect/pull/304),
+**Add Workspace Cleanup Governance**, merged on 2026-07-21 as
+`3e46ed605f45a25d3c861456aade6d124bd0d89f`. This governance-only Finalization
+reconciles its records. The local implementation branch remains because the
+squash merge fails the mandatory fully-merged Git check; no force deletion is
+permitted. No Runtime or provider behaviour changes.
 
 The preceding Broadcast baseline remains PR [#280](https://github.com/pcvantol/djconnect/pull/280),
 **Add Broadcast recovery cursor**, merged as

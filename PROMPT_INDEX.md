@@ -4,9 +4,11 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#302](https://github.com/pcvantol/djconnect/pull/302), merged as
-`0a224834aa685a3d57788e9aaf70d515a502cc0c`, is reconciled by this dedicated
-Finalization. Recovery Cells 1–4 remain complete.
+PR [#304](https://github.com/pcvantol/djconnect/pull/304), merged as
+`3e46ed605f45a25d3c861456aade6d124bd0d89f`, is reconciled by this dedicated
+Finalization. Recovery Cells 1–4 remain complete. Workspace Cleanup is
+`NOT_READY` until the retained squash-merged local branch can satisfy the
+no-force-deletion contract.
 Planner-owned Flow Revision/Change Journal and Broadcast-owned Delivery
 Sequence, snapshot watermark, bounded internal Replay Log and immutable
 owner-scoped Recovery Cursor are current. An authorized owner WebSocket may
@@ -124,6 +126,7 @@ planning is read.
 | Broadcast Delivery Identity | Completed / merged reconciled / archived | Complete Recovery Cell 2 with Broadcast-owned runtime-scoped Delivery Sequence, snapshot watermark and bounded internal Replay Log; no cursor or public recovery transport. | `codex/broadcast-delivery-identity` | `docs/history/prompts/2026-07-21-broadcast-delivery-identity.md`; PR [#278](https://github.com/pcvantol/djconnect/pull/278), merged as `fe36439bad56792e520fb21df706bd64028c065e`. |
 | Broadcast Recovery Cursor | Completed / merged reconciled / archived | Complete Recovery Cell 3 with one immutable Broadcast-owned, owner-scoped internal Recovery Cursor after a retained publication; no replay or recovery transport. | `codex/broadcast-recovery-cursor` | `docs/history/prompts/2026-07-21-broadcast-recovery-cursor.md`; PR [#280](https://github.com/pcvantol/djconnect/pull/280), merged as `ccddf5eb72becde8e7de662446e487c43d70b7f3`. |
 | Capability Completion Lifecycle | Completed / merged reconciled / archived | Establish the mandatory Pre-Flight, Implementation, Validation, Merge and Finalization lifecycle; no product or architecture change. | `codex/capability-completion-lifecycle` | `docs/history/prompts/2026-07-21-capability-completion-lifecycle.md`; PR [#282](https://github.com/pcvantol/djconnect/pull/282), merged as `8394dbda94594369dd815f05e734bd7a0214221b`. |
+| Workspace Cleanup Governance | Completed / merged unreconciled / archived | Extend capability completion with mandatory Workspace Cleanup, independent `WORKSPACE_READY`, safe single-branch deletion and a deterministic cleanup report; no production, runtime or architecture change. | `codex/workspace-cleanup-governance` | `docs/history/prompts/2026-07-21-workspace-cleanup-governance.md`; PR [#304](https://github.com/pcvantol/djconnect/pull/304), merged as `3e46ed605f45a25d3c861456aade6d124bd0d89f`. |
 | Authorized WebSocket Recovery | Completed / merged reconciled / archived | Complete Recovery Cell 4 with owner-authorized WebSocket recovery using the existing opaque Broadcast cursor and bounded Replay Log; fresh owner snapshots remain the fallback. | `codex/authorized-websocket-recovery` | `docs/history/prompts/2026-07-21-authorized-websocket-recovery.md`; PR [#284](https://github.com/pcvantol/djconnect/pull/284), merged as `01e0756c3745a57b63857d71ece57cbeabfbbaf4`. |
 
 All governance rollout work is completed, merged, reconciled and archived.
