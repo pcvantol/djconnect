@@ -20,12 +20,13 @@ Lab or Deferred. `ROADMAP_INDEX.md` owns cross-program navigation.
 | Persistent Session Foundation | Completed | Persistent Session Architecture; PR #292 | 5 |
 | Session Intelligence Runtime Integration | Completed | DJ Session Runtime Contracts, Planner, Knowledge Engine, DJ Moment Engine, Session Flow and Broadcast | 7 |
 | Universal Receiver V1 foundation | Completed — Architecture plus Broadcast Connection, Session Flow Timeline, renderer-safe Playback Projection and Now Playing are operational | Session Intelligence Runtime; `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md` | 8 |
-| Developer Experience and Verification | In Progress — `Developer Session Bootstrap` is the single active next capability | Session Intelligence Runtime; operational Universal Receiver foundation; `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` | 9 |
-| Apple experience delivery | Planned | Stable Renderer Host and developer-verification access contracts | 10 |
-| Windows experience delivery | Planned | Stable Renderer Host and developer-verification access contracts | 11 |
-| Raspberry Pi experience delivery | Planned | Stable Renderer Host and developer-verification access contracts | 12 |
-| Voice experience delivery | Planned | Stable current/historical Moment contracts and Assist capability validation | 13 |
-| Session Simulation | Parked | Developer Session Bootstrap and a separately authorized simulation architecture | 14 |
+| Automated Session Intelligence E2E Verification | In Progress — primary active Epic; architecture is the single next capability | Session Intelligence Runtime; operational Universal Receiver foundation; `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` | 9 |
+| Developer Session Bootstrap | Planned — first enabling capability for automated CI verification | Approved Automated E2E Verification Architecture | 10 |
+| Apple experience delivery | Planned | Stable Renderer Host and developer-verification access contracts | 11 |
+| Windows experience delivery | Planned | Stable Renderer Host and developer-verification access contracts | 12 |
+| Raspberry Pi experience delivery | Planned | Stable Renderer Host and developer-verification access contracts | 13 |
+| Voice experience delivery | Planned | Stable current/historical Moment contracts and Assist capability validation | 14 |
+| Session Simulation and accelerated execution | Planned within the Automated E2E Verification Epic | Bootstrap, scenario, capture and clock architecture | 15 |
 | Preferences and Music DNA expansion | Deferred | Existing Profile and Planner influence boundaries | 15 |
 | Narrative Sequencing, Lyrics and Discover Evolution | Deferred | Existing Planner, Knowledge and DJ Moment Engine abstractions | 16 |
 | Audience Intelligence | Deferred | Explicit bounded Planner-influence policy; remains intentionally deferred | 17 |
@@ -52,9 +53,11 @@ Future intelligence capabilities extend the existing Planner, Knowledge Engine
 and DJ Moment Engine abstractions; they do not create another Runtime pipeline.
 The active roadmap now moves from runtime-architecture construction to
 experience expansion and verification. Universal Receiver V1 has an operational
-foundation; Developer Experience and Verification now begin with one bounded
-capability, `Developer Session Bootstrap`. Audience Intelligence remains
-deferred and is not an active priority.
+foundation; **Automated Session Intelligence E2E Verification** is now the
+primary active Epic. Its single next capability is the architecture that
+defines headless, deterministic CI verification. Developer Session Bootstrap is
+the first enabling capability inside that Epic, not its end goal. Audience
+Intelligence remains deferred and is not an active priority.
 
 Canonical product roadmap for all DJConnect repositories. This file lives only
 in the Home Assistant integration repo `pcvantol/djconnect` and is the leading

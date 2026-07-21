@@ -15,7 +15,7 @@ Use this index to find the one canonical record for current work.
 | DJ Session transport independence, HTTP recovery and transport-neutral Broadcast delivery | `DJ_SESSION_TRANSPORT_ARCHITECTURE.md` | DJConnect Product Development |
 | Completed Session Intelligence Runtime milestone and the transition to experience expansion | `DJCONNECT_V4_COMPLETION_ROADMAP.md`, `docs/product/DJ_INTELLIGENCE_MATURITY.md` | DJConnect Product Development |
 | Universal Receiver V1 completed foundation: Renderer Host boundary, Broadcast connection, Session Flow Timeline and Now Playing | `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md`, `PRODUCT_ROADMAP.md` | DJConnect Product Development |
-| Active Developer Experience and Verification sequence; next capability: Developer Session Bootstrap | `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md`, `PRODUCT_ROADMAP.md` | DJConnect Product Development |
+| Active Automated Session Intelligence E2E Verification Epic; next capability: E2E Verification Architecture | `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md`, `PRODUCT_ROADMAP.md` | DJConnect Product Development |
 | Durable Session lifecycle, historical DJMoment projections and future local persistence sequencing | `PERSISTENT_SESSION_ARCHITECTURE.md` | DJConnect Product Development |
 | Rolling approximately twenty-minute Session experience planning, safe future-context degradation and bounded replanning sequence | `ROLLING_SESSION_HORIZON_ARCHITECTURE.md` | DJConnect Product Development |
 | Coordinated V4 server-to-iOS completion sequencing, gates and deferred work | `DJCONNECT_V4_COMPLETION_ROADMAP.md` | DJConnect Product Development |

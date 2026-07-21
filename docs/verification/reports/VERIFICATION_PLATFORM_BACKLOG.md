@@ -7,14 +7,14 @@ Do not create GitHub issues automatically from this backlog.
 ## Product-development handoff
 
 The Session Intelligence Runtime and Universal Receiver V1 foundation are
-complete. The active Product Development workstream is Developer Experience,
-starting only with `Developer Session Bootstrap` as recorded in
+complete. The active Product Development Epic is Automated Session Intelligence
+E2E Verification, starting with its architecture capability as recorded in
 [`docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md`](../../product/DEVELOPER_EXPERIENCE_ROADMAP.md).
-It is the prerequisite for bounded manual and CI session setup; it does not
-activate a new Verification Platform implementation or authorize a simulation
-runtime. Future scenario, capture, report and golden-session work must reuse
-the canonical Runtime, Planner, Knowledge Engine, DJ Moment Engine, Session
-Flow and Broadcast pipeline.
+Developer Session Bootstrap is its first enabling capability, principally for
+headless CI rather than manual setup. This record activates no Verification
+Platform implementation or simulation runtime. Future scenario, capture,
+report and Golden Session work must reuse the canonical Runtime, Planner,
+Knowledge Engine, DJ Moment Engine, Session Flow and Broadcast pipeline.
 
 | ID | Priority | Classification | Finding | Owner | Repository | Blocking | Effort | Recommended phase |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |

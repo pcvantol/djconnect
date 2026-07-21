@@ -1,90 +1,159 @@
-# Developer Experience and Verification Roadmap
+# Automated Session Intelligence E2E Verification Roadmap
 
 ## Status
 
-**Active workstream.** The single active next capability is **Developer Session
-Bootstrap**. This document records product-development sequencing only; it does
-not authorize implementation beyond that capability.
+**Primary active Epic:** Automated Session Intelligence E2E Verification.
+
+The single recommended next capability is **Automated Session Intelligence E2E
+Verification Architecture**. This document is a roadmap and governance record;
+it authorizes no implementation of CI, Developer Mode, simulation, browser
+testing or runtime behavior.
 
 ## Purpose
 
-The Session Intelligence Runtime and Universal Receiver V1 foundation are
-complete. The next work makes the existing server-owned pipeline practical to
-start, inspect and verify during development without creating a second Runtime
-or granting a Renderer Host authority.
+Developer Mode exists primarily to make the real Session Intelligence pipeline
+fully automated, deterministic and headless in CI. Interactive Home Assistant
+Developer Tools use is secondary convenience, never a CI prerequisite.
 
-The canonical pipeline remains:
+The target test path is:
 
 ```text
-Playback Observation -> Session Runtime -> Planner -> Knowledge Engine
--> DJ Moment Engine -> Session Flow -> Broadcast -> Renderer Hosts
+CI runner -> isolated Home Assistant development environment
+-> Developer Session Bootstrap -> deterministic Scenario Driver
+-> Playback Observation Boundary or approved test adapter
+-> Session Runtime -> Planning Runtime Coordinator -> Planner
+-> Knowledge Engine -> DJ Moment Engine -> Session Flow -> Broadcast
+-> E2E Session Capture -> invariant and regression evaluation -> CI artifacts
 ```
 
-Developer tooling observes or invokes bounded server-owned lifecycle entry
-points. It never reimplements Planner, Knowledge, DJ Moment, Flow or Broadcast
-behaviour.
+The test system must reuse production-owned normalized contracts and the one
+canonical Runtime pipeline. It must not create an alternative Intelligence
+Engine or inject test-specific business logic into Runtime, Planner, Knowledge,
+DJ Moment Engine, Session Flow or Broadcast.
 
-## Active next capability
+## Automation requirements
 
-### 1. Developer Session Bootstrap — active / next
+The baseline suite must have zero manual interaction, deterministic inputs and
+cleanup, bounded headless execution and isolated test state. It must be
+reproducible locally and in CI, independent of a developer's Spotify account
+and live external providers, and leave no persistent test Session, Broadcast
+credential, Profile mutation or production-data change. Failures must retain
+useful redacted artifacts.
 
-The later implementation will establish one Home Assistant development or
-service boundary that starts an ordinary server-owned Session and establishes a
-Session identifier. It may establish bounded, ephemeral, session-scoped
-Receiver access for manual development and CI, and it must provide a safe stop
-or cleanup path.
+CI must never require a human to copy a Session identifier or Broadcast
+credential. The server-side automation boundary returns only the bounded,
+ephemeral information required by its invoking test process.
 
-It must preserve Runtime, Planner, Knowledge Engine, DJ Moment Engine, Session
-Flow and Broadcast ownership. A browser must not create Sessions, own access
-authority or acquire a new synchronization path. The capability is not
-implemented by this roadmap update.
+## Enabling capability: Developer Session Bootstrap
 
-## Ordered sequence
+Developer Session Bootstrap is the first enabling capability in this Epic; its
+primary consumer is automated CI. A future bounded machine-readable Home
+Assistant boundary may start an ordinary server-owned Session for a deterministic
+development Profile or fixture, return internal bootstrap output to the test
+process, establish ephemeral session-scoped Broadcast access where required,
+and stop and clean up deterministically.
 
-The following order is intentional. Only item 1 is active; every later item
-needs its predecessor evidence and a separate authorization.
+It must reuse the production Session Runtime lifecycle. A browser never creates
+a Session, CI never performs a manual token exchange, and the boundary does not
+own Planner, Knowledge, Moments, Flow or Broadcast behavior.
+
+## Ordered delivery sequence
+
+Only the first item is active. Each later item requires predecessor evidence
+and a separately authorized capability.
 
 | Order | Capability | Status | Boundary |
 | --- | --- | --- | --- |
-| 1 | Developer Session Bootstrap | Active / next | Starts and cleans up an ordinary server-owned Session with bounded developer access. |
-| 2 | Receiver connection bootstrap and safe access exchange | Ready after 1 | Supplies an installation-owned, ephemeral access handoff; no browser authority. |
-| 3 | Read-only Developer Overlay architecture | Deferred pending separate architecture review | A development-only, non-authoritative view, disabled in production by default and separate from the normal Receiver. |
-| 4 | Accelerated Session Simulation architecture | Parked | Defines use of the real pipeline with simulated observation and an accelerated clock; no alternate production Runtime. |
-| 5 | Scenario Runner | Deferred | Executes authorized scenarios through the established developer boundary. |
-| 6 | DJMoment and Flow capture | Deferred | Captures only canonical immutable outcomes and Flow evidence. |
-| 7 | Intelligence Evaluation Report | Deferred | Reports bounded evidence from captured scenarios. |
-| 8 | Golden Session regression suite | Deferred | Uses approved scenarios and canonical captures for regression protection. |
-| 9 | Optional TTS session replay | Deferred | Replays eligible existing presentation output without creating canonical audio persistence. |
-| 10 | Side-by-side session comparison | Deferred | Compares captured canonical outcomes; it does not create a competing planner. |
+| 1 | Automated Session Intelligence E2E Verification Architecture | Active / next | Defines test-host ownership, production-boundary reuse, bootstrap, scenario, clock, capture, validation, CI shape, security, artifacts and staged rollout. |
+| 2 | Developer Session Bootstrap | Planned | Enables machine-readable, server-owned Session startup, scoped test access and cleanup for CI. |
+| 3 | Deterministic Scenario Driver | Planned | Supplies provider-independent scripted normalized inputs without fabricating provider-owned occurrence identity. |
+| 4 | Immutable E2E Session Capture | Planned | Captures safe canonical outcomes and cleanup evidence. |
+| 5 | Structural Invariant Validator | Planned | Blocks immediate architectural and lifecycle violations. |
+| 6 | CI Smoke Suite | Planned | Runs bounded selected scenarios in an isolated headless environment. |
+| 7 | Accelerated / event-driven Session execution | Planned | Uses approved infrastructure clock/observation controls, never business-logic conditionals. |
+| 8 | Golden Session Regression Suite | Planned | Applies versioned semantic and structural expectations. |
+| 9 | Intelligence Quality Metrics | Planned, initially non-blocking | Reports stable metrics before any governance-approved blocking threshold. |
+| 10 | Full CI Qualification and readable reports | Planned | Expands scenario coverage, artifacts and explicit qualification shape. |
+| 11 | Universal Receiver browser E2E | Optional / separate layer | Validates Receiver presentation through Broadcast and a headless browser, not core Intelligence behavior. |
+| 12 | Read-only Developer Overlay | Optional / deferred | Development-only, non-authoritative and disabled in production by default. |
+| 13 | Optional TTS Session Replay | Deferred | Reuses eligible presentation output without canonical audio persistence. |
+| 14 | Optional side-by-side Session comparison | Deferred | Compares capture artifacts without creating a competing planner. |
 
-## Simulation position
+## Scenario and execution policy
 
-Session Simulation is parked, not active work. Its later architecture must run
-the real Runtime pipeline from simulated playback observation, use an explicit
-accelerated clock, capture canonical outcomes and produce a bounded report. It
-must not add a parallel production Runtime, business-logic branch, Planner,
-Knowledge Engine, DJ Moment Engine, Session Flow or Broadcast implementation.
+The future Scenario Driver may script Session start strategy, Mood, Persona,
+Direction, observable current track, bounded upcoming projection, Track Started
+transitions, metadata availability or absence, typed knowledge failure,
+invalidation, replanning, Session Update, Silence and Session end. Baseline
+scenarios remain provider-independent and must not invent provider-owned
+playback occurrence identity.
 
-## Product work kept separate
+Accelerated execution follows bootstrap, scenario and capture contracts. It
+uses an injectable or controlled test clock only at approved infrastructure
+boundaries and accelerated or event-driven observation timing. Production
+owners consume the same normalized contracts in real and automated scenarios;
+scattered `developer_mode`, `test_mode` or `accelerated` business-logic paths
+are prohibited.
 
-Normal product backlog remains distinct from Developer Experience: player
-controls through server APIs, Session start and selection flow, Ask DJ,
-Discover, responsive refinement, and local deployment/install UX need their
-own product authorization. Universal Receiver V1 remains local-first and
-installation-owned; Home Assistant delivery-mechanism selection is deferred.
+## E2E Session Capture and validation layers
 
-## Deferred intelligence
+The future immutable capture artifact is redacted and versioned. Where safe and
+available it records scenario identity/version, fixture revision, Session
+configuration, normalized playback timeline, planning generations, selected and
+approved intents, readiness and prefetch outcomes, immutable DJMoments, Silence
+and Session Update decisions, Transitions, Flow ordering, renderer-safe
+Broadcast projections, fallbacks, warnings, completion and cleanup result.
 
-Preferences, Music DNA expansion, Narrative Sequencing, Lyrics, Discover
-Evolution, Audience Intelligence, Playback Observation Stage 2 and Continue
-Stage 2 remain deferred. Audience Intelligence is a low-priority future
-Planner-influence capability, not a prerequisite for Developer Experience or a
-new execution path.
+Validation is deliberately layered:
 
-## Receiver duplicate-work guard
+1. **Structural invariants** — Session lifecycle, one canonical approval path,
+   immutable/non-duplicate Moments, Flow ordering, expected Broadcast projection,
+   generation safety and complete cleanup. These may block CI immediately.
+2. **Deterministic behavioral expectations** — approved fixed-fixture policies
+   such as Performance Memory repetition avoidance, safe knowledge fallback,
+   obsolete-plan supersession and earliest-eligible approval. These block only
+   after their contract is explicitly approved.
+3. **Intelligence quality metrics** — repetition and Silence ratios, Moment
+   distribution, recommendation diversity, fallback use, replanning churn and
+   transition frequency. These start as non-blocking artifacts; a blocking
+   threshold requires a stable definition, approved baseline, understood false
+   positives and explicit governance authorization.
 
-Before any new Universal Receiver capability is authorized, Pre-Flight must
-inspect current `main` and the canonical Receiver architecture. Capability
-proposals must not repeat completed Session Flow Timeline or Now Playing work,
-and must identify an existing renderer-safe Broadcast projection rather than
-introduce a duplicate contract.
+Golden Sessions are versioned scenario definitions with structural invariants,
+approved deterministic expectations, optional quality baselines and schema
+compatibility. Prefer semantic and structural assertions; narrative text is not
+byte-compared unless a narrative contract is explicitly deterministic.
+
+## CI and renderer separation
+
+The later CI shape must provision an isolated environment, execute selected
+baseline scenarios with timeouts, publish readable redacted captures and
+failure diagnostics, clean up even after failure, and report clear pass/fail.
+The choice between per-PR smoke and broader main/release/scheduled suites stays
+for the architecture capability after inspecting runner capacity and CI
+governance.
+
+Core Intelligence Engine validation is headless and frontend-independent. A
+separate optional Renderer E2E layer may later verify:
+
+```text
+Session Bootstrap -> Broadcast -> headless browser -> Receiver DOM assertions
+```
+
+That validates the Universal Receiver only; it is not a dependency of core
+Intelligence regression coverage. Universal Receiver remains local-first and
+installation-owned, with no mandatory DJConnect cloud dependency.
+
+## Completed and deferred work
+
+Completed work is not proposed again: Session Intelligence Runtime Integration,
+Universal Receiver Architecture, Receiver Broadcast connection/lifecycle,
+Session Flow Timeline, renderer-safe Playback Projection and Now Playing.
+Every future capability requires a current-main Pre-Flight against these
+records.
+
+Preferences and feedback semantics, Music DNA expansion, Narrative Sequencing,
+Lyrics, Discover evolution and Audience Intelligence remain deferred. Audience
+is low priority. Playback Observation Stage 2 and Continue Stage 2 remain
+separately blocked by backend-owned Playback Instance Identity. The E2E
+foundation must exist before material new Intelligence Engine complexity.

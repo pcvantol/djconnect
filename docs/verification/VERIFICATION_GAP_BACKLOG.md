@@ -5,11 +5,13 @@ Date: 2026-07-10
 
 Do not automatically create GitHub issues from this file.
 
-> Historical verification-gap record. The current product-development sequence
-> is in `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md`: only Developer Session
-> Bootstrap is active. Accelerated Session Simulation is parked and any later
-> verification work must exercise the canonical server-owned pipeline rather
-> than introduce alternate Runtime or business-logic paths.
+> Historical verification-gap record. The current Product Development Epic is
+> Automated Session Intelligence E2E Verification, defined in
+> `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md`. Its architecture capability is
+> active; Developer Session Bootstrap is the first future CI-enabling cell.
+> Any later scenario, capture, accelerated execution or verification work must
+> exercise the canonical server-owned pipeline rather than introduce alternate
+> Runtime or business-logic paths.
 
 | ID | Priority | Gap Type | Gap | Owner | Repository | Blocking | Estimated Effort | Recommended Phase |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
