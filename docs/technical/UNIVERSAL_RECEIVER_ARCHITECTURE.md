@@ -2,9 +2,10 @@
 
 ## Status
 
-Accepted server architecture and current-contract boundary. This document adds
-no browser UI, frontend framework, authentication redesign, Runtime behaviour,
-transport model or persistence.
+Accepted server architecture and current-contract boundary. Capability 1 now
+adds the minimal operational browser renderer; it does not add a frontend
+framework, authentication redesign, Runtime behaviour, transport model or
+persistence.
 
 ## Purpose
 
@@ -83,6 +84,25 @@ subscription receives a fresh authoritative snapshot. Owner cursor recovery is
 an existing owner-only Broadcast capability; V1 does not grant the Receiver a
 new cursor, replay protocol, local event log or persistence requirement.
 
+## Capability 1 — Broadcast Connection and Session Rendering
+
+The operational Receiver is served as presentation infrastructure at
+`/djconnect/receiver`. It accepts only the existing `session_id` and
+`broadcast_token` URL parameters and opens only the existing read-only
+Broadcast WebSocket. The page itself is not a data API and introduces no new
+transport endpoint or polling path.
+
+It holds an in-memory projection only. The initial snapshot replaces that
+projection; permitted incremental Broadcast events update it; a reconnect opens
+a new subscription and receives a fresh snapshot. A Runtime-ended event clears
+the projection and leaves the Receiver idle. Refreshing the page reconstructs
+the display from the server snapshot and never uses browser persistence.
+
+The deliberately minimal page renders only Session status, current playback,
+the current DJMoment, Session Flow and connection state. It has no controls,
+Planner or Knowledge view, artwork, queue, diagnostics, Session chooser or
+client-derived Runtime state.
+
 ## Multi-renderer model
 
 Multiple Renderer Hosts may consume one active Broadcast concurrently. Apple,
@@ -109,7 +129,8 @@ durable Session or planning state.
 
 ## Deferred capabilities
 
-- Browser UI, HTML, CSS and JavaScript application implementation.
+- Advanced browser presentation, layout, themes, animations and responsive
+  optimization.
 - Browser authentication redesign or independent Receiver identity.
 - Receiver-owned playback, Planner or Knowledge controls.
 - Receiver cursor replay, browser persistence, offline synchronization and
