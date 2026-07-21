@@ -28,10 +28,10 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current `main` is `fe36439bad56792e520fb21df706bd64028c065e`, the merge commit
-for PR [#278](https://github.com/pcvantol/djconnect/pull/278), **Add Broadcast
-delivery identity**, merged on 2026-07-21. The worktree was clean and
-synchronized when this baseline was reconciled; PR #278 validation passed host
+Current `main` is `ccddf5eb72becde8e7de662446e487c43d70b7f3`, the merge commit
+for PR [#280](https://github.com/pcvantol/djconnect/pull/280), **Add Broadcast
+recovery cursor**, merged on 2026-07-21. The worktree was clean and
+synchronized when this baseline was reconciled; PR #280 validation passed host
 qualification, focused Broadcast/Runtime/transport regression, full CI, Ruff
 and diff checks.
 
@@ -42,12 +42,13 @@ callback registration creates no redundant snapshot. Transport Cell 3 is
 current: setup-time events are buffered until after the successful initial
 snapshot result. Transport Cell 4 is current: HTTP capability discovery and
 WebSocket fallback metadata use the same declarative Broadcast transport source.
-The approved recovery architecture now has two current implementation cells.
+The approved recovery architecture now has three current implementation cells.
 Planner-owned Flow Revision and semantic Runtime-scoped Change Journal remain
 separate from Broadcast-owned, runtime-scoped Delivery Sequence, snapshot
-watermark and bounded immutable Replay Log. Existing snapshot-returning
-subscriptions and authorization remain unchanged. No cursor, public replay,
-Flow delta or Universal Receiver HTTP recovery behaviour exists.
+watermark, bounded immutable Replay Log and internal immutable owner-scoped
+Recovery Cursor. Existing snapshot-returning subscriptions and authorization
+remain unchanged. No public cursor transport, replay, Flow delta or Universal
+Receiver HTTP recovery behaviour exists.
 
 PR #267 reconciled PRs #260 through #266. Those intermediate records cover external
 dependency documentation (#260), validation-only baseline correction (#261),
@@ -58,8 +59,8 @@ Stage 1, Continue Stage 2, Playback Instance Identity and occurrence-correct
 observation remain intentionally blocked by the external capability conditions
 in `docs/product/DJ_INTELLIGENCE_MATURITY.md`.
 
-The next recovery cell is authorized WebSocket recovery using an opaque
-Broadcast cursor. Cursor validation, replay transport/query, HTTP Flow delta,
+The next recovery capability may be authorized WebSocket recovery using the
+existing opaque Broadcast cursor. Cursor validation, replay transport/query, HTTP Flow delta,
 reconnect continuation, acknowledgements, duplicate/out-of-order correction,
 persistence, cross-Session replay, Universal Receiver recovery and standalone
 Session resources remain separately deferred.

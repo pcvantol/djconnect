@@ -1,9 +1,9 @@
 # Session Flow Recovery Architecture
 
-**Status:** Accepted architecture amendment; Recovery Cells 1–2 reconciled
+**Status:** Accepted architecture amendment; Recovery Cells 1–3 reconciled
 **Owner:** DJConnect Product Development
 **Scope:** Canonical recovery contracts for an active DJ Session. Recovery Cell
-1–2 are implemented; later cursor, replay and transport work remains deferred.
+1–3 are implemented; later recovery transport work remains deferred.
 
 ## Decision
 
@@ -89,7 +89,7 @@ The previously proposed concepts therefore classify as follows:
 | Flow delta | Session Flow / Planner | Required domain projection, based on Flow revision. |
 | Broadcast delivery sequence | Broadcast | Current internal delivery identity. It is not a Session Flow sequence. |
 | Snapshot watermark | Broadcast | Current internal snapshot delivery boundary; not a recovery endpoint. |
-| Recovery cursor | Broadcast | Required only when incremental recovery is implemented; opaque and scoped. |
+| Recovery cursor | Broadcast | Current internal owner-scoped delivery identity; not a recovery endpoint or credential. |
 | Bounded event history / replay window | Broadcast | Current internal bounded Replay Log; Runtime-scoped and not public replay. |
 | Recovery token | None | Rejected. A cursor is not a credential; every recovery request retains normal authorization. |
 
@@ -111,9 +111,19 @@ Broadcast assigns every publication one strictly monotonic Runtime-scoped
 Delivery Sequence, includes the current authorized projection boundary as a
 snapshot watermark and records one immutable bounded Replay Log entry per
 publication. The Log is internal, authorization-aware infrastructure; it is not
-Session Flow history, persistence, a cursor, a replay query or a public recovery
-protocol. Runtime disposal clears the sequence, watermark and log. Flow
-Revision remains Planner-owned and independent.
+Session Flow history, persistence, a replay query or a public recovery protocol.
+Runtime disposal clears the sequence, watermark and log. Flow Revision remains
+Planner-owned and independent.
+
+### Recovery Cell 3 implementation status
+
+Recovery Cell 3 is current through PR [#280](https://github.com/pcvantol/djconnect/pull/280).
+After a Broadcast publication is retained in the bounded Replay Log, Broadcast
+may issue one immutable Runtime-scoped Recovery Cursor for the owner
+projection. The cursor identifies only its active `session_id`, delivery
+sequence and snapshot watermark, carries the fixed owner authorization scope,
+and is cleared with the Runtime. It is internal infrastructure: no client can
+serialize, request, validate or use it for replay or reconnection.
 
 Replay is bounded and exists only while the active Runtime exists. It does not
 survive Session restart, Runtime destruction or a changed authorization scope.
@@ -161,9 +171,12 @@ to `owner_only` content or raw provider data.
    journal without a new transport surface.
 2. **Current:** scoped Broadcast delivery sequence, snapshot watermark and bounded
    replay log without changing Planner or Moment semantics.
-3. **Next:** add authorized WebSocket recovery using an opaque Broadcast cursor.
-4. Add authorized HTTP Flow delta using `flow_id` and Flow revision.
-5. Add recovery validation for cursor expiry, scope changes, Runtime disposal,
+3. **Current:** add an internal opaque Broadcast cursor as scoped delivery
+   identity, without recovery transport.
+4. **Next:** add authorized WebSocket recovery using the existing opaque
+   Broadcast cursor.
+5. Add authorized HTTP Flow delta using `flow_id` and Flow revision.
+6. Add recovery validation for cursor expiry, scope changes, Runtime disposal,
    snapshot fallback and reconnect ordering.
 
 Each step remains a separate bounded capability. HTTP delta must not be
@@ -173,10 +186,11 @@ implemented before scoped Broadcast delivery identity and retention exist.
 ## Explicit non-goals
 
 Beyond the current Flow Revision/Change Journal and internal Broadcast Delivery
-Sequence/snapshot watermark/bounded Replay Log, this amendment creates no
-cursor, recovery endpoint, public replay, WebSocket acknowledgement, HTTP
-delta, persistence model or renderer behaviour. It does not alter playback,
-provider, Knowledge Engine, DJ Moment Engine or transport implementation.
+Sequence/snapshot watermark/bounded Replay Log/owner-scoped Recovery Cursor,
+this amendment creates no recovery endpoint, public cursor transport, public
+replay, WebSocket acknowledgement, HTTP delta, persistence model or renderer
+behaviour. It does not alter playback, provider, Knowledge Engine, DJ Moment
+Engine or transport implementation.
 
 ## Risks
 
