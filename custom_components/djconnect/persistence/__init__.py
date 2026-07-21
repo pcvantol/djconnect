@@ -22,7 +22,11 @@ from .service import (
 )
 from .sessions import PersistentSession, PersistentSessionRepository, SessionLifecycleError, SessionOwnershipError
 from .reconciliation import PersistentSessionStartupReconciler
-from .history import HistoricalProjectionRepository, HistoricalSessionProjection
+from .history import (
+    HistoricalDJMomentProjection,
+    HistoricalProjectionRepository,
+    HistoricalSessionProjection,
+)
 
 __all__ = [
     "PERSISTENCE_SERVICE_KEY",
@@ -37,6 +41,7 @@ __all__ = [
     "PersistentSessionRepository",
     "PersistentSessionStartupReconciler",
     "HistoricalProjectionRepository",
+    "HistoricalDJMomentProjection",
     "HistoricalSessionProjection",
     "SessionLifecycleError",
     "SessionOwnershipError",
