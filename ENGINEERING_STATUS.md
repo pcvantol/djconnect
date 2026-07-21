@@ -5,7 +5,12 @@
 
 ## Current engineering increment
 
-PR [#317](https://github.com/pcvantol/djconnect/pull/317), **Upcoming Playback
+PR [#319](https://github.com/pcvantol/djconnect/pull/319), **Rolling Planning
+Window**, merged as `632857a7914fce58acc10d243dee5162c591771d`. It adds only
+the Planner-owned ephemeral planning structure. This dedicated Finalization
+reconciles its evidence.
+
+PR #317, **Upcoming Playback
 Projection**, merged as `dc70c29507cfefdcfd73e1f0f0e2295e2ae33e4f`. It adds
 only the provider-neutral Horizon input contract. This dedicated Finalization
 reconciles its evidence.
