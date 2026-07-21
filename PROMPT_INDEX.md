@@ -4,13 +4,15 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#280](https://github.com/pcvantol/djconnect/pull/280), merged as
-`ccddf5eb72becde8e7de662446e487c43d70b7f3`, completes Recovery Cell 3.
+PR [#284](https://github.com/pcvantol/djconnect/pull/284), merged as
+`01e0756c3745a57b63857d71ece57cbeabfbbaf4`, completes Recovery Cell 4.
 Planner-owned Flow Revision/Change Journal and Broadcast-owned Delivery
 Sequence, snapshot watermark, bounded internal Replay Log and immutable
-owner-scoped Recovery Cursor are current. The next recovery capability may be
-authorized WebSocket recovery using that opaque Broadcast cursor only after a
-new Pre-Flight returns `GO`; no public recovery transport exists today.
+owner-scoped Recovery Cursor are current. An authorized owner WebSocket may
+use the existing opaque cursor to replay the bounded active Runtime log; when
+replay cannot be completed, Broadcast returns a fresh authorized snapshot.
+HTTP Flow delta, public replay/query APIs, persistence, cross-Session replay
+and renderer-specific recovery remain deferred.
 
 Spotify Direct Live Playback Observation Stage 1, Knowledge Engine `KE-2.2`
 and Planner `PL-4.1` are current. Music Assistant Stage 1, Continue Stage 2,
@@ -108,19 +110,19 @@ planning is read.
 | Broadcast Delivery Identity | Completed / merged reconciled / archived | Complete Recovery Cell 2 with Broadcast-owned runtime-scoped Delivery Sequence, snapshot watermark and bounded internal Replay Log; no cursor or public recovery transport. | `codex/broadcast-delivery-identity` | `docs/history/prompts/2026-07-21-broadcast-delivery-identity.md`; PR [#278](https://github.com/pcvantol/djconnect/pull/278), merged as `fe36439bad56792e520fb21df706bd64028c065e`. |
 | Broadcast Recovery Cursor | Completed / merged reconciled / archived | Complete Recovery Cell 3 with one immutable Broadcast-owned, owner-scoped internal Recovery Cursor after a retained publication; no replay or recovery transport. | `codex/broadcast-recovery-cursor` | `docs/history/prompts/2026-07-21-broadcast-recovery-cursor.md`; PR [#280](https://github.com/pcvantol/djconnect/pull/280), merged as `ccddf5eb72becde8e7de662446e487c43d70b7f3`. |
 | Capability Completion Lifecycle | Completed / merged reconciled / archived | Establish the mandatory Pre-Flight, Implementation, Validation, Merge and Finalization lifecycle; no product or architecture change. | `codex/capability-completion-lifecycle` | `docs/history/prompts/2026-07-21-capability-completion-lifecycle.md`; PR [#282](https://github.com/pcvantol/djconnect/pull/282), merged as `8394dbda94594369dd815f05e734bd7a0214221b`. |
+| Authorized WebSocket Recovery | Completed / merged reconciled / archived | Complete Recovery Cell 4 with owner-authorized WebSocket recovery using the existing opaque Broadcast cursor and bounded Replay Log; fresh owner snapshots remain the fallback. | `codex/authorized-websocket-recovery` | `docs/history/prompts/2026-07-21-authorized-websocket-recovery.md`; PR [#284](https://github.com/pcvantol/djconnect/pull/284), merged as `01e0756c3745a57b63857d71ece57cbeabfbbaf4`. |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
 
 ## Current post-merge reconciliation
 
-PR #282 is merged and reconciled through current `main`
-`8394dbda94594369dd815f05e734bd7a0214221b`. Its immutable Prompt History
-record preserves the Capability Completion Lifecycle scope without
-retroactively changing its intent. Transport Cells 1–4 and Recovery Cells 1–3
-are current; a separately bounded WebSocket recovery capability using the
-existing opaque Broadcast cursor may start only after a new Pre-Flight returns
-`GO`.
+PR #284 is merged and reconciled through current `main`
+`01e0756c3745a57b63857d71ece57cbeabfbbaf4`. Its immutable Prompt History
+record preserves the bounded owner-authorized WebSocket recovery scope.
+Transport Cells 1–4 and Recovery Cells 1–4 are current; bounded replay is
+available only through the existing opaque cursor, normal owner authorization
+and the active Runtime Replay Log. Fresh snapshots remain mandatory fallback.
 Platform Release 3.3 remains in Maintenance.
 
 ## Next Engineering Increment

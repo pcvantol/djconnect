@@ -109,6 +109,24 @@ DJConnect identity/token fields and the active `session_id`.
 - When a WebSocket closes, its subscription is unregistered without changing
   Broadcast State.
 
+### Owner WebSocket recovery
+
+An owner renderer that holds the opaque `recovery_cursor` returned by its
+previous owner subscription may send
+`djconnect/session/broadcast/recover` with that cursor and the exact active
+`session_id`. The normal Home Assistant and DJConnect device/profile
+authorization chain is applied again; the cursor is not a credential.
+
+- Broadcast replays only the bounded, renderer-safe publications after a
+  retained cursor for that active Runtime.
+- The response is either `replayed` with those publications or
+  `snapshot_required` with a fresh owner-authorized snapshot when replay is
+  unavailable, discontinuous or outside the bounded log.
+- A malformed cursor is rejected. A cursor cannot recover another Session,
+  survive Runtime disposal or expose Broadcast delivery internals.
+- This command does not add HTTP recovery, Flow delta, a public replay query,
+  acknowledgement, persistence or renderer-specific recovery policy.
+
 There is no anonymous transport: owner access requires its existing device
 authorization and Receiver access requires the constrained Broadcast Token.
 Voice, audience and VibeCast transports remain out of scope.
@@ -140,10 +158,12 @@ receiver interaction policy remains deferred.
 ## Renderer behavior
 
 A renderer applies the complete snapshot first, then applies each incremental
-event to the displayed Broadcast State. A temporary socket interruption may
-reconnect and subscribe again using the same active Session ID; the new
-snapshot becomes authoritative. A rejected subscription because no active
-Runtime remains means the renderer returns to its idle Session state.
+event to the displayed Broadcast State. A temporary owner-socket interruption
+may use the bounded recovery command with its existing opaque cursor; when the
+server requires a snapshot, that fresh snapshot is authoritative. A renderer
+may also reconnect and subscribe again using the same active Session ID. A
+rejected subscription or recovery because no active Runtime remains means the
+renderer returns to its idle Session state.
 
 ## Security
 

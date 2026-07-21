@@ -5,22 +5,26 @@
 
 ## Current engineering increment
 
-The reconciled baseline is PR [#282](https://github.com/pcvantol/djconnect/pull/282),
-**Formalize capability completion lifecycle**, merged on 2026-07-21 as
-`8394dbda94594369dd815f05e734bd7a0214221b`. Its Finalization has reconciled
-current main to `MERGED_RECONCILED`. Every implementation capability now uses
-the mandatory Pre-Flight → Implementation → Validation → Merge → Finalization
-lifecycle. Pre-Flight ends in `GO` or `NO-GO`; `MERGED_UNRECONCILED` permits
-only the dedicated governance-only Finalization increment.
+PR [#284](https://github.com/pcvantol/djconnect/pull/284), **Add authorized
+WebSocket recovery**, merged on 2026-07-21 as
+`01e0756c3745a57b63857d71ece57cbeabfbbaf4`. It is now
+`MERGED_UNRECONCILED`; this Finalization reconciles its rolling records,
+immutable Prompt History and recovery architecture evidence. Every
+implementation capability uses the mandatory Pre-Flight → Implementation →
+Validation → Merge → Finalization lifecycle. Pre-Flight ends in `GO` or
+`NO-GO`; `MERGED_UNRECONCILED` permits only this governance-only Finalization
+increment.
 
-Transport Cells 1–4 and Recovery Cells 1–3 remain current. The Planner owns
+Transport Cells 1–4 and Recovery Cells 1–4 are current. The Planner owns
 semantic Flow Revision and its immutable Runtime-scoped Change Journal.
 Broadcast independently owns a strictly monotonic Delivery Sequence, snapshot
 watermark and bounded immutable Replay Log; after a retained publication it
-may issue one immutable, owner-scoped internal Recovery Cursor. Each
-publication receives one sequence, and all delivery state, including the
-cursor, is released when the Runtime ends. Fresh snapshots remain the only
-public recovery fallback.
+issues one opaque, owner-scoped Recovery Cursor. An authorized owner WebSocket
+may submit that cursor to recover the bounded active Runtime stream; replay is
+never cross-Session or persistent and falls back deterministically to a fresh
+owner snapshot whenever it cannot be completed. Each publication receives one
+sequence, and all delivery state, including the cursor, is released when the
+Runtime ends.
 
 The preceding reconciled increments are: PR #260 external dependency
 documentation; PR #261 rolling-status validation only; PR #262 maturity-cell
@@ -33,12 +37,12 @@ observation, Continue Stage 2, Playback Instance Identity and
 occurrence-correct observation remain deferred under their recorded external
 backend conditions.
 
-The next production capability may be authorized WebSocket recovery using the
-existing opaque Broadcast cursor, but only after its own Pre-Flight returns
-`GO`. Its validation, authorization, replay-window and snapshot-required
-contract must remain separately bounded before implementation. There is no
-public replay, cursor transport, HTTP Flow delta, reconnect continuation or
-Renderer recovery behaviour today.
+Authorized WebSocket recovery is current only for the existing opaque cursor,
+an owner-authorized active Runtime and the bounded Broadcast Replay Log. HTTP
+Flow delta, public replay/query APIs, persistent or cross-Session replay,
+acknowledgements, duplicate/out-of-order correction, Universal Receiver
+recovery and renderer-specific recovery behaviour remain deferred. The next
+production capability requires a fresh Pre-Flight from the reconciled baseline.
 
 Platform Release 3.3 is operationally complete and in Maintenance. PR
 [#202](https://github.com/pcvantol/djconnect/pull/202), **Platform Release 3.3
@@ -172,9 +176,9 @@ separate explicitly authorized operational action.
 
 ## Deferred work
 
-- Session Flow sequence, cursor/watermark, HTTP delta, replay, WebSocket
-  ordering, duplicate/out-of-order handling and reconnect contracts remain
-  separate transport work.
+- HTTP Flow delta, public replay/query, WebSocket acknowledgement,
+  duplicate/out-of-order handling and reconnect contracts beyond the current
+  snapshot-required fallback remain separate transport work.
 - Universal Receiver HTTP access, receiver audience-signal resolution, Session
   Detail resources, standalone HTTP current-Moment/Flow resources and full
   HTTP capability-discovery alignment remain deferred.
