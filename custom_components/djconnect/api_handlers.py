@@ -279,7 +279,7 @@ async def async_handle_active_session_payload(
     return {"success": True, "session": session.as_dict() if session else None}, 200
 
 
-async def _async_owner_broadcast_snapshot_query(
+async def _async_owner_broadcast_session_context(
     hass: Any,
     data: dict[str, Any],
     *,
@@ -287,7 +287,7 @@ async def _async_owner_broadcast_snapshot_query(
     user_id: str | None = None,
     source: str = "session_broadcast_snapshot",
 ) -> tuple[dict[str, Any], int, Any | None, str | None]:
-    """Resolve one owner-authorized, side-effect-free Broadcast snapshot."""
+    """Resolve one exact owner-authorized active Broadcast without projecting it."""
     headers = headers or {}
     runtime = resolve_runtime(
         hass, data.get("device_id") or headers.get("X-DJConnect-Device-ID"), headers
@@ -314,12 +314,32 @@ async def _async_owner_broadcast_snapshot_query(
     active = await manager.async_get_active(context.profile_id)
     if active is None or active.session_id != session_id:
         return _error_payload("active_session_not_found"), 404, None, None
+    return {"success": True, "session_id": session_id}, 200, manager, context.profile_id
+
+
+async def _async_owner_broadcast_snapshot_query(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+    source: str = "session_broadcast_snapshot",
+) -> tuple[dict[str, Any], int, Any | None, str | None]:
+    """Resolve one owner-authorized, side-effect-free Broadcast snapshot."""
+    result, status, manager, profile_id = await _async_owner_broadcast_session_context(
+        hass, data, headers=headers, user_id=user_id, source=source
+    )
+    if manager is None or profile_id is None:
+        return result, status, None, None
+    active = await manager.async_get_active(profile_id)
+    if active is None or active.session_id != result["session_id"]:
+        return _error_payload("active_session_not_found"), 404, None, None
     try:
         snapshot = active.broadcast.as_dict()
     except Exception as exc:  # noqa: BLE001
         _LOGGER.debug("DJConnect Broadcast snapshot unavailable: %s", exc.__class__.__name__)
         return _error_payload("broadcast_snapshot_unavailable"), 500, None, None
-    return {"success": True, "session_id": session_id, "snapshot": snapshot}, 200, manager, context.profile_id
+    return {**result, "snapshot": snapshot}, 200, manager, profile_id
 
 
 async def async_handle_session_broadcast_snapshot_payload(
@@ -339,26 +359,42 @@ async def async_handle_session_broadcast_subscribe_payload(
     callback: Callable[[dict[str, Any]], None],
     headers: Any | None = None,
     user_id: str | None = None,
-) -> tuple[dict[str, Any], int, Callable[[], Awaitable[None]] | None]:
+) -> tuple[
+    dict[str, Any],
+    int,
+    Callable[[], Awaitable[None]] | None,
+    Callable[[], Awaitable[None]] | None,
+]:
     """Subscribe an authenticated owner renderer to one active Broadcast Engine.
 
     The pure query remains the only initial snapshot source. The cleanup
     callback is deliberately transport-owned so a closed websocket cannot
     retain a Runtime subscription.
     """
-    result, status, manager, profile_id = await _async_owner_broadcast_snapshot_query(
+    context, status, manager, profile_id = await _async_owner_broadcast_session_context(
         hass, data, headers=headers, user_id=user_id, source="session_broadcast_subscribe"
     )
     if manager is None or profile_id is None:
-        return result, status, None
-    session_id = result["session_id"]
-    subscription_id = await manager.async_register_subscription(
+        return context, status, None, None
+    session_id = context["session_id"]
+    subscription_id = await manager.async_register_pending_subscription(
         owner_profile_id=profile_id,
         session_id=session_id,
         callback=callback,
     )
     if subscription_id is None:
-        return _error_payload("active_session_not_found"), 404, None
+        return _error_payload("active_session_not_found"), 404, None, None
+
+    result, status, snapshot_manager, snapshot_profile_id = await _async_owner_broadcast_snapshot_query(
+        hass, data, headers=headers, user_id=user_id, source="session_broadcast_subscribe"
+    )
+    if snapshot_manager is None or snapshot_profile_id is None:
+        await manager.async_unsubscribe(
+            owner_profile_id=profile_id,
+            session_id=session_id,
+            subscription_id=subscription_id,
+        )
+        return result, status, None, None
 
     async def cleanup() -> None:
         await manager.async_unsubscribe(
@@ -367,10 +403,17 @@ async def async_handle_session_broadcast_subscribe_payload(
             subscription_id=subscription_id,
         )
 
+    async def activate() -> None:
+        await manager.async_activate_subscription(
+            owner_profile_id=profile_id,
+            session_id=session_id,
+            subscription_id=subscription_id,
+        )
+
     return {
         "subscription_id": subscription_id,
         **result,
-    }, 200, cleanup
+    }, 200, activate, cleanup
 
 
 async def async_handle_session_broadcast_token_payload(

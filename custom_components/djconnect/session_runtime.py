@@ -1231,6 +1231,9 @@ class DJSessionBroadcastEngine:
     _subscribers: dict[str, tuple[Callable[[dict[str, Any]], None], bool]] = field(
         default_factory=dict, init=False, repr=False
     )
+    _pending_subscriptions: dict[str, list[dict[str, Any]]] = field(
+        default_factory=dict, init=False, repr=False
+    )
 
     def subscribe(
         self, callback: Callable[[dict[str, Any]], None]
@@ -1244,6 +1247,22 @@ class DJSessionBroadcastEngine:
         subscription_id = f"broadcast-subscription-{uuid4().hex}"
         self._subscribers[subscription_id] = (callback, True)
         return subscription_id
+
+    def register_pending_subscription(self, callback: Callable[[dict[str, Any]], None]) -> str:
+        """Register one owner renderer while its initial snapshot is delivered."""
+        subscription_id = self.register_subscription(callback)
+        self._pending_subscriptions[subscription_id] = []
+        return subscription_id
+
+    def activate_subscription(self, subscription_id: str) -> None:
+        """Flush setup-time events only after the initial snapshot was sent."""
+        pending_events = self._pending_subscriptions.pop(subscription_id, None)
+        subscriber = self._subscribers.get(subscription_id)
+        if pending_events is None or subscriber is None:
+            return
+        callback, _include_owner_only = subscriber
+        for event in pending_events:
+            callback(event)
 
     def subscribe_with_broadcast_token(
         self, token: str, callback: Callable[[dict[str, Any]], None]
@@ -1272,6 +1291,7 @@ class DJSessionBroadcastEngine:
     def unsubscribe(self, subscription_id: str) -> None:
         """Remove a renderer subscription without changing Broadcast State."""
         self._subscribers.pop(subscription_id, None)
+        self._pending_subscriptions.pop(subscription_id, None)
 
     @property
     def subscriber_count(self) -> int:
@@ -1318,6 +1338,7 @@ class DJSessionBroadcastEngine:
         self._publish(BroadcastEventType.RUNTIME_ENDED, {"session": state["session"]})
         self._publish(BroadcastEventType.BROADCAST_STOPPED, {"broadcast": state["broadcast"]})
         self._subscribers.clear()
+        self._pending_subscriptions.clear()
 
     def _publish(self, event_type: BroadcastEventType, payload: dict[str, Any]) -> None:
         """Deliver one incremental, renderer-safe event to active subscribers."""
@@ -1326,8 +1347,12 @@ class DJSessionBroadcastEngine:
             "session_id": self.state.session_id,
             "payload": payload,
         }
-        for callback, include_owner_only in tuple(self._subscribers.values()):
+        for subscription_id, (callback, include_owner_only) in tuple(self._subscribers.items()):
             if not include_owner_only and _payload_contains_owner_only_moment(payload):
+                continue
+            pending_events = self._pending_subscriptions.get(subscription_id)
+            if pending_events is not None:
+                pending_events.append(event)
                 continue
             callback(event)
 
@@ -1744,6 +1769,33 @@ class SessionRuntimeManager:
             if active is None or active.session_id != session_id:
                 return None
             return active.broadcast.register_subscription(callback)
+
+    async def async_register_pending_subscription(
+        self,
+        *,
+        owner_profile_id: str,
+        session_id: str,
+        callback: Callable[[dict[str, Any]], None],
+    ) -> str | None:
+        """Register an owner renderer without delivering events before its snapshot."""
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if active is None or active.session_id != session_id:
+                return None
+            return active.broadcast.register_pending_subscription(callback)
+
+    async def async_activate_subscription(
+        self,
+        *,
+        owner_profile_id: str,
+        session_id: str,
+        subscription_id: str,
+    ) -> None:
+        """Enable live delivery after the owner renderer received its snapshot."""
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if active is not None and active.session_id == session_id:
+                active.broadcast.activate_subscription(subscription_id)
 
     async def async_subscribe_with_broadcast_token(
         self,

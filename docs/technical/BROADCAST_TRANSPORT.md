@@ -87,6 +87,10 @@ DJConnect identity/token fields and the active `session_id`.
 - The command result contains a full `snapshot` of the current canonical
   Broadcast State.
 - The initial snapshot is always delivered before later incremental events.
+  During setup, the owner callback is registered once in a pending state before
+  the canonical snapshot is built; events produced before the successful result
+  are buffered and delivered only after that result. This is setup ordering,
+  not replay, sequencing, cursor recovery or duplicate suppression.
 - Later events use the stable Home Assistant event type
   `djconnect/session/broadcast` and contain `event_type`, `session_id` and an
   incremental `payload`.

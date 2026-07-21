@@ -827,6 +827,51 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         )
         self.assertEqual(created.broadcast.subscriber_count, 0)
 
+    def test_pending_broadcast_subscriptions_buffer_events_until_each_snapshot_is_sent(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))
+        first_events: list[dict] = []
+        second_events: list[dict] = []
+        first = asyncio.run(
+            manager.async_register_pending_subscription(
+                owner_profile_id="profile-peter",
+                session_id=created.session_id,
+                callback=first_events.append,
+            )
+        )
+        second = asyncio.run(
+            manager.async_register_pending_subscription(
+                owner_profile_id="profile-peter",
+                session_id=created.session_id,
+                callback=second_events.append,
+            )
+        )
+        assert first is not None and second is not None
+
+        created.republish_session_flow()
+        self.assertEqual(first_events, [])
+        self.assertEqual(second_events, [])
+
+        asyncio.run(
+            manager.async_activate_subscription(
+                owner_profile_id="profile-peter", session_id=created.session_id, subscription_id=first
+            )
+        )
+        self.assertEqual(
+            [event["event_type"] for event in first_events],
+            ["planner_updated", "session_flow_updated"],
+        )
+        self.assertEqual(second_events, [])
+        asyncio.run(
+            manager.async_activate_subscription(
+                owner_profile_id="profile-peter", session_id=created.session_id, subscription_id=second
+            )
+        )
+        self.assertEqual(
+            [event["event_type"] for event in second_events],
+            ["planner_updated", "session_flow_updated"],
+        )
+
     def test_broadcast_runtime_termination_notifies_and_releases_subscriptions(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
         created = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))

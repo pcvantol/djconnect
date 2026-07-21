@@ -180,13 +180,15 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
 
         async def subscribe_handler(hass, payload, *, callback, headers=None, user_id=None):
             calls.append((payload, headers, user_id))
-            callback(
-                {
-                    "event_type": "session_flow_updated",
-                    "session_id": "session-1",
-                    "payload": {"session_flow": {"flow_id": "flow-session-1"}},
-                }
-            )
+
+            async def activate():
+                callback(
+                    {
+                        "event_type": "session_flow_updated",
+                        "session_id": "session-1",
+                        "payload": {"session_flow": {"flow_id": "flow-session-1"}},
+                    }
+                )
 
             async def cleanup():
                 cleanup_called.append(True)
@@ -196,7 +198,7 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
                 "subscription_id": "subscription-1",
                 "session_id": "session-1",
                 "snapshot": {"session": {"session_id": "session-1"}},
-            }, 200, cleanup
+            }, 200, activate, cleanup
 
         original = self.websocket_api.async_handle_session_broadcast_subscribe_payload
         self.websocket_api.async_handle_session_broadcast_subscribe_payload = subscribe_handler
@@ -229,6 +231,7 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
         self.assertEqual(calls[0][2], "ha-owner")
         self.assertEqual(len(connection.close_callbacks), 1)
         self.assertEqual(cleanup_called, [])
+        self.assertEqual(connection.delivery_order, ["result", "event"])
 
     def test_session_broadcast_subscription_cleans_up_when_initial_response_fails(self) -> None:
         cleanup_called = []
@@ -242,7 +245,7 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
                 "subscription_id": "subscription-1",
                 "session_id": "session-1",
                 "snapshot": {"session": {"session_id": "session-1"}},
-            }, 200, cleanup
+            }, 200, None, cleanup
 
         original = self.websocket_api.async_handle_session_broadcast_subscribe_payload
         self.websocket_api.async_handle_session_broadcast_subscribe_payload = subscribe_handler
@@ -1558,15 +1561,18 @@ class _Connection:
         self.errors = []
         self.events = []
         self.close_callbacks = []
+        self.delivery_order = []
 
     def send_result(self, msg_id, result) -> None:
         self.results.append((msg_id, result))
+        self.delivery_order.append("result")
 
     def send_error(self, msg_id, code, message) -> None:
         self.errors.append((msg_id, code, message))
 
     def send_event(self, event_type, data) -> None:
         self.events.append((event_type, data))
+        self.delivery_order.append("event")
 
     def async_on_close(self, callback) -> None:
         self.close_callbacks.append(callback)
