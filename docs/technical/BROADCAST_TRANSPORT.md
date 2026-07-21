@@ -133,6 +133,9 @@ Voice, audience and VibeCast transports remain out of scope.
 
 ## Universal Session Receiver access
 
+The complete Receiver ownership, lifecycle and security architecture is
+[`UNIVERSAL_RECEIVER_ARCHITECTURE.md`](UNIVERSAL_RECEIVER_ARCHITECTURE.md).
+
 V4-07 adds a separate ephemeral **Broadcast Token** for the Universal Session
 Receiver. The token is cryptographically unpredictable, belongs to exactly one
 active Runtime and becomes invalid when that Runtime ends. It is not a device

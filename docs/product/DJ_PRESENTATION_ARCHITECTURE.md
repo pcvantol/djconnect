@@ -99,6 +99,10 @@ lifecycle and navigation integration. It selects an appropriate Presentation
 Mode for its current context. It does not own server meaning, Moment creation,
 Session Flow or cross-platform semantics.
 
+The Universal Receiver is the Web Renderer Host. Its server-owned projection,
+subscription lifecycle and security boundary are defined in
+[`../technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md`](../technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md).
+
 ## Presentation Modes
 
 Presentation Modes describe user experiences, not platforms. The initial
