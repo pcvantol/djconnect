@@ -28,10 +28,9 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#362](https://github.com/pcvantol/djconnect/pull/362), **Universal Receiver
-V1 — Now Playing**, merged as `dfbc5826ae73762818e4bd002b97773852014394`.
-This dedicated Finalization reconciles its completed capability record and
-immutable Prompt History.
+PR [#364](https://github.com/pcvantol/djconnect/pull/364), **Reconcile
+Developer Experience Roadmap**, merged as `92ecef3f61e16d538b3dae6e40b3f76820666eeb`. This dedicated Finalization
+reconciles the completed roadmap transition and immutable Prompt History.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:
@@ -41,20 +40,20 @@ is bounded runtime protection for lifecycle failure only. Future intelligence
 capabilities must extend these established abstractions rather than create a
 parallel Runtime pipeline.
 
-Universal Receiver V1 remains the primary active architectural Epic. PR #350
-established its server boundary, PR #354 completed Capability 1 — Broadcast
-Connection and Session Rendering, and PR #358 completed Capability 2 — Session
-Flow Timeline Rendering. The disposable, stateless Receiver renders only
-renderer-safe Broadcast projections, preserving the server-defined Flow order
-through snapshots, live updates, resets and reconnects. PR #360 completes the
-server prerequisite for Capability 3: the Runtime publishes optional playback
-metadata, HA-proxied artwork, duration and bounded server-owned progress using
-the existing Broadcast snapshot and event stream. No browser authority,
-provider payload, new endpoint, WebSocket channel or provider polling exists.
-PR #362 completes Capability 3 — Now Playing Experience. The Receiver renders
-the existing snapshot and live playback projection, including only
-server-owned progress, and remains a passive Renderer Host. Audience
-Intelligence remains intentionally deferred.
+Universal Receiver V1 foundation is complete. PR #350 established its server
+boundary; PRs #354, #358 and #362 completed Broadcast Connection, Session Flow
+Timeline and Now Playing respectively; PR #360 supplied the renderer-safe
+Playback Projection. The disposable Receiver renders only renderer-safe
+Broadcast projections and retains no browser authority, provider access,
+additional endpoint, WebSocket channel, polling path or playback clock.
+
+Developer Experience and Verification is now the active Product Development
+workstream. `Developer Session Bootstrap` is its only active next capability;
+it will establish a bounded server-owned Session bootstrap/cleanup boundary
+and ephemeral session-scoped Receiver access for developer and CI use. It does
+not authorize browser Session creation or a second Runtime pipeline.
+Accelerated Session Simulation is parked. Audience Intelligence remains
+deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 

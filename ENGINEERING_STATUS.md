@@ -5,10 +5,9 @@
 
 ## Current engineering increment
 
-PR [#362](https://github.com/pcvantol/djconnect/pull/362), **Universal Receiver
-V1 — Now Playing**, merged as `dfbc5826ae73762818e4bd002b97773852014394`.
-This dedicated Finalization reconciles its completed capability record and
-immutable Prompt History.
+PR [#364](https://github.com/pcvantol/djconnect/pull/364), **Reconcile
+Developer Experience Roadmap**, merged as `92ecef3f61e16d538b3dae6e40b3f76820666eeb`. This dedicated Finalization
+reconciles the completed roadmap transition and its immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
 is now the canonical execution engine for all supported Track Started decisions:
@@ -18,19 +17,21 @@ bounded runtime protection for lifecycle failure only. Ownership is stable;
 future intelligence work must extend these existing abstractions rather than
 introduce another Runtime pipeline.
 
-Universal Receiver V1 remains the primary active architectural Epic.
-Capability 1, **Broadcast Connection and Session Rendering**, is complete.
-Capability 2, **Session Flow Timeline Rendering**, is complete: the passive
-Receiver renders only renderer-safe Broadcast projections and replaces the
-server-owned Session Flow from snapshots, live updates, resets and reconnects.
-PR #360 now completes the server-side Renderer-Safe Playback Projection:
-optional normalized metadata, HA-proxied artwork, duration and a bounded
-Runtime-owned `position_ms` clock flow through existing Broadcast snapshots
-and updates. Backend snapshots correct progress; no client owns a clock and no
-new transport or provider polling was introduced. PR #362 completes Capability
-3 — Now Playing: the Receiver renders only the existing Broadcast playback
-projection, including server-owned progress, with no client-side timing,
-polling, provider request or Runtime ownership.
+Universal Receiver V1's foundation is complete: Architecture, Capability 1 —
+Broadcast Connection and Session Rendering, Capability 2 — Session Flow
+Timeline Rendering, the renderer-safe Playback Projection and Capability 3 —
+Now Playing. The passive Receiver consumes only renderer-safe Broadcast
+projections; timeline and Now Playing state reconstruct from server snapshots
+and updates without browser authority, provider access, polling or a local
+playback clock.
+
+Developer Experience and Verification is now the active workstream. The only
+active next capability is **Developer Session Bootstrap**: a later bounded Home
+Assistant development/service boundary will start and clean up an ordinary
+server-owned Session with ephemeral, session-scoped Receiver access for manual
+development and CI. It must preserve Runtime, Planner, Knowledge Engine, DJ
+Moment Engine, Session Flow and Broadcast ownership. Accelerated Session
+Simulation is parked; Audience Intelligence remains deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 
