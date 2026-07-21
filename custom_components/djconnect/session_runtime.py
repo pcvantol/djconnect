@@ -592,6 +592,12 @@ class DJSessionPlanner:
             session_direction=session_direction.direction,
             recommendation_preference=self.configuration.recommendation_preference,
         )
+        choices = _space_recommendation_choices(
+            choices,
+            performance_memory=performance_memory,
+            discover_context=discover_context,
+            hints=hints,
+        )
         for key, decision_type, intent_type, goal in choices:
             if _bounded_text(hints.get(key), 1200):
                 if _performance_memory_repeats(
@@ -1940,6 +1946,38 @@ def _prioritized_knowledge_choices(
 
     return tuple(
         sorted(choices, key=lambda choice: priorities[choice[2]])
+    )
+
+
+def _space_recommendation_choices(
+    choices: tuple[tuple[str, PlannerDecisionType, KnowledgeIntentType, str], ...],
+    *,
+    performance_memory: PerformanceMemory,
+    discover_context: DiscoverContext,
+    hints: dict[str, Any],
+) -> tuple[tuple[str, PlannerDecisionType, KnowledgeIntentType, str], ...]:
+    """Demote one immediate Recommendation only when a valid alternative exists."""
+    if performance_memory.recent_moment_types[-1:] != (DJMomentType.RECOMMENDATION,):
+        return choices
+    alternatives = tuple(
+        choice
+        for choice in choices
+        if choice[2]
+        in {
+            KnowledgeIntentType.ARTIST_STORY,
+            KnowledgeIntentType.ALBUM_STORY,
+            KnowledgeIntentType.GENRE_STORY,
+        }
+    )
+    if not any(
+        _bounded_text(hints.get(key), 1200)
+        and not _performance_memory_repeats(performance_memory, intent_type, hints)
+        and not _discover_context_repeats(discover_context, intent_type, hints)
+        for key, _, intent_type, _ in alternatives
+    ):
+        return choices
+    return tuple(choice for choice in choices if choice[2] is not KnowledgeIntentType.RECOMMENDATION) + tuple(
+        choice for choice in choices if choice[2] is KnowledgeIntentType.RECOMMENDATION
     )
 
 
