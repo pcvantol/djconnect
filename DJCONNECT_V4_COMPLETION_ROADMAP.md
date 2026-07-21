@@ -90,9 +90,11 @@ but new product work reuses their established ownership boundaries.
 ### Experience — primary next focus
 
 **Universal Receiver V1 is the primary active architectural Epic.** Its
-server-side Renderer Host contract is complete; subsequent browser delivery,
-like Apple, Windows, Raspberry Pi and Voice delivery, must consume existing
-Broadcast projections and server APIs without acquiring Runtime ownership.
+server-side Renderer Host contract is complete. Capability 1 — Broadcast
+Connection and Session Rendering — and Capability 2 — Session Flow Timeline
+Rendering — are complete. Subsequent browser delivery, like Apple, Windows,
+Raspberry Pi and Voice delivery, must consume existing Broadcast projections
+and server APIs without acquiring Runtime ownership.
 
 - Universal Receiver V1
 - Apple
@@ -237,7 +239,7 @@ Completed Session Intelligence Runtime
   -> bounded experience and intelligence extensions
 
 Universal Receiver V1 server architecture
-  -> browser Renderer Host implementation -> multi-renderer experience evidence
+  -> Capabilities 1 and 2 complete -> future renderer experience evidence
 
 Shared voice render service -> autonomous room voice
 Stable live Broadcast/recovery (CURRENT) -> all live Renderer adoption

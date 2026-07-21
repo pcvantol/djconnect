@@ -2,10 +2,11 @@
 
 ## Status
 
-Accepted server architecture and current-contract boundary. Capability 1 now
-adds the minimal operational browser renderer; it does not add a frontend
-framework, authentication redesign, Runtime behaviour, transport model or
-persistence.
+Accepted server architecture and current-contract boundary. Capabilities 1 and
+2 are complete: the minimal operational browser renderer and its Session Flow
+timeline use only existing Broadcast projections. Neither capability adds a
+frontend framework, authentication redesign, Runtime behaviour, transport model
+or persistence.
 
 ## Purpose
 
@@ -86,6 +87,8 @@ new cursor, replay protocol, local event log or persistence requirement.
 
 ## Capability 1 — Broadcast Connection and Session Rendering
 
+**Status: COMPLETE.**
+
 The operational Receiver is served as presentation infrastructure at
 `/djconnect/receiver`. It accepts only the existing `session_id` and
 `broadcast_token` URL parameters and opens only the existing read-only
@@ -104,6 +107,8 @@ Planner or Knowledge view, artwork, queue, diagnostics, Session chooser or
 client-derived Runtime state.
 
 ## Capability 2 — Session Flow Timeline Rendering
+
+**Status: COMPLETE.**
 
 The Receiver renders `session_flow.items` as the complete current semantic
 timeline exactly in the order supplied by the Broadcast snapshot or

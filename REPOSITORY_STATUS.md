@@ -28,10 +28,9 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#356](https://github.com/pcvantol/djconnect/pull/356), **Fix Home Assistant
-HTTP View Registration**, merged as `d62fd2d41b8a2896cc1b6fe4f12cf3fdaacec8f7`.
-This dedicated Finalization reconciles its repair record and immutable Prompt
-History.
+PR [#358](https://github.com/pcvantol/djconnect/pull/358), **Universal Receiver
+V1 — Session Flow Timeline Rendering**, merged as `25be97ae7bf79c1026cec6a5c29096b2a852276a`. This dedicated Finalization
+reconciles its completed capability record and immutable Prompt History.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:
@@ -41,11 +40,14 @@ is bounded runtime protection for lifecycle failure only. Future intelligence
 capabilities must extend these established abstractions rather than create a
 parallel Runtime pipeline.
 
-Universal Receiver V1 is the primary active architectural Epic. PR #350
-established its server boundary; PR #354 adds its first operational disposable,
-stateless Web Renderer Host. It renders only existing renderer-safe Broadcast
-snapshots and incremental events. No browser authority, controls, polling,
-persistence, authentication redesign or second transport model was added.
+Universal Receiver V1 remains the primary active architectural Epic. PR #350
+established its server boundary, PR #354 completed Capability 1 — Broadcast
+Connection and Session Rendering, and PR #358 completed Capability 2 — Session
+Flow Timeline Rendering. The disposable, stateless Receiver renders only
+renderer-safe Broadcast projections, preserving the server-defined Flow order
+through snapshots, live updates, resets and reconnects. No browser authority,
+controls, polling, persistence, HTTP endpoint, WebSocket channel or ownership
+change was added.
 Experience expansion is next; Audience Intelligence remains intentionally
 deferred.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.

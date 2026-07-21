@@ -15,10 +15,9 @@
 
 ## Current position
 
-PR [#356](https://github.com/pcvantol/djconnect/pull/356), **Fix Home Assistant
-HTTP View Registration**, merged as `d62fd2d41b8a2896cc1b6fe4f12cf3fdaacec8f7`.
-This dedicated Finalization reconciles its repair record and immutable Prompt
-History.
+PR [#358](https://github.com/pcvantol/djconnect/pull/358), **Universal Receiver
+V1 — Session Flow Timeline Rendering**, merged as `25be97ae7bf79c1026cec6a5c29096b2a852276a`. This dedicated Finalization
+reconciles its completed capability record and immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
@@ -27,12 +26,14 @@ Session Flow publication and Broadcast distribution. The ownership model is
 stable and the legacy Track Started route is only lifecycle-failure protection.
 
 The roadmap therefore transitions from runtime architecture to experience
-expansion. Universal Receiver V1 is the primary active architectural Epic. Its
-first browser-based stateless Web Renderer Host now uses the existing
-renderer-safe Broadcast projections for snapshot and live Session rendering.
-No browser authority, controls, polling, persistence, authentication redesign
-or new transport was introduced. Audience Intelligence remains intentionally
-deferred.
+expansion. Universal Receiver V1 remains the primary active architectural Epic.
+Capability 1 — Broadcast Connection and Session Rendering — and Capability 2
+— Session Flow Timeline Rendering — are complete. The stateless Web Renderer
+Host renders only existing renderer-safe Broadcast projections, preserving
+server-owned Flow ordering through snapshot, live-update, reset and reconnect
+replacement. No browser authority, controls, polling, persistence,
+authentication redesign, HTTP endpoint, WebSocket channel or ownership change
+was introduced. Audience Intelligence remains intentionally deferred.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 PR #315 merged as

@@ -19,7 +19,7 @@ Lab or Deferred. `ROADMAP_INDEX.md` owns cross-program navigation.
 | DJConnect V4 Completion Roadmap | Completed | Persistent Session and Rolling Horizon architectures; `DJCONNECT_V4_COMPLETION_ROADMAP.md` | 6 |
 | Persistent Session Foundation | Completed | Persistent Session Architecture; PR #292 | 5 |
 | Session Intelligence Runtime Integration | Completed | DJ Session Runtime Contracts, Planner, Knowledge Engine, DJ Moment Engine, Session Flow and Broadcast | 7 |
-| Universal Receiver V1 | In Progress — primary architectural Epic; server boundary complete | Session Intelligence Runtime; `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md` | 8 |
+| Universal Receiver V1 | In Progress — primary architectural Epic; server boundary and Capabilities 1–2 complete | Session Intelligence Runtime; `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md` | 8 |
 | Apple experience delivery | Planned | Universal Receiver boundary and stable renderer-safe projections | 9 |
 | Windows experience delivery | Planned | Stable renderer-safe projections | 10 |
 | Raspberry Pi experience delivery | Planned | Stable renderer-safe projections | 11 |
