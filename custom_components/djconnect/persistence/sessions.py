@@ -146,3 +146,9 @@ class PersistentSessionRepository(PersistenceRepository):
                 )
             ]
         )
+
+    async def async_reconciliation_candidates(self) -> list[PersistentSession]:
+        return await self._async_in_transaction(lambda tx: [
+            PersistentSession(*[str(value) for value in row])
+            for row in tx.fetchall("SELECT session_id,owner_profile_id,lifecycle_status,created_at,started_at,ended_at,interrupted_at,interruption_reason,start_strategy,initial_mood,initial_direction FROM djconnect_persistent_sessions WHERE lifecycle_status IN ('OPENING','ACTIVE') ORDER BY created_at")
+        ])

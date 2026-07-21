@@ -22,6 +22,9 @@ from custom_components.djconnect.persistence.sessions import (  # noqa: E402
     SessionLifecycleError,
     SessionOwnershipError,
 )
+from custom_components.djconnect.persistence.reconciliation import (  # noqa: E402
+    PersistentSessionStartupReconciler,
+)
 
 
 class PersistentSessionLifecycleTest(unittest.TestCase):
@@ -71,3 +74,19 @@ class PersistentSessionLifecycleTest(unittest.TestCase):
             )
         )
         self.assertEqual(interrupted.interruption_reason, "startup_failed")
+
+    def test_startup_reconciliation_interrupts_candidates_once(self) -> None:
+        asyncio.run(self.sessions.async_create("profile-a", session_id="opening"))
+        active = asyncio.run(self.sessions.async_create("profile-b", session_id="active"))
+        asyncio.run(self.sessions.async_transition("profile-b", active.session_id, ACTIVE))
+        ended = asyncio.run(self.sessions.async_create("profile-c", session_id="ended"))
+        asyncio.run(self.sessions.async_transition("profile-c", ended.session_id, ACTIVE))
+        ended = asyncio.run(self.sessions.async_transition("profile-c", ended.session_id, ENDED))
+
+        first = asyncio.run(PersistentSessionStartupReconciler(self.sessions).async_reconcile())
+        second = asyncio.run(PersistentSessionStartupReconciler(self.sessions).async_reconcile())
+
+        self.assertEqual((first.inspected, first.interrupted), (2, 2))
+        self.assertEqual((second.inspected, second.interrupted), (0, 0))
+        self.assertEqual(ended.lifecycle_status, ENDED)
+        self.assertEqual(asyncio.run(self.sessions.async_non_terminal()), [])

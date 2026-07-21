@@ -138,7 +138,13 @@ from .push import (
     relay_configured,
     should_send_push,
 )
-from .persistence import async_initialize_persistence, async_shutdown_persistence
+from .persistence import (
+    PersistentSessionRepository,
+    PersistentSessionStartupReconciler,
+    async_initialize_persistence,
+    async_shutdown_persistence,
+    persistence_service,
+)
 from .repairs import async_create_fixable_issues
 from .spotify_oauth import (
     build_authorize_url,
@@ -3009,6 +3015,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     except Exception as exc:  # noqa: BLE001
         _LOGGER.error("DJConnect persistence bootstrap failed: %s", exc.__class__.__name__)
         return False
+    await PersistentSessionStartupReconciler(
+        PersistentSessionRepository(persistence_service(hass))
+    ).async_reconcile()
     # Some Home Assistant startup paths load config entries without first
     # retaining the integration-level setup state. Registering here as well
     # keeps the public HA routes available for every configured runtime.
