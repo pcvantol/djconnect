@@ -4,14 +4,13 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#258](https://github.com/pcvantol/djconnect/pull/258), merged as
-`9c98ba796c28b589677af7370e68bf73c880f9f3`, establishes Live Playback
-Observation Stage 0 as current, Stage 1 as planned and Stage 2 as deferred.
-Spotify Direct is eligible for bounded Media Identity polling; Music Assistant
-is conditionally eligible. Continue Stage 2 remains authorized and deferred
-because no current backend can satisfy occurrence-correct identity and
-correlated live observation. No immutable Prompt History source exists for that
-predecessor; do not recreate one retrospectively.
+PR [#259](https://github.com/pcvantol/djconnect/pull/259), merged as
+`f3f0621d1b313f96d472af2da49f13487cc49edc`, makes Spotify Direct Live
+Playback Observation Stage 1 current. Music Assistant Stage 1 remains
+conditionally eligible and deferred. Continue Stage 2, Playback Instance
+Identity and occurrence-correct observation are blocked pending the explicit
+backend capability conditions in `docs/product/DJ_INTELLIGENCE_MATURITY.md`;
+do not select them for an implementation prompt until that evidence exists.
 
 ## Generation 2 navigation
 

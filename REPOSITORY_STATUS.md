@@ -28,16 +28,15 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#258](https://github.com/pcvantol/djconnect/pull/258) is merged as
-`9c98ba796c28b589677af7370e68bf73c880f9f3`. It establishes Live Playback
-Observation Stage 0 as current, Stage 1 as planned and Stage 2 as deferred.
-Spotify Direct is eligible for bounded safe Media Identity polling; Music
-Assistant is conditionally eligible when a safe media reference exists.
-Continue Stage 2 remains authorized and deferred because neither backend
-currently supplies occurrence-correct identity and correlated live observation.
-It is architecture documentation only; no Runtime, provider capability or
-maturity implementation was included. The immutable predecessor Prompt History
-entry is absent and is not recreated retrospectively.
+PR [#259](https://github.com/pcvantol/djconnect/pull/259) is merged as
+`f3f0621d1b313f96d472af2da49f13487cc49edc`. Spotify Direct Live Playback
+Observation Stage 1 is current: bounded, read-only active-session Media
+Identity observation sends a changed safe URI through the existing Track
+Started intelligence pipeline. Music Assistant Stage 1 remains conditionally
+eligible and deferred. Continue Stage 2, Playback Instance Identity and
+occurrence-correct observation are intentionally blocked pending the explicit
+external capability conditions in `docs/product/DJ_INTELLIGENCE_MATURITY.md`;
+they are not active implementation targets.
 
 Engineering Platform operational after Platform Baseline v1.0 certification
 and Software Assurance Generation 1 closure. DJConnect Product Development is
