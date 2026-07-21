@@ -18,18 +18,18 @@ Lab or Deferred. `ROADMAP_INDEX.md` owns cross-program navigation.
 | Rolling Session Horizon Architecture | Completed | DJ Session Runtime Contracts; `ROLLING_SESSION_HORIZON_ARCHITECTURE.md` | 5 |
 | DJConnect V4 Completion Roadmap | Completed | Persistent Session and Rolling Horizon architectures; `DJCONNECT_V4_COMPLETION_ROADMAP.md` | 6 |
 | Persistent Session Foundation | Completed | Persistent Session Architecture; PR #292 | 5 |
-| First Runtime Production Slice | Planned | DJ Session Runtime Contracts | 5 |
-| Profile convergence | Planned | First Runtime Production Slice and privacy contracts | 5 |
-| Session Planner and Session Flow | Planned | First Runtime Production Slice; Music Backend capability contract | 6 |
-| Playback Experience | Planned | Session Flow and Music Backend capability contract | 7 |
-| Music DNA | Planned | Profile convergence | 7 |
-| Ask DJ | Planned | Profile convergence, Music DNA boundaries and Session Runtime | 8 |
-| Shared Experience and Universal Session Receiver | Planned | Broadcast Feed and shared-profile privacy | 9 |
-| VibeCast Broadcast Capability | Planned | Session Flow, Broadcast Feed and Universal Session Receiver | 10 |
-| Website redesign | Backlog | Product Definition and v4 Architecture Definition | 10 |
-| Discover | Backlog | Session Planner, Music DNA and recommendation evidence | 11 |
-| Track Insight | Backlog | Session Flow and Insight provider contract | 11 |
-| Voice | Backlog | Ask DJ, Session Runtime and Assist capability validation | 11 |
+| Session Intelligence Runtime Integration | Completed | DJ Session Runtime Contracts, Planner, Knowledge Engine, DJ Moment Engine, Session Flow and Broadcast | 7 |
+| Universal Receiver V1 | In Progress — primary architectural Epic; server boundary complete | Session Intelligence Runtime; `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md` | 8 |
+| Apple experience delivery | Planned | Universal Receiver boundary and stable renderer-safe projections | 9 |
+| Windows experience delivery | Planned | Stable renderer-safe projections | 10 |
+| Raspberry Pi experience delivery | Planned | Stable renderer-safe projections | 11 |
+| Voice experience delivery | Planned | Stable current/historical Moment contracts and Assist capability validation | 12 |
+| Experience verification platform | Planned | Stable Renderer Host contracts | 13 |
+| Session Simulation | Planned | Session Intelligence Runtime and renderer-safe projections | 14 |
+| Preferences and Music DNA expansion | Deferred | Existing Profile and Planner influence boundaries | 15 |
+| Narrative Sequencing, Lyrics and Discover Evolution | Deferred | Existing Planner, Knowledge and DJ Moment Engine abstractions | 16 |
+| Audience Intelligence | Deferred | Explicit bounded Planner-influence policy; remains intentionally deferred | 17 |
+| Playback Observation Stage 2 and Continue Stage 2 | Deferred | External Observation Boundary capability conditions | 18 |
 
 The retained material after this section is pre-Generation 2 product and
 release memory. It is not an active roadmap, does not establish current
@@ -39,6 +39,20 @@ Innovation Lab is the source of potential future product candidates. A
 candidate appears in this roadmap only after an explicit GO and promotion
 decision; its receiving Product Development record then has a new owner and a
 new `Planned` or `Backlog` status.
+
+## Session Intelligence Runtime milestone
+
+The Session Intelligence Runtime Integration Epic is complete. The server now
+uses one canonical Runtime lifecycle for every supported Track Started decision:
+Planner selection, Knowledge resolution, DJ Moment realization, Session Flow
+publication and Broadcast distribution. The legacy Track Started path is only
+bounded runtime protection for lifecycle failure.
+
+Future intelligence capabilities extend the existing Planner, Knowledge Engine
+and DJ Moment Engine abstractions; they do not create another Runtime pipeline.
+The active roadmap now moves from runtime-architecture construction to
+experience expansion, with Universal Receiver V1 as the primary architectural
+Epic. Audience Intelligence remains deferred.
 
 Canonical product roadmap for all DJConnect repositories. This file lives only
 in the Home Assistant integration repo `pcvantol/djconnect` and is the leading

@@ -28,19 +28,36 @@ redefine them.
 - **BLOCKED** — requires a documented external capability or prior contract.
 - **POST-V4** — deliberately outside this completion projection.
 
+## V4 milestone — Session Intelligence Runtime Complete
+
+**Status:** Completed on current main.
+
+The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
+is the canonical execution engine for every currently supported Track Started
+decision. Planner, Knowledge Engine, DJ Moment Engine, Session Flow and
+Broadcast now execute through one integrated, server-owned Runtime lifecycle.
+The legacy Track Started path remains only bounded runtime protection when that
+lifecycle cannot safely execute.
+
+Subsystem ownership is complete and stable. This is the transition from
+runtime-architecture construction to experience expansion: future intelligence
+work must extend the existing Planner, Knowledge and DJ Moment Engine
+abstractions and their existing Runtime lifecycle. It must not introduce a
+second Runtime pipeline.
+
 ## Current baseline
 
 | Area | Status | Repository evidence |
 | --- | --- | --- |
-| V4 Runtime, Session Flow and immutable DJMoments | CURRENT | `DJCONNECT_V4_ARCHITECTURE.md`, `DJ_SESSION_RUNTIME_CONTRACTS.md` |
-| Planner | Stage 3 current | `docs/product/DJ_INTELLIGENCE_MATURITY.md` |
-| Knowledge Engine | Stage 2 current | `docs/product/DJ_INTELLIGENCE_MATURITY.md` |
-| DJ Moment Engine | Stage 2 current; Stage 3 partial | `docs/product/DJ_INTELLIGENCE_MATURITY.md` |
+| V4 Runtime and Session Intelligence lifecycle | CURRENT and integrated | `DJ_SESSION_RUNTIME_CONTRACTS.md`, this milestone |
+| Planner, rolling horizon, candidate slots and planned intents | CURRENT, Runtime-scoped | `ROLLING_SESSION_HORIZON_ARCHITECTURE.md`, `docs/product/DJ_INTELLIGENCE_MATURITY.md` |
+| Knowledge Engine and prepared-knowledge path | CURRENT through supported intent resolution | `docs/product/DJ_INTELLIGENCE_MATURITY.md` |
+| DJ Moment Engine, Session Flow and immutable DJMoments | CURRENT through supported Track Started realization | `DJ_SESSION_RUNTIME_CONTRACTS.md`, `docs/product/DJ_INTELLIGENCE_MATURITY.md` |
 | Performance Memory | CURRENT, Runtime-scoped only | `DJ_SESSION_RUNTIME_CONTRACTS.md` |
 | Broadcast transport | CURRENT: HTTP snapshot, snapshot-first WebSocket, capability discovery | `docs/technical/BROADCAST_TRANSPORT.md` |
 | Recovery | CURRENT: bounded owner cursor replay; fresh snapshot fallback | `SESSION_FLOW_RECOVERY_ARCHITECTURE.md` |
-| Persistent Session / Rolling Horizon | Accepted architecture, implementation deferred | `PERSISTENT_SESSION_ARCHITECTURE.md`, `ROLLING_SESSION_HORIZON_ARCHITECTURE.md` |
-| Renderer model | CURRENT architecture: clients are Renderer Hosts | `docs/product/DJ_PRESENTATION_ARCHITECTURE.md` |
+| Persistent Session | CURRENT foundation, lifecycle, reconciliation, history and retention; backup/export remains planned | `PERSISTENT_SESSION_ARCHITECTURE.md` |
+| Experience Renderer model | CURRENT architecture; renderer delivery is the next focus | `docs/product/DJ_PRESENTATION_ARCHITECTURE.md`, `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md` |
 | Apple baseline | CURRENT pairing, Session lifecycle routes, HTTP/WebSocket and APNs foundations | `docs/technical/CLIENT_SERVER_TRANSPORT.md`, `docs/technical/WEBSOCKET_API.md` |
 
 ## V4 product completion definition
@@ -51,19 +68,59 @@ live presentation, inspect durable Session history, replay eligible Moments,
 and receive a rich but bounded DJ performance across stable Renderer Host
 contracts. Playback and queue execution always remain Music Backend-owned.
 
-## Track overview
+## Roadmap transition
 
-| Track | Goal | Depends on | V4 role |
-| --- | --- | --- | --- |
-| A. Persistent Session Platform | Durable Session lifecycle and history without durable Runtime. | Persistent Session Architecture | Required |
-| B. Rolling Session Horizon | Approximately 20-minute, ephemeral experience planning. | Rolling Horizon Architecture; safe observations | Required |
-| C. DJ Session Intelligence | Mature planning, knowledge and Moment performance. | Maturity cells, Horizon where needed | Required |
-| D. Lyrics Capability | Copyright-safe, Planner-approved Lyrics knowledge. | Knowledge/Horizon contracts | Required for V4 Lyrics experience |
-| E. Voice Platform | Room voice and per-user Moment replay as separate paths. | Stable current/historical Moment contracts | Required |
-| F. Renderer Hosts | Consume stable projections without business logic. | Server contracts | Required only for V4-critical hosts |
-| G. Apple/iOS V4 | Native iOS completion on stable server contracts. | A–E server gates | Required |
+The roadmap is now organized into three deliberately separate tracks. Completion
+of the Runtime Integration Epic does not make deferred experience or
+intelligence work implicit authorization.
 
-## Track A — Persistent Session Platform
+### Platform — completed foundation
+
+- Session Runtime
+- Planner
+- Knowledge Engine
+- DJ Moment Engine
+- Session Flow
+- Broadcast
+- Session Intelligence Runtime
+
+These are stable, server-owned foundations. Maintenance may correct defects,
+but new product work reuses their established ownership boundaries.
+
+### Experience — primary next focus
+
+**Universal Receiver V1 is the primary active architectural Epic.** Its
+server-side Renderer Host contract is complete; subsequent browser delivery,
+like Apple, Windows, Raspberry Pi and Voice delivery, must consume existing
+Broadcast projections and server APIs without acquiring Runtime ownership.
+
+- Universal Receiver V1
+- Apple
+- Windows
+- Raspberry Pi
+- Voice
+- Verification Platform
+- Session Simulation
+
+Each remains a separately authorized capability. This ordering identifies
+experience-platform focus; it does not authorize a browser implementation,
+client change or renderer-specific transport.
+
+### Intelligence Expansion — deferred future evolution
+
+- Preferences
+- Music DNA expansion
+- Narrative Sequencing
+- Lyrics
+- Discover Evolution
+- Audience Intelligence
+- Playback Observation Stage 2
+- Continue Stage 2
+
+Audience Intelligence remains intentionally deferred. Its future use must be a
+bounded influence on the existing Planner rather than a new execution path.
+
+## Platform detail — Persistent Session
 
 The accepted `LOCALIZATION_NARRATIVE_ARCHITECTURE.md` applies to every
 user-facing Track A capability. Its delivery remains a separately sequenced
@@ -79,49 +136,28 @@ cross-cutting roadmap; this does not authorize translations or renderer work.
    renderer-safe historical Session and DJMoment projections plus one
    owner-authorized, transport-independent query boundary; no pagination or
    client/transport feature.
-5. **PLANNED — Retention:** expiry, cleanup, favorites/preservation only when
-   approved, visibility and audit-safe policy.
+5. **CURRENT — Retention:** bounded expiry and transactional cleanup of
+   immutable historical projections; favorites/preservation remains deferred.
 6. **PLANNED — Backup and export:** HA backup/restore validation plus versioned
    Profile and Session-history export/import independent of SQLite.
 
 Runtime, Planner graphs, Performance Memory, Broadcast delivery/recovery state,
 Playback Instance Identity, temporary audio and TTS URLs remain ephemeral.
 
-## Track B — Rolling Session Horizon
+## Completed Runtime Integration scope
 
-1. **PLANNED — Horizon domain model:** runtime-local experience slots,
-   invalidation vocabulary and policy target.
-2. **PLANNED — Upcoming Playback Projection:** provider-neutral bounded future
-   context with shorter-window and current-track degradation.
-3. **PLANNED — Basic window:** deterministic approximately 20-minute planning
-   around playback, including Silence-capable slots; no queue action.
-4. **PLANNED — Replanning:** invalidation, debouncing, stability window,
-   cancellation of obsolete intents and confidence handling.
-5. **PLANNED — Adaptation:** Mood, Direction, approved likes/dislikes/skips and
-   normalized Audience Signals affect only future slots.
-6. **PLANNED — Prefetch:** cancellable Runtime-scoped Knowledge preparation.
+The completed lifecycle includes the Rolling Session Horizon, Upcoming Playback
+Projection, Planning Window, candidate slots, Planned Intents, deterministic
+selection and replanning, planning readiness, Knowledge Prefetch, Prepared
+Knowledge consumption and the canonical Track Started activation path. It is
+bounded to observable playback and remains Runtime-scoped and ephemeral.
 
-Only realized outcomes become Session Flow and, when approved by Track A,
-historical Session projections.
+Only realized outcomes enter Session Flow and Broadcast. Future changes to
+preferences, narrative, Lyrics, Discover or Audience Intelligence must reuse
+this lifecycle; provider queues, persistence and renderer state remain outside
+Planner ownership.
 
-## Track C — DJ Session Intelligence
-
-The maturity model remains authoritative; this roadmap does not advance it.
-
-- **Planner:** complete the bounded `PL-3.2` audience-direction cell, then
-  pacing, cadence, horizon-aware scheduling, deterministic Silence, openings,
-  middle/closing structure, callbacks and longer narrative arcs through small
-  cells.
-- **Knowledge:** enrich existing artist/album/genre context only through safe
-  source-qualified cells; add confidence/provenance and later prefetch.
-- **Moment Engine:** complete the approved Stage 3 baseline, then persona-aware
-  variation, richer transitions/updates, openings, closings and continuity
-  without new alternate pipelines.
-- **Discover:** retain Profile alignment while adding controlled multi-path
-  discovery, adjacent genres, deep cuts and context-aware recommendations only
-  after corresponding Planner/Knowledge evidence.
-
-## Track D — Lyrics Capability
+## Intelligence Expansion detail — Lyrics Capability
 
 Lyrics is a dedicated intelligence capability, not a provider field.
 
@@ -135,7 +171,7 @@ Lyrics is a dedicated intelligence capability, not a provider field.
 Knowledge selects safe context, Planner decides relevance, Moment Engine
 performs, and clients render the immutable result.
 
-## Track E — Voice Platform
+## Experience detail — Voice Platform
 
 Two paths remain separate.
 
@@ -154,7 +190,7 @@ Sequence: voice-render architecture → shared application service → visibilit
 and concurrency → ephemeral delivery → room resolver/Satellite delivery →
 client replay contract → Renderer adoption.
 
-## Track F — Renderer Hosts
+## Experience detail — Renderer Hosts
 
 HA remains canonical Runtime and business-logic owner. Apple, Windows, Pi, Web
 and Voice are Renderer Hosts; Universal Receiver is a projection/transport
@@ -167,7 +203,7 @@ V4-critical renderer work is limited to stable live Moments, recovery,
 historical Session/Moment views, replay and Lyrics presentation. Broader
 renderer expansion is not a server-completion dependency.
 
-## Track G — Apple/iOS V4 completion
+## Experience detail — Apple/iOS V4 completion
 
 After the server contracts are stable, iOS adopts them in this order:
 
@@ -189,42 +225,32 @@ visibility boundaries; coexist with autonomous room voice; and rely on server
 contracts rather than client-owned business logic. WatchOS/macOS parity is
 separate unless a later V4 gate explicitly adds it.
 
-## Dependency graph
+## Post-milestone dependency graph
 
 ```text
 Persistent Session Architecture
   -> persistence foundation -> lifecycle/reconciliation -> historical projections
   -> stable history APIs -> replay voice -> iOS history/replay
 
-Rolling Horizon Architecture
-  -> horizon model -> future projection -> replanning/adaptation
-  -> prefetch -> Lyrics/narrative intelligence -> iOS intelligence adoption
+Completed Session Intelligence Runtime
+  -> existing Planner / Knowledge / DJ Moment Engine abstractions
+  -> bounded experience and intelligence extensions
+
+Universal Receiver V1 server architecture
+  -> browser Renderer Host implementation -> multi-renderer experience evidence
 
 Shared voice render service -> autonomous room voice
 Stable live Broadcast/recovery (CURRENT) -> all live Renderer adoption
 ```
 
-Tracks A and B can proceed in parallel after individually authorized first
-cells. Track C may progress through existing independent maturity cells in
-parallel with A/B when those cells do not need history or future context. Track
-D follows its own source/copyright architecture and benefits from B prefetch.
-Track E replay follows historical Moment contracts; room voice follows stable
-current Moment plus shared voice service. Track G waits for the relevant server
-contracts rather than every optional Renderer Host.
-
-## Ordered implementation waves
-
-1. Persistence foundation and one bounded existing Planner maturity cell.
-2. Session lifecycle store; Horizon domain model; Lyrics architecture.
-3. Startup reconciliation; Upcoming Playback Projection; source-qualified
-   Knowledge cells.
-4. Historical projections/history APIs; horizon replanning; shared voice service.
-5. Retention/backup/export; feedback/audience adaptation; Lyrics realization.
-6. Historical replay and autonomous room voice; stable iOS live/history/replay.
-7. Narrative intelligence, Discover expansion and iOS rich Moment adoption.
+The completed Runtime foundation lets Experience work proceed without a new
+server pipeline. Universal Receiver delivery is the primary next architectural
+Epic. Apple, Windows, Raspberry Pi and Voice work consume the same stable
+Renderer Host boundary. Intelligence Expansion remains independently deferred
+and may proceed only through the maturity model and a fresh Pre-Flight.
 
 Every item remains one capability, one vertical slice and one Finalization
-cycle; waves are coordination, not authorization to bundle work.
+cycle; this roadmap is sequencing, not authorization to bundle work.
 
 ## Server completion gate
 

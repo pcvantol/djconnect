@@ -7,6 +7,25 @@ DJ. It complements, but does not replace, the Product Backlog. Future work
 enriches the established Session Runtime architecture in small, production-safe
 vertical slices.
 
+## Runtime Integration milestone
+
+**Session Intelligence Runtime Complete** is the current architectural
+milestone. For every supported Track Started decision, the server uses one
+canonical Runtime lifecycle:
+
+```text
+Runtime -> Planner -> Knowledge Engine -> DJ Moment Engine -> Session Flow -> Broadcast
+```
+
+The Planner, Knowledge Engine and DJ Moment Engine have stable ownership within
+that lifecycle. The legacy Track Started route is only bounded runtime
+protection for lifecycle failure. Future maturity cells extend these existing
+abstractions and never introduce a parallel Runtime, Flow or Broadcast path.
+
+This milestone does not advance deferred intelligence. In particular,
+Audience Intelligence remains intentionally deferred until a separately
+authorized bounded Planner-influence cell has its required evidence.
+
 ## Maturity principles
 
 Every stage must remain production ready, testable and faithful to established

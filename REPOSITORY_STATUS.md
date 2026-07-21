@@ -28,17 +28,21 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current main contains PR [#350](https://github.com/pcvantol/djconnect/pull/350),
-**Universal Receiver V1 — Server Architecture**, merged as
-`03cd470fc11d7f36c78434b0ea8cd4199a4bd1fc`. It defines the Universal Receiver
-as a disposable, stateless Web Renderer Host for one server-owned active
-Session. It consumes only existing renderer-safe Broadcast snapshots and
-incremental updates, including reconnect semantics; the existing
-runtime/session-bound receiver token stays read-only. Session Runtime, Planner,
-Knowledge, DJ Moment Engine, Session Flow and Broadcast ownership remain inside
-Home Assistant. No browser UI, browser persistence, browser authority,
-authentication redesign or second transport model was added. This completed
-architecture increment is in its dedicated governance-only Finalization.
+Current main records **Session Intelligence Runtime Complete**. The Runtime is
+the one canonical execution engine for all supported Track Started decisions:
+Planner, Knowledge Engine, DJ Moment Engine, Session Flow and Broadcast execute
+through one integrated, server-owned lifecycle. The legacy Track Started route
+is bounded runtime protection for lifecycle failure only. Future intelligence
+capabilities must extend these established abstractions rather than create a
+parallel Runtime pipeline.
+
+Universal Receiver V1 is the primary active architectural Epic. PR [#350](https://github.com/pcvantol/djconnect/pull/350), **Universal Receiver V1 — Server Architecture**, merged as
+`03cd470fc11d7f36c78434b0ea8cd4199a4bd1fc` and was reconciled by PR #351. It is
+a disposable, stateless Web Renderer Host using existing renderer-safe Broadcast
+snapshots and incremental updates. No browser UI, browser persistence, browser
+authority, authentication redesign or second transport model was added.
+Experience expansion is next; Audience Intelligence remains intentionally
+deferred.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 The preceding PR #313,
