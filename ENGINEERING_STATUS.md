@@ -7,7 +7,9 @@
 
 PR [#325](https://github.com/pcvantol/djconnect/pull/325), **Performance Memory
 Intent Selection**, merged as `1d71c34d14773e3a0abdc467034dc06ac713c009`.
-This dedicated Finalization reconciles its bounded internal influence.
+Its dedicated Finalization, PR [#326](https://github.com/pcvantol/djconnect/pull/326),
+is merged. Repository State: `MERGED_RECONCILED`; Workspace State:
+`WORKSPACE_READY`.
 
 PR #323, **Mood and Direction
 Intent Selection**, merged as `a2e394bc92beb42de596eb613327678615d5abbf`.
