@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>DJConnect Receiver</title>
+  <style>
+    body { font-family: system-ui, sans-serif; line-height: 1.4; margin: 2rem; max-width: 52rem; }
+    header { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
+    section { border-top: 1px solid #bbb; margin-top: 1rem; padding-top: .75rem; }
+    h1 { font-size: 1.5rem; margin: 0; } h2 { font-size: 1rem; }
+    pre { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <header><h1 id="title">DJConnect Receiver</h1><span id="connection-state" data-testid="connection-state">Disconnected</span></header>
+  <p id="message" data-testid="message"></p>
+  <section><h2 id="session-label">Session</h2><pre id="session" data-testid="session"></pre></section>
+  <section><h2 id="playback-label">Current playback</h2><pre id="playback" data-testid="playback"></pre></section>
+  <section><h2 id="moment-label">Current DJ Moment</h2><pre id="moment" data-testid="moment"></pre></section>
+  <section><h2 id="flow-label">Session Flow</h2><pre id="flow" data-testid="flow"></pre></section>
+  <script>
+    (() => {
+      const copy = {
+        en: { title: "DJConnect Receiver", disconnected: "Disconnected", connecting: "Connecting", connected: "Connected", snapshot: "Snapshot received", live: "Live updates", reconnecting: "Reconnecting", unavailable: "No active session", ended: "Session ended", interrupted: "Transport interrupted", session: "Session", playback: "Current playback", moment: "Current DJ Moment", flow: "Session Flow", missing: "A session ID and Broadcast Token are required." },
+        nl: { title: "DJConnect Receiver", disconnected: "Niet verbonden", connecting: "Verbinden", connected: "Verbonden", snapshot: "Snapshot ontvangen", live: "Live updates", reconnecting: "Opnieuw verbinden", unavailable: "Geen actieve sessie", ended: "Sessie beëindigd", interrupted: "Transport onderbroken", session: "Sessie", playback: "Huidige weergave", moment: "Huidig DJ-moment", flow: "Sessieflow", missing: "Een sessie-ID en Broadcast Token zijn vereist." },
+        de: { title: "DJConnect Receiver", disconnected: "Getrennt", connecting: "Verbinden", connected: "Verbunden", snapshot: "Snapshot empfangen", live: "Live-Updates", reconnecting: "Erneut verbinden", unavailable: "Keine aktive Sitzung", ended: "Sitzung beendet", interrupted: "Transport unterbrochen", session: "Sitzung", playback: "Aktuelle Wiedergabe", moment: "Aktueller DJ-Moment", flow: "Sitzungsablauf", missing: "Eine Sitzungs-ID und ein Broadcast-Token sind erforderlich." },
+        fr: { title: "DJConnect Receiver", disconnected: "Déconnecté", connecting: "Connexion", connected: "Connecté", snapshot: "Instantané reçu", live: "Mises à jour en direct", reconnecting: "Reconnexion", unavailable: "Aucune session active", ended: "Session terminée", interrupted: "Transport interrompu", session: "Session", playback: "Lecture en cours", moment: "Moment DJ actuel", flow: "Flux de session", missing: "Un identifiant de session et un jeton Broadcast sont requis." },
+        es: { title: "DJConnect Receiver", disconnected: "Desconectado", connecting: "Conectando", connected: "Conectado", snapshot: "Instantánea recibida", live: "Actualizaciones en directo", reconnecting: "Reconectando", unavailable: "No hay sesión activa", ended: "Sesión finalizada", interrupted: "Transporte interrumpido", session: "Sesión", playback: "Reproducción actual", moment: "Momento DJ actual", flow: "Flujo de sesión", missing: "Se requieren un ID de sesión y un token de Broadcast." }
+      };
+      const language = (navigator.language || "en").slice(0, 2);
+      const text = copy[language] || copy.en;
+      const params = new URLSearchParams(window.location.search);
+      const sessionId = params.get("session_id");
+      const broadcastToken = params.get("broadcast_token");
+      const allowed = new Set(["session", "playback", "planner", "session_flow", "audience", "dj_moments", "broadcast"]);
+      let projection = {};
+      let socket;
+      let reconnectTimer;
+      let ended = false;
+      let attempts = 0;
+
+      const element = id => document.getElementById(id);
+      const display = value => value === undefined || value === null ? "—" : JSON.stringify(value, null, 2);
+      const setConnection = value => { element("connection-state").textContent = value; };
+      const clearProjection = () => { projection = {}; render(); };
+      const currentMoment = () => Array.isArray(projection.dj_moments) && projection.dj_moments.length ? projection.dj_moments.at(-1) : null;
+      const render = () => {
+        element("session").textContent = display(projection.session);
+        element("playback").textContent = display(projection.playback && projection.playback.current_track);
+        element("moment").textContent = display(currentMoment());
+        element("flow").textContent = display(projection.session_flow);
+      };
+      const translate = () => {
+        document.documentElement.lang = language in copy ? language : "en";
+        document.title = text.title; element("title").textContent = text.title;
+        element("session-label").textContent = text.session; element("playback-label").textContent = text.playback;
+        element("moment-label").textContent = text.moment; element("flow-label").textContent = text.flow;
+      };
+      const applySnapshot = snapshot => {
+        projection = {};
+        for (const [key, value] of Object.entries(snapshot || {})) if (allowed.has(key)) projection[key] = value;
+        render();
+      };
+      const applyEvent = event => {
+        const payload = event && event.payload;
+        if (!payload || typeof payload !== "object") return;
+        if (event.event_type === "runtime_ended" || event.event_type === "broadcast_stopped") {
+          ended = true; clearProjection(); element("message").textContent = text.ended; setConnection(text.ended); return;
+        }
+        if (payload.session) projection.session = payload.session;
+        if (payload.playback) projection.playback = payload.playback;
+        if (payload.planner) projection.planner = payload.planner;
+        if (payload.session_flow) projection.session_flow = payload.session_flow;
+        if (payload.audience) projection.audience = payload.audience;
+        if (payload.broadcast) projection.broadcast = payload.broadcast;
+        if (payload.dj_moment) projection.dj_moments = [...(projection.dj_moments || []), payload.dj_moment];
+        render();
+      };
+      const scheduleReconnect = () => {
+        if (ended || reconnectTimer) return;
+        element("message").textContent = text.interrupted;
+        setConnection(text.reconnecting);
+        reconnectTimer = window.setTimeout(() => { reconnectTimer = undefined; connect(); }, Math.min(1000 * 2 ** attempts++, 5000));
+      };
+      const websocketUrl = () => {
+        const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+        return `${protocol}//${window.location.host}/api/djconnect/v1/session/broadcast/ws/${encodeURIComponent(sessionId)}?broadcast_token=${encodeURIComponent(broadcastToken)}`;
+      };
+      const connect = () => {
+        if (ended) return;
+        setConnection(attempts ? text.reconnecting : text.connecting);
+        const connectedSocket = new WebSocket(websocketUrl());
+        socket = connectedSocket;
+        connectedSocket.onopen = () => { element("message").textContent = ""; setConnection(text.connected); };
+        connectedSocket.onmessage = ({ data }) => {
+          let frame; try { frame = JSON.parse(data); } catch (_) { return; }
+          if (frame.type === "snapshot") { attempts = 0; applySnapshot(frame.snapshot); setConnection(text.snapshot); setConnection(text.live); }
+          else if (frame.type === "event") applyEvent(frame.data);
+          else if (frame.type === "error") { ended = true; clearProjection(); element("message").textContent = text.unavailable; setConnection(text.unavailable); }
+        };
+        connectedSocket.onclose = () => scheduleReconnect();
+        connectedSocket.onerror = () => connectedSocket.close();
+      };
+
+      translate(); render(); setConnection(text.disconnected);
+      if (!sessionId || !broadcastToken) { element("message").textContent = text.missing; setConnection(text.unavailable); return; }
+      connect();
+      window.addEventListener("beforeunload", () => { ended = true; if (socket) socket.close(); });
+    })();
+  </script>
+</body>
+</html>

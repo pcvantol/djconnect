@@ -51,6 +51,7 @@ from .const import (
     API_SESSION_BROADCAST,
     API_SESSION_BROADCAST_TOKEN,
     API_SESSION_BROADCAST_WS,
+    UNIVERSAL_RECEIVER_PATH,
     API_VOICE,
     CONF_ASSIST_PIPELINE_ID,
     CONF_CLIENT_TYPE,
@@ -2872,6 +2873,27 @@ class DJConnectSessionBroadcastWebSocketView(HomeAssistantView):
                 session_id=session_id, subscription_id=subscription_id
             )
         return websocket
+
+
+class DJConnectUniversalReceiverView(HomeAssistantView):
+    """Serve the passive Universal Receiver presentation shell.
+
+    The page contains no Session data. It receives an existing Runtime-scoped
+    Broadcast Token and Session ID from its URL, then connects only to the
+    already-established read-only Broadcast WebSocket.
+    """
+
+    url = UNIVERSAL_RECEIVER_PATH
+    name = "djconnect:universal_receiver"
+    requires_auth = False
+
+    async def get(self, request):
+        page = Path(__file__).with_name("universal_receiver.html").read_text(encoding="utf-8")
+        return web.Response(
+            text=page,
+            content_type="text/html",
+            headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"},
+        )
 
 
 class DJConnectEventView(HomeAssistantView):
