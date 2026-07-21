@@ -28,10 +28,10 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current main contains PR [#315](https://github.com/pcvantol/djconnect/pull/315),
-**Rolling Session Horizon Runtime Model**, merged as
-`6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`. It is in its dedicated
-Finalization.
+Current main contains PR [#323](https://github.com/pcvantol/djconnect/pull/323),
+**Mood and Direction Intent Selection**, merged as
+`a2e394bc92beb42de596eb613327678615d5abbf`. This bounded internal Planner
+selection capability is in its dedicated Finalization.
 
 The preceding PR #313,
 **Localization and Narrative Architecture**, merged as

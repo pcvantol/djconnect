@@ -4,7 +4,13 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#315](https://github.com/pcvantol/djconnect/pull/315), merged as
+PR [#323](https://github.com/pcvantol/djconnect/pull/323), merged as
+`a2e394bc92beb42de596eb613327678615d5abbf`, is the current merged
+implementation. Repository State is `MERGED_UNRECONCILED` until its dedicated
+Finalization merges. Its Prompt History is
+`docs/history/prompts/2026-07-21-mood-direction-intent-selection.md`.
+
+PR #315, merged as
 `6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`, is the current merged
 implementation. Repository State is `MERGED_UNRECONCILED` until its dedicated
 Finalization merges. Its Prompt History is
