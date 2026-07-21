@@ -1833,6 +1833,136 @@ class DJKnowledgeEngine:
         )
         return self._record(context)
 
+    async def async_resolve_approved_planned_intent(
+        self,
+        *,
+        approved_intent: PlannerIntent,
+        planned_intent: PlannedIntent,
+        knowledge_intent: KnowledgeIntent,
+        prefetch: KnowledgePrefetch,
+        prepared_knowledge: tuple[PreparedKnowledge, ...],
+        invalidation_generation: int,
+        raw_insight: dict[str, Any],
+        session_direction: SessionDirection | None = None,
+        session_start_strategy: SessionStartStrategy | None = None,
+        session_mood: str = "",
+        discover_context: DiscoverContext | None = None,
+        performance_memory: PerformanceMemory | None = None,
+        personal_context_authorized: bool = False,
+    ) -> KnowledgeContext:
+        """Resolve an approved future intent from valid prefetch output or existing input."""
+        prepared_context = self._matching_prepared_context(
+            approved_intent=approved_intent,
+            planned_intent=planned_intent,
+            knowledge_intent=knowledge_intent,
+            prefetch=prefetch,
+            prepared_knowledge=prepared_knowledge,
+            invalidation_generation=invalidation_generation,
+            session_direction=session_direction,
+            session_start_strategy=session_start_strategy,
+            session_mood=session_mood,
+            discover_context=discover_context,
+            performance_memory=performance_memory,
+            personal_context_authorized=personal_context_authorized,
+        )
+        if prepared_context is not None:
+            return self._record(prepared_context)
+        return await self.async_assemble_track_context(
+            intent=knowledge_intent,
+            raw_insight=raw_insight,
+            session_direction=session_direction,
+            session_start_strategy=session_start_strategy,
+            session_mood=session_mood,
+            discover_context=discover_context,
+            performance_memory=performance_memory,
+            personal_context_authorized=personal_context_authorized,
+        )
+
+    @staticmethod
+    def _matching_prepared_context(
+        *,
+        approved_intent: PlannerIntent,
+        planned_intent: PlannedIntent,
+        knowledge_intent: KnowledgeIntent,
+        prefetch: KnowledgePrefetch,
+        prepared_knowledge: tuple[PreparedKnowledge, ...],
+        invalidation_generation: int,
+        session_direction: SessionDirection | None,
+        session_start_strategy: SessionStartStrategy | None,
+        session_mood: str,
+        discover_context: DiscoverContext | None,
+        performance_memory: PerformanceMemory | None,
+        personal_context_authorized: bool,
+    ) -> KnowledgeContext | None:
+        """Accept one exact, current prepared result without mutating it."""
+        expected_category = {
+            "artist_story": "artist",
+            "album_story": "album",
+            "genre_story": "genre",
+            "recommendation": "recommendation",
+        }.get(planned_intent.category)
+        same_prefetch_target = (
+            prefetch.target_intent.category == planned_intent.category
+            and prefetch.target_intent.slot == planned_intent.slot
+            and prefetch.target_intent.generation == planned_intent.generation
+        )
+        if (
+            planned_intent.status is not PlannedIntentStatus.APPROVED
+            or approved_intent != planned_intent.as_planner_intent()
+            or knowledge_intent.intent_type.value != planned_intent.category
+            or expected_category is None
+            or not same_prefetch_target
+            or prefetch.status is not KnowledgePrefetchStatus.PLANNED
+            or prefetch.knowledge_category != expected_category
+            or prefetch.planning_generation != planned_intent.generation
+            or prefetch.invalidation_generation != invalidation_generation
+        ):
+            return None
+        expected_request_id = KnowledgePrefetchRequest.from_prefetch(
+            prefetch, subject_projection=()
+        ).request_id
+        prepared = next(
+            (
+                result
+                for result in prepared_knowledge
+                if result.request_id == expected_request_id
+            ),
+            None,
+        )
+        if (
+            prepared is None
+            or prepared.status is not PreparedKnowledgeStatus.PREPARED
+            or not prepared.is_valid
+            or prepared.planning_generation != planned_intent.generation
+            or prepared.knowledge_category != expected_category
+            or prepared.confidence < prefetch.knowledge_confidence
+            or prepared.freshness < prefetch.freshness
+            or len(prepared.projection) != 1
+        ):
+            return None
+        subject_key, subject_value = prepared.projection[0]
+        if subject_key != expected_category or _bounded_text(subject_value, 256) != subject_value:
+            return None
+        track = ()
+        analysis = ()
+        if expected_category == "genre":
+            analysis = (("genre", subject_value),)
+        elif expected_category == "recommendation":
+            track = (("related_tracks", subject_value),)
+        else:
+            track = ((expected_category, subject_value),)
+        return KnowledgeContext(
+            track=track,
+            analysis=analysis,
+            sources=("prepared_knowledge",),
+            personal_context_used=personal_context_authorized,
+            session_direction=session_direction,
+            session_start_strategy=session_start_strategy,
+            session_mood=session_mood,
+            discover_context=discover_context,
+            performance_memory=performance_memory,
+        )
+
     def assemble_session_direction_context(
         self,
         session_direction: SessionDirection,
