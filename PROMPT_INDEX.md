@@ -4,10 +4,17 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#350](https://github.com/pcvantol/djconnect/pull/350), merged as
-`03cd470fc11d7f36c78434b0ea8cd4199a4bd1fc`, is the current merged
-architecture increment. Its dedicated Finalization reconciles the canonical
-Universal Receiver Server Architecture and rolling records.
+The Session Intelligence Runtime Integration Epic is complete and reconciled.
+Supported Track Started decisions now use the one canonical Runtime lifecycle:
+Planner, Knowledge Engine, DJ Moment Engine, Session Flow and Broadcast. Future
+intelligence prompts must extend that lifecycle rather than introduce another
+Runtime pipeline. Audience Intelligence remains intentionally deferred.
+
+PR [#350](https://github.com/pcvantol/djconnect/pull/350), **Universal Receiver V1 — Server Architecture**, merged as
+`03cd470fc11d7f36c78434b0ea8cd4199a4bd1fc` and reconciled by PR #351,
+establishes Universal Receiver V1 as the primary active architectural Epic. Its
+server-side Web Renderer Host boundary is complete; browser delivery remains a
+separate future capability.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 Its Prompt History is
 `docs/history/prompts/2026-07-21-universal-receiver-server-architecture.md`.

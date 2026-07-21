@@ -15,15 +15,19 @@
 
 ## Current position
 
-PR [#350](https://github.com/pcvantol/djconnect/pull/350) merged as
-`03cd470fc11d7f36c78434b0ea8cd4199a4bd1fc`. It formally establishes the
-Universal Receiver as a browser-based, stateless Web Renderer Host. It consumes
-the existing renderer-safe Broadcast projections while Home Assistant keeps
-all Runtime, Planner, Knowledge, DJ Moment Engine, Session Flow and Broadcast
-ownership. Existing receiver-token, initial-snapshot, incremental-update and
-reconnect semantics remain authoritative. No browser UI, browser authority,
-authentication redesign or new transport was introduced. This is its dedicated
-governance-only Finalization.
+The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
+now has one canonical Runtime lifecycle for supported Track Started decisions:
+Planner selection, Knowledge resolution, immutable DJ Moment realization,
+Session Flow publication and Broadcast distribution. The ownership model is
+stable and the legacy Track Started route is only lifecycle-failure protection.
+
+The roadmap therefore transitions from runtime architecture to experience
+expansion. Universal Receiver V1 is the primary active architectural Epic. PR [#350](https://github.com/pcvantol/djconnect/pull/350), **Universal Receiver V1 — Server Architecture**, merged as
+`03cd470fc11d7f36c78434b0ea8cd4199a4bd1fc` and was reconciled in PR #351. It is
+a browser-based stateless Web Renderer Host using existing renderer-safe
+Broadcast projections; no browser authority, UI, authentication redesign or
+new transport was introduced. Audience Intelligence remains intentionally
+deferred.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 PR #315 merged as
