@@ -361,6 +361,14 @@ class SessionFlowItemType(StrEnum):
     DJ_MOMENT = "dj_moment"
 
 
+class SessionFlowChangeType(StrEnum):
+    """Canonical semantic changes committed by the Planner-owned Session Flow."""
+
+    INITIALIZED = "initialized"
+    REPUBLISHED = "republished"
+    MOMENT_APPENDED = "moment_appended"
+
+
 @dataclass(frozen=True)
 class DJSessionFlowItem:
     """One typed item in a Planner-owned Session Flow."""
@@ -391,6 +399,7 @@ class DJSessionFlow:
     """Planner output describing DJ intent, never a playback queue or playlist."""
 
     flow_id: str
+    flow_revision: int
     planning_horizon_minutes: int
     created_at: str
     items: tuple[DJSessionFlowItem, ...]
@@ -399,10 +408,21 @@ class DJSessionFlow:
         """Return the canonical current-horizon Session Flow."""
         return {
             "flow_id": self.flow_id,
+            "flow_revision": self.flow_revision,
             "planning_horizon_minutes": self.planning_horizon_minutes,
             "created_at": self.created_at,
             "items": [item.as_dict() for item in self.items],
         }
+
+
+@dataclass(frozen=True)
+class SessionFlowChange:
+    """One immutable Planner-owned committed semantic Session Flow revision."""
+
+    flow_id: str
+    revision: int
+    change_type: SessionFlowChangeType
+    flow: DJSessionFlow
 
 
 @dataclass(frozen=True)
@@ -496,6 +516,50 @@ class DJSessionPlanner:
     configuration: PlannerConfiguration = field(default_factory=PlannerConfiguration)
     last_spoken_moment_at: float = 0.0
     last_decision: PlannerDecision | None = None
+    flow_change_journal: tuple[SessionFlowChange, ...] = ()
+
+    def __post_init__(self) -> None:
+        """Record the initial canonical Flow state without advancing its revision."""
+        if self.flow_change_journal:
+            return
+        flow = self.output.session_flow
+        self.flow_change_journal = (
+            SessionFlowChange(
+                flow_id=flow.flow_id,
+                revision=flow.flow_revision,
+                change_type=SessionFlowChangeType.INITIALIZED,
+                flow=flow,
+            ),
+        )
+
+    def _commit_session_flow(
+        self, flow: DJSessionFlow, change_type: SessionFlowChangeType
+    ) -> DJSessionFlow:
+        """Commit exactly one semantic Flow mutation and its next revision."""
+        current = self.output.session_flow
+        committed = DJSessionFlow(
+            flow_id=flow.flow_id,
+            flow_revision=current.flow_revision + 1,
+            planning_horizon_minutes=flow.planning_horizon_minutes,
+            created_at=flow.created_at,
+            items=flow.items,
+        )
+        self.output = SessionPlannerOutput(session_flow=committed)
+        self.flow_change_journal = (
+            *self.flow_change_journal,
+            SessionFlowChange(
+                flow_id=committed.flow_id,
+                revision=committed.flow_revision,
+                change_type=change_type,
+                flow=committed,
+            ),
+        )
+        self.last_replan_at = committed.created_at
+        return committed
+
+    def dispose_flow_change_journal(self) -> None:
+        """Release Runtime-scoped semantic history when its Session ends."""
+        self.flow_change_journal = ()
 
     def submit_audience_signal(self, signal: AudienceSignalType, value: str = "") -> None:
         """Aggregate one suggestion without interpreting it or changing playback."""
@@ -511,9 +575,7 @@ class DJSessionPlanner:
             planning_horizon_minutes=self.planning_horizon_minutes,
             created_at=_timestamp(),
         )
-        self.output = SessionPlannerOutput(session_flow=flow)
-        self.last_replan_at = flow.created_at
-        return flow
+        return self._commit_session_flow(flow, SessionFlowChangeType.REPUBLISHED)
 
     def evaluate_track_started(
         self,
@@ -639,13 +701,12 @@ class DJSessionPlanner:
         )
         flow = DJSessionFlow(
             flow_id=current.flow_id,
+            flow_revision=current.flow_revision,
             planning_horizon_minutes=current.planning_horizon_minutes,
             created_at=_timestamp(),
             items=(*current.items, item),
         )
-        self.output = SessionPlannerOutput(session_flow=flow)
-        self.last_replan_at = flow.created_at
-        return flow
+        return self._commit_session_flow(flow, SessionFlowChangeType.MOMENT_APPENDED)
 
     def evaluate_transition_after_moment(
         self,
@@ -1871,6 +1932,7 @@ class SessionRuntimeManager:
                 **{**active.__dict__, "runtime_state": SessionRuntimeState.ENDING}
             )
             active.broadcast.update_runtime_state(SessionRuntimeState.ENDED)
+            active.planner.dispose_flow_change_journal()
             ended = DJSessionRuntime(
                 **{
                     **ending.__dict__,
@@ -2148,6 +2210,7 @@ def _create_session_flow(
     """Create deterministic current-horizon intent without AI planning."""
     return DJSessionFlow(
         flow_id=f"flow-{session_id}",
+        flow_revision=0,
         planning_horizon_minutes=planning_horizon_minutes,
         created_at=created_at,
         items=(
