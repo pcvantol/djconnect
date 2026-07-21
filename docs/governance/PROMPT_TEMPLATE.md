@@ -54,6 +54,8 @@ Finalization checks:
 - after Finalization merges, cleanup identifies only the just-completed local
   implementation branch; it is fully merged, has no unpublished commits and is
   not checked out before non-forced deletion
+- for a squash merge, require canonical `git cherry -v` output with only `-`
+  patch-equivalent commits, plus merged PR and absent remote evidence
 - prior Prompt History archived
 - predecessor merge and current-main containment objectively verified
 - the merged implementation entered `MERGED_UNRECONCILED`
