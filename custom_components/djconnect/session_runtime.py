@@ -2076,6 +2076,147 @@ class KnowledgePrefetchExecutionBoundary:
         return knowledge_engine.execute_prefetch(request)
 
 
+@dataclass
+class PlanningRuntimeCoordinator:
+    """Runtime-only coordinator for the existing planning and knowledge lifecycle."""
+
+    last_planning_generation: int | None = None
+    disposed: bool = False
+
+    async def async_coordinate_track_started(
+        self,
+        *,
+        planner: DJSessionPlanner,
+        knowledge_engine: DJKnowledgeEngine,
+        moment_engine: DJMomentEngine,
+        session_id: str,
+        selected_mood: str,
+        persona: DJPersona,
+        locale: str,
+        session_direction: SessionDirection,
+        session_start_strategy: SessionStartStrategy,
+        performance_memory: PerformanceMemory,
+        discover_context: DiscoverContext,
+        raw_insight: dict[str, Any],
+        knowledge_intent: KnowledgeIntent | None,
+        upcoming_playback: UpcomingPlaybackProjection | None = None,
+    ) -> DJMoment | None:
+        """Coordinate existing planning only; ``None`` preserves the legacy fallback."""
+        horizon = planner.horizon
+        if self.disposed or horizon is None:
+            return None
+        influence = PlannerInfluence.normalize(
+            mood=selected_mood,
+            direction=session_direction.direction,
+            performance_memory=performance_memory,
+            generation=horizon.invalidation_generation,
+        )
+        window = horizon.replan(
+            upcoming_playback=upcoming_playback,
+            influence=influence,
+        )
+        self.last_planning_generation = window.generation
+        prefetches = window.plan_knowledge_prefetches(
+            invalidation_generation=horizon.invalidation_generation,
+            previous_prefetches=window.knowledge_prefetches,
+        )
+        subject_projection = _planning_subject_projection(raw_insight)
+        boundary = KnowledgePrefetchExecutionBoundary()
+        prepared = tuple(
+            boundary.submit(
+                prefetch=prefetch,
+                subject_projection=subject_projection,
+                window=window,
+                invalidation_generation=horizon.invalidation_generation,
+                knowledge_engine=knowledge_engine,
+            )
+            for prefetch in prefetches
+            if prefetch.status is KnowledgePrefetchStatus.PLANNED
+        )
+        window.evaluate_readiness(
+            prepared, invalidation_generation=horizon.invalidation_generation
+        )
+        approved = window.approve_earliest_planned_intent()
+        if approved is None:
+            return None
+        planned = next(
+            (
+                intent
+                for intent in window.planned_intents
+                if intent.status is PlannedIntentStatus.APPROVED
+                and intent.as_planner_intent() == approved
+            ),
+            None,
+        )
+        if planned is None:
+            return None
+        if planned.category == "silence":
+            moment = moment_engine.create_silence(
+                session_id=session_id,
+                selected_mood=selected_mood,
+                persona=persona,
+                locale=locale,
+                reason="planned_silence",
+            )
+            horizon.mark_planned_intent_consumed(planned)
+            return moment
+        prefetch = next(
+            (
+                candidate
+                for candidate in prefetches
+                if candidate.target_intent.category == planned.category
+                and candidate.target_intent.slot == planned.slot
+                and candidate.target_intent.generation == planned.generation
+            ),
+            None,
+        )
+        if (
+            prefetch is None
+            or knowledge_intent is None
+            or knowledge_intent.intent_type.value != planned.category
+        ):
+            return None
+        await knowledge_engine.async_resolve_approved_planned_intent(
+            approved_intent=approved,
+            planned_intent=planned,
+            knowledge_intent=knowledge_intent,
+            prefetch=prefetch,
+            prepared_knowledge=prepared,
+            invalidation_generation=horizon.invalidation_generation,
+            raw_insight=raw_insight,
+            session_direction=session_direction,
+            session_start_strategy=session_start_strategy,
+            session_mood=selected_mood,
+            discover_context=discover_context,
+            performance_memory=performance_memory,
+        )
+        # Prepared knowledge currently has no complete Moment payload. Let the
+        # established Track Started path retain realization until a later cell.
+        return None
+
+    def dispose(self) -> None:
+        """Release coordinator-only lifecycle state with its Runtime."""
+        self.last_planning_generation = None
+        self.disposed = True
+
+
+def _planning_subject_projection(raw_insight: dict[str, Any]) -> tuple[tuple[str, str], ...]:
+    """Pass only already-safe, bounded planning subjects to the existing boundary."""
+    track = raw_insight.get("track") if isinstance(raw_insight.get("track"), dict) else {}
+    analysis = raw_insight.get("analysis") if isinstance(raw_insight.get("analysis"), dict) else {}
+    values = (
+        ("artist", track.get("artist")),
+        ("album", track.get("album")),
+        ("genre", analysis.get("genre") or track.get("genres")),
+        ("recommendation", track.get("related_tracks") or analysis.get("similar_tracks")),
+    )
+    return tuple(
+        (key, bounded)
+        for key, value in values
+        if (bounded := _bounded_text(value, 256))
+    )
+
+
 def _knowledge_fields_for_intent(
     intent_type: KnowledgeIntentType,
 ) -> tuple[tuple[str, ...], tuple[str, ...]]:
@@ -2550,6 +2691,7 @@ class DJSessionRuntime:
     discover_context: DiscoverContext
     performance_memory: PerformanceMemory
     planner: DJSessionPlanner
+    planning_coordinator: PlanningRuntimeCoordinator
     knowledge_engine: DJKnowledgeEngine
     moment_engine: DJMomentEngine
     broadcast: DJSessionBroadcastEngine
@@ -2665,6 +2807,7 @@ class SessionRuntimeManager:
                 discover_context=resolved_discover_context,
                 performance_memory=performance_memory,
                 planner=planner,
+                planning_coordinator=PlanningRuntimeCoordinator(),
                 knowledge_engine=DJKnowledgeEngine(),
                 moment_engine=DJMomentEngine(),
                 broadcast=_create_broadcast_engine(
@@ -2707,6 +2850,7 @@ class SessionRuntimeManager:
         session_id: str,
         insight_provider: Callable[[], Awaitable[dict[str, Any]]],
         media_identity: str = "",
+        upcoming_playback: UpcomingPlaybackProjection | None = None,
     ) -> DJMoment | None:
         """Orchestrate Planner → Knowledge → Moment → Flow → Broadcast."""
         async with self._lock:
@@ -2813,6 +2957,34 @@ class SessionRuntimeManager:
             intent = decision.knowledge_intent
             if intent is None:
                 return None
+        try:
+            coordinated = await active.planning_coordinator.async_coordinate_track_started(
+                planner=active.planner,
+                knowledge_engine=active.knowledge_engine,
+                moment_engine=active.moment_engine,
+                session_id=active.session_id,
+                selected_mood=active.selected_mood,
+                persona=active.dj_persona,
+                locale=active.locale,
+                session_direction=active.session_direction,
+                session_start_strategy=active.session_start_strategy,
+                performance_memory=active.performance_memory,
+                discover_context=active.discover_context,
+                raw_insight=raw_insight,
+                knowledge_intent=intent,
+                upcoming_playback=upcoming_playback,
+            )
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.debug("DJConnect Planning Runtime Coordinator unavailable: %s", exc.__class__.__name__)
+            coordinated = None
+        if coordinated is not None:
+            async with self._lock:
+                active = self._active_by_profile.get(owner_profile_id)
+                if active is None or active.session_id != session_id:
+                    return None
+                active.publish_moment(coordinated)
+                self._record_performance_memory(owner_profile_id, active)
+                return coordinated
         try:
             knowledge = await active.knowledge_engine.async_assemble_track_context(
                 intent=intent,
@@ -3092,6 +3264,7 @@ class SessionRuntimeManager:
             )
             active.broadcast.update_runtime_state(SessionRuntimeState.ENDED)
             active.planner.dispose_flow_change_journal()
+            active.planning_coordinator.dispose()
             ended = DJSessionRuntime(
                 **{
                     **ending.__dict__,
