@@ -4,11 +4,11 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#328](https://github.com/pcvantol/djconnect/pull/328), merged as
-`6542feddf2be00c12eb89b968d7721ed6f81f412`, is the current merged
+PR [#330](https://github.com/pcvantol/djconnect/pull/330), merged as
+`881619f15a845d87fa2951704b0b871282a6c6dd`, is the current merged
 implementation. Its dedicated Finalization reconciles the rolling records.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
-Its Prompt History is `docs/history/prompts/2026-07-21-planning-horizon-expansion.md`.
+Its Prompt History is `docs/history/prompts/2026-07-21-deterministic-horizon-replanning.md`.
 
 PR #315, merged as
 `6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`, is the current merged

@@ -15,10 +15,10 @@
 
 ## Current position
 
-PR [#328](https://github.com/pcvantol/djconnect/pull/328) merged as
-`6542feddf2be00c12eb89b968d7721ed6f81f412`. It adds bounded, ephemeral
-Planner-owned Planned Intents over observable playback slots. This is its
-dedicated governance-only Finalization. Repository State: `MERGED_RECONCILED`;
+PR [#330](https://github.com/pcvantol/djconnect/pull/330) merged as
+`881619f15a845d87fa2951704b0b871282a6c6dd`. It adds bounded, ephemeral
+Planner-owned provisional replanning over observable playback slots. This is
+its dedicated governance-only Finalization. Repository State: `MERGED_RECONCILED`;
 Workspace State: `WORKSPACE_READY`.
 
 PR #315 merged as
