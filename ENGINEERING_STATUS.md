@@ -11,9 +11,11 @@ Session Projections**, merged on 2026-07-21 as
 immutable Prompt History and rolling records to `MERGED_RECONCILED`.
 
 Every implementation capability uses the mandatory Pre-Flight → Implementation
-→ Validation → Merge → Finalization lifecycle. Pre-Flight ends in `GO` or
-`NO-GO`; a merged implementation remains `MERGED_UNRECONCILED` until its
-separate governance-only Finalization is merged.
+→ Validation → Merge → Finalization → Workspace Cleanup lifecycle.
+Pre-Flight ends in `GO` or `NO-GO`; a merged implementation remains
+`MERGED_UNRECONCILED` until its separate governance-only Finalization is
+merged. The next capability requires both Repository State
+`MERGED_RECONCILED` and Workspace State `WORKSPACE_READY`.
 
 Transport Cells 1–4 and Recovery Cells 1–4 are current. The Planner owns
 semantic Flow Revision and its immutable Runtime-scoped Change Journal.

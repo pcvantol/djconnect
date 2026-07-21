@@ -43,13 +43,14 @@ Every implementation capability follows the canonical lifecycle in
 
 ```text
 PRE-FLIGHT -> IMPLEMENTATION -> VALIDATION -> MERGE -> FINALIZATION
--> MERGED_RECONCILED -> NEXT CAPABILITY
+-> WORKSPACE CLEANUP -> MERGED_RECONCILED + WORKSPACE_READY -> NEXT CAPABILITY
 ```
 
 At the conclusion of every implementation phase, execute the following
 completion protocol. Its implementation pull request is not capability
 completion: after merge, the separate Finalization increment reconciles the
-repository and restores `MERGED_RECONCILED`.
+repository, then mandatory local-only Workspace Cleanup establishes
+`WORKSPACE_READY`. The next capability requires both states.
 
 ```
 Implementation
@@ -502,13 +503,16 @@ Updated Documentation
 Merged Finalization with updated rolling records, Prompt History and applicable
 roadmap/governance records
 
+Workspace Cleanup report with `WORKSPACE_READY` decision
+
 Repository Improvements
 
 Commit SHA
 
 Pull Request
 
-`MERGED_RECONCILED` decision and recommended next capability
+`MERGED_RECONCILED` and `WORKSPACE_READY` decisions and recommended next
+capability
 
 Clean-session bootstrap command
 

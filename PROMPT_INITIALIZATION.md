@@ -12,6 +12,7 @@ Repository Synchronization
   -> Previous Pull Request Verification
   -> Post-Merge State Classification
   -> Rolling State Reconciliation
+  -> Workspace State Verification
   -> Canonical Repository Read
   -> Implementation Reality Check
   -> GO / NO-GO Decision
@@ -60,13 +61,24 @@ For `MERGED_UNRECONCILED`, do not begin production implementation. Only the
 dedicated Finalization increment may reconcile `ENGINEERING_STATUS.md`,
 `REPOSITORY_STATUS.md`, `MANAGEMENT_SUMMARY.md` and `PROMPT_INDEX.md` with
 current main. Prompt History is immutable; the next implementation capability
-continues only after Finalization restores `MERGED_RECONCILED`.
+continues only after Finalization restores `MERGED_RECONCILED` and Workspace
+Cleanup verifies `WORKSPACE_READY`.
 
 ## Canonical Repository Read
 
 Follow `BOOTSTRAP.md` exactly. Read current status, roadmap and backlog before
 consulting history. Prompt History is optional immutable context only;
 conversation history is never current-state authority.
+
+## Workspace State Verification
+
+Before production implementation, independently verify Repository State
+`MERGED_RECONCILED` and Workspace State `WORKSPACE_READY` as defined in
+`ENGINEERING_METHOD.md`. `WORKSPACE_READY` requires canonical `main`,
+synchronized `origin/main`, a clean working tree, removal of the just-completed
+local implementation branch and pruned obsolete remote-tracking references.
+Workspace cleanup is not repository reconciliation. If either required state
+is absent or cannot be verified, the decision is `NO-GO`.
 
 ## Implementation Reality Check
 
@@ -85,7 +97,8 @@ records are applicable and current.
 
 End Pre-Flight with exactly one explicit decision:
 
-- `GO`: only from `MERGED_RECONCILED`, authorizing the bounded implementation.
+- `GO`: only from `MERGED_RECONCILED` and `WORKSPACE_READY`, authorizing the
+  bounded implementation.
 - `NO-GO`: production changes are prohibited; report and resolve the evidence
   that prevents the capability from starting.
 

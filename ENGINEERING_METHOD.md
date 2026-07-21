@@ -1,7 +1,7 @@
 # DJConnect Engineering Method
 
 **Status:** Canonical operational governance
-**Version:** 2.7
+**Version:** 2.8
 **Scope:** Entire DJConnect platform
 
 ## Purpose
@@ -91,14 +91,16 @@ PRE-FLIGHT
   -> VALIDATION
   -> MERGE
   -> FINALIZATION
-  -> MERGED_RECONCILED
+  -> WORKSPACE CLEANUP
+  -> Repository State: MERGED_RECONCILED
+  -> Workspace State: WORKSPACE_READY
   -> NEXT CAPABILITY
 ```
 
 `PRE-FLIGHT` is a mandatory decision gate before any production implementation
 change. It verifies synchronized current main, a clean worktree, development
 machine qualification where required, the required validation baseline,
-predecessor and repository lifecycle state, current roadmap/architecture/
+predecessor, Repository State and Workspace State, current roadmap/architecture/
 maturity evidence, the requested capability's pending status, absence of an
 equivalent merged implementation, and absence of a superseding architecture
 amendment. It ends with exactly one explicit decision:
@@ -117,9 +119,10 @@ capability.
 `MERGED_UNRECONCILED`; this expected temporary state is not a completed
 capability. `FINALIZATION` is a separate governance-only increment after the
 merge. It reconciles rolling records, immutable Prompt History, applicable
-roadmap/governance records and repository bootstrap evidence. Only a merged
-Finalization restores `MERGED_RECONCILED`, after which the next capability may
-start.
+roadmap/governance records and repository bootstrap evidence. After its
+governance reconciliation has merged successfully, `WORKSPACE CLEANUP` is
+mandatory. The next capability may start only when both Repository State is
+`MERGED_RECONCILED` and Workspace State is `WORKSPACE_READY`.
 
 The canonical implementation-prompt structure is `PRE-FLIGHT`,
 `IMPLEMENTATION`, `VALIDATION` and `FINALIZATION`, defined by
@@ -141,6 +144,57 @@ The reviewable pull request is the freeze point. Human merge is external.
 production implementation may begin from that state. The next capability may
 begin only from `MERGED_RECONCILED`. Finalization never rewrites immutable
 Prompt History.
+
+## Repository and workspace state
+
+Repository State and Workspace State are independent. Repository State records
+the reconciled engineering truth in the repository; Workspace State records
+only the safe local development checkout. Repository reconciliation is not a
+Workspace Ready responsibility.
+
+Repository State is `MERGED_RECONCILED`: rolling records reflect merged
+current-main truth.
+
+Workspace State is `WORKSPACE_READY`: the canonical local workspace is safe
+for the next capability.
+
+Before production implementation, both required states are mandatory. If either
+state cannot be objectively verified, Pre-Flight is `NO-GO`.
+
+`WORKSPACE_READY` requires canonical `main`, synchronization with `origin/main`,
+a clean working tree, removal of the just-completed local implementation branch
+and pruned obsolete remote-tracking references.
+
+## Workspace Cleanup
+
+Workspace Cleanup is mandatory after successful Finalization and affects only
+the local development workspace. It never changes repository history, discards
+uncommitted files, force-deletes a branch or modifies production code. It
+concerns exactly the completed capability; unrelated merged branches must not
+be enumerated or removed.
+
+Perform this procedure in order:
+
+1. Check out canonical `main`.
+2. Synchronize `origin/main` without rewriting history.
+3. Verify the working tree is clean.
+4. Verify the completed implementation pull request merged successfully and
+   is contained in current `main`.
+5. Verify its corresponding remote implementation branch has already been
+   removed when repository policy requires automatic remote cleanup.
+6. Verify the local implementation branch belongs to that completed
+   capability, is fully merged, has no unpublished commits and is not checked
+   out; only then delete that one local branch without force.
+7. Prune obsolete remote-tracking references.
+8. Verify `WORKSPACE_READY`.
+
+If any verification fails, do not delete the branch. Report the blocking
+condition and leave Workspace State `NOT_READY` until it is resolved.
+
+The cleanup report is deterministic and records: current branch, working tree,
+repository synchronization, completed capability branch, remote branch status,
+local branch deletion, remote prune, Repository State, Workspace State and the
+final `READY` or `NOT READY` decision.
 
 ## Reality before planning
 
