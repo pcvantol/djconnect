@@ -15,13 +15,13 @@
 
 ## Current position
 
-PR [#268](https://github.com/pcvantol/djconnect/pull/268) merged as
-`00f71025bbbea5ca9171bb70f65b54c3ed894ce5`. Transport Cells 1 and 2 are
-current. Authorized owners have a renderer-safe HTTP Broadcast snapshot
-fallback; WebSocket uses that same pure query for exactly one initial snapshot,
-then registers live delivery without creating a redundant snapshot. Existing
-subscriptions, HTTP behaviour, client-visible schemas and events are unchanged;
-a failed initial response releases its callback.
+PR [#270](https://github.com/pcvantol/djconnect/pull/270) merged as
+`3c636fe0d67af62eccf63d518167774cee9f85f6`. Transport Cells 1–3 are current.
+Authorized owners have a renderer-safe HTTP Broadcast snapshot fallback;
+WebSocket uses that same pure query for exactly one initial snapshot, registers
+live delivery without a redundant snapshot, and buffers setup-time events until
+the snapshot is sent. Existing subscriptions, HTTP behaviour, client-visible
+schemas and events are unchanged.
 
 The reconciled chain also records PR #260 external dependency evidence, #261
 validation-only baseline correction, #262 maturity-cell documentation, #263

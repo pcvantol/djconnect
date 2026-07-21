@@ -5,16 +5,14 @@
 
 ## Current engineering increment
 
-The reconciled baseline is PR [#268](https://github.com/pcvantol/djconnect/pull/268),
-**Align owner WebSocket snapshot registration**, merged on 2026-07-21 as
-`00f71025bbbea5ca9171bb70f65b54c3ed894ce5`. Transport Cell 1 remains current:
-an owner-authorized, renderer-safe HTTP snapshot fallback returns the canonical
-initial owner Broadcast projection. Transport Cell 2 is now current: the same
-pure owner query is the only initial WebSocket snapshot source, live callback
-registration does not build another snapshot, existing snapshot-returning
-subscription consumers remain compatible, and a failed initial response cleans
-up its callback. No client-visible schema, event, Runtime or DJ Intelligence
-behaviour changed.
+The reconciled baseline is PR [#270](https://github.com/pcvantol/djconnect/pull/270),
+**Ensure snapshot-first WebSocket delivery**, merged on 2026-07-21 as
+`3c636fe0d67af62eccf63d518167774cee9f85f6`. Transport Cells 1 and 2 remain
+current. Transport Cell 3 is current: owner WebSocket setup registers its
+callback pending, builds one canonical snapshot, sends that snapshot first and
+only then delivers buffered setup-time events. No setup event is lost; this
+adds no replay, cursor, sequence, delta or client-visible protocol change. No
+Runtime, DJ Intelligence, Session Flow, playback or renderer behaviour changed.
 
 The preceding reconciled increments are: PR #260 external dependency
 documentation; PR #261 rolling-status validation only; PR #262 maturity-cell
@@ -178,4 +176,4 @@ separate explicitly authorized operational action.
 ## Recommended next prompt
 
 After this reconciliation is merged, synchronize current main and select one
-explicitly bounded next cell; do not infer a Transport Cell 3 or PL-4.2.
+explicitly bounded next cell; do not infer a Transport Cell 4 or PL-4.2.

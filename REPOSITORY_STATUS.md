@@ -28,19 +28,19 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current `main` is `00f71025bbbea5ca9171bb70f65b54c3ed894ce5`, the merge commit
-for PR [#268](https://github.com/pcvantol/djconnect/pull/268), **Align owner
-WebSocket snapshot registration**, merged on 2026-07-21. The worktree was
-clean and synchronized when this baseline was reconciled; PR #268 validation
+Current `main` is `3c636fe0d67af62eccf63d518167774cee9f85f6`, the merge commit
+for PR [#270](https://github.com/pcvantol/djconnect/pull/270), **Ensure
+snapshot-first WebSocket delivery**, merged on 2026-07-21. The worktree was
+clean and synchronized when this baseline was reconciled; PR #270 validation
 passed focused transport tests, full pytest, Ruff and diff checks.
 
 Transport Cell 1 is current: an owner-authorized HTTP snapshot is a
-side-effect-free renderer-safe fallback and is equivalent to the canonical
-initial owner WebSocket projection. Transport Cell 2 is current: its pure
+side-effect-free renderer-safe fallback. Transport Cell 2 is current: its pure
 owner snapshot query is the sole initial WebSocket snapshot source and live
-callback registration creates no redundant snapshot. Existing snapshot-returning
-subscriptions, HTTP behaviour and WebSocket command/response/event schemas are
-unchanged; a failed initial response releases its callback. No delta, sequence,
+callback registration creates no redundant snapshot. Transport Cell 3 is
+current: setup-time events are buffered until after the successful initial
+snapshot result. Existing snapshot-returning subscriptions, HTTP behaviour and
+WebSocket command/response/event schemas are unchanged. No delta, sequence,
 replay, cursor or Universal Receiver HTTP behaviour exists.
 
 PR #267 reconciled PRs #260 through #266. Those intermediate records cover external
