@@ -28,14 +28,12 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current main contains PR [#286](https://github.com/pcvantol/djconnect/pull/286),
-**Define Persistent Session Architecture**, merged on 2026-07-21 as
-`8828179ae042eaa672eb6af065dcefbe323ce79a`. It is
-`MERGED_UNRECONCILED`. PR [#287](https://github.com/pcvantol/djconnect/pull/287)
-is the `REVIEWABLE_FROZEN` governance-only Finalization. The architecture
-increment passed host qualification, 1240 local unit tests (7 skipped), Ruff,
-diff validation and all GitHub checks, including a successful HACS re-run after
-one external non-deterministic HACS manifest failure.
+Current main contains PR [#288](https://github.com/pcvantol/djconnect/pull/288),
+**Define Rolling Session Horizon Architecture**, merged on 2026-07-21 as
+`ec9fbb3eff183cf380e9dc1ca8d630f465f1ad3f`. It is
+`MERGED_UNRECONCILED` pending this governance-only Finalization. The amendment
+passed host qualification, 1240 local unit tests (7 skipped), Ruff and diff
+validation; it adds no production behaviour.
 
 The preceding Broadcast baseline remains PR [#280](https://github.com/pcvantol/djconnect/pull/280),
 **Add Broadcast recovery cursor**, merged as
