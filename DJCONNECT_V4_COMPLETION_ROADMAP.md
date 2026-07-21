@@ -104,20 +104,24 @@ and the canonical Receiver architecture during Pre-Flight, must not duplicate
 the completed Session Flow Timeline or Now Playing capabilities, and must name
 the existing Broadcast projection it consumes.
 
-**Developer Experience and Verification is now the active workstream.** Its
-single next capability is Developer Session Bootstrap. The full authorized
-sequence, including parked simulation and the separate future Developer Overlay
-architecture review, is recorded in
+**Automated Session Intelligence E2E Verification is now the active Epic.**
+Its single next capability is **Automated Session Intelligence E2E Verification
+Architecture**. Developer Session Bootstrap is the first enabling capability
+inside that Epic, principally for headless CI rather than manual debugging. The
+full authorized sequence, including deterministic scenarios, capture,
+structural validation, accelerated execution and the separate future Developer
+Overlay architecture review, is recorded in
 [`docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md`](docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md).
 
 - Universal Receiver V1 foundation (complete)
-- Developer Session Bootstrap (active next capability)
+- Automated Session Intelligence E2E Verification Architecture (active next capability)
+- Developer Session Bootstrap (first enabling capability)
 - Apple
 - Windows
 - Raspberry Pi
 - Voice
 - Verification Platform
-- Session Simulation (parked)
+- Session Simulation and accelerated execution (within the E2E Verification Epic)
 
 Each remains a separately authorized capability. This ordering identifies
 experience-platform focus; it does not authorize a browser implementation,

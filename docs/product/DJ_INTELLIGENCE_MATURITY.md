@@ -25,8 +25,10 @@ abstractions and never introduce a parallel Runtime, Flow or Broadcast path.
 This milestone does not advance deferred intelligence. In particular,
 Audience Intelligence remains intentionally deferred until a separately
 authorized bounded Planner-influence cell has its required evidence. It is
-low priority behind operational Renderer Host delivery and Developer Experience
-verification; it must not become active merely because its future cell exists.
+low priority behind Automated Session Intelligence E2E Verification; it must
+not become active merely because its future cell exists. The E2E foundation must
+protect the canonical pipeline before material new Intelligence Engine
+complexity is added.
 
 ## Maturity principles
 
