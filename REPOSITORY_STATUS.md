@@ -28,13 +28,14 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current main contains PR [#285](https://github.com/pcvantol/djconnect/pull/285),
-**Finalize authorized WebSocket recovery**, merged on 2026-07-21 as
-`150d270f2448f88bf7a3baae6e00af5221e06ae5`. It reconciles PR #284 to
-`MERGED_RECONCILED`. PR #284 passed host qualification, focused
-Runtime/Broadcast/WebSocket regression, the full unit suite, Ruff, diff
-validation and all required GitHub checks after its capability-contract
-correction.
+Current main contains PR [#286](https://github.com/pcvantol/djconnect/pull/286),
+**Define Persistent Session Architecture**, merged on 2026-07-21 as
+`8828179ae042eaa672eb6af065dcefbe323ce79a`. It is
+`MERGED_UNRECONCILED`. PR [#287](https://github.com/pcvantol/djconnect/pull/287)
+is the `REVIEWABLE_FROZEN` governance-only Finalization. The architecture
+increment passed host qualification, 1240 local unit tests (7 skipped), Ruff,
+diff validation and all GitHub checks, including a successful HACS re-run after
+one external non-deterministic HACS manifest failure.
 
 The preceding Broadcast baseline remains PR [#280](https://github.com/pcvantol/djconnect/pull/280),
 **Add Broadcast recovery cursor**, merged as
@@ -71,10 +72,10 @@ in `docs/product/DJ_INTELLIGENCE_MATURITY.md`.
 HTTP Flow delta, public replay/query APIs, reconnect continuation,
 acknowledgements, duplicate/out-of-order correction, persistence,
 cross-Session replay, Universal Receiver recovery and standalone Session
-resources remain separately deferred. PR [#286](https://github.com/pcvantol/djconnect/pull/286)
-is the `REVIEWABLE_FROZEN` Persistent Session Architecture amendment; it does
-not authorize a storage or Runtime change. Any future production capability
-requires a new Pre-Flight from its reconciled baseline.
+resources remain separately deferred. PR #286 established the persistent
+Session architecture only; it did not authorize a storage or Runtime change.
+Any future production capability requires a new Pre-Flight from the reconciled
+Persistent Session baseline.
 
 Engineering Platform operational after Platform Baseline v1.0 certification
 and Software Assurance Generation 1 closure. DJConnect Product Development is
