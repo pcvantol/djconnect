@@ -5,7 +5,10 @@
 
 ## Current engineering increment
 
-PR [#350](https://github.com/pcvantol/djconnect/pull/350), **Universal Receiver V1 — Server Architecture**, merged as `03cd470fc11d7f36c78434b0ea8cd4199a4bd1fc` and reconciled by PR #351.
+PR [#352](https://github.com/pcvantol/djconnect/pull/352), **Close Session
+Intelligence Runtime Epic**, merged as `946dbb810a0d2d8f3f94fdd1cfbf26b9628ae6f4`.
+This dedicated Finalization reconciles its architectural closure records and
+immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
 is now the canonical execution engine for all supported Track Started decisions:
