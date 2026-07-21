@@ -4,6 +4,18 @@ Status: active after Phase 13 Windows adapter qualification
 
 Do not create GitHub issues automatically from this backlog.
 
+## Product-development handoff
+
+The Session Intelligence Runtime and Universal Receiver V1 foundation are
+complete. The active Product Development workstream is Developer Experience,
+starting only with `Developer Session Bootstrap` as recorded in
+[`docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md`](../../product/DEVELOPER_EXPERIENCE_ROADMAP.md).
+It is the prerequisite for bounded manual and CI session setup; it does not
+activate a new Verification Platform implementation or authorize a simulation
+runtime. Future scenario, capture, report and golden-session work must reuse
+the canonical Runtime, Planner, Knowledge Engine, DJ Moment Engine, Session
+Flow and Broadcast pipeline.
+
 | ID | Priority | Classification | Finding | Owner | Repository | Blocking | Effort | Recommended phase |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | VPB-001 | P0 | Environment issue | Phase 9L-R6 qualified the dedicated local HA verification lab. Phase 9V rerun must continue to reject unmarked production-like HA runtimes and use only the dedicated verification lab. | Verification Environment / Operator | `djconnect` | No | Done | Phase 9L-R6; enforce in Phase 9V rerun |
