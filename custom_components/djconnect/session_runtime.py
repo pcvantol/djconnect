@@ -989,6 +989,46 @@ class DJKnowledgeEngine:
         """Reuse Track Insight while excluding raw Profile and Music DNA data."""
         track = raw_insight.get("track") if isinstance(raw_insight.get("track"), dict) else {}
         analysis = raw_insight.get("analysis") if isinstance(raw_insight.get("analysis"), dict) else {}
+        primary_evidence = _primary_knowledge_evidence(intent.intent_type, track, analysis)
+        if primary_evidence is not None:
+            evidence_source, evidence_key, evidence_value = primary_evidence
+            track_values = {
+                key: _bounded_text(track.get(key), 2048)
+                for key in ("title", "artist", "album", "artwork_url", "backend")
+            }
+            analysis_values = {
+                key: _bounded_text(analysis.get(key), 1200)
+                for key in ("summary", "full_text")
+            }
+            if evidence_source == "track":
+                track_values[evidence_key] = evidence_value
+            else:
+                analysis_values[evidence_key] = evidence_value
+            return self._record(
+                KnowledgeContext(
+                    track=tuple((key, value) for key, value in track_values.items() if value),
+                    analysis=tuple((key, value) for key, value in analysis_values.items() if value),
+                    sources=("track_insight",),
+                    personal_context_used=personal_context_authorized,
+                    session_direction=session_direction,
+                    session_start_strategy=session_start_strategy,
+                    session_mood=session_mood,
+                    discover_context=discover_context,
+                    performance_memory=performance_memory,
+                )
+            )
+        if intent.intent_type in _PRIMARY_EVIDENCE_INTENTS:
+            return self._record(
+                KnowledgeContext(
+                    (), (), ("track_insight",),
+                    personal_context_used=personal_context_authorized,
+                    session_direction=session_direction,
+                    session_start_strategy=session_start_strategy,
+                    session_mood=session_mood,
+                    discover_context=discover_context,
+                    performance_memory=performance_memory,
+                )
+            )
         track_fields, analysis_fields = _knowledge_fields_for_intent(intent.intent_type)
         context = KnowledgeContext(
             track=tuple(
@@ -1063,6 +1103,69 @@ def _knowledge_fields_for_intent(
         (*track_fields, "genres"),
         (*analysis_fields, "genre", "subgenre", "mood", "vibe", "texture", "emotional_tone", "production_notes", "instrumentation", "arrangement_notes", "listening_cues", "similar_tracks"),
     )
+
+
+_PRIMARY_EVIDENCE_INTENTS = frozenset(
+    {
+        KnowledgeIntentType.ARTIST_STORY,
+        KnowledgeIntentType.ALBUM_STORY,
+        KnowledgeIntentType.GENRE_STORY,
+        KnowledgeIntentType.RECOMMENDATION,
+    }
+)
+
+
+def _primary_knowledge_evidence(
+    intent_type: KnowledgeIntentType,
+    track: dict[str, Any],
+    analysis: dict[str, Any],
+) -> tuple[str, str, str] | None:
+    """Select exactly one safe evidence value by the approved intent precedence."""
+    candidates: tuple[tuple[str, str, int], ...]
+    if intent_type is KnowledgeIntentType.ARTIST_STORY:
+        candidates = (
+            ("track", "producer", 160),
+            ("track", "composer", 160),
+            ("track", "recording_context", 600),
+            ("track", "related_artists", 1200),
+            ("analysis", "production_notes", 1200),
+            ("analysis", "instrumentation", 1200),
+            ("analysis", "arrangement_notes", 1200),
+        )
+    elif intent_type is KnowledgeIntentType.ALBUM_STORY:
+        candidates = (("track", "release_year", 32), ("track", "release_date", 32))
+    elif intent_type is KnowledgeIntentType.GENRE_STORY:
+        candidates = (("analysis", "genre", 160), ("track", "genres", 160))
+    elif intent_type is KnowledgeIntentType.RECOMMENDATION:
+        candidates = (
+            ("track", "related_tracks", 1200),
+            ("track", "related_artists", 1200),
+            ("analysis", "similar_tracks", 1200),
+            ("analysis", "listening_cues", 1200),
+        )
+    else:
+        return None
+
+    for source, key, limit in candidates:
+        value = _bounded_evidence_value((track if source == "track" else analysis).get(key), limit)
+        if value:
+            return source, key, value
+    return None
+
+
+def _bounded_evidence_value(value: Any, limit: int) -> str:
+    """Accept only bounded scalar evidence or the first safe value in a sequence."""
+    if isinstance(value, str):
+        return _bounded_text(value, limit)
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return _bounded_text(value, limit)
+    if isinstance(value, (list, tuple)):
+        for item in value:
+            if isinstance(item, str):
+                bounded = _bounded_text(item, limit)
+                if bounded:
+                    return bounded
+    return ""
 
 
 @dataclass(frozen=True)
