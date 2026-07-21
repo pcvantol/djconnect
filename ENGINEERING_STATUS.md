@@ -5,11 +5,10 @@
 
 ## Current engineering increment
 
-PR [#300](https://github.com/pcvantol/djconnect/pull/300), **Add Persistent
-Session Startup Reconciliation**, merged on 2026-07-21 as
-`822468e10527aa07895a802c99fbcde7eeccd98c`. This Finalization reconciles its
-immutable Prompt History and rolling records to `MERGED_RECONCILED`. It closes
-only non-terminal durable Sessions; Runtime and provider recovery remain absent.
+PR [#302](https://github.com/pcvantol/djconnect/pull/302), **Add Historical
+Session Projections**, merged on 2026-07-21 as
+`0a224834aa685a3d57788e9aaf70d515a502cc0c`. This Finalization reconciles its
+immutable Prompt History and rolling records to `MERGED_RECONCILED`.
 
 Every implementation capability uses the mandatory Pre-Flight → Implementation
 → Validation → Merge → Finalization lifecycle. Pre-Flight ends in `GO` or

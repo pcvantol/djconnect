@@ -4,8 +4,8 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#300](https://github.com/pcvantol/djconnect/pull/300), merged as
-`822468e10527aa07895a802c99fbcde7eeccd98c`, is reconciled by this dedicated
+PR [#302](https://github.com/pcvantol/djconnect/pull/302), merged as
+`0a224834aa685a3d57788e9aaf70d515a502cc0c`, is reconciled by this dedicated
 Finalization. Recovery Cells 1–4 remain complete.
 Planner-owned Flow Revision/Change Journal and Broadcast-owned Delivery
 Sequence, snapshot watermark, bounded internal Replay Log and immutable

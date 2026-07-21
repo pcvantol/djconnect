@@ -28,9 +28,9 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current main contains PR [#300](https://github.com/pcvantol/djconnect/pull/300),
-**Add Persistent Session Startup Reconciliation**, merged on 2026-07-21 as
-`822468e10527aa07895a802c99fbcde7eeccd98c`. This governance-only Finalization
+Current main contains PR [#302](https://github.com/pcvantol/djconnect/pull/302),
+**Add Historical Session Projections**, merged on 2026-07-21 as
+`0a224834aa685a3d57788e9aaf70d515a502cc0c`. This governance-only Finalization
 reconciles it to `MERGED_RECONCILED`. The increment interrupts only durable
 non-terminal Sessions; it adds no Runtime or provider recovery.
 
