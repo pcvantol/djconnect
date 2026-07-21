@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+from dataclasses import fields
 from pathlib import Path
 import sqlite3
 import sys
@@ -19,6 +20,7 @@ sys.modules.setdefault("custom_components.djconnect", package)
 
 from custom_components.djconnect.persistence.service import (  # noqa: E402
     PersistenceError,
+    PersistenceReadiness,
     PersistenceSchemaError,
     PersistenceService,
 )
@@ -66,6 +68,37 @@ class PersistenceFoundationTest(unittest.TestCase):
                 connection.close()
             self.assertEqual(applied, [(1,), (2,)])
             asyncio.run(service.async_close())
+
+    def test_latest_schema_restarts_after_a_clean_shutdown(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            first = self._service(directory)
+            asyncio.run(first.async_initialize())
+            asyncio.run(first.async_close())
+
+            restarted = self._service(directory)
+            readiness = asyncio.run(restarted.async_initialize())
+
+            self.assertTrue(readiness.ready)
+            self.assertEqual(readiness.schema_version, 2)
+            asyncio.run(restarted.async_close())
+
+    def test_missing_schema_metadata_with_migration_history_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "djconnect.sqlite3"
+            connection = sqlite3.connect(path)
+            try:
+                connection.execute(
+                    "CREATE TABLE djconnect_schema_migrations "
+                    "(schema_version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL)"
+                )
+                connection.commit()
+            finally:
+                connection.close()
+
+            service = self._service(directory)
+            with self.assertRaises(PersistenceError):
+                asyncio.run(service.async_initialize())
+            self.assertFalse(service.readiness.ready)
 
     def test_future_schema_is_rejected_without_becoming_ready(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -149,6 +182,99 @@ class PersistenceFoundationTest(unittest.TestCase):
             self.assertTrue(transaction_id)
             asyncio.run(service.async_close())
 
+    def test_failed_transaction_rolls_back_without_leaking_schema_changes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            service = self._service(directory)
+            asyncio.run(service.async_initialize())
+
+            def fail(transaction) -> None:
+                transaction.execute("CREATE TABLE persistence_transaction_probe (value TEXT NOT NULL)")
+                raise RuntimeError("planned transaction failure")
+
+            with self.assertRaisesRegex(RuntimeError, "planned transaction failure"):
+                asyncio.run(service.async_in_transaction(fail))
+
+            path = Path(directory) / "djconnect.sqlite3"
+            connection = sqlite3.connect(path)
+            try:
+                row = connection.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='persistence_transaction_probe'"
+                ).fetchone()
+            finally:
+                connection.close()
+            self.assertIsNone(row)
+            asyncio.run(service.async_close())
+
+    def test_successful_transaction_commits_its_schema_change(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            service = self._service(directory)
+            asyncio.run(service.async_initialize())
+            asyncio.run(
+                service.async_in_transaction(
+                    lambda transaction: transaction.execute(
+                        "CREATE TABLE persistence_commit_probe (value TEXT NOT NULL)"
+                    )
+                )
+            )
+
+            path = Path(directory) / "djconnect.sqlite3"
+            connection = sqlite3.connect(path)
+            try:
+                row = connection.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='persistence_commit_probe'"
+                ).fetchone()
+            finally:
+                connection.close()
+            self.assertEqual(row, ("persistence_commit_probe",))
+            asyncio.run(service.async_close())
+
+    def test_provider_allows_concurrent_reads_and_serialized_short_writes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            provider = SQLitePersistenceProvider()
+            service = PersistenceService(Path(directory) / "djconnect.sqlite3", provider)
+            asyncio.run(service.async_initialize())
+
+            async def exercise_provider() -> tuple[list[int], list[None]]:
+                reads = await asyncio.gather(
+                    provider.async_read_schema_version(),
+                    provider.async_read_schema_version(),
+                    provider.async_read_schema_version(),
+                )
+                writes = await asyncio.gather(
+                    service.async_in_transaction(
+                        lambda transaction: transaction.execute(
+                            "CREATE TABLE persistence_write_probe_one (value TEXT NOT NULL)"
+                        )
+                    ),
+                    service.async_in_transaction(
+                        lambda transaction: transaction.execute(
+                            "CREATE TABLE persistence_write_probe_two (value TEXT NOT NULL)"
+                        )
+                    ),
+                )
+                return reads, writes
+
+            reads, writes = asyncio.run(exercise_provider())
+
+            self.assertEqual(reads, [2, 2, 2])
+            self.assertEqual(writes, [None, None])
+            asyncio.run(service.async_close())
+
+    def test_failed_initialization_can_retry_from_the_same_service(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            service = PersistenceService(
+                Path(directory) / "djconnect.sqlite3", _FailOnceTransactionProvider()
+            )
+            with self.assertRaisesRegex(PersistenceError, "planned migration failure"):
+                asyncio.run(service.async_initialize())
+            self.assertFalse(service.readiness.ready)
+
+            readiness = asyncio.run(service.async_initialize())
+
+            self.assertTrue(readiness.ready)
+            self.assertEqual(readiness.schema_version, 2)
+            asyncio.run(service.async_close())
+
     @staticmethod
     def _assert_transaction_boundary(transaction) -> str:
         if hasattr(transaction, "connection"):
@@ -179,6 +305,43 @@ class PersistenceFoundationTest(unittest.TestCase):
             asyncio.run(async_shutdown_persistence(hass))
             self.assertNotIn(PERSISTENCE_SERVICE_KEY, hass.data["djconnect"])
 
+    def test_bootstrap_serializes_concurrent_startup(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            hass = _FakeHass(directory)
+
+            async def initialize_twice() -> tuple[PersistenceService, PersistenceService]:
+                return await asyncio.gather(
+                    async_initialize_persistence(hass), async_initialize_persistence(hass)
+                )
+
+            first, second = asyncio.run(initialize_twice())
+
+            self.assertIs(first, second)
+            self.assertTrue(first.readiness.ready)
+            asyncio.run(async_shutdown_persistence(hass))
+
+    def test_readiness_and_source_boundary_expose_no_credentials_or_connections(self) -> None:
+        readiness_fields = {field.name for field in fields(PersistenceReadiness)}
+        self.assertNotIn("database_path", readiness_fields)
+        self.assertNotIn("connection", readiness_fields)
+        persistence_root = Path(__file__).resolve().parents[1] / "custom_components" / "djconnect"
+        python_sources = {
+            path.relative_to(persistence_root).as_posix(): path.read_text()
+            for path in persistence_root.rglob("*.py")
+        }
+        sqlite_users = {
+            name for name, source in python_sources.items() if "sqlite3.connect" in source
+        }
+        self.assertEqual(sqlite_users, {"persistence/sqlite.py"})
+        public_sources = "\n".join(
+            source
+            for name, source in python_sources.items()
+            if name.startswith("persistence/") and name != "persistence/sqlite.py"
+        )
+        self.assertNotIn("sqlite3.connect", public_sources)
+        self.assertNotIn("spotify_refresh_token", public_sources)
+        self.assertNotIn("device_token", public_sources)
+
 
 class _FakeConfig:
     def __init__(self, root: str) -> None:
@@ -192,6 +355,20 @@ class _FakeHass:
     def __init__(self, root: str) -> None:
         self.data: dict[str, dict[str, object]] = {}
         self.config = _FakeConfig(root)
+
+
+class _FailOnceTransactionProvider(SQLitePersistenceProvider):
+    """Test-only provider double for startup retry behaviour."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._fail_next_transaction = True
+
+    async def async_run_transaction(self, operation):
+        if self._fail_next_transaction:
+            self._fail_next_transaction = False
+            raise PersistenceError("planned migration failure")
+        return await super().async_run_transaction(operation)
 
 
 if __name__ == "__main__":

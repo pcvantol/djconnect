@@ -28,10 +28,6 @@ def _database_path(hass: Any) -> Path:
 async def async_initialize_persistence(hass: Any) -> PersistenceService:
     """Initialize the singleton platform service before entry business services run."""
     domain_data = hass.data.setdefault(DOMAIN, {})
-    service = domain_data.get(PERSISTENCE_SERVICE_KEY)
-    if isinstance(service, PersistenceService):
-        await service.async_initialize()
-        return service
     lock = domain_data.get(_PERSISTENCE_LOCK_KEY)
     if not isinstance(lock, asyncio.Lock):
         lock = asyncio.Lock()

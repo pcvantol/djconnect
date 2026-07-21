@@ -97,6 +97,12 @@ class SQLitePersistenceProvider:
             ("djconnect_schema_metadata",),
         ).fetchone()
         if table is None:
+            migration_table = connection.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+                ("djconnect_schema_migrations",),
+            ).fetchone()
+            if migration_table is not None:
+                raise PersistenceError("DJConnect persistence schema metadata is missing")
             return 0
         row = connection.execute(
             "SELECT schema_version FROM djconnect_schema_metadata WHERE singleton=1"
