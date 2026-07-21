@@ -15,10 +15,10 @@
 
 ## Current position
 
-PR [#294](https://github.com/pcvantol/djconnect/pull/294) merged as
-`9996f04c5ac13e35dc4930abb74f746e55bc167d`. It is
-`MERGED_UNRECONCILED` pending this dedicated governance-only Finalization:
-every implementation capability must pass
+PR [#296](https://github.com/pcvantol/djconnect/pull/296) merged as
+`5e0d1c1ba550afb57e2d8da5b40c0d2a7dcfb741`. This dedicated governance-only
+Finalization reconciles its status to `MERGED_RECONCILED`: every implementation
+capability must pass
 Pre-Flight, Implementation, Validation, Merge and Finalization. Only `GO`
 authorizes a bounded production change; `MERGED_UNRECONCILED` permits only
 Finalization.
@@ -45,11 +45,11 @@ remain deferred by their external conditions.
 Public replay/query APIs, HTTP Flow delta, reconnect continuation,
 acknowledgements, duplicate/out-of-order handling, cross-Session replay,
 Universal Receiver recovery and granular Session resources remain deferred.
-PR #294 hardens the Persistence Foundation with immutable migration identity,
-v1-to-v2 upgrade, schema validation and WAL-safe read/write boundaries.
-No Session, Runtime, recovery, renderer or API behaviour expanded. The next
-Persistent Session lifecycle capability requires a new Pre-Flight only after
-this Finalization has merged.
+PR #296 completes the Persistence Foundation validation hardening with a
+traceable test matrix, fail-fast missing-metadata detection and race-free
+bootstrap initialization. No Session, Runtime, recovery, renderer or API
+behaviour expanded. The next Persistent Session lifecycle capability requires
+a new Pre-Flight from this reconciled baseline.
 
 | Area | Objectively supported status | Evidence |
 | --- | --- | --- |

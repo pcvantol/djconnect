@@ -4,9 +4,9 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#294](https://github.com/pcvantol/djconnect/pull/294), merged as
-`9996f04c5ac13e35dc4930abb74f746e55bc167d`, is `MERGED_UNRECONCILED` pending
-this dedicated Finalization. Recovery Cells 1–4 remain complete.
+PR [#296](https://github.com/pcvantol/djconnect/pull/296), merged as
+`5e0d1c1ba550afb57e2d8da5b40c0d2a7dcfb741`, is reconciled by this dedicated
+Finalization. Recovery Cells 1–4 remain complete.
 Planner-owned Flow Revision/Change Journal and Broadcast-owned Delivery
 Sequence, snapshot watermark, bounded internal Replay Log and immutable
 owner-scoped Recovery Cursor are current. An authorized owner WebSocket may
@@ -15,8 +15,8 @@ replay cannot be completed, Broadcast returns a fresh authorized snapshot.
 HTTP Flow delta, public replay/query APIs, persistence, cross-Session replay
 and renderer-specific recovery remain deferred.
 
-PR #294 hardened the **Persistence Foundation** with immutable migration
-identity, history validation, v1-to-v2 upgrade and concurrent read boundaries.
+PR #296 completes **Persistence Foundation** validation hardening with a
+traceable test matrix, fail-fast metadata validation and serialized bootstrap.
 It adds no Session writes, Runtime persistence or recovery.
 
 Spotify Direct Live Playback Observation Stage 1, Knowledge Engine `KE-2.2`
@@ -64,8 +64,9 @@ planning is read.
 
 | Prompt | Lifecycle | Coherent objective | Branch | Completion evidence |
 | --- | --- | --- | --- | --- |
-| Persistence Schema Lifecycle Hardening | Completed / merged unreconciled / archived | Harden immutable migration identity, ordered history validation, supported upgrade paths and safe SQLite schema validation without product tables. | `codex/persistence-schema-lifecycle-hardening` | `docs/history/prompts/2026-07-21-persistence-schema-lifecycle-hardening.md`; PR [#294](https://github.com/pcvantol/djconnect/pull/294), merged as `9996f04c5ac13e35dc4930abb74f746e55bc167d`. |
-| DJConnect Persistence Foundation | Completed / merged unreconciled / archived | Establish the provider-neutral DJConnect persistence platform with canonical bootstrap, schema metadata, migration runner, integrity validation and repository/transaction infrastructure; no Session writes. | `codex/persistence-foundation` | `docs/history/prompts/2026-07-21-djconnect-persistence-foundation.md`; PR [#292](https://github.com/pcvantol/djconnect/pull/292), merged as `3abc24e4b2f77f160b4b8adbc47e14e48dbc9c78`. |
+| Persistence Foundation Validation Hardening | Completed / merged reconciled / archived | Complete the applicable Persistence Foundation evidence matrix, reject incomplete metadata safely and serialize bootstrap without product persistence. | `codex/persistence-foundation-test-hardening` | `docs/history/prompts/2026-07-21-persistence-foundation-validation-hardening.md`; PR [#296](https://github.com/pcvantol/djconnect/pull/296), merged as `5e0d1c1ba550afb57e2d8da5b40c0d2a7dcfb741`. |
+| Persistence Schema Lifecycle Hardening | Completed / merged reconciled / archived | Harden immutable migration identity, ordered history validation, supported upgrade paths and safe SQLite schema validation without product tables. | `codex/persistence-schema-lifecycle-hardening` | `docs/history/prompts/2026-07-21-persistence-schema-lifecycle-hardening.md`; PR [#294](https://github.com/pcvantol/djconnect/pull/294), merged as `9996f04c5ac13e35dc4930abb74f746e55bc167d`. |
+| DJConnect Persistence Foundation | Completed / merged reconciled / archived | Establish the provider-neutral DJConnect persistence platform with canonical bootstrap, schema metadata, migration runner, integrity validation and repository/transaction infrastructure; no Session writes. | `codex/persistence-foundation` | `docs/history/prompts/2026-07-21-djconnect-persistence-foundation.md`; PR [#292](https://github.com/pcvantol/djconnect/pull/292), merged as `3abc24e4b2f77f160b4b8adbc47e14e48dbc9c78`. |
 | DJConnect V4 Completion Roadmap | Completed / merged unreconciled / archived | Define a high-level, canonical route from current server state through stable iOS Renderer Host completion without changing architecture, maturity or production behaviour. | `codex/djconnect-v4-completion-roadmap` | `docs/history/prompts/2026-07-21-djconnect-v4-completion-roadmap.md`; PR [#290](https://github.com/pcvantol/djconnect/pull/290), merged as `f2fbd26819c53286afec1453cca34ce28e7bc126`. |
 | Rolling Session Horizon Architecture | Completed / merged unreconciled / archived | Define the approximately twenty-minute, Planner-owned ephemeral horizon, safe future-context degradation and bounded implementation sequence without production changes. | `codex/rolling-session-horizon-architecture` | `docs/history/prompts/2026-07-21-rolling-session-horizon-architecture.md`; PR [#288](https://github.com/pcvantol/djconnect/pull/288), merged as `ec9fbb3eff183cf380e9dc1ca8d630f465f1ad3f`. |
 | Persistent Session Architecture Finalization | Completed / reviewable frozen | Archive PR #286 Prompt History and reconcile rolling records without production, architecture or roadmap expansion. | `codex/finalize-persistent-session-architecture` | PR [#287](https://github.com/pcvantol/djconnect/pull/287); full unit suite, Ruff, diff check and host qualification passed. |
