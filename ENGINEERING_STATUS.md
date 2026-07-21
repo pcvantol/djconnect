@@ -5,7 +5,12 @@
 
 ## Current engineering increment
 
-PR [#315](https://github.com/pcvantol/djconnect/pull/315), **Rolling Session
+PR [#317](https://github.com/pcvantol/djconnect/pull/317), **Upcoming Playback
+Projection**, merged as `dc70c29507cfefdcfd73e1f0f0e2295e2ae33e4f`. It adds
+only the provider-neutral Horizon input contract. This dedicated Finalization
+reconciles its evidence.
+
+PR #315, **Rolling Session
 Horizon Runtime Model**, merged as `6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`.
 It establishes only the Planner-owned ephemeral horizon base. This dedicated
 Finalization reconciles its evidence.
