@@ -5,9 +5,11 @@
 
 ## Current engineering increment
 
-PR [#342](https://github.com/pcvantol/djconnect/pull/342), **Planning Runtime
-Coordinator**, merged as `dac3ab0abf5b0d7cd047c035619fb72fc462861b`. Its
-dedicated Finalization reconciles the bounded Runtime orchestration boundary.
+PR [#344](https://github.com/pcvantol/djconnect/pull/344), **Primary Planning
+Pipeline Activation**, merged as `c3f3bada3d3a0692a8d2562eb68295331e76c1f3`.
+Its dedicated Finalization reconciles the Planning lifecycle as the primary
+Track Started path, with the established legacy orchestration retained only as
+bounded deterministic fallback.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 PR #323, **Mood and Direction
