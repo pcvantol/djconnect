@@ -4,10 +4,10 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#364](https://github.com/pcvantol/djconnect/pull/364), **Reconcile
-Developer Experience Roadmap**, merged as `92ecef3f61e16d538b3dae6e40b3f76820666eeb`. This dedicated Finalization
-reconciles the completed roadmap transition and immutable Prompt History at
-`docs/history/prompts/2026-07-21-reconcile-developer-experience-roadmap.md`.
+PR [#366](https://github.com/pcvantol/djconnect/pull/366), **Prioritize Session
+Intelligence E2E Verification**, merged as `c60e9f4d3a4d49de32d1ffaa13e8ca78a0d6bf84`. This dedicated Finalization
+reconciles the completed E2E-roadmap transition and immutable Prompt History at
+`docs/history/prompts/2026-07-21-prioritize-session-intelligence-e2e-verification.md`.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:
@@ -21,12 +21,14 @@ Playback Projection (PR #360). The Receiver remains passive and local-first:
 it consumes installation-owned Broadcast projections without browser Runtime,
 transport or timing authority.
 
-Developer Experience and Verification is now the active workstream. The single
-next capability is Developer Session Bootstrap. It may establish only a bounded
-server-owned Session bootstrap/cleanup and ephemeral session-scoped Receiver
-access for manual development and CI. The ordered roadmap is
-`docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md`; simulation is parked, and
-Audience Intelligence remains deferred and low priority.
+Automated Session Intelligence E2E Verification is now the active workstream.
+The single next capability is Automated Session Intelligence E2E Verification
+Architecture. It defines the future headless CI path through the real Runtime
+and Intelligence pipeline. Developer Session Bootstrap is the first CI-enabling
+capability; it never grants browser Session creation or creates a second Runtime
+pipeline. The ordered roadmap is `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md`.
+Receiver browser E2E and Developer Overlay are separate later layers. Audience
+Intelligence remains deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 Its Prompt History is

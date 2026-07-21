@@ -5,9 +5,9 @@
 
 ## Current engineering increment
 
-PR [#364](https://github.com/pcvantol/djconnect/pull/364), **Reconcile
-Developer Experience Roadmap**, merged as `92ecef3f61e16d538b3dae6e40b3f76820666eeb`. This dedicated Finalization
-reconciles the completed roadmap transition and its immutable Prompt History.
+PR [#366](https://github.com/pcvantol/djconnect/pull/366), **Prioritize Session
+Intelligence E2E Verification**, merged as `c60e9f4d3a4d49de32d1ffaa13e8ca78a0d6bf84`. This dedicated Finalization
+reconciles the completed E2E-roadmap transition and its immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
 is now the canonical execution engine for all supported Track Started decisions:
@@ -25,13 +25,15 @@ projections; timeline and Now Playing state reconstruct from server snapshots
 and updates without browser authority, provider access, polling or a local
 playback clock.
 
-Developer Experience and Verification is now the active workstream. The only
-active next capability is **Developer Session Bootstrap**: a later bounded Home
-Assistant development/service boundary will start and clean up an ordinary
-server-owned Session with ephemeral, session-scoped Receiver access for manual
-development and CI. It must preserve Runtime, Planner, Knowledge Engine, DJ
-Moment Engine, Session Flow and Broadcast ownership. Accelerated Session
-Simulation is parked; Audience Intelligence remains deferred and low priority.
+**Automated Session Intelligence E2E Verification** is now the active Epic. Its
+single next capability is **Automated Session Intelligence E2E Verification
+Architecture**. It will define headless CI ownership, production-boundary
+reuse, bootstrap, deterministic scenarios, capture, invariant validation,
+clock strategy, security and staged rollout. Developer Session Bootstrap is
+the first enabling capability for CI, not the end goal. Core intelligence
+validation remains frontend-independent; Receiver browser E2E and the
+read-only Developer Overlay are separate later layers. Audience Intelligence
+remains deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 

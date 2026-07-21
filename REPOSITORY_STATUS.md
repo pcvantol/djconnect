@@ -28,9 +28,9 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#364](https://github.com/pcvantol/djconnect/pull/364), **Reconcile
-Developer Experience Roadmap**, merged as `92ecef3f61e16d538b3dae6e40b3f76820666eeb`. This dedicated Finalization
-reconciles the completed roadmap transition and immutable Prompt History.
+PR [#366](https://github.com/pcvantol/djconnect/pull/366), **Prioritize Session
+Intelligence E2E Verification**, merged as `c60e9f4d3a4d49de32d1ffaa13e8ca78a0d6bf84`. This dedicated Finalization
+reconciles the completed E2E-roadmap transition and immutable Prompt History.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:
@@ -47,13 +47,14 @@ Playback Projection. The disposable Receiver renders only renderer-safe
 Broadcast projections and retains no browser authority, provider access,
 additional endpoint, WebSocket channel, polling path or playback clock.
 
-Developer Experience and Verification is now the active Product Development
-workstream. `Developer Session Bootstrap` is its only active next capability;
-it will establish a bounded server-owned Session bootstrap/cleanup boundary
-and ephemeral session-scoped Receiver access for developer and CI use. It does
-not authorize browser Session creation or a second Runtime pipeline.
-Accelerated Session Simulation is parked. Audience Intelligence remains
-deferred and low priority.
+Automated Session Intelligence E2E Verification is the active Product
+Development Epic. Its next capability is the E2E Verification Architecture,
+which will define an isolated, headless CI path through the real Runtime,
+Planner, Knowledge Engine, DJ Moment Engine, Session Flow and Broadcast.
+Developer Session Bootstrap is the first machine-readable CI-enabling boundary,
+not a browser Session creator or a second Runtime pipeline. Scenarios, capture,
+invariants, accelerated execution and Golden Sessions remain separately
+sequenced. Audience Intelligence remains deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 

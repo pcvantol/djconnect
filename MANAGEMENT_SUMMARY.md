@@ -15,9 +15,9 @@
 
 ## Current position
 
-PR [#364](https://github.com/pcvantol/djconnect/pull/364), **Reconcile
-Developer Experience Roadmap**, merged as `92ecef3f61e16d538b3dae6e40b3f76820666eeb`. This dedicated Finalization
-reconciles the completed roadmap transition and immutable Prompt History.
+PR [#366](https://github.com/pcvantol/djconnect/pull/366), **Prioritize Session
+Intelligence E2E Verification**, merged as `c60e9f4d3a4d49de32d1ffaa13e8ca78a0d6bf84`. This dedicated Finalization
+reconciles the completed E2E-roadmap transition and immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
@@ -33,12 +33,14 @@ only existing server-owned Broadcast projections, reconstructing from snapshot
 and live updates without browser authority, local playback timing, a new
 transport or provider polling.
 
-Developer Experience and Verification is now active. **Developer Session
-Bootstrap** is the only next capability: a bounded HA development/service
-boundary for ordinary server-owned Session startup, session-scoped ephemeral
-Receiver access, and cleanup for manual development and CI. Simulation remains
-parked and must later exercise the real pipeline rather than an alternate
-Runtime. Audience Intelligence remains deferred and low priority.
+Automated Session Intelligence E2E Verification is now active. Its sole next
+capability is the architecture that defines isolated, deterministic, headless
+CI verification of the real pipeline. Developer Session Bootstrap is the first
+enabling capability for CI; deterministic scenarios, immutable captures,
+structural validation, accelerated execution, Golden Sessions and non-blocking
+quality metrics follow in order. Browser Receiver E2E and Developer Overlay
+remain separate later layers. Audience Intelligence remains deferred and low
+priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 
