@@ -113,23 +113,27 @@ outcome rules are in `docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`.
 
 ## Session Planner contract
 
-The Planner owns the future: a rolling planning horizon of approximately
-fifteen minutes, planning state, current musical direction, pending Planner
-Events and the future production of Session Flow and Broadcast generation. The
-Runtime owns the present; the Profile owns the past.
+The Planner owns the future: a rolling planning horizon with an approximately
+twenty-minute product target, planning state, current musical direction,
+pending Planner Events and the future production of Session Flow and Broadcast
+generation. The Runtime owns the present; the Profile owns the past. The
+canonical Horizon input, stability, privacy and future-cell architecture is
+defined by [`ROLLING_SESSION_HORIZON_ARCHITECTURE.md`](ROLLING_SESSION_HORIZON_ARCHITECTURE.md).
 
 The horizon is intentionally rolling rather than a static playlist:
 
 | Horizon | Meaning |
 | --- | --- |
 | Near future | The next moments requiring immediate planning attention. |
-| Medium future | The remainder of the active fifteen-minute planning horizon. |
+| Medium future | The remainder of the active approximately twenty-minute planning horizon. |
 | Longer future | Intent beyond the current horizon, refreshed only as the rolling window advances. |
 
 The foundation creates one Planner together with its Runtime and destroys it
 with that Runtime. It is never persistent and never shared between sessions.
-Its initial state is `ready`, a 15-minute horizon, `maintain` direction and no
-current goal or pending events. Initial direction placeholders are `maintain`,
+Its initial implementation state remains `ready`, a 15-minute horizon,
+`maintain` direction and no current goal or pending events. The approximately
+twenty-minute Horizon is an accepted future policy target, not a claim about
+the current implementation. Initial direction placeholders are `maintain`,
 `increase_energy`, `decrease_energy`, `explore` and `recover`.
 
 Planner Events are internal inputs, not client commands: `track_finished`,
