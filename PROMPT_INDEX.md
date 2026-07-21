@@ -4,7 +4,13 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#313](https://github.com/pcvantol/djconnect/pull/313), merged as
+PR [#315](https://github.com/pcvantol/djconnect/pull/315), merged as
+`6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`, is the current merged
+implementation. Repository State is `MERGED_UNRECONCILED` until its dedicated
+Finalization merges. Its Prompt History is
+`docs/history/prompts/2026-07-21-rolling-session-horizon-runtime.md`.
+
+PR #313, merged as
 `e3a27d6163067c0c35d5be9a50ad62203c237dc9`, is the current merged
 architecture increment. Repository State is `MERGED_UNRECONCILED` until its
 dedicated Finalization merges. Its Prompt History is
