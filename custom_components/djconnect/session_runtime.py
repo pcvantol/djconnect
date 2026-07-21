@@ -115,6 +115,12 @@ class BroadcastEventType(StrEnum):
     DJ_MOMENT_PUBLISHED = "dj_moment_published"
 
 
+class BroadcastAuthorizationScope(StrEnum):
+    """Visibility scope bound to internal Broadcast recovery identity."""
+
+    OWNER = "owner"
+
+
 class KnowledgeIntentType(StrEnum):
     """The semantic contribution requested by the Planner."""
 
@@ -1300,6 +1306,16 @@ class BroadcastReplayEntry:
     owner_only: bool
 
 
+@dataclass(frozen=True)
+class BroadcastRecoveryCursor:
+    """Immutable internal reference to one owner-authorized delivery boundary."""
+
+    session_id: str
+    delivery_sequence: int
+    snapshot_watermark: int
+    authorization_scope: BroadcastAuthorizationScope
+
+
 @dataclass
 class DJSessionBroadcastEngine:
     """One ephemeral distribution owner for one active Session Runtime.
@@ -1315,6 +1331,7 @@ class DJSessionBroadcastEngine:
     broadcast_token: str = field(default_factory=lambda: secrets.token_urlsafe(32), repr=False)
     delivery_sequence: int = field(default=0, init=False)
     replay_log: tuple[BroadcastReplayEntry, ...] = field(default=(), init=False)
+    recovery_cursor: BroadcastRecoveryCursor | None = field(default=None, init=False)
     _subscribers: dict[str, tuple[Callable[[dict[str, Any]], None], bool]] = field(
         default_factory=dict, init=False, repr=False
     )
@@ -1432,11 +1449,13 @@ class DJSessionBroadcastEngine:
         self._pending_subscriptions.clear()
         self.replay_log = ()
         self.delivery_sequence = 0
+        self.recovery_cursor = None
 
     def _publish(self, event_type: BroadcastEventType, payload: dict[str, Any]) -> None:
         """Deliver one incremental, renderer-safe event to active subscribers."""
         self.delivery_sequence += 1
         self._append_replay_entry(event_type, payload)
+        self._issue_recovery_cursor()
         event = {
             "event_type": str(event_type),
             "session_id": self.state.session_id,
@@ -1463,6 +1482,18 @@ class DJSessionBroadcastEngine:
             owner_only=_payload_contains_owner_only_moment(payload),
         )
         self.replay_log = (*self.replay_log, entry)[-self.replay_log_limit :]
+
+    def _issue_recovery_cursor(self) -> None:
+        """Bind one opaque internal cursor to the newest owner delivery boundary."""
+        if not self.replay_log or self.replay_log[-1].delivery_sequence != self.delivery_sequence:
+            self.recovery_cursor = None
+            return
+        self.recovery_cursor = BroadcastRecoveryCursor(
+            session_id=self.state.session_id,
+            delivery_sequence=self.delivery_sequence,
+            snapshot_watermark=self._snapshot_watermark(include_owner_only=True),
+            authorization_scope=BroadcastAuthorizationScope.OWNER,
+        )
 
     def as_dict(self, *, include_owner_only: bool = True) -> dict[str, Any]:
         """Expose only canonical Broadcast State to future renderers."""

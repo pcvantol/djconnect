@@ -800,10 +800,30 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             [entry.delivery_sequence for entry in broadcast.replay_log], [1, 2]
         )
         self.assertEqual(broadcast.as_dict()["broadcast"]["snapshot_watermark"], 2)
+        cursor = broadcast.recovery_cursor
+        assert cursor is not None
+        self.assertEqual(
+            (
+                cursor.session_id,
+                cursor.delivery_sequence,
+                cursor.snapshot_watermark,
+                cursor.authorization_scope,
+            ),
+            (
+                created.session_id,
+                2,
+                2,
+                self.runtime.BroadcastAuthorizationScope.OWNER,
+            ),
+        )
+        self.assertIn(cursor.delivery_sequence, [entry.delivery_sequence for entry in broadcast.replay_log])
+        with self.assertRaises(FrozenInstanceError):
+            cursor.delivery_sequence = 3  # type: ignore[misc]
 
         created.planner.republish_session_flow()
         self.assertEqual(created.planner.output.session_flow.flow_revision, 1)
         self.assertEqual(broadcast.delivery_sequence, 2)
+        self.assertIs(broadcast.recovery_cursor, cursor)
 
         broadcast.as_dict()
         broadcast.as_dict()
@@ -813,6 +833,9 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         created.republish_session_flow()
         self.assertEqual(created.planner.output.session_flow.flow_revision, 2)
         self.assertEqual(broadcast.delivery_sequence, 4)
+        assert broadcast.recovery_cursor is not None
+        self.assertEqual(broadcast.recovery_cursor.delivery_sequence, 4)
+        self.assertEqual(broadcast.recovery_cursor.snapshot_watermark, 4)
         self.assertEqual(
             [entry.delivery_sequence for entry in broadcast.replay_log], [1, 2, 3, 4]
         )
@@ -824,7 +847,12 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         assert ended is not None
         self.assertEqual(ended.broadcast.delivery_sequence, 0)
         self.assertEqual(ended.broadcast.replay_log, ())
+        self.assertIsNone(ended.broadcast.recovery_cursor)
         self.assertEqual(ended.broadcast.as_dict()["broadcast"]["snapshot_watermark"], 0)
+
+        second = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))
+        assert second.broadcast.recovery_cursor is not None
+        self.assertNotEqual(second.broadcast.recovery_cursor.session_id, cursor.session_id)
 
     def test_broadcast_replay_log_is_bounded_and_entries_are_immutable(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
@@ -842,6 +870,12 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertEqual(broadcast.delivery_sequence, 3)
         self.assertEqual(
             [entry.delivery_sequence for entry in broadcast.replay_log], [2, 3]
+        )
+        assert broadcast.recovery_cursor is not None
+        self.assertEqual(broadcast.recovery_cursor.delivery_sequence, 3)
+        self.assertIn(
+            broadcast.recovery_cursor.delivery_sequence,
+            [entry.delivery_sequence for entry in broadcast.replay_log],
         )
         with self.assertRaises(FrozenInstanceError):
             broadcast.replay_log[0].delivery_sequence = 9  # type: ignore[misc]
