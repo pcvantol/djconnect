@@ -87,27 +87,37 @@ intelligence work implicit authorization.
 These are stable, server-owned foundations. Maintenance may correct defects,
 but new product work reuses their established ownership boundaries.
 
-### Experience — primary next focus
+### Experience — completed foundation and next verification focus
 
-**Universal Receiver V1 is the primary active architectural Epic.** Its
-server-side Renderer Host contract is complete. Capability 1 — Broadcast
-Connection and Session Rendering — and Capability 2 — Session Flow Timeline
-Rendering — are complete. Subsequent browser delivery, like Apple, Windows,
-Raspberry Pi and Voice delivery, must consume existing Broadcast projections
-and server APIs without acquiring Runtime ownership.
+**Universal Receiver V1 foundation is complete.** Its server-side Renderer
+Host contract, Capability 1 — Broadcast Connection and Session Rendering,
+Capability 2 — Session Flow Timeline Rendering, the renderer-safe Playback
+Projection prerequisite and Capability 3 — Now Playing — are complete.
+Capability 3 was merged in PR #362 as
+`dfbc5826ae73762818e4bd002b97773852014394`; it consumes the projection from PR
+#360 and adds no browser-owned playback API, transport or timing authority.
 
-Universal Receiver V1 Capability 3 — Now Playing Experience — is complete in
-PR #362, merged as `dfbc5826ae73762818e4bd002b97773852014394`. It consumes the
-renderer-safe Playback Projection from PR #360 and introduces no browser-owned
-playback API, transport or timing authority.
+Universal Receiver V1 is local-first and installation-owned. Home Assistant
+owns access, Runtime and delivery; central hosting or a delivery-provider
+choice is deferred. Any later Receiver capability must inspect current `main`
+and the canonical Receiver architecture during Pre-Flight, must not duplicate
+the completed Session Flow Timeline or Now Playing capabilities, and must name
+the existing Broadcast projection it consumes.
 
-- Universal Receiver V1
+**Developer Experience and Verification is now the active workstream.** Its
+single next capability is Developer Session Bootstrap. The full authorized
+sequence, including parked simulation and the separate future Developer Overlay
+architecture review, is recorded in
+[`docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md`](docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md).
+
+- Universal Receiver V1 foundation (complete)
+- Developer Session Bootstrap (active next capability)
 - Apple
 - Windows
 - Raspberry Pi
 - Voice
 - Verification Platform
-- Session Simulation
+- Session Simulation (parked)
 
 Each remains a separately authorized capability. This ordering identifies
 experience-platform focus; it does not authorize a browser implementation,
@@ -124,8 +134,10 @@ client change or renderer-specific transport.
 - Playback Observation Stage 2
 - Continue Stage 2
 
-Audience Intelligence remains intentionally deferred. Its future use must be a
-bounded influence on the existing Planner rather than a new execution path.
+Audience Intelligence remains intentionally deferred and low priority. Its
+future use must be a bounded influence on the existing Planner rather than a
+new execution path; it is not active before Receiver operations and developer
+verification provide the prerequisite evidence.
 
 ## Platform detail — Persistent Session
 

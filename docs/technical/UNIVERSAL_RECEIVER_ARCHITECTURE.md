@@ -2,11 +2,11 @@
 
 ## Status
 
-Accepted server architecture and current-contract boundary. Capabilities 1 and
-2 are complete: the minimal operational browser renderer and its Session Flow
-timeline use only existing Broadcast projections. Neither capability adds a
-frontend framework, authentication redesign, Runtime behaviour, transport model
-or persistence.
+Accepted server architecture and current-contract boundary. Capabilities 1
+through 3 are complete: the operational browser renderer, its Session Flow
+timeline and its Now Playing card use only existing Broadcast projections.
+None adds a frontend framework, authentication redesign, Runtime behaviour,
+transport model or persistence.
 
 ## Purpose
 
@@ -125,14 +125,23 @@ it does not append an inferred timeline entry. Runtime termination clears the
 timeline. Consequently, completed, active and future semantics remain defined
 solely by the server-published Flow item attributes.
 
-## Capability 3 prerequisite — Renderer-Safe Playback Projection
+## Capability 3 — Now Playing
 
-Now Playing presentation remains blocked until the server-side
+**Status: COMPLETE.**
+
+The server-side
 [`Renderer-Safe Playback Projection`](RENDERER_SAFE_PLAYBACK_PROJECTION.md) is
-complete and reconciled. That prerequisite supplies an existing Broadcast
-snapshot, metadata replacement updates and optional Runtime-owned progress
-updates; Capability 3 will remain a separate, presentation-only Receiver
-increment.
+complete and published through the existing Broadcast snapshot and update
+semantics. The Receiver renders only its safe optional artwork, title, artist,
+album, status, playback target, duration and server-owned `position_ms` fields.
+It does not query a provider, calculate progress, run a browser playback clock
+or infer missing metadata. A fresh snapshot reconstructs Now Playing after a
+reconnect; an equivalent update does not create browser-owned state.
+
+Universal Receiver V1 is local-first and installation-owned: the Home
+Assistant installation owns Runtime, access and delivery. No central hosting
+or delivery-provider selection is introduced by V1. Any later Home Assistant
+delivery mechanism remains separately deferred.
 
 ## Multi-renderer model
 
@@ -167,6 +176,12 @@ durable Session or planning state.
 - Receiver cursor replay, browser persistence, offline synchronization and
   browser-side recovery logic.
 - Renderer-specific diagnostics and any new control surface.
+- Any central or cloud-hosted Receiver delivery mechanism.
+
+Before any further Receiver capability is authorized, its Pre-Flight must
+inspect current `main` and this document. It must not duplicate the completed
+Session Flow Timeline or Now Playing capabilities, and must identify the
+existing Broadcast projection it will consume.
 
 ## Canonical references
 

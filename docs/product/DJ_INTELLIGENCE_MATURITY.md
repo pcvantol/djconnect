@@ -24,7 +24,9 @@ abstractions and never introduce a parallel Runtime, Flow or Broadcast path.
 
 This milestone does not advance deferred intelligence. In particular,
 Audience Intelligence remains intentionally deferred until a separately
-authorized bounded Planner-influence cell has its required evidence.
+authorized bounded Planner-influence cell has its required evidence. It is
+low priority behind operational Renderer Host delivery and Developer Experience
+verification; it must not become active merely because its future cell exists.
 
 ## Maturity principles
 
