@@ -37,6 +37,39 @@ class HistoricalDJMomentProjection:
 
 
 class HistoricalProjectionRepository(PersistenceRepository):
+    async def async_cleanup_expired(
+        self, *, cutoff: str, batch_size: int
+    ) -> tuple[int, int, int, int]:
+        """Delete expired Moments before Sessions, plus expired orphan Moments."""
+        def cleanup(tx: PersistenceTransaction) -> tuple[int, int, int, int]:
+            orphan_rows = tx.fetchall(
+                "SELECT historical_moment_id FROM djconnect_historical_moments "
+                "WHERE created_at < ? AND NOT EXISTS (SELECT 1 FROM djconnect_historical_sessions "
+                "WHERE originating_session_id=djconnect_historical_moments.originating_session_id) "
+                "ORDER BY created_at, historical_moment_id LIMIT ?",
+                (cutoff, batch_size),
+            )
+            for row in orphan_rows:
+                tx.execute("DELETE FROM djconnect_historical_moments WHERE historical_moment_id=?", (row[0],))
+            session_rows = tx.fetchall(
+                "SELECT originating_session_id FROM djconnect_historical_sessions WHERE created_at < ? "
+                "ORDER BY created_at, historical_session_id LIMIT ?",
+                (cutoff, batch_size),
+            )
+            deleted_moments = len(orphan_rows)
+            for row in session_rows:
+                session_id = str(row[0])
+                moments = tx.fetchall(
+                    "SELECT historical_moment_id FROM djconnect_historical_moments "
+                    "WHERE originating_session_id=?", (session_id,)
+                )
+                for moment in moments:
+                    tx.execute("DELETE FROM djconnect_historical_moments WHERE historical_moment_id=?", (moment[0],))
+                deleted_moments += len(moments)
+                tx.execute("DELETE FROM djconnect_historical_sessions WHERE originating_session_id=?", (session_id,))
+            return len(session_rows), deleted_moments, len(orphan_rows), len(session_rows)
+
+        return await self._async_in_transaction(cleanup)
     async def async_project_session(self, session: PersistentSession) -> HistoricalSessionProjection:
         projection = HistoricalSessionProjection(
             f"history-{uuid4().hex}",
