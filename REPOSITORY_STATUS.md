@@ -28,16 +28,19 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current main contains PR [#344](https://github.com/pcvantol/djconnect/pull/344),
-**Primary Planning Pipeline Activation**, merged as
-`c3f3bada3d3a0692a8d2562eb68295331e76c1f3`. The bounded Runtime coordinator
-now makes the existing planning, prefetch, readiness, approval, Prepared
-Knowledge resolution and Moment-realization lifecycle authoritative whenever a
-valid planning result exists. The established Track Started route remains its
-explicit deterministic fallback. No Planner, Knowledge, Moment, provider,
-persistence, transport or renderer capability was added. Its dedicated
-Finalization is current. Repository State:
-`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
+Current main contains PR [#346](https://github.com/pcvantol/djconnect/pull/346),
+**Canonical Planning Input and Candidate Projection Activation**, merged as
+`eddf1034272a5665e02881906f7df7722b5fbc4c`. The bounded Runtime coordinator is
+now the entry path for every ordinary Track Started event, including when no
+Upcoming Playback Projection exists. In that case the Planner projects only
+the current observed track into its existing ephemeral Planning Window; it does
+not fabricate future playback. Existing planned-intent approval, Prepared
+Knowledge consumption or safe Knowledge fallback, and Moment realization remain
+authoritative. Consumption follows successful Flow/Broadcast publication. The
+legacy path remains an explicit deterministic fallback. No provider queue,
+new intent, persistence, transport or renderer capability was added. This
+merged implementation is in its dedicated governance-only Finalization.
+Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 The preceding PR #313,
 **Localization and Narrative Architecture**, merged as

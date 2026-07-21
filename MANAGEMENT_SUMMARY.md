@@ -15,14 +15,15 @@
 
 ## Current position
 
-PR [#344](https://github.com/pcvantol/djconnect/pull/344) merged as
-`c3f3bada3d3a0692a8d2562eb68295331e76c1f3`. It activates the existing bounded,
-ephemeral Planning lifecycle as the primary Track Started path: Planner approval,
-Prepared Knowledge resolution and existing Moment realization now precede the
-established deterministic fallback. No Planner, Knowledge, Moment, provider,
-persistence, transport or renderer scope was added. This is its dedicated
-governance-only Finalization. Repository State:
-`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
+PR [#346](https://github.com/pcvantol/djconnect/pull/346) merged as
+`eddf1034272a5665e02881906f7df7722b5fbc4c`. It activates the existing bounded,
+ephemeral Planning lifecycle for ordinary Track Started traffic even without an
+Upcoming Playback Projection. The Planner uses one current-track-only candidate
+projection, keeps the established approval/Knowledge/realization ownership, and
+consumes planned state only after successful Flow/Broadcast publication. It
+does not fabricate future playback or add providers, intents, persistence,
+transport or renderers. This is its dedicated governance-only Finalization.
+Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 PR #315 merged as
 `6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`. It adds only the ephemeral,

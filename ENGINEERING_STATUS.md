@@ -5,11 +5,17 @@
 
 ## Current engineering increment
 
-PR [#344](https://github.com/pcvantol/djconnect/pull/344), **Primary Planning
-Pipeline Activation**, merged as `c3f3bada3d3a0692a8d2562eb68295331e76c1f3`.
-Its dedicated Finalization reconciles the Planning lifecycle as the primary
-Track Started path, with the established legacy orchestration retained only as
-bounded deterministic fallback.
+PR [#346](https://github.com/pcvantol/djconnect/pull/346), **Canonical Planning
+Input and Candidate Projection Activation**, merged as `eddf1034272a5665e02881906f7df7722b5fbc4c`.
+Every ordinary Track Started event
+now enters the existing Planning Runtime Coordinator without requiring an
+Upcoming Playback Projection. The Planner projects only the observed current
+track as a bounded ephemeral candidate when future playback is unavailable;
+approval, Knowledge resolution and realization remain on the existing planned
+intent lifecycle. Planned state is consumed only after successful publication.
+The legacy route remains the bounded safe fallback. No provider queue, new
+intent, persistence, transport or renderer capability was added. This dedicated
+Finalization reconciles its immutable Prompt History and validation evidence.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 PR #323, **Mood and Direction
