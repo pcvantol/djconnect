@@ -15,9 +15,11 @@
 
 ## Current position
 
-PR [#285](https://github.com/pcvantol/djconnect/pull/285) merged as
-`150d270f2448f88bf7a3baae6e00af5221e06ae5`. It finalizes PR #284 and restores
-`MERGED_RECONCILED`: every implementation capability must pass
+PR [#286](https://github.com/pcvantol/djconnect/pull/286) merged as
+`8828179ae042eaa672eb6af065dcefbe323ce79a`. It is
+`MERGED_UNRECONCILED`. PR [#287](https://github.com/pcvantol/djconnect/pull/287)
+is the `REVIEWABLE_FROZEN` dedicated governance-only Finalization: every
+implementation capability must pass
 Pre-Flight, Implementation, Validation, Merge and Finalization. Only `GO`
 authorizes a bounded production change; `MERGED_UNRECONCILED` permits only
 Finalization.
@@ -45,11 +47,10 @@ Public replay/query APIs, HTTP Flow delta, reconnect continuation,
 acknowledgements, duplicate/out-of-order handling, persistence, cross-Session
 replay, Universal Receiver recovery and granular Session resources remain
 deferred. No Runtime, Intelligence, Flow-policy, playback or renderer
-capability expanded. PR [#286](https://github.com/pcvantol/djconnect/pull/286)
-is the `REVIEWABLE_FROZEN` Persistent Session Architecture amendment; no
+capability expanded. PR #286 established Persistent Session Architecture; no
 storage, Runtime, recovery or renderer behaviour is authorized. Its first
-production capability requires a new Pre-Flight only after this architecture
-increment and its Finalization have merged.
+production capability requires a new Pre-Flight only after this Finalization
+has merged.
 
 | Area | Objectively supported status | Evidence |
 | --- | --- | --- |
