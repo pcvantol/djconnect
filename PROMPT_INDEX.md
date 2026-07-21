@@ -9,8 +9,8 @@ PR [#280](https://github.com/pcvantol/djconnect/pull/280), merged as
 Planner-owned Flow Revision/Change Journal and Broadcast-owned Delivery
 Sequence, snapshot watermark, bounded internal Replay Log and immutable
 owner-scoped Recovery Cursor are current. The next recovery capability may be
-authorized WebSocket recovery using that opaque Broadcast cursor; no public
-recovery transport exists today.
+authorized WebSocket recovery using that opaque Broadcast cursor only after a
+new Pre-Flight returns `GO`; no public recovery transport exists today.
 
 Spotify Direct Live Playback Observation Stage 1, Knowledge Engine `KE-2.2`
 and Planner `PL-4.1` are current. Music Assistant Stage 1, Continue Stage 2,
@@ -107,18 +107,20 @@ planning is read.
 | Session Flow Revision Journal | Completed / merged reconciled / archived | Complete Recovery Cell 1 with Planner-owned Flow revision and an immutable Runtime-scoped semantic change journal; no delivery or recovery transport. | `codex/session-flow-revision-journal` | `docs/history/prompts/2026-07-21-session-flow-revision-journal.md`; PR [#276](https://github.com/pcvantol/djconnect/pull/276), merged as `222e3871b0d5e504077802308e0a4e7d568cd752`. |
 | Broadcast Delivery Identity | Completed / merged reconciled / archived | Complete Recovery Cell 2 with Broadcast-owned runtime-scoped Delivery Sequence, snapshot watermark and bounded internal Replay Log; no cursor or public recovery transport. | `codex/broadcast-delivery-identity` | `docs/history/prompts/2026-07-21-broadcast-delivery-identity.md`; PR [#278](https://github.com/pcvantol/djconnect/pull/278), merged as `fe36439bad56792e520fb21df706bd64028c065e`. |
 | Broadcast Recovery Cursor | Completed / merged reconciled / archived | Complete Recovery Cell 3 with one immutable Broadcast-owned, owner-scoped internal Recovery Cursor after a retained publication; no replay or recovery transport. | `codex/broadcast-recovery-cursor` | `docs/history/prompts/2026-07-21-broadcast-recovery-cursor.md`; PR [#280](https://github.com/pcvantol/djconnect/pull/280), merged as `ccddf5eb72becde8e7de662446e487c43d70b7f3`. |
+| Capability Completion Lifecycle | Completed / merged reconciled / archived | Establish the mandatory Pre-Flight, Implementation, Validation, Merge and Finalization lifecycle; no product or architecture change. | `codex/capability-completion-lifecycle` | `docs/history/prompts/2026-07-21-capability-completion-lifecycle.md`; PR [#282](https://github.com/pcvantol/djconnect/pull/282), merged as `8394dbda94594369dd815f05e734bd7a0214221b`. |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
 
 ## Current post-merge reconciliation
 
-PR #280 is merged and reconciled through current `main`
-`ccddf5eb72becde8e7de662446e487c43d70b7f3`. Its immutable Prompt History
-record preserves the Recovery Cell 3 scope without retroactively changing its
-intent. Transport Cells 1–4 and Recovery Cells 1–3 are current; authorized
-WebSocket recovery using the existing opaque Broadcast cursor remains a
-separately bounded next recovery capability.
+PR #282 is merged and reconciled through current `main`
+`8394dbda94594369dd815f05e734bd7a0214221b`. Its immutable Prompt History
+record preserves the Capability Completion Lifecycle scope without
+retroactively changing its intent. Transport Cells 1–4 and Recovery Cells 1–3
+are current; a separately bounded WebSocket recovery capability using the
+existing opaque Broadcast cursor may start only after a new Pre-Flight returns
+`GO`.
 Platform Release 3.3 remains in Maintenance.
 
 ## Next Engineering Increment

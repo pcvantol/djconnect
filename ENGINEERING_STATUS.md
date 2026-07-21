@@ -5,16 +5,22 @@
 
 ## Current engineering increment
 
-The reconciled baseline is PR [#280](https://github.com/pcvantol/djconnect/pull/280),
-**Add Broadcast recovery cursor**, merged on 2026-07-21 as
-`ccddf5eb72becde8e7de662446e487c43d70b7f3`. Transport Cells 1–4 and Recovery
-Cells 1–3 are current. The Planner owns semantic Flow Revision and its
-immutable Runtime-scoped Change Journal. Broadcast independently owns a
-strictly monotonic Delivery Sequence, snapshot watermark and bounded immutable
-Replay Log; after a retained publication it may issue one immutable,
-owner-scoped internal Recovery Cursor. Each publication receives one sequence,
-and all delivery state, including the cursor, is released when the Runtime
-ends. Fresh snapshots remain the only public recovery fallback.
+The reconciled baseline is PR [#282](https://github.com/pcvantol/djconnect/pull/282),
+**Formalize capability completion lifecycle**, merged on 2026-07-21 as
+`8394dbda94594369dd815f05e734bd7a0214221b`. Its Finalization has reconciled
+current main to `MERGED_RECONCILED`. Every implementation capability now uses
+the mandatory Pre-Flight → Implementation → Validation → Merge → Finalization
+lifecycle. Pre-Flight ends in `GO` or `NO-GO`; `MERGED_UNRECONCILED` permits
+only the dedicated governance-only Finalization increment.
+
+Transport Cells 1–4 and Recovery Cells 1–3 remain current. The Planner owns
+semantic Flow Revision and its immutable Runtime-scoped Change Journal.
+Broadcast independently owns a strictly monotonic Delivery Sequence, snapshot
+watermark and bounded immutable Replay Log; after a retained publication it
+may issue one immutable, owner-scoped internal Recovery Cursor. Each
+publication receives one sequence, and all delivery state, including the
+cursor, is released when the Runtime ends. Fresh snapshots remain the only
+public recovery fallback.
 
 The preceding reconciled increments are: PR #260 external dependency
 documentation; PR #261 rolling-status validation only; PR #262 maturity-cell
@@ -27,11 +33,12 @@ observation, Continue Stage 2, Playback Instance Identity and
 occurrence-correct observation remain deferred under their recorded external
 backend conditions.
 
-The next recovery capability may be authorized WebSocket recovery using the
-existing opaque Broadcast cursor. Its validation, authorization, replay-window
-and snapshot-required contract must remain separately bounded before
-implementation. There is no public replay, cursor transport, HTTP Flow delta,
-reconnect continuation or Renderer recovery behaviour today.
+The next production capability may be authorized WebSocket recovery using the
+existing opaque Broadcast cursor, but only after its own Pre-Flight returns
+`GO`. Its validation, authorization, replay-window and snapshot-required
+contract must remain separately bounded before implementation. There is no
+public replay, cursor transport, HTTP Flow delta, reconnect continuation or
+Renderer recovery behaviour today.
 
 Platform Release 3.3 is operationally complete and in Maintenance. PR
 [#202](https://github.com/pcvantol/djconnect/pull/202), **Platform Release 3.3
