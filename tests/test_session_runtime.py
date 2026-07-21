@@ -159,6 +159,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
                 self.runtime.CandidatePlanningSlot("genre_story", 60, 120),
             ),
         )
+        window.evaluate_readiness()
 
         first = window.select_intent()
         second = window.select_intent()
@@ -375,6 +376,8 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertEqual(window.knowledge_prefetches, ())
         self.assertNotIn("knowledge_prefetches", created.planner.as_dict())
         self.assertNotIn("knowledge_prefetches", created.as_dict())
+        self.assertNotIn("readiness_evaluations", created.planner.as_dict())
+        self.assertNotIn("readiness_evaluations", created.as_dict())
 
         asyncio.run(
             manager.async_end(owner_profile_id="profile-prefetch", session_id=created.session_id)
@@ -441,6 +444,124 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertEqual(superseded.status, self.runtime.PreparedKnowledgeStatus.SUPERSEDED)
         self.assertEqual(unavailable.status, self.runtime.PreparedKnowledgeStatus.UNAVAILABLE)
         self.assertEqual(engine.assembled_contexts, ())
+
+    def test_readiness_evaluation_marks_valid_prepared_knowledge_ready(self) -> None:
+        window = self._artist_prefetch_window()
+        prepared = self.runtime.KnowledgePrefetchExecutionBoundary().submit(
+            prefetch=window.knowledge_prefetches[0],
+            subject_projection=(("artist", "Artist"),),
+            window=window,
+            invalidation_generation=4,
+            knowledge_engine=self.runtime.DJKnowledgeEngine(),
+        )
+
+        evaluations = window.evaluate_readiness((prepared,), invalidation_generation=4)
+
+        self.assertEqual(len(evaluations), 1)
+        self.assertEqual(evaluations[0].status, self.runtime.ReadinessStatus.READY)
+        self.assertTrue(evaluations[0].prepared_knowledge_available)
+        self.assertTrue(evaluations[0].prepared_knowledge_valid)
+        self.assertEqual(window.approve_earliest_planned_intent(), self.runtime.PlannerIntent("artist_story", 2))
+
+    def test_readiness_evaluation_waits_for_required_prepared_knowledge(self) -> None:
+        window = self._artist_prefetch_window()
+
+        evaluation = window.evaluate_readiness(invalidation_generation=4)[0]
+
+        self.assertEqual(evaluation.status, self.runtime.ReadinessStatus.WAITING)
+        self.assertFalse(evaluation.prepared_knowledge_available)
+        self.assertIsNone(window.approve_earliest_planned_intent())
+
+    def test_readiness_evaluation_blocks_unavailable_prepared_knowledge(self) -> None:
+        window = self._artist_prefetch_window()
+        unavailable = self.runtime.PreparedKnowledge(
+            "prefetch-artist-2-0-60",
+            2,
+            "artist",
+            self.runtime.PreparedKnowledgeStatus.UNAVAILABLE,
+        )
+
+        evaluation = window.evaluate_readiness((unavailable,), invalidation_generation=4)[0]
+
+        self.assertEqual(evaluation.status, self.runtime.ReadinessStatus.BLOCKED)
+        self.assertEqual(evaluation.execution_status, self.runtime.PreparedKnowledgeStatus.UNAVAILABLE)
+
+    def test_readiness_evaluation_distinguishes_unsupported_and_expired(self) -> None:
+        window = self._artist_prefetch_window()
+        unsupported = self.runtime.PreparedKnowledge(
+            "prefetch-artist-2-0-60",
+            2,
+            "artist",
+            self.runtime.PreparedKnowledgeStatus.UNSUPPORTED,
+        )
+        stale = self.runtime.PreparedKnowledge(
+            "prefetch-artist-2-0-60",
+            2,
+            "artist",
+            self.runtime.PreparedKnowledgeStatus.STALE,
+        )
+
+        self.assertEqual(
+            window.evaluate_readiness((unsupported,), invalidation_generation=4)[0].status,
+            self.runtime.ReadinessStatus.UNSUPPORTED,
+        )
+        self.assertEqual(
+            window.evaluate_readiness((stale,), invalidation_generation=4)[0].status,
+            self.runtime.ReadinessStatus.EXPIRED,
+        )
+
+    def test_readiness_evaluation_invalidates_superseded_intent_deterministically(self) -> None:
+        window = self._artist_prefetch_window()
+        planned = window.planned_intents[0]
+        window.planned_intents = (
+            self.runtime.PlannedIntent(
+                planned.category,
+                planned.slot,
+                planned.generation,
+                planned.confidence,
+                self.runtime.PlannedIntentStatus.SUPERSEDED,
+            ),
+        )
+
+        first = window.evaluate_readiness(invalidation_generation=4)
+        second = window.evaluate_readiness(invalidation_generation=4)
+
+        self.assertEqual(first, second)
+        self.assertEqual(first[0].status, self.runtime.ReadinessStatus.INVALID)
+        self.assertTrue(first[0].is_invalidated)
+
+    def test_readiness_evaluation_invalidates_mismatched_planning_generation(self) -> None:
+        window = self._artist_prefetch_window()
+        mismatched = self.runtime.PreparedKnowledge(
+            "prefetch-artist-2-0-60",
+            1,
+            "artist",
+            self.runtime.PreparedKnowledgeStatus.PREPARED,
+            projection=(("artist", "Artist"),),
+            confidence=0.7,
+            freshness=0.9,
+            is_valid=True,
+        )
+
+        evaluation = window.evaluate_readiness((mismatched,), invalidation_generation=4)[0]
+
+        self.assertEqual(evaluation.status, self.runtime.ReadinessStatus.INVALID)
+        self.assertTrue(evaluation.is_invalidated)
+
+    def test_readiness_is_runtime_internal_and_approval_accepts_only_evaluations(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-readiness"))
+        parameters = inspect.signature(self.runtime.PlanningWindow.approve_earliest_planned_intent).parameters
+
+        self.assertNotIn("readiness_evaluations", created.planner.as_dict())
+        self.assertNotIn("readiness_evaluations", created.as_dict())
+        self.assertNotIn("prepared_knowledge", parameters)
+
+        asyncio.run(
+            manager.async_end(owner_profile_id="profile-readiness", session_id=created.session_id)
+        )
+
+        self.assertIsNone(asyncio.run(manager.async_get_active("profile-readiness")))
 
     def _artist_prefetch_window(self):
         window = self.runtime.PlanningWindow(
@@ -541,6 +662,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             ),
         )
         original = horizon.build_planning_window()
+        original.evaluate_readiness()
         approved = original.select_intent()
         assert approved is not None
         approved_planned = original.planned_intents[0]

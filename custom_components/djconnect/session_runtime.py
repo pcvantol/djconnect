@@ -682,6 +682,33 @@ class PreparedKnowledge:
     is_valid: bool = False
 
 
+class ReadinessStatus(StrEnum):
+    """Planner-only approval eligibility for one future Planned Intent."""
+
+    READY = "ready"
+    WAITING = "waiting"
+    BLOCKED = "blocked"
+    EXPIRED = "expired"
+    INVALID = "invalid"
+    UNSUPPORTED = "unsupported"
+
+
+@dataclass(frozen=True)
+class ReadinessEvaluation:
+    """Ephemeral Planner evaluation; it never carries prepared knowledge content."""
+
+    target_intent: PlannedIntent
+    planning_generation: int
+    prepared_knowledge_available: bool
+    prepared_knowledge_valid: bool
+    confidence_threshold: float
+    freshness_threshold: float
+    invalidation_generation: int
+    is_invalidated: bool
+    execution_status: PreparedKnowledgeStatus | None
+    status: ReadinessStatus
+
+
 @dataclass(frozen=True)
 class PlannerInfluence:
     """Normalized, bounded Runtime context consumed by Planner Intent Selection."""
@@ -781,6 +808,7 @@ class PlanningWindow:
     max_planned_intents: int = 20
     influence: PlannerInfluence = field(default_factory=PlannerInfluence)
     knowledge_prefetches: tuple[KnowledgePrefetch, ...] = ()
+    readiness_evaluations: tuple[ReadinessEvaluation, ...] = ()
 
     _PREFETCH_CATEGORIES = {
         "artist_story": "artist",
@@ -837,7 +865,97 @@ class PlanningWindow:
             and prefetch.status is KnowledgePrefetchStatus.PLANNED
         )
         self.knowledge_prefetches = (active + invalidated)[: self.max_planned_intents]
+        self.readiness_evaluations = ()
         return self.knowledge_prefetches
+
+    @staticmethod
+    def _prefetch_request_id(prefetch: KnowledgePrefetch) -> str:
+        """Derive the immutable execution identity without retaining a request."""
+        slot = prefetch.target_intent.slot
+        return (
+            f"prefetch-{prefetch.knowledge_category}-{prefetch.target_intent.generation}-"
+            f"{slot.starts_at_seconds}-{slot.ends_at_seconds}"
+        )
+
+    def evaluate_readiness(
+        self,
+        prepared_knowledge: tuple[PreparedKnowledge, ...] = (),
+        *,
+        invalidation_generation: int | None = None,
+    ) -> tuple[ReadinessEvaluation, ...]:
+        """Evaluate approval eligibility without exposing knowledge to approval logic."""
+        active_invalidation_generation = (
+            self.generation if invalidation_generation is None else invalidation_generation
+        )
+        prepared_by_request = {result.request_id: result for result in prepared_knowledge}
+        prefetch_by_intent = {
+            self._prefetch_key(prefetch.target_intent): prefetch
+            for prefetch in self.knowledge_prefetches
+            if prefetch.status is KnowledgePrefetchStatus.PLANNED
+        }
+        evaluations: list[ReadinessEvaluation] = []
+        for intent in self.plan_intents():
+            prefetch = prefetch_by_intent.get(self._prefetch_key(intent))
+            result = (
+                prepared_by_request.get(self._prefetch_request_id(prefetch))
+                if prefetch is not None
+                else None
+            )
+            invalidated = (
+                intent.status is not PlannedIntentStatus.PLANNED
+                or intent.generation != self.generation
+                or (
+                    prefetch is not None
+                    and (
+                        prefetch.planning_generation != self.generation
+                        or prefetch.invalidation_generation != active_invalidation_generation
+                    )
+                )
+                or (result is not None and result.planning_generation != self.generation)
+            )
+            available = result is not None
+            valid = bool(result and result.is_valid)
+            execution_status = result.status if result is not None else None
+            if invalidated:
+                status = ReadinessStatus.INVALID
+            elif prefetch is None:
+                status = ReadinessStatus.READY
+            elif result is None:
+                status = ReadinessStatus.WAITING
+            elif result.status is PreparedKnowledgeStatus.UNSUPPORTED:
+                status = ReadinessStatus.UNSUPPORTED
+            elif result.status is PreparedKnowledgeStatus.STALE:
+                status = ReadinessStatus.EXPIRED
+            elif result.status is PreparedKnowledgeStatus.UNAVAILABLE:
+                status = ReadinessStatus.BLOCKED
+            elif result.status in {
+                PreparedKnowledgeStatus.INVALID,
+                PreparedKnowledgeStatus.CANCELLED,
+                PreparedKnowledgeStatus.SUPERSEDED,
+            } or not result.is_valid:
+                status = ReadinessStatus.INVALID
+            elif result.confidence < prefetch.knowledge_confidence:
+                status = ReadinessStatus.BLOCKED
+            elif result.freshness < prefetch.freshness:
+                status = ReadinessStatus.EXPIRED
+            else:
+                status = ReadinessStatus.READY
+            evaluations.append(
+                ReadinessEvaluation(
+                    target_intent=intent,
+                    planning_generation=self.generation,
+                    prepared_knowledge_available=available,
+                    prepared_knowledge_valid=valid,
+                    confidence_threshold=prefetch.knowledge_confidence if prefetch else 0.0,
+                    freshness_threshold=prefetch.freshness if prefetch else 0.0,
+                    invalidation_generation=active_invalidation_generation,
+                    is_invalidated=invalidated,
+                    execution_status=execution_status,
+                    status=status,
+                )
+            )
+        self.readiness_evaluations = tuple(evaluations)
+        return self.readiness_evaluations
 
     def plan_intents(self) -> tuple[PlannedIntent, ...]:
         """Create deterministic provisional intents only for observed future slots."""
@@ -871,13 +989,22 @@ class PlanningWindow:
         return self.planned_intents
 
     def approve_earliest_planned_intent(self) -> PlannerIntent | None:
-        """Approve at most the earliest eligible future intent, once per window."""
+        """Approve only an already-ready earliest future intent, once per window."""
         if self.approved_intent is not None:
             return self.approved_intent
 
+        readiness_by_intent = {
+            self._prefetch_key(evaluation.target_intent): evaluation
+            for evaluation in self.readiness_evaluations
+        }
         planned_intents = self.plan_intents()
         for index, planned in enumerate(planned_intents):
-            if planned.status is not PlannedIntentStatus.PLANNED:
+            evaluation = readiness_by_intent.get(self._prefetch_key(planned))
+            if (
+                planned.status is not PlannedIntentStatus.PLANNED
+                or evaluation is None
+                or evaluation.status is not ReadinessStatus.READY
+            ):
                 continue
             approved = PlannedIntent(
                 category=planned.category,
