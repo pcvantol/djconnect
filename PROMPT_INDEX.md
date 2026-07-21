@@ -4,12 +4,12 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#274](https://github.com/pcvantol/djconnect/pull/274), merged as
-`2e359f218dc590fa418224dec78d201a2941f158`, establishes the canonical Session
-Flow Recovery Architecture. Flow revision/delta are Planner-owned semantic
-identity; Broadcast owns delivery sequence, watermark, cursor and bounded
-replay. Recovery Cell 1—Flow revision and change journal—is the next bounded
-candidate.
+PR [#276](https://github.com/pcvantol/djconnect/pull/276), merged as
+`222e3871b0d5e504077802308e0a4e7d568cd752`, completes Recovery Cell 1.
+Planner-owned Flow revision and the immutable Runtime-scoped semantic change
+journal are current; Broadcast consumes the Flow projection without owning its
+revision. Recovery Cell 2—scoped Broadcast delivery sequence, snapshot
+watermark and bounded replay log—is the next bounded candidate.
 
 Spotify Direct Live Playback Observation Stage 1, Knowledge Engine `KE-2.2`
 and Planner `PL-4.1` are current. Music Assistant Stage 1, Continue Stage 2,
@@ -103,17 +103,18 @@ planning is read.
 | Snapshot-First WebSocket Delivery | Completed / merged reconciled / archived | Complete Transport Cell 3 setup ordering with pending callback delivery after the initial snapshot. | `codex/websocket-delivery-correctness` | `docs/history/prompts/2026-07-21-ensure-snapshot-first-websocket-delivery.md`; PR [#270](https://github.com/pcvantol/djconnect/pull/270), merged as `3c636fe0d67af62eccf63d518167774cee9f85f6`. |
 | HTTP Transport Capability Discovery | Completed / merged reconciled / archived | Complete Transport Cell 4 by exposing existing Broadcast transport truth over HTTP from the shared transport-independent capability declaration. | `codex/http-capability-discovery-alignment` | `docs/history/prompts/2026-07-21-http-transport-capability-discovery.md`; PR [#272](https://github.com/pcvantol/djconnect/pull/272), merged as `97b748b6858b021b08423e6d661e02904e55a4b1`. |
 | Session Flow Recovery Architecture | Completed / merged reconciled / archived | Define canonical ownership and lifetime for Flow revision/delta and Broadcast delivery recovery identity without implementation. | `codex/session-flow-recovery-architecture` | `docs/history/prompts/2026-07-21-session-flow-recovery-architecture.md`; PR [#274](https://github.com/pcvantol/djconnect/pull/274), merged as `2e359f218dc590fa418224dec78d201a2941f158`. |
+| Session Flow Revision Journal | Completed / merged reconciled / archived | Complete Recovery Cell 1 with Planner-owned Flow revision and an immutable Runtime-scoped semantic change journal; no delivery or recovery transport. | `codex/session-flow-revision-journal` | `docs/history/prompts/2026-07-21-session-flow-revision-journal.md`; PR [#276](https://github.com/pcvantol/djconnect/pull/276), merged as `222e3871b0d5e504077802308e0a4e7d568cd752`. |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
 
 ## Current post-merge reconciliation
 
-PR #274 is merged and reconciled through current `main`
-`2e359f218dc590fa418224dec78d201a2941f158`. Its immutable Prompt History
-record preserves the Session Flow recovery-architecture scope without
-retroactively changing its intent. Transport Cells 1–4 are current; Recovery
-Cell 1 is the next bounded candidate.
+PR #276 is merged and reconciled through current `main`
+`222e3871b0d5e504077802308e0a4e7d568cd752`. Its immutable Prompt History
+record preserves the Recovery Cell 1 scope without retroactively changing its
+intent. Transport Cells 1–4 and Recovery Cell 1 are current; Recovery Cell 2
+is the next bounded candidate.
 Platform Release 3.3 remains in Maintenance.
 
 ## Next Engineering Increment
