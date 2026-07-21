@@ -5,9 +5,9 @@
 
 ## Current engineering increment
 
-PR [#328](https://github.com/pcvantol/djconnect/pull/328), **Planning Horizon
-Expansion**, merged as `6542feddf2be00c12eb89b968d7721ed6f81f412`. Its dedicated
-Finalization reconciles the bounded Planner-owned Planned Intent collection.
+PR [#330](https://github.com/pcvantol/djconnect/pull/330), **Deterministic
+Horizon Replanning**, merged as `881619f15a845d87fa2951704b0b871282a6c6dd`.
+Its dedicated Finalization reconciles bounded Planner-owned provisional replanning.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 PR #323, **Mood and Direction

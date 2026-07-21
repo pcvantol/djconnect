@@ -28,10 +28,10 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current main contains PR [#328](https://github.com/pcvantol/djconnect/pull/328),
-**Planning Horizon Expansion**, merged as
-`6542feddf2be00c12eb89b968d7721ed6f81f412`. This bounded Planner-owned,
-ephemeral Planned Intent collection is in its dedicated Finalization. Repository
+Current main contains PR [#330](https://github.com/pcvantol/djconnect/pull/330),
+**Deterministic Horizon Replanning**, merged as
+`881619f15a845d87fa2951704b0b871282a6c6dd`. This bounded Planner-owned,
+ephemeral provisional replanning is in its dedicated Finalization. Repository
 State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 The preceding PR #313,
