@@ -28,15 +28,27 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#259](https://github.com/pcvantol/djconnect/pull/259) is merged as
-`f3f0621d1b313f96d472af2da49f13487cc49edc`. Spotify Direct Live Playback
-Observation Stage 1 is current: bounded, read-only active-session Media
-Identity observation sends a changed safe URI through the existing Track
-Started intelligence pipeline. Music Assistant Stage 1 remains conditionally
-eligible and deferred. Continue Stage 2, Playback Instance Identity and
-occurrence-correct observation are intentionally blocked pending the explicit
-external capability conditions in `docs/product/DJ_INTELLIGENCE_MATURITY.md`;
-they are not active implementation targets.
+Current `main` is `610be0ba7c776b9c581e7be90237ca6addfe5266`, the merge commit
+for PR [#266](https://github.com/pcvantol/djconnect/pull/266), **Add owner HTTP
+Broadcast snapshot**, merged on 2026-07-21. The worktree was clean and
+synchronized when this baseline was reconciled; PR #266 validation passed the
+focused Broadcast/HTTP/WebSocket suite, full pytest, Ruff and diff checks.
+
+Transport Cell 1 is current: an owner-authorized HTTP snapshot is a
+side-effect-free renderer-safe fallback and is equivalent to the canonical
+initial owner WebSocket projection. It does not provide delta, sequence,
+replay, cursor or Universal Receiver HTTP behaviour. Transport Cell 2 remains
+pending: eliminate the unused duplicate snapshot constructed during owner
+WebSocket subscription setup.
+
+PRs #260 through #265 are reconciled as intermediate evidence: external
+dependency documentation (#260), validation-only baseline correction (#261),
+maturity-cell documentation (#262), Knowledge Engine `KE-2.2` (#263),
+transport architecture documentation (#264), and Planner `PL-4.1` (#265).
+Spotify Direct Live Playback Observation Stage 1 is current. Music Assistant
+Stage 1, Continue Stage 2, Playback Instance Identity and occurrence-correct
+observation remain intentionally blocked by the external capability conditions
+in `docs/product/DJ_INTELLIGENCE_MATURITY.md`.
 
 Engineering Platform operational after Platform Baseline v1.0 certification
 and Software Assurance Generation 1 closure. DJConnect Product Development is

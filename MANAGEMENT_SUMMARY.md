@@ -15,15 +15,25 @@
 
 ## Current position
 
-PR [#259](https://github.com/pcvantol/djconnect/pull/259) merged as
-`f3f0621d1b313f96d472af2da49f13487cc49edc`. Spotify Direct Live Playback
-Observation Stage 1 is operational through bounded, read-only active-session
-Media Identity observation. Music Assistant Stage 1 remains conditionally
-eligible and deferred. Continue Stage 2, Playback Instance Identity and
-occurrence-correct observation are intentionally blocked by missing external
-backend capabilities; their canonical unblock conditions and planning policy
-are in `docs/product/DJ_INTELLIGENCE_MATURITY.md`. No further Playback
-Observation implementation is an active priority.
+PR [#266](https://github.com/pcvantol/djconnect/pull/266) merged as
+`610be0ba7c776b9c581e7be90237ca6addfe5266`. Transport Cell 1 is complete:
+authorized owner renderers can retrieve the canonical Broadcast snapshot by
+HTTP as a renderer-safe fallback, with the same initial projection as owner
+WebSocket. WebSocket remains the preferred live transport. No Runtime,
+DJ Intelligence, Session Flow, Receiver interaction, delta, replay or cursor
+capability changed.
+
+The reconciled chain also records PR #260 external dependency evidence, #261
+validation-only baseline correction, #262 maturity-cell documentation, #263
+Knowledge Engine `KE-2.2`, #264 transport architecture, and #265 Planner
+`PL-4.1` recommendation spacing. Spotify Direct Live Playback Observation
+Stage 1, Knowledge Engine Stage 2 and Performance Memory remain current within
+their documented scopes. Continue Stage 2 and Music Assistant observation
+remain deferred by their external conditions.
+
+Transport Cell 2 is the next separate implementation cell: remove the unused
+second initial WebSocket snapshot while preserving all client-visible transport
+semantics. It is not completed by PR #266 or this reconciliation.
 
 | Area | Objectively supported status | Evidence |
 | --- | --- | --- |
