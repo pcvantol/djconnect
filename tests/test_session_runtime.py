@@ -92,6 +92,93 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             f"flow-{created.session_id}",
         )
 
+    def test_runtime_owns_one_internal_planning_runtime_coordinator(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-coordinator"))
+
+        self.assertIsInstance(
+            created.planning_coordinator, self.runtime.PlanningRuntimeCoordinator
+        )
+        self.assertIsNot(created.planning_coordinator, created.planner)
+        self.assertIsNot(created.planning_coordinator, created.knowledge_engine)
+        self.assertIsNot(created.planning_coordinator, created.moment_engine)
+        self.assertNotIn("planning_coordinator", created.as_dict())
+
+    def test_planning_runtime_coordinator_uses_planned_silence_and_existing_publication(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(
+            manager.async_start(owner_profile_id="profile-coordinated", selected_mood="groove")
+        )
+
+        async def insight() -> dict:
+            return {
+                "track": {"title": "Track", "artist": "Artist", "producer": "Producer"},
+                "analysis": {"summary": "Safe summary.", "full_text": "Safe content."},
+            }
+
+        moment = asyncio.run(
+            manager.async_process_track_started(
+                owner_profile_id="profile-coordinated",
+                session_id=created.session_id,
+                insight_provider=insight,
+                upcoming_playback=self.runtime.UpcomingPlaybackProjection.from_entries(
+                    (self.runtime.UpcomingPlaybackEntry("track-a", duration_seconds=60),),
+                    confidence=0.8,
+                ),
+            )
+        )
+
+        assert moment is not None
+        self.assertEqual(moment.moment_type, self.runtime.DJMomentType.SILENCE)
+        self.assertEqual(dict(moment.generation_metadata)["reason"], "planned_silence")
+        self.assertEqual(created.planning_coordinator.last_planning_generation, 0)
+        self.assertIn(
+            ("silence", 0, 60), created.planner.horizon.consumed_slot_keys
+        )
+        self.assertEqual(created.planner.output.session_flow.items[-1].moment_id, moment.moment_id)
+        self.assertEqual(created.broadcast.state.dj_moments[-1], moment)
+
+    def test_planning_runtime_coordinator_falls_back_to_existing_track_started_path(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(
+            manager.async_start(owner_profile_id="profile-coordinator-fallback", selected_mood="groove")
+        )
+
+        async def insight() -> dict:
+            return {
+                "track": {"title": "Track", "artist": "Artist", "producer": "Producer"},
+                "analysis": {"summary": "Safe summary.", "full_text": "Safe content."},
+            }
+
+        moment = asyncio.run(
+            manager.async_process_track_started(
+                owner_profile_id="profile-coordinator-fallback",
+                session_id=created.session_id,
+                insight_provider=insight,
+            )
+        )
+
+        assert moment is not None
+        self.assertEqual(moment.moment_type, self.runtime.DJMomentType.ARTIST)
+        self.assertEqual(moment.source_references, ("track_insight",))
+        self.assertEqual(created.planner.horizon.planning_window.planned_intents, ())
+
+    def test_runtime_disposal_releases_planning_runtime_coordinator(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-coordinator-disposal"))
+        coordinator = created.planning_coordinator
+        coordinator.last_planning_generation = 3
+
+        asyncio.run(
+            manager.async_end(
+                owner_profile_id="profile-coordinator-disposal", session_id=created.session_id
+            )
+        )
+
+        self.assertTrue(coordinator.disposed)
+        self.assertIsNone(coordinator.last_planning_generation)
+        self.assertIsNone(asyncio.run(manager.async_get_active("profile-coordinator-disposal")))
+
     def test_planning_horizon_with_no_observable_playback_has_no_planned_intents(self) -> None:
         horizon = self.runtime.RollingSessionHorizon(window_minutes=15, created_at="now")
 
