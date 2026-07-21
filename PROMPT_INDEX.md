@@ -4,12 +4,12 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#268](https://github.com/pcvantol/djconnect/pull/268), merged as
-`00f71025bbbea5ca9171bb70f65b54c3ed894ce5`, completes Transport Cell 2:
-owner WebSocket subscriptions use the same pure query as HTTP for their one
-initial snapshot, then register live delivery without another snapshot. This
-does not change client-visible HTTP/WebSocket schemas, events or behaviour.
-No next transport cell is automatically selected.
+PR [#270](https://github.com/pcvantol/djconnect/pull/270), merged as
+`3c636fe0d67af62eccf63d518167774cee9f85f6`, completes Transport Cell 3:
+owner WebSocket subscriptions buffer setup-time events and deliver them only
+after their one canonical initial snapshot. This does not add replay, cursor,
+sequence, delta or client-visible HTTP/WebSocket changes. No next transport
+cell is automatically selected.
 
 Spotify Direct Live Playback Observation Stage 1, Knowledge Engine `KE-2.2`
 and Planner `PL-4.1` are current. Music Assistant Stage 1, Continue Stage 2,
@@ -100,16 +100,17 @@ planning is read.
 | Owner HTTP Broadcast Snapshot | Completed / merged reconciled / archived | Complete Transport Cell 1 with an owner-authorized, renderer-safe HTTP snapshot fallback; no live transport redesign. | `codex/http-broadcast-snapshot` | `docs/history/prompts/2026-07-21-owner-http-broadcast-snapshot.md`; PR [#266](https://github.com/pcvantol/djconnect/pull/266), merged as `610be0ba7c776b9c581e7be90237ca6addfe5266`. |
 | Merged Session Baseline Reconciliation | Completed / merged reconciled / archived | Reconcile rolling records through PR #266 and archive repository-evidenced Prompt History. | `codex/reconcile-merged-session-baseline` | `docs/history/prompts/2026-07-21-reconcile-merged-session-baseline.md`; PR [#267](https://github.com/pcvantol/djconnect/pull/267), merged as `58cdb37c6ad32bae16e000e67481b75c0731806b`. |
 | Owner WebSocket Snapshot Registration | Completed / merged reconciled / archived | Complete Transport Cell 2 internal alignment: one initial snapshot query, registration without snapshot construction and response-failure cleanup. | `codex/align-owner-websocket-snapshot` | `docs/history/prompts/2026-07-21-align-owner-websocket-snapshot-registration.md`; PR [#268](https://github.com/pcvantol/djconnect/pull/268), merged as `00f71025bbbea5ca9171bb70f65b54c3ed894ce5`. |
+| Snapshot-First WebSocket Delivery | Completed / merged reconciled / archived | Complete Transport Cell 3 setup ordering with pending callback delivery after the initial snapshot. | `codex/websocket-delivery-correctness` | `docs/history/prompts/2026-07-21-ensure-snapshot-first-websocket-delivery.md`; PR [#270](https://github.com/pcvantol/djconnect/pull/270), merged as `3c636fe0d67af62eccf63d518167774cee9f85f6`. |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
 
 ## Current post-merge reconciliation
 
-PRs #267 and #268 are merged and reconciled through current `main`
-`00f71025bbbea5ca9171bb70f65b54c3ed894ce5`. Their immutable Prompt History
-records preserve the reconciliation and Transport Cell 2 scopes without
-retroactively changing their intent. Transport Cells 1 and 2 are current; no
+PR #270 is merged and reconciled through current `main`
+`3c636fe0d67af62eccf63d518167774cee9f85f6`. Its immutable Prompt History
+record preserves the bounded snapshot-first delivery scope without
+retroactively changing its intent. Transport Cells 1, 2 and 3 are current; no
 further transport cell is selected.
 Platform Release 3.3 remains in Maintenance.
 
