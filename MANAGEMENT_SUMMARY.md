@@ -15,14 +15,14 @@
 
 ## Current position
 
-PR [#304](https://github.com/pcvantol/djconnect/pull/304) merged as
-`3e46ed605f45a25d3c861456aade6d124bd0d89f`. This dedicated governance-only
-Finalization reconciles its Repository State: every implementation capability
+PR [#307](https://github.com/pcvantol/djconnect/pull/307) merged as
+`03a55fccc2f44e2646d813bb0bf6e4ab49e02b3d`. This dedicated governance-only
+Finalization reconciles the Workspace Cleanup governance chain: every implementation capability
 must pass Pre-Flight, Implementation, Validation, Merge, Finalization and
 Workspace Cleanup. Only `GO` authorizes a bounded production change;
 `MERGED_UNRECONCILED` permits only Finalization, and the next capability also
-requires Workspace State `WORKSPACE_READY`. The completed branch is retained
-locally because its squash merge fails the non-forced fully-merged check.
+requires Workspace State `WORKSPACE_READY`. Verified squash-merged and
+Finalization branches are removed without retaining unrelated branches.
 
 Transport Cells 1–4 and Recovery Cells 1–4 are current. Session Flow
 semantic identity is Planner-owned: Flow Revision starts at zero and its

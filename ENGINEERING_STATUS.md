@@ -5,12 +5,11 @@
 
 ## Current engineering increment
 
-PR [#304](https://github.com/pcvantol/djconnect/pull/304), **Add Workspace
-Cleanup Governance**, merged on 2026-07-21 as
-`3e46ed605f45a25d3c861456aade6d124bd0d89f`. This Finalization reconciles its
-immutable Prompt History and rolling records. Workspace Cleanup remains
-`NOT_READY`: the squash merge does not make the local implementation commit a
-Git ancestor, so the new no-force-deletion rule retains that one branch.
+PR [#307](https://github.com/pcvantol/djconnect/pull/307), **Support
+Finalization Branch Cleanup**, merged on 2026-07-21 as
+`03a55fccc2f44e2646d813bb0bf6e4ab49e02b3d`. This Finalization reconciles the
+Workspace Cleanup governance chain and its immutable Prompt History. The
+verified completed branches are removed; `WORKSPACE_READY` is restored.
 
 Every implementation capability uses the mandatory Pre-Flight → Implementation
 → Validation → Merge → Finalization → Workspace Cleanup lifecycle.
