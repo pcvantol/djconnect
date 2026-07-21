@@ -142,3 +142,5 @@ planner, persistent profile state or broadcast semantics locally.
 
 `DJ_SESSION_RUNTIME_CONTRACTS.md` is the canonical lifecycle, ownership and
 capability contract for this architecture.
+`SESSION_FLOW_RECOVERY_ARCHITECTURE.md` is the canonical recovery-identity
+amendment for future Flow delta and Broadcast replay capabilities.

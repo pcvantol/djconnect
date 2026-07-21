@@ -248,6 +248,11 @@ V4-04 defines a deterministic 15-minute current horizon using only `now`,
 Insight, Discover or announcements. Queue remains Music Backend playback
 context; Session Flow expresses DJ intent for the coming horizon.
 
+The separate [`SESSION_FLOW_RECOVERY_ARCHITECTURE.md`](SESSION_FLOW_RECOVERY_ARCHITECTURE.md)
+defines the future Flow revision contract and distinguishes it from
+Broadcast-owned delivery cursors and watermarks. It adds no current Runtime or
+Flow implementation behaviour.
+
 ## Broadcast contract
 
 Broadcast Feed is an event-driven, scoped representation of an active Runtime.
