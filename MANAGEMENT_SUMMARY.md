@@ -15,10 +15,10 @@
 
 ## Current position
 
-PR [#354](https://github.com/pcvantol/djconnect/pull/354), **Universal Receiver
-Broadcast Connection and Session Rendering**, merged as `2f200063fd23b561abdc745ab3385967c95e84d8`.
-This dedicated Finalization reconciles its implementation records and immutable
-Prompt History.
+PR [#356](https://github.com/pcvantol/djconnect/pull/356), **Fix Home Assistant
+HTTP View Registration**, merged as `d62fd2d41b8a2896cc1b6fe4f12cf3fdaacec8f7`.
+This dedicated Finalization reconciles its repair record and immutable Prompt
+History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
