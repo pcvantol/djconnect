@@ -1235,6 +1235,18 @@ def _bounded_evidence_value(value: Any, limit: int) -> str:
     return ""
 
 
+def _freeze_broadcast_payload(value: Any) -> Any:
+    """Store delivery evidence without retaining mutable publication payloads."""
+    if isinstance(value, dict):
+        return tuple(
+            (str(key), _freeze_broadcast_payload(item))
+            for key, item in value.items()
+        )
+    if isinstance(value, (list, tuple)):
+        return tuple(_freeze_broadcast_payload(item) for item in value)
+    return value
+
+
 @dataclass(frozen=True)
 class DJBroadcastState:
     """Canonical, renderer-safe representation of the current DJ Session."""
@@ -1277,6 +1289,17 @@ class DJBroadcastState:
         }
 
 
+@dataclass(frozen=True)
+class BroadcastReplayEntry:
+    """One immutable, internal record of a Broadcast publication."""
+
+    delivery_sequence: int
+    event_type: BroadcastEventType
+    session_id: str
+    payload: tuple[tuple[str, Any], ...]
+    owner_only: bool
+
+
 @dataclass
 class DJSessionBroadcastEngine:
     """One ephemeral distribution owner for one active Session Runtime.
@@ -1288,13 +1311,20 @@ class DJSessionBroadcastEngine:
 
     state: DJBroadcastState
     pending_events: tuple[BroadcastEventType, ...] = ()
+    replay_log_limit: int = 128
     broadcast_token: str = field(default_factory=lambda: secrets.token_urlsafe(32), repr=False)
+    delivery_sequence: int = field(default=0, init=False)
+    replay_log: tuple[BroadcastReplayEntry, ...] = field(default=(), init=False)
     _subscribers: dict[str, tuple[Callable[[dict[str, Any]], None], bool]] = field(
         default_factory=dict, init=False, repr=False
     )
     _pending_subscriptions: dict[str, list[dict[str, Any]]] = field(
         default_factory=dict, init=False, repr=False
     )
+
+    def __post_init__(self) -> None:
+        """Keep replay retention bounded even for internal construction callers."""
+        self.replay_log_limit = max(1, self.replay_log_limit)
 
     def subscribe(
         self, callback: Callable[[dict[str, Any]], None]
@@ -1400,9 +1430,13 @@ class DJSessionBroadcastEngine:
         self._publish(BroadcastEventType.BROADCAST_STOPPED, {"broadcast": state["broadcast"]})
         self._subscribers.clear()
         self._pending_subscriptions.clear()
+        self.replay_log = ()
+        self.delivery_sequence = 0
 
     def _publish(self, event_type: BroadcastEventType, payload: dict[str, Any]) -> None:
         """Deliver one incremental, renderer-safe event to active subscribers."""
+        self.delivery_sequence += 1
+        self._append_replay_entry(event_type, payload)
         event = {
             "event_type": str(event_type),
             "session_id": self.state.session_id,
@@ -1417,9 +1451,35 @@ class DJSessionBroadcastEngine:
                 continue
             callback(event)
 
+    def _append_replay_entry(
+        self, event_type: BroadcastEventType, payload: dict[str, Any]
+    ) -> None:
+        """Retain one bounded, authorization-aware record for future replay only."""
+        entry = BroadcastReplayEntry(
+            delivery_sequence=self.delivery_sequence,
+            event_type=event_type,
+            session_id=self.state.session_id,
+            payload=_freeze_broadcast_payload(payload),
+            owner_only=_payload_contains_owner_only_moment(payload),
+        )
+        self.replay_log = (*self.replay_log, entry)[-self.replay_log_limit :]
+
     def as_dict(self, *, include_owner_only: bool = True) -> dict[str, Any]:
         """Expose only canonical Broadcast State to future renderers."""
-        return self.state.as_dict(include_owner_only=include_owner_only)
+        projection = self.state.as_dict(include_owner_only=include_owner_only)
+        projection["broadcast"]["snapshot_watermark"] = self._snapshot_watermark(
+            include_owner_only=include_owner_only
+        )
+        return projection
+
+    def _snapshot_watermark(self, *, include_owner_only: bool) -> int:
+        """Return the newest retained delivery represented by this projection."""
+        if include_owner_only:
+            return self.delivery_sequence
+        for entry in reversed(self.replay_log):
+            if not entry.owner_only:
+                return entry.delivery_sequence
+        return 0
 
 
 class ActiveSessionExistsError(RuntimeError):
