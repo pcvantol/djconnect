@@ -5,13 +5,12 @@
 
 ## Current engineering increment
 
-PR [#296](https://github.com/pcvantol/djconnect/pull/296), **Harden Persistence
-Foundation Validation**, merged on 2026-07-21 as
-`5e0d1c1ba550afb57e2d8da5b40c0d2a7dcfb741`. This Finalization reconciles its
+PR [#298](https://github.com/pcvantol/djconnect/pull/298), **Add Persistent
+Session Lifecycle Store**, merged on 2026-07-21 as
+`dca7c85b61a3e001c3b642bd33536b9f4ca35455`. This Finalization reconciles its
 immutable Prompt History and rolling records to `MERGED_RECONCILED`. It adds
-deterministic foundation evidence, fail-fast metadata validation and serialized
-bootstrap only; it adds no Session writes, Runtime persistence or recovery
-behaviour.
+only Profile-owned aggregate lifecycle storage; Runtime, Flow and Broadcast
+remain ephemeral.
 
 Every implementation capability uses the mandatory Pre-Flight → Implementation
 → Validation → Merge → Finalization lifecycle. Pre-Flight ends in `GO` or

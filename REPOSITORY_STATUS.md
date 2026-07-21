@@ -28,12 +28,12 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current main contains PR [#296](https://github.com/pcvantol/djconnect/pull/296),
-**Harden Persistence Foundation Validation**, merged on 2026-07-21 as
-`5e0d1c1ba550afb57e2d8da5b40c0d2a7dcfb741`. This governance-only Finalization
-reconciles it to `MERGED_RECONCILED`. The amendment adds the focused foundation
-test matrix, safe missing-metadata rejection and serialized bootstrap; it does
-not add Session writes, Runtime persistence or recovery behaviour.
+Current main contains PR [#298](https://github.com/pcvantol/djconnect/pull/298),
+**Add Persistent Session Lifecycle Store**, merged on 2026-07-21 as
+`dca7c85b61a3e001c3b642bd33536b9f4ca35455`. This governance-only Finalization
+reconciles it to `MERGED_RECONCILED`. The increment persists only Session
+identity and lifecycle transitions; it adds no historical projections, restart
+recovery, Flow, Broadcast or Runtime persistence.
 
 The preceding Broadcast baseline remains PR [#280](https://github.com/pcvantol/djconnect/pull/280),
 **Add Broadcast recovery cursor**, merged as
