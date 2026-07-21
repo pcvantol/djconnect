@@ -15,10 +15,10 @@
 
 ## Current position
 
-PR [#352](https://github.com/pcvantol/djconnect/pull/352), **Close Session
-Intelligence Runtime Epic**, merged as `946dbb810a0d2d8f3f94fdd1cfbf26b9628ae6f4`.
-This dedicated Finalization reconciles its closure records and immutable Prompt
-History.
+PR [#354](https://github.com/pcvantol/djconnect/pull/354), **Universal Receiver
+Broadcast Connection and Session Rendering**, merged as `2f200063fd23b561abdc745ab3385967c95e84d8`.
+This dedicated Finalization reconciles its implementation records and immutable
+Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
@@ -27,11 +27,11 @@ Session Flow publication and Broadcast distribution. The ownership model is
 stable and the legacy Track Started route is only lifecycle-failure protection.
 
 The roadmap therefore transitions from runtime architecture to experience
-expansion. Universal Receiver V1 is the primary active architectural Epic. PR [#350](https://github.com/pcvantol/djconnect/pull/350), **Universal Receiver V1 — Server Architecture**, merged as
-`03cd470fc11d7f36c78434b0ea8cd4199a4bd1fc` and was reconciled in PR #351. It is
-a browser-based stateless Web Renderer Host using existing renderer-safe
-Broadcast projections; no browser authority, UI, authentication redesign or
-new transport was introduced. Audience Intelligence remains intentionally
+expansion. Universal Receiver V1 is the primary active architectural Epic. Its
+first browser-based stateless Web Renderer Host now uses the existing
+renderer-safe Broadcast projections for snapshot and live Session rendering.
+No browser authority, controls, polling, persistence, authentication redesign
+or new transport was introduced. Audience Intelligence remains intentionally
 deferred.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
