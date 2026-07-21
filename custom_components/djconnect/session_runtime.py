@@ -510,6 +510,33 @@ class PerformanceMemory:
         }
 
 
+@dataclass(frozen=True)
+class UpcomingPlaybackProjection:
+    """Provider-neutral future playback context; empty is a valid projection."""
+
+    items: tuple[str, ...] = ()
+
+
+@dataclass
+class RollingSessionHorizon:
+    """Planner-owned, ephemeral future-experience planning workspace."""
+
+    window_minutes: int
+    created_at: str
+    planning_state: str = "empty"
+    candidates: tuple[str, ...] = ()
+    confidence: float = 0.0
+    invalidation_generation: int = 0
+    planned_at: str = ""
+    upcoming_playback: UpcomingPlaybackProjection = field(default_factory=UpcomingPlaybackProjection)
+
+    def invalidate(self) -> None:
+        """Discard future candidates without creating a realized Moment."""
+        self.candidates = ()
+        self.planning_state = "empty"
+        self.invalidation_generation += 1
+
+
 @dataclass
 class DJSessionPlanner:
     """One ephemeral Planner, owned exclusively by one active Runtime.
@@ -526,6 +553,7 @@ class DJSessionPlanner:
     current_goal: str
     pending_events: tuple[PlannerEventType, ...]
     output: SessionPlannerOutput
+    horizon: RollingSessionHorizon | None = None
     audience_totals: dict[str, int] = field(default_factory=dict)
     recent_audience_activity: tuple[str, ...] = ()
     configuration: PlannerConfiguration = field(default_factory=PlannerConfiguration)
@@ -2419,6 +2447,7 @@ def _create_session_planner(
                 created_at=created_at,
             )
         ),
+        horizon=RollingSessionHorizon(window_minutes=15, created_at=created_at),
     )
 
 
