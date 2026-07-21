@@ -903,12 +903,12 @@ class SessionRuntimeManagerTest(unittest.TestCase):
 
     def test_runtime_uses_one_insight_for_contextual_planner_intents(self) -> None:
         cases = (
-            ("artist", self.runtime.SessionStartStrategy.MANUAL, {"producer": "Producer"}, self.runtime.DJMomentType.ARTIST),
-            ("album", self.runtime.SessionStartStrategy.MANUAL, {"release_year": "1998"}, self.runtime.DJMomentType.ALBUM),
-            ("genre", self.runtime.SessionStartStrategy.MANUAL, {}, self.runtime.DJMomentType.GENRE),
-            ("recommendation", self.runtime.SessionStartStrategy.DISCOVER, {"related_tracks": "Angel"}, self.runtime.DJMomentType.RECOMMENDATION),
+            ("artist", self.runtime.SessionStartStrategy.MANUAL, {"producer": "Producer"}, self.runtime.DJMomentType.ARTIST, "track", "producer"),
+            ("album", self.runtime.SessionStartStrategy.MANUAL, {"release_year": "1998"}, self.runtime.DJMomentType.ALBUM, "track", "release_year"),
+            ("genre", self.runtime.SessionStartStrategy.MANUAL, {}, self.runtime.DJMomentType.GENRE, "analysis", "genre"),
+            ("recommendation", self.runtime.SessionStartStrategy.DISCOVER, {"related_tracks": "Angel"}, self.runtime.DJMomentType.RECOMMENDATION, "track", "related_tracks"),
         )
-        for name, strategy, metadata, expected_type in cases:
+        for name, strategy, metadata, expected_type, evidence_source, evidence_key in cases:
             with self.subTest(name=name):
                 manager = self.runtime.SessionRuntimeManager()
                 created = asyncio.run(
@@ -948,6 +948,8 @@ class SessionRuntimeManagerTest(unittest.TestCase):
                 assert moment is not None
                 self.assertEqual(calls, 1)
                 self.assertEqual(moment.moment_type, expected_type)
+                context = created.knowledge_engine.assembled_contexts[-1].as_insight()
+                self.assertIn(evidence_key, context[evidence_source])
                 self.assertEqual(
                     moment.knowledge_intent.intent_type.value,
                     expected_type.value + "_story" if expected_type is not self.runtime.DJMomentType.RECOMMENDATION else "recommendation",
@@ -1253,7 +1255,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertEqual(dict(context.track)["title"], "Track")
         self.assertEqual(dict(context.track)["producer"], "Producer")
         self.assertNotIn("release_year", dict(context.track))
-        self.assertIn("instrumentation", dict(context.analysis))
+        self.assertNotIn("instrumentation", dict(context.analysis))
         self.assertFalse(context.personal_context_used)
         self.assertNotIn("music_dna", context.as_insight())
         self.assertEqual(
@@ -1289,13 +1291,13 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             },
         }
         cases = (
-            (self.runtime.KnowledgeIntentType.ARTIST_STORY, "producer", "release_year"),
-            (self.runtime.KnowledgeIntentType.ALBUM_STORY, "release_year", "producer"),
-            (self.runtime.KnowledgeIntentType.GENRE_STORY, "genres", "producer"),
-            (self.runtime.KnowledgeIntentType.RECOMMENDATION, "related_tracks", "release_year"),
+            (self.runtime.KnowledgeIntentType.ARTIST_STORY, "track", "producer", "Neil Davidge", "composer"),
+            (self.runtime.KnowledgeIntentType.ALBUM_STORY, "track", "release_year", "1998", "release_date"),
+            (self.runtime.KnowledgeIntentType.GENRE_STORY, "analysis", "genre", "trip-hop", "subgenre"),
+            (self.runtime.KnowledgeIntentType.RECOMMENDATION, "track", "related_tracks", "Angel", "related_artists"),
         )
 
-        for intent_type, selected_key, excluded_key in cases:
+        for intent_type, selected_source, selected_key, selected_value, excluded_key in cases:
             with self.subTest(intent_type=intent_type):
                 context = asyncio.run(
                     engine.async_assemble_track_context(
@@ -1303,8 +1305,40 @@ class SessionRuntimeManagerTest(unittest.TestCase):
                         raw_insight=raw_insight,
                     )
                 )
-                self.assertIn(selected_key, context.as_insight()["track"])
-                self.assertNotIn(excluded_key, context.as_insight()["track"])
+                selected = context.as_insight()[selected_source]
+                self.assertEqual(selected[selected_key], selected_value)
+                self.assertNotIn(excluded_key, selected)
+                evidence = {
+                    key: value
+                    for source in ("track", "analysis")
+                    for key, value in context.as_insight()[source].items()
+                    if key not in {"title", "artist", "album", "artwork_url", "backend", "summary", "full_text"}
+                }
+                self.assertEqual(evidence, {selected_key: selected_value})
+
+    def test_knowledge_engine_uses_next_safe_primary_evidence_deterministically(self) -> None:
+        engine = self.runtime.DJKnowledgeEngine()
+        intent = self.runtime.KnowledgeIntent(
+            self.runtime.KnowledgeIntentType.ARTIST_STORY, "Share artist context."
+        )
+        raw_insight = {
+            "track": {
+                "title": "Teardrop",
+                "artist": "Massive Attack",
+                "producer": {"unsafe": "payload"},
+                "composer": "Massive Attack",
+                "recording_context": "Recorded in London.",
+            },
+            "analysis": {"summary": "Safe.", "full_text": "Safe context."},
+        }
+
+        first = asyncio.run(engine.async_assemble_track_context(intent=intent, raw_insight=raw_insight))
+        second = asyncio.run(engine.async_assemble_track_context(intent=intent, raw_insight=raw_insight))
+
+        self.assertEqual(first, second)
+        self.assertEqual(dict(first.track)["composer"], "Massive Attack")
+        self.assertNotIn("producer", dict(first.track))
+        self.assertNotIn("recording_context", dict(first.track))
 
     def test_knowledge_engine_missing_intent_metadata_preserves_safe_silence(self) -> None:
         engine = self.runtime.DJKnowledgeEngine()
@@ -1329,7 +1363,8 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             insight=context.as_insight(),
         )
 
-        self.assertNotIn("producer", context.as_insight()["track"])
+        self.assertEqual(context.as_insight()["track"], {})
+        self.assertEqual(context.as_insight()["analysis"], {})
         self.assertEqual(moment.moment_type, self.runtime.DJMomentType.SILENCE)
 
     def test_moment_engine_realizes_stage_two_knowledge_contexts_immutably(self) -> None:
