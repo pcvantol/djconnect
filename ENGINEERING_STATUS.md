@@ -5,9 +5,15 @@
 
 ## Current engineering increment
 
-PR [#309](https://github.com/pcvantol/djconnect/pull/309), **Historical
-Projection Query Service**, merged on 2026-07-21 as
-`11ba4f76411f04aaba4bdb6f8e55988c7c14eb04`. It establishes the canonical,
+PR [#311](https://github.com/pcvantol/djconnect/pull/311), **Historical
+Projection Retention and Cleanup**, merged on 2026-07-21 as
+`3d709a502bf543c4e5ade6352814dcb275848016`. It establishes the canonical
+internal lifecycle service for immutable historical projections. Expired
+Moments are transactionally deleted before their Sessions; retention is
+versioned and bounded. No client, transport, replay, backup or Runtime scope
+was added. This dedicated Finalization reconciles the merged evidence.
+
+PR #309 establishes the canonical,
 transport-independent application query boundary for immutable historical
 Session and DJMoment projections. The service is owner-authorized,
 owner-visibility-only and projection-version compatible; storage remains in

@@ -28,7 +28,13 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current main contains PR [#309](https://github.com/pcvantol/djconnect/pull/309),
+Current main contains PR [#311](https://github.com/pcvantol/djconnect/pull/311),
+**Historical Projection Retention and Cleanup**, merged on 2026-07-21 as
+`3d709a502bf543c4e5ade6352814dcb275848016`. It adds bounded, transactional,
+immutable historical projection cleanup without client, transport or Runtime
+scope. This merged implementation is in its dedicated Finalization.
+
+The preceding PR #309,
 **Historical Projection Query Service**, merged on 2026-07-21 as
 `11ba4f76411f04aaba4bdb6f8e55988c7c14eb04`. It adds the canonical,
 transport-independent application query boundary for immutable historical

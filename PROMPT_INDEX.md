@@ -4,7 +4,13 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#309](https://github.com/pcvantol/djconnect/pull/309), merged as
+PR [#311](https://github.com/pcvantol/djconnect/pull/311), merged as
+`3d709a502bf543c4e5ade6352814dcb275848016`, is the current merged
+implementation and is being reconciled only by its dedicated Finalization.
+Repository State is `MERGED_UNRECONCILED` until that Finalization merges.
+Its Prompt History is `docs/history/prompts/2026-07-21-historical-projection-retention.md`.
+
+PR #309, merged as
 `11ba4f76411f04aaba4bdb6f8e55988c7c14eb04`, is the current merged
 implementation and is being reconciled only by its dedicated Finalization.
 Repository State is `MERGED_UNRECONCILED` until that Finalization merges.
