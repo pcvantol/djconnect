@@ -15,7 +15,13 @@
 
 ## Current position
 
-PR [#309](https://github.com/pcvantol/djconnect/pull/309) merged as
+PR [#311](https://github.com/pcvantol/djconnect/pull/311) merged as
+`3d709a502bf543c4e5ade6352814dcb275848016`. It adds the canonical bounded,
+transactional retention lifecycle for immutable historical projections, with
+Moment-before-Session deletion and no product transport or client surface.
+This is its dedicated governance-only Finalization.
+
+PR #309 merged as
 `11ba4f76411f04aaba4bdb6f8e55988c7c14eb04`. It makes one historical
 projection query service the canonical application boundary for immutable
 Session and DJMoment reads. The boundary preserves repository-only storage,
