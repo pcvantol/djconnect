@@ -1241,15 +1241,33 @@ def _bounded_evidence_value(value: Any, limit: int) -> str:
     return ""
 
 
+@dataclass(frozen=True)
+class _FrozenBroadcastMapping:
+    """Internal immutable representation that preserves mapping boundaries."""
+
+    items: tuple[tuple[str, Any], ...]
+
+
 def _freeze_broadcast_payload(value: Any) -> Any:
     """Store delivery evidence without retaining mutable publication payloads."""
     if isinstance(value, dict):
-        return tuple(
-            (str(key), _freeze_broadcast_payload(item))
-            for key, item in value.items()
+        return _FrozenBroadcastMapping(
+            tuple(
+                (str(key), _freeze_broadcast_payload(item))
+                for key, item in value.items()
+            )
         )
     if isinstance(value, (list, tuple)):
         return tuple(_freeze_broadcast_payload(item) for item in value)
+    return value
+
+
+def _thaw_broadcast_payload(value: Any) -> Any:
+    """Copy an internal immutable replay payload into a renderer-safe event."""
+    if isinstance(value, _FrozenBroadcastMapping):
+        return {key: _thaw_broadcast_payload(item) for key, item in value.items}
+    if isinstance(value, tuple):
+        return [_thaw_broadcast_payload(item) for item in value]
     return value
 
 
@@ -1302,8 +1320,9 @@ class BroadcastReplayEntry:
     delivery_sequence: int
     event_type: BroadcastEventType
     session_id: str
-    payload: tuple[tuple[str, Any], ...]
+    payload: Any
     owner_only: bool
+    recovery_cursor: str
 
 
 @dataclass(frozen=True)
@@ -1314,6 +1333,7 @@ class BroadcastRecoveryCursor:
     delivery_sequence: int
     snapshot_watermark: int
     authorization_scope: BroadcastAuthorizationScope
+    opaque_value: str
 
 
 @dataclass
@@ -1454,8 +1474,9 @@ class DJSessionBroadcastEngine:
     def _publish(self, event_type: BroadcastEventType, payload: dict[str, Any]) -> None:
         """Deliver one incremental, renderer-safe event to active subscribers."""
         self.delivery_sequence += 1
-        self._append_replay_entry(event_type, payload)
-        self._issue_recovery_cursor()
+        opaque_cursor = secrets.token_urlsafe(32)
+        self._append_replay_entry(event_type, payload, opaque_cursor)
+        self._issue_recovery_cursor(opaque_cursor)
         event = {
             "event_type": str(event_type),
             "session_id": self.state.session_id,
@@ -1471,7 +1492,7 @@ class DJSessionBroadcastEngine:
             callback(event)
 
     def _append_replay_entry(
-        self, event_type: BroadcastEventType, payload: dict[str, Any]
+        self, event_type: BroadcastEventType, payload: dict[str, Any], recovery_cursor: str
     ) -> None:
         """Retain one bounded, authorization-aware record for future replay only."""
         entry = BroadcastReplayEntry(
@@ -1480,10 +1501,11 @@ class DJSessionBroadcastEngine:
             session_id=self.state.session_id,
             payload=_freeze_broadcast_payload(payload),
             owner_only=_payload_contains_owner_only_moment(payload),
+            recovery_cursor=recovery_cursor,
         )
         self.replay_log = (*self.replay_log, entry)[-self.replay_log_limit :]
 
-    def _issue_recovery_cursor(self) -> None:
+    def _issue_recovery_cursor(self, opaque_value: str) -> None:
         """Bind one opaque internal cursor to the newest owner delivery boundary."""
         if not self.replay_log or self.replay_log[-1].delivery_sequence != self.delivery_sequence:
             self.recovery_cursor = None
@@ -1493,7 +1515,63 @@ class DJSessionBroadcastEngine:
             delivery_sequence=self.delivery_sequence,
             snapshot_watermark=self._snapshot_watermark(include_owner_only=True),
             authorization_scope=BroadcastAuthorizationScope.OWNER,
+            opaque_value=opaque_value,
         )
+
+    def owner_recovery_cursor(self) -> str | None:
+        """Return only the current opaque owner cursor, never its infrastructure."""
+        if self.recovery_cursor is None:
+            return None
+        return self.recovery_cursor.opaque_value
+
+    def recover_owner(self, recovery_cursor: str) -> dict[str, Any] | None:
+        """Replay a bounded owner projection or require a fresh snapshot.
+
+        A syntactically invalid cursor is rejected. A valid-shaped cursor that
+        no longer maps to the bounded Runtime log deterministically falls back
+        to the current owner snapshot.
+        """
+        if not isinstance(recovery_cursor, str) or len(recovery_cursor) < 32:
+            return None
+        cursor_entry = next(
+            (
+                entry
+                for entry in self.replay_log
+                if secrets.compare_digest(entry.recovery_cursor, recovery_cursor)
+            ),
+            None,
+        )
+        if cursor_entry is None or cursor_entry.session_id != self.state.session_id:
+            return self._snapshot_required_recovery()
+        replay_entries = tuple(
+            entry for entry in self.replay_log if entry.delivery_sequence > cursor_entry.delivery_sequence
+        )
+        expected_sequences = tuple(
+            range(cursor_entry.delivery_sequence + 1, self.delivery_sequence + 1)
+        )
+        if tuple(entry.delivery_sequence for entry in replay_entries) != expected_sequences:
+            return self._snapshot_required_recovery()
+        return {
+            "recovery": "replayed",
+            "events": [
+                {
+                    "event_type": str(entry.event_type),
+                    "session_id": entry.session_id,
+                    "payload": _thaw_broadcast_payload(entry.payload),
+                }
+                for entry in replay_entries
+            ],
+            "snapshot_watermark": self._snapshot_watermark(include_owner_only=True),
+            "recovery_cursor": self.owner_recovery_cursor(),
+        }
+
+    def _snapshot_required_recovery(self) -> dict[str, Any]:
+        """Return the sole safe fallback when bounded replay is unavailable."""
+        return {
+            "recovery": "snapshot_required",
+            "snapshot": self.as_dict(),
+            "recovery_cursor": self.owner_recovery_cursor(),
+        }
 
     def as_dict(self, *, include_owner_only: bool = True) -> dict[str, Any]:
         """Expose only canonical Broadcast State to future renderers."""
@@ -1935,6 +2013,25 @@ class SessionRuntimeManager:
             if active is None or active.session_id != session_id:
                 return None
             return active.broadcast.register_pending_subscription(callback)
+
+    async def async_recover_owner_subscription(
+        self,
+        *,
+        owner_profile_id: str,
+        session_id: str,
+        recovery_cursor: str,
+        callback: Callable[[dict[str, Any]], None],
+    ) -> tuple[str, dict[str, Any]] | None:
+        """Atomically recover one owner stream and prepare its live delivery."""
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if active is None or active.session_id != session_id:
+                return None
+            recovery = active.broadcast.recover_owner(recovery_cursor)
+            if recovery is None:
+                return None
+            subscription_id = active.broadcast.register_pending_subscription(callback)
+            return subscription_id, recovery
 
     async def async_activate_subscription(
         self,

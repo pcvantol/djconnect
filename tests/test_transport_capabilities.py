@@ -29,10 +29,15 @@ class TransportCapabilitiesTest(unittest.TestCase):
         self.assertTrue(result["session_broadcast"]["websocket_subscription"]["available"])
         self.assertTrue(result["session_broadcast"]["snapshot_recovery"])
 
-    def test_unimplemented_recovery_capabilities_remain_explicitly_false(self) -> None:
+    def test_websocket_recovery_capabilities_match_the_implemented_contract(self) -> None:
         capability = transport_capabilities.session_broadcast_transport_capabilities()
 
-        self.assertFalse(capability["replay"])
-        self.assertFalse(capability["cursor"])
+        self.assertTrue(capability["websocket_recovery"]["available"])
+        self.assertEqual(
+            capability["websocket_recovery"]["command"],
+            "djconnect/session/broadcast/recover",
+        )
+        self.assertTrue(capability["replay"])
+        self.assertTrue(capability["cursor"])
         self.assertFalse(capability["flow_delta"])
         self.assertFalse(capability["sequence"])

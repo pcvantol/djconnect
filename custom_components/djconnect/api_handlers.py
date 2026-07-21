@@ -410,9 +410,73 @@ async def async_handle_session_broadcast_subscribe_payload(
             subscription_id=subscription_id,
         )
 
+    active = await manager.async_get_active(profile_id)
+    cursor_provider = (
+        getattr(active.broadcast, "owner_recovery_cursor", None)
+        if active is not None and active.session_id == session_id
+        else None
+    )
+    recovery_cursor = cursor_provider() if callable(cursor_provider) else None
+
     return {
         "subscription_id": subscription_id,
+        "recovery_cursor": recovery_cursor,
         **result,
+    }, 200, activate, cleanup
+
+
+async def async_handle_session_broadcast_recovery_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    callback: Callable[[dict[str, Any]], None],
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[
+    dict[str, Any],
+    int,
+    Callable[[], Awaitable[None]] | None,
+    Callable[[], Awaitable[None]] | None,
+]:
+    """Recover one owner Broadcast stream from its existing opaque cursor."""
+    context, status, manager, profile_id = await _async_owner_broadcast_session_context(
+        hass, data, headers=headers, user_id=user_id, source="session_broadcast_recovery"
+    )
+    if manager is None or profile_id is None:
+        return context, status, None, None
+    recovery_cursor = data.get("recovery_cursor")
+    if not isinstance(recovery_cursor, str) or not recovery_cursor:
+        return _error_payload("invalid_recovery_cursor"), 400, None, None
+    session_id = context["session_id"]
+    recovered = await manager.async_recover_owner_subscription(
+        owner_profile_id=profile_id,
+        session_id=session_id,
+        recovery_cursor=recovery_cursor,
+        callback=callback,
+    )
+    if recovered is None:
+        return _error_payload("invalid_recovery_cursor"), 400, None, None
+    subscription_id, recovery = recovered
+
+    async def cleanup() -> None:
+        await manager.async_unsubscribe(
+            owner_profile_id=profile_id,
+            session_id=session_id,
+            subscription_id=subscription_id,
+        )
+
+    async def activate() -> None:
+        await manager.async_activate_subscription(
+            owner_profile_id=profile_id,
+            session_id=session_id,
+            subscription_id=subscription_id,
+        )
+
+    return {
+        "success": True,
+        "session_id": session_id,
+        "subscription_id": subscription_id,
+        **recovery,
     }, 200, activate, cleanup
 
 

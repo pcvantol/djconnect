@@ -21,9 +21,13 @@ def session_broadcast_transport_capabilities() -> dict[str, Any]:
             "available": True,
             "command": "djconnect/session/broadcast/subscribe",
         },
+        "websocket_recovery": {
+            "available": True,
+            "command": "djconnect/session/broadcast/recover",
+        },
         "snapshot_recovery": True,
-        "replay": False,
-        "cursor": False,
+        "replay": True,
+        "cursor": True,
         "flow_delta": False,
         "sequence": False,
     }
