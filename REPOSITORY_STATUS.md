@@ -28,6 +28,11 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+PR [#352](https://github.com/pcvantol/djconnect/pull/352), **Close Session
+Intelligence Runtime Epic**, merged as `946dbb810a0d2d8f3f94fdd1cfbf26b9628ae6f4`.
+This dedicated Finalization reconciles its closure records and immutable Prompt
+History.
+
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:
 Planner, Knowledge Engine, DJ Moment Engine, Session Flow and Broadcast execute

@@ -15,6 +15,11 @@
 
 ## Current position
 
+PR [#352](https://github.com/pcvantol/djconnect/pull/352), **Close Session
+Intelligence Runtime Epic**, merged as `946dbb810a0d2d8f3f94fdd1cfbf26b9628ae6f4`.
+This dedicated Finalization reconciles its closure records and immutable Prompt
+History.
+
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
 Planner selection, Knowledge resolution, immutable DJ Moment realization,
