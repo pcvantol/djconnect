@@ -5,12 +5,13 @@
 
 ## Current engineering increment
 
-PR [#290](https://github.com/pcvantol/djconnect/pull/290), **Add DJConnect V4
-Completion Roadmap**, merged on 2026-07-21 as
-`f2fbd26819c53286afec1453cca34ce28e7bc126`. It is
+PR [#292](https://github.com/pcvantol/djconnect/pull/292), **Add DJConnect
+Persistence Foundation**, merged on 2026-07-21 as
+`3abc24e4b2f77f160b4b8adbc47e14e48dbc9c78`. It is
 `MERGED_UNRECONCILED`; this governance-only Finalization archives immutable
-Prompt History and reconciles rolling records. It establishes sequencing and
-completion gates only; it changes no architecture or production behaviour.
+Prompt History and reconciles rolling records. It establishes one
+DJConnect-owned persistence platform only; it adds no Session writes, Runtime
+persistence or recovery behaviour.
 
 Every implementation capability uses the mandatory Pre-Flight → Implementation
 → Validation → Merge → Finalization lifecycle. Pre-Flight ends in `GO` or
@@ -192,6 +193,7 @@ separate explicitly authorized operational action.
 
 ## Recommended next prompt
 
-After this Finalization has merged, start only the first bounded Persistent
-Session roadmap item: Persistence Foundation. Do not infer SQLite schema,
-Session writes, recovery, projection storage or voice work.
+After this Finalization has merged, start only the next bounded Persistent
+Session roadmap item: the Profile-owned Session lifecycle store. Do not infer
+historical projections, startup reconciliation, Runtime restoration, backup,
+export, voice or renderer work.
