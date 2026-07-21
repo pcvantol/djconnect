@@ -65,6 +65,10 @@ contracts. Playback and queue execution always remain Music Backend-owned.
 
 ## Track A — Persistent Session Platform
 
+The accepted `LOCALIZATION_NARRATIVE_ARCHITECTURE.md` applies to every
+user-facing Track A capability. Its delivery remains a separately sequenced
+cross-cutting roadmap; this does not authorize translations or renderer work.
+
 1. **CURRENT — Persistence foundation:** DJConnect-owned SQLite service,
    schema/version metadata, migration runner, integrity checks and test harness.
 2. **CURRENT — Lifecycle store:** Profile-owned Session identity and
