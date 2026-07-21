@@ -5,7 +5,13 @@
 
 ## Current engineering increment
 
-PR [#311](https://github.com/pcvantol/djconnect/pull/311), **Historical
+PR [#313](https://github.com/pcvantol/djconnect/pull/313), **Localization and
+Narrative Architecture**, merged on 2026-07-21 as
+`e3a27d6163067c0c35d5be9a50ad62203c237dc9`. It establishes the accepted
+five-language realization boundary without production implementation. This
+dedicated Finalization reconciles its immutable Prompt History and evidence.
+
+PR #311, **Historical
 Projection Retention and Cleanup**, merged on 2026-07-21 as
 `3d709a502bf543c4e5ade6352814dcb275848016`. It establishes the canonical
 internal lifecycle service for immutable historical projections. Expired

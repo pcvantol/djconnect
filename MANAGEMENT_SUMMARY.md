@@ -15,7 +15,12 @@
 
 ## Current position
 
-PR [#311](https://github.com/pcvantol/djconnect/pull/311) merged as
+PR [#313](https://github.com/pcvantol/djconnect/pull/313) merged as
+`e3a27d6163067c0c35d5be9a50ad62203c237dc9`. It establishes the V4
+localization/narrative architecture without production scope. This is its
+governance-only Finalization.
+
+PR #311 merged as
 `3d709a502bf543c4e5ade6352814dcb275848016`. It adds the canonical bounded,
 transactional retention lifecycle for immutable historical projections, with
 Moment-before-Session deletion and no product transport or client surface.

@@ -4,7 +4,13 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#311](https://github.com/pcvantol/djconnect/pull/311), merged as
+PR [#313](https://github.com/pcvantol/djconnect/pull/313), merged as
+`e3a27d6163067c0c35d5be9a50ad62203c237dc9`, is the current merged
+architecture increment. Repository State is `MERGED_UNRECONCILED` until its
+dedicated Finalization merges. Its Prompt History is
+`docs/history/prompts/2026-07-21-localization-narrative-architecture.md`.
+
+PR #311, merged as
 `3d709a502bf543c4e5ade6352814dcb275848016`, is the current merged
 implementation and is being reconciled only by its dedicated Finalization.
 Repository State is `MERGED_UNRECONCILED` until that Finalization merges.
