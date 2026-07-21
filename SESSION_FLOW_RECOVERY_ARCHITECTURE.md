@@ -1,6 +1,6 @@
 # Session Flow Recovery Architecture
 
-**Status:** Accepted architecture amendment; Recovery Cells 1–3 reconciled
+**Status:** Accepted architecture amendment; Recovery Cells 1–4 reconciled
 **Owner:** DJConnect Product Development
 **Scope:** Canonical recovery contracts for an active DJ Session. Recovery Cell
 1–3 are implemented; later recovery transport work remains deferred.
@@ -89,8 +89,8 @@ The previously proposed concepts therefore classify as follows:
 | Flow delta | Session Flow / Planner | Required domain projection, based on Flow revision. |
 | Broadcast delivery sequence | Broadcast | Current internal delivery identity. It is not a Session Flow sequence. |
 | Snapshot watermark | Broadcast | Current internal snapshot delivery boundary; not a recovery endpoint. |
-| Recovery cursor | Broadcast | Current internal owner-scoped delivery identity; not a recovery endpoint or credential. |
-| Bounded event history / replay window | Broadcast | Current internal bounded Replay Log; Runtime-scoped and not public replay. |
+| Recovery cursor | Broadcast | Current opaque owner-scoped delivery identity; usable only by the authorized WebSocket recovery command, never a credential or standalone endpoint. |
+| Bounded event history / replay window | Broadcast | Current internal bounded Replay Log; Runtime-scoped and not a public replay/query API. |
 | Recovery token | None | Rejected. A cursor is not a credential; every recovery request retains normal authorization. |
 
 ## Replay and recovery
@@ -119,11 +119,21 @@ Planner-owned and independent.
 
 Recovery Cell 3 is current through PR [#280](https://github.com/pcvantol/djconnect/pull/280).
 After a Broadcast publication is retained in the bounded Replay Log, Broadcast
-may issue one immutable Runtime-scoped Recovery Cursor for the owner
-projection. The cursor identifies only its active `session_id`, delivery
-sequence and snapshot watermark, carries the fixed owner authorization scope,
-and is cleared with the Runtime. It is internal infrastructure: no client can
-serialize, request, validate or use it for replay or reconnection.
+issues one immutable Runtime-scoped Recovery Cursor for the owner projection.
+Its internal representation binds the active delivery boundary and fixed owner
+authorization scope, and it is cleared with the Runtime.
+
+### Recovery Cell 4 implementation status
+
+Recovery Cell 4 is current through PR [#284](https://github.com/pcvantol/djconnect/pull/284).
+An authorized owner WebSocket may submit the existing opaque Recovery Cursor
+for the exact active Session. Broadcast replays only the retained,
+renderer-safe publications after that cursor from its bounded Runtime-scoped
+Replay Log. It returns `snapshot_required` with a fresh owner-authorized
+snapshot whenever the cursor is no longer retained, replay is discontinuous,
+or the request cannot otherwise be satisfied. Malformed cursors are rejected;
+normal owner authorization remains mandatory. The transport exposes neither
+the cursor's internal delivery data nor a public replay API.
 
 Replay is bounded and exists only while the active Runtime exists. It does not
 survive Session restart, Runtime destruction or a changed authorization scope.
@@ -173,11 +183,12 @@ to `owner_only` content or raw provider data.
    replay log without changing Planner or Moment semantics.
 3. **Current:** add an internal opaque Broadcast cursor as scoped delivery
    identity, without recovery transport.
-4. **Next:** add authorized WebSocket recovery using the existing opaque
-   Broadcast cursor.
-5. Add authorized HTTP Flow delta using `flow_id` and Flow revision.
-6. Add recovery validation for cursor expiry, scope changes, Runtime disposal,
-   snapshot fallback and reconnect ordering.
+4. **Current:** add authorized WebSocket recovery using the existing opaque
+   Broadcast cursor and bounded owner replay.
+5. Next: add authorized HTTP Flow delta using `flow_id` and Flow revision.
+6. Later: add recovery validation for cursor expiry, scope changes, Runtime
+   disposal, snapshot fallback and reconnect ordering beyond the current
+   bounded owner WebSocket contract.
 
 Each step remains a separate bounded capability. HTTP delta must not be
 implemented before the Flow revision contract exists, and replay must not be
@@ -185,12 +196,12 @@ implemented before scoped Broadcast delivery identity and retention exist.
 
 ## Explicit non-goals
 
-Beyond the current Flow Revision/Change Journal and internal Broadcast Delivery
+Beyond the current Flow Revision/Change Journal and Broadcast Delivery
 Sequence/snapshot watermark/bounded Replay Log/owner-scoped Recovery Cursor,
-this amendment creates no recovery endpoint, public cursor transport, public
-replay, WebSocket acknowledgement, HTTP delta, persistence model or renderer
-behaviour. It does not alter playback, provider, Knowledge Engine, DJ Moment
-Engine or transport implementation.
+this amendment creates only the owner-authorized WebSocket recovery command.
+It creates no HTTP recovery or delta, public replay/query API, WebSocket
+acknowledgement, persistence model or renderer behaviour. It does not alter
+playback, providers, Knowledge Engine or DJ Moment Engine.
 
 ## Risks
 
