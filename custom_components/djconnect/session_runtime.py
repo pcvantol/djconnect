@@ -549,6 +549,28 @@ class UpcomingPlaybackProjection:
 
 
 @dataclass
+class CandidatePlanningSlot:
+    """A future planning opportunity, never a decision or realized Moment."""
+
+    category: str
+    starts_at_seconds: int
+    ends_at_seconds: int
+
+
+@dataclass
+class PlanningWindow:
+    """Planner-owned bounded future planning space derived from Horizon input."""
+
+    starts_at: str
+    ends_at: str
+    observable_coverage_seconds: int = 0
+    planning_coverage_seconds: int = 0
+    generation: int = 0
+    confidence: float = 0.0
+    candidate_slots: tuple[CandidatePlanningSlot, ...] = ()
+
+
+@dataclass
 class RollingSessionHorizon:
     """Planner-owned, ephemeral future-experience planning workspace."""
 
@@ -560,12 +582,27 @@ class RollingSessionHorizon:
     invalidation_generation: int = 0
     planned_at: str = ""
     upcoming_playback: UpcomingPlaybackProjection = field(default_factory=UpcomingPlaybackProjection)
+    planning_window: PlanningWindow | None = None
+
+    def build_planning_window(self) -> PlanningWindow:
+        """Build a bounded empty opportunity space from normalized observations."""
+        coverage = self.upcoming_playback.observable_duration_seconds
+        self.planning_window = PlanningWindow(
+            starts_at=self.created_at,
+            ends_at=self.created_at,
+            observable_coverage_seconds=coverage,
+            planning_coverage_seconds=min(coverage, self.window_minutes * 60),
+            generation=self.invalidation_generation,
+            confidence=self.upcoming_playback.confidence,
+        )
+        return self.planning_window
 
     def invalidate(self) -> None:
         """Discard future candidates without creating a realized Moment."""
         self.candidates = ()
         self.planning_state = "empty"
         self.invalidation_generation += 1
+        self.planning_window = None
 
 
 @dataclass
