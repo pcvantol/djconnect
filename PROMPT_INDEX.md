@@ -4,13 +4,13 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#344](https://github.com/pcvantol/djconnect/pull/344), merged as
-`c3f3bada3d3a0692a8d2562eb68295331e76c1f3`, is the current merged
-implementation. Its dedicated Finalization reconciles the primary Planning
-pipeline activation and rolling records.
+PR [#346](https://github.com/pcvantol/djconnect/pull/346), merged as
+`eddf1034272a5665e02881906f7df7722b5fbc4c`, is the current merged
+implementation. Its dedicated Finalization reconciles canonical current-track
+planning input, the ordinary Track Started coordinator path and rolling records.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 Its Prompt History is
-`docs/history/prompts/2026-07-21-primary-planning-pipeline-activation.md`.
+`docs/history/prompts/2026-07-21-canonical-planning-input-activation.md`.
 
 PR #315, merged as
 `6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`, is the current merged
