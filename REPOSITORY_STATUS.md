@@ -28,10 +28,10 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#352](https://github.com/pcvantol/djconnect/pull/352), **Close Session
-Intelligence Runtime Epic**, merged as `946dbb810a0d2d8f3f94fdd1cfbf26b9628ae6f4`.
-This dedicated Finalization reconciles its closure records and immutable Prompt
-History.
+PR [#354](https://github.com/pcvantol/djconnect/pull/354), **Universal Receiver
+Broadcast Connection and Session Rendering**, merged as `2f200063fd23b561abdc745ab3385967c95e84d8`.
+This dedicated Finalization reconciles its implementation records and immutable
+Prompt History.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:
@@ -41,11 +41,11 @@ is bounded runtime protection for lifecycle failure only. Future intelligence
 capabilities must extend these established abstractions rather than create a
 parallel Runtime pipeline.
 
-Universal Receiver V1 is the primary active architectural Epic. PR [#350](https://github.com/pcvantol/djconnect/pull/350), **Universal Receiver V1 — Server Architecture**, merged as
-`03cd470fc11d7f36c78434b0ea8cd4199a4bd1fc` and was reconciled by PR #351. It is
-a disposable, stateless Web Renderer Host using existing renderer-safe Broadcast
-snapshots and incremental updates. No browser UI, browser persistence, browser
-authority, authentication redesign or second transport model was added.
+Universal Receiver V1 is the primary active architectural Epic. PR #350
+established its server boundary; PR #354 adds its first operational disposable,
+stateless Web Renderer Host. It renders only existing renderer-safe Broadcast
+snapshots and incremental events. No browser authority, controls, polling,
+persistence, authentication redesign or second transport model was added.
 Experience expansion is next; Audience Intelligence remains intentionally
 deferred.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
