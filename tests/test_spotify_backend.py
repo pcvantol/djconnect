@@ -94,6 +94,7 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertEqual(observed.title, "Never enters Runtime")
         self.assertEqual(observed.artist, "Hidden metadata")
         self.assertEqual(observed.state, "playing")
+        self.assertEqual(observed.artwork_url, "")
         self.assertFalse(hasattr(runtime, "last_playback"))
 
     def test_playback_observation_rejects_non_track_or_inactive_media(self) -> None:

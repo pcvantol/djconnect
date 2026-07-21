@@ -20,6 +20,7 @@ def _load_runtime_module():
     sys.modules.setdefault(PACKAGE, package)
     const = types.ModuleType(f"{PACKAGE}.const")
     const.DOMAIN = "djconnect"
+    const.API_IMAGE_PROXY_BASE = "/api/djconnect/v1/image_proxy"
     previous_const = sys.modules.get(f"{PACKAGE}.const")
     sys.modules[f"{PACKAGE}.const"] = const
     spec = importlib.util.spec_from_file_location(
@@ -1510,13 +1511,13 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             owner_profile_id="profile-playback", session_id=created.session_id,
             state="playing", media_identity="provider-internal-track-1",
             title="Track", artist="Artist", album="Album", target_name="Living Room",
-            duration_ms=180000,
+            artwork_url="/api/djconnect/v1/image_proxy/artwork-token", duration_ms=180000,
         ))
         duplicate = asyncio.run(manager.async_update_playback_projection(
             owner_profile_id="profile-playback", session_id=created.session_id,
             state="playing", media_identity="provider-internal-track-1",
             title="Track", artist="Artist", album="Album", target_name="Living Room",
-            duration_ms=180000,
+            artwork_url="/api/djconnect/v1/image_proxy/artwork-token", duration_ms=180000,
         ))
         playback = created.broadcast.as_dict()["playback"]
 
@@ -1524,8 +1525,9 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertFalse(duplicate)
         self.assertEqual(playback["state"], "playing")
         self.assertEqual(playback["title"], "Track")
+        self.assertEqual(playback["artwork_url"], "/api/djconnect/v1/image_proxy/artwork-token")
         self.assertNotIn("provider-internal-track-1", str(playback))
-        self.assertNotIn("artwork", playback)
+        self.assertNotIn("https://", str(playback))
         self.assertNotIn("position_ms", playback)
         self.assertEqual([event["event_type"] for event in events], ["playback_changed"])
 

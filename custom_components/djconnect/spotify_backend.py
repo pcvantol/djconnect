@@ -61,6 +61,7 @@ class SpotifyPlaybackObservation:
     title: str = ""
     artist: str = ""
     album: str = ""
+    artwork_url: str = ""
     target_name: str = ""
     duration_ms: int | None = None
 
@@ -511,6 +512,7 @@ class SpotifyBackend:
             title=str(playback.get("track_name") or ""),
             artist=str(playback.get("artist_name") or ""),
             album=str(playback.get("album_name") or ""),
+            artwork_url=str(playback.get("album_image_url") or ""),
             target_name=str(device.get("name") or ""),
             duration_ms=_int_or_none(playback.get("duration_ms")),
         )

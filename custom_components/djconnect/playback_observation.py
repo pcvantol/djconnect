@@ -13,6 +13,7 @@ except ImportError:  # pragma: no cover - Home Assistant supplies this at runtim
     async_track_time_interval = None
 
 from .const import DOMAIN, MUSIC_BACKEND_SPOTIFY_DIRECT
+from .image_proxy import register_image_proxy_url
 from .session_runtime import DJSessionRuntime, session_runtime_manager
 from .spotify_backend import SpotifyBackend, SpotifyBackendError
 
@@ -136,6 +137,9 @@ class PlaybackObservationManager:
                 title=getattr(result, "title", ""),
                 artist=getattr(result, "artist", ""),
                 album=getattr(result, "album", ""),
+                artwork_url=register_image_proxy_url(
+                    self._hass, getattr(result, "artwork_url", "")
+                ),
                 target_name=getattr(result, "target_name", ""),
                 duration_ms=getattr(result, "duration_ms", None),
             )

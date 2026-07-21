@@ -14,7 +14,7 @@ from enum import StrEnum
 from typing import Any, Awaitable, Callable
 from uuid import uuid4
 
-from .const import DOMAIN
+from .const import API_IMAGE_PROXY_BASE, DOMAIN
 from .persistence import persistence_service
 from .persistence.sessions import (
     ACTIVE as PERSISTENT_SESSION_ACTIVE,
@@ -2572,6 +2572,7 @@ class RendererSafePlaybackProjection:
     title: str = ""
     artist: str = ""
     album: str = ""
+    artwork_url: str = ""
     target_name: str = ""
     duration_ms: int | None = None
     updated_at: str = ""
@@ -2585,6 +2586,7 @@ class RendererSafePlaybackProjection:
         title: str = "",
         artist: str = "",
         album: str = "",
+        artwork_url: str = "",
         target_name: str = "",
         duration_ms: int | None = None,
     ) -> "RendererSafePlaybackProjection":
@@ -2603,6 +2605,7 @@ class RendererSafePlaybackProjection:
             title=_bounded_text(title, 256),
             artist=_bounded_text(artist, 256),
             album=_bounded_text(album, 256),
+            artwork_url=_safe_artwork_url(artwork_url),
             target_name=_bounded_text(target_name, 256),
             duration_ms=safe_duration,
             updated_at=_timestamp(),
@@ -2612,9 +2615,9 @@ class RendererSafePlaybackProjection:
         return self.__dict__ | {"updated_at": ""} == other.__dict__ | {"updated_at": ""}
 
     def as_dict(self) -> dict[str, Any]:
-        """Expose only presentation fields; unsafe artwork and progress are omitted."""
+        """Expose only renderer-safe presentation fields."""
         result: dict[str, Any] = {"state": self.state}
-        for key in ("item_id", "title", "artist", "album", "target_name", "updated_at"):
+        for key in ("item_id", "title", "artist", "album", "artwork_url", "target_name", "updated_at"):
             value = getattr(self, key)
             if value:
                 result[key] = value
@@ -3143,13 +3146,14 @@ class SessionRuntimeManager:
         title: str = "",
         artist: str = "",
         album: str = "",
+        artwork_url: str = "",
         target_name: str = "",
         duration_ms: int | None = None,
     ) -> bool:
         """Apply one normalized observation to its active Runtime only."""
         projection = RendererSafePlaybackProjection.from_observation(
             state=state, media_identity=media_identity, title=title, artist=artist,
-            album=album, target_name=target_name, duration_ms=duration_ms,
+            album=album, artwork_url=artwork_url, target_name=target_name, duration_ms=duration_ms,
         )
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
@@ -4114,6 +4118,12 @@ def _track_key(track: dict[str, Any]) -> str:
 
 def _bounded_text(value: Any, limit: int) -> str:
     return str(value or "").strip()[:limit]
+
+
+def _safe_artwork_url(value: Any) -> str:
+    """Keep only URLs served by DJConnect's existing HA image proxy."""
+    url = str(value or "").strip()
+    return url if url.startswith(f"{API_IMAGE_PROXY_BASE}/") else ""
 
 
 def _locale_family(value: str) -> str:
