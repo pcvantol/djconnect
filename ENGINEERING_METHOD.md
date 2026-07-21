@@ -220,6 +220,23 @@ not forced deletion. Report PR merge, remote absence, patch equivalence,
 unpublished work, deletion result and Workspace State; otherwise preserve the
 branch and require manual attention.
 
+### Finalization Branch Delta Exception
+
+A stale Finalization branch may be deleted only when every commit not on
+canonical main has its exact delta already present there. Verify each commit in
+oldest-first order with:
+
+```sh
+git diff <commit>^ <commit> | git apply --reverse --check
+```
+
+Run the command from a clean canonical-main workspace. Every command must
+succeed; any failed reverse apply preserves the branch. This is a stricter
+content-presence check for Finalization records that later status updates may
+have made ineligible for `git cherry` patch matching. It applies only to a
+merged, remote-removed, non-checked-out Finalization branch with no unpublished
+work, and its report must identify every verified commit and deletion result.
+
 ## Reality before planning
 
 Before every engineering prompt, verify synchronized repository state, the

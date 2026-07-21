@@ -56,6 +56,8 @@ Finalization checks:
   not checked out before non-forced deletion
 - for a squash merge, require canonical `git cherry -v` output with only `-`
   patch-equivalent commits, plus merged PR and absent remote evidence
+- for a stale Finalization branch, require every branch-only commit to pass the
+  canonical reverse-apply delta check before deletion
 - prior Prompt History archived
 - predecessor merge and current-main containment objectively verified
 - the merged implementation entered `MERGED_UNRECONCILED`

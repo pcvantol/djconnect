@@ -30,7 +30,8 @@ the independently verified result of the completed capability's local-only
 cleanup; its exact procedure is canonical in `ENGINEERING_METHOD.md`. Other
 unresolved merge, repository or workspace inconsistencies are terminal.
 Workspace Cleanup supports topological merge completion and the approved
-squash-merge patch-equivalence exception.
+squash-merge patch-equivalence exception, plus the separate deterministic
+Finalization-branch delta exception.
 
 Only after required reconciliation, read the current repository in the
 following order:
