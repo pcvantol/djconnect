@@ -141,6 +141,7 @@ from .push import (
 from .persistence import (
     PersistentSessionRepository,
     PersistentSessionStartupReconciler,
+    HistoricalProjectionRepository,
     async_initialize_persistence,
     async_shutdown_persistence,
     persistence_service,
@@ -3016,7 +3017,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         _LOGGER.error("DJConnect persistence bootstrap failed: %s", exc.__class__.__name__)
         return False
     await PersistentSessionStartupReconciler(
-        PersistentSessionRepository(persistence_service(hass))
+        PersistentSessionRepository(persistence_service(hass)),
+        history=HistoricalProjectionRepository(persistence_service(hass)),
     ).async_reconcile()
     # Some Home Assistant startup paths load config entries without first
     # retaining the integration-level setup state. Registering here as well

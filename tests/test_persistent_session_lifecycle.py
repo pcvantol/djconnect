@@ -25,6 +25,7 @@ from custom_components.djconnect.persistence.sessions import (  # noqa: E402
 from custom_components.djconnect.persistence.reconciliation import (  # noqa: E402
     PersistentSessionStartupReconciler,
 )
+from custom_components.djconnect.persistence.history import HistoricalProjectionRepository  # noqa: E402
 
 
 class PersistentSessionLifecycleTest(unittest.TestCase):
@@ -90,3 +91,20 @@ class PersistentSessionLifecycleTest(unittest.TestCase):
         self.assertEqual((second.inspected, second.interrupted), (0, 0))
         self.assertEqual(ended.lifecycle_status, ENDED)
         self.assertEqual(asyncio.run(self.sessions.async_non_terminal()), [])
+
+    def test_terminal_session_projects_idempotently_without_runtime_state(self) -> None:
+        created = asyncio.run(self.sessions.async_create("profile-a", session_id="session-history"))
+        active = asyncio.run(self.sessions.async_transition("profile-a", created.session_id, ACTIVE))
+        ended = asyncio.run(self.sessions.async_transition("profile-a", active.session_id, ENDED))
+        history = HistoricalProjectionRepository(self.service)
+        projection = asyncio.run(history.async_project_session(ended))
+        duplicate = asyncio.run(history.async_project_session(ended))
+        self.assertEqual(projection.originating_session_id, ended.session_id)
+        self.assertEqual(projection.owner_profile_id, "profile-a")
+        self.assertEqual(projection.historical_session_id, duplicate.historical_session_id)
+
+    def test_historical_moment_projection_is_owner_scoped_and_idempotent(self) -> None:
+        history = HistoricalProjectionRepository(self.service)
+        first = asyncio.run(history.async_project_moment(session_id="session-a", moment_id="moment-a", owner_profile_id="profile-a", moment_type="track", rendered_text="Safe text", presentation_metadata="{}", ordering=0, created_at="2026-01-01T00:00:00+00:00"))
+        duplicate = asyncio.run(history.async_project_moment(session_id="session-a", moment_id="moment-a", owner_profile_id="profile-a", moment_type="track", rendered_text="changed", presentation_metadata="{}", ordering=0, created_at="2026-01-01T00:00:00+00:00"))
+        self.assertEqual(first, duplicate)

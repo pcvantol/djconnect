@@ -21,6 +21,7 @@ MIGRATIONS = (
     Migration(1, "0001_persistence_metadata", "8c52f0c7"),
     Migration(2, "0002_migration_identity", "b0b063e2"),
     Migration(3, "0003_persistent_session_lifecycle", "d16f024c"),
+    Migration(4, "0004_historical_session_projections", "b745d401"),
 )
 CURRENT_SCHEMA_VERSION = MIGRATIONS[-1].version
 REQUIRED_TABLES = {
@@ -33,6 +34,8 @@ REQUIRED_TABLES = {
         "ended_at", "interrupted_at", "interruption_reason", "start_strategy", "initial_mood",
         "initial_direction", "updated_at"
     },
+    "djconnect_historical_sessions": {"historical_session_id", "originating_session_id", "owner_profile_id", "lifecycle_outcome", "created_at", "projection_version"},
+    "djconnect_historical_moments": {"historical_moment_id", "originating_session_id", "originating_moment_id", "owner_profile_id", "moment_type", "rendered_text", "visibility", "ordering", "created_at", "projection_version"},
 }
 
 
@@ -94,6 +97,11 @@ def apply_migration(transaction: ProviderTransaction, version: int) -> None:
         )
         transaction.execute("CREATE INDEX idx_persistent_sessions_owner_created ON djconnect_persistent_sessions(owner_profile_id, created_at DESC)")
         transaction.execute("CREATE INDEX idx_persistent_sessions_non_terminal ON djconnect_persistent_sessions(lifecycle_status, created_at)")
+    elif version == 4:
+        transaction.execute("CREATE TABLE djconnect_historical_sessions (historical_session_id TEXT PRIMARY KEY, originating_session_id TEXT NOT NULL UNIQUE, owner_profile_id TEXT NOT NULL, lifecycle_outcome TEXT NOT NULL, started_at TEXT NOT NULL DEFAULT '', ended_at TEXT NOT NULL DEFAULT '', interrupted_at TEXT NOT NULL DEFAULT '', interruption_reason TEXT NOT NULL DEFAULT '', start_strategy TEXT NOT NULL DEFAULT '', session_mood TEXT NOT NULL DEFAULT '', session_direction TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL, projection_version INTEGER NOT NULL)")
+        transaction.execute("CREATE TABLE djconnect_historical_moments (historical_moment_id TEXT PRIMARY KEY, originating_session_id TEXT NOT NULL, originating_moment_id TEXT NOT NULL, owner_profile_id TEXT NOT NULL, moment_type TEXT NOT NULL, rendered_text TEXT NOT NULL, presentation_metadata TEXT NOT NULL DEFAULT '', visibility TEXT NOT NULL DEFAULT 'owner', ordering INTEGER NOT NULL, created_at TEXT NOT NULL, projection_version INTEGER NOT NULL, UNIQUE(originating_session_id, originating_moment_id))")
+        transaction.execute("CREATE INDEX idx_historical_sessions_owner_created ON djconnect_historical_sessions(owner_profile_id, created_at DESC)")
+        transaction.execute("CREATE INDEX idx_historical_moments_session_order ON djconnect_historical_moments(originating_session_id, ordering)")
     timestamp = datetime.now(UTC).isoformat()
     transaction.execute(
         "INSERT OR REPLACE INTO djconnect_schema_metadata "
