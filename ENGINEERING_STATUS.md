@@ -5,7 +5,11 @@
 
 ## Current engineering increment
 
-PR [#319](https://github.com/pcvantol/djconnect/pull/319), **Rolling Planning
+PR [#321](https://github.com/pcvantol/djconnect/pull/321), **Planner Intent
+Selection**, merged as `65802d48720474c53a02a57535e3edb303a91630`. This
+dedicated Finalization reconciles the bounded internal selector.
+
+PR #319, **Rolling Planning
 Window**, merged as `632857a7914fce58acc10d243dee5162c591771d`. It adds only
 the Planner-owned ephemeral planning structure. This dedicated Finalization
 reconciles its evidence.
