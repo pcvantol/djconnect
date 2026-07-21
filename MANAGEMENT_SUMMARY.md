@@ -15,7 +15,12 @@
 
 ## Current position
 
-PR [#315](https://github.com/pcvantol/djconnect/pull/315) merged as
+PR [#323](https://github.com/pcvantol/djconnect/pull/323) merged as
+`a2e394bc92beb42de596eb613327678615d5abbf`. It adds bounded internal Mood
+and Direction influence to Planner Intent Selection. This is its dedicated
+governance-only Finalization.
+
+PR #315 merged as
 `6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`. It adds only the ephemeral,
 Planner-owned Horizon model. This is its governance-only Finalization.
 
