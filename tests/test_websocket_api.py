@@ -230,6 +230,44 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
         self.assertEqual(len(connection.close_callbacks), 1)
         self.assertEqual(cleanup_called, [])
 
+    def test_session_broadcast_subscription_cleans_up_when_initial_response_fails(self) -> None:
+        cleanup_called = []
+
+        async def subscribe_handler(*args, **kwargs):
+            async def cleanup():
+                cleanup_called.append(True)
+
+            return {
+                "success": True,
+                "subscription_id": "subscription-1",
+                "session_id": "session-1",
+                "snapshot": {"session": {"session_id": "session-1"}},
+            }, 200, cleanup
+
+        original = self.websocket_api.async_handle_session_broadcast_subscribe_payload
+        self.websocket_api.async_handle_session_broadcast_subscribe_payload = subscribe_handler
+        try:
+            connection = _FailingResultConnection(user_id="ha-owner")
+            with self.assertRaises(RuntimeError):
+                asyncio.run(
+                    self.websocket_api.websocket_session_broadcast_subscribe(
+                        types.SimpleNamespace(data={}, async_create_task=lambda task: task.close()),
+                        connection,
+                        {
+                            "id": 49,
+                            "type": self.websocket_api.WS_TYPE_SESSION_BROADCAST_SUBSCRIBE,
+                            "session_id": "session-1",
+                            "device_id": "djconnect-ios-ABCDEF123456",
+                            "client_type": "ios",
+                        },
+                    )
+                )
+        finally:
+            self.websocket_api.async_handle_session_broadcast_subscribe_payload = original
+
+        self.assertEqual(cleanup_called, [True])
+        self.assertEqual(connection.close_callbacks, [])
+
     def test_backend_capability_fallbacks_degrade_when_command_is_missing(self) -> None:
         commands = [
             command
@@ -1532,6 +1570,11 @@ class _Connection:
 
     def async_on_close(self, callback) -> None:
         self.close_callbacks.append(callback)
+
+
+class _FailingResultConnection(_Connection):
+    def send_result(self, msg_id, result) -> None:
+        raise RuntimeError("connection closed")
 
 
 if __name__ == "__main__":
