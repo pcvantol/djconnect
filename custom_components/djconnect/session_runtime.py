@@ -555,6 +555,7 @@ class CandidatePlanningSlot:
     category: str
     starts_at_seconds: int
     ends_at_seconds: int
+    is_current_track: bool = False
 
 
 @dataclass(frozen=True)
@@ -746,10 +747,23 @@ class PlannerInfluence:
         )
 
 
+@dataclass(frozen=True)
+class TrackStartedPlanningInput:
+    """Planner-owned, ephemeral input for one observed current-track opportunity."""
+
+    session_id: str
+    current_track_candidate: CandidatePlanningSlot | None
+    upcoming_playback: UpcomingPlaybackProjection | None
+    effective_mood: str
+    effective_direction: SessionDirectionType
+    performance_memory: PerformanceMemory
+    planning_generation: int
+
+
 class PlannerIntentSelector:
     """Select at most one supported candidate deterministically."""
 
-    _SUPPORTED = ("silence", "artist_story", "album_story", "genre_story", "recommendation")
+    _SUPPORTED = ("silence", "track_context", "artist_story", "album_story", "genre_story", "recommendation")
 
     @classmethod
     def select(
@@ -961,7 +975,9 @@ class PlanningWindow:
         """Create deterministic provisional intents only for observed future slots."""
         if self.planned_intents:
             return self.planned_intents
-        if self.planning_coverage_seconds <= 0:
+        if self.planning_coverage_seconds <= 0 and not any(
+            slot.is_current_track for slot in self.candidate_slots
+        ):
             return ()
 
         eligible_slots = (
@@ -972,8 +988,13 @@ class PlanningWindow:
             )
             if (
                 slot.category in PlannerIntentSelector._SUPPORTED
-                and 0 <= slot.starts_at_seconds < slot.ends_at_seconds
-                and slot.ends_at_seconds <= self.planning_coverage_seconds
+                and (
+                    slot.is_current_track
+                    or (
+                        0 <= slot.starts_at_seconds < slot.ends_at_seconds
+                        and slot.ends_at_seconds <= self.planning_coverage_seconds
+                    )
+                )
             )
         )
         confidence = max(0.0, min(1.0, self.confidence))
@@ -1042,6 +1063,7 @@ class RollingSessionHorizon:
     invalidation_generation: int = 0
     planned_at: str = ""
     upcoming_playback: UpcomingPlaybackProjection = field(default_factory=UpcomingPlaybackProjection)
+    current_track_candidate: CandidatePlanningSlot | None = None
     planning_window: PlanningWindow | None = None
     influence: PlannerInfluence = field(default_factory=PlannerInfluence)
     consumed_slot_keys: tuple[tuple[str, int, int], ...] = ()
@@ -1064,6 +1086,8 @@ class RollingSessionHorizon:
             offset += duration
             if offset >= planning_coverage:
                 break
+        if self.current_track_candidate is not None:
+            slots.append(self.current_track_candidate)
         return tuple(slots)
 
     def _signature(self) -> tuple[Any, ...]:
@@ -1077,6 +1101,7 @@ class RollingSessionHorizon:
             self.upcoming_playback.confidence,
             self.upcoming_playback.provider_supports_upcoming,
             self.upcoming_playback.max_entries,
+            self.current_track_candidate,
             tuple(self._slot_key(slot) for slot in window.candidate_slots) if window else (),
             tuple(
                 (self._slot_key(intent.slot), intent.status.value, intent.generation)
@@ -1108,7 +1133,11 @@ class RollingSessionHorizon:
             observable_coverage_seconds=coverage,
             planning_coverage_seconds=planning_coverage,
             generation=generation,
-            confidence=self.upcoming_playback.confidence,
+            confidence=(
+                self.upcoming_playback.confidence
+                if planning_coverage > 0
+                else self.influence.confidence
+            ),
             candidate_slots=self._candidate_slots(planning_coverage),
             influence=self.influence,
         )
@@ -1134,7 +1163,7 @@ class RollingSessionHorizon:
         self.planning_window.planned_intents = tuple(
             self._with_status(planned, PlannedIntentStatus.DISCARDED)
             if self._slot_key(planned.slot) == key
-            and planned.status is PlannedIntentStatus.PLANNED
+            and planned.status in {PlannedIntentStatus.PLANNED, PlannedIntentStatus.APPROVED}
             else planned
             for planned in self.planning_window.planned_intents
         )
@@ -1148,12 +1177,14 @@ class RollingSessionHorizon:
         *,
         upcoming_playback: UpcomingPlaybackProjection | None = None,
         influence: PlannerInfluence | None = None,
+        current_track_candidate: CandidatePlanningSlot | None = None,
     ) -> PlanningWindow:
         """Deterministically replace only invalid provisional planning after input change."""
         if upcoming_playback is not None:
             self.upcoming_playback = upcoming_playback
         if influence is not None:
             self.influence = influence
+        self.current_track_candidate = current_track_candidate
         if self.planning_window is None:
             return self.build_planning_window()
 
@@ -1400,6 +1431,48 @@ class DJSessionPlanner:
 
     def record_spoken_moment(self) -> None:
         self.last_spoken_moment_at = time.monotonic()
+
+    def project_track_started_planning_input(
+        self,
+        *,
+        session_id: str,
+        upcoming_playback: UpcomingPlaybackProjection | None,
+        session_start_strategy: SessionStartStrategy,
+        session_direction: SessionDirection,
+        selected_mood: str,
+        persona: DJPersona,
+        knowledge_hints: dict[str, Any],
+        performance_memory: PerformanceMemory,
+        discover_context: DiscoverContext,
+    ) -> TrackStartedPlanningInput:
+        """Project the existing deterministic choice into one current-track candidate."""
+        previous_decision = self.last_decision
+        decision = self.evaluate_track_started(
+            session_start_strategy=session_start_strategy,
+            session_direction=session_direction,
+            selected_mood=selected_mood,
+            persona=persona,
+            knowledge_hints=knowledge_hints,
+            performance_memory=performance_memory,
+            discover_context=discover_context,
+            record_track_available=False,
+        )
+        self.last_decision = previous_decision
+        category = decision.knowledge_intent.intent_type.value if decision.knowledge_intent else ""
+        candidate = (
+            CandidatePlanningSlot(category, 0, 0, is_current_track=True)
+            if upcoming_playback is None and category in PlannerIntentSelector._SUPPORTED
+            else None
+        )
+        return TrackStartedPlanningInput(
+            session_id=session_id,
+            current_track_candidate=candidate,
+            upcoming_playback=upcoming_playback,
+            effective_mood=selected_mood.strip().lower(),
+            effective_direction=session_direction.direction,
+            performance_memory=performance_memory,
+            planning_generation=self.horizon.invalidation_generation if self.horizon else 0,
+        )
 
     def append_moment(
         self, moment: DJMoment, placement: SessionFlowPosition = SessionFlowPosition.NEXT
@@ -2084,6 +2157,7 @@ class PlanningRuntimeCoordinator:
     last_lifecycle_state: str = "idle"
     last_fallback_reason: str | None = None
     last_approval_source: str | None = None
+    last_realized_intent: PlannedIntent | None = None
     disposed: bool = False
 
     async def async_coordinate_track_started(
@@ -2101,12 +2175,13 @@ class PlanningRuntimeCoordinator:
         performance_memory: PerformanceMemory,
         discover_context: DiscoverContext,
         raw_insight: dict[str, Any],
-        upcoming_playback: UpcomingPlaybackProjection | None = None,
+        planning_input: TrackStartedPlanningInput,
     ) -> DJMoment | None:
         """Run the authoritative planning lifecycle; ``None`` preserves fallback."""
         self.last_lifecycle_state = "entered"
         self.last_fallback_reason = None
         self.last_approval_source = None
+        self.last_realized_intent = None
         horizon = planner.horizon
         if self.disposed or horizon is None:
             return self._fallback("planning_runtime_unavailable")
@@ -2117,8 +2192,9 @@ class PlanningRuntimeCoordinator:
             generation=horizon.invalidation_generation,
         )
         window = horizon.replan(
-            upcoming_playback=upcoming_playback,
+            upcoming_playback=planning_input.upcoming_playback,
             influence=influence,
+            current_track_candidate=planning_input.current_track_candidate,
         )
         self.last_planning_generation = window.generation
         prefetches = window.plan_knowledge_prefetches(
@@ -2164,7 +2240,7 @@ class PlanningRuntimeCoordinator:
                 locale=locale,
                 reason="planned_silence",
             )
-            horizon.mark_planned_intent_consumed(planned)
+            self.last_realized_intent = planned
             self.last_lifecycle_state = "completed"
             return moment
         prefetch = next(
@@ -2178,35 +2254,54 @@ class PlanningRuntimeCoordinator:
             None,
         )
         knowledge_intent = _knowledge_intent_for_planned_category(planned.category)
-        if prefetch is None or knowledge_intent is None:
+        if knowledge_intent is None:
             return self._fallback("unsupported_planned_intent")
-        knowledge = await knowledge_engine.async_resolve_approved_planned_intent(
-            approved_intent=approved,
-            planned_intent=planned,
-            knowledge_intent=knowledge_intent,
-            prefetch=prefetch,
-            prepared_knowledge=prepared,
-            invalidation_generation=horizon.invalidation_generation,
-            raw_insight=raw_insight,
-            session_direction=session_direction,
-            session_start_strategy=session_start_strategy,
-            session_mood=selected_mood,
-            discover_context=discover_context,
-            performance_memory=performance_memory,
-        )
+        if prefetch is None:
+            knowledge = await knowledge_engine.async_assemble_track_context(
+                intent=knowledge_intent,
+                raw_insight=raw_insight,
+                session_direction=session_direction,
+                session_start_strategy=session_start_strategy,
+                session_mood=selected_mood,
+                discover_context=discover_context,
+                performance_memory=performance_memory,
+            )
+        else:
+            knowledge = await knowledge_engine.async_resolve_approved_planned_intent(
+                approved_intent=approved,
+                planned_intent=planned,
+                knowledge_intent=knowledge_intent,
+                prefetch=prefetch,
+                prepared_knowledge=prepared,
+                invalidation_generation=horizon.invalidation_generation,
+                raw_insight=raw_insight,
+                session_direction=session_direction,
+                session_start_strategy=session_start_strategy,
+                session_mood=selected_mood,
+                discover_context=discover_context,
+                performance_memory=performance_memory,
+            )
         moment = moment_engine.create_track_context(
             session_id=session_id,
             knowledge_intent=knowledge_intent,
             selected_mood=selected_mood,
             persona=persona,
             locale=locale,
-            insight=_planning_realization_insight(knowledge, raw_insight),
+            insight=_planning_realization_insight(knowledge, raw_insight, knowledge_intent),
         )
         if moment.moment_type is DJMomentType.SILENCE:
-            return self._fallback("planned_intent_not_realizable")
-        horizon.mark_planned_intent_consumed(planned)
+            self.last_realized_intent = planned
+            self.last_lifecycle_state = "completed"
+            return moment
+        self.last_realized_intent = planned
         self.last_lifecycle_state = "completed"
         return moment
+
+    def confirm_published(self, planner: DJSessionPlanner) -> None:
+        """Consume a planned occurrence only after Runtime publication succeeds."""
+        if self.last_realized_intent is not None and planner.horizon is not None:
+            planner.horizon.mark_planned_intent_consumed(self.last_realized_intent)
+        self.last_realized_intent = None
 
     def _fallback(self, reason: str) -> DJMoment | None:
         """Record the bounded reason before the Runtime invokes legacy orchestration."""
@@ -2220,6 +2315,7 @@ class PlanningRuntimeCoordinator:
         self.last_lifecycle_state = "disposed"
         self.last_fallback_reason = None
         self.last_approval_source = None
+        self.last_realized_intent = None
         self.disposed = True
 
 
@@ -2243,6 +2339,10 @@ def _planning_subject_projection(raw_insight: dict[str, Any]) -> tuple[tuple[str
 def _knowledge_intent_for_planned_category(category: str) -> KnowledgeIntent | None:
     """Adapt an approved Planner category to the existing Knowledge contract."""
     intents = {
+        "track_context": KnowledgeIntent(
+            KnowledgeIntentType.TRACK_CONTEXT,
+            "Explain one relevant detail that improves appreciation of the current track.",
+        ),
         "artist_story": KnowledgeIntent(
             KnowledgeIntentType.ARTIST_STORY,
             "Share relevant artist or production context.",
@@ -2264,20 +2364,23 @@ def _knowledge_intent_for_planned_category(category: str) -> KnowledgeIntent | N
 
 
 def _planning_realization_insight(
-    knowledge: KnowledgeContext, raw_insight: dict[str, Any]
+    knowledge: KnowledgeContext,
+    raw_insight: dict[str, Any],
+    knowledge_intent: KnowledgeIntent,
 ) -> dict[str, Any]:
-    """Retain safe structural Track Insight while Prepared Knowledge supplies evidence."""
+    """Retain only selected safe Track Insight while Prepared Knowledge supplies evidence."""
     raw_track = raw_insight.get("track") if isinstance(raw_insight.get("track"), dict) else {}
     raw_analysis = raw_insight.get("analysis") if isinstance(raw_insight.get("analysis"), dict) else {}
+    track_fields, analysis_fields = _knowledge_fields_for_intent(knowledge_intent.intent_type)
     track = {
-        key: value
-        for key, value in raw_track.items()
-        if _bounded_text(value, 2048)
+        key: raw_track[key]
+        for key in track_fields
+        if _bounded_text(raw_track.get(key), 2048)
     }
     analysis = {
-        key: value
-        for key, value in raw_analysis.items()
-        if _bounded_text(value, 1200)
+        key: raw_analysis[key]
+        for key in analysis_fields
+        if _bounded_text(raw_analysis.get(key), 1200)
     }
     track.update(dict(knowledge.track))
     analysis.update(dict(knowledge.analysis))
@@ -2920,7 +3023,6 @@ class SessionRuntimeManager:
         upcoming_playback: UpcomingPlaybackProjection | None = None,
     ) -> DJMoment | None:
         """Orchestrate Planner → Knowledge → Moment → Flow → Broadcast."""
-        legacy_initial_decision = False
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
             if active is None or active.session_id != session_id:
@@ -2937,16 +3039,6 @@ class SessionRuntimeManager:
                     **{**active.__dict__, "last_accepted_media_identity": media_identity}
                 )
                 self._active_by_profile[owner_profile_id] = active
-            if (
-                upcoming_playback is None
-                and (active.planner.horizon is None or not active.planner.horizon.upcoming_playback.entries)
-            ):
-                active, legacy_moment = self._apply_legacy_initial_track_started_decision(
-                    owner_profile_id, active
-                )
-                legacy_initial_decision = True
-                if legacy_moment is not None:
-                    return legacy_moment
         try:
             raw_insight = await insight_provider()
         except Exception as exc:  # noqa: BLE001
@@ -2956,6 +3048,17 @@ class SessionRuntimeManager:
             active = self._active_by_profile.get(owner_profile_id)
             if active is None or active.session_id != session_id:
                 return None
+            planning_input = active.planner.project_track_started_planning_input(
+                session_id=active.session_id,
+                upcoming_playback=upcoming_playback,
+                session_start_strategy=active.session_start_strategy,
+                session_direction=active.session_direction,
+                selected_mood=active.selected_mood,
+                persona=active.dj_persona,
+                knowledge_hints=_planner_knowledge_hints(raw_insight),
+                performance_memory=active.performance_memory,
+                discover_context=active.discover_context,
+            )
         _LOGGER.debug("DJConnect Planning Runtime Coordinator lifecycle entered")
         try:
             coordinated = await active.planning_coordinator.async_coordinate_track_started(
@@ -2971,7 +3074,7 @@ class SessionRuntimeManager:
                 performance_memory=active.performance_memory,
                 discover_context=active.discover_context,
                 raw_insight=raw_insight,
-                upcoming_playback=upcoming_playback,
+                planning_input=planning_input,
             )
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect Planning Runtime Coordinator failed: %s", exc.__class__.__name__)
@@ -2983,9 +3086,31 @@ class SessionRuntimeManager:
                 if active is None or active.session_id != session_id:
                     return None
                 active.publish_moment(coordinated)
+                active.planning_coordinator.confirm_published(active.planner)
                 if coordinated.moment_type is not DJMomentType.SILENCE:
                     active.planner.record_spoken_moment()
-                self._record_performance_memory(owner_profile_id, active)
+                    active = self._record_performance_memory(owner_profile_id, active)
+                    transition_decision = active.planner.evaluate_transition_after_moment(
+                        triggering_intent=coordinated.knowledge_intent,
+                        session_direction=active.session_direction,
+                        performance_memory=active.performance_memory,
+                    )
+                    if transition_decision.decision_type is PlannerDecisionType.CREATE_TRANSITION:
+                        transition = active.moment_engine.create_transition(
+                            session_id=active.session_id,
+                            approval=transition_decision,
+                            selected_mood=active.selected_mood,
+                            persona=active.dj_persona,
+                            locale=active.locale,
+                        )
+                        if transition.moment_type is DJMomentType.TRANSITION:
+                            active.publish_moment(
+                                transition,
+                                SessionFlowPosition(transition_decision.transition_placement),
+                            )
+                            active = self._record_performance_memory(owner_profile_id, active)
+                else:
+                    active = self._record_performance_memory(owner_profile_id, active)
                 _LOGGER.debug(
                     "DJConnect Planning Runtime Coordinator lifecycle completed: approval_source=%s generation=%s",
                     active.planning_coordinator.last_approval_source,
@@ -3002,12 +3127,11 @@ class SessionRuntimeManager:
             active = self._active_by_profile.get(owner_profile_id)
             if active is None or active.session_id != session_id:
                 return None
-            if not legacy_initial_decision:
-                active, legacy_moment = self._apply_legacy_initial_track_started_decision(
-                    owner_profile_id, active
-                )
-                if legacy_moment is not None:
-                    return legacy_moment
+            active, legacy_moment = self._apply_legacy_initial_track_started_decision(
+                owner_profile_id, active
+            )
+            if legacy_moment is not None:
+                return legacy_moment
             decision = active.planner.evaluate_track_started(
                 session_start_strategy=active.session_start_strategy,
                 session_direction=active.session_direction,
