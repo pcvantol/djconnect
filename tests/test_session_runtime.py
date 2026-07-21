@@ -132,9 +132,54 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertEqual(moment.moment_type, self.runtime.DJMomentType.SILENCE)
         self.assertEqual(dict(moment.generation_metadata)["reason"], "planned_silence")
         self.assertEqual(created.planning_coordinator.last_planning_generation, 0)
+        self.assertEqual(created.planning_coordinator.last_lifecycle_state, "completed")
+        self.assertEqual(created.planning_coordinator.last_approval_source, "planned_intent")
         self.assertIn(
             ("silence", 0, 60), created.planner.horizon.consumed_slot_keys
         )
+        self.assertIsNone(created.planner.last_decision)
+        self.assertEqual(created.planner.output.session_flow.items[-1].moment_id, moment.moment_id)
+        self.assertEqual(created.broadcast.state.dj_moments[-1], moment)
+
+    def test_planning_runtime_coordinator_primary_path_consumes_prepared_knowledge(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(
+            manager.async_start(owner_profile_id="profile-primary-planning", selected_mood="groove")
+        )
+        assert created.planner.horizon is not None
+        created.planner.horizon._candidate_slots = lambda coverage: (
+            self.runtime.CandidatePlanningSlot("artist_story", 0, coverage),
+        )
+
+        async def insight() -> dict:
+            return {
+                "track": {
+                    "title": "Track",
+                    "artist": "Prepared Artist",
+                    "producer": "Producer",
+                },
+                "analysis": {"summary": "Safe summary.", "full_text": "Safe content."},
+            }
+
+        moment = asyncio.run(
+            manager.async_process_track_started(
+                owner_profile_id="profile-primary-planning",
+                session_id=created.session_id,
+                insight_provider=insight,
+                upcoming_playback=self.runtime.UpcomingPlaybackProjection.from_entries(
+                    (self.runtime.UpcomingPlaybackEntry("track-a", duration_seconds=60),),
+                    confidence=0.8,
+                ),
+            )
+        )
+
+        assert moment is not None
+        self.assertEqual(moment.moment_type, self.runtime.DJMomentType.ARTIST)
+        self.assertEqual(created.planning_coordinator.last_lifecycle_state, "completed")
+        self.assertEqual(created.planning_coordinator.last_approval_source, "planned_intent")
+        self.assertEqual(created.planner.horizon.consumed_slot_keys, (("artist_story", 0, 60),))
+        self.assertEqual(created.knowledge_engine.assembled_contexts[-1].sources, ("prepared_knowledge",))
+        self.assertIsNone(created.planner.last_decision)
         self.assertEqual(created.planner.output.session_flow.items[-1].moment_id, moment.moment_id)
         self.assertEqual(created.broadcast.state.dj_moments[-1], moment)
 
@@ -155,6 +200,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
                 owner_profile_id="profile-coordinator-fallback",
                 session_id=created.session_id,
                 insight_provider=insight,
+                upcoming_playback=self.runtime.UpcomingPlaybackProjection(),
             )
         )
 
@@ -162,6 +208,8 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertEqual(moment.moment_type, self.runtime.DJMomentType.ARTIST)
         self.assertEqual(moment.source_references, ("track_insight",))
         self.assertEqual(created.planner.horizon.planning_window.planned_intents, ())
+        self.assertEqual(created.planning_coordinator.last_lifecycle_state, "fallback")
+        self.assertEqual(created.planning_coordinator.last_fallback_reason, "no_ready_planned_intent")
 
     def test_runtime_disposal_releases_planning_runtime_coordinator(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
