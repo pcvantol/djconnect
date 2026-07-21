@@ -28,12 +28,19 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current `main` is `ccddf5eb72becde8e7de662446e487c43d70b7f3`, the merge commit
-for PR [#280](https://github.com/pcvantol/djconnect/pull/280), **Add Broadcast
-recovery cursor**, merged on 2026-07-21. The worktree was clean and
-synchronized when this baseline was reconciled; PR #280 validation passed host
-qualification, focused Broadcast/Runtime/transport regression, full CI, Ruff
-and diff checks.
+Current main contains PR [#282](https://github.com/pcvantol/djconnect/pull/282),
+**Formalize capability completion lifecycle**, merged on 2026-07-21 as
+`8394dbda94594369dd815f05e734bd7a0214221b`. Its Finalization reconciles the
+repository to `MERGED_RECONCILED`. PR #282 passed host qualification, the full
+unit suite, focused governance regression, Ruff, diff validation and all
+required GitHub checks.
+
+The preceding Broadcast baseline remains PR [#280](https://github.com/pcvantol/djconnect/pull/280),
+**Add Broadcast recovery cursor**, merged as
+`ccddf5eb72becde8e7de662446e487c43d70b7f3`. Its host qualification, focused
+Broadcast/Runtime/transport regression, Ruff and diff checks passed. Its HACS
+check failed before repository validation because HACS could not load the
+repository; the immutable Prompt History preserves that external fact.
 
 Transport Cell 1 is current: an owner-authorized HTTP snapshot is a
 side-effect-free renderer-safe fallback. Transport Cell 2 is current: its pure
@@ -59,8 +66,9 @@ Stage 1, Continue Stage 2, Playback Instance Identity and occurrence-correct
 observation remain intentionally blocked by the external capability conditions
 in `docs/product/DJ_INTELLIGENCE_MATURITY.md`.
 
-The next recovery capability may be authorized WebSocket recovery using the
-existing opaque Broadcast cursor. Cursor validation, replay transport/query, HTTP Flow delta,
+The next production capability may be authorized WebSocket recovery using the
+existing opaque Broadcast cursor only after a new Pre-Flight returns `GO`.
+Cursor validation, replay transport/query, HTTP Flow delta,
 reconnect continuation, acknowledgements, duplicate/out-of-order correction,
 persistence, cross-Session replay, Universal Receiver recovery and standalone
 Session resources remain separately deferred.
@@ -250,9 +258,10 @@ evidence and synchronized current main determine the state; current main always
 overrides conversations, prompts, historical assumptions and Prompt History.
 Prompt History remains immutable. A verified merged predecessor whose rolling
 records still describe its freeze point is an expected
-`MERGED_UNRECONCILED` transition, not an inconsistency. The next increment
-reconciles `ENGINEERING_STATUS.md`, `REPOSITORY_STATUS.md`,
-`MANAGEMENT_SUMMARY.md` and `PROMPT_INDEX.md` before substantive work. PR
+`MERGED_UNRECONCILED` transition, not an inconsistency. Only its dedicated
+Finalization reconciles `ENGINEERING_STATUS.md`, `REPOSITORY_STATUS.md`,
+`MANAGEMENT_SUMMARY.md` and `PROMPT_INDEX.md`; no production capability may
+start until that Finalization restores `MERGED_RECONCILED`. PR
 [#125](https://github.com/pcvantol/djconnect/pull/125) is now merged into
 current main; its rolling records are reconciled by the Repository Governance
 Rollout Planning increment.
