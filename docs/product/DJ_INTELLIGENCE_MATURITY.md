@@ -121,6 +121,37 @@ weakens the separate Continue contract.
 | 4 | Multi-device continuity and cross-session restoration only under an explicitly authorized persistent contract. |
 | 5 | Autonomous continuity and long-running performance adaptation. |
 
+## External Capability Dependencies
+
+The following roadmap items are intentionally blocked by capabilities that
+must be supplied by a Music Backend Observation Boundary. They are not
+abandoned, incomplete engineering work, technical debt or active
+implementation targets. They remain deferred until new repository evidence or
+upstream platform capabilities satisfy the stated unblock condition.
+
+| Blocked capability | Current status | Explicit unblock condition |
+| --- | --- | --- |
+| Continue Stage 2 | Authorized, deferred | A backend supplies a backend-owned Playback Instance Identity in both a correlated immutable `CurrentPlaybackProjection` and correlated `TrackStartedObservation`, with an authoritative occurrence lifecycle and replay-correct behaviour. |
+| Playback Instance Identity | Deferred | A backend observation capability can model concrete playback occurrences without URI, metadata, timestamp, progress or other heuristic identity. |
+| Occurrence-correct Playback Observation | Deferred | An authoritative occurrence lifecycle provides stable observation identity and distinguishes a legitimate replay from duplicate delivery. |
+| Music Assistant Live Playback Observation Stage 1 qualification | Conditionally eligible, deferred | Repository evidence proves that Music Assistant `media_content_id` is a safe playable Media Identity, or establishes another canonical Stage 1 Media Identity contract. |
+
+### Planning policy
+
+Future implementation planning must not select a blocked capability from this
+table unless new repository evidence or upstream platform capabilities satisfy
+its explicit unblock condition. The Planner must prefer active maturity work
+over blocked roadmap items. A repeated architectural analysis is not evidence
+that a blocker has changed.
+
+### Active product priority
+
+Active development returns to the AI DJ within the maturity stages supported by
+this roadmap: Performance Memory, Session Planner, Knowledge Engine, DJ Moment
+Engine, Session Updates, Transitions, Audience Adaptation and Rolling
+Replanning. Live Playback Observation Stage 2 is not an active priority while
+its external dependency conditions remain unmet.
+
 ## Implementation policy
 
 Every future implementation PR must state its current and target maturity

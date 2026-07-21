@@ -15,13 +15,15 @@
 
 ## Current position
 
-PR [#258](https://github.com/pcvantol/djconnect/pull/258) merged as
-`9c98ba796c28b589677af7370e68bf73c880f9f3`. It establishes the Live Playback
-Observation progression: Stage 0 current, Stage 1 planned and Stage 2 deferred.
-Spotify Direct is eligible for bounded Media Identity polling, while Music
-Assistant remains conditionally eligible. Playback Instance Identity stays
-Boundary-owned and Continue Stage 2 remains strict, authorized and deferred.
-No runtime, provider, API or maturity implementation was included.
+PR [#259](https://github.com/pcvantol/djconnect/pull/259) merged as
+`f3f0621d1b313f96d472af2da49f13487cc49edc`. Spotify Direct Live Playback
+Observation Stage 1 is operational through bounded, read-only active-session
+Media Identity observation. Music Assistant Stage 1 remains conditionally
+eligible and deferred. Continue Stage 2, Playback Instance Identity and
+occurrence-correct observation are intentionally blocked by missing external
+backend capabilities; their canonical unblock conditions and planning policy
+are in `docs/product/DJ_INTELLIGENCE_MATURITY.md`. No further Playback
+Observation implementation is an active priority.
 
 | Area | Objectively supported status | Evidence |
 | --- | --- | --- |
