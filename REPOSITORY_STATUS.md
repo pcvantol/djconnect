@@ -28,8 +28,8 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#360](https://github.com/pcvantol/djconnect/pull/360), **Renderer-Safe
-Playback Projection**, merged as `637ab709174b1c49409259f66c902d23b32619fa`.
+PR [#362](https://github.com/pcvantol/djconnect/pull/362), **Universal Receiver
+V1 — Now Playing**, merged as `dfbc5826ae73762818e4bd002b97773852014394`.
 This dedicated Finalization reconciles its completed capability record and
 immutable Prompt History.
 
@@ -51,8 +51,10 @@ server prerequisite for Capability 3: the Runtime publishes optional playback
 metadata, HA-proxied artwork, duration and bounded server-owned progress using
 the existing Broadcast snapshot and event stream. No browser authority,
 provider payload, new endpoint, WebSocket channel or provider polling exists.
-Capability 3 — Now Playing Experience — is unblocked but not activated by this
-Finalization. Audience Intelligence remains intentionally deferred.
+PR #362 completes Capability 3 — Now Playing Experience. The Receiver renders
+the existing snapshot and live playback projection, including only
+server-owned progress, and remains a passive Renderer Host. Audience
+Intelligence remains intentionally deferred.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 

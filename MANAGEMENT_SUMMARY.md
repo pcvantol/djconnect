@@ -15,8 +15,8 @@
 
 ## Current position
 
-PR [#360](https://github.com/pcvantol/djconnect/pull/360), **Renderer-Safe
-Playback Projection**, merged as `637ab709174b1c49409259f66c902d23b32619fa`.
+PR [#362](https://github.com/pcvantol/djconnect/pull/362), **Universal Receiver
+V1 — Now Playing**, merged as `dfbc5826ae73762818e4bd002b97773852014394`.
 This dedicated Finalization reconciles its completed capability record and
 immutable Prompt History.
 
@@ -36,8 +36,9 @@ replacement. PR #360 completes the server-side playback presentation
 prerequisite: metadata, HA-proxied artwork and a bounded Runtime-owned progress
 projection use the existing Broadcast contract. The server corrects progress
 from backend observations; Renderer Hosts never infer playback time. Capability
-3 — Now Playing Experience — is ready for a separate presentation-only prompt.
-No browser authority, new transport or provider polling was introduced.
+3 — Now Playing Experience — is complete in PR #362. It displays the existing
+playback projection and server-owned progress without browser inference. No
+browser authority, new transport or provider polling was introduced.
 Audience Intelligence remains intentionally deferred.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.

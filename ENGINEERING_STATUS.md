@@ -5,8 +5,8 @@
 
 ## Current engineering increment
 
-PR [#360](https://github.com/pcvantol/djconnect/pull/360), **Renderer-Safe
-Playback Projection**, merged as `637ab709174b1c49409259f66c902d23b32619fa`.
+PR [#362](https://github.com/pcvantol/djconnect/pull/362), **Universal Receiver
+V1 — Now Playing**, merged as `dfbc5826ae73762818e4bd002b97773852014394`.
 This dedicated Finalization reconciles its completed capability record and
 immutable Prompt History.
 
@@ -27,8 +27,10 @@ PR #360 now completes the server-side Renderer-Safe Playback Projection:
 optional normalized metadata, HA-proxied artwork, duration and a bounded
 Runtime-owned `position_ms` clock flow through existing Broadcast snapshots
 and updates. Backend snapshots correct progress; no client owns a clock and no
-new transport or provider polling was introduced. Capability 3 — Now Playing
-Experience — is unblocked but remains separately authorized.
+new transport or provider polling was introduced. PR #362 completes Capability
+3 — Now Playing: the Receiver renders only the existing Broadcast playback
+projection, including server-owned progress, with no client-side timing,
+polling, provider request or Runtime ownership.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 

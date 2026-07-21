@@ -4,11 +4,11 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#360](https://github.com/pcvantol/djconnect/pull/360), **Renderer-Safe
-Playback Projection**, merged as `637ab709174b1c49409259f66c902d23b32619fa`.
+PR [#362](https://github.com/pcvantol/djconnect/pull/362), **Universal Receiver
+V1 — Now Playing**, merged as `dfbc5826ae73762818e4bd002b97773852014394`.
 This dedicated Finalization reconciles its completed capability record and
 immutable Prompt History at
-`docs/history/prompts/2026-07-21-renderer-safe-playback-projection.md`.
+`docs/history/prompts/2026-07-21-universal-receiver-now-playing.md`.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:
@@ -17,10 +17,9 @@ intelligence prompts must extend that lifecycle rather than introduce another
 Runtime pipeline. Audience Intelligence remains intentionally deferred.
 
 PR #350 established Universal Receiver V1 as the primary active architectural
-Epic. Capability 1 (PR #354) and Capability 2 (PR #358) are complete. PR #360
-now supplies the renderer-safe, Runtime-owned playback metadata, artwork,
-duration and bounded progress projection that Capability 3 may consume.
-Capability 3 itself remains separately authorized and presentation-only.
+Epic. Capabilities 1 (PR #354), 2 (PR #358) and 3 (PR #362) are complete.
+Capability 3 passively renders the renderer-safe, Runtime-owned playback
+metadata, artwork, duration and bounded progress projection from PR #360.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 Its Prompt History is
