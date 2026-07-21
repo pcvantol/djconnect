@@ -244,6 +244,75 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             self.runtime.PlannerDecisionType.CREATE_ARTIST_STORY,
         )
 
+    def test_planner_spaces_an_immediately_previous_recommendation_when_context_allows(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(
+            manager.async_start(
+                owner_profile_id="profile-discover",
+                session_start_strategy=self.runtime.SessionStartStrategy.DISCOVER,
+            )
+        )
+        hints = {
+            "related_tracks": "Sour Times",
+            "artist": "Portishead",
+            "producer": "Geoff Barrow",
+            "genre": "trip-hop",
+        }
+        memory = self.runtime.PerformanceMemory(
+            "flow-test", recent_moment_types=(self.runtime.DJMomentType.RECOMMENDATION,)
+        )
+
+        first = created.planner.evaluate_track_started(
+            session_start_strategy=created.session_start_strategy,
+            session_direction=created.session_direction,
+            selected_mood="groove",
+            persona=self.runtime.DJPersona.HOME_DJ,
+            knowledge_hints=hints,
+            performance_memory=memory,
+            discover_context=created.discover_context,
+        )
+        second = created.planner.evaluate_track_started(
+            session_start_strategy=created.session_start_strategy,
+            session_direction=created.session_direction,
+            selected_mood="groove",
+            persona=self.runtime.DJPersona.HOME_DJ,
+            knowledge_hints=hints,
+            performance_memory=memory,
+            discover_context=created.discover_context,
+        )
+
+        self.assertEqual(first, second)
+        self.assertEqual(
+            first.decision_type, self.runtime.PlannerDecisionType.CREATE_ARTIST_STORY
+        )
+        self.assertEqual(first.reason, "discover_knowledge_hint:producer")
+
+    def test_planner_retains_recommendation_when_spacing_has_no_valid_alternative(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(
+            manager.async_start(
+                owner_profile_id="profile-discover",
+                session_start_strategy=self.runtime.SessionStartStrategy.DISCOVER,
+            )
+        )
+        decision = created.planner.evaluate_track_started(
+            session_start_strategy=created.session_start_strategy,
+            session_direction=created.session_direction,
+            selected_mood="groove",
+            persona=self.runtime.DJPersona.HOME_DJ,
+            knowledge_hints={"related_tracks": "Sour Times"},
+            performance_memory=self.runtime.PerformanceMemory(
+                "flow-test",
+                recent_moment_types=(self.runtime.DJMomentType.RECOMMENDATION,),
+            ),
+            discover_context=created.discover_context,
+        )
+
+        self.assertEqual(
+            decision.decision_type, self.runtime.PlannerDecisionType.CREATE_RECOMMENDATION
+        )
+        self.assertNotEqual(decision.decision_type, self.runtime.PlannerDecisionType.SILENCE)
+
     def test_personal_discover_context_avoids_familiar_artist(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
         context = self.runtime.DiscoverContext(
@@ -1009,6 +1078,70 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         assert first is not None and second is not None
         self.assertEqual(first.moment_type, self.runtime.DJMomentType.RECOMMENDATION)
         self.assertEqual(second.moment_type, self.runtime.DJMomentType.GENRE)
+
+    def test_runtime_spaces_discover_recommendations_without_changing_delivery_owners(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(
+            manager.async_start(
+                owner_profile_id="profile-spacing",
+                session_start_strategy=self.runtime.SessionStartStrategy.DISCOVER,
+            )
+        )
+        insight_calls = 0
+
+        async def insight() -> dict:
+            nonlocal insight_calls
+            insight_calls += 1
+            if insight_calls == 1:
+                return {
+                    "track": {
+                        "title": "Teardrop",
+                        "artist": "Massive Attack",
+                        "related_tracks": "Angel",
+                    },
+                    "analysis": {"summary": "A recommendation.", "full_text": "Safe context."},
+                }
+            return {
+                "track": {
+                    "title": "Roads",
+                    "artist": "Portishead",
+                    "producer": "Geoff Barrow",
+                    "related_tracks": "Sour Times",
+                },
+                "analysis": {"summary": "Artist context.", "full_text": "Safe context."},
+            }
+
+        first = asyncio.run(
+            manager.async_process_track_started(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                insight_provider=insight,
+            )
+        )
+        active = asyncio.run(manager.async_get_active(created.owner_profile_id))
+        assert active is not None
+        active.planner.last_spoken_moment_at = 0.0
+        second = asyncio.run(
+            manager.async_process_track_started(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                insight_provider=insight,
+            )
+        )
+        active = asyncio.run(manager.async_get_active(created.owner_profile_id))
+
+        assert first is not None and second is not None and active is not None
+        self.assertEqual(insight_calls, 2)
+        self.assertEqual(first.moment_type, self.runtime.DJMomentType.RECOMMENDATION)
+        self.assertEqual(second.moment_type, self.runtime.DJMomentType.ARTIST)
+        self.assertEqual(active.performance_memory.recent_moment_types[-2:], (first.moment_type, second.moment_type))
+        self.assertEqual(
+            [item.moment_id for item in active.planner.output.session_flow.items if item.moment_id][-2:],
+            [first.moment_id, second.moment_id],
+        )
+        self.assertEqual(active.broadcast.as_dict()["dj_moments"][-1]["moment_id"], second.moment_id)
+        self.assertEqual(len(active.knowledge_engine.assembled_contexts), 2)
+        self.assertEqual(len(active.moment_engine.moments), 2)
 
     def test_track_started_publishes_one_planner_approved_transition(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
