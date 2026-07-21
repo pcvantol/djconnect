@@ -28,13 +28,13 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current main contains PR [#336](https://github.com/pcvantol/djconnect/pull/336),
-**Knowledge Prefetch Execution Boundary**, merged as
-`a2934f3ae035f4424756b05bfde21d9bd6a0e383`. This bounded Planner-to-Knowledge
-Engine preparation boundary is runtime-scoped and ephemeral; it adds no
-provider, cache, persistence, transport or DJMoment realization. Its dedicated
-Finalization is current. Repository State: `MERGED_RECONCILED`; Workspace State:
-`WORKSPACE_READY`.
+Current main contains PR [#338](https://github.com/pcvantol/djconnect/pull/338),
+**Planning Readiness Evaluation**, merged as
+`f34f6a40cf36758f29fe181c8a8e871343336ba7`. This bounded Planner-only,
+runtime-scoped eligibility model gates approval through deterministic readiness
+states without consuming knowledge in DJMoment realization or adding provider,
+cache, persistence or transport scope. Its dedicated Finalization is current.
+Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 The preceding PR #313,
 **Localization and Narrative Architecture**, merged as
