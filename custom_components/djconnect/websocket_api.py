@@ -46,6 +46,7 @@ HTTP_FALLBACK_PATHS = {
     "music_discovery_play": "/api/djconnect/v1/music_discovery/play",
     "music_discovery_feedback": "/api/djconnect/v1/music_discovery/feedback",
     "track_insight": "/api/djconnect/v1/track_insight",
+    "session_broadcast_snapshot": "/api/djconnect/v1/session/broadcast/{session_id}",
 }
 
 FEATURE_COMMANDS = {
@@ -368,6 +369,16 @@ def _capability_fallbacks(commands: list[str]) -> dict[str, dict[str, Any]]:
             "preferred_transport": "websocket" if features["music_discovery_feedback"] else "http",
             "http_path": HTTP_FALLBACK_PATHS["music_discovery_feedback"],
             "missing_behavior": "hide_negative_feedback_controls",
+        },
+        "session_broadcast_transport": {
+            "available": features["session_broadcast_transport"],
+            "preferred_transport": "websocket" if features["session_broadcast_transport"] else "http",
+            "http_snapshot_path": HTTP_FALLBACK_PATHS["session_broadcast_snapshot"],
+            "snapshot_only": True,
+            "flow_delta": False,
+            "replay": False,
+            "cursor": False,
+            "missing_behavior": "replace_with_http_snapshot",
         },
     }
 

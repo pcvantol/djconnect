@@ -58,7 +58,7 @@ HTTP is the canonical request/response transport and the guaranteed fallback for
 - capability discovery; and
 - diagnostics authorized for the caller.
 
-The current implementation already exposes HTTP lifecycle operations and an active Session response. It also exposes existing HTTP feature routes described by the route inventory. Granular current-Moment, Flow-snapshot and Flow-delta HTTP resources are architectural requirements for a later bounded HTTP contract; this document does not claim that such endpoints already exist or authorize their implementation.
+The current implementation exposes HTTP lifecycle operations, an active Session response and an owner-authorized Broadcast snapshot for an exact active Session. The Broadcast snapshot is the renderer-safe, point-in-time HTTP recovery fallback; it is not a Flow delta, cursor, replay or ordering contract. Granular current-Moment, Flow-snapshot and Flow-delta HTTP resources remain architectural requirements for later bounded contracts.
 
 HTTP preserves the same server authorization and privacy rules as every other transport. It does not expose Planner internals, raw Profile data, Music DNA, provider credentials or raw provider payloads.
 
@@ -83,7 +83,7 @@ The canonical recovery flow is:
 ```text
 WebSocket disconnects
   ↓
-Client requests an authorized HTTP snapshot or Flow delta after its known sequence
+Client requests an authorized HTTP Broadcast snapshot
   ↓
 Client applies the canonical current state and ordered Flow changes
   ↓

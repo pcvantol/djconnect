@@ -167,6 +167,12 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
             "hide_negative_feedback_controls",
         )
         self.assertEqual(result["transports"], {"http": True, "websocket": True})
+        self.assertEqual(
+            result["fallbacks"]["session_broadcast_transport"]["http_snapshot_path"],
+            "/api/djconnect/v1/session/broadcast/{session_id}",
+        )
+        self.assertTrue(result["fallbacks"]["session_broadcast_transport"]["snapshot_only"])
+        self.assertFalse(result["fallbacks"]["session_broadcast_transport"]["flow_delta"])
 
     def test_session_broadcast_subscription_sends_snapshot_then_incremental_events(self) -> None:
         calls = []
