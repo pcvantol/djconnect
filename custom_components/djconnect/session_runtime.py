@@ -718,11 +718,18 @@ class RollingSessionHorizon:
     planned_at: str = ""
     upcoming_playback: UpcomingPlaybackProjection = field(default_factory=UpcomingPlaybackProjection)
     planning_window: PlanningWindow | None = None
+    effective_mood: str = ""
+    effective_direction: SessionDirectionType | None = None
+    consumed_slot_keys: tuple[tuple[str, int, int], ...] = ()
+    _replanning_signature: tuple[Any, ...] | None = field(default=None, repr=False)
 
-    def build_planning_window(self) -> PlanningWindow:
-        """Build bounded silence-capable slots only from observed playback duration."""
-        coverage = self.upcoming_playback.observable_duration_seconds
-        planning_coverage = min(coverage, self.window_minutes * 60)
+    @staticmethod
+    def _slot_key(slot: CandidatePlanningSlot) -> tuple[str, int, int]:
+        """Identify one runtime-local planning occurrence without media identity."""
+        return (slot.category, slot.starts_at_seconds, slot.ends_at_seconds)
+
+    def _candidate_slots(self, planning_coverage: int) -> tuple[CandidatePlanningSlot, ...]:
+        """Derive only silence-capable slots from observable playback duration."""
         offset = 0
         slots: list[CandidatePlanningSlot] = []
         for entry in self.upcoming_playback.entries:
@@ -733,17 +740,133 @@ class RollingSessionHorizon:
             offset += duration
             if offset >= planning_coverage:
                 break
-        self.planning_window = PlanningWindow(
+        return tuple(slots)
+
+    def _signature(self) -> tuple[Any, ...]:
+        """Capture only bounded inputs that may materially change a provisional plan."""
+        window = self.planning_window
+        return (
+            self.invalidation_generation,
+            self.effective_mood,
+            self.effective_direction.value if self.effective_direction is not None else "",
+            self.upcoming_playback.entries,
+            self.upcoming_playback.observed_at,
+            self.upcoming_playback.confidence,
+            self.upcoming_playback.provider_supports_upcoming,
+            self.upcoming_playback.max_entries,
+            tuple(self._slot_key(slot) for slot in window.candidate_slots) if window else (),
+            tuple(
+                (self._slot_key(intent.slot), intent.status.value, intent.generation)
+                for intent in window.planned_intents
+            )
+            if window
+            else (),
+            self.consumed_slot_keys,
+        )
+
+    @staticmethod
+    def _with_status(intent: PlannedIntent, status: PlannedIntentStatus) -> PlannedIntent:
+        """Copy an ephemeral intent while retaining its original decision fields."""
+        return PlannedIntent(
+            category=intent.category,
+            slot=intent.slot,
+            generation=intent.generation,
+            confidence=intent.confidence,
+            status=status,
+        )
+
+    def _new_planning_window(self, generation: int) -> PlanningWindow:
+        """Build a fresh bounded window solely from the current normalized horizon."""
+        coverage = self.upcoming_playback.observable_duration_seconds
+        planning_coverage = min(coverage, self.window_minutes * 60)
+        window = PlanningWindow(
             starts_at=self.created_at,
             ends_at=self.created_at,
             observable_coverage_seconds=coverage,
             planning_coverage_seconds=planning_coverage,
-            generation=self.invalidation_generation,
+            generation=generation,
             confidence=self.upcoming_playback.confidence,
-            candidate_slots=tuple(slots),
+            candidate_slots=self._candidate_slots(planning_coverage),
         )
-        self.planning_window.plan_intents()
+        window.plan_intents()
+        return window
+
+    def build_planning_window(self) -> PlanningWindow:
+        """Build bounded silence-capable slots only from observed playback duration."""
+        self.planning_window = self._new_planning_window(self.invalidation_generation)
+        self._replanning_signature = self._signature()
         return self.planning_window
+
+    def mark_planned_intent_consumed(self, intent: PlannedIntent) -> None:
+        """Prevent an already-consumed occurrence from returning in a later plan."""
+        key = self._slot_key(intent.slot)
+        if key not in self.consumed_slot_keys:
+            self.consumed_slot_keys += (key,)
+        if self.planning_window is None:
+            return
+        self.planning_window.planned_intents = tuple(
+            self._with_status(planned, PlannedIntentStatus.DISCARDED)
+            if self._slot_key(planned.slot) == key
+            and planned.status is PlannedIntentStatus.PLANNED
+            else planned
+            for planned in self.planning_window.planned_intents
+        )
+
+    def replan(
+        self,
+        *,
+        upcoming_playback: UpcomingPlaybackProjection | None = None,
+        effective_mood: str | None = None,
+        effective_direction: SessionDirectionType | None = None,
+    ) -> PlanningWindow:
+        """Deterministically replace only invalid provisional planning after input change."""
+        if upcoming_playback is not None:
+            self.upcoming_playback = upcoming_playback
+        if effective_mood is not None:
+            self.effective_mood = effective_mood
+        if effective_direction is not None:
+            self.effective_direction = effective_direction
+        if self.planning_window is None:
+            return self.build_planning_window()
+
+        signature = self._signature()
+        if signature == self._replanning_signature:
+            return self.planning_window
+
+        previous = self.planning_window
+        generation = max(previous.generation + 1, self.invalidation_generation + 1)
+        self.invalidation_generation = generation
+        rebuilt = self._new_planning_window(generation)
+        available = {self._slot_key(slot) for slot in rebuilt.candidate_slots}
+        consumed = set(self.consumed_slot_keys)
+        retained: list[PlannedIntent] = []
+        retained_keys: set[tuple[str, int, int]] = set()
+        for intent in previous.planned_intents:
+            key = self._slot_key(intent.slot)
+            if intent.status is PlannedIntentStatus.APPROVED:
+                retained.append(intent)
+                retained_keys.add(key)
+            elif intent.status is PlannedIntentStatus.PLANNED and key in available and key not in consumed:
+                retained.append(intent)
+                retained_keys.add(key)
+            elif intent.status is PlannedIntentStatus.PLANNED:
+                retained.append(self._with_status(intent, PlannedIntentStatus.SUPERSEDED))
+
+        generated = tuple(
+            intent
+            for intent in rebuilt.planned_intents
+            if self._slot_key(intent.slot) not in retained_keys
+            and self._slot_key(intent.slot) not in consumed
+        )
+        rebuilt.planned_intents = tuple(retained + list(generated))[: rebuilt.max_planned_intents]
+        approved = next(
+            (intent for intent in rebuilt.planned_intents if intent.status is PlannedIntentStatus.APPROVED),
+            None,
+        )
+        rebuilt.approved_intent = approved.as_planner_intent() if approved is not None else None
+        self.planning_window = rebuilt
+        self._replanning_signature = self._signature()
+        return rebuilt
 
     def invalidate(self) -> None:
         """Discard future candidates without creating a realized Moment."""
@@ -751,6 +874,7 @@ class RollingSessionHorizon:
         self.planning_state = "empty"
         self.invalidation_generation += 1
         self.planning_window = None
+        self._replanning_signature = None
 
 
 @dataclass

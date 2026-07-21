@@ -191,6 +191,148 @@ class SessionRuntimeManagerTest(unittest.TestCase):
 
         self.assertIsNone(asyncio.run(manager.async_get_active("profile-planning")))
 
+    def test_horizon_replanning_is_a_no_op_for_unchanged_inputs(self) -> None:
+        horizon = self.runtime.RollingSessionHorizon(
+            window_minutes=15,
+            created_at="now",
+            upcoming_playback=self.runtime.UpcomingPlaybackProjection.from_entries(
+                (self.runtime.UpcomingPlaybackEntry("track-a", duration_seconds=60),)
+            ),
+        )
+        original = horizon.build_planning_window()
+
+        replanned = horizon.replan()
+
+        self.assertIs(replanned, original)
+        self.assertEqual(replanned.generation, 0)
+
+    def test_changed_upcoming_playback_creates_a_new_planning_generation(self) -> None:
+        horizon = self.runtime.RollingSessionHorizon(
+            window_minutes=15,
+            created_at="now",
+            upcoming_playback=self.runtime.UpcomingPlaybackProjection.from_entries(
+                (self.runtime.UpcomingPlaybackEntry("track-a", duration_seconds=60),)
+            ),
+        )
+        horizon.build_planning_window()
+
+        replanned = horizon.replan(
+            upcoming_playback=self.runtime.UpcomingPlaybackProjection.from_entries(
+                (
+                    self.runtime.UpcomingPlaybackEntry("track-a", duration_seconds=60),
+                    self.runtime.UpcomingPlaybackEntry("track-b", duration_seconds=60),
+                )
+            )
+        )
+
+        self.assertEqual(replanned.generation, 1)
+        self.assertEqual(len(replanned.planned_intents), 2)
+
+    def test_replanning_supersedes_obsolete_provisional_intents_and_retains_valid_ones(self) -> None:
+        horizon = self.runtime.RollingSessionHorizon(
+            window_minutes=15,
+            created_at="now",
+            upcoming_playback=self.runtime.UpcomingPlaybackProjection.from_entries(
+                (
+                    self.runtime.UpcomingPlaybackEntry("track-a", duration_seconds=60),
+                    self.runtime.UpcomingPlaybackEntry("track-b", duration_seconds=60),
+                )
+            ),
+        )
+        original = horizon.build_planning_window()
+
+        extended = horizon.replan(
+            upcoming_playback=self.runtime.UpcomingPlaybackProjection.from_entries(
+                (
+                    self.runtime.UpcomingPlaybackEntry("track-a", duration_seconds=60),
+                    self.runtime.UpcomingPlaybackEntry("track-b", duration_seconds=60),
+                    self.runtime.UpcomingPlaybackEntry("track-c", duration_seconds=60),
+                )
+            )
+        )
+        shortened = horizon.replan(
+            upcoming_playback=self.runtime.UpcomingPlaybackProjection.from_entries(
+                (self.runtime.UpcomingPlaybackEntry("track-a", duration_seconds=30),)
+            )
+        )
+
+        self.assertIs(extended.planned_intents[0], original.planned_intents[0])
+        self.assertTrue(
+            any(
+                intent.status is self.runtime.PlannedIntentStatus.SUPERSEDED
+                for intent in shortened.planned_intents
+            )
+        )
+
+    def test_replanning_preserves_approved_intent_and_does_not_recreate_consumed_slot(self) -> None:
+        horizon = self.runtime.RollingSessionHorizon(
+            window_minutes=15,
+            created_at="now",
+            upcoming_playback=self.runtime.UpcomingPlaybackProjection.from_entries(
+                (
+                    self.runtime.UpcomingPlaybackEntry("track-a", duration_seconds=60),
+                    self.runtime.UpcomingPlaybackEntry("track-b", duration_seconds=60),
+                )
+            ),
+        )
+        original = horizon.build_planning_window()
+        approved = original.select_intent()
+        assert approved is not None
+        approved_planned = original.planned_intents[0]
+        horizon.mark_planned_intent_consumed(original.planned_intents[1])
+
+        replanned = horizon.replan(
+            upcoming_playback=self.runtime.UpcomingPlaybackProjection.from_entries(
+                (
+                    self.runtime.UpcomingPlaybackEntry("track-a", duration_seconds=60),
+                    self.runtime.UpcomingPlaybackEntry("track-b", duration_seconds=60),
+                    self.runtime.UpcomingPlaybackEntry("track-c", duration_seconds=60),
+                )
+            )
+        )
+
+        self.assertIn(approved_planned, replanned.planned_intents)
+        self.assertEqual(replanned.approved_intent, approved)
+        self.assertNotIn(
+            ("silence", 60, 120),
+            [(intent.category, intent.slot.starts_at_seconds, intent.slot.ends_at_seconds) for intent in replanned.planned_intents],
+        )
+
+    def test_replanning_is_deterministic_and_equivalent_replans_do_not_churn(self) -> None:
+        projection = self.runtime.UpcomingPlaybackProjection.from_entries(
+            (self.runtime.UpcomingPlaybackEntry("track-a", duration_seconds=90),)
+        )
+        first = self.runtime.RollingSessionHorizon(window_minutes=15, created_at="now")
+        second = self.runtime.RollingSessionHorizon(window_minutes=15, created_at="now")
+        first.build_planning_window()
+        second.build_planning_window()
+
+        first_replan = first.replan(upcoming_playback=projection, effective_mood="chill")
+        second_replan = second.replan(upcoming_playback=projection, effective_mood="chill")
+        repeated = first.replan(upcoming_playback=projection, effective_mood="chill")
+
+        self.assertEqual(first_replan, second_replan)
+        self.assertIs(repeated, first_replan)
+
+    def test_empty_replan_keeps_session_flow_and_public_runtime_state_unchanged(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-replanning"))
+        assert created.planner.horizon is not None
+        horizon = created.planner.horizon
+        horizon.upcoming_playback = self.runtime.UpcomingPlaybackProjection.from_entries(
+            (self.runtime.UpcomingPlaybackEntry("track-a", duration_seconds=60),)
+        )
+        horizon.build_planning_window()
+        flow_before = created.planner.output.session_flow
+        public_before = created.planner.as_dict()
+
+        replanned = horizon.replan(upcoming_playback=self.runtime.UpcomingPlaybackProjection())
+
+        self.assertEqual(replanned.planning_coverage_seconds, 0)
+        self.assertEqual(created.planner.output.session_flow, flow_before)
+        self.assertEqual(created.planner.as_dict(), public_before)
+        self.assertNotIn("horizon", created.as_dict()["planner"])
+
     def test_session_start_strategies_initialize_runtime_owned_direction(self) -> None:
         expected = {
             self.runtime.SessionStartStrategy.CONTINUE: "maintaining_energy",
