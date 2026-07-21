@@ -15,23 +15,44 @@
     .flow-item { margin: .35rem 0; }
     .flow-item[data-position="now"] { font-weight: 700; }
     .flow-item[data-position="completed"] { color: #555; }
+    .now-playing { display: grid; grid-template-columns: 6rem 1fr; gap: 1rem; align-items: start; }
+    .now-playing img { width: 6rem; height: 6rem; object-fit: cover; background: #eee; }
+    .now-playing p { margin: .2rem 0; }
+    .now-playing h3 { margin: .2rem 0; font-size: 1.1rem; }
+    .playback-progress { display: flex; gap: .5rem; align-items: center; margin-top: .5rem; }
+    .playback-progress progress { flex: 1; }
   </style>
 </head>
 <body>
   <header><h1 id="title">DJConnect Receiver</h1><span id="connection-state" data-testid="connection-state">Disconnected</span></header>
   <p id="message" data-testid="message"></p>
   <section><h2 id="session-label">Session</h2><pre id="session" data-testid="session"></pre></section>
-  <section><h2 id="playback-label">Current playback</h2><pre id="playback" data-testid="playback"></pre></section>
+  <section aria-labelledby="playback-label"><h2 id="playback-label">Current playback</h2>
+    <div class="now-playing" data-testid="now-playing">
+      <img id="artwork" data-testid="artwork" alt="" hidden>
+      <div>
+        <p id="playback-status" data-testid="playback-status">—</p>
+        <h3 id="playback-title" data-testid="playback-title">—</h3>
+        <p id="playback-artist" data-testid="playback-artist">—</p>
+        <p id="playback-album" data-testid="playback-album">—</p>
+        <p id="playback-target" data-testid="playback-target">—</p>
+        <div id="playback-progress" class="playback-progress" data-testid="playback-progress" hidden>
+          <progress id="progress-bar" data-testid="progress-bar" max="0" value="0"></progress>
+          <span id="elapsed" data-testid="elapsed">—</span><span>/</span><span id="duration" data-testid="duration">—</span>
+        </div>
+      </div>
+    </div>
+  </section>
   <section><h2 id="moment-label">Current DJ Moment</h2><pre id="moment" data-testid="moment"></pre></section>
   <section><h2 id="flow-label">Session Flow</h2><ol id="flow" data-testid="flow"></ol></section>
   <script>
     (() => {
       const copy = {
-        en: { title: "DJConnect Receiver", disconnected: "Disconnected", connecting: "Connecting", connected: "Connected", snapshot: "Snapshot received", live: "Live updates", reconnecting: "Reconnecting", unavailable: "No active session", ended: "Session ended", interrupted: "Transport interrupted", session: "Session", playback: "Current playback", moment: "Current DJ Moment", flow: "Session Flow", emptyFlow: "No Session Flow items", missing: "A session ID and Broadcast Token are required." },
-        nl: { title: "DJConnect Receiver", disconnected: "Niet verbonden", connecting: "Verbinden", connected: "Verbonden", snapshot: "Snapshot ontvangen", live: "Live updates", reconnecting: "Opnieuw verbinden", unavailable: "Geen actieve sessie", ended: "Sessie beëindigd", interrupted: "Transport onderbroken", session: "Sessie", playback: "Huidige weergave", moment: "Huidig DJ-moment", flow: "Sessieflow", emptyFlow: "Geen sessieflow-items", missing: "Een sessie-ID en Broadcast Token zijn vereist." },
-        de: { title: "DJConnect Receiver", disconnected: "Getrennt", connecting: "Verbinden", connected: "Verbunden", snapshot: "Snapshot empfangen", live: "Live-Updates", reconnecting: "Erneut verbinden", unavailable: "Keine aktive Sitzung", ended: "Sitzung beendet", interrupted: "Transport unterbrochen", session: "Sitzung", playback: "Aktuelle Wiedergabe", moment: "Aktueller DJ-Moment", flow: "Sitzungsablauf", emptyFlow: "Keine Sitzungsablauf-Einträge", missing: "Eine Sitzungs-ID und ein Broadcast-Token sind erforderlich." },
-        fr: { title: "DJConnect Receiver", disconnected: "Déconnecté", connecting: "Connexion", connected: "Connecté", snapshot: "Instantané reçu", live: "Mises à jour en direct", reconnecting: "Reconnexion", unavailable: "Aucune session active", ended: "Session terminée", interrupted: "Transport interrompu", session: "Session", playback: "Lecture en cours", moment: "Moment DJ actuel", flow: "Flux de session", emptyFlow: "Aucun élément de flux de session", missing: "Un identifiant de session et un jeton Broadcast sont requis." },
-        es: { title: "DJConnect Receiver", disconnected: "Desconectado", connecting: "Conectando", connected: "Conectado", snapshot: "Instantánea recibida", live: "Actualizaciones en directo", reconnecting: "Reconectando", unavailable: "No hay sesión activa", ended: "Sesión finalizada", interrupted: "Transporte interrumpido", session: "Sesión", playback: "Reproducción actual", moment: "Momento DJ actual", flow: "Flujo de sesión", emptyFlow: "No hay elementos de flujo de sesión", missing: "Se requieren un ID de sesión y un token de Broadcast." }
+        en: { title: "DJConnect Receiver", disconnected: "Disconnected", connecting: "Connecting", connected: "Connected", snapshot: "Snapshot received", live: "Live updates", reconnecting: "Reconnecting", unavailable: "No active session", ended: "Session ended", interrupted: "Transport interrupted", session: "Session", playback: "Now Playing", moment: "Current DJ Moment", flow: "Session Flow", emptyFlow: "No Session Flow items", missing: "A session ID and Broadcast Token are required.", unknown: "Unknown", states: { playing: "Playing", paused: "Paused", stopped: "Stopped", idle: "Idle" } },
+        nl: { title: "DJConnect Receiver", disconnected: "Niet verbonden", connecting: "Verbinden", connected: "Verbonden", snapshot: "Snapshot ontvangen", live: "Live updates", reconnecting: "Opnieuw verbinden", unavailable: "Geen actieve sessie", ended: "Sessie beëindigd", interrupted: "Transport onderbroken", session: "Sessie", playback: "Nu speelt", moment: "Huidig DJ-moment", flow: "Sessieflow", emptyFlow: "Geen sessieflow-items", missing: "Een sessie-ID en Broadcast Token zijn vereist.", unknown: "Onbekend", states: { playing: "Speelt", paused: "Gepauzeerd", stopped: "Gestopt", idle: "Inactief" } },
+        de: { title: "DJConnect Receiver", disconnected: "Getrennt", connecting: "Verbinden", connected: "Verbunden", snapshot: "Snapshot empfangen", live: "Live-Updates", reconnecting: "Erneut verbinden", unavailable: "Keine aktive Sitzung", ended: "Sitzung beendet", interrupted: "Transport unterbrochen", session: "Sitzung", playback: "Läuft gerade", moment: "Aktueller DJ-Moment", flow: "Sitzungsablauf", emptyFlow: "Keine Sitzungsablauf-Einträge", missing: "Eine Sitzungs-ID und ein Broadcast-Token sind erforderlich.", unknown: "Unbekannt", states: { playing: "Wiedergabe", paused: "Pausiert", stopped: "Gestoppt", idle: "Inaktiv" } },
+        fr: { title: "DJConnect Receiver", disconnected: "Déconnecté", connecting: "Connexion", connected: "Connecté", snapshot: "Instantané reçu", live: "Mises à jour en direct", reconnecting: "Reconnexion", unavailable: "Aucune session active", ended: "Session terminée", interrupted: "Transport interrompu", session: "Session", playback: "En cours", moment: "Moment DJ actuel", flow: "Flux de session", emptyFlow: "Aucun élément de flux de session", missing: "Un identifiant de session et un jeton Broadcast sont requis.", unknown: "Inconnu", states: { playing: "Lecture", paused: "En pause", stopped: "Arrêtée", idle: "Inactive" } },
+        es: { title: "DJConnect Receiver", disconnected: "Desconectado", connecting: "Conectando", connected: "Conectado", snapshot: "Instantánea recibida", live: "Actualizaciones en directo", reconnecting: "Reconectando", unavailable: "No hay sesión activa", ended: "Sesión finalizada", interrupted: "Transporte interrumpido", session: "Sesión", playback: "Sonando ahora", moment: "Momento DJ actual", flow: "Flujo de sesión", emptyFlow: "No hay elementos de flujo de sesión", missing: "Se requieren un ID de sesión y un token de Broadcast.", unknown: "Desconocido", states: { playing: "Reproduciendo", paused: "En pausa", stopped: "Detenida", idle: "Inactiva" } }
       };
       const language = (navigator.language || "en").slice(0, 2);
       const text = copy[language] || copy.en;
@@ -49,6 +70,13 @@
       const display = value => value === undefined || value === null ? "—" : JSON.stringify(value, null, 2);
       const setConnection = value => { element("connection-state").textContent = value; };
       const clearProjection = () => { projection = {}; render(); };
+      const playback = () => projection.playback && typeof projection.playback === "object" ? projection.playback : {};
+      const playbackText = value => typeof value === "string" && value.trim() ? value : "—";
+      const formatMilliseconds = value => {
+        if (!Number.isFinite(value) || value < 0) return "—";
+        const seconds = Math.floor(value / 1000);
+        return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+      };
       const flowItems = () => Array.isArray(projection.session_flow && projection.session_flow.items) ? projection.session_flow.items : [];
       const currentMoment = () => {
         const moments = Array.isArray(projection.dj_moments) ? projection.dj_moments : [];
@@ -75,9 +103,33 @@
           timeline.append(entry);
         }
       };
+      const renderPlayback = () => {
+        const current = playback();
+        const artwork = typeof current.artwork_url === "string" && current.artwork_url ? current.artwork_url : "";
+        const state = typeof current.state === "string" ? current.state : "";
+        const duration = current.duration_ms;
+        const position = current.position_ms;
+        const hasProgress = Number.isFinite(duration) && Number.isFinite(position) && duration >= 0 && position >= 0;
+        const image = element("artwork");
+        image.hidden = !artwork;
+        image.src = artwork;
+        image.alt = artwork ? playbackText(current.album) : "";
+        element("playback-status").textContent = text.states[state] || text.unknown;
+        element("playback-title").textContent = playbackText(current.title);
+        element("playback-artist").textContent = playbackText(current.artist);
+        element("playback-album").textContent = playbackText(current.album);
+        element("playback-target").textContent = playbackText(current.target_name);
+        element("playback-progress").hidden = !hasProgress;
+        if (hasProgress) {
+          element("progress-bar").max = duration;
+          element("progress-bar").value = position;
+          element("elapsed").textContent = formatMilliseconds(position);
+          element("duration").textContent = formatMilliseconds(duration);
+        }
+      };
       const render = () => {
         element("session").textContent = display(projection.session);
-        element("playback").textContent = display(projection.playback && projection.playback.current_track);
+        renderPlayback();
         element("moment").textContent = display(currentMoment());
         renderFlow();
       };

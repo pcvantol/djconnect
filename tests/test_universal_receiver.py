@@ -32,7 +32,9 @@ class UniversalReceiverTest(unittest.TestCase):
         self.assertEqual(result.headers["Referrer-Policy"], "no-referrer")
         self.assertIn('data-testid="connection-state"', result.text)
         self.assertIn('data-testid="session"', result.text)
-        self.assertIn('data-testid="playback"', result.text)
+        self.assertIn('data-testid="now-playing"', result.text)
+        self.assertIn('data-testid="playback-title"', result.text)
+        self.assertIn('data-testid="progress-bar"', result.text)
         self.assertIn('data-testid="moment"', result.text)
         self.assertIn('data-testid="flow"', result.text)
 
@@ -55,7 +57,7 @@ class UniversalReceiverTest(unittest.TestCase):
               replaceChildren() {{ this.children = []; this.textContent = ""; }},
               append(child) {{ this.children.push(child); this.textContent = this.children.map(entry => entry.textContent).join("\\n"); }},
             }});
-            for (const id of ["title", "connection-state", "message", "session-label", "session", "playback-label", "playback", "moment-label", "moment", "flow-label", "flow"]) elements.set(id, makeElement());
+            for (const id of ["title", "connection-state", "message", "session-label", "session", "playback-label", "artwork", "playback-status", "playback-title", "playback-artist", "playback-album", "playback-target", "playback-progress", "progress-bar", "elapsed", "duration", "moment-label", "moment", "flow-label", "flow"]) elements.set(id, makeElement());
             const timers = [];
             const sockets = [];
             class FakeWebSocket {{
@@ -79,7 +81,7 @@ class UniversalReceiverTest(unittest.TestCase):
             sockets[0].onopen();
             sockets[0].onmessage({{ data: JSON.stringify({{ type: "snapshot", snapshot: {{
               session: {{ session_id: "session-1", runtime_state: "active" }},
-              playback: {{ current_track: {{ title: "Track One" }} }},
+              playback: {{ state: "playing", title: "Track One", artist: "Artist One", album: "Album One", artwork_url: "/api/djconnect/v1/image_proxy/cover-one", target_name: "Living Room", duration_ms: 180000, position_ms: 61000 }},
               session_flow: {{ items: [
                 {{ item_id: "completed-1", position: "completed", item_type: "dj_moment", label: "First moment", moment_id: "moment-1", moment_type: "artist_story" }},
                 {{ item_id: "now-1", position: "now", item_type: "current_track", label: "Track One" }},
@@ -89,7 +91,16 @@ class UniversalReceiverTest(unittest.TestCase):
               planner: {{ hidden: true }},
             }} }}) }});
             assert.match(elements.get("session").textContent, /session-1/);
-            assert.match(elements.get("playback").textContent, /Track One/);
+            assert.equal(elements.get("playback-title").textContent, "Track One");
+            assert.equal(elements.get("playback-artist").textContent, "Artist One");
+            assert.equal(elements.get("playback-album").textContent, "Album One");
+            assert.equal(elements.get("playback-status").textContent, "Playing");
+            assert.equal(elements.get("artwork").hidden, false);
+            assert.equal(elements.get("artwork").src, "/api/djconnect/v1/image_proxy/cover-one");
+            assert.equal(elements.get("progress-bar").value, 61000);
+            assert.equal(elements.get("progress-bar").max, 180000);
+            assert.equal(elements.get("elapsed").textContent, "1:01");
+            assert.equal(elements.get("duration").textContent, "3:00");
             assert.match(elements.get("moment").textContent, /First moment/);
             assert.equal(elements.get("flow").textContent, "completed · dj_moment · First moment · artist_story\\nnow · current_track · Track One\\nnext · dj_moment · Next moment · transition");
             const flowUpdate = {{ event_type: "session_flow_updated", payload: {{ session_flow: {{ items: [
@@ -104,6 +115,13 @@ class UniversalReceiverTest(unittest.TestCase):
             assert.ok(liveTimeline.indexOf("Track Two") < liveTimeline.indexOf("Second moment"));
             assert.ok(liveTimeline.indexOf("Second moment") < liveTimeline.indexOf("Later"));
             assert.match(elements.get("moment").textContent, /Second moment/);
+            const playbackUpdate = {{ event_type: "playback_progress", payload: {{ playback: {{ state: "paused", title: "Track Two", artist: "Artist Two", album: "Album Two", artwork_url: "/api/djconnect/v1/image_proxy/cover-two", target_name: "Kitchen", duration_ms: 240000, position_ms: 123000 }} }} }};
+            sockets[0].onmessage({{ data: JSON.stringify({{ type: "event", data: playbackUpdate }}) }});
+            assert.equal(elements.get("playback-title").textContent, "Track Two");
+            assert.equal(elements.get("playback-status").textContent, "Paused");
+            assert.equal(elements.get("artwork").src, "/api/djconnect/v1/image_proxy/cover-two");
+            assert.equal(elements.get("progress-bar").value, 123000);
+            assert.equal(elements.get("elapsed").textContent, "2:03");
             sockets[0].onmessage({{ data: JSON.stringify({{ type: "snapshot", snapshot: {{
               session: {{ session_id: "session-1", runtime_state: "active" }},
               session_flow: {{ items: [{{ item_id: "reset-1", position: "now", item_type: "current_track", label: "Reset flow" }}] }},
@@ -114,8 +132,13 @@ class UniversalReceiverTest(unittest.TestCase):
             assert.equal(timers.length, 1);
             timers.shift()();
             assert.equal(sockets.length, 2);
-            sockets[1].onmessage({{ data: JSON.stringify({{ type: "snapshot", snapshot: {{ session: {{ session_id: "session-1", runtime_state: "active" }}, playback: {{ current_track: {{ title: "Restored" }} }}, session_flow: {{ items: [{{ item_id: "restored-1", position: "now", item_type: "current_track", label: "Restored flow" }}] }}, dj_moments: [] }} }}) }});
-            assert.match(elements.get("playback").textContent, /Restored/);
+            sockets[1].onmessage({{ data: JSON.stringify({{ type: "snapshot", snapshot: {{ session: {{ session_id: "session-1", runtime_state: "active" }}, playback: {{ state: "stopped", title: "Restored", artist: "", album: "", duration_ms: 0 }}, session_flow: {{ items: [{{ item_id: "restored-1", position: "now", item_type: "current_track", label: "Restored flow" }}] }}, dj_moments: [] }} }}) }});
+            assert.equal(elements.get("playback-title").textContent, "Restored");
+            assert.equal(elements.get("playback-status").textContent, "Stopped");
+            assert.equal(elements.get("artwork").hidden, true);
+            assert.equal(elements.get("playback-progress").hidden, true);
+            assert.equal(elements.get("playback-artist").textContent, "—");
+            assert.equal(elements.get("playback-album").textContent, "—");
             assert.equal(elements.get("flow").textContent, "now · current_track · Restored flow");
             const endedEvent = {{ event_type: "runtime_ended", payload: {{ session: {{ runtime_state: "ended" }} }} }};
             sockets[1].onmessage({{ data: JSON.stringify({{ type: "event", data: endedEvent }}) }});
@@ -126,6 +149,7 @@ class UniversalReceiverTest(unittest.TestCase):
             assert.equal(page.includes("localStorage"), false);
             assert.equal(page.includes("fetch("), false);
             assert.equal(page.includes(".sort("), false);
+            assert.equal(page.includes("setInterval("), false);
             """
         )
         completed = subprocess.run(
