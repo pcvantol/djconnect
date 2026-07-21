@@ -15,11 +15,10 @@
 
 ## Current position
 
-PR [#286](https://github.com/pcvantol/djconnect/pull/286) merged as
-`8828179ae042eaa672eb6af065dcefbe323ce79a`. It is
-`MERGED_UNRECONCILED`. PR [#287](https://github.com/pcvantol/djconnect/pull/287)
-is the `REVIEWABLE_FROZEN` dedicated governance-only Finalization: every
-implementation capability must pass
+PR [#288](https://github.com/pcvantol/djconnect/pull/288) merged as
+`ec9fbb3eff183cf380e9dc1ca8d630f465f1ad3f`. It is
+`MERGED_UNRECONCILED` pending this dedicated governance-only Finalization:
+every implementation capability must pass
 Pre-Flight, Implementation, Validation, Merge and Finalization. Only `GO`
 authorizes a bounded production change; `MERGED_UNRECONCILED` permits only
 Finalization.

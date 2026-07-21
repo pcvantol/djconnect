@@ -5,15 +5,14 @@
 
 ## Current engineering increment
 
-PR [#286](https://github.com/pcvantol/djconnect/pull/286), **Define Persistent
-Session Architecture**, merged on 2026-07-21 as
-`8828179ae042eaa672eb6af065dcefbe323ce79a`. It is
-`MERGED_UNRECONCILED`. PR [#287](https://github.com/pcvantol/djconnect/pull/287),
-**Finalize Persistent Session Architecture**, is `REVIEWABLE_FROZEN` on
-`codex/finalize-persistent-session-architecture`. It archives immutable Prompt
-History and reconciles rolling records only. PR #286 established durable
-Profile-owned Session truth while preserving the ephemeral Runtime and Broadcast
-contracts; it authorized no storage or Runtime implementation.
+PR [#288](https://github.com/pcvantol/djconnect/pull/288), **Define Rolling
+Session Horizon Architecture**, merged on 2026-07-21 as
+`ec9fbb3eff183cf380e9dc1ca8d630f465f1ad3f`. It is
+`MERGED_UNRECONCILED`; this governance-only Finalization archives immutable
+Prompt History and reconciles rolling records. It establishes a future
+approximately twenty-minute, Planner-owned, Runtime-scoped horizon while
+preserving current 15-minute implementation behaviour and all ownership
+boundaries.
 
 Every implementation capability uses the mandatory Pre-Flight → Implementation
 → Validation → Merge → Finalization lifecycle. Pre-Flight ends in `GO` or
