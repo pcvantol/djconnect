@@ -160,6 +160,8 @@ HA remains canonical Runtime and business-logic owner. Apple, Windows, Pi, Web
 and Voice are Renderer Hosts; Universal Receiver is a projection/transport
 capability, not a browser mandate. The Wall Pi native QML host remains
 canonical. A browser receiver can be additive but never replaces QML.
+Its canonical server boundary is
+[`docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md`](docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md).
 
 V4-critical renderer work is limited to stable live Moments, recovery,
 historical Session/Moment views, replay and Lyrics presentation. Broader
